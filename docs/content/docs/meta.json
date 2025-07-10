@@ -1,0 +1,22 @@
+{
+  "title": "BlockNote Docs",
+  "description": "BlockNote documentation",
+  "icon": "Building2",
+  "root": true,
+  "pages": [
+    "---Getting Started---",
+    "index",
+    "introduction",
+    "getting-started",
+    "getting-started/editor-setup",
+    "getting-started/saving-content",
+    "---Foundations---",
+    "...foundations",
+    "---Features---",
+    "...features",
+    "---React---",
+    "...react",
+    "---Reference---",
+    "...reference"
+  ]
+}

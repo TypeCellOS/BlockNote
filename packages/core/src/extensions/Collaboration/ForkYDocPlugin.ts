@@ -101,7 +101,7 @@ export class ForkYDocPlugin extends BlockNoteExtension<{
       return;
     }
 
-    const originalFragment = this.collaboration.fragment;
+    const originalFragment = this.collaboration?.fragment;
 
     if (!originalFragment) {
       throw new Error("No fragment to fork from");

@@ -45,17 +45,16 @@ export type BlockNoteViewProps<
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema,
 > = {
+  /**
+   * The {@link BlockNoteEditor} instance to render.
+   * @remarks `BlockNoteEditor`
+   */
   editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
 
-  theme?: "light" | "dark";
-
   /**
-   * Whether to render the editor element itself.
-   * When `false`, you're responsible for rendering the editor yourself using the `BlockNoteViewEditor` component.
-   *
-   * @default true
+   * The editor's theme, see [Themes](https://www.blocknotejs.org/docs/styling-theming/themes) for more about this.
    */
-  renderEditor?: boolean;
+  theme?: "light" | "dark";
 
   /**
    * Locks the editor from being editable by the user if set to `false`.
@@ -70,26 +69,39 @@ export type BlockNoteViewProps<
 
   /**
    * A callback function that runs whenever the editor's contents change.
+   * Same as {@link BlockNoteEditor.onChange}.
+   * @remarks `(editor: BlockNoteEditor) => void`
    */
   onChange?: Parameters<
     BlockNoteEditor<BSchema, ISchema, SSchema>["onChange"]
   >[0];
 
+  /**
+   * Whether to render the editor element itself.
+   * When `false`, you're responsible for rendering the editor yourself using the {@link BlockNoteViewEditor} component.
+   *
+   * @default true
+   */
+  renderEditor?: boolean;
+
+  /**
+   * Pass child elements to the {@link BlockNoteView} to create or customize toolbars, menus, or other UI components. See [UI Components](https://www.blocknotejs.org/docs/ui-components) for more.
+   */
   children?: ReactNode;
 
   ref?: Ref<HTMLDivElement> | undefined; // only here to get types working with the generics. Regular form doesn't work
-} & Omit<
-  HTMLAttributes<HTMLDivElement>,
-  "onChange" | "onSelectionChange" | "children"
-> &
-  BlockNoteDefaultUIProps;
+} & BlockNoteDefaultUIProps;
 
 function BlockNoteViewComponent<
   BSchema extends BlockSchema,
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema,
 >(
-  props: BlockNoteViewProps<BSchema, ISchema, SSchema>,
+  props: BlockNoteViewProps<BSchema, ISchema, SSchema> &
+    Omit<
+      HTMLAttributes<HTMLDivElement>,
+      "onChange" | "onSelectionChange" | "children"
+    >,
   ref: React.Ref<HTMLDivElement>,
 ) {
   const {
@@ -237,7 +249,10 @@ export const BlockNoteViewRaw = React.forwardRef(BlockNoteViewComponent) as <
 >(
   props: BlockNoteViewProps<BSchema, ISchema, SSchema> & {
     ref?: React.ForwardedRef<HTMLDivElement>;
-  },
+  } & Omit<
+      HTMLAttributes<HTMLDivElement>,
+      "onChange" | "onSelectionChange" | "children"
+    >,
 ) => ReturnType<typeof BlockNoteViewComponent<BSchema, ISchema, SSchema>>;
 
 /**

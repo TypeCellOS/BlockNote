@@ -1,0 +1,542 @@
+---
+title: Manipulating Blocks
+description: How to read, create, update, and remove blocks in the BlockNote editor
+imageTitle: Manipulating Blocks
+---
+
+# Manipulating Blocks
+
+BlockNote provides a comprehensive set of APIs for reading, creating, updating, and removing blocks in the editor. These APIs allow you to programmatically manipulate the document structure and content.
+
+## Overview
+
+The block manipulation APIs fall into several categories:
+
+- **Reading blocks** - Accessing existing blocks and their relationships
+- **Creating blocks** - Inserting new blocks into the document
+- **Updating blocks** - Modifying existing block content and properties
+- **Removing blocks** - Deleting blocks from the document
+- **Moving blocks** - Reordering blocks within the document
+- **Nesting blocks** - Creating hierarchical relationships between blocks
+
+## Common Types
+
+Before diving into the APIs, let's understand the key types used throughout:
+
+### Block Identifiers
+
+Most methods require a `BlockIdentifier` to reference existing blocks:
+
+```typescript
+type BlockIdentifier = string | Block;
+```
+
+You can pass either:
+
+- A `string` representing the block ID
+- A `Block` object (the ID will be extracted automatically)
+
+### Partial Blocks
+
+When creating or updating blocks, you use `PartialBlock` objects which have optional properties:
+
+```typescript
+type PartialBlock = {
+  id?: string; // Auto-generated if not provided
+  type?: string; // Block type (paragraph, heading, etc.)
+  props?: Partial<Record<string, any>>; // Block-specific properties
+  content?: string | InlineContent[] | TableContent; // Block content
+  children?: PartialBlock[]; // Nested blocks
+};
+```
+
+This makes it easy to create simple blocks or update specific properties without specifying everything.
+
+## Reading Blocks
+
+### Getting the Document
+
+Retrieve all top-level blocks in the editor:
+
+```typescript
+const blocks = editor.document;
+```
+
+Returns a snapshot of all top-level (non-nested) blocks in the document.
+
+### Getting Specific Blocks
+
+#### Single Block
+
+```typescript
+getBlock(blockIdentifier: BlockIdentifier): Block | undefined
+```
+
+Retrieves a specific block by its identifier.
+
+```typescript
+const block = editor.getBlock("block-123");
+// or
+const block = editor.getBlock(existingBlock);
+```
+
+#### Previous Block
+
+```typescript
+getPrevBlock(blockIdentifier: BlockIdentifier): Block | undefined
+```
+
+Gets the previous sibling of a block.
+
+```typescript
+const prevBlock = editor.getPrevBlock("block-123");
+```
+
+#### Next Block
+
+```typescript
+getNextBlock(blockIdentifier: BlockIdentifier): Block | undefined
+```
+
+Gets the next sibling of a block.
+
+```typescript
+const nextBlock = editor.getNextBlock("block-123");
+```
+
+#### Parent Block
+
+```typescript
+getParentBlock(blockIdentifier: BlockIdentifier): Block | undefined
+```
+
+Gets the parent of a nested block.
+
+```typescript
+const parentBlock = editor.getParentBlock("nested-block-123");
+```
+
+### Traversing All Blocks
+
+```typescript
+forEachBlock(
+  callback: (block: Block) => boolean | undefined,
+  reverse: boolean = false
+): void
+```
+
+Traverses all blocks depth-first and executes a callback for each.
+
+```typescript
+editor.forEachBlock((block) => {
+  console.log(`Block ${block.id}: ${block.type}`);
+  return true; // Continue traversal
+});
+```
+
+## Creating Blocks
+
+### Inserting Blocks
+
+```typescript
+insertBlocks(
+  blocksToInsert: PartialBlock[],
+  referenceBlock: BlockIdentifier,
+  placement: "before" | "after" = "before"
+): void
+```
+
+Inserts new blocks relative to an existing block.
+
+```typescript
+// Insert a paragraph before an existing block
+editor.insertBlocks(
+  [{ type: "paragraph", content: "New paragraph" }],
+  "existing-block-id",
+  "before",
+);
+
+// Insert multiple blocks after an existing block
+editor.insertBlocks(
+  [
+    { type: "heading", content: "New Section", props: { level: 2 } },
+    { type: "paragraph", content: "Section content" },
+  ],
+  "existing-block-id",
+  "after",
+);
+```
+
+## Updating Blocks
+
+### Modifying Existing Blocks
+
+```typescript
+updateBlock(
+  blockToUpdate: BlockIdentifier,
+  update: PartialBlock
+): void
+```
+
+Updates an existing block with new properties.
+
+```typescript
+// Change a paragraph to a heading
+editor.updateBlock("block-123", {
+  type: "heading",
+  props: { level: 2 },
+});
+
+// Update content only
+editor.updateBlock("block-123", {
+  content: "Updated content",
+});
+
+// Update multiple properties
+editor.updateBlock("block-123", {
+  type: "heading",
+  content: "New heading text",
+  props: { level: 1 },
+});
+```
+
+## Removing Blocks
+
+### Deleting Blocks
+
+```typescript
+removeBlocks(blocksToRemove: BlockIdentifier[]): void
+```
+
+Removes one or more blocks from the document.
+
+```typescript
+// Remove a single block
+editor.removeBlocks(["block-123"]);
+
+// Remove multiple blocks
+editor.removeBlocks(["block-123", "block-456", "block-789"]);
+```
+
+## Replacing Blocks
+
+### Swapping Blocks
+
+```typescript
+replaceBlocks(
+  blocksToRemove: BlockIdentifier[],
+  blocksToInsert: PartialBlock[]
+): void
+```
+
+Replaces existing blocks with new ones.
+
+```typescript
+// Replace a paragraph with a heading
+editor.replaceBlocks(
+  ["paragraph-block"],
+  [{ type: "heading", content: "New Heading", props: { level: 2 } }],
+);
+
+// Replace multiple blocks with different content
+editor.replaceBlocks(
+  ["block-1", "block-2"],
+  [
+    { type: "paragraph", content: "Replacement content" },
+    { type: "bulletListItem", content: "List item" },
+  ],
+);
+```
+
+## Moving Blocks
+
+### Reordering Blocks
+
+```typescript
+moveBlocksUp(): void
+moveBlocksDown(): void
+```
+
+Moves the currently selected blocks up or down in the document.
+
+```typescript
+// Move selected blocks up
+editor.moveBlocksUp();
+
+// Move selected blocks down
+editor.moveBlocksDown();
+```
+
+## Nesting Blocks
+
+### Creating Hierarchical Structures
+
+```typescript
+canNestBlock(): boolean
+nestBlock(): void
+canUnnestBlock(): boolean
+unnestBlock(): void
+```
+
+Manages the nesting level of blocks (indentation).
+
+```typescript
+// Check if current block can be nested
+if (editor.canNestBlock()) {
+  editor.nestBlock(); // Indent the block
+}
+
+// Check if current block can be un-nested
+if (editor.canUnnestBlock()) {
+  editor.unnestBlock(); // Outdent the block
+}
+```
+
+## Practical Examples
+
+Now let's look at some real-world scenarios where these APIs are useful:
+
+### Example 1: Building a Table of Contents
+
+```typescript
+function generateTableOfContents(editor: BlockNoteEditor) {
+  const toc: Array<{ level: number; text: string; id: string }> = [];
+
+  editor.forEachBlock((block) => {
+    if (block.type === "heading") {
+      toc.push({
+        level: block.props.level,
+        text: block.content as string,
+        id: block.id,
+      });
+    }
+  });
+
+  return toc;
+}
+
+// Usage
+const toc = generateTableOfContents(editor);
+console.log("Table of Contents:", toc);
+```
+
+### Example 2: Converting Paragraphs to Headings
+
+```typescript
+function convertParagraphsToHeadings(
+  editor: BlockNoteEditor,
+  level: number = 2,
+) {
+  const blocks = editor.document;
+
+  blocks.forEach((block) => {
+    if (block.type === "paragraph" && block.content) {
+      const text = block.content as string;
+
+      // Convert paragraphs that start with # to headings
+      if (text.startsWith("#")) {
+        const headingText = text.replace(/^#+\s*/, "");
+        editor.updateBlock(block.id, {
+          type: "heading",
+          content: headingText,
+          props: { level },
+        });
+      }
+    }
+  });
+}
+```
+
+### Example 3: Duplicating Selected Blocks
+
+```typescript
+function duplicateSelectedBlocks(editor: BlockNoteEditor) {
+  const selection = editor.getSelection();
+
+  if (selection && selection.blocks.length > 0) {
+    const blocksToInsert = selection.blocks.map((block) => ({
+      type: block.type,
+      content: block.content,
+      props: block.props,
+      children: block.children,
+    }));
+
+    // Insert duplicates after the last selected block
+    const lastBlock = selection.blocks[selection.blocks.length - 1];
+    editor.insertBlocks(blocksToInsert, lastBlock.id, "after");
+  }
+}
+```
+
+### Example 4: Creating a Template System
+
+```typescript
+function insertTemplate(editor: BlockNoteEditor, templateName: string) {
+  const templates = {
+    meeting: [
+      { type: "heading", content: "Meeting Notes", props: { level: 1 } },
+      { type: "paragraph", content: "Date: " },
+      { type: "paragraph", content: "Attendees: " },
+      { type: "heading", content: "Agenda", props: { level: 2 } },
+      { type: "bulletListItem", content: "Item 1" },
+      { type: "bulletListItem", content: "Item 2" },
+      { type: "heading", content: "Action Items", props: { level: 2 } },
+      { type: "bulletListItem", content: "Action 1" },
+    ],
+    article: [
+      { type: "heading", content: "Article Title", props: { level: 1 } },
+      { type: "paragraph", content: "Introduction paragraph..." },
+      { type: "heading", content: "Main Content", props: { level: 2 } },
+      { type: "paragraph", content: "Content goes here..." },
+    ],
+  };
+
+  const template = templates[templateName];
+  if (template) {
+    // Insert at the end of the document
+    const lastBlock = editor.document[editor.document.length - 1];
+    editor.insertBlocks(template, lastBlock.id, "after");
+  }
+}
+```
+
+### Example 5: Bulk Operations
+
+```typescript
+function bulkUpdateBlocks(
+  editor: BlockNoteEditor,
+  filter: (block: Block) => boolean,
+  update: PartialBlock,
+) {
+  const blocksToUpdate: string[] = [];
+
+  editor.forEachBlock((block) => {
+    if (filter(block)) {
+      blocksToUpdate.push(block.id);
+    }
+  });
+
+  // Update all matching blocks
+  blocksToUpdate.forEach((blockId) => {
+    editor.updateBlock(blockId, update);
+  });
+
+  console.log(`Updated ${blocksToUpdate.length} blocks`);
+}
+
+// Usage: Make all paragraphs bold
+bulkUpdateBlocks(editor, (block) => block.type === "paragraph", {
+  props: { textStyle: "bold" },
+});
+```
+
+### Example 6: Document Restructuring
+
+```typescript
+function restructureDocument(editor: BlockNoteEditor) {
+  const blocks = editor.document;
+  const newStructure: PartialBlock[] = [];
+
+  blocks.forEach((block) => {
+    if (block.type === "heading" && block.props.level === 1) {
+      // Keep H1 headings as top-level
+      newStructure.push({
+        type: block.type,
+        content: block.content,
+        props: block.props,
+      });
+    } else if (block.type === "paragraph") {
+      // Nest paragraphs under the last H1 heading
+      if (
+        newStructure.length > 0 &&
+        newStructure[newStructure.length - 1].type === "heading"
+      ) {
+        const lastHeading = newStructure[newStructure.length - 1];
+        if (!lastHeading.children) {
+          lastHeading.children = [];
+        }
+        lastHeading.children.push({
+          type: block.type,
+          content: block.content,
+        });
+      }
+    }
+  });
+
+  // Replace the entire document
+  editor.replaceBlocks(
+    blocks.map((b) => b.id),
+    newStructure,
+  );
+}
+```
+
+## Best Practices
+
+### 1. Use Block Identifiers Consistently
+
+```typescript
+// ✅ Good - Use block objects when you have them
+const block = editor.getBlock("block-123");
+const nextBlock = editor.getNextBlock(block);
+
+// ✅ Good - Use IDs when you only have the ID
+editor.updateBlock("block-123", { content: "Updated" });
+```
+
+### 2. Handle Errors Gracefully
+
+```typescript
+try {
+  editor.updateBlock("non-existent-block", { content: "New content" });
+} catch (error) {
+  console.error("Block not found:", error);
+}
+```
+
+### 3. Batch Related Operations
+
+```typescript
+// ✅ Good - Group related operations
+editor.insertBlocks(
+  [
+    { type: "heading", content: "Section", props: { level: 2 } },
+    { type: "paragraph", content: "Content" },
+  ],
+  referenceBlock,
+  "after",
+);
+
+// ❌ Avoid - Multiple separate operations
+editor.insertBlocks(
+  [{ type: "heading", content: "Section", props: { level: 2 } }],
+  referenceBlock,
+  "after",
+);
+editor.insertBlocks(
+  [{ type: "paragraph", content: "Content" }],
+  referenceBlock,
+  "after",
+);
+```
+
+### 4. Validate Block Types
+
+```typescript
+function updateHeadingLevel(
+  editor: BlockNoteEditor,
+  blockId: string,
+  newLevel: number,
+) {
+  const block = editor.getBlock(blockId);
+
+  if (block && block.type === "heading") {
+    editor.updateBlock(blockId, { props: { level: newLevel } });
+  } else {
+    console.warn("Block is not a heading");
+  }
+}
+```
+
+These APIs provide powerful tools for programmatically manipulating BlockNote documents, enabling features like templates, bulk operations, document restructuring, and custom workflows.
+

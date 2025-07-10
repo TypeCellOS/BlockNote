@@ -1,0 +1,34 @@
+---
+title: Markdown
+description: It's possible to import Markdown content into BlockNote blocks, completely client-side.
+imageTitle: BlockNote Markdown Import
+path: /docs/converting-blocks
+---
+
+<Callout type={"warning"}>
+    The functions to import from Markdown are considered "lossy"; some information might be dropped when converting Markdown to Blocks.
+
+    To serialize Blocks to a non-lossy format (for example, to store the contents of the editor in your backend), simply export the built-in Block format using `JSON.stringify(editor.document)`.
+
+</Callout>
+
+BlockNote can import Markdown content into Block objects. Note that this is considered "lossy", as not all Markdown structures can be entirely represented as BlockNote blocks.
+
+## Markdown to Blocks
+
+Use `tryParseMarkdownToBlocks` to try parsing a Markdown string into `Block` objects:
+
+```typescript
+async tryParseMarkdownToBlocks(markdown: string): Promise<Blocks[]>;
+
+// Usage
+const blocksFromMarkdown = await editor.tryParseMarkdownToBlocks(markdown);
+```
+
+`returns:` The blocks parsed from the Markdown string.
+
+Tries to create `Block` and `InlineContent` objects based on Markdown syntax, though not all symbols are recognized. If BlockNote doesn't recognize a symbol, it will parse it as text.
+
+**Demo**
+
+<Example name="interoperability/converting-blocks-from-md" />

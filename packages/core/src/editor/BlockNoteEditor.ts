@@ -155,8 +155,11 @@ export type BlockNoteEditorOptions<
 
   /**
    * When enabled, allows for collaboration between multiple users.
+   * See [Real-time Collaboration](https://www.blocknotejs.org/docs/advanced/real-time-collaboration) for more info.
+   *
+   * @remarks `CollaborationOptions`
    */
-  collaboration: {
+  collaboration?: {
     /**
      * The Yjs XML fragment that's used for collaboration.
      */
@@ -190,7 +193,13 @@ export type BlockNoteEditorOptions<
    */
   codeBlock?: CodeBlockOptions;
 
-  comments: {
+  /**
+   * Configuration for the comments feature, requires a `threadStore`.
+   *
+   * See [Comments](https://www.blocknotejs.org/docs/collaboration/comments) for more info.
+   * @remarks `CommentsOptions`
+   */
+  comments?: {
     threadStore: ThreadStore;
   };
 
@@ -199,25 +208,38 @@ export type BlockNoteEditorOptions<
    *
    * @default true
    */
-  defaultStyles: boolean;
+  defaultStyles?: boolean;
 
   /**
    * A dictionary object containing translations for the editor.
+   *
+   * See [Localization / i18n](https://www.blocknotejs.org/docs/advanced/localization) for more info.
+   *
+   * @remarks `Dictionary` is a type that contains all the translations for the editor.
    */
   dictionary?: Dictionary & Record<string, any>;
 
   /**
    * Disable internal extensions (based on keys / extension name)
+   *
+   * @note Advanced
    */
-  disableExtensions: string[];
+  disableExtensions?: string[];
 
   /**
    * An object containing attributes that should be added to HTML elements of the editor.
    *
+   * See [Adding DOM Attributes](https://www.blocknotejs.org/docs/theming#adding-dom-attributes) for more info.
+   *
    * @example { editor: { class: "my-editor-class" } }
+   * @remarks `Record<string, Record<string, string>>`
    */
-  domAttributes: Partial<BlockNoteDOMAttributes>;
+  domAttributes?: Partial<BlockNoteDOMAttributes>;
 
+  /**
+   * A replacement indicator to use when dragging and dropping blocks. Uses the [ProseMirror drop cursor](https://github.com/ProseMirror/prosemirror-dropcursor), or a modified version when [Column Blocks](https://www.blocknotejs.org/docs/document-structure#column-blocks) are enabled.
+   * @remarks `() => Plugin`
+   */
   dropCursor?: (opts: {
     editor: BlockNoteEditor<
       NoInfer<BSchema>,
@@ -242,9 +264,13 @@ export type BlockNoteEditorOptions<
   };
 
   /**
-   * The content that should be in the editor when it's created, represented as an array of partial block objects.
+   * The content that should be in the editor when it's created, represented as an array of {@link PartialBlock} objects.
+   *
+   * See [Partial Blocks](https://www.blocknotejs.org/docs/editor-api/manipulating-blocks#partial-blocks) for more info.
+   *
+   * @remarks `PartialBlock[]`
    */
-  initialContent: PartialBlock<
+  initialContent?: PartialBlock<
     NoInfer<BSchema>,
     NoInfer<ISchema>,
     NoInfer<SSchema>
@@ -252,14 +278,19 @@ export type BlockNoteEditorOptions<
 
   /**
    * @deprecated, provide placeholders via dictionary instead
+   * @internal
    */
-  placeholders: Record<
+  placeholders?: Record<
     string | "default" | "emptyDocument",
     string | undefined
   >;
 
   /**
    * Custom paste handler that can be used to override the default paste behavior.
+   *
+   * See [Paste Handling](https://www.blocknotejs.org/docs/advanced/paste-handling) for more info.
+   *
+   * @remarks `PasteHandler`
    * @returns The function should return `true` if the paste event was handled, otherwise it should return `false` if it should be canceled or `undefined` if it should be handled by another handler.
    *
    * @example
@@ -296,10 +327,21 @@ export type BlockNoteEditorOptions<
    * implementing custom protocols / schemes
    * @returns The URL that's
    */
-  resolveFileUrl: (url: string) => Promise<string>;
+  resolveFileUrl?: (url: string) => Promise<string>;
 
-  resolveUsers: (userIds: string[]) => Promise<User[]>;
+  /**
+   * Resolve user information for comments.
+   *
+   * See [Comments](https://www.blocknotejs.org/docs/collaboration/comments) for more info.
+   */
+  resolveUsers?: (userIds: string[]) => Promise<User[]>;
 
+  /**
+   * The schema of the editor. The schema defines which Blocks, InlineContent, and Styles are available in the editor.
+   *
+   * See [Custom Schemas](https://www.blocknotejs.org/docs/custom-schemas) for more info.
+   * @remarks `BlockNoteSchema`
+   */
   schema: BlockNoteSchema<BSchema, ISchema, SSchema>;
 
   /**
@@ -313,31 +355,29 @@ export type BlockNoteEditorOptions<
   setIdAttribute?: boolean;
 
   /**
-   * The detection mode for showing the side menu - "viewport" always shows the
-   * side menu for the block next to the mouse cursor, while "editor" only shows
-   * it when hovering the editor or the side menu itself.
-   *
+   * Controls how the Side Menu and block drag & drop interact with the editor bounds.
+   * - When set to `"viewport"`, the Side Menu appears next to the nearest block to the cursor,
+   *   regardless of viewport position. Block dropping is locked to editor bounds.
+   * - When set to `"editor"`, the Side Menu and block dropping only work within editor bounds.
+   *   Required when using multiple editors.
    * @default "viewport"
    */
-  sideMenuDetection: "viewport" | "editor";
+  sideMenuDetection?: "viewport" | "editor";
 
   /**
-   Select desired behavior when pressing `Tab` (or `Shift-Tab`). Specifically,
-   what should happen when a user has selected multiple blocks while a toolbar
-   is open:
-   - `"prefer-navigate-ui"`: Change focus to the toolbar. The user needs to
-   first press `Escape` to close the toolbar, and can then indent multiple
-   blocks. Better for keyboard accessibility.
-   - `"prefer-indent"`: Regardless of whether toolbars are open, indent the
-   selection of blocks. In this case, it's not possible to navigate toolbars
-   with the keyboard.
-
-   @default "prefer-navigate-ui"
+   * Determines behavior when pressing Tab (or Shift-Tab) while multiple blocks are selected and a toolbar is open.
+   * - `"prefer-navigate-ui"`: Changes focus to the toolbar. User must press Escape to close toolbar before indenting blocks. Better for keyboard accessibility.
+   * - `"prefer-indent"`: Always indents selected blocks, regardless of toolbar state. Keyboard navigation of toolbars not possible.
+   * @default "prefer-navigate-ui"
    */
-  tabBehavior: "prefer-navigate-ui" | "prefer-indent";
+  tabBehavior?: "prefer-navigate-ui" | "prefer-indent";
 
   /**
    * Allows enabling / disabling features of tables.
+   *
+   * See [Tables](https://www.blocknotejs.org/docs/editor-basics/document-structure#tables) for more info.
+   *
+   * @remarks `TableConfig`
    */
   tables?: {
     /**
@@ -366,6 +406,11 @@ export type BlockNoteEditorOptions<
     headers?: boolean;
   };
 
+  /**
+   * An option which user can pass with `false` value to disable the automatic creation of a trailing new block on the next line when the user types or edits any block.
+   *
+   * @default true
+   */
   trailingBlock?: boolean;
 
   /**
@@ -376,23 +421,26 @@ export type BlockNoteEditorOptions<
    *
    * @param file The file that should be uploaded.
    * @returns The URL of the uploaded file OR an object containing props that should be set on the file block (such as an id)
+   * @remarks `(file: File) => Promise<UploadFileResult>`
    */
-  uploadFile: (
+  uploadFile?: (
     file: File,
     blockId?: string,
   ) => Promise<string | Record<string, any>>;
 
   /**
    * additional tiptap options, undocumented
+   * @internal
    */
-  _tiptapOptions: Partial<EditorOptions>;
+  _tiptapOptions?: Partial<EditorOptions>;
 
   /**
    * (experimental) add extra extensions to the editor
    *
    * @deprecated, should use `extensions` instead
+   * @internal
    */
-  _extensions: Record<
+  _extensions?: Record<
     string,
     | { plugin: Plugin; priority?: number }
     | ((editor: BlockNoteEditor<any, any, any>) => {
@@ -402,9 +450,11 @@ export type BlockNoteEditorOptions<
   >;
 
   /**
-   * Register
+   * Register extensions to the editor.
+   *
+   * @internal
    */
-  extensions: Array<BlockNoteExtension | BlockNoteExtensionFactory>;
+  extensions?: Array<BlockNoteExtension | BlockNoteExtensionFactory>;
 
   /**
    * Boolean indicating whether the editor is in headless mode.
@@ -412,8 +462,9 @@ export type BlockNoteEditorOptions<
    * but there's no underlying editor (UI) instantiated.
    *
    * You probably don't need to set this manually, but use the `server-util` package instead that uses this option internally
+   * @internal
    */
-  _headless: boolean;
+  _headless?: boolean;
 };
 
 const blockNoteTipTapOptions = {

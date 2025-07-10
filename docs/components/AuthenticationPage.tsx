@@ -24,7 +24,7 @@ function AuthenticationInput(props: {
     <div>
       <label
         htmlFor={props.type}
-        className="block text-sm/6 font-medium text-gray-900 dark:text-gray-100"
+        className="text-fd-accent-foreground block text-sm/6 font-medium"
       >
         {props.name}
       </label>
@@ -35,7 +35,7 @@ function AuthenticationInput(props: {
           type={props.type}
           required
           autoComplete={props.type}
-          className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-gray-800 dark:text-gray-100 dark:outline-gray-700 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
+          className="text-fd-accent-foreground outline-fd-border focus:outline-fd-primary block w-full rounded-md px-3 py-1.5 text-base outline-1 -outline-offset-1 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6"
           onChange={props.onChange}
         />
       </div>
@@ -194,7 +194,7 @@ function AuthenticationBox(props: {
         <button
           type="submit"
           disabled={signingInState.state === "loading"}
-          className={`flex w-full justify-center rounded-md px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 ${signingInState.state === "loading" ? "cursor-default bg-indigo-400" : "cursor-pointer bg-indigo-600 hover:bg-indigo-500"}`}
+          className={`focus-visible:outline-fd-primary flex w-full justify-center rounded-md px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 ${signingInState.state === "loading" ? "cursor-default bg-indigo-400" : "cursor-pointer bg-indigo-600 hover:bg-indigo-500"}`}
         >
           {signingInState.state === "loading" ? (
             <svg
@@ -232,7 +232,7 @@ function AlternativeSignInButton(props: {
 }) {
   return (
     <button
-      className="flex w-full items-center justify-center gap-3 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:ring-transparent dark:bg-gray-800 dark:text-gray-100 dark:ring-gray-700 dark:hover:bg-gray-700"
+      className="bg-fd-accent text-fd-accent-foreground ring-fd-border hover:bg-fd-muted focus-visible:outline-fd-primary flex w-full items-center justify-center gap-3 rounded-md px-3 py-2 text-sm font-semibold shadow-sm ring-1 ring-inset focus-visible:ring-transparent"
       onClick={props.onClick}
     >
       {props.icon}
@@ -339,12 +339,12 @@ function AlternativeSignInBox(props: {
 }) {
   return (
     <div>
-      <div className="relative mt-10">
+      <div className="focus-visible:outline-fd-primary relative mt-10">
         <div aria-hidden="true" className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-200 dark:border-gray-700" />
+          <div className="border-fd-border w-full border-t" />
         </div>
         <div className="relative flex justify-center text-sm/6 font-medium">
-          <span className="bg-white px-6 text-gray-900 dark:bg-gray-800 dark:text-gray-100">
+          <span className="bg-fd-accent text-fd-accent-foreground px-6">
             Or
           </span>
         </div>
@@ -382,46 +382,44 @@ export default function AuthenticationPage(props: {
   }, [session.data, router, callbackURL]);
 
   return (
-    <div className="h-screen w-screen bg-white dark:bg-gray-900">
-      <div className="flex min-h-full flex-1 flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <Image
-            className="mx-auto h-10 w-auto cursor-pointer"
-            src={theme === "dark" ? blockNoteLogoDark : blockNoteLogo}
-            alt={"BlockNote Logo"}
-            onClick={() => router.push("/")}
-          />
-          <h2 className="mt-6 text-center font-sans text-2xl/9 font-semibold tracking-tight text-gray-900 dark:text-gray-100">
-            {props.variant === "password"
-              ? "Login to your BlockNote account"
-              : props.variant === "email"
-                ? "Login with your email account"
-                : "Create an account"}
-          </h2>
+    <div className="flex h-0 flex-1 flex-col justify-center">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <Image
+          className="mx-auto h-10 w-auto cursor-pointer"
+          src={theme === "dark" ? blockNoteLogoDark : blockNoteLogo}
+          alt={"BlockNote Logo"}
+          onClick={() => router.push("/")}
+        />
+        <h2 className="mt-6 text-center font-sans text-2xl/9 font-semibold tracking-tight text-gray-900 dark:text-gray-100">
+          {props.variant === "password"
+            ? "Login to your BlockNote account"
+            : props.variant === "email"
+              ? "Login with your email account"
+              : "Create an account"}
+        </h2>
+      </div>
+
+      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
+        <div className="bg-fd-accent px-6 py-12 shadow sm:rounded-lg sm:px-12">
+          <AuthenticationBox variant={props.variant} />
         </div>
 
-        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
-          <div className="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12 dark:bg-gray-800">
-            <AuthenticationBox variant={props.variant} />
-          </div>
-
-          <p className="mt-10 text-center text-sm/6 text-gray-500 dark:text-gray-400">
-            <span
-              className="cursor-pointer font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
-              onClick={() => {
-                router.push(
-                  `${props.variant === "email" ? "/signup" : "/signin"}?redirect=${encodeURIComponent(callbackURL)}&theme=${encodeURIComponent(theme)}`,
-                );
-              }}
-            >
-              {props.variant === "email"
-                ? "Don't have an account? Sign Up"
-                : props.variant === "password"
-                  ? "Return to email login"
-                  : "Already have an account? Log In"}
-            </span>
-          </p>
-        </div>
+        <p className="mt-10 text-center text-sm/6 text-gray-500 dark:text-gray-400">
+          <span
+            className="cursor-pointer font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+            onClick={() => {
+              router.push(
+                `${props.variant === "email" ? "/signup" : "/signin"}?redirect=${encodeURIComponent(callbackURL)}&theme=${encodeURIComponent(theme)}`,
+              );
+            }}
+          >
+            {props.variant === "email"
+              ? "Don't have an account? Sign Up"
+              : props.variant === "password"
+                ? "Return to email login"
+                : "Already have an account? Log In"}
+          </span>
+        </p>
       </div>
     </div>
   );

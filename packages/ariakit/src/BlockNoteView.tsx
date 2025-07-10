@@ -4,11 +4,7 @@ import {
   mergeCSSClasses,
   StyleSchema,
 } from "@blocknote/core";
-import {
-  BlockNoteViewProps,
-  BlockNoteViewRaw,
-  ComponentsContext,
-} from "@blocknote/react";
+import { BlockNoteViewRaw, ComponentsContext } from "@blocknote/react";
 import { components } from "./components.js";
 
 export const BlockNoteView = <
@@ -16,7 +12,9 @@ export const BlockNoteView = <
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema,
 >(
-  props: BlockNoteViewProps<BSchema, ISchema, SSchema>,
+  props: React.ComponentProps<
+    typeof BlockNoteViewRaw<BSchema, ISchema, SSchema>
+  >,
 ) => {
   const { className, ...rest } = props;
 
