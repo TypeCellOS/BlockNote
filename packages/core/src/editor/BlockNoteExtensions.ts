@@ -95,7 +95,6 @@ type ExtensionOptions<
     threadStore: ThreadStore;
   };
   pasteHandler: BlockNoteEditorOptions<any, any, any>["pasteHandler"];
-  inputRules: "allBlocks" | "paragraphs" | "none";
 };
 
 /**
