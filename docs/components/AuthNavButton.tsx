@@ -58,7 +58,7 @@ export function AuthNavButton() {
   if (!session.data) {
     return (
       <CTAButton
-        href={`/signin?redirect=${encodeURIComponent(pathname)}&theme=${encodeURIComponent(resolvedTheme || "")}`}
+        href={`/signin?redirect=${encodeURIComponent(pathname || "")}&theme=${encodeURIComponent(resolvedTheme || "")}`}
         size={"small"}
       >
         Sign in
