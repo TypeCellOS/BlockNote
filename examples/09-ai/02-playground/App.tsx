@@ -4,7 +4,6 @@ import { createGroq } from "@ai-sdk/groq";
 import { createMistral } from "@ai-sdk/mistral";
 import { createOpenAI } from "@ai-sdk/openai";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
-import "@mantine/core/styles.css";
 import { BlockNoteEditor, filterSuggestionItems } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { en } from "@blocknote/core/locales";
@@ -32,7 +31,6 @@ import {
 import { en as aiEn } from "@blocknote/xl-ai/locales";
 import "@blocknote/xl-ai/style.css";
 import { Fieldset, MantineProvider, Switch } from "@mantine/core";
-
 
 import { LanguageModelV1 } from "ai";
 import { useEffect, useMemo, useState } from "react";
