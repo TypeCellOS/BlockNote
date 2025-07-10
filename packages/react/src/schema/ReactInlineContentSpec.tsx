@@ -23,7 +23,7 @@ import {
   useReactNodeView,
 } from "@tiptap/react";
 // import { useReactNodeView } from "@tiptap/react/dist/packages/react/src/useReactNodeView";
-import { FC } from "react";
+import { FC, JSX } from "react";
 import { renderToDOMSpec } from "./@util/ReactRenderUtil.js";
 // this file is mostly analogoues to `customBlocks.ts`, but for React blocks
 

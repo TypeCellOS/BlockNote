@@ -1,0 +1,91 @@
+<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:loext="urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0" office:version="1.3">
+    <office:font-face-decls>
+        <style:font-face style:name="Inter 18pt" svg:font-family="Inter 18pt" style:font-pitch="variable">
+            <svg:font-face-src>
+                <svg:font-face-uri xlink:href="Fonts/Inter_18pt-Regular.ttf" xlink:type="simple" loext:font-style="normal" loext:font-weight="normal">
+                    <svg:font-face-format svg:string="truetype"></svg:font-face-format>
+                </svg:font-face-uri>
+            </svg:font-face-src>
+        </style:font-face>
+        <style:font-face style:name="Geist Mono" svg:font-family="Geist Mono" style:font-pitch="variable">
+            <svg:font-face-src>
+                <svg:font-face-uri xlink:href="Fonts/GeistMono-Regular.ttf" xlink:type="simple" loext:font-style="normal" loext:font-weight="normal">
+                    <svg:font-face-format svg:string="truetype"></svg:font-face-format>
+                </svg:font-face-uri>
+            </svg:font-face-src>
+        </style:font-face>
+    </office:font-face-decls>
+    <office:automatic-styles>
+        <style:style style:name="BN_S1" style:family="table-cell">
+            <style:table-cell-properties style:writing-mode="lr-tb" fo:border="none" fo:padding-top="0in" fo:padding-left="0.075in" fo:padding-bottom="0in" fo:padding-right="0.075in"></style:table-cell-properties>
+        </style:style>
+        <style:style style:name="BN_S2" style:family="table-cell">
+            <style:table-cell-properties style:writing-mode="lr-tb" fo:border="none" fo:padding-top="0in" fo:padding-left="0.075in" fo:padding-bottom="0in" fo:padding-right="0.075in"></style:table-cell-properties>
+        </style:style>
+        <style:style style:family="paragraph" style:name="BN_S3" style:parent-style-name="Standard" style:list-style-name="WWNum1"></style:style>
+        <style:style style:family="paragraph" style:name="BN_S4" style:parent-style-name="Standard" style:list-style-name="WWNum1"></style:style>
+        <style:style style:family="paragraph" style:name="BN_S5" style:parent-style-name="Standard" style:list-style-name="WWNum1"></style:style>
+        <style:style style:name="BN_S6" style:family="table-cell">
+            <style:table-cell-properties style:writing-mode="lr-tb" fo:border="none" fo:padding-top="0in" fo:padding-left="0.075in" fo:padding-bottom="0in" fo:padding-right="0.075in"></style:table-cell-properties>
+        </style:style>
+        <style:style style:name="BN_S7" style:family="table">
+            <style:table-properties table:align="margins" style:writing-mode="lr-tb"></style:table-properties>
+        </style:style>
+        <style:style style:name="BN_S8" style:family="table-column">
+            <style:table-column-properties style:rel-column-width="80*"></style:table-column-properties>
+        </style:style>
+        <style:style style:name="BN_S9" style:family="table-column">
+            <style:table-column-properties style:rel-column-width="140*"></style:table-column-properties>
+        </style:style>
+        <style:style style:name="BN_S10" style:family="table-column">
+            <style:table-column-properties style:rel-column-width="80*"></style:table-column-properties>
+        </style:style>
+    </office:automatic-styles>
+    <office:body>
+        <office:text>
+            <table:table table:name="" table:style-name="BN_S7">
+                <table:table-column table:style-name="BN_S8"></table:table-column>
+                <table:table-column table:style-name="BN_S9"></table:table-column>
+                <table:table-column table:style-name="BN_S10"></table:table-column>
+                <table:table-row>
+                    <table:table-cell table:style-name="BN_S1">
+                        <text:p text:style-name="Standard">
+                            This paragraph is in a column!
+                        </text:p>
+                    </table:table-cell>
+                    <table:table-cell table:style-name="BN_S2">
+                        <text:h text:outline-level="1" text:style-name="Heading_20_1">
+                            So is this heading!
+                        </text:h>
+                    </table:table-cell>
+                    <table:table-cell table:style-name="BN_S6">
+                        <text:p text:style-name="Standard">
+                            You can have multiple blocks in a column too
+                        </text:p>
+                        <text:list text:style-name="WWNum1">
+                            <text:list-item>
+                                <text:p text:style-name="BN_S3">
+                                    Block 1
+                                </text:p>
+                            </text:list-item>
+                        </text:list>
+                        <text:list text:style-name="WWNum1">
+                            <text:list-item>
+                                <text:p text:style-name="BN_S4">
+                                    Block 2
+                                </text:p>
+                            </text:list-item>
+                        </text:list>
+                        <text:list text:style-name="WWNum1">
+                            <text:list-item>
+                                <text:p text:style-name="BN_S5">
+                                    Block 3
+                                </text:p>
+                            </text:list-item>
+                        </text:list>
+                    </table:table-cell>
+                </table:table-row>
+            </table:table>
+        </office:text>
+    </office:body>
+</office:document-content>
