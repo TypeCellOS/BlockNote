@@ -1,6 +1,6 @@
 export const acceptedMIMETypes = [
   "vscode-editor-data",
-  "blocknote/html",
+  "blocknote/json",
   "text/markdown",
   "text/html",
   "text/plain",
