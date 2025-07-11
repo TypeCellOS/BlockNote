@@ -361,6 +361,9 @@ export class SideMenuView<
     };
   };
 
+  /**
+   * Checks if the given coordinates are inside the given element
+   */
   isCoordsInsideElement = (
     coords: { x: number; y: number },
     element: Element,
@@ -375,9 +378,17 @@ export class SideMenuView<
   };
 
   /**
-   * If the event is outside the editor contents,
-   * we dispatch a fake event, so that we can still drop the content
-   * when dragging / dropping to the side of the editor
+   * This dragover event handler listens at the document level,
+   * and is trying to handle dragover events for all editors.
+   *
+   * It specifically is trying to handle the following cases:
+   *  - If the dragover event is within the bounds of any editor, then it does nothing
+   *  - If the dragover event is outside the bounds of any editor, but close enough (within 250px) to the closest editor,
+   *    then it dispatches a synthetic dragover event to the closest editor (which will trigger the drop-cursor to be shown on that editor)
+   *  - If the dragover event is outside the bounds of the current editor, then it will dispatch a synthetic dragleave event to the current editor
+   *    (which will trigger the drop-cursor to be removed from the current editor)
+   *
+   * The synthetic event is a necessary evil because we do not control prosemirror-dropcursor to be able to show the drop-cursor within the range we want
    */
   onDragOver = (event: DragEvent) => {
     if (
@@ -406,14 +417,8 @@ export class SideMenuView<
     }
 
     if (closestEditor.element !== this.pmView.dom) {
-      // we are not the closest editor
-
-      // We send the dragleave event to the current editor, so that the drop-cursor is removed for it
-      const evt = new Event("dragleave", { bubbles: false }) as any;
-      // It needs to be synthetic, so we don't accidentally think it is a real dragend event
-      evt.synthetic = true;
-      // We dispatch the event to the current editor, so that the drop-cursor is removed for it
-      this.pmView.dom.dispatchEvent(evt);
+      // we are not the closest editor, so close the drop-cursor
+      this.closeDropCursor();
     }
 
     if (
@@ -439,6 +444,33 @@ export class SideMenuView<
     }
   };
 
+  /**
+   * Closes the drop-cursor for the current editor
+   */
+  closeDropCursor = () => {
+    const evt = new Event("dragleave", { bubbles: false });
+    // It needs to be synthetic, so we don't accidentally think it is a real dragend event
+    (evt as any).synthetic = true;
+    // We dispatch the event to the current editor, so that the drop-cursor is removed for it
+    this.pmView.dom.dispatchEvent(evt);
+  };
+
+  /**
+   * The drop event handler listens at the document level,
+   * and handles drop events for all editors.
+   *
+   * It specifically handles the following cases:
+   *  - If we are the drag origin and drop point:
+   *    - If the drop event is within our editor bounds, let normal drop handling take over
+   *    - If the drop event is outside our editor bounds, dispatch a synthetic drop event to our editor
+   *  - If we are the drop point but not the drag origin:
+   *    - Collapse selection to prevent PM from deleting unrelated content
+   *    - If drop event is outside our editor bounds, dispatch synthetic drop event to our editor
+   *  - If we are the drag origin but not the drop point:
+   *    - Delete the dragged content from our editor after a delay
+   *  - If we are neither the drag origin nor drop point:
+   *    - Do nothing and let the relevant editors handle it
+   */
   onDrop = (event: DragEvent) => {
     if (
       !event.dataTransfer?.types.includes("blocknote/html") ||
@@ -457,6 +489,12 @@ export class SideMenuView<
           )?.closest(".bn-editor") || null
         : null;
     const closestEditor = this.findClosestEditorElement(event);
+
+    if (!closestEditor || closestEditor.distance > 250) {
+      // we are too far from the closest editor, or no editor was found, so close the drop-cursor & no-op
+      this.closeDropCursor();
+      return;
+    }
 
     if (closestEditor?.element === this.pmView.dom) {
       if (this.isDragOrigin) {
