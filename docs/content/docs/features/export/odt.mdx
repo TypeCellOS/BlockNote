@@ -61,7 +61,7 @@ const odt = await exporter.toODTDocument(testDocument, {
 
 The `ODTExporter` constructor takes a `schema`, `mappings` and `options` parameter.
 A _mapping_ defines how to convert a BlockNote schema element (a Block, Inline Content, or Style) to the [ODT](https://docs.oasis-open.org/office/OpenDocument/v1.3/os/part3-schema/OpenDocument-v1.3-os-part3-schema.html) XML element.
-If you're using a [custom schema](/docs/custom-schemas) in your editor, or if you want to overwrite how default BlockNote elements are converted to ODT XML elements, you can pass your own `mappings`:
+If you're using a [custom schema](/docs/reference/editor/custom-schemas) in your editor, or if you want to overwrite how default BlockNote elements are converted to ODT XML elements, you can pass your own `mappings`:
 
 For example, use the following code in case your schema has an `extraBlock` type:
 

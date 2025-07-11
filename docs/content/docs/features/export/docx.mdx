@@ -79,7 +79,7 @@ const doc = await exporter.toDocxJsDocument(testDocument, {
 
 The `DOCXExporter` constructor takes a `schema`, `mappings` and `options` parameter.
 A _mapping_ defines how to convert a BlockNote schema element (a Block, Inline Content, or Style) to a [docxjs](https://docx.js.org/) element.
-If you're using a [custom schema](/docs/custom-schemas) in your editor, or if you want to overwrite how default BlockNote elements are converted to docx, you can pass your own `mappings`:
+If you're using a [custom schema](/docs/reference/editor/custom-schemas) in your editor, or if you want to overwrite how default BlockNote elements are converted to docx, you can pass your own `mappings`:
 
 For example, use the following code in case your schema has an `extraBlock` type:
 

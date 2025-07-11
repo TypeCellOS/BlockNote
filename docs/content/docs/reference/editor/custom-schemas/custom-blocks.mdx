@@ -4,7 +4,7 @@ description: Learn how to create custom block types for your BlockNote editor
 imageTitle: Custom Blocks
 ---
 
-In addition to the default block types that BlockNote offers, you can also make your own custom blocks using React components. Take a look at the demo below, in which we add a custom alert block to a BlockNote editor, as well as a custom [Slash Menu Item](/docs/ui-components/suggestion-menus#changing-slash-menu-items) to insert it.
+In addition to the default block types that BlockNote offers, you can also make your own custom blocks using React components. Take a look at the demo below, in which we add a custom alert block to a BlockNote editor, as well as a custom [Slash Menu Item](/docs/react/styling-theming/components/suggestion-menus#changing-slash-menu-items) to insert it.
 
 <Example name="custom-schema/alert-block" />
 
@@ -87,7 +87,7 @@ type PropSchema<PrimitiveType extends "boolean" | "number" | "string"> = Record<
 
 - `values` (optional): Specifies an array of values that the prop can take, for example, to limit the value to a list of pre-defined strings. If `values` is not defined, BlockNote assumes the prop can be any value of `PrimitiveType`
 
-_In the alert demo, we add a `type` prop for the type of alert that we want (warning / error / info / success). We also want basic styling options, so we add text alignment and text color from the [Default Block Properties](/docs/block-types#default-block-properties)._
+_In the alert demo, we add a `type` prop for the type of alert that we want (warning / error / info / success). We also want basic styling options, so we add text alignment and text color from the [Default Block Properties](/docs/features/blocks#default-block-properties)._
 
 **`isSelectable`**
 
@@ -157,12 +157,10 @@ const schema = BlockNoteSchema.create({
 });
 ```
 
-You can then instantiate your editor with this custom schema, as explained on the [Custom Schemas](/docs/custom-schemas) page.
+You can then instantiate your editor with this custom schema, as explained on the [Custom Schemas](/docs/reference/editor/custom-schemas) page.
 
 ## Improving the User Experience
 
 Now you know how to create a custom block and add it to your editor. However, users don't have a way of creating instances of it to their documents.
 
-To fix this, it's recommended to implement a [command to insert your custom in the Slash Menu](/docs/ui-components/suggestion-menus#changing-slash-menu-items), and [an item for it in the Block Type Select](/docs/ui-components/formatting-toolbar#changing-block-type-select-items). The demo below builds upon the earlier alert block example, adding both of these.
-
-<Example name="custom-schema/alert-block-full-ux" />
+To fix this, it's recommended to implement a [command to insert your custom in the Slash Menu](/docs/react/styling-theming/components/suggestion-menus#changing-slash-menu-items), and [an item for it in the Block Type Select](/docs/react/styling-theming/components/formatting-toolbar#

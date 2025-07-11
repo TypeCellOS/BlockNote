@@ -5,7 +5,7 @@ imageTitle: Image Toolbar
 path: /docs/image-toolbar
 ---
 
-The Image Toolbar appears whenever you select an image that doesn't have a URL, or when you click the "Replace Image" button in the [Formatting Toolbar](/docs/formatting-toolbar) when an image is selected.
+The Image Toolbar appears whenever you select an image that doesn't have a URL, or when you click the "Replace Image" button in the [Formatting Toolbar](/docs/react/styling-theming/components/formatting-toolbar) when an image is selected.
 
 <ThemedImage
   src={{
@@ -19,7 +19,7 @@ The Image Toolbar appears whenever you select an image that doesn't have a URL, 
 
 ## Image Upload
 
-You may notice that upon creating a new BlockNote editor, the "Upload" tab in the Image Toolbar is missing. This is because you must provide BlockNote with a function to handle file uploads using the `uploadFile` [Editor Option](/docs/editor):
+You may notice that upon creating a new BlockNote editor, the "Upload" tab in the Image Toolbar is missing. This is because you must provide BlockNote with a function to handle file uploads using the `uploadFile` [Editor Option](/docs/reference/editor/options):
 
 ```ts
 type uploadFile = (file: File) => Promise<string>;
