@@ -304,7 +304,8 @@ export class SideMenuView<
     }
 
     if (this.pmView.dragging) {
-      throw new Error("New drag was started while an existing drag is ongoing");
+      // already dragging, so no-op
+      return;
     }
 
     const element = document.createElement("div");
