@@ -279,6 +279,75 @@ export class SideMenuView<
     }
   };
 
+  /**
+   * If a block is being dragged, ProseMirror usually gets the context of what's
+   * being dragged from `view.dragging`, which is automatically set when a
+   * `dragstart` event fires in the editor. However, if the user tries to drag
+   * and drop blocks between multiple editors, only the one in which the drag
+   * began has that context, so we need to set it on the others manually. This
+   * ensures that PM always drops the blocks in between other blocks, and not
+   * inside them.
+   *
+   * After the `dragstart` event fires on the drag handle, it sets
+   * `blocknote/html` data on the clipboard. This handler fires right after,
+   * parsing the `blocknote/html` data into nodes and setting them on
+   * `view.dragging`.
+   *
+   * Note: Setting `view.dragging` on `dragover` would be better as the user
+   * could then drag between editors in different windows, but you can only
+   * access `dataTransfer` contents on `dragstart` and `drop` events.
+   */
+  onDragStart = (event: DragEvent) => {
+    const html = event.dataTransfer?.getData("blocknote/html");
+    if (!html) {
+      return;
+    }
+
+    if (this.pmView.dragging) {
+      throw new Error("New drag was started while an existing drag is ongoing");
+    }
+
+    const element = document.createElement("div");
+    element.innerHTML = html;
+
+    const parser = DOMParser.fromSchema(this.pmView.state.schema);
+    const node = parser.parse(element, {
+      topNode: this.pmView.state.schema.nodes["blockGroup"].create(),
+    });
+
+    this.pmView.dragging = {
+      slice: new Slice(node.content, 0, 0),
+      move: true,
+    };
+  };
+
+  /**
+   * If the event is outside the editor contents,
+   * we dispatch a fake event, so that we can still drop the content
+   * when dragging / dropping to the side of the editor
+   */
+  onDragOver = (event: DragEvent) => {
+    if (
+      (event as any).synthetic ||
+      !event.dataTransfer?.types.includes("blocknote/html")
+    ) {
+      return;
+    }
+
+    const pos = this.pmView.posAtCoords({
+      left: event.clientX,
+      top: event.clientY,
+    });
+    const isOutsideEditor =
+      !pos || (pos.inside === -1 && this.pmView.dom.firstChild);
+
+    if (isOutsideEditor) {
+      const evt = this.createSyntheticEvent(event);
+      // console.log("dispatch fake dragover");
+      this.pmView.dom.dispatchEvent(evt);
+    }
+  };
+
   onDrop = (event: DragEvent) => {
     // Content from outside a BlockNote editor is being dropped - just let
     // ProseMirror's default behaviour handle it.
@@ -366,74 +435,6 @@ export class SideMenuView<
     // drag originated in automatically clears `view.dragging`. Therefore, we
     // have to manually clear it on all editors.
     this.pmView.dragging = null;
-  };
-
-  /**
-   * If a block is being dragged, ProseMirror usually gets the context of what's
-   * being dragged from `view.dragging`, which is automatically set when a
-   * `dragstart` event fires in the editor. However, if the user tries to drag
-   * and drop blocks between multiple editors, only the one in which the drag
-   * began has that context, so we need to set it on the others manually. This
-   * ensures that PM always drops the blocks in between other blocks, and not
-   * inside them.
-   *
-   * After the `dragstart` event fires on the drag handle, it sets
-   * `blocknote/html` data on the clipboard. This handler fires right after,
-   * parsing the `blocknote/html` data into nodes and setting them on
-   * `view.dragging`.
-   *
-   * Note: Setting `view.dragging` on `dragover` would be better as the user
-   * could then drag between editors in different windows, but you can only
-   * access `dataTransfer` contents on `dragstart` and `drop` events.
-   */
-  onDragStart = (event: DragEvent) => {
-    const html = event.dataTransfer?.getData("blocknote/html");
-    if (!html) {
-      return;
-    }
-
-    if (this.pmView.dragging) {
-      throw new Error("New drag was started while an existing drag is ongoing");
-    }
-
-    const element = document.createElement("div");
-    element.innerHTML = html;
-
-    const parser = DOMParser.fromSchema(this.pmView.state.schema);
-    const node = parser.parse(element, {
-      topNode: this.pmView.state.schema.nodes["blockGroup"].create(),
-    });
-
-    this.pmView.dragging = {
-      slice: new Slice(node.content, 0, 0),
-      move: true,
-    };
-  };
-
-  /**
-   * If the event is outside the editor contents,
-   * we dispatch a fake event, so that we can still drop the content
-   * when dragging / dropping to the side of the editor
-   */
-  onDragOver = (event: DragEvent) => {
-    if (
-      this.sideMenuDetection === "editor" ||
-      (event as any).synthetic ||
-      !event.dataTransfer?.types.includes("blocknote/html")
-    ) {
-      return;
-    }
-
-    const pos = this.pmView.posAtCoords({
-      left: event.clientX,
-      top: event.clientY,
-    });
-
-    if (!pos || (pos.inside === -1 && this.pmView.dom.firstChild)) {
-      const evt = this.createSyntheticEvent(event);
-      // console.log("dispatch fake dragover");
-      this.pmView.dom.dispatchEvent(evt);
-    }
   };
 
   onKeyDown = (_event: KeyboardEvent) => {
