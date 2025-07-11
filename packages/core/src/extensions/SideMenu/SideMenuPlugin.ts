@@ -549,6 +549,7 @@ export class SideMenuView<
       this.state.referencePos = this.hoveredBlock!.getBoundingClientRect();
       this.emitUpdate(this.state);
     }
+    this.updateStateFromMousePos();
   };
 
   // Needed in cases where the editor state updates without the mouse cursor
