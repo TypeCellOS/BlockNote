@@ -25,6 +25,13 @@
   align-items: stretch;
 }
 
+/* hack to get react-email to show on website */
+@layer base {
+  .email [hidden]:where(:not([hidden="until-found"])) {
+    display: block !important;
+  }
+}
+
 .editor.bordered {
   border: 1px solid gray;
 }
