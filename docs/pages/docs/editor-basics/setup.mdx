@@ -43,7 +43,7 @@ type BlockNoteEditorOptions = {
       pasteBehavior?: "prefer-markdown" | "prefer-html";
     }) => boolean | undefined;
   }) => boolean | undefined;
-  resolveFileUrl: (url: string) => Promise<string>
+  resolveFileUrl: (url: string) => Promise<string>;
   schema?: BlockNoteSchema;
   setIdAttribute?: boolean;
   sideMenuDetection?: "viewport" | "editor";
