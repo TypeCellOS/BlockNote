@@ -325,7 +325,10 @@ export class SideMenuView<
   /**
    * Finds the closest editor visually to the given coordinates
    */
-  findClosestEditorElement = (coords: { clientX: number; clientY: number }) => {
+  private findClosestEditorElement = (coords: {
+    clientX: number;
+    clientY: number;
+  }) => {
     // Get all editor elements in the document
     const editors = Array.from(this.pmView.root.querySelectorAll(".bn-editor"));
 
@@ -373,7 +376,7 @@ export class SideMenuView<
   /**
    * Checks if the given coordinates are inside the given element
    */
-  isCoordsInsideElement = (
+  private isCoordsInsideElement = (
     coords: { x: number; y: number },
     element: Element,
   ) => {
@@ -400,63 +403,33 @@ export class SideMenuView<
    * The synthetic event is a necessary evil because we do not control prosemirror-dropcursor to be able to show the drop-cursor within the range we want
    */
   onDragOver = (event: DragEvent) => {
-    if (
-      (event as any).synthetic ||
-      !event.dataTransfer?.types.includes("blocknote/html")
-    ) {
+    if ((event as any).synthetic) {
       return;
     }
 
-    if (
-      this.isCoordsInsideElement(
-        {
-          x: event.clientX,
-          y: event.clientY,
-        },
-        this.pmView.dom,
-      )
-    ) {
-      // we are inside the current editor, so no-op
-      return;
-    }
-    const closestEditor = this.findClosestEditorElement(event);
-    if (!closestEditor) {
-      // no editor element found, just no-op
-      return;
-    }
+    const dragEventContext = this.getDragEventContext(event);
 
-    if (closestEditor.element !== this.pmView.dom) {
-      // we are not the closest editor, so close the drop-cursor
+    if (!dragEventContext || !dragEventContext.isDropPoint) {
+      // This is not a drag event that we are interested in
+      // so, we close the drop-cursor
       this.closeDropCursor();
-    }
-
-    if (
-      this.isCoordsInsideElement(
-        {
-          x: event.clientX,
-          y: event.clientY,
-        },
-        closestEditor.element,
-      )
-    ) {
-      // let the other editor handle this event
       return;
     }
 
-    // only if we are the drag origin (so that the event only gets dispatched once)
-    // and the distance is close enough to the closest editor
-    if (this.isDragOrigin && closestEditor.distance < 250) {
-      // we are the drag origin, but the drag over event is not within the bounds of the closest editor
-      // So, we need to dispatch an event that is in the bounds of the closest editor
-      const evt = this.createSyntheticEvent(event, closestEditor.element);
-      closestEditor.element.dispatchEvent(evt);
+    if (
+      dragEventContext.isDropPoint &&
+      !dragEventContext.isDropWithinEditorBounds
+    ) {
+      // we are the drop point, but the drag over event is not within the bounds of this editor instance
+      // so, we need to dispatch an event that is in the bounds of this editor instance
+      this.dispatchSyntheticEvent(event);
     }
   };
 
   /**
    * Closes the drop-cursor for the current editor
    */
-  closeDropCursor = () => {
+  private closeDropCursor = () => {
     const evt = new Event("dragleave", { bubbles: false });
     // It needs to be synthetic, so we don't accidentally think it is a real dragend event
     (evt as any).synthetic = true;
@@ -465,80 +438,113 @@ export class SideMenuView<
   };
 
   /**
-   * The drop event handler listens at the document level,
-   * and handles drop events for all editors.
+   * It is surprisingly difficult to determine the information we need to know about a drag event
    *
-   * It specifically handles the following cases:
-   *  - If we are the drag origin and drop point:
-   *    - If the drop event is within our editor bounds, let normal drop handling take over
-   *    - If the drop event is outside our editor bounds, dispatch a synthetic drop event to our editor
-   *  - If we are the drop point but not the drag origin:
-   *    - Collapse selection to prevent PM from deleting unrelated content
-   *    - If drop event is outside our editor bounds, dispatch synthetic drop event to our editor
-   *  - If we are the drag origin but not the drop point:
-   *    - Delete the dragged content from our editor after a delay
-   *  - If we are neither the drag origin nor drop point:
-   *    - Do nothing and let the relevant editors handle it
+   * This function is trying to determine the following:
+   *  - Whether the current editor instance is the drop point
+   *  - Whether the current editor instance is the drag origin
+   *  - Whether the drop event is within the bounds of the current editor instance
    */
-  onDrop = (event: DragEvent) => {
-    if (
-      !event.dataTransfer?.types.includes("blocknote/html") ||
-      (event as any).synthetic
-    ) {
-      return;
-    }
-
-    // Finds the BlockNote editor element that the drop event occurred in (if
-    // any).
-    const parentEditorElement =
+  getDragEventContext = (event: DragEvent) => {
+    // We need to check if there is text content that is being dragged (select some text & just drag it)
+    const textContentIsBeingDragged =
+      !event.dataTransfer?.types.includes("blocknote/html") &&
+      Boolean(this.pmView.dragging);
+    // This is the side menu drag from this plugin
+    const sideMenuIsBeingDragged = Boolean(this.isDragOrigin);
+    // Tells us that the current editor instance has a drag ongoing (either text or side menu)
+    const isDragOrigin = textContentIsBeingDragged || sideMenuIsBeingDragged;
+    // Tells us which editor instance the drag event is happening in (or null if it's not in any editor like when dragging on another part of the page)
+    const eventEditorParentElement =
       event.target instanceof Node
         ? (event.target instanceof HTMLElement
             ? event.target
             : (event.target as any)
           )?.closest(".bn-editor") || null
         : null;
+    // Tells us which editor instance is the closest to the drag event (whether or not it is actually reasonably close)
     const closestEditor = this.findClosestEditorElement(event);
 
+    // We arbitrarily decide how far is "too far" from the closest editor to be considered a drop point
     if (!closestEditor || closestEditor.distance > 250) {
-      // we are too far from the closest editor, or no editor was found, so close the drop-cursor & no-op
-      this.closeDropCursor();
+      // we are too far from the closest editor, or no editor was found
+      return undefined;
+    }
+
+    // We check if the closest editor is the same as the current editor instance (which is the drop point)
+    const isDropPoint = closestEditor.element === this.pmView.dom;
+    // We check if the current editor instance is the same as the editor instance that the drag event is happening within
+    const isDropWithinEditorBounds =
+      isDropPoint && this.pmView.dom === eventEditorParentElement;
+
+    // We never want to handle drop events that are not related to us
+    if (!isDropPoint && !isDragOrigin) {
+      // we are not the drop point or drag origin, so not relevant to us
+      return undefined;
+    }
+
+    return {
+      isDropPoint,
+      isDropWithinEditorBounds,
+      isDragOrigin,
+    };
+  };
+
+  /**
+   * The drop event handler listens at the document level,
+   * and handles drop events for all editors.
+   *
+   * It specifically handles the following cases:
+   *  - If we are both the drag origin and drop point:
+   *    - Let normal drop handling take over
+   *  - If we are the drop point but not the drag origin:
+   *    - Collapse selection to prevent PM from deleting unrelated content
+   *    - If drop event is outside our editor bounds, dispatch synthetic drop event to our editor
+   *  - If we are the drag origin but not the drop point:
+   *    - Delete the dragged content from our editor after a delay
+   */
+  onDrop = (event: DragEvent) => {
+    if ((event as any).synthetic) {
       return;
     }
 
-    if (closestEditor?.element === this.pmView.dom) {
-      if (this.isDragOrigin) {
-        // we are the drag origin & the drop point
-        // console.log("we are the drag origin & the drop point");
-        if (this.pmView.dom !== parentEditorElement) {
-          // we are the drag origin & the drop point, but not the same editor as the event
-          // So, we need to dispatch an event that is in the bounds of the current editor
-          const evt = this.createSyntheticEvent(event, this.pmView.dom);
-          this.pmView.dom.dispatchEvent(evt);
-        }
-        return;
-      } else {
-        // we are the drop point, but not the drag origin
+    const context = this.getDragEventContext(event);
+    if (!context) {
+      this.closeDropCursor();
+      // This is not a drag event that we are interested in
+      return;
+    }
+    const { isDropPoint, isDropWithinEditorBounds, isDragOrigin } = context;
 
-        // Because the editor selection is unrelated to the dragged content, we
-        // don't want PM to delete its content. Therefore, we collapse the
-        // selection.
-        this.pmView.dispatch(
-          this.pmView.state.tr.setSelection(
-            TextSelection.create(
-              this.pmView.state.tr.doc,
-              this.pmView.state.tr.selection.to,
-            ),
+    if (isDropPoint && isDragOrigin) {
+      // The current instance is both the drop point and the drag origin
+      // no-op, normal drop handling will take over
+      return;
+    }
+
+    if (isDropPoint) {
+      // The current instance is the drop point, but not the drag origin
+
+      // Because the editor selection is unrelated to the dragged content, we
+      // don't want PM to delete its content. Therefore, we collapse the
+      // selection.
+      this.pmView.dispatch(
+        this.pmView.state.tr.setSelection(
+          TextSelection.create(
+            this.pmView.state.tr.doc,
+            this.pmView.state.tr.selection.anchor,
           ),
-        );
+        ),
+      );
 
-        if (this.pmView.dom !== parentEditorElement) {
-          // we are the drop point, but not the same editor
-          // So, we need to dispatch an event that is in the bounds of the closest editor
-          const evt = this.createSyntheticEvent(event, closestEditor.element);
-          closestEditor.element.dispatchEvent(evt);
-        }
+      if (!isDropWithinEditorBounds) {
+        // The drop event is outside the bounds of this editor instance
+        // so, we need to dispatch an event that is in the bounds of this editor instance
+        this.dispatchSyntheticEvent(event);
       }
-    } else if (this.isDragOrigin) {
+      return;
+    } else if (isDragOrigin) {
+      // The current instance is the drag origin, but not the drop point
       // our content got dropped somewhere else
 
       // Because the editor from which the block originates doesn't get a drop
@@ -561,10 +567,7 @@ export class SideMenuView<
   };
 
   onDragEnd = (event: DragEvent) => {
-    if (
-      !event.dataTransfer?.types.includes("blocknote/html") ||
-      (event as any).synthetic
-    ) {
+    if ((event as any).synthetic) {
       return;
     }
     // When the user starts dragging a block, `view.dragging` is set on all
@@ -624,9 +627,9 @@ export class SideMenuView<
     this.updateStateFromMousePos();
   };
 
-  private createSyntheticEvent(event: DragEvent, editorElement: Element) {
+  private dispatchSyntheticEvent(event: DragEvent) {
     const evt = new Event(event.type as "dragover", event) as any;
-    const editorBoundingBox = editorElement.getBoundingClientRect();
+    const editorBoundingBox = this.pmView.dom.getBoundingClientRect();
     evt.clientX = event.clientX;
     evt.clientY = event.clientY;
     if (
@@ -675,7 +678,7 @@ export class SideMenuView<
     evt.dataTransfer = event.dataTransfer;
     evt.preventDefault = () => event.preventDefault();
     evt.synthetic = true; // prevent recursion
-    return evt;
+    this.pmView.dom.dispatchEvent(evt);
   }
 
   onScroll = () => {
