@@ -374,22 +374,6 @@ export class SideMenuView<
   };
 
   /**
-   * Checks if the given coordinates are inside the given element
-   */
-  private isCoordsInsideElement = (
-    coords: { x: number; y: number },
-    element: Element,
-  ) => {
-    const rect = element.getBoundingClientRect();
-    return (
-      coords.x > rect.left &&
-      coords.x < rect.right &&
-      coords.y > rect.top &&
-      coords.y < rect.bottom
-    );
-  };
-
-  /**
    * This dragover event handler listens at the document level,
    * and is trying to handle dragover events for all editors.
    *
@@ -594,10 +578,12 @@ export class SideMenuView<
 
     // We want the full area of the editor to check if the cursor is hovering
     // above it though.
-    const cursorWithinEditor = this.isCoordsInsideElement(
-      this.mousePos,
-      this.pmView.dom,
-    );
+    const editorOuterBoundingBox = this.pmView.dom.getBoundingClientRect();
+    const cursorWithinEditor =
+      this.mousePos.x > editorOuterBoundingBox.left &&
+      this.mousePos.x < editorOuterBoundingBox.right &&
+      this.mousePos.y > editorOuterBoundingBox.top &&
+      this.mousePos.y < editorOuterBoundingBox.bottom;
 
     // TODO: remove parentElement, but then we need to remove padding from boundingbox or find a different solution
     const editorWrapper = this.pmView.dom!.parentElement!;
