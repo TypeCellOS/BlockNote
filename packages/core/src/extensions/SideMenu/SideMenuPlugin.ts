@@ -339,14 +339,23 @@ export class SideMenuView<
 
     editors.forEach((editor) => {
       const rect = editor.getBoundingClientRect();
-      const editorCenter = {
-        x: rect.left + rect.width / 2,
-        y: rect.top + rect.height / 2,
-      };
+
+      const distanceX =
+        coords.clientX < rect.left
+          ? rect.left - coords.clientX
+          : coords.clientX > rect.right
+            ? coords.clientX - rect.right
+            : 0;
+
+      const distanceY =
+        coords.clientY < rect.top
+          ? rect.top - coords.clientY
+          : coords.clientY > rect.bottom
+            ? coords.clientY - rect.bottom
+            : 0;
 
       const distance = Math.sqrt(
-        Math.pow(coords.clientX - editorCenter.x, 2) +
-          Math.pow(coords.clientY - editorCenter.y, 2),
+        Math.pow(distanceX, 2) + Math.pow(distanceY, 2),
       );
 
       if (distance < minDistance) {
