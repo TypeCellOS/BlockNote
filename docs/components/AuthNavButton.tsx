@@ -3,7 +3,6 @@
 import { authClient } from "@/util/auth-client";
 import { Menu, Transition } from "@headlessui/react";
 import clsx from "clsx";
-import { useTheme } from "next-themes";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ReactElement, ReactNode } from "react";
@@ -52,13 +51,12 @@ export const UserImage = ({ user }: UserImageProps) => {
 
 export function AuthNavButton() {
   const session = authClient.useSession();
-  const { resolvedTheme } = useTheme();
   const pathname = usePathname();
 
   if (!session.data) {
     return (
       <CTAButton
-        href={`/signin?redirect=${encodeURIComponent(pathname || "")}&theme=${encodeURIComponent(resolvedTheme || "")}`}
+        href={`/signin?redirect=${encodeURIComponent(pathname || "")}`}
         size={"small"}
       >
         Sign in

@@ -101,9 +101,6 @@ export const baseOptions: Partial<DocsLayoutProps & HomeLayoutProps> = {
         title: "Documentation",
         description: "Learn how to use BlockNote",
         url: "/docs",
-        props: {
-          className: "fesfesfes",
-        },
       },
       {
         icon: (
@@ -112,9 +109,6 @@ export const baseOptions: Partial<DocsLayoutProps & HomeLayoutProps> = {
         title: "Examples",
         description: "See BlockNote in action",
         url: "/examples",
-        props: {
-          className: "fesfesfes",
-        },
       },
     ],
   },

@@ -39,12 +39,12 @@ function ExampleDemoBar(props: { exampleData: ExampleData }) {
       <ExampleDemoBarSourceCodeLink
         name="GitHub"
         icon={<AiFillGithub size={16} />}
-        url={`https://github.com/TypeCellOS/BlockNote/tree/main/examples/${props.exampleData.pathFromRoot}`}
+        url={`https://github.com/TypeCellOS/BlockNote/tree/main/${props.exampleData.pathFromRoot}`}
       />
       <ExampleDemoBarSourceCodeLink
         name="StackBlitz"
         icon={<SiStackblitz size={16} />}
-        url={`https://www.stackblitz.com/github/TypeCellOS/BlockNote/tree/main/examples/${props.exampleData.pathFromRoot}`}
+        url={`https://www.stackblitz.com/github/TypeCellOS/BlockNote/tree/main/${props.exampleData.pathFromRoot}`}
       />
     </div>
   );

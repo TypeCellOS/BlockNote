@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   ChangeEvent,
@@ -11,9 +10,10 @@ import {
   useState,
 } from "react";
 
-import { authClient, signIn, signUp } from "@/util/auth-client";
+import ThemedImage from "@/components/ThemedImage";
 import blockNoteLogo from "@/public/img/logos/banner.svg";
 import blockNoteLogoDark from "@/public/img/logos/banner.dark.svg";
+import { authClient, signIn, signUp } from "@/util/auth-client";
 
 function AuthenticationInput(props: {
   type: HTMLInputTypeAttribute;
@@ -365,13 +365,6 @@ export default function AuthenticationPage(props: {
 
   const searchParams = useSearchParams();
   const callbackURL = searchParams?.get("redirect") || "/";
-  const theme = searchParams?.get("theme") || "light";
-
-  useEffect(() => {
-    if (theme === "dark") {
-      document.body.classList.add("dark");
-    }
-  }, [theme]);
 
   const session = authClient.useSession();
   useEffect(() => {
@@ -384,9 +377,9 @@ export default function AuthenticationPage(props: {
   return (
     <div className="flex h-0 flex-1 flex-col justify-center">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <Image
+        <ThemedImage
           className="mx-auto h-10 w-auto cursor-pointer"
-          src={theme === "dark" ? blockNoteLogoDark : blockNoteLogo}
+          src={{ light: blockNoteLogo, dark: blockNoteLogoDark }}
           alt={"BlockNote Logo"}
           onClick={() => router.push("/")}
         />

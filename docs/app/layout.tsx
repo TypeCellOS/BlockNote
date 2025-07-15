@@ -8,8 +8,9 @@ import "./gradients.css";
 import "./styles.css";
 
 export const metadata: Metadata = {
-  title: "BlockNote",
-  description: "BlockNote is a rich text editor for the web.",
+  title: "BlockNote - Javascript Block-Based React rich text editor",
+  description:
+    "A beautiful text editor that just works. Easily add an editor to your app that users will love. Customize it with your own functionality like custom blocks or AI tooling.",
 };
 
 export default function Layout({ children }: { children: ReactNode }) {
