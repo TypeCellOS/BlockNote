@@ -3372,19 +3372,13 @@ importers:
     dependencies:
       '@ariakit/react':
         specifier: ^0.4.3
-        version: 0.4.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 0.4.15(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@blocknote/core':
         specifier: 0.33.0
         version: link:../core
       '@blocknote/react':
         specifier: 0.33.0
         version: link:../react
-      react:
-        specifier: ^18.0 || ^19.0 || >= 19.0.0-rc
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.0 || ^19.0 || >= 19.0.0-rc
-        version: 18.3.1(react@18.3.1)
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -3398,6 +3392,12 @@ importers:
       eslint:
         specifier: ^8.10.0
         version: 8.57.1
+      react:
+        specifier: ^19.1.0
+        version: 19.1.0
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.1.0(react@19.1.0)
       rimraf:
         specifier: ^5.0.5
         version: 5.0.10
@@ -13435,11 +13435,6 @@ packages:
     resolution: {integrity: sha512-y3bGgqKj3QBdxLbLkomlohkvsA8gdAiUQlSBJnBhfn+BPxg4bc62d8TcBW15wavDfgexCgccckhcZvywyQYPOw==}
     hasBin: true
 
-  react-dom@18.3.1:
-    resolution: {integrity: sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==}
-    peerDependencies:
-      react: ^18.3.1
-
   react-dom@19.1.0:
     resolution: {integrity: sha512-Xs1hdnE+DyKgeHJeJznQmYMIBG3TKIHJJT95Q58nHLSrElKlGQqDTR2HQ9fx5CN/Gk6Vh/kupBTDLU11/nDk/g==}
     peerDependencies:
@@ -13862,9 +13857,6 @@ packages:
   saxes@6.0.0:
     resolution: {integrity: sha512-xAg7SOnEhrm5zI3puOOKyy1OMcMlIJZYNJY7xLBwSze0UjhPLnWfj2GF2EpT0jmzaJKIWKHLsaSSajf35bcYnA==}
     engines: {node: '>=v12.22.7'}
-
-  scheduler@0.23.2:
-    resolution: {integrity: sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==}
 
   scheduler@0.25.0-rc-603e6108-20241029:
     resolution: {integrity: sha512-pFwF6H1XrSdYYNLfOcGlM28/j8CGLu8IvdrxqhjWULe2bPcKiKW4CV+OWqR/9fT52mywx65l7ysNkjLKBda7eA==}
@@ -15244,19 +15236,19 @@ snapshots:
 
   '@ariakit/core@0.4.14': {}
 
-  '@ariakit/react-core@0.4.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@ariakit/react-core@0.4.15(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@ariakit/core': 0.4.14
       '@floating-ui/dom': 1.6.13
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      use-sync-external-store: 1.4.0(react@18.3.1)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
+      use-sync-external-store: 1.4.0(react@19.1.0)
 
-  '@ariakit/react@0.4.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@ariakit/react@0.4.15(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@ariakit/react-core': 0.4.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      '@ariakit/react-core': 0.4.15(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
 
   '@asamuzakjp/css-color@3.1.1':
     dependencies:
@@ -25527,12 +25519,6 @@ snapshots:
       minimist: 1.2.8
       strip-json-comments: 2.0.1
 
-  react-dom@18.3.1(react@18.3.1):
-    dependencies:
-      loose-envify: 1.4.0
-      react: 18.3.1
-      scheduler: 0.23.2
-
   react-dom@19.1.0(react@19.1.0):
     dependencies:
       react: 19.1.0
@@ -26123,10 +26109,6 @@ snapshots:
   saxes@6.0.0:
     dependencies:
       xmlchars: 2.2.0
-
-  scheduler@0.23.2:
-    dependencies:
-      loose-envify: 1.4.0
 
   scheduler@0.25.0-rc-603e6108-20241029: {}
 
@@ -27084,10 +27066,6 @@ snapshots:
       tslib: 2.8.1
     optionalDependencies:
       '@types/react': 19.1.8
-
-  use-sync-external-store@1.4.0(react@18.3.1):
-    dependencies:
-      react: 18.3.1
 
   use-sync-external-store@1.4.0(react@19.1.0):
     dependencies:

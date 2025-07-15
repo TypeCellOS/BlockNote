@@ -4,7 +4,6 @@ import { createGroq } from "@ai-sdk/groq";
 import { createMistral } from "@ai-sdk/mistral";
 import { createOpenAI } from "@ai-sdk/openai";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
-import "@mantine/core/styles.css";
 import { BlockNoteEditor, filterSuggestionItems } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { en } from "@blocknote/core/locales";
