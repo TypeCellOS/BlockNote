@@ -8,13 +8,7 @@ BlockNote operates on a **block-based architecture**, where all content is organ
 
 ## Block-Based Architecture
 
-In BlockNote, everything is a block. A paragraph is a block, a heading is a block, a list item is a block, and even complex structures like tables are composed of blocks. This unified approach makes block manipulation consistent and predictable.
-
-Blocks can be:
-
-- **Top-level blocks** - Direct children of the document
-- **Nested blocks** - Children of other blocks (like list items within a list)
-- **Different types** - Paragraphs, headings, lists, tables, code blocks, etc.
+In BlockNote, everything is a block. A paragraph is a block, a heading is a block, a list item is a block, and even complex structures like tables are composed of blocks. This unified approach makes document manipulation consistent and predictable.
 
 ## Core Block Operations
 
@@ -27,50 +21,29 @@ BlockNote provides a comprehensive set of operations for manipulating blocks, al
 - **Navigate relationships** - Find previous, next, or parent blocks
 - **Traverse all blocks** - Iterate through the entire document structure
 
+[See more in the API reference](/docs/reference/editor/manipulate-blocks#reading-blocks)
+
+```typescript
+// Get the entire document
+const document: Block[] = editor.document;
+
+// Get a specific block
+const block = editor.getBlock(blockId);
+
+// Get the previous block
+const previousBlock = editor.getPreviousBlock(blockId);
+
+// Get the next block
+const nextBlock = editor.getNextBlock(blockId);
+```
+
 ### Creating Blocks
 
 - **Insert new blocks** - Add blocks before or after existing ones
 - **Create complex structures** - Build nested blocks like lists and tables
 - **Generate blocks programmatically** - Create blocks from data or user input
 
-### Modifying Blocks
-
-- **Update existing blocks** - Change block type, content, or properties
-- **Replace blocks** - Swap one or more blocks with new blocks
-- **Move blocks** - Reorder blocks by moving them up or down
-- **Nest and unnest** - Change the hierarchy by indenting or outdenting blocks
-
-### Removing Blocks
-
-- **Delete specific blocks** - Remove individual blocks or groups of blocks
-- **Clear selections** - Remove blocks based on user selection
-
-## High-Level vs Low-Level APIs
-
-BlockNote provides multiple layers of APIs for block manipulation:
-
-### High-Level APIs (Recommended)
-
-The high-level APIs are designed to be intuitive and handle common use cases:
-
-- **Block manipulation methods** - `insertBlocks()`, `updateBlock()`, `removeBlocks()`, etc.
-- **Selection-based operations** - Work with user selections and cursor positions
-- **Automatic ID generation** - No need to manually manage block identifiers
-- **Built-in validation** - Ensures operations are safe and consistent
-
-### Low-Level APIs (Advanced)
-
-For advanced use cases, BlockNote exposes lower-level APIs:
-
-- **ProseMirror transactions** - Direct access to the underlying editor state
-- **Custom commands** - Execute ProseMirror commands for specialized operations
-- **Manual state management** - Full control over the editor's internal state
-
-**Recommendation**: Start with the high-level APIs. They're easier to use, less error-prone, and handle most common scenarios. Only use low-level APIs when you need specialized functionality that isn't available at the higher level.
-
-## Common Block Patterns
-
-### Block Creation
+[See more in the API reference](/docs/reference/editor/manipulate-blocks#inserting-blocks)
 
 ```typescript
 // Insert a simple paragraph block
@@ -91,7 +64,14 @@ editor.insertBlocks(
 );
 ```
 
-### Block Updates
+### Modifying Blocks
+
+- **Update existing blocks** - Change block type, content, or properties
+- **Replace blocks** - Swap one or more blocks with new blocks
+- **Move blocks** - Reorder blocks by moving them up or down
+- **Nest and unnest** - Change the hierarchy by indenting or outdenting blocks
+
+[See more in the API reference](/docs/reference/editor/manipulate-blocks#updating-blocks)
 
 ```typescript
 // Change a block's type
@@ -104,7 +84,12 @@ editor.updateBlock(blockId, {
 });
 ```
 
-### Block Removal
+### Removing Blocks
+
+- **Delete specific blocks** - Remove individual blocks or groups of blocks
+- **Clear selections** - Remove blocks based on user selection
+
+[See more in the API reference](/docs/reference/editor/manipulate-blocks#removing-blocks)
 
 ```typescript
 // Remove specific blocks
@@ -119,11 +104,10 @@ editor.replaceBlocks(
 
 ## Best Practices
 
-1. **Use the highest-level API possible** - Start with block manipulation methods before reaching for low-level APIs
-2. **Work with block references** - Use existing blocks as references for positioning new blocks
-3. **Handle errors gracefully** - Operations can fail if blocks don't exist or are invalid
-4. **Group related operations** - Use transactions to group multiple block changes into a single undo/redo operation
-5. **Consider user experience** - Think about how your block manipulations affect the user's workflow
+1. **Work with block references** - Use existing blocks as references for positioning new blocks
+2. **Handle errors gracefully** - Operations can fail if blocks don't exist or are invalid
+3. **Group related operations** - Use transactions to group multiple block changes into a single undo/redo operation
+4. **Consider user experience** - Think about how your block manipulations affect the user's workflow
 
 ## Next Steps
 
