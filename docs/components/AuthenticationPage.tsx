@@ -402,7 +402,7 @@ export default function AuthenticationPage(props: {
             className="cursor-pointer font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
             onClick={() => {
               router.push(
-                `${props.variant === "email" ? "/signup" : "/signin"}?redirect=${encodeURIComponent(callbackURL)}&theme=${encodeURIComponent(theme)}`,
+                `${props.variant === "email" ? "/signup" : "/signin"}?redirect=${encodeURIComponent(callbackURL)}`,
               );
             }}
           >
