@@ -615,7 +615,9 @@ export class SideMenuView<
 
   private dispatchSyntheticEvent(event: DragEvent) {
     const evt = new Event(event.type as "dragover", event) as any;
-    const editorBoundingBox = this.pmView.dom.getBoundingClientRect();
+    const editorBoundingBox = this.pmView.dom
+      .querySelector(".bn-block-group")!
+      .getBoundingClientRect();
     evt.clientX = event.clientX;
     evt.clientY = event.clientY;
     if (
