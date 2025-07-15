@@ -11,6 +11,9 @@ export const metadata: Metadata = {
   title: "BlockNote - Javascript Block-Based React rich text editor",
   description:
     "A beautiful text editor that just works. Easily add an editor to your app that users will love. Customize it with your own functionality like custom blocks or AI tooling.",
+  openGraph: {
+    images: "/api/og",
+  },
 };
 
 export default function Layout({ children }: { children: ReactNode }) {

@@ -22,7 +22,7 @@ export async function generateMetadata(props: {
   }
 
   return {
-    title: page.data.title,
+    title: `BlockNote - ${page.data.title}`,
     description: page.data.description,
     openGraph: {
       images: `/api/og?title=${page.data.title}`,

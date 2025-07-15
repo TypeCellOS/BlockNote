@@ -1,15 +1,18 @@
 import { Metadata } from "next";
-import { Suspense } from "react";
 import dynamic from "next/dynamic";
+import { Suspense } from "react";
+
+export const metadata: Metadata = {
+  title: "BlockNote - Sign-up",
+  openGraph: {
+    images: "/api/og?title=Sign-up",
+  },
+};
 
 // dynamic import because we use search params in the client component
 const AuthenticationPage = dynamic(
   () => import("../../components/AuthenticationPage"),
 );
-
-export const metadata: Metadata = {
-  title: "Sign-up",
-};
 
 export default function Register() {
   return (

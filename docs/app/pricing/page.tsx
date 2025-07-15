@@ -1,6 +1,14 @@
 import { SectionSubHeader } from "@/components/Headings";
 import { FAQ } from "@/app/pricing/faq";
 import { Tiers, Tier } from "@/app/pricing/tiers";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "BlockNote - Pricing",
+  openGraph: {
+    images: "/api/og?title=Pricing",
+  },
+};
 
 const tiers: Tier[] = [
   // {

@@ -3,7 +3,10 @@ import dynamic from "next/dynamic";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
-  title: "Login",
+  title: "BlockNote - Login",
+  openGraph: {
+    images: "/api/og?title=Login",
+  },
 };
 
 // dynamic import because we use search params in the client component

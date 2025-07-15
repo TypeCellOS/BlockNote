@@ -246,7 +246,6 @@ function EmailSignInButton() {
 
   const searchParams = useSearchParams();
   const callbackURL = searchParams?.get("redirect") || "/";
-  const theme = searchParams?.get("theme") || "light";
 
   return (
     <AlternativeSignInButton
@@ -261,9 +260,7 @@ function EmailSignInButton() {
           <path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm320-280 320-200v-80L480-520 160-720v80l320 200Z" />
         </svg>
       }
-      onClick={() =>
-        router.push(`/signin?redirect=${callbackURL}&theme=${theme}`)
-      }
+      onClick={() => router.push(`/signin?redirect=${callbackURL}`)}
     />
   );
 }
@@ -273,7 +270,6 @@ function PasswordSignInButton() {
 
   const searchParams = useSearchParams();
   const callbackURL = searchParams?.get("redirect") || "/";
-  const theme = searchParams?.get("theme") || "light";
 
   return (
     <AlternativeSignInButton
@@ -296,9 +292,7 @@ function PasswordSignInButton() {
           <path d="m13 12c0 .5523-.4477 1-1 1s-1-.4477-1-1 .4477-1 1-1 1 .4477 1 1z" />
         </svg>
       }
-      onClick={() =>
-        router.push(`/signin/password?redirect=${callbackURL}&theme=${theme}`)
-      }
+      onClick={() => router.push(`/signin/password?redirect=${callbackURL}`)}
     />
   );
 }
