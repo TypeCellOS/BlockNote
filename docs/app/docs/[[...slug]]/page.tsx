@@ -1,5 +1,6 @@
 import { DocPage } from "@/components/DocPage";
 import { source } from "@/lib/source/docs";
+import { getFullMetadata } from "@/util/getFullMetadata";
 import { notFound } from "next/navigation";
 
 export default async function Page(props: {
@@ -21,11 +22,10 @@ export async function generateMetadata(props: {
     notFound();
   }
 
-  return {
-    title: `BlockNote - ${page.data.title}`,
+  return getFullMetadata({
+    title: page.data.title,
     description: page.data.description,
-    openGraph: {
-      images: `/api/og?title=${page.data.title}`,
-    },
-  };
+    path: page.url,
+    ogImageTitle: page.data.imageTitle || page.data.title,
+  });
 }

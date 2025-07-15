@@ -1,6 +1,7 @@
 import GitHubButton from "@/components/GitHubButton";
 import CTAButton from "@/components/CTAButton";
 import { source } from "@/lib/source/pages";
+import { getFullMetadata } from "@/util/getFullMetadata";
 import { getMDXComponents } from "@/util/mdx-components";
 import { DocsBody } from "fumadocs-ui/page";
 import { notFound } from "next/navigation";
@@ -42,11 +43,10 @@ export async function generateMetadata(props: {
     notFound();
   }
 
-  return {
-    title: `BlockNote - ${page.data.title}`,
+  return getFullMetadata({
+    title: page.data.title,
     description: page.data.description,
-    openGraph: {
-      images: `/api/og?title=${page.data.title}`,
-    },
-  };
+    path: page.url,
+    ogImageTitle: page.data.imageTitle,
+  });
 }

@@ -22,6 +22,7 @@ export const docs = defineDocs({
   docs: {
     schema: frontmatterSchema.extend({
       description: z.string(),
+      imageTitle: z.string().optional(),
     }),
   },
 });
@@ -41,6 +42,7 @@ export const pages = defineDocs({
   docs: {
     schema: frontmatterSchema.extend({
       description: z.string(),
+      imageTitle: z.string(),
     }),
   },
 });

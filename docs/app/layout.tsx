@@ -3,18 +3,17 @@ import { RootProvider } from "fumadocs-ui/provider";
 import { Metadata } from "next";
 import type { ReactNode } from "react";
 
+import { getFullMetadata } from "@/util/getFullMetadata";
+
 import "./global.css";
 import "./gradients.css";
 import "./styles.css";
 
-export const metadata: Metadata = {
-  title: "BlockNote - Javascript Block-Based React rich text editor",
+export const metadata: Metadata = getFullMetadata({
+  title: "Javascript Block-Based React rich text editor",
   description:
     "A beautiful text editor that just works. Easily add an editor to your app that users will love. Customize it with your own functionality like custom blocks or AI tooling.",
-  openGraph: {
-    images: "/api/og",
-  },
-};
+});
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
