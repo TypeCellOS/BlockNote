@@ -4,23 +4,21 @@ description: Learn about how content types are defined in the editor.
 imageTitle: Schemas
 ---
 
-Schemas are the core of how BlockNote works. They basic building blocks of the editor, and are used to define the content of the editor.
+Schemas are the core of how BlockNote works. They are the basic building blocks of the editor, and are used to define the content of the editor.
 
 The schema is a collection of definitions for the different types of blocks, inline content, and styles that can be used in the editor.
 
 <Callout type="info">
   If you are using the default blocks, inline content, and styles, you do not
-  need to specify a schema, since we can just use the default which uses the
-  default blocks, inline content, and styles.
+  need to specify a schema, since we use the default which uses the default
+  blocks, inline content, and styles.
 </Callout>
 
 ## Creating a Schema
 
 You can create a schema using the `BlockNoteSchema.create` function.
 
-```tsx twoslash
-const Alert = {} as any;
-// ---cut---
+```tsx
 import {
   BlockNoteSchema,
   defaultBlockSpecs,
@@ -46,7 +44,7 @@ const schema = BlockNoteSchema.create({
 
 You can use a schema by passing it to the `useCreateBlockNote` hook.
 
-```tsx twoslash
+```tsx
 import React from "react";
 import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteSchema } from "@blocknote/core";
@@ -62,3 +60,10 @@ function Editor() {
   return <BlockNoteView editor={editor} />;
 }
 ```
+
+## Next Steps
+
+This overview covers the fundamental concepts of block manipulation in BlockNote. For detailed API reference and specific examples, see:
+
+- [Schemas](/docs/reference/editor/schemas) - Complete API documentation
+- [Block Types](/docs/features/blocks) - Understanding different block types and their properties

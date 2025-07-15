@@ -102,6 +102,29 @@ editor.replaceBlocks(
 );
 ```
 
+## Working with Cursor and Selections
+
+- **Read cursor position** - Get information about where the user's cursor is located
+- **Set cursor position** - Move the cursor to specific blocks
+- **Read selections** - Access blocks currently selected by the user
+- **Set selections** - Programmatically select ranges of blocks
+
+[See more in the API reference](/docs/reference/editor/cursor-selections)
+
+```typescript
+// Get cursor position information
+const cursorPosition = editor.getTextCursorPosition();
+
+// Set cursor to a specific block
+editor.setTextCursorPosition(blockId, "start");
+
+// Get current selection
+const selection = editor.getSelection();
+
+// Set selection programmatically
+editor.setSelection(startBlockId, endBlockId);
+```
+
 ## Best Practices
 
 1. **Work with block references** - Use existing blocks as references for positioning new blocks

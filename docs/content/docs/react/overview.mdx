@@ -4,15 +4,24 @@ description: Learn how to manipulate the content of the editor.
 imageTitle: Manipulating Content
 ---
 
+BlockNote provides a powerful React integration that makes it easy to add rich text editing capabilities to your applications. The React bindings offer a declarative API that integrates seamlessly with React's component model and state management patterns.
+
+## Key Components
+
+The React integration centers around two main pieces:
+
+- **`useCreateBlockNote`** - A React hook that creates and manages editor instances
+- **`BlockNoteView`** - A component that renders the editor with a complete UI
+
 ## Quick Start
 
-The fastest way to get started with the React bindings is by using the `useCreateBlockNote` hook and `BlockNoteView` component:
+Here's a minimal example of how to integrate BlockNote into a React component:
 
-```tsx twoslash
+```tsx
 import React from "react";
 import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
-// Or ariakit, shadcn, etc.
+// Or, you can use ariakit, shadcn, etc.
 
 function MyEditor() {
   const editor = useCreateBlockNote();
@@ -21,97 +30,105 @@ function MyEditor() {
 }
 ```
 
-That's it! You now have a fully functional editor with all the basic features like:
+This gives you a fully functional editor with:
 
 - Text editing and formatting
 - Block types (paragraphs, headings, lists, etc.)
 - Toolbar for formatting options
 - Side menu for block operations
 
-## Examples
+## BlockNoteView
 
-### Adding Initial Content
+The `<BlockNoteView>` component is used to render the editor. It also provides a number of props for editor specific events.
 
-You can start your editor with some predefined content:
+### Props
+
+<auto-type-table
+  path="../../../../packages/react/src/editor/BlockNoteView.tsx"
+  name="BlockNoteViewProps"
+/>
+
+## Hooks
+
+### useCreateBlockNote
+
+The `useCreateBlockNote` hook is used to create a new `BlockNoteEditor` instance.
 
 ```tsx twoslash
 import React from "react";
-import { useCreateBlockNote } from "@blocknote/react";
-import { BlockNoteView } from "@blocknote/mantine";
-
+/**
+ * The options for the editor, like initial content, schema, etc.
+ * See the [Editor Options API reference](/docs/reference/editor/options) for more details
+ */
+type BlockNoteEditorOptions = object;
+/**
+ * See the [Editor API reference](/docs/reference/editor/manipulate-blocks) for more details
+ */
+type BlockNoteEditor = object;
+/**
+ * This hook creates a new editor instance, but doesn't render it.
+ */
 // ---cut---
-function EditorWithContent() {
-  const editor = useCreateBlockNote({
-    initialContent: [
-      {
-        type: "heading",
-        content: "Welcome to BlockNote",
-        props: { level: 1 },
-      },
-      {
-        type: "paragraph",
-        content: "This is a paragraph with some text.",
-      },
-      {
-        type: "bulletListItem",
-        content: "This is a bullet point",
-      },
-    ],
-  });
-
-  return <BlockNoteView editor={editor} />;
-}
+declare function useCreateBlockNote(
+  options?: BlockNoteEditorOptions,
+  deps?: React.DependencyList,
+): BlockNoteEditor;
 ```
 
-### Handling Changes
+### useEditorChange
 
-You can listen for changes in your editor content:
+The `useEditorChange` hook is used to listen for changes to the editor.
 
 ```tsx twoslash
 import React from "react";
-import { BlockNoteEditor } from "@blocknote/core";
-import { useCreateBlockNote } from "@blocknote/react";
-import { BlockNoteView } from "@blocknote/mantine";
-
+/**
+ * The blocks that were inserted, updated, or deleted by the change that occurred.
+ * See the [Events documentation](/docs/reference/editor/events#onchange) for more details
+ */
+type BlocksChanged = object;
+/**
+ * See the [Editor API reference](/docs/reference/editor/manipulate-blocks) for more details
+ */
+type BlockNoteEditor = object;
+/**
+ * This hook creates a new editor instance, but doesn't render it.
+ */
 // ---cut---
-function EditorWithHandlers() {
-  const editor = useCreateBlockNote();
-
-  const handleChange = (editor: BlockNoteEditor<any, any, any>) => {
-    // Get the current content as JSON
-    const content = editor.document;
-    console.log("Content changed:", content);
-  };
-
-  return <BlockNoteView editor={editor} onChange={handleChange} />;
-}
+declare function useEditorChange(
+  callback: (
+    editor: BlockNoteEditor,
+    ctx: {
+      /**
+       * Returns the blocks that were inserted, updated, or deleted by the change that occurred.
+       */
+      getChanges(): BlocksChanged;
+    },
+  ) => void,
+  editor?: BlockNoteEditor,
+): BlockNoteEditor;
 ```
 
-### Customizing the Appearance
+### useEditorSelectionChange
 
-You can customize the editor's appearance with themes and styling:
+The `useEditorSelectionChange` hook is used to listen for changes to the editor selection.
 
 ```tsx twoslash
 import React from "react";
-import { useCreateBlockNote } from "@blocknote/react";
-import { BlockNoteView } from "@blocknote/mantine";
-
+/**
+ * See the [Editor API reference](/docs/reference/editor/manipulate-blocks) for more details
+ */
+type BlockNoteEditor = object;
+/**
+ * This hook listens for changes to the editor selection.
+ */
 // ---cut---
-function StyledEditor() {
-  const editor = useCreateBlockNote();
-
-  return (
-    <div
-      style={{ border: "1px solid #ccc", borderRadius: "8px", padding: "16px" }}
-    >
-      <BlockNoteView
-        editor={editor}
-        theme="dark"
-        style={{ minHeight: "300px" }}
-      />
-    </div>
-  );
-}
+declare function useEditorSelectionChange(
+  /**
+   * Callback that runs when the editor's selection changes.
+   */
+  callback: () => void,
+  editor?: BlockNoteEditor,
+): BlockNoteEditor;
 ```
 
 ## Next Steps
@@ -120,7 +137,7 @@ Now that you have a basic editor working, you can explore:
 
 - [Block Types](/docs/features/blocks) - Learn about different content blocks
 - [Formatting](/docs/react/styling-theming) - Customize text and block formatting
-- [Customization](/docs/react/styling-theming/components) - Build custom UI components
+- [Customization](/docs/features/custom-schemas/custom-blocks) - Build custom UI components
 - [Examples](/examples) - See more advanced usage patterns
 
 The editor is now ready to use! Start typing and explore the various block types and formatting options available in the toolbar.
