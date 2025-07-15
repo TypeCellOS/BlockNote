@@ -341,7 +341,9 @@ export class SideMenuView<
     let minDistance = Number.MAX_VALUE;
 
     editors.forEach((editor) => {
-      const rect = editor.getBoundingClientRect();
+      const rect = editor
+        .querySelector(".bn-block-group")!
+        .getBoundingClientRect();
 
       const distanceX =
         coords.clientX < rect.left
@@ -615,52 +617,19 @@ export class SideMenuView<
 
   private dispatchSyntheticEvent(event: DragEvent) {
     const evt = new Event(event.type as "dragover", event) as any;
-    const editorBoundingBox = this.pmView.dom
+    const dropPointBoundingBox = this.pmView.dom
       .querySelector(".bn-block-group")!
       .getBoundingClientRect();
     evt.clientX = event.clientX;
     evt.clientY = event.clientY;
-    if (
-      event.clientX < editorBoundingBox.left &&
-      event.clientX >
-        editorBoundingBox.left -
-          editorBoundingBox.width *
-            PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP
-    ) {
-      // when we're slightly left of the editor, we can drop to the side of the block
-      evt.clientX =
-        editorBoundingBox.left +
-        (editorBoundingBox.width *
-          PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP) /
-          2;
-    } else if (
-      event.clientX > editorBoundingBox.right &&
-      event.clientX <
-        editorBoundingBox.right +
-          editorBoundingBox.width *
-            PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP
-    ) {
-      // when we're slightly right of the editor, we can drop to the side of the block
-      evt.clientX =
-        editorBoundingBox.right -
-        (editorBoundingBox.width *
-          PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP) /
-          2;
-    } else if (
-      event.clientX < editorBoundingBox.left ||
-      event.clientX > editorBoundingBox.right
-    ) {
-      // when mouse is outside of the editor on x axis, drop it somewhere safe (but not to the side of a block)
-      evt.clientX =
-        editorBoundingBox.left +
-        PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP *
-          editorBoundingBox.width *
-          2; // put it somewhere in first block, but safe outside of the PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP margin
-    }
 
+    evt.clientX = Math.min(
+      Math.max(event.clientX, dropPointBoundingBox.left),
+      dropPointBoundingBox.left + dropPointBoundingBox.width,
+    );
     evt.clientY = Math.min(
-      Math.max(event.clientY, editorBoundingBox.top),
-      editorBoundingBox.top + editorBoundingBox.height,
+      Math.max(event.clientY, dropPointBoundingBox.top),
+      dropPointBoundingBox.top + dropPointBoundingBox.height,
     );
 
     evt.dataTransfer = event.dataTransfer;
