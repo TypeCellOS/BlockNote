@@ -1,0 +1,588 @@
+---
+title: Manipulating Content
+description: How to read, create, update, and remove blocks and inline content in the BlockNote editor
+imageTitle: Manipulating Content
+---
+
+BlockNote provides comprehensive APIs for manipulating both blocks and inline content within the editor. This guide covers how to programmatically work with the document structure (blocks) and the content within those blocks (text, links, styling).
+
+## Overview
+
+The content manipulation APIs fall into two main categories:
+
+### Block Manipulation
+
+- **[Reading blocks](#reading-blocks)** - Accessing existing blocks and their relationships
+- **[Creating blocks](#creating-blocks)** - Inserting new blocks into the document
+- **[Updating blocks](#updating-blocks)** - Modifying existing block content and properties
+- **[Removing blocks](#removing-blocks)** - Deleting blocks from the document
+- **[Replacing blocks](#replacing-blocks)** - Swapping existing blocks with new ones
+- **[Moving blocks](#moving-blocks)** - Reordering blocks within the document
+- **[Nesting blocks](#nesting-blocks)** - Creating hierarchical relationships between blocks
+
+### Inline Content Manipulation
+
+- **[Inserting content](#inserting-inline-content)** - Adding text, links, and styled content
+- **[Reading content](#reading-content)** - Getting selected text and active styles
+- **[Styling text](#styling-text)** - Adding, removing, and toggling text styles
+- **[Working with links](#working-with-links)** - Creating and accessing link content
+
+## Common Types
+
+### Block Identifiers
+
+Most block methods require a `BlockIdentifier` to reference existing blocks:
+
+```typescript
+type BlockIdentifier = string | Block;
+```
+
+You can pass either:
+
+- A `string` representing the block ID
+- A `Block` object (the ID will be extracted automatically)
+
+### Partial Blocks
+
+When creating or updating blocks, you use `PartialBlock` objects which have optional properties:
+
+```typescript
+type PartialBlock = {
+  id?: string; // Auto-generated if not provided
+  type?: string; // Block type (paragraph, heading, etc.)
+  props?: Partial<Record<string, any>>; // Block-specific properties
+  content?: string | InlineContent[] | TableContent; // Block content
+  children?: PartialBlock[]; // Nested blocks
+};
+```
+
+### Partial Inline Content
+
+When creating or updating inline content, you use `PartialInlineContent` which allows for flexible content specification:
+
+```typescript
+type PartialLink = {
+  type: "link";
+  content: string | StyledText[];
+  href: string;
+};
+
+type PartialInlineContent = string | (string | PartialLink | StyledText)[];
+```
+
+This type allows you to:
+
+- Pass a simple string for plain text
+- Pass an array of mixed content (strings, links, styled text)
+- Use `PartialLink` for link content
+- Use `StyledText` for text with formatting
+
+## Block Manipulation
+
+### Reading Blocks
+
+#### Getting the Document
+
+Retrieve all top-level blocks in the editor:
+
+```typescript
+const blocks = editor.document;
+```
+
+Returns a snapshot of all top-level (non-nested) blocks in the document.
+
+#### Getting Specific Blocks
+
+```typescript
+// Single block
+getBlock(blockIdentifier: BlockIdentifier): Block | undefined
+
+// Previous block
+getPrevBlock(blockIdentifier: BlockIdentifier): Block | undefined
+
+// Next block
+getNextBlock(blockIdentifier: BlockIdentifier): Block | undefined
+
+// Parent block
+getParentBlock(blockIdentifier: BlockIdentifier): Block | undefined
+```
+
+```typescript
+const block = editor.getBlock("block-123");
+const prevBlock = editor.getPrevBlock("block-123");
+const nextBlock = editor.getNextBlock("block-123");
+const parentBlock = editor.getParentBlock("nested-block-123");
+```
+
+#### Traversing All Blocks
+
+```typescript
+forEachBlock(
+  callback: (block: Block) => boolean | undefined,
+  reverse: boolean = false
+): void
+```
+
+Traverses all blocks depth-first and executes a callback for each.
+
+```typescript
+editor.forEachBlock((block) => {
+  console.log(`Block ${block.id}: ${block.type}`);
+  return true; // Continue traversal
+});
+```
+
+### Creating Blocks
+
+#### Inserting Blocks
+
+```typescript
+insertBlocks(
+  blocksToInsert: PartialBlock[],
+  referenceBlock: BlockIdentifier,
+  placement: "before" | "after" = "before"
+): void
+```
+
+Inserts new blocks relative to an existing block.
+
+```typescript
+// Insert a paragraph before an existing block
+editor.insertBlocks(
+  [{ type: "paragraph", content: "New paragraph" }],
+  "existing-block-id",
+  "before",
+);
+
+// Insert multiple blocks after an existing block
+editor.insertBlocks(
+  [
+    { type: "heading", content: "New Section", props: { level: 2 } },
+    { type: "paragraph", content: "Section content" },
+  ],
+  "existing-block-id",
+  "after",
+);
+```
+
+### Updating Blocks
+
+#### Modifying Existing Blocks
+
+```typescript
+updateBlock(
+  blockToUpdate: BlockIdentifier,
+  update: PartialBlock
+): void
+```
+
+Updates an existing block with new properties.
+
+```typescript
+// Change a paragraph to a heading
+editor.updateBlock("block-123", {
+  type: "heading",
+  props: { level: 2 },
+});
+
+// Update content only
+editor.updateBlock("block-123", {
+  content: "Updated content",
+});
+
+// Update multiple properties
+editor.updateBlock("block-123", {
+  type: "heading",
+  content: "New heading text",
+  props: { level: 1 },
+});
+```
+
+### Removing Blocks
+
+#### Deleting Blocks
+
+```typescript
+removeBlocks(blocksToRemove: BlockIdentifier[]): void
+```
+
+Removes one or more blocks from the document.
+
+```typescript
+// Remove a single block
+editor.removeBlocks(["block-123"]);
+
+// Remove multiple blocks
+editor.removeBlocks(["block-123", "block-456", "block-789"]);
+```
+
+### Replacing Blocks
+
+#### Swapping Blocks
+
+```typescript
+replaceBlocks(
+  blocksToRemove: BlockIdentifier[],
+  blocksToInsert: PartialBlock[]
+): void
+```
+
+Replaces existing blocks with new ones.
+
+```typescript
+// Replace a paragraph with a heading
+editor.replaceBlocks(
+  ["paragraph-block"],
+  [{ type: "heading", content: "New Heading", props: { level: 2 } }],
+);
+
+// Replace multiple blocks with different content
+editor.replaceBlocks(
+  ["block-1", "block-2"],
+  [
+    { type: "paragraph", content: "Replacement content" },
+    { type: "bulletListItem", content: "List item" },
+  ],
+);
+```
+
+### Moving Blocks
+
+#### Reordering Blocks
+
+```typescript
+moveBlocksUp(): void
+moveBlocksDown(): void
+```
+
+Moves the currently selected blocks up or down in the document.
+
+```typescript
+// Move selected blocks up
+editor.moveBlocksUp();
+
+// Move selected blocks down
+editor.moveBlocksDown();
+```
+
+### Nesting Blocks
+
+#### Creating Hierarchical Structures
+
+```typescript
+canNestBlock(): boolean
+nestBlock(): void
+canUnnestBlock(): boolean
+unnestBlock(): void
+```
+
+Manages the nesting level of blocks (indentation).
+
+```typescript
+// Check if current block can be nested
+if (editor.canNestBlock()) {
+  editor.nestBlock(); // Indent the block
+}
+
+// Check if current block can be un-nested
+if (editor.canUnnestBlock()) {
+  editor.unnestBlock(); // Outdent the block
+}
+```
+
+## Inline Content Manipulation
+
+### Inserting Inline Content
+
+#### Basic Insertion
+
+```typescript
+insertInlineContent(
+  content: PartialInlineContent,
+  options?: { updateSelection?: boolean }
+): void
+```
+
+Inserts content at the current cursor position or replaces the current selection.
+
+```typescript
+// Insert plain text
+editor.insertInlineContent("Hello, world!");
+
+// Insert mixed content
+editor.insertInlineContent([
+  "Hello ",
+  { type: "text", text: "World", styles: { bold: true } },
+  "! Welcome to ",
+  { type: "link", content: "BlockNote", href: "https://blocknotejs.org" },
+]);
+
+// Insert with selection update
+editor.insertInlineContent("New content", { updateSelection: true });
+```
+
+#### Advanced Content Examples
+
+```typescript
+// Insert styled text
+editor.insertInlineContent([
+  {
+    type: "text",
+    text: "Bold and italic",
+    styles: { bold: true, italic: true },
+  },
+]);
+
+// Insert link with styled content
+editor.insertInlineContent([
+  {
+    type: "link",
+    content: [
+      { type: "text", text: "Visit ", styles: {} },
+      { type: "text", text: "BlockNote", styles: { bold: true } },
+    ],
+    href: "https://blocknotejs.org",
+  },
+]);
+
+// Insert complex mixed content
+editor.insertInlineContent([
+  "This is ",
+  { type: "text", text: "important", styles: { bold: true, textColor: "red" } },
+  " and you should ",
+  { type: "link", content: "read more", href: "https://example.com" },
+  " about it.",
+]);
+```
+
+### Reading Content
+
+#### Getting Selected Text
+
+```typescript
+getSelectedText(): string
+```
+
+Retrieves the currently selected text as a plain string.
+
+```typescript
+const selectedText = editor.getSelectedText();
+console.log("Selected text:", selectedText);
+
+// Example: Copy selected text to clipboard
+if (selectedText) {
+  navigator.clipboard.writeText(selectedText);
+}
+```
+
+#### Getting Active Styles
+
+```typescript
+getActiveStyles(): Styles
+```
+
+Returns the active text styles at the current cursor position or at the end of the current selection.
+
+```typescript
+const activeStyles = editor.getActiveStyles();
+console.log("Active styles:", activeStyles);
+
+// Example: Check if text is bold
+if (activeStyles.bold) {
+  console.log("Text is bold");
+}
+
+// Example: Get text color
+if (activeStyles.textColor) {
+  console.log("Text color:", activeStyles.textColor);
+}
+```
+
+#### Getting Selected Link
+
+```typescript
+getSelectedLinkUrl(): string | undefined
+```
+
+Returns the URL of the last link in the current selection, or `undefined` if no links are selected.
+
+```typescript
+const linkUrl = editor.getSelectedLinkUrl();
+
+if (linkUrl) {
+  console.log("Selected link URL:", linkUrl);
+  // Open link in new tab
+  window.open(linkUrl, "_blank");
+} else {
+  console.log("No link selected");
+}
+```
+
+### Styling Text
+
+#### Adding Styles
+
+```typescript
+addStyles(styles: Styles): void
+```
+
+Applies styles to the currently selected text.
+
+```typescript
+// Add single style
+editor.addStyles({ bold: true });
+
+// Add multiple styles
+editor.addStyles({
+  bold: true,
+  italic: true,
+  textColor: "red",
+});
+
+// Add background color
+editor.addStyles({ backgroundColor: "yellow" });
+```
+
+#### Removing Styles
+
+```typescript
+removeStyles(styles: Styles): void
+```
+
+Removes specific styles from the currently selected text.
+
+```typescript
+// Remove single style
+editor.removeStyles({ bold: true });
+
+// Remove multiple styles
+editor.removeStyles({ bold: true, italic: true });
+
+// Remove color styles
+editor.removeStyles({ textColor: "red", backgroundColor: "yellow" });
+```
+
+#### Toggling Styles
+
+```typescript
+toggleStyles(styles: Styles): void
+```
+
+Toggles styles on the currently selected text (adds if not present, removes if present).
+
+```typescript
+// Toggle single style
+editor.toggleStyles({ bold: true });
+
+// Toggle multiple styles
+editor.toggleStyles({ bold: true, italic: true });
+
+// Toggle color
+editor.toggleStyles({ textColor: "blue" });
+```
+
+### Working with Links
+
+#### Creating Links
+
+```typescript
+createLink(url: string, text?: string): void
+```
+
+Creates a new link, optionally replacing the currently selected text.
+
+```typescript
+// Create link from selected text
+editor.createLink("https://blocknotejs.org");
+
+// Create link with custom text
+editor.createLink("https://blocknotejs.org", "Visit BlockNote");
+
+// Create link with empty URL (removes link)
+editor.createLink("");
+```
+
+## Combining Block and Inline Content
+
+Here are some examples of how to combine block and inline content manipulation:
+
+### Creating a Rich Document Structure
+
+```typescript
+// Create a document with rich content
+editor.insertBlocks(
+  [
+    {
+      type: "heading",
+      content: [
+        { type: "text", text: "Welcome to ", styles: {} },
+        {
+          type: "text",
+          text: "BlockNote",
+          styles: { bold: true, textColor: "blue" },
+        },
+      ],
+      props: { level: 1 },
+    },
+    {
+      type: "paragraph",
+      content: [
+        "This is a ",
+        { type: "text", text: "powerful", styles: { italic: true } },
+        " editor that supports ",
+        {
+          type: "link",
+          content: "rich formatting",
+          href: "https://blocknotejs.org",
+        },
+        " and ",
+        { type: "text", text: "structured content", styles: { bold: true } },
+        ".",
+      ],
+    },
+  ],
+  "existing-block-id",
+  "after",
+);
+```
+
+### Updating Block Content with Styling
+
+```typescript
+// Update a block with styled content
+editor.updateBlock("block-123", {
+  content: [
+    "Updated with ",
+    { type: "text", text: "styled", styles: { bold: true, textColor: "red" } },
+    " content and a ",
+    { type: "link", content: "link", href: "https://example.com" },
+    ".",
+  ],
+});
+```
+
+### Reading and Manipulating Complex Content
+
+```typescript
+// Get selected text and create a new block with it
+const selectedText = editor.getSelectedText();
+if (selectedText) {
+  editor.insertBlocks(
+    [
+      {
+        type: "paragraph",
+        content: [
+          "Selected text: ",
+          {
+            type: "text",
+            text: selectedText,
+            styles: { backgroundColor: "yellow" },
+          },
+        ],
+      },
+    ],
+    "current-block-id",
+    "after",
+  );
+}
+```
