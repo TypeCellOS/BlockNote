@@ -37,6 +37,7 @@ export default function ExampleCards() {
                   exampleData.author ? `by ${exampleData.author}` : undefined
                 }
                 href={`examples/${exampleGroupData.exampleGroupName}/${exampleData.exampleName}`}
+                external={false}
               />
             ))}
           </Cards>
