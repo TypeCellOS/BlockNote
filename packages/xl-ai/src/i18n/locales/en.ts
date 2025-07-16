@@ -57,8 +57,8 @@ export const en = {
   ai_menu: {
     input_placeholder: "Ask AI anything…",
     status: {
-      thinking: "Thinking…",
-      editing: "Editing…",
+      thinking: "Thinking",
+      editing: "Editing",
       error: "Oops! Something went wrong",
     },
     actions: {

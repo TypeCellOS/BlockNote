@@ -59,8 +59,8 @@ export const no: AIDictionary = {
   ai_menu: {
     input_placeholder: "Spør AI om hva som helst…",
     status: {
-      thinking: "Tenker…",
-      editing: "Redigerer…",
+      thinking: "Tenker",
+      editing: "Redigerer",
       error: "Ups! Noe gikk galt",
     },
     actions: {

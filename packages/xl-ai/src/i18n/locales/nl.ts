@@ -59,8 +59,8 @@ export const nl: AIDictionary = {
   ai_menu: {
     input_placeholder: "Vraag AI iets…",
     status: {
-      thinking: "Denken…",
-      editing: "Bewerken…",
+      thinking: "Denken",
+      editing: "Bewerken",
       error: "Oeps! Er is iets misgegaan",
     },
     actions: {

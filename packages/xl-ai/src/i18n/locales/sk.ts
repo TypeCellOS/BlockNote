@@ -59,8 +59,8 @@ export const sk: AIDictionary = {
   ai_menu: {
     input_placeholder: "Opýtajte sa AI čokoľvek…",
     status: {
-      thinking: "Premýšľam…",
-      editing: "Upravujem…",
+      thinking: "Premýšľam",
+      editing: "Upravujem",
       error: "Ups! Niečo sa pokazilo",
     },
     actions: {
