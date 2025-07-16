@@ -1,5 +1,6 @@
 import { filterSuggestionItems, mergeCSSClasses } from "@blocknote/core";
 import {
+  ComponentProps,
   DefaultReactSuggestionItem,
   useComponentsContext,
   useSuggestionMenuKeyboardHandler,
@@ -16,48 +17,48 @@ import {
 
 export type PromptSuggestionMenuProps = {
   items: DefaultReactSuggestionItem[];
-  onManualPromptSubmit: (userPrompt: string) => void;
-  promptText?: string;
-  onPromptTextChange?: (userPrompt: string) => void;
-  icon?: ReactNode;
+  inputProps: Partial<
+    Omit<
+      ComponentProps["Generic"]["Form"]["TextInput"],
+      "name" | "label" | "variant" | "autoFocus" | "autoComplete"
+    >
+  >;
+  loader?: ReactNode;
+  isLoading?: boolean;
+  leftSection?: ReactNode;
   rightSection?: ReactNode;
-  placeholder?: string;
-  disabled?: boolean;
 };
 
 export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
   // const dict = useAIDictionary();
   const Components = useComponentsContext()!;
 
-  const { onManualPromptSubmit, promptText, onPromptTextChange } = props;
+  const { value, onKeyDown, onChange, onSubmit, ...rest } = props.inputProps;
 
-  // Only used internal state when `props.prompText` is undefined (i.e., uncontrolled mode)
+  // Only used internal state when `promptText` is undefined (i.e., uncontrolled mode)
   const [internalPromptText, setInternalPromptText] = useState<string>("");
-  const promptTextToUse = promptText || internalPromptText;
+  const promptTextToUse = value || internalPromptText;
 
   const handleEnter = useCallback(
-    async (event: KeyboardEvent) => {
+    async (event: KeyboardEvent<HTMLInputElement>) => {
+      onKeyDown?.(event);
       if (event.key === "Enter") {
-        // console.log("ENTER", currentEditingPrompt);
-        onManualPromptSubmit(promptTextToUse);
+        onSubmit?.();
       }
     },
-    [promptTextToUse, onManualPromptSubmit],
+    [onKeyDown, onSubmit],
   );
 
   const handleChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      const newValue = event.currentTarget.value;
-      if (onPromptTextChange) {
-        onPromptTextChange(newValue);
-      }
+      onChange?.(event);
 
       // Only update internal state if it's uncontrolled
-      if (promptText === undefined) {
-        setInternalPromptText(newValue);
+      if (value === undefined) {
+        setInternalPromptText(event.currentTarget.value);
       }
     },
-    [onPromptTextChange, setInternalPromptText, promptText],
+    [onChange, value],
   );
 
   const items: DefaultReactSuggestionItem[] = useMemo(() => {
@@ -68,7 +69,7 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
     useSuggestionMenuKeyboardHandler(items, (item) => item.onItemClick());
 
   const handleKeyDown = useCallback(
-    (event: KeyboardEvent) => {
+    (event: KeyboardEvent<HTMLInputElement>) => {
       // TODO: handle backspace to close
       if (event.key === "Enter") {
         if (items.length > 0) {
@@ -91,27 +92,38 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
 
   return (
     <div className={"bn-combobox"}>
-      <Components.Generic.Form.Root>
-        <Components.Generic.Form.TextInput
-          // Change the key when disabled change, so that autofocus is retriggered
-          key={"input-" + props.disabled}
-          className={"bn-combobox-input"}
-          name={"ai-prompt"}
-          variant={"large"}
-          icon={props.icon}
-          value={promptTextToUse || ""}
-          autoFocus={true}
-          placeholder={props.placeholder}
-          disabled={props.disabled}
-          onKeyDown={handleKeyDown}
-          onChange={handleChange}
-          autoComplete={"off"}
-          rightSection={props.rightSection}
-        />
-      </Components.Generic.Form.Root>
+      <div className={"bn-combobox-input-wrapper"}>
+        {props.leftSection && (
+          <div className="bn-combobox-left-section">{props.leftSection}</div>
+        )}
+        {!props.isLoading || !props.loader ? (
+          <div className="bn-combobox-input">
+            <Components.Generic.Form.Root>
+              <Components.Generic.Form.TextInput
+                // Change the key when disabled change, so that autofocus is retriggered
+                // key={"input-" + props.disabled}
+                name={"ai-prompt"}
+                variant={"large"}
+                value={promptTextToUse || ""}
+                autoFocus={true}
+                onKeyDown={handleKeyDown}
+                onChange={handleChange}
+                autoComplete={"off"}
+                {...rest}
+              />
+            </Components.Generic.Form.Root>
+          </div>
+        ) : (
+          <div className="bn-combobox-loader">{props.loader}</div>
+        )}
+        {props.rightSection && (
+          <div className="bn-combobox-right-section">{props.rightSection}</div>
+        )}
+      </div>
       <Components.SuggestionMenu.Root
         className={"bn-combobox-items"}
-        id={"ai-suggestion-menu"}>
+        id={"ai-suggestion-menu"}
+      >
         {items.map((item, i) => (
           <Components.SuggestionMenu.Item
             key={item.title}
