@@ -30,6 +30,8 @@ export type SideMenuState<
   block: Block<BSchema, I, S>;
 };
 
+const DISTANCE_TO_CONSIDER_EDITOR_BOUNDS = 250;
+
 function getBlockFromCoords(
   view: EditorView,
   coords: { left: number; top: number },
@@ -208,7 +210,7 @@ export class SideMenuView<
 
     if (
       closestEditor?.element !== this.pmView.dom ||
-      closestEditor.distance > 250
+      closestEditor.distance > DISTANCE_TO_CONSIDER_EDITOR_BOUNDS
     ) {
       if (this.state?.show) {
         this.state.show = false;
@@ -379,7 +381,7 @@ export class SideMenuView<
    *
    * It specifically is trying to handle the following cases:
    *  - If the dragover event is within the bounds of any editor, then it does nothing
-   *  - If the dragover event is outside the bounds of any editor, but close enough (within 250px) to the closest editor,
+   *  - If the dragover event is outside the bounds of any editor, but close enough (within DISTANCE_TO_CONSIDER_EDITOR_BOUNDS) to the closest editor,
    *    then it dispatches a synthetic dragover event to the closest editor (which will trigger the drop-cursor to be shown on that editor)
    *  - If the dragover event is outside the bounds of the current editor, then it will dispatch a synthetic dragleave event to the current editor
    *    (which will trigger the drop-cursor to be removed from the current editor)
@@ -450,7 +452,10 @@ export class SideMenuView<
     const closestEditor = this.findClosestEditorElement(event);
 
     // We arbitrarily decide how far is "too far" from the closest editor to be considered a drop point
-    if (!closestEditor || closestEditor.distance > 250) {
+    if (
+      !closestEditor ||
+      closestEditor.distance > DISTANCE_TO_CONSIDER_EDITOR_BOUNDS
+    ) {
       // we are too far from the closest editor, or no editor was found
       return undefined;
     }
