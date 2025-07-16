@@ -1,5 +1,6 @@
 import { LoaderOutput } from "fumadocs-core/source";
-import { DocsBody, DocsPage, DocsTitle } from "fumadocs-ui/page";
+import { Heading } from "fumadocs-ui/components/heading";
+import { DocsBody, DocsPage } from "fumadocs-ui/page";
 import { notFound } from "next/navigation";
 
 import Example from "@/components/Example";
@@ -36,8 +37,8 @@ export async function ExamplePage(props: {
         className: "m-0 *:md:pl-12! *:md:pt-12! *:md:pr-4!",
       }}
     >
-      <DocsTitle>{page.data.title}</DocsTitle>
       <DocsBody>
+        <Heading>{page.data.title}</Heading>
         <MDXContent components={getMDXComponents({ ExampleCards })} />
         {params.slug && params.slug.length > 0 ? (
           <Example

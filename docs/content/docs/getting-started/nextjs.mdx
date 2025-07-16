@@ -4,6 +4,8 @@ description: Details on integrating BlockNote with Next.js
 imageTitle: Next.js support
 ---
 
+# Getting Started With Next.js
+
 BlockNote is a component that should only be rendered client-side (and not on the server). If you're using Next.js, you need to make sure that Next.js does not try to render BlockNote as a server-side component.
 
 Make sure to use BlockNote in a [Client Component](https://nextjs.org/docs/getting-started/react-essentials#client-components). You can do this by creating a separate file for your component (**make sure this sits outside of your `pages` or `app` directory, for example `components/Editor.tsx`**), and starting that with `"use client";` [directive](https://react.dev/reference/react/use-client):

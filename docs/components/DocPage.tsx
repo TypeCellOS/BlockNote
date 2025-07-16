@@ -3,7 +3,7 @@ import { getPageTreePeers } from "fumadocs-core/server";
 import { LoaderOutput } from "fumadocs-core/source";
 import { Card, Cards } from "fumadocs-ui/components/card";
 import { createRelativeLink } from "fumadocs-ui/mdx";
-import { DocsBody, DocsPage, DocsTitle } from "fumadocs-ui/page";
+import { DocsBody, DocsPage } from "fumadocs-ui/page";
 import { notFound } from "next/navigation";
 
 export function CardTable({
@@ -59,7 +59,6 @@ export async function DocPage(props: {
         className: "m-0 *:md:pl-12! *:md:pt-12! *:md:pr-4!",
       }}
     >
-      <DocsTitle>{page.data.title}</DocsTitle>
       <DocsBody>
         <MDXContent
           components={getMDXComponents({
