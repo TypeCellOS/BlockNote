@@ -440,14 +440,7 @@ export class SideMenuView<
     const sideMenuIsBeingDragged = Boolean(this.isDragOrigin);
     // Tells us that the current editor instance has a drag ongoing (either text or side menu)
     const isDragOrigin = textContentIsBeingDragged || sideMenuIsBeingDragged;
-    // Tells us which editor instance the drag event is happening in (or null if it's not in any editor like when dragging on another part of the page)
-    const eventEditorParentElement =
-      event.target instanceof Node
-        ? (event.target instanceof HTMLElement
-            ? event.target
-            : (event.target as any)
-          )?.closest(".bn-editor") || null
-        : null;
+
     // Tells us which editor instance is the closest to the drag event (whether or not it is actually reasonably close)
     const closestEditor = this.findClosestEditorElement(event);
 
@@ -464,7 +457,7 @@ export class SideMenuView<
     const isDropPoint = closestEditor.element === this.pmView.dom;
     // We check if the current editor instance is the same as the editor instance that the drag event is happening within
     const isDropWithinEditorBounds =
-      isDropPoint && this.pmView.dom === eventEditorParentElement;
+      isDropPoint && closestEditor.distance === 0;
 
     // We never want to handle drop events that are not related to us
     if (!isDropPoint && !isDragOrigin) {
@@ -620,9 +613,9 @@ export class SideMenuView<
 
   private dispatchSyntheticEvent(event: DragEvent) {
     const evt = new Event(event.type as "dragover", event) as any;
-    const dropPointBoundingBox = this.pmView.dom
-      .querySelector(".bn-block-group")!
-      .getBoundingClientRect();
+    const dropPointBoundingBox = (
+      this.pmView.dom.firstChild as HTMLElement
+    ).getBoundingClientRect();
     evt.clientX = event.clientX;
     evt.clientY = event.clientY;
 
