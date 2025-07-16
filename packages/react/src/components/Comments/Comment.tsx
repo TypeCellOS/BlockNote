@@ -56,7 +56,6 @@ export const Comment = ({
         },
       },
       schema,
-      sideMenuDetection: "editor",
     },
     [comment.body],
   );

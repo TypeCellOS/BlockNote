@@ -33,7 +33,6 @@ export function FloatingComposer() {
       },
     },
     schema,
-    sideMenuDetection: "editor",
   });
 
   return (

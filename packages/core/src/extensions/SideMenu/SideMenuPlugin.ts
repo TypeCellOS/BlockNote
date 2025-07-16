@@ -30,19 +30,12 @@ export type SideMenuState<
   block: Block<BSchema, I, S>;
 };
 
-const PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP = 0.1;
-
 function getBlockFromCoords(
   view: EditorView,
   coords: { left: number; top: number },
-  sideMenuDetection: "viewport" | "editor",
   adjustForColumns = true,
 ) {
-  const elements = view.root.elementsFromPoint(
-    // bit hacky - offset x position to right to account for the width of sidemenu itself
-    coords.left + (sideMenuDetection === "editor" ? 50 : 0),
-    coords.top,
-  );
+  const elements = view.root.elementsFromPoint(coords.left, coords.top);
 
   for (const element of elements) {
     if (!view.dom.contains(element)) {
@@ -55,10 +48,10 @@ function getBlockFromCoords(
         return getBlockFromCoords(
           view,
           {
+            // TODO can we do better than this?
             left: coords.left + 50, // bit hacky, but if we're inside a column, offset x position to right to account for the width of sidemenu itself
             top: coords.top,
           },
-          sideMenuDetection,
           false,
         );
       }
@@ -74,7 +67,6 @@ function getBlockFromMousePos(
     y: number;
   },
   view: EditorView,
-  sideMenuDetection: "viewport" | "editor",
 ): { node: HTMLElement; id: string } | undefined {
   // Editor itself may have padding or other styling which affects
   // size/position, so we get the boundingRect of the first child (i.e. the
@@ -88,47 +80,42 @@ function getBlockFromMousePos(
     view.dom.firstChild as HTMLElement
   ).getBoundingClientRect();
 
-  // this.horizontalPosAnchor = editorBoundingBox.x;
-
   // Gets block at mouse cursor's position.
   const coords = {
-    left: mousePos.x,
+    // Clamps the x position to the editor's bounding box.
+    left: Math.min(
+      Math.max(editorBoundingBox.left + 10, mousePos.x),
+      editorBoundingBox.right - 10,
+    ),
     top: mousePos.y,
   };
 
-  const mouseLeftOfEditor = coords.left < editorBoundingBox.left;
-  const mouseRightOfEditor = coords.left > editorBoundingBox.right;
+  const referenceBlock = getBlockFromCoords(view, coords);
 
-  // Clamps the x position to the editor's bounding box.
-  if (sideMenuDetection === "viewport") {
-    if (mouseLeftOfEditor) {
-      coords.left = editorBoundingBox.left + 10;
-    }
-
-    if (mouseRightOfEditor) {
-      coords.left = editorBoundingBox.right - 10;
-    }
+  if (!referenceBlock) {
+    // could not find the reference block
+    return undefined;
   }
 
-  let block = getBlockFromCoords(view, coords, sideMenuDetection);
-
-  if (!mouseRightOfEditor && block) {
-    // note: this case is not necessary when we're on the right side of the editor
-
-    /* Now, because blocks can be nested
-    | BlockA        |
-    x | BlockB     y|
-
-    hovering over position x (the "margin of block B") will return block A instead of block B.
-    to fix this, we get the block from the right side of block A (position y, which will fall in BlockB correctly)
-    */
-
-    const rect = block.node.getBoundingClientRect();
-    coords.left = rect.right - 10;
-    block = getBlockFromCoords(view, coords, "viewport", false);
-  }
-
-  return block;
+  /**
+   * Because blocks may be nested, we need to check the right edge of the parent block:
+   * ```
+   * | BlockA        |
+   * x | BlockB     y|
+   * ```
+   * Hovering at position x (left edge of BlockB) would return BlockA.
+   * Instead, we check at position y (right edge of BlockA) to correctly identify BlockB.
+   */
+  const referenceBlocksBoundingBox =
+    referenceBlock.node.getBoundingClientRect();
+  return getBlockFromCoords(
+    view,
+    {
+      left: referenceBlocksBoundingBox.right - 10,
+      top: mousePos.y,
+    },
+    false,
+  );
 }
 
 /**
@@ -153,7 +140,6 @@ export class SideMenuView<
 
   constructor(
     private readonly editor: BlockNoteEditor<BSchema, I, S>,
-    private readonly sideMenuDetection: "viewport" | "editor",
     private readonly pmView: EditorView,
     emitUpdate: (state: SideMenuState<BSchema, I, S>) => void,
   ) {
@@ -215,11 +201,23 @@ export class SideMenuView<
       return;
     }
 
-    const block = getBlockFromMousePos(
-      this.mousePos,
-      this.pmView,
-      this.sideMenuDetection,
-    );
+    const closestEditor = this.findClosestEditorElement({
+      clientX: this.mousePos.x,
+      clientY: this.mousePos.y,
+    });
+
+    if (
+      closestEditor?.element !== this.pmView.dom ||
+      closestEditor.distance > 250
+    ) {
+      if (this.state?.show) {
+        this.state.show = false;
+        this.updateState(this.state);
+      }
+      return;
+    }
+
+    const block = getBlockFromMousePos(this.mousePos, this.pmView);
 
     // Closes the menu if the mouse cursor is beyond the editor vertically.
     if (!block || !this.editor.isEditable) {
@@ -710,23 +708,15 @@ export class SideMenuProsemirrorPlugin<
 
   public view: SideMenuView<BSchema, I, S> | undefined;
 
-  constructor(
-    private readonly editor: BlockNoteEditor<BSchema, I, S>,
-    sideMenuDetection: "viewport" | "editor",
-  ) {
+  constructor(private readonly editor: BlockNoteEditor<BSchema, I, S>) {
     super();
     this.addProsemirrorPlugin(
       new Plugin({
         key: sideMenuPluginKey,
         view: (editorView) => {
-          this.view = new SideMenuView(
-            editor,
-            sideMenuDetection,
-            editorView,
-            (state) => {
-              this.emit("update", state);
-            },
-          );
+          this.view = new SideMenuView(editor, editorView, (state) => {
+            this.emit("update", state);
+          });
           return this.view;
         },
       }),
