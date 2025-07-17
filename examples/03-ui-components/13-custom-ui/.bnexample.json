@@ -2,7 +2,16 @@
   "playground": true,
   "docs": true,
   "author": "matthewlipski",
-  "tags": ["Advanced", "Inline Content", "UI Components", "Block Side Menu", "Formatting Toolbar", "Suggestion Menus", "Slash Menu", "Appearance & Styling"],
+  "tags": [
+    "Advanced",
+    "Inline Content",
+    "UI Components",
+    "Block Side Menu",
+    "Formatting Toolbar",
+    "Suggestion Menus",
+    "Slash Menu",
+    "Appearance & Styling"
+  ],
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",

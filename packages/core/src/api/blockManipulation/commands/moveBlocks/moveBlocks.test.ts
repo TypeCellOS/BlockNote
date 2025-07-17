@@ -14,11 +14,11 @@ const getEditor = setupTestEnv();
 
 function makeSelectionSpanContent(selectionType: "text" | "node" | "cell") {
   const blockInfo = getEditor().transact((tr) =>
-    getBlockInfoFromTransaction(tr)
+    getBlockInfoFromTransaction(tr),
   );
   if (!blockInfo.isBlockContainer) {
     throw new Error(
-      `Selection points to a ${blockInfo.blockNoteType} node, not a blockContainer node`
+      `Selection points to a ${blockInfo.blockNoteType} node, not a blockContainer node`,
     );
   }
   const { blockContent } = blockInfo;
@@ -30,13 +30,13 @@ function makeSelectionSpanContent(selectionType: "text" | "node" | "cell") {
         CellSelection.create(
           tr.doc,
           tr.doc.resolve(blockContent.beforePos + 3).before(),
-          tr.doc.resolve(blockContent.afterPos - 3).before()
-        )
-      )
+          tr.doc.resolve(blockContent.afterPos - 3).before(),
+        ),
+      ),
     );
   } else if (selectionType === "node") {
     editor.transact((tr) =>
-      tr.setSelection(NodeSelection.create(tr.doc, blockContent.beforePos))
+      tr.setSelection(NodeSelection.create(tr.doc, blockContent.beforePos)),
     );
   } else {
     editor.transact((tr) =>
@@ -44,9 +44,9 @@ function makeSelectionSpanContent(selectionType: "text" | "node" | "cell") {
         TextSelection.create(
           tr.doc,
           blockContent.beforePos + 1,
-          blockContent.afterPos - 1
-        )
-      )
+          blockContent.afterPos - 1,
+        ),
+      ),
     );
   }
 }
@@ -63,7 +63,7 @@ describe("Test moveSelectedBlockAndSelection", () => {
     makeSelectionSpanContent("text");
 
     expect(
-      selection.eq(getEditor().transact((tr) => tr.selection))
+      selection.eq(getEditor().transact((tr) => tr.selection)),
     ).toBeTruthy();
   });
 
@@ -78,7 +78,7 @@ describe("Test moveSelectedBlockAndSelection", () => {
     makeSelectionSpanContent("node");
 
     expect(
-      selection.eq(getEditor().transact((tr) => tr.selection))
+      selection.eq(getEditor().transact((tr) => tr.selection)),
     ).toBeTruthy();
   });
 
@@ -93,7 +93,7 @@ describe("Test moveSelectedBlockAndSelection", () => {
     makeSelectionSpanContent("cell");
 
     expect(
-      selection.eq(getEditor().transact((tr) => tr.selection))
+      selection.eq(getEditor().transact((tr) => tr.selection)),
     ).toBeTruthy();
   });
 
@@ -106,7 +106,7 @@ describe("Test moveSelectedBlockAndSelection", () => {
     getEditor().setSelection("paragraph-1", "paragraph-2");
 
     expect(
-      selection.eq(getEditor().transact((tr) => tr.selection))
+      selection.eq(getEditor().transact((tr) => tr.selection)),
     ).toBeTruthy();
   });
 
@@ -119,7 +119,7 @@ describe("Test moveSelectedBlockAndSelection", () => {
     getEditor().setSelection("paragraph-6", "table-0");
 
     expect(
-      selection.eq(getEditor().transact((tr) => tr.selection))
+      selection.eq(getEditor().transact((tr) => tr.selection)),
     ).toBeTruthy();
   });
 });

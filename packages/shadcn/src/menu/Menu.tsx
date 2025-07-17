@@ -31,7 +31,7 @@ const MenuTriggerWithPointerUp = (Comp: typeof ShadCNDropdownMenuTrigger) =>
           ref={ref}
         />
       );
-    }
+    },
   );
 
 export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
@@ -50,7 +50,8 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   if (sub) {
     return (
       <ShadCNComponents.DropdownMenu.DropdownMenuSub
-        onOpenChange={onOpenChange}>
+        onOpenChange={onOpenChange}
+      >
         {children}
       </ShadCNComponents.DropdownMenu.DropdownMenuSub>
     );
@@ -58,7 +59,8 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
     return (
       <ShadCNComponents.DropdownMenu.DropdownMenu
         modal={false}
-        onOpenChange={onOpenChange}>
+        onOpenChange={onOpenChange}
+      >
         {children}
       </ShadCNComponents.DropdownMenu.DropdownMenu>
     );
@@ -66,7 +68,7 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
 };
 
 export const MenuTrigger = (
-  props: ComponentProps["Generic"]["Menu"]["Trigger"]
+  props: ComponentProps["Generic"]["Menu"]["Trigger"],
 ) => {
   const { children, sub, ...rest } = props;
 
@@ -77,9 +79,9 @@ export const MenuTrigger = (
   const DropdownMenuTrigger = useMemo(
     () =>
       MenuTriggerWithPointerUp(
-        ShadCNComponents.DropdownMenu.DropdownMenuTrigger
+        ShadCNComponents.DropdownMenu.DropdownMenuTrigger,
       ),
-    [ShadCNComponents.DropdownMenu.DropdownMenuTrigger]
+    [ShadCNComponents.DropdownMenu.DropdownMenuTrigger],
   );
 
   if (sub) {
@@ -111,7 +113,8 @@ export const MenuDropdown = forwardRef<
     return (
       <ShadCNComponents.DropdownMenu.DropdownMenuSubContent
         className={className}
-        ref={ref}>
+        ref={ref}
+      >
         {children}
       </ShadCNComponents.DropdownMenu.DropdownMenuSubContent>
     );
@@ -119,7 +122,8 @@ export const MenuDropdown = forwardRef<
     return (
       <ShadCNComponents.DropdownMenu.DropdownMenuContent
         className={className}
-        ref={ref}>
+        ref={ref}
+      >
         {children}
       </ShadCNComponents.DropdownMenu.DropdownMenuContent>
     );
@@ -153,7 +157,8 @@ export const MenuItem = forwardRef<
         ref={ref}
         checked={checked}
         onClick={onClick}
-        {...rest}>
+        {...rest}
+      >
         {icon}
         {children}
       </ShadCNComponents.DropdownMenu.DropdownMenuCheckboxItem>
@@ -165,7 +170,8 @@ export const MenuItem = forwardRef<
       className={className}
       ref={ref}
       onClick={onClick}
-      {...rest}>
+      {...rest}
+    >
       {icon}
       {children}
       {subTrigger && <ChevronRight className="bn-ml-auto bn-h-4 bn-w-4" />}
@@ -204,7 +210,8 @@ export const MenuLabel = forwardRef<
   return (
     <ShadCNComponents.DropdownMenu.DropdownMenuLabel
       className={className}
-      ref={ref}>
+      ref={ref}
+    >
       {children}
     </ShadCNComponents.DropdownMenu.DropdownMenuLabel>
   );

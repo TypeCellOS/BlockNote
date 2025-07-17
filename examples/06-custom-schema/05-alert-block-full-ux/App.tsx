@@ -8,13 +8,13 @@ import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
+  BlockTypeSelectItem,
+  FormattingToolbar,
   FormattingToolbarController,
   SuggestionMenuController,
   blockTypeSelectItems,
   getDefaultReactSlashMenuItems,
   useCreateBlockNote,
-  BlockTypeSelectItem,
-  FormattingToolbar,
 } from "@blocknote/react";
 
 import { RiAlertFill } from "react-icons/ri";
@@ -115,7 +115,7 @@ export default function App() {
           const defaultItems = getDefaultReactSlashMenuItems(editor);
           // Finds index of last item in "Basic blocks" group.
           const lastBasicBlockIndex = defaultItems.findLastIndex(
-            (item) => item.group === "Basic blocks"
+            (item) => item.group === "Basic blocks",
           );
           // Inserts the Alert item as the last item in the "Basic blocks" group.
           defaultItems.splice(lastBasicBlockIndex + 1, 0, insertAlert(editor));

@@ -26,7 +26,7 @@ export const createMarkViewContext = createContext<
   (options: ReactMarkViewUserOptions) => MarkViewConstructor
 >((_options) => {
   throw new Error(
-    "No ProsemirrorAdapterProvider detected, maybe you need to wrap the component with the Editor with ProsemirrorAdapterProvider?"
+    "No ProsemirrorAdapterProvider detected, maybe you need to wrap the component with the Editor with ProsemirrorAdapterProvider?",
   );
 });
 

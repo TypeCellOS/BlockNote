@@ -20,7 +20,8 @@ export const PanelButton = forwardRef<
       className={className}
       aria-label={label}
       ref={ref}
-      onClick={onClick}>
+      onClick={onClick}
+    >
       {children}
     </ShadCNComponents.Button.Button>
   );

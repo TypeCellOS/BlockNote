@@ -52,7 +52,7 @@ type SingleUserCommentReactionData = {
 };
 
 export function yMapToReaction(
-  yMap: Y.Map<any>
+  yMap: Y.Map<any>,
 ): SingleUserCommentReactionData {
   return {
     emoji: yMap.get("emoji"),
@@ -63,7 +63,7 @@ export function yMapToReaction(
 
 function yMapToReactions(yMap: Y.Map<any>): CommentReactionData[] {
   const flatReactions = [...yMap.values()].map((reaction: Y.Map<any>) =>
-    yMapToReaction(reaction)
+    yMapToReaction(reaction),
   );
   // combine reactions by the same emoji
   return flatReactions.reduce(
@@ -74,8 +74,8 @@ function yMapToReactions(yMap: Y.Map<any>): CommentReactionData[] {
         existingReaction.createdAt = new Date(
           Math.min(
             existingReaction.createdAt.getTime(),
-            reaction.createdAt.getTime()
-          )
+            reaction.createdAt.getTime(),
+          ),
         );
       } else {
         acc.push({
@@ -86,7 +86,7 @@ function yMapToReactions(yMap: Y.Map<any>): CommentReactionData[] {
       }
       return acc;
     },
-    [] as CommentReactionData[]
+    [] as CommentReactionData[],
   );
 }
 
@@ -113,7 +113,7 @@ export function yMapToThread(yMap: Y.Map<any>): ThreadData {
     createdAt: new Date(yMap.get("createdAt")),
     updatedAt: new Date(yMap.get("updatedAt")),
     comments: ((yMap.get("comments") as Y.Array<Y.Map<any>>) || []).map(
-      (comment) => yMapToComment(comment)
+      (comment) => yMapToComment(comment),
     ),
     resolved: yMap.get("resolved"),
     resolvedUpdatedAt: new Date(yMap.get("resolvedUpdatedAt")),

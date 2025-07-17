@@ -19,12 +19,12 @@ export function createDefaultBlockDOMOutputSpec(
   blockName: string,
   htmlTag: string,
   blockContentHTMLAttributes: Record<string, string>,
-  inlineContentHTMLAttributes: Record<string, string>
+  inlineContentHTMLAttributes: Record<string, string>,
 ) {
   const blockContent = document.createElement("div");
   blockContent.className = mergeCSSClasses(
     "bn-block-content",
-    blockContentHTMLAttributes.class
+    blockContentHTMLAttributes.class,
   );
   blockContent.setAttribute("data-content-type", blockName);
   for (const [attribute, value] of Object.entries(blockContentHTMLAttributes)) {
@@ -36,10 +36,10 @@ export function createDefaultBlockDOMOutputSpec(
   const inlineContent = document.createElement(htmlTag);
   inlineContent.className = mergeCSSClasses(
     "bn-inline-content",
-    inlineContentHTMLAttributes.class
+    inlineContentHTMLAttributes.class,
   );
   for (const [attribute, value] of Object.entries(
-    inlineContentHTMLAttributes
+    inlineContentHTMLAttributes,
   )) {
     if (attribute !== "class") {
       inlineContent.setAttribute(attribute, value);
@@ -62,11 +62,11 @@ export function createDefaultBlockDOMOutputSpec(
 export const defaultBlockToHTML = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   block: BlockNoDefaults<BSchema, I, S>,
   editor: BlockNoteEditor<BSchema, I, S>,
-  external = false
+  external = false,
 ): {
   dom: HTMLElement;
   contentDOM?: HTMLElement;
@@ -82,7 +82,7 @@ export const defaultBlockToHTML = <
 
   if (toDOM === undefined) {
     throw new Error(
-      "This block has no default HTML serialization as its corresponding TipTap node doesn't implement `renderHTML`."
+      "This block has no default HTML serialization as its corresponding TipTap node doesn't implement `renderHTML`.",
     );
   }
 
@@ -90,7 +90,7 @@ export const defaultBlockToHTML = <
 
   if (typeof renderSpec !== "object" || !("dom" in renderSpec)) {
     throw new Error(
-      "Cannot use this block's default HTML serialization as its corresponding TipTap node's `renderHTML` function does not return an object with the `dom` property."
+      "Cannot use this block's default HTML serialization as its corresponding TipTap node's `renderHTML` function does not return an object with the `dom` property.",
     );
   }
 
@@ -117,7 +117,7 @@ export const defaultBlockToHTML = <
         dom.style.setProperty(
           cssVariableName,
           COLORS_DEFAULT[backgroundColor as keyof typeof COLORS_DEFAULT]
-            .background
+            .background,
         );
         dom.style.backgroundColor = `var(${cssVariableName})`;
       } else {
@@ -139,7 +139,7 @@ export const defaultBlockToHTML = <
 
         dom.style.setProperty(
           cssVariableName,
-          COLORS_DEFAULT[textColor as keyof typeof COLORS_DEFAULT].text
+          COLORS_DEFAULT[textColor as keyof typeof COLORS_DEFAULT].text,
         );
         dom.style.color = `var(${cssVariableName})`;
       } else {
@@ -167,3 +167,19 @@ export const defaultBlockToHTML = <
     contentDOM?: HTMLElement;
   };
 };
+
+// Function that merges all paragraphs into a single one separated by line breaks.
+// This is used when parsing blocks like list items and table cells, as they may
+// contain multiple paragraphs that ProseMirror will not be able to handle
+// properly.
+export function mergeParagraphs(element: HTMLElement) {
+  const paragraphs = element.querySelectorAll("p");
+  if (paragraphs.length > 1) {
+    const firstParagraph = paragraphs[0];
+    for (let i = 1; i < paragraphs.length; i++) {
+      const paragraph = paragraphs[i];
+      firstParagraph.innerHTML += "<br>" + paragraph.innerHTML;
+      paragraph.remove();
+    }
+  }
+}

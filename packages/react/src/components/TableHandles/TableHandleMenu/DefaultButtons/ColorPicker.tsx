@@ -17,11 +17,11 @@ import { ReactNode, useMemo } from "react";
 
 export const ColorPickerButton = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 >(
   props: TableHandleMenuProps<I, S> & {
     children?: ReactNode;
-  }
+  },
 ) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
@@ -90,7 +90,8 @@ export const ColorPickerButton = <
       <Components.Generic.Menu.Trigger sub={true}>
         <Components.Generic.Menu.Item
           className={"bn-menu-item"}
-          subTrigger={true}>
+          subTrigger={true}
+        >
           {/* TODO should I be using the dictionary here? */}
           {props.children || dict.drag_handle.colors_menuitem}
         </Components.Generic.Menu.Item>
@@ -98,7 +99,8 @@ export const ColorPickerButton = <
 
       <Components.Generic.Menu.Dropdown
         sub={true}
-        className={"bn-menu-dropdown bn-color-picker-dropdown"}>
+        className={"bn-menu-dropdown bn-color-picker-dropdown"}
+      >
         <ColorPicker
           iconSize={18}
           text={
@@ -108,7 +110,7 @@ export const ColorPickerButton = <
                   color: currentCells.every(
                     ({ cell }) =>
                       isTableCell(cell) &&
-                      cell.props.textColor === firstCell.props.textColor
+                      cell.props.textColor === firstCell.props.textColor,
                   )
                     ? firstCell.props.textColor
                     : "default",
@@ -125,7 +127,7 @@ export const ColorPickerButton = <
                     ({ cell }) =>
                       isTableCell(cell) &&
                       cell.props.backgroundColor ===
-                        firstCell.props.backgroundColor
+                        firstCell.props.backgroundColor,
                   )
                     ? firstCell.props.backgroundColor
                     : "default",

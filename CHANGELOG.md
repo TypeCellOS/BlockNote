@@ -1,3 +1,177 @@
+## 0.33.0 (2025-07-03)
+
+### 🚀 Features
+
+- FloatingUI options prop for `BlockPositioner` ([#1801](https://github.com/TypeCellOS/BlockNote/pull/1801))
+- Support Google Gemini AI ([#1805](https://github.com/TypeCellOS/BlockNote/pull/1805))
+
+### 🩹 Fixes
+
+- support multi-character suggestions ([#1734](https://github.com/TypeCellOS/BlockNote/pull/1734))
+- switch foreground color based on selected user color dynamically #1785 ([#1787](https://github.com/TypeCellOS/BlockNote/pull/1787), [#1785](https://github.com/TypeCellOS/BlockNote/issues/1785))
+- mark react package as external in email exporter ([#1807](https://github.com/TypeCellOS/BlockNote/pull/1807))
+- Duplicate `formatConversionTest` files ([#1798](https://github.com/TypeCellOS/BlockNote/pull/1798))
+- AI empty document handling ([#1810](https://github.com/TypeCellOS/BlockNote/pull/1810))
+- `bn-inline-content` class name getting duplicated ([#1794](https://github.com/TypeCellOS/BlockNote/pull/1794))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- Yousef
+
+## 0.32.0 (2025-06-24)
+
+### 🚀 Features
+
+- toggle blocks ([#1707](https://github.com/TypeCellOS/BlockNote/pull/1707))
+- **core:** support h4, h5, and h6 ([#1634](https://github.com/TypeCellOS/BlockNote/pull/1634))
+- **xl-email-exporter:** add email exporter ([#1768](https://github.com/TypeCellOS/BlockNote/pull/1768))
+
+### 🩹 Fixes
+
+- react 19 strict mode compatibility ([#1726](https://github.com/TypeCellOS/BlockNote/pull/1726))
+- add keys to pdf exporter ([#1739](https://github.com/TypeCellOS/BlockNote/pull/1739))
+- only listten for left click on formatting toolbar ([#1774](https://github.com/TypeCellOS/BlockNote/pull/1774))
+- prevent formatting toolbar from closing if click was from inside the editor ([#1775](https://github.com/TypeCellOS/BlockNote/pull/1775))
+- **locales:** add Hebrew translations for various components ([#1779](https://github.com/TypeCellOS/BlockNote/pull/1779))
+
+### ❤️ Thank You
+
+- Aslam @Aslam97
+- Drew Johnson
+- Jonathan Marbutt @jmarbutt
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- Samuel Bisberg
+- Yousef
+
+## 0.31.3 (2025-06-18)
+
+### 🩹 Fixes
+
+- AI generation with empty document ([#1740](https://github.com/TypeCellOS/BlockNote/pull/1740))
+- do not send a welcome email if magic link was used on an account older than a minute ago ([db88fe4aa](https://github.com/TypeCellOS/BlockNote/commit/db88fe4aa))
+- AI system messages should always be at start of prompt ([#1741](https://github.com/TypeCellOS/BlockNote/pull/1741))
+- Selection clicking editor padding ([#1717](https://github.com/TypeCellOS/BlockNote/pull/1717))
+- preserve marks across a shift+enter #1672 ([#1743](https://github.com/TypeCellOS/BlockNote/pull/1743), [#1672](https://github.com/TypeCellOS/BlockNote/issues/1672))
+- **ai:** undo-redo after accepting/rejecting changes will undo as expected ([#1752](https://github.com/TypeCellOS/BlockNote/pull/1752))
+- **locales:** add translations for some comment strings ([#1764](https://github.com/TypeCellOS/BlockNote/pull/1764))
+- **website:** log in bug fixes ([#1742](https://github.com/TypeCellOS/BlockNote/pull/1742))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- Nick the Sick
+- Vinicius Fernandes @ViniCleFer
+- Yousef
+
+## 0.31.2 (2025-06-05)
+
+### 🩹 Fixes
+
+- re-release ([0bc546e18](https://github.com/TypeCellOS/BlockNote/commit/0bc546e18))
+- ignore falsy values in boolean prop schema ([#1730](https://github.com/TypeCellOS/BlockNote/pull/1730))
+
+### ❤️ Thank You
+
+- Nick Perez
+- Nick the Sick
+
+## 0.31.1 (2025-05-23)
+
+### 🩹 Fixes
+
+- backwards-compat for `_extensions` ([#1708](https://github.com/TypeCellOS/BlockNote/pull/1708))
+
+### ❤️ Thank You
+
+- Nick Perez
+
+## 0.31.0 (2025-05-20)
+
+### 🩹 Fixes
+
+- Playwright flaky keyboard handler test ([#1704](https://github.com/TypeCellOS/BlockNote/pull/1704))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+
+## 0.30.1 (2025-05-20)
+
+### 🩹 Fixes
+
+- better type-safety ([678086d4d](https://github.com/TypeCellOS/BlockNote/commit/678086d4d))
+- do not use `editor.dispatch` ([#1698](https://github.com/TypeCellOS/BlockNote/pull/1698))
+- re-added `display: flex` to blocks without inline content ([#1702](https://github.com/TypeCellOS/BlockNote/pull/1702))
+- **react:** add missing exports ([#1689](https://github.com/TypeCellOS/BlockNote/pull/1689))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- Nick the Sick
+
+## 0.30.0 (2025-05-09)
+
+### 🚀 Features
+
+- expose `editor.prosemirrorState` again ([#1615](https://github.com/TypeCellOS/BlockNote/pull/1615))
+- add `undo` and `redo` methods to editor API ([#1592](https://github.com/TypeCellOS/BlockNote/pull/1592))
+- new auth & payment system ([#1617](https://github.com/TypeCellOS/BlockNote/pull/1617))
+- re-implement Y.js collaboration as BlockNote plugins ([#1638](https://github.com/TypeCellOS/BlockNote/pull/1638))
+- **file:** `previewWidth` prop now defaults to `undefined` ([#1664](https://github.com/TypeCellOS/BlockNote/pull/1664))
+- **locales:** add zh-TW i18n ([#1668](https://github.com/TypeCellOS/BlockNote/pull/1668))
+
+### 🩹 Fixes
+
+- Formatting toolbar regression ([#1630](https://github.com/TypeCellOS/BlockNote/pull/1630))
+- provide `blockId` to `uploadFile` in UploadTab ([#1641](https://github.com/TypeCellOS/BlockNote/pull/1641))
+- do not close the menu on content/selection change ([#1644](https://github.com/TypeCellOS/BlockNote/pull/1644))
+- keep file panel open during collaboration ([#1646](https://github.com/TypeCellOS/BlockNote/pull/1646))
+- force pasting plain text into code block ([#1663](https://github.com/TypeCellOS/BlockNote/pull/1663))
+- updating HTML parsing rules to account for `prosemirror-model@1.25.1` ([#1661](https://github.com/TypeCellOS/BlockNote/pull/1661))
+- **code-block:** handle unknown languages better ([#1626](https://github.com/TypeCellOS/BlockNote/pull/1626))
+- **locales:** add slovak i18n ([#1649](https://github.com/TypeCellOS/BlockNote/pull/1649))
+
+### ❤️ Thank You
+
+- l0st0 @l0st0
+- Lawrence Lin @linyiru
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- Quentin Nativel
+
+## 0.29.1 (2025-04-17)
+
+### 🩹 Fixes
+
+- try not to always use workspace version ([7af344ea9](https://github.com/TypeCellOS/BlockNote/commit/7af344ea9))
+
+### ❤️ Thank You
+
+- Nick the Sick
+
+## 0.29.0 (2025-04-17)
+
+### 🚀 Features
+
+- `change` event allows getting a list of the block changed ([#1585](https://github.com/TypeCellOS/BlockNote/pull/1585))
+
+### 🩹 Fixes
+
+- allow opening another suggestion menu if another is triggered #1473 ([#1591](https://github.com/TypeCellOS/BlockNote/pull/1591), [#1473](https://github.com/TypeCellOS/BlockNote/issues/1473))
+- add quote to schema ([aa16b15fe](https://github.com/TypeCellOS/BlockNote/commit/aa16b15fe))
+- update y-prosemirror to fix #1462 ([#1608](https://github.com/TypeCellOS/BlockNote/pull/1608), [#1462](https://github.com/TypeCellOS/BlockNote/issues/1462))
+- dispatch suggestion menu as a separate transaction ([#1614](https://github.com/TypeCellOS/BlockNote/pull/1614))
+
+### ❤️ Thank You
+
+- Nick Perez
+- Nick the Sick
+
 ## 0.28.0 (2025-04-07)
 
 ### 🚀 Features

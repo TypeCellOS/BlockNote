@@ -22,7 +22,7 @@ test.describe("Check Ariakit UI", () => {
 
     await page.waitForTimeout(500);
     expect(await page.screenshot()).toMatchSnapshot(
-      "ariakit-formatting-toolbar.png"
+      "ariakit-formatting-toolbar.png",
     );
   });
   test("Check link toolbar", async ({ page }) => {
@@ -76,7 +76,7 @@ test.describe("Check Ariakit UI", () => {
 
     await page.waitForTimeout(500);
     expect(await page.screenshot()).toMatchSnapshot(
-      "ariakit-drag-handle-menu.png"
+      "ariakit-drag-handle-menu.png",
     );
   });
   test("Check image toolbar", async ({ page }) => {
@@ -85,7 +85,7 @@ test.describe("Check Ariakit UI", () => {
 
     await page.waitForTimeout(500);
     expect(await page.screenshot()).toMatchSnapshot(
-      "ariakit-image-toolbar.png"
+      "ariakit-image-toolbar.png",
     );
   });
 });

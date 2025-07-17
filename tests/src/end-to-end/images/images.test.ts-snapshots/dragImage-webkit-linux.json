@@ -16,7 +16,8 @@
                 "textColor": "default",
                 "backgroundColor": "default",
                 "textAlignment": "left",
-                "level": 1
+                "level": 1,
+                "isToggleable": false
               },
               "content": [
                 {
@@ -41,8 +42,7 @@
                 "name": "",
                 "url": "",
                 "caption": "",
-                "showPreview": true,
-                "previewWidth": 512
+                "showPreview": true
               }
             }
           ]

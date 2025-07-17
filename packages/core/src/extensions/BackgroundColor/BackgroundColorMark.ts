@@ -42,5 +42,5 @@ const BackgroundColorMark = Mark.create({
 
 export const BackgroundColor = createStyleSpecFromTipTapMark(
   BackgroundColorMark,
-  "string"
+  "string",
 );

@@ -7,5 +7,7 @@
   "export-to-pdf": "",
   "export-to-docx": "",
   "export-to-odt": "",
-  "events": ""
+  "export-to-email": "",
+  "events": "",
+  "methods": ""
 }

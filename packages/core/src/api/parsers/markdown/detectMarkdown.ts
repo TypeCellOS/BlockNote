@@ -2,13 +2,14 @@
 const h1 = /(^|\n) {0,3}#{1,6} {1,8}[^\n]{1,64}\r?\n\r?\n\s{0,32}\S/;
 
 // Bold, italic, underline, strikethrough, highlight.
-const bold = /(?:\s|^)(_|__|\*|\*\*|~~|==|\+\+)(?!\s).{1,64}(?<!\s)(?=\1)/;
+const bold =
+  /(_|__|\*|\*\*|~~|==|\+\+)(?!\s)(?:[^\s](?:.{0,62}[^\s])?|\S)(?=\1)/;
 
 // Basic inline link (also captures images).
 const link = /\[[^\]]{1,128}\]\(https?:\/\/\S{1,999}\)/;
 
 // Inline code.
-const code = /(?:\s|^)`(?!\s)[^`]{1,48}(?<!\s)`([^\w]|$)/;
+const code = /(?:\s|^)`(?!\s)(?:[^\s`](?:[^`]{0,46}[^\s`])?|[^\s`])`([^\w]|$)/;
 
 // Unordered list.
 const ul = /(?:^|\n)\s{0,5}-\s{1}[^\n]+\n\s{0,15}-\s/;

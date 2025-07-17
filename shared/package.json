@@ -2,7 +2,7 @@
   "name": "@blocknote/shared",
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": true,
-  "version": "0.26.0",
+  "version": "0.30.0",
   "files": [
     "dist",
     "types",
@@ -13,7 +13,7 @@
     "clean": "tsc --build --clean"
   },
   "dependencies": {
-    "@blocknote/core": "workspace:*"
+    "@blocknote/core": "workspace:^"
   },
   "devDependencies": {
     "@types/node": "22.13.13",
@@ -29,7 +29,7 @@
   },
   "eslintConfig": {
     "extends": [
-      "../.eslintrc.js"
+      "../.eslintrc.json"
     ]
   }
 }

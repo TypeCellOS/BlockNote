@@ -80,7 +80,8 @@ function MUIToolbarSelect<Item extends { name: string; icon?: FC }>(props: {
                   : theme.palette.background.default
               } !important`,
           },
-      }}>
+      }}
+    >
       <Select value={props.selectedItem.name} onChange={props.onChange}>
         {props.items.map((item) => (
           <MenuItem key={item.name} value={item.name}>
@@ -89,7 +90,8 @@ function MUIToolbarSelect<Item extends { name: string; icon?: FC }>(props: {
                 display: "flex",
                 alignItems: "center",
                 paddingRight: "1em",
-              }}>
+              }}
+            >
               {item.icon && <item.icon />}
             </Box>
             <Box>{item.name}</Box>
@@ -108,36 +110,36 @@ function MUIBlockTypeSelect() {
 
   // The block currently containing the text cursor.
   const [block, setBlock] = useState<Block>(
-    editor.getTextCursorPosition().block
+    editor.getTextCursorPosition().block,
   );
 
   // Updates the block currently containing the text cursor whenever the editor
   // content or selection changes.
   useEditorContentOrSelectionChange(
     () => setBlock(editor.getTextCursorPosition().block),
-    editor
+    editor,
   );
 
   // Gets the default items for the select.
   const defaultBlockTypeSelectItems = useMemo(
     () => blockTypeSelectItems(editor.dictionary),
-    [editor.dictionary]
+    [editor.dictionary],
   );
 
   // Gets the selected item.
   const selectedItem = useMemo(
     () =>
       defaultBlockTypeSelectItems.find((item) =>
-        item.isSelected(block as any)
+        item.isSelected(block as any),
       )!,
-    [defaultBlockTypeSelectItems, block]
+    [defaultBlockTypeSelectItems, block],
   );
 
   // Updates the state when the user chooses an item.
   const onChange = useCallback(
     (event: SelectChangeEvent<string>) => {
       const newSelectedItem = defaultBlockTypeSelectItems.find(
-        (item) => item.name === event.target.value
+        (item) => item.name === event.target.value,
       )!;
 
       editor.updateBlock(block, {
@@ -148,7 +150,7 @@ function MUIBlockTypeSelect() {
 
       setBlock(editor.getTextCursorPosition().block);
     },
-    [block, defaultBlockTypeSelectItems, editor]
+    [block, defaultBlockTypeSelectItems, editor],
   );
 
   return (
@@ -186,7 +188,8 @@ function MUIToolbarButton(props: {
                 : theme.palette.background.default
               : undefined,
           display: "block",
-        }}>
+        }}
+      >
         {props.children}
       </Button>
     </Tooltip>
@@ -211,14 +214,14 @@ function MUIBasicTextStyleButton(props: {
 
   // Whether the text style is currently active.
   const [textStyleActive, setTextStyleActive] = useState(
-    !!editor.getActiveStyles()[props.textStyle]
+    !!editor.getActiveStyles()[props.textStyle],
   );
 
   // Updates whether the text style is active when the editor content or
   // selection changes.
   useEditorContentOrSelectionChange(
     () => setTextStyleActive(props.textStyle in editor.getActiveStyles()),
-    editor
+    editor,
   );
 
   // Tooltip for the button.
@@ -227,7 +230,7 @@ function MUIBasicTextStyleButton(props: {
       `Toggle ${props.textStyle
         .slice(0, 1)
         .toUpperCase()}${props.textStyle.slice(1)}`,
-    [props.textStyle]
+    [props.textStyle],
   );
 
   // Toggles the text style when the button is clicked.
@@ -240,7 +243,8 @@ function MUIBasicTextStyleButton(props: {
     <MUIToolbarButton
       tooltip={tooltip}
       selected={textStyleActive}
-      onClick={onClick}>
+      onClick={onClick}
+    >
       <Icon sx={{ padding: "0.1em", height: "100%", width: "0.8em" }} />
     </MUIToolbarButton>
   );
@@ -262,24 +266,18 @@ function MUITextAlignButton(props: {
   const editor = useBlockNoteEditor<TextBlockSchema>();
 
   // The text alignment of the block currently containing the text cursor.
-  const [activeTextAlignment, setActiveTextAlignment] = useState(() => {
-    const blockProps = editor.getTextCursorPosition().block.props;
-
-    if ("textAlignment" in blockProps) {
-      return blockProps.textAlignment;
-    }
-
-    return undefined;
-  });
+  const [activeTextAlignment, setActiveTextAlignment] = useState(
+    () => editor.getTextCursorPosition().block.props.textAlignment,
+  );
 
   // Updates the text alignment when the editor content or selection changes.
-  useEditorContentOrSelectionChange(() => {
-    const blockProps = editor.getTextCursorPosition().block.props;
-
-    if ("textAlignment" in blockProps) {
-      setActiveTextAlignment(blockProps.textAlignment);
-    }
-  }, editor);
+  useEditorContentOrSelectionChange(
+    () =>
+      setActiveTextAlignment(
+        editor.getTextCursorPosition().block.props.textAlignment,
+      ),
+    editor,
+  );
 
   // Tooltip for the button.
   const tooltip = useMemo(
@@ -287,7 +285,7 @@ function MUITextAlignButton(props: {
       `Align ${props.textAlignment
         .slice(0, 1)
         .toUpperCase()}${props.textAlignment.slice(1)}`,
-    [props.textAlignment]
+    [props.textAlignment],
   );
 
   // Sets the text alignment of the block currently containing the text cursor
@@ -307,7 +305,8 @@ function MUITextAlignButton(props: {
     <MUIToolbarButton
       tooltip={tooltip}
       selected={activeTextAlignment === props.textAlignment}
-      onClick={onClick}>
+      onClick={onClick}
+    >
       <Icon sx={{ padding: "0.1em", height: "100%", width: "0.8em" }} />
     </MUIToolbarButton>
   );
@@ -335,10 +334,10 @@ function MUIColorStyleButton() {
 
   // The active text and background colors.
   const [activeTextColor, setActiveTextColor] = useState(
-    () => editor.getActiveStyles().textColor || "default"
+    () => editor.getActiveStyles().textColor || "default",
   );
   const [activeBackgroundColor, setActiveBackgroundColor] = useState(
-    () => editor.getActiveStyles().backgroundColor || "default"
+    () => editor.getActiveStyles().backgroundColor || "default",
   );
 
   // Updates the active text and background colors when the editor content or
@@ -353,7 +352,7 @@ function MUIColorStyleButton() {
   // Handles opening and closing the color menu.
   const onClick = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => setAnchorEl(event.currentTarget),
-    []
+    [],
   );
   const onClose = useCallback(() => setAnchorEl(null), []);
 
@@ -367,7 +366,7 @@ function MUIColorStyleButton() {
         : editor.addStyles({ textColor });
       setTimeout(() => editor.focus());
     },
-    [editor]
+    [editor],
   );
   const backgroundColorOnClick = useCallback(
     (backgroundColor: string) => {
@@ -377,7 +376,7 @@ function MUIColorStyleButton() {
         : editor.addStyles({ backgroundColor });
       setTimeout(() => editor.focus());
     },
-    [editor]
+    [editor],
   );
 
   return (
@@ -385,7 +384,8 @@ function MUIColorStyleButton() {
       <MUIToolbarButton
         tooltip={"Text & Background Color"}
         selected={anchorEl !== null}
-        onClick={onClick}>
+        onClick={onClick}
+      >
         <FormatColorText
           sx={{ padding: "0.1em", height: "100%", width: "0.8em" }}
         />
@@ -394,7 +394,8 @@ function MUIColorStyleButton() {
         open={anchorEl !== null}
         container={document.querySelector(".bn-container")!}
         anchorEl={anchorEl}
-        onClose={onClose}>
+        onClose={onClose}
+      >
         <MenuItem disabled>
           <Typography variant={"body2"}>Text Color</Typography>
         </MenuItem>
@@ -476,7 +477,8 @@ export function CustomMUIFormattingToolbar() {
       <ButtonGroup
         size={"small"}
         variant={"text"}
-        aria-label="Font style buttons">
+        aria-label="Font style buttons"
+      >
         {/* Replaces the `BasicTextStyleButton` component: */}
         <MUIBasicTextStyleButton textStyle={"bold"} />
         <MUIBasicTextStyleButton textStyle={"italic"} />
@@ -492,7 +494,8 @@ export function CustomMUIFormattingToolbar() {
       <ButtonGroup
         size={"small"}
         variant={"text"}
-        aria-label={"Text & background color button"}>
+        aria-label={"Text & background color button"}
+      >
         <MUIColorStyleButton />
       </ButtonGroup>
     </MUIToolbar>

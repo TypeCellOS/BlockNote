@@ -18,7 +18,7 @@ import { DefaultSuggestionItem } from "./DefaultSuggestionItem.js";
 function setSelectionToNextContentEditableBlock<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(editor: BlockNoteEditor<BSchema, I, S>) {
   let block: Block<BSchema, I, S> | undefined =
     editor.getTextCursorPosition().block;
@@ -44,10 +44,10 @@ function setSelectionToNextContentEditableBlock<
 export function insertOrUpdateBlock<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
-  block: PartialBlock<BSchema, I, S>
+  block: PartialBlock<BSchema, I, S>,
 ): Block<BSchema, I, S> {
   const currentBlock = editor.getTextCursorPosition().block;
 
@@ -83,7 +83,7 @@ export function insertOrUpdateBlock<
 export function getDefaultSlashMenuItems<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(editor: BlockNoteEditor<BSchema, I, S>) {
   const items: DefaultSuggestionItem[] = [];
 
@@ -121,7 +121,7 @@ export function getDefaultSlashMenuItems<
         badge: formatKeyboardShortcut("Mod-Alt-3"),
         key: "heading_3",
         ...editor.dictionary.slash_menu.heading_3,
-      }
+      },
     );
   }
 
@@ -134,6 +134,19 @@ export function getDefaultSlashMenuItems<
       },
       key: "quote",
       ...editor.dictionary.slash_menu.quote,
+    });
+  }
+
+  if (checkDefaultBlockTypeInSchema("toggleListItem", editor)) {
+    items.push({
+      onItemClick: () => {
+        insertOrUpdateBlock(editor, {
+          type: "toggleListItem",
+        });
+      },
+      badge: formatKeyboardShortcut("Mod-Shift-6"),
+      key: "toggle_list",
+      ...editor.dictionary.slash_menu.toggle_list,
     });
   }
 
@@ -235,9 +248,9 @@ export function getDefaultSlashMenuItems<
 
         // Immediately open the file toolbar
         editor.transact((tr) =>
-          tr.setMeta(editor.filePanel!.plugin, {
+          tr.setMeta(editor.filePanel!.plugins[0], {
             block: insertedBlock,
-          })
+          }),
         );
       },
       key: "image",
@@ -254,9 +267,9 @@ export function getDefaultSlashMenuItems<
 
         // Immediately open the file toolbar
         editor.transact((tr) =>
-          tr.setMeta(editor.filePanel!.plugin, {
+          tr.setMeta(editor.filePanel!.plugins[0], {
             block: insertedBlock,
-          })
+          }),
         );
       },
       key: "video",
@@ -273,9 +286,9 @@ export function getDefaultSlashMenuItems<
 
         // Immediately open the file toolbar
         editor.transact((tr) =>
-          tr.setMeta(editor.filePanel!.plugin, {
+          tr.setMeta(editor.filePanel!.plugins[0], {
             block: insertedBlock,
-          })
+          }),
         );
       },
       key: "audio",
@@ -292,14 +305,65 @@ export function getDefaultSlashMenuItems<
 
         // Immediately open the file toolbar
         editor.transact((tr) =>
-          tr.setMeta(editor.filePanel!.plugin, {
+          tr.setMeta(editor.filePanel!.plugins[0], {
             block: insertedBlock,
-          })
+          }),
         );
       },
       key: "file",
       ...editor.dictionary.slash_menu.file,
     });
+  }
+
+  if (checkDefaultBlockTypeInSchema("heading", editor)) {
+    items.push(
+      {
+        onItemClick: () => {
+          insertOrUpdateBlock(editor, {
+            type: "heading",
+            props: { level: 1, isToggleable: true },
+          });
+        },
+        key: "toggle_heading",
+        ...editor.dictionary.slash_menu.toggle_heading,
+      },
+      {
+        onItemClick: () => {
+          insertOrUpdateBlock(editor, {
+            type: "heading",
+            props: { level: 2, isToggleable: true },
+          });
+        },
+
+        key: "toggle_heading_2",
+        ...editor.dictionary.slash_menu.toggle_heading_2,
+      },
+      {
+        onItemClick: () => {
+          insertOrUpdateBlock(editor, {
+            type: "heading",
+            props: { level: 3, isToggleable: true },
+          });
+        },
+        key: "toggle_heading_3",
+        ...editor.dictionary.slash_menu.toggle_heading_3,
+      },
+    );
+
+    editor.settings.heading.levels
+      .filter((level): level is 4 | 5 | 6 => level > 3)
+      .forEach((level) => {
+        items.push({
+          onItemClick: () => {
+            insertOrUpdateBlock(editor, {
+              type: "heading",
+              props: { level: level },
+            });
+          },
+          key: `heading_${level}`,
+          ...editor.dictionary.slash_menu[`heading_${level}`],
+        });
+      });
   }
 
   items.push({
@@ -317,14 +381,14 @@ export function getDefaultSlashMenuItems<
 }
 
 export function filterSuggestionItems<
-  T extends { title: string; aliases?: readonly string[] }
+  T extends { title: string; aliases?: readonly string[] },
 >(items: T[], query: string) {
   return items.filter(
     ({ title, aliases }) =>
       title.toLowerCase().includes(query.toLowerCase()) ||
       (aliases &&
         aliases.filter((alias) =>
-          alias.toLowerCase().includes(query.toLowerCase())
-        ).length !== 0)
+          alias.toLowerCase().includes(query.toLowerCase()),
+        ).length !== 0),
   );
 }

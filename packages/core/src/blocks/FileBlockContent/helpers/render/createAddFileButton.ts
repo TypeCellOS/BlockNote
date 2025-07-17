@@ -5,7 +5,7 @@ export const createAddFileButton = (
   block: BlockFromConfig<FileBlockConfig, any, any>,
   editor: BlockNoteEditor<any, any, any>,
   buttonText?: string,
-  buttonIcon?: HTMLElement
+  buttonIcon?: HTMLElement,
 ) => {
   const addFileButton = document.createElement("div");
   addFileButton.className = "bn-add-file-button";
@@ -33,15 +33,15 @@ export const createAddFileButton = (
   // Opens the file toolbar.
   const addFileButtonClickHandler = () => {
     editor.transact((tr) =>
-      tr.setMeta(editor.filePanel!.plugin, {
+      tr.setMeta(editor.filePanel!.plugins[0], {
         block: block,
-      })
+      }),
     );
   };
   addFileButton.addEventListener(
     "mousedown",
     addFileButtonMouseDownHandler,
-    true
+    true,
   );
   addFileButton.addEventListener("click", addFileButtonClickHandler, true);
 
@@ -51,12 +51,12 @@ export const createAddFileButton = (
       addFileButton.removeEventListener(
         "mousedown",
         addFileButtonMouseDownHandler,
-        true
+        true,
       );
       addFileButton.removeEventListener(
         "click",
         addFileButtonClickHandler,
-        true
+        true,
       );
     },
   };

@@ -16,7 +16,8 @@
                 "textColor": "default",
                 "backgroundColor": "default",
                 "textAlignment": "left",
-                "level": 3
+                "level": 3,
+                "isToggleable": false
               },
               "content": [
                 {

@@ -23,7 +23,7 @@ import {
   useReactNodeView,
 } from "@tiptap/react";
 // import { useReactNodeView } from "@tiptap/react/dist/packages/react/src/useReactNodeView";
-import { FC } from "react";
+import { FC, JSX } from "react";
 import { renderToDOMSpec } from "./@util/ReactRenderUtil.js";
 // this file is mostly analogoues to `customBlocks.ts`, but for React blocks
 
@@ -31,12 +31,12 @@ import { renderToDOMSpec } from "./@util/ReactRenderUtil.js";
 export type ReactInlineContentImplementation<
   T extends CustomInlineContentConfig,
   // I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 > = {
   render: FC<{
     inlineContent: InlineContentFromConfig<T, S>;
     updateInlineContent: (
-      update: PartialCustomInlineContentFromConfig<T, S>
+      update: PartialCustomInlineContentFromConfig<T, S>,
     ) => void;
     contentRef: (node: HTMLElement | null) => void;
   }>;
@@ -52,7 +52,7 @@ export type ReactInlineContentImplementation<
 // ensure no data is lost on internal copy & paste.
 export function InlineContentWrapper<
   IType extends string,
-  PSchema extends PropSchema
+  PSchema extends PropSchema,
 >(props: {
   children: JSX.Element;
   inlineContentType: IType;
@@ -77,8 +77,9 @@ export function InlineContentWrapper<
           })
           .map(([prop, value]) => {
             return [camelToDataKebab(prop), value];
-          })
-      )}>
+          }),
+      )}
+    >
       {props.children}
     </NodeViewWrapper>
   );
@@ -89,10 +90,10 @@ export function InlineContentWrapper<
 export function createReactInlineContentSpec<
   T extends CustomInlineContentConfig,
   // I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   inlineContentConfig: T,
-  inlineContentImplementation: ReactInlineContentImplementation<T, S>
+  inlineContentImplementation: ReactInlineContentImplementation<T, S>,
 ) {
   const node = createStronglyTypedTiptapNode({
     name: inlineContentConfig.type as T["type"],
@@ -122,7 +123,7 @@ export function createReactInlineContentSpec<
       const ic = nodeToCustomInlineContent(
         node,
         editor.schema.inlineContentSchema,
-        editor.schema.styleSchema
+        editor.schema.styleSchema,
       ) as any as InlineContentFromConfig<T, S>; // TODO: fix cast
       const Content = inlineContentImplementation.render;
       const output = renderToDOMSpec(
@@ -135,14 +136,14 @@ export function createReactInlineContentSpec<
             contentRef={refCB}
           />
         ),
-        editor
+        editor,
       );
 
       return addInlineContentAttributes(
         output,
         inlineContentConfig.type,
         node.attrs as Props<T["propSchema"]>,
-        inlineContentConfig.propSchema
+        inlineContentConfig.propSchema,
       );
     },
 
@@ -163,28 +164,29 @@ export function createReactInlineContentSpec<
               <InlineContentWrapper
                 inlineContentProps={props.node.attrs as Props<T["propSchema"]>}
                 inlineContentType={inlineContentConfig.type}
-                propSchema={inlineContentConfig.propSchema}>
+                propSchema={inlineContentConfig.propSchema}
+              >
                 <Content
                   contentRef={ref}
                   inlineContent={
                     nodeToCustomInlineContent(
                       props.node,
                       editor.schema.inlineContentSchema,
-                      editor.schema.styleSchema
+                      editor.schema.styleSchema,
                     ) as any as InlineContentFromConfig<T, S> // TODO: fix cast
                   }
                   updateInlineContent={(update) => {
                     const content = inlineContentToNodes(
                       [update],
-                      editor.pmSchema
+                      editor.pmSchema,
                     );
 
                     editor.transact((tr) =>
                       tr.replaceWith(
                         props.getPos(),
                         props.getPos() + props.node.nodeSize,
-                        content
-                      )
+                        content,
+                      ),
                     );
                   }}
                 />
@@ -195,7 +197,7 @@ export function createReactInlineContentSpec<
             className: "bn-ic-react-node-view-renderer",
             as: "span",
             // contentDOMElementTag: "span", (requires tt upgrade)
-          }
+          },
         )(props);
     },
   });

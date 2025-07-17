@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { JSX, ReactNode } from "react";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { BasicTextStyleButton } from "./DefaultButtons/BasicTextStyleButton.js";
@@ -26,7 +26,7 @@ import { TextAlignButton } from "./DefaultButtons/TextAlignButton.js";
 import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
 
 export const getFormattingToolbarItems = (
-  blockTypeSelectItems?: BlockTypeSelectItem[]
+  blockTypeSelectItems?: BlockTypeSelectItem[],
 ): JSX.Element[] => [
   <BlockTypeSelect key={"blockTypeSelect"} items={blockTypeSelectItems} />,
   <TableCellMergeButton key={"tableCellMergeButton"} />,
@@ -69,13 +69,14 @@ export const getFormattingToolbarItems = (
  * `components/mantine-shared/Toolbar` directory.
  */
 export const FormattingToolbar = (
-  props: FormattingToolbarProps & { children?: ReactNode }
+  props: FormattingToolbarProps & { children?: ReactNode },
 ) => {
   const Components = useComponentsContext()!;
 
   return (
     <Components.FormattingToolbar.Root
-      className={"bn-toolbar bn-formatting-toolbar"}>
+      className={"bn-toolbar bn-formatting-toolbar"}
+    >
       {props.children || getFormattingToolbarItems(props.blockTypeSelectItems)}
     </Components.FormattingToolbar.Root>
   );

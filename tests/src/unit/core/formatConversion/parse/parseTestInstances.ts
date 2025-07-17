@@ -20,11 +20,14 @@ export const parseTestInstancesHTML: TestInstance<
     testCase: {
       name: "basicBlockTypes",
       content: `<h1>Heading 1</h1>
-  <h2>Heading 2</h2>
-  <h3>Heading 3</h3>
-  <p>Paragraph</p>
-  <figure><img src="exampleURL" /><figcaption>Image Caption</figcaption></figure>
-  <p>None <strong>Bold </strong><em>Italic </em><u>Underline </u><s>Strikethrough </s><strong><em><s><u>All</u></s></em></strong></p>`,
+<h2>Heading 2</h2>
+<h3>Heading 3</h3>
+<h4>Heading 4</h4>
+<h5>Heading 5</h5>
+<h6>Heading 6</h6>
+<p>Paragraph</p>
+<figure><img src="exampleURL" /><figcaption>Image Caption</figcaption></figure>
+<p>None <strong>Bold </strong><em>Italic </em><u>Underline </u><s>Strikethrough </s><strong><em><s><u>All</u></s></em></strong></p>`,
     },
     executeTest: testParseHTML,
   },
@@ -58,6 +61,35 @@ export const parseTestInstancesHTML: TestInstance<
     </ul>
   </li>
   </ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    // TODO this test's result not exactly right, but it's close enough for now.
+    testCase: {
+      name: "emptyNestedCheckListItem",
+      content: `<ul>
+  <li>
+    <ul>
+      <li>
+        <input type="checkbox" />
+      </li>
+    </ul>
+    <p>Paragraph</p>
+  </li>
+  </ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "checkListItem",
+      content: `<ul>
+  <li>
+    <input type="checkbox">
+    <p>Paragraph</p>
+  <li>
+</ul>`,
     },
     executeTest: testParseHTML,
   },
@@ -231,6 +263,267 @@ export const parseTestInstancesHTML: TestInstance<
   },
   {
     testCase: {
+      name: "multipleParagraphListItem",
+      content: `<ul>
+  <li>
+    <p>Bullet List Item</p>
+    <p>Bullet List Item</p>
+  </li>
+  <li>Bullet List Item</li>
+</ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "textWithImageListItem",
+      content: `<ul>
+  <li>
+    Bullet List Item
+    <img src="exampleURL">
+  </li>
+  <li>Bullet List Item</li>
+</ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "paragraphWithImageListItem",
+      content: `<ul>
+  <li>
+    <p>Bullet List Item</p>
+    <img src="exampleURL">
+  </li>
+  <li>Bullet List Item</li>
+</ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "imageWithTextListItem",
+      content: `<ul>
+  <li>
+    <img src="exampleURL">
+    Bullet List Item
+  </li>
+  <li>Bullet List Item</li>
+</ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "imageWithParagraphListItem",
+      content: `<ul>
+  <li>
+    <img src="exampleURL">
+    <p>Bullet List Item</p>
+  </li>
+  <li>Bullet List Item</li>
+</ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "styledTextListItem",
+      content: `<ul>
+  <li>Bullet List Item <b>Bold</b></li>
+  <li>Bullet List Item</li>
+</ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "styledTextWithImageListItem",
+      content: `<ul>
+  <li>
+    <b>Bold</b> Bullet List Item
+    <img src="exampleURL">
+  </li>
+  <li>Bullet List Item</li>
+</ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "flattenedListItem",
+      content: `<ul>
+  <li>
+    <ol>
+      <li>Nested Numbered List Item</li>
+    </ol>
+  </li>
+  <li>Bullet List Item</li>
+</ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "headingParagraphListItem",
+      content: `<ul>
+  <li>
+    <h1>Bullet List Item</h1>
+    <p>Bullet List Item</p>
+  </li>
+  <li>Bullet List Item</li>
+</ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "paragraphHeadingListItem",
+      content: `<ul>
+  <li>
+    <p>Bullet List Item</p>
+    <h1>Bullet List Item</h1>
+  </li>
+  <li>Bullet List Item</li>
+</ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "textTableCell",
+      content: `<table>
+  <tbody>
+    <tr>
+      <td>Table Cell</td>
+    </tr>  
+  </tbody>
+</table>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "paragraphTableCell",
+      content: `<table>
+  <tbody>
+    <tr>
+      <td>
+        <p>Table Cell</p>
+      </td>
+    </tr>  
+  </tbody>
+</table>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "headingTableCell",
+      content: `<table>
+  <tbody>
+    <tr>
+      <td>
+        <h1>Table Cell</h1>
+      </td>
+    </tr>  
+  </tbody>
+</table>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "multipleParagraphTableCell",
+      content: `<table>
+  <tbody>
+    <tr>
+      <td>
+        <p>Table Cell</p>
+        <p>Table Cell</p>
+      </td>
+    </tr>  
+  </tbody>
+</table>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "mixedTextTableCell",
+      content: `<table>
+  <tbody>
+    <tr>
+      <td>
+        <h1>Table Cell</p>
+        <p>Table Cell</p>
+        Table Cell
+      </td>
+    </tr>  
+  </tbody>
+</table>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "paragraphImageTableCell",
+      content: `<table>
+  <tbody>
+    <tr>
+      <td>
+        <p>Table Cell</p>
+        <img src="exampleURL">
+      </td>
+    </tr>  
+  </tbody>
+</table>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "imageBetweenParagraphsTableCell",
+      content: `<table>
+  <tbody>
+    <tr>
+      <td>
+        <p>Table Cell</p>
+        <img src="exampleURL">
+        <p>Table Cell</p>
+      </td>
+    </tr>  
+  </tbody>
+</table>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "mixedContentTableCell",
+      content: `<table>
+  <tbody>
+    <tr>
+      <td>
+        <p>Table Cell</p>
+        <img src="exampleURL">
+        Table Cell
+        <br/>
+        <input type="checkbox">
+        <h1>Table Cell</h1>
+        <ul>
+          <li>Table Cell</li>
+          <li>Table Cell</li>
+        </ul>
+      </td>
+    </tr>  
+  </tbody>
+</table>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
       name: "divs",
       content: `<div>Single Div</div>
   <div>
@@ -280,18 +573,17 @@ export const parseTestInstancesHTML: TestInstance<
     <div>
       Outer 2 Div Before
       <div>
-        Outer 3 Div Before
-        <div>
-          Outer 4 Div Before
-          <h1>Heading 1</h1>
-          <h2>Heading 2</h2>
-          <h3>Heading 3</h3>
-          <p>Paragraph</p>
-          <figure><img src="exampleURL"><figcaption>Image Caption</figcaption></figure>
-          <p><strong>Bold</strong> <em>Italic</em> <u>Underline</u> <s>Strikethrough</s> <strong><em><s><u>All</u></s></em></strong></p>
-          Outer 4 Div After
-        </div>
-        Outer 3 Div After
+        Outer 4 Div Before
+        <h1>Heading 1</h1>
+        <h2>Heading 2</h2>
+        <h3>Heading 3</h3>
+        <h4>Heading 4</h4>
+        <h5>Heading 5</h5>
+        <h6>Heading 6</h6>
+        <p>Paragraph</p>
+        <figure><img src="exampleURL"><figcaption>Image Caption</figcaption></figure>
+        <p><strong>Bold</strong> <em>Italic</em> <u>Underline</u> <s>Strikethrough</s> <strong><em><s><u>All</u></s></em></strong></p>
+        Outer 4 Div After
       </div>
       Outer 2 Div After
     </div>
@@ -352,6 +644,9 @@ export const parseTestInstancesHTML: TestInstance<
       content: `<meta charset='utf-8'><h1>Heading 1</h1>
 <h2>Heading 2</h2>
 <h3>Heading 3</h3>
+<h4>Heading 4</h4>
+<h5>Heading 5</h5>
+<h6>Heading 6</h6>
 <p>Paragraph 1</p>
 <p>Nested Paragraph 1</p>
 <p>Nested Paragraph 2</p>
@@ -413,6 +708,9 @@ With Hard Break</p>
 <h1 dir="ltr" style="line-height:1.38;margin-left: 18pt;text-indent: -18pt;margin-top:24pt;margin-bottom:6pt;padding:0pt 0pt 0pt 18pt;"><span style="font-size:23pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:700;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Heading 1</span></h1>
 <h2 dir="ltr" style="line-height:1.38;margin-left: 18pt;text-indent: -18pt;margin-top:18pt;margin-bottom:4pt;padding:0pt 0pt 0pt 18pt;"><span style="font-size:17pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:700;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Heading 2</span></h2>
 <h3 dir="ltr" style="line-height:1.38;margin-left: 18pt;text-indent: -18pt;margin-top:14pt;margin-bottom:4pt;padding:0pt 0pt 0pt 18pt;"><span style="font-size:13pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:700;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Heading 3</span></h3>
+<h4 dir="ltr" style="line-height:1.38;margin-left: 18pt;text-indent: -18pt;margin-top:14pt;margin-bottom:4pt;padding:0pt 0pt 0pt 18pt;"><span style="font-size:13pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:700;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Heading 4</span></h4>
+<h5 dir="ltr" style="line-height:1.38;margin-left: 18pt;text-indent: -18pt;margin-top:14pt;margin-bottom:4pt;padding:0pt 0pt 0pt 18pt;"><span style="font-size:13pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:700;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Heading 5</span></h5>
+<h6 dir="ltr" style="line-height:1.38;margin-left: 18pt;text-indent: -18pt;margin-top:14pt;margin-bottom:4pt;padding:0pt 0pt 0pt 18pt;"><span style="font-size:13pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:700;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Heading 6</span></h6>
 <p dir="ltr" style="line-height:1.38;margin-top:12pt;margin-bottom:12pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Paragraph 1</span></p>
 <p dir="ltr" style="line-height:1.38;margin-top:12pt;margin-bottom:12pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Paragraph 2</span></p>
 <p dir="ltr" style="line-height:1.38;margin-top:12pt;margin-bottom:12pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Paragraph 3</span></p>
@@ -646,6 +944,12 @@ Paragraph
 ## Heading 2
 
 ### Heading 3
+
+#### Heading 4
+
+##### Heading 5
+
+###### Heading 6
 
 Paragraph
 

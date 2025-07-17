@@ -14,9 +14,9 @@ import { components } from "./components.js";
 export const BlockNoteView = <
   BSchema extends BlockSchema,
   ISchema extends InlineContentSchema,
-  SSchema extends StyleSchema
+  SSchema extends StyleSchema,
 >(
-  props: BlockNoteViewProps<BSchema, ISchema, SSchema>
+  props: BlockNoteViewProps<BSchema, ISchema, SSchema>,
 ) => {
   const { className, ...rest } = props;
 

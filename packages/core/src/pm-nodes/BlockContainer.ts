@@ -25,11 +25,11 @@ export const BlockContainer = Node.create<{
   // Ensures content-specific keyboard handlers trigger first.
   priority: 50,
   defining: true,
-
+  marks: "insertion modification deletion",
   parseHTML() {
     return [
       {
-        tag: "div",
+        tag: "div[data-node-type=" + this.name + "]",
         getAttrs: (element) => {
           if (typeof element === "string") {
             return false;
@@ -42,12 +42,13 @@ export const BlockContainer = Node.create<{
             }
           }
 
-          if (element.getAttribute("data-node-type") === "blockContainer") {
-            return attrs;
-          }
-
-          return false;
+          return attrs;
         },
+      },
+      // Ignore `blockOuter` divs, but parse the `blockContainer` divs inside them.
+      {
+        tag: `div[data-node-type="blockOuter"]`,
+        skip: true,
       },
     ];
   },

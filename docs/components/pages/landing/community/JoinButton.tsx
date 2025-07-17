@@ -13,8 +13,9 @@ export const JoinButton = (props: {
   return (
     <div
       className={
-        "flex w-full flex-col items-start justify-between gap-4 rounded-lg bg-gray-50 p-4 dark:bg-gray-800 sm:flex-row sm:items-center sm:gap-8 md:max-w-screen-md"
-      }>
+        "flex w-full flex-col items-start justify-between gap-4 rounded-lg bg-gray-50 p-4 sm:flex-row sm:items-center sm:gap-8 md:max-w-screen-md dark:bg-gray-800"
+      }
+    >
       <div className={"hidden md:block md:w-fit"}>
         <Icon width={30} />
       </div>
@@ -22,7 +23,8 @@ export const JoinButton = (props: {
         <h2
           className={
             "text-left text-xl font-bold tracking-tight text-gray-900 dark:text-white"
-          }>
+          }
+        >
           {props.text}
         </h2>
         <p className={"text-left"}>{props.subtext}</p>
@@ -31,7 +33,8 @@ export const JoinButton = (props: {
         href={props.linkUrl}
         className={
           "flex items-center gap-2 whitespace-nowrap text-base font-medium text-cyan-700 hover:underline"
-        }>
+        }
+      >
         {props.linkTitle + " "}
         <svg
           xmlns={"http://www.w3.org/2000/svg"}
@@ -40,7 +43,8 @@ export const JoinButton = (props: {
           aria-label={"chevron right"}
           fill={"none"}
           viewBox={"0 0 20 20"}
-          strokeWidth={"2"}>
+          strokeWidth={"2"}
+        >
           <path
             clipRule={"evenodd"}
             fillRule={"evenodd"}

@@ -16,13 +16,13 @@ import {
 export function serializeInlineContentInternalHTML<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   editor: BlockNoteEditor<any, I, S>,
   blockContent: PartialBlock<BSchema, I, S>["content"],
   serializer: DOMSerializer,
   blockType?: string,
-  options?: { document?: Document }
+  options?: { document?: Document },
 ) {
   let nodes: any;
 
@@ -50,13 +50,13 @@ export function serializeInlineContentInternalHTML<
 function serializeBlock<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
   block: PartialBlock<BSchema, I, S>,
   serializer: DOMSerializer,
   listIndex: number,
-  options?: { document?: Document }
+  options?: { document?: Document },
 ) {
   const BC_NODE = editor.pmSchema.nodes["blockContainer"];
 
@@ -65,7 +65,7 @@ function serializeBlock<
   if (!block.props) {
     props = {};
     for (const [name, spec] of Object.entries(
-      editor.schema.blockSchema[block.type as any].propSchema
+      editor.schema.blockSchema[block.type as any].propSchema,
     )) {
       if (spec.default !== undefined) {
         (props as any)[name] = spec.default;
@@ -92,7 +92,7 @@ function serializeBlock<
       block.content as any, // TODO
       serializer,
       block.type,
-      options
+      options,
     );
     ret.contentDOM.appendChild(ic);
   }
@@ -105,7 +105,7 @@ function serializeBlock<
         editor,
         block.children,
         serializer,
-        options
+        options,
       );
 
       ret.contentDOM?.append(fragment);
@@ -118,7 +118,7 @@ function serializeBlock<
     BC_NODE.create({
       id: block.id,
       ...props,
-    })
+    }),
   ) as {
     dom: HTMLElement;
     contentDOM?: HTMLElement;
@@ -128,7 +128,7 @@ function serializeBlock<
 
   if (block.children && block.children.length > 0) {
     bc.contentDOM?.appendChild(
-      serializeBlocksInternalHTML(editor, block.children, serializer, options)
+      serializeBlocksInternalHTML(editor, block.children, serializer, options),
     );
   }
   return bc.dom;
@@ -137,12 +137,12 @@ function serializeBlock<
 function serializeBlocks<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
   blocks: PartialBlock<BSchema, I, S>[],
   serializer: DOMSerializer,
-  options?: { document?: Document }
+  options?: { document?: Document },
 ) {
   const doc = options?.document ?? document;
   const fragment = doc.createDocumentFragment();
@@ -159,7 +159,7 @@ function serializeBlocks<
       block,
       serializer,
       listIndex,
-      options
+      options,
     );
     fragment.appendChild(blockDOM);
   }
@@ -170,12 +170,12 @@ function serializeBlocks<
 export const serializeBlocksInternalHTML = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
   blocks: PartialBlock<BSchema, I, S>[],
   serializer: DOMSerializer,
-  options?: { document?: Document }
+  options?: { document?: Document },
 ) => {
   const BG_NODE = editor.pmSchema.nodes["blockGroup"];
 

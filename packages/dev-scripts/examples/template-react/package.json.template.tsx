@@ -1,7 +1,7 @@
 import type { Project } from "../util";
 
 const template = (project: Project) => ({
-  name: "@blocknote/example-" + project.projectSlug,
+  name: "@blocknote/example-" + project.fullSlug.replace("/", "-"),
   description: "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
   private: true,
   version: "0.12.4",
@@ -9,7 +9,7 @@ const template = (project: Project) => ({
     start: "vite",
     dev: "vite",
     "build:prod": "tsc && vite build",
-    preview: "vite preview"
+    preview: "vite preview",
   },
   dependencies: {
     "@blocknote/core": "latest",
@@ -17,17 +17,17 @@ const template = (project: Project) => ({
     "@blocknote/ariakit": "latest",
     "@blocknote/mantine": "latest",
     "@blocknote/shadcn": "latest",
-    react: "^18.3.1",
-    "react-dom": "^18.3.1",
+    react: "^19.1.0",
+    "react-dom": "^19.1.0",
     ...(project.config?.dependencies || {}),
   },
   devDependencies: {
-    "@types/react": "^18.0.25",
-    "@types/react-dom": "^18.0.9",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
     "@vitejs/plugin-react": "^4.3.1",
     vite: "^5.3.4",
     ...(project.config?.devDependencies || {}),
-  }
+  },
 });
 
 export default template;

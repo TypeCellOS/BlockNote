@@ -2,7 +2,7 @@ import type { Project } from "../util";
 
 // TODO: the ../../ paths are broken
 const template = (
-  project: Project
+  project: Project,
 ) => `// AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY
 import react from "@vitejs/plugin-react";
 import * as fs from "fs";

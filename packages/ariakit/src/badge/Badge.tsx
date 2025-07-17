@@ -33,12 +33,13 @@ export const Badge = forwardRef<
       className={mergeCSSClasses(
         className,
         "bn-ak-badge bn-ak-button",
-        isSelected && "bn-ak-primary"
+        isSelected && "bn-ak-primary",
       )}
       aria-selected={isSelected === true}
       onClick={(event) => onClick?.(event)}
       onMouseEnter={onMouseEnter}
-      ref={ref}>
+      ref={ref}
+    >
       <span>{icon}</span>
       <span>{text}</span>
     </AriakitButton>
@@ -70,7 +71,8 @@ export const BadgeGroup = forwardRef<
   return (
     <AriakitGroup
       className={mergeCSSClasses(className, "bn-ak-badge-group")}
-      ref={ref}>
+      ref={ref}
+    >
       {children}
     </AriakitGroup>
   );

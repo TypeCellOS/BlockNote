@@ -22,7 +22,7 @@ test.describe("Check ShadCN UI", () => {
 
     await page.waitForTimeout(500);
     expect(await page.screenshot()).toMatchSnapshot(
-      "shadcn-formatting-toolbar.png"
+      "shadcn-formatting-toolbar.png",
     );
   });
   test("Check link toolbar", async ({ page }) => {
@@ -76,7 +76,7 @@ test.describe("Check ShadCN UI", () => {
 
     await page.waitForTimeout(500);
     expect(await page.screenshot()).toMatchSnapshot(
-      "shadcn-drag-handle-menu.png"
+      "shadcn-drag-handle-menu.png",
     );
   });
   test("Check image toolbar", async ({ page }) => {

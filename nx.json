@@ -5,6 +5,9 @@
   "release": {
     "projects": ["packages/*"],
     "version": {
+      "generatorOptions": {
+        "fallbackCurrentVersionResolver": "disk"
+      },
       "preVersionCommand": "pnpm exec nx run-many -t build",
       "conventionalCommits": true
     },

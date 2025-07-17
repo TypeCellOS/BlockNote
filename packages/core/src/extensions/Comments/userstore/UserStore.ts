@@ -14,7 +14,7 @@ export class UserStore<U extends User> extends EventEmitter<any> {
   private loadingUsers = new Set<string>();
 
   public constructor(
-    private readonly resolveUsers: (userIds: string[]) => Promise<U[]>
+    private readonly resolveUsers: (userIds: string[]) => Promise<U[]>,
   ) {
     super();
   }
@@ -24,7 +24,7 @@ export class UserStore<U extends User> extends EventEmitter<any> {
    */
   public async loadUsers(userIds: string[]) {
     const missingUsers = userIds.filter(
-      (id) => !this.userCache.has(id) && !this.loadingUsers.has(id)
+      (id) => !this.userCache.has(id) && !this.loadingUsers.has(id),
     );
 
     if (missingUsers.length === 0) {

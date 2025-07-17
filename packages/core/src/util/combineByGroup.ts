@@ -12,7 +12,7 @@ export function combineByGroup<T extends { group?: string }>(
   for (const additionalItems of additionalItemsArray) {
     for (const additionalItem of additionalItems) {
       const lastItemWithSameGroup = combinedItems.findLastIndex(
-        (item) => item.group === additionalItem.group
+        (item) => item.group === additionalItem.group,
       );
       if (lastItemWithSameGroup === -1) {
         combinedItems.push(additionalItem as T);

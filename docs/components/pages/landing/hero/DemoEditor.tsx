@@ -129,7 +129,8 @@ export default function DemoEditor(props: { theme?: "light" | "dark" }) {
       onFocus={focus}
       editor={editor}
       theme={props.theme}
-      slashMenu={false}>
+      slashMenu={false}
+    >
       <SuggestionMenuController
         triggerCharacter={"/"}
         getItems={getSlashMenuItems}

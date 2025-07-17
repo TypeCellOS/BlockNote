@@ -5,7 +5,7 @@ export const ColorIcon = (
     textColor: string | undefined;
     backgroundColor: string | undefined;
     size: number | undefined;
-  }>
+  }>,
 ) => {
   const textColor = props.textColor || "default";
   const backgroundColor = props.backgroundColor || "default";
@@ -20,8 +20,8 @@ export const ColorIcon = (
         lineHeight: size.toString() + "px",
         textAlign: "center",
         width: size.toString() + "px",
-      } as const),
-    [size]
+      }) as const,
+    [size],
   );
 
   return (
@@ -29,7 +29,8 @@ export const ColorIcon = (
       className={"bn-color-icon"}
       data-background-color={backgroundColor}
       data-text-color={textColor}
-      style={style}>
+      style={style}
+    >
       A
     </div>
   );

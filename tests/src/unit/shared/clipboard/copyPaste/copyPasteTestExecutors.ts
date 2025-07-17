@@ -7,25 +7,23 @@ import {
 } from "@blocknote/core";
 import { expect } from "vitest";
 
-import {
-  doPaste,
-  setupClipboardTest,
-} from "../../../core/clipboard/clipboardTestUtil.js";
+import { initTestEditor } from "../../testUtil.js";
+import { doPaste } from "../clipboardTestUtil.js";
 import { CopyPasteTestCase } from "./copyPasteTestCase.js";
 
 export const testCopyPaste = async <
   B extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   editor: BlockNoteEditor<B, I, S>,
-  testCase: CopyPasteTestCase<B, I, S>
+  testCase: CopyPasteTestCase<B, I, S>,
 ) => {
-  setupClipboardTest(editor, testCase.document, testCase.getCopySelection);
+  initTestEditor(editor, testCase.document, testCase.getCopySelection);
 
   const { clipboardHTML } = selectedFragmentToHTML(
     editor.prosemirrorView!,
-    editor
+    editor,
   );
 
   editor.transact((tr) => tr.setSelection(testCase.getPasteSelection(tr.doc)));
@@ -35,10 +33,10 @@ export const testCopyPaste = async <
     "text",
     clipboardHTML,
     false,
-    new ClipboardEvent("paste")
+    new ClipboardEvent("paste"),
   );
 
   await expect(editor.document).toMatchFileSnapshot(
-    `./__snapshots__/${testCase.name}.json`
+    `./__snapshots__/${testCase.name}.json`,
   );
 };

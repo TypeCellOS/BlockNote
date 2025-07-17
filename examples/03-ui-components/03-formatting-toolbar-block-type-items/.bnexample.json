@@ -2,9 +2,15 @@
   "playground": true,
   "docs": true,
   "author": "matthewlipski",
-  "tags": ["Intermediate", "Blocks", "UI Components", "Formatting Toolbar", "Custom Schemas"],
+  "tags": [
+    "Intermediate",
+    "Blocks",
+    "UI Components",
+    "Formatting Toolbar",
+    "Custom Schemas"
+  ],
   "dependencies": {
-    "@mantine/core": "^7.10.1",
+    "@mantine/core": "^7.17.3",
     "react-icons": "^5.2.1"
   }
 }

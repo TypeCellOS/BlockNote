@@ -10,4 +10,3 @@ In this example, you can add comments to the document while collaborating with o
 - [Real-time collaboration](/docs/collaboration/real-time-collaboration)
 - [Y-Sweet on Jamsocket](https://docs.jamsocket.com/y-sweet/tutorials/blocknote)
 - [Editor Setup](/docs/editor-basics/setup)
-

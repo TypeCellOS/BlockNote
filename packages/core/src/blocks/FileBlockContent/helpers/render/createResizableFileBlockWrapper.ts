@@ -8,18 +8,22 @@ export const createResizableFileBlockWrapper = (
   element: { dom: HTMLElement; destroy?: () => void },
   resizeHandlesContainerElement: HTMLElement,
   buttonText: string,
-  buttonIcon: HTMLElement
+  buttonIcon: HTMLElement,
 ): { dom: HTMLElement; destroy: () => void } => {
   const { dom, destroy } = createFileBlockWrapper(
     block,
     editor,
     element,
     buttonText,
-    buttonIcon
+    buttonIcon,
   );
   const wrapper = dom;
   if (block.props.url && block.props.showPreview) {
-    wrapper.style.width = `${block.props.previewWidth}px`;
+    if (block.props.previewWidth) {
+      wrapper.style.width = `${block.props.previewWidth}px`;
+    } else {
+      wrapper.style.width = "fit-content";
+    }
   }
 
   const leftResizeHandle = document.createElement("div");
@@ -87,7 +91,10 @@ export const createResizableFileBlockWrapper = (
 
     // Ensures the element is not wider than the editor and not narrower than a
     // predetermined minimum width.
-    width = Math.max(newWidth, minWidth);
+    width = Math.min(
+      Math.max(newWidth, minWidth),
+      editor.domElement?.firstElementChild?.clientWidth || Number.MAX_VALUE,
+    );
     wrapper.style.width = `${width}px`;
   };
   // Stops mouse movements from resizing the element and updates the block's
@@ -176,11 +183,11 @@ export const createResizableFileBlockWrapper = (
   wrapper.addEventListener("mouseleave", wrapperMouseLeaveHandler);
   leftResizeHandle.addEventListener(
     "mousedown",
-    leftResizeHandleMouseDownHandler
+    leftResizeHandleMouseDownHandler,
   );
   rightResizeHandle.addEventListener(
     "mousedown",
-    rightResizeHandleMouseDownHandler
+    rightResizeHandleMouseDownHandler,
   );
 
   return {
@@ -193,11 +200,11 @@ export const createResizableFileBlockWrapper = (
       wrapper.removeEventListener("mouseleave", wrapperMouseLeaveHandler);
       leftResizeHandle.removeEventListener(
         "mousedown",
-        leftResizeHandleMouseDownHandler
+        leftResizeHandleMouseDownHandler,
       );
       rightResizeHandle.removeEventListener(
         "mousedown",
-        rightResizeHandleMouseDownHandler
+        rightResizeHandleMouseDownHandler,
       );
     },
   };

@@ -44,6 +44,9 @@ Tippy popups that are appended to document.body directly
 .bn-default-styles h1,
 .bn-default-styles h2,
 .bn-default-styles h3,
+.bn-default-styles h4,
+.bn-default-styles h5,
+.bn-default-styles h6,
 .bn-default-styles li {
   margin: 0;
   padding: 0;
@@ -55,9 +58,21 @@ Tippy popups that are appended to document.body directly
 .bn-default-styles {
   font-size: 16px;
   font-weight: normal;
-  font-family: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont,
-    "Open Sans", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
-    "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  font-family:
+    "Inter",
+    "SF Pro Display",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Open Sans",
+    "Segoe UI",
+    "Roboto",
+    "Oxygen",
+    "Ubuntu",
+    "Cantarell",
+    "Fira Sans",
+    "Droid Sans",
+    "Helvetica Neue",
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

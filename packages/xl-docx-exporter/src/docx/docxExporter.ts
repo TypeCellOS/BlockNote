@@ -40,7 +40,7 @@ const DEFAULT_TAB_STOP =
 export class DOCXExporter<
   B extends BlockSchema,
   S extends StyleSchema,
-  I extends InlineContentSchema
+  I extends InlineContentSchema,
 > extends Exporter<
   B,
   I,
@@ -71,7 +71,7 @@ export class DOCXExporter<
       IRunPropertiesOptions,
       TextRun
     >["mappings"],
-    options?: Partial<ExporterOptions>
+    options?: Partial<ExporterOptions>,
   ) {
     const defaults = {
       colors: COLORS_DEFAULT,
@@ -93,7 +93,7 @@ export class DOCXExporter<
 
     const styles: IRunPropertiesOptions = Object.assign(
       {} as IRunPropertiesOptions,
-      ...stylesArray
+      ...stylesArray,
     );
 
     return new TextRun({
@@ -108,28 +108,39 @@ export class DOCXExporter<
    */
   public async transformBlocks(
     blocks: Block<B, I, S>[],
-    nestingLevel = 0
+    nestingLevel = 0,
   ): Promise<Array<Paragraph | Table>> {
     const ret: Array<Paragraph | Table> = [];
 
     for (const b of blocks) {
       let children = await this.transformBlocks(b.children, nestingLevel + 1);
-      children = children.map((c, _i) => {
-        // NOTE: nested tables not supported (we can't insert the new Tab before a table)
-        if (
-          c instanceof Paragraph &&
-          !(c as any).properties.numberingReferences.length
-        ) {
-          c.addRunToFront(
-            new TextRun({
-              children: [new Tab()],
-            })
-          );
-        }
-        return c;
-      });
-      const self = await this.mapBlock(b as any, nestingLevel, 0 /*unused*/); // TODO: any
-      if (Array.isArray(self)) {
+
+      if (!["columnList", "column"].includes(b.type)) {
+        children = children.map((c, _i) => {
+          // NOTE: nested tables not supported (we can't insert the new Tab before a table)
+          if (
+            c instanceof Paragraph &&
+            !(c as any).properties.numberingReferences.length
+          ) {
+            c.addRunToFront(
+              new TextRun({
+                children: [new Tab()],
+              }),
+            );
+          }
+          return c;
+        });
+      }
+
+      const self = await this.mapBlock(
+        b as any,
+        nestingLevel,
+        0 /*unused*/,
+        children,
+      ); // TODO: any
+      if (["columnList", "column"].includes(b.type)) {
+        ret.push(self as Table);
+      } else if (Array.isArray(self)) {
         ret.push(...self, ...children);
       } else {
         ret.push(self, ...children);
@@ -143,32 +154,35 @@ export class DOCXExporter<
     // "./src/fonts/Inter-VariableFont_opsz,wght.ttf",
 
     let interFont = await loadFileBuffer(
-      await import("@shared/assets/fonts/inter/Inter_18pt-Regular.ttf")
+      await import("@shared/assets/fonts/inter/Inter_18pt-Regular.ttf"),
     );
     let geistMonoFont = await loadFileBuffer(
-      await import("@shared/assets/fonts/GeistMono-Regular.ttf")
+      await import("@shared/assets/fonts/GeistMono-Regular.ttf"),
     );
 
     if (
       interFont instanceof ArrayBuffer ||
-      geistMonoFont instanceof Uint8Array
+      geistMonoFont instanceof ArrayBuffer
     ) {
       // conversion with Polyfill needed because docxjs requires Buffer
-      const Buffer = (await import("buffer")).default.Buffer;
+      // NOTE: the buffer/ import is intentional and as documented in
+      // the `buffer` package usage instructions
+      // https://github.com/feross/buffer?tab=readme-ov-file#usage
+      const Buffer = (await import("buffer/")).Buffer;
 
       if (interFont instanceof ArrayBuffer) {
-        interFont = Buffer.from(interFont);
+        interFont = Buffer.from(interFont) as unknown as Buffer;
       }
       if (geistMonoFont instanceof ArrayBuffer) {
-        geistMonoFont = Buffer.from(geistMonoFont);
+        geistMonoFont = Buffer.from(geistMonoFont) as unknown as Buffer;
       }
     }
 
     return [
-      { name: "Inter", data: interFont as Buffer },
+      { name: "Inter", data: interFont },
       {
         name: "GeistMono",
-        data: geistMonoFont as Buffer,
+        data: geistMonoFont,
       },
     ];
   }
@@ -236,7 +250,7 @@ export class DOCXExporter<
     } = {
       sectionOptions: {},
       documentOptions: {},
-    }
+    },
   ) {
     const doc = await this.toDocxJsDocument(blocks, options);
     type GlobalThis = typeof globalThis & { Buffer?: any };
@@ -265,7 +279,7 @@ export class DOCXExporter<
     } = {
       sectionOptions: {},
       documentOptions: {},
-    }
+    },
   ) {
     const doc = new Document({
       ...(await this.createDefaultDocumentOptions()),
@@ -277,13 +291,6 @@ export class DOCXExporter<
         },
       ],
     });
-
-    // fix https://github.com/dolanmiu/docx/pull/2800/files
-    doc.Document.Relationships.createRelationship(
-      doc.Document.Relationships.RelationshipCount + 1,
-      "http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable",
-      "fontTable.xml"
-    );
 
     return doc;
   }

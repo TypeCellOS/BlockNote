@@ -24,7 +24,7 @@ export const ExperimentalMobileFormattingToolbarController = (props: {
     StyleSchema
   >();
   const state = useUIPluginState(
-    editor.formattingToolbar.onUpdate.bind(editor.formattingToolbar)
+    editor.formattingToolbar.onUpdate.bind(editor.formattingToolbar),
   );
   const style = useMemo<CSSProperties>(() => {
     return {
@@ -50,7 +50,7 @@ export const ExperimentalMobileFormattingToolbarController = (props: {
       setTransform(
         `translate(${offsetLeft}px, ${offsetTop}px) scale(${
           1 / viewport.scale
-        })`
+        })`,
       );
     }
     window.visualViewport!.addEventListener("scroll", viewportHandler);
@@ -75,7 +75,8 @@ export const ExperimentalMobileFormattingToolbarController = (props: {
       <div
         ref={divRef}
         style={style}
-        dangerouslySetInnerHTML={{ __html: divRef.current.innerHTML }}></div>
+        dangerouslySetInnerHTML={{ __html: divRef.current.innerHTML }}
+      ></div>
     );
   }
 

@@ -17,9 +17,9 @@ import { FilePanelProps } from "../FilePanelProps.js";
 export const EmbedTab = <
   B extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 >(
-  props: FilePanelProps<I, S>
+  props: FilePanelProps<I, S>,
 ) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
@@ -34,7 +34,7 @@ export const EmbedTab = <
     (event: ChangeEvent<HTMLInputElement>) => {
       setCurrentURL(event.currentTarget.value);
     },
-    []
+    [],
   );
 
   const handleURLEnter = useCallback(
@@ -49,7 +49,7 @@ export const EmbedTab = <
         });
       }
     },
-    [editor, block, currentURL]
+    [editor, block, currentURL],
   );
 
   const handleURLClick = useCallback(() => {
@@ -74,7 +74,8 @@ export const EmbedTab = <
       <Components.FilePanel.Button
         className={"bn-button"}
         onClick={handleURLClick}
-        data-test="embed-input-button">
+        data-test="embed-input-button"
+      >
         {dict.file_panel.embed.embed_button[block.type] ||
           dict.file_panel.embed.embed_button["file"]}
       </Components.FilePanel.Button>

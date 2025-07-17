@@ -16,7 +16,7 @@ import {
 // is lost on internal copy & paste.
 export function addInlineContentAttributes<
   IType extends string,
-  PSchema extends PropSchema
+  PSchema extends PropSchema,
 >(
   element: {
     dom: HTMLElement;
@@ -24,7 +24,7 @@ export function addInlineContentAttributes<
   },
   inlineContentType: IType,
   inlineContentProps: Props<PSchema>,
-  propSchema: PSchema
+  propSchema: PSchema,
 ): {
   dom: HTMLElement;
   contentDOM?: HTMLElement;
@@ -52,9 +52,9 @@ export function addInlineContentAttributes<
 
 // see https://github.com/TypeCellOS/BlockNote/pull/435
 export function addInlineContentKeyboardShortcuts<
-  T extends CustomInlineContentConfig
+  T extends CustomInlineContentConfig,
 >(
-  config: T
+  config: T,
 ): {
   [p: string]: KeyboardShortcutCommand;
 } {
@@ -75,7 +75,7 @@ export function addInlineContentKeyboardShortcuts<
 // config and implementation that conform to the type of Config
 export function createInternalInlineContentSpec<T extends InlineContentConfig>(
   config: T,
-  implementation: InlineContentImplementation<T>
+  implementation: InlineContentImplementation<T>,
 ) {
   return {
     config,
@@ -85,7 +85,7 @@ export function createInternalInlineContentSpec<T extends InlineContentConfig>(
 
 export function createInlineContentSpecFromTipTapNode<
   T extends Node,
-  P extends PropSchema
+  P extends PropSchema,
 >(node: T, propSchema: P) {
   return createInternalInlineContentSpec(
     {
@@ -95,14 +95,14 @@ export function createInlineContentSpecFromTipTapNode<
     },
     {
       node,
-    }
+    },
   );
 }
 
 export function getInlineContentSchemaFromSpecs<T extends InlineContentSpecs>(
-  specs: T
+  specs: T,
 ) {
   return Object.fromEntries(
-    Object.entries(specs).map(([key, value]) => [key, value.config])
+    Object.entries(specs).map(([key, value]) => [key, value.config]),
   ) as InlineContentSchemaFromSpecs<T>;
 }

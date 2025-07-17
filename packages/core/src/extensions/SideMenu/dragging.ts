@@ -21,7 +21,7 @@ let dragImageElement: Element | undefined;
 export type SideMenuState<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 > = UiElementPosition & {
   // The block that the side menu is attached to.
   block: Block<BSchema, I, S>;
@@ -81,12 +81,12 @@ function setDragImage(view: EditorView, from: number, to = from) {
   const firstSelectedBlockIndex = getElementIndex(
     parent,
     // Expects from position to be just before the first selected block.
-    view.domAtPos(from + 1).node.parentElement!
+    view.domAtPos(from + 1).node.parentElement!,
   );
   const lastSelectedBlockIndex = getElementIndex(
     parent,
     // Expects to position to be just after the last selected block.
-    view.domAtPos(to - 1).node.parentElement!
+    view.domAtPos(to - 1).node.parentElement!,
   );
 
   for (let i = parent.childElementCount - 1; i >= 0; i--) {
@@ -120,7 +120,7 @@ function setDragImage(view: EditorView, from: number, to = from) {
       (className) =>
         className !== "ProseMirror" &&
         className !== "bn-root" &&
-        className !== "bn-editor"
+        className !== "bn-editor",
     )
     .join(" ");
 
@@ -149,11 +149,11 @@ export function unsetDragImage(rootEl: Document | ShadowRoot) {
 export function dragStart<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   e: { dataTransfer: DataTransfer | null; clientY: number },
   block: Block<BSchema, I, S>,
-  editor: BlockNoteEditor<BSchema, I, S>
+  editor: BlockNoteEditor<BSchema, I, S>,
 ) {
   if (!e.dataTransfer) {
     return;
@@ -183,12 +183,12 @@ export function dragStart<
 
     if (draggedBlockInSelection && multipleBlocksSelected) {
       view.dispatch(
-        view.state.tr.setSelection(MultipleNodeSelection.create(doc, from, to))
+        view.state.tr.setSelection(MultipleNodeSelection.create(doc, from, to)),
       );
       setDragImage(view, from, to);
     } else {
       view.dispatch(
-        view.state.tr.setSelection(NodeSelection.create(view.state.doc, pos))
+        view.state.tr.setSelection(NodeSelection.create(view.state.doc, pos)),
       );
       setDragImage(view, pos);
     }

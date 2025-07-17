@@ -3,6 +3,7 @@ import {
   ComponentType,
   createContext,
   CSSProperties,
+  HTMLInputAutoCompleteAttribute,
   KeyboardEvent,
   MouseEvent,
   ReactNode,
@@ -141,7 +142,7 @@ export type ComponentProps = {
       id: string;
       isSelected: boolean;
       onClick: () => void;
-      item: DefaultReactSuggestionItem;
+      item: Omit<DefaultReactSuggestionItem, "onItemClick">;
     };
     Label: {
       className?: string;
@@ -149,7 +150,6 @@ export type ComponentProps = {
     };
     Loader: {
       className?: string;
-      children?: ReactNode;
     };
   };
   GridSuggestionMenu: {
@@ -261,13 +261,17 @@ export type ComponentProps = {
         className?: string;
         name: string;
         label?: string;
+        variant?: "default" | "large";
         icon: ReactNode;
+        rightSection?: ReactNode;
         autoFocus?: boolean;
-        placeholder: string;
+        placeholder?: string;
+        disabled?: boolean;
         value: string;
         onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
         onChange: (event: ChangeEvent<HTMLInputElement>) => void;
         onSubmit?: () => void;
+        autoComplete?: HTMLInputAutoCompleteAttribute;
       };
     };
     Menu: {
@@ -355,7 +359,7 @@ export type Components = {
 };
 
 export const ComponentsContext = createContext<Components | undefined>(
-  undefined
+  undefined,
 );
 
 export function useComponentsContext(): Components | undefined {

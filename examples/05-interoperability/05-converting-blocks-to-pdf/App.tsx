@@ -4,6 +4,7 @@ import {
   filterSuggestionItems,
   withPageBreak,
 } from "@blocknote/core";
+import * as locales from "@blocknote/core/locales";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
@@ -17,6 +18,12 @@ import {
   PDFExporter,
   pdfDefaultSchemaMappings,
 } from "@blocknote/xl-pdf-exporter";
+import {
+  getMultiColumnSlashMenuItems,
+  multiColumnDropCursor,
+  locales as multiColumnLocales,
+  withMultiColumn,
+} from "@blocknote/xl-multi-column";
 import { PDFViewer } from "@react-pdf/renderer";
 import { useEffect, useMemo, useState } from "react";
 
@@ -28,7 +35,12 @@ export default function App() {
 
   // Creates a new editor instance with some initial content.
   const editor = useCreateBlockNote({
-    schema: withPageBreak(BlockNoteSchema.create()),
+    schema: withMultiColumn(withPageBreak(BlockNoteSchema.create())),
+    dropCursor: multiColumnDropCursor,
+    dictionary: {
+      ...locales.en,
+      multi_column: multiColumnLocales.en,
+    },
     tables: {
       splitCells: true,
       cellBackgroundColor: true,
@@ -313,9 +325,72 @@ export default function App() {
   console.log("Hello World", message);
 };`,
       },
+      {
+        type: "columnList",
+        children: [
+          {
+            type: "column",
+            props: {
+              width: 0.8,
+            },
+            children: [
+              {
+                type: "paragraph",
+                content: "This paragraph is in a column!",
+              },
+            ],
+          },
+          {
+            type: "column",
+            props: {
+              width: 1.4,
+            },
+            children: [
+              {
+                type: "heading",
+                content: "So is this heading!",
+              },
+            ],
+          },
+          {
+            type: "column",
+            props: {
+              width: 0.8,
+            },
+            children: [
+              {
+                type: "paragraph",
+                content: "You can have multiple blocks in a column too",
+              },
+              {
+                type: "bulletListItem",
+                content: "Block 1",
+              },
+              {
+                type: "bulletListItem",
+                content: "Block 2",
+              },
+              {
+                type: "bulletListItem",
+                content: "Block 3",
+              },
+            ],
+          },
+        ],
+      },
     ],
   });
-
+  const getSlashMenuItems = useMemo(() => {
+    return async (query: string) =>
+      filterSuggestionItems(
+        combineByGroup(
+          getDefaultReactSlashMenuItems(editor),
+          getPageBreakReactSlashMenuItems(editor),
+          getMultiColumnSlashMenuItems(editor),
+        ),
+        query,
+      );
+  }, [editor]);
   const onChange = async () => {
     const exporter = new PDFExporter(editor.schema, pdfDefaultSchemaMappings);
     // Converts the editor's contents from Block objects to HTML and store to state.
@@ -330,13 +405,6 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const slashMenuItems = useMemo(() => {
-    return combineByGroup(
-      getDefaultReactSlashMenuItems(editor),
-      getPageBreakReactSlashMenuItems(editor)
-    );
-  }, [editor]);
-
   // Renders the editor instance, and its contents as HTML below.
   return (
     <div className="wrapper">
@@ -344,9 +412,7 @@ export default function App() {
         <BlockNoteView editor={editor} slashMenu={false} onChange={onChange}>
           <SuggestionMenuController
             triggerCharacter={"/"}
-            getItems={async (query) =>
-              filterSuggestionItems(slashMenuItems, query)
-            }
+            getItems={getSlashMenuItems}
           />
         </BlockNoteView>
       </div>

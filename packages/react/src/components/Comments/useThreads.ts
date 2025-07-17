@@ -16,7 +16,7 @@ export function useThreads(editor: BlockNoteEditor<any, any, any>) {
   // this ref works around this error:
   // https://react.dev/reference/react/useSyncExternalStore#im-getting-an-error-the-result-of-getsnapshot-should-be-cached
   // however, might not be a good practice to work around it this way
-  const threadsRef = useRef<Map<string, ThreadData>>();
+  const threadsRef = useRef<Map<string, ThreadData> | undefined>(undefined);
 
   if (!threadsRef.current) {
     threadsRef.current = store.getThreads();
@@ -30,7 +30,7 @@ export function useThreads(editor: BlockNoteEditor<any, any, any>) {
         cb();
       });
     },
-    [store]
+    [store],
   );
 
   return useSyncExternalStore(subscribe, () => threadsRef.current!);

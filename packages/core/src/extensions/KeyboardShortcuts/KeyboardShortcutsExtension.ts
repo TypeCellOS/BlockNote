@@ -48,7 +48,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
                 updateBlockCommand(blockInfo.bnBlock.beforePos, {
                   type: "paragraph",
                   props: {},
-                })
+                }),
               );
             }
 
@@ -114,7 +114,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             const prevBlockInfo = getPrevBlockInfo(
               state.doc,
-              blockInfo.bnBlock.beforePos
+              blockInfo.bnBlock.beforePos,
             );
 
             if (prevBlockInfo) {
@@ -124,7 +124,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             const parentBlockInfo = getParentBlockInfo(
               state.doc,
-              blockInfo.bnBlock.beforePos
+              blockInfo.bnBlock.beforePos,
             );
 
             if (parentBlockInfo?.blockNoteType !== "column") {
@@ -135,7 +135,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             const columnList = getParentBlockInfo(
               state.doc,
-              column.bnBlock.beforePos
+              column.bnBlock.beforePos,
             );
             if (columnList?.blockNoteType !== "columnList") {
               throw new Error("parent of column is not a column list");
@@ -156,7 +156,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
               const blockToMove = state.doc.slice(
                 blockInfo.bnBlock.beforePos,
                 blockInfo.bnBlock.afterPos,
-                false
+                false,
               );
 
               /*
@@ -180,8 +180,8 @@ export const KeyboardShortcutsExtension = Extension.create<{
                       columnList.bnBlock.afterPos - 2,
                       blockToMove,
                       blockToMove.size, // append existing content to blockToMove
-                      false
-                    )
+                      false,
+                    ),
                   );
                   const pos = state.tr.doc.resolve(column.bnBlock.beforePos);
                   state.tr.setSelection(TextSelection.between(pos, pos));
@@ -197,11 +197,11 @@ export const KeyboardShortcutsExtension = Extension.create<{
                       column.bnBlock.beforePos - 1,
                       blockToMove,
                       0, // prepend existing content to blockToMove
-                      false
-                    )
+                      false,
+                    ),
                   );
                   const pos = state.tr.doc.resolve(
-                    state.tr.mapping.map(column.bnBlock.beforePos - 1)
+                    state.tr.mapping.map(column.bnBlock.beforePos - 1),
                   );
                   state.tr.setSelection(TextSelection.between(pos, pos));
                 }
@@ -210,43 +210,43 @@ export const KeyboardShortcutsExtension = Extension.create<{
                   // delete column
                   state.tr.delete(
                     column.bnBlock.beforePos,
-                    column.bnBlock.afterPos
+                    column.bnBlock.afterPos,
                   );
 
                   // move before columnlist
                   state.tr.insert(
                     columnList.bnBlock.beforePos,
-                    blockToMove.content
+                    blockToMove.content,
                   );
 
                   const pos = state.tr.doc.resolve(
-                    columnList.bnBlock.beforePos
+                    columnList.bnBlock.beforePos,
                   );
                   state.tr.setSelection(TextSelection.between(pos, pos));
                 } else {
                   // just delete the </column><column> closing and opening tags to merge the columns
                   state.tr.delete(
                     column.bnBlock.beforePos - 1,
-                    column.bnBlock.beforePos + 1
+                    column.bnBlock.beforePos + 1,
                   );
                 }
               } else {
                 // delete block
                 state.tr.delete(
                   blockInfo.bnBlock.beforePos,
-                  blockInfo.bnBlock.afterPos
+                  blockInfo.bnBlock.afterPos,
                 );
                 if (isFirstColumn) {
                   // move before columnlist
                   state.tr.insert(
                     columnList.bnBlock.beforePos - 1,
-                    blockToMove.content
+                    blockToMove.content,
                   );
                 } else {
                   // append block to previous column
                   state.tr.insert(
                     column.bnBlock.beforePos - 1,
-                    blockToMove.content
+                    blockToMove.content,
                   );
                 }
                 const pos = state.tr.doc.resolve(column.bnBlock.beforePos - 1);
@@ -272,7 +272,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             if (blockEmpty) {
               const prevBlockInfo = getPrevBlockInfo(
                 state.doc,
-                blockInfo.bnBlock.beforePos
+                blockInfo.bnBlock.beforePos,
               );
               if (!prevBlockInfo || !prevBlockInfo.isBlockContainer) {
                 return false;
@@ -291,7 +291,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
                 const lastCellParagraphEndPos = lastCellEndPos - 1;
 
                 chainedCommands = chainedCommands.setTextSelection(
-                  lastCellParagraphEndPos
+                  lastCellParagraphEndPos,
                 );
               } else if (
                 prevBlockInfo.blockContent.node.type.spec.content === ""
@@ -301,7 +301,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
                   prevBlockInfo.blockContent.node.nodeSize;
 
                 chainedCommands = chainedCommands.setNodeSelection(
-                  nonEditableBlockContentStartPos
+                  nonEditableBlockContentStartPos,
                 );
               } else {
                 const blockContentStartPos =
@@ -341,13 +341,13 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             const prevBlockInfo = getPrevBlockInfo(
               state.doc,
-              blockInfo.bnBlock.beforePos
+              blockInfo.bnBlock.beforePos,
             );
 
             if (prevBlockInfo && selectionAtBlockStart && selectionEmpty) {
               const bottomBlock = getBottomNestedBlockInfo(
                 state.doc,
-                prevBlockInfo
+                prevBlockInfo,
               );
 
               if (!bottomBlock.isBlockContainer) {
@@ -368,7 +368,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
                       from: blockInfo.bnBlock.beforePos,
                       to: blockInfo.bnBlock.afterPos,
                     },
-                    bottomBlock.bnBlock.afterPos
+                    bottomBlock.bnBlock.afterPos,
                   )
                   .deleteRange({
                     from: bottomBlock.bnBlock.beforePos,
@@ -434,7 +434,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
       ]);
 
     const handleEnter = (withShift = false) => {
-      return this.editor.commands.first(({ commands }) => [
+      return this.editor.commands.first(({ commands, tr }) => [
         // Removes a level of nesting if the block is empty & indented, while the selection is also empty & at the start
         // of the block.
         () =>
@@ -486,9 +486,21 @@ export const KeyboardShortcutsExtension = Extension.create<{
               // both enter and shift+enter.
               blockHardBreakShortcut === "enter"
             ) {
-              return commands.insertContent({
-                type: "hardBreak",
-              });
+              const marks =
+                tr.storedMarks ||
+                tr.selection.$head
+                  .marks()
+                  .filter((m) =>
+                    this.editor.extensionManager.splittableMarks.includes(
+                      m.type.name,
+                    ),
+                  );
+
+              tr.insert(
+                tr.selection.head,
+                tr.doc.type.schema.nodes.hardBreak.create(),
+              ).ensureMarks(marks);
+              return true;
             }
 
             return false;
@@ -521,7 +533,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
                   .insert(newBlockInsertionPos, newBlock)
                   .scrollIntoView();
                 state.tr.setSelection(
-                  new TextSelection(state.doc.resolve(newBlockContentPos))
+                  new TextSelection(state.doc.resolve(newBlockContentPos)),
                 );
               }
 
@@ -551,8 +563,8 @@ export const KeyboardShortcutsExtension = Extension.create<{
                   splitBlockCommand(
                     state.selection.from,
                     selectionAtBlockStart,
-                    selectionAtBlockStart
-                  )
+                    selectionAtBlockStart,
+                  ),
                 )
                 .run();
 
@@ -605,6 +617,9 @@ export const KeyboardShortcutsExtension = Extension.create<{
         this.options.editor.moveBlocksDown();
         return true;
       },
+      "Mod-z": () => this.options.editor.undo(),
+      "Mod-y": () => this.options.editor.redo(),
+      "Shift-Mod-z": () => this.options.editor.redo(),
     };
   },
 });

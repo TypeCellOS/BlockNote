@@ -46,7 +46,8 @@ export const Badge = forwardRef<
       }}
       variant={"light"}
       icon={null}
-      ref={ref}>
+      ref={ref}
+    >
       <span>{icon}</span>
       <span>{text}</span>
     </MantineChip>
@@ -65,7 +66,8 @@ export const Badge = forwardRef<
           mainTooltip={mainTooltip}
           secondaryTooltip={secondaryTooltip}
         />
-      }>
+      }
+    >
       {badge}
     </MantineTooltip>
   );

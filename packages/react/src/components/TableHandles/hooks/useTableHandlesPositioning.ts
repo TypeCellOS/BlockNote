@@ -7,14 +7,14 @@ function getBoundingClientRectRow(
   draggingState?: {
     draggedCellOrientation: "row" | "col";
     mousePos: number;
-  }
+  },
 ) {
   if (draggingState && draggingState.draggedCellOrientation === "row") {
     return new DOMRect(
       referencePosTable!.x,
       draggingState.mousePos,
       referencePosTable!.width,
-      0
+      0,
     );
   }
 
@@ -22,7 +22,7 @@ function getBoundingClientRectRow(
     referencePosTable!.x,
     referencePosCell!.y,
     referencePosTable!.width,
-    referencePosCell!.height
+    referencePosCell!.height,
   );
 }
 
@@ -32,14 +32,14 @@ function getBoundingClientRectCol(
   draggingState?: {
     draggedCellOrientation: "row" | "col";
     mousePos: number;
-  }
+  },
 ) {
   if (draggingState && draggingState.draggedCellOrientation === "col") {
     return new DOMRect(
       draggingState.mousePos,
       referencePosTable!.y,
       0,
-      referencePosTable!.height
+      referencePosTable!.height,
     );
   }
 
@@ -47,7 +47,7 @@ function getBoundingClientRectCol(
     referencePosCell!.x,
     referencePosTable!.y,
     referencePosCell!.width,
-    referencePosTable!.height
+    referencePosTable!.height,
   );
 }
 
@@ -56,7 +56,7 @@ function getBoundingClientRectCell(referencePosCell: DOMRect | null) {
     referencePosCell!.x,
     referencePosCell!.y,
     referencePosCell!.width,
-    0
+    0,
   );
 }
 
@@ -68,7 +68,7 @@ function useTableHandlePosition(
   draggingState?: {
     draggedCellOrientation: "row" | "col";
     mousePos: number;
-  }
+  },
 ): {
   isMounted: boolean;
   ref: (node: HTMLElement | null) => void;
@@ -80,15 +80,15 @@ function useTableHandlePosition(
       orientation === "row"
         ? "left"
         : orientation === "col"
-        ? "top"
-        : "bottom-end",
+          ? "top"
+          : "bottom-end",
     middleware: [
       offset(
         orientation === "row"
           ? -10
           : orientation === "col"
-          ? -12
-          : { mainAxis: 1, crossAxis: -1 }
+            ? -12
+            : { mainAxis: 1, crossAxis: -1 },
       ),
     ],
   });
@@ -116,8 +116,8 @@ function useTableHandlePosition(
           orientation === "row"
             ? getBoundingClientRectRow
             : orientation === "col"
-            ? getBoundingClientRectCol
-            : getBoundingClientRectCell;
+              ? getBoundingClientRectCol
+              : getBoundingClientRectCell;
         return fn(referencePosCell, referencePosTable, draggingState);
       },
     });
@@ -133,7 +133,7 @@ function useTableHandlePosition(
         ...floatingStyles,
       },
     }),
-    [floatingStyles, isMounted, refs.setFloating, styles]
+    [floatingStyles, isMounted, refs.setFloating, styles],
   );
 }
 
@@ -144,7 +144,7 @@ export function useTableHandlesPositioning(
   draggingState?: {
     draggedCellOrientation: "row" | "col";
     mousePos: number;
-  }
+  },
 ): {
   rowHandle: ReturnType<typeof useTableHandlePosition>;
   colHandle: ReturnType<typeof useTableHandlePosition>;
@@ -155,21 +155,21 @@ export function useTableHandlesPositioning(
     show,
     referencePosCell,
     referencePosTable,
-    draggingState
+    draggingState,
   );
   const colHandle = useTableHandlePosition(
     "col",
     show,
     referencePosCell,
     referencePosTable,
-    draggingState
+    draggingState,
   );
   const cellHandle = useTableHandlePosition(
     "cell",
     show,
     referencePosCell,
     referencePosTable,
-    draggingState
+    draggingState,
   );
 
   return useMemo(
@@ -178,6 +178,6 @@ export function useTableHandlesPositioning(
       colHandle,
       cellHandle,
     }),
-    [colHandle, rowHandle, cellHandle]
+    [colHandle, rowHandle, cellHandle],
   );
 }

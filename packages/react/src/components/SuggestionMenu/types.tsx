@@ -1,4 +1,5 @@
 import { DefaultSuggestionItem } from "@blocknote/core";
+import { JSX } from "react";
 
 /**
  * Although any arbitrary data can be passed as suggestion items, the built-in
@@ -6,6 +7,7 @@ import { DefaultSuggestionItem } from "@blocknote/core";
  */
 export type DefaultReactSuggestionItem = Omit<DefaultSuggestionItem, "key"> & {
   icon?: JSX.Element;
+  size?: "default" | "small";
 };
 
 /**

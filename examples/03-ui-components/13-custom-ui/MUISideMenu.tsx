@@ -17,7 +17,7 @@ import { TextBlockSchema } from "./schema.js";
 // MUI version:
 // https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/components/SideMenu/DragHandleMenu/DefaultItems/RemoveBlockItem.tsx
 function MUIRemoveBlockItem(
-  props: SideMenuProps<TextBlockSchema> & { closeDragHandleMenu: () => void }
+  props: SideMenuProps<TextBlockSchema> & { closeDragHandleMenu: () => void },
 ) {
   // Deletes the block next to the side menu.
   const onClick = useCallback(() => {
@@ -60,7 +60,8 @@ function MUIDragHandleMenu(props: {
       open={props.anchorEl !== null}
       container={props.container}
       anchorEl={props.anchorEl}
-      onClose={props.onClose}>
+      onClose={props.onClose}
+    >
       {props.children}
     </Menu>
   );
@@ -79,7 +80,7 @@ function MUIDragHandleButton(props: SideMenuProps<TextBlockSchema>) {
       props.freezeMenu();
       setAnchorEl(event.currentTarget);
     },
-    [props]
+    [props],
   );
   const onClose = useCallback(() => {
     setAnchorEl(null);
@@ -93,7 +94,8 @@ function MUIDragHandleButton(props: SideMenuProps<TextBlockSchema>) {
         draggable={"true"}
         onClick={onClick}
         onDragStart={(e) => props.blockDragStart(e, props.block)}
-        onDragEnd={props.blockDragEnd}>
+        onDragEnd={props.blockDragEnd}
+      >
         <DragIndicator
           sx={{
             color: (theme) => theme.palette.text.primary,
@@ -103,7 +105,8 @@ function MUIDragHandleButton(props: SideMenuProps<TextBlockSchema>) {
       <MUIDragHandleMenu
         container={document.querySelector(".bn-container")!}
         anchorEl={anchorEl}
-        onClose={onClose}>
+        onClose={onClose}
+      >
         <MUIRemoveBlockItem {...props} closeDragHandleMenu={onClose} />
       </MUIDragHandleMenu>
     </>
@@ -113,7 +116,7 @@ function MUIDragHandleButton(props: SideMenuProps<TextBlockSchema>) {
 // This replaces the generic Mantine `SideMenu` component:
 // https://github.com/TypeCellOS/BlockNote/blob/main/packages/mantine/src/sideMenu/SideMenu.tsx
 function MUISideMenu(
-  props: SideMenuProps<TextBlockSchema> & { children: ReactNode }
+  props: SideMenuProps<TextBlockSchema> & { children: ReactNode },
 ) {
   // Since the side menu is positioned by the top-left corner of a block, we
   // manually set its height based on the hovered block so that it's vertically
@@ -143,7 +146,8 @@ function MUISideMenu(
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-      }}>
+      }}
+    >
       {props.children}
     </Box>
   );

@@ -28,7 +28,8 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
     <AriakitMenuProvider
       placement={position}
       setOpen={onOpenChange}
-      virtualFocus={true}>
+      virtualFocus={true}
+    >
       {children}
     </AriakitMenuProvider>
   );
@@ -51,7 +52,8 @@ export const MenuDropdown = forwardRef<
     <AriakitMenu
       unmountOnHide={true}
       className={mergeCSSClasses("bn-ak-menu", className || "")}
-      ref={ref}>
+      ref={ref}
+    >
       {children}
     </AriakitMenu>
   );
@@ -72,7 +74,8 @@ export const MenuItem = forwardRef<
         render={<AriakitMenuItem />}
         className={mergeCSSClasses("bn-ak-menu-item", className || "")}
         ref={ref}
-        onClick={onClick}>
+        onClick={onClick}
+      >
         {icon}
         {children}
         <AriakitMenuButtonArrow />
@@ -84,7 +87,8 @@ export const MenuItem = forwardRef<
     <AriakitMenuItem
       className={mergeCSSClasses("bn-ak-menu-item", className || "")}
       ref={ref}
-      onClick={onClick}>
+      onClick={onClick}
+    >
       {icon}
       {children}
       {checked !== undefined && <AriakitCheckboxCheck checked={checked} />}
@@ -103,14 +107,15 @@ export const MenuLabel = forwardRef<
   return (
     <AriakitMenuGroupLabel
       className={mergeCSSClasses("bn-ak-group-label", className || "")}
-      ref={ref}>
+      ref={ref}
+    >
       {children}
     </AriakitMenuGroupLabel>
   );
 });
 
 export const MenuTrigger = (
-  props: ComponentProps["Generic"]["Menu"]["Trigger"]
+  props: ComponentProps["Generic"]["Menu"]["Trigger"],
 ) => {
   const { children, sub, ...rest } = props;
 

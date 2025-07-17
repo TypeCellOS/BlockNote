@@ -1,0 +1,164 @@
+[
+  {
+    "block": {
+      "children": [],
+      "content": [
+        {
+          "styles": {},
+          "text": "Target",
+          "type": "text",
+        },
+      ],
+      "id": "target",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    "currentParent": {
+      "children": [
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "Level 2",
+              "type": "text",
+            },
+          ],
+          "id": "level-2",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "Target",
+              "type": "text",
+            },
+          ],
+          "id": "target",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "content": [
+        {
+          "styles": {},
+          "text": "Level 1",
+          "type": "text",
+        },
+      ],
+      "id": "level-1",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    "prevBlock": {
+      "children": [],
+      "content": [
+        {
+          "styles": {},
+          "text": "Target",
+          "type": "text",
+        },
+      ],
+      "id": "target",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    "prevParent": {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [],
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Level 2",
+                  "type": "text",
+                },
+              ],
+              "id": "level-2",
+              "props": {
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "paragraph",
+            },
+          ],
+          "content": [
+            {
+              "styles": {},
+              "text": "Level 1",
+              "type": "text",
+            },
+          ],
+          "id": "level-1",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "Target",
+              "type": "text",
+            },
+          ],
+          "id": "target",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "content": [
+        {
+          "styles": {},
+          "text": "Root",
+          "type": "text",
+        },
+      ],
+      "id": "root",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    "source": {
+      "type": "local",
+    },
+    "type": "move",
+  },
+]

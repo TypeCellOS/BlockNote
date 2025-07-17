@@ -54,7 +54,7 @@ class ColumnResizePluginView implements PluginView {
   }
 
   getColumnHoverOrDefaultState = (
-    event: MouseEvent
+    event: MouseEvent,
   ): ColumnDefaultState | ColumnHoverState => {
     if (!this.editor.isEditable) {
       return { type: "default" };
@@ -68,7 +68,7 @@ class ColumnResizePluginView implements PluginView {
     }
 
     const columnElement = target.closest(
-      ".bn-block-column"
+      ".bn-block-column",
     ) as HTMLElement | null;
 
     // Do nothing if a column element does not exist in the event target's
@@ -85,8 +85,8 @@ class ColumnResizePluginView implements PluginView {
       startPos < columnElementDOMRect.left + this.RESIZE_MARGIN_WIDTH_PX
         ? "left"
         : startPos > columnElementDOMRect.right - this.RESIZE_MARGIN_WIDTH_PX
-        ? "right"
-        : "none";
+          ? "right"
+          : "none";
 
     // The column element before or after the one hovered by the cursor,
     // depending on which side the cursor is on.
@@ -94,8 +94,8 @@ class ColumnResizePluginView implements PluginView {
       cursorElementSide === "left"
         ? columnElement.previousElementSibling
         : cursorElementSide === "right"
-        ? columnElement.nextElementSibling
-        : undefined;
+          ? columnElement.nextElementSibling
+          : undefined;
 
     // Do nothing if the cursor is not within the resize margin or if there
     // is no column before or after the one hovered by the cursor, depending
@@ -121,7 +121,7 @@ class ColumnResizePluginView implements PluginView {
 
     const rightColumnNodeAndPos = getNodeById(
       rightColumnId,
-      this.view.state.doc
+      this.view.state.doc,
     );
 
     if (
@@ -186,7 +186,7 @@ class ColumnResizePluginView implements PluginView {
     };
 
     this.view.dispatch(
-      this.view.state.tr.setMeta(columnResizePluginKey, newState)
+      this.view.state.tr.setMeta(columnResizePluginKey, newState),
     );
 
     this.editor.sideMenu.freezeMenu();
@@ -228,7 +228,7 @@ class ColumnResizePluginView implements PluginView {
 
       // Update the plugin state.
       this.view.dispatch(
-        this.view.state.tr.setMeta(columnResizePluginKey, newState)
+        this.view.state.tr.setMeta(columnResizePluginKey, newState),
       );
 
       return;
@@ -269,14 +269,14 @@ class ColumnResizePluginView implements PluginView {
         .setNodeAttribute(
           pluginState.leftColumn.posBeforeNode,
           "width",
-          newLeftColumnWidth
+          newLeftColumnWidth,
         )
         .setNodeAttribute(
           pluginState.rightColumn.posBeforeNode,
           "width",
-          newRightColumnWidth
+          newRightColumnWidth,
         )
-        .setMeta("addToHistory", false)
+        .setMeta("addToHistory", false),
     );
   };
 
@@ -294,7 +294,7 @@ class ColumnResizePluginView implements PluginView {
     // Revert plugin state to default or hover, depending on where the mouse
     // cursor is.
     this.view.dispatch(
-      this.view.state.tr.setMeta(columnResizePluginKey, newState)
+      this.view.state.tr.setMeta(columnResizePluginKey, newState),
     );
 
     this.editor.sideMenu.unfreezeMenu();
@@ -326,7 +326,7 @@ const createColumnResizePlugin = (editor: BlockNoteEditor<any, any, any>) =>
               pluginState.leftColumn.node.nodeSize,
             {
               style: "box-shadow: 4px 0 0 #ccc; cursor: col-resize",
-            }
+            },
           ),
           Decoration.node(
             pluginState.rightColumn.posBeforeNode,
@@ -334,13 +334,13 @@ const createColumnResizePlugin = (editor: BlockNoteEditor<any, any, any>) =>
               pluginState.rightColumn.node.nodeSize,
             {
               style: "cursor: col-resize",
-            }
+            },
           ),
         ]);
       },
     },
     state: {
-      init: () => ({ type: "default" } as ColumnState),
+      init: () => ({ type: "default" }) as ColumnState,
       apply: (tr, oldPluginState) => {
         const newPluginState = tr.getMeta(columnResizePluginKey) as
           | ColumnState
@@ -353,7 +353,7 @@ const createColumnResizePlugin = (editor: BlockNoteEditor<any, any, any>) =>
   });
 
 export const createColumnResizeExtension = (
-  editor: BlockNoteEditor<any, any, any>
+  editor: BlockNoteEditor<any, any, any>,
 ) =>
   Extension.create({
     name: "columnResize",

@@ -25,6 +25,7 @@ import { CodeBlock } from "./CodeBlockContent/CodeBlockContent.js";
 import { FileBlock } from "./FileBlockContent/FileBlockContent.js";
 import { Heading } from "./HeadingBlockContent/HeadingBlockContent.js";
 import { ImageBlock } from "./ImageBlockContent/ImageBlockContent.js";
+import { ToggleListItem } from "./ListItemBlockContent/ToggleListItemBlockContent/ToggleListItemBlockContent.js";
 import { BulletListItem } from "./ListItemBlockContent/BulletListItemBlockContent/BulletListItemBlockContent.js";
 import { CheckListItem } from "./ListItemBlockContent/CheckListItemBlockContent/CheckListItemBlockContent.js";
 import { NumberedListItem } from "./ListItemBlockContent/NumberedListItemBlockContent/NumberedListItemBlockContent.js";
@@ -38,6 +39,7 @@ export const defaultBlockSpecs = {
   heading: Heading,
   quote: Quote,
   codeBlock: CodeBlock,
+  toggleListItem: ToggleListItem,
   bulletListItem: BulletListItem,
   numberedListItem: NumberedListItem,
   checkListItem: CheckListItem,
@@ -78,7 +80,7 @@ export const defaultInlineContentSpecs = {
 } satisfies InlineContentSpecs;
 
 export const defaultInlineContentSchema = getInlineContentSchemaFromSpecs(
-  defaultInlineContentSpecs
+  defaultInlineContentSpecs,
 );
 
 // underscore is used that in case a user overrides DefaultInlineContentSchema,
@@ -89,11 +91,11 @@ export type DefaultInlineContentSchema = _DefaultInlineContentSchema;
 export type PartialBlock<
   BSchema extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 > = PartialBlockNoDefaults<BSchema, I, S>;
 
 export type Block<
   BSchema extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 > = BlockNoDefaults<BSchema, I, S>;

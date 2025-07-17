@@ -1,88 +1,88 @@
 [
   {
     "attrs": {
-      "id": "1",
+      "id": "1"
     },
     "content": [
       {
         "attrs": {
-          "backgroundColor": "blue",
+          "isToggleable": false,
           "level": 2,
           "textAlignment": "right",
-          "textColor": "yellow",
+          "textColor": "yellow"
         },
         "content": [
           {
             "marks": [
               {
-                "type": "bold",
+                "type": "bold"
               },
               {
-                "type": "underline",
-              },
+                "type": "underline"
+              }
             ],
             "text": "Heading ",
-            "type": "text",
+            "type": "text"
           },
           {
             "marks": [
               {
-                "type": "italic",
+                "type": "italic"
               },
               {
-                "type": "strike",
-              },
+                "type": "strike"
+              }
             ],
             "text": "2",
-            "type": "text",
-          },
+            "type": "text"
+          }
         ],
-        "type": "heading",
+        "type": "heading"
       },
       {
         "content": [
           {
             "attrs": {
-              "id": "2",
+              "id": "2"
             },
             "content": [
               {
                 "attrs": {
                   "backgroundColor": "red",
                   "textAlignment": "left",
-                  "textColor": "default",
+                  "textColor": "default"
                 },
                 "content": [
                   {
                     "text": "Paragraph",
-                    "type": "text",
-                  },
+                    "type": "text"
+                  }
                 ],
-                "type": "paragraph",
-              },
+                "type": "paragraph"
+              }
             ],
-            "type": "blockContainer",
+            "type": "blockContainer"
           },
           {
             "attrs": {
-              "id": "3",
+              "id": "3"
             },
             "content": [
               {
                 "attrs": {
                   "backgroundColor": "default",
                   "textAlignment": "left",
-                  "textColor": "default",
+                  "textColor": "default"
                 },
-                "type": "bulletListItem",
-              },
+                "type": "bulletListItem"
+              }
             ],
-            "type": "blockContainer",
-          },
+            "type": "blockContainer"
+          }
         ],
-        "type": "blockGroup",
-      },
+        "type": "blockGroup"
+      }
     ],
-    "type": "blockContainer",
-  },
+    "type": "blockContainer"
+  }
 ]

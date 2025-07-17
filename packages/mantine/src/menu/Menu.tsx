@@ -87,7 +87,9 @@ const SubMenu = forwardRef<
 
   const itemRef = useRef<HTMLButtonElement | null>(null);
 
-  const menuCloseTimer = useRef<ReturnType<typeof setTimeout> | undefined>();
+  const menuCloseTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
 
   const mouseLeave = useCallback(() => {
     if (menuCloseTimer.current) {
@@ -110,12 +112,14 @@ const SubMenu = forwardRef<
       value={{
         onMenuMouseOver: mouseOver,
         onMenuMouseLeave: mouseLeave,
-      }}>
+      }}
+    >
       <MantineMenu.Item
         className="bn-menu-item bn-mt-sub-menu-item"
         ref={mergeRefs(ref, itemRef)}
         onMouseOver={mouseOver}
-        onMouseLeave={mouseLeave}>
+        onMouseLeave={mouseLeave}
+      >
         <MantineMenu
           portalProps={{
             target: itemRef.current
@@ -126,7 +130,8 @@ const SubMenu = forwardRef<
           trigger={"hover"}
           opened={opened}
           onChange={onOpenChange}
-          position={position}>
+          position={position}
+        >
           {children}
         </MantineMenu>
       </MantineMenu.Item>
@@ -148,7 +153,8 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
       withinPortal={false}
       middlewares={{ flip: true, shift: true, inline: false, size: true }}
       onChange={onOpenChange}
-      position={position}>
+      position={position}
+    >
       {children}
     </MantineMenu>
   );
@@ -173,7 +179,8 @@ export const MenuItem = forwardRef<
           e.stopPropagation();
         }}
         ref={ref}
-        {...rest}>
+        {...rest}
+      >
         {children}
         <HiChevronRight size={15} />
       </div>
@@ -193,14 +200,15 @@ export const MenuItem = forwardRef<
         ) : null
       }
       onClick={onClick}
-      {...rest}>
+      {...rest}
+    >
       {children}
     </MantineMenu.Item>
   );
 });
 
 export const MenuTrigger = (
-  props: ComponentProps["Generic"]["Menu"]["Trigger"]
+  props: ComponentProps["Generic"]["Menu"]["Trigger"],
 ) => {
   const {
     children,
@@ -233,7 +241,8 @@ export const MenuDropdown = forwardRef<
       className={className}
       ref={ref}
       onMouseOver={ctx?.onMenuMouseOver}
-      onMouseLeave={ctx?.onMenuMouseLeave}>
+      onMouseLeave={ctx?.onMenuMouseLeave}
+    >
       {children}
     </MantineMenu.Dropdown>
   );

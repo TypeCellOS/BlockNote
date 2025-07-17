@@ -1,6 +1,5 @@
 // import "../custom.css";
 import { Analytics } from "@vercel/analytics/react";
-import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
 import { type ReactNode } from "react";
 import "../styles.css";
@@ -16,10 +15,8 @@ export default function Nextra({ Component, pageProps }: NextraAppProps) {
 
   return (
     <>
-      <SessionProvider>
-        <Component {...pageProps} />
-        <Analytics />
-      </SessionProvider>
+      <Component {...pageProps} />
+      <Analytics />
     </>
   );
 }

@@ -11,7 +11,7 @@ import { acceptedMIMETypes } from "./acceptedMIMETypes.js";
 
 function checkFileExtensionsMatch(
   fileExtension1: string,
-  fileExtension2: string
+  fileExtension2: string,
 ) {
   if (!fileExtension1.startsWith(".") || !fileExtension2.startsWith(".")) {
     throw new Error(`The strings provided are not valid file extensions.`);
@@ -44,11 +44,11 @@ function checkMIMETypesMatch(mimeType1: string, mimeType2: string) {
 function insertOrUpdateBlock<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
   referenceBlock: Block<BSchema, I, S>,
-  newBlock: PartialBlock<BSchema, I, S>
+  newBlock: PartialBlock<BSchema, I, S>,
 ) {
   let insertedBlockId: string | undefined;
 
@@ -61,7 +61,7 @@ function insertOrUpdateBlock<
     insertedBlockId = editor.insertBlocks(
       [newBlock],
       referenceBlock,
-      "after"
+      "after",
     )[0].id;
   }
 
@@ -71,12 +71,12 @@ function insertOrUpdateBlock<
 export async function handleFileInsertion<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(event: DragEvent | ClipboardEvent, editor: BlockNoteEditor<BSchema, I, S>) {
   if (!editor.uploadFile) {
     // eslint-disable-next-line no-console
     console.warn(
-      "Attempted ot insert file, but uploadFile is not set in the BlockNote editor options"
+      "Attempted ot insert file, but uploadFile is not set in the BlockNote editor options",
     );
     return;
   }
@@ -106,7 +106,7 @@ export async function handleFileInsertion<
   event.preventDefault();
 
   const fileBlockConfigs = Object.values(editor.schema.blockSchema).filter(
-    (blockConfig) => blockConfig.isFileBlock
+    (blockConfig) => blockConfig.isFileBlock,
   ) as FileBlockConfig[];
 
   for (let i = 0; i < items.length; i++) {
@@ -125,7 +125,7 @@ export async function handleFileInsertion<
             (isFileExtension &&
               checkFileExtensionsMatch(
                 "." + file.name.split(".").pop(),
-                mimeType
+                mimeType,
               ))
           ) {
             fileBlockType = fileBlockConfig.type;
@@ -165,7 +165,7 @@ export async function handleFileInsertion<
           return insertOrUpdateBlock(
             editor,
             editor.getBlock(posInfo.node.attrs.id)!,
-            fileBlock
+            fileBlock,
           );
         });
       } else {

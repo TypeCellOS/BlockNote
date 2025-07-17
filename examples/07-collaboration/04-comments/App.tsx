@@ -35,7 +35,8 @@ export default function App() {
   return (
     <YDocProvider
       docId={docId}
-      authEndpoint="https://demos.y-sweet.dev/api/auth">
+      authEndpoint="https://demos.y-sweet.dev/api/auth"
+    >
       <Document />
     </YDocProvider>
   );
@@ -66,7 +67,7 @@ function Document() {
     return new YjsThreadStore(
       activeUser.id,
       doc.getMap("threads"),
-      new DefaultThreadStoreAuth(activeUser.id, activeUser.role)
+      new DefaultThreadStoreAuth(activeUser.id, activeUser.role),
     );
   }, [doc, activeUser]);
 
@@ -83,14 +84,15 @@ function Document() {
         user: { color: getRandomColor(), name: activeUser.username },
       },
     },
-    [activeUser, threadStore]
+    [activeUser, threadStore],
   );
 
   return (
     <BlockNoteView
       className={"comments-main-container"}
       editor={editor}
-      editable={activeUser.role === "editor"}>
+      editable={activeUser.role === "editor"}
+    >
       {/* We place user settings select within `BlockNoteView` as it uses
       BlockNote UI components and needs the context for them. */}
       <div className={"settings"}>

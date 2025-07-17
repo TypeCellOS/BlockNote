@@ -42,7 +42,7 @@ export default function App() {
           mode: prefersDarkMode ? "dark" : "light",
         },
       }),
-    [prefersDarkMode]
+    [prefersDarkMode],
   );
 
   // Renders the editor instance.
@@ -59,7 +59,8 @@ export default function App() {
         linkToolbar={false}
         filePanel={false}
         tableHandles={false}
-        emojiPicker={false}>
+        emojiPicker={false}
+      >
         {/* Adds the custom Formatting Toolbar. */}
         {/* `FormattingToolbarController isn't used since we make the custom */}
         {/* toolbar static and always visible above the editor for this */}
@@ -76,9 +77,9 @@ export default function App() {
           getItems={async (query) =>
             filterSuggestionItems(
               getDefaultReactSlashMenuItems(editor).filter(
-                (item) => item.title !== "Emoji"
+                (item) => item.title !== "Emoji",
               ),
-              query
+              query,
             )
           }
           suggestionMenuComponent={MUISuggestionMenu}

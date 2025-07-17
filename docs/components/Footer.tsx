@@ -111,10 +111,14 @@ export function FooterContent() {
                 <FooterHeader>Legal</FooterHeader>
                 <ul className="ml-0 mt-4 list-none space-y-1.5">
                   <li key={"terms-and-conditions"}>
-                    <FooterLink href={"/legal/terms-and-conditions"}>Terms & Conditions</FooterLink>
+                    <FooterLink href={"/legal/terms-and-conditions"}>
+                      Terms & Conditions
+                    </FooterLink>
                   </li>
                   <li key={"privacy-policy"}>
-                    <FooterLink href={"/legal/privacy-policy"}>Privacy Policy</FooterLink>
+                    <FooterLink href={"/legal/privacy-policy"}>
+                      Privacy Policy
+                    </FooterLink>
                   </li>
                 </ul>
               </div>
@@ -158,9 +162,10 @@ export function Footer({ menu }: { menu?: boolean }): ReactElement {
       <hr className="dark:border-neutral-800" /> */}
       <div
         className={cn(
-          "mx-auto flex max-w-[90rem] justify-center py-12 text-black dark:text-white md:justify-center",
+          "mx-auto flex max-w-[90rem] justify-center py-12 text-black md:justify-center dark:text-white",
           "pl-[max(env(safe-area-inset-left),1.5rem)] pr-[max(env(safe-area-inset-right),1.5rem)]",
-        )}>
+        )}
+      >
         <FooterContent />
       </div>
     </footer>

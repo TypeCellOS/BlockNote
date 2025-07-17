@@ -38,9 +38,9 @@ const marginRound = (num: number, margin = 0.3) => {
 
 export const ExtendButton = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 >(
-  props: ExtendButtonProps<I, S> & { children?: ReactNode }
+  props: ExtendButtonProps<I, S> & { children?: ReactNode },
 ) => {
   const Components = useComponentsContext()!;
 
@@ -66,7 +66,7 @@ export const ExtendButton = <
         originalCroppedContent: {
           rows: props.editor.tableHandles!.cropEmptyRowsOrColumns(
             props.block,
-            props.orientation === "addOrRemoveColumns" ? "columns" : "rows"
+            props.orientation === "addOrRemoveColumns" ? "columns" : "rows",
           ),
         } as PartialTableContent<any, any>,
         startPos:
@@ -79,7 +79,7 @@ export const ExtendButton = <
       // preventdefault, otherwise text in the table might be selected
       event.preventDefault();
     },
-    [props]
+    [props],
   );
 
   const onClickHandler = useCallback(() => {
@@ -95,12 +95,12 @@ export const ExtendButton = <
             ? props.editor.tableHandles!.addRowsOrColumns(
                 props.block,
                 "columns",
-                1
+                1,
               )
             : props.editor.tableHandles!.addRowsOrColumns(
                 props.block,
                 "rows",
-                1
+                1,
               ),
       } as any,
     });
@@ -122,12 +122,12 @@ export const ExtendButton = <
 
       const numCroppedCells =
         props.orientation === "addOrRemoveColumns"
-          ? editingState.originalCroppedContent.rows[0]?.cells.length ?? 0
+          ? (editingState.originalCroppedContent.rows[0]?.cells.length ?? 0)
           : editingState.originalCroppedContent.rows.length;
 
       const numOriginalCells =
         props.orientation === "addOrRemoveColumns"
-          ? editingState.originalContent.rows[0]?.cells.length ?? 0
+          ? (editingState.originalContent.rows[0]?.cells.length ?? 0)
           : editingState.originalContent.rows.length;
 
       const currentNumCells =
@@ -142,7 +142,7 @@ export const ExtendButton = <
             (props.orientation === "addOrRemoveColumns"
               ? EMPTY_CELL_WIDTH
               : EMPTY_CELL_HEIGHT),
-          0.3
+          0.3,
         );
 
       if (
@@ -162,7 +162,7 @@ export const ExtendButton = <
                       content: editingState.originalCroppedContent,
                     } as any,
                     "columns",
-                    newNumCells - numCroppedCells
+                    newNumCells - numCroppedCells,
                   )
                 : props.editor.tableHandles!.addRowsOrColumns(
                     {
@@ -170,7 +170,7 @@ export const ExtendButton = <
                       content: editingState.originalCroppedContent,
                     } as any,
                     "rows",
-                    newNumCells - numCroppedCells
+                    newNumCells - numCroppedCells,
                   ),
           } as any,
         });
@@ -211,6 +211,10 @@ export const ExtendButton = <
     };
   }, [editingState, props.onMouseUp]);
 
+  if (!props.editor.isEditable) {
+    return null;
+  }
+
   return (
     <Components.TableHandle.ExtendButton
       className={mergeCSSClasses(
@@ -218,10 +222,11 @@ export const ExtendButton = <
         props.orientation === "addOrRemoveColumns"
           ? "bn-extend-button-add-remove-columns"
           : "bn-extend-button-add-remove-rows",
-        editingState !== null ? "bn-extend-button-editing" : ""
+        editingState !== null ? "bn-extend-button-editing" : "",
       )}
       onClick={onClickHandler}
-      onMouseDown={mouseDownHandler}>
+      onMouseDown={mouseDownHandler}
+    >
       {props.children || <RiAddFill size={18} data-test={"extendButton"} />}
     </Components.TableHandle.ExtendButton>
   );

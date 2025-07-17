@@ -18,7 +18,7 @@ import { useDictionary } from "../../../i18n/dictionary.js";
 import { EditLinkMenuItems } from "../../LinkToolbar/EditLinkMenuItems.js";
 
 function checkLinkInSchema(
-  editor: BlockNoteEditor<BlockSchema, any, StyleSchema>
+  editor: BlockNoteEditor<BlockSchema, any, StyleSchema>,
 ): editor is BlockNoteEditor<
   BlockSchema,
   {
@@ -54,7 +54,6 @@ export const CreateLinkButton = () => {
   const [text, setText] = useState<string>(editor.getSelectedText());
 
   useEditorContentOrSelectionChange(() => {
-    setOpened(false);
     setText(editor.getSelectedText() || "");
     setUrl(editor.getSelectedLinkUrl() || "");
   }, editor);
@@ -79,11 +78,11 @@ export const CreateLinkButton = () => {
       editor.createLink(url);
       editor.focus();
     },
-    [editor]
+    [editor],
   );
 
   const isTableSelection = editor.transact((tr) =>
-    isTableCellSelection(tr.selection)
+    isTableCellSelection(tr.selection),
   );
 
   const show = useMemo(() => {
@@ -119,7 +118,7 @@ export const CreateLinkButton = () => {
           mainTooltip={dict.formatting_toolbar.link.tooltip}
           secondaryTooltip={formatKeyboardShortcut(
             dict.formatting_toolbar.link.secondary_tooltip,
-            dict.generic.ctrl_shortcut
+            dict.generic.ctrl_shortcut,
           )}
           icon={<RiLink />}
           onClick={() => setOpened(true)}
@@ -127,7 +126,8 @@ export const CreateLinkButton = () => {
       </Components.Generic.Popover.Trigger>
       <Components.Generic.Popover.Content
         className={"bn-popover-content bn-form-popover"}
-        variant={"form-popover"}>
+        variant={"form-popover"}
+      >
         <EditLinkMenuItems
           url={url}
           text={text}

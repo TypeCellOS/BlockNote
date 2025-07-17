@@ -1,4 +1,4 @@
-import { it, expect } from "vitest";
+import { expect, it } from "vitest";
 import { SuggestionMenuController } from "./SuggestionMenuController.js";
 
 it("has good typing", () => {
@@ -31,8 +31,8 @@ it("has good typing", () => {
     <SuggestionMenuController
       suggestionMenuComponent={undefined as any}
       getItems={async () => [{ hello: "hello" }]}
-      onItemClick={()=>{
-        return undefined
+      onItemClick={() => {
+        return undefined;
       }}
       triggerCharacter="/"
     />

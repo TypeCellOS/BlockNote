@@ -11,11 +11,12 @@ export function Letter() {
       <div
         className={
           "z-20 flex max-w-xl flex-col items-center gap-12 px-6 xl:gap-16"
-        }>
+        }
+      >
         <FadeIn>
           <HeroText>Let&apos;s build</HeroText>
         </FadeIn>
-        <FadeIn className="flex flex-col leading-6 md:text-lg">
+        <FadeIn className="flex flex-col gap-3 leading-6 md:text-lg">
           <p>
             When we started building an Open Source Notion alternative, we
             figured: &quot;How hard can it be?&quot;. Pretty hard, it turns out.

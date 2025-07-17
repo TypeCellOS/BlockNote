@@ -13,15 +13,16 @@ import { TableCellMenuProps } from "./TableCellMenuProps.js";
 
 export const TableCellMenu = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 >(
-  props: TableCellMenuProps<I, S> & { children?: ReactNode }
+  props: TableCellMenuProps<I, S> & { children?: ReactNode },
 ) => {
   const Components = useComponentsContext()!;
 
   return (
     <Components.Generic.Menu.Dropdown
-      className={"bn-menu-dropdown bn-drag-handle-menu"}>
+      className={"bn-menu-dropdown bn-drag-handle-menu"}
+    >
       {props.children || (
         <>
           <SplitButton

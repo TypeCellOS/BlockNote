@@ -5,32 +5,35 @@
       {
         "styles": {},
         "text": "Blue Text",
-        "type": "text",
-      },
+        "type": "text"
+      }
     ],
     "id": "1",
     "props": {
       "backgroundColor": "default",
+      "caption": "",
+      "name": "",
+      "showPreview": true,
       "textAlignment": "left",
-      "textColor": "blue",
+      "url": "exampleURL"
     },
-    "type": "paragraph",
+    "type": "image"
   },
   {
     "children": [],
     "content": [
       {
         "styles": {},
-        "text": "Blue Text",
-        "type": "text",
-      },
+        "text": "Image Caption",
+        "type": "text"
+      }
     ],
     "id": "2",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
-      "textColor": "blue",
+      "textColor": "default"
     },
-    "type": "paragraph",
-  },
+    "type": "paragraph"
+  }
 ]

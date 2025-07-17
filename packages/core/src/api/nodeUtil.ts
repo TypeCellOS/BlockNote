@@ -1,8 +1,4 @@
-import {
-  combineTransactionSteps,
-  findChildrenInRange,
-  getChangedRanges,
-} from "@tiptap/core";
+import { combineTransactionSteps } from "@tiptap/core";
 import type { Node } from "prosemirror-model";
 import type { Transaction } from "prosemirror-state";
 import {
@@ -18,11 +14,28 @@ import { nodeToBlock } from "./nodeConversions/nodeToBlock.js";
 import { getPmSchema } from "./pmUtil.js";
 
 /**
+ * Gets the parent block of a node, if it has one.
+ */
+function getParentBlockId(doc: Node, pos: number): string | undefined {
+  if (pos === 0) {
+    return undefined;
+  }
+  const resolvedPos = doc.resolve(pos);
+  for (let i = resolvedPos.depth; i > 0; i--) {
+    const parent = resolvedPos.node(i);
+    if (isNodeBlock(parent)) {
+      return parent.attrs.id;
+    }
+  }
+  return undefined;
+}
+
+/**
  * Get a TipTap node by id
  */
 export function getNodeById(
   id: string,
-  doc: Node
+  doc: Node,
 ): { node: Node; posBeforeNode: number } | undefined {
   let targetNode: Node | undefined = undefined;
   let posBeforeNode: number | undefined = undefined;
@@ -62,43 +75,16 @@ export function isNodeBlock(node: Node): boolean {
  * This attributes the changes to a specific source.
  */
 export type BlockChangeSource =
-  | {
-      /**
-       * When an event is triggered by the local user, the source is "local".
-       * This is the default source.
-       */
-      type: "local";
-    }
-  | {
-      /**
-       * When an event is triggered by a paste operation, the source is "paste".
-       */
-      type: "paste";
-    }
-  | {
-      /**
-       * When an event is triggered by a drop operation, the source is "drop".
-       */
-      type: "drop";
-    }
-  | {
-      /**
-       * When an event is triggered by an undo or redo operation, the source is "undo" or "redo".
-       * @note Y.js undo/redo are not differentiated.
-       */
-      type: "undo" | "redo" | "undo-redo";
-    }
-  | {
-      /**
-       * When an event is triggered by a remote user, the source is "remote".
-       */
-      type: "yjs-remote";
-    };
+  | { type: "local" }
+  | { type: "paste" }
+  | { type: "drop" }
+  | { type: "undo" | "redo" | "undo-redo" }
+  | { type: "yjs-remote" };
 
 export type BlocksChanged<
   BSchema extends BlockSchema = DefaultBlockSchema,
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
-  SSchema extends StyleSchema = DefaultStyleSchema
+  SSchema extends StyleSchema = DefaultStyleSchema,
 > = Array<
   {
     /**
@@ -120,9 +106,24 @@ export type BlocksChanged<
     | {
         type: "update";
         /**
-         * The block before the update.
+         * The previous block.
          */
         prevBlock: Block<BSchema, ISchema, SSchema>;
+      }
+    | {
+        type: "move";
+        /**
+         * The previous block.
+         */
+        prevBlock: Block<BSchema, ISchema, SSchema>;
+        /**
+         * The previous parent block (if it existed).
+         */
+        prevParent?: Block<BSchema, ISchema, SSchema>;
+        /**
+         * The current parent block (if it exists).
+         */
+        currentParent?: Block<BSchema, ISchema, SSchema>;
       }
   )
 >;
@@ -134,13 +135,11 @@ export type BlocksChanged<
 function areBlocksDifferentExcludingChildren<
   BSchema extends BlockSchema,
   ISchema extends InlineContentSchema,
-  SSchema extends StyleSchema
+  SSchema extends StyleSchema,
 >(
   block1: Block<BSchema, ISchema, SSchema>,
-  block2: Block<BSchema, ISchema, SSchema>
+  block2: Block<BSchema, ISchema, SSchema>,
 ): boolean {
-  // TODO use an actual diff algorithm
-  // Compare all properties except children
   return (
     block1.id !== block2.id ||
     block1.type !== block2.type ||
@@ -149,123 +148,141 @@ function areBlocksDifferentExcludingChildren<
   );
 }
 
+function determineChangeSource(transaction: Transaction): BlockChangeSource {
+  if (transaction.getMeta("paste")) {
+    return { type: "paste" };
+  }
+  if (transaction.getMeta("uiEvent") === "drop") {
+    return { type: "drop" };
+  }
+  if (transaction.getMeta("history$")) {
+    return {
+      type: transaction.getMeta("history$").redo ? "redo" : "undo",
+    };
+  }
+  if (transaction.getMeta("y-sync$")) {
+    if (transaction.getMeta("y-sync$").isUndoRedoOperation) {
+      return { type: "undo-redo" };
+    }
+    return { type: "yjs-remote" };
+  }
+  return { type: "local" };
+}
+
+function collectAllBlocks<
+  BSchema extends BlockSchema,
+  ISchema extends InlineContentSchema,
+  SSchema extends StyleSchema,
+>(
+  doc: Node,
+): Record<
+  string,
+  {
+    block: Block<BSchema, ISchema, SSchema>;
+    parentId: string | undefined;
+  }
+> {
+  const blocks: Record<
+    string,
+    {
+      block: Block<BSchema, ISchema, SSchema>;
+      parentId: string | undefined;
+    }
+  > = {};
+  const pmSchema = getPmSchema(doc);
+  doc.descendants((node, pos) => {
+    if (isNodeBlock(node)) {
+      const parentId = getParentBlockId(doc, pos);
+      blocks[node.attrs.id] = {
+        block: nodeToBlock(node, pmSchema),
+        parentId,
+      };
+    }
+    return true;
+  });
+  return blocks;
+}
+
 /**
  * Get the blocks that were changed by a transaction.
- * @param transaction The transaction to get the changes from.
- * @param editor The editor to get the changes from.
- * @returns The blocks that were changed by the transaction.
  */
 export function getBlocksChangedByTransaction<
   BSchema extends BlockSchema = DefaultBlockSchema,
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
-  SSchema extends StyleSchema = DefaultStyleSchema
+  SSchema extends StyleSchema = DefaultStyleSchema,
 >(
   transaction: Transaction,
-  appendedTransactions: Transaction[] = []
+  appendedTransactions: Transaction[] = [],
 ): BlocksChanged<BSchema, ISchema, SSchema> {
-  let source: BlockChangeSource = { type: "local" };
-
-  if (transaction.getMeta("paste")) {
-    source = { type: "paste" };
-  } else if (transaction.getMeta("uiEvent") === "drop") {
-    source = { type: "drop" };
-  } else if (transaction.getMeta("history$")) {
-    source = {
-      type: transaction.getMeta("history$").redo ? "redo" : "undo",
-    };
-  } else if (transaction.getMeta("y-sync$")) {
-    if (transaction.getMeta("y-sync$").isUndoRedoOperation) {
-      source = {
-        type: "undo-redo",
-      };
-    } else {
-      source = {
-        type: "yjs-remote",
-      };
-    }
-  }
-
-  // Get affected blocks before and after the change
-  const pmSchema = getPmSchema(transaction);
+  const source = determineChangeSource(transaction);
   const combinedTransaction = combineTransactionSteps(transaction.before, [
     transaction,
     ...appendedTransactions,
   ]);
 
-  const changedRanges = getChangedRanges(combinedTransaction);
-  const prevAffectedBlocks = changedRanges
-    .flatMap((range) => {
-      return findChildrenInRange(
-        combinedTransaction.before,
-        range.oldRange,
-        isNodeBlock
-      );
-    })
-    .map(({ node }) => nodeToBlock(node, pmSchema));
-
-  const nextAffectedBlocks = changedRanges
-    .flatMap((range) => {
-      return findChildrenInRange(
-        combinedTransaction.doc,
-        range.newRange,
-        isNodeBlock
-      );
-    })
-    .map(({ node }) => nodeToBlock(node, pmSchema));
-
-  const nextBlocks = new Map(
-    nextAffectedBlocks.map((block) => {
-      return [block.id, block];
-    })
+  const prevBlocks = collectAllBlocks<BSchema, ISchema, SSchema>(
+    combinedTransaction.before,
   );
-  const prevBlocks = new Map(
-    prevAffectedBlocks.map((block) => {
-      return [block.id, block];
-    })
+  const nextBlocks = collectAllBlocks<BSchema, ISchema, SSchema>(
+    combinedTransaction.doc,
   );
 
   const changes: BlocksChanged<BSchema, ISchema, SSchema> = [];
 
-  // Inserted blocks are blocks that were not in the previous state and are in the next state
-  for (const [id, block] of nextBlocks) {
-    if (!prevBlocks.has(id)) {
+  // Handle inserted blocks
+  Object.keys(nextBlocks)
+    .filter((id) => !(id in prevBlocks))
+    .forEach((id) => {
       changes.push({
         type: "insert",
-        block,
+        block: nextBlocks[id].block,
         source,
         prevBlock: undefined,
       });
-    }
-  }
+    });
 
-  // Deleted blocks are blocks that were in the previous state but not in the next state
-  for (const [id, block] of prevBlocks) {
-    if (!nextBlocks.has(id)) {
+  // Handle deleted blocks
+  Object.keys(prevBlocks)
+    .filter((id) => !(id in nextBlocks))
+    .forEach((id) => {
       changes.push({
         type: "delete",
-        block,
+        block: prevBlocks[id].block,
         source,
         prevBlock: undefined,
       });
-    }
-  }
+    });
 
-  // Updated blocks are blocks that were in the previous state and are in the next state
-  for (const [id, block] of nextBlocks) {
-    if (prevBlocks.has(id)) {
-      const prevBlock = prevBlocks.get(id)!;
+  // Handle updated, moved, indented, outdented blocks
+  Object.keys(nextBlocks)
+    .filter((id) => id in prevBlocks)
+    .forEach((id) => {
+      const prev = prevBlocks[id];
+      const next = nextBlocks[id];
+      const isParentDifferent = prev.parentId !== next.parentId;
 
-      // Only include the update if the block itself changed (excluding children)
-      if (areBlocksDifferentExcludingChildren(prevBlock, block)) {
+      if (isParentDifferent) {
+        changes.push({
+          type: "move",
+          block: next.block,
+          prevBlock: prev.block,
+          source,
+          prevParent: prev.parentId
+            ? prevBlocks[prev.parentId]?.block
+            : undefined,
+          currentParent: next.parentId
+            ? nextBlocks[next.parentId]?.block
+            : undefined,
+        });
+      } else if (areBlocksDifferentExcludingChildren(prev.block, next.block)) {
         changes.push({
           type: "update",
-          block,
-          prevBlock,
+          block: next.block,
+          prevBlock: prev.block,
           source,
         });
       }
-    }
-  }
+    });
 
   return changes;
 }

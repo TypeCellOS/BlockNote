@@ -5,6 +5,7 @@ import type {
   BlockNoteEditor,
   BlockNoteEditorOptions,
 } from "../../../editor/BlockNoteEditor";
+import { isMarkdown } from "../../parsers/markdown/detectMarkdown.js";
 import {
   BlockSchema,
   InlineContentSchema,
@@ -13,7 +14,6 @@ import {
 import { acceptedMIMETypes } from "./acceptedMIMETypes.js";
 import { handleFileInsertion } from "./handleFileInsertion.js";
 import { handleVSCodePaste } from "./handleVSCodePaste.js";
-import { isMarkdown } from "../../parsers/markdown/detectMarkdown.js";
 
 function defaultPasteHandler({
   event,
@@ -26,6 +26,24 @@ function defaultPasteHandler({
   prioritizeMarkdownOverHTML: boolean;
   plainTextAsMarkdown: boolean;
 }) {
+  // Special case for code blocks, as they do not support any rich text
+  // formatting, so we force pasting plain text.
+  const isInCodeBlock = editor.transact(
+    (tr) =>
+      tr.selection.$from.parent.type.spec.code &&
+      tr.selection.$to.parent.type.spec.code,
+  );
+
+  if (isInCodeBlock) {
+    const data = event.clipboardData?.getData("text/plain");
+
+    if (data) {
+      editor.pasteText(data);
+
+      return true;
+    }
+  }
+
   let format: (typeof acceptedMIMETypes)[number] | undefined;
   for (const mimeType of acceptedMIMETypes) {
     if (event.clipboardData!.types.includes(mimeType)) {
@@ -88,13 +106,13 @@ function defaultPasteHandler({
 export const createPasteFromClipboardExtension = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
   pasteHandler: Exclude<
     BlockNoteEditorOptions<any, any, any>["pasteHandler"],
     undefined
-  >
+  >,
 ) =>
   Extension.create({
     name: "pasteFromClipboard",

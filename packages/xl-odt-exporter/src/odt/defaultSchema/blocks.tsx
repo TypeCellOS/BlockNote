@@ -1,4 +1,5 @@
 import {
+  BlockFromConfig,
   BlockMapping,
   DefaultBlockSchema,
   DefaultProps,
@@ -8,6 +9,7 @@ import {
   TableCell,
 } from "@blocknote/core";
 import { ODTExporter } from "../odtExporter.js";
+import { multiColumnSchema } from "@blocknote/xl-multi-column";
 
 export const getTabs = (nestingLevel: number) => {
   return Array.from({ length: nestingLevel }, () => <text:tab />);
@@ -19,7 +21,7 @@ const createParagraphStyle = (
   parentStyleName = "Standard",
   styleAttributes: Record<string, string> = {},
   paragraphStyleAttributes: Record<string, string> = {},
-  textStyleAttributes: Record<string, string> = {}
+  textStyleAttributes: Record<string, string> = {},
 ) => {
   const paragraphStyles: Record<string, string> = {
     ...paragraphStyleAttributes,
@@ -70,7 +72,8 @@ const createParagraphStyle = (
       style:family="paragraph"
       style:name={name}
       style:parent-style-name={parentStyleName}
-      {...styleAttributes}>
+      {...styleAttributes}
+    >
       {backgroundColor && (
         <loext:graphic-properties
           draw:fill="solid"
@@ -88,7 +91,7 @@ const createParagraphStyle = (
 };
 
 const createTableCellStyle = (
-  exporter: ODTExporter<any, any, any>
+  exporter: ODTExporter<any, any, any>,
 ): ((cell: TableCell<any, any>) => string) => {
   // To not create a new style for each cell within a table, we cache the styles based on unique cell properties
   const cellStyleCache = new Map<string, string>();
@@ -137,7 +140,7 @@ const createTableCellStyle = (
 };
 const createTableStyle = (
   exporter: ODTExporter<any, any, any>,
-  options: { width: number }
+  options: { width: number },
 ) => {
   const tableStyleName = exporter.registerStyle((name) => (
     <style:style style:family="table" style:name={name}>
@@ -154,7 +157,7 @@ const createTableStyle = (
 
 const wrapWithLists = (
   content: React.ReactNode,
-  level: number
+  level: number,
 ): React.ReactNode => {
   if (level <= 0) {
     return content;
@@ -167,7 +170,9 @@ const wrapWithLists = (
 };
 
 export const odtBlockMappingForDefaultSchema: BlockMapping<
-  DefaultBlockSchema & typeof pageBreakSchema.blockSchema,
+  DefaultBlockSchema &
+    typeof pageBreakSchema.blockSchema &
+    typeof multiColumnSchema.blockSchema,
   any,
   any,
   React.ReactNode,
@@ -176,7 +181,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
   paragraph: (block, exporter, nestingLevel) => {
     const styleName = createParagraphStyle(
       exporter as ODTExporter<any, any, any>,
-      block.props
+      block.props,
     );
 
     return (
@@ -191,14 +196,15 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
     const customStyleName = createParagraphStyle(
       exporter as ODTExporter<any, any, any>,
       block.props,
-      "Heading_20_" + block.props.level
+      "Heading_20_" + block.props.level,
     );
     const styleName = customStyleName;
 
     return (
       <text:h
         text:outline-level={`${block.props.level}`}
-        text:style-name={styleName}>
+        text:style-name={styleName}
+      >
         {getTabs(nestingLevel)}
         {exporter.transformInlineContent(block.content)}
       </text:h>
@@ -217,7 +223,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
       },
       {
         "fo:color": "#7D797A",
-      }
+      },
     );
     const styleName = customStyleName;
 
@@ -239,12 +245,19 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
    *
    * (LibreOffice does nicely wrap the list items in the same list element)
    */
+  toggleListItem: (block, exporter) => (
+    <text:p text:style-name="Standard">
+      {"> "}
+      {exporter.transformInlineContent(block.content)}
+    </text:p>
+  ),
+
   bulletListItem: (block, exporter, nestingLevel) => {
     const styleName = createParagraphStyle(
       exporter as ODTExporter<any, any, any>,
       block.props,
       "Standard",
-      { "style:list-style-name": "WWNum1" }
+      { "style:list-style-name": "WWNum1" },
     );
     return (
       <text:list text:style-name="WWNum1">
@@ -253,7 +266,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
             <text:p text:style-name={styleName}>
               {exporter.transformInlineContent(block.content)}
             </text:p>,
-            nestingLevel
+            nestingLevel,
           )}
         </text:list-item>
       </text:list>
@@ -263,7 +276,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
   numberedListItem: (block, exporter, nestingLevel, numberedListIndex) => {
     const styleName = createParagraphStyle(
       exporter as ODTExporter<any, any, any>,
-      block.props
+      block.props,
     );
     // continue numbering from the previous list item if this is not the first item
     const continueNumbering = (numberedListIndex || 0) > 1 ? "true" : "false";
@@ -271,16 +284,18 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
     return (
       <text:list
         text:style-name="No_20_List"
-        text:continue-numbering={continueNumbering}>
+        text:continue-numbering={continueNumbering}
+      >
         <text:list-item
           {...(continueNumbering === "false" && {
             "text:start-value": block.props.start,
-          })}>
+          })}
+        >
           {wrapWithLists(
             <text:p text:style-name={styleName}>
               {exporter.transformInlineContent(block.content)}
             </text:p>,
-            nestingLevel
+            nestingLevel,
           )}
         </text:list-item>
       </text:list>
@@ -298,6 +313,69 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
     return <text:p text:style-name="PageBreak" />;
   },
 
+  column: (_block, exporter, _nestingLevel, _numberedListIndex, children) => {
+    const ex = exporter as ODTExporter<any, any, any>;
+    const style = ex.registerStyle((name) => (
+      <style:style style:name={name} style:family="table-cell">
+        <style:table-cell-properties
+          style:writing-mode="lr-tb"
+          fo:border="none"
+          fo:padding-top="0in"
+          fo:padding-left="0.075in"
+          fo:padding-bottom="0in"
+          fo:padding-right="0.075in"
+        />
+      </style:style>
+    ));
+
+    return (
+      <table:table-cell table:style-name={style}>{children}</table:table-cell>
+    );
+  },
+  columnList: (
+    block,
+    exporter,
+    _nestingLevel,
+    _numberedListIndex,
+    children,
+  ) => {
+    const blockWithChildren = block as BlockFromConfig<
+      {
+        type: "columnList";
+        content: "none";
+        propSchema: Record<string, any>;
+      },
+      any,
+      any
+    >;
+    const ex = exporter as ODTExporter<any, any, any>;
+    const style = ex.registerStyle((name) => (
+      <style:style style:name={name} style:family="table">
+        <style:table-properties
+          table:align="margins"
+          style:writing-mode="lr-tb"
+        />
+      </style:style>
+    ));
+
+    return (
+      <table:table table:name={block.id} table:style-name={style}>
+        {(blockWithChildren.children || []).map((column, index) => {
+          const style = ex.registerStyle((name) => (
+            <style:style style:name={name} style:family="table-column">
+              <style:table-column-properties
+                style:rel-column-width={`${column.props.width * 100}*`}
+              />
+            </style:style>
+          ));
+
+          return <table:table-column table:style-name={style} key={index} />;
+        })}
+        <table:table-row>{children}</table:table-row>
+      </table:table>
+    );
+  },
+
   image: async (block, exporter) => {
     const odtExporter = exporter as ODTExporter<any, any, any>;
 
@@ -305,9 +383,9 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
       await odtExporter.registerPicture(block.props.url);
     const styleName = createParagraphStyle(
       exporter as ODTExporter<any, any, any>,
-      block.props
+      block.props,
     );
-    const width = block.props.previewWidth;
+    const width = block.props.previewWidth || originalDimensions.width;
     const height =
       (originalDimensions.height / originalDimensions.width) * width;
     const captionHeight = 20;
@@ -321,7 +399,8 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
           style:rel-width={block.props.caption ? "100%" : `${width}px`}
           {...(!block.props.caption && {
             "text:anchor-type": "as-char",
-          })}>
+          })}
+        >
           <draw:image
             xlink:type="simple"
             xlink:show="embed"
@@ -344,7 +423,8 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
             style:rel-width={`${width}px`}
             svg:width={`${width}px`}
             svg:height={`${height + captionHeight}px`}
-            text:anchor-type="as-char">
+            text:anchor-type="as-char"
+          >
             <draw:text-box>{imageFrame}</draw:text-box>
           </draw:frame>
         </text:p>
@@ -360,7 +440,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
       block.content.columnWidths.reduce(
         (totalWidth, colWidth) =>
           (totalWidth || 0) + (colWidth || DEFAULT_COLUMN_WIDTH_PX),
-        0
+        0,
       ) || 0;
     const tableWidthPT = tableWidthPX * 0.75;
     const ex = exporter as ODTExporter<any, any, any>;
@@ -394,7 +474,8 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
                   style:text-align-source="fix"
                   style:paragraph-properties-text-align={
                     cell.props.textAlignment
-                  }>
+                  }
+                >
                   <text:p text:style-name="Standard">
                     {exporter.transformInlineContent(cell.content)}
                   </text:p>
@@ -434,7 +515,8 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
               text:style-name="Internet_20_link"
               office:target-frame-name="_top"
               xlink:show="replace"
-              xlink:href={block.props.url}>
+              xlink:href={block.props.url}
+            >
               <text:span text:style-name="Internet_20_link">
                 Open file
               </text:span>
@@ -458,7 +540,8 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
           text:style-name="Internet_20_link"
           office:target-frame-name="_top"
           xlink:show="replace"
-          xlink:href={block.props.url}>
+          xlink:href={block.props.url}
+        >
           <text:span text:style-name="Internet_20_link">Open video</text:span>
         </text:a>
       </text:p>
@@ -476,7 +559,8 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
           text:style-name="Internet_20_link"
           office:target-frame-name="_top"
           xlink:show="replace"
-          xlink:href={block.props.url}>
+          xlink:href={block.props.url}
+        >
           <text:span text:style-name="Internet_20_link">Open audio</text:span>
         </text:a>
       </text:p>

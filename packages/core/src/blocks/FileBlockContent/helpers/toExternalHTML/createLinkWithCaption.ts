@@ -1,6 +1,6 @@
 export const createLinkWithCaption = (
   element: HTMLElement,
-  caption: string
+  caption: string,
 ) => {
   const wrapper = document.createElement("div");
   const fileCaption = document.createElement("p");

@@ -37,7 +37,7 @@ export default function Editor() {
         getItems={async (query) =>
           filterSuggestionItems(
             [...getDefaultReactSlashMenuItems(editor), insertAlert(editor)],
-            query
+            query,
           )
         }
         // suggestionMenuComponent={MantineSuggestionMenu}

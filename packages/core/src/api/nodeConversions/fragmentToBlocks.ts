@@ -14,7 +14,7 @@ import { nodeToBlock } from "./nodeToBlock.js";
 export function fragmentToBlocks<
   B extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(fragment: Fragment) {
   // first convert selection to blocknote-style blocks, and then
   // pass these to the exporter

@@ -17,7 +17,7 @@ function addAttributesAndRemoveClasses(element: HTMLElement) {
   // Removes all BlockNote specific class names.
   const className =
     Array.from(element.classList).filter(
-      (className) => !className.startsWith("bn-")
+      (className) => !className.startsWith("bn-"),
     ) || [];
 
   if (className.length > 0) {
@@ -30,12 +30,12 @@ function addAttributesAndRemoveClasses(element: HTMLElement) {
 export function serializeInlineContentExternalHTML<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   editor: BlockNoteEditor<any, I, S>,
   blockContent: PartialBlock<BSchema, I, S>["content"],
   serializer: DOMSerializer,
-  options?: { document?: Document }
+  options?: { document?: Document },
 ) {
   let nodes: any;
 
@@ -72,7 +72,7 @@ export function serializeInlineContentExternalHTML<
 function serializeBlock<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   fragment: DocumentFragment,
   editor: BlockNoteEditor<BSchema, I, S>,
@@ -80,7 +80,7 @@ function serializeBlock<
   serializer: DOMSerializer,
   orderedListItemBlockTypes: Set<string>,
   unorderedListItemBlockTypes: Set<string>,
-  options?: { document?: Document }
+  options?: { document?: Document },
 ) {
   const doc = options?.document ?? document;
   const BC_NODE = editor.pmSchema.nodes["blockContainer"];
@@ -90,7 +90,7 @@ function serializeBlock<
   if (!block.props) {
     props = {};
     for (const [name, spec] of Object.entries(
-      editor.schema.blockSchema[block.type as any].propSchema
+      editor.schema.blockSchema[block.type as any].propSchema,
     )) {
       if (spec.default !== undefined) {
         (props as any)[name] = spec.default;
@@ -102,7 +102,7 @@ function serializeBlock<
     BC_NODE.create({
       id: block.id,
       ...props,
-    })
+    }),
   ) as {
     dom: HTMLElement;
     contentDOM?: HTMLElement;
@@ -137,7 +137,7 @@ function serializeBlock<
       attr.name !== "data-node-type" &&
       attr.name !== "data-id" &&
       attr.name !== "data-index" &&
-      attr.name !== "data-editable"
+      attr.name !== "data-editable",
   );
 
   if (ret.dom.classList.contains("bn-block-content")) {
@@ -160,7 +160,7 @@ function serializeBlock<
       for (const attr of blockContentDataAttributes) {
         (ret.dom.firstChild! as HTMLElement).setAttribute(
           attr.name,
-          attr.value
+          attr.value,
         );
       }
     }
@@ -176,7 +176,7 @@ function serializeBlock<
       editor,
       block.content as any, // TODO
       serializer,
-      options
+      options,
     );
 
     ret.contentDOM.appendChild(ic);
@@ -225,7 +225,7 @@ function serializeBlock<
       serializer,
       orderedListItemBlockTypes,
       unorderedListItemBlockTypes,
-      options
+      options,
     );
     if (
       fragment.lastChild?.nodeName === "UL" ||
@@ -253,7 +253,7 @@ function serializeBlock<
 const serializeBlocksToFragment = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   fragment: DocumentFragment,
   editor: BlockNoteEditor<BSchema, I, S>,
@@ -261,7 +261,7 @@ const serializeBlocksToFragment = <
   serializer: DOMSerializer,
   orderedListItemBlockTypes: Set<string>,
   unorderedListItemBlockTypes: Set<string>,
-  options?: { document?: Document }
+  options?: { document?: Document },
 ) => {
   for (const block of blocks) {
     serializeBlock(
@@ -271,7 +271,7 @@ const serializeBlocksToFragment = <
       serializer,
       orderedListItemBlockTypes,
       unorderedListItemBlockTypes,
-      options
+      options,
     );
   }
 };
@@ -279,14 +279,14 @@ const serializeBlocksToFragment = <
 export const serializeBlocksExternalHTML = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
   blocks: PartialBlock<BSchema, I, S>[],
   serializer: DOMSerializer,
   orderedListItemBlockTypes: Set<string>,
   unorderedListItemBlockTypes: Set<string>,
-  options?: { document?: Document }
+  options?: { document?: Document },
 ) => {
   const doc = options?.document ?? document;
   const fragment = doc.createDocumentFragment();
@@ -298,7 +298,7 @@ export const serializeBlocksExternalHTML = <
     serializer,
     orderedListItemBlockTypes,
     unorderedListItemBlockTypes,
-    options
+    options,
   );
   return fragment;
 };

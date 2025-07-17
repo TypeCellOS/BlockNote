@@ -21,7 +21,7 @@ test.beforeEach(async ({}, testInfo) => {
 test("Alert Copy/Paste External", async ({ browserName, mount, page }) => {
   test.skip(
     browserName === "firefox",
-    "Firefox doesn't yet support the async clipboard API."
+    "Firefox doesn't yet support the async clipboard API.",
   );
 
   await mount(<EditorWithTextArea />);
@@ -35,20 +35,20 @@ test("Alert Copy/Paste External", async ({ browserName, mount, page }) => {
   await page.keyboard.type("Paragraph 2");
 
   const button = await page.locator(
-    `[data-content-type="alert"] > div > div:first-child`
+    `[data-content-type="alert"] > div > div:first-child`,
   );
   await button.first().click();
 
   const value = await copyPasteAllExternal(page, "mac");
   await expect(
-    removeClassesFromHTML(removeMetaFromHTML(value))
+    removeClassesFromHTML(removeMetaFromHTML(value)),
   ).toMatchSnapshot("alert-external.html");
 });
 
 test("Button Copy/Paste External", async ({ browserName, mount, page }) => {
   test.skip(
     browserName === "firefox",
-    "Firefox doesn't yet support the async clipboard API."
+    "Firefox doesn't yet support the async clipboard API.",
   );
 
   await mount(<EditorWithTextArea />);
@@ -61,14 +61,14 @@ test("Button Copy/Paste External", async ({ browserName, mount, page }) => {
 
   const value = await copyPasteAllExternal(page, "mac");
   await expect(
-    removeClassesFromHTML(removeMetaFromHTML(value))
+    removeClassesFromHTML(removeMetaFromHTML(value)),
   ).toMatchSnapshot("button-external.html");
 });
 
 test("Embed Copy/Paste Internal", async ({ browserName, mount, page }) => {
   test.skip(
     browserName === "firefox",
-    "Firefox doesn't yet support the async clipboard API."
+    "Firefox doesn't yet support the async clipboard API.",
   );
 
   await mount(<EditorWithTextArea />);
@@ -81,14 +81,14 @@ test("Embed Copy/Paste Internal", async ({ browserName, mount, page }) => {
 
   const value = await copyPasteAllExternal(page, "mac");
   await expect(
-    removeClassesFromHTML(removeMetaFromHTML(value))
+    removeClassesFromHTML(removeMetaFromHTML(value)),
   ).toMatchSnapshot("embed-external.html");
 });
 
 test("Image Copy/Paste Internal", async ({ browserName, mount, page }) => {
   test.skip(
     browserName === "firefox",
-    "Firefox doesn't yet support the async clipboard API."
+    "Firefox doesn't yet support the async clipboard API.",
   );
 
   await mount(<EditorWithTextArea />);
@@ -103,14 +103,14 @@ test("Image Copy/Paste Internal", async ({ browserName, mount, page }) => {
 
   const value = await copyPasteAllExternal(page, "mac");
   await expect(
-    removeClassesFromHTML(removeMetaFromHTML(value))
+    removeClassesFromHTML(removeMetaFromHTML(value)),
   ).toMatchSnapshot("image-external.html");
 });
 
 test("Separator Copy/Paste Internal", async ({ browserName, mount, page }) => {
   test.skip(
     browserName === "firefox",
-    "Firefox doesn't yet support the async clipboard API."
+    "Firefox doesn't yet support the async clipboard API.",
   );
 
   await mount(<EditorWithTextArea />);
@@ -123,7 +123,7 @@ test("Separator Copy/Paste Internal", async ({ browserName, mount, page }) => {
 
   const value = await copyPasteAllExternal(page, "mac");
   await expect(
-    removeClassesFromHTML(removeMetaFromHTML(value))
+    removeClassesFromHTML(removeMetaFromHTML(value)),
   ).toMatchSnapshot("separator-external.html");
 });
 
@@ -134,7 +134,7 @@ test("Table of Contents Copy/Paste Internal", async ({
 }) => {
   test.skip(
     browserName === "firefox",
-    "Firefox doesn't yet support the async clipboard API."
+    "Firefox doesn't yet support the async clipboard API.",
   );
 
   await mount(<EditorWithTextArea />);
@@ -149,6 +149,6 @@ test("Table of Contents Copy/Paste Internal", async ({
 
   const value = await copyPasteAllExternal(page, "mac");
   await expect(
-    removeClassesFromHTML(removeMetaFromHTML(value))
+    removeClassesFromHTML(removeMetaFromHTML(value)),
   ).toMatchSnapshot("toc-external.html");
 });

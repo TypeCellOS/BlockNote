@@ -20,11 +20,15 @@ import { Selection } from "prosemirror-state";
 export function checkDefaultBlockTypeInSchema<
   BlockType extends keyof DefaultBlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   blockType: BlockType,
-  editor: BlockNoteEditor<any, I, S>
-): editor is BlockNoteEditor<{ Type: DefaultBlockSchema[BlockType] }, I, S> {
+  editor: BlockNoteEditor<any, I, S>,
+): editor is BlockNoteEditor<
+  { [K in BlockType]: DefaultBlockSchema[BlockType] },
+  I,
+  S
+> {
   return (
     blockType in editor.schema.blockSchema &&
     editor.schema.blockSchema[blockType] === defaultBlockSchema[blockType]
@@ -34,13 +38,13 @@ export function checkDefaultBlockTypeInSchema<
 export function checkDefaultInlineContentTypeInSchema<
   InlineContentType extends keyof DefaultInlineContentSchema,
   B extends BlockSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   inlineContentType: InlineContentType,
-  editor: BlockNoteEditor<B, any, S>
+  editor: BlockNoteEditor<B, any, S>,
 ): editor is BlockNoteEditor<
   B,
-  { Type: DefaultInlineContentSchema[InlineContentType] },
+  { [K in InlineContentType]: DefaultInlineContentSchema[InlineContentType] },
   S
 > {
   return (
@@ -53,11 +57,11 @@ export function checkDefaultInlineContentTypeInSchema<
 export function checkBlockIsDefaultType<
   BlockType extends keyof DefaultBlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   blockType: BlockType,
   block: Block<any, I, S>,
-  editor: BlockNoteEditor<any, I, S>
+  editor: BlockNoteEditor<any, I, S>,
 ): block is BlockFromConfig<DefaultBlockSchema[BlockType], I, S> {
   return (
     block.type === blockType &&
@@ -69,10 +73,10 @@ export function checkBlockIsDefaultType<
 export function checkBlockIsFileBlock<
   B extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   block: Block<any, I, S>,
-  editor: BlockNoteEditor<B, I, S>
+  editor: BlockNoteEditor<B, I, S>,
 ): block is BlockFromConfig<FileBlockConfig, I, S> {
   return (
     (block.type in editor.schema.blockSchema &&
@@ -84,10 +88,10 @@ export function checkBlockIsFileBlock<
 export function checkBlockIsFileBlockWithPreview<
   B extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   block: Block<any, I, S>,
-  editor: BlockNoteEditor<B, I, S>
+  editor: BlockNoteEditor<B, I, S>,
 ): block is BlockFromConfig<
   FileBlockConfig & {
     propSchema: Required<FileBlockConfig["propSchema"]>;
@@ -106,7 +110,7 @@ export function checkBlockIsFileBlockWithPreview<
 export function checkBlockIsFileBlockWithPlaceholder<
   B extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(block: Block<B, I, S>, editor: BlockNoteEditor<B, I, S>) {
   const config = editor.schema.blockSchema[block.type];
   return config.isFileBlock && !block.props.url;
@@ -115,11 +119,11 @@ export function checkBlockIsFileBlockWithPlaceholder<
 export function checkBlockTypeHasDefaultProp<
   Prop extends keyof typeof defaultProps,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   prop: Prop,
   blockType: string,
-  editor: BlockNoteEditor<any, I, S>
+  editor: BlockNoteEditor<any, I, S>,
 ): editor is BlockNoteEditor<
   {
     [BT in string]: {
@@ -143,11 +147,11 @@ export function checkBlockTypeHasDefaultProp<
 export function checkBlockHasDefaultProp<
   Prop extends keyof typeof defaultProps,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   prop: Prop,
   block: Block<any, I, S>,
-  editor: BlockNoteEditor<any, I, S>
+  editor: BlockNoteEditor<any, I, S>,
 ): block is BlockFromConfig<
   {
     type: string;
@@ -163,7 +167,7 @@ export function checkBlockHasDefaultProp<
 }
 
 export function isTableCellSelection(
-  selection: Selection
+  selection: Selection,
 ): selection is CellSelection {
   return selection instanceof CellSelection;
 }

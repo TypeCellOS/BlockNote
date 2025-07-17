@@ -1,6 +1,6 @@
 import { Editor } from "@tiptap/core";
 import { TagParseRule } from "@tiptap/pm/model";
-import { NodeView } from "@tiptap/pm/view";
+import { NodeView, ViewMutationRecord } from "@tiptap/pm/view";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { InlineContentSchema } from "../inlineContent/types.js";
 import { StyleSchema } from "../styles/types.js";
@@ -26,7 +26,7 @@ export type CustomBlockConfig = BlockConfig & {
 export type CustomBlockImplementation<
   T extends CustomBlockConfig,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 > = {
   render: (
     /**
@@ -38,12 +38,13 @@ export type CustomBlockImplementation<
      * This is typed generically. If you want an editor with your custom schema, you need to
      * cast it manually, e.g.: `const e = editor as BlockNoteEditor<typeof mySchema>;`
      */
-    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, I, S>
+    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, I, S>,
     // (note) if we want to fix the manual cast, we need to prevent circular references and separate block definition and render implementations
     // or allow manually passing <BSchema>, but that's not possible without passing the other generics because Typescript doesn't support partial inferred generics
   ) => {
     dom: HTMLElement;
     contentDOM?: HTMLElement;
+    ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
     destroy?: () => void;
   };
   // Exports block to external HTML. If not defined, the output will be the same
@@ -52,14 +53,14 @@ export type CustomBlockImplementation<
   // TODO: Maybe can return undefined to ignore when serializing?
   toExternalHTML?: (
     block: BlockFromConfig<T, I, S>,
-    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, I, S>
+    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, I, S>,
   ) => {
     dom: HTMLElement;
     contentDOM?: HTMLElement;
   };
 
   parse?: (
-    el: HTMLElement
+    el: HTMLElement,
   ) => PartialBlockFromConfig<T, I, S>["props"] | undefined;
 };
 
@@ -85,12 +86,12 @@ export function applyNonSelectableBlockFix(nodeView: NodeView, editor: Editor) {
 // from the clipboard.
 export function getParseRules(
   config: BlockConfig,
-  customParseFunction: CustomBlockImplementation<any, any, any>["parse"]
+  customParseFunction: CustomBlockImplementation<any, any, any>["parse"],
 ) {
   const rules: TagParseRule[] = [
     {
       tag: "[data-content-type=" + config.type + "]",
-      contentElement: "[data-editable]",
+      contentElement: ".bn-inline-content",
     },
   ];
 
@@ -136,10 +137,10 @@ export function getParseRules(
 export function createBlockSpec<
   T extends CustomBlockConfig,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   blockConfig: T,
-  blockImplementation: CustomBlockImplementation<NoInfer<T>, I, S>
+  blockImplementation: CustomBlockImplementation<NoInfer<T>, I, S>,
 ) {
   const node = createStronglyTypedTiptapNode({
     name: blockConfig.type as T["type"],
@@ -173,7 +174,7 @@ export function createBlockSpec<
         {},
         blockConfig.propSchema,
         blockConfig.isFileBlock,
-        HTMLAttributes
+        HTMLAttributes,
       );
     },
 
@@ -186,7 +187,7 @@ export function createBlockSpec<
           getPos,
           editor,
           this.editor,
-          blockConfig.type
+          blockConfig.type,
         );
         // Gets the custom HTML attributes for `blockContent` nodes
         const blockContentDOMAttributes =
@@ -199,7 +200,8 @@ export function createBlockSpec<
           block.type,
           block.props,
           blockConfig.propSchema,
-          blockContentDOMAttributes
+          blockConfig.isFileBlock,
+          blockContentDOMAttributes,
         );
 
         if (blockConfig.isSelectable === false) {
@@ -213,7 +215,7 @@ export function createBlockSpec<
 
   if (node.name !== blockConfig.type) {
     throw new Error(
-      "Node name does not match block type. This is a bug in BlockNote."
+      "Node name does not match block type. This is a bug in BlockNote.",
     );
   }
 
@@ -231,7 +233,7 @@ export function createBlockSpec<
         block.props,
         blockConfig.propSchema,
         blockConfig.isFileBlock,
-        blockContentDOMAttributes
+        blockContentDOMAttributes,
       );
     },
     // TODO: this should not have wrapInBlockStructure and generally be a lot simpler
@@ -242,7 +244,7 @@ export function createBlockSpec<
 
       let output = blockImplementation.toExternalHTML?.(
         block as any,
-        editor as any
+        editor as any,
       );
       if (output === undefined) {
         output = blockImplementation.render(block as any, editor as any);
@@ -252,7 +254,7 @@ export function createBlockSpec<
         block.type,
         block.props,
         blockConfig.propSchema,
-        blockContentDOMAttributes
+        blockContentDOMAttributes,
       );
     },
   });

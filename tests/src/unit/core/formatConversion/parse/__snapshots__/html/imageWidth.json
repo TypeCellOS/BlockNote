@@ -7,11 +7,10 @@
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 100,
       "showPreview": true,
       "textAlignment": "left",
-      "url": "exampleURL",
+      "url": "exampleURL"
     },
-    "type": "image",
-  },
+    "type": "image"
+  }
 ]

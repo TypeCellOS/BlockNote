@@ -9,7 +9,7 @@
           "backgroundColor": "default",
           "caption": "",
           "name": "",
-          "previewWidth": 512,
+          "previewWidth": undefined,
           "showPreview": true,
           "textAlignment": "left",
           "url": "",

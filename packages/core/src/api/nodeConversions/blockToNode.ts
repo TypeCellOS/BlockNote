@@ -29,20 +29,24 @@ function styledTextToNodes<T extends StyleSchema>(
   styledText: StyledText<T>,
   schema: Schema,
   styleSchema: T,
-  blockType?: string
+  blockType?: string,
 ): Node[] {
   const marks: Mark[] = [];
 
-  for (const [style, value] of Object.entries(styledText.styles)) {
+  for (const [style, value] of Object.entries(styledText.styles || {})) {
     const config = styleSchema[style];
     if (!config) {
       throw new Error(`style ${style} not found in styleSchema`);
     }
 
     if (config.propSchema === "boolean") {
-      marks.push(schema.mark(style));
+      if (value) {
+        marks.push(schema.mark(style));
+      }
     } else if (config.propSchema === "string") {
-      marks.push(schema.mark(style, { stringValue: value }));
+      if (value) {
+        marks.push(schema.mark(style, { stringValue: value }));
+      }
     } else {
       throw new UnreachableCaseError(config.propSchema);
     }
@@ -51,7 +55,9 @@ function styledTextToNodes<T extends StyleSchema>(
   const parseHardBreaks = !blockType || !schema.nodes[blockType].spec.code;
 
   if (!parseHardBreaks) {
-    return [schema.text(styledText.text, marks)];
+    return styledText.text.length > 0
+      ? [schema.text(styledText.text, marks)]
+      : [];
   }
 
   return (
@@ -79,7 +85,7 @@ function styledTextToNodes<T extends StyleSchema>(
 function linkToNodes(
   link: PartialLink<StyleSchema>,
   schema: Schema,
-  styleSchema: StyleSchema
+  styleSchema: StyleSchema,
 ): Node[] {
   const linkMark = schema.marks.link.create({
     href: link.href,
@@ -95,7 +101,7 @@ function linkToNodes(
         return node;
       }
       throw new Error("unexpected node type");
-    }
+    },
   );
 }
 
@@ -107,7 +113,7 @@ function styledTextArrayToNodes<S extends StyleSchema>(
   content: string | StyledText<S>[],
   schema: Schema,
   styleSchema: S,
-  blockType?: string
+  blockType?: string,
 ): Node[] {
   const nodes: Node[] = [];
 
@@ -117,15 +123,15 @@ function styledTextArrayToNodes<S extends StyleSchema>(
         { type: "text", text: content, styles: {} },
         schema,
         styleSchema,
-        blockType
-      )
+        blockType,
+      ),
     );
     return nodes;
   }
 
   for (const styledText of content) {
     nodes.push(
-      ...styledTextToNodes(styledText, schema, styleSchema, blockType)
+      ...styledTextToNodes(styledText, schema, styleSchema, blockType),
     );
   }
   return nodes;
@@ -136,29 +142,29 @@ function styledTextArrayToNodes<S extends StyleSchema>(
  */
 export function inlineContentToNodes<
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   blockContent: PartialInlineContent<I, S>,
   schema: Schema,
   blockType?: string,
-  styleSchema: S = getStyleSchema(schema)
+  styleSchema: S = getStyleSchema(schema),
 ): Node[] {
   const nodes: Node[] = [];
 
   for (const content of blockContent) {
     if (typeof content === "string") {
       nodes.push(
-        ...styledTextArrayToNodes(content, schema, styleSchema, blockType)
+        ...styledTextArrayToNodes(content, schema, styleSchema, blockType),
       );
     } else if (isPartialLinkInlineContent(content)) {
       nodes.push(...linkToNodes(content, schema, styleSchema));
     } else if (isStyledTextInlineContent(content)) {
       nodes.push(
-        ...styledTextArrayToNodes([content], schema, styleSchema, blockType)
+        ...styledTextArrayToNodes([content], schema, styleSchema, blockType),
       );
     } else {
       nodes.push(
-        blockOrInlineContentToContentNode(content, schema, styleSchema)
+        blockOrInlineContentToContentNode(content, schema, styleSchema),
       );
     }
   }
@@ -170,11 +176,11 @@ export function inlineContentToNodes<
  */
 export function tableContentToNodes<
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   tableContent: PartialTableContent<I, S>,
   schema: Schema,
-  styleSchema: StyleSchema = getStyleSchema(schema)
+  styleSchema: StyleSchema = getStyleSchema(schema),
 ): Node[] {
   const rowNodes: Node[] = [];
   // Header rows and columns are used to determine the type of the cell
@@ -207,7 +213,7 @@ export function tableContentToNodes<
           row: rowIndex,
           col: cellIndex,
         },
-        { type: "table", content: tableContent } as any
+        { type: "table", content: tableContent } as any,
       );
 
       // Assume the column width is the width of the cell at the absolute cell index
@@ -227,7 +233,7 @@ export function tableContentToNodes<
             cell.content,
             schema,
             "tableParagraph",
-            styleSchema
+            styleSchema,
           );
         }
         const colspan = getColspan(cell);
@@ -244,7 +250,7 @@ export function tableContentToNodes<
           cell,
           schema,
           "tableParagraph",
-          styleSchema
+          styleSchema,
         );
       }
 
@@ -255,10 +261,11 @@ export function tableContentToNodes<
           ...(isPartialTableCell(cell) ? cell.props : {}),
           colwidth,
         },
-        schema.nodes["tableParagraph"].createChecked(attrs, content)
+        schema.nodes["tableParagraph"].createChecked(attrs, content),
       );
       columnNodes.push(cellNode);
     }
+
     const rowNode = schema.nodes["tableRow"].createChecked({}, columnNodes);
     rowNodes.push(rowNode);
   }
@@ -270,7 +277,7 @@ function blockOrInlineContentToContentNode(
     | PartialBlock<any, any, any>
     | PartialCustomInlineContentFromConfig<any, any>,
   schema: Schema,
-  styleSchema: StyleSchema
+  styleSchema: StyleSchema,
 ) {
   let contentNode: Node;
   let type = block.type;
@@ -291,7 +298,7 @@ function blockOrInlineContentToContentNode(
       [block.content],
       schema,
       type,
-      styleSchema
+      styleSchema,
     );
     contentNode = schema.nodes[type].createChecked(block.props, nodes);
   } else if (Array.isArray(block.content)) {
@@ -299,7 +306,7 @@ function blockOrInlineContentToContentNode(
       block.content,
       schema,
       type,
-      styleSchema
+      styleSchema,
     );
     contentNode = schema.nodes[type].createChecked(block.props, nodes);
   } else if (block.content.type === "tableContent") {
@@ -317,7 +324,7 @@ function blockOrInlineContentToContentNode(
 export function blockToNode(
   block: PartialBlock<any, any, any>,
   schema: Schema,
-  styleSchema: StyleSchema = getStyleSchema(schema)
+  styleSchema: StyleSchema = getStyleSchema(schema),
 ) {
   let id = block.id;
 
@@ -343,7 +350,7 @@ export function blockToNode(
     const contentNode = blockOrInlineContentToContentNode(
       block,
       schema,
-      styleSchema
+      styleSchema,
     );
 
     const groupNode =
@@ -356,7 +363,7 @@ export function blockToNode(
         id: id,
         ...block.props,
       },
-      groupNode ? [contentNode, groupNode] : contentNode
+      groupNode ? [contentNode, groupNode] : contentNode,
     );
   } else if (schema.nodes[block.type].isInGroup("bnBlock")) {
     // this is a bnBlock node like Column or ColumnList that directly translates to a prosemirror node
@@ -365,11 +372,11 @@ export function blockToNode(
         id: id,
         ...block.props,
       },
-      children
+      children,
     );
   } else {
     throw new Error(
-      `block type ${block.type} doesn't match blockContent or bnBlock group`
+      `block type ${block.type} doesn't match blockContent or bnBlock group`,
     );
   }
 }

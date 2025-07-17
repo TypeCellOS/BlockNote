@@ -27,8 +27,8 @@ export function GridSuggestionMenuController<
   // This is a bit hacky, but only way I found to make types work so the optionality
   // of suggestionMenuComponent depends on the return type of getItems
   GetItemsType extends (query: string) => Promise<any[]> = (
-    query: string
-  ) => Promise<DefaultReactGridSuggestionItem[]>
+    query: string,
+  ) => Promise<DefaultReactGridSuggestionItem[]>,
 >(
   props: {
     triggerCharacter: string;
@@ -50,7 +50,7 @@ export function GridSuggestionMenuController<
           GridSuggestionMenuProps<ItemType<GetItemsType>>
         >;
         onItemClick: (item: ItemType<GetItemsType>) => void;
-      })
+      }),
 ) {
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -83,7 +83,7 @@ export function GridSuggestionMenuController<
       ((async (query: string) =>
         await getDefaultReactEmojiPickerItems(
           editor,
-          query
+          query,
         )) as any as typeof getItems)
     );
   }, [editor, getItems])!;
@@ -97,7 +97,7 @@ export function GridSuggestionMenuController<
     (callback: (state: SuggestionMenuState) => void) => {
       return editor.suggestionMenus.onUpdate(triggerCharacter, callback);
     },
-    [editor.suggestionMenus, triggerCharacter]
+    [editor.suggestionMenus, triggerCharacter],
   );
 
   const state = useUIPluginState(cb);
@@ -127,7 +127,7 @@ export function GridSuggestionMenuController<
         }
       },
       ...floatingOptions,
-    }
+    },
   );
 
   if (
@@ -149,7 +149,8 @@ export function GridSuggestionMenuController<
         getItems={getItemsOrDefault}
         columns={columns}
         gridSuggestionMenuComponent={
-          gridSuggestionMenuComponent || GridSuggestionMenu
+          gridSuggestionMenuComponent ||
+          GridSuggestionMenu<ItemType<GetItemsType>>
         }
         onItemClick={onItemClickOrDefault}
       />

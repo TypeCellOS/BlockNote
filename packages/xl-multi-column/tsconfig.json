@@ -4,7 +4,7 @@
     "useDefineForClassFields": true,
     "module": "ESNext",
     "lib": ["ESNext", "DOM"],
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
     "jsx": "react-jsx",
     "strict": true,
     "sourceMap": true,
@@ -19,7 +19,21 @@
     "declarationDir": "types",
     "composite": true,
     "skipLibCheck": true,
-    "emitDeclarationOnly": true
+    "emitDeclarationOnly": true,
+    "paths": {
+      "@shared/*": ["../../shared/*"]
+    }
   },
-  "include": ["src"]
+  "include": ["src"],
+  "references": [
+    {
+      "path": "../core"
+    },
+    {
+      "path": "../react"
+    },
+    {
+      "path": "../../shared"
+    }
+  ]
 }

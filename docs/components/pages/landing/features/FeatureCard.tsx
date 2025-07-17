@@ -16,7 +16,8 @@ export function FeatureCard(props: FeatureCardProps) {
 
   return (
     <div
-      className={`card relative flex w-[360px] max-w-full flex-col justify-between gap-1 overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-black ${props.thumbnail ? "row-span-2" : "row-span-1"}`}>
+      className={`card relative flex w-[360px] max-w-full flex-col justify-between gap-1 overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-black ${props.thumbnail ? "row-span-2" : "row-span-1"}`}
+    >
       {props.thumbnail && (
         <div className={"thumbnail aspect-video w-full overflow-hidden"}>
           <Image

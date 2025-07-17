@@ -18,6 +18,7 @@ export const handleEnter = (editor: BlockNoteEditor<any, any, any>) => {
 
   if (
     !(
+      blockContent.node.type.name === "toggleListItem" ||
       blockContent.node.type.name === "bulletListItem" ||
       blockContent.node.type.name === "numberedListItem" ||
       blockContent.node.type.name === "checkListItem"
@@ -36,7 +37,7 @@ export const handleEnter = (editor: BlockNoteEditor<any, any, any>) => {
             updateBlockCommand(blockContainer.beforePos, {
               type: "paragraph",
               props: {},
-            })
+            }),
           );
         }
 

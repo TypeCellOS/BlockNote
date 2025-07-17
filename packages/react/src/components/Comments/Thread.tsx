@@ -82,7 +82,6 @@ export const Thread = ({
       },
     },
     schema,
-    sideMenuDetection: "editor",
   });
 
   const onNewCommentSave = useCallback(async () => {
@@ -104,7 +103,8 @@ export const Thread = ({
       onFocus={onFocus}
       onBlur={onBlur}
       selected={selected}
-      tabIndex={tabIndex}>
+      tabIndex={tabIndex}
+    >
       <Components.Comments.CardSection className="bn-thread-comments">
         <Comments
           thread={thread}
@@ -129,14 +129,16 @@ export const Thread = ({
                   variant="action-toolbar"
                   className={mergeCSSClasses(
                     "bn-action-toolbar",
-                    "bn-comment-actions"
-                  )}>
+                    "bn-comment-actions",
+                  )}
+                >
                   <Components.Generic.Toolbar.Button
-                    mainTooltip="Save"
+                    mainTooltip={dict.comments.save_button_text}
                     variant="compact"
                     isDisabled={isEmpty}
-                    onClick={onNewCommentSave}>
-                    Save
+                    onClick={onNewCommentSave}
+                  >
+                    {dict.comments.save_button_text}
                   </Components.Generic.Toolbar.Button>
                 </Components.Generic.Toolbar.Root>
               );

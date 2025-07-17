@@ -33,7 +33,6 @@ export function FloatingComposer() {
       },
     },
     schema,
-    sideMenuDetection: "editor",
   });
 
   return (
@@ -46,9 +45,10 @@ export function FloatingComposer() {
           <Components.Generic.Toolbar.Root
             className={mergeCSSClasses(
               "bn-action-toolbar",
-              "bn-comment-actions"
+              "bn-comment-actions",
             )}
-            variant="action-toolbar">
+            variant="action-toolbar"
+          >
             <Components.Generic.Toolbar.Button
               className={"bn-button"}
               mainTooltip="Save"
@@ -62,7 +62,8 @@ export function FloatingComposer() {
                   },
                 });
                 comments.stopPendingComment();
-              }}>
+              }}
+            >
               Save
             </Components.Generic.Toolbar.Button>
           </Components.Generic.Toolbar.Root>

@@ -61,7 +61,7 @@ jobs:
         run: echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" >> .npmrc
 
       - name: Publish packages
-        run: pnpm exec nx release publish
+        run: pnpm exec nx release publish --access public
         env:
           NPM_CONFIG_PROVENANCE: true
           GITHUB_TOKEN: "${{ github.token }}"

@@ -13,7 +13,7 @@ export const ResizableFileBlockWrapper = (
     buttonText: string;
     buttonIcon: ReactNode;
     children: ReactNode;
-  }
+  },
 ) => {
   // Temporary parameters set when the user begins resizing the element, used to
   // calculate the new width of the element.
@@ -26,7 +26,9 @@ export const ResizableFileBlockWrapper = (
     | undefined
   >(undefined);
 
-  const [width, setWidth] = useState(props.block.props.previewWidth! as number);
+  const [width, setWidth] = useState<number | undefined>(
+    props.block.props.previewWidth,
+  );
   const [hovered, setHovered] = useState<boolean>(false);
 
   const ref = useRef<HTMLDivElement>(null);
@@ -66,11 +68,13 @@ export const ResizableFileBlockWrapper = (
 
       // Ensures the child is not wider than the editor and not narrower than a
       // predetermined minimum width.
-      if (newWidth < minWidth) {
-        setWidth(minWidth);
-      } else {
-        setWidth(newWidth);
-      }
+      setWidth(
+        Math.min(
+          Math.max(newWidth, minWidth),
+          props.editor.domElement?.firstElementChild?.clientWidth ||
+            Number.MAX_VALUE,
+        ),
+      );
     };
     // Stops mouse movements from resizing the child and updates the block's
     // `width` prop to the new value.
@@ -120,7 +124,7 @@ export const ResizableFileBlockWrapper = (
         initialClientX: event.clientX,
       });
     },
-    []
+    [],
   );
   const rightResizeHandleMouseDownHandler = useCallback(
     (event: React.MouseEvent) => {
@@ -132,7 +136,7 @@ export const ResizableFileBlockWrapper = (
         initialClientX: event.clientX,
       });
     },
-    []
+    [],
   );
 
   const showLoader = useUploadLoading(props.block.id);
@@ -144,9 +148,12 @@ export const ResizableFileBlockWrapper = (
       onMouseLeave={wrapperMouseLeaveHandler}
       style={
         props.block.props.url && !showLoader && props.block.props.showPreview
-          ? { width: `${width}px` }
+          ? {
+              width: width ? `${width}px` : "fit-content",
+            }
           : undefined
-      }>
+      }
+    >
       <div className={"bn-visual-media-wrapper"} ref={ref}>
         {props.children}
         {(hovered || resizeParams) && (

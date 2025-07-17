@@ -12,7 +12,8 @@ export default function App() {
   return (
     <YDocProvider
       docId={docId}
-      authEndpoint="https://demos.y-sweet.dev/api/auth">
+      authEndpoint="https://demos.y-sweet.dev/api/auth"
+    >
       <Document />
     </YDocProvider>
   );
