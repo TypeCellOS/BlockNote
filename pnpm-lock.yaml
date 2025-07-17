@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      '@tanstack/store':
+        specifier: 0.7.1
+        version: 0.7.1
     devDependencies:
       '@nx/js':
         specifier: 20.6.4
@@ -3349,6 +3353,9 @@ importers:
       '@shikijs/types':
         specifier: 3.2.1
         version: 3.2.1
+      '@tanstack/store':
+        specifier: 0.7.1
+        version: 0.7.1
       '@tiptap/core':
         specifier: ^2.12.0
         version: 2.12.0(@tiptap/pm@2.12.0)
@@ -3394,6 +3401,9 @@ importers:
       '@tiptap/pm':
         specifier: ^2.12.0
         version: 2.12.0
+      alien-signals:
+        specifier: 2.0.5
+        version: 2.0.5
       emoji-mart:
         specifier: ^5.6.0
         version: 5.6.0
@@ -3451,6 +3461,9 @@ importers:
       uuid:
         specifier: ^8.3.2
         version: 8.3.2
+      valtio:
+        specifier: 2.1.5
+        version: 2.1.5(@types/react@18.3.20)(react@18.3.1)
       y-prosemirror:
         specifier: ^1.3.4
         version: 1.3.4(prosemirror-model@1.25.1)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.24))(yjs@13.6.24)
@@ -8579,6 +8592,9 @@ packages:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
+  '@tanstack/store@0.7.1':
+    resolution: {integrity: sha512-PjUQKXEXhLYj2X5/6c1Xn/0/qKY0IVFxTJweopRfF26xfjVyb14yALydJrHupDh3/d+1WKmfEgZPBVCmDkzzwg==}
+
   '@tanstack/virtual-core@3.13.5':
     resolution: {integrity: sha512-gMLNylxhJdUlfRR1G3U9rtuwUh2IjdrrniJIDcekVJN3/3i+bluvdMi3+eodnxzJq5nKnxnigo9h0lIpaqV6HQ==}
 
@@ -9462,6 +9478,9 @@ packages:
 
   ajv@8.17.1:
     resolution: {integrity: sha512-B/gBuNg5SiMTrPkC+A2+cW0RszwxYmn6VYxB/inlBStS5nx6xHIt/ehKRhIMhqusl7a8LjQoZnjCs5vhwxOQ1g==}
+
+  alien-signals@2.0.5:
+    resolution: {integrity: sha512-PdJB6+06nUNAClInE3Dweq7/2xVAYM64vvvS1IHVHSJmgeOtEdrAGyp7Z2oJtYm0B342/Exd2NT0uMJaThcjLQ==}
 
   ansi-align@3.0.1:
     resolution: {integrity: sha512-IOfwwBF5iczOjp/WeY4YxyjqAFMQoZufdQWDd19SEExbVLNXqvpzSJ/M7Za4/sCPmQ0+GRquoA7bGcINcxew6w==}
@@ -13427,6 +13446,9 @@ packages:
   protocols@2.0.2:
     resolution: {integrity: sha512-hHVTzba3wboROl0/aWRRG9dMytgH6ow//STBZh43l/wQgmMhYhOFi0EHWAPtoCz9IAUymsyP0TSBHkhgMEGNnQ==}
 
+  proxy-compare@3.0.1:
+    resolution: {integrity: sha512-V9plBAt3qjMlS1+nC8771KNf6oJ12gExvaxnNzN/9yVRLdTv/lc+oJlnSzrdYDAvBfTStPCoiaCOTmTs0adv7Q==}
+
   proxy-from-env@1.1.0:
     resolution: {integrity: sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==}
 
@@ -14773,6 +14795,18 @@ packages:
   validate-npm-package-name@5.0.1:
     resolution: {integrity: sha512-OljLrQ9SQdOUqTaQxqL5dEfZWrXExyyWsozYlAWFawPVNuD83igl7uJD2RTkNMbniIYgt8l81eCJGIdQF7avLQ==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
+
+  valtio@2.1.5:
+    resolution: {integrity: sha512-vsh1Ixu5mT0pJFZm+Jspvhga5GzHUTYv0/+Th203pLfh3/wbHwxhu/Z2OkZDXIgHfjnjBns7SN9HNcbDvPmaGw==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      '@types/react': '>=18.0.0'
+      react: '>=18.0.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      react:
+        optional: true
 
   vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
@@ -19812,6 +19846,8 @@ snapshots:
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
+  '@tanstack/store@0.7.1': {}
+
   '@tanstack/virtual-core@3.13.5': {}
 
   '@testing-library/dom@10.4.0':
@@ -20843,6 +20879,8 @@ snapshots:
       fast-uri: 3.0.6
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
+
+  alien-signals@2.0.5: {}
 
   ansi-align@3.0.1:
     dependencies:
@@ -25804,6 +25842,8 @@ snapshots:
 
   protocols@2.0.2: {}
 
+  proxy-compare@3.0.1: {}
+
   proxy-from-env@1.1.0: {}
 
   pseudomap@1.0.2: {}
@@ -27484,6 +27524,13 @@ snapshots:
       sade: 1.8.1
 
   validate-npm-package-name@5.0.1: {}
+
+  valtio@2.1.5(@types/react@18.3.20)(react@18.3.1):
+    dependencies:
+      proxy-compare: 3.0.1
+    optionalDependencies:
+      '@types/react': 18.3.20
+      react: 18.3.1
 
   vary@1.1.2: {}
 
