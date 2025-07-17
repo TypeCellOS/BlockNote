@@ -47,6 +47,7 @@ type CustomInlineContentConfig = {
   type: string;
   content: "styled" | "none";
   readonly propSchema: PropSchema;
+  draggable?: boolean;
 };
 ```
 
@@ -83,6 +84,12 @@ type PropSchema<
 - `values` (optional): Specifies an array of values that the prop can take, for example, to limit the value to a list of pre-defined strings. If `values` is not defined, BlockNote assumes the prop can be any value of `PrimitiveType`
 
 _In the mentions demo, we add a `user` prop for the user that's being mentioned._
+
+**`draggable`**
+
+Specifies whether the inline content can be dragged within the editor. If set to `true`, the inline content will be draggable. Defaults to `false` if not specified.
+
+If this is true, you should add `data-drag-handle` to the DOM element that should function as the drag handle.
 
 #### Inline Content Implementation (`ReactCustomInlineContentImplementation`)
 
