@@ -110,6 +110,7 @@ export const ToggleWrapper = (
       <div className="bn-toggle-wrapper" data-show-children={showChildren}>
         <button
           className="bn-toggle-button"
+          type="button"
           onMouseDown={(event) => event.preventDefault()}
           onClick={() => handleToggle(editor.getBlock(block)!)}
         >
@@ -129,6 +130,7 @@ export const ToggleWrapper = (
       {showChildren && childCount === 0 && (
         <button
           className="bn-toggle-add-block-button"
+          type="button"
           onClick={() => {
             const updatedBlock = editor.updateBlock(block, {
               // Single empty block with default type.

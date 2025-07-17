@@ -152,7 +152,26 @@ function BlockNoteViewComponent<
 
   // We set defaultUIProps and editorProps on a different context, the BlockNoteViewContext.
   // This BlockNoteViewContext is used to render the editor and the default UI.
-  const defaultUIProps = {
+  const blockNoteViewContextValue = useMemo(() => {
+    return {
+      editorProps: {
+        autoFocus,
+        contentEditableProps,
+      },
+      defaultUIProps: {
+        formattingToolbar,
+        linkToolbar,
+        slashMenu,
+        emojiPicker,
+        sideMenu,
+        filePanel,
+        tableHandles,
+        comments,
+      },
+    };
+  }, [
+    autoFocus,
+    contentEditableProps,
     formattingToolbar,
     linkToolbar,
     slashMenu,
@@ -161,21 +180,11 @@ function BlockNoteViewComponent<
     filePanel,
     tableHandles,
     comments,
-  };
-
-  const editorProps = {
-    autoFocus,
-    contentEditableProps,
-  };
+  ]);
 
   return (
     <BlockNoteContext.Provider value={blockNoteContext}>
-      <BlockNoteViewContext.Provider
-        value={{
-          editorProps,
-          defaultUIProps,
-        }}
-      >
+      <BlockNoteViewContext.Provider value={blockNoteViewContextValue}>
         <ElementRenderer ref={setElementRenderer} />
         <BlockNoteViewContainer
           className={className}
