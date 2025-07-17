@@ -74,6 +74,9 @@ importers:
       '@blocknote/shadcn':
         specifier: workspace:^
         version: link:../packages/shadcn
+      '@blocknote/xl-ai':
+        specifier: workspace:^
+        version: link:../packages/xl-ai
       '@blocknote/xl-multi-column':
         specifier: workspace:^
         version: link:../packages/xl-multi-column

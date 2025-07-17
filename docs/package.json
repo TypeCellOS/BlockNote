@@ -17,6 +17,7 @@
     "@blocknote/mantine": "workspace:^",
     "@blocknote/react": "workspace:^",
     "@blocknote/shadcn": "workspace:^",
+    "@blocknote/xl-ai": "workspace:^",
     "@blocknote/xl-multi-column": "workspace:^",
     "@blocknote/xl-odt-exporter": "workspace:^",
     "@blocknote/xl-pdf-exporter": "workspace:^",
