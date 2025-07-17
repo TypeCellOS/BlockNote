@@ -211,6 +211,10 @@ export const ExtendButton = <
     };
   }, [editingState, props.onMouseUp]);
 
+  if (!props.editor.isEditable) {
+    return null;
+  }
+
   return (
     <Components.TableHandle.ExtendButton
       className={mergeCSSClasses(
