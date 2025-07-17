@@ -1195,6 +1195,22 @@
         }
       },
       {
+        "projectSlug": "draggable-inline-content",
+        "fullSlug": "custom-schema/draggable-inline-content",
+        "pathFromRoot": "examples/06-custom-schema/draggable-inline-content",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "hectorzhuang",
+          "tags": []
+        },
+        "title": "Draggable Inline Content",
+        "group": {
+          "pathFromRoot": "examples/06-custom-schema",
+          "slug": "custom-schema"
+        }
+      },
+      {
         "projectSlug": "react-custom-blocks",
         "fullSlug": "custom-schema/react-custom-blocks",
         "pathFromRoot": "examples/06-custom-schema/react-custom-blocks",
@@ -1237,27 +1253,6 @@
           "tags": []
         },
         "title": "Custom Styles - React API",
-        "group": {
-          "pathFromRoot": "examples/06-custom-schema",
-          "slug": "custom-schema"
-        }
-      },
-      {
-        "projectSlug": "inline-content-draggable",
-        "fullSlug": "custom-schema/inline-content-draggable",
-        "pathFromRoot": "examples/06-custom-schema/inline-content-draggable",
-        "config": {
-          "playground": true,
-          "docs": true,
-          "author": "hectorchong",
-          "tags": [
-            "Intermediate",
-            "Inline Content",
-            "Custom Schemas",
-            "Draggable"
-          ]
-        },
-        "title": "Draggable Inline Content",
         "group": {
           "pathFromRoot": "examples/06-custom-schema",
           "slug": "custom-schema"
