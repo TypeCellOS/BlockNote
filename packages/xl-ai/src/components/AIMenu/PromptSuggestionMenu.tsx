@@ -23,6 +23,14 @@ export type PromptSuggestionMenuProps = {
       "name" | "label" | "variant" | "autoFocus" | "autoComplete"
     >
   >;
+  // This loader element was added as a prop to mimic Notion's UX for the AI
+  // menu. When the AI is generating, Notion puts a loading indicator right 
+  // after the "Thinking" text. While it would be better to do this by just
+  // setting the `placeholder` and `rightSection` props of the loader, text
+  // input width can't be constrained to the size of its content, so we can't
+  // place the loading indicator right after. This prop therefore exists so 
+  // that we don't have to show the text input while `isLoading` is `true`, and
+  // can instead render whatever we want.
   loader?: ReactNode;
   isLoading?: boolean;
   leftSection?: ReactNode;
