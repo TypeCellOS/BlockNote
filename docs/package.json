@@ -21,7 +21,7 @@
     "@blocknote/xl-multi-column": "workspace:^",
     "@blocknote/xl-odt-exporter": "workspace:^",
     "@blocknote/xl-pdf-exporter": "workspace:^",
-    "@headlessui/react": "^1.7.18",
+    "@headlessui/react": "^2.2.4",
     "@heroicons/react": "^2.1.4",
     "@mantine/core": "^7.17.3",
     "@next/bundle-analyzer": "^14.1.0",
@@ -67,5 +67,8 @@
     "react-email": "^4.0.7",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"
+  },
+  "overrides": {
+    "@headlessui/react": "^2.2.4"
   }
 }

@@ -15,7 +15,7 @@ export function FadeIn({
   viewTriggerOffset?: boolean;
 }) {
   const ref = useRef(null);
-  const inView = useInView(ref, {
+  const inView = useInView(ref as any, {
     once: true,
     margin: viewTriggerOffset ? "-128px" : "0px",
   });
@@ -34,6 +34,7 @@ export function FadeIn({
   return (
     <motion.div
       animate={inView ? "animate" : "initial"}
+      // @ts-ignore ignore type error
       className={className}
       initial={false}
       ref={ref}

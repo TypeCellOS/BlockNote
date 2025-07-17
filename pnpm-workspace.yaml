@@ -11,3 +11,5 @@ gitChecks: false
 publicHoistPattern:
   # We have been preferring to use `prosemirror-*` packages instead of `@tiptap/pm` packages
   - "prosemirror-*"
+overrides:
+  "@headlessui/react": "^2.2.4"
