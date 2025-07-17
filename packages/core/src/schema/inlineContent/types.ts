@@ -23,6 +23,13 @@ export type InlineContentImplementation<T extends InlineContentConfig> =
         node: Node;
       };
 
+export type InlineContentSchemaWithInlineContent<
+  IType extends string,
+  C extends InlineContentConfig,
+> = {
+  [k in IType]: C;
+};
+
 // Container for both the config and implementation of InlineContent,
 // and the type of `implementation` is based on that of the config
 export type InlineContentSpec<T extends InlineContentConfig> = {
