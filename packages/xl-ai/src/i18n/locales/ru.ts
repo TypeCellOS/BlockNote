@@ -59,8 +59,8 @@ export const ru: AIDictionary = {
   ai_menu: {
     input_placeholder: "Спросите ИИ о чем угодно…",
     status: {
-      thinking: "Думаю…",
-      editing: "Редактирую…",
+      thinking: "Думаю",
+      editing: "Редактирую",
       error: "Упс! Что-то пошло не так",
     },
     actions: {

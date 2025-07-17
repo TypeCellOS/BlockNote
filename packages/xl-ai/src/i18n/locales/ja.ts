@@ -59,8 +59,8 @@ export const ja: AIDictionary = {
   ai_menu: {
     input_placeholder: "AIに何でも質問…",
     status: {
-      thinking: "考え中…",
-      editing: "編集中…",
+      thinking: "考え中",
+      editing: "編集中",
       error: "申し訳ありません！エラーが発生しました",
     },
     actions: {

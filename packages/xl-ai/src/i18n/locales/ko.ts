@@ -59,8 +59,8 @@ export const ko: AIDictionary = {
   ai_menu: {
     input_placeholder: "AI에게 무엇이든 물어보세요…",
     status: {
-      thinking: "생각 중…",
-      editing: "편집 중…",
+      thinking: "생각 중",
+      editing: "편집 중",
       error: "죄송합니다! 오류가 발생했습니다",
     },
     actions: {

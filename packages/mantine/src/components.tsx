@@ -82,7 +82,7 @@ export const components: Components = {
       Group: BadgeGroup,
     },
     Form: {
-      Root: (props) => <div>{props.children}</div>,
+      Root: (props) => <>{props.children}</>,
       TextInput: TextInput,
     },
     Menu: {

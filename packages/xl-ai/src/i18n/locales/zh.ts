@@ -59,8 +59,8 @@ export const zh: AIDictionary = {
   ai_menu: {
     input_placeholder: "向人工智能提问任何问题…",
     status: {
-      thinking: "思考中…",
-      editing: "编辑中…",
+      thinking: "思考中",
+      editing: "编辑中",
       error: "哎呀！出了点问题",
     },
     actions: {

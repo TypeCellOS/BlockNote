@@ -766,26 +766,73 @@
 }
 
 /* Combobox styling */
-.bn-mantine .bn-combobox-input,
+.bn-mantine .bn-combobox-input-wrapper,
 .bn-mantine .bn-combobox-items:not(:empty) {
   background-color: var(--bn-colors-menu-background);
   border: var(--bn-border);
   border-radius: var(--bn-border-radius-medium);
   box-shadow: var(--bn-shadow-medium);
   color: var(--bn-colors-menu-text);
-  gap: 4px;
   min-width: 145px;
   padding: 2px;
 }
 
-.bn-mantine .bn-combobox-input .bn-combobox-icon,
-.bn-mantine .bn-combobox-input .bn-combobox-right-section {
+.bn-mantine .bn-combobox-input-wrapper,
+.bn-mantine .bn-combobox-input,
+.bn-mantine .bn-combobox-loader,
+.bn-mantine .bn-combobox-left-section,
+.bn-mantine .bn-combobox-right-section {
   align-items: center;
   display: flex;
   justify-content: center;
 }
 
-.bn-mantine .bn-combobox-input .bn-combobox-error {
+.bn-mantine .bn-combobox-input,
+.bn-mantine .bn-combobox-loader {
+  flex: 1;
+  justify-content: flex-start;
+  width: 0;
+}
+
+.bn-mantine .bn-combobox-input > div {
+  width: 100%;
+}
+
+.bn-mantine .bn-combobox-input input {
+  padding: 0;
+}
+
+.bn-mantine .bn-ai-loader {
+  align-items: center;
+  color: var(--bn-colors-side-menu);
+  display: flex;
+  font-family: var(--bn-font-family);
+  font-size: 14px;
+  gap: 4px;
+  height: 52px;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.bn-mantine .bn-ai-loader-icon {
+  width: fit-content;
+}
+
+.bn-mantine .bn-ai-icon,
+.bn-mantine .bn-ai-stop,
+.bn-mantine .bn-ai-error {
+  align-items: center;
+  color: var(--bn-colors-menu-text);
+  display: flex;
+  justify-content: center;
+  width: 28px;
+}
+
+.bn-mantine .bn-ai-stop {
+  cursor: pointer;
+}
+
+.bn-mantine .bn-ai-error {
   color: var(--bn-colors-highlights-red-background);
 }
 

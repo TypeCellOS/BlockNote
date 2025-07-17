@@ -59,8 +59,8 @@ export const hr: AIDictionary = {
   ai_menu: {
     input_placeholder: "Pitaj AI bilo što…",
     status: {
-      thinking: "Razmišljam…",
-      editing: "Uređujem…",
+      thinking: "Razmišljam",
+      editing: "Uređujem",
       error: "Ups! Nešto je pošlo po zlu",
     },
     actions: {

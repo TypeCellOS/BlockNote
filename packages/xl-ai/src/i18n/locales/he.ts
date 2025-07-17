@@ -59,8 +59,8 @@ export const he: AIDictionary = {
   ai_menu: {
     input_placeholder: "שאול AI כלום…",
     status: {
-      thinking: "חושב…",
-      editing: "ערך…",
+      thinking: "חושב",
+      editing: "ערך",
       error: "אופס! משהו השתבש",
     },
     actions: {

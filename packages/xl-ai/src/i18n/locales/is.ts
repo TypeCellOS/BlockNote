@@ -59,8 +59,8 @@ export const is: AIDictionary = {
   ai_menu: {
     input_placeholder: "Spyrðu gervigreind um hvað sem er…",
     status: {
-      thinking: "Hugsa…",
-      editing: "Breyta…",
+      thinking: "Hugsa",
+      editing: "Breyta",
       error: "Ups! Eitthvað fór úrskeiðis",
     },
     actions: {

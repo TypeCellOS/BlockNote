@@ -59,8 +59,8 @@ export const vi: AIDictionary = {
   ai_menu: {
     input_placeholder: "Hỏi AI bất cứ điều gì…",
     status: {
-      thinking: "Đang suy nghĩ…",
-      editing: "Đang chỉnh sửa…",
+      thinking: "Đang suy nghĩ",
+      editing: "Đang chỉnh sửa",
       error: "Rất tiếc! Đã xảy ra lỗi",
     },
     actions: {
