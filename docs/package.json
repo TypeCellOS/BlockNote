@@ -18,6 +18,8 @@
     "@blocknote/react": "workspace:^",
     "@blocknote/shadcn": "workspace:^",
     "@blocknote/xl-ai": "workspace:^",
+    "@blocknote/xl-docx-exporter": "workspace:^",
+    "@blocknote/xl-email-exporter": "workspace:^",
     "@blocknote/xl-multi-column": "workspace:^",
     "@blocknote/xl-odt-exporter": "workspace:^",
     "@blocknote/xl-pdf-exporter": "workspace:^",
