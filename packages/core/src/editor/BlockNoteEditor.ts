@@ -7,7 +7,6 @@ import {
   Node as TipTapNode,
 } from "@tiptap/core";
 import { Node, Schema } from "prosemirror-model";
-import * as Y from "yjs";
 import {
   Block,
   DefaultBlockSchema,
@@ -54,27 +53,25 @@ import {
 
 import { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
+import type { User, ThreadStore } from "../comments/index.js";
+import { EventEmitter } from "../util/EventEmitter.js";
+import * as Y from "yjs";
 
-import { redo, undo } from "@tiptap/pm/history";
 import { type Command, type Plugin, type Transaction } from "@tiptap/pm/state";
 import { dropCursor } from "prosemirror-dropcursor";
 import { EditorView } from "prosemirror-view";
-import { redoCommand, undoCommand, ySyncPluginKey } from "y-prosemirror";
-import {
-  BlocksChanged,
-  getBlocksChangedByTransaction,
-} from "../api/nodeUtil.js";
+import { BlocksChanged } from "../api/nodeUtil.js";
 import { CodeBlockOptions } from "../blocks/CodeBlockContent/CodeBlockContent.js";
-import type { ThreadStore, User } from "../comments/index.js";
-import type { CursorPlugin } from "../extensions/Collaboration/CursorPlugin.js";
-import type { ForkYDocPlugin } from "../extensions/Collaboration/ForkYDocPlugin.js";
-import { EventEmitter } from "../util/EventEmitter.js";
 import { BlockNoteExtension } from "./BlockNoteExtension.js";
 import {
   BlockManager,
+  CollaborationManager,
+  type CollaborationOptions,
+  EventManager,
   ExportManager,
   ExtensionManager,
   SelectionManager,
+  StateManager,
   StyleManager,
 } from "./managers/index.js";
 
@@ -115,43 +112,24 @@ export type BlockNoteEditorOptions<
   /**
    * When enabled, allows for collaboration between multiple users.
    */
-  collaboration: {
-    /**
-     * The Yjs XML fragment that's used for collaboration.
-     */
-    fragment: Y.XmlFragment;
-    /**
-     * The user info for the current user that's shown to other collaborators.
-     */
-    user: {
-      name: string;
-      color: string;
-    };
-    /**
-     * A Yjs provider (used for awareness / cursor information)
-     */
-    provider: any;
-    /**
-     * Optional function to customize how cursors of users are rendered
-     */
-    renderCursor?: (user: any) => HTMLElement;
-    /**
-     * Optional flag to set when the user label should be shown with the default
-     * collaboration cursor. Setting to "always" will always show the label,
-     * while "activity" will only show the label when the user moves the cursor
-     * or types. Defaults to "activity".
-     */
-    showCursorLabels?: "always" | "activity";
+  collaboration?: CollaborationOptions;
+
+  /**
+   * Comments configuration - can be used with or without collaboration
+   */
+  comments?: {
+    threadStore: ThreadStore;
   };
+
+  /**
+   * Function to resolve user IDs to user objects - required for comments
+   */
+  resolveUsers?: (userIds: string[]) => Promise<User[]>;
 
   /**
    * Options for code blocks.
    */
   codeBlock?: CodeBlockOptions;
-
-  comments: {
-    threadStore: ThreadStore;
-  };
 
   /**
    * Use default BlockNote font and reset the styles of <p> <li> <h1> elements etc., that are used in BlockNote.
@@ -256,8 +234,6 @@ export type BlockNoteEditorOptions<
    * @returns The URL that's
    */
   resolveFileUrl: (url: string) => Promise<string>;
-
-  resolveUsers: (userIds: string[]) => Promise<User[]>;
 
   schema: BlockNoteSchema<BSchema, ISchema, SSchema>;
 
@@ -440,35 +416,56 @@ export class BlockNoteEditor<
   public readonly inlineContentImplementations: InlineContentSpecs;
   public readonly styleImplementations: StyleSpecs;
 
-  public readonly formattingToolbar: FormattingToolbarProsemirrorPlugin;
-  public readonly linkToolbar: LinkToolbarProsemirrorPlugin<
-    BSchema,
-    ISchema,
-    SSchema
-  >;
-  public readonly sideMenu: SideMenuProsemirrorPlugin<
-    BSchema,
-    ISchema,
-    SSchema
-  >;
-  public readonly suggestionMenus: SuggestionMenuProseMirrorPlugin<
-    BSchema,
-    ISchema,
-    SSchema
-  >;
-  public readonly filePanel?: FilePanelProsemirrorPlugin<ISchema, SSchema>;
-  public readonly tableHandles?: TableHandlesProsemirrorPlugin<
-    ISchema,
-    SSchema
-  >;
-  public readonly comments?: CommentsPlugin;
+  public get formattingToolbar(): FormattingToolbarProsemirrorPlugin {
+    return this._extensionManager.formattingToolbar;
+  }
 
-  private readonly showSelectionPlugin: ShowSelectionPlugin;
+  public get linkToolbar(): LinkToolbarProsemirrorPlugin<
+    BSchema,
+    ISchema,
+    SSchema
+  > {
+    return this._extensionManager.linkToolbar;
+  }
+
+  public get sideMenu(): SideMenuProsemirrorPlugin<BSchema, ISchema, SSchema> {
+    return this._extensionManager.sideMenu;
+  }
+
+  public get suggestionMenus(): SuggestionMenuProseMirrorPlugin<
+    BSchema,
+    ISchema,
+    SSchema
+  > {
+    return this._extensionManager.suggestionMenus;
+  }
+
+  public get filePanel():
+    | FilePanelProsemirrorPlugin<ISchema, SSchema>
+    | undefined {
+    return this._extensionManager.filePanel;
+  }
+
+  public get tableHandles():
+    | TableHandlesProsemirrorPlugin<ISchema, SSchema>
+    | undefined {
+    return this._extensionManager.tableHandles;
+  }
+
+  public get comments(): CommentsPlugin | undefined {
+    return this._collaborationManager?.comments;
+  }
+
+  public get showSelectionPlugin(): ShowSelectionPlugin {
+    return this._extensionManager.showSelectionPlugin;
+  }
 
   /**
    * The plugin for forking a document, only defined if in collaboration mode
    */
-  public readonly forkYDocPlugin?: ForkYDocPlugin;
+  public get forkYDocPlugin() {
+    return this._collaborationManager?.forkYDocPlugin;
+  }
   /**
    * The `uploadFile` method is what the editor uses when files need to be uploaded (for example when selecting an image to upload).
    * This method should set when creating the editor as this is application-specific.
@@ -486,7 +483,6 @@ export class BlockNoteEditor<
   private onUploadEndCallbacks: ((blockId?: string) => void)[] = [];
 
   public readonly resolveFileUrl?: (url: string) => Promise<string>;
-  public readonly resolveUsers?: (userIds: string[]) => Promise<User[]>;
   /**
    * Editor settings
    */
@@ -571,11 +567,35 @@ export class BlockNoteEditor<
       },
     };
 
+    // Initialize CollaborationManager if collaboration is enabled or if comments are configured
+    if (newOptions.collaboration || newOptions.comments) {
+      const collaborationOptions: CollaborationOptions = {
+        // Use collaboration options if available, otherwise provide defaults
+        fragment: newOptions.collaboration?.fragment || new Y.XmlFragment(),
+        user: newOptions.collaboration?.user || {
+          name: "User",
+          color: "#FF0000",
+        },
+        provider: newOptions.collaboration?.provider || null,
+        renderCursor: newOptions.collaboration?.renderCursor,
+        showCursorLabels: newOptions.collaboration?.showCursorLabels,
+        // If comments are configured separately, use those instead of collaboration.comments
+        comments: newOptions.comments || newOptions.collaboration?.comments,
+        // If resolveUsers is configured separately, use that instead of collaboration.resolveUsers
+        resolveUsers:
+          newOptions.resolveUsers || newOptions.collaboration?.resolveUsers,
+      };
+      this._collaborationManager = new CollaborationManager(
+        this as any,
+        collaborationOptions,
+      );
+    } else {
+      this._collaborationManager = undefined;
+    }
+
     if (newOptions.comments && !newOptions.resolveUsers) {
       throw new Error("resolveUsers is required when using comments");
     }
-
-    this.resolveUsers = newOptions.resolveUsers;
 
     // @ts-ignore
     this.schema = newOptions.schema;
@@ -583,25 +603,28 @@ export class BlockNoteEditor<
     this.inlineContentImplementations = newOptions.schema.inlineContentSpecs;
     this.styleImplementations = newOptions.schema.styleSpecs;
 
-    this.extensions = getBlockNoteExtensions({
-      editor: this,
-      domAttributes: newOptions.domAttributes || {},
-      blockSpecs: this.schema.blockSpecs,
-      styleSpecs: this.schema.styleSpecs,
-      inlineContentSpecs: this.schema.inlineContentSpecs,
-      collaboration: newOptions.collaboration,
-      trailingBlock: newOptions.trailingBlock,
-      disableExtensions: newOptions.disableExtensions,
-      setIdAttribute: newOptions.setIdAttribute,
-      animations: newOptions.animations ?? true,
-      tableHandles: checkDefaultBlockTypeInSchema("table", this),
-      dropCursor: this.options.dropCursor ?? dropCursor,
-      placeholders: newOptions.placeholders,
-      tabBehavior: newOptions.tabBehavior,
-      sideMenuDetection: newOptions.sideMenuDetection || "viewport",
-      comments: newOptions.comments,
-      pasteHandler: newOptions.pasteHandler,
-    });
+    this.extensions = {
+      ...getBlockNoteExtensions({
+        editor: this,
+        domAttributes: newOptions.domAttributes || {},
+        blockSpecs: this.schema.blockSpecs,
+        styleSpecs: this.schema.styleSpecs,
+        inlineContentSpecs: this.schema.inlineContentSpecs,
+        collaboration: newOptions.collaboration,
+        trailingBlock: newOptions.trailingBlock,
+        disableExtensions: newOptions.disableExtensions,
+        setIdAttribute: newOptions.setIdAttribute,
+        animations: newOptions.animations ?? true,
+        tableHandles: checkDefaultBlockTypeInSchema("table", this),
+        dropCursor: this.options.dropCursor ?? dropCursor,
+        placeholders: newOptions.placeholders,
+        tabBehavior: newOptions.tabBehavior,
+        sideMenuDetection: newOptions.sideMenuDetection || "viewport",
+        // Comments are now handled by CollaborationManager
+        pasteHandler: newOptions.pasteHandler,
+      }),
+      ...this._collaborationManager?.initExtensions(),
+    } as any;
 
     // add extensions from _tiptapOptions
     (newOptions._tiptapOptions?.extensions || []).forEach((ext) => {
@@ -653,16 +676,6 @@ export class BlockNoteEditor<
         }
       })();
     });
-
-    this.formattingToolbar = this.extensions["formattingToolbar"] as any;
-    this.linkToolbar = this.extensions["linkToolbar"] as any;
-    this.sideMenu = this.extensions["sideMenu"] as any;
-    this.suggestionMenus = this.extensions["suggestionMenus"] as any;
-    this.filePanel = this.extensions["filePanel"] as any;
-    this.tableHandles = this.extensions["tableHandles"] as any;
-    this.comments = this.extensions["comments"] as any;
-    this.showSelectionPlugin = this.extensions["showSelection"] as any;
-    this.forkYDocPlugin = this.extensions["forkYDocPlugin"] as any;
 
     if (newOptions.uploadFile) {
       const uploadFile = newOptions.uploadFile;
@@ -783,11 +796,20 @@ export class BlockNoteEditor<
 
     // Initialize managers
     this._blockManager = new BlockManager(this as any);
-    // this._eventManager = new EventManager(this as any);
+
+    this._eventManager = new EventManager(this as any);
     this._exportManager = new ExportManager(this as any);
     this._extensionManager = new ExtensionManager(this as any);
     this._selectionManager = new SelectionManager(this as any);
-    // this._stateManager = new StateManager(this as any);
+    this._stateManager = new StateManager(
+      this as any,
+      collaborationEnabled
+        ? {
+            undo: this._collaborationManager?.getUndoCommand(),
+            redo: this._collaborationManager?.getRedoCommand(),
+          }
+        : undefined,
+    );
     this._styleManager = new StyleManager(this as any);
 
     this.emit("create");
@@ -795,17 +817,13 @@ export class BlockNoteEditor<
 
   // Manager instances
   private readonly _blockManager: BlockManager<any, any, any>;
-  // private readonly _eventManager: EventManager<any>;
+  private readonly _collaborationManager?: CollaborationManager;
+  private readonly _eventManager: EventManager<any>;
   private readonly _exportManager: ExportManager<any, any, any>;
   private readonly _extensionManager: ExtensionManager;
   private readonly _selectionManager: SelectionManager<any, any, any>;
-  // private readonly _stateManager: StateManager;
+  private readonly _stateManager: StateManager;
   private readonly _styleManager: StyleManager<any, any, any>;
-
-  /**
-   * Stores the currently active transaction, which is the accumulated transaction from all {@link dispatch} calls during a {@link transact} calls
-   */
-  private activeTransaction: Transaction | null = null;
 
   /**
    * Execute a prosemirror command. This is mostly for backwards compatibility with older code.
@@ -820,16 +838,7 @@ export class BlockNoteEditor<
    * ```
    */
   public exec(command: Command) {
-    if (this.activeTransaction) {
-      throw new Error(
-        "`exec` should not be called within a `transact` call, move the `exec` call outside of the `transact` call",
-      );
-    }
-    const state = this._tiptapEditor.state;
-    const view = this._tiptapEditor.view;
-    const dispatch = (tr: Transaction) => this._tiptapEditor.dispatch(tr);
-
-    return command(state, dispatch, view);
+    return this._stateManager.exec(command);
   }
 
   /**
@@ -845,15 +854,7 @@ export class BlockNoteEditor<
    * ```
    */
   public canExec(command: Command): boolean {
-    if (this.activeTransaction) {
-      throw new Error(
-        "`canExec` should not be called within a `transact` call, move the `canExec` call outside of the `transact` call",
-      );
-    }
-    const state = this._tiptapEditor.state;
-    const view = this._tiptapEditor.view;
-
-    return command(state, undefined, view);
+    return this._stateManager.canExec(command);
   }
 
   /**
@@ -884,40 +885,7 @@ export class BlockNoteEditor<
       tr: Transaction,
     ) => T,
   ): T {
-    if (this.activeTransaction) {
-      // Already in a transaction, so we can just callback immediately
-      return callback(this.activeTransaction);
-    }
-
-    try {
-      // Enter transaction mode, by setting a starting transaction
-      this.activeTransaction = this._tiptapEditor.state.tr;
-
-      // Capture all dispatch'd transactions
-      const result = callback(this.activeTransaction);
-
-      // Any transactions captured by the `dispatch` call will be stored in `this.activeTransaction`
-      const activeTr = this.activeTransaction;
-
-      this.activeTransaction = null;
-      if (
-        activeTr &&
-        // Only dispatch if the transaction was actually modified in some way
-        (activeTr.docChanged ||
-          activeTr.selectionSet ||
-          activeTr.scrolledIntoView ||
-          activeTr.storedMarksSet ||
-          !activeTr.isGeneric)
-      ) {
-        // Dispatch the transaction if it was modified
-        this._tiptapEditor.dispatch(activeTr);
-      }
-
-      return result;
-    } finally {
-      // We wrap this in a finally block to ensure we don't disable future transactions just because of an error in the callback
-      this.activeTransaction = null;
-    }
+    return this._stateManager.transact(callback);
   }
 
   // TO DISCUSS
@@ -954,12 +922,7 @@ export class BlockNoteEditor<
    * @see https://prosemirror.net/docs/ref/#state.EditorState
    */
   public get prosemirrorState() {
-    if (this.activeTransaction) {
-      throw new Error(
-        "`prosemirrorState` should not be called within a `transact` call, move the `prosemirrorState` call outside of the `transact` call or use `editor.transact` to read the current editor state",
-      );
-    }
-    return this._tiptapEditor.state;
+    return this._stateManager.prosemirrorState;
   }
 
   /**
@@ -967,7 +930,7 @@ export class BlockNoteEditor<
    * @see https://prosemirror.net/docs/ref/#view.EditorView
    */
   public get prosemirrorView() {
-    return this._tiptapEditor.view;
+    return this._stateManager.prosemirrorView;
   }
 
   public get domElement() {
@@ -1166,15 +1129,7 @@ export class BlockNoteEditor<
    * @returns True if the editor is editable, false otherwise.
    */
   public get isEditable(): boolean {
-    if (!this._tiptapEditor) {
-      if (!this.headless) {
-        throw new Error("no editor, but also not headless?");
-      }
-      return false;
-    }
-    return this._tiptapEditor.isEditable === undefined
-      ? true
-      : this._tiptapEditor.isEditable;
+    return this._stateManager.isEditable;
   }
 
   /**
@@ -1182,16 +1137,7 @@ export class BlockNoteEditor<
    * @param editable True to make the editor editable, or false to lock it.
    */
   public set isEditable(editable: boolean) {
-    if (!this._tiptapEditor) {
-      if (!this.headless) {
-        throw new Error("no editor, but also not headless?");
-      }
-      // not relevant on headless
-      return;
-    }
-    if (this._tiptapEditor.options.editable !== editable) {
-      this._tiptapEditor.setEditable(editable);
-    }
+    this._stateManager.isEditable = editable;
   }
 
   /**
@@ -1254,21 +1200,14 @@ export class BlockNoteEditor<
    * Undo the last action.
    */
   public undo() {
-    if (this.options.collaboration) {
-      return this.exec(undoCommand);
-    }
-
-    return this.exec(undo);
+    return this._stateManager.undo();
   }
 
   /**
    * Redo the last action.
    */
   public redo() {
-    if (this.options.collaboration) {
-      return this.exec(redoCommand);
-    }
-    return this.exec(redo);
+    return this._stateManager.redo();
   }
 
   /**
@@ -1452,13 +1391,13 @@ export class BlockNoteEditor<
    * Updates the user info for the current user that's shown to other collaborators.
    */
   public updateCollaborationUserInfo(user: { name: string; color: string }) {
-    if (!this.options.collaboration) {
+    if (!this._collaborationManager) {
       throw new Error(
         "Cannot update collaboration user info when collaboration is disabled.",
       );
     }
 
-    (this.extensions["yCursorPlugin"] as CursorPlugin).updateUser(user);
+    this._collaborationManager.updateUserInfo(user);
   }
 
   /**
@@ -1478,29 +1417,12 @@ export class BlockNoteEditor<
       },
     ) => void,
   ) {
-    if (this.headless) {
-      // Note: would be nice if this is possible in headless mode as well
-      return;
-    }
-
-    const cb = ({
-      transaction,
-      appendedTransactions,
-    }: {
-      transaction: Transaction;
-      appendedTransactions: Transaction[];
-    }) => {
-      callback(this, {
+    return this._eventManager.onChange(({ editor, changes }) => {
+      callback(editor, {
         getChanges: () =>
-          getBlocksChangedByTransaction(transaction, appendedTransactions),
+          changes as unknown as BlocksChanged<BSchema, ISchema, SSchema>,
       });
-    };
-
-    this._tiptapEditor.on("v3-update", cb);
-
-    return () => {
-      this._tiptapEditor.off("v3-update", cb);
-    };
+    });
   }
 
   /**
@@ -1513,27 +1435,9 @@ export class BlockNoteEditor<
     callback: (editor: BlockNoteEditor<BSchema, ISchema, SSchema>) => void,
     includeSelectionChangedByRemote?: boolean,
   ) {
-    if (this.headless) {
-      return;
-    }
-
-    const cb = (e: { transaction: Transaction }) => {
-      if (
-        e.transaction.getMeta(ySyncPluginKey) &&
-        !includeSelectionChangedByRemote
-      ) {
-        // selection changed because of a yjs sync (i.e.: other user was typing)
-        // we don't want to trigger the callback in this case
-        return;
-      }
-      callback(this);
-    };
-
-    this._tiptapEditor.on("selectionUpdate", cb);
-
-    return () => {
-      this._tiptapEditor.off("selectionUpdate", cb);
-    };
+    return this._eventManager.onSelectionChange(({ editor }) => {
+      callback(editor);
+    }, includeSelectionChangedByRemote);
   }
 
   /**

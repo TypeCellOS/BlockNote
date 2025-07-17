@@ -195,10 +195,15 @@ export class StateManager {
    * @returns True if the editor is editable, false otherwise.
    */
   public get isEditable(): boolean {
-    if (!this.editor) {
+    if (!this.editor._tiptapEditor) {
+      if (!this.editor.headless) {
+        throw new Error("no editor, but also not headless?");
+      }
       return false;
     }
-    return this.editor.isEditable;
+    return this.editor._tiptapEditor.isEditable === undefined
+      ? true
+      : this.editor._tiptapEditor.isEditable;
   }
 
   /**
@@ -206,7 +211,14 @@ export class StateManager {
    * @param editable True to make the editor editable, or false to lock it.
    */
   public set isEditable(editable: boolean) {
-    if (this.editor.isEditable !== editable) {
+    if (!this.editor._tiptapEditor) {
+      if (!this.editor.headless) {
+        throw new Error("no editor, but also not headless?");
+      }
+      // not relevant on headless
+      return;
+    }
+    if (this.editor._tiptapEditor.options.editable !== editable) {
       this.editor._tiptapEditor.setEditable(editable);
     }
   }

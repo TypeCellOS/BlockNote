@@ -1286,11 +1286,11 @@
             "Collaboration"
           ],
           "dependencies": {
-            "@liveblocks/client": "^2.23.1",
-            "@liveblocks/react": "^2.23.1",
-            "@liveblocks/react-blocknote": "^2.23.1",
-            "@liveblocks/react-tiptap": "^2.23.1",
-            "@liveblocks/react-ui": "^2.23.1",
+            "@liveblocks/client": "^3.1.3",
+            "@liveblocks/react": "^3.1.3",
+            "@liveblocks/react-blocknote": "^3.1.3",
+            "@liveblocks/react-tiptap": "^3.1.3",
+            "@liveblocks/react-ui": "^3.1.3",
             "yjs": "^13.6.15"
           } as any
         },

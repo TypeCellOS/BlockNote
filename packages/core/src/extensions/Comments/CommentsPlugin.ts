@@ -134,13 +134,14 @@ export class CommentsPlugin extends BlockNoteExtension {
     private readonly editor: BlockNoteEditor<any, any, any>,
     public readonly threadStore: ThreadStore,
     private readonly markType: string,
+    public readonly resolveUsers: (userIds: string[]) => Promise<User[]>,
   ) {
     super();
 
-    if (!editor.resolveUsers) {
+    if (!resolveUsers) {
       throw new Error("resolveUsers is required for comments");
     }
-    this.userStore = new UserStore<User>(editor.resolveUsers);
+    this.userStore = new UserStore<User>(resolveUsers);
 
     // Note: Plugins are currently not destroyed when the editor is destroyed.
     // We should unsubscribe from the threadStore when the editor is destroyed.

@@ -9,22 +9,12 @@ import * as Y from "yjs";
 import { createDropFileExtension } from "../api/clipboard/fromClipboard/fileDropExtension.js";
 import { createPasteFromClipboardExtension } from "../api/clipboard/fromClipboard/pasteExtension.js";
 import { createCopyToClipboardExtension } from "../api/clipboard/toClipboard/copyExtension.js";
-import type { ThreadStore } from "../comments/index.js";
 import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension.js";
-import { CursorPlugin } from "../extensions/Collaboration/CursorPlugin.js";
-import { SyncPlugin } from "../extensions/Collaboration/SyncPlugin.js";
-import { UndoPlugin } from "../extensions/Collaboration/UndoPlugin.js";
-import { CommentMark } from "../extensions/Comments/CommentMark.js";
-import { CommentsPlugin } from "../extensions/Comments/CommentsPlugin.js";
 import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlugin.js";
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin.js";
 import { HardBreak } from "../extensions/HardBreak/HardBreak.js";
 import { KeyboardShortcutsExtension } from "../extensions/KeyboardShortcuts/KeyboardShortcutsExtension.js";
 import { LinkToolbarProsemirrorPlugin } from "../extensions/LinkToolbar/LinkToolbarPlugin.js";
-import {
-  DEFAULT_LINK_PROTOCOL,
-  VALID_LINK_PROTOCOLS,
-} from "../extensions/LinkToolbar/protocols.js";
 import { NodeSelectionKeyboardPlugin } from "../extensions/NodeSelectionKeyboard/NodeSelectionKeyboardPlugin.js";
 import { PlaceholderPlugin } from "../extensions/Placeholder/PlaceholderPlugin.js";
 import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin.js";
@@ -40,9 +30,13 @@ import { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableH
 import { TextAlignmentExtension } from "../extensions/TextAlignment/TextAlignmentExtension.js";
 import { TextColorExtension } from "../extensions/TextColor/TextColorExtension.js";
 import { TrailingNode } from "../extensions/TrailingNode/TrailingNodeExtension.js";
-import UniqueID from "../extensions/UniqueID/UniqueID.js";
+import { UniqueID } from "../extensions/UniqueID/UniqueID.js";
 import { BlockContainer, BlockGroup, Doc } from "../pm-nodes/index.js";
 import {
+  DEFAULT_LINK_PROTOCOL,
+  VALID_LINK_PROTOCOLS,
+} from "../extensions/LinkToolbar/protocols.js";
+import type {
   BlockNoteDOMAttributes,
   BlockSchema,
   BlockSpecs,
@@ -56,7 +50,6 @@ import type {
   BlockNoteEditorOptions,
   SupportedExtension,
 } from "./BlockNoteEditor.js";
-import { ForkYDocPlugin } from "../extensions/Collaboration/ForkYDocPlugin.js";
 
 type ExtensionOptions<
   BSchema extends BlockSchema,
@@ -91,9 +84,6 @@ type ExtensionOptions<
   >;
   tabBehavior?: "prefer-navigate-ui" | "prefer-indent";
   sideMenuDetection: "viewport" | "editor";
-  comments?: {
-    threadStore: ThreadStore;
-  };
   pasteHandler: BlockNoteEditorOptions<any, any, any>["pasteHandler"];
 };
 
@@ -112,19 +102,6 @@ export const getBlockNoteExtensions = <
 
   for (const ext of tiptapExtensions) {
     ret[ext.name] = ext;
-  }
-
-  if (opts.collaboration) {
-    ret["ySyncPlugin"] = new SyncPlugin(opts.collaboration.fragment);
-    ret["yUndoPlugin"] = new UndoPlugin({ editor: opts.editor });
-
-    if (opts.collaboration.provider?.awareness) {
-      ret["yCursorPlugin"] = new CursorPlugin(opts.collaboration);
-    }
-    ret["forkYDocPlugin"] = new ForkYDocPlugin({
-      editor: opts.editor,
-      collaboration: opts.collaboration,
-    });
   }
 
   // Note: this is pretty hardcoded and will break when user provides plugins with same keys.
@@ -152,14 +129,6 @@ export const getBlockNoteExtensions = <
   ret["nodeSelectionKeyboard"] = new NodeSelectionKeyboardPlugin();
 
   ret["showSelection"] = new ShowSelectionPlugin(opts.editor);
-
-  if (opts.comments) {
-    ret["comments"] = new CommentsPlugin(
-      opts.editor,
-      opts.comments.threadStore,
-      CommentMark.name,
-    );
-  }
 
   const disableExtensions: string[] = opts.disableExtensions || [];
   for (const ext of disableExtensions) {
@@ -307,7 +276,6 @@ const getTipTapExtensions = <
     ...(opts.trailingBlock === undefined || opts.trailingBlock
       ? [TrailingNode]
       : []),
-    ...(opts.comments ? [CommentMark] : []),
   ];
 
   LINKIFY_INITIALIZED = true;
