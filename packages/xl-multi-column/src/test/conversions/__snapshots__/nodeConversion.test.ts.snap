@@ -14,14 +14,14 @@ exports[`Test BlockNote-Prosemirror conversion > Case: multi-column-schema > Con
       "content": [
         {
           "attrs": {
-            "backgroundColor": "default",
             "id": "3",
-            "textColor": "default",
           },
           "content": [
             {
               "attrs": {
+                "backgroundColor": "default",
                 "textAlignment": "left",
+                "textColor": "default",
               },
               "content": [
                 {
@@ -36,14 +36,14 @@ exports[`Test BlockNote-Prosemirror conversion > Case: multi-column-schema > Con
         },
         {
           "attrs": {
-            "backgroundColor": "default",
             "id": "4",
-            "textColor": "default",
           },
           "content": [
             {
               "attrs": {
+                "backgroundColor": "default",
                 "textAlignment": "left",
+                "textColor": "default",
               },
               "content": [
                 {
@@ -67,14 +67,14 @@ exports[`Test BlockNote-Prosemirror conversion > Case: multi-column-schema > Con
       "content": [
         {
           "attrs": {
-            "backgroundColor": "default",
             "id": "6",
-            "textColor": "default",
           },
           "content": [
             {
               "attrs": {
+                "backgroundColor": "default",
                 "textAlignment": "left",
+                "textColor": "default",
               },
               "content": [
                 {
@@ -89,14 +89,14 @@ exports[`Test BlockNote-Prosemirror conversion > Case: multi-column-schema > Con
         },
         {
           "attrs": {
-            "backgroundColor": "default",
             "id": "7",
-            "textColor": "default",
           },
           "content": [
             {
               "attrs": {
+                "backgroundColor": "default",
                 "textAlignment": "left",
+                "textColor": "default",
               },
               "content": [
                 {

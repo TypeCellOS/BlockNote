@@ -5,6 +5,7 @@
       {
         "styles": {
           "bold": true,
+          "textColor": "rgb(0, 0, 0)",
         },
         "text": "Heading 1",
         "type": "text",
@@ -26,6 +27,7 @@
       {
         "styles": {
           "bold": true,
+          "textColor": "rgb(0, 0, 0)",
         },
         "text": "Heading 2",
         "type": "text",
@@ -47,6 +49,7 @@
       {
         "styles": {
           "bold": true,
+          "textColor": "rgb(0, 0, 0)",
         },
         "text": "Heading 3",
         "type": "text",
@@ -146,7 +149,9 @@
     "children": [],
     "content": [
       {
-        "styles": {},
+        "styles": {
+          "textColor": "rgb(0, 0, 0)",
+        },
         "text": "Paragraph 2",
         "type": "text",
       },
@@ -163,7 +168,9 @@
     "children": [],
     "content": [
       {
-        "styles": {},
+        "styles": {
+          "textColor": "rgb(0, 0, 0)",
+        },
         "text": "Paragraph 3",
         "type": "text",
       },
@@ -180,7 +187,9 @@
     "children": [],
     "content": [
       {
-        "styles": {},
+        "styles": {
+          "textColor": "rgb(0, 0, 0)",
+        },
         "text": "Paragraph With 
 Hard Break",
         "type": "text",
@@ -200,36 +209,45 @@ Hard Break",
       {
         "styles": {
           "bold": true,
+          "textColor": "rgb(0, 0, 0)",
         },
         "text": "Bold",
         "type": "text",
       },
       {
-        "styles": {},
+        "styles": {
+          "textColor": "rgb(0, 0, 0)",
+        },
         "text": " ",
         "type": "text",
       },
       {
         "styles": {
           "italic": true,
+          "textColor": "rgb(0, 0, 0)",
         },
         "text": "Italic",
         "type": "text",
       },
       {
-        "styles": {},
+        "styles": {
+          "textColor": "rgb(0, 0, 0)",
+        },
         "text": " Underline ",
         "type": "text",
       },
       {
         "styles": {
           "strike": true,
+          "textColor": "rgb(0, 0, 0)",
         },
         "text": "Strikethrough",
         "type": "text",
       },
       {
-        "styles": {},
+        "styles": {
+          "textColor": "rgb(0, 0, 0)",
+        },
         "text": " ",
         "type": "text",
       },
@@ -238,6 +256,7 @@ Hard Break",
           "bold": true,
           "italic": true,
           "strike": true,
+          "textColor": "rgb(255, 0, 0)",
         },
         "text": "All",
         "type": "text",
@@ -266,9 +285,9 @@ Hard Break",
             ],
             "id": "14",
             "props": {
-              "backgroundColor": "default",
+              "backgroundColor": "transparent",
               "textAlignment": "left",
-              "textColor": "default",
+              "textColor": "rgb(0, 0, 0)",
             },
             "type": "numberedListItem",
           },
@@ -283,9 +302,9 @@ Hard Break",
             ],
             "id": "15",
             "props": {
-              "backgroundColor": "default",
+              "backgroundColor": "transparent",
               "textAlignment": "left",
-              "textColor": "default",
+              "textColor": "rgb(0, 0, 0)",
             },
             "type": "numberedListItem",
           },
@@ -299,9 +318,9 @@ Hard Break",
         ],
         "id": "13",
         "props": {
-          "backgroundColor": "default",
+          "backgroundColor": "transparent",
           "textAlignment": "left",
-          "textColor": "default",
+          "textColor": "rgb(0, 0, 0)",
         },
         "type": "bulletListItem",
       },
@@ -316,9 +335,9 @@ Hard Break",
         ],
         "id": "16",
         "props": {
-          "backgroundColor": "default",
+          "backgroundColor": "transparent",
           "textAlignment": "left",
-          "textColor": "default",
+          "textColor": "rgb(0, 0, 0)",
         },
         "type": "bulletListItem",
       },
@@ -332,9 +351,9 @@ Hard Break",
     ],
     "id": "12",
     "props": {
-      "backgroundColor": "default",
+      "backgroundColor": "transparent",
       "textAlignment": "left",
-      "textColor": "default",
+      "textColor": "rgb(0, 0, 0)",
     },
     "type": "bulletListItem",
   },
@@ -349,9 +368,9 @@ Hard Break",
     ],
     "id": "17",
     "props": {
-      "backgroundColor": "default",
+      "backgroundColor": "transparent",
       "textAlignment": "left",
-      "textColor": "default",
+      "textColor": "rgb(0, 0, 0)",
     },
     "type": "bulletListItem",
   },
@@ -366,9 +385,9 @@ Hard Break",
     ],
     "id": "18",
     "props": {
-      "backgroundColor": "default",
+      "backgroundColor": "transparent",
       "textAlignment": "left",
-      "textColor": "default",
+      "textColor": "rgb(0, 0, 0)",
     },
     "type": "numberedListItem",
   },
@@ -383,9 +402,9 @@ Hard Break",
     ],
     "id": "19",
     "props": {
-      "backgroundColor": "default",
+      "backgroundColor": "transparent",
       "textAlignment": "left",
-      "textColor": "default",
+      "textColor": "rgb(0, 0, 0)",
     },
     "type": "numberedListItem",
   },
@@ -438,7 +457,9 @@ Hard Break",
             {
               "content": [
                 {
-                  "styles": {},
+                  "styles": {
+                    "textColor": "rgb(0, 0, 0)",
+                  },
                   "text": "Cell 1",
                   "type": "text",
                 },
@@ -455,7 +476,9 @@ Hard Break",
             {
               "content": [
                 {
-                  "styles": {},
+                  "styles": {
+                    "textColor": "rgb(0, 0, 0)",
+                  },
                   "text": "Cell 2",
                   "type": "text",
                 },
@@ -472,7 +495,9 @@ Hard Break",
             {
               "content": [
                 {
-                  "styles": {},
+                  "styles": {
+                    "textColor": "rgb(0, 0, 0)",
+                  },
                   "text": "Cell 3",
                   "type": "text",
                 },
@@ -493,7 +518,9 @@ Hard Break",
             {
               "content": [
                 {
-                  "styles": {},
+                  "styles": {
+                    "textColor": "rgb(0, 0, 0)",
+                  },
                   "text": "Cell 4",
                   "type": "text",
                 },
@@ -510,7 +537,9 @@ Hard Break",
             {
               "content": [
                 {
-                  "styles": {},
+                  "styles": {
+                    "textColor": "rgb(0, 0, 0)",
+                  },
                   "text": "Cell 5",
                   "type": "text",
                 },
@@ -527,7 +556,9 @@ Hard Break",
             {
               "content": [
                 {
-                  "styles": {},
+                  "styles": {
+                    "textColor": "rgb(0, 0, 0)",
+                  },
                   "text": "Cell 6",
                   "type": "text",
                 },
@@ -548,7 +579,9 @@ Hard Break",
             {
               "content": [
                 {
-                  "styles": {},
+                  "styles": {
+                    "textColor": "rgb(0, 0, 0)",
+                  },
                   "text": "Cell 7",
                   "type": "text",
                 },
@@ -565,7 +598,9 @@ Hard Break",
             {
               "content": [
                 {
-                  "styles": {},
+                  "styles": {
+                    "textColor": "rgb(0, 0, 0)",
+                  },
                   "text": "Cell 8",
                   "type": "text",
                 },
@@ -582,7 +617,9 @@ Hard Break",
             {
               "content": [
                 {
-                  "styles": {},
+                  "styles": {
+                    "textColor": "rgb(0, 0, 0)",
+                  },
                   "text": "Cell 9",
                   "type": "text",
                 },
@@ -611,7 +648,9 @@ Hard Break",
     "children": [],
     "content": [
       {
-        "styles": {},
+        "styles": {
+          "textColor": "rgb(0, 0, 0)",
+        },
         "text": "Paragraph",
         "type": "text",
       },

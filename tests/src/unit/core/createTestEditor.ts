@@ -39,6 +39,12 @@ export const createTestEditor = <
         levels: [1, 2, 3, 4, 5, 6],
       },
       schema,
+      tables: {
+        splitCells: true,
+        cellBackgroundColor: true,
+        cellTextColor: true,
+        headers: true,
+      },
       trailingBlock: false,
       uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
     });
