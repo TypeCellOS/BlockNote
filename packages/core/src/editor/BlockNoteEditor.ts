@@ -120,6 +120,7 @@ import { EventEmitter } from "../util/EventEmitter.js";
 import { BlockNoteExtension } from "./BlockNoteExtension.js";
 
 import "../style.css";
+import { BlockChangePlugin } from "../extensions/BlockChange/BlockChangePlugin.js";
 
 /**
  * A factory function that returns a BlockNoteExtension
@@ -1594,6 +1595,32 @@ export class BlockNoteEditor<
     }
 
     (this.extensions["yCursorPlugin"] as CursorPlugin).updateUser(user);
+  }
+
+  /**
+   * Registers a callback which will be called before any change is applied to the editor, allowing you to cancel the change.
+   */
+  public beforeChange(
+    /**
+     * If the callback returns `false`, the change will be canceled & not applied to the editor.
+     */
+    callback: (
+      editor: BlockNoteEditor<BSchema, ISchema, SSchema>,
+      context: {
+        getChanges: () => BlocksChanged<BSchema, ISchema, SSchema>;
+        tr: Transaction;
+      },
+    ) => boolean | void,
+  ): () => void {
+    if (this.headless) {
+      return () => {
+        // noop
+      };
+    }
+
+    return (this.extensions["blockChange"] as BlockChangePlugin).subscribe(
+      (context) => callback(this, context),
+    );
   }
 
   /**
