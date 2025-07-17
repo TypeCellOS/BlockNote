@@ -1,4 +1,4 @@
-import { DOMParser, Slice } from "@tiptap/pm/model";
+import { Slice } from "@tiptap/pm/model";
 import {
   EditorState,
   Plugin,
@@ -338,7 +338,7 @@ export class SideMenuView<
     if (
       this.sideMenuDetection === "editor" ||
       (event as any).synthetic ||
-      !event.dataTransfer?.types.includes("blocknote/html")
+      !event.dataTransfer?.types.includes("blocknote/json")
     ) {
       return;
     }
@@ -387,8 +387,8 @@ export class SideMenuView<
    * access `dataTransfer` contents on `dragstart` and `drop` events.
    */
   onDragStart = (event: DragEvent) => {
-    const html = event.dataTransfer?.getData("blocknote/html");
-    if (!html) {
+    const json = event.dataTransfer?.getData("blocknote/json");
+    if (!json) {
       return;
     }
 
@@ -396,16 +396,8 @@ export class SideMenuView<
       throw new Error("New drag was started while an existing drag is ongoing");
     }
 
-    const element = document.createElement("div");
-    element.innerHTML = html;
-
-    const parser = DOMParser.fromSchema(this.pmView.state.schema);
-    const node = parser.parse(element, {
-      topNode: this.pmView.state.schema.nodes["blockGroup"].create(),
-    });
-
     this.pmView.dragging = {
-      slice: new Slice(node.content, 0, 0),
+      slice: Slice.fromJSON(this.pmView.state.schema, JSON.parse(json)),
       move: true,
     };
   };
@@ -419,7 +411,7 @@ export class SideMenuView<
     if (
       this.sideMenuDetection === "editor" ||
       (event as any).synthetic ||
-      !event.dataTransfer?.types.includes("blocknote/html")
+      !event.dataTransfer?.types.includes("blocknote/json")
     ) {
       return;
     }

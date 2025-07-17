@@ -196,9 +196,6 @@ export function dragStart<
     const selectedSlice = view.state.selection.content();
     const schema = editor.pmSchema;
 
-    const clipboardHTML =
-      view.serializeForClipboard(selectedSlice).dom.innerHTML;
-
     const externalHTMLExporter = createExternalHTMLExporter(schema, editor);
 
     const blocks = fragmentToBlocks(selectedSlice.content);
@@ -207,7 +204,10 @@ export function dragStart<
     const plainText = cleanHTMLToMarkdown(externalHTML);
 
     e.dataTransfer.clearData();
-    e.dataTransfer.setData("blocknote/html", clipboardHTML);
+    e.dataTransfer.setData(
+      "blocknote/json",
+      JSON.stringify(selectedSlice.toJSON()),
+    );
     e.dataTransfer.setData("text/html", externalHTML);
     e.dataTransfer.setData("text/plain", plainText);
     e.dataTransfer.effectAllowed = "move";
