@@ -313,15 +313,6 @@ export type BlockNoteEditorOptions<
   setIdAttribute?: boolean;
 
   /**
-   * The detection mode for showing the side menu - "viewport" always shows the
-   * side menu for the block next to the mouse cursor, while "editor" only shows
-   * it when hovering the editor or the side menu itself.
-   *
-   * @default "viewport"
-   */
-  sideMenuDetection: "viewport" | "editor";
-
-  /**
    Select desired behavior when pressing `Tab` (or `Shift-Tab`). Specifically,
    what should happen when a user has selected multiple blocks while a toolbar
    is open:
@@ -639,7 +630,6 @@ export class BlockNoteEditor<
       dropCursor: this.options.dropCursor ?? dropCursor,
       placeholders: newOptions.placeholders,
       tabBehavior: newOptions.tabBehavior,
-      sideMenuDetection: newOptions.sideMenuDetection || "viewport",
       comments: newOptions.comments,
       pasteHandler: newOptions.pasteHandler,
     });

@@ -82,7 +82,6 @@ export const Thread = ({
       },
     },
     schema,
-    sideMenuDetection: "editor",
   });
 
   const onNewCommentSave = useCallback(async () => {
