@@ -9,22 +9,22 @@ export function useSuggestionMenuKeyboardNavigation<Item>(
   query: string,
   items: Item[],
   onItemClick?: (item: Item) => void,
-  element?: HTMLElement,
+  isMenuVisible?: boolean,
 ) {
   const { selectedIndex, setSelectedIndex, handler } =
-    useSuggestionMenuKeyboardHandler(items, onItemClick);
+    useSuggestionMenuKeyboardHandler(items, onItemClick, isMenuVisible);
 
   useEffect(() => {
-    (element || editor.domElement)?.addEventListener("keydown", handler, true);
+    editor.domElement?.addEventListener("keydown", handler, true);
 
     return () => {
-      (element || editor.domElement)?.removeEventListener(
+      editor.domElement?.removeEventListener(
         "keydown",
         handler,
         true,
       );
     };
-  }, [editor.domElement, items, selectedIndex, onItemClick, element, handler]);
+  }, [editor.domElement, items, selectedIndex, onItemClick, handler]);
 
   // Resets index when items change
   useEffect(() => {
