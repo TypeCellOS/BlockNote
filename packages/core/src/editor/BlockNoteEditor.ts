@@ -1650,7 +1650,7 @@ export class BlockNoteEditor<
   /**
    * Registers a callback which will be called before any change is applied to the editor, allowing you to cancel the change.
    */
-  public beforeChange(
+  public onBeforeChange(
     /**
      * If the callback returns `false`, the change will be canceled & not applied to the editor.
      */

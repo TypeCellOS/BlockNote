@@ -27,6 +27,23 @@ editor.onCreate(() => {
 });
 ```
 
+## `onSelectionChange`
+
+The `onSelectionChange` callback is called whenever the editor's selection changes, including cursor movements and text selections.
+
+```typescript
+editor.onSelectionChange((editor) => {
+  console.log("Selection changed");
+
+  // Get current selection information
+  const selection = editor.getSelection();
+  const textCursorPosition = editor.getTextCursorPosition();
+
+  console.log("Current selection:", selection);
+  console.log("Text cursor position:", textCursorPosition);
+});
+```
+
 ## `onChange`
 
 The `onChange` callback is called whenever the editor's content changes. This is the primary way to track modifications to the document.
@@ -43,9 +60,34 @@ editor.onChange((editor, { getChanges }) => {
 });
 ```
 
-### Understanding Changes
+See [Understanding Changes](#understanding-changes) for more information about the `getChanges` function.
 
-The `getChanges()` function returns detailed information about what blocks were affected:
+## `onBeforeChange`
+
+The `onBeforeChange` callback is called before any change is applied to the editor, allowing you to cancel the change.
+
+```typescript
+editor.onBeforeChange((editor, { getChanges, tr }) => {
+  if (
+    // Cancel inserting new blocks
+    getChanges().some((change) => change.type === "insert")
+  ) {
+    // By returning `false`, the change will be canceled & not applied to the editor.
+    return false;
+  }
+});
+```
+
+See [Understanding Changes](#understanding-changes) for more information about the `getChanges` function.
+
+## Understanding Changes
+
+The `getChanges()` function returns detailed information about what blocks were affected. It includes three types of changes:
+
+- Insertions - When a new block is inserted
+- Deletions - When a block is deleted
+- Updates - When a block's content is changed
+- Moves - When a block is moved to a new position (which can also update the block's content)
 
 ```typescript
 /**
@@ -53,22 +95,39 @@ The `getChanges()` function returns detailed information about what blocks were 
  */
 type BlocksChanged = Array<
   | {
-      // The affected block
+      type: "insert" | "delete";
+      // The affected block (when inserting, this is the new block, when deleting, this is the block that was deleted)
       block: Block;
       // The source of the change
       source: BlockChangeSource;
-      type: "insert" | "delete";
       // Insert and delete changes don't have a previous block
       prevBlock: undefined;
     }
   | {
+      type: "update";
       // The affected block
       block: Block;
       // The source of the change
       source: BlockChangeSource;
-      type: "update";
       // The block before the update
       prevBlock: Block;
+    }
+  | {
+      type: "move";
+      // The source of the change
+      source: BlockChangeSource;
+      // The affected block
+      block: Block;
+      // The block before the move (since a move can also update the block's content)
+      prevBlock: Block;
+      /**
+       * The previous parent block (if it existed).
+       */
+      prevParent?: Block;
+      /**
+       * The current parent block (if it exists).
+       */
+      currentParent?: Block;
     }
 >;
 ```
@@ -83,28 +142,11 @@ type BlockChangeSource = {
     | "local" // Triggered by local user (default)
     | "paste" // From paste operation
     | "drop" // From drop operation
-    | "undo" // From undo operation
-    | "redo" // From redo operation
-    | "undo-redo" // From undo/redo operations
-    | "yjs-remote"; // From remote user (collaboration)
+    | "undo" // From undo operation (local-only)
+    | "redo" // From redo operation (local-only)
+    | "undo-redo" // From undo/redo operations (collaboration-only)
+    | "yjs-remote"; // From remote user (collaboration-only)
 };
-```
-
-## `onSelectionChange`
-
-The `onSelectionChange` callback is called whenever the editor's selection changes, including cursor movements and text selections.
-
-```typescript
-editor.onSelectionChange((editor) => {
-  console.log("Selection changed");
-
-  // Get current selection information
-  const selection = editor.getSelection();
-  const textCursorPosition = editor.getTextCursorPosition();
-
-  console.log("Current selection:", selection);
-  console.log("Text cursor position:", textCursorPosition);
-});
 ```
 
 ## Event Cleanup
