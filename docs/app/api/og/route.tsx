@@ -5,7 +5,7 @@ export const runtime = "edge";
 export async function GET(request: Request) {
   try {
     const fontData = await fetch(
-      new URL("../../../assets/fonts/Gilroy-Regular.ttf", import.meta.url),
+      new URL("@/assets/fonts/Gilroy-Regular.ttf", import.meta.url),
     ).then((res) => res.arrayBuffer());
 
     const { searchParams } = new URL(request.url);

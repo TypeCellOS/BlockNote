@@ -1,0 +1,38 @@
+.wrapper {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+
+@media (max-width: 800px) {
+  .wrapper {
+    flex-direction: column;
+  }
+
+  .editor {
+    max-height: 500px;
+    overflow-y: scroll;
+  }
+}
+
+.wrapper > div {
+  flex: 1;
+}
+
+.email {
+  min-height: 500px;
+  display: flex;
+  align-items: stretch;
+}
+
+/* hack to get react-email to show on website */
+@tailwind base;
+@layer base {
+  .email [hidden]:where(:not([hidden="until-found"])) {
+    display: block !important;
+  }
+}
+
+.editor.bordered {
+  border: 1px solid gray;
+}

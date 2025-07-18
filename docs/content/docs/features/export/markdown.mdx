@@ -1,0 +1,38 @@
+---
+title: Markdown
+description: It's possible to export Blocks to Markdown, completely client-side.
+imageTitle: BlockNote Markdown Export
+path: /docs/converting-blocks
+---
+
+# Markdown Export
+
+<Callout type={"warning"}>
+    The functions to export to Markdown are considered "lossy"; some information might be dropped when you export Blocks to Markdown.
+
+    To serialize Blocks to a non-lossy format (for example, to store the contents of the editor in your backend), simply export the built-in Block format using `JSON.stringify(editor.document)`.
+
+</Callout>
+
+BlockNote can export Blocks to Markdown. Note that this is also considered "lossy", as not all structures can be entirely represented in Markdown.
+
+### Export Markdown
+
+`blocksToMarkdownLossy` converts `Block` objects to a Markdown string:
+
+```typescript
+async blocksToMarkdownLossy(blocks?: Block[]): Promise<string>;
+
+// Usage
+const markdownFromBlocks = await editor.blocksToMarkdownLossy(blocks);
+```
+
+`blocks:` The blocks to convert. If not provided, the entire document (all top-level blocks) is used.
+
+`returns:` The blocks, serialized as a Markdown string.
+
+The output is simplified as Markdown does not support all features of BlockNote (e.g.: children of blocks which aren't list items are un-nested and certain styles are removed).
+
+**Demo**
+
+<Example name="interoperability/converting-blocks-to-md" />

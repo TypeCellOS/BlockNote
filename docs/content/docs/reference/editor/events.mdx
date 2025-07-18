@@ -1,0 +1,169 @@
+---
+title: Events
+description: BlockNote emits events when certain actions occur in the editor
+imageTitle: Events
+---
+
+# Events
+
+BlockNote provides several event callbacks that allow you to respond to changes in the editor. These events are essential for building reactive applications and tracking user interactions.
+
+## Overview
+
+The editor emits events for:
+
+- **Editor initialization** - When the editor is ready for use
+- **Content changes** - When blocks are inserted, updated, or deleted
+- **Selection changes** - When the cursor position or selection changes
+
+## `onCreate`
+
+The `onCreate` callback is called when the editor has been initialized and is ready for use.
+
+```typescript
+editor.onCreate(() => {
+  console.log("Editor is ready for use");
+  // Initialize plugins, set up event listeners, etc.
+});
+```
+
+## `onSelectionChange`
+
+The `onSelectionChange` callback is called whenever the editor's selection changes, including cursor movements and text selections.
+
+```typescript
+editor.onSelectionChange((editor) => {
+  console.log("Selection changed");
+
+  // Get current selection information
+  const selection = editor.getSelection();
+  const textCursorPosition = editor.getTextCursorPosition();
+
+  console.log("Current selection:", selection);
+  console.log("Text cursor position:", textCursorPosition);
+});
+```
+
+## `onChange`
+
+The `onChange` callback is called whenever the editor's content changes. This is the primary way to track modifications to the document.
+
+```typescript
+editor.onChange((editor, { getChanges }) => {
+  console.log("Editor content changed");
+
+  // Get detailed information about what changed
+  const changes = getChanges();
+  console.log("Changes:", changes);
+
+  // Save content, update UI, etc.
+});
+```
+
+See [Understanding Changes](#understanding-changes) for more information about the `getChanges` function.
+
+## `onBeforeChange`
+
+The `onBeforeChange` callback is called before any change is applied to the editor, allowing you to cancel the change.
+
+```typescript
+editor.onBeforeChange((editor, { getChanges, tr }) => {
+  if (
+    // Cancel inserting new blocks
+    getChanges().some((change) => change.type === "insert")
+  ) {
+    // By returning `false`, the change will be canceled & not applied to the editor.
+    return false;
+  }
+});
+```
+
+See [Understanding Changes](#understanding-changes) for more information about the `getChanges` function.
+
+## Understanding Changes
+
+The `getChanges()` function returns detailed information about what blocks were affected. It includes three types of changes:
+
+- Insertions - When a new block is inserted
+- Deletions - When a block is deleted
+- Updates - When a block's content is changed
+- Moves - When a block is moved to a new position (which can also update the block's content)
+
+```typescript
+/**
+ * The changes that occurred in the editor.
+ */
+type BlocksChanged = Array<
+  | {
+      type: "insert" | "delete";
+      // The affected block (when inserting, this is the new block, when deleting, this is the block that was deleted)
+      block: Block;
+      // The source of the change
+      source: BlockChangeSource;
+      // Insert and delete changes don't have a previous block
+      prevBlock: undefined;
+    }
+  | {
+      type: "update";
+      // The affected block
+      block: Block;
+      // The source of the change
+      source: BlockChangeSource;
+      // The block before the update
+      prevBlock: Block;
+    }
+  | {
+      type: "move";
+      // The source of the change
+      source: BlockChangeSource;
+      // The affected block
+      block: Block;
+      // The block before the move (since a move can also update the block's content)
+      prevBlock: Block;
+      /**
+       * The previous parent block (if it existed).
+       */
+      prevParent?: Block;
+      /**
+       * The current parent block (if it exists).
+       */
+      currentParent?: Block;
+    }
+>;
+```
+
+### Change Sources
+
+Each change includes a source that indicates what triggered the modification:
+
+```typescript
+type BlockChangeSource = {
+  type:
+    | "local" // Triggered by local user (default)
+    | "paste" // From paste operation
+    | "drop" // From drop operation
+    | "undo" // From undo operation (local-only)
+    | "redo" // From redo operation (local-only)
+    | "undo-redo" // From undo/redo operations (collaboration-only)
+    | "yjs-remote"; // From remote user (collaboration-only)
+};
+```
+
+## Event Cleanup
+
+All event callbacks return cleanup functions that you can call to remove the event listener:
+
+```typescript
+// Set up event listeners
+const cleanupOnChange = editor.onChange((editor, { getChanges }) => {
+  console.log("Content changed");
+});
+
+const cleanupOnSelection = editor.onSelectionChange((editor) => {
+  console.log("Selection changed");
+});
+
+// Later, clean up event listeners
+cleanupOnChange();
+cleanupOnSelection();
+```
