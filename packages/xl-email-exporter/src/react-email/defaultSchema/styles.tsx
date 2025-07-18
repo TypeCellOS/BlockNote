@@ -37,17 +37,24 @@ export const reactEmailStyleMappingForDefaultSchema: StyleMapping<
       textDecoration: "line-through",
     };
   },
-  backgroundColor: (val) => {
-    return {
-      backgroundColor: val,
-    };
-  },
-  textColor: (val) => {
+  backgroundColor: (val, exporter) => {
     if (!val) {
       return {};
     }
     return {
-      color: val,
+      backgroundColor:
+        exporter.options.colors[val as keyof typeof exporter.options.colors]
+          .background,
+    };
+  },
+  textColor: (val, exporter) => {
+    if (!val) {
+      return {};
+    }
+    return {
+      color:
+        exporter.options.colors[val as keyof typeof exporter.options.colors]
+          .text,
     };
   },
   code: (val) => {
@@ -55,7 +62,7 @@ export const reactEmailStyleMappingForDefaultSchema: StyleMapping<
       return {};
     }
     return {
-      fontFamily: "Courier",
+      fontFamily: "GeistMono",
     };
   },
 };
