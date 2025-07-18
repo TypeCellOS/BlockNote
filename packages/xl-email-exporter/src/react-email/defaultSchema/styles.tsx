@@ -1,10 +1,17 @@
 import { DefaultStyleSchema, StyleMapping } from "@blocknote/core";
 import { CSSProperties } from "react";
 
-export const reactEmailStyleMappingForDefaultSchema: StyleMapping<
-  DefaultStyleSchema,
-  CSSProperties
-> = {
+// Define the styles interface for configurable style transformations
+// This can be extended in the future to allow customizing style transformations
+export type ReactEmailStyleTransformStyles = Record<string, never>;
+
+// Default styles for style transformations
+export const defaultReactEmailStyleTransformStyles: ReactEmailStyleTransformStyles =
+  {};
+
+export const createReactEmailStyleMappingForDefaultSchema = (
+  _styleTransformStyles: ReactEmailStyleTransformStyles = defaultReactEmailStyleTransformStyles,
+): StyleMapping<DefaultStyleSchema, CSSProperties> => ({
   bold: (val) => {
     if (!val) {
       return {};
@@ -65,4 +72,8 @@ export const reactEmailStyleMappingForDefaultSchema: StyleMapping<
       fontFamily: "GeistMono",
     };
   },
-};
+});
+
+// Export the original mapping for backward compatibility
+export const reactEmailStyleMappingForDefaultSchema =
+  createReactEmailStyleMappingForDefaultSchema();

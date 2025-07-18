@@ -12,7 +12,6 @@ import {
 } from "@blocknote/core";
 import {
   Body,
-  Container,
   Head,
   Html,
   Link,
@@ -95,10 +94,10 @@ export class ReactEmailExporter<
         );
       }
       listItems.push(
-        <React.Fragment key={block.id}>
+        <li key={block.id}>
           {liContent}
           {nestedList.length > 0 && nestedList}
-        </React.Fragment>,
+        </li>,
       );
     }
     let element: React.ReactElement;
@@ -226,7 +225,11 @@ export class ReactEmailExporter<
     let i = 0;
     while (i < blocks.length) {
       const b = blocks[i];
-      if (b.type === "bulletListItem" || b.type === "numberedListItem") {
+      if (
+        b.type === "bulletListItem" ||
+        b.type === "numberedListItem" ||
+        b.type === "toggleListItem"
+      ) {
         const { element, nextIndex } = await this.renderGroupedListBlocks(
           blocks,
           i,
@@ -278,9 +281,18 @@ export class ReactEmailExporter<
        * @see https://react.email/components
        */
       footer?: React.ReactElement;
+      /**
+       * Customize the container element
+       */
+      container?: React.FC<{ children: React.ReactNode }>;
     },
   ) {
     const transformedBlocks = await this.transformBlocks(blocks);
+    const DefaultContainer =
+      options?.container ||
+      (({ children }: { children: React.ReactNode }) => (
+        <React.Fragment>{children}</React.Fragment>
+      ));
     return renderEmail(
       <Html>
         <Head>{options?.head}</Head>
@@ -295,11 +307,11 @@ export class ReactEmailExporter<
         >
           {options?.preview && <Preview>{options.preview}</Preview>}
           <Tailwind>
-            <Container>
+            <DefaultContainer>
               {options?.header}
               {transformedBlocks}
               {options?.footer}
-            </Container>
+            </DefaultContainer>
           </Tailwind>
         </Body>
       </Html>,
