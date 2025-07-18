@@ -120,6 +120,7 @@ import { EventEmitter } from "../util/EventEmitter.js";
 import { BlockNoteExtension } from "./BlockNoteExtension.js";
 
 import "../style.css";
+import { BlockChangePlugin } from "../extensions/BlockChange/BlockChangePlugin.js";
 
 /**
  * A factory function that returns a BlockNoteExtension
@@ -353,16 +354,6 @@ export type BlockNoteEditorOptions<
    * (note that the id is always set on the `data-id` attribute)
    */
   setIdAttribute?: boolean;
-
-  /**
-   * Controls how the Side Menu and block drag & drop interact with the editor bounds.
-   * - When set to `"viewport"`, the Side Menu appears next to the nearest block to the cursor,
-   *   regardless of viewport position. Block dropping is locked to editor bounds.
-   * - When set to `"editor"`, the Side Menu and block dropping only work within editor bounds.
-   *   Required when using multiple editors.
-   * @default "viewport"
-   */
-  sideMenuDetection?: "viewport" | "editor";
 
   /**
    * Determines behavior when pressing Tab (or Shift-Tab) while multiple blocks are selected and a toolbar is open.
@@ -690,7 +681,6 @@ export class BlockNoteEditor<
       dropCursor: this.options.dropCursor ?? dropCursor,
       placeholders: newOptions.placeholders,
       tabBehavior: newOptions.tabBehavior,
-      sideMenuDetection: newOptions.sideMenuDetection || "viewport",
       comments: newOptions.comments,
       pasteHandler: newOptions.pasteHandler,
     });
@@ -1655,6 +1645,32 @@ export class BlockNoteEditor<
     }
 
     (this.extensions["yCursorPlugin"] as CursorPlugin).updateUser(user);
+  }
+
+  /**
+   * Registers a callback which will be called before any change is applied to the editor, allowing you to cancel the change.
+   */
+  public beforeChange(
+    /**
+     * If the callback returns `false`, the change will be canceled & not applied to the editor.
+     */
+    callback: (
+      editor: BlockNoteEditor<BSchema, ISchema, SSchema>,
+      context: {
+        getChanges: () => BlocksChanged<BSchema, ISchema, SSchema>;
+        tr: Transaction;
+      },
+    ) => boolean | void,
+  ): () => void {
+    if (this.headless) {
+      return () => {
+        // noop
+      };
+    }
+
+    return (this.extensions["blockChange"] as BlockChangePlugin).subscribe(
+      (context) => callback(this, context),
+    );
   }
 
   /**

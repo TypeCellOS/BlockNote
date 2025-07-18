@@ -1249,6 +1249,23 @@
         "readme": "This example shows how to create custom blocks with a toggle button to show/hide their children, like with the default toggle heading and list item blocks. This is done using the use the `ToggleWrapper` component from `@blocknote/react`.\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/editor-basics/setup)\n- [Default Schema](/docs/editor-basics/default-schema)"
       },
       {
+        "projectSlug": "draggable-inline-content",
+        "fullSlug": "custom-schema/draggable-inline-content",
+        "pathFromRoot": "examples/06-custom-schema/draggable-inline-content",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "hectorzhuang",
+          "tags": []
+        },
+        "title": "Draggable Inline Content",
+        "group": {
+          "pathFromRoot": "examples/06-custom-schema",
+          "slug": "custom-schema"
+        },
+        "readme": ""
+      },
+      {
         "projectSlug": "react-custom-blocks",
         "fullSlug": "custom-schema/react-custom-blocks",
         "pathFromRoot": "examples/06-custom-schema/react-custom-blocks",

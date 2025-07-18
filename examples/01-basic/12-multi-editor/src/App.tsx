@@ -8,7 +8,6 @@ import { useCreateBlockNote } from "@blocknote/react";
 function Editor(props: { initialContent?: PartialBlock[] }) {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
-    sideMenuDetection: "editor",
     initialContent: props.initialContent,
   });
 

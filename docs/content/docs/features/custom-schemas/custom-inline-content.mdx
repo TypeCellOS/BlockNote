@@ -51,6 +51,7 @@ type CustomInlineContentConfig = {
   type: string;
   content: "styled" | "none";
   readonly propSchema: PropSchema;
+  draggable?: boolean;
 };
 ```
 
@@ -95,6 +96,7 @@ type ReactCustomInlineContentImplementation = {
   render: React.FC<{
     inlineContent: InlineContent;
     contentRef?: (node: HTMLElement | null) => void;
+    draggable?: boolean;
   }>;
 };
 ```
@@ -106,6 +108,8 @@ This is your React component which defines how your custom inline content should
 `inlineContent:` The inline content that should be rendered. Its type and props will match the type and PropSchema defined in the Inline Content Config.
 
 `contentRef:` A React `ref` you can use to mark which element in your inline content is editable, this is only available if your inline content config contains `content: "styled"`.
+
+`draggable:` Specifies whether the inline content can be dragged within the editor. If set to `true`, the inline content will be draggable. Defaults to `false` if not specified. If this is true, you should add `data-drag-handle` to the DOM element that should function as the drag handle.
 
 _Note that since inline content is, by definition, inline, your component should also return an HTML inline element._
 
