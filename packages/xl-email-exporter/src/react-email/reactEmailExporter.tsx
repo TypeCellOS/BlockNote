@@ -62,7 +62,14 @@ export class ReactEmailExporter<
   public transformStyledText(styledText: StyledText<S>) {
     const stylesArray = this.mapStyles(styledText.styles);
     const styles = Object.assign({}, ...stylesArray);
-    return <span style={styles}>{styledText.text}</span>;
+    return (
+      <span
+        style={styles}
+        dangerouslySetInnerHTML={{
+          __html: styledText.text.replace(/\n/g, "<br />"),
+        }}
+      />
+    );
   }
 
   private async renderGroupedListBlocks(
