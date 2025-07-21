@@ -62,7 +62,7 @@ export const reactEmailDefaultSchemaMappings = {
 
 export const reactEmailDefaultSchemaMappingsWithStyles = (
   styles: ReactEmailDefaultSchemaStyles = defaultReactEmailDefaultSchemaStyles,
-) => {
+): typeof reactEmailDefaultSchemaMappings => {
   return {
     blockMapping: createReactEmailBlockMappingForDefaultSchema(
       styles.textStyles,
