@@ -42,6 +42,7 @@ const defaultTextStyle: TextProps["style"] = {
   fontSize: 16,
   lineHeight: 1.5,
   margin: 3,
+  minHeight: 24,
 };
 
 // Default styles for Text components
