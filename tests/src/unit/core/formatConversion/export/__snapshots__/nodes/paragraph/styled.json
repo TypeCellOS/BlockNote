@@ -1,14 +1,14 @@
 [
   {
     "attrs": {
-      "backgroundColor": "pink",
       "id": "1",
-      "textColor": "orange",
     },
     "content": [
       {
         "attrs": {
+          "backgroundColor": "pink",
           "textAlignment": "center",
+          "textColor": "orange",
         },
         "content": [
           {

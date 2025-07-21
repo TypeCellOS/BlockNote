@@ -1,5 +1,6 @@
 import { Extension } from "@tiptap/core";
-import { defaultProps } from "../../blocks/defaultProps.js";
+
+import { getAttributeFromDefaultProps } from "../../blocks/defaultProps.js";
 
 export const TextColorExtension = Extension.create({
   name: "blockTextColor",
@@ -7,23 +8,19 @@ export const TextColorExtension = Extension.create({
   addGlobalAttributes() {
     return [
       {
-        types: ["blockContainer", "tableCell", "tableHeader"],
+        types: [
+          "paragraph",
+          "heading",
+          "bulletListItem",
+          "numberedListItem",
+          "checkListItem",
+          "quote",
+          "table",
+          "tableCell",
+          "tableHeader",
+        ],
         attributes: {
-          textColor: {
-            default: defaultProps.textColor.default,
-            parseHTML: (element) =>
-              element.hasAttribute("data-text-color")
-                ? element.getAttribute("data-text-color")
-                : defaultProps.textColor.default,
-            renderHTML: (attributes) => {
-              if (attributes.textColor === defaultProps.textColor.default) {
-                return {};
-              }
-              return {
-                "data-text-color": attributes.textColor,
-              };
-            },
-          },
+          textColor: getAttributeFromDefaultProps["textColor"](),
         },
       },
     ];

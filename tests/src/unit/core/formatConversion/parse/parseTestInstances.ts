@@ -35,32 +35,32 @@ export const parseTestInstancesHTML: TestInstance<
     testCase: {
       name: "lists",
       content: `<ul>
-<li>First</li>
-<li>Second</li>
-<li>Third</li>
-<li>
-  <input type="checkbox">
-  Fourth
-</li>
-<li>
-  <input type="checkbox">
-  Fifth
-</li>
-<li>Five Parent
-  <ul>
-    <li>Child 1</li>
-    <li>Child 2</li>
-    <li>
-      <input type="checkbox">
-      Child 3
-    </li>
-    <li>
-      <input type="checkbox">
-      Child 4
-    </li>
-  </ul>
-</li>
-</ul>`,
+  <li>First</li>
+  <li>Second</li>
+  <li>Third</li>
+  <li>
+    <input type="checkbox">
+    Fourth
+  </li>
+  <li>
+    <input type="checkbox">
+    Fifth
+  </li>
+  <li>Five Parent
+    <ul>
+      <li>Child 1</li>
+      <li>Child 2</li>
+      <li>
+        <input type="checkbox">
+        Child 3
+      </li>
+      <li>
+        <input type="checkbox">
+        Child 4
+      </li>
+    </ul>
+  </li>
+  </ul>`,
     },
     executeTest: testParseHTML,
   },
@@ -97,49 +97,49 @@ export const parseTestInstancesHTML: TestInstance<
     testCase: {
       name: "nestedLists",
       content: `<ul>
-  <li>Bullet List Item</li>
-  <li>Bullet List Item
-    <ul>
-      <li>Nested Bullet List Item</li>
-      <li>Nested Bullet List Item</li>
-    </ul>
-  </li>
-  <li>Bullet List Item</li>
-</ul>
-<ol>
-  <li>Numbered List Item</li>
-  <li>Numbered List Item
-    <ol>
-      <li>Nested Numbered List Item</li>
-      <li>Nested Numbered List Item</li>
-    </ol>
-  </li>
-  <li>Numbered List Item</li>
-</ol>
-<ul>
-  <li>
-    <input type="checkbox">
-    Check List Item
-  </li>
-  <li>
-    <input type="checkbox">
-    Check List Item
-    <ul>
-      <li>
-        <input type="checkbox">
-        Nested Check List Item
-      </li>
-      <li>
-        <input type="checkbox">
-        Nested Check List Item
-      </li>
-    </ul>
-  </li>
-  <li>
-    <input type="checkbox">
-    Nested Check List Item
-  </li>
-</ul>`,
+    <li>Bullet List Item</li>
+    <li>Bullet List Item
+      <ul>
+        <li>Nested Bullet List Item</li>
+        <li>Nested Bullet List Item</li>
+      </ul>
+    </li>
+    <li>Bullet List Item</li>
+  </ul>
+  <ol>
+    <li>Numbered List Item</li>
+    <li>Numbered List Item
+      <ol>
+        <li>Nested Numbered List Item</li>
+        <li>Nested Numbered List Item</li>
+      </ol>
+    </li>
+    <li>Numbered List Item</li>
+  </ol>
+  <ul>
+    <li>
+      <input type="checkbox">
+      Check List Item
+    </li>
+    <li>
+      <input type="checkbox">
+      Check List Item
+      <ul>
+        <li>
+          <input type="checkbox">
+          Nested Check List Item
+        </li>
+        <li>
+          <input type="checkbox">
+          Nested Check List Item
+        </li>
+      </ul>
+    </li>
+    <li>
+      <input type="checkbox">
+      Nested Check List Item
+    </li>
+  </ul>`,
     },
     executeTest: testParseHTML,
   },
@@ -147,67 +147,67 @@ export const parseTestInstancesHTML: TestInstance<
     testCase: {
       name: "nestedListsWithParagraphs",
       content: `<ul>
-  <li>
-    <p>Bullet List Item</p>
-  </li>
-  <li>
-    <p>Bullet List Item</p>
-    <ul>
-      <li>
-        <p>Nested Bullet List Item</p>
-      </li>
-      <li>
-        <p>Nested Bullet List Item</p>
-      </li>
-    </ul>
-  </li>
-  <li>
-    <p>Bullet List Item</p>
-  </li>
-</ul>
-<ol>
-  <li>
-    <p>Numbered List Item</p>
-  </li>
-  <li>
-    <p>Numbered List Item</p>
-    <ol>
-      <li>
-        <p>Nested Numbered List Item</p>
-      </li>
-      <li>
-        <p>Nested Numbered List Item</p>
-      </li>
-    </ol>
-  </li>
-  <li>
-    <p>Numbered List Item</p>
-  </li>
-</ol>
-<ul>
-  <li>
-    <input type="checkbox">
-    <p>Checked List Item</p>
-  </li>
-  <li>
-    <input type="checkbox">
-    <p>Checked List Item</p>
-    <ul>
-      <li>
-        <input type="checkbox">
-        <p>Nested Checked List Item</p>
-      </li>
-      <li>
-        <label><input type="checkbox"></label>
-        <p>Nested Checked List Item</p>
-      </li>
-    </ul>
-  </li>
-  <li>
-    <input type="checkbox">
-    <p>Checked List Item</p>
-  </li>
-</ul>`,
+    <li>
+      <p>Bullet List Item</p>
+    </li>
+    <li>
+      <p>Bullet List Item</p>
+      <ul>
+        <li>
+          <p>Nested Bullet List Item</p>
+        </li>
+        <li>
+          <p>Nested Bullet List Item</p>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <p>Bullet List Item</p>
+    </li>
+  </ul>
+  <ol>
+    <li>
+      <p>Numbered List Item</p>
+    </li>
+    <li>
+      <p>Numbered List Item</p>
+      <ol>
+        <li>
+          <p>Nested Numbered List Item</p>
+        </li>
+        <li>
+          <p>Nested Numbered List Item</p>
+        </li>
+      </ol>
+    </li>
+    <li>
+      <p>Numbered List Item</p>
+    </li>
+  </ol>
+  <ul>
+    <li>
+      <input type="checkbox">
+      <p>Checked List Item</p>
+    </li>
+    <li>
+      <input type="checkbox">
+      <p>Checked List Item</p>
+      <ul>
+        <li>
+          <input type="checkbox">
+          <p>Nested Checked List Item</p>
+        </li>
+        <li>
+          <label><input type="checkbox"></label>
+          <p>Nested Checked List Item</p>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <input type="checkbox">
+      <p>Checked List Item</p>
+    </li>
+  </ul>`,
     },
     executeTest: testParseHTML,
   },
@@ -215,49 +215,49 @@ export const parseTestInstancesHTML: TestInstance<
     testCase: {
       name: "mixedNestedLists",
       content: `<ul>
-  <li>Bullet List Item</li>
-  <li>Bullet List Item
-    <ol>
-      <li>Nested Numbered List Item</li>
-      <li>Nested Numbered List Item</li>
-    </ol>
-  </li>
-  <li>Bullet List Item</li>
-</ul>
-<ol>
-  <li>Numbered List Item</li>
-  <li>Numbered List Item
-    <ul>
-      <li>
-        <input type="checkbox" checked>
-        Nested Check List Item
-      </li>
-      <li>
-        <input type="checkbox">
-        Nested Check List Item
-      </li>
-    </ul>
-  </li>
-  <li>Numbered List Item</li>
-</ol>
-<ul>
-  <li>
-    <input type="checkbox" checked>
-    Check List Item
-  </li>
-  <li>
-    <input type="checkbox">
-    Check List Item
-    <ul>
-      <li>Nested Bullet List Item</li>
-      <li>Nested Bullet List Item</li>
-    </ul>
-  </li>
-  <li>
-    <input type="checkbox" checked>
-    Nested Check List Item
-  </li>
-</ul>`,
+    <li>Bullet List Item</li>
+    <li>Bullet List Item
+      <ol>
+        <li>Nested Numbered List Item</li>
+        <li>Nested Numbered List Item</li>
+      </ol>
+    </li>
+    <li>Bullet List Item</li>
+  </ul>
+  <ol>
+    <li>Numbered List Item</li>
+    <li>Numbered List Item
+      <ul>
+        <li>
+          <input type="checkbox" checked>
+          Nested Check List Item
+        </li>
+        <li>
+          <input type="checkbox">
+          Nested Check List Item
+        </li>
+      </ul>
+    </li>
+    <li>Numbered List Item</li>
+  </ol>
+  <ul>
+    <li>
+      <input type="checkbox" checked>
+      Check List Item
+    </li>
+    <li>
+      <input type="checkbox">
+      Check List Item
+      <ul>
+        <li>Nested Bullet List Item</li>
+        <li>Nested Bullet List Item</li>
+      </ul>
+    </li>
+    <li>
+      <input type="checkbox" checked>
+      Nested Check List Item
+    </li>
+  </ul>`,
     },
     executeTest: testParseHTML,
   },
@@ -526,16 +526,16 @@ export const parseTestInstancesHTML: TestInstance<
     testCase: {
       name: "divs",
       content: `<div>Single Div</div>
-<div>
-  Div
-  <div>Nested Div</div>
-  <div>Nested Div</div>
-</div>
-<div>Single Div 2</div>
-<div>
-  <div>Nested Div</div>
-  <div>Nested Div</div>
-</div>`,
+  <div>
+    Div
+    <div>Nested Div</div>
+    <div>Nested Div</div>
+  </div>
+  <div>Single Div 2</div>
+  <div>
+    <div>Nested Div</div>
+    <div>Nested Div</div>
+  </div>`,
     },
     executeTest: testParseHTML,
   },
@@ -550,8 +550,8 @@ export const parseTestInstancesHTML: TestInstance<
     testCase: {
       name: "imageInParagraph",
       content: `<p>
-  <img src="exampleURL">
-</p>`,
+    <img src="exampleURL">
+  </p>`,
     },
     executeTest: testParseHTML,
   },
@@ -559,9 +559,9 @@ export const parseTestInstancesHTML: TestInstance<
     testCase: {
       name: "fakeImageCaption",
       content: `<div>
-  <img src="exampleURL">
-  <p>Image Caption</p>
-</div>`,
+    <img src="exampleURL">
+    <p>Image Caption</p>
+  </div>`,
     },
     executeTest: testParseHTML,
   },
@@ -569,11 +569,9 @@ export const parseTestInstancesHTML: TestInstance<
     testCase: {
       name: "deepNestedContent",
       content: `<div>
-    Outer 1 Div Before
-  <div>
-    Outer 2 Div Before
+      Outer 1 Div Before
     <div>
-      Outer 3 Div Before
+      Outer 2 Div Before
       <div>
         Outer 4 Div Before
         <h1>Heading 1</h1>
@@ -587,12 +585,10 @@ export const parseTestInstancesHTML: TestInstance<
         <p><strong>Bold</strong> <em>Italic</em> <u>Underline</u> <s>Strikethrough</s> <strong><em><s><u>All</u></s></em></strong></p>
         Outer 4 Div After
       </div>
-      Outer 3 Div After
+      Outer 2 Div After
     </div>
-    Outer 2 Div After
-  </div>
-  Outer 1 Div After
-</div>`,
+    Outer 1 Div After
+  </div>`,
     },
     executeTest: testParseHTML,
   },
@@ -600,10 +596,10 @@ export const parseTestInstancesHTML: TestInstance<
     testCase: {
       name: "inlineContentAndNestedBlocks",
       content: `<div>
-  None <strong>Bold </strong><em>Italic </em><u>Underline </u><s>Strikethrough </s><strong><em><s><u>All</u></s></em></strong>
-  <div>Nested Div</div>
-  <p>Nested Paragraph</p>
-</div>`,
+    None <strong>Bold </strong><em>Italic </em><u>Underline </u><s>Strikethrough </s><strong><em><s><u>All</u></s></em></strong>
+    <div>Nested Div</div>
+    <p>Nested Paragraph</p>
+  </div>`,
     },
     executeTest: testParseHTML,
   },
@@ -611,21 +607,21 @@ export const parseTestInstancesHTML: TestInstance<
     testCase: {
       name: "twoTables",
       content: `<table style="border-collapse:collapse;margin-left:255.478pt" cellspacing="0">
-  <tr style="height:22pt">
-    <td style="width:203pt">
-      <p data-text-alignment="left" data-text-indent="0pt"><u>Company</u></p>
-    </td>
-  </tr>
-  <tr style="height:86pt">
-    <td style="width:203pt">
-      <p data-text-alignment="left" data-text-indent="0pt"><b>Example Company Inc.</b></p>
-      <p data-text-alignment="left" data-text-indent="0pt">
-        <p>Name: [Company Representative]</p>
-      </p>
-      <p data-text-alignment="left" data-text-indent="0pt">Title: Chief Executive Officer</p>
-    </td>
-  </tr>
-</table>
+    <tr style="height:22pt">
+      <td style="width:203pt">
+        <p data-text-alignment="left" data-text-indent="0pt"><u>Company</u></p>
+      </td>
+    </tr>
+    <tr style="height:86pt">
+      <td style="width:203pt">
+        <p data-text-alignment="left" data-text-indent="0pt"><b>Example Company Inc.</b></p>
+        <p data-text-alignment="left" data-text-indent="0pt">
+          <p>Name: [Company Representative]</p>
+        </p>
+        <p data-text-alignment="left" data-text-indent="0pt">Title: Chief Executive Officer</p>
+      </td>
+    </tr>
+  </table>
 
 <table style="border-collapse:collapse;margin-left:256.5pt" cellspacing="0">
   <tr style="height:58pt">
@@ -811,6 +807,89 @@ With Hard Break</p>
 <pre><code data-language="typescript">console.log("Should parse TS from data-language")</code></pre>
 <pre><code class="language-python">print("Should parse Python from language- class")</code></pre>
 <pre><code class="language-ruby" data-language="typescript">console.log("Should prioritize TS from data-language over language- class")</code></pre>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "boldStyle",
+      content: `<p><strong>Bold</strong> <b>Bold</b> <span style="font-weight: bold">Bold</span></p>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "italicStyle",
+      content: `<p><em>Italic</em> <i>Italic</i> <span style="font-style: italic">Italic</span></p>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "underlineStyle",
+      content: `<p><u>Underline</u> <span style="text-decoration: underline">Underline</span></p>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "strikeStyle",
+      content: `<p><s>Strike</s> <del>Strike</del> <strike>Strike</strike> <span style="text-decoration: line-through">Strike</span></p>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "textColorStyle",
+      content: `<p><span style="color: blue">Blue Text</span> <span style="color: var(--blocknote-text-blue)">Blue Text</span></p>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "backgroundColorStyle",
+      content: `<p><span style="background-color: blue">Blue Background</span> <span style="background-color: var(--blocknote-background-blue)">Blue Background</span></p>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "orderedListStart",
+      content: `<ol start="2">
+  <li>List Item 2</li>
+  <li>List Item 3</li>
+  <li>List Item 4</li>
+</ol>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "imageWidth",
+      content: `<img src="exampleURL" width="100">`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "textAlignmentProp",
+      content: `<p style="text-align: center">Text Align Center</p>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "textColorProp",
+      content: `<p style="color: blue">Blue Text</p>
+<p style="color: var(--blocknote-text-blue)">Blue Text</p>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "backgroundColorProp",
+      content: `<p style="background-color: blue">Blue Background</p>
+<p style="background-color: var(--blocknote-background-blue)">Blue Background</p>`,
     },
     executeTest: testParseHTML,
   },
