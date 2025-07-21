@@ -498,7 +498,7 @@ export class SideMenuView<
     }
     const { isDropPoint, isDropWithinEditorBounds, isDragOrigin } = context;
 
-    if (!isDropWithinEditorBounds) {
+    if (!isDropWithinEditorBounds && isDropPoint) {
       // Any time that the drop event is outside of the editor bounds (but still close to an editor instance)
       // We dispatch a synthetic event that is in the bounds of the editor instance, to have the correct drop point
       this.dispatchSyntheticEvent(event);
