@@ -172,11 +172,6 @@ const config = {
       destination: "/docs/features/server-processing",
       permanent: true,
     },
-    {
-      source: "/docs/editor-api/converting-blocks",
-      destination: "/docs/features/interoperability",
-      permanent: true,
-    },
     { source: "/docs/introduction", destination: "/docs", permanent: true },
     {
       source: "/docs/quickstart",
@@ -185,12 +180,12 @@ const config = {
     },
     {
       source: "/docs/editor",
-      destination: "/docs/getting-started/editor-setup",
+      destination: "/docs/getting-started",
       permanent: true,
     },
     {
       source: "/docs/theming",
-      destination: "/docs/styling-theming",
+      destination: "/docs/react/styling-theming",
       permanent: true,
     },
     {
@@ -210,12 +205,12 @@ const config = {
     },
     {
       source: "/docs/ui-elements",
-      destination: "/docs/ui-components",
+      destination: "/docs/react/components",
       permanent: true,
     },
     {
       source: "/docs/blocks",
-      destination: "/docs/editor-basics/document-structure",
+      destination: "/docs/foundations/document-structure",
       permanent: true,
     },
     {
@@ -230,47 +225,42 @@ const config = {
     },
     {
       source: "/docs/manipulating-blocks",
-      destination: "/docs/editor-api/manipulating-blocks",
+      destination: "/docs/reference/editor/manipulating-content",
       permanent: true,
     },
     {
       source: "/docs/inline-content",
-      destination: "/docs/editor-api/manipulating-inline-content",
+      destination: "/docs/reference/editor/manipulating-content",
       permanent: true,
     },
     {
       source: "/docs/cursor-selections",
-      destination: "/docs/editor-api/cursor-selections",
+      destination: "/docs/reference/editor/cursor-selections",
       permanent: true,
     },
     {
       source: "/docs/converting-blocks",
-      destination: "/docs/editor-api/converting-blocks",
+      destination: "/docs/foundations/supported-formats",
       permanent: true,
     },
     {
       source: "/docs/real-time-collaboration",
-      destination: "/docs/advanced/real-time-collaboration",
+      destination: "/docs/features/collaboration",
       permanent: true,
     },
     {
       source: "/docs/nextjs",
-      destination: "/docs/advanced/nextjs",
+      destination: "/docs/getting-started/nextjs",
       permanent: true,
     },
     {
       source: "/docs/vanilla-js",
-      destination: "/docs/advanced/vanilla-js",
-      permanent: true,
-    },
-    {
-      source: "/examples/basic/all-blocks",
-      destination: "/examples/basic/default-blocks",
+      destination: "/docs/getting-started/vanilla-js",
       permanent: true,
     },
     {
       source: "/docs/advanced/real-time-collaboration",
-      destination: "/docs/collaboration",
+      destination: "/docs/features/collaboration",
       permanent: true,
     },
   ],
