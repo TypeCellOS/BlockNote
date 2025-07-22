@@ -8,6 +8,15 @@ export const getFullMetadata = (metadata: {
 }): Metadata => ({
   title: `BlockNote - ${metadata.title}`,
   description: metadata.description,
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.png", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
+  manifest: "/site.webmanifest",
   openGraph: {
     images: `/api/og${metadata.ogImageTitle ? `?title=${metadata.ogImageTitle}` : ""}`,
     locale: "en_US",
