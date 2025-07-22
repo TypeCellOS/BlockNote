@@ -1,0 +1,73 @@
+---
+title: Getting Started
+description: Getting started with BlockNote is quick and easy. All you need to do is install the package and add the React component to your app!
+imageTitle: Getting Started with BlockNote
+---
+
+# Getting Started
+
+Getting started with BlockNote is quick and easy. Install the required packages and add the React component to your app.
+
+## Install
+
+To install BlockNote with [NPM](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm), run:
+
+```console tab="npm"
+npm install @blocknote/core @blocknote/react @blocknote/mantine
+```
+
+```console tab="pnpm"
+pnpm add @blocknote/core @blocknote/react @blocknote/mantine
+```
+
+```console tab="bun"
+bun add @blocknote/core @blocknote/react @blocknote/mantine
+```
+
+BlockNote provides multiple UI library options. Choose the one that best fits your project:
+
+- **[Mantine](/docs/getting-started/mantine)** (`@blocknote/mantine`) - Recommended for new projects
+- **[Shadcn](/docs/getting-started/shadcn)** (`@blocknote/shadcn`)
+- **[Ariakit](/docs/getting-started/ariakit)** (`@blocknote/ariakit`)
+
+## Create an editor
+
+The fastest way to get started with the BlockNote is by using the `useCreateBlockNote` hook and `BlockNoteView` component:
+
+```tsx
+import React from "react";
+import { useCreateBlockNote } from "@blocknote/react";
+// Or, you can use ariakit, shadcn, etc.
+import { BlockNoteView } from "@blocknote/mantine";
+// Default styles for the mantine editor
+import "@blocknote/mantine/style.css";
+// Include the included Inter font
+import "@blocknote/core/fonts/inter.css";
+
+export default function MyEditor() {
+  // Create a new editor instance
+  const editor = useCreateBlockNote();
+
+  // Render the editor
+  return <BlockNoteView editor={editor} />;
+}
+```
+
+For more information about the `useCreateBlockNote` hook and the `BlockNoteView` component, see [React Overview](/docs/react/overview).
+
+<Callout
+  type="warning"
+  title="Next.js usage (or other server-side React frameworks)"
+>
+  Are you using Next.js (`create-next-app`)? Because BlockNote is a client-only
+  component, make sure to disable server-side rendering of BlockNote. [Read our
+  guide on setting up Next.js + BlockNote](/docs/getting-started/nextjs)
+</Callout>
+
+## Next steps
+
+You now know how to integrate BlockNote into your React app! However, this is just scratching the surface of what you can do with BlockNote.
+
+- Learn about [blocks and the editor basics](/docs/foundations/document-structure) and how to interact with the editor using the [editor API](/docs/reference/editor/manipulate-blocks)
+- See [UI Components](/docs/react/styling-theming/components/) to customize built-in menus and toolbars and [Styling & Theming](/docs/react/styling-theming/) to customize the look and feel of the editor
+- Further extend the editor with your own Blocks using [Custom Schemas](/docs/reference/editor/custom-schemas/) or add [Real-Time Collaboration](/docs/features/collaboration/)

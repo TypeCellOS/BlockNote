@@ -113,7 +113,11 @@ export type BlocksChanged<
     | {
         type: "move";
         /**
-         * The previous block.
+         * The affected block.
+         */
+        block: Block<BSchema, ISchema, SSchema>;
+        /**
+         * The block before the move.
          */
         prevBlock: Block<BSchema, ISchema, SSchema>;
         /**

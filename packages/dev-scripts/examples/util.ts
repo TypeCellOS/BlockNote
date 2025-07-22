@@ -44,6 +44,7 @@ export type Project = {
     author: string;
     pro?: boolean;
   };
+  readme: string;
 };
 
 export function groupBy<T>(arr: T[], key: (el: T) => string) {
@@ -77,19 +78,25 @@ export function groupProjects(projects: Project[]) {
 
 export function addTitleToGroups(grouped: ReturnType<typeof groupProjects>) {
   // read group titles from /pages/examples/_meta.json
-  const meta = JSON.parse(
-    fs.readFileSync(
-      path.resolve(dir, "../../../docs/pages/examples/_meta.json"),
-      "utf-8",
-    ),
-  );
+  const meta = {
+    index: "Overview",
+    basic: "Basic",
+    backend: "Backend",
+    "ui-components": "UI Components",
+    theming: "Theming",
+    interoperability: "Interoperability",
+    "custom-schema": "Custom Schemas",
+    collaboration: "Collaboration",
+    extensions: "Extensions",
+    ai: "AI",
+  };
 
   const groupsWithTitles = Object.fromEntries(
     Object.entries(grouped).map(([key, group]) => {
       const title = meta[key];
       if (!title) {
         throw new Error(
-          `Missing group title for ${key}, add to examples/_meta.json?`,
+          `Missing group title for ${key}, add to docs/content/examples/meta.json?`,
         );
       }
       return [
@@ -104,37 +111,24 @@ export function addTitleToGroups(grouped: ReturnType<typeof groupProjects>) {
   return groupsWithTitles;
 }
 
-export type Files = Record<
-  string,
-  {
-    filename: string;
-    code: string;
-    hidden: boolean;
-  }
->;
+export type Files = {
+  filename: string;
+  code: string;
+}[];
 
 export function getProjectFiles(project: Project): Files {
-  const dir = path.resolve("../..", project.pathFromRoot);
-  const files = globSync(["**/*", "!node_modules/**/*", "!dist/**/*"], {
+  const dir = path.resolve("../..", project.pathFromRoot, "src");
+  const files = globSync(["**/*"], {
     absolute: true,
     cwd: dir,
   });
-  const passedFiles = Object.fromEntries(
-    files.map((fullPath) => {
-      const filename = fullPath.substring(dir.length);
-      return [
-        filename,
-        {
-          filename,
-          code: fs.readFileSync(fullPath, "utf-8"),
-          hidden:
-            !(filename.endsWith(".tsx") || filename.endsWith(".css")) ||
-            filename.endsWith("main.tsx"),
-        },
-      ];
-    }),
-  );
-  return passedFiles;
+  return files.map((fullPath) => {
+    const filename = fullPath.substring(dir.length);
+    return {
+      filename,
+      code: fs.readFileSync(fullPath, "utf-8"),
+    };
+  });
 }
 
 /**
@@ -172,7 +166,8 @@ export function getExampleProjects(): Project[] {
       }
 
       const md = fs.readFileSync(readmePath, "utf-8");
-      const title = md.match(/# (.*)/)?.[1];
+      const [mdTitle, ...rest] = md.split("\n");
+      const title = mdTitle.match(/# (.*)/)?.[1];
 
       if (!title?.length) {
         throw new Error(`Missing title in README.md for ${directory}`);
@@ -200,7 +195,9 @@ export function getExampleProjects(): Project[] {
         config,
         title,
         group,
+        readme: rest.join("\n").trim(),
       };
+
       return project;
     });
 

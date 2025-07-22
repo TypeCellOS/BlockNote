@@ -1,0 +1,126 @@
+---
+title: Overview
+description: An overview of the BlockNote editor API.
+imageTitle: Editor API
+---
+
+# BlockNote API Overview
+
+The BlockNote editor API is a comprehensive set of functions and methods that allow you to interact with the editor and manipulate its content.
+
+## Editable
+
+The editor is editable by default, but you can make it read-only by setting the `editable` property to `false`.
+
+```ts
+editor.editable = false;
+```
+
+## Focus
+
+To focus the editor, you can use the `focus` method.
+
+```ts
+editor.focus();
+```
+
+Check if the editor has focus.
+
+```ts
+const isFocused = editor.isFocused();
+```
+
+## Undo/Redo
+
+To undo the last operation, you can use the `undo` method.
+
+```ts
+editor.undo();
+```
+
+To redo the last undone operation, you can use the `redo` method.
+
+```ts
+editor.redo();
+```
+
+## Events
+
+To read more about events, see the [Events](/docs/reference/editor/events) reference.
+
+## Document Manipulation
+
+To read more about block manipulation, see the [Block Manipulation](/docs/reference/editor/manipulate-blocks) reference.
+To read more about inline content manipulation, see the [Inline Content Manipulation](/docs/reference/editor/manipulating-inline-content) reference.
+
+### Transactions
+
+BlockNote supports transactions, which allow you to group multiple changes into a single operation. This is useful for a better user experience, since undo/redo of changes is much more natural.
+
+```ts
+// ✅ Good - This is a single undo/redo operation
+editor.transact(() => {
+  editor.insertBlocks([{ type: "paragraph", content: "Hello, world!" }], "abc");
+  editor.replaceBlocks([{ id: "123" }], {
+    type: "paragraph",
+    content: "Hello, world!",
+  });
+});
+
+// ❌ Avoid - This is two separate undo/redo operations
+editor.insertBlocks([{ type: "paragraph", content: "Hello, world!" }], "abc");
+editor.replaceBlocks([{ id: "123" }], {
+  type: "paragraph",
+  content: "Hello, world!",
+});
+```
+
+## Cursor & Selections
+
+To read more about cursor and selection manipulation, see the [Cursor & Selections](/docs/reference/editor/cursor-selections) reference.
+
+## Paste Operations
+
+### Paste HTML
+
+Paste HTML content into the editor.
+
+```ts
+// Paste and convert to BlockNote format (default)
+editor.pasteHTML("<p>Hello, world!</p>");
+
+// Paste as raw HTML
+editor.pasteHTML("<p>Hello, world!</p>", true);
+```
+
+### Paste Text
+
+Paste text content into the editor.
+
+```ts
+editor.pasteText("Hello, world!");
+```
+
+### Paste Markdown
+
+Paste Markdown content into the editor.
+
+```ts
+await editor.pasteMarkdown("# Hello\n\nThis is **bold** text.");
+```
+
+## Options
+
+The editor can be configured with the following options when using `BlockNoteEditor.create`:
+
+<auto-type-table
+  path="../../../../../packages/core/src/editor/BlockNoteEditor.ts"
+  name="BlockNoteEditorOptions"
+/>
+
+## Related Documentation
+
+For more detailed information about specific areas:
+
+- [Manipulating Content](/docs/foundations/manipulating-content) - Reading and writing document Content
+- [Block Types](/docs/features/blocks) - Understanding different block types
