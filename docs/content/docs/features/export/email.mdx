@@ -72,7 +72,7 @@ const html = await exporter.toReactEmailDocument(editor.document, {
 
 The `ReactEmailExporter` constructor takes a `schema` and `mappings` parameter.
 A _mapping_ defines how to convert a BlockNote schema element (a Block, Inline Content, or Style) to a React-Email element.
-If you're using a [custom schema](/docs/reference/editor/custom-schemas) in your editor, or if you want to overwrite how default BlockNote elements are converted to React Email, you can pass your own `mappings`:
+If you're using a [custom schema](/docs/features/custom-schemas) in your editor, or if you want to overwrite how default BlockNote elements are converted to React Email, you can pass your own `mappings`:
 
 For example, use the following code in case your schema has an `extraBlock` type:
 

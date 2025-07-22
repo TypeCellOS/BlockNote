@@ -23,7 +23,7 @@ BlockNote provides a comprehensive set of operations for manipulating blocks, al
 - **Navigate relationships** - Find previous, next, or parent blocks
 - **Traverse all blocks** - Iterate through the entire document structure
 
-[See more in the API reference](/docs/reference/editor/manipulate-blocks#reading-blocks)
+[See more in the API reference](/docs/reference/editor/manipulating-content#reading-blocks)
 
 ```typescript
 // Get the entire document
@@ -45,7 +45,7 @@ const nextBlock = editor.getNextBlock(blockId);
 - **Create complex structures** - Build nested blocks like lists and tables
 - **Generate blocks programmatically** - Create blocks from data or user input
 
-[See more in the API reference](/docs/reference/editor/manipulate-blocks#inserting-blocks)
+[See more in the API reference](/docs/reference/editor/manipulating-content#inserting-blocks)
 
 ```typescript
 // Insert a simple paragraph block
@@ -73,7 +73,7 @@ editor.insertBlocks(
 - **Move blocks** - Reorder blocks by moving them up or down
 - **Nest and unnest** - Change the hierarchy by indenting or outdenting blocks
 
-[See more in the API reference](/docs/reference/editor/manipulate-blocks#updating-blocks)
+[See more in the API reference](/docs/reference/editor/manipulating-content#updating-blocks)
 
 ```typescript
 // Change a block's type
@@ -91,7 +91,7 @@ editor.updateBlock(blockId, {
 - **Delete specific blocks** - Remove individual blocks or groups of blocks
 - **Clear selections** - Remove blocks based on user selection
 
-[See more in the API reference](/docs/reference/editor/manipulate-blocks#removing-blocks)
+[See more in the API reference](/docs/reference/editor/manipulating-content#removing-blocks)
 
 ```typescript
 // Remove specific blocks
@@ -138,6 +138,6 @@ editor.setSelection(startBlockId, endBlockId);
 
 This overview covers the fundamental concepts of block manipulation in BlockNote. For detailed API reference and specific examples, see:
 
-- [Manipulating Blocks Reference](/docs/reference/editor/manipulate-blocks) - Complete API documentation
-- [Cursor & Selections](/docs/foundations/cursor-selections) - Working with user selections
+- [Manipulating Blocks Reference](/docs/reference/editor/manipulating-content) - Complete API documentation
+- [Cursor & Selections](/docs/reference/editor/cursor-selections) - Working with user selections
 - [Block Types](/docs/features/blocks) - Understanding different block types and their properties

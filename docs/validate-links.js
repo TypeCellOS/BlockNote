@@ -12,22 +12,22 @@ async function checkLinks() {
   // we read them all at once to avoid repeated file read
   const docsFiles = await readFiles("content/docs/**/*.{md,mdx}");
 
-  // other collections too!
-  //   const blogFiles = await readFiles("../../docs/content/blog/**/*.{md,mdx}");
+  const exampleFiles = await readFiles("content/examples/**/*.{md,mdx}");
 
   const scanned = await scanURLs({
-    // cwd: "../../docs/",
     populate: {
-      //   "(home)/blog/[slug]": blogFiles.map((file) => {
-      //     const info = parseFilePath(path.relative("content/blog", file.path));
+      "examples/[[...slug]]": exampleFiles.map((file) => {
+        const info = parseFilePath(
+          path.relative("content/examples", file.path),
+        );
 
-      //     return {
-      //       value: getSlugs(info)[0],
-      //       hashes: getTableOfContents(file.content).map((item) =>
-      //         item.url.slice(1),
-      //       ),
-      //     };
-      //   }),
+        return {
+          value: getSlugs(info)[0],
+          hashes: getTableOfContents(file.content).map((item) =>
+            item.url.slice(1),
+          ),
+        };
+      }),
       "docs/[[...slug]]": docsFiles.map((file) => {
         const info = parseFilePath(path.relative("content/docs", file.path));
 
@@ -42,7 +42,7 @@ async function checkLinks() {
   });
 
   printErrors(
-    await validateFiles([...docsFiles], {
+    await validateFiles([...docsFiles, ...exampleFiles], {
       scanned,
     }),
     true,
