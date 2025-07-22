@@ -64,7 +64,7 @@ export const baseOptions: Partial<DocsLayoutProps & HomeLayoutProps> = {
     },
     {
       text: "About",
-      url: "/pages/about",
+      url: "/about",
       active: "url",
     },
     {
