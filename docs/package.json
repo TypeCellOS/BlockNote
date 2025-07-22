@@ -2,13 +2,15 @@
   "name": "docs",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev --turbo",
     "dev:email": "email dev",
     "build:site": "fumadocs-mdx && next build --turbo",
     "start": "next start",
     "postinstall": "fumadocs-mdx",
-    "init-db": "pnpx @better-auth/cli migrate"
+    "init-db": "pnpx @better-auth/cli migrate",
+    "test": "node validate-links.js"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.2.11",
@@ -101,6 +103,7 @@
     "zustand": "^5.0.3"
   },
   "devDependencies": {
+    "next-validate-link": "^1.5.2",
     "@blocknote/ariakit": "workspace:^",
     "@blocknote/code-block": "workspace:^",
     "@blocknote/core": "workspace:^",

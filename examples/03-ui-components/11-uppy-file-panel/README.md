@@ -15,5 +15,5 @@ In this example, we've enabled the Webcam, ScreenCapture and Image Editor plugin
 
 **Relevant Docs:**
 
-- [Editor Setup](/docs/editor-basics/setup)
-- [Image](/docs/editor-basics/default-schema#image)
+- [Editor Setup](/docs/getting-started/editor-setup)
+- [Image](/docs/foundations/schemas)

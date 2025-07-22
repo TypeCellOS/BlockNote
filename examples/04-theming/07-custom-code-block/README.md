@@ -45,5 +45,5 @@ export default function App() {
 
 **Relevant Docs:**
 
-- [Editor Setup](/docs/editor-basics/setup)
+- [Code Blocs](/docs/features/blocks/code-blocks)
 - [shiki-codegen](https://shiki.style/packages/codegen)

@@ -7,7 +7,7 @@ path: /docs/image-toolbar
 
 # File Panel
 
-The File Panel appears whenever you select a file (e.g. an image or video) that doesn't have a URL, or when you click the "Replace File" button in the [Formatting Toolbar](/docs/react/styling-theming/components/formatting-toolbar) when a file is selected.
+The File Panel appears whenever you select a file (e.g. an image or video) that doesn't have a URL, or when you click the "Replace File" button in the [Formatting Toolbar](/docs/react/components/formatting-toolbar) when a file is selected.
 
 <ThemedImage
   src={{
@@ -21,7 +21,7 @@ The File Panel appears whenever you select a file (e.g. an image or video) that 
 
 ## File Upload
 
-You may notice that upon creating a new BlockNote editor, the "Upload" tab in the File Panel is missing. This is because you must provide BlockNote with a function to handle file uploads using the `uploadFile` [Editor Option](/docs/reference/editor/options):
+You may notice that upon creating a new BlockNote editor, the "Upload" tab in the File Panel is missing. This is because you must provide BlockNote with a function to handle file uploads using the `uploadFile` [Editor Option](/docs/reference/editor/overview#options):
 
 ```ts
 type uploadFile = (file: File) => Promise<string>;

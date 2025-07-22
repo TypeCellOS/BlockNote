@@ -6,4 +6,4 @@ This example exports the current document (all blocks) as HTML and displays it b
 
 **Relevant Docs:**
 
-- [Converting Blocks to HTML](/docs/editor-api/converting-blocks#converting-blocks-to-html)
+- [Converting Blocks to HTML](/docs/features/export/html)

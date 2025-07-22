@@ -6,6 +6,6 @@ In this example, we add a blue text/background color and code style button to th
 
 **Relevant Docs:**
 
-- [Changing the Formatting Toolbar](/docs/ui-components/formatting-toolbar#changing-the-formatting-toolbar)
-- [Manipulating Inline Content](/docs/editor-api/manipulating-inline-content)
-- [Editor Setup](/docs/editor-basics/setup)
+- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar)
+- [Manipulating Inline Content](/docs/reference/editor/manipulating-content)
+- [Editor Setup](/docs/getting-started/editor-setup)

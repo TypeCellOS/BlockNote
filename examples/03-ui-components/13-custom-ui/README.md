@@ -4,8 +4,8 @@ In this example, we implement a basic editor interface using components from Mat
 
 **Relevant Docs:**
 
-- [Formatting Toolbar](/docs/ui-components/formatting-toolbar)
-- [Manipulating Inline Content](/docs/editor-api/manipulating-inline-content)
-- [Slash Menu](/docs/ui-components/suggestion-menus#slash-menu)
-- [Side Menu](/docs/ui-components/side-menu)
-- [Editor Setup](/docs/editor-basics/setup)
+- [Formatting Toolbar](/docs/react/components/formatting-toolbar)
+- [Manipulating Inline Content](/docs/reference/editor/manipulating-content)
+- [Slash Menu](/docs/react/components/suggestion-menus)
+- [Side Menu](/docs/react/components/side-menu)
+- [Editor Setup](/docs/getting-started/editor-setup)

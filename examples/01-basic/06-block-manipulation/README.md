@@ -4,4 +4,4 @@ This example shows 4 buttons to manipulate the first block using the `insertBloc
 
 **Relevant Docs:**
 
-- [Block Manipulation](/docs/manipulating-blocks)
+- [Block Manipulation](/docs/reference/editor/manipulating-content)

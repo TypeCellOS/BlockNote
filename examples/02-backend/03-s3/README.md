@@ -6,5 +6,5 @@ This example allows users to upload files to an AWS S3 bucket and use them in th
 
 **Relevant Docs:**
 
-- [Editor Setup](/docs/editor-basics/setup)
-- [File Block](/docs/editor-basics/default-schema#file)
+- [Editor Setup](/docs/getting-started/editor-setup)
+- [File Block](/docs/features/blocks/embeds#file)

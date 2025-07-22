@@ -6,6 +6,6 @@ In this example, we add an item to the Block Type Select, so that it works for a
 
 **Relevant Docs:**
 
-- [Changing Block Type Select Items](/docs/ui-components/formatting-toolbar#changing-block-type-select-items)
-- [Custom Block Types](/docs/custom-schemas/custom-blocks)
-- [Editor Setup](/docs/editor-basics/setup)
+- [Changing Block Type Select Items](/docs/react/components/formatting-toolbar)
+- [Custom Block Types](/docs/features/custom-schemas/custom-blocks)
+- [Editor Setup](/docs/getting-started/editor-setup)

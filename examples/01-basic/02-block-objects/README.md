@@ -6,5 +6,5 @@ In this example, the document's JSON representation is displayed below the edito
 
 **Relevant Docs:**
 
-- [Document Structure](/docs/editor-basics/document-structure)
-- [Getting the Document](/docs/editor-api/manipulating-blocks#getting-the-document)
+- [Document Structure](/docs/foundations/document-structure)
+- [Getting the Document](/docs/reference/editor/manipulating-content)

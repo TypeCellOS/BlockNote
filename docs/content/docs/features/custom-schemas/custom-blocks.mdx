@@ -6,7 +6,7 @@ imageTitle: Custom Blocks
 
 # Custom Block Types
 
-In addition to the default block types that BlockNote offers, you can also make your own custom blocks using React components. Take a look at the demo below, in which we add a custom alert block to a BlockNote editor, as well as a custom [Slash Menu Item](/docs/react/styling-theming/components/suggestion-menus#changing-slash-menu-items) to insert it.
+In addition to the default block types that BlockNote offers, you can also make your own custom blocks using React components. Take a look at the demo below, in which we add a custom alert block to a BlockNote editor, as well as a custom [Slash Menu Item](/docs/react/components/suggestion-menus#changing-slash-menu-items) to insert it.
 
 <Example name="custom-schema/alert-block" />
 
@@ -159,10 +159,10 @@ const schema = BlockNoteSchema.create({
 });
 ```
 
-You can then instantiate your editor with this custom schema, as explained on the [Custom Schemas](/docs/reference/editor/custom-schemas) page.
+You can then instantiate your editor with this custom schema, as explained on the [Custom Schemas](/docs/features/custom-schemas) page.
 
 ## Improving the User Experience
 
 Now you know how to create a custom block and add it to your editor. However, users don't have a way of creating instances of it to their documents.
 
-To fix this, it's recommended to implement a [command to insert your custom in the Slash Menu](/docs/react/styling-theming/components/suggestion-menus#changing-slash-menu-items), and [an item for it in the Block Type Select](/docs/react/styling-theming/components/formatting-toolbar#
+To fix this, it's recommended to implement a [command to insert your custom in the Slash Menu](/docs/react/components/suggestion-menus#changing-slash-menu-items), and [an item for it in the Block Type Select](/docs/react/components/formatting-toolbar)

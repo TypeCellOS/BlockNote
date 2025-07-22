@@ -6,4 +6,4 @@ In this example, we can fork a document and edit it independently of other colla
 
 **Relevant Docs:**
 
-- [Editor Setup](/docs/editor-basics/setup)
+- [Editor Setup](/docs/getting-started/editor-setup)

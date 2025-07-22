@@ -4,4 +4,4 @@ In this example, we override some of the default editor CSS to make the editor t
 
 **Relevant Docs:**
 
-- [Overriding CSS](/docs/styling-theming/overriding-css)
+- [Overriding CSS](/docs/react/styling-theming/overriding-css)

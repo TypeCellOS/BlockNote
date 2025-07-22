@@ -6,6 +6,6 @@ Select some text and click the AI (stars) button, or type `/ai` anywhere in the 
 
 **Relevant Docs:**
 
-- [Getting Stared with BlockNote AI](/docs/ai/getting-started)
-- [Changing the Formatting Toolbar](/docs/ui-components/formatting-toolbar#changing-the-formatting-toolbar)
-- [Changing Slash Menu Items](/docs/ui-components/suggestion-menus#changing-slash-menu-items)
+- [Getting Stared with BlockNote AI](/docs/features/ai/getting-started)
+- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar)
+- [Changing Slash Menu Items](/docs/react/components/suggestion-menus)

@@ -14,8 +14,8 @@ action!
 
 **Relevant Docs:**
 
-- [Editor Setup](/docs/editor-basics/setup)
-- [Liveblocks](/docs/collaboration/real-time-collaboration#liveblocks)
+- [Editor Setup](/docs/getting-started/editor-setup)
+- [Liveblocks](/docs/features/collaboration#liveblocks)
 
 **From Liveblocks Website:**
 

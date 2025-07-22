@@ -197,7 +197,7 @@ export type BlockNoteEditorOptions<
   /**
    * Configuration for the comments feature, requires a `threadStore`.
    *
-   * See [Comments](https://www.blocknotejs.org/docs/collaboration/comments) for more info.
+   * See [Comments](https://www.blocknotejs.org/docs/features/collaboration/comments) for more info.
    * @remarks `CommentsOptions`
    */
   comments?: {
@@ -333,7 +333,7 @@ export type BlockNoteEditorOptions<
   /**
    * Resolve user information for comments.
    *
-   * See [Comments](https://www.blocknotejs.org/docs/collaboration/comments) for more info.
+   * See [Comments](https://www.blocknotejs.org/docs/features/collaboration/comments) for more info.
    */
   resolveUsers?: (userIds: string[]) => Promise<User[]>;
 

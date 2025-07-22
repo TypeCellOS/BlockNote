@@ -6,6 +6,6 @@ In this example, we create a custom `PDF` block which extends the built-in `File
 
 **Relevant Docs:**
 
-- [Custom Blocks](/docs/custom-schemas/custom-blocks)
-- [Changing Slash Menu Items](/docs/ui-components/suggestion-menus#changing-slash-menu-items)
-- [Editor Setup](/docs/editor-basics/setup)
+- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)
+- [Changing Slash Menu Items](/docs/react/components/suggestion-menus)
+- [Editor Setup](/docs/getting-started/editor-setup)

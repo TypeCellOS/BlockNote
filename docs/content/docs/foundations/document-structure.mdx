@@ -38,9 +38,9 @@ type Block = {
 
 - **`id`**: The block's ID. Multiple blocks cannot share a single ID, and a block will keep the same ID from when it's created until it's removed.
 
-- **`type`**: The block's type, such as a paragraph, heading, or list item. For an overview of built-in block types, see [Default Blocks](/docs/foundations/schemas#default-blocks).
+- **`type`**: The block's type, such as a paragraph, heading, or list item. For an overview of built-in block types, see [Built-in Blocks](/docs/features/blocks).
 
-- **`props`**: The block's properties, which is a set of key/value pairs that further specify how the block looks and behaves. Different block types have different props - see [Default Blocks](/docs/foundations/schemas#default-blocks) for more.
+- **`props`**: The block's properties, which is a set of key/value pairs that further specify how the block looks and behaves. Different block types have different props - see [Built-in Blocks](/docs/features/blocks) for more.
 
 - **`content`**: The block's rich text content, usually represented as an array of `InlineContent` objects. This does not include content from any nested blocks. Read on to [Inline Content](#inline-content) for more on this.
 
@@ -86,7 +86,7 @@ The demo below shows the editor contents (document) in JSON. It's an array of `B
 
 ## Special Cases
 
-While most blocks use an array of `InlineContent` objects to describe their content (e.g.: paragraphs, headings, list items), some blocks, like [images](/docs/foundations/schemas#image), don't contain any rich text content, so their `content` fields will be `undefined`.
+While most blocks use an array of `InlineContent` objects to describe their content (e.g.: paragraphs, headings, list items), some blocks, like [images](/docs/features/blocks/embeds#image), don't contain any rich text content, so their `content` fields will be `undefined`.
 
 ### Column Blocks
 

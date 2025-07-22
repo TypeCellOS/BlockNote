@@ -7,7 +7,7 @@ In this example, we create a custom `Alert` block which is used to emphasize tex
 **Relevant Docs:**
 
 - [Minimal Alert Block Example](/examples/custom-schema/alert-block)
-- [Changing Slash Menu Items](/docs/ui-components/suggestion-menus#changing-slash-menu-items)
-- [Changing Block Type Select Items](/docs/ui-components/formatting-toolbar#changing-block-type-select-items)
-- [Custom Blocks](/docs/custom-schemas/custom-blocks)
-- [Editor Setup](/docs/editor-basics/setup)
+- [Changing Slash Menu Items](/docs/react/components/suggestion-menus)
+- [Changing Block Type Select Items](/docs/react/components/formatting-toolbar)
+- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)
+- [Editor Setup](/docs/getting-started/editor-setup)

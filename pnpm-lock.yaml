@@ -369,6 +369,9 @@ importers:
       next-themes:
         specifier: 0.4.6
         version: 0.4.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      next-validate-link:
+        specifier: ^1.5.2
+        version: 1.5.2
       postcss:
         specifier: ^8.5.6
         version: 8.5.6
@@ -12713,6 +12716,9 @@ packages:
       react: ^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc
       react-dom: ^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc
 
+  next-validate-link@1.5.2:
+    resolution: {integrity: sha512-BMGyo0qJqscSJw0gSCUy3gDrF7LEID6qkVhHtLSIdPPtOYONq0+fidWvLteUzEUqHeKz1GBI9QN3bpfT6Me42A==}
+
   next@15.4.1:
     resolution: {integrity: sha512-eNKB1q8C7o9zXF8+jgJs2CzSLIU3T6bQtX6DcTnCq1sIR1CJ0GlSyRs1BubQi3/JgCnr9Vr+rS5mOMI38FFyQw==}
     engines: {node: ^18.18.0 || ^19.8.0 || >= 20.0.0}
@@ -24787,6 +24793,17 @@ snapshots:
     dependencies:
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
+
+  next-validate-link@1.5.2:
+    dependencies:
+      fast-glob: 3.3.3
+      gray-matter: 4.0.3
+      picocolors: 1.1.1
+      remark: 15.0.1
+      remark-gfm: 4.0.1
+      unist-util-visit: 5.0.0
+    transitivePeerDependencies:
+      - supports-color
 
   next@15.4.1(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:

@@ -6,4 +6,4 @@ In this example, we change the default paste handler to append some text to the 
 
 **Relevant Docs:**
 
-- [Paste Handling](/docs/advanced/paste-handling)
+- [Paste Handling](/docs/reference/editor/paste-handling)
