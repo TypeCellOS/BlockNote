@@ -143,6 +143,11 @@ const config = {
       permanent: true,
     },
     {
+      source: "/docs/ai",
+      destination: "/docs/features/ai",
+      permanent: true,
+    },
+    {
       source: "/docs/styling-theming/overriding-css",
       destination: "/docs/react/styling-theming/overriding-css",
       permanent: true,

@@ -49,7 +49,7 @@ export const baseOptions: Partial<DocsLayoutProps & HomeLayoutProps> = {
     },
     {
       text: "AI",
-      url: "/docs/ai",
+      url: "/docs/features/ai",
       active: "nested-url",
     },
     {

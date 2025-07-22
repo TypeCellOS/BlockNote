@@ -24,7 +24,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           className="whitespace-break-spaces bg-[#fef6d5] text-black"
         >
           🚀 BlockNote AI is here!{" "}
-          <a href="/docs/ai" className="italic underline">
+          <a href="/docs/features/ai" className="italic underline">
             Access the early preview.
           </a>
         </Banner>
