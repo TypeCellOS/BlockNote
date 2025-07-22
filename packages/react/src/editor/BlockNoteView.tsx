@@ -52,7 +52,7 @@ export type BlockNoteViewProps<
   editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
 
   /**
-   * The editor's theme, see [Themes](https://www.blocknotejs.org/docs/styling-theming/themes) for more about this.
+   * The editor's theme, see [Themes](https://www.blocknotejs.orgdocs/react/styling-theming/themes) for more about this.
    */
   theme?: "light" | "dark";
 

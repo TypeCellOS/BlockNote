@@ -6,5 +6,5 @@ In this example, we replace the default Emoji Picker component with a basic cust
 
 **Relevant Docs:**
 
-- [Replacing the Emoji Picker Component](/docs/ui-components/suggestion-menus#replacing-the-emoji-picker-component)
-- [Editor Setup](/docs/editor-basics/setup)
+- [Replacing the Emoji Picker Component](/docs/react/components/suggestion-menus)
+- [Editor Setup](/docs/getting-started/editor-setup)

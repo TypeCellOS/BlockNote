@@ -4,5 +4,5 @@ To enable code block syntax highlighting, you can use the `codeBlock` option in 
 
 **Relevant Docs:**
 
-- [Code Block Syntax Highlighting](/docs/advanced/code-blocks)
-- [Editor Setup](/docs/editor-basics/setup)
+- [Code Block Syntax Highlighting](/docs/features/blocks/code-blocks)
+- [Editor Setup](/docs/getting-started/editor-setup)

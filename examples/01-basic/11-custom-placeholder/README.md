@@ -8,5 +8,5 @@ In this example, we show how to change the placeholders:
 
 **Relevant Docs:**
 
-- [Editor Setup](/docs/editor-basics/setup)
+- [Editor Setup](/docs/getting-started/editor-setup)
 - [Localization (i18n)](/examples/basic/localization)

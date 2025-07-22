@@ -93,11 +93,6 @@ const config = {
       permanent: true,
     },
     {
-      source: "/docs/editor-basics/setup",
-      destination: "/docs/getting-started/editor-setup",
-      permanent: true,
-    },
-    {
       source: "/docs/editor-basics/document-structure",
       destination: "/docs/foundations/document-structure",
       permanent: true,
@@ -190,7 +185,7 @@ const config = {
     },
     {
       source: "/docs/editor",
-      destination: "/docs/editor-basics/setup",
+      destination: "/docs/getting-started/editor-setup",
       permanent: true,
     },
     {
@@ -200,17 +195,17 @@ const config = {
     },
     {
       source: "/docs/formatting-toolbar",
-      destination: "/docs/ui-components/formatting-toolbar",
+      destination: "/docs/react/components/formatting-toolbar",
       permanent: true,
     },
     {
       source: "/docs/slash-menu",
-      destination: "/docs/ui-components/suggestion-menus",
+      destination: "/docs/react/components/suggestion-menus",
       permanent: true,
     },
     {
       source: "/docs/side-menu",
-      destination: "/docs/ui-components/side-menu",
+      destination: "/docs/react/components/side-menu",
       permanent: true,
     },
     {
@@ -225,7 +220,12 @@ const config = {
     },
     {
       source: "/docs/block-types",
-      destination: "/docs/editor-basics/default-schema",
+      destination: "/docs/features/blocks",
+      permanent: true,
+    },
+    {
+      source: "/docs/editor-basics/setup",
+      destination: "/docs/getting-started/editor-setup",
       permanent: true,
     },
     {

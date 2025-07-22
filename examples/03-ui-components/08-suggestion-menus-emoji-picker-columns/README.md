@@ -6,5 +6,5 @@ In this example, we change the Emoji Picker to display 5 columns instead of 10.
 
 **Relevant Docs:**
 
-- [Changing Emoji Picker Columns](/docs/ui-components/suggestion-menus#changing-emoji-picker-columns)
-- [Editor Setup](/docs/editor-basics/setup)
+- [Changing Emoji Picker Columns](/docs/react/components/suggestion-menus)
+- [Editor Setup](/docs/getting-started/editor-setup)

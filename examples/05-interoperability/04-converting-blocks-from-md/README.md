@@ -8,4 +8,4 @@ Note that the editor itself is locked for editing by setting `editable` to `fals
 
 **Relevant Docs:**
 
-- [Parsing Markdown to Blocks](/docs/editor-api/converting-blocks#parsing-markdown-to-blocks)
+- [Parsing Markdown to Blocks](/docs/features/import/markdown)

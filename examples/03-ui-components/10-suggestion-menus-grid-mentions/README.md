@@ -6,6 +6,6 @@ In this example, we create a custom `Mention` inline content type which is used 
 
 **Relevant Docs:**
 
-- [Custom Inline Content Types](/docs/custom-schemas/custom-inline-content)
-- [Creating Suggestion Menus](/docs/ui-components/suggestion-menus#creating-additional-suggestion-menus)
-- [Editor Setup](/docs/editor-basics/setup)
+- [Custom Inline Content Types](/docs/features/custom-schemas/custom-inline-content)
+- [Creating Suggestion Menus](/docs/react/components/suggestion-menus)
+- [Editor Setup](/docs/getting-started/editor-setup)

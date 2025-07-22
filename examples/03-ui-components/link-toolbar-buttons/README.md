@@ -6,5 +6,5 @@ In this example, we add a button to the Link Toolbar which opens a browser alert
 
 **Relevant Docs:**
 
-- [Changing the Link Toolbar](/docs/ui-components/link-toolbar#changing-the-link-toolbar)
-- [Editor Setup](/docs/editor-basics/setup)
+- [Changing the Link Toolbar](/docs/react/components/link-toolbar)
+- [Editor Setup](/docs/getting-started/editor-setup)

@@ -4,5 +4,6 @@ This example shows how to change the default schema and disable the Audio and Im
 
 **Relevant Docs:**
 
-- [Editor Setup](/docs/editor-basics/setup)
-- [Custom Schemas](/docs/custom-schemas)
+- [Editor Setup](/docs/getting-started/editor-setup)
+- [Custom Schemas](/docs/features/custom-schemas)
+- [Default Schema](/docs/foundations/schemas)

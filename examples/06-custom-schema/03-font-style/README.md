@@ -6,6 +6,6 @@ In this example, we create a custom `Font` style which is used to set the `fontF
 
 **Relevant Docs:**
 
-- [Custom Styles](/docs/custom-schemas/custom-styles)
-- [Changing the Formatting Toolbar](/docs/ui-components/formatting-toolbar#changing-the-formatting-toolbar)
-- [Editor Setup](/docs/editor-basics/setup)
+- [Custom Styles](/docs/features/custom-schemas/custom-styles)
+- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar)
+- [Editor Setup](/docs/getting-started/editor-setup)

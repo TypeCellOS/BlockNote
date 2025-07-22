@@ -6,6 +6,6 @@ In this example, we use Y-Sweet to let multiple users collaborate on a single Bl
 
 **Relevant Docs:**
 
-- [Editor Setup](/docs/editor-basics/setup)
-- [Real-time collaboration](/docs/collaboration/real-time-collaboration)
+- [Editor Setup](/docs/getting-started/editor-setup)
+- [Real-time collaboration](/docs/features/collaboration)
 - [Y-Sweet on Jamsocket](https://docs.jamsocket.com/y-sweet/tutorials/blocknote)

@@ -6,5 +6,5 @@ Controller is currently marked **experimental** due to the flickering issue with
 
 **Relevant Docs:**
 
-- [Changing the Formatting Toolbar](/docs/ui-components/formatting-toolbar#changing-the-formatting-toolbar)
-- [Editor Setup](/docs/editor-basics/setup)
+- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar)
+- [Editor Setup](/docs/getting-started/editor-setup)

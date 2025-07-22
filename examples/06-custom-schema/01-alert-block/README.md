@@ -6,5 +6,5 @@ In this example, we create a custom `Alert` block which is used to emphasize tex
 
 **Relevant Docs:**
 
-- [Custom Blocks](/docs/custom-schemas/custom-blocks)
-- [Editor Setup](/docs/editor-basics/setup)
+- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)
+- [Editor Setup](/docs/getting-started/editor-setup)

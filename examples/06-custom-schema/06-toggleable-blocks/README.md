@@ -4,6 +4,6 @@ This example shows how to create custom blocks with a toggle button to show/hide
 
 **Relevant Docs:**
 
-- [Custom Blocks](/docs/custom-schemas/custom-blocks)
-- [Editor Setup](/docs/editor-basics/setup)
-- [Default Schema](/docs/editor-basics/default-schema)
+- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)
+- [Editor Setup](/docs/getting-started/editor-setup)
+- [Default Schema](/docs/features/blocks)

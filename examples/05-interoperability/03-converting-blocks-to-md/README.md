@@ -6,4 +6,4 @@ This example exports the current document (all blocks) as Markdown and displays 
 
 **Relevant Docs:**
 
-- [Converting Blocks to Markdown](/docs/editor-api/converting-blocks#converting-blocks-to-markdown)
+- [Converting Blocks to Markdown](/docs/features/export/markdown)

@@ -9,5 +9,5 @@ This example enables the following features in tables:
 
 **Relevant Docs:**
 
-- [Tables](/docs/advanced/tables)
-- [Editor Setup](/docs/editor-basics/setup)
+- [Tables](/docs/features/blocks/tables)
+- [Editor Setup](/docs/getting-started/editor-setup)
