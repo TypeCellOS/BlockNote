@@ -3,6 +3,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { getLLMText } from "@/lib/get-llm-text";
 import { notFound } from "next/navigation";
 
+export const dynamic = "force-dynamic";
 export const revalidate = false;
 
 export async function GET(
@@ -10,7 +11,6 @@ export async function GET(
   { params }: { params: Promise<{ slug: string[] }> },
 ) {
   const slug = (await params).slug;
-  slug.shift();
   const page = source.getPage(slug);
   if (!page) {
     notFound();
