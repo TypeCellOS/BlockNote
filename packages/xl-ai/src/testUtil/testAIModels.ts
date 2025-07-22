@@ -26,7 +26,7 @@ const albert = createOpenAICompatible({
   name: "albert-etalab",
   baseURL: "https://albert.api.etalab.gouv.fr/v1",
   ...client.getProviderSettings("albert-etalab"),
-})("neuralmagic/Meta-Llama-3.1-70B-Instruct-FP8");
+})("albert-etalab.chat/albert-large");
 
 export const testAIModels = {
   groq,

@@ -13,7 +13,7 @@ export const AI_MODELS = [
   "mistral.chat/ministral-8b-latest",
   "anthropic.chat/claude-3-7-sonnet-latest",
   "anthropic.chat/claude-3-5-haiku-latest",
-  "albert-etalab.chat/neuralmagic/Meta-Llama-3.1-70B-Instruct-FP8",
+  "albert-etalab.chat/albert-large",
   "google.generative-ai/gemini-1.5-pro",
   "google.generative-ai/gemini-1.5-flash",
   "google.generative-ai/gemini-2.5-pro",
