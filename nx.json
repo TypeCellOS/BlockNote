@@ -1,7 +1,6 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "parallel": 6,
-  "useLegacyCache": true,
   "release": {
     "projects": ["packages/*"],
     "version": {
@@ -14,14 +13,6 @@
     "changelog": {
       "workspaceChangelog": {
         "createRelease": "github"
-      }
-    }
-  },
-  "tasksRunnerOptions": {
-    "default": {
-      "runner": "nx/tasks-runners/default",
-      "options": {
-        "cacheableOperations": ["build", "test", "lint", "build:site", "e2e"]
       }
     }
   },
@@ -48,6 +39,5 @@
       "cache": true,
       "dependsOn": ["^e2e"]
     }
-  },
-  "nxCloudId": "67f09aa8b0862b1ae48e82df"
+  }
 }
