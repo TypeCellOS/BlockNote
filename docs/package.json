@@ -2,6 +2,7 @@
   "name": "docs",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev --turbo",
     "dev:email": "email dev",
@@ -9,7 +10,7 @@
     "start": "next start",
     "postinstall": "fumadocs-mdx",
     "init-db": "pnpx @better-auth/cli migrate",
-    "validate-links": "node validate-links.js"
+    "test": "node validate-links.js"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.2.11",
