@@ -308,6 +308,9 @@ importers:
       shiki:
         specifier: ^3.7.0
         version: 3.7.0
+      ts-morph:
+        specifier: 26.0.0
+        version: 26.0.0
       twoslash:
         specifier: ^0.3.2
         version: 0.3.2(typescript@5.8.3)

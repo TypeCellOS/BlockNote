@@ -96,6 +96,7 @@
     "remark-mdx": "^3.1.0",
     "require-in-the-middle": "^7.5.2",
     "shiki": "^3.7.0",
+    "ts-morph": "26.0.0",
     "twoslash": "^0.3.2",
     "y-partykit": "^0.0.25",
     "yjs": "^13.6.27",
@@ -103,7 +104,6 @@
     "zustand": "^5.0.3"
   },
   "devDependencies": {
-    "next-validate-link": "^1.5.2",
     "@blocknote/ariakit": "workspace:^",
     "@blocknote/code-block": "workspace:^",
     "@blocknote/core": "workspace:^",
@@ -129,6 +129,7 @@
     "@types/react-dom": "^19.1.6",
     "@y-sweet/react": "^0.6.4",
     "next-themes": "0.4.6",
+    "next-validate-link": "^1.5.2",
     "postcss": "^8.5.6",
     "react-email": "^4.0.16",
     "react-icons": "^5.5.0",
