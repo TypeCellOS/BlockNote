@@ -1,7 +1,7 @@
 "use client";
 
-import LogoLight from "@/public/img/logos/banner.svg";
 import LogoDark from "@/public/img/logos/banner.dark.svg";
+import LogoLight from "@/public/img/logos/banner.svg";
 import cn from "classnames";
 import { ThemeToggle } from "fumadocs-ui/components/layout/theme-toggle";
 import Link from "next/link";
@@ -121,12 +121,12 @@ export function FooterContent() {
                 <FooterHeader>Legal</FooterHeader>
                 <ul className="ml-0 mt-4 list-none space-y-1.5">
                   <li key={"terms-and-conditions"}>
-                    <FooterLink href={"/terms-and-conditions"}>
+                    <FooterLink href={"/legal/terms-and-conditions"}>
                       Terms & Conditions
                     </FooterLink>
                   </li>
                   <li key={"privacy-policy"}>
-                    <FooterLink href={"/privacy-policy"}>
+                    <FooterLink href={"/legal/privacy-policy"}>
                       Privacy Policy
                     </FooterLink>
                   </li>

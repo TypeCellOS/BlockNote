@@ -1,13 +1,13 @@
-import GitHubButton from "@/components/GitHubButton";
 import CTAButton from "@/components/CTAButton";
+import GitHubButton from "@/components/GitHubButton";
 import { source } from "@/lib/source/pages";
 import { getFullMetadata } from "@/util/getFullMetadata";
 import { getMDXComponents } from "@/util/mdx-components";
 import { DocsBody } from "fumadocs-ui/page";
 import { notFound } from "next/navigation";
 
-export default async function TermsAndConditionsPage() {
-  const page = source.getPage(["terms-and-conditions"]);
+export default async function ServiceLevelAgreementPage() {
+  const page = source.getPage(["service-level-agreement"]);
   if (!page) {
     notFound();
   }
@@ -28,7 +28,7 @@ export default async function TermsAndConditionsPage() {
 }
 
 export async function generateMetadata() {
-  const page = source.getPage(["terms-and-conditions"]);
+  const page = source.getPage(["service-level-agreement"]);
   if (!page) {
     notFound();
   }

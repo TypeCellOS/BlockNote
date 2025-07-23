@@ -4,23 +4,63 @@ import { Heading } from "fumadocs-ui/components/heading";
 
 const faqs = [
   {
-    question: "Is BlockNote Pro a different library than BlockNote?",
-    answer: `"BlockNote Pro" is not an additional library, but instead a subscription service built around the open-source BlockNote library.
-       With your subscription, you are ensuring the sustainable maintenance and development of BlockNote and make sure it stays up-to-date under an open source license. 
-       You'll also get prioritized support, feature requests, and access to Pro examples.`,
+    question:
+      "What license is BlockNote using? Do I need a subscription to use BlockNote?",
+    answer: (
+      <>
+        We're proud to say that BlockNote is 100% open source software. The core
+        library is licensed under the MPL 2.0 license, which allows you to use
+        BlockNote in commercial (and closed-source) applications - even without
+        a subscription. If you make changes to the BlockNote source files,
+        you're expected to publish these changes so the wider community can
+        benefit as well.
+        <br />
+        The XL packages (like AI Integration, Multi-column layouts, and
+        Exporters) are dual-licensed and available under AGPL-3.0, or - for
+        closed-source projects - a commercial license as part of the BlockNote
+        Business subscription or above.
+      </>
+    ),
   },
   {
-    question: "What payment methods do you accept?",
-    answer: `BlockNote Pro is fully integrated with GitHub Sponsors, which means invoicing and payment is handled by GitHub.
-    If you require a different payment method, please contact us.`,
+    question: "When do I need a commercial license?",
+    answer: (
+      <>
+        Only when you use any of the XL packages (like AI Integration,
+        Multi-column layouts, and Exporters) and you cannot comply with the
+        AGPL-3.0 license you'll need a{" "}
+        <a href="/legal/blocknote-xl-commercial-license">commercial license</a>.
+        This is likely to be the case if you're building closed-source
+        applications. The BlockNote Business subscription and above includes a
+        commercial license.
+      </>
+    ),
+  },
+  {
+    question: "Why did you choose to dual-license the XL packages?",
+    answer: (
+      <>
+        The BlockNote team has been developing BlockNote for several years under
+        a very permissive MPL license and we're committed to keep the vast
+        majority of the library under this license.
+        <br />
+        By offering a limited set of advanced functionality (the XL Packages)
+        under a dual license model (a copyleft open-source license and a
+        commercial license), we can support a full-time team of engineers and
+        continue to develop BlockNote - while keeping 100% of the code we build
+        open source.
+      </>
+    ),
   },
   {
     question:
-      "What License is BlockNote using? Can I use it for commercial projects?",
-    answer: `BlockNote is open source software licensed under the MPL 2.0 license, which allows you to use BlockNote in commercial (and closed-source) applications - even without a subscription. 
-    If you make changes to the BlockNote source files, you're expected to publish these changes so the wider community can benefit as well. \nThe XL packages are dual-licensed and available under AGPL-3.0, or - for closed-source projects - a commercial license as part of the BlockNote Business subscription or above.`,
+      "Is there any limit to the number of documents or users I can have?",
+    answer: `With BlockNote, there are no limits on the number of documents or users you can have. You’re free to run the software on your own infrastructure, and none of your data passes through our servers — your documents and users remain entirely your business.`,
   },
-  // More questions...
+  {
+    question: "What payment methods do you accept?",
+    answer: `We accept all major credit cards. If you require a different payment method, please contact us.`,
+  },
 ];
 
 export function FAQ() {

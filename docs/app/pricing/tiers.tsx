@@ -3,6 +3,7 @@ import { authClient, useSession } from "@/util/auth-client";
 import { CheckIcon } from "@heroicons/react/20/solid";
 import { track } from "@vercel/analytics";
 import classNames from "classnames";
+import React from "react";
 
 type Frequency = "month" | "year";
 
@@ -12,7 +13,7 @@ export type Tier = {
   title: string;
   description: string;
   price: Record<Frequency, number> | string;
-  features: string[];
+  features: React.ReactNode[];
   href?: string;
 };
 
@@ -101,7 +102,7 @@ function TierCTAButton({ tier }: { tier: Tier }) {
   );
 }
 
-function TierFeature({ feature }: { feature: string }) {
+function TierFeature({ feature }: { feature: React.ReactNode }) {
   return (
     <li className="flex gap-x-3">
       <CheckIcon
@@ -116,8 +117,8 @@ function TierFeature({ feature }: { feature: string }) {
 function TierFeatures({ tier }: { tier: Tier }) {
   return (
     <ul className="mt-8 space-y-3 text-sm leading-6 xl:mt-10">
-      {tier.features.map((feature) => (
-        <TierFeature key={feature} feature={feature} />
+      {tier.features.map((feature, index) => (
+        <TierFeature key={index} feature={feature} />
       ))}
     </ul>
   );
