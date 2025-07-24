@@ -419,16 +419,21 @@ export const createReactEmailBlockMappingForDefaultSchema = (
                     style={{
                       border: "1px solid #ddd",
                       padding: "8px 12px",
-                      background: isHeader
-                        ? "#f5f5f5"
-                        : normalizedCell.props.backgroundColor !== "default"
-                          ? normalizedCell.props.backgroundColor
-                          : "#fff",
-                      fontWeight: isHeader ? "bold" : "normal",
+                      background:
+                        normalizedCell.props.backgroundColor !== "default"
+                          ? t.options.colors[
+                              normalizedCell.props
+                                .backgroundColor as keyof typeof t.options.colors
+                            ].background
+                          : "inherit",
+                      fontWeight: isHeader ? "bold" : undefined,
                       textAlign: normalizedCell.props.textAlignment || "left",
                       color:
                         normalizedCell.props.textColor !== "default"
-                          ? normalizedCell.props.textColor
+                          ? t.options.colors[
+                              normalizedCell.props
+                                .textColor as keyof typeof t.options.colors
+                            ].text
                           : "inherit",
                       ...defaultReactEmailTextStyles.tableCell.style,
                       ...textStyles.tableCell?.style,
@@ -456,12 +461,10 @@ export const createReactEmailBlockMappingForDefaultSchema = (
       <Text
         {...textStyles.quote}
         style={{
-          borderLeft: "4px solid #bdbdbd",
-          background: "#f9f9f9",
-          padding: "12px 16px",
-          margin: "16px 0",
+          borderLeft: "2px solid #bdbdbd",
+          padding: "0px 12px",
           fontStyle: "italic",
-          color: "#555",
+          color: t.options.colors.gray.text,
           display: "block",
           ...defaultReactEmailTextStyles.quote.style,
           ...textStyles.quote?.style,
