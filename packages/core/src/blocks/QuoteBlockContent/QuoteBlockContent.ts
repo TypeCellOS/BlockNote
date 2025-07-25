@@ -2,11 +2,15 @@ import {
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
 } from "../../schema/index.js";
-import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
+import {
+  createDefaultBlockDOMOutputSpec,
+  mergeParagraphs,
+} from "../defaultBlockHelpers.js";
 import { defaultProps } from "../defaultProps.js";
 import { getBlockInfoFromSelection } from "../../api/getBlockInfoFromPos.js";
 import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { InputRule } from "@tiptap/core";
+import { DOMParser } from "prosemirror-model";
 
 export const quotePropSchema = {
   ...defaultProps,
@@ -76,6 +80,24 @@ export const QuoteBlockContent = createStronglyTypedTiptapNode({
       {
         tag: "blockquote",
         node: "quote",
+        getContent: (node, schema) => {
+          // Parse the blockquote content as inline content
+          const element = node as HTMLElement;
+
+          // Clone to avoid modifying the original
+          const clone = element.cloneNode(true) as HTMLElement;
+
+          // Merge multiple paragraphs into one with line breaks
+          mergeParagraphs(clone);
+
+          // Parse the content directly as a paragraph to extract inline content
+          const parser = DOMParser.fromSchema(schema);
+          const parsed = parser.parse(clone, {
+            topNode: schema.nodes.paragraph.create(),
+          });
+
+          return parsed.content;
+        },
       },
     ];
   },

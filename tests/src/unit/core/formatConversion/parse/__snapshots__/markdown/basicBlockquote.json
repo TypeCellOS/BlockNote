@@ -1,0 +1,35 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "This is a blockquote",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+    },
+    "type": "quote",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "This is not a blockquote",
+        "type": "text",
+      },
+    ],
+    "id": "2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]

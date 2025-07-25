@@ -814,6 +814,32 @@ With Hard Break</p>
     },
     executeTest: testParseHTML,
   },
+
+  {
+    testCase: {
+      name: "basicBlockquote",
+      content: `<blockquote>This is a blockquote</blockquote>
+<p>This is not a blockquote</p>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "twoBlockquotes",
+      content: `<blockquote>First quote</blockquote>
+<blockquote>Second quote</blockquote>
+<p>Regular paragraph</p>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "inlineContentInBlockquote",
+      content: `<blockquote><strong>Bold</strong> <em>Italic</em> <s>Strikethrough</s> <strong><em>Multiple</em></strong></blockquote>
+<p>Regular paragraph</p>`,
+    },
+    executeTest: testParseHTML,
+  },
 ];
 
 export const parseTestInstancesMarkdown: TestInstance<
@@ -938,6 +964,35 @@ anything
 
 * another
 * list`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "basicBlockquote",
+      content: `> This is a blockquote
+
+This is not a blockquote`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "twoBlockquotes",
+      content: `> First quote
+
+> Second quote
+
+Regular paragraph`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "inlineContentInBlockquote",
+      content: `> **Bold** *Italic* ~~Strikethrough~~ ***Multiple***
+
+Regular paragraph`,
     },
     executeTest: testParseMarkdown,
   },
