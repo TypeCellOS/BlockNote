@@ -12,7 +12,7 @@ const faqs = [
   {
     id: 2,
     question: "Is BlockNote ready for production use?",
-    answer: `BlockNote is used by several companies in production. Also, we didn't reinvent the wheel. The core editor is built on top of Prosemirror - a battle tested framework that powers software from Atlassian, Gitlab, the New York Times, and many others.`,
+    answer: `BlockNote is used by dozens of companies in production, ranging from startups to large enterprises and public institutions. Also, we didn't reinvent the wheel. The core editor is built on top of Prosemirror - a battle tested framework that powers software from Atlassian, Gitlab, the New York Times, and many others.`,
   },
   {
     id: 3,
@@ -23,8 +23,14 @@ const faqs = [
   {
     id: 4,
     question: "Is BlockNote really free?",
-    answer: `100% of BlockNote is open source. While the library is free, we offer paid consultancy and support services to help sustain BlockNote.   
-    If you are using BlockNote in a commercial project, we encourage to sign up for BlockNote Pro!`,
+    answer: (
+      <>
+        100% of BlockNote is open source. We offer consultancy, support services
+        and commercial licenses for specific XL packages to help sustain
+        BlockNote. Explore our <a href="/pricing">pricing page</a> for more
+        details.
+      </>
+    ),
   },
 ];
 

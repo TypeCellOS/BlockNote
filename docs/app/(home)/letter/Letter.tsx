@@ -1,9 +1,9 @@
-import cn from "classnames";
 import CTAButton from "@/components/CTAButton";
-import { Section } from "@/components/Section";
 import { FadeIn } from "@/components/FadeIn";
 import { HeroText } from "@/components/Headings";
+import { Section } from "@/components/Section";
 import gradients from "@/components/gradients.module.css";
+import cn from "classnames";
 
 export function Letter() {
   return (
@@ -18,33 +18,33 @@ export function Letter() {
         </FadeIn>
         <FadeIn className="flex flex-col gap-3 leading-6 md:text-lg">
           <p>
-            When we started building an Open Source Notion alternative, we
-            figured: &quot;How hard can it be?&quot;. Pretty hard, it turns out.
-            Text editors in 2024? More complex than we thought.
+            Building a modern, collaborative text editor is a complex
+            engineering challenge that used to take months of work, deep
+            technical expertise and a lot of patience - only within reach of the
+            largest companies.
           </p>
-          <br />
           <p>
-            After going down many rabbit holes and becoming accidental wizards
-            in Prosemirror (the industry standard used by giants like NY Times,
-            Atlassian, Gitlab and many others), we figured that we could save
-            other devs a lot of pain by creating a modern, batteries-included,
-            block-based text editor on top of it.
+            Leveraging our expertise, we set out to save developers months of
+            engineering work by creating a modern, batteries-included
+            block-based text editor built on top of industry standards like
+            Prosemirror and Yjs (used by giants like NY Times, Atlassian,
+            Wordpress, Gitlab and many others).
           </p>
-          <br />
+          <p>Enter BlockNote.</p>
           <p>
-            We&apos;re excited to share BlockNote with you. No more dealing with
-            low-level positions; use the strongly typed, block-based API to work
-            with your editor and documents. No need to build all interface
-            elements from scratch; it comes with modern UI components
-            out-of-the-box. Now, you can add a rich text editor with a polished
-            UX to your app with just a few lines of code.
+            BlockNote eliminates the need to deal with low-level details around
+            text positions and document structure. Instead, work with the
+            strongly typed, block-based API to work with your editor and
+            documents. You also get a full set of modern UI components
+            out-of-the-box: no need to build all interface elements from
+            scratch. With just a few lines of code, you can integrate a
+            polished, collaborative text editor into your app.
           </p>
-          <br />
           <p>
-            It&apos;s early days, but the excitement is real. We&apos;re seeing
-            a mix of companies, enthusiasts, and community heroes jumping in. As
-            a community-led open source project, we&apos;re looking forward to
-            your contributions, feedback, or collaboration!
+            Supported by an active and growing community of companies and
+            developers, we invite you to contribute, provide feedback, and
+            partner with us to shape the future of rich text editing and
+            collaborative software!
           </p>
         </FadeIn>
         <FadeIn className="relative h-px w-full" noVertical viewTriggerOffset>
