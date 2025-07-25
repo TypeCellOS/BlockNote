@@ -55,16 +55,33 @@ See the [full example](/examples/interoperability/converting-blocks-to-react-ema
 - **header**: Add content to the top of the email (must be a React-Email compatible component)
 - **footer**: Add content to the bottom of the email (must be a React-Email compatible component)
 - **head**: Inject elements into the [Head element](https://react.email/docs/components/head)
+- **container**: Customize the container element (A component which will wrap the email content including the header and footer)
 
 Example usage:
 
-```tsx
-import { Text } from "@react-email/components";
+```tsx twoslash
+import React from "react";
+import {
+  ReactEmailExporter,
+  reactEmailDefaultSchemaMappings,
+} from "@blocknote/xl-email-exporter";
+import { BlockNoteEditor } from "@blocknote/core";
+import { Text, Container } from "@react-email/components";
+
+const editor = BlockNoteEditor.create();
+
+// ---cut---
+const exporter = new ReactEmailExporter(
+  editor.schema,
+  reactEmailDefaultSchemaMappings,
+);
+
 const html = await exporter.toReactEmailDocument(editor.document, {
   preview: "This is a preview of the email content",
   header: <Text>Header</Text>,
   footer: <Text>Footer</Text>,
   head: <title>My email</title>,
+  container: ({ children }) => <Container>{children}</Container>,
 });
 ```
 
@@ -105,4 +122,42 @@ const defaultOptions = {
   // the colors to use in the email for things like highlighting, background colors and font colors.
   colors: COLORS_DEFAULT, // defaults from @blocknote/core
 };
+```
+
+### Custom styles
+
+Want to tweak the default styles of the email? You can use `reactEmailDefaultSchemaMappingsWithStyles` to create a custom mapping with your own styles.
+
+```tsx
+import {
+  ReactEmailExporter,
+  reactEmailDefaultSchemaMappingsWithStyles,
+} from "@blocknote/xl-email-exporter";
+import { Text } from "@react-email/components";
+
+const { blockMapping, inlineContentMapping, styleMapping } =
+  reactEmailDefaultSchemaMappingsWithStyles({
+    textStyles: {
+      paragraph: {
+        style: {
+          fontSize: 16,
+          lineHeight: 1.5,
+          margin: 3,
+          minHeight: 24,
+        },
+      },
+    },
+  });
+
+new ReactEmailExporter(schema, {
+  // You can still use the default block mapping, but you can also overwrite it
+  blockMapping: {
+    ...blockMapping,
+    audio: (block, exporter) => {
+      return <Text>Audio block</Text>;
+    },
+  },
+  inlineContentMapping,
+  styleMapping,
+});
 ```
