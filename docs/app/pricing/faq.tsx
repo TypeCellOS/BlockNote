@@ -30,7 +30,7 @@ const faqs = [
         Multi-column layouts, and Exporters) and you cannot comply with the
         AGPL-3.0 license you'll need a{" "}
         <a href="/legal/blocknote-xl-commercial-license">commercial license</a>.
-        This is likely to be the case if you're building closed-source
+        This is likely to be the case when you're building closed-source
         applications. The BlockNote Business subscription and above includes a
         commercial license.
       </>
@@ -40,22 +40,70 @@ const faqs = [
     question: "Why did you choose to dual-license the XL packages?",
     answer: (
       <>
-        The BlockNote team has been developing BlockNote for several years under
-        a very permissive MPL license and we're committed to keep the vast
-        majority of the library under this license.
+        We’ve built BlockNote as open source from day one and remain committed
+        to keeping the core library licensed under the permissive MPL 2.0. That
+        means it’s free to use—even in commercial and closed-source projects.
         <br />
-        By offering a limited set of advanced functionality (the XL Packages)
-        under a dual license model (a copyleft open-source license and a
-        commercial license), we can support a full-time team of engineers and
-        continue to develop BlockNote - while keeping 100% of the code we build
-        open source.
+        To sustainably support ongoing development, we offer a small set of
+        advanced features (the XL packages) under a dual-license model:
+        <ul>
+          <li>AGPL-3.0 for open-source projects</li>
+          <li>
+            Commercial license (included in the BlockNote Business tier and
+            above) for closed-source use
+          </li>
+        </ul>
+        This approach allows us to fund a full-time team while keeping 100% of
+        the code we build open source. It’s our way of balancing community
+        accessibility with long-term sustainability.
+      </>
+    ),
+  },
+  {
+    question: "What kind of support is included in a license?",
+    answer: (
+      <>
+        We have you covered! All BlockNote subscriptions come with prioritized
+        support. See the{" "}
+        <a href="/legal/service-level-agreement">Service Level Agreement</a> for
+        the exact details.
       </>
     ),
   },
   {
     question:
       "Is there any limit to the number of documents or users I can have?",
-    answer: `With BlockNote, there are no limits on the number of documents or users you can have. You’re free to run the software on your own infrastructure, and none of your data passes through our servers — your documents and users remain entirely your business.`,
+    answer: `With BlockNote, there are no limits on the number of documents or users you can have. 
+    You're free to run the software on your own infrastructure, and none of your data passes through our servers — your documents and users remain entirely your business.`,
+  },
+  {
+    question: "What if I have more than one SaaS or Web application?",
+    answer: (
+      <>
+        The BlockNote Commercial license (included in the Business tier and
+        above) for XL packages covers one application per license. See the{" "}
+        <a href="/legal/blocknote-xl-commercial-license">
+          commercial license terms
+        </a>{" "}
+        for the exact details.
+        <br />
+        If you want to use XL packages in more than one app, contact us at
+        team@blocknotejs.org; we're happy to work with you on a custom license.
+      </>
+    ),
+  },
+  {
+    question: "Do you offer any discounts for startups?",
+    answer: (
+      <>
+        Yes! We offer a discount for startups with less than 5 employees. See
+        the{" "}
+        <a href="/legal/blocknote-xl-commercial-license">
+          commercial license terms
+        </a>{" "}
+        for the exact details.
+      </>
+    ),
   },
   {
     question: "What payment methods do you accept?",
