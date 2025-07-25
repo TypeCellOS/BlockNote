@@ -9,16 +9,22 @@ const faqs = [
     answer: (
       <>
         We're proud to say that BlockNote is 100% open source software. The core
-        library is licensed under the MPL 2.0 license, which allows you to use
-        BlockNote in commercial (and closed-source) applications - even without
-        a subscription. If you make changes to the BlockNote source files,
-        you're expected to publish these changes so the wider community can
-        benefit as well.
+        library is licensed under the{" "}
+        <a href="https://www.mozilla.org/en-US/MPL/2.0/">MPL 2.0 license</a>,
+        which allows you to use BlockNote in commercial and closed-source
+        applications - even without a subscription. If you make changes to the
+        BlockNote source files, you're expected to publish these changes so the
+        wider community can benefit as well.
         <br />
-        The XL packages (like AI Integration, Multi-column layouts, and
-        Exporters) are dual-licensed and available under AGPL-3.0, or - for
-        closed-source projects - a commercial license as part of the BlockNote
-        Business subscription or above.
+        The XL packages (like AI integration, multi-column layouts, and
+        exporters) are dual-licensed and available under{" "}
+        <a href="https://www.gnu.org/licenses/agpl-3.0.html">AGPL-3.0</a>, or -
+        for closed-source projects - a commercial license as part of the
+        BlockNote Business subscription or above. See the{" "}
+        <a href="/legal/blocknote-xl-commercial-license">
+          commercial license terms
+        </a>{" "}
+        for the exact details.
       </>
     ),
   },
@@ -26,8 +32,8 @@ const faqs = [
     question: "When do I need a commercial license?",
     answer: (
       <>
-        Only when you use any of the XL packages (like AI Integration,
-        Multi-column layouts, and Exporters) and you cannot comply with the
+        Only when you use any of the XL packages (like AI integration,
+        multi-column layouts, and exporters) and you cannot comply with the
         AGPL-3.0 license you'll need a{" "}
         <a href="/legal/blocknote-xl-commercial-license">commercial license</a>.
         This is likely to be the case when you're building closed-source
@@ -41,8 +47,8 @@ const faqs = [
     answer: (
       <>
         We’ve built BlockNote as open source from day one and remain committed
-        to keeping the core library licensed under the permissive MPL 2.0. That
-        means it’s free to use—even in commercial and closed-source projects.
+        to keeping the core library licensed under the MPL 2.0. That means it’s
+        free to use—even in commercial and closed-source projects.
         <br />
         To sustainably support ongoing development, we offer a small set of
         advanced features (the XL packages) under a dual-license model:
