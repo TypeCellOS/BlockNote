@@ -105,3 +105,6 @@ export class BlockNoteSchema<
     this.styleSchema = getStyleSchemaFromSpecs(this.styleSpecs) as any;
   }
 }
+
+// const s = BlockNoteSchema.create();
+// s.blockSchema.audio.
