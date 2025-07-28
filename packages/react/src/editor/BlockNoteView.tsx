@@ -159,8 +159,9 @@ function BlockNoteViewComponent<
       ...existingContext,
       editor,
       setContentEditableProps,
+      colorSchemePreference: editorColorScheme,
     };
-  }, [existingContext, editor]);
+  }, [existingContext, editor, editorColorScheme]);
 
   // We set defaultUIProps and editorProps on a different context, the BlockNoteViewContext.
   // This BlockNoteViewContext is used to render the editor and the default UI.
