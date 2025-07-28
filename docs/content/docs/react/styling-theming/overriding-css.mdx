@@ -23,25 +23,23 @@ BlockNote uses classes with the `bn-` prefix to style editor elements. Here are 
 
 #### Editor Structure
 
-- `.bn-container`: Container for editor and all menus/toolbars
-- `.bn-editor`: Main editor element
-- `.bn-block`: Individual block element (including nested)
-- `.bn-block-group`: Container for nested blocks
-- `.bn-block-content`: Block content wrapper
-- `.bn-inline-content`: Block's editable rich text content
+- `.bn-container`: Container for editor and all menus/toolbars.
+- `.bn-editor`: Main editor element.
+- `.bn-block`: Individual block element (including nested).
+- `.bn-block-group`: Container for nested blocks.
+- `.bn-block-content`: Block content wrapper.
+- `.bn-inline-content`: Block's editable rich text content.
 
 #### UI Components
 
-- `.bn-toolbar`: Formatting & link toolbars
-- `.bn-side-menu`: Side menu element
-- `.bn-drag-handle-menu`: Drag handle menu
-- `.bn-suggestion-menu`: Suggestion menu
+- `.bn-toolbar`: Formatting & link toolbars.
+- `.bn-side-menu`: Side menu element.
+- `.bn-drag-handle-menu`: Drag handle menu.
+- `.bn-suggestion-menu`: Suggestion menu.
 
 ### BlockNote CSS Attributes
 
 BlockNote uses data attributes to target specific block types and properties:
 
-- `[data-content-type="blockType"]`: Targets blocks of type `blockType`
-- `[data-propName="propValue"]`: Targets blocks with specific prop values
-
-Example:
+- `[data-content-type="blockType"]`: Targets blocks of type `blockType`.
+- `[data-propName="propValue"]`: Targets blocks with specific prop values. If the value is the same as the default value, the `data-propName` attribute will not be added.
