@@ -3,6 +3,7 @@ import {
   EditorOptions,
   Extension,
   getSchema,
+  InputRule,
   isNodeSelection,
   Mark,
   posToDOMRect,
@@ -23,7 +24,10 @@ import {
   unnestBlock,
 } from "../api/blockManipulation/commands/nestBlock/nestBlock.js";
 import { removeAndInsertBlocks } from "../api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
-import { updateBlock } from "../api/blockManipulation/commands/updateBlock/updateBlock.js";
+import {
+  updateBlock,
+  updateBlockTr,
+} from "../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import {
   getBlock,
   getNextBlock,
@@ -96,6 +100,7 @@ import { en } from "../i18n/locales/index.js";
 
 import { redo, undo } from "@tiptap/pm/history";
 import {
+  Selection,
   TextSelection,
   type Command,
   type Plugin,
@@ -121,6 +126,7 @@ import { BlockNoteExtension } from "./BlockNoteExtension.js";
 
 import "../style.css";
 import { BlockChangePlugin } from "../extensions/BlockChange/BlockChangePlugin.js";
+import { getBlockInfoFromTransaction } from "../api/getBlockInfoFromPos.js";
 
 /**
  * A factory function that returns a BlockNoteExtension
@@ -799,28 +805,96 @@ export class BlockNoteEditor<
       );
     }
 
+    console.log(this.schema.blockSchema);
+    const blockExtensions = Object.fromEntries(
+      Object.values(this.schema.blockSpecs)
+        .map((block) => (block as any).extensions as any)
+        .filter((ext) => ext !== undefined)
+        .flat()
+        .map((ext) => [ext.constructor.key(), ext]),
+    );
+    console.log(blockExtensions);
     const tiptapExtensions = [
-      ...Object.entries(this.extensions).map(([key, ext]) => {
-        if (
-          ext instanceof Extension ||
-          ext instanceof TipTapNode ||
-          ext instanceof Mark
-        ) {
-          // tiptap extension
-          return ext;
-        }
+      ...Object.entries({ ...this.extensions, ...blockExtensions }).map(
+        ([key, ext]) => {
+          if (
+            ext instanceof Extension ||
+            ext instanceof TipTapNode ||
+            ext instanceof Mark
+          ) {
+            // tiptap extension
+            return ext;
+          }
 
-        if (ext instanceof BlockNoteExtension && !ext.plugins.length) {
-          return undefined;
-        }
+          if (
+            ext instanceof BlockNoteExtension &&
+            !ext.plugins.length &&
+            !ext.keyboardShortcuts &&
+            !ext.inputRules
+          ) {
+            return undefined;
+          }
 
-        // "blocknote" extensions (prosemirror plugins)
-        return Extension.create({
-          name: key,
-          priority: ext.priority,
-          addProseMirrorPlugins: () => ext.plugins,
-        });
-      }),
+          // "blocknote" extensions (prosemirror plugins)
+          return Extension.create({
+            name: key,
+            priority: ext.priority,
+            addProseMirrorPlugins: () => ext.plugins,
+            addInputRules: ext.inputRules
+              ? () =>
+                  ext.inputRules!.map(
+                    (inputRule) =>
+                      new InputRule({
+                        find: inputRule.find,
+                        handler: ({ range, match }) => {
+                          this.transact((tr) => {
+                            const replaceWith = inputRule.replace({
+                              match,
+                              range,
+                              editor: this,
+                            });
+                            if (replaceWith) {
+                              const blockInfo = getBlockInfoFromTransaction(tr);
+
+                              // TODO this is weird, why do we need it?
+                              if (
+                                blockInfo.isBlockContainer &&
+                                blockInfo.blockContent.node.type.spec
+                                  .content === "inline*"
+                              ) {
+                                updateBlockTr(
+                                  tr,
+                                  blockInfo.bnBlock.beforePos,
+                                  replaceWith,
+                                  range.from,
+                                  range.to,
+                                );
+                                // TODO there is something here, but we should get rid of the other default blocks
+                                const from = tr.mapping.map(range.from);
+                                const to = tr.mapping.map(range.to);
+                                tr.delete(from, to);
+                                tr.setSelection(
+                                  TextSelection.create(tr.doc, from),
+                                );
+                              }
+                            }
+                          });
+                        },
+                      }),
+                  )
+              : undefined,
+            addKeyboardShortcuts: ext.keyboardShortcuts
+              ? () => {
+                  return Object.fromEntries(
+                    Object.entries(ext.keyboardShortcuts!).map(
+                      ([key, value]) => [key, () => value({ editor: this })],
+                    ),
+                  );
+                }
+              : undefined,
+          });
+        },
+      ),
     ].filter((ext): ext is Extension => ext !== undefined);
 
     const tiptapOptions: BlockNoteTipTapEditorOptions = {

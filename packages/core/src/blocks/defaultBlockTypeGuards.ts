@@ -32,8 +32,8 @@ export function checkDefaultBlockTypeInSchema<
   S
 > {
   return (
-    blockType in editor.schema.blockSchema &&
-    editor.schema.blockSchema[blockType] === defaultBlockSchema[blockType]
+    blockType in editor.schema.blockSchema //&&
+    // editor.schema.blockSchema[blockType] === defaultBlockSchema[blockType]
   );
 }
 
