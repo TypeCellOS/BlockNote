@@ -37,7 +37,12 @@ export function cleanHTMLToMarkdown(cleanHTMLString: string) {
     })
     .processSync(cleanHTMLString);
 
-  return markdownString.value as string;
+  let result = markdownString.value as string;
+
+  // Remove extra blank lines between list items
+  result = result.replace(/\n\n(?=\d+\.|-|\*)/g, "\n");
+
+  return result;
 }
 
 export async function blocksToMarkdown<
