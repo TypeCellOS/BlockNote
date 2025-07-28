@@ -95,6 +95,7 @@ export const baseOptions: Partial<DocsLayoutProps & HomeLayoutProps> = {
   sidebar: {
     tabs: [
       {
+        // TODO: These icons are too small in the mobile view.
         icon: (
           <FaBook className="border-fd-primary text-fd-primary bg-fd-primary/10 h-5 w-5 rounded-sm border p-0.5" />
         ),

@@ -94,6 +94,8 @@ export function CustomDocsLayout({
       : undefined,
   );
 
+  // TODO: The scroll container for the sidebar is slightly too tall and gets cut off
+  // at the bottom.
   const sidebar = sidebarComponent ?? (
     <>
       {sidebarCollapsible ? <CollapsibleControl /> : null}
