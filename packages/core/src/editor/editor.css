@@ -153,20 +153,14 @@ Tippy popups that are appended to document.body directly
 } */
 
 .bn-editor [data-content-type="table"] .tableWrapper {
-  position: relative;
-  top: -16px;
-  left: -16px;
-  /* padding: 16px; */
-  min-width: calc(100% + 16px);
-  padding-bottom: 16px;
   overflow-y: hidden;
+  padding-bottom: 22px;
+  position: relative;
+  width: 100%;
 }
 
 .bn-editor [data-content-type="table"] .tableWrapper-inner {
-  /* position: relative; */
-  /* top: -16px;
-  left: -16px; */
-  padding: 16px;
+  width: calc(100% - 22px);
 }
 
 /* table related: */
