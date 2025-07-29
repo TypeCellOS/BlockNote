@@ -94,15 +94,13 @@ export function CustomDocsLayout({
       : undefined,
   );
 
-  // TODO: The scroll container for the sidebar is slightly too tall and gets cut off
-  // at the bottom.
   const sidebar = sidebarComponent ?? (
     <>
       {sidebarCollapsible ? <CollapsibleControl /> : null}
       <Sidebar
         {...sidebarProps}
         collapsible={sidebarCollapsible}
-        className="md:sticky md:top-[calc(var(--fd-sidebar-top)+32px)] md:h-[calc(100vh-var(--fd-sidebar-top))]"
+        className="md:sticky md:top-[calc(var(--fd-sidebar-top)+32px)] md:h-[calc(100vh-var(--fd-sidebar-top)-32px)]"
       >
         <HideIfEmpty>
           <SidebarHeader className="data-[empty=true]:hidden">

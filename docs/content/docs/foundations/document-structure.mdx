@@ -54,8 +54,6 @@ The `content` field of a block contains the rich-text content of a block. This i
 
 The `InlineContent` type is used to describe a piece of inline content:
 
-{/* TODO: Technically there's also custom inline content which has its own type. Blocks share a type regardless of if they're custom or default, but inline content doesn't so this is potentially kind of misleading. */}
-
 ```typescript
 type Link = {
   type: "link";
@@ -69,8 +67,16 @@ type StyledText = {
   styles: Styles;
 };
 
-type InlineContent = Link | StyledText;
+type CustomInlineContent = {
+  type: string;
+  content: StyledText[] | undefined;
+  props: Record<string, boolean | number | string>;
+};
 ```
+
+type InlineContent = Link | StyledText | CustomInlineContent;
+
+````
 
 The `styles` property is explained below.
 
@@ -78,8 +84,7 @@ The `styles` property is explained below.
 
 The `styles` property of `StyledText` objects is used to describe the rich text styles (e.g.: bold, italic, color) or other attributes of a piece of text. It's a set of key / value pairs that specify the styles applied to the text.
 
-{/* TODO: Wrong link. */}
-See the [Default Schema](/docs/foundations/schemas) to learn which styles are included in BlockNote by default.
+See the [Default Styles](/docs/features/blocks/inline-content#default-styles) to learn which styles are included in BlockNote by default.
 
 ## See it for yourself
 

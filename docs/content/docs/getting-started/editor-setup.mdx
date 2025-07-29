@@ -35,15 +35,13 @@ declare function useCreateBlockNote(
 
 The hook takes two optional parameters:
 
-**options:** Configure the editor with options like (see [Editor Options](/docs/reference/editor/overview#options) for all options):
-
-{/* TODO: Might be more relevant to e.g. switch out `domAttributes` and `tabBehaviour` to `uploadFile` and `pasteHandler`. */}
+**options:** Configure the editor with various options. You can find some commonly used options below, or see [Editor Options](/docs/reference/editor/overview#options) for all available options.
 
 - `initialContent` - Set starting content
-- `domAttributes` - Add HTML attributes to editor elements. See [Adding DOM Attributes](/docs/react/styling-theming/adding-dom-attributes) for more.
 - `dictionary` - Customize text strings for localization. See the [Localization](/docs/features/localization) for more.
 - `schema` - Add custom blocks and styles. See [Custom Schemas](/docs/features/custom-schemas).
-- `tabBehavior` - Control tab key behavior (`"prefer-navigate-ui"` or `"prefer-indent"`)
+- `uploadFile` - Handle file uploads to a backend.
+- `pasteHandler` - Handle how pasted clipboard content gets parsed.
 
 **deps:** React dependency array that determines when to recreate the editor.
 

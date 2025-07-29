@@ -6,14 +6,7 @@ imageTitle: List Types
 
 # List Item Blocks
 
-BlockNote supports several built-in list types:
-
-- Numbered List
-- Bullet List
-- Check List
-- Toggle List
-
-<Example name="basic/default-blocks" />
+List item blocks are used to create different types of lists in your documents. BlockNote supports various list item blocks to help you structure and format your content effectively.
 
 ### Bullet List Item
 
@@ -36,24 +29,26 @@ type BulletListItemBlock = {
 A numbered list item is a list item that is numbered.
 
 **Type & Props**
-{/* TODO: We should add the `start` prop. */}
 
 ```typescript
 type NumberedListItemBlock = {
   id: string;
   type: "numberedListItem";
-  props: DefaultProps;
+  props: DefaultProps & {
+    start?: number;
+  };
   content: InlineContent[];
   children: Block[];
 };
 ```
+
+`start:` The number of this list item. If not provided, it defaults to `1`, or is incremented from the previous item.
 
 ### Check List Item
 
 A check list item is a list item that can be checked or unchecked.
 
 **Type & Props**
-{/* TODO: We explain the heading block's `level` prop but don't explain the `checked` prop here. IMO they are both pretty self explanatory, so maybe we should either add an explanation here or remove it there. */}
 
 ```typescript
 type CheckListItemBlock = {
@@ -66,6 +61,8 @@ type CheckListItemBlock = {
   children: Block[];
 };
 ```
+
+`checked:` Whether the list item is checked or not.
 
 ### Toggle List Item
 

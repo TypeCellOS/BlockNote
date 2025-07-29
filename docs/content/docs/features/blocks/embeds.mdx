@@ -8,6 +8,32 @@ imageTitle: Embeds
 
 Embeds are a way to display content from external sources in your documents. BlockNote supports various embeds to help you structure and format your content effectively.
 
+## File
+
+A file block is a block that displays a file.
+
+**Type & Props**
+
+```ts
+type FileBlock = {
+  id: string;
+  type: "file";
+  props: {
+    name: string = "";
+    url: string = "";
+    caption: string = "";
+  } & DefaultProps;
+  content: undefined;
+  children: Block[];
+};
+```
+
+`name:` The file name.
+
+`url:` The file URL.
+
+`caption:` The file caption.
+
 ## Image
 
 An image block is a block that displays an image.
@@ -28,32 +54,13 @@ type ImageBlock = {
 };
 ```
 
+`name:` The image name.
+
 `url:` The image URL.
 
 `caption:` The image caption.
 
 `previewWidth:` The image previewWidth in pixels.
-
-## File
-
-A file block is a block that displays a file.
-
-**Type & Props**
-{/* TODO: Prop descriptions are missing. Also this should probably come before the image blocks. */}
-
-```ts
-type FileBlock = {
-  id: string;
-  type: "file";
-  props: {
-    name: string = "";
-    url: string = "";
-    caption: string = "";
-  } & DefaultProps;
-  content: undefined;
-  children: Block[];
-};
-```
 
 ## Video
 

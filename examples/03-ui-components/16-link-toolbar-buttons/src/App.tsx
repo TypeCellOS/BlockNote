@@ -2,8 +2,11 @@ import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
+  DeleteLinkButton,
+  EditLinkButton,
   LinkToolbar,
   LinkToolbarController,
+  OpenLinkButton,
   useCreateBlockNote,
 } from "@blocknote/react";
 
@@ -49,6 +52,14 @@ export default function App() {
       <LinkToolbarController
         linkToolbar={(props) => (
           <LinkToolbar {...props}>
+            <EditLinkButton
+              url={props.url}
+              text={props.text}
+              editLink={props.editLink}
+            />
+            <OpenLinkButton url={props.url} />
+            <DeleteLinkButton deleteLink={props.deleteLink} />
+            {/* Extra button to open alert. */}
             <AlertButton {...props} />
           </LinkToolbar>
         )}
