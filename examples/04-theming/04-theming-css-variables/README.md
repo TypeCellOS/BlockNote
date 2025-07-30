@@ -4,4 +4,4 @@ In this example, we override the editor's default theme CSS variables to create 
 
 **Relevant Docs:**
 
-- [Theme CSS Variables](/docs/styling-theming/themes#theme-css-variables)
+- [Theme CSS Variables](/docs/react/styling-theming/themes#css-variables)

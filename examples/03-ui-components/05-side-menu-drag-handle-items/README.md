@@ -6,6 +6,6 @@ In this example, we add an item to the Drag Handle Menu, which resets the hovere
 
 **Relevant Docs:**
 
-- [Changing Drag Handle Menu Items](/docs/ui-components/side-menu#changing-drag-handle-menu-items)
-- [Updating Blocks](/docs/editor-api/manipulating-blocks#updating-blocks)
-- [Editor Setup](/docs/editor-basics/setup)
+- [Changing Drag Handle Menu Items](/docs/react/components/side-menu)
+- [Updating Blocks](/docs/reference/editor/manipulating-content)
+- [Editor Setup](/docs/getting-started/editor-setup)

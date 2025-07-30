@@ -4,5 +4,5 @@ This example showcases multi-column blocks, allowing you to stack blocks next to
 
 **Relevant Docs:**
 
-- [Editor Setup](/docs/editor-basics/setup)
-- [Document Structure](/docs/editor-basics/document-structure)
+- [Editor Setup](/docs/getting-started/editor-setup)
+- [Document Structure](/docs/foundations/document-structure)

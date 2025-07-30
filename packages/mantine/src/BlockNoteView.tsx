@@ -5,14 +5,13 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import {
-  BlockNoteViewProps,
   BlockNoteViewRaw,
   ComponentsContext,
   useBlockNoteContext,
   usePrefersColorScheme,
 } from "@blocknote/react";
 import { MantineProvider } from "@mantine/core";
-import { useCallback } from "react";
+import React, { useCallback } from "react";
 import {
   applyBlockNoteCSSVariablesFromTheme,
   removeBlockNoteCSSVariables,
@@ -31,7 +30,10 @@ export const BlockNoteView = <
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema,
 >(
-  props: Omit<BlockNoteViewProps<BSchema, ISchema, SSchema>, "theme"> & {
+  props: Omit<
+    React.ComponentProps<typeof BlockNoteViewRaw<BSchema, ISchema, SSchema>>,
+    "theme"
+  > & {
     theme?:
       | "light"
       | "dark"

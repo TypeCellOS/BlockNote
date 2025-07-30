@@ -4,4 +4,4 @@ This example showcases use of multiple editors in a single page - you can even d
 
 **Relevant Docs:**
 
-- [Editor Setup](/docs/editor-basics/setup)
+- [Editor Setup](/docs/getting-started/editor-setup)

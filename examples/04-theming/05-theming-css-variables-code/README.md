@@ -4,4 +4,4 @@ In this example, we use the `BlockNoteView` component's `theme` props to create 
 
 **Relevant Docs:**
 
-- [Changing CSS Variables Through Code](/docs/styling-theming/themes#changing-css-variables-through-code)
+- [Changing CSS Variables Through Code](/docs/react/styling-theming/themes#programmatic-configuration)

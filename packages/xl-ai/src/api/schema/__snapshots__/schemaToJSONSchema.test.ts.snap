@@ -20,6 +20,7 @@ exports[`creates json schema 1`] = `
               "enum": [
                 "paragraph",
                 "quote",
+                "toggleListItem",
                 "bulletListItem",
                 "numberedListItem",
               ],
@@ -40,11 +41,18 @@ exports[`creates json schema 1`] = `
             "props": {
               "additionalProperties": false,
               "properties": {
+                "isToggleable": {
+                  "enum": undefined,
+                  "type": "boolean",
+                },
                 "level": {
                   "enum": [
                     1,
                     2,
                     3,
+                    4,
+                    5,
+                    6,
                   ],
                   "type": "number",
                 },

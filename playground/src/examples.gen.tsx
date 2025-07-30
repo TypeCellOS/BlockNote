@@ -20,7 +20,8 @@
         "group": {
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"
-        }
+        },
+        "readme": "This example shows the minimal code required to set up a BlockNote editor in React.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
         "projectSlug": "block-objects",
@@ -40,7 +41,8 @@
         "group": {
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"
-        }
+        },
+        "readme": "In this example, the document's JSON representation is displayed below the editor.\n\n**Try it out:** Try typing in the editor and see the JSON update!\n\n**Relevant Docs:**\n\n- [Document Structure](/docs/foundations/document-structure)\n- [Getting the Document](/docs/reference/editor/manipulating-content)"
       },
       {
         "projectSlug": "multi-column",
@@ -63,7 +65,8 @@
         "group": {
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"
-        }
+        },
+        "readme": "This example showcases multi-column blocks, allowing you to stack blocks next to each other. These come as part of the `@blocknote/xl-multi-column` package.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Document Structure](/docs/foundations/document-structure)"
       },
       {
         "projectSlug": "default-blocks",
@@ -83,7 +86,8 @@
         "group": {
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"
-        }
+        },
+        "readme": "This example showcases each block and inline content type in BlockNote's default schema.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Document Structure](/docs/foundations/document-structure)\n- [Default Schema](/docs/foundations/schemas)"
       },
       {
         "projectSlug": "removing-default-blocks",
@@ -103,7 +107,8 @@
         "group": {
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"
-        }
+        },
+        "readme": "This example shows how to change the default schema and disable the Audio and Image blocks. To do this, we pass in a custom schema based on the built-in, default schema, with two specific blocks removed.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Custom Schemas](/docs/features/custom-schemas)\n- [Default Schema](/docs/foundations/schemas)"
       },
       {
         "projectSlug": "block-manipulation",
@@ -122,7 +127,8 @@
         "group": {
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"
-        }
+        },
+        "readme": "This example shows 4 buttons to manipulate the first block using the `insertBlocks`, `updateBlock`, `removeBlocks` and `replaceBlocks` methods.\n\n**Relevant Docs:**\n\n- [Block Manipulation](/docs/reference/editor/manipulating-content)"
       },
       {
         "projectSlug": "selection-blocks",
@@ -141,7 +147,8 @@
         "group": {
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"
-        }
+        },
+        "readme": "In this example, the JSON representation of blocks spanned by the user's selection, is displayed below the editor.\n\n**Try it out:** Select different blocks in the editor and see the JSON update!\n\n**Relevant Docs:**\n\n- [Cursor Selections](/docs/reference/editor/cursor-selections)"
       },
       {
         "projectSlug": "ariakit",
@@ -159,7 +166,8 @@
         "group": {
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"
-        }
+        },
+        "readme": "This example shows how you can use BlockNote with Ariakit (instead of Mantine).\n\n**Relevant Docs:**\n\n- [Ariakit Docs](/docs/getting-started/ariakit)\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
         "projectSlug": "shadcn",
@@ -177,7 +185,8 @@
         "group": {
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"
-        }
+        },
+        "readme": "This example shows how you can use BlockNote with ShadCN (instead of Mantine).\n\n**Relevant Docs:**\n\n- [Getting Started with ShadCN](/docs/getting-started/shadcn)"
       },
       {
         "projectSlug": "localization",
@@ -195,7 +204,8 @@
         "group": {
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"
-        }
+        },
+        "readme": "In this example, we pass in a custom dictionary to change the interface of the editor to use Dutch (NL) strings.\n\nYou can also provide your own dictionary to customize the strings used in the editor, or submit a Pull Request to add support for your language of your choice.\n\n**Relevant Docs:**\n\n- [Localization](/docs/features/localization)"
       },
       {
         "projectSlug": "custom-placeholder",
@@ -213,7 +223,8 @@
         "group": {
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"
-        }
+        },
+        "readme": "In this example, we show how to change the placeholders:\n\n- For an empty document, we show a placeholder `Start typing..` (by default, this is not set)\n- the default placeholder in this editor shows `Custom default placeholder` instead of the default (`Enter text or type '/' for commands`)\n- for Headings, the placeholder shows `Custom heading placeholder` instead of the default (`Heading`). Try adding a Heading to see the change\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Localization (i18n)](/examples/basic/localization)"
       },
       {
         "projectSlug": "multi-editor",
@@ -231,7 +242,8 @@
         "group": {
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"
-        }
+        },
+        "readme": "This example showcases use of multiple editors in a single page - you can even drag blocks between them.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
         "projectSlug": "custom-paste-handler",
@@ -249,7 +261,8 @@
         "group": {
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"
-        }
+        },
+        "readme": "In this example, we change the default paste handler to append some text to the pasted content when the content is plain text.\n\n**Try it out:** Use the buttons to copy some content to the clipboard and paste it in the editor to trigger our custom paste handler.\n\n**Relevant Docs:**\n\n- [Paste Handling](/docs/reference/editor/paste-handling)"
       },
       {
         "projectSlug": "testing",
@@ -263,7 +276,8 @@
         "group": {
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"
-        }
+        },
+        "readme": "This example is meant for use in end-to-end tests."
       }
     ]
   },
@@ -288,7 +302,8 @@
         "group": {
           "pathFromRoot": "examples/02-backend",
           "slug": "backend"
-        }
+        },
+        "readme": "This example allows users to upload files and use them in the editor. The files are uploaded to [/TMP/Files](https://tmpfiles.org/), and can be used for File, Image, Video, and Audio blocks.\n\n**Try it out:** Click the \"Add Image\" button and see there's now an \"Upload\" tab in the toolbar!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [File Block](/docs/features/blocks/embeds#file)"
       },
       {
         "projectSlug": "saving-loading",
@@ -308,7 +323,8 @@
         "group": {
           "pathFromRoot": "examples/02-backend",
           "slug": "backend"
-        }
+        },
+        "readme": "This example shows how to save the editor contents to local storage whenever a change is made, and load the saved contents when the editor is created.\n\nYou can replace the `saveToStorage` and `loadFromStorage` functions with calls to your backend or database.\n\n**Try it out:** Try typing in the editor and reloading the page!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Getting the Document](/docs/foundations/manipulating-content#reading-blocks)"
       },
       {
         "projectSlug": "s3",
@@ -332,7 +348,8 @@
         "group": {
           "pathFromRoot": "examples/02-backend",
           "slug": "backend"
-        }
+        },
+        "readme": "This example allows users to upload files to an AWS S3 bucket and use them in the editor. The files can be used for File, Image, Video, and Audio blocks.\n\n**Try it out:** Click the \"Add Image\" button and see there's now an \"Upload\" tab in the toolbar!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [File Block](/docs/features/blocks/embeds#file)"
       },
       {
         "projectSlug": "rendering-static-documents",
@@ -353,7 +370,8 @@
         "group": {
           "pathFromRoot": "examples/02-backend",
           "slug": "backend"
-        }
+        },
+        "readme": "This example shows how you can use HTML exported using the `blocksToFullHTML` and render it as a static document (a view-only document, without the editor). You can use this for example if you use BlockNote to edit blog posts in a CMS, but want to display non-editable static, published pages to end-users.\n\n**Relevant Docs:**\n\n- [Server-side processing](/docs/features/server-processing)"
       }
     ]
   },
@@ -380,7 +398,8 @@
         "group": {
           "pathFromRoot": "examples/03-ui-components",
           "slug": "ui-components"
-        }
+        },
+        "readme": "In this example, we add a blue text/background color and code style button to the Formatting Toolbar.\n\n**Try it out:** Select some text to open the Formatting Toolbar, and click one of the new buttons!\n\n**Relevant Docs:**\n\n- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar)\n- [Manipulating Inline Content](/docs/reference/editor/manipulating-content)\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
         "projectSlug": "formatting-toolbar-block-type-items",
@@ -398,7 +417,7 @@
             "Custom Schemas"
           ],
           "dependencies": {
-            "@mantine/core": "^7.10.1",
+            "@mantine/core": "^7.17.3",
             "react-icons": "^5.2.1"
           } as any
         },
@@ -406,7 +425,8 @@
         "group": {
           "pathFromRoot": "examples/03-ui-components",
           "slug": "ui-components"
-        }
+        },
+        "readme": "In this example, we add an item to the Block Type Select, so that it works for a custom alert block we create.\n\n**Try it out:** Select some text to open the Formatting Toolbar, and click \"Alert\" in the Block Type Select to change the selected block!\n\n**Relevant Docs:**\n\n- [Changing Block Type Select Items](/docs/react/components/formatting-toolbar)\n- [Custom Block Types](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
         "projectSlug": "side-menu-buttons",
@@ -430,7 +450,8 @@
         "group": {
           "pathFromRoot": "examples/03-ui-components",
           "slug": "ui-components"
-        }
+        },
+        "readme": "In this example, we replace the button to add a block in the Block Side Menu, with a button to remove the hovered block.\n\n**Try it out:** Hover a block to open the Block Side Menu, and click the new button!\n\n**Relevant Docs:**\n\n- [Changing the Block Side Menu](/docs/react/components/side-menu)\n- [Removing Blocks](/docs/reference/editor/manipulating-content)\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
         "projectSlug": "side-menu-drag-handle-items",
@@ -454,7 +475,8 @@
         "group": {
           "pathFromRoot": "examples/03-ui-components",
           "slug": "ui-components"
-        }
+        },
+        "readme": "In this example, we add an item to the Drag Handle Menu, which resets the hovered block to a paragraph.\n\n**Try it out:** Hover a block to open the Block Side Menu, and click \"Reset Type\" in the Drag Handle Menu to reset the selected block!\n\n**Relevant Docs:**\n\n- [Changing Drag Handle Menu Items](/docs/react/components/side-menu)\n- [Updating Blocks](/docs/reference/editor/manipulating-content)\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
         "projectSlug": "suggestion-menus-slash-menu-items",
@@ -479,7 +501,8 @@
         "group": {
           "pathFromRoot": "examples/03-ui-components",
           "slug": "ui-components"
-        }
+        },
+        "readme": "In this example, we add an item to the Slash Menu, which adds a new block below with a bold \"Hello World\" string.\n\n**Try it out:** Press the \"/\" key to open the Slash Menu and select the new item!\n\n**Relevant Docs:**\n\n- [Changing Slash Menu Items](/docs/react/components/suggestion-menus)\n- [Getting Text Cursor Position](/docs/reference/editor/cursor-selections)\n- [Inserting New Blocks](/docs/reference/editor/manipulating-content)\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
         "projectSlug": "suggestion-menus-slash-menu-component",
@@ -501,7 +524,8 @@
         "group": {
           "pathFromRoot": "examples/03-ui-components",
           "slug": "ui-components"
-        }
+        },
+        "readme": "In this example, we replace the default Slash Menu component with a basic custom one.\n\n**Try it out:** Press the \"/\" key to see the new Slash Menu!\n\n**Relevant Docs:**\n\n- [Replacing the Slash Menu Component](/docs/react/components/suggestion-menus)\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
         "projectSlug": "suggestion-menus-emoji-picker-columns",
@@ -523,7 +547,8 @@
         "group": {
           "pathFromRoot": "examples/03-ui-components",
           "slug": "ui-components"
-        }
+        },
+        "readme": "In this example, we change the Emoji Picker to display 5 columns instead of 10.\n\n**Try it out:** Press the \":\" key to open the Emoji Picker!\n\n**Relevant Docs:**\n\n- [Changing Emoji Picker Columns](/docs/react/components/suggestion-menus)\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
         "projectSlug": "suggestion-menus-emoji-picker-component",
@@ -545,7 +570,8 @@
         "group": {
           "pathFromRoot": "examples/03-ui-components",
           "slug": "ui-components"
-        }
+        },
+        "readme": "In this example, we replace the default Emoji Picker component with a basic custom one.\n\n**Try it out:** Press the \":\" key to see the new Emoji Picker!\n\n**Relevant Docs:**\n\n- [Replacing the Emoji Picker Component](/docs/react/components/suggestion-menus)\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
         "projectSlug": "suggestion-menus-grid-mentions",
@@ -566,7 +592,8 @@
         "group": {
           "pathFromRoot": "examples/03-ui-components",
           "slug": "ui-components"
-        }
+        },
+        "readme": "In this example, we create a custom `Mention` inline content type which is used to tag people. In addition, we create a new Suggestion Menu for mentions which opens with the \"@\" character. This Suggestion Menu is displayed as a grid of 2 columns, where each item is the first letter of the person's name.\n\n**Try it out:** Press the \"@\" key to open the mentions menu and insert a mention!\n\n**Relevant Docs:**\n\n- [Custom Inline Content Types](/docs/features/custom-schemas/custom-inline-content)\n- [Creating Suggestion Menus](/docs/react/components/suggestion-menus)\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
         "projectSlug": "uppy-file-panel",
@@ -600,7 +627,8 @@
         "group": {
           "pathFromRoot": "examples/03-ui-components",
           "slug": "ui-components"
-        }
+        },
+        "readme": "This example allows users to upload files using [Uppy](https://uppy.io/) by replacing the default File Panel with an Uppy Dashboard.\n\nUppy is highly extensible and has an extensive ecosystem of plugins. For example, you can:\n\n- Record audio, screen or webcam\n- Import files from Box / Dropbox / Facebook / Google Drive / Google Photos / Instagram / OneDrive / Zoom\n- Select files from Unsplash\n- Show an image editor (crop, rotate, etc)\n\nIn this example, we've enabled the Webcam, ScreenCapture and Image Editor plugins.\n\n**Try it out:** Click the \"Add Image\" button and you can either drop files or click \"browse files\" to upload them.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Image](/docs/foundations/schemas)"
       },
       {
         "projectSlug": "static-formatting-toolbar",
@@ -621,7 +649,8 @@
         "group": {
           "pathFromRoot": "examples/03-ui-components",
           "slug": "ui-components"
-        }
+        },
+        "readme": "This example shows how to make the formatting toolbar always visible and static\nabove the editor.\n\n**Relevant Docs:**\n\n- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar)\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
         "projectSlug": "custom-ui",
@@ -653,7 +682,8 @@
         "group": {
           "pathFromRoot": "examples/03-ui-components",
           "slug": "ui-components"
-        }
+        },
+        "readme": "In this example, we implement a basic editor interface using components from Material UI. We replace the Formatting Toolbar, Slash Menu, and Block Side Menu while disabling the other default elements. Additionally, the Formatting Toolbar is made static and always visible above the editor.\n\n**Relevant Docs:**\n\n- [Formatting Toolbar](/docs/react/components/formatting-toolbar)\n- [Manipulating Inline Content](/docs/reference/editor/manipulating-content)\n- [Slash Menu](/docs/react/components/suggestion-menus)\n- [Side Menu](/docs/react/components/side-menu)\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
         "projectSlug": "experimental-mobile-formatting-toolbar",
@@ -674,7 +704,8 @@
         "group": {
           "pathFromRoot": "examples/03-ui-components",
           "slug": "ui-components"
-        }
+        },
+        "readme": "This example shows how to use the experimental mobile formatting toolbar, which uses [Visual Viewport API](https://developer.mozilla.org/en-US/docs/Web/API/Visual_Viewport_API) to position the toolbar right above the virtual keyboard on mobile devices.\n\nController is currently marked **experimental** due to the flickering issue with positioning (caused by delays of the Visual Viewport API)\n\n**Relevant Docs:**\n\n- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar)\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
         "projectSlug": "advanced-tables",
@@ -695,7 +726,8 @@
         "group": {
           "pathFromRoot": "examples/03-ui-components",
           "slug": "ui-components"
-        }
+        },
+        "readme": "This example enables the following features in tables:\n\n- Split cells\n- Cell background color\n- Cell text color\n- Table row and column headers\n\n**Relevant Docs:**\n\n- [Tables](/docs/features/blocks/tables)\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
         "projectSlug": "link-toolbar-buttons",
@@ -711,7 +743,8 @@
         "group": {
           "pathFromRoot": "examples/03-ui-components",
           "slug": "ui-components"
-        }
+        },
+        "readme": "In this example, we add a button to the Link Toolbar which opens a browser alert.\n\n**Try it out:** Hover the link open the Link Toolbar, and click the new \"Open Alert\" button!\n\n**Relevant Docs:**\n\n- [Changing the Link Toolbar](/docs/react/components/link-toolbar)\n- [Editor Setup](/docs/getting-started/editor-setup)"
       }
     ]
   },
@@ -737,7 +770,8 @@
         "group": {
           "pathFromRoot": "examples/04-theming",
           "slug": "theming"
-        }
+        },
+        "readme": "In this example, we add a `hello-world-block` class to each block in the editor. We also create a CSS rule to add a border to all elements with that class.\n\n**Relevant Docs:**\n\n- [Adding DOM Attributes](/docs/react/styling-theming/adding-dom-attributes)"
       },
       {
         "projectSlug": "changing-font",
@@ -756,7 +790,8 @@
         "group": {
           "pathFromRoot": "examples/04-theming",
           "slug": "theming"
-        }
+        },
+        "readme": "In this example, we override some of the default editor CSS to change font within the editor.\n\n**Relevant Docs:**\n\n- [Overriding CSS](/docs/react/styling-theming/overriding-css)"
       },
       {
         "projectSlug": "theming-css",
@@ -776,7 +811,8 @@
         "group": {
           "pathFromRoot": "examples/04-theming",
           "slug": "theming"
-        }
+        },
+        "readme": "In this example, we override some of the default editor CSS to make the editor text and hovered Slash Menu items blue.\n\n**Relevant Docs:**\n\n- [Overriding CSS](/docs/react/styling-theming/overriding-css)"
       },
       {
         "projectSlug": "theming-css-variables",
@@ -796,7 +832,8 @@
         "group": {
           "pathFromRoot": "examples/04-theming",
           "slug": "theming"
-        }
+        },
+        "readme": "In this example, we override the editor's default theme CSS variables to create a red theme for both light and dark modes.\n\n**Relevant Docs:**\n\n- [Theme CSS Variables](/docs/react/styling-theming/themes#css-variables)"
       },
       {
         "projectSlug": "theming-css-variables-code",
@@ -816,7 +853,8 @@
         "group": {
           "pathFromRoot": "examples/04-theming",
           "slug": "theming"
-        }
+        },
+        "readme": "In this example, we use the `BlockNoteView` component's `theme` props to create a red theme for both light and dark modes.\n\n**Relevant Docs:**\n\n- [Changing CSS Variables Through Code](/docs/react/styling-theming/themes#programmatic-configuration)"
       },
       {
         "projectSlug": "code-block",
@@ -837,7 +875,8 @@
         "group": {
           "pathFromRoot": "examples/04-theming",
           "slug": "theming"
-        }
+        },
+        "readme": "To enable code block syntax highlighting, you can use the `codeBlock` option in the `useCreateBlockNote` hook. This is excluded by default to reduce bundle size.\n\n**Relevant Docs:**\n\n- [Code Block Syntax Highlighting](/docs/features/blocks/code-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
         "projectSlug": "custom-code-block",
@@ -863,7 +902,8 @@
         "group": {
           "pathFromRoot": "examples/04-theming",
           "slug": "theming"
-        }
+        },
+        "readme": "To configure a code block highlighting theme and language, you can use the `codeBlock` option in the `useCreateBlockNote` hook.\n\nThis allows you to configure a shiki highlighter for the code blocks of your editor, allowing you to tailor the themes and languages you would like to use.\n\nTo create a syntax highlighter, you can use the [shiki-codegen](https://shiki.style/packages/codegen) CLI for generating the code to create a syntax highlighter for your languages and themes.\n\nFor example to create a syntax highlighter using the optimized javascript engine, javascript, typescript, vue, with light and dark themes, you can run the following command:\n\n```bash\nnpx shiki-codegen --langs javascript,typescript,vue --themes light,dark --engine javascript --precompiled ./shiki.bundle.ts\n```\n\nThis will generate a `shiki.bundle.ts` file that you can use to create a syntax highlighter for your editor.\n\nLike this:\n\n```ts\nimport { createHighlighter } from \"./shiki.bundle\";\n\nexport default function App() {\n  // Creates a new editor instance.\n  const editor = useCreateBlockNote({\n    codeBlock: {\n      indentLineWithTab: true,\n      defaultLanguage: \"typescript\",\n      supportedLanguages: {\n        typescript: {\n          name: \"TypeScript\",\n          aliases: [\"ts\"],\n        },\n      },\n      createHighlighter: () =>\n        createHighlighter({\n          themes: [\"light-plus\", \"dark-plus\"],\n          langs: [],\n        }),\n    },\n  });\n\n  return <BlockNoteView editor={editor} />;\n}\n```\n\n**Relevant Docs:**\n\n- [Code Blocks](/docs/features/blocks/code-blocks)\n- [shiki-codegen](https://shiki.style/packages/codegen)"
       }
     ]
   },
@@ -889,7 +929,8 @@
         "group": {
           "pathFromRoot": "examples/05-interoperability",
           "slug": "interoperability"
-        }
+        },
+        "readme": "This example exports the current document (all blocks) as HTML and displays it below the editor.\n\n**Try it out:** Edit the document to see the HTML representation!\n\n**Relevant Docs:**\n\n- [Converting Blocks to HTML](/docs/features/export/html)"
       },
       {
         "projectSlug": "converting-blocks-from-html",
@@ -909,7 +950,8 @@
         "group": {
           "pathFromRoot": "examples/05-interoperability",
           "slug": "interoperability"
-        }
+        },
+        "readme": "This example shows how you can convert HTML content to a BlockNote document.\n\nNote that the editor itself is locked for editing by setting `editable` to `false`.\n\n**Try it out:** Edit the HTML in the textarea to see the BlockNote document update!\n\n**Relevant Docs:**\n\n- [Parsing HTML to Blocks](/docs/features/import/html)"
       },
       {
         "projectSlug": "converting-blocks-to-md",
@@ -929,7 +971,8 @@
         "group": {
           "pathFromRoot": "examples/05-interoperability",
           "slug": "interoperability"
-        }
+        },
+        "readme": "This example exports the current document (all blocks) as Markdown and displays it below the editor.\n\n**Try it out:** Edit the document to see the Markdown representation!\n\n**Relevant Docs:**\n\n- [Converting Blocks to Markdown](/docs/features/export/markdown)"
       },
       {
         "projectSlug": "converting-blocks-from-md",
@@ -949,7 +992,8 @@
         "group": {
           "pathFromRoot": "examples/05-interoperability",
           "slug": "interoperability"
-        }
+        },
+        "readme": "This example shows how you can convert HTML content to a BlockNote document.\n\nNote that the editor itself is locked for editing by setting `editable` to `false`.\n\n**Try it out:** Edit the Markdown in the textarea to see the BlockNote document update!\n\n**Relevant Docs:**\n\n- [Parsing Markdown to Blocks](/docs/features/import/markdown)"
       },
       {
         "projectSlug": "converting-blocks-to-pdf",
@@ -964,6 +1008,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-pdf-exporter": "latest",
+            "@blocknote/xl-multi-column": "latest",
             "@react-pdf/renderer": "^4.3.0"
           } as any,
           "pro": true
@@ -972,7 +1017,8 @@
         "group": {
           "pathFromRoot": "examples/05-interoperability",
           "slug": "interoperability"
-        }
+        },
+        "readme": "This example exports the current document (all blocks) as an PDF file and downloads it to your computer.\n\n**Try it out:** Edit the document and click \"Download .pdf\" in top-left corner, to download the PDF file."
       },
       {
         "projectSlug": "converting-blocks-to-docx",
@@ -987,6 +1033,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-docx-exporter": "latest",
+            "@blocknote/xl-multi-column": "latest",
             "docx": "^9.0.2"
           } as any,
           "pro": true
@@ -995,7 +1042,8 @@
         "group": {
           "pathFromRoot": "examples/05-interoperability",
           "slug": "interoperability"
-        }
+        },
+        "readme": "This example exports the current document (all blocks) as an Microsoft Word Document (DOCX) file and downloads it to your computer.\n\n**Try it out:** Edit the document and click \"Download .docx\" in top-left corner, to download the DOCX file."
       },
       {
         "projectSlug": "converting-blocks-to-odt",
@@ -1009,7 +1057,8 @@
             ""
           ],
           "dependencies": {
-            "@blocknote/xl-odt-exporter": "latest"
+            "@blocknote/xl-odt-exporter": "latest",
+            "@blocknote/xl-multi-column": "latest"
           } as any,
           "pro": true
         },
@@ -1017,7 +1066,32 @@
         "group": {
           "pathFromRoot": "examples/05-interoperability",
           "slug": "interoperability"
-        }
+        },
+        "readme": "This example exports the current document (all blocks) as an Open Document Text (ODT) file and downloads it to your computer.\n\n**Try it out:** Edit the document and click \"Download .odt\" in top-left corner, to download the ODT file."
+      },
+      {
+        "projectSlug": "converting-blocks-to-react-email",
+        "fullSlug": "interoperability/converting-blocks-to-react-email",
+        "pathFromRoot": "examples/05-interoperability/08-converting-blocks-to-react-email",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "jmarbutt",
+          "tags": [
+            ""
+          ],
+          "dependencies": {
+            "@blocknote/xl-email-exporter": "latest",
+            "@react-email/render": "^1.1.2"
+          } as any,
+          "pro": true
+        },
+        "title": "Exporting documents to React Email",
+        "group": {
+          "pathFromRoot": "examples/05-interoperability",
+          "slug": "interoperability"
+        },
+        "readme": "This example exports the current document (all blocks) as a React Email document.\n\n**Try it out:** Edit the document and the preview will update."
       }
     ]
   },
@@ -1041,7 +1115,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^7.10.1",
+            "@mantine/core": "^7.17.3",
             "react-icons": "^5.2.1"
           } as any
         },
@@ -1049,7 +1123,8 @@
         "group": {
           "pathFromRoot": "examples/06-custom-schema",
           "slug": "custom-schema"
-        }
+        },
+        "readme": "In this example, we create a custom `Alert` block which is used to emphasize text.\n\n**Try it out:** Click the \"!\" icon to change the alert type!\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
         "projectSlug": "suggestion-menus-mentions",
@@ -1070,7 +1145,8 @@
         "group": {
           "pathFromRoot": "examples/06-custom-schema",
           "slug": "custom-schema"
-        }
+        },
+        "readme": "In this example, we create a custom `Mention` inline content type which is used to tag people. In addition, we create a new Suggestion Menu for mentions which opens with the \"@\" character.\n\n**Try it out:** Press the \"@\" key to open the mentions menu and insert a mention!\n\n**Relevant Docs:**\n\n- [Custom Inline Content Types](/docs/features/custom-schemas/custom-inline-content)\n- [Creating Suggestion Menus](/docs/react/components/suggestion-menus#creating-additional-suggestion-menus)\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
         "projectSlug": "font-style",
@@ -1094,7 +1170,8 @@
         "group": {
           "pathFromRoot": "examples/06-custom-schema",
           "slug": "custom-schema"
-        }
+        },
+        "readme": "In this example, we create a custom `Font` style which is used to set the `fontFamily` style. In addition, we create a Formatting Toolbar button which sets the `Font` style on the selected text.\n\n**Try it out:** Highlight some text to open the Formatting Toolbar and set the `Font` style!\n\n**Relevant Docs:**\n\n- [Custom Styles](/docs/features/custom-schemas/custom-styles)\n- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar)\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
         "projectSlug": "pdf-file-block",
@@ -1112,7 +1189,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^7.10.1",
+            "@mantine/core": "^7.17.3",
             "react-icons": "^5.2.1"
           } as any,
           "pro": true
@@ -1121,7 +1198,8 @@
         "group": {
           "pathFromRoot": "examples/06-custom-schema",
           "slug": "custom-schema"
-        }
+        },
+        "readme": "In this example, we create a custom `PDF` block which extends the built-in `File` block. In addition, we create a Slash Menu item which inserts a `PDF` block.\n\n**Try it out:** Press the \"/\" key to open the Slash Menu and insert an `PDF` block!\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Changing Slash Menu Items](/docs/react/components/suggestion-menus)\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
         "projectSlug": "alert-block-full-ux",
@@ -1140,7 +1218,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^7.10.1",
+            "@mantine/core": "^7.17.3",
             "react-icons": "^5.2.1"
           } as any
         },
@@ -1148,7 +1226,44 @@
         "group": {
           "pathFromRoot": "examples/06-custom-schema",
           "slug": "custom-schema"
-        }
+        },
+        "readme": "In this example, we create a custom `Alert` block which is used to emphasize text, same as in the [minimal `Alert` block example](/examples/custom-schema/alert-block). However, in this example, we also add a command to insert the block via the Slash Menu, and an entry in the Formatting Toolbar's Block Type Select to change the current block to an `Alert`.\n\n**Try it out:** Press the \"/\" key to open the Slash Menu and insert an `Alert` block! Or highlight text in a paragraph, then change the block type to an `Alert` using the Block Type Select in the Formatting Toolbar!\n\n**Relevant Docs:**\n\n- [Minimal Alert Block Example](/examples/custom-schema/alert-block)\n- [Changing Slash Menu Items](/docs/react/components/suggestion-menus)\n- [Changing Block Type Select Items](/docs/react/components/formatting-toolbar)\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)"
+      },
+      {
+        "projectSlug": "toggleable-blocks",
+        "fullSlug": "custom-schema/toggleable-blocks",
+        "pathFromRoot": "examples/06-custom-schema/06-toggleable-blocks",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Toggleable Custom Blocks",
+        "group": {
+          "pathFromRoot": "examples/06-custom-schema",
+          "slug": "custom-schema"
+        },
+        "readme": "This example shows how to create custom blocks with a toggle button to show/hide their children, like with the default toggle heading and list item blocks. This is done using the use the `ToggleWrapper` component from `@blocknote/react`.\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Default Schema](/docs/features/blocks)"
+      },
+      {
+        "projectSlug": "draggable-inline-content",
+        "fullSlug": "custom-schema/draggable-inline-content",
+        "pathFromRoot": "examples/06-custom-schema/draggable-inline-content",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "hectorzhuang",
+          "tags": []
+        },
+        "title": "Draggable Inline Content",
+        "group": {
+          "pathFromRoot": "examples/06-custom-schema",
+          "slug": "custom-schema"
+        },
+        "readme": ""
       },
       {
         "projectSlug": "react-custom-blocks",
@@ -1164,7 +1279,8 @@
         "group": {
           "pathFromRoot": "examples/06-custom-schema",
           "slug": "custom-schema"
-        }
+        },
+        "readme": ""
       },
       {
         "projectSlug": "react-custom-inline-content",
@@ -1180,7 +1296,8 @@
         "group": {
           "pathFromRoot": "examples/06-custom-schema",
           "slug": "custom-schema"
-        }
+        },
+        "readme": ""
       },
       {
         "projectSlug": "react-custom-styles",
@@ -1196,7 +1313,8 @@
         "group": {
           "pathFromRoot": "examples/06-custom-schema",
           "slug": "custom-schema"
-        }
+        },
+        "readme": ""
       }
     ]
   },
@@ -1219,14 +1337,15 @@
           ],
           "dependencies": {
             "y-partykit": "^0.0.25",
-            "yjs": "^13.6.15"
+            "yjs": "^13.6.27"
           } as any
         },
         "title": "Collaborative Editing with PartyKit",
         "group": {
           "pathFromRoot": "examples/07-collaboration",
           "slug": "collaboration"
-        }
+        },
+        "readme": "In this example, we use PartyKit to let multiple users collaborate on a single BlockNote document in real-time.\n\n**Try it out:** Open this page in a new browser tab or window to see it in action!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [PartyKit](/docs/features/collaboration#partykit)"
       },
       {
         "projectSlug": "liveblocks",
@@ -1247,14 +1366,15 @@
             "@liveblocks/react-blocknote": "^2.23.1",
             "@liveblocks/react-tiptap": "^2.23.1",
             "@liveblocks/react-ui": "^2.23.1",
-            "yjs": "^13.6.15"
+            "yjs": "^13.6.27"
           } as any
         },
         "title": "Collaborative Editing with Liveblocks",
         "group": {
           "pathFromRoot": "examples/07-collaboration",
           "slug": "collaboration"
-        }
+        },
+        "readme": "In this example, we use\nthe [Liveblocks + BlockNote setup guide](https://liveblocks.io/docs/get-started/react-blocknote)\nto create a collaborative BlockNote editor, where multiple people can work on\nthe same document in real-time.\n\nUsers can also add comments to the documents to start threads, which are\ndisplayed next to the editor. As well as that, they can react to, reply to, and\nresolve existing comments.\n\n**Try it out:** Open this page in a new browser tab or window to see it in\naction!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Liveblocks](/docs/features/collaboration#liveblocks)\n\n**From Liveblocks Website:**\n\n- [Get Started with BlockNote](https://liveblocks.io/docs/get-started/react-blocknote)\n- [Ready Made Features](https://liveblocks.io/docs/ready-made-features/text-editor/blocknote)\n- [API Reference](https://liveblocks.io/docs/api-reference/liveblocks-react-blocknote)\n- [Advanced Example](https://liveblocks.io/examples/collaborative-text-editor/nextjs-blocknote)"
       },
       {
         "projectSlug": "y-sweet",
@@ -1277,7 +1397,8 @@
         "group": {
           "pathFromRoot": "examples/07-collaboration",
           "slug": "collaboration"
-        }
+        },
+        "readme": "In this example, we use Y-Sweet to let multiple users collaborate on a single BlockNote document in real-time.\n\n**Try it out:** Open the [Y-Sweet BlockNote demo](https://demos.y-sweet.dev/blocknote) in multiple browser tabs to see it in action!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)\n- [Y-Sweet on Jamsocket](https://docs.jamsocket.com/y-sweet/tutorials/blocknote)"
       },
       {
         "projectSlug": "comments",
@@ -1301,7 +1422,8 @@
         "group": {
           "pathFromRoot": "examples/07-collaboration",
           "slug": "collaboration"
-        }
+        },
+        "readme": "In this example, you can add comments to the document while collaborating with others. You can also pick user accounts with different permissions, as well as react to, reply to, and resolve existing comments. The comments are displayed floating next to the text they refer to, and appear when selecting said text.\n\n**Try it out:** Click the \"Add comment\" button in the [Formatting Toolbar](/docs/react/components/formatting-toolbar) to add a comment!\n\n**Relevant Docs:**\n\n- [Comments](/docs/features/collaboration/comments)\n- [Real-time collaboration](/docs/features/collaboration)\n- [Y-Sweet on Jamsocket](https://docs.jamsocket.com/y-sweet/tutorials/blocknote)\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
         "projectSlug": "comments-with-sidebar",
@@ -1325,7 +1447,8 @@
         "group": {
           "pathFromRoot": "examples/07-collaboration",
           "slug": "collaboration"
-        }
+        },
+        "readme": "In this example, you can add comments to the document while collaborating with others. You can also pick user accounts with different permissions, as well as react to, reply to, and resolve existing comments. The comments are displayed floating next to the text they refer to, and appear when selecting said text. The comments are shown in a separate sidebar using the `ThreadsSidebar` component.\n\n**Try it out:** Click the \"Add comment\" button in\nthe [Formatting Toolbar](/docs/react/components/formatting-toolbar) to add a\ncomment!\n\n**Relevant Docs:**\n\n- [Comments Sidebar](/docs/features/collaboration/comments#sidebar-view)\n- [Real-time collaboration](/docs/features/collaboration)\n- [Y-Sweet on Jamsocket](https://docs.jamsocket.com/y-sweet/tutorials/blocknote)\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
         "projectSlug": "ghost-writer",
@@ -1342,14 +1465,15 @@
           ],
           "dependencies": {
             "y-partykit": "^0.0.25",
-            "yjs": "^13.6.15"
+            "yjs": "^13.6.27"
           } as any
         },
         "title": "Ghost Writer",
         "group": {
           "pathFromRoot": "examples/07-collaboration",
           "slug": "collaboration"
-        }
+        },
+        "readme": "In this example, we use a local Yjs document to store the document state, and have a ghost writer that edits the document in real-time.\n\n**Try it out:** Open this page in a new browser tab or window to see it in action!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
         "projectSlug": "forking",
@@ -1366,14 +1490,15 @@
           ],
           "dependencies": {
             "y-partykit": "^0.0.25",
-            "yjs": "^13.6.15"
+            "yjs": "^13.6.27"
           } as any
         },
         "title": "Collaborative Editing with Forking",
         "group": {
           "pathFromRoot": "examples/07-collaboration",
           "slug": "collaboration"
-        }
+        },
+        "readme": "In this example, we can fork a document and edit it independently of other collaborators. Then, we can choose to merge the changes back into the original document, or discard the changes.\n\n**Try it out:** Open this page in a new browser tab or window to see it in action!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)"
       }
     ]
   },
@@ -1401,7 +1526,8 @@
         "group": {
           "pathFromRoot": "examples/08-extensions",
           "slug": "extensions"
-        }
+        },
+        "readme": "This example shows how to set up a BlockNote editor with a TipTap extension that registers an InputRule to convert `->` into `→`.\n\n**Try it out:** Type `->` anywhere in the editor and see how it's automatically converted to a single arrow unicode character."
       }
     ]
   },
@@ -1423,7 +1549,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^7.10.1",
+            "@mantine/core": "^7.17.3",
             "ai": "^4.3.15",
             "@ai-sdk/groq": "^1.2.9",
             "zustand": "^5.0.3"
@@ -1433,7 +1559,8 @@
         "group": {
           "pathFromRoot": "examples/09-ai",
           "slug": "ai"
-        }
+        },
+        "readme": "This example shows the minimal setup to add AI integration to your BlockNote rich text editor.\n\nSelect some text and click the AI (stars) button, or type `/ai` anywhere in the editor to access AI functionality.\n\n**Relevant Docs:**\n\n- [Getting Stared with BlockNote AI](/docs/features/ai/getting-started)\n- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar)\n- [Changing Slash Menu Items](/docs/react/components/suggestion-menus)"
       },
       {
         "projectSlug": "playground",
@@ -1449,8 +1576,9 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^7.10.1",
+            "@mantine/core": "^7.17.3",
             "ai": "^4.3.15",
+            "@ai-sdk/google": "^1.2.20",
             "@ai-sdk/openai": "^1.3.22",
             "@ai-sdk/openai-compatible": "^0.2.14",
             "@ai-sdk/groq": "^1.2.9",
@@ -1463,7 +1591,8 @@
         "group": {
           "pathFromRoot": "examples/09-ai",
           "slug": "ai"
-        }
+        },
+        "readme": "The AI Playground example shows how to customize different options of the AI Extension such as model type and streaming mode.\n\nChange the configuration, the highlight some text to access the AI menu, or type `/ai` anywhere in the editor.\n\n**Relevant Docs:**\n\n- [Getting Stared with BlockNote AI](/docs/features/ai/getting-started)\n- [BlockNote AI Reference](/docs/features/ai/reference)\n- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar)\n- [Changing Slash Menu Items](/docs/react/components/suggestion-menus)"
       },
       {
         "projectSlug": "custom-ai-menu-items",
@@ -1479,7 +1608,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^7.10.1",
+            "@mantine/core": "^7.17.3",
             "ai": "^4.1.0",
             "@ai-sdk/openai": "^1.1.0",
             "@ai-sdk/groq": "^1.1.0",
@@ -1491,7 +1620,8 @@
         "group": {
           "pathFromRoot": "examples/09-ai",
           "slug": "ai"
-        }
+        },
+        "readme": "In this example, we add two items to the AI Menu. The first prompts the AI to make the selected text more casual, and can be found by selecting some text and click the AI (stars) button. The second prompts the AI to give ideas on related topics to extend the document with, and can be found by clicking the \"Ask AI\" Slash Menu item.\n\nSelect some text and click the AI (stars) button, or type `/ai` anywhere in the editor to access AI functionality.\n\n**Relevant Docs:**\n\n- [Getting Stared with BlockNote AI](/docs/features/ai/getting-started)\n- [Custom AI Menu Items](/docs/features/ai/custom-commands)"
       },
       {
         "projectSlug": "with-collaboration",
@@ -1507,11 +1637,11 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^7.10.1",
+            "@mantine/core": "^7.17.3",
             "ai": "^4.3.15",
             "@ai-sdk/groq": "^1.2.9",
             "y-partykit": "^0.0.25",
-            "yjs": "^13.6.15",
+            "yjs": "^13.6.27",
             "zustand": "^5.0.3"
           } as any
         },
@@ -1519,7 +1649,8 @@
         "group": {
           "pathFromRoot": "examples/09-ai",
           "slug": "ai"
-        }
+        },
+        "readme": "This example combines the AI extension with the ghost writer example to show how to use the AI extension in a collaborative environment.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar#changing-the-formatting-toolbar)\n- [Changing Slash Menu Items](/docs/react/components/suggestion-menus#changing-slash-menu-items)\n- [Getting Stared with BlockNote AI](/docs/features/ai/setup)"
       }
     ]
   },
@@ -1541,7 +1672,8 @@
         "group": {
           "pathFromRoot": "examples/vanilla-js",
           "slug": "vanilla-js"
-        }
+        },
+        "readme": ""
       },
       {
         "projectSlug": "react-vanilla-custom-inline-content",
@@ -1557,7 +1689,8 @@
         "group": {
           "pathFromRoot": "examples/vanilla-js",
           "slug": "vanilla-js"
-        }
+        },
+        "readme": ""
       },
       {
         "projectSlug": "react-vanilla-custom-styles",
@@ -1573,7 +1706,8 @@
         "group": {
           "pathFromRoot": "examples/vanilla-js",
           "slug": "vanilla-js"
-        }
+        },
+        "readme": ""
       }
     ]
   }

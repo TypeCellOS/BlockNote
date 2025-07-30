@@ -6,4 +6,4 @@ You can also provide your own dictionary to customize the strings used in the ed
 
 **Relevant Docs:**
 
-- [Editor Setup](/docs/editor-basics/setup)
+- [Localization](/docs/features/localization)

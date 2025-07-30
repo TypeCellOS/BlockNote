@@ -7,8 +7,8 @@ import {
   blockToNode,
   nodeToBlock,
 } from "@blocknote/core";
+import { partialBlockToBlockForTesting } from "@shared/formatConversionTestUtil.js";
 
-import { partialBlockToBlockForTesting } from "./formatConversionTestUtil.js";
 import { multiColumnSchemaTestCases } from "./testCases.js";
 
 function addIdsToBlock(block: PartialBlock<any, any, any>) {

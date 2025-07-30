@@ -20,6 +20,57 @@ export const it: Dictionary = {
       aliases: ["h3", "intestazione3", "sottotitolo"],
       group: "Intestazioni",
     },
+    heading_4: {
+      title: "Intestazione 4",
+      subtext: "Intestazione di sottosezione minore",
+      aliases: ["h4", "intestazione4", "sottotitolo4"],
+      group: "Sottotitoli",
+    },
+    heading_5: {
+      title: "Intestazione 5",
+      subtext: "Intestazione di sottosezione minore",
+      aliases: ["h5", "intestazione5", "sottotitolo5"],
+      group: "Sottotitoli",
+    },
+    heading_6: {
+      title: "Intestazione 6",
+      subtext: "Intestazione di livello più basso",
+      aliases: ["h6", "intestazione6", "sottotitolo6"],
+      group: "Sottotitoli",
+    },
+    toggle_heading: {
+      title: "Intestazione Espandibile 1",
+      subtext:
+        "Intestazione di primo livello che può essere espansa o compressa per mostrare il contenuto",
+      aliases: ["h", "intestazione1", "h1", "espandibile", "comprimibile"],
+      group: "Sottotitoli",
+    },
+    toggle_heading_2: {
+      title: "Intestazione Espandibile 2",
+      subtext:
+        "Intestazione di sezione che può essere espansa o compressa per mostrare il contenuto",
+      aliases: [
+        "h2",
+        "intestazione2",
+        "sottotitolo",
+        "espandibile",
+        "comprimibile",
+      ],
+      group: "Sottotitoli",
+    },
+    toggle_heading_3: {
+      title: "Intestazione Espandibile 3",
+      subtext:
+        "Intestazione di sottosezione che può essere espansa o compressa per mostrare il contenuto",
+      aliases: [
+        "h3",
+        "intestazione3",
+        "sottotitolo",
+        "espandibile",
+        "comprimibile",
+      ],
+      group: "Sottotitoli",
+    },
     quote: {
       title: "Citazione",
       subtext: "Citazione o estratto",
@@ -49,6 +100,18 @@ export const it: Dictionary = {
         "elenco controllo",
         "elenco verificato",
         "casella di controllo",
+      ],
+      group: "Blocchi Base",
+    },
+    toggle_list: {
+      title: "Elenco Espandibile",
+      subtext: "Elenco con elementi nascondibili",
+      aliases: [
+        "li",
+        "elenco",
+        "elenco espandibile",
+        "elenco collassabile",
+        "elenco espandibile",
       ],
       group: "Blocchi Base",
     },
@@ -134,6 +197,7 @@ export const it: Dictionary = {
   placeholders: {
     default: "Inserisci testo o digita '/' per i comandi",
     heading: "Intestazione",
+    toggleListItem: "Attiva/Disattiva",
     bulletListItem: "Elenco",
     numberedListItem: "Elenco",
     checkListItem: "Elenco",
@@ -336,6 +400,9 @@ export const it: Dictionary = {
     },
   },
   comments: {
+    edited: "modificato",
+    save_button_text: "Salva",
+    cancel_button_text: "Annulla",
     actions: {
       add_reaction: "Aggiungi reazione",
       resolve: "Risolvi",

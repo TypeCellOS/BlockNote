@@ -1,0 +1,218 @@
+---
+title: Localization (i18n)
+description: Learn how to localize BlockNote to support multiple languages and customize text strings
+---
+
+# Localization (i18n)
+
+BlockNote is designed to be fully localized, with support for multiple languages. You can easily change the language of your editor or create custom translations.
+
+## Supported Languages
+
+BlockNote supports the following languages out of the box:
+
+- **Arabic** (`ar`) - العربية
+- **Chinese (Simplified)** (`zh`) - 中文
+- **Chinese (Traditional)** (`zh-tw`) - 繁體中文
+- **Croatian** (`hr`) - Hrvatski
+- **Dutch** (`nl`) - Nederlands
+- **English** (`en`) - English
+- **French** (`fr`) - Français
+- **German** (`de`) - Deutsch
+- **Hebrew** (`he`) - עברית
+- **Icelandic** (`is`) - Íslenska
+- **Italian** (`it`) - Italiano
+- **Japanese** (`ja`) - 日本語
+- **Korean** (`ko`) - 한국어
+- **Norwegian** (`no`) - Norsk
+- **Polish** (`pl`) - Polski
+- **Portuguese** (`pt`) - Português
+- **Russian** (`ru`) - Русский
+- **Slovak** (`sk`) - Slovenčina
+- **Spanish** (`es`) - Español
+- **Ukrainian** (`uk`) - Українська
+- **Vietnamese** (`vi`) - Tiếng Việt
+
+## Basic Usage
+
+To use a different language, import the desired locale and pass it to the `dictionary` option:
+
+```tsx
+import { useCreateBlockNote, BlockNoteView } from "@blocknote/react";
+import { fr } from "@blocknote/core/locales";
+
+function FrenchEditor() {
+  const editor = useCreateBlockNote({
+    dictionary: fr,
+  });
+
+  return <BlockNoteView editor={editor} />;
+}
+```
+
+## Dynamic Language Switching
+
+You can dynamically change the language based on user preferences or your app's locale:
+
+```tsx
+import { useCreateBlockNote, BlockNoteView } from "@blocknote/react";
+import * as locales from "@blocknote/core/locales";
+
+function LocalizedEditor({ language = "en" }) {
+  const editor = useCreateBlockNote({
+    dictionary: locales[language as keyof typeof locales] || locales.en,
+  });
+
+  return <BlockNoteView editor={editor} />;
+}
+
+// Usage
+<LocalizedEditor language="fr" />
+<LocalizedEditor language="de" />
+<LocalizedEditor language="ja" />
+```
+
+## Customizing Text Strings
+
+You can customize specific text strings by extending an existing dictionary:
+
+```tsx
+import { useCreateBlockNote, BlockNoteView } from "@blocknote/react";
+import { en } from "@blocknote/core/locales";
+
+function CustomEditor() {
+  const editor = useCreateBlockNote({
+    dictionary: {
+      ...en,
+      placeholders: {
+        ...en.placeholders,
+        default: "Start typing your story...",
+        heading: "Enter your title here",
+        emptyDocument: "Begin your document",
+      },
+      slash_menu: {
+        ...en.slash_menu,
+        paragraph: {
+          ...en.slash_menu.paragraph,
+          title: "Text Block",
+          subtext: "Regular text content",
+        },
+      },
+    },
+  });
+
+  return <BlockNoteView editor={editor} />;
+}
+```
+
+## Dictionary Structure
+
+The dictionary object contains translations for various parts of the editor:
+
+### Placeholders
+
+Text that appears when blocks are empty:
+
+```tsx
+placeholders: {
+  default: "Enter text or type '/' for commands",
+  heading: "Heading",
+  bulletListItem: "List",
+  numberedListItem: "List",
+  checkListItem: "List",
+  new_comment: "Write a comment...",
+  edit_comment: "Edit comment...",
+  comment_reply: "Add comment...",
+}
+```
+
+### Slash Menu
+
+Commands that appear when typing `/`:
+
+```tsx
+slash_menu: {
+  paragraph: {
+    title: "Paragraph",
+    subtext: "The body of your document",
+    aliases: ["p", "paragraph"],
+    group: "Basic blocks",
+  },
+  heading: {
+    title: "Heading 1",
+    subtext: "Top-level heading",
+    aliases: ["h", "heading1", "h1"],
+    group: "Headings",
+  },
+  // ... more menu items
+}
+```
+
+### UI Elements
+
+Text for buttons, menus, and other interface elements:
+
+```tsx
+side_menu: {
+  add_block_label: "Add block",
+  drag_handle_label: "Open block menu",
+},
+table_handle: {
+  delete_column_menuitem: "Delete column",
+  add_left_menuitem: "Add column left",
+  // ... more table options
+},
+color_picker: {
+  text_title: "Text",
+  background_title: "Background",
+  colors: {
+    default: "Default",
+    gray: "Gray",
+    // ... more colors
+  },
+}
+```
+
+## Integration with i18n Libraries
+
+You can integrate BlockNote with popular i18n libraries like `react-i18next` or `next-intl`:
+
+```tsx
+import { useCreateBlockNote, BlockNoteView } from "@blocknote/react";
+import { useTranslation } from "react-i18next";
+import * as locales from "@blocknote/core/locales";
+
+function I18nEditor() {
+  const { i18n } = useTranslation();
+
+  const editor = useCreateBlockNote({
+    dictionary: locales[i18n.language as keyof typeof locales] || locales.en,
+  });
+
+  return <BlockNoteView editor={editor} />;
+}
+```
+
+## Adding New Languages
+
+To add support for a new language, you can:
+
+1. **Submit a Pull Request** to the BlockNote repository with your translations
+2. **Create a custom dictionary** in your application for immediate use
+
+When creating translations, make sure to:
+
+- Translate all text strings in the dictionary
+- Maintain the same structure as the English dictionary
+- Test the translations with different content types
+- Consider cultural differences in UI text
+
+## Examples
+
+### Basic Localization
+
+<Example name="basic/localization" />
+
+### Custom Placeholders
+
+<Example name="basic/custom-placeholder" />

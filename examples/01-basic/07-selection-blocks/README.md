@@ -6,4 +6,4 @@ In this example, the JSON representation of blocks spanned by the user's selecti
 
 **Relevant Docs:**
 
-- [Cursor & Selections](/docs/editor-api/cursor-selections)
+- [Cursor Selections](/docs/reference/editor/cursor-selections)

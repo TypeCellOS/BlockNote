@@ -1,5 +1,12 @@
 import { useUIElementPositioning } from "@blocknote/react";
-import { OpenChangeReason, autoUpdate, offset, size } from "@floating-ui/react";
+import {
+  OpenChangeReason,
+  UseDismissProps,
+  UseFloatingOptions,
+  autoUpdate,
+  offset,
+  size,
+} from "@floating-ui/react";
 import { useMemo } from "react";
 // The block positioner automattically positions it's children below the block with `blockID`
 export const BlockPositioner = (props: {
@@ -11,6 +18,9 @@ export const BlockPositioner = (props: {
     reason: OpenChangeReason,
   ) => void;
   canDismissViaOutsidePress?: boolean;
+  floatingOptions?: Partial<
+    UseFloatingOptions & { canDismiss: boolean | UseDismissProps }
+  >;
 }) => {
   const element = props.blockID
     ? document.querySelector(`[data-id="${props.blockID}"]`)
@@ -55,6 +65,7 @@ export const BlockPositioner = (props: {
         });
         return cleanup;
       },
+      ...props.floatingOptions,
     });
 
   if (!isMounted) {

@@ -24,7 +24,7 @@ export default defineConfig((conf) => ({
         nesting,
         tailwindcss("../packages/shadcn/tailwind.config.js"), // Adjust the path as necessary
         auto,
-      ],
+      ] as any,
     },
     // postcss: "../packages/shadcn/postcss.config.js",
   },
@@ -59,6 +59,10 @@ export default defineConfig((conf) => ({
             "@liveblocks/react-blocknote": resolve(
               __dirname,
               "../../liveblocks/packages/liveblocks-react-blocknote/src/",
+            ),
+            "@blocknote/xl-email-exporter": resolve(
+              __dirname,
+              "../packages/xl-email-exporter/src",
             ),
             /*
             This can be used when developing against a local version of liveblocks:

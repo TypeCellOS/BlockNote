@@ -8,5 +8,5 @@ You can replace the `saveToStorage` and `loadFromStorage` functions with calls t
 
 **Relevant Docs:**
 
-- [Editor Setup](/docs/editor-basics/setup)
-- [Getting the Document](/docs/editor-api/manipulating-blocks#getting-the-document)
+- [Editor Setup](/docs/getting-started/editor-setup)
+- [Getting the Document](/docs/foundations/manipulating-content#reading-blocks)

@@ -5,6 +5,7 @@ import { StyleSchema, Styles } from "../styles/types.js";
 export type CustomInlineContentConfig = {
   type: string;
   content: "styled" | "none"; // | "plain"
+  draggable?: boolean;
   readonly propSchema: PropSchema;
   // content: "inline" | "none" | "table";
 };
@@ -21,6 +22,13 @@ export type InlineContentImplementation<T extends InlineContentConfig> =
     : {
         node: Node;
       };
+
+export type InlineContentSchemaWithInlineContent<
+  IType extends string,
+  C extends InlineContentConfig,
+> = {
+  [k in IType]: C;
+};
 
 // Container for both the config and implementation of InlineContent,
 // and the type of `implementation` is based on that of the config

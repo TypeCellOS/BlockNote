@@ -4,4 +4,4 @@ In this example, we add a `hello-world-block` class to each block in the editor.
 
 **Relevant Docs:**
 
-- [Adding DOM Attributes](/docs/styling-theming/adding-dom-attributes)
+- [Adding DOM Attributes](/docs/react/styling-theming/adding-dom-attributes)

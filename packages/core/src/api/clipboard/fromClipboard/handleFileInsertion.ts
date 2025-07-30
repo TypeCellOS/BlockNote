@@ -49,6 +49,7 @@ function insertOrUpdateBlock<
   editor: BlockNoteEditor<BSchema, I, S>,
   referenceBlock: Block<BSchema, I, S>,
   newBlock: PartialBlock<BSchema, I, S>,
+  placement: "before" | "after" = "after",
 ) {
   let insertedBlockId: string | undefined;
 
@@ -61,7 +62,7 @@ function insertOrUpdateBlock<
     insertedBlockId = editor.insertBlocks(
       [newBlock],
       referenceBlock,
-      "after",
+      placement,
     )[0].id;
   }
 
@@ -156,16 +157,26 @@ export async function handleFileInsertion<
         };
 
         const pos = editor.prosemirrorView?.posAtCoords(coords);
+
         if (!pos) {
           return;
         }
 
         insertedBlockId = editor.transact((tr) => {
           const posInfo = getNearestBlockPos(tr.doc, pos.pos);
+          const blockElement = editor.prosemirrorView?.dom.querySelector(
+            `[data-id="${posInfo.node.attrs.id}"]`,
+          );
+
+          const blockRect = blockElement?.getBoundingClientRect();
+
           return insertOrUpdateBlock(
             editor,
             editor.getBlock(posInfo.node.attrs.id)!,
             fileBlock,
+            blockRect && (blockRect.top + blockRect.bottom) / 2 > coords.top
+              ? "before"
+              : "after",
           );
         });
       } else {

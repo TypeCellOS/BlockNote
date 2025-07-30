@@ -20,6 +20,54 @@ export const de: Dictionary = {
       aliases: ["h3", "überschrift3", "unterüberschrift"],
       group: "Überschriften",
     },
+    heading_4: {
+      title: "Überschrift 4",
+      subtext: "Überschrift für kleinere Unterabschnitte",
+      aliases: ["h4", "überschrift4", "unterüberschrift4"],
+      group: "Unterüberschriften",
+    },
+    heading_5: {
+      title: "Überschrift 5",
+      subtext: "Überschrift für tiefere Unterabschnitte",
+      aliases: ["h5", "überschrift5", "unterüberschrift5"],
+      group: "Unterüberschriften",
+    },
+    heading_6: {
+      title: "Überschrift 6",
+      subtext: "Überschrift auf der untersten Ebene",
+      aliases: ["h6", "überschrift6", "unterüberschrift6"],
+      group: "Unterüberschriften",
+    },
+    toggle_heading: {
+      title: "Aufklappbare Überschrift 1",
+      subtext: "Aufklappbare Hauptebene Überschrift",
+      aliases: ["h", "überschrift1", "h1", "aufklappbar", "einklappbar"],
+      group: "Unterüberschrift",
+    },
+    toggle_heading_2: {
+      title: "Aufklappbare Überschrift 2",
+      subtext: "Aufklappbare wichtige Abschnittsüberschrift",
+      aliases: [
+        "h2",
+        "überschrift2",
+        "unterüberschrift",
+        "aufklappbar",
+        "einklappbar",
+      ],
+      group: "Unterüberschriften",
+    },
+    toggle_heading_3: {
+      title: "Aufklappbare Überschrift 3",
+      subtext: "Aufklappbare Unterabschnitts- und Gruppenüberschrift",
+      aliases: [
+        "h3",
+        "überschrift3",
+        "unterüberschrift",
+        "aufklappbar",
+        "einklappbar",
+      ],
+      group: "Unterüberschriften",
+    },
     quote: {
       title: "Zitat",
       subtext: "Zitat oder Auszug",
@@ -49,6 +97,19 @@ export const de: Dictionary = {
         "check liste",
         "geprüfte liste",
         "kontrollkästchen",
+      ],
+      group: "Grundlegende Blöcke",
+    },
+    toggle_list: {
+      title: "Aufklappbare Liste",
+      subtext: "Liste mit ausblendbare Unterpunkten",
+      aliases: [
+        "li",
+        "liste",
+        "aufklappbare liste",
+        "einklappbare liste",
+        "aufklappbareListe",
+        "aufklappbare liste",
       ],
       group: "Grundlegende Blöcke",
     },
@@ -134,6 +195,7 @@ export const de: Dictionary = {
   placeholders: {
     default: "Text eingeben oder '/' für Befehle tippen",
     heading: "Überschrift",
+    toggleListItem: "Umschalten",
     bulletListItem: "Liste",
     numberedListItem: "Liste",
     checkListItem: "Liste",
@@ -334,6 +396,9 @@ export const de: Dictionary = {
     },
   },
   comments: {
+    edited: "bearbeitet",
+    save_button_text: "Speichern",
+    cancel_button_text: "Abbrechen",
     actions: {
       add_reaction: "Reaktion hinzufügen",
       resolve: "Lösen",

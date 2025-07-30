@@ -1,3 +1,124 @@
+## 0.35.0 (2025-07-25)
+
+### 🚀 Features
+
+- use fumadocs for website ([#1654](https://github.com/TypeCellOS/BlockNote/pull/1654))
+- llms.mdx routes ([cea93840e](https://github.com/TypeCellOS/BlockNote/commit/cea93840e))
+
+### 🩹 Fixes
+
+- insert file upload before block if it is closer to the top of the block ([#1857](https://github.com/TypeCellOS/BlockNote/pull/1857))
+- rename albert model ([3b0ba8d25](https://github.com/TypeCellOS/BlockNote/commit/3b0ba8d25))
+- resolve some minor drag & drop regressions ([#1862](https://github.com/TypeCellOS/BlockNote/pull/1862))
+- blockquote HTML parsing #1762 ([#1877](https://github.com/TypeCellOS/BlockNote/pull/1877), [#1762](https://github.com/TypeCellOS/BlockNote/issues/1762))
+
+### ❤️ Thank You
+
+- Brad Greenlee
+- Nick Perez
+- Nick the Sick
+- yousefed
+
+## 0.34.0 (2025-07-17)
+
+### 🚀 Features
+
+- support multi-column block in PDF, DOCX & ODT exporters ([#1781](https://github.com/TypeCellOS/BlockNote/pull/1781))
+- support react 19 ([f7b3466d3](https://github.com/TypeCellOS/BlockNote/commit/f7b3466d3))
+- disable conversion of headings to list items ([#1799](https://github.com/TypeCellOS/BlockNote/pull/1799))
+- report `moves` (indents and outdents) as changes when using `getChanges` #1757 ([#1786](https://github.com/TypeCellOS/BlockNote/pull/1786), [#1757](https://github.com/TypeCellOS/BlockNote/issues/1757))
+- allow inline content to be `draggable` ([#1818](https://github.com/TypeCellOS/BlockNote/pull/1818))
+- added type guards, types, and `editor` prop to custom inline content rendering ([#1736](https://github.com/TypeCellOS/BlockNote/pull/1736))
+- **block-change:** adds a new API for blocking changes to editor state, by filtering transactions ([#1750](https://github.com/TypeCellOS/BlockNote/pull/1750))
+
+### 🩹 Fixes
+
+- remove lookbehind regex for browser compat ([#1827](https://github.com/TypeCellOS/BlockNote/pull/1827))
+- `ToggleWrapper` button defaulting to `submit` type ([#1823](https://github.com/TypeCellOS/BlockNote/pull/1823))
+- disable $ref in AI schemas (html format) ([#1819](https://github.com/TypeCellOS/BlockNote/pull/1819))
+- re-evaluate side-menu on scroll ([#1830](https://github.com/TypeCellOS/BlockNote/pull/1830))
+- hide table extend buttons when not editable #1848 ([#1850](https://github.com/TypeCellOS/BlockNote/pull/1850), [#1848](https://github.com/TypeCellOS/BlockNote/issues/1848))
+- resolve several drag & drop issues ([#1845](https://github.com/TypeCellOS/BlockNote/pull/1845))
+
+### ❤️ Thank You
+
+- Arek Nawo @areknawo
+- Gonçalo Basto @gbasto
+- Héctor Zhuang @Hector-Zhuang
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- Nick the Sick @nperez0111
+- Yousef
+
+## 0.33.0 (2025-07-03)
+
+### 🚀 Features
+
+- FloatingUI options prop for `BlockPositioner` ([#1801](https://github.com/TypeCellOS/BlockNote/pull/1801))
+- Support Google Gemini AI ([#1805](https://github.com/TypeCellOS/BlockNote/pull/1805))
+
+### 🩹 Fixes
+
+- support multi-character suggestions ([#1734](https://github.com/TypeCellOS/BlockNote/pull/1734))
+- switch foreground color based on selected user color dynamically #1785 ([#1787](https://github.com/TypeCellOS/BlockNote/pull/1787), [#1785](https://github.com/TypeCellOS/BlockNote/issues/1785))
+- mark react package as external in email exporter ([#1807](https://github.com/TypeCellOS/BlockNote/pull/1807))
+- Duplicate `formatConversionTest` files ([#1798](https://github.com/TypeCellOS/BlockNote/pull/1798))
+- AI empty document handling ([#1810](https://github.com/TypeCellOS/BlockNote/pull/1810))
+- `bn-inline-content` class name getting duplicated ([#1794](https://github.com/TypeCellOS/BlockNote/pull/1794))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- Yousef
+
+## 0.32.0 (2025-06-24)
+
+### 🚀 Features
+
+- toggle blocks ([#1707](https://github.com/TypeCellOS/BlockNote/pull/1707))
+- **core:** support h4, h5, and h6 ([#1634](https://github.com/TypeCellOS/BlockNote/pull/1634))
+- **xl-email-exporter:** add email exporter ([#1768](https://github.com/TypeCellOS/BlockNote/pull/1768))
+
+### 🩹 Fixes
+
+- react 19 strict mode compatibility ([#1726](https://github.com/TypeCellOS/BlockNote/pull/1726))
+- add keys to pdf exporter ([#1739](https://github.com/TypeCellOS/BlockNote/pull/1739))
+- only listten for left click on formatting toolbar ([#1774](https://github.com/TypeCellOS/BlockNote/pull/1774))
+- prevent formatting toolbar from closing if click was from inside the editor ([#1775](https://github.com/TypeCellOS/BlockNote/pull/1775))
+- **locales:** add Hebrew translations for various components ([#1779](https://github.com/TypeCellOS/BlockNote/pull/1779))
+
+### ❤️ Thank You
+
+- Aslam @Aslam97
+- Drew Johnson
+- Jonathan Marbutt @jmarbutt
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- Samuel Bisberg
+- Yousef
+
+## 0.31.3 (2025-06-18)
+
+### 🩹 Fixes
+
+- AI generation with empty document ([#1740](https://github.com/TypeCellOS/BlockNote/pull/1740))
+- do not send a welcome email if magic link was used on an account older than a minute ago ([db88fe4aa](https://github.com/TypeCellOS/BlockNote/commit/db88fe4aa))
+- AI system messages should always be at start of prompt ([#1741](https://github.com/TypeCellOS/BlockNote/pull/1741))
+- Selection clicking editor padding ([#1717](https://github.com/TypeCellOS/BlockNote/pull/1717))
+- preserve marks across a shift+enter #1672 ([#1743](https://github.com/TypeCellOS/BlockNote/pull/1743), [#1672](https://github.com/TypeCellOS/BlockNote/issues/1672))
+- **ai:** undo-redo after accepting/rejecting changes will undo as expected ([#1752](https://github.com/TypeCellOS/BlockNote/pull/1752))
+- **locales:** add translations for some comment strings ([#1764](https://github.com/TypeCellOS/BlockNote/pull/1764))
+- **website:** log in bug fixes ([#1742](https://github.com/TypeCellOS/BlockNote/pull/1742))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- Nick the Sick
+- Vinicius Fernandes @ViniCleFer
+- Yousef
+
 ## 0.31.2 (2025-06-05)
 
 ### 🩹 Fixes

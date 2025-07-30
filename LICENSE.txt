@@ -1,0 +1,5 @@
+BlockNote is 100% Open Source Software. 
+
+Source code in this repository is covered by the "Mozilla Public License Version 2.0" (MPL-2.0) license, except for the XL packages. The MPL-2.0 license allows you to use BlockNote in commercial (and closed-source) applications. If you make changes to the BlockNote source files, you're expected to publish these changes so the wider community can benefit as well.
+
+The XL packages (source code in the `packages/xl-*` directories and published in NPM as `@blocknote/xl-*`) are licensed under the "GNU Affero General Public License Version 3" (AGPL-3.0). Additionally, a commercial license is available. See our website (https://www.blocknotejs.org/pricing) for more information and the commercial license terms.

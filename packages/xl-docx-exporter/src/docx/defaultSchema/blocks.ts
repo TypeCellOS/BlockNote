@@ -18,9 +18,12 @@ import {
   Paragraph,
   ParagraphChild,
   ShadingType,
+  TableCell,
+  TableRow,
   TextRun,
 } from "docx";
 import { Table } from "../util/Table.js";
+import { multiColumnSchema } from "@blocknote/xl-multi-column";
 
 function blockPropsToStyles(
   props: Partial<DefaultProps>,
@@ -58,7 +61,9 @@ function blockPropsToStyles(
   };
 }
 export const docxBlockMappingForDefaultSchema: BlockMapping<
-  DefaultBlockSchema & typeof pageBreakSchema.blockSchema,
+  DefaultBlockSchema &
+    typeof pageBreakSchema.blockSchema &
+    typeof multiColumnSchema.blockSchema,
   any,
   any,
   | Promise<Paragraph[] | Paragraph | DocxTable>
@@ -75,6 +80,17 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
       run: {
         font: "Inter",
       },
+    });
+  },
+  toggleListItem: (block, exporter) => {
+    return new Paragraph({
+      ...blockPropsToStyles(block.props, exporter.options.colors),
+      children: [
+        new TextRun({
+          children: ["> "],
+        }),
+        ...exporter.transformInlineContent(block.content),
+      ],
     });
   },
   numberedListItem: (block, exporter, nestingLevel) => {
@@ -174,6 +190,55 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
   pageBreak: () => {
     return new Paragraph({
       children: [new PageBreak()],
+    });
+  },
+  column: (block, _exporter, _nestingLevel, _numberedListIndex, children) => {
+    return new TableCell({
+      width: {
+        size: `${block.props.width * 100}%`,
+        type: "pct",
+      },
+      children: (children || []).flatMap((child) => {
+        if (Array.isArray(child)) {
+          return child;
+        }
+
+        return [child];
+      }),
+    }) as any;
+  },
+  columnList: (
+    _block,
+    _exporter,
+    _nestingLevel,
+    _numberedListIndex,
+    children,
+  ) => {
+    return new DocxTable({
+      layout: "autofit",
+      borders: {
+        bottom: { style: "nil" },
+        top: { style: "nil" },
+        left: { style: "nil" },
+        right: { style: "nil" },
+        insideHorizontal: { style: "nil" },
+        insideVertical: { style: "nil" },
+      },
+      rows: [
+        new TableRow({
+          children: (children as unknown as TableCell[]).map(
+            (cell, _index, children) => {
+              return new TableCell({
+                width: {
+                  size: `${(parseFloat(`${cell.options.width?.size || "100%"}`) / (children.length * 100)) * 100}%`,
+                  type: "pct",
+                },
+                children: cell.options.children,
+              });
+            },
+          ),
+        }),
+      ],
     });
   },
   image: async (block, exporter) => {

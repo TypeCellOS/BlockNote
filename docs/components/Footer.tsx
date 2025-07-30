@@ -1,11 +1,17 @@
+"use client";
+
+import LogoDark from "@/public/img/logos/banner.dark.svg";
+import LogoLight from "@/public/img/logos/banner.svg";
 import cn from "classnames";
+import { ThemeToggle } from "fumadocs-ui/components/layout/theme-toggle";
 import Link from "next/link";
-import { ThemeSwitch } from "nextra-theme-docs";
 import type { ReactElement, ReactNode } from "react";
-import { Logo } from "./Logo";
+
+import ThemedImage from "@/components/ThemedImage";
+
 function FooterLink({ href, children }: { href: string; children: ReactNode }) {
   const classes =
-    "text-sm text-[#666666] dark:text-[#888888] no-underline betterhover:hover:text-gray-700 betterhover:hover:dark:text-white transition";
+    "text-sm text-fd-muted-foreground no-underline transition hover:text-fd-foreground";
   if (href.startsWith("http")) {
     return (
       <a className={classes} href={href}>
@@ -21,7 +27,7 @@ function FooterLink({ href, children }: { href: string; children: ReactNode }) {
 }
 
 function FooterHeader({ children }: { children: ReactNode }) {
-  return <h3 className="text-sm text-black dark:text-white">{children}</h3>;
+  return <h3 className="text-fd-foreground text-sm">{children}</h3>;
 }
 
 const navigation = {
@@ -63,12 +69,16 @@ export function FooterContent() {
       <h2 className="sr-only" id="footer-heading">
         Footer
       </h2>
-      <div className="mx-auto w-full py-8">
+      <div className="mx-auto w-full">
         <div className="xl:grid xl:grid-cols-3 xl:gap-16">
           <div className="">
             {/* <FooterHeader>Subscribe to our newsletter</FooterHeader> */}
-            <Logo />
-            <p className="mt-4 text-sm text-gray-600 dark:text-[#888888]">
+            <ThemedImage
+              src={{ light: LogoLight, dark: LogoDark }}
+              alt="BlockNote"
+              className="w-40"
+            />
+            <p className="text-fd-muted-foreground mt-4 text-sm">
               BlockNote is an extensible React rich text editor with support for
               block-based editing, collaboration and comes with ready-to-use
               customizable UI components.
@@ -125,11 +135,10 @@ export function FooterContent() {
               <div className="mt-12 xl:!mt-0">
                 <FooterHeader>Theme</FooterHeader>
                 <ul className="ml-0 mt-4 list-none space-y-1.5">
-                  <li>
-                    <ThemeSwitch />
+                  <li key={"theme"}>
+                    <ThemeToggle mode="light-dark-system" />
                   </li>
                 </ul>
-                {/* <ThemeSwitch /> */}
               </div>
             </div>
           </div>
@@ -137,7 +146,7 @@ export function FooterContent() {
 
         <div className="mt-8 pt-8 sm:flex sm:items-center sm:justify-between">
           <div>
-            <p className="mt-4 text-xs text-gray-500 dark:text-[#888888]">
+            <p className="text-fd-muted-foreground mt-4 text-xs">
               &copy; {new Date().getFullYear()} BlockNote maintainers. All
               rights reserved.
             </p>
@@ -150,7 +159,7 @@ export function FooterContent() {
 
 export function Footer({ menu }: { menu?: boolean }): ReactElement {
   return (
-    <footer className="relative bg-[#FAFAFA] pb-[env(safe-area-inset-bottom)] dark:bg-[#111111]">
+    <footer className="bg-fd-secondary relative z-30 mt-10">
       {/* <div className="pointer-events-none absolute top-0 h-12 w-full -translate-y-full bg-gradient-to-t from-[#FAFAFA] to-transparent dark:from-black" /> */}
       {/* <div
         className={cn(

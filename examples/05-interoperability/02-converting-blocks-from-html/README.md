@@ -8,4 +8,4 @@ Note that the editor itself is locked for editing by setting `editable` to `fals
 
 **Relevant Docs:**
 
-- [Parsing HTML to Blocks](/docs/editor-api/converting-blocks#parsing-html-to-blocks)
+- [Parsing HTML to Blocks](/docs/features/import/html)

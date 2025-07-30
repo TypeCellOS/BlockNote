@@ -6,6 +6,6 @@ In this example, we replace the button to add a block in the Block Side Menu, wi
 
 **Relevant Docs:**
 
-- [Changing the Block Side Menu](/docs/ui-components/side-menu#changing-the-block-side-menu)
-- [Removing Blocks](/docs/editor-api/manipulating-blocks#removing-blocks)
-- [Editor Setup](/docs/editor-basics/setup)
+- [Changing the Block Side Menu](/docs/react/components/side-menu)
+- [Removing Blocks](/docs/reference/editor/manipulating-content)
+- [Editor Setup](/docs/getting-started/editor-setup)

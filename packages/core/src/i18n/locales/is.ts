@@ -20,6 +20,57 @@ export const is: Dictionary = {
       aliases: ["h3", "fyrirsogn3", "undirfyrirsogn"],
       group: "Fyrirsagnir",
     },
+    heading_4: {
+      title: "Fyrirsögn 4",
+      subtext: "Titill fyrir minni undirhluta",
+      aliases: ["h4", "fyrirsogn4", "undirfyrirsogn4"],
+      group: "Undirfyrirsagnir",
+    },
+    heading_5: {
+      title: "Fyrirsögn 5",
+      subtext: "Titill fyrir litla undirkafla",
+      aliases: ["h5", "fyrirsogn5", "undirfyrirsogn5"],
+      group: "Undirfyrirsagnir",
+    },
+    heading_6: {
+      title: "Fyrirsögn 6",
+      subtext: "Titill á lægsta stigi",
+      aliases: ["h6", "fyrirsogn6", "undirfyrirsogn6"],
+      group: "Undirfyrirsagnir",
+    },
+    toggle_heading: {
+      title: "Fellanleg Fyrirsögn 1",
+      subtext:
+        "Fellanleg efsta fyrirsögn sem hægt er að sýna eða fela innihald",
+      aliases: ["h", "fyrirsogn1", "h1", "fellanleg", "fellanlegt"],
+      group: "Undirfyrirsagnir",
+    },
+    toggle_heading_2: {
+      title: "Fellanleg Fyrirsögn 2",
+      subtext:
+        "Fellanleg fyrirsögn fyrir lykilhluta sem hægt er að sýna eða fela innihald",
+      aliases: [
+        "h2",
+        "fyrirsogn2",
+        "undirfyrirsogn",
+        "fellanleg",
+        "fellanlegt",
+      ],
+      group: "Undirfyrirsagnir",
+    },
+    toggle_heading_3: {
+      title: "Fellanleg Fyrirsögn 3",
+      subtext:
+        "Fellanleg fyrirsögn fyrir undirhluta og hópfyrirsagnir sem hægt er að sýna eða fela innihald",
+      aliases: [
+        "h3",
+        "fyrirsogn3",
+        "undirfyrirsogn",
+        "fellanleg",
+        "fellanlegt",
+      ],
+      group: "Undirfyrirsagnir",
+    },
     quote: {
       title: "Tilvitnun",
       subtext: "Tilvitnun eða útdráttur",
@@ -42,6 +93,18 @@ export const is: Dictionary = {
       title: "Athugunarlisti",
       subtext: "Notað til að sýna lista með gátreitum",
       aliases: ["ul", "li", "listi", "athugunarlisti", "merktur listi"],
+      group: "Grunnblokkar",
+    },
+    toggle_list: {
+      title: "Fellanlegur listi",
+      subtext: "Listi með földum undirliðum",
+      aliases: [
+        "li",
+        "listi",
+        "fellanlegur listi",
+        "samfellanlegur listi",
+        "faldanlegur listi",
+      ],
       group: "Grunnblokkar",
     },
     paragraph: {
@@ -126,6 +189,7 @@ export const is: Dictionary = {
   placeholders: {
     default: "Sláðu inn texta eða skrifaðu '/' fyrir skipanir",
     heading: "Fyrirsögn",
+    toggleListItem: "Víxla",
     bulletListItem: "Listi",
     numberedListItem: "Listi",
     checkListItem: "Listi",
@@ -327,6 +391,9 @@ export const is: Dictionary = {
     },
   },
   comments: {
+    edited: "breytt",
+    save_button_text: "Vista",
+    cancel_button_text: "Hætta",
     actions: {
       add_reaction: "Bæta við viðbrögðum",
       resolve: "Leysa",

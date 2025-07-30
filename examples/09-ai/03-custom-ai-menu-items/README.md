@@ -6,5 +6,5 @@ Select some text and click the AI (stars) button, or type `/ai` anywhere in the 
 
 **Relevant Docs:**
 
-- [Getting Stared with BlockNote AI](/docs/ai/getting-started)
-- [Custom AI Menu Items](/docs/ai/custom-commands)
+- [Getting Stared with BlockNote AI](/docs/features/ai/getting-started)
+- [Custom AI Menu Items](/docs/features/ai/custom-commands)

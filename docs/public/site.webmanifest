@@ -1,0 +1,21 @@
+{
+  "name": "BlockNote",
+  "short_name": "BlockNote",
+  "description": "A beautiful text editor that just works. Easily add an editor to your app that users will love.",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "500x500",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "500x500",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#667eea",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "start_url": "/"
+}

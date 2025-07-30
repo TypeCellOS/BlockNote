@@ -20,6 +20,42 @@ export const hr: Dictionary = {
       aliases: ["h3", "naslov3", "podnaslov"],
       group: "Naslovi",
     },
+    heading_4: {
+      title: "Naslov 4",
+      subtext: "Manji naslov podpoglavlja",
+      aliases: ["h4", "naslov4", "podnaslov4"],
+      group: "Podnaslovi",
+    },
+    heading_5: {
+      title: "Naslov 5",
+      subtext: "Mali naslov podpoglavlja",
+      aliases: ["h5", "naslov5", "podnaslov5"],
+      group: "Podnaslovi",
+    },
+    heading_6: {
+      title: "Naslov 6",
+      subtext: "Naslov najniže razine",
+      aliases: ["h6", "naslov6", "podnaslov6"],
+      group: "Podnaslovi",
+    },
+    toggle_heading: {
+      title: "Proširivi Naslov 1",
+      subtext: "Proširivi glavni naslov",
+      aliases: ["h", "naslov1", "h1", "proširivi"],
+      group: "Podnaslovi",
+    },
+    toggle_heading_2: {
+      title: "Proširivi Naslov 2",
+      subtext: "Proširivi naslov poglavlja",
+      aliases: ["h2", "naslov2", "podnaslov", "proširivi"],
+      group: "Podnaslovi",
+    },
+    toggle_heading_3: {
+      title: "Proširivi Naslov 3",
+      subtext: "Proširivi naslov podpoglavlja",
+      aliases: ["h3", "naslov3", "podnaslov", "proširivi"],
+      group: "Podnaslovi",
+    },
     quote: {
       title: "Citat",
       subtext: "Citat ili izvadak",
@@ -62,6 +98,12 @@ export const hr: Dictionary = {
         "označeni popis",
         "kućicaZaOznačavanje",
       ],
+      group: "Osnovni blokovi",
+    },
+    toggle_list: {
+      title: "Proširivi popis",
+      subtext: "Popis sa skrivenim podstavkama",
+      aliases: ["stavkaPopisa", "popis", "proširivi popis", "sklopivi popis"],
       group: "Osnovni blokovi",
     },
     paragraph: {
@@ -146,6 +188,7 @@ export const hr: Dictionary = {
   placeholders: {
     default: "Unesi tekst ili upiši ‘/’ za naredbe",
     heading: "Naslov",
+    toggleListItem: "Prebaciti",
     bulletListItem: "Lista",
     numberedListItem: "Lista",
     checkListItem: "Lista",
@@ -348,6 +391,9 @@ export const hr: Dictionary = {
     },
   },
   comments: {
+    edited: "uredio",
+    save_button_text: "Spremi",
+    cancel_button_text: "Odustani",
     actions: {
       add_reaction: "Dodaj reakciju",
       resolve: "Riješi",

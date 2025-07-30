@@ -6,4 +6,4 @@ In this example, we use a local Yjs document to store the document state, and ha
 
 **Relevant Docs:**
 
-- [Editor Setup](/docs/editor-basics/setup)
+- [Editor Setup](/docs/getting-started/editor-setup)

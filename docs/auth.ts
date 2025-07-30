@@ -1,4 +1,4 @@
-import { polar } from "@polar-sh/better-auth";
+import { polar, checkout, portal, webhooks } from "@polar-sh/better-auth";
 import { Polar } from "@polar-sh/sdk";
 import * as Sentry from "@sentry/nextjs";
 import { betterAuth } from "better-auth";
@@ -199,61 +199,56 @@ export const auth = betterAuth({
       client: polarClient,
       // Enable automatic Polar Customer creation on signup
       createCustomerOnSignUp: true,
-      // http://localhost:3000/api/auth/portal
-      enableCustomerPortal: true,
-      // Configure checkout
-      checkout: {
-        enabled: true,
-        products: [
-          {
-            productId: PRODUCTS.business.id, // ID of Product from Polar Dashboard
-            slug: PRODUCTS.business.slug, // Custom slug for easy reference in Checkout URL, e.g. /checkout/pro
-            // http://localhost:3000/api/auth/checkout/business
-          },
-          {
-            productId: PRODUCTS.starter.id,
-            slug: PRODUCTS.starter.slug,
-            // http://localhost:3000/api/auth/checkout/starter
-          },
-        ],
-        successUrl: "/thanks",
-      },
-      // Incoming Webhooks handler will be installed at /polar/webhooks
-      webhooks: {
-        // webhooks have to be publicly accessible
-        // ngrok http http://localhost:3000
-        secret: process.env.POLAR_WEBHOOK_SECRET as string,
-        async onPayload(payload) {
-          switch (payload.type) {
-            case "subscription.active":
-            case "subscription.canceled":
-            case "subscription.updated":
-            case "subscription.revoked":
-            case "subscription.created":
-            case "subscription.uncanceled": {
-              const authContext = await auth.$context;
-              const userId = payload.data.customer.externalId;
-              if (!userId) {
-                return;
-              }
-              if (payload.data.status === "active") {
-                const productId = payload.data.product.id;
-                const planType = Object.values(PRODUCTS).find(
-                  (p) => p.id === productId,
-                )?.slug;
-                await authContext.internalAdapter.updateUser(userId, {
-                  planType,
-                });
-              } else {
-                // No active subscription, so we need to remove the plan type
-                await authContext.internalAdapter.updateUser(userId, {
-                  planType: null,
-                });
+      use: [
+        checkout({
+          products: [
+            {
+              productId: PRODUCTS.business.id, // ID of Product from Polar Dashboard
+              slug: PRODUCTS.business.slug, // Custom slug for easy reference in Checkout URL, e.g. /checkout/pro
+            },
+            {
+              productId: PRODUCTS.starter.id,
+              slug: PRODUCTS.starter.slug,
+            },
+          ],
+          successUrl: "/thanks",
+          authenticatedUsersOnly: true,
+        }),
+        portal(),
+        webhooks({
+          secret: process.env.POLAR_WEBHOOK_SECRET as string,
+          async onPayload(payload) {
+            switch (payload.type) {
+              case "subscription.active":
+              case "subscription.canceled":
+              case "subscription.updated":
+              case "subscription.revoked":
+              case "subscription.created":
+              case "subscription.uncanceled": {
+                const authContext = await auth.$context;
+                const userId = payload.data.customer.externalId;
+                if (!userId) {
+                  return;
+                }
+                if (payload.data.status === "active") {
+                  const productId = payload.data.product.id;
+                  const planType = Object.values(PRODUCTS).find(
+                    (p) => p.id === productId,
+                  )?.slug;
+                  await authContext.internalAdapter.updateUser(userId, {
+                    planType,
+                  });
+                } else {
+                  // No active subscription, so we need to remove the plan type
+                  await authContext.internalAdapter.updateUser(userId, {
+                    planType: null,
+                  });
+                }
               }
             }
-          }
-        },
-      },
+          },
+        }),
+      ],
     }),
   ],
   onAPIError: {

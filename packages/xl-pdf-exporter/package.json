@@ -9,7 +9,7 @@
     "directory": "packages/xl-pdf-exporter"
   },
   "license": "AGPL-3.0 OR PROPRIETARY",
-  "version": "0.31.2",
+  "version": "0.35.0",
   "files": [
     "dist",
     "types",
@@ -56,8 +56,9 @@
     "email": "email dev"
   },
   "dependencies": {
-    "@blocknote/core": "0.31.2",
-    "@blocknote/react": "0.31.2",
+    "@blocknote/core": "0.35.0",
+    "@blocknote/react": "0.35.0",
+    "@blocknote/xl-multi-column": "0.35.0",
     "@react-pdf/renderer": "^4.3.0",
     "buffer": "^6.0.3",
     "docx": "^9.0.2"
@@ -66,19 +67,19 @@
     "@testing-library/react": "^16.0.1",
     "@types/jest-image-snapshot": "^6.4.0",
     "@types/jsdom": "^21.1.7",
-    "@types/react": "^18.0.25",
-    "@types/react-dom": "^18.0.9",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
     "eslint": "^8.10.0",
     "jest-image-snapshot": "^6.4.0",
     "pdf-to-img": "^4.2.0",
-    "react-element-to-jsx-string": "^15.0.0",
+    "react-element-to-jsx-string": "^17.0.0",
     "rollup-plugin-webpack-stats": "^0.2.2",
     "typescript": "^5.0.4",
     "vite": "^5.3.4",
     "vite-plugin-eslint": "^1.8.1",
     "vitest": "^2.0.3",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
   },
   "peerDependencies": {
     "react": "^18.0 || ^19.0 || >= 19.0.0-rc",

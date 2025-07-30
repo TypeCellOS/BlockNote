@@ -4,6 +4,6 @@ This example showcases each block and inline content type in BlockNote's default
 
 **Relevant Docs:**
 
-- [Editor Setup](/docs/editor-basics/setup)
-- [Document Structure](/docs/editor-basics/document-structure)
-- [Default Schema](/docs/editor-basics/default-schema)
+- [Editor Setup](/docs/getting-started/editor-setup)
+- [Document Structure](/docs/foundations/document-structure)
+- [Default Schema](/docs/foundations/schemas)
