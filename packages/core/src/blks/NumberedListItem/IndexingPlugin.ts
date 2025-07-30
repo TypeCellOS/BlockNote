@@ -114,27 +114,12 @@ function getDecorations(
       if (existingDecorations.length === 0) {
         // Create a widget decoration to display the index
         decorationsToAdd.push(
-          Decoration.widget(
-            pos + 1,
-            () => {
-              const element = document.createElement("span");
-              element.classList.add("numbered-list-index");
-              element.textContent = index.toString();
-
-              // Add data attributes for styling
-              element.setAttribute("data-index", index.toString());
-              element.setAttribute("data-is-first", isFirst.toString());
-              element.setAttribute("data-has-start", hasStart.toString());
-
-              return element;
-            },
-            {
-              index,
-              isFirst,
-              hasStart,
-              side: -1,
-            } satisfies DecoSpec,
-          ),
+          // move in by 1 to account for the block container
+          Decoration.node(pos + 1, pos + node.nodeSize - 1, {
+            "data-index": index.toString(),
+            // TODO figure out start? is this needed?
+            // "data-start": hasStart ? index.toString() : undefined,
+          }),
         );
       }
     }

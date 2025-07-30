@@ -125,4 +125,5 @@ export const definition = createBlockSpec(config).implementation((config) => ({
       dom: video,
     };
   },
+  runsBefore: ["file"],
 }));

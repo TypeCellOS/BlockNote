@@ -126,4 +126,5 @@ export const definition = createBlockSpec(config).implementation((config) => ({
       dom: audio,
     };
   },
+  runsBefore: ["file"],
 }));

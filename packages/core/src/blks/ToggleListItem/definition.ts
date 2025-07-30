@@ -1,11 +1,12 @@
 import { updateBlockTr } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { getBlockInfoFromTransaction } from "../../api/getBlockInfoFromPos.js";
 import { defaultProps } from "../../blocks/defaultProps.js";
-import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import {
   createBlockConfig,
+  createBlockNoteExtension,
   createBlockSpec,
 } from "../../schema/blocks/playground.js";
+import { handleEnter } from "../utils/listItemEnterHandler.js";
 
 const config = createBlockConfig(() => ({
   type: "toggleListItem" as const,
@@ -14,35 +15,6 @@ const config = createBlockConfig(() => ({
   },
   content: "inline",
 }));
-
-export class ToggleListItemExtension extends BlockNoteExtension {
-  public static key() {
-    return "toggle-list-item-shortcuts";
-  }
-
-  constructor() {
-    super();
-    this.keyboardShortcuts = {
-      "Mod-Shift-6": ({ editor }) =>
-        editor.transact((tr) => {
-          const blockInfo = getBlockInfoFromTransaction(tr);
-
-          if (
-            !blockInfo.isBlockContainer ||
-            blockInfo.blockContent.node.type.spec.content !== "inline*"
-          ) {
-            return true;
-          }
-
-          updateBlockTr(tr, blockInfo.bnBlock.beforePos, {
-            type: "toggleListItem",
-            props: {},
-          });
-          return true;
-        }),
-    };
-  }
-}
 
 export const definition = createBlockSpec(config).implementation(
   () => ({
@@ -59,5 +31,31 @@ export const definition = createBlockSpec(config).implementation(
       };
     },
   }),
-  () => [new ToggleListItemExtension()],
+  () => [
+    createBlockNoteExtension({
+      key: "toggle-list-item-shortcuts",
+      keyboardShortcuts: {
+        Enter: ({ editor }) => {
+          return handleEnter(editor, "toggleListItem");
+        },
+        "Mod-Shift-6": ({ editor }) =>
+          editor.transact((tr) => {
+            const blockInfo = getBlockInfoFromTransaction(tr);
+
+            if (
+              !blockInfo.isBlockContainer ||
+              blockInfo.blockContent.node.type.spec.content !== "inline*"
+            ) {
+              return true;
+            }
+
+            updateBlockTr(tr, blockInfo.bnBlock.beforePos, {
+              type: "toggleListItem",
+              props: {},
+            });
+            return true;
+          }),
+      },
+    }),
+  ],
 );

@@ -142,4 +142,5 @@ export const definition = createBlockSpec(config).implementation((config) => ({
       dom: image,
     };
   },
+  runsBefore: ["file"],
 }));

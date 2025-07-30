@@ -30,6 +30,11 @@ import {
   getInlineContentSchemaFromSpecs,
   getStyleSchemaFromSpecs,
 } from "../schema/index.js";
+import {
+  createDependencyGraph,
+  toposort,
+  toposortReverse,
+} from "../util/topo-sort.js";
 
 function removeUndefined<T extends Record<string, any> | undefined>(obj: T): T {
   if (!obj) {
@@ -41,13 +46,13 @@ function removeUndefined<T extends Record<string, any> | undefined>(obj: T): T {
 }
 
 const defaultBlockSpecs = {
+  paragraph: paragraph.definition,
   audio: audio.definition,
   bulletListItem: bulletListItem.definition,
   checkListItem: checkListItem.definition,
   heading: heading.definition,
   numberedListItem: numberedListItem.definition,
   pageBreak: pageBreak.definition,
-  paragraph: paragraph.definition,
   quoteBlock: quoteBlock.definition,
   toggleListItem: toggleListItem.definition,
   file: file.definition,
@@ -55,102 +60,120 @@ const defaultBlockSpecs = {
   video: video.definition,
 };
 
+type DefaultBlockSpecs = {
+  [key in keyof typeof defaultBlockSpecs]: ReturnType<
+    (typeof defaultBlockSpecs)[key]
+  >;
+};
+
+type BlockSpecMap<K extends string = string> = Record<
+  K,
+  BlockDefinition<K, PropSchema>
+>;
 export class BlockNoteSchema2<
-  BSpecs extends Record<
-    string,
-    (options: TOptions) => BlockDefinition<string, PropSchema>
-  >,
+  BSpecs extends BlockSpecMap,
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema,
   TOptions extends Partial<
     Record<keyof BlockSpecs, Record<string, any>>
   > = Record<string, never>,
 > {
-  private _blockSpecs: BSpecs;
-  public get blockSpecs(): BlockSpecs {
-    const obj = Object.fromEntries(
-      Object.entries(this._blockSpecs).map(([key, value]) => {
-        const blockDef = value(this.options);
-        return [
-          key,
-          Object.assign(
-            createBlockSpec(blockDef.config, blockDef.implementation as any),
-            {
-              extensions: blockDef.extensions,
-            },
-          ),
-        ];
-      }),
-    ) as any;
-    return obj;
-  }
   public readonly inlineContentSpecs: InlineContentSpecs;
   public readonly styleSpecs: StyleSpecs;
+  public readonly blockSpecs: BlockSpecs;
 
-  public get blockSchema(): Record<
-    keyof BSpecs,
-    ReturnType<BSpecs[keyof BSpecs]>
-  > {
-    const obj = Object.fromEntries(
-      Object.entries(this._blockSpecs).map(([key, value]) => {
-        const blockDef = value(this.options);
-        return [key, blockDef.config];
-      }),
-    ) as any;
-    return obj;
-  }
+  public readonly blockSchema: Record<keyof BSpecs, BSpecs[keyof BSpecs]>;
   public readonly inlineContentSchema: ISchema;
   public readonly styleSchema: SSchema;
 
   public readonly options: TOptions = {} as TOptions;
 
   public static create<
-    BSpecs extends Record<
-      string,
-      (options: TOptions) => BlockDefinition<string, PropSchema>
-    >,
+    BSpecs extends BlockSpecMap,
     ISpecs extends InlineContentSpecs = typeof defaultInlineContentSpecs,
     SSpecs extends StyleSpecs = typeof defaultStyleSpecs,
-    TOptions extends Partial<
-      Record<keyof BlockSpecs, Record<string, any>>
-    > = Record<string, never>,
-  >(
-    options?: {
-      /**
-       * A list of custom block types that should be available in the editor.
-       */
-      blockSpecs?: BSpecs;
-      /**
-       * A list of custom InlineContent types that should be available in the editor.
-       */
-      inlineContentSpecs?: ISpecs;
-      /**
-       * A list of custom Styles that should be available in the editor.
-       */
-      styleSpecs?: SSpecs;
-    },
-    configOptions?: TOptions,
-  ) {
+  >(options?: {
+    /**
+     * A list of custom block types that should be available in the editor.
+     */
+    blockSpecs?: BSpecs;
+    /**
+     * A list of custom InlineContent types that should be available in the editor.
+     */
+    inlineContentSpecs?: ISpecs;
+    /**
+     * A list of custom Styles that should be available in the editor.
+     */
+    styleSpecs?: SSpecs;
+  }) {
     return new BlockNoteSchema2<
-      Record<
-        keyof BSpecs,
-        (options: TOptions) => BlockDefinition<string, PropSchema>
-      >,
+      Record<keyof BSpecs, BlockDefinition<string, PropSchema>>,
       InlineContentSchemaFromSpecs<ISpecs>,
-      StyleSchemaFromSpecs<SSpecs>,
-      TOptions
-    >(options as any, configOptions);
+      StyleSchemaFromSpecs<SSpecs>
+    >(options as any);
   }
 
-  constructor(
-    opts?: {
-      blockSpecs?: BSpecs;
-      inlineContentSpecs?: InlineContentSpecs;
-      styleSpecs?: StyleSpecs;
-    },
-    configOptions?: TOptions,
-  ) {
-    this._blockSpecs = opts?.blockSpecs || (defaultBlockSpecs as any);
+  constructor(opts?: {
+    blockSpecs?: BSpecs;
+    inlineContentSpecs?: InlineContentSpecs;
+    styleSpecs?: StyleSpecs;
+  }) {
+    const specs: BSpecs =
+      opts?.blockSpecs ||
+      (Object.fromEntries(
+        Object.entries(defaultBlockSpecs).map(([key, value]) => [
+          key,
+          value({} as never),
+        ]),
+      ) as any);
+    const dag = createDependencyGraph();
+    const defaultSet = new Set();
+    dag.set("default", defaultSet);
+
+    for (const [key, specDef] of Object.entries(specs)) {
+      if (specDef.implementation.runsBefore) {
+        dag.set(key, new Set(specDef.implementation.runsBefore));
+      } else {
+        defaultSet.add(key);
+      }
+    }
+    console.log(dag);
+    const sortedSpecs = toposortReverse(dag);
+    console.log(sortedSpecs);
+    const defaultIndex = sortedSpecs.findIndex((set) => set.has("default"));
+
+    // the default index should map to 100
+    // one before the default index is 90
+    // one after is 110
+
+    this.blockSpecs = Object.fromEntries(
+      Object.entries(specs).map(
+        ([key, blockDef]: [string, BlockDefinition<string, PropSchema>]) => {
+          const index = sortedSpecs.findIndex((set) => set.has(key));
+          const priority = 91 + (index + defaultIndex) * 10;
+          console.log(key, index, priority, blockDef.extensions);
+          return [
+            key,
+            Object.assign(
+              {
+                extensions: blockDef.extensions,
+              },
+              createBlockSpec(
+                blockDef.config,
+                blockDef.implementation as any,
+                priority,
+              ),
+            ),
+          ];
+        },
+      ),
+    );
+    console.log(this.blockSpecs);
+    this.blockSchema = Object.fromEntries(
+      Object.entries(this.blockSpecs).map(([key, blockDef]) => {
+        return [key, blockDef.config];
+      }),
+    ) as any;
     this.inlineContentSpecs =
       removeUndefined(opts?.inlineContentSpecs) || defaultInlineContentSpecs;
     this.styleSpecs = removeUndefined(opts?.styleSpecs) || defaultStyleSpecs;
@@ -159,19 +182,6 @@ export class BlockNoteSchema2<
       this.inlineContentSpecs,
     ) as any;
     this.styleSchema = getStyleSchemaFromSpecs(this.styleSpecs) as any;
-    this.options = configOptions || ({} as TOptions);
-  }
-
-  /**
-   * This will add the options per block spec, allowing you to configure the block spec
-   */
-  public config<T extends Partial<Record<keyof BSpecs, Record<string, any>>>>(
-    options: T,
-  ): BlockNoteSchema2<BSpecs, ISchema, SSchema, TOptions & T> {
-    // TODO should this be a deep merge?
-    Object.assign(this.options, options);
-
-    return this as any;
   }
 
   // public addBlockSpec<T extends BlockConfig>(

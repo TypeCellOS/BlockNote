@@ -1,11 +1,12 @@
 import { updateBlockTr } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { getBlockInfoFromTransaction } from "../../api/getBlockInfoFromPos.js";
 import { defaultProps } from "../../blocks/defaultProps.js";
-import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import {
   createBlockConfig,
+  createBlockNoteExtension,
   createBlockSpec,
 } from "../../schema/blocks/playground.js";
+import { handleEnter } from "../utils/listItemEnterHandler.js";
 
 const config = createBlockConfig(() => ({
   type: "checkListItem" as const,
@@ -15,60 +16,6 @@ const config = createBlockConfig(() => ({
   },
   content: "inline",
 }));
-
-export class CheckListItemExtension extends BlockNoteExtension {
-  public static key() {
-    return "check-list-item-shortcuts";
-  }
-
-  constructor() {
-    super();
-    this.inputRules = [
-      {
-        find: new RegExp(`\\[\\s*\\]\\s$`),
-        replace() {
-          return {
-            type: "checkListItem",
-            props: {
-              checked: false,
-            },
-          };
-        },
-      },
-      {
-        find: new RegExp(`\\[[Xx]\\]\\s$`),
-        replace() {
-          return {
-            type: "checkListItem",
-            props: {
-              checked: true,
-            },
-          };
-        },
-      },
-    ];
-
-    this.keyboardShortcuts = {
-      "Mod-Shift-9": ({ editor }) =>
-        editor.transact((tr) => {
-          const blockInfo = getBlockInfoFromTransaction(tr);
-
-          if (
-            !blockInfo.isBlockContainer ||
-            blockInfo.blockContent.node.type.spec.content !== "inline*"
-          ) {
-            return true;
-          }
-
-          updateBlockTr(tr, blockInfo.bnBlock.beforePos, {
-            type: "checkListItem",
-            props: {},
-          });
-          return true;
-        }),
-    };
-  }
-}
 
 export const definition = createBlockSpec(config).implementation(
   () => ({
@@ -138,6 +85,60 @@ export const definition = createBlockSpec(config).implementation(
         contentDOM: paragraphEl,
       };
     },
+    runsBefore: ["bulletListItem"],
   }),
-  () => [new CheckListItemExtension()],
+  () => [
+    createBlockNoteExtension({
+      key: "check-list-item-shortcuts",
+      keyboardShortcuts: {
+        Enter: ({ editor }) => {
+          return handleEnter(editor, "checkListItem");
+        },
+        "Mod-Shift-9": ({ editor }) =>
+          editor.transact((tr) => {
+            const blockInfo = getBlockInfoFromTransaction(tr);
+
+            if (
+              !blockInfo.isBlockContainer ||
+              blockInfo.blockContent.node.type.spec.content !== "inline*"
+            ) {
+              return true;
+            }
+
+            updateBlockTr(tr, blockInfo.bnBlock.beforePos, {
+              type: "checkListItem",
+              props: {},
+            });
+            return true;
+          }),
+      },
+      inputRules: [
+        {
+          find: new RegExp(`\\[\\s*\\]\\s$`),
+          replace() {
+            console.log("trigger");
+            return {
+              type: "checkListItem",
+              props: {
+                checked: false,
+              },
+              content: [],
+            };
+          },
+        },
+        {
+          find: new RegExp(`\\[[Xx]\\]\\s$`),
+          replace() {
+            return {
+              type: "checkListItem",
+              props: {
+                checked: true,
+              },
+              content: [],
+            };
+          },
+        },
+      ],
+    }),
+  ],
 );

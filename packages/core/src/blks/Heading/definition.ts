@@ -1,9 +1,9 @@
 import { updateBlockTr } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { getBlockInfoFromTransaction } from "../../api/getBlockInfoFromPos.js";
 import { createToggleWrapper } from "../../blocks/ToggleWrapper/createToggleWrapper.js";
-import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import {
   createBlockConfig,
+  createBlockNoteExtension,
   createBlockSpec,
 } from "../../schema/blocks/playground.js";
 
@@ -30,53 +30,6 @@ const config = createBlockConfig(
     content: "inline",
   }),
 );
-export class HeadingExtension extends BlockNoteExtension {
-  public static key() {
-    return "heading-shortcuts";
-  }
-
-  constructor(options: HeadingOptions) {
-    super();
-    this.keyboardShortcuts = Object.fromEntries(
-      (options.levels ?? HEADING_LEVELS).map((level) => [
-        `Mod-Alt-${level}`,
-        ({ editor }) =>
-          editor.transact((tr) => {
-            // TODO this is weird, why do we need it?
-            // https://github.com/TypeCellOS/BlockNote/pull/561
-            const blockInfo = getBlockInfoFromTransaction(tr);
-
-            if (
-              !blockInfo.isBlockContainer ||
-              blockInfo.blockContent.node.type.spec.content !== "inline*"
-            ) {
-              return true;
-            }
-
-            updateBlockTr(tr, blockInfo.bnBlock.beforePos, {
-              type: "heading",
-              props: {
-                level: level as any,
-              },
-            });
-            return true;
-          }),
-      ]) ?? [],
-    );
-
-    this.inputRules = (options.levels ?? HEADING_LEVELS).map((level) => ({
-      find: new RegExp(`^(#{${level}})\\s$`),
-      replace({ match }: { match: RegExpMatchArray }) {
-        return {
-          type: "heading",
-          props: {
-            level: match[1].length,
-          },
-        };
-      },
-    }));
-  }
-}
 
 export const definition = createBlockSpec(config).implementation(
   ({ allowToggleHeadings }) => ({
@@ -107,5 +60,46 @@ export const definition = createBlockSpec(config).implementation(
       };
     },
   }),
-  (options) => [new HeadingExtension(options)],
+  (options) => [
+    createBlockNoteExtension({
+      key: "heading-shortcuts",
+      keyboardShortcuts: Object.fromEntries(
+        (options.levels ?? HEADING_LEVELS).map((level) => [
+          `Mod-Alt-${level}`,
+          ({ editor }) =>
+            editor.transact((tr) => {
+              // TODO this is weird, why do we need it?
+              // https://github.com/TypeCellOS/BlockNote/pull/561
+              const blockInfo = getBlockInfoFromTransaction(tr);
+
+              if (
+                !blockInfo.isBlockContainer ||
+                blockInfo.blockContent.node.type.spec.content !== "inline*"
+              ) {
+                return true;
+              }
+
+              updateBlockTr(tr, blockInfo.bnBlock.beforePos, {
+                type: "heading",
+                props: {
+                  level: level as any,
+                },
+              });
+              return true;
+            }),
+        ]) ?? [],
+      ),
+      inputRules: (options.levels ?? HEADING_LEVELS).map((level) => ({
+        find: new RegExp(`^(#{${level}})\\s$`),
+        replace({ match }: { match: RegExpMatchArray }) {
+          return {
+            type: "heading",
+            props: {
+              level: match[1].length,
+            },
+          };
+        },
+      })),
+    }),
+  ],
 );

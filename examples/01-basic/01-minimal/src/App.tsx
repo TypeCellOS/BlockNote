@@ -10,16 +10,6 @@ export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
     schema: schema as any,
-    initialContent: [
-      {
-        type: "numberedListItem",
-        content: "Numbered List Item 1",
-      },
-      {
-        type: "numberedListItem",
-        content: "Numbered List Item 2",
-      },
-    ],
   });
 
   // Renders the editor instance using a React component.

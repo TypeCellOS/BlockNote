@@ -804,16 +804,13 @@ export class BlockNoteEditor<
           initialContent,
       );
     }
-
-    console.log(this.schema.blockSchema);
     const blockExtensions = Object.fromEntries(
       Object.values(this.schema.blockSpecs)
         .map((block) => (block as any).extensions as any)
         .filter((ext) => ext !== undefined)
         .flat()
-        .map((ext) => [ext.constructor.key(), ext]),
+        .map((ext) => [ext.key?.() ?? ext.constructor.key(), ext]),
     );
-    console.log(blockExtensions);
     const tiptapExtensions = [
       ...Object.entries({ ...this.extensions, ...blockExtensions }).map(
         ([key, ext]) => {
@@ -826,35 +823,37 @@ export class BlockNoteEditor<
             return ext;
           }
 
-          if (
-            ext instanceof BlockNoteExtension &&
-            !ext.plugins.length &&
-            !ext.keyboardShortcuts &&
-            !ext.inputRules
-          ) {
-            return undefined;
-          }
-
-          // "blocknote" extensions (prosemirror plugins)
-          return Extension.create({
-            name: key,
-            priority: ext.priority,
-            addProseMirrorPlugins: () => ext.plugins,
-            addInputRules: ext.inputRules
-              ? () =>
-                  ext.inputRules!.map(
-                    (inputRule) =>
-                      new InputRule({
-                        find: inputRule.find,
-                        handler: ({ range, match }) => {
-                          this.transact((tr) => {
+          if (ext instanceof BlockNoteExtension) {
+            if (
+              !ext.plugins.length &&
+              !ext.keyboardShortcuts &&
+              !ext.inputRules
+            ) {
+              return undefined;
+            }
+            // "blocknote" extensions (prosemirror plugins)
+            return Extension.create({
+              name: key,
+              priority: ext.priority,
+              addProseMirrorPlugins: () => ext.plugins,
+              addInputRules: ext.inputRules
+                ? () =>
+                    ext.inputRules!.map(
+                      (inputRule) =>
+                        new InputRule({
+                          find: inputRule.find,
+                          handler: ({ range, match, state }) => {
+                            console.log("input rule triggered");
                             const replaceWith = inputRule.replace({
                               match,
                               range,
                               editor: this,
                             });
                             if (replaceWith) {
-                              const blockInfo = getBlockInfoFromTransaction(tr);
+                              console.log(replaceWith);
+                              const blockInfo = getBlockInfoFromTransaction(
+                                state.tr,
+                              );
 
                               // TODO this is weird, why do we need it?
                               if (
@@ -863,40 +862,41 @@ export class BlockNoteEditor<
                                   .content === "inline*"
                               ) {
                                 updateBlockTr(
-                                  tr,
+                                  state.tr,
                                   blockInfo.bnBlock.beforePos,
                                   replaceWith,
                                   range.from,
                                   range.to,
                                 );
-                                // TODO there is something here, but we should get rid of the other default blocks
-                                const from = tr.mapping.map(range.from);
-                                const to = tr.mapping.map(range.to);
-                                tr.delete(from, to);
-                                tr.setSelection(
-                                  TextSelection.create(tr.doc, from),
-                                );
+                                // tr.replaceRange(
+                                //   range.from,
+                                //   range.to,
+                                //   Slice.empty,
+                                // );
+                                return undefined;
                               }
                             }
-                          });
-                        },
-                      }),
-                  )
-              : undefined,
-            addKeyboardShortcuts: ext.keyboardShortcuts
-              ? () => {
-                  return Object.fromEntries(
-                    Object.entries(ext.keyboardShortcuts!).map(
-                      ([key, value]) => [key, () => value({ editor: this })],
-                    ),
-                  );
-                }
-              : undefined,
-          });
+                            return null;
+                          },
+                        }),
+                    )
+                : undefined,
+              addKeyboardShortcuts: ext.keyboardShortcuts
+                ? () => {
+                    return Object.fromEntries(
+                      Object.entries(ext.keyboardShortcuts!).map(
+                        ([key, value]) => [key, () => value({ editor: this })],
+                      ),
+                    );
+                  }
+                : undefined,
+            });
+          }
+
+          return undefined;
         },
       ),
     ].filter((ext): ext is Extension => ext !== undefined);
-
     const tiptapOptions: BlockNoteTipTapEditorOptions = {
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,

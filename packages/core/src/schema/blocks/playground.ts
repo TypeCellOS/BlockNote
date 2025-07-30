@@ -89,6 +89,12 @@ export interface BlockImplementation<
    */
   parse?: (el: HTMLElement) => NoInfer<Partial<Props<TProps>>> | undefined;
 
+  /**
+   * The blocks that this block should run before.
+   * This is used to determine the order in which blocks are rendered.
+   */
+  runsBefore?: string[];
+
   // TODO there needs to be simper way to do this, it is a bit of a gap to force them to bridge html to block content
   // parseContent?: (
   //   el: HTMLElement,
@@ -191,4 +197,20 @@ export function createBlockSpec<
       extensions: addExtensions?.(options),
     }),
   };
+}
+/**
+ * This creates an instance of a BlockNoteExtension that can be used to add to a schema.
+ * It is a bit of a hack, but it works.
+ */
+export function createBlockNoteExtension(
+  options: Partial<
+    Pick<BlockNoteExtension, "inputRules" | "keyboardShortcuts" | "plugins">
+  > & { key: string },
+) {
+  const x = Object.create(BlockNoteExtension.prototype);
+  x.key = () => options.key;
+  x.inputRules = options.inputRules;
+  x.keyboardShortcuts = options.keyboardShortcuts;
+  x.plugins = options.plugins ?? [];
+  return x as BlockNoteExtension;
 }

@@ -59,6 +59,7 @@ export const definition = createBlockSpec(config).implementation(
         contentDOM: dom,
       };
     },
+    runsBefore: ["default"],
   }),
   () => [new ParagraphExtension()],
 );

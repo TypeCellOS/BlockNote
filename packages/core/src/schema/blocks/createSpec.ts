@@ -141,6 +141,7 @@ export function createBlockSpec<
 >(
   blockConfig: T,
   blockImplementation: CustomBlockImplementation<NoInfer<T>, I, S>,
+  priority?: number,
 ) {
   const node = createStronglyTypedTiptapNode({
     name: blockConfig.type as T["type"],
@@ -150,6 +151,7 @@ export function createBlockSpec<
     group: "blockContent",
     selectable: blockConfig.isSelectable ?? true,
     isolating: true,
+    priority,
     addAttributes() {
       return propsToAttributes(blockConfig.propSchema);
     },

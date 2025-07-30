@@ -1,11 +1,12 @@
 import { updateBlockTr } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { getBlockInfoFromTransaction } from "../../api/getBlockInfoFromPos.js";
 import { defaultProps } from "../../blocks/defaultProps.js";
-import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import {
   createBlockConfig,
+  createBlockNoteExtension,
   createBlockSpec,
 } from "../../schema/blocks/playground.js";
+import { handleEnter } from "../utils/listItemEnterHandler.js";
 import { NumberedListIndexingDecorationPlugin } from "./IndexingPlugin.js";
 
 const config = createBlockConfig(() => ({
@@ -16,49 +17,6 @@ const config = createBlockConfig(() => ({
   },
   content: "inline",
 }));
-
-export class NumberedListItemExtension extends BlockNoteExtension {
-  public static key() {
-    return "numbered-list-item-shortcuts";
-  }
-
-  constructor() {
-    super();
-    this.inputRules = [
-      {
-        find: new RegExp(`^\\d+\\.\\s$`),
-        replace() {
-          return {
-            type: "numberedListItem",
-            props: {},
-          };
-        },
-      },
-    ];
-
-    this.keyboardShortcuts = {
-      "Mod-Shift-7": ({ editor }) =>
-        editor.transact((tr) => {
-          const blockInfo = getBlockInfoFromTransaction(tr);
-
-          if (
-            !blockInfo.isBlockContainer ||
-            blockInfo.blockContent.node.type.spec.content !== "inline*"
-          ) {
-            return true;
-          }
-
-          updateBlockTr(tr, blockInfo.bnBlock.beforePos, {
-            type: "numberedListItem",
-            props: {},
-          });
-          return true;
-        }),
-    };
-
-    this.addProsemirrorPlugin(NumberedListIndexingDecorationPlugin());
-  }
-}
 
 export const definition = createBlockSpec(config).implementation(
   () => ({
@@ -103,5 +61,46 @@ export const definition = createBlockSpec(config).implementation(
       };
     },
   }),
-  () => [new NumberedListItemExtension()],
+  () => [
+    createBlockNoteExtension({
+      key: "numbered-list-item-shortcuts",
+      inputRules: [
+        {
+          find: new RegExp(`^(\\d+)\\.\\s$`),
+          replace({ match }) {
+            return {
+              type: "numberedListItem",
+              props: {
+                start: parseInt(match[1]),
+              },
+              content: [],
+            };
+          },
+        },
+      ],
+      keyboardShortcuts: {
+        Enter: ({ editor }) => {
+          return handleEnter(editor, "numberedListItem");
+        },
+        "Mod-Shift-7": ({ editor }) =>
+          editor.transact((tr) => {
+            const blockInfo = getBlockInfoFromTransaction(tr);
+
+            if (
+              !blockInfo.isBlockContainer ||
+              blockInfo.blockContent.node.type.spec.content !== "inline*"
+            ) {
+              return true;
+            }
+
+            updateBlockTr(tr, blockInfo.bnBlock.beforePos, {
+              type: "numberedListItem",
+              props: {},
+            });
+            return true;
+          }),
+      },
+      plugins: [NumberedListIndexingDecorationPlugin()],
+    }),
+  ],
 );
