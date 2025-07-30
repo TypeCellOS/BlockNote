@@ -69,18 +69,31 @@ type CustomInlineContentConfig = {
 ```typescript
 type PropSchema<PrimitiveType extends "boolean" | "number" | "string"> = Record<
   string,
-  {
-    default: PrimitiveType;
-    values?: PrimitiveType[];
-  }
+  | {
+      default: PrimitiveType;
+      values?: PrimitiveType[];
+    }
+  | {
+      default: undefined;
+      type: PrimitiveType;
+      values?: PrimitiveType[];
+    }
 >;
 ```
 
-`[key: string]` is the name of the prop, and the value is an object with two fields:
+`[key: string]` is the name of the prop. If you want it to have a default value, it should be defined as an object with the following properties:
 
-- `default`: Specifies the prop's default value
+- `default:` Specifies the prop's default value, from which `PrimitiveType` is inferred.
 
-- `values` (optional): Specifies an array of values that the prop can take, for example, to limit the value to a list of pre-defined strings. If `values` is not defined, BlockNote assumes the prop can be any value of `PrimitiveType`
+- `values?:` Specifies an array of values that the prop can take, for example, to limit the value to a list of pre-defined strings. If `values` is not defined, BlockNote assumes the prop can be any value of `PrimitiveType`.
+
+If you do not want the prop to have a default value, you can define it as an object with the following properties:
+
+- `default:` Left `undefined`, as there is no default value.
+
+- `type:` Specifies `PrimitiveType` for the prop, since it cannot be inferred from the default value.
+
+- `values?:` Specifies an array of values that the prop can take, for example, to limit the value to a list of pre-defined strings. If `values` is not defined, BlockNote assumes the prop can be any value of `PrimitiveType`.
 
 <Callout type="info">
   _In the mentions demo, we add a `user` prop for the user that's being
