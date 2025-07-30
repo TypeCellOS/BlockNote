@@ -242,21 +242,11 @@ export class SideMenuView<
 
     this.hoveredBlock = block.node;
 
-    // Gets the block's content node, which lets to ignore child blocks when determining the block menu's position.
-    // TODO: needed?
-    const blockContent = block.node.firstChild as HTMLElement;
-
-    if (!blockContent) {
-      return;
-    }
-
-    // TODO: needed?
-
     // Shows or updates elements.
     if (this.editor.isEditable) {
-      const blockContentBoundingBox = blockContent.getBoundingClientRect();
+      const blockContentBoundingBox = block.node.getBoundingClientRect();
       const column = block.node.closest("[data-node-type=column]");
-      this.updateState({
+      this.state = {
         show: true,
         referencePos: new DOMRect(
           column
@@ -275,7 +265,8 @@ export class SideMenuView<
         block: this.editor.getBlock(
           this.hoveredBlock!.getAttribute("data-id")!,
         )!,
-      });
+      };
+      this.updateState(this.state);
     }
   };
 
@@ -435,9 +426,9 @@ export class SideMenuView<
     // We need to check if there is text content that is being dragged (select some text & just drag it)
     const textContentIsBeingDragged =
       !event.dataTransfer?.types.includes("blocknote/html") &&
-      Boolean(this.pmView.dragging);
+      !!this.pmView.dragging;
     // This is the side menu drag from this plugin
-    const sideMenuIsBeingDragged = Boolean(this.isDragOrigin);
+    const sideMenuIsBeingDragged = !!this.isDragOrigin;
     // Tells us that the current editor instance has a drag ongoing (either text or side menu)
     const isDragOrigin = textContentIsBeingDragged || sideMenuIsBeingDragged;
 
