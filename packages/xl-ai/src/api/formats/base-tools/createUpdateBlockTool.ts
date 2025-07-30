@@ -196,10 +196,11 @@ export function createUpdateBlockTool<T>(config: {
           }
 
           const operation = chunk.operation as UpdateBlockToolCall<T>;
-
+          console.log("first op");
           if (chunk.isPossiblyPartial) {
             const size = JSON.stringify(operation.block).length;
             if (size < minSize) {
+              console.log("skipping", size, minSize);
               continue;
             } else {
               // increase minSize for next chunk
@@ -224,6 +225,7 @@ export function createUpdateBlockTool<T>(config: {
 
           const jsonToolCall = await config.toJSONToolCall(editor, chunk);
           if (!jsonToolCall) {
+            console.log("no jsonToolCall");
             continue;
           }
 
@@ -242,6 +244,7 @@ export function createUpdateBlockTool<T>(config: {
             // if there's only a single replace step to be done and we're partial, let's wait for more content
 
             // REC: unit test this and see if it's still needed even if we pass `dontReplaceContentAtEnd` to `updateToReplaceSteps`
+            console.log("skipping", steps.length, chunk.isPossiblyPartial);
             continue;
           }
 

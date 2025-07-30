@@ -59,6 +59,8 @@ export const htmlBlockLLMFormat = {
    * Function to get the stream tools that can apply HTML block updates to the editor
    */
   getStreamTools,
+
+  streamTools: tools,
   /**
    * The default PromptBuilder that determines how a userPrompt is converted to an array of
    * LLM Messages (CoreMessage[])

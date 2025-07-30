@@ -13,3 +13,4 @@ export * from "./components/SuggestionMenu/getAISlashMenuItems.js";
 export * from "./i18n/dictionary.js";
 
 export * from "./api/index.js";
+export * from "./streamTool/StreamToolExecutor.js";

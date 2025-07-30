@@ -1651,6 +1651,35 @@
           "slug": "ai"
         },
         "readme": "This example combines the AI extension with the ghost writer example to show how to use the AI extension in a collaborative environment.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar#changing-the-formatting-toolbar)\n- [Changing Slash Menu Items](/docs/react/components/suggestion-menus#changing-slash-menu-items)\n- [Getting Stared with BlockNote AI](/docs/features/ai/setup)"
+      },
+      {
+        "projectSlug": "manual-execution",
+        "fullSlug": "ai/manual-execution",
+        "pathFromRoot": "examples/09-ai/05-manual-execution",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "yousefed",
+          "tags": [
+            "AI",
+            "llm"
+          ],
+          "dependencies": {
+            "@blocknote/xl-ai": "latest",
+            "@mantine/core": "^7.17.3",
+            "ai": "^4.3.15",
+            "@ai-sdk/groq": "^1.2.9",
+            "y-partykit": "^0.0.25",
+            "yjs": "^13.6.27",
+            "zustand": "^5.0.3"
+          } as any
+        },
+        "title": "AI manual execution",
+        "group": {
+          "pathFromRoot": "examples/09-ai",
+          "slug": "ai"
+        },
+        "readme": "Instead of calling AI models directly, this example shows how you can use an existing stream of responses and apply them to the editor"
       }
     ]
   },
