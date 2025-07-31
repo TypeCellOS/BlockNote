@@ -44,7 +44,8 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.13.7",
-    "hono": "^4.6.12"
+    "hono": "^4.6.12",
+    "ai": "^4.3.19"
   },
   "devDependencies": {
     "eslint": "^8.10.0",
