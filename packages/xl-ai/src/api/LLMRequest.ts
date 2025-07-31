@@ -73,11 +73,11 @@ export type LLMRequestOptions = {
    * @default { add: true, update: true, delete: true }
    */
   defaultStreamTools?: {
-    /** Enable the add tool (default: true) */
+    /** Enable the add tool (default: false) */
     add?: boolean;
-    /** Enable the update tool (default: true) */
+    /** Enable the update tool (default: false) */
     update?: boolean;
-    /** Enable the delete tool (default: true) */
+    /** Enable the delete tool (default: false) */
     delete?: boolean;
   };
   /**
