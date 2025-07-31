@@ -6,6 +6,7 @@ import { setupServer } from "msw/node";
 import path from "path";
 import { generateSharedTestCases } from "../tests/sharedTestCases.js";
 
+import { createAISDKLLMRequestExecutor } from "../../../streamTool/vercelAiSdk/clientSideExecutor/clientSideExecutor.js";
 import { testAIModels } from "../../../testUtil/testAIModels.js";
 import { doLLMRequest } from "../../LLMRequest.js";
 import { jsonLLMFormat } from "./json.js";
@@ -115,9 +116,11 @@ describe.skip("Models", () => {
       generateSharedTestCases((editor, options) =>
         doLLMRequest(editor, {
           ...options,
-          stream: params.stream,
-          model: params.model,
-          maxRetries: 0,
+          executor: createAISDKLLMRequestExecutor({
+            model: params.model,
+            maxRetries: 0,
+            stream: params.stream,
+          }),
           withDelays: false,
           dataFormat: jsonLLMFormat,
         }),

@@ -1,4 +1,3 @@
-import { createGroq } from "@ai-sdk/groq";
 import { BlockNoteEditor, filterSuggestionItems } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { en } from "@blocknote/core/locales";
@@ -16,43 +15,19 @@ import {
   AIMenuController,
   AIToolbarButton,
   createAIExtension,
-  createBlockNoteAIClient,
+  createStreamToolsArraySchema,
+  dataStreamResponseToOperationsResult,
   getAISlashMenuItems,
+  LLMResponse,
 } from "@blocknote/xl-ai";
 import { en as aiEn } from "@blocknote/xl-ai/locales";
 import "@blocknote/xl-ai/style.css";
 
 import { getEnv } from "./getEnv";
 
-// Optional: proxy requests through the `@blocknote/xl-ai-server` proxy server
-// so that we don't have to expose our API keys to the client
-const client = createBlockNoteAIClient({
-  apiKey: getEnv("BLOCKNOTE_AI_SERVER_API_KEY") || "PLACEHOLDER",
-  baseURL:
-    getEnv("BLOCKNOTE_AI_SERVER_BASE_URL") || "https://localhost:3000/ai/proxy",
-});
-
-// Use an "open" model such as llama, in this case via groq.com
-const model = createGroq({
-  // call via our proxy client
-  ...client.getProviderSettings("groq"),
-})("llama-3.3-70b-versatile");
-
-/* 
-ALTERNATIVES:
-
-Call a model directly (without the proxy):
-
-const model = createGroq({
-  apiKey: "<YOUR_GROQ_API_KEY>",
-})("llama-3.3-70b-versatile");
-
-Or, use a different provider like OpenAI:
-
-const model = createOpenAI({
-  ...client.getProviderSettings("openai"),
-})("gpt-4", {});
-*/
+const BASE_URL =
+  getEnv("BLOCKNOTE_AI_SERVER_BASE_URL") ||
+  "https://localhost:3000/ai/vercel-ai-sdk";
 
 export default function App() {
   // Creates a new editor instance.
@@ -64,7 +39,31 @@ export default function App() {
     // Register the AI extension
     extensions: [
       createAIExtension({
-        model,
+        // We define a custom executor that calls our backend server to execute LLM calls
+        // On the backend, we use the Vercel AI SDK to execute LLM calls
+        // (see packages/xl-ai-server/src/routes/vercelAiSdk.ts)
+        executor: async (opts) => {
+          const schema = createStreamToolsArraySchema(opts.streamTools);
+
+          // Can also use /generateObject for non-streaming mode
+          const response = await fetch(`${BASE_URL}/streamObject`, {
+            method: "POST",
+            body: JSON.stringify({
+              messages: opts.messages,
+              schema,
+            }),
+          });
+          const parsedResponse = await dataStreamResponseToOperationsResult(
+            response,
+            opts.streamTools,
+            opts.onStart,
+          );
+          return new LLMResponse(
+            opts.messages,
+            parsedResponse,
+            opts.streamTools,
+          );
+        },
       }),
     ],
     // We set some initial content for demo purposes

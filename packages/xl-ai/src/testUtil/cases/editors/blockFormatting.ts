@@ -24,7 +24,7 @@ export function getEditorWithBlockFormatting() {
     schema,
     extensions: [
       createAIExtension({
-        model: undefined as any,
+        executor: undefined as any, // disable
       }),
     ],
   });

@@ -42,4 +42,5 @@ export const llmFormats = {
 };
 
 export { doLLMRequest as callLLM } from "./LLMRequest.js";
+export { LLMResponse } from "./LLMResponse.js";
 export { promptHelpers } from "./promptHelpers/index.js";

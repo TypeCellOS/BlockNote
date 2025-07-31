@@ -18,7 +18,7 @@ export function getSimpleEditor() {
     schema,
     extensions: [
       createAIExtension({
-        model: undefined as any,
+        executor: undefined as any,
       }),
     ],
   });
@@ -46,7 +46,7 @@ export function getSimpleEditorWithCursorBetweenBlocks() {
     schema,
     extensions: [
       createAIExtension({
-        model: undefined as any,
+        executor: undefined as any, // disable
       }),
     ],
   });

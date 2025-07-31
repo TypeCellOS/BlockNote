@@ -1680,6 +1680,32 @@
           "slug": "ai"
         },
         "readme": "Instead of calling AI models directly, this example shows how you can use an existing stream of responses and apply them to the editor"
+      },
+      {
+        "projectSlug": "server-execution",
+        "fullSlug": "ai/server-execution",
+        "pathFromRoot": "examples/09-ai/06-server-execution",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            "AI",
+            "llm"
+          ],
+          "dependencies": {
+            "@blocknote/xl-ai": "latest",
+            "@mantine/core": "^7.17.3",
+            "ai": "^4.3.15",
+            "zustand": "^5.0.3"
+          } as any
+        },
+        "title": "AI Integration with server LLM execution",
+        "group": {
+          "pathFromRoot": "examples/09-ai",
+          "slug": "ai"
+        },
+        "readme": "This example shows how to setup to add AI integration while handling the LLM calls (in this case, using the Vercel AI SDK) on your server, using a custom executor"
       }
     ]
   },
