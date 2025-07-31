@@ -1,22 +1,12 @@
-import { BlockNoteEditor, filterSuggestionItems } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { en } from "@blocknote/core/locales";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
+import { useCreateBlockNote } from "@blocknote/react";
 import {
-  FormattingToolbar,
-  FormattingToolbarController,
-  SuggestionMenuController,
-  getDefaultReactSlashMenuItems,
-  getFormattingToolbarItems,
-  useCreateBlockNote,
-} from "@blocknote/react";
-import {
-  AIToolbarButton,
   StreamToolExecutor,
   createAIExtension,
   getAIExtension,
-  getAISlashMenuItems,
   llmFormats,
 } from "@blocknote/xl-ai";
 import { en as aiEn } from "@blocknote/xl-ai/locales";
@@ -65,35 +55,33 @@ export default function App() {
   // Renders the editor instance using a React component.
   return (
     <div>
-      <BlockNoteView
-        editor={editor}
-        // // We're disabling some default UI elements
-        // formattingToolbar={false}
-        // slashMenu={false}
-      />
+      <BlockNoteView editor={editor} />
 
-      {/* <AIMenuController />
-        <FormattingToolbarWithAI />
-        <SuggestionMenuWithAI editor={editor} />
-      </BlockNoteView> */}
       <div className={"edit-buttons"}>
         {/*Inserts a new block at start of document.*/}
         <button
           className={"edit-button"}
           onClick={async () => {
             const blockToChange = editor.document[1].id;
-            const tools = llmFormats.html.streamTools.update(editor, {
-              idsSuffixed: true,
-              withDelays: true,
-            });
 
-            const executor = new StreamToolExecutor([tools]);
+            // Let's get the stream tools so we can invoke them manually
+            // In this case, we're using the default stream tools, which allow all operations
+            const tools = llmFormats.html.getStreamTools(editor, true);
+
+            // Create an executor that can execute StreamToolCalls
+            const executor = new StreamToolExecutor(tools);
+
+            // Use `executeOne` to invoke a single, non-streaming StreamToolCall
             await executor.executeOne({
               type: "update",
               id: blockToChange,
               block: "<p>Open source software is cool</p>",
             });
+
+            // make sure the executor is done
             await executor.waitTillEnd();
+
+            // accept the changes after 1 second
             await new Promise((resolve) => setTimeout(resolve, 1000));
             await getAIExtension(editor).acceptChanges();
           }}
@@ -104,13 +92,22 @@ export default function App() {
           className={"edit-button"}
           onClick={async () => {
             const blockToChange = editor.document[1].id;
-            const tools = llmFormats.html.streamTools.update(editor, {
-              idsSuffixed: true,
-              withDelays: true,
+
+            // Let's get the stream tools so we can invoke them manually
+            // In this case, we choose to only get the "update" tool
+            const tools = llmFormats.html.getStreamTools(editor, true, {
+              // only allow "update" operations
+              update: true,
             });
 
-            const executor = new StreamToolExecutor([tools]);
+            // Create an executor that can execute StreamToolCalls
+            const executor = new StreamToolExecutor(tools);
+
+            // We'll stream two updates: a partial update and a full update
+            // to use streaming operations, we need to get a writer
             const writer = executor.writable.getWriter();
+
+            // write a partial update
             writer.write({
               operation: {
                 type: "update",
@@ -118,7 +115,9 @@ export default function App() {
                 block:
                   "<p>This Open source software like Hello World refers to computer programs, this is a longer update, let's write a first sentence that's quite long long long long here.",
               },
+              // this is not an update to an earlier "update" StreamToolCall
               isUpdateToPreviousOperation: false,
+              // this operation is a partial update and will be "completed" by the next update
               isPossiblyPartial: true,
             });
             await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -129,55 +128,73 @@ export default function App() {
                 block:
                   "<p>This Open source software like Hello World refers to computer programs, this is a longer update, let's write a first sentence that's quite long long long long here. And now let's write a second sentence.</p>",
               },
+              // this is an update to an earlier "update" StreamToolCall
               isUpdateToPreviousOperation: true,
+              // this operation is not a partial update, we've received the entire invocation
               isPossiblyPartial: false,
             });
+
+            // close the writer
             writer.close();
 
+            // wait till the executor is done
             await executor.waitTillEnd();
+
+            // accept the changes after 1 second
             await new Promise((resolve) => setTimeout(resolve, 1000));
             await getAIExtension(editor).acceptChanges();
           }}
         >
           Update first block (streaming)
         </button>
+        <button
+          className={"edit-button"}
+          onClick={async () => {
+            const blockToChange = editor.document[1].id;
+
+            // Let's get the stream tools so we can invoke them manually
+            // In this case, we choose to only get the "update" tool
+            const tools = llmFormats.html.getStreamTools(editor, true, {
+              // only allow "update" operations
+              update: true,
+            });
+
+            // Create an executor that can execute StreamToolCalls
+            const executor = new StreamToolExecutor(tools);
+
+            // We'll stream two updates: a partial update and a full update
+            // to use streaming operations, we need to get a writer
+            const writer = executor.writable.getWriter();
+
+            // write a partial update, notice how the JSON is cut off (simulating a streaming json response)
+            writer.write(
+              `{
+  "type": "update",
+  "id": ${JSON.stringify(blockToChange + "$")},
+  "block": "<p>This Open source software like Hello World refers to computer programs, this is a longer update, let's write a first sentence that's quite long long long long here.`,
+            );
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+            writer.write(`{
+  "type": "update",
+  "id": ${JSON.stringify(blockToChange + "$")},
+  "block":
+    "<p>This Open source software like Hello World refers to computer programs, this is a longer update, let's write a first sentence that's quite long long long long here. And now let's write a second sentence.</p>"
+}`);
+
+            // close the writer
+            writer.close();
+
+            // wait till the executor is done
+            await executor.waitTillEnd();
+
+            // accept the changes after 1 second
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            await getAIExtension(editor).acceptChanges();
+          }}
+        >
+          Update first block (streaming strings)
+        </button>
       </div>
     </div>
-  );
-}
-
-// Formatting toolbar with the `AIToolbarButton` added
-function FormattingToolbarWithAI() {
-  return (
-    <FormattingToolbarController
-      formattingToolbar={() => (
-        <FormattingToolbar>
-          {...getFormattingToolbarItems()}
-          {/* Add the AI button */}
-          <AIToolbarButton />
-        </FormattingToolbar>
-      )}
-    />
-  );
-}
-
-// Slash menu with the AI option added
-function SuggestionMenuWithAI(props: {
-  editor: BlockNoteEditor<any, any, any>;
-}) {
-  return (
-    <SuggestionMenuController
-      triggerCharacter="/"
-      getItems={async (query) =>
-        filterSuggestionItems(
-          [
-            ...getDefaultReactSlashMenuItems(props.editor),
-            // add the default AI slash menu items, or define your own
-            ...getAISlashMenuItems(props.editor),
-          ],
-          query,
-        )
-      }
-    />
   );
 }

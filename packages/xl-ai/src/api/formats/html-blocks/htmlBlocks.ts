@@ -8,29 +8,48 @@ import {
 } from "./htmlPromptData.js";
 import { tools } from "./tools/index.js";
 
-function getStreamTools(
+// Import the tool call types
+import { AddBlocksToolCall } from "../base-tools/createAddBlocksTool.js";
+import { UpdateBlockToolCall } from "../base-tools/createUpdateBlockTool.js";
+import { DeleteBlockToolCall } from "../base-tools/delete.js";
+
+// Define the tool types
+export type AddTool = StreamTool<AddBlocksToolCall<string>>;
+export type UpdateTool = StreamTool<UpdateBlockToolCall<string>>;
+export type DeleteTool = StreamTool<DeleteBlockToolCall>;
+
+// Create a conditional type that maps boolean flags to tool types
+export type StreamToolsConfig = {
+  add?: boolean;
+  update?: boolean;
+  delete?: boolean;
+};
+
+export type StreamToolsResult<T extends StreamToolsConfig> = [
+  ...(T extends { update: true } ? [UpdateTool] : []),
+  ...(T extends { add: true } ? [AddTool] : []),
+  ...(T extends { delete: true } ? [DeleteTool] : []),
+];
+
+function getStreamTools<
+  T extends StreamToolsConfig = { add: true; update: true; delete: true },
+>(
   editor: BlockNoteEditor<any, any, any>,
   withDelays: boolean,
-  defaultStreamTools?: {
-    /** Enable the add tool (default: true) */
-    add?: boolean;
-    /** Enable the update tool (default: true) */
-    update?: boolean;
-    /** Enable the delete tool (default: true) */
-    delete?: boolean;
-  },
+  defaultStreamTools?: T,
   selectionInfo?: {
     from: number;
     to: number;
   },
   onBlockUpdate?: (blockId: string) => void,
-) {
-  const mergedStreamTools = {
-    add: true,
-    update: true,
-    delete: true,
-    ...defaultStreamTools,
-  };
+): StreamToolsResult<T> {
+  const mergedStreamTools =
+    defaultStreamTools ??
+    ({
+      add: true,
+      update: true,
+      delete: true,
+    } as T);
 
   const streamTools: StreamTool<any>[] = [
     ...(mergedStreamTools.update
@@ -51,7 +70,7 @@ function getStreamTools(
       : []),
   ];
 
-  return streamTools;
+  return streamTools as StreamToolsResult<T>;
 }
 
 export const htmlBlockLLMFormat = {
@@ -59,8 +78,6 @@ export const htmlBlockLLMFormat = {
    * Function to get the stream tools that can apply HTML block updates to the editor
    */
   getStreamTools,
-
-  streamTools: tools,
   /**
    * The default PromptBuilder that determines how a userPrompt is converted to an array of
    * LLM Messages (CoreMessage[])
