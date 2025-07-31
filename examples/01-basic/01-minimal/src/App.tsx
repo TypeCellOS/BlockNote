@@ -3,8 +3,11 @@ import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteSchema2 } from "@blocknote/core";
+import { codeBlock } from "@blocknote/code-block";
 
-const schema = BlockNoteSchema2.create();
+const schema = BlockNoteSchema2.create(undefined, {
+  codeBlock,
+});
 
 export default function App() {
   // Creates a new editor instance.

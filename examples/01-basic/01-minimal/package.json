@@ -15,6 +15,7 @@
     "@blocknote/ariakit": "latest",
     "@blocknote/mantine": "latest",
     "@blocknote/shadcn": "latest",
+    "@blocknote/code-block": "latest",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },

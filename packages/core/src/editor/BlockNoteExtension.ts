@@ -70,5 +70,6 @@ export type InputRule = {
         type: string;
         props: Partial<Record<string, any>>;
         children?: any[];
+        content?: any[];
       };
 };

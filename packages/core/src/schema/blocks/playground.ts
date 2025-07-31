@@ -16,6 +16,16 @@ export interface BlockConfigMeta {
    * The accept mime types for the file block
    */
   fileBlockAccept?: string[];
+
+  /**
+   * Whether the block is a {@link https://prosemirror.net/docs/ref/#model.NodeSpec.code} block
+   */
+  code?: boolean;
+
+  /**
+   * Whether the block is a {@link https://prosemirror.net/docs/ref/#model.NodeSpec.defining} block
+   */
+  defining?: boolean;
 }
 
 /**
@@ -64,7 +74,7 @@ export interface BlockImplementation<
      */
     editor: BlockNoteEditor<Record<TName, BlockConfig<TName, TProps>>>,
   ) => {
-    dom: HTMLElement;
+    dom: HTMLElement | DocumentFragment;
     contentDOM?: HTMLElement;
     ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
     destroy?: () => void;
@@ -208,7 +218,7 @@ export function createBlockNoteExtension(
   > & { key: string },
 ) {
   const x = Object.create(BlockNoteExtension.prototype);
-  x.key = () => options.key;
+  x.key = options.key;
   x.inputRules = options.inputRules;
   x.keyboardShortcuts = options.keyboardShortcuts;
   x.plugins = options.plugins ?? [];

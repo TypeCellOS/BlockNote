@@ -2,6 +2,7 @@ import {
   audio,
   bulletListItem,
   checkListItem,
+  codeBlock,
   heading,
   numberedListItem,
   pageBreak,
@@ -30,11 +31,7 @@ import {
   getInlineContentSchemaFromSpecs,
   getStyleSchemaFromSpecs,
 } from "../schema/index.js";
-import {
-  createDependencyGraph,
-  toposort,
-  toposortReverse,
-} from "../util/topo-sort.js";
+import { createDependencyGraph, toposortReverse } from "../util/topo-sort.js";
 
 function removeUndefined<T extends Record<string, any> | undefined>(obj: T): T {
   if (!obj) {
@@ -50,6 +47,7 @@ const defaultBlockSpecs = {
   audio: audio.definition,
   bulletListItem: bulletListItem.definition,
   checkListItem: checkListItem.definition,
+  codeBlock: codeBlock.definition,
   heading: heading.definition,
   numberedListItem: numberedListItem.definition,
   pageBreak: pageBreak.definition,
@@ -92,42 +90,48 @@ export class BlockNoteSchema2<
     BSpecs extends BlockSpecMap,
     ISpecs extends InlineContentSpecs = typeof defaultInlineContentSpecs,
     SSpecs extends StyleSpecs = typeof defaultStyleSpecs,
-  >(options?: {
-    /**
-     * A list of custom block types that should be available in the editor.
-     */
-    blockSpecs?: BSpecs;
-    /**
-     * A list of custom InlineContent types that should be available in the editor.
-     */
-    inlineContentSpecs?: ISpecs;
-    /**
-     * A list of custom Styles that should be available in the editor.
-     */
-    styleSpecs?: SSpecs;
-  }) {
+  >(
+    options?: {
+      /**
+       * A list of custom block types that should be available in the editor.
+       */
+      blockSpecs?: BSpecs;
+      /**
+       * A list of custom InlineContent types that should be available in the editor.
+       */
+      inlineContentSpecs?: ISpecs;
+      /**
+       * A list of custom Styles that should be available in the editor.
+       */
+      styleSpecs?: SSpecs;
+    },
+    config?: Record<string, any>,
+  ) {
     return new BlockNoteSchema2<
       Record<keyof BSpecs, BlockDefinition<string, PropSchema>>,
       InlineContentSchemaFromSpecs<ISpecs>,
       StyleSchemaFromSpecs<SSpecs>
-    >(options as any);
+    >(options as any, config as any);
   }
 
-  constructor(opts?: {
-    blockSpecs?: BSpecs;
-    inlineContentSpecs?: InlineContentSpecs;
-    styleSpecs?: StyleSpecs;
-  }) {
+  constructor(
+    opts?: {
+      blockSpecs?: BSpecs;
+      inlineContentSpecs?: InlineContentSpecs;
+      styleSpecs?: StyleSpecs;
+    },
+    config?: Record<string, any>,
+  ) {
     const specs: BSpecs =
       opts?.blockSpecs ||
       (Object.fromEntries(
         Object.entries(defaultBlockSpecs).map(([key, value]) => [
           key,
-          value({} as never),
+          value(({ ...config }[key] ?? {}) as never),
         ]),
       ) as any);
     const dag = createDependencyGraph();
-    const defaultSet = new Set();
+    const defaultSet = new Set<string>();
     dag.set("default", defaultSet);
 
     for (const [key, specDef] of Object.entries(specs)) {
@@ -137,9 +141,7 @@ export class BlockNoteSchema2<
         defaultSet.add(key);
       }
     }
-    console.log(dag);
     const sortedSpecs = toposortReverse(dag);
-    console.log(sortedSpecs);
     const defaultIndex = sortedSpecs.findIndex((set) => set.has("default"));
 
     // the default index should map to 100
@@ -151,7 +153,6 @@ export class BlockNoteSchema2<
         ([key, blockDef]: [string, BlockDefinition<string, PropSchema>]) => {
           const index = sortedSpecs.findIndex((set) => set.has(key));
           const priority = 91 + (index + defaultIndex) * 10;
-          console.log(key, index, priority, blockDef.extensions);
           return [
             key,
             Object.assign(

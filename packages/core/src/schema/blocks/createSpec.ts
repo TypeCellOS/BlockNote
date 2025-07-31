@@ -151,6 +151,8 @@ export function createBlockSpec<
     group: "blockContent",
     selectable: blockConfig.isSelectable ?? true,
     isolating: true,
+    code: blockConfig.meta?.code ?? false,
+    defining: blockConfig.meta?.defining ?? false,
     priority,
     addAttributes() {
       return propsToAttributes(blockConfig.propSchema);

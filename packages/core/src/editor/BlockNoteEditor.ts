@@ -702,7 +702,7 @@ export class BlockNoteEditor<
         // factory
         ext = ext(this);
       }
-      const key = (ext.constructor as any).key();
+      const key = (ext as any).key ?? (ext.constructor as any).key();
       if (!key) {
         throw new Error(
           `Extension ${ext.constructor.name} does not have a key method`,
@@ -809,7 +809,7 @@ export class BlockNoteEditor<
         .map((block) => (block as any).extensions as any)
         .filter((ext) => ext !== undefined)
         .flat()
-        .map((ext) => [ext.key?.() ?? ext.constructor.key(), ext]),
+        .map((ext) => [ext.key ?? ext.constructor.key(), ext]),
     );
     const tiptapExtensions = [
       ...Object.entries({ ...this.extensions, ...blockExtensions }).map(
@@ -836,6 +836,8 @@ export class BlockNoteEditor<
               name: key,
               priority: ext.priority,
               addProseMirrorPlugins: () => ext.plugins,
+              // TODO maybe collect all input rules from all extensions into one plugin
+              // TODO consider using the prosemirror-inputrules package instead
               addInputRules: ext.inputRules
                 ? () =>
                     ext.inputRules!.map(
@@ -843,14 +845,12 @@ export class BlockNoteEditor<
                         new InputRule({
                           find: inputRule.find,
                           handler: ({ range, match, state }) => {
-                            console.log("input rule triggered");
                             const replaceWith = inputRule.replace({
                               match,
                               range,
                               editor: this,
                             });
                             if (replaceWith) {
-                              console.log(replaceWith);
                               const blockInfo = getBlockInfoFromTransaction(
                                 state.tr,
                               );
