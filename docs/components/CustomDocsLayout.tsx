@@ -100,7 +100,7 @@ export function CustomDocsLayout({
       <Sidebar
         {...sidebarProps}
         collapsible={sidebarCollapsible}
-        className="md:sticky md:top-[calc(var(--fd-sidebar-top)+32px)] md:h-[calc(100vh-var(--fd-sidebar-top))]"
+        className="md:sticky md:top-[calc(var(--fd-sidebar-top)+32px)] md:h-[calc(100vh-var(--fd-sidebar-top)-32px)]"
       >
         <HideIfEmpty>
           <SidebarHeader className="data-[empty=true]:hidden">

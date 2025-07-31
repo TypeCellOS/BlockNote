@@ -732,12 +732,17 @@
       {
         "projectSlug": "link-toolbar-buttons",
         "fullSlug": "ui-components/link-toolbar-buttons",
-        "pathFromRoot": "examples/03-ui-components/link-toolbar-buttons",
+        "pathFromRoot": "examples/03-ui-components/16-link-toolbar-buttons",
         "config": {
           "playground": true,
-          "docs": false,
+          "docs": true,
           "author": "matthewlipski",
-          "tags": []
+          "tags": [
+            "Intermediate",
+            "Inline Content",
+            "UI Components",
+            "Link Toolbar"
+          ]
         },
         "title": "Adding Link Toolbar Buttons",
         "group": {

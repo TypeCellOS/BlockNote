@@ -7,63 +7,21 @@ path: /docs/styling-theming/theming
 
 # Themes
 
-Themes let you quickly change the basic look of the editor UI, including colors, borders, shadows, and font.
+BlockNote comes with both a light and dark theme. By default, the theme is automatically selected based on the user's system preference, but you can also force either light or dark mode.
+
+When [using Mantine](/docs/getting-started/mantine), you have additional theme functionality:
+
+- Custom color schemes for light and dark mode, including highlight colors
+- Change fonts, shadows, borders, and border radii
+- Custoimize themes programmatically or using CSS variable overrides
+
+This page mostly focuses on the extra functionality that comes from using Mantine, but the [Forcing Light/Dark Mode](/docs/react/styling-theming/themes#forcing-lightdark-mode) section is applicable to all UI libraries.
 
 <Example name="theming/theming-css-variables" />
 
-Themes by default provide a clean, modern look. But, BlockNote also supports more advanced theming features like:
+## CSS Variables
 
-- Custom color schemes
-- Light and dark mode support
-- CSS variable overrides
-- Programmatic theme configuration
-- Highlight colors
-- Border radius customization
-
-<Callout type="info">
-  Themes are only available when using the default Mantine components.
-
-ShadCN / Ariakit components can be styled differently.
-
-</Callout>
-
-You can customize themes by overriding CSS variables or using the `theme` prop in `BlockNoteView`.
-
-```ts
-const editor = new BlockNoteEditor({
-  // Editor configuration
-});
-
-return (
-  <BlockNoteView
-    editor={editor}
-    theme={{
-      colors: {
-        editor: {
-          text: "#3f3f3f",
-          background: "#ffffff",
-        },
-        highlights: {
-          red: {
-            text: "#e03e3e",
-            background: "#fbe4e4",
-          },
-        },
-      },
-      borderRadius: 8,
-      fontFamily: "Inter, sans-serif",
-    }}
-  />
-);
-```
-
-You can choose to customize only certain aspects, or create completely custom themes. Giving you the flexibility to match your app's design system.
-
-## Options
-
-### CSS Variables
-
-A theme is made up of a set of CSS variables, which can be overwritten to change the editor theme. BlockNote comes with two default themes, one for light and one for dark mode, which are selected based on system preference.
+A theme is made up of a set of CSS variables, which can be overwritten to change the editor theme.
 
 Here are each of the theme CSS variables you can set, with values from the default light theme:
 
@@ -113,9 +71,9 @@ Here are each of the theme CSS variables you can set, with values from the defau
 
 Setting these variables on the `.bn-container[data-color-scheme]` selector will overwrite them for both default light & dark themes. To overwrite variables separately for light & dark themes, use the `.bn-container[data-color-scheme="light"]` and `.bn-container[data-color-scheme="dark"]` selectors.
 
-### Programmatic Configuration
+## Programmatic Configuration
 
-You can also set the theme CSS variables using the `theme` prop in `BlockNoteView`. Passing a `Theme` object will overwrite CSS variables for both light & dark themes with values from the object.
+You can also set the theme CSS variables using the [`theme` prop in `BlockNoteView`](/docs/react/overview#props). Passing a `Theme` object will overwrite CSS variables for both light & dark themes with values from the object.
 
 ```ts twoslash
 /**
@@ -166,7 +124,7 @@ In the demo below, we create the same red theme as from the previous demo, but t
 
 <Example name="theming/theming-css-variables-code" />
 
-### Light and Dark Themes
+## Light and Dark Themes
 
 Alternatively, you can overwrite CSS variables for the light & dark theme separately by passing the following object type:
 
@@ -177,7 +135,7 @@ type LightAndDarkThemes = {
 };
 ```
 
-### Forcing Light/Dark Mode
+## Forcing Light/Dark Mode
 
 By passing `"light"` or `"dark"` to the `theme` prop instead of a `Theme` object, you can also force BlockNote to always use the light or dark theme.
 
