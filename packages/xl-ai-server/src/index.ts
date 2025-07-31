@@ -4,7 +4,8 @@ import { bearerAuth } from "hono/bearer-auth";
 import { existsSync, readFileSync } from "node:fs";
 import { createSecureServer } from "node:http2";
 import { Agent, setGlobalDispatcher } from "undici";
-import { proxyRoute } from "./proxy";
+import { proxyRoute } from "./routes/proxy.js";
+import { vercelAiSdkRoute } from "./routes/vercelAiSdk.js";
 
 // make sure our fetch request uses HTTP/2
 setGlobalDispatcher(

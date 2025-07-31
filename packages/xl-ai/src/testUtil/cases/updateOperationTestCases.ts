@@ -685,7 +685,7 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
         schema,
         extensions: [
           createAIExtension({
-            model: undefined as any,
+            executor: undefined as any, // disable
           }),
         ],
       });
@@ -742,7 +742,7 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
         schema,
         extensions: [
           createAIExtension({
-            model: undefined as any,
+            executor: undefined as any, // disable
           }),
         ],
       });
@@ -781,7 +781,7 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
         schema,
         extensions: [
           createAIExtension({
-            model: undefined as any,
+            executor: undefined as any, // disable
           }),
         ],
       });

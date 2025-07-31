@@ -8,7 +8,7 @@ import {
   revertSuggestions,
   suggestChanges,
 } from "@blocknote/prosemirror-suggest-changes";
-import { APICallError, LanguageModel, RetryError } from "ai";
+import { APICallError, RetryError } from "ai";
 import { Fragment, Slice } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { fixTablesKey } from "prosemirror-tables";
@@ -66,15 +66,6 @@ type AIPluginState = {
  */
 type GlobalLLMRequestOptions = {
   /**
-   * The default language model to use for LLM calls
-   */
-  model: LanguageModel;
-  /**
-   * Whether to stream the LLM response
-   * @default true
-   */
-  stream?: boolean;
-  /**
    * The default data format to use for LLM calls
    * html format is recommended, the other formats are experimental
    * @default llmFormats.html
@@ -91,7 +82,7 @@ type GlobalLLMRequestOptions = {
    * Implement this function if you want to call a backend that is not compatible with
    * the Vercel AI SDK
    */
-  executor?: (opts: ExecuteLLMRequestOptions) => Promise<LLMResponse>;
+  executor: (opts: ExecuteLLMRequestOptions) => Promise<LLMResponse>;
 };
 
 const PLUGIN_KEY = new PluginKey(`blocknote-ai-plugin`);
@@ -123,10 +114,7 @@ export class AIExtension extends BlockNoteExtension {
   public readonly options: ReturnType<
     ReturnType<
       typeof createStore<
-        MakeOptional<
-          Required<GlobalLLMRequestOptions>,
-          "promptBuilder" | "executor"
-        >
+        MakeOptional<Required<GlobalLLMRequestOptions>, "promptBuilder">
       >
     >
   >;
@@ -148,10 +136,7 @@ export class AIExtension extends BlockNoteExtension {
     super();
 
     this.options = createStore<
-      MakeOptional<
-        Required<GlobalLLMRequestOptions>,
-        "promptBuilder" | "executor"
-      >
+      MakeOptional<Required<GlobalLLMRequestOptions>, "promptBuilder">
     >()((_set) => ({
       dataFormat: llmFormats.html,
       stream: true,
@@ -365,7 +350,7 @@ export class AIExtension extends BlockNoteExtension {
   /**
    * Execute a call to an LLM and apply the result to the editor
    */
-  public async callLLM(opts: MakeOptional<LLMRequestOptions, "model">) {
+  public async callLLM(opts: MakeOptional<LLMRequestOptions, "executor">) {
     this.setAIResponseStatus("thinking");
     this.editor.forkYDocPlugin?.fork();
 

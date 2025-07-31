@@ -13,4 +13,9 @@ export * from "./components/SuggestionMenu/getAISlashMenuItems.js";
 export * from "./i18n/dictionary.js";
 
 export * from "./api/index.js";
+
+// TODO: organize these exports:
+export * from "./streamTool/jsonSchema.js";
 export * from "./streamTool/StreamToolExecutor.js";
+export * from "./streamTool/vercelAiSdk/util/dataStreamResponseToOperationsResult.js";
+export * from "./streamTool/vercelAiSdk/util/partialObjectStreamUtil.js";

@@ -59,12 +59,7 @@ async function executeTestCase(
   // bit hacky way to instantiate an LLMResponse just so we can call execute
   const result = new LLMResponse(
     undefined as any,
-    {
-      operationsSource: createAsyncIterableStreamFromAsyncIterable(stream),
-      streamObjectResult: undefined,
-      generateObjectResult: undefined,
-      getGeneratedOperations: undefined as any,
-    },
+    createAsyncIterableStreamFromAsyncIterable(stream),
     streamTools,
   );
 

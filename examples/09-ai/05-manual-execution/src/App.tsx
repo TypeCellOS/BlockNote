@@ -22,7 +22,7 @@ export default function App() {
     // Register the AI extension
     extensions: [
       createAIExtension({
-        model: undefined as any, // disable model
+        executor: undefined as any, // disable
       }),
     ],
     // We set some initial content for demo purposes

@@ -12,7 +12,7 @@ export function getEmptyEditor() {
     trailingBlock: false,
     extensions: [
       createAIExtension({
-        model: undefined as any,
+        executor: undefined as any, // disable
       }),
     ],
   });

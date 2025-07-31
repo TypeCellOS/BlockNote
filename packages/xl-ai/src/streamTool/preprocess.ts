@@ -43,6 +43,10 @@ export async function* preprocessOperationsStreaming<
 
 /**
  * Validates an stream of operations and throws an error if an invalid operation is found.
+ *
+ * TODO: remove
+ *
+ * @deprecated
  */
 export async function* preprocessOperationsNonStreaming<
   T extends StreamTool<any>[],

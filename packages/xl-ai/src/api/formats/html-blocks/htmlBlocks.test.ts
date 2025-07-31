@@ -3,6 +3,7 @@ import { getSortedEntries, snapshot, toHashString } from "msw-snapshot";
 import { setupServer } from "msw/node";
 import path from "path";
 import { afterAll, afterEach, beforeAll, describe } from "vitest";
+import { createAISDKLLMRequestExecutor } from "../../../streamTool/vercelAiSdk/clientSideExecutor/clientSideExecutor.js";
 import { testAIModels } from "../../../testUtil/testAIModels.js";
 import { doLLMRequest } from "../../LLMRequest.js";
 import { generateSharedTestCases } from "../tests/sharedTestCases.js";
@@ -125,10 +126,12 @@ describe("Models", () => {
           doLLMRequest(editor, {
             ...options,
             dataFormat: htmlBlockLLMFormat,
-            model: params.model,
-            maxRetries: 0,
-            stream: params.stream,
             withDelays: false,
+            executor: createAISDKLLMRequestExecutor({
+              model: params.model,
+              stream: params.stream,
+              maxRetries: 0,
+            }),
           }),
         // TODO: remove when matthew's parsing PR is merged
         {

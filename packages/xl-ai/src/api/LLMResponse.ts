@@ -1,11 +1,35 @@
 import { CoreMessage } from "ai";
-import { OperationsResult } from "../streamTool/callLLMWithStreamTools.js";
 import { StreamTool, StreamToolCall } from "../streamTool/streamTool.js";
 import { StreamToolExecutor } from "../streamTool/StreamToolExecutor.js";
-import { createAsyncIterableStreamFromAsyncIterable } from "../util/stream.js";
+import { AsyncIterableStream } from "../util/stream.js";
+
+/**
+ * Result of an LLM call with stream tools
+ */
+export type OperationsResult<T extends StreamTool<any>[]> =
+  AsyncIterableStream<{
+    /**
+     * The operation the LLM wants to execute
+     */
+    operation: StreamToolCall<T>;
+    /**
+     * Whether {@link operation} is an update to the previous operation in the stream.
+     *
+     * For non-streaming mode, this will always be `false`
+     */
+    isUpdateToPreviousOperation: boolean;
+    /**
+     * Whether the {@link operation} is possibly partial (i.e. the LLM is still streaming data about this operation)
+     *
+     * For non-streaming mode, this will always be `false`
+     */
+    isPossiblyPartial: boolean;
+  }>;
 
 /**
  * Result of an LLM call with stream tools that apply changes to a BlockNote Editor
+ *
+ * TODO: maybe get rid of this class?
  */
 export class LLMResponse {
   /**
@@ -32,59 +56,25 @@ export class LLMResponse {
    */
   public async execute() {
     const executor = new StreamToolExecutor(this.streamTools);
-    await executor.execute(this.llmResult.operationsSource);
+    await executor.execute(this.llmResult);
     await executor.waitTillEnd();
   }
 
   /**
    * @internal
+   *
+   *  TODO
    */
   public async _logToolCalls() {
-    for await (const toolCall of this.llmResult.operationsSource) {
+    for await (const toolCall of this.llmResult) {
       // eslint-disable-next-line no-console
       console.log(JSON.stringify(toolCall, null, 2));
     }
   }
-
-  /**
-   * Create a LLMResponse from an array of operations.
-   *
-   * Note: This is a temporary helper, we'll make it easier to create this from streaming data if required
-   */
-  public static fromArray<T extends StreamTool<any>[]>(
-    messages: CoreMessage[],
-    streamTools: StreamTool<any>[],
-    operations: StreamToolCall<T>[],
-  ): LLMResponse {
-    return new LLMResponse(
-      messages,
-      OperationsResultFromArray(operations),
-      streamTools,
-    );
-  }
 }
 
-function OperationsResultFromArray<T extends StreamTool<any>[]>(
-  operations: StreamToolCall<T>[],
-): OperationsResult<T> {
-  async function* singleChunkGenerator() {
-    for (const op of operations) {
-      yield {
-        operation: op,
-        isUpdateToPreviousOperation: false,
-        isPossiblyPartial: false,
-      };
-    }
-  }
-
-  return {
-    streamObjectResult: undefined,
-    generateObjectResult: undefined,
-    get operationsSource() {
-      return createAsyncIterableStreamFromAsyncIterable(singleChunkGenerator());
-    },
-    async getGeneratedOperations() {
-      return { operations };
-    },
-  };
-}
+// TODO
+// async getGeneratedOperations() {
+//   return { operations };
+// },
+// }

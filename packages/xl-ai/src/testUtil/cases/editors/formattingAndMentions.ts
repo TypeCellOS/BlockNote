@@ -74,7 +74,7 @@ export function getEditorWithFormattingAndMentions() {
     schema,
     extensions: [
       createAIExtension({
-        model: undefined as any,
+        executor: undefined as any, // disable
       }),
     ],
   });
