@@ -1,9 +1,9 @@
-import { ViewMutationRecord } from "prosemirror-view";
-import type { Props, PropSchema } from "../../schema/index.js";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { Block } from "../../blocks/defaultBlocks.js";
-import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import { Fragment, Schema } from "prosemirror-model";
+import { ViewMutationRecord } from "prosemirror-view";
+import { Block } from "../../blocks/defaultBlocks.js";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
+import type { Props, PropSchema } from "../../schema/index.js";
 
 export type BlockDefs = Record<string, BlockConfig<string, PropSchema>>;
 
@@ -111,38 +111,6 @@ export interface BlockImplementation<
    * This is not recommended to use, and is only useful for advanced use cases.
    */
   parseContent?: (options: { el: HTMLElement; schema: Schema }) => Fragment;
-
-  // // TODO this should be only on extensions, not on the block config
-  // /**
-  //  * Input rules for the block
-  //  */
-  // inputRules?: {
-  //   /**
-  //    * The regex to match when to trigger the input rule
-  //    */
-  //   find: RegExp;
-  //   /**
-  //    * The function to call when the input rule is matched
-  //    */
-  //   replace: (props: { match: RegExpMatchArray }) =>
-  //     | undefined
-  //     | {
-  //         type: string;
-  //         props: Partial<Props<TProps>>;
-  //       };
-  // }[];
-
-  // keymap?: {
-  //   [key: string]: {
-  //     type: "replace" | "insert";
-  //     predicate: (
-  //       editor: BlockNoteEditor<Record<TName, BlockConfig<TName, TProps>>>,
-  //     ) => boolean;
-  //     action: (
-  //       editor: BlockNoteEditor<Record<TName, BlockConfig<TName, TProps>>>,
-  //     ) => boolean;
-  //   };
-  // };
 }
 
 // input rules & keyboard shortcuts where do they fit into this?
@@ -166,6 +134,14 @@ export function createBlockConfig<
 >(callback: TCallback): (options: TOptions) => BlockConfig<TName, TProps> {
   return callback;
 }
+
+export type BlockConfigDefinition<
+  T extends (options: any) => BlockConfig<any, any> = (
+    options: any,
+  ) => BlockConfig<any, any>,
+> = T extends (options: any) => BlockConfig<infer TName, infer TProps>
+  ? BlockConfig<TName, TProps>
+  : never;
 
 export type ExtractOptions<T> = T extends (options: infer TOptions) => any
   ? TOptions
