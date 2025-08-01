@@ -21,6 +21,8 @@ export type BlockNoteDOMAttributes = Partial<{
   [DOMElement in BlockNoteDOMElement]: Record<string, string>;
 }>;
 
+// TODO we should remove FileBlockConfig, and only use BlockConfig
+// Ideally something like this would be represented via `groups: ["file"]` or similar
 export type FileBlockConfig = {
   type: string;
   readonly propSchema: PropSchema & {

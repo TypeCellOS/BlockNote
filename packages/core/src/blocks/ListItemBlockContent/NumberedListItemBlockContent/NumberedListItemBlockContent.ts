@@ -29,6 +29,8 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
       // the index attribute is only used internally (it's not part of the blocknote schema)
       // that's why it's defined explicitly here, and not part of the prop schema
       index: {
+        // TODO this is going to be a problem...
+        // How do we represent this? As decorations!
         default: null,
         parseHTML: (element) => element.getAttribute("data-index"),
         renderHTML: (attributes) => {

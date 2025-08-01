@@ -3,6 +3,7 @@ import {
   EditorOptions,
   Extension,
   getSchema,
+  InputRule,
   isNodeSelection,
   Mark,
   posToDOMRect,
@@ -23,7 +24,10 @@ import {
   unnestBlock,
 } from "../api/blockManipulation/commands/nestBlock/nestBlock.js";
 import { removeAndInsertBlocks } from "../api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
-import { updateBlock } from "../api/blockManipulation/commands/updateBlock/updateBlock.js";
+import {
+  updateBlock,
+  updateBlockTr,
+} from "../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import {
   getBlock,
   getNextBlock,
@@ -96,6 +100,7 @@ import { en } from "../i18n/locales/index.js";
 
 import { redo, undo } from "@tiptap/pm/history";
 import {
+  Selection,
   TextSelection,
   type Command,
   type Plugin,
@@ -121,6 +126,7 @@ import { BlockNoteExtension } from "./BlockNoteExtension.js";
 
 import "../style.css";
 import { BlockChangePlugin } from "../extensions/BlockChange/BlockChangePlugin.js";
+import { getBlockInfoFromTransaction } from "../api/getBlockInfoFromPos.js";
 
 /**
  * A factory function that returns a BlockNoteExtension
@@ -696,7 +702,7 @@ export class BlockNoteEditor<
         // factory
         ext = ext(this);
       }
-      const key = (ext.constructor as any).key();
+      const key = (ext as any).key ?? (ext.constructor as any).key();
       if (!key) {
         throw new Error(
           `Extension ${ext.constructor.name} does not have a key method`,
@@ -798,31 +804,99 @@ export class BlockNoteEditor<
           initialContent,
       );
     }
-
+    const blockExtensions = Object.fromEntries(
+      Object.values(this.schema.blockSpecs)
+        .map((block) => (block as any).extensions as any)
+        .filter((ext) => ext !== undefined)
+        .flat()
+        .map((ext) => [ext.key ?? ext.constructor.key(), ext]),
+    );
     const tiptapExtensions = [
-      ...Object.entries(this.extensions).map(([key, ext]) => {
-        if (
-          ext instanceof Extension ||
-          ext instanceof TipTapNode ||
-          ext instanceof Mark
-        ) {
-          // tiptap extension
-          return ext;
-        }
+      ...Object.entries({ ...this.extensions, ...blockExtensions }).map(
+        ([key, ext]) => {
+          if (
+            ext instanceof Extension ||
+            ext instanceof TipTapNode ||
+            ext instanceof Mark
+          ) {
+            // tiptap extension
+            return ext;
+          }
 
-        if (ext instanceof BlockNoteExtension && !ext.plugins.length) {
+          if (ext instanceof BlockNoteExtension) {
+            if (
+              !ext.plugins.length &&
+              !ext.keyboardShortcuts &&
+              !ext.inputRules
+            ) {
+              return undefined;
+            }
+            // "blocknote" extensions (prosemirror plugins)
+            return Extension.create({
+              name: key,
+              priority: ext.priority,
+              addProseMirrorPlugins: () => ext.plugins,
+              // TODO maybe collect all input rules from all extensions into one plugin
+              // TODO consider using the prosemirror-inputrules package instead
+              addInputRules: ext.inputRules
+                ? () =>
+                    ext.inputRules!.map(
+                      (inputRule) =>
+                        new InputRule({
+                          find: inputRule.find,
+                          handler: ({ range, match, state }) => {
+                            const replaceWith = inputRule.replace({
+                              match,
+                              range,
+                              editor: this,
+                            });
+                            if (replaceWith) {
+                              const blockInfo = getBlockInfoFromTransaction(
+                                state.tr,
+                              );
+
+                              // TODO this is weird, why do we need it?
+                              if (
+                                blockInfo.isBlockContainer &&
+                                blockInfo.blockContent.node.type.spec
+                                  .content === "inline*"
+                              ) {
+                                updateBlockTr(
+                                  state.tr,
+                                  blockInfo.bnBlock.beforePos,
+                                  replaceWith,
+                                  range.from,
+                                  range.to,
+                                );
+                                // tr.replaceRange(
+                                //   range.from,
+                                //   range.to,
+                                //   Slice.empty,
+                                // );
+                                return undefined;
+                              }
+                            }
+                            return null;
+                          },
+                        }),
+                    )
+                : undefined,
+              addKeyboardShortcuts: ext.keyboardShortcuts
+                ? () => {
+                    return Object.fromEntries(
+                      Object.entries(ext.keyboardShortcuts!).map(
+                        ([key, value]) => [key, () => value({ editor: this })],
+                      ),
+                    );
+                  }
+                : undefined,
+            });
+          }
+
           return undefined;
-        }
-
-        // "blocknote" extensions (prosemirror plugins)
-        return Extension.create({
-          name: key,
-          priority: ext.priority,
-          addProseMirrorPlugins: () => ext.plugins,
-        });
-      }),
+        },
+      ),
     ].filter((ext): ext is Extension => ext !== undefined);
-
     const tiptapOptions: BlockNoteTipTapEditorOptions = {
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
