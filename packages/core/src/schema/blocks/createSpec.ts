@@ -1,6 +1,7 @@
 import { Editor } from "@tiptap/core";
-import { TagParseRule } from "@tiptap/pm/model";
+import { DOMParser, Fragment, TagParseRule } from "@tiptap/pm/model";
 import { NodeView, ViewMutationRecord } from "@tiptap/pm/view";
+import { mergeParagraphs } from "../../blocks/defaultBlockHelpers.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { InlineContentSchema } from "../inlineContent/types.js";
 import { StyleSchema } from "../styles/types.js";
@@ -87,6 +88,11 @@ export function applyNonSelectableBlockFix(nodeView: NodeView, editor: Editor) {
 export function getParseRules(
   config: BlockConfig,
   customParseFunction: CustomBlockImplementation<any, any, any>["parse"],
+  customParseContentFunction: CustomBlockImplementation<
+    any,
+    any,
+    any
+  >["parseContent"],
 ) {
   const rules: TagParseRule[] = [
     {
@@ -111,6 +117,37 @@ export function getParseRules(
 
         return props;
       },
+      getContent:
+        config.content === "inline" || config.content === "none"
+          ? (node, schema) => {
+              if (customParseContentFunction) {
+                return customParseContentFunction({
+                  el: node,
+                  schema,
+                });
+              }
+
+              if (config.content === "inline") {
+                // Parse the blockquote content as inline content
+                const element = node as HTMLElement;
+
+                // Clone to avoid modifying the original
+                const clone = element.cloneNode(true) as HTMLElement;
+
+                // Merge multiple paragraphs into one with line breaks
+                mergeParagraphs(clone, config.meta?.code ? "\n" : "<br>");
+
+                // Parse the content directly as a paragraph to extract inline content
+                const parser = DOMParser.fromSchema(schema);
+                const parsed = parser.parse(clone, {
+                  topNode: schema.nodes.paragraph.create(),
+                });
+
+                return parsed.content;
+              }
+              return Fragment.empty;
+            }
+          : undefined,
     });
   }
   //     getContent(node, schema) {
@@ -147,19 +184,27 @@ export function createBlockSpec<
     name: blockConfig.type as T["type"],
     content: (blockConfig.content === "inline"
       ? "inline*"
-      : "") as T["content"] extends "inline" ? "inline*" : "",
+      : blockConfig.content === "none"
+        ? ""
+        : blockConfig.content) as T["content"] extends "inline"
+      ? "inline*"
+      : "",
     group: "blockContent",
-    selectable: blockConfig.isSelectable ?? true,
+    selectable: blockConfig.meta?.selectable ?? true,
     isolating: true,
     code: blockConfig.meta?.code ?? false,
-    defining: blockConfig.meta?.defining ?? false,
+    defining: blockConfig.meta?.defining ?? true,
     priority,
     addAttributes() {
       return propsToAttributes(blockConfig.propSchema);
     },
 
     parseHTML() {
-      return getParseRules(blockConfig, blockImplementation.parse);
+      return getParseRules(
+        blockConfig,
+        blockImplementation.parse,
+        (blockImplementation as any).parseContent,
+      );
     },
 
     renderHTML({ HTMLAttributes }) {

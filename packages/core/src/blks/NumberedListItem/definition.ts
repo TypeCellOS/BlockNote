@@ -1,6 +1,7 @@
 import { updateBlockTr } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { getBlockInfoFromTransaction } from "../../api/getBlockInfoFromPos.js";
 import { defaultProps } from "../../blocks/defaultProps.js";
+import { getListItemContent } from "../../blocks/ListItemBlockContent/getListItemContent.js";
 import {
   createBlockConfig,
   createBlockNoteExtension,
@@ -40,12 +41,10 @@ export const definition = createBlockSpec(config).implementation(
 
       return false;
     },
-    // TODO how do we represent this??
-    //   // As `li` elements can contain multiple paragraphs, we need to merge their contents
-    // // into a single one so that ProseMirror can parse everything correctly.
-    // getContent: (node, schema) =>
-    //   getListItemContent(node, schema, this.name),
-    // node: "bulletListItem",
+    // As `li` elements can contain multiple paragraphs, we need to merge their contents
+    // into a single one so that ProseMirror can parse everything correctly.
+    parseContent: ({ el, schema }) =>
+      getListItemContent(el, schema, "numberedListItem"),
     render() {
       const div = document.createElement("div");
       // We use a <p> tag, because for <li> tags we'd need a <ul> element to put

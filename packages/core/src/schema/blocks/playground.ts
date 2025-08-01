@@ -3,6 +3,7 @@ import type { Props, PropSchema } from "../../schema/index.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { Block } from "../../blocks/defaultBlocks.js";
 import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
+import { Fragment, Schema } from "prosemirror-model";
 
 export type BlockDefs = Record<string, BlockConfig<string, PropSchema>>;
 
@@ -105,10 +106,11 @@ export interface BlockImplementation<
    */
   runsBefore?: string[];
 
-  // TODO there needs to be simper way to do this, it is a bit of a gap to force them to bridge html to block content
-  // parseContent?: (
-  //   el: HTMLElement,
-  // ) => Block<Record<TName, BlockConfig<TName, TProps>>>["children"];
+  /**
+   * Advanced parsing function that controls how content within the block is parsed.
+   * This is not recommended to use, and is only useful for advanced use cases.
+   */
+  parseContent?: (options: { el: HTMLElement; schema: Schema }) => Fragment;
 
   // // TODO this should be only on extensions, not on the block config
   // /**

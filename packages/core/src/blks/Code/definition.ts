@@ -80,8 +80,6 @@ export const definition = createBlockSpec(config).implementation(
       return {};
     },
 
-    // TODO parsecontent
-
     render(block, editor) {
       const wrapper = document.createDocumentFragment();
       const pre = document.createElement("pre");
