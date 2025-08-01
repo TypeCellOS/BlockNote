@@ -1219,12 +1219,18 @@ export class BlockNoteEditor<
    * @param targetBlock The identifier of an existing block that the text cursor should be moved to.
    * @param placement Whether the text cursor should be placed at the start or end of the block.
    */
+  /**
+   * Sets the text cursor position within a block. Pass "start" or "end" to
+   * move the cursor to the start or end of the block, or a numeric offset to
+   * place the cursor that many characters into the block’s inline content.
+   * Offsets beyond the block’s length are clamped to the block’s end.
+   */
   public setTextCursorPosition(
     targetBlock: BlockIdentifier,
-    placement: "start" | "end" = "start",
+    placementOrOffset: "start" | "end" | number = "start",
   ) {
     return this.transact((tr) =>
-      setTextCursorPosition(tr, targetBlock, placement),
+      setTextCursorPosition(tr, targetBlock, placementOrOffset),
     );
   }
 
