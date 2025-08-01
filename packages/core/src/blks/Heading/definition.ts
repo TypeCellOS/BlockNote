@@ -32,7 +32,7 @@ const config = createBlockConfig(
 );
 
 export const definition = createBlockSpec(config).implementation(
-  ({ allowToggleHeadings }) => ({
+  ({ allowToggleHeadings = true }) => ({
     parse(e) {
       const heading = e.querySelector("h1, h2, h3, h4, h5, h6");
       if (!heading) {
@@ -49,9 +49,8 @@ export const definition = createBlockSpec(config).implementation(
       const dom = document.createElement(`h${block.props.level}`);
 
       if (allowToggleHeadings) {
-        const toggleWrapper = createToggleWrapper(block as any, editor, dom);
-        dom.appendChild(toggleWrapper.dom);
-        return toggleWrapper;
+        const toggleWrapper = createToggleWrapper(block, editor, dom);
+        return { ...toggleWrapper, contentDOM: dom };
       }
 
       return {
