@@ -57,6 +57,7 @@ export function GridSuggestionMenuWrapper<Item>(props: {
     items,
     columns,
     onItemClickCloseMenu,
+    items.length > 0
   );
 
   // set basic aria attributes when the menu is open
