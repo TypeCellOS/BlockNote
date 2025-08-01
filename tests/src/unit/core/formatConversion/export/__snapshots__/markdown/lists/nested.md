@@ -1,5 +1,4 @@
 * Bullet List Item 1
-
 * Bullet List Item 2
 
   1. Numbered List Item 1
