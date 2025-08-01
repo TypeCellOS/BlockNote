@@ -42,7 +42,7 @@ export const ko: Dictionary = {
       title: "접을 수 있는 제목1",
       subtext: "내용을 표시하거나 숨길 수 있는 섹션 제목(대)",
       aliases: ["h", "제목1", "h1", "대제목", "접기", "토글"],
-      group: "제목",
+      group: "소제목",
     },
     toggle_heading_2: {
       title: "접을 수 있는 제목2",
