@@ -1,6 +1,7 @@
 import { updateBlockTr } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { getBlockInfoFromTransaction } from "../../api/getBlockInfoFromPos.js";
 import { defaultProps } from "../../blocks/defaultProps.js";
+import { createToggleWrapper } from "../../blocks/ToggleWrapper/createToggleWrapper.js";
 import {
   createBlockConfig,
   createBlockNoteExtension,
@@ -18,17 +19,14 @@ const config = createBlockConfig(() => ({
 
 export const definition = createBlockSpec(config).implementation(
   () => ({
-    render() {
-      // TODO actual rendering
-      const div = document.createElement("div");
+    render(block, editor) {
       const paragraphEl = document.createElement("p");
-
-      div.appendChild(paragraphEl);
-
-      return {
-        dom: div,
-        contentDOM: paragraphEl,
-      };
+      const toggleWrapper = createToggleWrapper(
+        block as any,
+        editor,
+        paragraphEl,
+      );
+      return { ...toggleWrapper, contentDOM: paragraphEl };
     },
   }),
   () => [
