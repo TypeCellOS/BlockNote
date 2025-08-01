@@ -66,14 +66,14 @@ export type StreamToolCallSingle<T extends StreamTool<any>> =
  *
  * Its type is the same as what a validated StreamTool returns
  */
-export type StreamToolCall<T extends StreamTool<any> | StreamTool<any>[]> =
+export type StreamToolCall<T extends StreamTool<any> | readonly any[]> =
   T extends StreamTool<infer U>
     ? U
     : // when passed an array of StreamTools, StreamToolCall represents the type of one of the StreamTool invocations
-      T extends StreamTool<any>[]
-      ? T[number] extends StreamTool<infer V>
-        ? V
-        : never
+      T extends readonly unknown[]
+      ? {
+          [K in keyof T]: T[K] extends StreamTool<infer V> ? V : never;
+        }[number]
       : never;
 
 /**

@@ -17,6 +17,7 @@ import { tools } from "./index.js";
 import { getAIExtension } from "../../../../AIExtension.js";
 import { getExpectedEditor } from "../../../../testUtil/cases/index.js";
 import { validateRejectingResultsInOriginalDoc } from "../../../../testUtil/suggestChangesTestUtil.js";
+
 async function* createMockStream(
   ...operations: {
     operation:
