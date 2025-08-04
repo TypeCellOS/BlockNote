@@ -335,6 +335,8 @@ export function createBlockSpec<
         blockContentDOMAttributes,
       );
     },
+    // Only needed for tables right now, remove later
+    requiredExtensions: (blockImplementation as any).requiredExtensions,
   });
 }
 

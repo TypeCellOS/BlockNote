@@ -98,11 +98,14 @@ export class CustomBlockNoteSchema<
               {
                 extensions: blockDef.extensions,
               },
-              createBlockSpec(
-                blockDef.config,
-                blockDef.implementation as any,
-                getPriority(key),
-              ),
+              // TODO annoying hack to get tables to work
+              blockDef.config.type === "table"
+                ? blockDef
+                : createBlockSpec(
+                    blockDef.config,
+                    blockDef.implementation as any,
+                    getPriority(key),
+                  ),
             ),
           ];
         },
