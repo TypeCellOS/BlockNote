@@ -32,6 +32,7 @@ vercelAiSdkRoute.post("/generateText", cors(), async (c) => {
     },
   });
 
+  return result as any;
   // return result.toDataStreamResponse();
 });
 
