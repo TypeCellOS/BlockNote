@@ -1,5 +1,5 @@
-import { BlockDefinition } from "../schema/blocks/playground.js";
 import {
+  BlockDefinition,
   BlockSpecs,
   InlineContentSchema,
   InlineContentSpecs,

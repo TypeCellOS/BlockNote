@@ -4,8 +4,8 @@ import { defaultProps } from "../../blocks/defaultProps.js";
 import {
   createBlockConfig,
   createBlockNoteExtension,
-  createBlockSpec,
-} from "../../schema/blocks/playground.js";
+  createBlockDefinition,
+} from "../../schema/index.js";
 
 const config = createBlockConfig(() => ({
   type: "quote" as const,
@@ -13,7 +13,7 @@ const config = createBlockConfig(() => ({
   content: "inline",
 }));
 
-export const definition = createBlockSpec(config).implementation(
+export const definition = createBlockDefinition(config).implementation(
   () => ({
     parse(element) {
       if (element.querySelector("blockquote")) {

@@ -2,6 +2,7 @@ import { Plugin } from "prosemirror-state";
 import { EventEmitter } from "../util/EventEmitter.js";
 
 import { BlockNoteEditor } from "./BlockNoteEditor.js";
+import { PartialBlockNoDefaults } from "../schema/index.js";
 
 export abstract class BlockNoteExtension<
   TEvent extends Record<string, any> = any,
@@ -63,13 +64,5 @@ export type InputRule = {
      * The editor instance
      */
     editor: BlockNoteEditor<any, any, any>;
-  }) =>
-    | undefined
-    | {
-        // TODO types
-        type: string;
-        props: Partial<Record<string, any>>;
-        children?: any[];
-        content?: any[];
-      };
+  }) => undefined | PartialBlockNoDefaults<any, any, any>;
 };

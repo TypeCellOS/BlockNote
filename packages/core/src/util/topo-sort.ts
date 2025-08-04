@@ -1,4 +1,10 @@
-// Based on https://github.com/n1ru4l/toposort/blob/main/src/toposort.ts (MIT)
+/**
+ * Instead of depending on the NPM package, we vendor this file from https://github.com/n1ru4l/toposort/blob/main/src/toposort.ts (MIT)
+ *
+ * There was a recent publish, despite not having been updated in 2 years, which is suspicious.
+ *
+ * This file is also simple enough that we can maintain it ourselves.
+ */
 
 export type DirectedAcyclicGraph = Map<string, Iterable<string>>;
 export type DependencyGraph = DirectedAcyclicGraph;

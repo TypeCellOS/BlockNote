@@ -1,9 +1,9 @@
 import type { HighlighterGeneric } from "@shikijs/types";
 import {
   createBlockConfig,
+  createBlockDefinition,
   createBlockNoteExtension,
-  createBlockSpec,
-} from "../../schema/blocks/playground.js";
+} from "../../schema/index.js";
 import { lazyShikiPlugin } from "./shiki.js";
 
 export type CodeBlockOptions = {
@@ -54,7 +54,7 @@ export type CodeBlockOptions = {
 };
 
 const config = createBlockConfig(
-  ({ defaultLanguage = "text" }: CodeBlockOptions) => ({
+  ({ defaultLanguage = "text" }: CodeBlockOptions = {}) => ({
     type: "codeBlock" as const,
     propSchema: {
       language: {
@@ -69,8 +69,8 @@ const config = createBlockConfig(
   }),
 );
 
-export const definition = createBlockSpec(config).implementation(
-  (options) => ({
+export const definition = createBlockDefinition(config).implementation(
+  (options = {}) => ({
     parse: (e) => {
       const pre = e.querySelector("pre");
       if (!pre) {
@@ -130,7 +130,7 @@ export const definition = createBlockSpec(config).implementation(
       };
     },
   }),
-  (options) => {
+  (options = {}) => {
     return [
       createBlockNoteExtension({
         key: "code-block-highlighter",

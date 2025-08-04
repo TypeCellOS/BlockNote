@@ -4,9 +4,9 @@ import { defaultProps } from "../../blocks/defaultProps.js";
 import { getListItemContent } from "../../blocks/ListItemBlockContent/getListItemContent.js";
 import {
   createBlockConfig,
+  createBlockDefinition,
   createBlockNoteExtension,
-  createBlockSpec,
-} from "../../schema/blocks/playground.js";
+} from "../../schema/index.js";
 import { handleEnter } from "../utils/listItemEnterHandler.js";
 
 const config = createBlockConfig(() => ({
@@ -18,7 +18,7 @@ const config = createBlockConfig(() => ({
   content: "inline",
 }));
 
-export const definition = createBlockSpec(config).implementation(
+export const definition = createBlockDefinition(config).implementation(
   () => ({
     parse(element) {
       if (element.tagName === "input") {

@@ -9,6 +9,9 @@ import type {
 } from "../inlineContent/types.js";
 import type { PropSchema, Props } from "../propTypes.js";
 import type { StyleSchema } from "../styles/types.js";
+import type { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
+import type { Fragment, Schema } from "prosemirror-model";
+import type { ViewMutationRecord } from "prosemirror-view";
 
 export type BlockNoteDOMElement =
   | "editor"
@@ -21,54 +24,56 @@ export type BlockNoteDOMAttributes = Partial<{
   [DOMElement in BlockNoteDOMElement]: Record<string, string>;
 }>;
 
-// TODO we should remove FileBlockConfig, and only use BlockConfig
-// Ideally something like this would be represented via `groups: ["file"]` or similar
-export type FileBlockConfig = {
-  type: string;
-  readonly propSchema: PropSchema & {
-    caption: {
-      default: "";
-    };
-    name: {
-      default: "";
-    };
+export interface BlockConfigMeta {
+  /**
+   * Whether the block is selectable
+   */
+  selectable?: boolean;
 
-    // URL is optional, as we also want to accept files with no URL, but for example ids
-    // (ids can be used for files that are resolved on the backend)
-    url?: {
-      default: "";
-    };
-
-    // Whether to show the file preview or the name only.
-    // This is useful for some file blocks, but not all
-    // (e.g.: not relevant for default "file" block which doesn;'t show previews)
-    showPreview?: {
-      default: boolean;
-    };
-    // File preview width in px.
-    previewWidth?: {
-      default: undefined;
-      type: "number";
-    };
-  };
-  content: "none";
-  isSelectable?: boolean;
-  isFileBlock: true;
+  /**
+   * The accept mime types for the file block
+   */
   fileBlockAccept?: string[];
-};
 
-// BlockConfig contains the "schema" info about a Block type
-// i.e. what props it supports, what content it supports, etc.
-export type BlockConfig =
-  | {
-      type: string;
-      readonly propSchema: PropSchema;
-      content: "inline" | "none" | "table";
-      isSelectable?: boolean;
-      isFileBlock?: false;
-      hardBreakShortcut?: "shift+enter" | "enter" | "none";
-    }
-  | FileBlockConfig;
+  /**
+   * Whether the block is a {@link https://prosemirror.net/docs/ref/#model.NodeSpec.code} block
+   */
+  code?: boolean;
+
+  /**
+   * Whether the block is a {@link https://prosemirror.net/docs/ref/#model.NodeSpec.defining} block
+   */
+  defining?: boolean;
+}
+
+/**
+ * BlockConfig contains the "schema" info about a Block type
+ * i.e. what props it supports, what content it supports, etc.
+ */
+export interface BlockConfig<
+  TName extends string = string,
+  TSchema extends PropSchema = PropSchema,
+> {
+  /**
+   * The type of the block (unique identifier within a schema)
+   */
+  type: TName;
+  /**
+   * The properties that the block supports
+   * @todo will be zod schema in the future
+   */
+  readonly propSchema: TSchema;
+  /**
+   * The content that the block supports
+   */
+  content: "inline" | "none";
+  // TODO: how do you represent things that have nested content?
+  // e.g. tables, alerts (with title & content)
+  /**
+   * Metadata
+   */
+  meta?: BlockConfigMeta;
+}
 
 // Block implementation contains the "implementation" info about a Block
 // such as the functions / Nodes required to render and / or serialize it
@@ -323,3 +328,73 @@ export type PartialBlockFromConfig<
 };
 
 export type BlockIdentifier = { id: string } | string;
+
+export interface BlockImplementation<
+  TName extends string,
+  TProps extends PropSchema,
+> {
+  /**
+   * A function that converts the block into a DOM element
+   */
+  render: (
+    /**
+     * The custom block to render
+     */
+    block: BlockNoDefaults<Record<TName, BlockConfig<TName, TProps>>, any, any>,
+    /**
+     * The BlockNote editor instance
+     */
+    editor: BlockNoteEditor<Record<TName, BlockConfig<TName, TProps>>>,
+  ) => {
+    dom: HTMLElement | DocumentFragment;
+    contentDOM?: HTMLElement;
+    ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
+    destroy?: () => void;
+  };
+
+  /**
+   * Exports block to external HTML. If not defined, the output will be the same
+   * as `render(...).dom`.
+   */
+  toExternalHTML?: (
+    block: BlockNoDefaults<Record<TName, BlockConfig<TName, TProps>>, any, any>,
+    editor: BlockNoteEditor<Record<TName, BlockConfig<TName, TProps>>>,
+  ) =>
+    | {
+        dom: HTMLElement;
+        contentDOM?: HTMLElement;
+      }
+    | undefined;
+
+  /**
+   * Parses an external HTML element into a block of this type when it returns the block props object, otherwise undefined
+   */
+  parse?: (el: HTMLElement) => NoInfer<Partial<Props<TProps>>> | undefined;
+
+  /**
+   * The blocks that this block should run before.
+   * This is used to determine the order in which blocks are rendered.
+   */
+  runsBefore?: string[];
+
+  /**
+   * Advanced parsing function that controls how content within the block is parsed.
+   * This is not recommended to use, and is only useful for advanced use cases.
+   */
+  parseContent?: (options: { el: HTMLElement; schema: Schema }) => Fragment;
+}
+
+export type BlockDefinition<
+  TName extends string = string,
+  TProps extends PropSchema = PropSchema,
+> = {
+  config: BlockConfig<TName, TProps>;
+  implementation: BlockImplementation<NoInfer<TName>, NoInfer<TProps>>;
+  extensions?: BlockNoteExtension<any>[];
+};
+
+export type ExtractBlockConfig<T> = T extends (
+  options: any,
+) => BlockDefinition<infer TName, infer TProps>
+  ? BlockConfig<TName, TProps>
+  : never;

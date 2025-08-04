@@ -1,5 +1,5 @@
 import { Editor } from "@tiptap/core";
-import { DOMParser, Fragment, TagParseRule } from "@tiptap/pm/model";
+import { DOMParser, Fragment, Schema, TagParseRule } from "@tiptap/pm/model";
 import { NodeView, ViewMutationRecord } from "@tiptap/pm/view";
 import { mergeParagraphs } from "../../blocks/defaultBlockHelpers.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
@@ -14,10 +14,13 @@ import {
 } from "./internal.js";
 import {
   BlockConfig,
+  BlockDefinition,
   BlockFromConfig,
+  BlockImplementation,
   BlockSchemaWithBlock,
   PartialBlockFromConfig,
 } from "./types.js";
+import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 
 // restrict content to "inline" and "none" only
 export type CustomBlockConfig = BlockConfig & {
@@ -29,6 +32,9 @@ export type CustomBlockImplementation<
   I extends InlineContentSchema,
   S extends StyleSchema,
 > = {
+  /**
+   * A function that converts the block into a DOM element
+   */
   render: (
     /**
      * The custom block to render
@@ -43,26 +49,44 @@ export type CustomBlockImplementation<
     // (note) if we want to fix the manual cast, we need to prevent circular references and separate block definition and render implementations
     // or allow manually passing <BSchema>, but that's not possible without passing the other generics because Typescript doesn't support partial inferred generics
   ) => {
-    dom: HTMLElement;
+    dom: HTMLElement | DocumentFragment;
     contentDOM?: HTMLElement;
     ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
     destroy?: () => void;
   };
-  // Exports block to external HTML. If not defined, the output will be the same
-  // as `render(...).dom`. Used to create clipboard data when pasting outside
-  // BlockNote.
-  // TODO: Maybe can return undefined to ignore when serializing?
+
+  /**
+   * Exports block to external HTML. If not defined, the output will be the same
+   * as `render(...).dom`.
+   */
   toExternalHTML?: (
     block: BlockFromConfig<T, I, S>,
     editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, I, S>,
-  ) => {
-    dom: HTMLElement;
-    contentDOM?: HTMLElement;
-  };
+  ) =>
+    | {
+        dom: HTMLElement;
+        contentDOM?: HTMLElement;
+      }
+    | undefined;
 
+  /**
+   * Parses an external HTML element into a block of this type when it returns the block props object, otherwise undefined
+   */
   parse?: (
     el: HTMLElement,
   ) => PartialBlockFromConfig<T, I, S>["props"] | undefined;
+
+  /**
+   * The blocks that this block should run before.
+   * This is used to determine the order in which blocks are rendered.
+   */
+  runsBefore?: string[];
+
+  /**
+   * Advanced parsing function that controls how content within the block is parsed.
+   * This is not recommended to use, and is only useful for advanced use cases.
+   */
+  parseContent?: (options: { el: HTMLElement; schema: Schema }) => Fragment;
 };
 
 // Function that causes events within non-selectable blocks to be handled by the
@@ -122,7 +146,7 @@ export function getParseRules(
           ? (node, schema) => {
               if (customParseContentFunction) {
                 return customParseContentFunction({
-                  el: node,
+                  el: node as HTMLElement,
                   schema,
                 });
               }
@@ -222,7 +246,7 @@ export function createBlockSpec<
         blockConfig.type,
         {},
         blockConfig.propSchema,
-        blockConfig.isFileBlock,
+        blockConfig.meta?.fileBlockAccept !== undefined,
         HTMLAttributes,
       );
     },
@@ -244,16 +268,16 @@ export function createBlockSpec<
 
         const output = blockImplementation.render(block as any, editor);
 
-        const nodeView: NodeView = wrapInBlockStructure(
+        const nodeView = wrapInBlockStructure(
           output,
           block.type,
           block.props,
           blockConfig.propSchema,
-          blockConfig.isFileBlock,
+          blockConfig.meta?.fileBlockAccept !== undefined,
           blockContentDOMAttributes,
-        );
+        ) satisfies NodeView;
 
-        if (blockConfig.isSelectable === false) {
+        if (blockConfig.meta?.selectable === false) {
           applyNonSelectableBlockFix(nodeView, this.editor);
         }
 
@@ -281,7 +305,7 @@ export function createBlockSpec<
         block.type,
         block.props,
         blockConfig.propSchema,
-        blockConfig.isFileBlock,
+        blockConfig.meta?.fileBlockAccept !== undefined,
         blockContentDOMAttributes,
       );
     },
@@ -291,7 +315,12 @@ export function createBlockSpec<
       const blockContentDOMAttributes =
         node.options.domAttributes?.blockContent || {};
 
-      let output = blockImplementation.toExternalHTML?.(
+      let output:
+        | {
+            dom: HTMLElement | DocumentFragment;
+            contentDOM?: HTMLElement;
+          }
+        | undefined = blockImplementation.toExternalHTML?.(
         block as any,
         editor as any,
       );
@@ -307,4 +336,59 @@ export function createBlockSpec<
       );
     },
   });
+}
+
+/**
+ * Helper function to create a block config.
+ */
+export function createBlockConfig<
+  TCallback extends (
+    options: Partial<Record<string, any>>,
+  ) => BlockConfig<any, any>,
+  TOptions extends Parameters<TCallback>[0],
+  TName extends ReturnType<TCallback>["type"],
+  TProps extends ReturnType<TCallback>["propSchema"],
+>(callback: TCallback): (options: TOptions) => BlockConfig<TName, TProps> {
+  return callback;
+}
+
+/**
+ * Helper function to create a block definition.
+ */
+export function createBlockDefinition<
+  TCallback extends (options?: any) => BlockConfig<any, any>,
+  TOptions extends Parameters<TCallback>[0],
+  TName extends ReturnType<TCallback>["type"],
+  TProps extends ReturnType<TCallback>["propSchema"],
+>(
+  callback: TCallback,
+): {
+  implementation: (
+    cb: (options?: TOptions) => BlockImplementation<TName, TProps>,
+    addExtensions?: (options?: TOptions) => BlockNoteExtension<any>[],
+  ) => (options?: TOptions) => BlockDefinition<TName, TProps>;
+} {
+  return {
+    implementation: (cb, addExtensions) => (options) => ({
+      config: callback(options),
+      implementation: cb(options),
+      extensions: addExtensions?.(options),
+    }),
+  };
+}
+/**
+ * This creates an instance of a BlockNoteExtension that can be used to add to a schema.
+ * It is a bit of a hack, but it works.
+ */
+export function createBlockNoteExtension(
+  options: Partial<
+    Pick<BlockNoteExtension, "inputRules" | "keyboardShortcuts" | "plugins">
+  > & { key: string },
+) {
+  const x = Object.create(BlockNoteExtension.prototype);
+  x.key = options.key;
+  x.inputRules = options.inputRules;
+  x.keyboardShortcuts = options.keyboardShortcuts;
+  x.plugins = options.plugins ?? [];
+  return x as BlockNoteExtension;
 }

@@ -5,8 +5,8 @@ import { createToggleWrapper } from "../../blocks/ToggleWrapper/createToggleWrap
 import {
   createBlockConfig,
   createBlockNoteExtension,
-  createBlockSpec,
-} from "../../schema/blocks/playground.js";
+  createBlockDefinition,
+} from "../../schema/index.js";
 import { handleEnter } from "../utils/listItemEnterHandler.js";
 
 const config = createBlockConfig(() => ({
@@ -17,7 +17,7 @@ const config = createBlockConfig(() => ({
   content: "inline",
 }));
 
-export const definition = createBlockSpec(config).implementation(
+export const definition = createBlockDefinition(config).implementation(
   () => ({
     render(block, editor) {
       const paragraphEl = document.createElement("p");

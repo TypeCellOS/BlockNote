@@ -4,7 +4,6 @@ import {
   BlockConfig,
   BlockFromConfig,
   BlockSchema,
-  FileBlockConfig,
   InlineContentConfig,
   InlineContentSchema,
   StyleSchema,
@@ -13,7 +12,7 @@ import {
   Block,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
-  defaultBlockSchema,
+  defaultBlockSpecs,
   defaultInlineContentSchema,
 } from "./defaultBlocks.js";
 import { defaultProps } from "./defaultProps.js";
@@ -32,8 +31,7 @@ export function checkDefaultBlockTypeInSchema<
   S
 > {
   return (
-    blockType in editor.schema.blockSchema //&&
-    // editor.schema.blockSchema[blockType] === defaultBlockSchema[blockType]
+    blockType in editor.schema.blockSchema && blockType in defaultBlockSpecs
   );
 }
 

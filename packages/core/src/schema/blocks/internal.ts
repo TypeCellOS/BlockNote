@@ -16,10 +16,8 @@ import { PropSchema, Props } from "../propTypes.js";
 import { StyleSchema } from "../styles/types.js";
 import {
   BlockConfig,
-  BlockSchemaFromSpecs,
   BlockSchemaWithBlock,
   BlockSpec,
-  BlockSpecs,
   SpecificBlock,
   TiptapBlockImplementation,
 } from "./types.js";
@@ -145,7 +143,7 @@ export function wrapInBlockStructure<
   PSchema extends PropSchema,
 >(
   element: {
-    dom: HTMLElement;
+    dom: HTMLElement | DocumentFragment;
     contentDOM?: HTMLElement;
     destroy?: () => void;
   },
@@ -258,11 +256,7 @@ export function createBlockSpecFromStronglyTypedTiptapNode<
         ? "inline"
         : node.config.content === "tableRow+"
           ? "table"
-          : "none") as T["config"]["content"] extends "inline*"
-        ? "inline"
-        : T["config"]["content"] extends "tableRow+"
-          ? "table"
-          : "none",
+          : "none") as any, // TODO does this typing even matter?
       propSchema,
     },
     {
@@ -273,10 +267,4 @@ export function createBlockSpecFromStronglyTypedTiptapNode<
       // parse: () => undefined, // parse rules are in node already
     },
   );
-}
-
-export function getBlockSchemaFromSpecs<T extends BlockSpecs>(specs: T) {
-  return Object.fromEntries(
-    Object.entries(specs).map(([key, value]) => [key, value.config]),
-  ) as BlockSchemaFromSpecs<T>;
 }

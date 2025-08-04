@@ -100,7 +100,6 @@ import { en } from "../i18n/locales/index.js";
 
 import { redo, undo } from "@tiptap/pm/history";
 import {
-  Selection,
   TextSelection,
   type Command,
   type Plugin,
@@ -868,11 +867,6 @@ export class BlockNoteEditor<
                                   range.from,
                                   range.to,
                                 );
-                                // tr.replaceRange(
-                                //   range.from,
-                                //   range.to,
-                                //   Slice.empty,
-                                // );
                                 return undefined;
                               }
                             }

@@ -1,7 +1,7 @@
 import {
   createBlockConfig,
-  createBlockSpec,
-} from "../../schema/blocks/playground.js";
+  createBlockDefinition,
+} from "../../schema/index.js";
 
 const config = createBlockConfig(() => ({
   type: "pageBreak" as const,
@@ -9,7 +9,7 @@ const config = createBlockConfig(() => ({
   content: "none",
 }));
 
-export const definition = createBlockSpec(config).implementation(() => ({
+export const definition = createBlockDefinition(config).implementation(() => ({
   parse(element) {
     if (element.tagName === "DIV" && element.hasAttribute("data-page-break")) {
       return {};

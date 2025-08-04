@@ -17,8 +17,8 @@ import {
   defaultInlineContentSpecs,
   defaultStyleSpecs,
 } from "../blocks/defaultBlocks.js";
-import { BlockDefinition } from "../schema/blocks/playground.js";
 import {
+  BlockDefinition,
   InlineContentSchema,
   InlineContentSchemaFromSpecs,
   InlineContentSpecs,

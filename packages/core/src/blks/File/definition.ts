@@ -5,8 +5,8 @@ import { createFileBlockWrapper } from "../../blocks/FileBlockContent/helpers/re
 import { createLinkWithCaption } from "../../blocks/FileBlockContent/helpers/toExternalHTML/createLinkWithCaption.js";
 import {
   createBlockConfig,
-  createBlockSpec,
-} from "../../schema/blocks/playground.js";
+  createBlockDefinition,
+} from "../../schema/index.js";
 
 const config = createBlockConfig(() => ({
   type: "file" as const,
@@ -31,7 +31,7 @@ const config = createBlockConfig(() => ({
   },
 }));
 
-export const definition = createBlockSpec(config).implementation(() => ({
+export const definition = createBlockDefinition(config).implementation(() => ({
   parse: (element) => {
     if (element.tagName === "EMBED") {
       // Ignore if parent figure has already been parsed.

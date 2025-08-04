@@ -3,58 +3,63 @@ import Code from "@tiptap/extension-code";
 import Italic from "@tiptap/extension-italic";
 import Strike from "@tiptap/extension-strike";
 import Underline from "@tiptap/extension-underline";
+import {
+  audio,
+  bulletListItem,
+  checkListItem,
+  codeBlock,
+  file,
+  heading,
+  image,
+  numberedListItem,
+  pageBreak,
+  paragraph,
+  quoteBlock,
+  toggleListItem,
+  video,
+} from "../blks/index.js";
 import { BackgroundColor } from "../extensions/BackgroundColor/BackgroundColorMark.js";
 import { TextColor } from "../extensions/TextColor/TextColorMark.js";
 import {
+  BlockDefinition,
   BlockNoDefaults,
   BlockSchema,
-  BlockSpecs,
+  ExtractBlockConfig,
   InlineContentSchema,
   InlineContentSpecs,
   PartialBlockNoDefaults,
   StyleSchema,
   StyleSpecs,
   createStyleSpecFromTipTapMark,
-  getBlockSchemaFromSpecs,
   getInlineContentSchemaFromSpecs,
   getStyleSchemaFromSpecs,
 } from "../schema/index.js";
-
-import { AudioBlock } from "./AudioBlockContent/AudioBlockContent.js";
-import { CodeBlock } from "./CodeBlockContent/CodeBlockContent.js";
-import { FileBlock } from "./FileBlockContent/FileBlockContent.js";
-import { Heading } from "./HeadingBlockContent/HeadingBlockContent.js";
-import { ImageBlock } from "./ImageBlockContent/ImageBlockContent.js";
-import { ToggleListItem } from "./ListItemBlockContent/ToggleListItemBlockContent/ToggleListItemBlockContent.js";
-import { BulletListItem } from "./ListItemBlockContent/BulletListItemBlockContent/BulletListItemBlockContent.js";
-import { CheckListItem } from "./ListItemBlockContent/CheckListItemBlockContent/CheckListItemBlockContent.js";
-import { NumberedListItem } from "./ListItemBlockContent/NumberedListItemBlockContent/NumberedListItemBlockContent.js";
-import { Paragraph } from "./ParagraphBlockContent/ParagraphBlockContent.js";
-import { Quote } from "./QuoteBlockContent/QuoteBlockContent.js";
 import { Table } from "./TableBlockContent/TableBlockContent.js";
-import { VideoBlock } from "./VideoBlockContent/VideoBlockContent.js";
 
 export const defaultBlockSpecs = {
-  paragraph: Paragraph,
-  heading: Heading,
-  quote: Quote,
-  codeBlock: CodeBlock,
-  toggleListItem: ToggleListItem,
-  bulletListItem: BulletListItem,
-  numberedListItem: NumberedListItem,
-  checkListItem: CheckListItem,
-  table: Table,
-  file: FileBlock,
-  image: ImageBlock,
-  video: VideoBlock,
-  audio: AudioBlock,
-} satisfies BlockSpecs;
-
-export const defaultBlockSchema = getBlockSchemaFromSpecs(defaultBlockSpecs);
+  paragraph: paragraph.definition(),
+  audio: audio.definition(),
+  bulletListItem: bulletListItem.definition(),
+  checkListItem: checkListItem.definition(),
+  codeBlock: codeBlock.definition(),
+  heading: heading.definition(),
+  numberedListItem: numberedListItem.definition(),
+  pageBreak: pageBreak.definition(),
+  quoteBlock: quoteBlock.definition(),
+  toggleListItem: toggleListItem.definition(),
+  file: file.definition(),
+  image: image.definition(),
+  video: video.definition(),
+  table: Table as unknown as BlockDefinition,
+} as const;
 
 // underscore is used that in case a user overrides DefaultBlockSchema,
 // they can still access the original default block schema
-export type _DefaultBlockSchema = typeof defaultBlockSchema;
+export type _DefaultBlockSchema = {
+  [K in keyof typeof defaultBlockSpecs]: ExtractBlockConfig<
+    (typeof defaultBlockSpecs)[K]
+  >;
+};
 export type DefaultBlockSchema = _DefaultBlockSchema;
 
 export const defaultStyleSpecs = {

@@ -4,8 +4,8 @@ import { createToggleWrapper } from "../../blocks/ToggleWrapper/createToggleWrap
 import {
   createBlockConfig,
   createBlockNoteExtension,
-  createBlockSpec,
-} from "../../schema/blocks/playground.js";
+  createBlockDefinition,
+} from "../../schema/index.js";
 
 const HEADING_LEVELS = [1, 2, 3, 4, 5, 6] as const;
 
@@ -21,7 +21,7 @@ const config = createBlockConfig(
     defaultLevel = 1,
     levels = HEADING_LEVELS,
     allowToggleHeadings = true,
-  }: HeadingOptions) => ({
+  }: HeadingOptions = {}) => ({
     type: "heading" as const,
     propSchema: {
       level: { default: defaultLevel, values: levels },
@@ -31,8 +31,8 @@ const config = createBlockConfig(
   }),
 );
 
-export const definition = createBlockSpec(config).implementation(
-  ({ allowToggleHeadings = true }) => ({
+export const definition = createBlockDefinition(config).implementation(
+  ({ allowToggleHeadings = true }: HeadingOptions = {}) => ({
     parse(e) {
       const heading = e.querySelector("h1, h2, h3, h4, h5, h6");
       if (!heading) {
@@ -59,11 +59,11 @@ export const definition = createBlockSpec(config).implementation(
       };
     },
   }),
-  (options) => [
+  ({ levels = HEADING_LEVELS }: HeadingOptions = {}) => [
     createBlockNoteExtension({
       key: "heading-shortcuts",
       keyboardShortcuts: Object.fromEntries(
-        (options.levels ?? HEADING_LEVELS).map((level) => [
+        levels.map((level) => [
           `Mod-Alt-${level}`,
           ({ editor }) =>
             editor.transact((tr) => {
@@ -88,7 +88,7 @@ export const definition = createBlockSpec(config).implementation(
             }),
         ]) ?? [],
       ),
-      inputRules: (options.levels ?? HEADING_LEVELS).map((level) => ({
+      inputRules: levels.map((level) => ({
         find: new RegExp(`^(#{${level}})\\s$`),
         replace({ match }: { match: RegExpMatchArray }) {
           return {
