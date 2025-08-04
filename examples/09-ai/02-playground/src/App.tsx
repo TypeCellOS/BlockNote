@@ -31,7 +31,6 @@ import {
 import { en as aiEn } from "@blocknote/xl-ai/locales";
 import "@blocknote/xl-ai/style.css";
 import { Fieldset, MantineProvider, Switch } from "@mantine/core";
-import { LanguageModelV1 } from "ai";
 import { useEffect, useMemo, useState } from "react";
 import { useStore } from "zustand";
 
@@ -101,7 +100,8 @@ export default function App() {
     // Register the AI extension
     extensions: [
       createAIExtension({
-        model: model as LanguageModelV1, // (type because initially it's valid)
+        executor: model as any, // TODO
+        // model: model as LanguageModelV1, // (type because initially it's valid)
       }),
     ],
     // We set some initial content for demo purposes
@@ -136,13 +136,13 @@ export default function App() {
   useEffect(() => {
     // update the default model in the extension
     if (model !== "unknown-model") {
-      ai.options.setState({ model });
+      ai.options.setState({ executor: model as any }); // TODO
     }
   }, [model, ai.options]);
 
   const [dataFormat, setDataFormat] = useState("html");
 
-  const stream = useStore(ai.options, (state) => state.stream);
+  const stream = useStore(ai.options, (state: any) => state.stream); // TODO
 
   const themePreference = usePrefersColorScheme();
   const existingContext = useBlockNoteContext();
@@ -196,9 +196,10 @@ export default function App() {
 
             <Switch
               checked={stream}
-              onChange={(e) =>
-                ai.options.setState({ stream: e.target.checked })
-              }
+              onChange={(e) => {
+                // TODO
+                // ai.options.setState({ stream: e.target.checked })
+              }}
               label="Streaming"
             />
           </Fieldset>

@@ -1,9 +1,6 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { CoreMessage, generateObject, LanguageModelV1, streamObject } from "ai";
-import {
-  generateOperations,
-  streamOperations,
-} from "../streamTool/callLLMWithStreamTools.js";
+import { CoreMessage } from "ai";
+import { StreamTool } from "../streamTool/streamTool.js";
 import { isEmptyParagraph } from "../util/emptyBlock.js";
 import { LLMResponse } from "./LLMResponse.js";
 import type { PromptBuilder } from "./formats/PromptBuilder.js";
@@ -11,14 +8,24 @@ import { htmlBlockLLMFormat } from "./formats/html-blocks/htmlBlocks.js";
 import { LLMFormat } from "./index.js";
 import { trimEmptyBlocks } from "./promptHelpers/trimEmptyBlocks.js";
 
+type MakeOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+
+export type ExecuteLLMRequestOptions = {
+  messages: CoreMessage[];
+  streamTools: StreamTool<any>[];
+  // TODO: needed?
+  llmRequestOptions: MakeOptional<LLMRequestOptions, "executor">;
+  onStart?: () => void;
+};
+
 export type LLMRequestOptions = {
   /**
-   * The language model to use for the LLM call (AI SDK)
-   *
-   * (when invoking `callLLM` via the `AIExtension` this will default to the
-   * model set in the `AIExtension` options)
+   * Customize how your LLM backend is called.
+   * Implement this function if you want to call a backend that is not compatible with
+   * the Vercel AI SDK
    */
-  model: LanguageModelV1;
+  executor: (opts: ExecuteLLMRequestOptions) => Promise<LLMResponse>;
+
   /**
    * The user prompt to use for the LLM call
    */
@@ -45,12 +52,6 @@ export type LLMRequestOptions = {
    */
   promptBuilder?: PromptBuilder;
   /**
-   * The maximum number of retries for the LLM call
-   *
-   * @default 2
-   */
-  maxRetries?: number;
-  /**
    * Whether to use the editor selection for the LLM call
    *
    * @default true
@@ -69,15 +70,6 @@ export type LLMRequestOptions = {
     /** Enable the delete tool (default: false) */
     delete?: boolean;
   };
-  /**
-   * Whether to stream the LLM response or not
-   *
-   * When streaming, we use the AI SDK `streamObject` function,
-   * otherwise, we use the AI SDK `generateObject` function.
-   *
-   * @default true
-   */
-  stream?: boolean;
   /**
    * If the user's cursor is in an empty paragraph, automatically delete it when the AI
    * is starting to write.
@@ -103,16 +95,6 @@ export type LLMRequestOptions = {
    * @default true
    */
   withDelays?: boolean;
-  /**
-   * Additional options to pass to the AI SDK `generateObject` function
-   * (only used when `stream` is `false`)
-   */
-  _generateObjectOptions?: Partial<Parameters<typeof generateObject<any>>[0]>;
-  /**
-   * Additional options to pass to the AI SDK `streamObject` function
-   * (only used when `stream` is `true`)
-   */
-  _streamObjectOptions?: Partial<Parameters<typeof streamObject<any>>[0]>;
 };
 
 /**
@@ -130,16 +112,13 @@ export async function doLLMRequest(
     userPrompt,
     useSelection,
     deleteEmptyCursorBlock,
-    stream,
     onStart,
     withDelays,
     dataFormat,
     previousResponse,
     ...rest
   } = {
-    maxRetries: 2,
     deleteEmptyCursorBlock: true,
-    stream: true,
     withDelays: true,
     dataFormat: htmlBlockLLMFormat,
     ...opts,
@@ -192,14 +171,15 @@ export async function doLLMRequest(
 
     For now, this approach works ok.
     */
-    previousMessages.push({
-      role: "system", // using "assistant" here doesn't work with gemini because we can't mix system / assistant messages
-      content:
-        "ASSISTANT_MESSAGE: These are the operations returned by a previous LLM call: \n" +
-        JSON.stringify(
-          await previousResponse.llmResult.getGeneratedOperations(),
-        ),
-    });
+    // TODO: fix
+    // previousMessages.push({
+    //   role: "system", // using "assistant" here doesn't work with gemini because we can't mix system / assistant messages
+    //   content:
+    //     "ASSISTANT_MESSAGE: These are the operations returned by a previous LLM call: \n" +
+    //     JSON.stringify(
+    //       await previousResponse.llmResult.getGeneratedOperations(),
+    //     ),
+    // });
   }
 
   const messages = await promptBuilder(editor, {
@@ -219,34 +199,20 @@ export async function doLLMRequest(
     opts.onBlockUpdate,
   );
 
-  let response:
-    | Awaited<ReturnType<typeof generateOperations<any>>>
-    | Awaited<ReturnType<typeof streamOperations<any>>>;
-
-  if (stream) {
-    response = await streamOperations(
-      streamTools,
-      {
-        messages,
-        ...rest,
-      },
-      () => {
-        if (deleteCursorBlock) {
-          editor.removeBlocks([deleteCursorBlock]);
-        }
-        onStart?.();
-      },
-    );
-  } else {
-    response = await generateOperations(streamTools, {
-      messages,
+  // TODO: design decision, does it make sense to pass `messages` here, or should creating the message array
+  // be the responsibility of the executor / server, and should we pass editor state instead?
+  return opts.executor({
+    onStart: () => {
+      if (deleteCursorBlock) {
+        editor.removeBlocks([deleteCursorBlock]);
+      }
+      onStart?.();
+    },
+    messages,
+    streamTools,
+    llmRequestOptions: {
+      ...opts,
       ...rest,
-    });
-    if (deleteCursorBlock) {
-      editor.removeBlocks([deleteCursorBlock]);
-    }
-    onStart?.();
-  }
-
-  return new LLMResponse(messages, response, streamTools);
+    },
+  });
 }
