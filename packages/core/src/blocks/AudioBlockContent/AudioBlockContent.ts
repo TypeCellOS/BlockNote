@@ -9,7 +9,7 @@ import {
 import { defaultProps } from "../defaultProps.js";
 
 import { parseFigureElement } from "../FileBlockContent/helpers/parse/parseFigureElement.js";
-import { createFileBlockWrapper } from "../FileBlockContent/helpers/render/createFileBlockWrapper.js";
+import { createFileWithCaption } from "../FileBlockContent/helpers/render/createFileWithCaption.js";
 import { createFigureWithCaption } from "../FileBlockContent/helpers/toExternalHTML/createFigureWithCaption.js";
 import { createLinkWithCaption } from "../FileBlockContent/helpers/toExternalHTML/createLinkWithCaption.js";
 import { parseAudioElement } from "./parseAudioElement.js";
@@ -65,10 +65,10 @@ export const audioRender = (
   audio.contentEditable = "false";
   audio.draggable = false;
 
-  return createFileBlockWrapper(
+  return createFileWithCaption(
     block,
     editor,
-    { dom: audio },
+    audio,
     editor.dictionary.file_blocks.audio.add_button_text,
     icon.firstElementChild as HTMLElement,
   );

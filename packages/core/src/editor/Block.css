@@ -254,14 +254,6 @@ NESTED BLOCKS
   text-decoration: line-through;
 }
 
-.bn-block-content[data-text-alignment="center"] {
-  justify-content: center;
-}
-
-.bn-block-content[data-text-alignment="right"] {
-  justify-content: flex-end;
-}
-
 /* Toggle */
 .bn-block-content:has(.bn-toggle-wrapper) > div {
   display: flex;
@@ -460,7 +452,7 @@ NESTED BLOCKS
 /* FILES */
 
 /* Element that wraps content for all file blocks */
-[data-file-block] .bn-file-block-content-wrapper {
+[data-file-block] .bn-file-with-caption {
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -468,8 +460,8 @@ NESTED BLOCKS
 }
 
 /* Add block button & default element (name with icon) */
-[data-file-block] .bn-file-block-content-wrapper:has(.bn-add-file-button),
-[data-file-block] .bn-file-block-content-wrapper:has(.bn-file-name-with-icon) {
+[data-file-block] .bn-file-with-caption:has(.bn-add-file-button),
+[data-file-block] .bn-file-with-caption:has(.bn-file-name-with-icon) {
   width: 100%;
 }
 
@@ -478,14 +470,14 @@ NESTED BLOCKS
   background-color: rgb(242, 241, 238);
   border-radius: 4px;
   color: rgb(125, 121, 122);
+  cursor: pointer;
   display: flex;
   gap: 10px;
   padding: 12px;
+  width: 100%;
 }
 
-.bn-editor[contenteditable="true"] [data-file-block] .bn-add-file-button:hover,
-[data-file-block] .bn-file-name-with-icon:hover,
-.ProseMirror-selectednode .bn-file-name-with-icon {
+.bn-editor[contenteditable="true"] [data-file-block] .bn-add-file-button:hover {
   background-color: rgb(225, 225, 225);
 }
 
@@ -529,7 +521,7 @@ NESTED BLOCKS
 }
 
 /* Visual media file blocks, e.g. images & videos */
-[data-file-block] .bn-visual-media-wrapper {
+[data-file-block] .bn-file {
   display: flex;
   align-items: center;
   position: relative;
@@ -542,7 +534,7 @@ NESTED BLOCKS
 }
 
 /* Block-specific styles */
-[data-content-type="audio"] > .bn-file-block-content-wrapper,
+[data-content-type="audio"] > .bn-file-with-caption,
 .bn-audio {
   width: 100%;
 }

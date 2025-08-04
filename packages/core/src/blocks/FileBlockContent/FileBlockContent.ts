@@ -8,7 +8,7 @@ import {
 import { defaultProps } from "../defaultProps.js";
 import { parseEmbedElement } from "./helpers/parse/parseEmbedElement.js";
 import { parseFigureElement } from "./helpers/parse/parseFigureElement.js";
-import { createFileBlockWrapper } from "./helpers/render/createFileBlockWrapper.js";
+import { createFileWithCaption } from "./helpers/render/createFileWithCaption.js";
 import { createLinkWithCaption } from "./helpers/toExternalHTML/createLinkWithCaption.js";
 
 export const filePropSchema = {
@@ -38,7 +38,7 @@ export const fileRender = (
   block: BlockFromConfig<typeof fileBlockConfig, any, any>,
   editor: BlockNoteEditor<any, any, any>,
 ) => {
-  return createFileBlockWrapper(block, editor);
+  return createFileWithCaption(block, editor);
 };
 
 export const fileParse = (element: HTMLElement) => {

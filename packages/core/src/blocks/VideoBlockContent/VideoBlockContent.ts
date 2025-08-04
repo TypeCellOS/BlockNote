@@ -10,7 +10,7 @@ import { defaultProps } from "../defaultProps.js";
 import { parseFigureElement } from "../FileBlockContent/helpers/parse/parseFigureElement.js";
 import { createFigureWithCaption } from "../FileBlockContent/helpers/toExternalHTML/createFigureWithCaption.js";
 import { createLinkWithCaption } from "../FileBlockContent/helpers/toExternalHTML/createLinkWithCaption.js";
-import { createResizableFileBlockWrapper } from "../FileBlockContent/helpers/render/createResizableFileBlockWrapper.js";
+import { createResizableFileWithCaption } from "../FileBlockContent/helpers/render/createResizableFileWithCaption.js";
 import { parseVideoElement } from "./parseVideoElement.js";
 
 export const FILE_VIDEO_ICON_SVG =
@@ -57,9 +57,6 @@ export const videoRender = (
   const icon = document.createElement("div");
   icon.innerHTML = FILE_VIDEO_ICON_SVG;
 
-  const videoWrapper = document.createElement("div");
-  videoWrapper.className = "bn-visual-media-wrapper";
-
   const video = document.createElement("video");
   video.className = "bn-visual-media";
   if (editor.resolveFileUrl) {
@@ -72,14 +69,11 @@ export const videoRender = (
   video.controls = true;
   video.contentEditable = "false";
   video.draggable = false;
-  video.width = block.props.previewWidth;
-  videoWrapper.appendChild(video);
 
-  return createResizableFileBlockWrapper(
+  return createResizableFileWithCaption(
     block,
     editor,
-    { dom: videoWrapper },
-    videoWrapper,
+    video,
     editor.dictionary.file_blocks.video.add_button_text,
     icon.firstElementChild as HTMLElement,
   );
