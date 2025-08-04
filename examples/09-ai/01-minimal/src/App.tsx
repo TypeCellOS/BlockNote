@@ -64,7 +64,7 @@ export default function App() {
     // Register the AI extension
     extensions: [
       createAIExtension({
-        model,
+        executor: model as any, // TODO
       }),
     ],
     // We set some initial content for demo purposes
