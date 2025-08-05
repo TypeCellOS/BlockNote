@@ -61,6 +61,12 @@ export default function App() {
         content: "Select some text to try them out",
       },
       {
+        type: "image",
+        props: {
+          url: "https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg",
+        },
+      },
+      {
         type: "paragraph",
         content:
           "Notice that the button doesn't appear when the image block above is selected, as it has no inline content.",
