@@ -16,11 +16,11 @@
     "@blocknote/core": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "22.13.13",
-    "typescript": "^5.3.3"
+    "@types/node": "catalog:types",
+    "typescript": "catalog:dev"
   },
   "peerDependencies": {
-    "image-meta": "^0.2.1"
+    "image-meta": "catalog:prod"
   },
   "peerDependenciesMeta": {
     "image-meta": {
