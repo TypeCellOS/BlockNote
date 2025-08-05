@@ -25,7 +25,11 @@
     "build:site": {
       "cache": true,
       "dependsOn": ["^build"],
-      "outputs": ["{projectRoot}/dist", "{projectRoot}/types"]
+      "outputs": [
+        "{projectRoot}/dist",
+        "{projectRoot}/.next",
+        "{projectRoot}/.source"
+      ]
     },
     "test": {
       "cache": true,
