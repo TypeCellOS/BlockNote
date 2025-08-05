@@ -6,7 +6,7 @@ export * as heading from "./Heading/definition.js";
 export * as numberedListItem from "./NumberedListItem/definition.js";
 export * as pageBreak from "./PageBreak/definition.js";
 export * as paragraph from "./Paragraph/definition.js";
-export * as quoteBlock from "./Quote/definition.js";
+export * as quote from "./Quote/definition.js";
 export * as toggleListItem from "./ToggleListItem/definition.js";
 
 export * as file from "./File/definition.js";

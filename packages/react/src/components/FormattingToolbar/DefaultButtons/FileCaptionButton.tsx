@@ -1,7 +1,6 @@
 import {
+  blockHasTypeAndProps,
   BlockSchema,
-  checkBlockIsFileBlock,
-  checkBlockIsFileBlockWithPlaceholder,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -41,7 +40,12 @@ export const FileCaptionButton = () => {
 
     const block = selectedBlocks[0];
 
-    if (checkBlockIsFileBlock(block, editor)) {
+    if (
+      blockHasTypeAndProps(block, editor, block.type, {
+        url: { default: "" },
+        caption: { default: "" },
+      })
+    ) {
       setCurrentEditingCaption(block.props.caption);
       return block;
     }
@@ -69,11 +73,7 @@ export const FileCaptionButton = () => {
     [],
   );
 
-  if (
-    !fileBlock ||
-    checkBlockIsFileBlockWithPlaceholder(fileBlock, editor) ||
-    !editor.isEditable
-  ) {
+  if (!fileBlock || fileBlock.props.url === "" || !editor.isEditable) {
     return null;
   }
 

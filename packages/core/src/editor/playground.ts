@@ -9,7 +9,7 @@ import {
   numberedListItem,
   pageBreak,
   paragraph,
-  quoteBlock,
+  quote,
   toggleListItem,
   video,
 } from "../blks/index.js";
@@ -38,7 +38,7 @@ const defaultBlockSpecs = {
   heading: heading.definition,
   numberedListItem: numberedListItem.definition,
   pageBreak: pageBreak.definition,
-  quoteBlock: quoteBlock.definition,
+  quote: quote.definition,
   toggleListItem: toggleListItem.definition,
   file: file.definition,
   image: image.definition,

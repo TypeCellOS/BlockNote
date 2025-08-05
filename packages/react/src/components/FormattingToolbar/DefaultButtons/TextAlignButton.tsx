@@ -1,8 +1,9 @@
 import {
+  blockHasTypeAndProps,
   BlockSchema,
-  checkBlockHasDefaultProp,
-  checkBlockTypeHasDefaultProp,
+  defaultProps,
   DefaultProps,
+  editorHasBlockWithTypeAndProps,
   InlineContentSchema,
   mapTableCell,
   StyleSchema,
@@ -46,7 +47,11 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
   const textAlignment = useMemo(() => {
     const block = selectedBlocks[0];
 
-    if (checkBlockHasDefaultProp("textAlignment", block, editor)) {
+    if (
+      blockHasTypeAndProps(block, editor, block.type, {
+        textAlignment: defaultProps.textAlignment,
+      })
+    ) {
       return block.props.textAlignment;
     }
     if (block.type === "table") {
@@ -75,7 +80,14 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
       editor.focus();
 
       for (const block of selectedBlocks) {
-        if (checkBlockTypeHasDefaultProp("textAlignment", block.type, editor)) {
+        if (
+          blockHasTypeAndProps(block, editor, block.type, {
+            textAlignment: defaultProps.textAlignment,
+          }) &&
+          editorHasBlockWithTypeAndProps(editor, block.type, {
+            textAlignment: defaultProps.textAlignment,
+          })
+        ) {
           editor.updateBlock(block, {
             props: { textAlignment: textAlignment },
           });

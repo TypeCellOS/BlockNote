@@ -15,7 +15,7 @@ const config = createBlockConfig(() => ({
   propSchema: {
     ...defaultProps,
     start: { default: undefined, type: "number" },
-  },
+  } as const,
   content: "inline",
 }));
 

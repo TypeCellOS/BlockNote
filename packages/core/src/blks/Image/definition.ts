@@ -41,7 +41,7 @@ const config = createBlockConfig((_ctx: ImageOptions = {}) => ({
       default: undefined,
       type: "number",
     },
-  },
+  } as const,
   content: "none" as const,
   meta: {
     fileBlockAccept: ["image/*"],
@@ -78,7 +78,7 @@ export const definition = createBlockDefinition(config).implementation(
     },
     render: (block, editor) => {
       const icon = document.createElement("div");
-      icon.innerHTML = config.icon ?? FILE_IMAGE_ICON_SVG;
+      icon.innerHTML = config?.icon ?? FILE_IMAGE_ICON_SVG;
 
       const imageWrapper = document.createElement("div");
       imageWrapper.className = "bn-visual-media-wrapper";

@@ -72,7 +72,7 @@ export const definition = createBlockDefinition(config).implementation(
     },
     render: (block, editor) => {
       const icon = document.createElement("div");
-      icon.innerHTML = config.icon ?? FILE_AUDIO_ICON_SVG;
+      icon.innerHTML = config?.icon ?? FILE_AUDIO_ICON_SVG;
 
       const audio = document.createElement("audio");
       audio.className = "bn-audio";

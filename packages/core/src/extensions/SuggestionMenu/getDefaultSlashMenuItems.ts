@@ -1,7 +1,14 @@
-import { Block, PartialBlock } from "../../blocks/defaultBlocks.js";
+import {
+  Block,
+  defaultBlockSpecs,
+  PartialBlock,
+} from "../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
-import { checkDefaultBlockTypeInSchema } from "../../blocks/defaultBlockTypeGuards.js";
+import {
+  editorHasBlockWithType,
+  editorHasBlockWithTypeAndProps,
+} from "../../blocks/defaultBlockTypeGuards.js";
 import {
   BlockSchema,
   InlineContentSchema,
@@ -87,7 +94,11 @@ export function getDefaultSlashMenuItems<
 >(editor: BlockNoteEditor<BSchema, I, S>) {
   const items: DefaultSuggestionItem[] = [];
 
-  if (checkDefaultBlockTypeInSchema("heading", editor)) {
+  if (
+    editorHasBlockWithTypeAndProps(editor, "heading", {
+      level: defaultBlockSpecs["heading"].config.propSchema.level,
+    })
+  ) {
     items.push(
       {
         onItemClick: () => {
@@ -125,7 +136,7 @@ export function getDefaultSlashMenuItems<
     );
   }
 
-  if (checkDefaultBlockTypeInSchema("quote", editor)) {
+  if (editorHasBlockWithType(editor, "quote")) {
     items.push({
       onItemClick: () => {
         insertOrUpdateBlock(editor, {
@@ -137,7 +148,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (checkDefaultBlockTypeInSchema("toggleListItem", editor)) {
+  if (editorHasBlockWithType(editor, "toggleListItem")) {
     items.push({
       onItemClick: () => {
         insertOrUpdateBlock(editor, {
@@ -150,7 +161,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (checkDefaultBlockTypeInSchema("numberedListItem", editor)) {
+  if (editorHasBlockWithType(editor, "numberedListItem")) {
     items.push({
       onItemClick: () => {
         insertOrUpdateBlock(editor, {
@@ -163,7 +174,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (checkDefaultBlockTypeInSchema("bulletListItem", editor)) {
+  if (editorHasBlockWithType(editor, "bulletListItem")) {
     items.push({
       onItemClick: () => {
         insertOrUpdateBlock(editor, {
@@ -176,7 +187,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (checkDefaultBlockTypeInSchema("checkListItem", editor)) {
+  if (editorHasBlockWithType(editor, "checkListItem")) {
     items.push({
       onItemClick: () => {
         insertOrUpdateBlock(editor, {
@@ -189,7 +200,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (checkDefaultBlockTypeInSchema("paragraph", editor)) {
+  if (editorHasBlockWithType(editor, "paragraph")) {
     items.push({
       onItemClick: () => {
         insertOrUpdateBlock(editor, {
@@ -202,7 +213,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (checkDefaultBlockTypeInSchema("codeBlock", editor)) {
+  if (editorHasBlockWithType(editor, "codeBlock")) {
     items.push({
       onItemClick: () => {
         insertOrUpdateBlock(editor, {
@@ -215,7 +226,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (checkDefaultBlockTypeInSchema("table", editor)) {
+  if (editorHasBlockWithType(editor, "table")) {
     items.push({
       onItemClick: () => {
         insertOrUpdateBlock(editor, {
@@ -230,7 +241,7 @@ export function getDefaultSlashMenuItems<
                 cells: ["", "", ""],
               },
             ],
-          },
+          } as any,
         });
       },
       badge: undefined,
@@ -239,7 +250,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (checkDefaultBlockTypeInSchema("image", editor)) {
+  if (editorHasBlockWithType(editor, "image")) {
     items.push({
       onItemClick: () => {
         const insertedBlock = insertOrUpdateBlock(editor, {
@@ -258,7 +269,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (checkDefaultBlockTypeInSchema("video", editor)) {
+  if (editorHasBlockWithType(editor, "video")) {
     items.push({
       onItemClick: () => {
         const insertedBlock = insertOrUpdateBlock(editor, {
@@ -277,7 +288,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (checkDefaultBlockTypeInSchema("audio", editor)) {
+  if (editorHasBlockWithType(editor, "audio")) {
     items.push({
       onItemClick: () => {
         const insertedBlock = insertOrUpdateBlock(editor, {
@@ -296,7 +307,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (checkDefaultBlockTypeInSchema("file", editor)) {
+  if (editorHasBlockWithType(editor, "file")) {
     items.push({
       onItemClick: () => {
         const insertedBlock = insertOrUpdateBlock(editor, {
@@ -315,7 +326,14 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (checkDefaultBlockTypeInSchema("heading", editor)) {
+  if (
+    editorHasBlockWithTypeAndProps(editor, "heading", {
+      level: defaultBlockSpecs["heading"].config.propSchema.level,
+      isToggleable: {
+        default: true,
+      },
+    })
+  ) {
     items.push(
       {
         onItemClick: () => {

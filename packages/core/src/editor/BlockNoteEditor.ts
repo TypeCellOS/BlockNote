@@ -88,7 +88,7 @@ import { TextCursorPosition } from "./cursorPositionTypes.js";
 import { Selection } from "./selectionTypes.js";
 import { transformPasted } from "./transformPasted.js";
 
-import { checkDefaultBlockTypeInSchema } from "../blocks/defaultBlockTypeGuards.js";
+import { editorHasBlockWithType } from "../blocks/defaultBlockTypeGuards.js";
 import { BlockNoteSchema } from "./BlockNoteSchema.js";
 import {
   BlockNoteTipTapEditor,
@@ -682,7 +682,7 @@ export class BlockNoteEditor<
       disableExtensions: newOptions.disableExtensions,
       setIdAttribute: newOptions.setIdAttribute,
       animations: newOptions.animations ?? true,
-      tableHandles: checkDefaultBlockTypeInSchema("table", this),
+      tableHandles: editorHasBlockWithType(this, "table"),
       dropCursor: this.options.dropCursor ?? dropCursor,
       placeholders: newOptions.placeholders,
       tabBehavior: newOptions.tabBehavior,

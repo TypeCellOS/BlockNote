@@ -1,6 +1,6 @@
 import {
+  blockHasTypeAndProps,
   BlockSchema,
-  checkBlockIsFileBlock,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -35,7 +35,9 @@ export const FileReplaceButton = () => {
 
   if (
     block === undefined ||
-    !checkBlockIsFileBlock(block, editor) ||
+    !blockHasTypeAndProps(block, editor, block.type, {
+      url: { default: "" },
+    }) ||
     !editor.isEditable
   ) {
     return null;

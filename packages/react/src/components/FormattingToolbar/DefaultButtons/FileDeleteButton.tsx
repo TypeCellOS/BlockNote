@@ -1,7 +1,6 @@
 import {
+  blockHasTypeAndProps,
   BlockSchema,
-  checkBlockIsFileBlock,
-  checkBlockIsFileBlockWithPlaceholder,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -33,7 +32,9 @@ export const FileDeleteButton = () => {
 
     const block = selectedBlocks[0];
 
-    if (checkBlockIsFileBlock(block, editor)) {
+    if (
+      blockHasTypeAndProps(block, editor, block.type, { url: { default: "" } })
+    ) {
       return block;
     }
 
@@ -45,11 +46,7 @@ export const FileDeleteButton = () => {
     editor.removeBlocks([fileBlock!]);
   }, [editor, fileBlock]);
 
-  if (
-    !fileBlock ||
-    checkBlockIsFileBlockWithPlaceholder(fileBlock, editor) ||
-    !editor.isEditable
-  ) {
+  if (!fileBlock || fileBlock.props.url === "" || !editor.isEditable) {
     return null;
   }
 

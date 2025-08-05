@@ -62,7 +62,7 @@ export const definition = createBlockDefinition(config).implementation(
     },
     render: (block, editor) => {
       const icon = document.createElement("div");
-      icon.innerHTML = config.icon ?? FILE_VIDEO_ICON_SVG;
+      icon.innerHTML = config?.icon ?? FILE_VIDEO_ICON_SVG;
 
       const videoWrapper = document.createElement("div");
       videoWrapper.className = "bn-visual-media-wrapper";

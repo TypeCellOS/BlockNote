@@ -1,10 +1,11 @@
 import {
+  blockHasTypeAndProps,
   BlockSchema,
-  checkBlockHasDefaultProp,
-  checkBlockTypeHasDefaultProp,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
+  defaultProps,
   DefaultStyleSchema,
+  editorHasBlockWithTypeAndProps,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -29,8 +30,12 @@ export const BlockColorsItem = <
   const editor = useBlockNoteEditor<BSchema, I, S>();
 
   if (
-    !checkBlockTypeHasDefaultProp("textColor", props.block.type, editor) &&
-    !checkBlockTypeHasDefaultProp("backgroundColor", props.block.type, editor)
+    !blockHasTypeAndProps(props.block, editor, props.block.type, {
+      textColor: defaultProps.textColor,
+    }) ||
+    !blockHasTypeAndProps(props.block, editor, props.block.type, {
+      backgroundColor: defaultProps.backgroundColor,
+    })
   ) {
     return null;
   }
@@ -53,11 +58,12 @@ export const BlockColorsItem = <
         <ColorPicker
           iconSize={18}
           text={
-            checkBlockTypeHasDefaultProp(
-              "textColor",
-              props.block.type,
-              editor,
-            ) && checkBlockHasDefaultProp("textColor", props.block, editor)
+            blockHasTypeAndProps(props.block, editor, props.block.type, {
+              textColor: defaultProps.textColor,
+            }) &&
+            editorHasBlockWithTypeAndProps(editor, props.block.type, {
+              textColor: defaultProps.textColor,
+            })
               ? {
                   color: props.block.props.textColor,
                   setColor: (color) =>
@@ -69,12 +75,12 @@ export const BlockColorsItem = <
               : undefined
           }
           background={
-            checkBlockTypeHasDefaultProp(
-              "backgroundColor",
-              props.block.type,
-              editor,
-            ) &&
-            checkBlockHasDefaultProp("backgroundColor", props.block, editor)
+            blockHasTypeAndProps(props.block, editor, props.block.type, {
+              backgroundColor: defaultProps.backgroundColor,
+            }) &&
+            editorHasBlockWithTypeAndProps(editor, props.block.type, {
+              backgroundColor: defaultProps.backgroundColor,
+            })
               ? {
                   color: props.block.props.backgroundColor,
                   setColor: (color) =>
