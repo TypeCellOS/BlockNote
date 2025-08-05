@@ -63,7 +63,7 @@ export default function NotFound() {
   useEffect(() => {
     const searchSimilarPages = async () => {
       try {
-        const pathSegments = pathname.split("/").filter(Boolean);
+        const pathSegments = (pathname ?? "").split("/").filter(Boolean);
         const searchTerms = pathSegments.slice(-2).join(" ");
 
         if (!searchTerms) {
