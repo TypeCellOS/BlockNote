@@ -1,11 +1,11 @@
 import {
-  blockHasTypeAndProps,
+  Block,
+  blockHasType,
   BlockSchema,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
-  defaultProps,
   DefaultStyleSchema,
-  editorHasBlockWithTypeAndProps,
+  editorHasBlockWithType,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -29,12 +29,17 @@ export const BlockColorsItem = <
 
   const editor = useBlockNoteEditor<BSchema, I, S>();
 
+  // We cast the block to a generic one, as the base type causes type errors
+  // with runtime type checking using `blockHasType`. Runtime type checking is
+  // more valuable than static checks, so better to do it like this.
+  const block = props.block as Block<any, any, any>;
+
   if (
-    !blockHasTypeAndProps(props.block, editor, props.block.type, {
-      textColor: defaultProps.textColor,
+    !blockHasType(block, editor, block.type, {
+      textColor: "string",
     }) ||
-    !blockHasTypeAndProps(props.block, editor, props.block.type, {
-      backgroundColor: defaultProps.backgroundColor,
+    !blockHasType(block, editor, block.type, {
+      backgroundColor: "string",
     })
   ) {
     return null;
@@ -58,33 +63,33 @@ export const BlockColorsItem = <
         <ColorPicker
           iconSize={18}
           text={
-            blockHasTypeAndProps(props.block, editor, props.block.type, {
-              textColor: defaultProps.textColor,
+            blockHasType(block, editor, block.type, {
+              textColor: "string",
             }) &&
-            editorHasBlockWithTypeAndProps(editor, props.block.type, {
-              textColor: defaultProps.textColor,
+            editorHasBlockWithType(editor, block.type, {
+              textColor: "string",
             })
               ? {
-                  color: props.block.props.textColor,
+                  color: block.props.textColor,
                   setColor: (color) =>
-                    editor.updateBlock(props.block, {
-                      type: props.block.type,
+                    editor.updateBlock(block, {
+                      type: block.type,
                       props: { textColor: color },
                     }),
                 }
               : undefined
           }
           background={
-            blockHasTypeAndProps(props.block, editor, props.block.type, {
-              backgroundColor: defaultProps.backgroundColor,
+            blockHasType(block, editor, block.type, {
+              backgroundColor: "string",
             }) &&
-            editorHasBlockWithTypeAndProps(editor, props.block.type, {
-              backgroundColor: defaultProps.backgroundColor,
+            editorHasBlockWithType(editor, block.type, {
+              backgroundColor: "string",
             })
               ? {
-                  color: props.block.props.backgroundColor,
+                  color: block.props.backgroundColor,
                   setColor: (color) =>
-                    editor.updateBlock(props.block, {
+                    editor.updateBlock(block, {
                       props: { backgroundColor: color },
                     }),
                 }

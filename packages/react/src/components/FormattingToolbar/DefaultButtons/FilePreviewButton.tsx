@@ -1,7 +1,7 @@
 import {
-  blockHasTypeAndProps,
+  blockHasType,
   BlockSchema,
-  editorHasBlockWithTypeAndProps,
+  editorHasBlockWithType,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -34,9 +34,9 @@ export const FilePreviewButton = () => {
     const block = selectedBlocks[0];
 
     if (
-      blockHasTypeAndProps(block, editor, block.type, {
-        url: { default: "" },
-        showPreview: { default: true },
+      blockHasType(block, editor, block.type, {
+        url: "string",
+        showPreview: "boolean",
       })
     ) {
       return block;
@@ -48,9 +48,8 @@ export const FilePreviewButton = () => {
   const onClick = useCallback(() => {
     if (
       fileBlock &&
-      editorHasBlockWithTypeAndProps(editor, fileBlock.type, {
-        url: { default: "" },
-        showPreview: { default: true },
+      editorHasBlockWithType(editor, fileBlock.type, {
+        showPreview: "boolean",
       })
     ) {
       editor.updateBlock(fileBlock, {

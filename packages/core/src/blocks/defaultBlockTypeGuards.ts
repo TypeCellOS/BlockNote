@@ -14,42 +14,31 @@ import {
 } from "./defaultBlocks.js";
 import { Selection } from "prosemirror-state";
 
-export function editorHasBlockWithType<BType extends string>(
-  editor: BlockNoteEditor<any, any, any>,
-  blockType: BType,
-): editor is BlockNoteEditor<
-  {
-    [BT in BType]: BlockConfig<
-      BT,
-      {
-        [PN in string]: PropSpec<boolean | number | string>;
-      }
-    >;
-  },
-  any,
-  any
-> {
-  if (!(blockType in editor.schema.blockSpecs)) {
-    return false;
-  }
-
-  if (editor.schema.blockSpecs[blockType].config.type !== blockType) {
-    return false;
-  }
-
-  return true;
-}
-
-export function editorHasBlockWithTypeAndProps<
+export function editorHasBlockWithType<
   BType extends string,
-  PSchema extends PropSchema,
+  Props extends
+    | PropSchema
+    | Record<string, "boolean" | "number" | "string">
+    | undefined = undefined,
 >(
   editor: BlockNoteEditor<any, any, any>,
   blockType: BType,
-  propSchema: PSchema,
+  props?: Props,
 ): editor is BlockNoteEditor<
   {
-    [BT in BType]: BlockConfig<BT, PSchema>;
+    [BT in BType]: Props extends PropSchema
+      ? BlockConfig<BT, Props>
+      : Props extends Record<string, "boolean" | "number" | "string">
+        ? BlockConfig<
+            BT,
+            {
+              [PN in keyof Props]: {
+                default: undefined;
+                type: Props[PN];
+              };
+            }
+          >
+        : BlockConfig<BT, PropSchema>;
   },
   any,
   any
@@ -57,64 +46,86 @@ export function editorHasBlockWithTypeAndProps<
   if (!editorHasBlockWithType(editor, blockType)) {
     return false;
   }
+  if (!props) {
+    return true;
+  }
 
-  for (const [propName, propSpec] of Object.entries(propSchema)) {
+  for (const [propName, propSpec] of Object.entries(props)) {
     if (!(propName in editor.schema.blockSpecs[blockType].config.propSchema)) {
       return false;
     }
 
-    if (
-      editor.schema.blockSpecs[blockType].config.propSchema[propName]
-        .default !== propSpec.default
-    ) {
-      return false;
-    }
-
-    if (
-      typeof editor.schema.blockSpecs[blockType].config.propSchema[propName]
-        .values !== typeof propSpec.values
-    ) {
-      return false;
-    }
-
-    if (
-      typeof editor.schema.blockSpecs[blockType].config.propSchema[propName]
-        .values === "object" &&
-      typeof propSpec.values === "object"
-    ) {
+    if (typeof propSpec === "string") {
       if (
-        editor.schema.blockSpecs[blockType].config.propSchema[propName].values
-          .length !== propSpec.values.length
+        editor.schema.blockSpecs[blockType].config.propSchema[propName]
+          .default &&
+        typeof editor.schema.blockSpecs[blockType].config.propSchema[propName]
+          .default !== propSpec
       ) {
         return false;
       }
 
-      for (
-        let i = 0;
-        i <
-        editor.schema.blockSpecs[blockType].config.propSchema[propName].values
-          .length;
-        i++
+      if (
+        editor.schema.blockSpecs[blockType].config.propSchema[propName].type &&
+        editor.schema.blockSpecs[blockType].config.propSchema[propName].type !==
+          propSpec
+      ) {
+        return false;
+      }
+    } else {
+      if (
+        editor.schema.blockSpecs[blockType].config.propSchema[propName]
+          .default !== propSpec.default
+      ) {
+        return false;
+      }
+
+      if (
+        editor.schema.blockSpecs[blockType].config.propSchema[propName]
+          .default === undefined &&
+        propSpec.default === undefined
       ) {
         if (
           editor.schema.blockSpecs[blockType].config.propSchema[propName]
-            .values[i] !== propSpec.values[i]
+            .type !== propSpec.type
         ) {
           return false;
         }
       }
-    }
 
-    if (
-      editor.schema.blockSpecs[blockType].config.propSchema[propName]
-        .default === undefined &&
-      propSpec.default === undefined
-    ) {
       if (
-        editor.schema.blockSpecs[blockType].config.propSchema[propName].type !==
-        propSpec.type
+        typeof editor.schema.blockSpecs[blockType].config.propSchema[propName]
+          .values !== typeof propSpec.values
       ) {
         return false;
+      }
+
+      if (
+        typeof editor.schema.blockSpecs[blockType].config.propSchema[propName]
+          .values === "object" &&
+        typeof propSpec.values === "object"
+      ) {
+        if (
+          editor.schema.blockSpecs[blockType].config.propSchema[propName].values
+            .length !== propSpec.values.length
+        ) {
+          return false;
+        }
+
+        for (
+          let i = 0;
+          i <
+          editor.schema.blockSpecs[blockType].config.propSchema[propName].values
+            .length;
+          i++
+        ) {
+          if (
+            editor.schema.blockSpecs[blockType].config.propSchema[propName]
+              .values[i] !== propSpec.values[i]
+          ) {
+            return false;
+          }
+        }
       }
     }
   }
@@ -122,48 +133,48 @@ export function editorHasBlockWithTypeAndProps<
   return true;
 }
 
-export function blockHasType<BType extends string>(
-  block: Block<any, any, any>,
-  editor: BlockNoteEditor<any, any, any>,
-  blockType: BType,
-): block is Block<
-  {
-    [BT in string]: BlockConfig<
-      BT,
-      {
-        [PN in string]: PropSpec<boolean | number | string>;
-      }
-    >;
-  },
-  any,
-  any
-> {
-  return editorHasBlockWithType(editor, blockType) && block.type === blockType;
-}
-
-export function blockHasTypeAndProps<
+export function blockHasType<
   BType extends string,
-  PSchema extends PropSchema,
+  Props extends
+    | PropSchema
+    | Record<string, "boolean" | "number" | "string">
+    | undefined = undefined,
 >(
   block: Block<any, any, any>,
   editor: BlockNoteEditor<any, any, any>,
   blockType: BType,
-  propSchema: PSchema,
+  props?: Props,
 ): block is Block<
   {
-    [BT in string]: BlockConfig<BT, PSchema>;
+    [BT in BType]: Props extends PropSchema
+      ? BlockConfig<BT, Props>
+      : Props extends Record<string, "boolean" | "number" | "string">
+        ? BlockConfig<
+            BT,
+            {
+              [PN in keyof Props]: PropSpec<
+                Props[PN] extends "boolean"
+                  ? boolean
+                  : Props[PN] extends "number"
+                    ? number
+                    : Props[PN] extends "string"
+                      ? string
+                      : never
+              >;
+            }
+          >
+        : BlockConfig<BT, PropSchema>;
   },
   any,
   any
 > {
   return (
-    editorHasBlockWithTypeAndProps(editor, blockType, propSchema) &&
-    block.type === blockType
+    editorHasBlockWithType(editor, blockType, props) && block.type === blockType
   );
 }
 
-// TODO: Only used in the emoji picker - is it even needed? If so, needs to be
-// changed to be like the block type guards.
+// TODO: Only used once in the emoji picker - is it even needed? If so, should
+// be changed to be like the block type guards.
 export function checkDefaultInlineContentTypeInSchema<
   InlineContentType extends keyof DefaultInlineContentSchema,
   B extends BlockSchema,

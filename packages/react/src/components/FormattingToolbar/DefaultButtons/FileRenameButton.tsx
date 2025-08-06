@@ -1,6 +1,7 @@
 import {
-  blockHasTypeAndProps,
+  blockHasType,
   BlockSchema,
+  editorHasBlockWithType,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -41,9 +42,9 @@ export const FileRenameButton = () => {
     const block = selectedBlocks[0];
 
     if (
-      blockHasTypeAndProps(block, editor, block.type, {
-        url: { default: "" },
-        name: { default: "" },
+      blockHasType(block, editor, block.type, {
+        url: "string",
+        name: "string",
       })
     ) {
       setCurrentEditingName(block.props.name);
@@ -55,11 +56,17 @@ export const FileRenameButton = () => {
 
   const handleEnter = useCallback(
     (event: KeyboardEvent) => {
-      if (fileBlock && event.key === "Enter") {
+      if (
+        fileBlock &&
+        editorHasBlockWithType(editor, fileBlock.type, {
+          name: "string",
+        }) &&
+        event.key === "Enter"
+      ) {
         event.preventDefault();
         editor.updateBlock(fileBlock, {
           props: {
-            name: currentEditingName as any, // TODO
+            name: currentEditingName,
           },
         });
       }

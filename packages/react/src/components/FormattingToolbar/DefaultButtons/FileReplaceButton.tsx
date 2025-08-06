@@ -1,5 +1,5 @@
 import {
-  blockHasTypeAndProps,
+  blockHasType,
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
@@ -35,8 +35,8 @@ export const FileReplaceButton = () => {
 
   if (
     block === undefined ||
-    !blockHasTypeAndProps(block, editor, block.type, {
-      url: { default: "" },
+    !blockHasType(block, editor, block.type, {
+      url: "string",
     }) ||
     !editor.isEditable
   ) {

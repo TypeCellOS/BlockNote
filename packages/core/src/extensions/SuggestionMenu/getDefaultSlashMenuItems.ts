@@ -5,10 +5,7 @@ import {
 } from "../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
-import {
-  editorHasBlockWithType,
-  editorHasBlockWithTypeAndProps,
-} from "../../blocks/defaultBlockTypeGuards.js";
+import { editorHasBlockWithType } from "../../blocks/defaultBlockTypeGuards.js";
 import {
   BlockSchema,
   InlineContentSchema,
@@ -94,11 +91,7 @@ export function getDefaultSlashMenuItems<
 >(editor: BlockNoteEditor<BSchema, I, S>) {
   const items: DefaultSuggestionItem[] = [];
 
-  if (
-    editorHasBlockWithTypeAndProps(editor, "heading", {
-      level: defaultBlockSpecs["heading"].config.propSchema.level,
-    })
-  ) {
+  if (editorHasBlockWithType(editor, "heading", { level: "number" })) {
     items.push(
       {
         onItemClick: () => {
@@ -250,7 +243,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (editorHasBlockWithType(editor, "image")) {
+  if (editorHasBlockWithType(editor, "image", { url: "string" })) {
     items.push({
       onItemClick: () => {
         const insertedBlock = insertOrUpdateBlock(editor, {
@@ -269,7 +262,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (editorHasBlockWithType(editor, "video")) {
+  if (editorHasBlockWithType(editor, "video", { url: "string" })) {
     items.push({
       onItemClick: () => {
         const insertedBlock = insertOrUpdateBlock(editor, {
@@ -288,7 +281,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (editorHasBlockWithType(editor, "audio")) {
+  if (editorHasBlockWithType(editor, "audio", { url: "string" })) {
     items.push({
       onItemClick: () => {
         const insertedBlock = insertOrUpdateBlock(editor, {
@@ -307,7 +300,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (editorHasBlockWithType(editor, "file")) {
+  if (editorHasBlockWithType(editor, "file", { url: "string" })) {
     items.push({
       onItemClick: () => {
         const insertedBlock = insertOrUpdateBlock(editor, {
@@ -327,11 +320,9 @@ export function getDefaultSlashMenuItems<
   }
 
   if (
-    editorHasBlockWithTypeAndProps(editor, "heading", {
-      level: defaultBlockSpecs["heading"].config.propSchema.level,
-      isToggleable: {
-        default: true,
-      },
+    editorHasBlockWithType(editor, "heading", {
+      level: "number",
+      isToggleable: "boolean",
     })
   ) {
     items.push(

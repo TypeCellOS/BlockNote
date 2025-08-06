@@ -1,5 +1,5 @@
 import {
-  blockHasTypeAndProps,
+  blockHasType,
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
@@ -32,9 +32,7 @@ export const FileDeleteButton = () => {
 
     const block = selectedBlocks[0];
 
-    if (
-      blockHasTypeAndProps(block, editor, block.type, { url: { default: "" } })
-    ) {
+    if (blockHasType(block, editor, block.type, { url: "string" })) {
       return block;
     }
 
