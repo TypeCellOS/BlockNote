@@ -23,10 +23,10 @@ The example uses the `onChange` event listener to detect when table content chan
 
 ## Code Highlights
 
-```typescript
-// Listen for changes and update calculations
-useEffect(() => {
-  const cleanup = editor.onChange((editor, { getChanges }) => {
+```tsx
+<BlockNoteView
+  editor={editor}
+  onChange={(editor, { getChanges }) => {
     const changes = getChanges();
 
     changes.forEach((change) => {
@@ -37,16 +37,14 @@ useEffect(() => {
             type: "table",
             content: {
               ...change.block.content,
-              rows: updatedRows,
-            },
+              rows: updatedRows as any,
+            } as any,
           });
         }
       }
     });
-  });
-
-  return cleanup;
-}, [editor]);
+  }}
+></BlockNoteView>
 ```
 
 **Relevant Docs:**

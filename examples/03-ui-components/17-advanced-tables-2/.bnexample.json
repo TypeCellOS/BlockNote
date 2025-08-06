@@ -1,6 +1,11 @@
 {
   "playground": true,
   "docs": true,
-  "author": "nperez0111",
-  "tags": ["Intermediate", "UI Components", "Tables", "Appearance & Styling"]
+  "author": "must",
+  "tags": [
+    "Intermediate",
+    "UI Components",
+    "Tables",
+    "Appearance & Styling"
+  ]
 }
