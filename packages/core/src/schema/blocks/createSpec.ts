@@ -346,11 +346,14 @@ export function createBlockSpec<
 export function createBlockConfig<
   TCallback extends (
     options: Partial<Record<string, any>>,
-  ) => BlockConfig<any, any>,
+  ) => BlockConfig<any, any, any>,
   TOptions extends Parameters<TCallback>[0],
   TName extends ReturnType<TCallback>["type"],
   TProps extends ReturnType<TCallback>["propSchema"],
->(callback: TCallback): (options: TOptions) => BlockConfig<TName, TProps> {
+  TContent extends ReturnType<TCallback>["content"],
+>(
+  callback: TCallback,
+): (options: TOptions) => BlockConfig<TName, TProps, TContent> {
   return callback;
 }
 
@@ -362,17 +365,18 @@ export function createBlockDefinition<
   TOptions extends Parameters<TCallback>[0],
   TName extends ReturnType<TCallback>["type"],
   TProps extends ReturnType<TCallback>["propSchema"],
+  TContent extends ReturnType<TCallback>["content"],
 >(
   callback: TCallback,
 ): {
   implementation: (
-    cb: (options?: TOptions) => BlockImplementation<TName, TProps>,
+    cb: (options?: TOptions) => BlockImplementation<TName, TProps, TContent>,
     addExtensions?: (options?: TOptions) => BlockNoteExtension<any>[],
-  ) => (options?: TOptions) => BlockDefinition<TName, TProps>;
+  ) => (options?: TOptions) => BlockDefinition<TName, TProps, TContent>;
 } {
   return {
     implementation: (cb, addExtensions) => (options) => ({
-      config: callback(options),
+      config: callback(options) as any,
       implementation: cb(options),
       extensions: addExtensions?.(options),
     }),

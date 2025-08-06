@@ -9,13 +9,16 @@ import {
 } from "../../schema/index.js";
 import { handleEnter } from "../utils/listItemEnterHandler.js";
 
-const config = createBlockConfig(() => ({
-  type: "bulletListItem" as const,
-  propSchema: {
-    ...defaultProps,
-  },
-  content: "inline",
-}));
+const config = createBlockConfig(
+  () =>
+    ({
+      type: "bulletListItem" as const,
+      propSchema: {
+        ...defaultProps,
+      },
+      content: "inline",
+    }) as const,
+);
 
 export const definition = createBlockDefinition(config).implementation(
   () => ({

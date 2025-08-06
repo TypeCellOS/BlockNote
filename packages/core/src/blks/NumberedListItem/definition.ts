@@ -10,14 +10,17 @@ import {
 import { handleEnter } from "../utils/listItemEnterHandler.js";
 import { NumberedListIndexingDecorationPlugin } from "./IndexingPlugin.js";
 
-const config = createBlockConfig(() => ({
-  type: "numberedListItem" as const,
-  propSchema: {
-    ...defaultProps,
-    start: { default: undefined, type: "number" },
-  },
-  content: "inline",
-}));
+const config = createBlockConfig(
+  () =>
+    ({
+      type: "numberedListItem" as const,
+      propSchema: {
+        ...defaultProps,
+        start: { default: undefined, type: "number" } as const,
+      },
+      content: "inline",
+    }) as const,
+);
 
 export const definition = createBlockDefinition(config).implementation(
   () => ({

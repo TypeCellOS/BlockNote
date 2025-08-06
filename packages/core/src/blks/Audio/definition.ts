@@ -15,35 +15,38 @@ export const FILE_AUDIO_ICON_SVG =
 export interface AudioOptions {
   icon?: string;
 }
-const config = createBlockConfig((_ctx: AudioOptions) => ({
-  type: "audio" as const,
-  propSchema: {
-    backgroundColor: defaultProps.backgroundColor,
-    // File name.
-    name: {
-      default: "" as const,
-    },
-    // File url.
-    url: {
-      default: "" as const,
-    },
-    // File caption.
-    caption: {
-      default: "" as const,
-    },
+const config = createBlockConfig(
+  (_ctx: AudioOptions) =>
+    ({
+      type: "audio" as const,
+      propSchema: {
+        backgroundColor: defaultProps.backgroundColor,
+        // File name.
+        name: {
+          default: "" as const,
+        },
+        // File url.
+        url: {
+          default: "" as const,
+        },
+        // File caption.
+        caption: {
+          default: "" as const,
+        },
 
-    showPreview: {
-      default: true,
-    },
-  },
-  content: "none" as const,
-  meta: {
-    fileBlockAccept: ["audio/*"],
-  },
-}));
+        showPreview: {
+          default: true,
+        },
+      },
+      content: "none",
+      meta: {
+        fileBlockAccept: ["audio/*"],
+      },
+    }) as const,
+);
 
 export const definition = createBlockDefinition(config).implementation(
-  (config) => ({
+  (config = {}) => ({
     parse: (element) => {
       if (element.tagName === "AUDIO") {
         // Ignore if parent figure has already been parsed.

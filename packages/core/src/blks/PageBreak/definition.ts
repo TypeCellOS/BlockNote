@@ -3,11 +3,14 @@ import {
   createBlockDefinition,
 } from "../../schema/index.js";
 
-const config = createBlockConfig(() => ({
-  type: "pageBreak" as const,
-  propSchema: {},
-  content: "none",
-}));
+const config = createBlockConfig(
+  () =>
+    ({
+      type: "pageBreak" as const,
+      propSchema: {},
+      content: "none",
+    }) as const,
+);
 
 export const definition = createBlockDefinition(config).implementation(() => ({
   parse(element) {

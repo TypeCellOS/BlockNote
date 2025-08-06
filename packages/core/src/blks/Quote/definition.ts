@@ -7,11 +7,14 @@ import {
   createBlockDefinition,
 } from "../../schema/index.js";
 
-const config = createBlockConfig(() => ({
-  type: "quote" as const,
-  propSchema: { ...defaultProps },
-  content: "inline",
-}));
+const config = createBlockConfig(
+  () =>
+    ({
+      type: "quote" as const,
+      propSchema: { ...defaultProps },
+      content: "inline" as const,
+    }) as const,
+);
 
 export const definition = createBlockDefinition(config).implementation(
   () => ({

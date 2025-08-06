@@ -1,6 +1,6 @@
 import {
   BlockDefinition,
-  BlockSpecs,
+  BlockSchema,
   InlineContentSchema,
   InlineContentSpecs,
   PropSchema,
@@ -21,23 +21,27 @@ function removeUndefined<T extends Record<string, any> | undefined>(obj: T): T {
   ) as T;
 }
 
+export type BlockSpecOf<BSpecs extends BlockSchema> = {
+  [key in keyof BSpecs]: key extends string
+    ? BlockDefinition<key, PropSchema>
+    : never;
+};
+
 export class CustomBlockNoteSchema<
-  BSpecs extends {
-    [key in string]: BlockDefinition<key, PropSchema>;
-  },
+  BSpecs extends BlockSchema,
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema,
 > {
   public readonly inlineContentSpecs: InlineContentSpecs;
   public readonly styleSpecs: StyleSpecs;
-  public readonly blockSpecs: BlockSpecs;
+  public readonly blockSpecs: BlockSpecOf<BSpecs>;
 
-  public readonly blockSchema: Record<keyof BSpecs, BSpecs[keyof BSpecs]>;
+  public readonly blockSchema: BSpecs;
   public readonly inlineContentSchema: ISchema;
   public readonly styleSchema: SSchema;
 
   constructor(opts: {
-    blockSpecs: BSpecs;
+    blockSpecs: BlockSpecOf<BSpecs>;
     inlineContentSpecs: InlineContentSpecs;
     styleSpecs: StyleSpecs;
   }) {
@@ -56,7 +60,7 @@ export class CustomBlockNoteSchema<
     this.styleSchema = getStyleSchemaFromSpecs(this.styleSpecs) as any;
   }
 
-  private initBlockSpecs(specs: BSpecs) {
+  private initBlockSpecs(specs: BlockSpecOf<BSpecs>): BlockSpecOf<BSpecs> {
     const dag = createDependencyGraph();
     const defaultSet = new Set<string>();
     dag.set("default", defaultSet);
@@ -102,7 +106,7 @@ export class CustomBlockNoteSchema<
               blockDef.config.type === "table"
                 ? blockDef
                 : createBlockSpec(
-                    blockDef.config,
+                    blockDef.config as any,
                     blockDef.implementation as any,
                     getPriority(key),
                   ),
@@ -110,6 +114,6 @@ export class CustomBlockNoteSchema<
           ];
         },
       ),
-    );
+    ) as unknown as BlockSpecOf<BSpecs>;
   }
 }

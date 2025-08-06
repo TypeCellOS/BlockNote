@@ -3,6 +3,7 @@ import {
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
   defaultBlockSpecs,
+  DefaultBlockSchema,
   defaultStyleSpecs,
 } from "@blocknote/core";
 
@@ -10,7 +11,8 @@ import {
 // it easier to extend / customize the default blocks
 const paragraph = createBlockSpecFromStronglyTypedTiptapNode(
   createStronglyTypedTiptapNode<"paragraph", "inline*">(
-    defaultBlockSpecs.paragraph.implementation.node.config as any,
+    // TODO this is a mess
+    {} as any,
   ),
   // disable default props on paragraph (such as textalignment and colors)
   {},

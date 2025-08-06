@@ -15,38 +15,41 @@ export const FILE_IMAGE_ICON_SVG =
 export interface ImageOptions {
   icon?: string;
 }
-const config = createBlockConfig((_ctx: ImageOptions = {}) => ({
-  type: "image" as const,
-  propSchema: {
-    textAlignment: defaultProps.textAlignment,
-    backgroundColor: defaultProps.backgroundColor,
-    // File name.
-    name: {
-      default: "" as const,
-    },
-    // File url.
-    url: {
-      default: "" as const,
-    },
-    // File caption.
-    caption: {
-      default: "" as const,
-    },
+const config = createBlockConfig(
+  (_ctx: ImageOptions = {}) =>
+    ({
+      type: "image" as const,
+      propSchema: {
+        textAlignment: defaultProps.textAlignment,
+        backgroundColor: defaultProps.backgroundColor,
+        // File name.
+        name: {
+          default: "" as const,
+        },
+        // File url.
+        url: {
+          default: "" as const,
+        },
+        // File caption.
+        caption: {
+          default: "" as const,
+        },
 
-    showPreview: {
-      default: true,
-    },
-    // File preview width in px.
-    previewWidth: {
-      default: undefined,
-      type: "number",
-    },
-  },
-  content: "none" as const,
-  meta: {
-    fileBlockAccept: ["image/*"],
-  },
-}));
+        showPreview: {
+          default: true,
+        },
+        // File preview width in px.
+        previewWidth: {
+          default: undefined,
+          type: "number" as const,
+        },
+      },
+      content: "none" as const,
+      meta: {
+        fileBlockAccept: ["image/*"],
+      },
+    }) as const,
+);
 
 export const definition = createBlockDefinition(config).implementation(
   (config = {}) => ({

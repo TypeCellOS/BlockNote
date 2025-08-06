@@ -1,5 +1,6 @@
 import { updateBlockTr } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { getBlockInfoFromTransaction } from "../../api/getBlockInfoFromPos.js";
+import { defaultProps } from "../../blocks/defaultProps.js";
 import { createToggleWrapper } from "../../blocks/ToggleWrapper/createToggleWrapper.js";
 import {
   createBlockConfig,
@@ -21,14 +22,18 @@ const config = createBlockConfig(
     defaultLevel = 1,
     levels = HEADING_LEVELS,
     allowToggleHeadings = true,
-  }: HeadingOptions = {}) => ({
-    type: "heading" as const,
-    propSchema: {
-      level: { default: defaultLevel, values: levels },
-      ...(allowToggleHeadings ? { isToggleable: { default: false } } : {}),
-    },
-    content: "inline",
-  }),
+  }: HeadingOptions = {}) =>
+    ({
+      type: "heading" as const,
+      propSchema: {
+        ...defaultProps,
+        level: { default: defaultLevel, values: levels },
+        ...(allowToggleHeadings
+          ? { isToggleable: { default: false, optional: true } as const }
+          : {}),
+      },
+      content: "inline",
+    }) as const,
 );
 
 export const definition = createBlockDefinition(config).implementation(

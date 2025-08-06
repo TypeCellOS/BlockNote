@@ -33,7 +33,7 @@ const config = createBlockConfig((_ctx: VideoOptions) => ({
 }));
 
 export const definition = createBlockDefinition(config).implementation(
-  (config) => ({
+  (config = {}) => ({
     parse: (element) => {
       if (element.tagName === "VIDEO") {
         // Ignore if parent figure has already been parsed.

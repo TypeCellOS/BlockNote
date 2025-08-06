@@ -8,28 +8,31 @@ import {
   createBlockDefinition,
 } from "../../schema/index.js";
 
-const config = createBlockConfig(() => ({
-  type: "file" as const,
-  propSchema: {
-    backgroundColor: defaultProps.backgroundColor,
-    // File name.
-    name: {
-      default: "" as const,
-    },
-    // File url.
-    url: {
-      default: "" as const,
-    },
-    // File caption.
-    caption: {
-      default: "" as const,
-    },
-  },
-  content: "none" as const,
-  meta: {
-    fileBlockAccept: ["*/*"],
-  },
-}));
+const config = createBlockConfig(
+  () =>
+    ({
+      type: "file" as const,
+      propSchema: {
+        backgroundColor: defaultProps.backgroundColor,
+        // File name.
+        name: {
+          default: "" as const,
+        },
+        // File url.
+        url: {
+          default: "" as const,
+        },
+        // File caption.
+        caption: {
+          default: "" as const,
+        },
+      },
+      content: "none" as const,
+      meta: {
+        fileBlockAccept: ["*/*"],
+      },
+    }) as const,
+);
 
 export const definition = createBlockDefinition(config).implementation(() => ({
   parse: (element) => {

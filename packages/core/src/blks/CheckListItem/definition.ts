@@ -9,14 +9,17 @@ import {
 } from "../../schema/index.js";
 import { handleEnter } from "../utils/listItemEnterHandler.js";
 
-const config = createBlockConfig(() => ({
-  type: "checkListItem" as const,
-  propSchema: {
-    ...defaultProps,
-    checked: { default: false, type: "boolean" },
-  },
-  content: "inline",
-}));
+const config = createBlockConfig(
+  () =>
+    ({
+      type: "checkListItem" as const,
+      propSchema: {
+        ...defaultProps,
+        checked: { default: false, type: "boolean" },
+      },
+      content: "inline",
+    }) as const,
+);
 
 export const definition = createBlockDefinition(config).implementation(
   () => ({

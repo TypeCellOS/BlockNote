@@ -14,17 +14,17 @@ import {
   numberedListItem,
   pageBreak,
   paragraph,
-  quoteBlock,
+  quote,
   toggleListItem,
   video,
 } from "../blks/index.js";
 import { BackgroundColor } from "../extensions/BackgroundColor/BackgroundColorMark.js";
 import { TextColor } from "../extensions/TextColor/TextColorMark.js";
 import {
+  BlockConfig,
   BlockDefinition,
   BlockNoDefaults,
   BlockSchema,
-  ExtractBlockConfig,
   InlineContentSchema,
   InlineContentSpecs,
   PartialBlockNoDefaults,
@@ -45,19 +45,41 @@ export const defaultBlockSpecs = {
   heading: heading.definition(),
   numberedListItem: numberedListItem.definition(),
   pageBreak: pageBreak.definition(),
-  quoteBlock: quoteBlock.definition(),
+  quote: quote.definition(),
   toggleListItem: toggleListItem.definition(),
   file: file.definition(),
   image: image.definition(),
   video: video.definition(),
-  table: Table as unknown as BlockDefinition,
+  table: Table as unknown as BlockDefinition<
+    "table",
+    {
+      textColor: {
+        default: "default";
+      };
+    }
+  > & {
+    config: {
+      content: "table";
+    };
+  },
 } as const;
 
 // underscore is used that in case a user overrides DefaultBlockSchema,
 // they can still access the original default block schema
-export type _DefaultBlockSchema = {
-  [K in keyof typeof defaultBlockSpecs]: ExtractBlockConfig<
-    (typeof defaultBlockSpecs)[K]
+export type _DefaultBlockSchema = Omit<
+  {
+    [K in keyof typeof defaultBlockSpecs]: (typeof defaultBlockSpecs)[K]["config"];
+  },
+  "table"
+> & {
+  table: BlockConfig<
+    "table",
+    {
+      textColor: {
+        default: "default";
+      };
+    },
+    "table"
   >;
 };
 export type DefaultBlockSchema = _DefaultBlockSchema;

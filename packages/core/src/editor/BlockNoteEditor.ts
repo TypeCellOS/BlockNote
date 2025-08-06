@@ -667,14 +667,14 @@ export class BlockNoteEditor<
 
     // @ts-ignore
     this.schema = newOptions.schema;
-    this.blockImplementations = newOptions.schema.blockSpecs;
+    this.blockImplementations = newOptions.schema.blockSpecs as any;
     this.inlineContentImplementations = newOptions.schema.inlineContentSpecs;
     this.styleImplementations = newOptions.schema.styleSpecs;
 
     this.extensions = getBlockNoteExtensions({
       editor: this,
       domAttributes: newOptions.domAttributes || {},
-      blockSpecs: this.schema.blockSpecs,
+      blockSpecs: this.schema.blockSpecs as any,
       styleSpecs: this.schema.styleSpecs,
       inlineContentSpecs: this.schema.inlineContentSpecs,
       collaboration: newOptions.collaboration,

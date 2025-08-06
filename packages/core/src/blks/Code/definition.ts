@@ -54,19 +54,20 @@ export type CodeBlockOptions = {
 };
 
 const config = createBlockConfig(
-  ({ defaultLanguage = "text" }: CodeBlockOptions = {}) => ({
-    type: "codeBlock" as const,
-    propSchema: {
-      language: {
-        default: defaultLanguage,
+  ({ defaultLanguage = "text" }: CodeBlockOptions = {}) =>
+    ({
+      type: "codeBlock" as const,
+      propSchema: {
+        language: {
+          default: defaultLanguage,
+        },
       },
-    },
-    content: "inline",
-    meta: {
-      code: true,
-      defining: true,
-    },
-  }),
+      content: "inline",
+      meta: {
+        code: true,
+        defining: true,
+      },
+    }) as const,
 );
 
 export const definition = createBlockDefinition(config).implementation(
@@ -84,7 +85,7 @@ export const definition = createBlockDefinition(config).implementation(
       const wrapper = document.createDocumentFragment();
       const pre = document.createElement("pre");
       const code = document.createElement("code");
-      code.textContent = block.content;
+      code.textContent = block.content as unknown as string;
       pre.appendChild(code);
       const select = document.createElement("select");
       const selectWrapper = document.createElement("div");
@@ -123,7 +124,7 @@ export const definition = createBlockDefinition(config).implementation(
       pre.className = `language-${block.props.language}`;
       pre.dataset.language = block.props.language;
       const code = document.createElement("code");
-      code.textContent = block.content;
+      code.textContent = block.content as unknown as string;
       pre.appendChild(code);
       return {
         dom: pre,

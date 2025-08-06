@@ -53,6 +53,7 @@ export interface BlockConfigMeta {
 export interface BlockConfig<
   TName extends string = string,
   TSchema extends PropSchema = PropSchema,
+  TContent extends "inline" | "none" | "table" = "inline" | "none" | "table",
 > {
   /**
    * The type of the block (unique identifier within a schema)
@@ -66,7 +67,7 @@ export interface BlockConfig<
   /**
    * The content that the block supports
    */
-  content: "inline" | "none";
+  content: TContent;
   // TODO: how do you represent things that have nested content?
   // e.g. tables, alerts (with title & content)
   /**
@@ -332,6 +333,7 @@ export type BlockIdentifier = { id: string } | string;
 export interface BlockImplementation<
   TName extends string,
   TProps extends PropSchema,
+  TContent extends "inline" | "none" | "table" = "inline" | "none" | "table",
 > {
   /**
    * A function that converts the block into a DOM element
@@ -340,11 +342,17 @@ export interface BlockImplementation<
     /**
      * The custom block to render
      */
-    block: BlockNoDefaults<Record<TName, BlockConfig<TName, TProps>>, any, any>,
+    block: BlockNoDefaults<
+      Record<TName, BlockConfig<TName, TProps, TContent>>,
+      any,
+      any
+    >,
     /**
      * The BlockNote editor instance
      */
-    editor: BlockNoteEditor<Record<TName, BlockConfig<TName, TProps>>>,
+    editor: BlockNoteEditor<
+      Record<TName, BlockConfig<TName, TProps, TContent>>
+    >,
   ) => {
     dom: HTMLElement | DocumentFragment;
     contentDOM?: HTMLElement;
@@ -357,8 +365,14 @@ export interface BlockImplementation<
    * as `render(...).dom`.
    */
   toExternalHTML?: (
-    block: BlockNoDefaults<Record<TName, BlockConfig<TName, TProps>>, any, any>,
-    editor: BlockNoteEditor<Record<TName, BlockConfig<TName, TProps>>>,
+    block: BlockNoDefaults<
+      Record<TName, BlockConfig<TName, TProps, TContent>>,
+      any,
+      any
+    >,
+    editor: BlockNoteEditor<
+      Record<TName, BlockConfig<TName, TProps, TContent>>
+    >,
   ) =>
     | {
         dom: HTMLElement;
@@ -387,14 +401,19 @@ export interface BlockImplementation<
 export type BlockDefinition<
   TName extends string = string,
   TProps extends PropSchema = PropSchema,
+  TContent extends "inline" | "none" | "table" = "inline" | "none" | "table",
 > = {
-  config: BlockConfig<TName, TProps>;
-  implementation: BlockImplementation<NoInfer<TName>, NoInfer<TProps>>;
+  config: BlockConfig<TName, TProps, TContent>;
+  implementation: BlockImplementation<
+    NoInfer<TName>,
+    NoInfer<TProps>,
+    TContent
+  >;
   extensions?: BlockNoteExtension<any>[];
 };
 
 export type ExtractBlockConfig<T> = T extends (
   options: any,
-) => BlockDefinition<infer TName, infer TProps>
-  ? BlockConfig<TName, TProps>
+) => BlockDefinition<infer TName, infer TProps, infer TContent>
+  ? BlockConfig<TName, TProps, TContent>
   : never;
