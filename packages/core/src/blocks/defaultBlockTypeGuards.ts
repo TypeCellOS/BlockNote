@@ -33,9 +33,10 @@ export function editorHasBlockWithType<
   any,
   any
 > {
-  if (!editorHasBlockWithType(editor, blockType)) {
+  if (!(blockType in editor.schema.blockSpecs)) {
     return false;
   }
+
   if (!props) {
     return true;
   }
