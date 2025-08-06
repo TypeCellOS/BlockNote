@@ -9,6 +9,7 @@ export type PropSpec<PType extends boolean | number | string> =
   | {
       // We infer the type of the prop from the default value
       default: PType;
+      type?: "string" | "number" | "boolean";
       // a list of possible values, for example for a string prop (this will then be used as a string union type)
       values?: readonly PType[];
     }

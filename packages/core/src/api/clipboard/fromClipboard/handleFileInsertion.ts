@@ -2,7 +2,6 @@ import { Block, PartialBlock } from "../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
 import {
   BlockSchema,
-  FileBlockConfig,
   InlineContentSchema,
   StyleSchema,
 } from "../../../schema/index.js";
@@ -106,15 +105,11 @@ export async function handleFileInsertion<
 
   event.preventDefault();
 
-  const fileBlockConfigs = Object.values(editor.schema.blockSchema).filter(
-    (blockConfig) => blockConfig.isFileBlock,
-  ) as FileBlockConfig[];
-
   for (let i = 0; i < items.length; i++) {
     // Gets file block corresponding to MIME type.
     let fileBlockType = "file";
-    for (const fileBlockConfig of fileBlockConfigs) {
-      for (const mimeType of fileBlockConfig.fileBlockAccept || []) {
+    for (const fileBlockConfig of Object.values(editor.schema.blockSchema)) {
+      for (const mimeType of fileBlockConfig.meta?.fileBlockAccept || []) {
         const isFileExtension = mimeType.startsWith(".");
         const file = items[i].getAsFile();
 

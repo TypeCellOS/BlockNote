@@ -1,9 +1,28 @@
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
-import { BlockFromConfig, FileBlockConfig } from "../../../../schema/index.js";
+import {
+  BlockConfig,
+  BlockFromConfigNoChildren,
+} from "../../../../schema/index.js";
 import { createFileBlockWrapper } from "./createFileBlockWrapper.js";
 
 export const createResizableFileBlockWrapper = (
-  block: BlockFromConfig<FileBlockConfig, any, any>,
+  block: BlockFromConfigNoChildren<
+    BlockConfig<
+      string,
+      {
+        backgroundColor: { default: "default" };
+        name: { default: "" };
+        url: { default: "" };
+        caption: { default: "" };
+        showPreview?: { default: true };
+        previewWidth?: { default: number };
+        textAlignment?: { default: "left" };
+      },
+      "none"
+    >,
+    any,
+    any
+  >,
   editor: BlockNoteEditor<any, any, any>,
   element: { dom: HTMLElement; destroy?: () => void },
   resizeHandlesContainerElement: HTMLElement,

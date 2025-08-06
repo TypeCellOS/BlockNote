@@ -1,22 +1,8 @@
-import {
-  BlockNoteSchema,
-  createBlockSpecFromStronglyTypedTiptapNode,
-  createStronglyTypedTiptapNode,
-  defaultBlockSpecs,
-  DefaultBlockSchema,
-  defaultStyleSpecs,
-} from "@blocknote/core";
+import { BlockNoteSchema, defaultStyleSpecs } from "@blocknote/core";
+import { paragraph } from "../../../../core/src/blks/index.js";
 
 // this is quite convoluted. we'll clean this up when we make
 // it easier to extend / customize the default blocks
-const paragraph = createBlockSpecFromStronglyTypedTiptapNode(
-  createStronglyTypedTiptapNode<"paragraph", "inline*">(
-    // TODO this is a mess
-    {} as any,
-  ),
-  // disable default props on paragraph (such as textalignment and colors)
-  {},
-);
 
 // remove textColor, backgroundColor from styleSpecs
 const { textColor, backgroundColor, ...styleSpecs } = defaultStyleSpecs;
@@ -24,7 +10,7 @@ const { textColor, backgroundColor, ...styleSpecs } = defaultStyleSpecs;
 // the schema to use for comments
 export const schema = BlockNoteSchema.create({
   blockSpecs: {
-    paragraph,
+    paragraph: paragraph.definition(),
   },
   styleSpecs,
 });

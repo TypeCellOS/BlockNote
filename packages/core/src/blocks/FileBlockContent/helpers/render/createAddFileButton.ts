@@ -1,8 +1,11 @@
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
-import { BlockFromConfig, FileBlockConfig } from "../../../../schema/index.js";
+import {
+  BlockConfig,
+  BlockFromConfigNoChildren,
+} from "../../../../schema/index.js";
 
 export const createAddFileButton = (
-  block: BlockFromConfig<FileBlockConfig, any, any>,
+  block: BlockFromConfigNoChildren<BlockConfig<string, any, "none">, any, any>,
   editor: BlockNoteEditor<any, any, any>,
   buttonText?: string,
   buttonIcon?: HTMLElement,

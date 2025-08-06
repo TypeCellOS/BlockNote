@@ -2,7 +2,7 @@ import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   BlockFromConfig,
   createBlockSpec,
-  FileBlockConfig,
+  // FileBlockConfig,
   Props,
   PropSchema,
 } from "../../schema/index.js";
@@ -43,7 +43,7 @@ export const audioBlockConfig = {
   content: "none",
   isFileBlock: true,
   fileBlockAccept: ["audio/*"],
-} satisfies FileBlockConfig;
+} as any;
 
 export const audioRender = (
   block: BlockFromConfig<typeof audioBlockConfig, any, any>,

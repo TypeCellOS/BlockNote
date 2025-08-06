@@ -1,19 +1,28 @@
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import {
-  BlockFromConfig,
-  BlockSchemaWithBlock,
-  FileBlockConfig,
+  BlockConfig,
+  BlockFromConfigNoChildren,
 } from "../../../../schema/index.js";
 import { createAddFileButton } from "./createAddFileButton.js";
 import { createFileNameWithIcon } from "./createFileNameWithIcon.js";
 
 export const createFileBlockWrapper = (
-  block: BlockFromConfig<FileBlockConfig, any, any>,
-  editor: BlockNoteEditor<
-    BlockSchemaWithBlock<FileBlockConfig["type"], FileBlockConfig>,
+  block: BlockFromConfigNoChildren<
+    BlockConfig<
+      string,
+      {
+        backgroundColor: { default: "default" };
+        name: { default: "" };
+        url: { default: "" };
+        caption: { default: "" };
+        showPreview?: { default: true };
+      },
+      "none"
+    >,
     any,
     any
   >,
+  editor: BlockNoteEditor<any, any, any>,
   element?: { dom: HTMLElement; destroy?: () => void },
   buttonText?: string,
   buttonIcon?: HTMLElement,
