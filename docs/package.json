@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "next dev --turbo",
     "dev:email": "email dev",
+    "prebuild:site": "nx run @blocknote/dev-scripts:gen",
     "build:site": "fumadocs-mdx && next build --turbo",
     "start": "next start",
     "postinstall": "fumadocs-mdx",
