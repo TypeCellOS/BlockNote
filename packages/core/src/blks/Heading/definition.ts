@@ -39,15 +39,32 @@ const config = createBlockConfig(
 export const definition = createBlockDefinition(config).implementation(
   ({ allowToggleHeadings = true }: HeadingOptions = {}) => ({
     parse(e) {
-      const heading = e.querySelector("h1, h2, h3, h4, h5, h6");
-      if (!heading) {
-        return undefined;
+      let level: number;
+      switch (e.tagName) {
+        case "H1":
+          level = 1;
+          break;
+        case "H2":
+          level = 2;
+          break;
+        case "H3":
+          level = 3;
+          break;
+        case "H4":
+          level = 4;
+          break;
+        case "H5":
+          level = 5;
+          break;
+        case "H6":
+          level = 6;
+          break;
+        default:
+          return undefined;
       }
 
-      const level = heading.tagName.slice(1);
-
       return {
-        level: parseInt(level),
+        level,
       };
     },
     render(block, editor) {
