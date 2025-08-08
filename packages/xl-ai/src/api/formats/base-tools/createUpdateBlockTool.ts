@@ -196,7 +196,6 @@ export function createUpdateBlockTool<T>(config: {
           }
 
           const operation = chunk.operation as UpdateBlockToolCall<T>;
-
           if (chunk.isPossiblyPartial) {
             const size = JSON.stringify(operation.block).length;
             if (size < minSize) {

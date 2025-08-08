@@ -1,0 +1,34 @@
+{
+  "name": "@blocknote/example-ai-manual-execution",
+  "description": "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
+  "private": true,
+  "version": "0.12.4",
+  "scripts": {
+    "start": "vite",
+    "dev": "vite",
+    "build:prod": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@blocknote/core": "latest",
+    "@blocknote/react": "latest",
+    "@blocknote/ariakit": "latest",
+    "@blocknote/mantine": "latest",
+    "@blocknote/shadcn": "latest",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "@blocknote/xl-ai": "latest",
+    "@mantine/core": "^7.17.3",
+    "ai": "^4.3.15",
+    "@ai-sdk/groq": "^1.2.9",
+    "y-partykit": "^0.0.25",
+    "yjs": "^13.6.27",
+    "zustand": "^5.0.3"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.3.4"
+  }
+}
