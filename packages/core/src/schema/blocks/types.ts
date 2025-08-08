@@ -1,7 +1,9 @@
 /** Define the main block types **/
-import type { Extension, Node } from "@tiptap/core";
 
+import type { Fragment, Schema } from "prosemirror-model";
+import type { ViewMutationRecord } from "prosemirror-view";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import type { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import type {
   InlineContent,
   InlineContentSchema,
@@ -9,9 +11,6 @@ import type {
 } from "../inlineContent/types.js";
 import type { PropSchema, Props } from "../propTypes.js";
 import type { StyleSchema } from "../styles/types.js";
-import type { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
-import type { Fragment, Schema } from "prosemirror-model";
-import type { ViewMutationRecord } from "prosemirror-view";
 
 export type BlockNoteDOMElement =
   | "editor"
@@ -76,45 +75,10 @@ export interface BlockConfig<
   meta?: BlockConfigMeta;
 }
 
-// Block implementation contains the "implementation" info about a Block
-// such as the functions / Nodes required to render and / or serialize it
-export type TiptapBlockImplementation<
-  T extends BlockConfig,
-  B extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
-> = {
-  requiredExtensions?: Array<Extension | Node>;
-  node: Node;
-  toInternalHTML: (
-    block: BlockFromConfigNoChildren<T, I, S> & {
-      children: BlockNoDefaults<B, I, S>[];
-    },
-    editor: BlockNoteEditor<B, I, S>,
-  ) => {
-    dom: HTMLElement;
-    contentDOM?: HTMLElement;
-  };
-  toExternalHTML: (
-    block: BlockFromConfigNoChildren<T, I, S> & {
-      children: BlockNoDefaults<B, I, S>[];
-    },
-    editor: BlockNoteEditor<B, I, S>,
-  ) => {
-    dom: HTMLElement;
-    contentDOM?: HTMLElement;
-  };
-};
-
 // A Spec contains both the Config and Implementation
-export type BlockSpec<
-  T extends BlockConfig,
-  B extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
-> = {
+export type BlockSpec<T extends BlockConfig> = {
   config: T;
-  implementation: TiptapBlockImplementation<NoInfer<T>, B, I, S>;
+  implementation: BlockImplementation<NoInfer<T["type"]>, PropSchema>;
 };
 
 // Utility type. For a given object block schema, ensures that the key of each
@@ -133,14 +97,11 @@ type NamesMatch<Blocks extends Record<string, BlockConfig>> = Blocks extends {
 // The keys are the "type" of a block
 export type BlockSchema = NamesMatch<Record<string, BlockConfig>>;
 
-export type BlockSpecs = Record<
-  string,
-  BlockSpec<any, any, InlineContentSchema, StyleSchema>
->;
+export type BlockSpecs = Record<string, BlockSpec<any>>;
 
 export type BlockImplementations = Record<
   string,
-  TiptapBlockImplementation<any, any, any, any>
+  BlockImplementation<any, any>
 >;
 
 export type BlockSchemaFromSpecs<T extends BlockSpecs> = {

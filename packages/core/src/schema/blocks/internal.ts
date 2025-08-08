@@ -16,10 +16,10 @@ import { PropSchema, Props } from "../propTypes.js";
 import { StyleSchema } from "../styles/types.js";
 import {
   BlockConfig,
+  BlockDefinition,
+  BlockImplementation,
   BlockSchemaWithBlock,
-  BlockSpec,
   SpecificBlock,
-  TiptapBlockImplementation,
 } from "./types.js";
 
 // Function that uses the 'propSchema' of a blockConfig to create a TipTap
@@ -232,17 +232,15 @@ export function createStronglyTypedTiptapNode<
 // config and implementation that conform to the type of Config
 export function createInternalBlockSpec<T extends BlockConfig>(
   config: T,
-  implementation: TiptapBlockImplementation<
-    T,
-    any,
-    InlineContentSchema,
-    StyleSchema
-  >,
-) {
+  implementation: BlockImplementation<T["type"], PropSchema> & {
+    node: Node;
+    requiredExtensions?: Array<Extension | Node>;
+  },
+): BlockDefinition<T["type"], PropSchema> {
   return {
     config,
     implementation,
-  } satisfies BlockSpec<T, any, InlineContentSchema, StyleSchema>;
+  };
 }
 
 export function createBlockSpecFromStronglyTypedTiptapNode<
@@ -262,9 +260,8 @@ export function createBlockSpecFromStronglyTypedTiptapNode<
     {
       node,
       requiredExtensions,
-      toInternalHTML: defaultBlockToHTML,
+      render: defaultBlockToHTML,
       toExternalHTML: defaultBlockToHTML,
-      // parse: () => undefined, // parse rules are in node already
     },
   );
 }

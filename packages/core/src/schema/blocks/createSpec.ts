@@ -294,7 +294,7 @@ export function createBlockSpec<
 
   return createInternalBlockSpec(blockConfig, {
     node,
-    toInternalHTML: (block, editor) => {
+    render: (block, editor) => {
       const blockContentDOMAttributes =
         node.options.domAttributes?.blockContent || {};
 

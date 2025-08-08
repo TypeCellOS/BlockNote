@@ -23,7 +23,7 @@ function removeUndefined<T extends Record<string, any> | undefined>(obj: T): T {
 
 export type BlockSpecOf<BSpecs extends BlockSchema> = {
   [key in keyof BSpecs]: key extends string
-    ? BlockDefinition<key, PropSchema>
+    ? BlockDefinition<key, PropSchema, "inline" | "none" | "table">
     : never;
 };
 
