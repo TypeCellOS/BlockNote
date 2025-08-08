@@ -27,6 +27,7 @@ import {
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../../nodeUtil.js";
 import { getPmSchema } from "../../../pmUtil.js";
+import { TableMap } from "prosemirror-tables";
 
 // for compatibility with tiptap. TODO: remove as we want to remove dependency on tiptap command interface
 export const updateBlockCommand = <
@@ -64,30 +65,9 @@ export function updateBlockTr<
 ) {
   const blockInfo = getBlockInfoFromResolvedPos(tr.doc.resolve(posBeforeBlock));
 
-  const originalSelection = tr.selection;
-  // Capturing current selection info for restoring it after the block is updated.
-  let anchorOffset: number | undefined = undefined;
-  let headOffset: number | undefined = undefined;
-
-  if (
-    originalSelection instanceof TextSelection &&
-    blockInfo.isBlockContainer &&
-    blockInfo.blockContent
-  ) {
-    // Ensure both anchor and head are within the block's content before proceeding.
-    const isAnchorInContent =
-      originalSelection.anchor >= blockInfo.blockContent.beforePos + 1 &&
-      originalSelection.anchor <= blockInfo.blockContent.afterPos - 1;
-    const isHeadInContent =
-      originalSelection.head >= blockInfo.blockContent.beforePos + 1 &&
-      originalSelection.head <= blockInfo.blockContent.afterPos - 1;
-
-    if (isAnchorInContent && isHeadInContent) {
-      anchorOffset =
-        originalSelection.anchor - (blockInfo.blockContent.beforePos + 1);
-      headOffset =
-        originalSelection.head - (blockInfo.blockContent.beforePos + 1);
-    }
+  let cellAnchor: CellAnchor | null = null;
+  if (blockInfo.blockNoteType === "table") {
+    cellAnchor = captureCellAnchor(tr);
   }
 
   const pmSchema = getPmSchema(tr);
@@ -170,32 +150,8 @@ export function updateBlockTr<
     ...block.props,
   });
 
-  // Restore selection
-  const newBlockInfo = getBlockInfoFromResolvedPos(
-    tr.doc.resolve(tr.mapping.map(posBeforeBlock)),
-  );
-
-  // If we captured relative offsets, try to restore the selection using them.
-  if (
-    anchorOffset !== undefined &&
-    headOffset !== undefined &&
-    newBlockInfo.isBlockContainer &&
-    newBlockInfo.blockContent
-  ) {
-    const contentNode = newBlockInfo.blockContent.node;
-    const contentStartPos = newBlockInfo.blockContent.beforePos + 1;
-    const contentEndPos = contentStartPos + contentNode.content.size;
-
-    const newAnchorPos = Math.min(
-      contentStartPos + anchorOffset,
-      contentEndPos,
-    );
-    const newHeadPos = Math.min(contentStartPos + headOffset, contentEndPos);
-
-    tr.setSelection(TextSelection.create(tr.doc, newAnchorPos, newHeadPos));
-  } else {
-    // Fallback to the default mapping if we couldn't use the offset method.
-    tr.setSelection(originalSelection.map(tr.doc, tr.mapping));
+  if (cellAnchor) {
+    restoreCellAnchor(tr, blockInfo, cellAnchor);
   }
 }
 
@@ -382,4 +338,106 @@ export function updateBlock<
 
   const pmSchema = getPmSchema(tr);
   return nodeToBlock(blockContainerNode, pmSchema);
+}
+
+type CellAnchor = { row: number; col: number; offset: number };
+
+/**
+ * Captures the cell anchor from the current selection.
+ * @param tr - The transaction to capture the cell anchor from.
+ *
+ * @returns The cell anchor, or null if no cell is selected.
+ */
+export function captureCellAnchor(tr: Transaction): CellAnchor | null {
+  const sel = tr.selection;
+  if (!(sel instanceof TextSelection)) return null;
+
+  const $head = tr.doc.resolve(sel.head);
+  // Find enclosing cell and table
+  let cellDepth = -1;
+  let tableDepth = -1;
+  for (let d = $head.depth; d >= 0; d--) {
+    const name = $head.node(d).type.name;
+    if (cellDepth < 0 && (name === "tableCell" || name === "tableHeader")) {
+      cellDepth = d;
+    }
+    if (name === "table") {
+      tableDepth = d;
+      break;
+    }
+  }
+  if (cellDepth < 0 || tableDepth < 0) return null;
+
+  // Absolute positions (before the cell)
+  const cellPos = $head.before(cellDepth);
+  const tablePos = $head.before(tableDepth);
+  const table = tr.doc.nodeAt(tablePos);
+  if (!table || table.type.name !== "table") return null;
+
+  // Visual grid position via TableMap (handles spans)
+  const map = TableMap.get(table);
+  const rel = cellPos - (tablePos + 1); // relative to inside table
+  const idx = map.map.indexOf(rel);
+  if (idx < 0) return null;
+
+  const row = Math.floor(idx / map.width);
+  const col = idx % map.width;
+
+  // Caret offset relative to the start of paragraph text
+  const paraPos = cellPos + 1; // pos BEFORE tableParagraph
+  const textStart = paraPos + 1; // start of paragraph text
+  const offset = Math.max(0, sel.head - textStart);
+
+  return { row, col, offset };
+}
+
+function restoreCellAnchor(
+  tr: Transaction,
+  blockInfo: BlockInfo,
+  a: CellAnchor,
+): boolean {
+  if (blockInfo.blockNoteType !== "table") return false;
+
+  // 1) Resolve the table node in the current document
+  let tablePos = -1;
+
+  if (blockInfo.isBlockContainer) {
+    // Prefer the blockContent position when available (points directly at the PM table node)
+    tablePos = tr.mapping.map(blockInfo.blockContent.beforePos);
+  } else {
+    // Fallback: scan within the mapped bnBlock range to find the inner table node
+    const start = tr.mapping.map(blockInfo.bnBlock.beforePos);
+    const end = start + (tr.doc.nodeAt(start)?.nodeSize || 0);
+    tr.doc.nodesBetween(start, end, (node, pos) => {
+      if (node.type.name === "table") {
+        tablePos = pos;
+        return false;
+      }
+      return true;
+    });
+  }
+
+  const table = tablePos >= 0 ? tr.doc.nodeAt(tablePos) : null;
+  if (!table || table.type.name !== "table") return false;
+
+  // 2) Clamp row/col to the table’s current grid
+  const map = TableMap.get(table);
+  const row = Math.max(0, Math.min(a.row, map.height - 1));
+  const col = Math.max(0, Math.min(a.col, map.width - 1));
+
+  // 3) Compute the absolute position of the target cell (pos BEFORE the cell)
+  const cellIndex = row * map.width + col;
+  const relCellPos = map.map[cellIndex]; // relative to (tablePos + 1)
+  if (relCellPos == null) return false;
+  const cellPos = tablePos + 1 + relCellPos;
+
+  // 4) Place the caret inside the cell, clamping the text offset
+  const textPos = cellPos + 1;
+  const textNode = tr.doc.nodeAt(textPos);
+  const textStart = textPos + 1;
+  const max = textNode ? textNode.content.size : 0;
+  const head = textStart + Math.max(0, Math.min(a.offset, max));
+
+  tr.setSelection(TextSelection.create(tr.doc, head));
+  return true;
 }
