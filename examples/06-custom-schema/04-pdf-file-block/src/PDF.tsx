@@ -2,7 +2,7 @@ import { FileBlockConfig } from "@blocknote/core";
 import {
   createReactBlockSpec,
   ReactCustomBlockRenderProps,
-  ResizableFileBlockWrapper,
+  ResizableFileWithCaption,
 } from "@blocknote/react";
 
 import { RiFilePdfFill } from "react-icons/ri";
@@ -14,17 +14,15 @@ export const PDFPreview = (
     ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
     "contentRef"
   >,
-) => {
-  return (
-    <embed
-      type={"application/pdf"}
-      src={props.block.props.url}
-      contentEditable={false}
-      draggable={false}
-      onClick={() => props.editor.setTextCursorPosition(props.block)}
-    />
-  );
-};
+) => (
+  <embed
+    type={"application/pdf"}
+    src={props.block.props.url}
+    contentEditable={false}
+    draggable={false}
+    onClick={() => props.editor.setTextCursorPosition(props.block)}
+  />
+);
 
 export const PDF = createReactBlockSpec(
   {
@@ -52,13 +50,13 @@ export const PDF = createReactBlockSpec(
   },
   {
     render: (props) => (
-      <ResizableFileBlockWrapper
+      <ResizableFileWithCaption
         {...(props as any)}
-        bbuttonText={"Add PDF"}
+        buttonText={"Add PDF"}
         buttonIcon={<RiFilePdfFill size={24} />}
       >
         <PDFPreview {...(props as any)} />
-      </ResizableFileBlockWrapper>
+      </ResizableFileWithCaption>
     ),
   },
 );

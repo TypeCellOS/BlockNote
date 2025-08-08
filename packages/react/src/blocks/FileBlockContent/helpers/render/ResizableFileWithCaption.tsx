@@ -3,9 +3,9 @@ import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 
 import { useUploadLoading } from "../../../../hooks/useUploadLoading.js";
 import { ReactCustomBlockRenderProps } from "../../../../schema/ReactBlockSpec.js";
-import { FileBlockWrapper } from "./FileBlockWrapper.js";
+import { FileWithCaption } from "./FileWithCaption.js";
 
-export const ResizableFileBlockWrapper = (
+export const ResizableFileWithCaption = (
   props: Omit<
     ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
     "contentRef"
@@ -89,13 +89,13 @@ export const ResizableFileBlockWrapper = (
     };
 
     if (resizeParams) {
-      window.addEventListener("mousemove", windowMouseMoveHandler);
-      window.addEventListener("mouseup", windowMouseUpHandler);
+      window.addEventListener("mousemove", windowMouseMoveHandler, true);
+      window.addEventListener("mouseup", windowMouseUpHandler, true);
     }
 
     return () => {
-      window.removeEventListener("mousemove", windowMouseMoveHandler);
-      window.removeEventListener("mouseup", windowMouseUpHandler);
+      window.removeEventListener("mousemove", windowMouseMoveHandler, true);
+      window.removeEventListener("mouseup", windowMouseUpHandler, true);
     };
   }, [props, resizeParams, width]);
 
@@ -142,7 +142,7 @@ export const ResizableFileBlockWrapper = (
   const showLoader = useUploadLoading(props.block.id);
 
   return (
-    <FileBlockWrapper
+    <FileWithCaption
       {...props}
       onMouseEnter={wrapperMouseEnterHandler}
       onMouseLeave={wrapperMouseLeaveHandler}
@@ -154,7 +154,7 @@ export const ResizableFileBlockWrapper = (
           : undefined
       }
     >
-      <div className={"bn-visual-media-wrapper"} ref={ref}>
+      <div className={"bn-file"} ref={ref}>
         {props.children}
         {(hovered || resizeParams) && (
           <>
@@ -170,7 +170,20 @@ export const ResizableFileBlockWrapper = (
             />
           </>
         )}
+        {/* This element ensures `mousemove` and `mouseup` events are captured
+        while resizing when the cursor is over the wrapper content. This is
+        because embeds are treated as separate HTML documents, so if the 
+        content is an embed, the events will only fire within that document. */}
+        {resizeParams && (
+          <div
+            style={{
+              position: "absolute",
+              height: "100%",
+              width: "100%",
+            }}
+          />
+        )}
       </div>
-    </FileBlockWrapper>
+    </FileWithCaption>
   );
 };

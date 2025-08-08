@@ -7,19 +7,23 @@ import {
 import { createAddFileButton } from "./createAddFileButton.js";
 import { createFileNameWithIcon } from "./createFileNameWithIcon.js";
 
-export const createFileBlockWrapper = (
+export const createFileWithCaption = (
   block: BlockFromConfig<FileBlockConfig, any, any>,
   editor: BlockNoteEditor<
     BlockSchemaWithBlock<FileBlockConfig["type"], FileBlockConfig>,
     any,
     any
   >,
-  element?: { dom: HTMLElement; destroy?: () => void },
+  element?: HTMLElement,
   buttonText?: string,
   buttonIcon?: HTMLElement,
 ) => {
-  const wrapper = document.createElement("div");
-  wrapper.className = "bn-file-block-content-wrapper";
+  const fileWithCaption = document.createElement("div");
+  fileWithCaption.className = "bn-file-with-caption";
+
+  const file = document.createElement("div");
+  file.className = "bn-file";
+  fileWithCaption.appendChild(file);
 
   // Show the add file button if the file has not been uploaded yet. Change to
   // show a loader if a file upload for the block begins.
@@ -30,42 +34,41 @@ export const createFileBlockWrapper = (
       buttonText,
       buttonIcon,
     );
-    wrapper.appendChild(addFileButton.dom);
 
     const destroyUploadStartHandler = editor.onUploadStart((blockId) => {
       if (blockId === block.id) {
-        wrapper.removeChild(addFileButton.dom);
-
         const loading = document.createElement("div");
         loading.className = "bn-file-loading-preview";
         loading.textContent = "Loading...";
-        wrapper.appendChild(loading);
+        addFileButton.dom.replaceWith(loading);
       }
     });
 
     return {
-      dom: wrapper,
+      dom: addFileButton.dom,
       destroy: () => {
         destroyUploadStartHandler();
-        addFileButton.destroy();
+        addFileButton.destroy?.();
       },
     };
   }
 
-  const ret: { dom: HTMLElement; destroy?: () => void } = { dom: wrapper };
+  const ret: { dom: HTMLElement; destroy?: () => void } = {
+    dom: fileWithCaption,
+  };
 
   // Show the file preview, or the file name and icon.
   if (block.props.showPreview === false || !element) {
     // Show file name and icon.
     const fileNameWithIcon = createFileNameWithIcon(block);
-    wrapper.appendChild(fileNameWithIcon.dom);
+    file.appendChild(fileNameWithIcon.dom);
 
     ret.destroy = () => {
       fileNameWithIcon.destroy?.();
     };
   } else {
     // Show file preview.
-    wrapper.appendChild(element.dom);
+    file.appendChild(element);
   }
 
   // Show the caption if there is one.
@@ -73,7 +76,7 @@ export const createFileBlockWrapper = (
     const caption = document.createElement("p");
     caption.className = "bn-file-caption";
     caption.textContent = block.props.caption;
-    wrapper.appendChild(caption);
+    fileWithCaption.appendChild(caption);
   }
 
   return ret;
