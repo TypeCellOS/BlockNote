@@ -201,7 +201,7 @@ export type BlockFromConfigNoChildren<
       ? TableContent<I, S>
       : B["content"] extends "none"
         ? undefined
-        : never;
+        : undefined | never;
 };
 
 export type BlockFromConfig<
@@ -283,7 +283,7 @@ type PartialBlockFromConfigNoChildren<
     ? PartialInlineContent<I, S>
     : B["content"] extends "table"
       ? PartialTableContent<I, S>
-      : undefined;
+      : undefined | never;
 };
 
 type PartialBlocksWithoutChildren<
@@ -405,9 +405,9 @@ export type BlockDefinition<
 > = {
   config: BlockConfig<TName, TProps, TContent>;
   implementation: BlockImplementation<
-    NoInfer<TName>,
-    NoInfer<TProps>,
-    TContent
+    string,
+    PropSchema,
+    "inline" | "none" | "table"
   >;
   extensions?: BlockNoteExtension<any>[];
 };
