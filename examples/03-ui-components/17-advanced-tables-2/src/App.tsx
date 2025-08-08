@@ -3,8 +3,11 @@ import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
 import type { Block, DefaultBlockSchema } from "@blocknote/core";
+import { useRef } from "react";
 
 export default function App() {
+  const applying = useRef(false);
+
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
     // This enables the advanced table features
@@ -636,7 +639,7 @@ export default function App() {
       };
     }
 
-    return updatedRows;
+    return updatedRows as typeof tableBlock.content.rows;
   };
 
   // Renders the editor instance using a React component.
@@ -645,6 +648,11 @@ export default function App() {
       editor={editor}
       onChange={(editor, { getChanges }) => {
         const changes = getChanges();
+
+        if (changes.length === 0 || applying.current) return;
+
+        // prevents a double onChange because we're updating the block here
+        applying.current = true;
 
         changes.forEach((change) => {
           if (change.type === "update" && change.block.type === "table") {
@@ -655,12 +663,14 @@ export default function App() {
                 type: "table",
                 content: {
                   ...change.block.content,
-                  rows: updatedRows as any,
-                } as any,
+                  rows: updatedRows,
+                },
               });
             }
           }
         });
+
+        requestAnimationFrame(() => (applying.current = false));
       }}
     ></BlockNoteView>
   );
