@@ -391,6 +391,26 @@ export const parseTestInstancesHTML: TestInstance<
   },
   {
     testCase: {
+      name: "multipleQuoteListItems",
+      content: `<ul>
+  <li>
+    <p>Bullet List Item 1</p>
+    <blockquote>Quote 1</blockquote>
+  </li>
+  <li>
+    <p>Bullet List Item 2</p>
+    <blockquote>Quote 2</blockquote>
+  </li>
+  <li>
+    <p>Bullet List Item 3</p>
+    <blockquote>Quote 3</blockquote>
+  </li>
+</ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
       name: "textTableCell",
       content: `<table>
   <tbody>

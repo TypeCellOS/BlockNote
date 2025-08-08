@@ -1,28 +1,11 @@
 [
   {
-    "children": [
-      {
-        "children": [],
-        "content": [
-          {
-            "styles": {},
-            "text": "Bullet List Item",
-            "type": "text",
-          },
-        ],
-        "id": "2",
-        "props": {
-          "backgroundColor": "default",
-          "textAlignment": "left",
-          "textColor": "default",
-        },
-        "type": "paragraph",
-      },
-    ],
+    "children": [],
     "content": [
       {
         "styles": {},
-        "text": "Bullet List Item",
+        "text": "Bullet List Item
+Bullet List Item",
         "type": "text",
       },
     ],
@@ -43,7 +26,7 @@
         "type": "text",
       },
     ],
-    "id": "3",
+    "id": "2",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",

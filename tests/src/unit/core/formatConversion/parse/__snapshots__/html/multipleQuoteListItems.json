@@ -4,8 +4,8 @@
     "content": [
       {
         "styles": {},
-        "text": "
-Bullet List Item",
+        "text": "Bullet List Item 1
+Quote 1",
         "type": "text",
       },
     ],
@@ -22,11 +22,30 @@ Bullet List Item",
     "content": [
       {
         "styles": {},
-        "text": "Bullet List Item",
+        "text": "Bullet List Item 2
+Quote 2",
         "type": "text",
       },
     ],
     "id": "2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "bulletListItem",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Bullet List Item 3
+Quote 3",
+        "type": "text",
+      },
+    ],
+    "id": "3",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
