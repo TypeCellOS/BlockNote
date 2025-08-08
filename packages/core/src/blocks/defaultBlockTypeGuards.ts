@@ -1,17 +1,7 @@
 import { CellSelection } from "prosemirror-tables";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
-import {
-  BlockConfig,
-  BlockSchema,
-  PropSchema,
-  PropSpec,
-  StyleSchema,
-} from "../schema/index.js";
-import {
-  Block,
-  DefaultInlineContentSchema,
-  defaultInlineContentSchema,
-} from "./defaultBlocks.js";
+import { BlockConfig, PropSchema, PropSpec } from "../schema/index.js";
+import { Block } from "./defaultBlocks.js";
 import { Selection } from "prosemirror-state";
 
 export function editorHasBlockWithType<
@@ -171,27 +161,6 @@ export function blockHasType<
 > {
   return (
     editorHasBlockWithType(editor, blockType, props) && block.type === blockType
-  );
-}
-
-// TODO: Only used once in the emoji picker - is it even needed? If so, should
-// be changed to be like the block type guards.
-export function checkDefaultInlineContentTypeInSchema<
-  InlineContentType extends keyof DefaultInlineContentSchema,
-  B extends BlockSchema,
-  S extends StyleSchema,
->(
-  inlineContentType: InlineContentType,
-  editor: BlockNoteEditor<B, any, S>,
-): editor is BlockNoteEditor<
-  B,
-  { [K in InlineContentType]: DefaultInlineContentSchema[InlineContentType] },
-  S
-> {
-  return (
-    inlineContentType in editor.schema.inlineContentSchema &&
-    editor.schema.inlineContentSchema[inlineContentType] ===
-      defaultInlineContentSchema[inlineContentType]
   );
 }
 
