@@ -3,70 +3,51 @@ import {
   defaultInlineContentSpecs,
   defaultStyleSpecs,
 } from "../blocks/defaultBlocks.js";
-import type {
-  BlockNoDefaults,
-  PartialBlockNoDefaults,
-} from "../schema/blocks/types.js";
 import {
+  BlockNoDefaults,
   BlockSchema,
-  BlockSchemaFromSpecs,
-  BlockSpecs,
   InlineContentSchema,
   InlineContentSchemaFromSpecs,
   InlineContentSpecs,
+  PartialBlockNoDefaults,
   StyleSchema,
   StyleSchemaFromSpecs,
   StyleSpecs,
-  getBlockSchemaFromSpecs,
-  getInlineContentSchemaFromSpecs,
-  getStyleSchemaFromSpecs,
 } from "../schema/index.js";
-import type { BlockNoteEditor } from "./BlockNoteEditor.js";
+import { BlockNoteEditor } from "./BlockNoteEditor.js";
 
-function removeUndefined<T extends Record<string, any> | undefined>(obj: T): T {
-  if (!obj) {
-    return obj;
-  }
-  return Object.fromEntries(
-    Object.entries(obj).filter(([, value]) => value !== undefined),
-  ) as T;
-}
+import { BlockSpecOf, CustomBlockNoteSchema } from "./CustomSchema.js";
 
 export class BlockNoteSchema<
-  BSchema extends BlockSchema,
+  BSpecs extends BlockSchema,
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema,
-> {
-  public readonly blockSpecs: BlockSpecs;
-  public readonly inlineContentSpecs: InlineContentSpecs;
-  public readonly styleSpecs: StyleSpecs;
-
-  public readonly blockSchema: BSchema;
-  public readonly inlineContentSchema: ISchema;
-  public readonly styleSchema: SSchema;
-
+> extends CustomBlockNoteSchema<BSpecs, ISchema, SSchema> {
   // Helper so that you can use typeof schema.BlockNoteEditor
-  public readonly BlockNoteEditor: BlockNoteEditor<BSchema, ISchema, SSchema> =
+  public readonly BlockNoteEditor: BlockNoteEditor<any, ISchema, SSchema> =
     "only for types" as any;
 
-  public readonly Block: BlockNoDefaults<BSchema, ISchema, SSchema> =
+  public readonly Block: BlockNoDefaults<any, ISchema, SSchema> =
     "only for types" as any;
 
   public readonly PartialBlock: PartialBlockNoDefaults<
-    BSchema,
+    any,
+    // BSchema,
     ISchema,
     SSchema
   > = "only for types" as any;
 
   public static create<
-    BSpecs extends BlockSpecs = typeof defaultBlockSpecs,
+    BSpecs extends BlockSchema = {
+      [key in keyof typeof defaultBlockSpecs]: (typeof defaultBlockSpecs)[key]["config"];
+    },
     ISpecs extends InlineContentSpecs = typeof defaultInlineContentSpecs,
     SSpecs extends StyleSpecs = typeof defaultStyleSpecs,
   >(options?: {
     /**
      * A list of custom block types that should be available in the editor.
      */
-    blockSpecs?: BSpecs;
+    blockSpecs?: BlockSpecOf<BSpecs>;
     /**
      * A list of custom InlineContent types that should be available in the editor.
      */
@@ -77,31 +58,14 @@ export class BlockNoteSchema<
     styleSpecs?: SSpecs;
   }) {
     return new BlockNoteSchema<
-      BlockSchemaFromSpecs<BSpecs>,
+      BSpecs,
       InlineContentSchemaFromSpecs<ISpecs>,
       StyleSchemaFromSpecs<SSpecs>
-    >(options);
-    // as BlockNoteSchema<
-    // BlockSchemaFromSpecs<BSpecs>,
-    // InlineContentSchemaFromSpecs<ISpecs>,
-    // StyleSchemaFromSpecs<SSpecs>
-    // >;
-  }
-
-  constructor(opts?: {
-    blockSpecs?: BlockSpecs;
-    inlineContentSpecs?: InlineContentSpecs;
-    styleSpecs?: StyleSpecs;
-  }) {
-    this.blockSpecs = removeUndefined(opts?.blockSpecs) || defaultBlockSpecs;
-    this.inlineContentSpecs =
-      removeUndefined(opts?.inlineContentSpecs) || defaultInlineContentSpecs;
-    this.styleSpecs = removeUndefined(opts?.styleSpecs) || defaultStyleSpecs;
-
-    this.blockSchema = getBlockSchemaFromSpecs(this.blockSpecs) as any;
-    this.inlineContentSchema = getInlineContentSchemaFromSpecs(
-      this.inlineContentSpecs,
-    ) as any;
-    this.styleSchema = getStyleSchemaFromSpecs(this.styleSpecs) as any;
+    >({
+      blockSpecs: options?.blockSpecs ?? (defaultBlockSpecs as any),
+      inlineContentSpecs:
+        options?.inlineContentSpecs ?? defaultInlineContentSpecs,
+      styleSpecs: options?.styleSpecs ?? defaultStyleSpecs,
+    });
   }
 }

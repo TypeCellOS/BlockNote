@@ -7,7 +7,7 @@ import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition.js";
 import type {
   BlockFromConfig,
-  FileBlockConfig,
+  // FileBlockConfig,
   InlineContentSchema,
   StyleSchema,
 } from "../../schema/index.js";
@@ -17,7 +17,7 @@ export type FilePanelState<
   S extends StyleSchema,
 > = UiElementPosition & {
   // TODO: This typing is not quite right (children should be from BSchema)
-  block: BlockFromConfig<FileBlockConfig, I, S>;
+  block: BlockFromConfig<any, I, S>;
 };
 
 export class FilePanelView<I extends InlineContentSchema, S extends StyleSchema>
@@ -27,11 +27,7 @@ export class FilePanelView<I extends InlineContentSchema, S extends StyleSchema>
   public emitUpdate: () => void;
 
   constructor(
-    private readonly editor: BlockNoteEditor<
-      Record<string, FileBlockConfig>,
-      I,
-      S
-    >,
+    private readonly editor: BlockNoteEditor<Record<string, any>, I, S>,
     private readonly pluginKey: PluginKey<FilePanelState<I, S>>,
     private readonly pmView: EditorView,
     emitUpdate: (state: FilePanelState<I, S>) => void,
@@ -145,17 +141,17 @@ export class FilePanelProsemirrorPlugin<
 
   private view: FilePanelView<I, S> | undefined;
 
-  constructor(editor: BlockNoteEditor<Record<string, FileBlockConfig>, I, S>) {
+  constructor(editor: BlockNoteEditor<Record<string, any>, I, S>) {
     super();
     this.addProsemirrorPlugin(
       new Plugin<{
-        block: BlockFromConfig<FileBlockConfig, I, S> | undefined;
+        block: BlockFromConfig<any, I, S> | undefined;
       }>({
         key: filePanelPluginKey,
         view: (editorView) => {
           this.view = new FilePanelView<I, S>(
             editor,
-            filePanelPluginKey,
+            filePanelPluginKey as any,
             editorView,
             (state) => {
               this.emit("update", state);

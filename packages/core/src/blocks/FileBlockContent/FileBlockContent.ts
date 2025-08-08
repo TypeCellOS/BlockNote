@@ -1,7 +1,7 @@
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   BlockFromConfig,
-  FileBlockConfig,
+  // FileBlockConfig,
   PropSchema,
   createBlockSpec,
 } from "../../schema/index.js";
@@ -32,7 +32,7 @@ export const fileBlockConfig = {
   propSchema: filePropSchema,
   content: "none",
   isFileBlock: true,
-} satisfies FileBlockConfig;
+} as any;
 
 export const fileRender = (
   block: BlockFromConfig<typeof fileBlockConfig, any, any>,

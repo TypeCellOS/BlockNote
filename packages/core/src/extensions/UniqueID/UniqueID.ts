@@ -134,19 +134,12 @@ const UniqueID = Extension.create({
       new Plugin({
         key: new PluginKey("uniqueID"),
         appendTransaction: (transactions, oldState, newState) => {
-          // console.log("appendTransaction");
           const docChanges =
             transactions.some((transaction) => transaction.docChanged) &&
             !oldState.doc.eq(newState.doc);
           const filterTransactions =
             this.options.filterTransaction &&
-            transactions.some((tr) => {
-              let _a, _b;
-              return !((_b = (_a = this.options).filterTransaction) === null ||
-              _b === void 0
-                ? void 0
-                : _b.call(_a, tr));
-            });
+            transactions.some((tr) => !this.options.filterTransaction?.(tr));
           if (!docChanges || filterTransactions) {
             return;
           }
@@ -172,16 +165,14 @@ const UniqueID = Extension.create({
               .map(({ node }) => node.attrs[attributeName])
               .filter((id) => id !== null);
             const duplicatedNewIds = findDuplicates(newIds);
+
             newNodes.forEach(({ node, pos }) => {
-              let _a;
               // instead of checking `node.attrs[attributeName]` directly
               // we look at the current state of the node within `tr.doc`.
               // this helps to prevent adding new ids to the same node
               // if the node changed multiple times within one transaction
-              const id =
-                (_a = tr.doc.nodeAt(pos)) === null || _a === void 0
-                  ? void 0
-                  : _a.attrs[attributeName];
+              const id = tr.doc.nodeAt(pos)?.attrs[attributeName];
+
               if (id === null) {
                 // edge case, when using collaboration, yjs will set the id to null in `_forceRerender`
                 // when loading the editor
@@ -230,6 +221,8 @@ const UniqueID = Extension.create({
           if (!tr.steps.length) {
             return;
           }
+          // mark the transaction as having been processed by the uniqueID plugin
+          tr.setMeta("uniqueID", true);
           return tr;
         },
         // we register a global drag handler to track the current drag source element

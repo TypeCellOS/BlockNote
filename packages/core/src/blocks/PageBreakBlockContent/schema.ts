@@ -8,7 +8,7 @@ import { PageBreak } from "./PageBreakBlockContent.js";
 
 export const pageBreakSchema = BlockNoteSchema.create({
   blockSpecs: {
-    pageBreak: PageBreak,
+    pageBreak: PageBreak as any,
   },
 });
 
