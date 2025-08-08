@@ -25,6 +25,7 @@
     "build:site": {
       "cache": true,
       "dependsOn": ["^build"],
+      "inputs": ["{workspaceRoot}/examples/**/*"],
       "outputs": [
         "{projectRoot}/dist",
         "{projectRoot}/.next",
