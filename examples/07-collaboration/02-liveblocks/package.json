@@ -10,24 +10,24 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@blocknote/core": "latest",
-    "@blocknote/react": "latest",
-    "@blocknote/ariakit": "latest",
-    "@blocknote/mantine": "latest",
-    "@blocknote/shadcn": "latest",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "@liveblocks/client": "^2.23.1",
-    "@liveblocks/react": "^2.23.1",
-    "@liveblocks/react-blocknote": "^2.23.1",
-    "@liveblocks/react-tiptap": "^2.23.1",
-    "@liveblocks/react-ui": "^2.23.1",
-    "yjs": "^13.6.27"
+    "@blocknote/core": "catalog:prod",
+    "@blocknote/react": "catalog:prod",
+    "@blocknote/ariakit": "catalog:prod",
+    "@blocknote/mantine": "catalog:prod",
+    "@blocknote/shadcn": "catalog:prod",
+    "react": "catalog:prod",
+    "react-dom": "catalog:prod",
+    "@liveblocks/client": "catalog:prod",
+    "@liveblocks/react": "catalog:prod",
+    "@liveblocks/react-blocknote": "catalog:prod",
+    "@liveblocks/react-tiptap": "catalog:prod",
+    "@liveblocks/react-ui": "catalog:prod",
+    "yjs": "catalog:prod"
   },
   "devDependencies": {
-    "@types/react": "^19.1.0",
-    "@types/react-dom": "^19.1.0",
-    "@vitejs/plugin-react": "^4.3.1",
-    "vite": "^5.3.4"
+    "@types/react": "catalog:types",
+    "@types/react-dom": "catalog:types",
+    "@vitejs/plugin-react": "catalog:build",
+    "vite": "catalog:build"
   }
 }
