@@ -18,7 +18,7 @@ const faqs = [
         <br />
         The XL packages (like AI integration, multi-column layouts, and
         exporters) are dual-licensed and available under{" "}
-        <a href="https://www.gnu.org/licenses/agpl-3.0.html">AGPL-3.0</a>, or -
+        <a href="https://www.gnu.org/licenses/gpl-3.0.html">GPL-3.0</a>, or -
         for closed-source projects - a commercial license as part of the
         BlockNote Business subscription or above. See the{" "}
         <a href="/legal/blocknote-xl-commercial-license">
@@ -34,7 +34,7 @@ const faqs = [
       <>
         Only when you use any of the XL packages (like AI integration,
         multi-column layouts, and exporters) and you cannot comply with the
-        AGPL-3.0 license you'll need a{" "}
+        GPL-3.0 license you'll need a{" "}
         <a href="/legal/blocknote-xl-commercial-license">commercial license</a>.
         This is likely to be the case when you're building closed-source
         applications. The BlockNote Business subscription and above includes a
@@ -53,7 +53,7 @@ const faqs = [
         To sustainably support ongoing development, we offer a small set of
         advanced features (the XL packages) under a dual-license model:
         <ul>
-          <li>AGPL-3.0 for open-source projects</li>
+          <li>GPL-3.0 for open-source projects</li>
           <li>
             Commercial license (included in the BlockNote Business tier and
             above) for closed-source use

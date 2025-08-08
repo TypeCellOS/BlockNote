@@ -8,7 +8,7 @@
     "url": "git+https://github.com/TypeCellOS/BlockNote.git",
     "directory": "packages/xl-docx-exporter"
   },
-  "license": "AGPL-3.0 OR PROPRIETARY",
+  "license": "GPL-3.0 OR PROPRIETARY",
   "version": "0.35.0",
   "files": [
     "dist",
