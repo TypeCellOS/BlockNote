@@ -4,7 +4,7 @@ import {
   type Node as PMNode,
   Slice,
 } from "prosemirror-model";
-import type { Transaction } from "prosemirror-state";
+import { TextSelection, Transaction } from "prosemirror-state";
 
 import { ReplaceStep, Transform } from "prosemirror-transform";
 import type { Block, PartialBlock } from "../../../../blocks/defaultBlocks.js";
@@ -56,13 +56,39 @@ export function updateBlockTr<
   I extends InlineContentSchema,
   S extends StyleSchema,
 >(
-  tr: Transform,
+  tr: Transaction,
   posBeforeBlock: number,
   block: PartialBlock<BSchema, I, S>,
   replaceFromPos?: number,
   replaceToPos?: number,
 ) {
   const blockInfo = getBlockInfoFromResolvedPos(tr.doc.resolve(posBeforeBlock));
+
+  const originalSelection = tr.selection;
+  // Capturing current selection info for restoring it after the block is updated.
+  let anchorOffset: number | undefined = undefined;
+  let headOffset: number | undefined = undefined;
+
+  if (
+    originalSelection instanceof TextSelection &&
+    blockInfo.isBlockContainer &&
+    blockInfo.blockContent
+  ) {
+    // Ensure both anchor and head are within the block's content before proceeding.
+    const isAnchorInContent =
+      originalSelection.anchor >= blockInfo.blockContent.beforePos + 1 &&
+      originalSelection.anchor <= blockInfo.blockContent.afterPos - 1;
+    const isHeadInContent =
+      originalSelection.head >= blockInfo.blockContent.beforePos + 1 &&
+      originalSelection.head <= blockInfo.blockContent.afterPos - 1;
+
+    if (isAnchorInContent && isHeadInContent) {
+      anchorOffset =
+        originalSelection.anchor - (blockInfo.blockContent.beforePos + 1);
+      headOffset =
+        originalSelection.head - (blockInfo.blockContent.beforePos + 1);
+    }
+  }
 
   const pmSchema = getPmSchema(tr);
 
@@ -143,6 +169,34 @@ export function updateBlockTr<
     ...blockInfo.bnBlock.node.attrs,
     ...block.props,
   });
+
+  // Restore selection
+  const newBlockInfo = getBlockInfoFromResolvedPos(
+    tr.doc.resolve(tr.mapping.map(posBeforeBlock)),
+  );
+
+  // If we captured relative offsets, try to restore the selection using them.
+  if (
+    anchorOffset !== undefined &&
+    headOffset !== undefined &&
+    newBlockInfo.isBlockContainer &&
+    newBlockInfo.blockContent
+  ) {
+    const contentNode = newBlockInfo.blockContent.node;
+    const contentStartPos = newBlockInfo.blockContent.beforePos + 1;
+    const contentEndPos = contentStartPos + contentNode.content.size;
+
+    const newAnchorPos = Math.min(
+      contentStartPos + anchorOffset,
+      contentEndPos,
+    );
+    const newHeadPos = Math.min(contentStartPos + headOffset, contentEndPos);
+
+    tr.setSelection(TextSelection.create(tr.doc, newAnchorPos, newHeadPos));
+  } else {
+    // Fallback to the default mapping if we couldn't use the offset method.
+    tr.setSelection(originalSelection.map(tr.doc, tr.mapping));
+  }
 }
 
 function updateBlockContentNode<

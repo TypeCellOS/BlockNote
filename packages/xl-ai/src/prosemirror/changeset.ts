@@ -6,6 +6,7 @@ import {
   TokenEncoder,
 } from "prosemirror-changeset";
 import { Node } from "prosemirror-model";
+import { Transaction } from "prosemirror-state";
 import { ReplaceStep, Transform } from "prosemirror-transform";
 
 type CustomChange = Change & {
@@ -198,7 +199,7 @@ export function updateToReplaceSteps(
   updateToPos?: number,
 ) {
   const blockPos = getNodeById(op.id, doc)!;
-  const updatedTr = new Transform(doc);
+  const updatedTr = new Transaction(doc);
   updateBlockTr(
     updatedTr,
     blockPos.posBeforeNode,
