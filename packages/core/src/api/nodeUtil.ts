@@ -184,6 +184,7 @@ function collectAllBlocks<
   {
     block: Block<BSchema, ISchema, SSchema>;
     parentId: string | undefined;
+    index: number;
   }
 > {
   const blocks: Record<
@@ -191,15 +192,17 @@ function collectAllBlocks<
     {
       block: Block<BSchema, ISchema, SSchema>;
       parentId: string | undefined;
+      index: number;
     }
   > = {};
   const pmSchema = getPmSchema(doc);
-  doc.descendants((node, pos) => {
+  doc.descendants((node, pos, _, index) => {
     if (isNodeBlock(node)) {
       const parentId = getParentBlockId(doc, pos);
       blocks[node.attrs.id] = {
         block: nodeToBlock(node, pmSchema),
         parentId,
+        index,
       };
     }
     return true;
@@ -264,8 +267,9 @@ export function getBlocksChangedByTransaction<
       const prev = prevBlocks[id];
       const next = nextBlocks[id];
       const isParentDifferent = prev.parentId !== next.parentId;
+      const isIndexDifferent = prev.index !== next.index;
 
-      if (isParentDifferent) {
+      if (isParentDifferent || isIndexDifferent) {
         changes.push({
           type: "move",
           block: next.block,
