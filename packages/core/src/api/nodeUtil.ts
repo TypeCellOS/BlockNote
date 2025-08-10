@@ -260,6 +260,8 @@ export function getBlocksChangedByTransaction<
       });
     });
 
+  const draggedBlockId = transaction.getMeta("draggedBlockId");
+
   // Handle updated, moved, indented, outdented blocks
   Object.keys(nextBlocks)
     .filter((id) => id in prevBlocks)
@@ -267,9 +269,9 @@ export function getBlocksChangedByTransaction<
       const prev = prevBlocks[id];
       const next = nextBlocks[id];
       const isParentDifferent = prev.parentId !== next.parentId;
-      const isIndexDifferent = prev.index !== next.index;
+      const isDraggedBlock = prev.index !== next.index && draggedBlockId === id;
 
-      if (isParentDifferent || isIndexDifferent) {
+      if (isParentDifferent || isDraggedBlock) {
         changes.push({
           type: "move",
           block: next.block,
