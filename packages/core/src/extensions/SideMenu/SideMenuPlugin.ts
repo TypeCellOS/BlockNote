@@ -20,6 +20,7 @@ import {
 import { initializeESMDependencies } from "../../util/esmDependencies.js";
 import { getDraggableBlockFromElement } from "../getDraggableBlockFromElement.js";
 import { dragStart, unsetDragImage } from "./dragging.js";
+import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
 
 export type SideMenuState<
   BSchema extends BlockSchema,
@@ -695,6 +696,8 @@ export class SideMenuProsemirrorPlugin<
 
   public view: SideMenuView<BSchema, I, S> | undefined;
 
+  private draggedBlockId: string | undefined;
+
   constructor(private readonly editor: BlockNoteEditor<BSchema, I, S>) {
     super();
     this.addProsemirrorPlugin(
@@ -705,6 +708,23 @@ export class SideMenuProsemirrorPlugin<
             this.emit("update", state);
           });
           return this.view;
+        },
+        props: {
+          handleDrop: (_view, _event, slice) => {
+            const draggedBlock = nodeToBlock(
+              slice.content.child(0),
+              editor.pmSchema,
+            );
+            this.draggedBlockId = draggedBlock.id;
+            return false;
+          },
+        },
+        filterTransaction: (tr) => {
+          if (tr.getMeta("uiEvent") === "drop" && this.draggedBlockId) {
+            tr.setMeta("draggedBlockId", this.draggedBlockId);
+            this.draggedBlockId = undefined;
+          }
+          return true;
         },
       }),
     );
