@@ -196,8 +196,7 @@ export class DOCXExporter<
     // Replace the default language in styles.xml with the provided locale.
     // If not provided, default to en-US.
     const resolvedLocale = (locale && locale.trim()) || "en-US";
-    // Replace w:lang w:val="..." with the desired locale, leaving other attributes intact
-    // This targets the run default language defined in styles.xml
+
     externalStyles = externalStyles.replace(
       /(<w:lang\b[^>]*\bw:val=")([^"]+)("[^>]*\/>)/g,
       `$1${resolvedLocale}$3`,
