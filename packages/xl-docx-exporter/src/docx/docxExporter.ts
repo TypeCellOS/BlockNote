@@ -187,9 +187,20 @@ export class DOCXExporter<
     ];
   }
 
-  protected async createDefaultDocumentOptions(): Promise<DocumentOptions> {
-    const externalStyles = (await import("./template/word/styles.xml?raw"))
+  protected async createDefaultDocumentOptions(
+    locale?: string,
+  ): Promise<DocumentOptions> {
+    let externalStyles = (await import("./template/word/styles.xml?raw"))
       .default;
+
+    // Replace the default language in styles.xml with the provided locale.
+    // If not provided, default to en-US.
+    const resolvedLocale = (locale && locale.trim()) || "en-US";
+
+    externalStyles = externalStyles.replace(
+      /(<w:lang\b[^>]*\bw:val=")([^"]+)("[^>]*\/>)/g,
+      `$1${resolvedLocale}$3`,
+    );
 
     const bullets = ["•"]; //, "◦", "▪"]; (these don't look great, just use solid bullet for now)
     return {
@@ -247,6 +258,11 @@ export class DOCXExporter<
     options: {
       sectionOptions: Omit<ISectionOptions, "children">;
       documentOptions: DocumentOptions;
+      /**
+       * The document locale in OOXML format (e.g. en-US, fr-FR, de-DE).
+       * If omitted, defaults to en-US.
+       */
+      locale?: string;
     } = {
       sectionOptions: {},
       documentOptions: {},
@@ -276,13 +292,18 @@ export class DOCXExporter<
     options: {
       sectionOptions: Omit<ISectionOptions, "children">;
       documentOptions: DocumentOptions;
+      /**
+       * The document locale in OOXML format (e.g. en-US, fr-FR, de-DE).
+       * If omitted, defaults to en-US.
+       */
+      locale?: string;
     } = {
       sectionOptions: {},
       documentOptions: {},
     },
   ) {
     const doc = new Document({
-      ...(await this.createDefaultDocumentOptions()),
+      ...(await this.createDefaultDocumentOptions(options.locale)),
       ...options.documentOptions,
       sections: [
         {

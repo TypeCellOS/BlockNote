@@ -36,6 +36,12 @@ export async function loadFileBuffer(requireUrl: {
     if (url.startsWith("/@fs/")) {
       url = url.substring("/@fs".length);
     }
+    // On Windows, vite/vitest may yield paths like "/C:/..." after removing /@fs
+    // Node on Windows treats paths starting with "/" as relative to current drive,
+    // which would produce "C:\C:\...". Strip leading slash when followed by a drive letter.
+    if (/^\/[A-Za-z]:/.test(url)) {
+      url = url.slice(1);
+    }
     const buffer = fs.readFileSync(url);
     return buffer;
   } else {

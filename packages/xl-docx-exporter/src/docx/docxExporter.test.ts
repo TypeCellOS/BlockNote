@@ -28,7 +28,11 @@ describe("exporter", () => {
       }),
       docxDefaultSchemaMappings,
     );
-    const doc = await exporter.toDocxJsDocument(testDocument);
+    const doc = await exporter.toDocxJsDocument(testDocument, {
+      sectionOptions: {},
+      documentOptions: {},
+      locale: "en-US",
+    });
 
     const blob = await Packer.toBlob(doc);
     const zip = new ZipReader(new BlobReader(blob));
@@ -56,6 +60,7 @@ describe("exporter", () => {
       );
 
       const doc = await exporter.toDocxJsDocument(testDocument, {
+        locale: "en-US",
         documentOptions: {
           creator: "John Doe",
         },
@@ -181,6 +186,7 @@ describe("exporter", () => {
             ],
           },
         ]),
+        { sectionOptions: {}, documentOptions: {}, locale: "en-US" },
       );
 
       const blob = await Packer.toBlob(doc);
