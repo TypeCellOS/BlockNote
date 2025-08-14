@@ -217,6 +217,10 @@ export const de: Dictionary = {
       add_button_text: "Datei hinzufügen",
     },
   },
+  toggle_blocks: {
+    add_block_button:
+      "Leerer aufklappbarer Bereich. Klicken, um einen Block hinzuzufügen.",
+  },
   side_menu: {
     add_block_label: "Block hinzufügen",
     drag_handle_label: "Blockmenü öffnen",

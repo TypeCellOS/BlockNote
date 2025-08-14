@@ -210,6 +210,9 @@ export const ko: Dictionary = {
       add_button_text: "파일 추가",
     },
   },
+  toggle_blocks: {
+    add_block_button: "비어 있는 토글입니다. 클릭하여 블록을 추가하세요.",
+  },
   // from react package:
   side_menu: {
     add_block_label: "블록 추가",
