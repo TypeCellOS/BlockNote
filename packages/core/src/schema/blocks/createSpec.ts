@@ -1,93 +1,17 @@
 import { Editor } from "@tiptap/core";
-import { DOMParser, Fragment, Schema, TagParseRule } from "@tiptap/pm/model";
-import { NodeView, ViewMutationRecord } from "@tiptap/pm/view";
+import { DOMParser, Fragment, TagParseRule } from "@tiptap/pm/model";
+import { NodeView } from "@tiptap/pm/view";
 import { mergeParagraphs } from "../../blocks/defaultBlockHelpers.js";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { InlineContentSchema } from "../inlineContent/types.js";
-import { StyleSchema } from "../styles/types.js";
 import {
-  createInternalBlockSpec,
+  createTypedBlockSpec,
   createStronglyTypedTiptapNode,
   getBlockFromPos,
   propsToAttributes,
   wrapInBlockStructure,
 } from "./internal.js";
-import {
-  BlockConfig,
-  BlockDefinition,
-  BlockFromConfig,
-  BlockImplementation,
-  BlockSchemaWithBlock,
-  PartialBlockFromConfig,
-} from "./types.js";
+import { BlockConfig, BlockImplementation, BlockSpec } from "./types.js";
 import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
-
-// restrict content to "inline" and "none" only
-export type CustomBlockConfig = BlockConfig & {
-  content: "inline" | "none";
-};
-
-export type CustomBlockImplementation<
-  T extends CustomBlockConfig,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
-> = {
-  /**
-   * A function that converts the block into a DOM element
-   */
-  render: (
-    /**
-     * The custom block to render
-     */
-    block: BlockFromConfig<T, I, S>,
-    /**
-     * The BlockNote editor instance
-     * This is typed generically. If you want an editor with your custom schema, you need to
-     * cast it manually, e.g.: `const e = editor as BlockNoteEditor<typeof mySchema>;`
-     */
-    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, I, S>,
-    // (note) if we want to fix the manual cast, we need to prevent circular references and separate block definition and render implementations
-    // or allow manually passing <BSchema>, but that's not possible without passing the other generics because Typescript doesn't support partial inferred generics
-  ) => {
-    dom: HTMLElement | DocumentFragment;
-    contentDOM?: HTMLElement;
-    ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
-    destroy?: () => void;
-  };
-
-  /**
-   * Exports block to external HTML. If not defined, the output will be the same
-   * as `render(...).dom`.
-   */
-  toExternalHTML?: (
-    block: BlockFromConfig<T, I, S>,
-    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, I, S>,
-  ) =>
-    | {
-        dom: HTMLElement;
-        contentDOM?: HTMLElement;
-      }
-    | undefined;
-
-  /**
-   * Parses an external HTML element into a block of this type when it returns the block props object, otherwise undefined
-   */
-  parse?: (
-    el: HTMLElement,
-  ) => PartialBlockFromConfig<T, I, S>["props"] | undefined;
-
-  /**
-   * The blocks that this block should run before.
-   * This is used to determine the order in which blocks are rendered.
-   */
-  runsBefore?: string[];
-
-  /**
-   * Advanced parsing function that controls how content within the block is parsed.
-   * This is not recommended to use, and is only useful for advanced use cases.
-   */
-  parseContent?: (options: { el: HTMLElement; schema: Schema }) => Fragment;
-};
+import { PropSchema } from "../propTypes.js";
 
 // Function that causes events within non-selectable blocks to be handled by the
 // browser instead of the editor.
@@ -109,13 +33,17 @@ export function applyNonSelectableBlockFix(nodeView: NodeView, editor: Editor) {
 // Function that uses the 'parse' function of a blockConfig to create a
 // TipTap node's `parseHTML` property. This is only used for parsing content
 // from the clipboard.
-export function getParseRules(
-  config: BlockConfig,
-  customParseFunction: CustomBlockImplementation<any, any, any>["parse"],
-  customParseContentFunction: CustomBlockImplementation<
-    any,
-    any,
-    any
+export function getParseRules<
+  TName extends string,
+  TProps extends PropSchema,
+  TContent extends "inline" | "none" | "table",
+>(
+  config: BlockConfig<TName, TProps, TContent>,
+  customParseFunction: BlockImplementation<TName, TProps, TContent>["parse"],
+  customParseContentFunction: BlockImplementation<
+    TName,
+    TProps,
+    TContent
   >["parseContent"],
 ) {
   const rules: TagParseRule[] = [
@@ -195,24 +123,22 @@ export function getParseRules(
 
 // A function to create custom block for API consumers
 // we want to hide the tiptap node from API consumers and provide a simpler API surface instead
-export function createBlockSpec<
-  T extends CustomBlockConfig,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
+export function addNodeAndExtensionsToSpec<
+  TName extends string,
+  TProps extends PropSchema,
+  TContent extends "inline" | "none" | "table",
 >(
-  blockConfig: T,
-  blockImplementation: CustomBlockImplementation<NoInfer<T>, I, S>,
+  blockConfig: BlockConfig<TName, TProps, TContent>,
+  blockImplementation: BlockImplementation<TName, TProps, TContent>,
   priority?: number,
 ) {
   const node = createStronglyTypedTiptapNode({
-    name: blockConfig.type as T["type"],
+    name: blockConfig.type,
     content: (blockConfig.content === "inline"
       ? "inline*"
       : blockConfig.content === "none"
         ? ""
-        : blockConfig.content) as T["content"] extends "inline"
-      ? "inline*"
-      : "",
+        : blockConfig.content) as TContent extends "inline" ? "inline*" : "",
     group: "blockContent",
     selectable: blockConfig.meta?.selectable ?? true,
     isolating: true,
@@ -292,7 +218,7 @@ export function createBlockSpec<
     );
   }
 
-  return createInternalBlockSpec(blockConfig, {
+  return createTypedBlockSpec(blockConfig, {
     node,
     render: (block, editor) => {
       const blockContentDOMAttributes =
@@ -360,26 +286,34 @@ export function createBlockConfig<
 /**
  * Helper function to create a block definition.
  */
-export function createBlockDefinition<
-  TCallback extends (options?: any) => BlockConfig<any, any>,
+export function createBlockSpec<
+  TCallback extends (options?: any) => BlockConfig<any, any, any>,
   TOptions extends Parameters<TCallback>[0],
   TName extends ReturnType<TCallback>["type"],
   TProps extends ReturnType<TCallback>["propSchema"],
   TContent extends ReturnType<TCallback>["content"],
 >(
-  callback: TCallback,
+  createBlockConfig: TCallback,
 ): {
   implementation: (
-    cb: (options?: TOptions) => BlockImplementation<TName, TProps, TContent>,
+    createBlockImplementation: (
+      options?: TOptions,
+    ) => BlockImplementation<TName, TProps, TContent>,
     addExtensions?: (options?: TOptions) => BlockNoteExtension<any>[],
-  ) => (options?: TOptions) => BlockDefinition<TName, TProps, TContent>;
+  ) => (options?: TOptions) => BlockSpec<TName, TProps, TContent>;
 } {
   return {
-    implementation: (cb, addExtensions) => (options) => ({
-      config: callback(options) as any,
-      implementation: cb(options),
-      extensions: addExtensions?.(options),
-    }),
+    implementation: (createBlockImplementation, addExtensions) => (options) => {
+      const blockConfig = createBlockConfig(options);
+      const blockImplementation = createBlockImplementation(options);
+      const extensions = addExtensions?.(options);
+
+      return {
+        config: blockConfig,
+        implementation: blockImplementation,
+        extensions: extensions,
+      };
+    },
   };
 }
 /**

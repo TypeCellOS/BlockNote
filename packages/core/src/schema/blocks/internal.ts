@@ -16,9 +16,9 @@ import { PropSchema, Props } from "../propTypes.js";
 import { StyleSchema } from "../styles/types.js";
 import {
   BlockConfig,
-  BlockDefinition,
   BlockImplementation,
   BlockSchemaWithBlock,
+  BlockSpec,
   SpecificBlock,
 } from "./types.js";
 
@@ -148,7 +148,7 @@ export function wrapInBlockStructure<
     destroy?: () => void;
   },
   blockType: BType,
-  blockProps: Props<PSchema>,
+  blockProps: Partial<Props<PSchema>>,
   propSchema: PSchema,
   isFileBlock = false,
   domAttributes?: Record<string, string>,
@@ -230,13 +230,17 @@ export function createStronglyTypedTiptapNode<
 
 // This helper function helps to instantiate a blockspec with a
 // config and implementation that conform to the type of Config
-export function createInternalBlockSpec<T extends BlockConfig>(
+export function createTypedBlockSpec<T extends BlockConfig>(
   config: T,
-  implementation: BlockImplementation<T["type"], PropSchema> & {
+  implementation: BlockImplementation<
+    T["type"],
+    T["propSchema"],
+    T["content"]
+  > & {
     node: Node;
     requiredExtensions?: Array<Extension | Node>;
   },
-): BlockDefinition<T["type"], PropSchema> {
+): BlockSpec<T["type"], T["propSchema"], T["content"]> {
   return {
     config,
     implementation,
@@ -247,7 +251,7 @@ export function createBlockSpecFromStronglyTypedTiptapNode<
   T extends Node,
   P extends PropSchema,
 >(node: T, propSchema: P, requiredExtensions?: Array<Extension | Node>) {
-  return createInternalBlockSpec(
+  return createTypedBlockSpec(
     {
       type: node.name as T["name"],
       content: (node.config.content === "inline*"

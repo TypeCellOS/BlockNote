@@ -1,5 +1,5 @@
 /** Define the main block types **/
-
+import { Extension, Node } from "@tiptap/core";
 import type { Fragment, Schema } from "prosemirror-model";
 import type { ViewMutationRecord } from "prosemirror-view";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
@@ -50,23 +50,23 @@ export interface BlockConfigMeta {
  * i.e. what props it supports, what content it supports, etc.
  */
 export interface BlockConfig<
-  TName extends string = string,
-  TSchema extends PropSchema = PropSchema,
-  TContent extends "inline" | "none" | "table" = "inline" | "none" | "table",
+  T extends string = string,
+  PS extends PropSchema = PropSchema,
+  C extends "inline" | "none" | "table" = "inline" | "none" | "table",
 > {
   /**
    * The type of the block (unique identifier within a schema)
    */
-  type: TName;
+  type: T;
   /**
    * The properties that the block supports
    * @todo will be zod schema in the future
    */
-  readonly propSchema: TSchema;
+  readonly propSchema: PS;
   /**
    * The content that the block supports
    */
-  content: TContent;
+  content: C;
   // TODO: how do you represent things that have nested content?
   // e.g. tables, alerts (with title & content)
   /**
@@ -75,44 +75,55 @@ export interface BlockConfig<
   meta?: BlockConfigMeta;
 }
 
-// A Spec contains both the Config and Implementation
-export type BlockSpec<T extends BlockConfig> = {
-  config: T;
-  implementation: BlockImplementation<NoInfer<T["type"]>, PropSchema>;
-};
+// restrict content to "inline" and "none" only
+export type CustomBlockConfig<
+  T extends string = string,
+  PS extends PropSchema = PropSchema,
+  C extends "inline" | "none" = "inline" | "none",
+> = BlockConfig<T, PS, C>;
 
-// Utility type. For a given object block schema, ensures that the key of each
-// block spec matches the name of the TipTap node in it.
-type NamesMatch<Blocks extends Record<string, BlockConfig>> = Blocks extends {
-  [Type in keyof Blocks]: Type extends string
-    ? Blocks[Type] extends { type: Type }
-      ? Blocks[Type]
-      : never
-    : never;
-}
-  ? Blocks
-  : never;
+// A Spec contains both the Config and Implementation
+export type BlockSpec<
+  T extends string = string,
+  PS extends PropSchema = PropSchema,
+  C extends "inline" | "none" | "table" = "inline" | "none" | "table",
+> = {
+  config: BlockConfig<T, PS, C>;
+  implementation: BlockImplementation<T, PS, C>;
+  extensions?: BlockNoteExtension<any>[];
+};
 
 // A Schema contains all the types (Configs) supported in an editor
 // The keys are the "type" of a block
-export type BlockSchema = NamesMatch<Record<string, BlockConfig>>;
+export type BlockSchema = Record<string, BlockConfig>;
 
-export type BlockSpecs = Record<string, BlockSpec<any>>;
+export type BlockSpecs = {
+  [k in string]: BlockSpec<any, any, any>;
+};
 
 export type BlockImplementations = Record<
   string,
   BlockImplementation<any, any>
 >;
 
-export type BlockSchemaFromSpecs<T extends BlockSpecs> = {
-  [K in keyof T]: T[K]["config"];
+export type BlockSchemaFromSpecs<BS extends BlockSpecs> = {
+  [K in keyof BS]: BS[K]["config"];
 };
 
-export type BlockSchemaWithBlock<
-  BType extends string,
-  C extends BlockConfig,
-> = {
-  [k in BType]: C;
+export type BlockSpecsFromSchema<BS extends BlockSchema> = {
+  [K in keyof BS]: {
+    config: BlockConfig<BS[K]["type"], BS[K]["propSchema"], BS[K]["content"]>;
+    implementation: BlockImplementation<
+      BS[K]["type"],
+      BS[K]["propSchema"],
+      BS[K]["content"]
+    >;
+    extensions?: BlockNoteExtension<any>[];
+  };
+};
+
+export type BlockSchemaWithBlock<T extends string, C extends BlockConfig> = {
+  [k in T]: C;
 };
 
 export type TableCellProps = {
@@ -162,7 +173,7 @@ export type BlockFromConfigNoChildren<
       ? TableContent<I, S>
       : B["content"] extends "none"
         ? undefined
-        : undefined | never;
+        : never;
 };
 
 export type BlockFromConfig<
@@ -244,7 +255,9 @@ type PartialBlockFromConfigNoChildren<
     ? PartialInlineContent<I, S>
     : B["content"] extends "table"
       ? PartialTableContent<I, S>
-      : undefined | never;
+      : B["content"] extends "none"
+        ? undefined
+        : never;
 };
 
 type PartialBlocksWithoutChildren<
@@ -291,11 +304,11 @@ export type PartialBlockFromConfig<
 
 export type BlockIdentifier = { id: string } | string;
 
-export interface BlockImplementation<
-  TName extends string,
-  TProps extends PropSchema,
+export type BlockImplementation<
+  TName extends string = string,
+  TProps extends PropSchema = PropSchema,
   TContent extends "inline" | "none" | "table" = "inline" | "none" | "table",
-> {
+> = {
   /**
    * A function that converts the block into a DOM element
    */
@@ -336,7 +349,7 @@ export interface BlockImplementation<
     >,
   ) =>
     | {
-        dom: HTMLElement;
+        dom: HTMLElement | DocumentFragment;
         contentDOM?: HTMLElement;
       }
     | undefined;
@@ -344,7 +357,7 @@ export interface BlockImplementation<
   /**
    * Parses an external HTML element into a block of this type when it returns the block props object, otherwise undefined
    */
-  parse?: (el: HTMLElement) => NoInfer<Partial<Props<TProps>>> | undefined;
+  parse?: (el: HTMLElement) => Partial<Props<TProps>> | undefined;
 
   /**
    * The blocks that this block should run before.
@@ -357,24 +370,11 @@ export interface BlockImplementation<
    * This is not recommended to use, and is only useful for advanced use cases.
    */
   parseContent?: (options: { el: HTMLElement; schema: Schema }) => Fragment;
-}
-
-export type BlockDefinition<
-  TName extends string = string,
-  TProps extends PropSchema = PropSchema,
-  TContent extends "inline" | "none" | "table" = "inline" | "none" | "table",
-> = {
-  config: BlockConfig<TName, TProps, TContent>;
-  implementation: BlockImplementation<
-    string,
-    PropSchema,
-    "inline" | "none" | "table"
-  >;
-  extensions?: BlockNoteExtension<any>[];
 };
 
-export type ExtractBlockConfig<T> = T extends (
-  options: any,
-) => BlockDefinition<infer TName, infer TProps, infer TContent>
-  ? BlockConfig<TName, TProps, TContent>
-  : never;
+// restrict content to "inline" and "none" only
+export type CustomBlockImplementation<
+  T extends string = string,
+  PS extends PropSchema = PropSchema,
+  C extends "inline" | "none" = "inline" | "none",
+> = BlockImplementation<T, PS, C>;

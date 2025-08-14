@@ -4,25 +4,24 @@ import Italic from "@tiptap/extension-italic";
 import Strike from "@tiptap/extension-strike";
 import Underline from "@tiptap/extension-underline";
 import {
-  audio,
-  bulletListItem,
-  checkListItem,
-  codeBlock,
-  file,
-  heading,
-  image,
-  numberedListItem,
-  pageBreak,
-  paragraph,
-  quote,
-  toggleListItem,
-  video,
-} from "../blks/index.js";
+  createAudioBlockSpec,
+  createBulletListItemBlockSpec,
+  createCheckListItemBlockSpec,
+  createCodeBlockSpec,
+  createFileBlockSpec,
+  createHeadingBlockSpec,
+  createImageBlockSpec,
+  createNumberedListItemBlockSpec,
+  createPageBreakBlockSpec,
+  createParagraphBlockSpec,
+  createQuoteBlockSpec,
+  createToggleListItemBlockSpec,
+  createVideoBlockSpec,
+} from "./index.js";
 import { BackgroundColor } from "../extensions/BackgroundColor/BackgroundColorMark.js";
 import { TextColor } from "../extensions/TextColor/TextColorMark.js";
 import {
   BlockConfig,
-  BlockDefinition,
   BlockNoDefaults,
   BlockSchema,
   InlineContentSchema,
@@ -34,34 +33,23 @@ import {
   getInlineContentSchemaFromSpecs,
   getStyleSchemaFromSpecs,
 } from "../schema/index.js";
-import { Table } from "./TableBlockContent/TableBlockContent.js";
+import { createTableBlockSpec } from "./Table/block.js";
 
 export const defaultBlockSpecs = {
-  paragraph: paragraph.definition(),
-  audio: audio.definition(),
-  bulletListItem: bulletListItem.definition(),
-  checkListItem: checkListItem.definition(),
-  codeBlock: codeBlock.definition(),
-  heading: heading.definition(),
-  numberedListItem: numberedListItem.definition(),
-  pageBreak: pageBreak.definition(),
-  quote: quote.definition(),
-  toggleListItem: toggleListItem.definition(),
-  file: file.definition(),
-  image: image.definition(),
-  video: video.definition(),
-  table: Table as unknown as BlockDefinition<
-    "table",
-    {
-      textColor: {
-        default: "default";
-      };
-    }
-  > & {
-    config: {
-      content: "table";
-    };
-  },
+  audio: createAudioBlockSpec(),
+  bulletListItem: createBulletListItemBlockSpec(),
+  checkListItem: createCheckListItemBlockSpec(),
+  codeBlock: createCodeBlockSpec(),
+  file: createFileBlockSpec(),
+  heading: createHeadingBlockSpec(),
+  image: createImageBlockSpec(),
+  numberedListItem: createNumberedListItemBlockSpec(),
+  pageBreak: createPageBreakBlockSpec(),
+  paragraph: createParagraphBlockSpec(),
+  quote: createQuoteBlockSpec(),
+  table: createTableBlockSpec(),
+  toggleListItem: createToggleListItemBlockSpec(),
+  video: createVideoBlockSpec(),
 } as const;
 
 // underscore is used that in case a user overrides DefaultBlockSchema,

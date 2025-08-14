@@ -1,12 +1,12 @@
 import {
-  BlockDefinition,
   BlockSchema,
+  BlockSpec,
+  BlockSpecs,
   InlineContentSchema,
   InlineContentSpecs,
-  PropSchema,
   StyleSchema,
   StyleSpecs,
-  createBlockSpec,
+  addNodeAndExtensionsToSpec,
   getInlineContentSchemaFromSpecs,
   getStyleSchemaFromSpecs,
 } from "../schema/index.js";
@@ -21,27 +21,21 @@ function removeUndefined<T extends Record<string, any> | undefined>(obj: T): T {
   ) as T;
 }
 
-export type BlockSpecOf<BSpecs extends BlockSchema> = {
-  [key in keyof BSpecs]: key extends string
-    ? BlockDefinition<key, PropSchema, "inline" | "none" | "table">
-    : never;
-};
-
 export class CustomBlockNoteSchema<
-  BSpecs extends BlockSchema,
+  BSchema extends BlockSchema,
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema,
 > {
   public readonly inlineContentSpecs: InlineContentSpecs;
   public readonly styleSpecs: StyleSpecs;
-  public readonly blockSpecs: BlockSpecOf<BSpecs>;
+  public readonly blockSpecs: BlockSpecs;
 
-  public readonly blockSchema: BSpecs;
+  public readonly blockSchema: BSchema;
   public readonly inlineContentSchema: ISchema;
   public readonly styleSchema: SSchema;
 
   constructor(opts: {
-    blockSpecs: BlockSpecOf<BSpecs>;
+    blockSpecs: BlockSpecs;
     inlineContentSpecs: InlineContentSpecs;
     styleSpecs: StyleSpecs;
   }) {
@@ -60,7 +54,7 @@ export class CustomBlockNoteSchema<
     this.styleSchema = getStyleSchemaFromSpecs(this.styleSpecs) as any;
   }
 
-  private initBlockSpecs(specs: BlockSpecOf<BSpecs>): BlockSpecOf<BSpecs> {
+  private initBlockSpecs(specs: BlockSpecs): BlockSpecs {
     const dag = createDependencyGraph();
     const defaultSet = new Set<string>();
     dag.set("default", defaultSet);
@@ -94,26 +88,24 @@ export class CustomBlockNoteSchema<
     };
 
     return Object.fromEntries(
-      Object.entries(specs).map(
-        ([key, blockDef]: [string, BlockDefinition<string, PropSchema>]) => {
-          return [
-            key,
-            Object.assign(
-              {
-                extensions: blockDef.extensions,
-              },
-              // TODO annoying hack to get tables to work
-              blockDef.config.type === "table"
-                ? blockDef
-                : createBlockSpec(
-                    blockDef.config as any,
-                    blockDef.implementation as any,
-                    getPriority(key),
-                  ),
-            ),
-          ];
-        },
-      ),
-    ) as unknown as BlockSpecOf<BSpecs>;
+      Object.entries(specs).map(([key, blockSpec]: [string, BlockSpec]) => {
+        return [
+          key,
+          Object.assign(
+            {
+              extensions: blockSpec.extensions,
+            },
+            // TODO annoying hack to get tables to work
+            blockSpec.config.type === "table"
+              ? blockSpec
+              : addNodeAndExtensionsToSpec(
+                  blockSpec.config,
+                  blockSpec.implementation,
+                  getPriority(key),
+                ),
+          ),
+        ];
+      }),
+    ) as BlockSpecs;
   }
 }
