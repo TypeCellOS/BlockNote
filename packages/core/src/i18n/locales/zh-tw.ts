@@ -238,6 +238,9 @@ export const zhTW: Dictionary = {
       add_button_text: "新增檔案",
     },
   },
+  toggle_blocks: {
+    add_block_button: "空的切換區。點擊新增區塊。",
+  },
   // from react package:
   side_menu: {
     add_block_label: "新增區塊",

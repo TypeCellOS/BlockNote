@@ -238,6 +238,9 @@ export const zh: Dictionary = {
       add_button_text: "添加文件",
     },
   },
+  toggle_blocks: {
+    add_block_button: "空的切换区。点击添加区块。",
+  },
   // from react package:
   side_menu: {
     add_block_label: "添加块",

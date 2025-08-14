@@ -197,6 +197,9 @@ export const en = {
       add_button_text: "Add file",
     },
   },
+  toggle_blocks: {
+    add_block_button: "Empty toggle. Click to add a block.",
+  },
   // from react package:
   side_menu: {
     add_block_label: "Add block",

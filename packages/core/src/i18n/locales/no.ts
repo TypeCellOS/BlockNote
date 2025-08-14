@@ -216,6 +216,9 @@ export const no: Dictionary = {
       add_button_text: "Legg til fil",
     },
   },
+  toggle_blocks: {
+    add_block_button: "Tomt toggle. Klikk for å legge til en blokk.",
+  },
   side_menu: {
     add_block_label: "Legg til blokk",
     drag_handle_label: "Åpne blokkmeny",

@@ -196,6 +196,9 @@ export const vi: Dictionary = {
       add_button_text: "Thêm tệp",
     },
   },
+  toggle_blocks: {
+    add_block_button: "Toggle trống. Nhấp để thêm khối.",
+  },
   // từ gói phản ứng:
   side_menu: {
     add_block_label: "Thêm khối",

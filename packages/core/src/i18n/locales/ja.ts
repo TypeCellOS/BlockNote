@@ -237,6 +237,9 @@ export const ja: Dictionary = {
       add_button_text: "ファイルを追加",
     },
   },
+  toggle_blocks: {
+    add_block_button: "空のトグルです。クリックしてブロックを追加。",
+  },
   // from react package:
   side_menu: {
     add_block_label: "ブロックを追加",

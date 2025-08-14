@@ -197,6 +197,9 @@ export const sk = {
       add_button_text: "Pridať súbor",
     },
   },
+  toggle_blocks: {
+    add_block_button: "Prázdne prepínanie. Kliknite pre pridanie bloku.",
+  },
   side_menu: {
     add_block_label: "Pridať blok",
     drag_handle_label: "Otvoriť menu bloku",

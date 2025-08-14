@@ -182,6 +182,9 @@ export const ar: Dictionary = {
       add_button_text: "إضافة ملف",
     },
   },
+  toggle_blocks: {
+    add_block_button: "تبديل فارغ. انقر لإضافة كتلة.",
+  },
   // from react package:
   side_menu: {
     add_block_label: "إضافة محتوي",

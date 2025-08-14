@@ -189,6 +189,9 @@ export const pt: Dictionary = {
       add_button_text: "Adicionar arquivo",
     },
   },
+  toggle_blocks: {
+    add_block_button: "Toggle vazio. Clique para adicionar um bloco.",
+  },
   // from react package:
   side_menu: {
     add_block_label: "Adicionar bloco",

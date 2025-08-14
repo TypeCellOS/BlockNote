@@ -198,6 +198,9 @@ export const nl: Dictionary = {
       add_button_text: "Bestand toevoegen",
     },
   },
+  toggle_blocks: {
+    add_block_button: "Lege uitklapper. Klik om een blok toe te voegen.",
+  },
   // from react package:
   side_menu: {
     add_block_label: "Nieuw blok",
