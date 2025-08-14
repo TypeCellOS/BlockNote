@@ -23,6 +23,7 @@ export * from "./blocks/FileBlockContent/helpers/toExternalHTML/createFigureWith
 export * from "./blocks/FileBlockContent/helpers/toExternalHTML/createLinkWithCaption.js";
 export * from "./blocks/FileBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY.js";
 export * from "./blocks/ImageBlockContent/ImageBlockContent.js";
+export * from "./blocks/ImageBlockContent/AccessibleImageBlock.js";
 export * from "./blocks/PageBreakBlockContent/getPageBreakSlashMenuItems.js";
 export * from "./blocks/PageBreakBlockContent/PageBreakBlockContent.js";
 export * from "./blocks/PageBreakBlockContent/schema.js";
