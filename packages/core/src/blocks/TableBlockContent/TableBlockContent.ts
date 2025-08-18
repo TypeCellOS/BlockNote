@@ -175,8 +175,8 @@ const TableParagraph = createStronglyTypedTiptapNode({
     ];
   },
 
-  renderHTML({ HTMLAttributes }) {
-    return ["p", HTMLAttributes, 0];
+  renderHTML({ node, HTMLAttributes }) {
+    return ["p", HTMLAttributes, node.childCount ? 0 : ["br"]];
   },
 });
 
