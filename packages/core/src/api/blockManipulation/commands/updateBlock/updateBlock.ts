@@ -350,7 +350,9 @@ type CellAnchor = { row: number; col: number; offset: number };
  */
 export function captureCellAnchor(tr: Transaction): CellAnchor | null {
   const sel = tr.selection;
-  if (!(sel instanceof TextSelection)) return null;
+  if (!(sel instanceof TextSelection)) {
+    return null;
+  }
 
   const $head = tr.doc.resolve(sel.head);
   // Find enclosing cell and table
@@ -366,19 +368,25 @@ export function captureCellAnchor(tr: Transaction): CellAnchor | null {
       break;
     }
   }
-  if (cellDepth < 0 || tableDepth < 0) return null;
+  if (cellDepth < 0 || tableDepth < 0) {
+    return null;
+  }
 
   // Absolute positions (before the cell)
   const cellPos = $head.before(cellDepth);
   const tablePos = $head.before(tableDepth);
   const table = tr.doc.nodeAt(tablePos);
-  if (!table || table.type.name !== "table") return null;
+  if (!table || table.type.name !== "table") {
+    return null;
+  }
 
   // Visual grid position via TableMap (handles spans)
   const map = TableMap.get(table);
   const rel = cellPos - (tablePos + 1); // relative to inside table
   const idx = map.map.indexOf(rel);
-  if (idx < 0) return null;
+  if (idx < 0) {
+    return null;
+  }
 
   const row = Math.floor(idx / map.width);
   const col = idx % map.width;
@@ -396,7 +404,9 @@ function restoreCellAnchor(
   blockInfo: BlockInfo,
   a: CellAnchor,
 ): boolean {
-  if (blockInfo.blockNoteType !== "table") return false;
+  if (blockInfo.blockNoteType !== "table") {
+    return false;
+  }
 
   // 1) Resolve the table node in the current document
   let tablePos = -1;
@@ -418,7 +428,9 @@ function restoreCellAnchor(
   }
 
   const table = tablePos >= 0 ? tr.doc.nodeAt(tablePos) : null;
-  if (!table || table.type.name !== "table") return false;
+  if (!table || table.type.name !== "table") {
+    return false;
+  }
 
   // 2) Clamp row/col to the table’s current grid
   const map = TableMap.get(table);
@@ -428,7 +440,9 @@ function restoreCellAnchor(
   // 3) Compute the absolute position of the target cell (pos BEFORE the cell)
   const cellIndex = row * map.width + col;
   const relCellPos = map.map[cellIndex]; // relative to (tablePos + 1)
-  if (relCellPos == null) return false;
+  if (relCellPos == null) {
+    return false;
+  }
   const cellPos = tablePos + 1 + relCellPos;
 
   // 4) Place the caret inside the cell, clamping the text offset
