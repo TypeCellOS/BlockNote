@@ -27,11 +27,11 @@ export function BlueButton() {
     );
   }, editor);
 
-  // Doesn't render unless a at least one block with inline content is 
-  // selected. You can use a similar pattern of returning `null` to 
+  // Doesn't render unless a at least one block with inline content is
+  // selected. You can use a similar pattern of returning `null` to
   // conditionally render buttons based on the editor state.
   const blocks = useSelectedBlocks();
-  if (blocks.filter((block) => block.content !== undefined)) {
+  if (blocks.filter((block) => block.content !== undefined).length === 0) {
     return null;
   }
 
