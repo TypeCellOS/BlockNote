@@ -140,7 +140,7 @@ export const ToggleWrapper = (
             editor.focus();
           }}
         >
-          Empty toggle. Click to add a block.
+          {editor.dictionary.toggle_blocks.add_block_button}
         </button>
       )}
     </div>
