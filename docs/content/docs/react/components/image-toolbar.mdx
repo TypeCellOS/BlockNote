@@ -34,3 +34,13 @@ type uploadFile = (file: File) => Promise<string>;
 You can use the provided `uploadToTempFilesOrg` function to as a starting point, which uploads files to [tmpfiles.org](https://tmpfiles.org/). However, it's not recommended to use this in a production environment - you should use your own backend:
 
 <Example name="backend/file-uploading" />
+
+## Resolving URLs
+
+Depending on your backend implementation, the URL returned after uploading a file may not point to the file itself, but an API endpoint which lets you access the file. In this case, said file will need to be fetched from when rendering the block.
+
+BlockNote supports this use case using the `resolveFileUrl` [editor option](/docs/reference/editor/overview#options):
+
+```ts
+type resolveFileUrl = (url: string) => Promise<string>;
+```

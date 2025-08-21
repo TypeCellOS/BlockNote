@@ -242,21 +242,11 @@ export class SideMenuView<
 
     this.hoveredBlock = block.node;
 
-    // Gets the block's content node, which lets to ignore child blocks when determining the block menu's position.
-    // TODO: needed?
-    const blockContent = block.node.firstChild as HTMLElement;
-
-    if (!blockContent) {
-      return;
-    }
-
-    // TODO: needed?
-
     // Shows or updates elements.
     if (this.editor.isEditable) {
-      const blockContentBoundingBox = blockContent.getBoundingClientRect();
+      const blockContentBoundingBox = block.node.getBoundingClientRect();
       const column = block.node.closest("[data-node-type=column]");
-      this.updateState({
+      this.state = {
         show: true,
         referencePos: new DOMRect(
           column
@@ -275,7 +265,8 @@ export class SideMenuView<
         block: this.editor.getBlock(
           this.hoveredBlock!.getAttribute("data-id")!,
         )!,
-      });
+      };
+      this.updateState(this.state);
     }
   };
 
@@ -435,9 +426,9 @@ export class SideMenuView<
     // We need to check if there is text content that is being dragged (select some text & just drag it)
     const textContentIsBeingDragged =
       !event.dataTransfer?.types.includes("blocknote/html") &&
-      Boolean(this.pmView.dragging);
+      !!this.pmView.dragging;
     // This is the side menu drag from this plugin
-    const sideMenuIsBeingDragged = Boolean(this.isDragOrigin);
+    const sideMenuIsBeingDragged = !!this.isDragOrigin;
     // Tells us that the current editor instance has a drag ongoing (either text or side menu)
     const isDragOrigin = textContentIsBeingDragged || sideMenuIsBeingDragged;
 
@@ -498,21 +489,19 @@ export class SideMenuView<
     }
     const { isDropPoint, isDropWithinEditorBounds, isDragOrigin } = context;
 
-    if (!isDropWithinEditorBounds) {
+    if (!isDropWithinEditorBounds && isDropPoint) {
       // Any time that the drop event is outside of the editor bounds (but still close to an editor instance)
       // We dispatch a synthetic event that is in the bounds of the editor instance, to have the correct drop point
       this.dispatchSyntheticEvent(event);
     }
 
-    if (isDropPoint && isDragOrigin) {
-      // The current instance is both the drop point and the drag origin
-      // no-op, normal drop handling will take over
-      return;
-    }
-
     if (isDropPoint) {
-      // The current instance is the drop point, but not the drag origin
+      // The current instance is the drop point
 
+      if (this.pmView.dragging) {
+        // Do not collapse selection when text content is being dragged
+        return;
+      }
       // Because the editor selection is unrelated to the dragged content, we
       // don't want PM to delete its content. Therefore, we collapse the
       // selection.

@@ -268,6 +268,16 @@ const config = {
       destination: "/docs/features/collaboration",
       permanent: true,
     },
+    {
+      source: "/privacy-policy",
+      destination: "/legal/privacy-policy",
+      permanent: true,
+    },
+    {
+      source: "/terms-and-conditions",
+      destination: "/legal/terms-and-conditions",
+      permanent: true,
+    },
   ],
   turbopack: {
     resolveExtensions: [".ts", ".tsx", ".js", ".jsx", ".json", ".mdx"],

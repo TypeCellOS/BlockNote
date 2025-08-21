@@ -1,6 +1,6 @@
-import { SectionSubHeader } from "@/components/Headings";
 import { FAQ } from "@/app/pricing/faq";
-import { Tiers, Tier } from "@/app/pricing/tiers";
+import { Tier, Tiers } from "@/app/pricing/tiers";
+import { SectionSubHeader } from "@/components/Headings";
 import { getFullMetadata } from "@/util/getFullMetadata";
 
 export const metadata = getFullMetadata({
@@ -26,47 +26,65 @@ const tiers: Tier[] = [
     mostPopular: false,
     title: "Starter",
     description:
-      "Best for companies and organizations building products with BlockNote.",
+      "Best for individuals and Open Source projects looking to support BlockNote.",
     price: { month: 90, year: 24 },
     features: [
       "Access to all Pro Examples",
       "Prioritized Bug Reports on GitHub",
-      "Keep the open source library running and maintained",
-      "XL packages available for open source projects under AGPL-3.0",
+      "Support maintenance and new versions of our open source library",
+      "XL packages only available for open source projects under GPL-3.0",
     ],
   },
   {
     id: "business",
     title: "Business",
     mostPopular: true,
-    description: "Best for companies that want a direct line to the team.",
+    description:
+      "Best for companies who need a commercial license for XL features.",
     price: { month: 390, year: 48 },
     features: [
-      "Commercial license for XL packages:",
-      "XL: Multi-column layouts",
-      "XL: Export to PDF, Docx",
+      <span>
+        <a href="/legal/blocknote-xl-commercial-license">Commercial license</a>{" "}
+        for XL packages:
+      </span>,
+      "- AI integration",
+      "- Multi-column layouts",
+      "- Export to PDF, Docx, ODT, Email",
       "Access to all Pro Examples",
       "Prioritized Bug Reports on GitHub",
-      "Keep the open source library running and maintained",
+      <span>
+        Standard Support included (
+        <a href="/legal/service-level-agreement">see SLA</a>)
+      </span>,
+      "Support maintenance and new versions of our open source library",
       "Logo on our website and repositories",
-      "Access to a private Discord channel with the maintainers",
-      "Up to 2 hours of individual support per month",
     ],
   },
   {
     id: "enterprise",
     title: "Enterprise",
     description:
-      "Collaborate directly with the BlockNote team on integrating and extending the editor.",
+      "Best for companies that want a direct line to the team for dedicated consulting and support.",
     price: "Tailored pricing",
     features: [
+      "Development of BlockNote features required for your organization",
+      "Access to a private Slack channel with the maintainers",
+      "Guidance on integrating BlockNote into your project",
+      <span>
+        <a href="/legal/blocknote-xl-commercial-license">Commercial license</a>{" "}
+        for XL packages:
+      </span>,
+      "- AI integration",
+      "- Multi-column layouts",
+      "- Export to PDF, Docx, ODT, Email",
       "Access to all Pro Examples",
       "Prioritized Bug Reports and Feature Requests on GitHub",
-      "Keep the open source library running and maintained",
-      "Access to a private Discord or Slack channel with the maintainers",
-      "Guidance on integrating BlockNote into your project",
-      "Development of BlockNote features required for your organization",
-      "Dedicated consulting and support",
+      <span>
+        Priority Support included (
+        <a href="/legal/service-level-agreement">see SLA</a>)
+      </span>,
+      "Support maintenance and new versions of our open source library",
+      "Logo on our website and repositories",
     ],
     href: "/about/",
   },
@@ -81,14 +99,16 @@ export default function Pricing() {
         </h2>
         <SectionSubHeader>Upgrade your BlockNote experience</SectionSubHeader>
         <p className="mt-8 max-w-screen-md text-center text-lg text-[#00000080] dark:text-[#FFFFFFB2]">
-          Your subscription helps maintain and develop BlockNote while giving
-          you access to direct support, priority features, and Pro Examples.
+          Get direct support from the maintainers, access Pro Examples
+          <br /> and get your commercial license for XL Packages such as
+          BlockNote AI.
+          <br />
+          Your subscription helps us to maintain and develop BlockNote.
         </p>
         <Tiers tiers={tiers} frequency="month" />
         <p className="mt-8 max-w-screen-md text-center text-lg text-[#00000080] dark:text-[#FFFFFFB2]">
-          Thanks for checking out BlockNote Pro! <br /> BlockNote is free and
-          open source software that organizations of all sizes are using to add
-          polished editing experiences to their apps.
+          BlockNote is 100% open source software that organizations of all sizes
+          are using to add polished editing experiences to their apps.
         </p>
         <FAQ />
       </div>

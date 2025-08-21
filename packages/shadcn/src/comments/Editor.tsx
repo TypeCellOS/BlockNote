@@ -4,6 +4,7 @@ import {
   FormattingToolbar,
   FormattingToolbarController,
   getFormattingToolbarItems,
+  useBlockNoteContext,
 } from "@blocknote/react";
 import { forwardRef } from "react";
 
@@ -19,10 +20,13 @@ export const Editor = forwardRef<
 
   assertEmpty(rest);
 
+  const blockNoteContext = useBlockNoteContext();
+
   return (
     <BlockNoteView
       autoFocus={autoFocus}
       className={cn(className, "")}
+      theme={blockNoteContext?.colorSchemePreference}
       editor={props.editor}
       sideMenu={false}
       slashMenu={false}

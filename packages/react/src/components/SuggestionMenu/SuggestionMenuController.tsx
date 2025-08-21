@@ -147,7 +147,13 @@ export function SuggestionMenuController<
   }
 
   return (
-    <div ref={ref} style={style} {...getFloatingProps()}>
+    <div
+      ref={ref}
+      style={style}
+      {...getFloatingProps()}
+      // Prevents editor blurring when clicking the scroll bar.
+      onMouseDown={(e) => e.preventDefault()}
+    >
       <SuggestionMenuWrapper
         query={state.query}
         closeMenu={callbacks.closeMenu}

@@ -10,15 +10,11 @@ React rich text editor. Easily add a modern text editing experience to your app.
 </p>
 
 <p align="center">
-<a href="https://discord.gg/Qc2QTTH5dF"><img alt="Discord" src="https://img.shields.io/badge/Chat on discord%20-%237289DA.svg?&style=for-the-badge&logo=discord&logoColor=white"/></a> 
-</p>
-
-<p align="center">
   <a href="https://www.blocknotejs.org">
     Homepage
-  </a> - <a href="https://www.blocknotejs.org/docs/introduction">
+  </a> - <a href="https://www.blocknotejs.org/docs">
     Documentation
-  </a> - <a href="https://www.blocknotejs.org/docs/quickstart">
+  </a> - <a href="https://www.blocknotejs.org/docs/getting-started">
     Quickstart
   </a>- <a href="https://www.blocknotejs.org/examples">
     Examples
@@ -47,8 +43,6 @@ function App() {
 ```
 
 `@blocknote/react` comes with a fully styled UI that makes it an instant, polished editor ready to use in your app.
-
-If you prefer to create your own UI components (menus), or don't want to use React, you can use `@blocknote/core` (_advanced_, [see docs](https://www.blocknotejs.org/docs/vanilla-js)).
 
 # Features
 
@@ -84,31 +78,19 @@ BlockNote comes with a number of features and components to make it easy to embe
 
 # Feedback 🙋‍♂️🙋‍♀️
 
-We'd love to hear your thoughts and see your experiments, so [come and say hi on Discord](https://discord.gg/Qc2QTTH5dF) or [Matrix](https://matrix.to/#/#typecell-space:matrix.org).
+We'd love to hear your thoughts and see your experiments, so [come and say hi on Discord](https://discord.gg/Qc2QTTH5dF).
 
 # Contributing 🙌
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for more info and guidance on how to run the project (TLDR: just use `npm start`).
-
-Directory structure:
-
-```
-blocknote
-├── packages/core       - The core of the editor
-├── packages/react      - The main library for use in React apps
-├── packages/mantine    - Mantine (default) implementation of BlockNote UI
-├── packages/ariakit    - AriaKit implementation of BlockNote UI
-├── packages/shadcn     - ShadCN / Tailwind / Radix implementation of BlockNote UI
-├── examples            - Example apps
-├── playground          - App to browse the example apps (https://playground.blocknotejs.org)
-└── tests               - Playwright end to end tests
-```
+See [CONTRIBUTING.md](CONTRIBUTING.md) for more info and guidance on how to run the project (TLDR: just use `pnpm start`).
 
 The codebase is automatically tested using Vitest and Playwright.
 
 # License 📃
 
-BlockNote is licensed under the [MPL 2.0 license](https://fossa.com/blog/open-source-software-licenses-101-mozilla-public-license-2-0/), which allows you to use BlockNote in commercial (and closed-source) applications. If you make changes to the BlockNote source files, you're expected to publish these changes so the wider community can benefit as well.
+BlockNote is 100% Open Source Software. The majority of BlockNote is licensed under the [MPL-2.0 license](LICENSE-MPL.txt), which allows you to use BlockNote in commercial (and closed-source) applications. If you make changes to the BlockNote source files, you're expected to publish these changes so the wider community can benefit as well. [Learn more](https://fossa.com/blog/open-source-software-licenses-101-mozilla-public-license-2-0/).
+
+The XL packages (source code in the `packages/xl-*` directories and published in NPM as `@blocknote/xl-*`) are licensed under the GPL-3.0. If you cannot comply with this license and want to use the XL libraries, you'll need a commercial license. Refer to [our website](https://www.blocknotejs.org/pricing) for more information.
 
 # Credits ❤️
 

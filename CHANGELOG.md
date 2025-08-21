@@ -1,3 +1,24 @@
+## 0.35.0 (2025-07-25)
+
+### 🚀 Features
+
+- use fumadocs for website ([#1654](https://github.com/TypeCellOS/BlockNote/pull/1654))
+- llms.mdx routes ([cea93840e](https://github.com/TypeCellOS/BlockNote/commit/cea93840e))
+
+### 🩹 Fixes
+
+- insert file upload before block if it is closer to the top of the block ([#1857](https://github.com/TypeCellOS/BlockNote/pull/1857))
+- rename albert model ([3b0ba8d25](https://github.com/TypeCellOS/BlockNote/commit/3b0ba8d25))
+- resolve some minor drag & drop regressions ([#1862](https://github.com/TypeCellOS/BlockNote/pull/1862))
+- blockquote HTML parsing #1762 ([#1877](https://github.com/TypeCellOS/BlockNote/pull/1877), [#1762](https://github.com/TypeCellOS/BlockNote/issues/1762))
+
+### ❤️ Thank You
+
+- Brad Greenlee
+- Nick Perez
+- Nick the Sick
+- yousefed
+
 ## 0.34.0 (2025-07-17)
 
 ### 🚀 Features

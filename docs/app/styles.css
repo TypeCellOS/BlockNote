@@ -64,7 +64,7 @@ body {
   padding-block: 1rem;
 }
 
-.demo-contents a {
+.demo .bn-editor a {
   color: revert;
   text-decoration: revert;
 }

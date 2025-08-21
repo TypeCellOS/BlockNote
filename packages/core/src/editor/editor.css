@@ -148,25 +148,16 @@ Tippy popups that are appended to document.body directly
   transition: all 0.2s;
 }
 
-/* .tableWrapper {
-  padding
-} */
-
 .bn-editor [data-content-type="table"] .tableWrapper {
-  position: relative;
-  top: -16px;
-  left: -16px;
-  /* padding: 16px; */
-  min-width: calc(100% + 16px);
-  padding-bottom: 16px;
+  /* Size of + buttons to add rows/columns. */
+  --bn-table-widget-size: 22px;
+  /* Size of table handles, divided by 2 since half the element is in the cell. */
+  --bn-table-handle-size: calc(18px / 2);
   overflow-y: hidden;
-}
-
-.bn-editor [data-content-type="table"] .tableWrapper-inner {
-  /* position: relative; */
-  /* top: -16px;
-  left: -16px; */
-  padding: 16px;
+  padding: var(--bn-table-handle-size) var(--bn-table-widget-size)
+    var(--bn-table-widget-size) var(--bn-table-handle-size);
+  position: relative;
+  width: 100%;
 }
 
 /* table related: */

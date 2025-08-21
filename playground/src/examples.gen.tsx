@@ -732,12 +732,17 @@
       {
         "projectSlug": "link-toolbar-buttons",
         "fullSlug": "ui-components/link-toolbar-buttons",
-        "pathFromRoot": "examples/03-ui-components/link-toolbar-buttons",
+        "pathFromRoot": "examples/03-ui-components/16-link-toolbar-buttons",
         "config": {
           "playground": true,
-          "docs": false,
+          "docs": true,
           "author": "matthewlipski",
-          "tags": []
+          "tags": [
+            "Intermediate",
+            "Inline Content",
+            "UI Components",
+            "Link Toolbar"
+          ]
         },
         "title": "Adding Link Toolbar Buttons",
         "group": {
@@ -903,7 +908,7 @@
           "pathFromRoot": "examples/04-theming",
           "slug": "theming"
         },
-        "readme": "To configure a code block highlighting theme and language, you can use the `codeBlock` option in the `useCreateBlockNote` hook.\n\nThis allows you to configure a shiki highlighter for the code blocks of your editor, allowing you to tailor the themes and languages you would like to use.\n\nTo create a syntax highlighter, you can use the [shiki-codegen](https://shiki.style/packages/codegen) CLI for generating the code to create a syntax highlighter for your languages and themes.\n\nFor example to create a syntax highlighter using the optimized javascript engine, javascript, typescript, vue, with light and dark themes, you can run the following command:\n\n```bash\nnpx shiki-codegen --langs javascript,typescript,vue --themes light,dark --engine javascript --precompiled ./shiki.bundle.ts\n```\n\nThis will generate a `shiki.bundle.ts` file that you can use to create a syntax highlighter for your editor.\n\nLike this:\n\n```ts\nimport { createHighlighter } from \"./shiki.bundle\";\n\nexport default function App() {\n  // Creates a new editor instance.\n  const editor = useCreateBlockNote({\n    codeBlock: {\n      indentLineWithTab: true,\n      defaultLanguage: \"typescript\",\n      supportedLanguages: {\n        typescript: {\n          name: \"TypeScript\",\n          aliases: [\"ts\"],\n        },\n      },\n      createHighlighter: () =>\n        createHighlighter({\n          themes: [\"light-plus\", \"dark-plus\"],\n          langs: [],\n        }),\n    },\n  });\n\n  return <BlockNoteView editor={editor} />;\n}\n```\n\n**Relevant Docs:**\n\n- [Code Blocs](/docs/features/blocks/code-blocks)\n- [shiki-codegen](https://shiki.style/packages/codegen)"
+        "readme": "To configure a code block highlighting theme and language, you can use the `codeBlock` option in the `useCreateBlockNote` hook.\n\nThis allows you to configure a shiki highlighter for the code blocks of your editor, allowing you to tailor the themes and languages you would like to use.\n\nTo create a syntax highlighter, you can use the [shiki-codegen](https://shiki.style/packages/codegen) CLI for generating the code to create a syntax highlighter for your languages and themes.\n\nFor example to create a syntax highlighter using the optimized javascript engine, javascript, typescript, vue, with light and dark themes, you can run the following command:\n\n```bash\nnpx shiki-codegen --langs javascript,typescript,vue --themes light,dark --engine javascript --precompiled ./shiki.bundle.ts\n```\n\nThis will generate a `shiki.bundle.ts` file that you can use to create a syntax highlighter for your editor.\n\nLike this:\n\n```ts\nimport { createHighlighter } from \"./shiki.bundle\";\n\nexport default function App() {\n  // Creates a new editor instance.\n  const editor = useCreateBlockNote({\n    codeBlock: {\n      indentLineWithTab: true,\n      defaultLanguage: \"typescript\",\n      supportedLanguages: {\n        typescript: {\n          name: \"TypeScript\",\n          aliases: [\"ts\"],\n        },\n      },\n      createHighlighter: () =>\n        createHighlighter({\n          themes: [\"light-plus\", \"dark-plus\"],\n          langs: [],\n        }),\n    },\n  });\n\n  return <BlockNoteView editor={editor} />;\n}\n```\n\n**Relevant Docs:**\n\n- [Code Blocks](/docs/features/blocks/code-blocks)\n- [shiki-codegen](https://shiki.style/packages/codegen)"
       }
     ]
   },

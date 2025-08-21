@@ -22,27 +22,23 @@ export const LinkToolbar = (
 ) => {
   const Components = useComponentsContext()!;
 
-  if (props.children) {
-    return (
-      <Components.LinkToolbar.Root className={"bn-toolbar bn-link-toolbar"}>
-        {props.children}
-      </Components.LinkToolbar.Root>
-    );
-  }
-
   return (
     <Components.LinkToolbar.Root
       className={"bn-toolbar bn-link-toolbar"}
       onMouseEnter={props.stopHideTimer}
       onMouseLeave={props.startHideTimer}
     >
-      <EditLinkButton
-        url={props.url}
-        text={props.text}
-        editLink={props.editLink}
-      />
-      <OpenLinkButton url={props.url} />
-      <DeleteLinkButton deleteLink={props.deleteLink} />
+      {props.children || (
+        <>
+          <EditLinkButton
+            url={props.url}
+            text={props.text}
+            editLink={props.editLink}
+          />
+          <OpenLinkButton url={props.url} />
+          <DeleteLinkButton deleteLink={props.deleteLink} />
+        </>
+      )}
     </Components.LinkToolbar.Root>
   );
 };
