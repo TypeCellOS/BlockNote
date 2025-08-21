@@ -77,7 +77,8 @@ export const createToggleWrapper = (
   const toggleAddBlockButton = document.createElement("button");
   toggleAddBlockButton.className = "bn-toggle-add-block-button";
   toggleAddBlockButton.type = "button";
-  toggleAddBlockButton.textContent = "Empty toggle. Click to add a block.";
+  toggleAddBlockButton.textContent =
+    editor.dictionary.toggle_blocks.add_block_button;
   const toggleAddBlockButtonMouseDown = (event: MouseEvent) =>
     event.preventDefault();
   toggleAddBlockButton.addEventListener(
