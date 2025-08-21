@@ -217,7 +217,7 @@ exports[`Test ServerBlockNoteEditor > converts to and from markdown (blocksToMar
     "props": {
       "backgroundColor": "default",
       "caption": "",
-      "name": "",
+      "name": "Example",
       "showPreview": true,
       "textAlignment": "left",
       "url": "exampleURL",
