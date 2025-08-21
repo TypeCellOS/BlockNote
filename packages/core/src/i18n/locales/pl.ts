@@ -188,6 +188,10 @@ export const pl: Dictionary = {
       add_button_text: "Dodaj plik",
     },
   },
+  toggle_blocks: {
+    add_block_button:
+      "Brak bloków do rozwinięcia. Kliknij, aby dodać pierwszego.",
+  },
   side_menu: {
     add_block_label: "Dodaj blok",
     drag_handle_label: "Otwórz menu bloków",
