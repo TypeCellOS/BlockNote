@@ -399,7 +399,7 @@
           "pathFromRoot": "examples/03-ui-components",
           "slug": "ui-components"
         },
-        "readme": "In this example, we add a blue text/background color and code style button to the Formatting Toolbar.\n\n**Try it out:** Select some text to open the Formatting Toolbar, and click one of the new buttons!\n\n**Relevant Docs:**\n\n- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar)\n- [Manipulating Inline Content](/docs/reference/editor/manipulating-content)\n- [Editor Setup](/docs/getting-started/editor-setup)"
+        "readme": "In this example, we add a blue text/background color and code style button to the Formatting Toolbar. We also make sure it only shows up when some text is selected.\n\n**Try it out:** Select some text to open the Formatting Toolbar, and click one of the new buttons!\n\n**Relevant Docs:**\n\n- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar)\n- [Manipulating Inline Content](/docs/reference/editor/manipulating-content)\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
         "projectSlug": "formatting-toolbar-block-type-items",
@@ -749,7 +749,7 @@
           "pathFromRoot": "examples/03-ui-components",
           "slug": "ui-components"
         },
-        "readme": "In this example, we add a button to the Link Toolbar which opens a browser alert.\n\n**Try it out:** Hover the link open the Link Toolbar, and click the new \"Open Alert\" button!\n\n**Relevant Docs:**\n\n- [Changing the Link Toolbar](/docs/react/components/link-toolbar)\n- [Editor Setup](/docs/getting-started/editor-setup)"
+        "readme": "In this example, we add a button to the Link Toolbar which opens a browser alert.\n\n**Try it out:** Hover the link open the Link Toolbar, and click the new \"Open Alert\" button!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)"
       }
     ]
   },
@@ -1524,7 +1524,7 @@
           ],
           "pro": true,
           "dependencies": {
-            "@tiptap/core": "^2.12.0"
+            "@tiptap/core": "^2.26.1"
           } as any
         },
         "title": "TipTap extension (arrow InputRule)",
