@@ -67,7 +67,7 @@
 }
 
 .bn-shadcn * {
-  @apply bn-border-border;
+  /* @apply bn-border-border; */
 }
 
 .bn-shadcn .bn-editor {
