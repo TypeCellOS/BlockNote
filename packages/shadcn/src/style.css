@@ -71,7 +71,7 @@
 }
 
 .bn-shadcn .bn-editor {
-  @apply bn-bg-background bn-text-foreground;
+  /* @apply bn-bg-background bn-text-foreground; */
 }
 
 .bn-shadcn .bn-editor a {
