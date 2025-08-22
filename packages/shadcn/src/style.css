@@ -1,8 +1,6 @@
-@import "./tailwindStyles.css";
-@import url("@blocknote/react/style.css");
-
-@tailwind components;
-@tailwind utilities;
+@import './tailwindStyles.css' layer(components);
+@import url('@blocknote/react/style.css') layer(components);
+@import 'tailwindcss/utilities' layer(utilities);
 
 .bn-shadcn {
   --background: 0 0% 100%;
