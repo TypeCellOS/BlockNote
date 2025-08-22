@@ -1,5 +1,5 @@
 /** Define the main block types **/
-import { Extension, Node } from "@tiptap/core";
+// import { Extension, Node } from "@tiptap/core";
 import type { Fragment, Schema } from "prosemirror-model";
 import type { ViewMutationRecord } from "prosemirror-view";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
@@ -98,7 +98,7 @@ export type BlockSpec<
 export type BlockSchema = Record<string, BlockConfig>;
 
 export type BlockSpecs = {
-  [k in string]: BlockSpec<any, any, any>;
+  [k in string]: BlockSpec;
 };
 
 export type BlockImplementations = Record<

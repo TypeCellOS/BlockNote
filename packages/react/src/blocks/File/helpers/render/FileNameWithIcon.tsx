@@ -1,11 +1,15 @@
-import { FileBlockConfig } from "@blocknote/core";
+import { createFileBlockConfig } from "@blocknote/core";
 import { RiFile2Line } from "react-icons/ri";
 
 import { ReactCustomBlockRenderProps } from "../../../../schema/ReactBlockSpec.js";
 
 export const FileNameWithIcon = (
   props: Omit<
-    ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
+    ReactCustomBlockRenderProps<
+      ReturnType<typeof createFileBlockConfig>["type"],
+      ReturnType<typeof createFileBlockConfig>["propSchema"],
+      ReturnType<typeof createFileBlockConfig>["content"]
+    >,
     "editor" | "contentRef"
   >,
 ) => (

@@ -1,4 +1,4 @@
-import { FileBlockConfig } from "@blocknote/core";
+import { blockHasType, createFileBlockConfig } from "@blocknote/core";
 import { CSSProperties, ReactNode } from "react";
 
 import { useUploadLoading } from "../../../../hooks/useUploadLoading.js";
@@ -8,7 +8,11 @@ import { FileNameWithIcon } from "./FileNameWithIcon.js";
 
 export const FileBlockWrapper = (
   props: Omit<
-    ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
+    ReactCustomBlockRenderProps<
+      ReturnType<typeof createFileBlockConfig>["type"],
+      ReturnType<typeof createFileBlockConfig>["propSchema"],
+      ReturnType<typeof createFileBlockConfig>["content"]
+    >,
     "contentRef"
   > & {
     buttonText?: string;

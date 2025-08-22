@@ -4,7 +4,12 @@ import { createResizableFileBlockWrapper } from "../File/helpers/render/createRe
 import { createFigureWithCaption } from "../File/helpers/toExternalHTML/createFigureWithCaption.js";
 import { createLinkWithCaption } from "../File/helpers/toExternalHTML/createLinkWithCaption.js";
 import { parseVideoElement } from "./parseVideoElement.js";
-import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
+import {
+  BlockNoDefaults,
+  createBlockConfig,
+  createBlockSpec,
+} from "../../schema/index.js";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 export const FILE_VIDEO_ICON_SVG =
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M2 3.9934C2 3.44476 2.45531 3 2.9918 3H21.0082C21.556 3 22 3.44495 22 3.9934V20.0066C22 20.5552 21.5447 21 21.0082 21H2.9918C2.44405 21 2 20.5551 2 20.0066V3.9934ZM8 5V19H16V5H8ZM4 5V7H6V5H4ZM18 5V7H20V5H18ZM4 9V11H6V9H4ZM18 9V11H20V9H18ZM4 13V15H6V13H4ZM18 13V15H20V13H18ZM4 17V19H6V17H4ZM18 17V19H20V17H18Z"></path></svg>';
@@ -31,10 +36,9 @@ export const createVideoBlockConfig = createBlockConfig(
   }),
 );
 
-export const createVideoBlockSpec = createBlockSpec(
-  createVideoBlockConfig,
-).implementation((config = {}) => ({
-  parse: (element) => {
+export const videoParse =
+  (_config: VideoOptions = {}) =>
+  (element: HTMLElement) => {
     if (element.tagName === "VIDEO") {
       // Ignore if parent figure has already been parsed.
       if (element.closest("figure")) {
@@ -59,8 +63,22 @@ export const createVideoBlockSpec = createBlockSpec(
     }
 
     return undefined;
-  },
-  render: (block, editor) => {
+  };
+
+export const videoRender =
+  (config: VideoOptions = {}) =>
+  (
+    block: BlockNoDefaults<
+      Record<"video", ReturnType<typeof createVideoBlockConfig>>,
+      any,
+      any
+    >,
+    editor: BlockNoteEditor<
+      Record<"video", ReturnType<typeof createVideoBlockConfig>>,
+      any,
+      any
+    >,
+  ) => {
     const icon = document.createElement("div");
     icon.innerHTML = config.icon ?? FILE_VIDEO_ICON_SVG;
 
@@ -90,8 +108,22 @@ export const createVideoBlockSpec = createBlockSpec(
       editor.dictionary.file_blocks.video.add_button_text,
       icon.firstElementChild as HTMLElement,
     );
-  },
-  toExternalHTML(block) {
+  };
+
+export const videoToExternalHTML =
+  (_config: VideoOptions = {}) =>
+  (
+    block: BlockNoDefaults<
+      Record<"video", ReturnType<typeof createVideoBlockConfig>>,
+      any,
+      any
+    >,
+    _editor: BlockNoteEditor<
+      Record<"video", ReturnType<typeof createVideoBlockConfig>>,
+      any,
+      any
+    >,
+  ) => {
     if (!block.props.url) {
       const div = document.createElement("p");
       div.textContent = "Add video";
@@ -125,6 +157,13 @@ export const createVideoBlockSpec = createBlockSpec(
     return {
       dom: video,
     };
-  },
+  };
+
+export const createVideoBlockSpec = createBlockSpec(
+  createVideoBlockConfig,
+).implementation((config = {}) => ({
+  parse: videoParse(config),
+  render: videoRender(config),
+  toExternalHTML: videoToExternalHTML(config),
   runsBefore: ["file"],
 }));

@@ -1,8 +1,4 @@
-import {
-  FileBlockConfig,
-  createVideoBlockConfig,
-  videoParse,
-} from "@blocknote/core";
+import { createVideoBlockConfig, videoParse } from "@blocknote/core";
 import { RiVideoFill } from "react-icons/ri";
 
 import {
@@ -16,7 +12,11 @@ import { LinkWithCaption } from "../File/helpers/toExternalHTML/LinkWithCaption.
 
 export const VideoPreview = (
   props: Omit<
-    ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
+    ReactCustomBlockRenderProps<
+      ReturnType<typeof createVideoBlockConfig>["type"],
+      ReturnType<typeof createVideoBlockConfig>["propSchema"],
+      ReturnType<typeof createVideoBlockConfig>["content"]
+    >,
     "contentRef"
   >,
 ) => {
@@ -39,7 +39,11 @@ export const VideoPreview = (
 
 export const VideoToExternalHTML = (
   props: Omit<
-    ReactCustomBlockRenderProps<typeof createVideoBlockConfig, any, any>,
+    ReactCustomBlockRenderProps<
+      ReturnType<typeof createVideoBlockConfig>["type"],
+      ReturnType<typeof createVideoBlockConfig>["propSchema"],
+      ReturnType<typeof createVideoBlockConfig>["content"]
+    >,
     "contentRef"
   >,
 ) => {
@@ -71,7 +75,11 @@ export const VideoToExternalHTML = (
 };
 
 export const VideoBlock = (
-  props: ReactCustomBlockRenderProps<typeof createVideoBlockConfig, any, any>,
+  props: ReactCustomBlockRenderProps<
+    ReturnType<typeof createVideoBlockConfig>["type"],
+    ReturnType<typeof createVideoBlockConfig>["propSchema"],
+    ReturnType<typeof createVideoBlockConfig>["content"]
+  >,
 ) => {
   return (
     <ResizableFileBlockWrapper
@@ -84,8 +92,10 @@ export const VideoBlock = (
   );
 };
 
-export const ReactVideoBlock = createReactBlockSpec(createVideoBlockConfig, {
+export const ReactVideoBlock = createReactBlockSpec(
+  createVideoBlockConfig,
+).implementation((config) => ({
   render: VideoBlock,
-  parse: videoParse,
+  parse: videoParse(config),
   toExternalHTML: VideoToExternalHTML,
-});
+}));

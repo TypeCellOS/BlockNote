@@ -1,4 +1,9 @@
-import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import {
+  BlockNoDefaults,
+  createBlockConfig,
+  createBlockSpec,
+} from "../../schema/index.js";
 import { defaultProps } from "../defaultProps.js";
 import { parseFigureElement } from "../File/helpers/parse/parseFigureElement.js";
 import { createFileBlockWrapper } from "../File/helpers/render/createFileBlockWrapper.js";
@@ -12,6 +17,7 @@ export const FILE_AUDIO_ICON_SVG =
 export interface AudioOptions {
   icon?: string;
 }
+
 export const createAudioBlockConfig = createBlockConfig(
   (_ctx: AudioOptions) =>
     ({
@@ -42,10 +48,9 @@ export const createAudioBlockConfig = createBlockConfig(
     }) as const,
 );
 
-export const createAudioBlockSpec = createBlockSpec(
-  createAudioBlockConfig,
-).implementation((config = {}) => ({
-  parse: (element) => {
+export const audioParse =
+  (_config: AudioOptions = {}) =>
+  (element: HTMLElement) => {
     if (element.tagName === "AUDIO") {
       // Ignore if parent figure has already been parsed.
       if (element.closest("figure")) {
@@ -70,8 +75,22 @@ export const createAudioBlockSpec = createBlockSpec(
     }
 
     return undefined;
-  },
-  render: (block, editor) => {
+  };
+
+export const audioRender =
+  (config: AudioOptions = {}) =>
+  (
+    block: BlockNoDefaults<
+      Record<"audio", ReturnType<typeof createAudioBlockConfig>>,
+      any,
+      any
+    >,
+    editor: BlockNoteEditor<
+      Record<"audio", ReturnType<typeof createAudioBlockConfig>>,
+      any,
+      any
+    >,
+  ) => {
     const icon = document.createElement("div");
     icon.innerHTML = config.icon ?? FILE_AUDIO_ICON_SVG;
 
@@ -95,8 +114,22 @@ export const createAudioBlockSpec = createBlockSpec(
       editor.dictionary.file_blocks.audio.add_button_text,
       icon.firstElementChild as HTMLElement,
     );
-  },
-  toExternalHTML(block) {
+  };
+
+export const audioToExternalHTML =
+  (_config: AudioOptions = {}) =>
+  (
+    block: BlockNoDefaults<
+      Record<"audio", ReturnType<typeof createAudioBlockConfig>>,
+      any,
+      any
+    >,
+    _editor: BlockNoteEditor<
+      Record<"audio", ReturnType<typeof createAudioBlockConfig>>,
+      any,
+      any
+    >,
+  ) => {
     if (!block.props.url) {
       const div = document.createElement("p");
       div.textContent = "Add audio";
@@ -127,6 +160,13 @@ export const createAudioBlockSpec = createBlockSpec(
     return {
       dom: audio,
     };
-  },
+  };
+
+export const createAudioBlockSpec = createBlockSpec(
+  createAudioBlockConfig,
+).implementation((config = {}) => ({
+  parse: audioParse(config),
+  render: audioRender(config),
+  toExternalHTML: audioToExternalHTML(config),
   runsBefore: ["file"],
 }));

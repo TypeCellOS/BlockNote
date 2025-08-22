@@ -9,6 +9,8 @@ export * from "./ListItem/CheckListItem/block.js";
 export * from "./ListItem/NumberedListItem/block.js";
 export * from "./ListItem/ToggleListItem/block.js";
 export * from "./PageBreak/block.js";
+export * from "./PageBreak/getPageBreakSlashMenuItems.js";
+export * from "./PageBreak/schema.js";
 export * from "./Paragraph/block.js";
 export * from "./Quote/block.js";
 export * from "./Table/block.js";

@@ -1,4 +1,9 @@
-import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import {
+  BlockNoDefaults,
+  createBlockConfig,
+  createBlockSpec,
+} from "../../schema/index.js";
 import { defaultProps } from "../defaultProps.js";
 import { parseFigureElement } from "../File/helpers/parse/parseFigureElement.js";
 import { createResizableFileBlockWrapper } from "../File/helpers/render/createResizableFileBlockWrapper.js";
@@ -48,10 +53,9 @@ export const createImageBlockConfig = createBlockConfig(
     }) as const,
 );
 
-export const createImageBlockSpec = createBlockSpec(
-  createImageBlockConfig,
-).implementation((config = {}) => ({
-  parse: (element) => {
+export const imageParse =
+  (_config: ImageOptions = {}) =>
+  (element: HTMLElement) => {
     if (element.tagName === "IMG") {
       // Ignore if parent figure has already been parsed.
       if (element.closest("figure")) {
@@ -76,8 +80,22 @@ export const createImageBlockSpec = createBlockSpec(
     }
 
     return undefined;
-  },
-  render: (block, editor) => {
+  };
+
+export const imageRender =
+  (config: ImageOptions = {}) =>
+  (
+    block: BlockNoDefaults<
+      Record<"image", ReturnType<typeof createImageBlockConfig>>,
+      any,
+      any
+    >,
+    editor: BlockNoteEditor<
+      Record<"image", ReturnType<typeof createImageBlockConfig>>,
+      any,
+      any
+    >,
+  ) => {
     const icon = document.createElement("div");
     icon.innerHTML = config.icon ?? FILE_IMAGE_ICON_SVG;
 
@@ -107,8 +125,22 @@ export const createImageBlockSpec = createBlockSpec(
       editor.dictionary.file_blocks.image.add_button_text,
       icon.firstElementChild as HTMLElement,
     );
-  },
-  toExternalHTML(block) {
+  };
+
+export const imageToExternalHTML =
+  (_config: ImageOptions = {}) =>
+  (
+    block: BlockNoDefaults<
+      Record<"image", ReturnType<typeof createImageBlockConfig>>,
+      any,
+      any
+    >,
+    _editor: BlockNoteEditor<
+      Record<"image", ReturnType<typeof createImageBlockConfig>>,
+      any,
+      any
+    >,
+  ) => {
     if (!block.props.url) {
       const div = document.createElement("p");
       div.textContent = "Add image";
@@ -143,6 +175,13 @@ export const createImageBlockSpec = createBlockSpec(
     return {
       dom: image,
     };
-  },
+  };
+
+export const createImageBlockSpec = createBlockSpec(
+  createImageBlockConfig,
+).implementation((config = {}) => ({
+  parse: imageParse(config),
+  render: imageRender(config),
+  toExternalHTML: imageToExternalHTML(config),
   runsBefore: ["file"],
 }));

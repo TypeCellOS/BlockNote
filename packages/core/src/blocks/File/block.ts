@@ -1,4 +1,9 @@
-import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import {
+  BlockNoDefaults,
+  createBlockConfig,
+  createBlockSpec,
+} from "../../schema/index.js";
 import { defaultProps } from "../defaultProps.js";
 import { parseEmbedElement } from "./helpers/parse/parseEmbedElement.js";
 import { parseFigureElement } from "./helpers/parse/parseFigureElement.js";
@@ -31,39 +36,63 @@ export const createFileBlockConfig = createBlockConfig(
     }) as const,
 );
 
-export const createFileBlockSpec = createBlockSpec(
-  createFileBlockConfig,
-).implementation(() => ({
-  parse: (element) => {
-    if (element.tagName === "EMBED") {
-      // Ignore if parent figure has already been parsed.
-      if (element.closest("figure")) {
-        return undefined;
-      }
-
-      return parseEmbedElement(element as HTMLEmbedElement);
+export const fileParse = () => (element: HTMLElement) => {
+  if (element.tagName === "EMBED") {
+    // Ignore if parent figure has already been parsed.
+    if (element.closest("figure")) {
+      return undefined;
     }
 
-    if (element.tagName === "FIGURE") {
-      const parsedFigure = parseFigureElement(element, "embed");
-      if (!parsedFigure) {
-        return undefined;
-      }
+    return parseEmbedElement(element as HTMLEmbedElement);
+  }
 
-      const { targetElement, caption } = parsedFigure;
-
-      return {
-        ...parseEmbedElement(targetElement as HTMLEmbedElement),
-        caption,
-      };
+  if (element.tagName === "FIGURE") {
+    const parsedFigure = parseFigureElement(element, "embed");
+    if (!parsedFigure) {
+      return undefined;
     }
 
-    return undefined;
-  },
-  render: (block, editor) => {
-    return createFileBlockWrapper(block, editor);
-  },
-  toExternalHTML(block) {
+    const { targetElement, caption } = parsedFigure;
+
+    return {
+      ...parseEmbedElement(targetElement as HTMLEmbedElement),
+      caption,
+    };
+  }
+
+  return undefined;
+};
+
+export const fileRender =
+  () =>
+  (
+    block: BlockNoDefaults<
+      Record<"file", ReturnType<typeof createFileBlockConfig>>,
+      any,
+      any
+    >,
+    editor: BlockNoteEditor<
+      Record<"file", ReturnType<typeof createFileBlockConfig>>,
+      any,
+      any
+    >,
+  ) =>
+    createFileBlockWrapper(block, editor);
+
+export const fileToExternalHTML =
+  () =>
+  (
+    block: BlockNoDefaults<
+      Record<"file", ReturnType<typeof createFileBlockConfig>>,
+      any,
+      any
+    >,
+    _editor: BlockNoteEditor<
+      Record<"file", ReturnType<typeof createFileBlockConfig>>,
+      any,
+      any
+    >,
+  ) => {
     if (!block.props.url) {
       const div = document.createElement("p");
       div.textContent = "Add file";
@@ -84,5 +113,12 @@ export const createFileBlockSpec = createBlockSpec(
     return {
       dom: fileSrcLink,
     };
-  },
+  };
+
+export const createFileBlockSpec = createBlockSpec(
+  createFileBlockConfig,
+).implementation(() => ({
+  parse: fileParse(),
+  render: fileRender(),
+  toExternalHTML: fileToExternalHTML(),
 }));

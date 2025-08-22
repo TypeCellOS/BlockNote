@@ -1,8 +1,4 @@
-import {
-  FileBlockConfig,
-  createImageBlockConfig,
-  imageParse,
-} from "@blocknote/core";
+import { createImageBlockConfig, imageParse } from "@blocknote/core";
 import { RiImage2Fill } from "react-icons/ri";
 
 import {
@@ -16,7 +12,11 @@ import { LinkWithCaption } from "../File/helpers/toExternalHTML/LinkWithCaption.
 
 export const ImagePreview = (
   props: Omit<
-    ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
+    ReactCustomBlockRenderProps<
+      ReturnType<typeof createImageBlockConfig>["type"],
+      ReturnType<typeof createImageBlockConfig>["propSchema"],
+      ReturnType<typeof createImageBlockConfig>["content"]
+    >,
     "contentRef"
   >,
 ) => {
@@ -39,7 +39,11 @@ export const ImagePreview = (
 
 export const ImageToExternalHTML = (
   props: Omit<
-    ReactCustomBlockRenderProps<typeof createImageBlockConfig, any, any>,
+    ReactCustomBlockRenderProps<
+      ReturnType<typeof createImageBlockConfig>["type"],
+      ReturnType<typeof createImageBlockConfig>["propSchema"],
+      ReturnType<typeof createImageBlockConfig>["content"]
+    >,
     "contentRef"
   >,
 ) => {
@@ -77,7 +81,11 @@ export const ImageToExternalHTML = (
 };
 
 export const ImageBlock = (
-  props: ReactCustomBlockRenderProps<typeof createImageBlockConfig, any, any>,
+  props: ReactCustomBlockRenderProps<
+    ReturnType<typeof createImageBlockConfig>["type"],
+    ReturnType<typeof createImageBlockConfig>["propSchema"],
+    ReturnType<typeof createImageBlockConfig>["content"]
+  >,
 ) => {
   return (
     <ResizableFileBlockWrapper
@@ -90,8 +98,10 @@ export const ImageBlock = (
   );
 };
 
-export const ReactImageBlock = createReactBlockSpec(createImageBlockConfig, {
+export const ReactImageBlock = createReactBlockSpec(
+  createImageBlockConfig,
+).implementation((config) => ({
   render: ImageBlock,
-  parse: imageParse,
+  parse: imageParse(config),
   toExternalHTML: ImageToExternalHTML,
-});
+}));
