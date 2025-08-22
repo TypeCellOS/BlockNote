@@ -11,8 +11,9 @@ import {
   initializeESMDependencies,
 } from "../../../util/esmDependencies.js";
 import { createExternalHTMLExporter } from "../html/externalHTMLExporter.js";
-import { removeUnderlines } from "./removeUnderlinesRehypePlugin.js";
+import { removeUnderlines } from "./util/removeUnderlinesRehypePlugin.js";
 import { addSpacesToCheckboxes } from "./util/addSpacesToCheckboxesRehypePlugin.js";
+import { convertVideoToMarkdown } from "./util/convertVideoToMarkdownRehypePlugin.js";
 
 // Needs to be sync because it's used in drag handler event (SideMenuPlugin)
 // Ideally, call `await initializeESMDependencies()` before calling this function
@@ -28,12 +29,15 @@ export function cleanHTMLToMarkdown(cleanHTMLString: string) {
   const markdownString = deps.unified
     .unified()
     .use(deps.rehypeParse.default, { fragment: true })
+    .use(convertVideoToMarkdown)
     .use(removeUnderlines)
     .use(addSpacesToCheckboxes)
     .use(deps.rehypeRemark.default)
     .use(deps.remarkGfm.default)
     .use(deps.remarkStringify.default, {
-      handlers: { text: (node) => node.value },
+      handlers: {
+        text: (node) => node.value,
+      },
     })
     .processSync(cleanHTMLString);
 
