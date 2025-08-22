@@ -1,5 +1,5 @@
 import { BlockNoteSchema, defaultStyleSpecs } from "@blocknote/core";
-import { paragraph } from "../../../../core/src/blks/index.js";
+import { createParagraphBlockSpec } from "@blocknote/core";
 
 // this is quite convoluted. we'll clean this up when we make
 // it easier to extend / customize the default blocks
@@ -10,7 +10,7 @@ const { textColor, backgroundColor, ...styleSpecs } = defaultStyleSpecs;
 // the schema to use for comments
 export const schema = BlockNoteSchema.create({
   blockSpecs: {
-    paragraph: paragraph.definition(),
+    paragraph: createParagraphBlockSpec(),
   },
   styleSpecs,
 });

@@ -434,7 +434,6 @@ export const KeyboardShortcutsExtension = Extension.create<{
       ]);
 
     const handleEnter = (withShift = false) => {
-      console.log("handleEnter");
       return this.editor.commands.first(({ commands, tr }) => [
         // Removes a level of nesting if the block is empty & indented, while the selection is also empty & at the start
         // of the block.
@@ -529,7 +528,6 @@ export const KeyboardShortcutsExtension = Extension.create<{
               if (dispatch) {
                 const newBlock =
                   state.schema.nodes["blockContainer"].createAndFill()!;
-                console.log(newBlock);
 
                 state.tr
                   .insert(newBlockInsertionPos, newBlock)

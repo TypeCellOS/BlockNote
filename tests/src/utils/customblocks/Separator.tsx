@@ -1,8 +1,8 @@
-import { BlockNoteEditor, createBlockSpec } from "@blocknote/core";
+import { BlockNoteEditor, addNodeAndExtensionsToSpec } from "@blocknote/core";
 
 import { RiSeparator } from "react-icons/ri";
 
-export const Separator = createBlockSpec(
+export const Separator = addNodeAndExtensionsToSpec(
   {
     type: "separator" as const,
     propSchema: {} as const,

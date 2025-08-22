@@ -1,12 +1,18 @@
 import {
   applyNonSelectableBlockFix,
+  BlockConfig,
   BlockFromConfig,
+  BlockImplementation,
+  BlockNoDefaults,
   BlockNoteEditor,
+  BlockNoteExtension,
   BlockSchemaWithBlock,
+  BlockSpec,
   camelToDataKebab,
-  createInternalBlockSpec,
+  createTypedBlockSpec,
   createStronglyTypedTiptapNode,
   CustomBlockConfig,
+  CustomBlockImplementation,
   getBlockFromPos,
   getParseRules,
   inheritedProps,
@@ -32,26 +38,44 @@ import { renderToDOMSpec } from "./@util/ReactRenderUtil.js";
 // this file is mostly analogoues to `customBlocks.ts`, but for React blocks
 
 export type ReactCustomBlockRenderProps<
-  T extends CustomBlockConfig,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
+  TName extends string = string,
+  TProps extends PropSchema = PropSchema,
+  TContent extends "inline" | "none" = "inline" | "none",
 > = {
-  block: BlockFromConfig<T, I, S>;
-  editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, I, S>;
+  block: BlockNoDefaults<
+    Record<TName, BlockConfig<TName, TProps, TContent>>,
+    any,
+    any
+  >;
+  editor: BlockNoteEditor<
+    Record<TName, BlockConfig<TName, TProps, TContent>>,
+    any,
+    any
+  >;
   contentRef: (node: HTMLElement | null) => void;
 };
 
 // extend BlockConfig but use a React render function
 export type ReactCustomBlockImplementation<
-  T extends CustomBlockConfig,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
+  TName extends string = string,
+  TProps extends PropSchema = PropSchema,
+  TContent extends "inline" | "none" = "inline" | "none",
+> = Omit<
+  CustomBlockImplementation<TName, TProps, TContent>,
+  "render" | "toExternalHTML"
+> & {
+  render: FC<ReactCustomBlockRenderProps<TName, TProps, TContent>>;
+  toExternalHTML?: FC<ReactCustomBlockRenderProps<TName, TProps, TContent>>;
+};
+
+export type ReactCustomBlockSpec<
+  T extends string = string,
+  PS extends PropSchema = PropSchema,
+  C extends "inline" | "none" = "inline" | "none",
 > = {
-  render: FC<ReactCustomBlockRenderProps<T, I, S>>;
-  toExternalHTML?: FC<ReactCustomBlockRenderProps<T, I, S>>;
-  parse?: (
-    el: HTMLElement,
-  ) => PartialBlockFromConfig<T, I, S>["props"] | undefined;
+  config: BlockConfig<T, PS, C>;
+  implementation: ReactCustomBlockImplementation<T, PS, C>;
+  extensions?: BlockNoteExtension<any>[];
 };
 
 // Function that wraps the React component returned from 'blockConfig.render' in
@@ -122,14 +146,18 @@ export function createReactBlockSpec<
       ? "inline*"
       : "") as T["content"] extends "inline" ? "inline*" : "",
     group: "blockContent",
-    selectable: blockConfig.isSelectable ?? true,
+    selectable: blockConfig.meta?.selectable ?? true,
     isolating: true,
     addAttributes() {
       return propsToAttributes(blockConfig.propSchema);
     },
 
     parseHTML() {
-      return getParseRules(blockConfig, blockImplementation.parse);
+      return getParseRules(
+        blockConfig,
+        blockImplementation.parse,
+        blockImplementation.parseContent,
+      );
     },
 
     renderHTML({ HTMLAttributes }) {
@@ -147,7 +175,7 @@ export function createReactBlockSpec<
         blockConfig.type,
         {},
         blockConfig.propSchema,
-        blockConfig.isFileBlock,
+        !!blockConfig.meta?.fileBlockAccept,
         HTMLAttributes,
       );
     },
@@ -181,7 +209,7 @@ export function createReactBlockSpec<
                 blockType={block.type}
                 blockProps={block.props}
                 propSchema={blockConfig.propSchema}
-                isFileBlock={blockConfig.isFileBlock}
+                isFileBlock={!!blockConfig.meta?.fileBlockAccept}
                 domAttributes={blockContentDOMAttributes}
               >
                 <BlockContent
@@ -205,7 +233,7 @@ export function createReactBlockSpec<
           },
         )(props) as NodeView;
 
-        if (blockConfig.isSelectable === false) {
+        if (blockConfig.meta?.selectable === false) {
           applyNonSelectableBlockFix(nodeView, this.editor);
         }
 
@@ -216,7 +244,7 @@ export function createReactBlockSpec<
 
   return createInternalBlockSpec(blockConfig, {
     node: node,
-    toInternalHTML: (block, editor) => {
+    render: (block, editor) => {
       const blockContentDOMAttributes =
         node.options.domAttributes?.blockContent || {};
 
@@ -283,4 +311,29 @@ export function createReactBlockSpec<
       return output;
     },
   });
+}
+
+export function createReactBlockSpec<
+  TCallback extends (options?: any) => CustomBlockConfig<any, any>,
+  TOptions extends Parameters<TCallback>[0],
+  TName extends ReturnType<TCallback>["type"],
+  TProps extends ReturnType<TCallback>["propSchema"],
+  TContent extends ReturnType<TCallback>["content"],
+>(
+  callback: TCallback,
+): {
+  implementation: (
+    cb: (
+      options?: TOptions,
+    ) => ReactCustomBlockImplementation<TName, TProps, TContent>,
+    addExtensions?: (options?: TOptions) => BlockNoteExtension<any>[],
+  ) => (options?: TOptions) => ReactCustomBlockSpec<TName, TProps, TContent>;
+} {
+  return {
+    implementation: (cb, addExtensions) => (options) => ({
+      config: callback(options) as any,
+      implementation: cb(options),
+      extensions: addExtensions?.(options),
+    }),
+  };
 }

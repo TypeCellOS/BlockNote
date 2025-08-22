@@ -74,7 +74,7 @@ function serializeBlock<
   }
 
   const impl = editor.blockImplementations[block.type as any].implementation;
-  const ret = impl.toInternalHTML({ ...block, props } as any, editor as any);
+  const ret = impl.render({ ...block, props } as any, editor as any);
 
   if (block.type === "numberedListItem") {
     // This is a workaround to make sure there's a list index set.
@@ -83,7 +83,9 @@ function serializeBlock<
     // - (a) this information is not available on the Blocks passed to the serializer. (we only have access to BlockNote Blocks)
     // - (b) the NumberedListIndexingPlugin might not even have run, because we can manually call blocksToFullHTML
     //       with blocks that are not part of the active document
-    ret.dom.setAttribute("data-index", listIndex.toString());
+    if (ret.dom instanceof HTMLElement) {
+      ret.dom.setAttribute("data-index", listIndex.toString());
+    }
   }
 
   if (ret.contentDOM && block.content) {

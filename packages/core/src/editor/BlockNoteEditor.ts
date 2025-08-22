@@ -116,7 +116,7 @@ import {
   getBlocksChangedByTransaction,
 } from "../api/nodeUtil.js";
 import { nestedListsToBlockNoteStructure } from "../api/parsers/html/util/nestedLists.js";
-import { CodeBlockOptions } from "../blocks/CodeBlockContent/CodeBlockContent.js";
+import { CodeBlockOptions } from "../blocks/Code/block.js";
 import type { ThreadStore, User } from "../comments/index.js";
 import type { CursorPlugin } from "../extensions/Collaboration/CursorPlugin.js";
 import type { ForkYDocPlugin } from "../extensions/Collaboration/ForkYDocPlugin.js";
@@ -276,11 +276,7 @@ export type BlockNoteEditorOptions<
    *
    * @remarks `PartialBlock[]`
    */
-  initialContent?: PartialBlock<
-    NoInfer<BSchema>,
-    NoInfer<ISchema>,
-    NoInfer<SSchema>
-  >[];
+  initialContent?: PartialBlock<BSchema, ISchema, SSchema>[];
 
   /**
    * @deprecated, provide placeholders via dictionary instead

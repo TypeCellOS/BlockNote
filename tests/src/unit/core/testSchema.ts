@@ -1,6 +1,6 @@
 import {
   BlockNoteSchema,
-  createBlockSpec,
+  addNodeAndExtensionsToSpec,
   createInlineContentSpec,
   createStyleSpec,
   defaultBlockSpecs,
@@ -17,7 +17,7 @@ import {
 // This is a modified version of the default image block that does not implement
 // a `toExternalHTML` function. It's used to test if the custom serializer by
 // default serializes custom blocks using their `render` function.
-const SimpleImage = createBlockSpec(
+const SimpleImage = addNodeAndExtensionsToSpec(
   {
     type: "simpleImage",
     propSchema: imagePropSchema,
@@ -28,7 +28,7 @@ const SimpleImage = createBlockSpec(
   },
 );
 
-const CustomParagraph = createBlockSpec(
+const CustomParagraph = addNodeAndExtensionsToSpec(
   {
     type: "customParagraph",
     propSchema: defaultProps,
@@ -56,7 +56,7 @@ const CustomParagraph = createBlockSpec(
   },
 );
 
-const SimpleCustomParagraph = createBlockSpec(
+const SimpleCustomParagraph = addNodeAndExtensionsToSpec(
   {
     type: "simpleCustomParagraph",
     propSchema: defaultProps,
