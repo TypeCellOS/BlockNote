@@ -7,7 +7,7 @@ module.exports = {
   },
   darkMode: ["class"],
   content: [dir + "/**/*.{ts,tsx}"],
-  prefix: "bn-",
+  prefix: "bn",
   theme: {
     container: {
       center: true,

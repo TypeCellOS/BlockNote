@@ -84,7 +84,9 @@ function Root() {
           </AppShell.Navbar>
         )}
         <AppShell.Main>
-          <Outlet />
+          <div className="bg-sky-400">
+            <Outlet />
+          </div>
         </AppShell.Main>
       </AppShell>
     </MantineProvider>

@@ -25,11 +25,12 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
     return (
       <ShadCNComponents.Tooltip.TooltipProvider delayDuration={0}>
         <div
-          className={cn(
-            className,
-            "bn-flex bn-gap-1 bn-p-1 bn-bg-popover bn-text-popover-foreground bn-border bn-rounded-lg bn-shadow-md bn-h-fit",
-            variant === "action-toolbar" ? "bn-w-fit" : "",
-          )}
+          className="bg-sky-400"
+          // className={cn(
+          //   className,
+          //   "bn-flex bn-gap-1 bn-p-1 bn-bg-popover bn-text-popover-foreground bn-border bn-rounded-lg bn-shadow-md bn-h-fit",
+          //   variant === "action-toolbar" ? "bn-w-fit" : "",
+          // )}
           ref={ref}
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}
