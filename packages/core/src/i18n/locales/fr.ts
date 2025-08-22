@@ -243,6 +243,9 @@ export const fr: Dictionary = {
       add_button_text: "Ajouter un fichier",
     },
   },
+  toggle_blocks: {
+    add_block_button: "Toggle vide. Cliquez pour ajouter un bloc.",
+  },
   // from react package:
   side_menu: {
     add_block_label: "Ajouter un bloc",
