@@ -57,24 +57,24 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "0.35.0",
-    "@blocknote/xl-multi-column": "0.35.0",
-    "@zip.js/zip.js": "^2.7.57",
-    "buffer": "^6.0.3",
-    "image-meta": "^0.2.1"
+    "@blocknote/core": "catalog:prod",
+    "@blocknote/xl-multi-column": "catalog:prod",
+    "@zip.js/zip.js": "catalog:prod",
+    "buffer": "catalog:prod",
+    "image-meta": "catalog:prod"
   },
   "devDependencies": {
-    "@testing-library/react": "^16.0.1",
-    "@types/react": "^19.1.0",
-    "@types/react-dom": "^19.1.0",
-    "rollup-plugin-webpack-stats": "^0.2.2",
-    "typescript": "^5.0.4",
-    "vite": "^5.3.4",
-    "vite-plugin-eslint": "^1.8.1",
-    "vitest": "^2.0.3",
-    "xml-formatter": "^3.6.3",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "@testing-library/react": "catalog:dev",
+    "@types/react": "catalog:types",
+    "@types/react-dom": "catalog:types",
+    "rollup-plugin-webpack-stats": "catalog:build",
+    "typescript": "catalog:dev",
+    "vite": "catalog:build",
+    "vite-plugin-eslint": "catalog:lint",
+    "vitest": "catalog:test",
+    "xml-formatter": "catalog:dev",
+    "react": "catalog:prod",
+    "react-dom": "catalog:prod"
   },
   "peerDependencies": {
     "react": "^18.0 || ^19.0 || >= 19.0.0-rc",

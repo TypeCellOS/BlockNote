@@ -43,20 +43,20 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@hono/node-server": "^1.13.7",
-    "hono": "^4.6.12"
+    "@hono/node-server": "catalog:prod",
+    "hono": "catalog:prod"
   },
   "devDependencies": {
-    "eslint": "^8.10.0",
-    "rimraf": "^5.0.5",
-    "rollup-plugin-webpack-stats": "^0.2.2",
-    "typescript": "^5.3.3",
-    "vite": "^5.3.4",
-    "vite-node": "^2.1.6",
-    "vite-plugin-eslint": "^1.8.1",
-    "vite-plugin-externalize-deps": "^0.8.0",
-    "vitest": "^2.0.3",
-    "undici": "^6"
+    "eslint": "catalog:lint",
+    "rimraf": "catalog:node",
+    "rollup-plugin-webpack-stats": "catalog:build",
+    "typescript": "catalog:dev",
+    "vite": "catalog:build",
+    "vite-node": "catalog:build",
+    "vite-plugin-eslint": "catalog:lint",
+    "vite-plugin-externalize-deps": "catalog:build",
+    "vitest": "catalog:test",
+    "undici": "catalog:dev"
   },
   "peerDependencies": {},
   "eslintConfig": {

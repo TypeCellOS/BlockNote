@@ -54,25 +54,25 @@
     "email": "email dev"
   },
   "dependencies": {
-    "@blocknote/core": "0.35.0",
-    "@blocknote/react": "0.35.0",
-    "buffer": "^6.0.3",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "react-email": "^4.0.16",
-    "@react-email/components": "^0.1.0",
-    "@react-email/render": "^1.1.2"
+    "@blocknote/core": "catalog:prod",
+    "@blocknote/react": "catalog:prod",
+    "buffer": "catalog:prod",
+    "react": "catalog:prod",
+    "react-dom": "catalog:prod",
+    "react-email": "catalog:prod",
+    "@react-email/components": "catalog:prod",
+    "@react-email/render": "catalog:prod"
   },
   "devDependencies": {
-    "@types/jsdom": "^21.1.7",
-    "@types/react": "^19.1.0",
-    "@types/react-dom": "^19.1.0",
-    "eslint": "^8.10.0",
-    "rollup-plugin-webpack-stats": "^0.2.2",
-    "typescript": "^5.0.4",
-    "vite": "^5.3.4",
-    "vite-plugin-eslint": "^1.8.1",
-    "vitest": "^2.0.3"
+    "@types/jsdom": "catalog:types",
+    "@types/react": "catalog:types",
+    "@types/react-dom": "catalog:types",
+    "eslint": "catalog:lint",
+    "rollup-plugin-webpack-stats": "catalog:build",
+    "typescript": "catalog:dev",
+    "vite": "catalog:build",
+    "vite-plugin-eslint": "catalog:lint",
+    "vitest": "catalog:test"
   },
   "peerDependencies": {
     "react": "^18.0 || ^19.0 || >= 19.0.0-rc",

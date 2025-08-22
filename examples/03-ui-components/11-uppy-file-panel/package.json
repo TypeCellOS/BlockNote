@@ -10,30 +10,30 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@blocknote/core": "latest",
-    "@blocknote/react": "latest",
-    "@blocknote/ariakit": "latest",
-    "@blocknote/mantine": "latest",
-    "@blocknote/shadcn": "latest",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "@uppy/core": "^3.13.1",
-    "@uppy/dashboard": "^3.9.1",
-    "@uppy/drag-drop": "^3.1.1",
-    "@uppy/file-input": "^3.1.2",
-    "@uppy/image-editor": "^2.4.6",
-    "@uppy/progress-bar": "^3.1.1",
-    "@uppy/react": "^3.4.0",
-    "@uppy/screen-capture": "^3.2.0",
-    "@uppy/status-bar": "^3.1.1",
-    "@uppy/webcam": "^3.4.2",
-    "@uppy/xhr-upload": "^3.4.0",
-    "react-icons": "^5.2.1"
+    "@blocknote/core": "catalog:prod",
+    "@blocknote/react": "catalog:prod",
+    "@blocknote/ariakit": "catalog:prod",
+    "@blocknote/mantine": "catalog:prod",
+    "@blocknote/shadcn": "catalog:prod",
+    "react": "catalog:prod",
+    "react-dom": "catalog:prod",
+    "@uppy/core": "catalog:prod",
+    "@uppy/dashboard": "catalog:prod",
+    "@uppy/drag-drop": "catalog:prod",
+    "@uppy/file-input": "catalog:prod",
+    "@uppy/image-editor": "catalog:prod",
+    "@uppy/progress-bar": "catalog:prod",
+    "@uppy/react": "catalog:prod",
+    "@uppy/screen-capture": "catalog:prod",
+    "@uppy/status-bar": "catalog:prod",
+    "@uppy/webcam": "catalog:prod",
+    "@uppy/xhr-upload": "catalog:prod",
+    "react-icons": "catalog:icons"
   },
   "devDependencies": {
-    "@types/react": "^19.1.0",
-    "@types/react-dom": "^19.1.0",
-    "@vitejs/plugin-react": "^4.3.1",
-    "vite": "^5.3.4"
+    "@types/react": "catalog:types",
+    "@types/react-dom": "catalog:types",
+    "@vitejs/plugin-react": "catalog:build",
+    "vite": "catalog:build"
   }
 }
