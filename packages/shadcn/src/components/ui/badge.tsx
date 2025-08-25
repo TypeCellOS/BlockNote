@@ -4,17 +4,17 @@ import * as React from "react";
 import { cn } from "../../lib/utils.js";
 
 const badgeVariants = cva(
-  "bn-inline-flex bn-items-center bn-rounded-full bn-border bn-px-2.5 bn-py-0.5 bn-text-xs bn-font-semibold bn-transition-colors focus:bn-outline-none focus:bn-ring-2 focus:bn-ring-ring focus:bn-ring-offset-2",
+  "bn:inline-flex bn:items-center bn:rounded-full bn:border bn:px-2.5 bn:py-0.5 bn:text-xs bn:font-semibold bn:transition-colors focus:bn:outline-none focus:bn:ring-2 focus:bn:ring-ring focus:bn:ring-offset-2",
   {
     variants: {
       variant: {
         default:
-          "bn-border-transparent bn-bg-primary bn-text-primary-foreground hover:bn-bg-primary/80",
+          "bn:border-transparent bn:bg-primary bn:text-primary-foreground hover:bn:bg-primary/80",
         secondary:
-          "bn-border-transparent bn-bg-secondary bn-text-secondary-foreground hover:bn-bg-secondary/80",
+          "bn:border-transparent bn:bg-secondary bn:text-secondary-foreground hover:bn:bg-secondary/80",
         destructive:
-          "bn-border-transparent bn-bg-destructive bn-text-destructive-foreground hover:bn-bg-destructive/80",
-        outline: "bn-text-foreground",
+          "bn:border-transparent bn:bg-destructive bn:text-destructive-foreground hover:bn:bg-destructive/80",
+        outline: "bn:text-foreground",
       },
     },
     defaultVariants: {

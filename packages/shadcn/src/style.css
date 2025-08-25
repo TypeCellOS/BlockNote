@@ -3,6 +3,8 @@
 @import "./tailwindStyles.css" layer(components);
 @import "tailwindcss/utilities" layer(utilities);
 
+@config "../tailwind.config.js";
+
 .bn-shadcn {
   --background: 0 0% 100%;
   --foreground: 222.2 84% 4.9%;

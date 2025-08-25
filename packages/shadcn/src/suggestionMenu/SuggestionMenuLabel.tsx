@@ -15,7 +15,7 @@ export const SuggestionMenuLabel = forwardRef<
   return (
     <div
       // Styles from ShadCN DropdownMenuLabel component
-      className={cn("bn-px-2 bn-py-1.5 bn-text-sm bn-font-semibold", className)}
+      className={cn("bn:px-2 bn:py-1.5 bn:text-sm bn:font-semibold", className)}
       ref={ref}
     >
       {children}
