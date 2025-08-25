@@ -1,6 +1,6 @@
-@import url("@blocknote/react/style.css") layer(components);
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "@blocknote/react/style.css";
 
 @config "../tailwind.config.js";
 
