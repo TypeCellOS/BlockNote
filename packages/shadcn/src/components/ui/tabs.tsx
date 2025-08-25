@@ -1,53 +1,66 @@
-import * as TabsPrimitive from "@radix-ui/react-tabs";
-import * as React from "react";
+"use client"
 
-import { cn } from "../../lib/utils.js";
+import * as React from "react"
+import * as TabsPrimitive from "@radix-ui/react-tabs"
 
-const Tabs = TabsPrimitive.Root;
+import { cn } from "../../lib/utils"
 
-const TabsList = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.List>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
->(({ className, ...props }, ref) => (
-  <TabsPrimitive.List
-    ref={ref}
-    className={cn(
-      "bn:inline-flex bn:h-10 bn:items-center bn:justify-center bn:rounded-md bn:bg-muted bn:p-1 bn:text-muted-foreground",
-      className,
-    )}
-    {...props}
-  />
-));
-TabsList.displayName = TabsPrimitive.List.displayName;
+function Tabs({
+  className,
+  ...props
+}: React.ComponentProps<typeof TabsPrimitive.Root>) {
+  return (
+    <TabsPrimitive.Root
+      data-slot="tabs"
+      className={cn("bn:flex bn:flex-col bn:gap-2", className)}
+      {...props}
+    />
+  )
+}
 
-const TabsTrigger = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>
->(({ className, ...props }, ref) => (
-  <TabsPrimitive.Trigger
-    ref={ref}
-    className={cn(
-      "bn:inline-flex bn:items-center bn:justify-center bn:whitespace-nowrap bn:rounded-sm bn:px-3 bn:py-1.5 bn:text-sm bn:font-medium bn:ring-offset-background bn:transition-all focus-visible:bn:outline-none focus-visible:bn:ring-2 focus-visible:bn:ring-ring focus-visible:bn:ring-offset-2 disabled:bn:pointer-events-none disabled:bn:opacity-50 data-[state=active]:bn:bg-background data-[state=active]:bn:text-foreground data-[state=active]:bn:shadow-sm",
-      className,
-    )}
-    {...props}
-  />
-));
-TabsTrigger.displayName = TabsPrimitive.Trigger.displayName;
+function TabsList({
+  className,
+  ...props
+}: React.ComponentProps<typeof TabsPrimitive.List>) {
+  return (
+    <TabsPrimitive.List
+      data-slot="tabs-list"
+      className={cn(
+        "bn:bg-muted bn:text-muted-foreground bn:inline-flex bn:h-9 bn:w-fit bn:items-center bn:justify-center bn:rounded-lg bn:p-[3px]",
+        className
+      )}
+      {...props}
+    />
+  )
+}
 
-const TabsContent = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>
->(({ className, ...props }, ref) => (
-  <TabsPrimitive.Content
-    ref={ref}
-    className={cn(
-      "bn:mt-2 bn:ring-offset-background focus-visible:bn:outline-none focus-visible:bn:ring-2 focus-visible:bn:ring-ring focus-visible:bn:ring-offset-2",
-      className,
-    )}
-    {...props}
-  />
-));
-TabsContent.displayName = TabsPrimitive.Content.displayName;
+function TabsTrigger({
+  className,
+  ...props
+}: React.ComponentProps<typeof TabsPrimitive.Trigger>) {
+  return (
+    <TabsPrimitive.Trigger
+      data-slot="tabs-trigger"
+      className={cn(
+        "bn:data-[state=active]:bg-background bn:dark:data-[state=active]:text-foreground bn:focus-visible:border-ring bn:focus-visible:ring-ring/50 bn:focus-visible:outline-ring bn:dark:data-[state=active]:border-input bn:dark:data-[state=active]:bg-input/30 bn:text-foreground bn:dark:text-muted-foreground bn:inline-flex bn:h-[calc(100%-1px)] bn:flex-1 bn:items-center bn:justify-center bn:gap-1.5 bn:rounded-md bn:border bn:border-transparent bn:px-2 bn:py-1 bn:text-sm bn:font-medium bn:whitespace-nowrap bn:transition-[color,box-shadow] bn:focus-visible:ring-[3px] bn:focus-visible:outline-1 bn:disabled:pointer-events-none bn:disabled:opacity-50 bn:data-[state=active]:shadow-sm bn:[&_svg]:pointer-events-none bn:[&_svg]:shrink-0 bn:[&_svg:not([class*=size-])]:size-4",
+        className
+      )}
+      {...props}
+    />
+  )
+}
 
-export { Tabs, TabsContent, TabsList, TabsTrigger };
+function TabsContent({
+  className,
+  ...props
+}: React.ComponentProps<typeof TabsPrimitive.Content>) {
+  return (
+    <TabsPrimitive.Content
+      data-slot="tabs-content"
+      className={cn("bn:flex-1 bn:outline-none", className)}
+      {...props}
+    />
+  )
+}
+
+export { Tabs, TabsList, TabsTrigger, TabsContent }
