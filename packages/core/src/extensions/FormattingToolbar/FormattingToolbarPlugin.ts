@@ -1,5 +1,11 @@
 import { isNodeSelection, isTextSelection, posToDOMRect } from "@tiptap/core";
-import { EditorState, Plugin, PluginKey, PluginView } from "prosemirror-state";
+import {
+  EditorState,
+  Plugin,
+  PluginKey,
+  PluginView,
+  TextSelection,
+} from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
@@ -198,6 +204,56 @@ export class FormattingToolbarView implements PluginView {
       // e.g. the download file button, should still be accessible. Therefore,
       // logic for hiding when the editor is non-editable is handled
       // individually in each button.
+      const newReferencePos = this.getSelectionBoundingBox();
+
+      // Workaround to ensure the correct reference position when rendering
+      // React components. Without this, e.g. updating styles on React inline
+      // content causes the formatting toolbar to be in the wrong place. We
+      // know the component has not yet rendered if the reference position has
+      // zero dimensions.
+      if (
+        newReferencePos.x === 0 ||
+        newReferencePos.y === 0 ||
+        newReferencePos.height === 0
+      ) {
+        // Updates the reference position again following the render.
+        queueMicrotask(() => {
+          const nextState = {
+            show: true,
+            referencePos: this.getSelectionBoundingBox(),
+          };
+
+          this.state = nextState;
+          this.emitUpdate();
+
+          // For some reason, while the selection doesn't actually change and
+          // remains correct, it visually appears to be collapsed. This forces
+          // a ProseMirror view update, which fixes the issue.
+          view.dispatch(
+            view.state.tr.setSelection(
+              TextSelection.create(
+                view.state.doc,
+                view.state.selection.from + 1,
+                view.state.selection.to,
+              ),
+            ),
+          );
+          // 2 separate `dispatch` calls are needed, else ProseMirror realizes
+          // that the transaction is a no-op and doesn't update the view.
+          view.dispatch(
+            view.state.tr.setSelection(
+              TextSelection.create(
+                view.state.doc,
+                view.state.selection.from - 1,
+                view.state.selection.to,
+              ),
+            ),
+          );
+        });
+
+        return;
+      }
+
       const nextState = {
         show: true,
         referencePos: this.getSelectionBoundingBox(),

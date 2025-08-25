@@ -197,6 +197,9 @@ export const es: Dictionary = {
       add_button_text: "Agregar archivo",
     },
   },
+  toggle_blocks: {
+    add_block_button: "Toggle vacío. Haz clic para añadir un bloque.",
+  },
   side_menu: {
     add_block_label: "Agregar bloque",
     drag_handle_label: "Abrir menú de bloque",

@@ -42,7 +42,7 @@ export const ko: Dictionary = {
       title: "접을 수 있는 제목1",
       subtext: "내용을 표시하거나 숨길 수 있는 섹션 제목(대)",
       aliases: ["h", "제목1", "h1", "대제목", "접기", "토글"],
-      group: "제목",
+      group: "소제목",
     },
     toggle_heading_2: {
       title: "접을 수 있는 제목2",
@@ -209,6 +209,9 @@ export const ko: Dictionary = {
     file: {
       add_button_text: "파일 추가",
     },
+  },
+  toggle_blocks: {
+    add_block_button: "비어 있는 토글입니다. 클릭하여 블록을 추가하세요.",
   },
   // from react package:
   side_menu: {

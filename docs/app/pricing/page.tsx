@@ -32,7 +32,7 @@ const tiers: Tier[] = [
       "Access to all Pro Examples",
       "Prioritized Bug Reports on GitHub",
       "Support maintenance and new versions of our open source library",
-      "XL packages only available for open source projects under AGPL-3.0",
+      "XL packages only available for open source projects under GPL-3.0",
     ],
   },
   {
