@@ -393,6 +393,9 @@ importers:
       '@blocknote/ariakit':
         specifier: latest
         version: link:../../../packages/ariakit
+      '@blocknote/code-block':
+        specifier: latest
+        version: link:../../../packages/code-block
       '@blocknote/core':
         specifier: latest
         version: link:../../../packages/core

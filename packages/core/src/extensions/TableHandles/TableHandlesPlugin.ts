@@ -27,7 +27,7 @@ import {
 import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../api/nodeUtil.js";
 import {
-  checkBlockIsDefaultType,
+  editorHasBlockWithType,
   isTableCellSelection,
 } from "../../blocks/defaultBlockTypeGuards.js";
 import { DefaultBlockSchema } from "../../blocks/defaultBlocks.js";
@@ -278,7 +278,7 @@ export class TableHandlesView<
       this.editor.schema.styleSchema,
     );
 
-    if (checkBlockIsDefaultType("table", block, this.editor)) {
+    if (editorHasBlockWithType(this.editor, "table")) {
       this.tablePos = pmNodeInfo.posBeforeNode + 1;
       tableBlock = block;
     }

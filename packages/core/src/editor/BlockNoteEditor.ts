@@ -3,6 +3,7 @@ import {
   EditorOptions,
   Extension,
   getSchema,
+  InputRule,
   isNodeSelection,
   Mark,
   posToDOMRect,
@@ -23,7 +24,10 @@ import {
   unnestBlock,
 } from "../api/blockManipulation/commands/nestBlock/nestBlock.js";
 import { removeAndInsertBlocks } from "../api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
-import { updateBlock } from "../api/blockManipulation/commands/updateBlock/updateBlock.js";
+import {
+  updateBlock,
+  updateBlockTr,
+} from "../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import {
   getBlock,
   getNextBlock,
@@ -84,7 +88,7 @@ import { TextCursorPosition } from "./cursorPositionTypes.js";
 import { Selection } from "./selectionTypes.js";
 import { transformPasted } from "./transformPasted.js";
 
-import { checkDefaultBlockTypeInSchema } from "../blocks/defaultBlockTypeGuards.js";
+import { editorHasBlockWithType } from "../blocks/defaultBlockTypeGuards.js";
 import { BlockNoteSchema } from "./BlockNoteSchema.js";
 import {
   BlockNoteTipTapEditor,
@@ -112,7 +116,7 @@ import {
   getBlocksChangedByTransaction,
 } from "../api/nodeUtil.js";
 import { nestedListsToBlockNoteStructure } from "../api/parsers/html/util/nestedLists.js";
-import { CodeBlockOptions } from "../blocks/CodeBlockContent/CodeBlockContent.js";
+import { CodeBlockOptions } from "../blocks/Code/block.js";
 import type { ThreadStore, User } from "../comments/index.js";
 import type { CursorPlugin } from "../extensions/Collaboration/CursorPlugin.js";
 import type { ForkYDocPlugin } from "../extensions/Collaboration/ForkYDocPlugin.js";
@@ -121,6 +125,7 @@ import { BlockNoteExtension } from "./BlockNoteExtension.js";
 
 import "../style.css";
 import { BlockChangePlugin } from "../extensions/BlockChange/BlockChangePlugin.js";
+import { getBlockInfoFromTransaction } from "../api/getBlockInfoFromPos.js";
 
 /**
  * A factory function that returns a BlockNoteExtension
@@ -271,11 +276,7 @@ export type BlockNoteEditorOptions<
    *
    * @remarks `PartialBlock[]`
    */
-  initialContent?: PartialBlock<
-    NoInfer<BSchema>,
-    NoInfer<ISchema>,
-    NoInfer<SSchema>
-  >[];
+  initialContent?: PartialBlock<BSchema, ISchema, SSchema>[];
 
   /**
    * @deprecated, provide placeholders via dictionary instead
@@ -662,14 +663,14 @@ export class BlockNoteEditor<
 
     // @ts-ignore
     this.schema = newOptions.schema;
-    this.blockImplementations = newOptions.schema.blockSpecs;
+    this.blockImplementations = newOptions.schema.blockSpecs as any;
     this.inlineContentImplementations = newOptions.schema.inlineContentSpecs;
     this.styleImplementations = newOptions.schema.styleSpecs;
 
     this.extensions = getBlockNoteExtensions({
       editor: this,
       domAttributes: newOptions.domAttributes || {},
-      blockSpecs: this.schema.blockSpecs,
+      blockSpecs: this.schema.blockSpecs as any,
       styleSpecs: this.schema.styleSpecs,
       inlineContentSpecs: this.schema.inlineContentSpecs,
       collaboration: newOptions.collaboration,
@@ -677,7 +678,7 @@ export class BlockNoteEditor<
       disableExtensions: newOptions.disableExtensions,
       setIdAttribute: newOptions.setIdAttribute,
       animations: newOptions.animations ?? true,
-      tableHandles: checkDefaultBlockTypeInSchema("table", this),
+      tableHandles: editorHasBlockWithType(this, "table"),
       dropCursor: this.options.dropCursor ?? dropCursor,
       placeholders: newOptions.placeholders,
       tabBehavior: newOptions.tabBehavior,
@@ -696,7 +697,7 @@ export class BlockNoteEditor<
         // factory
         ext = ext(this);
       }
-      const key = (ext.constructor as any).key();
+      const key = (ext as any).key ?? (ext.constructor as any).key();
       if (!key) {
         throw new Error(
           `Extension ${ext.constructor.name} does not have a key method`,
@@ -798,31 +799,94 @@ export class BlockNoteEditor<
           initialContent,
       );
     }
-
+    const blockExtensions = Object.fromEntries(
+      Object.values(this.schema.blockSpecs)
+        .map((block) => (block as any).extensions as any)
+        .filter((ext) => ext !== undefined)
+        .flat()
+        .map((ext) => [ext.key ?? ext.constructor.key(), ext]),
+    );
     const tiptapExtensions = [
-      ...Object.entries(this.extensions).map(([key, ext]) => {
-        if (
-          ext instanceof Extension ||
-          ext instanceof TipTapNode ||
-          ext instanceof Mark
-        ) {
-          // tiptap extension
-          return ext;
-        }
+      ...Object.entries({ ...this.extensions, ...blockExtensions }).map(
+        ([key, ext]) => {
+          if (
+            ext instanceof Extension ||
+            ext instanceof TipTapNode ||
+            ext instanceof Mark
+          ) {
+            // tiptap extension
+            return ext;
+          }
 
-        if (ext instanceof BlockNoteExtension && !ext.plugins.length) {
+          if (ext instanceof BlockNoteExtension) {
+            if (
+              !ext.plugins.length &&
+              !ext.keyboardShortcuts &&
+              !ext.inputRules
+            ) {
+              return undefined;
+            }
+            // "blocknote" extensions (prosemirror plugins)
+            return Extension.create({
+              name: key,
+              priority: ext.priority,
+              addProseMirrorPlugins: () => ext.plugins,
+              // TODO maybe collect all input rules from all extensions into one plugin
+              // TODO consider using the prosemirror-inputrules package instead
+              addInputRules: ext.inputRules
+                ? () =>
+                    ext.inputRules!.map(
+                      (inputRule) =>
+                        new InputRule({
+                          find: inputRule.find,
+                          handler: ({ range, match, state }) => {
+                            const replaceWith = inputRule.replace({
+                              match,
+                              range,
+                              editor: this,
+                            });
+                            if (replaceWith) {
+                              const blockInfo = getBlockInfoFromTransaction(
+                                state.tr,
+                              );
+
+                              // TODO this is weird, why do we need it?
+                              if (
+                                blockInfo.isBlockContainer &&
+                                blockInfo.blockContent.node.type.spec
+                                  .content === "inline*"
+                              ) {
+                                updateBlockTr(
+                                  state.tr,
+                                  blockInfo.bnBlock.beforePos,
+                                  replaceWith,
+                                  range.from,
+                                  range.to,
+                                );
+                                return undefined;
+                              }
+                            }
+                            return null;
+                          },
+                        }),
+                    )
+                : undefined,
+              addKeyboardShortcuts: ext.keyboardShortcuts
+                ? () => {
+                    return Object.fromEntries(
+                      Object.entries(ext.keyboardShortcuts!).map(
+                        ([key, value]) => [key, () => value({ editor: this })],
+                      ),
+                    );
+                  }
+                : undefined,
+            });
+          }
+
           return undefined;
-        }
-
-        // "blocknote" extensions (prosemirror plugins)
-        return Extension.create({
-          name: key,
-          priority: ext.priority,
-          addProseMirrorPlugins: () => ext.plugins,
-        });
-      }),
+        },
+      ),
     ].filter((ext): ext is Extension => ext !== undefined);
-
     const tiptapOptions: BlockNoteTipTapEditorOptions = {
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
