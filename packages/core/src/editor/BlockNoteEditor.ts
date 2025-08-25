@@ -1869,6 +1869,9 @@ export class BlockNoteEditor<
    * @param markdown The markdown to paste.
    */
   public async pasteMarkdown(markdown: string) {
-    return this.pasteHTML(await markdownToHTML(markdown));
+    const html = await markdownToHTML(markdown);
+    const blocks = await this.tryParseHTMLToBlocks(html);
+    const htmlContent = await this.blocksToHTMLLossy(blocks);
+    return this.pasteHTML(htmlContent);
   }
 }
