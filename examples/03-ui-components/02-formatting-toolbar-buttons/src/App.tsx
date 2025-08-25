@@ -69,7 +69,7 @@ export default function App() {
       {
         type: "paragraph",
         content:
-          "Notice that the button doesn't appear when the image block above is selected, as it has no inline content.",
+          "Notice that the buttons don't appear when the image block above is selected, as it has no inline content.",
       },
       {
         type: "paragraph",

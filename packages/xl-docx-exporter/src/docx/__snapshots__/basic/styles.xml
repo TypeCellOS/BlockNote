@@ -7,7 +7,7 @@
                 <w:kern w:val="2"/>
                 <w:sz w:val="24"/>
                 <w:szCs w:val="24"/>
-                <w:lang w:val="en-NL" w:eastAsia="en-GB" w:bidi="ar-SA"/>
+                <w:lang w:val="en-US" w:eastAsia="en-GB" w:bidi="ar-SA"/>
                 <w14:ligatures w14:val="standardContextual"/>
             </w:rPr>
         </w:rPrDefault>
