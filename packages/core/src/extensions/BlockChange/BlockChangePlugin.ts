@@ -1,7 +1,9 @@
 import { Plugin, Transaction } from "prosemirror-state";
-import { getBlocksChangedByTransaction } from "../../api/nodeUtil.js";
+import {
+  BlocksChanged,
+  getBlocksChangedByTransaction,
+} from "../../api/getBlocksChangedByTransaction.js";
 import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
-import { BlocksChanged } from "../../index.js";
 
 /**
  * This plugin can filter transactions before they are applied to the editor, but with a higher-level API than `filterTransaction` from prosemirror.

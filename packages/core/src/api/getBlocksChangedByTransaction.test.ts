@@ -1,7 +1,7 @@
 import { describe, expect, it, beforeEach } from "vitest";
 
 import { setupTestEnv } from "./blockManipulation/setupTestEnv.js";
-import { getBlocksChangedByTransaction } from "./nodeUtil.js";
+import { getBlocksChangedByTransaction } from "./getBlocksChangedByTransaction.js";
 import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 
 const getEditor = setupTestEnv();
@@ -450,6 +450,122 @@ describe("getBlocksChangedByTransaction", () => {
 
     await expect(blocksChanged).toMatchFileSnapshot(
       "__snapshots__/blocks-moved-multiple-in-same-transaction.json",
+    );
+  });
+
+  it("should return blocks which have been moved up or down in the same transaction", async () => {
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "top",
+        type: "paragraph",
+        content: "Top",
+      },
+      {
+        id: "middle",
+        type: "paragraph",
+        content: "Middle",
+      },
+      {
+        id: "bottom",
+        type: "paragraph",
+        content: "Bottom",
+      },
+    ]);
+
+    const blocksChanged = editor.transact((tr) => {
+      editor.setTextCursorPosition("top");
+      editor.moveBlocksDown();
+
+      return getBlocksChangedByTransaction(tr);
+    });
+
+    // Should report a single minimal move within the same parent
+    await expect(blocksChanged).toMatchFileSnapshot(
+      "__snapshots__/blocks-moved-up-down-in-same-transaction.json",
+    );
+  });
+
+  it("should detect moving the bottom block up within the same parent", async () => {
+    editor.replaceBlocks(editor.document, [
+      { id: "top", type: "paragraph", content: "Top" },
+      { id: "middle", type: "paragraph", content: "Middle" },
+      { id: "bottom", type: "paragraph", content: "Bottom" },
+    ]);
+
+    const blocksChanged = editor.transact((tr) => {
+      editor.setTextCursorPosition("bottom");
+      editor.moveBlocksUp();
+      return getBlocksChangedByTransaction(tr);
+    });
+
+    await expect(blocksChanged).toMatchFileSnapshot(
+      "__snapshots__/blocks-moved-up-down-in-same-parent.json",
+    );
+  });
+
+  it("should detect moving a block down twice within the same parent as a single move", async () => {
+    editor.replaceBlocks(editor.document, [
+      { id: "a", type: "paragraph", content: "A" },
+      { id: "b", type: "paragraph", content: "B" },
+      { id: "c", type: "paragraph", content: "C" },
+    ]);
+
+    const blocksChanged = editor.transact((tr) => {
+      editor.setTextCursorPosition("a");
+      editor.moveBlocksDown();
+      editor.moveBlocksDown();
+      return getBlocksChangedByTransaction(tr);
+    });
+
+    await expect(blocksChanged).toMatchFileSnapshot(
+      "__snapshots__/blocks-moved-down-twice-in-same-parent.json",
+    );
+  });
+
+  it("should detect nested sibling reorder within the same parent", async () => {
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "parent",
+        type: "paragraph",
+        content: "Parent",
+        children: [
+          { id: "child-a", type: "paragraph", content: "A" },
+          { id: "child-b", type: "paragraph", content: "B" },
+          { id: "child-c", type: "paragraph", content: "C" },
+        ],
+      },
+      { id: "sibling", type: "paragraph", content: "S" },
+    ]);
+
+    const blocksChanged = editor.transact((tr) => {
+      editor.setTextCursorPosition("child-a");
+      editor.moveBlocksDown();
+      return getBlocksChangedByTransaction(tr);
+    });
+
+    await expect(blocksChanged).toMatchFileSnapshot(
+      "__snapshots__/blocks-moved-nested-sibling-reorder.json",
+    );
+  });
+
+  it("should not report moves when an insert changes sibling order", async () => {
+    editor.replaceBlocks(editor.document, [
+      { id: "a", type: "paragraph", content: "A" },
+      { id: "b", type: "paragraph", content: "B" },
+      { id: "c", type: "paragraph", content: "C" },
+    ]);
+
+    const blocksChanged = editor.transact((tr) => {
+      editor.insertBlocks(
+        [{ id: "x", type: "paragraph", content: "X" }],
+        "a",
+        "after",
+      );
+      return getBlocksChangedByTransaction(tr);
+    });
+
+    await expect(blocksChanged).toMatchFileSnapshot(
+      "__snapshots__/blocks-moved-insert-changes-sibling-order.json",
     );
   });
 });
