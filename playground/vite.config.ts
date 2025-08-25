@@ -16,15 +16,6 @@ export default defineConfig((conf) => ({
   build: {
     sourcemap: true,
   },
-  // css: {
-  //   postcss: {
-  //     plugins: [
-  //       tailwindpostcss({ base: "../packages/shadcn/tailwind.config.js" }), // Adjust the path as necessary
-  //       auto,
-  //     ] as any,
-  //   },
-  //   // postcss: "../packages/shadcn/postcss.config.js",
-  // },
   resolve: {
     alias:
       conf.command === "build"
