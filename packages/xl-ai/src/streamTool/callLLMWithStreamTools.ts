@@ -15,6 +15,7 @@ import {
   AsyncIterableStream,
   createAsyncIterableStream,
   createAsyncIterableStreamFromAsyncIterable,
+  withAbort,
 } from "../util/stream.js";
 import { filterNewOrUpdatedOperations } from "./filterNewOrUpdatedOperations.js";
 import {
@@ -27,6 +28,7 @@ type LLMRequestOptions = {
   model: LanguageModel;
   messages: CoreMessage[];
   maxRetries: number;
+  abortSignal?: AbortSignal;
 };
 
 /**
@@ -122,6 +124,13 @@ export async function generateOperations<T extends StreamTool<any>[]>(
 
   const ret = await generateObject<{ operations: any }>(options);
 
+  if (opts.abortSignal?.aborted) {
+    // throw abort error before stream processing starts and `onStart` is called
+    const error = new Error("Operation was aborted");
+    error.name = "AbortError";
+    throw error;
+  }
+
   // because the rest of the codebase always expects a stream, we convert the object to a stream here
   const stream = operationsToStream(ret.object);
 
@@ -137,7 +146,10 @@ export async function generateOperations<T extends StreamTool<any>[]>(
     get operationsSource() {
       if (!_operationsSource) {
         _operationsSource = createAsyncIterableStreamFromAsyncIterable(
-          preprocessOperationsNonStreaming(stream.value, streamTools),
+          withAbort(
+            preprocessOperationsNonStreaming(stream.value, streamTools),
+            opts.abortSignal,
+          ),
         );
       }
       return _operationsSource;
@@ -268,8 +280,11 @@ export async function streamOperations<T extends StreamTool<any>[]>(
           preprocessOperationsStreaming(
             filterNewOrUpdatedOperations(
               streamOnStartCallback(
-                partialObjectStreamThrowError(
-                  createAsyncIterableStream(fullStream1),
+                withAbort(
+                  partialObjectStreamThrowError(
+                    createAsyncIterableStream(fullStream1),
+                  ),
+                  opts.abortSignal,
                 ),
                 onStart,
               ),
