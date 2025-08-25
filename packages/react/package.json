@@ -61,9 +61,9 @@
     "@blocknote/core": "0.35.0",
     "@emoji-mart/data": "^1.2.1",
     "@floating-ui/react": "^0.26.4",
-    "@tiptap/core": "^2.12.0",
-    "@tiptap/pm": "^2.12.0",
-    "@tiptap/react": "^2.12.0",
+    "@tiptap/core": "^2.26.1",
+    "@tiptap/pm": "^2.26.1",
+    "@tiptap/react": "^2.26.1",
     "emoji-mart": "^5.6.0",
     "lodash.merge": "^4.6.2",
     "react-icons": "^5.2.1"
