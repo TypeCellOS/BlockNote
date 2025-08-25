@@ -16,11 +16,14 @@ path: /docs/converting-blocks
 
 ## Export to BlockNote HTML
 
-Use `editor.blocksToFullHTML` to export the entire document with all structure, styles and formatting.
-The exported HTML is the same as BlockNote would use to render the editor, and includes all structure for nested blocks.
+Use `editor.blocksToFullHTML` to export blocks with their full HTML structure, the same as BlockNote uses in its rendered HTML.
 
 For example, you an use this for static rendering documents that have been created in the editor.
-Make sure to include the same stylesheets when you want to render the output HTML ([see example](/examples/backend/rendering-static-documents)).
+
+<Callout type={"info"}>
+    For the exported HTML to look the same as the editor, make sure to wrap it in the same `div`s that the editor renders, and add the same stylesheets. To learn more, see [this example](/examples/backend/rendering-static-documents).
+
+</Callout>
 
 ```typescript
 async blocksToFullHTML(blocks?: Block[]): Promise<string>;

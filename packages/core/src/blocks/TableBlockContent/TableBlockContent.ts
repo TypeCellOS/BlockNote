@@ -39,14 +39,14 @@ export const TableBlockContent = createStronglyTypedTiptapNode({
       this.name,
       "table",
       {
-        ...(this.options.domAttributes?.blockContent || { fesfes: "fesfes" }),
+        ...(this.options.domAttributes?.blockContent || {}),
         ...HTMLAttributes,
       },
       this.options.domAttributes?.inlineContent || {},
     );
 
-    // Need to manually add column widths.
-    const cols: HTMLTableColElement[] = [];
+    // Need to manually add colgroup element
+    const colGroup = document.createElement("colgroup");
     for (const tableCell of node.children[0].children) {
       const colWidths: null | (number | undefined)[] =
         tableCell.attrs["colwidth"];
@@ -58,16 +58,11 @@ export const TableBlockContent = createStronglyTypedTiptapNode({
             col.style = `width: ${colWidth}px`;
           }
 
-          cols.push(col);
+          colGroup.appendChild(col);
         }
       } else {
-        cols.push(document.createElement("col"));
+        colGroup.appendChild(document.createElement("col"));
       }
-    }
-
-    const colGroup = document.createElement("colgroup");
-    for (const col of cols) {
-      colGroup.appendChild(col);
     }
 
     domOutputSpec.dom.firstChild?.appendChild(colGroup);
@@ -176,6 +171,9 @@ const TableParagraph = createStronglyTypedTiptapNode({
   },
 
   renderHTML({ node, HTMLAttributes }) {
+    // Insert a line break if there is no content, in order to preserve the
+    // correct cell height. Otherwise, the cell will have a height of zero +
+    // padding.
     return ["p", HTMLAttributes, node.childCount ? 0 : ["br"]];
   },
 });
