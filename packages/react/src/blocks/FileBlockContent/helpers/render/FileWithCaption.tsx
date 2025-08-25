@@ -6,7 +6,7 @@ import { ReactCustomBlockRenderProps } from "../../../../schema/ReactBlockSpec.j
 import { AddFileButton } from "./AddFileButton.js";
 import { FileNameWithIcon } from "./FileNameWithIcon.js";
 
-export const FileBlockWrapper = (
+export const FileWithCaption = (
   props: Omit<
     ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
     "contentRef"
@@ -24,35 +24,35 @@ export const FileBlockWrapper = (
 ) => {
   const showLoader = useUploadLoading(props.block.id);
 
+  if (showLoader) {
+    return <div className={"bn-file-loading-preview"}>Loading...</div>;
+  }
+
+  if (props.block.props.url === "") {
+    return <AddFileButton {...props} />;
+  }
+
   return (
     <div
-      className={"bn-file-block-content-wrapper"}
+      className={"bn-file-with-caption"}
       onMouseEnter={props.onMouseEnter}
       onMouseLeave={props.onMouseLeave}
       style={props.style}
     >
-      {showLoader ? (
-        // Show loader while a file is being uploaded.
-        <div className={"bn-file-loading-preview"}>Loading...</div>
-      ) : props.block.props.url === "" ? (
-        // Show the add file button if the file has not been uploaded yet.
-        <AddFileButton {...props} />
-      ) : (
-        // Show the file preview, or the file name and icon.
-        <>
-          {props.block.props.showPreview === false || !props.children ? (
-            // Show file name and icon.
-            <FileNameWithIcon {...props} />
-          ) : (
-            // Show preview.
-            props.children
-          )}
-          {props.block.props.caption && (
-            // Show the caption if there is one.
-            <p className={"bn-file-caption"}>{props.block.props.caption}</p>
-          )}
-        </>
-      )}
+      {/* Show the file preview, or the file name and icon. */}
+      <>
+        {props.block.props.showPreview === false || !props.children ? (
+          // Show file name and icon.
+          <FileNameWithIcon {...props} />
+        ) : (
+          // Show preview.
+          props.children
+        )}
+        {props.block.props.caption && (
+          // Show the caption if there is one.
+          <p className={"bn-file-caption"}>{props.block.props.caption}</p>
+        )}
+      </>
     </div>
   );
 };
