@@ -34,8 +34,8 @@ export const TableBlockContent = createStronglyTypedTiptapNode({
     ];
   },
 
-  renderHTML({ HTMLAttributes }) {
-    return createDefaultBlockDOMOutputSpec(
+  renderHTML({ node, HTMLAttributes }) {
+    const domOutputSpec = createDefaultBlockDOMOutputSpec(
       this.name,
       "table",
       {
@@ -44,6 +44,30 @@ export const TableBlockContent = createStronglyTypedTiptapNode({
       },
       this.options.domAttributes?.inlineContent || {},
     );
+
+    // Need to manually add colgroup element
+    const colGroup = document.createElement("colgroup");
+    for (const tableCell of node.children[0].children) {
+      const colWidths: null | (number | undefined)[] =
+        tableCell.attrs["colwidth"];
+
+      if (colWidths) {
+        for (const colWidth of tableCell.attrs["colwidth"]) {
+          const col = document.createElement("col");
+          if (colWidth) {
+            col.style = `width: ${colWidth}px`;
+          }
+
+          colGroup.appendChild(col);
+        }
+      } else {
+        colGroup.appendChild(document.createElement("col"));
+      }
+    }
+
+    domOutputSpec.dom.firstChild?.appendChild(colGroup);
+
+    return domOutputSpec;
   },
 
   // This node view is needed for the `columnResizing` plugin. By default, the
@@ -146,8 +170,11 @@ const TableParagraph = createStronglyTypedTiptapNode({
     ];
   },
 
-  renderHTML({ HTMLAttributes }) {
-    return ["p", HTMLAttributes, 0];
+  renderHTML({ node, HTMLAttributes }) {
+    // Insert a line break if there is no content, in order to preserve the
+    // correct cell height. Otherwise, the cell will have a height of zero +
+    // padding.
+    return ["p", HTMLAttributes, node.childCount ? 0 : ["br"]];
   },
 });
 
