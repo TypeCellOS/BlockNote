@@ -34,7 +34,6 @@ import { Badge, BadgeGroup } from "./badge/Badge.js";
 
 import { PanelButton } from "./panel/PanelButton.js";
 import { PanelFileInput } from "./panel/PanelFileInput.js";
-import "./style.css";
 import { GridSuggestionMenuItem } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuItem.js";
 import { GridSuggestionMenuLoader } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuLoader.js";
 

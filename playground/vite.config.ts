@@ -1,32 +1,20 @@
 import react from "@vitejs/plugin-react";
-import auto from "autoprefixer";
 import { resolve } from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
 import Inspect from "vite-plugin-inspect";
 
-import tailwindcss from "tailwindcss";
-import nesting from "tailwindcss/nesting";
+import tailwindcss from "@tailwindcss/vite";
 
 import { defineConfig } from "vite";
 // import eslintPlugin from "vite-plugin-eslint";
 // https://vitejs.dev/config/
 export default defineConfig((conf) => ({
-  plugins: [react(), webpackStats(), Inspect()],
+  plugins: [react(), webpackStats(), Inspect(), tailwindcss()],
   optimizeDeps: {
     // link: ['vite-react-ts-components'],
   },
   build: {
     sourcemap: true,
-  },
-  css: {
-    postcss: {
-      plugins: [
-        nesting,
-        tailwindcss("../packages/shadcn/tailwind.config.js"), // Adjust the path as necessary
-        auto,
-      ] as any,
-    },
-    // postcss: "../packages/shadcn/postcss.config.js",
   },
   resolve: {
     alias:

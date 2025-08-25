@@ -16,7 +16,7 @@ export const PanelTab = forwardRef<
     <div
       className={cn(
         className,
-        "bn-flex bn-flex-col bn-gap-2 bn-items-start bn-justify-center",
+        "bn:flex bn:flex-col bn:gap-2 bn:items-start bn:justify-center",
       )}
       ref={ref}
     >

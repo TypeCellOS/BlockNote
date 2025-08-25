@@ -3,6 +3,7 @@ import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
 import { defineConfig } from "vite";
 import pkg from "./package.json";
+import tailwindcss from "@tailwindcss/vite";
 // import eslintPlugin from "vite-plugin-eslint";
 
 // https://vitejs.dev/config/
@@ -11,7 +12,7 @@ export default defineConfig((conf) => ({
     environment: "jsdom",
     setupFiles: ["./vitestSetup.ts"],
   },
-  plugins: [react(), webpackStats()],
+  plugins: [react(), webpackStats(), tailwindcss()],
   // used so that vitest resolves the core package from the sources instead of the built version
   resolve: {
     alias:
