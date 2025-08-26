@@ -28,7 +28,6 @@ import {
 // 4. The HTML is wrapped in a single `div` element.
 
 // Needs to be sync because it's used in drag handler event (SideMenuPlugin)
-// Ideally, call `await initializeESMDependencies()` before calling this function
 export const createExternalHTMLExporter = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
