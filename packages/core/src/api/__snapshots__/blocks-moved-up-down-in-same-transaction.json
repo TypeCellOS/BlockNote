@@ -1,0 +1,44 @@
+[
+  {
+    "block": {
+      "children": [],
+      "content": [
+        {
+          "styles": {},
+          "text": "Middle",
+          "type": "text",
+        },
+      ],
+      "id": "middle",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    "currentParent": undefined,
+    "prevBlock": {
+      "children": [],
+      "content": [
+        {
+          "styles": {},
+          "text": "Middle",
+          "type": "text",
+        },
+      ],
+      "id": "middle",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    "prevParent": undefined,
+    "source": {
+      "type": "local",
+    },
+    "type": "move",
+  },
+]
