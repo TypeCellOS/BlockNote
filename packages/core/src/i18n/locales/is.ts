@@ -211,6 +211,9 @@ export const is: Dictionary = {
       add_button_text: "Bæta við skrá",
     },
   },
+  toggle_blocks: {
+    add_block_button: "Tóm fellilína. Smelltu til að bæta við blokk.",
+  },
   side_menu: {
     add_block_label: "Bæta við blokki",
     drag_handle_label: "Opna blokkarvalmynd",

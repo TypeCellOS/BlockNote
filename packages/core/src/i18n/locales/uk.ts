@@ -222,6 +222,9 @@ export const uk: Dictionary = {
       add_button_text: "Додати файл",
     },
   },
+  toggle_blocks: {
+    add_block_button: "Порожній перемикач. Натисніть, щоб додати блок.",
+  },
   // from react package:
   side_menu: {
     add_block_label: "Додати блок",

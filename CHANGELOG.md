@@ -1,3 +1,38 @@
+## 0.36.0 (2025-08-25)
+
+### 🚀 Features
+
+- **docx:** add locale configuration for docx export ([#1937](https://github.com/TypeCellOS/BlockNote/pull/1937))
+
+### 🩹 Fixes
+
+- Editors in comments not inheriting theme ([#1890](https://github.com/TypeCellOS/BlockNote/pull/1890))
+- Minor drag & drop changes ([#1891](https://github.com/TypeCellOS/BlockNote/pull/1891))
+- Overflow on table blocks ([#1892](https://github.com/TypeCellOS/BlockNote/pull/1892))
+- Suggestion menu closing when clicking scroll bar ([#1899](https://github.com/TypeCellOS/BlockNote/pull/1899))
+- Table padding ([#1906](https://github.com/TypeCellOS/BlockNote/pull/1906))
+- Formatting toolbar getting wrong bounding box when updating React inline content ([#1908](https://github.com/TypeCellOS/BlockNote/pull/1908))
+- Vanilla blocks return true for editor.isEditable on initial render ([#1925](https://github.com/TypeCellOS/BlockNote/pull/1925))
+- table cell menu styling ([#1945](https://github.com/TypeCellOS/BlockNote/pull/1945))
+- Missing internationalization for toggle wrapper ([#1946](https://github.com/TypeCellOS/BlockNote/pull/1946))
+- parse image alt text for image blocks ([#1883](https://github.com/TypeCellOS/BlockNote/pull/1883))
+- initialize esm deps before copy extension uses it ([#1951](https://github.com/TypeCellOS/BlockNote/pull/1951))
+- error when dragging a block from one editor to another with multiple column extension ([#1950](https://github.com/TypeCellOS/BlockNote/pull/1950))
+- prevent infinite render loop when selecting all content ([#1956](https://github.com/TypeCellOS/BlockNote/pull/1956))
+- **core:** maintain text selection across table updates ([#1894](https://github.com/TypeCellOS/BlockNote/pull/1894))
+- **locales:** ko locale fix ([#1902](https://github.com/TypeCellOS/BlockNote/pull/1902))
+- **react:** add data attribute for correct react rendering ([#1954](https://github.com/TypeCellOS/BlockNote/pull/1954))
+- **xl-email-exporter:** better defaults, customize textStyles, output inline styles ([#1856](https://github.com/TypeCellOS/BlockNote/pull/1856))
+
+### ❤️ Thank You
+
+- Brad Greenlee
+- Cyril G @Ovgodd
+- Héctor Zhuang @Hector-Zhuang
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- Nick the Sick
+
 ## 0.35.0 (2025-07-25)
 
 ### 🚀 Features
