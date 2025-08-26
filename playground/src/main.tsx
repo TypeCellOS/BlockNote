@@ -84,7 +84,7 @@ function Root() {
           </AppShell.Navbar>
         )}
         <AppShell.Main>
-          <div className="bg-sky-400">
+          <div>
             <Outlet />
           </div>
         </AppShell.Main>

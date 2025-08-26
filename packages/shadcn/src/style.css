@@ -2,8 +2,6 @@
 @import "tw-animate-css";
 @import "@blocknote/react/style.css";
 
-@config "../tailwind.config.js";
-
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -118,10 +116,10 @@
 
 @layer base {
   * {
-    @apply bn:border-border bn:outline-ring/50;
+    @apply border-border outline-ring/50;
   }
   body {
-    @apply bn:bg-background bn:text-foreground;
+    @apply bg-background text-foreground;
   }
 }
 

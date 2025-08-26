@@ -28,8 +28,8 @@ export const Card = forwardRef<
     <ShadCNComponents.Card.Card
       className={cn(
         className,
-        "bn-w-[300px]",
-        selected ? "bn-bg-accent bn-text-accent-foreground" : "",
+        "w-[300px]",
+        selected ? "bg-accent text-accent-foreground" : "",
       )}
       onFocus={onFocus}
       onBlur={onBlur}
@@ -37,9 +37,7 @@ export const Card = forwardRef<
       ref={ref}
     >
       {headerText && (
-        <div className={"bn-px-4 bn-pt-4 bn-italic bn-text-sm"}>
-          {headerText}
-        </div>
+        <div className={"px-4 pt-4 text-sm italic"}>{headerText}</div>
       )}
       {children}
     </ShadCNComponents.Card.Card>
@@ -58,9 +56,9 @@ export const CardSection = forwardRef<
     <div
       className={cn(
         className,
-        "bn-p-4",
-        className?.includes("bn-thread-comments")
-          ? "bn-flex bn-flex-col bn-gap-6 bn-border-b"
+        "p-4",
+        className?.includes("thread-comments")
+          ? "flex flex-col gap-6 border-b"
           : "",
       )}
       ref={ref}
@@ -84,7 +82,7 @@ export const ExpandSectionsPrompt = forwardRef<
     <ShadCNComponents.Button.Button
       className={cn(
         className,
-        "bn-p-0 bn-w-fit bn-text-foreground bn-bg-transparent hover:bn-bg-transparent",
+        "text-foreground w-fit bg-transparent p-0 hover:bg-transparent",
       )}
       ref={ref}
     >

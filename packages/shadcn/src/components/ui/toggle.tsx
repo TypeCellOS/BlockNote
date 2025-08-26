@@ -1,30 +1,30 @@
-import * as React from "react"
-import * as TogglePrimitive from "@radix-ui/react-toggle"
-import { cva, type VariantProps } from "class-variance-authority"
+import * as React from "react";
+import * as TogglePrimitive from "@radix-ui/react-toggle";
+import { cva, type VariantProps } from "class-variance-authority";
 
-import { cn } from "../../lib/utils"
+import { cn } from "../../lib/utils";
 
 const toggleVariants = cva(
-  "bn:inline-flex bn:items-center bn:justify-center bn:gap-2 bn:rounded-md bn:text-sm bn:font-medium bn:hover:bg-muted bn:hover:text-muted-foreground bn:disabled:pointer-events-none bn:disabled:opacity-50 bn:data-[state=on]:bg-accent bn:data-[state=on]:text-accent-foreground bn:[&_svg]:pointer-events-none bn:[&_svg:not([class*=size-])]:size-4 bn:[&_svg]:shrink-0 bn:focus-visible:border-ring bn:focus-visible:ring-ring/50 bn:focus-visible:ring-[3px] bn:outline-none bn:transition-[color,box-shadow] bn:aria-invalid:ring-destructive/20 bn:dark:aria-invalid:ring-destructive/40 bn:aria-invalid:border-destructive bn:whitespace-nowrap",
+  "inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium hover:bg-muted hover:text-muted-foreground disabled:pointer-events-none disabled:opacity-50 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground [&_svg]:pointer-events-none [&_svg:not([class*=size-])]:size-4 [&_svg]:shrink-0 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none transition-[color,box-shadow] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive whitespace-nowrap",
   {
     variants: {
       variant: {
-        default: "bn:bg-transparent",
+        default: "bg-transparent",
         outline:
-          "bn:border bn:border-input bn:bg-transparent bn:shadow-xs bn:hover:bg-accent bn:hover:text-accent-foreground",
+          "border border-input bg-transparent shadow-xs hover:bg-accent hover:text-accent-foreground",
       },
       size: {
-        default: "bn:h-9 bn:px-2 bn:min-w-9",
-        sm: "bn:h-8 bn:px-1.5 bn:min-w-8",
-        lg: "bn:h-10 bn:px-2.5 bn:min-w-10",
+        default: "h-9 px-2 min-w-9",
+        sm: "h-8 px-1.5 min-w-8",
+        lg: "h-10 px-2.5 min-w-10",
       },
     },
     defaultVariants: {
       variant: "default",
       size: "default",
     },
-  }
-)
+  },
+);
 
 function Toggle({
   className,
@@ -39,7 +39,7 @@ function Toggle({
       className={cn(toggleVariants({ variant, size, className }))}
       {...props}
     />
-  )
+  );
 }
 
-export { Toggle, toggleVariants }
+export { Toggle, toggleVariants };

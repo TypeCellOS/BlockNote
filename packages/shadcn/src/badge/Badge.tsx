@@ -30,7 +30,7 @@ export const Badge = forwardRef<
       variant={isSelected ? "secondary" : "outline"}
       className={cn(
         className,
-        "bn-flex bn-items-center bn-gap-1 bn-rounded-full bn-h-7 bn-px-2.5",
+        "flex h-7 items-center gap-1 rounded-full px-2.5",
       )}
       onClick={onClick}
       onMouseEnter={onMouseEnter}
@@ -51,7 +51,7 @@ export const Badge = forwardRef<
         {badge}
       </ShadCNComponents.Tooltip.TooltipTrigger>
       <ShadCNComponents.Tooltip.TooltipContent
-        className={"bn-flex bn-flex-col bn-items-center bn-whitespace-pre-wrap"}
+        className={"flex flex-col items-center whitespace-pre-wrap"}
       >
         <span>{mainTooltip}</span>
         {secondaryTooltip && <span>{secondaryTooltip}</span>}
@@ -73,10 +73,7 @@ export const BadgeGroup = forwardRef<
   return (
     <ShadCNComponents.Tooltip.TooltipProvider delayDuration={0}>
       <div
-        className={cn(
-          className,
-          "bn-flex bn-flex-row bn-flex-wrap bn-gap-1 bn-w-full",
-        )}
+        className={cn(className, "flex w-full flex-row flex-wrap gap-1")}
         ref={ref}
       >
         {children}
