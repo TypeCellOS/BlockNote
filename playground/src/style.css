@@ -2,9 +2,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
-
 @source "../../packages/shadcn";
+
+@custom-variant dark (&:is(.dark *));
 
 :root {
   --radius: 0.625rem;
