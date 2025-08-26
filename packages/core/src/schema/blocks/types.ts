@@ -1,5 +1,6 @@
 /** Define the main block types **/
 // import { Extension, Node } from "@tiptap/core";
+import type { NodeViewRendererProps } from "@tiptap/core";
 import type { Fragment, Schema } from "prosemirror-model";
 import type { ViewMutationRecord } from "prosemirror-view";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
@@ -93,12 +94,56 @@ export type BlockSpec<
   extensions?: BlockNoteExtension<any>[];
 };
 
+// Utility type. For a given object block schema, ensures that the key of each
+// block spec matches the name of the TipTap node in it.
+type NamesMatch<Blocks extends Record<string, BlockConfig>> = Blocks extends {
+  [Type in keyof Blocks]: Type extends string
+    ? Blocks[Type] extends { type: Type }
+      ? Blocks[Type]
+      : never
+    : never;
+}
+  ? Blocks
+  : never;
+
 // A Schema contains all the types (Configs) supported in an editor
 // The keys are the "type" of a block
-export type BlockSchema = Record<string, BlockConfig>;
+export type BlockSchema = NamesMatch<Record<string, BlockConfig>>;
 
 export type BlockSpecs = {
-  [k in string]: BlockSpec;
+  [k in string]: {
+    config: BlockSpec<k>["config"];
+    implementation: Omit<
+      BlockSpec<k>["implementation"],
+      "render" | "toExternalHTML"
+    > & {
+      // purposefully stub the types for render and toExternalHTML since they reference the block
+      render: (
+        /**
+         * The custom block to render
+         */
+        block: any,
+        /**
+         * The BlockNote editor instance
+         */
+        editor: BlockNoteEditor<any>,
+      ) => {
+        dom: HTMLElement | DocumentFragment;
+        contentDOM?: HTMLElement;
+        ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
+        destroy?: () => void;
+      };
+      toExternalHTML?: (
+        block: any,
+        editor: BlockNoteEditor<any>,
+      ) =>
+        | {
+            dom: HTMLElement | DocumentFragment;
+            contentDOM?: HTMLElement;
+          }
+        | undefined;
+    };
+  };
 };
 
 export type BlockImplementations = Record<
@@ -214,6 +259,47 @@ export type SpecificBlock<
   children: BlockNoDefaults<BSchema, I, S>[];
 };
 
+export type FileBlockConfig = {
+  type: "file";
+  readonly propSchema: {
+    backgroundColor: {
+      default: "default";
+    };
+    textAlignment?: {
+      default: "left";
+    };
+    caption: {
+      default: "";
+    };
+    name: {
+      default: "";
+    };
+
+    // URL is optional, as we also want to accept files with no URL, but for example ids
+    // (ids can be used for files that are resolved on the backend)
+    url: {
+      default: "";
+    };
+
+    // Whether to show the file preview or the name only.
+    // This is useful for some file blocks, but not all
+    // (e.g.: not relevant for default "file" block which doesn;'t show previews)
+    showPreview?: {
+      default: boolean;
+    };
+    // File preview width in px.
+    previewWidth?: {
+      default: undefined;
+      type: "number";
+    };
+  };
+  content: "none";
+  meta: {
+    selectable?: boolean;
+    fileBlockAccept?: string[];
+  };
+};
+
 /** CODE FOR PARTIAL BLOCKS, analogous to above
  *
  * Partial blocks are convenience-wrappers to make it easier to
@@ -313,14 +399,24 @@ export type BlockImplementation<
    * A function that converts the block into a DOM element
    */
   render: (
+    this:
+      | Record<string, never>
+      | ({
+          blockContentDOMAttributes: Record<string, string>;
+        } & (
+          | {
+              renderType: "nodeView";
+              props: NodeViewRendererProps;
+            }
+          | {
+              renderType: "dom";
+              props: undefined;
+            }
+        )),
     /**
      * The custom block to render
      */
-    block: BlockNoDefaults<
-      Record<TName, BlockConfig<TName, TProps, TContent>>,
-      any,
-      any
-    >,
+    block: BlockFromConfig<BlockConfig<TName, TProps, TContent>, any, any>,
     /**
      * The BlockNote editor instance
      */
@@ -339,11 +435,10 @@ export type BlockImplementation<
    * as `render(...).dom`.
    */
   toExternalHTML?: (
-    block: BlockNoDefaults<
-      Record<TName, BlockConfig<TName, TProps, TContent>>,
-      any,
-      any
-    >,
+    this: Partial<{
+      blockContentDOMAttributes: Record<string, string>;
+    }>,
+    block: BlockFromConfig<BlockConfig<TName, TProps, TContent>, any, any>,
     editor: BlockNoteEditor<
       Record<TName, BlockConfig<TName, TProps, TContent>>
     >,

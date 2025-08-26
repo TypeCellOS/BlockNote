@@ -23,8 +23,7 @@ export const createCheckListItemConfig = createBlockConfig(
 
 export const createCheckListItemBlockSpec = createBlockSpec(
   createCheckListItemConfig,
-).implementation(
-  () => ({
+  {
     parse(element) {
       if (element.tagName === "input") {
         // Ignore if we already parsed an ancestor list item to avoid double-parsing.
@@ -90,8 +89,8 @@ export const createCheckListItemBlockSpec = createBlockSpec(
       };
     },
     runsBefore: ["bulletListItem"],
-  }),
-  () => [
+  },
+  [
     createBlockNoteExtension({
       key: "check-list-item-shortcuts",
       keyboardShortcuts: {

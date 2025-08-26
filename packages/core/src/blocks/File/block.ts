@@ -1,9 +1,4 @@
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import {
-  BlockNoDefaults,
-  createBlockConfig,
-  createBlockSpec,
-} from "../../schema/index.js";
+import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
 import { defaultProps } from "../defaultProps.js";
 import { parseEmbedElement } from "./helpers/parse/parseEmbedElement.js";
 import { parseFigureElement } from "./helpers/parse/parseFigureElement.js";
@@ -63,36 +58,12 @@ export const fileParse = () => (element: HTMLElement) => {
   return undefined;
 };
 
-export const fileRender =
-  () =>
-  (
-    block: BlockNoDefaults<
-      Record<"file", ReturnType<typeof createFileBlockConfig>>,
-      any,
-      any
-    >,
-    editor: BlockNoteEditor<
-      Record<"file", ReturnType<typeof createFileBlockConfig>>,
-      any,
-      any
-    >,
-  ) =>
-    createFileBlockWrapper(block, editor);
-
-export const fileToExternalHTML =
-  () =>
-  (
-    block: BlockNoDefaults<
-      Record<"file", ReturnType<typeof createFileBlockConfig>>,
-      any,
-      any
-    >,
-    _editor: BlockNoteEditor<
-      Record<"file", ReturnType<typeof createFileBlockConfig>>,
-      any,
-      any
-    >,
-  ) => {
+export const createFileBlockSpec = createBlockSpec(createFileBlockConfig, {
+  parse: fileParse(),
+  render(block, editor) {
+    return createFileBlockWrapper(block, editor);
+  },
+  toExternalHTML(block) {
     if (!block.props.url) {
       const div = document.createElement("p");
       div.textContent = "Add file";
@@ -113,12 +84,5 @@ export const fileToExternalHTML =
     return {
       dom: fileSrcLink,
     };
-  };
-
-export const createFileBlockSpec = createBlockSpec(
-  createFileBlockConfig,
-).implementation(() => ({
-  parse: fileParse(),
-  render: fileRender(),
-  toExternalHTML: fileToExternalHTML(),
-}));
+  },
+});

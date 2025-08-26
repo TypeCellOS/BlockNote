@@ -38,7 +38,6 @@ export const createHeadingBlockConfig = createBlockConfig(
 
 export const createHeadingBlockSpec = createBlockSpec(
   createHeadingBlockConfig,
-).implementation(
   ({ allowToggleHeadings = true }: HeadingOptions = {}) => ({
     parse(e) {
       let level: number;

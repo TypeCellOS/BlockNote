@@ -55,7 +55,7 @@ export function addStyleAttributes<
     element.dom.setAttribute("data-value", styleValue as string);
   }
 
-  if (element.contentDOM !== undefined) {
+  if (element.contentDOM) {
     element.contentDOM.setAttribute("data-editable", "");
   }
 

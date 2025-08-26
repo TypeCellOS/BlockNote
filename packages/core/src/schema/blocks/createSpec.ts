@@ -2,16 +2,16 @@ import { Editor } from "@tiptap/core";
 import { DOMParser, Fragment, TagParseRule } from "@tiptap/pm/model";
 import { NodeView } from "@tiptap/pm/view";
 import { mergeParagraphs } from "../../blocks/defaultBlockHelpers.js";
+import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
+import { PropSchema } from "../propTypes.js";
 import {
-  createTypedBlockSpec,
   createStronglyTypedTiptapNode,
+  createTypedBlockSpec,
   getBlockFromPos,
   propsToAttributes,
   wrapInBlockStructure,
 } from "./internal.js";
 import { BlockConfig, BlockImplementation, BlockSpec } from "./types.js";
-import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
-import { PropSchema } from "../propTypes.js";
 
 // Function that causes events within non-selectable blocks to be handled by the
 // browser instead of the editor.
@@ -153,7 +153,7 @@ export function addNodeAndExtensionsToSpec<
       return getParseRules(
         blockConfig,
         blockImplementation.parse,
-        (blockImplementation as any).parseContent,
+        blockImplementation.parseContent,
       );
     },
 
@@ -178,12 +178,12 @@ export function addNodeAndExtensionsToSpec<
     },
 
     addNodeView() {
-      return ({ getPos }) => {
+      return (props) => {
         // Gets the BlockNote editor instance
         const editor = this.options.editor;
         // Gets the block
         const block = getBlockFromPos(
-          getPos,
+          props.getPos,
           editor,
           this.editor,
           blockConfig.type,
@@ -192,16 +192,11 @@ export function addNodeAndExtensionsToSpec<
         const blockContentDOMAttributes =
           this.options.domAttributes?.blockContent || {};
 
-        const output = blockImplementation.render(block as any, editor);
-
-        const nodeView = wrapInBlockStructure(
-          output,
-          block.type,
-          block.props,
-          blockConfig.propSchema,
-          blockConfig.meta?.fileBlockAccept !== undefined,
-          blockContentDOMAttributes,
-        ) satisfies NodeView;
+        const nodeView = blockImplementation.render.call(
+          { blockContentDOMAttributes, props, renderType: "nodeView" },
+          block as any,
+          editor as any,
+        );
 
         if (blockConfig.meta?.selectable === false) {
           applyNonSelectableBlockFix(nodeView, this.editor);
@@ -220,19 +215,18 @@ export function addNodeAndExtensionsToSpec<
 
   return createTypedBlockSpec(blockConfig, {
     node,
-    render: (block, editor) => {
+    render(block, editor) {
       const blockContentDOMAttributes =
         node.options.domAttributes?.blockContent || {};
 
-      const output = blockImplementation.render(block as any, editor as any);
-
-      return wrapInBlockStructure(
-        output,
-        block.type,
-        block.props,
-        blockConfig.propSchema,
-        blockConfig.meta?.fileBlockAccept !== undefined,
-        blockContentDOMAttributes,
+      return blockImplementation.render.call(
+        {
+          blockContentDOMAttributes,
+          props: undefined,
+          renderType: "dom",
+        },
+        block as any,
+        editor as any,
       );
     },
     // TODO: this should not have wrapInBlockStructure and generally be a lot simpler
@@ -241,24 +235,17 @@ export function addNodeAndExtensionsToSpec<
       const blockContentDOMAttributes =
         node.options.domAttributes?.blockContent || {};
 
-      let output:
-        | {
-            dom: HTMLElement | DocumentFragment;
-            contentDOM?: HTMLElement;
-          }
-        | undefined = blockImplementation.toExternalHTML?.(
-        block as any,
-        editor as any,
-      );
-      if (output === undefined) {
-        output = blockImplementation.render(block as any, editor as any);
-      }
-      return wrapInBlockStructure(
-        output,
-        block.type,
-        block.props,
-        blockConfig.propSchema,
-        blockContentDOMAttributes,
+      return (
+        blockImplementation.toExternalHTML?.call(
+          { blockContentDOMAttributes },
+          block as any,
+          editor as any,
+        ) ??
+        blockImplementation.render.call(
+          { blockContentDOMAttributes, renderType: "dom", props: undefined },
+          block as any,
+          editor as any,
+        )
       );
     },
     // Only needed for tables right now, remove later
@@ -279,43 +266,110 @@ export function createBlockConfig<
   TContent extends ReturnType<TCallback>["content"],
 >(
   callback: TCallback,
-): (options: TOptions) => BlockConfig<TName, TProps, TContent> {
-  return callback;
+): TOptions extends undefined
+  ? () => BlockConfig<TName, TProps, TContent>
+  : (options: TOptions) => BlockConfig<TName, TProps, TContent> {
+  return callback as any;
 }
 
 /**
  * Helper function to create a block definition.
+ * Can accept either functions that return the required objects, or the objects directly.
  */
 export function createBlockSpec<
-  TCallback extends (options?: any) => BlockConfig<any, any, any>,
-  TOptions extends Parameters<TCallback>[0],
-  TName extends ReturnType<TCallback>["type"],
-  TProps extends ReturnType<TCallback>["propSchema"],
-  TContent extends ReturnType<TCallback>["content"],
+  TName extends string,
+  TProps extends PropSchema,
+  TContent extends "inline" | "none",
+  TOptions extends Record<string, any> | undefined = undefined,
 >(
-  createBlockConfig: TCallback,
-): {
-  implementation: (
-    createBlockImplementation: (
-      options?: TOptions,
-    ) => BlockImplementation<TName, TProps, TContent>,
-    addExtensions?: (options?: TOptions) => BlockNoteExtension<any>[],
-  ) => (options?: TOptions) => BlockSpec<TName, TProps, TContent>;
-} {
-  return {
-    implementation: (createBlockImplementation, addExtensions) => (options) => {
-      const blockConfig = createBlockConfig(options);
-      const blockImplementation = createBlockImplementation(options);
-      const extensions = addExtensions?.(options);
+  blockConfigOrCreator:
+    | BlockConfig<TName, TProps, TContent>
+    | (TOptions extends undefined
+        ? () => BlockConfig<TName, TProps, TContent>
+        : (options: Partial<TOptions>) => BlockConfig<TName, TProps, TContent>),
+  blockImplementationOrCreator:
+    | BlockImplementation<TName, TProps, TContent>
+    | (TOptions extends undefined
+        ? () => BlockImplementation<TName, TProps, TContent>
+        : (
+            options: Partial<TOptions>,
+          ) => BlockImplementation<TName, TProps, TContent>),
+  extensionsOrCreator?:
+    | BlockNoteExtension<any>[]
+    | (TOptions extends undefined
+        ? () => BlockNoteExtension<any>[]
+        : (options: Partial<TOptions>) => BlockNoteExtension<any>[]),
+): (options?: TOptions) => BlockSpec<TName, TProps, TContent> {
+  return (options = {} as TOptions) => {
+    const blockConfig =
+      typeof blockConfigOrCreator === "function"
+        ? blockConfigOrCreator(options as any)
+        : blockConfigOrCreator;
 
-      return {
-        config: blockConfig,
-        implementation: blockImplementation,
-        extensions: extensions,
-      };
-    },
+    const blockImplementation =
+      typeof blockImplementationOrCreator === "function"
+        ? blockImplementationOrCreator(options as any)
+        : blockImplementationOrCreator;
+
+    const extensions = extensionsOrCreator
+      ? typeof extensionsOrCreator === "function"
+        ? extensionsOrCreator(options as any)
+        : extensionsOrCreator
+      : undefined;
+
+    return {
+      config: blockConfig,
+      implementation: {
+        ...blockImplementation,
+        // TODO: this should not have wrapInBlockStructure and generally be a lot simpler
+        // post-processing in externalHTMLExporter should not be necessary
+        toExternalHTML(block, editor) {
+          const output = blockImplementation.toExternalHTML?.call(
+            { blockContentDOMAttributes: this.blockContentDOMAttributes },
+            block as any,
+            editor as any,
+          );
+
+          if (output === undefined) {
+            return undefined;
+          }
+
+          return wrapInBlockStructure(
+            output,
+            block.type,
+            block.props,
+            blockConfig.propSchema,
+            blockConfig.meta?.fileBlockAccept !== undefined,
+          );
+        },
+        render(block, editor) {
+          const output = blockImplementation.render.call(
+            {
+              blockContentDOMAttributes: this.blockContentDOMAttributes,
+              renderType: this.renderType,
+              props: this.props as any,
+            },
+            block as any,
+            editor as any,
+          );
+
+          const nodeView = wrapInBlockStructure(
+            output,
+            block.type,
+            block.props,
+            blockConfig.propSchema,
+            blockConfig.meta?.fileBlockAccept !== undefined,
+            this.blockContentDOMAttributes,
+          ) satisfies NodeView;
+
+          return nodeView;
+        },
+      },
+      extensions: extensions,
+    };
   };
 }
+
 /**
  * This creates an instance of a BlockNoteExtension that can be used to add to a schema.
  * It is a bit of a hack, but it works.

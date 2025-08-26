@@ -3,6 +3,7 @@ import { DOMSerializer, Fragment } from "prosemirror-model";
 import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import {
+  BlockImplementation,
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
@@ -112,13 +113,19 @@ function serializeBlock<
   // we should change toExternalHTML so that this is not necessary
   const attrs = Array.from(bc.dom.attributes);
 
-  const blockImplementation =
-    editor.blockImplementations[block.type as any].implementation;
+  const blockImplementation = editor.blockImplementations[block.type as any]
+    .implementation as BlockImplementation;
   const ret =
-    blockImplementation.toExternalHTML?.(
+    blockImplementation.toExternalHTML?.call(
+      {},
       { ...block, props } as any,
       editor as any,
-    ) || blockImplementation.render({ ...block, props } as any, editor as any);
+    ) ||
+    blockImplementation.render.call(
+      {},
+      { ...block, props } as any,
+      editor as any,
+    );
 
   const elementFragment = doc.createDocumentFragment();
   if (

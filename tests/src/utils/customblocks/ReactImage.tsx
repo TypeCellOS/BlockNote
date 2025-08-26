@@ -2,40 +2,37 @@ import { BlockNoteEditor, defaultProps } from "@blocknote/core";
 import { createReactBlockSpec } from "@blocknote/react";
 import { RiImage2Fill } from "react-icons/ri";
 
-export const ReactImage = createReactBlockSpec(
-  {
-    type: "reactImage",
-    propSchema: {
-      ...defaultProps,
-      src: {
-        default: "https://via.placeholder.com/1000",
-      },
+export const ReactImage = createReactBlockSpec(() => ({
+  type: "reactImage" as const,
+  propSchema: {
+    ...defaultProps,
+    src: {
+      default: "https://via.placeholder.com/1000",
     },
-    content: "inline",
   },
-  {
-    render: ({ block, contentRef }) => {
-      return (
-        <div
+  content: "inline" as const,
+})).implementation(() => ({
+  render: ({ block, contentRef }) => {
+    return (
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <img
           style={{
-            display: "flex",
-            flexDirection: "column",
+            width: "100%",
           }}
-        >
-          <img
-            style={{
-              width: "100%",
-            }}
-            src={block.props.src}
-            alt={"test"}
-            contentEditable={false}
-          />
-          <span ref={contentRef} style={{ flexGrow: 1 }} />
-        </div>
-      );
-    },
+          src={block.props.src}
+          alt={"test"}
+          contentEditable={false}
+        />
+        <span ref={contentRef} style={{ flexGrow: 1 }} />
+      </div>
+    );
   },
-);
+}));
 
 export const insertReactImage = {
   title: "Insert React Image",

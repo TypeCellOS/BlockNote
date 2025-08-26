@@ -22,8 +22,7 @@ export const createToggleListItemBlockConfig = createBlockConfig(
 
 export const createToggleListItemBlockSpec = createBlockSpec(
   createToggleListItemBlockConfig,
-).implementation(
-  () => ({
+  {
     render(block, editor) {
       const paragraphEl = document.createElement("p");
       const toggleWrapper = createToggleWrapper(
@@ -33,8 +32,8 @@ export const createToggleListItemBlockSpec = createBlockSpec(
       );
       return { ...toggleWrapper, contentDOM: paragraphEl };
     },
-  }),
-  () => [
+  },
+  [
     createBlockNoteExtension({
       key: "toggle-list-item-shortcuts",
       keyboardShortcuts: {

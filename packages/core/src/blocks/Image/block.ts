@@ -1,6 +1,6 @@
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
-  BlockNoDefaults,
+  BlockFromConfig,
   createBlockConfig,
   createBlockSpec,
 } from "../../schema/index.js";
@@ -85,11 +85,7 @@ export const imageParse =
 export const imageRender =
   (config: ImageOptions = {}) =>
   (
-    block: BlockNoDefaults<
-      Record<"image", ReturnType<typeof createImageBlockConfig>>,
-      any,
-      any
-    >,
+    block: BlockFromConfig<ReturnType<typeof createImageBlockConfig>, any, any>,
     editor: BlockNoteEditor<
       Record<"image", ReturnType<typeof createImageBlockConfig>>,
       any,
@@ -130,11 +126,7 @@ export const imageRender =
 export const imageToExternalHTML =
   (_config: ImageOptions = {}) =>
   (
-    block: BlockNoDefaults<
-      Record<"image", ReturnType<typeof createImageBlockConfig>>,
-      any,
-      any
-    >,
+    block: BlockFromConfig<ReturnType<typeof createImageBlockConfig>, any, any>,
     _editor: BlockNoteEditor<
       Record<"image", ReturnType<typeof createImageBlockConfig>>,
       any,
@@ -179,9 +171,10 @@ export const imageToExternalHTML =
 
 export const createImageBlockSpec = createBlockSpec(
   createImageBlockConfig,
-).implementation((config = {}) => ({
-  parse: imageParse(config),
-  render: imageRender(config),
-  toExternalHTML: imageToExternalHTML(config),
-  runsBefore: ["file"],
-}));
+  (config) => ({
+    parse: imageParse(config),
+    render: imageRender(config),
+    toExternalHTML: imageToExternalHTML(config),
+    runsBefore: ["file"],
+  }),
+);

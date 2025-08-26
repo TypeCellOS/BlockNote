@@ -18,8 +18,7 @@ export const createParagraphBlockConfig = createBlockConfig(
 
 export const createParagraphBlockSpec = createBlockSpec(
   createParagraphBlockConfig,
-).implementation(
-  () => ({
+  {
     parse: (e) => {
       const paragraph = e.querySelector("p");
       if (!paragraph) {
@@ -36,8 +35,8 @@ export const createParagraphBlockSpec = createBlockSpec(
       };
     },
     runsBefore: ["default"],
-  }),
-  () => [
+  },
+  [
     createBlockNoteExtension({
       key: "paragraph-shortcuts",
       keyboardShortcuts: {

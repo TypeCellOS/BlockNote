@@ -100,8 +100,9 @@ export const ImageBlock = (
 
 export const ReactImageBlock = createReactBlockSpec(
   createImageBlockConfig,
-).implementation((config) => ({
-  render: ImageBlock,
-  parse: imageParse(config),
-  toExternalHTML: ImageToExternalHTML,
-}));
+  (config) => ({
+    render: ImageBlock,
+    parse: imageParse(config),
+    toExternalHTML: ImageToExternalHTML,
+  }),
+);

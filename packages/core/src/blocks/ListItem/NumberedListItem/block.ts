@@ -24,8 +24,7 @@ export const createNumberedListItemBlockConfig = createBlockConfig(
 
 export const createNumberedListItemBlockSpec = createBlockSpec(
   createNumberedListItemBlockConfig,
-).implementation(
-  () => ({
+  {
     parse(element) {
       if (element.tagName !== "LI") {
         return false;
@@ -61,8 +60,8 @@ export const createNumberedListItemBlockSpec = createBlockSpec(
         contentDOM: dom,
       };
     },
-  }),
-  () => [
+  },
+  [
     createBlockNoteExtension({
       key: "numbered-list-item-shortcuts",
       inputRules: [

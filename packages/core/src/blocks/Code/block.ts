@@ -54,7 +54,7 @@ export type CodeBlockOptions = {
 };
 
 export const createCodeBlockConfig = createBlockConfig(
-  ({ defaultLanguage = "text" }: CodeBlockOptions = {}) =>
+  ({ defaultLanguage = "text" }: CodeBlockOptions) =>
     ({
       type: "codeBlock" as const,
       propSchema: {
@@ -72,8 +72,7 @@ export const createCodeBlockConfig = createBlockConfig(
 
 export const createCodeBlockSpec = createBlockSpec(
   createCodeBlockConfig,
-).implementation(
-  (options = {}) => ({
+  (options) => ({
     parse: (e) => {
       const pre = e.querySelector("pre");
       if (!pre) {
@@ -133,7 +132,7 @@ export const createCodeBlockSpec = createBlockSpec(
       };
     },
   }),
-  (options = {}) => {
+  (options) => {
     return [
       createBlockNoteExtension({
         key: "code-block-highlighter",

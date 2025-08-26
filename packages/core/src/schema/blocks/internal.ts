@@ -192,7 +192,7 @@ export function wrapInBlockStructure<
 
   blockContent.appendChild(element.dom);
 
-  if (element.contentDOM !== undefined) {
+  if (element.contentDOM) {
     element.contentDOM.className = mergeCSSClasses(
       "bn-inline-content",
       element.contentDOM.className,
@@ -264,8 +264,8 @@ export function createBlockSpecFromStronglyTypedTiptapNode<
     {
       node,
       requiredExtensions,
-      render: defaultBlockToHTML,
-      toExternalHTML: defaultBlockToHTML,
+      render: defaultBlockToHTML as any,
+      toExternalHTML: defaultBlockToHTML as any,
     },
   );
 }

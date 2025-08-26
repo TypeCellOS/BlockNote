@@ -11,31 +11,35 @@ export const createPageBreakBlockConfig = createBlockConfig(
 
 export const createPageBreakBlockSpec = createBlockSpec(
   createPageBreakBlockConfig,
-).implementation(() => ({
-  parse(element) {
-    if (element.tagName === "DIV" && element.hasAttribute("data-page-break")) {
-      return {};
-    }
+  {
+    parse(element) {
+      if (
+        element.tagName === "DIV" &&
+        element.hasAttribute("data-page-break")
+      ) {
+        return {};
+      }
 
-    return undefined;
+      return undefined;
+    },
+    render() {
+      const pageBreak = document.createElement("div");
+
+      pageBreak.className = "bn-page-break";
+      pageBreak.setAttribute("data-page-break", "");
+
+      return {
+        dom: pageBreak,
+      };
+    },
+    toExternalHTML() {
+      const pageBreak = document.createElement("div");
+
+      pageBreak.setAttribute("data-page-break", "");
+
+      return {
+        dom: pageBreak,
+      };
+    },
   },
-  render() {
-    const pageBreak = document.createElement("div");
-
-    pageBreak.className = "bn-page-break";
-    pageBreak.setAttribute("data-page-break", "");
-
-    return {
-      dom: pageBreak,
-    };
-  },
-  toExternalHTML() {
-    const pageBreak = document.createElement("div");
-
-    pageBreak.setAttribute("data-page-break", "");
-
-    return {
-      dom: pageBreak,
-    };
-  },
-}));
+);

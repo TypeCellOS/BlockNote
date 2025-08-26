@@ -95,9 +95,10 @@ export const AudioBlock = (
 
 export const ReactAudioBlock = createReactBlockSpec(
   createAudioBlockConfig,
-).implementation((config) => ({
-  render: AudioBlock,
-  parse: audioParse(config),
-  toExternalHTML: AudioToExternalHTML,
-  runsBefore: ["file"],
-}));
+  (config) => ({
+    render: AudioBlock,
+    parse: audioParse(config),
+    toExternalHTML: AudioToExternalHTML,
+    runsBefore: ["file"],
+  }),
+);

@@ -94,8 +94,9 @@ export const VideoBlock = (
 
 export const ReactVideoBlock = createReactBlockSpec(
   createVideoBlockConfig,
-).implementation((config) => ({
-  render: VideoBlock,
-  parse: videoParse(config),
-  toExternalHTML: VideoToExternalHTML,
-}));
+  (config) => ({
+    render: VideoBlock,
+    parse: videoParse(config),
+    toExternalHTML: VideoToExternalHTML,
+  }),
+);

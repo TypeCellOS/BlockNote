@@ -18,8 +18,7 @@ export const createQuoteBlockConfig = createBlockConfig(
 
 export const createQuoteBlockSpec = createBlockSpec(
   createQuoteBlockConfig,
-).implementation(
-  () => ({
+  {
     parse(element) {
       if (element.querySelector("blockquote")) {
         return {};
@@ -35,8 +34,8 @@ export const createQuoteBlockSpec = createBlockSpec(
         contentDOM: quote,
       };
     },
-  }),
-  () => [
+  },
+  [
     createBlockNoteExtension({
       key: "quote-block-shortcuts",
       keyboardShortcuts: {

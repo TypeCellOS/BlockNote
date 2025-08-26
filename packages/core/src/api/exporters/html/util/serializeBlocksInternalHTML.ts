@@ -74,7 +74,7 @@ function serializeBlock<
   }
 
   const impl = editor.blockImplementations[block.type as any].implementation;
-  const ret = impl.render({ ...block, props } as any, editor as any);
+  const ret = impl.render?.call({}, { ...block, props } as any, editor as any);
 
   if (block.type === "numberedListItem") {
     // This is a workaround to make sure there's a list index set.

@@ -9,6 +9,8 @@ import {
   createPageBreakBlockSpec,
 } from "./block.js";
 
+export * from "./getPageBreakSlashMenuItems.js";
+
 export const pageBreakSchema = BlockNoteSchema.create({
   blockSpecs: {
     pageBreak: createPageBreakBlockSpec(),

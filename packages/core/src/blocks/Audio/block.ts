@@ -1,6 +1,6 @@
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
-  BlockNoDefaults,
+  BlockFromConfig,
   createBlockConfig,
   createBlockSpec,
 } from "../../schema/index.js";
@@ -80,11 +80,7 @@ export const audioParse =
 export const audioRender =
   (config: AudioOptions = {}) =>
   (
-    block: BlockNoDefaults<
-      Record<"audio", ReturnType<typeof createAudioBlockConfig>>,
-      any,
-      any
-    >,
+    block: BlockFromConfig<ReturnType<typeof createAudioBlockConfig>, any, any>,
     editor: BlockNoteEditor<
       Record<"audio", ReturnType<typeof createAudioBlockConfig>>,
       any,
@@ -119,11 +115,7 @@ export const audioRender =
 export const audioToExternalHTML =
   (_config: AudioOptions = {}) =>
   (
-    block: BlockNoDefaults<
-      Record<"audio", ReturnType<typeof createAudioBlockConfig>>,
-      any,
-      any
-    >,
+    block: BlockFromConfig<ReturnType<typeof createAudioBlockConfig>, any, any>,
     _editor: BlockNoteEditor<
       Record<"audio", ReturnType<typeof createAudioBlockConfig>>,
       any,
@@ -164,9 +156,10 @@ export const audioToExternalHTML =
 
 export const createAudioBlockSpec = createBlockSpec(
   createAudioBlockConfig,
-).implementation((config = {}) => ({
-  parse: audioParse(config),
-  render: audioRender(config),
-  toExternalHTML: audioToExternalHTML(config),
-  runsBefore: ["file"],
-}));
+  (config) => ({
+    parse: audioParse(config),
+    render: audioRender(config),
+    toExternalHTML: audioToExternalHTML(config),
+    runsBefore: ["file"],
+  }),
+);

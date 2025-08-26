@@ -22,8 +22,7 @@ export const createBulletListItemBlockConfig = createBlockConfig(
 
 export const createBulletListItemBlockSpec = createBlockSpec(
   createBulletListItemBlockConfig,
-).implementation(
-  () => ({
+  {
     parse(element) {
       if (element.tagName !== "LI") {
         return false;
@@ -59,8 +58,8 @@ export const createBulletListItemBlockSpec = createBlockSpec(
         contentDOM: dom,
       };
     },
-  }),
-  () => [
+  },
+  [
     createBlockNoteExtension({
       key: "bullet-list-item-shortcuts",
       keyboardShortcuts: {
