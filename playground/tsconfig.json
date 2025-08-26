@@ -16,7 +16,11 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "composite": true,
-    "rootDir": ".."
+    "rootDir": "..",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "include": ["src", "../examples", "./vite.config.ts"],
   "references": [
