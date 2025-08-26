@@ -4686,9 +4686,6 @@ importers:
       react-router-dom:
         specifier: ^6.20.0
         version: 6.30.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      tailwind-merge:
-        specifier: ^2.6.0
-        version: 2.6.0
       tailwindcss:
         specifier: ^4.1.12
         version: 4.1.12

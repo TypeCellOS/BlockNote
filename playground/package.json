@@ -61,7 +61,6 @@
     "react-icons": "^5.2.1",
     "react-router-dom": "^6.20.0",
     "tailwindcss": "^4.1.12",
-    "tailwind-merge": "^2.6.0",
     "tw-animate-css": "^1.3.7",
     "y-partykit": "^0.0.25",
     "yjs": "^13.6.27",
