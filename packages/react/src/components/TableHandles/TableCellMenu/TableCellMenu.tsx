@@ -21,7 +21,7 @@ export const TableCellMenu = <
 
   return (
     <Components.Generic.Menu.Dropdown
-      className={"bn-menu-dropdown bn-drag-handle-menu"}
+      className={"bn-menu-dropdown bn-table-handle-menu"}
     >
       {props.children || (
         <>

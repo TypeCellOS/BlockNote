@@ -3,7 +3,7 @@ import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import "./styles.css";
 
@@ -32,6 +32,9 @@ export default function App() {
     ],
   });
 
+  // Sets the initial document JSON
+  useEffect(() => setBlocks(editor.document), []);
+
   // Renders the editor instance and its document JSON.
   return (
     <div className={"wrapper"}>
@@ -40,7 +43,7 @@ export default function App() {
         <BlockNoteView
           editor={editor}
           onChange={() => {
-            // Saves the document JSON to state.
+            // Sets the document JSON whenever the editor content changes.
             setBlocks(editor.document);
           }}
         />
@@ -48,7 +51,7 @@ export default function App() {
       <div>Document JSON:</div>
       <div className={"item bordered"}>
         <pre>
-          <code>{JSON.stringify(editor.document, null, 2)}</code>
+          <code>{JSON.stringify(blocks, null, 2)}</code>
         </pre>
       </div>
     </div>

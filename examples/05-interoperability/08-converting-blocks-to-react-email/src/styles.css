@@ -21,8 +21,6 @@
 
 .email {
   min-height: 500px;
-  display: flex;
-  align-items: stretch;
 }
 
 /* hack to get react-email to show on website */
