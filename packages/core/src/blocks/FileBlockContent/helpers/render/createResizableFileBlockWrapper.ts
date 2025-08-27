@@ -18,6 +18,7 @@ export const createResizableFileBlockWrapper = (
     buttonIcon,
   );
   const wrapper = dom;
+  wrapper.style.position = "relative";
   if (block.props.url && block.props.showPreview) {
     if (block.props.previewWidth) {
       wrapper.style.width = `${block.props.previewWidth}px`;

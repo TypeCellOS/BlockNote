@@ -154,7 +154,11 @@ export const ResizableFileBlockWrapper = (
           : undefined
       }
     >
-      <div className={"bn-visual-media-wrapper"} ref={ref}>
+      <div
+        className={"bn-visual-media-wrapper"}
+        style={{ position: "relative" }}
+        ref={ref}
+      >
         {props.children}
         {(hovered || resizeParams) && (
           <>
