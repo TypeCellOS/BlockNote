@@ -57,9 +57,6 @@ jobs:
       - name: Print Environment Info
         run: pnpm exec nx report
 
-      - name: Setup NPM
-        # Ensure npm 11.5.1 or later for trusted publishing
-        run: echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" >> .npmrc && npm install -g npm@latest
-
       - name: Publish packages
-        run: pnpm exec nx release publish --access public
+        # Ensure npm 11.5.1 or later for trusted publishing
+        run: npm install -g npm@latest && pnpm exec nx release publish --access public
