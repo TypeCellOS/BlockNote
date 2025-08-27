@@ -41,25 +41,22 @@ export default defineConfig((conf) => ({
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
       // into your library
-      external: (source: string) => {
-        if (deps.includes(source)) {
-          return true;
-        }
-
-        if (source === "react/jsx-runtime") {
-          return true;
-        }
-
-        if (source.startsWith("prosemirror-")) {
-          return true;
-        }
-
-        return false;
-      },
+      external: [
+        ...Object.keys({
+          ...pkg.dependencies,
+          ...pkg.peerDependencies,
+          ...pkg.devDependencies,
+        }),
+        "react-dom/client",
+        "react/jsx-runtime",
+      ],
       output: {
         // Provide global variables to use in the UMD build
         // for externalized deps
-        globals: {},
+        globals: {
+          react: "React",
+          "react-dom": "ReactDOM",
+        },
         interop: "compat", // https://rollupjs.org/migration/#changed-defaults
       },
     },
