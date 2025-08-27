@@ -7,7 +7,7 @@ import {
 } from "../../schema/ReactBlockSpec.js";
 import { useResolveUrl } from "../FileBlockContent/useResolveUrl.js";
 import { FigureWithCaption } from "../FileBlockContent/helpers/toExternalHTML/FigureWithCaption.js";
-import { ResizableFileWithCaption } from "../FileBlockContent/helpers/render/ResizableFileWithCaption.js";
+import { ResizableFileBlockWrapper } from "../FileBlockContent/helpers/render/ResizableFileBlockWrapper.js";
 import { LinkWithCaption } from "../FileBlockContent/helpers/toExternalHTML/LinkWithCaption.js";
 
 export const VideoPreview = (
@@ -70,13 +70,13 @@ export const VideoBlock = (
   props: ReactCustomBlockRenderProps<typeof videoBlockConfig, any, any>,
 ) => {
   return (
-    <ResizableFileWithCaption
+    <ResizableFileBlockWrapper
       {...(props as any)}
       buttonText={props.editor.dictionary.file_blocks.video.add_button_text}
       buttonIcon={<RiVideoFill size={24} />}
     >
       <VideoPreview {...(props as any)} />
-    </ResizableFileWithCaption>
+    </ResizableFileBlockWrapper>
   );
 };
 

@@ -8,7 +8,7 @@ import {
 } from "../../schema/ReactBlockSpec.js";
 import { useResolveUrl } from "../FileBlockContent/useResolveUrl.js";
 import { FigureWithCaption } from "../FileBlockContent/helpers/toExternalHTML/FigureWithCaption.js";
-import { FileWithCaption } from "../FileBlockContent/helpers/render/FileWithCaption.js";
+import { FileBlockWrapper } from "../FileBlockContent/helpers/render/FileBlockWrapper.js";
 import { LinkWithCaption } from "../FileBlockContent/helpers/toExternalHTML/LinkWithCaption.js";
 
 export const AudioPreview = (
@@ -71,13 +71,13 @@ export const AudioBlock = (
   props: ReactCustomBlockRenderProps<typeof audioBlockConfig, any, any>,
 ) => {
   return (
-    <FileWithCaption
+    <FileBlockWrapper
       {...(props as any)}
       buttonText={props.editor.dictionary.file_blocks.audio.add_button_text}
       buttonIcon={<RiVolumeUpFill size={24} />}
     >
       <AudioPreview {...(props as any)} />
-    </FileWithCaption>
+    </FileBlockWrapper>
   );
 };
 

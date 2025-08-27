@@ -3,9 +3,9 @@ import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 
 import { useUploadLoading } from "../../../../hooks/useUploadLoading.js";
 import { ReactCustomBlockRenderProps } from "../../../../schema/ReactBlockSpec.js";
-import { FileWithCaption } from "./FileWithCaption.js";
+import { FileBlockWrapper } from "./FileBlockWrapper.js";
 
-export const ResizableFileWithCaption = (
+export const ResizableFileBlockWrapper = (
   props: Omit<
     ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
     "contentRef"
@@ -89,13 +89,13 @@ export const ResizableFileWithCaption = (
     };
 
     if (resizeParams) {
-      window.addEventListener("mousemove", windowMouseMoveHandler, true);
-      window.addEventListener("mouseup", windowMouseUpHandler, true);
+      window.addEventListener("mousemove", windowMouseMoveHandler);
+      window.addEventListener("mouseup", windowMouseUpHandler);
     }
 
     return () => {
-      window.removeEventListener("mousemove", windowMouseMoveHandler, true);
-      window.removeEventListener("mouseup", windowMouseUpHandler, true);
+      window.removeEventListener("mousemove", windowMouseMoveHandler);
+      window.removeEventListener("mouseup", windowMouseUpHandler);
     };
   }, [props, resizeParams, width]);
 
@@ -142,7 +142,7 @@ export const ResizableFileWithCaption = (
   const showLoader = useUploadLoading(props.block.id);
 
   return (
-    <FileWithCaption
+    <FileBlockWrapper
       {...props}
       onMouseEnter={wrapperMouseEnterHandler}
       onMouseLeave={wrapperMouseLeaveHandler}
@@ -154,7 +154,7 @@ export const ResizableFileWithCaption = (
           : undefined
       }
     >
-      <div className={"bn-file"} ref={ref}>
+      <div className={"bn-visual-media-wrapper"} ref={ref}>
         {props.children}
         {(hovered || resizeParams) && (
           <>
@@ -170,20 +170,7 @@ export const ResizableFileWithCaption = (
             />
           </>
         )}
-        {/* This element ensures `mousemove` and `mouseup` events are captured
-        while resizing when the cursor is over the wrapper content. This is
-        because embeds are treated as separate HTML documents, so if the 
-        content is an embed, the events will only fire within that document. */}
-        {resizeParams && (
-          <div
-            style={{
-              position: "absolute",
-              height: "100%",
-              width: "100%",
-            }}
-          />
-        )}
       </div>
-    </FileWithCaption>
+    </FileBlockWrapper>
   );
 };

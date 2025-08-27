@@ -7,7 +7,7 @@ import {
 } from "../../schema/ReactBlockSpec.js";
 import { useResolveUrl } from "../FileBlockContent/useResolveUrl.js";
 import { FigureWithCaption } from "../FileBlockContent/helpers/toExternalHTML/FigureWithCaption.js";
-import { ResizableFileWithCaption } from "../FileBlockContent/helpers/render/ResizableFileWithCaption.js";
+import { ResizableFileBlockWrapper } from "../FileBlockContent/helpers/render/ResizableFileBlockWrapper.js";
 import { LinkWithCaption } from "../FileBlockContent/helpers/toExternalHTML/LinkWithCaption.js";
 
 export const ImagePreview = (
@@ -76,13 +76,13 @@ export const ImageBlock = (
   props: ReactCustomBlockRenderProps<typeof imageBlockConfig, any, any>,
 ) => {
   return (
-    <ResizableFileWithCaption
+    <ResizableFileBlockWrapper
       {...(props as any)}
       buttonText={props.editor.dictionary.file_blocks.image.add_button_text}
       buttonIcon={<RiImage2Fill size={24} />}
     >
       <ImagePreview {...(props as any)} />
-    </ResizableFileWithCaption>
+    </ResizableFileBlockWrapper>
   );
 };
 

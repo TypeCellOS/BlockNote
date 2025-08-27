@@ -10,7 +10,7 @@ import { defaultProps } from "../defaultProps.js";
 import { parseFigureElement } from "../FileBlockContent/helpers/parse/parseFigureElement.js";
 import { createFigureWithCaption } from "../FileBlockContent/helpers/toExternalHTML/createFigureWithCaption.js";
 import { createLinkWithCaption } from "../FileBlockContent/helpers/toExternalHTML/createLinkWithCaption.js";
-import { createResizableFileWithCaption } from "../FileBlockContent/helpers/render/createResizableFileWithCaption.js";
+import { createResizableFileBlockWrapper } from "../FileBlockContent/helpers/render/createResizableFileBlockWrapper.js";
 import { parseImageElement } from "./parseImageElement.js";
 
 export const FILE_IMAGE_ICON_SVG =
@@ -57,6 +57,9 @@ export const imageRender = (
   const icon = document.createElement("div");
   icon.innerHTML = FILE_IMAGE_ICON_SVG;
 
+  const imageWrapper = document.createElement("div");
+  imageWrapper.className = "bn-visual-media-wrapper";
+
   const image = document.createElement("img");
   image.className = "bn-visual-media";
   if (editor.resolveFileUrl) {
@@ -70,11 +73,13 @@ export const imageRender = (
   image.alt = block.props.name || block.props.caption || "BlockNote image";
   image.contentEditable = "false";
   image.draggable = false;
+  imageWrapper.appendChild(image);
 
-  return createResizableFileWithCaption(
+  return createResizableFileBlockWrapper(
     block,
     editor,
-    image,
+    { dom: imageWrapper },
+    imageWrapper,
     editor.dictionary.file_blocks.image.add_button_text,
     icon.firstElementChild as HTMLElement,
   );
