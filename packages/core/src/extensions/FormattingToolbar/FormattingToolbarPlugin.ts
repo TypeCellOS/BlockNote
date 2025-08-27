@@ -211,11 +211,7 @@ export class FormattingToolbarView implements PluginView {
       // content causes the formatting toolbar to be in the wrong place. We
       // know the component has not yet rendered if the reference position has
       // zero dimensions.
-      if (
-        newReferencePos.x === 0 ||
-        newReferencePos.y === 0 ||
-        newReferencePos.height === 0
-      ) {
+      if (newReferencePos.height === 0 && newReferencePos.width === 0) {
         // Updates the reference position again following the render.
         queueMicrotask(() => {
           const nextState = {
