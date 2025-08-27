@@ -5,18 +5,18 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "../../lib/utils";
 
 const badgeVariants = cva(
-  "bn:inline-flex bn:items-center bn:justify-center bn:rounded-md bn:border bn:px-2 bn:py-0.5 bn:text-xs bn:font-medium bn:w-fit bn:whitespace-nowrap bn:shrink-0 bn:[&>svg]:size-3 bn:gap-1 bn:[&>svg]:pointer-events-none bn:focus-visible:border-ring bn:focus-visible:ring-ring/50 bn:focus-visible:ring-[3px] bn:aria-invalid:ring-destructive/20 bn:dark:aria-invalid:ring-destructive/40 bn:aria-invalid:border-destructive bn:transition-[color,box-shadow] bn:overflow-hidden",
+  "inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden",
   {
     variants: {
       variant: {
         default:
-          "bn:border-transparent bn:bg-primary bn:text-primary-foreground bn:[a&]:hover:bg-primary/90",
+          "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
         secondary:
-          "bn:border-transparent bn:bg-secondary bn:text-secondary-foreground bn:[a&]:hover:bg-secondary/90",
+          "border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
         destructive:
-          "bn:border-transparent bn:bg-destructive bn:text-white bn:[a&]:hover:bg-destructive/90 bn:focus-visible:ring-destructive/20 bn:dark:focus-visible:ring-destructive/40 bn:dark:bg-destructive/60",
+          "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
-          "bn:text-foreground bn:[a&]:hover:bg-accent bn:[a&]:hover:text-accent-foreground",
+          "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
       },
     },
     defaultVariants: {

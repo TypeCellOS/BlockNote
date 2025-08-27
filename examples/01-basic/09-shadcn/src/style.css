@@ -1,16 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "fumadocs-ui/css/vitepress.css";
-@import "fumadocs-ui/css/preset.css";
-@import "fumadocs-twoslash/twoslash.css";
 
-@source ".";
-@source "../components";
-@source "../content";
-/* Ensures CSS is generated also for ShadCN components. */
 @source "../node_modules/@blocknote/shadcn";
 
-/* Add ShadCN theme variables. */
 @custom-variant dark (&:is(.dark *));
 
 :root {

@@ -25,47 +25,33 @@ const AuthorInfo = forwardRef<
 
   if (authorInfo === "loading") {
     return (
-      <div
-        className={
-          "bn-flex bn-flex-row bn-flex-nowrap bn-items-center bn-gap-4"
-        }
-      >
+      <div className={"flex flex-row flex-nowrap items-center gap-4"}>
         <ShadCNComponents.Skeleton.Skeleton
-          className={
-            "bn-size-7 bn-rounded-full bn-bg-neutral-400 bn-animate-pulse"
-          }
+          className={"size-7 animate-pulse rounded-full bg-neutral-400"}
         />
         <ShadCNComponents.Skeleton.Skeleton
-          className={
-            "bn-h-3 bn-w-32 bn-rounded-full bn-bg-neutral-400 bn-animate-pulse"
-          }
+          className={"h-3 w-32 animate-pulse rounded-full bg-neutral-400"}
         />
       </div>
     );
   }
 
   return (
-    <div
-      className={"bn-flex bn-flex-row bn-flex-nowrap bn-items-center bn-gap-4"}
-    >
+    <div className={"flex flex-row flex-nowrap items-center gap-4"}>
       <ShadCNComponents.Avatar.Avatar>
         <ShadCNComponents.Avatar.AvatarImage
           src={authorInfo.avatarUrl}
           alt={authorInfo.username}
-          className={"bn-h-7 bn-rounded-full"}
+          className={"h-7 rounded-full"}
         />
         <ShadCNComponents.Avatar.AvatarFallback>
           {authorInfo.username[0]}
         </ShadCNComponents.Avatar.AvatarFallback>
       </ShadCNComponents.Avatar.Avatar>
 
-      <div
-        className={
-          "bn-flex bn-flex-row bn-flex-nowrap bn-items-center bn-gap-2"
-        }
-      >
-        <span className={"bn-text-sm bn-font-bold"}>{authorInfo.username}</span>
-        <span className={"bn-text-xs"}>
+      <div className={"flex flex-row flex-nowrap items-center gap-2"}>
+        <span className={"text-sm font-bold"}>{authorInfo.username}</span>
+        <span className={"text-xs"}>
           {timeString} {edited && `(${dict.comments.edited})`}
         </span>
       </div>
@@ -103,15 +89,12 @@ export const Comment = forwardRef<
   return (
     <div
       ref={ref}
-      className={cn(className, "bn-relative bn-flex bn-flex-col bn-gap-2")}
+      className={cn(className, "relative flex flex-col gap-2")}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
       {doShowActions ? (
-        <div
-          className={"bn-absolute bn-right-0 bn-top-0 bn-z-10"}
-          ref={focusRef}
-        >
+        <div className={"absolute right-0 top-0 z-10"} ref={focusRef}>
           {actions}
         </div>
       ) : null}

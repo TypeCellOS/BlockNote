@@ -102,7 +102,9 @@
     "y-partykit": "^0.0.25",
     "yjs": "^13.6.27",
     "zod": "^3.25.67",
-    "zustand": "^5.0.3"
+    "zustand": "^5.0.3",
+    "tailwindcss": "^4.1.12",
+    "tw-animate-css": "^1.3.7"
   },
   "devDependencies": {
     "@blocknote/ariakit": "workspace:^",
@@ -134,7 +136,8 @@
     "postcss": "^8.5.6",
     "react-email": "^4.0.16",
     "react-icons": "^5.5.0",
-    "tailwindcss": "^4.1.10",
+    "tailwindcss": "^4.1.12",
+    "tw-animate-css": "^1.3.7",
     "typescript": "^5.8.3",
     "y-partykit": "^0.0.33",
     "yjs": "^13.6.27"
