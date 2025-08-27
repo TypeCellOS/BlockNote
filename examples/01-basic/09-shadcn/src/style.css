@@ -1,8 +1,19 @@
+/* The ShadCN version of BlockNote is intended to be used within a TailwindCSS 
+app, so we import Tailwind styles here. */
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Tailwind only generates CSS for the utility classes you use in your code, 
+which may not include all utility classes used by BlockNote. By pointing 
+Tailwind to the `@blocknote/shadcn` package using the `@source` directive, it 
+ensures that the generated CSS has all the classes that BlockNote needs. */
 @source "../node_modules/@blocknote/shadcn";
 
+/* The code below extends the base Tailwind theme for ShadCN components. If 
+your app uses ShadCN already, you will already have this set up. However, this
+example doesn't use ShadCN, so we need to extend the theme ourselves in order 
+for BlockNote's UI elements to display properly. The code is taken from here:
+https://ui.shadcn.com/docs/installation/manual#configure-styles */
 @custom-variant dark (&:is(.dark *));
 
 :root {
