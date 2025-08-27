@@ -282,10 +282,10 @@ importers:
         specifier: ^8.15.5
         version: 8.15.5
       react:
-        specifier: ^19.1.1
+        specifier: ^19.1.0
         version: 19.1.1
       react-dom:
-        specifier: ^19.1.1
+        specifier: ^19.1.0
         version: 19.1.1(react@19.1.1)
       react-github-btn:
         specifier: ^1.4.0
@@ -364,10 +364,10 @@ importers:
         specifier: 8.11.14
         version: 8.11.14
       '@types/react':
-        specifier: ^19.1.11
+        specifier: ^19.1.8
         version: 19.1.11
       '@types/react-dom':
-        specifier: ^19.1.8
+        specifier: ^19.1.6
         version: 19.1.8(@types/react@19.1.11)
       next-themes:
         specifier: 0.4.6
