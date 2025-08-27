@@ -9,7 +9,6 @@ on:
 env:
   NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN }}
   NX_SELF_HOSTED_REMOTE_CACHE_SERVER: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_SERVER }}
-  NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
 
 jobs:
   publish:
@@ -59,10 +58,8 @@ jobs:
         run: pnpm exec nx report
 
       - name: Setup NPM
-        run: echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" >> .npmrc
+        # Ensure npm 11.5.1 or later for trusted publishing
+        run: echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" >> .npmrc && npm install -g npm@latest
 
       - name: Publish packages
         run: pnpm exec nx release publish --access public
-        env:
-          NPM_CONFIG_PROVENANCE: true
-          GITHUB_TOKEN: "${{ github.token }}"
