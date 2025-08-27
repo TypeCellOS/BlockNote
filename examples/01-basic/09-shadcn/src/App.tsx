@@ -3,6 +3,8 @@ import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/shadcn";
 import "@blocknote/shadcn/style.css";
 
+import "./style.css";
+
 export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote();

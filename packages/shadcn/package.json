@@ -78,7 +78,6 @@
   },
   "devDependencies": {
     "@radix-ui/colors": "^3.0.0",
-    "@tailwindcss/vite": "^4.1.12",
     "@types/node": "^20.12.7",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
@@ -95,7 +94,8 @@
   },
   "peerDependencies": {
     "react": "^18.0 || ^19.0 || >= 19.0.0-rc",
-    "react-dom": "^18.0 || ^19.0 || >= 19.0.0-rc"
+    "react-dom": "^18.0 || ^19.0 || >= 19.0.0-rc",
+    "tailwindcss": "^4.1.12"
   },
   "eslintConfig": {
     "extends": [
