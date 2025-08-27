@@ -1,0 +1,180 @@
+[
+  {
+    "block": {
+      "children": [],
+      "content": [
+        {
+          "styles": {},
+          "text": "B",
+          "type": "text",
+        },
+      ],
+      "id": "child-b",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    "currentParent": {
+      "children": [
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "B",
+              "type": "text",
+            },
+          ],
+          "id": "child-b",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "A",
+              "type": "text",
+            },
+          ],
+          "id": "child-a",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "C",
+              "type": "text",
+            },
+          ],
+          "id": "child-c",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "content": [
+        {
+          "styles": {},
+          "text": "Parent",
+          "type": "text",
+        },
+      ],
+      "id": "parent",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    "prevBlock": {
+      "children": [],
+      "content": [
+        {
+          "styles": {},
+          "text": "B",
+          "type": "text",
+        },
+      ],
+      "id": "child-b",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    "prevParent": {
+      "children": [
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "A",
+              "type": "text",
+            },
+          ],
+          "id": "child-a",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "B",
+              "type": "text",
+            },
+          ],
+          "id": "child-b",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "C",
+              "type": "text",
+            },
+          ],
+          "id": "child-c",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "content": [
+        {
+          "styles": {},
+          "text": "Parent",
+          "type": "text",
+        },
+      ],
+      "id": "parent",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    "source": {
+      "type": "local",
+    },
+    "type": "move",
+  },
+]
