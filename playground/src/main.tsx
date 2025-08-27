@@ -84,9 +84,7 @@ function Root() {
           </AppShell.Navbar>
         )}
         <AppShell.Main>
-          <div>
-            <Outlet />
-          </div>
+          <Outlet />
         </AppShell.Main>
       </AppShell>
     </MantineProvider>
