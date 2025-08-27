@@ -1,3 +1,16 @@
+## 0.36.1 (2025-08-27)
+
+### 🩹 Fixes
+
+- table column widths not being set in exported HTML ([#1947](https://github.com/TypeCellOS/BlockNote/pull/1947))
+- Minor change to formatting toolbar extension logic ([#1963](https://github.com/TypeCellOS/BlockNote/pull/1963))
+- **core:** report block moves in `getBlocksChangedByTransaction` #1924 ([#1960](https://github.com/TypeCellOS/BlockNote/pull/1960), [#1924](https://github.com/TypeCellOS/BlockNote/issues/1924))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+- Nick Perez
+
 ## 0.36.0 (2025-08-25)
 
 ### 🚀 Features
