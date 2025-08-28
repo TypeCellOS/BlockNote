@@ -256,7 +256,7 @@ function schemaOps(
     removeFileBlocks() {
       clone.blockSchema = Object.fromEntries(
         Object.entries(clone.blockSchema).filter(
-          ([_key, val]) => !val.isFileBlock,
+          ([_key, val]) => !val.meta?.fileBlockAccept,
         ),
       );
       return this;

@@ -129,7 +129,7 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
     return new Paragraph({
       ...blockPropsToStyles(block.props, exporter.options.colors),
       children: exporter.transformInlineContent(block.content),
-      heading: `Heading${block.props.level}`,
+      heading: `Heading${block.props.level as 1 | 2 | 3 | 4 | 5 | 6}`,
     });
   },
   quote: (block, exporter) => {

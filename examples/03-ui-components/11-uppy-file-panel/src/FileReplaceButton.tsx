@@ -41,7 +41,7 @@ export const FileReplaceButton = () => {
 
   if (
     block === undefined ||
-    !blockHasType(block, editor, { url: "string" }) ||
+    !blockHasType(block, editor, "file", { url: "string" }) ||
     !editor.isEditable
   ) {
     return null;
