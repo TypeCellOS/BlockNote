@@ -193,15 +193,11 @@ const getTipTapExtensions = <
     Extension.create({
       name: "dropCursor",
       addProseMirrorPlugins: () => [
-        // TODO need to figure out why this isn't working with the default plugin key
-        {
-          ...opts.dropCursor({
-            width: 5,
-            color: "#ddeeff",
-            editor: opts.editor,
-          }),
-          key: new PluginKey("dropCursor"),
-        } as unknown as Plugin,
+        opts.dropCursor({
+          width: 5,
+          color: "#ddeeff",
+          editor: opts.editor,
+        }),
       ],
     }),
 

@@ -128,13 +128,11 @@ function serializeBlock<
     );
 
   const elementFragment = doc.createDocumentFragment();
-  if (
-    ret.dom instanceof HTMLElement &&
-    ret.dom.classList.contains("bn-block-content")
-  ) {
+
+  if ((ret.dom as HTMLElement).classList.contains("bn-block-content")) {
     const blockContentDataAttributes = [
       ...attrs,
-      ...Array.from(ret.dom.attributes),
+      ...Array.from((ret.dom as HTMLElement).attributes),
     ].filter(
       (attr) =>
         attr.name.startsWith("data") &&
