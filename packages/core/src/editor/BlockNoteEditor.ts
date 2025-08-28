@@ -63,7 +63,7 @@ import { docToBlocks } from "../api/nodeConversions/nodeToBlock.js";
 import {
   BlocksChanged,
   getBlocksChangedByTransaction,
-} from "../api/nodeUtil.js";
+} from "../api/getBlocksChangedByTransaction.js";
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
 import { nestedListsToBlockNoteStructure } from "../api/parsers/html/util/nestedLists.js";
 import {

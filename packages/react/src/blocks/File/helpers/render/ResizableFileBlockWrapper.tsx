@@ -158,7 +158,11 @@ export const ResizableFileBlockWrapper = (
           : undefined
       }
     >
-      <div className={"bn-visual-media-wrapper"} ref={ref}>
+      <div
+        className={"bn-visual-media-wrapper"}
+        style={{ position: "relative" }}
+        ref={ref}
+      >
         {props.children}
         {(hovered || resizeParams) && (
           <>
@@ -173,6 +177,19 @@ export const ResizableFileBlockWrapper = (
               onMouseDown={rightResizeHandleMouseDownHandler}
             />
           </>
+        )}
+        {/* This element ensures `mousemove` and `mouseup` events are captured
+        while resizing when the cursor is over the wrapper content. This is
+        because embeds are treated as separate HTML documents, so if the 
+        content is an embed, the events will only fire within that document. */}
+        {resizeParams && (
+          <div
+            style={{
+              position: "absolute",
+              height: "100%",
+              width: "100%",
+            }}
+          />
         )}
       </div>
     </FileBlockWrapper>

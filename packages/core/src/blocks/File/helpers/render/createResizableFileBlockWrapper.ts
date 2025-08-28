@@ -37,6 +37,7 @@ export const createResizableFileBlockWrapper = (
     buttonIcon,
   );
   const wrapper = dom;
+  wrapper.style.position = "relative";
   if (block.props.url && block.props.showPreview) {
     if (block.props.previewWidth) {
       wrapper.style.width = `${block.props.previewWidth}px`;
@@ -51,6 +52,15 @@ export const createResizableFileBlockWrapper = (
   const rightResizeHandle = document.createElement("div");
   rightResizeHandle.className = "bn-resize-handle";
   rightResizeHandle.style.right = "4px";
+
+  // This element ensures `mousemove` and `mouseup` events are captured while
+  // resizing when the cursor is over the wrapper content. This is because
+  // embeds are treated as separate HTML documents, so if the content is an
+  // embed, the events will only fire within that document.
+  const eventCaptureElement = document.createElement("div");
+  eventCaptureElement.style.position = "absolute";
+  eventCaptureElement.style.height = "100%";
+  eventCaptureElement.style.width = "100%";
 
   // Temporary parameters set when the user begins resizing the element, used to
   // calculate the new width of the element.
@@ -137,6 +147,10 @@ export const createResizableFileBlockWrapper = (
 
     resizeParams = undefined;
 
+    if (wrapper.contains(eventCaptureElement)) {
+      wrapper.removeChild(eventCaptureElement);
+    }
+
     editor.updateBlock(block, {
       props: {
         previewWidth: width,
@@ -180,6 +194,10 @@ export const createResizableFileBlockWrapper = (
   const leftResizeHandleMouseDownHandler = (event: MouseEvent) => {
     event.preventDefault();
 
+    if (!wrapper.contains(eventCaptureElement)) {
+      wrapper.appendChild(eventCaptureElement);
+    }
+
     resizeParams = {
       handleUsed: "left",
       initialWidth: wrapper.clientWidth,
@@ -188,6 +206,10 @@ export const createResizableFileBlockWrapper = (
   };
   const rightResizeHandleMouseDownHandler = (event: MouseEvent) => {
     event.preventDefault();
+
+    if (!wrapper.contains(eventCaptureElement)) {
+      wrapper.appendChild(eventCaptureElement);
+    }
 
     resizeParams = {
       handleUsed: "right",

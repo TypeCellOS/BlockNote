@@ -4,6 +4,7 @@ export * from "./api/blockManipulation/commands/updateBlock/updateBlock.js";
 export * from "./api/exporters/html/externalHTMLExporter.js";
 export * from "./api/exporters/html/internalHTMLSerializer.js";
 export * from "./api/getBlockInfoFromPos.js";
+export * from "./api/getBlocksChangedByTransaction.js";
 export * from "./api/nodeUtil.js";
 export * from "./api/pmUtil.js";
 export * from "./blocks/index.js";
