@@ -272,7 +272,11 @@ export type BlockNoteEditorOptions<
    *
    * @remarks `PartialBlock[]`
    */
-  initialContent?: PartialBlock<BSchema, ISchema, SSchema>[];
+  initialContent?: PartialBlock<
+    NoInfer<BSchema>,
+    NoInfer<ISchema>,
+    NoInfer<SSchema>
+  >[];
 
   /**
    * @deprecated, provide placeholders via dictionary instead
@@ -300,7 +304,11 @@ export type BlockNoteEditorOptions<
    */
   pasteHandler?: (context: {
     event: ClipboardEvent;
-    editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
+    editor: BlockNoteEditor<
+      NoInfer<BSchema>,
+      NoInfer<ISchema>,
+      NoInfer<SSchema>
+    >;
     /**
      * The default paste handler
      * @param context The context object
@@ -673,7 +681,7 @@ export class BlockNoteEditor<
     this.extensions = getBlockNoteExtensions({
       editor: this,
       domAttributes: newOptions.domAttributes || {},
-      blockSpecs: this.schema.blockSpecs as any,
+      blockSpecs: this.schema.blockSpecs,
       styleSpecs: this.schema.styleSpecs,
       inlineContentSpecs: this.schema.inlineContentSpecs,
       collaboration: newOptions.collaboration,

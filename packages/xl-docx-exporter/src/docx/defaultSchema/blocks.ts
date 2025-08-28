@@ -1,9 +1,9 @@
 import {
   BlockMapping,
   COLORS_DEFAULT,
+  createPageBreakBlockConfig,
   DefaultBlockSchema,
   DefaultProps,
-  pageBreakSchema,
   StyledText,
   UnreachableCaseError,
 } from "@blocknote/core";
@@ -61,9 +61,9 @@ function blockPropsToStyles(
   };
 }
 export const docxBlockMappingForDefaultSchema: BlockMapping<
-  DefaultBlockSchema &
-    typeof pageBreakSchema.blockSchema &
-    typeof multiColumnSchema.blockSchema,
+  DefaultBlockSchema & {
+    pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
+  } & typeof multiColumnSchema.blockSchema,
   any,
   any,
   | Promise<Paragraph[] | Paragraph | DocxTable>

@@ -1,8 +1,8 @@
 import {
   BlockNoteSchema,
   combineByGroup,
+  createPageBreakBlockSpec,
   filterSuggestionItems,
-  withPageBreak,
 } from "@blocknote/core";
 import * as locales from "@blocknote/core/locales";
 import "@blocknote/core/fonts/inter.css";
@@ -35,7 +35,13 @@ export default function App() {
 
   // Creates a new editor instance with some initial content.
   const editor = useCreateBlockNote({
-    schema: withMultiColumn(withPageBreak(BlockNoteSchema.create())),
+    schema: withMultiColumn(
+      BlockNoteSchema.create().extend({
+        blockSpecs: {
+          pageBreak: createPageBreakBlockSpec(),
+        },
+      }),
+    ),
     dropCursor: multiColumnDropCursor,
     dictionary: {
       ...locales.en,

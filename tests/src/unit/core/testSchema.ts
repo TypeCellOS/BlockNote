@@ -1,15 +1,15 @@
 import {
   BlockNoteSchema,
   addNodeAndExtensionsToSpec,
+  createImageBlockConfig,
+  createImageBlockSpec,
   createInlineContentSpec,
+  createPageBreakBlockSpec,
   createStyleSpec,
   defaultBlockSpecs,
   defaultInlineContentSpecs,
   defaultProps,
   defaultStyleSpecs,
-  imagePropSchema,
-  imageRender,
-  PageBreak,
 } from "@blocknote/core";
 
 // BLOCKS ----------------------------------------------------------------------
@@ -20,11 +20,17 @@ import {
 const SimpleImage = addNodeAndExtensionsToSpec(
   {
     type: "simpleImage",
-    propSchema: imagePropSchema,
+    propSchema: createImageBlockConfig({}).propSchema,
     content: "none",
   },
   {
-    render: (block, editor) => imageRender(block as any, editor as any),
+    render(block, editor) {
+      return createImageBlockSpec().implementation.render.call(
+        this,
+        block as any,
+        editor as any,
+      );
+    },
   },
 );
 
@@ -161,7 +167,7 @@ const FontSize = createStyleSpec(
 export const testSchema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
-    pageBreak: PageBreak,
+    pageBreak: createPageBreakBlockSpec(),
     customParagraph: CustomParagraph,
     simpleCustomParagraph: SimpleCustomParagraph,
     simpleImage: SimpleImage,

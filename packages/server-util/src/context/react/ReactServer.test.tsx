@@ -8,15 +8,18 @@ import { createContext, useContext } from "react";
 import { describe, expect, it } from "vitest";
 import { ServerBlockNoteEditor } from "../ServerBlockNoteEditor.js";
 
-const SimpleReactCustomParagraph = createReactBlockSpec(() => ({
-  type: "simpleReactCustomParagraph" as const,
-  propSchema: defaultProps,
-  content: "inline" as const,
-})).implementation(() => ({
-  render: (props) => (
-    <p ref={props.contentRef} className={"simple-react-custom-paragraph"} />
-  ),
-}));
+const SimpleReactCustomParagraph = createReactBlockSpec(
+  {
+    type: "simpleReactCustomParagraph" as const,
+    propSchema: defaultProps,
+    content: "inline" as const,
+  },
+  () => ({
+    render: (props) => (
+      <p ref={props.contentRef} className={"simple-react-custom-paragraph"} />
+    ),
+  }),
+);
 
 export const TestContext = createContext<true | undefined>(undefined);
 
@@ -29,19 +32,22 @@ const ReactContextParagraphComponent = (props: any) => {
   return <div ref={props.contentRef} />;
 };
 
-const ReactContextParagraph = createReactBlockSpec(() => ({
-  type: "reactContextParagraph" as const,
-  propSchema: defaultProps,
-  content: "inline" as const,
-})).implementation(() => ({
-  render: ReactContextParagraphComponent,
-}));
+const ReactContextParagraph = createReactBlockSpec(
+  {
+    type: "reactContextParagraph" as const,
+    propSchema: defaultProps,
+    content: "inline" as const,
+  },
+  {
+    render: ReactContextParagraphComponent,
+  },
+);
 
 const schema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
-    simpleReactCustomParagraph: SimpleReactCustomParagraph,
-    reactContextParagraph: ReactContextParagraph,
+    simpleReactCustomParagraph: SimpleReactCustomParagraph(),
+    reactContextParagraph: ReactContextParagraph(),
   },
 });
 

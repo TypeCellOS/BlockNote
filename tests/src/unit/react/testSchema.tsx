@@ -1,10 +1,10 @@
 import {
   BlockNoteSchema,
+  createPageBreakBlockSpec,
   defaultBlockSpecs,
   defaultInlineContentSpecs,
   defaultProps,
   defaultStyleSpecs,
-  PageBreak,
 } from "@blocknote/core";
 import {
   createReactBlockSpec,
@@ -135,10 +135,10 @@ const FontSize = createReactStyleSpec(
 export const testSchema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
-    pageBreak: PageBreak,
-    customParagraph: CustomParagraph,
-    simpleCustomParagraph: SimpleCustomParagraph,
-    contextParagraph: ContextParagraph,
+    pageBreak: createPageBreakBlockSpec(),
+    customParagraph: CustomParagraph(),
+    simpleCustomParagraph: SimpleCustomParagraph(),
+    contextParagraph: ContextParagraph(),
   },
   inlineContentSpecs: {
     ...defaultInlineContentSpecs,

@@ -146,16 +146,14 @@ export class CustomBlockNoteSchema<
     AdditionalBlockSpecs extends BlockSpecs,
     AdditionalInlineContentSpecs extends InlineContentSpecs,
     AdditionalStyleSpecs extends StyleSpecs,
-  >(
-    opts: Partial<{
-      blockSpecs: AdditionalBlockSpecs;
-      inlineContentSpecs: AdditionalInlineContentSpecs;
-      styleSpecs: AdditionalStyleSpecs;
-    }>,
-  ): CustomBlockNoteSchema<
-    BSchema & AdditionalBlockSpecs,
-    ISchema & AdditionalInlineContentSpecs,
-    SSchema & AdditionalStyleSpecs
+  >(opts: {
+    blockSpecs?: AdditionalBlockSpecs;
+    inlineContentSpecs?: AdditionalInlineContentSpecs;
+    styleSpecs?: AdditionalStyleSpecs;
+  }): CustomBlockNoteSchema<
+    AdditionalBlockSpecs extends undefined ? BSchema : BSchema,
+    AdditionalInlineContentSpecs extends undefined ? ISchema : ISchema,
+    AdditionalStyleSpecs extends undefined ? SSchema : SSchema
   > {
     // Merge the new specs with existing ones
     Object.assign(this.opts.blockSpecs, opts.blockSpecs);

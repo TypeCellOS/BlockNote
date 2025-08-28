@@ -6,19 +6,21 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../schema/index.js";
-import { pageBreakSchema } from "./schema.js";
+import { createPageBreakBlockConfig } from "./block.js";
 
 export function checkPageBreakBlocksInSchema<
   I extends InlineContentSchema,
   S extends StyleSchema,
 >(
   editor: BlockNoteEditor<any, I, S>,
-): editor is BlockNoteEditor<typeof pageBreakSchema.blockSchema, I, S> {
-  return (
-    "pageBreak" in editor.schema.blockSchema &&
-    editor.schema.blockSchema["pageBreak"] ===
-      pageBreakSchema.blockSchema["pageBreak"]
-  );
+): editor is BlockNoteEditor<
+  {
+    pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
+  },
+  I,
+  S
+> {
+  return "pageBreak" in editor.schema.blockSchema;
 }
 
 export function getPageBreakSlashMenuItems<

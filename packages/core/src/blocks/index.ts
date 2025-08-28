@@ -16,8 +16,8 @@ export * from "./Video/block.js";
 
 export { EMPTY_CELL_HEIGHT, EMPTY_CELL_WIDTH } from "./Table/TableExtension.js";
 export * from "./ToggleWrapper/createToggleWrapper.js";
-export * from "./PageBreak/schema.js";
 export * from "./File/helpers/uploadToTmpFilesDotOrg_DEV_ONLY.js";
+export * from "./PageBreak/getPageBreakSlashMenuItems.js";
 
 export * from "./BlockNoteSchema.js";
 export * from "./defaultBlockHelpers.js";

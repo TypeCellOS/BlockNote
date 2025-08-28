@@ -3,8 +3,8 @@ import {
   COLORS_DARK_MODE_DEFAULT,
   COLORS_DEFAULT,
   combineByGroup,
+  createPageBreakBlockSpec,
   filterSuggestionItems,
-  withPageBreak,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
@@ -30,7 +30,11 @@ export default function App() {
 
   // Creates a new editor instance with some initial content.
   const editor = useCreateBlockNote({
-    schema: withPageBreak(BlockNoteSchema.create()),
+    schema: BlockNoteSchema.create().extend({
+      blockSpecs: {
+        pageBreak: createPageBreakBlockSpec(),
+      },
+    }),
     tables: {
       splitCells: true,
       cellBackgroundColor: true,
