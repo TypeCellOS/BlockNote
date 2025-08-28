@@ -72,6 +72,8 @@
     "eslint": "^8.10.0",
     "rimraf": "^5.0.5",
     "rollup-plugin-webpack-stats": "^0.2.2",
+    "tailwindcss": "^4.1.12",
+    "tw-animate-css": "^1.3.7",
     "vite": "^6",
     "vite-plugin-eslint": "^1.8.1",
     "vite-plugin-inspect": "11.1.0"

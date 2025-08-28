@@ -179,11 +179,7 @@
           "author": "matthewlipski",
           "tags": [
             "Basic"
-          ],
-          "dependencies": {
-            "tailwindcss": "^4.1.12",
-            "tw-animate-css": "^1.3.7"
-          } as any
+          ]
         },
         "title": "Use with ShadCN",
         "group": {

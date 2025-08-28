@@ -7,10 +7,10 @@
 @source ".";
 @source "../components";
 @source "../content";
-/* Ensures CSS is generated also for ShadCN components. */
+
+/* Code below needed for ShadCN examples, check docs for more info. */
 @source "../node_modules/@blocknote/shadcn";
 
-/* Add ShadCN theme variables. */
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -122,10 +122,7 @@
 }
 
 @layer base {
-  * {
+  .bn-shadcn * {
     @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
   }
 }
