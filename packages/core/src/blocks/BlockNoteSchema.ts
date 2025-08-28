@@ -1,8 +1,8 @@
-import { CustomBlockNoteSchema } from "../schema/index.js";
 import {
   BlockSchema,
   BlockSchemaFromSpecs,
   BlockSpecs,
+  CustomBlockNoteSchema,
   InlineContentSchema,
   InlineContentSchemaFromSpecs,
   InlineContentSpecs,

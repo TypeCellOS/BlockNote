@@ -1,9 +1,12 @@
+import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
+import { createDependencyGraph, toposortReverse } from "../util/topo-sort.js";
 import {
   BlockNoDefaults,
   BlockSchema,
   BlockSpecs,
   InlineContentSchema,
   InlineContentSpecs,
+  LooseBlockSpec,
   PartialBlockNoDefaults,
   StyleSchema,
   StyleSpecs,
@@ -11,8 +14,6 @@ import {
   getInlineContentSchemaFromSpecs,
   getStyleSchemaFromSpecs,
 } from "./index.js";
-import { createDependencyGraph, toposortReverse } from "../util/topo-sort.js";
-import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 
 function removeUndefined<T extends Record<string, any> | undefined>(obj: T): T {
   if (!obj) {
@@ -43,7 +44,11 @@ export class CustomBlockNoteSchema<
 
   public inlineContentSpecs: InlineContentSpecs;
   public styleSpecs: StyleSpecs;
-  public blockSpecs: BlockSpecs;
+  public blockSpecs: {
+    [K in keyof BSchema]: K extends string
+      ? LooseBlockSpec<K, BSchema[K]["propSchema"], BSchema[K]["content"]>
+      : never;
+  };
 
   public blockSchema: BSchema;
   public inlineContentSchema: ISchema;
@@ -117,7 +122,11 @@ export class CustomBlockNoteSchema<
           ),
         ];
       }),
-    ) as BlockSpecs;
+    ) as {
+      [K in keyof BSchema]: K extends string
+        ? LooseBlockSpec<K, BSchema[K]["propSchema"], BSchema[K]["content"]>
+        : never;
+    };
 
     return {
       blockSpecs,
@@ -151,9 +160,19 @@ export class CustomBlockNoteSchema<
     inlineContentSpecs?: AdditionalInlineContentSpecs;
     styleSpecs?: AdditionalStyleSpecs;
   }): CustomBlockNoteSchema<
-    AdditionalBlockSpecs extends undefined ? BSchema : BSchema,
-    AdditionalInlineContentSpecs extends undefined ? ISchema : ISchema,
-    AdditionalStyleSpecs extends undefined ? SSchema : SSchema
+    AdditionalBlockSpecs extends undefined
+      ? BSchema & {
+          [K in keyof AdditionalBlockSpecs]: K extends string
+            ? AdditionalBlockSpecs[K]["config"]
+            : never;
+        }
+      : BSchema,
+    AdditionalInlineContentSpecs extends undefined
+      ? ISchema & AdditionalInlineContentSpecs
+      : ISchema,
+    AdditionalStyleSpecs extends undefined
+      ? SSchema & AdditionalStyleSpecs
+      : SSchema
   > {
     // Merge the new specs with existing ones
     Object.assign(this.opts.blockSpecs, opts.blockSpecs);

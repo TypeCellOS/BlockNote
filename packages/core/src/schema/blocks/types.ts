@@ -26,6 +26,12 @@ export type BlockNoteDOMAttributes = Partial<{
 
 export interface BlockConfigMeta {
   /**
+   * Defines which keyboard shortcut should be used to insert a hard break into the block's inline content.
+   * @default "shift+enter"
+   */
+  hardBreakShortcut?: "shift+enter" | "enter" | "none";
+
+  /**
    * Whether the block is selectable
    */
   selectable?: boolean;
@@ -91,6 +97,51 @@ export type BlockSpec<
 > = {
   config: BlockConfig<T, PS, C>;
   implementation: BlockImplementation<T, PS, C>;
+  extensions?: BlockNoteExtension<any>[];
+};
+
+/**
+ * This allows de-coupling the types that we display to users versus the types we expose internally.
+ *
+ * This prevents issues with type-inference across parameters that Typescript cannot handle.
+ * Specifically, the blocks shape cannot be properly inferred to a specific type like we expose to the user.
+ */
+export type LooseBlockSpec<
+  T extends string = string,
+  PS extends PropSchema = PropSchema,
+  C extends "inline" | "none" | "table" = "inline" | "none" | "table",
+> = {
+  config: BlockConfig<T, PS, C>;
+  implementation: Omit<
+    BlockImplementation<T, PS, C>,
+    "render" | "toExternalHTML"
+  > & {
+    // purposefully stub the types for render and toExternalHTML since they reference the block
+    render: (
+      /**
+       * The custom block to render
+       */
+      block: any,
+      /**
+       * The BlockNote editor instance
+       */
+      editor: BlockNoteEditor<any>,
+    ) => {
+      dom: HTMLElement | DocumentFragment;
+      contentDOM?: HTMLElement;
+      ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
+      destroy?: () => void;
+    };
+    toExternalHTML?: (
+      block: any,
+      editor: BlockNoteEditor<any>,
+    ) =>
+      | {
+          dom: HTMLElement | DocumentFragment;
+          contentDOM?: HTMLElement;
+        }
+      | undefined;
+  };
   extensions?: BlockNoteExtension<any>[];
 };
 

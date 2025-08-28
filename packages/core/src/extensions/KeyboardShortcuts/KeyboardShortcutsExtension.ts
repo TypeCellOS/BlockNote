@@ -15,7 +15,7 @@ import { getBlockInfoFromSelection } from "../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 export const KeyboardShortcutsExtension = Extension.create<{
-  editor: BlockNoteEditor<any, any, any>;
+  editor: BlockNoteEditor;
   tabBehavior: "prefer-navigate-ui" | "prefer-indent";
 }>({
   priority: 50,
@@ -470,9 +470,10 @@ export const KeyboardShortcutsExtension = Extension.create<{
           commands.command(({ state }) => {
             const blockInfo = getBlockInfoFromSelection(state);
 
-            const blockHardBreakShortcut: "shift+enter" | "enter" | "none" =
-              this.options.editor.schema.blockSchema[blockInfo.blockNoteType]
-                .hardBreakShortcut ?? "shift+enter";
+            const blockHardBreakShortcut =
+              this.options.editor.schema.blockSchema[
+                blockInfo.blockNoteType as keyof typeof this.options.editor.schema.blockSchema
+              ].meta?.hardBreakShortcut ?? "shift+enter";
 
             if (blockHardBreakShortcut === "none") {
               return false;
