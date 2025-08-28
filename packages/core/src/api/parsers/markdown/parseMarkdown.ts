@@ -1,4 +1,11 @@
 import { Schema } from "prosemirror-model";
+import remarkGfm from "remark-gfm";
+import remarkParse from "remark-parse";
+import remarkRehype, {
+  defaultHandlers as remarkRehypeDefaultHandlers,
+} from "remark-rehype";
+import rehypeStringify from "rehype-stringify";
+import { unified } from "unified";
 
 import { Block } from "../../../blocks/defaultBlocks.js";
 import {
@@ -6,7 +13,6 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../schema/index.js";
-import { initializeESMDependencies } from "../../../util/esmDependencies.js";
 import { HTMLToBlocks } from "../html/parseHTML.js";
 
 // modified version of https://github.com/syntax-tree/mdast-util-to-hast/blob/main/lib/handlers/code.js
@@ -49,19 +55,16 @@ function code(state: any, node: any) {
 }
 
 export async function markdownToHTML(markdown: string): Promise<string> {
-  const deps = await initializeESMDependencies();
-
-  const htmlString = deps.unified
-    .unified()
-    .use(deps.remarkParse.default)
-    .use(deps.remarkGfm.default)
-    .use(deps.remarkRehype.default, {
+  const htmlString = unified()
+    .use(remarkParse)
+    .use(remarkGfm)
+    .use(remarkRehype, {
       handlers: {
-        ...(deps.remarkRehype.defaultHandlers as any),
+        ...(remarkRehypeDefaultHandlers as any),
         code,
       },
     })
-    .use(deps.rehypeStringify.default)
+    .use(rehypeStringify)
     .processSync(markdown);
 
   return htmlString.value as string;

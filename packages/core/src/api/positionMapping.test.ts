@@ -1,23 +1,14 @@
-import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import * as Y from "yjs";
 import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import { trackPosition } from "./positionMapping.js";
 
 describe("PositionStorage with local editor", () => {
-  let editor: BlockNoteEditor;
-
-  beforeEach(() => {
-    editor = BlockNoteEditor.create();
-    editor.mount(document.createElement("div"));
-  });
-
-  afterEach(() => {
-    editor.mount(undefined);
-    editor._tiptapEditor.destroy();
-  });
-
   describe("mount and unmount", () => {
     it("should register transaction handler on creation", () => {
+      const editor = BlockNoteEditor.create();
+      editor.mount(document.createElement("div"));
+
       editor._tiptapEditor.on = vi.fn();
       trackPosition(editor, 0);
 
@@ -25,24 +16,42 @@ describe("PositionStorage with local editor", () => {
         "transaction",
         expect.any(Function),
       );
+
+      editor.mount(undefined);
+      editor._tiptapEditor.destroy();
     });
   });
 
   describe("set and get positions", () => {
     it("should store and retrieve positions without Y.js", () => {
+      const editor = BlockNoteEditor.create();
+      editor.mount(document.createElement("div"));
+
       const getPos = trackPosition(editor, 10);
 
       expect(getPos()).toBe(10);
+
+      editor.mount(undefined);
+      editor._tiptapEditor.destroy();
     });
 
     it("should handle right side positions", () => {
+      const editor = BlockNoteEditor.create();
+      editor.mount(document.createElement("div"));
+
       const getPos = trackPosition(editor, 10, "right");
 
       expect(getPos()).toBe(10);
+
+      editor.mount(undefined);
+      editor._tiptapEditor.destroy();
     });
   });
 
   it("should update mapping for local transactions before the position", () => {
+    const editor = BlockNoteEditor.create();
+    editor.mount(document.createElement("div"));
+
     // Set initial content
     editor.insertBlocks(
       [
@@ -79,9 +88,15 @@ describe("PositionStorage with local editor", () => {
 
     // Position should be updated according to mapping
     expect(getPos()).toBe(14);
+
+    editor.mount(undefined);
+    editor._tiptapEditor.destroy();
   });
 
   it("should not update mapping for local transactions after the position", () => {
+    const editor = BlockNoteEditor.create();
+    editor.mount(document.createElement("div"));
+
     // Set initial content
     editor.insertBlocks(
       [
@@ -117,9 +132,15 @@ describe("PositionStorage with local editor", () => {
 
     // Position should not be updated
     expect(getPos()).toBe(10);
+
+    editor.mount(undefined);
+    editor._tiptapEditor.destroy();
   });
 
   it("should track positions on each side", () => {
+    const editor = BlockNoteEditor.create();
+    editor.mount(document.createElement("div"));
+
     editor.replaceBlocks(editor.document, [
       {
         type: "paragraph",
@@ -142,9 +163,15 @@ describe("PositionStorage with local editor", () => {
     expect(getStartRightPos()).toBe(8); // 3 + 5 ("Test " length)
     expect(getPosAfterPos()).toBe(9); // 4 + 5 ("Test " length)
     expect(getPosAfterRightPos()).toBe(9); // 4 + 5 ("Test " length)
+
+    editor.mount(undefined);
+    editor._tiptapEditor.destroy();
   });
 
   it("should handle multiple transactions", () => {
+    const editor = BlockNoteEditor.create();
+    editor.mount(document.createElement("div"));
+
     editor.replaceBlocks(editor.document, [
       {
         type: "paragraph",
@@ -172,6 +199,9 @@ describe("PositionStorage with local editor", () => {
     expect(getStartRightPos()).toBe(8); // 3 + 5 ("Test " length)
     expect(getPosAfterPos()).toBe(9); // 4 + 5 ("Test " length)
     expect(getPosAfterRightPos()).toBe(9); // 4 + 5 ("Test " length)
+
+    editor.mount(undefined);
+    editor._tiptapEditor.destroy();
   });
 });
 
@@ -202,16 +232,12 @@ describe("PositionStorage with remote editor", () => {
   }
 
   describe("remote editor", () => {
-    let localEditor: BlockNoteEditor;
-    let remoteEditor: BlockNoteEditor;
-    let ydoc: Y.Doc;
-    let remoteYdoc: Y.Doc;
+    it("should update the local position when collaborating", () => {
+      const ydoc = new Y.Doc();
+      const remoteYdoc = new Y.Doc();
 
-    beforeEach(() => {
-      ydoc = new Y.Doc();
-      remoteYdoc = new Y.Doc();
       // Create a mock editor
-      localEditor = BlockNoteEditor.create({
+      const localEditor = BlockNoteEditor.create({
         collaboration: {
           fragment: ydoc.getXmlFragment("doc"),
           user: { color: "#ff0000", name: "Local User" },
@@ -221,7 +247,7 @@ describe("PositionStorage with remote editor", () => {
       const div = document.createElement("div");
       localEditor.mount(div);
 
-      remoteEditor = BlockNoteEditor.create({
+      const remoteEditor = BlockNoteEditor.create({
         collaboration: {
           fragment: remoteYdoc.getXmlFragment("doc"),
           user: { color: "#ff0000", name: "Remote User" },
@@ -232,18 +258,7 @@ describe("PositionStorage with remote editor", () => {
       const remoteDiv = document.createElement("div");
       remoteEditor.mount(remoteDiv);
       setupTwoWaySync(ydoc, remoteYdoc);
-    });
 
-    afterEach(() => {
-      ydoc.destroy();
-      remoteYdoc.destroy();
-      localEditor.mount(undefined);
-      localEditor._tiptapEditor.destroy();
-      remoteEditor.mount(undefined);
-      remoteEditor._tiptapEditor.destroy();
-    });
-
-    it("should update the local position when collaborating", () => {
       localEditor.replaceBlocks(localEditor.document, [
         {
           type: "paragraph",
@@ -271,9 +286,42 @@ describe("PositionStorage with remote editor", () => {
       expect(getStartRightPos()).toBe(8); // 3 + 5 ("Test " length)
       expect(getPosAfterPos()).toBe(9); // 4 + 5 ("Test " length)
       expect(getPosAfterRightPos()).toBe(9); // 4 + 5 ("Test " length)
+
+      ydoc.destroy();
+      remoteYdoc.destroy();
+      localEditor.mount(undefined);
+      localEditor._tiptapEditor.destroy();
+      remoteEditor.mount(undefined);
+      remoteEditor._tiptapEditor.destroy();
     });
 
     it("should handle multiple transactions when collaborating", () => {
+      const ydoc = new Y.Doc();
+      const remoteYdoc = new Y.Doc();
+
+      // Create a mock editor
+      const localEditor = BlockNoteEditor.create({
+        collaboration: {
+          fragment: ydoc.getXmlFragment("doc"),
+          user: { color: "#ff0000", name: "Local User" },
+          provider: undefined,
+        },
+      });
+      const div = document.createElement("div");
+      localEditor.mount(div);
+
+      const remoteEditor = BlockNoteEditor.create({
+        collaboration: {
+          fragment: remoteYdoc.getXmlFragment("doc"),
+          user: { color: "#ff0000", name: "Remote User" },
+          provider: undefined,
+        },
+      });
+
+      const remoteDiv = document.createElement("div");
+      remoteEditor.mount(remoteDiv);
+      setupTwoWaySync(ydoc, remoteYdoc);
+
       localEditor.replaceBlocks(localEditor.document, [
         {
           type: "paragraph",
@@ -305,9 +353,42 @@ describe("PositionStorage with remote editor", () => {
       expect(getStartRightPos()).toBe(8); // 3 + 5 ("Test " length)
       expect(getPosAfterPos()).toBe(9); // 4 + 5 ("Test " length)
       expect(getPosAfterRightPos()).toBe(9); // 4 + 5 ("Test " length)
+
+      ydoc.destroy();
+      remoteYdoc.destroy();
+      localEditor.mount(undefined);
+      localEditor._tiptapEditor.destroy();
+      remoteEditor.mount(undefined);
+      remoteEditor._tiptapEditor.destroy();
     });
 
     it("should update the local position from a remote transaction", () => {
+      const ydoc = new Y.Doc();
+      const remoteYdoc = new Y.Doc();
+
+      // Create a mock editor
+      const localEditor = BlockNoteEditor.create({
+        collaboration: {
+          fragment: ydoc.getXmlFragment("doc"),
+          user: { color: "#ff0000", name: "Local User" },
+          provider: undefined,
+        },
+      });
+      const div = document.createElement("div");
+      localEditor.mount(div);
+
+      const remoteEditor = BlockNoteEditor.create({
+        collaboration: {
+          fragment: remoteYdoc.getXmlFragment("doc"),
+          user: { color: "#ff0000", name: "Remote User" },
+          provider: undefined,
+        },
+      });
+
+      const remoteDiv = document.createElement("div");
+      remoteEditor.mount(remoteDiv);
+      setupTwoWaySync(ydoc, remoteYdoc);
+
       remoteEditor.replaceBlocks(remoteEditor.document, [
         {
           type: "paragraph",
@@ -335,9 +416,42 @@ describe("PositionStorage with remote editor", () => {
       expect(getStartRightPos()).toBe(8); // 3 + 5 ("Test " length)
       expect(getPosAfterPos()).toBe(9); // 4 + 5 ("Test " length)
       expect(getPosAfterRightPos()).toBe(9); // 4 + 5 ("Test " length)
+
+      ydoc.destroy();
+      remoteYdoc.destroy();
+      localEditor.mount(undefined);
+      localEditor._tiptapEditor.destroy();
+      remoteEditor.mount(undefined);
+      remoteEditor._tiptapEditor.destroy();
     });
 
     it("should update the remote position from a remote transaction", () => {
+      const ydoc = new Y.Doc();
+      const remoteYdoc = new Y.Doc();
+
+      // Create a mock editor
+      const localEditor = BlockNoteEditor.create({
+        collaboration: {
+          fragment: ydoc.getXmlFragment("doc"),
+          user: { color: "#ff0000", name: "Local User" },
+          provider: undefined,
+        },
+      });
+      const div = document.createElement("div");
+      localEditor.mount(div);
+
+      const remoteEditor = BlockNoteEditor.create({
+        collaboration: {
+          fragment: remoteYdoc.getXmlFragment("doc"),
+          user: { color: "#ff0000", name: "Remote User" },
+          provider: undefined,
+        },
+      });
+
+      const remoteDiv = document.createElement("div");
+      remoteEditor.mount(remoteDiv);
+      setupTwoWaySync(ydoc, remoteYdoc);
+
       remoteEditor.replaceBlocks(remoteEditor.document, [
         {
           type: "paragraph",
@@ -365,6 +479,13 @@ describe("PositionStorage with remote editor", () => {
       expect(getStartRightPos()).toBe(8); // 3 + 5 ("Test " length)
       expect(getPosAfterPos()).toBe(9); // 4 + 5 ("Test " length)
       expect(getPosAfterRightPos()).toBe(9); // 4 + 5 ("Test " length)
+
+      ydoc.destroy();
+      remoteYdoc.destroy();
+      localEditor.mount(undefined);
+      localEditor._tiptapEditor.destroy();
+      remoteEditor.mount(undefined);
+      remoteEditor._tiptapEditor.destroy();
     });
   });
 });

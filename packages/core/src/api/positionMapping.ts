@@ -88,7 +88,7 @@ export function trackPosition(
 
   const relativePosition = absolutePositionToRelativePosition(
     // Track the position after the position if we are on the right side
-    position + (side === "right" ? 1 : 0),
+    position + (side === "right" ? 1 : -1),
     ySyncPluginState.binding.type,
     ySyncPluginState.binding.mapping,
   );
@@ -109,6 +109,6 @@ export function trackPosition(
       throw new Error("Position not found, cannot track positions");
     }
 
-    return pos + (side === "right" ? -1 : 0);
+    return pos + (side === "right" ? -1 : 1);
   };
 }

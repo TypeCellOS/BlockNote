@@ -1,5 +1,5 @@
 import { Element as HASTElement, Parent as HASTParent } from "hast";
-import { esmDependencies } from "../../../../util/esmDependencies.js";
+import { fromDom } from "hast-util-from-dom";
 
 /**
  * Rehype plugin which adds a space after each checkbox input element. This is
@@ -7,14 +7,6 @@ import { esmDependencies } from "../../../../util/esmDependencies.js";
  * itself, but these are needed for correct Markdown syntax.
  */
 export function addSpacesToCheckboxes() {
-  const deps = esmDependencies;
-
-  if (!deps) {
-    throw new Error(
-      "addSpacesToCheckboxes requires ESM dependencies to be initialized",
-    );
-  }
-
   const helper = (tree: HASTParent) => {
     if (tree.children && "length" in tree.children && tree.children.length) {
       for (let i = tree.children.length - 1; i >= 0; i--) {
@@ -37,9 +29,7 @@ export function addSpacesToCheckboxes() {
           nextChild.children.splice(
             0,
             0,
-            deps.hastUtilFromDom.fromDom(
-              document.createTextNode(" "),
-            ) as HASTElement,
+            fromDom(document.createTextNode(" ")) as HASTElement,
           );
         } else {
           helper(child as HASTParent);

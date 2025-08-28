@@ -17,7 +17,6 @@ import {
   contentNodeToInlineContent,
   contentNodeToTableContent,
 } from "../../nodeConversions/nodeToBlock.js";
-import { initializeESMDependencies } from "../../../util/esmDependencies.js";
 
 function fragmentToExternalHTML<
   BSchema extends BlockSchema,
@@ -209,7 +208,6 @@ export const createCopyToClipboardExtension = <
   Extension.create<{ editor: BlockNoteEditor<BSchema, I, S> }, undefined>({
     name: "copyToClipboard",
     addProseMirrorPlugins() {
-      initializeESMDependencies();
       return [
         new Plugin({
           props: {
