@@ -12,8 +12,8 @@ importers:
   .:
     devDependencies:
       '@nx/js':
-        specifier: ^21.3.2
-        version: 21.3.2(@babel/traverse@7.27.0)(nx@21.3.2)
+        specifier: ^21.4.1
+        version: 21.4.1(@babel/traverse@7.27.0)(nx@21.4.1)
       '@typescript-eslint/eslint-plugin':
         specifier: ^5.5.0
         version: 5.62.0(@typescript-eslint/parser@5.62.0(eslint@8.57.1)(typescript@5.8.2))(eslint@8.57.1)(typescript@5.8.2)
@@ -36,8 +36,8 @@ importers:
         specifier: ^10.3.10
         version: 10.4.5
       nx:
-        specifier: ^21.3.2
-        version: 21.3.2
+        specifier: ^21.4.1
+        version: 21.4.1
       prettier:
         specifier: ^3
         version: 3.5.3
@@ -3466,10 +3466,10 @@ importers:
         specifier: ^0.4.3
         version: 0.4.15(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@blocknote/core':
-        specifier: 0.36.0
+        specifier: 0.36.1
         version: link:../core
       '@blocknote/react':
-        specifier: 0.36.0
+        specifier: 0.36.1
         version: link:../react
     devDependencies:
       '@types/react':
@@ -3512,7 +3512,7 @@ importers:
   packages/code-block:
     dependencies:
       '@blocknote/core':
-        specifier: 0.36.0
+        specifier: 0.36.1
         version: link:../core
       '@shikijs/core':
         specifier: ^3.2.1
@@ -3749,10 +3749,10 @@ importers:
   packages/mantine:
     dependencies:
       '@blocknote/core':
-        specifier: 0.36.0
+        specifier: 0.36.1
         version: link:../core
       '@blocknote/react':
-        specifier: 0.36.0
+        specifier: 0.36.1
         version: link:../react
       '@mantine/core':
         specifier: ^7.17.3
@@ -3807,7 +3807,7 @@ importers:
   packages/react:
     dependencies:
       '@blocknote/core':
-        specifier: 0.36.0
+        specifier: 0.36.1
         version: link:../core
       '@emoji-mart/data':
         specifier: ^1.2.1
@@ -3889,10 +3889,10 @@ importers:
   packages/server-util:
     dependencies:
       '@blocknote/core':
-        specifier: 0.36.0
+        specifier: 0.36.1
         version: link:../core
       '@blocknote/react':
-        specifier: 0.36.0
+        specifier: 0.36.1
         version: link:../react
       '@tiptap/core':
         specifier: ^2.26.1
@@ -3950,10 +3950,10 @@ importers:
   packages/shadcn:
     dependencies:
       '@blocknote/core':
-        specifier: 0.36.0
+        specifier: 0.36.1
         version: link:../core
       '@blocknote/react':
-        specifier: 0.36.0
+        specifier: 0.36.1
         version: link:../react
       '@hookform/resolvers':
         specifier: ^3.10.0
@@ -4056,16 +4056,16 @@ importers:
   packages/xl-ai:
     dependencies:
       '@blocknote/core':
-        specifier: 0.36.0
+        specifier: 0.36.1
         version: link:../core
       '@blocknote/mantine':
-        specifier: 0.36.0
+        specifier: 0.36.1
         version: link:../mantine
       '@blocknote/prosemirror-suggest-changes':
         specifier: ^0.1.3
         version: 0.1.3(prosemirror-model@1.25.1)(prosemirror-state@1.4.3)(prosemirror-transform@1.10.4)(prosemirror-view@1.38.1)
       '@blocknote/react':
-        specifier: 0.36.0
+        specifier: 0.36.1
         version: link:../react
       '@floating-ui/react':
         specifier: ^0.26.4
@@ -4250,10 +4250,10 @@ importers:
   packages/xl-docx-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.36.0
+        specifier: 0.36.1
         version: link:../core
       '@blocknote/xl-multi-column':
-        specifier: 0.36.0
+        specifier: 0.36.1
         version: link:../xl-multi-column
       buffer:
         specifier: ^6.0.3
@@ -4305,10 +4305,10 @@ importers:
   packages/xl-email-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.36.0
+        specifier: 0.36.1
         version: link:../core
       '@blocknote/react':
-        specifier: 0.36.0
+        specifier: 0.36.1
         version: link:../react
       '@react-email/components':
         specifier: ^0.1.0
@@ -4360,10 +4360,10 @@ importers:
   packages/xl-multi-column:
     dependencies:
       '@blocknote/core':
-        specifier: 0.36.0
+        specifier: 0.36.1
         version: link:../core
       '@blocknote/react':
-        specifier: 0.36.0
+        specifier: 0.36.1
         version: link:../react
       '@tiptap/core':
         specifier: ^2.26.1
@@ -4430,10 +4430,10 @@ importers:
   packages/xl-odt-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.36.0
+        specifier: 0.36.1
         version: link:../core
       '@blocknote/xl-multi-column':
-        specifier: 0.36.0
+        specifier: 0.36.1
         version: link:../xl-multi-column
       '@zip.js/zip.js':
         specifier: ^2.7.57
@@ -4482,13 +4482,13 @@ importers:
   packages/xl-pdf-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.36.0
+        specifier: 0.36.1
         version: link:../core
       '@blocknote/react':
-        specifier: 0.36.0
+        specifier: 0.36.1
         version: link:../react
       '@blocknote/xl-multi-column':
-        specifier: 0.36.0
+        specifier: 0.36.1
         version: link:../xl-multi-column
       '@react-pdf/renderer':
         specifier: ^4.3.0
@@ -6922,71 +6922,71 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@nx/devkit@21.3.2':
-    resolution: {integrity: sha512-9OgECr93fcFVl5zwZMliCqLxVYhioY+fgBedup3xtedwNi9MEGvhx7NwchipI/FRrVG5av6T2jrry4ydhZMtPg==}
+  '@nx/devkit@21.4.1':
+    resolution: {integrity: sha512-rWgMNG2e0tSG5L3vffuMH/aRkn+i9vYHelWkgVAslGBOaqriEg1dCSL/W9I3Fd5lnucHy3DrG1f19uDjv7Dm0A==}
     peerDependencies:
-      nx: 21.3.2
+      nx: '>= 20 <= 22'
 
-  '@nx/js@21.3.2':
-    resolution: {integrity: sha512-W2xB0F75ujJLlTu//FMAXNpWwiDYJmaP+WCXdW7rnCq9xatE0gtF/UhGp4xObD+aOc9xBsQOi0IeilA4SvmAjg==}
+  '@nx/js@21.4.1':
+    resolution: {integrity: sha512-VK3rK5122iNIirLlOyKL7bIG+ziPM9VjXFbIw9mUAcKwvgf8mLOnR42NbFFlR2BsgwQ3in9TQRTNVSNdvg9utQ==}
     peerDependencies:
       verdaccio: ^6.0.5
     peerDependenciesMeta:
       verdaccio:
         optional: true
 
-  '@nx/nx-darwin-arm64@21.3.2':
-    resolution: {integrity: sha512-HMW4iDmTJNN4vJaql77IeQ91DSbZ1qMB5+8GDNCwHibcgEhTE9u82ErfLlpfq0lvg8EommGOcUM3seEdMTEOUQ==}
+  '@nx/nx-darwin-arm64@21.4.1':
+    resolution: {integrity: sha512-9BbkQnxGEDNX2ESbW4Zdrq1i09y6HOOgTuGbMJuy4e8F8rU/motMUqOpwmFgLHkLgPNZiOC2VXht3or/kQcpOg==}
     cpu: [arm64]
     os: [darwin]
 
-  '@nx/nx-darwin-x64@21.3.2':
-    resolution: {integrity: sha512-PyNcTT1Yaeq6xjLzxE1EVCAxcBacps7AZKBT4GGUB+NKLlA8oxTBzqUmQlg61rxWmiJ7ELYY6SzHX+7YH0kGwA==}
+  '@nx/nx-darwin-x64@21.4.1':
+    resolution: {integrity: sha512-dnkmap1kc6aLV8CW1ihjsieZyaDDjlIB5QA2reTCLNSdTV446K6Fh0naLdaoG4ZkF27zJA/qBOuAaLzRHFJp3g==}
     cpu: [x64]
     os: [darwin]
 
-  '@nx/nx-freebsd-x64@21.3.2':
-    resolution: {integrity: sha512-BYkccbz5/PUu7BaB7TcXeSiLe1HzTZCT5q5kkLp0Z3OUJFG1YrSR+a+ktP29H9pzdYvjCqIeTvRw0Y5epdtfmg==}
+  '@nx/nx-freebsd-x64@21.4.1':
+    resolution: {integrity: sha512-RpxDBGOPeDqJjpbV7F3lO/w1aIKfLyG/BM0OpJfTgFVpUIl50kMj5M1m4W9A8kvYkfOD9pDbUaWszom7d57yjg==}
     cpu: [x64]
     os: [freebsd]
 
-  '@nx/nx-linux-arm-gnueabihf@21.3.2':
-    resolution: {integrity: sha512-mdHXshxXegYbpmN6w+hkEXu2ieXaN2qmNygF8nF/hgJ2Q4JiS+DJ2G6QEajxrpA/cmMC6VoDnnux+fYb6PipZQ==}
+  '@nx/nx-linux-arm-gnueabihf@21.4.1':
+    resolution: {integrity: sha512-2OyBoag2738XWmWK3ZLBuhaYb7XmzT3f8HzomggLDJoDhwDekjgRoNbTxogAAj6dlXSeuPjO81BSlIfXQcth3w==}
     cpu: [arm]
     os: [linux]
 
-  '@nx/nx-linux-arm64-gnu@21.3.2':
-    resolution: {integrity: sha512-PsCZC3emzGKMM+7n8Qsp7RsP6v3qwAwmBZncgBUNq1QMg9VrFrsKfMcZtJdwkdMzK3jQwHn20nSM8TMO5/aLsQ==}
+  '@nx/nx-linux-arm64-gnu@21.4.1':
+    resolution: {integrity: sha512-2pg7/zjBDioUWJ3OY8Ixqy64eokKT5sh4iq1bk22bxOCf676aGrAu6khIxy4LBnPIdO0ZOK7KCJ7xOFP4phZqA==}
     cpu: [arm64]
     os: [linux]
 
-  '@nx/nx-linux-arm64-musl@21.3.2':
-    resolution: {integrity: sha512-lA/fNora74mBFSQp6HG4FfOkoUBnAfraF7Cc9TR4Z50lZDgXFMPf0Gn4Qdvpphl3ydmsU8bXmzu/ckHWJwuELA==}
+  '@nx/nx-linux-arm64-musl@21.4.1':
+    resolution: {integrity: sha512-whNxh12au/inQtkZju1ZfXSqDS0hCh/anzVCXfLYWFstdwv61XiRmFCSHeN0gRDthlncXFdgKoT1bGG5aMYLtA==}
     cpu: [arm64]
     os: [linux]
 
-  '@nx/nx-linux-x64-gnu@21.3.2':
-    resolution: {integrity: sha512-gpBmox+M9vmUDJppp8nY73RgpHU9QJE201Ey+YBbgEn+TSaFwkxdwqmsJGnysqNpUU9I6VWEd3bFcEZNczTHWA==}
+  '@nx/nx-linux-x64-gnu@21.4.1':
+    resolution: {integrity: sha512-UHw57rzLio0AUDXV3l+xcxT3LjuXil7SHj+H8aYmXTpXktctQU2eYGOs5ATqJ1avVQRSejJugHF0i8oLErC28A==}
     cpu: [x64]
     os: [linux]
 
-  '@nx/nx-linux-x64-musl@21.3.2':
-    resolution: {integrity: sha512-QOQiEKotsIb6u3J4KQlfqfQFy6PXfJe56sCeoQAYuRUMXCiuTPr+Z2V43v1UcAZOu4beDEcP+saRN7EucsWeHA==}
+  '@nx/nx-linux-x64-musl@21.4.1':
+    resolution: {integrity: sha512-qqE2Gy/DwOLIyePjM7GLHp/nDLZJnxHmqTeCiTQCp/BdbmqjRkSUz5oL+Uua0SNXaTu5hjAfvjXAhSTgBwVO6g==}
     cpu: [x64]
     os: [linux]
 
-  '@nx/nx-win32-arm64-msvc@21.3.2':
-    resolution: {integrity: sha512-LaZhp+LmO0nd2BLV40BlFkKBQWPUwcNje98B7v1/mvHhE1M6r8pMSgRuHGJXcolaWAoOiJJXhGor84zn5UiYRw==}
+  '@nx/nx-win32-arm64-msvc@21.4.1':
+    resolution: {integrity: sha512-NtEzMiRrSm2DdL4ntoDdjeze8DBrfZvLtx3Dq6+XmOhwnigR6umfWfZ6jbluZpuSQcxzQNVifqirdaQKYaYwDQ==}
     cpu: [arm64]
     os: [win32]
 
-  '@nx/nx-win32-x64-msvc@21.3.2':
-    resolution: {integrity: sha512-efIYgmjiNbthAbsXv5cG6C4kUOlvNIbCtHQo5GkVRcoeoGrLYbE8tJobeP+hEujBseK628rG8yI7Q9calT803g==}
+  '@nx/nx-win32-x64-msvc@21.4.1':
+    resolution: {integrity: sha512-gpG+Y4G/mxGrfkUls6IZEuuBxRaKLMSEoVFLMb9JyyaLEDusn+HJ1m90XsOedjNLBHGMFigsd/KCCsXfFn4njg==}
     cpu: [x64]
     os: [win32]
 
-  '@nx/workspace@21.3.2':
-    resolution: {integrity: sha512-qz9oZcxEs9rTttdyyq4haF8dilz1oZLshqBRDmwQItCCRnTIaAl09T7Z5F2ZD68DP4ZmFvyzJleRZTEXvj12uA==}
+  '@nx/workspace@21.4.1':
+    resolution: {integrity: sha512-3e33eTb1hRx6/i416Wc0mk/TPANxjx2Kz8ecnyqFFII5CM9tX7CPCwDF4O75N9mysI6PCKJ+Hc/1q76HZR4UgA==}
 
   '@open-draft/deferred-promise@2.2.0':
     resolution: {integrity: sha512-CecwLWx3rhxVQF6V4bAgPS5t+So2sTbPgAzafKkVizyi7tlwpcFpdFqq+wqF2OwNBmqFuu6tOyouTuxgpMfzmA==}
@@ -11984,8 +11984,8 @@ packages:
     resolution: {integrity: sha512-zptv57P3GpL+O0I7VdMJNBZCu+BPHVQUk55Ft8/QCJjTVxrnJHuVuX/0Bl2A6/+2oyR/ZMEuFKwmzqqZ/U5nPQ==}
     engines: {node: 20 || >=22}
 
-  jake@10.9.2:
-    resolution: {integrity: sha512-2P4SQ0HrLQ+fw6llpLnOaGAvN2Zu6778SJMrCUwns4fOoG9ayrTiZk3VV8sCPkVZF8ab0zksVpS8FDY5pRCNBA==}
+  jake@10.9.4:
+    resolution: {integrity: sha512-wpHYzhxiVQL+IV05BLE2Xn34zW1S223hvjtqk0+gsPrwd/8JNLXJgZZM/iPFsYc1xyphF+6M6EvdE5E9MBGkDA==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -12896,8 +12896,8 @@ packages:
   nwsapi@2.2.19:
     resolution: {integrity: sha512-94bcyI3RsqiZufXjkr3ltkI86iEl+I7uiHVDtcq9wJUTwYQJ5odHDeSzkkrRzi80jJ8MaeZgqKjH1bAWAFw9bA==}
 
-  nx@21.3.2:
-    resolution: {integrity: sha512-GK/AH0xqlCd+hHVQiNjrfP26fiR5UmfL/L/1IEjL8uqPcYsyBkWMiyuGWY4pZYBJmJXp1lbPYVE6ZQ1qAWhC8w==}
+  nx@21.4.1:
+    resolution: {integrity: sha512-nD8NjJGYk5wcqiATzlsLauvyrSHV2S2YmM2HBIKqTTwVP2sey07MF3wDB9U2BwxIjboahiITQ6pfqFgB79TF2A==}
     hasBin: true
     peerDependencies:
       '@swc-node/register': ^1.8.0
@@ -14438,6 +14438,10 @@ packages:
 
   tmp@0.2.3:
     resolution: {integrity: sha512-nZD7m9iCPC5g0pYmcaxogYKggSfLsdxl8of3Q/oIbqCqLLIO9IAF0GWjX1z9NZRHPiXv8Wex4yDCaZsgEw0Y8w==}
+    engines: {node: '>=14.14'}
+
+  tmp@0.2.5:
+    resolution: {integrity: sha512-voyz6MApa1rQGUxT3E+BK7/ROe8itEx7vD8/HEvt4xwXucvQ5G5oeEiHkmHZJuBO21RpOf+YYm9MOivj709jow==}
     engines: {node: '>=14.14'}
 
   to-regex-range@5.0.1:
@@ -17736,19 +17740,19 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.19.1
 
-  '@nx/devkit@21.3.2(nx@21.3.2)':
+  '@nx/devkit@21.4.1(nx@21.4.1)':
     dependencies:
       ejs: 3.1.10
       enquirer: 2.3.6
       ignore: 5.3.2
       minimatch: 9.0.3
-      nx: 21.3.2
+      nx: 21.4.1
       semver: 7.7.1
-      tmp: 0.2.3
+      tmp: 0.2.5
       tslib: 2.8.1
       yargs-parser: 21.1.1
 
-  '@nx/js@21.3.2(@babel/traverse@7.27.0)(nx@21.3.2)':
+  '@nx/js@21.4.1(@babel/traverse@7.27.0)(nx@21.4.1)':
     dependencies:
       '@babel/core': 7.26.10
       '@babel/plugin-proposal-decorators': 7.25.9(@babel/core@7.26.10)
@@ -17757,8 +17761,8 @@ snapshots:
       '@babel/preset-env': 7.26.9(@babel/core@7.26.10)
       '@babel/preset-typescript': 7.27.0(@babel/core@7.26.10)
       '@babel/runtime': 7.27.6
-      '@nx/devkit': 21.3.2(nx@21.3.2)
-      '@nx/workspace': 21.3.2
+      '@nx/devkit': 21.4.1(nx@21.4.1)
+      '@nx/workspace': 21.4.1
       '@zkochan/js-yaml': 0.0.7
       babel-plugin-const-enum: 1.2.0(@babel/core@7.26.10)
       babel-plugin-macros: 3.1.0
@@ -17787,44 +17791,45 @@ snapshots:
       - nx
       - supports-color
 
-  '@nx/nx-darwin-arm64@21.3.2':
+  '@nx/nx-darwin-arm64@21.4.1':
     optional: true
 
-  '@nx/nx-darwin-x64@21.3.2':
+  '@nx/nx-darwin-x64@21.4.1':
     optional: true
 
-  '@nx/nx-freebsd-x64@21.3.2':
+  '@nx/nx-freebsd-x64@21.4.1':
     optional: true
 
-  '@nx/nx-linux-arm-gnueabihf@21.3.2':
+  '@nx/nx-linux-arm-gnueabihf@21.4.1':
     optional: true
 
-  '@nx/nx-linux-arm64-gnu@21.3.2':
+  '@nx/nx-linux-arm64-gnu@21.4.1':
     optional: true
 
-  '@nx/nx-linux-arm64-musl@21.3.2':
+  '@nx/nx-linux-arm64-musl@21.4.1':
     optional: true
 
-  '@nx/nx-linux-x64-gnu@21.3.2':
+  '@nx/nx-linux-x64-gnu@21.4.1':
     optional: true
 
-  '@nx/nx-linux-x64-musl@21.3.2':
+  '@nx/nx-linux-x64-musl@21.4.1':
     optional: true
 
-  '@nx/nx-win32-arm64-msvc@21.3.2':
+  '@nx/nx-win32-arm64-msvc@21.4.1':
     optional: true
 
-  '@nx/nx-win32-x64-msvc@21.3.2':
+  '@nx/nx-win32-x64-msvc@21.4.1':
     optional: true
 
-  '@nx/workspace@21.3.2':
+  '@nx/workspace@21.4.1':
     dependencies:
-      '@nx/devkit': 21.3.2(nx@21.3.2)
+      '@nx/devkit': 21.4.1(nx@21.4.1)
       '@zkochan/js-yaml': 0.0.7
       chalk: 4.1.2
       enquirer: 2.3.6
-      nx: 21.3.2
+      nx: 21.4.1
       picomatch: 4.0.2
+      semver: 7.7.1
       tslib: 2.8.1
       yargs-parser: 21.1.1
     transitivePeerDependencies:
@@ -22096,7 +22101,7 @@ snapshots:
 
   ejs@3.1.10:
     dependencies:
-      jake: 10.9.2
+      jake: 10.9.4
 
   electron-to-chromium@1.5.126: {}
 
@@ -23668,12 +23673,11 @@ snapshots:
     dependencies:
       '@isaacs/cliui': 8.0.2
 
-  jake@10.9.2:
+  jake@10.9.4:
     dependencies:
       async: 3.2.6
-      chalk: 4.1.2
       filelist: 1.0.4
-      minimatch: 3.1.2
+      picocolors: 1.1.1
 
   jay-peg@1.1.1:
     dependencies:
@@ -24985,7 +24989,7 @@ snapshots:
 
   nwsapi@2.2.19: {}
 
-  nx@21.3.2:
+  nx@21.4.1:
     dependencies:
       '@napi-rs/wasm-runtime': 0.2.4
       '@yarnpkg/lockfile': 1.1.0
@@ -25023,16 +25027,16 @@ snapshots:
       yargs: 17.7.2
       yargs-parser: 21.1.1
     optionalDependencies:
-      '@nx/nx-darwin-arm64': 21.3.2
-      '@nx/nx-darwin-x64': 21.3.2
-      '@nx/nx-freebsd-x64': 21.3.2
-      '@nx/nx-linux-arm-gnueabihf': 21.3.2
-      '@nx/nx-linux-arm64-gnu': 21.3.2
-      '@nx/nx-linux-arm64-musl': 21.3.2
-      '@nx/nx-linux-x64-gnu': 21.3.2
-      '@nx/nx-linux-x64-musl': 21.3.2
-      '@nx/nx-win32-arm64-msvc': 21.3.2
-      '@nx/nx-win32-x64-msvc': 21.3.2
+      '@nx/nx-darwin-arm64': 21.4.1
+      '@nx/nx-darwin-x64': 21.4.1
+      '@nx/nx-freebsd-x64': 21.4.1
+      '@nx/nx-linux-arm-gnueabihf': 21.4.1
+      '@nx/nx-linux-arm64-gnu': 21.4.1
+      '@nx/nx-linux-arm64-musl': 21.4.1
+      '@nx/nx-linux-x64-gnu': 21.4.1
+      '@nx/nx-linux-x64-musl': 21.4.1
+      '@nx/nx-win32-arm64-msvc': 21.4.1
+      '@nx/nx-win32-x64-msvc': 21.4.1
     transitivePeerDependencies:
       - debug
 
@@ -26841,6 +26845,8 @@ snapshots:
       tldts-core: 6.1.85
 
   tmp@0.2.3: {}
+
+  tmp@0.2.5: {}
 
   to-regex-range@5.0.1:
     dependencies:
