@@ -78,6 +78,14 @@ export const createHeadingBlockSpec = createBlockSpec(
         contentDOM: dom,
       };
     },
+    toExternalHTML(block) {
+      const dom = document.createElement(`h${block.props.level}`);
+
+      return {
+        dom,
+        contentDOM: dom,
+      };
+    },
   }),
   ({ levels = HEADING_LEVELS }: HeadingOptions = {}) => [
     createBlockNoteExtension({

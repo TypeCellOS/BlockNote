@@ -29,6 +29,10 @@ export const createToggleListItemBlockSpec = createBlockSpec(
       );
       return { ...toggleWrapper, contentDOM: paragraphEl };
     },
+    toExternalHTML() {
+      const paragraphEl = document.createElement("p");
+      return { dom: paragraphEl, contentDOM: paragraphEl };
+    },
   },
   [
     createBlockNoteExtension({

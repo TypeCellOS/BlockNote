@@ -83,7 +83,6 @@ export const createCodeBlockSpec = createBlockSpec(
       const wrapper = document.createDocumentFragment();
       const pre = document.createElement("pre");
       const code = document.createElement("code");
-      code.textContent = block.content as unknown as string;
       pre.appendChild(code);
       const select = document.createElement("select");
       const selectWrapper = document.createElement("div");
@@ -119,13 +118,13 @@ export const createCodeBlockSpec = createBlockSpec(
     },
     toExternalHTML(block) {
       const pre = document.createElement("pre");
-      pre.className = `language-${block.props.language}`;
-      pre.dataset.language = block.props.language;
       const code = document.createElement("code");
-      code.textContent = block.content as unknown as string;
+      code.className = `language-${block.props.language}`;
+      code.dataset.language = block.props.language;
       pre.appendChild(code);
       return {
         dom: pre,
+        contentDOM: code,
       };
     },
   }),
