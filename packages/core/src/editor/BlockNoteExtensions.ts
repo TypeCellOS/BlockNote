@@ -3,7 +3,7 @@ import { Gapcursor } from "@tiptap/extension-gapcursor";
 import { History } from "@tiptap/extension-history";
 import { Link } from "@tiptap/extension-link";
 import { Text } from "@tiptap/extension-text";
-import { Plugin, PluginKey } from "prosemirror-state";
+import { Plugin } from "prosemirror-state";
 import * as Y from "yjs";
 
 import { createDropFileExtension } from "../api/clipboard/fromClipboard/fileDropExtension.js";
