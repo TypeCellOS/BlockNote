@@ -30,7 +30,7 @@ export const MenuButton = forwardRef<
   return (
     <ShadCNComponents.Button.Button
       variant={"ghost"}
-      className={cn(className, "bn-text-gray-400")}
+      className={cn(className, "text-gray-400")}
       ref={ref}
       aria-label={label}
       onClick={onClick}

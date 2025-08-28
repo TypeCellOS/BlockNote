@@ -35,19 +35,19 @@ export const TextInput = forwardRef<
     <div
       className={cn(
         className,
-        "bn-flex bn-h-10 bn-w-full bn-rounded-md bn-border bn-border-input bn-bg-background bn-px-3 bn-py-2 bn-text-sm bn-ring-offset-background file:bn-border-0 file:bn-bg-transparent file:bn-text-sm file:bn-font-medium placeholder:bn-text-muted-foreground focus-visible:bn-outline-none focus-visible:bn-ring-2 focus-visible:bn-ring-ring focus-visible:bn-ring-offset-2 disabled:bn-cursor-not-allowed disabled:bn-opacity-50",
-        "bn-items-center bn-gap-2 bn-text-foreground",
+        "border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+        "text-foreground items-center gap-2",
       )}
     >
       {icon}
-      <div className="bn-flex-1">
+      <div className="flex-1">
         {label && (
           <ShadCNComponents.Label.Label htmlFor={label}>
             {label}
           </ShadCNComponents.Label.Label>
         )}
         <ShadCNComponents.Input.Input
-          className={cn(className, "bn-border-none bn-p-0 bn-h-auto")}
+          className={cn(className, "h-auto border-none p-0")}
           id={label}
           name={name}
           autoFocus={autoFocus}
