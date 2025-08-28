@@ -1,9 +1,6 @@
 import type { HighlighterGeneric } from "@shikijs/types";
-import {
-  createBlockConfig,
-  createBlockSpec,
-  createBlockNoteExtension,
-} from "../../schema/index.js";
+import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
+import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
 import { lazyShikiPlugin } from "./shiki.js";
 
 export type CodeBlockOptions = {

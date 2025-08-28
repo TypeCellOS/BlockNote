@@ -1,4 +1,4 @@
-import { Plugin, Transaction } from "prosemirror-state";
+import { Plugin, PluginKey, Transaction } from "prosemirror-state";
 import { getBlocksChangedByTransaction } from "../../api/nodeUtil.js";
 import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import { BlocksChanged } from "../../index.js";
@@ -21,6 +21,7 @@ export class BlockChangePlugin extends BlockNoteExtension {
 
     this.addProsemirrorPlugin(
       new Plugin({
+        key: new PluginKey("blockChange"),
         filterTransaction: (tr) => {
           let changes:
             | ReturnType<typeof getBlocksChangedByTransaction>

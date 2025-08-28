@@ -130,82 +130,88 @@ export function addNodeAndExtensionsToSpec<
 >(
   blockConfig: BlockConfig<TName, TProps, TContent>,
   blockImplementation: BlockImplementation<TName, TProps, TContent>,
+  extensions?: BlockNoteExtension<any>[],
   priority?: number,
 ) {
-  const node = createStronglyTypedTiptapNode({
-    name: blockConfig.type,
-    content: (blockConfig.content === "inline"
-      ? "inline*"
-      : blockConfig.content === "none"
-        ? ""
-        : blockConfig.content) as TContent extends "inline" ? "inline*" : "",
-    group: "blockContent",
-    selectable: blockConfig.meta?.selectable ?? true,
-    isolating: true,
-    code: blockConfig.meta?.code ?? false,
-    defining: blockConfig.meta?.defining ?? true,
-    priority,
-    addAttributes() {
-      return propsToAttributes(blockConfig.propSchema);
-    },
+  const node =
+    // Only table already has a node defined, so we just use that node instead of wrapping it from scratch
+    ((blockImplementation as any).node as ReturnType<
+      typeof createStronglyTypedTiptapNode
+    >) ||
+    createStronglyTypedTiptapNode({
+      name: blockConfig.type,
+      content: (blockConfig.content === "inline"
+        ? "inline*"
+        : blockConfig.content === "none"
+          ? ""
+          : blockConfig.content) as TContent extends "inline" ? "inline*" : "",
+      group: "blockContent",
+      selectable: blockConfig.meta?.selectable ?? true,
+      isolating: true,
+      code: blockConfig.meta?.code ?? false,
+      defining: blockConfig.meta?.defining ?? true,
+      priority,
+      addAttributes() {
+        return propsToAttributes(blockConfig.propSchema);
+      },
 
-    parseHTML() {
-      return getParseRules(
-        blockConfig,
-        blockImplementation.parse,
-        blockImplementation.parseContent,
-      );
-    },
+      parseHTML() {
+        return getParseRules(
+          blockConfig,
+          blockImplementation.parse,
+          blockImplementation.parseContent,
+        );
+      },
 
-    renderHTML({ HTMLAttributes }) {
-      // renderHTML is used for copy/pasting content from the editor back into
-      // the editor, so we need to make sure the `blockContent` element is
-      // structured correctly as this is what's used for parsing blocks. We
-      // just render a placeholder div inside as the `blockContent` element
-      // already has all the information needed for proper parsing.
-      const div = document.createElement("div");
-      return wrapInBlockStructure(
-        {
-          dom: div,
-          contentDOM: blockConfig.content === "inline" ? div : undefined,
-        },
-        blockConfig.type,
-        {},
-        blockConfig.propSchema,
-        blockConfig.meta?.fileBlockAccept !== undefined,
-        HTMLAttributes,
-      );
-    },
-
-    addNodeView() {
-      return (props) => {
-        // Gets the BlockNote editor instance
-        const editor = this.options.editor;
-        // Gets the block
-        const block = getBlockFromPos(
-          props.getPos,
-          editor,
-          this.editor,
+      renderHTML({ HTMLAttributes }) {
+        // renderHTML is used for copy/pasting content from the editor back into
+        // the editor, so we need to make sure the `blockContent` element is
+        // structured correctly as this is what's used for parsing blocks. We
+        // just render a placeholder div inside as the `blockContent` element
+        // already has all the information needed for proper parsing.
+        const div = document.createElement("div");
+        return wrapInBlockStructure(
+          {
+            dom: div,
+            contentDOM: blockConfig.content === "inline" ? div : undefined,
+          },
           blockConfig.type,
+          {},
+          blockConfig.propSchema,
+          blockConfig.meta?.fileBlockAccept !== undefined,
+          HTMLAttributes,
         );
-        // Gets the custom HTML attributes for `blockContent` nodes
-        const blockContentDOMAttributes =
-          this.options.domAttributes?.blockContent || {};
+      },
 
-        const nodeView = blockImplementation.render.call(
-          { blockContentDOMAttributes, props, renderType: "nodeView" },
-          block as any,
-          editor as any,
-        );
+      addNodeView() {
+        return (props) => {
+          // Gets the BlockNote editor instance
+          const editor = this.options.editor;
+          // Gets the block
+          const block = getBlockFromPos(
+            props.getPos,
+            editor,
+            this.editor,
+            blockConfig.type,
+          );
+          // Gets the custom HTML attributes for `blockContent` nodes
+          const blockContentDOMAttributes =
+            this.options.domAttributes?.blockContent || {};
 
-        if (blockConfig.meta?.selectable === false) {
-          applyNonSelectableBlockFix(nodeView, this.editor);
-        }
+          const nodeView = blockImplementation.render.call(
+            { blockContentDOMAttributes, props, renderType: "nodeView" },
+            block as any,
+            editor as any,
+          );
 
-        return nodeView;
-      };
-    },
-  });
+          if (blockConfig.meta?.selectable === false) {
+            applyNonSelectableBlockFix(nodeView, this.editor);
+          }
+
+          return nodeView;
+        };
+      },
+    });
 
   if (node.name !== blockConfig.type) {
     throw new Error(
@@ -213,44 +219,46 @@ export function addNodeAndExtensionsToSpec<
     );
   }
 
-  return createTypedBlockSpec(blockConfig, {
-    node,
-    render(block, editor) {
-      const blockContentDOMAttributes =
-        node.options.domAttributes?.blockContent || {};
+  return createTypedBlockSpec(
+    blockConfig,
+    {
+      node,
+      render(block, editor) {
+        const blockContentDOMAttributes =
+          node.options.domAttributes?.blockContent || {};
 
-      return blockImplementation.render.call(
-        {
-          blockContentDOMAttributes,
-          props: undefined,
-          renderType: "dom",
-        },
-        block as any,
-        editor as any,
-      );
-    },
-    // TODO: this should not have wrapInBlockStructure and generally be a lot simpler
-    // post-processing in externalHTMLExporter should not be necessary
-    toExternalHTML: (block, editor) => {
-      const blockContentDOMAttributes =
-        node.options.domAttributes?.blockContent || {};
-
-      return (
-        blockImplementation.toExternalHTML?.call(
-          { blockContentDOMAttributes },
+        return blockImplementation.render.call(
+          {
+            blockContentDOMAttributes,
+            props: undefined,
+            renderType: "dom",
+          },
           block as any,
           editor as any,
-        ) ??
-        blockImplementation.render.call(
-          { blockContentDOMAttributes, renderType: "dom", props: undefined },
-          block as any,
-          editor as any,
-        )
-      );
+        );
+      },
+      // TODO: this should not have wrapInBlockStructure and generally be a lot simpler
+      // post-processing in externalHTMLExporter should not be necessary
+      toExternalHTML: (block, editor) => {
+        const blockContentDOMAttributes =
+          node.options.domAttributes?.blockContent || {};
+
+        return (
+          blockImplementation.toExternalHTML?.call(
+            { blockContentDOMAttributes },
+            block as any,
+            editor as any,
+          ) ??
+          blockImplementation.render.call(
+            { blockContentDOMAttributes, renderType: "dom", props: undefined },
+            block as any,
+            editor as any,
+          )
+        );
+      },
     },
-    // Only needed for tables right now, remove later
-    requiredExtensions: (blockImplementation as any).requiredExtensions,
-  });
+    extensions,
+  );
 }
 
 /**
@@ -368,21 +376,4 @@ export function createBlockSpec<
       extensions: extensions,
     };
   };
-}
-
-/**
- * This creates an instance of a BlockNoteExtension that can be used to add to a schema.
- * It is a bit of a hack, but it works.
- */
-export function createBlockNoteExtension(
-  options: Partial<
-    Pick<BlockNoteExtension, "inputRules" | "keyboardShortcuts" | "plugins">
-  > & { key: string },
-) {
-  const x = Object.create(BlockNoteExtension.prototype);
-  x.key = options.key;
-  x.inputRules = options.inputRules;
-  x.keyboardShortcuts = options.keyboardShortcuts;
-  x.plugins = options.plugins ?? [];
-  return x as BlockNoteExtension;
 }

@@ -9,9 +9,19 @@ import {
   posToDOMRect,
   Node as TipTapNode,
 } from "@tiptap/core";
+import { redo, undo } from "@tiptap/pm/history";
+import {
+  TextSelection,
+  type Command,
+  type Plugin,
+  type Transaction,
+} from "@tiptap/pm/state";
+import { dropCursor } from "prosemirror-dropcursor";
 import { Node, Schema } from "prosemirror-model";
-// import "./blocknote.css";
+import { EditorView } from "prosemirror-view";
+import { redoCommand, undoCommand, ySyncPluginKey } from "y-prosemirror";
 import * as Y from "yjs";
+
 import { insertBlocks } from "../api/blockManipulation/commands/insertBlocks/insertBlocks.js";
 import {
   moveBlocksDown,
@@ -45,19 +55,27 @@ import {
   setTextCursorPosition,
 } from "../api/blockManipulation/selections/textCursorPosition.js";
 import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter.js";
+import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter.js";
+import { getBlockInfoFromTransaction } from "../api/getBlockInfoFromPos.js";
+import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
+import { docToBlocks } from "../api/nodeConversions/nodeToBlock.js";
+import {
+  BlocksChanged,
+  getBlocksChangedByTransaction,
+} from "../api/nodeUtil.js";
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
+import { nestedListsToBlockNoteStructure } from "../api/parsers/html/util/nestedLists.js";
 import {
   markdownToBlocks,
   markdownToHTML,
 } from "../api/parsers/markdown/parseMarkdown.js";
-import {
-  Block,
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  PartialBlock,
-} from "../blocks/defaultBlocks.js";
+import { CodeBlockOptions } from "../blocks/Code/block.js";
+import { editorHasBlockWithType } from "../blocks/defaultBlockTypeGuards.js";
+import type { ThreadStore, User } from "../comments/index.js";
+import { BlockChangePlugin } from "../extensions/BlockChange/BlockChangePlugin.js";
+import type { CursorPlugin } from "../extensions/Collaboration/CursorPlugin.js";
+import type { ForkYDocPlugin } from "../extensions/Collaboration/ForkYDocPlugin.js";
 import type { CommentsPlugin } from "../extensions/Comments/CommentsPlugin.js";
 import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlugin.js";
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin.js";
@@ -67,11 +85,14 @@ import { SideMenuProsemirrorPlugin } from "../extensions/SideMenu/SideMenuPlugin
 import { SuggestionMenuProseMirrorPlugin } from "../extensions/SuggestionMenu/SuggestionPlugin.js";
 import { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableHandlesPlugin.js";
 import { UniqueID } from "../extensions/UniqueID/UniqueID.js";
+import { Dictionary } from "../i18n/dictionary.js";
+import { en } from "../i18n/locales/index.js";
 import {
   BlockIdentifier,
   BlockNoteDOMAttributes,
   BlockSchema,
   BlockSpecs,
+  CustomBlockNoteSchema,
   InlineContentSchema,
   InlineContentSpecs,
   PartialInlineContent,
@@ -79,53 +100,28 @@ import {
   StyleSchema,
   StyleSpecs,
 } from "../schema/index.js";
+import "../style.css";
 import { mergeCSSClasses } from "../util/browser.js";
+import { EventEmitter } from "../util/EventEmitter.js";
 import { NoInfer, UnreachableCaseError } from "../util/typescript.js";
-
+import { BlockNoteExtension } from "./BlockNoteExtension.js";
 import { getBlockNoteExtensions } from "./BlockNoteExtensions.js";
-import { TextCursorPosition } from "./cursorPositionTypes.js";
-
-import { Selection } from "./selectionTypes.js";
-import { transformPasted } from "./transformPasted.js";
-
-import { editorHasBlockWithType } from "../blocks/defaultBlockTypeGuards.js";
-import { BlockNoteSchema } from "./BlockNoteSchema.js";
 import {
   BlockNoteTipTapEditor,
   BlockNoteTipTapEditorOptions,
 } from "./BlockNoteTipTapEditor.js";
-
-import { Dictionary } from "../i18n/dictionary.js";
-import { en } from "../i18n/locales/index.js";
-
-import { redo, undo } from "@tiptap/pm/history";
+import { TextCursorPosition } from "./cursorPositionTypes.js";
+import { Selection } from "./selectionTypes.js";
+import { transformPasted } from "./transformPasted.js";
+// TODO eventually we will want to de-couple this from the editor instance, for now it provides a default schema to use
 import {
-  TextSelection,
-  type Command,
-  type Plugin,
-  type Transaction,
-} from "@tiptap/pm/state";
-import { dropCursor } from "prosemirror-dropcursor";
-import { EditorView } from "prosemirror-view";
-import { redoCommand, undoCommand, ySyncPluginKey } from "y-prosemirror";
-import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
-import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
-import { docToBlocks } from "../api/nodeConversions/nodeToBlock.js";
-import {
-  BlocksChanged,
-  getBlocksChangedByTransaction,
-} from "../api/nodeUtil.js";
-import { nestedListsToBlockNoteStructure } from "../api/parsers/html/util/nestedLists.js";
-import { CodeBlockOptions } from "../blocks/Code/block.js";
-import type { ThreadStore, User } from "../comments/index.js";
-import type { CursorPlugin } from "../extensions/Collaboration/CursorPlugin.js";
-import type { ForkYDocPlugin } from "../extensions/Collaboration/ForkYDocPlugin.js";
-import { EventEmitter } from "../util/EventEmitter.js";
-import { BlockNoteExtension } from "./BlockNoteExtension.js";
-
-import "../style.css";
-import { BlockChangePlugin } from "../extensions/BlockChange/BlockChangePlugin.js";
-import { getBlockInfoFromTransaction } from "../api/getBlockInfoFromPos.js";
+  Block,
+  BlockNoteSchema,
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
+  PartialBlock,
+} from "../blocks/index.js";
 
 /**
  * A factory function that returns a BlockNoteExtension
@@ -344,7 +340,7 @@ export type BlockNoteEditorOptions<
    * See [Custom Schemas](https://www.blocknotejs.org/docs/custom-schemas) for more info.
    * @remarks `BlockNoteSchema`
    */
-  schema: BlockNoteSchema<BSchema, ISchema, SSchema>;
+  schema: CustomBlockNoteSchema<BSchema, ISchema, SSchema>;
 
   /**
    * A flag indicating whether to set an HTML ID for every block
@@ -518,7 +514,7 @@ export class BlockNoteEditor<
   /**
    * The schema of the editor. The schema defines which Blocks, InlineContent, and Styles are available in the editor.
    */
-  public readonly schema: BlockNoteSchema<BSchema, ISchema, SSchema>;
+  public readonly schema: CustomBlockNoteSchema<BSchema, ISchema, SSchema>;
 
   public readonly blockImplementations: BlockSpecs;
   public readonly inlineContentImplementations: InlineContentSpecs;
@@ -596,7 +592,9 @@ export class BlockNoteEditor<
   }
 
   protected constructor(
-    protected readonly options: Partial<BlockNoteEditorOptions<any, any, any>>,
+    protected readonly options: Partial<
+      BlockNoteEditorOptions<BSchema, ISchema, SSchema>
+    >,
   ) {
     super();
     const anyOpts = options as any;
@@ -646,7 +644,13 @@ export class BlockNoteEditor<
     // apply defaults
     const newOptions = {
       defaultStyles: true,
-      schema: options.schema || BlockNoteSchema.create(),
+      schema:
+        options.schema ||
+        (BlockNoteSchema.create() as unknown as CustomBlockNoteSchema<
+          BSchema,
+          ISchema,
+          SSchema
+        >),
       _headless: false,
       ...options,
       placeholders: {
@@ -661,9 +665,8 @@ export class BlockNoteEditor<
 
     this.resolveUsers = newOptions.resolveUsers;
 
-    // @ts-ignore
     this.schema = newOptions.schema;
-    this.blockImplementations = newOptions.schema.blockSpecs as any;
+    this.blockImplementations = newOptions.schema.blockSpecs;
     this.inlineContentImplementations = newOptions.schema.inlineContentSpecs;
     this.styleImplementations = newOptions.schema.styleSpecs;
 
@@ -822,7 +825,8 @@ export class BlockNoteEditor<
             if (
               !ext.plugins.length &&
               !ext.keyboardShortcuts &&
-              !ext.inputRules
+              !ext.inputRules &&
+              !ext.tiptapExtensions
             ) {
               return undefined;
             }
@@ -831,6 +835,7 @@ export class BlockNoteEditor<
               name: key,
               priority: ext.priority,
               addProseMirrorPlugins: () => ext.plugins,
+              addExtensions: () => ext.tiptapExtensions || [],
               // TODO maybe collect all input rules from all extensions into one plugin
               // TODO consider using the prosemirror-inputrules package instead
               addInputRules: ext.inputRules

@@ -3,6 +3,7 @@ import { EventEmitter } from "../util/EventEmitter.js";
 
 import { BlockNoteEditor } from "./BlockNoteEditor.js";
 import { PartialBlockNoDefaults } from "../schema/index.js";
+import { AnyExtension } from "@tiptap/core";
 
 export abstract class BlockNoteExtension<
   TEvent extends Record<string, any> = any,
@@ -39,6 +40,8 @@ export abstract class BlockNoteExtension<
       editor: BlockNoteEditor<any, any, any>;
     }) => boolean
   >;
+
+  public tiptapExtensions?: AnyExtension[];
 }
 
 export type InputRule = {
@@ -66,3 +69,24 @@ export type InputRule = {
     editor: BlockNoteEditor<any, any, any>;
   }) => undefined | PartialBlockNoDefaults<any, any, any>;
 };
+
+/**
+ * This creates an instance of a BlockNoteExtension that can be used to add to a schema.
+ * It is a bit of a hack, but it works.
+ */
+export function createBlockNoteExtension(
+  options: Partial<
+    Pick<
+      BlockNoteExtension,
+      "inputRules" | "keyboardShortcuts" | "plugins" | "tiptapExtensions"
+    >
+  > & { key: string },
+) {
+  const x = Object.create(BlockNoteExtension.prototype);
+  x.key = options.key;
+  x.inputRules = options.inputRules;
+  x.keyboardShortcuts = options.keyboardShortcuts;
+  x.plugins = options.plugins ?? [];
+  x.tiptapExtensions = options.tiptapExtensions;
+  return x as BlockNoteExtension;
+}

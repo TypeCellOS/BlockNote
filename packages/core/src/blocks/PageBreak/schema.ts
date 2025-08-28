@@ -1,4 +1,4 @@
-import { BlockNoteSchema } from "../../editor/BlockNoteSchema.js";
+import { BlockNoteSchema } from "../BlockNoteSchema.js";
 import {
   BlockSchema,
   InlineContentSchema,

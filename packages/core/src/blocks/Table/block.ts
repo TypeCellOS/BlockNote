@@ -9,6 +9,7 @@ import {
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
 } from "../../schema/index.js";
+import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import { mergeCSSClasses } from "../../util/browser.js";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
 import { defaultProps } from "../defaultProps.js";
@@ -222,44 +223,49 @@ function parseTableContent(node: HTMLElement, schema: Schema) {
 
 export const createTableBlockSpec = () =>
   createBlockSpecFromStronglyTypedTiptapNode(TableNode, tablePropSchema, [
-    TableExtension,
-    TableParagraphNode,
-    TableHeader.extend({
-      /**
-       * We allow table headers and cells to have multiple tableContent nodes because
-       * when merging cells, prosemirror-tables will concat the contents of the cells naively.
-       * This would cause that content to overflow into other cells when prosemirror tries to enforce the cell structure.
-       *
-       * So, we manually fix this up when reading back in the `nodeToBlock` and only ever place a single tableContent back into the cell.
-       */
-      content: "tableContent+",
-      parseHTML() {
-        return [
-          {
-            tag: "th",
-            // As `th` elements can contain multiple paragraphs, we need to merge their contents
-            // into a single one so that ProseMirror can parse everything correctly.
-            getContent: (node, schema) =>
-              parseTableContent(node as HTMLElement, schema),
+    createBlockNoteExtension({
+      key: "table-extensions",
+      tiptapExtensions: [
+        TableExtension,
+        TableParagraphNode,
+        TableHeader.extend({
+          /**
+           * We allow table headers and cells to have multiple tableContent nodes because
+           * when merging cells, prosemirror-tables will concat the contents of the cells naively.
+           * This would cause that content to overflow into other cells when prosemirror tries to enforce the cell structure.
+           *
+           * So, we manually fix this up when reading back in the `nodeToBlock` and only ever place a single tableContent back into the cell.
+           */
+          content: "tableContent+",
+          parseHTML() {
+            return [
+              {
+                tag: "th",
+                // As `th` elements can contain multiple paragraphs, we need to merge their contents
+                // into a single one so that ProseMirror can parse everything correctly.
+                getContent: (node, schema) =>
+                  parseTableContent(node as HTMLElement, schema),
+              },
+            ];
           },
-        ];
-      },
-    }),
-    TableCell.extend({
-      content: "tableContent+",
-      parseHTML() {
-        return [
-          {
-            tag: "td",
-            // As `td` elements can contain multiple paragraphs, we need to merge their contents
-            // into a single one so that ProseMirror can parse everything correctly.
-            getContent: (node, schema) =>
-              parseTableContent(node as HTMLElement, schema),
+        }),
+        TableCell.extend({
+          content: "tableContent+",
+          parseHTML() {
+            return [
+              {
+                tag: "td",
+                // As `td` elements can contain multiple paragraphs, we need to merge their contents
+                // into a single one so that ProseMirror can parse everything correctly.
+                getContent: (node, schema) =>
+                  parseTableContent(node as HTMLElement, schema),
+              },
+            ];
           },
-        ];
-      },
+        }),
+        TableRowNode,
+      ],
     }),
-    TableRowNode,
   ]) as unknown as BlockSpec<
     "table",
     {

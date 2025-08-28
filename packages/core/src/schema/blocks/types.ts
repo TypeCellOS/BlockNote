@@ -143,6 +143,7 @@ export type BlockSpecs = {
           }
         | undefined;
     };
+    extensions?: BlockNoteExtension<any>[];
   };
 };
 

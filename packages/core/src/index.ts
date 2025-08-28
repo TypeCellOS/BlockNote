@@ -6,21 +6,10 @@ export * from "./api/exporters/html/internalHTMLSerializer.js";
 export * from "./api/getBlockInfoFromPos.js";
 export * from "./api/nodeUtil.js";
 export * from "./api/pmUtil.js";
-export * from "./blocks/defaultBlockHelpers.js";
-export * from "./blocks/defaultBlocks.js";
-export * from "./blocks/defaultBlockTypeGuards.js";
-export * from "./blocks/defaultProps.js";
 export * from "./blocks/index.js";
-export * from "./blocks/PageBreak/schema.js";
-export {
-  EMPTY_CELL_HEIGHT,
-  EMPTY_CELL_WIDTH,
-} from "./blocks/Table/TableExtension.js";
-export * from "./blocks/ToggleWrapper/createToggleWrapper.js";
 export * from "./editor/BlockNoteEditor.js";
 export * from "./editor/BlockNoteExtension.js";
 export * from "./editor/BlockNoteExtensions.js";
-export * from "./editor/BlockNoteSchema.js";
 export * from "./editor/defaultColors.js";
 export * from "./editor/selectionTypes.js";
 export * from "./exporter/index.js";

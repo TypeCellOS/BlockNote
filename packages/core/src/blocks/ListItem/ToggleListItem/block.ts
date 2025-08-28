@@ -1,10 +1,7 @@
 import { updateBlockTr } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { getBlockInfoFromTransaction } from "../../../api/getBlockInfoFromPos.js";
-import {
-  createBlockConfig,
-  createBlockSpec,
-  createBlockNoteExtension,
-} from "../../../schema/index.js";
+import { createBlockConfig, createBlockSpec } from "../../../schema/index.js";
+import { createBlockNoteExtension } from "../../../editor/BlockNoteExtension.js";
 import { defaultProps } from "../../defaultProps.js";
 import { createToggleWrapper } from "../../ToggleWrapper/createToggleWrapper.js";
 import { handleEnter } from "../../utils/listItemEnterHandler.js";

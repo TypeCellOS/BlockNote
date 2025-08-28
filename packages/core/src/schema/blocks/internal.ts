@@ -1,11 +1,4 @@
-import {
-  Attribute,
-  Attributes,
-  Editor,
-  Extension,
-  Node,
-  NodeConfig,
-} from "@tiptap/core";
+import { Attribute, Attributes, Editor, Node, NodeConfig } from "@tiptap/core";
 import { defaultBlockToHTML } from "../../blocks/defaultBlockHelpers.js";
 import { inheritedProps } from "../../blocks/defaultProps.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
@@ -21,6 +14,7 @@ import {
   BlockSpec,
   SpecificBlock,
 } from "./types.js";
+import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 
 // Function that uses the 'propSchema' of a blockConfig to create a TipTap
 // node's `addAttributes` property.
@@ -238,19 +232,20 @@ export function createTypedBlockSpec<T extends BlockConfig>(
     T["content"]
   > & {
     node: Node;
-    requiredExtensions?: Array<Extension | Node>;
   },
+  extensions?: BlockNoteExtension<any>[],
 ): BlockSpec<T["type"], T["propSchema"], T["content"]> {
   return {
     config,
     implementation,
+    extensions,
   };
 }
 
 export function createBlockSpecFromStronglyTypedTiptapNode<
   T extends Node,
   P extends PropSchema,
->(node: T, propSchema: P, requiredExtensions?: Array<Extension | Node>) {
+>(node: T, propSchema: P, extensions?: BlockNoteExtension<any>[]) {
   return createTypedBlockSpec(
     {
       type: node.name as T["name"],
@@ -263,9 +258,9 @@ export function createBlockSpecFromStronglyTypedTiptapNode<
     },
     {
       node,
-      requiredExtensions,
       render: defaultBlockToHTML as any,
       toExternalHTML: defaultBlockToHTML as any,
     },
+    extensions,
   );
 }

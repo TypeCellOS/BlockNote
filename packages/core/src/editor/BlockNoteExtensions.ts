@@ -3,7 +3,7 @@ import { Gapcursor } from "@tiptap/extension-gapcursor";
 import { History } from "@tiptap/extension-history";
 import { Link } from "@tiptap/extension-link";
 import { Text } from "@tiptap/extension-text";
-import { Plugin } from "prosemirror-state";
+import { Plugin, PluginKey } from "prosemirror-state";
 import * as Y from "yjs";
 
 import { createDropFileExtension } from "../api/clipboard/fromClipboard/fileDropExtension.js";
@@ -193,11 +193,15 @@ const getTipTapExtensions = <
     Extension.create({
       name: "dropCursor",
       addProseMirrorPlugins: () => [
-        opts.dropCursor({
-          width: 5,
-          color: "#ddeeff",
-          editor: opts.editor,
-        }),
+        // TODO need to figure out why this isn't working with the default plugin key
+        {
+          ...opts.dropCursor({
+            width: 5,
+            color: "#ddeeff",
+            editor: opts.editor,
+          }),
+          key: new PluginKey("dropCursor"),
+        } as unknown as Plugin,
       ],
     }),
 
@@ -273,18 +277,7 @@ const getTipTapExtensions = <
 
     ...Object.values(opts.blockSpecs).flatMap((blockSpec) => {
       return [
-        // dependent nodes (e.g.: tablecell / row)
-        ...(
-          ("requiredExtensions" in blockSpec.implementation &&
-            (blockSpec.implementation.requiredExtensions as Extension[])) ||
-          []
-        ).map((ext) =>
-          ext.configure({
-            editor: opts.editor,
-            domAttributes: opts.domAttributes,
-          }),
-        ),
-        // the actual node itself
+        // the node extension implementations
         ...("node" in blockSpec.implementation
           ? [
               (blockSpec.implementation.node as Node).configure({
