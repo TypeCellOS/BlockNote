@@ -14,6 +14,8 @@ import {
   ShadCNDefaultComponents,
 } from "./ShadCNComponentsContext.js";
 
+import "./style.css";
+
 export const BlockNoteView = <
   BSchema extends BlockSchema,
   ISchema extends InlineContentSchema,
