@@ -22,7 +22,8 @@ import {
   getMultiColumnSlashMenuItems,
   multiColumnDropCursor,
   locales as multiColumnLocales,
-  withMultiColumn,
+  ColumnListBlock,
+  ColumnBlock,
 } from "@blocknote/xl-multi-column";
 import { useMemo } from "react";
 
@@ -31,13 +32,13 @@ import "./styles.css";
 export default function App() {
   // Creates a new editor instance with some initial content.
   const editor = useCreateBlockNote({
-    schema: withMultiColumn(
-      BlockNoteSchema.create().extend({
-        blockSpecs: {
-          pageBreak: createPageBreakBlockSpec(),
-        },
-      }),
-    ),
+    schema: BlockNoteSchema.create().extend({
+      blockSpecs: {
+        pageBreak: createPageBreakBlockSpec(),
+        column: ColumnBlock,
+        columnList: ColumnListBlock,
+      },
+    }),
     dropCursor: multiColumnDropCursor,
     dictionary: {
       ...locales.en,

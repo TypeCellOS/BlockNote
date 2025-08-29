@@ -22,7 +22,8 @@ import {
   getMultiColumnSlashMenuItems,
   multiColumnDropCursor,
   locales as multiColumnLocales,
-  withMultiColumn,
+  ColumnListBlock,
+  ColumnBlock,
 } from "@blocknote/xl-multi-column";
 import { PDFViewer } from "@react-pdf/renderer";
 import { useEffect, useMemo, useState } from "react";
@@ -35,13 +36,13 @@ export default function App() {
 
   // Creates a new editor instance with some initial content.
   const editor = useCreateBlockNote({
-    schema: withMultiColumn(
-      BlockNoteSchema.create().extend({
-        blockSpecs: {
-          pageBreak: createPageBreakBlockSpec(),
-        },
-      }),
-    ),
+    schema: BlockNoteSchema.create().extend({
+      blockSpecs: {
+        pageBreak: createPageBreakBlockSpec(),
+        column: ColumnBlock,
+        columnList: ColumnListBlock,
+      },
+    }),
     dropCursor: multiColumnDropCursor,
     dictionary: {
       ...locales.en,
