@@ -34,8 +34,8 @@ export const createNumberedListItemBlockSpec = createBlockSpec(
       }
 
       if (
-        parent.tagName === "UL" ||
-        (parent.tagName === "DIV" && parent.parentElement?.tagName === "UL")
+        parent.tagName === "OL" ||
+        (parent.tagName === "DIV" && parent.parentElement?.tagName === "OL")
       ) {
         return {};
       }

@@ -2,6 +2,7 @@ import type { HighlighterGeneric } from "@shikijs/types";
 import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
 import { lazyShikiPlugin } from "./shiki.js";
+import { DOMParser } from "@tiptap/pm/model";
 
 export type CodeBlockOptions = {
   /**
@@ -71,12 +72,35 @@ export const createCodeBlockSpec = createBlockSpec(
   createCodeBlockConfig,
   (options) => ({
     parse: (e) => {
-      const pre = e.querySelector("pre");
-      if (!pre) {
+      if (e.tagName !== "PRE") {
         return undefined;
       }
 
-      return {};
+      if (
+        e.childElementCount !== 1 ||
+        e.firstElementChild?.tagName !== "CODE"
+      ) {
+        return undefined;
+      }
+
+      const code = e.firstElementChild!;
+      const language =
+        code.getAttribute("data-language") ||
+        code.className
+          .split(" ")
+          .find((name) => name.includes("language-"))
+          ?.replace("language-", "");
+
+      return { language };
+    },
+
+    parseContent: ({ el, schema }) => {
+      const parser = DOMParser.fromSchema(schema);
+      const code = el.firstElementChild!;
+
+      return parser.parse(code, {
+        topNode: schema.nodes["codeBlock"].create(),
+      }).content;
     },
 
     render(block, editor) {

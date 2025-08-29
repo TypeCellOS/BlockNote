@@ -8,7 +8,10 @@ export const createQuoteBlockConfig = createBlockConfig(
   () =>
     ({
       type: "quote" as const,
-      propSchema: { ...defaultProps },
+      propSchema: {
+        backgroundColor: defaultProps.backgroundColor,
+        textColor: defaultProps.textColor,
+      },
       content: "inline" as const,
     }) as const,
 );
@@ -17,7 +20,7 @@ export const createQuoteBlockSpec = createBlockSpec(
   createQuoteBlockConfig,
   {
     parse(element) {
-      if (element.querySelector("blockquote")) {
+      if (element.tagName === "BLOCKQUOTE") {
         return {};
       }
 

@@ -17,12 +17,16 @@ export const createParagraphBlockSpec = createBlockSpec(
   createParagraphBlockConfig,
   {
     parse: (e) => {
-      const paragraph = e.querySelector("p");
-      if (!paragraph) {
+      if (e.tagName !== "P") {
         return undefined;
       }
 
-      return {};
+      // Edge case for things like images directly inside paragraph.
+      if (!e.textContent?.trim()) {
+        return undefined;
+      }
+
+      return undefined;
     },
     render: () => {
       const dom = document.createElement("p");

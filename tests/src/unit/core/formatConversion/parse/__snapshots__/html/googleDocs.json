@@ -612,29 +612,12 @@ Hard Break",
     "content": [
       {
         "styles": {},
-        "text": "Paragraph",
-        "type": "text",
-      },
-    ],
-    "id": "23",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "
+        "text": "Paragraph 
 ",
         "type": "text",
       },
     ],
-    "id": "24",
+    "id": "23",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
