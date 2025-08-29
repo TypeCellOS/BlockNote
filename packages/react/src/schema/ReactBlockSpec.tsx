@@ -230,8 +230,7 @@ export function createReactBlockSpec<
               },
             )(this.props!) as ReturnType<BlockImplementation["render"]>;
           } else {
-            const BlockContent =
-              blockImplementation.toExternalHTML || blockImplementation.render;
+            const BlockContent = blockImplementation.render;
             const output = renderToDOMSpec((refCB) => {
               return (
                 <BlockContentWrapper
