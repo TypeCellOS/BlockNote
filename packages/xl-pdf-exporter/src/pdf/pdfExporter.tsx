@@ -118,9 +118,13 @@ export class PDFExporter<
   public transformStyledText(styledText: StyledText<S>) {
     const stylesArray = this.mapStyles(styledText.styles);
     const styles = Object.assign({}, ...stylesArray);
+    const textWithLeadingNbsp = styledText.text.replace(
+      /(^|\n) +/g,
+      (leadingWhiteSpaces) => leadingWhiteSpaces.replace(/ /g, "\u00A0"),
+    );
     return (
       <Text style={styles} key={styledText.text}>
-        {styledText.text}
+        {textWithLeadingNbsp}
       </Text>
     );
   }
