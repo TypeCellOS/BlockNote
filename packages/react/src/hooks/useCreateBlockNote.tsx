@@ -11,9 +11,7 @@ import {
 import { DependencyList, useMemo } from "react";
 
 /**
- * Main hook for importing a BlockNote editor into a React project
- *
- * TODO: document in docs
+ * Hook to instantiate a BlockNote Editor instance in React
  */
 export const useCreateBlockNote = <
   BSchema extends BlockSchema = DefaultBlockSchema,

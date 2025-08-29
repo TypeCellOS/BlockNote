@@ -40,7 +40,9 @@ export const SideMenu = <
       attrs["data-level"] = (props.block.props as any).level.toString();
     }
 
-    if (props.editor.schema.blockSchema[props.block.type].isFileBlock) {
+    if (
+      props.editor.schema.blockSchema[props.block.type].meta?.fileBlockAccept
+    ) {
       if (props.block.props.url) {
         attrs["data-url"] = "true";
       } else {

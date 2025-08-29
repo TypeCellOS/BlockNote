@@ -73,7 +73,7 @@
     "ai": "^4.3.15",
     "lodash.isequal": "^4.5.0",
     "prosemirror-changeset": "^2.3.0",
-    "prosemirror-model": "^1.24.1",
+    "prosemirror-model": "^1.25.3",
     "prosemirror-state": "^1.4.3",
     "prosemirror-tables": "^1.6.4",
     "prosemirror-transform": "^1.10.4",

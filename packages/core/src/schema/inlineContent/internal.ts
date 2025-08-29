@@ -43,7 +43,7 @@ export function addInlineContentAttributes<
     })
     .forEach(([prop, value]) => element.dom.setAttribute(prop, value));
 
-  if (element.contentDOM !== undefined) {
+  if (element.contentDOM) {
     element.contentDOM.setAttribute("data-editable", "");
   }
 

@@ -20,7 +20,7 @@ const schema = BlockNoteSchema.create({
     // Adds all default blocks.
     ...defaultBlockSpecs,
     // Adds the Alert block.
-    alert: Alert,
+    alert: Alert(),
   },
 });
 

@@ -1,10 +1,10 @@
 import {
   BlockNoteEditor,
-  createBlockSpec,
+  addNodeAndExtensionsToSpec,
   defaultProps,
 } from "@blocknote/core";
 import { RiImage2Fill } from "react-icons/ri";
-export const Image = createBlockSpec(
+export const Image = addNodeAndExtensionsToSpec(
   {
     type: "image" as const,
     propSchema: {

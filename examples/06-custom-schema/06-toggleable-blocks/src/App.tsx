@@ -13,7 +13,7 @@ const schema = BlockNoteSchema.create({
     // Adds all default blocks.
     ...defaultBlockSpecs,
     // Adds the Toggle block.
-    toggle: ToggleBlock,
+    toggle: ToggleBlock(),
   },
 });
 

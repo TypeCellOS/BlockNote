@@ -8,3 +8,4 @@ export * from "./propTypes.js";
 export * from "./styles/createSpec.js";
 export * from "./styles/internal.js";
 export * from "./styles/types.js";
+export * from "./schema.js";

@@ -1,8 +1,8 @@
 import {
   BlockMapping,
+  createPageBreakBlockConfig,
   DefaultBlockSchema,
   mapTableCell,
-  pageBreakSchema,
   StyledText,
 } from "@blocknote/core";
 import {
@@ -118,7 +118,9 @@ export const defaultReactEmailTextStyles = {
 export const createReactEmailBlockMappingForDefaultSchema = (
   textStyles: ReactEmailTextStyles = defaultReactEmailTextStyles,
 ): BlockMapping<
-  DefaultBlockSchema & typeof pageBreakSchema.blockSchema,
+  DefaultBlockSchema & {
+    pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
+  },
   any,
   any,
   React.ReactElement<any>,
@@ -242,11 +244,14 @@ export const createReactEmailBlockMappingForDefaultSchema = (
   heading: (block, t) => {
     return (
       <Heading
-        as={`h${block.props.level}`}
-        {...textStyles[`heading${block.props.level}`]}
+        as={`h${block.props.level as 1 | 2 | 3 | 4 | 5 | 6}`}
+        {...textStyles[`heading${block.props.level as 1 | 2 | 3 | 4 | 5 | 6}`]}
         style={{
-          ...defaultReactEmailTextStyles[`heading${block.props.level}`].style,
-          ...textStyles[`heading${block.props.level}`]?.style,
+          ...defaultReactEmailTextStyles[
+            `heading${block.props.level as 1 | 2 | 3 | 4 | 5 | 6}`
+          ].style,
+          ...textStyles[`heading${block.props.level as 1 | 2 | 3 | 4 | 5 | 6}`]
+            ?.style,
         }}
       >
         {t.transformInlineContent(block.content)}

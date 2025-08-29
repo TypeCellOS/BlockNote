@@ -273,25 +273,13 @@
         "text": "All",
         "type": "text",
       },
-    ],
-    "id": "13",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [
       {
         "styles": {},
         "text": " Outer 4 Div After Outer 3 Div After Outer 2 Div After Outer 1 Div After",
         "type": "text",
       },
     ],
-    "id": "14",
+    "id": "13",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",

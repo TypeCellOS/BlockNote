@@ -1,8 +1,8 @@
-import { BlockNoteEditor, createBlockSpec } from "@blocknote/core";
+import { BlockNoteEditor, addNodeAndExtensionsToSpec } from "@blocknote/core";
 
 import { RiLayout5Fill } from "react-icons/ri";
 
-export const Embed = createBlockSpec(
+export const Embed = addNodeAndExtensionsToSpec(
   {
     type: "embed" as const,
     propSchema: {

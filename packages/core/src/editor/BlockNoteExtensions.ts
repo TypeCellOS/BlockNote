@@ -1,4 +1,4 @@
-import { AnyExtension, Extension, extensions } from "@tiptap/core";
+import { AnyExtension, Extension, extensions, Node } from "@tiptap/core";
 import { Gapcursor } from "@tiptap/extension-gapcursor";
 import { History } from "@tiptap/extension-history";
 import { Link } from "@tiptap/extension-link";
@@ -273,18 +273,15 @@ const getTipTapExtensions = <
 
     ...Object.values(opts.blockSpecs).flatMap((blockSpec) => {
       return [
-        // dependent nodes (e.g.: tablecell / row)
-        ...(blockSpec.implementation.requiredExtensions || []).map((ext) =>
-          ext.configure({
-            editor: opts.editor,
-            domAttributes: opts.domAttributes,
-          }),
-        ),
-        // the actual node itself
-        blockSpec.implementation.node.configure({
-          editor: opts.editor,
-          domAttributes: opts.domAttributes,
-        }),
+        // the node extension implementations
+        ...("node" in blockSpec.implementation
+          ? [
+              (blockSpec.implementation.node as Node).configure({
+                editor: opts.editor,
+                domAttributes: opts.domAttributes,
+              }),
+            ]
+          : []),
       ];
     }),
     createCopyToClipboardExtension(opts.editor),

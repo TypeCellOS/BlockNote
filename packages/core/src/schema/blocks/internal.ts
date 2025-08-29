@@ -1,11 +1,4 @@
-import {
-  Attribute,
-  Attributes,
-  Editor,
-  Extension,
-  Node,
-  NodeConfig,
-} from "@tiptap/core";
+import { Attribute, Attributes, Editor, Node, NodeConfig } from "@tiptap/core";
 import { defaultBlockToHTML } from "../../blocks/defaultBlockHelpers.js";
 import { inheritedProps } from "../../blocks/defaultProps.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
@@ -16,13 +9,12 @@ import { PropSchema, Props } from "../propTypes.js";
 import { StyleSchema } from "../styles/types.js";
 import {
   BlockConfig,
-  BlockSchemaFromSpecs,
+  BlockImplementation,
   BlockSchemaWithBlock,
   BlockSpec,
-  BlockSpecs,
   SpecificBlock,
-  TiptapBlockImplementation,
 } from "./types.js";
+import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 
 // Function that uses the 'propSchema' of a blockConfig to create a TipTap
 // node's `addAttributes` property.
@@ -145,12 +137,12 @@ export function wrapInBlockStructure<
   PSchema extends PropSchema,
 >(
   element: {
-    dom: HTMLElement;
+    dom: HTMLElement | DocumentFragment;
     contentDOM?: HTMLElement;
     destroy?: () => void;
   },
   blockType: BType,
-  blockProps: Props<PSchema>,
+  blockProps: Partial<Props<PSchema>>,
   propSchema: PSchema,
   isFileBlock = false,
   domAttributes?: Record<string, string>,
@@ -194,7 +186,7 @@ export function wrapInBlockStructure<
 
   blockContent.appendChild(element.dom);
 
-  if (element.contentDOM !== undefined) {
+  if (element.contentDOM) {
     element.contentDOM.className = mergeCSSClasses(
       "bn-inline-content",
       element.contentDOM.className,
@@ -232,51 +224,44 @@ export function createStronglyTypedTiptapNode<
 
 // This helper function helps to instantiate a blockspec with a
 // config and implementation that conform to the type of Config
-export function createInternalBlockSpec<T extends BlockConfig>(
+export function createTypedBlockSpec<T extends BlockConfig>(
   config: T,
-  implementation: TiptapBlockImplementation<
-    T,
-    any,
-    InlineContentSchema,
-    StyleSchema
-  >,
-) {
+  implementation: BlockImplementation<
+    T["type"],
+    T["propSchema"],
+    T["content"]
+  > & {
+    node: Node;
+  },
+  extensions?: BlockNoteExtension<any>[],
+): BlockSpec<T["type"], T["propSchema"], T["content"]> {
   return {
     config,
     implementation,
-  } satisfies BlockSpec<T, any, InlineContentSchema, StyleSchema>;
+    extensions,
+  };
 }
 
 export function createBlockSpecFromStronglyTypedTiptapNode<
   T extends Node,
   P extends PropSchema,
->(node: T, propSchema: P, requiredExtensions?: Array<Extension | Node>) {
-  return createInternalBlockSpec(
+>(node: T, propSchema: P, extensions?: BlockNoteExtension<any>[]) {
+  return createTypedBlockSpec(
     {
       type: node.name as T["name"],
-      content: (node.config.content === "inline*"
-        ? "inline"
-        : node.config.content === "tableRow+"
-          ? "table"
-          : "none") as T["config"]["content"] extends "inline*"
-        ? "inline"
-        : T["config"]["content"] extends "tableRow+"
-          ? "table"
-          : "none",
+      content:
+        node.config.content === "inline*"
+          ? "inline"
+          : node.config.content === "tableRow+"
+            ? "table"
+            : "none",
       propSchema,
     },
     {
       node,
-      requiredExtensions,
-      toInternalHTML: defaultBlockToHTML,
-      toExternalHTML: defaultBlockToHTML,
-      // parse: () => undefined, // parse rules are in node already
+      render: defaultBlockToHTML as any,
+      toExternalHTML: defaultBlockToHTML as any,
     },
+    extensions,
   );
-}
-
-export function getBlockSchemaFromSpecs<T extends BlockSpecs>(specs: T) {
-  return Object.fromEntries(
-    Object.entries(specs).map(([key, value]) => [key, value.config]),
-  ) as BlockSchemaFromSpecs<T>;
 }

@@ -1,0 +1,64 @@
+import { updateBlockTr } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
+import { getBlockInfoFromTransaction } from "../../../api/getBlockInfoFromPos.js";
+import { createBlockConfig, createBlockSpec } from "../../../schema/index.js";
+import { createBlockNoteExtension } from "../../../editor/BlockNoteExtension.js";
+import { defaultProps } from "../../defaultProps.js";
+import { createToggleWrapper } from "../../ToggleWrapper/createToggleWrapper.js";
+import { handleEnter } from "../../utils/listItemEnterHandler.js";
+
+export const createToggleListItemBlockConfig = createBlockConfig(
+  () =>
+    ({
+      type: "toggleListItem" as const,
+      propSchema: {
+        ...defaultProps,
+      },
+      content: "inline" as const,
+    }) as const,
+);
+
+export const createToggleListItemBlockSpec = createBlockSpec(
+  createToggleListItemBlockConfig,
+  {
+    render(block, editor) {
+      const paragraphEl = document.createElement("p");
+      const toggleWrapper = createToggleWrapper(
+        block as any,
+        editor,
+        paragraphEl,
+      );
+      return { ...toggleWrapper, contentDOM: paragraphEl };
+    },
+    toExternalHTML() {
+      const paragraphEl = document.createElement("p");
+      return { dom: paragraphEl, contentDOM: paragraphEl };
+    },
+  },
+  [
+    createBlockNoteExtension({
+      key: "toggle-list-item-shortcuts",
+      keyboardShortcuts: {
+        Enter: ({ editor }) => {
+          return handleEnter(editor, "toggleListItem");
+        },
+        "Mod-Shift-6": ({ editor }) =>
+          editor.transact((tr) => {
+            const blockInfo = getBlockInfoFromTransaction(tr);
+
+            if (
+              !blockInfo.isBlockContainer ||
+              blockInfo.blockContent.node.type.spec.content !== "inline*"
+            ) {
+              return true;
+            }
+
+            updateBlockTr(tr, blockInfo.bnBlock.beforePos, {
+              type: "toggleListItem",
+              props: {},
+            });
+            return true;
+          }),
+      },
+    }),
+  ],
+);
