@@ -27,8 +27,8 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
         <div
           className={cn(
             className,
-            "bn-flex bn-gap-1 bn-p-1 bn-bg-popover bn-text-popover-foreground bn-border bn-rounded-lg bn-shadow-md bn-h-fit",
-            variant === "action-toolbar" ? "bn-w-fit" : "",
+            "bg-popover text-popover-foreground flex h-fit gap-1 rounded-lg border p-1 shadow-md",
+            variant === "action-toolbar" ? "w-fit" : "",
           )}
           ref={ref}
           onMouseEnter={onMouseEnter}
@@ -70,7 +70,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         <ShadCNComponents.Button.Button
           className={cn(
             className,
-            variant === "compact" ? "bn-h-6 bn-min-w-6 bn-p-0" : "",
+            variant === "compact" ? "h-6 min-w-6 p-0" : "",
           )}
           variant="ghost"
           size={variant === "compact" ? "sm" : "default"}
@@ -88,7 +88,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           className={cn(
             className,
             "data-[state=open]:bg-accent data-[state=closed]:text-accent-foreground",
-            variant === "compact" ? "bn-h-6 bn-min-w-6 bn-p-0" : "",
+            variant === "compact" ? "h-6 min-w-6 p-0" : "",
           )}
           size={variant === "compact" ? "sm" : "default"}
           aria-label={label}
@@ -111,9 +111,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           {trigger}
         </ShadCNComponents.Tooltip.TooltipTrigger>
         <ShadCNComponents.Tooltip.TooltipContent
-          className={
-            "bn-flex bn-flex-col bn-items-center bn-whitespace-pre-wrap"
-          }
+          className={"flex flex-col items-center whitespace-pre-wrap"}
         >
           <span>{mainTooltip}</span>
           {secondaryTooltip && <span>{secondaryTooltip}</span>}
@@ -135,7 +133,7 @@ export const ToolbarSelect = forwardRef<
 
   // TODO?
   const SelectItemContent = (props: any) => (
-    <div className={"bn-flex bn-gap-1 bn-items-center"}>
+    <div className={"flex items-center gap-1"}>
       {props.icon}
       {props.text}
     </div>
@@ -155,7 +153,7 @@ export const ToolbarSelect = forwardRef<
       }
       disabled={isDisabled}
     >
-      <ShadCNComponents.Select.SelectTrigger className={"bn-border-none"}>
+      <ShadCNComponents.Select.SelectTrigger className={"border-none"}>
         <ShadCNComponents.Select.SelectValue />
       </ShadCNComponents.Select.SelectTrigger>
       <ShadCNComponents.Select.SelectContent className={className} ref={ref}>

@@ -249,11 +249,12 @@ export function createBlockSpecFromStronglyTypedTiptapNode<
   return createTypedBlockSpec(
     {
       type: node.name as T["name"],
-      content: (node.config.content === "inline*"
-        ? "inline"
-        : node.config.content === "tableRow+"
-          ? "table"
-          : "none") as any, // TODO does this typing even matter?
+      content:
+        node.config.content === "inline*"
+          ? "inline"
+          : node.config.content === "tableRow+"
+            ? "table"
+            : "none",
       propSchema,
     },
     {

@@ -23,21 +23,10 @@ export const withMultiColumn = <
 >(
   schema: BlockNoteSchema<B, I, S>,
 ) => {
-  return BlockNoteSchema.create({
+  return schema.extend({
     blockSpecs: {
-      ...schema.blockSpecs,
       column: ColumnBlock,
       columnList: ColumnListBlock,
     },
-    inlineContentSpecs: schema.inlineContentSpecs,
-    styleSpecs: schema.styleSpecs,
-  }) as any as BlockNoteSchema<
-    // typescript needs some help here
-    B & {
-      column: typeof ColumnBlock.config;
-      columnList: typeof ColumnListBlock.config;
-    },
-    I,
-    S
-  >;
+  });
 };
