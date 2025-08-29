@@ -4,11 +4,15 @@ import {
   BlockNoDefaults,
   BlockSchema,
   BlockSpecs,
+  InlineContentConfig,
   InlineContentSchema,
+  InlineContentSpec,
   InlineContentSpecs,
   LooseBlockSpec,
   PartialBlockNoDefaults,
+  StyleConfig,
   StyleSchema,
+  StyleSpec,
   StyleSpecs,
   addNodeAndExtensionsToSpec,
   getInlineContentSchemaFromSpecs,
@@ -153,26 +157,33 @@ export class CustomBlockNoteSchema<
    */
   public extend<
     AdditionalBlockSpecs extends BlockSpecs,
-    AdditionalInlineContentSpecs extends InlineContentSpecs,
-    AdditionalStyleSpecs extends StyleSpecs,
+    AdditionalInlineContentSpecs extends Record<
+      string,
+      InlineContentSpec<InlineContentConfig>
+    >,
+    AdditionalStyleSpecs extends Record<string, StyleSpec<StyleConfig>>,
   >(opts: {
     blockSpecs?: AdditionalBlockSpecs;
     inlineContentSpecs?: AdditionalInlineContentSpecs;
     styleSpecs?: AdditionalStyleSpecs;
   }): CustomBlockNoteSchema<
     AdditionalBlockSpecs extends undefined
-      ? BSchema & {
+      ? BSchema
+      : BSchema & {
           [K in keyof AdditionalBlockSpecs]: K extends string
             ? AdditionalBlockSpecs[K]["config"]
             : never;
-        }
-      : BSchema,
+        },
     AdditionalInlineContentSpecs extends undefined
-      ? ISchema & AdditionalInlineContentSpecs
-      : ISchema,
+      ? ISchema
+      : ISchema & {
+          [K in keyof AdditionalInlineContentSpecs]: AdditionalInlineContentSpecs[K]["config"];
+        },
     AdditionalStyleSpecs extends undefined
-      ? SSchema & AdditionalStyleSpecs
-      : SSchema
+      ? SSchema
+      : SSchema & {
+          [K in keyof AdditionalStyleSpecs]: AdditionalStyleSpecs[K]["config"];
+        }
   > {
     // Merge the new specs with existing ones
     Object.assign(this.opts.blockSpecs, opts.blockSpecs);
