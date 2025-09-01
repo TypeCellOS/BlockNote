@@ -307,8 +307,8 @@ export function createBlockSpec<
     | (TOptions extends undefined
         ? () => BlockNoteExtension<any>[]
         : (options: Partial<TOptions>) => BlockNoteExtension<any>[]),
-): (options?: TOptions) => BlockSpec<TName, TProps, TContent> {
-  return (options = {} as TOptions) => {
+): (options?: Partial<TOptions>) => BlockSpec<TName, TProps, TContent> {
+  return (options = {} as Partial<TOptions>) => {
     const blockConfig =
       typeof blockConfigOrCreator === "function"
         ? blockConfigOrCreator(options as any)

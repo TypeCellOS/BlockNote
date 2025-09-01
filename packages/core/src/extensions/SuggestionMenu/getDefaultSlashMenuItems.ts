@@ -354,21 +354,51 @@ export function getDefaultSlashMenuItems<
         ...editor.dictionary.slash_menu.toggle_heading_3,
       },
     );
+  }
 
-    editor.settings.heading.levels
-      .filter((level): level is 4 | 5 | 6 => level > 3)
-      .forEach((level) => {
-        items.push({
-          onItemClick: () => {
-            insertOrUpdateBlock(editor, {
-              type: "heading",
-              props: { level: level },
-            });
-          },
-          key: `heading_${level}`,
-          ...editor.dictionary.slash_menu[`heading_${level}`],
-        });
-      });
+  if (
+    editorHasBlockWithType(editor, "heading", {
+      level: {
+        default: 1,
+        values: [1, 2, 3, 4, 5, 6],
+      },
+    })
+  ) {
+    items.push(
+      {
+        onItemClick: () => {
+          insertOrUpdateBlock(editor, {
+            type: "heading",
+            props: { level: 4 },
+          });
+        },
+        badge: formatKeyboardShortcut("Mod-Alt-4"),
+        key: "heading_4",
+        ...editor.dictionary.slash_menu.heading_4,
+      },
+      {
+        onItemClick: () => {
+          insertOrUpdateBlock(editor, {
+            type: "heading",
+            props: { level: 5 },
+          });
+        },
+        badge: formatKeyboardShortcut("Mod-Alt-5"),
+        key: "heading_5",
+        ...editor.dictionary.slash_menu.heading_5,
+      },
+      {
+        onItemClick: () => {
+          insertOrUpdateBlock(editor, {
+            type: "heading",
+            props: { level: 6 },
+          });
+        },
+        // badge: formatKeyboardShortcut("Mod-Alt-6"),
+        key: "heading_6",
+        ...editor.dictionary.slash_menu.heading_6,
+      },
+    );
   }
 
   items.push({

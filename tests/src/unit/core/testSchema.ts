@@ -1,6 +1,8 @@
 import {
   BlockNoteSchema,
   addNodeAndExtensionsToSpec,
+  createCodeBlockSpec,
+  createHeadingBlockSpec,
   createImageBlockConfig,
   createImageBlockSpec,
   createInlineContentSpec,
@@ -80,6 +82,23 @@ const SimpleCustomParagraph = addNodeAndExtensionsToSpec(
     },
   },
 );
+
+const Heading = createHeadingBlockSpec({
+  levels: [1, 2, 3, 4, 5, 6],
+});
+
+const CodeBlock = createCodeBlockSpec({
+  supportedLanguages: {
+    javascript: {
+      name: "JavaScript",
+      aliases: ["js"],
+    },
+    python: {
+      name: "Python",
+      aliases: ["py"],
+    },
+  },
+});
 
 // INLINE CONTENT --------------------------------------------------------------
 
@@ -171,6 +190,8 @@ export const testSchema = BlockNoteSchema.create({
     customParagraph: CustomParagraph,
     simpleCustomParagraph: SimpleCustomParagraph,
     simpleImage: SimpleImage,
+    codeBlock: CodeBlock,
+    heading: Heading,
   },
   inlineContentSpecs: {
     ...defaultInlineContentSpecs,
