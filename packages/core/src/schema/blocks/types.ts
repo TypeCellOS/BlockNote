@@ -513,7 +513,7 @@ export type BlockImplementation<
 
   /**
    * The blocks that this block should run before.
-   * This is used to determine the order in which blocks are rendered.
+   * This is used to determine the order in which blocks are parsed
    */
   runsBefore?: string[];
 
