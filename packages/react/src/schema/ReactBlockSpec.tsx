@@ -7,12 +7,14 @@ import {
   BlockSpec,
   camelToDataKebab,
   CustomBlockImplementation,
+  getBlockFromPos,
   inheritedProps,
   mergeCSSClasses,
   Props,
   PropSchema,
 } from "@blocknote/core";
 import {
+  NodeViewProps,
   NodeViewWrapper,
   ReactNodeViewRenderer,
   useReactNodeView,
@@ -192,7 +194,19 @@ export function createReactBlockSpec<
         render(block, editor) {
           if (this.renderType === "nodeView") {
             return ReactNodeViewRenderer(
-              () => {
+              (props: NodeViewProps) => {
+                // Vanilla JS node views are recreated on each update. However,
+                // using `ReactNodeViewRenderer` makes it so the node view is
+                // only created once, so the block we get in the node view will
+                // be outdated. Therefore, we have to get the block in the
+                // `ReactNodeViewRenderer` instead.
+                const block = getBlockFromPos(
+                  props.getPos,
+                  editor,
+                  props.editor,
+                  blockConfig.type,
+                );
+
                 const ref = useReactNodeView().nodeViewContentRef;
 
                 if (!ref) {
