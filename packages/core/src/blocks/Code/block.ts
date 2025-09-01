@@ -109,35 +109,46 @@ export const createCodeBlockSpec = createBlockSpec(
       const pre = document.createElement("pre");
       const code = document.createElement("code");
       pre.appendChild(code);
-      const select = document.createElement("select");
-      const selectWrapper = document.createElement("div");
-      const handleLanguageChange = (event: Event) => {
-        const language = (event.target as HTMLSelectElement).value;
 
-        editor.updateBlock(block.id, { props: { language } });
-      };
+      let removeSelectChangeListener = undefined;
 
-      Object.entries(options.supportedLanguages ?? {}).forEach(
-        ([id, { name }]) => {
-          const option = document.createElement("option");
+      if (options.supportedLanguages) {
+        const select = document.createElement("select");
 
-          option.value = id;
-          option.text = name;
-          select.appendChild(option);
-        },
-      );
+        const handleLanguageChange = (event: Event) => {
+          const language = (event.target as HTMLSelectElement).value;
 
-      selectWrapper.contentEditable = "false";
-      select.value = block.props.language || options.defaultLanguage || "text";
-      wrapper.appendChild(selectWrapper);
+          editor.updateBlock(block.id, { props: { language } });
+        };
+        select.addEventListener("change", handleLanguageChange);
+
+        const selectWrapper = document.createElement("div");
+        selectWrapper.contentEditable = "false";
+        select.value =
+          block.props.language || options.defaultLanguage || "text";
+
+        Object.entries(options.supportedLanguages ?? {}).forEach(
+          ([id, { name }]) => {
+            const option = document.createElement("option");
+
+            option.value = id;
+            option.text = name;
+            select.appendChild(option);
+          },
+        );
+        selectWrapper.appendChild(select);
+        wrapper.appendChild(selectWrapper);
+
+        removeSelectChangeListener = () =>
+          select.removeEventListener("change", handleLanguageChange);
+      }
       wrapper.appendChild(pre);
-      selectWrapper.appendChild(select);
-      select.addEventListener("change", handleLanguageChange);
+
       return {
         dom: wrapper,
         contentDOM: code,
         destroy: () => {
-          select.removeEventListener("change", handleLanguageChange);
+          removeSelectChangeListener?.();
         },
       };
     },
