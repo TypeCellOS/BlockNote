@@ -104,6 +104,18 @@ export function SuggestionMenuController<
 
   const state = useUIPluginState(cb);
 
+  if (state) {
+    const div = document.createElement("div");
+    div.style.position = "absolute";
+    div.style.backgroundColor = "red";
+    div.style.top = `${state.referencePos.top}px`;
+    div.style.left = `${state.referencePos.left}px`;
+    div.style.height = `${state.referencePos.height}px`;
+    div.style.width = `${state.referencePos.width}px`;
+
+    document.body.appendChild(div);
+  }
+
   const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(
     state?.show || false,
     state?.referencePos || null,
@@ -123,6 +135,7 @@ export function SuggestionMenuController<
           apply({ availableHeight, elements }) {
             Object.assign(elements.floating.style, {
               maxHeight: `${availableHeight - 10}px`,
+              minHeight: "300px",
             });
           },
         }),
@@ -149,7 +162,7 @@ export function SuggestionMenuController<
   return (
     <div
       ref={ref}
-      style={style}
+      style={{ ...style }}
       {...getFloatingProps()}
       // Prevents editor blurring when clicking the scroll bar.
       onMouseDown={(e) => e.preventDefault()}
