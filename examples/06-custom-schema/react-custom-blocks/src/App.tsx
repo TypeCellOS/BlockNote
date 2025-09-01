@@ -41,9 +41,9 @@ export const alertBlock = createReactBlockSpec(
       textAlignment: defaultProps.textAlignment,
       textColor: defaultProps.textColor,
       type: {
-        default: "warning" as const,
-        values: ["warning", "error", "info", "success"] as const,
-      },
+        default: "warning",
+        values: ["warning", "error", "info", "success"],
+      } as const,
     },
     content: "inline",
   },
