@@ -172,11 +172,8 @@ const TableParagraphNode = createStronglyTypedTiptapNode({
     ];
   },
 
-  renderHTML({ node, HTMLAttributes }) {
-    // Insert a line break if there is no content, in order to preserve the
-    // correct cell height. Otherwise, the cell will have a height of zero +
-    // padding.
-    return ["p", HTMLAttributes, node.childCount ? 0 : ["br"]];
+  renderHTML({ HTMLAttributes }) {
+    return ["p", HTMLAttributes, 0];
   },
 });
 

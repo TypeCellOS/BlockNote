@@ -1,3 +1,18 @@
+## 0.37.0 (2025-08-29)
+
+### 🚀 Features
+
+- export `ShadCNComponentsContext` ([#1965](https://github.com/TypeCellOS/BlockNote/pull/1965))
+
+### 🩹 Fixes
+
+- Typing in empty table cells ([#1973](https://github.com/TypeCellOS/BlockNote/pull/1973))
+
+### ❤️ Thank You
+
+- Héctor Zhuang @Hector-Zhuang
+- Matthew Lipski @matthewlipski
+
 ## 0.36.1 (2025-08-27)
 
 ### 🩹 Fixes
