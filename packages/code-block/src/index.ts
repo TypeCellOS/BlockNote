@@ -202,4 +202,4 @@ export const codeBlock = {
       themes: ["github-dark", "github-light"],
       langs: [],
     }),
-} as CodeBlockOptions;
+} satisfies CodeBlockOptions;

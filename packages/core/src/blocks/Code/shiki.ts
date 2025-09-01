@@ -22,7 +22,7 @@ export function lazyShikiPlugin(options: CodeBlockOptions) {
       if (process.env.NODE_ENV === "development" && !hasWarned) {
         // eslint-disable-next-line no-console
         console.log(
-          "For syntax highlighting of code blocks, you must provide a `codeBlock.createHighlighter` function",
+          "For syntax highlighting of code blocks, you must provide a `createCodeBlockSpec({ createHighlighter: () => ... })` function",
         );
         hasWarned = true;
       }

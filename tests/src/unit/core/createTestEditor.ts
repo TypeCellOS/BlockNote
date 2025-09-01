@@ -2,6 +2,7 @@ import {
   BlockNoteEditor,
   BlockNoteSchema,
   BlockSchema,
+  createCodeBlockSpec,
   initializeESMDependencies,
   InlineContentSchema,
   StyleSchema,
@@ -23,25 +24,25 @@ export const createTestEditor = <
     (window as any).__TEST_OPTIONS = (window as any).__TEST_OPTIONS || {};
 
     editor = BlockNoteEditor.create({
-      codeBlock: {
-        supportedLanguages: {
-          javascript: {
-            name: "JavaScript",
-            aliases: ["js"],
-          },
-          python: {
-            name: "Python",
-            aliases: ["py"],
-          },
+      schema: schema.extend({
+        blockSpecs: {
+          codeBlock: createCodeBlockSpec({
+            supportedLanguages: {
+              javascript: {
+                name: "JavaScript",
+                aliases: ["js"],
+              },
+              python: {
+                name: "Python",
+                aliases: ["py"],
+              },
+            },
+          }),
         },
-      },
-      heading: {
-        levels: [1, 2, 3, 4, 5, 6],
-      },
-      schema,
+      }),
       trailingBlock: false,
       uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
-    });
+    }) as any;
     editor.mount(div);
 
     await initializeESMDependencies();

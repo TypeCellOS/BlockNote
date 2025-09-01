@@ -70,7 +70,6 @@ import {
   markdownToBlocks,
   markdownToHTML,
 } from "../api/parsers/markdown/parseMarkdown.js";
-import { CodeBlockOptions } from "../blocks/Code/block.js";
 import { editorHasBlockWithType } from "../blocks/defaultBlockTypeGuards.js";
 import type { ThreadStore, User } from "../comments/index.js";
 import { BlockChangePlugin } from "../extensions/BlockChange/BlockChangePlugin.js";
@@ -191,11 +190,6 @@ export type BlockNoteEditorOptions<
   };
 
   /**
-   * Options for code blocks.
-   */
-  codeBlock?: CodeBlockOptions;
-
-  /**
    * Configuration for the comments feature, requires a `threadStore`.
    *
    * See [Comments](https://www.blocknotejs.org/docs/features/collaboration/comments) for more info.
@@ -252,18 +246,6 @@ export type BlockNoteEditorOptions<
     width?: number;
     class?: string;
   }) => Plugin;
-
-  /**
-   * Configuration for headings
-   */
-  heading?: {
-    /**
-     * The levels of headings that should be available in the editor.
-     * @note Configurable up to 6 levels of headings.
-     * @default [1, 2, 3]
-     */
-    levels?: (1 | 2 | 3 | 4 | 5 | 6)[];
-  };
 
   /**
    * The content that should be in the editor when it's created, represented as an array of {@link PartialBlock} objects.
@@ -585,10 +567,6 @@ export class BlockNoteEditor<
       cellTextColor: boolean;
       headers: boolean;
     };
-    codeBlock: CodeBlockOptions;
-    heading: {
-      levels: (1 | 2 | 3 | 4 | 5 | 6)[];
-    };
   };
 
   public static create<
@@ -637,15 +615,6 @@ export class BlockNoteEditor<
         cellBackgroundColor: options?.tables?.cellBackgroundColor ?? false,
         cellTextColor: options?.tables?.cellTextColor ?? false,
         headers: options?.tables?.headers ?? false,
-      },
-      codeBlock: {
-        indentLineWithTab: options?.codeBlock?.indentLineWithTab ?? true,
-        defaultLanguage: options?.codeBlock?.defaultLanguage ?? "text",
-        supportedLanguages: options?.codeBlock?.supportedLanguages ?? {},
-        createHighlighter: options?.codeBlock?.createHighlighter ?? undefined,
-      },
-      heading: {
-        levels: options?.heading?.levels ?? [1, 2, 3],
       },
     };
 

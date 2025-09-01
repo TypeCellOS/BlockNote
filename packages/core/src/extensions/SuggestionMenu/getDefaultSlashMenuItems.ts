@@ -354,8 +354,10 @@ export function getDefaultSlashMenuItems<
         ...editor.dictionary.slash_menu.toggle_heading_3,
       },
     );
+  }
 
-    editor.settings.heading.levels
+  if (editorHasBlockWithType(editor, "heading", { level: "number" })) {
+    (editor.schema.blockSchema.heading.propSchema.level.values || [])
       .filter((level): level is 4 | 5 | 6 => level > 3)
       .forEach((level) => {
         items.push({

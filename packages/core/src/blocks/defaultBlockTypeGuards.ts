@@ -25,6 +25,7 @@ export function editorHasBlockWithType<
               [PN in keyof Props]: {
                 default: undefined;
                 type: Props[PN];
+                values?: any[];
               };
             }
           >
