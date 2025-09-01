@@ -150,7 +150,7 @@ export function SuggestionMenuController<
   return (
     <div
       ref={ref}
-      style={{ ...style }}
+      style={style}
       {...getFloatingProps()}
       // Prevents editor blurring when clicking the scroll bar.
       onMouseDown={(e) => e.preventDefault()}
