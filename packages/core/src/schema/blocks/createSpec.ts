@@ -80,7 +80,7 @@ export function getParseRules<
               }
 
               if (config.content === "inline") {
-                // Parse the blockquote content as inline content
+                // Parse the inline content if it exists
                 const element = node as HTMLElement;
 
                 // Clone to avoid modifying the original
@@ -208,6 +208,8 @@ export function addNodeAndExtensionsToSpec<
             applyNonSelectableBlockFix(nodeView, this.editor);
           }
 
+          // See explanation for why `update` is not implemented for NodeViews
+          // https://github.com/TypeCellOS/BlockNote/pull/1904#discussion_r2313461464
           return nodeView;
         };
       },
