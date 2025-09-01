@@ -23,15 +23,24 @@ import {
 
 export type CustomInlineContentImplementation<
   T extends CustomInlineContentConfig,
-  // B extends BlockSchema,
-  // I extends InlineContentSchema,
   S extends StyleSchema,
 > = {
+  /**
+   * Parses an external HTML element into a inline content of this type when it returns the block props object, otherwise undefined
+   */
+  parse?: (el: HTMLElement) => Partial<Props<T["propSchema"]>> | undefined;
+
+  /**
+   * Renders an inline content to DOM elements
+   */
   render: (
     /**
      * The custom inline content to render
      */
     inlineContent: InlineContentFromConfig<T, S>,
+    /**
+     * A callback that allows overriding the inline content element
+     */
     updateInlineContent: (
       update: PartialCustomInlineContentFromConfig<T, S>,
     ) => void,
@@ -46,14 +55,15 @@ export type CustomInlineContentImplementation<
   ) => {
     dom: HTMLElement;
     contentDOM?: HTMLElement;
-    // destroy?: () => void;
+    destroy?: () => void;
   };
 };
 
-export function getInlineContentParseRules(
-  config: CustomInlineContentConfig,
-): TagParseRule[] {
-  return [
+export function getInlineContentParseRules<C extends CustomInlineContentConfig>(
+  config: C,
+  customParseFunction?: CustomInlineContentImplementation<C, any>["parse"],
+) {
+  const rules: TagParseRule[] = [
     {
       tag: `[data-inline-content-type="${config.type}"]`,
       contentElement: (element) => {
@@ -67,6 +77,26 @@ export function getInlineContentParseRules(
       },
     },
   ];
+
+  if (customParseFunction) {
+    rules.push({
+      tag: "*",
+      getAttrs(node: string | HTMLElement) {
+        if (typeof node === "string") {
+          return false;
+        }
+
+        const props = customParseFunction?.(node);
+
+        if (props === undefined) {
+          return false;
+        }
+
+        return props;
+      },
+    });
+  }
+  return rules;
 }
 
 export function createInlineContentSpec<
@@ -95,7 +125,10 @@ export function createInlineContentSpec<
     },
 
     parseHTML() {
-      return getInlineContentParseRules(inlineContentConfig);
+      return getInlineContentParseRules(
+        inlineContentConfig,
+        inlineContentImplementation.parse,
+      );
     },
 
     renderHTML({ node }) {
@@ -132,14 +165,12 @@ export function createInlineContentSpec<
             editor.schema.styleSchema,
           ) as any as InlineContentFromConfig<T, S>, // TODO: fix cast
           (update) => {
-            if (typeof getPos === "boolean") {
-              return;
-            }
-
             const content = inlineContentToNodes([update], editor.pmSchema);
 
+            const pos = getPos();
+
             editor.transact((tr) =>
-              tr.replaceWith(getPos(), getPos() + node.nodeSize, content),
+              tr.replaceWith(pos, pos + node.nodeSize, content),
             );
           },
           editor,
