@@ -10,6 +10,9 @@ export const createParagraphBlockConfig = createBlockConfig(
       type: "paragraph" as const,
       propSchema: defaultProps,
       content: "inline" as const,
+      meta: {
+        isolating: false,
+      },
     }) as const,
 );
 

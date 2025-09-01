@@ -14,6 +14,9 @@ export const createToggleListItemBlockConfig = createBlockConfig(
         ...defaultProps,
       },
       content: "inline" as const,
+      meta: {
+        isolating: false,
+      },
     }) as const,
 );
 

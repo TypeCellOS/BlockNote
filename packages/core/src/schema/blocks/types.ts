@@ -50,6 +50,11 @@ export interface BlockConfigMeta {
    * Whether the block is a {@link https://prosemirror.net/docs/ref/#model.NodeSpec.defining} block
    */
   defining?: boolean;
+
+  /**
+   * Whether the block is a {@link https://prosemirror.net/docs/ref/#model.NodeSpec.isolating} block
+   */
+  isolating?: boolean;
 }
 
 /**

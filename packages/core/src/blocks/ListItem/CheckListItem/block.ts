@@ -15,6 +15,9 @@ export const createCheckListItemConfig = createBlockConfig(
         checked: { default: false, type: "boolean" },
       },
       content: "inline",
+      meta: {
+        isolating: false,
+      },
     }) as const,
 );
 

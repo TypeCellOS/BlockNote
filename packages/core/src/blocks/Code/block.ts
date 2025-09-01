@@ -64,6 +64,7 @@ export const createCodeBlockConfig = createBlockConfig(
       meta: {
         code: true,
         defining: true,
+        isolating: false,
       },
     }) as const,
 );

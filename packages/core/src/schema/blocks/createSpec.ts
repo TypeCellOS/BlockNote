@@ -147,7 +147,7 @@ export function addNodeAndExtensionsToSpec<
           : blockConfig.content) as TContent extends "inline" ? "inline*" : "",
       group: "blockContent",
       selectable: blockConfig.meta?.selectable ?? true,
-      isolating: true,
+      isolating: blockConfig.meta?.isolating ?? true,
       code: blockConfig.meta?.code ?? false,
       defining: blockConfig.meta?.defining ?? true,
       priority,

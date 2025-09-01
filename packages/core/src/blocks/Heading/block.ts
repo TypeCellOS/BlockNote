@@ -30,6 +30,9 @@ export const createHeadingBlockConfig = createBlockConfig(
           : {}),
       },
       content: "inline",
+      meta: {
+        isolating: false,
+      },
     }) as const,
 );
 

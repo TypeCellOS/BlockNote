@@ -13,6 +13,9 @@ export const createQuoteBlockConfig = createBlockConfig(
         textColor: defaultProps.textColor,
       },
       content: "inline" as const,
+      meta: {
+        isolating: false,
+      },
     }) as const,
 );
 

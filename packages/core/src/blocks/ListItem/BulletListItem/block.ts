@@ -14,6 +14,9 @@ export const createBulletListItemBlockConfig = createBlockConfig(
         ...defaultProps,
       },
       content: "inline",
+      meta: {
+        isolating: false,
+      },
     }) as const,
 );
 
