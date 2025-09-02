@@ -1,12 +1,10 @@
 import {
-  CoreMessage,
   LanguageModel,
-  LanguageModelV1,
+  ModelMessage,
   generateObject,
   jsonSchema,
   streamObject,
 } from "ai";
-
 import { ExecuteLLMRequestOptions } from "../../../api/LLMRequest.js";
 import { LLMResponse } from "../../../api/LLMResponse.js";
 import { createStreamToolsArraySchema } from "../../jsonSchema.js";
@@ -19,7 +17,7 @@ import {
 
 type LLMRequestOptions = {
   model: LanguageModel;
-  messages: CoreMessage[];
+  messages: ModelMessage[];
   maxRetries: number;
 };
 
@@ -34,7 +32,11 @@ export async function generateOperations<T extends StreamTool<any>[]>(
     _generateObjectOptions?: Partial<Parameters<typeof generateObject<any>>[0]>;
   },
 ) {
-  const { _generateObjectOptions, ...rest } = opts;
+  const { _generateObjectOptions, model, ...rest } = opts;
+
+  if (typeof model === "string") {
+    throw new Error("model must be a LanguageModelV2");
+  }
 
   if (
     _generateObjectOptions &&
@@ -60,8 +62,8 @@ export async function generateOperations<T extends StreamTool<any>[]>(
     // TODO: further research this and / or make configurable
     // for now stick to "tool" by default as this has been tested mostly
     mode:
-      rest.model.provider === "mistral.chat" ||
-      rest.model.provider === "google.generative-ai"
+      model.provider === "mistral.chat" ||
+      model.provider === "google.generative-ai"
         ? "auto"
         : "tool",
     //  - mandatory ones:
@@ -71,7 +73,7 @@ export async function generateOperations<T extends StreamTool<any>[]>(
     ...((_generateObjectOptions ?? {}) as any),
   };
 
-  const ret = await generateObject<{ operations: any }>(options);
+  const ret = await generateObject<any, any, { operations: any }>(options);
 
   const stream = objectToDataStream(ret.object);
 
@@ -103,12 +105,15 @@ export async function streamOperations<T extends StreamTool<any>[]>(
   streamTools: T,
   opts: LLMRequestOptions & {
     _streamObjectOptions?: Partial<
-      Parameters<typeof streamObject<{ operations: any[] }>>[0]
+      Parameters<typeof streamObject<any, any, { operations: any[] }>>[0]
     >;
   },
 ) {
-  const { _streamObjectOptions, ...rest } = opts;
+  const { _streamObjectOptions, model, ...rest } = opts;
 
+  if (typeof model === "string") {
+    throw new Error("model must be a LanguageModelV2");
+  }
   if (
     _streamObjectOptions &&
     ("output" in _streamObjectOptions || "schema" in _streamObjectOptions)
@@ -130,8 +135,8 @@ export async function streamOperations<T extends StreamTool<any>[]>(
     // TODO: further research this and / or make configurable
     // for now stick to "tool" by default as this has been tested mostly
     mode:
-      rest.model.provider === "mistral.chat" ||
-      rest.model.provider === "google.generative-ai"
+      model.provider === "mistral.chat" ||
+      model.provider === "google.generative-ai"
         ? "auto"
         : "tool",
     //  - mandatory ones:
@@ -141,7 +146,7 @@ export async function streamOperations<T extends StreamTool<any>[]>(
     ...((opts._streamObjectOptions ?? {}) as any),
   };
 
-  const ret = streamObject<{ operations: any }>(options);
+  const ret = streamObject<any, any, { operations: any }>(options);
 
   // Transform the partial object stream to a data stream format
   const stream = partialObjectStreamToDataStream(ret.fullStream);
@@ -174,7 +179,7 @@ export function createAISDKLLMRequestExecutor(opts: {
    *
    * Note: perhaps we want to remove this
    */
-  model: LanguageModelV1;
+  model: LanguageModel;
 
   /**
    * Whether to stream the LLM response or not

@@ -1,4 +1,4 @@
-import { parsePartialJson } from "@ai-sdk/ui-utils";
+import { parsePartialJson } from "ai";
 import {
   asyncIterableToStream,
   createAsyncIterableStream,
@@ -54,10 +54,10 @@ export class StreamToolExecutor<T extends StreamTool<any>[]> {
     let lastParsedResult: Operation<T> | undefined;
 
     const stream = new TransformStream<string | Operation<T>, Operation<T>>({
-      transform: (chunk, controller) => {
+      transform: async (chunk, controller) => {
         const operation =
           typeof chunk === "string"
-            ? partialJsonToOperation(
+            ? await partialJsonToOperation(
                 chunk,
                 lastParsedResult?.isPossiblyPartial ?? false,
                 this.streamTools,
@@ -147,12 +147,12 @@ export class StreamToolExecutor<T extends StreamTool<any>[]> {
   }
 }
 
-function partialJsonToOperation<T extends StreamTool<any>[]>(
+async function partialJsonToOperation<T extends StreamTool<any>[]>(
   chunk: string,
   isUpdateToPreviousOperation: boolean,
   streamTools: T,
-): Operation<T> | undefined {
-  const parsed = parsePartialJson(chunk);
+): Promise<Operation<T> | undefined> {
+  const parsed = await parsePartialJson(chunk);
 
   if (parsed.state === "undefined-input" || parsed.state === "failed-parse") {
     return undefined;
