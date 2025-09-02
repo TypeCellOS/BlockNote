@@ -582,7 +582,7 @@ export class BlockNoteEditor<
         DefaultInlineContentSchema,
         DefaultStyleSchema
       > {
-    return new BlockNoteEditor(options as any) as any;
+    return new BlockNoteEditor(options ?? {}) as any;
   }
 
   protected constructor(
