@@ -2,6 +2,7 @@ import { createAnthropic } from "@ai-sdk/anthropic";
 import { createGroq } from "@ai-sdk/groq";
 import { createOpenAI } from "@ai-sdk/openai";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
+import { LanguageModel } from "ai";
 import { createBlockNoteAIClient } from "../blocknoteAIClient/client.js";
 
 // Create client and models outside of test suites so they can be shared
@@ -16,11 +17,11 @@ const groq = createGroq({
 
 const openai = createOpenAI({
   ...client.getProviderSettings("openai"),
-})("gpt-4o-2024-08-06", {});
+})("gpt-4o-2024-08-06");
 
 const anthropic = createAnthropic({
   ...client.getProviderSettings("anthropic"),
-})("claude-3-7-sonnet-latest", {});
+})("claude-3-7-sonnet-latest");
 
 const albert = createOpenAICompatible({
   name: "albert-etalab",
@@ -28,7 +29,7 @@ const albert = createOpenAICompatible({
   ...client.getProviderSettings("albert-etalab"),
 })("albert-etalab.chat/albert-large");
 
-export const testAIModels = {
+export const testAIModels: Record<string, Exclude<LanguageModel, string>> = {
   groq,
   openai,
   albert,

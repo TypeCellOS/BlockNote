@@ -44,13 +44,12 @@ vercelAiSdkRoute.post("/streamText", cors(), async (c) => {
   const result = streamText({
     model,
     messages,
-    toolCallStreaming: true,
     tools: {
       // add: tool({}),
     },
   });
 
-  return result.toDataStreamResponse();
+  return result.toUIMessageStreamResponse();
 });
 
 vercelAiSdkRoute.post("/streamObject", cors(), async (c) => {

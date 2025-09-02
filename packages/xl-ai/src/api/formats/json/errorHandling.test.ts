@@ -17,7 +17,7 @@ const client = createBlockNoteAIClient({
 
 const openai = createOpenAI({
   ...client.getProviderSettings("openai"),
-})("gpt-4o-2024-08-06", {});
+})("gpt-4o-2024-08-06");
 
 // Separate test suite for error handling with its own server
 describe("Error handling", () => {
