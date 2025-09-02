@@ -290,7 +290,46 @@ export function createBlockSpec<
   TName extends string,
   TProps extends PropSchema,
   TContent extends "inline" | "none",
-  TOptions extends Record<string, any> | undefined = undefined,
+  BlockConf extends BlockConfig<TName, TProps, TContent>,
+  TOptions extends Partial<Record<string, any>>,
+>(
+  blockCreator: (options: Partial<TOptions>) => BlockConf,
+  blockImplementationOrCreator:
+    | BlockImplementation<
+        BlockConf["type"],
+        BlockConf["propSchema"],
+        BlockConf["content"]
+      >
+    | (TOptions extends undefined
+        ? () => BlockImplementation<
+            BlockConf["type"],
+            BlockConf["propSchema"],
+            BlockConf["content"]
+          >
+        : (
+            options: TOptions,
+          ) => BlockImplementation<
+            BlockConf["type"],
+            BlockConf["propSchema"],
+            BlockConf["content"]
+          >),
+  extensionsOrCreator?:
+    | BlockNoteExtension<any>[]
+    | (TOptions extends undefined
+        ? () => BlockNoteExtension<any>[]
+        : (options: TOptions) => BlockNoteExtension<any>[]),
+): (
+  options?: TOptions,
+) => BlockSpec<
+  BlockConf["type"],
+  BlockConf["propSchema"],
+  BlockConf["content"]
+>;
+export function createBlockSpec<
+  TName extends string,
+  TProps extends PropSchema,
+  TContent extends "inline" | "none",
+  TOptions extends Partial<Record<string, any>> | undefined = undefined,
 >(
   blockConfigOrCreator:
     | BlockConfig<TName, TProps, TContent>

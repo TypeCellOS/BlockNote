@@ -117,6 +117,49 @@ export function BlockContentWrapper<
   );
 }
 
+/**
+ * Helper function to create a React block definition.
+ * Can accept either functions that return the required objects, or the objects directly.
+ */
+export function createReactBlockSpec<
+  TName extends string,
+  TProps extends PropSchema,
+  TContent extends "inline" | "none",
+  BlockConf extends BlockConfig<TName, TProps, TContent>,
+  TOptions extends Partial<Record<string, any>>,
+>(
+  blockCreator: (options: Partial<TOptions>) => BlockConf,
+  blockImplementationOrCreator:
+    | ReactCustomBlockImplementation<
+        BlockConf["type"],
+        BlockConf["propSchema"],
+        BlockConf["content"]
+      >
+    | (TOptions extends undefined
+        ? () => ReactCustomBlockImplementation<
+            BlockConf["type"],
+            BlockConf["propSchema"],
+            BlockConf["content"]
+          >
+        : (
+            options: TOptions,
+          ) => ReactCustomBlockImplementation<
+            BlockConf["type"],
+            BlockConf["propSchema"],
+            BlockConf["content"]
+          >),
+  extensionsOrCreator?:
+    | BlockNoteExtension<any>[]
+    | (TOptions extends undefined
+        ? () => BlockNoteExtension<any>[]
+        : (options: TOptions) => BlockNoteExtension<any>[]),
+): (
+  options?: TOptions,
+) => BlockSpec<
+  BlockConf["type"],
+  BlockConf["propSchema"],
+  BlockConf["content"]
+>;
 export function createReactBlockSpec<
   TName extends string,
   TProps extends PropSchema,
