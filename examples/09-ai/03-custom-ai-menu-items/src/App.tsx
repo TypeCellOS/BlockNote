@@ -16,7 +16,9 @@ import {
   AIMenu,
   AIMenuController,
   AIToolbarButton,
+  ClientSideTransport,
   createAIExtension,
+  createAISDKLLMRequestExecutor,
   createBlockNoteAIClient,
   getAISlashMenuItems,
   getDefaultAIMenuItems,
@@ -32,7 +34,7 @@ import { addRelatedTopics, makeInformal } from "./customAIMenuItems";
 const client = createBlockNoteAIClient({
   apiKey: getEnv("BLOCKNOTE_AI_SERVER_API_KEY") || "PLACEHOLDER",
   baseURL:
-    getEnv("BLOCKNOTE_AI_SERVER_BASE_URL") || "https://localhost:3000/ai",
+    getEnv("BLOCKNOTE_AI_SERVER_BASE_URL") || "https://localhost:3000/ai/proxy",
 });
 
 // Use an "open" model such as llama, in this case via groq.com
@@ -67,7 +69,11 @@ export default function App() {
     // Register the AI extension
     extensions: [
       createAIExtension({
-        executor: model as any, // TODO
+        executor: createAISDKLLMRequestExecutor({
+          transport: new ClientSideTransport({
+            model,
+          }),
+        }),
       }),
     ],
     // We set some initial content for demo purposes

@@ -15,7 +15,9 @@ import {
 import {
   AIMenuController,
   AIToolbarButton,
+  ClientSideTransport,
   createAIExtension,
+  createAISDKLLMRequestExecutor,
   createBlockNoteAIClient,
   getAISlashMenuItems,
 } from "@blocknote/xl-ai";
@@ -63,8 +65,13 @@ export default function App() {
     },
     // Register the AI extension
     extensions: [
+      // TODO: too many layers of indirection?
       createAIExtension({
-        executor: model as any, // TODO
+        executor: createAISDKLLMRequestExecutor({
+          transport: new ClientSideTransport({
+            model,
+          }),
+        }),
       }),
     ],
     // We set some initial content for demo purposes

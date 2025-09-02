@@ -15,14 +15,12 @@ import {
   AIMenuController,
   AIToolbarButton,
   createAIExtension,
-  createStreamToolsArraySchema,
-  dataStreamResponseToOperationsResult,
+  createAISDKLLMRequestExecutor,
   getAISlashMenuItems,
-  LLMResponse,
 } from "@blocknote/xl-ai";
 import { en as aiEn } from "@blocknote/xl-ai/locales";
 import "@blocknote/xl-ai/style.css";
-
+import { DefaultChatTransport } from "ai";
 import { getEnv } from "./getEnv";
 
 const BASE_URL =
@@ -42,28 +40,12 @@ export default function App() {
         // We define a custom executor that calls our backend server to execute LLM calls
         // On the backend, we use the Vercel AI SDK to execute LLM calls
         // (see packages/xl-ai-server/src/routes/vercelAiSdk.ts)
-        executor: async (opts) => {
-          const schema = createStreamToolsArraySchema(opts.streamTools);
-
-          // Can also use /generateObject for non-streaming mode
-          const response = await fetch(`${BASE_URL}/streamObject`, {
-            method: "POST",
-            body: JSON.stringify({
-              messages: opts.messages,
-              schema,
-            }),
-          });
-          const parsedResponse = await dataStreamResponseToOperationsResult(
-            response,
-            opts.streamTools,
-            opts.onStart,
-          );
-          return new LLMResponse(
-            opts.messages,
-            parsedResponse,
-            opts.streamTools,
-          );
-        },
+        executor: createAISDKLLMRequestExecutor({
+          transport: new DefaultChatTransport({
+            // Can also use /generateObject for non-streaming mode
+            api: `${BASE_URL}/streamObject`,
+          }),
+        }),
       }),
     ],
     // We set some initial content for demo purposes

@@ -5,13 +5,14 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { HttpResponse, http } from "msw";
 import { setupServer } from "msw/node";
 import { createBlockNoteAIClient } from "../../../blocknoteAIClient/client.js";
-import { createAISDKLLMRequestExecutor } from "../../../streamTool/vercelAiSdk/clientSideExecutor/clientSideExecutor.js";
+import { createAISDKLLMRequestExecutor } from "../../../streamTool/vercelAiSdk/AISDKLLMRequestExecutor.js";
+import { ClientSideTransport } from "../../../streamTool/vercelAiSdk/clientside/ClientSideTransport.js";
 import { doLLMRequest } from "../../LLMRequest.js";
 import { jsonLLMFormat } from "./json.js";
 
 // Create client and models outside of test suites so they can be shared
 const client = createBlockNoteAIClient({
-  baseURL: "https://localhost:3000/ai",
+  baseURL: "https://localhost:3000/ai/proxy",
   apiKey: "PLACEHOLDER",
 });
 
@@ -76,9 +77,11 @@ describe("Error handling", () => {
         const result = await doLLMRequest(editor, {
           userPrompt: "translate to Spanish",
           executor: createAISDKLLMRequestExecutor({
-            model: openai,
-            maxRetries: 0,
-            stream,
+            transport: new ClientSideTransport({
+              model: openai,
+              maxRetries: 0,
+              stream,
+            }),
           }),
           dataFormat: jsonLLMFormat,
         });

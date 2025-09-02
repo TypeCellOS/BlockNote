@@ -1,16 +1,15 @@
 import {
+  ChatTransport,
   LanguageModel,
-  ModelMessage,
-  createUIMessageStreamResponse,
+  UIMessage,
+  UIMessageChunk,
+  convertToModelMessages,
   generateObject,
   jsonSchema,
   streamObject,
 } from "ai";
-import { ExecuteLLMRequestOptions } from "../../../api/LLMRequest.js";
-import { LLMResponse } from "../../../api/LLMResponse.js";
 import { createStreamToolsArraySchema } from "../../jsonSchema.js";
 import { StreamTool } from "../../streamTool.js";
-import { dataStreamResponseToOperationsResult } from "../util/dataStreamResponseToOperationsResult.js";
 import {
   objectToUIMessageStream,
   partialObjectStreamToUIMessageStream,
@@ -18,7 +17,7 @@ import {
 
 type LLMRequestOptions = {
   model: LanguageModel;
-  messages: ModelMessage[];
+  messages: UIMessage[];
   maxRetries: number;
 };
 
@@ -27,13 +26,13 @@ type LLMRequestOptions = {
  *
  * This is the non-streaming version.
  */
-export async function generateOperations<T extends StreamTool<any>[]>(
+async function generateOperations<T extends StreamTool<any>[]>(
   streamTools: T,
   opts: LLMRequestOptions & {
     _generateObjectOptions?: Partial<Parameters<typeof generateObject<any>>[0]>;
   },
 ) {
-  const { _generateObjectOptions, model, ...rest } = opts;
+  const { _generateObjectOptions, model, messages, ...rest } = opts;
 
   if (typeof model === "string") {
     throw new Error("model must be a LanguageModelV2");
@@ -53,7 +52,7 @@ export async function generateOperations<T extends StreamTool<any>[]>(
     // non-overridable options for streamObject
     output: "object" as const,
     schema,
-
+    model,
     // configurable options for streamObject
 
     // - optional, with defaults
@@ -67,29 +66,29 @@ export async function generateOperations<T extends StreamTool<any>[]>(
       model.provider === "google.generative-ai"
         ? "auto"
         : "tool",
+    messages: convertToModelMessages(messages),
+    providerOptions:
+      model.provider === "groq.chat"
+        ? {
+            groq: {
+              structuredOutputs: false,
+            },
+          }
+        : {},
+
     //  - mandatory ones:
     ...rest,
 
     // extra options for streamObject
     ...((_generateObjectOptions ?? {}) as any),
-  };
+  } as const;
 
   const ret = await generateObject<any, any, { operations: any }>(options);
 
   const stream = objectToUIMessageStream(ret.object);
 
   return {
-    dataStreamResponse: new Response(
-      stream.pipeThrough(new TextEncoderStream()),
-      {
-        status: 200,
-        statusText: "OK",
-        headers: {
-          contentType: "text/plain; charset=utf-8",
-          dataStreamVersion: "v1",
-        },
-      },
-    ),
+    uiMessageStream: stream,
     /**
      * Result of the underlying `generateObject` (AI SDK) call, or `undefined` if streaming mode
      */
@@ -102,7 +101,7 @@ export async function generateOperations<T extends StreamTool<any>[]>(
  *
  * This is the streaming version.
  */
-export async function streamOperations<T extends StreamTool<any>[]>(
+async function streamOperations<T extends StreamTool<any>[]>(
   streamTools: T,
   opts: LLMRequestOptions & {
     _streamObjectOptions?: Partial<
@@ -110,11 +109,12 @@ export async function streamOperations<T extends StreamTool<any>[]>(
     >;
   },
 ) {
-  const { _streamObjectOptions, model, ...rest } = opts;
+  const { _streamObjectOptions, model, messages, ...rest } = opts;
 
   if (typeof model === "string") {
     throw new Error("model must be a LanguageModelV2");
   }
+
   if (
     _streamObjectOptions &&
     ("output" in _streamObjectOptions || "schema" in _streamObjectOptions)
@@ -128,6 +128,7 @@ export async function streamOperations<T extends StreamTool<any>[]>(
     // non-overridable options for streamObject
     output: "object" as const,
     schema,
+    model,
     // configurable options for streamObject
 
     // - optional, with defaults
@@ -141,11 +142,20 @@ export async function streamOperations<T extends StreamTool<any>[]>(
         ? "auto"
         : "tool",
     //  - mandatory ones:
+    messages: convertToModelMessages(messages),
+    providerOptions:
+      model.provider === "groq.chat"
+        ? {
+            groq: {
+              structuredOutputs: false,
+            },
+          }
+        : {},
     ...rest,
 
     // extra options for streamObject
     ...((opts._streamObjectOptions ?? {}) as any),
-  };
+  } as const;
 
   const ret = streamObject<any, any, { operations: any }>(options);
 
@@ -153,9 +163,7 @@ export async function streamOperations<T extends StreamTool<any>[]>(
   const stream = partialObjectStreamToUIMessageStream(ret.fullStream);
 
   return {
-    uiMessageStreamResponse: createUIMessageStreamResponse({
-      stream,
-    }),
+    uiMessageStream: stream,
     /**
      * Result of the underlying `streamObject` (AI SDK) call, or `undefined` if non-streaming mode
      */
@@ -163,81 +171,82 @@ export async function streamOperations<T extends StreamTool<any>[]>(
   };
 }
 
-export function createAISDKLLMRequestExecutor(opts: {
-  /**
-   * The language model to use for the LLM call (AI SDK)
-   *
-   * (when invoking `callLLM` via the `AIExtension` this will default to the
-   * model set in the `AIExtension` options)
-   *
-   * Note: perhaps we want to remove this
-   */
-  model: LanguageModel;
+export class ClientSideTransport<UI_MESSAGE extends UIMessage>
+  implements ChatTransport<UI_MESSAGE>
+{
+  constructor(
+    private readonly opts: {
+      /**
+       * The language model to use for the LLM call (AI SDK)
+       *
+       * (when invoking `callLLM` via the `AIExtension` this will default to the
+       * model set in the `AIExtension` options)
+       *
+       * Note: perhaps we want to remove this
+       */
+      model: LanguageModel;
 
-  /**
-   * Whether to stream the LLM response or not
-   *
-   * When streaming, we use the AI SDK `streamObject` function,
-   * otherwise, we use the AI SDK `generateObject` function.
-   *
-   * @default true
-   */
-  stream?: boolean;
+      /**
+       * Whether to stream the LLM response or not
+       *
+       * When streaming, we use the AI SDK `streamObject` function,
+       * otherwise, we use the AI SDK `generateObject` function.
+       *
+       * @default true
+       */
+      stream?: boolean;
 
-  /**
-   * The maximum number of retries for the LLM call
-   *
-   * @default 2
-   */
-  maxRetries?: number;
+      /**
+       * The maximum number of retries for the LLM call
+       *
+       * @default 2
+       */
+      maxRetries?: number;
 
-  /**
-   * Additional options to pass to the AI SDK `generateObject` function
-   * (only used when `stream` is `false`)
-   */
-  _generateObjectOptions?: Partial<Parameters<typeof generateObject<any>>[0]>;
-  /**
-   * Additional options to pass to the AI SDK `streamObject` function
-   * (only used when `stream` is `true`)
-   */
-  _streamObjectOptions?: Partial<Parameters<typeof streamObject<any>>[0]>;
-}) {
-  const {
-    model,
-    stream,
-    maxRetries,
-    _generateObjectOptions,
-    _streamObjectOptions,
-  } = opts;
-  return async (opts: ExecuteLLMRequestOptions) => {
-    const { messages, streamTools, onStart } = opts;
+      /**
+       * Additional options to pass to the AI SDK `generateObject` function
+       * (only used when `stream` is `false`)
+       */
+      _generateObjectOptions?: Partial<
+        Parameters<typeof generateObject<any>>[0]
+      >;
+      /**
+       * Additional options to pass to the AI SDK `streamObject` function
+       * (only used when `stream` is `true`)
+       */
+      _streamObjectOptions?: Partial<Parameters<typeof streamObject<any>>[0]>;
+    },
+  ) {}
 
-    // TODO: add support for streamText / generateText and tool calls
-
+  async sendMessages({
+    messages,
+    metadata,
+  }: Parameters<ChatTransport<UI_MESSAGE>["sendMessages"]>[0]): Promise<
+    ReadableStream<UIMessageChunk>
+  > {
+    const { streamTools } = metadata as { streamTools: StreamTool<any>[] };
     let response: // | Awaited<ReturnType<typeof generateOperations<any>>>
     Awaited<ReturnType<typeof streamOperations<any>>>;
 
-    if (stream) {
+    if (this.opts.stream) {
       response = await streamOperations(streamTools, {
         messages,
-        model,
-        maxRetries,
-        ...(_streamObjectOptions as any),
+        model: this.opts.model,
+        maxRetries: this.opts.maxRetries,
+        ...(this.opts._streamObjectOptions as any),
       });
     } else {
       response = (await generateOperations(streamTools, {
         messages,
-        model,
-        maxRetries,
-        ...(_generateObjectOptions as any),
+        model: this.opts.model,
+        maxRetries: this.opts.maxRetries,
+        ...(this.opts._generateObjectOptions as any),
       })) as any;
     }
+    return response.uiMessageStream;
+  }
 
-    const parsedResponse = await dataStreamResponseToOperationsResult(
-      response.dataStreamResponse,
-      streamTools,
-      onStart,
-    );
-    return new LLMResponse(messages, parsedResponse, streamTools);
-  };
+  reconnectToStream(): Promise<ReadableStream<UIMessageChunk> | null> {
+    throw new Error("Not implemented");
+  }
 }

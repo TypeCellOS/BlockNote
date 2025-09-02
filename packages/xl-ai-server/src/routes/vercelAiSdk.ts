@@ -1,9 +1,10 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import {
-  objectToDataStream,
-  partialObjectStreamToDataStream,
+  objectToUIMessageStream,
+  partialObjectStreamToUIMessageStream,
 } from "@blocknote/xl-ai";
 import {
+  createUIMessageStreamResponse,
   generateObject,
   generateText,
   jsonSchema,
@@ -62,16 +63,9 @@ vercelAiSdkRoute.post("/streamObject", cors(), async (c) => {
     schema: jsonSchema(schema),
   });
 
-  const dataStream = partialObjectStreamToDataStream(result.fullStream);
+  const stream = partialObjectStreamToUIMessageStream(result.fullStream);
 
-  return new Response(dataStream.pipeThrough(new TextEncoderStream()), {
-    status: 200,
-    statusText: "OK",
-    headers: {
-      contentType: "text/plain; charset=utf-8",
-      dataStreamVersion: "v1",
-    },
-  });
+  return createUIMessageStreamResponse({ stream });
 });
 
 vercelAiSdkRoute.post("/generateObject", cors(), async (c) => {
@@ -84,14 +78,7 @@ vercelAiSdkRoute.post("/generateObject", cors(), async (c) => {
     schema: jsonSchema(schema),
   });
 
-  const dataStream = objectToDataStream(result.object);
+  const stream = objectToUIMessageStream(result.object);
 
-  return new Response(dataStream.pipeThrough(new TextEncoderStream()), {
-    status: 200,
-    statusText: "OK",
-    headers: {
-      contentType: "text/plain; charset=utf-8",
-      dataStreamVersion: "v1",
-    },
-  });
+  return createUIMessageStreamResponse({ stream });
 });

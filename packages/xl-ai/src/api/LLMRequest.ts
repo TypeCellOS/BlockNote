@@ -1,5 +1,5 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { ModelMessage } from "ai";
+import { UIMessage } from "ai";
 import { StreamTool } from "../streamTool/streamTool.js";
 import { isEmptyParagraph } from "../util/emptyBlock.js";
 import { LLMResponse } from "./LLMResponse.js";
@@ -11,7 +11,7 @@ import { trimEmptyBlocks } from "./promptHelpers/trimEmptyBlocks.js";
 type MakeOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 export type ExecuteLLMRequestOptions = {
-  messages: ModelMessage[];
+  messages: UIMessage[];
   streamTools: StreamTool<any>[];
   // TODO: needed?
   llmRequestOptions: MakeOptional<LLMRequestOptions, "executor">;
@@ -143,17 +143,24 @@ export async function doLLMRequest(
     ? editor.getSelectionCutBlocks()
     : undefined;
 
-  let previousMessages: ModelMessage[] | undefined = undefined;
+  let previousMessages: UIMessage[] | undefined = undefined;
 
   if (previousResponse) {
     previousMessages = previousResponse.messages.map((m) => {
       // Some models, like Gemini and Anthropic don't support mixing system and user messages.
       // Therefore, we convert all user messages to system messages.
       // (also see comment below on a possibly better approach that might also address this)
-      if (m.role === "user" && typeof m.content === "string") {
+      if (m.role === "user") {
         return {
+          id: m.id,
           role: "system",
-          content: `USER_MESSAGE: ${m.content}`,
+          parts: m.parts.map((part) => {
+            if (part.type === "text") {
+              return { type: "text", text: `USER_MESSAGE: ${part.text}` };
+            }
+
+            throw new Error(`Unexpected part type: ${part.type}`);
+          }),
         };
       }
 
@@ -173,12 +180,18 @@ export async function doLLMRequest(
     */
     // TODO: fix
     // previousMessages.push({
+    //   id: "previous-response-message",
     //   role: "system", // using "assistant" here doesn't work with gemini because we can't mix system / assistant messages
-    //   content:
-    //     "ASSISTANT_MESSAGE: These are the operations returned by a previous LLM call: \n" +
-    //     JSON.stringify(
-    //       await previousResponse.llmResult.getGeneratedOperations(),
-    //     ),
+    //   parts: [
+    //     {
+    //       type: "text",
+    //       text:
+    //         "ASSISTANT_MESSAGE: These are the operations returned by a previous LLM call: \n" +
+    //         JSON.stringify(
+    //           await previousResponse.llmResult.getGeneratedOperations(),
+    //         ),
+    //     },
+    //   ],
     // });
   }
 

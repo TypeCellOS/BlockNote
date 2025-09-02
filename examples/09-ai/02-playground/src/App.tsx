@@ -22,7 +22,9 @@ import {
 import {
   AIMenuController,
   AIToolbarButton,
+  ClientSideTransport,
   createAIExtension,
+  createAISDKLLMRequestExecutor,
   createBlockNoteAIClient,
   getAIExtension,
   getAISlashMenuItems,
@@ -42,7 +44,7 @@ import { getEnv } from "./getEnv";
 const client = createBlockNoteAIClient({
   apiKey: getEnv("BLOCKNOTE_AI_SERVER_API_KEY") || "PLACEHOLDER",
   baseURL:
-    getEnv("BLOCKNOTE_AI_SERVER_BASE_URL") || "https://localhost:3000/ai",
+    getEnv("BLOCKNOTE_AI_SERVER_BASE_URL") || "https://localhost:3000/ai/proxy",
 });
 
 // return the AI SDK model based on the selected model string
@@ -52,7 +54,7 @@ function getModel(aiModelString: string) {
   if (provider === "openai.chat") {
     return createOpenAI({
       ...client.getProviderSettings("openai"),
-    })(modelName, {});
+    })(modelName);
   } else if (provider === "groq.chat") {
     return createGroq({
       ...client.getProviderSettings("groq"),
@@ -74,9 +76,7 @@ function getModel(aiModelString: string) {
   } else if (provider === "google.generative-ai") {
     return createGoogleGenerativeAI({
       ...client.getProviderSettings("google"),
-    })(modelName, {
-      structuredOutputs: false,
-    });
+    })(modelName);
   } else {
     return "unknown-model" as const;
   }
@@ -100,8 +100,11 @@ export default function App() {
     // Register the AI extension
     extensions: [
       createAIExtension({
-        executor: model as any, // TODO
-        // model: model as LanguageModelV1, // (type because initially it's valid)
+        executor: createAISDKLLMRequestExecutor({
+          transport: new ClientSideTransport({
+            model,
+          }),
+        }),
       }),
     ],
     // We set some initial content for demo purposes
@@ -136,7 +139,14 @@ export default function App() {
   useEffect(() => {
     // update the default model in the extension
     if (model !== "unknown-model") {
-      ai.options.setState({ executor: model as any }); // TODO
+      ai.options.setState({
+        executor: createAISDKLLMRequestExecutor({
+          transport: new ClientSideTransport({
+            model,
+            stream: false,
+          }),
+        }),
+      });
     }
   }, [model, ai.options]);
 

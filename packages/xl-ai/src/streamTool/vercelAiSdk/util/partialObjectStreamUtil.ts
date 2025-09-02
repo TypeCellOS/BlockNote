@@ -46,7 +46,7 @@ export function textStreamToPartialObjectStream<T>() {
   });
 }
 
-export function uiMessageStreamToTextStream(
+export function uiMessageStreamObjectDataToTextStream(
   stream: ReadableStream<UIMessageChunk>,
 ) {
   let errored = false;
@@ -62,10 +62,8 @@ export function uiMessageStreamToTextStream(
       })) {
         for (const part of chunk.parts) {
           switch (part.type) {
-            case "text":
-              // TODO
-              console.log("text", part.text);
-              controller.enqueue(part.text);
+            case "data-object-delta":
+              controller.enqueue(part.data);
               break;
           }
         }
@@ -100,15 +98,15 @@ export function partialObjectStreamToUIMessageStream<PARTIAL>(
       start(controller) {
         controller.enqueue({ type: "start" });
         controller.enqueue({ type: "start-step" });
-        controller.enqueue({ type: "text-start", id: "text-1" });
+        // controller.enqueue({ type: "text-start", id: "text-1" });
       },
       transform(chunk, controller) {
         switch (chunk.type) {
           case "text-delta":
             controller.enqueue({
-              type: "text-delta",
+              type: "data-object-delta",
               id: "text-1",
-              delta: chunk.textDelta,
+              data: chunk.textDelta,
             });
             break;
           case "object":
@@ -127,7 +125,7 @@ export function partialObjectStreamToUIMessageStream<PARTIAL>(
         }
       },
       async flush(controller) {
-        controller.enqueue({ type: "text-end", id: "text-1" });
+        // controller.enqueue({ type: "text-end", id: "text-1" });
         controller.enqueue({ type: "finish-step" });
         controller.enqueue({ type: "finish" });
       },
@@ -141,13 +139,13 @@ export function objectToUIMessageStream(object: any) {
     start(controller) {
       controller.enqueue({ type: "start" });
       controller.enqueue({ type: "start-step" });
-      controller.enqueue({ type: "text-start", id: "text-1" });
+      // controller.enqueue({ type: "data-object-start", id: "text-1" });
       controller.enqueue({
-        type: "text-delta",
+        type: "data-object-delta",
         id: "text-1",
-        delta: JSON.stringify(object),
+        data: JSON.stringify(object),
       });
-      controller.enqueue({ type: "text-end", id: "text-1" });
+      // controller.enqueue({ type: "text-end", id: "text-1" });
       controller.enqueue({ type: "finish-step" });
       controller.enqueue({ type: "finish" });
     },

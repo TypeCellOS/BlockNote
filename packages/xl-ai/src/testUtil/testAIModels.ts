@@ -7,7 +7,7 @@ import { createBlockNoteAIClient } from "../blocknoteAIClient/client.js";
 
 // Create client and models outside of test suites so they can be shared
 const client = createBlockNoteAIClient({
-  baseURL: "https://localhost:3000/ai",
+  baseURL: "https://localhost:3000/ai/proxy",
   apiKey: "PLACEHOLDER",
 });
 

@@ -4,7 +4,9 @@ import { getCurrentTest } from "@vitest/runner";
 import { getSortedEntries, snapshot, toHashString } from "msw-snapshot";
 import { setupServer } from "msw/node";
 import path from "path";
-import { createAISDKLLMRequestExecutor } from "../../../streamTool/vercelAiSdk/clientSideExecutor/clientSideExecutor.js";
+
+import { createAISDKLLMRequestExecutor } from "../../../streamTool/vercelAiSdk/AISDKLLMRequestExecutor.js";
+import { ClientSideTransport } from "../../../streamTool/vercelAiSdk/clientside/ClientSideTransport.js";
 import { testAIModels } from "../../../testUtil/testAIModels.js";
 import { doLLMRequest } from "../../LLMRequest.js";
 import { generateSharedTestCases } from "../tests/sharedTestCases.js";
@@ -116,9 +118,11 @@ describe("Models", () => {
           doLLMRequest(editor, {
             ...options,
             executor: createAISDKLLMRequestExecutor({
-              model: params.model,
-              maxRetries: 0,
-              stream: params.stream,
+              transport: new ClientSideTransport({
+                model: params.model,
+                maxRetries: 0,
+                stream: params.stream,
+              }),
             }),
             withDelays: false,
             dataFormat: markdownBlocksLLMFormat,

@@ -3,7 +3,8 @@ import { getSortedEntries, snapshot, toHashString } from "msw-snapshot";
 import { setupServer } from "msw/node";
 import path from "path";
 import { afterAll, afterEach, beforeAll, describe } from "vitest";
-import { createAISDKLLMRequestExecutor } from "../../../streamTool/vercelAiSdk/clientSideExecutor/clientSideExecutor.js";
+import { createAISDKLLMRequestExecutor } from "../../../streamTool/vercelAiSdk/AISDKLLMRequestExecutor.js";
+import { ClientSideTransport } from "../../../streamTool/vercelAiSdk/clientside/ClientSideTransport.js";
 import { testAIModels } from "../../../testUtil/testAIModels.js";
 import { doLLMRequest } from "../../LLMRequest.js";
 import { generateSharedTestCases } from "../tests/sharedTestCases.js";
@@ -128,9 +129,11 @@ describe("Models", () => {
             dataFormat: htmlBlockLLMFormat,
             withDelays: false,
             executor: createAISDKLLMRequestExecutor({
-              model: params.model,
-              stream: params.stream,
-              maxRetries: 0,
+              transport: new ClientSideTransport({
+                model: params.model,
+                maxRetries: 0,
+                stream: params.stream,
+              }),
             }),
           }),
         // TODO: remove when matthew's parsing PR is merged

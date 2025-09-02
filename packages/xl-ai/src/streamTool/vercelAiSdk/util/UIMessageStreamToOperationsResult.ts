@@ -1,4 +1,4 @@
-import { DefaultChatTransport, readUIMessageStream } from "ai";
+import { UIMessageChunk } from "ai";
 import { OperationsResult } from "../../../api/LLMResponse.js";
 import {
   createAsyncIterableStream,
@@ -8,23 +8,23 @@ import { filterNewOrUpdatedOperations } from "../../filterNewOrUpdatedOperations
 import { preprocessOperationsStreaming } from "../../preprocess.js";
 import { StreamTool, StreamToolCall } from "../../streamTool.js";
 import {
-  uiMessageStreamToTextStream,
   textStreamToPartialObjectStream,
+  uiMessageStreamObjectDataToTextStream,
 } from "./partialObjectStreamUtil.js";
 
-export async function dataStreamResponseToOperationsResult<
+// stream vs generate, responsibility of backend
+// text vs object,
+
+export async function UIMessageStreamToOperationsResult<
   T extends StreamTool<any>[],
 >(
-  response: Response,
+  stream: ReadableStream<UIMessageChunk>,
   streamTools: T,
   onStart: () => void = () => {
     // noop
   },
 ): Promise<OperationsResult<T>> {
-
-  const transport = new DefaultChatTransport();
-  transport.
-  const ret = uiMessageStreamToTextStream(response.body!).pipeThrough(
+  const ret = uiMessageStreamObjectDataToTextStream(stream).pipeThrough(
     textStreamToPartialObjectStream<{ operations: StreamToolCall<T>[] }>(),
   );
 
