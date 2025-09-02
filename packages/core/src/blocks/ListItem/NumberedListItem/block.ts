@@ -16,15 +16,15 @@ export const createNumberedListItemBlockConfig = createBlockConfig(
         start: { default: undefined, type: "number" } as const,
       },
       content: "inline",
-      meta: {
-        isolating: false,
-      },
     }) as const,
 );
 
 export const createNumberedListItemBlockSpec = createBlockSpec(
   createNumberedListItemBlockConfig,
   {
+    meta: {
+      isolating: false,
+    },
     parse(element) {
       if (element.tagName !== "LI") {
         return false;

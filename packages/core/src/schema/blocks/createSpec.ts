@@ -39,12 +39,7 @@ export function getParseRules<
   TContent extends "inline" | "none" | "table",
 >(
   config: BlockConfig<TName, TProps, TContent>,
-  customParseFunction: BlockImplementation<TName, TProps, TContent>["parse"],
-  customParseContentFunction: BlockImplementation<
-    TName,
-    TProps,
-    TContent
-  >["parseContent"],
+  implementation: BlockImplementation<TName, TProps, TContent>,
 ) {
   const rules: TagParseRule[] = [
     {
@@ -53,7 +48,7 @@ export function getParseRules<
     },
   ];
 
-  if (customParseFunction) {
+  if (implementation.parse) {
     rules.push({
       tag: "*",
       getAttrs(node: string | HTMLElement) {
@@ -61,7 +56,7 @@ export function getParseRules<
           return false;
         }
 
-        const props = customParseFunction?.(node);
+        const props = implementation.parse?.(node);
 
         if (props === undefined) {
           return false;
@@ -72,8 +67,8 @@ export function getParseRules<
       getContent:
         config.content === "inline" || config.content === "none"
           ? (node, schema) => {
-              if (customParseContentFunction) {
-                return customParseContentFunction({
+              if (implementation.parseContent) {
+                return implementation.parseContent({
                   el: node as HTMLElement,
                   schema,
                 });
@@ -87,7 +82,10 @@ export function getParseRules<
                 const clone = element.cloneNode(true) as HTMLElement;
 
                 // Merge multiple paragraphs into one with line breaks
-                mergeParagraphs(clone, config.meta?.code ? "\n" : "<br>");
+                mergeParagraphs(
+                  clone,
+                  implementation.meta?.code ? "\n" : "<br>",
+                );
 
                 // Parse the content directly as a paragraph to extract inline content
                 const parser = DOMParser.fromSchema(schema);
@@ -146,21 +144,17 @@ export function addNodeAndExtensionsToSpec<
           ? ""
           : blockConfig.content) as TContent extends "inline" ? "inline*" : "",
       group: "blockContent",
-      selectable: blockConfig.meta?.selectable ?? true,
-      isolating: blockConfig.meta?.isolating ?? true,
-      code: blockConfig.meta?.code ?? false,
-      defining: blockConfig.meta?.defining ?? true,
+      selectable: blockImplementation.meta?.selectable ?? true,
+      isolating: blockImplementation.meta?.isolating ?? true,
+      code: blockImplementation.meta?.code ?? false,
+      defining: blockImplementation.meta?.defining ?? true,
       priority,
       addAttributes() {
         return propsToAttributes(blockConfig.propSchema);
       },
 
       parseHTML() {
-        return getParseRules(
-          blockConfig,
-          blockImplementation.parse,
-          blockImplementation.parseContent,
-        );
+        return getParseRules(blockConfig, blockImplementation);
       },
 
       renderHTML({ HTMLAttributes }) {
@@ -178,7 +172,7 @@ export function addNodeAndExtensionsToSpec<
           blockConfig.type,
           {},
           blockConfig.propSchema,
-          blockConfig.meta?.fileBlockAccept !== undefined,
+          blockImplementation.meta?.fileBlockAccept !== undefined,
           HTMLAttributes,
         );
       },
@@ -204,7 +198,7 @@ export function addNodeAndExtensionsToSpec<
             editor as any,
           );
 
-          if (blockConfig.meta?.selectable === false) {
+          if (blockImplementation.meta?.selectable === false) {
             applyNonSelectableBlockFix(nodeView, this.editor);
           }
 
@@ -287,10 +281,69 @@ export function createBlockConfig<
  * Can accept either functions that return the required objects, or the objects directly.
  */
 export function createBlockSpec<
-  TName extends string,
-  TProps extends PropSchema,
-  TContent extends "inline" | "none",
-  TOptions extends Record<string, any> | undefined = undefined,
+  const TName extends string,
+  const TProps extends PropSchema,
+  const TContent extends "inline" | "none",
+  const TOptions extends Partial<Record<string, any>> | undefined = undefined,
+>(
+  blockConfigOrCreator: BlockConfig<TName, TProps, TContent>,
+  blockImplementationOrCreator:
+    | BlockImplementation<TName, TProps, TContent>
+    | (TOptions extends undefined
+        ? () => BlockImplementation<TName, TProps, TContent>
+        : (
+            options: Partial<TOptions>,
+          ) => BlockImplementation<TName, TProps, TContent>),
+  extensionsOrCreator?:
+    | BlockNoteExtension<any>[]
+    | (TOptions extends undefined
+        ? () => BlockNoteExtension<any>[]
+        : (options: Partial<TOptions>) => BlockNoteExtension<any>[]),
+): (options?: Partial<TOptions>) => BlockSpec<TName, TProps, TContent>;
+export function createBlockSpec<
+  const TName extends string,
+  const TProps extends PropSchema,
+  const TContent extends "inline" | "none",
+  const BlockConf extends BlockConfig<TName, TProps, TContent>,
+  const TOptions extends Partial<Record<string, any>>,
+>(
+  blockCreator: (options: Partial<TOptions>) => BlockConf,
+  blockImplementationOrCreator:
+    | BlockImplementation<
+        BlockConf["type"],
+        BlockConf["propSchema"],
+        BlockConf["content"]
+      >
+    | (TOptions extends undefined
+        ? () => BlockImplementation<
+            BlockConf["type"],
+            BlockConf["propSchema"],
+            BlockConf["content"]
+          >
+        : (
+            options: Partial<TOptions>,
+          ) => BlockImplementation<
+            BlockConf["type"],
+            BlockConf["propSchema"],
+            BlockConf["content"]
+          >),
+  extensionsOrCreator?:
+    | BlockNoteExtension<any>[]
+    | (TOptions extends undefined
+        ? () => BlockNoteExtension<any>[]
+        : (options: Partial<TOptions>) => BlockNoteExtension<any>[]),
+): (
+  options?: Partial<TOptions>,
+) => BlockSpec<
+  BlockConf["type"],
+  BlockConf["propSchema"],
+  BlockConf["content"]
+>;
+export function createBlockSpec<
+  const TName extends string,
+  const TProps extends PropSchema,
+  const TContent extends "inline" | "none",
+  const TOptions extends Partial<Record<string, any>> | undefined = undefined,
 >(
   blockConfigOrCreator:
     | BlockConfig<TName, TProps, TContent>
@@ -349,7 +402,7 @@ export function createBlockSpec<
             block.type,
             block.props,
             blockConfig.propSchema,
-            blockConfig.meta?.fileBlockAccept !== undefined,
+            blockImplementation.meta?.fileBlockAccept !== undefined,
           );
         },
         render(block, editor) {
@@ -368,7 +421,7 @@ export function createBlockSpec<
             block.type,
             block.props,
             blockConfig.propSchema,
-            blockConfig.meta?.fileBlockAccept !== undefined,
+            blockImplementation.meta?.fileBlockAccept !== undefined,
             this.blockContentDOMAttributes,
           ) satisfies NodeView;
 

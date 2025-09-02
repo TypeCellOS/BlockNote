@@ -117,11 +117,74 @@ export function BlockContentWrapper<
   );
 }
 
+/**
+ * Helper function to create a React block definition.
+ * Can accept either functions that return the required objects, or the objects directly.
+ */
 export function createReactBlockSpec<
-  TName extends string,
-  TProps extends PropSchema,
-  TContent extends "inline" | "none",
-  TOptions extends Record<string, any> | undefined = undefined,
+  const TName extends string,
+  const TProps extends PropSchema,
+  const TContent extends "inline" | "none",
+  const TOptions extends Record<string, any> | undefined = undefined,
+>(
+  blockConfigOrCreator: BlockConfig<TName, TProps, TContent>,
+  blockImplementationOrCreator:
+    | ReactCustomBlockImplementation<TName, TProps, TContent>
+    | (TOptions extends undefined
+        ? () => ReactCustomBlockImplementation<TName, TProps, TContent>
+        : (
+            options: Partial<TOptions>,
+          ) => ReactCustomBlockImplementation<TName, TProps, TContent>),
+  extensionsOrCreator?:
+    | BlockNoteExtension<any>[]
+    | (TOptions extends undefined
+        ? () => BlockNoteExtension<any>[]
+        : (options: Partial<TOptions>) => BlockNoteExtension<any>[]),
+): (options?: Partial<TOptions>) => BlockSpec<TName, TProps, TContent>;
+export function createReactBlockSpec<
+  const TName extends string,
+  const TProps extends PropSchema,
+  const TContent extends "inline" | "none",
+  const BlockConf extends BlockConfig<TName, TProps, TContent>,
+  const TOptions extends Partial<Record<string, any>>,
+>(
+  blockCreator: (options: Partial<TOptions>) => BlockConf,
+  blockImplementationOrCreator:
+    | ReactCustomBlockImplementation<
+        BlockConf["type"],
+        BlockConf["propSchema"],
+        BlockConf["content"]
+      >
+    | (TOptions extends undefined
+        ? () => ReactCustomBlockImplementation<
+            BlockConf["type"],
+            BlockConf["propSchema"],
+            BlockConf["content"]
+          >
+        : (
+            options: Partial<TOptions>,
+          ) => ReactCustomBlockImplementation<
+            BlockConf["type"],
+            BlockConf["propSchema"],
+            BlockConf["content"]
+          >),
+  extensionsOrCreator?:
+    | BlockNoteExtension<any>[]
+    | (TOptions extends undefined
+        ? () => BlockNoteExtension<any>[]
+        : (options: Partial<TOptions>) => BlockNoteExtension<any>[]),
+): (
+  options?: Partial<TOptions>,
+) => BlockSpec<
+  BlockConf["type"],
+  BlockConf["propSchema"],
+  BlockConf["content"]
+>;
+export function createReactBlockSpec<
+  const TName extends string,
+  const TProps extends PropSchema,
+  const TContent extends "inline" | "none",
+  const TOptions extends Record<string, any> | undefined = undefined,
 >(
   blockConfigOrCreator:
     | BlockConfig<TName, TProps, TContent>
@@ -140,7 +203,7 @@ export function createReactBlockSpec<
     | (TOptions extends undefined
         ? () => BlockNoteExtension<any>[]
         : (options: Partial<TOptions>) => BlockNoteExtension<any>[]),
-): (options?: TOptions) => BlockSpec<TName, TProps, TContent> {
+): (options?: Partial<TOptions>) => BlockSpec<TName, TProps, TContent> {
   return (options = {} as TOptions) => {
     const blockConfig =
       typeof blockConfigOrCreator === "function"
@@ -219,7 +282,7 @@ export function createReactBlockSpec<
                     blockType={block.type}
                     blockProps={block.props}
                     propSchema={blockConfig.propSchema}
-                    isFileBlock={!!blockConfig.meta?.fileBlockAccept}
+                    isFileBlock={!!blockImplementation.meta?.fileBlockAccept}
                     domAttributes={this.blockContentDOMAttributes}
                   >
                     <BlockContent

@@ -58,12 +58,12 @@ import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLEx
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter.js";
 import { getBlockInfoFromTransaction } from "../api/getBlockInfoFromPos.js";
-import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
-import { docToBlocks } from "../api/nodeConversions/nodeToBlock.js";
 import {
   BlocksChanged,
   getBlocksChangedByTransaction,
 } from "../api/getBlocksChangedByTransaction.js";
+import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
+import { docToBlocks } from "../api/nodeConversions/nodeToBlock.js";
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
 import { nestedListsToBlockNoteStructure } from "../api/parsers/html/util/nestedLists.js";
 import {
@@ -570,11 +570,19 @@ export class BlockNoteEditor<
   };
 
   public static create<
-    BSchema extends BlockSchema = DefaultBlockSchema,
-    ISchema extends InlineContentSchema = DefaultInlineContentSchema,
-    SSchema extends StyleSchema = DefaultStyleSchema,
-  >(options: Partial<BlockNoteEditorOptions<BSchema, ISchema, SSchema>> = {}) {
-    return new BlockNoteEditor<BSchema, ISchema, SSchema>(options);
+    Options extends Partial<BlockNoteEditorOptions<any, any, any>> | undefined,
+  >(
+    options?: Options,
+  ): Options extends {
+    schema: CustomBlockNoteSchema<infer BSchema, infer ISchema, infer SSchema>;
+  }
+    ? BlockNoteEditor<BSchema, ISchema, SSchema>
+    : BlockNoteEditor<
+        DefaultBlockSchema,
+        DefaultInlineContentSchema,
+        DefaultStyleSchema
+      > {
+    return new BlockNoteEditor(options ?? {}) as any;
   }
 
   protected constructor(

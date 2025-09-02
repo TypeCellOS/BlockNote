@@ -81,10 +81,6 @@ export interface BlockConfig<
   content: C;
   // TODO: how do you represent things that have nested content?
   // e.g. tables, alerts (with title & content)
-  /**
-   * Metadata
-   */
-  meta?: BlockConfigMeta;
 }
 
 // restrict content to "inline" and "none" only
@@ -452,6 +448,10 @@ export type BlockImplementation<
   TProps extends PropSchema = PropSchema,
   TContent extends "inline" | "none" | "table" = "inline" | "none" | "table",
 > = {
+  /**
+   * Metadata
+   */
+  meta?: BlockConfigMeta;
   /**
    * A function that converts the block into a DOM element
    */

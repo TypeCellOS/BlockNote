@@ -15,15 +15,15 @@ export const createCheckListItemConfig = createBlockConfig(
         checked: { default: false, type: "boolean" },
       },
       content: "inline",
-      meta: {
-        isolating: false,
-      },
     }) as const,
 );
 
 export const createCheckListItemBlockSpec = createBlockSpec(
   createCheckListItemConfig,
   {
+    meta: {
+      isolating: false,
+    },
     parse(element) {
       if (element.tagName === "input") {
         // Ignore if we already parsed an ancestor list item to avoid double-parsing.

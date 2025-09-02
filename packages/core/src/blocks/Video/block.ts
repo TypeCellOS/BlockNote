@@ -25,9 +25,6 @@ export const createVideoBlockConfig = createBlockConfig(
       previewWidth: { default: undefined, type: "number" as const },
     },
     content: "none" as const,
-    meta: {
-      fileBlockAccept: ["video/*"],
-    },
   }),
 );
 
@@ -61,6 +58,9 @@ export const videoParse = (_config: VideoOptions) => (element: HTMLElement) => {
 export const createVideoBlockSpec = createBlockSpec(
   createVideoBlockConfig,
   (config) => ({
+    meta: {
+      fileBlockAccept: ["video/*"],
+    },
     parse: videoParse(config),
     render(block, editor) {
       const icon = document.createElement("div");

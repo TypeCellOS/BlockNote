@@ -47,9 +47,6 @@ export const createImageBlockConfig = createBlockConfig(
         },
       },
       content: "none" as const,
-      meta: {
-        fileBlockAccept: ["image/*"],
-      },
     }) as const,
 );
 
@@ -172,6 +169,9 @@ export const imageToExternalHTML =
 export const createImageBlockSpec = createBlockSpec(
   createImageBlockConfig,
   (config) => ({
+    meta: {
+      fileBlockAccept: ["image/*"],
+    },
     parse: imageParse(config),
     render: imageRender(config),
     toExternalHTML: imageToExternalHTML(config),
