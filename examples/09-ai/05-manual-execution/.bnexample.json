@@ -6,8 +6,8 @@
   "dependencies": {
     "@blocknote/xl-ai": "latest",
     "@mantine/core": "^7.17.3",
-    "ai": "^4.3.15",
-    "@ai-sdk/groq": "^1.2.9",
+    "ai": "^5.0.29",
+    "@ai-sdk/groq": "^2.0.16",
     "y-partykit": "^0.0.25",
     "yjs": "^13.6.27",
     "zustand": "^5.0.3"
