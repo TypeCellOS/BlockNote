@@ -287,11 +287,31 @@ export function createBlockConfig<
  * Can accept either functions that return the required objects, or the objects directly.
  */
 export function createBlockSpec<
-  TName extends string,
-  TProps extends PropSchema,
-  TContent extends "inline" | "none",
-  BlockConf extends BlockConfig<TName, TProps, TContent>,
-  TOptions extends Partial<Record<string, any>>,
+  const TName extends string,
+  const TProps extends PropSchema,
+  const TContent extends "inline" | "none",
+  const TOptions extends Partial<Record<string, any>> | undefined = undefined,
+>(
+  blockConfigOrCreator: BlockConfig<TName, TProps, TContent>,
+  blockImplementationOrCreator:
+    | BlockImplementation<TName, TProps, TContent>
+    | (TOptions extends undefined
+        ? () => BlockImplementation<TName, TProps, TContent>
+        : (
+            options: Partial<TOptions>,
+          ) => BlockImplementation<TName, TProps, TContent>),
+  extensionsOrCreator?:
+    | BlockNoteExtension<any>[]
+    | (TOptions extends undefined
+        ? () => BlockNoteExtension<any>[]
+        : (options: Partial<TOptions>) => BlockNoteExtension<any>[]),
+): (options?: Partial<TOptions>) => BlockSpec<TName, TProps, TContent>;
+export function createBlockSpec<
+  const TName extends string,
+  const TProps extends PropSchema,
+  const TContent extends "inline" | "none",
+  const BlockConf extends BlockConfig<TName, TProps, TContent>,
+  const TOptions extends Partial<Record<string, any>>,
 >(
   blockCreator: (options: Partial<TOptions>) => BlockConf,
   blockImplementationOrCreator:
@@ -307,7 +327,7 @@ export function createBlockSpec<
             BlockConf["content"]
           >
         : (
-            options: TOptions,
+            options: Partial<TOptions>,
           ) => BlockImplementation<
             BlockConf["type"],
             BlockConf["propSchema"],
@@ -317,19 +337,19 @@ export function createBlockSpec<
     | BlockNoteExtension<any>[]
     | (TOptions extends undefined
         ? () => BlockNoteExtension<any>[]
-        : (options: TOptions) => BlockNoteExtension<any>[]),
+        : (options: Partial<TOptions>) => BlockNoteExtension<any>[]),
 ): (
-  options?: TOptions,
+  options?: Partial<TOptions>,
 ) => BlockSpec<
   BlockConf["type"],
   BlockConf["propSchema"],
   BlockConf["content"]
 >;
 export function createBlockSpec<
-  TName extends string,
-  TProps extends PropSchema,
-  TContent extends "inline" | "none",
-  TOptions extends Partial<Record<string, any>> | undefined = undefined,
+  const TName extends string,
+  const TProps extends PropSchema,
+  const TContent extends "inline" | "none",
+  const TOptions extends Partial<Record<string, any>> | undefined = undefined,
 >(
   blockConfigOrCreator:
     | BlockConfig<TName, TProps, TContent>

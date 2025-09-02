@@ -1,4 +1,11 @@
-import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
+import {
+  BlockSchema,
+  createBlockConfig,
+  createBlockSpec,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../schema/index.js";
+import { BlockNoteSchema } from "../BlockNoteSchema.js";
 
 export const createPageBreakBlockConfig = createBlockConfig(
   () =>
@@ -43,3 +50,20 @@ export const createPageBreakBlockSpec = createBlockSpec(
     },
   },
 );
+
+/**
+ * Adds multi-column support to the given schema.
+ */
+export const withPageBreak = <
+  B extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema,
+>(
+  schema: BlockNoteSchema<B, I, S>,
+) => {
+  return schema.extend({
+    blockSpecs: {
+      pageBreak: createPageBreakBlockSpec(),
+    },
+  });
+};

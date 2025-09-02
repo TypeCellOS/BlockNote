@@ -156,30 +156,33 @@ export class CustomBlockNoteSchema<
    * @returns The current schema instance for chaining
    */
   public extend<
-    AdditionalBlockSpecs extends BlockSpecs,
+    AdditionalBlockSpecs extends BlockSpecs = Record<string, never>,
     AdditionalInlineContentSpecs extends Record<
       string,
       InlineContentSpec<InlineContentConfig>
-    >,
-    AdditionalStyleSpecs extends Record<string, StyleSpec<StyleConfig>>,
+    > = Record<string, never>,
+    AdditionalStyleSpecs extends Record<
+      string,
+      StyleSpec<StyleConfig>
+    > = Record<string, never>,
   >(opts: {
     blockSpecs?: AdditionalBlockSpecs;
     inlineContentSpecs?: AdditionalInlineContentSpecs;
     styleSpecs?: AdditionalStyleSpecs;
   }): CustomBlockNoteSchema<
-    AdditionalBlockSpecs extends undefined
+    AdditionalBlockSpecs extends undefined | Record<string, never>
       ? BSchema
       : BSchema & {
           [K in keyof AdditionalBlockSpecs]: K extends string
             ? AdditionalBlockSpecs[K]["config"]
             : never;
         },
-    AdditionalInlineContentSpecs extends undefined
+    AdditionalInlineContentSpecs extends undefined | Record<string, never>
       ? ISchema
       : ISchema & {
           [K in keyof AdditionalInlineContentSpecs]: AdditionalInlineContentSpecs[K]["config"];
         },
-    AdditionalStyleSpecs extends undefined
+    AdditionalStyleSpecs extends undefined | Record<string, never>
       ? SSchema
       : SSchema & {
           [K in keyof AdditionalStyleSpecs]: AdditionalStyleSpecs[K]["config"];
