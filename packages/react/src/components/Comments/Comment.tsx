@@ -19,7 +19,7 @@ import { useDictionary } from "../../i18n/dictionary.js";
 import { CommentEditor } from "./CommentEditor.js";
 import { EmojiPicker } from "./EmojiPicker.js";
 import { ReactionBadge } from "./ReactionBadge.js";
-import { schema } from "./schema.js";
+import { defaultCommentEditorSchema } from "./defaultCommentEditorSchema.js";
 import { useUser } from "./useUsers.js";
 
 export type CommentProps = {
@@ -43,6 +43,12 @@ export const Comment = ({
   // TODO: if REST API becomes popular, all interactions (click handlers) should implement a loading state and error state
   // (or optimistic local updates)
 
+  const editor = useBlockNoteEditor();
+
+  if (!editor.comments) {
+    throw new Error("Comments plugin not found");
+  }
+
   const dict = useDictionary();
 
   const commentEditor = useCreateBlockNote(
@@ -55,7 +61,7 @@ export const Comment = ({
           emptyDocument: dict.placeholders.edit_comment,
         },
       },
-      schema,
+      schema: editor.comments.commentEditorSchema || defaultCommentEditorSchema,
     },
     [comment.body],
   );
@@ -63,8 +69,6 @@ export const Comment = ({
   const Components = useComponentsContext()!;
 
   const [isEditing, setEditing] = useState(false);
-
-  const editor = useBlockNoteEditor();
 
   if (!editor.comments) {
     throw new Error("Comments plugin not found");

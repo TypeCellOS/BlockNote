@@ -201,6 +201,7 @@ export type BlockNoteEditorOptions<
    * @remarks `CommentsOptions`
    */
   comments?: {
+    schema?: BlockNoteSchema<any, any, any>;
     threadStore: ThreadStore;
   };
 
