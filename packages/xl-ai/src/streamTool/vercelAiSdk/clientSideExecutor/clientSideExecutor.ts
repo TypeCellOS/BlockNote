@@ -1,6 +1,7 @@
 import {
   LanguageModel,
   ModelMessage,
+  createUIMessageStreamResponse,
   generateObject,
   jsonSchema,
   streamObject,
@@ -11,8 +12,8 @@ import { createStreamToolsArraySchema } from "../../jsonSchema.js";
 import { StreamTool } from "../../streamTool.js";
 import { dataStreamResponseToOperationsResult } from "../util/dataStreamResponseToOperationsResult.js";
 import {
-  objectToDataStream,
-  partialObjectStreamToDataStream,
+  objectToUIMessageStream,
+  partialObjectStreamToUIMessageStream,
 } from "../util/partialObjectStreamUtil.js";
 
 type LLMRequestOptions = {
@@ -75,7 +76,7 @@ export async function generateOperations<T extends StreamTool<any>[]>(
 
   const ret = await generateObject<any, any, { operations: any }>(options);
 
-  const stream = objectToDataStream(ret.object);
+  const stream = objectToUIMessageStream(ret.object);
 
   return {
     dataStreamResponse: new Response(
@@ -149,20 +150,12 @@ export async function streamOperations<T extends StreamTool<any>[]>(
   const ret = streamObject<any, any, { operations: any }>(options);
 
   // Transform the partial object stream to a data stream format
-  const stream = partialObjectStreamToDataStream(ret.fullStream);
+  const stream = partialObjectStreamToUIMessageStream(ret.fullStream);
 
   return {
-    dataStreamResponse: new Response(
-      stream.pipeThrough(new TextEncoderStream()),
-      {
-        status: 200,
-        statusText: "OK",
-        headers: {
-          contentType: "text/plain; charset=utf-8",
-          dataStreamVersion: "v1",
-        },
-      },
-    ),
+    uiMessageStreamResponse: createUIMessageStreamResponse({
+      stream,
+    }),
     /**
      * Result of the underlying `streamObject` (AI SDK) call, or `undefined` if non-streaming mode
      */

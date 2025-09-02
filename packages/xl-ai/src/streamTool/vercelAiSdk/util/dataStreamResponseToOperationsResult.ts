@@ -1,3 +1,4 @@
+import { DefaultChatTransport, readUIMessageStream } from "ai";
 import { OperationsResult } from "../../../api/LLMResponse.js";
 import {
   createAsyncIterableStream,
@@ -7,7 +8,7 @@ import { filterNewOrUpdatedOperations } from "../../filterNewOrUpdatedOperations
 import { preprocessOperationsStreaming } from "../../preprocess.js";
 import { StreamTool, StreamToolCall } from "../../streamTool.js";
 import {
-  dataStreamToTextStream,
+  uiMessageStreamToTextStream,
   textStreamToPartialObjectStream,
 } from "./partialObjectStreamUtil.js";
 
@@ -20,7 +21,10 @@ export async function dataStreamResponseToOperationsResult<
     // noop
   },
 ): Promise<OperationsResult<T>> {
-  const ret = dataStreamToTextStream(response.body!).pipeThrough(
+
+  const transport = new DefaultChatTransport();
+  transport.
+  const ret = uiMessageStreamToTextStream(response.body!).pipeThrough(
     textStreamToPartialObjectStream<{ operations: StreamToolCall<T>[] }>(),
   );
 
