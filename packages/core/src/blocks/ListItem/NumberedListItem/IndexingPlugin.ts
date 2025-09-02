@@ -117,8 +117,6 @@ function getDecorations(
           // move in by 1 to account for the block container
           Decoration.node(pos + 1, pos + node.nodeSize - 1, {
             "data-index": index.toString(),
-            // TODO figure out start? is this needed?
-            // "data-start": hasStart ? index.toString() : undefined,
           }),
         );
       }

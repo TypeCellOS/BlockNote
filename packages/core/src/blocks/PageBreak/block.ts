@@ -25,7 +25,6 @@ export const createPageBreakBlockSpec = createBlockSpec(
     render() {
       const pageBreak = document.createElement("div");
 
-      pageBreak.className = "bn-page-break";
       pageBreak.setAttribute("data-page-break", "");
 
       return {
