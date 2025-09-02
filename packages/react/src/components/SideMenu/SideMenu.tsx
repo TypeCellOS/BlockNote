@@ -41,7 +41,8 @@ export const SideMenu = <
     }
 
     if (
-      props.editor.schema.blockSchema[props.block.type].meta?.fileBlockAccept
+      props.editor.schema.blockSpecs[props.block.type].implementation.meta
+        ?.fileBlockAccept
     ) {
       if (props.block.props.url) {
         attrs["data-url"] = "true";
@@ -51,7 +52,7 @@ export const SideMenu = <
     }
 
     return attrs;
-  }, [props.block, props.editor.schema.blockSchema]);
+  }, [props.block.props, props.block.type, props.editor.schema.blockSpecs]);
 
   return (
     <Components.SideMenu.Root className={"bn-side-menu"} {...dataAttributes}>

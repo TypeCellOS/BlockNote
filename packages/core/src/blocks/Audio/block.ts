@@ -42,9 +42,6 @@ export const createAudioBlockConfig = createBlockConfig(
         },
       },
       content: "none",
-      meta: {
-        fileBlockAccept: ["audio/*"],
-      },
     }) as const,
 );
 
@@ -157,6 +154,9 @@ export const audioToExternalHTML =
 export const createAudioBlockSpec = createBlockSpec(
   createAudioBlockConfig,
   (config) => ({
+    meta: {
+      fileBlockAccept: ["audio/*"],
+    },
     parse: audioParse(config),
     render: audioRender(config),
     toExternalHTML: audioToExternalHTML(config),

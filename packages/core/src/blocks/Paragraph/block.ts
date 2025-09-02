@@ -10,15 +10,15 @@ export const createParagraphBlockConfig = createBlockConfig(
       type: "paragraph" as const,
       propSchema: defaultProps,
       content: "inline" as const,
-      meta: {
-        isolating: false,
-      },
     }) as const,
 );
 
 export const createParagraphBlockSpec = createBlockSpec(
   createParagraphBlockConfig,
   {
+    meta: {
+      isolating: false,
+    },
     parse: (e) => {
       if (e.tagName !== "P") {
         return undefined;

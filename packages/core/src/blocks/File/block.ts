@@ -25,9 +25,6 @@ export const createFileBlockConfig = createBlockConfig(
         },
       },
       content: "none" as const,
-      meta: {
-        fileBlockAccept: ["*/*"],
-      },
     }) as const,
 );
 
@@ -59,6 +56,9 @@ export const fileParse = () => (element: HTMLElement) => {
 };
 
 export const createFileBlockSpec = createBlockSpec(createFileBlockConfig, {
+  meta: {
+    fileBlockAccept: ["*/*"],
+  },
   parse: fileParse(),
   render(block, editor) {
     return createFileBlockWrapper(block, editor);

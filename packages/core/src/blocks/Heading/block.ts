@@ -30,15 +30,15 @@ export const createHeadingBlockConfig = createBlockConfig(
           : {}),
       },
       content: "inline",
-      meta: {
-        isolating: false,
-      },
     }) as const,
 );
 
 export const createHeadingBlockSpec = createBlockSpec(
   createHeadingBlockConfig,
   ({ allowToggleHeadings = true }: HeadingOptions = {}) => ({
+    meta: {
+      isolating: false,
+    },
     parse(e) {
       let level: number;
       switch (e.tagName) {

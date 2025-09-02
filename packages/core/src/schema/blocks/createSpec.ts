@@ -39,12 +39,7 @@ export function getParseRules<
   TContent extends "inline" | "none" | "table",
 >(
   config: BlockConfig<TName, TProps, TContent>,
-  customParseFunction: BlockImplementation<TName, TProps, TContent>["parse"],
-  customParseContentFunction: BlockImplementation<
-    TName,
-    TProps,
-    TContent
-  >["parseContent"],
+  implementation: BlockImplementation<TName, TProps, TContent>,
 ) {
   const rules: TagParseRule[] = [
     {
@@ -53,7 +48,7 @@ export function getParseRules<
     },
   ];
 
-  if (customParseFunction) {
+  if (implementation.parse) {
     rules.push({
       tag: "*",
       getAttrs(node: string | HTMLElement) {
@@ -61,7 +56,7 @@ export function getParseRules<
           return false;
         }
 
-        const props = customParseFunction?.(node);
+        const props = implementation.parse?.(node);
 
         if (props === undefined) {
           return false;
@@ -72,8 +67,8 @@ export function getParseRules<
       getContent:
         config.content === "inline" || config.content === "none"
           ? (node, schema) => {
-              if (customParseContentFunction) {
-                return customParseContentFunction({
+              if (implementation.parseContent) {
+                return implementation.parseContent({
                   el: node as HTMLElement,
                   schema,
                 });
@@ -87,7 +82,10 @@ export function getParseRules<
                 const clone = element.cloneNode(true) as HTMLElement;
 
                 // Merge multiple paragraphs into one with line breaks
-                mergeParagraphs(clone, config.meta?.code ? "\n" : "<br>");
+                mergeParagraphs(
+                  clone,
+                  implementation.meta?.code ? "\n" : "<br>",
+                );
 
                 // Parse the content directly as a paragraph to extract inline content
                 const parser = DOMParser.fromSchema(schema);
@@ -146,21 +144,17 @@ export function addNodeAndExtensionsToSpec<
           ? ""
           : blockConfig.content) as TContent extends "inline" ? "inline*" : "",
       group: "blockContent",
-      selectable: blockConfig.meta?.selectable ?? true,
-      isolating: blockConfig.meta?.isolating ?? true,
-      code: blockConfig.meta?.code ?? false,
-      defining: blockConfig.meta?.defining ?? true,
+      selectable: blockImplementation.meta?.selectable ?? true,
+      isolating: blockImplementation.meta?.isolating ?? true,
+      code: blockImplementation.meta?.code ?? false,
+      defining: blockImplementation.meta?.defining ?? true,
       priority,
       addAttributes() {
         return propsToAttributes(blockConfig.propSchema);
       },
 
       parseHTML() {
-        return getParseRules(
-          blockConfig,
-          blockImplementation.parse,
-          blockImplementation.parseContent,
-        );
+        return getParseRules(blockConfig, blockImplementation);
       },
 
       renderHTML({ HTMLAttributes }) {
@@ -178,7 +172,7 @@ export function addNodeAndExtensionsToSpec<
           blockConfig.type,
           {},
           blockConfig.propSchema,
-          blockConfig.meta?.fileBlockAccept !== undefined,
+          blockImplementation.meta?.fileBlockAccept !== undefined,
           HTMLAttributes,
         );
       },
@@ -204,7 +198,7 @@ export function addNodeAndExtensionsToSpec<
             editor as any,
           );
 
-          if (blockConfig.meta?.selectable === false) {
+          if (blockImplementation.meta?.selectable === false) {
             applyNonSelectableBlockFix(nodeView, this.editor);
           }
 
@@ -408,7 +402,7 @@ export function createBlockSpec<
             block.type,
             block.props,
             blockConfig.propSchema,
-            blockConfig.meta?.fileBlockAccept !== undefined,
+            blockImplementation.meta?.fileBlockAccept !== undefined,
           );
         },
         render(block, editor) {
@@ -427,7 +421,7 @@ export function createBlockSpec<
             block.type,
             block.props,
             blockConfig.propSchema,
-            blockConfig.meta?.fileBlockAccept !== undefined,
+            blockImplementation.meta?.fileBlockAccept !== undefined,
             this.blockContentDOMAttributes,
           ) satisfies NodeView;
 

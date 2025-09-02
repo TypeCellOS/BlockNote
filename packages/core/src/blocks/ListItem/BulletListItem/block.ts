@@ -14,15 +14,15 @@ export const createBulletListItemBlockConfig = createBlockConfig(
         ...defaultProps,
       },
       content: "inline",
-      meta: {
-        isolating: false,
-      },
     }) as const,
 );
 
 export const createBulletListItemBlockSpec = createBlockSpec(
   createBulletListItemBlockConfig,
   {
+    meta: {
+      isolating: false,
+    },
     parse(element) {
       if (element.tagName !== "LI") {
         return false;

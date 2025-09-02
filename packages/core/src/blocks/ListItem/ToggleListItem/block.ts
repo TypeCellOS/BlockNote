@@ -14,15 +14,15 @@ export const createToggleListItemBlockConfig = createBlockConfig(
         ...defaultProps,
       },
       content: "inline" as const,
-      meta: {
-        isolating: false,
-      },
     }) as const,
 );
 
 export const createToggleListItemBlockSpec = createBlockSpec(
   createToggleListItemBlockConfig,
   {
+    meta: {
+      isolating: false,
+    },
     render(block, editor) {
       const paragraphEl = document.createElement("p");
       const toggleWrapper = createToggleWrapper(

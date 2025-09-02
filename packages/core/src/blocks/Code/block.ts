@@ -61,17 +61,17 @@ export const createCodeBlockConfig = createBlockConfig(
         },
       },
       content: "inline",
-      meta: {
-        code: true,
-        defining: true,
-        isolating: false,
-      },
     }) as const,
 );
 
 export const createCodeBlockSpec = createBlockSpec(
   createCodeBlockConfig,
   (options) => ({
+    meta: {
+      code: true,
+      defining: true,
+      isolating: false,
+    },
     parse: (e) => {
       if (e.tagName !== "PRE") {
         return undefined;

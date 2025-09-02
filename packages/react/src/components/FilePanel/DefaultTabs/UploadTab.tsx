@@ -74,9 +74,9 @@ export const UploadTab = <
     [block, editor, setLoading],
   );
 
-  const config = editor.schema.blockSchema[block.type];
-  const accept = config.meta?.fileBlockAccept?.length
-    ? config.meta.fileBlockAccept.join(",")
+  const spec = editor.schema.blockSpecs[block.type];
+  const accept = spec.implementation.meta?.fileBlockAccept?.length
+    ? spec.implementation.meta.fileBlockAccept.join(",")
     : "*/*";
 
   return (

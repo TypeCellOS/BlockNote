@@ -52,11 +52,11 @@ export const PDF = createReactBlockSpec(
       },
     },
     content: "none",
+  },
+  {
     meta: {
       fileBlockAccept: ["application/pdf"],
     },
-  },
-  {
     render: (props) => (
       <ResizableFileBlockWrapper
         {...(props as any)}

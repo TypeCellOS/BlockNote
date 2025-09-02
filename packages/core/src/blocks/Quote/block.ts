@@ -13,15 +13,15 @@ export const createQuoteBlockConfig = createBlockConfig(
         textColor: defaultProps.textColor,
       },
       content: "inline" as const,
-      meta: {
-        isolating: false,
-      },
     }) as const,
 );
 
 export const createQuoteBlockSpec = createBlockSpec(
   createQuoteBlockConfig,
   {
+    meta: {
+      isolating: false,
+    },
     parse(element) {
       if (element.tagName === "BLOCKQUOTE") {
         return {};
