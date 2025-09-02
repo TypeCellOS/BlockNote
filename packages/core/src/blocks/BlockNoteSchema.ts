@@ -22,9 +22,9 @@ export class BlockNoteSchema<
   SSchema extends StyleSchema,
 > extends CustomBlockNoteSchema<BSchema, ISchema, SSchema> {
   public static create<
-    BSpecs extends BlockSpecs = typeof defaultBlockSpecs,
-    ISpecs extends InlineContentSpecs = typeof defaultInlineContentSpecs,
-    SSpecs extends StyleSpecs = typeof defaultStyleSpecs,
+    BSpecs extends BlockSpecs | undefined = undefined,
+    ISpecs extends InlineContentSpecs | undefined = undefined,
+    SSpecs extends StyleSpecs | undefined = undefined,
   >(options?: {
     /**
      * A list of custom block types that should be available in the editor.
@@ -38,12 +38,18 @@ export class BlockNoteSchema<
      * A list of custom Styles that should be available in the editor.
      */
     styleSpecs?: SSpecs;
-  }) {
-    return new BlockNoteSchema<
-      BlockSchemaFromSpecs<BSpecs>,
-      InlineContentSchemaFromSpecs<ISpecs>,
-      StyleSchemaFromSpecs<SSpecs>
-    >({
+  }): BlockNoteSchema<
+    BSpecs extends undefined
+      ? BlockSchemaFromSpecs<typeof defaultBlockSpecs>
+      : BlockSchemaFromSpecs<NonNullable<BSpecs>>,
+    ISpecs extends undefined
+      ? InlineContentSchemaFromSpecs<typeof defaultInlineContentSpecs>
+      : InlineContentSchemaFromSpecs<NonNullable<ISpecs>>,
+    SSpecs extends undefined
+      ? StyleSchemaFromSpecs<typeof defaultStyleSpecs>
+      : StyleSchemaFromSpecs<NonNullable<SSpecs>>
+  > {
+    return new BlockNoteSchema<any, any, any>({
       blockSpecs: options?.blockSpecs ?? defaultBlockSpecs,
       inlineContentSpecs:
         options?.inlineContentSpecs ?? defaultInlineContentSpecs,

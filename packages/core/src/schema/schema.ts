@@ -10,9 +10,7 @@ import {
   InlineContentSpecs,
   LooseBlockSpec,
   PartialBlockNoDefaults,
-  StyleConfig,
   StyleSchema,
-  StyleSpec,
   StyleSpecs,
   addNodeAndExtensionsToSpec,
   getInlineContentSchemaFromSpecs,
@@ -161,10 +159,7 @@ export class CustomBlockNoteSchema<
       string,
       InlineContentSpec<InlineContentConfig>
     > = Record<string, never>,
-    AdditionalStyleSpecs extends Record<
-      string,
-      StyleSpec<StyleConfig>
-    > = Record<string, never>,
+    AdditionalStyleSpecs extends StyleSpecs = Record<string, never>,
   >(opts: {
     blockSpecs?: AdditionalBlockSpecs;
     inlineContentSpecs?: AdditionalInlineContentSpecs;
