@@ -1,5 +1,5 @@
 import { Block, BlockNoteEditor } from "@blocknote/core";
-import { CoreMessage } from "ai";
+import { ModelMessage } from "ai";
 
 /* 
 We want users to be able to easily customize the prompts send to an LLM,
@@ -33,7 +33,7 @@ export type PromptBuilderInput = {
    * When following a multi-step conversation, or repairing a previous error,
    * the previous messages that have been sent to the LLM
    */
-  previousMessages?: Array<CoreMessage>;
+  previousMessages?: Array<ModelMessage>;
 };
 
 /**
@@ -43,4 +43,4 @@ export type PromptBuilderInput = {
 export type PromptBuilder = (
   editor: BlockNoteEditor<any, any, any>,
   opts: PromptBuilderInput,
-) => Promise<Array<CoreMessage>>;
+) => Promise<Array<ModelMessage>>;

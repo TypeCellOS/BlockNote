@@ -1,4 +1,4 @@
-import { CoreMessage } from "ai";
+import { ModelMessage } from "ai";
 import { PromptBuilder } from "../PromptBuilder.js";
 import {
   getDataForPromptNoSelection,
@@ -14,7 +14,7 @@ function promptManipulateSelectionMarkdownBlocks(opts: {
   markdownDocument: {
     block: string;
   }[];
-}): Array<CoreMessage> {
+}): Array<ModelMessage> {
   return [
     {
       role: "system",
@@ -58,7 +58,7 @@ function promptManipulateDocumentUseMarkdownBlocks(opts: {
         cursor: true;
       }
   >;
-}): Array<CoreMessage> {
+}): Array<ModelMessage> {
   return [
     {
       role: "system",

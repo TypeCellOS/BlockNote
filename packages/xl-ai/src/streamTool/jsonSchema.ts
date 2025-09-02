@@ -7,7 +7,7 @@ function streamToolToJSONSchema(tool: StreamTool<any>): {
   $defs?: Record<string, JSONSchema7Definition>;
 } {
   // this adds the tool name as the "type". (not very clean way to do it)
-  const { properties, required, $defs, ...rest } = tool.parameters;
+  const { properties, required, $defs, ...rest } = tool.inputSchema;
   return {
     schema: {
       type: "object",

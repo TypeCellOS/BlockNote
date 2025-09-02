@@ -27,7 +27,7 @@ export type StreamTool<T extends { type: string }> = {
   /**
    * The schema of the input that the tool expects. The language model will use this to generate the input.
    */
-  parameters: JSONSchema7;
+  inputSchema: JSONSchema7;
   /**
    * Validates the input of the tool call
    *

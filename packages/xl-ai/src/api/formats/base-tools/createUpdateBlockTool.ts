@@ -98,7 +98,7 @@ export function createUpdateBlockTool<T>(config: {
     return streamTool<UpdateBlockToolCall<T>>({
       name: "update",
       description: config.description,
-      parameters: {
+      inputSchema: {
         type: "object",
         properties: {
           id: {

@@ -1,4 +1,4 @@
-import { CoreMessage } from "ai";
+import { ModelMessage } from "ai";
 import { StreamTool, StreamToolCall } from "../streamTool/streamTool.js";
 import { StreamToolExecutor } from "../streamTool/StreamToolExecutor.js";
 import { AsyncIterableStream } from "../util/stream.js";
@@ -39,7 +39,7 @@ export class LLMResponse {
     /**
      * The messages sent to the LLM
      */
-    public readonly messages: CoreMessage[],
+    public readonly messages: ModelMessage[],
     /**
      * Result of the underlying LLM call. Use this to access operations the LLM decided to execute, but without applying them.
      * (usually this is only used for advanced used cases or debugging)

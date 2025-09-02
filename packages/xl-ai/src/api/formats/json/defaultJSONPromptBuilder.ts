@@ -1,4 +1,4 @@
-import { CoreMessage } from "ai";
+import { ModelMessage } from "ai";
 import { trimEmptyBlocks } from "../../promptHelpers/trimEmptyBlocks.js";
 import { PromptBuilder } from "../PromptBuilder.js";
 import {
@@ -11,7 +11,7 @@ function promptManipulateSelectionJSONBlocks(opts: {
   jsonSelectedBlocks: any[];
   jsonDocument: any[];
   isEmptyDocument: boolean;
-}): Array<CoreMessage> {
+}): Array<ModelMessage> {
   return [
     {
       role: "system",
@@ -53,7 +53,7 @@ function promptManipulateDocumentUseJSONBlocks(opts: {
       }
   >;
   isEmptyDocument: boolean;
-}): Array<CoreMessage> {
+}): Array<ModelMessage> {
   return [
     {
       role: "system",
@@ -97,7 +97,7 @@ function promptManipulateDocumentUseJSONBlocks(opts: {
               ],
             }),
           },
-        ] satisfies Array<CoreMessage>)
+        ] satisfies Array<ModelMessage>)
       : []),
     {
       role: "system",

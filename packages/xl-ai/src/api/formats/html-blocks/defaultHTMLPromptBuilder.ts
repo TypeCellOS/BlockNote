@@ -1,4 +1,4 @@
-import { CoreMessage } from "ai";
+import { ModelMessage } from "ai";
 import { trimEmptyBlocks } from "../../promptHelpers/trimEmptyBlocks.js";
 import type { PromptBuilder } from "../PromptBuilder.js";
 import {
@@ -16,7 +16,7 @@ function promptManipulateSelectionHTMLBlocks(opts: {
     block: string;
   }[];
   isEmptyDocument: boolean;
-}): Array<CoreMessage> {
+}): Array<ModelMessage> {
   return [
     {
       role: "system",
@@ -61,7 +61,7 @@ function promptManipulateDocumentUseHTMLBlocks(opts: {
       }
   >;
   isEmptyDocument: boolean;
-}): Array<CoreMessage> {
+}): Array<ModelMessage> {
   return [
     {
       role: "system",

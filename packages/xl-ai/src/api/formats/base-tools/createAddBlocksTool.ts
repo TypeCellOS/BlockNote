@@ -84,7 +84,7 @@ export function createAddBlocksTool<T>(config: {
     return streamTool<AddBlocksToolCall<T>>({
       name: "add",
       description: config.description,
-      parameters: {
+      inputSchema: {
         type: "object",
         properties: {
           referenceId: {

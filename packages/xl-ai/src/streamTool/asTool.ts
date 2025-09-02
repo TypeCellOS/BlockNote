@@ -6,7 +6,7 @@ import { Result, StreamTool, StreamToolCall } from "./streamTool.js";
 
 export function streamToolAsTool<T extends StreamTool<any>>(streamTool: T) {
   return tool({
-    parameters: jsonSchema(streamTool.parameters, {
+    inputSchema: jsonSchema(streamTool.inputSchema, {
       validate: (value) => {
         const result = streamTool.validate(value);
         if (!result.ok) {
@@ -26,7 +26,7 @@ export function streamToolsAsTool<T extends StreamTool<any>[]>(streamTools: T) {
   const schema = createStreamToolsArraySchema(streamTools);
 
   return tool({
-    parameters: jsonSchema(schema, {
+    inputSchema: jsonSchema(schema, {
       validate: (value) => {
         const stream = operationsToStream(value);
         if (!stream.ok) {

@@ -20,7 +20,7 @@ export const deleteBlockTool = (
   streamTool<DeleteBlockToolCall>({
     name: "delete",
     description: "Delete a block",
-    parameters: {
+    inputSchema: {
       type: "object",
       properties: {
         id: {

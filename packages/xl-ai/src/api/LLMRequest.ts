@@ -1,5 +1,5 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { CoreMessage } from "ai";
+import { ModelMessage } from "ai";
 import { StreamTool } from "../streamTool/streamTool.js";
 import { isEmptyParagraph } from "../util/emptyBlock.js";
 import { LLMResponse } from "./LLMResponse.js";
@@ -11,7 +11,7 @@ import { trimEmptyBlocks } from "./promptHelpers/trimEmptyBlocks.js";
 type MakeOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 export type ExecuteLLMRequestOptions = {
-  messages: CoreMessage[];
+  messages: ModelMessage[];
   streamTools: StreamTool<any>[];
   // TODO: needed?
   llmRequestOptions: MakeOptional<LLMRequestOptions, "executor">;
@@ -143,7 +143,7 @@ export async function doLLMRequest(
     ? editor.getSelectionCutBlocks()
     : undefined;
 
-  let previousMessages: CoreMessage[] | undefined = undefined;
+  let previousMessages: ModelMessage[] | undefined = undefined;
 
   if (previousResponse) {
     previousMessages = previousResponse.messages.map((m) => {
