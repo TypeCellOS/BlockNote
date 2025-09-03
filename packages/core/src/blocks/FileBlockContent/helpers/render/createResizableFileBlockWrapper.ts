@@ -56,7 +56,7 @@ export const createResizableFileBlockWrapper = (
 
   // Updates the element width with an updated width depending on the cursor X
   // offset from when the resize began, and which resize handle is being used.
-  const windowMouseMoveHandler = (event: MouseEvent) => {
+  const windowMouseMoveHandler = (event: MouseEvent | TouchEvent) => {
     if (!resizeParams) {
       if (
         !editor.isEditable &&
@@ -72,27 +72,26 @@ export const createResizableFileBlockWrapper = (
 
     let newWidth: number;
 
+    const clientX =
+      event instanceof TouchEvent ? event.touches[0].clientX : event.clientX;
+
     if (block.props.textAlignment === "center") {
       if (resizeParams.handleUsed === "left") {
         newWidth =
           resizeParams.initialWidth +
-          (resizeParams.initialClientX - event.clientX) * 2;
+          (resizeParams.initialClientX - clientX) * 2;
       } else {
         newWidth =
           resizeParams.initialWidth +
-          (event.clientX - resizeParams.initialClientX) * 2;
+          (clientX - resizeParams.initialClientX) * 2;
       }
     } else {
       if (resizeParams.handleUsed === "left") {
         newWidth =
-          resizeParams.initialWidth +
-          resizeParams.initialClientX -
-          event.clientX;
+          resizeParams.initialWidth + resizeParams.initialClientX - clientX;
       } else {
         newWidth =
-          resizeParams.initialWidth +
-          event.clientX -
-          resizeParams.initialClientX;
+          resizeParams.initialWidth + clientX - resizeParams.initialClientX;
       }
     }
 
@@ -109,7 +108,7 @@ export const createResizableFileBlockWrapper = (
   };
   // Stops mouse movements from resizing the element and updates the block's
   // `width` prop to the new value.
-  const windowMouseUpHandler = (event: MouseEvent) => {
+  const windowMouseUpHandler = (event: MouseEvent | TouchEvent) => {
     // Hides the drag handles if the cursor is no longer over the element.
     if (
       (!event.target ||
@@ -172,43 +171,61 @@ export const createResizableFileBlockWrapper = (
 
   // Sets the resize params, allowing the user to begin resizing the element by
   // moving the cursor left or right.
-  const leftResizeHandleMouseDownHandler = (event: MouseEvent) => {
+  const leftResizeHandleMouseDownHandler = (event: MouseEvent | TouchEvent) => {
     event.preventDefault();
 
     if (!wrapper.contains(eventCaptureElement)) {
       wrapper.appendChild(eventCaptureElement);
     }
+
+    const clientX =
+      "touches" in event ? event.touches[0].clientX : event.clientX;
 
     resizeParams = {
       handleUsed: "left",
       initialWidth: wrapper.clientWidth,
-      initialClientX: event.clientX,
+      initialClientX: clientX,
     };
   };
-  const rightResizeHandleMouseDownHandler = (event: MouseEvent) => {
+  const rightResizeHandleMouseDownHandler = (
+    event: MouseEvent | TouchEvent,
+  ) => {
     event.preventDefault();
 
     if (!wrapper.contains(eventCaptureElement)) {
       wrapper.appendChild(eventCaptureElement);
     }
 
+    const clientX =
+      "touches" in event ? event.touches[0].clientX : event.clientX;
+
     resizeParams = {
       handleUsed: "right",
       initialWidth: wrapper.clientWidth,
-      initialClientX: event.clientX,
+      initialClientX: clientX,
     };
   };
 
   window.addEventListener("mousemove", windowMouseMoveHandler);
+  window.addEventListener("touchmove", windowMouseMoveHandler);
   window.addEventListener("mouseup", windowMouseUpHandler);
+  window.addEventListener("touchend", windowMouseUpHandler);
   wrapper.addEventListener("mouseenter", wrapperMouseEnterHandler);
   wrapper.addEventListener("mouseleave", wrapperMouseLeaveHandler);
   leftResizeHandle.addEventListener(
     "mousedown",
     leftResizeHandleMouseDownHandler,
   );
+  leftResizeHandle.addEventListener(
+    "touchstart",
+    leftResizeHandleMouseDownHandler,
+  );
   rightResizeHandle.addEventListener(
     "mousedown",
+    rightResizeHandleMouseDownHandler,
+  );
+  rightResizeHandle.addEventListener(
+    "touchstart",
     rightResizeHandleMouseDownHandler,
   );
 
@@ -217,15 +234,25 @@ export const createResizableFileBlockWrapper = (
     destroy: () => {
       destroy?.();
       window.removeEventListener("mousemove", windowMouseMoveHandler);
+      window.removeEventListener("touchmove", windowMouseMoveHandler);
       window.removeEventListener("mouseup", windowMouseUpHandler);
+      window.removeEventListener("touchend", windowMouseUpHandler);
       wrapper.removeEventListener("mouseenter", wrapperMouseEnterHandler);
       wrapper.removeEventListener("mouseleave", wrapperMouseLeaveHandler);
       leftResizeHandle.removeEventListener(
         "mousedown",
         leftResizeHandleMouseDownHandler,
       );
+      leftResizeHandle.removeEventListener(
+        "touchstart",
+        leftResizeHandleMouseDownHandler,
+      );
       rightResizeHandle.removeEventListener(
         "mousedown",
+        rightResizeHandleMouseDownHandler,
+      );
+      rightResizeHandle.removeEventListener(
+        "touchstart",
         rightResizeHandleMouseDownHandler,
       );
     },
