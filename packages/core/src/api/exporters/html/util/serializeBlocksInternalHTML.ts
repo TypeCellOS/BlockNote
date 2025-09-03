@@ -1,4 +1,4 @@
-import { DOMSerializer, Fragment } from "prosemirror-model";
+import { DOMSerializer, Fragment, Node } from "prosemirror-model";
 
 import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
@@ -13,6 +13,7 @@ import {
   tableContentToNodes,
 } from "../../../nodeConversions/blockToNode.js";
 
+import { nodeToCustomInlineContent } from "../../../nodeConversions/nodeToBlock.js";
 export function serializeInlineContentInternalHTML<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -24,7 +25,7 @@ export function serializeInlineContentInternalHTML<
   blockType?: string,
   options?: { document?: Document },
 ) {
-  let nodes: any;
+  let nodes: Node[];
 
   // TODO: reuse function from nodeconversions?
   if (!blockContent) {
@@ -39,12 +40,60 @@ export function serializeInlineContentInternalHTML<
     throw new UnreachableCaseError(blockContent.type);
   }
 
-  // We call the prosemirror serializer here because it handles Marks and Inline Content nodes nicely.
-  // If we'd want to support custom serialization or externalHTML for Inline Content, we'd have to implement
-  // a custom serializer here.
-  const dom = serializer.serializeFragment(Fragment.from(nodes), options);
+  // Check if any of the nodes are custom inline content with toExternalHTML
+  const doc = options?.document ?? document;
+  const fragment = doc.createDocumentFragment();
 
-  return dom;
+  for (const node of nodes) {
+    // Check if this is a custom inline content node with toExternalHTML
+    if (
+      node.type &&
+      node.type.name &&
+      editor.schema.inlineContentSchema[node.type.name]
+    ) {
+      const inlineContentImplementation =
+        editor.inlineContentImplementations[node.type.name]?.implementation;
+
+      if (inlineContentImplementation?.toExternalHTML) {
+        // Convert the node to inline content format
+        const inlineContent = nodeToCustomInlineContent(
+          node,
+          editor.schema.inlineContentSchema,
+          editor.schema.styleSchema,
+        );
+
+        // Use the custom toExternalHTML method
+        const output = inlineContentImplementation.toExternalHTML(
+          inlineContent as any,
+          editor as any,
+        );
+
+        if (output) {
+          fragment.appendChild(output.dom);
+
+          // If contentDOM exists, render the inline content into it
+          if (output.contentDOM) {
+            const contentFragment = serializer.serializeFragment(
+              node.content,
+              options,
+            );
+            output.contentDOM.dataset.editable = "";
+            output.contentDOM.appendChild(contentFragment);
+          }
+          continue;
+        }
+      }
+    }
+
+    // Fall back to default serialization for this node
+    const nodeFragment = serializer.serializeFragment(
+      Fragment.from([node]),
+      options,
+    );
+    fragment.appendChild(nodeFragment);
+  }
+
+  return fragment;
 }
 
 function serializeBlock<

@@ -1,6 +1,6 @@
 /** Define the main block types **/
 // import { Extension, Node } from "@tiptap/core";
-import type { NodeViewRendererProps } from "@tiptap/core";
+import type { Node, NodeViewRendererProps } from "@tiptap/core";
 import type { Fragment, Schema } from "prosemirror-model";
 import type { ViewMutationRecord } from "prosemirror-view";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
@@ -142,6 +142,8 @@ export type LooseBlockSpec<
           contentDOM?: HTMLElement;
         }
       | undefined;
+
+    node: Node;
   };
   extensions?: BlockNoteExtension<any>[];
 };
