@@ -73,7 +73,7 @@ export const createResizableFileBlockWrapper = (
     let newWidth: number;
 
     const clientX =
-      event instanceof TouchEvent ? event.touches[0].clientX : event.clientX;
+      "touches" in event ? event.touches[0].clientX : event.clientX;
 
     if (block.props.textAlignment === "center") {
       if (resizeParams.handleUsed === "left") {
