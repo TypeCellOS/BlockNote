@@ -73,7 +73,6 @@ export const createNumberedListItemBlockSpec = createBlockSpec(
               props: {
                 start: parseInt(match[1]),
               },
-              content: [],
             };
           },
         },

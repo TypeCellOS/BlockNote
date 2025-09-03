@@ -91,7 +91,6 @@ export const createBulletListItemBlockSpec = createBlockSpec(
             return {
               type: "bulletListItem",
               props: {},
-              content: [],
             };
           },
         },

@@ -12,10 +12,7 @@ test.describe("Check custom block functionality", () => {
   }) => {
     await page.goto(CUSTOM_BLOCKS_VANILLA_URL);
 
-    await page.waitForTimeout(500);
-    await page.locator("select").click();
-    await page.keyboard.press("ArrowUp");
-    await page.keyboard.press("Enter");
+    await page.locator("select").selectOption("info");
     await page.waitForTimeout(500);
 
     await compareDocToSnapshot(page, "vanillaInteractivity");
@@ -29,10 +26,7 @@ test.describe("Check custom block functionality", () => {
   }) => {
     await page.goto(CUSTOM_BLOCKS_REACT_URL);
 
-    await page.waitForTimeout(500);
-    await page.locator("select").click();
-    await page.keyboard.press("ArrowUp");
-    await page.keyboard.press("Enter");
+    await page.locator("select").selectOption("info");
     await page.waitForTimeout(500);
 
     await compareDocToSnapshot(page, "reactInteractivity");

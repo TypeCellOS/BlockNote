@@ -136,7 +136,6 @@ export const createCheckListItemBlockSpec = createBlockSpec(
               props: {
                 checked: true,
               },
-              content: [],
             };
           },
         },

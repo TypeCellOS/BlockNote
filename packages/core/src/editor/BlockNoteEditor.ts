@@ -846,8 +846,12 @@ export class BlockNoteEditor<
                                 blockInfo.blockContent.node.type.spec
                                   .content === "inline*"
                               ) {
+                                const tr = state.tr.deleteRange(
+                                  range.from,
+                                  range.to,
+                                );
                                 updateBlockTr(
-                                  state.tr,
+                                  tr,
                                   blockInfo.bnBlock.beforePos,
                                   replaceWith,
                                   range.from,
