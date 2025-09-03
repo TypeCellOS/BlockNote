@@ -124,7 +124,7 @@ export class PreviousBlockTypePlugin extends BlockNoteExtension {
                   depth: newState.doc.resolve(node.pos).depth,
                 };
 
-                let oldAttrs = {
+                const oldAttrs = {
                   index: oldContentNode.attrs.index,
                   level: oldContentNode.attrs.level,
                   type: oldContentNode.type.name,
