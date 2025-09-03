@@ -98,6 +98,7 @@ const Mention = createInlineContentSpec(
       const dom = document.createElement("span");
       dom.appendChild(document.createTextNode("@" + ic.props.user));
       dom.className = "mention-internal";
+      dom.setAttribute("data-user", ic.props.user);
 
       return {
         dom,
@@ -135,28 +136,20 @@ const Tag = createInlineContentSpec(
     content: "styled",
   },
   {
+    parse: (el) => {
+      const isTag = el.getAttribute("data-tag");
+      if (isTag) {
+        return {};
+      }
+      return undefined;
+    },
     render: () => {
       const dom = document.createElement("span");
       dom.textContent = "#";
 
       const contentDOM = document.createElement("span");
       dom.appendChild(contentDOM);
-
-      return {
-        dom,
-        contentDOM,
-      };
-    },
-
-    toExternalHTML: () => {
-      const dom = document.createElement("span");
-      dom.textContent = "#";
-      dom.className = "tag-external";
-      dom.setAttribute("data-external", "true");
-      dom.setAttribute("data-inline-content-type", "tag");
-
-      const contentDOM = document.createElement("span");
-      dom.appendChild(contentDOM);
+      contentDOM.setAttribute("data-tag", "true");
 
       return {
         dom,

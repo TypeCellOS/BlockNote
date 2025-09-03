@@ -4,7 +4,6 @@ import { camelToDataKebab } from "../../util/string.js";
 import { PropSchema, Props } from "../propTypes.js";
 import {
   CustomInlineContentConfig,
-  InlineContentConfig,
   InlineContentImplementation,
   InlineContentSchemaFromSpecs,
   InlineContentSpec,
@@ -91,8 +90,8 @@ export function createInlineContentSpecFromTipTapNode<
 >(
   node: T,
   propSchema: P,
-  implementation?: Omit<
-    InlineContentImplementation<InlineContentConfig>,
+  implementation: Omit<
+    InlineContentImplementation<CustomInlineContentConfig>,
     "node"
   >,
 ) {

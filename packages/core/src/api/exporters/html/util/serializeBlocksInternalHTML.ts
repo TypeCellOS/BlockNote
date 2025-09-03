@@ -47,14 +47,14 @@ export function serializeInlineContentInternalHTML<
   for (const node of nodes) {
     // Check if this is a custom inline content node with toExternalHTML
     if (
-      node.type &&
-      node.type.name &&
+      node.type.name !== "text" &&
+      node.type.name !== "link" &&
       editor.schema.inlineContentSchema[node.type.name]
     ) {
       const inlineContentImplementation =
-        editor.inlineContentImplementations[node.type.name]?.implementation;
+        editor.schema.inlineContentSpecs[node.type.name].implementation;
 
-      if (inlineContentImplementation?.toExternalHTML) {
+      if (inlineContentImplementation) {
         // Convert the node to inline content format
         const inlineContent = nodeToCustomInlineContent(
           node,
@@ -63,8 +63,15 @@ export function serializeInlineContentInternalHTML<
         );
 
         // Use the custom toExternalHTML method
-        const output = inlineContentImplementation.toExternalHTML(
+        const output = inlineContentImplementation.render.call(
+          {
+            renderType: "dom",
+            props: undefined,
+          },
           inlineContent as any,
+          () => {
+            // No-op
+          },
           editor as any,
         );
 
@@ -122,7 +129,14 @@ function serializeBlock<
   }
 
   const impl = editor.blockImplementations[block.type as any].implementation;
-  const ret = impl.render?.call({}, { ...block, props } as any, editor as any);
+  const ret = impl.render.call(
+    {
+      renderType: "dom",
+      props: undefined,
+    },
+    { ...block, props } as any,
+    editor as any,
+  );
 
   if (ret.contentDOM && block.content) {
     const ic = serializeInlineContentInternalHTML(

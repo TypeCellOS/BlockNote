@@ -5,6 +5,7 @@ import {
   camelToDataKebab,
   createInternalInlineContentSpec,
   CustomInlineContentConfig,
+  CustomInlineContentImplementation,
   getInlineContentParseRules,
   InlineContentFromConfig,
   InlineContentSchemaWithInlineContent,
@@ -53,7 +54,7 @@ export type ReactInlineContentImplementation<
 > = {
   render: FC<ReactCustomInlineContentRenderProps<T, S>>;
   toExternalHTML?: FC<ReactCustomInlineContentRenderProps<T, S>>;
-};
+} & Omit<CustomInlineContentImplementation<T, S>, "render" | "toExternalHTML">;
 
 // Function that adds a wrapper with necessary classes and attributes to the
 // component returned from a custom inline content's 'render' function, to
@@ -123,7 +124,10 @@ export function createReactInlineContentSpec<
     },
 
     parseHTML() {
-      return getInlineContentParseRules(inlineContentConfig);
+      return getInlineContentParseRules(
+        inlineContentConfig,
+        inlineContentImplementation.parse,
+      );
     },
 
     renderHTML({ node }) {
@@ -228,6 +232,31 @@ export function createReactInlineContentSpec<
     inlineContentConfig as CustomInlineContentConfig,
     {
       node,
+      render(inlineContent, updateInlineContent, editor) {
+        const Content = inlineContentImplementation.render;
+        const output = renderToDOMSpec((ref) => {
+          return (
+            <InlineContentWrapper
+              inlineContentProps={inlineContent.props}
+              inlineContentType={inlineContentConfig.type}
+              propSchema={inlineContentConfig.propSchema}
+            >
+              <Content
+                contentRef={(element) => {
+                  ref(element);
+                  if (element) {
+                    element.dataset.editable = "";
+                  }
+                }}
+                editor={editor}
+                inlineContent={inlineContent}
+                updateInlineContent={updateInlineContent}
+              />
+            </InlineContentWrapper>
+          );
+        }, editor);
+        return output;
+      },
       toExternalHTML(inlineContent, editor) {
         const Content =
           inlineContentImplementation.toExternalHTML ||
@@ -255,7 +284,7 @@ export function createReactInlineContentSpec<
             </InlineContentWrapper>
           );
         }, editor);
-        return output as any;
+        return output;
       },
     },
   ) as any;

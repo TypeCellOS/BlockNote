@@ -19,8 +19,6 @@ import {
   PartialCustomInlineContentFromConfig,
 } from "./types.js";
 
-// TODO: support serialization
-
 export type CustomInlineContentImplementation<
   T extends CustomInlineContentConfig,
   S extends StyleSchema,
@@ -154,7 +152,8 @@ export function createInlineContentSpec<
     renderHTML({ node }) {
       const editor = this.options.editor;
 
-      const output = inlineContentImplementation.render(
+      const output = inlineContentImplementation.render.call(
+        { renderType: "dom", props: undefined },
         nodeToCustomInlineContent(
           node,
           editor.schema.inlineContentSchema,
@@ -175,10 +174,12 @@ export function createInlineContentSpec<
     },
 
     addNodeView() {
-      return ({ node, getPos }) => {
+      return (props) => {
+        const { node, getPos } = props;
         const editor = this.options.editor as BlockNoteEditor<any, any, S>;
 
-        const output = inlineContentImplementation.render(
+        const output = inlineContentImplementation.render.call(
+          { renderType: "nodeView", props },
           nodeToCustomInlineContent(
             node,
             editor.schema.inlineContentSchema,
@@ -209,6 +210,22 @@ export function createInlineContentSpec<
   return createInlineContentSpecFromTipTapNode(
     node,
     inlineContentConfig.propSchema,
-    { toExternalHTML: inlineContentImplementation.toExternalHTML },
+    {
+      toExternalHTML: inlineContentImplementation.toExternalHTML,
+      render(inlineContent, updateInlineContent, editor) {
+        const output = inlineContentImplementation.render(
+          inlineContent,
+          updateInlineContent,
+          editor,
+        );
+
+        return addInlineContentAttributes(
+          output,
+          inlineContentConfig.type,
+          inlineContent.props,
+          inlineContentConfig.propSchema,
+        );
+      },
+    },
   ) as InlineContentSpec<T>;
 }
