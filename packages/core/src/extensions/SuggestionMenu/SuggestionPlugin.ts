@@ -204,11 +204,6 @@ export class SuggestionMenuProseMirrorPlugin<
             _oldState,
             newState,
           ): SuggestionPluginState => {
-            // TODO: More clearly define which transactions should be ignored.
-            if (transaction.getMeta("orderedListIndexing") !== undefined) {
-              return prev;
-            }
-
             // Ignore transactions in code blocks.
             if (transaction.selection.$from.parent.type.spec.code) {
               return prev;

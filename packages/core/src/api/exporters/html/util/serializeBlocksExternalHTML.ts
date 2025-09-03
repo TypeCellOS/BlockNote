@@ -193,7 +193,6 @@ function serializeBlock<
         attr.name !== "data-node-view-wrapper" &&
         attr.name !== "data-node-type" &&
         attr.name !== "data-id" &&
-        attr.name !== "data-index" &&
         attr.name !== "data-editable",
     );
 
