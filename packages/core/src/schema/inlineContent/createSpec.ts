@@ -57,6 +57,28 @@ export type CustomInlineContentImplementation<
     contentDOM?: HTMLElement;
     destroy?: () => void;
   };
+
+  /**
+   * Renders an inline content to external HTML elements for use outside the editor
+   * If not provided, falls back to the render method
+   */
+  toExternalHTML?: (
+    /**
+     * The custom inline content to render
+     */
+    inlineContent: InlineContentFromConfig<T, S>,
+    /**
+     * The BlockNote editor instance
+     * This is typed generically. If you want an editor with your custom schema, you need to
+     * cast it manually, e.g.: `const e = editor as BlockNoteEditor<typeof mySchema>;`
+     */
+    editor: BlockNoteEditor<any, any, S>,
+  ) =>
+    | {
+        dom: HTMLElement | DocumentFragment;
+        contentDOM?: HTMLElement;
+      }
+    | undefined;
 };
 
 export function getInlineContentParseRules<C extends CustomInlineContentConfig>(
@@ -112,9 +134,7 @@ export function createInlineContentSpec<
     group: "inline",
     selectable: inlineContentConfig.content === "styled",
     atom: inlineContentConfig.content === "none",
-    content: (inlineContentConfig.content === "styled"
-      ? "inline*"
-      : "") as T["content"] extends "styled" ? "inline*" : "",
+    content: inlineContentConfig.content === "styled" ? "inline*" : "",
 
     addAttributes() {
       return propsToAttributes(inlineContentConfig.propSchema);
@@ -189,5 +209,6 @@ export function createInlineContentSpec<
   return createInlineContentSpecFromTipTapNode(
     node,
     inlineContentConfig.propSchema,
-  ) as InlineContentSpec<T>; // TODO: fix cast
+    { toExternalHTML: inlineContentImplementation.toExternalHTML },
+  ) as InlineContentSpec<T>;
 }

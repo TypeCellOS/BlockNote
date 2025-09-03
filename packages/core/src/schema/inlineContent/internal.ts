@@ -86,7 +86,14 @@ export function createInternalInlineContentSpec<T extends InlineContentConfig>(
 export function createInlineContentSpecFromTipTapNode<
   T extends Node,
   P extends PropSchema,
->(node: T, propSchema: P) {
+>(
+  node: T,
+  propSchema: P,
+  implementation?: Omit<
+    InlineContentImplementation<InlineContentConfig>,
+    "node"
+  >,
+) {
   return createInternalInlineContentSpec(
     {
       type: node.name as T["name"],
@@ -94,6 +101,7 @@ export function createInlineContentSpecFromTipTapNode<
       content: node.config.content === "inline*" ? "styled" : "none",
     },
     {
+      ...implementation,
       node,
     },
   );

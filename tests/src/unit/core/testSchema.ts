@@ -97,10 +97,33 @@ const Mention = createInlineContentSpec(
     render: (ic) => {
       const dom = document.createElement("span");
       dom.appendChild(document.createTextNode("@" + ic.props.user));
+      dom.className = "mention-internal";
 
       return {
         dom,
       };
+    },
+
+    toExternalHTML: (ic) => {
+      const dom = document.createElement("span");
+      dom.appendChild(document.createTextNode("@" + ic.props.user));
+      dom.className = "mention-external";
+      dom.setAttribute("data-external", "true");
+      // Add attributes needed for round-trip compatibility
+      dom.setAttribute("data-inline-content-type", "mention");
+      dom.setAttribute("data-user", ic.props.user);
+
+      return {
+        dom,
+      };
+    },
+
+    parse: (el) => {
+      const user = el.getAttribute("data-user");
+      if (user !== null) {
+        return { user };
+      }
+      return undefined;
     },
   },
 );

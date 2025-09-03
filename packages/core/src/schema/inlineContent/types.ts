@@ -1,6 +1,7 @@
 import { Node } from "@tiptap/core";
 import { PropSchema, Props } from "../propTypes.js";
 import { StyleSchema, Styles } from "../styles/types.js";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 export type CustomInlineContentConfig = {
   type: string;
@@ -21,6 +22,15 @@ export type InlineContentImplementation<T extends InlineContentConfig> =
     ? undefined
     : {
         node: Node;
+        toExternalHTML?: (
+          inlineContent: any,
+          editor: BlockNoteEditor<any, any, any>,
+        ) =>
+          | {
+              dom: HTMLElement | DocumentFragment;
+              contentDOM?: HTMLElement;
+            }
+          | undefined;
       };
 
 export type InlineContentSchemaWithInlineContent<
