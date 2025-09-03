@@ -1,12 +1,13 @@
 import {
   addInlineContentAttributes,
   addInlineContentKeyboardShortcuts,
+  BlockNoteEditor,
   camelToDataKebab,
   createInternalInlineContentSpec,
-  createStronglyTypedTiptapNode,
   CustomInlineContentConfig,
   getInlineContentParseRules,
   InlineContentFromConfig,
+  InlineContentSchemaWithInlineContent,
   inlineContentToNodes,
   nodeToCustomInlineContent,
   PartialCustomInlineContentFromConfig,
@@ -14,9 +15,8 @@ import {
   PropSchema,
   propsToAttributes,
   StyleSchema,
-  BlockNoteEditor,
-  InlineContentSchemaWithInlineContent,
 } from "@blocknote/core";
+import { Node } from "@tiptap/core";
 import {
   NodeViewProps,
   NodeViewWrapper,
@@ -106,7 +106,7 @@ export function createReactInlineContentSpec<
   inlineContentConfig: T,
   inlineContentImplementation: ReactInlineContentImplementation<T, S>,
 ) {
-  const node = createStronglyTypedTiptapNode({
+  const node = Node.create({
     name: inlineContentConfig.type as T["type"],
     inline: true,
     group: "inline",

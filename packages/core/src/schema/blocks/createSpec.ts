@@ -1,17 +1,20 @@
-import { Editor } from "@tiptap/core";
+import { Editor, Node } from "@tiptap/core";
 import { DOMParser, Fragment, TagParseRule } from "@tiptap/pm/model";
 import { NodeView } from "@tiptap/pm/view";
 import { mergeParagraphs } from "../../blocks/defaultBlockHelpers.js";
 import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import { PropSchema } from "../propTypes.js";
 import {
-  createStronglyTypedTiptapNode,
-  createTypedBlockSpec,
   getBlockFromPos,
   propsToAttributes,
   wrapInBlockStructure,
 } from "./internal.js";
-import { BlockConfig, BlockImplementation, BlockSpec } from "./types.js";
+import {
+  BlockConfig,
+  BlockImplementation,
+  BlockSpec,
+  LooseBlockSpec,
+} from "./types.js";
 
 // Function that causes events within non-selectable blocks to be handled by the
 // browser instead of the editor.
@@ -130,13 +133,10 @@ export function addNodeAndExtensionsToSpec<
   blockImplementation: BlockImplementation<TName, TProps, TContent>,
   extensions?: BlockNoteExtension<any>[],
   priority?: number,
-) {
+): LooseBlockSpec<TName, TProps, TContent> {
   const node =
-    // Only table already has a node defined, so we just use that node instead of wrapping it from scratch
-    ((blockImplementation as any).node as ReturnType<
-      typeof createStronglyTypedTiptapNode
-    >) ||
-    createStronglyTypedTiptapNode({
+    ((blockImplementation as any).node as Node) ||
+    Node.create({
       name: blockConfig.type,
       content: (blockConfig.content === "inline"
         ? "inline*"
@@ -215,9 +215,9 @@ export function addNodeAndExtensionsToSpec<
     );
   }
 
-  return createTypedBlockSpec(
-    blockConfig,
-    {
+  return {
+    config: blockConfig,
+    implementation: {
       node,
       render(block, editor) {
         const blockContentDOMAttributes =
@@ -254,7 +254,7 @@ export function addNodeAndExtensionsToSpec<
       },
     },
     extensions,
-  );
+  };
 }
 
 /**

@@ -1,7 +1,8 @@
-import { Attribute, Attributes, Editor, Node, NodeConfig } from "@tiptap/core";
+import { Attribute, Attributes, Editor, Node } from "@tiptap/core";
 import { defaultBlockToHTML } from "../../blocks/defaultBlockHelpers.js";
 import { inheritedProps } from "../../blocks/defaultProps.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import { mergeCSSClasses } from "../../util/browser.js";
 import { camelToDataKebab } from "../../util/string.js";
 import { InlineContentSchema } from "../inlineContent/types.js";
@@ -9,12 +10,10 @@ import { PropSchema, Props } from "../propTypes.js";
 import { StyleSchema } from "../styles/types.js";
 import {
   BlockConfig,
-  BlockImplementation,
   BlockSchemaWithBlock,
-  BlockSpec,
+  LooseBlockSpec,
   SpecificBlock,
 } from "./types.js";
-import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 
 // Function that uses the 'propSchema' of a blockConfig to create a TipTap
 // node's `addAttributes` property.
@@ -199,69 +198,29 @@ export function wrapInBlockStructure<
   };
 }
 
-// Helper type to keep track of the `name` and `content` properties after calling Node.create.
-type StronglyTypedTipTapNode<
-  Name extends string,
-  Content extends
-    | "inline*"
-    | "tableRow+"
-    | "blockContainer+"
-    | "column column+"
-    | "",
-> = Node & { name: Name; config: { content: Content } };
-
-export function createStronglyTypedTiptapNode<
-  Name extends string,
-  Content extends
-    | "inline*"
-    | "tableRow+"
-    | "blockContainer+"
-    | "column column+"
-    | "",
->(config: NodeConfig & { name: Name; content: Content }) {
-  return Node.create(config) as StronglyTypedTipTapNode<Name, Content>; // force re-typing (should be safe as it's type-checked from the config)
-}
-
-// This helper function helps to instantiate a blockspec with a
-// config and implementation that conform to the type of Config
-export function createTypedBlockSpec<T extends BlockConfig>(
-  config: T,
-  implementation: BlockImplementation<
-    T["type"],
-    T["propSchema"],
-    T["content"]
-  > & {
+export function createBlockSpecFromTiptapNode<
+  const T extends {
     node: Node;
+    type: string;
+    content: "inline" | "table" | "none";
   },
-  extensions?: BlockNoteExtension<any>[],
-): BlockSpec<T["type"], T["propSchema"], T["content"]> {
-  return {
-    config,
-    implementation,
-    extensions,
-  };
-}
-
-export function createBlockSpecFromStronglyTypedTiptapNode<
-  T extends Node,
   P extends PropSchema,
->(node: T, propSchema: P, extensions?: BlockNoteExtension<any>[]) {
-  return createTypedBlockSpec(
-    {
-      type: node.name as T["name"],
-      content:
-        node.config.content === "inline*"
-          ? "inline"
-          : node.config.content === "tableRow+"
-            ? "table"
-            : "none",
+>(
+  config: T,
+  propSchema: P,
+  extensions?: BlockNoteExtension<any>[],
+): LooseBlockSpec<T["type"], P, T["content"]> {
+  return {
+    config: {
+      type: config.type as T["type"],
+      content: config.content,
       propSchema,
     },
-    {
-      node,
-      render: defaultBlockToHTML as any,
-      toExternalHTML: defaultBlockToHTML as any,
+    implementation: {
+      node: config.node,
+      render: defaultBlockToHTML,
+      toExternalHTML: defaultBlockToHTML,
     },
     extensions,
-  );
+  };
 }
