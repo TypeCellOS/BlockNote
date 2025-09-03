@@ -147,6 +147,22 @@ const Tag = createInlineContentSpec(
         contentDOM,
       };
     },
+
+    toExternalHTML: () => {
+      const dom = document.createElement("span");
+      dom.textContent = "#";
+      dom.className = "tag-external";
+      dom.setAttribute("data-external", "true");
+      dom.setAttribute("data-inline-content-type", "tag");
+
+      const contentDOM = document.createElement("span");
+      dom.appendChild(contentDOM);
+
+      return {
+        dom,
+        contentDOM,
+      };
+    },
   },
 );
 

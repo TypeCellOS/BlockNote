@@ -73,10 +73,9 @@ export function addInlineContentKeyboardShortcuts<
 
 // This helper function helps to instantiate a InlineContentSpec with a
 // config and implementation that conform to the type of Config
-export function createInternalInlineContentSpec<T extends InlineContentConfig>(
-  config: T,
-  implementation: InlineContentImplementation<T>,
-) {
+export function createInternalInlineContentSpec<
+  const T extends InlineContentConfig,
+>(config: T, implementation: InlineContentImplementation<NoInfer<T>>) {
   return {
     config,
     implementation,

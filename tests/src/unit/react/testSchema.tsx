@@ -82,6 +82,17 @@ const Mention = createReactInlineContentSpec(
     render: (props) => {
       return <span>@{props.inlineContent.props.user}</span>;
     },
+    toExternalHTML: (props) => {
+      return (
+        <span
+          data-external={true}
+          data-inline-content-type="mention"
+          data-user={props.inlineContent.props.user}
+        >
+          @{props.inlineContent.props.user}
+        </span>
+      );
+    },
   },
 );
 

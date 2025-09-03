@@ -1,4 +1,4 @@
-import { DOMSerializer, Fragment } from "prosemirror-model";
+import { DOMSerializer, Fragment, Node } from "prosemirror-model";
 
 import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
@@ -25,7 +25,7 @@ export function serializeInlineContentInternalHTML<
   blockType?: string,
   options?: { document?: Document },
 ) {
-  let nodes: any;
+  let nodes: Node[];
 
   // TODO: reuse function from nodeconversions?
   if (!blockContent) {
@@ -70,6 +70,16 @@ export function serializeInlineContentInternalHTML<
 
         if (output) {
           fragment.appendChild(output.dom);
+
+          // If contentDOM exists, render the inline content into it
+          if (output.contentDOM) {
+            const contentFragment = serializer.serializeFragment(
+              node.content,
+              options,
+            );
+            output.contentDOM.dataset.editable = "";
+            output.contentDOM.appendChild(contentFragment);
+          }
           continue;
         }
       }
