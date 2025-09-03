@@ -8,6 +8,7 @@ import {
   getInlineContentParseRules,
   InlineContentFromConfig,
   InlineContentSchemaWithInlineContent,
+  InlineContentSpec,
   inlineContentToNodes,
   nodeToCustomInlineContent,
   PartialCustomInlineContentFromConfig,
@@ -101,7 +102,7 @@ export function createReactInlineContentSpec<
 >(
   inlineContentConfig: T,
   inlineContentImplementation: ReactInlineContentImplementation<T, S>,
-) {
+): InlineContentSpec<T> {
   const node = Node.create({
     name: inlineContentConfig.type as T["type"],
     inline: true,
@@ -257,5 +258,5 @@ export function createReactInlineContentSpec<
         return output as any;
       },
     },
-  );
+  ) as any;
 }
