@@ -996,4 +996,18 @@ Regular paragraph`,
     },
     executeTest: testParseMarkdown,
   },
+  {
+    testCase: {
+      name: "image",
+      content: `![Image](https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png)`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "video",
+      content: `![Video](https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm)`,
+    },
+    executeTest: testParseMarkdown,
+  },
 ];
