@@ -22,12 +22,12 @@ export const ExtendButton = forwardRef<
       variant={"ghost"}
       className={cn(
         className,
-        "bn-p-0 bn-h-full bn-w-full bn-text-gray-400",
-        className?.includes("bn-extend-button-add-remove-columns")
-          ? "bn-ml-1"
-          : "bn-mt-1",
-        className?.includes("bn-extend-button-editing")
-          ? "bn-bg-accent bn-text-accent-foreground"
+        "h-full w-full p-0 text-gray-400",
+        className?.includes("extend-button-add-remove-columns")
+          ? "ml-1"
+          : "mt-1",
+        className?.includes("extend-button-editing")
+          ? "bg-accent text-accent-foreground"
           : "",
       )}
       ref={ref}

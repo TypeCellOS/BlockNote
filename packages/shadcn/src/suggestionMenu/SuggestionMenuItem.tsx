@@ -37,10 +37,13 @@ export const SuggestionMenuItem = forwardRef<
     <div
       // Styles from ShadCN DropdownMenuItem component
       className={cn(
-        "bn-relative bn-flex bn-cursor-pointer bn-select-none bn-items-center bn-rounded-sm bn-px-2 bn-py-1.5 bn-text-sm bn-outline-none bn-transition-colors focus:bn-bg-accent focus:bn-text-accent-foreground data-[disabled]:bn-pointer-events-none data-[disabled]:bn-opacity-50",
-        props.item.size === "small" ? "bn-gap-3 bn-py-1" : "",
+        "focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:!text-destructive [&_svg:not([class*=text-])]:text-muted-foreground outline-hidden relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm data-[disabled]:pointer-events-none data-[inset]:pl-8 data-[disabled]:opacity-50 [&_svg:not([class*=size-])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "hover:bg-accent hover:text-accent-foreground data-[variant=destructive]:hover:bg-destructive/10 dark:data-[variant=destructive]:hover:bg-destructive/20 data-[variant=destructive]:hover:text-destructive",
+        "aria-selected:bg-accent aria-selected:text-accent-foreground data-[variant=destructive]:aria-selected:bg-destructive/10 dark:data-[variant=destructive]:aria-selected:bg-destructive/20 data-[variant=destructive]:aria-selected:text-destructive",
+        props.item.size === "small" ? "gap-3 py-1" : "",
         className,
       )}
+      data-highlighted
       ref={mergeRefs([ref, itemRef])}
       id={id}
       onMouseDown={(event) => event.preventDefault()}
@@ -51,8 +54,8 @@ export const SuggestionMenuItem = forwardRef<
       {item.icon && (
         <div
           className={cn(
-            "bn-p-3",
-            props.item.size === "small" ? "bn-p-0" : "",
+            "p-3",
+            props.item.size === "small" ? "p-0" : "",
             className,
           )}
           data-position="left"
@@ -60,11 +63,11 @@ export const SuggestionMenuItem = forwardRef<
           {item.icon}
         </div>
       )}
-      <div className="bn-flex-1">
+      <div className="flex-1">
         <div
           className={cn(
-            "bn-text-base",
-            props.item.size === "small" ? "bn-text-sm" : "",
+            "text-base",
+            props.item.size === "small" ? "text-sm" : "",
             className,
           )}
         >
@@ -72,8 +75,8 @@ export const SuggestionMenuItem = forwardRef<
         </div>
         <div
           className={cn(
-            "bn-text-xs",
-            props.item.size === "small" ? "bn-hidden" : "",
+            "text-xs",
+            props.item.size === "small" ? "hidden" : "",
             className,
           )}
         >
@@ -81,7 +84,7 @@ export const SuggestionMenuItem = forwardRef<
         </div>
       </div>
       {item.badge && (
-        <div data-position="right" className="bn-text-xs">
+        <div data-position="right" className="text-xs">
           <ShadCNComponents.Badge.Badge variant={"secondary"}>
             {item.badge}
           </ShadCNComponents.Badge.Badge>
