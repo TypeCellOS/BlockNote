@@ -10,6 +10,7 @@ import {
   useState,
 } from "react";
 import { track } from "@vercel/analytics";
+import * as Sentry from "@sentry/nextjs";
 
 import ThemedImage from "@/components/ThemedImage";
 import blockNoteLogo from "@/public/img/logos/banner.svg";
@@ -71,6 +72,13 @@ function AuthenticationBox(props: {
 
     if (props.variant === "password") {
       track("Sign In", { type: "password" });
+      Sentry.captureEvent({
+        message: "Sign In",
+        level: "info",
+        extra: {
+          type: "password",
+        },
+      });
       await signIn.email(
         {
           email,
@@ -91,6 +99,13 @@ function AuthenticationBox(props: {
       );
     } else if (props.variant === "email") {
       track("Sign In", { type: "magic-link" });
+      Sentry.captureEvent({
+        message: "Sign In",
+        level: "info",
+        extra: {
+          type: "magic-link",
+        },
+      });
       await signIn.magicLink(
         {
           email,
@@ -121,6 +136,13 @@ function AuthenticationBox(props: {
       );
     } else {
       track("Create Account");
+      Sentry.captureEvent({
+        message: "Sign Up",
+        level: "info",
+        extra: {
+          type: "email",
+        },
+      });
       await signUp.email(
         {
           email,
@@ -324,6 +346,13 @@ function GitHubSignInButton() {
       }
       onClick={async () => {
         track("Sign In", { type: "github" });
+        Sentry.captureEvent({
+          message: "Sign In",
+          level: "info",
+          extra: {
+            type: "github",
+          },
+        });
         await signIn.social({
           provider: "github",
           callbackURL,
