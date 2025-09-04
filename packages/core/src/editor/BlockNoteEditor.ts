@@ -1574,9 +1574,9 @@ export class BlockNoteEditor<
    * @param blocks An array of blocks that should be serialized into HTML.
    * @returns The blocks, serialized as an HTML string.
    */
-  public async blocksToHTMLLossy(
+  public blocksToHTMLLossy(
     blocks: PartialBlock<BSchema, ISchema, SSchema>[] = this.document,
-  ): Promise<string> {
+  ): string {
     const exporter = createExternalHTMLExporter(this.pmSchema, this);
     return exporter.exportBlocks(blocks, {});
   }
@@ -1590,9 +1590,9 @@ export class BlockNoteEditor<
    * @param blocks An array of blocks that should be serialized into HTML.
    * @returns The blocks, serialized as an HTML string.
    */
-  public async blocksToFullHTML(
+  public blocksToFullHTML(
     blocks: PartialBlock<BSchema, ISchema, SSchema>[],
-  ): Promise<string> {
+  ): string {
     const exporter = createInternalHTMLSerializer(this.pmSchema, this);
     return exporter.serializeBlocks(blocks, {});
   }
@@ -1603,9 +1603,9 @@ export class BlockNoteEditor<
    * @param html The HTML string to parse blocks from.
    * @returns The blocks parsed from the HTML string.
    */
-  public async tryParseHTMLToBlocks(
+  public tryParseHTMLToBlocks(
     html: string,
-  ): Promise<Block<BSchema, ISchema, SSchema>[]> {
+  ): Block<BSchema, ISchema, SSchema>[] {
     return HTMLToBlocks(html, this.pmSchema);
   }
 

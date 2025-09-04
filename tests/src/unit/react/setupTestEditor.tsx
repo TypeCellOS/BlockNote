@@ -2,7 +2,6 @@ import {
   BlockNoteEditor,
   BlockNoteSchema,
   BlockSchema,
-  initializeESMDependencies,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -50,8 +49,6 @@ export const setupTestEditor = <
       // eslint-disable-next-line testing-library/no-render-in-setup
       root.render(el);
     });
-
-    await initializeESMDependencies();
   });
 
   afterAll(() => {
