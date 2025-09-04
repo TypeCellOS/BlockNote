@@ -76,7 +76,7 @@ function TierCTAButton({ tier }: { tier: Tier }) {
         }
 
         if (session.planType === "free") {
-          track("Signup", { tier: tier.id });
+          track("Checkout", { tier: tier.id });
           e.preventDefault();
           e.stopPropagation();
           await authClient.checkout({

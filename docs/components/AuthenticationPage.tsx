@@ -9,6 +9,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { track } from "@vercel/analytics";
 
 import ThemedImage from "@/components/ThemedImage";
 import blockNoteLogo from "@/public/img/logos/banner.svg";
@@ -69,6 +70,7 @@ function AuthenticationBox(props: {
     setSigningInState({ state: "loading" });
 
     if (props.variant === "password") {
+      track("Sign In", { type: "password" });
       await signIn.email(
         {
           email,
@@ -88,6 +90,7 @@ function AuthenticationBox(props: {
         },
       );
     } else if (props.variant === "email") {
+      track("Sign In", { type: "magic-link" });
       await signIn.magicLink(
         {
           email,
@@ -117,6 +120,7 @@ function AuthenticationBox(props: {
         },
       );
     } else {
+      track("Create Account");
       await signUp.email(
         {
           email,
@@ -318,12 +322,13 @@ function GitHubSignInButton() {
           />
         </svg>
       }
-      onClick={async () =>
+      onClick={async () => {
+        track("Sign In", { type: "github" });
         await signIn.social({
           provider: "github",
           callbackURL,
-        })
-      }
+        });
+      }}
     />
   );
 }
