@@ -32,7 +32,7 @@ export function cleanHTMLToMarkdown(cleanHTMLString: string) {
   return markdownString.value as string;
 }
 
-export async function blocksToMarkdown<
+export function blocksToMarkdown<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
@@ -41,7 +41,7 @@ export async function blocksToMarkdown<
   schema: Schema,
   editor: BlockNoteEditor<BSchema, I, S>,
   options: { document?: Document },
-): Promise<string> {
+): string {
   const exporter = createExternalHTMLExporter(schema, editor);
   const externalHTML = exporter.exportBlocks(blocks, options);
 

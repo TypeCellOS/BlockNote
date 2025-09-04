@@ -8,6 +8,7 @@ import {
 import { Block } from "../../../blocks/defaultBlocks.js";
 import { nodeToBlock } from "../../nodeConversions/nodeToBlock.js";
 import { nestedListsToBlockNoteStructure } from "./util/nestedLists.js";
+
 export function HTMLToBlocks<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,

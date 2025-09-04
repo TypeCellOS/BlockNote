@@ -54,7 +54,7 @@ function code(state: any, node: any) {
   return result;
 }
 
-export async function markdownToHTML(markdown: string): Promise<string> {
+export function markdownToHTML(markdown: string): string {
   const htmlString = unified()
     .use(remarkParse)
     .use(remarkGfm)
@@ -70,12 +70,12 @@ export async function markdownToHTML(markdown: string): Promise<string> {
   return htmlString.value as string;
 }
 
-export async function markdownToBlocks<
+export function markdownToBlocks<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
->(markdown: string, pmSchema: Schema): Promise<Block<BSchema, I, S>[]> {
-  const htmlString = await markdownToHTML(markdown);
+>(markdown: string, pmSchema: Schema): Block<BSchema, I, S>[] {
+  const htmlString = markdownToHTML(markdown);
 
   return HTMLToBlocks(htmlString, pmSchema);
 }
