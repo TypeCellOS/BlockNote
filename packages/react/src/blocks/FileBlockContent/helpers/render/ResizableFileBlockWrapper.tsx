@@ -10,9 +10,8 @@ export const ResizableFileBlockWrapper = (
     ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
     "contentRef"
   > & {
-    buttonText: string;
-    buttonIcon: ReactNode;
-    children: ReactNode;
+    buttonIcon?: ReactNode;
+    children?: ReactNode;
   },
 ) => {
   // Temporary parameters set when the user begins resizing the element, used to

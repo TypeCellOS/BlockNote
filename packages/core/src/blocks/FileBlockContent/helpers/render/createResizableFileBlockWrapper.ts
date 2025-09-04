@@ -7,14 +7,12 @@ export const createResizableFileBlockWrapper = (
   editor: BlockNoteEditor<any, any, any>,
   element: { dom: HTMLElement; destroy?: () => void },
   resizeHandlesContainerElement: HTMLElement,
-  buttonText: string,
-  buttonIcon: HTMLElement,
+  buttonIcon?: HTMLElement,
 ): { dom: HTMLElement; destroy: () => void } => {
   const { dom, destroy } = createFileBlockWrapper(
     block,
     editor,
     element,
-    buttonText,
     buttonIcon,
   );
   const wrapper = dom;

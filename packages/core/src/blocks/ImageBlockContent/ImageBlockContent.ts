@@ -80,7 +80,6 @@ export const imageRender = (
     editor,
     { dom: imageWrapper },
     imageWrapper,
-    editor.dictionary.file_blocks.image.add_button_text,
     icon.firstElementChild as HTMLElement,
   );
 };
