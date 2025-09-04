@@ -8,11 +8,12 @@ import {
 import { Block } from "../../../blocks/defaultBlocks.js";
 import { nodeToBlock } from "../../nodeConversions/nodeToBlock.js";
 import { nestedListsToBlockNoteStructure } from "./util/nestedLists.js";
-export async function HTMLToBlocks<
+
+export function HTMLToBlocks<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
->(html: string, pmSchema: Schema): Promise<Block<BSchema, I, S>[]> {
+>(html: string, pmSchema: Schema): Block<BSchema, I, S>[] {
   const htmlNode = nestedListsToBlockNoteStructure(html);
   const parser = DOMParser.fromSchema(pmSchema);
 

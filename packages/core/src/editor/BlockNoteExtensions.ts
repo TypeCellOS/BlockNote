@@ -57,6 +57,7 @@ import type {
   BlockNoteEditorOptions,
   SupportedExtension,
 } from "./BlockNoteEditor.js";
+import { BlockNoteSchema } from "./BlockNoteSchema.js";
 import { ForkYDocPlugin } from "../extensions/Collaboration/ForkYDocPlugin.js";
 
 type ExtensionOptions<
@@ -92,6 +93,7 @@ type ExtensionOptions<
   >;
   tabBehavior?: "prefer-navigate-ui" | "prefer-indent";
   comments?: {
+    schema?: BlockNoteSchema<any, any, any>;
     threadStore: ThreadStore;
   };
   pasteHandler: BlockNoteEditorOptions<any, any, any>["pasteHandler"];
@@ -156,6 +158,7 @@ export const getBlockNoteExtensions = <
       opts.editor,
       opts.comments.threadStore,
       CommentMark.name,
+      opts.comments.schema,
     );
   }
 

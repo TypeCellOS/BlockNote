@@ -10,10 +10,10 @@ The BlockNote editor API is a comprehensive set of functions and methods that al
 
 ## Editable
 
-The editor is editable by default, but you can make it read-only by setting the `editable` property to `false`.
+The editor is editable by default, but you can make it read-only by setting the `isEditable` property to `false`.
 
 ```ts
-editor.editable = false;
+editor.isEditable = false;
 ```
 
 ## Focus
@@ -106,7 +106,7 @@ editor.pasteText("Hello, world!");
 Paste Markdown content into the editor.
 
 ```ts
-await editor.pasteMarkdown("# Hello\n\nThis is **bold** text.");
+editor.pasteMarkdown("# Hello\n\nThis is **bold** text.");
 ```
 
 ## Options

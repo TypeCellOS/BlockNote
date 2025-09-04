@@ -1,4 +1,33 @@
-@import url("@mantine/core/styles.css");
+@import "@mantine/core/styles.css";
+
+/* The ShadCN version of BlockNote expects to be inside a Tailwind/ShadCN app, 
+so we import styles for both of those below. Otherwise, examples using the 
+ShadCN version will have incorrect styling. */
+
+/* Imports TailwindCSS. Normally, this is done with `@import tailwindcss`, 
+which is the same as importing its components individually:
+  @layer theme, base, components, utilities;
+  @import "tailwindcss/preflight.css" layer(base);
+  @import "tailwindcss/theme.css" layer(theme);
+  @import "tailwindcss/utilities.css" layer(utilities);
+We can't use the preflight component as-is, which is why we import 
+`./preflight.css` instead of `tailwindcss/preflight.css`. See the 
+`preflight.css` file for how we modify the preflight styles and why. */
+@layer theme, base, components, utilities;
+@import "./preflight.css" layer(base);
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+/* Imports Tailwind animation utility classes for ShadCN. */
+@import "tw-animate-css";
+
+/* Imports additional CSS and Tailwind theme variables for ShadCN. */
+@import "./theme.css";
+
+/* Tailwind only generates CSS for utility classes that it detects in the 
+application code. This tells Tailwind to also generate CSS for utility classes 
+it finds within the installed `@blocknote/shadcn` package. */
+@source "../node_modules/@blocknote/shadcn";
 
 body {
   height: auto;

@@ -11,7 +11,7 @@
     "directory": "packages/shadcn"
   },
   "license": "MPL-2.0",
-  "version": "0.35.0",
+  "version": "0.37.0",
   "files": [
     "dist",
     "types",
@@ -56,28 +56,25 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "0.35.0",
-    "@blocknote/react": "0.35.0",
-    "@hookform/resolvers": "^3.6.0",
+    "@blocknote/core": "0.37.0",
+    "@blocknote/react": "0.37.0",
+    "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-avatar": "^1.1.3",
-    "@radix-ui/react-dropdown-menu": "^2.0.6",
-    "@radix-ui/react-label": "^2.0.2",
-    "@radix-ui/react-popover": "^1.0.7",
-    "@radix-ui/react-select": "^2.0.0",
-    "@radix-ui/react-slot": "^1.0.2",
-    "@radix-ui/react-tabs": "^1.0.4",
-    "@radix-ui/react-toggle": "^1.0.3",
-    "@radix-ui/react-tooltip": "^1.0.7",
+    "@radix-ui/react-dropdown-menu": "^2.1.6",
+    "@radix-ui/react-label": "^2.1.2",
+    "@radix-ui/react-popover": "^1.1.6",
+    "@radix-ui/react-select": "^2.1.6",
+    "@radix-ui/react-slot": "^1.1.2",
+    "@radix-ui/react-tabs": "^1.1.3",
+    "@radix-ui/react-toggle": "^1.1.2",
+    "@radix-ui/react-tooltip": "^1.1.8",
     "autoprefixer": "^10.4.19",
-    "class-variance-authority": "^0.7.0",
+    "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.525.0",
-    "postcss": "^8.4.38",
-    "react-hook-form": "^7.52.0",
+    "react-hook-form": "^7.54.2",
     "tailwind-merge": "^2.3.0",
-    "tailwindcss": "^3.4.3",
-    "tailwindcss-animate": "^1.0.7",
-    "zod": "^3.23.8"
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@radix-ui/colors": "^3.0.0",
@@ -97,7 +94,8 @@
   },
   "peerDependencies": {
     "react": "^18.0 || ^19.0 || >= 19.0.0-rc",
-    "react-dom": "^18.0 || ^19.0 || >= 19.0.0-rc"
+    "react-dom": "^18.0 || ^19.0 || >= 19.0.0-rc",
+    "tailwindcss": "^4.1.12"
   },
   "eslintConfig": {
     "extends": [

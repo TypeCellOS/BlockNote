@@ -2,7 +2,7 @@
   "name": "root",
   "type": "module",
   "devDependencies": {
-    "@nx/js": "^21.3.2",
+    "@nx/js": "^21.4.1",
     "@typescript-eslint/eslint-plugin": "^5.5.0",
     "@typescript-eslint/parser": "^5.5.0",
     "concurrently": "9.1.2",
@@ -10,7 +10,7 @@
     "eslint-config-react-app": "^7.0.0",
     "eslint-plugin-import": "^2.31.0",
     "glob": "^10.3.10",
-    "nx": "^21.3.2",
+    "nx": "^21.4.1",
     "prettier": "^3",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "serve": "14.2.4",
