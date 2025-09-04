@@ -199,6 +199,9 @@ export const he: Dictionary = {
       add_button_text: "הוסף קובץ",
     },
   },
+  toggle_blocks: {
+    add_block_button: "מתג ריק. לחץ כדי להוסיף בלוק.",
+  },
   side_menu: {
     add_block_label: "הוסף בלוק",
     drag_handle_label: "פתח תפריט בלוק",

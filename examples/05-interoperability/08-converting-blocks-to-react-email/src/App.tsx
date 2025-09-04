@@ -1,5 +1,7 @@
 import {
   BlockNoteSchema,
+  COLORS_DARK_MODE_DEFAULT,
+  COLORS_DEFAULT,
   combineByGroup,
   filterSuggestionItems,
   withPageBreak,
@@ -10,7 +12,9 @@ import "@blocknote/mantine/style.css";
 import {
   SuggestionMenuController,
   getDefaultReactSlashMenuItems,
+  useBlockNoteContext,
   useCreateBlockNote,
+  usePrefersColorScheme,
 } from "@blocknote/react";
 import {
   ReactEmailExporter,
@@ -314,6 +318,11 @@ export default function App() {
     ],
   });
 
+  const existingContext = useBlockNoteContext();
+  const systemColorScheme = usePrefersColorScheme();
+  const colorScheme =
+    existingContext?.colorSchemePreference || systemColorScheme;
+
   const onChange = async () => {
     if (!editor || !editor.document) {
       return;
@@ -321,6 +330,10 @@ export default function App() {
     const exporter = new ReactEmailExporter(
       editor.schema,
       reactEmailDefaultSchemaMappings,
+      {
+        colors:
+          colorScheme === "dark" ? COLORS_DARK_MODE_DEFAULT : COLORS_DEFAULT,
+      },
     );
     const emailHtml = await exporter.toReactEmailDocument(editor.document);
 

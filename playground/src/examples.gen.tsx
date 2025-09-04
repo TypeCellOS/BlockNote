@@ -399,7 +399,7 @@
           "pathFromRoot": "examples/03-ui-components",
           "slug": "ui-components"
         },
-        "readme": "In this example, we add a blue text/background color and code style button to the Formatting Toolbar.\n\n**Try it out:** Select some text to open the Formatting Toolbar, and click one of the new buttons!\n\n**Relevant Docs:**\n\n- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar)\n- [Manipulating Inline Content](/docs/reference/editor/manipulating-content)\n- [Editor Setup](/docs/getting-started/editor-setup)"
+        "readme": "In this example, we add a blue text/background color and code style button to the Formatting Toolbar. We also make sure it only shows up when some text is selected.\n\n**Try it out:** Select some text to open the Formatting Toolbar, and click one of the new buttons!\n\n**Relevant Docs:**\n\n- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar)\n- [Manipulating Inline Content](/docs/reference/editor/manipulating-content)\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
         "projectSlug": "formatting-toolbar-block-type-items",
@@ -749,7 +749,29 @@
           "pathFromRoot": "examples/03-ui-components",
           "slug": "ui-components"
         },
-        "readme": "In this example, we add a button to the Link Toolbar which opens a browser alert.\n\n**Try it out:** Hover the link open the Link Toolbar, and click the new \"Open Alert\" button!\n\n**Relevant Docs:**\n\n- [Changing the Link Toolbar](/docs/react/components/link-toolbar)\n- [Editor Setup](/docs/getting-started/editor-setup)"
+        "readme": "In this example, we add a button to the Link Toolbar which opens a browser alert.\n\n**Try it out:** Hover the link open the Link Toolbar, and click the new \"Open Alert\" button!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)"
+      },
+      {
+        "projectSlug": "advanced-tables-2",
+        "fullSlug": "ui-components/advanced-tables-2",
+        "pathFromRoot": "examples/03-ui-components/17-advanced-tables-2",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "must",
+          "tags": [
+            "Intermediate",
+            "UI Components",
+            "Tables",
+            "Appearance & Styling"
+          ]
+        },
+        "title": "Advanced Tables with Calculated Columns",
+        "group": {
+          "pathFromRoot": "examples/03-ui-components",
+          "slug": "ui-components"
+        },
+        "readme": "This example demonstrates advanced table features including automatic calculations. It shows how to create a table with calculated columns that automatically update when values change.\n\n## Features\n\n- **Automatic Calculations**: Quantity × Price = Total for each row\n- **Grand Total**: Automatically calculated sum of all totals\n- **Real-time Updates**: Calculations update immediately when you change quantity or price values\n- **Split cells**: Merge and split table cells\n- **Cell background color**: Color individual cells\n- **Cell text color**: Change text color in cells\n- **Table row and column headers**: Use headers for better organization\n\n## How It Works\n\nThe example uses the `onChange` event listener to detect when table content changes. When a table is updated, it automatically:\n\n1. Extracts quantity and price values from each data row\n2. Calculates the total (quantity × price) for each row\n3. Updates the total column with the calculated values\n4. Calculates and updates the grand total\n\n## Code Highlights\n\n```tsx\n<BlockNoteView\n  editor={editor}\n  onChange={(editor, { getChanges }) => {\n    const changes = getChanges();\n\n    changes.forEach((change) => {\n      if (change.type === \"update\" && change.block.type === \"table\") {\n        const updatedRows = calculateTableTotals(change.block);\n        if (updatedRows) {\n          editor.updateBlock(change.block, {\n            type: \"table\",\n            content: {\n              ...change.block.content,\n              rows: updatedRows as any,\n            } as any,\n          });\n        }\n      }\n    });\n  }}\n></BlockNoteView>\n```\n\n**Relevant Docs:**\n\n- [Tables](/docs/features/blocks/tables)\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Events](/docs/reference/editor/events)"
       }
     ]
   },
@@ -1366,11 +1388,11 @@
             "Collaboration"
           ],
           "dependencies": {
-            "@liveblocks/client": "^2.23.1",
-            "@liveblocks/react": "^2.23.1",
-            "@liveblocks/react-blocknote": "^2.23.1",
-            "@liveblocks/react-tiptap": "^2.23.1",
-            "@liveblocks/react-ui": "^2.23.1",
+            "@liveblocks/client": "^3",
+            "@liveblocks/react": "^3",
+            "@liveblocks/react-blocknote": "^3",
+            "@liveblocks/react-tiptap": "^3",
+            "@liveblocks/react-ui": "^3",
             "yjs": "^13.6.27"
           } as any
         },
@@ -1524,7 +1546,7 @@
           ],
           "pro": true,
           "dependencies": {
-            "@tiptap/core": "^2.12.0"
+            "@tiptap/core": "^2.26.1"
           } as any
         },
         "title": "TipTap extension (arrow InputRule)",

@@ -17,7 +17,6 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../schema/index.js";
-import { initializeESMDependencies } from "../../util/esmDependencies.js";
 import { getDraggableBlockFromElement } from "../getDraggableBlockFromElement.js";
 import { dragStart, unsetDragImage } from "./dragging.js";
 
@@ -171,7 +170,6 @@ export class SideMenuView<
       this.onDragEnd as EventListener,
       true,
     );
-    initializeESMDependencies();
 
     // Shows or updates menu position whenever the cursor moves, if the menu isn't frozen.
     this.pmView.root.addEventListener(

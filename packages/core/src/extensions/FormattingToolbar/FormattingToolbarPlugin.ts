@@ -206,17 +206,12 @@ export class FormattingToolbarView implements PluginView {
       // individually in each button.
       const newReferencePos = this.getSelectionBoundingBox();
 
-      // Workaround to ensure the correct reference position when rendering 
+      // Workaround to ensure the correct reference position when rendering
       // React components. Without this, e.g. updating styles on React inline
-      // content causes the formatting toolbar to be in the wrong place. We 
-      // know the component has not yet rendered if the reference position has 
+      // content causes the formatting toolbar to be in the wrong place. We
+      // know the component has not yet rendered if the reference position has
       // zero dimensions.
-      if (
-        newReferencePos.x === 0 ||
-        newReferencePos.y === 0 ||
-        newReferencePos.width === 0 ||
-        newReferencePos.height === 0
-      ) {
+      if (newReferencePos.height === 0 && newReferencePos.width === 0) {
         // Updates the reference position again following the render.
         queueMicrotask(() => {
           const nextState = {

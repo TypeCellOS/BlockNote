@@ -123,6 +123,7 @@ export function SuggestionMenuController<
           apply({ availableHeight, elements }) {
             Object.assign(elements.floating.style, {
               maxHeight: `${availableHeight - 10}px`,
+              minHeight: "300px",
             });
           },
         }),

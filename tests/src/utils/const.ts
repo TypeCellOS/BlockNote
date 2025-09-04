@@ -28,6 +28,7 @@ export const NUMBERED_LIST_SELECTOR = `[data-content-type="numberedListItem"]`;
 export const BULLET_LIST_SELECTOR = `[data-content-type="bulletListItem"]`;
 export const PARAGRAPH_SELECTOR = `[data-content-type="paragraph"]`;
 export const IMAGE_SELECTOR = `[data-content-type="image"]`;
+export const TABLE_SELECTOR = `[data-content-type="table"]`;
 
 export const DRAG_HANDLE_SELECTOR = `[data-test="dragHandle"]`;
 export const DRAG_HANDLE_ADD_SELECTOR = `[data-test="dragHandleAdd"]`;

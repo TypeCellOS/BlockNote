@@ -29,7 +29,9 @@
       "outputs": [
         "{projectRoot}/dist",
         "{projectRoot}/.next",
-        "{projectRoot}/.source"
+        "{projectRoot}/.source",
+        "{projectRoot}/content/examples",
+        "{projectRoot}/components/example/generated"
       ]
     },
     "test": {

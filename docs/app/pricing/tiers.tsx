@@ -4,6 +4,7 @@ import { CheckIcon } from "@heroicons/react/20/solid";
 import { track } from "@vercel/analytics";
 import classNames from "classnames";
 import React from "react";
+import * as Sentry from "@sentry/nextjs";
 
 type Frequency = "month" | "year";
 
@@ -76,7 +77,14 @@ function TierCTAButton({ tier }: { tier: Tier }) {
         }
 
         if (session.planType === "free") {
-          track("Signup", { tier: tier.id });
+          Sentry.captureEvent({
+            message: "Checkout",
+            level: "info",
+            extra: {
+              tier: tier.id,
+            },
+          });
+          track("Checkout", { tier: tier.id });
           e.preventDefault();
           e.stopPropagation();
           await authClient.checkout({

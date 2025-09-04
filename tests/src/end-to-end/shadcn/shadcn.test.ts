@@ -37,7 +37,7 @@ test.describe("Check ShadCN UI", () => {
     await page.keyboard.press("Enter");
     await page.keyboard.press("ArrowLeft");
 
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(700);
     expect(await page.screenshot()).toMatchSnapshot("shadcn-link-toolbar.png");
   });
   test("Check slash menu", async ({ page }) => {
