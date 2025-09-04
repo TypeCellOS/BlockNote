@@ -13,6 +13,7 @@ To enable comments in your editor, you need to:
 - provide a `resolveUsers` so BlockNote can retrieve and display user information (names and avatars).
 - provide a `ThreadStore` so BlockNote can store and retrieve comment threads.
 - enable real-time collaboration (see [Real-time collaboration](/docs/features/collaboration))
+- optionally provide a schema for comments and comment editors to use. If left undefined, they will use the [default comment editor schema](https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/components/Comments/defaultCommentEditorSchema.ts). See [here](/docs/features/custom-schemas) to find out more about custom schemas.
 
 ```tsx
 const editor = useCreateBlockNote({
@@ -21,6 +22,7 @@ const editor = useCreateBlockNote({
   },
   comments: {
     threadStore: yourThreadStore, // see below
+    schema: BlockNoteSchema.create(...) // optional, can be left undefined
   },
   // ...
   collaboration: {

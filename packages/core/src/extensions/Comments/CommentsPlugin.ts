@@ -10,6 +10,7 @@ import type {
 } from "../../comments/index.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
+import { BlockNoteSchema } from "../../editor/BlockNoteSchema.js";
 import { UserStore } from "./userstore/UserStore.js";
 
 const PLUGIN_KEY = new PluginKey(`blocknote-comments`);
@@ -134,6 +135,7 @@ export class CommentsPlugin extends BlockNoteExtension {
     private readonly editor: BlockNoteEditor<any, any, any>,
     public readonly threadStore: ThreadStore,
     private readonly markType: string,
+    public readonly commentEditorSchema?: BlockNoteSchema<any, any, any>,
   ) {
     super();
 
