@@ -27,7 +27,9 @@ function validateInlineContent(content: any, editor: any): boolean {
       return false;
     }
 
-    return validateInlineContent(content.content, editor);
+    return content.content.every((child: any) =>
+      validateInlineContent(child, editor),
+    );
   }
 
   // TODO: custom ic content
