@@ -109,16 +109,13 @@ function serializeBlock<
 ) {
   const BC_NODE = editor.pmSchema.nodes["blockContainer"];
 
-  let props = block.props;
   // set default props in case we were passed a partial block
-  if (!block.props) {
-    props = {};
-    for (const [name, spec] of Object.entries(
-      editor.schema.blockSchema[block.type as any].propSchema,
-    )) {
-      if (spec.default !== undefined) {
-        (props as any)[name] = spec.default;
-      }
+  const props = block.props || {};
+  for (const [name, spec] of Object.entries(
+    editor.schema.blockSchema[block.type as any].propSchema,
+  )) {
+    if (!(name in props) && spec.default !== undefined) {
+      (props as any)[name] = spec.default;
     }
   }
 
