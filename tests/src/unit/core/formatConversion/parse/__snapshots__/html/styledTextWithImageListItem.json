@@ -1,21 +1,6 @@
 [
   {
-    "children": [
-      {
-        "children": [],
-        "content": undefined,
-        "id": "2",
-        "props": {
-          "backgroundColor": "default",
-          "caption": "",
-          "name": "",
-          "showPreview": true,
-          "textAlignment": "left",
-          "url": "http://localhost:3000/exampleURL",
-        },
-        "type": "image",
-      },
-    ],
+    "children": [],
     "content": [
       {
         "styles": {
@@ -26,7 +11,8 @@
       },
       {
         "styles": {},
-        "text": " Bullet List Item",
+        "text": " Bullet List Item
+",
         "type": "text",
       },
     ],
@@ -47,7 +33,7 @@
         "type": "text",
       },
     ],
-    "id": "3",
+    "id": "2",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
