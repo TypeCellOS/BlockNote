@@ -185,18 +185,12 @@ export const nl: Dictionary = {
     comment_reply: "Reactie toevoegen...",
   },
   file_blocks: {
-    image: {
-      add_button_text: "Afbeelding toevoegen",
-    },
-    video: {
-      add_button_text: "Video toevoegen",
-    },
-    audio: {
-      add_button_text: "Audio toevoegen",
-    },
-    file: {
-      add_button_text: "Bestand toevoegen",
-    },
+    add_button_text: {
+      image: "Afbeelding toevoegen",
+      video: "Video toevoegen",
+      audio: "Audio toevoegen",
+      file: "Bestand toevoegen",
+    } as Record<string, string>,
   },
   toggle_blocks: {
     add_block_button: "Lege uitklapper. Klik om een blok toe te voegen.",

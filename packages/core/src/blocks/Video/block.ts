@@ -89,7 +89,6 @@ export const createVideoBlockSpec = createBlockSpec(
         editor,
         { dom: videoWrapper },
         videoWrapper,
-        editor.dictionary.file_blocks.video.add_button_text,
         icon.firstElementChild as HTMLElement,
       );
     },

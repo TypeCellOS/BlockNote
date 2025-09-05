@@ -231,7 +231,7 @@ export async function doLLMRequest(
         ...rest,
       },
       () => {
-        if (deleteCursorBlock) {
+        if (deleteCursorBlock && editor.getBlock(deleteCursorBlock)) {
           editor.removeBlocks([deleteCursorBlock]);
         }
         onStart?.();
@@ -242,7 +242,7 @@ export async function doLLMRequest(
       messages,
       ...rest,
     });
-    if (deleteCursorBlock) {
+    if (deleteCursorBlock && editor.getBlock(deleteCursorBlock)) {
       editor.removeBlocks([deleteCursorBlock]);
     }
     onStart?.();

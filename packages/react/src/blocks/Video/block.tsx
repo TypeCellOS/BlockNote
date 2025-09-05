@@ -84,7 +84,6 @@ export const VideoBlock = (
   return (
     <ResizableFileBlockWrapper
       {...(props as any)}
-      buttonText={props.editor.dictionary.file_blocks.video.add_button_text}
       buttonIcon={<RiVideoFill size={24} />}
     >
       <VideoPreview {...(props as any)} />

@@ -90,7 +90,6 @@ export const ImageBlock = (
   return (
     <ResizableFileBlockWrapper
       {...(props as any)}
-      buttonText={props.editor.dictionary.file_blocks.image.add_button_text}
       buttonIcon={<RiImage2Fill size={24} />}
     >
       <ImagePreview {...(props as any)} />

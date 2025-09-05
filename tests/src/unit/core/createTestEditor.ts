@@ -3,7 +3,6 @@ import {
   BlockNoteSchema,
   BlockSchema,
   createCodeBlockSpec,
-  initializeESMDependencies,
   InlineContentSchema,
   StyleSchema,
   uploadToTmpFilesDotOrg_DEV_ONLY,
@@ -44,8 +43,6 @@ export const createTestEditor = <
       uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
     }) as any;
     editor.mount(div);
-
-    await initializeESMDependencies();
   });
 
   afterAll(() => {

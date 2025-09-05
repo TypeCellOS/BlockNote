@@ -262,7 +262,7 @@ export class ServerBlockNoteEditor<
   public async tryParseHTMLToBlocks(
     html: string,
   ): Promise<Block<BSchema, ISchema, SSchema>[]> {
-    return this._withJSDOM(() => {
+    return this._withJSDOM(async () => {
       return this.editor.tryParseHTMLToBlocks(html);
     });
   }

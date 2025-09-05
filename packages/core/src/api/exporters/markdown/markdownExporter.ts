@@ -1,4 +1,10 @@
 import { Schema } from "prosemirror-model";
+import rehypeParse from "rehype-parse";
+import rehypeRemark from "rehype-remark";
+import remarkGfm from "remark-gfm";
+import remarkStringify from "remark-stringify";
+import { unified } from "unified";
+
 import { PartialBlock } from "../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import {
@@ -6,33 +12,19 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../schema/index.js";
-import {
-  esmDependencies,
-  initializeESMDependencies,
-} from "../../../util/esmDependencies.js";
 import { createExternalHTMLExporter } from "../html/externalHTMLExporter.js";
 import { removeUnderlines } from "./removeUnderlinesRehypePlugin.js";
 import { addSpacesToCheckboxes } from "./util/addSpacesToCheckboxesRehypePlugin.js";
 
 // Needs to be sync because it's used in drag handler event (SideMenuPlugin)
-// Ideally, call `await initializeESMDependencies()` before calling this function
 export function cleanHTMLToMarkdown(cleanHTMLString: string) {
-  const deps = esmDependencies;
-
-  if (!deps) {
-    throw new Error(
-      "cleanHTMLToMarkdown requires ESM dependencies to be initialized",
-    );
-  }
-
-  const markdownString = deps.unified
-    .unified()
-    .use(deps.rehypeParse.default, { fragment: true })
+  const markdownString = unified()
+    .use(rehypeParse, { fragment: true })
     .use(removeUnderlines)
     .use(addSpacesToCheckboxes)
-    .use(deps.rehypeRemark.default)
-    .use(deps.remarkGfm.default)
-    .use(deps.remarkStringify.default, {
+    .use(rehypeRemark)
+    .use(remarkGfm)
+    .use(remarkStringify, {
       handlers: { text: (node) => node.value },
     })
     .processSync(cleanHTMLString);
@@ -40,7 +32,7 @@ export function cleanHTMLToMarkdown(cleanHTMLString: string) {
   return markdownString.value as string;
 }
 
-export async function blocksToMarkdown<
+export function blocksToMarkdown<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
@@ -49,8 +41,7 @@ export async function blocksToMarkdown<
   schema: Schema,
   editor: BlockNoteEditor<BSchema, I, S>,
   options: { document?: Document },
-): Promise<string> {
-  await initializeESMDependencies();
+): string {
   const exporter = createExternalHTMLExporter(schema, editor);
   const externalHTML = exporter.exportBlocks(blocks, options);
 

@@ -206,18 +206,12 @@ export const it: Dictionary = {
     comment_reply: "Aggiungi commento...",
   },
   file_blocks: {
-    image: {
-      add_button_text: "Aggiungi immagine",
-    },
-    video: {
-      add_button_text: "Aggiungi video",
-    },
-    audio: {
-      add_button_text: "Aggiungi audio",
-    },
-    file: {
-      add_button_text: "Aggiungi file",
-    },
+    add_button_text: {
+      image: "Aggiungi immagine",
+      video: "Aggiungi video",
+      audio: "Aggiungi audio",
+      file: "Aggiungi file",
+    } as Record<string, string>,
   },
   toggle_blocks: {
     add_block_button: "Toggle vuoto. Clicca per aggiungere un blocco.",
