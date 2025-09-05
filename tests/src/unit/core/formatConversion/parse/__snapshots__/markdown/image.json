@@ -1,0 +1,16 @@
+[
+  {
+    "children": [],
+    "content": undefined,
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "caption": "",
+      "name": "Image",
+      "showPreview": true,
+      "textAlignment": "left",
+      "url": "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png",
+    },
+    "type": "image",
+  },
+]
