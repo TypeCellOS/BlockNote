@@ -4,8 +4,7 @@
   "author": "jmarbutt",
   "tags": [""],
   "dependencies": {
-    "@blocknote/xl-email-exporter": "latest",
-    "@react-email/render": "^1.1.2"
+    "@blocknote/xl-email-exporter": "latest"
   },
   "pro": true
 }

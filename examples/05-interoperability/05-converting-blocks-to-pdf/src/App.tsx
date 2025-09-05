@@ -24,30 +24,29 @@ import {
   locales as multiColumnLocales,
   withMultiColumn,
 } from "@blocknote/xl-multi-column";
-import { PDFViewer } from "@react-pdf/renderer";
-import { useEffect, useMemo, useReducer, useState } from "react";
+import { pdf } from "@react-pdf/renderer";
+import { JSX, useMemo, useState } from "react";
 
 import "./styles.css";
 
 export default function App() {
-  // Stores the editor's contents as HTML.
-  const [pdfDocument, setPDFDocument] = useState<any>();
-  const [renders, forceRerender] = useReducer((s) => s + 1, 0);
-
-  // Creates a new editor instance with some initial content.
+  // Creates a new editor instance.
   const editor = useCreateBlockNote({
+    // Adds support for page breaks & multi-column blocks.
     schema: withMultiColumn(withPageBreak(BlockNoteSchema.create())),
     dropCursor: multiColumnDropCursor,
     dictionary: {
       ...locales.en,
       multi_column: multiColumnLocales.en,
     },
+    // Adds support for advanced table features.
     tables: {
       splitCells: true,
       cellBackgroundColor: true,
       cellTextColor: true,
       headers: true,
     },
+    // Sets initial editor content.
     initialContent: [
       {
         type: "paragraph",
@@ -381,6 +380,8 @@ export default function App() {
       },
     ],
   });
+
+  // Additional Slash Menu items for page breaks and multi-column blocks.
   const getSlashMenuItems = useMemo(() => {
     return async (query: string) =>
       filterSuggestionItems(
@@ -392,37 +393,37 @@ export default function App() {
         query,
       );
   }, [editor]);
-  const onChange = async () => {
-    const exporter = new PDFExporter(editor.schema, pdfDefaultSchemaMappings);
-    // Converts the editor's contents from Block objects to HTML and store to state.
-    const pdfDocument = await exporter.toReactPDFDocument(editor.document);
-    setPDFDocument(pdfDocument);
-    forceRerender();
 
-    // const blob = await ReactPDF.pdf(pdfDocument).toBlob();
+  // Exports the editor content to PDF and downloads it.
+  const onDownloadClick = async () => {
+    const exporter = new PDFExporter(editor.schema, pdfDefaultSchemaMappings);
+    const pdfDocument: JSX.Element = await exporter.toReactPDFDocument(
+      editor.document,
+    );
+    const blob = await pdf(pdfDocument).toBlob();
+
+    const link = document.createElement("a");
+    link.href = window.URL.createObjectURL(blob);
+    link.download = "My Document (blocknote export).pdf";
+    document.body.appendChild(link);
+    link.dispatchEvent(
+      new MouseEvent("click", {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+      }),
+    );
+    link.remove();
+    window.URL.revokeObjectURL(link.href);
   };
 
-  useEffect(() => {
-    onChange();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Renders the editor instance, and its contents as HTML below.
+  // Renders the editor instance, and a download button above.
   return (
-    <div className="wrapper">
-      <div className="editor">
-        <BlockNoteView editor={editor} slashMenu={false} onChange={onChange}>
-          <SuggestionMenuController
-            triggerCharacter={"/"}
-            getItems={getSlashMenuItems}
-          />
-        </BlockNoteView>
-      </div>
-      <div className="pdf">
-        <PDFViewer width={"100%"} key={renders}>
-          {pdfDocument}
-        </PDFViewer>
-      </div>
+    <div className="download-wrapper">
+      <button className="download-button" onClick={onDownloadClick}>
+        Download .pdf
+      </button>
+      <BlockNoteView editor={editor} />
     </div>
   );
 }
