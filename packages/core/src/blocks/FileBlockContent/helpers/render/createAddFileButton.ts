@@ -4,7 +4,6 @@ import { BlockFromConfig, FileBlockConfig } from "../../../../schema/index.js";
 export const createAddFileButton = (
   block: BlockFromConfig<FileBlockConfig, any, any>,
   editor: BlockNoteEditor<any, any, any>,
-  buttonText?: string,
   buttonIcon?: HTMLElement,
 ) => {
   const addFileButton = document.createElement("div");
@@ -23,7 +22,9 @@ export const createAddFileButton = (
   const addFileButtonText = document.createElement("p");
   addFileButtonText.className = "bn-add-file-button-text";
   addFileButtonText.innerHTML =
-    buttonText || editor.dictionary.file_blocks.file.add_button_text;
+    block.type in editor.dictionary.file_blocks.add_button_text
+      ? editor.dictionary.file_blocks.add_button_text[block.type]
+      : editor.dictionary.file_blocks.add_button_text["file"];
   addFileButton.appendChild(addFileButtonText);
 
   // Prevents focus from moving to the button.

@@ -11,7 +11,6 @@ export const FileBlockWrapper = (
     ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
     "contentRef"
   > & {
-    buttonText?: string;
     buttonIcon?: ReactNode;
     children?: ReactNode;
   } & {

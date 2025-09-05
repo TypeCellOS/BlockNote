@@ -54,7 +54,6 @@ export const PDF = createReactBlockSpec(
     render: (props) => (
       <ResizableFileBlockWrapper
         {...(props as any)}
-        bbuttonText={"Add PDF"}
         buttonIcon={<RiFilePdfFill size={24} />}
       >
         <PDFPreview {...(props as any)} />
