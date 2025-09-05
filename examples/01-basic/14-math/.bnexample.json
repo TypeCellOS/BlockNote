@@ -1,0 +1,10 @@
+{
+  "playground": true,
+  "docs": true,
+  "author": "nperez0111",
+  "tags": ["Basic"],
+  "dependencies": {
+    "@blocknote/math": "latest",
+    "katex": "^0.16.22"
+  }
+}

@@ -24,6 +24,7 @@ import { FilePreviewButton } from "./DefaultButtons/FilePreviewButton.js";
 import { TableCellMergeButton } from "./DefaultButtons/TableCellMergeButton.js";
 import { TextAlignButton } from "./DefaultButtons/TextAlignButton.js";
 import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
+import { EditEquationButton } from "./DefaultButtons/EditEquationButton.js";
 
 export const getFormattingToolbarItems = (
   blockTypeSelectItems?: BlockTypeSelectItem[],
@@ -52,6 +53,7 @@ export const getFormattingToolbarItems = (
   <CreateLinkButton key={"createLinkButton"} />,
   <AddCommentButton key={"addCommentButton"} />,
   <AddTiptapCommentButton key={"addTiptapCommentButton"} />,
+  <EditEquationButton key={"editEquationButton"} />,
 ];
 
 // TODO: props.blockTypeSelectItems should only be available if no children
