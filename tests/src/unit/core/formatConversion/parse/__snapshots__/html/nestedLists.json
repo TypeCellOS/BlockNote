@@ -176,7 +176,7 @@
     "content": [
       {
         "styles": {},
-        "text": " Check List Item",
+        "text": "Check List Item",
         "type": "text",
       },
     ],
@@ -196,7 +196,7 @@
         "content": [
           {
             "styles": {},
-            "text": " Nested Check List Item",
+            "text": "Nested Check List Item",
             "type": "text",
           },
         ],
@@ -214,7 +214,7 @@
         "content": [
           {
             "styles": {},
-            "text": " Nested Check List Item",
+            "text": "Nested Check List Item",
             "type": "text",
           },
         ],
@@ -231,7 +231,7 @@
     "content": [
       {
         "styles": {},
-        "text": " Check List Item",
+        "text": "Check List Item",
         "type": "text",
       },
     ],
@@ -249,7 +249,7 @@
     "content": [
       {
         "styles": {},
-        "text": " Nested Check List Item",
+        "text": "Nested Check List Item",
         "type": "text",
       },
     ],

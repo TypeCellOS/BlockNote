@@ -1,8 +1,4 @@
-import {
-  BlockNoteSchema,
-  createInlineContentSpec,
-  defaultInlineContentSpecs,
-} from "@blocknote/core";
+import { BlockNoteSchema, createInlineContentSpec } from "@blocknote/core";
 
 export const mention = createInlineContentSpec(
   {
@@ -23,12 +19,11 @@ export const mention = createInlineContentSpec(
         dom: mention,
       };
     },
-  }
+  },
 );
 
-export const schemaWithMention = BlockNoteSchema.create({
+export const schemaWithMention = BlockNoteSchema.create().extend({
   inlineContentSpecs: {
     mention,
-    ...defaultInlineContentSpecs,
   },
 });

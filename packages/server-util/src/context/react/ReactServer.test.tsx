@@ -10,15 +10,15 @@ import { ServerBlockNoteEditor } from "../ServerBlockNoteEditor.js";
 
 const SimpleReactCustomParagraph = createReactBlockSpec(
   {
-    type: "simpleReactCustomParagraph",
+    type: "simpleReactCustomParagraph" as const,
     propSchema: defaultProps,
-    content: "inline",
+    content: "inline" as const,
   },
-  {
+  () => ({
     render: (props) => (
       <p ref={props.contentRef} className={"simple-react-custom-paragraph"} />
     ),
-  },
+  }),
 );
 
 export const TestContext = createContext<true | undefined>(undefined);
@@ -34,9 +34,9 @@ const ReactContextParagraphComponent = (props: any) => {
 
 const ReactContextParagraph = createReactBlockSpec(
   {
-    type: "reactContextParagraph",
+    type: "reactContextParagraph" as const,
     propSchema: defaultProps,
-    content: "inline",
+    content: "inline" as const,
   },
   {
     render: ReactContextParagraphComponent,
@@ -46,8 +46,8 @@ const ReactContextParagraph = createReactBlockSpec(
 const schema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
-    simpleReactCustomParagraph: SimpleReactCustomParagraph,
-    reactContextParagraph: ReactContextParagraph,
+    simpleReactCustomParagraph: SimpleReactCustomParagraph(),
+    reactContextParagraph: ReactContextParagraph(),
   },
 });
 

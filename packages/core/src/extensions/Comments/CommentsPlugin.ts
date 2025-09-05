@@ -10,7 +10,7 @@ import type {
 } from "../../comments/index.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
-import { BlockNoteSchema } from "../../editor/BlockNoteSchema.js";
+import { BlockNoteSchema } from "../../blocks/BlockNoteSchema.js";
 import { UserStore } from "./userstore/UserStore.js";
 
 const PLUGIN_KEY = new PluginKey(`blocknote-comments`);

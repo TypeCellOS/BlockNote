@@ -1,7 +1,7 @@
-[exampleURL](exampleURL)
+![Caption](exampleURL)
 
 Caption
 
-[exampleURL](exampleURL)
+![Caption](exampleURL)
 
 Caption

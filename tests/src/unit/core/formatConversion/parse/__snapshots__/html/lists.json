@@ -55,7 +55,7 @@
     "content": [
       {
         "styles": {},
-        "text": " Fourth",
+        "text": "Fourth",
         "type": "text",
       },
     ],
@@ -73,7 +73,7 @@
     "content": [
       {
         "styles": {},
-        "text": " Fifth",
+        "text": "Fifth",
         "type": "text",
       },
     ],
@@ -127,7 +127,7 @@
         "content": [
           {
             "styles": {},
-            "text": " Child 3",
+            "text": "Child 3",
             "type": "text",
           },
         ],
@@ -145,7 +145,7 @@
         "content": [
           {
             "styles": {},
-            "text": " Child 4",
+            "text": "Child 4",
             "type": "text",
           },
         ],

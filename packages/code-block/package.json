@@ -52,8 +52,8 @@
     "@blocknote/core": "0.37.0",
     "@shikijs/core": "^3.2.1",
     "@shikijs/engine-javascript": "^3.2.1",
-    "@shikijs/langs-precompiled": "^3.2.1",
     "@shikijs/langs": "^3.2.1",
+    "@shikijs/langs-precompiled": "^3.2.1",
     "@shikijs/themes": "^3.2.1",
     "@shikijs/types": "^3.2.1"
   },

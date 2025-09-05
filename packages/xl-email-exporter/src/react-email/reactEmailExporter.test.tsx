@@ -5,11 +5,11 @@ import {
   BlockNoteSchema,
   createBlockSpec,
   createInlineContentSpec,
+  createPageBreakBlockSpec,
   createStyleSpec,
   defaultBlockSpecs,
   defaultInlineContentSpecs,
   defaultStyleSpecs,
-  PageBreak,
 } from "@blocknote/core";
 import { testDocument } from "@shared/testDocument.js";
 
@@ -28,7 +28,7 @@ describe("react email exporter", () => {
     const schema = BlockNoteSchema.create({
       blockSpecs: {
         ...defaultBlockSpecs,
-        pageBreak: PageBreak,
+        pageBreak: createPageBreakBlockSpec(),
         extraBlock: createBlockSpec(
           {
             content: "none",
@@ -36,7 +36,7 @@ describe("react email exporter", () => {
             propSchema: {},
           },
           {} as any,
-        ),
+        )(),
       },
     });
 
@@ -154,7 +154,10 @@ describe("react email exporter", () => {
   it("should export a document with preview", async () => {
     const exporter = new ReactEmailExporter(
       BlockNoteSchema.create({
-        blockSpecs: { ...defaultBlockSpecs, pageBreak: PageBreak },
+        blockSpecs: {
+          ...defaultBlockSpecs,
+          pageBreak: createPageBreakBlockSpec(),
+        },
       }),
       reactEmailDefaultSchemaMappings,
     );
@@ -168,7 +171,10 @@ describe("react email exporter", () => {
   it("should export a document with multiple preview lines", async () => {
     const exporter = new ReactEmailExporter(
       BlockNoteSchema.create({
-        blockSpecs: { ...defaultBlockSpecs, pageBreak: PageBreak },
+        blockSpecs: {
+          ...defaultBlockSpecs,
+          pageBreak: createPageBreakBlockSpec(),
+        },
       }),
       reactEmailDefaultSchemaMappings,
     );

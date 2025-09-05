@@ -40,7 +40,10 @@ export const SideMenu = <
       attrs["data-level"] = (props.block.props as any).level.toString();
     }
 
-    if (props.editor.schema.blockSchema[props.block.type].isFileBlock) {
+    if (
+      props.editor.schema.blockSpecs[props.block.type].implementation.meta
+        ?.fileBlockAccept
+    ) {
       if (props.block.props.url) {
         attrs["data-url"] = "true";
       } else {
@@ -49,7 +52,7 @@ export const SideMenu = <
     }
 
     return attrs;
-  }, [props.block, props.editor.schema.blockSchema]);
+  }, [props.block.props, props.block.type, props.editor.schema.blockSpecs]);
 
   return (
     <Components.SideMenu.Root className={"bn-side-menu"} {...dataAttributes}>

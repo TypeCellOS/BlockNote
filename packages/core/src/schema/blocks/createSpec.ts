@@ -1,68 +1,20 @@
-import { Editor } from "@tiptap/core";
-import { TagParseRule } from "@tiptap/pm/model";
-import { NodeView, ViewMutationRecord } from "@tiptap/pm/view";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { InlineContentSchema } from "../inlineContent/types.js";
-import { StyleSchema } from "../styles/types.js";
+import { Editor, Node } from "@tiptap/core";
+import { DOMParser, Fragment, TagParseRule } from "@tiptap/pm/model";
+import { NodeView } from "@tiptap/pm/view";
+import { mergeParagraphs } from "../../blocks/defaultBlockHelpers.js";
+import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
+import { PropSchema } from "../propTypes.js";
 import {
-  createInternalBlockSpec,
-  createStronglyTypedTiptapNode,
   getBlockFromPos,
   propsToAttributes,
   wrapInBlockStructure,
 } from "./internal.js";
 import {
   BlockConfig,
-  BlockFromConfig,
-  BlockSchemaWithBlock,
-  PartialBlockFromConfig,
+  BlockImplementation,
+  BlockSpec,
+  LooseBlockSpec,
 } from "./types.js";
-
-// restrict content to "inline" and "none" only
-export type CustomBlockConfig = BlockConfig & {
-  content: "inline" | "none";
-};
-
-export type CustomBlockImplementation<
-  T extends CustomBlockConfig,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
-> = {
-  render: (
-    /**
-     * The custom block to render
-     */
-    block: BlockFromConfig<T, I, S>,
-    /**
-     * The BlockNote editor instance
-     * This is typed generically. If you want an editor with your custom schema, you need to
-     * cast it manually, e.g.: `const e = editor as BlockNoteEditor<typeof mySchema>;`
-     */
-    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, I, S>,
-    // (note) if we want to fix the manual cast, we need to prevent circular references and separate block definition and render implementations
-    // or allow manually passing <BSchema>, but that's not possible without passing the other generics because Typescript doesn't support partial inferred generics
-  ) => {
-    dom: HTMLElement;
-    contentDOM?: HTMLElement;
-    ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
-    destroy?: () => void;
-  };
-  // Exports block to external HTML. If not defined, the output will be the same
-  // as `render(...).dom`. Used to create clipboard data when pasting outside
-  // BlockNote.
-  // TODO: Maybe can return undefined to ignore when serializing?
-  toExternalHTML?: (
-    block: BlockFromConfig<T, I, S>,
-    editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, I, S>,
-  ) => {
-    dom: HTMLElement;
-    contentDOM?: HTMLElement;
-  };
-
-  parse?: (
-    el: HTMLElement,
-  ) => PartialBlockFromConfig<T, I, S>["props"] | undefined;
-};
 
 // Function that causes events within non-selectable blocks to be handled by the
 // browser instead of the editor.
@@ -84,9 +36,13 @@ export function applyNonSelectableBlockFix(nodeView: NodeView, editor: Editor) {
 // Function that uses the 'parse' function of a blockConfig to create a
 // TipTap node's `parseHTML` property. This is only used for parsing content
 // from the clipboard.
-export function getParseRules(
-  config: BlockConfig,
-  customParseFunction: CustomBlockImplementation<any, any, any>["parse"],
+export function getParseRules<
+  TName extends string,
+  TProps extends PropSchema,
+  TContent extends "inline" | "none" | "table",
+>(
+  config: BlockConfig<TName, TProps, TContent>,
+  implementation: BlockImplementation<TName, TProps, TContent>,
 ) {
   const rules: TagParseRule[] = [
     {
@@ -95,7 +51,7 @@ export function getParseRules(
     },
   ];
 
-  if (customParseFunction) {
+  if (implementation.parse) {
     rules.push({
       tag: "*",
       getAttrs(node: string | HTMLElement) {
@@ -103,7 +59,7 @@ export function getParseRules(
           return false;
         }
 
-        const props = customParseFunction?.(node);
+        const props = implementation.parse?.(node);
 
         if (props === undefined) {
           return false;
@@ -111,6 +67,40 @@ export function getParseRules(
 
         return props;
       },
+      getContent:
+        config.content === "inline" || config.content === "none"
+          ? (node, schema) => {
+              if (implementation.parseContent) {
+                return implementation.parseContent({
+                  el: node as HTMLElement,
+                  schema,
+                });
+              }
+
+              if (config.content === "inline") {
+                // Parse the inline content if it exists
+                const element = node as HTMLElement;
+
+                // Clone to avoid modifying the original
+                const clone = element.cloneNode(true) as HTMLElement;
+
+                // Merge multiple paragraphs into one with line breaks
+                mergeParagraphs(
+                  clone,
+                  implementation.meta?.code ? "\n" : "<br>",
+                );
+
+                // Parse the content directly as a paragraph to extract inline content
+                const parser = DOMParser.fromSchema(schema);
+                const parsed = parser.parse(clone, {
+                  topNode: schema.nodes.paragraph.create(),
+                });
+
+                return parsed.content;
+              }
+              return Fragment.empty;
+            }
+          : undefined,
     });
   }
   //     getContent(node, schema) {
@@ -134,84 +124,90 @@ export function getParseRules(
 
 // A function to create custom block for API consumers
 // we want to hide the tiptap node from API consumers and provide a simpler API surface instead
-export function createBlockSpec<
-  T extends CustomBlockConfig,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
+export function addNodeAndExtensionsToSpec<
+  TName extends string,
+  TProps extends PropSchema,
+  TContent extends "inline" | "none" | "table",
 >(
-  blockConfig: T,
-  blockImplementation: CustomBlockImplementation<NoInfer<T>, I, S>,
-) {
-  const node = createStronglyTypedTiptapNode({
-    name: blockConfig.type as T["type"],
-    content: (blockConfig.content === "inline"
-      ? "inline*"
-      : "") as T["content"] extends "inline" ? "inline*" : "",
-    group: "blockContent",
-    selectable: blockConfig.isSelectable ?? true,
-    isolating: true,
-    addAttributes() {
-      return propsToAttributes(blockConfig.propSchema);
-    },
+  blockConfig: BlockConfig<TName, TProps, TContent>,
+  blockImplementation: BlockImplementation<TName, TProps, TContent>,
+  extensions?: BlockNoteExtension<any>[],
+  priority?: number,
+): LooseBlockSpec<TName, TProps, TContent> {
+  const node =
+    ((blockImplementation as any).node as Node) ||
+    Node.create({
+      name: blockConfig.type,
+      content: (blockConfig.content === "inline"
+        ? "inline*"
+        : blockConfig.content === "none"
+          ? ""
+          : blockConfig.content) as TContent extends "inline" ? "inline*" : "",
+      group: "blockContent",
+      selectable: blockImplementation.meta?.selectable ?? true,
+      isolating: blockImplementation.meta?.isolating ?? true,
+      code: blockImplementation.meta?.code ?? false,
+      defining: blockImplementation.meta?.defining ?? true,
+      priority,
+      addAttributes() {
+        return propsToAttributes(blockConfig.propSchema);
+      },
 
-    parseHTML() {
-      return getParseRules(blockConfig, blockImplementation.parse);
-    },
+      parseHTML() {
+        return getParseRules(blockConfig, blockImplementation);
+      },
 
-    renderHTML({ HTMLAttributes }) {
-      // renderHTML is used for copy/pasting content from the editor back into
-      // the editor, so we need to make sure the `blockContent` element is
-      // structured correctly as this is what's used for parsing blocks. We
-      // just render a placeholder div inside as the `blockContent` element
-      // already has all the information needed for proper parsing.
-      const div = document.createElement("div");
-      return wrapInBlockStructure(
-        {
-          dom: div,
-          contentDOM: blockConfig.content === "inline" ? div : undefined,
-        },
-        blockConfig.type,
-        {},
-        blockConfig.propSchema,
-        blockConfig.isFileBlock,
-        HTMLAttributes,
-      );
-    },
-
-    addNodeView() {
-      return ({ getPos }) => {
-        // Gets the BlockNote editor instance
-        const editor = this.options.editor;
-        // Gets the block
-        const block = getBlockFromPos(
-          getPos,
-          editor,
-          this.editor,
+      renderHTML({ HTMLAttributes }) {
+        // renderHTML is used for copy/pasting content from the editor back into
+        // the editor, so we need to make sure the `blockContent` element is
+        // structured correctly as this is what's used for parsing blocks. We
+        // just render a placeholder div inside as the `blockContent` element
+        // already has all the information needed for proper parsing.
+        const div = document.createElement("div");
+        return wrapInBlockStructure(
+          {
+            dom: div,
+            contentDOM: blockConfig.content === "inline" ? div : undefined,
+          },
           blockConfig.type,
-        );
-        // Gets the custom HTML attributes for `blockContent` nodes
-        const blockContentDOMAttributes =
-          this.options.domAttributes?.blockContent || {};
-
-        const output = blockImplementation.render(block as any, editor);
-
-        const nodeView: NodeView = wrapInBlockStructure(
-          output,
-          block.type,
-          block.props,
+          {},
           blockConfig.propSchema,
-          blockConfig.isFileBlock,
-          blockContentDOMAttributes,
+          blockImplementation.meta?.fileBlockAccept !== undefined,
+          HTMLAttributes,
         );
+      },
 
-        if (blockConfig.isSelectable === false) {
-          applyNonSelectableBlockFix(nodeView, this.editor);
-        }
+      addNodeView() {
+        return (props) => {
+          // Gets the BlockNote editor instance
+          const editor = this.options.editor;
+          // Gets the block
+          const block = getBlockFromPos(
+            props.getPos,
+            editor,
+            this.editor,
+            blockConfig.type,
+          );
+          // Gets the custom HTML attributes for `blockContent` nodes
+          const blockContentDOMAttributes =
+            this.options.domAttributes?.blockContent || {};
 
-        return nodeView;
-      };
-    },
-  });
+          const nodeView = blockImplementation.render.call(
+            { blockContentDOMAttributes, props, renderType: "nodeView" },
+            block as any,
+            editor as any,
+          );
+
+          if (blockImplementation.meta?.selectable === false) {
+            applyNonSelectableBlockFix(nodeView, this.editor);
+          }
+
+          // See explanation for why `update` is not implemented for NodeViews
+          // https://github.com/TypeCellOS/BlockNote/pull/1904#discussion_r2313461464
+          return nodeView;
+        };
+      },
+    });
 
   if (node.name !== blockConfig.type) {
     throw new Error(
@@ -219,43 +215,220 @@ export function createBlockSpec<
     );
   }
 
-  return createInternalBlockSpec(blockConfig, {
-    node,
-    toInternalHTML: (block, editor) => {
-      const blockContentDOMAttributes =
-        node.options.domAttributes?.blockContent || {};
+  return {
+    config: blockConfig,
+    implementation: {
+      node,
+      render(block, editor) {
+        const blockContentDOMAttributes =
+          node.options.domAttributes?.blockContent || {};
 
-      const output = blockImplementation.render(block as any, editor as any);
+        return blockImplementation.render.call(
+          {
+            blockContentDOMAttributes,
+            props: undefined,
+            renderType: "dom",
+          },
+          block as any,
+          editor as any,
+        );
+      },
+      // TODO: this should not have wrapInBlockStructure and generally be a lot simpler
+      // post-processing in externalHTMLExporter should not be necessary
+      toExternalHTML: (block, editor) => {
+        const blockContentDOMAttributes =
+          node.options.domAttributes?.blockContent || {};
 
-      return wrapInBlockStructure(
-        output,
-        block.type,
-        block.props,
-        blockConfig.propSchema,
-        blockConfig.isFileBlock,
-        blockContentDOMAttributes,
-      );
+        return (
+          blockImplementation.toExternalHTML?.call(
+            { blockContentDOMAttributes },
+            block as any,
+            editor as any,
+          ) ??
+          blockImplementation.render.call(
+            { blockContentDOMAttributes, renderType: "dom", props: undefined },
+            block as any,
+            editor as any,
+          )
+        );
+      },
     },
-    // TODO: this should not have wrapInBlockStructure and generally be a lot simpler
-    // post-processing in externalHTMLExporter should not be necessary
-    toExternalHTML: (block, editor) => {
-      const blockContentDOMAttributes =
-        node.options.domAttributes?.blockContent || {};
+    extensions,
+  };
+}
 
-      let output = blockImplementation.toExternalHTML?.(
-        block as any,
-        editor as any,
-      );
-      if (output === undefined) {
-        output = blockImplementation.render(block as any, editor as any);
-      }
-      return wrapInBlockStructure(
-        output,
-        block.type,
-        block.props,
-        blockConfig.propSchema,
-        blockContentDOMAttributes,
-      );
-    },
-  });
+/**
+ * Helper function to create a block config.
+ */
+export function createBlockConfig<
+  TCallback extends (
+    options: Partial<Record<string, any>>,
+  ) => BlockConfig<any, any, any>,
+  TOptions extends Parameters<TCallback>[0],
+  TName extends ReturnType<TCallback>["type"],
+  TProps extends ReturnType<TCallback>["propSchema"],
+  TContent extends ReturnType<TCallback>["content"],
+>(
+  callback: TCallback,
+): TOptions extends undefined
+  ? () => BlockConfig<TName, TProps, TContent>
+  : (options: TOptions) => BlockConfig<TName, TProps, TContent> {
+  return callback as any;
+}
+
+/**
+ * Helper function to create a block definition.
+ * Can accept either functions that return the required objects, or the objects directly.
+ */
+export function createBlockSpec<
+  const TName extends string,
+  const TProps extends PropSchema,
+  const TContent extends "inline" | "none",
+  const TOptions extends Partial<Record<string, any>> | undefined = undefined,
+>(
+  blockConfigOrCreator: BlockConfig<TName, TProps, TContent>,
+  blockImplementationOrCreator:
+    | BlockImplementation<TName, TProps, TContent>
+    | (TOptions extends undefined
+        ? () => BlockImplementation<TName, TProps, TContent>
+        : (
+            options: Partial<TOptions>,
+          ) => BlockImplementation<TName, TProps, TContent>),
+  extensionsOrCreator?:
+    | BlockNoteExtension<any>[]
+    | (TOptions extends undefined
+        ? () => BlockNoteExtension<any>[]
+        : (options: Partial<TOptions>) => BlockNoteExtension<any>[]),
+): (options?: Partial<TOptions>) => BlockSpec<TName, TProps, TContent>;
+export function createBlockSpec<
+  const TName extends string,
+  const TProps extends PropSchema,
+  const TContent extends "inline" | "none",
+  const BlockConf extends BlockConfig<TName, TProps, TContent>,
+  const TOptions extends Partial<Record<string, any>>,
+>(
+  blockCreator: (options: Partial<TOptions>) => BlockConf,
+  blockImplementationOrCreator:
+    | BlockImplementation<
+        BlockConf["type"],
+        BlockConf["propSchema"],
+        BlockConf["content"]
+      >
+    | (TOptions extends undefined
+        ? () => BlockImplementation<
+            BlockConf["type"],
+            BlockConf["propSchema"],
+            BlockConf["content"]
+          >
+        : (
+            options: Partial<TOptions>,
+          ) => BlockImplementation<
+            BlockConf["type"],
+            BlockConf["propSchema"],
+            BlockConf["content"]
+          >),
+  extensionsOrCreator?:
+    | BlockNoteExtension<any>[]
+    | (TOptions extends undefined
+        ? () => BlockNoteExtension<any>[]
+        : (options: Partial<TOptions>) => BlockNoteExtension<any>[]),
+): (
+  options?: Partial<TOptions>,
+) => BlockSpec<
+  BlockConf["type"],
+  BlockConf["propSchema"],
+  BlockConf["content"]
+>;
+export function createBlockSpec<
+  const TName extends string,
+  const TProps extends PropSchema,
+  const TContent extends "inline" | "none",
+  const TOptions extends Partial<Record<string, any>> | undefined = undefined,
+>(
+  blockConfigOrCreator:
+    | BlockConfig<TName, TProps, TContent>
+    | (TOptions extends undefined
+        ? () => BlockConfig<TName, TProps, TContent>
+        : (options: Partial<TOptions>) => BlockConfig<TName, TProps, TContent>),
+  blockImplementationOrCreator:
+    | BlockImplementation<TName, TProps, TContent>
+    | (TOptions extends undefined
+        ? () => BlockImplementation<TName, TProps, TContent>
+        : (
+            options: Partial<TOptions>,
+          ) => BlockImplementation<TName, TProps, TContent>),
+  extensionsOrCreator?:
+    | BlockNoteExtension<any>[]
+    | (TOptions extends undefined
+        ? () => BlockNoteExtension<any>[]
+        : (options: Partial<TOptions>) => BlockNoteExtension<any>[]),
+): (options?: Partial<TOptions>) => BlockSpec<TName, TProps, TContent> {
+  return (options = {} as TOptions) => {
+    const blockConfig =
+      typeof blockConfigOrCreator === "function"
+        ? blockConfigOrCreator(options as any)
+        : blockConfigOrCreator;
+
+    const blockImplementation =
+      typeof blockImplementationOrCreator === "function"
+        ? blockImplementationOrCreator(options as any)
+        : blockImplementationOrCreator;
+
+    const extensions = extensionsOrCreator
+      ? typeof extensionsOrCreator === "function"
+        ? extensionsOrCreator(options as any)
+        : extensionsOrCreator
+      : undefined;
+
+    return {
+      config: blockConfig,
+      implementation: {
+        ...blockImplementation,
+        // TODO: this should not have wrapInBlockStructure and generally be a lot simpler
+        // post-processing in externalHTMLExporter should not be necessary
+        toExternalHTML(block, editor) {
+          const output = blockImplementation.toExternalHTML?.call(
+            { blockContentDOMAttributes: this.blockContentDOMAttributes },
+            block as any,
+            editor as any,
+          );
+
+          if (output === undefined) {
+            return undefined;
+          }
+
+          return wrapInBlockStructure(
+            output,
+            block.type,
+            block.props,
+            blockConfig.propSchema,
+            blockImplementation.meta?.fileBlockAccept !== undefined,
+          );
+        },
+        render(block, editor) {
+          const output = blockImplementation.render.call(
+            {
+              blockContentDOMAttributes: this.blockContentDOMAttributes,
+              renderType: this.renderType,
+              props: this.props as any,
+            },
+            block as any,
+            editor as any,
+          );
+
+          const nodeView = wrapInBlockStructure(
+            output,
+            block.type,
+            block.props,
+            blockConfig.propSchema,
+            blockImplementation.meta?.fileBlockAccept !== undefined,
+            this.blockContentDOMAttributes,
+          ) satisfies NodeView;
+
+          return nodeView;
+        },
+      },
+      extensions: extensions,
+    };
+  };
 }

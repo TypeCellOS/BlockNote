@@ -62,15 +62,13 @@ export function createStyleSpec<T extends StyleConfig>(
       };
 
       if (styleConfig.propSchema === "boolean") {
-        // @ts-ignore not sure why this is complaining
-        renderResult = styleImplementation.render();
+        renderResult = styleImplementation.render(mark.attrs.stringValue);
       } else if (styleConfig.propSchema === "string") {
         renderResult = styleImplementation.render(mark.attrs.stringValue);
       } else {
         throw new UnreachableCaseError(styleConfig.propSchema);
       }
 
-      // const renderResult = styleImplementation.render();
       return addStyleAttributes(
         renderResult,
         styleConfig.type,

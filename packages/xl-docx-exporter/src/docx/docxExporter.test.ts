@@ -1,4 +1,8 @@
-import { BlockNoteSchema, defaultBlockSpecs, PageBreak } from "@blocknote/core";
+import {
+  BlockNoteSchema,
+  defaultBlockSpecs,
+  createPageBreakBlockSpec,
+} from "@blocknote/core";
 import { testDocument } from "@shared/testDocument.js";
 import { BlobReader, Entry, TextWriter, ZipReader } from "@zip.js/zip.js";
 import { Packer, Paragraph, TextRun } from "docx";
@@ -24,7 +28,10 @@ describe("exporter", () => {
   it("should export a document", { timeout: 10000 }, async () => {
     const exporter = new DOCXExporter(
       BlockNoteSchema.create({
-        blockSpecs: { ...defaultBlockSpecs, pageBreak: PageBreak },
+        blockSpecs: {
+          ...defaultBlockSpecs,
+          pageBreak: createPageBreakBlockSpec(),
+        },
       }),
       docxDefaultSchemaMappings,
     );
@@ -54,7 +61,10 @@ describe("exporter", () => {
     async () => {
       const exporter = new DOCXExporter(
         BlockNoteSchema.create({
-          blockSpecs: { ...defaultBlockSpecs, pageBreak: PageBreak },
+          blockSpecs: {
+            ...defaultBlockSpecs,
+            pageBreak: createPageBreakBlockSpec(),
+          },
         }),
         docxDefaultSchemaMappings,
       );
@@ -124,7 +134,7 @@ describe("exporter", () => {
       const schema = BlockNoteSchema.create({
         blockSpecs: {
           ...defaultBlockSpecs,
-          pageBreak: PageBreak,
+          pageBreak: createPageBreakBlockSpec(),
           column: ColumnBlock,
           columnList: ColumnListBlock,
         },

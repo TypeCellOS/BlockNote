@@ -1,4 +1,4 @@
-import { BlockNoteSchema } from "../editor/BlockNoteSchema.js";
+import { BlockNoteSchema } from "../blocks/BlockNoteSchema.js";
 import { COLORS_DEFAULT } from "../editor/defaultColors.js";
 import {
   BlockFromConfig,

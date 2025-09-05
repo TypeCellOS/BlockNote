@@ -1,17 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { codeBlock } from "./index.js";
+import { codeBlockOptions } from "./index.js";
 
 describe("codeBlock", () => {
   it("should exist", () => {
-    expect(codeBlock).toBeDefined();
+    expect(codeBlockOptions).toBeDefined();
   });
   it("should have defaultLanguage", () => {
-    expect(codeBlock.defaultLanguage).toBeDefined();
+    expect(codeBlockOptions.defaultLanguage).toBeDefined();
   });
   it("should have supportedLanguages", () => {
-    expect(codeBlock.supportedLanguages).toBeDefined();
+    expect(codeBlockOptions.supportedLanguages).toBeDefined();
   });
   it("should have createHighlighter", () => {
-    expect(codeBlock.createHighlighter).toBeDefined();
+    expect(codeBlockOptions.createHighlighter).toBeDefined();
   });
 });

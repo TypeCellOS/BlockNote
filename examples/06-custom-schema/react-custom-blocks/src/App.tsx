@@ -43,7 +43,7 @@ export const alertBlock = createReactBlockSpec(
       type: {
         default: "warning",
         values: ["warning", "error", "info", "success"],
-      },
+      } as const,
     },
     content: "inline",
   },
@@ -122,9 +122,9 @@ export const bracketsParagraphBlock = createReactBlockSpec(
 const schema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
-    alert: alertBlock,
-    simpleImage: simpleImageBlock,
-    bracketsParagraph: bracketsParagraphBlock,
+    alert: alertBlock(),
+    simpleImage: simpleImageBlock(),
+    bracketsParagraph: bracketsParagraphBlock(),
   },
 });
 

@@ -1,6 +1,6 @@
-import { createStronglyTypedTiptapNode } from "@blocknote/core";
+import { Node } from "@tiptap/core";
 
-export const ColumnList = createStronglyTypedTiptapNode({
+export const ColumnList = Node.create({
   name: "columnList",
   group: "childContainer bnBlock blockGroupChild",
   // A block always contains content, and optionally a blockGroup which contains nested blocks

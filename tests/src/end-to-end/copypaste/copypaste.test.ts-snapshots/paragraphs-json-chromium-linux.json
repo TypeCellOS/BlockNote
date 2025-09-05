@@ -89,6 +89,28 @@
         {
           "type": "blockContainer",
           "attrs": {
+            "id": "4",
+            "textColor": "default",
+            "backgroundColor": "default"
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlignment": "left"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Paragraph"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "blockContainer",
+          "attrs": {
             "id": "5",
             "textColor": "default",
             "backgroundColor": "default"
@@ -134,28 +156,6 @@
           "type": "blockContainer",
           "attrs": {
             "id": "7",
-            "textColor": "default",
-            "backgroundColor": "default"
-          },
-          "content": [
-            {
-              "type": "paragraph",
-              "attrs": {
-                "textAlignment": "left"
-              },
-              "content": [
-                {
-                  "type": "text",
-                  "text": "Paragraph"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "blockContainer",
-          "attrs": {
-            "id": "8",
             "textColor": "default",
             "backgroundColor": "default"
           },

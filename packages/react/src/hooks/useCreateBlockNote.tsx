@@ -1,30 +1,32 @@
 import {
   BlockNoteEditor,
   BlockNoteEditorOptions,
-  BlockSchema,
+  CustomBlockNoteSchema,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
-  InlineContentSchema,
-  StyleSchema,
 } from "@blocknote/core";
 import { DependencyList, useMemo } from "react";
 
 /**
- * Main hook for importing a BlockNote editor into a React project
- *
- * TODO: document in docs
+ * Hook to instantiate a BlockNote Editor instance in React
  */
 export const useCreateBlockNote = <
-  BSchema extends BlockSchema = DefaultBlockSchema,
-  ISchema extends InlineContentSchema = DefaultInlineContentSchema,
-  SSchema extends StyleSchema = DefaultStyleSchema,
+  Options extends Partial<BlockNoteEditorOptions<any, any, any>> | undefined,
 >(
-  options: Partial<BlockNoteEditorOptions<BSchema, ISchema, SSchema>> = {},
+  options: Options = {} as Options,
   deps: DependencyList = [],
-) => {
+): Options extends {
+  schema: CustomBlockNoteSchema<infer BSchema, infer ISchema, infer SSchema>;
+}
+  ? BlockNoteEditor<BSchema, ISchema, SSchema>
+  : BlockNoteEditor<
+      DefaultBlockSchema,
+      DefaultInlineContentSchema,
+      DefaultStyleSchema
+    > => {
   return useMemo(() => {
-    const editor = BlockNoteEditor.create<BSchema, ISchema, SSchema>(options);
+    const editor = BlockNoteEditor.create(options) as any;
     if (window) {
       // for testing / dev purposes
       (window as any).ProseMirror = editor._tiptapEditor;
@@ -32,8 +34,3 @@ export const useCreateBlockNote = <
     return editor;
   }, deps); //eslint-disable-line react-hooks/exhaustive-deps
 };
-
-/**
- * @deprecated use useCreateBlockNote instead
- */
-export const useBlockNote = useCreateBlockNote;

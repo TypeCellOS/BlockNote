@@ -19,7 +19,8 @@
     "declarationDir": "types",
     "emitDeclarationOnly": true,
     "composite": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "noErrorTruncation": true
   },
   "include": ["src"]
 }

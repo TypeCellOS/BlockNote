@@ -4,14 +4,14 @@ import { RiImage2Fill } from "react-icons/ri";
 
 export const ReactImage = createReactBlockSpec(
   {
-    type: "reactImage",
+    type: "reactImage" as const,
     propSchema: {
       ...defaultProps,
       src: {
         default: "https://via.placeholder.com/1000",
       },
     },
-    content: "inline",
+    content: "inline" as const,
   },
   {
     render: ({ block, contentRef }) => {

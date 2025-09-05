@@ -34,17 +34,23 @@ export type Props<PSchema extends PropSchema> = {
   // for required props, get type from type of "default" value,
   // and if values are specified, get type from values
   [PName in keyof PSchema]: (
-    PSchema[PName] extends { default: boolean } | { type: "boolean" }
-      ? PSchema[PName]["values"] extends readonly boolean[]
-        ? PSchema[PName]["values"][number]
+    NonNullable<PSchema[PName]> extends
+      | { default: boolean }
+      | { type: "boolean" }
+      ? NonNullable<PSchema[PName]>["values"] extends readonly boolean[]
+        ? NonNullable<PSchema[PName]>["values"][number]
         : boolean
-      : PSchema[PName] extends { default: number } | { type: "number" }
-        ? PSchema[PName]["values"] extends readonly number[]
-          ? PSchema[PName]["values"][number]
+      : NonNullable<PSchema[PName]> extends
+            | { default: number }
+            | { type: "number" }
+        ? NonNullable<PSchema[PName]>["values"] extends readonly number[]
+          ? NonNullable<PSchema[PName]>["values"][number]
           : number
-        : PSchema[PName] extends { default: string } | { type: "string" }
-          ? PSchema[PName]["values"] extends readonly string[]
-            ? PSchema[PName]["values"][number]
+        : NonNullable<PSchema[PName]> extends
+              | { default: string }
+              | { type: "string" }
+          ? NonNullable<PSchema[PName]>["values"] extends readonly string[]
+            ? NonNullable<PSchema[PName]>["values"][number]
             : string
           : never
   ) extends infer T

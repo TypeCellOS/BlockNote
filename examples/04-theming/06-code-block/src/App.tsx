@@ -1,14 +1,19 @@
+import { BlockNoteSchema, createCodeBlockSpec } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
 // This packages some of the most used languages in on-demand bundle
-import { codeBlock } from "@blocknote/code-block";
+import { codeBlockOptions } from "@blocknote/code-block";
 
 export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
-    codeBlock,
+    schema: BlockNoteSchema.create().extend({
+      blockSpecs: {
+        codeBlock: createCodeBlockSpec(codeBlockOptions),
+      },
+    }),
     initialContent: [
       {
         type: "codeBlock",

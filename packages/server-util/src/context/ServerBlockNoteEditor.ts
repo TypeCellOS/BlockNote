@@ -92,7 +92,7 @@ export class ServerBlockNoteEditor<
     this.editor = BlockNoteEditor.create({
       ...options,
       _headless: true,
-    });
+    }) as any;
   }
 
   /** PROSEMIRROR / BLOCKNOTE conversions */

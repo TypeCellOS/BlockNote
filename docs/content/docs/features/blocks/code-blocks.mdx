@@ -20,25 +20,27 @@ Code blocks by default are a simple way to display code. But, BlockNote also sup
   experience easy to use and reduce bundle size.
 </Callout>
 
-You can enable more advanced features by passing the `codeBlock` option when creating the editor.
+You can enable more advanced features by extending the editor's default schema with a new `codeBlock`, which you can pass options into when creating. For more on extending the editor schema, see [Custom Schemas](/docs/features/custom-schemas).
 
 ```ts
 const editor = new BlockNoteEditor({
-  codeBlock: {
-    indentLineWithTab: true,
-    defaultLanguage: "typescript",
-    supportedLanguages: {
-      typescript: {
-        name: "TypeScript",
-        aliases: ["ts"],
+  schema: BlockNoteSchema.create().extend({
+    codeBlock: createCodeBlockSpec({
+      indentLineWithTab: true,
+      defaultLanguage: "typescript",
+      supportedLanguages: {
+        typescript: {
+          name: "TypeScript",
+          aliases: ["ts"],
+        },
       },
-    },
-    createHighlighter: () =>
-      createHighlighter({
-        themes: ["light-plus", "dark-plus"],
-        langs: [],
-      }),
-  },
+      createHighlighter: () =>
+        createHighlighter({
+          themes: ["light-plus", "dark-plus"],
+          langs: [],
+        }),
+    }),
+  }),
 });
 ```
 
@@ -64,7 +66,7 @@ type CodeBlock = {
 
 ### Basic Setup
 
-To enable code block syntax highlighting, you can use the `codeBlock` option in the `useCreateBlockNote` hook.
+To enable code block syntax highlighting, you can extend the editor's default schema with a new `codeBlock`.
 
 First, install the package:
 
@@ -75,20 +77,24 @@ npm install @blocknote/code-block
 Then use it like this:
 
 ```tsx
-import { codeBlock } from "@blocknote/code-block";
+import { codeBlockOptions } from "@blocknote/code-block";
 
 export default function App() {
   const editor = useCreateBlockNote({
-    codeBlock,
+    schema: BlockNoteSchema.create().extend({
+      codeBlock: createCodeBlockSpec(codeBlockOptions),
+    }),
   });
 
   return <BlockNoteView editor={editor} />;
 }
 ```
 
+This will extend the default schema with a custom `codeBlock` that includes options from `@blocknote/code-block`, enabling syntax highlighting.
+
 ### Custom Themes & Languages
 
-To configure a code block highlighting theme and language, you can use the `codeBlock` option in the `useCreateBlockNote` hook.
+To configure a code block highlighting theme and language, you can again extend the editor's default schema with a new `codeBlock`.
 
 This allows you to configure a [shiki](https://shiki.style) highlighter for the code blocks of your editor, allowing you to tailor the themes and languages you would like to use.
 
@@ -109,21 +115,23 @@ import { createHighlighter } from "./shiki.bundle.js";
 
 export default function App() {
   const editor = useCreateBlockNote({
-    codeBlock: {
-      indentLineWithTab: true,
-      defaultLanguage: "typescript",
-      supportedLanguages: {
-        typescript: {
-          name: "TypeScript",
-          aliases: ["ts"],
+    schema: BlockNoteSchema.create().extend({
+      codeBlock: createCodeBlockSpec({
+        indentLineWithTab: true,
+        defaultLanguage: "typescript",
+        supportedLanguages: {
+          typescript: {
+            name: "TypeScript",
+            aliases: ["ts"],
+          },
         },
-      },
-      createHighlighter: () =>
-        createHighlighter({
-          themes: ["light-plus", "dark-plus"],
-          langs: [],
-        }),
-    },
+        createHighlighter: () =>
+          createHighlighter({
+            themes: ["light-plus", "dark-plus"],
+            langs: [],
+          }),
+      }),
+    }),
   });
 
   return <BlockNoteView editor={editor} />;
