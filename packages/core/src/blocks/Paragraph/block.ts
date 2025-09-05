@@ -2,7 +2,7 @@ import { updateBlockTr } from "../../api/blockManipulation/commands/updateBlock/
 import { getBlockInfoFromTransaction } from "../../api/getBlockInfoFromPos.js";
 import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
 import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
-import { defaultProps } from "../defaultProps.js";
+import { defaultProps, parseDefaultProps } from "../defaultProps.js";
 
 export const createParagraphBlockConfig = createBlockConfig(
   () =>
@@ -29,7 +29,7 @@ export const createParagraphBlockSpec = createBlockSpec(
         return undefined;
       }
 
-      return undefined;
+      return parseDefaultProps(e);
     },
     render: () => {
       const dom = document.createElement("p");

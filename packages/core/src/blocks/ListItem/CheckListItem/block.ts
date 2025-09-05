@@ -2,7 +2,7 @@ import { updateBlockTr } from "../../../api/blockManipulation/commands/updateBlo
 import { getBlockInfoFromTransaction } from "../../../api/getBlockInfoFromPos.js";
 import { createBlockConfig, createBlockSpec } from "../../../schema/index.js";
 import { createBlockNoteExtension } from "../../../editor/BlockNoteExtension.js";
-import { defaultProps } from "../../defaultProps.js";
+import { defaultProps, parseDefaultProps } from "../../defaultProps.js";
 import { handleEnter } from "../../utils/listItemEnterHandler.js";
 import { getListItemContent } from "../getListItemContent.js";
 
@@ -28,22 +28,22 @@ export const createCheckListItemBlockSpec = createBlockSpec(
       if (element.tagName === "input") {
         // Ignore if we already parsed an ancestor list item to avoid double-parsing.
         if (element.closest("[data-content-type]") || element.closest("li")) {
-          return;
+          return undefined;
         }
 
         if ((element as HTMLInputElement).type === "checkbox") {
           return { checked: (element as HTMLInputElement).checked };
         }
-        return;
+        return undefined;
       }
       if (element.tagName !== "LI") {
-        return;
+        return undefined;
       }
 
       const parent = element.parentElement;
 
       if (parent === null) {
-        return;
+        return undefined;
       }
 
       if (
@@ -55,10 +55,10 @@ export const createCheckListItemBlockSpec = createBlockSpec(
           null;
 
         if (checkbox === null) {
-          return;
+          return undefined;
         }
 
-        return { checked: checkbox.checked };
+        return { ...parseDefaultProps(element), checked: checkbox.checked };
       }
 
       return;

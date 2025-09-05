@@ -22,3 +22,15 @@ export type DefaultProps = Props<typeof defaultProps>;
 // `blockContent` nodes. Ensures that they are not redundantly added to
 // a custom block's TipTap node attributes.
 export const inheritedProps = ["backgroundColor", "textColor"];
+
+export const parseDefaultProps = (element: HTMLElement) => {
+  const props: Partial<DefaultProps> = {};
+
+  props.textAlignment = defaultProps.textAlignment.values.includes(
+    element.style.textAlign as DefaultProps["textAlignment"],
+  )
+    ? (element.style.textAlign as DefaultProps["textAlignment"])
+    : undefined;
+
+  return props;
+};

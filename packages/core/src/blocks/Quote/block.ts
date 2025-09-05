@@ -2,7 +2,7 @@ import { updateBlockTr } from "../../api/blockManipulation/commands/updateBlock/
 import { getBlockInfoFromTransaction } from "../../api/getBlockInfoFromPos.js";
 import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
 import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
-import { defaultProps } from "../defaultProps.js";
+import { defaultProps, parseDefaultProps } from "../defaultProps.js";
 
 export const createQuoteBlockConfig = createBlockConfig(
   () =>
@@ -24,7 +24,9 @@ export const createQuoteBlockSpec = createBlockSpec(
     },
     parse(element) {
       if (element.tagName === "BLOCKQUOTE") {
-        return {};
+        const { backgroundColor, textColor } = parseDefaultProps(element);
+
+        return { backgroundColor, textColor };
       }
 
       return undefined;

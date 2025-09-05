@@ -4,7 +4,7 @@ import {
   createBlockConfig,
   createBlockSpec,
 } from "../../schema/index.js";
-import { defaultProps } from "../defaultProps.js";
+import { defaultProps, parseDefaultProps } from "../defaultProps.js";
 import { parseFigureElement } from "../File/helpers/parse/parseFigureElement.js";
 import { createFileBlockWrapper } from "../File/helpers/render/createFileBlockWrapper.js";
 import { createFigureWithCaption } from "../File/helpers/toExternalHTML/createFigureWithCaption.js";
@@ -54,7 +54,12 @@ export const audioParse =
         return undefined;
       }
 
-      return parseAudioElement(element as HTMLAudioElement);
+      const { backgroundColor } = parseDefaultProps(element);
+
+      return {
+        ...parseAudioElement(element as HTMLAudioElement),
+        backgroundColor,
+      };
     }
 
     if (element.tagName === "FIGURE") {
@@ -65,8 +70,11 @@ export const audioParse =
 
       const { targetElement, caption } = parsedFigure;
 
+      const { backgroundColor } = parseDefaultProps(element);
+
       return {
         ...parseAudioElement(targetElement as HTMLAudioElement),
+        backgroundColor,
         caption,
       };
     }

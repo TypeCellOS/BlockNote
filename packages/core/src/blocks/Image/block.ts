@@ -4,7 +4,7 @@ import {
   createBlockConfig,
   createBlockSpec,
 } from "../../schema/index.js";
-import { defaultProps } from "../defaultProps.js";
+import { defaultProps, parseDefaultProps } from "../defaultProps.js";
 import { parseFigureElement } from "../File/helpers/parse/parseFigureElement.js";
 import { createResizableFileBlockWrapper } from "../File/helpers/render/createResizableFileBlockWrapper.js";
 import { createFigureWithCaption } from "../File/helpers/toExternalHTML/createFigureWithCaption.js";
@@ -59,7 +59,12 @@ export const imageParse =
         return undefined;
       }
 
-      return parseImageElement(element as HTMLImageElement);
+      const { backgroundColor } = parseDefaultProps(element);
+
+      return {
+        ...parseImageElement(element as HTMLImageElement),
+        backgroundColor,
+      };
     }
 
     if (element.tagName === "FIGURE") {
@@ -70,8 +75,11 @@ export const imageParse =
 
       const { targetElement, caption } = parsedFigure;
 
+      const { backgroundColor } = parseDefaultProps(element);
+
       return {
         ...parseImageElement(targetElement as HTMLImageElement),
+        backgroundColor,
         caption,
       };
     }

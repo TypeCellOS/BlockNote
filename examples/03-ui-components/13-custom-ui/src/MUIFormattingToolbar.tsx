@@ -303,6 +303,10 @@ function MUITextAlignButton(props: {
     editor.focus();
   }, [editor, props.textAlignment]);
 
+  if (!activeTextAlignment) {
+    return null;
+  }
+
   return (
     <MUIToolbarButton
       tooltip={tooltip}

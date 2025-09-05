@@ -2,7 +2,7 @@ import { updateBlockTr } from "../../api/blockManipulation/commands/updateBlock/
 import { getBlockInfoFromTransaction } from "../../api/getBlockInfoFromPos.js";
 import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
 import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
-import { defaultProps } from "../defaultProps.js";
+import { defaultProps, parseDefaultProps } from "../defaultProps.js";
 import { createToggleWrapper } from "../ToggleWrapper/createToggleWrapper.js";
 
 const HEADING_LEVELS = [1, 2, 3, 4, 5, 6] as const;
@@ -65,6 +65,7 @@ export const createHeadingBlockSpec = createBlockSpec(
       }
 
       return {
+        ...parseDefaultProps(e),
         level,
       };
     },
