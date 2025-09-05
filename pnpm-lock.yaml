@@ -396,9 +396,6 @@ importers:
       '@blocknote/ariakit':
         specifier: latest
         version: link:../../../packages/ariakit
-      '@blocknote/code-block':
-        specifier: latest
-        version: link:../../../packages/code-block
       '@blocknote/core':
         specifier: latest
         version: link:../../../packages/core
@@ -23748,7 +23745,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 22.15.2
+      '@types/node': 20.17.50
       merge-stream: 2.0.0
       supports-color: 8.1.1
 

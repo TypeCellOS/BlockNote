@@ -51,7 +51,7 @@ export const createPageBreakBlockSpec = createBlockSpec(
 );
 
 /**
- * Adds multi-column support to the given schema.
+ * Adds page break support to the given schema.
  */
 export const withPageBreak = <
   B extends BlockSchema,
