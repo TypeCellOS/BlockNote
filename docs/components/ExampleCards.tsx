@@ -3,6 +3,7 @@ import { Heading } from "fumadocs-ui/components/heading";
 
 import { exampleGroupsData } from "./example/generated/exampleGroupsData.gen";
 import { Fragment } from "react";
+import { ProBadge } from "./ProBadge";
 
 export default function ExampleCards() {
   return (
@@ -14,10 +15,11 @@ export default function ExampleCards() {
           </Heading>
           <Cards
             key={exampleGroupData.exampleGroupName + "-cards"}
-            className="mb-8"
+            className="mb-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
           >
             {exampleGroupData.examplesData.map((exampleData) => (
               <Card
+                className="@max-lg:col-span-1"
                 key={
                   exampleGroupData.exampleGroupName +
                   "-" +
@@ -32,7 +34,12 @@ export default function ExampleCards() {
                     />
                   ) : undefined
                 }
-                title={exampleData.title}
+                title={
+                  <span>
+                    <span className="mr-1">{exampleData.title}</span>
+                    {exampleData.isPro && <ProBadge />}
+                  </span>
+                }
                 description={
                   exampleData.author ? `by ${exampleData.author}` : undefined
                 }
