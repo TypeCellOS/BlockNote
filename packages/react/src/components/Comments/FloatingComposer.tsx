@@ -5,7 +5,7 @@ import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { CommentEditor } from "./CommentEditor.js";
-import { schema } from "./schema.js";
+import { defaultCommentEditorSchema } from "./defaultCommentEditorSchema.js";
 
 /**
  * The FloatingComposer component displays a comment editor "floating" card.
@@ -32,7 +32,7 @@ export function FloatingComposer() {
         emptyDocument: dict.placeholders.new_comment,
       },
     },
-    schema,
+    schema: editor.comments.commentEditorSchema || defaultCommentEditorSchema,
   });
 
   return (

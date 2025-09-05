@@ -903,7 +903,7 @@
           "pathFromRoot": "examples/04-theming",
           "slug": "theming"
         },
-        "readme": "To enable code block syntax highlighting, you can use the `codeBlock` option in the `useCreateBlockNote` hook. This is excluded by default to reduce bundle size.\n\n**Relevant Docs:**\n\n- [Code Block Syntax Highlighting](/docs/features/blocks/code-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)"
+        "readme": "To enable code block syntax highlighting, you can extend the editor's default schema with a new `codeBlock`, which you can pass options into when creating. By passing the default options from `@blocknote/code-block`, you can enable syntax highlighting. This is excluded by default to reduce bundle size.\n\n**Relevant Docs:**\n\n- [Code Block Syntax Highlighting](/docs/features/blocks/code-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Custom Schema](/docs/features/custom-schemas)"
       },
       {
         "projectSlug": "custom-code-block",
@@ -930,7 +930,7 @@
           "pathFromRoot": "examples/04-theming",
           "slug": "theming"
         },
-        "readme": "To configure a code block highlighting theme and language, you can use the `codeBlock` option in the `useCreateBlockNote` hook.\n\nThis allows you to configure a shiki highlighter for the code blocks of your editor, allowing you to tailor the themes and languages you would like to use.\n\nTo create a syntax highlighter, you can use the [shiki-codegen](https://shiki.style/packages/codegen) CLI for generating the code to create a syntax highlighter for your languages and themes.\n\nFor example to create a syntax highlighter using the optimized javascript engine, javascript, typescript, vue, with light and dark themes, you can run the following command:\n\n```bash\nnpx shiki-codegen --langs javascript,typescript,vue --themes light,dark --engine javascript --precompiled ./shiki.bundle.ts\n```\n\nThis will generate a `shiki.bundle.ts` file that you can use to create a syntax highlighter for your editor.\n\nLike this:\n\n```ts\nimport { createHighlighter } from \"./shiki.bundle\";\n\nexport default function App() {\n  // Creates a new editor instance.\n  const editor = useCreateBlockNote({\n    codeBlock: {\n      indentLineWithTab: true,\n      defaultLanguage: \"typescript\",\n      supportedLanguages: {\n        typescript: {\n          name: \"TypeScript\",\n          aliases: [\"ts\"],\n        },\n      },\n      createHighlighter: () =>\n        createHighlighter({\n          themes: [\"light-plus\", \"dark-plus\"],\n          langs: [],\n        }),\n    },\n  });\n\n  return <BlockNoteView editor={editor} />;\n}\n```\n\n**Relevant Docs:**\n\n- [Code Blocks](/docs/features/blocks/code-blocks)\n- [shiki-codegen](https://shiki.style/packages/codegen)"
+        "readme": "To configure a code block highlighting theme and language, you can extend the editor's default schema with a new `codeBlock`, which you can pass options into when creating. You can then use a shiki highlighter to add custom syntax highlighting.\n\nFirst use the [shiki-codegen](https://shiki.style/packages/codegen) CLI to create a `shiki.bundle.ts` file. You can then pass this file into the `codeBlock` options when creating it.\n\n**Relevant Docs:**\n\n- [Code Blocks](/docs/features/blocks/code-blocks)\n- [shiki-codegen](https://shiki.style/packages/codegen)\n- [Custom Schema](/docs/features/custom-schemas)"
       }
     ]
   },
@@ -1388,11 +1388,11 @@
             "Collaboration"
           ],
           "dependencies": {
-            "@liveblocks/client": "^2.23.1",
-            "@liveblocks/react": "^2.23.1",
-            "@liveblocks/react-blocknote": "^2.23.1",
-            "@liveblocks/react-tiptap": "^2.23.1",
-            "@liveblocks/react-ui": "^2.23.1",
+            "@liveblocks/client": "^3",
+            "@liveblocks/react": "^3",
+            "@liveblocks/react-blocknote": "^3",
+            "@liveblocks/react-tiptap": "^3",
+            "@liveblocks/react-ui": "^3",
             "yjs": "^13.6.27"
           } as any
         },

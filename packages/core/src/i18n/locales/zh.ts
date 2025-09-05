@@ -225,18 +225,12 @@ export const zh: Dictionary = {
     comment_reply: "添加评论...",
   },
   file_blocks: {
-    image: {
-      add_button_text: "添加图片",
-    },
-    video: {
-      add_button_text: "添加视频",
-    },
-    audio: {
-      add_button_text: "添加音频",
-    },
-    file: {
-      add_button_text: "添加文件",
-    },
+    add_button_text: {
+      image: "添加图片",
+      video: "添加视频",
+      audio: "添加音频",
+      file: "添加文件",
+    } as Record<string, string>,
   },
   toggle_blocks: {
     add_block_button: "空的切换区。点击添加区块。",

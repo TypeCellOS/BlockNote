@@ -47,14 +47,14 @@ export function serializeInlineContentInternalHTML<
   for (const node of nodes) {
     // Check if this is a custom inline content node with toExternalHTML
     if (
-      node.type &&
-      node.type.name &&
+      node.type.name !== "text" &&
+      node.type.name !== "link" &&
       editor.schema.inlineContentSchema[node.type.name]
     ) {
       const inlineContentImplementation =
-        editor.inlineContentImplementations[node.type.name]?.implementation;
+        editor.schema.inlineContentSpecs[node.type.name].implementation;
 
-      if (inlineContentImplementation?.toExternalHTML) {
+      if (inlineContentImplementation) {
         // Convert the node to inline content format
         const inlineContent = nodeToCustomInlineContent(
           node,
@@ -63,8 +63,15 @@ export function serializeInlineContentInternalHTML<
         );
 
         // Use the custom toExternalHTML method
-        const output = inlineContentImplementation.toExternalHTML(
+        const output = inlineContentImplementation.render.call(
+          {
+            renderType: "dom",
+            props: undefined,
+          },
           inlineContent as any,
+          () => {
+            // No-op
+          },
           editor as any,
         );
 
@@ -104,7 +111,6 @@ function serializeBlock<
   editor: BlockNoteEditor<BSchema, I, S>,
   block: PartialBlock<BSchema, I, S>,
   serializer: DOMSerializer,
-  listIndex: number,
   options?: { document?: Document },
 ) {
   const BC_NODE = editor.pmSchema.nodes["blockContainer"];
@@ -120,19 +126,14 @@ function serializeBlock<
   }
 
   const impl = editor.blockImplementations[block.type as any].implementation;
-  const ret = impl.render?.call({}, { ...block, props } as any, editor as any);
-
-  if (block.type === "numberedListItem") {
-    // This is a workaround to make sure there's a list index set.
-    // Normally, this is set on the internal prosemirror nodes by the NumberedListIndexingPlugin,
-    // but:
-    // - (a) this information is not available on the Blocks passed to the serializer. (we only have access to BlockNote Blocks)
-    // - (b) the NumberedListIndexingPlugin might not even have run, because we can manually call blocksToFullHTML
-    //       with blocks that are not part of the active document
-    if (ret.dom instanceof HTMLElement) {
-      ret.dom.setAttribute("data-index", listIndex.toString());
-    }
-  }
+  const ret = impl.render.call(
+    {
+      renderType: "dom",
+      props: undefined,
+    },
+    { ...block, props } as any,
+    editor as any,
+  );
 
   if (ret.contentDOM && block.content) {
     const ic = serializeInlineContentInternalHTML(
@@ -195,20 +196,8 @@ function serializeBlocks<
   const doc = options?.document ?? document;
   const fragment = doc.createDocumentFragment();
 
-  let listIndex = 0;
   for (const block of blocks) {
-    if (block.type === "numberedListItem") {
-      listIndex++;
-    } else {
-      listIndex = 0;
-    }
-    const blockDOM = serializeBlock(
-      editor,
-      block,
-      serializer,
-      listIndex,
-      options,
-    );
+    const blockDOM = serializeBlock(editor, block, serializer, options);
     fragment.appendChild(blockDOM);
   }
 

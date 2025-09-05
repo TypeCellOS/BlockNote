@@ -9,6 +9,7 @@ const config = {
   serverExternalPackages: ["typescript", "twoslash"],
   experimental: {
     reactCompiler: true,
+    turbopackScopeHoisting: false,
   },
   images: {
     remotePatterns: [

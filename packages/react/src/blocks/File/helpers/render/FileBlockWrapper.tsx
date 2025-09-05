@@ -15,7 +15,6 @@ export const FileBlockWrapper = (
     >,
     "contentRef"
   > & {
-    buttonText?: string;
     buttonIcon?: ReactNode;
     children?: ReactNode;
   } & {

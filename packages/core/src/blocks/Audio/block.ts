@@ -104,7 +104,6 @@ export const audioRender =
       block,
       editor,
       { dom: audio },
-      editor.dictionary.file_blocks.audio.add_button_text,
       icon.firstElementChild as HTMLElement,
     );
   };

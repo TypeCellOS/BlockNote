@@ -8,7 +8,7 @@ import { createParagraphBlockSpec } from "@blocknote/core";
 const { textColor, backgroundColor, ...styleSpecs } = defaultStyleSpecs;
 
 // the schema to use for comments
-export const schema = BlockNoteSchema.create({
+export const defaultCommentEditorSchema = BlockNoteSchema.create({
   blockSpecs: {
     paragraph: createParagraphBlockSpec(),
   },

@@ -65,7 +65,6 @@ import {
 import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
 import { docToBlocks } from "../api/nodeConversions/nodeToBlock.js";
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
-import { nestedListsToBlockNoteStructure } from "../api/parsers/html/util/nestedLists.js";
 import {
   markdownToBlocks,
   markdownToHTML,
@@ -112,6 +111,7 @@ import {
 import { TextCursorPosition } from "./cursorPositionTypes.js";
 import { Selection } from "./selectionTypes.js";
 import { transformPasted } from "./transformPasted.js";
+
 // TODO eventually we will want to de-couple this from the editor instance, for now it provides a default schema to use
 import {
   Block,
@@ -121,6 +121,8 @@ import {
   DefaultStyleSchema,
   PartialBlock,
 } from "../blocks/index.js";
+
+import "../style.css";
 
 /**
  * A factory function that returns a BlockNoteExtension
@@ -196,6 +198,7 @@ export type BlockNoteEditorOptions<
    * @remarks `CommentsOptions`
    */
   comments?: {
+    schema?: BlockNoteSchema<any, any, any>;
     threadStore: ThreadStore;
   };
 
@@ -1632,9 +1635,9 @@ export class BlockNoteEditor<
    * @param blocks An array of blocks that should be serialized into HTML.
    * @returns The blocks, serialized as an HTML string.
    */
-  public async blocksToHTMLLossy(
+  public blocksToHTMLLossy(
     blocks: PartialBlock<BSchema, ISchema, SSchema>[] = this.document,
-  ): Promise<string> {
+  ): string {
     const exporter = createExternalHTMLExporter(this.pmSchema, this);
     return exporter.exportBlocks(blocks, {});
   }
@@ -1648,9 +1651,9 @@ export class BlockNoteEditor<
    * @param blocks An array of blocks that should be serialized into HTML.
    * @returns The blocks, serialized as an HTML string.
    */
-  public async blocksToFullHTML(
+  public blocksToFullHTML(
     blocks: PartialBlock<BSchema, ISchema, SSchema>[],
-  ): Promise<string> {
+  ): string {
     const exporter = createInternalHTMLSerializer(this.pmSchema, this);
     return exporter.serializeBlocks(blocks, {});
   }
@@ -1661,9 +1664,9 @@ export class BlockNoteEditor<
    * @param html The HTML string to parse blocks from.
    * @returns The blocks parsed from the HTML string.
    */
-  public async tryParseHTMLToBlocks(
+  public tryParseHTMLToBlocks(
     html: string,
-  ): Promise<Block<BSchema, ISchema, SSchema>[]> {
+  ): Block<BSchema, ISchema, SSchema>[] {
     return HTMLToBlocks(html, this.pmSchema);
   }
 
@@ -1673,9 +1676,9 @@ export class BlockNoteEditor<
    * @param blocks An array of blocks that should be serialized into Markdown.
    * @returns The blocks, serialized as a Markdown string.
    */
-  public async blocksToMarkdownLossy(
+  public blocksToMarkdownLossy(
     blocks: PartialBlock<BSchema, ISchema, SSchema>[] = this.document,
-  ): Promise<string> {
+  ): string {
     return blocksToMarkdown(blocks, this.pmSchema, this, {});
   }
 
@@ -1891,14 +1894,6 @@ export class BlockNoteEditor<
   }
 
   /**
-   * This will convert HTML into a format that is compatible with BlockNote.
-   */
-  private convertHtmlToBlockNoteHtml(html: string) {
-    const htmlNode = nestedListsToBlockNoteStructure(html.trim());
-    return htmlNode.innerHTML;
-  }
-
-  /**
    * Paste HTML into the editor. Defaults to converting HTML to BlockNote HTML.
    * @param html The HTML to paste.
    * @param raw Whether to paste the HTML as is, or to convert it to BlockNote HTML.
@@ -1906,7 +1901,8 @@ export class BlockNoteEditor<
   public pasteHTML(html: string, raw = false) {
     let htmlToPaste = html;
     if (!raw) {
-      htmlToPaste = this.convertHtmlToBlockNoteHtml(html);
+      const blocks = this.tryParseHTMLToBlocks(html);
+      htmlToPaste = this.blocksToFullHTML(blocks);
     }
     if (!htmlToPaste) {
       return;
@@ -1926,7 +1922,8 @@ export class BlockNoteEditor<
    * Paste markdown into the editor.
    * @param markdown The markdown to paste.
    */
-  public async pasteMarkdown(markdown: string) {
-    return this.pasteHTML(await markdownToHTML(markdown));
+  public pasteMarkdown(markdown: string) {
+    const html = markdownToHTML(markdown);
+    return this.pasteHTML(html);
   }
 }

@@ -24,7 +24,6 @@ export const createFileBlockWrapper = (
   >,
   editor: BlockNoteEditor<any, any, any>,
   element?: { dom: HTMLElement; destroy?: () => void },
-  buttonText?: string,
   buttonIcon?: HTMLElement,
 ) => {
   const wrapper = document.createElement("div");
@@ -33,12 +32,7 @@ export const createFileBlockWrapper = (
   // Show the add file button if the file has not been uploaded yet. Change to
   // show a loader if a file upload for the block begins.
   if (block.props.url === "") {
-    const addFileButton = createAddFileButton(
-      block,
-      editor,
-      buttonText,
-      buttonIcon,
-    );
+    const addFileButton = createAddFileButton(block, editor, buttonIcon);
     wrapper.appendChild(addFileButton.dom);
 
     const destroyUploadStartHandler = editor.onUploadStart((blockId) => {

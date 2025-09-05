@@ -60,13 +60,9 @@ export function serializeInlineContentExternalHTML<
 
   for (const node of nodes) {
     // Check if this is a custom inline content node with toExternalHTML
-    if (
-      node.type &&
-      node.type.name &&
-      node.type.name in editor.schema.inlineContentSchema
-    ) {
+    if (editor.schema.inlineContentSchema[node.type.name]) {
       const inlineContentImplementation =
-        editor.schema.inlineContentSpecs[node.type.name]?.implementation;
+        editor.schema.inlineContentSpecs[node.type.name].implementation;
 
       if (inlineContentImplementation?.toExternalHTML) {
         // Convert the node to inline content format
@@ -190,7 +186,6 @@ function serializeBlock<
         attr.name !== "data-node-view-wrapper" &&
         attr.name !== "data-node-type" &&
         attr.name !== "data-id" &&
-        attr.name !== "data-index" &&
         attr.name !== "data-editable",
     );
 

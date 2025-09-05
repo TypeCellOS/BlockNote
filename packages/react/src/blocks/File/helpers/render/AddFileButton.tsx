@@ -14,7 +14,6 @@ export const AddFileButton = (
     >,
     "contentRef"
   > & {
-    buttonText?: string;
     buttonIcon?: ReactNode;
   },
 ) => {
@@ -46,7 +45,9 @@ export const AddFileButton = (
         {props.buttonIcon || <RiFile2Line size={24} />}
       </div>
       <div className={"bn-add-file-button-text"}>
-        {props.buttonText || dict.file_blocks.file.add_button_text}
+        {props.block.type in dict.file_blocks.add_button_text
+          ? dict.file_blocks.add_button_text[props.block.type]
+          : dict.file_blocks.add_button_text["file"]}
       </div>
     </div>
   );
