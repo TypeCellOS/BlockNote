@@ -1,8 +1,10 @@
 import {
   BlockNoteSchema,
   combineByGroup,
+  defaultBlockSpecs,
   filterSuggestionItems,
   uploadToTmpFilesDotOrg_DEV_ONLY,
+  AccessibleImageBlock,
 } from "@blocknote/core";
 import * as locales from "@blocknote/core/locales";
 import "@blocknote/core/fonts/inter.css";
@@ -90,7 +92,14 @@ export default function DemoEditor() {
         ...locales.en,
         multi_column: multiColumnLocales.en,
       },
-      schema: withMultiColumn(BlockNoteSchema.create()),
+      schema: withMultiColumn(
+        BlockNoteSchema.create({
+          blockSpecs: {
+            ...defaultBlockSpecs,
+            image: AccessibleImageBlock,
+          },
+        }),
+      ),
       dropCursor: multiColumnDropCursor,
       collaboration: {
         provider,
