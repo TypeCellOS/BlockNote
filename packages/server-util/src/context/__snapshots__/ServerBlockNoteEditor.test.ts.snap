@@ -132,7 +132,6 @@ exports[`Test ServerBlockNoteEditor > converts to and from markdown (blocksToMar
 "## **Heading&#x20;***~~2~~*
 
 Paragraph
-
 * list item
 
 ![Example](exampleURL)
