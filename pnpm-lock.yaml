@@ -2344,9 +2344,6 @@ importers:
       '@blocknote/xl-email-exporter':
         specifier: latest
         version: link:../../../packages/xl-email-exporter
-      '@react-email/render':
-        specifier: ^1.1.2
-        version: 1.1.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -23107,7 +23104,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 22.15.2
+      '@types/node': 20.17.50
       merge-stream: 2.0.0
       supports-color: 8.1.1
 

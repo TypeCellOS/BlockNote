@@ -2,4 +2,4 @@
 
 This example exports the current document (all blocks) as an PDF file and downloads it to your computer.
 
-**Try it out:** Edit the document and click "Download .pdf" in top-left corner, to download the PDF file.
+**Try it out:** Edit the document and click "Download .pdf" at the top to download the PDF file.

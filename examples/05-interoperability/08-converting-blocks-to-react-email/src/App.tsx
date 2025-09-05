@@ -12,6 +12,7 @@ import "@blocknote/mantine/style.css";
 import {
   SuggestionMenuController,
   getDefaultReactSlashMenuItems,
+  getPageBreakReactSlashMenuItems,
   useBlockNoteContext,
   useCreateBlockNote,
   usePrefersColorScheme,
@@ -20,23 +21,23 @@ import {
   ReactEmailExporter,
   reactEmailDefaultSchemaMappings,
 } from "@blocknote/xl-email-exporter";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import "./styles.css";
 
 export default function App() {
-  // Stores the editor's contents as HTML.
-  const [emailDocument, setEmailDocument] = useState<any>();
-
-  // Creates a new editor instance with some initial content.
+  // Creates a new editor instance.
   const editor = useCreateBlockNote({
+    // Adds support for page breaks.
     schema: withPageBreak(BlockNoteSchema.create()),
+    // Adds support for advanced table features.
     tables: {
       splitCells: true,
       cellBackgroundColor: true,
       cellTextColor: true,
       headers: true,
     },
+    // Sets initial editor content.
     initialContent: [
       {
         type: "paragraph",
@@ -318,15 +319,22 @@ export default function App() {
     ],
   });
 
+  // Additional Slash Menu items for page breaks.
+  const slashMenuItems = useMemo(() => {
+    return combineByGroup(
+      getDefaultReactSlashMenuItems(editor),
+      getPageBreakReactSlashMenuItems(editor),
+    );
+  }, [editor]);
+
   const existingContext = useBlockNoteContext();
   const systemColorScheme = usePrefersColorScheme();
-  const colorScheme =
-    existingContext?.colorSchemePreference || systemColorScheme;
 
-  const onChange = async () => {
-    if (!editor || !editor.document) {
-      return;
-    }
+  // Exports the editor content to HTML (for email) and downloads it.
+  const onDownloadClick = async () => {
+    const colorScheme =
+      existingContext?.colorSchemePreference || systemColorScheme;
+
     const exporter = new ReactEmailExporter(
       editor.schema,
       reactEmailDefaultSchemaMappings,
@@ -335,37 +343,33 @@ export default function App() {
           colorScheme === "dark" ? COLORS_DARK_MODE_DEFAULT : COLORS_DEFAULT,
       },
     );
-    const emailHtml = await exporter.toReactEmailDocument(editor.document);
+    const blob = new Blob(
+      [await exporter.toReactEmailDocument(editor.document)],
+      { type: "text/html" },
+    );
 
-    setEmailDocument(emailHtml);
+    const link = document.createElement("a");
+    link.href = window.URL.createObjectURL(blob);
+    link.download = "My Document (blocknote export).html";
+    document.body.appendChild(link);
+    link.dispatchEvent(
+      new MouseEvent("click", {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+      }),
+    );
+    link.remove();
+    window.URL.revokeObjectURL(link.href);
   };
 
-  useEffect(() => {
-    onChange();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const slashMenuItems = useMemo(() => {
-    return combineByGroup(getDefaultReactSlashMenuItems(editor));
-  }, [editor]);
-
-  // Renders the editor instance, and its contents as HTML below.
+  // Renders the editor instance, and a download button above.
   return (
-    <div className="wrapper">
-      <div className="editor">
-        <BlockNoteView editor={editor} slashMenu={false} onChange={onChange}>
-          <SuggestionMenuController
-            triggerCharacter={"/"}
-            getItems={async (query) =>
-              filterSuggestionItems(slashMenuItems, query)
-            }
-          />
-        </BlockNoteView>
-      </div>
-      <div
-        className="email"
-        dangerouslySetInnerHTML={{ __html: emailDocument }}
-      />
+    <div className="download-wrapper">
+      <button className="download-button" onClick={onDownloadClick}>
+        Download email .html
+      </button>
+      <BlockNoteView editor={editor} />
     </div>
   );
 }

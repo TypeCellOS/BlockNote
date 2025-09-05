@@ -29,19 +29,23 @@ import { useMemo } from "react";
 import "./styles.css";
 
 export default function App() {
-  // Creates a new editor instance with some initial content.
+  // Creates a new editor instance.
   const editor = useCreateBlockNote({
+    // Adds support for page breaks & multi-column blocks.
     schema: withMultiColumn(withPageBreak(BlockNoteSchema.create())),
     dropCursor: multiColumnDropCursor,
     dictionary: {
       ...locales.en,
       multi_column: multiColumnLocales.en,
     },
+    // Adds support for advanced table features.
     tables: {
       splitCells: true,
-      cellTextColor: true,
       cellBackgroundColor: true,
+      cellTextColor: true,
+      headers: true,
     },
+    // Sets initial editor content.
     initialContent: [
       {
         type: "paragraph",
@@ -375,6 +379,8 @@ export default function App() {
       },
     ],
   });
+
+  // Additional Slash Menu items for page breaks and multi-column blocks.
   const getSlashMenuItems = useMemo(() => {
     return async (query: string) =>
       filterSuggestionItems(
@@ -386,9 +392,10 @@ export default function App() {
         query,
       );
   }, [editor]);
+
+  // Exports the editor content to ODT and downloads it.
   const onDownloadClick = async () => {
     const exporter = new ODTExporter(editor.schema, odtDefaultSchemaMappings);
-
     const blob = await exporter.toODTDocument(editor.document);
 
     const link = document.createElement("a");
@@ -406,22 +413,13 @@ export default function App() {
     window.URL.revokeObjectURL(link.href);
   };
 
-  // Renders the editor instance, and its contents as HTML below.
+  // Renders the editor instance, and a download button above.
   return (
-    <div>
-      <div className={"edit-buttons"}>
-        <button className={"edit-button"} onClick={onDownloadClick}>
-          Download .odt
-        </button>
-      </div>
-      <div className="item">
-        <BlockNoteView editor={editor} slashMenu={false}>
-          <SuggestionMenuController
-            triggerCharacter={"/"}
-            getItems={getSlashMenuItems}
-          />
-        </BlockNoteView>
-      </div>
+    <div className="download-wrapper">
+      <button className="download-button" onClick={onDownloadClick}>
+        Download .odt
+      </button>
+      <BlockNoteView editor={editor} />
     </div>
   );
 }

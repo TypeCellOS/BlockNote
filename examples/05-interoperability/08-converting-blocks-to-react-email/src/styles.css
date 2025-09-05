@@ -1,36 +1,21 @@
-.wrapper {
+.download-wrapper {
+  align-items: center;
   display: flex;
-  flex-direction: row;
-  height: 100%;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  width: 100%;
 }
 
-@media (max-width: 800px) {
-  .wrapper {
-    flex-direction: column;
-  }
-
-  .editor {
-    max-height: 500px;
-    overflow-y: scroll;
-  }
+.download-button {
+  background-color: #0090ff;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  width: 100%;
 }
 
-.wrapper > div {
-  flex: 1;
-}
-
-.email {
-  min-height: 500px;
-}
-
-/* hack to get react-email to show on website */
-@tailwind base;
-@layer base {
-  .email [hidden]:where(:not([hidden="until-found"])) {
-    display: block !important;
-  }
-}
-
-.editor.bordered {
-  border: 1px solid gray;
+.download-button:hover {
+  background-color: #30b0ff;
 }
