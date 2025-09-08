@@ -94,7 +94,6 @@ export const createCheckListItemBlockSpec = createBlockSpec(
     },
     toExternalHTML(block) {
       const dom = document.createDocumentFragment();
-      addDefaultPropsExternalHTML(block.props, dom);
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.checked = block.props.checked;
@@ -105,6 +104,7 @@ export const createCheckListItemBlockSpec = createBlockSpec(
       // them in to be semantically correct, which we can't have due to the
       // schema.
       const paragraph = document.createElement("p");
+      addDefaultPropsExternalHTML(block.props, paragraph);
 
       dom.appendChild(checkbox);
       dom.appendChild(paragraph);
