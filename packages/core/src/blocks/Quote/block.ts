@@ -2,7 +2,11 @@ import { updateBlockTr } from "../../api/blockManipulation/commands/updateBlock/
 import { getBlockInfoFromTransaction } from "../../api/getBlockInfoFromPos.js";
 import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
 import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
-import { defaultProps, parseDefaultProps } from "../defaultProps.js";
+import {
+  addDefaultPropsExternalHTML,
+  defaultProps,
+  parseDefaultProps,
+} from "../defaultProps.js";
 
 export const createQuoteBlockConfig = createBlockConfig(
   () =>
@@ -33,6 +37,15 @@ export const createQuoteBlockSpec = createBlockSpec(
     },
     render() {
       const quote = document.createElement("blockquote");
+
+      return {
+        dom: quote,
+        contentDOM: quote,
+      };
+    },
+    toExternalHTML(block) {
+      const quote = document.createElement("blockquote");
+      addDefaultPropsExternalHTML(block.props, quote);
 
       return {
         dom: quote,

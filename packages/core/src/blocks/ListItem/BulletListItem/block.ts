@@ -2,7 +2,11 @@ import { updateBlockTr } from "../../../api/blockManipulation/commands/updateBlo
 import { getBlockInfoFromTransaction } from "../../../api/getBlockInfoFromPos.js";
 import { createBlockConfig, createBlockSpec } from "../../../schema/index.js";
 import { createBlockNoteExtension } from "../../../editor/BlockNoteExtension.js";
-import { defaultProps, parseDefaultProps } from "../../defaultProps.js";
+import {
+  addDefaultPropsExternalHTML,
+  defaultProps,
+  parseDefaultProps,
+} from "../../defaultProps.js";
 import { handleEnter } from "../../utils/listItemEnterHandler.js";
 import { getListItemContent } from "../getListItemContent.js";
 
@@ -52,6 +56,15 @@ export const createBulletListItemBlockSpec = createBlockSpec(
       // them in to be semantically correct, which we can't have due to the
       // schema.
       const dom = document.createElement("p");
+
+      return {
+        dom,
+        contentDOM: dom,
+      };
+    },
+    toExternalHTML(block) {
+      const dom = document.createElement("p");
+      addDefaultPropsExternalHTML(block.props, dom);
 
       return {
         dom,

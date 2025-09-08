@@ -1,4 +1,6 @@
 import { Attribute } from "@tiptap/core";
+
+import { COLORS_DEFAULT } from "../editor/defaultColors.js";
 import type { Props, PropSchema } from "../schema/index.js";
 
 // TODO: this system should probably be moved / refactored.
@@ -36,6 +38,45 @@ export const parseDefaultProps = (element: HTMLElement) => {
     : undefined;
 
   return props;
+};
+
+export const addDefaultPropsExternalHTML = (
+  props: Partial<DefaultProps>,
+  element: HTMLElement,
+) => {
+  if (
+    props.backgroundColor &&
+    props.backgroundColor !== defaultProps.backgroundColor.default
+  ) {
+    if (props.backgroundColor in COLORS_DEFAULT) {
+      element.style.setProperty(
+        `--blocknote-background-${props.backgroundColor}`,
+        COLORS_DEFAULT[props.backgroundColor].background,
+      );
+      element.style.backgroundColor = `var(--blocknote-background-${props.backgroundColor})`;
+    } else {
+      element.style.backgroundColor = props.backgroundColor;
+    }
+  }
+
+  if (props.textColor && props.textColor !== defaultProps.textColor.default) {
+    if (props.textColor in COLORS_DEFAULT) {
+      element.style.setProperty(
+        `--blocknote-text-${props.textColor}`,
+        COLORS_DEFAULT[props.textColor].text,
+      );
+      element.style.color = `var(--blocknote-text-${props.textColor})`;
+    } else {
+      element.style.color = props.textColor;
+    }
+  }
+
+  if (
+    props.textAlignment &&
+    props.textAlignment !== defaultProps.textAlignment.default
+  ) {
+    element.style.textAlign = props.textAlignment;
+  }
 };
 
 export const getBackgroundColorAttribute = (

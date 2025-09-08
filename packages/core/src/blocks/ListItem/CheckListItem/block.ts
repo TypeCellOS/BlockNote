@@ -2,7 +2,11 @@ import { updateBlockTr } from "../../../api/blockManipulation/commands/updateBlo
 import { getBlockInfoFromTransaction } from "../../../api/getBlockInfoFromPos.js";
 import { createBlockConfig, createBlockSpec } from "../../../schema/index.js";
 import { createBlockNoteExtension } from "../../../editor/BlockNoteExtension.js";
-import { defaultProps, parseDefaultProps } from "../../defaultProps.js";
+import {
+  addDefaultPropsExternalHTML,
+  defaultProps,
+  parseDefaultProps,
+} from "../../defaultProps.js";
 import { handleEnter } from "../../utils/listItemEnterHandler.js";
 import { getListItemContent } from "../getListItemContent.js";
 
@@ -69,6 +73,28 @@ export const createCheckListItemBlockSpec = createBlockSpec(
       getListItemContent(el, schema, "checkListItem"),
     render(block) {
       const dom = document.createDocumentFragment();
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = block.props.checked;
+      if (block.props.checked) {
+        checkbox.setAttribute("checked", "");
+      }
+      // We use a <p> tag, because for <li> tags we'd need a <ul> element to put
+      // them in to be semantically correct, which we can't have due to the
+      // schema.
+      const paragraph = document.createElement("p");
+
+      dom.appendChild(checkbox);
+      dom.appendChild(paragraph);
+
+      return {
+        dom,
+        contentDOM: paragraph,
+      };
+    },
+    toExternalHTML(block) {
+      const dom = document.createDocumentFragment();
+      addDefaultPropsExternalHTML(block.props, dom);
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.checked = block.props.checked;
