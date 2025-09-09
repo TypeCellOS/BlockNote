@@ -222,7 +222,12 @@ function serializeBlock<
     if (fragment.lastChild?.nodeName !== listType) {
       const list = doc.createElement(listType);
 
-      if (listType === "OL" && props?.start && props?.start !== 1) {
+      if (
+        listType === "OL" &&
+        "start" in props &&
+        props.start &&
+        props?.start !== 1
+      ) {
         list.setAttribute("start", props.start + "");
       }
       fragment.append(list);
