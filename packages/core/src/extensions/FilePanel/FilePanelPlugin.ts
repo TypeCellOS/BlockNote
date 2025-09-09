@@ -7,7 +7,6 @@ import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition.js";
 import type {
   BlockFromConfig,
-  // FileBlockConfig,
   InlineContentSchema,
   StyleSchema,
 } from "../../schema/index.js";

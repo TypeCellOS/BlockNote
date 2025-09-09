@@ -7,6 +7,10 @@ import {
 } from "../../schema/index.js";
 import { BlockNoteSchema } from "../BlockNoteSchema.js";
 
+export type PageBreakBlockConfig = ReturnType<
+  typeof createPageBreakBlockConfig
+>;
+
 export const createPageBreakBlockConfig = createBlockConfig(
   () =>
     ({

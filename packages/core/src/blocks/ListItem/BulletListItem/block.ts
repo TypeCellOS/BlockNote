@@ -4,6 +4,10 @@ import { defaultProps } from "../../defaultProps.js";
 import { handleEnter } from "../../utils/listItemEnterHandler.js";
 import { getListItemContent } from "../getListItemContent.js";
 
+export type BulletListItemBlockConfig = ReturnType<
+  typeof createBulletListItemBlockConfig
+>;
+
 export const createBulletListItemBlockConfig = createBlockConfig(
   () =>
     ({

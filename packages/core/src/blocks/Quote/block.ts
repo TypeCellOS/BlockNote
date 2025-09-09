@@ -2,6 +2,8 @@ import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
 import { defaultProps } from "../defaultProps.js";
 
+export type QuoteBlockConfig = ReturnType<typeof createQuoteBlockConfig>;
+
 export const createQuoteBlockConfig = createBlockConfig(
   () =>
     ({

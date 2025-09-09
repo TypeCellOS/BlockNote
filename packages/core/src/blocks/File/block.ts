@@ -5,6 +5,8 @@ import { parseFigureElement } from "./helpers/parse/parseFigureElement.js";
 import { createFileBlockWrapper } from "./helpers/render/createFileBlockWrapper.js";
 import { createLinkWithCaption } from "./helpers/toExternalHTML/createLinkWithCaption.js";
 
+export type FileBlockConfig = ReturnType<typeof createFileBlockConfig>;
+
 export const createFileBlockConfig = createBlockConfig(
   () =>
     ({

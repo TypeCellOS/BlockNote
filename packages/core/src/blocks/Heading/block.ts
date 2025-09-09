@@ -12,6 +12,8 @@ export interface HeadingOptions {
   allowToggleHeadings?: boolean;
 }
 
+export type HeadingBlockConfig = ReturnType<typeof createHeadingBlockConfig>;
+
 export const createHeadingBlockConfig = createBlockConfig(
   ({
     defaultLevel = 1,

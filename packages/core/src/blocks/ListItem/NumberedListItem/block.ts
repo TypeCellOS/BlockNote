@@ -5,6 +5,10 @@ import { handleEnter } from "../../utils/listItemEnterHandler.js";
 import { getListItemContent } from "../getListItemContent.js";
 import { NumberedListIndexingDecorationPlugin } from "./IndexingPlugin.js";
 
+export type NumberedListItemBlockConfig = ReturnType<
+  typeof createNumberedListItemBlockConfig
+>;
+
 export const createNumberedListItemBlockConfig = createBlockConfig(
   () =>
     ({

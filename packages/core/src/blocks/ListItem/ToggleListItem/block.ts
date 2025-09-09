@@ -4,6 +4,10 @@ import { defaultProps } from "../../defaultProps.js";
 import { createToggleWrapper } from "../../ToggleWrapper/createToggleWrapper.js";
 import { handleEnter } from "../../utils/listItemEnterHandler.js";
 
+export type ToggleListItemBlockConfig = ReturnType<
+  typeof createToggleListItemBlockConfig
+>;
+
 export const createToggleListItemBlockConfig = createBlockConfig(
   () =>
     ({

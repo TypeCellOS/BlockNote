@@ -4,6 +4,10 @@ import { defaultProps } from "../../defaultProps.js";
 import { handleEnter } from "../../utils/listItemEnterHandler.js";
 import { getListItemContent } from "../getListItemContent.js";
 
+export type CheckListItemBlockConfig = ReturnType<
+  typeof createCheckListItemConfig
+>;
+
 export const createCheckListItemConfig = createBlockConfig(
   () =>
     ({

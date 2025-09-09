@@ -17,6 +17,9 @@ export const FILE_IMAGE_ICON_SVG =
 export interface ImageOptions {
   icon?: string;
 }
+
+export type ImageBlockConfig = ReturnType<typeof createImageBlockConfig>;
+
 export const createImageBlockConfig = createBlockConfig(
   (_ctx: ImageOptions = {}) =>
     ({

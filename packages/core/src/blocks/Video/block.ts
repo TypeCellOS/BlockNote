@@ -12,6 +12,9 @@ export const FILE_VIDEO_ICON_SVG =
 export interface VideoOptions {
   icon?: string;
 }
+
+export type VideoBlockConfig = ReturnType<typeof createVideoBlockConfig>;
+
 export const createVideoBlockConfig = createBlockConfig(
   (_ctx: VideoOptions) => ({
     type: "video" as const,

@@ -2,6 +2,10 @@ import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
 import { defaultProps } from "../defaultProps.js";
 
+export type ParagraphBlockConfig = ReturnType<
+  typeof createParagraphBlockConfig
+>;
+
 export const createParagraphBlockConfig = createBlockConfig(
   () =>
     ({
