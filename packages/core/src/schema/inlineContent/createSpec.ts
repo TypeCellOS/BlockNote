@@ -23,6 +23,10 @@ export type CustomInlineContentImplementation<
   T extends CustomInlineContentConfig,
   S extends StyleSchema,
 > = {
+  meta?: {
+    draggable?: boolean;
+  };
+
   /**
    * Parses an external HTML element into a inline content of this type when it returns the block props object, otherwise undefined
    */
@@ -130,6 +134,7 @@ export function createInlineContentSpec<
     name: inlineContentConfig.type,
     inline: true,
     group: "inline",
+    draggable: inlineContentImplementation.meta?.draggable,
     selectable: inlineContentConfig.content === "styled",
     atom: inlineContentConfig.content === "none",
     content: inlineContentConfig.content === "styled" ? "inline*" : "",
