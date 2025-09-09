@@ -116,7 +116,6 @@ export async function doLLMRequest(
     withDelays,
     dataFormat,
     previousResponse,
-    ...rest
   } = {
     deleteEmptyCursorBlock: true,
     withDelays: true,
@@ -223,9 +222,6 @@ export async function doLLMRequest(
     },
     messages,
     streamTools,
-    llmRequestOptions: {
-      ...opts,
-      ...rest,
-    },
+    llmRequestOptions: opts,
   });
 }

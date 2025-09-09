@@ -219,11 +219,11 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
 
   async sendMessages({
     messages,
-    metadata,
+    body,
   }: Parameters<ChatTransport<UI_MESSAGE>["sendMessages"]>[0]): Promise<
     ReadableStream<UIMessageChunk>
   > {
-    const { streamTools } = metadata as { streamTools: StreamTool<any>[] };
+    const { streamTools } = body as { streamTools: StreamTool<any>[] };
     let response: // | Awaited<ReturnType<typeof generateOperations<any>>>
     Awaited<ReturnType<typeof streamOperations<any>>>;
 

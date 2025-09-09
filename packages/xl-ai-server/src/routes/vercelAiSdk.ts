@@ -1,9 +1,11 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import {
+  createStreamToolsArraySchema,
   objectToUIMessageStream,
   partialObjectStreamToUIMessageStream,
 } from "@blocknote/xl-ai";
 import {
+  convertToModelMessages,
   createUIMessageStreamResponse,
   generateObject,
   generateText,
@@ -18,7 +20,7 @@ export const vercelAiSdkRoute = new Hono();
 
 const model = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-})("gpt-4-turbo");
+})("gpt-4o");
 
 // TODO: add support for generateText + tools
 vercelAiSdkRoute.post("/generateText", cors(), async (c) => {
@@ -27,7 +29,7 @@ vercelAiSdkRoute.post("/generateText", cors(), async (c) => {
 
   const result = generateText({
     model,
-    messages,
+    messages: convertToModelMessages(messages),
     tools: {
       // add: tool({}),
     },
@@ -44,7 +46,7 @@ vercelAiSdkRoute.post("/streamText", cors(), async (c) => {
 
   const result = streamText({
     model,
-    messages,
+    messages: convertToModelMessages(messages),
     tools: {
       // add: tool({}),
     },
@@ -54,13 +56,13 @@ vercelAiSdkRoute.post("/streamText", cors(), async (c) => {
 });
 
 vercelAiSdkRoute.post("/streamObject", cors(), async (c) => {
-  const { messages, schema } = await c.req.json();
-
+  const { messages, streamTools } = await c.req.json();
+  const schema = jsonSchema(createStreamToolsArraySchema(streamTools));
   const result = streamObject({
     model,
-    messages,
+    messages: convertToModelMessages(messages),
     output: "object",
-    schema: jsonSchema(schema),
+    schema,
   });
 
   const stream = partialObjectStreamToUIMessageStream(result.fullStream);
@@ -69,13 +71,14 @@ vercelAiSdkRoute.post("/streamObject", cors(), async (c) => {
 });
 
 vercelAiSdkRoute.post("/generateObject", cors(), async (c) => {
-  const { messages, schema } = await c.req.json();
+  const { messages, streamTools } = await c.req.json();
+  const schema = jsonSchema(createStreamToolsArraySchema(streamTools));
 
   const result = await generateObject({
     model,
-    messages,
+    messages: convertToModelMessages(messages),
     output: "object",
-    schema: jsonSchema(schema),
+    schema,
   });
 
   const stream = objectToUIMessageStream(result.object);

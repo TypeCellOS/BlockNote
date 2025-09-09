@@ -22,13 +22,14 @@ export function createAISDKLLMRequestExecutor(opts: {
       messages,
       trigger: "submit-message",
       chatId: "1",
-      messageId: "1",
+      messageId: undefined,
       abortSignal: undefined,
-      metadata: {
+      body: {
         streamTools,
       },
     });
 
+    // TODO: needed here or move outside?
     const parsedResponse = await UIMessageStreamToOperationsResult(
       response,
       streamTools,

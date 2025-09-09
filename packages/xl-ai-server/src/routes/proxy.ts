@@ -1,5 +1,4 @@
 import { Hono } from "hono";
-import { cors } from "hono/cors";
 
 const ignoreHeadersRe = /^content-(?:encoding|length|range)$/i;
 
@@ -70,7 +69,7 @@ function getProviderInfo(provider: string) {
 
 export const proxyRoute = new Hono();
 
-proxyRoute.use("", cors(), async (c) => {
+proxyRoute.use("", async (c) => {
   const url = c.req.query("url");
   if (!url) {
     return c.json({ error: "url parameter is required" }, 400);

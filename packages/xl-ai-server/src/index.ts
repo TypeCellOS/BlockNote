@@ -1,6 +1,7 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { bearerAuth } from "hono/bearer-auth";
+import { cors } from "hono/cors";
 import { existsSync, readFileSync } from "node:fs";
 import { createSecureServer } from "node:http2";
 import { Agent, setGlobalDispatcher } from "undici";
@@ -27,6 +28,7 @@ if (process.env.TOKEN?.length) {
   console.warn("no token set, ai requests will not be secured");
 }
 
+app.use("/ai/*", cors());
 app.route("/ai/proxy", proxyRoute);
 app.route("/ai/vercel-ai-sdk", vercelAiSdkRoute);
 
