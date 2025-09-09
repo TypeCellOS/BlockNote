@@ -28,16 +28,13 @@ import {
   createBlockNoteAIClient,
   getAIExtension,
   getAISlashMenuItems,
-  llmFormats,
 } from "@blocknote/xl-ai";
 import { en as aiEn } from "@blocknote/xl-ai/locales";
 import "@blocknote/xl-ai/style.css";
 import { Fieldset, MantineProvider, Switch } from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
-import { useStore } from "zustand";
 
 import { BasicAutocomplete } from "./AutoComplete";
-import RadioGroupComponent from "./components/RadioGroupComponent";
 import { getEnv } from "./getEnv";
 // Optional: proxy requests through the `@blocknote/xl-ai-server` proxy server
 // so that we don't have to expose our API keys to the client
@@ -86,6 +83,7 @@ export default function App() {
   const [modelString, setModelString] = useState<string>(
     "groq.chat/llama-3.3-70b-versatile",
   );
+  const [stream, setStream] = useState(true);
 
   const model = useMemo(() => {
     return getModel(modelString);
@@ -103,6 +101,7 @@ export default function App() {
         executor: createAISDKLLMRequestExecutor({
           transport: new ClientSideTransport({
             model,
+            stream,
           }),
         }),
       }),
@@ -143,16 +142,14 @@ export default function App() {
         executor: createAISDKLLMRequestExecutor({
           transport: new ClientSideTransport({
             model,
-            stream: false,
+            stream,
           }),
         }),
       });
     }
-  }, [model, ai.options]);
+  }, [model, ai.options, stream]);
 
-  const [dataFormat, setDataFormat] = useState("html");
-
-  const stream = useStore(ai.options, (state: any) => state.stream); // TODO
+  // const [dataFormat, setDataFormat] = useState("html");
 
   const themePreference = usePrefersColorScheme();
   const existingContext = useBlockNoteContext();
@@ -174,7 +171,7 @@ export default function App() {
               value={modelString}
               onChange={setModelString}
             />
-            <RadioGroupComponent
+            {/* <RadioGroupComponent
               label="Data format"
               items={[
                 { name: "HTML", description: "HTML", value: "html" },
@@ -202,13 +199,13 @@ export default function App() {
                 });
                 setDataFormat(value);
               }}
-            />
+            /> */}
 
             <Switch
+              style={{ marginTop: "10px" }}
               checked={stream}
               onChange={(e) => {
-                // TODO
-                // ai.options.setState({ stream: e.target.checked })
+                setStream(e.target.checked);
               }}
               label="Streaming"
             />

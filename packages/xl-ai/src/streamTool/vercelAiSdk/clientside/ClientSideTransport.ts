@@ -174,7 +174,7 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
   implements ChatTransport<UI_MESSAGE>
 {
   constructor(
-    private readonly opts: {
+    public readonly opts: {
       /**
        * The language model to use for the LLM call (AI SDK)
        *
