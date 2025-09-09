@@ -71,6 +71,7 @@
     "@floating-ui/react": "^0.26.4",
     "@tiptap/core": "^2.12.0",
     "ai": "^5.0.29",
+    "@ai-sdk/react": "^2.0.39",
     "@ai-sdk/provider-utils": "^3.0.7",
     "lodash.isequal": "^4.5.0",
     "prosemirror-changeset": "^2.3.0",

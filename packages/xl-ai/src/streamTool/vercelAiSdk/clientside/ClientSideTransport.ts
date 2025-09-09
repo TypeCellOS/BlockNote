@@ -7,6 +7,7 @@ import {
   generateObject,
   jsonSchema,
   streamObject,
+  streamText,
 } from "ai";
 import { createStreamToolsArraySchema } from "../../jsonSchema.js";
 import { StreamTool } from "../../streamTool.js";
@@ -121,12 +122,12 @@ async function streamOperations<T extends StreamTool<any>[]>(
     throw new Error("Cannot provide output or schema in _streamObjectOptions");
   }
 
-  const schema = jsonSchema(createStreamToolsArraySchema(streamTools));
+  // const schema = jsonSchema(createStreamToolsArraySchema(streamTools));
 
   const options = {
     // non-overridable options for streamObject
     output: "object" as const,
-    schema,
+    // schema,
     model,
     // configurable options for streamObject
 
@@ -155,6 +156,23 @@ async function streamOperations<T extends StreamTool<any>[]>(
     // extra options for streamObject
     ...((opts._streamObjectOptions ?? {}) as any),
   } as const;
+
+  const ret2 = streamText({
+    ...options,
+    tools: Object.fromEntries(
+      Object.entries(streamTools).map(([name, tool]) => [
+        tool.name,
+        {
+          ...tool,
+          inputSchema: jsonSchema(tool.inputSchema),
+        },
+      ]),
+    ),
+  });
+
+  return {
+    uiMessageStream: ret2.toUIMessageStream(),
+  };
 
   const ret = streamObject<any, any, { operations: any }>(options);
 
@@ -223,7 +241,9 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
   }: Parameters<ChatTransport<UI_MESSAGE>["sendMessages"]>[0]): Promise<
     ReadableStream<UIMessageChunk>
   > {
-    const { streamTools } = body as { streamTools: StreamTool<any>[] };
+    // const { streamTools } = body as { streamTools: StreamTool<any>[] };
+    const streamTools = (messages[messages.length - 1].metadata as any)
+      .streamTools;
     let response: // | Awaited<ReturnType<typeof generateOperations<any>>>
     Awaited<ReturnType<typeof streamOperations<any>>>;
 
