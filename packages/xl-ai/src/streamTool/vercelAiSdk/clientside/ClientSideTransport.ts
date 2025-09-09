@@ -82,7 +82,6 @@ async function generateOperations<T extends StreamTool<any>[]>(
     // extra options for streamObject
     ...((_generateObjectOptions ?? {}) as any),
   } as const;
-
   const ret = await generateObject<any, any, { operations: any }>(options);
 
   const stream = objectToUIMessageStream(ret.object);

@@ -88,14 +88,15 @@ describe("Models", () => {
       model: testAIModels.openai,
       stream: false,
     },
-    {
-      model: testAIModels.groq,
-      stream: true,
-    },
-    {
-      model: testAIModels.groq,
-      stream: false,
-    },
+    // TODO: https://github.com/vercel/ai/issues/8533
+    // {
+    //   model: testAIModels.groq,
+    //   stream: true,
+    // },
+    // {
+    //   model: testAIModels.groq,
+    //   stream: false,
+    // },
     // anthropic streaming needs further investigation for some test cases
     // {
     //   model: testAIModels.anthropic,

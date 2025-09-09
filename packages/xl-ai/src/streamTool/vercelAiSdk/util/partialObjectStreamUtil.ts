@@ -148,6 +148,7 @@ export function objectToUIMessageStream(object: any) {
       // controller.enqueue({ type: "text-end", id: "text-1" });
       controller.enqueue({ type: "finish-step" });
       controller.enqueue({ type: "finish" });
+      controller.close();
     },
   });
   return stream;
