@@ -21,11 +21,18 @@ import {
   ReactEmailExporter,
   reactEmailDefaultSchemaMappings,
 } from "@blocknote/xl-email-exporter";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import "./styles.css";
 
 export default function App() {
+  // Stores the editor's contents as an email HTML string for download and
+  // displaying the email.
+  const [emailDocument, setEmailDocument] = useState<string>("");
+
+  // Toggles between editor and email view.
+  const [show, setShow] = useState<"editor" | "email">("editor");
+
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
     // Adds support for page breaks.
@@ -320,21 +327,25 @@ export default function App() {
   });
 
   // Additional Slash Menu items for page breaks.
-  const slashMenuItems = useMemo(() => {
-    return combineByGroup(
-      getDefaultReactSlashMenuItems(editor),
-      getPageBreakReactSlashMenuItems(editor),
-    );
-  }, [editor]);
+  const getSlashMenuItems = useMemo(
+    () => async (query: string) =>
+      filterSuggestionItems(
+        combineByGroup(
+          getDefaultReactSlashMenuItems(editor),
+          getPageBreakReactSlashMenuItems(editor),
+        ),
+        query,
+      ),
+    [editor],
+  );
 
   const existingContext = useBlockNoteContext();
   const systemColorScheme = usePrefersColorScheme();
 
-  // Exports the editor content to HTML (for email) and downloads it.
-  const onDownloadClick = async () => {
+  // Exports the editor document to email whenever it changes.
+  const onChange = async () => {
     const colorScheme =
       existingContext?.colorSchemePreference || systemColorScheme;
-
     const exporter = new ReactEmailExporter(
       editor.schema,
       reactEmailDefaultSchemaMappings,
@@ -343,10 +354,18 @@ export default function App() {
           colorScheme === "dark" ? COLORS_DARK_MODE_DEFAULT : COLORS_DEFAULT,
       },
     );
-    const blob = new Blob(
-      [await exporter.toReactEmailDocument(editor.document)],
-      { type: "text/html" },
-    );
+    const emailHtml = await exporter.toReactEmailDocument(editor.document);
+    setEmailDocument(emailHtml);
+  };
+
+  // Exports the inital editor document to PDF.
+  useEffect(() => {
+    onChange();
+  }, []);
+
+  // Downloads the email in HTML format.
+  const onDownloadClick = async () => {
+    const blob = new Blob([emailDocument], { type: "text/html" });
 
     const link = document.createElement("a");
     link.href = window.URL.createObjectURL(blob);
@@ -363,13 +382,38 @@ export default function App() {
     window.URL.revokeObjectURL(link.href);
   };
 
-  // Renders the editor instance, and a download button above.
+  // Renders the editor instance or PDF view. Also renders two buttons above
+  // for switching between views and downloading the PDF.
   return (
     <div className="download-wrapper">
-      <button className="download-button" onClick={onDownloadClick}>
-        Download email .html
-      </button>
-      <BlockNoteView editor={editor} />
+      <div className="download-buttons">
+        <button
+          className="download-button"
+          onClick={() =>
+            setShow((show) => (show === "editor" ? "email" : "editor"))
+          }
+        >
+          {show === "editor" ? "Show Email" : "Show Editor"}
+        </button>
+        <button className="download-button" onClick={onDownloadClick}>
+          Download email .html
+        </button>
+      </div>
+      <div className="download-view">
+        {show === "editor" ? (
+          <BlockNoteView editor={editor} slashMenu={false} onChange={onChange}>
+            <SuggestionMenuController
+              triggerCharacter={"/"}
+              getItems={getSlashMenuItems}
+            />
+          </BlockNoteView>
+        ) : (
+          <div
+            className="email"
+            dangerouslySetInnerHTML={{ __html: emailDocument }}
+          />
+        )}
+      </div>
     </div>
   );
 }

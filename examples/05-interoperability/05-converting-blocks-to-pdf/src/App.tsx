@@ -24,12 +24,19 @@ import {
   locales as multiColumnLocales,
   withMultiColumn,
 } from "@blocknote/xl-multi-column";
-import { pdf } from "@react-pdf/renderer";
-import { JSX, useMemo, useState } from "react";
+import { pdf, PDFViewer } from "@react-pdf/renderer";
+import { JSX, useEffect, useMemo, useState } from "react";
 
 import "./styles.css";
 
 export default function App() {
+  // Stores the editor's contents as JSX for download and displaying the PDF
+  // using ReactPDF's `PDFViewer` component.
+  const [pdfDocument, setPDFDocument] = useState<JSX.Element>();
+
+  // Toggles between editor and PDF view.
+  const [show, setShow] = useState<"editor" | "pdf">("editor");
+
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
     // Adds support for page breaks & multi-column blocks.
@@ -382,8 +389,8 @@ export default function App() {
   });
 
   // Additional Slash Menu items for page breaks and multi-column blocks.
-  const getSlashMenuItems = useMemo(() => {
-    return async (query: string) =>
+  const getSlashMenuItems = useMemo(
+    () => async (query: string) =>
       filterSuggestionItems(
         combineByGroup(
           getDefaultReactSlashMenuItems(editor),
@@ -391,15 +398,24 @@ export default function App() {
           getMultiColumnSlashMenuItems(editor),
         ),
         query,
-      );
-  }, [editor]);
+      ),
+    [editor],
+  );
 
-  // Exports the editor content to PDF and downloads it.
-  const onDownloadClick = async () => {
+  // Exports the editor document to PDF whenever it changes.
+  const onChange = async () => {
     const exporter = new PDFExporter(editor.schema, pdfDefaultSchemaMappings);
-    const pdfDocument: JSX.Element = await exporter.toReactPDFDocument(
-      editor.document,
-    );
+    const pdfDocument = await exporter.toReactPDFDocument(editor.document);
+    setPDFDocument(pdfDocument);
+  };
+
+  // Exports the inital editor document to PDF.
+  useEffect(() => {
+    onChange();
+  }, []);
+
+  // Downloads the PDF.
+  const onDownloadClick = async () => {
     const blob = await pdf(pdfDocument).toBlob();
 
     const link = document.createElement("a");
@@ -417,13 +433,37 @@ export default function App() {
     window.URL.revokeObjectURL(link.href);
   };
 
-  // Renders the editor instance, and a download button above.
+  // Renders the editor instance or PDF view. Also renders two buttons above
+  // for switching between views and downloading the PDF.
   return (
     <div className="download-wrapper">
-      <button className="download-button" onClick={onDownloadClick}>
-        Download .pdf
-      </button>
-      <BlockNoteView editor={editor} />
+      <div className="download-buttons">
+        <button
+          className="download-button"
+          onClick={() =>
+            setShow((show) => (show === "editor" ? "pdf" : "editor"))
+          }
+        >
+          {show === "editor" ? "Show PDF" : "Show Editor"}
+        </button>
+        <button className="download-button" onClick={onDownloadClick}>
+          Download .pdf
+        </button>
+      </div>
+      <div className="download-view">
+        {show === "editor" ? (
+          <BlockNoteView editor={editor} slashMenu={false} onChange={onChange}>
+            <SuggestionMenuController
+              triggerCharacter={"/"}
+              getItems={getSlashMenuItems}
+            />
+          </BlockNoteView>
+        ) : (
+          <PDFViewer height={"100%"} width={"100%"}>
+            {pdfDocument}
+          </PDFViewer>
+        )}
+      </div>
     </div>
   );
 }

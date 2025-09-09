@@ -420,7 +420,12 @@ export default function App() {
       <button className="download-button" onClick={onDownloadClick}>
         Download .docx
       </button>
-      <BlockNoteView editor={editor} />
+      <BlockNoteView editor={editor} slashMenu={false}>
+        <SuggestionMenuController
+          triggerCharacter={"/"}
+          getItems={getSlashMenuItems}
+        />
+      </BlockNoteView>
     </div>
   );
 }

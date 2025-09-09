@@ -3,7 +3,21 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  height: 100%;
   padding: 8px;
+  width: 100%;
+}
+
+.download-buttons {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.download-view {
+  flex: 1;
+  height: 0;
+  overflow: auto;
   width: 100%;
 }
 

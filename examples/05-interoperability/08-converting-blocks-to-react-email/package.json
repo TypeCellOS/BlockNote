@@ -17,7 +17,8 @@
     "@blocknote/shadcn": "latest",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "@blocknote/xl-email-exporter": "latest"
+    "@blocknote/xl-email-exporter": "latest",
+    "@react-email/render": "^1.1.2"
   },
   "devDependencies": {
     "@types/react": "^19.1.0",
