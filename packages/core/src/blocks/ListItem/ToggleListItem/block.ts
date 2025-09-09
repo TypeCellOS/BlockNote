@@ -1,7 +1,5 @@
-import { updateBlockTr } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import { getBlockInfoFromTransaction } from "../../../api/getBlockInfoFromPos.js";
-import { createBlockConfig, createBlockSpec } from "../../../schema/index.js";
 import { createBlockNoteExtension } from "../../../editor/BlockNoteExtension.js";
+import { createBlockConfig, createBlockSpec } from "../../../schema/index.js";
 import { defaultProps } from "../../defaultProps.js";
 import { createToggleWrapper } from "../../ToggleWrapper/createToggleWrapper.js";
 import { handleEnter } from "../../utils/listItemEnterHandler.js";
@@ -44,23 +42,22 @@ export const createToggleListItemBlockSpec = createBlockSpec(
         Enter: ({ editor }) => {
           return handleEnter(editor, "toggleListItem");
         },
-        "Mod-Shift-6": ({ editor }) =>
-          editor.transact((tr) => {
-            const blockInfo = getBlockInfoFromTransaction(tr);
+        "Mod-Shift-6": ({ editor }) => {
+          const cursorPosition = editor.getTextCursorPosition();
 
-            if (
-              !blockInfo.isBlockContainer ||
-              blockInfo.blockContent.node.type.spec.content !== "inline*"
-            ) {
-              return true;
-            }
+          if (
+            editor.schema.blockSchema[cursorPosition.block.type].content !==
+            "inline"
+          ) {
+            return false;
+          }
 
-            updateBlockTr(tr, blockInfo.bnBlock.beforePos, {
-              type: "toggleListItem",
-              props: {},
-            });
-            return true;
-          }),
+          editor.updateBlock(cursorPosition.block, {
+            type: "toggleListItem",
+            props: {},
+          });
+          return true;
+        },
       },
     }),
   ],

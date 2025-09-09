@@ -1,7 +1,5 @@
-import { updateBlockTr } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import { getBlockInfoFromTransaction } from "../../api/getBlockInfoFromPos.js";
-import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
 import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
+import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
 import { defaultProps } from "../defaultProps.js";
 
 export const createQuoteBlockConfig = createBlockConfig(
@@ -42,22 +40,22 @@ export const createQuoteBlockSpec = createBlockSpec(
     createBlockNoteExtension({
       key: "quote-block-shortcuts",
       keyboardShortcuts: {
-        "Mod-Alt-q": ({ editor }) =>
-          editor.transact((tr) => {
-            const blockInfo = getBlockInfoFromTransaction(tr);
+        "Mod-Alt-q": ({ editor }) => {
+          const cursorPosition = editor.getTextCursorPosition();
 
-            if (
-              !blockInfo.isBlockContainer ||
-              blockInfo.blockContent.node.type.spec.content !== "inline*"
-            ) {
-              return true;
-            }
+          if (
+            editor.schema.blockSchema[cursorPosition.block.type].content !==
+            "inline"
+          ) {
+            return false;
+          }
 
-            updateBlockTr(tr, blockInfo.bnBlock.beforePos, {
-              type: "quote",
-            });
-            return true;
-          }),
+          editor.updateBlock(cursorPosition.block, {
+            type: "quote",
+            props: {},
+          });
+          return true;
+        },
       },
       inputRules: [
         {
