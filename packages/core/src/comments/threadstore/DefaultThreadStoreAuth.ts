@@ -18,7 +18,7 @@ import { ThreadStoreAuth } from "./ThreadStoreAuth.js";
 export class DefaultThreadStoreAuth extends ThreadStoreAuth {
   constructor(
     private readonly userId: string,
-    private readonly role: "comment" | "editor",
+    private readonly role: "document-only" | "comment" | "editor",
   ) {
     super();
   }
@@ -26,50 +26,60 @@ export class DefaultThreadStoreAuth extends ThreadStoreAuth {
   /**
    * Auth: should be possible by anyone with comment access
    */
+  canViewComments(): boolean {
+    return this.role !== "document-only";
+  }
+
+  /**
+   * Auth: should be possible by anyone with comment access
+   */
   canCreateThread(): boolean {
-    return true;
+    return this.canViewComments();
   }
 
   /**
    * Auth: should be possible by anyone with comment access
    */
   canAddComment(_thread: ThreadData): boolean {
-    return true;
+    return this.canViewComments();
   }
 
   /**
    * Auth: should only be possible by the comment author
    */
   canUpdateComment(comment: CommentData): boolean {
-    return comment.userId === this.userId;
+    return this.canViewComments() && comment.userId === this.userId;
   }
 
   /**
    * Auth: should be possible by the comment author OR an editor of the document
    */
   canDeleteComment(comment: CommentData): boolean {
-    return comment.userId === this.userId || this.role === "editor";
+    return (
+      this.canViewComments() &&
+      (comment.userId === this.userId || this.role === "editor")
+    );
   }
 
   /**
    * Auth: should only be possible by an editor of the document
    */
   canDeleteThread(_thread: ThreadData): boolean {
-    return this.role === "editor";
+    return this.canViewComments() && this.role === "editor";
   }
 
   /**
    * Auth: should be possible by anyone with comment access
    */
   canResolveThread(_thread: ThreadData): boolean {
-    return true;
+    return this.canViewComments();
   }
 
   /**
    * Auth: should be possible by anyone with comment access
    */
   canUnresolveThread(_thread: ThreadData): boolean {
-    return true;
+    return this.canViewComments();
   }
 
   /**
@@ -79,7 +89,7 @@ export class DefaultThreadStoreAuth extends ThreadStoreAuth {
    */
   canAddReaction(comment: CommentData, emoji?: string): boolean {
     if (!emoji) {
-      return true;
+      return this.canViewComments();
     }
 
     return !comment.reactions.some(
@@ -95,7 +105,7 @@ export class DefaultThreadStoreAuth extends ThreadStoreAuth {
    */
   canDeleteReaction(comment: CommentData, emoji?: string): boolean {
     if (!emoji) {
-      return true;
+      return this.canViewComments();
     }
 
     return comment.reactions.some(
