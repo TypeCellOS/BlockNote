@@ -195,6 +195,10 @@ export function createInlineContentSpec<
 
             const pos = getPos();
 
+            if (!pos) {
+              return;
+            }
+
             editor.transact((tr) =>
               tr.replaceWith(pos, pos + node.nodeSize, content),
             );

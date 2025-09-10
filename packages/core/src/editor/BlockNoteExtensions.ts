@@ -226,11 +226,11 @@ const getTipTapExtensions = <
       // only call this once if we have multiple editors installed. Or fix https://github.com/ueberdosis/tiptap/issues/5450
       protocols: LINKIFY_INITIALIZED ? [] : VALID_LINK_PROTOCOLS,
     }),
-    ...Object.values(opts.styleSpecs).map((styleSpec) => {
+    ...(Object.values(opts.styleSpecs).map((styleSpec) => {
       return styleSpec.implementation.mark.configure({
         editor: opts.editor as any,
       });
-    }),
+    }) as any[]),
 
     TextColorExtension,
 

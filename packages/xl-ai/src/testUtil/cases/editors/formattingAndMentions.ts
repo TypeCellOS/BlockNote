@@ -78,6 +78,5 @@ export function getEditorWithFormattingAndMentions() {
       }),
     ],
   });
-  editor._tiptapEditor.forceEnablePlugins();
   return editor;
 }

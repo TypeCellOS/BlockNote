@@ -46,7 +46,6 @@ export const createTestEditor = <
   });
 
   afterAll(() => {
-    editor.mount(undefined);
     editor._tiptapEditor.destroy();
     editor = undefined as any;
 

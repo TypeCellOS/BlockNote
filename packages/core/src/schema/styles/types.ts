@@ -7,7 +7,6 @@ export type StylePropSchema = "boolean" | "string"; // TODO: use PropSchema as n
 export type StyleConfig = {
   type: string;
   readonly propSchema: StylePropSchema;
-  // content: "inline" | "none" | "table";
 };
 
 // StyleImplementation contains the "implementation" info about a Style element.

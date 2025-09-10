@@ -5,6 +5,6 @@
   "tags": ["Extension"],
   "pro": true,
   "dependencies": {
-    "@tiptap/core": "^2.26.1"
+    "@tiptap/core": "^3"
   }
 }

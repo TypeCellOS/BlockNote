@@ -1066,17 +1066,20 @@ export class BlockNoteEditor<
     }
     return extension;
   }
-
   /**
-   * Mount the editor to a parent DOM element. Call mount(undefined) to clean up
+   * Mount the editor to a parent DOM element.
    *
    * @warning Not needed to call manually when using React, use BlockNoteView to take care of mounting
    */
-  public mount = (
-    parentElement?: HTMLElement | null,
-    contentComponent?: any,
-  ) => {
-    this._tiptapEditor.mount(this, parentElement, contentComponent);
+  public mount = (parentElement: HTMLElement) => {
+    this._tiptapEditor.mount(parentElement);
+  };
+
+  /**
+   * Unmount the editor from the DOM element it is bound to
+   */
+  public unmount = () => {
+    this._tiptapEditor.unmount();
   };
 
   /**
@@ -1772,10 +1775,10 @@ export class BlockNoteEditor<
       });
     };
 
-    this._tiptapEditor.on("v3-update", cb);
+    this._tiptapEditor.on("update", cb);
 
     return () => {
-      this._tiptapEditor.off("v3-update", cb);
+      this._tiptapEditor.off("update", cb);
     };
   }
 

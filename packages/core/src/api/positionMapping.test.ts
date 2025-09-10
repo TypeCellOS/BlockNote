@@ -17,7 +17,6 @@ describe("PositionStorage with local editor", () => {
         expect.any(Function),
       );
 
-      editor.mount(undefined);
       editor._tiptapEditor.destroy();
     });
   });
@@ -31,7 +30,6 @@ describe("PositionStorage with local editor", () => {
 
       expect(getPos()).toBe(10);
 
-      editor.mount(undefined);
       editor._tiptapEditor.destroy();
     });
 
@@ -43,7 +41,6 @@ describe("PositionStorage with local editor", () => {
 
       expect(getPos()).toBe(10);
 
-      editor.mount(undefined);
       editor._tiptapEditor.destroy();
     });
   });
@@ -89,7 +86,6 @@ describe("PositionStorage with local editor", () => {
     // Position should be updated according to mapping
     expect(getPos()).toBe(14);
 
-    editor.mount(undefined);
     editor._tiptapEditor.destroy();
   });
 
@@ -133,7 +129,6 @@ describe("PositionStorage with local editor", () => {
     // Position should not be updated
     expect(getPos()).toBe(10);
 
-    editor.mount(undefined);
     editor._tiptapEditor.destroy();
   });
 
@@ -164,7 +159,6 @@ describe("PositionStorage with local editor", () => {
     expect(getPosAfterPos()).toBe(9); // 4 + 5 ("Test " length)
     expect(getPosAfterRightPos()).toBe(9); // 4 + 5 ("Test " length)
 
-    editor.mount(undefined);
     editor._tiptapEditor.destroy();
   });
 
@@ -200,7 +194,6 @@ describe("PositionStorage with local editor", () => {
     expect(getPosAfterPos()).toBe(9); // 4 + 5 ("Test " length)
     expect(getPosAfterRightPos()).toBe(9); // 4 + 5 ("Test " length)
 
-    editor.mount(undefined);
     editor._tiptapEditor.destroy();
   });
 });
@@ -289,9 +282,7 @@ describe("PositionStorage with remote editor", () => {
 
       ydoc.destroy();
       remoteYdoc.destroy();
-      localEditor.mount(undefined);
       localEditor._tiptapEditor.destroy();
-      remoteEditor.mount(undefined);
       remoteEditor._tiptapEditor.destroy();
     });
 
@@ -356,9 +347,7 @@ describe("PositionStorage with remote editor", () => {
 
       ydoc.destroy();
       remoteYdoc.destroy();
-      localEditor.mount(undefined);
       localEditor._tiptapEditor.destroy();
-      remoteEditor.mount(undefined);
       remoteEditor._tiptapEditor.destroy();
     });
 
@@ -419,9 +408,7 @@ describe("PositionStorage with remote editor", () => {
 
       ydoc.destroy();
       remoteYdoc.destroy();
-      localEditor.mount(undefined);
       localEditor._tiptapEditor.destroy();
-      remoteEditor.mount(undefined);
       remoteEditor._tiptapEditor.destroy();
     });
 
@@ -482,9 +469,7 @@ describe("PositionStorage with remote editor", () => {
 
       ydoc.destroy();
       remoteYdoc.destroy();
-      localEditor.mount(undefined);
       localEditor._tiptapEditor.destroy();
-      remoteEditor.mount(undefined);
       remoteEditor._tiptapEditor.destroy();
     });
   });
