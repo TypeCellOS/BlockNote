@@ -131,7 +131,11 @@ export const CreateLinkButton = () => {
         <EditLinkMenuItems
           url={url}
           text={text}
-          editLink={update}
+          editLink={(url) => {
+            update(url);
+            setOpened(false);
+            editor.focus();
+          }}
           showTextField={false}
         />
       </Components.Generic.Popover.Content>
