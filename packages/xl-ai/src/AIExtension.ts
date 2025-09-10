@@ -1,3 +1,4 @@
+import { Chat } from "@ai-sdk/react";
 import {
   BlockNoteEditor,
   BlockNoteExtension,
@@ -8,20 +9,29 @@ import {
   revertSuggestions,
   suggestChanges,
 } from "@blocknote/prosemirror-suggest-changes";
-import { APICallError, RetryError } from "ai";
+import {
+  APICallError,
+  ChatTransport,
+  DeepPartial,
+  RetryError,
+  UIMessage,
+} from "ai";
 import { Fragment, Slice } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { fixTablesKey } from "prosemirror-tables";
 import { createStore, StoreApi } from "zustand/vanilla";
-import {
-  doLLMRequest,
-  ExecuteLLMRequestOptions,
-  LLMRequestOptions,
-} from "./api/LLMRequest.js";
-import { LLMResponse } from "./api/LLMResponse.js";
+import { LLMRequestOptions } from "./api/LLMRequest.js";
+
+import { htmlBlockLLMFormat } from "./api/formats/html-blocks/htmlBlocks.js";
 import { PromptBuilder } from "./api/formats/PromptBuilder.js";
 import { LLMFormat, llmFormats } from "./api/index.js";
+import { LLMResponse } from "./api/LLMResponse.js";
+import { trimEmptyBlocks } from "./api/promptHelpers/trimEmptyBlocks.js";
 import { createAgentCursorPlugin } from "./plugins/AgentCursorPlugin.js";
+import { StreamToolCall } from "./streamTool/streamTool.js";
+import { StreamToolExecutor } from "./streamTool/StreamToolExecutor.js";
+import { objectStreamToOperationsResult } from "./streamTool/vercelAiSdk/util/UIMessageStreamToOperationsResult.js";
+import { isEmptyParagraph } from "./util/emptyBlock.js";
 
 type MakeOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
@@ -55,10 +65,7 @@ type AIPluginState = {
       ))
     | "closed";
 
-  /**
-   * The previous response from the LLM, used for multi-step LLM calls
-   */
-  llmResponse?: LLMResponse;
+  chat?: Chat<UIMessage>;
 };
 
 /**
@@ -82,7 +89,7 @@ type GlobalLLMRequestOptions = {
    * Implement this function if you want to call a backend that is not compatible with
    * the Vercel AI SDK
    */
-  executor: (opts: ExecuteLLMRequestOptions) => Promise<LLMResponse>;
+  transport: ChatTransport<UIMessage>;
 };
 
 const PLUGIN_KEY = new PluginKey(`blocknote-ai-plugin`);
@@ -97,6 +104,7 @@ export class AIExtension extends BlockNoteExtension {
   // internal store including setters
   private readonly _store = createStore<AIPluginState>()((_set) => ({
     aiMenuState: "closed",
+    chat: undefined,
   }));
 
   /**
@@ -139,7 +147,6 @@ export class AIExtension extends BlockNoteExtension {
       MakeOptional<Required<GlobalLLMRequestOptions>, "promptBuilder">
     >()((_set) => ({
       dataFormat: llmFormats.html,
-      stream: true,
       ...options,
     }));
 
@@ -190,7 +197,7 @@ export class AIExtension extends BlockNoteExtension {
     this.previousRequestOptions = undefined;
     this._store.setState({
       aiMenuState: "closed",
-      llmResponse: undefined,
+      chat: undefined,
     });
     this.editor.setForceSelectionVisible(false);
     this.editor.isEditable = true;
@@ -350,26 +357,82 @@ export class AIExtension extends BlockNoteExtension {
   /**
    * Execute a call to an LLM and apply the result to the editor
    */
-  public async callLLM(opts: MakeOptional<LLMRequestOptions, "executor">) {
+  public async callLLM(
+    opts: LLMRequestOptions,
+    transport?: ChatTransport<UIMessage>,
+  ) {
     this.setAIResponseStatus("thinking");
     this.editor.forkYDocPlugin?.fork();
 
     let ret: LLMResponse | undefined;
     try {
-      const requestOptions = {
-        ...this.options.getState(),
-        ...opts,
-        previousResponse: this.store.getState().llmResponse,
-      };
-      this.previousRequestOptions = requestOptions;
+      if (!this.store.getState().chat) {
+        this._store.setState({
+          chat: new Chat<UIMessage>({
+            transport: transport || this.options.getState().transport,
+          }),
+        });
+      }
+      const chat = this.store.getState().chat!;
 
-      ret = await doLLMRequest(this.editor, {
-        ...requestOptions,
-        onStart: () => {
-          this.setAIResponseStatus("ai-writing");
-          opts.onStart?.();
-        },
-        onBlockUpdate: (blockId: string) => {
+      const {
+        dataFormat,
+        useSelection,
+        deleteEmptyCursorBlock,
+        userPrompt,
+        withDelays,
+        defaultStreamTools,
+        onBlockUpdate,
+        onStart,
+        ...rest
+      } = {
+        dataFormat: htmlBlockLLMFormat,
+        withDelays: true,
+        ...opts,
+      };
+
+      // ADD MESSAGES
+
+      const promptBuilder =
+        opts.promptBuilder ?? dataFormat.defaultPromptBuilder;
+
+      const cursorBlock = useSelection
+        ? undefined
+        : this.editor.getTextCursorPosition().block;
+
+      const deleteCursorBlock: string | undefined =
+        cursorBlock &&
+        deleteEmptyCursorBlock &&
+        isEmptyParagraph(cursorBlock) &&
+        trimEmptyBlocks(this.editor.document).length > 0
+          ? cursorBlock.id
+          : undefined;
+
+      const selectionInfo = useSelection
+        ? this.editor.getSelectionCutBlocks()
+        : undefined;
+
+      const messages = await promptBuilder(this.editor, {
+        selectedBlocks: selectionInfo?.blocks,
+        userPrompt,
+        excludeBlockIds: deleteCursorBlock ? [deleteCursorBlock] : undefined,
+      });
+
+      chat.messages.push(...messages);
+
+      // SEND MESSAGES
+
+      const streamTools = dataFormat.getStreamTools(
+        this.editor,
+        withDelays,
+        defaultStreamTools,
+        selectionInfo
+          ? {
+              from: selectionInfo._meta.startPos,
+              to: selectionInfo._meta.endPos,
+            }
+          : undefined,
+        (blockId: string) => {
           // NOTE: does this setState with an anon object trigger unnecessary re-renders?
           this._store.setState({
             aiMenuState: {
@@ -377,15 +440,57 @@ export class AIExtension extends BlockNoteExtension {
               status: "ai-writing",
             },
           });
-          opts.onBlockUpdate?.(blockId);
+          onBlockUpdate?.(blockId);
+        },
+      );
+
+      const stream = new TransformStream<
+        DeepPartial<{ operations: StreamToolCall<any>[] }>
+      >();
+
+      const operationsStream = objectStreamToOperationsResult(
+        stream.readable,
+        streamTools,
+      );
+
+      const writer = stream.writable.getWriter();
+      const unsub = chat["~registerMessagesCallback"](() => {
+        // TODO: catch errors in this method
+        this.setAIResponseStatus("ai-writing");
+        onStart?.();
+
+        const lastPart =
+          chat.lastMessage?.parts[chat.lastMessage.parts.length - 1];
+        if (lastPart?.type === "tool-operations") {
+          if (lastPart.state === "input-streaming") {
+            const input = lastPart.input;
+            if (input !== undefined) {
+              writer.write(input as any);
+            }
+          } else if (lastPart.state === "input-available") {
+            const input = lastPart.input;
+            if (input === undefined) {
+              throw new Error("input is undefined");
+            }
+            writer.write(input as any);
+            writer.close();
+            unsub(); // TODO: also somewhere else?
+          }
+        }
+      });
+
+      const executor = new StreamToolExecutor(streamTools);
+      // await executor.waitTillEnd();
+      const executePromise = executor.execute(operationsStream);
+
+      await chat.sendMessage(undefined, {
+        metadata: {
+          streamTools,
         },
       });
 
-      this._store.setState({
-        llmResponse: ret,
-      });
-
-      await ret.execute();
+      await executePromise;
+      // TODO: unsub
 
       this.setAIResponseStatus("user-reviewing");
     } catch (e) {

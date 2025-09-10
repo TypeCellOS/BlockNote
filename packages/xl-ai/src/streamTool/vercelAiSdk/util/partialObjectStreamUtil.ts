@@ -28,16 +28,26 @@ import {
  */
 
 // based on https://github.com/vercel/ai/blob/d8ada0eb81e42633172d739a40c88e6c5a2f426b/packages/react/src/use-object.ts#L202
-export function textStreamToPartialObjectStream<T>() {
+export function textStreamToPartialObjectStream<T>(
+  opts: {
+    chunks: boolean;
+  } = {
+    chunks: true,
+  },
+) {
   let accumulatedText = "";
   let latestObject: DeepPartial<T> | undefined = undefined;
   return new TransformStream<string, DeepPartial<T>>({
     transform: async (chunk, controller) => {
       accumulatedText += chunk;
       const { value } = await parsePartialJson(accumulatedText);
-      const currentObject = value as DeepPartial<T>;
 
-      if (!isDeepEqualData(latestObject, currentObject)) {
+      const currentObject = value as DeepPartial<T> | undefined;
+
+      if (
+        currentObject !== undefined &&
+        !isDeepEqualData(latestObject, currentObject)
+      ) {
         latestObject = currentObject;
 
         controller.enqueue(currentObject);
@@ -90,23 +100,31 @@ export function uiMessageStreamObjectDataToTextStream(
  * Based on: https://github.com/vercel/ai/blob/b2469681bd31635a33a4b233d889f122c0b432c9/packages/ai/src/ui/transform-text-to-ui-message-stream.ts#L3
  *
  */
-export function partialObjectStreamToUIMessageStream<PARTIAL>(
+export function partialObjectStreamAsToolCallInUIMessageStream<PARTIAL>(
   stream: ReadableStream<ObjectStreamPart<PARTIAL>>,
+  toolName: string,
 ): ReadableStream<UIMessageChunk> {
+  let accumulatedString = "";
   return stream.pipeThrough(
     new TransformStream({
       start(controller) {
         controller.enqueue({ type: "start" });
         controller.enqueue({ type: "start-step" });
+        controller.enqueue({
+          type: "tool-input-start",
+          toolCallId: "call_object_1",
+          toolName,
+        });
         // controller.enqueue({ type: "text-start", id: "text-1" });
       },
       transform(chunk, controller) {
         switch (chunk.type) {
           case "text-delta":
+            accumulatedString += chunk.textDelta;
             controller.enqueue({
-              type: "data-object-delta",
-              id: "text-1",
-              data: chunk.textDelta,
+              type: "tool-input-delta",
+              toolCallId: "call_object_1",
+              inputTextDelta: chunk.textDelta,
             });
             break;
           case "object":
@@ -126,6 +144,12 @@ export function partialObjectStreamToUIMessageStream<PARTIAL>(
       },
       async flush(controller) {
         // controller.enqueue({ type: "text-end", id: "text-1" });
+        controller.enqueue({
+          type: "tool-input-available",
+          toolCallId: "call_object_1",
+          toolName,
+          input: JSON.parse(accumulatedString),
+        });
         controller.enqueue({ type: "finish-step" });
         controller.enqueue({ type: "finish" });
       },
@@ -134,18 +158,30 @@ export function partialObjectStreamToUIMessageStream<PARTIAL>(
 }
 
 // convert a plain object to a UIMessageStream.
-export function objectToUIMessageStream(object: any) {
+export function objectAsToolCallInUIMessageStream(
+  object: any,
+  toolName: string,
+) {
   const stream = new ReadableStream<UIMessageChunk>({
     start(controller) {
       controller.enqueue({ type: "start" });
       controller.enqueue({ type: "start-step" });
-      // controller.enqueue({ type: "data-object-start", id: "text-1" });
       controller.enqueue({
-        type: "data-object-delta",
-        id: "text-1",
-        data: JSON.stringify(object),
+        type: "tool-input-start",
+        toolCallId: "call_object_1",
+        toolName,
       });
-      // controller.enqueue({ type: "text-end", id: "text-1" });
+      controller.enqueue({
+        type: "tool-input-delta",
+        toolCallId: "call_object_1",
+        inputTextDelta: JSON.stringify(object),
+      });
+      controller.enqueue({
+        type: "tool-input-available",
+        toolCallId: "call_object_1",
+        toolName,
+        input: object,
+      });
       controller.enqueue({ type: "finish-step" });
       controller.enqueue({ type: "finish" });
       controller.close();

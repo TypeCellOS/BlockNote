@@ -5,188 +5,18 @@ import {
   UIMessageChunk,
   convertToModelMessages,
   generateObject,
+  generateText,
   jsonSchema,
   streamObject,
   streamText,
 } from "ai";
+import { streamToolsAsTool } from "../../asTool.js";
 import { createStreamToolsArraySchema } from "../../jsonSchema.js";
 import { StreamTool } from "../../streamTool.js";
 import {
-  objectToUIMessageStream,
-  partialObjectStreamToUIMessageStream,
+  objectAsToolCallInUIMessageStream,
+  partialObjectStreamAsToolCallInUIMessageStream,
 } from "../util/partialObjectStreamUtil.js";
-
-type LLMRequestOptions = {
-  model: LanguageModel;
-  messages: UIMessage[];
-  maxRetries: number;
-};
-
-/**
- * Calls an LLM with StreamTools, using the `generateObject` of the AI SDK.
- *
- * This is the non-streaming version.
- */
-async function generateOperations<T extends StreamTool<any>[]>(
-  streamTools: T,
-  opts: LLMRequestOptions & {
-    _generateObjectOptions?: Partial<Parameters<typeof generateObject<any>>[0]>;
-  },
-) {
-  const { _generateObjectOptions, model, messages, ...rest } = opts;
-
-  if (typeof model === "string") {
-    throw new Error("model must be a LanguageModelV2");
-  }
-
-  if (
-    _generateObjectOptions &&
-    ("output" in _generateObjectOptions || "schema" in _generateObjectOptions)
-  ) {
-    throw new Error(
-      "Cannot provide output or schema in _generateObjectOptions",
-    );
-  }
-
-  const schema = jsonSchema(createStreamToolsArraySchema(streamTools));
-  const options = {
-    // non-overridable options for streamObject
-    output: "object" as const,
-    schema,
-    model,
-    // configurable options for streamObject
-
-    // - optional, with defaults
-
-    // mistral somehow needs "auto", while groq/llama needs "tool"
-    // google needs "auto" because https://github.com/vercel/ai/issues/6959
-    // TODO: further research this and / or make configurable
-    // for now stick to "tool" by default as this has been tested mostly
-    mode:
-      model.provider === "mistral.chat" ||
-      model.provider === "google.generative-ai"
-        ? "auto"
-        : "tool",
-    messages: convertToModelMessages(messages),
-    providerOptions:
-      model.provider === "groq.chat"
-        ? {
-            groq: {
-              structuredOutputs: false,
-            },
-          }
-        : {},
-
-    //  - mandatory ones:
-    ...rest,
-
-    // extra options for streamObject
-    ...((_generateObjectOptions ?? {}) as any),
-  } as const;
-  const ret = await generateObject<any, any, { operations: any }>(options);
-
-  const stream = objectToUIMessageStream(ret.object);
-
-  return {
-    uiMessageStream: stream,
-    /**
-     * Result of the underlying `generateObject` (AI SDK) call, or `undefined` if streaming mode
-     */
-    generateObjectResult: ret,
-  };
-}
-
-/**
- * Calls an LLM with StreamTools, using the `streamObject` of the AI SDK.
- *
- * This is the streaming version.
- */
-async function streamOperations<T extends StreamTool<any>[]>(
-  streamTools: T,
-  opts: LLMRequestOptions & {
-    _streamObjectOptions?: Partial<
-      Parameters<typeof streamObject<any, any, { operations: any[] }>>[0]
-    >;
-  },
-) {
-  const { _streamObjectOptions, model, messages, ...rest } = opts;
-
-  if (typeof model === "string") {
-    throw new Error("model must be a LanguageModelV2");
-  }
-
-  if (
-    _streamObjectOptions &&
-    ("output" in _streamObjectOptions || "schema" in _streamObjectOptions)
-  ) {
-    throw new Error("Cannot provide output or schema in _streamObjectOptions");
-  }
-
-  // const schema = jsonSchema(createStreamToolsArraySchema(streamTools));
-
-  const options = {
-    // non-overridable options for streamObject
-    output: "object" as const,
-    // schema,
-    model,
-    // configurable options for streamObject
-
-    // - optional, with defaults
-    // mistral somehow needs "auto", while groq/llama needs "tool"
-    // google needs "auto" because https://github.com/vercel/ai/issues/6959
-    // TODO: further research this and / or make configurable
-    // for now stick to "tool" by default as this has been tested mostly
-    mode:
-      model.provider === "mistral.chat" ||
-      model.provider === "google.generative-ai"
-        ? "auto"
-        : "tool",
-    //  - mandatory ones:
-    messages: convertToModelMessages(messages),
-    providerOptions:
-      model.provider === "groq.chat"
-        ? {
-            groq: {
-              structuredOutputs: false,
-            },
-          }
-        : {},
-    ...rest,
-
-    // extra options for streamObject
-    ...((opts._streamObjectOptions ?? {}) as any),
-  } as const;
-
-  const ret2 = streamText({
-    ...options,
-    tools: Object.fromEntries(
-      Object.entries(streamTools).map(([name, tool]) => [
-        tool.name,
-        {
-          ...tool,
-          inputSchema: jsonSchema(tool.inputSchema),
-        },
-      ]),
-    ),
-  });
-
-  return {
-    uiMessageStream: ret2.toUIMessageStream(),
-  };
-
-  const ret = streamObject<any, any, { operations: any }>(options);
-
-  // Transform the partial object stream to a data stream format
-  const stream = partialObjectStreamToUIMessageStream(ret.fullStream);
-
-  return {
-    uiMessageStream: stream,
-    /**
-     * Result of the underlying `streamObject` (AI SDK) call, or `undefined` if non-streaming mode
-     */
-    streamObjectResult: ret,
-  };
-}
 
 export class ClientSideTransport<UI_MESSAGE extends UIMessage>
   implements ChatTransport<UI_MESSAGE>
@@ -206,63 +36,213 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
       /**
        * Whether to stream the LLM response or not
        *
-       * When streaming, we use the AI SDK `streamObject` function,
-       * otherwise, we use the AI SDK `generateObject` function.
+       * When streaming, we use the AI SDK stream functions `streamObject` / `streamText,
+       * otherwise, we use the AI SDK `generateObject` / `generateText` functions.
        *
        * @default true
        */
       stream?: boolean;
 
       /**
-       * The maximum number of retries for the LLM call
+       * Use object generation instead of tool calling
        *
-       * @default 2
+       * @default false
        */
-      maxRetries?: number;
+      objectGeneration?: boolean;
 
       /**
-       * Additional options to pass to the AI SDK `generateObject` function
-       * (only used when `stream` is `false`)
+       * Additional options to pass to the AI SDK `generateObject` / `streamObject` / `streamText` / `generateText` functions
        */
-      _generateObjectOptions?: Partial<
-        Parameters<typeof generateObject<any>>[0]
-      >;
-      /**
-       * Additional options to pass to the AI SDK `streamObject` function
-       * (only used when `stream` is `true`)
-       */
-      _streamObjectOptions?: Partial<Parameters<typeof streamObject<any>>[0]>;
+      _additionalOptions?:
+        | Partial<Parameters<typeof generateObject>[0]>
+        | Partial<Parameters<typeof streamObject>[0]>
+        | Partial<Parameters<typeof generateText>[0]>
+        | Partial<Parameters<typeof streamText>[0]>;
     },
   ) {}
+
+  /**
+   * Calls an LLM with StreamTools, using the `generateObject` of the AI SDK.
+   *
+   * This is the non-streaming version.
+   */
+  protected async generateObject(
+    messages: UIMessage[],
+    streamTools: StreamTool<any>[],
+  ) {
+    const { model, _additionalOptions } = this.opts;
+
+    if (typeof model === "string") {
+      throw new Error("model must be a LanguageModelV2");
+    }
+
+    const schema = jsonSchema(createStreamToolsArraySchema(streamTools));
+
+    const ret = await generateObject<any, any, { operations: any }>({
+      // non-overridable options for streamObject
+      output: "object" as const,
+      schema,
+      model,
+      // configurable options for streamObject
+
+      // - optional, with defaults
+
+      // mistral somehow needs "auto", while groq/llama needs "tool"
+      // google needs "auto" because https://github.com/vercel/ai/issues/6959
+      // TODO: further research this and / or make configurable
+      // for now stick to "tool" by default as this has been tested mostly
+      mode:
+        model.provider === "mistral.chat" ||
+        model.provider === "google.generative-ai"
+          ? "auto"
+          : "tool",
+      messages: convertToModelMessages(messages),
+      providerOptions:
+        model.provider === "groq.chat"
+          ? {
+              groq: {
+                structuredOutputs: false,
+              },
+            }
+          : {},
+      // extra options for streamObject
+      ...((_additionalOptions ?? {}) as any),
+    });
+
+    return objectAsToolCallInUIMessageStream(ret.object, "add"); // TODO
+  }
+
+  /**
+   * Calls an LLM with StreamTools, using the `streamObject` of the AI SDK.
+   *
+   * This is the streaming version.
+   */
+  protected async streamOperations(
+    messages: UIMessage[],
+    streamTools: StreamTool<any>[],
+  ) {
+    const { model, _additionalOptions } = this.opts;
+
+    if (typeof model === "string") {
+      throw new Error("model must be a LanguageModelV2");
+    }
+
+    const schema = jsonSchema(createStreamToolsArraySchema(streamTools));
+
+    const ret = streamObject({
+      // non-overridable options for streamObject
+      output: "object" as const,
+      schema,
+      model,
+      // configurable options for streamObject
+
+      // - optional, with defaults
+      // mistral somehow needs "auto", while groq/llama needs "tool"
+      // google needs "auto" because https://github.com/vercel/ai/issues/6959
+      // TODO: further research this and / or make configurable
+      // for now stick to "tool" by default as this has been tested mostly
+      mode:
+        model.provider === "mistral.chat" ||
+        model.provider === "google.generative-ai"
+          ? "auto"
+          : "tool",
+      //  - mandatory ones:
+      messages: convertToModelMessages(messages),
+      providerOptions:
+        model.provider === "groq.chat"
+          ? {
+              groq: {
+                structuredOutputs: false,
+              },
+            }
+          : {},
+      // extra options for streamObject
+      ...((_additionalOptions ?? {}) as any),
+    });
+
+    // Transform the partial object stream to a data stream format
+    return partialObjectStreamAsToolCallInUIMessageStream(
+      ret.fullStream,
+      "add", // TODO
+    );
+  }
+
+  /**
+   * Calls an LLM with StreamTools, using the `streamText` of the AI SDK.
+   *
+   * This is the streaming version.
+   */
+  protected async streamText<T extends StreamTool<any>[]>(
+    messages: UIMessage[],
+    streamTools: T,
+  ) {
+    const { model, _additionalOptions } = this.opts;
+
+    const ret = streamText({
+      model,
+      messages: convertToModelMessages(messages),
+      tools: {
+        operations: streamToolsAsTool(streamTools),
+      },
+      // extra options for streamObject
+      ...((_additionalOptions ?? {}) as any),
+    });
+
+    return ret.toUIMessageStream();
+  }
+
+  /**
+   * // https://github.com/vercel/ai/issues/8380
+   *
+   * Calls an LLM with StreamTools, using the `generateText` of the AI SDK.
+   *
+   * This is the streaming version.
+   */
+  // protected async generateText<T extends StreamTool<any>[]>(
+  //   messages: UIMessage[],
+  //   streamTools: T,
+  // ) {
+
+  //   throw new Error("Not implemented");
+  //   // const { model, _additionalOptions, maxRetries } = this.opts;
+
+  //   // const ret = await generateText({
+  //   //   model,
+  //   //   messages: convertToModelMessages(messages),
+  //   //   maxRetries,
+  //   //   tools: {
+  //   //     operations: streamToolsAsTool(streamTools),
+  //   //   },
+  //   //   // extra options for streamObject
+  //   //   ...((_additionalOptions ?? {}) as any),
+  //   // });
+
+  //   // return createUIMessageStream(ret.response.messages);
+  // }
 
   async sendMessages({
     messages,
     body,
+    metadata,
   }: Parameters<ChatTransport<UI_MESSAGE>["sendMessages"]>[0]): Promise<
     ReadableStream<UIMessageChunk>
   > {
-    // const { streamTools } = body as { streamTools: StreamTool<any>[] };
-    const streamTools = (messages[messages.length - 1].metadata as any)
-      .streamTools;
-    let response: // | Awaited<ReturnType<typeof generateOperations<any>>>
-    Awaited<ReturnType<typeof streamOperations<any>>>;
+    const streamTools = (metadata as any).streamTools;
+
+    if (this.opts.objectGeneration) {
+      if (this.opts.stream) {
+        return this.streamOperations(messages, streamTools);
+      } else {
+        return this.generateObject(messages, streamTools);
+      }
+    }
 
     if (this.opts.stream) {
-      response = await streamOperations(streamTools, {
-        messages,
-        model: this.opts.model,
-        maxRetries: this.opts.maxRetries,
-        ...(this.opts._streamObjectOptions as any),
-      });
+      return this.streamText(messages, streamTools);
     } else {
-      response = (await generateOperations(streamTools, {
-        messages,
-        model: this.opts.model,
-        maxRetries: this.opts.maxRetries,
-        ...(this.opts._generateObjectOptions as any),
-      })) as any;
+      // https://github.com/vercel/ai/issues/8380
+      throw new Error("Not implemented (generateText)");
     }
-    return response.uiMessageStream;
   }
 
   reconnectToStream(): Promise<ReadableStream<UIMessageChunk> | null> {

@@ -29,11 +29,6 @@ export type PromptBuilderInput = {
    * this will be the id of the block that should be ignored)
    */
   excludeBlockIds?: string[];
-  /**
-   * When following a multi-step conversation, or repairing a previous error,
-   * the previous messages that have been sent to the LLM
-   */
-  previousMessages?: Array<UIMessage>;
 };
 
 /**

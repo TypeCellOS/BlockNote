@@ -35,12 +35,11 @@ export function createAISDKLLMRequestExecutor(opts: {
 
     chat["~registerMessagesCallback"](() => {
       console.log(chat.messages[chat.messages.length - 1]);
+      debugger;
       // process partial tool call here
     });
 
-    await chat.sendMessage({
-      role: "user",
-      parts: [{ type: "text", text: "do it" }],
+    await chat.sendMessage(undefined, {
       metadata: {
         streamTools: {
           add: {

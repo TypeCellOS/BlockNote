@@ -3,6 +3,7 @@ import {
   asyncIterableToStream,
   createAsyncIterableStream,
 } from "../util/stream.js";
+import { filterNewOrUpdatedOperations } from "./filterNewOrUpdatedOperations.js";
 import { StreamTool, StreamToolCall } from "./streamTool.js";
 
 /**
@@ -114,6 +115,28 @@ export class StreamToolExecutor<T extends StreamTool<any>[]> {
    */
   public get writable() {
     return this.stream.writable;
+  }
+
+  async executeOperationsArray(source: AsyncIterable<string>) {
+    const writer = this.writable.getWriter();
+    for await (const chunk of source) {
+      const parsed = await parsePartialJson(chunk);
+
+      if (
+        parsed.state === "undefined-input" ||
+        parsed.state === "failed-parse"
+      ) {
+        return undefined;
+      }
+
+      if (!parsed) {
+        return;
+      }
+
+      filterNewOrUpdatedOperations;
+      await writer.write(chunk);
+    }
+    await writer.close();
   }
 
   /**

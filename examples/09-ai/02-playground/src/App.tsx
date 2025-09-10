@@ -24,7 +24,6 @@ import {
   AIToolbarButton,
   ClientSideTransport,
   createAIExtension,
-  createAISDKLLMRequestExecutor,
   createBlockNoteAIClient,
   getAIExtension,
   getAISlashMenuItems,
@@ -98,11 +97,9 @@ export default function App() {
     // Register the AI extension
     extensions: [
       createAIExtension({
-        executor: createAISDKLLMRequestExecutor({
-          transport: new ClientSideTransport({
-            model,
-            stream,
-          }),
+        transport: new ClientSideTransport({
+          model,
+          stream,
         }),
       }),
     ],
@@ -139,11 +136,9 @@ export default function App() {
     // update the default model in the extension
     if (model !== "unknown-model") {
       ai.options.setState({
-        executor: createAISDKLLMRequestExecutor({
-          transport: new ClientSideTransport({
-            model,
-            stream,
-          }),
+        transport: new ClientSideTransport({
+          model,
+          stream,
         }),
       });
     }

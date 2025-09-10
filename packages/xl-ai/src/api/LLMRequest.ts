@@ -1,6 +1,5 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { UIMessage } from "ai";
-import { StreamTool } from "../streamTool/streamTool.js";
 import { isEmptyParagraph } from "../util/emptyBlock.js";
 import { LLMResponse } from "./LLMResponse.js";
 import type { PromptBuilder } from "./formats/PromptBuilder.js";
@@ -10,32 +9,20 @@ import { trimEmptyBlocks } from "./promptHelpers/trimEmptyBlocks.js";
 
 type MakeOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
-export type ExecuteLLMRequestOptions = {
-  messages: UIMessage[];
-  streamTools: StreamTool<any>[];
-  // TODO: needed?
-  llmRequestOptions: MakeOptional<LLMRequestOptions, "executor">;
-  onStart?: () => void;
-};
+// export type ExecuteLLMRequestOptions = {
+//   messages: UIMessage[];
+//   streamTools: StreamTool<any>[];
+//   // TODO: needed?
+//   llmRequestOptions: MakeOptional<LLMRequestOptions, "executor">;
+//   onStart?: () => void;
+// };
 
 export type LLMRequestOptions = {
-  /**
-   * Customize how your LLM backend is called.
-   * Implement this function if you want to call a backend that is not compatible with
-   * the Vercel AI SDK
-   */
-  executor: (opts: ExecuteLLMRequestOptions) => Promise<LLMResponse>;
-
   /**
    * The user prompt to use for the LLM call
    */
   userPrompt: string;
-  /**
-   * Previous response from the LLM, used for multi-step LLM calls
-   *
-   * (populated automatically when invoking `callLLM` via the `AIExtension` class)
-   */
-  previousResponse?: LLMResponse;
+
   /**
    * The default data format to use for LLM calls
    * "html" is recommended, the other formats are experimental
@@ -210,6 +197,14 @@ export async function doLLMRequest(
       : undefined,
     opts.onBlockUpdate,
   );
+
+  // addMessages
+
+  //
+
+  // sendmessages
+
+  // on chat result
 
   // TODO: design decision, does it make sense to pass `messages` here, or should creating the message array
   // be the responsibility of the executor / server, and should we pass editor state instead?
