@@ -16,7 +16,7 @@ import { CursorPlugin } from "../extensions/Collaboration/CursorPlugin.js";
 import { ForkYDocPlugin } from "../extensions/Collaboration/ForkYDocPlugin.js";
 import { SyncPlugin } from "../extensions/Collaboration/SyncPlugin.js";
 import { UndoPlugin } from "../extensions/Collaboration/UndoPlugin.js";
-import { SchemaMigrationPlugin } from "../extensions/Collaboration/schemaMigration/SchemaMigrationExtension.js";
+import { SchemaMigrationPlugin } from "../extensions/Collaboration/schemaMigration/SchemaMigrationPlugin.js";
 import { CommentMark } from "../extensions/Comments/CommentMark.js";
 import { CommentsPlugin } from "../extensions/Comments/CommentsPlugin.js";
 import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlugin.js";
