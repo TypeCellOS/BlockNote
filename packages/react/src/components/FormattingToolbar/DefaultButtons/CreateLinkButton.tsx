@@ -76,6 +76,7 @@ export const CreateLinkButton = () => {
   const update = useCallback(
     (url: string) => {
       editor.createLink(url);
+      setOpened(false);
       editor.focus();
     },
     [editor],
@@ -131,11 +132,7 @@ export const CreateLinkButton = () => {
         <EditLinkMenuItems
           url={url}
           text={text}
-          editLink={(url) => {
-            update(url);
-            setOpened(false);
-            editor.focus();
-          }}
+          editLink={update}
           showTextField={false}
         />
       </Components.Generic.Popover.Content>
