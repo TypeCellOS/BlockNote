@@ -470,9 +470,10 @@ export const KeyboardShortcutsExtension = Extension.create<{
           commands.command(({ state }) => {
             const blockInfo = getBlockInfoFromSelection(state);
 
-            const blockHardBreakShortcut: "shift+enter" | "enter" | "none" =
-              this.options.editor.schema.blockSchema[blockInfo.blockNoteType]
-                .hardBreakShortcut ?? "shift+enter";
+            const blockHardBreakShortcut =
+              this.options.editor.schema.blockSchema[
+                blockInfo.blockNoteType as keyof typeof this.options.editor.schema.blockSchema
+              ].meta?.hardBreakShortcut ?? "shift+enter";
 
             if (blockHardBreakShortcut === "none") {
               return false;

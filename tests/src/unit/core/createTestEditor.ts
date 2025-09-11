@@ -2,6 +2,7 @@ import {
   BlockNoteEditor,
   BlockNoteSchema,
   BlockSchema,
+  createCodeBlockSpec,
   InlineContentSchema,
   StyleSchema,
   uploadToTmpFilesDotOrg_DEV_ONLY,
@@ -22,25 +23,31 @@ export const createTestEditor = <
     (window as any).__TEST_OPTIONS = (window as any).__TEST_OPTIONS || {};
 
     editor = BlockNoteEditor.create({
-      codeBlock: {
-        supportedLanguages: {
-          javascript: {
-            name: "JavaScript",
-            aliases: ["js"],
-          },
-          python: {
-            name: "Python",
-            aliases: ["py"],
-          },
+      schema: schema.extend({
+        blockSpecs: {
+          codeBlock: createCodeBlockSpec({
+            supportedLanguages: {
+              javascript: {
+                name: "JavaScript",
+                aliases: ["js"],
+              },
+              python: {
+                name: "Python",
+                aliases: ["py"],
+              },
+            },
+          }),
         },
+      }),
+      tables: {
+        splitCells: true,
+        cellBackgroundColor: true,
+        cellTextColor: true,
+        headers: true,
       },
-      heading: {
-        levels: [1, 2, 3, 4, 5, 6],
-      },
-      schema,
       trailingBlock: false,
       uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
-    });
+    }) as any;
     editor.mount(div);
   });
 

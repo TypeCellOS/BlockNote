@@ -52,7 +52,6 @@
     "content": [
       {
         "attrs": {
-          "index": null,
           "start": undefined,
           "textAlignment": "left",
         },
@@ -76,7 +75,6 @@
     "content": [
       {
         "attrs": {
-          "index": null,
           "start": undefined,
           "textAlignment": "left",
         },

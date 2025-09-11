@@ -48,7 +48,7 @@ export function insertBlocks<
   // re-convert them into full `Block`s.
   const insertedBlocks = nodesToInsert.map((node) =>
     nodeToBlock(node, pmSchema),
-  );
+  ) as Block<BSchema, I, S>[];
 
   return insertedBlocks;
 }

@@ -15,8 +15,7 @@
             {
               "type": "numberedListItem",
               "attrs": {
-                "textAlignment": "left",
-                "index": "1"
+                "textAlignment": "left"
               },
               "content": [
                 {

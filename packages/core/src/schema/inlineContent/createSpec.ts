@@ -19,19 +19,26 @@ import {
   PartialCustomInlineContentFromConfig,
 } from "./types.js";
 
-// TODO: support serialization
-
 export type CustomInlineContentImplementation<
   T extends CustomInlineContentConfig,
-  // B extends BlockSchema,
-  // I extends InlineContentSchema,
   S extends StyleSchema,
 > = {
+  /**
+   * Parses an external HTML element into a inline content of this type when it returns the block props object, otherwise undefined
+   */
+  parse?: (el: HTMLElement) => Partial<Props<T["propSchema"]>> | undefined;
+
+  /**
+   * Renders an inline content to DOM elements
+   */
   render: (
     /**
      * The custom inline content to render
      */
     inlineContent: InlineContentFromConfig<T, S>,
+    /**
+     * A callback that allows overriding the inline content element
+     */
     updateInlineContent: (
       update: PartialCustomInlineContentFromConfig<T, S>,
     ) => void,
@@ -46,14 +53,37 @@ export type CustomInlineContentImplementation<
   ) => {
     dom: HTMLElement;
     contentDOM?: HTMLElement;
-    // destroy?: () => void;
+    destroy?: () => void;
   };
+
+  /**
+   * Renders an inline content to external HTML elements for use outside the editor
+   * If not provided, falls back to the render method
+   */
+  toExternalHTML?: (
+    /**
+     * The custom inline content to render
+     */
+    inlineContent: InlineContentFromConfig<T, S>,
+    /**
+     * The BlockNote editor instance
+     * This is typed generically. If you want an editor with your custom schema, you need to
+     * cast it manually, e.g.: `const e = editor as BlockNoteEditor<typeof mySchema>;`
+     */
+    editor: BlockNoteEditor<any, any, S>,
+  ) =>
+    | {
+        dom: HTMLElement | DocumentFragment;
+        contentDOM?: HTMLElement;
+      }
+    | undefined;
 };
 
-export function getInlineContentParseRules(
-  config: CustomInlineContentConfig,
-): TagParseRule[] {
-  return [
+export function getInlineContentParseRules<C extends CustomInlineContentConfig>(
+  config: C,
+  customParseFunction?: CustomInlineContentImplementation<C, any>["parse"],
+) {
+  const rules: TagParseRule[] = [
     {
       tag: `[data-inline-content-type="${config.type}"]`,
       contentElement: (element) => {
@@ -67,6 +97,26 @@ export function getInlineContentParseRules(
       },
     },
   ];
+
+  if (customParseFunction) {
+    rules.push({
+      tag: "*",
+      getAttrs(node: string | HTMLElement) {
+        if (typeof node === "string") {
+          return false;
+        }
+
+        const props = customParseFunction?.(node);
+
+        if (props === undefined) {
+          return false;
+        }
+
+        return props;
+      },
+    });
+  }
+  return rules;
 }
 
 export function createInlineContentSpec<
@@ -82,9 +132,7 @@ export function createInlineContentSpec<
     group: "inline",
     selectable: inlineContentConfig.content === "styled",
     atom: inlineContentConfig.content === "none",
-    content: (inlineContentConfig.content === "styled"
-      ? "inline*"
-      : "") as T["content"] extends "styled" ? "inline*" : "",
+    content: inlineContentConfig.content === "styled" ? "inline*" : "",
 
     addAttributes() {
       return propsToAttributes(inlineContentConfig.propSchema);
@@ -95,13 +143,17 @@ export function createInlineContentSpec<
     },
 
     parseHTML() {
-      return getInlineContentParseRules(inlineContentConfig);
+      return getInlineContentParseRules(
+        inlineContentConfig,
+        inlineContentImplementation.parse,
+      );
     },
 
     renderHTML({ node }) {
       const editor = this.options.editor;
 
-      const output = inlineContentImplementation.render(
+      const output = inlineContentImplementation.render.call(
+        { renderType: "dom", props: undefined },
         nodeToCustomInlineContent(
           node,
           editor.schema.inlineContentSchema,
@@ -122,24 +174,24 @@ export function createInlineContentSpec<
     },
 
     addNodeView() {
-      return ({ node, getPos }) => {
+      return (props) => {
+        const { node, getPos } = props;
         const editor = this.options.editor as BlockNoteEditor<any, any, S>;
 
-        const output = inlineContentImplementation.render(
+        const output = inlineContentImplementation.render.call(
+          { renderType: "nodeView", props },
           nodeToCustomInlineContent(
             node,
             editor.schema.inlineContentSchema,
             editor.schema.styleSchema,
           ) as any as InlineContentFromConfig<T, S>, // TODO: fix cast
           (update) => {
-            if (typeof getPos === "boolean") {
-              return;
-            }
-
             const content = inlineContentToNodes([update], editor.pmSchema);
 
+            const pos = getPos();
+
             editor.transact((tr) =>
-              tr.replaceWith(getPos(), getPos() + node.nodeSize, content),
+              tr.replaceWith(pos, pos + node.nodeSize, content),
             );
           },
           editor,
@@ -158,5 +210,22 @@ export function createInlineContentSpec<
   return createInlineContentSpecFromTipTapNode(
     node,
     inlineContentConfig.propSchema,
-  ) as InlineContentSpec<T>; // TODO: fix cast
+    {
+      toExternalHTML: inlineContentImplementation.toExternalHTML,
+      render(inlineContent, updateInlineContent, editor) {
+        const output = inlineContentImplementation.render(
+          inlineContent,
+          updateInlineContent,
+          editor,
+        );
+
+        return addInlineContentAttributes(
+          output,
+          inlineContentConfig.type,
+          inlineContent.props,
+          inlineContentConfig.propSchema,
+        );
+      },
+    },
+  ) as InlineContentSpec<T>;
 }
