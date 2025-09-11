@@ -872,7 +872,10 @@ export class BlockNoteEditor<
                 ? () => {
                     return Object.fromEntries(
                       Object.entries(ext.keyboardShortcuts!).map(
-                        ([key, value]) => [key, () => value({ editor: this })],
+                        ([key, value]) => [
+                          key,
+                          () => value({ editor: this as any }),
+                        ],
                       ),
                     );
                   }

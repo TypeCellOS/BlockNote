@@ -1,7 +1,5 @@
-import { updateBlockTr } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import { getBlockInfoFromTransaction } from "../../../api/getBlockInfoFromPos.js";
-import { createBlockConfig, createBlockSpec } from "../../../schema/index.js";
 import { createBlockNoteExtension } from "../../../editor/BlockNoteExtension.js";
+import { createBlockConfig, createBlockSpec } from "../../../schema/index.js";
 import {
   addDefaultPropsExternalHTML,
   defaultProps,
@@ -10,6 +8,10 @@ import {
 import { handleEnter } from "../../utils/listItemEnterHandler.js";
 import { getListItemContent } from "../getListItemContent.js";
 import { NumberedListIndexingDecorationPlugin } from "./IndexingPlugin.js";
+
+export type NumberedListItemBlockConfig = ReturnType<
+  typeof createNumberedListItemBlockConfig
+>;
 
 export const createNumberedListItemBlockConfig = createBlockConfig(
   () =>
@@ -106,23 +108,22 @@ export const createNumberedListItemBlockSpec = createBlockSpec(
         Enter: ({ editor }) => {
           return handleEnter(editor, "numberedListItem");
         },
-        "Mod-Shift-7": ({ editor }) =>
-          editor.transact((tr) => {
-            const blockInfo = getBlockInfoFromTransaction(tr);
+        "Mod-Shift-7": ({ editor }) => {
+          const cursorPosition = editor.getTextCursorPosition();
 
-            if (
-              !blockInfo.isBlockContainer ||
-              blockInfo.blockContent.node.type.spec.content !== "inline*"
-            ) {
-              return true;
-            }
+          if (
+            editor.schema.blockSchema[cursorPosition.block.type].content !==
+            "inline"
+          ) {
+            return false;
+          }
 
-            updateBlockTr(tr, blockInfo.bnBlock.beforePos, {
-              type: "numberedListItem",
-              props: {},
-            });
-            return true;
-          }),
+          editor.updateBlock(cursorPosition.block, {
+            type: "numberedListItem",
+            props: {},
+          });
+          return true;
+        },
       },
       plugins: [NumberedListIndexingDecorationPlugin()],
     }),

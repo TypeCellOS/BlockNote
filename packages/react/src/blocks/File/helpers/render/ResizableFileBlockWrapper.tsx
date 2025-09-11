@@ -9,7 +9,11 @@ export const ResizableFileBlockWrapper = (
   props: Omit<
     ReactCustomBlockRenderProps<
       FileBlockConfig["type"],
-      FileBlockConfig["propSchema"],
+      FileBlockConfig["propSchema"] & {
+        showPreview?: { default: true };
+        previewWidth?: { default: number };
+        textAlignment?: { default: "left" };
+      },
       FileBlockConfig["content"]
     >,
     "contentRef"

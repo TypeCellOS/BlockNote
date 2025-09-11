@@ -5,7 +5,10 @@ import { DOMParser, Fragment, Node as PMNode, Schema } from "prosemirror-model";
 import { TableView } from "prosemirror-tables";
 import { NodeView } from "prosemirror-view";
 import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
-import { createBlockSpecFromTiptapNode } from "../../schema/index.js";
+import {
+  BlockConfig,
+  createBlockSpecFromTiptapNode,
+} from "../../schema/index.js";
 import { mergeCSSClasses } from "../../util/browser.js";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
 import { defaultProps } from "../defaultProps.js";
@@ -240,6 +243,16 @@ function parseTableContent(node: HTMLElement, schema: Schema) {
 
   return Fragment.fromArray(extractedContent);
 }
+
+export type TableBlockConfig = BlockConfig<
+  "table",
+  {
+    textColor: {
+      default: "default";
+    };
+  },
+  "table"
+>;
 
 export const createTableBlockSpec = () =>
   createBlockSpecFromTiptapNode(
