@@ -1,12 +1,14 @@
-import { updateBlockTr } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import { getBlockInfoFromTransaction } from "../../api/getBlockInfoFromPos.js";
-import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
 import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
+import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
 import {
   addDefaultPropsExternalHTML,
   defaultProps,
   parseDefaultProps,
 } from "../defaultProps.js";
+
+export type ParagraphBlockConfig = ReturnType<
+  typeof createParagraphBlockConfig
+>;
 
 export const createParagraphBlockConfig = createBlockConfig(
   () =>
@@ -56,23 +58,22 @@ export const createParagraphBlockSpec = createBlockSpec(
     createBlockNoteExtension({
       key: "paragraph-shortcuts",
       keyboardShortcuts: {
-        "Mod-Alt-0": ({ editor }) =>
-          editor.transact((tr) => {
-            const blockInfo = getBlockInfoFromTransaction(tr);
+        "Mod-Alt-0": ({ editor }) => {
+          const cursorPosition = editor.getTextCursorPosition();
 
-            if (
-              !blockInfo.isBlockContainer ||
-              blockInfo.blockContent.node.type.spec.content !== "inline*"
-            ) {
-              return true;
-            }
+          if (
+            editor.schema.blockSchema[cursorPosition.block.type].content !==
+            "inline"
+          ) {
+            return false;
+          }
 
-            updateBlockTr(tr, blockInfo.bnBlock.beforePos, {
-              type: "paragraph",
-              props: {},
-            });
-            return true;
-          }),
+          editor.updateBlock(cursorPosition.block, {
+            type: "paragraph",
+            props: {},
+          });
+          return true;
+        },
       },
     }),
   ],

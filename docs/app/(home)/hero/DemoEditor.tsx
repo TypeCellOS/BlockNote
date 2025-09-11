@@ -16,8 +16,7 @@ import {
   getMultiColumnSlashMenuItems,
   locales as multiColumnLocales,
   multiColumnDropCursor,
-  ColumnListBlock,
-  ColumnBlock,
+  withMultiColumn,
 } from "@blocknote/xl-multi-column";
 import "@blocknote/mantine/style.css";
 import { useTheme } from "next-themes";
@@ -91,12 +90,7 @@ export default function DemoEditor() {
         ...locales.en,
         multi_column: multiColumnLocales.en,
       },
-      schema: BlockNoteSchema.create().extend({
-        blockSpecs: {
-          column: ColumnBlock,
-          columnList: ColumnListBlock,
-        },
-      }),
+      schema: withMultiColumn(BlockNoteSchema.create()),
       dropCursor: multiColumnDropCursor,
       collaboration: {
         provider,

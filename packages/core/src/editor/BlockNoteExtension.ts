@@ -1,9 +1,14 @@
 import { Plugin } from "prosemirror-state";
 import { EventEmitter } from "../util/EventEmitter.js";
 
-import { BlockNoteEditor } from "./BlockNoteEditor.js";
-import { PartialBlockNoDefaults } from "../schema/index.js";
 import { AnyExtension } from "@tiptap/core";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  PartialBlockNoDefaults,
+  StyleSchema,
+} from "../schema/index.js";
+import { BlockNoteEditor } from "./BlockNoteEditor.js";
 
 export abstract class BlockNoteExtension<
   TEvent extends Record<string, any> = any,
@@ -33,11 +38,32 @@ export abstract class BlockNoteExtension<
    */
   public inputRules?: InputRule[];
 
+  /**
+   * A mapping of a keyboard shortcut to a function that will be called when the shortcut is pressed
+   *
+   * The keys are in the format:
+   * - Key names may be strings like `Shift-Ctrl-Enter`—a key identifier prefixed with zero or more modifiers
+   * - Key identifiers are based on the strings that can appear in KeyEvent.key
+   * - Use lowercase letters to refer to letter keys (or uppercase letters if you want shift to be held)
+   * - You may use `Space` as an alias for the " " name
+   * - Modifiers can be given in any order: `Shift-` (or `s-`), `Alt-` (or `a-`), `Ctrl-` (or `c-` or `Control-`) and `Cmd-` (or `m-` or `Meta-`)
+   * - For characters that are created by holding shift, the Shift- prefix is implied, and should not be added explicitly
+   * - You can use Mod- as a shorthand for Cmd- on Mac and Ctrl- on other platforms
+   *
+   * @example
+   * ```typescript
+   * keyboardShortcuts: {
+   *   "Mod-Enter": (ctx) => {  return true; },
+   *   "Shift-Ctrl-Space": (ctx) => { return true; },
+   *   "a": (ctx) => { return true; },
+   *   "Space": (ctx) => { return true; }
+   * }
+   * ```
+   */
   public keyboardShortcuts?: Record<
     string,
     (ctx: {
-      // TODO types
-      editor: BlockNoteEditor<any, any, any>;
+      editor: BlockNoteEditor<BlockSchema, InlineContentSchema, StyleSchema>;
     }) => boolean
   >;
 

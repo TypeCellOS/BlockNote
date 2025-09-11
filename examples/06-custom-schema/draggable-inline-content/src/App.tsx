@@ -15,10 +15,12 @@ const draggableButton = createReactInlineContentSpec(
         default: "",
       },
     },
-    draggable: true,
-    content: "none"
+    content: "none",
   },
   {
+    meta: {
+      draggable: true,
+    },
     render: (props) => {
       return (
         <span
@@ -30,12 +32,13 @@ const draggableButton = createReactInlineContentSpec(
             borderRadius: "4px",
             cursor: "move",
           }}
-          data-drag-handle>
+          data-drag-handle
+        >
           <span>{props.inlineContent.props.title}</span>
         </span>
       );
     },
-  }
+  },
 );
 
 const schema = BlockNoteSchema.create({

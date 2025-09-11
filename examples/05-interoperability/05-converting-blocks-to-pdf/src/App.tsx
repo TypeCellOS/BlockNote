@@ -1,11 +1,11 @@
 import {
   BlockNoteSchema,
   combineByGroup,
-  createPageBreakBlockSpec,
   filterSuggestionItems,
+  withPageBreak,
 } from "@blocknote/core";
-import * as locales from "@blocknote/core/locales";
 import "@blocknote/core/fonts/inter.css";
+import * as locales from "@blocknote/core/locales";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
@@ -15,16 +15,15 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 import {
-  PDFExporter,
-  pdfDefaultSchemaMappings,
-} from "@blocknote/xl-pdf-exporter";
-import {
   getMultiColumnSlashMenuItems,
   multiColumnDropCursor,
   locales as multiColumnLocales,
-  ColumnListBlock,
-  ColumnBlock,
+  withMultiColumn,
 } from "@blocknote/xl-multi-column";
+import {
+  PDFExporter,
+  pdfDefaultSchemaMappings,
+} from "@blocknote/xl-pdf-exporter";
 import { PDFViewer } from "@react-pdf/renderer";
 import { useEffect, useMemo, useReducer, useState } from "react";
 
@@ -37,13 +36,7 @@ export default function App() {
 
   // Creates a new editor instance with some initial content.
   const editor = useCreateBlockNote({
-    schema: BlockNoteSchema.create().extend({
-      blockSpecs: {
-        pageBreak: createPageBreakBlockSpec(),
-        column: ColumnBlock,
-        columnList: ColumnListBlock,
-      },
-    }),
+    schema: withPageBreak(withMultiColumn(BlockNoteSchema.create())),
     dropCursor: multiColumnDropCursor,
     dictionary: {
       ...locales.en,

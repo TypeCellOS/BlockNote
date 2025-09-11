@@ -1,5 +1,3 @@
-import { updateBlockTr } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import { getBlockInfoFromTransaction } from "../../api/getBlockInfoFromPos.js";
 import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
 import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import {
@@ -17,6 +15,8 @@ export interface HeadingOptions {
   // TODO should probably use composition instead of this
   allowToggleHeadings?: boolean;
 }
+
+export type HeadingBlockConfig = ReturnType<typeof createHeadingBlockConfig>;
 
 export const createHeadingBlockConfig = createBlockConfig(
   ({
@@ -102,27 +102,24 @@ export const createHeadingBlockSpec = createBlockSpec(
       keyboardShortcuts: Object.fromEntries(
         levels.map((level) => [
           `Mod-Alt-${level}`,
-          ({ editor }) =>
-            editor.transact((tr) => {
-              // TODO this is weird, why do we need it?
-              // https://github.com/TypeCellOS/BlockNote/pull/561
-              const blockInfo = getBlockInfoFromTransaction(tr);
+          ({ editor }) => {
+            const cursorPosition = editor.getTextCursorPosition();
 
-              if (
-                !blockInfo.isBlockContainer ||
-                blockInfo.blockContent.node.type.spec.content !== "inline*"
-              ) {
-                return true;
-              }
+            if (
+              editor.schema.blockSchema[cursorPosition.block.type].content !==
+              "inline"
+            ) {
+              return false;
+            }
 
-              updateBlockTr(tr, blockInfo.bnBlock.beforePos, {
-                type: "heading",
-                props: {
-                  level: level as any,
-                },
-              });
-              return true;
-            }),
+            editor.updateBlock(cursorPosition.block, {
+              type: "heading",
+              props: {
+                level: level as any,
+              },
+            });
+            return true;
+          },
         ]) ?? [],
       ),
       inputRules: levels.map((level) => ({

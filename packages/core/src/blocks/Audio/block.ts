@@ -18,6 +18,8 @@ export interface AudioOptions {
   icon?: string;
 }
 
+export type AudioBlockConfig = ReturnType<typeof createAudioBlockConfig>;
+
 export const createAudioBlockConfig = createBlockConfig(
   (_ctx: AudioOptions) =>
     ({

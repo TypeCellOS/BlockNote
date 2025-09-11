@@ -110,7 +110,7 @@ export function createReactInlineContentSpec<
     group: "inline",
     selectable: inlineContentConfig.content === "styled",
     atom: inlineContentConfig.content === "none",
-    draggable: inlineContentConfig.draggable,
+    draggable: inlineContentImplementation.meta?.draggable,
     content: (inlineContentConfig.content === "styled"
       ? "inline*"
       : "") as T["content"] extends "styled" ? "inline*" : "",

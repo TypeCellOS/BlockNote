@@ -51,6 +51,8 @@ export type CodeBlockOptions = {
   createHighlighter?: () => Promise<HighlighterGeneric<any, any>>;
 };
 
+export type CodeBlockConfig = ReturnType<typeof createCodeBlockConfig>;
+
 export const createCodeBlockConfig = createBlockConfig(
   ({ defaultLanguage = "text" }: CodeBlockOptions) =>
     ({

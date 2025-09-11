@@ -10,7 +10,7 @@ export const FileBlockWrapper = (
   props: Omit<
     ReactCustomBlockRenderProps<
       FileBlockConfig["type"],
-      FileBlockConfig["propSchema"],
+      FileBlockConfig["propSchema"] & { showPreview?: { default: true } },
       FileBlockConfig["content"]
     >,
     "contentRef"

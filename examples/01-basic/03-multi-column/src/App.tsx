@@ -13,23 +13,17 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 import {
-  ColumnBlock,
-  ColumnListBlock,
   getMultiColumnSlashMenuItems,
   multiColumnDropCursor,
   locales as multiColumnLocales,
+  withMultiColumn,
 } from "@blocknote/xl-multi-column";
 import { useMemo } from "react";
 export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
     // Adds column and column list blocks to the schema.
-    schema: BlockNoteSchema.create().extend({
-      blockSpecs: {
-        column: ColumnBlock,
-        columnList: ColumnListBlock,
-      },
-    }),
+    schema: withMultiColumn(BlockNoteSchema.create()),
     // The default drop cursor only shows up above and below blocks - we replace
     // it with the multi-column one that also shows up on the sides of blocks.
     dropCursor: multiColumnDropCursor,

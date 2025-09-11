@@ -15,8 +15,7 @@
             {
               "type": "numberedListItem",
               "attrs": {
-                "textAlignment": "left",
-                "start": 1
+                "textAlignment": "left"
               },
               "content": [
                 {
@@ -108,8 +107,7 @@
             {
               "type": "numberedListItem",
               "attrs": {
-                "textAlignment": "left",
-                "start": 1
+                "textAlignment": "left"
               },
               "content": [
                 {

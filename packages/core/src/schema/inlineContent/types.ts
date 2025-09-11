@@ -7,9 +7,7 @@ import { ViewMutationRecord } from "prosemirror-view";
 export type CustomInlineContentConfig = {
   type: string;
   content: "styled" | "none"; // | "plain"
-  draggable?: boolean;
   readonly propSchema: PropSchema;
-  // content: "inline" | "none" | "table";
 };
 // InlineContentConfig contains the "schema" info about an InlineContent type
 // i.e. what props it supports, what content it supports, etc.
@@ -22,6 +20,9 @@ export type InlineContentImplementation<T extends InlineContentConfig> =
   T extends "link" | "text"
     ? undefined
     : {
+        meta?: {
+          draggable?: boolean;
+        };
         node: Node;
         toExternalHTML?: (
           inlineContent: any,

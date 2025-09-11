@@ -20,7 +20,6 @@ import {
 import { BackgroundColor } from "../extensions/BackgroundColor/BackgroundColorMark.js";
 import { TextColor } from "../extensions/TextColor/TextColorMark.js";
 import {
-  BlockConfig,
   BlockNoDefaults,
   BlockSchema,
   InlineContentSchema,
@@ -52,21 +51,8 @@ export const defaultBlockSpecs = {
 
 // underscore is used that in case a user overrides DefaultBlockSchema,
 // they can still access the original default block schema
-export type _DefaultBlockSchema = Omit<
-  {
-    [K in keyof typeof defaultBlockSpecs]: (typeof defaultBlockSpecs)[K]["config"];
-  },
-  "table"
-> & {
-  table: BlockConfig<
-    "table",
-    {
-      textColor: {
-        default: "default";
-      };
-    },
-    "table"
-  >;
+export type _DefaultBlockSchema = {
+  [K in keyof typeof defaultBlockSpecs]: (typeof defaultBlockSpecs)[K]["config"];
 };
 export type DefaultBlockSchema = _DefaultBlockSchema;
 
