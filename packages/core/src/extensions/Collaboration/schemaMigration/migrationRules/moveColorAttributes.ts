@@ -1,6 +1,6 @@
 import * as Y from "yjs";
 
-import { MigrationRule } from "./MigrationRule.js";
+import { MigrationRule } from "./migrationRule.js";
 import { defaultProps } from "../../../../blocks/defaultProps.js";
 
 // Helper function to recursively traverse a `Y.XMLElement` and its descendant
