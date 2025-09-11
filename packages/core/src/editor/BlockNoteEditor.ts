@@ -586,6 +586,12 @@ export class BlockNoteEditor<
     };
   };
 
+  public readonly collaboration: BlockNoteEditorOptions<
+    BSchema,
+    ISchema,
+    SSchema
+  >["collaboration"];
+
   public static create<
     BSchema extends BlockSchema = DefaultBlockSchema,
     ISchema extends InlineContentSchema = DefaultInlineContentSchema,
@@ -623,6 +629,7 @@ export class BlockNoteEditor<
       );
     }
 
+    this.collaboration = options.collaboration;
     this.dictionary = options.dictionary || en;
     this.settings = {
       tables: {
