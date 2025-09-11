@@ -85,45 +85,45 @@ export const exportParseEqualityTestInstancesHTML: TestInstance<
     },
     executeTest: testExportParseEqualityHTML,
   },
-  // {
-  //   testCase: {
-  //     name: "schema/blockProps",
-  //     content: [
-  //       {
-  //         type: "paragraph",
-  //         content: "Paragraph",
-  //         props: {
-  //           textColor: "red",
-  //           backgroundColor: "blue",
-  //           textAlignment: "center",
-  //         },
-  //       },
-  //       {
-  //         type: "heading",
-  //         content: "Heading",
-  //         props: {
-  //           level: 2,
-  //         },
-  //       },
-  //       {
-  //         type: "checkListItem",
-  //         content: "Check List Item",
-  //         props: {
-  //           checked: true,
-  //           textColor: "red",
-  //           backgroundColor: "blue",
-  //           textAlignment: "center",
-  //         },
-  //       },
-  //       {
-  //         type: "codeBlock",
-  //         content: "Code",
-  //         props: { language: "javascript" },
-  //       },
-  //     ],
-  //   },
-  //   executeTest: testExportParseEqualityHTML,
-  // },
+  {
+    testCase: {
+      name: "schema/blockProps",
+      content: [
+        {
+          type: "paragraph",
+          content: "Paragraph",
+          props: {
+            textColor: "red",
+            backgroundColor: "blue",
+            textAlignment: "center",
+          },
+        },
+        {
+          type: "heading",
+          content: "Heading",
+          props: {
+            level: 2,
+          },
+        },
+        {
+          type: "checkListItem",
+          content: "Check List Item",
+          props: {
+            checked: true,
+            textColor: "red",
+            backgroundColor: "blue",
+            textAlignment: "center",
+          },
+        },
+        {
+          type: "codeBlock",
+          content: "Code",
+          props: { language: "javascript" },
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityHTML,
+  },
   {
     testCase: {
       name: "schema/inlineContent",

@@ -906,22 +906,22 @@ With Hard Break</p>
     },
     executeTest: testParseHTML,
   },
-  //   {
-  //     testCase: {
-  //       name: "textColorProp",
-  //       content: `<p style="color: blue">Blue Text</p>
-  // <p style="color: var(--blocknote-text-blue)">Blue Text</p>`,
-  //     },
-  //     executeTest: testParseHTML,
-  //   },
-  //   {
-  //     testCase: {
-  //       name: "backgroundColorProp",
-  //       content: `<p style="background-color: blue">Blue Background</p>
-  // <p style="background-color: var(--blocknote-background-blue)">Blue Background</p>`,
-  //     },
-  //     executeTest: testParseHTML,
-  //   },
+  {
+    testCase: {
+      name: "textColorProp",
+      content: `<p style="color: blue">Blue Text</p>
+  <p data-text-color="blue">Blue Text</p>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "backgroundColorProp",
+      content: `<p style="background-color: blue">Blue Background</p>
+  <p data-background-color="blue">Blue Background</p>`,
+    },
+    executeTest: testParseHTML,
+  },
 ];
 
 export const parseTestInstancesMarkdown: TestInstance<

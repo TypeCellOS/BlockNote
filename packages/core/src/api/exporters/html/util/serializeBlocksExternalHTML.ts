@@ -227,9 +227,7 @@ function serializeBlock<
       }
       fragment.append(list);
     }
-    const li = doc.createElement("li");
-    li.append(elementFragment);
-    fragment.lastChild!.appendChild(li);
+    fragment.lastChild!.appendChild(elementFragment);
   } else {
     fragment.append(elementFragment);
   }
