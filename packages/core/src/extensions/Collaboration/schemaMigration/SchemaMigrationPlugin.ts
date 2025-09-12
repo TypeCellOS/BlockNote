@@ -2,9 +2,8 @@ import { Plugin, PluginKey } from "@tiptap/pm/state";
 import { ySyncPluginKey } from "y-prosemirror";
 import * as Y from "yjs";
 
-import migrationRules from "./migrationRules/index.js";
 import { BlockNoteExtension } from "../../../editor/BlockNoteExtension.js";
-import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import migrationRules from "./migrationRules/index.js";
 
 // This plugin allows us to update collaboration YDocs whenever BlockNote's
 // underlying ProseMirror schema changes. The plugin reads the current Yjs
