@@ -1135,7 +1135,9 @@ export class BlockNoteEditor<
   }
 
   public focus() {
-    this.prosemirrorView?.focus();
+    if (this._tiptapEditor.isInitialized) {
+      this.prosemirrorView?.focus();
+    }
   }
 
   public onUploadStart(callback: (blockId?: string) => void) {
