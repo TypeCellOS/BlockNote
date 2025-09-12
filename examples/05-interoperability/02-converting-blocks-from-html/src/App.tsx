@@ -31,19 +31,22 @@ export default function App() {
     loadInitialHTML();
   }, [editor]);
 
-  // Renders a text area for you to write/paste HTML in, and the editor instance
-  // below, which displays the current HTML as blocks.
+  // Renders the HTML input and editor instance.
   return (
-    <div className={"wrapper"}>
-      <div>Input (HTML):</div>
-      <div className={"item bordered"}>
-        <code>
-          <textarea defaultValue={initialHTML} onChange={htmlInputChanged} />
-        </code>
+    <div className="views">
+      <div className="view-wrapper">
+        <div className="view-label">HTML Input</div>
+        <div className="view">
+          <code>
+            <textarea defaultValue={initialHTML} onChange={htmlInputChanged} />
+          </code>
+        </div>
       </div>
-      <div>Output (BlockNote Editor):</div>
-      <div className={"item"}>
-        <BlockNoteView editor={editor} editable={false} />
+      <div className="view-wrapper">
+        <div className="view-label">Editor Output</div>
+        <div className="view">
+          <BlockNoteView editor={editor} editable={false} />
+        </div>
       </div>
     </div>
   );
