@@ -128,7 +128,9 @@ export const getBlockNoteExtensions = <
       editor: opts.editor,
       collaboration: opts.collaboration,
     });
-    ret["schemaMigrationPlugin"] = new SchemaMigrationPlugin(opts.editor);
+    ret["schemaMigrationPlugin"] = new SchemaMigrationPlugin(
+      opts.collaboration.fragment,
+    );
   }
 
   // Note: this is pretty hardcoded and will break when user provides plugins with same keys.

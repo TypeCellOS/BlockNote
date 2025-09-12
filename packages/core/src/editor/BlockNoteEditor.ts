@@ -571,13 +571,6 @@ export class BlockNoteEditor<
       headers: boolean;
     };
   };
-
-  public readonly collaboration: BlockNoteEditorOptions<
-    BSchema,
-    ISchema,
-    SSchema
-  >["collaboration"];
-
   public static create<
     Options extends Partial<BlockNoteEditorOptions<any, any, any>> | undefined,
   >(
@@ -625,7 +618,6 @@ export class BlockNoteEditor<
       );
     }
 
-    this.collaboration = options.collaboration;
     this.dictionary = options.dictionary || en;
     this.settings = {
       tables: {
