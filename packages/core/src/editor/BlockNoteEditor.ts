@@ -1,5 +1,6 @@
 import {
   AnyExtension,
+  createDocument,
   EditorOptions,
   Extension,
   getSchema,
@@ -7,6 +8,7 @@ import {
   isNodeSelection,
   Mark,
   posToDOMRect,
+  Editor as TiptapEditor,
   Node as TipTapNode,
 } from "@tiptap/core";
 import { redo, undo } from "@tiptap/pm/history";
@@ -18,7 +20,6 @@ import {
 } from "@tiptap/pm/state";
 import { dropCursor } from "prosemirror-dropcursor";
 import { Node, Schema } from "prosemirror-model";
-import { EditorView } from "prosemirror-view";
 import { redoCommand, undoCommand, ySyncPluginKey } from "y-prosemirror";
 import * as Y from "yjs";
 
@@ -62,7 +63,10 @@ import {
   BlocksChanged,
   getBlocksChangedByTransaction,
 } from "../api/getBlocksChangedByTransaction.js";
-import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
+import {
+  blockToNode,
+  inlineContentToNodes,
+} from "../api/nodeConversions/blockToNode.js";
 import { docToBlocks } from "../api/nodeConversions/nodeToBlock.js";
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
 import {
@@ -104,10 +108,6 @@ import { EventEmitter } from "../util/EventEmitter.js";
 import { NoInfer, UnreachableCaseError } from "../util/typescript.js";
 import { BlockNoteExtension } from "./BlockNoteExtension.js";
 import { getBlockNoteExtensions } from "./BlockNoteExtensions.js";
-import {
-  BlockNoteTipTapEditor,
-  BlockNoteTipTapEditorOptions,
-} from "./BlockNoteTipTapEditor.js";
 import { TextCursorPosition } from "./cursorPositionTypes.js";
 import { Selection } from "./selectionTypes.js";
 import { transformPasted } from "./transformPasted.js";
@@ -480,10 +480,9 @@ export class BlockNoteEditor<
    */
   public readonly headless: boolean = false;
 
-  public readonly _tiptapEditor: Omit<BlockNoteTipTapEditor, "view"> & {
-    view: EditorView | undefined;
+  public readonly _tiptapEditor: TiptapEditor & {
     contentComponent: any;
-  } = undefined as any; // TODO: Type should actually reflect that it can be `undefined` in headless mode
+  } = undefined as any; // TODO headless mode should work now with v3
 
   /**
    * Used by React to store a reference to an `ElementRenderer` helper utility to make sure we can render React elements
@@ -768,28 +767,6 @@ export class BlockNoteEditor<
       );
     }
 
-    const initialContent =
-      newOptions.initialContent ||
-      (collaborationEnabled
-        ? [
-            {
-              type: "paragraph",
-              id: "initialBlockId",
-            },
-          ]
-        : [
-            {
-              type: "paragraph",
-              id: UniqueID.options.generateID(),
-            },
-          ]);
-
-    if (!Array.isArray(initialContent) || initialContent.length === 0) {
-      throw new Error(
-        "initialContent must be a non-empty array of blocks, received: " +
-          initialContent,
-      );
-    }
     const blockExtensions = Object.fromEntries(
       Object.values(this.schema.blockSpecs)
         .map((block) => (block as any).extensions as any)
@@ -887,10 +864,10 @@ export class BlockNoteEditor<
         },
       ),
     ].filter((ext): ext is Extension => ext !== undefined);
-    const tiptapOptions: BlockNoteTipTapEditorOptions = {
+    const tiptapOptions: EditorOptions = {
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
-      content: initialContent,
+      element: null,
       extensions: tiptapExtensions,
       editorProps: {
         ...newOptions._tiptapOptions?.editorProps,
@@ -909,18 +886,63 @@ export class BlockNoteEditor<
         },
         transformPasted,
       },
-    };
+    } as any;
 
     if (!this.headless) {
-      this._tiptapEditor = BlockNoteTipTapEditor.create(
-        tiptapOptions,
-        this.schema.styleSchema,
-      ) as BlockNoteTipTapEditor & {
-        view: any;
-        contentComponent: any;
-      };
-      this.pmSchema = this._tiptapEditor.schema;
+      try {
+        const initialContent =
+          newOptions.initialContent ||
+          (collaborationEnabled
+            ? [
+                {
+                  type: "paragraph",
+                  id: "initialBlockId",
+                },
+              ]
+            : [
+                {
+                  type: "paragraph",
+                  id: UniqueID.options.generateID(),
+                },
+              ]);
+
+        if (!Array.isArray(initialContent) || initialContent.length === 0) {
+          throw new Error(
+            "initialContent must be a non-empty array of blocks, received: " +
+              initialContent,
+          );
+        }
+        const schema = getSchema(tiptapOptions.extensions!);
+        const pmNodes = initialContent.map((b) =>
+          blockToNode(b, schema, this.schema.styleSchema).toJSON(),
+        );
+        const doc = createDocument(
+          {
+            type: "doc",
+            content: [
+              {
+                type: "blockGroup",
+                content: pmNodes,
+              },
+            ],
+          },
+          schema,
+          tiptapOptions.parseOptions,
+        );
+
+        this._tiptapEditor = new TiptapEditor({
+          ...tiptapOptions,
+          content: doc.toJSON(),
+        }) as any;
+        this.pmSchema = this._tiptapEditor.schema;
+      } catch (e) {
+        throw new Error(
+          "Error creating document from blocks passed as `initialContent`",
+          { cause: e },
+        );
+      }
     } else {
+      // TODO can use tiptap headless now...
       // In headless mode, we don't instantiate an underlying TipTap editor,
       // but we still need the schema
       this.pmSchema = getSchema(tiptapOptions.extensions!);
@@ -954,7 +976,7 @@ export class BlockNoteEditor<
     }
     const state = this._tiptapEditor.state;
     const view = this._tiptapEditor.view;
-    const dispatch = (tr: Transaction) => this._tiptapEditor.dispatch(tr);
+    const dispatch = (tr: Transaction) => view?.dispatch(tr);
 
     return command(state, dispatch, view);
   }
@@ -1037,7 +1059,7 @@ export class BlockNoteEditor<
           !activeTr.isGeneric)
       ) {
         // Dispatch the transaction if it was modified
-        this._tiptapEditor.dispatch(activeTr);
+        this._tiptapEditor.view?.dispatch(activeTr);
       }
 
       return result;
