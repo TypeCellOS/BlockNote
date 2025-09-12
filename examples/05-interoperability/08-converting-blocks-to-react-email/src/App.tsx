@@ -382,37 +382,33 @@ export default function App() {
     window.URL.revokeObjectURL(link.href);
   };
 
-  // Renders the editor instance or PDF view. Also renders two buttons above
-  // for switching between views and downloading the PDF.
+  // Renders the editor instance and Email view.
   return (
-    <div className="download-wrapper">
-      <div className="download-buttons">
-        <button
-          className="download-button"
-          onClick={() =>
-            setShow((show) => (show === "editor" ? "email" : "editor"))
-          }
-        >
-          {show === "editor" ? "Show Email" : "Show Editor"}
-        </button>
-        <button className="download-button" onClick={onDownloadClick}>
-          Download email .html
-        </button>
-      </div>
-      <div className="download-view">
-        {show === "editor" ? (
+    <div className="views">
+      <div className="view-wrapper">
+        <div className="view-label">Editor Input</div>
+        <div className="view">
           <BlockNoteView editor={editor} slashMenu={false} onChange={onChange}>
             <SuggestionMenuController
               triggerCharacter={"/"}
               getItems={getSlashMenuItems}
             />
           </BlockNoteView>
-        ) : (
+        </div>
+      </div>
+      <div className="view-wrapper">
+        <div className="view-label">
+          Email Output
+          <span className="view-label-download" onClick={onDownloadClick}>
+            Download
+          </span>
+        </div>
+        <div className="view">
           <div
             className="email"
             dangerouslySetInnerHTML={{ __html: emailDocument }}
           />
-        )}
+        </div>
       </div>
     </div>
   );

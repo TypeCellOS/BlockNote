@@ -413,18 +413,25 @@ export default function App() {
     window.URL.revokeObjectURL(link.href);
   };
 
-  // Renders the editor instance, and a download button above.
+  // Renders the editor instance.
   return (
-    <div className="download-wrapper">
-      <button className="download-button" onClick={onDownloadClick}>
-        Download .odt
-      </button>
-      <BlockNoteView editor={editor} slashMenu={false}>
-        <SuggestionMenuController
-          triggerCharacter={"/"}
-          getItems={getSlashMenuItems}
-        />
-      </BlockNoteView>
+    <div className="views">
+      <div className="view-wrapper">
+        <div className="view-label">
+          Editor
+          <span className="view-label-download" onClick={onDownloadClick}>
+            Download ODT
+          </span>
+        </div>
+        <div className="view">
+          <BlockNoteView editor={editor} slashMenu={false}>
+            <SuggestionMenuController
+              triggerCharacter={"/"}
+              getItems={getSlashMenuItems}
+            />
+          </BlockNoteView>
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,21 +1,63 @@
-.download-wrapper {
-  align-items: center;
+.views {
+  container-name: views;
+  container-type: inline-size;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+  height: 100%;
+  padding: 8px;
+}
+
+.view-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 8px;
+  height: calc(50% - 4px);
   width: 100%;
 }
 
-.download-button {
-  background-color: #0090ff;
-  border: none;
-  border-radius: 4px;
-  color: white;
+@container views (width > 1024px) {
+  .view-wrapper {
+    height: 100%;
+    width: calc(50% - 4px);
+  }
+}
+
+.view-wrapper:only-child {
+  height: 100%;
+  width: 100%;
+}
+
+.view-label {
+  color: #0090ff;
+  display: flex;
+  font-size: 12px;
+  font-weight: bold;
+  justify-content: space-between;
+  margin-inline: 16px;
+}
+
+.view-label-download {
   cursor: pointer;
-  width: 100%;
+  text-decoration: underline;
 }
 
-.download-button:hover {
-  background-color: #30b0ff;
+.view {
+  border: solid #0090ff 1px;
+  border-radius: 16px;
+  flex: 1;
+  height: 0;
+  padding: 8px;
+}
+
+.view .bn-container {
+  height: 100%;
+  margin: 0;
+  max-width: none;
+  padding: 0;
+}
+
+.view .bn-editor {
+  height: 100%;
+  overflow: auto;
 }

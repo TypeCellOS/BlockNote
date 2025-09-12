@@ -433,36 +433,32 @@ export default function App() {
     window.URL.revokeObjectURL(link.href);
   };
 
-  // Renders the editor instance or PDF view. Also renders two buttons above
-  // for switching between views and downloading the PDF.
+  // Renders the editor instance and PDF view.
   return (
-    <div className="download-wrapper">
-      <div className="download-buttons">
-        <button
-          className="download-button"
-          onClick={() =>
-            setShow((show) => (show === "editor" ? "pdf" : "editor"))
-          }
-        >
-          {show === "editor" ? "Show PDF" : "Show Editor"}
-        </button>
-        <button className="download-button" onClick={onDownloadClick}>
-          Download .pdf
-        </button>
-      </div>
-      <div className="download-view">
-        {show === "editor" ? (
+    <div className="views">
+      <div className="view-wrapper">
+        <div className="view-label">Editor Input</div>
+        <div className="view">
           <BlockNoteView editor={editor} slashMenu={false} onChange={onChange}>
             <SuggestionMenuController
               triggerCharacter={"/"}
               getItems={getSlashMenuItems}
             />
           </BlockNoteView>
-        ) : (
+        </div>
+      </div>
+      <div className="view-wrapper">
+        <div className="view-label">
+          PDF Output
+          <span className="view-label-download" onClick={onDownloadClick}>
+            Download
+          </span>
+        </div>
+        <div className="view">
           <PDFViewer height={"100%"} width={"100%"}>
             {pdfDocument}
           </PDFViewer>
-        )}
+        </div>
       </div>
     </div>
   );
