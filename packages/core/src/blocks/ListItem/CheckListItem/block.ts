@@ -73,7 +73,7 @@ export const createCheckListItemBlockSpec = createBlockSpec(
     // into a single one so that ProseMirror can parse everything correctly.
     parseContent: ({ el, schema }) =>
       getListItemContent(el, schema, "checkListItem"),
-    render(block) {
+    render(block, editor) {
       const dom = document.createDocumentFragment();
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
@@ -81,6 +81,9 @@ export const createCheckListItemBlockSpec = createBlockSpec(
       if (block.props.checked) {
         checkbox.setAttribute("checked", "");
       }
+      checkbox.addEventListener("change", () => {
+        editor.updateBlock(block, { props: { checked: !block.props.checked } });
+      });
       // We use a <p> tag, because for <li> tags we'd need a <ul> element to put
       // them in to be semantically correct, which we can't have due to the
       // schema.
@@ -95,7 +98,7 @@ export const createCheckListItemBlockSpec = createBlockSpec(
       };
     },
     toExternalHTML(block) {
-      const dom = document.createDocumentFragment();
+      const dom = document.createElement("li");
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.checked = block.props.checked;
@@ -106,7 +109,7 @@ export const createCheckListItemBlockSpec = createBlockSpec(
       // them in to be semantically correct, which we can't have due to the
       // schema.
       const paragraph = document.createElement("p");
-      addDefaultPropsExternalHTML(block.props, paragraph);
+      addDefaultPropsExternalHTML(block.props, dom);
 
       dom.appendChild(checkbox);
       dom.appendChild(paragraph);

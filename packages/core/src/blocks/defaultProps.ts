@@ -21,15 +21,26 @@ export const defaultProps = {
 
 export type DefaultProps = Props<typeof defaultProps>;
 
-// Default props which are set on `blockContainer` nodes rather than
-// `blockContent` nodes. Ensures that they are not redundantly added to
-// a custom block's TipTap node attributes.
-export const inheritedProps = ["backgroundColor", "textColor"];
-
-// TODO: Move text/background color props from `blockContainer` node to
-// `blockContent`.
 export const parseDefaultProps = (element: HTMLElement) => {
   const props: Partial<DefaultProps> = {};
+
+  // If the `data-` attribute is found, set the prop to the value, as this most
+  // likely means the parsed element was exported by BlockNote originally.
+  // Otherwise, just use whatever is found in the inline styles, if anything.
+  if (element.hasAttribute("data-background-color")) {
+    props.backgroundColor = element.getAttribute("data-background-color")!;
+  } else if (element.style.backgroundColor) {
+    props.backgroundColor = element.style.backgroundColor;
+  }
+
+  // If the `data-` attribute is found, set the prop to the value, as this most
+  // likely means the parsed element was exported by BlockNote originally.
+  // Otherwise, just use whatever is found in the inline styles, if anything.
+  if (element.hasAttribute("data-text-color")) {
+    props.textColor = element.getAttribute("data-text-color")!;
+  } else if (element.style.color) {
+    props.textColor = element.style.color;
+  }
 
   props.textAlignment = defaultProps.textAlignment.values.includes(
     element.style.textAlign as DefaultProps["textAlignment"],
@@ -48,27 +59,23 @@ export const addDefaultPropsExternalHTML = (
     props.backgroundColor &&
     props.backgroundColor !== defaultProps.backgroundColor.default
   ) {
-    if (props.backgroundColor in COLORS_DEFAULT) {
-      element.style.setProperty(
-        `--blocknote-background-${props.backgroundColor}`,
-        COLORS_DEFAULT[props.backgroundColor].background,
-      );
-      element.style.backgroundColor = `var(--blocknote-background-${props.backgroundColor})`;
-    } else {
-      element.style.backgroundColor = props.backgroundColor;
-    }
+    // The color can be any string. If the string matches one of the default
+    // theme color names, set the theme color. Otherwise, set the color as-is
+    // (may be a CSS color name, hex value, RGB value, etc).
+    element.style.backgroundColor =
+      props.backgroundColor in COLORS_DEFAULT
+        ? COLORS_DEFAULT[props.backgroundColor].background
+        : props.backgroundColor;
   }
 
   if (props.textColor && props.textColor !== defaultProps.textColor.default) {
-    if (props.textColor in COLORS_DEFAULT) {
-      element.style.setProperty(
-        `--blocknote-text-${props.textColor}`,
-        COLORS_DEFAULT[props.textColor].text,
-      );
-      element.style.color = `var(--blocknote-text-${props.textColor})`;
-    } else {
-      element.style.color = props.textColor;
-    }
+    // The color can be any string. If the string matches one of the default
+    // theme color names, set the theme color. Otherwise, set the color as-is
+    // (may be a CSS color name, hex value, RGB value, etc).
+    element.style.color =
+      props.textColor in COLORS_DEFAULT
+        ? COLORS_DEFAULT[props.textColor].text
+        : props.textColor;
   }
 
   if (

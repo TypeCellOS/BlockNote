@@ -65,12 +65,14 @@ export const createBulletListItemBlockSpec = createBlockSpec(
       };
     },
     toExternalHTML(block) {
-      const dom = document.createElement("p");
-      addDefaultPropsExternalHTML(block.props, dom);
+      const li = document.createElement("li");
+      const p = document.createElement("p");
+      addDefaultPropsExternalHTML(block.props, li);
+      li.appendChild(p);
 
       return {
-        dom,
-        contentDOM: dom,
+        dom: li,
+        contentDOM: p,
       };
     },
   },

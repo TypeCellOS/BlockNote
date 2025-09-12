@@ -38,9 +38,15 @@ export const createToggleListItemBlockSpec = createBlockSpec(
       return { ...toggleWrapper, contentDOM: paragraphEl };
     },
     toExternalHTML(block) {
-      const paragraphEl = document.createElement("p");
-      addDefaultPropsExternalHTML(block.props, paragraphEl);
-      return { dom: paragraphEl, contentDOM: paragraphEl };
+      const li = document.createElement("li");
+      const p = document.createElement("p");
+      addDefaultPropsExternalHTML(block.props, li);
+      li.appendChild(p);
+
+      return {
+        dom: li,
+        contentDOM: p,
+      };
     },
   },
   [
