@@ -25,7 +25,7 @@ import {
   withMultiColumn,
 } from "@blocknote/xl-multi-column";
 import { pdf, PDFViewer } from "@react-pdf/renderer";
-import { JSX, useEffect, useMemo, useState } from "react";
+import { JSX, useEffect, useMemo, useReducer, useState } from "react";
 
 import "./styles.css";
 
@@ -33,9 +33,7 @@ export default function App() {
   // Stores the editor's contents as JSX for download and displaying the PDF
   // using ReactPDF's `PDFViewer` component.
   const [pdfDocument, setPDFDocument] = useState<JSX.Element>();
-
-  // Toggles between editor and PDF view.
-  const [show, setShow] = useState<"editor" | "pdf">("editor");
+  const [renders, forceRerender] = useReducer((s) => s + 1, 0);
 
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
@@ -407,6 +405,7 @@ export default function App() {
     const exporter = new PDFExporter(editor.schema, pdfDefaultSchemaMappings);
     const pdfDocument = await exporter.toReactPDFDocument(editor.document);
     setPDFDocument(pdfDocument);
+    forceRerender();
   };
 
   // Exports the inital editor document to PDF.
@@ -455,7 +454,7 @@ export default function App() {
           </span>
         </div>
         <div className="view">
-          <PDFViewer height={"100%"} width={"100%"}>
+          <PDFViewer key={renders} height={"100%"} width={"100%"}>
             {pdfDocument}
           </PDFViewer>
         </div>

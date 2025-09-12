@@ -30,9 +30,6 @@ export default function App() {
   // displaying the email.
   const [emailDocument, setEmailDocument] = useState<string>("");
 
-  // Toggles between editor and email view.
-  const [show, setShow] = useState<"editor" | "email">("editor");
-
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
     // Adds support for page breaks.
