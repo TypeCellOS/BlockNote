@@ -1,5 +1,5 @@
 import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
-import { defaultProps } from "../defaultProps.js";
+import { defaultProps, parseDefaultProps } from "../defaultProps.js";
 import { parseFigureElement } from "../File/helpers/parse/parseFigureElement.js";
 import { createResizableFileBlockWrapper } from "../File/helpers/render/createResizableFileBlockWrapper.js";
 import { createFigureWithCaption } from "../File/helpers/toExternalHTML/createFigureWithCaption.js";
@@ -38,7 +38,12 @@ export const videoParse = (_config: VideoOptions) => (element: HTMLElement) => {
       return undefined;
     }
 
-    return parseVideoElement(element as HTMLVideoElement);
+    const { backgroundColor } = parseDefaultProps(element);
+
+    return {
+      ...parseVideoElement(element as HTMLVideoElement),
+      backgroundColor,
+    };
   }
 
   if (element.tagName === "FIGURE") {
@@ -49,8 +54,11 @@ export const videoParse = (_config: VideoOptions) => (element: HTMLElement) => {
 
     const { targetElement, caption } = parsedFigure;
 
+    const { backgroundColor } = parseDefaultProps(element);
+
     return {
       ...parseVideoElement(targetElement as HTMLVideoElement),
+      backgroundColor,
       caption,
     };
   }

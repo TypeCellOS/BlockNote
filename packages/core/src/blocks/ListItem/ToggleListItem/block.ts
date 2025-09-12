@@ -1,6 +1,9 @@
 import { createBlockNoteExtension } from "../../../editor/BlockNoteExtension.js";
 import { createBlockConfig, createBlockSpec } from "../../../schema/index.js";
-import { defaultProps } from "../../defaultProps.js";
+import {
+  addDefaultPropsExternalHTML,
+  defaultProps,
+} from "../../defaultProps.js";
 import { createToggleWrapper } from "../../ToggleWrapper/createToggleWrapper.js";
 import { handleEnter } from "../../utils/listItemEnterHandler.js";
 
@@ -34,9 +37,16 @@ export const createToggleListItemBlockSpec = createBlockSpec(
       );
       return { ...toggleWrapper, contentDOM: paragraphEl };
     },
-    toExternalHTML() {
-      const paragraphEl = document.createElement("p");
-      return { dom: paragraphEl, contentDOM: paragraphEl };
+    toExternalHTML(block) {
+      const li = document.createElement("li");
+      const p = document.createElement("p");
+      addDefaultPropsExternalHTML(block.props, li);
+      li.appendChild(p);
+
+      return {
+        dom: li,
+        contentDOM: p,
+      };
     },
   },
   [

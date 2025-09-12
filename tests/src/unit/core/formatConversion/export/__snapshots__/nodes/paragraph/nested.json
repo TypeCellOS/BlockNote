@@ -1,14 +1,14 @@
 [
   {
     "attrs": {
-      "backgroundColor": "default",
       "id": "1",
-      "textColor": "default",
     },
     "content": [
       {
         "attrs": {
+          "backgroundColor": "default",
           "textAlignment": "left",
+          "textColor": "default",
         },
         "content": [
           {
@@ -22,14 +22,14 @@
         "content": [
           {
             "attrs": {
-              "backgroundColor": "default",
               "id": "2",
-              "textColor": "default",
             },
             "content": [
               {
                 "attrs": {
+                  "backgroundColor": "default",
                   "textAlignment": "left",
+                  "textColor": "default",
                 },
                 "content": [
                   {
@@ -44,14 +44,14 @@
           },
           {
             "attrs": {
-              "backgroundColor": "default",
               "id": "3",
-              "textColor": "default",
             },
             "content": [
               {
                 "attrs": {
+                  "backgroundColor": "default",
                   "textAlignment": "left",
+                  "textColor": "default",
                 },
                 "content": [
                   {

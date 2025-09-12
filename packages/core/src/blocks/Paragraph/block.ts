@@ -1,6 +1,10 @@
 import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
-import { defaultProps } from "../defaultProps.js";
+import {
+  addDefaultPropsExternalHTML,
+  defaultProps,
+  parseDefaultProps,
+} from "../defaultProps.js";
 
 export type ParagraphBlockConfig = ReturnType<
   typeof createParagraphBlockConfig
@@ -31,10 +35,18 @@ export const createParagraphBlockSpec = createBlockSpec(
         return undefined;
       }
 
-      return undefined;
+      return parseDefaultProps(e);
     },
     render: () => {
       const dom = document.createElement("p");
+      return {
+        dom,
+        contentDOM: dom,
+      };
+    },
+    toExternalHTML: (block) => {
+      const dom = document.createElement("p");
+      addDefaultPropsExternalHTML(block.props, dom);
       return {
         dom,
         contentDOM: dom,

@@ -7,16 +7,15 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": "0",
-            "textColor": "default",
-            "backgroundColor": "default"
+            "id": "0"
           },
           "content": [
             {
               "type": "numberedListItem",
               "attrs": {
-                "textAlignment": "left",
-                "start": 1
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
               },
               "content": [
                 {
@@ -31,14 +30,14 @@
                 {
                   "type": "blockContainer",
                   "attrs": {
-                    "id": "2",
-                    "textColor": "default",
-                    "backgroundColor": "default"
+                    "id": "2"
                   },
                   "content": [
                     {
                       "type": "numberedListItem",
                       "attrs": {
+                        "backgroundColor": "default",
+                        "textColor": "default",
                         "textAlignment": "left"
                       },
                       "content": [
@@ -54,14 +53,14 @@
                         {
                           "type": "blockContainer",
                           "attrs": {
-                            "id": "3",
-                            "textColor": "default",
-                            "backgroundColor": "default"
+                            "id": "3"
                           },
                           "content": [
                             {
                               "type": "numberedListItem",
                               "attrs": {
+                                "backgroundColor": "default",
+                                "textColor": "default",
                                 "textAlignment": "left"
                               },
                               "content": [
@@ -84,14 +83,14 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": "1",
-            "textColor": "default",
-            "backgroundColor": "default"
+            "id": "1"
           },
           "content": [
             {
               "type": "paragraph",
               "attrs": {
+                "backgroundColor": "default",
+                "textColor": "default",
                 "textAlignment": "left"
               }
             }
@@ -100,16 +99,15 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": "5",
-            "textColor": "default",
-            "backgroundColor": "default"
+            "id": "5"
           },
           "content": [
             {
               "type": "numberedListItem",
               "attrs": {
-                "textAlignment": "left",
-                "start": 1
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
               },
               "content": [
                 {
@@ -124,14 +122,14 @@
                 {
                   "type": "blockContainer",
                   "attrs": {
-                    "id": "6",
-                    "textColor": "default",
-                    "backgroundColor": "default"
+                    "id": "6"
                   },
                   "content": [
                     {
                       "type": "numberedListItem",
                       "attrs": {
+                        "backgroundColor": "default",
+                        "textColor": "default",
                         "textAlignment": "left"
                       },
                       "content": [
@@ -147,14 +145,14 @@
                         {
                           "type": "blockContainer",
                           "attrs": {
-                            "id": "7",
-                            "textColor": "default",
-                            "backgroundColor": "default"
+                            "id": "7"
                           },
                           "content": [
                             {
                               "type": "numberedListItem",
                               "attrs": {
+                                "backgroundColor": "default",
+                                "textColor": "default",
                                 "textAlignment": "left"
                               },
                               "content": [
@@ -177,14 +175,14 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": "8",
-            "textColor": "default",
-            "backgroundColor": "default"
+            "id": "8"
           },
           "content": [
             {
               "type": "paragraph",
               "attrs": {
+                "backgroundColor": "default",
+                "textColor": "default",
                 "textAlignment": "left"
               }
             }

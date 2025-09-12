@@ -1,14 +1,14 @@
 [
   {
     "attrs": {
-      "backgroundColor": "default",
       "id": "1",
-      "textColor": "default",
     },
     "content": [
       {
         "attrs": {
+          "backgroundColor": "default",
           "textAlignment": "left",
+          "textColor": "default",
         },
         "content": [
           {
@@ -23,14 +23,14 @@
   },
   {
     "attrs": {
-      "backgroundColor": "default",
       "id": "2",
-      "textColor": "default",
     },
     "content": [
       {
         "attrs": {
+          "backgroundColor": "default",
           "textAlignment": "left",
+          "textColor": "default",
         },
         "content": [
           {
@@ -45,15 +45,15 @@
   },
   {
     "attrs": {
-      "backgroundColor": "default",
       "id": "3",
-      "textColor": "default",
     },
     "content": [
       {
         "attrs": {
+          "backgroundColor": "default",
           "start": undefined,
           "textAlignment": "left",
+          "textColor": "default",
         },
         "content": [
           {
@@ -68,15 +68,15 @@
   },
   {
     "attrs": {
-      "backgroundColor": "default",
       "id": "4",
-      "textColor": "default",
     },
     "content": [
       {
         "attrs": {
+          "backgroundColor": "default",
           "start": undefined,
           "textAlignment": "left",
+          "textColor": "default",
         },
         "content": [
           {
@@ -91,15 +91,15 @@
   },
   {
     "attrs": {
-      "backgroundColor": "default",
       "id": "5",
-      "textColor": "default",
     },
     "content": [
       {
         "attrs": {
+          "backgroundColor": "default",
           "checked": false,
           "textAlignment": "left",
+          "textColor": "default",
         },
         "content": [
           {
@@ -114,15 +114,15 @@
   },
   {
     "attrs": {
-      "backgroundColor": "default",
       "id": "6",
-      "textColor": "default",
     },
     "content": [
       {
         "attrs": {
+          "backgroundColor": "default",
           "checked": true,
           "textAlignment": "left",
+          "textColor": "default",
         },
         "content": [
           {

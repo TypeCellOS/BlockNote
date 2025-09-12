@@ -1,6 +1,10 @@
 import { createBlockNoteExtension } from "../../../editor/BlockNoteExtension.js";
 import { createBlockConfig, createBlockSpec } from "../../../schema/index.js";
-import { defaultProps } from "../../defaultProps.js";
+import {
+  addDefaultPropsExternalHTML,
+  defaultProps,
+  parseDefaultProps,
+} from "../../defaultProps.js";
 import { handleEnter } from "../../utils/listItemEnterHandler.js";
 import { getListItemContent } from "../getListItemContent.js";
 import { NumberedListIndexingDecorationPlugin } from "./IndexingPlugin.js";
@@ -29,23 +33,34 @@ export const createNumberedListItemBlockSpec = createBlockSpec(
     },
     parse(element) {
       if (element.tagName !== "LI") {
-        return false;
+        return undefined;
       }
 
       const parent = element.parentElement;
 
       if (parent === null) {
-        return false;
+        return undefined;
       }
 
       if (
         parent.tagName === "OL" ||
         (parent.tagName === "DIV" && parent.parentElement?.tagName === "OL")
       ) {
-        return {};
+        const startIndex = parseInt(parent.getAttribute("start") || "1");
+
+        const defaultProps = parseDefaultProps(element);
+
+        if (element.previousElementSibling || startIndex === 1) {
+          return defaultProps;
+        }
+
+        return {
+          ...defaultProps,
+          start: startIndex,
+        };
       }
 
-      return false;
+      return undefined;
     },
     // As `li` elements can contain multiple paragraphs, we need to merge their contents
     // into a single one so that ProseMirror can parse everything correctly.
@@ -62,6 +77,17 @@ export const createNumberedListItemBlockSpec = createBlockSpec(
         contentDOM: dom,
       };
     },
+    toExternalHTML(block) {
+      const li = document.createElement("li");
+      const p = document.createElement("p");
+      addDefaultPropsExternalHTML(block.props, li);
+      li.appendChild(p);
+
+      return {
+        dom: li,
+        contentDOM: p,
+      };
+    },
   },
   [
     createBlockNoteExtension({
@@ -70,10 +96,11 @@ export const createNumberedListItemBlockSpec = createBlockSpec(
         {
           find: new RegExp(`^(\\d+)\\.\\s$`),
           replace({ match }) {
+            const start = parseInt(match[1]);
             return {
               type: "numberedListItem",
               props: {
-                start: parseInt(match[1]),
+                start: start !== 1 ? start : undefined,
               },
             };
           },

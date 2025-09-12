@@ -1,6 +1,10 @@
 import { createBlockNoteExtension } from "../../../editor/BlockNoteExtension.js";
 import { createBlockConfig, createBlockSpec } from "../../../schema/index.js";
-import { defaultProps } from "../../defaultProps.js";
+import {
+  addDefaultPropsExternalHTML,
+  defaultProps,
+  parseDefaultProps,
+} from "../../defaultProps.js";
 import { handleEnter } from "../../utils/listItemEnterHandler.js";
 import { getListItemContent } from "../getListItemContent.js";
 
@@ -30,22 +34,22 @@ export const createCheckListItemBlockSpec = createBlockSpec(
       if (element.tagName === "input") {
         // Ignore if we already parsed an ancestor list item to avoid double-parsing.
         if (element.closest("[data-content-type]") || element.closest("li")) {
-          return;
+          return undefined;
         }
 
         if ((element as HTMLInputElement).type === "checkbox") {
           return { checked: (element as HTMLInputElement).checked };
         }
-        return;
+        return undefined;
       }
       if (element.tagName !== "LI") {
-        return;
+        return undefined;
       }
 
       const parent = element.parentElement;
 
       if (parent === null) {
-        return;
+        return undefined;
       }
 
       if (
@@ -57,10 +61,10 @@ export const createCheckListItemBlockSpec = createBlockSpec(
           null;
 
         if (checkbox === null) {
-          return;
+          return undefined;
         }
 
-        return { checked: checkbox.checked };
+        return { ...parseDefaultProps(element), checked: checkbox.checked };
       }
 
       return;
@@ -69,8 +73,32 @@ export const createCheckListItemBlockSpec = createBlockSpec(
     // into a single one so that ProseMirror can parse everything correctly.
     parseContent: ({ el, schema }) =>
       getListItemContent(el, schema, "checkListItem"),
-    render(block) {
+    render(block, editor) {
       const dom = document.createDocumentFragment();
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = block.props.checked;
+      if (block.props.checked) {
+        checkbox.setAttribute("checked", "");
+      }
+      checkbox.addEventListener("change", () => {
+        editor.updateBlock(block, { props: { checked: !block.props.checked } });
+      });
+      // We use a <p> tag, because for <li> tags we'd need a <ul> element to put
+      // them in to be semantically correct, which we can't have due to the
+      // schema.
+      const paragraph = document.createElement("p");
+
+      dom.appendChild(checkbox);
+      dom.appendChild(paragraph);
+
+      return {
+        dom,
+        contentDOM: paragraph,
+      };
+    },
+    toExternalHTML(block) {
+      const dom = document.createElement("li");
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.checked = block.props.checked;
@@ -81,6 +109,7 @@ export const createCheckListItemBlockSpec = createBlockSpec(
       // them in to be semantically correct, which we can't have due to the
       // schema.
       const paragraph = document.createElement("p");
+      addDefaultPropsExternalHTML(block.props, dom);
 
       dom.appendChild(checkbox);
       dom.appendChild(paragraph);
