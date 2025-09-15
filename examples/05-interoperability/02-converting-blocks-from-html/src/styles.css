@@ -1,26 +1,67 @@
-.wrapper {
+.views {
+  container-name: views;
+  container-type: inline-size;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+  height: 100%;
+  padding: 8px;
+}
+
+.view-wrapper {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: calc(50% - 4px);
+  width: 100%;
 }
 
-.item {
-  border-radius: 0.5rem;
+@container views (width > 1024px) {
+  .view-wrapper {
+    height: 100%;
+    width: calc(50% - 4px);
+  }
+}
+
+.view-label {
+  color: #0090ff;
+  display: flex;
+  font-size: 12px;
+  font-weight: bold;
+  justify-content: space-between;
+  margin-inline: 16px;
+}
+
+.view {
+  border: solid #0090ff 1px;
+  border-radius: 16px;
   flex: 1;
-  overflow: hidden;
+  height: 0;
+  padding: 8px;
 }
 
-.item.bordered {
-  border: 1px solid gray;
+.view .bn-container {
+  height: 100%;
+  margin: 0;
+  max-width: none;
+  padding: 0;
 }
 
-.item textarea {
-  background-color: transparent;
-  border-radius: 0.5rem;
+.view .bn-editor {
   height: 100%;
   overflow: auto;
-  padding-block: 1rem;
-  padding-inline: 54px;
+}
+
+.view textarea {
+  background-color: #0090ff20;
+  border: none;
+  border-radius: 8px;
+  flex: 1;
+  height: 100%;
+  margin: 0;
+  overflow: auto;
+  padding: 8px;
   resize: none;
+  white-space: pre-wrap;
   width: 100%;
 }

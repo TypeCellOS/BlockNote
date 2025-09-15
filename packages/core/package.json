@@ -81,7 +81,7 @@
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",
     "@shikijs/types": "3.2.1",
-    "@tiptap/core": "^3",
+    "@tiptap/core": "^3.4.3",
     "@tiptap/extension-bold": "^3",
     "@tiptap/extension-code": "^3",
     "@tiptap/extension-gapcursor": "^3",
@@ -93,7 +93,7 @@
     "@tiptap/extension-strike": "^3",
     "@tiptap/extension-text": "^3",
     "@tiptap/extension-underline": "^3",
-    "@tiptap/pm": "^3",
+    "@tiptap/pm": "^3.4.3",
     "emoji-mart": "^5.6.0",
     "fast-deep-equal": "^3",
     "hast-util-from-dom": "^5.0.1",

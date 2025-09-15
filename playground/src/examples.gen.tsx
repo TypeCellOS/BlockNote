@@ -1045,7 +1045,7 @@
           "pathFromRoot": "examples/05-interoperability",
           "slug": "interoperability"
         },
-        "readme": "This example exports the current document (all blocks) as an PDF file and downloads it to your computer.\n\n**Try it out:** Edit the document and click \"Download .pdf\" in top-left corner, to download the PDF file."
+        "readme": "This example exports the current document (all blocks) as an PDF file and downloads it to your computer.\n\n**Try it out:** Edit the document and click \"Download .pdf\" at the top to download the PDF file."
       },
       {
         "projectSlug": "converting-blocks-to-docx",
@@ -1065,12 +1065,12 @@
           } as any,
           "pro": true
         },
-        "title": "Exporting documents to .docx (Office Open XML)",
+        "title": "Exporting documents to DOCX (Office Open XML)",
         "group": {
           "pathFromRoot": "examples/05-interoperability",
           "slug": "interoperability"
         },
-        "readme": "This example exports the current document (all blocks) as an Microsoft Word Document (DOCX) file and downloads it to your computer.\n\n**Try it out:** Edit the document and click \"Download .docx\" in top-left corner, to download the DOCX file."
+        "readme": "This example exports the current document (all blocks) as an Microsoft Word Document (DOCX) file and downloads it to your computer.\n\n**Try it out:** Edit the document and click \"Download .docx\" at the top to download the DOCX file."
       },
       {
         "projectSlug": "converting-blocks-to-odt",
@@ -1089,12 +1089,12 @@
           } as any,
           "pro": true
         },
-        "title": "Exporting documents to .odt (Open Document Text)",
+        "title": "Exporting documents to ODT (Open Document Text)",
         "group": {
           "pathFromRoot": "examples/05-interoperability",
           "slug": "interoperability"
         },
-        "readme": "This example exports the current document (all blocks) as an Open Document Text (ODT) file and downloads it to your computer.\n\n**Try it out:** Edit the document and click \"Download .odt\" in top-left corner, to download the ODT file."
+        "readme": "This example exports the current document (all blocks) as an Open Document Text (ODT) file and downloads it to your computer.\n\n**Try it out:** Edit the document and click \"Download .odt\" at the top to download the ODT file."
       },
       {
         "projectSlug": "converting-blocks-to-react-email",
@@ -1113,12 +1113,12 @@
           } as any,
           "pro": true
         },
-        "title": "Exporting documents to React Email",
+        "title": "Exporting documents to Email (HTML)",
         "group": {
           "pathFromRoot": "examples/05-interoperability",
           "slug": "interoperability"
         },
-        "readme": "This example exports the current document (all blocks) as a React Email document.\n\n**Try it out:** Edit the document and the preview will update."
+        "readme": "This example exports the current document (all blocks) as an HTML file for use in emails, and downloads it to your computer.\n\n**Try it out:** Edit the document and click \"Download email .html\" at the top to download the HTML file."
       }
     ]
   },
@@ -1546,7 +1546,7 @@
           ],
           "pro": true,
           "dependencies": {
-            "@tiptap/core": "^3"
+            "@tiptap/core": "^3.4.3"
           } as any
         },
         "title": "TipTap extension (arrow InputRule)",

@@ -45,6 +45,7 @@ export const SideMenuController = <
     },
   );
 
+  console.log("state", state);
   if (!isMounted || !state) {
     return null;
   }

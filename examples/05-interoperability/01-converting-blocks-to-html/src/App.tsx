@@ -41,18 +41,22 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Renders the editor instance, and its contents as HTML below.
+  // Renders the editor instance and HTML output.
   return (
-    <div className="wrapper">
-      <div>Input (BlockNote Editor):</div>
-      <div className="item">
-        <BlockNoteView editor={editor} onChange={onChange} />
+    <div className="views">
+      <div className="view-wrapper">
+        <div className="view-label">Editor Input</div>
+        <div className="view">
+          <BlockNoteView editor={editor} onChange={onChange} />
+        </div>
       </div>
-      <div>Output (HTML):</div>
-      <div className="item bordered">
-        <pre>
-          <code>{html}</code>
-        </pre>
+      <div className="view-wrapper">
+        <div className="view-label">HTML Output</div>
+        <div className="view">
+          <pre>
+            <code>{html}</code>
+          </pre>
+        </div>
       </div>
     </div>
   );
