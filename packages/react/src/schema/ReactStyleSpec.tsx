@@ -117,5 +117,55 @@ export function createReactStyleSpec<T extends StyleConfig>(
 
   return createInternalStyleSpec(styleConfig, {
     mark,
+    render(value, editor) {
+      const Content = styleImplementation.render;
+      const output = renderToDOMSpec(
+        (ref) => (
+          <Content
+            editor={editor}
+            value={value}
+            contentRef={(element) => {
+              ref(element);
+              if (element) {
+                element.dataset.editable = "";
+              }
+            }}
+          />
+        ),
+        editor,
+      );
+
+      return addStyleAttributes(
+        output,
+        styleConfig.type,
+        value,
+        styleConfig.propSchema,
+      );
+    },
+    toExternalHTML(value, editor) {
+      const Content = styleImplementation.render;
+      const output = renderToDOMSpec(
+        (ref) => (
+          <Content
+            editor={editor}
+            value={value}
+            contentRef={(element) => {
+              ref(element);
+              if (element) {
+                element.dataset.editable = "";
+              }
+            }}
+          />
+        ),
+        editor,
+      );
+
+      return addStyleAttributes(
+        output,
+        styleConfig.type,
+        value,
+        styleConfig.propSchema,
+      );
+    },
   });
 }
