@@ -13,8 +13,10 @@ import type { ThreadStore } from "../comments/index.js";
 import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension.js";
 import { BlockChangePlugin } from "../extensions/BlockChange/BlockChangePlugin.js";
 import { CursorPlugin } from "../extensions/Collaboration/CursorPlugin.js";
+import { ForkYDocPlugin } from "../extensions/Collaboration/ForkYDocPlugin.js";
 import { SyncPlugin } from "../extensions/Collaboration/SyncPlugin.js";
 import { UndoPlugin } from "../extensions/Collaboration/UndoPlugin.js";
+import { SchemaMigrationPlugin } from "../extensions/Collaboration/schemaMigration/SchemaMigrationPlugin.js";
 import { CommentMark } from "../extensions/Comments/CommentMark.js";
 import { CommentsPlugin } from "../extensions/Comments/CommentsPlugin.js";
 import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlugin.js";
@@ -58,7 +60,6 @@ import type {
   SupportedExtension,
 } from "./BlockNoteEditor.js";
 import { BlockNoteSchema } from "../blocks/BlockNoteSchema.js";
-import { ForkYDocPlugin } from "../extensions/Collaboration/ForkYDocPlugin.js";
 
 type ExtensionOptions<
   BSchema extends BlockSchema,
@@ -127,6 +128,9 @@ export const getBlockNoteExtensions = <
       editor: opts.editor,
       collaboration: opts.collaboration,
     });
+    ret["schemaMigrationPlugin"] = new SchemaMigrationPlugin(
+      opts.collaboration.fragment,
+    );
   }
 
   // Note: this is pretty hardcoded and will break when user provides plugins with same keys.

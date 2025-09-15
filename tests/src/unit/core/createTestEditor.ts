@@ -39,6 +39,12 @@ export const createTestEditor = <
           }),
         },
       }),
+      tables: {
+        splitCells: true,
+        cellBackgroundColor: true,
+        cellTextColor: true,
+        headers: true,
+      },
       trailingBlock: false,
       uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
     }) as any;

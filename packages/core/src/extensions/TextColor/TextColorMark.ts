@@ -1,18 +1,13 @@
 import { Mark } from "@tiptap/core";
 import { createStyleSpecFromTipTapMark } from "../../schema/index.js";
+import { getTextColorAttribute } from "../../blocks/defaultProps.js";
 
 const TextColorMark = Mark.create({
   name: "textColor",
 
   addAttributes() {
     return {
-      stringValue: {
-        default: undefined,
-        parseHTML: (element) => element.getAttribute("data-text-color"),
-        renderHTML: (attributes) => ({
-          "data-text-color": attributes.stringValue,
-        }),
-      },
+      stringValue: getTextColorAttribute("stringValue"),
     };
   },
 
@@ -25,8 +20,8 @@ const TextColorMark = Mark.create({
             return false;
           }
 
-          if (element.hasAttribute("data-text-color")) {
-            return { stringValue: element.getAttribute("data-text-color") };
+          if (element.hasAttribute("data-text-color") || element.style.color) {
+            return {};
           }
 
           return false;

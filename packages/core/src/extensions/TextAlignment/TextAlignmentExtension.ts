@@ -6,17 +6,11 @@ export const TextAlignmentExtension = Extension.create({
   addGlobalAttributes() {
     return [
       {
-        // Attribute is applied to block content instead of container so that child blocks don't inherit the text
-        // alignment styling.
-        types: [
-          "paragraph",
-          "heading",
-          "bulletListItem",
-          "numberedListItem",
-          "checkListItem",
-          "tableCell",
-          "tableHeader",
-        ],
+        // Generally text alignment is handled through props using the custom
+        // blocks API. Tables are the only blocks that are created as TipTap
+        // nodes and ported to blocks, so we need to add text alignment in a
+        // separate extension.
+        types: ["tableCell", "tableHeader"],
         attributes: {
           textAlignment: {
             default: "left",

@@ -570,7 +570,6 @@ export class BlockNoteEditor<
       headers: boolean;
     };
   };
-
   public static create<
     Options extends Partial<BlockNoteEditorOptions<any, any, any>> | undefined,
   >(
