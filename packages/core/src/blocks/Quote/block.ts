@@ -1,6 +1,10 @@
 import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
-import { defaultProps } from "../defaultProps.js";
+import {
+  addDefaultPropsExternalHTML,
+  defaultProps,
+  parseDefaultProps,
+} from "../defaultProps.js";
 
 export type QuoteBlockConfig = ReturnType<typeof createQuoteBlockConfig>;
 
@@ -24,13 +28,24 @@ export const createQuoteBlockSpec = createBlockSpec(
     },
     parse(element) {
       if (element.tagName === "BLOCKQUOTE") {
-        return {};
+        const { backgroundColor, textColor } = parseDefaultProps(element);
+
+        return { backgroundColor, textColor };
       }
 
       return undefined;
     },
     render() {
       const quote = document.createElement("blockquote");
+
+      return {
+        dom: quote,
+        contentDOM: quote,
+      };
+    },
+    toExternalHTML(block) {
+      const quote = document.createElement("blockquote");
+      addDefaultPropsExternalHTML(block.props, quote);
 
       return {
         dom: quote,

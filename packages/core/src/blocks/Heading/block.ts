@@ -1,6 +1,10 @@
 import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
 import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
-import { defaultProps } from "../defaultProps.js";
+import {
+  addDefaultPropsExternalHTML,
+  defaultProps,
+  parseDefaultProps,
+} from "../defaultProps.js";
 import { createToggleWrapper } from "../ToggleWrapper/createToggleWrapper.js";
 
 const HEADING_LEVELS = [1, 2, 3, 4, 5, 6] as const;
@@ -65,6 +69,7 @@ export const createHeadingBlockSpec = createBlockSpec(
       }
 
       return {
+        ...parseDefaultProps(e),
         level,
       };
     },
@@ -83,6 +88,7 @@ export const createHeadingBlockSpec = createBlockSpec(
     },
     toExternalHTML(block) {
       const dom = document.createElement(`h${block.props.level}`);
+      addDefaultPropsExternalHTML(block.props, dom);
 
       return {
         dom,

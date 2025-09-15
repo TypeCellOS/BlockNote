@@ -1,6 +1,5 @@
 import { Attribute, Attributes, Editor, Node } from "@tiptap/core";
 import { defaultBlockToHTML } from "../../blocks/defaultBlockHelpers.js";
-import { inheritedProps } from "../../blocks/defaultProps.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import { mergeCSSClasses } from "../../util/browser.js";
@@ -21,64 +20,62 @@ import {
 export function propsToAttributes(propSchema: PropSchema): Attributes {
   const tiptapAttributes: Record<string, Attribute> = {};
 
-  Object.entries(propSchema)
-    .filter(([name, _spec]) => !inheritedProps.includes(name))
-    .forEach(([name, spec]) => {
-      tiptapAttributes[name] = {
-        default: spec.default,
-        keepOnSplit: true,
-        // Props are displayed in kebab-case as HTML attributes. If a prop's
-        // value is the same as its default, we don't display an HTML
-        // attribute for it.
-        parseHTML: (element) => {
-          const value = element.getAttribute(camelToDataKebab(name));
+  Object.entries(propSchema).forEach(([name, spec]) => {
+    tiptapAttributes[name] = {
+      default: spec.default,
+      keepOnSplit: true,
+      // Props are displayed in kebab-case as HTML attributes. If a prop's
+      // value is the same as its default, we don't display an HTML
+      // attribute for it.
+      parseHTML: (element) => {
+        const value = element.getAttribute(camelToDataKebab(name));
 
-          if (value === null) {
-            return null;
+        if (value === null) {
+          return null;
+        }
+
+        if (
+          (spec.default === undefined && spec.type === "boolean") ||
+          (spec.default !== undefined && typeof spec.default === "boolean")
+        ) {
+          if (value === "true") {
+            return true;
           }
 
-          if (
-            (spec.default === undefined && spec.type === "boolean") ||
-            (spec.default !== undefined && typeof spec.default === "boolean")
-          ) {
-            if (value === "true") {
-              return true;
-            }
-
-            if (value === "false") {
-              return false;
-            }
-
-            return null;
+          if (value === "false") {
+            return false;
           }
 
-          if (
-            (spec.default === undefined && spec.type === "number") ||
-            (spec.default !== undefined && typeof spec.default === "number")
-          ) {
-            const asNumber = parseFloat(value);
-            const isNumeric =
-              !Number.isNaN(asNumber) && Number.isFinite(asNumber);
+          return null;
+        }
 
-            if (isNumeric) {
-              return asNumber;
-            }
+        if (
+          (spec.default === undefined && spec.type === "number") ||
+          (spec.default !== undefined && typeof spec.default === "number")
+        ) {
+          const asNumber = parseFloat(value);
+          const isNumeric =
+            !Number.isNaN(asNumber) && Number.isFinite(asNumber);
 
-            return null;
+          if (isNumeric) {
+            return asNumber;
           }
 
-          return value;
-        },
-        renderHTML: (attributes) => {
-          // don't render to html if the value is the same as the default
-          return attributes[name] !== spec.default
-            ? {
-                [camelToDataKebab(name)]: attributes[name],
-              }
-            : {};
-        },
-      };
-    });
+          return null;
+        }
+
+        return value;
+      },
+      renderHTML: (attributes) => {
+        // don't render to html if the value is the same as the default
+        return attributes[name] !== spec.default
+          ? {
+              [camelToDataKebab(name)]: attributes[name],
+            }
+          : {};
+      },
+    };
+  });
 
   return tiptapAttributes;
 }
@@ -172,7 +169,7 @@ export function wrapInBlockStructure<
   for (const [prop, value] of Object.entries(blockProps)) {
     const spec = propSchema[prop];
     const defaultValue = spec.default;
-    if (!inheritedProps.includes(prop) && value !== defaultValue) {
+    if (value !== defaultValue) {
       blockContent.setAttribute(camelToDataKebab(prop), value);
     }
   }
