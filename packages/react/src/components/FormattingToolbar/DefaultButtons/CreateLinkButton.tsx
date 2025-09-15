@@ -76,6 +76,7 @@ export const CreateLinkButton = () => {
   const update = useCallback(
     (url: string) => {
       editor.createLink(url);
+      setOpened(false);
       editor.focus();
     },
     [editor],
