@@ -44,6 +44,7 @@ export const combinedOperationsTestCases: DocumentOperationTestCase[] = [
     ],
     getTestSelection: (editor: BlockNoteEditor<any, any, any>) => {
       const posInfo = getNodeById("ref2", editor.prosemirrorState.doc)!;
+
       const block = getBlockInfo(posInfo);
       if (!block.isBlockContainer) {
         throw new Error("Block is not a block container");

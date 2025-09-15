@@ -130,20 +130,20 @@ importers:
         specifier: ^2.2.0
         version: 2.2.0(react@19.1.0)
       '@liveblocks/client':
-        specifier: ^3
-        version: 3.7.1(@types/json-schema@7.0.15)
+        specifier: 3.7.1-tiptap3
+        version: 3.7.1-tiptap3(@types/json-schema@7.0.15)
       '@liveblocks/react':
-        specifier: ^3
-        version: 3.7.1(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react@19.1.0)
+        specifier: 3.7.1-tiptap3
+        version: 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react@19.1.0)
       '@liveblocks/react-blocknote':
-        specifier: ^3
-        version: 3.7.1(7414933da0ae7657e2caecf1cbd7efc5)
+        specifier: 3.7.1-tiptap3
+        version: 3.7.1-tiptap3(7414933da0ae7657e2caecf1cbd7efc5)
       '@liveblocks/react-tiptap':
-        specifier: ^3
-        version: 3.7.1(543464be21de3eb978873255473a2915)
+        specifier: 3.7.1-tiptap3
+        version: 3.7.1-tiptap3(543464be21de3eb978873255473a2915)
       '@liveblocks/react-ui':
-        specifier: ^3
-        version: 3.7.1(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: 3.7.1-tiptap3
+        version: 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/core':
         specifier: ^7.17.3
         version: 7.17.3(@mantine/hooks@7.17.3(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -2826,20 +2826,20 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@liveblocks/client':
-        specifier: ^3
-        version: 3.7.1(@types/json-schema@7.0.15)
+        specifier: 3.7.1-tiptap3
+        version: 3.7.1-tiptap3(@types/json-schema@7.0.15)
       '@liveblocks/react':
-        specifier: ^3
-        version: 3.7.1(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react@19.1.0)
+        specifier: 3.7.1-tiptap3
+        version: 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react@19.1.0)
       '@liveblocks/react-blocknote':
-        specifier: ^3
-        version: 3.7.1(7414933da0ae7657e2caecf1cbd7efc5)
+        specifier: 3.7.1-tiptap3
+        version: 3.7.1-tiptap3(7414933da0ae7657e2caecf1cbd7efc5)
       '@liveblocks/react-tiptap':
-        specifier: ^3
-        version: 3.7.1(543464be21de3eb978873255473a2915)
+        specifier: 3.7.1-tiptap3
+        version: 3.7.1-tiptap3(543464be21de3eb978873255473a2915)
       '@liveblocks/react-ui':
-        specifier: ^3
-        version: 3.7.1(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: 3.7.1-tiptap3
+        version: 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -4616,20 +4616,20 @@ importers:
         specifier: ^11.11.5
         version: 11.14.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0)
       '@liveblocks/core':
-        specifier: ^3
-        version: 3.7.1(@types/json-schema@7.0.15)
+        specifier: 3.7.1-tiptap3
+        version: 3.7.1-tiptap3(@types/json-schema@7.0.15)
       '@liveblocks/react':
-        specifier: ^3
-        version: 3.7.1(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react@19.1.0)
+        specifier: 3.7.1-tiptap3
+        version: 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react@19.1.0)
       '@liveblocks/react-blocknote':
-        specifier: ^3
-        version: 3.7.1(7414933da0ae7657e2caecf1cbd7efc5)
+        specifier: 3.7.1-tiptap3
+        version: 3.7.1-tiptap3(7414933da0ae7657e2caecf1cbd7efc5)
       '@liveblocks/react-tiptap':
-        specifier: ^3
-        version: 3.7.1(543464be21de3eb978873255473a2915)
+        specifier: 3.7.1-tiptap3
+        version: 3.7.1-tiptap3(543464be21de3eb978873255473a2915)
       '@liveblocks/react-ui':
-        specifier: ^3
-        version: 3.7.1(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: 3.7.1-tiptap3
+        version: 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/core':
         specifier: ^7.17.3
         version: 7.17.3(@mantine/hooks@7.17.3(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -6708,16 +6708,16 @@ packages:
   '@lifeomic/attempt@3.1.0':
     resolution: {integrity: sha512-QZqem4QuAnAyzfz+Gj5/+SLxqwCAw2qmt7732ZXodr6VDWGeYLG6w1i/vYLa55JQM9wRuBKLmXmiZ2P0LtE5rw==}
 
-  '@liveblocks/client@3.7.1':
-    resolution: {integrity: sha512-vyjJJHv7lkX0B5fYTS0VEx+MPA7uMlNhlsySs7rQI4K00EKo+OBfG+eTl3B9RAG09dNs5Z/0vB0d8ATxFAuyKA==}
+  '@liveblocks/client@3.7.1-tiptap3':
+    resolution: {integrity: sha512-GgolT/FLHicy7CD00yF40odYZT8KO3DC81YNek8lvfXnx2+CEijNWiKYic5JIUnqbGI6kLNGM0AfAnQxxHXkbQ==}
 
-  '@liveblocks/core@3.7.1':
-    resolution: {integrity: sha512-xeASXOU5RnyJh9uZiac5w1HqR7D2MzD6hX+hLfkQY2a/rFip9kDi3WXY7J2TXqs8VB+Do3e0bYKATwGaZoOlvw==}
+  '@liveblocks/core@3.7.1-tiptap3':
+    resolution: {integrity: sha512-UT6yWC6DwSS+PENoG4qzUSK46mEGRCEuldxsnrVkajnYr1EnhUaMPzZlV0hN9hzeyT38gciUQKUuTpBis5EBEg==}
     peerDependencies:
       '@types/json-schema': ^7
 
-  '@liveblocks/react-blocknote@3.7.1':
-    resolution: {integrity: sha512-fc5rp59/67X7GQusEpNgU83dyn7+oJOqGwDwXN1oT6fXm1l2zOj7AygzNE4Ezl1aPE9CF+WGTMIrEhOWmuwSVw==}
+  '@liveblocks/react-blocknote@3.7.1-tiptap3':
+    resolution: {integrity: sha512-dpsiQKy8IRlKraWADCT6IZh64br515eTVoUOCRNrhnFRrx+rMFdgK1/V8EEHqMWeVsnFo1Mu42uF8yJHG+sSiA==}
     peerDependencies:
       '@blocknote/core': 0.25.1 - 1.0.0
       '@blocknote/react': 0.25.1 - 1.0.0
@@ -6732,8 +6732,8 @@ packages:
       '@types/react-dom':
         optional: true
 
-  '@liveblocks/react-tiptap@3.7.1':
-    resolution: {integrity: sha512-rJyFUSFLHca+gHQod+iPt2XEcVUB0ztdoISc0RZC+USfbTdMwInk8JYmrZbEDfaKZe1I3d/jjXC3amkdGFsGPg==}
+  '@liveblocks/react-tiptap@3.7.1-tiptap3':
+    resolution: {integrity: sha512-UkJpBVKg7FXE9rCdTnhUvC4RhyiHhCL668GuNJcEgvsUuC1iWDqL8GSTNKXTasDcG8VYsO92O5nEw1OqLEjwuw==}
     peerDependencies:
       '@tiptap/extension-collaboration': ^2.7.2
       '@tiptap/extension-collaboration-cursor': ^2.7.2
@@ -6750,8 +6750,8 @@ packages:
       '@types/react-dom':
         optional: true
 
-  '@liveblocks/react-ui@3.7.1':
-    resolution: {integrity: sha512-mTzsqz0gpTsH39h8QSNInSiRZNzq6ZxVC6V+01GKis23kj0tcGep3ItG1QYU1xoSyZzncmx8ZvqPWAqfa7b/iw==}
+  '@liveblocks/react-ui@3.7.1-tiptap3':
+    resolution: {integrity: sha512-Tq80YiMotbY4Y5g3FdvZlo9IH+MHEiXJ7vK5ygdpsIPNc/9RazEaC8L9pibs0rnyiq4PaDUU2PY3BA1LLRS7YQ==}
     peerDependencies:
       '@types/react': '*'
       '@types/react-dom': '*'
@@ -6763,8 +6763,8 @@ packages:
       '@types/react-dom':
         optional: true
 
-  '@liveblocks/react@3.7.1':
-    resolution: {integrity: sha512-baaN6avgx3TKkXV+WxN4GTzIIuH4eH2dca+OSmf6VLuF9Wxr6qvPItlIw4r63FsZWPyCnp9cmabiXw3Awl/QkA==}
+  '@liveblocks/react@3.7.1-tiptap3':
+    resolution: {integrity: sha512-08zdVhm+W++/IsTcQZWlTxw6JMsE+/apE7pgofkEUxQHMXhHIfaXlpmK87y5UbV4m7/8O1OI8b/rdjRrkW/6Ww==}
     peerDependencies:
       '@types/react': '*'
       '@types/react-dom': '*'
@@ -6775,8 +6775,8 @@ packages:
       '@types/react-dom':
         optional: true
 
-  '@liveblocks/yjs@3.7.1':
-    resolution: {integrity: sha512-GSuUqGKPddWB9AHhVsvNWe5LhBhCJDkAiaeM3CJ44YCSgH/fWV4JGnB0mnTscARmin46S353eC8R9eHTKMoo9g==}
+  '@liveblocks/yjs@3.7.1-tiptap3':
+    resolution: {integrity: sha512-VpnjAhN4X8NfsKUaSv617SSsX5sdv8nepIsYH4HbKYnzloyMeGINVIIB5eA1Wf5c14TNh1H5zudreqtt3mgPpA==}
     peerDependencies:
       yjs: ^13.6.1
 
@@ -16985,7 +16985,7 @@ snapshots:
 
   '@floating-ui/core@1.6.9':
     dependencies:
-      '@floating-ui/utils': 0.2.9
+      '@floating-ui/utils': 0.2.10
 
   '@floating-ui/core@1.7.3':
     dependencies:
@@ -17326,26 +17326,26 @@ snapshots:
 
   '@lifeomic/attempt@3.1.0': {}
 
-  '@liveblocks/client@3.7.1(@types/json-schema@7.0.15)':
+  '@liveblocks/client@3.7.1-tiptap3(@types/json-schema@7.0.15)':
     dependencies:
-      '@liveblocks/core': 3.7.1(@types/json-schema@7.0.15)
+      '@liveblocks/core': 3.7.1-tiptap3(@types/json-schema@7.0.15)
     transitivePeerDependencies:
       - '@types/json-schema'
 
-  '@liveblocks/core@3.7.1(@types/json-schema@7.0.15)':
+  '@liveblocks/core@3.7.1-tiptap3(@types/json-schema@7.0.15)':
     dependencies:
       '@types/json-schema': 7.0.15
 
-  '@liveblocks/react-blocknote@3.7.1(7414933da0ae7657e2caecf1cbd7efc5)':
+  '@liveblocks/react-blocknote@3.7.1-tiptap3(7414933da0ae7657e2caecf1cbd7efc5)':
     dependencies:
       '@blocknote/core': link:packages/core
       '@blocknote/react': link:packages/react
-      '@liveblocks/client': 3.7.1(@types/json-schema@7.0.15)
-      '@liveblocks/core': 3.7.1(@types/json-schema@7.0.15)
-      '@liveblocks/react': 3.7.1(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react@19.1.0)
-      '@liveblocks/react-tiptap': 3.7.1(543464be21de3eb978873255473a2915)
-      '@liveblocks/react-ui': 3.7.1(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@liveblocks/yjs': 3.7.1(@types/json-schema@7.0.15)(yjs@13.6.27)
+      '@liveblocks/client': 3.7.1-tiptap3(@types/json-schema@7.0.15)
+      '@liveblocks/core': 3.7.1-tiptap3(@types/json-schema@7.0.15)
+      '@liveblocks/react': 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react@19.1.0)
+      '@liveblocks/react-tiptap': 3.7.1-tiptap3(543464be21de3eb978873255473a2915)
+      '@liveblocks/react-ui': 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@liveblocks/yjs': 3.7.1-tiptap3(@types/json-schema@7.0.15)(yjs@13.6.27)
       '@tiptap/core': 3.4.2(@tiptap/pm@3.4.2)
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
@@ -17367,14 +17367,14 @@ snapshots:
       - y-protocols
       - yjs
 
-  '@liveblocks/react-tiptap@3.7.1(543464be21de3eb978873255473a2915)':
+  '@liveblocks/react-tiptap@3.7.1-tiptap3(543464be21de3eb978873255473a2915)':
     dependencies:
       '@floating-ui/react-dom': 2.1.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@liveblocks/client': 3.7.1(@types/json-schema@7.0.15)
-      '@liveblocks/core': 3.7.1(@types/json-schema@7.0.15)
-      '@liveblocks/react': 3.7.1(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react@19.1.0)
-      '@liveblocks/react-ui': 3.7.1(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@liveblocks/yjs': 3.7.1(@types/json-schema@7.0.15)(yjs@13.6.27)
+      '@liveblocks/client': 3.7.1-tiptap3(@types/json-schema@7.0.15)
+      '@liveblocks/core': 3.7.1-tiptap3(@types/json-schema@7.0.15)
+      '@liveblocks/react': 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react@19.1.0)
+      '@liveblocks/react-ui': 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@liveblocks/yjs': 3.7.1-tiptap3(@types/json-schema@7.0.15)(yjs@13.6.27)
       '@radix-ui/react-select': 2.1.6(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@radix-ui/react-toggle': 1.1.2(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@tiptap/core': 3.4.2(@tiptap/pm@3.4.2)
@@ -17398,12 +17398,12 @@ snapshots:
       - prosemirror-view
       - y-protocols
 
-  '@liveblocks/react-ui@3.7.1(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@liveblocks/react-ui@3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@floating-ui/react-dom': 2.1.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@liveblocks/client': 3.7.1(@types/json-schema@7.0.15)
-      '@liveblocks/core': 3.7.1(@types/json-schema@7.0.15)
-      '@liveblocks/react': 3.7.1(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react@19.1.0)
+      '@liveblocks/client': 3.7.1-tiptap3(@types/json-schema@7.0.15)
+      '@liveblocks/core': 3.7.1-tiptap3(@types/json-schema@7.0.15)
+      '@liveblocks/react': 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react@19.1.0)
       '@radix-ui/react-dropdown-menu': 2.1.6(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@radix-ui/react-popover': 1.1.14(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@radix-ui/react-slot': 1.2.3(@types/react@19.1.8)(react@19.1.0)
@@ -17423,10 +17423,10 @@ snapshots:
     transitivePeerDependencies:
       - '@types/json-schema'
 
-  '@liveblocks/react@3.7.1(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react@19.1.0)':
+  '@liveblocks/react@3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react@19.1.0)':
     dependencies:
-      '@liveblocks/client': 3.7.1(@types/json-schema@7.0.15)
-      '@liveblocks/core': 3.7.1(@types/json-schema@7.0.15)
+      '@liveblocks/client': 3.7.1-tiptap3(@types/json-schema@7.0.15)
+      '@liveblocks/core': 3.7.1-tiptap3(@types/json-schema@7.0.15)
       react: 19.1.0
     optionalDependencies:
       '@types/react': 19.1.8
@@ -17434,10 +17434,10 @@ snapshots:
     transitivePeerDependencies:
       - '@types/json-schema'
 
-  '@liveblocks/yjs@3.7.1(@types/json-schema@7.0.15)(yjs@13.6.27)':
+  '@liveblocks/yjs@3.7.1-tiptap3(@types/json-schema@7.0.15)(yjs@13.6.27)':
     dependencies:
-      '@liveblocks/client': 3.7.1(@types/json-schema@7.0.15)
-      '@liveblocks/core': 3.7.1(@types/json-schema@7.0.15)
+      '@liveblocks/client': 3.7.1-tiptap3(@types/json-schema@7.0.15)
+      '@liveblocks/core': 3.7.1-tiptap3(@types/json-schema@7.0.15)
       '@noble/hashes': 1.8.0
       js-base64: 3.7.8
       y-indexeddb: 9.0.12(yjs@13.6.27)
