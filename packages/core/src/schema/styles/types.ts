@@ -11,15 +11,33 @@ export type StyleConfig = {
 
 // StyleImplementation contains the "implementation" info about a Style element.
 // Currently, the implementation is always a TipTap Mark
-export type StyleImplementation = {
+export type StyleImplementation<T extends StyleConfig> = {
   mark: Mark;
+  render: T["propSchema"] extends "boolean"
+    ? () => {
+        dom: HTMLElement;
+        contentDOM?: HTMLElement;
+      }
+    : (value: string) => {
+        dom: HTMLElement;
+        contentDOM?: HTMLElement;
+      };
+  toExternalHTML?: T["propSchema"] extends "boolean"
+    ? () => {
+        dom: HTMLElement;
+        contentDOM?: HTMLElement;
+      }
+    : (value: string) => {
+        dom: HTMLElement;
+        contentDOM?: HTMLElement;
+      };
 };
 
 // Container for both the config and implementation of a Style,
 // and the type of `implementation` is based on that of the config
 export type StyleSpec<T extends StyleConfig> = {
   config: T;
-  implementation: StyleImplementation;
+  implementation: StyleImplementation<T>;
 };
 
 // A Schema contains all the types (Configs) supported in an editor

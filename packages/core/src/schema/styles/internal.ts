@@ -66,7 +66,7 @@ export function addStyleAttributes<
 // config and implementation that conform to the type of Config
 export function createInternalStyleSpec<T extends StyleConfig>(
   config: T,
-  implementation: StyleImplementation,
+  implementation: StyleImplementation<T>,
 ) {
   return {
     config,
@@ -85,6 +85,11 @@ export function createStyleSpecFromTipTapMark<
     },
     {
       mark,
+      render: () =>
+        mark.config.renderHTML!({ mark, HTMLAttributes: {} }) as {
+          dom: HTMLElement;
+          contentDOM: HTMLElement;
+        },
     },
   );
 }

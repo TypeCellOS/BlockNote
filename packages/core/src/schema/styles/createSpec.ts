@@ -1,7 +1,6 @@
 import { Mark } from "@tiptap/core";
 
-import { ParseRule } from "@tiptap/pm/model";
-import { UnreachableCaseError } from "../../util/typescript.js";
+import { ParseRule, TagParseRule } from "@tiptap/pm/model";
 import {
   addStyleAttributes,
   createInternalStyleSpec,
@@ -19,12 +18,25 @@ export type CustomStyleImplementation<T extends StyleConfig> = {
         dom: HTMLElement;
         contentDOM?: HTMLElement;
       };
+  toExternalHTML?: T["propSchema"] extends "boolean"
+    ? () => {
+        dom: HTMLElement;
+        contentDOM?: HTMLElement;
+      }
+    : (value: string) => {
+        dom: HTMLElement;
+        contentDOM?: HTMLElement;
+      };
+  parse?: T["propSchema"] extends "boolean"
+    ? (element: HTMLElement) => string | undefined
+    : (element: HTMLElement) => true | undefined;
 };
 
-// TODO: support serialization
-
-export function getStyleParseRules(config: StyleConfig): ParseRule[] {
-  return [
+export function getStyleParseRules<T extends StyleConfig>(
+  config: T,
+  customParseFunction?: CustomStyleImplementation<T>["parse"],
+): ParseRule[] {
+  const rules: TagParseRule[] = [
     {
       tag: `[data-style-type="${config.type}"]`,
       contentElement: (element) => {
@@ -38,6 +50,26 @@ export function getStyleParseRules(config: StyleConfig): ParseRule[] {
       },
     },
   ];
+
+  if (customParseFunction) {
+    rules.push({
+      tag: "*",
+      getAttrs(node: string | HTMLElement) {
+        if (typeof node === "string") {
+          return false;
+        }
+
+        const stringValue = customParseFunction?.(node);
+
+        if (stringValue === undefined) {
+          return false;
+        }
+
+        return { stringValue };
+      },
+    });
+  }
+  return rules;
 }
 
 export function createStyleSpec<T extends StyleConfig>(
@@ -52,22 +84,13 @@ export function createStyleSpec<T extends StyleConfig>(
     },
 
     parseHTML() {
-      return getStyleParseRules(styleConfig);
+      return getStyleParseRules(styleConfig, styleImplementation.parse);
     },
 
     renderHTML({ mark }) {
-      let renderResult: {
-        dom: HTMLElement;
-        contentDOM?: HTMLElement;
-      };
-
-      if (styleConfig.propSchema === "boolean") {
-        renderResult = styleImplementation.render(mark.attrs.stringValue);
-      } else if (styleConfig.propSchema === "string") {
-        renderResult = styleImplementation.render(mark.attrs.stringValue);
-      } else {
-        throw new UnreachableCaseError(styleConfig.propSchema);
-      }
+      const renderResult = (
+        styleImplementation.toExternalHTML || styleImplementation.render
+      )(mark.attrs.stringValue);
 
       return addStyleAttributes(
         renderResult,
@@ -76,9 +99,44 @@ export function createStyleSpec<T extends StyleConfig>(
         styleConfig.propSchema,
       );
     },
+
+    addMarkView() {
+      return ({ mark }) => {
+        const renderResult = styleImplementation.render(mark.attrs.stringValue);
+
+        return addStyleAttributes(
+          renderResult,
+          styleConfig.type,
+          mark.attrs.stringValue,
+          styleConfig.propSchema,
+        );
+      };
+    },
   });
 
   return createInternalStyleSpec(styleConfig, {
     mark,
+    render: (value) => {
+      const renderResult = styleImplementation.render(value);
+
+      return addStyleAttributes(
+        renderResult,
+        styleConfig.type,
+        value,
+        styleConfig.propSchema,
+      );
+    },
+    toExternalHTML: (value) => {
+      const renderResult = (
+        styleImplementation.toExternalHTML || styleImplementation.render
+      )(value);
+
+      return addStyleAttributes(
+        renderResult,
+        styleConfig.type,
+        value,
+        styleConfig.propSchema,
+      );
+    },
   });
 }
