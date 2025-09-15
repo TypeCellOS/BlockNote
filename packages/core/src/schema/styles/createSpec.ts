@@ -9,27 +9,19 @@ import {
 import { StyleConfig, StyleSpec } from "./types.js";
 
 export type CustomStyleImplementation<T extends StyleConfig> = {
-  render: T["propSchema"] extends "boolean"
-    ? () => {
-        dom: HTMLElement;
-        contentDOM?: HTMLElement;
-      }
-    : (value: string) => {
-        dom: HTMLElement;
-        contentDOM?: HTMLElement;
-      };
-  toExternalHTML?: T["propSchema"] extends "boolean"
-    ? () => {
-        dom: HTMLElement;
-        contentDOM?: HTMLElement;
-      }
-    : (value: string) => {
-        dom: HTMLElement;
-        contentDOM?: HTMLElement;
-      };
-  parse?: T["propSchema"] extends "boolean"
-    ? (element: HTMLElement) => string | undefined
-    : (element: HTMLElement) => true | undefined;
+  render: (value: T["propSchema"] extends "boolean" ? undefined : string) => {
+    dom: HTMLElement;
+    contentDOM?: HTMLElement;
+  };
+  toExternalHTML?: (
+    value: T["propSchema"] extends "boolean" ? undefined : string,
+  ) => {
+    dom: HTMLElement;
+    contentDOM?: HTMLElement;
+  };
+  parse?: (
+    element: HTMLElement,
+  ) => (T["propSchema"] extends "boolean" ? true : string) | undefined;
 };
 
 export function getStyleParseRules<T extends StyleConfig>(
@@ -72,7 +64,7 @@ export function getStyleParseRules<T extends StyleConfig>(
   return rules;
 }
 
-export function createStyleSpec<T extends StyleConfig>(
+export function createStyleSpec<const T extends StyleConfig>(
   styleConfig: T,
   styleImplementation: CustomStyleImplementation<T>,
 ): StyleSpec<T> {
@@ -117,7 +109,7 @@ export function createStyleSpec<T extends StyleConfig>(
   return createInternalStyleSpec(styleConfig, {
     mark,
     render: (value) => {
-      const renderResult = styleImplementation.render(value);
+      const renderResult = styleImplementation.render(value as any);
 
       return addStyleAttributes(
         renderResult,
@@ -129,7 +121,7 @@ export function createStyleSpec<T extends StyleConfig>(
     toExternalHTML: (value) => {
       const renderResult = (
         styleImplementation.toExternalHTML || styleImplementation.render
-      )(value);
+      )(value as any);
 
       return addStyleAttributes(
         renderResult,

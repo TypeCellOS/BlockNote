@@ -13,24 +13,16 @@ export type StyleConfig = {
 // Currently, the implementation is always a TipTap Mark
 export type StyleImplementation<T extends StyleConfig> = {
   mark: Mark;
-  render: T["propSchema"] extends "boolean"
-    ? () => {
-        dom: HTMLElement;
-        contentDOM?: HTMLElement;
-      }
-    : (value: string) => {
-        dom: HTMLElement;
-        contentDOM?: HTMLElement;
-      };
-  toExternalHTML?: T["propSchema"] extends "boolean"
-    ? () => {
-        dom: HTMLElement;
-        contentDOM?: HTMLElement;
-      }
-    : (value: string) => {
-        dom: HTMLElement;
-        contentDOM?: HTMLElement;
-      };
+  render: (value: T["propSchema"] extends "boolean" ? undefined : string) => {
+    dom: HTMLElement;
+    contentDOM?: HTMLElement;
+  };
+  toExternalHTML?: (
+    value: T["propSchema"] extends "boolean" ? undefined : string,
+  ) => {
+    dom: HTMLElement;
+    contentDOM?: HTMLElement;
+  };
 };
 
 // Container for both the config and implementation of a Style,
