@@ -85,11 +85,35 @@ export function createStyleSpecFromTipTapMark<
     },
     {
       mark,
-      render: () =>
-        mark.config.renderHTML!({ mark, HTMLAttributes: {} }) as {
+      render(value, editor) {
+        const toDOM = editor.pmSchema.marks[mark.name].spec.toDOM;
+
+        if (toDOM === undefined) {
+          throw new Error(
+            "This block has no default HTML serialization as its corresponding TipTap node doesn't implement `renderHTML`.",
+          );
+        }
+
+        const markInstance = editor.pmSchema.mark(mark.name, {
+          stringValue: value,
+        });
+
+        const renderSpec = toDOM(markInstance, true);
+
+        if (typeof renderSpec !== "object" || !("dom" in renderSpec)) {
+          throw new Error(
+            "Cannot use this block's default HTML serialization as its corresponding TipTap node's `renderHTML` function does not return an object with the `dom` property.",
+          );
+        }
+
+        return renderSpec as {
           dom: HTMLElement;
-          contentDOM: HTMLElement;
-        },
+          contentDOM?: HTMLElement;
+        };
+      },
+      toExternalHTML(value, editor) {
+        return this.render(value, editor);
+      },
     },
   );
 }

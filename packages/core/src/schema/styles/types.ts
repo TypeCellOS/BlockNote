@@ -1,4 +1,5 @@
 import { Mark } from "@tiptap/core";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 export type StylePropSchema = "boolean" | "string"; // TODO: use PropSchema as name? Use objects as type similar to blocks?
 
@@ -13,12 +14,16 @@ export type StyleConfig = {
 // Currently, the implementation is always a TipTap Mark
 export type StyleImplementation<T extends StyleConfig> = {
   mark: Mark;
-  render: (value: T["propSchema"] extends "boolean" ? undefined : string) => {
+  render: (
+    value: T["propSchema"] extends "boolean" ? undefined : string,
+    editor: BlockNoteEditor<any, any, any>,
+  ) => {
     dom: HTMLElement;
     contentDOM?: HTMLElement;
   };
   toExternalHTML?: (
     value: T["propSchema"] extends "boolean" ? undefined : string,
+    editor: BlockNoteEditor<any, any, any>,
   ) => {
     dom: HTMLElement;
     contentDOM?: HTMLElement;
