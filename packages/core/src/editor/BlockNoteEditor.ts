@@ -436,16 +436,6 @@ export type BlockNoteEditorOptions<
    * @internal
    */
   extensions?: Array<BlockNoteExtension | BlockNoteExtensionFactory>;
-
-  /**
-   * Boolean indicating whether the editor is in headless mode.
-   * Headless mode means we can use features like importing / exporting blocks,
-   * but there's no underlying editor (UI) instantiated.
-   *
-   * You probably don't need to set this manually, but use the `server-util` package instead that uses this option internally
-   * @internal
-   */
-  _headless?: boolean;
 };
 
 const blockNoteTipTapOptions = {
@@ -471,18 +461,9 @@ export class BlockNoteEditor<
    */
   public extensions: Record<string, SupportedExtension> = {};
 
-  /**
-   * Boolean indicating whether the editor is in headless mode.
-   * Headless mode means we can use features like importing / exporting blocks,
-   * but there's no underlying editor (UI) instantiated.
-   *
-   * You probably don't need to set this manually, but use the `server-util` package instead that uses this option internally
-   */
-  public readonly headless: boolean = false;
-
   public readonly _tiptapEditor: TiptapEditor & {
     contentComponent: any;
-  } = undefined as any; // TODO headless mode should work now with v3
+  };
 
   /**
    * Used by React to store a reference to an `ElementRenderer` helper utility to make sure we can render React elements
@@ -637,7 +618,6 @@ export class BlockNoteEditor<
           ISchema,
           SSchema
         >),
-      _headless: false,
       ...options,
       placeholders: {
         ...this.dictionary.placeholders,
@@ -753,7 +733,6 @@ export class BlockNoteEditor<
     }
 
     this.resolveFileUrl = newOptions.resolveFileUrl;
-    this.headless = newOptions._headless;
 
     const collaborationEnabled =
       "ySyncPlugin" in this.extensions ||
@@ -887,67 +866,61 @@ export class BlockNoteEditor<
       },
     } as any;
 
-    if (!this.headless) {
-      try {
-        const initialContent =
-          newOptions.initialContent ||
-          (collaborationEnabled
-            ? [
-                {
-                  type: "paragraph",
-                  id: "initialBlockId",
-                },
-              ]
-            : [
-                {
-                  type: "paragraph",
-                  id: UniqueID.options.generateID(),
-                },
-              ]);
-
-        if (!Array.isArray(initialContent) || initialContent.length === 0) {
-          throw new Error(
-            "initialContent must be a non-empty array of blocks, received: " +
-              initialContent,
-          );
-        }
-        const schema = getSchema(tiptapOptions.extensions!);
-        const pmNodes = initialContent.map((b) =>
-          blockToNode(b, schema, this.schema.styleSchema).toJSON(),
-        );
-        const doc = createDocument(
-          {
-            type: "doc",
-            content: [
+    try {
+      const initialContent =
+        newOptions.initialContent ||
+        (collaborationEnabled
+          ? [
               {
-                type: "blockGroup",
-                content: pmNodes,
+                type: "paragraph",
+                id: "initialBlockId",
               },
-            ],
-          },
-          schema,
-          tiptapOptions.parseOptions,
-        );
+            ]
+          : [
+              {
+                type: "paragraph",
+                id: UniqueID.options.generateID(),
+              },
+            ]);
 
-        this._tiptapEditor = new TiptapEditor({
-          ...tiptapOptions,
-          content: doc.toJSON(),
-        }) as any;
-        this.pmSchema = this._tiptapEditor.schema;
-      } catch (e) {
+      if (!Array.isArray(initialContent) || initialContent.length === 0) {
         throw new Error(
-          "Error creating document from blocks passed as `initialContent`",
-          { cause: e },
+          "initialContent must be a non-empty array of blocks, received: " +
+            initialContent,
         );
       }
-    } else {
-      // TODO can use tiptap headless now...
-      // In headless mode, we don't instantiate an underlying TipTap editor,
-      // but we still need the schema
-      this.pmSchema = getSchema(tiptapOptions.extensions!);
+      const schema = getSchema(tiptapOptions.extensions!);
+      const pmNodes = initialContent.map((b) =>
+        blockToNode(b, schema, this.schema.styleSchema).toJSON(),
+      );
+      const doc = createDocument(
+        {
+          type: "doc",
+          content: [
+            {
+              type: "blockGroup",
+              content: pmNodes,
+            },
+          ],
+        },
+        schema,
+        tiptapOptions.parseOptions,
+      );
+
+      this._tiptapEditor = new TiptapEditor({
+        ...tiptapOptions,
+        content: doc.toJSON(),
+      }) as any;
+      this.pmSchema = this._tiptapEditor.schema;
+    } catch (e) {
+      throw new Error(
+        "Error creating document from blocks passed as `initialContent`",
+        { cause: e },
+      );
     }
+
     this.pmSchema.cached.blockNoteEditor = this;
-    this.emit("create");
+    // this.emit("create");
   }
 
   /**
@@ -1133,10 +1106,15 @@ export class BlockNoteEditor<
     return this.prosemirrorView?.hasFocus() || false;
   }
 
+  public get headless() {
+    return !this._tiptapEditor.isInitialized;
+  }
+
   public focus() {
-    if (this._tiptapEditor.isInitialized) {
-      this.prosemirrorView?.focus();
+    if (this.headless) {
+      return;
     }
+    this.prosemirrorView.focus();
   }
 
   public onUploadStart(callback: (blockId?: string) => void) {
@@ -1353,12 +1331,6 @@ export class BlockNoteEditor<
    * @returns True if the editor is editable, false otherwise.
    */
   public get isEditable(): boolean {
-    if (!this._tiptapEditor) {
-      if (!this.headless) {
-        throw new Error("no editor, but also not headless?");
-      }
-      return false;
-    }
     return this._tiptapEditor.isEditable === undefined
       ? true
       : this._tiptapEditor.isEditable;
@@ -1369,13 +1341,6 @@ export class BlockNoteEditor<
    * @param editable True to make the editor editable, or false to lock it.
    */
   public set isEditable(editable: boolean) {
-    if (!this._tiptapEditor) {
-      if (!this.headless) {
-        throw new Error("no editor, but also not headless?");
-      }
-      // not relevant on headless
-      return;
-    }
     if (this._tiptapEditor.options.editable !== editable) {
       this._tiptapEditor.setEditable(editable);
     }
@@ -1752,12 +1717,6 @@ export class BlockNoteEditor<
       },
     ) => boolean | void,
   ): () => void {
-    if (this.headless) {
-      return () => {
-        // noop
-      };
-    }
-
     return (this.extensions["blockChange"] as BlockChangePlugin).subscribe(
       (context) => callback(this, context),
     );
@@ -1780,11 +1739,6 @@ export class BlockNoteEditor<
       },
     ) => void,
   ) {
-    if (this.headless) {
-      // Note: would be nice if this is possible in headless mode as well
-      return;
-    }
-
     const cb = ({
       transaction,
       appendedTransactions,
@@ -1815,10 +1769,6 @@ export class BlockNoteEditor<
     callback: (editor: BlockNoteEditor<BSchema, ISchema, SSchema>) => void,
     includeSelectionChangedByRemote?: boolean,
   ) {
-    if (this.headless) {
-      return;
-    }
-
     const cb = (e: { transaction: Transaction }) => {
       if (
         e.transaction.getMeta(ySyncPluginKey) &&
