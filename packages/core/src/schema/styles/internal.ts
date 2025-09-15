@@ -102,7 +102,7 @@ export function createStyleSpecFromTipTapMark<
 
         if (typeof renderSpec !== "object" || !("dom" in renderSpec)) {
           throw new Error(
-            "Cannot use this block's default HTML serialization as its corresponding TipTap node's `renderHTML` function does not return an object with the `dom` property.",
+            "Cannot use this block's default HTML serialization as its corresponding TipTap mark's `renderHTML` function does not return an object with the `dom` property.",
           );
         }
 

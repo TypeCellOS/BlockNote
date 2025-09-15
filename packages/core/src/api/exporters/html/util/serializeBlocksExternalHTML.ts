@@ -102,9 +102,11 @@ export function serializeInlineContentExternalHTML<
       );
       for (const mark of node.marks) {
         if (mark.type.name in editor.schema.styleSpecs) {
-          const newDom = editor.schema.styleSpecs[
-            mark.type.name
-          ].implementation.render(mark.attrs["stringValue"], editor);
+          const newDom = (
+            editor.schema.styleSpecs[mark.type.name].implementation
+              .toExternalHTML ??
+            editor.schema.styleSpecs[mark.type.name].implementation.render
+          )(mark.attrs["stringValue"], editor);
           newDom.contentDOM!.appendChild(dom);
           dom = newDom.dom;
         } else {
