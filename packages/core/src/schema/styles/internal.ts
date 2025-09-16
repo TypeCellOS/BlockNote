@@ -1,4 +1,5 @@
 import { Attributes, Mark } from "@tiptap/core";
+import { DOMSerializer } from "@tiptap/pm/model";
 import {
   StyleConfig,
   StyleImplementation,
@@ -98,7 +99,10 @@ export function createStyleSpecFromTipTapMark<
           stringValue: value,
         });
 
-        const renderSpec = toDOM(markInstance, true);
+        const renderSpec = DOMSerializer.renderSpec(
+          document,
+          toDOM(markInstance, true),
+        );
 
         if (typeof renderSpec !== "object" || !("dom" in renderSpec)) {
           throw new Error(
@@ -112,7 +116,33 @@ export function createStyleSpecFromTipTapMark<
         };
       },
       toExternalHTML(value, editor) {
-        return this.render(value, editor);
+        const toDOM = editor.pmSchema.marks[mark.name].spec.toDOM;
+
+        if (toDOM === undefined) {
+          throw new Error(
+            "This block has no default HTML serialization as its corresponding TipTap node doesn't implement `renderHTML`.",
+          );
+        }
+
+        const markInstance = editor.pmSchema.mark(mark.name, {
+          stringValue: value,
+        });
+
+        const renderSpec = DOMSerializer.renderSpec(
+          document,
+          toDOM(markInstance, true),
+        );
+
+        if (typeof renderSpec !== "object" || !("dom" in renderSpec)) {
+          throw new Error(
+            "Cannot use this block's default HTML serialization as its corresponding TipTap mark's `renderHTML` function does not return an object with the `dom` property.",
+          );
+        }
+
+        return renderSpec as {
+          dom: HTMLElement;
+          contentDOM?: HTMLElement;
+        };
       },
     },
   );

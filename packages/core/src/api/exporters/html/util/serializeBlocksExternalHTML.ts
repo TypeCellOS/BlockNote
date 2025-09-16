@@ -60,11 +60,14 @@ export function serializeInlineContentExternalHTML<
 
   for (const node of nodes) {
     // Check if this is a custom inline content node with toExternalHTML
-    if (editor.schema.inlineContentSchema[node.type.name]) {
+    if (
+      node.type.name !== "text" &&
+      editor.schema.inlineContentSchema[node.type.name]
+    ) {
       const inlineContentImplementation =
         editor.schema.inlineContentSpecs[node.type.name].implementation;
 
-      if (inlineContentImplementation?.toExternalHTML) {
+      if (inlineContentImplementation) {
         // Convert the node to inline content format
         const inlineContent = nodeToCustomInlineContent(
           node,
@@ -72,11 +75,23 @@ export function serializeInlineContentExternalHTML<
           editor.schema.styleSchema,
         );
 
-        // Use the custom toExternalHTML method
-        const output = inlineContentImplementation.toExternalHTML(
-          inlineContent as any,
-          editor as any,
-        );
+        // Use the custom toExternalHTML method or fallback to `render`
+        const output = inlineContentImplementation.toExternalHTML
+          ? inlineContentImplementation.toExternalHTML(
+              inlineContent as any,
+              editor as any,
+            )
+          : inlineContentImplementation.render.call(
+              {
+                renderType: "dom",
+                props: undefined,
+              },
+              inlineContent as any,
+              () => {
+                // No-op
+              },
+              editor as any,
+            );
 
         if (output) {
           fragment.appendChild(output.dom);
@@ -100,7 +115,8 @@ export function serializeInlineContentExternalHTML<
       let dom: globalThis.Node | Text = document.createTextNode(
         node.textContent,
       );
-      for (const mark of node.marks) {
+      // Reverse the order of marks to maintain the correct priority.
+      for (const mark of node.marks.toReversed()) {
         if (mark.type.name in editor.schema.styleSpecs) {
           const newDom = (
             editor.schema.styleSpecs[mark.type.name].implementation
@@ -118,14 +134,14 @@ export function serializeInlineContentExternalHTML<
       }
 
       fragment.appendChild(dom);
+    } else {
+      // Fall back to default serialization for this node
+      const nodeFragment = serializer.serializeFragment(
+        Fragment.from([node]),
+        options,
+      );
+      fragment.appendChild(nodeFragment);
     }
-
-    // Fall back to default serialization for this node
-    const nodeFragment = serializer.serializeFragment(
-      Fragment.from([node]),
-      options,
-    );
-    fragment.appendChild(nodeFragment);
   }
 
   if (

@@ -96,7 +96,8 @@ export function serializeInlineContentInternalHTML<
       let dom: globalThis.Node | Text = document.createTextNode(
         node.textContent,
       );
-      for (const mark of node.marks) {
+      // Reverse the order of marks to maintain the correct priority.
+      for (const mark of node.marks.toReversed()) {
         if (mark.type.name in editor.schema.styleSpecs) {
           const newDom = editor.schema.styleSpecs[
             mark.type.name
