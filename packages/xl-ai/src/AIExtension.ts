@@ -27,7 +27,6 @@ import {
   PromptBuilder,
   PromptInputDataBuilder,
 } from "./api/formats/PromptBuilder.js";
-import { LLMResponse } from "./api/LLMResponse.js";
 import { trimEmptyBlocks } from "./api/promptHelpers/trimEmptyBlocks.js";
 import { createAgentCursorPlugin } from "./plugins/AgentCursorPlugin.js";
 import { setupToolCallStreaming } from "./streamTool/vercelAiSdk/util/chatHandlers.js";
@@ -335,7 +334,6 @@ export class AIExtension extends BlockNoteExtension {
     this.setAIResponseStatus("thinking");
     this.editor.forkYDocPlugin?.fork();
 
-    let ret: LLMResponse | undefined;
     try {
       if (!this.store.getState().chat) {
         // TODO: what if transport changes?
@@ -454,7 +452,6 @@ export class AIExtension extends BlockNoteExtension {
       // eslint-disable-next-line no-console
       console.warn("Error calling LLM", e);
     }
-    return ret;
   }
 }
 
