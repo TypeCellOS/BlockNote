@@ -324,7 +324,6 @@ export class AIExtension extends BlockNoteExtension {
     }
   }
 
-  // move executor
   // tool call results
   // errors
   // TODO: retries
@@ -442,7 +441,6 @@ export class AIExtension extends BlockNoteExtension {
       });
 
       // TODO: what if no tool calls were made?
-      // TODO: add tool result?
       await executePromise;
 
       this.setAIResponseStatus("user-reviewing");

@@ -11,6 +11,7 @@ type ToolCallStreamData = {
     DeepPartial<{ operations: StreamToolCall<any>[] }>
   >;
   complete: boolean;
+  executor: StreamToolExecutor<any>;
 };
 
 /**
@@ -18,9 +19,10 @@ type ToolCallStreamData = {
  */
 function processToolCallParts(
   chat: Chat<UIMessage>,
-  toolCallStreams: Map<string, ToolCallStreamData>,
-  mergedResultsWriter: WritableStreamDefaultWriter<any>,
-  streamTools: StreamTool<any>[],
+  getToolCallStreamData: (data: {
+    toolName: string;
+    toolCallId: string;
+  }) => ToolCallStreamData,
 ) {
   for (const part of chat.lastMessage?.parts ?? []) {
     if (!isToolUIPart(part)) {
@@ -29,16 +31,11 @@ function processToolCallParts(
 
     const toolCallId = part.toolCallId;
 
-    // Create a new complete pipeline for this toolCallId if it doesn't exist
-    if (!toolCallStreams.has(toolCallId)) {
-      const toolCallData = createToolCallStream(
-        mergedResultsWriter,
-        streamTools,
-      );
-      toolCallStreams.set(toolCallId, toolCallData);
-    }
+    const toolCallData = getToolCallStreamData({
+      toolName: part.type.replace("tool-", ""),
+      toolCallId,
+    });
 
-    const toolCallData = toolCallStreams.get(toolCallId)!;
     processToolCallPart(part, toolCallData);
   }
 }
@@ -47,7 +44,6 @@ function processToolCallParts(
  * Create a complete stream pipeline for a single toolCallId
  */
 function createToolCallStream(
-  mergedResultsWriter: WritableStreamDefaultWriter<any>,
   streamTools: StreamTool<any>[],
 ): ToolCallStreamData {
   const stream = new TransformStream<
@@ -59,22 +55,16 @@ function createToolCallStream(
   );
   const writer = stream.writable.getWriter();
 
-  // Write operations results directly to the merged results writer
-  operationsStream.pipeTo(
-    new WritableStream({
-      write(chunk) {
-        mergedResultsWriter.write(chunk);
-      },
-      close() {
-        // Don't close the merged results writer here - it will be closed when all tool calls are done
-      },
-    }),
-  );
+  const executor = new StreamToolExecutor(streamTools);
+
+  // Pipe operations directly into this tool call's executor
+  operationsStream.pipeTo(executor.writable);
 
   return {
     stream,
     writer,
     complete: false,
+    executor,
   };
 }
 
@@ -95,7 +85,6 @@ function processToolCallPart(part: any, toolCallData: ToolCallStreamData) {
     if (!toolCallData.complete) {
       toolCallData.complete = true;
       toolCallData.writer.write(input as any);
-      console.log("processToolCallPart close", part.toolCallId, input);
       toolCallData.writer.close();
     }
   }
@@ -110,51 +99,65 @@ export async function setupToolCallStreaming(
   chat: Chat<UIMessage>,
   onStart: () => void,
 ) {
-  const executor = new StreamToolExecutor(streamTools);
   const toolCallStreams = new Map<string, ToolCallStreamData>();
 
-  let first = true;
-  const mergedResultsStream = new TransformStream<any, any>({
-    transform: (chunk, controller) => {
-      if (first) {
-        onStart();
-        first = false;
-      }
-      controller.enqueue(chunk);
-    },
-  });
-  const mergedResultsStreamWritable = mergedResultsStream.writable;
-  const mergedResultsWriter = mergedResultsStreamWritable.getWriter();
+  const executePromises: Promise<void>[] = [];
 
-  mergedResultsStream.readable.pipeTo(executor.writable);
+  let first = true;
 
   const unsub = chat["~registerMessagesCallback"](() => {
-    console.log("messagesCallback", chat.lastMessage);
-    processToolCallParts(
-      chat,
-      toolCallStreams,
-      mergedResultsWriter,
-      streamTools,
-    );
+    processToolCallParts(chat, (data) => {
+      if (!toolCallStreams.has(data.toolCallId)) {
+        const toolCallStreamData = createToolCallStream(streamTools);
+        toolCallStreams.set(data.toolCallId, toolCallStreamData);
+        if (first) {
+          first = false;
+          onStart();
+        }
+        executePromises.push(
+          toolCallStreamData.executor.waitTillEnd().then(
+            () => {
+              chat.addToolResult({
+                tool: data.toolName,
+                toolCallId: data.toolCallId,
+                output: { status: "ok" },
+              });
+            },
+            (error) => {
+              chat.addToolResult({
+                tool: data.toolName,
+                toolCallId: data.toolCallId,
+                output: { status: "error", error: error.message },
+              });
+            },
+          ),
+        );
+      }
+      return toolCallStreams.get(data.toolCallId)!;
+    });
   });
 
   const statusHandler = new Promise<void>((resolve, reject) => {
     const unsub2 = chat["~registerStatusCallback"](() => {
-      if (chat.status === "ready" || chat.status === "error") {
-        console.log("statusHandler close", chat.status);
-        mergedResultsWriter.close();
+      if (chat.status === "ready") {
         unsub();
         unsub2();
+        unsub3();
+        resolve();
+      }
+    });
 
-        if (chat.status === "ready") {
-          resolve();
-        } else {
-          reject(chat.status);
-        }
+    const unsub3 = chat["~registerErrorCallback"](() => {
+      if (chat.error) {
+        unsub();
+        unsub2();
+        unsub3();
+        reject(chat.error);
       }
     });
   });
 
   await statusHandler;
-  await executor.waitTillEnd();
+
+  await Promise.all(executePromises);
 }
