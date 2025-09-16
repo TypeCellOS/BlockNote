@@ -19,6 +19,21 @@ describe("PositionStorage with local editor", () => {
 
       editor._tiptapEditor.destroy();
     });
+
+    it("should register transaction handler on creation & mount", () => {
+      const editor = BlockNoteEditor.create();
+      // editor.mount(document.createElement("div"));
+
+      editor._tiptapEditor.on = vi.fn();
+      trackPosition(editor, 0);
+
+      expect(editor._tiptapEditor.on).toHaveBeenCalledWith(
+        "transaction",
+        expect.any(Function),
+      );
+
+      editor._tiptapEditor.destroy();
+    });
   });
 
   describe("set and get positions", () => {
@@ -48,6 +63,49 @@ describe("PositionStorage with local editor", () => {
   it("should update mapping for local transactions before the position", () => {
     const editor = BlockNoteEditor.create();
     editor.mount(document.createElement("div"));
+
+    // Set initial content
+    editor.insertBlocks(
+      [
+        {
+          id: "1",
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Hello World",
+              styles: {},
+            },
+          ],
+        },
+      ],
+      editor.document[0],
+      "before",
+    );
+
+    // Start tracking
+    const getPos = trackPosition(editor, 10);
+
+    // Move the cursor to the start of the document
+    editor.setTextCursorPosition(editor.document[0], "start");
+
+    // Insert text at the start of the document
+    editor.insertInlineContent([
+      {
+        type: "text",
+        text: "Test",
+        styles: {},
+      },
+    ]);
+
+    // Position should be updated according to mapping
+    expect(getPos()).toBe(14);
+
+    editor._tiptapEditor.destroy();
+  });
+
+  it("should update mapping for local transactions before the position (unmounted)", () => {
+    const editor = BlockNoteEditor.create();
 
     // Set initial content
     editor.insertBlocks(

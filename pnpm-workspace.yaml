@@ -15,5 +15,5 @@ publicHoistPattern:
   - "prosemirror-*"
 overrides:
   "@headlessui/react": "^2.2.4"
-  "@tiptap/core": "^3.0.0"
+  "@tiptap/core": "https://pkg.pr.new/@tiptap/core@5e777c9"
   "@tiptap/pm": "^3.0.0"

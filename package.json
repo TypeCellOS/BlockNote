@@ -59,10 +59,5 @@
     "start": "serve playground/dist -c ../serve.json",
     "test": "nx run-many --target=test",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,scss,md}\""
-  },
-  "overrides": {
-    "@tiptap/core": "^3.0.0",
-    "@tiptap/pm": "^3.0.0",
-    "@tiptap/react": "^3.0.0"
   }
 }
