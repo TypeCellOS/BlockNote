@@ -920,7 +920,7 @@ export class BlockNoteEditor<
     }
 
     this.pmSchema.cached.blockNoteEditor = this;
-    // this.emit("create");
+    this.emit("create");
   }
 
   /**
@@ -948,7 +948,7 @@ export class BlockNoteEditor<
     }
     const state = this._tiptapEditor.state;
     const view = this._tiptapEditor.view;
-    const dispatch = (tr: Transaction) => view?.dispatch(tr);
+    const dispatch = (tr: Transaction) => view.dispatch(tr);
 
     return command(state, dispatch, view);
   }
@@ -1031,7 +1031,7 @@ export class BlockNoteEditor<
           !activeTr.isGeneric)
       ) {
         // Dispatch the transaction if it was modified
-        this._tiptapEditor.view?.dispatch(activeTr);
+        this._tiptapEditor.view.dispatch(activeTr);
       }
 
       return result;

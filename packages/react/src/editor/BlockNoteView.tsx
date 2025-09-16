@@ -121,7 +121,7 @@ function BlockNoteViewComponent<
     tableHandles,
     comments,
     autoFocus,
-    renderEditor = !editor.headless,
+    renderEditor = true,
     ...rest
   } = props;
 
