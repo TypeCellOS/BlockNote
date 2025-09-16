@@ -38,6 +38,8 @@ export function generateSharedTestCases(
   ) => Promise<LLMResponse>,
   skipTestsRequiringCapabilities?: {
     mentions?: boolean;
+    textAlignment?: boolean;
+    blockColor?: boolean;
   },
 ) {
   function skipIfUnsupported(
