@@ -3,7 +3,6 @@ import {
   asyncIterableToStream,
   createAsyncIterableStream,
 } from "../util/stream.js";
-import { filterNewOrUpdatedOperations } from "./filterNewOrUpdatedOperations.js";
 import { StreamTool, StreamToolCall } from "./streamTool.js";
 
 /**
@@ -133,7 +132,6 @@ export class StreamToolExecutor<T extends StreamTool<any>[]> {
         return;
       }
 
-      filterNewOrUpdatedOperations;
       await writer.write(chunk);
     }
     await writer.close();

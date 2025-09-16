@@ -1,10 +1,12 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { UIMessage } from "ai";
+import { ChatTransport, UIMessage } from "ai";
+import { MessageSender } from "../AIExtension.js";
 import { isEmptyParagraph } from "../util/emptyBlock.js";
 import { LLMResponse } from "./LLMResponse.js";
 import type { PromptBuilder } from "./formats/PromptBuilder.js";
 import { htmlBlockLLMFormat } from "./formats/html-blocks/htmlBlocks.js";
-import { LLMFormat } from "./index.js";
+import { HTMLPromptData } from "./formats/html-blocks/htmlPromptData.js";
+import { StreamToolsProvider } from "./index.js";
 import { trimEmptyBlocks } from "./promptHelpers/trimEmptyBlocks.js";
 
 type MakeOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
@@ -17,6 +19,36 @@ type MakeOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 //   onStart?: () => void;
 // };
 
+export type LLMRequestHelpers = {
+  /**
+   * Customize how your LLM backend is called.
+   * Implement this function if you want to call a backend that is not compatible with
+   * the Vercel AI SDK
+   */
+  transport?: ChatTransport<UIMessage>;
+
+  streamToolsProvider?: StreamToolsProvider;
+} & (
+  | {
+      /**
+       * The `PromptBuilder` to use for the LLM call
+       *
+       * (A PromptBuilder is a function that takes a BlockNoteEditor and details about the user's prompt
+       * and turns it into an AI SDK `CoreMessage` array to be passed to the LLM)
+       *
+       * @default provided by the format (e.g. `llm.html.defaultPromptBuilder`)
+       */
+      promptBuilder?: PromptBuilder<HTMLPromptData>;
+
+      messageSender?: never;
+    }
+  | {
+      // messageSender variant
+      promptBuilder?: never;
+      messageSender?: MessageSender;
+    }
+);
+
 export type LLMRequestOptions = {
   /**
    * The user prompt to use for the LLM call
@@ -24,39 +56,11 @@ export type LLMRequestOptions = {
   userPrompt: string;
 
   /**
-   * The default data format to use for LLM calls
-   * "html" is recommended, the other formats are experimental
-   * @default html format (`llm.html`)
-   */
-  dataFormat?: LLMFormat;
-  /**
-   * The `PromptBuilder` to use for the LLM call
-   *
-   * (A PromptBuilder is a function that takes a BlockNoteEditor and details about the user's prompt
-   * and turns it into an AI SDK `CoreMessage` array to be passed to the LLM)
-   *
-   * @default provided by the format (e.g. `llm.html.defaultPromptBuilder`)
-   */
-  promptBuilder?: PromptBuilder;
-  /**
    * Whether to use the editor selection for the LLM call
    *
    * @default true
    */
   useSelection?: boolean;
-  /**
-   * Defines whether the LLM can add, update, or delete blocks
-   *
-   * @default { add: true, update: true, delete: true }
-   */
-  defaultStreamTools?: {
-    /** Enable the add tool (default: false) */
-    add?: boolean;
-    /** Enable the update tool (default: false) */
-    update?: boolean;
-    /** Enable the delete tool (default: false) */
-    delete?: boolean;
-  };
   /**
    * If the user's cursor is in an empty paragraph, automatically delete it when the AI
    * is starting to write.
@@ -76,13 +80,7 @@ export type LLMRequestOptions = {
    * Callback when the AI Agent starts writing
    */
   onStart?: () => void;
-  /**
-   * Whether to add delays between text update operations, to make the AI simulate a human typing
-   *
-   * @default true
-   */
-  withDelays?: boolean;
-};
+} & LLMRequestHelpers;
 
 /**
  * Execute an LLM call

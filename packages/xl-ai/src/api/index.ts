@@ -5,24 +5,27 @@ import { jsonLLMFormat } from "./formats/json/json.js";
 import { markdownBlocksLLMFormat } from "./formats/markdown-blocks/markdownBlocks.js";
 import { PromptBuilder } from "./formats/PromptBuilder.js";
 
+export type StreamToolsProvider = {
+  getStreamTools: (
+    editor: BlockNoteEditor<any, any, any>,
+    selectionInfo?: {
+      from: number;
+      to: number;
+    },
+  ) => StreamTool<any>[];
+};
 export type LLMFormat = {
   /**
    * Function to get the stream tools that can apply HTML block updates to the editor
    */
-  getStreamTools: (
-    editor: BlockNoteEditor<any, any, any>,
+  getStreamToolsProvider: (
     withDelays: boolean,
     defaultStreamTools?: {
       add?: boolean;
       update?: boolean;
       delete?: boolean;
     },
-    selectionInfo?: {
-      from: number;
-      to: number;
-    },
-    onBlockUpdate?: (blockId: string) => void,
-  ) => StreamTool<any>[];
+  ) => StreamToolsProvider;
   /**
    * The default PromptBuilder that determines how a userPrompt is converted to an array of
    * LLM Messages (CoreMessage[])

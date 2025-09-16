@@ -77,12 +77,32 @@ export const htmlBlockLLMFormat = {
   /**
    * Function to get the stream tools that can apply HTML block updates to the editor
    */
-  getStreamTools,
+  getStreamToolsProvider: (
+    opts: { withDelays?: boolean; defaultStreamTools?: StreamToolsConfig } = {},
+  ) => ({
+    getStreamTools: (
+      editor: BlockNoteEditor<any, any, any>,
+      selectionInfo?: { from: number; to: number },
+      onBlockUpdate?: (blockId: string) => void,
+    ) => {
+      return getStreamTools(
+        editor,
+        opts.withDelays || true,
+        opts.defaultStreamTools,
+        selectionInfo,
+        onBlockUpdate,
+      );
+    },
+  }),
+
   /**
    * The default PromptBuilder that determines how a userPrompt is converted to an array of
    * LLM Messages (CoreMessage[])
    */
   defaultPromptBuilder: defaultHTMLPromptBuilder,
+
+  defaultPromptInputDataBuilder: getDataForPromptNoSelection,
+
   /**
    * Helper functions which can be used when implementing a custom PromptBuilder
    */

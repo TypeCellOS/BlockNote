@@ -9,31 +9,29 @@ import {
   revertSuggestions,
   suggestChanges,
 } from "@blocknote/prosemirror-suggest-changes";
-import {
-  APICallError,
-  ChatTransport,
-  DeepPartial,
-  RetryError,
-  UIMessage,
-} from "ai";
+import { APICallError, RetryError, UIMessage } from "ai";
 import { Fragment, Slice } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { fixTablesKey } from "prosemirror-tables";
 import { createStore, StoreApi } from "zustand/vanilla";
-import { LLMRequestOptions } from "./api/LLMRequest.js";
+import { LLMRequestHelpers, LLMRequestOptions } from "./api/LLMRequest.js";
 
+import { defaultHTMLPromptBuilder } from "./api/formats/html-blocks/defaultHTMLPromptBuilder.js";
 import { htmlBlockLLMFormat } from "./api/formats/html-blocks/htmlBlocks.js";
-import { PromptBuilder } from "./api/formats/PromptBuilder.js";
-import { LLMFormat, llmFormats } from "./api/index.js";
+import {
+  defaultHTMLPromptDataBuilder,
+  HTMLPromptData,
+} from "./api/formats/html-blocks/htmlPromptData.js";
+import {
+  BlockNoteUserPrompt,
+  PromptBuilder,
+  PromptInputDataBuilder,
+} from "./api/formats/PromptBuilder.js";
 import { LLMResponse } from "./api/LLMResponse.js";
 import { trimEmptyBlocks } from "./api/promptHelpers/trimEmptyBlocks.js";
 import { createAgentCursorPlugin } from "./plugins/AgentCursorPlugin.js";
-import { StreamToolCall } from "./streamTool/streamTool.js";
-import { StreamToolExecutor } from "./streamTool/StreamToolExecutor.js";
-import { objectStreamToOperationsResult } from "./streamTool/vercelAiSdk/util/UIMessageStreamToOperationsResult.js";
+import { setupToolCallStreaming } from "./streamTool/vercelAiSdk/util/chatHandlers.js";
 import { isEmptyParagraph } from "./util/emptyBlock.js";
-
-type MakeOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 type ReadonlyStoreApi<T> = Pick<
   StoreApi<T>,
@@ -68,35 +66,9 @@ type AIPluginState = {
   chat?: Chat<UIMessage>;
 };
 
-/**
- * configuration options for LLM calls that are shared across all calls by default
- */
-type GlobalLLMRequestOptions = {
-  /**
-   * The default data format to use for LLM calls
-   * html format is recommended, the other formats are experimental
-   * @default llmFormats.html
-   */
-  dataFormat?: LLMFormat;
-  /**
-   * A function that can be used to customize the prompt sent to the LLM
-   * @default the default prompt builder for the selected {@link dataFormat}
-   */
-  promptBuilder?: PromptBuilder;
-
-  /**
-   * Customize how your LLM backend is called.
-   * Implement this function if you want to call a backend that is not compatible with
-   * the Vercel AI SDK
-   */
-  transport: ChatTransport<UIMessage>;
-};
-
 const PLUGIN_KEY = new PluginKey(`blocknote-ai-plugin`);
 
 export class AIExtension extends BlockNoteExtension {
-  private previousRequestOptions: LLMRequestOptions | undefined;
-
   public static key(): string {
     return "ai";
   }
@@ -120,11 +92,7 @@ export class AIExtension extends BlockNoteExtension {
    * These options are used by default across all LLM calls when calling {@link doLLMRequest}
    */
   public readonly options: ReturnType<
-    ReturnType<
-      typeof createStore<
-        MakeOptional<Required<GlobalLLMRequestOptions>, "promptBuilder">
-      >
-    >
+    ReturnType<typeof createStore<LLMRequestHelpers>>
   >;
 
   /**
@@ -132,7 +100,7 @@ export class AIExtension extends BlockNoteExtension {
    */
   constructor(
     public readonly editor: BlockNoteEditor<any, any, any>,
-    options: GlobalLLMRequestOptions & {
+    options: LLMRequestHelpers & {
       /**
        * The name and color of the agent cursor
        *
@@ -143,10 +111,7 @@ export class AIExtension extends BlockNoteExtension {
   ) {
     super();
 
-    this.options = createStore<
-      MakeOptional<Required<GlobalLLMRequestOptions>, "promptBuilder">
-    >()((_set) => ({
-      dataFormat: llmFormats.html,
+    this.options = createStore<LLMRequestHelpers>()((_set) => ({
       ...options,
     }));
 
@@ -194,7 +159,6 @@ export class AIExtension extends BlockNoteExtension {
    * Close the AI menu
    */
   public closeAIMenu() {
-    this.previousRequestOptions = undefined;
     this._store.setState({
       aiMenuState: "closed",
       chat: undefined,
@@ -202,6 +166,7 @@ export class AIExtension extends BlockNoteExtension {
     this.editor.setForceSelectionVisible(false);
     this.editor.isEditable = true;
     this.editor.focus();
+    // TODO: clear chat?
   }
 
   /**
@@ -279,18 +244,23 @@ export class AIExtension extends BlockNoteExtension {
     const state = this.store.getState().aiMenuState;
     if (
       state === "closed" ||
-      state.status !== "error" ||
-      !this.previousRequestOptions
+      state.status !== "error"
+      // !this.previousRequestOptions TODO
     ) {
       throw new Error("retry() is only valid when a previous response failed");
     }
+    debugger;
     if (
       state.error instanceof APICallError ||
       state.error instanceof RetryError
     ) {
+      // TODO
       // retry the previous call as-is, as there was a network error
-      return this.callLLM(this.previousRequestOptions);
+      // return this.callLLM();
+      throw new Error("retry() is not implemented");
     } else {
+      // TODO
+
       // an error occurred while parsing / executing the previous LLM call
       // give the LLM a chance to fix the error
       // (Possible improvement: maybe this should be a system prompt instead of the userPrompt)
@@ -298,11 +268,11 @@ export class AIExtension extends BlockNoteExtension {
         state.error instanceof Error
           ? state.error.message
           : String(state.error);
-
-      return this.callLLM({
-        userPrompt: `An error occured: ${errorMessage}
-            Please retry the previous user request.`,
-      });
+      throw new Error("retry() is not implemented");
+      // return this.callLLM({
+      //   userPrompt: `An error occured: ${errorMessage}
+      //       Please retry the previous user request.`,
+      // });
     }
   }
 
@@ -354,53 +324,71 @@ export class AIExtension extends BlockNoteExtension {
     }
   }
 
+  // move executor
+  // tool call results
+  // errors
+  // TODO: retries
+
   /**
    * Execute a call to an LLM and apply the result to the editor
    */
-  public async callLLM(
-    opts: LLMRequestOptions,
-    transport?: ChatTransport<UIMessage>,
-  ) {
+  public async callLLM(opts: LLMRequestOptions) {
     this.setAIResponseStatus("thinking");
     this.editor.forkYDocPlugin?.fork();
 
     let ret: LLMResponse | undefined;
     try {
       if (!this.store.getState().chat) {
+        // TODO: what if transport changes?
         this._store.setState({
           chat: new Chat<UIMessage>({
-            transport: transport || this.options.getState().transport,
+            sendAutomaticallyWhen: () => false,
+            transport: opts.transport || this.options.getState().transport,
           }),
         });
       }
       const chat = this.store.getState().chat!;
+      const globalOpts = this.options.getState();
 
       const {
-        dataFormat,
+        // TODO: how to pass extra metadata / body
+        userPrompt,
         useSelection,
         deleteEmptyCursorBlock,
-        userPrompt,
-        withDelays,
-        defaultStreamTools,
-        onBlockUpdate,
-        onStart,
+        streamToolsProvider,
+
+        promptBuilder,
+
+        transport,
         ...rest
       } = {
-        dataFormat: htmlBlockLLMFormat,
-        withDelays: true,
+        deleteEmptyCursorBlock: true, // default true
+        ...globalOpts,
         ...opts,
       };
 
-      // ADD MESSAGES
+      let { messageSender } = {
+        ...rest,
+      };
 
-      const promptBuilder =
-        opts.promptBuilder ?? dataFormat.defaultPromptBuilder;
+      if (messageSender && promptBuilder) {
+        throw new Error(
+          "messageSender and promptBuilder cannot be used together",
+        );
+      }
+
+      if (!messageSender) {
+        messageSender = promptMessageSender(
+          promptBuilder ?? defaultHTMLPromptBuilder,
+          defaultHTMLPromptDataBuilder,
+        );
+      }
 
       const cursorBlock = useSelection
         ? undefined
         : this.editor.getTextCursorPosition().block;
 
-      const deleteCursorBlock: string | undefined =
+      const emptyCursorBlockToDelete: string | undefined =
         cursorBlock &&
         deleteEmptyCursorBlock &&
         isEmptyParagraph(cursorBlock) &&
@@ -412,26 +400,18 @@ export class AIExtension extends BlockNoteExtension {
         ? this.editor.getSelectionCutBlocks()
         : undefined;
 
-      const messages = await promptBuilder(this.editor, {
-        selectedBlocks: selectionInfo?.blocks,
-        userPrompt,
-        excludeBlockIds: deleteCursorBlock ? [deleteCursorBlock] : undefined,
-      });
-
-      chat.messages.push(...messages);
-
-      // SEND MESSAGES
-
-      const streamTools = dataFormat.getStreamTools(
+      // TODO, works with retry?
+      const streamTools = (
+        streamToolsProvider ?? htmlBlockLLMFormat.getStreamToolsProvider()
+      ).getStreamTools(
         this.editor,
-        withDelays,
-        defaultStreamTools,
         selectionInfo
           ? {
               from: selectionInfo._meta.startPos,
               to: selectionInfo._meta.endPos,
             }
           : undefined,
+        // TODO: remove?
         (blockId: string) => {
           // NOTE: does this setState with an anon object trigger unnecessary re-renders?
           this._store.setState({
@@ -440,57 +420,30 @@ export class AIExtension extends BlockNoteExtension {
               status: "ai-writing",
             },
           });
-          onBlockUpdate?.(blockId);
         },
       );
 
-      const stream = new TransformStream<
-        DeepPartial<{ operations: StreamToolCall<any>[] }>
-      >();
-
-      const operationsStream = objectStreamToOperationsResult(
-        stream.readable,
-        streamTools,
-      );
-
-      const writer = stream.writable.getWriter();
-      const unsub = chat["~registerMessagesCallback"](() => {
-        // TODO: catch errors in this method
+      const executePromise = setupToolCallStreaming(streamTools, chat, () => {
         this.setAIResponseStatus("ai-writing");
-        onStart?.();
-
-        const lastPart =
-          chat.lastMessage?.parts[chat.lastMessage.parts.length - 1];
-        if (lastPart?.type === "tool-operations") {
-          if (lastPart.state === "input-streaming") {
-            const input = lastPart.input;
-            if (input !== undefined) {
-              writer.write(input as any);
-            }
-          } else if (lastPart.state === "input-available") {
-            const input = lastPart.input;
-            if (input === undefined) {
-              throw new Error("input is undefined");
-            }
-            writer.write(input as any);
-            writer.close();
-            unsub(); // TODO: also somewhere else?
-          }
+        if (emptyCursorBlockToDelete) {
+          this.editor.removeBlocks([emptyCursorBlockToDelete]);
         }
       });
 
-      const executor = new StreamToolExecutor(streamTools);
-      // await executor.waitTillEnd();
-      const executePromise = executor.execute(operationsStream);
-
-      await chat.sendMessage(undefined, {
-        metadata: {
+      await messageSender.sendMessage({
+        editor: this.editor,
+        chat,
+        blockNoteUserPrompt: {
+          userPrompt,
+          selectedBlocks: selectionInfo?.blocks,
           streamTools,
+          emptyCursorBlockToDelete,
         },
       });
 
+      // TODO: what if no tool calls were made?
+      // TODO: add tool result?
       await executePromise;
-      // TODO: unsub
 
       this.setAIResponseStatus("user-reviewing");
     } catch (e) {
@@ -523,4 +476,35 @@ export function createAIExtension(
  */
 export function getAIExtension(editor: BlockNoteEditor<any, any, any>) {
   return editor.extension(AIExtension);
+}
+
+export type MessageSender = {
+  sendMessage: (opts: {
+    editor: BlockNoteEditor<any, any, any>;
+    chat: Chat<UIMessage>;
+    blockNoteUserPrompt: BlockNoteUserPrompt;
+  }) => Promise<void>;
+};
+
+function promptMessageSender<E = HTMLPromptData>(
+  promptBuilder: PromptBuilder<E>,
+  promptInputDataBuilder: PromptInputDataBuilder<E>,
+): MessageSender {
+  return {
+    async sendMessage(opts) {
+      const promptData = await promptInputDataBuilder(
+        opts.editor,
+        opts.blockNoteUserPrompt,
+      );
+
+      opts.chat.messages = await promptBuilder(promptData);
+
+      // TBD: call sendMessage?
+      return opts.chat.sendMessage(undefined, {
+        metadata: {
+          streamTools: opts.blockNoteUserPrompt.streamTools,
+        },
+      });
+    },
+  };
 }

@@ -1,22 +1,10 @@
 import { UIMessage } from "ai";
-import { trimEmptyBlocks } from "../../promptHelpers/trimEmptyBlocks.js";
 import type { PromptBuilder } from "../PromptBuilder.js";
-import {
-  getDataForPromptNoSelection,
-  getDataForPromptWithSelection,
-} from "./htmlPromptData.js";
+import { HTMLPromptData } from "./htmlPromptData.js";
 
-function promptManipulateSelectionHTMLBlocks(opts: {
-  userPrompt: string;
-  htmlSelectedBlocks: {
-    id: string;
-    block: string;
-  }[];
-  htmlDocument: {
-    block: string;
-  }[];
-  isEmptyDocument: boolean;
-}): Array<UIMessage> {
+function promptManipulateSelectionHTMLBlocks(
+  opts: Exclude<HTMLPromptData, { selection: false }>,
+): Array<UIMessage> {
   return [
     {
       role: "system",
@@ -78,19 +66,9 @@ function promptManipulateSelectionHTMLBlocks(opts: {
   ];
 }
 
-function promptManipulateDocumentUseHTMLBlocks(opts: {
-  userPrompt: string;
-  htmlBlocks: Array<
-    | {
-        id: string;
-        block: string;
-      }
-    | {
-        cursor: true;
-      }
-  >;
-  isEmptyDocument: boolean;
-}): Array<UIMessage> {
+function promptManipulateDocumentUseHTMLBlocks(
+  opts: Exclude<HTMLPromptData, { selection: true }>,
+): Array<UIMessage> {
   return [
     {
       role: "system",
@@ -158,145 +136,12 @@ function promptManipulateDocumentUseHTMLBlocks(opts: {
   ];
 }
 
-export const defaultHTMLPromptBuilder: PromptBuilder = async (editor, opts) => {
-  const isEmptyDocument = trimEmptyBlocks(editor.document).length === 0;
-
-  if (opts.selectedBlocks) {
-    const data = await getDataForPromptWithSelection(editor, {
-      selectedBlocks: opts.selectedBlocks,
-    });
-
-    if (opts.previousMessages) {
-      return [
-        ...opts.previousMessages,
-        {
-          role: "system",
-          id: "html-previous-response",
-          parts: [
-            {
-              type: "text",
-              text: `After processing the previous response, this is the updated selection.
-            Ignore previous documents, you MUST issue operations against this latest version of the document:`,
-            },
-          ],
-        },
-        {
-          role: "system",
-          id: "html-previous-response-json",
-          parts: [
-            {
-              type: "text",
-              text: JSON.stringify(data.htmlSelectedBlocks),
-            },
-          ],
-        },
-        {
-          role: "system",
-          id: "html-previous-response-document",
-          parts: [
-            {
-              type: "text",
-              text: "This is the updated entire document:",
-            },
-          ],
-        },
-        {
-          role: "system",
-          id: "html-previous-response-document-json",
-          parts: [
-            {
-              type: "text",
-              text: JSON.stringify(data.htmlDocument),
-            },
-          ],
-        },
-        {
-          role: "system",
-          id: "html-previous-response-user-prompt",
-          parts: [
-            {
-              type: "text",
-              text: `You SHOULD use "update" operations to update blocks you added / edited previously 
-          (unless the user explicitly asks you otherwise to add or delete other blocks).
-          
-          The user now asks you to do the following:`,
-            },
-          ],
-        },
-        {
-          role: "user",
-          id: "html-previous-response-user-prompt",
-          parts: [
-            {
-              type: "text",
-              text: opts.userPrompt,
-            },
-          ],
-        },
-      ];
-    }
-
-    return promptManipulateSelectionHTMLBlocks({
-      ...data,
-      userPrompt: opts.userPrompt,
-      isEmptyDocument,
-    });
+export const defaultHTMLPromptBuilder: PromptBuilder<HTMLPromptData> = async (
+  inputData,
+) => {
+  if (inputData.selection) {
+    return promptManipulateSelectionHTMLBlocks(inputData);
   } else {
-    const data = await getDataForPromptNoSelection(editor, opts);
-    if (opts.previousMessages) {
-      return [
-        ...opts.previousMessages,
-        {
-          role: "system",
-          id: "html-previous-response",
-          parts: [
-            {
-              type: "text",
-              text: `After processing the previous response, this is the updated document.
-            Ignore previous documents, you MUST issue operations against this latest version of the document:`,
-            },
-          ],
-        },
-        {
-          role: "system",
-          id: "html-previous-response-json",
-          parts: [
-            {
-              type: "text",
-              text: JSON.stringify(data.htmlBlocks),
-            },
-          ],
-        },
-        {
-          role: "system",
-          id: "html-previous-response-user-prompt",
-          parts: [
-            {
-              type: "text",
-              text: `You SHOULD use "update" operations to update blocks you added / edited previously 
-          (unless the user explicitly asks you otherwise to add or delete other blocks).
-          
-          The user now asks you to do the following:`,
-            },
-          ],
-        },
-        {
-          role: "user",
-          id: "html-previous-response-user-prompt",
-          parts: [
-            {
-              type: "text",
-              text: opts.userPrompt,
-            },
-          ],
-        },
-      ];
-    }
-
-    return promptManipulateDocumentUseHTMLBlocks({
-      ...data,
-      userPrompt: opts.userPrompt,
-      isEmptyDocument,
-    });
+    return promptManipulateDocumentUseHTMLBlocks(inputData);
   }
 };
