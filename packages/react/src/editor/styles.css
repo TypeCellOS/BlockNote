@@ -140,74 +140,92 @@
 }
 
 /* Highlight color styling */
+[data-style-type="textColor"][data-value="gray"],
 [data-text-color="gray"] {
   color: var(--bn-colors-highlights-gray-text);
 }
 
+[data-style-type="textColor"][data-value="brown"],
 [data-text-color="brown"] {
   color: var(--bn-colors-highlights-brown-text);
 }
 
+[data-style-type="textColor"][data-value="red"],
 [data-text-color="red"] {
   color: var(--bn-colors-highlights-red-text);
 }
 
+[data-style-type="textColor"][data-value="orange"],
 [data-text-color="orange"] {
   color: var(--bn-colors-highlights-orange-text);
 }
 
+[data-style-type="textColor"][data-value="yellow"],
 [data-text-color="yellow"] {
   color: var(--bn-colors-highlights-yellow-text);
 }
 
+[data-style-type="textColor"][data-value="green"],
 [data-text-color="green"] {
   color: var(--bn-colors-highlights-green-text);
 }
 
+[data-style-type="textColor"][data-value="blue"],
 [data-text-color="blue"] {
   color: var(--bn-colors-highlights-blue-text);
 }
 
+[data-style-type="textColor"][data-value="purple"],
 [data-text-color="purple"] {
   color: var(--bn-colors-highlights-purple-text);
 }
 
+[data-style-type="textColor"][data-value="pink"],
 [data-text-color="pink"] {
   color: var(--bn-colors-highlights-pink-text);
 }
 
+[data-style-type="backgroundColor"][data-value="gray"],
 [data-background-color="gray"] {
   background-color: var(--bn-colors-highlights-gray-background);
 }
 
+[data-style-type="backgroundColor"][data-value="brown"],
 [data-background-color="brown"] {
   background-color: var(--bn-colors-highlights-brown-background);
 }
 
+[data-style-type="backgroundColor"][data-value="red"],
 [data-background-color="red"] {
   background-color: var(--bn-colors-highlights-red-background);
 }
 
+[data-style-type="backgroundColor"][data-value="orange"],
 [data-background-color="orange"] {
   background-color: var(--bn-colors-highlights-orange-background);
 }
 
+[data-style-type="backgroundColor"][data-value="yellow"],
 [data-background-color="yellow"] {
   background-color: var(--bn-colors-highlights-yellow-background);
 }
 
+[data-style-type="backgroundColor"][data-value="green"],
 [data-background-color="green"] {
   background-color: var(--bn-colors-highlights-green-background);
 }
 
+[data-style-type="backgroundColor"][data-value="blue"],
 [data-background-color="blue"] {
   background-color: var(--bn-colors-highlights-blue-background);
 }
 
+[data-style-type="backgroundColor"][data-value="purple"],
 [data-background-color="purple"] {
   background-color: var(--bn-colors-highlights-purple-background);
 }
 
+[data-style-type="backgroundColor"][data-value="pink"],
 [data-background-color="pink"] {
   background-color: var(--bn-colors-highlights-pink-background);
 }

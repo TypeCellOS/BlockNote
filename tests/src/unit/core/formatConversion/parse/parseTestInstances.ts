@@ -870,14 +870,14 @@ With Hard Break</p>
   {
     testCase: {
       name: "textColorStyle",
-      content: `<p><span style="color: blue">Blue Text</span> <span style="color: var(--blocknote-text-blue)">Blue Text</span></p>`,
+      content: `<p><span style="color: blue">Blue Text</span> <span data-style-type="textColor" data-value="blue">Blue Text</span></p>`,
     },
     executeTest: testParseHTML,
   },
   {
     testCase: {
       name: "backgroundColorStyle",
-      content: `<p><span style="background-color: blue">Blue Background</span> <span style="background-color: var(--blocknote-background-blue)">Blue Background</span></p>`,
+      content: `<p><span style="background-color: blue">Blue Background</span> <span data-style-type="backgroundColor" data-value="blue">Blue Background</span></p>`,
     },
     executeTest: testParseHTML,
   },
