@@ -1,3 +1,26 @@
+## 0.38.0 (2025-09-16)
+
+### 🚀 Features
+
+- Custom schemas for comment editors ([#1976](https://github.com/TypeCellOS/BlockNote/pull/1976))
+
+### 🩹 Fixes
+
+- Suggestion menu positioning ([#1975](https://github.com/TypeCellOS/BlockNote/pull/1975))
+- doLLMRequest fails when deleting a non-existent block ([#1982](https://github.com/TypeCellOS/BlockNote/pull/1982))
+- file block resize handles not working with touch inputs ([#1981](https://github.com/TypeCellOS/BlockNote/pull/1981))
+- get pdf example working again ([a90ae4d58](https://github.com/TypeCellOS/BlockNote/commit/a90ae4d58))
+- better markdown & html paste, make methods synchronous ([#1957](https://github.com/TypeCellOS/BlockNote/pull/1957))
+- Improve setting text for custom file blocks ([#1984](https://github.com/TypeCellOS/BlockNote/pull/1984))
+- **react:** close link popover on submit in static formatting toolbar #1696 ([#1997](https://github.com/TypeCellOS/BlockNote/pull/1997), [#1696](https://github.com/TypeCellOS/BlockNote/issues/1696))
+
+### ❤️ Thank You
+
+- dsriva03 @dsriva03
+- Héctor Zhuang @Hector-Zhuang
+- Matthew Lipski @matthewlipski
+- Nick the Sick
+
 ## 0.37.0 (2025-08-29)
 
 ### 🚀 Features
