@@ -99,7 +99,7 @@ export class FormattingToolbarView implements PluginView {
       return;
     }
 
-    const editorWrapper = this.pmView.dom.parentElement!.parentElement!;
+    const editorWrapper = this.pmView.dom.parentElement!;
 
     // Checks if the focus is moving to an element outside the editor. If it is,
     // the toolbar is hidden.
@@ -127,7 +127,7 @@ export class FormattingToolbarView implements PluginView {
     if (!element) {
       return false;
     }
-    const editorWrapper = this.pmView.dom.parentElement!.parentElement!;
+    const editorWrapper = this.pmView.dom.parentElement!;
     if (!editorWrapper) {
       return false;
     }

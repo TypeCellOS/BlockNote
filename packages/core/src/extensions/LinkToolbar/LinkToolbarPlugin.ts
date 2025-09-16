@@ -119,7 +119,7 @@ class LinkToolbarView implements PluginView {
   };
 
   clickHandler = (event: MouseEvent) => {
-    const editorWrapper = this.pmView.dom.parentElement!.parentElement!;
+    const editorWrapper = this.pmView.dom.parentElement!;
 
     if (
       // Toolbar is open.

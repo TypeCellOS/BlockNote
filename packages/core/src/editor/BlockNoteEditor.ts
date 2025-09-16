@@ -1061,12 +1061,13 @@ export class BlockNoteEditor<
     return extension;
   }
   /**
-   * Mount the editor to a parent DOM element.
+   * Mount the editor to a DOM element.
    *
    * @warning Not needed to call manually when using React, use BlockNoteView to take care of mounting
    */
-  public mount = (parentElement: HTMLElement) => {
-    this._tiptapEditor.mount(parentElement);
+  public mount = (element: HTMLElement) => {
+    // TODO: Fix typing for this in a TipTap PR
+    this._tiptapEditor.mount({ mount: element } as any);
   };
 
   /**
