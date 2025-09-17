@@ -4,7 +4,6 @@ import { camelToDataKebab } from "../../util/string.js";
 import { PropSchema, Props } from "../propTypes.js";
 import {
   CustomInlineContentConfig,
-  InlineContentConfig,
   InlineContentImplementation,
   InlineContentSchemaFromSpecs,
   InlineContentSpec,
@@ -43,7 +42,7 @@ export function addInlineContentAttributes<
     })
     .forEach(([prop, value]) => element.dom.setAttribute(prop, value));
 
-  if (element.contentDOM !== undefined) {
+  if (element.contentDOM) {
     element.contentDOM.setAttribute("data-editable", "");
   }
 
@@ -73,20 +72,29 @@ export function addInlineContentKeyboardShortcuts<
 
 // This helper function helps to instantiate a InlineContentSpec with a
 // config and implementation that conform to the type of Config
-export function createInternalInlineContentSpec<T extends InlineContentConfig>(
+export function createInternalInlineContentSpec<
+  const T extends CustomInlineContentConfig,
+>(
   config: T,
-  implementation: InlineContentImplementation<T>,
-) {
+  implementation: InlineContentImplementation<NoInfer<T>>,
+): InlineContentSpec<T> {
   return {
     config,
     implementation,
-  } satisfies InlineContentSpec<T>;
+  } as const;
 }
 
 export function createInlineContentSpecFromTipTapNode<
   T extends Node,
   P extends PropSchema,
->(node: T, propSchema: P) {
+>(
+  node: T,
+  propSchema: P,
+  implementation: Omit<
+    InlineContentImplementation<CustomInlineContentConfig>,
+    "node"
+  >,
+) {
   return createInternalInlineContentSpec(
     {
       type: node.name as T["name"],
@@ -94,6 +102,7 @@ export function createInlineContentSpecFromTipTapNode<
       content: node.config.content === "inline*" ? "styled" : "none",
     },
     {
+      ...implementation,
       node,
     },
   );

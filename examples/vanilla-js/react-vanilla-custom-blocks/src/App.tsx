@@ -181,9 +181,9 @@ const bracketsParagraphBlock = createBlockSpec(
 const schema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
-    alert: alertBlock,
-    bracketsParagraph: bracketsParagraphBlock,
-    simpleImage: simpleImageBlock,
+    alert: alertBlock(),
+    bracketsParagraph: bracketsParagraphBlock(),
+    simpleImage: simpleImageBlock(),
   },
 });
 

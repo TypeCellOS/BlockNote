@@ -184,18 +184,15 @@ export const en = {
     comment_reply: "Add comment...",
   } as Record<string | "default" | "emptyDocument", string | undefined>,
   file_blocks: {
-    image: {
-      add_button_text: "Add image",
-    },
-    video: {
-      add_button_text: "Add video",
-    },
-    audio: {
-      add_button_text: "Add audio",
-    },
-    file: {
-      add_button_text: "Add file",
-    },
+    add_button_text: {
+      image: "Add image",
+      video: "Add video",
+      audio: "Add audio",
+      file: "Add file",
+    } as Record<string, string>,
+  },
+  toggle_blocks: {
+    add_block_button: "Empty toggle. Click to add a block.",
   },
   // from react package:
   side_menu: {

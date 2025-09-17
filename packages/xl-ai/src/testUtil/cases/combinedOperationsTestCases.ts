@@ -1,4 +1,5 @@
-import { BlockNoteEditor, getBlockInfo, getNodeById } from "@blocknote/core";
+// import { BlockNoteEditor, getBlockInfo, getNodeById } from "@blocknote/core";
+import { getBlockInfo, getNodeById } from "@blocknote/core";
 import { getEditorWithFormattingAndMentions } from "./editors/formattingAndMentions.js";
 import { DocumentOperationTestCase } from "./index.js";
 
@@ -20,7 +21,7 @@ export const combinedOperationsTestCases: DocumentOperationTestCase[] = [
       },
     ],
     userPrompt:
-      "add a new paragraph with the text 'You look great today!' after the first paragraph and translate 'Hello, world' to dutch",
+      "add a new paragraph with the text 'You look great today!' after the first paragraph and translate first 'Hello, world' to dutch",
   },
   {
     editor: getEditorWithFormattingAndMentions,
@@ -42,8 +43,9 @@ export const combinedOperationsTestCases: DocumentOperationTestCase[] = [
         },
       },
     ],
-    getTestSelection: (editor: BlockNoteEditor<any, any, any>) => {
+    getTestSelection: (editor) => {
       const posInfo = getNodeById("ref2", editor.prosemirrorState.doc)!;
+
       const block = getBlockInfo(posInfo);
       if (!block.isBlockContainer) {
         throw new Error("Block is not a block container");

@@ -1,38 +1,63 @@
-.wrapper {
+.views {
+  container-name: views;
+  container-type: inline-size;
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
   height: 100%;
+  padding: 8px;
 }
 
-@media (max-width: 800px) {
-  .wrapper {
-    flex-direction: column;
-  }
-
-  .editor {
-    max-height: 500px;
-    overflow-y: scroll;
-  }
-}
-
-.wrapper > div {
-  flex: 1;
-}
-
-.email {
-  min-height: 500px;
+.view-wrapper {
   display: flex;
-  align-items: stretch;
+  flex-direction: column;
+  height: calc(50% - 4px);
+  width: 100%;
 }
 
-/* hack to get react-email to show on website */
-@tailwind base;
-@layer base {
-  .email [hidden]:where(:not([hidden="until-found"])) {
-    display: block !important;
+@container views (width > 1024px) {
+  .view-wrapper {
+    height: 100%;
+    width: calc(50% - 4px);
   }
 }
 
-.editor.bordered {
-  border: 1px solid gray;
+.view-label {
+  color: #0090ff;
+  display: flex;
+  font-size: 12px;
+  font-weight: bold;
+  justify-content: space-between;
+  margin-inline: 16px;
+}
+
+.view-label-download {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.view {
+  border: solid #0090ff 1px;
+  border-radius: 16px;
+  flex: 1;
+  height: 0;
+  padding: 8px;
+}
+
+.view .bn-container {
+  height: 100%;
+  margin: 0;
+  max-width: none;
+  padding: 0;
+}
+
+.view .bn-editor {
+  height: 100%;
+  overflow: auto;
+}
+
+.view .email {
+  height: 100%;
+  overflow: auto;
 }

@@ -186,18 +186,15 @@ export const he: Dictionary = {
     comment_reply: "הוסף תגובה...",
   } as Record<string | "default" | "emptyDocument", string | undefined>,
   file_blocks: {
-    image: {
-      add_button_text: "הוסף תמונה",
-    },
-    video: {
-      add_button_text: "הוסף וידאו",
-    },
-    audio: {
-      add_button_text: "הוסף אודיו",
-    },
-    file: {
-      add_button_text: "הוסף קובץ",
-    },
+    add_button_text: {
+      image: "הוסף תמונה",
+      video: "הוסף וידאו",
+      audio: "הוסף אודיו",
+      file: "הוסף קובץ",
+    } as Record<string, string>,
+  },
+  toggle_blocks: {
+    add_block_button: "מתג ריק. לחץ כדי להוסיף בלוק.",
   },
   side_menu: {
     add_block_label: "הוסף בלוק",

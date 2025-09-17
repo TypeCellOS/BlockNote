@@ -8,7 +8,7 @@ import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { CommentEditor } from "./CommentEditor.js";
 import { Comments } from "./Comments.js";
-import { schema } from "./schema.js";
+import { defaultCommentEditorSchema } from "./defaultCommentEditorSchema.js";
 
 export type ThreadProps = {
   /**
@@ -81,7 +81,7 @@ export const Thread = ({
         emptyDocument: dict.placeholders.comment_reply,
       },
     },
-    schema,
+    schema: editor.comments.commentEditorSchema || defaultCommentEditorSchema,
   });
 
   const onNewCommentSave = useCallback(async () => {

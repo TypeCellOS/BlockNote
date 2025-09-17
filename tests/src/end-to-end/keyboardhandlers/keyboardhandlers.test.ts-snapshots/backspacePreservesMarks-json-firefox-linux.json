@@ -7,14 +7,14 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": "0",
-            "textColor": "default",
-            "backgroundColor": "default"
+            "id": "0"
           },
           "content": [
             {
               "type": "paragraph",
               "attrs": {
+                "backgroundColor": "default",
+                "textColor": "default",
                 "textAlignment": "left"
               },
               "content": [
@@ -42,14 +42,14 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": "2",
-            "textColor": "default",
-            "backgroundColor": "default"
+            "id": "2"
           },
           "content": [
             {
               "type": "paragraph",
               "attrs": {
+                "backgroundColor": "default",
+                "textColor": "default",
                 "textAlignment": "left"
               }
             }

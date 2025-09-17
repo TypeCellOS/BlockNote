@@ -1,18 +1,20 @@
 import "@blocknote/core/fonts/inter.css";
-import "@blocknote/core/style.css";
+import "@blocknote/mantine/style.css";
 
 /**
  On Server Side, you can use the ServerBlockNoteEditor to render BlockNote documents to HTML. e.g.:
 
-    import { ServerBlockNoteEditor } from "@blocknote/server-util";
+  import { ServerBlockNoteEditor } from "@blocknote/server-util";
 
-    const editor = ServerBlockNoteEditor.create();
-    const html = await editor.blocksToFullHTML(document);
+  const editor = ServerBlockNoteEditor.create();
+  const html = await editor.blocksToFullHTML(document);
 
 You can then use render this HTML as a static page or send it to the client. Make sure to include the editor stylesheets:
-
-    import "@blocknote/core/fonts/inter.css";
-    import "@blocknote/core/style.css";
+  
+  import "@blocknote/core/fonts/inter.css";
+  // Depending on the UI library you're using, you may want to use `react`, 
+  // `mantine`, etc instead of `core`.
+  import "@blocknote/core/style.css";
 
 This example has the HTML hard-coded, but shows at least how the document will be rendered when the appropriate style sheets are loaded.
  */
@@ -50,9 +52,14 @@ export default function App() {
 
   // Renders the editor instance using a React component.
   return (
-    <div className="bn-container">
+    // To make the HTML look identical to the editor, we need to add these two
+    // wrapping divs to the exported blocks. You need will need to add
+    // additional class names/attributes depend on the UI library you're using,
+    // whether you want to show light or dark more, etc. It's easiest to just
+    // check the rendered editor HTML to see what you need to add.
+    <div className="bn-container bn-mantine">
       <div
-        className="bn-default-styles"
+        className="ProseMirror bn-editor bn-default-styles"
         dangerouslySetInnerHTML={{ __html: html }}
       />
     </div>

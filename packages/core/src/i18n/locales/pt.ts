@@ -176,18 +176,15 @@ export const pt: Dictionary = {
     comment_reply: "Adicionar comentário...",
   },
   file_blocks: {
-    image: {
-      add_button_text: "Adicionar imagem",
-    },
-    video: {
-      add_button_text: "Adicionar vídeo",
-    },
-    audio: {
-      add_button_text: "Adicionar áudio",
-    },
-    file: {
-      add_button_text: "Adicionar arquivo",
-    },
+    add_button_text: {
+      image: "Adicionar imagem",
+      video: "Adicionar vídeo",
+      audio: "Adicionar áudio",
+      file: "Adicionar arquivo",
+    } as Record<string, string>,
+  },
+  toggle_blocks: {
+    add_block_button: "Toggle vazio. Clique para adicionar um bloco.",
   },
   // from react package:
   side_menu: {

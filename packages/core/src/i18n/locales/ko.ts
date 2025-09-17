@@ -42,7 +42,7 @@ export const ko: Dictionary = {
       title: "접을 수 있는 제목1",
       subtext: "내용을 표시하거나 숨길 수 있는 섹션 제목(대)",
       aliases: ["h", "제목1", "h1", "대제목", "접기", "토글"],
-      group: "제목",
+      group: "소제목",
     },
     toggle_heading_2: {
       title: "접을 수 있는 제목2",
@@ -197,18 +197,15 @@ export const ko: Dictionary = {
     comment_reply: "댓글 추가...",
   },
   file_blocks: {
-    image: {
-      add_button_text: "이미지 추가",
-    },
-    video: {
-      add_button_text: "비디오 추가",
-    },
-    audio: {
-      add_button_text: "오디오 추가",
-    },
-    file: {
-      add_button_text: "파일 추가",
-    },
+    add_button_text: {
+      image: "이미지 추가",
+      video: "비디오 추가",
+      audio: "오디오 추가",
+      file: "파일 추가",
+    } as Record<string, string>,
+  },
+  toggle_blocks: {
+    add_block_button: "비어 있는 토글입니다. 클릭하여 블록을 추가하세요.",
   },
   // from react package:
   side_menu: {

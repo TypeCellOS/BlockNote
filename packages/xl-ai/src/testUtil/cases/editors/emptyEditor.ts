@@ -12,6 +12,5 @@ export function getEmptyEditor() {
     trailingBlock: false,
     extensions: [createAIExtension({})],
   });
-  editor._tiptapEditor.forceEnablePlugins();
   return editor;
 }

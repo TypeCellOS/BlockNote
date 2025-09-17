@@ -184,18 +184,15 @@ export const sk = {
     comment_reply: "Pridať komentár...",
   } as Record<string | "default" | "emptyDocument", string | undefined>,
   file_blocks: {
-    image: {
-      add_button_text: "Pridať obrázok",
-    },
-    video: {
-      add_button_text: "Pridať video",
-    },
-    audio: {
-      add_button_text: "Pridať audio",
-    },
-    file: {
-      add_button_text: "Pridať súbor",
-    },
+    add_button_text: {
+      image: "Pridať obrázok",
+      video: "Pridať video",
+      audio: "Pridať audio",
+      file: "Pridať súbor",
+    } as Record<string, string>,
+  },
+  toggle_blocks: {
+    add_block_button: "Prázdne prepínanie. Kliknite pre pridanie bloku.",
   },
   side_menu: {
     add_block_label: "Pridať blok",

@@ -175,18 +175,16 @@ export const pl: Dictionary = {
     comment_reply: "Dodaj komentarz...",
   },
   file_blocks: {
-    image: {
-      add_button_text: "Dodaj zdjęcie",
-    },
-    video: {
-      add_button_text: "Dodaj wideo",
-    },
-    audio: {
-      add_button_text: "Dodaj audio",
-    },
-    file: {
-      add_button_text: "Dodaj plik",
-    },
+    add_button_text: {
+      image: "Dodaj zdjęcie",
+      video: "Dodaj wideo",
+      audio: "Dodaj audio",
+      file: "Dodaj plik",
+    } as Record<string, string>,
+  },
+  toggle_blocks: {
+    add_block_button:
+      "Brak bloków do rozwinięcia. Kliknij, aby dodać pierwszego.",
   },
   side_menu: {
     add_block_label: "Dodaj blok",

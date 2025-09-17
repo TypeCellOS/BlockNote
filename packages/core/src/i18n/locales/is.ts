@@ -198,18 +198,15 @@ export const is: Dictionary = {
     comment_reply: "Bæta við athugasemd...",
   },
   file_blocks: {
-    image: {
-      add_button_text: "Bæta við mynd",
-    },
-    video: {
-      add_button_text: "Bæta við myndbandi",
-    },
-    audio: {
-      add_button_text: "Bæta við hljóði",
-    },
-    file: {
-      add_button_text: "Bæta við skrá",
-    },
+    add_button_text: {
+      image: "Bæta við mynd",
+      video: "Bæta við myndbandi",
+      audio: "Bæta við hljóði",
+      file: "Bæta við skrá",
+    } as Record<string, string>,
+  },
+  toggle_blocks: {
+    add_block_button: "Tóm fellilína. Smelltu til að bæta við blokk.",
   },
   side_menu: {
     add_block_label: "Bæta við blokki",

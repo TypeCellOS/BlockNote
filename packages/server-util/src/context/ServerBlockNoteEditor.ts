@@ -89,10 +89,7 @@ export class ServerBlockNoteEditor<
   protected constructor(
     options: Partial<BlockNoteEditorOptions<any, any, any>>,
   ) {
-    this.editor = BlockNoteEditor.create({
-      ...options,
-      _headless: true,
-    });
+    this.editor = BlockNoteEditor.create(options) as any;
   }
 
   /** PROSEMIRROR / BLOCKNOTE conversions */
@@ -262,7 +259,7 @@ export class ServerBlockNoteEditor<
   public async tryParseHTMLToBlocks(
     html: string,
   ): Promise<Block<BSchema, ISchema, SSchema>[]> {
-    return this._withJSDOM(() => {
+    return this._withJSDOM(async () => {
       return this.editor.tryParseHTMLToBlocks(html);
     });
   }

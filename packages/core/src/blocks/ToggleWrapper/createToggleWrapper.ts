@@ -28,7 +28,7 @@ export const createToggleWrapper = (
   ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
   destroy?: () => void;
 } => {
-  if ("isToggleable" in block.props && !block.props.isToggleable) {
+  if (!("isToggleable" in block.props) || !block.props.isToggleable) {
     return {
       dom: renderedElement,
     };
@@ -77,7 +77,8 @@ export const createToggleWrapper = (
   const toggleAddBlockButton = document.createElement("button");
   toggleAddBlockButton.className = "bn-toggle-add-block-button";
   toggleAddBlockButton.type = "button";
-  toggleAddBlockButton.textContent = "Empty toggle. Click to add a block.";
+  toggleAddBlockButton.textContent =
+    editor.dictionary.toggle_blocks.add_block_button;
   const toggleAddBlockButtonMouseDown = (event: MouseEvent) =>
     event.preventDefault();
   toggleAddBlockButton.addEventListener(

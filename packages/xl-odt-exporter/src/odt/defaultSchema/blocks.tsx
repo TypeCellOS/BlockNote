@@ -1,10 +1,10 @@
 import {
   BlockFromConfig,
   BlockMapping,
+  createPageBreakBlockConfig,
   DefaultBlockSchema,
   DefaultProps,
   mapTableCell,
-  pageBreakSchema,
   StyledText,
   TableCell,
 } from "@blocknote/core";
@@ -170,9 +170,9 @@ const wrapWithLists = (
 };
 
 export const odtBlockMappingForDefaultSchema: BlockMapping<
-  DefaultBlockSchema &
-    typeof pageBreakSchema.blockSchema &
-    typeof multiColumnSchema.blockSchema,
+  DefaultBlockSchema & {
+    pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
+  } & typeof multiColumnSchema.blockSchema,
   any,
   any,
   React.ReactNode,

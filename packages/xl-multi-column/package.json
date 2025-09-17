@@ -8,8 +8,8 @@
     "url": "git+https://github.com/TypeCellOS/BlockNote.git",
     "directory": "packages/xl-multi-column"
   },
-  "license": "AGPL-3.0 OR PROPRIETARY",
-  "version": "0.35.0",
+  "license": "GPL-3.0 OR PROPRIETARY",
+  "version": "0.38.0",
   "files": [
     "dist",
     "types",
@@ -51,14 +51,14 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "0.35.0",
-    "@blocknote/react": "0.35.0",
-    "@tiptap/core": "^2.12.0",
-    "prosemirror-model": "^1.25.1",
+    "@blocknote/core": "0.38.0",
+    "@blocknote/react": "0.38.0",
+    "@tiptap/core": "^3.4.3",
+    "prosemirror-model": "^1.25.3",
     "prosemirror-state": "^1.4.3",
     "prosemirror-tables": "^1.3.7",
     "prosemirror-transform": "^1.10.4",
-    "prosemirror-view": "^1.38.1",
+    "prosemirror-view": "^1.40.1",
     "react-icons": "^5.2.1"
   },
   "devDependencies": {

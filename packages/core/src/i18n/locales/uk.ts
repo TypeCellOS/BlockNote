@@ -209,18 +209,15 @@ export const uk: Dictionary = {
     comment_reply: "Додати коментар...",
   },
   file_blocks: {
-    image: {
-      add_button_text: "Додати зображення",
-    },
-    video: {
-      add_button_text: "Додати відео",
-    },
-    audio: {
-      add_button_text: "Додати аудіо",
-    },
-    file: {
-      add_button_text: "Додати файл",
-    },
+    add_button_text: {
+      image: "Додати зображення",
+      video: "Додати відео",
+      audio: "Додати аудіо",
+      file: "Додати файл",
+    } as Record<string, string>,
+  },
+  toggle_blocks: {
+    add_block_button: "Порожній перемикач. Натисніть, щоб додати блок.",
   },
   // from react package:
   side_menu: {

@@ -76,7 +76,7 @@ export async function doLLMRequest(
 
   const executePromise = setupToolCallStreaming(streamTools, chat, () => {
     onStart?.();
-    if (emptyCursorBlockToDelete) {
+    if (emptyCursorBlockToDelete && editor.getBlock(emptyCursorBlockToDelete)) {
       editor.removeBlocks([emptyCursorBlockToDelete]);
     }
   });

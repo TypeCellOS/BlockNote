@@ -1,23 +1,27 @@
-<p data-text-color="red">Paragraph 1</p>
+<p style="color: rgb(224, 62, 62);" data-text-color="red">Paragraph 1</p>
 <h2 data-level="2">Heading 1</h2>
 <ol start="2">
-  <li>
-    <p data-start="2">Numbered List Item 1</p>
+  <li data-start="2">
+    <p class="bn-inline-content">Numbered List Item 1</p>
   </li>
 </ol>
 <ul>
-  <li>
-    <p data-background-color="red">Bullet List Item 1</p>
+  <li style="background-color: rgb(251, 228, 228);" data-background-color="red">
+    <p class="bn-inline-content">Bullet List Item 1</p>
   </li>
-  <li>
-    <input type="checkbox" checked="" data-checked="true" />
+  <li data-checked="true">
+    <input type="checkbox" checked="" />
     <p class="bn-inline-content">Check List Item 1</p>
   </li>
 </ul>
-<pre>
+<pre data-language="typescript">
   <code class="bn-inline-content language-typescript" data-language="typescript">console.log("Hello World");</code>
 </pre>
 <table>
+  <colgroup>
+    <col />
+    <col />
+  </colgroup>
   <tr>
     <td colspan="1" rowspan="1">
       <p>Table Cell 1</p>

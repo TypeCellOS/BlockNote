@@ -370,7 +370,7 @@ export const examples = {
           slug: "ui-components",
         },
         readme:
-          "In this example, we add a blue text/background color and code style button to the Formatting Toolbar.\n\n**Try it out:** Select some text to open the Formatting Toolbar, and click one of the new buttons!\n\n**Relevant Docs:**\n\n- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar)\n- [Manipulating Inline Content](/docs/reference/editor/manipulating-content)\n- [Editor Setup](/docs/getting-started/editor-setup)",
+          "In this example, we add a blue text/background color and code style button to the Formatting Toolbar. We also make sure it only shows up when some text is selected.\n\n**Try it out:** Select some text to open the Formatting Toolbar, and click one of the new buttons!\n\n**Relevant Docs:**\n\n- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar)\n- [Manipulating Inline Content](/docs/reference/editor/manipulating-content)\n- [Editor Setup](/docs/getting-started/editor-setup)",
       },
       {
         projectSlug: "formatting-toolbar-block-type-items",
@@ -711,12 +711,17 @@ export const examples = {
       {
         projectSlug: "link-toolbar-buttons",
         fullSlug: "ui-components/link-toolbar-buttons",
-        pathFromRoot: "examples/03-ui-components/link-toolbar-buttons",
+        pathFromRoot: "examples/03-ui-components/16-link-toolbar-buttons",
         config: {
           playground: true,
-          docs: false,
+          docs: true,
           author: "matthewlipski",
-          tags: [],
+          tags: [
+            "Intermediate",
+            "Inline Content",
+            "UI Components",
+            "Link Toolbar",
+          ],
         },
         title: "Adding Link Toolbar Buttons",
         group: {
@@ -724,7 +729,30 @@ export const examples = {
           slug: "ui-components",
         },
         readme:
-          'In this example, we add a button to the Link Toolbar which opens a browser alert.\n\n**Try it out:** Hover the link open the Link Toolbar, and click the new "Open Alert" button!\n\n**Relevant Docs:**\n\n- [Changing the Link Toolbar](/docs/react/components/link-toolbar)\n- [Editor Setup](/docs/getting-started/editor-setup)',
+          'In this example, we add a button to the Link Toolbar which opens a browser alert.\n\n**Try it out:** Hover the link open the Link Toolbar, and click the new "Open Alert" button!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)',
+      },
+      {
+        projectSlug: "advanced-tables-2",
+        fullSlug: "ui-components/advanced-tables-2",
+        pathFromRoot: "examples/03-ui-components/17-advanced-tables-2",
+        config: {
+          playground: true,
+          docs: true,
+          author: "must",
+          tags: [
+            "Intermediate",
+            "UI Components",
+            "Tables",
+            "Appearance & Styling",
+          ],
+        },
+        title: "Advanced Tables with Calculated Columns",
+        group: {
+          pathFromRoot: "examples/03-ui-components",
+          slug: "ui-components",
+        },
+        readme:
+          'This example demonstrates advanced table features including automatic calculations. It shows how to create a table with calculated columns that automatically update when values change.\n\n## Features\n\n- **Automatic Calculations**: Quantity × Price = Total for each row\n- **Grand Total**: Automatically calculated sum of all totals\n- **Real-time Updates**: Calculations update immediately when you change quantity or price values\n- **Split cells**: Merge and split table cells\n- **Cell background color**: Color individual cells\n- **Cell text color**: Change text color in cells\n- **Table row and column headers**: Use headers for better organization\n\n## How It Works\n\nThe example uses the `onChange` event listener to detect when table content changes. When a table is updated, it automatically:\n\n1. Extracts quantity and price values from each data row\n2. Calculates the total (quantity × price) for each row\n3. Updates the total column with the calculated values\n4. Calculates and updates the grand total\n\n## Code Highlights\n\n```tsx\n<BlockNoteView\n  editor={editor}\n  onChange={(editor, { getChanges }) => {\n    const changes = getChanges();\n\n    changes.forEach((change) => {\n      if (change.type === "update" && change.block.type === "table") {\n        const updatedRows = calculateTableTotals(change.block);\n        if (updatedRows) {\n          editor.updateBlock(change.block, {\n            type: "table",\n            content: {\n              ...change.block.content,\n              rows: updatedRows as any,\n            } as any,\n          });\n        }\n      }\n    });\n  }}\n></BlockNoteView>\n```\n\n**Relevant Docs:**\n\n- [Tables](/docs/features/blocks/tables)\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Events](/docs/reference/editor/events)',
       },
     ],
   },
@@ -841,7 +869,7 @@ export const examples = {
           slug: "theming",
         },
         readme:
-          "To enable code block syntax highlighting, you can use the `codeBlock` option in the `useCreateBlockNote` hook. This is excluded by default to reduce bundle size.\n\n**Relevant Docs:**\n\n- [Code Block Syntax Highlighting](/docs/features/blocks/code-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)",
+          "To enable code block syntax highlighting, you can extend the editor's default schema with a new `codeBlock`, which you can pass options into when creating. By passing the default options from `@blocknote/code-block`, you can enable syntax highlighting. This is excluded by default to reduce bundle size.\n\n**Relevant Docs:**\n\n- [Code Block Syntax Highlighting](/docs/features/blocks/code-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Custom Schema](/docs/features/custom-schemas)",
       },
       {
         projectSlug: "custom-code-block",
@@ -867,7 +895,7 @@ export const examples = {
           slug: "theming",
         },
         readme:
-          'To configure a code block highlighting theme and language, you can use the `codeBlock` option in the `useCreateBlockNote` hook.\n\nThis allows you to configure a shiki highlighter for the code blocks of your editor, allowing you to tailor the themes and languages you would like to use.\n\nTo create a syntax highlighter, you can use the [shiki-codegen](https://shiki.style/packages/codegen) CLI for generating the code to create a syntax highlighter for your languages and themes.\n\nFor example to create a syntax highlighter using the optimized javascript engine, javascript, typescript, vue, with light and dark themes, you can run the following command:\n\n```bash\nnpx shiki-codegen --langs javascript,typescript,vue --themes light,dark --engine javascript --precompiled ./shiki.bundle.ts\n```\n\nThis will generate a `shiki.bundle.ts` file that you can use to create a syntax highlighter for your editor.\n\nLike this:\n\n```ts\nimport { createHighlighter } from "./shiki.bundle";\n\nexport default function App() {\n  // Creates a new editor instance.\n  const editor = useCreateBlockNote({\n    codeBlock: {\n      indentLineWithTab: true,\n      defaultLanguage: "typescript",\n      supportedLanguages: {\n        typescript: {\n          name: "TypeScript",\n          aliases: ["ts"],\n        },\n      },\n      createHighlighter: () =>\n        createHighlighter({\n          themes: ["light-plus", "dark-plus"],\n          langs: [],\n        }),\n    },\n  });\n\n  return <BlockNoteView editor={editor} />;\n}\n```\n\n**Relevant Docs:**\n\n- [Code Blocks](/docs/features/blocks/code-blocks)\n- [shiki-codegen](https://shiki.style/packages/codegen)',
+          "To configure a code block highlighting theme and language, you can extend the editor's default schema with a new `codeBlock`, which you can pass options into when creating. You can then use a shiki highlighter to add custom syntax highlighting.\n\nFirst use the [shiki-codegen](https://shiki.style/packages/codegen) CLI to create a `shiki.bundle.ts` file. You can then pass this file into the `codeBlock` options when creating it.\n\n**Relevant Docs:**\n\n- [Code Blocks](/docs/features/blocks/code-blocks)\n- [shiki-codegen](https://shiki.style/packages/codegen)\n- [Custom Schema](/docs/features/custom-schemas)",
       },
     ],
   },
@@ -973,7 +1001,7 @@ export const examples = {
           slug: "interoperability",
         },
         readme:
-          'This example exports the current document (all blocks) as an PDF file and downloads it to your computer.\n\n**Try it out:** Edit the document and click "Download .pdf" in top-left corner, to download the PDF file.',
+          'This example exports the current document (all blocks) as an PDF file and downloads it to your computer.\n\n**Try it out:** Edit the document and click "Download .pdf" at the top to download the PDF file.',
       },
       {
         projectSlug: "converting-blocks-to-docx",
@@ -992,13 +1020,13 @@ export const examples = {
           } as any,
           pro: true,
         },
-        title: "Exporting documents to .docx (Office Open XML)",
+        title: "Exporting documents to DOCX (Office Open XML)",
         group: {
           pathFromRoot: "examples/05-interoperability",
           slug: "interoperability",
         },
         readme:
-          'This example exports the current document (all blocks) as an Microsoft Word Document (DOCX) file and downloads it to your computer.\n\n**Try it out:** Edit the document and click "Download .docx" in top-left corner, to download the DOCX file.',
+          'This example exports the current document (all blocks) as an Microsoft Word Document (DOCX) file and downloads it to your computer.\n\n**Try it out:** Edit the document and click "Download .docx" at the top to download the DOCX file.',
       },
       {
         projectSlug: "converting-blocks-to-odt",
@@ -1016,13 +1044,13 @@ export const examples = {
           } as any,
           pro: true,
         },
-        title: "Exporting documents to .odt (Open Document Text)",
+        title: "Exporting documents to ODT (Open Document Text)",
         group: {
           pathFromRoot: "examples/05-interoperability",
           slug: "interoperability",
         },
         readme:
-          'This example exports the current document (all blocks) as an Open Document Text (ODT) file and downloads it to your computer.\n\n**Try it out:** Edit the document and click "Download .odt" in top-left corner, to download the ODT file.',
+          'This example exports the current document (all blocks) as an Open Document Text (ODT) file and downloads it to your computer.\n\n**Try it out:** Edit the document and click "Download .odt" at the top to download the ODT file.',
       },
       {
         projectSlug: "converting-blocks-to-react-email",
@@ -1040,13 +1068,13 @@ export const examples = {
           } as any,
           pro: true,
         },
-        title: "Exporting documents to React Email",
+        title: "Exporting documents to Email (HTML)",
         group: {
           pathFromRoot: "examples/05-interoperability",
           slug: "interoperability",
         },
         readme:
-          "This example exports the current document (all blocks) as a React Email document.\n\n**Try it out:** Edit the document and the preview will update.",
+          'This example exports the current document (all blocks) as an HTML file for use in emails, and downloads it to your computer.\n\n**Try it out:** Edit the document and click "Download email .html" at the top to download the HTML file.',
       },
     ],
   },
@@ -1313,11 +1341,11 @@ export const examples = {
           author: "yousefed",
           tags: ["Advanced", "Saving/Loading", "Collaboration"],
           dependencies: {
-            "@liveblocks/client": "^2.23.1",
-            "@liveblocks/react": "^2.23.1",
-            "@liveblocks/react-blocknote": "^2.23.1",
-            "@liveblocks/react-tiptap": "^2.23.1",
-            "@liveblocks/react-ui": "^2.23.1",
+            "@liveblocks/client": "3.7.1-tiptap3",
+            "@liveblocks/react": "3.7.1-tiptap3",
+            "@liveblocks/react-blocknote": "3.7.1-tiptap3",
+            "@liveblocks/react-tiptap": "3.7.1-tiptap3",
+            "@liveblocks/react-ui": "3.7.1-tiptap3",
             yjs: "^13.6.27",
           } as any,
         },
@@ -1455,7 +1483,7 @@ export const examples = {
           tags: ["Extension"],
           pro: true,
           dependencies: {
-            "@tiptap/core": "^2.12.0",
+            "@tiptap/core": "^3.4.3",
           } as any,
         },
         title: "TipTap extension (arrow InputRule)",

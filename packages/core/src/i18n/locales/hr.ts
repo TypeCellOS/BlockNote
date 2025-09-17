@@ -197,18 +197,15 @@ export const hr: Dictionary = {
     comment_reply: "Dodaj komentar...",
   },
   file_blocks: {
-    image: {
-      add_button_text: "Dodaj sliku",
-    },
-    video: {
-      add_button_text: "Dodaj video",
-    },
-    audio: {
-      add_button_text: "Dodaj audio",
-    },
-    file: {
-      add_button_text: "Dodaj datoteku",
-    },
+    add_button_text: {
+      image: "Dodaj sliku",
+      video: "Dodaj video",
+      audio: "Dodaj audio",
+      file: "Dodaj datoteku",
+    } as Record<string, string>,
+  },
+  toggle_blocks: {
+    add_block_button: "Prazan sklopivi blok. Klikni da dodaš sadržaj.",
   },
   // from react package:
   side_menu: {

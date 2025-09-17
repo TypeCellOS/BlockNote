@@ -25,7 +25,14 @@
     "build:site": {
       "cache": true,
       "dependsOn": ["^build"],
-      "outputs": ["{projectRoot}/dist", "{projectRoot}/types"]
+      "inputs": ["{workspaceRoot}/examples/**/*"],
+      "outputs": [
+        "{projectRoot}/dist",
+        "{projectRoot}/.next",
+        "{projectRoot}/.source",
+        "{projectRoot}/content/examples",
+        "{projectRoot}/components/example/generated"
+      ]
     },
     "test": {
       "cache": true,

@@ -51,41 +51,53 @@ type CustomInlineContentConfig = {
   type: string;
   content: "styled" | "none";
   readonly propSchema: PropSchema;
-  draggable?: boolean;
 };
 ```
 
-**`type`**
+`type:` Defines the identifier of the custom inline content.
 
-Defines the identifier of the custom inline content.
+`content:` `styled` if your custom inline content should contain [`StyledText`](/docs/foundations/document-structure#inline-content-objects), `none` if not.
 
-**`content`**
+<Callout type="info">
+  _In the mentions demo, we want each mention to be a single, non-editable
+  element, so we set `content` to `"none"`._
+</Callout>
 
-`styled` if your custom inline content should contain [`StyledText`](/docs/foundations/document-structure#inline-content-objects), `none` if not.
-
-_In the mentions demo, we want each mention to be a single, non-editable element, so we set it to `"none"`._
-
-**`propSchema`**
-
-The `PropSchema` specifies the props that the inline content supports. Inline content props (properties) are data stored with your inline content in the document, and can be used to customize its appearance or behavior.
+`propSchema:` The `PropSchema` specifies the props that the inline content supports. Inline content props (properties) are data stored with your inline content in the document, and can be used to customize its appearance or behavior.
 
 ```typescript
 type PropSchema<PrimitiveType extends "boolean" | "number" | "string"> = Record<
   string,
-  {
-    default: PrimitiveType;
-    values?: PrimitiveType[];
-  }
+  | {
+      default: PrimitiveType;
+      values?: PrimitiveType[];
+    }
+  | {
+      default: undefined;
+      type: PrimitiveType;
+      values?: PrimitiveType[];
+    }
 >;
 ```
 
-`[key: string]` is the name of the prop, and the value is an object with two fields:
+`[key: string]` is the name of the prop. If you want it to have a default value, it should be defined as an object with the following properties:
 
-- `default`: Specifies the prop's default value
+- `default:` Specifies the prop's default value, from which `PrimitiveType` is inferred.
 
-- `values` (optional): Specifies an array of values that the prop can take, for example, to limit the value to a list of pre-defined strings. If `values` is not defined, BlockNote assumes the prop can be any value of `PrimitiveType`
+- `values?:` Specifies an array of values that the prop can take, for example, to limit the value to a list of pre-defined strings. If `values` is not defined, BlockNote assumes the prop can be any value of `PrimitiveType`.
 
-_In the mentions demo, we add a `user` prop for the user that's being mentioned._
+If you do not want the prop to have a default value, you can define it as an object with the following properties:
+
+- `default:` Left `undefined`, as there is no default value.
+
+- `type:` Specifies `PrimitiveType` that the prop can be set to, since the default value is `undefined` and cannot be inferred from.
+
+- `values?:` Specifies an array of values that the prop can take, for example, to limit the value to a list of pre-defined strings. If `values` is not defined, BlockNote assumes the prop can be any value of `PrimitiveType`.
+
+<Callout type="info">
+  _In the mentions demo, we add a `user` prop for the user that's being
+  mentioned._
+</Callout>
 
 ### Inline Content Implementation (`ReactCustomInlineContentImplementation`)
 
@@ -93,6 +105,9 @@ The Inline Content Implementation defines how the inline content should be rende
 
 ```typescript
 type ReactCustomInlineContentImplementation = {
+  meta?: {
+    draggable?: boolean;
+  };
   render: React.FC<{
     inlineContent: InlineContent;
     contentRef?: (node: HTMLElement | null) => void;
@@ -101,17 +116,20 @@ type ReactCustomInlineContentImplementation = {
 };
 ```
 
-**`render`**
+`render:` This is your React component which defines how your custom inline content should be rendered, and takes three React props:
 
-This is your React component which defines how your custom inline content should be rendered, and takes three React props:
+- `inlineContent:` The inline content that should be rendered. Its type and props will match the type and PropSchema defined in the Inline Content Config.
 
-`inlineContent:` The inline content that should be rendered. Its type and props will match the type and PropSchema defined in the Inline Content Config.
+- `contentRef:` A React `ref` you can use to mark which element in your inline content is editable, this is only available if your inline content config contains `content: "styled"`.
 
-`contentRef:` A React `ref` you can use to mark which element in your inline content is editable, this is only available if your inline content config contains `content: "styled"`.
+- `draggable:` Specifies whether the inline content can be dragged within the editor. If set to `true`, the inline content will be draggable. Defaults to `false` if not specified. If this is true, you should add `data-drag-handle` to the DOM element that should function as the drag handle.
 
-`draggable:` Specifies whether the inline content can be dragged within the editor. If set to `true`, the inline content will be draggable. Defaults to `false` if not specified. If this is true, you should add `data-drag-handle` to the DOM element that should function as the drag handle.
+`meta?.draggable?:` Whether the inline content should be draggable.
 
-_Note that since inline content is, by definition, inline, your component should also return an HTML inline element._
+<Callout type="info">
+  _Note that since inline content is, by definition, inline, your component
+  should also return an HTML inline element._
+</Callout>
 
 ## Adding Custom Inline Content to the Editor
 

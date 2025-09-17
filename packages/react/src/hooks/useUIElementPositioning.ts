@@ -52,10 +52,6 @@ export function useUIElementPositioning(
   const { getReferenceProps, getFloatingProps } = useInteractions([dismiss]);
 
   useEffect(() => {
-    update();
-  }, [referencePos, update]);
-
-  useEffect(() => {
     // Will be null on initial render when used in UI component controllers.
     if (referencePos === null) {
       return;
@@ -70,7 +66,9 @@ export function useUIElementPositioning(
         getBoundingClientRect: () => referencePos,
       });
     }
-  }, [referencePos, refs]);
+
+    update();
+  }, [referencePos, refs, update]);
 
   return useMemo(() => {
     return {

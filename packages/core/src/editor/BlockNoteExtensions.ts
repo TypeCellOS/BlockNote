@@ -1,4 +1,4 @@
-import { AnyExtension, Extension, extensions } from "@tiptap/core";
+import { AnyExtension, Extension, extensions, Node } from "@tiptap/core";
 import { Gapcursor } from "@tiptap/extension-gapcursor";
 import { History } from "@tiptap/extension-history";
 import { Link } from "@tiptap/extension-link";
@@ -13,8 +13,10 @@ import type { ThreadStore } from "../comments/index.js";
 import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension.js";
 import { BlockChangePlugin } from "../extensions/BlockChange/BlockChangePlugin.js";
 import { CursorPlugin } from "../extensions/Collaboration/CursorPlugin.js";
+import { ForkYDocPlugin } from "../extensions/Collaboration/ForkYDocPlugin.js";
 import { SyncPlugin } from "../extensions/Collaboration/SyncPlugin.js";
 import { UndoPlugin } from "../extensions/Collaboration/UndoPlugin.js";
+import { SchemaMigrationPlugin } from "../extensions/Collaboration/schemaMigration/SchemaMigrationPlugin.js";
 import { CommentMark } from "../extensions/Comments/CommentMark.js";
 import { CommentsPlugin } from "../extensions/Comments/CommentsPlugin.js";
 import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlugin.js";
@@ -57,7 +59,7 @@ import type {
   BlockNoteEditorOptions,
   SupportedExtension,
 } from "./BlockNoteEditor.js";
-import { ForkYDocPlugin } from "../extensions/Collaboration/ForkYDocPlugin.js";
+import { BlockNoteSchema } from "../blocks/BlockNoteSchema.js";
 
 type ExtensionOptions<
   BSchema extends BlockSchema,
@@ -92,6 +94,7 @@ type ExtensionOptions<
   >;
   tabBehavior?: "prefer-navigate-ui" | "prefer-indent";
   comments?: {
+    schema?: BlockNoteSchema<any, any, any>;
     threadStore: ThreadStore;
   };
   pasteHandler: BlockNoteEditorOptions<any, any, any>["pasteHandler"];
@@ -125,6 +128,9 @@ export const getBlockNoteExtensions = <
       editor: opts.editor,
       collaboration: opts.collaboration,
     });
+    ret["schemaMigrationPlugin"] = new SchemaMigrationPlugin(
+      opts.collaboration.fragment,
+    );
   }
 
   // Note: this is pretty hardcoded and will break when user provides plugins with same keys.
@@ -156,6 +162,7 @@ export const getBlockNoteExtensions = <
       opts.editor,
       opts.comments.threadStore,
       CommentMark.name,
+      opts.comments.schema,
     );
   }
 
@@ -223,11 +230,11 @@ const getTipTapExtensions = <
       // only call this once if we have multiple editors installed. Or fix https://github.com/ueberdosis/tiptap/issues/5450
       protocols: LINKIFY_INITIALIZED ? [] : VALID_LINK_PROTOCOLS,
     }),
-    ...Object.values(opts.styleSpecs).map((styleSpec) => {
+    ...(Object.values(opts.styleSpecs).map((styleSpec) => {
       return styleSpec.implementation.mark.configure({
         editor: opts.editor as any,
       });
-    }),
+    }) as any[]),
 
     TextColorExtension,
 
@@ -273,18 +280,15 @@ const getTipTapExtensions = <
 
     ...Object.values(opts.blockSpecs).flatMap((blockSpec) => {
       return [
-        // dependent nodes (e.g.: tablecell / row)
-        ...(blockSpec.implementation.requiredExtensions || []).map((ext) =>
-          ext.configure({
-            editor: opts.editor,
-            domAttributes: opts.domAttributes,
-          }),
-        ),
-        // the actual node itself
-        blockSpec.implementation.node.configure({
-          editor: opts.editor,
-          domAttributes: opts.domAttributes,
-        }),
+        // the node extension implementations
+        ...("node" in blockSpec.implementation
+          ? [
+              (blockSpec.implementation.node as Node).configure({
+                editor: opts.editor,
+                domAttributes: opts.domAttributes,
+              }),
+            ]
+          : []),
       ];
     }),
     createCopyToClipboardExtension(opts.editor),

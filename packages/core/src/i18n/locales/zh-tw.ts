@@ -225,18 +225,15 @@ export const zhTW: Dictionary = {
     comment_reply: "新增評論...",
   },
   file_blocks: {
-    image: {
-      add_button_text: "新增圖片",
-    },
-    video: {
-      add_button_text: "新增影片",
-    },
-    audio: {
-      add_button_text: "新增音訊",
-    },
-    file: {
-      add_button_text: "新增檔案",
-    },
+    add_button_text: {
+      image: "新增圖片",
+      video: "新增影片",
+      audio: "新增音訊",
+      file: "新增檔案",
+    } as Record<string, string>,
+  },
+  toggle_blocks: {
+    add_block_button: "空的切換區。點擊新增區塊。",
   },
   // from react package:
   side_menu: {

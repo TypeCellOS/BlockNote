@@ -151,14 +151,13 @@ Tippy popups that are appended to document.body directly
 .bn-editor [data-content-type="table"] .tableWrapper {
   /* Size of + buttons to add rows/columns. */
   --bn-table-widget-size: 22px;
+  /* Size of table handles, divided by 2 since half the element is in the cell. */
+  --bn-table-handle-size: calc(18px / 2);
   overflow-y: hidden;
-  padding-bottom: var(--bn-table-widget-size);
+  padding: var(--bn-table-handle-size) var(--bn-table-widget-size)
+    var(--bn-table-widget-size) var(--bn-table-handle-size);
   position: relative;
   width: 100%;
-}
-
-.bn-editor [data-content-type="table"] .tableWrapper-inner {
-  width: calc(100% - var(--bn-table-widget-size));
 }
 
 /* table related: */
@@ -175,6 +174,11 @@ Tippy popups that are appended to document.body directly
 .bn-editor [data-content-type="table"] th {
   font-weight: bold;
   text-align: left;
+}
+
+.bn-editor [data-content-type="table"] th > p,
+.bn-editor [data-content-type="table"] td > p {
+  min-height: 1.5rem;
 }
 
 /* tiptap uses colwidth instead of data-colwidth, se we need to adjust this style from prosemirror-tables */

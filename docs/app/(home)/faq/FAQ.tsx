@@ -59,7 +59,7 @@ export function FAQ() {
               <dt className="text-base font-semibold leading-7 text-gray-900 dark:text-white">
                 {faq.question}
               </dt>
-              <dd className="mt-2 text-base leading-7 text-gray-600 dark:text-gray-300">
+              <dd className="prose mt-2 text-base leading-7 text-gray-600 dark:text-gray-300">
                 {faq.answer}
               </dd>
             </div>

@@ -1,7 +1,7 @@
 import {
+  blockHasType,
   BlockSchema,
-  checkBlockIsFileBlockWithPlaceholder,
-  checkBlockIsFileBlockWithPreview,
+  editorHasBlockWithType,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -33,7 +33,12 @@ export const FilePreviewButton = () => {
 
     const block = selectedBlocks[0];
 
-    if (checkBlockIsFileBlockWithPreview(block, editor)) {
+    if (
+      blockHasType(block, editor, block.type, {
+        url: "string",
+        showPreview: "boolean",
+      })
+    ) {
       return block;
     }
 
@@ -41,20 +46,21 @@ export const FilePreviewButton = () => {
   }, [editor, selectedBlocks]);
 
   const onClick = useCallback(() => {
-    if (fileBlock) {
+    if (
+      fileBlock &&
+      editorHasBlockWithType(editor, fileBlock.type, {
+        showPreview: "boolean",
+      })
+    ) {
       editor.updateBlock(fileBlock, {
         props: {
-          showPreview: !fileBlock.props.showPreview as any, // TODO
+          showPreview: !fileBlock.props.showPreview,
         },
       });
     }
   }, [editor, fileBlock]);
 
-  if (
-    !fileBlock ||
-    checkBlockIsFileBlockWithPlaceholder(fileBlock, editor) ||
-    !editor.isEditable
-  ) {
+  if (!fileBlock || fileBlock.props.url === "" || !editor.isEditable) {
     return null;
   }
 

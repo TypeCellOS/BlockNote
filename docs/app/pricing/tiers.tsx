@@ -4,6 +4,7 @@ import { CheckIcon } from "@heroicons/react/20/solid";
 import { track } from "@vercel/analytics";
 import classNames from "classnames";
 import React from "react";
+import * as Sentry from "@sentry/nextjs";
 
 type Frequency = "month" | "year";
 
@@ -33,7 +34,7 @@ function TierTitle({ tier }: { tier: Tier }) {
 
 function TierPrice({ tier, frequency }: { tier: Tier; frequency: Frequency }) {
   return (
-    <p className="text-md font-semibold text-[#00000080] dark:text-[#FFFFFFB2]">
+    <p className="text-md text-fd-muted-foreground font-semibold">
       {typeof tier.price === "string"
         ? tier.price
         : `$${tier.price[frequency]} / ${frequency}`}
@@ -76,7 +77,14 @@ function TierCTAButton({ tier }: { tier: Tier }) {
         }
 
         if (session.planType === "free") {
-          track("Signup", { tier: tier.id });
+          Sentry.captureEvent({
+            message: "Checkout",
+            level: "info",
+            extra: {
+              tier: tier.id,
+            },
+          });
+          track("Checkout", { tier: tier.id });
           e.preventDefault();
           e.stopPropagation();
           await authClient.checkout({
@@ -92,7 +100,7 @@ function TierCTAButton({ tier }: { tier: Tier }) {
       aria-describedby={tier.id}
       className={classNames(
         tier.mostPopular
-          ? "text-fd-foreground bg-indigo-600 shadow-sm hover:bg-indigo-500"
+          ? "text-fd-background dark:text-fd-foreground bg-indigo-600 shadow-sm hover:bg-indigo-500"
           : "text-indigo-600 ring-1 ring-inset ring-indigo-600 hover:text-indigo-500 hover:ring-indigo-500",
         "mt-8 block cursor-pointer rounded-md px-3 py-2 text-center text-sm font-semibold leading-6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600",
       )}
@@ -104,7 +112,7 @@ function TierCTAButton({ tier }: { tier: Tier }) {
 
 function TierFeature({ feature }: { feature: React.ReactNode }) {
   return (
-    <li className="flex gap-x-3">
+    <li className="prose flex gap-x-3 text-sm">
       <CheckIcon
         aria-hidden="true"
         className="h-6 w-5 flex-none text-indigo-600"

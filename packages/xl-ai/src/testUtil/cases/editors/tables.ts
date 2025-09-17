@@ -40,6 +40,5 @@ export function getEditorWithTables() {
     trailingBlock: false,
     extensions: [createAIExtension({})],
   });
-  editor._tiptapEditor.forceEnablePlugins();
   return editor;
 }

@@ -1,10 +1,10 @@
 import {
+  BlockMapping,
+  createPageBreakBlockConfig,
   DefaultBlockSchema,
   mapTableCell,
-  pageBreakSchema,
   StyledText,
 } from "@blocknote/core";
-import { BlockMapping } from "@blocknote/core/src/exporter/mapping.js";
 import {
   CodeBlock,
   dracula,
@@ -15,27 +15,171 @@ import {
   Text,
 } from "@react-email/components";
 
-export const reactEmailBlockMappingForDefaultSchema: BlockMapping<
-  DefaultBlockSchema & typeof pageBreakSchema.blockSchema,
+// Define TextProps type based on React Email Text component
+type TextProps = React.ComponentPropsWithoutRef<typeof Text>;
+
+// Define the styles interface for configurable Text components
+export interface ReactEmailTextStyles {
+  paragraph?: Partial<TextProps>;
+  bulletListItem?: Partial<TextProps>;
+  toggleListItem?: Partial<TextProps>;
+  numberedListItem?: Partial<TextProps>;
+  checkListItem?: Partial<TextProps>;
+  quote?: Partial<TextProps>;
+  tableError?: Partial<TextProps>;
+  tableCell?: Partial<TextProps>;
+  caption?: Partial<TextProps>;
+  heading1?: Partial<TextProps>;
+  heading2?: Partial<TextProps>;
+  heading3?: Partial<TextProps>;
+  heading4?: Partial<TextProps>;
+  heading5?: Partial<TextProps>;
+  heading6?: Partial<TextProps>;
+  codeBlock?: Partial<React.ComponentProps<typeof CodeBlock>>;
+}
+
+const defaultTextStyle: TextProps["style"] = {
+  fontSize: 16,
+  lineHeight: 1.5,
+  margin: 3,
+  minHeight: 24,
+};
+
+// Default styles for Text components
+export const defaultReactEmailTextStyles = {
+  paragraph: {
+    style: defaultTextStyle,
+  },
+  bulletListItem: {
+    style: defaultTextStyle,
+  },
+  toggleListItem: {
+    style: defaultTextStyle,
+  },
+  numberedListItem: {
+    style: defaultTextStyle,
+  },
+  checkListItem: {
+    style: defaultTextStyle,
+  },
+  quote: {
+    style: defaultTextStyle,
+  },
+  tableError: {
+    style: defaultTextStyle,
+  },
+  tableCell: {
+    style: defaultTextStyle,
+  },
+  caption: {
+    style: defaultTextStyle,
+  },
+  heading1: {
+    style: {
+      fontSize: 48,
+      margin: 3,
+    },
+  },
+  heading2: {
+    style: {
+      fontSize: 36,
+      margin: 3,
+    },
+  },
+  heading3: {
+    style: {
+      fontSize: 24,
+      margin: 3,
+    },
+  },
+  heading4: {
+    style: {
+      fontSize: 20,
+      margin: 3,
+    },
+  },
+  heading5: {
+    style: {
+      fontSize: 18,
+      margin: 3,
+    },
+  },
+  heading6: {
+    style: {
+      fontSize: 16,
+      margin: 3,
+    },
+  },
+  codeBlock: {
+    style: defaultTextStyle,
+  },
+} satisfies ReactEmailTextStyles;
+
+export const createReactEmailBlockMappingForDefaultSchema = (
+  textStyles: ReactEmailTextStyles = defaultReactEmailTextStyles,
+): BlockMapping<
+  DefaultBlockSchema & {
+    pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
+  },
   any,
   any,
   React.ReactElement<any>,
   React.ReactElement<typeof Link> | React.ReactElement<HTMLSpanElement>
-> = {
+> => ({
   paragraph: (block, t) => {
-    return <Text>{t.transformInlineContent(block.content)}</Text>;
+    return (
+      <Text
+        {...textStyles.paragraph}
+        style={{
+          ...defaultReactEmailTextStyles.paragraph.style,
+          ...textStyles.paragraph?.style,
+        }}
+      >
+        {t.transformInlineContent(block.content)}
+      </Text>
+    );
   },
   bulletListItem: (block, t) => {
     // Return only the <li> for grouping in the exporter
-    return <Text>{t.transformInlineContent(block.content)}</Text>;
+    return (
+      <Text
+        {...textStyles.bulletListItem}
+        style={{
+          ...defaultReactEmailTextStyles.bulletListItem.style,
+          ...textStyles.bulletListItem?.style,
+        }}
+      >
+        {t.transformInlineContent(block.content)}
+      </Text>
+    );
   },
   toggleListItem: (block, t) => {
     // Return only the <li> for grouping in the exporter
-    return <Text>{t.transformInlineContent(block.content)}</Text>;
+    return (
+      <Text
+        {...textStyles.toggleListItem}
+        style={{
+          ...defaultReactEmailTextStyles.toggleListItem.style,
+          ...textStyles.toggleListItem?.style,
+        }}
+      >
+        {t.transformInlineContent(block.content)}
+      </Text>
+    );
   },
   numberedListItem: (block, t, _nestingLevel) => {
     // Return only the <li> for grouping in the exporter
-    return <Text>{t.transformInlineContent(block.content)}</Text>;
+    return (
+      <Text
+        {...textStyles.numberedListItem}
+        style={{
+          ...defaultReactEmailTextStyles.numberedListItem.style,
+          ...textStyles.numberedListItem?.style,
+        }}
+      >
+        {t.transformInlineContent(block.content)}
+      </Text>
+    );
   },
   checkListItem: (block, t) => {
     // Render a checkbox using inline SVG for better appearance in email
@@ -85,7 +229,13 @@ export const reactEmailBlockMappingForDefaultSchema: BlockMapping<
       </svg>
     );
     return (
-      <Text>
+      <Text
+        {...textStyles.checkListItem}
+        style={{
+          ...defaultReactEmailTextStyles.checkListItem.style,
+          ...textStyles.checkListItem?.style,
+        }}
+      >
         {checkboxSvg}
         <span>{t.transformInlineContent(block.content)}</span>
       </Text>
@@ -93,7 +243,17 @@ export const reactEmailBlockMappingForDefaultSchema: BlockMapping<
   },
   heading: (block, t) => {
     return (
-      <Heading as={`h${block.props.level}`}>
+      <Heading
+        as={`h${block.props.level as 1 | 2 | 3 | 4 | 5 | 6}`}
+        {...textStyles[`heading${block.props.level as 1 | 2 | 3 | 4 | 5 | 6}`]}
+        style={{
+          ...defaultReactEmailTextStyles[
+            `heading${block.props.level as 1 | 2 | 3 | 4 | 5 | 6}`
+          ].style,
+          ...textStyles[`heading${block.props.level as 1 | 2 | 3 | 4 | 5 | 6}`]
+            ?.style,
+        }}
+      >
         {t.transformInlineContent(block.content)}
       </Heading>
     );
@@ -108,6 +268,11 @@ export const reactEmailBlockMappingForDefaultSchema: BlockMapping<
         fontFamily="'CommitMono', monospace"
         language={block.props.language as PrismLanguage}
         theme={dracula}
+        {...textStyles.codeBlock}
+        style={{
+          ...defaultReactEmailTextStyles.codeBlock.style,
+          ...textStyles.codeBlock?.style,
+        }}
       />
     );
   },
@@ -136,7 +301,11 @@ export const reactEmailBlockMappingForDefaultSchema: BlockMapping<
           defaultText="Open audio file"
           icon={icon}
         />
-        <Caption caption={block.props.caption} width={previewWidth} />
+        <Caption
+          caption={block.props.caption}
+          width={previewWidth}
+          textStyles={textStyles}
+        />
       </div>
     );
   },
@@ -165,7 +334,11 @@ export const reactEmailBlockMappingForDefaultSchema: BlockMapping<
           defaultText="Open video file"
           icon={icon}
         />
-        <Caption caption={block.props.caption} width={previewWidth} />
+        <Caption
+          caption={block.props.caption}
+          width={previewWidth}
+          textStyles={textStyles}
+        />
       </div>
     );
   },
@@ -194,7 +367,11 @@ export const reactEmailBlockMappingForDefaultSchema: BlockMapping<
           defaultText="Open file"
           icon={icon}
         />
-        <Caption caption={block.props.caption} width={previewWidth} />
+        <Caption
+          caption={block.props.caption}
+          width={previewWidth}
+          textStyles={textStyles}
+        />
       </div>
     );
   },
@@ -211,7 +388,7 @@ export const reactEmailBlockMappingForDefaultSchema: BlockMapping<
     // Render table using standard HTML table elements for email compatibility
     const table = block.content;
     if (!table || typeof table !== "object" || !Array.isArray(table.rows)) {
-      return <Text>Table data not available</Text>;
+      return <Text {...textStyles.tableError}>Table data not available</Text>;
     }
     const headerRowsCount = (table.headerRows as number) ?? 0;
     const headerColsCount = (table.headerCols as number) ?? 0;
@@ -247,17 +424,24 @@ export const reactEmailBlockMappingForDefaultSchema: BlockMapping<
                     style={{
                       border: "1px solid #ddd",
                       padding: "8px 12px",
-                      background: isHeader
-                        ? "#f5f5f5"
-                        : normalizedCell.props.backgroundColor !== "default"
-                          ? normalizedCell.props.backgroundColor
-                          : "#fff",
-                      fontWeight: isHeader ? "bold" : "normal",
+                      background:
+                        normalizedCell.props.backgroundColor !== "default"
+                          ? t.options.colors[
+                              normalizedCell.props
+                                .backgroundColor as keyof typeof t.options.colors
+                            ].background
+                          : "inherit",
+                      fontWeight: isHeader ? "bold" : undefined,
                       textAlign: normalizedCell.props.textAlignment || "left",
                       color:
                         normalizedCell.props.textColor !== "default"
-                          ? normalizedCell.props.textColor
+                          ? t.options.colors[
+                              normalizedCell.props
+                                .textColor as keyof typeof t.options.colors
+                            ].text
                           : "inherit",
+                      ...defaultReactEmailTextStyles.tableCell.style,
+                      ...textStyles.tableCell?.style,
                     }}
                     {...((normalizedCell.props.colspan || 1) > 1 && {
                       colSpan: normalizedCell.props.colspan || 1,
@@ -280,14 +464,15 @@ export const reactEmailBlockMappingForDefaultSchema: BlockMapping<
     // Render block quote with a left border and subtle background for email compatibility
     return (
       <Text
+        {...textStyles.quote}
         style={{
-          borderLeft: "4px solid #bdbdbd",
-          background: "#f9f9f9",
-          padding: "12px 16px",
-          margin: "16px 0",
+          borderLeft: "2px solid #bdbdbd",
+          padding: "0px 12px",
           fontStyle: "italic",
-          color: "#555",
+          color: t.options.colors.gray.text,
           display: "block",
+          ...defaultReactEmailTextStyles.quote.style,
+          ...textStyles.quote?.style,
         }}
       >
         {t.transformInlineContent(block.content)}
@@ -306,7 +491,11 @@ export const reactEmailBlockMappingForDefaultSchema: BlockMapping<
       />
     );
   },
-};
+});
+
+// Export the original mapping for backward compatibility
+export const reactEmailBlockMappingForDefaultSchema =
+  createReactEmailBlockMappingForDefaultSchema();
 
 // Helper for file-like blocks (audio, video, file)
 function FileLink({
@@ -338,12 +527,30 @@ function FileLink({
   );
 }
 
-function Caption({ caption, width }: { caption?: string; width?: number }) {
+function Caption({
+  caption,
+  width,
+  textStyles,
+}: {
+  caption?: string;
+  width?: number;
+  textStyles: ReactEmailTextStyles;
+}) {
   if (!caption) {
     return null;
   }
   return (
-    <Text style={{ width, fontSize: 13, color: "#888", margin: "4px 0 0 0" }}>
+    <Text
+      {...textStyles.caption}
+      style={{
+        width,
+        fontSize: 13,
+        color: "#888",
+        margin: "4px 0 0 0",
+        ...defaultReactEmailTextStyles.caption.style,
+        ...textStyles.caption?.style,
+      }}
+    >
       {caption}
     </Text>
   );

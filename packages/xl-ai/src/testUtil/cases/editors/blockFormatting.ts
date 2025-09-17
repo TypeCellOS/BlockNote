@@ -24,6 +24,5 @@ export function getEditorWithBlockFormatting() {
     schema,
     extensions: [createAIExtension({})],
   });
-  editor._tiptapEditor.forceEnablePlugins();
   return editor;
 }

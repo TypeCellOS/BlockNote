@@ -61,9 +61,7 @@ export function trackPosition(
    */
   side: "left" | "right" = "left",
 ): () => number {
-  const ySyncPluginState = ySyncPluginKey.getState(
-    editor._tiptapEditor.state,
-  ) as {
+  const ySyncPluginState = ySyncPluginKey.getState(editor.prosemirrorState) as {
     doc: Y.Doc;
     binding: ProsemirrorBinding;
   };
@@ -88,14 +86,14 @@ export function trackPosition(
 
   const relativePosition = absolutePositionToRelativePosition(
     // Track the position after the position if we are on the right side
-    position + (side === "right" ? 1 : 0),
+    position + (side === "right" ? 1 : -1),
     ySyncPluginState.binding.type,
     ySyncPluginState.binding.mapping,
   );
 
   return () => {
     const curYSyncPluginState = ySyncPluginKey.getState(
-      editor._tiptapEditor.state,
+      editor.prosemirrorState,
     ) as typeof ySyncPluginState;
     const pos = relativePositionToAbsolutePosition(
       curYSyncPluginState.doc,
@@ -109,6 +107,6 @@ export function trackPosition(
       throw new Error("Position not found, cannot track positions");
     }
 
-    return pos + (side === "right" ? -1 : 0);
+    return pos + (side === "right" ? -1 : 1);
   };
 }

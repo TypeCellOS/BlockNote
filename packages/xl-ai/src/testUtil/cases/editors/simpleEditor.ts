@@ -18,7 +18,6 @@ export function getSimpleEditor() {
     schema,
     extensions: [createAIExtension({})],
   });
-  editor._tiptapEditor.forceEnablePlugins();
   return editor;
 }
 
@@ -43,6 +42,5 @@ export function getSimpleEditorWithCursorBetweenBlocks() {
     extensions: [createAIExtension({})],
   });
   editor.setTextCursorPosition("ref2");
-  editor._tiptapEditor.forceEnablePlugins();
   return editor;
 }

@@ -96,7 +96,7 @@ export const baseOptions: Partial<DocsLayoutProps & HomeLayoutProps> = {
     tabs: [
       {
         icon: (
-          <FaBook className="border-fd-primary text-fd-primary bg-fd-primary/10 h-5 w-5 rounded-sm border p-0.5" />
+          <FaBook className="border-fd-primary text-fd-primary bg-fd-primary/10 h-full w-full rounded-sm border p-2 md:p-0.5" />
         ),
         title: "Documentation",
         description: "Learn how to use BlockNote",
@@ -104,7 +104,7 @@ export const baseOptions: Partial<DocsLayoutProps & HomeLayoutProps> = {
       },
       {
         icon: (
-          <FaCode className="border-fd-primary text-fd-primary bg-fd-primary/10 h-5 w-5 rounded-sm border p-0.5" />
+          <FaCode className="border-fd-primary text-fd-primary bg-fd-primary/10 h-full w-full rounded-sm border p-2 md:p-0.5" />
         ),
         title: "Examples",
         description: "See BlockNote in action",

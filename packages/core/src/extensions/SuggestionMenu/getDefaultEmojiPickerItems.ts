@@ -1,6 +1,6 @@
 import type { Emoji, EmojiMartData } from "@emoji-mart/data";
 
-import { checkDefaultInlineContentTypeInSchema } from "../../blocks/defaultBlockTypeGuards.js";
+import { defaultInlineContentSchema } from "../../blocks/defaultBlocks.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   BlockSchema,
@@ -54,7 +54,11 @@ export async function getDefaultEmojiPickerItems<
   editor: BlockNoteEditor<BSchema, I, S>,
   query: string,
 ): Promise<DefaultGridSuggestionItem[]> {
-  if (!checkDefaultInlineContentTypeInSchema("text", editor)) {
+  if (
+    !("text" in editor.schema.inlineContentSchema) ||
+    editor.schema.inlineContentSchema["text"] !==
+      defaultInlineContentSchema["text"]
+  ) {
     return [];
   }
 

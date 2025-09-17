@@ -169,18 +169,15 @@ export const ar: Dictionary = {
     comment_reply: "أضف تعليقًا...",
   },
   file_blocks: {
-    image: {
-      add_button_text: "إضافة صورة",
-    },
-    video: {
-      add_button_text: "إضافة فيديو",
-    },
-    audio: {
-      add_button_text: "إضافة صوت",
-    },
-    file: {
-      add_button_text: "إضافة ملف",
-    },
+    add_button_text: {
+      image: "إضافة صورة",
+      video: "إضافة فيديو",
+      audio: "إضافة صوت",
+      file: "إضافة ملف",
+    } as Record<string, string>,
+  },
+  toggle_blocks: {
+    add_block_button: "تبديل فارغ. انقر لإضافة كتلة.",
   },
   // from react package:
   side_menu: {

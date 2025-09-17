@@ -224,18 +224,15 @@ export const ja: Dictionary = {
     comment_reply: "コメントを追加...",
   },
   file_blocks: {
-    image: {
-      add_button_text: "画像を追加",
-    },
-    video: {
-      add_button_text: "ビデオを追加",
-    },
-    audio: {
-      add_button_text: "オーディオを追加",
-    },
-    file: {
-      add_button_text: "ファイルを追加",
-    },
+    add_button_text: {
+      image: "画像を追加",
+      video: "ビデオを追加",
+      audio: "オーディオを追加",
+      file: "ファイルを追加",
+    } as Record<string, string>,
+  },
+  toggle_blocks: {
+    add_block_button: "空のトグルです。クリックしてブロックを追加。",
   },
   // from react package:
   side_menu: {

@@ -227,18 +227,15 @@ export const ru: Dictionary = {
     comment_reply: "Добавить комментарий...",
   },
   file_blocks: {
-    image: {
-      add_button_text: "Добавить изображение",
-    },
-    video: {
-      add_button_text: "Добавить видео",
-    },
-    audio: {
-      add_button_text: "Добавить аудио",
-    },
-    file: {
-      add_button_text: "Добавить файл",
-    },
+    add_button_text: {
+      image: "Добавить изображение",
+      video: "Добавить видео",
+      audio: "Добавить аудио",
+      file: "Добавить файл",
+    } as Record<string, string>,
+  },
+  toggle_blocks: {
+    add_block_button: "Пустой переключатель. Нажмите, чтобы добавить блок.",
   },
   // from react package:
   side_menu: {

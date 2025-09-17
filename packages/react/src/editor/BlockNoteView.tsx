@@ -52,7 +52,7 @@ export type BlockNoteViewProps<
   editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
 
   /**
-   * The editor's theme, see [Themes](https://www.blocknotejs.orgdocs/react/styling-theming/themes) for more about this.
+   * Forces the editor to use the light or dark theme. See [Themes](https://www.blocknotejs.org/docs/react/styling-theming/themes) for additional customization when using Mantine.
    */
   theme?: "light" | "dark";
 
@@ -121,7 +121,7 @@ function BlockNoteViewComponent<
     tableHandles,
     comments,
     autoFocus,
-    renderEditor = !editor.headless,
+    renderEditor = true,
     ...rest
   } = props;
 
@@ -202,6 +202,7 @@ function BlockNoteViewComponent<
         <BlockNoteViewContainer
           className={className}
           renderEditor={renderEditor}
+          editable={editable}
           editorColorScheme={editorColorScheme}
           ref={ref}
           {...rest}
@@ -221,26 +222,34 @@ const BlockNoteViewContainer = React.forwardRef<
   HTMLDivElement,
   {
     renderEditor: boolean;
+    editable?: boolean;
     editorColorScheme: "light" | "dark";
     children: ReactNode;
   } & Omit<
     HTMLAttributes<HTMLDivElement>,
     "onChange" | "onSelectionChange" | "children"
   >
->(({ className, renderEditor, editorColorScheme, children, ...rest }, ref) => (
-  <div
-    className={mergeCSSClasses("bn-container", editorColorScheme, className)}
-    data-color-scheme={editorColorScheme}
-    {...rest}
-    ref={ref}
-  >
-    {renderEditor ? (
-      <BlockNoteViewEditor>{children}</BlockNoteViewEditor>
-    ) : (
-      children
-    )}
-  </div>
-));
+>(
+  (
+    { className, renderEditor, editable, editorColorScheme, children, ...rest },
+    ref,
+  ) => (
+    <div
+      className={mergeCSSClasses("bn-container", editorColorScheme, className)}
+      data-color-scheme={editorColorScheme}
+      {...rest}
+      ref={ref}
+    >
+      {renderEditor ? (
+        <BlockNoteViewEditor editable={editable}>
+          {children}
+        </BlockNoteViewEditor>
+      ) : (
+        children
+      )}
+    </div>
+  ),
+);
 
 // https://fettblog.eu/typescript-react-generic-forward-refs/
 export const BlockNoteViewRaw = React.forwardRef(BlockNoteViewComponent) as <
@@ -260,7 +269,10 @@ export const BlockNoteViewRaw = React.forwardRef(BlockNoteViewComponent) as <
  * Renders the contentEditable editor itself (.bn-editor element) and the
  * default UI elements.
  */
-export const BlockNoteViewEditor = (props: { children?: ReactNode }) => {
+export const BlockNoteViewEditor = (props: {
+  editable?: boolean;
+  children?: ReactNode;
+}) => {
   const ctx = useBlockNoteViewContext()!;
   const editor = useBlockNoteEditor();
 
@@ -270,9 +282,22 @@ export const BlockNoteViewEditor = (props: { children?: ReactNode }) => {
 
   const mount = useCallback(
     (element: HTMLElement | null) => {
-      editor.mount(element, portalManager);
+      if (
+        props.editable !== undefined &&
+        props.editable !== editor.isEditable
+      ) {
+        editor.isEditable = props.editable;
+      }
+      // Since we are not using TipTap's React Components, we need to set up the contentComponent it expects
+      // This is a simple replacement for the state management that Tiptap does internally
+      editor._tiptapEditor.contentComponent = portalManager;
+      if (element) {
+        editor.mount(element);
+      } else {
+        editor.unmount();
+      }
     },
-    [editor, portalManager],
+    [editor, portalManager, props.editable],
   );
 
   return (
