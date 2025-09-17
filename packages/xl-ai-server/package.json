@@ -46,7 +46,7 @@
     "@hono/node-server": "^1.13.7",
     "hono": "^4.6.12",
     "ai": "^5.0.29",
-    "@blocknote/xl-ai": "workspace:*",
+    "@blocknote/xl-ai": "latest",
     "@ai-sdk/openai": "^2.0.23"
   },
   "devDependencies": {

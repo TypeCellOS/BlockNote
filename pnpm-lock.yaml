@@ -4283,7 +4283,7 @@ importers:
         specifier: ^2.0.23
         version: 2.0.23(zod@3.25.76)
       '@blocknote/xl-ai':
-        specifier: workspace:*
+        specifier: latest
         version: link:../xl-ai
       '@hono/node-server':
         specifier: ^1.13.7

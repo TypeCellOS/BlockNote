@@ -1,8 +1,8 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import {
   createStreamToolsArraySchema,
-  objectToUIMessageStream,
-  partialObjectStreamToUIMessageStream,
+  objectAsToolCallInUIMessageStream,
+  partialObjectStreamAsToolCallInUIMessageStream,
 } from "@blocknote/xl-ai";
 import {
   convertToModelMessages,
@@ -65,7 +65,10 @@ vercelAiSdkRoute.post("/streamObject", cors(), async (c) => {
     schema,
   });
 
-  const stream = partialObjectStreamToUIMessageStream(result.fullStream);
+  const stream = partialObjectStreamAsToolCallInUIMessageStream(
+    result.fullStream,
+    "operations",
+  );
 
   return createUIMessageStreamResponse({ stream });
 });
@@ -81,7 +84,7 @@ vercelAiSdkRoute.post("/generateObject", cors(), async (c) => {
     schema,
   });
 
-  const stream = objectToUIMessageStream(result.object);
+  const stream = objectAsToolCallInUIMessageStream(result.object, "operations");
 
   return createUIMessageStreamResponse({ stream });
 });
