@@ -127,7 +127,7 @@ export class FormattingToolbarView implements PluginView {
     if (!element) {
       return false;
     }
-    const editorWrapper = this.pmView.dom.parentElement;
+    const editorWrapper = this.pmView.dom.parentElement!;
     if (!editorWrapper) {
       return false;
     }

@@ -20,7 +20,7 @@
     "@blocknote/shadcn": "workspace:^",
     "@playwright/experimental-ct-react": "1.51.1",
     "@playwright/test": "1.51.1",
-    "@tiptap/pm": "^2.26.1",
+    "@tiptap/pm": "^3.4.3",
     "@types/node": "^20.11.18",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",

@@ -18,7 +18,7 @@ export const tools = {
     schema: {
       block: {
         type: "string",
-        description: "html of block (MUST be a single HTML element)",
+        description: "html of block (MUST be a single, VALID HTML element)",
       },
     },
     validateBlock: validateBlockFunction,

@@ -124,7 +124,7 @@ export class PreviousBlockTypePlugin extends BlockNoteExtension {
                   depth: newState.doc.resolve(node.pos).depth,
                 };
 
-                let oldAttrs = {
+                const oldAttrs = {
                   index: oldContentNode.attrs.index,
                   level: oldContentNode.attrs.level,
                   type: oldContentNode.type.name,
@@ -133,28 +133,6 @@ export class PreviousBlockTypePlugin extends BlockNoteExtension {
 
                 currentTransactionOriginalOldBlockAttrs[node.node.attrs.id] =
                   oldAttrs;
-
-                // Whenever a transaction is appended by the OrderedListItemIndexPlugin, it's given the metadata:
-                // { "orderedListIndexing": true }
-                // These appended transactions happen immediately after any transaction which causes ordered list item
-                // indices to require updating, including those which trigger animations. Therefore, these animations are
-                // immediately overridden when the PreviousBlockTypePlugin processes the appended transaction, despite only
-                // the listItemIndex attribute changing. To solve this, oldAttrs must be edited for transactions with the
-                // "orderedListIndexing" metadata, so the correct animation can be re-triggered.
-                if (transaction.getMeta("numberedListIndexing")) {
-                  // If the block existed before the transaction, gets the attributes from before the previous transaction
-                  // (i.e. the transaction that caused list item indices to need updating).
-                  if (node.node.attrs.id in prev.prevTransactionOldBlockAttrs) {
-                    oldAttrs =
-                      prev.prevTransactionOldBlockAttrs[node.node.attrs.id];
-                  }
-
-                  // Stops list item indices themselves being animated (looks smoother), unless the block's content type is
-                  // changing from a numbered list item to something else.
-                  if (newAttrs.type === "numberedListItem") {
-                    oldAttrs.index = newAttrs.index;
-                  }
-                }
 
                 prev.currentTransactionOldBlockAttrs[node.node.attrs.id] =
                   oldAttrs;

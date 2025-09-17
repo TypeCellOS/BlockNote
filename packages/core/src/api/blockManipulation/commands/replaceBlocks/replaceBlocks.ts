@@ -102,7 +102,7 @@ export function removeAndInsertBlocks<
   // Converts the nodes created from `blocksToInsert` into full `Block`s.
   const insertedBlocks = nodesToInsert.map((node) =>
     nodeToBlock(node, pmSchema),
-  );
+  ) as Block<BSchema, I, S>[];
 
   return { insertedBlocks, removedBlocks };
 }

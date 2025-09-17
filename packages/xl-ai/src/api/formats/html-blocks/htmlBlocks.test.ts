@@ -120,21 +120,15 @@ describe("Models", () => {
     describe(`${params.model.provider}/${params.model.modelId} (${
       params.stream ? "streaming" : "non-streaming"
     })`, () => {
-      generateSharedTestCases(
-        (editor, options) =>
-          doLLMRequest(editor, {
-            ...options,
-            dataFormat: htmlBlockLLMFormat,
-            model: params.model,
-            maxRetries: 0,
-            stream: params.stream,
-            withDelays: false,
-          }),
-        // TODO: remove when matthew's parsing PR is merged
-        {
-          textAlignment: true,
-          blockColor: true,
-        },
+      generateSharedTestCases((editor, options) =>
+        doLLMRequest(editor, {
+          ...options,
+          dataFormat: htmlBlockLLMFormat,
+          model: params.model,
+          maxRetries: 0,
+          stream: params.stream,
+          withDelays: false,
+        }),
       );
     });
   }

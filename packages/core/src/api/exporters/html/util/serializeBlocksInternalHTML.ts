@@ -1,4 +1,4 @@
-import { DOMSerializer, Fragment } from "prosemirror-model";
+import { DOMSerializer, Fragment, Node } from "prosemirror-model";
 
 import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
@@ -13,6 +13,7 @@ import {
   tableContentToNodes,
 } from "../../../nodeConversions/blockToNode.js";
 
+import { nodeToCustomInlineContent } from "../../../nodeConversions/nodeToBlock.js";
 export function serializeInlineContentInternalHTML<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -24,7 +25,7 @@ export function serializeInlineContentInternalHTML<
   blockType?: string,
   options?: { document?: Document },
 ) {
-  let nodes: any;
+  let nodes: Node[];
 
   // TODO: reuse function from nodeconversions?
   if (!blockContent) {
@@ -39,12 +40,90 @@ export function serializeInlineContentInternalHTML<
     throw new UnreachableCaseError(blockContent.type);
   }
 
-  // We call the prosemirror serializer here because it handles Marks and Inline Content nodes nicely.
-  // If we'd want to support custom serialization or externalHTML for Inline Content, we'd have to implement
-  // a custom serializer here.
-  const dom = serializer.serializeFragment(Fragment.from(nodes), options);
+  // Check if any of the nodes are custom inline content with toExternalHTML
+  const doc = options?.document ?? document;
+  const fragment = doc.createDocumentFragment();
 
-  return dom;
+  for (const node of nodes) {
+    // Check if this is a custom inline content node with toExternalHTML
+    if (
+      node.type.name !== "text" &&
+      editor.schema.inlineContentSchema[node.type.name]
+    ) {
+      const inlineContentImplementation =
+        editor.schema.inlineContentSpecs[node.type.name].implementation;
+
+      if (inlineContentImplementation) {
+        // Convert the node to inline content format
+        const inlineContent = nodeToCustomInlineContent(
+          node,
+          editor.schema.inlineContentSchema,
+          editor.schema.styleSchema,
+        );
+
+        // Use the custom toExternalHTML method
+        const output = inlineContentImplementation.render.call(
+          {
+            renderType: "dom",
+            props: undefined,
+          },
+          inlineContent as any,
+          () => {
+            // No-op
+          },
+          editor as any,
+        );
+
+        if (output) {
+          fragment.appendChild(output.dom);
+
+          // If contentDOM exists, render the inline content into it
+          if (output.contentDOM) {
+            const contentFragment = serializer.serializeFragment(
+              node.content,
+              options,
+            );
+            output.contentDOM.dataset.editable = "";
+            output.contentDOM.appendChild(contentFragment);
+          }
+          continue;
+        }
+      }
+    } else if (node.type.name === "text") {
+      // We serialize text nodes manually as we need to serialize the styles/
+      // marks using `styleSpec.implementation.render`. When left up to
+      // ProseMirror, it'll use `toDOM` which is incorrect.
+      let dom: globalThis.Node | Text = document.createTextNode(
+        node.textContent,
+      );
+      // Reverse the order of marks to maintain the correct priority.
+      for (const mark of node.marks.toReversed()) {
+        if (mark.type.name in editor.schema.styleSpecs) {
+          const newDom = editor.schema.styleSpecs[
+            mark.type.name
+          ].implementation.render(mark.attrs["stringValue"], editor);
+          newDom.contentDOM!.appendChild(dom);
+          dom = newDom.dom;
+        } else {
+          const domOutputSpec = mark.type.spec.toDOM!(mark, true);
+          const newDom = DOMSerializer.renderSpec(document, domOutputSpec);
+          newDom.contentDOM!.appendChild(dom);
+          dom = newDom.dom;
+        }
+      }
+
+      fragment.appendChild(dom);
+    } else {
+      // Fall back to default serialization for this node
+      const nodeFragment = serializer.serializeFragment(
+        Fragment.from([node]),
+        options,
+      );
+      fragment.appendChild(nodeFragment);
+    }
+  }
+
+  return fragment;
 }
 
 function serializeBlock<
@@ -55,36 +134,29 @@ function serializeBlock<
   editor: BlockNoteEditor<BSchema, I, S>,
   block: PartialBlock<BSchema, I, S>,
   serializer: DOMSerializer,
-  listIndex: number,
   options?: { document?: Document },
 ) {
   const BC_NODE = editor.pmSchema.nodes["blockContainer"];
 
-  let props = block.props;
   // set default props in case we were passed a partial block
-  if (!block.props) {
-    props = {};
-    for (const [name, spec] of Object.entries(
-      editor.schema.blockSchema[block.type as any].propSchema,
-    )) {
-      if (spec.default !== undefined) {
-        (props as any)[name] = spec.default;
-      }
+  const props = block.props || {};
+  for (const [name, spec] of Object.entries(
+    editor.schema.blockSchema[block.type as any].propSchema,
+  )) {
+    if (!(name in props) && spec.default !== undefined) {
+      (props as any)[name] = spec.default;
     }
   }
 
   const impl = editor.blockImplementations[block.type as any].implementation;
-  const ret = impl.toInternalHTML({ ...block, props } as any, editor as any);
-
-  if (block.type === "numberedListItem") {
-    // This is a workaround to make sure there's a list index set.
-    // Normally, this is set on the internal prosemirror nodes by the NumberedListIndexingPlugin,
-    // but:
-    // - (a) this information is not available on the Blocks passed to the serializer. (we only have access to BlockNote Blocks)
-    // - (b) the NumberedListIndexingPlugin might not even have run, because we can manually call blocksToFullHTML
-    //       with blocks that are not part of the active document
-    ret.dom.setAttribute("data-index", listIndex.toString());
-  }
+  const ret = impl.render.call(
+    {
+      renderType: "dom",
+      props: undefined,
+    },
+    { ...block, props } as any,
+    editor as any,
+  );
 
   if (ret.contentDOM && block.content) {
     const ic = serializeInlineContentInternalHTML(
@@ -147,20 +219,8 @@ function serializeBlocks<
   const doc = options?.document ?? document;
   const fragment = doc.createDocumentFragment();
 
-  let listIndex = 0;
   for (const block of blocks) {
-    if (block.type === "numberedListItem") {
-      listIndex++;
-    } else {
-      listIndex = 0;
-    }
-    const blockDOM = serializeBlock(
-      editor,
-      block,
-      serializer,
-      listIndex,
-      options,
-    );
+    const blockDOM = serializeBlock(editor, block, serializer, options);
     fragment.appendChild(blockDOM);
   }
 

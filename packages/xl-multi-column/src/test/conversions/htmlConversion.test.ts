@@ -78,7 +78,6 @@ describe("Test multi-column HTML conversion", () => {
       });
 
       afterEach(() => {
-        editor.mount(undefined);
         editor._tiptapEditor.destroy();
         editor = undefined as any;
 

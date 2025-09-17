@@ -3,7 +3,7 @@ import {
   BlockNoteEditor,
   BlockSchemaWithBlock,
   PartialBlock,
-  createBlockSpec,
+  addNodeAndExtensionsToSpec,
   defaultProps,
 } from "@blocknote/core";
 
@@ -27,7 +27,7 @@ const values = {
   },
 } as const;
 
-export const Alert = createBlockSpec(
+export const Alert = addNodeAndExtensionsToSpec(
   {
     type: "alert" as const,
     propSchema: {

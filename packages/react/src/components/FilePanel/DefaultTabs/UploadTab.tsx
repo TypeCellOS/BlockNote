@@ -74,11 +74,10 @@ export const UploadTab = <
     [block, editor, setLoading],
   );
 
-  const config = editor.schema.blockSchema[block.type];
-  const accept =
-    config.isFileBlock && config.fileBlockAccept?.length
-      ? config.fileBlockAccept.join(",")
-      : "*/*";
+  const spec = editor.schema.blockSpecs[block.type];
+  const accept = spec.implementation.meta?.fileBlockAccept?.length
+    ? spec.implementation.meta.fileBlockAccept.join(",")
+    : "*/*";
 
   return (
     <Components.FilePanel.TabPanel className={"bn-tab-panel"}>
