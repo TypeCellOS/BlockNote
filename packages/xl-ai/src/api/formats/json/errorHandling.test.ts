@@ -7,7 +7,7 @@ import { setupServer } from "msw/node";
 import { createBlockNoteAIClient } from "../../../blocknoteAIClient/client.js";
 import { createAISDKLLMRequestExecutor } from "../../../streamTool/vercelAiSdk/AISDKLLMRequestExecutor.js";
 import { ClientSideTransport } from "../../../streamTool/vercelAiSdk/clientside/ClientSideTransport.js";
-import { doLLMRequest } from "../../LLMRequest.js";
+import { doLLMRequest } from "../../../types.js";
 import { jsonLLMFormat } from "./json.js";
 
 // Create client and models outside of test suites so they can be shared

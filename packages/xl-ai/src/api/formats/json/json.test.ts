@@ -9,7 +9,7 @@ import { generateSharedTestCases } from "../tests/sharedTestCases.js";
 import { createAISDKLLMRequestExecutor } from "../../../streamTool/vercelAiSdk/AISDKLLMRequestExecutor.js";
 import { ClientSideTransport } from "../../../streamTool/vercelAiSdk/clientside/ClientSideTransport.js";
 import { testAIModels } from "../../../testUtil/testAIModels.js";
-import { doLLMRequest } from "../../LLMRequest.js";
+import { doLLMRequest } from "../../../types.js";
 import { jsonLLMFormat } from "./json.js";
 
 const BASE_FILE_PATH = path.resolve(

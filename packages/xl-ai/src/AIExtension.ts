@@ -14,22 +14,14 @@ import { Fragment, Slice } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { fixTablesKey } from "prosemirror-tables";
 import { createStore, StoreApi } from "zustand/vanilla";
-import { LLMRequestHelpers, LLMRequestOptions } from "./api/LLMRequest.js";
-
 import { defaultHTMLPromptBuilder } from "./api/formats/html-blocks/defaultHTMLPromptBuilder.js";
 import { htmlBlockLLMFormat } from "./api/formats/html-blocks/htmlBlocks.js";
-import {
-  defaultHTMLPromptDataBuilder,
-  HTMLPromptData,
-} from "./api/formats/html-blocks/htmlPromptData.js";
-import {
-  BlockNoteUserPrompt,
-  PromptBuilder,
-  PromptInputDataBuilder,
-} from "./api/formats/PromptBuilder.js";
+import { defaultHTMLPromptDataBuilder } from "./api/formats/html-blocks/htmlPromptData.js";
+import { promptAIRequestSender } from "./api/formats/promptAIRequestSender.js";
 import { trimEmptyBlocks } from "./api/promptHelpers/trimEmptyBlocks.js";
 import { createAgentCursorPlugin } from "./plugins/AgentCursorPlugin.js";
 import { setupToolCallStreaming } from "./streamTool/vercelAiSdk/util/chatHandlers.js";
+import { LLMRequestHelpers, LLMRequestOptions } from "./types.js";
 import { isEmptyParagraph } from "./util/emptyBlock.js";
 
 type ReadonlyStoreApi<T> = Pick<
@@ -61,13 +53,18 @@ type AIPluginState = {
           }
       ))
     | "closed";
-
-  chat?: Chat<UIMessage>;
 };
 
 const PLUGIN_KEY = new PluginKey(`blocknote-ai-plugin`);
 
 export class AIExtension extends BlockNoteExtension {
+  private chatSession:
+    | {
+        previousRequestOptions: LLMRequestOptions;
+        chat: Chat<UIMessage>;
+      }
+    | undefined;
+
   public static key(): string {
     return "ai";
   }
@@ -75,7 +72,6 @@ export class AIExtension extends BlockNoteExtension {
   // internal store including setters
   private readonly _store = createStore<AIPluginState>()((_set) => ({
     aiMenuState: "closed",
-    chat: undefined,
   }));
 
   /**
@@ -160,8 +156,8 @@ export class AIExtension extends BlockNoteExtension {
   public closeAIMenu() {
     this._store.setState({
       aiMenuState: "closed",
-      chat: undefined,
     });
+    this.chatSession = undefined;
     this.editor.setForceSelectionVisible(false);
     this.editor.isEditable = true;
     this.editor.focus();
@@ -239,28 +235,38 @@ export class AIExtension extends BlockNoteExtension {
    * Only valid if the current status is "error"
    */
   public async retry() {
-    const { aiMenuState, chat } = this.store.getState();
+    const { aiMenuState } = this.store.getState();
     if (
       aiMenuState === "closed" ||
-      aiMenuState.status !== "error"
-      // !this.previousRequestOptions TODO
+      aiMenuState.status !== "error" ||
+      !this.chatSession
     ) {
       throw new Error("retry() is only valid when a previous response failed");
     }
 
-    if (!chat) {
-      throw new Error("chat not found in retry()");
-    }
+    /*
+    Design decisions:
+    - we cannot use chat.regenerate() because the document might have been updated already by toolcalls that failed mid-way
+    - we also cannot revert the document changes and use chat.regenerate(), 
+      because we might want to retry a subsequent user-direction that failed, not the original one
+    - this means we always need to send the new document state to the LLM
+    - an alternative would be to take a snapshot of the document before the LLM call, and revert to that specific state
+      when a call fails
+    */
 
-    if (chat?.status === "error") {
+    if (this.chatSession?.chat.status === "error") {
       // the LLM call failed (i.e. a network error)
-      chat.regenerate();
+      return this.callLLM({
+        ...this.chatSession.previousRequestOptions,
+        userPrompt: `An error occured in the previous request. Please retry to accomplish the last user prompt.`,
+      });
     } else {
       // an error occurred while parsing / executing the previous LLM call
       // give the LLM a chance to fix the error
 
       return this.callLLM({
-        userPrompt: `An error occured in the previous tool call. Please retry.`,
+        ...this.chatSession.previousRequestOptions,
+        userPrompt: `An error occured while executing the previous tool call. Please retry to accomplish the last user prompt.`,
       });
     }
   }
@@ -313,10 +319,6 @@ export class AIExtension extends BlockNoteExtension {
     }
   }
 
-  // tool call results
-  // errors
-  // TODO: retries
-
   /**
    * Execute a call to an LLM and apply the result to the editor
    */
@@ -325,17 +327,20 @@ export class AIExtension extends BlockNoteExtension {
     this.editor.forkYDocPlugin?.fork();
 
     try {
-      if (!this.store.getState().chat) {
-        // TODO: what if transport changes?
-        console.log("new chat");
-        this._store.setState({
+      if (!this.chatSession) {
+        // note: in the current implementation opts.transport is only used when creating a new chat
+        // (so changing transport for a subsequent call in the same chat-session is not supported)
+        this.chatSession = {
+          previousRequestOptions: opts,
           chat: new Chat<UIMessage>({
             sendAutomaticallyWhen: () => false,
             transport: opts.transport || this.options.getState().transport,
           }),
-        });
+        };
+      } else {
+        this.chatSession.previousRequestOptions = opts;
       }
-      const chat = this.store.getState().chat!;
+      const chat = this.chatSession.chat;
       const globalOpts = this.options.getState();
 
       const {
@@ -355,18 +360,18 @@ export class AIExtension extends BlockNoteExtension {
         ...opts,
       };
 
-      let { messageSender } = {
+      let { aiRequestSender } = {
         ...rest,
       };
 
-      if (messageSender && promptBuilder) {
+      if (aiRequestSender && promptBuilder) {
         throw new Error(
           "messageSender and promptBuilder cannot be used together",
         );
       }
 
-      if (!messageSender) {
-        messageSender = promptMessageSender(
+      if (!aiRequestSender) {
+        aiRequestSender = promptAIRequestSender(
           promptBuilder ?? defaultHTMLPromptBuilder,
           defaultHTMLPromptDataBuilder,
         );
@@ -388,7 +393,6 @@ export class AIExtension extends BlockNoteExtension {
         ? this.editor.getSelectionCutBlocks()
         : undefined;
 
-      // TODO, works with retry?
       const streamTools = (
         streamToolsProvider ?? htmlBlockLLMFormat.getStreamToolsProvider()
       ).getStreamTools(
@@ -418,25 +422,25 @@ export class AIExtension extends BlockNoteExtension {
         }
       });
 
-      await messageSender.sendMessage({
-        editor: this.editor,
-        chat,
-        blockNoteUserPrompt: {
-          userPrompt,
-          selectedBlocks: selectionInfo?.blocks,
-          streamTools,
-          emptyCursorBlockToDelete,
+      await aiRequestSender.sendAIRequest(
+        {
+          editor: this.editor,
+          chat,
+          blockNoteUserPrompt: {
+            userPrompt,
+            selectedBlocks: selectionInfo?.blocks,
+            streamTools,
+            emptyCursorBlockToDelete,
+          },
         },
-      });
+        opts.chatRequestOptions,
+      );
 
       // TODO: what if no tool calls were made?
       await executePromise;
 
       this.setAIResponseStatus("user-reviewing");
     } catch (e) {
-      // TODO in error state, should we discard the forked document?
-
-      debugger;
       this.setAIResponseStatus({
         status: "error",
         error: e,
@@ -463,34 +467,4 @@ export function createAIExtension(
  */
 export function getAIExtension(editor: BlockNoteEditor<any, any, any>) {
   return editor.extension(AIExtension);
-}
-
-export type MessageSender = {
-  sendMessage: (opts: {
-    editor: BlockNoteEditor<any, any, any>;
-    chat: Chat<UIMessage>;
-    blockNoteUserPrompt: BlockNoteUserPrompt;
-  }) => Promise<void>;
-};
-
-function promptMessageSender<E = HTMLPromptData>(
-  promptBuilder: PromptBuilder<E>,
-  promptInputDataBuilder: PromptInputDataBuilder<E>,
-): MessageSender {
-  return {
-    async sendMessage(opts) {
-      const promptData = await promptInputDataBuilder(
-        opts.editor,
-        opts.blockNoteUserPrompt,
-      );
-
-      await promptBuilder(opts.chat.messages, promptData);
-
-      return opts.chat.sendMessage(undefined, {
-        metadata: {
-          streamTools: opts.blockNoteUserPrompt.streamTools,
-        },
-      });
-    },
-  };
 }

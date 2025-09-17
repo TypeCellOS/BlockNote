@@ -30,6 +30,14 @@ function processToolCallParts(
       continue;
     }
 
+    const toolName = part.type.replace("tool-", "");
+
+    if (toolName !== "operations") {
+      // we only process the combined operations tool call
+      // in a future improvement we can add more generic support for different tool streaming
+      continue;
+    }
+
     const toolCallId = part.toolCallId;
 
     const toolCallData = getToolCallStreamData({

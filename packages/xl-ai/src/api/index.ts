@@ -1,6 +1,7 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { StreamTool } from "../streamTool/streamTool.js";
 import { htmlBlockLLMFormat } from "./formats/html-blocks/htmlBlocks.js";
+import { HTMLPromptData } from "./formats/html-blocks/htmlPromptData.js";
 import { jsonLLMFormat } from "./formats/json/json.js";
 import { markdownBlocksLLMFormat } from "./formats/markdown-blocks/markdownBlocks.js";
 import { PromptBuilder } from "./formats/PromptBuilder.js";
@@ -30,7 +31,7 @@ export type LLMFormat = {
    * The default PromptBuilder that determines how a userPrompt is converted to an array of
    * LLM Messages (CoreMessage[])
    */
-  defaultPromptBuilder: PromptBuilder;
+  defaultPromptBuilder: PromptBuilder<HTMLPromptData>;
   /**
    * Helper functions which can be used when implementing a custom PromptBuilder.
    * The signature depends on the specific format

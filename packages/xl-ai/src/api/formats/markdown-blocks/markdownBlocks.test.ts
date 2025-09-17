@@ -8,7 +8,7 @@ import path from "path";
 import { createAISDKLLMRequestExecutor } from "../../../streamTool/vercelAiSdk/AISDKLLMRequestExecutor.js";
 import { ClientSideTransport } from "../../../streamTool/vercelAiSdk/clientside/ClientSideTransport.js";
 import { testAIModels } from "../../../testUtil/testAIModels.js";
-import { doLLMRequest } from "../../LLMRequest.js";
+import { doLLMRequest } from "../../../types.js";
 import { generateSharedTestCases } from "../tests/sharedTestCases.js";
 import { markdownBlocksLLMFormat } from "./markdownBlocks.js";
 
