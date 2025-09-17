@@ -256,6 +256,7 @@ export class AIExtension extends BlockNoteExtension {
 
     if (this.chatSession?.chat.status === "error") {
       // the LLM call failed (i.e. a network error)
+      // console.log("retry failed LLM call", this.chatSession.chat.error);
       return this.callLLM({
         ...this.chatSession.previousRequestOptions,
         userPrompt: `An error occured in the previous request. Please retry to accomplish the last user prompt.`,
@@ -263,7 +264,7 @@ export class AIExtension extends BlockNoteExtension {
     } else {
       // an error occurred while parsing / executing the previous LLM call
       // give the LLM a chance to fix the error
-
+      // console.log("retry failed tool execution");
       return this.callLLM({
         ...this.chatSession.previousRequestOptions,
         userPrompt: `An error occured while executing the previous tool call. Please retry to accomplish the last user prompt.`,
@@ -446,7 +447,7 @@ export class AIExtension extends BlockNoteExtension {
         error: e,
       });
       // eslint-disable-next-line no-console
-      console.warn("Error calling LLM", e);
+      console.warn("Error calling LLM", e, this.chatSession?.chat.messages);
     }
   }
 }

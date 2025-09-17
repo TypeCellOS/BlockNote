@@ -117,7 +117,7 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
    *
    * This is the streaming version.
    */
-  protected async streamOperations(
+  protected async streamObject(
     messages: UIMessage[],
     streamTools: StreamTool<any>[],
   ) {
@@ -231,14 +231,36 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
 
     if (this.opts.objectGeneration) {
       if (this.opts.stream) {
-        return this.streamOperations(messages, streamTools);
+        return this.streamObject(messages, streamTools);
       } else {
         return this.generateObject(messages, streamTools);
       }
     }
 
     if (this.opts.stream) {
-      return this.streamText(messages, streamTools);
+      // this can be used to simulate initial network errors
+      // if (Math.random() < 0.5) {
+      //   throw new Error("fake network error");
+      // }
+
+      const ret = await this.streamText(messages, streamTools);
+
+      // this can be used to simulate network errors while streaming
+      // let i = 0;
+      // return ret.pipeThrough(
+      //   new TransformStream({
+      //     transform(chunk, controller) {
+      //       controller.enqueue(chunk);
+
+      //       if (++i === 200) {
+      //         console.log("cancel stream");
+      //         controller.error(new Error("fake network error"));
+      //       }
+      //     },
+      //   }),
+      // );
+
+      return ret;
     } else {
       // https://github.com/vercel/ai/issues/8380
       throw new Error("Not implemented (generateText)");

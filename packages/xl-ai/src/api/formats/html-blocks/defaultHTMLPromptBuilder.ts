@@ -55,7 +55,7 @@ function promptManipulateSelectionHTMLBlocks(
         {
           type: "text",
           text: `You're manipulating a selected part of a text document using HTML blocks. 
-      Make sure to follow the json schema provided and always include the trailing $ in ids. 
+      Make sure to follow the json schema provided and always include the trailing $ in ids.
       List items are 1 block with 1 list item each, so block content \`<ul><li>item1</li></ul>\` is valid, but \`<ul><li>item1</li><li>item2</li></ul>\` is invalid. We'll merge them automatically.
       This is the selection as an array of html blocks:`,
         },
@@ -82,16 +82,6 @@ function promptManipulateSelectionHTMLBlocks(
         {
           type: "text",
           text: JSON.stringify(opts.htmlDocument),
-        },
-      ],
-    },
-    {
-      role: "system",
-      id: "html-user-prompt",
-      parts: [
-        {
-          type: "text",
-          text: "The user asks you to do the following:",
         },
       ],
     },
@@ -134,10 +124,6 @@ function promptManipulateDocumentUseHTMLBlocks(
         parts: [
           {
             type: "text",
-            text: "The user asks you to do the following:",
-          },
-          {
-            type: "text",
             text: opts.userPrompt,
           },
         ],
@@ -156,7 +142,7 @@ function promptManipulateDocumentUseHTMLBlocks(
         Make sure to follow the json schema provided. When referencing ids they MUST be EXACTLY the same (including the trailing $). 
         List items are 1 block with 1 list item each, so block content \`<ul><li>item1</li></ul>\` is valid, but \`<ul><li>item1</li><li>item2</li></ul>\` is invalid. We'll merge them automatically.
         For code blocks, you can use the \`data-language\` attribute on a code block to specify the language.
-        This is the document as an array of html blocks (the cursor is BETWEEN two blocks as indicated by cursor: true):`,
+        This is the initial document as an array of html blocks (the cursor is BETWEEN two blocks as indicated by cursor: true):`,
         },
       ],
     },
@@ -186,16 +172,6 @@ function promptManipulateDocumentUseHTMLBlocks(
             (opts.isEmptyDocument
               ? `Because the document is empty, first update the empty block before adding new blocks.`
               : "Prefer updating existing blocks over removing and adding (but this also depends on the user's question)."),
-        },
-      ],
-    },
-    {
-      role: "system",
-      id: "html-user-prompt",
-      parts: [
-        {
-          type: "text",
-          text: "The user asks you to do the following:",
         },
       ],
     },

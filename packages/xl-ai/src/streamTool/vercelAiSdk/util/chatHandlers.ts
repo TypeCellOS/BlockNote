@@ -12,6 +12,8 @@ type ToolCallStreamData = {
     DeepPartial<{ operations: StreamToolCall<any>[] }>
   >;
   complete: boolean;
+  toolName: string;
+  toolCallId: string;
   executor: StreamToolExecutor<any>;
 };
 
@@ -54,6 +56,8 @@ function processToolCallParts(
  */
 function createToolCallStream(
   streamTools: StreamTool<any>[],
+  toolName: string,
+  toolCallId: string,
 ): ToolCallStreamData {
   const stream = new TransformStream<
     DeepPartial<{ operations: StreamToolCall<any>[] }>
@@ -74,6 +78,8 @@ function createToolCallStream(
     writer,
     complete: false,
     executor,
+    toolName,
+    toolCallId,
   };
 }
 
@@ -110,39 +116,21 @@ export async function setupToolCallStreaming(
 ) {
   const toolCallStreams = new Map<string, ToolCallStreamData>();
 
-  const executePromises: Promise<void>[] = [];
-
   let first = true;
 
   const unsub = chat["~registerMessagesCallback"](() => {
     processToolCallParts(chat, (data) => {
       if (!toolCallStreams.has(data.toolCallId)) {
-        const toolCallStreamData = createToolCallStream(streamTools);
+        const toolCallStreamData = createToolCallStream(
+          streamTools,
+          data.toolName,
+          data.toolCallId,
+        );
         toolCallStreams.set(data.toolCallId, toolCallStreamData);
         if (first) {
           first = false;
           onStart();
         }
-        executePromises.push(
-          toolCallStreamData.executor.waitTillEnd().then(
-            () => {
-              chat.addToolResult({
-                tool: data.toolName,
-                toolCallId: data.toolCallId,
-                output: { status: "ok" },
-              });
-            },
-            (error) => {
-              // TODO: in a later version of the sdk, make sure we set output-error if possible?
-              // (currently no such method seems to be exposed)
-              chat.addToolResult({
-                tool: data.toolName,
-                toolCallId: data.toolCallId,
-                output: { status: "error", error: getErrorMessage(error) },
-              });
-            },
-          ),
-        );
       }
       return toolCallStreams.get(data.toolCallId)!;
     });
@@ -179,11 +167,33 @@ export async function setupToolCallStreaming(
   });
 
   // wait until all messages have been received
+  // (possible improvement(?): we can abort the request if any of the tool calls fail
+  //  instead of waiting for the entire llm response)
   await statusHandler;
 
   // let all stream executors finish, this can take longer due to artificial delays
   // (e.g. to simulate human typing behaviour)
-  await Promise.all(executePromises);
+
+  const toolCalls = Array.from(toolCallStreams.values());
+  const results = await Promise.allSettled(
+    toolCalls.map((data) => data.executor.waitTillEnd()),
+  );
+
+  // process results
+  results.forEach((result, index) => {
+    chat.addToolResult({
+      tool: toolCalls[index].toolName,
+      toolCallId: toolCalls[index].toolCallId,
+      output:
+        result.status === "fulfilled"
+          ? { status: "ok" }
+          : { status: "error", error: getErrorMessage(result.reason) },
+    });
+  });
+
+  if (results.some((result) => result.status === "rejected")) {
+    throw new Error("Tool call failed");
+  }
 
   if (chat.error) {
     // if there was an error, it's likely we already throwed it in the line above,
