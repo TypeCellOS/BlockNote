@@ -4,8 +4,8 @@ import {
   filterSuggestionItems,
   withPageBreak,
 } from "@blocknote/core";
-import * as locales from "@blocknote/core/locales";
 import "@blocknote/core/fonts/inter.css";
+import * as locales from "@blocknote/core/locales";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
@@ -15,15 +15,15 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 import {
-  PDFExporter,
-  pdfDefaultSchemaMappings,
-} from "@blocknote/xl-pdf-exporter";
-import {
   getMultiColumnSlashMenuItems,
   multiColumnDropCursor,
   locales as multiColumnLocales,
   withMultiColumn,
 } from "@blocknote/xl-multi-column";
+import {
+  PDFExporter,
+  pdfDefaultSchemaMappings,
+} from "@blocknote/xl-pdf-exporter";
 import { pdf, PDFViewer } from "@react-pdf/renderer";
 import { JSX, useEffect, useMemo, useReducer, useState } from "react";
 

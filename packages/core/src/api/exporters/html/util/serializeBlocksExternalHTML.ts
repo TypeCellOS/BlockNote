@@ -1,8 +1,9 @@
-import { DOMSerializer, Fragment } from "prosemirror-model";
+import { DOMSerializer, Fragment, Node } from "prosemirror-model";
 
 import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import {
+  BlockImplementation,
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
@@ -12,6 +13,7 @@ import {
   inlineContentToNodes,
   tableContentToNodes,
 } from "../../../nodeConversions/blockToNode.js";
+import { nodeToCustomInlineContent } from "../../../nodeConversions/nodeToBlock.js";
 
 function addAttributesAndRemoveClasses(element: HTMLElement) {
   // Removes all BlockNote specific class names.
@@ -37,7 +39,7 @@ export function serializeInlineContentExternalHTML<
   serializer: DOMSerializer,
   options?: { document?: Document },
 ) {
-  let nodes: any;
+  let nodes: Node[];
 
   // TODO: reuse function from nodeconversions?
   if (!blockContent) {
@@ -52,16 +54,63 @@ export function serializeInlineContentExternalHTML<
     throw new UnreachableCaseError(blockContent.type);
   }
 
-  // We call the prosemirror serializer here because it handles Marks and Inline Content nodes nicely.
-  // If we'd want to support custom serialization or externalHTML for Inline Content, we'd have to implement
-  // a custom serializer here.
-  const dom = serializer.serializeFragment(Fragment.from(nodes), options);
+  // Check if any of the nodes are custom inline content with toExternalHTML
+  const doc = options?.document ?? document;
+  const fragment = doc.createDocumentFragment();
 
-  if (dom.nodeType === 1 /* Node.ELEMENT_NODE */) {
-    addAttributesAndRemoveClasses(dom as HTMLElement);
+  for (const node of nodes) {
+    // Check if this is a custom inline content node with toExternalHTML
+    if (editor.schema.inlineContentSchema[node.type.name]) {
+      const inlineContentImplementation =
+        editor.schema.inlineContentSpecs[node.type.name].implementation;
+
+      if (inlineContentImplementation?.toExternalHTML) {
+        // Convert the node to inline content format
+        const inlineContent = nodeToCustomInlineContent(
+          node,
+          editor.schema.inlineContentSchema,
+          editor.schema.styleSchema,
+        );
+
+        // Use the custom toExternalHTML method
+        const output = inlineContentImplementation.toExternalHTML(
+          inlineContent as any,
+          editor as any,
+        );
+
+        if (output) {
+          fragment.appendChild(output.dom);
+
+          // If contentDOM exists, render the inline content into it
+          if (output.contentDOM) {
+            const contentFragment = serializer.serializeFragment(
+              node.content,
+              options,
+            );
+            output.contentDOM.dataset.editable = "";
+            output.contentDOM.appendChild(contentFragment);
+          }
+          continue;
+        }
+      }
+    }
+
+    // Fall back to default serialization for this node
+    const nodeFragment = serializer.serializeFragment(
+      Fragment.from([node]),
+      options,
+    );
+    fragment.appendChild(nodeFragment);
   }
 
-  return dom;
+  if (
+    fragment.childNodes.length === 1 &&
+    fragment.firstChild?.nodeType === 1 /* Node.ELEMENT_NODE */
+  ) {
+    addAttributesAndRemoveClasses(fragment.firstChild as HTMLElement);
+  }
+
+  return fragment;
 }
 
 /**
@@ -85,16 +134,13 @@ function serializeBlock<
   const doc = options?.document ?? document;
   const BC_NODE = editor.pmSchema.nodes["blockContainer"];
 
-  let props = block.props;
   // set default props in case we were passed a partial block
-  if (!block.props) {
-    props = {};
-    for (const [name, spec] of Object.entries(
-      editor.schema.blockSchema[block.type as any].propSchema,
-    )) {
-      if (spec.default !== undefined) {
-        (props as any)[name] = spec.default;
-      }
+  const props = block.props || {};
+  for (const [name, spec] of Object.entries(
+    editor.schema.blockSchema[block.type as any].propSchema,
+  )) {
+    if (!(name in props) && spec.default !== undefined) {
+      (props as any)[name] = spec.default;
     }
   }
 
@@ -112,15 +158,26 @@ function serializeBlock<
   // we should change toExternalHTML so that this is not necessary
   const attrs = Array.from(bc.dom.attributes);
 
-  const ret = editor.blockImplementations[
-    block.type as any
-  ].implementation.toExternalHTML({ ...block, props } as any, editor as any);
+  const blockImplementation = editor.blockImplementations[block.type as any]
+    .implementation as BlockImplementation;
+  const ret =
+    blockImplementation.toExternalHTML?.call(
+      {},
+      { ...block, props } as any,
+      editor as any,
+    ) ||
+    blockImplementation.render.call(
+      {},
+      { ...block, props } as any,
+      editor as any,
+    );
 
   const elementFragment = doc.createDocumentFragment();
-  if (ret.dom.classList.contains("bn-block-content")) {
+
+  if ((ret.dom as HTMLElement).classList.contains("bn-block-content")) {
     const blockContentDataAttributes = [
       ...attrs,
-      ...Array.from(ret.dom.attributes),
+      ...Array.from((ret.dom as HTMLElement).attributes),
     ].filter(
       (attr) =>
         attr.name.startsWith("data") &&
@@ -129,7 +186,6 @@ function serializeBlock<
         attr.name !== "data-node-view-wrapper" &&
         attr.name !== "data-node-type" &&
         attr.name !== "data-id" &&
-        attr.name !== "data-index" &&
         attr.name !== "data-editable",
     );
 
@@ -166,14 +222,17 @@ function serializeBlock<
     if (fragment.lastChild?.nodeName !== listType) {
       const list = doc.createElement(listType);
 
-      if (listType === "OL" && props?.start && props?.start !== 1) {
+      if (
+        listType === "OL" &&
+        "start" in props &&
+        props.start &&
+        props?.start !== 1
+      ) {
         list.setAttribute("start", props.start + "");
       }
       fragment.append(list);
     }
-    const li = doc.createElement("li");
-    li.append(elementFragment);
-    fragment.lastChild!.appendChild(li);
+    fragment.lastChild!.appendChild(elementFragment);
   } else {
     fragment.append(elementFragment);
   }

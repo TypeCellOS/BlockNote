@@ -1,14 +1,7 @@
-import {
-  Attribute,
-  Attributes,
-  Editor,
-  Extension,
-  Node,
-  NodeConfig,
-} from "@tiptap/core";
+import { Attribute, Attributes, Editor, Node } from "@tiptap/core";
 import { defaultBlockToHTML } from "../../blocks/defaultBlockHelpers.js";
-import { inheritedProps } from "../../blocks/defaultProps.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import { mergeCSSClasses } from "../../util/browser.js";
 import { camelToDataKebab } from "../../util/string.js";
 import { InlineContentSchema } from "../inlineContent/types.js";
@@ -16,12 +9,9 @@ import { PropSchema, Props } from "../propTypes.js";
 import { StyleSchema } from "../styles/types.js";
 import {
   BlockConfig,
-  BlockSchemaFromSpecs,
   BlockSchemaWithBlock,
-  BlockSpec,
-  BlockSpecs,
+  LooseBlockSpec,
   SpecificBlock,
-  TiptapBlockImplementation,
 } from "./types.js";
 
 // Function that uses the 'propSchema' of a blockConfig to create a TipTap
@@ -30,64 +20,62 @@ import {
 export function propsToAttributes(propSchema: PropSchema): Attributes {
   const tiptapAttributes: Record<string, Attribute> = {};
 
-  Object.entries(propSchema)
-    .filter(([name, _spec]) => !inheritedProps.includes(name))
-    .forEach(([name, spec]) => {
-      tiptapAttributes[name] = {
-        default: spec.default,
-        keepOnSplit: true,
-        // Props are displayed in kebab-case as HTML attributes. If a prop's
-        // value is the same as its default, we don't display an HTML
-        // attribute for it.
-        parseHTML: (element) => {
-          const value = element.getAttribute(camelToDataKebab(name));
+  Object.entries(propSchema).forEach(([name, spec]) => {
+    tiptapAttributes[name] = {
+      default: spec.default,
+      keepOnSplit: true,
+      // Props are displayed in kebab-case as HTML attributes. If a prop's
+      // value is the same as its default, we don't display an HTML
+      // attribute for it.
+      parseHTML: (element) => {
+        const value = element.getAttribute(camelToDataKebab(name));
 
-          if (value === null) {
-            return null;
+        if (value === null) {
+          return null;
+        }
+
+        if (
+          (spec.default === undefined && spec.type === "boolean") ||
+          (spec.default !== undefined && typeof spec.default === "boolean")
+        ) {
+          if (value === "true") {
+            return true;
           }
 
-          if (
-            (spec.default === undefined && spec.type === "boolean") ||
-            (spec.default !== undefined && typeof spec.default === "boolean")
-          ) {
-            if (value === "true") {
-              return true;
-            }
-
-            if (value === "false") {
-              return false;
-            }
-
-            return null;
+          if (value === "false") {
+            return false;
           }
 
-          if (
-            (spec.default === undefined && spec.type === "number") ||
-            (spec.default !== undefined && typeof spec.default === "number")
-          ) {
-            const asNumber = parseFloat(value);
-            const isNumeric =
-              !Number.isNaN(asNumber) && Number.isFinite(asNumber);
+          return null;
+        }
 
-            if (isNumeric) {
-              return asNumber;
-            }
+        if (
+          (spec.default === undefined && spec.type === "number") ||
+          (spec.default !== undefined && typeof spec.default === "number")
+        ) {
+          const asNumber = parseFloat(value);
+          const isNumeric =
+            !Number.isNaN(asNumber) && Number.isFinite(asNumber);
 
-            return null;
+          if (isNumeric) {
+            return asNumber;
           }
 
-          return value;
-        },
-        renderHTML: (attributes) => {
-          // don't render to html if the value is the same as the default
-          return attributes[name] !== spec.default
-            ? {
-                [camelToDataKebab(name)]: attributes[name],
-              }
-            : {};
-        },
-      };
-    });
+          return null;
+        }
+
+        return value;
+      },
+      renderHTML: (attributes) => {
+        // don't render to html if the value is the same as the default
+        return attributes[name] !== spec.default
+          ? {
+              [camelToDataKebab(name)]: attributes[name],
+            }
+          : {};
+      },
+    };
+  });
 
   return tiptapAttributes;
 }
@@ -145,12 +133,12 @@ export function wrapInBlockStructure<
   PSchema extends PropSchema,
 >(
   element: {
-    dom: HTMLElement;
+    dom: HTMLElement | DocumentFragment;
     contentDOM?: HTMLElement;
     destroy?: () => void;
   },
   blockType: BType,
-  blockProps: Props<PSchema>,
+  blockProps: Partial<Props<PSchema>>,
   propSchema: PSchema,
   isFileBlock = false,
   domAttributes?: Record<string, string>,
@@ -183,7 +171,7 @@ export function wrapInBlockStructure<
   for (const [prop, value] of Object.entries(blockProps)) {
     const spec = propSchema[prop];
     const defaultValue = spec.default;
-    if (!inheritedProps.includes(prop) && value !== defaultValue) {
+    if (value !== defaultValue) {
       blockContent.setAttribute(camelToDataKebab(prop), value);
     }
   }
@@ -194,7 +182,7 @@ export function wrapInBlockStructure<
 
   blockContent.appendChild(element.dom);
 
-  if (element.contentDOM !== undefined) {
+  if (element.contentDOM) {
     element.contentDOM.className = mergeCSSClasses(
       "bn-inline-content",
       element.contentDOM.className,
@@ -207,76 +195,29 @@ export function wrapInBlockStructure<
   };
 }
 
-// Helper type to keep track of the `name` and `content` properties after calling Node.create.
-type StronglyTypedTipTapNode<
-  Name extends string,
-  Content extends
-    | "inline*"
-    | "tableRow+"
-    | "blockContainer+"
-    | "column column+"
-    | "",
-> = Node & { name: Name; config: { content: Content } };
-
-export function createStronglyTypedTiptapNode<
-  Name extends string,
-  Content extends
-    | "inline*"
-    | "tableRow+"
-    | "blockContainer+"
-    | "column column+"
-    | "",
->(config: NodeConfig & { name: Name; content: Content }) {
-  return Node.create(config) as StronglyTypedTipTapNode<Name, Content>; // force re-typing (should be safe as it's type-checked from the config)
-}
-
-// This helper function helps to instantiate a blockspec with a
-// config and implementation that conform to the type of Config
-export function createInternalBlockSpec<T extends BlockConfig>(
-  config: T,
-  implementation: TiptapBlockImplementation<
-    T,
-    any,
-    InlineContentSchema,
-    StyleSchema
-  >,
-) {
-  return {
-    config,
-    implementation,
-  } satisfies BlockSpec<T, any, InlineContentSchema, StyleSchema>;
-}
-
-export function createBlockSpecFromStronglyTypedTiptapNode<
-  T extends Node,
+export function createBlockSpecFromTiptapNode<
+  const T extends {
+    node: Node;
+    type: string;
+    content: "inline" | "table" | "none";
+  },
   P extends PropSchema,
->(node: T, propSchema: P, requiredExtensions?: Array<Extension | Node>) {
-  return createInternalBlockSpec(
-    {
-      type: node.name as T["name"],
-      content: (node.config.content === "inline*"
-        ? "inline"
-        : node.config.content === "tableRow+"
-          ? "table"
-          : "none") as T["config"]["content"] extends "inline*"
-        ? "inline"
-        : T["config"]["content"] extends "tableRow+"
-          ? "table"
-          : "none",
+>(
+  config: T,
+  propSchema: P,
+  extensions?: BlockNoteExtension<any>[],
+): LooseBlockSpec<T["type"], P, T["content"]> {
+  return {
+    config: {
+      type: config.type as T["type"],
+      content: config.content,
       propSchema,
     },
-    {
-      node,
-      requiredExtensions,
-      toInternalHTML: defaultBlockToHTML,
+    implementation: {
+      node: config.node,
+      render: defaultBlockToHTML,
       toExternalHTML: defaultBlockToHTML,
-      // parse: () => undefined, // parse rules are in node already
     },
-  );
-}
-
-export function getBlockSchemaFromSpecs<T extends BlockSpecs>(specs: T) {
-  return Object.fromEntries(
-    Object.entries(specs).map(([key, value]) => [key, value.config]),
-  ) as BlockSchemaFromSpecs<T>;
+    extensions,
+  };
 }

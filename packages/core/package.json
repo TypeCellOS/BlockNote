@@ -57,6 +57,11 @@
       "import": "./dist/comments.js",
       "require": "./dist/comments.cjs"
     },
+    "./blocks": {
+      "types": "./types/src/blocks/index.d.ts",
+      "import": "./dist/blocks.js",
+      "require": "./dist/blocks.cjs"
+    },
     "./locales": {
       "types": "./types/src/i18n/index.d.ts",
       "import": "./dist/locales.js",
