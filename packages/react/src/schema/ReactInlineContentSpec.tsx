@@ -207,12 +207,14 @@ export function createReactInlineContentSpec<
                       editor.pmSchema,
                     );
 
+                    const pos = props.getPos();
+
+                    if (pos === undefined) {
+                      return;
+                    }
+
                     editor.transact((tr) =>
-                      tr.replaceWith(
-                        props.getPos(),
-                        props.getPos() + props.node.nodeSize,
-                        content,
-                      ),
+                      tr.replaceWith(pos, pos + props.node.nodeSize, content),
                     );
                   }}
                 />

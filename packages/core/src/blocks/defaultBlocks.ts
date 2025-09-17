@@ -16,9 +16,8 @@ import {
   createQuoteBlockSpec,
   createToggleListItemBlockSpec,
   createVideoBlockSpec,
+  defaultProps,
 } from "./index.js";
-import { BackgroundColor } from "../extensions/BackgroundColor/BackgroundColorMark.js";
-import { TextColor } from "../extensions/TextColor/TextColorMark.js";
 import {
   BlockNoDefaults,
   BlockSchema,
@@ -27,11 +26,13 @@ import {
   PartialBlockNoDefaults,
   StyleSchema,
   StyleSpecs,
+  createStyleSpec,
   createStyleSpecFromTipTapMark,
   getInlineContentSchemaFromSpecs,
   getStyleSchemaFromSpecs,
 } from "../schema/index.js";
 import { createTableBlockSpec } from "./Table/block.js";
+import { COLORS_DEFAULT } from "../editor/defaultColors.js";
 
 export const defaultBlockSpecs = {
   audio: createAudioBlockSpec(),
@@ -55,6 +56,78 @@ export type _DefaultBlockSchema = {
   [K in keyof typeof defaultBlockSpecs]: (typeof defaultBlockSpecs)[K]["config"];
 };
 export type DefaultBlockSchema = _DefaultBlockSchema;
+
+const TextColor = createStyleSpec(
+  {
+    type: "textColor",
+    propSchema: "string",
+  },
+  {
+    render: () => {
+      const span = document.createElement("span");
+
+      return {
+        dom: span,
+        contentDOM: span,
+      };
+    },
+    toExternalHTML: (value) => {
+      const span = document.createElement("span");
+      if (value !== defaultProps.textColor.default) {
+        span.style.color =
+          value in COLORS_DEFAULT ? COLORS_DEFAULT[value].text : value;
+      }
+
+      return {
+        dom: span,
+        contentDOM: span,
+      };
+    },
+    parse: (element) => {
+      if (element.tagName === "SPAN" && element.style.color) {
+        return element.style.color;
+      }
+
+      return undefined;
+    },
+  },
+);
+
+const BackgroundColor = createStyleSpec(
+  {
+    type: "backgroundColor",
+    propSchema: "string",
+  },
+  {
+    render: () => {
+      const span = document.createElement("span");
+
+      return {
+        dom: span,
+        contentDOM: span,
+      };
+    },
+    toExternalHTML: (value) => {
+      const span = document.createElement("span");
+      if (value !== defaultProps.backgroundColor.default) {
+        span.style.backgroundColor =
+          value in COLORS_DEFAULT ? COLORS_DEFAULT[value].background : value;
+      }
+
+      return {
+        dom: span,
+        contentDOM: span,
+      };
+    },
+    parse: (element) => {
+      if (element.tagName === "SPAN" && element.style.backgroundColor) {
+        return element.style.backgroundColor;
+      }
+
+      return undefined;
+    },
+  },
+);
 
 export const defaultStyleSpecs = {
   bold: createStyleSpecFromTipTapMark(Bold, "boolean"),

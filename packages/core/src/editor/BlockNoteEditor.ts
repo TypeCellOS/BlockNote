@@ -1,5 +1,6 @@
 import {
   AnyExtension,
+  createDocument,
   EditorOptions,
   Extension,
   getSchema,
@@ -7,6 +8,7 @@ import {
   isNodeSelection,
   Mark,
   posToDOMRect,
+  Editor as TiptapEditor,
   Node as TipTapNode,
 } from "@tiptap/core";
 import { redo, undo } from "@tiptap/pm/history";
@@ -18,7 +20,6 @@ import {
 } from "@tiptap/pm/state";
 import { dropCursor } from "prosemirror-dropcursor";
 import { Node, Schema } from "prosemirror-model";
-import { EditorView } from "prosemirror-view";
 import { redoCommand, undoCommand, ySyncPluginKey } from "y-prosemirror";
 import * as Y from "yjs";
 
@@ -62,7 +63,10 @@ import {
   BlocksChanged,
   getBlocksChangedByTransaction,
 } from "../api/getBlocksChangedByTransaction.js";
-import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
+import {
+  blockToNode,
+  inlineContentToNodes,
+} from "../api/nodeConversions/blockToNode.js";
 import { docToBlocks } from "../api/nodeConversions/nodeToBlock.js";
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
 import {
@@ -104,10 +108,6 @@ import { EventEmitter } from "../util/EventEmitter.js";
 import { NoInfer, UnreachableCaseError } from "../util/typescript.js";
 import { BlockNoteExtension } from "./BlockNoteExtension.js";
 import { getBlockNoteExtensions } from "./BlockNoteExtensions.js";
-import {
-  BlockNoteTipTapEditor,
-  BlockNoteTipTapEditorOptions,
-} from "./BlockNoteTipTapEditor.js";
 import { TextCursorPosition } from "./cursorPositionTypes.js";
 import { Selection } from "./selectionTypes.js";
 import { transformPasted } from "./transformPasted.js";
@@ -436,16 +436,6 @@ export type BlockNoteEditorOptions<
    * @internal
    */
   extensions?: Array<BlockNoteExtension | BlockNoteExtensionFactory>;
-
-  /**
-   * Boolean indicating whether the editor is in headless mode.
-   * Headless mode means we can use features like importing / exporting blocks,
-   * but there's no underlying editor (UI) instantiated.
-   *
-   * You probably don't need to set this manually, but use the `server-util` package instead that uses this option internally
-   * @internal
-   */
-  _headless?: boolean;
 };
 
 const blockNoteTipTapOptions = {
@@ -471,19 +461,9 @@ export class BlockNoteEditor<
    */
   public extensions: Record<string, SupportedExtension> = {};
 
-  /**
-   * Boolean indicating whether the editor is in headless mode.
-   * Headless mode means we can use features like importing / exporting blocks,
-   * but there's no underlying editor (UI) instantiated.
-   *
-   * You probably don't need to set this manually, but use the `server-util` package instead that uses this option internally
-   */
-  public readonly headless: boolean = false;
-
-  public readonly _tiptapEditor: Omit<BlockNoteTipTapEditor, "view"> & {
-    view: EditorView | undefined;
+  public readonly _tiptapEditor: TiptapEditor & {
     contentComponent: any;
-  } = undefined as any; // TODO: Type should actually reflect that it can be `undefined` in headless mode
+  };
 
   /**
    * Used by React to store a reference to an `ElementRenderer` helper utility to make sure we can render React elements
@@ -638,7 +618,6 @@ export class BlockNoteEditor<
           ISchema,
           SSchema
         >),
-      _headless: false,
       ...options,
       placeholders: {
         ...this.dictionary.placeholders,
@@ -754,7 +733,6 @@ export class BlockNoteEditor<
     }
 
     this.resolveFileUrl = newOptions.resolveFileUrl;
-    this.headless = newOptions._headless;
 
     const collaborationEnabled =
       "ySyncPlugin" in this.extensions ||
@@ -767,28 +745,6 @@ export class BlockNoteEditor<
       );
     }
 
-    const initialContent =
-      newOptions.initialContent ||
-      (collaborationEnabled
-        ? [
-            {
-              type: "paragraph",
-              id: "initialBlockId",
-            },
-          ]
-        : [
-            {
-              type: "paragraph",
-              id: UniqueID.options.generateID(),
-            },
-          ]);
-
-    if (!Array.isArray(initialContent) || initialContent.length === 0) {
-      throw new Error(
-        "initialContent must be a non-empty array of blocks, received: " +
-          initialContent,
-      );
-    }
     const blockExtensions = Object.fromEntries(
       Object.values(this.schema.blockSpecs)
         .map((block) => (block as any).extensions as any)
@@ -886,10 +842,10 @@ export class BlockNoteEditor<
         },
       ),
     ].filter((ext): ext is Extension => ext !== undefined);
-    const tiptapOptions: BlockNoteTipTapEditorOptions = {
+    const tiptapOptions: EditorOptions = {
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
-      content: initialContent,
+      element: null,
       extensions: tiptapExtensions,
       editorProps: {
         ...newOptions._tiptapOptions?.editorProps,
@@ -908,22 +864,61 @@ export class BlockNoteEditor<
         },
         transformPasted,
       },
-    };
+    } as any;
 
-    if (!this.headless) {
-      this._tiptapEditor = BlockNoteTipTapEditor.create(
-        tiptapOptions,
-        this.schema.styleSchema,
-      ) as BlockNoteTipTapEditor & {
-        view: any;
-        contentComponent: any;
-      };
+    try {
+      const initialContent =
+        newOptions.initialContent ||
+        (collaborationEnabled
+          ? [
+              {
+                type: "paragraph",
+                id: "initialBlockId",
+              },
+            ]
+          : [
+              {
+                type: "paragraph",
+                id: UniqueID.options.generateID(),
+              },
+            ]);
+
+      if (!Array.isArray(initialContent) || initialContent.length === 0) {
+        throw new Error(
+          "initialContent must be a non-empty array of blocks, received: " +
+            initialContent,
+        );
+      }
+      const schema = getSchema(tiptapOptions.extensions!);
+      const pmNodes = initialContent.map((b) =>
+        blockToNode(b, schema, this.schema.styleSchema).toJSON(),
+      );
+      const doc = createDocument(
+        {
+          type: "doc",
+          content: [
+            {
+              type: "blockGroup",
+              content: pmNodes,
+            },
+          ],
+        },
+        schema,
+        tiptapOptions.parseOptions,
+      );
+
+      this._tiptapEditor = new TiptapEditor({
+        ...tiptapOptions,
+        content: doc.toJSON(),
+      }) as any;
       this.pmSchema = this._tiptapEditor.schema;
-    } else {
-      // In headless mode, we don't instantiate an underlying TipTap editor,
-      // but we still need the schema
-      this.pmSchema = getSchema(tiptapOptions.extensions!);
+    } catch (e) {
+      throw new Error(
+        "Error creating document from blocks passed as `initialContent`",
+        { cause: e },
+      );
     }
+
     this.pmSchema.cached.blockNoteEditor = this;
     this.emit("create");
   }
@@ -953,7 +948,7 @@ export class BlockNoteEditor<
     }
     const state = this._tiptapEditor.state;
     const view = this._tiptapEditor.view;
-    const dispatch = (tr: Transaction) => this._tiptapEditor.dispatch(tr);
+    const dispatch = (tr: Transaction) => view.dispatch(tr);
 
     return command(state, dispatch, view);
   }
@@ -1036,7 +1031,7 @@ export class BlockNoteEditor<
           !activeTr.isGeneric)
       ) {
         // Dispatch the transaction if it was modified
-        this._tiptapEditor.dispatch(activeTr);
+        this._tiptapEditor.view.dispatch(activeTr);
       }
 
       return result;
@@ -1065,17 +1060,21 @@ export class BlockNoteEditor<
     }
     return extension;
   }
-
   /**
-   * Mount the editor to a parent DOM element. Call mount(undefined) to clean up
+   * Mount the editor to a DOM element.
    *
    * @warning Not needed to call manually when using React, use BlockNoteView to take care of mounting
    */
-  public mount = (
-    parentElement?: HTMLElement | null,
-    contentComponent?: any,
-  ) => {
-    this._tiptapEditor.mount(this, parentElement, contentComponent);
+  public mount = (element: HTMLElement) => {
+    // TODO: Fix typing for this in a TipTap PR
+    this._tiptapEditor.mount({ mount: element } as any);
+  };
+
+  /**
+   * Unmount the editor from the DOM element it is bound to
+   */
+  public unmount = () => {
+    this._tiptapEditor.unmount();
   };
 
   /**
@@ -1108,8 +1107,15 @@ export class BlockNoteEditor<
     return this.prosemirrorView?.hasFocus() || false;
   }
 
+  public get headless() {
+    return !this._tiptapEditor.isInitialized;
+  }
+
   public focus() {
-    this.prosemirrorView?.focus();
+    if (this.headless) {
+      return;
+    }
+    this.prosemirrorView.focus();
   }
 
   public onUploadStart(callback: (blockId?: string) => void) {
@@ -1326,12 +1332,6 @@ export class BlockNoteEditor<
    * @returns True if the editor is editable, false otherwise.
    */
   public get isEditable(): boolean {
-    if (!this._tiptapEditor) {
-      if (!this.headless) {
-        throw new Error("no editor, but also not headless?");
-      }
-      return false;
-    }
     return this._tiptapEditor.isEditable === undefined
       ? true
       : this._tiptapEditor.isEditable;
@@ -1342,13 +1342,6 @@ export class BlockNoteEditor<
    * @param editable True to make the editor editable, or false to lock it.
    */
   public set isEditable(editable: boolean) {
-    if (!this._tiptapEditor) {
-      if (!this.headless) {
-        throw new Error("no editor, but also not headless?");
-      }
-      // not relevant on headless
-      return;
-    }
     if (this._tiptapEditor.options.editable !== editable) {
       this._tiptapEditor.setEditable(editable);
     }
@@ -1725,12 +1718,6 @@ export class BlockNoteEditor<
       },
     ) => boolean | void,
   ): () => void {
-    if (this.headless) {
-      return () => {
-        // noop
-      };
-    }
-
     return (this.extensions["blockChange"] as BlockChangePlugin).subscribe(
       (context) => callback(this, context),
     );
@@ -1753,11 +1740,6 @@ export class BlockNoteEditor<
       },
     ) => void,
   ) {
-    if (this.headless) {
-      // Note: would be nice if this is possible in headless mode as well
-      return;
-    }
-
     const cb = ({
       transaction,
       appendedTransactions,
@@ -1771,10 +1753,10 @@ export class BlockNoteEditor<
       });
     };
 
-    this._tiptapEditor.on("v3-update", cb);
+    this._tiptapEditor.on("update", cb);
 
     return () => {
-      this._tiptapEditor.off("v3-update", cb);
+      this._tiptapEditor.off("update", cb);
     };
   }
 
@@ -1788,10 +1770,6 @@ export class BlockNoteEditor<
     callback: (editor: BlockNoteEditor<BSchema, ISchema, SSchema>) => void,
     includeSelectionChangedByRemote?: boolean,
   ) {
-    if (this.headless) {
-      return;
-    }
-
     const cb = (e: { transaction: Transaction }) => {
       if (
         e.transaction.getMeta(ySyncPluginKey) &&
