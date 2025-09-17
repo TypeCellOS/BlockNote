@@ -6,13 +6,17 @@ export function getEnv(key: string) {
         BLOCKNOTE_AI_SERVER_API_KEY: (import.meta as any).env
           .VITE_BLOCKNOTE_AI_SERVER_API_KEY,
         BLOCKNOTE_AI_SERVER_BASE_URL: (import.meta as any).env
-          .VITE_BLOCKNOTE_AI_SERVER_BASE_URL,
+          .VITE_BLOCKNOTE_AI_SERVER_BASE_URL
+          ? "https://blocknote-pr-2007.onrender.com/ai/vercel-ai-sdk"
+          : undefined,
       }
     : {
         BLOCKNOTE_AI_SERVER_API_KEY:
           process.env.NEXT_PUBLIC_BLOCKNOTE_AI_SERVER_API_KEY,
-        BLOCKNOTE_AI_SERVER_BASE_URL:
-          process.env.NEXT_PUBLIC_BLOCKNOTE_AI_SERVER_BASE_URL,
+        BLOCKNOTE_AI_SERVER_BASE_URL: process.env
+          .NEXT_PUBLIC_BLOCKNOTE_AI_SERVER_BASE_URL
+          ? "https://blocknote-pr-2007.onrender.com/ai/vercel-ai-sdk"
+          : undefined,
       };
 
   const value = env[key as keyof typeof env];
