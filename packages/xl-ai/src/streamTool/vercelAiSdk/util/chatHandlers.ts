@@ -112,7 +112,7 @@ function processToolCallPart(part: any, toolCallData: ToolCallStreamData) {
 export async function setupToolCallStreaming(
   streamTools: StreamTool<any>[],
   chat: Chat<UIMessage>,
-  onStart: () => void,
+  onStart?: () => void,
 ) {
   const toolCallStreams = new Map<string, ToolCallStreamData>();
 
@@ -129,7 +129,7 @@ export async function setupToolCallStreaming(
         toolCallStreams.set(data.toolCallId, toolCallStreamData);
         if (first) {
           first = false;
-          onStart();
+          onStart?.();
         }
       }
       return toolCallStreams.get(data.toolCallId)!;

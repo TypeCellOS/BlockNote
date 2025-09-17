@@ -87,7 +87,7 @@ export const htmlBlockLLMFormat = {
     ) => {
       return getStreamTools(
         editor,
-        opts.withDelays || true,
+        opts.withDelays ?? true,
         opts.defaultStreamTools,
         selectionInfo,
         onBlockUpdate,

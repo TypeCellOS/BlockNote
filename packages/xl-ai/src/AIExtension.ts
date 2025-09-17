@@ -14,15 +14,9 @@ import { Fragment, Slice } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { fixTablesKey } from "prosemirror-tables";
 import { createStore, StoreApi } from "zustand/vanilla";
-import { defaultHTMLPromptBuilder } from "./api/formats/html-blocks/defaultHTMLPromptBuilder.js";
-import { htmlBlockLLMFormat } from "./api/formats/html-blocks/htmlBlocks.js";
-import { defaultHTMLPromptDataBuilder } from "./api/formats/html-blocks/htmlPromptData.js";
-import { promptAIRequestSender } from "./api/formats/promptAIRequestSender.js";
-import { trimEmptyBlocks } from "./api/promptHelpers/trimEmptyBlocks.js";
+import { doLLMRequest } from "./api/LLMRequest.js";
 import { createAgentCursorPlugin } from "./plugins/AgentCursorPlugin.js";
-import { setupToolCallStreaming } from "./streamTool/vercelAiSdk/util/chatHandlers.js";
 import { LLMRequestHelpers, LLMRequestOptions } from "./types.js";
-import { isEmptyParagraph } from "./util/emptyBlock.js";
 
 type ReadonlyStoreApi<T> = Pick<
   StoreApi<T>,
@@ -342,68 +336,18 @@ export class AIExtension extends BlockNoteExtension {
         this.chatSession.previousRequestOptions = opts;
       }
       const chat = this.chatSession.chat;
+
+      // merge the global options with the local options
       const globalOpts = this.options.getState();
-
-      const {
-        userPrompt,
-        useSelection,
-        deleteEmptyCursorBlock,
-        streamToolsProvider,
-
-        promptBuilder,
-
-        transport,
-        ...rest
-      } = {
-        deleteEmptyCursorBlock: true, // default true
+      opts = {
         ...globalOpts,
         ...opts,
-      };
+      } as LLMRequestOptions;
 
-      let { aiRequestSender } = {
-        ...rest,
-      };
-
-      if (aiRequestSender && promptBuilder) {
-        throw new Error(
-          "messageSender and promptBuilder cannot be used together",
-        );
-      }
-
-      if (!aiRequestSender) {
-        aiRequestSender = promptAIRequestSender(
-          promptBuilder ?? defaultHTMLPromptBuilder,
-          defaultHTMLPromptDataBuilder,
-        );
-      }
-
-      const cursorBlock = useSelection
-        ? undefined
-        : this.editor.getTextCursorPosition().block;
-
-      const emptyCursorBlockToDelete: string | undefined =
-        cursorBlock &&
-        deleteEmptyCursorBlock &&
-        isEmptyParagraph(cursorBlock) &&
-        trimEmptyBlocks(this.editor.document).length > 0
-          ? cursorBlock.id
-          : undefined;
-
-      const selectionInfo = useSelection
-        ? this.editor.getSelectionCutBlocks()
-        : undefined;
-
-      const streamTools = (
-        streamToolsProvider ?? htmlBlockLLMFormat.getStreamToolsProvider()
-      ).getStreamTools(
+      await doLLMRequest(
         this.editor,
-        selectionInfo
-          ? {
-              from: selectionInfo._meta.startPos,
-              to: selectionInfo._meta.endPos,
-            }
-          : undefined,
-        // TODO: remove?
+        chat,
+        opts,
         (blockId: string) => {
           // NOTE: does this setState with an anon object trigger unnecessary re-renders?
           this._store.setState({
@@ -413,31 +357,10 @@ export class AIExtension extends BlockNoteExtension {
             },
           });
         },
-      );
-
-      const executePromise = setupToolCallStreaming(streamTools, chat, () => {
-        this.setAIResponseStatus("ai-writing");
-        if (emptyCursorBlockToDelete) {
-          this.editor.removeBlocks([emptyCursorBlockToDelete]);
-        }
-      });
-
-      await aiRequestSender.sendAIRequest(
-        {
-          editor: this.editor,
-          chat,
-          blockNoteUserPrompt: {
-            userPrompt,
-            selectedBlocks: selectionInfo?.blocks,
-            streamTools,
-            emptyCursorBlockToDelete,
-          },
+        () => {
+          this.setAIResponseStatus("ai-writing");
         },
-        opts.chatRequestOptions,
       );
-
-      // TODO: what if no tool calls were made?
-      await executePromise;
 
       this.setAIResponseStatus("user-reviewing");
     } catch (e) {

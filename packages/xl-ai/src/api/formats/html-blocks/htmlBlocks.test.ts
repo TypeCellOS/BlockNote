@@ -3,9 +3,9 @@ import { getSortedEntries, snapshot, toHashString } from "msw-snapshot";
 import { setupServer } from "msw/node";
 import path from "path";
 import { afterAll, afterEach, beforeAll, describe } from "vitest";
-import { ClientSideTransport } from "../../../streamTool/vercelAiSdk/clientside/ClientSideTransport.js";
 import { testAIModels } from "../../../testUtil/testAIModels.js";
 
+import { ClientSideTransport } from "../../../streamTool/vercelAiSdk/clientside/ClientSideTransport.js";
 import { generateSharedTestCases } from "../tests/sharedTestCases.js";
 import { htmlBlockLLMFormat } from "./htmlBlocks.js";
 
@@ -123,18 +123,31 @@ describe("Models", () => {
       params.stream ? "streaming" : "non-streaming"
     })`, () => {
       generateSharedTestCases(
-        (editor, options) =>
-          doLLMRequest(editor, {
-            ...options,
-            dataFormat: htmlBlockLLMFormat,
+        {
+          streamToolsProvider: htmlBlockLLMFormat.getStreamToolsProvider({
             withDelays: false,
-
-            transport: new ClientSideTransport({
-              model: params.model,
-              maxRetries: 0,
-              stream: params.stream,
-            }),
           }),
+          transport: new ClientSideTransport({
+            model: params.model,
+            stream: params.stream,
+            objectGeneration: true,
+            _additionalOptions: {
+              maxRetries: 0,
+            },
+          }),
+        },
+        // (editor, options) =>
+        // doLLMRequest(editor, {
+        //   ...options,
+        //   dataFormat: htmlBlockLLMFormat,
+        //   withDelays: false,
+
+        //   transport: new ClientSideTransport({
+        //     model: params.model,
+        //     maxRetries: 0,
+        //     stream: params.stream,
+        //   }),
+        // }),
         // TODO: remove when matthew's parsing PR is merged
         {
           textAlignment: true,
