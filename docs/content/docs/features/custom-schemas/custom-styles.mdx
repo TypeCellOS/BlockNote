@@ -81,13 +81,13 @@ type ReactCustomStyleImplementation = {
 
 - `contentRef:` A React `ref` to mark the editable element.
 
-<Callout type="info">
-  _Note that in contrast to Custom Blocks and Inline Content, the `render`
-  function of Custom Styles cannot access React Context or other state. They
-  should be plain React functions analogous to the example._
-</Callout>
-
 `toExternalHTML?:` This component is used whenever the style is being exported to HTML for use outside BlockNote, for example when copying it to the clipboard. If it's not defined, BlockNote will just use `render` for the HTML conversion. Takes the same props as `render`.
+
+<Callout type="info">
+  _Note that your component passed to `toExternalHTML` is rendered and
+  serialized in a separate React root, which means you can't use hooks that rely
+  on React Contexts._
+</Callout>
 
 `parse?:` The `parse` function defines how to parse HTML content into your style, for example when pasting contents from the clipboard. If the element should be parsed into your custom style, you return a `string` or `true`. If the `propSchema` is `"string"`, you should likewise return a string value, or `true` otherwise. Returning `undefined` will not parse the style from the HTML element. Takes a single argument:
 
