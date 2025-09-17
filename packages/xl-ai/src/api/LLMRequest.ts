@@ -4,10 +4,9 @@ import { UIMessage } from "ai";
 import { setupToolCallStreaming } from "../streamTool/vercelAiSdk/util/chatHandlers.js";
 import { LLMRequestOptions } from "../types.js";
 import { isEmptyParagraph } from "../util/emptyBlock.js";
-import { defaultHTMLPromptBuilder } from "./formats/html-blocks/defaultHTMLPromptBuilder.js";
 import { htmlBlockLLMFormat } from "./formats/html-blocks/htmlBlocks.js";
-import { defaultHTMLPromptDataBuilder } from "./formats/html-blocks/htmlPromptData.js";
 import { promptAIRequestSender } from "./formats/promptAIRequestSender.js";
+import { llmFormats } from "./index.js";
 import { trimEmptyBlocks } from "./promptHelpers/trimEmptyBlocks.js";
 
 // TODO: figure out naming of this vs. aiRequest etc
@@ -41,8 +40,8 @@ export async function doLLMRequest(
 
   if (!aiRequestSender) {
     aiRequestSender = promptAIRequestSender(
-      promptBuilder ?? defaultHTMLPromptBuilder,
-      defaultHTMLPromptDataBuilder,
+      promptBuilder ?? llmFormats.html.defaultPromptBuilder,
+      llmFormats.html.defaultPromptInputDataBuilder,
     );
   }
 

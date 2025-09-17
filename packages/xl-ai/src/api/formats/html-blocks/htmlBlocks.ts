@@ -3,6 +3,7 @@ import { StreamTool } from "../../../streamTool/streamTool.js";
 
 import { defaultHTMLPromptBuilder } from "./defaultHTMLPromptBuilder.js";
 import {
+  defaultHTMLPromptInputDataBuilder,
   getDataForPromptNoSelection,
   getDataForPromptWithSelection,
 } from "./htmlPromptData.js";
@@ -101,7 +102,10 @@ export const htmlBlockLLMFormat = {
    */
   defaultPromptBuilder: defaultHTMLPromptBuilder,
 
-  defaultPromptInputDataBuilder: getDataForPromptNoSelection,
+  /**
+   * The default PromptInputDataBuilder that can take an editor and user request and convert it to the input required for the PromptBuilder
+   */
+  defaultPromptInputDataBuilder: defaultHTMLPromptInputDataBuilder,
 
   /**
    * Helper functions which can be used when implementing a custom PromptBuilder

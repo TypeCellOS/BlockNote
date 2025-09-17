@@ -10,7 +10,7 @@ function promptManipulateSelectionHTMLBlocks(
     messages.push(
       {
         role: "assistant",
-        id: "html-selected-blocks-json-" + messages.length,
+        id: "document-state-" + messages.length,
         parts: [
           {
             type: "text",
@@ -32,7 +32,7 @@ function promptManipulateSelectionHTMLBlocks(
       },
       {
         role: "user",
-        id: "html-user-prompt-" + messages.length,
+        id: "user-prompt-" + messages.length,
         parts: [
           {
             type: "text",
@@ -50,7 +50,7 @@ function promptManipulateSelectionHTMLBlocks(
   messages.push(
     {
       role: "system",
-      id: "html-selected-blocks",
+      id: "document-state-intro",
       parts: [
         {
           type: "text",
@@ -63,7 +63,7 @@ function promptManipulateSelectionHTMLBlocks(
     },
     {
       role: "system",
-      id: "html-selected-blocks-json",
+      id: "document-state-selection",
       parts: [
         {
           type: "text",
@@ -73,7 +73,7 @@ function promptManipulateSelectionHTMLBlocks(
     },
     {
       role: "system",
-      id: "html-document",
+      id: "document-state-context",
       parts: [
         {
           type: "text",
@@ -87,7 +87,7 @@ function promptManipulateSelectionHTMLBlocks(
     },
     {
       role: "user",
-      id: "html-user-prompt",
+      id: "user-prompt",
       parts: [
         {
           type: "text",
@@ -106,7 +106,7 @@ function promptManipulateDocumentUseHTMLBlocks(
     messages.push(
       {
         role: "assistant",
-        id: "html-document-json-" + messages.length,
+        id: "document-state-" + messages.length,
         parts: [
           {
             type: "text",
@@ -120,7 +120,7 @@ function promptManipulateDocumentUseHTMLBlocks(
       },
       {
         role: "user",
-        id: "html-user-prompt-" + messages.length,
+        id: "user-prompt-" + messages.length,
         parts: [
           {
             type: "text",
@@ -134,7 +134,7 @@ function promptManipulateDocumentUseHTMLBlocks(
   messages.push(
     {
       role: "system",
-      id: "html-document",
+      id: "document-state-intro",
       parts: [
         {
           type: "text",
@@ -148,7 +148,7 @@ function promptManipulateDocumentUseHTMLBlocks(
     },
     {
       role: "system",
-      id: "html-document-json",
+      id: "document-state-data",
       parts: [
         {
           type: "text",
@@ -158,7 +158,7 @@ function promptManipulateDocumentUseHTMLBlocks(
     },
     {
       role: "system",
-      id: "html-user-prompt",
+      id: "extended-instructions",
       parts: [
         {
           type: "text",
@@ -177,7 +177,7 @@ function promptManipulateDocumentUseHTMLBlocks(
     },
     {
       role: "user",
-      id: "html-user-prompt",
+      id: "user-prompt",
       parts: [
         {
           type: "text",

@@ -191,14 +191,13 @@ export async function setupToolCallStreaming(
     });
   });
 
-  if (results.some((result) => result.status === "rejected")) {
-    throw new Error("Tool call failed");
+  if (chat.error) {
+    // response failed
+    throw chat.error;
   }
 
-  if (chat.error) {
-    // if there was an error, it's likely we already throwed it in the line above,
-    // however, theoretically there could be an error (e.g.: network error) in a message part after the last tool call
-    // in this case we still need to throw here
-    throw chat.error;
+  // response succeeded, but (one of the) tool calls failed
+  if (results.some((result) => result.status === "rejected")) {
+    throw new Error("Tool call failed");
   }
 }

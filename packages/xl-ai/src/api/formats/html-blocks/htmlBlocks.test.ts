@@ -136,18 +136,6 @@ describe("Models", () => {
             },
           }),
         },
-        // (editor, options) =>
-        // doLLMRequest(editor, {
-        //   ...options,
-        //   dataFormat: htmlBlockLLMFormat,
-        //   withDelays: false,
-
-        //   transport: new ClientSideTransport({
-        //     model: params.model,
-        //     maxRetries: 0,
-        //     stream: params.stream,
-        //   }),
-        // }),
         // TODO: remove when matthew's parsing PR is merged
         {
           textAlignment: true,

@@ -5,12 +5,11 @@ import { getSortedEntries, snapshot, toHashString } from "msw-snapshot";
 import { setupServer } from "msw/node";
 import path from "path";
 
-import { createAISDKLLMRequestExecutor } from "../../../streamTool/vercelAiSdk/AISDKLLMRequestExecutor.js";
 import { ClientSideTransport } from "../../../streamTool/vercelAiSdk/clientside/ClientSideTransport.js";
 import { testAIModels } from "../../../testUtil/testAIModels.js";
-import { doLLMRequest } from "../../../types.js";
+import { llmFormats } from "../../index.js";
+import { promptAIRequestSender } from "../promptAIRequestSender.js";
 import { generateSharedTestCases } from "../tests/sharedTestCases.js";
-import { markdownBlocksLLMFormat } from "./markdownBlocks.js";
 
 const BASE_FILE_PATH = path.resolve(
   __dirname,
@@ -114,26 +113,24 @@ describe("Models", () => {
       params.stream ? "streaming" : "non-streaming"
     })`, () => {
       generateSharedTestCases(
-        (editor, options) =>
-          doLLMRequest(editor, {
-            ...options,
-            executor: createAISDKLLMRequestExecutor({
-              transport: new ClientSideTransport({
-                model: params.model,
-                maxRetries: 0,
-                stream: params.stream,
-              }),
+        {
+          streamToolsProvider:
+            llmFormats._experimental_markdown.getStreamToolsProvider({
+              withDelays: false,
             }),
-            withDelays: false,
-            dataFormat: markdownBlocksLLMFormat,
-            // _generateObjectOptions: {
-            //   providerOptions: {
-            //     "albert-etalab": {
-            //       guided_decoding_backend: "outlines",
-            //     },
-            //   },
-            // },
+          aiRequestSender: promptAIRequestSender(
+            llmFormats._experimental_markdown.defaultPromptBuilder,
+            llmFormats._experimental_markdown.defaultPromptInputDataBuilder,
+          ),
+          transport: new ClientSideTransport({
+            model: params.model,
+            stream: params.stream,
+            objectGeneration: true,
+            _additionalOptions: {
+              maxRetries: 0,
+            },
           }),
+        },
         // markdownblocks doesn't support these:
         {
           mentions: true,

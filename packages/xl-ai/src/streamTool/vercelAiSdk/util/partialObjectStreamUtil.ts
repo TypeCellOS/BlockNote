@@ -28,13 +28,7 @@ import {
  */
 
 // based on https://github.com/vercel/ai/blob/d8ada0eb81e42633172d739a40c88e6c5a2f426b/packages/react/src/use-object.ts#L202
-export function textStreamToPartialObjectStream<T>(
-  opts: {
-    chunks: boolean;
-  } = {
-    chunks: true,
-  },
-) {
+export function textStreamToPartialObjectStream<T>() {
   let accumulatedText = "";
   let latestObject: DeepPartial<T> | undefined = undefined;
   return new TransformStream<string, DeepPartial<T>>({

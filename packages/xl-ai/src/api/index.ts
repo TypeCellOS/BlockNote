@@ -2,8 +2,8 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { StreamTool } from "../streamTool/streamTool.js";
 import { htmlBlockLLMFormat } from "./formats/html-blocks/htmlBlocks.js";
 import { HTMLPromptData } from "./formats/html-blocks/htmlPromptData.js";
-import { jsonLLMFormat } from "./formats/json/json.js";
-import { markdownBlocksLLMFormat } from "./formats/markdown-blocks/markdownBlocks.js";
+import { jsonBlockLLMFormat } from "./formats/json/json.js";
+import { markdownBlockLLMFormat } from "./formats/markdown-blocks/markdownBlocks.js";
 import { PromptBuilder } from "./formats/PromptBuilder.js";
 
 export type StreamToolsProvider = {
@@ -40,8 +40,8 @@ export type LLMFormat = {
 };
 
 export const llmFormats = {
-  _experimental_json: jsonLLMFormat,
-  _experimental_markdown: markdownBlocksLLMFormat,
+  _experimental_json: jsonBlockLLMFormat,
+  _experimental_markdown: markdownBlockLLMFormat,
   html: htmlBlockLLMFormat,
 };
 

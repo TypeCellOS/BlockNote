@@ -5,10 +5,11 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { HttpResponse, http } from "msw";
 import { setupServer } from "msw/node";
 import { createBlockNoteAIClient } from "../../../blocknoteAIClient/client.js";
-import { createAISDKLLMRequestExecutor } from "../../../streamTool/vercelAiSdk/AISDKLLMRequestExecutor.js";
+
+import { Chat } from "@ai-sdk/react";
+import { UIMessage } from "ai";
 import { ClientSideTransport } from "../../../streamTool/vercelAiSdk/clientside/ClientSideTransport.js";
-import { doLLMRequest } from "../../../types.js";
-import { jsonLLMFormat } from "./json.js";
+import { doLLMRequest } from "../../LLMRequest.js";
 
 // Create client and models outside of test suites so they can be shared
 const client = createBlockNoteAIClient({
@@ -74,18 +75,20 @@ describe("Error handling", () => {
       let caughtError: any = null;
 
       try {
-        const result = await doLLMRequest(editor, {
-          userPrompt: "translate to Spanish",
-          executor: createAISDKLLMRequestExecutor({
-            transport: new ClientSideTransport({
-              model: openai,
+        const chat = new Chat<UIMessage>({
+          sendAutomaticallyWhen: () => false,
+          transport: new ClientSideTransport({
+            model: openai,
+            stream,
+            _additionalOptions: {
               maxRetries: 0,
-              stream,
-            }),
+            },
+            objectGeneration: true, // TODO: switch to text
           }),
-          dataFormat: jsonLLMFormat,
         });
-        await result.execute();
+        await doLLMRequest(editor, chat, {
+          userPrompt: "translate to Spanish",
+        });
       } catch (error: any) {
         errorThrown = true;
         caughtError = error;

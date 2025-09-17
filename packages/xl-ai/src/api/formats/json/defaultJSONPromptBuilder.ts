@@ -1,44 +1,67 @@
 import { UIMessage } from "ai";
-import { trimEmptyBlocks } from "../../promptHelpers/trimEmptyBlocks.js";
 import type { PromptBuilder } from "../PromptBuilder.js";
-import {
-  getDataForPromptNoSelection,
-  getDataForPromptWithSelection,
-} from "./jsonPromptData.js";
+import { JSONPromptData } from "./jsonPromptData.js";
 
-function promptManipulateSelectionJSONBlocks(opts: {
-  userPrompt: string;
-  jsonSelectedBlocks: any[];
-  jsonDocument: any[];
-  isEmptyDocument: boolean;
-}): Array<UIMessage> {
-  return [
+function promptManipulateSelectionJSONBlocks(
+  messages: UIMessage[],
+  opts: Exclude<JSONPromptData, { selection: false }>,
+): void {
+  if (messages.length > 0) {
+    messages.push(
+      {
+        role: "assistant",
+        id: "document-state-" + messages.length,
+        parts: [
+          {
+            type: "text",
+            text: `This is the latest state of the selection (ignore previous selections, you MUST issue operations against this latest version of the selection):`,
+          },
+          {
+            type: "text",
+            text: JSON.stringify(opts.jsonSelectedBlocks),
+          },
+          {
+            type: "text",
+            text: "This is the latest state of the document (INCLUDING the selected text), find the selected text in there to understand the context:",
+          },
+          {
+            type: "text",
+            text: JSON.stringify(opts.jsonDocument),
+          },
+        ],
+      },
+      {
+        role: "user",
+        id: "user-prompt-" + messages.length,
+        parts: [
+          {
+            type: "text",
+            text: "The user asks you to do the following:",
+          },
+          {
+            type: "text",
+            text: opts.userPrompt,
+          },
+        ],
+      },
+    );
+  }
+
+  messages.push(
     {
       role: "system",
-      id: "json-selected-blocks",
+      id: "document-state-intro",
       parts: [
         {
           type: "text",
-          text: `You're manipulating a selected part of a text document using HTML blocks. 
-      Make sure to follow the json schema provided and always include the trailing $ in ids. 
+          text: `You're manipulating a selected part of a text document using JSON blocks. 
+      Make sure to follow the json schema provided and always include the trailing $ in ids.
       This is the selection as an array of JSON blocks:`,
         },
-      ],
-    },
-    {
-      role: "system",
-      id: "json-selected-blocks-json",
-      parts: [
         {
           type: "text",
           text: JSON.stringify(opts.jsonSelectedBlocks),
         },
-      ],
-    },
-    {
-      role: "system",
-      id: "json-document",
-      parts: [
         {
           type: "text",
           text: "This is the entire document (INCLUDING the selected text), find the selected text in there to understand the context:",
@@ -50,18 +73,8 @@ function promptManipulateSelectionJSONBlocks(opts: {
       ],
     },
     {
-      role: "system",
-      id: "json-user-prompt",
-      parts: [
-        {
-          type: "text",
-          text: "The user asks you to do the following:",
-        },
-      ],
-    },
-    {
       role: "user",
-      id: "json-user-prompt",
+      id: "user-prompt",
       parts: [
         {
           type: "text",
@@ -69,46 +82,57 @@ function promptManipulateSelectionJSONBlocks(opts: {
         },
       ],
     },
-  ];
+  );
 }
 
-function promptManipulateDocumentUseJSONBlocks(opts: {
-  userPrompt: string;
-  jsonBlocks: Array<
-    | any
-    | {
-        cursor: true;
-      }
-  >;
-  isEmptyDocument: boolean;
-}): Array<UIMessage> {
-  return [
+function promptManipulateDocumentUseJSONBlocks(
+  messages: UIMessage[],
+  opts: Exclude<JSONPromptData, { selection: true }>,
+): void {
+  if (messages.length > 0) {
+    messages.push(
+      {
+        role: "assistant",
+        id: "document-state-" + messages.length,
+        parts: [
+          {
+            type: "text",
+            text: `This is the latest state of the document (ignore previous documents, you MUST issue operations against this latest version of the document):`,
+          },
+          {
+            type: "text",
+            text: JSON.stringify(opts.jsonBlocks),
+          },
+        ],
+      },
+      {
+        role: "user",
+        id: "user-prompt-" + messages.length,
+        parts: [
+          {
+            type: "text",
+            text: opts.userPrompt,
+          },
+        ],
+      },
+    );
+    return;
+  }
+  messages.push(
     {
       role: "system",
-      id: "json-document",
+      id: "document-state",
       parts: [
         {
           type: "text",
           text: `You're manipulating a text document using JSON blocks. 
         Make sure to follow the json schema provided. When referencing ids they MUST be EXACTLY the same (including the trailing $). 
-        This is the document as an array of JSON blocks (the cursor is BETWEEN two blocks as indicated by cursor: true):`,
+        This is the initial document as an array of JSON blocks (the cursor is BETWEEN two blocks as indicated by cursor: true):`,
         },
-      ],
-    },
-    {
-      role: "system",
-      id: "json-document-json",
-      parts: [
         {
           type: "text",
           text: JSON.stringify(opts.jsonBlocks),
         },
-      ],
-    },
-    {
-      role: "system",
-      id: "json-user-prompt",
-      parts: [
         {
           type: "text",
           text:
@@ -125,18 +149,8 @@ function promptManipulateDocumentUseJSONBlocks(opts: {
       ],
     },
     {
-      role: "system",
-      id: "json-user-prompt",
-      parts: [
-        {
-          type: "text",
-          text: "The user asks you to do the following:",
-        },
-      ],
-    },
-    {
       role: "user",
-      id: "json-user-prompt",
+      id: "user-prompt",
       parts: [
         {
           type: "text",
@@ -144,148 +158,16 @@ function promptManipulateDocumentUseJSONBlocks(opts: {
         },
       ],
     },
-  ];
+  );
 }
 
-export const defaultJSONPromptBuilder: PromptBuilder = async (editor, opts) => {
-  const isEmptyDocument = trimEmptyBlocks(editor.document).length === 0;
-
-  if (opts.selectedBlocks) {
-    const data = await getDataForPromptWithSelection(editor, {
-      selectedBlocks: opts.selectedBlocks,
-    });
-
-    if (opts.previousMessages) {
-      return [
-        ...opts.previousMessages,
-        {
-          role: "system",
-          id: "json-previous-response",
-          parts: [
-            {
-              type: "text",
-              text: `After processing the previous response, this is the updated selection.
-            Ignore previous documents, you MUST issue operations against this latest version of the document:`,
-            },
-          ],
-        },
-        {
-          role: "system",
-          id: "json-previous-response-json",
-          parts: [
-            {
-              type: "text",
-              text: JSON.stringify(data.jsonSelectedBlocks),
-            },
-          ],
-        },
-        {
-          role: "system",
-          id: "json-previous-response-document",
-          parts: [
-            {
-              type: "text",
-              text: "This is the updated entire document:",
-            },
-          ],
-        },
-        {
-          role: "system",
-          id: "json-previous-response-document-json",
-          parts: [
-            {
-              type: "text",
-              text: JSON.stringify(data.jsonDocument),
-            },
-          ],
-        },
-        {
-          role: "system",
-          id: "json-previous-response-user-prompt",
-          parts: [
-            {
-              type: "text",
-              text: `You SHOULD use "update" operations to update blocks you added / edited previously 
-          (unless the user explicitly asks you otherwise to add or delete other blocks).
-          
-          The user now asks you to do the following:`,
-            },
-          ],
-        },
-        {
-          role: "user",
-          id: "json-previous-response-user-prompt",
-          parts: [
-            {
-              type: "text",
-              text: opts.userPrompt,
-            },
-          ],
-        },
-      ];
-    }
-
-    return promptManipulateSelectionJSONBlocks({
-      ...data,
-      userPrompt: opts.userPrompt,
-      isEmptyDocument,
-    });
+export const defaultJSONPromptBuilder: PromptBuilder<JSONPromptData> = async (
+  messages,
+  inputData,
+) => {
+  if (inputData.selection) {
+    promptManipulateSelectionJSONBlocks(messages, inputData);
   } else {
-    const data = await getDataForPromptNoSelection(editor, opts);
-    if (opts.previousMessages) {
-      return [
-        ...opts.previousMessages,
-        {
-          role: "system",
-          id: "json-previous-response",
-          parts: [
-            {
-              type: "text",
-              text: `After processing the previous response, this is the updated document.
-            Ignore previous documents, you MUST issue operations against this latest version of the document:`,
-            },
-          ],
-        },
-        {
-          role: "system",
-          id: "json-previous-response-json",
-          parts: [
-            {
-              type: "text",
-              text: JSON.stringify(data.jsonBlocks),
-            },
-          ],
-        },
-        {
-          role: "system",
-          id: "json-previous-response-user-prompt",
-          parts: [
-            {
-              type: "text",
-              text: `You SHOULD use "update" operations to update blocks you added / edited previously 
-          (unless the user explicitly asks you otherwise to add or delete other blocks).
-          
-          The user now asks you to do the following:`,
-            },
-          ],
-        },
-        {
-          role: "user",
-          id: "json-previous-response-user-prompt",
-          parts: [
-            {
-              type: "text",
-              text: opts.userPrompt,
-            },
-          ],
-        },
-      ];
-    }
-
-    return promptManipulateDocumentUseJSONBlocks({
-      ...data,
-      userPrompt: opts.userPrompt,
-      isEmptyDocument,
-    });
+    promptManipulateDocumentUseJSONBlocks(messages, inputData);
   }
 };

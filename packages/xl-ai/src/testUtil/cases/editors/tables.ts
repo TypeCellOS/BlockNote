@@ -38,11 +38,7 @@ export function getEditorWithTables() {
     ],
     schema,
     trailingBlock: false,
-    extensions: [
-      createAIExtension({
-        executor: undefined as any, // disable
-      }),
-    ],
+    extensions: [createAIExtension({})],
   });
   editor._tiptapEditor.forceEnablePlugins();
   return editor;

@@ -20,11 +20,7 @@ export default function App() {
       ai: aiEn, // add default translations for the AI extension
     },
     // Register the AI extension
-    extensions: [
-      createAIExtension({
-        executor: undefined as any, // disable
-      }),
-    ],
+    extensions: [createAIExtension({})],
     // We set some initial content for demo purposes
     initialContent: [
       {

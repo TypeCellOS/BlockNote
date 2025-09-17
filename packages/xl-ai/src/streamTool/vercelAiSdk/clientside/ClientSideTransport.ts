@@ -222,7 +222,7 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
 
   async sendMessages({
     messages,
-    body,
+    // body,
     metadata,
   }: Parameters<ChatTransport<UI_MESSAGE>["sendMessages"]>[0]): Promise<
     ReadableStream<UIMessageChunk>

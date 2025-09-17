@@ -1,10 +1,10 @@
 import { Block, BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteUserPrompt } from "../../../types.js";
 import { addCursorPosition } from "../../promptHelpers/addCursorPosition.js";
 import { convertBlocks } from "../../promptHelpers/convertBlocks.js";
 import { flattenBlocks } from "../../promptHelpers/flattenBlocks.js";
 import { suffixIDs } from "../../promptHelpers/suffixIds.js";
 import { trimEmptyBlocks } from "../../promptHelpers/trimEmptyBlocks.js";
-import { BlockNoteUserPrompt } from "../PromptBuilder.js";
 
 export type HTMLPromptData = (
   | Awaited<ReturnType<typeof getDataForPromptNoSelection>>
@@ -13,10 +13,10 @@ export type HTMLPromptData = (
   userPrompt: string;
 };
 
-export async function defaultHTMLPromptDataBuilder(
+export async function defaultHTMLPromptInputDataBuilder(
   editor: BlockNoteEditor<any, any, any>,
   blockNoteUserPrompt: BlockNoteUserPrompt,
-) {
+): Promise<HTMLPromptData> {
   if (blockNoteUserPrompt.selectedBlocks) {
     return {
       ...(await getDataForPromptWithSelection(editor, {
