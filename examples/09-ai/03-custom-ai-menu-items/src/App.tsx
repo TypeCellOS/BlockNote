@@ -33,7 +33,8 @@ import { addRelatedTopics, makeInformal } from "./customAIMenuItems";
 const client = createBlockNoteAIClient({
   apiKey: getEnv("BLOCKNOTE_AI_SERVER_API_KEY") || "PLACEHOLDER",
   baseURL:
-    getEnv("BLOCKNOTE_AI_SERVER_BASE_URL") || "https://localhost:3000/ai/proxy",
+    getEnv("BLOCKNOTE_AI_SERVER_BASE_URL") + "/proxy" ||
+    "https://localhost:3000/ai/proxy",
 });
 
 // Use an "open" model such as llama, in this case via groq.com

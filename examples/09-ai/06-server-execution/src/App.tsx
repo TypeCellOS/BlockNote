@@ -23,7 +23,7 @@ import { DefaultChatTransport } from "ai";
 import { getEnv } from "./getEnv";
 
 const BASE_URL =
-  getEnv("BLOCKNOTE_AI_SERVER_BASE_URL") ||
+  getEnv("BLOCKNOTE_AI_SERVER_BASE_URL") + "/vercel-ai-sdk" ||
   "https://localhost:3000/ai/vercel-ai-sdk";
 
 export default function App() {
