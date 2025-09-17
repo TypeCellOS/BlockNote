@@ -21,7 +21,7 @@ export const combinedOperationsTestCases: DocumentOperationTestCase[] = [
       },
     ],
     userPrompt:
-      "add a new paragraph with the text 'You look great today!' after the first paragraph and translate 'Hello, world' to dutch",
+      "add a new paragraph with the text 'You look great today!' after the first paragraph and translate first 'Hello, world' to dutch",
   },
   {
     editor: getEditorWithFormattingAndMentions,
