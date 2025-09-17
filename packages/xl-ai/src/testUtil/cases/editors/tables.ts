@@ -44,6 +44,5 @@ export function getEditorWithTables() {
       }),
     ],
   });
-  editor._tiptapEditor.forceEnablePlugins();
   return editor;
 }

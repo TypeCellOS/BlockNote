@@ -51,7 +51,6 @@ type CustomInlineContentConfig = {
   type: string;
   content: "styled" | "none";
   readonly propSchema: PropSchema;
-  draggable?: boolean;
 };
 ```
 
@@ -100,14 +99,15 @@ If you do not want the prop to have a default value, you can define it as an obj
   mentioned._
 </Callout>
 
-`draggable?:` Whether the inline content should be draggable.
-
 ### Inline Content Implementation (`ReactCustomInlineContentImplementation`)
 
 The Inline Content Implementation defines how the inline content should be rendered to HTML.
 
 ```typescript
 type ReactCustomInlineContentImplementation = {
+  meta?: {
+    draggable?: boolean;
+  };
   render: React.FC<{
     inlineContent: InlineContent;
     editor: BlockNoteEditor;

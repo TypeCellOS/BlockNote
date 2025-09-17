@@ -35,7 +35,7 @@ export const COLORS_DEFAULT = {
     text: "#ad1a72",
     background: "#f4dfeb",
   },
-};
+} as Record<string, { text: string; background: string }>;
 
 export const COLORS_DARK_MODE_DEFAULT = {
   gray: {
@@ -74,4 +74,4 @@ export const COLORS_DARK_MODE_DEFAULT = {
     text: "#da208f",
     background: "#ad1a72",
   },
-};
+} as Record<string, { text: string; background: string }>;

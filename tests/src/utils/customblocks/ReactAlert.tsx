@@ -25,16 +25,16 @@ const values = {
 
 export const ReactAlert = createReactBlockSpec(
   {
-    type: "reactAlert",
+    type: "reactAlert" as const,
     propSchema: {
       textAlignment: defaultProps.textAlignment,
       textColor: defaultProps.textColor,
       type: {
         default: "warning",
         values: ["warning", "error", "info", "success"],
-      },
-    } as const,
-    content: "inline",
+      } as const,
+    },
+    content: "inline" as const,
   },
   {
     render: function Render(props) {

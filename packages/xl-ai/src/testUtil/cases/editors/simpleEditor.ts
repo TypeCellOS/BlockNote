@@ -22,7 +22,6 @@ export function getSimpleEditor() {
       }),
     ],
   });
-  editor._tiptapEditor.forceEnablePlugins();
   return editor;
 }
 
@@ -51,6 +50,5 @@ export function getSimpleEditorWithCursorBetweenBlocks() {
     ],
   });
   editor.setTextCursorPosition("ref2");
-  editor._tiptapEditor.forceEnablePlugins();
   return editor;
 }

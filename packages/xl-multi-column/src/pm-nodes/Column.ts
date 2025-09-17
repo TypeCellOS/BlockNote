@@ -1,8 +1,8 @@
-import { createStronglyTypedTiptapNode } from "@blocknote/core";
+import { Node } from "@tiptap/core";
 
 import { createColumnResizeExtension } from "../extensions/ColumnResize/ColumnResizeExtension.js";
 
-export const Column = createStronglyTypedTiptapNode({
+export const Column = Node.create({
   name: "column",
   group: "bnBlock childContainer",
   // A block always contains content, and optionally a blockGroup which contains nested blocks

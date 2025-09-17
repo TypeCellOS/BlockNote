@@ -1,13 +1,13 @@
 import { Node } from "@tiptap/core";
 import { PropSchema, Props } from "../propTypes.js";
 import { StyleSchema, Styles } from "../styles/types.js";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { ViewMutationRecord } from "prosemirror-view";
 
 export type CustomInlineContentConfig = {
   type: string;
   content: "styled" | "none"; // | "plain"
-  draggable?: boolean;
   readonly propSchema: PropSchema;
-  // content: "inline" | "none" | "table";
 };
 // InlineContentConfig contains the "schema" info about an InlineContent type
 // i.e. what props it supports, what content it supports, etc.
@@ -20,7 +20,29 @@ export type InlineContentImplementation<T extends InlineContentConfig> =
   T extends "link" | "text"
     ? undefined
     : {
+        meta?: {
+          draggable?: boolean;
+        };
         node: Node;
+        toExternalHTML?: (
+          inlineContent: any,
+          editor: BlockNoteEditor<any, any, any>,
+        ) =>
+          | {
+              dom: HTMLElement | DocumentFragment;
+              contentDOM?: HTMLElement;
+            }
+          | undefined;
+        render: (
+          inlineContent: any,
+          updateInlineContent: (update: any) => void,
+          editor: BlockNoteEditor<any, any, any>,
+        ) => {
+          dom: HTMLElement | DocumentFragment;
+          contentDOM?: HTMLElement;
+          ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
+          destroy?: () => void;
+        };
       };
 
 export type InlineContentSchemaWithInlineContent<

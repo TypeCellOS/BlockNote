@@ -8,8 +8,8 @@
       "id": "1",
       "type": "paragraph",
       "props": {
-        "textColor": "default",
         "backgroundColor": "default",
+        "textColor": "default",
         "textAlignment": "left"
       },
       "content": [
@@ -25,8 +25,8 @@
       "id": "2",
       "type": "paragraph",
       "props": {
-        "textColor": "default",
         "backgroundColor": "default",
+        "textColor": "default",
         "textAlignment": "left"
       },
       "content": [
@@ -41,8 +41,8 @@
           "id": "3",
           "type": "paragraph",
           "props": {
-            "textColor": "default",
             "backgroundColor": "default",
+            "textColor": "default",
             "textAlignment": "left"
           },
           "content": [
@@ -60,8 +60,8 @@
       "id": "4",
       "type": "paragraph",
       "props": {
-        "textColor": "default",
         "backgroundColor": "default",
+        "textColor": "default",
         "textAlignment": "left"
       },
       "content": [

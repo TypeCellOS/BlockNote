@@ -1,0 +1,30 @@
+[
+  {
+    "attrs": {
+      "id": "1",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "content": [
+          {
+            "text": "I enjoy working with ",
+            "type": "text",
+          },
+          {
+            "attrs": {
+              "user": "Matthew",
+            },
+            "type": "mention",
+          },
+        ],
+        "type": "paragraph",
+      },
+    ],
+    "type": "blockContainer",
+  },
+]

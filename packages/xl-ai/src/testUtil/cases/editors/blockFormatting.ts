@@ -28,6 +28,5 @@ export function getEditorWithBlockFormatting() {
       }),
     ],
   });
-  editor._tiptapEditor.forceEnablePlugins();
   return editor;
 }

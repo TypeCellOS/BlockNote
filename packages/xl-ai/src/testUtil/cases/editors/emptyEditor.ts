@@ -16,6 +16,5 @@ export function getEmptyEditor() {
       }),
     ],
   });
-  editor._tiptapEditor.forceEnablePlugins();
   return editor;
 }
