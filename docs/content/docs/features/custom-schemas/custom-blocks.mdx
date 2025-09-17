@@ -12,12 +12,13 @@ In addition to the default block types that BlockNote offers, you can also make 
 
 ## Creating a Custom Block Type
 
-Use the `createReactBlockSpec` function to create a custom block type. This function takes two arguments:
+Use the `createReactBlockSpec` function to create a custom block type. This function takes three arguments:
 
 ```typescript
 function createReactBlockSpec(
   blockConfig: CustomBlockConfig,
   blockImplementation: ReactCustomBlockImplementation,
+  extensions?: BlockNoteExtension[],
 );
 ```
 
@@ -54,8 +55,6 @@ type BlockConfig = {
   type: string;
   content: "inline" | "none";
   readonly propSchema: PropSchema;
-  isSelectable?: boolean;
-  hardBreakShortcut?: "shift+enter" | "enter" | "none";
 };
 ```
 
@@ -64,8 +63,7 @@ type BlockConfig = {
 `content:` `inline` if your custom block should support rich text content, `none` if not.
 
 <Callout type="info">
-  _In the alert demo, we want the user to be able to type text in our alert, so
-  we set `content` to `"inline"`._
+  _In the alert demo, we want the user to be able to type text in our alert, so we set `content` to `"inline"`._
 </Callout>
 
 `propSchema:` The `PropSchema` specifies the props that the block supports. Block props (properties) are data stored with your Block in the document, and can be used to customize its appearance or behavior.
@@ -100,17 +98,8 @@ If you do not want the prop to have a default value, you can define it as an obj
 - `values?:` Specifies an array of values that the prop can take, for example, to limit the value to a list of pre-defined strings. If `values` is not defined, BlockNote assumes the prop can be any value of `PrimitiveType`.
 
 <Callout type="info">
-  _In the alert demo, we add a `type` prop for the type of alert that we want
-  (warning / error / info / success). We also want basic styling options, so we
-  add text alignment and text color from the [Default Block
-  Properties](/docs/features/blocks#default-block-properties)._
+  _In the alert demo, we add a `type` prop for the type of alert that we want (warning / error / info / success). We also want basic styling options, so we add text alignment and text color from the [Default Block Properties](/docs/features/blocks#default-block-properties)._
 </Callout>
-
-`isSelectable?:` Can be set to false in order to make the block non-selectable, both using the mouse and keyboard. This also helps with being able to select non-editable content within the block. Should only be set to false when `content` is `none` and defaults to true.
-
-`hardBreakShortcut?:` Defines which keyboard shortcut should be used to insert a hard break into the block's inline content. Defaults to `"shift+enter"`.
-
-#### File Block Config
 
 ### Block Implementation (`ReactCustomBlockImplementation`)
 
@@ -129,6 +118,16 @@ type ReactCustomBlockImplementation = {
     contentRef?: (node: HTMLElement | null) => void;
   }>;
   parse?: (element: HTMLElement) => PartialBlock["props"] | undefined;
+  parseContent?: (options: { el: HTMLElement; schema: Schema }) => Fragment;
+  runsBefore?: string[];
+  meta?: {
+    hardBreakShortcut?: "shift+enter" | "enter" | "none";
+    selectable?: boolean;
+    fileBlockAccept?: string[];
+    code?: boolean;
+    defining?: boolean;
+    isolating?: boolean;
+  };
 };
 ```
 
@@ -143,14 +142,119 @@ type ReactCustomBlockImplementation = {
 `toExternalHTML?:` This component is used whenever the block is being exported to HTML for use outside BlockNote, for example when copying it to the clipboard. If it's not defined, BlockNote will just use `render` for the HTML conversion. Takes the same props as `render`.
 
 <Callout type="info">
-  _Note that your component passed to `toExternalHTML` is rendered and
-  serialized in a separate React root, which means you can't use hooks that rely
-  on React Contexts._
+  _Note that your component passed to `toExternalHTML` is rendered and serialized in a separate React root, which means you can't use hooks that rely on React Contexts._
 </Callout>
 
 `parse?:` The `parse` function defines how to parse HTML content into your block, for example when pasting contents from the clipboard. If the element should be parsed into your custom block, you return the props that the block should be given. Otherwise, return `undefined`. Takes a single argument:
 
 - `element`: The HTML element that's being parsed.
+
+`parseContent?:` While `parse` specifies which HTML elements to parse the block from, `parseContent` specifies how to find the block's content from those elements. This is only needed for advanced use cases where certain text elements should be ignored, combined, or moved. By default, BlockNote automatically parses the content automatically. Takes a single argument:
+
+- `options:` An object containing the HTML element to parse content from, and the schema of the underlying ProseMirror editor used by BlockNote. The schema is there for use in a [`DOMParser`](https://prosemirror.net/docs/ref/#model.DOMParser).
+
+`runsBefore?:` If this block has parsing or extensions that need to be given priority over any other blocks, you can pass their `type`s in an array here.
+
+`meta?:` An object for setting various generic properties of the block.
+
+- `hardBreakShortcut?:` Defines which keyboard shortcut should be used to insert a hard break into the block's inline content. Defaults to `"shift+enter"`.
+
+- `selectable?:` Can be set to false in order to make the block non-selectable, both using the mouse and keyboard. This also helps with being able to select non-editable content within the block. Should only be set to false when `content` is `none` and defaults to true.
+
+- `fileBlockAccept?:` For custom file blocks, this specifies which MIME types are accepted when uploading a file. All file blocks should specify this property, and should use a [`FileBlockWrapper`](https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/blocks/File/helpers/render/FileBlockWrapper.tsx)/[`ResizableFileBlockWrapper`](https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/blocks/File/helpers/render/ResizableFileBlockWrapper.tsx) component in their `render` functions (see next subsection).
+
+- `code?:` Whether this block contains [code](https://prosemirror.net/docs/ref/#model.NodeSpec.code).
+
+- `defining?:` Whether this block is [defining](https://prosemirror.net/docs/ref/#model.NodeSpec.defining).
+
+- `isolating?:` Whether this block is [isolating](https://prosemirror.net/docs/ref/#model.NodeSpec.isolating).
+
+To see an example of this, check out the [built-in heading block](https://github.com/TypeCellOS/BlockNote/blob/main/packages/core/src/blocks/Heading/block.ts).
+
+### Block Extensions
+
+While not shown in the demo, the `createBlockSpec` function also takes a third argument, `extensions`. It takes an array of `BlockNoteExtension` objects, which are most easily created using the `createBlockNoteExtension` function:
+
+```typescript
+type BlockNoteExtensionOptions = {
+  key: string;
+  keyboardShortcuts?: Record<
+    string,
+    (ctx: { editor: BlockNoteEditor; }) => boolean
+  >;
+  inputRules?: {
+    find: RegExp;
+    replace: (props: {
+      match: RegExpMatchArray;
+      range: { from: number; to: number };
+      editor: BlockNoteEditor;
+    }) => PartialBlock | undefined;
+  }[];
+  plugins?: Plugin[];
+  tiptapExtensions?: AnyExtension[];
+}
+
+const customBlockExtensionOptions: BlockNoteExtensionOptions = {
+  key: "customBlockExtension",
+  keyboardShortcuts: ...,
+  inputRules: ...,
+  plugins: ...,
+  tiptapExtensions: ...,
+}
+
+const CustomBlock = createReactBlockSpec(
+  {
+    type: ...,
+    propSchema: ...,
+    content: ...,
+  },
+  {
+    render: ...,
+    ...
+  },
+  [createBlockNoteExtension(customBlockExtensionOptions)]
+)
+```
+
+Let's go over the options that can be passed into `createBlockNoteExtension`:
+
+`key:` The name of the extension.
+
+`keyboardShortcuts?:` Keyboard shortcuts can be used to run code when a key combination is pressed in the editor. The key names are the same as those used in the [`KeyboardEvent.key` property](https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values). Takes an object which maps key name combinations (e.g. `Meta+Shift+ArrowDown`) to functions, which return `true` when the key press event is handled, or `false` otherwise. The functions have a single argument:
+
+- `ctx:` An object containing the BlockNote editor instance.
+
+`inputRules?:` Input rules update blocks when given regular expressions are found in them. Takes an array of objects. Each object has a `find` field for the regular expression to find, and a `replace` field, for a function that should run on a match. The function should return a [`PartialBlock`](docs/reference/editor/manipulating-content#partial-blocks) which specifies how the block should be updated, or avoid updating it. It also has a single argument:
+
+- `props:` An object containing the result of the regular expression match, a range for the [Prosemirror position indices](https://prosemirror.net/docs/guide/#doc.indexing) spanned by the match, and the BlockNote editor instance.
+
+`plugins?:` An array of [ProseMirror plugins](https://prosemirror.net/docs/ref/#state.Plugin_System).
+
+`tiptapExtensions?:` An array of [TipTap extensions](https://tiptap.dev/docs/editor/extensions/custom-extensions/create-new).
+
+### Block Config Options
+
+In some cases, you may want to have a customizable block config. For example, you may want to be able to have a code block with syntax highlighting for either web or embedded code, or a heading block with a flexible number of heading levels. You can use the same API for this use case, with some minor changes:
+
+```typescript
+// Arbitrary options that your block can take, e.g. number of heading levels or
+// available code syntax highlight languages.
+type CustomBlockConfigOptions = {
+  ...
+}
+
+const CustomBlock = createReactBlockSpec(
+  createBlockConfig((options: CustomBlockConfigOptions) => ({
+    type: ...,
+    propSchema: ...,
+    content: ...,
+  })),
+  (options: CustomBlockConfigOptions) => ({
+    render: ...,
+    ...
+  })
+)
+```
 
 ## Adding Custom Blocks to the Editor
 
