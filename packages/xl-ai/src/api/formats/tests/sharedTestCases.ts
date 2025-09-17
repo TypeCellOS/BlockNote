@@ -99,7 +99,7 @@ export function generateSharedTestCases(
     // granularity of the suggested changes. Can be enabled for debugging:
 
     // await matchFileSnapshot(editor.prosemirrorState.doc.toJSON());
-    console.log(JSON.stringify(editor.prosemirrorState.doc.toJSON(), null, 2));
+    // console.log(JSON.stringify(editor.prosemirrorState.doc.toJSON(), null, 2));
     validateRejectingResultsInOriginalDoc(editor, originalDoc);
 
     // we first need to accept changes to get the correct result
