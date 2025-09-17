@@ -62,7 +62,9 @@ export default function App() {
 
             // Let's get the stream tools so we can invoke them manually
             // In this case, we're using the default stream tools, which allow all operations
-            const tools = llmFormats.html.getStreamTools(editor, true);
+            const tools = llmFormats.html
+              .getStreamToolsProvider()
+              .getStreamTools(editor, true);
 
             // Create an executor that can execute StreamToolCalls
             const executor = new StreamToolExecutor(tools);
@@ -91,10 +93,14 @@ export default function App() {
 
             // Let's get the stream tools so we can invoke them manually
             // In this case, we choose to only get the "update" tool
-            const tools = llmFormats.html.getStreamTools(editor, true, {
-              // only allow "update" operations
-              update: true,
-            });
+            const tools = llmFormats.html
+              .getStreamToolsProvider({
+                // only allow "update" operations
+                defaultStreamTools: {
+                  update: true,
+                },
+              })
+              .getStreamTools(editor, true);
 
             // Create an executor that can execute StreamToolCalls
             const executor = new StreamToolExecutor(tools);
@@ -150,10 +156,14 @@ export default function App() {
 
             // Let's get the stream tools so we can invoke them manually
             // In this case, we choose to only get the "update" tool
-            const tools = llmFormats.html.getStreamTools(editor, true, {
-              // only allow "update" operations
-              update: true,
-            });
+            const tools = llmFormats.html
+              .getStreamToolsProvider({
+                defaultStreamTools: {
+                  // only allow "update" operations
+                  update: true,
+                },
+              })
+              .getStreamTools(editor, true);
 
             // Create an executor that can execute StreamToolCalls
             const executor = new StreamToolExecutor(tools);

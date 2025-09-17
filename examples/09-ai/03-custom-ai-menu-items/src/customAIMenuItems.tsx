@@ -1,5 +1,9 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { AIMenuSuggestionItem, getAIExtension } from "@blocknote/xl-ai";
+import {
+  AIMenuSuggestionItem,
+  getAIExtension,
+  llmFormats,
+} from "@blocknote/xl-ai";
 import { RiApps2AddFill, RiEmotionHappyFill } from "react-icons/ri";
 
 // Custom item to make the text more informal.
@@ -24,11 +28,13 @@ export const makeInformal = (
       // the selected content, so only `update` is set
       // to true. Defaults to `true` for all
       // operations.
-      defaultStreamTools: {
-        add: false,
-        delete: false,
-        update: true,
-      },
+      streamToolsProvider: llmFormats.html.getStreamToolsProvider({
+        defaultStreamTools: {
+          add: false,
+          delete: false,
+          update: true,
+        },
+      }),
     });
   },
   size: "small",
@@ -52,11 +58,13 @@ export const addRelatedTopics = (
       // In this case, we only want to allow adding new
       // content, so only `add` is set to true.
       // Defaults to `true` for all operations.
-      defaultStreamTools: {
-        add: true,
-        delete: false,
-        update: false,
-      },
+      streamToolsProvider: llmFormats.html.getStreamToolsProvider({
+        defaultStreamTools: {
+          add: true,
+          delete: false,
+          update: false,
+        },
+      }),
     });
   },
   size: "small",

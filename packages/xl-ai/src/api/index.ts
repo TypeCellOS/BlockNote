@@ -9,10 +9,13 @@ import { PromptBuilder } from "./formats/PromptBuilder.js";
 export type StreamToolsProvider = {
   getStreamTools: (
     editor: BlockNoteEditor<any, any, any>,
-    selectionInfo?: {
-      from: number;
-      to: number;
-    },
+    selectionInfo?:
+      | {
+          from: number;
+          to: number;
+        }
+      | boolean,
+    onBlockUpdate?: (blockId: string) => void,
   ) => StreamTool<any>[];
 };
 export type LLMFormat = {

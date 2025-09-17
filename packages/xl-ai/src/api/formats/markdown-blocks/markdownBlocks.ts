@@ -8,6 +8,7 @@ import {
 import { tools } from "./tools/index.js";
 
 // Import the tool call types
+import { StreamToolsProvider } from "../../index.js";
 import { AddBlocksToolCall } from "../base-tools/createAddBlocksTool.js";
 import { UpdateBlockToolCall } from "../base-tools/createUpdateBlockTool.js";
 import { DeleteBlockToolCall } from "../base-tools/delete.js";
@@ -38,12 +39,27 @@ function getStreamTools<
   editor: BlockNoteEditor<any, any, any>,
   withDelays: boolean,
   defaultStreamTools?: T,
-  selectionInfo?: {
-    from: number;
-    to: number;
-  },
+  selectionInfo?:
+    | {
+        from: number;
+        to: number;
+      }
+    | boolean,
   onBlockUpdate?: (blockId: string) => void,
 ): StreamToolsResult<T> {
+  if (typeof selectionInfo === "boolean") {
+    const selection = selectionInfo
+      ? editor.getSelectionCutBlocks()
+      : undefined;
+
+    selectionInfo = selection
+      ? {
+          from: selection._meta.startPos,
+          to: selection._meta.endPos,
+        }
+      : undefined;
+  }
+
   const mergedStreamTools =
     defaultStreamTools ??
     ({
@@ -80,10 +96,10 @@ export const markdownBlockLLMFormat = {
    */
   getStreamToolsProvider: (
     opts: { withDelays?: boolean; defaultStreamTools?: StreamToolsConfig } = {},
-  ) => ({
+  ): StreamToolsProvider => ({
     getStreamTools: (
-      editor: BlockNoteEditor<any, any, any>,
-      selectionInfo?: { from: number; to: number },
+      editor,
+      selectionInfo,
       onBlockUpdate?: (blockId: string) => void,
     ) => {
       return getStreamTools(
