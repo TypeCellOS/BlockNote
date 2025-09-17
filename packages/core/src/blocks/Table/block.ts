@@ -1,6 +1,4 @@
 import { Node, mergeAttributes } from "@tiptap/core";
-import { TableCell } from "@tiptap/extension-table-cell";
-import { TableHeader } from "@tiptap/extension-table-header";
 import { DOMParser, Fragment, Node as PMNode, Schema } from "prosemirror-model";
 import { TableView } from "prosemirror-tables";
 import { NodeView } from "prosemirror-view";
@@ -18,7 +16,134 @@ export const tablePropSchema = {
   textColor: defaultProps.textColor,
 };
 
-export const TableNode = Node.create({
+const TiptapTableHeader = Node.create<{
+  HTMLAttributes: Record<string, any>;
+}>({
+  name: "tableHeader",
+
+  addOptions() {
+    return {
+      HTMLAttributes: {},
+    };
+  },
+
+  /**
+   * We allow table headers and cells to have multiple tableContent nodes because
+   * when merging cells, prosemirror-tables will concat the contents of the cells naively.
+   * This would cause that content to overflow into other cells when prosemirror tries to enforce the cell structure.
+   *
+   * So, we manually fix this up when reading back in the `nodeToBlock` and only ever place a single tableContent back into the cell.
+   */
+  content: "tableContent+",
+
+  addAttributes() {
+    return {
+      colspan: {
+        default: 1,
+      },
+      rowspan: {
+        default: 1,
+      },
+      colwidth: {
+        default: null,
+        parseHTML: (element) => {
+          const colwidth = element.getAttribute("colwidth");
+          const value = colwidth
+            ? colwidth.split(",").map((width) => parseInt(width, 10))
+            : null;
+
+          return value;
+        },
+      },
+    };
+  },
+
+  tableRole: "header_cell",
+
+  isolating: true,
+
+  parseHTML() {
+    return [
+      {
+        tag: "th",
+        // As `th` elements can contain multiple paragraphs, we need to merge their contents
+        // into a single one so that ProseMirror can parse everything correctly.
+        getContent: (node, schema) =>
+          parseTableContent(node as HTMLElement, schema),
+      },
+    ];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return [
+      "th",
+      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes),
+      0,
+    ];
+  },
+});
+
+const TiptapTableCell = Node.create<{
+  HTMLAttributes: Record<string, any>;
+}>({
+  name: "tableCell",
+
+  addOptions() {
+    return {
+      HTMLAttributes: {},
+    };
+  },
+
+  content: "tableContent+",
+
+  addAttributes() {
+    return {
+      colspan: {
+        default: 1,
+      },
+      rowspan: {
+        default: 1,
+      },
+      colwidth: {
+        default: null,
+        parseHTML: (element) => {
+          const colwidth = element.getAttribute("colwidth");
+          const value = colwidth
+            ? colwidth.split(",").map((width) => parseInt(width, 10))
+            : null;
+
+          return value;
+        },
+      },
+    };
+  },
+
+  tableRole: "cell",
+
+  isolating: true,
+
+  parseHTML() {
+    return [
+      {
+        tag: "td",
+        // As `td` elements can contain multiple paragraphs, we need to merge their contents
+        // into a single one so that ProseMirror can parse everything correctly.
+        getContent: (node, schema) =>
+          parseTableContent(node as HTMLElement, schema),
+      },
+    ];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return [
+      "td",
+      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes),
+      0,
+    ];
+  },
+});
+
+const TiptapTableNode = Node.create({
   name: "table",
   content: "tableRow+",
   group: "blockContent",
@@ -135,7 +260,7 @@ export const TableNode = Node.create({
   },
 });
 
-const TableParagraphNode = Node.create({
+const TiptapTableParagraph = Node.create({
   name: "tableParagraph",
   group: "tableContent",
   content: "inline*",
@@ -180,7 +305,7 @@ const TableParagraphNode = Node.create({
  * This extension allows you to create table rows.
  * @see https://www.tiptap.dev/api/nodes/table-row
  */
-export const TableRowNode = Node.create<{
+const TiptapTableRow = Node.create<{
   HTMLAttributes: Record<string, any>;
 }>({
   name: "tableRow",
@@ -256,51 +381,25 @@ export type TableBlockConfig = BlockConfig<
 
 export const createTableBlockSpec = () =>
   createBlockSpecFromTiptapNode(
-    { node: TableNode, type: "table", content: "table" },
+    { node: TiptapTableNode, type: "table", content: "table" },
     tablePropSchema,
     [
       createBlockNoteExtension({
         key: "table-extensions",
         tiptapExtensions: [
           TableExtension,
-          TableParagraphNode,
-          TableHeader.extend({
-            /**
-             * We allow table headers and cells to have multiple tableContent nodes because
-             * when merging cells, prosemirror-tables will concat the contents of the cells naively.
-             * This would cause that content to overflow into other cells when prosemirror tries to enforce the cell structure.
-             *
-             * So, we manually fix this up when reading back in the `nodeToBlock` and only ever place a single tableContent back into the cell.
-             */
-            content: "tableContent+",
-            parseHTML() {
-              return [
-                {
-                  tag: "th",
-                  // As `th` elements can contain multiple paragraphs, we need to merge their contents
-                  // into a single one so that ProseMirror can parse everything correctly.
-                  getContent: (node, schema) =>
-                    parseTableContent(node as HTMLElement, schema),
-                },
-              ];
-            },
-          }),
-          TableCell.extend({
-            content: "tableContent+",
-            parseHTML() {
-              return [
-                {
-                  tag: "td",
-                  // As `td` elements can contain multiple paragraphs, we need to merge their contents
-                  // into a single one so that ProseMirror can parse everything correctly.
-                  getContent: (node, schema) =>
-                    parseTableContent(node as HTMLElement, schema),
-                },
-              ];
-            },
-          }),
-          TableRowNode,
+          TiptapTableParagraph,
+          TiptapTableHeader,
+          TiptapTableCell,
+          TiptapTableRow,
         ],
       }),
     ],
   );
+
+// We need to declare this here because we aren't using the table extensions from tiptap, so the types are not automatically inferred.
+declare module "@tiptap/core" {
+  interface NodeConfig {
+    tableRole?: string;
+  }
+}

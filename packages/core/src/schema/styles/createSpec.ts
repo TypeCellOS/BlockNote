@@ -1,7 +1,6 @@
 import { Mark } from "@tiptap/core";
 
-import { ParseRule } from "@tiptap/pm/model";
-import { UnreachableCaseError } from "../../util/typescript.js";
+import { ParseRule, TagParseRule } from "@tiptap/pm/model";
 import {
   addStyleAttributes,
   createInternalStyleSpec,
@@ -10,21 +9,26 @@ import {
 import { StyleConfig, StyleSpec } from "./types.js";
 
 export type CustomStyleImplementation<T extends StyleConfig> = {
-  render: T["propSchema"] extends "boolean"
-    ? () => {
-        dom: HTMLElement;
-        contentDOM?: HTMLElement;
-      }
-    : (value: string) => {
-        dom: HTMLElement;
-        contentDOM?: HTMLElement;
-      };
+  render: (value: T["propSchema"] extends "boolean" ? undefined : string) => {
+    dom: HTMLElement;
+    contentDOM?: HTMLElement;
+  };
+  toExternalHTML?: (
+    value: T["propSchema"] extends "boolean" ? undefined : string,
+  ) => {
+    dom: HTMLElement;
+    contentDOM?: HTMLElement;
+  };
+  parse?: (
+    element: HTMLElement,
+  ) => (T["propSchema"] extends "boolean" ? true : string) | undefined;
 };
 
-// TODO: support serialization
-
-export function getStyleParseRules(config: StyleConfig): ParseRule[] {
-  return [
+export function getStyleParseRules<T extends StyleConfig>(
+  config: T,
+  customParseFunction?: CustomStyleImplementation<T>["parse"],
+): ParseRule[] {
+  const rules: TagParseRule[] = [
     {
       tag: `[data-style-type="${config.type}"]`,
       contentElement: (element) => {
@@ -38,9 +42,29 @@ export function getStyleParseRules(config: StyleConfig): ParseRule[] {
       },
     },
   ];
+
+  if (customParseFunction) {
+    rules.push({
+      tag: "*",
+      getAttrs(node: string | HTMLElement) {
+        if (typeof node === "string") {
+          return false;
+        }
+
+        const stringValue = customParseFunction?.(node);
+
+        if (stringValue === undefined) {
+          return false;
+        }
+
+        return { stringValue };
+      },
+    });
+  }
+  return rules;
 }
 
-export function createStyleSpec<T extends StyleConfig>(
+export function createStyleSpec<const T extends StyleConfig>(
   styleConfig: T,
   styleImplementation: CustomStyleImplementation<T>,
 ): StyleSpec<T> {
@@ -52,22 +76,13 @@ export function createStyleSpec<T extends StyleConfig>(
     },
 
     parseHTML() {
-      return getStyleParseRules(styleConfig);
+      return getStyleParseRules(styleConfig, styleImplementation.parse);
     },
 
     renderHTML({ mark }) {
-      let renderResult: {
-        dom: HTMLElement;
-        contentDOM?: HTMLElement;
-      };
-
-      if (styleConfig.propSchema === "boolean") {
-        renderResult = styleImplementation.render(mark.attrs.stringValue);
-      } else if (styleConfig.propSchema === "string") {
-        renderResult = styleImplementation.render(mark.attrs.stringValue);
-      } else {
-        throw new UnreachableCaseError(styleConfig.propSchema);
-      }
+      const renderResult = (
+        styleImplementation.toExternalHTML || styleImplementation.render
+      )(mark.attrs.stringValue);
 
       return addStyleAttributes(
         renderResult,
@@ -76,9 +91,44 @@ export function createStyleSpec<T extends StyleConfig>(
         styleConfig.propSchema,
       );
     },
+
+    addMarkView() {
+      return ({ mark }) => {
+        const renderResult = styleImplementation.render(mark.attrs.stringValue);
+
+        return addStyleAttributes(
+          renderResult,
+          styleConfig.type,
+          mark.attrs.stringValue,
+          styleConfig.propSchema,
+        );
+      };
+    },
   });
 
   return createInternalStyleSpec(styleConfig, {
     mark,
+    render: (value) => {
+      const renderResult = styleImplementation.render(value as any);
+
+      return addStyleAttributes(
+        renderResult,
+        styleConfig.type,
+        value,
+        styleConfig.propSchema,
+      );
+    },
+    toExternalHTML: (value) => {
+      const renderResult = (
+        styleImplementation.toExternalHTML || styleImplementation.render
+      )(value as any);
+
+      return addStyleAttributes(
+        renderResult,
+        styleConfig.type,
+        value,
+        styleConfig.propSchema,
+      );
+    },
   });
 }

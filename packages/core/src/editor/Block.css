@@ -559,92 +559,110 @@ NESTED BLOCKS
 /* TODO: should this be here? */
 
 /* TEXT COLORS */
+[data-style-type="textColor"][data-value="gray"],
 [data-text-color="gray"],
 .bn-block:has(> .bn-block-content[data-text-color="gray"]) {
   color: #9b9a97;
 }
 
+[data-style-type="textColor"][data-value="brown"],
 [data-text-color="brown"],
 .bn-block:has(> .bn-block-content[data-text-color="brown"]) {
   color: #64473a;
 }
 
+[data-style-type="textColor"][data-value="red"],
 [data-text-color="red"],
 .bn-block:has(> .bn-block-content[data-text-color="red"]) {
   color: #e03e3e;
 }
 
+[data-style-type="textColor"][data-value="orange"],
 [data-text-color="orange"],
 .bn-block:has(> .bn-block-content[data-text-color="orange"]) {
   color: #d9730d;
 }
 
+[data-style-type="textColor"][data-value="yellow"],
 [data-text-color="yellow"],
 .bn-block:has(> .bn-block-content[data-text-color="yellow"]) {
   color: #dfab01;
 }
 
+[data-style-type="textColor"][data-value="green"],
 [data-text-color="green"],
 .bn-block:has(> .bn-block-content[data-text-color="green"]) {
   color: #4d6461;
 }
 
+[data-style-type="textColor"][data-value="blue"],
 [data-text-color="blue"],
 .bn-block:has(> .bn-block-content[data-text-color="blue"]) {
   color: #0b6e99;
 }
 
+[data-style-type="textColor"][data-value="purple"],
 [data-text-color="purple"],
 .bn-block:has(> .bn-block-content[data-text-color="purple"]) {
   color: #6940a5;
 }
 
+[data-style-type="textColor"][data-value="pink"],
 [data-text-color="pink"],
 .bn-block:has(> .bn-block-content[data-text-color="pink"]) {
   color: #ad1a72;
 }
 
 /* BACKGROUND COLORS */
+[data-style-type="backgroundColor"][data-value="gray"],
 [data-background-color="gray"],
 .bn-block:has(> .bn-block-content[data-background-color="gray"]) {
   background-color: #ebeced;
 }
 
+[data-style-type="backgroundColor"][data-value="brown"],
 [data-background-color="brown"],
 .bn-block:has(> .bn-block-content[data-background-color="brown"]) {
   background-color: #e9e5e3;
 }
 
+[data-style-type="backgroundColor"][data-value="red"],
 [data-background-color="red"],
 .bn-block:has(> .bn-block-content[data-background-color="red"]) {
   background-color: #fbe4e4;
 }
 
+[data-style-type="backgroundColor"][data-value="orange"],
 [data-background-color="orange"],
 .bn-block:has(> .bn-block-content[data-background-color="orange"]) {
   background-color: #f6e9d9;
 }
 
+[data-style-type="backgroundColor"][data-value="yellow"],
 [data-background-color="yellow"],
 .bn-block:has(> .bn-block-content[data-background-color="yellow"]) {
   background-color: #fbf3db;
 }
 
+[data-style-type="backgroundColor"][data-value="green"],
 [data-background-color="green"],
 .bn-block:has(> .bn-block-content[data-background-color="green"]) {
   background-color: #ddedea;
 }
 
+[data-style-type="backgroundColor"][data-value="blue"],
 [data-background-color="blue"],
 .bn-block:has(> .bn-block-content[data-background-color="blue"]) {
   background-color: #ddebf1;
 }
 
+[data-style-type="backgroundColor"][data-value="purple"],
 [data-background-color="purple"],
 .bn-block:has(> .bn-block-content[data-background-color="purple"]) {
   background-color: #eae4f2;
 }
 
+[data-style-type="backgroundColor"][data-value="pink"],
 [data-background-color="pink"],
 .bn-block:has(> .bn-block-content[data-background-color="pink"]) {
   background-color: #f4dfeb;

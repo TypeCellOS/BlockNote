@@ -48,7 +48,6 @@ export function serializeInlineContentInternalHTML<
     // Check if this is a custom inline content node with toExternalHTML
     if (
       node.type.name !== "text" &&
-      node.type.name !== "link" &&
       editor.schema.inlineContentSchema[node.type.name]
     ) {
       const inlineContentImplementation =
@@ -90,14 +89,38 @@ export function serializeInlineContentInternalHTML<
           continue;
         }
       }
-    }
+    } else if (node.type.name === "text") {
+      // We serialize text nodes manually as we need to serialize the styles/
+      // marks using `styleSpec.implementation.render`. When left up to
+      // ProseMirror, it'll use `toDOM` which is incorrect.
+      let dom: globalThis.Node | Text = document.createTextNode(
+        node.textContent,
+      );
+      // Reverse the order of marks to maintain the correct priority.
+      for (const mark of node.marks.toReversed()) {
+        if (mark.type.name in editor.schema.styleSpecs) {
+          const newDom = editor.schema.styleSpecs[
+            mark.type.name
+          ].implementation.render(mark.attrs["stringValue"], editor);
+          newDom.contentDOM!.appendChild(dom);
+          dom = newDom.dom;
+        } else {
+          const domOutputSpec = mark.type.spec.toDOM!(mark, true);
+          const newDom = DOMSerializer.renderSpec(document, domOutputSpec);
+          newDom.contentDOM!.appendChild(dom);
+          dom = newDom.dom;
+        }
+      }
 
-    // Fall back to default serialization for this node
-    const nodeFragment = serializer.serializeFragment(
-      Fragment.from([node]),
-      options,
-    );
-    fragment.appendChild(nodeFragment);
+      fragment.appendChild(dom);
+    } else {
+      // Fall back to default serialization for this node
+      const nodeFragment = serializer.serializeFragment(
+        Fragment.from([node]),
+        options,
+      );
+      fragment.appendChild(nodeFragment);
+    }
   }
 
   return fragment;

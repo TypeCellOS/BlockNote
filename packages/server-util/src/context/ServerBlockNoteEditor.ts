@@ -89,10 +89,7 @@ export class ServerBlockNoteEditor<
   protected constructor(
     options: Partial<BlockNoteEditorOptions<any, any, any>>,
   ) {
-    this.editor = BlockNoteEditor.create({
-      ...options,
-      _headless: true,
-    }) as any;
+    this.editor = BlockNoteEditor.create(options) as any;
   }
 
   /** PROSEMIRROR / BLOCKNOTE conversions */

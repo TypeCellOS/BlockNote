@@ -1388,11 +1388,11 @@
             "Collaboration"
           ],
           "dependencies": {
-            "@liveblocks/client": "^3",
-            "@liveblocks/react": "^3",
-            "@liveblocks/react-blocknote": "^3",
-            "@liveblocks/react-tiptap": "^3",
-            "@liveblocks/react-ui": "^3",
+            "@liveblocks/client": "3.7.1-tiptap3",
+            "@liveblocks/react": "3.7.1-tiptap3",
+            "@liveblocks/react-blocknote": "3.7.1-tiptap3",
+            "@liveblocks/react-tiptap": "3.7.1-tiptap3",
+            "@liveblocks/react-ui": "3.7.1-tiptap3",
             "yjs": "^13.6.27"
           } as any
         },
@@ -1546,7 +1546,7 @@
           ],
           "pro": true,
           "dependencies": {
-            "@tiptap/core": "^2.26.1"
+            "@tiptap/core": "^3.4.3"
           } as any
         },
         "title": "TipTap extension (arrow InputRule)",

@@ -32,7 +32,7 @@ export class PlaceholderPlugin extends BlockNoteExtension {
             styleEl.setAttribute("nonce", nonce);
           }
 
-          if (editor.prosemirrorView?.root instanceof ShadowRoot) {
+          if (editor.prosemirrorView?.root instanceof window.ShadowRoot) {
             editor.prosemirrorView.root.append(styleEl);
           } else {
             editor.prosemirrorView?.root.head.appendChild(styleEl);
@@ -88,7 +88,7 @@ export class PlaceholderPlugin extends BlockNoteExtension {
 
           return {
             destroy: () => {
-              if (editor.prosemirrorView?.root instanceof ShadowRoot) {
+              if (editor.prosemirrorView?.root instanceof window.ShadowRoot) {
                 editor.prosemirrorView.root.removeChild(styleEl);
               } else {
                 editor.prosemirrorView?.root.head.removeChild(styleEl);

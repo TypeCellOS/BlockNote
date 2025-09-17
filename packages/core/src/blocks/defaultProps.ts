@@ -92,20 +92,10 @@ export const getBackgroundColorAttribute = (
   default: defaultProps.backgroundColor.default,
   parseHTML: (element) => {
     if (element.hasAttribute("data-background-color")) {
-      return element.getAttribute("data-background-color");
+      return element.getAttribute("data-background-color")!;
     }
 
     if (element.style.backgroundColor) {
-      // Check if `element.style.backgroundColor` matches the string:
-      // `var(--blocknote-background-<color>)`. If it does, return the color
-      // name only. Otherwise, return `element.style.backgroundColor`.
-      const match = element.style.backgroundColor.match(
-        /var\(--blocknote-background-(.+)\)/,
-      );
-      if (match) {
-        return match[1];
-      }
-
       return element.style.backgroundColor;
     }
 
@@ -128,18 +118,10 @@ export const getTextColorAttribute = (
   default: defaultProps.textColor.default,
   parseHTML: (element) => {
     if (element.hasAttribute("data-text-color")) {
-      return element.getAttribute("data-text-color");
+      return element.getAttribute("data-text-color")!;
     }
 
     if (element.style.color) {
-      // Check if `element.style.color` matches the string:
-      // `var(--blocknote-text-<color>)`. If it does, return the color name
-      // only. Otherwise, return `element.style.color`.
-      const match = element.style.color.match(/var\(--blocknote-text-(.+)\)/);
-      if (match) {
-        return match[1];
-      }
-
       return element.style.color;
     }
 
@@ -149,6 +131,7 @@ export const getTextColorAttribute = (
     if (attributes[attributeName] === defaultProps.textColor.default) {
       return {};
     }
+
     return {
       "data-text-color": attributes[attributeName],
     };
@@ -174,6 +157,7 @@ export const getTextAlignmentAttribute = (
     if (attributes[attributeName] === defaultProps.textAlignment.default) {
       return {};
     }
+
     return {
       "data-text-alignment": attributes[attributeName],
     };
