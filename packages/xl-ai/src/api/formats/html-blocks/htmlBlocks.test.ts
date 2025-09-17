@@ -5,7 +5,7 @@ import path from "path";
 import { afterAll, afterEach, beforeAll, describe } from "vitest";
 import { ClientSideTransport } from "../../../streamTool/vercelAiSdk/clientside/ClientSideTransport.js";
 import { testAIModels } from "../../../testUtil/testAIModels.js";
-import { doLLMRequest } from "../../../types.js";
+
 import { generateSharedTestCases } from "../tests/sharedTestCases.js";
 import { htmlBlockLLMFormat } from "./htmlBlocks.js";
 

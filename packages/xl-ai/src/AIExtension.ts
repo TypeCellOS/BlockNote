@@ -292,7 +292,7 @@ export class AIExtension extends BlockNoteExtension {
   ) {
     const aiMenuState = this.store.getState().aiMenuState;
     if (aiMenuState === "closed") {
-      return; // TODO: log error?
+      return;
     }
 
     if (status === "ai-writing") {
@@ -345,7 +345,6 @@ export class AIExtension extends BlockNoteExtension {
       const globalOpts = this.options.getState();
 
       const {
-        // TODO: how to pass extra metadata / body
         userPrompt,
         useSelection,
         deleteEmptyCursorBlock,
