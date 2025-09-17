@@ -105,14 +105,20 @@ The Inline Content Implementation defines how the inline content should be rende
 
 ```typescript
 type ReactCustomInlineContentImplementation = {
+  render: React.FC<{
+    inlineContent: InlineContent;
+    editor: BlockNoteEditor;
+    contentRef?: (node: HTMLElement | null) => void;
+  }>;
+  toExternalHTML?: React.FC<{
+    inlineContent: InlineContent;
+    editor: BlockNoteEditor;
+    contentRef?: (node: HTMLElement | null) => void;
+  }>;
+  parse?: (element: HTMLElement) => PartialInlineContent["props"] | undefined;
   meta?: {
     draggable?: boolean;
   };
-  render: React.FC<{
-    inlineContent: InlineContent;
-    contentRef?: (node: HTMLElement | null) => void;
-    draggable?: boolean;
-  }>;
 };
 ```
 
@@ -123,6 +129,18 @@ type ReactCustomInlineContentImplementation = {
 - `contentRef:` A React `ref` you can use to mark which element in your inline content is editable, this is only available if your inline content config contains `content: "styled"`.
 
 - `draggable:` Specifies whether the inline content can be dragged within the editor. If set to `true`, the inline content will be draggable. Defaults to `false` if not specified. If this is true, you should add `data-drag-handle` to the DOM element that should function as the drag handle.
+
+`toExternalHTML?:` This component is used whenever the inline content is being exported to HTML for use outside BlockNote, for example when copying it to the clipboard. If it's not defined, BlockNote will just use `render` for the HTML conversion. Takes the same props as `render`.
+
+<Callout type="info">
+  _Note that your component passed to `toExternalHTML` is rendered and
+  serialized in a separate React root, which means you can't use hooks that rely
+  on React Contexts._
+</Callout>
+
+`parse?:` The `parse` function defines how to parse HTML content into your inline content, for example when pasting contents from the clipboard. If the element should be parsed into your custom inline content, you return the props that the block should be given. Otherwise, return `undefined`. Takes a single argument:
+
+- `element`: The HTML element that's being parsed.
 
 `meta?.draggable?:` Whether the inline content should be draggable.
 
