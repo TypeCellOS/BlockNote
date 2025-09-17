@@ -1,6 +1,5 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import {
-  createStreamToolsArraySchema,
   objectAsToolCallInUIMessageStream,
   partialObjectStreamAsToolCallInUIMessageStream,
 } from "@blocknote/xl-ai";
@@ -8,10 +7,10 @@ import {
   convertToModelMessages,
   createUIMessageStreamResponse,
   generateObject,
-  generateText,
   jsonSchema,
   streamObject,
   streamText,
+  tool,
 } from "ai";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -22,33 +21,35 @@ const model = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })("gpt-4o");
 
-// TODO: add support for generateText + tools
-vercelAiSdkRoute.post("/generateText", cors(), async (c) => {
-  // TODO
-  const { messages } = await c.req.json();
+vercelAiSdkRoute.post("/generateText", cors(), async () => {
+  // can't easily convert generateText response to stream
+  // https://github.com/vercel/ai/issues/8380
+  throw new Error("not implemented");
+  // const { messages } = await c.req.json();
 
-  const result = generateText({
-    model,
-    messages: convertToModelMessages(messages),
-    tools: {
-      // add: tool({}),
-    },
-  });
+  // const result = generateText({
+  //   model,
+  //   messages: convertToModelMessages(messages),
+  //   tools: {
+  //     // add: tool({}),
+  //   },
+  // });
 
-  return result as any;
+  // return result as any;
   // return result.toDataStreamResponse();
 });
 
-// TODO: add support for streamText + tools
 vercelAiSdkRoute.post("/streamText", cors(), async (c) => {
-  // TODO
-  const { messages } = await c.req.json();
+  const { messages, streamTools } = await c.req.json();
 
   const result = streamText({
     model,
     messages: convertToModelMessages(messages),
     tools: {
-      // add: tool({}),
+      operations: tool({
+        name: "operations",
+        inputSchema: jsonSchema(streamTools),
+      }),
     },
   });
 
@@ -57,7 +58,7 @@ vercelAiSdkRoute.post("/streamText", cors(), async (c) => {
 
 vercelAiSdkRoute.post("/streamObject", cors(), async (c) => {
   const { messages, streamTools } = await c.req.json();
-  const schema = jsonSchema(createStreamToolsArraySchema(streamTools));
+  const schema = jsonSchema(streamTools);
   const result = streamObject({
     model,
     messages: convertToModelMessages(messages),
@@ -75,7 +76,7 @@ vercelAiSdkRoute.post("/streamObject", cors(), async (c) => {
 
 vercelAiSdkRoute.post("/generateObject", cors(), async (c) => {
   const { messages, streamTools } = await c.req.json();
-  const schema = jsonSchema(createStreamToolsArraySchema(streamTools));
+  const schema = jsonSchema(streamTools);
 
   const result = await generateObject({
     model,

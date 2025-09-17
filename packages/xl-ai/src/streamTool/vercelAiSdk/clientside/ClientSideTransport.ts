@@ -9,10 +9,8 @@ import {
   jsonSchema,
   streamObject,
   streamText,
+  tool,
 } from "ai";
-import { streamToolsAsTool } from "../../asTool.js";
-import { createStreamToolsArraySchema } from "../../jsonSchema.js";
-import { StreamTool } from "../../streamTool.js";
 import {
   objectAsToolCallInUIMessageStream,
   partialObjectStreamAsToolCallInUIMessageStream,
@@ -68,7 +66,7 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
    */
   protected async generateObject(
     messages: UIMessage[],
-    streamTools: StreamTool<any>[],
+    streamToolJSONSchema: any,
   ) {
     const { model, _additionalOptions } = this.opts;
 
@@ -76,7 +74,7 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
       throw new Error("model must be a LanguageModelV2");
     }
 
-    const schema = jsonSchema(createStreamToolsArraySchema(streamTools));
+    const schema = jsonSchema(streamToolJSONSchema);
 
     const ret = await generateObject<any, any, { operations: any }>({
       // non-overridable options for streamObject
@@ -119,7 +117,7 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
    */
   protected async streamObject(
     messages: UIMessage[],
-    streamTools: StreamTool<any>[],
+    streamToolJSONSchema: any,
   ) {
     const { model, _additionalOptions } = this.opts;
 
@@ -127,7 +125,7 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
       throw new Error("model must be a LanguageModelV2");
     }
 
-    const schema = jsonSchema(createStreamToolsArraySchema(streamTools));
+    const schema = jsonSchema(streamToolJSONSchema);
 
     const ret = streamObject({
       // non-overridable options for streamObject
@@ -172,17 +170,17 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
    *
    * This is the streaming version.
    */
-  protected async streamText<T extends StreamTool<any>[]>(
-    messages: UIMessage[],
-    streamTools: T,
-  ) {
+  protected async streamText(messages: UIMessage[], streamToolJSONSchema: any) {
     const { model, _additionalOptions } = this.opts;
 
     const ret = streamText({
       model,
       messages: convertToModelMessages(messages),
       tools: {
-        operations: streamToolsAsTool(streamTools),
+        operations: tool({
+          name: "operations",
+          inputSchema: jsonSchema(streamToolJSONSchema),
+        }),
       },
       // extra options for streamObject
       ...((_additionalOptions ?? {}) as any),
@@ -222,12 +220,12 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
 
   async sendMessages({
     messages,
-    // body,
-    metadata,
+    body,
+    // metadata,
   }: Parameters<ChatTransport<UI_MESSAGE>["sendMessages"]>[0]): Promise<
     ReadableStream<UIMessageChunk>
   > {
-    const streamTools = (metadata as any).streamTools;
+    const streamTools = (body as any).streamTools;
 
     if (this.opts.objectGeneration) {
       if (this.opts.stream) {

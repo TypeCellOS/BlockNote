@@ -41,8 +41,9 @@ export default function App() {
         // (see packages/xl-ai-server/src/routes/vercelAiSdk.ts)
 
         transport: new DefaultChatTransport({
-          // Can also use /generateObject for non-streaming mode
-          api: `${BASE_URL}/streamObject`,
+          // Can also use /generateObject for object generation + non-streaming mode
+          // or /streamObject for object generation + streaming mode
+          api: `${BASE_URL}/streamText`,
         }),
       }),
     ],
