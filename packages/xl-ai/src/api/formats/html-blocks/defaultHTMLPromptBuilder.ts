@@ -3,9 +3,51 @@ import type { PromptBuilder } from "../PromptBuilder.js";
 import { HTMLPromptData } from "./htmlPromptData.js";
 
 function promptManipulateSelectionHTMLBlocks(
+  messages: UIMessage[],
   opts: Exclude<HTMLPromptData, { selection: false }>,
-): Array<UIMessage> {
-  return [
+): void {
+  if (messages.length > 0) {
+    messages.push(
+      {
+        role: "assistant",
+        id: "html-selected-blocks-json-" + messages.length,
+        parts: [
+          {
+            type: "text",
+            text: `This is the latest state of the selection (ignore previous selections, you MUST issue operations against this latest version of the selection):`,
+          },
+          {
+            type: "text",
+            text: JSON.stringify(opts.htmlSelectedBlocks),
+          },
+          {
+            type: "text",
+            text: "This is the latest state of the document (INCLUDING the selected text), find the selected text in there to understand the context:",
+          },
+          {
+            type: "text",
+            text: JSON.stringify(opts.htmlDocument),
+          },
+        ],
+      },
+      {
+        role: "user",
+        id: "html-user-prompt-" + messages.length,
+        parts: [
+          {
+            type: "text",
+            text: "The user asks you to do the following:",
+          },
+          {
+            type: "text",
+            text: opts.userPrompt,
+          },
+        ],
+      },
+    );
+  }
+
+  messages.push(
     {
       role: "system",
       id: "html-selected-blocks",
@@ -63,13 +105,47 @@ function promptManipulateSelectionHTMLBlocks(
         },
       ],
     },
-  ];
+  );
 }
 
 function promptManipulateDocumentUseHTMLBlocks(
+  messages: UIMessage[],
   opts: Exclude<HTMLPromptData, { selection: true }>,
-): Array<UIMessage> {
-  return [
+): void {
+  if (messages.length > 0) {
+    messages.push(
+      {
+        role: "assistant",
+        id: "html-document-json-" + messages.length,
+        parts: [
+          {
+            type: "text",
+            text: `This is the latest state of the document (ignore previous documents, you MUST issue operations against this latest version of the document):`,
+          },
+          {
+            type: "text",
+            text: JSON.stringify(opts.htmlBlocks),
+          },
+        ],
+      },
+      {
+        role: "user",
+        id: "html-user-prompt-" + messages.length,
+        parts: [
+          {
+            type: "text",
+            text: "The user asks you to do the following:",
+          },
+          {
+            type: "text",
+            text: opts.userPrompt,
+          },
+        ],
+      },
+    );
+    return;
+  }
+  messages.push(
     {
       role: "system",
       id: "html-document",
@@ -133,15 +209,16 @@ function promptManipulateDocumentUseHTMLBlocks(
         },
       ],
     },
-  ];
+  );
 }
 
 export const defaultHTMLPromptBuilder: PromptBuilder<HTMLPromptData> = async (
+  messages,
   inputData,
 ) => {
   if (inputData.selection) {
-    return promptManipulateSelectionHTMLBlocks(inputData);
+    promptManipulateSelectionHTMLBlocks(messages, inputData);
   } else {
-    return promptManipulateDocumentUseHTMLBlocks(inputData);
+    promptManipulateDocumentUseHTMLBlocks(messages, inputData);
   }
 };

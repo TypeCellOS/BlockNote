@@ -18,7 +18,6 @@ import {
   AIToolbarButton,
   ClientSideTransport,
   createAIExtension,
-  createAISDKLLMRequestExecutor,
   createBlockNoteAIClient,
   getAISlashMenuItems,
   getDefaultAIMenuItems,
@@ -69,10 +68,8 @@ export default function App() {
     // Register the AI extension
     extensions: [
       createAIExtension({
-        executor: createAISDKLLMRequestExecutor({
-          transport: new ClientSideTransport({
-            model,
-          }),
+        transport: new ClientSideTransport({
+          model,
         }),
       }),
     ],

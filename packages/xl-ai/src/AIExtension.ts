@@ -9,7 +9,7 @@ import {
   revertSuggestions,
   suggestChanges,
 } from "@blocknote/prosemirror-suggest-changes";
-import { APICallError, RetryError, UIMessage } from "ai";
+import { UIMessage } from "ai";
 import { Fragment, Slice } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { fixTablesKey } from "prosemirror-tables";
@@ -165,7 +165,6 @@ export class AIExtension extends BlockNoteExtension {
     this.editor.setForceSelectionVisible(false);
     this.editor.isEditable = true;
     this.editor.focus();
-    // TODO: clear chat?
   }
 
   /**
@@ -240,38 +239,29 @@ export class AIExtension extends BlockNoteExtension {
    * Only valid if the current status is "error"
    */
   public async retry() {
-    const state = this.store.getState().aiMenuState;
+    const { aiMenuState, chat } = this.store.getState();
     if (
-      state === "closed" ||
-      state.status !== "error"
+      aiMenuState === "closed" ||
+      aiMenuState.status !== "error"
       // !this.previousRequestOptions TODO
     ) {
       throw new Error("retry() is only valid when a previous response failed");
     }
-    debugger;
-    if (
-      state.error instanceof APICallError ||
-      state.error instanceof RetryError
-    ) {
-      // TODO
-      // retry the previous call as-is, as there was a network error
-      // return this.callLLM();
-      throw new Error("retry() is not implemented");
-    } else {
-      // TODO
 
+    if (!chat) {
+      throw new Error("chat not found in retry()");
+    }
+
+    if (chat?.status === "error") {
+      // the LLM call failed (i.e. a network error)
+      chat.regenerate();
+    } else {
       // an error occurred while parsing / executing the previous LLM call
       // give the LLM a chance to fix the error
-      // (Possible improvement: maybe this should be a system prompt instead of the userPrompt)
-      const errorMessage =
-        state.error instanceof Error
-          ? state.error.message
-          : String(state.error);
-      throw new Error("retry() is not implemented");
-      // return this.callLLM({
-      //   userPrompt: `An error occured: ${errorMessage}
-      //       Please retry the previous user request.`,
-      // });
+
+      return this.callLLM({
+        userPrompt: `An error occured in the previous tool call. Please retry.`,
+      });
     }
   }
 
@@ -337,6 +327,7 @@ export class AIExtension extends BlockNoteExtension {
     try {
       if (!this.store.getState().chat) {
         // TODO: what if transport changes?
+        console.log("new chat");
         this._store.setState({
           chat: new Chat<UIMessage>({
             sendAutomaticallyWhen: () => false,
@@ -445,6 +436,7 @@ export class AIExtension extends BlockNoteExtension {
     } catch (e) {
       // TODO in error state, should we discard the forked document?
 
+      debugger;
       this.setAIResponseStatus({
         status: "error",
         error: e,
@@ -492,9 +484,8 @@ function promptMessageSender<E = HTMLPromptData>(
         opts.blockNoteUserPrompt,
       );
 
-      opts.chat.messages = await promptBuilder(promptData);
+      await promptBuilder(opts.chat.messages, promptData);
 
-      // TBD: call sendMessage?
       return opts.chat.sendMessage(undefined, {
         metadata: {
           streamTools: opts.blockNoteUserPrompt.streamTools,

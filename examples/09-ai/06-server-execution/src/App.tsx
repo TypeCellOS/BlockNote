@@ -15,7 +15,6 @@ import {
   AIMenuController,
   AIToolbarButton,
   createAIExtension,
-  createAISDKLLMRequestExecutor,
   getAISlashMenuItems,
 } from "@blocknote/xl-ai";
 import { en as aiEn } from "@blocknote/xl-ai/locales";
@@ -40,11 +39,10 @@ export default function App() {
         // We define a custom executor that calls our backend server to execute LLM calls
         // On the backend, we use the Vercel AI SDK to execute LLM calls
         // (see packages/xl-ai-server/src/routes/vercelAiSdk.ts)
-        executor: createAISDKLLMRequestExecutor({
-          transport: new DefaultChatTransport({
-            // Can also use /generateObject for non-streaming mode
-            api: `${BASE_URL}/streamObject`,
-          }),
+
+        transport: new DefaultChatTransport({
+          // Can also use /generateObject for non-streaming mode
+          api: `${BASE_URL}/streamObject`,
         }),
       }),
     ],

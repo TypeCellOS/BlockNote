@@ -37,7 +37,10 @@ export type BlockNoteUserPrompt = {
  * A PromptBuilder is a function that takes a BlockNoteEditor and details about the user's promot
  * and turns it into an array of CoreMessage (AI SDK) to be passed to the LLM.
  */
-export type PromptBuilder<E> = (inputData: E) => Promise<Array<UIMessage>>;
+export type PromptBuilder<E> = (
+  messages: UIMessage[],
+  inputData: E,
+) => Promise<void>;
 
 export type PromptInputDataBuilder<E> = (
   editor: BlockNoteEditor<any, any, any>,
