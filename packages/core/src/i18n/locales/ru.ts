@@ -214,6 +214,12 @@ export const ru: Dictionary = {
       aliases: ["эмодзи", "смайлик", "выражение эмоций", "лицо"],
       group: "Прочее",
     },
+    divider: {
+      title: "Разделитель",
+      subtext: "Разделитель блоков",
+      aliases: ["divider", "hr", "horizontal rule"],
+      group: "Базовые блоки",
+    },
   },
   placeholders: {
     default: "Введите текст или введите «/» для команд",

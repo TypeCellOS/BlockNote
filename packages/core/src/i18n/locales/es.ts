@@ -171,6 +171,12 @@ export const es: Dictionary = {
       aliases: ["emoji", "emoticono", "emoción", "cara"],
       group: "Otros",
     },
+    divider: {
+      title: "Divisor",
+      subtext: "Divisor de bloques",
+      aliases: ["divisor", "hr", "horizontal rule"],
+      group: "Bloques básicos",
+    },
   },
   placeholders: {
     default: "Escribe o teclea '/' para comandos",
