@@ -794,29 +794,31 @@ export class BlockNoteEditor<
                               editor: this,
                             });
                             if (replaceWith) {
+                              const cursorPosition =
+                                this.getTextCursorPosition();
+
+                              if (
+                                this.schema.blockSchema[
+                                  cursorPosition.block.type
+                                ].content !== "inline"
+                              ) {
+                                return undefined;
+                              }
+
                               const blockInfo = getBlockInfoFromTransaction(
                                 state.tr,
                               );
+                              const tr = state.tr.deleteRange(
+                                range.from,
+                                range.to,
+                              );
 
-                              // TODO this is weird, why do we need it?
-                              if (
-                                blockInfo.isBlockContainer &&
-                                blockInfo.blockContent.node.type.spec
-                                  .content === "inline*"
-                              ) {
-                                const tr = state.tr.deleteRange(
-                                  range.from,
-                                  range.to,
-                                );
-                                updateBlockTr(
-                                  tr,
-                                  blockInfo.bnBlock.beforePos,
-                                  replaceWith,
-                                  range.from,
-                                  range.to,
-                                );
-                                return undefined;
-                              }
+                              updateBlockTr(
+                                tr,
+                                blockInfo.bnBlock.beforePos,
+                                replaceWith,
+                              );
+                              return undefined;
                             }
                             return null;
                           },
