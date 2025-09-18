@@ -3467,10 +3467,10 @@ importers:
         specifier: ^0.4.3
         version: 0.4.15(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@blocknote/core':
-        specifier: 0.38.0
+        specifier: 0.39.0
         version: link:../core
       '@blocknote/react':
-        specifier: 0.38.0
+        specifier: 0.39.0
         version: link:../react
     devDependencies:
       '@types/react':
@@ -3513,7 +3513,7 @@ importers:
   packages/code-block:
     dependencies:
       '@blocknote/core':
-        specifier: 0.38.0
+        specifier: 0.39.0
         version: link:../core
       '@shikijs/core':
         specifier: ^3.2.1
@@ -3744,10 +3744,10 @@ importers:
   packages/mantine:
     dependencies:
       '@blocknote/core':
-        specifier: 0.38.0
+        specifier: 0.39.0
         version: link:../core
       '@blocknote/react':
-        specifier: 0.38.0
+        specifier: 0.39.0
         version: link:../react
       '@mantine/core':
         specifier: ^7.17.3
@@ -3802,7 +3802,7 @@ importers:
   packages/react:
     dependencies:
       '@blocknote/core':
-        specifier: 0.38.0
+        specifier: 0.39.0
         version: link:../core
       '@emoji-mart/data':
         specifier: ^1.2.1
@@ -3884,10 +3884,10 @@ importers:
   packages/server-util:
     dependencies:
       '@blocknote/core':
-        specifier: 0.38.0
+        specifier: 0.39.0
         version: link:../core
       '@blocknote/react':
-        specifier: 0.38.0
+        specifier: 0.39.0
         version: link:../react
       '@tiptap/core':
         specifier: https://pkg.pr.new/@tiptap/core@5e777c9
@@ -3945,10 +3945,10 @@ importers:
   packages/shadcn:
     dependencies:
       '@blocknote/core':
-        specifier: 0.38.0
+        specifier: 0.39.0
         version: link:../core
       '@blocknote/react':
-        specifier: 0.38.0
+        specifier: 0.39.0
         version: link:../react
       '@hookform/resolvers':
         specifier: ^3.10.0
@@ -4051,16 +4051,16 @@ importers:
   packages/xl-ai:
     dependencies:
       '@blocknote/core':
-        specifier: 0.38.0
+        specifier: 0.39.0
         version: link:../core
       '@blocknote/mantine':
-        specifier: 0.38.0
+        specifier: 0.39.0
         version: link:../mantine
       '@blocknote/prosemirror-suggest-changes':
         specifier: ^0.1.3
         version: 0.1.3(prosemirror-model@1.25.3)(prosemirror-state@1.4.3)(prosemirror-transform@1.10.4)(prosemirror-view@1.40.1)
       '@blocknote/react':
-        specifier: 0.38.0
+        specifier: 0.39.0
         version: link:../react
       '@floating-ui/react':
         specifier: ^0.26.4
@@ -4245,10 +4245,10 @@ importers:
   packages/xl-docx-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.38.0
+        specifier: 0.39.0
         version: link:../core
       '@blocknote/xl-multi-column':
-        specifier: 0.38.0
+        specifier: 0.39.0
         version: link:../xl-multi-column
       buffer:
         specifier: ^6.0.3
@@ -4300,10 +4300,10 @@ importers:
   packages/xl-email-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.38.0
+        specifier: 0.39.0
         version: link:../core
       '@blocknote/react':
-        specifier: 0.38.0
+        specifier: 0.39.0
         version: link:../react
       '@react-email/components':
         specifier: ^0.1.0
@@ -4355,10 +4355,10 @@ importers:
   packages/xl-multi-column:
     dependencies:
       '@blocknote/core':
-        specifier: 0.38.0
+        specifier: 0.39.0
         version: link:../core
       '@blocknote/react':
-        specifier: 0.38.0
+        specifier: 0.39.0
         version: link:../react
       '@tiptap/core':
         specifier: https://pkg.pr.new/@tiptap/core@5e777c9
@@ -4425,10 +4425,10 @@ importers:
   packages/xl-odt-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.38.0
+        specifier: 0.39.0
         version: link:../core
       '@blocknote/xl-multi-column':
-        specifier: 0.38.0
+        specifier: 0.39.0
         version: link:../xl-multi-column
       '@zip.js/zip.js':
         specifier: ^2.7.57
@@ -4477,13 +4477,13 @@ importers:
   packages/xl-pdf-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.38.0
+        specifier: 0.39.0
         version: link:../core
       '@blocknote/react':
-        specifier: 0.38.0
+        specifier: 0.39.0
         version: link:../react
       '@blocknote/xl-multi-column':
-        specifier: 0.38.0
+        specifier: 0.39.0
         version: link:../xl-multi-column
       '@react-pdf/renderer':
         specifier: ^4.3.0

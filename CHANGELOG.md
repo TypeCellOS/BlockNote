@@ -1,3 +1,14 @@
+## 0.39.0 (2025-09-18)
+
+### 🚀 Features
+
+- move all blocks to use the custom blocks API ([#1904](https://github.com/TypeCellOS/BlockNote/pull/1904))
+- **core:** support for Tiptap V3 ([#2001](https://github.com/TypeCellOS/BlockNote/pull/2001))
+
+### ❤️ Thank You
+
+- Nick Perez
+
 ## 0.38.0 (2025-09-16)
 
 ### 🚀 Features
