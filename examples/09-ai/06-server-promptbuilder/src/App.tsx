@@ -41,7 +41,7 @@ export default function App() {
         // similar to https://ai-sdk.dev/docs/ai-sdk-ui/chatbot-message-persistence#sending-only-the-last-message
         // we adjust the transport to not send all messages to the backend
         transport: new DefaultChatTransport({
-          // (see packages/xl-ai-server/src/routes/vercelAiSdk.ts)
+          // (see packages/xl-ai-server/src/routes/vercelAiSdkPersistence.ts)
           api: `${BASE_URL}-persistence/streamText`,
           prepareSendMessagesRequest({ id, body, messages, requestMetadata }) {
             // we don't send the messages, just the information we need to compose / append messages server-side:
