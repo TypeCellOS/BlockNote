@@ -18,10 +18,12 @@ Use the `createReactStyleSpec` function to create a custom style type. This func
 function createReactStyleSpec(
   styleConfig: CustomStyleConfig,
   styleImplementation: ReactStyleImplementation,
-);
+): StyleSpec;
 ```
 
-Let's look at our custom font style from the demo, and go over each field to explain how it works:
+It returns an instance of your custom inline content, or a `StyleSpec`. This `StyleSpec` then gets passed into your [BlockNote schema](/docs/features/custom-schemas#creating-your-own-schema) to add the style to the editor.
+
+Let's look at our custom font style from the demo, and go over everything we pass to `createReactStyleSpec`:
 
 ```typescript
 export const Font = createReactStyleSpec(

@@ -433,7 +433,9 @@ export type BlockNoteEditorOptions<
   /**
    * Register extensions to the editor.
    *
-   * @internal
+   * See [Extensions](/docs/features/extensions) for more info.
+   *
+   * @remarks `BlockNoteExtension[]`
    */
   extensions?: Array<BlockNoteExtension | BlockNoteExtensionFactory>;
 };
