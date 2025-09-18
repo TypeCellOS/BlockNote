@@ -1,5 +1,5 @@
 {
-  "name": "@blocknote/example-ai-custom-ai-menu-items",
+  "name": "@blocknote/example-ai-server-promptbuilder",
   "description": "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
   "private": true,
   "version": "0.12.4",
@@ -20,9 +20,6 @@
     "@blocknote/xl-ai": "latest",
     "@mantine/core": "^7.17.3",
     "ai": "^5.0.45",
-    "@ai-sdk/openai": "^2.0.23",
-    "@ai-sdk/groq": "^2.0.16",
-    "react-icons": "^5.2.1",
     "zustand": "^5.0.3"
   },
   "devDependencies": {

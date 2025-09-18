@@ -13,7 +13,6 @@ import {
   tool,
 } from "ai";
 import { Hono } from "hono";
-import { cors } from "hono/cors";
 
 export const vercelAiSdkRoute = new Hono();
 
@@ -21,7 +20,7 @@ const model = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })("gpt-4o");
 
-vercelAiSdkRoute.post("/generateText", cors(), async () => {
+vercelAiSdkRoute.post("/generateText", async () => {
   // can't easily convert generateText response to stream
   // https://github.com/vercel/ai/issues/8380
   throw new Error("not implemented");
@@ -39,7 +38,7 @@ vercelAiSdkRoute.post("/generateText", cors(), async () => {
   // return result.toDataStreamResponse();
 });
 
-vercelAiSdkRoute.post("/streamText", cors(), async (c) => {
+vercelAiSdkRoute.post("/streamText", async (c) => {
   const { messages, streamTools } = await c.req.json();
 
   const result = streamText({
@@ -49,6 +48,7 @@ vercelAiSdkRoute.post("/streamText", cors(), async (c) => {
       operations: tool({
         name: "operations",
         inputSchema: jsonSchema(streamTools),
+        outputSchema: jsonSchema({ type: "object" }),
       }),
     },
   });
@@ -56,7 +56,7 @@ vercelAiSdkRoute.post("/streamText", cors(), async (c) => {
   return result.toUIMessageStreamResponse();
 });
 
-vercelAiSdkRoute.post("/streamObject", cors(), async (c) => {
+vercelAiSdkRoute.post("/streamObject", async (c) => {
   const { messages, streamTools } = await c.req.json();
   const schema = jsonSchema(streamTools);
   const result = streamObject({
@@ -74,7 +74,7 @@ vercelAiSdkRoute.post("/streamObject", cors(), async (c) => {
   return createUIMessageStreamResponse({ stream });
 });
 
-vercelAiSdkRoute.post("/generateObject", cors(), async (c) => {
+vercelAiSdkRoute.post("/generateObject", async (c) => {
   const { messages, streamTools } = await c.req.json();
   const schema = jsonSchema(streamTools);
 

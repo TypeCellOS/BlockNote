@@ -6,7 +6,7 @@
   "dependencies": {
     "@blocknote/xl-ai": "latest",
     "@mantine/core": "^7.17.3",
-    "ai": "^5.0.29",
+    "ai": "^5.0.45",
     "zustand": "^5.0.3"
   }
 }

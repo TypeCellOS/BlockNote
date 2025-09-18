@@ -19,7 +19,7 @@
     "react-dom": "^19.1.0",
     "@blocknote/xl-ai": "latest",
     "@mantine/core": "^7.17.3",
-    "ai": "^5.0.29",
+    "ai": "^5.0.45",
     "@ai-sdk/groq": "^2.0.16",
     "y-partykit": "^0.0.25",
     "yjs": "^13.6.27",

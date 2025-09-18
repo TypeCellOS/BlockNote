@@ -7,6 +7,7 @@ import { createSecureServer } from "node:http2";
 import { Agent, setGlobalDispatcher } from "undici";
 import { proxyRoute } from "./routes/proxy.js";
 import { vercelAiSdkRoute } from "./routes/vercelAiSdk.js";
+import { vercelAiSdkPersistenceRoute } from "./routes/vercelAiSdkPersistence.js";
 
 // make sure our fetch request uses HTTP/2
 setGlobalDispatcher(
@@ -31,6 +32,7 @@ if (process.env.TOKEN?.length) {
 app.use("/ai/*", cors());
 app.route("/ai/proxy", proxyRoute);
 app.route("/ai/vercel-ai-sdk", vercelAiSdkRoute);
+app.route("/ai/vercel-ai-sdk-persistence", vercelAiSdkPersistenceRoute);
 
 const http2 = existsSync("localhost.pem");
 serve(

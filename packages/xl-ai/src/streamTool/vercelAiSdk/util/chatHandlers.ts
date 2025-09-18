@@ -5,6 +5,8 @@ import { StreamTool, StreamToolCall } from "../../streamTool.js";
 import { StreamToolExecutor } from "../../StreamToolExecutor.js";
 import { objectStreamToOperationsResult } from "./UIMessageStreamToOperationsResult.js";
 
+// TODO: comment file + design decisions
+
 // Types for tool call streaming
 type ToolCallStreamData = {
   stream: TransformStream<DeepPartial<{ operations: StreamToolCall<any>[] }>>;

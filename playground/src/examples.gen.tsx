@@ -1512,7 +1512,7 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^7.17.3",
-            ai: "^5.0.29",
+            ai: "^5.0.45",
             "@ai-sdk/groq": "^2.0.16",
             zustand: "^5.0.3",
           } as any,
@@ -1537,7 +1537,7 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^7.17.3",
-            ai: "^5.0.29",
+            ai: "^5.0.45",
             "@ai-sdk/google": "^2.0.11",
             "@ai-sdk/openai": "^2.0.23",
             "@ai-sdk/openai-compatible": "^1.0.13",
@@ -1567,7 +1567,7 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^7.17.3",
-            ai: "^5.0.29",
+            ai: "^5.0.45",
             "@ai-sdk/openai": "^2.0.23",
             "@ai-sdk/groq": "^2.0.16",
             "react-icons": "^5.2.1",
@@ -1594,7 +1594,7 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^7.17.3",
-            ai: "^5.0.29",
+            ai: "^5.0.45",
             "@ai-sdk/groq": "^2.0.16",
             "y-partykit": "^0.0.25",
             yjs: "^13.6.27",
@@ -1621,7 +1621,7 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^7.17.3",
-            ai: "^5.0.29",
+            ai: "^5.0.45",
             "@ai-sdk/groq": "^2.0.16",
             "y-partykit": "^0.0.25",
             yjs: "^13.6.27",
@@ -1648,7 +1648,7 @@ export const examples = {
           dependencies: {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^7.17.3",
-            ai: "^5.0.29",
+            ai: "^5.0.45",
             zustand: "^5.0.3",
           } as any,
         },
@@ -1659,6 +1659,30 @@ export const examples = {
         },
         readme:
           "This example shows how to setup to add AI integration while handling the LLM calls (in this case, using the Vercel AI SDK) on your server, using a custom executor",
+      },
+      {
+        projectSlug: "server-promptbuilder",
+        fullSlug: "ai/server-promptbuilder",
+        pathFromRoot: "examples/09-ai/06-server-promptbuilder",
+        config: {
+          playground: true,
+          docs: false,
+          author: "yousefed",
+          tags: ["AI", "llm"],
+          dependencies: {
+            "@blocknote/xl-ai": "latest",
+            "@mantine/core": "^7.17.3",
+            ai: "^5.0.45",
+            zustand: "^5.0.3",
+          } as any,
+        },
+        title: "AI Integration with server LLM execution + promptbuilder",
+        group: {
+          pathFromRoot: "examples/09-ai",
+          slug: "ai",
+        },
+        readme:
+          "This example shows how to setup to add AI integration while handling the LLM calls (in this case, using the Vercel AI SDK) on your server, using a custom executor.\n\nPrompt building is done on the server as well",
       },
     ],
   },

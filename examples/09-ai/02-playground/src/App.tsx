@@ -40,8 +40,8 @@ import { getEnv } from "./getEnv";
 const client = createBlockNoteAIClient({
   apiKey: getEnv("BLOCKNOTE_AI_SERVER_API_KEY") || "PLACEHOLDER",
   baseURL:
-    getEnv("BLOCKNOTE_AI_SERVER_BASE_URL") + "/proxy" ||
-    "https://localhost:3000/ai/proxy",
+    (getEnv("BLOCKNOTE_AI_SERVER_BASE_URL") || "https://localhost:3000/ai") +
+    "/proxy",
 });
 
 // return the AI SDK model based on the selected model string

@@ -50,4 +50,6 @@ export const llmFormats = {
 
 // export { doLLMRequest as callLLM } from "./LLMRequest.js";
 // export { LLMResponse } from "./LLMResponse.js";
+export { promptAIRequestSender } from "./formats/promptAIRequestSender.js";
+export * from "./formats/PromptBuilder.js";
 export { promptHelpers } from "./promptHelpers/index.js";

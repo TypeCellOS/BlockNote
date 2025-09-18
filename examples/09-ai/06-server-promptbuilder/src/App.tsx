@@ -16,10 +16,12 @@ import {
   AIToolbarButton,
   createAIExtension,
   getAISlashMenuItems,
+  llmFormats,
+  promptAIRequestSender,
 } from "@blocknote/xl-ai";
 import { en as aiEn } from "@blocknote/xl-ai/locales";
 import "@blocknote/xl-ai/style.css";
-import { DefaultChatTransport } from "ai";
+import { DefaultChatTransport, isToolOrDynamicToolUIPart } from "ai";
 import { getEnv } from "./getEnv";
 
 const BASE_URL =
@@ -36,15 +38,47 @@ export default function App() {
     // Register the AI extension
     extensions: [
       createAIExtension({
-        // We define a custom executor that calls our backend server to execute LLM calls
-        // On the backend, we use the Vercel AI SDK to execute LLM calls
-        // (see packages/xl-ai-server/src/routes/vercelAiSdk.ts)
-
+        // similar to https://ai-sdk.dev/docs/ai-sdk-ui/chatbot-message-persistence#sending-only-the-last-message
+        // we adjust the transport to not send all messages to the backend
         transport: new DefaultChatTransport({
-          // Can also use /generateObject for object generation + non-streaming mode
-          // or /streamObject for object generation + streaming mode
-          api: `${BASE_URL}/streamText`,
+          // (see packages/xl-ai-server/src/routes/vercelAiSdk.ts)
+          api: `${BASE_URL}-persistence/streamText`,
+          prepareSendMessagesRequest({ id, body, messages, requestMetadata }) {
+            // we don't send the messages, just the information we need to compose / append messages server-side:
+            // - the conversation id
+            // - the promptData
+            // - the tool results of the last message
+
+            // we need to share data about tool calls with the backend,
+            // as these can be client-side executed. The backend needs to know the tool outputs
+            // in order to compose a new valid LLM request
+            const lastToolParts =
+              messages.length > 0
+                ? messages[messages.length - 1].parts.filter((part) =>
+                    isToolOrDynamicToolUIPart(part),
+                  )
+                : [];
+
+            return {
+              body: {
+                // TODO: this conversation id is client-side generated, we
+                // should have a server-side generated id to ensure uniqueness
+                // see https://github.com/vercel/ai/issues/7340#issuecomment-3307559636
+                id,
+                // get the promptData from requestMetadata (set by `promptAIRequestSender`) and send to backend
+                promptData: (requestMetadata as any).promptData,
+                ...body,
+                lastToolParts,
+                // messages, -> we explicitly don't send the messages array as we compose messages server-side
+              },
+            };
+          },
         }),
+        // customize the aiRequestSender to not update the messages array on the client-side
+        aiRequestSender: promptAIRequestSender(
+          async () => {}, // disable the client-side promptbuilder
+          llmFormats.html.defaultPromptInputDataBuilder,
+        ),
       }),
     ],
     // We set some initial content for demo purposes

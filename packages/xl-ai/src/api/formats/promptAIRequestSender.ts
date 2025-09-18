@@ -28,6 +28,10 @@ export function promptAIRequestSender<E = HTMLPromptData>(
             aiRequest.blockNoteUserPrompt.streamTools,
           ),
         },
+        // we pass the promptData as metadata
+        // so the transport can decide whether or not to submit this to the server
+        // (DefaultChatTransport will not)
+        metadata: { promptData },
       });
     },
   };

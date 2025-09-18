@@ -54,7 +54,7 @@
     "@uppy/webcam": "^3.4.2",
     "@uppy/xhr-upload": "^3.4.0",
     "@y-sweet/react": "^0.6.3",
-    "ai": "^5.0.29",
+    "ai": "^5.0.45",
     "autoprefixer": "10.4.21",
     "docx": "^9.0.2",
     "react": "^19.1.0",
