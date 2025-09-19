@@ -121,6 +121,7 @@ export default function App() {
               isUpdateToPreviousOperation: false,
               // this operation is a partial update and will be "completed" by the next update
               isPossiblyPartial: true,
+              metadata: {},
             });
             await new Promise((resolve) => setTimeout(resolve, 3000));
             writer.write({
@@ -134,6 +135,7 @@ export default function App() {
               isUpdateToPreviousOperation: true,
               // this operation is not a partial update, we've received the entire invocation
               isPossiblyPartial: false,
+              metadata: {},
             });
 
             // close the writer
