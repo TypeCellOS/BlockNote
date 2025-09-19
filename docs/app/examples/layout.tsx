@@ -22,7 +22,7 @@ export default function Layout({ children }: { children: ReactNode }) {
 
           page.name = (
             <span>
-              {exampleData.title}
+              <span className="mr-1">{exampleData.title}</span>
               {exampleData.isPro && <ProBadge />}
             </span>
           );
