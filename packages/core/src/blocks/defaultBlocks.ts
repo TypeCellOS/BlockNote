@@ -18,6 +18,7 @@ import {
   createVideoBlockSpec,
   defaultProps,
 } from "./index.js";
+import { createEquationBlockSpec } from "./Equation/block.js";
 import {
   BlockNoDefaults,
   BlockSchema,
@@ -39,6 +40,7 @@ export const defaultBlockSpecs = {
   bulletListItem: createBulletListItemBlockSpec(),
   checkListItem: createCheckListItemBlockSpec(),
   codeBlock: createCodeBlockSpec(),
+  equation: createEquationBlockSpec(),
   file: createFileBlockSpec(),
   heading: createHeadingBlockSpec(),
   image: createImageBlockSpec(),

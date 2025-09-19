@@ -14,6 +14,8 @@ export * from "./Quote/block.js";
 export * from "./Table/block.js";
 export * from "./Video/block.js";
 
+export * from "./Equation/block.js";
+
 export { EMPTY_CELL_HEIGHT, EMPTY_CELL_WIDTH } from "./Table/TableExtension.js";
 export * from "./ToggleWrapper/createToggleWrapper.js";
 export * from "./File/helpers/uploadToTmpFilesDotOrg_DEV_ONLY.js";
