@@ -82,16 +82,21 @@ describe("Models", () => {
     {
       model: testAIModels.openai,
       stream: true,
+      generateObject: true,
     },
     {
       model: testAIModels.openai,
-      stream: false,
+      stream: true,
     },
-    // TODO: https://github.com/vercel/ai/issues/8533
     // {
-    //   model: testAIModels.groq,
-    //   stream: true,
+    //   model: testAIModels.openai,
+    //   stream: false,
     // },
+    // TODO: https://github.com/vercel/ai/issues/8533
+    {
+      model: testAIModels.groq,
+      stream: true,
+    },
     // {
     //   model: testAIModels.groq,
     //   stream: false,
@@ -103,7 +108,7 @@ describe("Models", () => {
     // },
     {
       model: testAIModels.anthropic,
-      stream: false,
+      stream: true,
     },
     // currently doesn't support streaming
     // https://github.com/vercel/ai/issues/5350
@@ -120,7 +125,8 @@ describe("Models", () => {
 
   for (const params of testMatrix) {
     describe(`${params.model.provider}/${params.model.modelId} (${
-      params.stream ? "streaming" : "non-streaming"
+      (params.stream ? "streaming" : "non-streaming") +
+      (params.generateObject ? " + generateObject" : "")
     })`, () => {
       generateSharedTestCases(
         {
@@ -130,7 +136,7 @@ describe("Models", () => {
           transport: new ClientSideTransport({
             model: params.model,
             stream: params.stream,
-            objectGeneration: true,
+            objectGeneration: params.generateObject,
             _additionalOptions: {
               maxRetries: 0,
             },

@@ -45,17 +45,14 @@ export type StreamTool<T extends { type: string }> = {
    *
    * @returns the stream of operations that have not been processed (and should be passed on to execute handlers of other StreamTools)
    */
-  execute: (
-    operationsStream: AsyncIterable<{
+  executor: () => {
+    execute: (chunk: {
       operation: StreamToolCall<StreamTool<{ type: string }>[]>;
       isUpdateToPreviousOperation: boolean;
       isPossiblyPartial: boolean;
-    }>,
-  ) => AsyncIterable<{
-    operation: StreamToolCall<StreamTool<{ type: string }>[]>;
-    isUpdateToPreviousOperation: boolean;
-    isPossiblyPartial: boolean;
-  }>;
+      metadata: any;
+    }) => Promise<boolean>;
+  };
 };
 
 export type StreamToolCallSingle<T extends StreamTool<any>> =

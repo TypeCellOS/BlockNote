@@ -6,17 +6,55 @@ import { StreamToolExecutor } from "../../StreamToolExecutor.js";
 import { objectStreamToOperationsResult } from "./UIMessageStreamToOperationsResult.js";
 
 // TODO: comment file + design decisions
+// TODO: add notice about single executor (with downside that maybe streamtools must be changeable?)
+
+function createAppendableStream<T>() {
+  let controller: ReadableStreamDefaultController<T>;
+  let ready = Promise.resolve();
+
+  const output = new ReadableStream({
+    start(c) {
+      controller = c;
+    },
+  });
+
+  async function append(readable: ReadableStream<T>) {
+    const reader = readable.getReader();
+
+    // Chain appends in sequence
+    ready = ready.then(async () => {
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          break;
+        }
+        controller.enqueue(value);
+      }
+    });
+
+    return ready;
+  }
+
+  async function finalize() {
+    await ready; // wait for last appended stream to finish
+    controller.close(); // only close once no more streams will come
+  }
+
+  return { output, append, finalize };
+}
 
 // Types for tool call streaming
 type ToolCallStreamData = {
-  stream: TransformStream<DeepPartial<{ operations: StreamToolCall<any>[] }>>;
+  // stream: TransformStream<DeepPartial<{ operations: StreamToolCall<any>[] }>>;
   writer: WritableStreamDefaultWriter<
     DeepPartial<{ operations: StreamToolCall<any>[] }>
   >;
   complete: boolean;
   toolName: string;
   toolCallId: string;
-  executor: StreamToolExecutor<any>;
+  operationsStream: ReadableStream<any>;
+  // executor: StreamToolExecutor<any>;
 };
 
 /**
@@ -36,7 +74,7 @@ function processToolCallParts(
 
     const toolName = part.type.replace("tool-", "");
 
-    if (toolName !== "operations") {
+    if (toolName !== "applyDocumentOperations") {
       // we only process the combined operations tool call
       // in a future improvement we can add more generic support for different tool streaming
       continue;
@@ -67,19 +105,17 @@ function createToolCallStream(
   const operationsStream = objectStreamToOperationsResult(
     stream.readable,
     streamTools,
+    { toolCallId },
   );
+
   const writer = stream.writable.getWriter();
 
-  const executor = new StreamToolExecutor(streamTools);
-
-  // Pipe operations directly into this tool call's executor
-  operationsStream.pipeTo(executor.writable);
-
   return {
-    stream,
+    // stream,
     writer,
     complete: false,
-    executor,
+    // executor,
+    operationsStream,
     toolName,
     toolCallId,
   };
@@ -116,6 +152,19 @@ export async function setupToolCallStreaming(
   chat: Chat<UIMessage>,
   onStart?: () => void,
 ) {
+  let erroredChunk: any | undefined;
+
+  const executor = new StreamToolExecutor(streamTools, (chunk, success) => {
+    console.log("chunk", chunk, success);
+    if (!success) {
+      erroredChunk = chunk;
+    }
+  });
+
+  const appendableStream = createAppendableStream<any>();
+
+  appendableStream.output.pipeTo(executor.writable);
+
   const toolCallStreams = new Map<string, ToolCallStreamData>();
 
   let first = true;
@@ -128,6 +177,7 @@ export async function setupToolCallStreaming(
           data.toolName,
           data.toolCallId,
         );
+        appendableStream.append(toolCallStreamData.operationsStream);
         toolCallStreams.set(data.toolCallId, toolCallStreamData);
         if (first) {
           first = false;
@@ -173,33 +223,56 @@ export async function setupToolCallStreaming(
   //  instead of waiting for the entire llm response)
   await statusHandler;
 
+  // we're not going to append any more streams from tool calls, because we've seen all tool calls
+  await appendableStream.finalize();
+
   // let all stream executors finish, this can take longer due to artificial delays
   // (e.g. to simulate human typing behaviour)
+  const result = (await Promise.allSettled([executor.waitTillEnd()]))[0];
 
-  const toolCalls = Array.from(toolCallStreams.values());
-  const results = await Promise.allSettled(
-    toolCalls.map((data) => data.executor.waitTillEnd()),
-  );
+  if (result.status === "rejected" && !erroredChunk) {
+    throw new Error(
+      "Unexpected: executor.waitTillEnd() rejected but no erroredChunk",
+      { cause: result.reason },
+    );
+  }
 
+  let errorSeen = false;
   // process results
-  results.forEach((result, index) => {
+  const toolCalls = Array.from(toolCallStreams.values());
+  toolCalls.forEach((toolCall, index) => {
+    const isErrorTool =
+      toolCall.toolCallId === erroredChunk?.metadata.toolCallId;
+    let error: string | undefined;
+    if (isErrorTool) {
+      if (result.status === "fulfilled") {
+        throw new Error(
+          "Unexpected: executor.waitTillEnd() fulfilled but erroredChunk",
+          { cause: erroredChunk },
+        );
+      }
+      error = getErrorMessage(result.reason);
+      errorSeen = true;
+    }
+
     chat.addToolResult({
       tool: toolCalls[index].toolName,
       toolCallId: toolCalls[index].toolCallId,
       output:
-        result.status === "fulfilled"
+        errorSeen === false
           ? { status: "ok" }
-          : { status: "error", error: getErrorMessage(result.reason) },
+          : isErrorTool
+            ? { status: "error", error }
+            : { status: "not-executed-previous-tool-errored" },
     });
   });
+
+  if (result.status === "rejected") {
+    throw result.reason;
+  }
 
   if (chat.error) {
     // response failed
     throw chat.error;
-  }
-
-  // response succeeded, but (one of the) tool calls failed
-  if (results.some((result) => result.status === "rejected")) {
-    throw new Error("Tool call failed");
   }
 }

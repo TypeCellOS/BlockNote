@@ -49,8 +49,8 @@ vercelAiSdkPersistenceRoute.post("/streamText", async (c) => {
   const { id, promptData, streamTools, lastToolParts } = await c.req.json();
 
   const tools = {
-    operations: tool({
-      name: "operations",
+    applyDocumentOperations: tool({
+      name: "applyDocumentOperations",
       inputSchema: jsonSchema(streamTools),
       outputSchema: jsonSchema({ type: "object" }),
     }),

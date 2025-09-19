@@ -65,6 +65,8 @@ export function createStreamToolsArraySchema(
     type: "object",
     properties: {
       operations: {
+        //description:
+        // "Operations to apply to the document. Put all operations in this array in ONE tool call / function call. DO NOT use multiple operation arrays with parallel tool calls.",
         type: "array",
         items: {
           anyOf: schemas.map((schema) => schema.schema),

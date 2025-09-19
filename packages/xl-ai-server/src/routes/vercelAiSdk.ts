@@ -45,8 +45,8 @@ vercelAiSdkRoute.post("/streamText", async (c) => {
     model,
     messages: convertToModelMessages(messages),
     tools: {
-      operations: tool({
-        name: "operations",
+      applyDocumentOperations: tool({
+        name: "applyDocumentOperations",
         inputSchema: jsonSchema(streamTools),
         outputSchema: jsonSchema({ type: "object" }),
       }),
@@ -68,7 +68,7 @@ vercelAiSdkRoute.post("/streamObject", async (c) => {
 
   const stream = partialObjectStreamAsToolCallInUIMessageStream(
     result.fullStream,
-    "operations",
+    "applyDocumentOperations",
   );
 
   return createUIMessageStreamResponse({ stream });
@@ -85,7 +85,10 @@ vercelAiSdkRoute.post("/generateObject", async (c) => {
     schema,
   });
 
-  const stream = objectAsToolCallInUIMessageStream(result.object, "operations");
+  const stream = objectAsToolCallInUIMessageStream(
+    result.object,
+    "applyDocumentOperations",
+  );
 
   return createUIMessageStreamResponse({ stream });
 });

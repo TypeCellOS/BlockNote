@@ -33,6 +33,8 @@ type OperationsResult<T extends StreamTool<any>[]> = AsyncIterableStream<{
    * For non-streaming mode, this will always be `false`
    */
   isPossiblyPartial: boolean;
+
+  metadata: any;
 }>;
 
 // stream vs generate, responsibility of backend
@@ -41,23 +43,28 @@ type OperationsResult<T extends StreamTool<any>[]> = AsyncIterableStream<{
 export function UIMessageStreamToOperationsResult<T extends StreamTool<any>[]>(
   stream: ReadableStream<UIMessageChunk>,
   streamTools: T,
+  chunkMetadata: any,
 ): OperationsResult<T> {
   const ret = uiMessageStreamObjectDataToTextStream(stream).pipeThrough(
     textStreamToPartialObjectStream<{ operations: StreamToolCall<T>[] }>(),
   );
 
   // Note: we can probably clean this up by switching to streams instead of async iterables
-  return objectStreamToOperationsResult(ret, streamTools);
+  return objectStreamToOperationsResult(ret, streamTools, chunkMetadata);
 }
 
 export function objectStreamToOperationsResult<T extends StreamTool<any>[]>(
   stream: ReadableStream<DeepPartial<{ operations: StreamToolCall<T>[] }>>,
   streamTools: T,
+  chunkMetadata: any,
 ): OperationsResult<T> {
   // Note: we can probably clean this up by switching to streams instead of async iterables
   return createAsyncIterableStreamFromAsyncIterable(
     preprocessOperationsStreaming(
-      filterNewOrUpdatedOperations(createAsyncIterableStream(stream)),
+      filterNewOrUpdatedOperations(
+        createAsyncIterableStream(stream),
+        chunkMetadata,
+      ),
       streamTools,
     ),
   );

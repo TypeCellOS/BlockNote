@@ -26,7 +26,7 @@ export function streamToolsAsTool<T extends StreamTool<any>[]>(streamTools: T) {
   const schema = createStreamToolsArraySchema(streamTools);
 
   return tool({
-    name: "operations",
+    name: "applyDocumentOperations",
     inputSchema: jsonSchema(schema, {
       // validate: (value) => {
       //   const stream = operationsToStream(value);

@@ -24,6 +24,8 @@ type Operation<T extends StreamTool<any>[] | StreamTool<any>> = {
    * (i.e.: incomplete, streaming in progress)
    */
   isPossiblyPartial: boolean;
+
+  metadata: any;
 };
 
 /**
@@ -40,19 +42,29 @@ type Operation<T extends StreamTool<any>[] | StreamTool<any>> = {
  */
 export class StreamToolExecutor<T extends StreamTool<any>[]> {
   private readonly stream: TransformStream<string | Operation<T>, Operation<T>>;
-  private readonly readable: ReadableStream<Operation<T>>;
+  private readonly readable: ReadableStream<{
+    status: "ok";
+    chunk: Operation<T>;
+  }>;
 
   /**
    * @param streamTools - The StreamTools to use to apply the StreamToolCalls
    */
-  constructor(private streamTools: T) {
+  constructor(
+    private streamTools: T,
+    // TODO: use this?
+    private readonly onChunkComplete?: (
+      chunk: Operation<T>,
+      success: boolean,
+      error?: any,
+    ) => void,
+  ) {
     this.stream = this.createWriteStream();
     this.readable = this.createReadableStream();
   }
 
   private createWriteStream() {
     let lastParsedResult: Operation<T> | undefined;
-
     const stream = new TransformStream<string | Operation<T>, Operation<T>>({
       transform: async (chunk, controller) => {
         const operation =
@@ -83,15 +95,37 @@ export class StreamToolExecutor<T extends StreamTool<any>[]> {
   }
 
   private createReadableStream() {
-    // this is a bit hacky as it mixes async iterables and streams
-    // would be better to stick to streams
-    let currentStream: AsyncIterable<Operation<StreamTool<any>[]>> =
+    // Convert the initial stream to async iterable for tool processing
+    const source: AsyncIterable<Operation<StreamTool<any>[]>> =
       createAsyncIterableStream(this.stream.readable);
-    for (const tool of this.streamTools) {
-      currentStream = tool.execute(currentStream);
-    }
 
-    return asyncIterableToStream(currentStream);
+    const executors = this.streamTools.map((tool) => tool.executor());
+
+    const onChunkComplete = this.onChunkComplete;
+
+    const iterable = async function* () {
+      for await (const chunk of source) {
+        let handled = false;
+        for (const executor of executors) {
+          try {
+            const result = await executor.execute(chunk);
+            if (result) {
+              yield { status: "ok", chunk } as const;
+              handled = true;
+              break;
+            }
+          } catch (error) {
+            onChunkComplete?.(chunk, false, error);
+            throw new Error("error bla");
+          }
+        }
+        if (!handled) {
+          throw new Error("unhandled chunk");
+        }
+      }
+    };
+    // Convert back to stream for the final output
+    return asyncIterableToStream(iterable());
   }
 
   /**
@@ -162,6 +196,7 @@ export class StreamToolExecutor<T extends StreamTool<any>[]> {
           operation: chunk,
           isUpdateToPreviousOperation: false,
           isPossiblyPartial: false,
+          metadata: {},
         };
       })(),
     );
@@ -192,6 +227,7 @@ async function partialJsonToOperation<T extends StreamTool<any>[]>(
       operation: validated.value as StreamToolCall<T>,
       isPossiblyPartial: parsed.state === "repaired-parse",
       isUpdateToPreviousOperation,
+      metadata: undefined,
     };
   } else {
     // no worries, probably a partial operation that's not valid yet

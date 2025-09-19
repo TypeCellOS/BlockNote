@@ -107,7 +107,10 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
       ...((_additionalOptions ?? {}) as any),
     });
 
-    return objectAsToolCallInUIMessageStream(ret.object, "operations"); // TODO, better not hardcode
+    return objectAsToolCallInUIMessageStream(
+      ret.object,
+      "applyDocumentOperations",
+    ); // TODO, better not hardcode
   }
 
   /**
@@ -161,7 +164,7 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
     // Transform the partial object stream to a data stream format
     return partialObjectStreamAsToolCallInUIMessageStream(
       ret.fullStream,
-      "operations", // TODO, better not hardcode
+      "applyDocumentOperations", // TODO, better not hardcode
     );
   }
 
@@ -177,13 +180,14 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
       model,
       messages: convertToModelMessages(messages),
       tools: {
-        operations: tool({
-          name: "operations",
+        applyDocumentOperations: tool({
+          name: "applyDocumentOperations",
           inputSchema: jsonSchema(streamToolJSONSchema),
         }),
       },
       // extra options for streamObject
       ...((_additionalOptions ?? {}) as any),
+      // activeTools: ["applyDocumentOperations"],
     });
 
     return ret.toUIMessageStream();

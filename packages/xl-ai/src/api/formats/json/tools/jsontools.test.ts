@@ -33,6 +33,7 @@ async function* createMockStream(
     yield {
       isUpdateToPreviousOperation: false,
       isPossiblyPartial: false,
+      metadata: undefined,
       ...op,
     };
   }

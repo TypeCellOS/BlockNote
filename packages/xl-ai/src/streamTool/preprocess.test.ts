@@ -78,6 +78,7 @@ describe("preprocess", () => {
           partialOperation: addOperationValid,
           isUpdateToPreviousOperation: false,
           isPossiblyPartial: false,
+          metadata: undefined,
         };
       }
 
@@ -94,11 +95,13 @@ describe("preprocess", () => {
           partialOperation: addOperationInvalidId,
           isUpdateToPreviousOperation: false,
           isPossiblyPartial: true,
+          metadata: undefined,
         };
         yield {
           partialOperation: invalidOperationType,
           isUpdateToPreviousOperation: false,
           isPossiblyPartial: true,
+          metadata: undefined,
         };
       }
 
@@ -115,11 +118,13 @@ describe("preprocess", () => {
           partialOperation: addOperationInvalidId,
           isUpdateToPreviousOperation: false,
           isPossiblyPartial: false,
+          metadata: undefined,
         };
         yield {
           partialOperation: invalidOperationType,
           isUpdateToPreviousOperation: false,
           isPossiblyPartial: false,
+          metadata: undefined,
         };
       }
 
@@ -150,6 +155,7 @@ describe("preprocess", () => {
           partialOperation: addOperationValid,
           isUpdateToPreviousOperation: false,
           isPossiblyPartial: false,
+          metadata: undefined,
         };
       }
 
@@ -166,6 +172,7 @@ describe("preprocess", () => {
           partialOperation: addOperationInvalidId,
           isUpdateToPreviousOperation: false,
           isPossiblyPartial: false,
+          metadata: undefined,
         };
       }
 
@@ -182,6 +189,7 @@ describe("preprocess", () => {
           partialOperation: invalidOperationType,
           isUpdateToPreviousOperation: false,
           isPossiblyPartial: false,
+          metadata: undefined,
         };
       }
 

@@ -76,32 +76,34 @@ export const deleteBlockTool = (
     },
     // Note: functionality mostly tested in jsontools.test.ts
     // would be nicer to add a direct unit test
-    execute: async function* (operationsStream) {
-      for await (const chunk of operationsStream) {
-        if (chunk.operation.type !== "delete") {
-          // pass through non-delete operations
-          yield chunk;
-          continue;
-        }
-
-        const operation = chunk.operation as DeleteBlockToolCall;
-
-        const tr = editor.prosemirrorState.tr;
-
-        removeAndInsertBlocks(tr, [operation.id], []);
-
-        const agentSteps = getStepsAsAgent(tr);
-
-        for (const step of agentSteps) {
-          if (options.withDelays) {
-            await delayAgentStep(step);
+    executor: () => {
+      return {
+        execute: async (chunk) => {
+          if (chunk.operation.type !== "delete") {
+            // pass through non-delete operations
+            return false;
           }
-          editor.transact((tr) => {
-            applyAgentStep(tr, step);
-          });
-          options.onBlockUpdate?.(operation.id);
-        }
-      }
+
+          const operation = chunk.operation as DeleteBlockToolCall;
+
+          const tr = editor.prosemirrorState.tr;
+
+          removeAndInsertBlocks(tr, [operation.id], []);
+
+          const agentSteps = getStepsAsAgent(tr);
+
+          for (const step of agentSteps) {
+            if (options.withDelays) {
+              await delayAgentStep(step);
+            }
+            editor.transact((tr) => {
+              applyAgentStep(tr, step);
+            });
+            options.onBlockUpdate?.(operation.id);
+          }
+          return true;
+        },
+      };
     },
   });
 

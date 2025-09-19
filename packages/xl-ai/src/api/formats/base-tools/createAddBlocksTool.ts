@@ -169,7 +169,7 @@ export function createAddBlocksTool<T>(config: {
       },
       // Note: functionality mostly tested in jsontools.test.ts
       // would be nicer to add a direct unit test
-      execute: async function* (operationsStream) {
+      executor: () => {
         // An add operation has some complexity:
         // - it can add multiple blocks in 1 operation
         //   (this is needed because you need an id as reference block - and if you want to insert multiple blocks you can only use an existing block as reference id)
@@ -181,108 +181,113 @@ export function createAddBlocksTool<T>(config: {
 
         const referenceIdMap: Record<string, string> = {}; // TODO: unit test
 
-        for await (const chunk of operationsStream) {
-          if (!chunk.isUpdateToPreviousOperation) {
-            // we have a new operation, reset the added block ids
-            addedBlockIds = [];
-          }
+        return {
+          execute: async (chunk) => {
+            if (!chunk.isUpdateToPreviousOperation) {
+              // we have a new operation, reset the added block ids
+              addedBlockIds = [];
+            }
 
-          if (chunk.operation.type !== "add") {
-            // pass through non-add operations
-            yield chunk;
-            continue;
-          }
+            if (chunk.operation.type !== "add") {
+              // pass through non-add operations
+              return false;
+            }
+            // throw new Error("test error");
+            const operation = chunk.operation as AddBlocksToolCall<T>;
 
-          const operation = chunk.operation as AddBlocksToolCall<T>;
+            const jsonToolCall = await config.toJSONToolCall(editor, {
+              ...chunk,
+              operation,
+            });
 
-          const jsonToolCall = await config.toJSONToolCall(editor, {
-            ...chunk,
-            operation,
-          });
+            if (!jsonToolCall) {
+              return true;
+            }
 
-          if (!jsonToolCall) {
-            continue;
-          }
+            if (
+              chunk.isPossiblyPartial &&
+              isEmptyParagraph(
+                jsonToolCall.blocks[jsonToolCall.blocks.length - 1],
+              )
+            ) {
+              // for example, a parsing just "<ul>" would first result in an empty paragraph,
+              // wait for more content before adding the block
+              return true;
+            }
 
-          if (
-            chunk.isPossiblyPartial &&
-            isEmptyParagraph(
-              jsonToolCall.blocks[jsonToolCall.blocks.length - 1],
-            )
-          ) {
-            // for example, a parsing just "<ul>" would first result in an empty paragraph,
-            // wait for more content before adding the block
-            continue;
-          }
+            for (let i = 0; i < jsonToolCall.blocks.length; i++) {
+              const block = jsonToolCall.blocks[i];
+              const tr = editor.prosemirrorState.tr;
 
-          for (let i = 0; i < jsonToolCall.blocks.length; i++) {
-            const block = jsonToolCall.blocks[i];
-            const tr = editor.prosemirrorState.tr;
+              let agentSteps: AgentStep[] = [];
+              if (i < addedBlockIds.length) {
+                // we have already added this block, so we need to update it
+                const tool = await config.rebaseTool(addedBlockIds[i], editor);
+                const steps = updateToReplaceSteps(
+                  {
+                    id: addedBlockIds[i],
+                    block,
+                  },
+                  tool.doc,
+                  false,
+                );
 
-            let agentSteps: AgentStep[] = [];
-            if (i < addedBlockIds.length) {
-              // we have already added this block, so we need to update it
-              const tool = await config.rebaseTool(addedBlockIds[i], editor);
-              const steps = updateToReplaceSteps(
-                {
-                  id: addedBlockIds[i],
-                  block,
-                },
-                tool.doc,
-                false,
-              );
+                const inverted = steps.map((step) => step.map(tool.invertMap)!);
 
-              const inverted = steps.map((step) => step.map(tool.invertMap)!);
+                for (const step of inverted) {
+                  tr.step(step.map(tr.mapping)!);
+                }
+                agentSteps = getStepsAsAgent(tr);
+                // don't spend time "selecting" the block as an agent, as we're continuing a previous update
+                agentSteps = agentSteps.filter(
+                  (step) => step.type !== "select",
+                );
+              } else {
+                // we are adding a new block, so we need to insert it
+                const mappedReferenceId =
+                  operation.position === "after"
+                    ? referenceIdMap[operation.referenceId]
+                    : undefined;
 
-              for (const step of inverted) {
-                tr.step(step.map(tr.mapping)!);
+                const ret = insertBlocks(
+                  tr,
+                  [block],
+                  i > 0
+                    ? addedBlockIds[i - 1]
+                    : mappedReferenceId || operation.referenceId,
+                  i > 0 ? "after" : operation.position,
+                );
+                addedBlockIds.push(...ret.map((r) => r.id));
+                agentSteps = getStepsAsAgent(tr);
               }
-              agentSteps = getStepsAsAgent(tr);
-              // don't spend time "selecting" the block as an agent, as we're continuing a previous update
-              agentSteps = agentSteps.filter((step) => step.type !== "select");
-            } else {
-              // we are adding a new block, so we need to insert it
-              const mappedReferenceId =
-                operation.position === "after"
-                  ? referenceIdMap[operation.referenceId]
-                  : undefined;
 
-              const ret = insertBlocks(
-                tr,
-                [block],
-                i > 0
-                  ? addedBlockIds[i - 1]
-                  : mappedReferenceId || operation.referenceId,
-                i > 0 ? "after" : operation.position,
-              );
-              addedBlockIds.push(...ret.map((r) => r.id));
-              agentSteps = getStepsAsAgent(tr);
-            }
-
-            if (agentSteps.find((step) => step.type === "replace")) {
-              // throw new Error("unexpected: replace step in add operation");
-              // this is unexpected but we've been able to see this when:
-              // adding a list item, because <ul> first gets parsed as paragraph, that then gets turned into a list
-            }
-
-            for (const step of agentSteps) {
-              if (options.withDelays) {
-                await delayAgentStep(step);
+              if (agentSteps.find((step) => step.type === "replace")) {
+                // throw new Error("unexpected: replace step in add operation");
+                // this is unexpected but we've been able to see this when:
+                // adding a list item, because <ul> first gets parsed as paragraph, that then gets turned into a list
               }
-              editor.transact((tr) => {
-                applyAgentStep(tr, step);
-              });
-              options.onBlockUpdate?.(addedBlockIds[i]);
-            }
-          }
 
-          if (!chunk.isPossiblyPartial) {
-            if (operation.position === "after") {
-              referenceIdMap[operation.referenceId] =
-                addedBlockIds[addedBlockIds.length - 1];
+              for (const step of agentSteps) {
+                if (options.withDelays) {
+                  await delayAgentStep(step);
+                }
+                editor.transact((tr) => {
+                  applyAgentStep(tr, step);
+                });
+                options.onBlockUpdate?.(addedBlockIds[i]);
+              }
             }
-          }
-        }
+
+            if (!chunk.isPossiblyPartial) {
+              if (operation.position === "after") {
+                referenceIdMap[operation.referenceId] =
+                  addedBlockIds[addedBlockIds.length - 1];
+              }
+            }
+
+            return true;
+          },
+        };
       },
     });
   };
