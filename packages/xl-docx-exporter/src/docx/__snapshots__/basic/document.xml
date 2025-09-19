@@ -736,6 +736,13 @@
                 <w:t xml:space="preserve">};</w:t>
             </w:r>
         </w:p>
+        <w:p>
+            <w:pPr>
+                <w:pBdr>
+                    <w:top w:val="single" w:color="auto" w:sz="1" w:space="1"/>
+                </w:pBdr>
+            </w:pPr>
+        </w:p>
         <w:sectPr>
             <w:pgSz w:w="11906" w:h="16838" w:orient="portrait"/>
             <w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="708" w:footer="708" w:gutter="0"/>

@@ -3,21 +3,7 @@ import Code from "@tiptap/extension-code";
 import Italic from "@tiptap/extension-italic";
 import Strike from "@tiptap/extension-strike";
 import Underline from "@tiptap/extension-underline";
-import {
-  createAudioBlockSpec,
-  createBulletListItemBlockSpec,
-  createCheckListItemBlockSpec,
-  createCodeBlockSpec,
-  createFileBlockSpec,
-  createHeadingBlockSpec,
-  createImageBlockSpec,
-  createNumberedListItemBlockSpec,
-  createParagraphBlockSpec,
-  createQuoteBlockSpec,
-  createToggleListItemBlockSpec,
-  createVideoBlockSpec,
-  defaultProps,
-} from "./index.js";
+import { COLORS_DEFAULT } from "../editor/defaultColors.js";
 import {
   BlockNoDefaults,
   BlockSchema,
@@ -31,14 +17,30 @@ import {
   getInlineContentSchemaFromSpecs,
   getStyleSchemaFromSpecs,
 } from "../schema/index.js";
+import {
+  createAudioBlockSpec,
+  createBulletListItemBlockSpec,
+  createCheckListItemBlockSpec,
+  createCodeBlockSpec,
+  createDividerBlockSpec,
+  createFileBlockSpec,
+  createHeadingBlockSpec,
+  createImageBlockSpec,
+  createNumberedListItemBlockSpec,
+  createParagraphBlockSpec,
+  createQuoteBlockSpec,
+  createToggleListItemBlockSpec,
+  createVideoBlockSpec,
+  defaultProps,
+} from "./index.js";
 import { createTableBlockSpec } from "./Table/block.js";
-import { COLORS_DEFAULT } from "../editor/defaultColors.js";
 
 export const defaultBlockSpecs = {
   audio: createAudioBlockSpec(),
   bulletListItem: createBulletListItemBlockSpec(),
   checkListItem: createCheckListItemBlockSpec(),
   codeBlock: createCodeBlockSpec(),
+  divider: createDividerBlockSpec(),
   file: createFileBlockSpec(),
   heading: createHeadingBlockSpec(),
   image: createImageBlockSpec(),

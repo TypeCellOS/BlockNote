@@ -211,6 +211,12 @@ export const ja: Dictionary = {
       aliases: ["絵文字", "顔文字", "感情表現", "顔"],
       group: "その他",
     },
+    divider: {
+      title: "区切り",
+      subtext: "区切りを表示するために使用",
+      aliases: ["divider", "hr", "horizontal rule"],
+      group: "基本ブロック",
+    },
   },
   placeholders: {
     default: "テキストを入力するか'/' を入力してコマンド選択",

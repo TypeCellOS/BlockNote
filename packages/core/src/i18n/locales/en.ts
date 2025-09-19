@@ -170,6 +170,12 @@ export const en = {
       aliases: ["emoji", "emote", "emotion", "face"],
       group: "Others",
     },
+    divider: {
+      title: "Divider",
+      subtext: "Visually divide blocks",
+      aliases: ["divider", "hr", "line", "horizontal rule"],
+      group: "Basic blocks",
+    },
   },
   placeholders: {
     default: "Enter text or type '/' for commands",

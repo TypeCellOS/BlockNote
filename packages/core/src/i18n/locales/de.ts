@@ -191,6 +191,12 @@ export const de: Dictionary = {
       aliases: ["emoji", "emote", "emotion", "gesicht"],
       group: "Andere",
     },
+    divider: {
+      title: "Trennlinie",
+      subtext: "Trennlinie zwischen Blöcken",
+      aliases: ["trennlinie", "hr", "horizontal rule"],
+      group: "Grundlegende Blöcke",
+    },
   },
   placeholders: {
     default: "Text eingeben oder '/' für Befehle tippen",

@@ -196,6 +196,12 @@ export const uk: Dictionary = {
       aliases: ["emoji", "emote", "emotion", "face", "смайлик", "емодзі"],
       group: "Інше",
     },
+    divider: {
+      title: "Розділювач",
+      subtext: "Розділювач блоків",
+      aliases: ["divider", "hr", "horizontal rule"],
+      group: "Базові блоки",
+    },
   },
   placeholders: {
     default: "Введіть текст або наберіть '/' для команд",

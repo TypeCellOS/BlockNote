@@ -215,6 +215,16 @@ export function getDefaultSlashMenuItems<
     });
   }
 
+  if (editorHasBlockWithType(editor, "divider")) {
+    items.push({
+      onItemClick: () => {
+        insertOrUpdateBlock(editor, { type: "divider" });
+      },
+      key: "divider",
+      ...editor.dictionary.slash_menu.divider,
+    });
+  }
+
   if (editorHasBlockWithType(editor, "table")) {
     items.push({
       onItemClick: () => {

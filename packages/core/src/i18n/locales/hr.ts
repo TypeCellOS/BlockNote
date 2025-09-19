@@ -184,6 +184,12 @@ export const hr: Dictionary = {
       aliases: ["emoji", "emotikon", "emocija", "lice"],
       group: "Ostalo",
     },
+    divider: {
+      title: "Razdjelnik",
+      subtext: "Razdjelnik blokova",
+      aliases: ["razdjelnik", "hr", "horizontal rule"],
+      group: "Osnovni blokovi",
+    },
   },
   placeholders: {
     default: "Unesi tekst ili upiši ‘/’ za naredbe",
