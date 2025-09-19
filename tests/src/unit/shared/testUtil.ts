@@ -66,10 +66,6 @@ export const initTestEditor = <
   document?: PartialBlock<B, I, S>[],
   getSelection?: (pmDoc: Node) => Selection,
 ) => {
-  if (!editor.prosemirrorView) {
-    throw new Error("Editor view not initialized.");
-  }
-
   (window as any).__TEST_OPTIONS.mockID = 0;
 
   if (document) {

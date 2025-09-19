@@ -22,13 +22,13 @@ export const testCopyPasteEquality = async <
   initTestEditor(editor, testCase.document, testCase.getCopyAndPasteSelection);
 
   const { clipboardHTML } = selectedFragmentToHTML(
-    editor.prosemirrorView!,
+    editor.prosemirrorView,
     editor,
   );
 
   const originalDocument = editor.document;
   doPaste(
-    editor.prosemirrorView!,
+    editor.prosemirrorView,
     "text",
     clipboardHTML,
     false,
