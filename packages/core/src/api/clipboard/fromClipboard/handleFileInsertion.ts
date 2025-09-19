@@ -152,7 +152,7 @@ export async function handleFileInsertion<
           top: (event as DragEvent).clientY,
         };
 
-        const pos = editor.prosemirrorView?.posAtCoords(coords);
+        const pos = editor.prosemirrorView.posAtCoords(coords);
 
         if (!pos) {
           return;
@@ -160,7 +160,7 @@ export async function handleFileInsertion<
 
         insertedBlockId = editor.transact((tr) => {
           const posInfo = getNearestBlockPos(tr.doc, pos.pos);
-          const blockElement = editor.prosemirrorView?.dom.querySelector(
+          const blockElement = editor.prosemirrorView.dom.querySelector(
             `[data-id="${posInfo.node.attrs.id}"]`,
           );
 
