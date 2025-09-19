@@ -6,6 +6,7 @@ export type PreprocessOperationResult<T extends StreamTool<any>[]> = {
   operation: StreamToolCall<T>;
   isUpdateToPreviousOperation: boolean;
   isPossiblyPartial: boolean;
+  metadata: any;
 };
 
 /**
@@ -18,6 +19,7 @@ export async function* preprocessOperationsStreaming<
     partialOperation: any;
     isUpdateToPreviousOperation: boolean;
     isPossiblyPartial: boolean;
+    metadata: any;
   }>,
   streamTools: T,
 ): AsyncGenerator<PreprocessOperationResult<T>> {
@@ -43,6 +45,10 @@ export async function* preprocessOperationsStreaming<
 
 /**
  * Validates an stream of operations and throws an error if an invalid operation is found.
+ *
+ * TODO: remove
+ *
+ * @deprecated
  */
 export async function* preprocessOperationsNonStreaming<
   T extends StreamTool<any>[],
@@ -51,6 +57,7 @@ export async function* preprocessOperationsNonStreaming<
     partialOperation: any;
     isUpdateToPreviousOperation: boolean;
     isPossiblyPartial: boolean;
+    metadata: any;
   }>,
   streamTools: T,
 ): AsyncGenerator<PreprocessOperationResult<T>> {

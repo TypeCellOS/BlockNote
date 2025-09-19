@@ -162,10 +162,8 @@ type LLMRequestOptions = {
    * (when invoking `callLLM` via the `AIExtension` this will default to the
    * model set in the `AIExtension` options)
    */
-  model: LanguageModelV1;
-  /**
-   * The user prompt to use for the LLM call
-   */
+  model: LanguageModel;
+
   userPrompt: string;
   /**
    * Previous response from the LLM, used for multi-step LLM calls
@@ -206,11 +204,11 @@ type LLMRequestOptions = {
    * @default { add: true, update: true, delete: true }
    */
   defaultStreamTools?: {
-    /** Enable the add tool (default: true) */
+    /** Enable the add tool (default: false) */
     add?: boolean;
-    /** Enable the update tool (default: true) */
+    /** Enable the update tool (default: false) */
     update?: boolean;
-    /** Enable the delete tool (default: true) */
+    /** Enable the delete tool (default: false) */
     delete?: boolean;
   };
   /**

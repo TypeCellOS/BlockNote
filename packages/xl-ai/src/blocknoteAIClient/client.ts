@@ -20,15 +20,9 @@ const fetchViaBlockNoteAIServer =
         duplex: "half",
       } as any,
     );
-    try {
-      const resp = await fetch(newRequest);
-      return resp;
-    } catch (e) {
-      // Temp fix for https://github.com/vercel/ai/issues/6370
-      throw new TypeError("fetch failed", {
-        cause: e,
-      });
-    }
+
+    const resp = await fetch(newRequest);
+    return resp;
   };
 
 /**

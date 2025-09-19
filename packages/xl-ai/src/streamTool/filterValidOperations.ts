@@ -10,6 +10,7 @@ export async function* filterValidOperations<T>(
     operation: Result<T>;
     isUpdateToPreviousOperation: boolean;
     isPossiblyPartial: boolean;
+    metadata: any;
   }>,
   onInvalidOperation?: (chunk: {
     operation: Result<T> & {
@@ -17,11 +18,13 @@ export async function* filterValidOperations<T>(
     };
     isUpdateToPreviousOperation: boolean;
     isPossiblyPartial: boolean;
+    metadata: any;
   }) => void,
 ): AsyncGenerator<{
   operation: T;
   isUpdateToPreviousOperation: boolean;
   isPossiblyPartial: boolean;
+  metadata: any;
 }> {
   let forceNewOperation = false;
   for await (const chunk of operationsStream) {
@@ -33,6 +36,7 @@ export async function* filterValidOperations<T>(
           ? false
           : chunk.isUpdateToPreviousOperation,
         isPossiblyPartial: chunk.isPossiblyPartial,
+        metadata: chunk.metadata,
       };
       forceNewOperation = false;
     } else {

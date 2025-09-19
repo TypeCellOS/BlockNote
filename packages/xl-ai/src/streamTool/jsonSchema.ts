@@ -7,7 +7,7 @@ function streamToolToJSONSchema(tool: StreamTool<any>): {
   $defs?: Record<string, JSONSchema7Definition>;
 } {
   // this adds the tool name as the "type". (not very clean way to do it)
-  const { properties, required, $defs, ...rest } = tool.parameters;
+  const { properties, required, $defs, ...rest } = tool.inputSchema;
   return {
     schema: {
       type: "object",
@@ -65,6 +65,8 @@ export function createStreamToolsArraySchema(
     type: "object",
     properties: {
       operations: {
+        //description:
+        // "Operations to apply to the document. Put all operations in this array in ONE tool call / function call. DO NOT use multiple operation arrays with parallel tool calls.",
         type: "array",
         items: {
           anyOf: schemas.map((schema) => schema.schema),

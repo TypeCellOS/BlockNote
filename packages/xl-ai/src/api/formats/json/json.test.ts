@@ -6,9 +6,10 @@ import { setupServer } from "msw/node";
 import path from "path";
 import { generateSharedTestCases } from "../tests/sharedTestCases.js";
 
+import { ClientSideTransport } from "../../../streamTool/vercelAiSdk/clientside/ClientSideTransport.js";
 import { testAIModels } from "../../../testUtil/testAIModels.js";
-import { doLLMRequest } from "../../LLMRequest.js";
-import { jsonLLMFormat } from "./json.js";
+import { llmFormats } from "../../index.js";
+import { promptAIRequestSender } from "../promptAIRequestSender.js";
 
 const BASE_FILE_PATH = path.resolve(
   __dirname,
@@ -112,16 +113,24 @@ describe.skip("Models", () => {
     describe(`${params.model.provider}/${params.model.modelId} (${
       params.stream ? "streaming" : "non-streaming"
     })`, () => {
-      generateSharedTestCases((editor, options) =>
-        doLLMRequest(editor, {
-          ...options,
-          stream: params.stream,
+      generateSharedTestCases({
+        streamToolsProvider:
+          llmFormats._experimental_json.getStreamToolsProvider({
+            withDelays: false,
+          }),
+        aiRequestSender: promptAIRequestSender(
+          llmFormats._experimental_json.defaultPromptBuilder,
+          llmFormats._experimental_json.defaultPromptInputDataBuilder,
+        ),
+        transport: new ClientSideTransport({
           model: params.model,
-          maxRetries: 0,
-          withDelays: false,
-          dataFormat: jsonLLMFormat,
+          stream: params.stream,
+          objectGeneration: true,
+          _additionalOptions: {
+            maxRetries: 0,
+          },
         }),
-      );
+      });
     });
   }
 });

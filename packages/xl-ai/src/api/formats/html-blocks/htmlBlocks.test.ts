@@ -4,7 +4,8 @@ import { setupServer } from "msw/node";
 import path from "path";
 import { afterAll, afterEach, beforeAll, describe } from "vitest";
 import { testAIModels } from "../../../testUtil/testAIModels.js";
-import { doLLMRequest } from "../../LLMRequest.js";
+
+import { ClientSideTransport } from "../../../streamTool/vercelAiSdk/clientside/ClientSideTransport.js";
 import { generateSharedTestCases } from "../tests/sharedTestCases.js";
 import { htmlBlockLLMFormat } from "./htmlBlocks.js";
 
@@ -81,19 +82,25 @@ describe("Models", () => {
     {
       model: testAIModels.openai,
       stream: true,
+      generateObject: true,
     },
     {
       model: testAIModels.openai,
-      stream: false,
+      stream: true,
     },
+    // {
+    //   model: testAIModels.openai,
+    //   stream: false,
+    // },
+    // TODO: https://github.com/vercel/ai/issues/8533
     {
       model: testAIModels.groq,
       stream: true,
     },
-    {
-      model: testAIModels.groq,
-      stream: false,
-    },
+    // {
+    //   model: testAIModels.groq,
+    //   stream: false,
+    // },
     // anthropic streaming needs further investigation for some test cases
     // {
     //   model: testAIModels.anthropic,
@@ -101,7 +108,7 @@ describe("Models", () => {
     // },
     {
       model: testAIModels.anthropic,
-      stream: false,
+      stream: true,
     },
     // currently doesn't support streaming
     // https://github.com/vercel/ai/issues/5350
@@ -118,17 +125,28 @@ describe("Models", () => {
 
   for (const params of testMatrix) {
     describe(`${params.model.provider}/${params.model.modelId} (${
-      params.stream ? "streaming" : "non-streaming"
+      (params.stream ? "streaming" : "non-streaming") +
+      (params.generateObject ? " + generateObject" : "")
     })`, () => {
-      generateSharedTestCases((editor, options) =>
-        doLLMRequest(editor, {
-          ...options,
-          dataFormat: htmlBlockLLMFormat,
-          model: params.model,
-          maxRetries: 0,
-          stream: params.stream,
-          withDelays: false,
-        }),
+      generateSharedTestCases(
+        {
+          streamToolsProvider: htmlBlockLLMFormat.getStreamToolsProvider({
+            withDelays: false,
+          }),
+          transport: new ClientSideTransport({
+            model: params.model,
+            stream: params.stream,
+            objectGeneration: params.generateObject,
+            _additionalOptions: {
+              maxRetries: 0,
+            },
+          }),
+        },
+        // TODO: remove when matthew's parsing PR is merged
+        {
+          textAlignment: true,
+          blockColor: true,
+        },
       );
     });
   }

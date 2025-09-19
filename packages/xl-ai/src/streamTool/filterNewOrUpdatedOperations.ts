@@ -14,11 +14,13 @@
 export async function* filterNewOrUpdatedOperations(
   partialObjectStream: AsyncIterable<{
     operations?: any[];
-  }>
+  }>,
+  metadata: any,
 ): AsyncGenerator<{
   partialOperation: any;
   isUpdateToPreviousOperation: boolean;
   isPossiblyPartial: boolean;
+  metadata: any;
 }> {
   let numOperationsAppliedCompletely = 0;
   let first = true;
@@ -43,6 +45,7 @@ export async function* filterNewOrUpdatedOperations(
         isUpdateToPreviousOperation:
           i === numOperationsAppliedCompletely && !first,
         isPossiblyPartial: i === chunk.operations.length - 1,
+        metadata,
       };
       first = false;
     }
@@ -60,5 +63,6 @@ export async function* filterNewOrUpdatedOperations(
     partialOperation: lastOp,
     isUpdateToPreviousOperation: true,
     isPossiblyPartial: false,
+    metadata,
   };
 }

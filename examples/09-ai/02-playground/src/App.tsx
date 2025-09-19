@@ -22,28 +22,26 @@ import {
 import {
   AIMenuController,
   AIToolbarButton,
+  ClientSideTransport,
   createAIExtension,
   createBlockNoteAIClient,
   getAIExtension,
   getAISlashMenuItems,
-  llmFormats,
 } from "@blocknote/xl-ai";
 import { en as aiEn } from "@blocknote/xl-ai/locales";
 import "@blocknote/xl-ai/style.css";
 import { Fieldset, MantineProvider, Switch } from "@mantine/core";
-import { LanguageModelV1 } from "ai";
 import { useEffect, useMemo, useState } from "react";
-import { useStore } from "zustand";
 
 import { BasicAutocomplete } from "./AutoComplete";
-import RadioGroupComponent from "./components/RadioGroupComponent";
 import { getEnv } from "./getEnv";
 // Optional: proxy requests through the `@blocknote/xl-ai-server` proxy server
 // so that we don't have to expose our API keys to the client
 const client = createBlockNoteAIClient({
   apiKey: getEnv("BLOCKNOTE_AI_SERVER_API_KEY") || "PLACEHOLDER",
   baseURL:
-    getEnv("BLOCKNOTE_AI_SERVER_BASE_URL") || "https://localhost:3000/ai",
+    (getEnv("BLOCKNOTE_AI_SERVER_BASE_URL") || "https://localhost:3000/ai") +
+    "/proxy",
 });
 
 // return the AI SDK model based on the selected model string
@@ -53,7 +51,7 @@ function getModel(aiModelString: string) {
   if (provider === "openai.chat") {
     return createOpenAI({
       ...client.getProviderSettings("openai"),
-    })(modelName, {});
+    })(modelName);
   } else if (provider === "groq.chat") {
     return createGroq({
       ...client.getProviderSettings("groq"),
@@ -75,9 +73,7 @@ function getModel(aiModelString: string) {
   } else if (provider === "google.generative-ai") {
     return createGoogleGenerativeAI({
       ...client.getProviderSettings("google"),
-    })(modelName, {
-      structuredOutputs: false,
-    });
+    })(modelName);
   } else {
     return "unknown-model" as const;
   }
@@ -87,6 +83,7 @@ export default function App() {
   const [modelString, setModelString] = useState<string>(
     "groq.chat/llama-3.3-70b-versatile",
   );
+  const [stream, setStream] = useState(true);
 
   const model = useMemo(() => {
     return getModel(modelString);
@@ -101,7 +98,10 @@ export default function App() {
     // Register the AI extension
     extensions: [
       createAIExtension({
-        model: model as LanguageModelV1, // (type because initially it's valid)
+        transport: new ClientSideTransport({
+          model,
+          stream,
+        }),
       }),
     ],
     // We set some initial content for demo purposes
@@ -136,13 +136,16 @@ export default function App() {
   useEffect(() => {
     // update the default model in the extension
     if (model !== "unknown-model") {
-      ai.options.setState({ model });
+      ai.options.setState({
+        transport: new ClientSideTransport({
+          model,
+          stream,
+        }),
+      });
     }
-  }, [model, ai.options]);
+  }, [model, ai.options, stream]);
 
-  const [dataFormat, setDataFormat] = useState("html");
-
-  const stream = useStore(ai.options, (state) => state.stream);
+  // const [dataFormat, setDataFormat] = useState("html");
 
   const themePreference = usePrefersColorScheme();
   const existingContext = useBlockNoteContext();
@@ -164,7 +167,7 @@ export default function App() {
               value={modelString}
               onChange={setModelString}
             />
-            <RadioGroupComponent
+            {/* <RadioGroupComponent
               label="Data format"
               items={[
                 { name: "HTML", description: "HTML", value: "html" },
@@ -192,13 +195,14 @@ export default function App() {
                 });
                 setDataFormat(value);
               }}
-            />
+            /> */}
 
             <Switch
+              style={{ marginTop: "10px" }}
               checked={stream}
-              onChange={(e) =>
-                ai.options.setState({ stream: e.target.checked })
-              }
+              onChange={(e) => {
+                setStream(e.target.checked);
+              }}
               label="Streaming"
             />
           </Fieldset>

@@ -7,14 +7,15 @@ import "@blocknote/mantine/style.css";
 import {
   FormattingToolbar,
   FormattingToolbarController,
-  SuggestionMenuController,
   getDefaultReactSlashMenuItems,
   getFormattingToolbarItems,
+  SuggestionMenuController,
   useCreateBlockNote,
 } from "@blocknote/react";
 import {
   AIMenuController,
   AIToolbarButton,
+  ClientSideTransport,
   createAIExtension,
   createBlockNoteAIClient,
   getAISlashMenuItems,
@@ -29,7 +30,7 @@ import { getEnv } from "./getEnv";
 const client = createBlockNoteAIClient({
   apiKey: getEnv("BLOCKNOTE_AI_SERVER_API_KEY") || "PLACEHOLDER",
   baseURL:
-    getEnv("BLOCKNOTE_AI_SERVER_BASE_URL") || "https://localhost:3000/ai",
+    getEnv("BLOCKNOTE_AI_SERVER_BASE_URL") || "https://localhost:3000/ai/proxy",
 });
 
 // Use an "open" model such as llama, in this case via groq.com
@@ -63,8 +64,11 @@ export default function App() {
     },
     // Register the AI extension
     extensions: [
+      // TODO: too many layers of indirection?
       createAIExtension({
-        model,
+        transport: new ClientSideTransport({
+          model,
+        }),
       }),
     ],
     // We set some initial content for demo purposes
