@@ -155,7 +155,6 @@ export async function setupToolCallStreaming(
   let erroredChunk: any | undefined;
 
   const executor = new StreamToolExecutor(streamTools, (chunk, success) => {
-    console.log("chunk", chunk, success);
     if (!success) {
       erroredChunk = chunk;
     }
