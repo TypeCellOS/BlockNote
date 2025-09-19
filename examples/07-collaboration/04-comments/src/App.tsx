@@ -43,7 +43,7 @@ export default function App() {
 }
 
 function Document() {
-  const [activeUser, setActiveUser] = useState<MyUserType>(HARDCODED_USERS[0]);
+  const [activeUser, setActiveUser] = useState<MyUserType>(HARDCODED_USERS[4]);
 
   const provider = useYjsProvider();
 
@@ -100,7 +100,11 @@ function Document() {
           label={"User"}
           items={HARDCODED_USERS.map((user) => ({
             text: `${user.username} (${
-              user.role === "editor" ? "Editor" : "Commenter"
+              user.role === "editor"
+                ? "Editor"
+                : user.role === "comment"
+                  ? "Commenter"
+                  : "Viewer Only"
             })`,
             icon: null,
             onClick: () => setActiveUser(user),
