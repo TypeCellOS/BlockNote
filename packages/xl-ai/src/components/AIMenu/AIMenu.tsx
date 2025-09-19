@@ -94,9 +94,12 @@ export const AIMenu = (props: AIMenuProps) => {
   const rightSection = useMemo(() => {
     if (aiResponseStatus === "thinking" || aiResponseStatus === "ai-writing") {
       return (
-        <Components.SuggestionMenu.Loader
-          className={"bn-suggestion-menu-loader bn-combobox-right-section"}
-        />
+        // TODO
+        <div onClick={() => ai.abort()}>
+          <Components.SuggestionMenu.Loader
+            className={"bn-suggestion-menu-loader bn-combobox-right-section"}
+          />
+        </div>
       );
     } else if (aiResponseStatus === "error") {
       return (
@@ -117,7 +120,7 @@ export const AIMenu = (props: AIMenuProps) => {
     }
 
     return undefined;
-  }, [Components, aiResponseStatus]);
+  }, [Components, aiResponseStatus, ai]);
 
   return (
     <PromptSuggestionMenu
