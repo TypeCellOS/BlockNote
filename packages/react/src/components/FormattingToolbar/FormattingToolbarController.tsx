@@ -113,6 +113,7 @@ export const FormattingToolbarController = (props: {
   const combinedRef = useMemo(() => mergeRefs([divRef, ref]), [divRef, ref]);
 
   if (!isMounted || !state) {
+    console.log("bail");
     return null;
   }
 
@@ -130,7 +131,7 @@ export const FormattingToolbarController = (props: {
   }
 
   const Component = props.formattingToolbar || FormattingToolbar;
-
+  console.log("showing");
   return (
     <div ref={combinedRef} style={style} {...getFloatingProps()}>
       <Component />

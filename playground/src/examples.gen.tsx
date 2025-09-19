@@ -265,6 +265,29 @@
         "readme": "In this example, we change the default paste handler to append some text to the pasted content when the content is plain text.\n\n**Try it out:** Use the buttons to copy some content to the clipboard and paste it in the editor to trigger our custom paste handler.\n\n**Relevant Docs:**\n\n- [Paste Handling](/docs/reference/editor/paste-handling)"
       },
       {
+        "projectSlug": "math",
+        "fullSlug": "basic/math",
+        "pathFromRoot": "examples/01-basic/14-math",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "nperez0111",
+          "tags": [
+            "Basic"
+          ],
+          "dependencies": {
+            "@blocknote/math": "latest",
+            "katex": "^0.16.22"
+          } as any
+        },
+        "title": "Math Block",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        },
+        "readme": "TODO"
+      },
+      {
         "projectSlug": "testing",
         "fullSlug": "basic/testing",
         "pathFromRoot": "examples/01-basic/testing",
