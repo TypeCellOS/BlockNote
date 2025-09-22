@@ -47,7 +47,6 @@ export default function Layout({ children }: { children: ReactNode }) {
           <RootProvider>{children}</RootProvider>
         </Sentry.ErrorBoundary>
         <Analytics />
-        TRACK 1
       </body>
     </html>
   );
