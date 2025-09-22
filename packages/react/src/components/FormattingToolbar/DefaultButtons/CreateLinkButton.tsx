@@ -66,12 +66,16 @@ export const CreateLinkButton = () => {
       }
     };
 
-    editor.prosemirrorView?.dom.addEventListener("keydown", callback);
+    if (editor.headless) {
+      return;
+    }
+
+    editor.prosemirrorView.dom.addEventListener("keydown", callback);
 
     return () => {
-      editor.prosemirrorView?.dom.removeEventListener("keydown", callback);
+      editor.prosemirrorView.dom.removeEventListener("keydown", callback);
     };
-  }, [editor.prosemirrorView?.dom]);
+  }, [editor.prosemirrorView, editor.headless]);
 
   const update = useCallback(
     (url: string) => {

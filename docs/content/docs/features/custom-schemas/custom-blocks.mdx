@@ -12,19 +12,22 @@ In addition to the default block types that BlockNote offers, you can also make 
 
 ## Creating a Custom Block Type
 
-Use the `createReactBlockSpec` function to create a custom block type. This function takes two arguments:
+Use the `createReactBlockSpec` function to create a custom block type. This function takes three arguments:
 
 ```typescript
 function createReactBlockSpec(
   blockConfig: CustomBlockConfig,
   blockImplementation: ReactCustomBlockImplementation,
-);
+  extensions?: BlockNoteExtension[],
+): (options? BlockOptions) => BlockSpec;
 ```
 
-Let's look at our custom alert block from the demo, and go over each field to explain how it works:
+It returns a function that you can call to create an instance of your custom block, or a `BlockSpec`. This `BlockSpec` then gets passed into your [BlockNote schema](/docs/features/custom-schemas#creating-your-own-schema) to add the block to the editor. This function may also take arbitrary options, which you can find out more about [below](/docs/features/custom-schemas/custom-blocks#block-config-options).
+
+Let's look at our custom alert block from the demo, and go over everything we pass to `createReactBlockSpec`:
 
 ```typescript
-const Alert = createReactBlockSpec(
+const createAlert = createReactBlockSpec(
   {
     type: "alert",
     propSchema: {
@@ -54,8 +57,6 @@ type BlockConfig = {
   type: string;
   content: "inline" | "none";
   readonly propSchema: PropSchema;
-  isSelectable?: boolean;
-  hardBreakShortcut?: "shift+enter" | "enter" | "none";
 };
 ```
 
@@ -106,12 +107,6 @@ If you do not want the prop to have a default value, you can define it as an obj
   Properties](/docs/features/blocks#default-block-properties)._
 </Callout>
 
-`isSelectable?:` Can be set to false in order to make the block non-selectable, both using the mouse and keyboard. This also helps with being able to select non-editable content within the block. Should only be set to false when `content` is `none` and defaults to true.
-
-`hardBreakShortcut?:` Defines which keyboard shortcut should be used to insert a hard break into the block's inline content. Defaults to `"shift+enter"`.
-
-#### File Block Config
-
 ### Block Implementation (`ReactCustomBlockImplementation`)
 
 The Block Implementation defines how the block should be rendered in the editor, and how it should be parsed from and converted to HTML.
@@ -129,6 +124,15 @@ type ReactCustomBlockImplementation = {
     contentRef?: (node: HTMLElement | null) => void;
   }>;
   parse?: (element: HTMLElement) => PartialBlock["props"] | undefined;
+  runsBefore?: string[];
+  meta?: {
+    hardBreakShortcut?: "shift+enter" | "enter" | "none";
+    selectable?: boolean;
+    fileBlockAccept?: string[];
+    code?: boolean;
+    defining?: boolean;
+    isolating?: boolean;
+  };
 };
 ```
 
@@ -152,6 +156,69 @@ type ReactCustomBlockImplementation = {
 
 - `element`: The HTML element that's being parsed.
 
+`runsBefore?:` If this block has parsing or extensions that need to be given priority over any other blocks, you can pass their `type`s in an array here.
+
+`meta?:` An object for setting various generic properties of the block.
+
+- `hardBreakShortcut?:` Defines which keyboard shortcut should be used to insert a hard break into the block's inline content. Defaults to `"shift+enter"`.
+
+- `selectable?:` Can be set to false in order to make the block non-selectable, both using the mouse and keyboard. This also helps with being able to select non-editable content within the block. Should only be set to false when `content` is `none` and defaults to true.
+
+- `fileBlockAccept?:` For custom file blocks, this specifies which MIME types are accepted when uploading a file. All file blocks should specify this property, and should use a [`FileBlockWrapper`](https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/blocks/File/helpers/render/FileBlockWrapper.tsx)/[`ResizableFileBlockWrapper`](https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/blocks/File/helpers/render/ResizableFileBlockWrapper.tsx) component in their `render` functions (see next subsection).
+
+- `code?:` Whether this block contains [code](https://prosemirror.net/docs/ref/#model.NodeSpec.code).
+
+- `defining?:` Whether this block is [defining](https://prosemirror.net/docs/ref/#model.NodeSpec.defining).
+
+- `isolating?:` Whether this block is [isolating](https://prosemirror.net/docs/ref/#model.NodeSpec.isolating).
+
+### Block Extensions
+
+While the example on this page doesn't use it, `createReactBlockSpec` takes a third, optional argument `extensions`. This is for adding editor `extensions` that are specific to the block, which you can find out more about [here](/docs/features/extensions).
+
+Block extensions are typically things like e.g. adding keyboard shortcuts to change the current block type to a custom block. For a table of contents block, an extension could also add a ProseMirror plugin to scan for headings to put in the ToC.
+
+### Block Config Options
+
+In some cases, you may want to have a customizable block config. For example, you may want to be able to have a code block with syntax highlighting for either web or embedded code, or a heading block with a flexible number of heading levels. You can use the same API for this use case, with some minor changes:
+
+```typescript
+// Arbitrary options that your block can take, e.g. number of heading levels or
+// available code syntax highlight languages.
+type CustomBlockConfigOptions = {
+  ...
+}
+
+const createCustomBlock = createReactBlockSpec(
+  createBlockConfig((options: CustomBlockConfigOptions) => ({
+    type: "customBlock"
+    propSchema: ...,
+    content: ...,
+  })),
+  (options: CustomBlockConfigOptions) => ({
+    render: ...,
+    ...
+  })
+)
+
+const options: CustomBlockConfigOptions = {
+  ...
+};
+
+const schema = BlockNoteSchema.create().extend({
+  blockSpecs: {
+    // Creates an instance of the custom block and adds it to the schema.
+    customBlock: createCustomBlock(options),
+  },
+});
+```
+
+You can see that instead of passing plain objects for the config and implementation, we instead pass functions. These take the block options as an argument, and return the config and implementation objects respectively. Additionally, the function for creating the config is wrapped in a `createBlockConfig` function.
+
+Also notice that for the example on this page, we create a new Alert block instance by simply calling `createAlert()` with no arguments. When a custom block takes options though, you can pass them in when creating an instance, as shown above.
+
+To see a full example of block options being used, check out the [built-in heading block](https://github.com/TypeCellOS/BlockNote/blob/main/packages/core/src/blocks/Heading/block.ts).
+
 ## Adding Custom Blocks to the Editor
 
 Finally, create a BlockNoteSchema using the definition of your custom blocks:
@@ -163,7 +230,7 @@ const schema = BlockNoteSchema.create({
     ...defaultBlockSpecs,
 
     // Add your own custom blocks:
-    alert: Alert,
+    alert: createAlert(),
   },
 });
 ```

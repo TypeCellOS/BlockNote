@@ -9,7 +9,7 @@
     "directory": "packages/xl-odt-exporter"
   },
   "license": "GPL-3.0 OR PROPRIETARY",
-  "version": "0.38.0",
+  "version": "0.39.1",
   "files": [
     "dist",
     "types",
@@ -57,8 +57,8 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "0.38.0",
-    "@blocknote/xl-multi-column": "0.38.0",
+    "@blocknote/core": "0.39.1",
+    "@blocknote/xl-multi-column": "0.39.1",
     "@zip.js/zip.js": "^2.7.57",
     "buffer": "^6.0.3",
     "image-meta": "^0.2.1"

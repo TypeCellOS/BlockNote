@@ -11,7 +11,7 @@
     "directory": "packages/server-util"
   },
   "license": "MPL-2.0",
-  "version": "0.38.0",
+  "version": "0.39.1",
   "files": [
     "dist",
     "types",
@@ -56,8 +56,8 @@
     "test-watch": "vitest watch"
   },
   "dependencies": {
-    "@blocknote/core": "0.38.0",
-    "@blocknote/react": "0.38.0",
+    "@blocknote/core": "0.39.1",
+    "@blocknote/react": "0.39.1",
     "@tiptap/core": "^3.4.3",
     "@tiptap/pm": "^3.4.3",
     "jsdom": "^25.0.1",

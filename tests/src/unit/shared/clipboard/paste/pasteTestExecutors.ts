@@ -21,7 +21,7 @@ export const testPasteHTML = async <
   initTestEditor(editor, testCase.document, testCase.getPasteSelection);
 
   doPaste(
-    editor.prosemirrorView!,
+    editor.prosemirrorView,
     "",
     testCase.content,
     false,
@@ -44,7 +44,7 @@ export const testPasteMarkdown = async <
   initTestEditor(editor, testCase.document, testCase.getPasteSelection);
 
   doPaste(
-    editor.prosemirrorView!,
+    editor.prosemirrorView,
     testCase.content,
     "",
     true,

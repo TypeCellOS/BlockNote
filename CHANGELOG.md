@@ -1,3 +1,25 @@
+## 0.39.1 (2025-09-19)
+
+### 🩹 Fixes
+
+- cleanup accesses to prosemirrorView to account for tiptap 3 behavior ([#2017](https://github.com/TypeCellOS/BlockNote/pull/2017))
+- **core:** input rules can handle when a new block is empty now ([#2013](https://github.com/TypeCellOS/BlockNote/pull/2013))
+
+### ❤️ Thank You
+
+- Nick Perez
+
+## 0.39.0 (2025-09-18)
+
+### 🚀 Features
+
+- move all blocks to use the custom blocks API ([#1904](https://github.com/TypeCellOS/BlockNote/pull/1904))
+- **core:** support for Tiptap V3 ([#2001](https://github.com/TypeCellOS/BlockNote/pull/2001))
+
+### ❤️ Thank You
+
+- Nick Perez
+
 ## 0.38.0 (2025-09-16)
 
 ### 🚀 Features

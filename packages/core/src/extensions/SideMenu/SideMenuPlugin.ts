@@ -733,9 +733,7 @@ export class SideMenuProsemirrorPlugin<
    * Handles drag & drop events for blocks.
    */
   blockDragEnd = () => {
-    if (this.editor.prosemirrorView) {
-      unsetDragImage(this.editor.prosemirrorView.root);
-    }
+    unsetDragImage(this.editor.prosemirrorView.root);
 
     if (this.view) {
       this.view.isDragOrigin = false;

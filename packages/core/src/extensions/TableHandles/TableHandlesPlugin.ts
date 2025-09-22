@@ -829,8 +829,8 @@ export class TableHandlesProsemirrorPlugin<
       }),
     );
 
-    if (!this.editor.prosemirrorView) {
-      throw new Error("Editor view not initialized.");
+    if (this.editor.headless) {
+      return;
     }
 
     setHiddenDragImage(this.editor.prosemirrorView.root);
@@ -872,8 +872,8 @@ export class TableHandlesProsemirrorPlugin<
       }),
     );
 
-    if (!this.editor.prosemirrorView) {
-      throw new Error("Editor view not initialized.");
+    if (this.editor.headless) {
+      return;
     }
 
     setHiddenDragImage(this.editor.prosemirrorView.root);
@@ -897,8 +897,8 @@ export class TableHandlesProsemirrorPlugin<
 
     this.editor.transact((tr) => tr.setMeta(tableHandlesPluginKey, null));
 
-    if (!this.editor.prosemirrorView) {
-      throw new Error("Editor view not initialized.");
+    if (this.editor.headless) {
+      return;
     }
 
     unsetHiddenDragImage(this.editor.prosemirrorView.root);
