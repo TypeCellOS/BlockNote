@@ -1428,9 +1428,30 @@
         "readme": "In this example, we use Y-Sweet to let multiple users collaborate on a single BlockNote document in real-time.\n\n**Try it out:** Open the [Y-Sweet BlockNote demo](https://demos.y-sweet.dev/blocknote) in multiple browser tabs to see it in action!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)\n- [Y-Sweet on Jamsocket](https://docs.jamsocket.com/y-sweet/tutorials/blocknote)"
       },
       {
+        "projectSlug": "electric-sql",
+        "fullSlug": "collaboration/electric-sql",
+        "pathFromRoot": "examples/07-collaboration/04-electric-sql",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Advanced",
+            "Saving/Loading",
+            "Collaboration"
+          ]
+        },
+        "title": "Collaborative Editing with Electric SQL",
+        "group": {
+          "pathFromRoot": "examples/07-collaboration",
+          "slug": "collaboration"
+        },
+        "readme": "In this example, we use Y-Sweet to let multiple users collaborate on a single BlockNote document in real-time.\n\n**Try it out:** Open the [Y-Sweet BlockNote demo](https://demos.y-sweet.dev/blocknote) in multiple browser tabs to see it in action!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)\n- [Y-Sweet on Jamsocket](https://docs.jamsocket.com/y-sweet/tutorials/blocknote)"
+      },
+      {
         "projectSlug": "comments",
         "fullSlug": "collaboration/comments",
-        "pathFromRoot": "examples/07-collaboration/04-comments",
+        "pathFromRoot": "examples/07-collaboration/05-comments",
         "config": {
           "playground": true,
           "docs": true,
@@ -1455,7 +1476,7 @@
       {
         "projectSlug": "comments-with-sidebar",
         "fullSlug": "collaboration/comments-with-sidebar",
-        "pathFromRoot": "examples/07-collaboration/05-comments-with-sidebar",
+        "pathFromRoot": "examples/07-collaboration/06-comments-with-sidebar",
         "config": {
           "playground": true,
           "docs": true,
@@ -1480,7 +1501,7 @@
       {
         "projectSlug": "ghost-writer",
         "fullSlug": "collaboration/ghost-writer",
-        "pathFromRoot": "examples/07-collaboration/06-ghost-writer",
+        "pathFromRoot": "examples/07-collaboration/07-ghost-writer",
         "config": {
           "playground": true,
           "docs": false,
@@ -1505,7 +1526,7 @@
       {
         "projectSlug": "forking",
         "fullSlug": "collaboration/forking",
-        "pathFromRoot": "examples/07-collaboration/07-forking",
+        "pathFromRoot": "examples/07-collaboration/08-forking",
         "config": {
           "playground": true,
           "docs": false,
