@@ -1,9 +1,9 @@
+import * as Sentry from "@sentry/nextjs";
 import { Analytics } from "@vercel/analytics/react";
 import { Banner } from "fumadocs-ui/components/banner";
 import { RootProvider } from "fumadocs-ui/provider";
 import { Metadata } from "next";
 import type { ReactNode } from "react";
-import * as Sentry from "@sentry/nextjs";
 
 import { getFullMetadata } from "@/util/getFullMetadata";
 
