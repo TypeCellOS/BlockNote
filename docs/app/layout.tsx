@@ -1,6 +1,6 @@
+import { Analytics } from "@vercel/analytics/react";
 import { Banner } from "fumadocs-ui/components/banner";
 import { RootProvider } from "fumadocs-ui/provider";
-import { Analytics } from "@vercel/analytics/react";
 import { Metadata } from "next";
 import type { ReactNode } from "react";
 
@@ -31,6 +31,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         </Banner>
         <RootProvider>{children as any}</RootProvider>
         <Analytics />
+        TRACK 1
       </body>
     </html>
   );
