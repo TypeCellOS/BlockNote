@@ -36,10 +36,7 @@ async function generateCodeForExample(project: Project) {
   fs.writeFileSync(
     indexFile,
     `"use client";
-import dynamic from "next/dynamic";
-const Component = dynamic(() => import("./App"), {
-  ssr: false,
-});
+import Component from "./App";
 
 export default Component;`,
   );
