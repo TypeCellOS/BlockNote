@@ -1441,12 +1441,12 @@
             "Collaboration"
           ]
         },
-        "title": "Collaborative Editing with Electric SQL",
+        "title": "Collaborative Editing with ElectricSQL",
         "group": {
           "pathFromRoot": "examples/07-collaboration",
           "slug": "collaboration"
         },
-        "readme": "In this example, we use Y-Sweet to let multiple users collaborate on a single BlockNote document in real-time.\n\n**Try it out:** Open the [Y-Sweet BlockNote demo](https://demos.y-sweet.dev/blocknote) in multiple browser tabs to see it in action!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)\n- [Y-Sweet on Jamsocket](https://docs.jamsocket.com/y-sweet/tutorials/blocknote)"
+        "readme": "In this example, we use ElectricSQL to let multiple users collaborate on a single BlockNote document in real-time. The setup for this demo is more involved than the other collaboration examples, as it requires a running server and has a more fully-fledged UI. Therefore, the demo just uses an iframe element to show a hosted instance of the full ElectricSQL + BlockNote setup, which you can find the code for [here](https://github.com/TypeCellOS/blocknote-electric-example).\n\n**Try it out:** Open this page (or the [iframe url](https://blocknote-electric-example.vercel.app/)) in a new browser tab or window to see it in action!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)\n- [ElectricSQL](https://electric-sql.com/)"
       },
       {
         "projectSlug": "comments",
