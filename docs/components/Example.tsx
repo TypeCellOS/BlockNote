@@ -119,7 +119,7 @@ function ExampleProPrompt() {
           BlockNote Pro
         </p>
         <div className={"mt-8"}>
-          <CTAButton href={"/pricing"} size={"large"} hoverGlow={true}>
+          <CTAButton href={"/pricing"} variant={"colored"} hoverGlow={true}>
             Get BlockNote Pro
           </CTAButton>
         </div>
