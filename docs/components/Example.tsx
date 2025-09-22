@@ -158,6 +158,10 @@ export default function Example(props: { exampleData: ExampleData }) {
           </a>
         </div>
       }
+      beforeCapture={(scope) => {
+        scope.setTag("type", "react-render");
+        scope.setTag("page", "example");
+      }}
     >
       <div className="demo">
         <ExampleDemo exampleData={props.exampleData} />
