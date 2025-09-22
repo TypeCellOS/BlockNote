@@ -82,62 +82,46 @@
 @import url("@mantine/core/styles/Timeline.css");
 @import url("@mantine/core/styles/Title.css");
 @import url("@mantine/core/styles/Tooltip.css");
-@import url("@mantine/core/styles/TypographyStylesProvider.css");
+@import url("@mantine/core/styles/Typography.css");
 
-/* Mantine global styles, scoped to bn-container */
-/* Based on @mantine/core/styles/global.css
- (src: https://github.com/mantinedev/mantine/blob/master/packages/%40mantine/core/src/core/MantineProvider/global.css)
- but with styles set on `body` and `html` instead set on `bn-container`, as
- well as other minor changes. */
+/* Mantine baseline styles, scoped to .bn-mantine element. */
+/* https://github.com/mantinedev/mantine/blob/7.17.8/packages/%40mantine/core/src/core/MantineProvider/baseline.css */
+.bn-mantine {
+  color-scheme: var(--mantine-color-scheme);
+}
+
 .bn-mantine *,
-.bn-mantine :after,
-.bn-mantine :before {
+.bn-mantine *::before,
+.bn-mantine *::after {
   box-sizing: border-box;
 }
+
+/* .bn-mantine input,
+.bn-mantine button,
+.bn-mantine textarea,
+.bn-mantine select {
+  font: inherit;
+} */
 
 .bn-mantine button,
 .bn-mantine select {
   text-transform: none;
 }
 
-@media screen and (max-device-width: 500px) {
+.bn-mantine {
+  /* margin: 0;
+  font-family: var(--mantine-font-family);
+  font-size: var(--mantine-font-size-md);
+  line-height: var(--mantine-line-height);
+  background-color: var(--mantine-color-body);
+  color: var(--mantine-color-text); */
+
+  -webkit-font-smoothing: var(--mantine-webkit-font-smoothing);
+  -moz-osx-font-smoothing: var(--mantine-moz-font-smoothing);
+}
+
+@media screen and (max-device-width: em(500px)) {
   .bn-mantine {
     -webkit-text-size-adjust: 100%;
   }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .bn-mantine [data-respect-reduced-motion] [data-reduce-motion] {
-    animation: none;
-    transition: none;
-  }
-}
-
-.bn-mantine [data-mantine-color-scheme="dark"] .mantine-dark-hidden,
-.bn-mantine [data-mantine-color-scheme="light"] .mantine-light-hidden {
-  display: none;
-}
-
-.bn-mantine .mantine-focus-auto:focus-visible {
-  outline: calc(0.125rem * var(--mantine-scale)) solid
-    var(--mantine-primary-color-filled);
-  outline-offset: calc(0.125rem * var(--mantine-scale));
-}
-
-.bn-mantine .mantine-focus-always:focus {
-  outline: calc(0.125rem * var(--mantine-scale)) solid
-    var(--mantine-primary-color-filled);
-  outline-offset: calc(0.125rem * var(--mantine-scale));
-}
-
-.bn-mantine .mantine-focus-never:focus {
-  outline: none;
-}
-
-.bn-mantine .mantine-active:active {
-  transform: translateY(calc(0.0625rem * var(--mantine-scale)));
-}
-
-.bn-mantine[dir="rtl"] .mantine-rotate-rtl {
-  transform: rotate(180deg);
 }

@@ -35,10 +35,14 @@ function Root() {
 
   const themePreference = usePrefersColorScheme();
 
+  // return <Outlet />;
+
   return (
     <MantineProvider
       forceColorScheme={
-        themePreference === "no-preference" ? undefined : themePreference
+        themePreference === "no-preference"
+          ? undefined
+          : (themePreference as "light" | "dark")
       }
     >
       <AppShell

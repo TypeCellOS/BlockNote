@@ -58,9 +58,9 @@
   "dependencies": {
     "@blocknote/core": "0.39.1",
     "@blocknote/react": "0.39.1",
-    "@mantine/core": "^7.17.3",
-    "@mantine/hooks": "^7.17.3",
-    "@mantine/utils": "^6.0.21",
+    "@mantine/core": "^8.3.1",
+    "@mantine/hooks": "^8.3.1",
+    "@mantine/utils": "^6.0.22",
     "react-icons": "^5.2.1"
   },
   "devDependencies": {
