@@ -1,11 +1,10 @@
-import type { ReactNode } from "react";
-import { Analytics } from "@vercel/analytics/react";
 import { baseOptions } from "@/app/layout.config";
 import { CustomDocsLayout } from "@/components/CustomDocsLayout";
 import { Footer } from "@/components/Footer";
 import { ProBadge } from "@/components/ProBadge";
 import { source } from "@/lib/source/examples";
 import { getExampleData } from "@/util/getExampleData";
+import type { ReactNode } from "react";
 import * as Sentry from "@sentry/nextjs";
 
 export default function Layout({ children }: { children: ReactNode }) {
@@ -54,7 +53,6 @@ export default function Layout({ children }: { children: ReactNode }) {
         </Sentry.ErrorBoundary>
       </CustomDocsLayout>
       <Footer />
-      <Analytics />
     </>
   );
 }

@@ -1,6 +1,6 @@
+import { Analytics } from "@vercel/analytics/react";
 import { Banner } from "fumadocs-ui/components/banner";
 import { RootProvider } from "fumadocs-ui/provider";
-import { Analytics } from "@vercel/analytics/react";
 import { Metadata } from "next";
 import type { ReactNode } from "react";
 import * as Sentry from "@sentry/nextjs";
@@ -47,6 +47,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           <RootProvider>{children}</RootProvider>
         </Sentry.ErrorBoundary>
         <Analytics />
+        TRACK 1
       </body>
     </html>
   );
