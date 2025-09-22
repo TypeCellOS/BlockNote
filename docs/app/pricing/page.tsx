@@ -32,7 +32,7 @@ const tiers: Tier[] = [
       "Access to all Pro Examples",
       "Prioritized Bug Reports on GitHub",
       "Support maintenance and new versions of our open source library",
-      "XL packages only available for open source projects under GPL-3.0",
+      "XL packages only available for open source projects under GPL-3.0 or early stage startups",
     ],
   },
   {
@@ -40,51 +40,47 @@ const tiers: Tier[] = [
     title: "Business",
     mostPopular: true,
     description:
-      "Best for companies who need a commercial license for XL features.",
+      // "Best for companies who need a commercial license for XL features.",
+
+      "Best for companies that want a direct line to the team and a commercial license.",
     price: { month: 390, year: 48 },
     features: [
-      <span>
-        <a href="/legal/blocknote-xl-commercial-license">Commercial license</a>{" "}
-        for XL packages:
-      </span>,
+      <span>Commercial license for XL packages:</span>,
       "- AI integration",
       "- Multi-column layouts",
       "- Export to PDF, Docx, ODT, Email",
       "Access to all Pro Examples",
       "Prioritized Bug Reports on GitHub",
+      "Support maintenance and new versions of our open source library",
+      "Logo on our website and repositories",
       <span>
         Standard Support included (
         <a href="/legal/service-level-agreement">see SLA</a>)
       </span>,
-      "Support maintenance and new versions of our open source library",
-      "Logo on our website and repositories",
     ],
   },
   {
     id: "enterprise",
     title: "Enterprise",
     description:
-      "Best for companies that want a direct line to the team for dedicated consulting and support.",
+      "Collaborate directly with the BlockNote team for dedicated consulting and support.",
     price: "Tailored pricing",
     features: [
       "Development of BlockNote features required for your organization",
       "Access to a private Slack channel with the maintainers",
       "Guidance on integrating BlockNote into your project",
-      <span>
-        <a href="/legal/blocknote-xl-commercial-license">Commercial license</a>{" "}
-        for XL packages:
-      </span>,
+      <span>Commercial license for XL packages:</span>,
       "- AI integration",
       "- Multi-column layouts",
       "- Export to PDF, Docx, ODT, Email",
       "Access to all Pro Examples",
       "Prioritized Bug Reports and Feature Requests on GitHub",
+      "Support maintenance and new versions of our open source library",
+      "Logo on our website and repositories",
       <span>
         Priority Support included (
         <a href="/legal/service-level-agreement">see SLA</a>)
       </span>,
-      "Support maintenance and new versions of our open source library",
-      "Logo on our website and repositories",
     ],
     href: "/about/",
   },
