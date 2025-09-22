@@ -37,7 +37,7 @@ function AuthenticationInput(props: {
           type={props.type}
           required
           autoComplete={props.type}
-          className="text-fd-accent-foreground outline-fd-border focus:outline-fd-primary block w-full rounded-md px-3 py-1.5 text-base outline-1 -outline-offset-1 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6"
+          className="text-fd-accent-foreground outline-fd-border focus:outline-fd-primary focus:outline-3 block w-full rounded-md bg-white px-3 py-1.5 text-base outline-2 -outline-offset-1 focus:-outline-offset-2 sm:text-sm/6 dark:bg-black"
           onChange={props.onChange}
         />
       </div>
