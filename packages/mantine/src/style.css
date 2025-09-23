@@ -145,6 +145,10 @@
 
 /* Select styling */
 .bn-mantine .bn-select {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  box-shadow: var(--bn-shadow-medium);
   overflow: auto;
 }
 

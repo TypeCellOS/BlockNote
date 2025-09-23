@@ -85,7 +85,7 @@
 @import url("@mantine/core/styles/Typography.css");
 
 /* Mantine baseline styles, scoped to .bn-mantine element. */
-/* https://github.com/mantinedev/mantine/blob/7.17.8/packages/%40mantine/core/src/core/MantineProvider/baseline.css */
+/* https://github.com/mantinedev/mantine/blob/8.3.1/packages/%40mantine/core/src/core/MantineProvider/baseline.css */
 .bn-mantine {
   color-scheme: var(--mantine-color-scheme);
 }
@@ -96,6 +96,7 @@
   box-sizing: border-box;
 }
 
+/* Fonts are already set in `style.css`, so not needed here. */
 /* .bn-mantine input,
 .bn-mantine button,
 .bn-mantine textarea,
@@ -109,6 +110,10 @@
 }
 
 .bn-mantine {
+  /* Defaults for font, text color, etc are already set in `style.css` so they 
+  aren't needed here. The `.bn-mantine` element also has a margin that we don't 
+  want to remove, so that too is commented out (would normally just remove the 
+  margin on `body`). */
   /* margin: 0;
   font-family: var(--mantine-font-family);
   font-size: var(--mantine-font-size-md);
