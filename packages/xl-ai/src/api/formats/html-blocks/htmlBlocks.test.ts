@@ -2,9 +2,11 @@ import { getCurrentTest } from "@vitest/runner";
 import { getSortedEntries, snapshot, toHashString } from "msw-snapshot";
 import { setupServer } from "msw/node";
 import path from "path";
-import { afterAll, afterEach, beforeAll, describe } from "vitest";
+import { afterAll, afterEach, beforeAll, describe, it } from "vitest";
 import { testAIModels } from "../../../testUtil/testAIModels.js";
 
+import { BlockNoteEditor } from "@blocknote/core";
+import { StreamToolExecutor } from "../../../streamTool/StreamToolExecutor.js";
 import { ClientSideTransport } from "../../../streamTool/vercelAiSdk/clientside/ClientSideTransport.js";
 import { generateSharedTestCases } from "../tests/sharedTestCases.js";
 import { htmlBlockLLMFormat } from "./htmlBlocks.js";
@@ -150,4 +152,46 @@ describe("Models", () => {
       );
     });
   }
+});
+
+describe("streamToolsProvider", () => {
+  it("should return the correct stream tools", () => {
+    // test skipped, this is only to validate type inference
+    return;
+
+    // eslint-disable-next-line no-unreachable
+    const editor = BlockNoteEditor.create();
+    const streamTools = htmlBlockLLMFormat
+      .getStreamToolsProvider({
+        defaultStreamTools: {
+          add: true,
+        },
+      })
+      .getStreamTools(editor, true);
+
+    const executor = new StreamToolExecutor(streamTools);
+
+    executor.executeOne({
+      type: "add",
+      blocks: ["<p>test</p>"],
+      referenceId: "1",
+      position: "after",
+    });
+
+    executor.executeOne({
+      // @ts-expect-error
+      type: "update",
+      blocks: ["<p>test</p>"],
+      referenceId: "1",
+      position: "after",
+    });
+
+    executor.executeOne({
+      type: "add",
+      // @ts-expect-error
+      blocks: [{ type: "paragraph", content: "test" }],
+      referenceId: "1",
+      position: "after",
+    });
+  });
 });
