@@ -35,8 +35,6 @@ function Root() {
 
   const themePreference = usePrefersColorScheme();
 
-  // return <Outlet />;
-
   return (
     <MantineProvider
       forceColorScheme={
