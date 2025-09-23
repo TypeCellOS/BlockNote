@@ -227,7 +227,7 @@ export async function setupToolCallStreaming(
 
   // let all stream executors finish, this can take longer due to artificial delays
   // (e.g. to simulate human typing behaviour)
-  const result = (await Promise.allSettled([executor.waitTillEnd()]))[0];
+  const result = (await Promise.allSettled([executor.close()]))[0];
 
   if (result.status === "rejected" && !erroredChunk) {
     throw new Error(

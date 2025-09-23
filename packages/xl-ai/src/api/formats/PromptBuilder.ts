@@ -1,6 +1,5 @@
-import { BlockNoteEditor } from "@blocknote/core";
 import { UIMessage } from "ai";
-import { BlockNoteUserPrompt } from "../../types.js";
+import { AIRequest } from "../../index.js";
 
 /**
  * We want users to be able to easily customize the prompts send to an LLM,
@@ -15,16 +14,9 @@ export type PromptBuilder<E> = (
 ) => Promise<void>;
 
 /**
- * A separate function that builds the input data for the PromptBuilder based on the BlockNoteUserPrompt and
- * current document (editor state).
+ * A separate function that builds the input data for the PromptBuilder based on the AIRequest.
  *
- * This is split from the PromptBuilder so that if you want, you can build the input data on the client side,
+ * This is split from the PromptBuilder so that for example, you can build the input data on the client side,
  * and run the PromptBuilder on the server side to modify the Messages sent to the LLM.
- *
- * The default implementation (using promptAIRequestSender) handles all of this client-side and just submits the
- * modified messages to the LLM.
  */
-export type PromptInputDataBuilder<E> = (
-  editor: BlockNoteEditor<any, any, any>,
-  blockNoteUserPrompt: BlockNoteUserPrompt,
-) => Promise<E>;
+export type PromptInputDataBuilder<E> = (aiRequest: AIRequest) => Promise<E>;

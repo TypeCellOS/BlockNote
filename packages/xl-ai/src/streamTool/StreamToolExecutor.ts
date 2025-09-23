@@ -1,8 +1,4 @@
 import { parsePartialJson } from "ai";
-import {
-  asyncIterableToStream,
-  createAsyncIterableStream,
-} from "../util/stream.js";
 import { StreamTool, StreamToolCall } from "./streamTool.js";
 
 /**
@@ -41,11 +37,15 @@ type Operation<T extends StreamTool<any>[] | StreamTool<any>> = {
  * @example see the `manual-execution` example
  */
 export class StreamToolExecutor<T extends StreamTool<any>[]> {
-  private readonly stream: TransformStream<string | Operation<T>, Operation<T>>;
-  private readonly readable: ReadableStream<{
-    status: "ok";
-    chunk: Operation<T>;
-  }>;
+  private readonly stream: TransformStream<
+    string | Operation<T>,
+    {
+      status: "ok";
+      chunk: Operation<T>;
+    }
+  > & {
+    finishPromise: Promise<void>;
+  };
 
   /**
    * @param streamTools - The StreamTools to use to apply the StreamToolCalls
@@ -59,11 +59,10 @@ export class StreamToolExecutor<T extends StreamTool<any>[]> {
       error?: any,
     ) => void,
   ) {
-    this.stream = this.createWriteStream();
-    this.readable = this.createReadableStream();
+    this.stream = this.createStream();
   }
 
-  private createWriteStream() {
+  private createStream() {
     let lastParsedResult: Operation<T> | undefined;
     const stream = new TransformStream<string | Operation<T>, Operation<T>>({
       transform: async (chunk, controller) => {
@@ -91,26 +90,41 @@ export class StreamToolExecutor<T extends StreamTool<any>[]> {
       },
     });
 
-    return stream;
+    // - internal dummy sink ensures all downstream writes are completed.
+    // - pipeline.close() waits for both the first writable to close and the pipe to finish internally, so the consumer doesn’t need to know about internal transforms.
+    // - Works regardless of the number of internal transforms.
+    // - The readable can still be exposed if the consumer wants it, but they don’t have to consume it for close() to guarantee processing is done.
+
+    const secondTransform = stream.readable.pipeThrough(this.createExecutor());
+
+    const [internalReadable, externalReadable] = secondTransform.tee();
+
+    // internalReadable goes to the dummy sink
+    const finishPromise = internalReadable.pipeTo(new WritableStream());
+
+    return {
+      writable: stream.writable,
+      // expose externalReadable to the consumer
+      readable: externalReadable,
+      finishPromise,
+    };
   }
 
-  private createReadableStream() {
-    // Convert the initial stream to async iterable for tool processing
-    const source: AsyncIterable<Operation<StreamTool<any>[]>> =
-      createAsyncIterableStream(this.stream.readable);
-
+  private createExecutor() {
     const executors = this.streamTools.map((tool) => tool.executor());
-
     const onChunkComplete = this.onChunkComplete;
 
-    const iterable = async function* () {
-      for await (const chunk of source) {
+    return new TransformStream<
+      Operation<T>,
+      { status: "ok"; chunk: Operation<T> }
+    >({
+      transform: async (chunk, controller) => {
         let handled = false;
         for (const executor of executors) {
           try {
             const result = await executor.execute(chunk);
             if (result) {
-              yield { status: "ok", chunk } as const;
+              controller.enqueue({ status: "ok", chunk });
               handled = true;
               break;
             }
@@ -122,32 +136,30 @@ export class StreamToolExecutor<T extends StreamTool<any>[]> {
         if (!handled) {
           throw new Error("unhandled chunk");
         }
-      }
-    };
-    // Convert back to stream for the final output
-    return asyncIterableToStream(iterable());
-  }
-
-  /**
-   * Helper method to apply all operations to the editor if you're not interested in intermediate operations and results.
-   */
-  public async waitTillEnd() {
-    const iterable = createAsyncIterableStream(this.readable);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    for await (const _result of iterable) {
-      // no op
-      // these will be operations without a matching StreamTool.
-      // (we probably want to allow a way to access and handle these, but for now we haven't run into this scenario yet)
-    }
+      },
+    });
   }
 
   /**
    * Returns a WritableStream that can be used to write StreamToolCalls to the executor.
    *
    * The WriteableStream accepts JSON strings or Operation objects.
+   *
+   * Make sure to call `close` on the StreamToolExecutor instead of on the writable returned here!
    */
   public get writable() {
     return this.stream.writable;
+  }
+
+  /**
+   * Returns a ReadableStream that can be used to read the results of the executor.
+   */
+  public get readable() {
+    return this.stream.readable;
+  }
+
+  public async finish() {
+    await this.stream.finishPromise;
   }
 
   async executeOperationsArray(source: AsyncIterable<string>) {
@@ -169,6 +181,7 @@ export class StreamToolExecutor<T extends StreamTool<any>[]> {
       await writer.write(chunk);
     }
     await writer.close();
+    await this.finish();
   }
 
   /**
@@ -182,6 +195,7 @@ export class StreamToolExecutor<T extends StreamTool<any>[]> {
       await writer.write(chunk);
     }
     await writer.close();
+    await this.finish();
   }
 
   /**

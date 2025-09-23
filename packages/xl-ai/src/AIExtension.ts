@@ -14,7 +14,13 @@ import { Fragment, Slice } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { fixTablesKey } from "prosemirror-tables";
 import { createStore, StoreApi } from "zustand/vanilla";
-import { doLLMRequest } from "./api/LLMRequest.js";
+
+import {
+  buildAIRequest,
+  defaultAIRequestSender,
+  executeAIRequest,
+  llmFormats,
+} from "./api/index.js";
 import { createAgentCursorPlugin } from "./plugins/AgentCursorPlugin.js";
 import { LLMRequestHelpers, LLMRequestOptions } from "./types.js";
 
@@ -78,7 +84,7 @@ export class AIExtension extends BlockNoteExtension {
 
   /**
    * Returns a zustand store with the global configuration of the AI Extension.
-   * These options are used by default across all LLM calls when calling {@link doLLMRequest}
+   * These options are used by default across all LLM calls when calling {@link executeLLMRequest}
    */
   public readonly options: ReturnType<
     ReturnType<typeof createStore<LLMRequestHelpers>>
@@ -271,7 +277,7 @@ export class AIExtension extends BlockNoteExtension {
    *
    * @warning This method should usually only be used for advanced use-cases
    * if you want to implement how an LLM call is executed. Usually, you should
-   * use {@link doLLMRequest} instead which will handle the status updates for you.
+   * use {@link executeLLMRequest} instead which will handle the status updates for you.
    */
   public setAIResponseStatus(
     status:
@@ -316,6 +322,8 @@ export class AIExtension extends BlockNoteExtension {
 
   /**
    * Execute a call to an LLM and apply the result to the editor
+   *
+   * TODO: "AI" or "LLM"?
    */
   public async callLLM(opts: LLMRequestOptions) {
     this.setAIResponseStatus("thinking");
@@ -344,11 +352,21 @@ export class AIExtension extends BlockNoteExtension {
         ...opts,
       } as LLMRequestOptions;
 
-      await doLLMRequest(
-        this.editor,
+      const sender =
+        opts.aiRequestSender ??
+        defaultAIRequestSender(
+          llmFormats.html.defaultPromptBuilder,
+          llmFormats.html.defaultPromptInputDataBuilder,
+        );
+
+      const aiRequest = buildAIRequest({
+        editor: this.editor,
         chat,
-        opts,
-        (blockId: string) => {
+        userPrompt: opts.userPrompt,
+        useSelection: opts.useSelection,
+        deleteEmptyCursorBlock: opts.deleteEmptyCursorBlock,
+        streamToolsProvider: opts.streamToolsProvider,
+        onBlockUpdated: (blockId: string) => {
           // NOTE: does this setState with an anon object trigger unnecessary re-renders?
           this._store.setState({
             aiMenuState: {
@@ -357,10 +375,16 @@ export class AIExtension extends BlockNoteExtension {
             },
           });
         },
-        () => {
+      });
+
+      await executeAIRequest({
+        aiRequest,
+        sender,
+        chatRequestOptions: opts.chatRequestOptions,
+        onStart: () => {
           this.setAIResponseStatus("ai-writing");
         },
-      );
+      });
 
       this.setAIResponseStatus("user-reviewing");
     } catch (e) {

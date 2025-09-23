@@ -1,5 +1,6 @@
 import { Block, BlockNoteEditor } from "@blocknote/core";
-import { BlockNoteUserPrompt } from "../../../types.js";
+
+import { AIRequest } from "../../../index.js";
 import { addCursorPosition } from "../../promptHelpers/addCursorPosition.js";
 import { convertBlocks } from "../../promptHelpers/convertBlocks.js";
 import { flattenBlocks } from "../../promptHelpers/flattenBlocks.js";
@@ -13,25 +14,22 @@ export type MarkdownPromptData = (
   userPrompt: string;
 };
 
-export async function defaultMarkdownPromptDataBuilder(
-  editor: BlockNoteEditor<any, any, any>,
-  blockNoteUserPrompt: BlockNoteUserPrompt,
-) {
-  if (blockNoteUserPrompt.selectedBlocks) {
+export async function defaultMarkdownPromptDataBuilder(aiRequest: AIRequest) {
+  if (aiRequest.selectedBlocks) {
     return {
-      ...(await getDataForPromptWithSelection(editor, {
-        selectedBlocks: blockNoteUserPrompt.selectedBlocks,
+      ...(await getDataForPromptWithSelection(aiRequest.editor, {
+        selectedBlocks: aiRequest.selectedBlocks,
       })),
-      userPrompt: blockNoteUserPrompt.userPrompt,
+      userPrompt: aiRequest.userPrompt,
     };
   } else {
     return {
-      ...(await getDataForPromptNoSelection(editor, {
-        excludeBlockIds: blockNoteUserPrompt.emptyCursorBlockToDelete
-          ? [blockNoteUserPrompt.emptyCursorBlockToDelete]
+      ...(await getDataForPromptNoSelection(aiRequest.editor, {
+        excludeBlockIds: aiRequest.emptyCursorBlockToDelete
+          ? [aiRequest.emptyCursorBlockToDelete]
           : undefined,
       })),
-      userPrompt: blockNoteUserPrompt.userPrompt,
+      userPrompt: aiRequest.userPrompt,
     };
   }
 }

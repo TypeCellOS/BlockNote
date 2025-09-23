@@ -5,6 +5,7 @@ import path from "path";
 import { TextSelection } from "prosemirror-state";
 import { describe, expect, it } from "vitest";
 import { getAIExtension } from "../../../AIExtension.js";
+import { defaultAIRequestSender, llmFormats } from "../../../index.js";
 import { addOperationTestCases } from "../../../testUtil/cases/addOperationTestCases.js";
 import { combinedOperationsTestCases } from "../../../testUtil/cases/combinedOperationsTestCases.js";
 import { deleteOperationTestCases } from "../../../testUtil/cases/deleteOperationTestCases.js";
@@ -15,7 +16,7 @@ import {
 import { updateOperationTestCases } from "../../../testUtil/cases/updateOperationTestCases.js";
 import { validateRejectingResultsInOriginalDoc } from "../../../testUtil/suggestChangesTestUtil.js";
 import { LLMRequestHelpers } from "../../../types.js";
-import { doLLMRequest } from "../../LLMRequest.js";
+import { buildAIRequest, executeAIRequest } from "../../aiRequest/execute.js";
 
 const BASE_FILE_PATH = path.resolve(__dirname, "__snapshots__");
 
@@ -79,10 +80,24 @@ export function generateSharedTestCases(
       transport: aiOptions.transport,
     });
 
-    await doLLMRequest(editor, chat, {
+    const aiRequest = buildAIRequest({
+      editor,
+      chat,
       userPrompt: test.userPrompt,
       useSelection: selection !== undefined,
-      ...aiOptions,
+      streamToolsProvider: aiOptions.streamToolsProvider,
+    });
+    const sender =
+      aiOptions.aiRequestSender ??
+      defaultAIRequestSender(
+        llmFormats.html.defaultPromptBuilder,
+        llmFormats.html.defaultPromptInputDataBuilder,
+      );
+
+    await executeAIRequest({
+      aiRequest,
+      sender,
+      chatRequestOptions: aiOptions.chatRequestOptions,
     });
 
     // const result = await callLLM(editor, {

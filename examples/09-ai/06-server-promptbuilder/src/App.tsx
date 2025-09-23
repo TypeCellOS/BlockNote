@@ -15,9 +15,9 @@ import {
   AIMenuController,
   AIToolbarButton,
   createAIExtension,
+  defaultAIRequestSender,
   getAISlashMenuItems,
   llmFormats,
-  promptAIRequestSender,
 } from "@blocknote/xl-ai";
 import { en as aiEn } from "@blocknote/xl-ai/locales";
 import "@blocknote/xl-ai/style.css";
@@ -61,13 +61,13 @@ export default function App() {
 
             return {
               body: {
+                ...body,
                 // TODO: this conversation id is client-side generated, we
                 // should have a server-side generated id to ensure uniqueness
                 // see https://github.com/vercel/ai/issues/7340#issuecomment-3307559636
                 id,
                 // get the promptData from requestMetadata (set by `promptAIRequestSender`) and send to backend
                 promptData: (requestMetadata as any).promptData,
-                ...body,
                 lastToolParts,
                 // messages, -> we explicitly don't send the messages array as we compose messages server-side
               },
@@ -75,7 +75,7 @@ export default function App() {
           },
         }),
         // customize the aiRequestSender to not update the messages array on the client-side
-        aiRequestSender: promptAIRequestSender(
+        aiRequestSender: defaultAIRequestSender(
           async () => {}, // disable the client-side promptbuilder
           llmFormats.html.defaultPromptInputDataBuilder,
         ),

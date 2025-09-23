@@ -62,8 +62,6 @@ async function executeTestCase(
 
   await executor.execute(stream);
 
-  await executor.waitTillEnd();
-
   validateRejectingResultsInOriginalDoc(editor, originalDoc);
 
   getAIExtension(editor).acceptChanges();

@@ -1,5 +1,5 @@
 import { Block, BlockNoteEditor } from "@blocknote/core";
-import { BlockNoteUserPrompt } from "../../../types.js";
+import { AIRequest } from "../../../index.js";
 import { addCursorPosition } from "../../promptHelpers/addCursorPosition.js";
 import { convertBlocks } from "../../promptHelpers/convertBlocks.js";
 import { flattenBlocks } from "../../promptHelpers/flattenBlocks.js";
@@ -14,24 +14,23 @@ export type HTMLPromptData = (
 };
 
 export async function defaultHTMLPromptInputDataBuilder(
-  editor: BlockNoteEditor<any, any, any>,
-  blockNoteUserPrompt: BlockNoteUserPrompt,
+  aiRequest: AIRequest,
 ): Promise<HTMLPromptData> {
-  if (blockNoteUserPrompt.selectedBlocks) {
+  if (aiRequest.selectedBlocks) {
     return {
-      ...(await getDataForPromptWithSelection(editor, {
-        selectedBlocks: blockNoteUserPrompt.selectedBlocks,
+      ...(await getDataForPromptWithSelection(aiRequest.editor, {
+        selectedBlocks: aiRequest.selectedBlocks,
       })),
-      userPrompt: blockNoteUserPrompt.userPrompt,
+      userPrompt: aiRequest.userPrompt,
     };
   } else {
     return {
-      ...(await getDataForPromptNoSelection(editor, {
-        excludeBlockIds: blockNoteUserPrompt.emptyCursorBlockToDelete
-          ? [blockNoteUserPrompt.emptyCursorBlockToDelete]
+      ...(await getDataForPromptNoSelection(aiRequest.editor, {
+        excludeBlockIds: aiRequest.emptyCursorBlockToDelete
+          ? [aiRequest.emptyCursorBlockToDelete]
           : undefined,
       })),
-      userPrompt: blockNoteUserPrompt.userPrompt,
+      userPrompt: aiRequest.userPrompt,
     };
   }
 }

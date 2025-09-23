@@ -8,8 +8,10 @@ import { createBlockNoteAIClient } from "../../../blocknoteAIClient/client.js";
 
 import { Chat } from "@ai-sdk/react";
 import { UIMessage } from "ai";
+import { llmFormats } from "../../../index.js";
 import { ClientSideTransport } from "../../../streamTool/vercelAiSdk/clientside/ClientSideTransport.js";
-import { doLLMRequest } from "../../LLMRequest.js";
+import { defaultAIRequestSender } from "../../aiRequest/defaultAIRequestSender.js";
+import { buildAIRequest, executeAIRequest } from "../../aiRequest/execute.js";
 
 // Create client and models outside of test suites so they can be shared
 const client = createBlockNoteAIClient({
@@ -87,8 +89,17 @@ describe.skip("Error handling", () => {
             objectGeneration: true, // TODO: switch to text
           }),
         });
-        await doLLMRequest(editor, chat, {
+        const aiRequest = buildAIRequest({
+          editor,
+          chat,
           userPrompt: "translate to Spanish",
+        });
+        await executeAIRequest({
+          aiRequest,
+          sender: defaultAIRequestSender(
+            llmFormats.html.defaultPromptBuilder,
+            llmFormats.html.defaultPromptInputDataBuilder,
+          ),
         });
       } catch (error: any) {
         errorThrown = true;

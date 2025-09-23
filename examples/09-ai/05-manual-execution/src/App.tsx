@@ -75,10 +75,6 @@ export default function App() {
               id: blockToChange,
               block: "<p>Open source software is cool</p>",
             });
-
-            // make sure the executor is done
-            await executor.waitTillEnd();
-
             // accept the changes after 1 second
             await new Promise((resolve) => setTimeout(resolve, 1000));
             await getAIExtension(editor).acceptChanges();
@@ -138,11 +134,8 @@ export default function App() {
               metadata: {},
             });
 
-            // close the writer
-            writer.close();
-
-            // wait till the executor is done
-            await executor.waitTillEnd();
+            await writer.close();
+            await executor.finish();
 
             // accept the changes after 1 second
             await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -189,11 +182,8 @@ export default function App() {
     "<p>This Open source software like Hello World refers to computer programs, this is a longer update, let's write a first sentence that's quite long long long long here. And now let's write a second sentence.</p>"
 }`);
 
-            // close the writer
-            writer.close();
-
-            // wait till the executor is done
-            await executor.waitTillEnd();
+            await writer.close();
+            await executor.finish();
 
             // accept the changes after 1 second
             await new Promise((resolve) => setTimeout(resolve, 1000));
