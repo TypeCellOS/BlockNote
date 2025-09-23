@@ -13,7 +13,7 @@ export function buildAIRequest(opts: {
   userPrompt: string;
   useSelection?: boolean;
   deleteEmptyCursorBlock?: boolean;
-  streamToolsProvider?: StreamToolsProvider;
+  streamToolsProvider?: StreamToolsProvider<any, any>;
   onBlockUpdated?: (blockId: string) => void;
 }) {
   const { useSelection, deleteEmptyCursorBlock, streamToolsProvider } = {

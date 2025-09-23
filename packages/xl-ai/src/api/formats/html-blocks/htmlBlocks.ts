@@ -1,6 +1,11 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { StreamTool } from "../../../streamTool/streamTool.js";
 
+import {
+  StreamToolsConfig,
+  StreamToolsProvider,
+  StreamToolsResult,
+} from "../index.js";
 import { defaultHTMLPromptBuilder } from "./defaultHTMLPromptBuilder.js";
 import {
   defaultHTMLPromptInputDataBuilder,
@@ -8,13 +13,6 @@ import {
   getDataForPromptWithSelection,
 } from "./htmlPromptData.js";
 import { tools } from "./tools/index.js";
-
-// Import the tool call types
-import {
-  StreamToolsConfig,
-  StreamToolsProvider,
-  StreamToolsResult,
-} from "../index.js";
 
 function getStreamTools<
   T extends StreamToolsConfig = { add: true; update: true; delete: true },

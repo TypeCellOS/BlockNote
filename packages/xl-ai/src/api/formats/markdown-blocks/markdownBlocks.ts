@@ -9,29 +9,10 @@ import { tools } from "./tools/index.js";
 
 // Import the tool call types
 import { StreamToolsProvider } from "../../index.js";
-import { AddBlocksToolCall } from "../base-tools/createAddBlocksTool.js";
-import { UpdateBlockToolCall } from "../base-tools/createUpdateBlockTool.js";
-import { DeleteBlockToolCall } from "../base-tools/delete.js";
 import { defaultMarkdownPromptBuilder } from "./defaultMarkdownPromptBuilder.js";
 import { defaultMarkdownPromptDataBuilder } from "./markdownPromptData.js";
 
-// Define the tool types
-export type AddTool = StreamTool<AddBlocksToolCall<string>>;
-export type UpdateTool = StreamTool<UpdateBlockToolCall<string>>;
-export type DeleteTool = StreamTool<DeleteBlockToolCall>;
-
-// Create a conditional type that maps boolean flags to tool types
-export type StreamToolsConfig = {
-  add?: boolean;
-  update?: boolean;
-  delete?: boolean;
-};
-
-export type StreamToolsResult<T extends StreamToolsConfig> = [
-  ...(T extends { update: true } ? [UpdateTool] : []),
-  ...(T extends { add: true } ? [AddTool] : []),
-  ...(T extends { delete: true } ? [DeleteTool] : []),
-];
+import { StreamToolsConfig, StreamToolsResult } from "../index.js";
 
 function getStreamTools<
   T extends StreamToolsConfig = { add: true; update: true; delete: true },
@@ -46,7 +27,7 @@ function getStreamTools<
       }
     | boolean,
   onBlockUpdate?: (blockId: string) => void,
-): StreamToolsResult<T> {
+): StreamToolsResult<string, T> {
   if (typeof selectionInfo === "boolean") {
     const selection = selectionInfo
       ? editor.getSelectionCutBlocks()
@@ -87,21 +68,19 @@ function getStreamTools<
       : []),
   ];
 
-  return streamTools as StreamToolsResult<T>;
+  return streamTools as StreamToolsResult<string, T>;
 }
 
 export const markdownBlockLLMFormat = {
   /**
    * Function to get the stream tools that can apply Markdown block updates to the editor
    */
-  getStreamToolsProvider: (
-    opts: { withDelays?: boolean; defaultStreamTools?: StreamToolsConfig } = {},
-  ): StreamToolsProvider => ({
-    getStreamTools: (
-      editor,
-      selectionInfo,
-      onBlockUpdate?: (blockId: string) => void,
-    ) => {
+  getStreamToolsProvider: <
+    T extends StreamToolsConfig = { add: true; update: true; delete: true },
+  >(
+    opts: { withDelays?: boolean; defaultStreamTools?: T } = {},
+  ): StreamToolsProvider<string, T> => ({
+    getStreamTools: (editor, selectionInfo, onBlockUpdate) => {
       return getStreamTools(
         editor,
         opts.withDelays ?? true,
@@ -111,6 +90,8 @@ export const markdownBlockLLMFormat = {
       );
     },
   }),
+
+  tools,
 
   /**
    * The default PromptBuilder that determines how a userPrompt is converted to an array of

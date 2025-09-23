@@ -22,7 +22,7 @@ export type LLMRequestHelpers = {
   /**
    * Customize which stream tools are available to the LLM
    */
-  streamToolsProvider?: StreamToolsProvider;
+  streamToolsProvider?: StreamToolsProvider<any, any>;
 
   /**
    * Extra options (header, body, metadata) that can be passed to LLM requests
