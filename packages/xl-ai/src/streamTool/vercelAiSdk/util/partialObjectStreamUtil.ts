@@ -1,87 +1,22 @@
 import { getErrorMessage } from "@ai-sdk/provider-utils";
-import {
-  DeepPartial,
-  isDeepEqualData,
-  ObjectStreamPart,
-  parsePartialJson,
-  readUIMessageStream,
-  UIMessageChunk,
-} from "ai";
+import { ObjectStreamPart, UIMessageChunk } from "ai";
 
 /**
  * This file contains some helper functions to convert between object generation (streaming and non-streaming)
  * and UI Message streams and vice versa.
  *
+ * We convert object streams / generated objects to tool calls in UIMessageStreams because:
+ *
+ * - it simplifies our codebase (we can just handle everything as tool calls after conversion)
+ * - there are some issues with using a TextStream, see below:
+ *
  * Normally, the AI SDK uses a TextStream to transport generated objects / object streams.
- * However, this does not work well with error handling (TODO: validate this).
+ * However, this does not work well with error handling
  *
  * See:
  *
  * @see https://github.com/vercel/ai/issues/5027#issuecomment-2701011869
  * @see https://github.com/vercel/ai/issues/5115
- *
- * Therefor, we convert the object (streams) to the UIMessageStream format that's also used by streamText / generateText
- */
-
-/**
- * FUNCTIONS TO CONVERT FROM UIMESSAGESTREAM TO OBJECT (STREAMS))
- */
-
-// based on https://github.com/vercel/ai/blob/d8ada0eb81e42633172d739a40c88e6c5a2f426b/packages/react/src/use-object.ts#L202
-export function textStreamToPartialObjectStream<T>() {
-  let accumulatedText = "";
-  let latestObject: DeepPartial<T> | undefined = undefined;
-  return new TransformStream<string, DeepPartial<T>>({
-    transform: async (chunk, controller) => {
-      accumulatedText += chunk;
-      const { value } = await parsePartialJson(accumulatedText);
-
-      const currentObject = value as DeepPartial<T> | undefined;
-
-      if (
-        currentObject !== undefined &&
-        !isDeepEqualData(latestObject, currentObject)
-      ) {
-        latestObject = currentObject;
-
-        controller.enqueue(currentObject);
-      }
-    },
-  });
-}
-
-export function uiMessageStreamObjectDataToTextStream(
-  stream: ReadableStream<UIMessageChunk>,
-) {
-  let errored = false;
-  const textStream = new ReadableStream({
-    async start(controller) {
-      for await (const chunk of readUIMessageStream({
-        stream,
-        onError: (error: any) => {
-          errored = true;
-          controller.error(error);
-        },
-        terminateOnError: true,
-      })) {
-        for (const part of chunk.parts) {
-          switch (part.type) {
-            case "data-object-delta":
-              controller.enqueue(part.data);
-              break;
-          }
-        }
-      }
-      if (!errored) {
-        controller.close();
-      }
-    },
-  });
-  return textStream;
-}
-
-/**
- * FUNCTIONS TO CONVERT FROM OBJECT (STREAMS) TO UIMESSAGESTREAM
  */
 
 /**

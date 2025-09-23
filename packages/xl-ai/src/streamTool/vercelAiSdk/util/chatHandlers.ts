@@ -8,6 +8,155 @@ import { objectStreamToOperationsResult } from "./UIMessageStreamToOperationsRes
 // TODO: comment file + design decisions
 // TODO: add notice about single executor (with downside that maybe streamtools must be changeable?)
 
+/**
+ * Listens to messages received in the `chat` object and processes tool calls
+ * by streaming them to an executor
+ *
+ * It also listens to the status and error events of the chat object and handles them
+ * appropriately.
+ *
+ * It also waits for all tool calls to be completed and then adds the results to the chat object.
+ *
+ * NOTE: listening to the `chat` object is a bit cumbersome. It might have been
+ * cleaner to directly listen to the UIMessageStream. However, for that we'd probably
+ * need to wrap the transport or chat object in AIExtension
+ *
+ */
+export async function setupToolCallStreaming(
+  streamTools: StreamTool<any>[],
+  chat: Chat<UIMessage>,
+  onStart?: () => void,
+) {
+  let erroredChunk: any | undefined;
+
+  /*
+  We use a single executor even for multiple tool calls.
+  This is because a tool call operation (like Add), might behave differently
+  if a block has been added earlier (i.e.: executing tools can keep state, 
+  and this state is shared across parallel tool calls).
+  */
+  const executor = new StreamToolExecutor(streamTools, (chunk, success) => {
+    if (!success) {
+      erroredChunk = chunk;
+    }
+  });
+
+  const appendableStream = createAppendableStream<any>();
+
+  appendableStream.output.pipeTo(executor.writable);
+
+  const toolCallStreams = new Map<string, ToolCallStreamData>();
+
+  let first = true;
+
+  const unsub = chat["~registerMessagesCallback"](() => {
+    processToolCallParts(chat, (data) => {
+      if (!toolCallStreams.has(data.toolCallId)) {
+        const toolCallStreamData = createToolCallStream(
+          streamTools,
+          data.toolName,
+          data.toolCallId,
+        );
+        appendableStream.append(toolCallStreamData.operationsStream);
+        toolCallStreams.set(data.toolCallId, toolCallStreamData);
+        if (first) {
+          first = false;
+          onStart?.();
+        }
+      }
+      return toolCallStreams.get(data.toolCallId)!;
+    });
+  });
+
+  const statusHandler = new Promise<void>((resolve) => {
+    const unsub2 = chat["~registerStatusCallback"](() => {
+      if (chat.status === "ready" || chat.status === "error") {
+        unsub();
+        unsub2();
+        if (chat.status !== "error") {
+          // don't unsubscribe the error listener if chat.status === "error"
+          // we need to wait for the error event, because only in the error event we can read chat.error
+          // (in this status listener, it's still undefined)
+          unsub3();
+        }
+        resolve();
+      }
+    });
+
+    const unsub3 = chat["~registerErrorCallback"](() => {
+      if (chat.error) {
+        unsub3();
+        for (const data of toolCallStreams.values()) {
+          if (!data.complete) {
+            data.writer.abort(chat.error);
+          }
+        }
+        // reject(chat.error);
+        // we intentionally commented out the above line to not reject here
+        // instead, we abort (raise an error) in the unfinished tool calls
+      }
+    });
+  });
+
+  // wait until all messages have been received
+  // (possible improvement(?): we can abort the request if any of the tool calls fail
+  //  instead of waiting for the entire llm response)
+  await statusHandler;
+
+  // we're not going to append any more streams from tool calls, because we've seen all tool calls
+  await appendableStream.finalize();
+
+  // let all stream executors finish, this can take longer due to artificial delays
+  // (e.g. to simulate human typing behaviour)
+  const result = (await Promise.allSettled([executor.finish()]))[0];
+
+  if (result.status === "rejected" && !erroredChunk) {
+    throw new Error(
+      "Unexpected: executor.waitTillEnd() rejected but no erroredChunk",
+      { cause: result.reason },
+    );
+  }
+
+  let errorSeen = false;
+  // process results
+  const toolCalls = Array.from(toolCallStreams.values());
+  toolCalls.forEach((toolCall, index) => {
+    const isErrorTool =
+      toolCall.toolCallId === erroredChunk?.metadata.toolCallId;
+    let error: string | undefined;
+    if (isErrorTool) {
+      if (result.status === "fulfilled") {
+        throw new Error(
+          "Unexpected: executor.waitTillEnd() fulfilled but erroredChunk",
+          { cause: erroredChunk },
+        );
+      }
+      error = getErrorMessage(result.reason);
+      errorSeen = true;
+    }
+
+    chat.addToolResult({
+      tool: toolCalls[index].toolName,
+      toolCallId: toolCalls[index].toolCallId,
+      output:
+        errorSeen === false
+          ? { status: "ok" }
+          : isErrorTool
+            ? { status: "error", error }
+            : { status: "not-executed-previous-tool-errored" },
+    });
+  });
+
+  if (result.status === "rejected") {
+    throw result.reason;
+  }
+
+  if (chat.error) {
+    // response failed
+    throw chat.error;
+  }
+}
+
 function createAppendableStream<T>() {
   let controller: ReadableStreamDefaultController<T>;
   let ready = Promise.resolve();
@@ -140,138 +289,5 @@ function processToolCallPart(part: any, toolCallData: ToolCallStreamData) {
       toolCallData.writer.write(input as any);
       toolCallData.writer.close();
     }
-  }
-}
-
-/**
- * Set up tool call streaming infrastructure with individual streams per toolCallId
- * and merged results processing
- */
-export async function setupToolCallStreaming(
-  streamTools: StreamTool<any>[],
-  chat: Chat<UIMessage>,
-  onStart?: () => void,
-) {
-  let erroredChunk: any | undefined;
-
-  const executor = new StreamToolExecutor(streamTools, (chunk, success) => {
-    if (!success) {
-      erroredChunk = chunk;
-    }
-  });
-
-  const appendableStream = createAppendableStream<any>();
-
-  appendableStream.output.pipeTo(executor.writable);
-
-  const toolCallStreams = new Map<string, ToolCallStreamData>();
-
-  let first = true;
-
-  const unsub = chat["~registerMessagesCallback"](() => {
-    processToolCallParts(chat, (data) => {
-      if (!toolCallStreams.has(data.toolCallId)) {
-        const toolCallStreamData = createToolCallStream(
-          streamTools,
-          data.toolName,
-          data.toolCallId,
-        );
-        appendableStream.append(toolCallStreamData.operationsStream);
-        toolCallStreams.set(data.toolCallId, toolCallStreamData);
-        if (first) {
-          first = false;
-          onStart?.();
-        }
-      }
-      return toolCallStreams.get(data.toolCallId)!;
-    });
-  });
-
-  const statusHandler = new Promise<void>((resolve) => {
-    const unsub2 = chat["~registerStatusCallback"](() => {
-      if (chat.status === "ready" || chat.status === "error") {
-        unsub();
-        unsub2();
-        if (chat.status !== "error") {
-          // don't unsubscribe the error listener if chat.status === "error"
-          // we need to wait for the error event, because only in the error event we can read chat.error
-          // (in this status listener, it's still undefined)
-          unsub3();
-        }
-        resolve();
-      }
-    });
-
-    const unsub3 = chat["~registerErrorCallback"](() => {
-      if (chat.error) {
-        unsub3();
-        for (const data of toolCallStreams.values()) {
-          if (!data.complete) {
-            data.writer.abort(chat.error);
-          }
-        }
-        // reject(chat.error);
-        // we intentionally commented out the above line to not reject here
-        // instead, we abort (raise an error) in the unfinished tool calls
-      }
-    });
-  });
-
-  // wait until all messages have been received
-  // (possible improvement(?): we can abort the request if any of the tool calls fail
-  //  instead of waiting for the entire llm response)
-  await statusHandler;
-
-  // we're not going to append any more streams from tool calls, because we've seen all tool calls
-  await appendableStream.finalize();
-
-  // let all stream executors finish, this can take longer due to artificial delays
-  // (e.g. to simulate human typing behaviour)
-  const result = (await Promise.allSettled([executor.finish()]))[0];
-
-  if (result.status === "rejected" && !erroredChunk) {
-    throw new Error(
-      "Unexpected: executor.waitTillEnd() rejected but no erroredChunk",
-      { cause: result.reason },
-    );
-  }
-
-  let errorSeen = false;
-  // process results
-  const toolCalls = Array.from(toolCallStreams.values());
-  toolCalls.forEach((toolCall, index) => {
-    const isErrorTool =
-      toolCall.toolCallId === erroredChunk?.metadata.toolCallId;
-    let error: string | undefined;
-    if (isErrorTool) {
-      if (result.status === "fulfilled") {
-        throw new Error(
-          "Unexpected: executor.waitTillEnd() fulfilled but erroredChunk",
-          { cause: erroredChunk },
-        );
-      }
-      error = getErrorMessage(result.reason);
-      errorSeen = true;
-    }
-
-    chat.addToolResult({
-      tool: toolCalls[index].toolName,
-      toolCallId: toolCalls[index].toolCallId,
-      output:
-        errorSeen === false
-          ? { status: "ok" }
-          : isErrorTool
-            ? { status: "error", error }
-            : { status: "not-executed-previous-tool-errored" },
-    });
-  });
-
-  if (result.status === "rejected") {
-    throw result.reason;
-  }
-
-  if (chat.error) {
-    // response failed
-    throw chat.error;
   }
 }
