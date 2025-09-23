@@ -20,11 +20,6 @@ import {
 import { components } from "./components.js";
 import "./style.css";
 
-const mantineTheme = {
-  // Removes button press effect
-  activeClassName: "",
-};
-
 export const BlockNoteView = <
   BSchema extends BlockSchema,
   ISchema extends InlineContentSchema,
@@ -42,9 +37,11 @@ export const BlockNoteView = <
           light: Theme;
           dark: Theme;
         };
+  } & {
+    withMantineProvider?: boolean;
   },
 ) => {
-  const { className, theme, ...rest } = props;
+  const { className, theme, withMantineProvider, ...rest } = props;
 
   const existingContext = useBlockNoteContext();
   const systemColorScheme = usePrefersColorScheme();
@@ -83,10 +80,27 @@ export const BlockNoteView = <
         ? defaultColorScheme
         : "light";
 
+  const view = (
+    <BlockNoteViewRaw
+      data-mantine-color-scheme={finalTheme}
+      className={mergeCSSClasses("bn-mantine", className || "")}
+      theme={typeof theme === "object" ? undefined : theme}
+      {...rest}
+      ref={ref}
+    />
+  );
+
+  if (withMantineProvider === false) {
+    return (
+      <ComponentsContext.Provider value={components}>
+        {view}
+      </ComponentsContext.Provider>
+    );
+  }
+
   return (
     <ComponentsContext.Provider value={components}>
       <MantineProvider
-        theme={mantineTheme}
         // Scopes Mantine CSS variables to only the editor, as proposed here:
         // https://github.com/orgs/mantinedev/discussions/5685
         cssVariablesSelector=".bn-mantine"
@@ -96,13 +110,7 @@ export const BlockNoteView = <
         // manually in `BlockNoteViewRaw`.
         getRootElement={() => undefined}
       >
-        <BlockNoteViewRaw
-          data-mantine-color-scheme={finalTheme}
-          className={mergeCSSClasses("bn-mantine", className || "")}
-          theme={typeof theme === "object" ? undefined : theme}
-          {...rest}
-          ref={ref}
-        />
+        {view}
       </MantineProvider>
     </ComponentsContext.Provider>
   );
