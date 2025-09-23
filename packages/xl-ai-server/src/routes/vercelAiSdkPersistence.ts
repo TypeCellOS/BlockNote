@@ -100,6 +100,7 @@ vercelAiSdkPersistenceRoute.post("/streamText", async (c) => {
     model,
     messages: convertToModelMessages(validatedMessages),
     tools,
+    toolChoice: "required",
   });
 
   return result.toUIMessageStreamResponse({

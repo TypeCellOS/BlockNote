@@ -185,6 +185,7 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
           inputSchema: jsonSchema(streamToolJSONSchema),
         }),
       },
+      toolChoice: "required",
       // extra options for streamObject
       ...((_additionalOptions ?? {}) as any),
       // activeTools: ["applyDocumentOperations"],

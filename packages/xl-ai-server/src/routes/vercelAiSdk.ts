@@ -51,6 +51,7 @@ vercelAiSdkRoute.post("/streamText", async (c) => {
         outputSchema: jsonSchema({ type: "object" }),
       }),
     },
+    toolChoice: "required",
   });
 
   return result.toUIMessageStreamResponse();
