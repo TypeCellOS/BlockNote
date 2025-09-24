@@ -20,7 +20,7 @@ import {
 import { components } from "./components.js";
 import "./style.css";
 
-export const BlockNoteViewNoProvider = <
+export const BaseBlockNoteView = <
   BSchema extends BlockSchema,
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema,
@@ -120,6 +120,6 @@ export const BlockNoteView = <
     // manually in `BlockNoteViewRaw`.
     getRootElement={() => undefined}
   >
-    <BlockNoteViewNoProvider {...props} />
+    <BaseBlockNoteView {...props} />
   </MantineProvider>
 );
