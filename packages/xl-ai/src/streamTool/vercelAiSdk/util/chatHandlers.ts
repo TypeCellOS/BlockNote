@@ -48,6 +48,11 @@ export async function setupToolCallStreaming(
 
   let first = true;
 
+  // Possible improvement: instead of pushing tool call updates directly,
+  // we could make this a readablestream where we return the latest state
+  // of the tool call input. This way we don't process all intermediate
+  // streaming steps in case downstream consumer (like the StreamToolExecutor)
+  // are slower than the producer
   const unsub = chat["~registerMessagesCallback"](() => {
     processToolCallParts(chat, (data) => {
       if (!toolCallStreams.has(data.toolCallId)) {
