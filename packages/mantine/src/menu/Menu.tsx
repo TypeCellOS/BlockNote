@@ -26,10 +26,7 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
         transitionProps={{ duration: 250, exitDelay: 250 }}
         withinPortal={false}
         middlewares={{ flip: true, shift: true, inline: false, size: true }}
-        // For some reason, `onChange` is not supported in submenus yet
-        // `onOpen` and `onClose` are.
-        onOpen={() => onOpenChange?.(true)}
-        onClose={() => onOpenChange?.(false)}
+        onChange={onOpenChange}
         position={position}
       >
         {children}
