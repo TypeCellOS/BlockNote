@@ -2,11 +2,11 @@ import { getErrorMessage } from "@ai-sdk/provider-utils";
 import { Chat } from "@ai-sdk/react";
 import { DeepPartial, isToolUIPart, UIMessage } from "ai";
 import { StreamTool, StreamToolCall } from "../../streamTool.js";
-import { StreamToolExecutor } from "../../StreamToolExecutor.js";
+import {
+  ChunkExecutionError,
+  StreamToolExecutor,
+} from "../../StreamToolExecutor.js";
 import { objectStreamToOperationsResult } from "./UIMessageStreamToOperationsResult.js";
-
-// TODO: comment file + design decisions
-// TODO: add notice about single executor (with downside that maybe streamtools must be changeable?)
 
 /**
  * Listens to messages received in the `chat` object and processes tool calls
@@ -17,9 +17,14 @@ import { objectStreamToOperationsResult } from "./UIMessageStreamToOperationsRes
  *
  * It also waits for all tool calls to be completed and then adds the results to the chat object.
  *
- * NOTE: listening to the `chat` object is a bit cumbersome. It might have been
+ * NOTE: listening to the `chat` object + error handling is a bit cumbersome. It might have been
  * cleaner to directly listen to the UIMessageStream. However, for that we'd probably
  * need to wrap the transport or chat object in AIExtension
+ *
+ * The error handling is currently quite convoluted. To properly test this,
+ * you can:
+ * a) make sure a tool call fails
+ * b) make sure the entire request fails (network error)
  *
  */
 export async function setupToolCallStreaming(
@@ -27,19 +32,13 @@ export async function setupToolCallStreaming(
   chat: Chat<UIMessage>,
   onStart?: () => void,
 ) {
-  let erroredChunk: any | undefined;
-
   /*
   We use a single executor even for multiple tool calls.
   This is because a tool call operation (like Add), might behave differently
   if a block has been added earlier (i.e.: executing tools can keep state, 
   and this state is shared across parallel tool calls).
   */
-  const executor = new StreamToolExecutor(streamTools, (chunk, success) => {
-    if (!success) {
-      erroredChunk = chunk;
-    }
-  });
+  const executor = new StreamToolExecutor(streamTools);
 
   const appendableStream = createAppendableStream<any>();
 
@@ -88,6 +87,7 @@ export async function setupToolCallStreaming(
         unsub3();
         for (const data of toolCallStreams.values()) {
           if (!data.complete) {
+            // this can happen in case of a network error for example
             data.writer.abort(chat.error);
           }
         }
@@ -105,33 +105,33 @@ export async function setupToolCallStreaming(
 
   // we're not going to append any more streams from tool calls, because we've seen all tool calls
   await appendableStream.finalize();
-
   // let all stream executors finish, this can take longer due to artificial delays
   // (e.g. to simulate human typing behaviour)
   const result = (await Promise.allSettled([executor.finish()]))[0];
 
-  if (result.status === "rejected" && !erroredChunk) {
-    throw new Error(
-      "Unexpected: executor.waitTillEnd() rejected but no erroredChunk",
-      { cause: result.reason },
-    );
+  let error: ChunkExecutionError | undefined;
+  if (result.status === "rejected") {
+    if (result.reason instanceof ChunkExecutionError) {
+      error = result.reason;
+    } else {
+      if (!chat.error) {
+        throw new Error(
+          "Unexpected: no ChunkExecutionError but also no chat.error (network error?)",
+        );
+      }
+    }
   }
 
   let errorSeen = false;
   // process results
-  const toolCalls = Array.from(toolCallStreams.values());
+  const toolCalls = Array.from(
+    toolCallStreams.values().filter((data) => data.complete),
+  );
   toolCalls.forEach((toolCall, index) => {
     const isErrorTool =
-      toolCall.toolCallId === erroredChunk?.metadata.toolCallId;
-    let error: string | undefined;
+      toolCall.toolCallId === error?.chunk.metadata.toolCallId;
+
     if (isErrorTool) {
-      if (result.status === "fulfilled") {
-        throw new Error(
-          "Unexpected: executor.waitTillEnd() fulfilled but erroredChunk",
-          { cause: erroredChunk },
-        );
-      }
-      error = getErrorMessage(result.reason);
       errorSeen = true;
     }
 
@@ -142,13 +142,13 @@ export async function setupToolCallStreaming(
         errorSeen === false
           ? { status: "ok" }
           : isErrorTool
-            ? { status: "error", error }
+            ? { status: "error", error: getErrorMessage(error) }
             : { status: "not-executed-previous-tool-errored" },
     });
   });
 
-  if (result.status === "rejected") {
-    throw result.reason;
+  if (error) {
+    throw error;
   }
 
   if (chat.error) {
@@ -160,25 +160,38 @@ export async function setupToolCallStreaming(
 function createAppendableStream<T>() {
   let controller: ReadableStreamDefaultController<T>;
   let ready = Promise.resolve();
-
+  let canceled = false;
   const output = new ReadableStream({
     start(c) {
       controller = c;
     },
+    cancel(reason) {
+      canceled = true;
+      controller.error(reason);
+    },
   });
 
   async function append(readable: ReadableStream<T>) {
+    if (canceled) {
+      throw new Error("Appendable stream canceled, can't append");
+    }
     const reader = readable.getReader();
 
     // Chain appends in sequence
     ready = ready.then(async () => {
       // eslint-disable-next-line no-constant-condition
       while (true) {
-        const { done, value } = await reader.read();
-        if (done) {
+        try {
+          const { done, value } = await reader.read();
+          if (done || canceled) {
+            break;
+          }
+          controller.enqueue(value);
+        } catch (e) {
+          canceled = true;
+          controller.error(e);
           break;
         }
-        controller.enqueue(value);
       }
     });
 
@@ -187,7 +200,10 @@ function createAppendableStream<T>() {
 
   async function finalize() {
     await ready; // wait for last appended stream to finish
-    controller.close(); // only close once no more streams will come
+
+    if (!canceled) {
+      controller.close(); // only close once no more streams will come
+    }
   }
 
   return { output, append, finalize };

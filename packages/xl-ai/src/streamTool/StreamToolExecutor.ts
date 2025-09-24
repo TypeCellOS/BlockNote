@@ -2,6 +2,17 @@ import { getErrorMessage } from "@ai-sdk/provider-utils";
 import { parsePartialJson } from "ai";
 import { StreamTool, StreamToolCall } from "./streamTool.js";
 
+export class ChunkExecutionError extends Error {
+  constructor(
+    message: string,
+    public readonly chunk: any,
+    options?: { cause?: unknown },
+  ) {
+    super(message, options);
+    this.name = "ChunkExecutionError";
+  }
+}
+
 /**
  * The Operation types wraps a StreamToolCall with metadata on whether
  * it's an update to an existing and / or or a possibly partial (i.e.: incomplete, streaming in progress) operation
@@ -51,15 +62,7 @@ export class StreamToolExecutor<T extends StreamTool<any>[]> {
   /**
    * @param streamTools - The StreamTools to use to apply the StreamToolCalls
    */
-  constructor(
-    private streamTools: T,
-    // TODO: use this?
-    private readonly onChunkComplete?: (
-      chunk: Operation<T>,
-      success: boolean,
-      error?: any,
-    ) => void,
-  ) {
+  constructor(private streamTools: T) {
     this.stream = this.createStream();
   }
 
@@ -113,7 +116,6 @@ export class StreamToolExecutor<T extends StreamTool<any>[]> {
 
   private createExecutor() {
     const executors = this.streamTools.map((tool) => tool.executor());
-    const onChunkComplete = this.onChunkComplete;
 
     return new TransformStream<
       Operation<T>,
@@ -130,10 +132,9 @@ export class StreamToolExecutor<T extends StreamTool<any>[]> {
               break;
             }
           } catch (error) {
-            // TODO: remove?
-            onChunkComplete?.(chunk, false, error);
-            throw new Error(
+            throw new ChunkExecutionError(
               `Tool execution failed: ${getErrorMessage(error)}`,
+              chunk,
               {
                 cause: error,
               },

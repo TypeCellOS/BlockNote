@@ -192,7 +192,7 @@ export function createAddBlocksTool<T>(config: {
               // pass through non-add operations
               return false;
             }
-            // throw new Error("test error");
+
             const operation = chunk.operation as AddBlocksToolCall<T>;
 
             const jsonToolCall = await config.toJSONToolCall(editor, {
