@@ -1,3 +1,4 @@
+import { getErrorMessage } from "@ai-sdk/provider-utils";
 import { parsePartialJson } from "ai";
 import { StreamTool, StreamToolCall } from "./streamTool.js";
 
@@ -129,12 +130,21 @@ export class StreamToolExecutor<T extends StreamTool<any>[]> {
               break;
             }
           } catch (error) {
+            // TODO: remove?
             onChunkComplete?.(chunk, false, error);
-            throw new Error("error bla");
+            throw new Error(
+              `Tool execution failed: ${getErrorMessage(error)}`,
+              {
+                cause: error,
+              },
+            );
           }
         }
         if (!handled) {
-          throw new Error("unhandled chunk");
+          const operationType = (chunk.operation as any)?.type || "unknown";
+          throw new Error(
+            `No tool could handle operation of type: ${operationType}`,
+          );
         }
       },
     });

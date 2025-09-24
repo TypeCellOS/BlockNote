@@ -16,6 +16,28 @@ import {
   partialObjectStreamAsToolCallInUIMessageStream,
 } from "../util/partialObjectStreamUtil.js";
 
+export const PROVIDER_OVERRIDES = {
+  "mistral.chat": {
+    mode: "auto" as const,
+  },
+  "google.generative-ai": {
+    mode: "auto" as const,
+  },
+  "groq.chat": {
+    providerOptions: {
+      groq: {
+        structuredOutputs: false,
+      },
+    },
+  },
+} as const;
+
+export function getProviderOverrides(model: Exclude<LanguageModel, string>) {
+  return (
+    PROVIDER_OVERRIDES[model.provider as keyof typeof PROVIDER_OVERRIDES] || {}
+  );
+}
+
 export class ClientSideTransport<UI_MESSAGE extends UIMessage>
   implements ChatTransport<UI_MESSAGE>
 {
@@ -77,40 +99,19 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
     const schema = jsonSchema(streamToolJSONSchema);
 
     const ret = await generateObject<any, any, { operations: any }>({
-      // non-overridable options for streamObject
       output: "object" as const,
       schema,
       model,
-      // configurable options for streamObject
-
-      // - optional, with defaults
-
-      // mistral somehow needs "auto", while groq/llama needs "tool"
-      // google needs "auto" because https://github.com/vercel/ai/issues/6959
-      // TODO: further research this and / or make configurable
-      // for now stick to "tool" by default as this has been tested mostly
-      mode:
-        model.provider === "mistral.chat" ||
-        model.provider === "google.generative-ai"
-          ? "auto"
-          : "tool",
+      mode: "tool",
       messages: convertToModelMessages(messages),
-      providerOptions:
-        model.provider === "groq.chat"
-          ? {
-              groq: {
-                structuredOutputs: false,
-              },
-            }
-          : {},
-      // extra options for streamObject
+      ...getProviderOverrides(model),
       ...((_additionalOptions ?? {}) as any),
     });
 
     return objectAsToolCallInUIMessageStream(
       ret.object,
       "applyDocumentOperations",
-    ); // TODO, better not hardcode
+    );
   }
 
   /**
@@ -131,40 +132,19 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
     const schema = jsonSchema(streamToolJSONSchema);
 
     const ret = streamObject({
-      // non-overridable options for streamObject
       output: "object" as const,
       schema,
       model,
-      // configurable options for streamObject
-
-      // - optional, with defaults
-      // mistral somehow needs "auto", while groq/llama needs "tool"
-      // google needs "auto" because https://github.com/vercel/ai/issues/6959
-      // TODO: further research this and / or make configurable
-      // for now stick to "tool" by default as this has been tested mostly
-      mode:
-        model.provider === "mistral.chat" ||
-        model.provider === "google.generative-ai"
-          ? "auto"
-          : "tool",
-      //  - mandatory ones:
+      mode: "tool",
       messages: convertToModelMessages(messages),
-      providerOptions:
-        model.provider === "groq.chat"
-          ? {
-              groq: {
-                structuredOutputs: false,
-              },
-            }
-          : {},
-      // extra options for streamObject
+      ...getProviderOverrides(model),
       ...((_additionalOptions ?? {}) as any),
     });
 
     // Transform the partial object stream to a data stream format
     return partialObjectStreamAsToolCallInUIMessageStream(
       ret.fullStream,
-      "applyDocumentOperations", // TODO, better not hardcode
+      "applyDocumentOperations",
     );
   }
 
