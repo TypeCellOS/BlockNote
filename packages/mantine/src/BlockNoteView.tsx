@@ -20,7 +20,7 @@ import {
 import { components } from "./components.js";
 import "./style.css";
 
-export const BlockNoteView = <
+export const BlockNoteViewNoProvider = <
   BSchema extends BlockSchema,
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema,
@@ -37,11 +37,9 @@ export const BlockNoteView = <
           light: Theme;
           dark: Theme;
         };
-  } & {
-    withMantineProvider?: boolean;
   },
 ) => {
-  const { className, theme, withMantineProvider, ...rest } = props;
+  const { className, theme, ...rest } = props;
 
   const existingContext = useBlockNoteContext();
   const systemColorScheme = usePrefersColorScheme();
@@ -80,38 +78,48 @@ export const BlockNoteView = <
         ? defaultColorScheme
         : "light";
 
-  const view = (
-    <BlockNoteViewRaw
-      data-mantine-color-scheme={finalTheme}
-      className={mergeCSSClasses("bn-mantine", className || "")}
-      theme={typeof theme === "object" ? undefined : theme}
-      {...rest}
-      ref={ref}
-    />
-  );
-
-  if (withMantineProvider === false) {
-    return (
-      <ComponentsContext.Provider value={components}>
-        {view}
-      </ComponentsContext.Provider>
-    );
-  }
-
   return (
     <ComponentsContext.Provider value={components}>
-      <MantineProvider
-        // Scopes Mantine CSS variables to only the editor, as proposed here:
-        // https://github.com/orgs/mantinedev/discussions/5685
-        cssVariablesSelector=".bn-mantine"
-        // This gets the element to set `data-mantine-color-scheme` on. This
-        // element needs to already be rendered, so we can't set it to the
-        // editor container element. Instead, we set it to `undefined` and set it
-        // manually in `BlockNoteViewRaw`.
-        getRootElement={() => undefined}
-      >
-        {view}
-      </MantineProvider>
+      <BlockNoteViewRaw
+        data-mantine-color-scheme={finalTheme}
+        className={mergeCSSClasses("bn-mantine", className || "")}
+        theme={typeof theme === "object" ? undefined : theme}
+        {...rest}
+        ref={ref}
+      />
     </ComponentsContext.Provider>
   );
 };
+
+export const BlockNoteView = <
+  BSchema extends BlockSchema,
+  ISchema extends InlineContentSchema,
+  SSchema extends StyleSchema,
+>(
+  props: Omit<
+    React.ComponentProps<typeof BlockNoteViewRaw<BSchema, ISchema, SSchema>>,
+    "theme"
+  > & {
+    theme?:
+      | "light"
+      | "dark"
+      | Theme
+      | {
+          light: Theme;
+          dark: Theme;
+        };
+  },
+) => (
+  <MantineProvider
+    // Scopes Mantine CSS variables to only the editor, as proposed here:
+    // https://github.com/orgs/mantinedev/discussions/5685
+    cssVariablesSelector=".bn-mantine"
+    // This gets the element to set `data-mantine-color-scheme` on. This
+    // element needs to already be rendered, so we can't set it to the
+    // editor container element. Instead, we set it to `undefined` and set it
+    // manually in `BlockNoteViewRaw`.
+    getRootElement={() => undefined}
+  >
+    <BlockNoteViewNoProvider {...props} />
+  </MantineProvider>
+);
