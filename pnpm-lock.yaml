@@ -2903,7 +2903,44 @@ importers:
         specifier: ^5.3.4
         version: 5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0)
 
-  examples/07-collaboration/04-comments:
+  examples/07-collaboration/04-electric-sql:
+    dependencies:
+      '@blocknote/ariakit':
+        specifier: latest
+        version: link:../../../packages/ariakit
+      '@blocknote/core':
+        specifier: latest
+        version: link:../../../packages/core
+      '@blocknote/mantine':
+        specifier: latest
+        version: link:../../../packages/mantine
+      '@blocknote/react':
+        specifier: latest
+        version: link:../../../packages/react
+      '@blocknote/shadcn':
+        specifier: latest
+        version: link:../../../packages/shadcn
+      react:
+        specifier: ^19.1.0
+        version: 19.1.0
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.1.0(react@19.1.0)
+    devDependencies:
+      '@types/react':
+        specifier: ^19.1.0
+        version: 19.1.8
+      '@types/react-dom':
+        specifier: ^19.1.0
+        version: 19.1.6(@types/react@19.1.8)
+      '@vitejs/plugin-react':
+        specifier: ^4.3.1
+        version: 4.4.1(vite@5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0))
+      vite:
+        specifier: ^5.3.4
+        version: 5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0)
+
+  examples/07-collaboration/05-comments:
     dependencies:
       '@blocknote/ariakit':
         specifier: latest
@@ -2946,7 +2983,7 @@ importers:
         specifier: ^5.3.4
         version: 5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0)
 
-  examples/07-collaboration/05-comments-with-sidebar:
+  examples/07-collaboration/06-comments-with-sidebar:
     dependencies:
       '@blocknote/ariakit':
         specifier: latest
@@ -2989,7 +3026,7 @@ importers:
         specifier: ^5.3.4
         version: 5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0)
 
-  examples/07-collaboration/06-ghost-writer:
+  examples/07-collaboration/07-ghost-writer:
     dependencies:
       '@blocknote/ariakit':
         specifier: latest
@@ -3032,7 +3069,7 @@ importers:
         specifier: ^5.3.4
         version: 5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0)
 
-  examples/07-collaboration/07-forking:
+  examples/07-collaboration/08-forking:
     dependencies:
       '@blocknote/ariakit':
         specifier: latest
