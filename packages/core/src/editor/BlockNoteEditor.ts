@@ -512,6 +512,7 @@ export class BlockNoteEditor<
   private onUploadEndCallbacks: ((blockId?: string) => void)[] = [];
 
   public readonly resolveFileUrl?: (url: string) => Promise<string>;
+  public readonly resolveUsers?: (userIds: string[]) => Promise<User[]>;
   /**
    * Editor settings
    */
@@ -609,10 +610,8 @@ export class BlockNoteEditor<
         provider: newOptions.collaboration?.provider || null,
         renderCursor: newOptions.collaboration?.renderCursor,
         showCursorLabels: newOptions.collaboration?.showCursorLabels,
-        // If comments are configured separately, use those instead of collaboration.comments
-        comments: newOptions.comments, // || newOptions.collaboration?.comments,
-        // If resolveUsers is configured separately, use that instead of collaboration.resolveUsers
-        resolveUsers: newOptions.resolveUsers, //|| newOptions.collaboration?.resolveUsers,
+        comments: newOptions.comments,
+        resolveUsers: newOptions.resolveUsers,
       };
       this._collaborationManager = new CollaborationManager(
         this as any,
