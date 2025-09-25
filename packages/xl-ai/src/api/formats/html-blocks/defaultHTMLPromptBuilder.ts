@@ -136,7 +136,6 @@ function promptManipulateDocumentUseHTMLBlocks(
       role: "system",
       id: "document-state-intro",
       parts: [
-        // TODO: check pre/code
         {
           type: "text",
           text: `You're manipulating a text document using HTML blocks. 
