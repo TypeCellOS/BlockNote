@@ -8,7 +8,7 @@ import { AIRequestSender, StreamToolsProvider } from "./index.js";
  */
 export type ChatRequestOptions = Parameters<Chat<UIMessage>["sendMessage"]>[1];
 
-export type LLMRequestHelpers = {
+export type AIRequestHelpers = {
   /**
    * The Vercel AI SDK transport is responsible for sending the AI SDK Request to the LLM backend
    *
@@ -34,12 +34,12 @@ export type LLMRequestHelpers = {
    * Responsible for submitting a BlockNote `AIRequest` to the Vercel AI SDK.
    * Use this to transform the messages sent to the LLM
    *
-   * @default `defaultAIRequestSender(llmFormats.html.defaultPromptBuilder, llmFormats.html.defaultPromptInputDataBuilder)`
+   * @default `defaultAIRequestSender(aiDocumentFormats.html.defaultPromptBuilder, aiDocumentFormats.html.defaultPromptInputDataBuilder)`
    */
   aiRequestSender?: AIRequestSender;
 };
 
-export type LLMRequestOptions = {
+export type InvokeAIOptions = {
   /**
    * The user prompt to use for the LLM call
    */
@@ -60,4 +60,4 @@ export type LLMRequestOptions = {
    * @default true
    */
   deleteEmptyCursorBlock?: boolean;
-} & LLMRequestHelpers;
+} & AIRequestHelpers;

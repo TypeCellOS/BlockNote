@@ -15,7 +15,7 @@ const aiExtension = createAIExtension(opts: AIExtensionOptions);
 // Definitions:
 function createAIExtension(options: AIExtensionOptions): (editor: BlockNoteEditor) => AIExtension;
 
-type AIExtensionOptions = LLMRequestHelpers & {
+type AIExtensionOptions = AIRequestHelpers & {
   /**
    * The name and color of the agent cursor when the AI is writing
    * @default { name: "AI", color: "#8bc6ff" }
@@ -23,7 +23,7 @@ type AIExtensionOptions = LLMRequestHelpers & {
   agentCursor?: { name: string; color: string };
 };
 
-type LLMRequestHelpers = {
+type AIRequestHelpers = {
   /**
    * Transport used by the AI SDK to send requests to your backend/LLM.
    * Implement to customize backend URLs or use a different transport (e.g. websockets).
@@ -34,8 +34,8 @@ type LLMRequestHelpers = {
    * Customize which stream tools are available to the LLM.
    */
   streamToolsProvider?: StreamToolsProvider<any, any>;
-  // Provide `streamToolsProvider` in createAIExtension(options) or override per call via LLMRequestOptions.
-  // If omitted, defaults to using `llmFormats.html.getStreamToolsProvider()`.
+  // Provide `streamToolsProvider` in createAIExtension(options) or override per call via InvokeAIOptions.
+  // If omitted, defaults to using `aiDocumentFormats.html.getStreamToolsProvider()`.
 
   /**
    * Extra options (headers/body/metadata) forwarded to the AI SDK request.
@@ -46,7 +46,7 @@ type LLMRequestHelpers = {
    * Responsible for submitting a BlockNote AIRequest to the AI SDK.
    * Use to transform the messages sent to the LLM.
    *
-   * @default defaultAIRequestSender(llmFormats.html.defaultPromptBuilder, llmFormats.html.defaultPromptInputDataBuilder)
+   * @default defaultAIRequestSender(aiDocumentFormats.html.defaultPromptBuilder, aiDocumentFormats.html.defaultPromptInputDataBuilder)
    */
   aiRequestSender?: AIRequestSender;
 };
@@ -69,7 +69,7 @@ class AIExtension {
   /**
    * Execute a call to an LLM and apply the result to the editor
    */
-  callLLM(opts: LLMRequestOptions): Promise<void>;
+  invokeAI(opts: InvokeAIOptions): Promise<void>;
 
   /**
    * Returns a read-only zustand store with the state of the AI Menu
@@ -100,9 +100,9 @@ class AIExtension {
 
   /**
    * Returns a zustand store with the global configuration of the AI Extension.
-   * These options are used by default across all LLM calls when calling {@link callLLM}
+   * These options are used by default across all LLM calls when calling {@link invokeAI}
    */
-  readonly options: StoreApi<LLMRequestHelpers>;
+  readonly options: StoreApi<AIRequestHelpers>;
 
   /** Open the AI menu at a specific block */
   openAIMenuAtBlock(blockID: string): void;
@@ -126,12 +126,12 @@ class AIExtension {
 }
 ```
 
-### `LLMRequestOptions`
+### `InvokeAIOptions`
 
-Requests to an LLM are made by calling `callLLM` on the `AIExtension` object. This takes an `LLMRequestOptions` object as an argument.
+Requests to an LLM are made by calling `invokeAI` on the `AIExtension` object. This takes an `InvokeAIOptions` object as an argument.
 
 ```typescript
-type LLMRequestOptions = {
+type InvokeAIOptions = {
   /** The user prompt */
   userPrompt: string;
 
@@ -143,12 +143,12 @@ type LLMRequestOptions = {
    * Used when typing `/ai` in an empty block. (default: true)
    */
   deleteEmptyCursorBlock?: boolean;
-} & LLMRequestHelpers; // Optionally override helpers per request
+} & AIRequestHelpers; // Optionally override helpers per request
 ```
 
 ## `getStreamToolsProvider`
 
-When an LLM is called, it needs to interpret the document and invoke operations to modify it. Use a format's `getStreamToolsProvider` to obtain the tools the LLM may call while editing. In most cases, use `llmFormats.html.getStreamToolsProvider(...)`.
+When an LLM is called, it needs to interpret the document and invoke operations to modify it. Use a format's `getStreamToolsProvider` to obtain the tools the LLM may call while editing. In most cases, use `aiDocumentFormats.html.getStreamToolsProvider(...)`.
 
 ```typescript
 /** Return a provider for the stream tools available to the LLM */
@@ -189,7 +189,7 @@ type AIRequestSender = {
 };
 ```
 
-The default `AIRequestSender` used is `defaultAIRequestSender(llmFormats.html.defaultPromptBuilder, llmFormats.html.defaultPromptInputDataBuilder)`. It takes an AIRequest and the default prompt builder (see below) to construct the updated messages array and submits this to the AI SDK.
+The default `AIRequestSender` used is `defaultAIRequestSender(aiDocumentFormats.html.defaultPromptBuilder, aiDocumentFormats.html.defaultPromptInputDataBuilder)`. It takes an AIRequest and the default prompt builder (see below) to construct the updated messages array and submits this to the AI SDK.
 
 ## PromptBuilder (advanced)
 
@@ -208,7 +208,7 @@ export type PromptBuilder<E> = (
 export type PromptInputDataBuilder<E> = (aiRequest: AIRequest) => Promise<E>;
 
 // Create an AIRequestSender from your custom builders.
-// This lets you plug your PromptBuilder into the request pipeline used by callLLM/executeAIRequest.
+// This lets you plug your PromptBuilder into the request pipeline used by invokeAI/executeAIRequest.
 function defaultAIRequestSender<E>(
   promptBuilder: PromptBuilder<E>,
   promptInputDataBuilder: PromptInputDataBuilder<E>,
@@ -217,7 +217,7 @@ function defaultAIRequestSender<E>(
 
 ## Lower-level functions (advanced)
 
-The `callLLM` function automatically passes the default options set in the `AIExtension` to the LLM request. It also handles the LLM response and updates the state of the AI menu accordingly.
+The `invokeAI` function automatically passes the default options set in the `AIExtension` to the LLM request. It also handles the LLM response and updates the state of the AI menu accordingly.
 
 For advanced use cases, you can also directly use the lower-level `buildAIRequest` and `executeAIRequest` functions to issue an LLM request directly.
 

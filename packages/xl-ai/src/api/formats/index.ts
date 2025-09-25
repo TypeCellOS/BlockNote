@@ -43,7 +43,7 @@ export type StreamToolsProvider<
   ) => StreamToolsResult<TT, T>;
 };
 
-export type LLMFormat<TT> = {
+export type AIDocumentFormat<TT> = {
   /**
    * Function to get the stream tools that can apply HTML block updates to the editor
    */
@@ -63,7 +63,7 @@ export type LLMFormat<TT> = {
   promptHelpers: any;
 };
 
-export const llmFormats = {
+export const aiDocumentFormats = {
   _experimental_json: jsonBlockLLMFormat,
   _experimental_markdown: markdownBlockLLMFormat,
   html: htmlBlockLLMFormat,

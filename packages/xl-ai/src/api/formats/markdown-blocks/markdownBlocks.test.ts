@@ -8,7 +8,7 @@ import path from "path";
 import { ClientSideTransport } from "../../../streamTool/vercelAiSdk/clientside/ClientSideTransport.js";
 import { testAIModels } from "../../../testUtil/testAIModels.js";
 import { defaultAIRequestSender } from "../../aiRequest/defaultAIRequestSender.js";
-import { llmFormats } from "../../index.js";
+import { aiDocumentFormats } from "../../index.js";
 import { generateSharedTestCases } from "../tests/sharedTestCases.js";
 
 const BASE_FILE_PATH = path.resolve(
@@ -115,12 +115,13 @@ describe("Models", () => {
       generateSharedTestCases(
         {
           streamToolsProvider:
-            llmFormats._experimental_markdown.getStreamToolsProvider({
+            aiDocumentFormats._experimental_markdown.getStreamToolsProvider({
               withDelays: false,
             }),
           aiRequestSender: defaultAIRequestSender(
-            llmFormats._experimental_markdown.defaultPromptBuilder,
-            llmFormats._experimental_markdown.defaultPromptInputDataBuilder,
+            aiDocumentFormats._experimental_markdown.defaultPromptBuilder,
+            aiDocumentFormats._experimental_markdown
+              .defaultPromptInputDataBuilder,
           ),
           transport: new ClientSideTransport({
             model: params.model,

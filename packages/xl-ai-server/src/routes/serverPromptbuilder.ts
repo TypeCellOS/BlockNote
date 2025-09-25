@@ -1,5 +1,5 @@
 import { createOpenAI } from "@ai-sdk/openai";
-import { llmFormats, toolDefinitionsToToolSet } from "@blocknote/xl-ai";
+import { aiDocumentFormats, toolDefinitionsToToolSet } from "@blocknote/xl-ai";
 import {
   convertToModelMessages,
   createIdGenerator,
@@ -81,7 +81,7 @@ serverPromptbuilderRoute.post("/streamText", async (c) => {
     };
   }
 
-  await llmFormats.html.defaultPromptBuilder(messages, promptData);
+  await aiDocumentFormats.html.defaultPromptBuilder(messages, promptData);
 
   // validate messages if they contain tools, metadata, or data parts:
   const validatedMessages = await validateUIMessages({

@@ -16,13 +16,13 @@ import { fixTablesKey } from "prosemirror-tables";
 import { createStore, StoreApi } from "zustand/vanilla";
 
 import {
+  aiDocumentFormats,
   buildAIRequest,
   defaultAIRequestSender,
   executeAIRequest,
-  llmFormats,
 } from "./api/index.js";
 import { createAgentCursorPlugin } from "./plugins/AgentCursorPlugin.js";
-import { LLMRequestHelpers, LLMRequestOptions } from "./types.js";
+import { AIRequestHelpers, InvokeAIOptions } from "./types.js";
 
 type ReadonlyStoreApi<T> = Pick<
   StoreApi<T>,
@@ -60,7 +60,7 @@ const PLUGIN_KEY = new PluginKey(`blocknote-ai-plugin`);
 export class AIExtension extends BlockNoteExtension {
   private chatSession:
     | {
-        previousRequestOptions: LLMRequestOptions;
+        previousRequestOptions: InvokeAIOptions;
         chat: Chat<UIMessage>;
       }
     | undefined;
@@ -87,7 +87,7 @@ export class AIExtension extends BlockNoteExtension {
    * These options are used by default across all LLM calls when calling {@link executeLLMRequest}
    */
   public readonly options: ReturnType<
-    ReturnType<typeof createStore<LLMRequestHelpers>>
+    ReturnType<typeof createStore<AIRequestHelpers>>
   >;
 
   /**
@@ -95,7 +95,7 @@ export class AIExtension extends BlockNoteExtension {
    */
   constructor(
     public readonly editor: BlockNoteEditor<any, any, any>,
-    options: LLMRequestHelpers & {
+    options: AIRequestHelpers & {
       /**
        * The name and color of the agent cursor
        *
@@ -106,7 +106,7 @@ export class AIExtension extends BlockNoteExtension {
   ) {
     super();
 
-    this.options = createStore<LLMRequestHelpers>()((_set) => ({
+    this.options = createStore<AIRequestHelpers>()((_set) => ({
       ...options,
     }));
 
@@ -257,7 +257,7 @@ export class AIExtension extends BlockNoteExtension {
     if (this.chatSession?.chat.status === "error") {
       // the LLM call failed (i.e. a network error)
       // console.log("retry failed LLM call", this.chatSession.chat.error);
-      return this.callLLM({
+      return this.invokeAI({
         ...this.chatSession.previousRequestOptions,
         userPrompt: `An error occured in the previous request. Please retry to accomplish the last user prompt.`,
       });
@@ -265,7 +265,7 @@ export class AIExtension extends BlockNoteExtension {
       // an error occurred while parsing / executing the previous LLM call
       // give the LLM a chance to fix the error
       // console.log("retry failed tool execution");
-      return this.callLLM({
+      return this.invokeAI({
         ...this.chatSession.previousRequestOptions,
         userPrompt: `An error occured while executing the previous tool call. Please retry to accomplish the last user prompt.`,
       });
@@ -321,11 +321,16 @@ export class AIExtension extends BlockNoteExtension {
   }
 
   /**
-   * Execute a call to an LLM and apply the result to the editor
-   *
-   * TODO: "AI" or "LLM"?
+   * @deprecated Use {@link invokeAI} instead
    */
-  public async callLLM(opts: LLMRequestOptions) {
+  public async callLLM(opts: InvokeAIOptions) {
+    return this.invokeAI(opts);
+  }
+  
+  /**
+   * Execute a call to an LLM and apply the result to the editor
+   */
+  public async invokeAI(opts: InvokeAIOptions) {
     this.setAIResponseStatus("thinking");
     this.editor.forkYDocPlugin?.fork();
 
@@ -350,13 +355,13 @@ export class AIExtension extends BlockNoteExtension {
       opts = {
         ...globalOpts,
         ...opts,
-      } as LLMRequestOptions;
+      } as InvokeAIOptions;
 
       const sender =
         opts.aiRequestSender ??
         defaultAIRequestSender(
-          llmFormats.html.defaultPromptBuilder,
-          llmFormats.html.defaultPromptInputDataBuilder,
+          aiDocumentFormats.html.defaultPromptBuilder,
+          aiDocumentFormats.html.defaultPromptInputDataBuilder,
         );
 
       const aiRequest = buildAIRequest({

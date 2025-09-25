@@ -5,9 +5,9 @@ import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
 import {
   StreamToolExecutor,
+  aiDocumentFormats,
   createAIExtension,
   getAIExtension,
-  llmFormats,
 } from "@blocknote/xl-ai";
 import { en as aiEn } from "@blocknote/xl-ai/locales";
 import "@blocknote/xl-ai/style.css";
@@ -62,7 +62,7 @@ export default function App() {
 
             // Let's get the stream tools so we can invoke them manually
             // In this case, we're using the default stream tools, which allow all operations
-            const tools = llmFormats.html
+            const tools = aiDocumentFormats.html
               .getStreamToolsProvider()
               .getStreamTools(editor, true);
 
@@ -89,7 +89,7 @@ export default function App() {
 
             // Let's get the stream tools so we can invoke them manually
             // In this case, we choose to only get the "update" tool
-            const tools = llmFormats.html
+            const tools = aiDocumentFormats.html
               .getStreamToolsProvider({
                 // only allow "update" operations
                 defaultStreamTools: {
@@ -151,7 +151,7 @@ export default function App() {
 
             // Let's get the stream tools so we can invoke them manually
             // In this case, we choose to only get the "update" tool
-            const tools = llmFormats.html
+            const tools = aiDocumentFormats.html
               .getStreamToolsProvider({
                 defaultStreamTools: {
                   // only allow "update" operations

@@ -12,12 +12,12 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 import {
+  aiDocumentFormats,
   AIMenuController,
   AIToolbarButton,
   createAIExtension,
   defaultAIRequestSender,
   getAISlashMenuItems,
-  llmFormats,
 } from "@blocknote/xl-ai";
 import { en as aiEn } from "@blocknote/xl-ai/locales";
 import "@blocknote/xl-ai/style.css";
@@ -76,7 +76,7 @@ export default function App() {
         // customize the aiRequestSender to not update the messages array on the client-side
         aiRequestSender: defaultAIRequestSender(
           async () => {}, // disable the client-side promptbuilder
-          llmFormats.html.defaultPromptInputDataBuilder,
+          aiDocumentFormats.html.defaultPromptInputDataBuilder,
         ),
       }),
     ],

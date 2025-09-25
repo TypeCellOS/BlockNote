@@ -6,7 +6,7 @@ import { setupServer } from "msw/node";
 
 import { Chat } from "@ai-sdk/react";
 import { UIMessage } from "ai";
-import { llmFormats } from "../../../index.js";
+import { aiDocumentFormats } from "../../../index.js";
 import { ClientSideTransport } from "../../../streamTool/vercelAiSdk/clientside/ClientSideTransport.js";
 import { testAIModels } from "../../../testUtil/testAIModels.js";
 import { defaultAIRequestSender } from "../../aiRequest/defaultAIRequestSender.js";
@@ -86,8 +86,8 @@ describe.skip("Error handling", () => {
         await executeAIRequest({
           aiRequest,
           sender: defaultAIRequestSender(
-            llmFormats.html.defaultPromptBuilder,
-            llmFormats.html.defaultPromptInputDataBuilder,
+            aiDocumentFormats.html.defaultPromptBuilder,
+            aiDocumentFormats.html.defaultPromptInputDataBuilder,
           ),
         });
       } catch (error: any) {

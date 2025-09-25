@@ -5,7 +5,7 @@ import path from "path";
 import { TextSelection } from "prosemirror-state";
 import { describe, expect, it } from "vitest";
 import { getAIExtension } from "../../../AIExtension.js";
-import { defaultAIRequestSender, llmFormats } from "../../../index.js";
+import { aiDocumentFormats, defaultAIRequestSender } from "../../../index.js";
 import { addOperationTestCases } from "../../../testUtil/cases/addOperationTestCases.js";
 import { combinedOperationsTestCases } from "../../../testUtil/cases/combinedOperationsTestCases.js";
 import { deleteOperationTestCases } from "../../../testUtil/cases/deleteOperationTestCases.js";
@@ -15,7 +15,7 @@ import {
 } from "../../../testUtil/cases/index.js";
 import { updateOperationTestCases } from "../../../testUtil/cases/updateOperationTestCases.js";
 import { validateRejectingResultsInOriginalDoc } from "../../../testUtil/suggestChangesTestUtil.js";
-import { LLMRequestHelpers } from "../../../types.js";
+import { AIRequestHelpers } from "../../../types.js";
 import { buildAIRequest, executeAIRequest } from "../../aiRequest/execute.js";
 
 const BASE_FILE_PATH = path.resolve(__dirname, "__snapshots__");
@@ -35,7 +35,7 @@ async function matchFileSnapshot(data: any, postFix = "") {
 }
 
 export function generateSharedTestCases(
-  aiOptions: LLMRequestHelpers,
+  aiOptions: AIRequestHelpers,
   skipTestsRequiringCapabilities?: {
     mentions?: boolean;
     textAlignment?: boolean;
@@ -90,8 +90,8 @@ export function generateSharedTestCases(
     const sender =
       aiOptions.aiRequestSender ??
       defaultAIRequestSender(
-        llmFormats.html.defaultPromptBuilder,
-        llmFormats.html.defaultPromptInputDataBuilder,
+        aiDocumentFormats.html.defaultPromptBuilder,
+        aiDocumentFormats.html.defaultPromptInputDataBuilder,
       );
 
     await executeAIRequest({

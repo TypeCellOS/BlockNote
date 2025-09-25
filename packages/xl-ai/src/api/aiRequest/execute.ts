@@ -3,7 +3,7 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { ChatRequestOptions, UIMessage } from "ai";
 import { setupToolCallStreaming } from "../../streamTool/vercelAiSdk/util/chatHandlers.js";
 import { isEmptyParagraph } from "../../util/emptyBlock.js";
-import { llmFormats, StreamToolsProvider } from "../index.js";
+import { aiDocumentFormats, StreamToolsProvider } from "../index.js";
 import { trimEmptyBlocks } from "../promptHelpers/trimEmptyBlocks.js";
 import { AIRequest, AIRequestSender } from "./types.js";
 
@@ -21,7 +21,8 @@ export function buildAIRequest(opts: {
     useSelection: opts.useSelection ?? false,
     deleteEmptyCursorBlock: opts.deleteEmptyCursorBlock ?? true,
     streamToolsProvider:
-      opts.streamToolsProvider ?? llmFormats.html.getStreamToolsProvider(),
+      opts.streamToolsProvider ??
+      aiDocumentFormats.html.getStreamToolsProvider(),
   };
   const cursorBlock = useSelection
     ? undefined
