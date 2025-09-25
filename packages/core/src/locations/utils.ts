@@ -63,6 +63,30 @@ export function getBlockRange(location: Location): [BlockId, BlockId] {
   throw new Error("Invalid location", { cause: { location } });
 }
 
+export function isPointingToBlock(location: Location): boolean {
+  if (isBlockId(location)) {
+    return true;
+  }
+
+  if (isBlockIdentifier(location)) {
+    return true;
+  }
+
+  if (isPoint(location)) {
+    return location.offset === -1;
+  }
+
+  if (isRange(location)) {
+    return (
+      location.anchor.offset === -1 &&
+      location.head.offset === -1 &&
+      location.anchor.id === location.head.id
+    );
+  }
+
+  throw new Error("Invalid location", { cause: { location } });
+}
+
 export function normalizeToRange(location: Location): Range {
   if (isBlockId(location)) {
     // Just make blockIds into a point
