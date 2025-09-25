@@ -18,7 +18,7 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "@y-sweet/react": "^0.6.3",
-    "@mantine/core": "^7.10.1"
+    "@mantine/core": "^8.3.2"
   },
   "devDependencies": {
     "@types/react": "^19.1.0",
