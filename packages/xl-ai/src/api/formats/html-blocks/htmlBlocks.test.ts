@@ -130,26 +130,19 @@ describe("Models", () => {
       (params.stream ? "streaming" : "non-streaming") +
       (params.generateObject ? " + generateObject" : "")
     })`, () => {
-      generateSharedTestCases(
-        {
-          streamToolsProvider: htmlBlockLLMFormat.getStreamToolsProvider({
-            withDelays: false,
-          }),
-          transport: new ClientSideTransport({
-            model: params.model,
-            stream: params.stream,
-            objectGeneration: params.generateObject,
-            _additionalOptions: {
-              maxRetries: 0,
-            },
-          }),
-        },
-        // TODO: remove when matthew's parsing PR is merged
-        {
-          textAlignment: true,
-          blockColor: true,
-        },
-      );
+      generateSharedTestCases({
+        streamToolsProvider: htmlBlockLLMFormat.getStreamToolsProvider({
+          withDelays: false,
+        }),
+        transport: new ClientSideTransport({
+          model: params.model,
+          stream: params.stream,
+          objectGeneration: params.generateObject,
+          _additionalOptions: {
+            maxRetries: 0,
+          },
+        }),
+      });
     });
   }
 });
