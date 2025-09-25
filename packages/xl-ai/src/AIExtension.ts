@@ -326,7 +326,7 @@ export class AIExtension extends BlockNoteExtension {
   public async callLLM(opts: InvokeAIOptions) {
     return this.invokeAI(opts);
   }
-  
+
   /**
    * Execute a call to an LLM and apply the result to the editor
    */
