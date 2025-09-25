@@ -72,25 +72,55 @@ function TierCTAButton({ tier }: { tier: Tier }) {
   return (
     <a
       onClick={async (e) => {
-        if (!session) {
-          return;
-        }
+        // This event is deprecated, but we keep it to use as a baseline for analytics
+        track("Signup", { tier: tier.id });
 
-        if (session.planType === "free") {
+        if (!session) {
           Sentry.captureEvent({
-            message: "Checkout",
+            message: "click-pricing-signup",
             level: "info",
             extra: {
               tier: tier.id,
             },
           });
-          track("Checkout", { tier: tier.id });
+          track("click-pricing-signup", { tier: tier.id });
+          return;
+        }
+
+        if (session.planType === "free") {
+          Sentry.captureEvent({
+            message: "click-pricing-buy-now",
+            level: "info",
+            extra: {
+              tier: tier.id,
+            },
+          });
+          track("click-pricing-buy-now", { tier: tier.id });
           e.preventDefault();
           e.stopPropagation();
           await authClient.checkout({
             slug: tier.id,
           });
         } else {
+          if (session.planType === tier.id) {
+            Sentry.captureEvent({
+              message: "click-pricing-manage-subscription",
+              level: "info",
+              extra: {
+                tier: tier.id,
+              },
+            });
+            track("click-pricing-manage-subscription", { tier: tier.id });
+          } else {
+            Sentry.captureEvent({
+              message: "click-pricing-update-subscription",
+              level: "info",
+              extra: {
+                tier: tier.id,
+              },
+            });
+            track("click-pricing-update-subscription", { tier: tier.id });
+          }
           e.preventDefault();
           e.stopPropagation();
           await authClient.customer.portal();

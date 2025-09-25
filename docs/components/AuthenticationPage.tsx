@@ -37,7 +37,7 @@ function AuthenticationInput(props: {
           type={props.type}
           required
           autoComplete={props.type}
-          className="text-fd-accent-foreground outline-fd-border focus:outline-fd-primary block w-full rounded-md px-3 py-1.5 text-base outline-1 -outline-offset-1 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6"
+          className="text-fd-accent-foreground outline-fd-border focus:outline-fd-primary focus:outline-3 block w-full rounded-md bg-white px-3 py-1.5 text-base outline-2 -outline-offset-1 focus:-outline-offset-2 sm:text-sm/6 dark:bg-black"
           onChange={props.onChange}
         />
       </div>
@@ -71,9 +71,9 @@ function AuthenticationBox(props: {
     setSigningInState({ state: "loading" });
 
     if (props.variant === "password") {
-      track("Sign In", { type: "password" });
+      track("click-sign-in", { type: "password" });
       Sentry.captureEvent({
-        message: "Sign In",
+        message: "click-sign-in",
         level: "info",
         extra: {
           type: "password",
@@ -98,9 +98,9 @@ function AuthenticationBox(props: {
         },
       );
     } else if (props.variant === "email") {
-      track("Sign In", { type: "magic-link" });
+      track("click-sign-in", { type: "magic-link" });
       Sentry.captureEvent({
-        message: "Sign In",
+        message: "click-sign-in",
         level: "info",
         extra: {
           type: "magic-link",
@@ -135,9 +135,9 @@ function AuthenticationBox(props: {
         },
       );
     } else {
-      track("Create Account");
+      track("click-sign-up", { type: "email" });
       Sentry.captureEvent({
-        message: "Sign Up",
+        message: "click-sign-up",
         level: "info",
         extra: {
           type: "email",
@@ -323,7 +323,9 @@ function PasswordSignInButton() {
   );
 }
 
-function GitHubSignInButton() {
+function GitHubSignInButton(props: {
+  variant: "password" | "register" | "email";
+}) {
   const searchParams = useSearchParams();
   const callbackURL = searchParams?.get("redirect") || "/";
 
@@ -345,9 +347,13 @@ function GitHubSignInButton() {
         </svg>
       }
       onClick={async () => {
-        track("Sign In", { type: "github" });
+        track(
+          props.variant === "register" ? "click-sign-up" : "click-sign-in",
+          { type: "github" },
+        );
         Sentry.captureEvent({
-          message: "Sign In",
+          message:
+            props.variant === "register" ? "click-sign-up" : "click-sign-in",
           level: "info",
           extra: {
             type: "github",
@@ -380,7 +386,7 @@ function AlternativeSignInBox(props: {
       <div className="mt-6 flex flex-col gap-4">
         {props.variant === "email" && <PasswordSignInButton />}
         {props.variant === "password" && <EmailSignInButton />}
-        <GitHubSignInButton />
+        <GitHubSignInButton variant={props.variant} />
       </div>
     </div>
   );
