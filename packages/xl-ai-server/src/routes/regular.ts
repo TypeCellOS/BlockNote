@@ -1,5 +1,6 @@
 import { createOpenAI } from "@ai-sdk/openai";
-import { convertToModelMessages, jsonSchema, streamText, tool } from "ai";
+import { toolDefinitionsToToolSet } from "@blocknote/xl-ai";
+import { convertToModelMessages, streamText } from "ai";
 import { Hono } from "hono";
 
 export const regularRoute = new Hono();
@@ -19,18 +20,12 @@ const model = createOpenAI({
 
 // Use `streamText` to stream text responses from the LLM
 regularRoute.post("/streamText", async (c) => {
-  const { messages, streamTools } = await c.req.json();
+  const { messages, toolDefinitions } = await c.req.json();
 
   const result = streamText({
     model,
     messages: convertToModelMessages(messages),
-    tools: {
-      applyDocumentOperations: tool({
-        name: "applyDocumentOperations", // TODO
-        inputSchema: jsonSchema(streamTools),
-        outputSchema: jsonSchema({ type: "object" }),
-      }),
-    },
+    tools: toolDefinitionsToToolSet(toolDefinitions),
     toolChoice: "required",
   });
 

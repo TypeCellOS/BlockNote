@@ -1,12 +1,10 @@
 import { createOpenAI } from "@ai-sdk/openai";
-import { llmFormats } from "@blocknote/xl-ai";
+import { llmFormats, toolDefinitionsToToolSet } from "@blocknote/xl-ai";
 import {
   convertToModelMessages,
   createIdGenerator,
   isToolOrDynamicToolUIPart,
-  jsonSchema,
   streamText,
-  tool,
   UIMessage,
   UIMessagePart,
   validateUIMessages,
@@ -47,15 +45,9 @@ async function saveChat({
 // follows this example:
 // https://ai-sdk.dev/docs/ai-sdk-ui/chatbot-message-persistence#sending-only-the-last-message
 serverPromptbuilderRoute.post("/streamText", async (c) => {
-  const { id, promptData, streamTools, lastToolParts } = await c.req.json();
+  const { id, promptData, toolDefinitions, lastToolParts } = await c.req.json();
 
-  const tools = {
-    applyDocumentOperations: tool({
-      name: "applyDocumentOperations",
-      inputSchema: jsonSchema(streamTools),
-      outputSchema: jsonSchema({ type: "object" }),
-    }),
-  };
+  const tools = toolDefinitionsToToolSet(toolDefinitions);
 
   // load the previous messages from the server:
   const messages = await loadChat(id);

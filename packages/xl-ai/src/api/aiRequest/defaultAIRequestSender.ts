@@ -24,7 +24,13 @@ export function defaultAIRequestSender<E = HTMLPromptData>(
         ...options,
         body: {
           ...(options?.body ?? {}),
-          streamTools: createStreamToolsArraySchema(aiRequest.streamTools),
+          toolDefinitions: {
+            applyDocumentOperations: {
+              name: "applyDocumentOperations",
+              inputSchema: createStreamToolsArraySchema(aiRequest.streamTools),
+              outputSchema: { type: "object" },
+            },
+          },
         },
         // we pass the promptData as metadata
         // so the transport can decide whether or not to submit this to the server

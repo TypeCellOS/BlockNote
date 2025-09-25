@@ -4,7 +4,8 @@ import { createGroq } from "@ai-sdk/groq";
 import { createMistral } from "@ai-sdk/mistral";
 import { createOpenAI } from "@ai-sdk/openai";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
-import { convertToModelMessages, jsonSchema, streamText, tool } from "ai";
+import { toolDefinitionsToToolSet } from "@blocknote/xl-ai";
+import { convertToModelMessages, streamText } from "ai";
 import { Hono } from "hono";
 
 export const modelPlaygroundRoute = new Hono();
@@ -15,7 +16,7 @@ export const modelPlaygroundRoute = new Hono();
  * based on which we use the corresponding AI SDK model
  */
 modelPlaygroundRoute.post("/streamText", async (c) => {
-  const { messages, streamTools, model: modelString } = await c.req.json();
+  const { messages, toolDefinitions, model: modelString } = await c.req.json();
 
   const model = getModel(modelString);
 
@@ -26,13 +27,7 @@ modelPlaygroundRoute.post("/streamText", async (c) => {
   const result = streamText({
     model,
     messages: convertToModelMessages(messages),
-    tools: {
-      applyDocumentOperations: tool({
-        name: "applyDocumentOperations", // TODO
-        inputSchema: jsonSchema(streamTools),
-        outputSchema: jsonSchema({ type: "object" }),
-      }),
-    },
+    tools: toolDefinitionsToToolSet(toolDefinitions),
     toolChoice: "required",
   });
 

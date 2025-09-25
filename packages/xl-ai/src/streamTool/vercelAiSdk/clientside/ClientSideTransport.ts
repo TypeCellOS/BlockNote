@@ -1,16 +1,16 @@
 import {
   ChatTransport,
   LanguageModel,
+  ToolSet,
   UIMessage,
   UIMessageChunk,
   convertToModelMessages,
   generateObject,
   generateText,
-  jsonSchema,
   streamObject,
   streamText,
-  tool,
 } from "ai";
+import { toolDefinitionsToToolSet } from "../../../streamTool/toolDefinitionsToToolSet.js";
 import {
   objectAsToolCallInUIMessageStream,
   partialObjectStreamAsToolCallInUIMessageStream,
@@ -86,17 +86,16 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
    *
    * This is the non-streaming version.
    */
-  protected async generateObject(
-    messages: UIMessage[],
-    streamToolJSONSchema: any,
-  ) {
+  protected async generateObject(messages: UIMessage[], tools: ToolSet) {
     const { model, _additionalOptions } = this.opts;
 
     if (typeof model === "string") {
       throw new Error("model must be a LanguageModelV2");
     }
 
-    const schema = jsonSchema(streamToolJSONSchema);
+    // (we assume there is only one tool definition passed and that should be used for object generation)
+    const toolName = Object.keys(tools)[0];
+    const schema = tools[toolName].inputSchema;
 
     const ret = await generateObject<any, any, { operations: any }>({
       output: "object" as const,
@@ -108,10 +107,7 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
       ...((_additionalOptions ?? {}) as any),
     });
 
-    return objectAsToolCallInUIMessageStream(
-      ret.object,
-      "applyDocumentOperations",
-    );
+    return objectAsToolCallInUIMessageStream(ret.object, toolName);
   }
 
   /**
@@ -119,17 +115,16 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
    *
    * This is the streaming version.
    */
-  protected async streamObject(
-    messages: UIMessage[],
-    streamToolJSONSchema: any,
-  ) {
+  protected async streamObject(messages: UIMessage[], tools: ToolSet) {
     const { model, _additionalOptions } = this.opts;
 
     if (typeof model === "string") {
       throw new Error("model must be a LanguageModelV2");
     }
 
-    const schema = jsonSchema(streamToolJSONSchema);
+    // (we assume there is only one tool definition passed and that should be used for object generation)
+    const toolName = Object.keys(tools)[0];
+    const schema = tools[toolName].inputSchema;
 
     const ret = streamObject({
       output: "object" as const,
@@ -144,7 +139,7 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
     // Transform the partial object stream to a data stream format
     return partialObjectStreamAsToolCallInUIMessageStream(
       ret.fullStream,
-      "applyDocumentOperations",
+      toolName,
     );
   }
 
@@ -153,18 +148,13 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
    *
    * This is the streaming version.
    */
-  protected async streamText(messages: UIMessage[], streamToolJSONSchema: any) {
+  protected async streamText(messages: UIMessage[], tools: ToolSet) {
     const { model, _additionalOptions } = this.opts;
 
     const ret = streamText({
       model,
       messages: convertToModelMessages(messages),
-      tools: {
-        applyDocumentOperations: tool({
-          name: "applyDocumentOperations",
-          inputSchema: jsonSchema(streamToolJSONSchema),
-        }),
-      },
+      tools,
       toolChoice: "required",
       // extra options for streamObject
       ...((_additionalOptions ?? {}) as any),
@@ -182,13 +172,14 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
     ReadableStream<UIMessageChunk>
   > {
     const stream = this.opts.stream ?? true;
-    const streamTools = (body as any).streamTools;
+    const toolDefinitions = (body as any).toolDefinitions;
+    const tools = toolDefinitionsToToolSet(toolDefinitions);
 
     if (this.opts.objectGeneration) {
       if (stream) {
-        return this.streamObject(messages, streamTools);
+        return this.streamObject(messages, tools);
       } else {
-        return this.generateObject(messages, streamTools);
+        return this.generateObject(messages, tools);
       }
     }
 
@@ -198,7 +189,7 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
       //   throw new Error("fake network error");
       // }
 
-      const ret = await this.streamText(messages, streamTools);
+      const ret = await this.streamText(messages, tools);
 
       // this can be used to simulate network errors while streaming
       // let i = 0;

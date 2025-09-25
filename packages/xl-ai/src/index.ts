@@ -17,7 +17,7 @@ export * from "./api/index.js";
 // TODO: organize these exports:
 export * from "./streamTool/jsonSchema.js";
 export * from "./streamTool/StreamToolExecutor.js";
-
+export * from "./streamTool/toolDefinitionsToToolSet.js";
 export * from "./streamTool/vercelAiSdk/clientside/ClientSideTransport.js";
 export * from "./streamTool/vercelAiSdk/util/partialObjectStreamUtil.js";
 export * from "./streamTool/vercelAiSdk/util/UIMessageStreamToOperationsResult.js";

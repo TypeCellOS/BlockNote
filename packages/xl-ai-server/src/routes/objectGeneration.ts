@@ -26,8 +26,12 @@ const model = createOpenAI({
 })("gpt-4o");
 
 objectGenerationRoute.post("/streamObject", async (c) => {
-  const { messages, streamTools } = await c.req.json();
-  const schema = jsonSchema(streamTools);
+  const { messages, toolDefinitions } = await c.req.json();
+
+  // (we assume there is only one tool definition passed and that should be used for object generation)
+  const toolName = Object.keys(toolDefinitions)[0];
+
+  const schema = jsonSchema(toolDefinitions[toolName].inputSchema);
   const result = streamObject({
     model,
     messages: convertToModelMessages(messages),
@@ -37,15 +41,19 @@ objectGenerationRoute.post("/streamObject", async (c) => {
 
   const stream = partialObjectStreamAsToolCallInUIMessageStream(
     result.fullStream,
-    "applyDocumentOperations", // TODO, hardcoded
+    toolName,
   );
 
   return createUIMessageStreamResponse({ stream });
 });
 
 objectGenerationRoute.post("/generateObject", async (c) => {
-  const { messages, streamTools } = await c.req.json();
-  const schema = jsonSchema(streamTools);
+  const { messages, toolDefinitions } = await c.req.json();
+
+  // (we assume there is only one tool definition passed and that should be used for object generation)
+  const toolName = Object.keys(toolDefinitions)[0];
+
+  const schema = jsonSchema(toolDefinitions[toolName].inputSchema);
 
   const result = await generateObject({
     model,
@@ -54,10 +62,7 @@ objectGenerationRoute.post("/generateObject", async (c) => {
     schema,
   });
 
-  const stream = objectAsToolCallInUIMessageStream(
-    result.object,
-    "applyDocumentOperations", // TODO, hardcoded
-  );
+  const stream = objectAsToolCallInUIMessageStream(result.object, toolName);
 
   return createUIMessageStreamResponse({ stream });
 });
