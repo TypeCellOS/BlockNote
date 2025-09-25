@@ -3,6 +3,11 @@
 
 /* Mantine base styles*/
 
+/* Removes Mantine active styles */
+.bn-mantine .mantine-active:active {
+  transform: none;
+}
+
 /* Mantine Badge component base styles */
 .bn-mantine .mantine-Badge-root {
   background-color: var(--bn-colors-tooltip-background);
@@ -38,7 +43,8 @@
 }
 
 /* Mantine Menu component base styles */
-.bn-mantine .mantine-Menu-dropdown {
+.bn-mantine .mantine-Menu-dropdown,
+.bn-mantine .bn-menu-dropdown {
   background-color: var(--bn-colors-menu-background);
   border: var(--bn-border);
   border-radius: var(--bn-border-radius-medium);
@@ -69,7 +75,7 @@
 }
 
 /* Mantine Popover component base styles */
-.bn-mantine .mantine-Popover-dropdown {
+.bn-mantine .mantine-Popover-dropdown:not(.bn-menu-dropdown) {
   background-color: transparent;
   border: none;
   border-radius: 0;
@@ -607,14 +613,6 @@
 .bn-mantine .bn-tick-space {
   padding: 0;
   width: 20px;
-}
-
-.bn-mt-sub-menu-item
-  > .mantine-Menu-itemLabel
-  > div:not(.mantine-Menu-dropdown) {
-  align-items: center;
-  display: flex;
-  justify-content: space-between;
 }
 
 /* Comment styling */
