@@ -25,7 +25,11 @@ This menu is easy to customize so you can expose commands fine-tuned to your app
 First, we define a new AI command. Let's create one that makes selected text more informal.
 
 ```tsx
-import { AIMenuSuggestionItem, getAIExtension } from "@blocknote/xl-ai";
+import {
+  AIMenuSuggestionItem,
+  getAIExtension,
+  llmFormats,
+} from "@blocknote/xl-ai";
 
 // Custom item to make the text more informal.
 export const makeInformal = (
@@ -42,11 +46,13 @@ export const makeInformal = (
       // Tell the LLM to specifically use the selected content as context (instead of the whole document)
       useSelection: true,
       // We only want the LLM to update selected text, not to add / delete blocks
-      defaultStreamTools: {
-        add: false,
-        delete: false,
-        update: true,
-      },
+      streamToolsProvider: llmFormats.html.getStreamToolsProvider({
+        defaultStreamTools: {
+          add: false,
+          delete: false,
+          update: true,
+        },
+      }),
     });
   },
   size: "small",
