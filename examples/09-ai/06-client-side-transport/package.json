@@ -1,5 +1,5 @@
 {
-  "name": "@blocknote/example-ai-server-execution",
+  "name": "@blocknote/example-ai-client-side-transport",
   "description": "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
   "private": true,
   "version": "0.12.4",
@@ -17,6 +17,7 @@
     "@blocknote/shadcn": "latest",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "@ai-sdk/groq": "^2.0.16",
     "@blocknote/xl-ai": "latest",
     "@mantine/core": "^7.17.3",
     "ai": "^5.0.45",

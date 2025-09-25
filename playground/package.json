@@ -11,12 +11,7 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^2.0.9",
-    "@ai-sdk/google": "^2.0.11",
     "@ai-sdk/groq": "^2.0.16",
-    "@ai-sdk/mistral": "^2.0.12",
-    "@ai-sdk/openai": "^2.0.23",
-    "@ai-sdk/openai-compatible": "^1.0.13",
     "@aws-sdk/client-s3": "^3.609.0",
     "@aws-sdk/s3-request-presigner": "^3.609.0",
     "@blocknote/ariakit": "workspace:^",

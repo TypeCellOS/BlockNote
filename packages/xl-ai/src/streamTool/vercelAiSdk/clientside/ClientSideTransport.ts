@@ -181,17 +181,18 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
   }: Parameters<ChatTransport<UI_MESSAGE>["sendMessages"]>[0]): Promise<
     ReadableStream<UIMessageChunk>
   > {
+    const stream = this.opts.stream ?? true;
     const streamTools = (body as any).streamTools;
 
     if (this.opts.objectGeneration) {
-      if (this.opts.stream) {
+      if (stream) {
         return this.streamObject(messages, streamTools);
       } else {
         return this.generateObject(messages, streamTools);
       }
     }
 
-    if (this.opts.stream) {
+    if (stream) {
       // this can be used to simulate initial network errors
       // if (Math.random() < 0.5) {
       //   throw new Error("fake network error");

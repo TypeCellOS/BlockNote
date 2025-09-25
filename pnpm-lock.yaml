@@ -3117,9 +3117,6 @@ importers:
 
   examples/09-ai/01-minimal:
     dependencies:
-      '@ai-sdk/groq':
-        specifier: ^2.0.16
-        version: 2.0.16(zod@3.25.76)
       '@blocknote/ariakit':
         specifier: latest
         version: link:../../../packages/ariakit
@@ -3169,24 +3166,6 @@ importers:
 
   examples/09-ai/02-playground:
     dependencies:
-      '@ai-sdk/anthropic':
-        specifier: ^2.0.9
-        version: 2.0.9(zod@3.25.76)
-      '@ai-sdk/google':
-        specifier: ^2.0.11
-        version: 2.0.11(zod@3.25.76)
-      '@ai-sdk/groq':
-        specifier: ^2.0.16
-        version: 2.0.16(zod@3.25.76)
-      '@ai-sdk/mistral':
-        specifier: ^2.0.12
-        version: 2.0.12(zod@3.25.76)
-      '@ai-sdk/openai':
-        specifier: ^2.0.23
-        version: 2.0.23(zod@3.25.76)
-      '@ai-sdk/openai-compatible':
-        specifier: ^1.0.13
-        version: 1.0.13(zod@3.25.76)
       '@blocknote/ariakit':
         specifier: latest
         version: link:../../../packages/ariakit
@@ -3236,12 +3215,6 @@ importers:
 
   examples/09-ai/03-custom-ai-menu-items:
     dependencies:
-      '@ai-sdk/groq':
-        specifier: ^2.0.16
-        version: 2.0.16(zod@3.25.76)
-      '@ai-sdk/openai':
-        specifier: ^2.0.23
-        version: 2.0.23(zod@3.25.76)
       '@blocknote/ariakit':
         specifier: latest
         version: link:../../../packages/ariakit
@@ -3294,9 +3267,6 @@ importers:
 
   examples/09-ai/04-with-collaboration:
     dependencies:
-      '@ai-sdk/groq':
-        specifier: ^2.0.16
-        version: 2.0.16(zod@3.25.76)
       '@blocknote/ariakit':
         specifier: latest
         version: link:../../../packages/ariakit
@@ -3352,9 +3322,6 @@ importers:
 
   examples/09-ai/05-manual-execution:
     dependencies:
-      '@ai-sdk/groq':
-        specifier: ^2.0.16
-        version: 2.0.16(zod@3.25.76)
       '@blocknote/ariakit':
         specifier: latest
         version: link:../../../packages/ariakit
@@ -3408,8 +3375,11 @@ importers:
         specifier: ^5.3.4
         version: 5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0)
 
-  examples/09-ai/06-client-transport:
+  examples/09-ai/06-client-side-transport:
     dependencies:
+      '@ai-sdk/groq':
+        specifier: ^2.0.16
+        version: 2.0.16(zod@3.25.76)
       '@blocknote/ariakit':
         specifier: latest
         version: link:../../../packages/ariakit

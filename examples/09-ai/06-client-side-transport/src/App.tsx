@@ -27,10 +27,16 @@ import { getEnv } from "./getEnv";
 const BASE_URL =
   getEnv("BLOCKNOTE_AI_SERVER_BASE_URL") || "https://localhost:3000/ai";
 
+// We define the model directly in our app using the Vercel AI SDK
 const model = createGroq({
+  // We supply a custom fetch function so that requests are routed through our proxy server
+  // (see `packages/xl-ai-server/src/routes/proxy.ts`)
+  // this is needed to hide the API key of our LLM provider from the client,
+  // and to prevent CORS issues
   fetch: fetchViaProxy(
     (url) => `${BASE_URL}/proxy?provider=groq&url=${encodeURIComponent(url)}`,
   ),
+  apiKey: "fake-api-key", // the API key is not used as it's actually added in the proxy server
 })("llama-3.3-70b-versatile");
 
 export default function App() {
@@ -43,6 +49,9 @@ export default function App() {
     // Register the AI extension
     extensions: [
       createAIExtension({
+        // The ClientSideTransport is used so the client makes calls directly to `streamText`
+        // (whereas normally in the Vercel AI SDK, the client makes calls to your server, which then calls these methods)
+        // (see https://github.com/vercel/ai/issues/5140 for background info)
         transport: new ClientSideTransport({
           model,
         }),
