@@ -9,7 +9,7 @@ export function isBlockId(id: unknown): id is BlockId {
 }
 
 export function isBlockIdentifier(id: unknown): id is BlockIdentifier {
-  return !!id && typeof id === "object" && "id" in id;
+  return !!id && typeof id === "object" && "id" in id && !("offset" in id);
 }
 
 export function isPoint(location: unknown): location is Point {
@@ -35,7 +35,12 @@ export function isRange(location: unknown): location is Range {
 }
 
 export function isLocation(location: unknown): location is Location {
-  return isBlockId(location) || isPoint(location) || isRange(location);
+  return (
+    isBlockId(location) ||
+    isBlockIdentifier(location) ||
+    isPoint(location) ||
+    isRange(location)
+  );
 }
 
 export function getBlockRange(location: Location): [BlockId, BlockId] {
@@ -56,4 +61,35 @@ export function getBlockRange(location: Location): [BlockId, BlockId] {
   }
 
   throw new Error("Invalid location", { cause: { location } });
+}
+
+export function normalizeToRange(location: Location): Range {
+  if (isBlockId(location)) {
+    // Just make blockIds into a point
+    location = {
+      id: location,
+      offset: -1,
+    };
+  }
+
+  if (isBlockIdentifier(location)) {
+    // Just make blockIdentifiers into a point
+    location = {
+      id: location.id,
+      offset: -1,
+    };
+  }
+
+  if (isPoint(location)) {
+    return {
+      anchor: location,
+      head: location,
+    };
+  }
+
+  if (isRange(location)) {
+    return location;
+  }
+
+  throw new Error("Invalid location type", { cause: { location } });
 }

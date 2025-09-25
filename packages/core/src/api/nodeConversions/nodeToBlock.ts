@@ -23,6 +23,7 @@ import {
   getBlockCache,
   getBlockSchema,
   getInlineContentSchema,
+  getPmSchema,
   getStyleSchema,
 } from "../pmUtil.js";
 
@@ -393,7 +394,7 @@ export function nodeToBlock<
   S extends StyleSchema,
 >(
   node: Node,
-  schema: Schema,
+  schema: Schema = getPmSchema(node),
   blockSchema: BSchema = getBlockSchema(schema) as BSchema,
   inlineContentSchema: I = getInlineContentSchema(schema) as I,
   styleSchema: S = getStyleSchema(schema) as S,
