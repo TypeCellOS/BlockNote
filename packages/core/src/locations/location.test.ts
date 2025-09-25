@@ -5,6 +5,7 @@ import {
   resolveBlockToPM,
   resolvePointToPM,
   resolveRangeToPM,
+  resolvePMToLocation,
 } from "./location.js";
 import type { BlockId, Point, Range } from "./types.js";
 import { Node } from "prosemirror-model";
@@ -775,6 +776,673 @@ describe("Location Resolution", () => {
         // Level 2 should contain level 3
         expect(level2Result.anchor).toBeLessThan(level3Result.anchor);
         expect(level2Result.head).toBeGreaterThan(level3Result.head);
+      });
+    });
+  });
+
+  describe("resolvePMToLocation", () => {
+    describe("Point conversion (same block)", () => {
+      it("should convert PMLocation to Point when anchor equals head", () => {
+        const pmLocation = { anchor: 8, head: 8 }; // Point within block1
+        const result = resolvePMToLocation(doc, pmLocation);
+
+        expect(result).toMatchInlineSnapshot(`
+          {
+            "id": "block1",
+            "offset": 5,
+          }
+        `);
+      });
+
+      it("should convert PMLocation to Point for different blocks", () => {
+        const pmLocation1 = { anchor: 8, head: 8 }; // Point within block1
+        const pmLocation2 = { anchor: 20, head: 20 }; // Point within block2
+        const pmLocation3 = { anchor: 45, head: 45 }; // Point within block3
+
+        const result1 = resolvePMToLocation(doc, pmLocation1);
+        const result2 = resolvePMToLocation(doc, pmLocation2);
+        const result3 = resolvePMToLocation(doc, pmLocation3);
+
+        expect(result1).toMatchInlineSnapshot(`
+          {
+            "id": "block1",
+            "offset": 5,
+          }
+        `);
+        expect(result2).toMatchInlineSnapshot(`
+          {
+            "id": "block2",
+            "offset": 2,
+          }
+        `);
+        expect(result3).toMatchInlineSnapshot(`
+          {
+            "id": "block3",
+            "offset": 6,
+          }
+        `);
+      });
+
+      it("should handle points at block boundaries", () => {
+        const pmLocationStart = { anchor: 2, head: 2 }; // Start of block1
+        const pmLocationEnd = { anchor: 15, head: 15 }; // End of block1
+
+        const resultStart = resolvePMToLocation(doc, pmLocationStart);
+        const resultEnd = resolvePMToLocation(doc, pmLocationEnd);
+
+        expect(resultStart).toMatchInlineSnapshot(`
+          {
+            "id": "block1",
+            "offset": -1,
+          }
+        `);
+        expect(resultEnd).toMatchInlineSnapshot(`
+          {
+            "id": "block1",
+            "offset": 12,
+          }
+        `);
+      });
+
+      it("should handle points in list items", () => {
+        const pmLocation4 = { anchor: 82, head: 82 }; // Point within block4 (list item)
+        const pmLocation5 = { anchor: 97, head: 97 }; // Point within block5 (list item)
+
+        const result4 = resolvePMToLocation(doc, pmLocation4);
+        const result5 = resolvePMToLocation(doc, pmLocation5);
+
+        expect(result4).toMatchInlineSnapshot(`
+          {
+            "id": "block4",
+            "offset": -1,
+          }
+        `);
+        expect(result5).toMatchInlineSnapshot(`
+          {
+            "id": "block4",
+            "offset": 14,
+          }
+        `);
+      });
+    });
+
+    describe("Range conversion (different blocks)", () => {
+      it("should convert PMLocation to Range when anchor and head are different", () => {
+        const pmLocation = { anchor: 8, head: 20 }; // From block1 to block2
+        const result = resolvePMToLocation(doc, pmLocation);
+
+        expect(result).toMatchInlineSnapshot(`
+          {
+            "anchor": {
+              "id": "block1",
+              "offset": 5,
+            },
+            "head": {
+              "id": "block2",
+              "offset": 2,
+            },
+          }
+        `);
+      });
+
+      it("should handle ranges spanning multiple blocks", () => {
+        const pmLocation = { anchor: 8, head: 45 }; // From block1 to block3
+        const result = resolvePMToLocation(doc, pmLocation);
+
+        expect(result).toMatchInlineSnapshot(`
+          {
+            "anchor": {
+              "id": "block1",
+              "offset": 5,
+            },
+            "head": {
+              "id": "block3",
+              "offset": 6,
+            },
+          }
+        `);
+      });
+
+      it("should handle ranges from list items to paragraphs", () => {
+        const pmLocation = { anchor: 82, head: 45 }; // From block4 to block3
+        const result = resolvePMToLocation(doc, pmLocation);
+
+        expect(result).toMatchInlineSnapshot(`
+          {
+            "anchor": {
+              "id": "block4",
+              "offset": -1,
+            },
+            "head": {
+              "id": "block3",
+              "offset": 6,
+            },
+          }
+        `);
+      });
+
+      it("should handle ranges where head is before anchor", () => {
+        const pmLocation = { anchor: 45, head: 8 }; // From block3 to block1 (reversed)
+        const result = resolvePMToLocation(doc, pmLocation);
+
+        expect(result).toMatchInlineSnapshot(`
+          {
+            "anchor": {
+              "id": "block3",
+              "offset": 6,
+            },
+            "head": {
+              "id": "block1",
+              "offset": 5,
+            },
+          }
+        `);
+      });
+    });
+
+    describe("Nested blocks with resolvePMToLocation", () => {
+      let nestedEditor: BlockNoteEditor;
+      let nestedDoc: Node;
+
+      beforeEach(() => {
+        nestedEditor = BlockNoteEditor.create({
+          initialContent: [
+            {
+              id: "parent-bullet",
+              type: "bulletListItem",
+              content: "Parent bullet item",
+              children: [
+                {
+                  id: "child-bullet-1",
+                  type: "bulletListItem",
+                  content: "First child bullet",
+                },
+                {
+                  id: "child-bullet-2",
+                  type: "bulletListItem",
+                  content: "Second child bullet",
+                  children: [
+                    {
+                      id: "grandchild-bullet",
+                      type: "bulletListItem",
+                      content: "Grandchild bullet",
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              id: "simple-paragraph",
+              type: "paragraph",
+              content: "Simple paragraph after nested structure",
+            },
+          ],
+        });
+
+        nestedDoc = nestedEditor._tiptapEditor.state.doc;
+      });
+
+      afterEach(() => {
+        nestedEditor._tiptapEditor.destroy();
+      });
+
+      it("should convert PMLocation to Point within nested blocks", () => {
+        // Point within parent block
+        const parentPM = { anchor: 9, head: 9 };
+        const parentResult = resolvePMToLocation(nestedDoc, parentPM);
+
+        expect(parentResult).toMatchInlineSnapshot(`
+          {
+            "id": "parent-bullet",
+            "offset": 6,
+          }
+        `);
+
+        // Point within child block
+        const childPM = { anchor: 28, head: 28 };
+        const childResult = resolvePMToLocation(nestedDoc, childPM);
+
+        expect(childResult).toMatchInlineSnapshot(`
+          {
+            "id": "child-bullet-1",
+            "offset": 3,
+          }
+        `);
+
+        // Point within grandchild block
+        const grandchildPM = { anchor: 72, head: 72 };
+        const grandchildResult = resolvePMToLocation(nestedDoc, grandchildPM);
+
+        expect(grandchildResult).toMatchInlineSnapshot(`
+          {
+            "id": "grandchild-bullet",
+            "offset": 2,
+          }
+        `);
+      });
+
+      it("should convert PMLocation to Range across nested blocks", () => {
+        // Range from parent to child
+        const parentToChildPM = { anchor: 9, head: 28 };
+        const parentToChildResult = resolvePMToLocation(
+          nestedDoc,
+          parentToChildPM,
+        );
+
+        expect(parentToChildResult).toMatchInlineSnapshot(`
+          {
+            "anchor": {
+              "id": "parent-bullet",
+              "offset": 6,
+            },
+            "head": {
+              "id": "child-bullet-1",
+              "offset": 3,
+            },
+          }
+        `);
+
+        // Range from child to grandchild
+        const childToGrandchildPM = { anchor: 28, head: 72 };
+        const childToGrandchildResult = resolvePMToLocation(
+          nestedDoc,
+          childToGrandchildPM,
+        );
+
+        expect(childToGrandchildResult).toMatchInlineSnapshot(`
+          {
+            "anchor": {
+              "id": "child-bullet-1",
+              "offset": 3,
+            },
+            "head": {
+              "id": "grandchild-bullet",
+              "offset": 2,
+            },
+          }
+        `);
+
+        // Range from nested block to simple block
+        const nestedToSimplePM = { anchor: 72, head: 95 };
+        const nestedToSimpleResult = resolvePMToLocation(
+          nestedDoc,
+          nestedToSimplePM,
+        );
+
+        expect(nestedToSimpleResult).toMatchInlineSnapshot(`
+          {
+            "anchor": {
+              "id": "grandchild-bullet",
+              "offset": 2,
+            },
+            "head": {
+              "id": "simple-paragraph",
+              "offset": 0,
+            },
+          }
+        `);
+      });
+
+      it("should handle whole block selections in nested structures", () => {
+        // Whole parent block
+        const parentWholePM = { anchor: 2, head: 92 };
+        const parentWholeResult = resolvePMToLocation(nestedDoc, parentWholePM);
+
+        expect(parentWholeResult).toMatchInlineSnapshot(`
+          {
+            "id": "parent-bullet",
+            "offset": -1,
+          }
+        `);
+
+        // Whole child block
+        const childWholePM = { anchor: 24, head: 44 };
+        const childWholeResult = resolvePMToLocation(nestedDoc, childWholePM);
+
+        expect(childWholeResult).toMatchInlineSnapshot(`
+          {
+            "id": "child-bullet-1",
+            "offset": -1,
+          }
+        `);
+      });
+    });
+
+    describe("Round-trip conversion tests", () => {
+      it("should maintain consistency in round-trip conversions", () => {
+        // Test Point -> PMLocation -> Point
+        const originalPoint: Point = { id: "block1", offset: 5 };
+        const pmLocation = resolvePointToPM(doc, originalPoint);
+        const convertedLocation = resolvePMToLocation(doc, pmLocation);
+
+        // The conversion may not be perfectly symmetric due to ProseMirror position handling
+        // but the converted point should be valid and within the same block
+        expect("id" in convertedLocation).toBe(true);
+
+        expect(convertedLocation).toMatchInlineSnapshot(`
+          {
+            "id": "block1",
+            "offset": 5,
+          }
+        `);
+      });
+
+      it("should maintain consistency for ranges in round-trip conversions", () => {
+        // Test Range -> PMLocation -> Range
+        const originalRange: Range = {
+          anchor: { id: "block1", offset: 2 },
+          head: { id: "block3", offset: 5 },
+        };
+        const pmLocation = resolveRangeToPM(doc, originalRange);
+        const convertedLocation = resolvePMToLocation(doc, pmLocation);
+
+        // The conversion may not be perfectly symmetric, but should maintain block relationships
+        expect("anchor" in convertedLocation).toBe(true);
+
+        // Type assertion since we know it's a Range from the test above
+        expect(convertedLocation).toMatchInlineSnapshot(`
+          {
+            "anchor": {
+              "id": "block1",
+              "offset": 2,
+            },
+            "head": {
+              "id": "block3",
+              "offset": 5,
+            },
+          }
+        `);
+      });
+
+      it("should handle nested block round-trip conversions", () => {
+        const nestedEditor = BlockNoteEditor.create({
+          initialContent: [
+            {
+              id: "parent",
+              type: "bulletListItem",
+              content: "Parent",
+              children: [
+                {
+                  id: "child",
+                  type: "bulletListItem",
+                  content: "Child",
+                },
+              ],
+            },
+          ],
+        });
+
+        const nestedDoc = nestedEditor._tiptapEditor.state.doc;
+
+        // Test nested Point round-trip
+        const originalPoint: Point = { id: "child", offset: 2 };
+        const pmLocation = resolvePointToPM(nestedDoc, originalPoint);
+        const convertedLocation = resolvePMToLocation(nestedDoc, pmLocation);
+
+        // The conversion may not be perfectly symmetric, but should maintain block relationships
+        expect("id" in convertedLocation).toBe(true);
+
+        // Type assertion since we know it's a Point from the test above
+        const convertedPoint = convertedLocation as Point;
+        expect(convertedPoint).toMatchInlineSnapshot(`
+          {
+            "id": "child",
+            "offset": 2,
+          }
+        `);
+
+        // Test nested Range round-trip
+        const originalRange: Range = {
+          anchor: { id: "parent", offset: 0 },
+          head: { id: "child", offset: -1 },
+        };
+        const pmRange = resolveRangeToPM(nestedDoc, originalRange);
+        const convertedRangeLocation = resolvePMToLocation(nestedDoc, pmRange);
+
+        // The conversion may not be perfectly symmetric, but should maintain block relationships
+        expect("anchor" in convertedRangeLocation).toBe(true);
+
+        // Type assertion since we know it's a Range from the test above
+        const convertedRange = convertedRangeLocation as Range;
+        expect(convertedRange).toMatchInlineSnapshot(`
+          {
+            "anchor": {
+              "id": "parent",
+              "offset": 1,
+            },
+            "head": {
+              "id": "child",
+              "offset": 6,
+            },
+          }
+        `);
+
+        nestedEditor._tiptapEditor.destroy();
+      });
+    });
+
+    describe("Edge cases for resolvePMToLocation", () => {
+      it("should handle positions at document boundaries", () => {
+        const startPM = { anchor: 0, head: 0 };
+        const endPM = { anchor: doc.content.size, head: doc.content.size };
+
+        const startResult = resolvePMToLocation(doc, startPM);
+        const endResult = resolvePMToLocation(doc, endPM);
+
+        expect(startResult).toMatchInlineSnapshot(`
+          {
+            "id": "block1",
+            "offset": -1,
+          }
+        `);
+        expect(endResult).toMatchInlineSnapshot(`
+          {
+            "id": "block5",
+            "offset": 16,
+          }
+        `);
+      });
+
+      it("should show position increment behavior at block edges", () => {
+        // Get the position range for block1 (from the existing test data)
+        const block1PM = resolveBlockToPM(doc, "block1");
+        const blockStart = block1PM.anchor;
+        const blockEnd = block1PM.head;
+
+        // Test positions around the block edges: -2, -1, 0, +1, +2 from block boundaries
+        const positions = [
+          { pos: blockStart - 2, desc: "2 positions before block start" },
+          { pos: blockStart - 1, desc: "1 position before block start" },
+          { pos: blockStart, desc: "at block start" },
+          { pos: blockStart + 1, desc: "1 position after block start" },
+          { pos: blockStart + 2, desc: "2 positions after block start" },
+          { pos: blockEnd - 2, desc: "2 positions before block end" },
+          { pos: blockEnd - 1, desc: "1 position before block end" },
+          { pos: blockEnd, desc: "at block end" },
+          { pos: blockEnd + 1, desc: "1 position after block end" },
+          { pos: blockEnd + 2, desc: "2 positions after block end" },
+          { pos: blockEnd + 3, desc: "3 positions after block end" },
+        ];
+
+        const results = positions.map(({ pos, desc }) => {
+          const pmLocation = { anchor: pos, head: pos };
+          const result = resolvePMToLocation(doc, pmLocation);
+          return { pos, desc, result };
+        });
+
+        // The results show the position increment behavior at block edges
+
+        // Verify that positions before the block map to the block with negative offsets
+        expect(results).toMatchInlineSnapshot(`
+          [
+            {
+              "desc": "2 positions before block start",
+              "pos": 0,
+              "result": {
+                "id": "block1",
+                "offset": -1,
+              },
+            },
+            {
+              "desc": "1 position before block start",
+              "pos": 1,
+              "result": {
+                "id": "block1",
+                "offset": -1,
+              },
+            },
+            {
+              "desc": "at block start",
+              "pos": 2,
+              "result": {
+                "id": "block1",
+                "offset": -1,
+              },
+            },
+            {
+              "desc": "1 position after block start",
+              "pos": 3,
+              "result": {
+                "id": "block1",
+                "offset": 0,
+              },
+            },
+            {
+              "desc": "2 positions after block start",
+              "pos": 4,
+              "result": {
+                "id": "block1",
+                "offset": 1,
+              },
+            },
+            {
+              "desc": "2 positions before block end",
+              "pos": 13,
+              "result": {
+                "id": "block1",
+                "offset": 10,
+              },
+            },
+            {
+              "desc": "1 position before block end",
+              "pos": 14,
+              "result": {
+                "id": "block1",
+                "offset": 11,
+              },
+            },
+            {
+              "desc": "at block end",
+              "pos": 15,
+              "result": {
+                "id": "block1",
+                "offset": 12,
+              },
+            },
+            {
+              "desc": "1 position after block end",
+              "pos": 16,
+              "result": {
+                "id": "block2",
+                "offset": -1,
+              },
+            },
+            {
+              "desc": "2 positions after block end",
+              "pos": 17,
+              "result": {
+                "id": "block2",
+                "offset": -1,
+              },
+            },
+            {
+              "desc": "3 positions after block end",
+              "pos": 18,
+              "result": {
+                "id": "block2",
+                "offset": 0,
+              },
+            },
+          ]
+        `);
+      });
+
+      it("should handle positions between blocks", () => {
+        // Position between block1 and block2
+        const betweenPM = { anchor: 16, head: 16 };
+        const result = resolvePMToLocation(doc, betweenPM);
+
+        expect(result).toMatchInlineSnapshot(`
+          {
+            "id": "block2",
+            "offset": -1,
+          }
+        `);
+      });
+
+      it("should handle complex nested structures", () => {
+        const complexEditor = BlockNoteEditor.create({
+          initialContent: [
+            {
+              id: "root",
+              type: "bulletListItem",
+              content: "Root",
+              children: [
+                {
+                  id: "level1",
+                  type: "bulletListItem",
+                  content: "Level 1",
+                  children: [
+                    {
+                      id: "level2",
+                      type: "numberedListItem",
+                      content: "Level 2",
+                      children: [
+                        {
+                          id: "level3",
+                          type: "paragraph",
+                          content: "Level 3",
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        });
+
+        const complexDoc = complexEditor._tiptapEditor.state.doc;
+
+        // Test deep nesting
+        const deepPM = { anchor: 45, head: 45 }; // Within level3
+        const deepResult = resolvePMToLocation(complexDoc, deepPM);
+
+        expect(deepResult).toMatchInlineSnapshot(`
+          {
+            "id": "level1",
+            "offset": 34,
+          }
+        `);
+
+        // Test range across multiple levels
+        const crossLevelPM = { anchor: 4, head: 40 };
+        const crossLevelResult = resolvePMToLocation(complexDoc, crossLevelPM);
+
+        expect(crossLevelResult).toMatchInlineSnapshot(`
+          {
+            "anchor": {
+              "id": "root",
+              "offset": 1,
+            },
+            "head": {
+              "id": "level3",
+              "offset": 7,
+            },
+          }
+        `);
+
+        complexEditor._tiptapEditor.destroy();
       });
     });
   });

@@ -2,7 +2,10 @@ import type { Node } from "prosemirror-model";
 import { getNodeById } from "../api/nodeUtil.js";
 import type { BlockId, Location, PMLocation, Point, Range } from "./types.js";
 import { isBlockId, isBlockIdentifier, isPoint, isRange } from "./utils.js";
-import { getBlockInfo } from "../api/getBlockInfoFromPos.js";
+import {
+  getBlockInfo,
+  getNearestBlockPos,
+} from "../api/getBlockInfoFromPos.js";
 
 export function resolveLocation(
   doc: Node,
@@ -136,4 +139,45 @@ export function resolveRangeToPM(doc: Node, range: Range): PMLocation {
       head: Math.max(anchorMax, headMax),
     };
   }
+}
+
+export function resolvePMToLocation(
+  doc: Node,
+  pmLocation: PMLocation,
+): Point | Range {
+  const anchorBlockPos = getNearestBlockPos(doc, pmLocation.anchor);
+  const headBlockPos =
+    pmLocation.anchor === pmLocation.head
+      ? anchorBlockPos
+      : getNearestBlockPos(doc, pmLocation.head);
+
+  const anchorOffset = Math.max(
+    pmLocation.anchor - anchorBlockPos.posBeforeNode - 2,
+    -1,
+  );
+  const headOffset = Math.max(
+    pmLocation.head - headBlockPos.posBeforeNode - 2,
+    -1,
+  );
+
+  if (anchorBlockPos.node === headBlockPos.node) {
+    // pointing to the same block, return a point
+    return {
+      id: anchorBlockPos.node.attrs.id,
+      offset: anchorOffset,
+    };
+  }
+
+  // pointing to different blocks, return a range
+  return {
+    anchor: {
+      id: anchorBlockPos.node.attrs.id,
+      offset: anchorOffset,
+    },
+
+    head: {
+      id: headBlockPos.node.attrs.id,
+      offset: headOffset,
+    },
+  };
 }
