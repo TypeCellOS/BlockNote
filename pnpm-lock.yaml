@@ -3408,7 +3408,7 @@ importers:
         specifier: ^5.3.4
         version: 5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0)
 
-  examples/09-ai/06-server-execution:
+  examples/09-ai/06-client-transport:
     dependencies:
       '@blocknote/ariakit':
         specifier: latest
@@ -3457,7 +3457,7 @@ importers:
         specifier: ^5.3.4
         version: 5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0)
 
-  examples/09-ai/06-server-promptbuilder:
+  examples/09-ai/07-server-promptbuilder:
     dependencies:
       '@blocknote/ariakit':
         specifier: latest
@@ -4366,9 +4366,24 @@ importers:
 
   packages/xl-ai-server:
     dependencies:
+      '@ai-sdk/anthropic':
+        specifier: ^2.0.9
+        version: 2.0.9(zod@3.25.76)
+      '@ai-sdk/google':
+        specifier: ^2.0.11
+        version: 2.0.11(zod@3.25.76)
+      '@ai-sdk/groq':
+        specifier: ^2.0.16
+        version: 2.0.16(zod@3.25.76)
+      '@ai-sdk/mistral':
+        specifier: ^2.0.12
+        version: 2.0.12(zod@3.25.76)
       '@ai-sdk/openai':
         specifier: ^2.0.23
         version: 2.0.23(zod@3.25.76)
+      '@ai-sdk/openai-compatible':
+        specifier: ^1.0.13
+        version: 1.0.13(zod@3.25.76)
       '@blocknote/xl-ai':
         specifier: latest
         version: link:../xl-ai

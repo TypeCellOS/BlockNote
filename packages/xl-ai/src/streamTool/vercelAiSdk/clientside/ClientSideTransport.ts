@@ -174,35 +174,6 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
     return ret.toUIMessageStream();
   }
 
-  /**
-   * // https://github.com/vercel/ai/issues/8380
-   *
-   * Calls an LLM with StreamTools, using the `generateText` of the AI SDK.
-   *
-   * This is the streaming version.
-   */
-  // protected async generateText<T extends StreamTool<any>[]>(
-  //   messages: UIMessage[],
-  //   streamTools: T,
-  // ) {
-
-  //   throw new Error("Not implemented");
-  //   // const { model, _additionalOptions, maxRetries } = this.opts;
-
-  //   // const ret = await generateText({
-  //   //   model,
-  //   //   messages: convertToModelMessages(messages),
-  //   //   maxRetries,
-  //   //   tools: {
-  //   //     operations: streamToolsAsTool(streamTools),
-  //   //   },
-  //   //   // extra options for streamObject
-  //   //   ...((_additionalOptions ?? {}) as any),
-  //   // });
-
-  //   // return createUIMessageStream(ret.response.messages);
-  // }
-
   async sendMessages({
     messages,
     body,

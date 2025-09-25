@@ -1,0 +1,13 @@
+{
+  "playground": true,
+  "docs": true,
+  "author": "yousefed",
+  "tags": ["AI", "llm"],
+  "dependencies": {
+    "@ai-sdk/groq": "^2.0.16",
+    "@blocknote/xl-ai": "latest",
+    "@mantine/core": "^7.17.3",
+    "ai": "^5.0.45",
+    "zustand": "^5.0.3"
+  }
+}

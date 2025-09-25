@@ -1,30 +1,19 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 
-import { createOpenAI } from "@ai-sdk/openai";
 import { BlockNoteEditor } from "@blocknote/core";
 import { HttpResponse, http } from "msw";
 import { setupServer } from "msw/node";
-import { createBlockNoteAIClient } from "../../../blocknoteAIClient/client.js";
 
 import { Chat } from "@ai-sdk/react";
 import { UIMessage } from "ai";
 import { llmFormats } from "../../../index.js";
 import { ClientSideTransport } from "../../../streamTool/vercelAiSdk/clientside/ClientSideTransport.js";
+import { testAIModels } from "../../../testUtil/testAIModels.js";
 import { defaultAIRequestSender } from "../../aiRequest/defaultAIRequestSender.js";
 import { buildAIRequest, executeAIRequest } from "../../aiRequest/execute.js";
 
-// Create client and models outside of test suites so they can be shared
-const client = createBlockNoteAIClient({
-  baseURL: "https://localhost:3000/ai/proxy",
-  apiKey: "PLACEHOLDER",
-});
-
-const openai = createOpenAI({
-  ...client.getProviderSettings("openai"),
-})("gpt-4o-2024-08-06");
-
 // Separate test suite for error handling with its own server
-// TODO
+// skipping because it throws a (false) unhandled promise rejection in vitest
 describe.skip("Error handling", () => {
   // Create a separate server for error tests with custom handlers
   const errorServer = setupServer();
@@ -81,7 +70,7 @@ describe.skip("Error handling", () => {
         const chat = new Chat<UIMessage>({
           sendAutomaticallyWhen: () => false,
           transport: new ClientSideTransport({
-            model: openai,
+            model: testAIModels.openai,
             stream,
             _additionalOptions: {
               maxRetries: 0,

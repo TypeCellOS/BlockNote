@@ -1,4 +1,3 @@
-import { createGroq } from "@ai-sdk/groq";
 import { BlockNoteEditor, filterSuggestionItems } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { en } from "@blocknote/core/locales";
@@ -16,9 +15,7 @@ import {
   AIMenu,
   AIMenuController,
   AIToolbarButton,
-  ClientSideTransport,
   createAIExtension,
-  createBlockNoteAIClient,
   getAISlashMenuItems,
   getDefaultAIMenuItems,
 } from "@blocknote/xl-ai";
@@ -26,38 +23,11 @@ import { en as aiEn } from "@blocknote/xl-ai/locales";
 import "@blocknote/xl-ai/style.css";
 import { getEnv } from "./getEnv";
 
+import { DefaultChatTransport } from "ai";
 import { addRelatedTopics, makeInformal } from "./customAIMenuItems";
 
-// Optional: proxy requests through the `@blocknote/xl-ai-server` proxy server
-// so that we don't have to expose our API keys to the client
-const client = createBlockNoteAIClient({
-  apiKey: getEnv("BLOCKNOTE_AI_SERVER_API_KEY") || "PLACEHOLDER",
-  baseURL:
-    (getEnv("BLOCKNOTE_AI_SERVER_BASE_URL") || "https://localhost:3000/ai") +
-    "/proxy",
-});
-
-// Use an "open" model such as llama, in this case via groq.com
-const model = createGroq({
-  // call via our proxy client
-  ...client.getProviderSettings("groq"),
-})("llama-3.3-70b-versatile");
-
-/* 
-ALTERNATIVES:
-
-Call a model directly (without the proxy):
-
-const model = createGroq({
-  apiKey: "<YOUR_GROQ_API_KEY>",
-})("llama-3.3-70b-versatile");
-
-Or, use a different provider like OpenAI:
-
-const model = createOpenAI({
-  ...client.getProviderSettings("openai"),
-})("gpt-4", {});
-*/
+const BASE_URL =
+  getEnv("BLOCKNOTE_AI_SERVER_BASE_URL") || "https://localhost:3000/ai";
 
 export default function App() {
   // Creates a new editor instance.
@@ -69,8 +39,8 @@ export default function App() {
     // Register the AI extension
     extensions: [
       createAIExtension({
-        transport: new ClientSideTransport({
-          model,
+        transport: new DefaultChatTransport({
+          api: `${BASE_URL}/regular/streamText`,
         }),
       }),
     ],
