@@ -16,7 +16,7 @@ import { ColorPicker } from "../../ColorPicker/ColorPicker.js";
 
 function checkColorInSchema<Color extends "text" | "background">(
   color: Color,
-  editor: BlockNoteEditor<BlockSchema, InlineContentSchema, StyleSchema>,
+  editor: BlockNoteEditor<any, any, any>,
 ): editor is BlockNoteEditor<
   BlockSchema,
   InlineContentSchema,

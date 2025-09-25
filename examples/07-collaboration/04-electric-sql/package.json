@@ -1,5 +1,5 @@
 {
-  "name": "@blocknote/example-ai-playground",
+  "name": "@blocknote/example-collaboration-electric-sql",
   "description": "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
   "private": true,
   "version": "0.12.4",
@@ -16,17 +16,7 @@
     "@blocknote/mantine": "latest",
     "@blocknote/shadcn": "latest",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "@blocknote/xl-ai": "latest",
-    "@mantine/core": "^8.3.2",
-    "ai": "^4.3.15",
-    "@ai-sdk/google": "^1.2.20",
-    "@ai-sdk/openai": "^1.3.22",
-    "@ai-sdk/openai-compatible": "^0.2.14",
-    "@ai-sdk/groq": "^1.2.9",
-    "@ai-sdk/anthropic": "^1.2.11",
-    "@ai-sdk/mistral": "^1.2.8",
-    "zustand": "^5.0.3"
+    "react-dom": "^19.1.0"
   },
   "devDependencies": {
     "@types/react": "^19.1.0",

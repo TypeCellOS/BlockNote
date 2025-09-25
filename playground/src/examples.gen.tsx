@@ -417,7 +417,7 @@
             "Custom Schemas"
           ],
           "dependencies": {
-            "@mantine/core": "^7.17.3",
+            "@mantine/core": "^8.3.2",
             "react-icons": "^5.2.1"
           } as any
         },
@@ -1142,7 +1142,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^7.17.3",
+            "@mantine/core": "^8.3.2",
             "react-icons": "^5.2.1"
           } as any
         },
@@ -1216,7 +1216,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^7.17.3",
+            "@mantine/core": "^8.3.2",
             "react-icons": "^5.2.1"
           } as any,
           "pro": true
@@ -1245,7 +1245,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^7.17.3",
+            "@mantine/core": "^8.3.2",
             "react-icons": "^5.2.1"
           } as any
         },
@@ -1428,9 +1428,30 @@
         "readme": "In this example, we use Y-Sweet to let multiple users collaborate on a single BlockNote document in real-time.\n\n**Try it out:** Open the [Y-Sweet BlockNote demo](https://demos.y-sweet.dev/blocknote) in multiple browser tabs to see it in action!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)\n- [Y-Sweet on Jamsocket](https://docs.jamsocket.com/y-sweet/tutorials/blocknote)"
       },
       {
+        "projectSlug": "electric-sql",
+        "fullSlug": "collaboration/electric-sql",
+        "pathFromRoot": "examples/07-collaboration/04-electric-sql",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Advanced",
+            "Saving/Loading",
+            "Collaboration"
+          ]
+        },
+        "title": "Collaborative Editing with ElectricSQL",
+        "group": {
+          "pathFromRoot": "examples/07-collaboration",
+          "slug": "collaboration"
+        },
+        "readme": "In this example, we use ElectricSQL to let multiple users collaborate on a single BlockNote document in real-time. The setup for this demo is more involved than the other collaboration examples, as it requires a running server and has a more fully-fledged UI. Therefore, the demo just uses an iframe element to show a hosted instance of the full ElectricSQL + BlockNote setup, which you can find the code for [here](https://github.com/TypeCellOS/blocknote-electric-example).\n\n**Try it out:** Open this page (or the [iframe url](https://blocknote-electric-example.vercel.app/)) in a new browser tab or window to see it in action!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)\n- [ElectricSQL](https://electric-sql.com/)"
+      },
+      {
         "projectSlug": "comments",
         "fullSlug": "collaboration/comments",
-        "pathFromRoot": "examples/07-collaboration/04-comments",
+        "pathFromRoot": "examples/07-collaboration/05-comments",
         "config": {
           "playground": true,
           "docs": true,
@@ -1455,7 +1476,7 @@
       {
         "projectSlug": "comments-with-sidebar",
         "fullSlug": "collaboration/comments-with-sidebar",
-        "pathFromRoot": "examples/07-collaboration/05-comments-with-sidebar",
+        "pathFromRoot": "examples/07-collaboration/06-comments-with-sidebar",
         "config": {
           "playground": true,
           "docs": true,
@@ -1480,7 +1501,7 @@
       {
         "projectSlug": "ghost-writer",
         "fullSlug": "collaboration/ghost-writer",
-        "pathFromRoot": "examples/07-collaboration/06-ghost-writer",
+        "pathFromRoot": "examples/07-collaboration/07-ghost-writer",
         "config": {
           "playground": true,
           "docs": false,
@@ -1505,7 +1526,7 @@
       {
         "projectSlug": "forking",
         "fullSlug": "collaboration/forking",
-        "pathFromRoot": "examples/07-collaboration/07-forking",
+        "pathFromRoot": "examples/07-collaboration/08-forking",
         "config": {
           "playground": true,
           "docs": false,
@@ -1576,7 +1597,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^7.17.3",
+            "@mantine/core": "^8.3.2",
             "ai": "^4.3.15",
             "@ai-sdk/groq": "^1.2.9",
             "zustand": "^5.0.3"
@@ -1603,7 +1624,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^7.17.3",
+            "@mantine/core": "^8.3.2",
             "ai": "^4.3.15",
             "@ai-sdk/google": "^1.2.20",
             "@ai-sdk/openai": "^1.3.22",
@@ -1635,7 +1656,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^7.17.3",
+            "@mantine/core": "^8.3.2",
             "ai": "^4.1.0",
             "@ai-sdk/openai": "^1.1.0",
             "@ai-sdk/groq": "^1.1.0",
@@ -1664,7 +1685,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^7.17.3",
+            "@mantine/core": "^8.3.2",
             "ai": "^4.3.15",
             "@ai-sdk/groq": "^1.2.9",
             "y-partykit": "^0.0.25",
