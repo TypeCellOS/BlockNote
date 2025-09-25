@@ -1463,7 +1463,7 @@
           ],
           "dependencies": {
             "@y-sweet/react": "^0.6.3",
-            "@mantine/core": "^7.10.1"
+            "@mantine/core": "^8.3.2"
           } as any
         },
         "title": "Comments & Threads",
@@ -1488,7 +1488,7 @@
           ],
           "dependencies": {
             "@y-sweet/react": "^0.6.3",
-            "@mantine/core": "^7.10.1"
+            "@mantine/core": "^8.3.2"
           } as any
         },
         "title": "Threads Sidebar",

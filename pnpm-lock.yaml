@@ -2958,8 +2958,8 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^7.10.1
-        version: 7.17.3(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.2
+        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@y-sweet/react':
         specifier: ^0.6.3
         version: 0.6.4(react@19.1.0)(yjs@13.6.27)
@@ -2978,7 +2978,7 @@ importers:
         version: 19.1.6(@types/react@19.1.8)
       '@vitejs/plugin-react':
         specifier: ^4.3.1
-        version: 4.3.4(vite@5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0))
+        version: 4.4.1(vite@5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0))
       vite:
         specifier: ^5.3.4
         version: 5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0)
@@ -3001,8 +3001,8 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^7.10.1
-        version: 7.17.3(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.2
+        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@y-sweet/react':
         specifier: ^0.6.3
         version: 0.6.4(react@19.1.0)(yjs@13.6.27)
@@ -3021,7 +3021,7 @@ importers:
         version: 19.1.6(@types/react@19.1.8)
       '@vitejs/plugin-react':
         specifier: ^4.3.1
-        version: 4.3.4(vite@5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0))
+        version: 4.4.1(vite@5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0))
       vite:
         specifier: ^5.3.4
         version: 5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0)
@@ -3064,7 +3064,7 @@ importers:
         version: 19.1.6(@types/react@19.1.8)
       '@vitejs/plugin-react':
         specifier: ^4.3.1
-        version: 4.3.4(vite@5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0))
+        version: 4.4.1(vite@5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0))
       vite:
         specifier: ^5.3.4
         version: 5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0)
@@ -3107,7 +3107,7 @@ importers:
         version: 19.1.6(@types/react@19.1.8)
       '@vitejs/plugin-react':
         specifier: ^4.3.1
-        version: 4.3.4(vite@5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0))
+        version: 4.4.1(vite@5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0))
       vite:
         specifier: ^5.3.4
         version: 5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0)
@@ -6819,13 +6819,6 @@ packages:
     resolution: {integrity: sha512-VpnjAhN4X8NfsKUaSv617SSsX5sdv8nepIsYH4HbKYnzloyMeGINVIIB5eA1Wf5c14TNh1H5zudreqtt3mgPpA==}
     peerDependencies:
       yjs: ^13.6.1
-
-  '@mantine/core@7.17.3':
-    resolution: {integrity: sha512-N/AfV5eMnfEMx9WzI7AU5pNFBEzAfT/KtE2XDKS+0ht6RifUmolIxyIvoGMYz2yUEsCBMJZqmBq33Rabf5W7Ug==}
-    peerDependencies:
-      '@mantine/hooks': 7.17.3
-      react: ^18.x || ^19.x
-      react-dom: ^18.x || ^19.x
 
   '@mantine/core@8.3.2':
     resolution: {integrity: sha512-uIHC9ooEZ9E+/pw8ag4f8pi0GmwSQ1DYnETjr4a4ZNVKJHfVv5NSkjprBxPrKJq9oox/SdcrAWy5XlKTwBzRag==}
@@ -13574,12 +13567,6 @@ packages:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  react-number-format@5.4.3:
-    resolution: {integrity: sha512-VCY5hFg/soBighAoGcdE+GagkJq0230qN6jcS5sp8wQX1qy1fYN/RX7/BXkrs0oyzzwqR8/+eSUrqXbGeywdUQ==}
-    peerDependencies:
-      react: ^0.14 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-      react-dom: ^0.14 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-
   react-number-format@5.4.4:
     resolution: {integrity: sha512-wOmoNZoOpvMminhifQYiYSTCLUDOiUbBunrMrMjA+dV52sY+vck1S4UhR6PkgnoCquvvMSeJjErXZ4qSaWCliA==}
     peerDependencies:
@@ -13649,12 +13636,6 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
-
-  react-textarea-autosize@8.5.6:
-    resolution: {integrity: sha512-aT3ioKXMa8f6zHYGebhbdMD2L00tKeRX1zuVuDx9YQK/JLLRSaSxq3ugECEmUB9z2kvk6bFSIoRHLkkUv0RJiw==}
-    engines: {node: '>=10'}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   react-textarea-autosize@8.5.9:
     resolution: {integrity: sha512-U1DGlIQN5AwgjTyOEnI1oCcMuEr1pv1qOtklB2l4nyMGbHzWrI0eFsYK0zos2YWqAolJyG0IWJaqWmWj5ETh0A==}
@@ -17606,20 +17587,6 @@ snapshots:
     transitivePeerDependencies:
       - '@types/json-schema'
 
-  '@mantine/core@7.17.3(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
-    dependencies:
-      '@floating-ui/react': 0.26.28(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@mantine/hooks': 8.3.2(react@19.1.0)
-      clsx: 2.1.1
-      react: 19.1.0
-      react-dom: 19.1.0(react@19.1.0)
-      react-number-format: 5.4.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      react-remove-scroll: 2.7.1(@types/react@19.1.8)(react@19.1.0)
-      react-textarea-autosize: 8.5.6(@types/react@19.1.8)(react@19.1.0)
-      type-fest: 4.38.0
-    transitivePeerDependencies:
-      - '@types/react'
-
   '@mantine/core@8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@floating-ui/react': 0.27.16(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -17730,7 +17697,7 @@ snapshots:
 
   '@mui/private-theming@5.17.1(@types/react@19.1.8)(react@19.1.0)':
     dependencies:
-      '@babel/runtime': 7.27.6
+      '@babel/runtime': 7.28.4
       '@mui/utils': 5.17.1(@types/react@19.1.8)(react@19.1.0)
       prop-types: 15.8.1
       react: 19.1.0
@@ -17739,7 +17706,7 @@ snapshots:
 
   '@mui/styled-engine@5.16.14(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@babel/runtime': 7.27.6
+      '@babel/runtime': 7.28.4
       '@emotion/cache': 11.14.0
       csstype: 3.1.3
       prop-types: 15.8.1
@@ -22160,7 +22127,7 @@ snapshots:
 
   dom-helpers@5.2.1:
     dependencies:
-      '@babel/runtime': 7.27.6
+      '@babel/runtime': 7.28.4
       csstype: 3.1.3
 
   dom-serializer@2.0.0:
@@ -25670,11 +25637,6 @@ snapshots:
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
-  react-number-format@5.4.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
-    dependencies:
-      react: 19.1.0
-      react-dom: 19.1.0(react@19.1.0)
-
   react-number-format@5.4.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
       react: 19.1.0
@@ -25737,15 +25699,6 @@ snapshots:
       tslib: 2.8.1
     optionalDependencies:
       '@types/react': 19.1.8
-
-  react-textarea-autosize@8.5.6(@types/react@19.1.8)(react@19.1.0):
-    dependencies:
-      '@babel/runtime': 7.27.6
-      react: 19.1.0
-      use-composed-ref: 1.4.0(@types/react@19.1.8)(react@19.1.0)
-      use-latest: 1.3.0(@types/react@19.1.8)(react@19.1.0)
-    transitivePeerDependencies:
-      - '@types/react'
 
   react-textarea-autosize@8.5.9(@types/react@19.1.8)(react@19.1.0):
     dependencies:
