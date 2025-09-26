@@ -282,5 +282,6 @@ export const testDocument = partialBlocksToBlocksForTesting(
   console.log("Hello World", message);
 };`,
     },
+    { type: "divider" },
   ],
 );

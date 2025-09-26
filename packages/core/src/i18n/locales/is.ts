@@ -185,6 +185,12 @@ export const is: Dictionary = {
       aliases: ["emoji", "andlitsávísun", "tilfinningar", "andlit"],
       group: "Annað",
     },
+    divider: {
+      title: "Razdjelnik",
+      subtext: "Razdjelnik blokova",
+      aliases: ["razdjelnik", "hr", "horizontal rule"],
+      group: "Osnovni blokovi",
+    },
   },
   placeholders: {
     default: "Sláðu inn texta eða skrifaðu '/' fyrir skipanir",

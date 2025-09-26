@@ -150,6 +150,17 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
   pageBreak: () => {
     return <View break key={"pageBreak"} />;
   },
+  divider: () => {
+    return (
+      <View
+        style={{
+          borderTop: "1px solid #ccc",
+          marginTop: 11.5 * PIXELS_PER_POINT,
+          marginBottom: 11.5 * PIXELS_PER_POINT,
+        }}
+      />
+    );
+  },
   column: (block, _exporter, _nestingLevel, _numberedListIndex, children) => {
     return <View style={{ flex: block.props.width }}>{children}</View>;
   },

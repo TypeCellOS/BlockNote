@@ -212,6 +212,12 @@ export const zh: Dictionary = {
       ],
       group: "其他",
     },
+    divider: {
+      title: "分隔线",
+      subtext: "分隔线区块",
+      aliases: ["divider", "hr", "horizontal rule"],
+      group: "基础区块",
+    },
   },
   placeholders: {
     default: "输入 '/' 以使用命令",

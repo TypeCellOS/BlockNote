@@ -1117,5 +1117,24 @@
         </VIEW>
       </VIEW>
     </React.Fragment>
+    <React.Fragment key=".1:$">
+      <VIEW
+        style={{
+          alignItems: undefined,
+          backgroundColor: undefined,
+          color: undefined,
+          paddingVertical: 2.25,
+          textAlign: undefined
+        }}
+      >
+        <VIEW
+          style={{
+            borderTop: '1px solid #ccc',
+            marginBottom: 8.625,
+            marginTop: 8.625
+          }}
+         />
+      </VIEW>
+    </React.Fragment>
   </PAGE>
 </DOCUMENT>

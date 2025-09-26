@@ -98,6 +98,7 @@ export default function App() {
           backgroundColor: "red",
         },
       },
+      { type: "divider" },
       {
         type: "paragraph",
         content: [

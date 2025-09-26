@@ -313,6 +313,24 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
     return <text:p text:style-name="PageBreak" />;
   },
 
+  divider: (block, exporter) => {
+    const styleName = createParagraphStyle(
+      exporter as ODTExporter<any, any, any>,
+      block.props,
+      "Standard",
+      {},
+      {
+        "fo:border-top": "1pt solid #cccccc",
+        "fo:margin-top": "11pt",
+        "fo:margin-bottom": "12pt",
+        "fo:padding-top": "0pt",
+        "fo:padding-bottom": "0pt",
+      },
+    );
+
+    return <text:p text:style-name={styleName} />;
+  },
+
   column: (_block, exporter, _nestingLevel, _numberedListIndex, children) => {
     const ex = exporter as ODTExporter<any, any, any>;
     const style = ex.registerStyle((name) => (

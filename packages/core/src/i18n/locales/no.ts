@@ -190,6 +190,12 @@ export const no: Dictionary = {
       aliases: ["emoji", "emote", "emosjon", "ansikt"],
       group: "Andre",
     },
+    divider: {
+      title: "Delingslinje",
+      subtext: "Delingslinje mellom blokker",
+      aliases: ["delingslinje", "hr", "horizontal rule"],
+      group: "Grunnleggende blokker",
+    },
   },
   placeholders: {
     default: "Skriv tekst eller skriv '/' for å vise kommandoer",

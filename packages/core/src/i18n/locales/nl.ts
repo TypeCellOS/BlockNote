@@ -172,6 +172,12 @@ export const nl: Dictionary = {
       ],
       group: "Overig",
     },
+    divider: {
+      title: "Scheidingslijn",
+      subtext: "Scheidingslijn tussen blokken",
+      aliases: ["scheidingslijn", "hr", "horizontal rule"],
+      group: "Basisblokken",
+    },
   },
   placeholders: {
     default: "Voer tekst in of type '/' voor commando's",

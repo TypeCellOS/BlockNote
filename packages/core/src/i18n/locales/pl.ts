@@ -162,6 +162,12 @@ export const pl: Dictionary = {
       aliases: ["emoji", "emotka", "wyrażenie emocji", "twarz"],
       group: "Inne",
     },
+    divider: {
+      title: "Separator",
+      subtext: "Separator bloków",
+      aliases: ["separator", "hr", "horizontal rule"],
+      group: "Podstawowe bloki",
+    },
   },
   placeholders: {
     default: "Wprowadź tekst lub wpisz '/' aby użyć poleceń",

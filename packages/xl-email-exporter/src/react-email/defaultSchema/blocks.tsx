@@ -491,6 +491,17 @@ export const createReactEmailBlockMappingForDefaultSchema = (
       />
     );
   },
+  divider: () => {
+    return (
+      <hr
+        style={{
+          border: "none",
+          borderTop: "1px solid #ccc",
+          margin: "11.5px 0",
+        }}
+      />
+    );
+  },
 });
 
 // Export the original mapping for backward compatibility

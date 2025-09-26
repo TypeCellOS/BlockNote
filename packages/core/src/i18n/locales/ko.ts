@@ -184,6 +184,12 @@ export const ko: Dictionary = {
       ],
       group: "기타",
     },
+    divider: {
+      title: "구분선",
+      subtext: "구분선 블록",
+      aliases: ["divider", "hr", "horizontal rule"],
+      group: "기본 블록",
+    },
   },
   placeholders: {
     default: "텍스트를 입력하거나 /를 입력하여 명령을 입력하세요.",
