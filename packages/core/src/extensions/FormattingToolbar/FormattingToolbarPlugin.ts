@@ -191,6 +191,7 @@ export class FormattingToolbarView implements PluginView {
       from,
       to,
     });
+    console.log({ shouldShow });
 
     // in jsdom, Range.prototype.getClientRects is not implemented,
     // this would cause `getSelectionBoundingBox` to fail
