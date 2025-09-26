@@ -9,17 +9,27 @@ imageTitle: Mantine rich text editor using BlockNote
 [Mantine](https://mantine.dev/) is an open-source collection of React components.
 
 ```console tab="npm"
+npm install @mantine/core @mantine/hooks @mantine/util
 npm install @blocknote/core @blocknote/react @blocknote/mantine
 ```
 
 ```console tab="pnpm"
+pnpm add @mantine/core @mantine/hooks @mantine/util
 pnpm add @blocknote/core @blocknote/react @blocknote/mantine
 ```
 
 ```console tab="bun"
+bun add @mantine/core @mantine/hooks @mantine/util
 bun add @blocknote/core @blocknote/react @blocknote/mantine
 ```
 
 To use BlockNote with Mantine, you can import `BlockNoteView` from `@blocknote/mantine` and the stylesheet from `@blocknote/mantine/style.css`.
+
+<Callout type={"info"}>
+  If your application already uses Mantine UI, you should use the
+  `@blocknote/mantine/blocknoteStyles.css` stylesheet instead. It only contains
+  the styles added by BlockNote on top of the Mantine core styles, whereas
+  `@blocknote/mantine/style.css` includes both.
+</Callout>
 
 <Example name="basic/minimal" />
