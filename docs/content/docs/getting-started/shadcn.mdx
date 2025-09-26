@@ -25,20 +25,31 @@ To use BlockNote with ShadCN, you can import `BlockNoteView` from `@blocknote/sh
 To ensure Tailwind generates the necessary CSS for all utility classes used by BlockNote components, make sure to add the `@source` directive to your stylesheet that imports Tailwind:
 
 ```css
-@import tailwindcss;
+@import "tailwindcss";
 ...
 /* Path to your installed `@blocknote/shadcn` package. */
 @source "../node_modules/@blocknote/shadcn";
 ```
 
+{/* TODO: Figure out why `@source` directive isn't working in StackBlitz sandbox. */}
+{/* https://stackblitz.com/edit/github-xdutga97?file=src%2FApp.tsx */}
+
+<Callout type={"warning"}>
+  Because the ShadCN version of BlockNote requires being in a Tailwind app,
+  viewing the demo below on StackBlitz will have missing styles.
+</Callout>
+
 <Example name="basic/shadcn" />
 
 ## Usage with Tailwind Only
 
-If your app doesn't use ShadCN components and only uses TailwindCSS, you just need to extend your Tailwind theme with ShadCN utility classes to get ecerything working. You can do this by simply copying the styles below into your stylesheet that imports Tailwind.
+If your app doesn't use ShadCN components and only uses TailwindCSS, you just need to extend your Tailwind theme with ShadCN utility classes to get everything working. You can do this by simply copying the styles below into your stylesheet that imports Tailwind.
 
 ```css
-@import tailwindcss;
+@import "tailwindcss";
+...
+/* Path to your installed `@blocknote/shadcn` package. */
+@source "../node_modules/@blocknote/shadcn";
 ...
 @custom-variant dark (&:is(.dark *));
 
