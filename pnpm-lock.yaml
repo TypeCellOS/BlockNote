@@ -147,6 +147,12 @@ importers:
       '@mantine/core':
         specifier: ^8.3.2
         version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@mantine/hooks':
+        specifier: ^8.3.2
+        version: 8.3.2(react@19.1.0)
+      '@mantine/utils':
+        specifier: ^6.0.22
+        version: 6.0.22(react@19.1.0)
       '@mui/icons-material':
         specifier: ^5.16.1
         version: 5.17.1(@mui/material@5.17.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@types/react@19.1.8)(react@19.1.0)
@@ -4670,6 +4676,12 @@ importers:
       '@mantine/core':
         specifier: ^8.3.2
         version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@mantine/hooks':
+        specifier: ^8.3.2
+        version: 8.3.2(react@19.1.0)
+      '@mantine/utils':
+        specifier: ^6.0.22
+        version: 6.0.22(react@19.1.0)
       '@mui/icons-material':
         specifier: ^5.16.1
         version: 5.17.1(@mui/material@5.17.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@types/react@19.1.8)(react@19.1.0)
