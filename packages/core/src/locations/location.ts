@@ -1,11 +1,11 @@
 import type { Node } from "prosemirror-model";
-import { getNodeById } from "../api/nodeUtil.js";
-import type { BlockId, Location, PMLocation, Point, Range } from "./types.js";
-import { isBlockId, isBlockIdentifier, isPoint, isRange } from "./utils.js";
 import {
   getBlockInfo,
   getNearestBlockPos,
 } from "../api/getBlockInfoFromPos.js";
+import { getNodeById } from "../api/nodeUtil.js";
+import type { BlockId, Location, PMLocation, Point, Range } from "./types.js";
+import { isBlockId, isBlockIdentifier, isPoint, isRange } from "./utils.js";
 
 export function resolveLocation(
   doc: Node,
@@ -62,48 +62,19 @@ export function resolvePointToPM(doc: Node, point: Point): PMLocation {
       head: block.head,
     };
   }
-  if (point.offset > block.head - block.anchor) {
+
+  const head = block.anchor + point.offset + 1;
+
+  if (head > block.head) {
+    // TODO should this just clamp?
     throw new Error(
       `Offset ${point.offset} exceeds block length ${block.head - block.anchor}`,
     );
   }
 
-  /**
-   * This counts characters & leaf inline nodes within the block as the unit of measurement.
-   * This is slightly different than what ProseMirror does, but it's more intuitive for users.
-   */
-
-  let curOffset = 0;
-  let foundPos = block.anchor;
-
-  doc.nodesBetween(block.anchor, block.head, (node, pos) => {
-    if (pos <= block.anchor || pos >= block.head) {
-      return true;
-    }
-
-    let nodeLength = 0;
-    if (node.type.isText) {
-      // If the node is a text node, we can just use the length of the text
-      nodeLength = node.text!.length;
-    } else if (node.type.isInline && node.isLeaf) {
-      // If the node is an inline leaf node, we can just use 1 to represent the node's position
-      nodeLength = 1;
-    }
-    curOffset += nodeLength;
-
-    if (curOffset <= point.offset) {
-      return true;
-    }
-
-    // We've found the position within the node, but we may have overshot the target offset
-    // So we need to subtract the amount we overshot from the found position
-    foundPos = pos + (point.offset - (curOffset - nodeLength));
-    return false;
-  });
-
   return {
-    anchor: foundPos,
-    head: foundPos,
+    anchor: head,
+    head,
   };
 }
 
@@ -151,21 +122,36 @@ export function resolvePMToLocation(
       ? anchorBlockPos
       : getNearestBlockPos(doc, pmLocation.head);
 
-  const anchorOffset = Math.max(
-    pmLocation.anchor - anchorBlockPos.posBeforeNode - 2,
-    -1,
+  // clamp the offsets to be within -1 (the block itself) and the block's node size
+  const anchorOffset = Math.min(
+    Math.max(pmLocation.anchor - anchorBlockPos.posBeforeNode - 2, -1),
+    anchorBlockPos.node.firstChild?.nodeSize ?? Number.MAX_SAFE_INTEGER,
   );
-  const headOffset = Math.max(
-    pmLocation.head - headBlockPos.posBeforeNode - 2,
-    -1,
+  const headOffset = Math.min(
+    Math.max(pmLocation.head - headBlockPos.posBeforeNode - 2, -1),
+    headBlockPos.node.firstChild?.nodeSize ?? Number.MAX_SAFE_INTEGER,
   );
 
   if (anchorBlockPos.node === headBlockPos.node) {
-    // pointing to the same block, return a point
-    return {
-      id: anchorBlockPos.node.attrs.id,
-      offset: anchorOffset,
-    };
+    // pointing to the same block, so we will return a point
+    if (
+      anchorOffset === -1 &&
+      headOffset === (headBlockPos.node.firstChild?.nodeSize ?? 0) - 1
+    ) {
+      // We may be pointing to the whole block, so we need to check the block size
+      return {
+        id: anchorBlockPos.node.attrs.id,
+        offset: -1,
+      };
+    }
+
+    // Only if the offsets are the same, we can return a point
+    if (headOffset === anchorOffset) {
+      return {
+        id: anchorBlockPos.node.attrs.id,
+        offset: headOffset,
+      };
+    }
   }
 
   // pointing to different blocks, return a range

@@ -188,6 +188,30 @@ describe("Location Resolution", () => {
       `);
     });
 
+    it("should resolve point with offset 0", () => {
+      const point: Point = { id: "block1", offset: 0 };
+      const result = resolvePointToPM(doc, point);
+
+      expect(result).toMatchInlineSnapshot(`
+        {
+          "anchor": 3,
+          "head": 3,
+        }
+      `);
+    });
+
+    it("should resolve point with offset 1", () => {
+      const point: Point = { id: "block1", offset: 1 };
+      const result = resolvePointToPM(doc, point);
+
+      expect(result).toMatchInlineSnapshot(`
+        {
+          "anchor": 4,
+          "head": 4,
+        }
+      `);
+    });
+
     it("should resolve point with specific offset", () => {
       const point: Point = { id: "block1", offset: 5 };
       const result = resolvePointToPM(doc, point);
@@ -500,8 +524,8 @@ describe("Location Resolution", () => {
 
         expect(result).toMatchInlineSnapshot(`
           {
-            "anchor": 9,
-            "head": 9,
+            "anchor": 8,
+            "head": 8,
           }
         `);
       });
@@ -592,7 +616,7 @@ describe("Location Resolution", () => {
 
         expect(result).toMatchInlineSnapshot(`
           {
-            "anchor": 4,
+            "anchor": 3,
             "head": 88,
           }
         `);
@@ -622,7 +646,7 @@ describe("Location Resolution", () => {
 
         expect(result).toMatchInlineSnapshot(`
           {
-            "anchor": 4,
+            "anchor": 3,
             "head": 167,
           }
         `);
@@ -744,7 +768,7 @@ describe("Location Resolution", () => {
 
         expect(result).toMatchInlineSnapshot(`
           {
-            "anchor": 4,
+            "anchor": 3,
             "head": 94,
           }
         `);
@@ -1085,7 +1109,7 @@ describe("Location Resolution", () => {
 
       it("should handle whole block selections in nested structures", () => {
         // Whole parent block
-        const parentWholePM = { anchor: 2, head: 92 };
+        const parentWholePM = { anchor: 2, head: 22 };
         const parentWholeResult = resolvePMToLocation(nestedDoc, parentWholePM);
 
         expect(parentWholeResult).toMatchInlineSnapshot(`
@@ -1113,18 +1137,15 @@ describe("Location Resolution", () => {
         // Test Point -> PMLocation -> Point
         const originalPoint: Point = { id: "block1", offset: 5 };
         const pmLocation = resolvePointToPM(doc, originalPoint);
-        const convertedLocation = resolvePMToLocation(doc, pmLocation);
-
-        // The conversion may not be perfectly symmetric due to ProseMirror position handling
-        // but the converted point should be valid and within the same block
-        expect("id" in convertedLocation).toBe(true);
-
-        expect(convertedLocation).toMatchInlineSnapshot(`
+        expect(pmLocation).toMatchInlineSnapshot(`
           {
-            "id": "block1",
-            "offset": 5,
+            "anchor": 8,
+            "head": 8,
           }
         `);
+        const convertedLocation = resolvePMToLocation(doc, pmLocation);
+
+        expect(convertedLocation).toEqual(originalPoint);
       });
 
       it("should maintain consistency for ranges in round-trip conversions", () => {
@@ -1136,22 +1157,7 @@ describe("Location Resolution", () => {
         const pmLocation = resolveRangeToPM(doc, originalRange);
         const convertedLocation = resolvePMToLocation(doc, pmLocation);
 
-        // The conversion may not be perfectly symmetric, but should maintain block relationships
-        expect("anchor" in convertedLocation).toBe(true);
-
-        // Type assertion since we know it's a Range from the test above
-        expect(convertedLocation).toMatchInlineSnapshot(`
-          {
-            "anchor": {
-              "id": "block1",
-              "offset": 2,
-            },
-            "head": {
-              "id": "block3",
-              "offset": 5,
-            },
-          }
-        `);
+        expect(convertedLocation).toEqual(originalRange);
       });
 
       it("should handle nested block round-trip conversions", () => {
@@ -1179,43 +1185,51 @@ describe("Location Resolution", () => {
         const pmLocation = resolvePointToPM(nestedDoc, originalPoint);
         const convertedLocation = resolvePMToLocation(nestedDoc, pmLocation);
 
-        // The conversion may not be perfectly symmetric, but should maintain block relationships
-        expect("id" in convertedLocation).toBe(true);
+        expect(convertedLocation).toEqual(originalPoint);
 
-        // Type assertion since we know it's a Point from the test above
-        const convertedPoint = convertedLocation as Point;
-        expect(convertedPoint).toMatchInlineSnapshot(`
+        // Test nested Point round-trip
+        const originalPoint2: Point = { id: "child", offset: 0 };
+        const pmLocation2 = resolvePointToPM(nestedDoc, originalPoint2);
+        const convertedLocation2 = resolvePMToLocation(nestedDoc, pmLocation2);
+
+        expect(convertedLocation2).toEqual(originalPoint2);
+
+        // Test nested Point round-trip
+        const originalPoint3: Point = { id: "child", offset: 5 };
+        const pmLocation3 = resolvePointToPM(nestedDoc, originalPoint3);
+        const convertedLocation3 = resolvePMToLocation(nestedDoc, pmLocation3);
+
+        expect(convertedLocation3).toEqual(originalPoint3);
+
+        // Test nested Point round-trip
+        const originalPoint4: Point = { id: "child", offset: -1 };
+        const pmLocation4 = resolvePointToPM(nestedDoc, originalPoint4);
+        expect(pmLocation4).toMatchInlineSnapshot(`
           {
-            "id": "child",
-            "offset": 2,
+            "anchor": 12,
+            "head": 19,
           }
         `);
+        const convertedLocation4 = resolvePMToLocation(nestedDoc, pmLocation4);
+
+        expect(convertedLocation4).toEqual(originalPoint4);
 
         // Test nested Range round-trip
         const originalRange: Range = {
           anchor: { id: "parent", offset: 0 },
-          head: { id: "child", offset: -1 },
+          head: { id: "child", offset: 5 },
         };
         const pmRange = resolveRangeToPM(nestedDoc, originalRange);
-        const convertedRangeLocation = resolvePMToLocation(nestedDoc, pmRange);
-
-        // The conversion may not be perfectly symmetric, but should maintain block relationships
-        expect("anchor" in convertedRangeLocation).toBe(true);
-
-        // Type assertion since we know it's a Range from the test above
-        const convertedRange = convertedRangeLocation as Range;
-        expect(convertedRange).toMatchInlineSnapshot(`
+        expect(pmRange).toMatchInlineSnapshot(`
           {
-            "anchor": {
-              "id": "parent",
-              "offset": 1,
-            },
-            "head": {
-              "id": "child",
-              "offset": 6,
-            },
+            "anchor": 3,
+            "head": 18,
           }
         `);
+
+        const convertedRangeLocation = resolvePMToLocation(nestedDoc, pmRange);
+
+        expect(convertedRangeLocation).toEqual(originalRange);
 
         nestedEditor._tiptapEditor.destroy();
       });
@@ -1238,7 +1252,7 @@ describe("Location Resolution", () => {
         expect(endResult).toMatchInlineSnapshot(`
           {
             "id": "block5",
-            "offset": 16,
+            "offset": 15,
           }
         `);
       });
@@ -1421,7 +1435,7 @@ describe("Location Resolution", () => {
         expect(deepResult).toMatchInlineSnapshot(`
           {
             "id": "level1",
-            "offset": 34,
+            "offset": 9,
           }
         `);
 
