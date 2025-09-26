@@ -6,6 +6,9 @@ import {
   resolvePointToPM,
   resolveRangeToPM,
   resolvePMToLocation,
+  getBlocksAt,
+  getSelectionLocation,
+  setSelectionLocation,
 } from "./location.js";
 import type { BlockId, Point, Range } from "./types.js";
 import { Node } from "prosemirror-model";
@@ -229,7 +232,7 @@ describe("Location Resolution", () => {
 
       expect(() => {
         resolvePointToPM(doc, point);
-      }).toThrow("Offset 100 exceeds block length");
+      }).toThrow("Invalid offset: 100 exceeds block length 13");
     });
 
     it("should handle different block types with points", () => {
@@ -587,7 +590,7 @@ describe("Location Resolution", () => {
 
         expect(() => {
           resolvePointToPM(nestedDoc, shortChild);
-        }).toThrow("Offset 100 exceeds block length");
+        }).toThrow("Invalid offset: 100 exceeds block length 20");
       });
     });
 
@@ -1546,5 +1549,275 @@ describe("Location Resolution", () => {
         }
       `);
     });
+  });
+});
+
+describe("getBlocksAt", () => {
+  let editor: BlockNoteEditor;
+  let doc: Node;
+
+  beforeEach(() => {
+    editor = BlockNoteEditor.create({
+      initialContent: [
+        {
+          id: "block1",
+          type: "paragraph",
+          content: "Hello World",
+        },
+        {
+          id: "block2",
+          type: "heading",
+          content: "This is a heading",
+          children: [
+            {
+              id: "block2-child-1",
+              type: "paragraph",
+              content: "This is a child paragraph",
+            },
+            {
+              id: "block2-child-2",
+              type: "paragraph",
+              content: "This is another child paragraph",
+            },
+          ],
+        },
+        {
+          id: "block3",
+          type: "paragraph",
+          content: "Another paragraph with more text content",
+        },
+        {
+          id: "block4",
+          type: "bulletListItem",
+          content: "List item one",
+        },
+        {
+          id: "block5",
+          type: "bulletListItem",
+          content: "List item two",
+        },
+      ],
+    });
+
+    // Get the ProseMirror document
+    doc = editor.prosemirrorState.doc;
+  });
+
+  afterEach(() => {
+    editor._tiptapEditor.destroy();
+  });
+
+  it("should return the blocks at the given location", () => {
+    const blocks = getBlocksAt(doc, { id: "block1", offset: 5 });
+    expect(blocks).toMatchInlineSnapshot(`
+      [
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "Hello World",
+              "type": "text",
+            },
+          ],
+          "id": "block1",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+      ]
+    `);
+  });
+
+  it("should return the blocks at the given id object", () => {
+    const blocks = getBlocksAt(doc, { id: "block1" });
+    expect(blocks).toMatchInlineSnapshot(`
+      [
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "Hello World",
+              "type": "text",
+            },
+          ],
+          "id": "block1",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+      ]
+    `);
+  });
+
+  it("should return the blocks at the given id", () => {
+    const blocks = getBlocksAt(doc, "block1");
+    expect(blocks).toMatchInlineSnapshot(`
+      [
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "Hello World",
+              "type": "text",
+            },
+          ],
+          "id": "block1",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+      ]
+    `);
+  });
+
+  it("should return the blocks at the given location with children", () => {
+    const blocks = getBlocksAt(
+      doc,
+      {
+        anchor: { id: "block2", offset: -1 },
+        head: { id: "block3", offset: -1 },
+      },
+      { includeChildren: true },
+    );
+    expect(blocks.map((block) => block.id)).toEqual([
+      "block2",
+      "block2-child-1",
+      "block2-child-2",
+      "block3",
+    ]);
+  });
+
+  it("should exclude children when includeChildren is false", () => {
+    const blocks = getBlocksAt(
+      doc,
+      {
+        anchor: { id: "block2", offset: -1 },
+        head: { id: "block3", offset: -1 },
+      },
+      { includeChildren: false },
+    );
+    expect(blocks.map((block) => block.id)).toEqual(["block2", "block3"]);
+  });
+
+  it("should return the blocks at the given location even if the location's head is before the anchor", () => {
+    const blocks = getBlocksAt(
+      doc,
+      {
+        anchor: { id: "block3", offset: -1 },
+        head: { id: "block2", offset: -1 },
+      },
+      { includeChildren: true },
+    );
+    expect(blocks.map((block) => block.id)).toEqual([
+      "block2",
+      "block2-child-1",
+      "block2-child-2",
+      "block3",
+    ]);
+  });
+
+  it("should return the blocks at the given location even if the location's head is before the anchor and includeChildren is false", () => {
+    const blocks = getBlocksAt(
+      doc,
+      {
+        anchor: { id: "block3", offset: -1 },
+        head: { id: "block2", offset: -1 },
+      },
+      { includeChildren: false },
+    );
+    expect(blocks.map((block) => block.id)).toEqual(["block2", "block3"]);
+  });
+});
+
+describe("getSelectionLocation", () => {
+  let editor: BlockNoteEditor;
+  let doc: Node;
+
+  beforeEach(() => {
+    editor = BlockNoteEditor.create({
+      initialContent: [
+        {
+          id: "block1",
+          type: "paragraph",
+          content: "Hello World",
+        },
+      ],
+    });
+
+    doc = editor.prosemirrorState.doc;
+  });
+
+  afterEach(() => {
+    editor._tiptapEditor.destroy();
+  });
+
+  it("should return undefined if the selection is empty", () => {
+    const blocks = getSelectionLocation(editor.prosemirrorState.tr);
+    expect(blocks).toMatchInlineSnapshot(`undefined`);
+  });
+
+  it("should return the blocks at the given location", () => {
+    editor.exec((state, dispatch) => {
+      if (dispatch) {
+        const tr = state.tr;
+        setSelectionLocation(tr, { id: "block1", offset: 5 });
+        dispatch(tr);
+      }
+      return true;
+    });
+    expect(editor.prosemirrorState.selection.toJSON()).toMatchInlineSnapshot(`
+      {
+        "anchor": 8,
+        "head": 8,
+        "type": "text",
+      }
+    `);
+    const blocks = getSelectionLocation(editor.prosemirrorState.tr);
+    expect(blocks).toMatchInlineSnapshot(`
+      {
+        "blocks": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Hello World",
+                "type": "text",
+              },
+            ],
+            "id": "block1",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "isPointingToBlock": false,
+        "range": {
+          "anchor": {
+            "id": "block1",
+            "offset": 5,
+          },
+          "head": {
+            "id": "block1",
+            "offset": 5,
+          },
+        },
+      }
+    `);
   });
 });

@@ -504,7 +504,7 @@ export function docToBlocks<
   S extends StyleSchema,
 >(
   doc: Node,
-  schema: Schema,
+  schema: Schema = getPmSchema(doc),
   blockSchema: BSchema = getBlockSchema(schema) as BSchema,
   inlineContentSchema: I = getInlineContentSchema(schema) as I,
   styleSchema: S = getStyleSchema(schema) as S,

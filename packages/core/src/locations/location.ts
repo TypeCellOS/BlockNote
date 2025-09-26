@@ -10,8 +10,13 @@ import {
   isBlockId,
   isBlockIdentifier,
   isPoint,
+  isPointingToBlock,
   isRange,
+  normalizeToRange,
 } from "./utils.js";
+import { TextSelection, Transaction } from "prosemirror-state";
+import { docToBlocks } from "../api/nodeConversions/nodeToBlock.js";
+import { Block } from "../blocks/index.js";
 
 /**
  * Resolves a {@link Location} to a {@link PMLocation}.
@@ -198,4 +203,80 @@ export function getBlockStartPos(doc: Node, location: Location): number {
 export function getBlockEndPos(doc: Node, location: Location): number {
   const block = getBlockPosAt(doc, location);
   return block.head;
+}
+
+/**
+ * Returns the blocks at the given {@link Location}
+ */
+export function getBlocksAt(
+  doc: Node,
+  location: Location,
+  opts: {
+    /**
+     * Whether to include child blocks as part of the response
+     * @default true
+     */
+    includeChildren: boolean;
+  } = {
+    includeChildren: true,
+  },
+) {
+  const [blockId1, blockId2] = getBlockRange(location);
+  const blocks = docToBlocks(doc);
+  const allBlocks: typeof blocks = [];
+  for (const block of blocks) {
+    allBlocks.push(block);
+    if (opts.includeChildren && block.children) {
+      for (const child of block.children) {
+        allBlocks.push(child);
+      }
+    }
+  }
+  const block1 = allBlocks.findIndex((block) => block.id === blockId1);
+  const block2 = allBlocks.findIndex((block) => block.id === blockId2);
+  if (block1 === -1 || block2 === -1) {
+    throw new Error("Block not found", { cause: { blockId1, blockId2 } });
+  }
+  return allBlocks.slice(
+    Math.min(block1, block2),
+    Math.max(block1, block2) + 1,
+  );
+}
+
+/**
+ * Returns the selection's {@link Range} at the given {@link Transaction}'s selection
+ */
+export function getSelectionLocation(tr: Transaction):
+  | {
+      range: Range;
+      isPointingToBlock: boolean;
+      blocks: Block[];
+    }
+  | undefined {
+  const selection = tr.selection;
+
+  // TODO what should we do here?
+  // if (selection.empty) {
+  //   return undefined;
+  // }
+
+  const location = resolvePMToLocation(tr.doc, {
+    anchor: selection.anchor,
+    head: selection.head,
+  });
+
+  return {
+    range: normalizeToRange(location),
+    get isPointingToBlock() {
+      return isPointingToBlock(location);
+    },
+    get blocks() {
+      return getBlocksAt(tr.doc, location) as any;
+    },
+  };
+}
+
+export function setSelectionLocation(tr: Transaction, location: Location) {
+  const resolved = resolveLocation(tr.doc, location);
+  tr.setSelection(TextSelection.create(tr.doc, resolved.anchor, resolved.head));
 }
