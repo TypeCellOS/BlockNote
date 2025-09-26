@@ -5,20 +5,18 @@ import {
 } from "../api/getBlockInfoFromPos.js";
 import { getNodeById } from "../api/nodeUtil.js";
 import type { BlockId, Location, PMLocation, Point, Range } from "./types.js";
-import { isBlockId, isBlockIdentifier, isPoint, isRange } from "./utils.js";
+import {
+  getBlockRange,
+  isBlockId,
+  isBlockIdentifier,
+  isPoint,
+  isRange,
+} from "./utils.js";
 
-export function resolveLocation(
-  doc: Node,
-  location: Location,
-  // TODO
-  // opts: {
-  //   /**
-  //    * Whether to include child blocks as part of the response
-  //    * @default true
-  //    */
-  //   includeChildren: boolean;
-  // },
-): PMLocation {
+/**
+ * Resolves a {@link Location} to a {@link PMLocation}.
+ */
+export function resolveLocation(doc: Node, location: Location): PMLocation {
   if (isBlockId(location)) {
     return resolveBlockToPM(doc, location);
   }
@@ -68,7 +66,7 @@ export function resolvePointToPM(doc: Node, point: Point): PMLocation {
   if (head > block.head) {
     // TODO should this just clamp?
     throw new Error(
-      `Offset ${point.offset} exceeds block length ${block.head - block.anchor}`,
+      `Invalid offset: ${point.offset} exceeds block length ${block.head - block.anchor}`,
     );
   }
 
@@ -112,6 +110,9 @@ export function resolveRangeToPM(doc: Node, range: Range): PMLocation {
   }
 }
 
+/**
+ * Resolves a {@link PMLocation} to a {@link Point} or {@link Range}, depending on if the {@link PMLocation} points to a single block or a range of blocks.
+ */
 export function resolvePMToLocation(
   doc: Node,
   pmLocation: PMLocation,
@@ -166,4 +167,35 @@ export function resolvePMToLocation(
       offset: headOffset,
     },
   };
+}
+
+/**
+ * Returns the block's {@link PMLocation} at the given {@link Location}
+ */
+export function getBlockPosAt(doc: Node, location: Location): PMLocation {
+  const [blockId, otherBlockId] = getBlockRange(location);
+  if (blockId !== otherBlockId) {
+    throw new Error(
+      "Block is ambiguous, given a range of blocks to get the start of: " +
+        JSON.stringify(location),
+      { cause: { location } },
+    );
+  }
+  return resolveBlockToPM(doc, blockId);
+}
+
+/**
+ * Returns the block's start position at the given {@link Location}
+ */
+export function getBlockStartPos(doc: Node, location: Location): number {
+  const block = getBlockPosAt(doc, location);
+  return block.anchor;
+}
+
+/**
+ * Returns the block's end position at the given {@link Location}
+ */
+export function getBlockEndPos(doc: Node, location: Location): number {
+  const block = getBlockPosAt(doc, location);
+  return block.head;
 }
