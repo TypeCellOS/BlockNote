@@ -22,6 +22,7 @@ import {
 import { Selection } from "../selectionTypes.js";
 import { TextCursorPosition } from "../cursorPositionTypes.js";
 import { BlockNoteEditor } from "../BlockNoteEditor.js";
+import { getSelectionLocation } from "../../locations/location.js";
 
 export class SelectionManager<
   BSchema extends BlockSchema = DefaultBlockSchema,
@@ -38,6 +39,10 @@ export class SelectionManager<
    */
   public getSelection(): Selection<BSchema, ISchema, SSchema> | undefined {
     return this.editor.transact((tr) => getSelection(tr));
+  }
+
+  public getSelectionLocation() {
+    return this.editor.transact((tr) => getSelectionLocation(tr));
   }
 
   /**

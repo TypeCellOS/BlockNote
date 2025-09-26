@@ -1,17 +1,29 @@
 import { BlockId, BlockIdentifier, Location, Point, Range } from "./types.js";
 
+/**
+ * Converts a block identifier to a block id.
+ */
 export function toId(id: BlockIdentifier): BlockId {
   return typeof id === "string" ? id : id.id;
 }
 
+/**
+ * Checks if a location is a block id.
+ */
 export function isBlockId(id: unknown): id is BlockId {
   return typeof id === "string";
 }
 
+/**
+ * Checks if a location is a block identifier.
+ */
 export function isBlockIdentifier(id: unknown): id is BlockIdentifier {
   return !!id && typeof id === "object" && "id" in id && !("offset" in id);
 }
 
+/**
+ * Checks if a location is a point.
+ */
 export function isPoint(location: unknown): location is Point {
   return (
     !!location &&
@@ -23,6 +35,9 @@ export function isPoint(location: unknown): location is Point {
   );
 }
 
+/**
+ * Checks if a location is a range.
+ */
 export function isRange(location: unknown): location is Range {
   return (
     !!location &&
@@ -34,6 +49,9 @@ export function isRange(location: unknown): location is Range {
   );
 }
 
+/**
+ * Checks if a location is valid.
+ */
 export function isLocation(location: unknown): location is Location {
   return (
     isBlockId(location) ||
@@ -43,6 +61,9 @@ export function isLocation(location: unknown): location is Location {
   );
 }
 
+/**
+ * Gets the block range from a location.
+ */
 export function getBlockRange(location: Location): [BlockId, BlockId] {
   if (isBlockId(location)) {
     return [location, location];
@@ -63,6 +84,9 @@ export function getBlockRange(location: Location): [BlockId, BlockId] {
   throw new Error("Invalid location", { cause: { location } });
 }
 
+/**
+ * Checks if a location is pointing to a block.
+ */
 export function isPointingToBlock(location: Location): boolean {
   if (isBlockId(location)) {
     return true;
@@ -87,6 +111,9 @@ export function isPointingToBlock(location: Location): boolean {
   throw new Error("Invalid location", { cause: { location } });
 }
 
+/**
+ * Upcasts a location into a range (since all locations can be represented as a range)
+ */
 export function normalizeToRange(location: Location): Range {
   if (isBlockId(location)) {
     // Just make blockIds into a point
@@ -116,4 +143,21 @@ export function normalizeToRange(location: Location): Range {
   }
 
   throw new Error("Invalid location type", { cause: { location } });
+}
+
+/**
+ * Checks if two locations are actually the same location.
+ */
+export function isLocationEqual(
+  location1: Location,
+  location2: Location,
+): boolean {
+  const range1 = normalizeToRange(location1);
+  const range2 = normalizeToRange(location2);
+  return (
+    range1.anchor.id === range2.anchor.id &&
+    range1.anchor.offset === range2.anchor.offset &&
+    range1.head.id === range2.head.id &&
+    range1.head.offset === range2.head.offset
+  );
 }
