@@ -1,3 +1,4 @@
+import { getBlockInfoFromSelection } from "../../../api/getBlockInfoFromPos.js";
 import { createBlockNoteExtension } from "../../../editor/BlockNoteExtension.js";
 import { createBlockConfig, createBlockSpec } from "../../../schema/index.js";
 import {
@@ -95,7 +96,14 @@ export const createNumberedListItemBlockSpec = createBlockSpec(
       inputRules: [
         {
           find: new RegExp(`^(\\d+)\\.\\s$`),
-          replace({ match }) {
+          replace({ match, editor }) {
+            const blockInfo = getBlockInfoFromSelection(
+              editor.prosemirrorState,
+            );
+
+            if (blockInfo.blockNoteType === "heading") {
+              return;
+            }
             const start = parseInt(match[1]);
             return {
               type: "numberedListItem",

@@ -1,3 +1,4 @@
+import { getBlockInfoFromSelection } from "../../../api/getBlockInfoFromPos.js";
 import { createBlockNoteExtension } from "../../../editor/BlockNoteExtension.js";
 import { createBlockConfig, createBlockSpec } from "../../../schema/index.js";
 import {
@@ -103,7 +104,14 @@ export const createBulletListItemBlockSpec = createBlockSpec(
       inputRules: [
         {
           find: new RegExp(`^[-+*]\\s$`),
-          replace() {
+          replace({ editor }) {
+            const blockInfo = getBlockInfoFromSelection(
+              editor.prosemirrorState,
+            );
+
+            if (blockInfo.blockNoteType === "heading") {
+              return;
+            }
             return {
               type: "bulletListItem",
               props: {},
