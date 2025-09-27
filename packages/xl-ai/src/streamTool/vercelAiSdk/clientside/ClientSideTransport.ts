@@ -1,0 +1,219 @@
+import {
+  ChatTransport,
+  LanguageModel,
+  ToolSet,
+  UIMessage,
+  UIMessageChunk,
+  convertToModelMessages,
+  generateObject,
+  generateText,
+  streamObject,
+  streamText,
+} from "ai";
+import { toolDefinitionsToToolSet } from "../../../streamTool/toolDefinitionsToToolSet.js";
+import {
+  objectAsToolCallInUIMessageStream,
+  partialObjectStreamAsToolCallInUIMessageStream,
+} from "../util/partialObjectStreamUtil.js";
+
+export const PROVIDER_OVERRIDES = {
+  "mistral.chat": {
+    mode: "auto" as const,
+  },
+  "google.generative-ai": {
+    mode: "auto" as const,
+  },
+  "groq.chat": {
+    providerOptions: {
+      groq: {
+        structuredOutputs: false,
+      },
+    },
+  },
+} as const;
+
+export function getProviderOverrides(model: Exclude<LanguageModel, string>) {
+  return (
+    PROVIDER_OVERRIDES[model.provider as keyof typeof PROVIDER_OVERRIDES] || {}
+  );
+}
+
+export class ClientSideTransport<UI_MESSAGE extends UIMessage>
+  implements ChatTransport<UI_MESSAGE>
+{
+  constructor(
+    public readonly opts: {
+      /**
+       * The language model to use for the LLM call (AI SDK)
+       *
+       * (when invoking `callLLM` via the `AIExtension` this will default to the
+       * model set in the `AIExtension` options)
+       *
+       * Note: perhaps we want to remove this
+       */
+      model: LanguageModel;
+
+      /**
+       * Whether to stream the LLM response or not
+       *
+       * When streaming, we use the AI SDK stream functions `streamObject` / `streamText,
+       * otherwise, we use the AI SDK `generateObject` / `generateText` functions.
+       *
+       * @default true
+       */
+      stream?: boolean;
+
+      /**
+       * Use object generation instead of tool calling
+       *
+       * @default false
+       */
+      objectGeneration?: boolean;
+
+      /**
+       * Additional options to pass to the AI SDK `generateObject` / `streamObject` / `streamText` / `generateText` functions
+       */
+      _additionalOptions?:
+        | Partial<Parameters<typeof generateObject>[0]>
+        | Partial<Parameters<typeof streamObject>[0]>
+        | Partial<Parameters<typeof generateText>[0]>
+        | Partial<Parameters<typeof streamText>[0]>;
+    },
+  ) {}
+
+  /**
+   * Calls an LLM with StreamTools, using the `generateObject` of the AI SDK.
+   *
+   * This is the non-streaming version.
+   */
+  protected async generateObject(messages: UIMessage[], tools: ToolSet) {
+    const { model, _additionalOptions } = this.opts;
+
+    if (typeof model === "string") {
+      throw new Error("model must be a LanguageModelV2");
+    }
+
+    // (we assume there is only one tool definition passed and that should be used for object generation)
+    const toolName = Object.keys(tools)[0];
+    const schema = tools[toolName].inputSchema;
+
+    const ret = await generateObject<any, any, { operations: any }>({
+      output: "object" as const,
+      schema,
+      model,
+      mode: "tool",
+      messages: convertToModelMessages(messages),
+      ...getProviderOverrides(model),
+      ...((_additionalOptions ?? {}) as any),
+    });
+
+    return objectAsToolCallInUIMessageStream(ret.object, toolName);
+  }
+
+  /**
+   * Calls an LLM with StreamTools, using the `streamObject` of the AI SDK.
+   *
+   * This is the streaming version.
+   */
+  protected async streamObject(messages: UIMessage[], tools: ToolSet) {
+    const { model, _additionalOptions } = this.opts;
+
+    if (typeof model === "string") {
+      throw new Error("model must be a LanguageModelV2");
+    }
+
+    // (we assume there is only one tool definition passed and that should be used for object generation)
+    const toolName = Object.keys(tools)[0];
+    const schema = tools[toolName].inputSchema;
+
+    const ret = streamObject({
+      output: "object" as const,
+      schema,
+      model,
+      mode: "tool",
+      messages: convertToModelMessages(messages),
+      ...getProviderOverrides(model),
+      ...((_additionalOptions ?? {}) as any),
+    });
+
+    // Transform the partial object stream to a data stream format
+    return partialObjectStreamAsToolCallInUIMessageStream(
+      ret.fullStream,
+      toolName,
+    );
+  }
+
+  /**
+   * Calls an LLM with StreamTools, using the `streamText` of the AI SDK.
+   *
+   * This is the streaming version.
+   */
+  protected async streamText(messages: UIMessage[], tools: ToolSet) {
+    const { model, _additionalOptions } = this.opts;
+
+    const ret = streamText({
+      model,
+      messages: convertToModelMessages(messages),
+      tools,
+      toolChoice: "required",
+      // extra options for streamObject
+      ...((_additionalOptions ?? {}) as any),
+      // activeTools: ["applyDocumentOperations"],
+    });
+
+    return ret.toUIMessageStream();
+  }
+
+  async sendMessages({
+    messages,
+    body,
+    // metadata,
+  }: Parameters<ChatTransport<UI_MESSAGE>["sendMessages"]>[0]): Promise<
+    ReadableStream<UIMessageChunk>
+  > {
+    const stream = this.opts.stream ?? true;
+    const toolDefinitions = (body as any).toolDefinitions;
+    const tools = toolDefinitionsToToolSet(toolDefinitions);
+
+    if (this.opts.objectGeneration) {
+      if (stream) {
+        return this.streamObject(messages, tools);
+      } else {
+        return this.generateObject(messages, tools);
+      }
+    }
+
+    if (stream) {
+      // this can be used to simulate initial network errors
+      // if (Math.random() < 0.5) {
+      //   throw new Error("fake network error");
+      // }
+
+      const ret = await this.streamText(messages, tools);
+
+      // this can be used to simulate network errors while streaming
+      // let i = 0;
+      // return ret.pipeThrough(
+      //   new TransformStream({
+      //     transform(chunk, controller) {
+      //       controller.enqueue(chunk);
+
+      //       if (++i === 200) {
+      //         console.log("cancel stream");
+      //         controller.error(new Error("fake network error"));
+      //       }
+      //     },
+      //   }),
+      // );
+
+      return ret;
+    } else {
+      // https://github.com/vercel/ai/issues/8380
+      throw new Error("Not implemented (generateText)");
+    }
+  }
+
+  reconnectToStream(): Promise<ReadableStream<UIMessageChunk> | null> {
+    throw new Error("Not implemented");
+  }
+}

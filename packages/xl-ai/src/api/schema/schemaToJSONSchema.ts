@@ -250,6 +250,7 @@ function schemaOps(
     }),
   );
   return {
+    // TODO
     removeFileBlocks() {
       clone.blockSchema = Object.fromEntries(
         Object.entries(clone.blockSchema).filter(

@@ -21,6 +21,7 @@ describe("filterValidOperations", () => {
         } as Result<AddBlocksToolCall<any> | UpdateBlockToolCall<any>>,
         isUpdateToPreviousOperation: false,
         isPossiblyPartial: false,
+        metadata: undefined,
       };
 
       yield {
@@ -30,6 +31,7 @@ describe("filterValidOperations", () => {
         } as Result<AddBlocksToolCall<any> | UpdateBlockToolCall<any>>,
         isUpdateToPreviousOperation: false,
         isPossiblyPartial: false,
+        metadata: undefined,
       };
 
       yield {
@@ -43,6 +45,7 @@ describe("filterValidOperations", () => {
         } as Result<AddBlocksToolCall<any> | UpdateBlockToolCall<any>>,
         isUpdateToPreviousOperation: true,
         isPossiblyPartial: true,
+        metadata: undefined,
       };
     }
 
@@ -81,6 +84,7 @@ describe("filterValidOperations", () => {
         } as Result<AddBlocksToolCall<any> | UpdateBlockToolCall<any>>,
         isUpdateToPreviousOperation: false,
         isPossiblyPartial: false,
+        metadata: undefined,
       };
 
       yield {
@@ -90,6 +94,7 @@ describe("filterValidOperations", () => {
         } as Result<AddBlocksToolCall<any> | UpdateBlockToolCall<any>>,
         isUpdateToPreviousOperation: true,
         isPossiblyPartial: false,
+        metadata: undefined,
       };
     }
 

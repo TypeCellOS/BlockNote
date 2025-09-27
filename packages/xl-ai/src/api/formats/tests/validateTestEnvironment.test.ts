@@ -38,8 +38,14 @@ describe("MSW Snapshots", () => {
       .map(([testName, files]) => ({
         testName: path.basename(testName),
         count: files.length,
-        files: files.map((file) => path.basename(file)),
+        files: files,
       }));
+
+    // for (const duplicate of duplicates) {
+    //   for (const file of duplicate.files) {
+    //     rmSync(file);
+    //   }
+    // }
 
     // Create error message if duplicates are found
     const errorMessage =
@@ -48,7 +54,7 @@ describe("MSW Snapshots", () => {
             `Found duplicate MSW snapshot files for the following (${duplicates.length}) tests:`,
             ...duplicates.map(
               ({ testName, count, files }) =>
-                `  - ${testName}: ${count} files\n    ${files.join("\n    ")}`,
+                `  - ${testName}: ${count} files\n    ${files.map((file) => path.basename(file)).join("\n    ")}`,
             ),
             "",
             "Each test should have only one snapshot file.",

@@ -72,11 +72,7 @@ export function getEditorWithFormattingAndMentions() {
     ],
     trailingBlock: false,
     schema,
-    extensions: [
-      createAIExtension({
-        model: undefined as any,
-      }),
-    ],
+    extensions: [createAIExtension({})],
   });
   return editor;
 }

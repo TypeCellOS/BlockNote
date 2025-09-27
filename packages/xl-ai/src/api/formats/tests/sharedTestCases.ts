@@ -1,9 +1,11 @@
+import { Chat, UIMessage } from "@ai-sdk/react";
 import { BlockNoteEditor } from "@blocknote/core";
 import { getCurrentTest, TaskContext } from "@vitest/runner";
 import path from "path";
 import { TextSelection } from "prosemirror-state";
 import { describe, expect, it } from "vitest";
 import { getAIExtension } from "../../../AIExtension.js";
+import { aiDocumentFormats, defaultAIRequestSender } from "../../../index.js";
 import { addOperationTestCases } from "../../../testUtil/cases/addOperationTestCases.js";
 import { combinedOperationsTestCases } from "../../../testUtil/cases/combinedOperationsTestCases.js";
 import { deleteOperationTestCases } from "../../../testUtil/cases/deleteOperationTestCases.js";
@@ -13,7 +15,8 @@ import {
 } from "../../../testUtil/cases/index.js";
 import { updateOperationTestCases } from "../../../testUtil/cases/updateOperationTestCases.js";
 import { validateRejectingResultsInOriginalDoc } from "../../../testUtil/suggestChangesTestUtil.js";
-import { LLMResponse } from "../../LLMResponse.js";
+import { AIRequestHelpers } from "../../../types.js";
+import { buildAIRequest, executeAIRequest } from "../../aiRequest/execute.js";
 
 const BASE_FILE_PATH = path.resolve(__dirname, "__snapshots__");
 
@@ -32,10 +35,7 @@ async function matchFileSnapshot(data: any, postFix = "") {
 }
 
 export function generateSharedTestCases(
-  callLLM: (
-    editor: BlockNoteEditor<any, any, any>,
-    params: { userPrompt: string; useSelection?: boolean },
-  ) => Promise<LLMResponse>,
+  aiOptions: AIRequestHelpers,
   skipTestsRequiringCapabilities?: {
     mentions?: boolean;
     textAlignment?: boolean;
@@ -75,13 +75,38 @@ export function generateSharedTestCases(
 
     const originalDoc = editor.prosemirrorState.doc;
 
-    const result = await callLLM(editor, {
-      userPrompt: test.userPrompt,
-      useSelection: selection !== undefined,
+    const chat = new Chat<UIMessage>({
+      sendAutomaticallyWhen: () => false,
+      transport: aiOptions.transport,
     });
 
+    const aiRequest = buildAIRequest({
+      editor,
+      chat,
+      userPrompt: test.userPrompt,
+      useSelection: selection !== undefined,
+      streamToolsProvider: aiOptions.streamToolsProvider,
+    });
+    const sender =
+      aiOptions.aiRequestSender ??
+      defaultAIRequestSender(
+        aiDocumentFormats.html.defaultPromptBuilder,
+        aiDocumentFormats.html.defaultPromptInputDataBuilder,
+      );
+
+    await executeAIRequest({
+      aiRequest,
+      sender,
+      chatRequestOptions: aiOptions.chatRequestOptions,
+    });
+
+    // const result = await callLLM(editor, {
+    //   userPrompt: test.userPrompt,
+    //   useSelection: selection !== undefined,
+    // });
+
     // await result._logToolCalls();
-    await result.execute();
+    // await result.execute();
 
     // the prosemirrorState has all details with suggested changes
     // This can be used for snapshots, but currently we've disabled this as there can
@@ -89,7 +114,7 @@ export function generateSharedTestCases(
     // granularity of the suggested changes. Can be enabled for debugging:
 
     // await matchFileSnapshot(editor.prosemirrorState.doc.toJSON());
-
+    // console.log(JSON.stringify(editor.prosemirrorState.doc.toJSON(), null, 2));
     validateRejectingResultsInOriginalDoc(editor, originalDoc);
 
     // we first need to accept changes to get the correct result

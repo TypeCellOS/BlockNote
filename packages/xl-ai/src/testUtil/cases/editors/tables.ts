@@ -38,11 +38,7 @@ export function getEditorWithTables() {
     ],
     schema,
     trailingBlock: false,
-    extensions: [
-      createAIExtension({
-        model: undefined as any,
-      }),
-    ],
+    extensions: [createAIExtension({})],
   });
   return editor;
 }

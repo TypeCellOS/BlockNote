@@ -1,9 +1,38 @@
 import { Block, BlockNoteEditor } from "@blocknote/core";
+
+import { AIRequest } from "../../../index.js";
 import { addCursorPosition } from "../../promptHelpers/addCursorPosition.js";
 import { convertBlocks } from "../../promptHelpers/convertBlocks.js";
 import { flattenBlocks } from "../../promptHelpers/flattenBlocks.js";
 import { suffixIDs } from "../../promptHelpers/suffixIds.js";
 import { trimEmptyBlocks } from "../../promptHelpers/trimEmptyBlocks.js";
+
+export type MarkdownPromptData = (
+  | Awaited<ReturnType<typeof getDataForPromptNoSelection>>
+  | Awaited<ReturnType<typeof getDataForPromptWithSelection>>
+) & {
+  userPrompt: string;
+};
+
+export async function defaultMarkdownPromptDataBuilder(aiRequest: AIRequest) {
+  if (aiRequest.selectedBlocks) {
+    return {
+      ...(await getDataForPromptWithSelection(aiRequest.editor, {
+        selectedBlocks: aiRequest.selectedBlocks,
+      })),
+      userPrompt: aiRequest.userPrompt,
+    };
+  } else {
+    return {
+      ...(await getDataForPromptNoSelection(aiRequest.editor, {
+        excludeBlockIds: aiRequest.emptyCursorBlockToDelete
+          ? [aiRequest.emptyCursorBlockToDelete]
+          : undefined,
+      })),
+      userPrompt: aiRequest.userPrompt,
+    };
+  }
+}
 
 export async function getDataForPromptNoSelection(
   editor: BlockNoteEditor<any, any, any>,
@@ -11,6 +40,7 @@ export async function getDataForPromptNoSelection(
     excludeBlockIds?: string[];
   },
 ) {
+  const isEmptyDocument = trimEmptyBlocks(editor.document).length === 0;
   const cursorBlockId = editor.getTextCursorPosition().block.id;
   const input = trimEmptyBlocks(editor.document, {
     cursorBlockId,
@@ -27,14 +57,19 @@ export async function getDataForPromptNoSelection(
   );
   const suffixed = suffixIDs(filtered);
   return {
+    selection: false as const,
     markdownBlocks: suffixed,
+    isEmptyDocument,
   };
 }
 
 export async function getDataForPromptWithSelection(
   editor: BlockNoteEditor<any, any, any>,
-  opts: { selectedBlocks: Block<any, any, any>[] },
+  opts: {
+    selectedBlocks: Block<any, any, any>[];
+  },
 ) {
+  const isEmptyDocument = trimEmptyBlocks(editor.document).length === 0;
   const blockArray = await convertBlocks(
     flattenBlocks(opts.selectedBlocks),
     async (block) => {
@@ -44,6 +79,8 @@ export async function getDataForPromptWithSelection(
   const suffixed = suffixIDs(blockArray);
 
   return {
+    isEmptyDocument,
+    selection: true as const,
     markdownSelectedBlocks: suffixed,
     markdownDocument: (
       await convertBlocks(flattenBlocks(editor.document), async (block) => {

@@ -64,7 +64,7 @@ export const AIMenu = (props: AIMenuProps) => {
 
   const onManualPromptSubmitDefault = useCallback(
     async (userPrompt: string) => {
-      await ai.callLLM({
+      await ai.invokeAI({
         userPrompt,
         useSelection: editor.getSelection() !== undefined,
       });
