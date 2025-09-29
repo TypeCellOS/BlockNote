@@ -49,6 +49,14 @@ body {
   box-shadow: unset !important;
 }
 
+.demo {
+  overflow: none;
+}
+
+.demo .bn-container {
+  position: relative;
+}
+
 .demo .bn-container:not(.bn-comment-editor),
 .demo .bn-editor {
   height: 100%;
@@ -61,7 +69,8 @@ body {
 
 .demo .bn-editor {
   overflow: auto;
-  padding-block: 1rem;
+  padding-top: 1rem;
+  padding-bottom: 250px;
 }
 
 .demo .bn-editor a {
