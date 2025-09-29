@@ -261,11 +261,11 @@ export function createAddBlocksTool<T>(config: {
                 agentSteps = getStepsAsAgent(tr);
               }
 
-              if (agentSteps.find((step) => step.type === "replace")) {
-                // throw new Error("unexpected: replace step in add operation");
-                // this is unexpected but we've been able to see this when:
-                // adding a list item, because <ul> first gets parsed as paragraph, that then gets turned into a list
-              }
+              // if (agentSteps.find((step) => step.type === "replace")) {
+              // throw new Error("unexpected: replace step in add operation");
+              // this is unexpected but we've been able to see this when:
+              // adding a list item, because <ul> first gets parsed as paragraph, that then gets turned into a list
+              // }
 
               for (const step of agentSteps) {
                 if (options.withDelays) {

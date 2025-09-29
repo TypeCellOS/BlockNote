@@ -17,7 +17,6 @@ export function buildAIRequest(opts: {
   onBlockUpdated?: (blockId: string) => void;
 }) {
   const { useSelection, deleteEmptyCursorBlock, streamToolsProvider } = {
-    ...opts,
     useSelection: opts.useSelection ?? false,
     deleteEmptyCursorBlock: opts.deleteEmptyCursorBlock ?? true,
     streamToolsProvider:
