@@ -3,6 +3,7 @@ import type { Project } from "../util";
 const template = (project: Project) => ({
   name: "@blocknote/example-" + project.fullSlug.replace("/", "-"),
   description: "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
+  type: "module",
   private: true,
   version: "0.12.4",
   scripts: {
