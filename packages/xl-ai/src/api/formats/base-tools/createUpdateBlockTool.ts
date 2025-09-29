@@ -178,6 +178,7 @@ export function createUpdateBlockTool<T>(config: {
           isUpdateToPreviousOperation: boolean;
           isPossiblyPartial: boolean;
         }>,
+        abortSignal?: AbortSignal,
       ) {
         const STEP_SIZE = 50;
         let minSize = STEP_SIZE;
@@ -254,6 +255,11 @@ export function createUpdateBlockTool<T>(config: {
           const agentSteps = getStepsAsAgent(tr);
 
           for (const step of agentSteps) {
+            if (abortSignal?.aborted) {
+              const error = new Error("Operation was aborted");
+              error.name = "AbortError";
+              throw error;
+            }
             if (options.withDelays) {
               await delayAgentStep(step);
             }

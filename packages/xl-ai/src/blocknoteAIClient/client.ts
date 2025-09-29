@@ -18,6 +18,7 @@ const fetchViaBlockNoteAIServer =
         body: init?.body || request.body,
         method: request.method,
         duplex: "half",
+        signal: request.signal,
       } as any,
     );
     try {
@@ -25,6 +26,12 @@ const fetchViaBlockNoteAIServer =
       return resp;
     } catch (e) {
       // Temp fix for https://github.com/vercel/ai/issues/6370
+      if (
+        e instanceof Error &&
+        (e.name === "AbortError" || e.name === "TimeoutError")
+      ) {
+        throw e;
+      }
       throw new TypeError("fetch failed", {
         cause: e,
       });

@@ -51,6 +51,7 @@ export type StreamTool<T extends { type: string }> = {
       isUpdateToPreviousOperation: boolean;
       isPossiblyPartial: boolean;
     }>,
+    abortSignal?: AbortSignal,
   ) => AsyncIterable<{
     operation: StreamToolCall<StreamTool<{ type: string }>[]>;
     isUpdateToPreviousOperation: boolean;

@@ -76,7 +76,7 @@ export const deleteBlockTool = (
     },
     // Note: functionality mostly tested in jsontools.test.ts
     // would be nicer to add a direct unit test
-    execute: async function* (operationsStream) {
+    execute: async function* (operationsStream, abortSignal?: AbortSignal) {
       for await (const chunk of operationsStream) {
         if (chunk.operation.type !== "delete") {
           // pass through non-delete operations
@@ -93,6 +93,11 @@ export const deleteBlockTool = (
         const agentSteps = getStepsAsAgent(tr);
 
         for (const step of agentSteps) {
+          if (abortSignal?.aborted) {
+            const error = new Error("Operation was aborted");
+            error.name = "AbortError";
+            throw error;
+          }
           if (options.withDelays) {
             await delayAgentStep(step);
           }
