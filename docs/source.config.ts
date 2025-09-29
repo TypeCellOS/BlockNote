@@ -8,7 +8,7 @@ import { transformerTwoslash } from "fumadocs-twoslash";
 import { createFileSystemTypesCache } from "fumadocs-twoslash/cache-fs";
 import { createGenerator, remarkAutoTypeTable } from "fumadocs-typescript";
 import { bundledLanguages, getSingletonHighlighter } from "shiki";
-import { z } from "zod";
+import { z } from 'zod/v3';
 const generator = createGenerator();
 
 // suggested here: https://github.com/fuma-nama/fumadocs/issues/1095#issuecomment-2495855920

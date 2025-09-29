@@ -1600,8 +1600,7 @@
           "dependencies": {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^8.3.2",
-            "ai": "^4.3.15",
-            "@ai-sdk/groq": "^1.2.9",
+            "ai": "^5.0.45",
             "zustand": "^5.0.3"
           } as any
         },
@@ -1627,13 +1626,7 @@
           "dependencies": {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^8.3.2",
-            "ai": "^4.3.15",
-            "@ai-sdk/google": "^1.2.20",
-            "@ai-sdk/openai": "^1.3.22",
-            "@ai-sdk/openai-compatible": "^0.2.14",
-            "@ai-sdk/groq": "^1.2.9",
-            "@ai-sdk/anthropic": "^1.2.11",
-            "@ai-sdk/mistral": "^1.2.8",
+            "ai": "^5.0.45",
             "zustand": "^5.0.3"
           } as any
         },
@@ -1642,7 +1635,7 @@
           "pathFromRoot": "examples/09-ai",
           "slug": "ai"
         },
-        "readme": "The AI Playground example shows how to customize different options of the AI Extension such as model type and streaming mode.\n\nChange the configuration, the highlight some text to access the AI menu, or type `/ai` anywhere in the editor.\n\n**Relevant Docs:**\n\n- [Getting Stared with BlockNote AI](/docs/features/ai/getting-started)\n- [BlockNote AI Reference](/docs/features/ai/reference)\n- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar)\n- [Changing Slash Menu Items](/docs/react/components/suggestion-menus)"
+        "readme": "Explore different LLM models integrated with BlockNote in the AI Playground.\n\nChange the configuration, then highlight some text to access the AI menu, or type `/ai` anywhere in the editor.\n\n**Relevant Docs:**\n\n- [Getting Stared with BlockNote AI](/docs/features/ai/getting-started)\n- [BlockNote AI Reference](/docs/features/ai/reference)\n- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar)\n- [Changing Slash Menu Items](/docs/react/components/suggestion-menus)"
       },
       {
         "projectSlug": "custom-ai-menu-items",
@@ -1659,9 +1652,7 @@
           "dependencies": {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^8.3.2",
-            "ai": "^4.1.0",
-            "@ai-sdk/openai": "^1.1.0",
-            "@ai-sdk/groq": "^1.1.0",
+            "ai": "^5.0.45",
             "react-icons": "^5.2.1",
             "zustand": "^5.0.3"
           } as any
@@ -1688,8 +1679,7 @@
           "dependencies": {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^8.3.2",
-            "ai": "^4.3.15",
-            "@ai-sdk/groq": "^1.2.9",
+            "ai": "^5.0.45",
             "y-partykit": "^0.0.25",
             "yjs": "^13.6.27",
             "zustand": "^5.0.3"
@@ -1701,6 +1691,87 @@
           "slug": "ai"
         },
         "readme": "This example combines the AI extension with the ghost writer example to show how to use the AI extension in a collaborative environment.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar#changing-the-formatting-toolbar)\n- [Changing Slash Menu Items](/docs/react/components/suggestion-menus#changing-slash-menu-items)\n- [Getting Stared with BlockNote AI](/docs/features/ai/setup)"
+      },
+      {
+        "projectSlug": "manual-execution",
+        "fullSlug": "ai/manual-execution",
+        "pathFromRoot": "examples/09-ai/05-manual-execution",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "yousefed",
+          "tags": [
+            "AI",
+            "llm"
+          ],
+          "dependencies": {
+            "@blocknote/xl-ai": "latest",
+            "@mantine/core": "^8.3.2",
+            "ai": "^5.0.45",
+            "y-partykit": "^0.0.25",
+            "yjs": "^13.6.27",
+            "zustand": "^5.0.3"
+          } as any
+        },
+        "title": "AI manual execution",
+        "group": {
+          "pathFromRoot": "examples/09-ai",
+          "slug": "ai"
+        },
+        "readme": "Instead of calling AI models directly, this example shows how you can use an existing stream of responses and apply them to the editor."
+      },
+      {
+        "projectSlug": "client-side-transport",
+        "fullSlug": "ai/client-side-transport",
+        "pathFromRoot": "examples/09-ai/06-client-side-transport",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            "AI",
+            "llm"
+          ],
+          "dependencies": {
+            "@ai-sdk/groq": "^2.0.16",
+            "@blocknote/xl-ai": "latest",
+            "@mantine/core": "^8.3.2",
+            "ai": "^5.0.45",
+            "zustand": "^5.0.3"
+          } as any
+        },
+        "title": "AI Integration with ClientSideTransport",
+        "group": {
+          "pathFromRoot": "examples/09-ai",
+          "slug": "ai"
+        },
+        "readme": "The standard setup is to have BlockNote AI call your server, which then calls an LLM of your choice. In this example, we show how you can use the `ClientSideTransport` to make calls directly to your LLM provider.\n\nTo hide API keys of our LLM provider, we do still route calls through a proxy server using `fetchViaProxy` (this is optional)."
+      },
+      {
+        "projectSlug": "server-promptbuilder",
+        "fullSlug": "ai/server-promptbuilder",
+        "pathFromRoot": "examples/09-ai/07-server-promptbuilder",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "yousefed",
+          "tags": [
+            "AI",
+            "llm"
+          ],
+          "dependencies": {
+            "@blocknote/xl-ai": "latest",
+            "@mantine/core": "^8.3.2",
+            "ai": "^5.0.45",
+            "zustand": "^5.0.3"
+          } as any
+        },
+        "title": "AI Integration with server LLM execution + promptbuilder",
+        "group": {
+          "pathFromRoot": "examples/09-ai",
+          "slug": "ai"
+        },
+        "readme": "This example shows how to setup to add AI integration while handling the LLM calls (in this case, using the Vercel AI SDK) on your server, using a custom executor.\n\nPrompt building is done on the server as well"
       }
     ]
   },
