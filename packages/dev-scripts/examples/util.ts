@@ -43,6 +43,7 @@ export type Project = {
     shortTitle?: string;
     author: string;
     pro?: boolean;
+    tailwind?: boolean;
   };
   readme: string;
 };

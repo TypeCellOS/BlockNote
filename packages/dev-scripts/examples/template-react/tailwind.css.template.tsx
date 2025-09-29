@@ -1,51 +1,13 @@
----
-title: With ShadCN
-description: ShadCN rich text editor using BlockNote
-imageTitle: ShadCN rich text editor using BlockNote
----
+import type { Project } from "../util";
 
-# Getting Started With ShadCN
+const template = (project: Project) => `@import "tailwindcss";
+@import "tw-animate-css";
 
-[shadcn/ui](https://ui.shadcn.com/) is an open-source collection of React components based on [Radix](https://radix-ui.com/) and [TailwindCSS](https://tailwindcss.com/).
+/* Code below needed for ShadCN examples, check docs for more info. */
+@source "./node_modules/@blocknote/shadcn";
 
-```console tab="npm"
-npm install @blocknote/core @blocknote/react @blocknote/shadcn
-```
-
-```console tab="pnpm"
-pnpm add @blocknote/core @blocknote/react @blocknote/shadcn
-```
-
-```console tab="bun"
-bun add @blocknote/core @blocknote/react @blocknote/shadcn
-```
-
-To use BlockNote with ShadCN, you can import `BlockNoteView` from `@blocknote/shadcn` and the stylesheet from `@blocknote/shadcn/style.css`. This version of `BlockNoteView` is expected to be used in apps that are already using ShadCN/TailwindCSS, so it does not import any of those styles itself.
-
-To ensure Tailwind generates the necessary CSS for all utility classes used by BlockNote components, make sure to add the `@source` directive to your stylesheet that imports Tailwind:
-
-```css
-@import "tailwindcss";
-...
-/* Path to your installed `@blocknote/shadcn` package. */
-@source "../node_modules/@blocknote/shadcn";
-```
-
-<Example name="basic/shadcn" />
-
-## Usage with Tailwind Only
-
-If your app doesn't use ShadCN components and only uses TailwindCSS, you just need to extend your Tailwind theme with ShadCN utility classes to get everything working. You can do this by simply copying the styles below into your stylesheet that imports Tailwind.
-
-```css
-@import "tailwindcss";
-...
-/* Path to your installed `@blocknote/shadcn` package. */
-@source "../node_modules/@blocknote/shadcn";
-...
 @custom-variant dark (&:is(.dark *));
 
-/* Light theme ShadCN CSS variables. */
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -81,7 +43,6 @@ If your app doesn't use ShadCN components and only uses TailwindCSS, you just ne
   --sidebar-ring: oklch(0.708 0 0);
 }
 
-/* Dark theme ShadCN CSS variables. */
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
@@ -116,7 +77,6 @@ If your app doesn't use ShadCN components and only uses TailwindCSS, you just ne
   --sidebar-ring: oklch(0.556 0 0);
 }
 
-/* Extending Tailwind theme with ShadCN utility classes. */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -156,52 +116,11 @@ If your app doesn't use ShadCN components and only uses TailwindCSS, you just ne
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-/* Applies some additional necessary border styles within the editor. */
 @layer base {
   .bn-shadcn * {
     @apply border-border outline-ring/50;
   }
 }
-```
+`;
 
-The values used are for the Neutral ShadCN color theme (used in demo above), but you can customize them however you'd like.
-
-This website uses the exact same setup as the one described above, which you can see in [this file](https://github.com/TypeCellOS/BlockNote/blob/main/docs/app/global.css).
-
-## ShadCN Customization
-
-BlockNote comes with default shadcn components. However, it's likely that you have copied and possibly customized your own shadcn components in your project.
-To make BlockNote use the ShadCN components from your project instead of the default ones, you can pass them using the `shadCNComponents` prop of `BlockNoteView`:
-
-```tsx
-import * as Button from "@/components/ui/button"
-import * as Select from "@/components/ui/select"
-
-return (
-  <BlockNoteView editor={editor} shadCNComponents={{
-    Select,
-    Button,
-    ...
-  }} />
-);
-```
-
-You can pass components from the following ShadCN modules:
-
-- Badge
-- Button
-- Card
-- DropdownMenu
-- Form
-- Input
-- Label
-- Popover
-- Select
-- Tabs
-- Toggle
-- Tooltip
-
-<Callout type="warning" emoji="⚠️">
-  To ensure compatibility, your ShadCN components should not use Portals
-  (comment these out from your DropdownMenu, Popover and Select components).
-</Callout>
+export default template;
