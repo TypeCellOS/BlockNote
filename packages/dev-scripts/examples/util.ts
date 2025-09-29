@@ -44,6 +44,7 @@ export type Project = {
     author: string;
     pro?: boolean;
     tailwind?: boolean;
+    stackBlitz?: boolean;
   };
   readme: string;
 };

@@ -3,5 +3,6 @@
   "docs": true,
   "author": "matthewlipski",
   "tags": ["Basic"],
-  "tailwind": true
+  "tailwind": true,
+  "stackBlitz": false
 }

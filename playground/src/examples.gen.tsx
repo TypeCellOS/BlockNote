@@ -180,7 +180,8 @@
           "tags": [
             "Basic"
           ],
-          "tailwind": true
+          "tailwind": true,
+          "stackBlitz": false
         },
         "title": "Use with ShadCN",
         "group": {
