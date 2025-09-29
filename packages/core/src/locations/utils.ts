@@ -161,3 +161,17 @@ export function isLocationEqual(
     range1.head.offset === range2.head.offset
   );
 }
+
+/**
+ * Gets the block id from a location.
+ * @throws if the location is not a single block.
+ */
+export function getBlockId(location: Location): BlockId {
+  const range = normalizeToRange(location);
+  if (range.anchor.id !== range.head.id) {
+    throw new Error("Invalid location, must be a single block", {
+      cause: { location },
+    });
+  }
+  return range.anchor.id;
+}
