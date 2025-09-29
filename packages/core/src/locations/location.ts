@@ -10,7 +10,6 @@ import {
   isBlockId,
   isBlockIdentifier,
   isPoint,
-  isPointingToBlock,
   isRange,
   normalizeToRange,
 } from "./utils.js";
@@ -49,7 +48,7 @@ export function resolveBlockToPM(doc: Node, blockId: BlockId): PMLocation {
   const blockInfo = getBlockInfo(posInfo);
 
   return {
-    anchor: blockInfo.bnBlock.beforePos + 1,
+    anchor: blockInfo.bnBlock.beforePos,
     head: blockInfo.bnBlock.afterPos - 1,
   };
 }
@@ -130,11 +129,11 @@ export function resolvePMToLocation(
 
   // clamp the offsets to be within -1 (the block itself) and the block's node size
   const anchorOffset = Math.min(
-    Math.max(pmLocation.anchor - anchorBlockPos.posBeforeNode - 2, -1),
+    Math.max(pmLocation.anchor - anchorBlockPos.posBeforeNode - 1, -1),
     anchorBlockPos.node.firstChild?.nodeSize ?? Number.MAX_SAFE_INTEGER,
   );
   const headOffset = Math.min(
-    Math.max(pmLocation.head - headBlockPos.posBeforeNode - 2, -1),
+    Math.max(pmLocation.head - headBlockPos.posBeforeNode - 1, -1),
     headBlockPos.node.firstChild?.nodeSize ?? Number.MAX_SAFE_INTEGER,
   );
 
@@ -142,7 +141,7 @@ export function resolvePMToLocation(
     // pointing to the same block, so we will return a point
     if (
       anchorOffset === -1 &&
-      headOffset === (headBlockPos.node.firstChild?.nodeSize ?? 0) - 1
+      headOffset === (headBlockPos.node.firstChild?.nodeSize ?? 0)
     ) {
       // We may be pointing to the whole block, so we need to check the block size
       return {
@@ -246,19 +245,32 @@ export function getBlocksAt(
 /**
  * Returns the selection's {@link Range} at the given {@link Transaction}'s selection
  */
-export function getSelectionLocation(tr: Transaction):
-  | {
-      range: Range;
-      isPointingToBlock: boolean;
-      blocks: Block[];
-    }
-  | undefined {
+export function getSelectionLocation(tr: Transaction): {
+  /**
+   * Meta information about the current selection.
+   */
+  meta: {
+    /**
+     * The underlying location of the current selection.
+     *
+     * If the selection is a single cursor, this will be a {@link Point}.
+     * If the selection is a selection range, this will be a {@link Range}.
+     */
+    location: Point | Range;
+  };
+  /**
+   * The range of the current selection.
+   * @note This is the same as the {@link meta.location} but normalized to a {@link Range}.
+   */
+  range: Range;
+  /**
+   * The blocks that the current selection spans across.
+   */
+  blocks: Block[];
+  // TODO should this be selection cut blocks?
+  content: Block[];
+} {
   const selection = tr.selection;
-
-  // TODO what should we do here?
-  // if (selection.empty) {
-  //   return undefined;
-  // }
 
   const location = resolvePMToLocation(tr.doc, {
     anchor: selection.anchor,
@@ -266,13 +278,12 @@ export function getSelectionLocation(tr: Transaction):
   });
 
   return {
+    meta: { location },
     range: normalizeToRange(location),
-    get isPointingToBlock() {
-      return isPointingToBlock(location);
-    },
     get blocks() {
       return getBlocksAt(tr.doc, location) as any;
     },
+    content: [],
   };
 }
 
