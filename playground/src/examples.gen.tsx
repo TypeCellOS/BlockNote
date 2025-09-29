@@ -179,14 +179,16 @@
           "author": "matthewlipski",
           "tags": [
             "Basic"
-          ]
+          ],
+          "tailwind": true,
+          "stackBlitz": false
         },
         "title": "Use with ShadCN",
         "group": {
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"
         },
-        "readme": "This example shows how you can use BlockNote with ShadCN (instead of Mantine).\n\n<Callout type={\"warning\"}>\nBecause the ShadCN version of BlockNote requires being in a Tailwind app,\nviewing the demo below on StackBlitz will have missing styles.\n</Callout>\n\n**Relevant Docs:**\n\n- [Getting Started with ShadCN](/docs/getting-started/shadcn)"
+        "readme": "This example shows how you can use BlockNote with ShadCN (instead of Mantine).\n\n**Relevant Docs:**\n\n- [Getting Started with ShadCN](/docs/getting-started/shadcn)"
       },
       {
         "projectSlug": "localization",

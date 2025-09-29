@@ -1,6 +1,7 @@
 {
   "name": "@blocknote/example-interoperability-converting-blocks-to-html",
   "description": "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
+  "type": "module",
   "private": true,
   "version": "0.12.4",
   "scripts": {
