@@ -21,7 +21,7 @@ describe("filterNewOrUpdatedOperations", () => {
     }
 
     const result = [];
-    for await (const chunk of filterNewOrUpdatedOperations(mockStream())) {
+    for await (const chunk of filterNewOrUpdatedOperations(mockStream(), {})) {
       result.push(chunk);
     }
 
@@ -32,30 +32,35 @@ describe("filterNewOrUpdatedOperations", () => {
       partialOperation: { id: 1, content: "op1" },
       isUpdateToPreviousOperation: false,
       isPossiblyPartial: false,
+      metadata: {},
     });
 
     expect(result[1]).toEqual({
       partialOperation: { id: 2, content: "op2-partial" },
       isUpdateToPreviousOperation: false,
       isPossiblyPartial: true,
+      metadata: {},
     });
 
     expect(result[2]).toEqual({
       partialOperation: { id: 2, content: "op2-complete" },
       isUpdateToPreviousOperation: true,
       isPossiblyPartial: false,
+      metadata: {},
     });
 
     expect(result[3]).toEqual({
       partialOperation: { id: 3, content: "op3" },
       isUpdateToPreviousOperation: false,
       isPossiblyPartial: true,
+      metadata: {},
     });
 
     expect(result[4]).toEqual({
       partialOperation: { id: 3, content: "op3" },
       isUpdateToPreviousOperation: true,
       isPossiblyPartial: false,
+      metadata: {},
     });
   });
 
@@ -74,7 +79,7 @@ describe("filterNewOrUpdatedOperations", () => {
     }
 
     const result = [];
-    for await (const chunk of filterNewOrUpdatedOperations(mockStream())) {
+    for await (const chunk of filterNewOrUpdatedOperations(mockStream(), {})) {
       result.push(chunk);
     }
 
@@ -85,6 +90,7 @@ describe("filterNewOrUpdatedOperations", () => {
       partialOperation: { id: 1, content: "op1-partial" },
       isUpdateToPreviousOperation: false,
       isPossiblyPartial: true,
+      metadata: {},
     });
 
     // Second chunk should have op1-complete
@@ -92,6 +98,7 @@ describe("filterNewOrUpdatedOperations", () => {
       partialOperation: { id: 1, content: "op1-complete" },
       isUpdateToPreviousOperation: true,
       isPossiblyPartial: false,
+      metadata: {},
     });
 
     // Third chunk should have op2
@@ -99,12 +106,14 @@ describe("filterNewOrUpdatedOperations", () => {
       partialOperation: { id: 2, content: "op2" },
       isUpdateToPreviousOperation: false,
       isPossiblyPartial: true,
+      metadata: {},
     });
 
     expect(result[3]).toEqual({
       partialOperation: { id: 2, content: "op2" },
       isUpdateToPreviousOperation: true,
       isPossiblyPartial: false,
+      metadata: {},
     });
   });
 
@@ -115,7 +124,7 @@ describe("filterNewOrUpdatedOperations", () => {
     }
 
     const result = [];
-    for await (const chunk of filterNewOrUpdatedOperations(mockStream())) {
+    for await (const chunk of filterNewOrUpdatedOperations(mockStream(), {})) {
       result.push(chunk);
     }
 
@@ -124,11 +133,13 @@ describe("filterNewOrUpdatedOperations", () => {
       partialOperation: { id: 1, content: "op1" },
       isUpdateToPreviousOperation: false,
       isPossiblyPartial: true,
+      metadata: {},
     });
     expect(result[1]).toEqual({
       partialOperation: { id: 1, content: "op1" },
       isUpdateToPreviousOperation: true,
       isPossiblyPartial: false,
+      metadata: {},
     });
   });
 
@@ -139,7 +150,7 @@ describe("filterNewOrUpdatedOperations", () => {
     }
 
     const result = [];
-    for await (const chunk of filterNewOrUpdatedOperations(mockStream())) {
+    for await (const chunk of filterNewOrUpdatedOperations(mockStream(), {})) {
       result.push(chunk);
     }
 
@@ -148,11 +159,13 @@ describe("filterNewOrUpdatedOperations", () => {
       partialOperation: { id: 1, content: "op1" },
       isUpdateToPreviousOperation: false,
       isPossiblyPartial: true,
+      metadata: {},
     });
     expect(result[1]).toEqual({
       partialOperation: { id: 1, content: "op1" },
       isUpdateToPreviousOperation: true,
       isPossiblyPartial: false,
+      metadata: {},
     });
   });
 });

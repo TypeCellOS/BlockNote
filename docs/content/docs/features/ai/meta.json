@@ -1,4 +1,9 @@
 {
   "title": "AI",
-  "pages": ["getting-started", "custom-commands", "reference"]
+  "pages": [
+    "getting-started",
+    "backend-integration",
+    "custom-commands",
+    "reference"
+  ]
 }

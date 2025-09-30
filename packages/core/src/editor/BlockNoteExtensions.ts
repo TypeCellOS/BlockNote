@@ -9,7 +9,7 @@ import * as Y from "yjs";
 import { createDropFileExtension } from "../api/clipboard/fromClipboard/fileDropExtension.js";
 import { createPasteFromClipboardExtension } from "../api/clipboard/fromClipboard/pasteExtension.js";
 import { createCopyToClipboardExtension } from "../api/clipboard/toClipboard/copyExtension.js";
-import type { ThreadStore } from "../comments/index.js";
+import type { ThreadStore, User } from "../comments/index.js";
 import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension.js";
 import { BlockChangePlugin } from "../extensions/BlockChange/BlockChangePlugin.js";
 import { CursorPlugin } from "../extensions/Collaboration/CursorPlugin.js";
@@ -96,6 +96,7 @@ type ExtensionOptions<
   comments?: {
     schema?: BlockNoteSchema<any, any, any>;
     threadStore: ThreadStore;
+    resolveUsers?: (userIds: string[]) => Promise<User[]>;
   };
   pasteHandler: BlockNoteEditorOptions<any, any, any>["pasteHandler"];
 };
@@ -162,6 +163,7 @@ export const getBlockNoteExtensions = <
       opts.editor,
       opts.comments.threadStore,
       CommentMark.name,
+      opts.comments.resolveUsers,
       opts.comments.schema,
     );
   }

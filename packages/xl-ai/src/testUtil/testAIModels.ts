@@ -2,33 +2,30 @@ import { createAnthropic } from "@ai-sdk/anthropic";
 import { createGroq } from "@ai-sdk/groq";
 import { createOpenAI } from "@ai-sdk/openai";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
-import { createBlockNoteAIClient } from "../blocknoteAIClient/client.js";
-
-// Create client and models outside of test suites so they can be shared
-const client = createBlockNoteAIClient({
-  baseURL: "https://localhost:3000/ai",
-  apiKey: "PLACEHOLDER",
-});
+import { LanguageModel } from "ai";
 
 const groq = createGroq({
-  ...client.getProviderSettings("groq"),
+  apiKey: process.env.GROQ_API_KEY || "not-available-in-ci",
 })("llama-3.3-70b-versatile");
 
 const openai = createOpenAI({
-  ...client.getProviderSettings("openai"),
-})("gpt-4o-2024-08-06", {});
+  apiKey: process.env.OPENAI_API_KEY || "not-available-in-ci",
+})("gpt-4o-2024-08-06");
 
 const anthropic = createAnthropic({
-  ...client.getProviderSettings("anthropic"),
-})("claude-3-7-sonnet-latest", {});
+  apiKey: process.env.ANTHROPIC_API_KEY || "not-available-in-ci",
+})("claude-3-7-sonnet-latest");
 
 const albert = createOpenAICompatible({
   name: "albert-etalab",
   baseURL: "https://albert.api.etalab.gouv.fr/v1",
-  ...client.getProviderSettings("albert-etalab"),
+  apiKey: process.env.ALBERT_API_KEY || "not-available-in-ci",
 })("albert-etalab.chat/albert-large");
 
-export const testAIModels = {
+export const testAIModels: Record<
+  "groq" | "openai" | "albert" | "anthropic",
+  Exclude<LanguageModel, string>
+> = {
   groq,
   openai,
   albert,

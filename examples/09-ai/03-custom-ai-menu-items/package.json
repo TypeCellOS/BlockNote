@@ -1,6 +1,7 @@
 {
   "name": "@blocknote/example-ai-custom-ai-menu-items",
   "description": "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
+  "type": "module",
   "private": true,
   "version": "0.12.4",
   "scripts": {
@@ -19,9 +20,7 @@
     "react-dom": "^19.1.0",
     "@blocknote/xl-ai": "latest",
     "@mantine/core": "^8.3.2",
-    "ai": "^4.1.0",
-    "@ai-sdk/openai": "^1.1.0",
-    "@ai-sdk/groq": "^1.1.0",
+    "ai": "^5.0.45",
     "react-icons": "^5.2.1",
     "zustand": "^5.0.3"
   },

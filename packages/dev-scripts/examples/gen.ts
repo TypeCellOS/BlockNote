@@ -28,6 +28,12 @@ const dir = path.parse(fileURLToPath(import.meta.url)).dir;
 
 async function writeTemplate(project: Project, templateFile: string) {
   const template = await import(pathToFileURL(templateFile).toString());
+  if (
+    project.config.tailwind !== true &&
+    templateFile.endsWith("tailwind.css.template.tsx")
+  ) {
+    return;
+  }
   const ret = await template.default(project);
 
   const targetFilePath = path.join(
