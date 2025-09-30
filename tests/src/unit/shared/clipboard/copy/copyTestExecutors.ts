@@ -22,7 +22,7 @@ export const testCopyBlockNoteHTML = async <
   initTestEditor(editor, testCase.document, testCase.getCopySelection);
 
   const { clipboardHTML } = selectedFragmentToHTML(
-    editor.prosemirrorView!,
+    editor.prosemirrorView,
     editor,
   );
 
@@ -42,7 +42,7 @@ export const testCopyHTML = async <
   initTestEditor(editor, testCase.document, testCase.getCopySelection);
 
   const { externalHTML } = selectedFragmentToHTML(
-    editor.prosemirrorView!,
+    editor.prosemirrorView,
     editor,
   );
 
@@ -61,7 +61,7 @@ export const testCopyMarkdown = async <
 ) => {
   initTestEditor(editor, testCase.document, testCase.getCopySelection);
 
-  const { markdown } = selectedFragmentToHTML(editor.prosemirrorView!, editor);
+  const { markdown } = selectedFragmentToHTML(editor.prosemirrorView, editor);
 
   await expect(markdown).toMatchFileSnapshot(
     `./__snapshots__/text/plain/${testCase.name}.md`,

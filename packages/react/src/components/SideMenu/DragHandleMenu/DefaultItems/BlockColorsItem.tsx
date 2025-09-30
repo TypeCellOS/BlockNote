@@ -37,7 +37,7 @@ export const BlockColorsItem = <
   if (
     !blockHasType(block, editor, block.type, {
       textColor: "string",
-    }) ||
+    }) &&
     !blockHasType(block, editor, block.type, {
       backgroundColor: "string",
     })

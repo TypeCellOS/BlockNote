@@ -1,6 +1,7 @@
 {
   "name": "@blocknote/example-custom-schema-alert-block-full-ux",
   "description": "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
+  "type": "module",
   "private": true,
   "version": "0.12.4",
   "scripts": {
@@ -17,7 +18,7 @@
     "@blocknote/shadcn": "latest",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "@mantine/core": "^7.17.3",
+    "@mantine/core": "^8.3.2",
     "react-icons": "^5.2.1"
   },
   "devDependencies": {

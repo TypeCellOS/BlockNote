@@ -67,23 +67,23 @@ importers:
   docs:
     dependencies:
       '@ai-sdk/anthropic':
-        specifier: ^1.2.11
-        version: 1.2.12(zod@3.25.76)
+        specifier: ^2.0.9
+        version: 2.0.9(zod@3.25.76)
       '@ai-sdk/google':
-        specifier: ^1.2.20
-        version: 1.2.20(zod@3.25.76)
+        specifier: ^2.0.11
+        version: 2.0.11(zod@3.25.76)
       '@ai-sdk/groq':
-        specifier: ^1.1.0
-        version: 1.2.9(zod@3.25.76)
+        specifier: ^2.0.16
+        version: 2.0.16(zod@3.25.76)
       '@ai-sdk/mistral':
-        specifier: ^1.2.8
-        version: 1.2.8(zod@3.25.76)
+        specifier: ^2.0.12
+        version: 2.0.12(zod@3.25.76)
       '@ai-sdk/openai':
-        specifier: ^1.1.0
-        version: 1.3.22(zod@3.25.76)
+        specifier: ^2.0.23
+        version: 2.0.23(zod@3.25.76)
       '@ai-sdk/openai-compatible':
-        specifier: ^0.2.14
-        version: 0.2.14(zod@3.25.76)
+        specifier: ^1.0.13
+        version: 1.0.13(zod@3.25.76)
       '@aws-sdk/client-s3':
         specifier: ^3.609.0
         version: 3.775.0
@@ -145,8 +145,14 @@ importers:
         specifier: 3.7.1-tiptap3
         version: 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/core':
-        specifier: ^7.17.3
-        version: 7.17.3(@mantine/hooks@7.17.3(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.2
+        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@mantine/hooks':
+        specifier: ^8.3.2
+        version: 8.3.2(react@19.1.0)
+      '@mantine/utils':
+        specifier: ^6.0.22
+        version: 6.0.22(react@19.1.0)
       '@mui/icons-material':
         specifier: ^5.16.1
         version: 5.17.1(@mui/material@5.17.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@types/react@19.1.8)(react@19.1.0)
@@ -232,8 +238,8 @@ importers:
         specifier: ^0.6.3
         version: 0.6.4(react@19.1.0)(yjs@13.6.27)
       ai:
-        specifier: ^4.1.0
-        version: 4.3.15(react@19.1.0)(zod@3.25.76)
+        specifier: ^5.0.45
+        version: 5.0.45(zod@3.25.76)
       babel-plugin-react-compiler:
         specifier: 19.1.0-rc.2
         version: 19.1.0-rc.2
@@ -720,7 +726,16 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      tailwindcss:
+        specifier: ^4.1.12
+        version: 4.1.12
+      tw-animate-css:
+        specifier: ^1.3.7
+        version: 1.3.7
     devDependencies:
+      '@tailwindcss/vite':
+        specifier: ^4.1.12
+        version: 4.1.12(vite@5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0))
       '@types/react':
         specifier: ^19.1.0
         version: 19.1.8
@@ -1168,8 +1183,8 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^7.17.3
-        version: 7.17.3(@mantine/hooks@7.17.3(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.2
+        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -2392,8 +2407,8 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^7.17.3
-        version: 7.17.3(@mantine/hooks@7.17.3(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.2
+        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -2512,8 +2527,8 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^7.17.3
-        version: 7.17.3(@mantine/hooks@7.17.3(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.2
+        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -2555,8 +2570,8 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^7.17.3
-        version: 7.17.3(@mantine/hooks@7.17.3(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.2
+        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -2903,7 +2918,44 @@ importers:
         specifier: ^5.3.4
         version: 5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0)
 
-  examples/07-collaboration/04-comments:
+  examples/07-collaboration/04-electric-sql:
+    dependencies:
+      '@blocknote/ariakit':
+        specifier: latest
+        version: link:../../../packages/ariakit
+      '@blocknote/core':
+        specifier: latest
+        version: link:../../../packages/core
+      '@blocknote/mantine':
+        specifier: latest
+        version: link:../../../packages/mantine
+      '@blocknote/react':
+        specifier: latest
+        version: link:../../../packages/react
+      '@blocknote/shadcn':
+        specifier: latest
+        version: link:../../../packages/shadcn
+      react:
+        specifier: ^19.1.0
+        version: 19.1.0
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.1.0(react@19.1.0)
+    devDependencies:
+      '@types/react':
+        specifier: ^19.1.0
+        version: 19.1.8
+      '@types/react-dom':
+        specifier: ^19.1.0
+        version: 19.1.6(@types/react@19.1.8)
+      '@vitejs/plugin-react':
+        specifier: ^4.3.1
+        version: 4.4.1(vite@5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0))
+      vite:
+        specifier: ^5.3.4
+        version: 5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0)
+
+  examples/07-collaboration/05-comments:
     dependencies:
       '@blocknote/ariakit':
         specifier: latest
@@ -2921,8 +2973,8 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^7.10.1
-        version: 7.17.3(@mantine/hooks@7.17.3(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.2
+        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@y-sweet/react':
         specifier: ^0.6.3
         version: 0.6.4(react@19.1.0)(yjs@13.6.27)
@@ -2941,12 +2993,12 @@ importers:
         version: 19.1.6(@types/react@19.1.8)
       '@vitejs/plugin-react':
         specifier: ^4.3.1
-        version: 4.3.4(vite@5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0))
+        version: 4.4.1(vite@5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0))
       vite:
         specifier: ^5.3.4
         version: 5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0)
 
-  examples/07-collaboration/05-comments-with-sidebar:
+  examples/07-collaboration/06-comments-with-sidebar:
     dependencies:
       '@blocknote/ariakit':
         specifier: latest
@@ -2964,8 +3016,8 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^7.10.1
-        version: 7.17.3(@mantine/hooks@7.17.3(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.2
+        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@y-sweet/react':
         specifier: ^0.6.3
         version: 0.6.4(react@19.1.0)(yjs@13.6.27)
@@ -2984,12 +3036,12 @@ importers:
         version: 19.1.6(@types/react@19.1.8)
       '@vitejs/plugin-react':
         specifier: ^4.3.1
-        version: 4.3.4(vite@5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0))
+        version: 4.4.1(vite@5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0))
       vite:
         specifier: ^5.3.4
         version: 5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0)
 
-  examples/07-collaboration/06-ghost-writer:
+  examples/07-collaboration/07-ghost-writer:
     dependencies:
       '@blocknote/ariakit':
         specifier: latest
@@ -3027,12 +3079,12 @@ importers:
         version: 19.1.6(@types/react@19.1.8)
       '@vitejs/plugin-react':
         specifier: ^4.3.1
-        version: 4.3.4(vite@5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0))
+        version: 4.4.1(vite@5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0))
       vite:
         specifier: ^5.3.4
         version: 5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0)
 
-  examples/07-collaboration/07-forking:
+  examples/07-collaboration/08-forking:
     dependencies:
       '@blocknote/ariakit':
         specifier: latest
@@ -3070,7 +3122,7 @@ importers:
         version: 19.1.6(@types/react@19.1.8)
       '@vitejs/plugin-react':
         specifier: ^4.3.1
-        version: 4.3.4(vite@5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0))
+        version: 4.4.1(vite@5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0))
       vite:
         specifier: ^5.3.4
         version: 5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0)
@@ -3117,9 +3169,6 @@ importers:
 
   examples/09-ai/01-minimal:
     dependencies:
-      '@ai-sdk/groq':
-        specifier: ^1.2.9
-        version: 1.2.9(zod@3.25.76)
       '@blocknote/ariakit':
         specifier: latest
         version: link:../../../packages/ariakit
@@ -3139,11 +3188,11 @@ importers:
         specifier: latest
         version: link:../../../packages/xl-ai
       '@mantine/core':
-        specifier: ^7.17.3
-        version: 7.17.3(@mantine/hooks@7.17.3(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.2
+        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       ai:
-        specifier: ^4.3.15
-        version: 4.3.15(react@19.1.0)(zod@3.25.76)
+        specifier: ^5.0.45
+        version: 5.0.45(zod@3.25.76)
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -3169,24 +3218,6 @@ importers:
 
   examples/09-ai/02-playground:
     dependencies:
-      '@ai-sdk/anthropic':
-        specifier: ^1.2.11
-        version: 1.2.11(zod@3.25.76)
-      '@ai-sdk/google':
-        specifier: ^1.2.20
-        version: 1.2.20(zod@3.25.76)
-      '@ai-sdk/groq':
-        specifier: ^1.2.9
-        version: 1.2.9(zod@3.25.76)
-      '@ai-sdk/mistral':
-        specifier: ^1.2.8
-        version: 1.2.8(zod@3.25.76)
-      '@ai-sdk/openai':
-        specifier: ^1.3.22
-        version: 1.3.22(zod@3.25.76)
-      '@ai-sdk/openai-compatible':
-        specifier: ^0.2.14
-        version: 0.2.14(zod@3.25.76)
       '@blocknote/ariakit':
         specifier: latest
         version: link:../../../packages/ariakit
@@ -3206,11 +3237,11 @@ importers:
         specifier: latest
         version: link:../../../packages/xl-ai
       '@mantine/core':
-        specifier: ^7.17.3
-        version: 7.17.3(@mantine/hooks@7.17.3(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.2
+        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       ai:
-        specifier: ^4.3.15
-        version: 4.3.15(react@19.1.0)(zod@3.25.76)
+        specifier: ^5.0.45
+        version: 5.0.45(zod@3.25.76)
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -3236,12 +3267,6 @@ importers:
 
   examples/09-ai/03-custom-ai-menu-items:
     dependencies:
-      '@ai-sdk/groq':
-        specifier: ^1.1.0
-        version: 1.2.9(zod@3.25.76)
-      '@ai-sdk/openai':
-        specifier: ^1.1.0
-        version: 1.3.22(zod@3.25.76)
       '@blocknote/ariakit':
         specifier: latest
         version: link:../../../packages/ariakit
@@ -3261,11 +3286,11 @@ importers:
         specifier: latest
         version: link:../../../packages/xl-ai
       '@mantine/core':
-        specifier: ^7.17.3
-        version: 7.17.3(@mantine/hooks@7.17.3(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.2
+        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       ai:
-        specifier: ^4.1.0
-        version: 4.3.15(react@19.1.0)(zod@3.25.76)
+        specifier: ^5.0.45
+        version: 5.0.45(zod@3.25.76)
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -3294,9 +3319,6 @@ importers:
 
   examples/09-ai/04-with-collaboration:
     dependencies:
-      '@ai-sdk/groq':
-        specifier: ^1.2.9
-        version: 1.2.9(zod@3.25.76)
       '@blocknote/ariakit':
         specifier: latest
         version: link:../../../packages/ariakit
@@ -3316,11 +3338,11 @@ importers:
         specifier: latest
         version: link:../../../packages/xl-ai
       '@mantine/core':
-        specifier: ^7.17.3
-        version: 7.17.3(@mantine/hooks@7.17.3(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.2
+        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       ai:
-        specifier: ^4.3.15
-        version: 4.3.15(react@19.1.0)(zod@3.25.76)
+        specifier: ^5.0.45
+        version: 5.0.45(zod@3.25.76)
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -3346,6 +3368,162 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^4.3.1
         version: 4.3.4(vite@5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0))
+      vite:
+        specifier: ^5.3.4
+        version: 5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0)
+
+  examples/09-ai/05-manual-execution:
+    dependencies:
+      '@blocknote/ariakit':
+        specifier: latest
+        version: link:../../../packages/ariakit
+      '@blocknote/core':
+        specifier: latest
+        version: link:../../../packages/core
+      '@blocknote/mantine':
+        specifier: latest
+        version: link:../../../packages/mantine
+      '@blocknote/react':
+        specifier: latest
+        version: link:../../../packages/react
+      '@blocknote/shadcn':
+        specifier: latest
+        version: link:../../../packages/shadcn
+      '@blocknote/xl-ai':
+        specifier: latest
+        version: link:../../../packages/xl-ai
+      '@mantine/core':
+        specifier: ^8.3.2
+        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      ai:
+        specifier: ^5.0.45
+        version: 5.0.45(zod@3.25.76)
+      react:
+        specifier: ^19.1.0
+        version: 19.1.0
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.1.0(react@19.1.0)
+      y-partykit:
+        specifier: ^0.0.25
+        version: 0.0.25
+      yjs:
+        specifier: ^13.6.27
+        version: 13.6.27
+      zustand:
+        specifier: ^5.0.3
+        version: 5.0.3(@types/react@19.1.8)(immer@10.1.1)(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0))
+    devDependencies:
+      '@types/react':
+        specifier: ^19.1.0
+        version: 19.1.8
+      '@types/react-dom':
+        specifier: ^19.1.0
+        version: 19.1.6(@types/react@19.1.8)
+      '@vitejs/plugin-react':
+        specifier: ^4.3.1
+        version: 4.4.1(vite@5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0))
+      vite:
+        specifier: ^5.3.4
+        version: 5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0)
+
+  examples/09-ai/06-client-side-transport:
+    dependencies:
+      '@ai-sdk/groq':
+        specifier: ^2.0.16
+        version: 2.0.16(zod@3.25.76)
+      '@blocknote/ariakit':
+        specifier: latest
+        version: link:../../../packages/ariakit
+      '@blocknote/core':
+        specifier: latest
+        version: link:../../../packages/core
+      '@blocknote/mantine':
+        specifier: latest
+        version: link:../../../packages/mantine
+      '@blocknote/react':
+        specifier: latest
+        version: link:../../../packages/react
+      '@blocknote/shadcn':
+        specifier: latest
+        version: link:../../../packages/shadcn
+      '@blocknote/xl-ai':
+        specifier: latest
+        version: link:../../../packages/xl-ai
+      '@mantine/core':
+        specifier: ^8.3.2
+        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      ai:
+        specifier: ^5.0.45
+        version: 5.0.45(zod@3.25.76)
+      react:
+        specifier: ^19.1.0
+        version: 19.1.0
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.1.0(react@19.1.0)
+      zustand:
+        specifier: ^5.0.3
+        version: 5.0.3(@types/react@19.1.8)(immer@10.1.1)(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0))
+    devDependencies:
+      '@types/react':
+        specifier: ^19.1.0
+        version: 19.1.8
+      '@types/react-dom':
+        specifier: ^19.1.0
+        version: 19.1.6(@types/react@19.1.8)
+      '@vitejs/plugin-react':
+        specifier: ^4.3.1
+        version: 4.4.1(vite@5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0))
+      vite:
+        specifier: ^5.3.4
+        version: 5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0)
+
+  examples/09-ai/07-server-promptbuilder:
+    dependencies:
+      '@blocknote/ariakit':
+        specifier: latest
+        version: link:../../../packages/ariakit
+      '@blocknote/core':
+        specifier: latest
+        version: link:../../../packages/core
+      '@blocknote/mantine':
+        specifier: latest
+        version: link:../../../packages/mantine
+      '@blocknote/react':
+        specifier: latest
+        version: link:../../../packages/react
+      '@blocknote/shadcn':
+        specifier: latest
+        version: link:../../../packages/shadcn
+      '@blocknote/xl-ai':
+        specifier: latest
+        version: link:../../../packages/xl-ai
+      '@mantine/core':
+        specifier: ^8.3.2
+        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      ai:
+        specifier: ^5.0.45
+        version: 5.0.45(zod@3.25.76)
+      react:
+        specifier: ^19.1.0
+        version: 19.1.0
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.1.0(react@19.1.0)
+      zustand:
+        specifier: ^5.0.3
+        version: 5.0.3(@types/react@19.1.8)(immer@10.1.1)(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0))
+    devDependencies:
+      '@types/react':
+        specifier: ^19.1.0
+        version: 19.1.8
+      '@types/react-dom':
+        specifier: ^19.1.0
+        version: 19.1.6(@types/react@19.1.8)
+      '@vitejs/plugin-react':
+        specifier: ^4.3.1
+        version: 4.4.1(vite@5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0))
       vite:
         specifier: ^5.3.4
         version: 5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0)
@@ -3467,10 +3645,10 @@ importers:
         specifier: ^0.4.3
         version: 0.4.15(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@blocknote/core':
-        specifier: 0.39.0
+        specifier: 0.40.0
         version: link:../core
       '@blocknote/react':
-        specifier: 0.39.0
+        specifier: 0.40.0
         version: link:../react
     devDependencies:
       '@types/react':
@@ -3513,7 +3691,7 @@ importers:
   packages/code-block:
     dependencies:
       '@blocknote/core':
-        specifier: 0.39.0
+        specifier: 0.40.0
         version: link:../core
       '@shikijs/core':
         specifier: ^3.2.1
@@ -3744,19 +3922,19 @@ importers:
   packages/mantine:
     dependencies:
       '@blocknote/core':
-        specifier: 0.39.0
+        specifier: 0.40.0
         version: link:../core
       '@blocknote/react':
-        specifier: 0.39.0
+        specifier: 0.40.0
         version: link:../react
       '@mantine/core':
-        specifier: ^7.17.3
-        version: 7.17.3(@mantine/hooks@7.17.3(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.2
+        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^7.17.3
-        version: 7.17.3(react@19.1.0)
+        specifier: ^8.3.2
+        version: 8.3.2(react@19.1.0)
       '@mantine/utils':
-        specifier: ^6.0.21
+        specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
       react-icons:
         specifier: ^5.2.1
@@ -3802,7 +3980,7 @@ importers:
   packages/react:
     dependencies:
       '@blocknote/core':
-        specifier: 0.39.0
+        specifier: 0.40.0
         version: link:../core
       '@emoji-mart/data':
         specifier: ^1.2.1
@@ -3884,10 +4062,10 @@ importers:
   packages/server-util:
     dependencies:
       '@blocknote/core':
-        specifier: 0.39.0
+        specifier: 0.40.0
         version: link:../core
       '@blocknote/react':
-        specifier: 0.39.0
+        specifier: 0.40.0
         version: link:../react
       '@tiptap/core':
         specifier: https://pkg.pr.new/@tiptap/core@5e777c9
@@ -3945,10 +4123,10 @@ importers:
   packages/shadcn:
     dependencies:
       '@blocknote/core':
-        specifier: 0.39.0
+        specifier: 0.40.0
         version: link:../core
       '@blocknote/react':
-        specifier: 0.39.0
+        specifier: 0.40.0
         version: link:../react
       '@hookform/resolvers':
         specifier: ^3.10.0
@@ -4050,17 +4228,23 @@ importers:
 
   packages/xl-ai:
     dependencies:
+      '@ai-sdk/provider-utils':
+        specifier: ^3.0.9
+        version: 3.0.9(zod@3.25.76)
+      '@ai-sdk/react':
+        specifier: ^2.0.45
+        version: 2.0.45(react@19.1.0)(zod@3.25.76)
       '@blocknote/core':
-        specifier: 0.39.0
+        specifier: 0.40.0
         version: link:../core
       '@blocknote/mantine':
-        specifier: 0.39.0
+        specifier: 0.40.0
         version: link:../mantine
       '@blocknote/prosemirror-suggest-changes':
         specifier: ^0.1.3
         version: 0.1.3(prosemirror-model@1.25.3)(prosemirror-state@1.4.3)(prosemirror-transform@1.10.4)(prosemirror-view@1.40.1)
       '@blocknote/react':
-        specifier: 0.39.0
+        specifier: 0.40.0
         version: link:../react
       '@floating-ui/react':
         specifier: ^0.26.4
@@ -4069,8 +4253,8 @@ importers:
         specifier: https://pkg.pr.new/@tiptap/core@5e777c9
         version: https://pkg.pr.new/@tiptap/core@5e777c9(@tiptap/pm@3.4.3)
       ai:
-        specifier: ^4.3.15
-        version: 4.3.15(react@19.1.0)(zod@3.25.76)
+        specifier: ^5.0.45
+        version: 5.0.45(zod@3.25.76)
       lodash.isequal:
         specifier: ^4.5.0
         version: 4.5.0
@@ -4118,23 +4302,23 @@ importers:
         version: 5.0.3(@types/react@19.1.8)(immer@10.1.1)(react@19.1.0)(use-sync-external-store@1.5.0(react@19.1.0))
     devDependencies:
       '@ai-sdk/anthropic':
-        specifier: ^1.2.12
-        version: 1.2.12(zod@3.25.76)
+        specifier: ^2.0.9
+        version: 2.0.9(zod@3.25.76)
       '@ai-sdk/google':
-        specifier: ^1.2.20
-        version: 1.2.20(zod@3.25.76)
+        specifier: ^2.0.11
+        version: 2.0.11(zod@3.25.76)
       '@ai-sdk/groq':
-        specifier: ^1.2.9
-        version: 1.2.9(zod@3.25.76)
+        specifier: ^2.0.16
+        version: 2.0.16(zod@3.25.76)
       '@ai-sdk/mistral':
-        specifier: ^1.2.8
-        version: 1.2.8(zod@3.25.76)
+        specifier: ^2.0.12
+        version: 2.0.12(zod@3.25.76)
       '@ai-sdk/openai':
-        specifier: ^1.3.22
-        version: 1.3.22(zod@3.25.76)
+        specifier: ^2.0.23
+        version: 2.0.23(zod@3.25.76)
       '@ai-sdk/openai-compatible':
-        specifier: ^0.2.14
-        version: 0.2.14(zod@3.25.76)
+        specifier: ^1.0.13
+        version: 1.0.13(zod@3.25.76)
       '@mswjs/interceptors':
         specifier: ^0.37.5
         version: 0.37.6
@@ -4204,9 +4388,33 @@ importers:
 
   packages/xl-ai-server:
     dependencies:
+      '@ai-sdk/anthropic':
+        specifier: ^2.0.9
+        version: 2.0.9(zod@3.25.76)
+      '@ai-sdk/google':
+        specifier: ^2.0.11
+        version: 2.0.11(zod@3.25.76)
+      '@ai-sdk/groq':
+        specifier: ^2.0.16
+        version: 2.0.16(zod@3.25.76)
+      '@ai-sdk/mistral':
+        specifier: ^2.0.12
+        version: 2.0.12(zod@3.25.76)
+      '@ai-sdk/openai':
+        specifier: ^2.0.23
+        version: 2.0.23(zod@3.25.76)
+      '@ai-sdk/openai-compatible':
+        specifier: ^1.0.13
+        version: 1.0.13(zod@3.25.76)
+      '@blocknote/xl-ai':
+        specifier: 0.40.0
+        version: link:../xl-ai
       '@hono/node-server':
         specifier: ^1.13.7
         version: 1.14.0(hono@4.7.5)
+      ai:
+        specifier: ^5.0.45
+        version: 5.0.45(zod@3.25.76)
       hono:
         specifier: ^4.6.12
         version: 4.7.5
@@ -4245,10 +4453,10 @@ importers:
   packages/xl-docx-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.39.0
+        specifier: 0.40.0
         version: link:../core
       '@blocknote/xl-multi-column':
-        specifier: 0.39.0
+        specifier: 0.40.0
         version: link:../xl-multi-column
       buffer:
         specifier: ^6.0.3
@@ -4300,10 +4508,10 @@ importers:
   packages/xl-email-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.39.0
+        specifier: 0.40.0
         version: link:../core
       '@blocknote/react':
-        specifier: 0.39.0
+        specifier: 0.40.0
         version: link:../react
       '@react-email/components':
         specifier: ^0.1.0
@@ -4355,10 +4563,10 @@ importers:
   packages/xl-multi-column:
     dependencies:
       '@blocknote/core':
-        specifier: 0.39.0
+        specifier: 0.40.0
         version: link:../core
       '@blocknote/react':
-        specifier: 0.39.0
+        specifier: 0.40.0
         version: link:../react
       '@tiptap/core':
         specifier: https://pkg.pr.new/@tiptap/core@5e777c9
@@ -4425,10 +4633,10 @@ importers:
   packages/xl-odt-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.39.0
+        specifier: 0.40.0
         version: link:../core
       '@blocknote/xl-multi-column':
-        specifier: 0.39.0
+        specifier: 0.40.0
         version: link:../xl-multi-column
       '@zip.js/zip.js':
         specifier: ^2.7.57
@@ -4477,13 +4685,13 @@ importers:
   packages/xl-pdf-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.39.0
+        specifier: 0.40.0
         version: link:../core
       '@blocknote/react':
-        specifier: 0.39.0
+        specifier: 0.40.0
         version: link:../react
       '@blocknote/xl-multi-column':
-        specifier: 0.39.0
+        specifier: 0.40.0
         version: link:../xl-multi-column
       '@react-pdf/renderer':
         specifier: ^4.3.0
@@ -4546,24 +4754,9 @@ importers:
 
   playground:
     dependencies:
-      '@ai-sdk/anthropic':
-        specifier: ^1.2.11
-        version: 1.2.11(zod@3.25.76)
-      '@ai-sdk/google':
-        specifier: ^1.2.20
-        version: 1.2.20(zod@3.25.76)
       '@ai-sdk/groq':
-        specifier: ^1.2.9
-        version: 1.2.9(zod@3.25.76)
-      '@ai-sdk/mistral':
-        specifier: ^1.2.8
-        version: 1.2.8(zod@3.25.76)
-      '@ai-sdk/openai':
-        specifier: ^1.3.22
-        version: 1.3.22(zod@3.25.76)
-      '@ai-sdk/openai-compatible':
-        specifier: ^0.2.14
-        version: 0.2.14(zod@3.25.76)
+        specifier: ^2.0.16
+        version: 2.0.16(zod@3.25.76)
       '@aws-sdk/client-s3':
         specifier: ^3.609.0
         version: 3.775.0
@@ -4631,8 +4824,14 @@ importers:
         specifier: 3.7.1-tiptap3
         version: 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/core':
-        specifier: ^7.17.3
-        version: 7.17.3(@mantine/hooks@7.17.3(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.2
+        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@mantine/hooks':
+        specifier: ^8.3.2
+        version: 8.3.2(react@19.1.0)
+      '@mantine/utils':
+        specifier: ^6.0.22
+        version: 6.0.22(react@19.1.0)
       '@mui/icons-material':
         specifier: ^5.16.1
         version: 5.17.1(@mui/material@5.17.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@types/react@19.1.8)(react@19.1.0)
@@ -4676,8 +4875,11 @@ importers:
         specifier: ^0.6.3
         version: 0.6.4(react@19.1.0)(yjs@13.6.27)
       ai:
-        specifier: ^4.3.15
-        version: 4.3.15(react@19.1.0)(zod@3.25.76)
+        specifier: ^5.0.45
+        version: 5.0.45(zod@3.25.76)
+      autoprefixer:
+        specifier: 10.4.21
+        version: 10.4.21(postcss@8.5.6)
       docx:
         specifier: ^9.0.2
         version: 9.3.0
@@ -4821,73 +5023,73 @@ importers:
 
 packages:
 
-  '@ai-sdk/anthropic@1.2.11':
-    resolution: {integrity: sha512-lZLcEMh8MXY4NVSrN/7DyI2rnid8k7cn/30nMmd3bwJrnIsOuIuuFvY8f0nj+pFcTi6AYK7ujLdqW5dQVz1YQw==}
+  '@ai-sdk/anthropic@2.0.9':
+    resolution: {integrity: sha512-1kQgL2A3PeqfEcHHmqy4NxRc8rbgLS71bHBuvDFfDz3VAAyndkilPMCLNDSP2mJVGAej2EMWJ1sShRAxzn70jA==}
     engines: {node: '>=18'}
     peerDependencies:
-      zod: ^3.0.0
+      zod: ^3.25.76 || ^4
 
-  '@ai-sdk/anthropic@1.2.12':
-    resolution: {integrity: sha512-YSzjlko7JvuiyQFmI9RN1tNZdEiZxc+6xld/0tq/VkJaHpEzGAb1yiNxxvmYVcjvfu/PcvCxAAYXmTYQQ63IHQ==}
+  '@ai-sdk/gateway@1.0.23':
+    resolution: {integrity: sha512-ynV7WxpRK2zWLGkdOtrU2hW22mBVkEYVS3iMg1+ZGmAYSgzCqzC74bfOJZ2GU1UdcrFWUsFI9qAYjsPkd+AebA==}
     engines: {node: '>=18'}
     peerDependencies:
-      zod: ^3.0.0
+      zod: ^3.25.76 || ^4
 
-  '@ai-sdk/google@1.2.20':
-    resolution: {integrity: sha512-XJcJPazNmvd1WQ/CHS17EDiJs1kPU0eakOgBin0o1DgXsnhX9OKdDxz+tgtriWE8HliN9edU0mhzMiiraz7EQA==}
+  '@ai-sdk/google@2.0.11':
+    resolution: {integrity: sha512-dnVIgSz1DZD/0gVau6ifYN3HZFN15HZwC9VjevTFfvrfSfbEvpXj5x/k/zk/0XuQrlQ5g8JiwJtxc9bx24x2xw==}
     engines: {node: '>=18'}
     peerDependencies:
-      zod: ^3.0.0
+      zod: ^3.25.76 || ^4
 
-  '@ai-sdk/groq@1.2.9':
-    resolution: {integrity: sha512-7MoDaxm8yWtiRbD1LipYZG0kBl+Xe0sv/EeyxnHnGPZappXdlgtdOgTZVjjXkT3nWP30jjZi9A45zoVrBMb3Xg==}
+  '@ai-sdk/groq@2.0.16':
+    resolution: {integrity: sha512-oW/bty0qy56jq4bOhu8IXPDovZyAn73bQVblIwpOMyruAO9CjGMncZmcSju68ZXwT/im8+qUq/vVFLqjdHgHig==}
     engines: {node: '>=18'}
     peerDependencies:
-      zod: ^3.0.0
+      zod: ^3.25.76 || ^4
 
-  '@ai-sdk/mistral@1.2.8':
-    resolution: {integrity: sha512-lv857D9UJqCVxiq2Fcu7mSPTypEHBUqLl1K+lCaP6X/7QAkcaxI36QDONG+tOhGHJOXTsS114u8lrUTaEiGXbg==}
+  '@ai-sdk/mistral@2.0.12':
+    resolution: {integrity: sha512-o5q253v7yGqB8YeyITEYe2Wt6iG3p1whdPdlZL2SfkE3bwWqjMzqx6GWqpXyGYeFUw5I8IF1squgHo+wWmU8IQ==}
     engines: {node: '>=18'}
     peerDependencies:
-      zod: ^3.0.0
+      zod: ^3.25.76 || ^4
 
-  '@ai-sdk/openai-compatible@0.2.14':
-    resolution: {integrity: sha512-icjObfMCHKSIbywijaoLdZ1nSnuRnWgMEMLgwoxPJgxsUHMx0aVORnsLUid4SPtdhHI3X2masrt6iaEQLvOSFw==}
+  '@ai-sdk/openai-compatible@1.0.13':
+    resolution: {integrity: sha512-g46fLVWKcVg1XOFzDLoJ0XuhtY5XxxBwMQ0FT/aHwCtg6WUvk3Elrd+MKmgfvhZAdIR7CpUTvgJAAipu4RW75w==}
     engines: {node: '>=18'}
     peerDependencies:
-      zod: ^3.0.0
+      zod: ^3.25.76 || ^4
 
-  '@ai-sdk/openai@1.3.22':
-    resolution: {integrity: sha512-QwA+2EkG0QyjVR+7h6FE7iOu2ivNqAVMm9UJZkVxxTk5OIq5fFJDTEI/zICEMuHImTTXR2JjsL6EirJ28Jc4cw==}
+  '@ai-sdk/openai@2.0.23':
+    resolution: {integrity: sha512-uOXk8HzmMUoCmD0JMX/Y1HC/ABOR/Jza2Z2rkCaJISDYz3fp5pnb6eNjcPRL48JSMzRAGp9UP5p0OpxS06IJZg==}
     engines: {node: '>=18'}
     peerDependencies:
-      zod: ^3.0.0
+      zod: ^3.25.76 || ^4
 
-  '@ai-sdk/provider-utils@2.2.8':
-    resolution: {integrity: sha512-fqhG+4sCVv8x7nFzYnFo19ryhAa3w096Kmc3hWxMQfW/TubPOmt3A6tYZhl4mUfQWWQMsuSkLrtjlWuXBVSGQA==}
+  '@ai-sdk/provider-utils@3.0.7':
+    resolution: {integrity: sha512-o3BS5/t8KnBL3ubP8k3w77AByOypLm+pkIL/DCw0qKkhDbvhCy+L3hRTGPikpdb8WHcylAeKsjgwOxhj4cqTUA==}
     engines: {node: '>=18'}
     peerDependencies:
-      zod: ^3.23.8
+      zod: ^3.25.76 || ^4
 
-  '@ai-sdk/provider@1.1.3':
-    resolution: {integrity: sha512-qZMxYJ0qqX/RfnuIaab+zp8UAeJn/ygXXAffR5I4N0n1IrvA6qBsjc8hXLmBiMV2zoXlifkacF7sEFnYnjBcqg==}
+  '@ai-sdk/provider-utils@3.0.9':
+    resolution: {integrity: sha512-Pm571x5efqaI4hf9yW4KsVlDBDme8++UepZRnq+kqVBWWjgvGhQlzU8glaFq0YJEB9kkxZHbRRyVeHoV2sRYaQ==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4
+
+  '@ai-sdk/provider@2.0.0':
+    resolution: {integrity: sha512-6o7Y2SeO9vFKB8lArHXehNuusnpddKPk7xqL7T2/b+OvXMRIXUO1rR4wcv1hAFUAT9avGZshty3Wlua/XA7TvA==}
     engines: {node: '>=18'}
 
-  '@ai-sdk/react@1.2.12':
-    resolution: {integrity: sha512-jK1IZZ22evPZoQW3vlkZ7wvjYGYF+tRBKXtrcolduIkQ/m/sOAVcVeVDUDvh1T91xCnWCdUGCPZg2avZ90mv3g==}
+  '@ai-sdk/react@2.0.45':
+    resolution: {integrity: sha512-jrTeBQpIsueV6EB/L6KNdH/yadK/Ehx1qCus+9RC29kRikVhjgj8xNvHfH3qHCwsfGqLX9ljj69dCRLrmzpvnw==}
     engines: {node: '>=18'}
     peerDependencies:
       react: ^18 || ^19 || ^19.0.0-rc
-      zod: ^3.23.8
+      zod: ^3.25.76 || ^4
     peerDependenciesMeta:
       zod:
         optional: true
-
-  '@ai-sdk/ui-utils@1.2.11':
-    resolution: {integrity: sha512-3zcwCc8ezzFlwp3ZD15wAPjf2Au4s3vAbKsXQVyhxODHcmu0iyPO2Eua6D/vicq/AUm/BAo60r97O6HU+EI0+w==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      zod: ^3.23.8
 
   '@alloc/quick-lru@5.2.0':
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
@@ -6783,15 +6985,15 @@ packages:
     peerDependencies:
       yjs: ^13.6.1
 
-  '@mantine/core@7.17.3':
-    resolution: {integrity: sha512-N/AfV5eMnfEMx9WzI7AU5pNFBEzAfT/KtE2XDKS+0ht6RifUmolIxyIvoGMYz2yUEsCBMJZqmBq33Rabf5W7Ug==}
+  '@mantine/core@8.3.2':
+    resolution: {integrity: sha512-uIHC9ooEZ9E+/pw8ag4f8pi0GmwSQ1DYnETjr4a4ZNVKJHfVv5NSkjprBxPrKJq9oox/SdcrAWy5XlKTwBzRag==}
     peerDependencies:
-      '@mantine/hooks': 7.17.3
+      '@mantine/hooks': 8.3.2
       react: ^18.x || ^19.x
       react-dom: ^18.x || ^19.x
 
-  '@mantine/hooks@7.17.3':
-    resolution: {integrity: sha512-6o65Rbfl8jd1C1nF9icvungqL0qZViEOmrZgkyKXxBYkC3x91fz4zftwQgNjt1tZHWDNO6Bo4GpRjJyAdwl48g==}
+  '@mantine/hooks@8.3.2':
+    resolution: {integrity: sha512-urDgQJNAs2t2mAyGaA+7uNsBMRn9U/ccvi+ZUl5ef3/Wzfv5KYHe9LA9DBNhn24BTSewxrI27W0EFpFxv/Jsbg==}
     peerDependencies:
       react: ^18.x || ^19.x
 
@@ -9355,9 +9557,6 @@ packages:
   '@types/debug@4.1.12':
     resolution: {integrity: sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ==}
 
-  '@types/diff-match-patch@1.0.36':
-    resolution: {integrity: sha512-xFdR6tkm0MWvBfO8xXCSsinYxHcqkQUlcHeSpMC2ukzOb6lwQAfDmW+Qt0AvlGd8HpsS28qKsB+oPeJn9I39jg==}
-
   '@types/diff@6.0.0':
     resolution: {integrity: sha512-dhVCYGv3ZSbzmQaBSagrv1WJ6rXCdkyTcDyoNu1MD8JohI7pR7k8wdZEm+mvdxRKXyHVwckFzWU1vJc+Z29MlA==}
 
@@ -9916,15 +10115,11 @@ packages:
     resolution: {integrity: sha512-jRR5wdylq8CkOe6hei19GGZnxM6rBGwFl3Bg0YItGDimvjGtAvdZk4Pu6Cl4u4Igsws4a1fd1Vq3ezrhn4KmFw==}
     engines: {node: '>= 14'}
 
-  ai@4.3.15:
-    resolution: {integrity: sha512-TYKRzbWg6mx/pmTadlAEIhuQtzfHUV0BbLY72+zkovXwq/9xhcH24IlQmkyBpElK6/4ArS0dHdOOtR1jOPVwtg==}
+  ai@5.0.45:
+    resolution: {integrity: sha512-go6J78B1oTXZMN2XLlNJnrFxwcqXQtpPqUVyk1wvzvpb2dk5nP9yNuxqqOX9HrrKuf5U9M6rSezEJWr1eEG9RA==}
     engines: {node: '>=18'}
     peerDependencies:
-      react: ^18 || ^19 || ^19.0.0-rc
-      zod: ^3.23.8
-    peerDependenciesMeta:
-      react:
-        optional: true
+      zod: ^3.25.76 || ^4
 
   ajv-formats@2.1.1:
     resolution: {integrity: sha512-Wx0Kx52hxE7C18hkMEggYlEifqWZtYaRgouJor+WMdPnQyEK13vgEWyVNup7SoeeoLMsr4kf5h6dOW11I15MUA==}
@@ -10751,9 +10946,6 @@ packages:
   dfa@1.2.0:
     resolution: {integrity: sha512-ED3jP8saaweFTjeGX8HQPjeC1YYyZs98jGNZx6IiBvxW7JG5v492kamAQB3m2wop07CvU/RQmzcKr6bgcC5D/Q==}
 
-  diff-match-patch@1.0.5:
-    resolution: {integrity: sha512-IayShXAgj/QMXgB0IWmKx+rOPuGMhqm5w6jvFxmVenXKIzRqTAAsbBPT3kWQeGANj3jGgvcvv4yK6SxqYmikgw==}
-
   diff-sequences@29.6.3:
     resolution: {integrity: sha512-EjePK1srD3P08o2j4f0ExnylqRs5B9tJjcp9t1krH2qRi8CCdsYfwe9JgSLurFBWwq4uOlipzfk5fHNvwFKr8Q==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
@@ -11135,6 +11327,10 @@ packages:
   events@3.3.0:
     resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
     engines: {node: '>=0.8.x'}
+
+  eventsource-parser@3.0.6:
+    resolution: {integrity: sha512-Vo1ab+QXPzZ4tCa8SwIHJFaSzy4R6SHf7BY79rFBDf0idraZWAkYrDjDj8uWaSm3S2TK+hJ7/t1CEmZ7jXw+pg==}
+    engines: {node: '>=18.0.0'}
 
   execa@5.1.1:
     resolution: {integrity: sha512-8uSpZZocAZRBAPIEINJj3Lo9HyGitllczc27Eh5YYojjMFMn8yHMDMaUHE2Jqfq05D/wucwI4JGURyXt1vchyg==}
@@ -12136,11 +12332,6 @@ packages:
 
   jsonc-parser@3.2.0:
     resolution: {integrity: sha512-gfFQZrcTc8CnKXp6Y4/CBT3fTc0OVuDofpre4aEeEpSBPV5X5v4+Vmx+8snU7RLPrNHPKSgLxGo9YuQzz20o+w==}
-
-  jsondiffpatch@0.6.0:
-    resolution: {integrity: sha512-3QItJOXp2AP1uv7waBkao5nCvhEv+QmJAd38Ybq7wNI74Q+BBmnLn4EDKz6yI9xGAIQoUF87qHt+kc1IVxB4zQ==}
-    engines: {node: ^18.0.0 || >=20.0.0}
-    hasBin: true
 
   jsx-ast-utils@3.3.5:
     resolution: {integrity: sha512-ZZow9HBI5O6EPgSJLUb8n2NKgmVWTwCvHGwFuJlMjvLFqlGG6pjirPhtdsseaLZjSibD8eegzmYpUZwoIlj2cQ==}
@@ -13530,8 +13721,8 @@ packages:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  react-number-format@5.4.3:
-    resolution: {integrity: sha512-VCY5hFg/soBighAoGcdE+GagkJq0230qN6jcS5sp8wQX1qy1fYN/RX7/BXkrs0oyzzwqR8/+eSUrqXbGeywdUQ==}
+  react-number-format@5.4.4:
+    resolution: {integrity: sha512-wOmoNZoOpvMminhifQYiYSTCLUDOiUbBunrMrMjA+dV52sY+vck1S4UhR6PkgnoCquvvMSeJjErXZ4qSaWCliA==}
     peerDependencies:
       react: ^0.14 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^0.14 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -13600,8 +13791,8 @@ packages:
       '@types/react':
         optional: true
 
-  react-textarea-autosize@8.5.6:
-    resolution: {integrity: sha512-aT3ioKXMa8f6zHYGebhbdMD2L00tKeRX1zuVuDx9YQK/JLLRSaSxq3ugECEmUB9z2kvk6bFSIoRHLkkUv0RJiw==}
+  react-textarea-autosize@8.5.9:
+    resolution: {integrity: sha512-U1DGlIQN5AwgjTyOEnI1oCcMuEr1pv1qOtklB2l4nyMGbHzWrI0eFsYK0zos2YWqAolJyG0IWJaqWmWj5ETh0A==}
     engines: {node: '>=10'}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -13900,9 +14091,6 @@ packages:
   section-matter@1.0.0:
     resolution: {integrity: sha512-vfD3pmTzGpufjScBh50YHKzEu2lxBWhVEHsNGoEXmCmn2hKGfeNLYMzCJpe8cD7gqX7TJluOVpBkAequ6dgMmA==}
     engines: {node: '>=4'}
-
-  secure-json-parse@2.7.0:
-    resolution: {integrity: sha512-6aU+Rwsezw7VR8/nyvKTx8QpWH9FrcYiXXlqC4z5d5XQBDRqtbfsRjnwGyqbi3gddNtWHuEk9OANUotL26qKUw==}
 
   selderee@0.11.0:
     resolution: {integrity: sha512-5TF+l7p4+OsnP8BCCvSyZiSPc4x4//p5uPwK8TCnVPJYRmU2aYKMpOXvw8zM5a5JvuuCGN1jmsMwuU2W02ukfA==}
@@ -14249,8 +14437,8 @@ packages:
   svg-arc-to-cubic-bezier@3.2.0:
     resolution: {integrity: sha512-djbJ/vZKZO+gPoSDThGNpKDO+o+bAeA4XQKovvkNCqnIS2t+S4qnLAGQhyyrulhCFRl1WWzAp0wUDV8PpTVU3g==}
 
-  swr@2.3.3:
-    resolution: {integrity: sha512-dshNvs3ExOqtZ6kJBaAsabhPdHyeY4P2cKwRCniDVifBMoG/SVI7tfLWqPXriVspf2Rg4tPzXJTnwaihIeFw2A==}
+  swr@2.3.6:
+    resolution: {integrity: sha512-wfHRmHWk/isGNMwlLGlZX5Gzz/uTgo0o2IRuTMcf4CPuPFJZlq0rDaKUx+ozB5nBOReNV1kiOyzMfj+MBMikLw==}
     peerDependencies:
       react: ^16.11.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
@@ -14494,6 +14682,10 @@ packages:
 
   type-fest@4.38.0:
     resolution: {integrity: sha512-2dBz5D5ycHIoliLYLi0Q2V7KRaDlH0uWIvmk7TYlAg5slqwiPv1ezJdZm1QEM0xgk29oYWMCbIG7E6gHpvChlg==}
+    engines: {node: '>=16'}
+
+  type-fest@4.41.0:
+    resolution: {integrity: sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA==}
     engines: {node: '>=16'}
 
   typed-array-buffer@1.0.3:
@@ -15127,11 +15319,6 @@ packages:
   youch@3.3.4:
     resolution: {integrity: sha512-UeVBXie8cA35DS6+nBkls68xaBBXCye0CNznrhszZjTbRVnJKQuNsyLKBTTL4ln1o1rh2PKtv35twV7irj5SEg==}
 
-  zod-to-json-schema@3.24.5:
-    resolution: {integrity: sha512-/AuWwMP+YqiPbsJx5D6TfgRTc4kTLjsh5SOcd4bLsfUg2RcEXrFMJl1DGgdHy2aCfsIA/cr/1JM0xcB2GZji8g==}
-    peerDependencies:
-      zod: ^3.24.1
-
   zod@3.24.2:
     resolution: {integrity: sha512-lY7CDW43ECgW9u1TcT3IoXHflywfVqDYze4waEz812jR/bZ8FHDsl7pFQoSZTz5N+2NqRXs8GBwnAwo3ZNxqhQ==}
 
@@ -15161,75 +15348,75 @@ packages:
 
 snapshots:
 
-  '@ai-sdk/anthropic@1.2.11(zod@3.25.76)':
+  '@ai-sdk/anthropic@2.0.9(zod@3.25.76)':
     dependencies:
-      '@ai-sdk/provider': 1.1.3
-      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.76)
+      '@ai-sdk/provider': 2.0.0
+      '@ai-sdk/provider-utils': 3.0.7(zod@3.25.76)
       zod: 3.25.76
 
-  '@ai-sdk/anthropic@1.2.12(zod@3.25.76)':
+  '@ai-sdk/gateway@1.0.23(zod@3.25.76)':
     dependencies:
-      '@ai-sdk/provider': 1.1.3
-      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.76)
+      '@ai-sdk/provider': 2.0.0
+      '@ai-sdk/provider-utils': 3.0.9(zod@3.25.76)
       zod: 3.25.76
 
-  '@ai-sdk/google@1.2.20(zod@3.25.76)':
+  '@ai-sdk/google@2.0.11(zod@3.25.76)':
     dependencies:
-      '@ai-sdk/provider': 1.1.3
-      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.76)
+      '@ai-sdk/provider': 2.0.0
+      '@ai-sdk/provider-utils': 3.0.7(zod@3.25.76)
       zod: 3.25.76
 
-  '@ai-sdk/groq@1.2.9(zod@3.25.76)':
+  '@ai-sdk/groq@2.0.16(zod@3.25.76)':
     dependencies:
-      '@ai-sdk/provider': 1.1.3
-      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.76)
+      '@ai-sdk/provider': 2.0.0
+      '@ai-sdk/provider-utils': 3.0.7(zod@3.25.76)
       zod: 3.25.76
 
-  '@ai-sdk/mistral@1.2.8(zod@3.25.76)':
+  '@ai-sdk/mistral@2.0.12(zod@3.25.76)':
     dependencies:
-      '@ai-sdk/provider': 1.1.3
-      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.76)
+      '@ai-sdk/provider': 2.0.0
+      '@ai-sdk/provider-utils': 3.0.7(zod@3.25.76)
       zod: 3.25.76
 
-  '@ai-sdk/openai-compatible@0.2.14(zod@3.25.76)':
+  '@ai-sdk/openai-compatible@1.0.13(zod@3.25.76)':
     dependencies:
-      '@ai-sdk/provider': 1.1.3
-      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.76)
+      '@ai-sdk/provider': 2.0.0
+      '@ai-sdk/provider-utils': 3.0.7(zod@3.25.76)
       zod: 3.25.76
 
-  '@ai-sdk/openai@1.3.22(zod@3.25.76)':
+  '@ai-sdk/openai@2.0.23(zod@3.25.76)':
     dependencies:
-      '@ai-sdk/provider': 1.1.3
-      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.76)
+      '@ai-sdk/provider': 2.0.0
+      '@ai-sdk/provider-utils': 3.0.7(zod@3.25.76)
       zod: 3.25.76
 
-  '@ai-sdk/provider-utils@2.2.8(zod@3.25.76)':
+  '@ai-sdk/provider-utils@3.0.7(zod@3.25.76)':
     dependencies:
-      '@ai-sdk/provider': 1.1.3
-      nanoid: 3.3.11
-      secure-json-parse: 2.7.0
+      '@ai-sdk/provider': 2.0.0
+      '@standard-schema/spec': 1.0.0
+      eventsource-parser: 3.0.6
       zod: 3.25.76
 
-  '@ai-sdk/provider@1.1.3':
+  '@ai-sdk/provider-utils@3.0.9(zod@3.25.76)':
+    dependencies:
+      '@ai-sdk/provider': 2.0.0
+      '@standard-schema/spec': 1.0.0
+      eventsource-parser: 3.0.6
+      zod: 3.25.76
+
+  '@ai-sdk/provider@2.0.0':
     dependencies:
       json-schema: 0.4.0
 
-  '@ai-sdk/react@1.2.12(react@19.1.0)(zod@3.25.76)':
+  '@ai-sdk/react@2.0.45(react@19.1.0)(zod@3.25.76)':
     dependencies:
-      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.76)
-      '@ai-sdk/ui-utils': 1.2.11(zod@3.25.76)
+      '@ai-sdk/provider-utils': 3.0.9(zod@3.25.76)
+      ai: 5.0.45(zod@3.25.76)
       react: 19.1.0
-      swr: 2.3.3(react@19.1.0)
+      swr: 2.3.6(react@19.1.0)
       throttleit: 2.1.0
     optionalDependencies:
       zod: 3.25.76
-
-  '@ai-sdk/ui-utils@1.2.11(zod@3.25.76)':
-    dependencies:
-      '@ai-sdk/provider': 1.1.3
-      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.76)
-      zod: 3.25.76
-      zod-to-json-schema: 3.24.5(zod@3.25.76)
 
   '@alloc/quick-lru@5.2.0': {}
 
@@ -17546,21 +17733,21 @@ snapshots:
     transitivePeerDependencies:
       - '@types/json-schema'
 
-  '@mantine/core@7.17.3(@mantine/hooks@7.17.3(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@mantine/core@8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@floating-ui/react': 0.26.28(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@mantine/hooks': 7.17.3(react@19.1.0)
+      '@floating-ui/react': 0.27.16(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@mantine/hooks': 8.3.2(react@19.1.0)
       clsx: 2.1.1
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
-      react-number-format: 5.4.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      react-number-format: 5.4.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react-remove-scroll: 2.7.1(@types/react@19.1.8)(react@19.1.0)
-      react-textarea-autosize: 8.5.6(@types/react@19.1.8)(react@19.1.0)
-      type-fest: 4.38.0
+      react-textarea-autosize: 8.5.9(@types/react@19.1.8)(react@19.1.0)
+      type-fest: 4.41.0
     transitivePeerDependencies:
       - '@types/react'
 
-  '@mantine/hooks@7.17.3(react@19.1.0)':
+  '@mantine/hooks@8.3.2(react@19.1.0)':
     dependencies:
       react: 19.1.0
 
@@ -17656,7 +17843,7 @@ snapshots:
 
   '@mui/private-theming@5.17.1(@types/react@19.1.8)(react@19.1.0)':
     dependencies:
-      '@babel/runtime': 7.27.6
+      '@babel/runtime': 7.28.4
       '@mui/utils': 5.17.1(@types/react@19.1.8)(react@19.1.0)
       prop-types: 15.8.1
       react: 19.1.0
@@ -17665,7 +17852,7 @@ snapshots:
 
   '@mui/styled-engine@5.16.14(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@babel/runtime': 7.27.6
+      '@babel/runtime': 7.28.4
       '@emotion/cache': 11.14.0
       csstype: 3.1.3
       prop-types: 15.8.1
@@ -20198,6 +20385,13 @@ snapshots:
       postcss: 8.5.6
       tailwindcss: 4.1.12
 
+  '@tailwindcss/vite@4.1.12(vite@5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0))':
+    dependencies:
+      '@tailwindcss/node': 4.1.12
+      '@tailwindcss/oxide': 4.1.12
+      tailwindcss: 4.1.12
+      vite: 5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0)
+
   '@tailwindcss/vite@4.1.12(vite@6.3.5(@types/node@22.15.2)(jiti@2.5.1)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.19.3)(yaml@2.7.0))':
     dependencies:
       '@tailwindcss/node': 4.1.12
@@ -20463,8 +20657,6 @@ snapshots:
   '@types/debug@4.1.12':
     dependencies:
       '@types/ms': 2.1.0
-
-  '@types/diff-match-patch@1.0.36': {}
 
   '@types/diff@6.0.0': {}
 
@@ -21170,17 +21362,13 @@ snapshots:
 
   agent-base@7.1.3: {}
 
-  ai@4.3.15(react@19.1.0)(zod@3.25.76):
+  ai@5.0.45(zod@3.25.76):
     dependencies:
-      '@ai-sdk/provider': 1.1.3
-      '@ai-sdk/provider-utils': 2.2.8(zod@3.25.76)
-      '@ai-sdk/react': 1.2.12(react@19.1.0)(zod@3.25.76)
-      '@ai-sdk/ui-utils': 1.2.11(zod@3.25.76)
+      '@ai-sdk/gateway': 1.0.23(zod@3.25.76)
+      '@ai-sdk/provider': 2.0.0
+      '@ai-sdk/provider-utils': 3.0.9(zod@3.25.76)
       '@opentelemetry/api': 1.9.0
-      jsondiffpatch: 0.6.0
       zod: 3.25.76
-    optionalDependencies:
-      react: 19.1.0
 
   ajv-formats@2.1.1(ajv@8.17.1):
     optionalDependencies:
@@ -22055,8 +22243,6 @@ snapshots:
 
   dfa@1.2.0: {}
 
-  diff-match-patch@1.0.5: {}
-
   diff-sequences@29.6.3: {}
 
   dir-glob@3.0.1:
@@ -22086,7 +22272,7 @@ snapshots:
 
   dom-helpers@5.2.1:
     dependencies:
-      '@babel/runtime': 7.27.6
+      '@babel/runtime': 7.28.4
       csstype: 3.1.3
 
   dom-serializer@2.0.0:
@@ -22672,6 +22858,8 @@ snapshots:
   eventemitter3@5.0.1: {}
 
   events@3.3.0: {}
+
+  eventsource-parser@3.0.6: {}
 
   execa@5.1.1:
     dependencies:
@@ -23881,12 +24069,6 @@ snapshots:
   json5@2.2.3: {}
 
   jsonc-parser@3.2.0: {}
-
-  jsondiffpatch@0.6.0:
-    dependencies:
-      '@types/diff-match-patch': 1.0.36
-      chalk: 5.4.1
-      diff-match-patch: 1.0.5
 
   jsx-ast-utils@3.3.5:
     dependencies:
@@ -25596,7 +25778,7 @@ snapshots:
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
-  react-number-format@5.4.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
+  react-number-format@5.4.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
@@ -25659,9 +25841,9 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.1.8
 
-  react-textarea-autosize@8.5.6(@types/react@19.1.8)(react@19.1.0):
+  react-textarea-autosize@8.5.9(@types/react@19.1.8)(react@19.1.0):
     dependencies:
-      '@babel/runtime': 7.27.6
+      '@babel/runtime': 7.28.4
       react: 19.1.0
       use-composed-ref: 1.4.0(@types/react@19.1.8)(react@19.1.0)
       use-latest: 1.3.0(@types/react@19.1.8)(react@19.1.0)
@@ -25764,7 +25946,7 @@ snapshots:
 
   regenerator-transform@0.15.2:
     dependencies:
-      '@babel/runtime': 7.27.6
+      '@babel/runtime': 7.28.4
 
   regex-recursion@6.0.2:
     dependencies:
@@ -26106,8 +26288,6 @@ snapshots:
     dependencies:
       extend-shallow: 2.0.1
       kind-of: 6.0.3
-
-  secure-json-parse@2.7.0: {}
 
   selderee@0.11.0:
     dependencies:
@@ -26551,11 +26731,11 @@ snapshots:
 
   svg-arc-to-cubic-bezier@3.2.0: {}
 
-  swr@2.3.3(react@19.1.0):
+  swr@2.3.6(react@19.1.0):
     dependencies:
       dequal: 2.0.3
       react: 19.1.0
-      use-sync-external-store: 1.4.0(react@19.1.0)
+      use-sync-external-store: 1.5.0(react@19.1.0)
 
   symbol-tree@3.2.4: {}
 
@@ -26778,6 +26958,8 @@ snapshots:
   type-fest@2.19.0: {}
 
   type-fest@4.38.0: {}
+
+  type-fest@4.41.0: {}
 
   typed-array-buffer@1.0.3:
     dependencies:
@@ -27584,10 +27766,6 @@ snapshots:
       cookie: 0.7.2
       mustache: 4.2.0
       stacktracey: 2.1.8
-
-  zod-to-json-schema@3.24.5(zod@3.25.76):
-    dependencies:
-      zod: 3.25.76
 
   zod@3.24.2: {}
 

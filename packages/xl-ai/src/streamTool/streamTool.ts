@@ -27,7 +27,7 @@ export type StreamTool<T extends { type: string }> = {
   /**
    * The schema of the input that the tool expects. The language model will use this to generate the input.
    */
-  parameters: JSONSchema7;
+  inputSchema: JSONSchema7;
   /**
    * Validates the input of the tool call
    *
@@ -45,17 +45,14 @@ export type StreamTool<T extends { type: string }> = {
    *
    * @returns the stream of operations that have not been processed (and should be passed on to execute handlers of other StreamTools)
    */
-  execute: (
-    operationsStream: AsyncIterable<{
+  executor: () => {
+    execute: (chunk: {
       operation: StreamToolCall<StreamTool<{ type: string }>[]>;
       isUpdateToPreviousOperation: boolean;
       isPossiblyPartial: boolean;
-    }>,
-  ) => AsyncIterable<{
-    operation: StreamToolCall<StreamTool<{ type: string }>[]>;
-    isUpdateToPreviousOperation: boolean;
-    isPossiblyPartial: boolean;
-  }>;
+      metadata: any;
+    }) => Promise<boolean>;
+  };
 };
 
 export type StreamToolCallSingle<T extends StreamTool<any>> =
@@ -66,14 +63,14 @@ export type StreamToolCallSingle<T extends StreamTool<any>> =
  *
  * Its type is the same as what a validated StreamTool returns
  */
-export type StreamToolCall<T extends StreamTool<any> | StreamTool<any>[]> =
+export type StreamToolCall<T extends StreamTool<any> | readonly any[]> =
   T extends StreamTool<infer U>
     ? U
     : // when passed an array of StreamTools, StreamToolCall represents the type of one of the StreamTool invocations
-      T extends StreamTool<any>[]
-      ? T[number] extends StreamTool<infer V>
-        ? V
-        : never
+      T extends readonly unknown[]
+      ? {
+          [K in keyof T]: T[K] extends StreamTool<infer V> ? V : never;
+        }[number]
       : never;
 
 /**

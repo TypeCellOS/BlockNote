@@ -7,11 +7,16 @@ const template = (
 import react from "@vitejs/plugin-react";
 import * as fs from "fs";
 import * as path from "path";
-import { defineConfig } from "vite";
+import { defineConfig } from "vite";${
+  project.config.tailwind
+    ? `
+import tailwindcss from "@tailwindcss/vite";`
+    : ""
+}
 // import eslintPlugin from "vite-plugin-eslint";
 // https://vitejs.dev/config/
 export default defineConfig((conf) => ({
-  plugins: [react()],
+  plugins: [react()${project.config.tailwind ? ", tailwindcss()" : ""}],
   optimizeDeps: {},
   build: {
     sourcemap: true,

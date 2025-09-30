@@ -28,35 +28,72 @@ Text Styles are properties that can be applied to a piece of text, such as bold,
 
 ## Creating your own schema
 
-Once you have defined your custom blocks (see the links above), inline content or styles, you can create a schema and pass this to the initialization of the editor.
+Once you have defined your custom blocks (see the links above), inline content or styles, you can create a schema and pass this to the initialization of the editor. There are two ways to create a new schema.
+
+### Extending an existing schema
+
+You can call `BlockNoteSchema.extend` to add custom blocks, inline content, or styles to an existing schema. While this works for any existing schema, it's most common to use this to extend the default schema.
+
+```typescript
+// Creates an instance of the default schema when nothing is passed to
+// `BlockNoteSchema.create`.
+const schema = BlockNoteSchema.create()
+  // Adds custom blocks, inline content, or styles to the default schema.
+  .extend({
+    blockSpecs: {
+      // Add your own custom blocks:
+      customBlock: CustomBlock,
+      ...
+    },
+    inlineContentSpecs: {
+      // Add your own custom inline content:
+      customInlineContent: CustomInlineContent,
+      ...
+    },
+    styleSpecs: {
+      // Add your own custom styles:
+      customStyle: CustomStyle,
+      ...
+    },
+  });
+```
+
+### Creating a schema from scratch
+
+Passing custom blocks, inline content, or styles directly into `BlockNoteSchema.create` will produce a new schema with only the things you pass. This can be useful if you only need a few basic things from the default schema, and intend to implement everything else yourself.
 
 ```typescript
 const schema = BlockNoteSchema.create({
   blockSpecs: {
-    // enable the default blocks if desired
-    ...defaultBlockSpecs,
+    // Add only the default paragraph block:
+    paragraph: defaultBlockSpecs.paragraph,
 
     // Add your own custom blocks:
-    // customBlock: CustomBlock,
+    customBlock: CustomBlock,
+    ...
   },
   inlineContentSpecs: {
-    // enable the default inline content if desired
-    ...defaultInlineContentSpecs,
+    // Add only the default text inline content:
+    text: defaultInlineContentSpecs.text,
 
     // Add your own custom inline content:
-    // customInlineContent: CustomInlineContent,
+    customInlineContent: CustomInlineContent,
+    ...
   },
   styleSpecs: {
-    // enable the default styles if desired
-    ...defaultStyleSpecs,
+    // Add only the default bold style:
+    bold: defaultStyleSpecs.bold,
 
     // Add your own custom styles:
-    // customStyle: CustomStyle
+    customStyle: CustomStyle,
+    ...
   },
 });
 ```
 
-You can then pass this to the instantiation of your BlockNoteEditor (`BlockNoteEditor.create` or `useCreateBlockNote`):
+## Using your own schema
+
+Once you've created an instance of your schema using `BlockNoteSchema.create` or `BlockNoteSchema.extend`, you can pass it to the `schema` option of your BlockNoteEditor (`BlockNoteEditor.create` or `useCreateBlockNote`):
 
 ```typescript
 const editor = useCreateBlockNote({

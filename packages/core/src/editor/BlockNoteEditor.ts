@@ -3,6 +3,7 @@ import {
   createDocument,
   EditorOptions,
   Extension,
+  FocusPosition,
   getSchema,
   InputRule,
   isNodeSelection,
@@ -155,6 +156,13 @@ export type BlockNoteEditorOptions<
    * @default true
    */
   animations?: boolean;
+
+  /**
+   * Whether the editor should be focused automatically when it's created.
+   *
+   * @default false
+   */
+  autofocus?: FocusPosition;
 
   /**
    * When enabled, allows for collaboration between multiple users.
@@ -433,7 +441,9 @@ export type BlockNoteEditorOptions<
   /**
    * Register extensions to the editor.
    *
-   * @internal
+   * See [Extensions](/docs/features/extensions) for more info.
+   *
+   * @remarks `BlockNoteExtension[]`
    */
   extensions?: Array<BlockNoteExtension | BlockNoteExtensionFactory>;
 };
@@ -848,6 +858,7 @@ export class BlockNoteEditor<
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
       element: null,
+      autofocus: newOptions.autofocus ?? false,
       extensions: tiptapExtensions,
       editorProps: {
         ...newOptions._tiptapOptions?.editorProps,

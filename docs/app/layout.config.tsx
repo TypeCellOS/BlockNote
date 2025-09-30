@@ -1,13 +1,13 @@
 import { AuthNavButton } from "@/components/AuthNavButton";
 import ThemedImage from "@/components/ThemedImage";
-import LogoLight from "@/public/img/logos/banner.svg";
 import LogoDark from "@/public/img/logos/banner.dark.svg";
+import LogoLight from "@/public/img/logos/banner.svg";
 import {
   NavbarSidebarTrigger,
   type DocsLayoutProps,
 } from "fumadocs-ui/layouts/docs";
-import { FaBook, FaCode, FaDiscord, FaGithub } from "react-icons/fa";
 import { HomeLayoutProps } from "fumadocs-ui/layouts/home";
+import { FaBook, FaCode, FaGithub } from "react-icons/fa";
 
 /**
  * Shared layout configurations
@@ -67,12 +67,12 @@ export const baseOptions: Partial<DocsLayoutProps & HomeLayoutProps> = {
       url: "/about",
       active: "url",
     },
-    {
-      type: "icon",
-      icon: <FaDiscord />,
-      text: "Discord",
-      url: "https://discord.gg/Qc2QTTH5dF",
-    },
+    // {
+    //   type: "icon",
+    //   icon: <FaDiscord />,
+    //   text: "Discord",
+    //   url: "https://discord.gg/Qc2QTTH5dF",
+    // },
     {
       type: "icon",
       icon: <FaGithub />,

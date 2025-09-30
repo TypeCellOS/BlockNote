@@ -32,6 +32,7 @@ class SuggestionMenuView<
   constructor(
     private readonly editor: BlockNoteEditor<BSchema, I, S>,
     emitUpdate: (menuName: string, state: SuggestionMenuState) => void,
+    view: EditorView,
   ) {
     this.pluginState = undefined;
 
@@ -46,7 +47,7 @@ class SuggestionMenuView<
       });
     };
 
-    this.rootEl = this.editor.prosemirrorView?.root;
+    this.rootEl = view.root;
 
     // Setting capture=true ensures that any parent container of the editor that
     // gets scrolled will trigger the scroll event. Scroll events do not bubble
@@ -181,12 +182,13 @@ export class SuggestionMenuProseMirrorPlugin<
       new Plugin({
         key: suggestionMenuPluginKey,
 
-        view: () => {
+        view: (view) => {
           this.view = new SuggestionMenuView<BSchema, I, S>(
             editor,
             (triggerCharacter, state) => {
               this.emit(`update ${triggerCharacter}`, state);
             },
+            view,
           );
           return this.view;
         },
