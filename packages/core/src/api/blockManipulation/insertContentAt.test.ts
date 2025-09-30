@@ -6,7 +6,7 @@ import { insertContentAt } from "./insertContentAt.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { inlineContentToNodes } from "../nodeConversions/blockToNode.js";
 import { getPmSchema } from "../pmUtil.js";
-import { resolveLocation } from "../../locations/location.js";
+import { resolveLocationToPM } from "../../locations/location.js";
 import type { Location } from "../../locations/types.js";
 
 const getEditor = setupTestEnv();
@@ -41,7 +41,7 @@ function insertContentAtLocation(
         ? [pmSchema.text(content)]
         : inlineContentToNodes(content, pmSchema);
 
-    const range = resolveLocation(tr.doc, location);
+    const range = resolveLocationToPM(tr.doc, location);
 
     return insertContentAt(
       tr,
@@ -461,7 +461,10 @@ describe("Test insertContentAt with Location types", () => {
     expect(
       editor.transact((tr) => {
         const pmSchema = getPmSchema(tr);
-        const range = resolveLocation(tr.doc, { id: "paragraph-0", offset: 5 });
+        const range = resolveLocationToPM(tr.doc, {
+          id: "paragraph-0",
+          offset: 5,
+        });
         const paragraphNode = pmSchema.nodes.paragraph.createChecked({}, [
           pmSchema.text("New paragraph"),
         ]);

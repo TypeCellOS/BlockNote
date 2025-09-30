@@ -2,7 +2,7 @@ import { Fragment, Slice } from "prosemirror-model";
 import type { Transaction } from "prosemirror-state";
 import { ReplaceStep } from "prosemirror-transform";
 import { Block, PartialBlock } from "../../../../blocks/defaultBlocks.js";
-import { resolveLocation } from "../../../../locations/location.js";
+import { resolveLocationToPM } from "../../../../locations/location.js";
 import { Location } from "../../../../locations/types.js";
 import {
   BlockSchema,
@@ -28,7 +28,7 @@ export function insertBlocks<
     blockToNode(block, pmSchema),
   );
 
-  const resolved = resolveLocation(tr.doc, referenceBlock);
+  const resolved = resolveLocationToPM(tr.doc, referenceBlock);
   const pos = placement === "after" ? resolved.head + 1 : resolved.anchor;
 
   tr.step(

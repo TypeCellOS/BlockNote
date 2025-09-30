@@ -6,7 +6,7 @@ import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
 } from "../../blocks/defaultBlocks.js";
-import { resolveLocation } from "../../locations/location.js";
+import { resolveLocationToPM } from "../../locations/location.js";
 import { Location } from "../../locations/types.js";
 import {
   BlockSchema,
@@ -41,7 +41,7 @@ export class StyleManager<
 
     this.editor.transact((tr) => {
       const range = location
-        ? resolveLocation(tr.doc, location)
+        ? resolveLocationToPM(tr.doc, location)
         : {
             anchor: tr.selection.from,
             head: tr.selection.to,

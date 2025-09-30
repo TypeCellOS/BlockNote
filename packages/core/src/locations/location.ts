@@ -20,7 +20,7 @@ import { Block } from "../blocks/index.js";
 /**
  * Resolves a {@link Location} to a {@link PMLocation}.
  */
-export function resolveLocation(doc: Node, location: Location): PMLocation {
+export function resolveLocationToPM(doc: Node, location: Location): PMLocation {
   if (isBlockId(location)) {
     return resolveBlockToPM(doc, location);
   }
@@ -288,6 +288,6 @@ export function getSelectionLocation(tr: Transaction): {
 }
 
 export function setSelectionLocation(tr: Transaction, location: Location) {
-  const resolved = resolveLocation(tr.doc, location);
+  const resolved = resolveLocationToPM(tr.doc, location);
   tr.setSelection(TextSelection.create(tr.doc, resolved.anchor, resolved.head));
 }

@@ -26,7 +26,6 @@ export function getSelection<
 >(tr: Transaction): Selection<BSchema, I, S> | undefined {
   // Return undefined if the selection is collapsed or a node is selected.
   if (tr.selection.empty || "node" in tr.selection) {
-    // TODO do we really want this?
     return undefined;
   }
 

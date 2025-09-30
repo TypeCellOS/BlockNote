@@ -1,7 +1,7 @@
 import { describe, expect, it, beforeEach, afterEach } from "vitest";
 import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import {
-  resolveLocation,
+  resolveLocationToPM,
   resolveBlockToPM,
   resolvePointToPM,
   resolveRangeToPM,
@@ -61,7 +61,7 @@ describe("Location Resolution", () => {
 
   describe("resolveLocation", () => {
     it("should resolve BlockId to PMLocation", () => {
-      const result = resolveLocation(doc, "block1");
+      const result = resolveLocationToPM(doc, "block1");
 
       expect(result).toMatchInlineSnapshot(`
         {
@@ -72,7 +72,7 @@ describe("Location Resolution", () => {
     });
 
     it("should resolve BlockIdentifier object to PMLocation", () => {
-      const result = resolveLocation(doc, { id: "block2" });
+      const result = resolveLocationToPM(doc, { id: "block2" });
 
       expect(result).toMatchInlineSnapshot(`
         {
@@ -84,7 +84,7 @@ describe("Location Resolution", () => {
 
     it("should resolve Point to PMLocation", () => {
       const point: Point = { id: "block1", offset: 5 };
-      const result = resolveLocation(doc, point);
+      const result = resolveLocationToPM(doc, point);
 
       expect(result).toMatchInlineSnapshot(`
         {
@@ -99,7 +99,7 @@ describe("Location Resolution", () => {
         anchor: { id: "block1", offset: 0 },
         head: { id: "block3", offset: 10 },
       };
-      const result = resolveLocation(doc, range);
+      const result = resolveLocationToPM(doc, range);
 
       expect(result).toMatchInlineSnapshot(`
         {
@@ -111,7 +111,7 @@ describe("Location Resolution", () => {
 
     it("should throw error for invalid location type", () => {
       expect(() => {
-        resolveLocation(doc, "invalid-location-type" as any);
+        resolveLocationToPM(doc, "invalid-location-type" as any);
       }).toThrow("Block with ID invalid-location-type not found");
     });
   });
@@ -1501,12 +1501,12 @@ describe("Location Resolution", () => {
       const complexDoc = complexEditor._tiptapEditor.state.doc;
 
       // Test resolving different types of locations
-      const blockResult = resolveLocation(complexDoc, "title");
-      const pointResult = resolveLocation(complexDoc, {
+      const blockResult = resolveLocationToPM(complexDoc, "title");
+      const pointResult = resolveLocationToPM(complexDoc, {
         id: "intro",
         offset: 10,
       });
-      const rangeResult = resolveLocation(complexDoc, {
+      const rangeResult = resolveLocationToPM(complexDoc, {
         anchor: { id: "list1", offset: 0 },
         head: { id: "list2", offset: -1 },
       });
@@ -1536,8 +1536,8 @@ describe("Location Resolution", () => {
     it("should maintain consistency across multiple calls", () => {
       const point: Point = { id: "block1", offset: 5 };
 
-      const result1 = resolveLocation(doc, point);
-      const result2 = resolveLocation(doc, point);
+      const result1 = resolveLocationToPM(doc, point);
+      const result2 = resolveLocationToPM(doc, point);
 
       expect(result1).toMatchInlineSnapshot(`
         {

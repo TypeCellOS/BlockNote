@@ -5,8 +5,10 @@ import {
   type Transaction,
 } from "prosemirror-state";
 import type { TextCursorPosition } from "../../../editor/cursorPositionTypes.js";
+import { resolvePMToLocation } from "../../../locations/location.js";
+import { Location } from "../../../locations/types.js";
+import { getBlockId, normalizeToRange } from "../../../locations/utils.js";
 import type {
-  BlockIdentifier,
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
@@ -26,7 +28,6 @@ export function getTextCursorPosition<
   S extends StyleSchema,
 >(tr: Transaction): TextCursorPosition<BSchema, I, S> {
   const { bnBlock } = getBlockInfoFromTransaction(tr);
-  const pmSchema = getPmSchema(tr.doc);
 
   const resolvedPos = tr.doc.resolve(bnBlock.beforePos);
   // Gets previous blockContainer node at the same nesting level, if the current node isn't the first child.
@@ -46,21 +47,27 @@ export function getTextCursorPosition<
     }
   }
 
+  const location = resolvePMToLocation(tr.doc, {
+    anchor: tr.selection.anchor,
+    head: tr.selection.head,
+  });
+
   return {
-    block: nodeToBlock(bnBlock.node, pmSchema),
-    prevBlock: prevNode === null ? undefined : nodeToBlock(prevNode, pmSchema),
-    nextBlock: nextNode === null ? undefined : nodeToBlock(nextNode, pmSchema),
-    parentBlock:
-      parentNode === undefined ? undefined : nodeToBlock(parentNode, pmSchema),
+    meta: { location },
+    range: normalizeToRange(location),
+    block: nodeToBlock(bnBlock.node),
+    prevBlock: prevNode === null ? undefined : nodeToBlock(prevNode),
+    nextBlock: nextNode === null ? undefined : nodeToBlock(nextNode),
+    parentBlock: parentNode === undefined ? undefined : nodeToBlock(parentNode),
   };
 }
 
 export function setTextCursorPosition(
   tr: Transaction,
-  targetBlock: BlockIdentifier,
+  location: Location,
   placement: "start" | "end" = "start",
 ) {
-  const id = typeof targetBlock === "string" ? targetBlock : targetBlock.id;
+  const id = getBlockId(location);
   const pmSchema = getPmSchema(tr.doc);
   const schema = getBlockNoteSchema(pmSchema);
 
