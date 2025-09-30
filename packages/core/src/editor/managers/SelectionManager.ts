@@ -97,8 +97,9 @@ export class SelectionManager<
    * Gets the bounding box of the current selection.
    */
   public getSelectionBoundingBox() {
-    if (!this.editor.prosemirrorView) {
-      return undefined;
+    if (!this.editor.headless) {
+      // There is no selection bounding box in headless mode, so we return a dummy DOMRect.
+      return new DOMRect(0, 0, 0, 0);
     }
 
     const { selection } = this.editor.prosemirrorState;
