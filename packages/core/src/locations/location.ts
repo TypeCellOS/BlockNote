@@ -65,7 +65,7 @@ export function resolvePointToPM(doc: Node, point: Point): PMLocation {
     };
   }
 
-  const head = block.anchor + point.offset + 1;
+  const head = block.anchor + point.offset + 2;
 
   if (head > block.head) {
     // TODO should this just clamp?
@@ -154,7 +154,7 @@ export function resolvePMToLocation(
     if (headOffset === anchorOffset) {
       return {
         id: anchorBlockPos.node.attrs.id,
-        offset: headOffset,
+        offset: headOffset - 1,
       };
     }
   }
@@ -163,12 +163,12 @@ export function resolvePMToLocation(
   return {
     anchor: {
       id: anchorBlockPos.node.attrs.id,
-      offset: anchorOffset,
+      offset: anchorOffset - 1,
     },
 
     head: {
       id: headBlockPos.node.attrs.id,
-      offset: headOffset,
+      offset: headOffset - 1,
     },
   };
 }

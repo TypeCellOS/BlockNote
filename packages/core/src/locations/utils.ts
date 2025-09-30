@@ -166,12 +166,15 @@ export function isLocationEqual(
  * Gets the block id from a location.
  * @throws if the location is not a single block.
  */
-export function getBlockId(location: Location): BlockId {
+export function getBlockId(
+  location: Location,
+  placement?: "start" | "end",
+): BlockId {
   const range = normalizeToRange(location);
-  if (range.anchor.id !== range.head.id) {
+  if (placement === undefined && range.anchor.id !== range.head.id) {
     throw new Error("Invalid location, must be a single block", {
       cause: { location },
     });
   }
-  return range.anchor.id;
+  return placement === "end" ? range.head.id : range.anchor.id;
 }

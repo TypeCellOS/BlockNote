@@ -74,6 +74,7 @@ import { updateBlockTr } from "../api/blockManipulation/commands/updateBlock/upd
 import { getBlockInfoFromTransaction } from "../api/getBlockInfoFromPos.js";
 import { blockToNode } from "../api/nodeConversions/blockToNode.js";
 import "../style.css";
+import { Location } from "../locations/types.js";
 
 /**
  * A factory function that returns a BlockNoteExtension
@@ -1257,7 +1258,7 @@ export class BlockNoteEditor<
    * @param startBlock The identifier of the block that should be the start of the selection.
    * @param endBlock The identifier of the block that should be the end of the selection.
    */
-  public setSelection(startBlock: BlockIdentifier, endBlock: BlockIdentifier) {
+  public setSelection(startBlock: Location, endBlock: Location) {
     return this._selectionManager.setSelection(startBlock, endBlock);
   }
 
@@ -1354,9 +1355,15 @@ export class BlockNoteEditor<
    */
   public insertInlineContent(
     content: PartialInlineContent<ISchema, SSchema>,
-    { updateSelection = false }: { updateSelection?: boolean } = {},
+    {
+      updateSelection = false,
+      location,
+    }: { updateSelection?: boolean; location?: Location } = {},
   ) {
-    this._styleManager.insertInlineContent(content, { updateSelection });
+    this._styleManager.insertInlineContent(content, {
+      updateSelection,
+      location,
+    });
   }
 
   /**

@@ -117,6 +117,28 @@ exports[`Test getSelection & setSelection > Ends in column 1`] = `
       "type": "columnList",
     },
   ],
+  "meta": {
+    "location": {
+      "anchor": {
+        "id": "paragraph-1",
+        "offset": 0,
+      },
+      "head": {
+        "id": "column-paragraph-1",
+        "offset": 18,
+      },
+    },
+  },
+  "range": {
+    "anchor": {
+      "id": "paragraph-1",
+      "offset": 0,
+    },
+    "head": {
+      "id": "column-paragraph-1",
+      "offset": 18,
+    },
+  },
 }
 `;
 
@@ -254,6 +276,28 @@ exports[`Test getSelection & setSelection > Spans column list 1`] = `
       "type": "paragraph",
     },
   ],
+  "meta": {
+    "location": {
+      "anchor": {
+        "id": "paragraph-1",
+        "offset": 0,
+      },
+      "head": {
+        "id": "paragraph-2",
+        "offset": 11,
+      },
+    },
+  },
+  "range": {
+    "anchor": {
+      "id": "paragraph-1",
+      "offset": 0,
+    },
+    "head": {
+      "id": "paragraph-2",
+      "offset": 11,
+    },
+  },
 }
 `;
 
@@ -312,5 +356,27 @@ exports[`Test getSelection & setSelection > Starts in column 1`] = `
       "type": "paragraph",
     },
   ],
+  "meta": {
+    "location": {
+      "anchor": {
+        "id": "column-paragraph-2",
+        "offset": 0,
+      },
+      "head": {
+        "id": "paragraph-2",
+        "offset": 11,
+      },
+    },
+  },
+  "range": {
+    "anchor": {
+      "id": "column-paragraph-2",
+      "offset": 0,
+    },
+    "head": {
+      "id": "paragraph-2",
+      "offset": 11,
+    },
+  },
 }
 `;

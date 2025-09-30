@@ -88,8 +88,8 @@ describe("Location Resolution", () => {
 
       expect(result).toMatchInlineSnapshot(`
         {
-          "anchor": 7,
-          "head": 7,
+          "anchor": 8,
+          "head": 8,
         }
       `);
     });
@@ -103,8 +103,8 @@ describe("Location Resolution", () => {
 
       expect(result).toMatchInlineSnapshot(`
         {
-          "anchor": 2,
-          "head": 48,
+          "anchor": 3,
+          "head": 49,
         }
       `);
     });
@@ -197,8 +197,8 @@ describe("Location Resolution", () => {
 
       expect(result).toMatchInlineSnapshot(`
         {
-          "anchor": 2,
-          "head": 2,
+          "anchor": 3,
+          "head": 3,
         }
       `);
     });
@@ -209,8 +209,8 @@ describe("Location Resolution", () => {
 
       expect(result).toMatchInlineSnapshot(`
         {
-          "anchor": 3,
-          "head": 3,
+          "anchor": 4,
+          "head": 4,
         }
       `);
     });
@@ -221,8 +221,8 @@ describe("Location Resolution", () => {
 
       expect(result).toMatchInlineSnapshot(`
         {
-          "anchor": 7,
-          "head": 7,
+          "anchor": 8,
+          "head": 8,
         }
       `);
     });
@@ -266,8 +266,8 @@ describe("Location Resolution", () => {
 
       expect(result).toMatchInlineSnapshot(`
         {
-          "anchor": 12,
-          "head": 12,
+          "anchor": 13,
+          "head": 13,
         }
       `);
 
@@ -293,8 +293,8 @@ describe("Location Resolution", () => {
 
       expect(result).toMatchInlineSnapshot(`
         {
-          "anchor": 2,
-          "head": 43,
+          "anchor": 3,
+          "head": 44,
         }
       `);
     });
@@ -308,8 +308,8 @@ describe("Location Resolution", () => {
 
       expect(result).toMatchInlineSnapshot(`
         {
-          "anchor": 4,
-          "head": 10,
+          "anchor": 5,
+          "head": 11,
         }
       `);
     });
@@ -323,8 +323,8 @@ describe("Location Resolution", () => {
 
       expect(result).toMatchInlineSnapshot(`
         {
-          "anchor": 43,
-          "head": 4,
+          "anchor": 44,
+          "head": 5,
         }
       `);
     });
@@ -353,7 +353,7 @@ describe("Location Resolution", () => {
 
       expect(result).toMatchInlineSnapshot(`
         {
-          "anchor": 2,
+          "anchor": 3,
           "head": 114,
         }
       `);
@@ -527,8 +527,8 @@ describe("Location Resolution", () => {
 
         expect(result).toMatchInlineSnapshot(`
           {
-            "anchor": 7,
-            "head": 7,
+            "anchor": 8,
+            "head": 8,
           }
         `);
       });
@@ -539,8 +539,8 @@ describe("Location Resolution", () => {
 
         expect(result).toMatchInlineSnapshot(`
           {
-            "anchor": 27,
-            "head": 27,
+            "anchor": 28,
+            "head": 28,
           }
         `);
       });
@@ -551,8 +551,8 @@ describe("Location Resolution", () => {
 
         expect(result).toMatchInlineSnapshot(`
           {
-            "anchor": 71,
-            "head": 71,
+            "anchor": 72,
+            "head": 72,
           }
         `);
       });
@@ -604,7 +604,7 @@ describe("Location Resolution", () => {
 
         expect(result).toMatchInlineSnapshot(`
           {
-            "anchor": 24,
+            "anchor": 25,
             "head": 90,
           }
         `);
@@ -619,7 +619,7 @@ describe("Location Resolution", () => {
 
         expect(result).toMatchInlineSnapshot(`
           {
-            "anchor": 2,
+            "anchor": 3,
             "head": 88,
           }
         `);
@@ -649,7 +649,7 @@ describe("Location Resolution", () => {
 
         expect(result).toMatchInlineSnapshot(`
           {
-            "anchor": 2,
+            "anchor": 3,
             "head": 167,
           }
         `);
@@ -664,7 +664,7 @@ describe("Location Resolution", () => {
 
         expect(result).toMatchInlineSnapshot(`
           {
-            "anchor": 69,
+            "anchor": 70,
             "head": 210,
           }
         `);
@@ -756,8 +756,8 @@ describe("Location Resolution", () => {
 
         expect(result).toMatchInlineSnapshot(`
           {
-            "anchor": 62,
-            "head": 62,
+            "anchor": 63,
+            "head": 63,
           }
         `);
       });
@@ -771,7 +771,7 @@ describe("Location Resolution", () => {
 
         expect(result).toMatchInlineSnapshot(`
           {
-            "anchor": 2,
+            "anchor": 3,
             "head": 94,
           }
         `);
@@ -816,7 +816,7 @@ describe("Location Resolution", () => {
         expect(result).toMatchInlineSnapshot(`
           {
             "id": "block1",
-            "offset": 6,
+            "offset": 5,
           }
         `);
       });
@@ -833,19 +833,19 @@ describe("Location Resolution", () => {
         expect(result1).toMatchInlineSnapshot(`
           {
             "id": "block1",
-            "offset": 6,
+            "offset": 5,
           }
         `);
         expect(result2).toMatchInlineSnapshot(`
           {
             "id": "block2",
-            "offset": 3,
+            "offset": 2,
           }
         `);
         expect(result3).toMatchInlineSnapshot(`
           {
             "id": "block3",
-            "offset": 7,
+            "offset": 6,
           }
         `);
       });
@@ -860,13 +860,13 @@ describe("Location Resolution", () => {
         expect(resultStart).toMatchInlineSnapshot(`
           {
             "id": "block1",
-            "offset": 0,
+            "offset": -1,
           }
         `);
         expect(resultEnd).toMatchInlineSnapshot(`
           {
             "id": "block1",
-            "offset": 13,
+            "offset": 12,
           }
         `);
       });
@@ -881,13 +881,13 @@ describe("Location Resolution", () => {
         expect(result4).toMatchInlineSnapshot(`
           {
             "id": "block4",
-            "offset": 0,
+            "offset": -1,
           }
         `);
         expect(result5).toMatchInlineSnapshot(`
           {
             "id": "block4",
-            "offset": 15,
+            "offset": 14,
           }
         `);
       });
@@ -902,11 +902,11 @@ describe("Location Resolution", () => {
           {
             "anchor": {
               "id": "block1",
-              "offset": 6,
+              "offset": 5,
             },
             "head": {
               "id": "block2",
-              "offset": 3,
+              "offset": 2,
             },
           }
         `);
@@ -920,11 +920,11 @@ describe("Location Resolution", () => {
           {
             "anchor": {
               "id": "block1",
-              "offset": 6,
+              "offset": 5,
             },
             "head": {
               "id": "block3",
-              "offset": 7,
+              "offset": 6,
             },
           }
         `);
@@ -938,11 +938,11 @@ describe("Location Resolution", () => {
           {
             "anchor": {
               "id": "block4",
-              "offset": 0,
+              "offset": -1,
             },
             "head": {
               "id": "block3",
-              "offset": 7,
+              "offset": 6,
             },
           }
         `);
@@ -956,11 +956,11 @@ describe("Location Resolution", () => {
           {
             "anchor": {
               "id": "block3",
-              "offset": 7,
+              "offset": 6,
             },
             "head": {
               "id": "block1",
-              "offset": 6,
+              "offset": 5,
             },
           }
         `);
@@ -1021,7 +1021,7 @@ describe("Location Resolution", () => {
         expect(parentResult).toMatchInlineSnapshot(`
           {
             "id": "parent-bullet",
-            "offset": 7,
+            "offset": 6,
           }
         `);
 
@@ -1032,7 +1032,7 @@ describe("Location Resolution", () => {
         expect(childResult).toMatchInlineSnapshot(`
           {
             "id": "child-bullet-1",
-            "offset": 4,
+            "offset": 3,
           }
         `);
 
@@ -1043,7 +1043,7 @@ describe("Location Resolution", () => {
         expect(grandchildResult).toMatchInlineSnapshot(`
           {
             "id": "grandchild-bullet",
-            "offset": 3,
+            "offset": 2,
           }
         `);
       });
@@ -1060,11 +1060,11 @@ describe("Location Resolution", () => {
           {
             "anchor": {
               "id": "parent-bullet",
-              "offset": 7,
+              "offset": 6,
             },
             "head": {
               "id": "child-bullet-1",
-              "offset": 4,
+              "offset": 3,
             },
           }
         `);
@@ -1080,11 +1080,11 @@ describe("Location Resolution", () => {
           {
             "anchor": {
               "id": "child-bullet-1",
-              "offset": 4,
+              "offset": 3,
             },
             "head": {
               "id": "grandchild-bullet",
-              "offset": 3,
+              "offset": 2,
             },
           }
         `);
@@ -1100,11 +1100,11 @@ describe("Location Resolution", () => {
           {
             "anchor": {
               "id": "grandchild-bullet",
-              "offset": 3,
+              "offset": 2,
             },
             "head": {
               "id": "simple-paragraph",
-              "offset": 1,
+              "offset": 0,
             },
           }
         `);
@@ -1119,11 +1119,11 @@ describe("Location Resolution", () => {
           {
             "anchor": {
               "id": "parent-bullet",
-              "offset": 0,
+              "offset": -1,
             },
             "head": {
               "id": "parent-bullet",
-              "offset": 20,
+              "offset": 19,
             },
           }
         `);
@@ -1136,11 +1136,11 @@ describe("Location Resolution", () => {
           {
             "anchor": {
               "id": "child-bullet-1",
-              "offset": 0,
+              "offset": -1,
             },
             "head": {
               "id": "child-bullet-1",
-              "offset": 20,
+              "offset": 19,
             },
           }
         `);
@@ -1154,8 +1154,8 @@ describe("Location Resolution", () => {
         const pmLocation = resolvePointToPM(doc, originalPoint);
         expect(pmLocation).toMatchInlineSnapshot(`
           {
-            "anchor": 7,
-            "head": 7,
+            "anchor": 8,
+            "head": 8,
           }
         `);
         const convertedLocation = resolvePMToLocation(doc, pmLocation);
@@ -1237,8 +1237,8 @@ describe("Location Resolution", () => {
         const pmRange = resolveRangeToPM(nestedDoc, originalRange);
         expect(pmRange).toMatchInlineSnapshot(`
           {
-            "anchor": 2,
-            "head": 17,
+            "anchor": 3,
+            "head": 18,
           }
         `);
 
@@ -1261,13 +1261,13 @@ describe("Location Resolution", () => {
         expect(startResult).toMatchInlineSnapshot(`
           {
             "id": "block1",
-            "offset": -1,
+            "offset": -2,
           }
         `);
         expect(endResult).toMatchInlineSnapshot(`
           {
             "id": "block5",
-            "offset": 15,
+            "offset": 14,
           }
         `);
       });
@@ -1308,7 +1308,7 @@ describe("Location Resolution", () => {
               "pos": 0,
               "result": {
                 "id": "block1",
-                "offset": -1,
+                "offset": -2,
               },
             },
             {
@@ -1316,7 +1316,7 @@ describe("Location Resolution", () => {
               "pos": 1,
               "result": {
                 "id": "block1",
-                "offset": -1,
+                "offset": -2,
               },
             },
             {
@@ -1324,7 +1324,7 @@ describe("Location Resolution", () => {
               "pos": 2,
               "result": {
                 "id": "block1",
-                "offset": 0,
+                "offset": -1,
               },
             },
             {
@@ -1332,7 +1332,7 @@ describe("Location Resolution", () => {
               "pos": 3,
               "result": {
                 "id": "block1",
-                "offset": 1,
+                "offset": 0,
               },
             },
             {
@@ -1340,7 +1340,7 @@ describe("Location Resolution", () => {
               "pos": 13,
               "result": {
                 "id": "block1",
-                "offset": 11,
+                "offset": 10,
               },
             },
             {
@@ -1348,7 +1348,7 @@ describe("Location Resolution", () => {
               "pos": 14,
               "result": {
                 "id": "block1",
-                "offset": 12,
+                "offset": 11,
               },
             },
             {
@@ -1356,7 +1356,7 @@ describe("Location Resolution", () => {
               "pos": 15,
               "result": {
                 "id": "block1",
-                "offset": 13,
+                "offset": 12,
               },
             },
             {
@@ -1364,7 +1364,7 @@ describe("Location Resolution", () => {
               "pos": 16,
               "result": {
                 "id": "block2",
-                "offset": -1,
+                "offset": -2,
               },
             },
             {
@@ -1372,7 +1372,7 @@ describe("Location Resolution", () => {
               "pos": 17,
               "result": {
                 "id": "block2",
-                "offset": 0,
+                "offset": -1,
               },
             },
             {
@@ -1380,7 +1380,7 @@ describe("Location Resolution", () => {
               "pos": 18,
               "result": {
                 "id": "block2",
-                "offset": 1,
+                "offset": 0,
               },
             },
           ]
@@ -1395,7 +1395,7 @@ describe("Location Resolution", () => {
         expect(result).toMatchInlineSnapshot(`
           {
             "id": "block2",
-            "offset": -1,
+            "offset": -2,
           }
         `);
       });
@@ -1441,7 +1441,7 @@ describe("Location Resolution", () => {
         expect(deepResult).toMatchInlineSnapshot(`
           {
             "id": "level1",
-            "offset": 9,
+            "offset": 8,
           }
         `);
 
@@ -1453,11 +1453,11 @@ describe("Location Resolution", () => {
           {
             "anchor": {
               "id": "root",
-              "offset": 2,
+              "offset": 1,
             },
             "head": {
               "id": "level3",
-              "offset": 8,
+              "offset": 7,
             },
           }
         `);
@@ -1519,13 +1519,13 @@ describe("Location Resolution", () => {
       `);
       expect(pointResult).toMatchInlineSnapshot(`
         {
-          "anchor": 30,
-          "head": 30,
+          "anchor": 31,
+          "head": 31,
         }
       `);
       expect(rangeResult).toMatchInlineSnapshot(`
         {
-          "anchor": 59,
+          "anchor": 60,
           "head": 96,
         }
       `);
@@ -1541,14 +1541,14 @@ describe("Location Resolution", () => {
 
       expect(result1).toMatchInlineSnapshot(`
         {
-          "anchor": 7,
-          "head": 7,
+          "anchor": 8,
+          "head": 8,
         }
       `);
       expect(result2).toMatchInlineSnapshot(`
         {
-          "anchor": 7,
-          "head": 7,
+          "anchor": 8,
+          "head": 8,
         }
       `);
     });
@@ -1793,17 +1793,17 @@ describe("getSelectionLocation", () => {
         "meta": {
           "location": {
             "id": "block1",
-            "offset": 1,
+            "offset": 0,
           },
         },
         "range": {
           "anchor": {
             "id": "block1",
-            "offset": 1,
+            "offset": 0,
           },
           "head": {
             "id": "block1",
-            "offset": 1,
+            "offset": 0,
           },
         },
       }
@@ -1821,8 +1821,8 @@ describe("getSelectionLocation", () => {
     });
     expect(editor.prosemirrorState.selection.toJSON()).toMatchInlineSnapshot(`
       {
-        "anchor": 7,
-        "head": 7,
+        "anchor": 8,
+        "head": 8,
         "type": "text",
       }
     `);

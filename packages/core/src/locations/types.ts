@@ -45,11 +45,11 @@ export type Location = BlockIdentifier | Point | Range;
  */
 export type PMLocation = {
   /**
-   * The "anchored" point (if ambiguous, this _should_ be lower than {@link PMLocation.head})
+   * The "anchored" point (if ambiguous, this _should_ be lower than {@link PMLocation.head} (i.e. `from`))
    */
   anchor: number;
   /**
-   * The "moving" point (if ambiguous, this _should_ be higher than {@link PMLocation.anchor})
+   * The "moving" point (if ambiguous, this _should_ be higher than {@link PMLocation.anchor} (i.e. `to`))
    */
   head: number;
 };

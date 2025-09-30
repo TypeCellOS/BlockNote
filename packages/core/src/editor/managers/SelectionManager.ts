@@ -1,3 +1,4 @@
+import { isNodeSelection, posToDOMRect } from "@tiptap/core";
 import {
   getSelection,
   getSelectionCutBlocks,
@@ -7,22 +8,22 @@ import {
   getTextCursorPosition,
   setTextCursorPosition,
 } from "../../api/blockManipulation/selections/textCursorPosition.js";
-import { isNodeSelection, posToDOMRect } from "@tiptap/core";
+import {
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
+} from "../../blocks/defaultBlocks.js";
+import { getSelectionLocation } from "../../locations/location.js";
+import { Location } from "../../locations/types.js";
 import {
   BlockIdentifier,
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
 } from "../../schema/index.js";
-import {
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-} from "../../blocks/defaultBlocks.js";
-import { Selection } from "../selectionTypes.js";
-import { TextCursorPosition } from "../cursorPositionTypes.js";
 import { BlockNoteEditor } from "../BlockNoteEditor.js";
-import { getSelectionLocation } from "../../locations/location.js";
+import { TextCursorPosition } from "../cursorPositionTypes.js";
+import { Selection } from "../selectionTypes.js";
 
 export class SelectionManager<
   BSchema extends BlockSchema = DefaultBlockSchema,
@@ -61,7 +62,7 @@ export class SelectionManager<
    * @param startBlock The identifier of the block that should be the start of the selection.
    * @param endBlock The identifier of the block that should be the end of the selection.
    */
-  public setSelection(startBlock: BlockIdentifier, endBlock: BlockIdentifier) {
+  public setSelection(startBlock: Location, endBlock: Location) {
     return this.editor.transact((tr) => setSelection(tr, startBlock, endBlock));
   }
 

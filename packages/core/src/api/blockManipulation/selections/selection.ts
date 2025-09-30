@@ -4,7 +4,6 @@ import { TableMap } from "prosemirror-tables";
 import { Block } from "../../../blocks/defaultBlocks.js";
 import { Selection } from "../../../editor/selectionTypes.js";
 import {
-  BlockIdentifier,
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
@@ -16,15 +15,18 @@ import {
 } from "../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../nodeUtil.js";
 import { getBlockNoteSchema, getPmSchema } from "../../pmUtil.js";
+import { getBlockId, normalizeToRange } from "../../../locations/utils.js";
+import { Location } from "../../../locations/types.js";
+import { resolvePMToLocation } from "../../../locations/location.js";
 
 export function getSelection<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
 >(tr: Transaction): Selection<BSchema, I, S> | undefined {
-  const pmSchema = getPmSchema(tr);
   // Return undefined if the selection is collapsed or a node is selected.
   if (tr.selection.empty || "node" in tr.selection) {
+    // TODO do we really want this?
     return undefined;
   }
 
@@ -51,7 +53,7 @@ export function getSelection<
       );
     }
 
-    return nodeToBlock(node, pmSchema);
+    return nodeToBlock(node);
   };
 
   const blocks: Block<BSchema, I, S>[] = [];
@@ -92,7 +94,7 @@ export function getSelection<
   // [ id-2, id-3, id-4, id-6, id-7, id-8, id-9 ]
   if ($startBlockBeforePos.depth > sharedDepth) {
     // Adds the block that the selection starts in.
-    blocks.push(nodeToBlock($startBlockBeforePos.nodeAfter!, pmSchema));
+    blocks.push(nodeToBlock($startBlockBeforePos.nodeAfter!));
 
     // Traverses all depths from the depth of the block in which the selection
     // starts, up to the shared depth.
@@ -127,19 +129,25 @@ export function getSelection<
     );
   }
 
+  const location = resolvePMToLocation(tr.doc, {
+    anchor: tr.selection.anchor,
+    head: tr.selection.head,
+  });
+
   return {
+    meta: { location },
+    range: normalizeToRange(location),
     blocks,
   };
 }
 
 export function setSelection(
   tr: Transaction,
-  startBlock: BlockIdentifier,
-  endBlock: BlockIdentifier,
+  startBlock: Location,
+  endBlock: Location,
 ) {
-  const startBlockId =
-    typeof startBlock === "string" ? startBlock : startBlock.id;
-  const endBlockId = typeof endBlock === "string" ? endBlock : endBlock.id;
+  const startBlockId = getBlockId(startBlock, "start");
+  const endBlockId = getBlockId(endBlock, "end");
   const pmSchema = getPmSchema(tr);
   const schema = getBlockNoteSchema(pmSchema);
 
