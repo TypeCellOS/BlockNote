@@ -102,6 +102,7 @@ export default function App() {
         // We're disabling some default UI elements
         formattingToolbar={false}
         slashMenu={false}
+        style={{ paddingBottom: "300px" }}
       >
         {/* Add the AI Command menu to the editor */}
         <AIMenuController />

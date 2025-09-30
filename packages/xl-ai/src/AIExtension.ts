@@ -88,6 +88,9 @@ const PLUGIN_KEY = new PluginKey(`blocknote-ai-plugin`);
 export class AIExtension extends BlockNoteExtension {
   private previousRequestOptions: LLMRequestOptions | undefined;
 
+  private scrollInProgress = false;
+  private autoScroll = false;
+
   public static key(): string {
     return "ai";
   }
@@ -165,6 +168,51 @@ export class AIExtension extends BlockNoteExtension {
         options.agentCursor || { name: "AI", color: "#8bc6ff" },
       ),
     );
+
+    // Scrolls to the block being edited by the AI while auto scrolling is
+    // enabled.
+    this.editor.onCreate(() => {
+      this.editor.onChange(() => {
+        if (!this.autoScroll) {
+          return;
+        }
+
+        const aiMenuState = this._store.getState().aiMenuState;
+        const aiMenuNonErrorState =
+          aiMenuState === "closed" ? undefined : aiMenuState;
+        if (aiMenuNonErrorState?.status === "ai-writing") {
+          const blockElement = this.editor.domElement?.querySelector(
+            `[data-node-type="blockContainer"][data-id="${aiMenuNonErrorState.blockId}"]`,
+          );
+          blockElement?.scrollIntoView({ block: "center" });
+        }
+      });
+    });
+
+    // Listens for `scroll` and `scrollend` events to see if a new scroll was
+    // started before an existing one ended. This is the most reliable way we
+    // have of checking if a scroll event was caused by the user and not by
+    // `scrollIntoView`, as the events are otherwise indistinguishable. If a
+    // scroll was started before an existing one finished (meaning the user has
+    // scrolled), auto scrolling is disabled.
+    document.addEventListener(
+      "scroll",
+      () => {
+        if (this.scrollInProgress) {
+          this.autoScroll = false;
+        }
+
+        this.scrollInProgress = true;
+      },
+      true,
+    );
+    document.addEventListener(
+      "scrollend",
+      () => {
+        this.scrollInProgress = false;
+      },
+      true,
+    );
   }
 
   /**
@@ -179,6 +227,12 @@ export class AIExtension extends BlockNoteExtension {
         status: "user-input",
       },
     });
+
+    // Scrolls to the block when the menu opens.
+    const blockElement = this.editor.domElement?.querySelector(
+      `[data-node-type="blockContainer"][data-id="${blockID}"]`,
+    );
+    blockElement?.scrollIntoView({ block: "center" });
   }
 
   /**
@@ -364,6 +418,7 @@ export class AIExtension extends BlockNoteExtension {
       ret = await doLLMRequest(this.editor, {
         ...requestOptions,
         onStart: () => {
+          this.autoScroll = true;
           this.setAIResponseStatus("ai-writing");
           opts.onStart?.();
         },

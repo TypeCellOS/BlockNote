@@ -209,6 +209,7 @@ export default function App() {
         editor={editor}
         formattingToolbar={false}
         slashMenu={false}
+        style={{ paddingBottom: "300px" }}
       >
         {/* Add the AI Command menu to the editor */}
         <AIMenuController />
