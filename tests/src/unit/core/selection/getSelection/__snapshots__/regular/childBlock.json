@@ -1,7 +1,25 @@
 {
-  "_meta": {
-    "startPos": 15,
-    "endPos": 41
+  "meta": {
+    "location": {
+      "anchor": {
+        "id": "2",
+        "offset": 0
+      },
+      "head": {
+        "id": "2",
+        "offset": 18
+      }
+    }
+  },
+  "range": {
+    "anchor": {
+      "id": "2",
+      "offset": 0
+    },
+    "head": {
+      "id": "2",
+      "offset": 18
+    }
   },
   "blocks": [
     {

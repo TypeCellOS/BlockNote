@@ -19,7 +19,7 @@ export const testGetSelectionRegular = async <
 ) => {
   initTestEditor(editor, testCase.document, testCase.getSelection);
 
-  const blockNoteSelection = editor.getSelectionCutBlocks();
+  const blockNoteSelection = editor.getSelection();
 
   await expect(
     JSON.stringify(blockNoteSelection, undefined, 2),

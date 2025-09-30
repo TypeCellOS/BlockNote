@@ -1,7 +1,25 @@
 {
-  "_meta": {
-    "startPos": 54,
-    "endPos": 74
+  "meta": {
+    "location": {
+      "anchor": {
+        "id": "1",
+        "offset": 52
+      },
+      "head": {
+        "id": "1",
+        "offset": 66
+      }
+    }
+  },
+  "range": {
+    "anchor": {
+      "id": "1",
+      "offset": 52
+    },
+    "head": {
+      "id": "1",
+      "offset": 66
+    }
   },
   "blocks": [
     {
@@ -13,11 +31,67 @@
       "content": {
         "type": "tableContent",
         "columnWidths": [
+          null,
           null
         ],
         "rows": [
           {
             "cells": [
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Table Cell 1",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              },
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Table Cell 2",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Table Cell 3",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              },
               {
                 "type": "tableCell",
                 "content": [
@@ -41,6 +115,5 @@
       },
       "children": []
     }
-  ],
-  "blockCutAtStart": "1"
+  ]
 }
