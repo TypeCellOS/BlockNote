@@ -165,23 +165,6 @@
         }
       ],
       "children": []
-    },
-    {
-      "id": "4",
-      "type": "paragraph",
-      "props": {
-        "backgroundColor": "default",
-        "textColor": "default",
-        "textAlignment": "left"
-      },
-      "content": [
-        {
-          "type": "text",
-          "text": "Paragraph 3",
-          "styles": {}
-        }
-      ],
-      "children": []
     }
   ]
 }

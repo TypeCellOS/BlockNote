@@ -95,23 +95,6 @@
         }
       ],
       "children": []
-    },
-    {
-      "id": "2",
-      "type": "paragraph",
-      "props": {
-        "backgroundColor": "default",
-        "textColor": "default",
-        "textAlignment": "left"
-      },
-      "content": [
-        {
-          "type": "text",
-          "text": "Paragraph 2",
-          "styles": {}
-        }
-      ],
-      "children": []
     }
   ]
 }

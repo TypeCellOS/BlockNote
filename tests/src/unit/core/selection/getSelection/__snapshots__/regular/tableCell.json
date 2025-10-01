@@ -130,7 +130,6 @@
       "content": {
         "type": "tableContent",
         "columnWidths": [
-          null,
           null
         ],
         "rows": [
@@ -142,61 +141,6 @@
                   {
                     "type": "text",
                     "text": "Table Cell 1",
-                    "styles": {}
-                  }
-                ],
-                "props": {
-                  "colspan": 1,
-                  "rowspan": 1,
-                  "backgroundColor": "default",
-                  "textColor": "default",
-                  "textAlignment": "left"
-                }
-              },
-              {
-                "type": "tableCell",
-                "content": [
-                  {
-                    "type": "text",
-                    "text": "Table Cell 2",
-                    "styles": {}
-                  }
-                ],
-                "props": {
-                  "colspan": 1,
-                  "rowspan": 1,
-                  "backgroundColor": "default",
-                  "textColor": "default",
-                  "textAlignment": "left"
-                }
-              }
-            ]
-          },
-          {
-            "cells": [
-              {
-                "type": "tableCell",
-                "content": [
-                  {
-                    "type": "text",
-                    "text": "Table Cell 3",
-                    "styles": {}
-                  }
-                ],
-                "props": {
-                  "colspan": 1,
-                  "rowspan": 1,
-                  "backgroundColor": "default",
-                  "textColor": "default",
-                  "textAlignment": "left"
-                }
-              },
-              {
-                "type": "tableCell",
-                "content": [
-                  {
-                    "type": "text",
-                    "text": "Table Cell 4",
                     "styles": {}
                   }
                 ],

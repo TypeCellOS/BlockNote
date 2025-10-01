@@ -90,23 +90,6 @@
       "content": [
         {
           "type": "text",
-          "text": "Nested Paragraph 2",
-          "styles": {}
-        }
-      ],
-      "children": []
-    },
-    {
-      "id": "3",
-      "type": "paragraph",
-      "props": {
-        "backgroundColor": "default",
-        "textColor": "default",
-        "textAlignment": "left"
-      },
-      "content": [
-        {
-          "type": "text",
           "text": "Nested Paragraph ",
           "styles": {}
         }
