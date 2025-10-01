@@ -1,6 +1,6 @@
 import { Node, mergeAttributes } from "@tiptap/core";
 import { DOMParser, Fragment, Node as PMNode, Schema } from "prosemirror-model";
-import { TableView } from "prosemirror-tables";
+import { CellSelection, TableMap, TableView } from "prosemirror-tables";
 import { NodeView } from "prosemirror-view";
 import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import {
@@ -264,6 +264,59 @@ const TiptapTableParagraph = Node.create({
   name: "tableParagraph",
   group: "tableContent",
   content: "inline*",
+
+  addKeyboardShortcuts() {
+    return {
+      // If the table is empty while all cells are selected, deletes the table.
+      Backspace: ({ editor }) => {
+        if (!(editor.state.selection instanceof CellSelection)) {
+          return false;
+        }
+
+        const anchorCellColIndex = editor.state.selection.$anchorCell.index();
+        const anchorCellRowIndex = editor.state.selection.$anchorCell.index(-1);
+        const headCellColIndex = editor.state.selection.$headCell.index();
+        const headCellRowIndex = editor.state.selection.$headCell.index(-1);
+
+        const minColIndex = Math.min(anchorCellColIndex, headCellColIndex);
+        const maxColIndex = Math.max(anchorCellColIndex, headCellColIndex);
+        const minRowIndex = Math.min(anchorCellRowIndex, headCellRowIndex);
+        const maxRowIndex = Math.max(anchorCellRowIndex, headCellRowIndex);
+
+        const posBeforeTable = editor.state.selection.$anchorCell.before(-1);
+        const tableNode = editor.state.doc.resolve(posBeforeTable).nodeAfter!;
+
+        const tableMap = TableMap.get(tableNode);
+
+        if (
+          minColIndex !== 0 ||
+          maxColIndex !== tableMap.width - 1 ||
+          minRowIndex !== 0 ||
+          maxRowIndex !== tableMap.height - 1
+        ) {
+          return false;
+        }
+
+        for (
+          let cellIndex = 0;
+          cellIndex < tableMap.height * tableMap.width;
+          cellIndex++
+        ) {
+          const posBeforeCell = posBeforeTable + tableMap.map[cellIndex] + 1;
+          const cellNode = editor.state.doc.resolve(posBeforeCell).nodeAfter!;
+
+          if (cellNode.firstChild && cellNode.firstChild?.content.size > 0) {
+            return false;
+          }
+        }
+
+        return editor.commands.deleteRange({
+          from: posBeforeTable,
+          to: posBeforeTable + tableNode.nodeSize,
+        });
+      },
+    };
+  },
 
   parseHTML() {
     return [
