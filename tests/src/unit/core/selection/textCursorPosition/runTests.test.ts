@@ -5,6 +5,8 @@ import { testSchema } from "../../testSchema.js";
 import {
   getTextCursorPositionTestInstancesEnd,
   getTextCursorPositionTestInstancesGetAndSet,
+  getTextCursorPositionTestInstancesPoint,
+  getTextCursorPositionTestInstancesRange,
   getTextCursorPositionTestInstancesStart,
 } from "./textCursorPositionTestInstances.js";
 
@@ -42,6 +44,32 @@ describe("Text cursor position (end)", () => {
     testCase,
     executeTest,
   } of getTextCursorPositionTestInstancesEnd) {
+    it(`${testCase.name}`, async () => {
+      await executeTest(getEditor(), testCase);
+    });
+  }
+});
+
+describe("Text cursor position (point)", () => {
+  const getEditor = createTestEditor(testSchema);
+
+  for (const {
+    testCase,
+    executeTest,
+  } of getTextCursorPositionTestInstancesPoint) {
+    it(`${testCase.name}`, async () => {
+      await executeTest(getEditor(), testCase);
+    });
+  }
+});
+
+describe("Text cursor position (range)", () => {
+  const getEditor = createTestEditor(testSchema);
+
+  for (const {
+    testCase,
+    executeTest,
+  } of getTextCursorPositionTestInstancesRange) {
     it(`${testCase.name}`, async () => {
       await executeTest(getEditor(), testCase);
     });
