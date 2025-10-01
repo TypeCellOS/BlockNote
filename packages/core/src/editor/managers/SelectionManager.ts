@@ -14,7 +14,6 @@ import {
 } from "../../blocks/defaultBlocks.js";
 import { Location } from "../../locations/types.js";
 import {
-  BlockIdentifier,
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
@@ -68,7 +67,7 @@ export class SelectionManager<
    * @param placement Whether the text cursor should be placed at the start or end of the block.
    */
   public setTextCursorPosition(
-    targetBlock: BlockIdentifier,
+    targetBlock: Location,
     placement: "start" | "end" = "start",
   ) {
     return this.editor.transact((tr) =>

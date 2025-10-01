@@ -1226,7 +1226,7 @@ export class BlockNoteEditor<
    * @param placement Whether the text cursor should be placed at the start or end of the block.
    */
   public setTextCursorPosition(
-    targetBlock: BlockIdentifier,
+    targetBlock: Location,
     placement: "start" | "end" = "start",
   ) {
     return this._selectionManager.setTextCursorPosition(targetBlock, placement);

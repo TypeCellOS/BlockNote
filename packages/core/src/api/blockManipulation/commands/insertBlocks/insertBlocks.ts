@@ -30,7 +30,7 @@ export function insertBlocks<
 
   const resolved = resolveLocationToPM(tr.doc, referenceBlock);
   // head + 1 because head points to within the blockContent, not the blockContainer we want to replace
-  const pos = placement === "after" ? resolved.head : resolved.anchor;
+  const pos = placement === "after" ? resolved.head + 1 : resolved.anchor;
 
   tr.step(
     new ReplaceStep(pos, pos, new Slice(Fragment.from(nodesToInsert), 0, 0)),
