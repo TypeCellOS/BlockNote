@@ -9,7 +9,11 @@
         "id": "2",
         "offset": 11
       }
-    }
+    },
+    "anchor": 3,
+    "head": 29,
+    "from": 3,
+    "to": 29
   },
   "range": {
     "anchor": {
@@ -34,6 +38,59 @@
         {
           "type": "text",
           "text": "Paragraph 1",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "2",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Paragraph 2",
+          "styles": {}
+        }
+      ],
+      "children": []
+    }
+  ],
+  "content": [
+    {
+      "id": "1",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Paragraph 1",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "2",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Paragraph 2",
           "styles": {}
         }
       ],

@@ -1243,17 +1243,6 @@ export class BlockNoteEditor<
   }
 
   /**
-   * Gets a snapshot of the current selection. This contains all blocks (included nested blocks)
-   * that the selection spans across.
-   *
-   * If the selection starts / ends halfway through a block, the returned block will be
-   * only the part of the block that is included in the selection.
-   */
-  public getSelectionCutBlocks() {
-    return this._selectionManager.getSelectionCutBlocks();
-  }
-
-  /**
    * Sets the selection to a range of blocks.
    * @param startBlock The identifier of the block that should be the start of the selection.
    * @param endBlock The identifier of the block that should be the end of the selection.

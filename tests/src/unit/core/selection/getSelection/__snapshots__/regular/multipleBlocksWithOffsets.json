@@ -2,32 +2,32 @@
   "meta": {
     "location": {
       "anchor": {
-        "id": "2",
-        "offset": 0
+        "id": "1",
+        "offset": 1
       },
       "head": {
-        "id": "3",
-        "offset": 18
+        "id": "2",
+        "offset": 10
       }
     },
-    "anchor": 18,
-    "head": 58,
-    "from": 18,
-    "to": 58
+    "anchor": 4,
+    "head": 28,
+    "from": 4,
+    "to": 28
   },
   "range": {
     "anchor": {
-      "id": "2",
-      "offset": 0
+      "id": "1",
+      "offset": 1
     },
     "head": {
-      "id": "3",
-      "offset": 18
+      "id": "2",
+      "offset": 10
     }
   },
   "blocks": [
     {
-      "id": "2",
+      "id": "1",
       "type": "paragraph",
       "props": {
         "backgroundColor": "default",
@@ -37,14 +37,14 @@
       "content": [
         {
           "type": "text",
-          "text": "Nested Paragraph 1",
+          "text": "Paragraph 1",
           "styles": {}
         }
       ],
       "children": []
     },
     {
-      "id": "3",
+      "id": "2",
       "type": "paragraph",
       "props": {
         "backgroundColor": "default",
@@ -54,7 +54,7 @@
       "content": [
         {
           "type": "text",
-          "text": "Nested Paragraph 2",
+          "text": "Paragraph 2",
           "styles": {}
         }
       ],
@@ -63,6 +63,23 @@
   ],
   "content": [
     {
+      "id": "1",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "aragraph 1",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
       "id": "2",
       "type": "paragraph",
       "props": {
@@ -73,14 +90,14 @@
       "content": [
         {
           "type": "text",
-          "text": "Nested Paragraph 1",
+          "text": "Paragraph 2",
           "styles": {}
         }
       ],
       "children": []
     },
     {
-      "id": "3",
+      "id": "2",
       "type": "paragraph",
       "props": {
         "backgroundColor": "default",
@@ -90,24 +107,7 @@
       "content": [
         {
           "type": "text",
-          "text": "Nested Paragraph 2",
-          "styles": {}
-        }
-      ],
-      "children": []
-    },
-    {
-      "id": "3",
-      "type": "paragraph",
-      "props": {
-        "backgroundColor": "default",
-        "textColor": "default",
-        "textAlignment": "left"
-      },
-      "content": [
-        {
-          "type": "text",
-          "text": "Nested Paragraph 2",
+          "text": "Paragraph ",
           "styles": {}
         }
       ],

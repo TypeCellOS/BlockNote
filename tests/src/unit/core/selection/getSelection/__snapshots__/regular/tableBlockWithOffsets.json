@@ -3,26 +3,26 @@
     "location": {
       "anchor": {
         "id": "1",
-        "offset": 3
+        "offset": 4
       },
       "head": {
         "id": "1",
-        "offset": 65
+        "offset": 64
       }
     },
-    "anchor": 6,
-    "head": 68,
-    "from": 6,
-    "to": 68
+    "anchor": 7,
+    "head": 67,
+    "from": 7,
+    "to": 67
   },
   "range": {
     "anchor": {
       "id": "1",
-      "offset": 3
+      "offset": 4
     },
     "head": {
       "id": "1",
-      "offset": 65
+      "offset": 64
     }
   },
   "blocks": [
@@ -141,7 +141,7 @@
                 "content": [
                   {
                     "type": "text",
-                    "text": "Table Cell 1",
+                    "text": "able Cell 1",
                     "styles": {}
                   }
                 ],
@@ -196,7 +196,7 @@
                 "content": [
                   {
                     "type": "text",
-                    "text": "Table Cell 4",
+                    "text": "Table Cell ",
                     "styles": {}
                   }
                 ],

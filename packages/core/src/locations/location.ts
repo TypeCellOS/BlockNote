@@ -3,6 +3,7 @@ import {
   getBlockInfo,
   getNearestBlockPos,
 } from "../api/getBlockInfoFromPos.js";
+import { docToBlocks } from "../api/nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../api/nodeUtil.js";
 import type { BlockId, Location, PMLocation, Point, Range } from "./types.js";
 import {
@@ -11,11 +12,7 @@ import {
   isBlockIdentifier,
   isPoint,
   isRange,
-  normalizeToRange,
 } from "./utils.js";
-import { TextSelection, Transaction } from "prosemirror-state";
-import { docToBlocks } from "../api/nodeConversions/nodeToBlock.js";
-import { Block } from "../blocks/index.js";
 
 /**
  * Resolves a {@link Location} to a {@link PMLocation}.
@@ -240,54 +237,4 @@ export function getBlocksAt(
     Math.min(block1, block2),
     Math.max(block1, block2) + 1,
   );
-}
-
-/**
- * Returns the selection's {@link Range} at the given {@link Transaction}'s selection
- */
-export function getSelectionLocation(tr: Transaction): {
-  /**
-   * Meta information about the current selection.
-   */
-  meta: {
-    /**
-     * The underlying location of the current selection.
-     *
-     * If the selection is a single cursor, this will be a {@link Point}.
-     * If the selection is a selection range, this will be a {@link Range}.
-     */
-    location: Point | Range;
-  };
-  /**
-   * The range of the current selection.
-   * @note This is the same as the {@link meta.location} but normalized to a {@link Range}.
-   */
-  range: Range;
-  /**
-   * The blocks that the current selection spans across.
-   */
-  blocks: Block[];
-  // TODO should this be selection cut blocks?
-  content: Block[];
-} {
-  const selection = tr.selection;
-
-  const location = resolvePMToLocation(tr.doc, {
-    anchor: selection.anchor,
-    head: selection.head,
-  });
-
-  return {
-    meta: { location },
-    range: normalizeToRange(location),
-    get blocks() {
-      return getBlocksAt(tr.doc, location) as any;
-    },
-    content: [],
-  };
-}
-
-export function setSelectionLocation(tr: Transaction, location: Location) {
-  const resolved = resolveLocationToPM(tr.doc, location);
-  tr.setSelection(TextSelection.create(tr.doc, resolved.anchor, resolved.head));
 }

@@ -1,3 +1,4 @@
+import { Node } from "prosemirror-model";
 import { TextSelection, type Transaction } from "prosemirror-state";
 import { TableMap } from "prosemirror-tables";
 
@@ -9,15 +10,12 @@ import {
   StyleSchema,
 } from "../../../schema/index.js";
 import { getBlockInfo, getNearestBlockPos } from "../../getBlockInfoFromPos.js";
-import {
-  nodeToBlock,
-  prosemirrorSliceToSlicedBlocks,
-} from "../../nodeConversions/nodeToBlock.js";
+import { nodeToBlock } from "../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../nodeUtil.js";
 import { getBlockNoteSchema, getPmSchema } from "../../pmUtil.js";
+import { resolvePMToLocation } from "../../../locations/location.js";
 import { getBlockId, normalizeToRange } from "../../../locations/utils.js";
 import { Location } from "../../../locations/types.js";
-import { resolvePMToLocation } from "../../../locations/location.js";
 
 export function getSelection<
   BSchema extends BlockSchema,
@@ -37,12 +35,9 @@ export function getSelection<
   );
 
   // Converts the node at the given index and depth around `$startBlockBeforePos`
-  // to a block. Used to get blocks at given indices at the shared depth and
-  // at the depth of `$startBlockBeforePos`.
-  const indexToBlock = (
-    index: number,
-    depth?: number,
-  ): Block<BSchema, I, S> => {
+  // to a `blockContainer` node. Used to get blocks at given indices at the
+  // shared depth and at the depth of `$startBlockBeforePos`.
+  const indexToNode = (index: number, depth?: number): Node => {
     const pos = $startBlockBeforePos.posAtIndex(index, depth);
     const node = tr.doc.resolve(pos).nodeAfter;
 
@@ -52,14 +47,18 @@ export function getSelection<
       );
     }
 
-    return nodeToBlock(node);
+    return node;
   };
 
   const blocks: Block<BSchema, I, S>[] = [];
+
   // Minimum depth at which the blocks share a common ancestor.
   const sharedDepth = $startBlockBeforePos.sharedDepth($endBlockBeforePos.pos);
   const startIndex = $startBlockBeforePos.index(sharedDepth);
   const endIndex = $endBlockBeforePos.index(sharedDepth);
+  const withinSingleBlock = startIndex === endIndex;
+
+  let startNode: Node | undefined = undefined;
 
   // In most cases, we want to return the blocks spanned by the selection at the
   // shared depth. However, when the block in which the selection starts is at a
@@ -93,7 +92,8 @@ export function getSelection<
   // [ id-2, id-3, id-4, id-6, id-7, id-8, id-9 ]
   if ($startBlockBeforePos.depth > sharedDepth) {
     // Adds the block that the selection starts in.
-    blocks.push(nodeToBlock($startBlockBeforePos.nodeAfter!));
+    startNode = $startBlockBeforePos.nodeAfter!;
+    blocks.push(nodeToBlock(startNode));
 
     // Traverses all depths from the depth of the block in which the selection
     // starts, up to the shared depth.
@@ -107,19 +107,20 @@ export function getSelection<
         // Adds all blocks after the index of the block in which the selection
         // starts (or its ancestors at lower depths).
         for (let i = startIndexAtDepth; i < childCountAtDepth; i++) {
-          blocks.push(indexToBlock(i, depth));
+          blocks.push(nodeToBlock(indexToNode(i, depth)));
         }
       }
     }
   } else {
     // Adds the first block spanned by the selection at the shared depth.
-    blocks.push(indexToBlock(startIndex, sharedDepth));
+    startNode = indexToNode(startIndex, sharedDepth);
+    blocks.push(nodeToBlock(startNode));
   }
 
   // Adds all blocks spanned by the selection at the shared depth, excluding
   // the first.
   for (let i = startIndex + 1; i <= endIndex; i++) {
-    blocks.push(indexToBlock(i, sharedDepth));
+    blocks.push(nodeToBlock(indexToNode(i, sharedDepth)));
   }
 
   if (blocks.length === 0) {
@@ -134,9 +135,68 @@ export function getSelection<
   });
 
   return {
-    meta: { location },
+    meta: {
+      location,
+      anchor: tr.selection.anchor,
+      head: tr.selection.head,
+      from: tr.selection.from,
+      to: tr.selection.to,
+    },
     range: normalizeToRange(location),
     blocks,
+    /**
+     * The content of the selection, but in a way that it is always a valid slice of blocks.
+     */
+    get content() {
+      /**
+       * This implements the logic to "cut" a block from the start & end of the selection (no matter where it is)
+       * And return that content as a slice of blocks. The start & end are the only ones that would be different from the blocks array.
+       */
+      const endNode = withinSingleBlock
+        ? startNode
+        : indexToNode(endIndex, sharedDepth);
+
+      let cutStartNode: Node | undefined;
+      let cutEndNode: Node | undefined;
+
+      // Find the start and end nodes within the selection content
+      getSelectionContent(tr).content.descendants((node) => {
+        // Search for the start node by type and id
+        if (
+          !cutStartNode &&
+          node.type.name === startNode.type.name &&
+          node.attrs.id === startNode.attrs.id
+        ) {
+          cutStartNode = node;
+        }
+        // Search for the end node by type and id
+        if (
+          !cutEndNode &&
+          node.type.name === endNode.type.name &&
+          node.attrs.id === endNode.attrs.id
+        ) {
+          cutEndNode = node;
+        }
+        return !cutStartNode || !cutEndNode;
+      });
+
+      // If we didn't find the start or end node, return no blocks
+      if (!cutStartNode || !cutEndNode) {
+        return [];
+      }
+
+      // If selection is within a single node, just return that node
+      if (cutStartNode === cutEndNode) {
+        return [nodeToBlock(cutStartNode)];
+      }
+
+      // Return start node, middle nodes, and end node
+      return [
+        nodeToBlock(cutStartNode),
+        ...blocks.slice(1, -1),
+        nodeToBlock(cutEndNode),
+      ];
+    },
   };
 }
 
@@ -227,10 +287,11 @@ export function setSelection(
   tr.setSelection(TextSelection.create(tr.doc, startPos, endPos));
 }
 
-export function getSelectionCutBlocks(tr: Transaction) {
-  // TODO: fix image node selection
-
-  const pmSchema = getPmSchema(tr);
+/**
+ * Gets the content of the selection, in a way that it is always a valid slice of blocks.
+ * @note It may need to nudge the start or end of the selection to make it a valid slice of blocks.
+ */
+function getSelectionContent(tr: Transaction) {
   let start = tr.selection.$from;
   let end = tr.selection.$to;
 
@@ -247,6 +308,11 @@ export function getSelectionCutBlocks(tr: Transaction) {
     end = tr.doc.resolve(end.pos - 1);
   }
 
+  // if we end up at a blockContainer, move it forward so we can include the blockContainer
+  if (end.node().type.name === "blockContainer") {
+    end = tr.doc.resolve(end.pos + 1);
+  }
+
   // if the start is at the start of a node (<p><span>|) move it backwards so we include all open tags (|<p><span>)
   while (start.parentOffset === 0 && start.depth > 0) {
     start = tr.doc.resolve(start.pos - 1);
@@ -257,16 +323,10 @@ export function getSelectionCutBlocks(tr: Transaction) {
     start = tr.doc.resolve(start.pos + 1);
   }
 
-  const selectionInfo = prosemirrorSliceToSlicedBlocks(
-    tr.doc.slice(start.pos, end.pos, true),
-    pmSchema,
-  );
+  // if we end up at a blockContainer, move it backwards so we can exclude the blockContainer
+  if (start.node().type.name === "blockContainer") {
+    start = tr.doc.resolve(start.pos - 1);
+  }
 
-  return {
-    _meta: {
-      startPos: start.pos,
-      endPos: end.pos,
-    },
-    ...selectionInfo,
-  };
+  return tr.doc.slice(start.pos, end.pos, true);
 }

@@ -3,26 +3,26 @@
     "location": {
       "anchor": {
         "id": "2",
-        "offset": 0
+        "offset": 1
       },
       "head": {
         "id": "3",
-        "offset": 18
+        "offset": 17
       }
     },
-    "anchor": 18,
-    "head": 58,
-    "from": 18,
-    "to": 58
+    "anchor": 19,
+    "head": 57,
+    "from": 19,
+    "to": 57
   },
   "range": {
     "anchor": {
       "id": "2",
-      "offset": 0
+      "offset": 1
     },
     "head": {
       "id": "3",
-      "offset": 18
+      "offset": 17
     }
   },
   "blocks": [
@@ -73,7 +73,7 @@
       "content": [
         {
           "type": "text",
-          "text": "Nested Paragraph 1",
+          "text": "ested Paragraph 1",
           "styles": {}
         }
       ],
@@ -107,7 +107,7 @@
       "content": [
         {
           "type": "text",
-          "text": "Nested Paragraph 2",
+          "text": "Nested Paragraph ",
           "styles": {}
         }
       ],

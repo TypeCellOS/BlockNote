@@ -117,7 +117,81 @@ exports[`Test getSelection & setSelection > Ends in column 1`] = `
       "type": "columnList",
     },
   ],
+  "content": [
+    {
+      "children": [],
+      "content": [
+        {
+          "styles": {},
+          "text": "Paragraph 1",
+          "type": "text",
+        },
+      ],
+      "id": "paragraph-1",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [],
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Column Paragraph 0",
+                  "type": "text",
+                },
+              ],
+              "id": "column-paragraph-0",
+              "props": {
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "paragraph",
+            },
+            {
+              "children": [],
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Column Paragraph 1",
+                  "type": "text",
+                },
+              ],
+              "id": "column-paragraph-1",
+              "props": {
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "paragraph",
+            },
+          ],
+          "content": undefined,
+          "id": "column-0",
+          "props": {
+            "width": 1,
+          },
+          "type": "column",
+        },
+      ],
+      "content": undefined,
+      "id": "column-list-0",
+      "props": {},
+      "type": "columnList",
+    },
+  ],
   "meta": {
+    "anchor": 42,
+    "from": 42,
+    "head": 99,
     "location": {
       "anchor": {
         "id": "paragraph-1",
@@ -128,6 +202,7 @@ exports[`Test getSelection & setSelection > Ends in column 1`] = `
         "offset": 18,
       },
     },
+    "to": 99,
   },
   "range": {
     "anchor": {
@@ -276,7 +351,142 @@ exports[`Test getSelection & setSelection > Spans column list 1`] = `
       "type": "paragraph",
     },
   ],
+  "content": [
+    {
+      "children": [],
+      "content": [
+        {
+          "styles": {},
+          "text": "Paragraph 1",
+          "type": "text",
+        },
+      ],
+      "id": "paragraph-1",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [],
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Column Paragraph 0",
+                  "type": "text",
+                },
+              ],
+              "id": "column-paragraph-0",
+              "props": {
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "paragraph",
+            },
+            {
+              "children": [],
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Column Paragraph 1",
+                  "type": "text",
+                },
+              ],
+              "id": "column-paragraph-1",
+              "props": {
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "paragraph",
+            },
+          ],
+          "content": undefined,
+          "id": "column-0",
+          "props": {
+            "width": 1,
+          },
+          "type": "column",
+        },
+        {
+          "children": [
+            {
+              "children": [],
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Column Paragraph 2",
+                  "type": "text",
+                },
+              ],
+              "id": "column-paragraph-2",
+              "props": {
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "paragraph",
+            },
+            {
+              "children": [],
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Column Paragraph 3",
+                  "type": "text",
+                },
+              ],
+              "id": "column-paragraph-3",
+              "props": {
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "paragraph",
+            },
+          ],
+          "content": undefined,
+          "id": "column-1",
+          "props": {
+            "width": 1,
+          },
+          "type": "column",
+        },
+      ],
+      "content": undefined,
+      "id": "column-list-0",
+      "props": {},
+      "type": "columnList",
+    },
+    {
+      "children": [],
+      "content": [
+        {
+          "styles": {},
+          "text": "Paragraph 2",
+          "type": "text",
+        },
+      ],
+      "id": "paragraph-2",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+  ],
   "meta": {
+    "anchor": 42,
+    "from": 42,
+    "head": 162,
     "location": {
       "anchor": {
         "id": "paragraph-1",
@@ -287,6 +497,7 @@ exports[`Test getSelection & setSelection > Spans column list 1`] = `
         "offset": 11,
       },
     },
+    "to": 162,
   },
   "range": {
     "anchor": {
@@ -356,7 +567,63 @@ exports[`Test getSelection & setSelection > Starts in column 1`] = `
       "type": "paragraph",
     },
   ],
+  "content": [
+    {
+      "children": [],
+      "content": [
+        {
+          "styles": {},
+          "text": "Column Paragraph 2",
+          "type": "text",
+        },
+      ],
+      "id": "column-paragraph-2",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    {
+      "children": [],
+      "content": [
+        {
+          "styles": {},
+          "text": "Column Paragraph 3",
+          "type": "text",
+        },
+      ],
+      "id": "column-paragraph-3",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    {
+      "children": [],
+      "content": [
+        {
+          "styles": {},
+          "text": "Paragraph 2",
+          "type": "text",
+        },
+      ],
+      "id": "paragraph-2",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+  ],
   "meta": {
+    "anchor": 105,
+    "from": 105,
+    "head": 162,
     "location": {
       "anchor": {
         "id": "column-paragraph-2",
@@ -367,6 +634,7 @@ exports[`Test getSelection & setSelection > Starts in column 1`] = `
         "offset": 11,
       },
     },
+    "to": 162,
   },
   "range": {
     "anchor": {

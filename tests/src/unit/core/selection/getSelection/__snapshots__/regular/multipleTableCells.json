@@ -9,7 +9,11 @@
         "id": "1",
         "offset": 66
       }
-    }
+    },
+    "anchor": 55,
+    "head": 69,
+    "from": 55,
+    "to": 69
   },
   "range": {
     "anchor": {
@@ -92,6 +96,45 @@
                   "textAlignment": "left"
                 }
               },
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Table Cell 4",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "children": []
+    }
+  ],
+  "content": [
+    {
+      "id": "1",
+      "type": "table",
+      "props": {
+        "textColor": "default"
+      },
+      "content": {
+        "type": "tableContent",
+        "columnWidths": [
+          null
+        ],
+        "rows": [
+          {
+            "cells": [
               {
                 "type": "tableCell",
                 "content": [

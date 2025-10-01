@@ -1,7 +1,6 @@
 import { isNodeSelection, posToDOMRect } from "@tiptap/core";
 import {
   getSelection,
-  getSelectionCutBlocks,
   setSelection,
 } from "../../api/blockManipulation/selections/selection.js";
 import {
@@ -13,7 +12,6 @@ import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
 } from "../../blocks/defaultBlocks.js";
-import { getSelectionLocation } from "../../locations/location.js";
 import { Location } from "../../locations/types.js";
 import {
   BlockIdentifier,
@@ -40,21 +38,6 @@ export class SelectionManager<
    */
   public getSelection(): Selection<BSchema, ISchema, SSchema> | undefined {
     return this.editor.transact((tr) => getSelection(tr));
-  }
-
-  public getSelectionLocation() {
-    return this.editor.transact((tr) => getSelectionLocation(tr));
-  }
-
-  /**
-   * Gets a snapshot of the current selection. This contains all blocks (included nested blocks)
-   * that the selection spans across.
-   *
-   * If the selection starts / ends halfway through a block, the returned block will be
-   * only the part of the block that is included in the selection.
-   */
-  public getSelectionCutBlocks() {
-    return this.editor.transact((tr) => getSelectionCutBlocks(tr));
   }
 
   /**

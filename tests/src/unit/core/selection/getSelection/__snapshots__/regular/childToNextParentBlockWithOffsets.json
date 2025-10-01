@@ -3,26 +3,26 @@
     "location": {
       "anchor": {
         "id": "2",
-        "offset": 0
+        "offset": 1
       },
       "head": {
         "id": "3",
-        "offset": 18
+        "offset": 10
       }
     },
-    "anchor": 18,
-    "head": 58,
-    "from": 18,
-    "to": 58
+    "anchor": 19,
+    "head": 52,
+    "from": 19,
+    "to": 52
   },
   "range": {
     "anchor": {
       "id": "2",
-      "offset": 0
+      "offset": 1
     },
     "head": {
       "id": "3",
-      "offset": 18
+      "offset": 10
     }
   },
   "blocks": [
@@ -54,7 +54,7 @@
       "content": [
         {
           "type": "text",
-          "text": "Nested Paragraph 2",
+          "text": "Paragraph 2",
           "styles": {}
         }
       ],
@@ -73,7 +73,7 @@
       "content": [
         {
           "type": "text",
-          "text": "Nested Paragraph 1",
+          "text": "ested Paragraph 1",
           "styles": {}
         }
       ],
@@ -90,7 +90,7 @@
       "content": [
         {
           "type": "text",
-          "text": "Nested Paragraph 2",
+          "text": "Paragraph 2",
           "styles": {}
         }
       ],
@@ -107,7 +107,7 @@
       "content": [
         {
           "type": "text",
-          "text": "Nested Paragraph 2",
+          "text": "Paragraph ",
           "styles": {}
         }
       ],

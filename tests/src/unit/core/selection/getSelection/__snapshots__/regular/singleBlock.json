@@ -9,7 +9,11 @@
         "id": "1",
         "offset": 11
       }
-    }
+    },
+    "anchor": 3,
+    "head": 14,
+    "from": 3,
+    "to": 14
   },
   "range": {
     "anchor": {
@@ -22,6 +26,25 @@
     }
   },
   "blocks": [
+    {
+      "id": "1",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Paragraph 1",
+          "styles": {}
+        }
+      ],
+      "children": []
+    }
+  ],
+  "content": [
     {
       "id": "1",
       "type": "paragraph",
