@@ -1,6 +1,7 @@
 import {
   BlockNoteEditor,
   BlockNoteExtension,
+  getNodeById,
   UnreachableCaseError,
 } from "@blocknote/core";
 import {
@@ -171,8 +172,8 @@ export class AIExtension extends BlockNoteExtension {
 
     // Scrolls to the block being edited by the AI while auto scrolling is
     // enabled.
-    this.editor.onCreate(() => {
-      this.editor.onChange(() => {
+    editor.onCreate(() =>
+      editor.onChange(() => {
         if (!this.autoScroll) {
           return;
         }
@@ -181,13 +182,25 @@ export class AIExtension extends BlockNoteExtension {
         const aiMenuNonErrorState =
           aiMenuState === "closed" ? undefined : aiMenuState;
         if (aiMenuNonErrorState?.status === "ai-writing") {
-          const blockElement = this.editor.domElement?.querySelector(
-            `[data-node-type="blockContainer"][data-id="${aiMenuNonErrorState.blockId}"]`,
+          const nodeInfo = getNodeById(
+            aiMenuNonErrorState.blockId,
+            editor.prosemirrorState.doc,
           );
-          blockElement?.scrollIntoView({ block: "center" });
+          if (!nodeInfo) {
+            throw new Error(
+              "Block edited by AI could not be found in the editor.",
+            );
+          }
+
+          const blockElement = editor.prosemirrorView.domAtPos(
+            nodeInfo.posBeforeNode + 1,
+          );
+          (blockElement.node as HTMLElement).scrollIntoView({
+            block: "center",
+          });
         }
-      });
-    });
+      }),
+    );
 
     // Listens for `scroll` and `scrollend` events to see if a new scroll was
     // started before an existing one ended. This is the most reliable way we
