@@ -14,38 +14,11 @@ First, install the `@blocknote/xl-ai` package:
 npm install @blocknote/xl-ai
 ```
 
-## Creating a Model
-
 BlockNote AI uses the the [AI SDK](https://ai-sdk.dev/docs/foundations/overview) to standardize integrating artificial intelligence (AI) models across [supported providers](https://ai-sdk.dev/docs/foundations/providers-and-models).
-
-As a first step, you'll need to register a new model with the AI SDK. For example, for Llama hosted on Groq:
-
-```bash
-npm install @ai-sdk/groq
-```
-
-```ts
-import { createGroq } from "@ai-sdk/groq";
-
-const provider = createGroq({
-  apiKey: "YOUR_GROQ_API_KEY",
-});
-
-const model = provider("llama-3.3-70b-versatile");
-```
-
-<Callout type={"warning"}>
-  Note that this setup directly calls the provider from the client, and exposes
-  your API keys on the client. For Production scenarios, a more common approach
-  is to handle authentication on your own server and proxy requests to a
-  provider. See our [Demo AI
-  Server](https://github.com/TypeCellOS/BlockNote/tree/main/packages/xl-ai-server)
-  for a Node.js example or check the AI SDK best practices.
-</Callout>
 
 ## Setting up the editor
 
-Now, you can create the editor with the AI Extension enabled:
+Let's create an editor with the AI Extension enabled:
 
 ```ts
 import { createBlockNoteEditor } from "@blocknote/core";
@@ -62,7 +35,9 @@ const editor = createBlockNoteEditor({
   },
   extensions: [
     createAIExtension({
-      model,
+      transport: new DefaultChatTransport({
+        api: `/api/chat`,
+      }),
     }),
   ],
   // ... other editor options
@@ -73,7 +48,7 @@ See the [API Reference](/docs/features/ai/reference) for more information on the
 
 ## Adding AI UI elements
 
-Now, the only thing left to do is to customize the UI elements of your editor.
+The next step is to customize the UI elements of your editor.
 We want to:
 
 - add an AI button to the formatting toolbar (shown when selecting text)
@@ -100,6 +75,36 @@ We do this by disabling the default FormattingToolbar and SuggestionMenu and add
   <SuggestionMenuWithAI editor={editor} />
 </BlockNoteView>
 ```
+
+## Backend setup
+
+Now, we'll set up a backend route to handle AI requests that will be forwarded to your LLM provider.
+
+This example follows the [basic example from the AI SDK](https://ai-sdk.dev/docs/ai-sdk-ui/chatbot#example) for Next.js:
+
+```ts app/api/chat/route.ts
+import { openai } from "@ai-sdk/openai";
+import { convertToModelMessages, streamText } from "ai";
+import { toolDefinitionsToToolSet } from "@blocknote/xl-ai";
+
+// Allow streaming responses up to 30 seconds
+export const maxDuration = 30;
+
+export async function POST(req: Request) {
+  const { messages, toolDefinitions } = await req.json();
+
+  const result = streamText({
+    model: openai("gpt-4.1"), // see https://ai-sdk.dev/docs/foundations/providers-and-models
+    messages: convertToModelMessages(messages),
+    tools: toolDefinitionsToToolSet(toolDefinitions),
+    toolChoice: "required",
+  });
+
+  return result.toUIMessageStreamResponse();
+}
+```
+
+See [Backend integrations](/docs/features/ai/backend-integration) for more information on how to integrate BlockNote AI with your backend.
 
 # Full Example
 

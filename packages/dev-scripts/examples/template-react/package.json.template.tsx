@@ -3,6 +3,7 @@ import type { Project } from "../util";
 const template = (project: Project) => ({
   name: "@blocknote/example-" + project.fullSlug.replace("/", "-"),
   description: "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
+  type: "module",
   private: true,
   version: "0.12.4",
   scripts: {
@@ -19,9 +20,20 @@ const template = (project: Project) => ({
     "@blocknote/shadcn": "latest",
     react: "^19.1.0",
     "react-dom": "^19.1.0",
+    ...(project.config.tailwind
+      ? {
+          tailwindcss: "^4.1.12",
+          "tw-animate-css": "^1.3.7",
+        }
+      : {}),
     ...(project.config?.dependencies || {}),
   },
   devDependencies: {
+    ...(project.config.tailwind
+      ? {
+          "@tailwindcss/vite": "^4.1.12",
+        }
+      : {}),
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
     "@vitejs/plugin-react": "^4.3.1",

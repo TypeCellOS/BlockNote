@@ -19,6 +19,7 @@ import {
 } from "react-icons/ri";
 
 import { getAIExtension } from "../../AIExtension.js";
+import { aiDocumentFormats } from "../../api/index.js";
 import { getAIDictionary } from "../../i18n/dictionary.js";
 
 export type AIMenuSuggestionItem = Omit<
@@ -47,15 +48,17 @@ function getDefaultAIMenuItemsWithoutSelection<
       aliases: dict.ai_default_commands.continue_writing.aliases,
       icon: <RiBallPenLine size={18} />,
       onItemClick: async () => {
-        await ai.callLLM({
+        await ai.invokeAI({
           userPrompt:
             "Continue writing at the current cursor position related to the previous text. Add multiple blocks if needed. If the document looks like a template / draft, follow the template. Be extensive if needed.",
           // By default, LLM will be able to add / update / delete blocks. For "continue writing", we only want to allow adding new blocks.
-          defaultStreamTools: {
-            add: true,
-            delete: false,
-            update: false,
-          },
+          streamToolsProvider: aiDocumentFormats.html.getStreamToolsProvider({
+            defaultStreamTools: {
+              add: true,
+              delete: false,
+              update: false,
+            },
+          }),
         });
       },
       size: "small",
@@ -67,14 +70,16 @@ function getDefaultAIMenuItemsWithoutSelection<
       aliases: dict.ai_default_commands.summarize.aliases,
       icon: <RiTextWrap size={18} />,
       onItemClick: async () => {
-        await ai.callLLM({
+        await ai.invokeAI({
           userPrompt: "Summarize",
           // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
-          defaultStreamTools: {
-            add: true,
-            delete: false,
-            update: false,
-          },
+          streamToolsProvider: aiDocumentFormats.html.getStreamToolsProvider({
+            defaultStreamTools: {
+              add: true,
+              delete: false,
+              update: false,
+            },
+          }),
         });
       },
       size: "small",
@@ -85,14 +90,16 @@ function getDefaultAIMenuItemsWithoutSelection<
       aliases: dict.ai_default_commands.add_action_items.aliases,
       icon: <RiListCheck3 size={18} />,
       onItemClick: async () => {
-        await ai.callLLM({
+        await ai.invokeAI({
           userPrompt: "Add action items",
           // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
-          defaultStreamTools: {
-            add: true,
-            delete: false,
-            update: false,
-          },
+          streamToolsProvider: aiDocumentFormats.html.getStreamToolsProvider({
+            defaultStreamTools: {
+              add: true,
+              delete: false,
+              update: false,
+            },
+          }),
         });
       },
       size: "small",
@@ -130,15 +137,17 @@ function getDefaultAIMenuItemsWithSelection<
       aliases: dict.ai_default_commands.improve_writing.aliases,
       icon: <RiText size={18} />,
       onItemClick: async () => {
-        await ai.callLLM({
+        await ai.invokeAI({
           useSelection: true,
           userPrompt: "Improve writing",
           // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
-          defaultStreamTools: {
-            add: false,
-            delete: false,
-            update: true,
-          },
+          streamToolsProvider: aiDocumentFormats.html.getStreamToolsProvider({
+            defaultStreamTools: {
+              add: false,
+              delete: false,
+              update: true,
+            },
+          }),
         });
       },
       size: "small",
@@ -149,15 +158,17 @@ function getDefaultAIMenuItemsWithSelection<
       aliases: dict.ai_default_commands.fix_spelling.aliases,
       icon: <RiCheckLine size={18} />,
       onItemClick: async () => {
-        await ai.callLLM({
+        await ai.invokeAI({
           useSelection: true,
           userPrompt: "Fix spelling",
           // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
-          defaultStreamTools: {
-            add: false,
-            delete: false,
-            update: true,
-          },
+          streamToolsProvider: aiDocumentFormats.html.getStreamToolsProvider({
+            defaultStreamTools: {
+              add: false,
+              delete: false,
+              update: true,
+            },
+          }),
         });
       },
       size: "small",
@@ -178,15 +189,17 @@ function getDefaultAIMenuItemsWithSelection<
       aliases: dict.ai_default_commands.simplify.aliases,
       icon: <RiMagicLine size={18} />,
       onItemClick: async () => {
-        await ai.callLLM({
+        await ai.invokeAI({
           useSelection: true,
           userPrompt: "Simplify",
           // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
-          defaultStreamTools: {
-            add: false,
-            delete: false,
-            update: true,
-          },
+          streamToolsProvider: aiDocumentFormats.html.getStreamToolsProvider({
+            defaultStreamTools: {
+              add: false,
+              delete: false,
+              update: true,
+            },
+          }),
         });
       },
       size: "small",

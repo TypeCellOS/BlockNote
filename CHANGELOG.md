@@ -1,3 +1,24 @@
+## 0.40.0 (2025-09-30)
+
+### 🚀 Features
+
+- Mantine v8 upgrade ([#2028](https://github.com/TypeCellOS/BlockNote/pull/2028), [#2029](https://github.com/TypeCellOS/BlockNote/issues/2029))
+- Update Mantine setup ([#2033](https://github.com/TypeCellOS/BlockNote/pull/2033))
+- **ai:** SDK 5, tool calling, custom backends ([#2007](https://github.com/TypeCellOS/BlockNote/pull/2007))
+- **core:** add the ability to autofocus on the editor element ([#2018](https://github.com/TypeCellOS/BlockNote/pull/2018))
+
+### 🩹 Fixes
+
+- Block colors menu not always showing ([#2027](https://github.com/TypeCellOS/BlockNote/pull/2027))
+- Update remianing examples to Mantine v8 ([#2031](https://github.com/TypeCellOS/BlockNote/pull/2031))
+- ShadCN example Tailwind setup ([#2042](https://github.com/TypeCellOS/BlockNote/pull/2042))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- Yousef
+
 ## 0.39.1 (2025-09-19)
 
 ### 🩹 Fixes
