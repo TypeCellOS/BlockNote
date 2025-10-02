@@ -196,21 +196,18 @@ const FontSize = createStyleSpec(
 
 // SCHEMA ----------------------------------------------------------------------
 
-export const testSchema = BlockNoteSchema.create({
+export const testSchema = BlockNoteSchema.create().extend({
   blockSpecs: {
-    ...defaultBlockSpecs,
     pageBreak: createPageBreakBlockSpec(),
     customParagraph: CustomParagraph,
     simpleCustomParagraph: SimpleCustomParagraph,
     simpleImage: SimpleImage,
   },
   inlineContentSpecs: {
-    ...defaultInlineContentSpecs,
     mention: Mention,
     tag: Tag,
   },
   styleSpecs: {
-    ...defaultStyleSpecs,
     small: Small,
     fontSize: FontSize,
   },
