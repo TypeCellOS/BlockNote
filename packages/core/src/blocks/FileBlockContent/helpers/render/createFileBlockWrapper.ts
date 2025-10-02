@@ -52,6 +52,31 @@ export const createFileBlockWrapper = (
     };
   }
 
+  // Special accessible structure for images with captions: use figure/figcaption
+  const shouldUseFigure =
+    element &&
+    block.type === "image" &&
+    block.props.caption &&
+    block.props.showPreview !== false;
+  if (shouldUseFigure) {
+    const figure = document.createElement("figure");
+    figure.className = wrapper.className;
+
+    // Move preview element inside the figure
+    figure.appendChild(element.dom);
+
+    // Create figcaption instead of a paragraph
+    const figcaption = document.createElement("figcaption");
+    figcaption.className = "bn-file-caption";
+    figcaption.textContent = block.props.caption;
+    figure.appendChild(figcaption);
+
+    // ARIA enhancements for screen readers
+    figure.setAttribute("role", "img");
+    figure.setAttribute("aria-label", `Image: ${block.props.caption}`);
+
+    return { dom: figure, destroy: element.destroy };
+  }
   const ret: { dom: HTMLElement; destroy?: () => void } = { dom: wrapper };
 
   // Show the file preview, or the file name and icon.
