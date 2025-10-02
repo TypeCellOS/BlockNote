@@ -57,7 +57,7 @@ function defaultPasteHandler({
   }
 
   if (format === "vscode-editor-data") {
-    handleVSCodePaste(event, editor.prosemirrorView!);
+    handleVSCodePaste(event, editor.prosemirrorView);
     return true;
   }
 

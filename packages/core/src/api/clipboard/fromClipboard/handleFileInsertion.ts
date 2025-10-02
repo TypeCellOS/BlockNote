@@ -2,7 +2,6 @@ import { Block, PartialBlock } from "../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
 import {
   BlockSchema,
-  FileBlockConfig,
   InlineContentSchema,
   StyleSchema,
 } from "../../../schema/index.js";
@@ -106,15 +105,12 @@ export async function handleFileInsertion<
 
   event.preventDefault();
 
-  const fileBlockConfigs = Object.values(editor.schema.blockSchema).filter(
-    (blockConfig) => blockConfig.isFileBlock,
-  ) as FileBlockConfig[];
-
   for (let i = 0; i < items.length; i++) {
     // Gets file block corresponding to MIME type.
     let fileBlockType = "file";
-    for (const fileBlockConfig of fileBlockConfigs) {
-      for (const mimeType of fileBlockConfig.fileBlockAccept || []) {
+    for (const blockSpec of Object.values(editor.schema.blockSpecs)) {
+      for (const mimeType of blockSpec.implementation.meta?.fileBlockAccept ||
+        []) {
         const isFileExtension = mimeType.startsWith(".");
         const file = items[i].getAsFile();
 
@@ -129,7 +125,7 @@ export async function handleFileInsertion<
                 mimeType,
               ))
           ) {
-            fileBlockType = fileBlockConfig.type;
+            fileBlockType = blockSpec.config.type;
             break;
           }
         }
@@ -156,7 +152,7 @@ export async function handleFileInsertion<
           top: (event as DragEvent).clientY,
         };
 
-        const pos = editor.prosemirrorView?.posAtCoords(coords);
+        const pos = editor.prosemirrorView.posAtCoords(coords);
 
         if (!pos) {
           return;
@@ -164,7 +160,7 @@ export async function handleFileInsertion<
 
         insertedBlockId = editor.transact((tr) => {
           const posInfo = getNearestBlockPos(tr.doc, pos.pos);
-          const blockElement = editor.prosemirrorView?.dom.querySelector(
+          const blockElement = editor.prosemirrorView.dom.querySelector(
             `[data-id="${posInfo.node.attrs.id}"]`,
           );
 

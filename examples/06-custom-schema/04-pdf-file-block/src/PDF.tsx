@@ -11,7 +11,11 @@ import "./styles.css";
 
 export const PDFPreview = (
   props: Omit<
-    ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
+    ReactCustomBlockRenderProps<
+      FileBlockConfig["type"],
+      FileBlockConfig["propSchema"],
+      FileBlockConfig["content"]
+    >,
     "contentRef"
   >,
 ) => {
@@ -48,13 +52,14 @@ export const PDF = createReactBlockSpec(
       },
     },
     content: "none",
-    isFileBlock: true,
   },
   {
+    meta: {
+      fileBlockAccept: ["application/pdf"],
+    },
     render: (props) => (
       <ResizableFileBlockWrapper
         {...(props as any)}
-        bbuttonText={"Add PDF"}
         buttonIcon={<RiFilePdfFill size={24} />}
       >
         <PDFPreview {...(props as any)} />

@@ -2,9 +2,12 @@ import { getCurrentTest } from "@vitest/runner";
 import { getSortedEntries, snapshot, toHashString } from "msw-snapshot";
 import { setupServer } from "msw/node";
 import path from "path";
-import { afterAll, afterEach, beforeAll, describe } from "vitest";
+import { afterAll, afterEach, beforeAll, describe, it } from "vitest";
 import { testAIModels } from "../../../testUtil/testAIModels.js";
-import { doLLMRequest } from "../../LLMRequest.js";
+
+import { BlockNoteEditor } from "@blocknote/core";
+import { StreamToolExecutor } from "../../../streamTool/StreamToolExecutor.js";
+import { ClientSideTransport } from "../../../streamTool/vercelAiSdk/clientside/ClientSideTransport.js";
 import { generateSharedTestCases } from "../tests/sharedTestCases.js";
 import { htmlBlockLLMFormat } from "./htmlBlocks.js";
 
@@ -81,19 +84,25 @@ describe("Models", () => {
     {
       model: testAIModels.openai,
       stream: true,
+      generateObject: true,
     },
     {
       model: testAIModels.openai,
-      stream: false,
+      stream: true,
     },
+    // {
+    //   model: testAIModels.openai,
+    //   stream: false,
+    // },
+    // TODO: https://github.com/vercel/ai/issues/8533
     {
       model: testAIModels.groq,
       stream: true,
     },
-    {
-      model: testAIModels.groq,
-      stream: false,
-    },
+    // {
+    //   model: testAIModels.groq,
+    //   stream: false,
+    // },
     // anthropic streaming needs further investigation for some test cases
     // {
     //   model: testAIModels.anthropic,
@@ -101,7 +110,7 @@ describe("Models", () => {
     // },
     {
       model: testAIModels.anthropic,
-      stream: false,
+      stream: true,
     },
     // currently doesn't support streaming
     // https://github.com/vercel/ai/issues/5350
@@ -118,24 +127,64 @@ describe("Models", () => {
 
   for (const params of testMatrix) {
     describe(`${params.model.provider}/${params.model.modelId} (${
-      params.stream ? "streaming" : "non-streaming"
+      (params.stream ? "streaming" : "non-streaming") +
+      (params.generateObject ? " + generateObject" : "")
     })`, () => {
-      generateSharedTestCases(
-        (editor, options) =>
-          doLLMRequest(editor, {
-            ...options,
-            dataFormat: htmlBlockLLMFormat,
-            model: params.model,
+      generateSharedTestCases({
+        streamToolsProvider: htmlBlockLLMFormat.getStreamToolsProvider({
+          withDelays: false,
+        }),
+        transport: new ClientSideTransport({
+          model: params.model,
+          stream: params.stream,
+          objectGeneration: params.generateObject,
+          _additionalOptions: {
             maxRetries: 0,
-            stream: params.stream,
-            withDelays: false,
-          }),
-        // TODO: remove when matthew's parsing PR is merged
-        {
-          textAlignment: true,
-          blockColor: true,
-        },
-      );
+          },
+        }),
+      });
     });
   }
+});
+
+describe("streamToolsProvider", () => {
+  it("should return the correct stream tools", () => {
+    // test skipped, this is only to validate type inference
+    return;
+
+    // eslint-disable-next-line no-unreachable
+    const editor = BlockNoteEditor.create();
+    const streamTools = htmlBlockLLMFormat
+      .getStreamToolsProvider({
+        defaultStreamTools: {
+          add: true,
+        },
+      })
+      .getStreamTools(editor, true);
+
+    const executor = new StreamToolExecutor(streamTools);
+
+    executor.executeOne({
+      type: "add",
+      blocks: ["<p>test</p>"],
+      referenceId: "1",
+      position: "after",
+    });
+
+    executor.executeOne({
+      // @ts-expect-error
+      type: "update",
+      blocks: ["<p>test</p>"],
+      referenceId: "1",
+      position: "after",
+    });
+
+    executor.executeOne({
+      type: "add",
+      // @ts-expect-error
+      blocks: [{ type: "paragraph", content: "test" }],
+      referenceId: "1",
+      position: "after",
+    });
+  });
 });

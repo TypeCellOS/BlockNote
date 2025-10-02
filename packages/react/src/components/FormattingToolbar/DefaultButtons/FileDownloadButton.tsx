@@ -1,7 +1,6 @@
 import {
+  blockHasType,
   BlockSchema,
-  checkBlockIsFileBlock,
-  checkBlockIsFileBlockWithPlaceholder,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -34,7 +33,7 @@ export const FileDownloadButton = () => {
 
     const block = selectedBlocks[0];
 
-    if (checkBlockIsFileBlock(block, editor)) {
+    if (blockHasType(block, editor, block.type, { url: "string" })) {
       return block;
     }
 
@@ -57,7 +56,7 @@ export const FileDownloadButton = () => {
     }
   }, [editor, fileBlock]);
 
-  if (!fileBlock || checkBlockIsFileBlockWithPlaceholder(fileBlock, editor)) {
+  if (!fileBlock || fileBlock.props.url === "") {
     return null;
   }
 

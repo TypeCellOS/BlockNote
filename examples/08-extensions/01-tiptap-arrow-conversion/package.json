@@ -1,6 +1,7 @@
 {
   "name": "@blocknote/example-extensions-tiptap-arrow-conversion",
   "description": "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
+  "type": "module",
   "private": true,
   "version": "0.12.4",
   "scripts": {
@@ -17,7 +18,7 @@
     "@blocknote/shadcn": "latest",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "@tiptap/core": "^2.26.1"
+    "@tiptap/core": "^3.4.3"
   },
   "devDependencies": {
     "@types/react": "^19.1.0",

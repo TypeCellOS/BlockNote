@@ -179,7 +179,9 @@
           "author": "matthewlipski",
           "tags": [
             "Basic"
-          ]
+          ],
+          "tailwind": true,
+          "stackBlitz": false
         },
         "title": "Use with ShadCN",
         "group": {
@@ -417,7 +419,7 @@
             "Custom Schemas"
           ],
           "dependencies": {
-            "@mantine/core": "^7.17.3",
+            "@mantine/core": "^8.3.2",
             "react-icons": "^5.2.1"
           } as any
         },
@@ -903,7 +905,7 @@
           "pathFromRoot": "examples/04-theming",
           "slug": "theming"
         },
-        "readme": "To enable code block syntax highlighting, you can use the `codeBlock` option in the `useCreateBlockNote` hook. This is excluded by default to reduce bundle size.\n\n**Relevant Docs:**\n\n- [Code Block Syntax Highlighting](/docs/features/blocks/code-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)"
+        "readme": "To enable code block syntax highlighting, you can extend the editor's default schema with a new `codeBlock`, which you can pass options into when creating. By passing the default options from `@blocknote/code-block`, you can enable syntax highlighting. This is excluded by default to reduce bundle size.\n\n**Relevant Docs:**\n\n- [Code Block Syntax Highlighting](/docs/features/blocks/code-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Custom Schema](/docs/features/custom-schemas)"
       },
       {
         "projectSlug": "custom-code-block",
@@ -930,7 +932,7 @@
           "pathFromRoot": "examples/04-theming",
           "slug": "theming"
         },
-        "readme": "To configure a code block highlighting theme and language, you can use the `codeBlock` option in the `useCreateBlockNote` hook.\n\nThis allows you to configure a shiki highlighter for the code blocks of your editor, allowing you to tailor the themes and languages you would like to use.\n\nTo create a syntax highlighter, you can use the [shiki-codegen](https://shiki.style/packages/codegen) CLI for generating the code to create a syntax highlighter for your languages and themes.\n\nFor example to create a syntax highlighter using the optimized javascript engine, javascript, typescript, vue, with light and dark themes, you can run the following command:\n\n```bash\nnpx shiki-codegen --langs javascript,typescript,vue --themes light,dark --engine javascript --precompiled ./shiki.bundle.ts\n```\n\nThis will generate a `shiki.bundle.ts` file that you can use to create a syntax highlighter for your editor.\n\nLike this:\n\n```ts\nimport { createHighlighter } from \"./shiki.bundle\";\n\nexport default function App() {\n  // Creates a new editor instance.\n  const editor = useCreateBlockNote({\n    codeBlock: {\n      indentLineWithTab: true,\n      defaultLanguage: \"typescript\",\n      supportedLanguages: {\n        typescript: {\n          name: \"TypeScript\",\n          aliases: [\"ts\"],\n        },\n      },\n      createHighlighter: () =>\n        createHighlighter({\n          themes: [\"light-plus\", \"dark-plus\"],\n          langs: [],\n        }),\n    },\n  });\n\n  return <BlockNoteView editor={editor} />;\n}\n```\n\n**Relevant Docs:**\n\n- [Code Blocks](/docs/features/blocks/code-blocks)\n- [shiki-codegen](https://shiki.style/packages/codegen)"
+        "readme": "To configure a code block highlighting theme and language, you can extend the editor's default schema with a new `codeBlock`, which you can pass options into when creating. You can then use a shiki highlighter to add custom syntax highlighting.\n\nFirst use the [shiki-codegen](https://shiki.style/packages/codegen) CLI to create a `shiki.bundle.ts` file. You can then pass this file into the `codeBlock` options when creating it.\n\n**Relevant Docs:**\n\n- [Code Blocks](/docs/features/blocks/code-blocks)\n- [shiki-codegen](https://shiki.style/packages/codegen)\n- [Custom Schema](/docs/features/custom-schemas)"
       }
     ]
   },
@@ -1045,7 +1047,7 @@
           "pathFromRoot": "examples/05-interoperability",
           "slug": "interoperability"
         },
-        "readme": "This example exports the current document (all blocks) as an PDF file and downloads it to your computer.\n\n**Try it out:** Edit the document and click \"Download .pdf\" in top-left corner, to download the PDF file."
+        "readme": "This example exports the current document (all blocks) as an PDF file and downloads it to your computer.\n\n**Try it out:** Edit the document and click \"Download .pdf\" at the top to download the PDF file."
       },
       {
         "projectSlug": "converting-blocks-to-docx",
@@ -1065,12 +1067,12 @@
           } as any,
           "pro": true
         },
-        "title": "Exporting documents to .docx (Office Open XML)",
+        "title": "Exporting documents to DOCX (Office Open XML)",
         "group": {
           "pathFromRoot": "examples/05-interoperability",
           "slug": "interoperability"
         },
-        "readme": "This example exports the current document (all blocks) as an Microsoft Word Document (DOCX) file and downloads it to your computer.\n\n**Try it out:** Edit the document and click \"Download .docx\" in top-left corner, to download the DOCX file."
+        "readme": "This example exports the current document (all blocks) as an Microsoft Word Document (DOCX) file and downloads it to your computer.\n\n**Try it out:** Edit the document and click \"Download .docx\" at the top to download the DOCX file."
       },
       {
         "projectSlug": "converting-blocks-to-odt",
@@ -1089,12 +1091,12 @@
           } as any,
           "pro": true
         },
-        "title": "Exporting documents to .odt (Open Document Text)",
+        "title": "Exporting documents to ODT (Open Document Text)",
         "group": {
           "pathFromRoot": "examples/05-interoperability",
           "slug": "interoperability"
         },
-        "readme": "This example exports the current document (all blocks) as an Open Document Text (ODT) file and downloads it to your computer.\n\n**Try it out:** Edit the document and click \"Download .odt\" in top-left corner, to download the ODT file."
+        "readme": "This example exports the current document (all blocks) as an Open Document Text (ODT) file and downloads it to your computer.\n\n**Try it out:** Edit the document and click \"Download .odt\" at the top to download the ODT file."
       },
       {
         "projectSlug": "converting-blocks-to-react-email",
@@ -1113,12 +1115,12 @@
           } as any,
           "pro": true
         },
-        "title": "Exporting documents to React Email",
+        "title": "Exporting documents to Email (HTML)",
         "group": {
           "pathFromRoot": "examples/05-interoperability",
           "slug": "interoperability"
         },
-        "readme": "This example exports the current document (all blocks) as a React Email document.\n\n**Try it out:** Edit the document and the preview will update."
+        "readme": "This example exports the current document (all blocks) as an HTML file for use in emails, and downloads it to your computer.\n\n**Try it out:** Edit the document and click \"Download email .html\" at the top to download the HTML file."
       }
     ]
   },
@@ -1142,7 +1144,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^7.17.3",
+            "@mantine/core": "^8.3.2",
             "react-icons": "^5.2.1"
           } as any
         },
@@ -1216,7 +1218,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^7.17.3",
+            "@mantine/core": "^8.3.2",
             "react-icons": "^5.2.1"
           } as any,
           "pro": true
@@ -1245,7 +1247,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^7.17.3",
+            "@mantine/core": "^8.3.2",
             "react-icons": "^5.2.1"
           } as any
         },
@@ -1388,11 +1390,11 @@
             "Collaboration"
           ],
           "dependencies": {
-            "@liveblocks/client": "^3",
-            "@liveblocks/react": "^3",
-            "@liveblocks/react-blocknote": "^3",
-            "@liveblocks/react-tiptap": "^3",
-            "@liveblocks/react-ui": "^3",
+            "@liveblocks/client": "3.7.1-tiptap3",
+            "@liveblocks/react": "3.7.1-tiptap3",
+            "@liveblocks/react-blocknote": "3.7.1-tiptap3",
+            "@liveblocks/react-tiptap": "3.7.1-tiptap3",
+            "@liveblocks/react-ui": "3.7.1-tiptap3",
             "yjs": "^13.6.27"
           } as any
         },
@@ -1428,9 +1430,30 @@
         "readme": "In this example, we use Y-Sweet to let multiple users collaborate on a single BlockNote document in real-time.\n\n**Try it out:** Open the [Y-Sweet BlockNote demo](https://demos.y-sweet.dev/blocknote) in multiple browser tabs to see it in action!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)\n- [Y-Sweet on Jamsocket](https://docs.jamsocket.com/y-sweet/tutorials/blocknote)"
       },
       {
+        "projectSlug": "electric-sql",
+        "fullSlug": "collaboration/electric-sql",
+        "pathFromRoot": "examples/07-collaboration/04-electric-sql",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Advanced",
+            "Saving/Loading",
+            "Collaboration"
+          ]
+        },
+        "title": "Collaborative Editing with ElectricSQL",
+        "group": {
+          "pathFromRoot": "examples/07-collaboration",
+          "slug": "collaboration"
+        },
+        "readme": "In this example, we use ElectricSQL to let multiple users collaborate on a single BlockNote document in real-time. The setup for this demo is more involved than the other collaboration examples, as it requires a running server and has a more fully-fledged UI. Therefore, the demo just uses an iframe element to show a hosted instance of the full ElectricSQL + BlockNote setup, which you can find the code for [here](https://github.com/TypeCellOS/blocknote-electric-example).\n\n**Try it out:** Open this page (or the [iframe url](https://blocknote-electric-example.vercel.app/)) in a new browser tab or window to see it in action!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)\n- [ElectricSQL](https://electric-sql.com/)"
+      },
+      {
         "projectSlug": "comments",
         "fullSlug": "collaboration/comments",
-        "pathFromRoot": "examples/07-collaboration/04-comments",
+        "pathFromRoot": "examples/07-collaboration/05-comments",
         "config": {
           "playground": true,
           "docs": true,
@@ -1442,7 +1465,7 @@
           ],
           "dependencies": {
             "@y-sweet/react": "^0.6.3",
-            "@mantine/core": "^7.10.1"
+            "@mantine/core": "^8.3.2"
           } as any
         },
         "title": "Comments & Threads",
@@ -1455,7 +1478,7 @@
       {
         "projectSlug": "comments-with-sidebar",
         "fullSlug": "collaboration/comments-with-sidebar",
-        "pathFromRoot": "examples/07-collaboration/05-comments-with-sidebar",
+        "pathFromRoot": "examples/07-collaboration/06-comments-with-sidebar",
         "config": {
           "playground": true,
           "docs": true,
@@ -1467,7 +1490,7 @@
           ],
           "dependencies": {
             "@y-sweet/react": "^0.6.3",
-            "@mantine/core": "^7.10.1"
+            "@mantine/core": "^8.3.2"
           } as any
         },
         "title": "Threads Sidebar",
@@ -1480,7 +1503,7 @@
       {
         "projectSlug": "ghost-writer",
         "fullSlug": "collaboration/ghost-writer",
-        "pathFromRoot": "examples/07-collaboration/06-ghost-writer",
+        "pathFromRoot": "examples/07-collaboration/07-ghost-writer",
         "config": {
           "playground": true,
           "docs": false,
@@ -1505,7 +1528,7 @@
       {
         "projectSlug": "forking",
         "fullSlug": "collaboration/forking",
-        "pathFromRoot": "examples/07-collaboration/07-forking",
+        "pathFromRoot": "examples/07-collaboration/08-forking",
         "config": {
           "playground": true,
           "docs": false,
@@ -1546,7 +1569,7 @@
           ],
           "pro": true,
           "dependencies": {
-            "@tiptap/core": "^2.26.1"
+            "@tiptap/core": "^3.4.3"
           } as any
         },
         "title": "TipTap extension (arrow InputRule)",
@@ -1576,9 +1599,8 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^7.17.3",
-            "ai": "^4.3.15",
-            "@ai-sdk/groq": "^1.2.9",
+            "@mantine/core": "^8.3.2",
+            "ai": "^5.0.45",
             "zustand": "^5.0.3"
           } as any
         },
@@ -1603,14 +1625,8 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^7.17.3",
-            "ai": "^4.3.15",
-            "@ai-sdk/google": "^1.2.20",
-            "@ai-sdk/openai": "^1.3.22",
-            "@ai-sdk/openai-compatible": "^0.2.14",
-            "@ai-sdk/groq": "^1.2.9",
-            "@ai-sdk/anthropic": "^1.2.11",
-            "@ai-sdk/mistral": "^1.2.8",
+            "@mantine/core": "^8.3.2",
+            "ai": "^5.0.45",
             "zustand": "^5.0.3"
           } as any
         },
@@ -1619,7 +1635,7 @@
           "pathFromRoot": "examples/09-ai",
           "slug": "ai"
         },
-        "readme": "The AI Playground example shows how to customize different options of the AI Extension such as model type and streaming mode.\n\nChange the configuration, the highlight some text to access the AI menu, or type `/ai` anywhere in the editor.\n\n**Relevant Docs:**\n\n- [Getting Stared with BlockNote AI](/docs/features/ai/getting-started)\n- [BlockNote AI Reference](/docs/features/ai/reference)\n- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar)\n- [Changing Slash Menu Items](/docs/react/components/suggestion-menus)"
+        "readme": "Explore different LLM models integrated with BlockNote in the AI Playground.\n\nChange the configuration, then highlight some text to access the AI menu, or type `/ai` anywhere in the editor.\n\n**Relevant Docs:**\n\n- [Getting Stared with BlockNote AI](/docs/features/ai/getting-started)\n- [BlockNote AI Reference](/docs/features/ai/reference)\n- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar)\n- [Changing Slash Menu Items](/docs/react/components/suggestion-menus)"
       },
       {
         "projectSlug": "custom-ai-menu-items",
@@ -1635,10 +1651,8 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^7.17.3",
-            "ai": "^4.1.0",
-            "@ai-sdk/openai": "^1.1.0",
-            "@ai-sdk/groq": "^1.1.0",
+            "@mantine/core": "^8.3.2",
+            "ai": "^5.0.45",
             "react-icons": "^5.2.1",
             "zustand": "^5.0.3"
           } as any
@@ -1664,9 +1678,8 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^7.17.3",
-            "ai": "^4.3.15",
-            "@ai-sdk/groq": "^1.2.9",
+            "@mantine/core": "^8.3.2",
+            "ai": "^5.0.45",
             "y-partykit": "^0.0.25",
             "yjs": "^13.6.27",
             "zustand": "^5.0.3"
@@ -1678,6 +1691,87 @@
           "slug": "ai"
         },
         "readme": "This example combines the AI extension with the ghost writer example to show how to use the AI extension in a collaborative environment.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar#changing-the-formatting-toolbar)\n- [Changing Slash Menu Items](/docs/react/components/suggestion-menus#changing-slash-menu-items)\n- [Getting Stared with BlockNote AI](/docs/features/ai/setup)"
+      },
+      {
+        "projectSlug": "manual-execution",
+        "fullSlug": "ai/manual-execution",
+        "pathFromRoot": "examples/09-ai/05-manual-execution",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "yousefed",
+          "tags": [
+            "AI",
+            "llm"
+          ],
+          "dependencies": {
+            "@blocknote/xl-ai": "latest",
+            "@mantine/core": "^8.3.2",
+            "ai": "^5.0.45",
+            "y-partykit": "^0.0.25",
+            "yjs": "^13.6.27",
+            "zustand": "^5.0.3"
+          } as any
+        },
+        "title": "AI manual execution",
+        "group": {
+          "pathFromRoot": "examples/09-ai",
+          "slug": "ai"
+        },
+        "readme": "Instead of calling AI models directly, this example shows how you can use an existing stream of responses and apply them to the editor."
+      },
+      {
+        "projectSlug": "client-side-transport",
+        "fullSlug": "ai/client-side-transport",
+        "pathFromRoot": "examples/09-ai/06-client-side-transport",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            "AI",
+            "llm"
+          ],
+          "dependencies": {
+            "@ai-sdk/groq": "^2.0.16",
+            "@blocknote/xl-ai": "latest",
+            "@mantine/core": "^8.3.2",
+            "ai": "^5.0.45",
+            "zustand": "^5.0.3"
+          } as any
+        },
+        "title": "AI Integration with ClientSideTransport",
+        "group": {
+          "pathFromRoot": "examples/09-ai",
+          "slug": "ai"
+        },
+        "readme": "The standard setup is to have BlockNote AI call your server, which then calls an LLM of your choice. In this example, we show how you can use the `ClientSideTransport` to make calls directly to your LLM provider.\n\nTo hide API keys of our LLM provider, we do still route calls through a proxy server using `fetchViaProxy` (this is optional)."
+      },
+      {
+        "projectSlug": "server-promptbuilder",
+        "fullSlug": "ai/server-promptbuilder",
+        "pathFromRoot": "examples/09-ai/07-server-promptbuilder",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "yousefed",
+          "tags": [
+            "AI",
+            "llm"
+          ],
+          "dependencies": {
+            "@blocknote/xl-ai": "latest",
+            "@mantine/core": "^8.3.2",
+            "ai": "^5.0.45",
+            "zustand": "^5.0.3"
+          } as any
+        },
+        "title": "AI Integration with server LLM execution + promptbuilder",
+        "group": {
+          "pathFromRoot": "examples/09-ai",
+          "slug": "ai"
+        },
+        "readme": "This example shows how to setup to add AI integration while handling the LLM calls (in this case, using the Vercel AI SDK) on your server, using a custom executor.\n\nPrompt building is done on the server as well"
       }
     ]
   },

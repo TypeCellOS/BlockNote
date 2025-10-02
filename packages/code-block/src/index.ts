@@ -1,7 +1,7 @@
 import type { CodeBlockOptions } from "@blocknote/core";
 import { createHighlighter } from "./shiki.bundle.js";
 
-export const codeBlock = {
+export const codeBlockOptions = {
   defaultLanguage: "javascript",
   supportedLanguages: {
     text: {
@@ -202,4 +202,4 @@ export const codeBlock = {
       themes: ["github-dark", "github-light"],
       langs: [],
     }),
-} as CodeBlockOptions;
+} satisfies CodeBlockOptions;

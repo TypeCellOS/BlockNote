@@ -183,18 +183,12 @@ export const vi: Dictionary = {
     comment_reply: "Thêm bình luận...",
   },
   file_blocks: {
-    image: {
-      add_button_text: "Thêm ảnh",
-    },
-    video: {
-      add_button_text: "Thêm video",
-    },
-    audio: {
-      add_button_text: "Thêm âm thanh",
-    },
-    file: {
-      add_button_text: "Thêm tệp",
-    },
+    add_button_text: {
+      image: "Thêm ảnh",
+      video: "Thêm video",
+      audio: "Thêm âm thanh",
+      file: "Thêm tệp",
+    } as Record<string, string>,
   },
   toggle_blocks: {
     add_block_button: "Toggle trống. Nhấp để thêm khối.",

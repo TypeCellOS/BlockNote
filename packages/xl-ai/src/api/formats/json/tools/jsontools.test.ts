@@ -6,8 +6,7 @@ import { combinedOperationsTestCases } from "../../../../testUtil/cases/combined
 import { deleteOperationTestCases } from "../../../../testUtil/cases/deleteOperationTestCases.js";
 import { DocumentOperationTestCase } from "../../../../testUtil/cases/index.js";
 import { updateOperationTestCases } from "../../../../testUtil/cases/updateOperationTestCases.js";
-import { createAsyncIterableStreamFromAsyncIterable } from "../../../../util/stream.js";
-import { LLMResponse } from "../../../LLMResponse.js";
+
 import { AddBlocksToolCall } from "../../base-tools/createAddBlocksTool.js";
 import { UpdateBlockToolCall } from "../../base-tools/createUpdateBlockTool.js";
 import { DeleteBlockToolCall } from "../../base-tools/delete.js";
@@ -15,8 +14,11 @@ import { tools } from "./index.js";
 
 // Helper function to create a mock stream from operations
 import { getAIExtension } from "../../../../AIExtension.js";
+import { StreamToolExecutor } from "../../../../streamTool/StreamToolExecutor.js";
+import { StreamTool } from "../../../../streamTool/streamTool.js";
 import { getExpectedEditor } from "../../../../testUtil/cases/index.js";
 import { validateRejectingResultsInOriginalDoc } from "../../../../testUtil/suggestChangesTestUtil.js";
+
 async function* createMockStream(
   ...operations: {
     operation:
@@ -31,6 +33,7 @@ async function* createMockStream(
     yield {
       isUpdateToPreviousOperation: false,
       isPossiblyPartial: false,
+      metadata: undefined,
       ...op,
     };
   }
@@ -55,26 +58,14 @@ async function executeTestCase(
     ...testCase.baseToolCalls.map((u) => ({ operation: u })),
   );
 
-  // bit hacky way to instantiate an LLMResponse just so we can call execute
-  const result = new LLMResponse(
-    undefined as any,
-    {
-      operationsSource: createAsyncIterableStreamFromAsyncIterable(stream),
-      streamObjectResult: undefined,
-      generateObjectResult: undefined,
-      getGeneratedOperations: undefined as any,
-    },
-    streamTools,
-  );
+  const executor = new StreamToolExecutor(streamTools as StreamTool<any>[]); // TODO: fix cast
 
-  await result.execute();
+  await executor.execute(stream);
 
   validateRejectingResultsInOriginalDoc(editor, originalDoc);
 
   getAIExtension(editor).acceptChanges();
   expect(editor.document).toEqual(getExpectedEditor(testCase).document);
-
-  return result;
 }
 
 describe("Add", () => {

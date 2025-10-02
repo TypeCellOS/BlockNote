@@ -1,18 +1,13 @@
 import { Mark } from "@tiptap/core";
 import { createStyleSpecFromTipTapMark } from "../../schema/index.js";
+import { getBackgroundColorAttribute } from "../../blocks/defaultProps.js";
 
 const BackgroundColorMark = Mark.create({
   name: "backgroundColor",
 
   addAttributes() {
     return {
-      stringValue: {
-        default: undefined,
-        parseHTML: (element) => element.getAttribute("data-background-color"),
-        renderHTML: (attributes) => ({
-          "data-background-color": attributes.stringValue,
-        }),
-      },
+      stringValue: getBackgroundColorAttribute("stringValue"),
     };
   },
 
@@ -25,7 +20,10 @@ const BackgroundColorMark = Mark.create({
             return false;
           }
 
-          if (element.hasAttribute("data-background-color")) {
+          if (
+            element.hasAttribute("data-background-color") ||
+            element.style.backgroundColor
+          ) {
             return {
               stringValue: element.getAttribute("data-background-color"),
             };

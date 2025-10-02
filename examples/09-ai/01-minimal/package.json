@@ -1,6 +1,7 @@
 {
   "name": "@blocknote/example-ai-minimal",
   "description": "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
+  "type": "module",
   "private": true,
   "version": "0.12.4",
   "scripts": {
@@ -18,9 +19,8 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "@blocknote/xl-ai": "latest",
-    "@mantine/core": "^7.17.3",
-    "ai": "^4.3.15",
-    "@ai-sdk/groq": "^1.2.9",
+    "@mantine/core": "^8.3.2",
+    "ai": "^5.0.45",
     "zustand": "^5.0.3"
   },
   "devDependencies": {

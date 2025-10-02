@@ -4,6 +4,7 @@ import {
   filterSuggestionItems,
   insertOrUpdateBlock,
 } from "@blocknote/core";
+import { en } from "@blocknote/core/locales";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
@@ -17,6 +18,12 @@ import { RiFilePdfFill } from "react-icons/ri";
 
 import { PDF } from "./PDF";
 
+// Updated English dictionary with entries for PDF blocks.
+const dictionary = en;
+en.file_blocks.add_button_text["pdf"] = "Add PDF";
+en.file_panel.embed.embed_button["pdf"] = "Embed PDF";
+en.file_panel.upload.file_placeholder["pdf"] = "Upload PDF";
+
 // Our schema with block specs, which contain the configs and implementations for blocks
 // that we want our editor to use.
 const schema = BlockNoteSchema.create({
@@ -24,7 +31,7 @@ const schema = BlockNoteSchema.create({
     // Adds all default blocks.
     ...defaultBlockSpecs,
     // Adds the PDF block.
-    pdf: PDF,
+    pdf: PDF(),
   },
 });
 
@@ -44,6 +51,7 @@ const insertPDF = (editor: typeof schema.BlockNoteEditor) => ({
 export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
+    dictionary,
     schema,
     initialContent: [
       {

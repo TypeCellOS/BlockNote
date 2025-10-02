@@ -1,4 +1,5 @@
 import { Mark } from "@tiptap/core";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 export type StylePropSchema = "boolean" | "string"; // TODO: use PropSchema as name? Use objects as type similar to blocks?
 
@@ -7,20 +8,33 @@ export type StylePropSchema = "boolean" | "string"; // TODO: use PropSchema as n
 export type StyleConfig = {
   type: string;
   readonly propSchema: StylePropSchema;
-  // content: "inline" | "none" | "table";
 };
 
 // StyleImplementation contains the "implementation" info about a Style element.
 // Currently, the implementation is always a TipTap Mark
-export type StyleImplementation = {
+export type StyleImplementation<T extends StyleConfig> = {
   mark: Mark;
+  render: (
+    value: T["propSchema"] extends "boolean" ? undefined : string,
+    editor: BlockNoteEditor<any, any, any>,
+  ) => {
+    dom: HTMLElement;
+    contentDOM?: HTMLElement;
+  };
+  toExternalHTML?: (
+    value: T["propSchema"] extends "boolean" ? undefined : string,
+    editor: BlockNoteEditor<any, any, any>,
+  ) => {
+    dom: HTMLElement;
+    contentDOM?: HTMLElement;
+  };
 };
 
 // Container for both the config and implementation of a Style,
 // and the type of `implementation` is based on that of the config
 export type StyleSpec<T extends StyleConfig> = {
   config: T;
-  implementation: StyleImplementation;
+  implementation: StyleImplementation<T>;
 };
 
 // A Schema contains all the types (Configs) supported in an editor

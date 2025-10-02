@@ -2,7 +2,7 @@ import {
   BlockMapping,
   DefaultBlockSchema,
   DefaultProps,
-  pageBreakSchema,
+  createPageBreakBlockConfig,
   StyledText,
 } from "@blocknote/core";
 import { multiColumnSchema } from "@blocknote/xl-multi-column";
@@ -20,9 +20,9 @@ const PIXELS_PER_POINT = 0.75;
 const FONT_SIZE = 16;
 
 export const pdfBlockMappingForDefaultSchema: BlockMapping<
-  DefaultBlockSchema &
-    typeof pageBreakSchema.blockSchema &
-    typeof multiColumnSchema.blockSchema,
+  DefaultBlockSchema & {
+    pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
+  } & typeof multiColumnSchema.blockSchema,
   any,
   any,
   React.ReactElement<Text>,
@@ -85,7 +85,7 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
       4: 1,
       5: 0.83,
       6: 0.67,
-    }[block.props.level];
+    }[block.props.level as 1 | 2 | 3 | 4 | 5 | 6];
     return (
       <Text
         key={"heading" + block.id}

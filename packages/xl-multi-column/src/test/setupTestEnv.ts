@@ -5,9 +5,14 @@ import {
 } from "@blocknote/core";
 import { afterAll, beforeAll, beforeEach } from "vitest";
 
-import { withMultiColumn } from "../blocks/schema.js";
+import { ColumnBlock, ColumnListBlock } from "../blocks/Columns/index.js";
 
-export const testEditorSchema = withMultiColumn(BlockNoteSchema.create());
+export const testEditorSchema = BlockNoteSchema.create().extend({
+  blockSpecs: {
+    column: ColumnBlock,
+    columnList: ColumnListBlock,
+  } as const,
+});
 
 export function setupTestEnv() {
   let editor: BlockNoteEditor<
@@ -25,7 +30,6 @@ export function setupTestEnv() {
   });
 
   afterAll(() => {
-    editor.mount(undefined);
     editor._tiptapEditor.destroy();
     editor = undefined as any;
   });

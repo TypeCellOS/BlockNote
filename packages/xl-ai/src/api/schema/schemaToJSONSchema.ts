@@ -240,10 +240,7 @@ function blockSchemaToJSONSchema(schema: BlockSchema) {
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
 function schemaOps(
-  schema: Pick<
-    BlockNoteSchema<BlockSchema, InlineContentSchema, StyleSchema>,
-    "blockSchema" | "inlineContentSchema" | "styleSchema"
-  >,
+  schema: BlockNoteSchema<BlockSchema, InlineContentSchema, StyleSchema>,
 ) {
   const clone: Writeable<typeof schema> = JSON.parse(
     JSON.stringify({
@@ -253,10 +250,12 @@ function schemaOps(
     }),
   );
   return {
+    // TODO
     removeFileBlocks() {
       clone.blockSchema = Object.fromEntries(
         Object.entries(clone.blockSchema).filter(
-          ([_key, val]) => !val.isFileBlock,
+          ([_key, val]) =>
+            !schema.blockSpecs[val.type].implementation.meta?.fileBlockAccept,
         ),
       );
       return this;
@@ -287,12 +286,12 @@ function schemaOps(
 }
 
 export function blockNoteSchemaToJSONSchema(
-  schema: Pick<
-    BlockNoteSchema<BlockSchema, InlineContentSchema, StyleSchema>,
-    "blockSchema" | "inlineContentSchema" | "styleSchema"
-  >,
+  schema: BlockNoteSchema<any, any, any>,
 ) {
-  schema = schemaOps(schema).removeFileBlocks().removeDefaultProps().get();
+  schema = schemaOps(schema)
+    .removeFileBlocks()
+    .removeDefaultProps()
+    .get() as BlockNoteSchema<BlockSchema, InlineContentSchema, StyleSchema>;
   return {
     $defs: {
       styles: styleSchemaToJSONSchema(schema.styleSchema),

@@ -32,10 +32,10 @@ export class PlaceholderPlugin extends BlockNoteExtension {
             styleEl.setAttribute("nonce", nonce);
           }
 
-          if (editor.prosemirrorView?.root instanceof ShadowRoot) {
-            editor.prosemirrorView.root.append(styleEl);
+          if (view.root instanceof window.ShadowRoot) {
+            view.root.append(styleEl);
           } else {
-            editor.prosemirrorView?.root.head.appendChild(styleEl);
+            view.root.head.appendChild(styleEl);
           }
 
           const styleSheet = styleEl.sheet!;
@@ -88,10 +88,10 @@ export class PlaceholderPlugin extends BlockNoteExtension {
 
           return {
             destroy: () => {
-              if (editor.prosemirrorView?.root instanceof ShadowRoot) {
-                editor.prosemirrorView.root.removeChild(styleEl);
+              if (view.root instanceof window.ShadowRoot) {
+                view.root.removeChild(styleEl);
               } else {
-                editor.prosemirrorView?.root.head.removeChild(styleEl);
+                view.root.head.removeChild(styleEl);
               }
             },
           };

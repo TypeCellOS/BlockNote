@@ -1,6 +1,7 @@
 {
   "name": "@blocknote/example-collaboration-liveblocks",
   "description": "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
+  "type": "module",
   "private": true,
   "version": "0.12.4",
   "scripts": {
@@ -17,11 +18,11 @@
     "@blocknote/shadcn": "latest",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "@liveblocks/client": "^3",
-    "@liveblocks/react": "^3",
-    "@liveblocks/react-blocknote": "^3",
-    "@liveblocks/react-tiptap": "^3",
-    "@liveblocks/react-ui": "^3",
+    "@liveblocks/client": "3.7.1-tiptap3",
+    "@liveblocks/react": "3.7.1-tiptap3",
+    "@liveblocks/react-blocknote": "3.7.1-tiptap3",
+    "@liveblocks/react-tiptap": "3.7.1-tiptap3",
+    "@liveblocks/react-ui": "3.7.1-tiptap3",
     "yjs": "^13.6.27"
   },
   "devDependencies": {

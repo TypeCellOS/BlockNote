@@ -8,6 +8,7 @@
     "import",
     "server-processing",
     "localization",
+    "extensions",
     "..."
   ]
 }

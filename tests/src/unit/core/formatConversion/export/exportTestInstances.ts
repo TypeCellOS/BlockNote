@@ -1657,6 +1657,45 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
     },
     executeTest: testExportBlockNoteHTML,
   },
+  {
+    testCase: {
+      name: "inlineContent/mentionWithToExternalHTML",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            "I enjoy working with ",
+            {
+              type: "mention",
+              props: {
+                user: "Matthew",
+              },
+              content: undefined,
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "inlineContent/tagWithoutToExternalHTML",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            "I love ",
+            {
+              type: "tag",
+              content: "BlockNote",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
 ];
 
 export const exportTestInstancesHTML: TestInstance<

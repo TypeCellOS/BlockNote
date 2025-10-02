@@ -194,7 +194,7 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
       },
     ],
     userPrompt:
-      "translate the second block including the greeting to German (use dir instead of Ihnen)",
+      "translate second block including the greeting to German (use dir instead of Ihnen)",
   },
   {
     editor: getEditorWithFormattingAndMentions,
@@ -683,11 +683,7 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
           },
         ],
         schema,
-        extensions: [
-          createAIExtension({
-            model: undefined as any,
-          }),
-        ],
+        extensions: [createAIExtension({})],
       });
       return editor;
     },
@@ -740,11 +736,7 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
           },
         ],
         schema,
-        extensions: [
-          createAIExtension({
-            model: undefined as any,
-          }),
-        ],
+        extensions: [createAIExtension({})],
       });
       return editor;
     },
@@ -779,11 +771,7 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
           },
         ],
         schema,
-        extensions: [
-          createAIExtension({
-            model: undefined as any,
-          }),
-        ],
+        extensions: [createAIExtension({})],
       });
       return editor;
     },

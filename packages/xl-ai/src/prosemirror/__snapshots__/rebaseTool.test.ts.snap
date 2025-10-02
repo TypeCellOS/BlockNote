@@ -7,14 +7,14 @@ exports[`should be able to apply changes to a clean doc (use invertMap) 1`] = `
       "content": [
         {
           "attrs": {
-            "backgroundColor": "default",
             "id": "1",
-            "textColor": "default",
           },
           "content": [
             {
               "attrs": {
+                "backgroundColor": "default",
                 "textAlignment": "left",
+                "textColor": "default",
               },
               "content": [
                 {
@@ -54,14 +54,14 @@ exports[`should be able to apply changes to a clean doc (use rebaseTr) 1`] = `
       "content": [
         {
           "attrs": {
-            "backgroundColor": "default",
             "id": "1",
-            "textColor": "default",
           },
           "content": [
             {
               "attrs": {
+                "backgroundColor": "default",
                 "textAlignment": "left",
+                "textColor": "default",
               },
               "content": [
                 {
@@ -101,14 +101,14 @@ exports[`should create some example suggestions 1`] = `
       "content": [
         {
           "attrs": {
-            "backgroundColor": "default",
             "id": "1",
-            "textColor": "default",
           },
           "content": [
             {
               "attrs": {
+                "backgroundColor": "default",
                 "textAlignment": "left",
+                "textColor": "default",
               },
               "content": [
                 {

@@ -197,18 +197,12 @@ export const ko: Dictionary = {
     comment_reply: "댓글 추가...",
   },
   file_blocks: {
-    image: {
-      add_button_text: "이미지 추가",
-    },
-    video: {
-      add_button_text: "비디오 추가",
-    },
-    audio: {
-      add_button_text: "오디오 추가",
-    },
-    file: {
-      add_button_text: "파일 추가",
-    },
+    add_button_text: {
+      image: "이미지 추가",
+      video: "비디오 추가",
+      audio: "오디오 추가",
+      file: "파일 추가",
+    } as Record<string, string>,
   },
   toggle_blocks: {
     add_block_button: "비어 있는 토글입니다. 클릭하여 블록을 추가하세요.",

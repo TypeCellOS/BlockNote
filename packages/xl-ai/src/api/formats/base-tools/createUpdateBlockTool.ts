@@ -8,12 +8,7 @@ import {
 } from "../../../prosemirror/agent.js";
 import { updateToReplaceSteps } from "../../../prosemirror/changeset.js";
 import { RebaseTool } from "../../../prosemirror/rebaseTool.js";
-import {
-  Result,
-  StreamTool,
-  streamTool,
-  StreamToolCall,
-} from "../../../streamTool/streamTool.js";
+import { Result, streamTool } from "../../../streamTool/streamTool.js";
 
 export type UpdateBlockToolCall<T> = {
   type: "update";
@@ -98,7 +93,7 @@ export function createUpdateBlockTool<T>(config: {
     return streamTool<UpdateBlockToolCall<T>>({
       name: "update",
       description: config.description,
-      parameters: {
+      inputSchema: {
         type: "object",
         properties: {
           id: {
@@ -172,13 +167,7 @@ export function createUpdateBlockTool<T>(config: {
       },
       // Note: functionality mostly tested in jsontools.test.ts
       // would be nicer to add a direct unit test
-      execute: async function* (
-        operationsStream: AsyncIterable<{
-          operation: StreamToolCall<StreamTool<any>[]>;
-          isUpdateToPreviousOperation: boolean;
-          isPossiblyPartial: boolean;
-        }>,
-      ) {
+      executor: () => {
         const STEP_SIZE = 50;
         let minSize = STEP_SIZE;
         const selectionPositions = options.updateSelection
@@ -187,82 +176,85 @@ export function createUpdateBlockTool<T>(config: {
               to: trackPosition(editor, options.updateSelection.to),
             }
           : undefined;
+        return {
+          execute: async (chunk) => {
+            if (chunk.operation.type !== "update") {
+              // pass through non-update operations
+              return false;
+            }
 
-        for await (const chunk of operationsStream) {
-          if (chunk.operation.type !== "update") {
-            // pass through non-update operations
-            yield chunk;
-            continue;
-          }
-
-          const operation = chunk.operation as UpdateBlockToolCall<T>;
-
-          if (chunk.isPossiblyPartial) {
-            const size = JSON.stringify(operation.block).length;
-            if (size < minSize) {
-              continue;
+            const operation = chunk.operation as UpdateBlockToolCall<T>;
+            if (chunk.isPossiblyPartial) {
+              const size = JSON.stringify(operation.block).length;
+              if (size < minSize) {
+                return true;
+              } else {
+                // increase minSize for next chunk
+                minSize = size + STEP_SIZE;
+              }
             } else {
-              // increase minSize for next chunk
-              minSize = size + STEP_SIZE;
+              // reset for next chunk
+              minSize = STEP_SIZE;
             }
-          } else {
-            // reset for next chunk
-            minSize = STEP_SIZE;
-          }
 
-          // REC: we could investigate whether we can use a single rebasetool across operations instead of
-          // creating a new one every time (possibly expensive)
-          const tool = await config.rebaseTool(operation.id, editor);
+            // REC: we could investigate whether we can use a single rebasetool across operations instead of
+            // creating a new one every time (possibly expensive)
+            const tool = await config.rebaseTool(operation.id, editor);
 
-          const fromPos = selectionPositions
-            ? tool.invertMap.invert().map(selectionPositions.from())
-            : undefined;
+            const fromPos = selectionPositions
+              ? tool.invertMap.invert().map(selectionPositions.from())
+              : undefined;
 
-          const toPos = selectionPositions
-            ? tool.invertMap.invert().map(selectionPositions.to())
-            : undefined;
+            const toPos = selectionPositions
+              ? tool.invertMap.invert().map(selectionPositions.to())
+              : undefined;
 
-          const jsonToolCall = await config.toJSONToolCall(editor, chunk);
-          if (!jsonToolCall) {
-            continue;
-          }
-
-          const steps = updateToReplaceSteps(
-            jsonToolCall,
-            tool.doc,
-            chunk.isPossiblyPartial,
-            fromPos,
-            toPos,
-          );
-
-          if (steps.length === 1 && chunk.isPossiblyPartial) {
-            // when replacing a larger piece of text (try translating a 3 paragraph document), we want to do this as one single operation
-            // we don't want to do this "sentence-by-sentence"
-
-            // if there's only a single replace step to be done and we're partial, let's wait for more content
-
-            // REC: unit test this and see if it's still needed even if we pass `dontReplaceContentAtEnd` to `updateToReplaceSteps`
-            continue;
-          }
-
-          const inverted = steps.map((step) => step.map(tool.invertMap)!);
-
-          const tr = new Transform(editor.prosemirrorState.doc);
-          for (const step of inverted) {
-            tr.step(step.map(tr.mapping)!);
-          }
-          const agentSteps = getStepsAsAgent(tr);
-
-          for (const step of agentSteps) {
-            if (options.withDelays) {
-              await delayAgentStep(step);
-            }
-            editor.transact((tr) => {
-              applyAgentStep(tr, step);
+            const jsonToolCall = await config.toJSONToolCall(editor, {
+              ...chunk,
+              operation,
             });
-            options.onBlockUpdate?.(operation.id);
-          }
-        }
+            if (!jsonToolCall) {
+              return true;
+            }
+
+            const steps = updateToReplaceSteps(
+              jsonToolCall,
+              tool.doc,
+              chunk.isPossiblyPartial,
+              fromPos,
+              toPos,
+            );
+
+            if (steps.length === 1 && chunk.isPossiblyPartial) {
+              // when replacing a larger piece of text (try translating a 3 paragraph document), we want to do this as one single operation
+              // we don't want to do this "sentence-by-sentence"
+
+              // if there's only a single replace step to be done and we're partial, let's wait for more content
+
+              // REC: unit test this and see if it's still needed even if we pass `dontReplaceContentAtEnd` to `updateToReplaceSteps`
+              return true;
+            }
+
+            const inverted = steps.map((step) => step.map(tool.invertMap)!);
+
+            const tr = new Transform(editor.prosemirrorState.doc);
+            for (const step of inverted) {
+              tr.step(step.map(tr.mapping)!);
+            }
+            const agentSteps = getStepsAsAgent(tr);
+
+            for (const step of agentSteps) {
+              if (options.withDelays) {
+                await delayAgentStep(step);
+              }
+              editor.transact((tr) => {
+                applyAgentStep(tr, step);
+              });
+              options.onBlockUpdate?.(operation.id);
+            }
+            return true;
+          },
+        };
       },
     });
   };

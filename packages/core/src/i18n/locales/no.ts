@@ -203,18 +203,12 @@ export const no: Dictionary = {
     comment_reply: "Legg til kommentar...",
   },
   file_blocks: {
-    image: {
-      add_button_text: "Legg til bilde",
-    },
-    video: {
-      add_button_text: "Legg til video",
-    },
-    audio: {
-      add_button_text: "Legg til lyd",
-    },
-    file: {
-      add_button_text: "Legg til fil",
-    },
+    add_button_text: {
+      image: "Legg til bilde",
+      video: "Legg til video",
+      audio: "Legg til lyd",
+      file: "Legg til fil",
+    } as Record<string, string>,
   },
   toggle_blocks: {
     add_block_button: "Tomt toggle. Klikk for å legge til en blokk.",

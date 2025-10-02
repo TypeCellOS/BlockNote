@@ -1,3 +1,4 @@
+import { BlockNoteSchema, createCodeBlockSpec } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
@@ -8,29 +9,33 @@ import { createHighlighter } from "./shiki.bundle";
 export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
-    codeBlock: {
-      indentLineWithTab: true,
-      defaultLanguage: "typescript",
-      supportedLanguages: {
-        typescript: {
-          name: "TypeScript",
-          aliases: ["ts"],
-        },
-        javascript: {
-          name: "JavaScript",
-          aliases: ["js"],
-        },
-        vue: {
-          name: "Vue",
-        },
-      },
-      // This creates a highlighter, it can be asynchronous to load it afterwards
-      createHighlighter: () =>
-        createHighlighter({
-          themes: ["dark-plus", "light-plus"],
-          langs: [],
+    schema: BlockNoteSchema.create().extend({
+      blockSpecs: {
+        codeBlock: createCodeBlockSpec({
+          indentLineWithTab: true,
+          defaultLanguage: "typescript",
+          supportedLanguages: {
+            typescript: {
+              name: "TypeScript",
+              aliases: ["ts"],
+            },
+            javascript: {
+              name: "JavaScript",
+              aliases: ["js"],
+            },
+            vue: {
+              name: "Vue",
+            },
+          },
+          // This creates a highlighter, it can be asynchronous to load it afterwards
+          createHighlighter: () =>
+            createHighlighter({
+              themes: ["dark-plus", "light-plus"],
+              langs: [],
+            }),
         }),
-    },
+      },
+    }),
     initialContent: [
       {
         type: "codeBlock",

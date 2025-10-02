@@ -117,11 +117,9 @@ describe("Test ServerBlockNoteEditor", () => {
   });
 
   it("converts to and from yjs (fragment)", async () => {
-    const fragment = await editor.blocksToYXmlFragment(blocks);
-
-    // fragment needs to be part of a Y.Doc before we can use other operations on it
     const doc = new Y.Doc();
-    doc.getMap().set("prosemirror", fragment);
+    const fragment = doc.getXmlFragment("test");
+    await editor.blocksToYXmlFragment(blocks, fragment);
 
     const blockOutput = await editor.yXmlFragmentToBlocks(fragment);
     expect(blockOutput).toEqual(blocks);

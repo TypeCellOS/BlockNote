@@ -21,7 +21,6 @@ import { PanelTextInput } from "./panel/PanelTextInput.js";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover/Popover.js";
 import { SideMenu } from "./sideMenu/SideMenu.js";
 import { SideMenuButton } from "./sideMenu/SideMenuButton.js";
-import "./style.css";
 import { SuggestionMenu } from "./suggestionMenu/SuggestionMenu.js";
 import { SuggestionMenuEmptyItem } from "./suggestionMenu/SuggestionMenuEmptyItem.js";
 import { SuggestionMenuItem } from "./suggestionMenu/SuggestionMenuItem.js";
