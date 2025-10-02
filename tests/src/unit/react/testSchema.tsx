@@ -1,10 +1,7 @@
 import {
   BlockNoteSchema,
   createPageBreakBlockSpec,
-  defaultBlockSpecs,
-  defaultInlineContentSpecs,
   defaultProps,
-  defaultStyleSpecs,
 } from "@blocknote/core";
 import {
   createReactBlockSpec,

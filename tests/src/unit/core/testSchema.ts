@@ -6,10 +6,7 @@ import {
   createInlineContentSpec,
   createPageBreakBlockSpec,
   createStyleSpec,
-  defaultBlockSpecs,
-  defaultInlineContentSpecs,
   defaultProps,
-  defaultStyleSpecs,
 } from "@blocknote/core";
 
 // BLOCKS ----------------------------------------------------------------------
