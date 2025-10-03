@@ -11,7 +11,6 @@ import { RebaseTool } from "../../../prosemirror/rebaseTool.js";
 import { Result, streamTool } from "../../../streamTool/streamTool.js";
 import { isEmptyParagraph } from "../../../util/emptyBlock.js";
 import { validateBlockArray } from "./util/validateBlockArray.js";
-import { Transaction } from "prosemirror-state";
 
 /**
  * Factory function to create a StreamTool that adds blocks to the document.
@@ -75,7 +74,7 @@ export function createAddBlocksTool<T>(config: {
     options: {
       idsSuffixed: boolean;
       withDelays: boolean;
-      onBlockUpdate?: (blockId: string, tr: Transaction) => void;
+      onBlockUpdate?: (blockId: string) => void;
     },
   ) => {
     const schema =
@@ -272,11 +271,10 @@ export function createAddBlocksTool<T>(config: {
                 if (options.withDelays) {
                   await delayAgentStep(step);
                 }
-                const addedBlockId = addedBlockIds[i];
                 editor.transact((tr) => {
                   applyAgentStep(tr, step);
-                  options.onBlockUpdate?.(addedBlockId, tr);
                 });
+                options.onBlockUpdate?.(addedBlockIds[i]);
               }
             }
 

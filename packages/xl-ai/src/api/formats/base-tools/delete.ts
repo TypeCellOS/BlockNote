@@ -5,7 +5,6 @@ import {
   getStepsAsAgent,
 } from "../../../prosemirror/agent.js";
 import { streamTool } from "../../../streamTool/streamTool.js";
-import { Transaction } from "prosemirror-state";
 
 /**
  * Factory function to create a StreamTool that deletes a block from the document.
@@ -15,7 +14,7 @@ export const deleteBlockTool = (
   options: {
     idsSuffixed: boolean;
     withDelays: boolean;
-    onBlockUpdate?: (blockId: string, tr: Transaction) => void;
+    onBlockUpdate?: (blockId: string) => void;
   },
 ) =>
   streamTool<DeleteBlockToolCall>({
@@ -99,8 +98,8 @@ export const deleteBlockTool = (
             }
             editor.transact((tr) => {
               applyAgentStep(tr, step);
-              options.onBlockUpdate?.(operation.id, tr);
             });
+            options.onBlockUpdate?.(operation.id);
           }
           return true;
         },
