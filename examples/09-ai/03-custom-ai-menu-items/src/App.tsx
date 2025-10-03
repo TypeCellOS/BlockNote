@@ -78,6 +78,7 @@ export default function App() {
         editor={editor}
         formattingToolbar={false}
         slashMenu={false}
+        style={{ paddingBottom: "300px" }}
       >
         {/* Creates a new AIMenu with the default items, 
         as well as our custom ones. */}

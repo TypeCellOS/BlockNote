@@ -2,6 +2,7 @@ import { Chat } from "@ai-sdk/react";
 import {
   BlockNoteEditor,
   BlockNoteExtension,
+  getNodeById,
   UnreachableCaseError,
 } from "@blocknote/core";
 import {
@@ -64,6 +65,9 @@ export class AIExtension extends BlockNoteExtension {
         chat: Chat<UIMessage>;
       }
     | undefined;
+
+  private scrollInProgress = false;
+  private autoScroll = false;
 
   public static key(): string {
     return "ai";
@@ -134,6 +138,31 @@ export class AIExtension extends BlockNoteExtension {
         options.agentCursor || { name: "AI", color: "#8bc6ff" },
       ),
     );
+
+    // Listens for `scroll` and `scrollend` events to see if a new scroll was
+    // started before an existing one ended. This is the most reliable way we
+    // have of checking if a scroll event was caused by the user and not by
+    // `scrollIntoView`, as the events are otherwise indistinguishable. If a
+    // scroll was started before an existing one finished (meaning the user has
+    // scrolled), auto scrolling is disabled.
+    document.addEventListener(
+      "scroll",
+      () => {
+        if (this.scrollInProgress) {
+          this.autoScroll = false;
+        }
+
+        this.scrollInProgress = true;
+      },
+      true,
+    );
+    document.addEventListener(
+      "scrollend",
+      () => {
+        this.scrollInProgress = false;
+      },
+      true,
+    );
   }
 
   /**
@@ -148,6 +177,12 @@ export class AIExtension extends BlockNoteExtension {
         status: "user-input",
       },
     });
+
+    // Scrolls to the block when the menu opens.
+    const blockElement = this.editor.domElement?.querySelector(
+      `[data-node-type="blockContainer"][data-id="${blockID}"]`,
+    );
+    blockElement?.scrollIntoView({ block: "center" });
   }
 
   /**
@@ -371,13 +406,41 @@ export class AIExtension extends BlockNoteExtension {
         useSelection: opts.useSelection,
         deleteEmptyCursorBlock: opts.deleteEmptyCursorBlock,
         streamToolsProvider: opts.streamToolsProvider,
-        onBlockUpdated: (blockId: string) => {
+        onBlockUpdated: (blockId) => {
           // NOTE: does this setState with an anon object trigger unnecessary re-renders?
           this._store.setState({
             aiMenuState: {
               blockId,
               status: "ai-writing",
             },
+          });
+
+          // Scrolls to the block being edited by the AI while auto scrolling is
+          // enabled.
+          if (!this.autoScroll) {
+            return;
+          }
+
+          const aiMenuState = this._store.getState().aiMenuState;
+          const aiMenuOpenState =
+            aiMenuState === "closed" ? undefined : aiMenuState;
+          if (!aiMenuOpenState || aiMenuOpenState.status !== "ai-writing") {
+            return;
+          }
+
+          const nodeInfo = getNodeById(
+            aiMenuOpenState.blockId,
+            this.editor.prosemirrorState.doc,
+          );
+          if (!nodeInfo) {
+            return;
+          }
+
+          const blockElement = this.editor.prosemirrorView.domAtPos(
+            nodeInfo.posBeforeNode + 1,
+          );
+          (blockElement.node as HTMLElement).scrollIntoView({
+            block: "center",
           });
         },
       });
@@ -387,6 +450,7 @@ export class AIExtension extends BlockNoteExtension {
         sender,
         chatRequestOptions: opts.chatRequestOptions,
         onStart: () => {
+          this.autoScroll = true;
           this.setAIResponseStatus("ai-writing");
         },
       });
