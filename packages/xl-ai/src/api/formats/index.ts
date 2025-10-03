@@ -8,6 +8,7 @@ import { HTMLPromptData } from "./html-blocks/htmlPromptData.js";
 import { jsonBlockLLMFormat } from "./json/json.js";
 import { markdownBlockLLMFormat } from "./markdown-blocks/markdownBlocks.js";
 import { PromptBuilder } from "./PromptBuilder.js";
+import { Transaction } from "prosemirror-state";
 
 // Define the tool types
 export type AddTool<T> = StreamTool<AddBlocksToolCall<T>>;
@@ -39,7 +40,7 @@ export type StreamToolsProvider<
           to: number;
         }
       | boolean,
-    onBlockUpdate?: (blockId: string) => void,
+    onBlockUpdate?: (blockId: string, tr: Transaction) => void,
   ) => StreamToolsResult<TT, T>;
 };
 

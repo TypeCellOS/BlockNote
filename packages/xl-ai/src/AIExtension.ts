@@ -141,35 +141,35 @@ export class AIExtension extends BlockNoteExtension {
 
     // Scrolls to the block being edited by the AI while auto scrolling is
     // enabled.
-    editor.onCreate(() =>
-      editor.onChange(() => {
-        if (!this.autoScroll) {
-          return;
-        }
+    // editor.onCreate(() =>
+    //   editor.onChange(() => {
+    //     if (!this.autoScroll) {
+    //       return;
+    //     }
 
-        const aiMenuState = this._store.getState().aiMenuState;
-        const aiMenuNonErrorState =
-          aiMenuState === "closed" ? undefined : aiMenuState;
-        if (aiMenuNonErrorState?.status === "ai-writing") {
-          const nodeInfo = getNodeById(
-            aiMenuNonErrorState.blockId,
-            editor.prosemirrorState.doc,
-          );
-          if (!nodeInfo) {
-            throw new Error(
-              "Block edited by AI could not be found in the editor.",
-            );
-          }
+    //     // const aiMenuState = this._store.getState().aiMenuState;
+    //     // const aiMenuNonErrorState =
+    //     //   aiMenuState === "closed" ? undefined : aiMenuState;
+    //     // if (aiMenuNonErrorState?.status === "ai-writing") {
+    //     //   const nodeInfo = getNodeById(
+    //     //     aiMenuNonErrorState.blockId,
+    //     //     editor.prosemirrorState.doc,
+    //     //   );
+    //     //   if (!nodeInfo) {
+    //     //     throw new Error(
+    //     //       "Block edited by AI could not be found in the editor.",
+    //     //     );
+    //     //   }
 
-          const blockElement = editor.prosemirrorView.domAtPos(
-            nodeInfo.posBeforeNode + 1,
-          );
-          (blockElement.node as HTMLElement).scrollIntoView({
-            block: "center",
-          });
-        }
-      }),
-    );
+    //     //   const blockElement = editor.prosemirrorView.domAtPos(
+    //     //     nodeInfo.posBeforeNode + 1,
+    //     //   );
+    //     //   (blockElement.node as HTMLElement).scrollIntoView({
+    //     //     block: "center",
+    //     //   });
+    //     // }
+    //   }),
+    // );
 
     // Listens for `scroll` and `scrollend` events to see if a new scroll was
     // started before an existing one ended. This is the most reliable way we
@@ -438,7 +438,7 @@ export class AIExtension extends BlockNoteExtension {
         useSelection: opts.useSelection,
         deleteEmptyCursorBlock: opts.deleteEmptyCursorBlock,
         streamToolsProvider: opts.streamToolsProvider,
-        onBlockUpdated: (blockId: string) => {
+        onBlockUpdated: (blockId, tr) => {
           // NOTE: does this setState with an anon object trigger unnecessary re-renders?
           this._store.setState({
             aiMenuState: {
@@ -446,6 +446,10 @@ export class AIExtension extends BlockNoteExtension {
               status: "ai-writing",
             },
           });
+
+          if (this.autoScroll) {
+            tr.scrollIntoView();
+          }
         },
       });
 

@@ -6,6 +6,7 @@ import { isEmptyParagraph } from "../../util/emptyBlock.js";
 import { aiDocumentFormats, StreamToolsProvider } from "../index.js";
 import { trimEmptyBlocks } from "../promptHelpers/trimEmptyBlocks.js";
 import { AIRequest, AIRequestSender } from "./types.js";
+import { Transaction } from "prosemirror-state";
 
 export function buildAIRequest(opts: {
   editor: BlockNoteEditor<any, any, any>;
@@ -14,7 +15,7 @@ export function buildAIRequest(opts: {
   useSelection?: boolean;
   deleteEmptyCursorBlock?: boolean;
   streamToolsProvider?: StreamToolsProvider<any, any>;
-  onBlockUpdated?: (blockId: string) => void;
+  onBlockUpdated?: (blockId: string, tr: Transaction) => void;
 }) {
   const { useSelection, deleteEmptyCursorBlock, streamToolsProvider } = {
     useSelection: opts.useSelection ?? false,
