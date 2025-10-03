@@ -922,6 +922,10 @@ With Hard Break</p>
     },
     executeTest: testParseHTML,
   },
+  {
+    testCase: { name: "divider", content: `<hr/>` },
+    executeTest: testParseHTML,
+  },
 ];
 
 export const parseTestInstancesMarkdown: TestInstance<
@@ -982,9 +986,15 @@ Paragraph
 
 Paragraph
 
+---
+
 P**ara***grap*h
 
+***
+
 P*ara*~~grap~~h
+
+___
 
 *   Bullet List Item
 

@@ -64,6 +64,9 @@ export const exportParseEqualityTestInstancesHTML: TestInstance<
           content: "Check List Item",
         },
         {
+          type: "divider",
+        },
+        {
           type: "codeBlock",
           content: "Code",
         },
