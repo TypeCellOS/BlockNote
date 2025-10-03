@@ -406,7 +406,7 @@ export class AIExtension extends BlockNoteExtension {
         useSelection: opts.useSelection,
         deleteEmptyCursorBlock: opts.deleteEmptyCursorBlock,
         streamToolsProvider: opts.streamToolsProvider,
-        onBlockUpdated: (blockId: string) => {
+        onBlockUpdated: (blockId) => {
           // NOTE: does this setState with an anon object trigger unnecessary re-renders?
           this._store.setState({
             aiMenuState: {
