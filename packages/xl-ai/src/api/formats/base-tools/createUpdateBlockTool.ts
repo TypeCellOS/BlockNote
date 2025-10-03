@@ -9,6 +9,7 @@ import {
 import { updateToReplaceSteps } from "../../../prosemirror/changeset.js";
 import { RebaseTool } from "../../../prosemirror/rebaseTool.js";
 import { Result, streamTool } from "../../../streamTool/streamTool.js";
+import { Transaction } from "prosemirror-state";
 
 export type UpdateBlockToolCall<T> = {
   type: "update";
@@ -83,7 +84,7 @@ export function createUpdateBlockTool<T>(config: {
         from: number;
         to: number;
       };
-      onBlockUpdate?: (blockId: string) => void;
+      onBlockUpdate?: (blockId: string, tr: Transaction) => void;
     },
   ) => {
     const schema =
@@ -249,8 +250,8 @@ export function createUpdateBlockTool<T>(config: {
               }
               editor.transact((tr) => {
                 applyAgentStep(tr, step);
+                options.onBlockUpdate?.(operation.id, tr);
               });
-              options.onBlockUpdate?.(operation.id);
             }
             return true;
           },

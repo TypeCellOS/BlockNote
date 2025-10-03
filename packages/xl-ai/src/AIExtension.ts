@@ -139,38 +139,6 @@ export class AIExtension extends BlockNoteExtension {
       ),
     );
 
-    // Scrolls to the block being edited by the AI while auto scrolling is
-    // enabled.
-    editor.onCreate(() =>
-      editor.onChange(() => {
-        if (!this.autoScroll) {
-          return;
-        }
-
-        const aiMenuState = this._store.getState().aiMenuState;
-        const aiMenuNonErrorState =
-          aiMenuState === "closed" ? undefined : aiMenuState;
-        if (aiMenuNonErrorState?.status === "ai-writing") {
-          const nodeInfo = getNodeById(
-            aiMenuNonErrorState.blockId,
-            editor.prosemirrorState.doc,
-          );
-          if (!nodeInfo) {
-            throw new Error(
-              "Block edited by AI could not be found in the editor.",
-            );
-          }
-
-          const blockElement = editor.prosemirrorView.domAtPos(
-            nodeInfo.posBeforeNode + 1,
-          );
-          (blockElement.node as HTMLElement).scrollIntoView({
-            block: "center",
-          });
-        }
-      }),
-    );
-
     // Listens for `scroll` and `scrollend` events to see if a new scroll was
     // started before an existing one ended. This is the most reliable way we
     // have of checking if a scroll event was caused by the user and not by
@@ -445,6 +413,34 @@ export class AIExtension extends BlockNoteExtension {
               blockId,
               status: "ai-writing",
             },
+          });
+
+          // Scrolls to the block being edited by the AI while auto scrolling is
+          // enabled.
+          if (!this.autoScroll) {
+            return;
+          }
+
+          const aiMenuState = this._store.getState().aiMenuState;
+          const aiMenuOpenState =
+            aiMenuState === "closed" ? undefined : aiMenuState;
+          if (!aiMenuOpenState || aiMenuOpenState.status !== "ai-writing") {
+            return;
+          }
+
+          const nodeInfo = getNodeById(
+            aiMenuOpenState.blockId,
+            this.editor.prosemirrorState.doc,
+          );
+          if (!nodeInfo) {
+            return;
+          }
+
+          const blockElement = this.editor.prosemirrorView.domAtPos(
+            nodeInfo.posBeforeNode + 1,
+          );
+          (blockElement.node as HTMLElement).scrollIntoView({
+            block: "center",
           });
         },
       });
