@@ -1631,6 +1631,34 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
   },
   {
     testCase: {
+      name: "image",
+      content: [
+        {
+          type: "image",
+          props: {
+            url: "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png",
+          },
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "video",
+      content: [
+        {
+          type: "video",
+          props: {
+            url: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm",
+          },
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
       name: "inlineContent/mentionWithToExternalHTML",
       content: [
         {
