@@ -1,6 +1,5 @@
 import { Node, ResolvedPos } from "prosemirror-model";
 import { EditorState, Transaction } from "prosemirror-state";
-import { BlockIdentifier } from "../schema";
 
 type SingleBlockInfo = {
   node: Node;
