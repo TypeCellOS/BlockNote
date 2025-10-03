@@ -274,21 +274,23 @@ export const Comment = ({
                           onReactionSelect={onReactionSelect}
                         />
                       ))}
-                      <EmojiPicker
-                        onEmojiSelect={(emoji: { native: string }) =>
-                          onReactionSelect(emoji.native)
-                        }
-                      >
-                        <Components.Generic.Badge.Root
-                          className={mergeCSSClasses(
-                            "bn-badge",
-                            "bn-comment-add-reaction",
-                          )}
-                          text={"+"}
-                          icon={<RiEmotionLine size={16} />}
-                          mainTooltip={dict.comments.actions.add_reaction}
-                        />
-                      </EmojiPicker>
+                      {canAddReaction && (
+                        <EmojiPicker
+                          onEmojiSelect={(emoji: { native: string }) =>
+                            onReactionSelect(emoji.native)
+                          }
+                        >
+                          <Components.Generic.Badge.Root
+                            className={mergeCSSClasses(
+                              "bn-badge",
+                              "bn-comment-add-reaction",
+                            )}
+                            text={"+"}
+                            icon={<RiEmotionLine size={16} />}
+                            mainTooltip={dict.comments.actions.add_reaction}
+                          />
+                        </EmojiPicker>
+                      )}
                     </Components.Generic.Badge.Group>
                   )}
                   {isEditing && (
