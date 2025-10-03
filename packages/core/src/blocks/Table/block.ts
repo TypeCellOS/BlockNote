@@ -6,6 +6,7 @@ import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import {
   BlockConfig,
   createBlockSpecFromTiptapNode,
+  TableContent,
 } from "../../schema/index.js";
 import { mergeCSSClasses } from "../../util/browser.js";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
@@ -265,59 +266,6 @@ const TiptapTableParagraph = Node.create({
   group: "tableContent",
   content: "inline*",
 
-  addKeyboardShortcuts() {
-    return {
-      // If the table is empty while all cells are selected, deletes the table.
-      Backspace: ({ editor }) => {
-        if (!(editor.state.selection instanceof CellSelection)) {
-          return false;
-        }
-
-        const anchorCellColIndex = editor.state.selection.$anchorCell.index();
-        const anchorCellRowIndex = editor.state.selection.$anchorCell.index(-1);
-        const headCellColIndex = editor.state.selection.$headCell.index();
-        const headCellRowIndex = editor.state.selection.$headCell.index(-1);
-
-        const minColIndex = Math.min(anchorCellColIndex, headCellColIndex);
-        const maxColIndex = Math.max(anchorCellColIndex, headCellColIndex);
-        const minRowIndex = Math.min(anchorCellRowIndex, headCellRowIndex);
-        const maxRowIndex = Math.max(anchorCellRowIndex, headCellRowIndex);
-
-        const posBeforeTable = editor.state.selection.$anchorCell.before(-1);
-        const tableNode = editor.state.doc.resolve(posBeforeTable).nodeAfter!;
-
-        const tableMap = TableMap.get(tableNode);
-
-        if (
-          minColIndex !== 0 ||
-          maxColIndex !== tableMap.width - 1 ||
-          minRowIndex !== 0 ||
-          maxRowIndex !== tableMap.height - 1
-        ) {
-          return false;
-        }
-
-        for (
-          let cellIndex = 0;
-          cellIndex < tableMap.height * tableMap.width;
-          cellIndex++
-        ) {
-          const posBeforeCell = posBeforeTable + tableMap.map[cellIndex] + 1;
-          const cellNode = editor.state.doc.resolve(posBeforeCell).nodeAfter!;
-
-          if (cellNode.firstChild && cellNode.firstChild?.content.size > 0) {
-            return false;
-          }
-        }
-
-        return editor.commands.deleteRange({
-          from: posBeforeTable,
-          to: posBeforeTable + tableNode.nodeSize,
-        });
-      },
-    };
-  },
-
   parseHTML() {
     return [
       {
@@ -446,6 +394,87 @@ export const createTableBlockSpec = () =>
           TiptapTableCell,
           TiptapTableRow,
         ],
+      }),
+      // Extension for keyboard shortcut which deletes the table if it's empty
+      // and all cells are selected. Uses a separate extension as it needs
+      // priority over keyboard handlers in the `TableExtension`'s
+      // `tableEditing` plugin.
+      createBlockNoteExtension({
+        key: "table-keyboard-delete",
+        keyboardShortcuts: {
+          Backspace: ({ editor }) => {
+            if (!(editor.prosemirrorState.selection instanceof CellSelection)) {
+              return false;
+            }
+
+            const block = editor.getTextCursorPosition().block;
+            const content = block.content as TableContent<any, any>;
+
+            const rows = content.rows.length;
+            let cols = 0;
+
+            for (let rowIndex = 0; rowIndex < content.rows.length; rowIndex++) {
+              for (
+                let cellIndex = 0;
+                cellIndex < content.rows[rowIndex].cells.length;
+                cellIndex++
+              ) {
+                const cell = content.rows[rowIndex].cells[cellIndex];
+
+                // Counts number of columns in table from first row.
+                if (rowIndex === 0) {
+                  const colSpan =
+                    "type" in cell && cell.props.colspan
+                      ? cell.props.colspan
+                      : 1;
+                  cols += colSpan;
+                }
+
+                // Returns `false` if any cell isn't empty.
+                if (
+                  ("type" in cell && cell.content.length > 0) ||
+                  (!("type" in cell) && cell.length > 0)
+                ) {
+                  return false;
+                }
+              }
+            }
+
+            // Need to use ProseMirror API to check if selection spans table.
+            const anchorCellColIndex =
+              editor.prosemirrorState.selection.$anchorCell.index();
+            const anchorCellRowIndex =
+              editor.prosemirrorState.selection.$anchorCell.index(-1);
+            const headCellColIndex =
+              editor.prosemirrorState.selection.$headCell.index();
+            const headCellRowIndex =
+              editor.prosemirrorState.selection.$headCell.index(-1);
+
+            const minColIndex = Math.min(anchorCellColIndex, headCellColIndex);
+            const maxColIndex = Math.max(anchorCellColIndex, headCellColIndex);
+            const minRowIndex = Math.min(anchorCellRowIndex, headCellRowIndex);
+            const maxRowIndex = Math.max(anchorCellRowIndex, headCellRowIndex);
+
+            if (
+              minColIndex !== 0 ||
+              maxColIndex !== cols - 1 ||
+              minRowIndex !== 0 ||
+              maxRowIndex !== rows - 1
+            ) {
+              return false;
+            }
+
+            const selectionBlock =
+              editor.getPrevBlock(block) || editor.getNextBlock(block);
+            if (selectionBlock) {
+              editor.setTextCursorPosition(block);
+            }
+
+            editor.removeBlocks([block]);
+
+            return true;
+          },
+        },
       }),
     ],
   );
