@@ -1,7 +1,29 @@
 {
-  "_meta": {
-    "startPos": 19,
-    "endPos": 57
+  "meta": {
+    "location": {
+      "anchor": {
+        "id": "2",
+        "offset": 1
+      },
+      "head": {
+        "id": "2",
+        "offset": 17
+      }
+    },
+    "anchor": 19,
+    "head": 35,
+    "from": 19,
+    "to": 35
+  },
+  "range": {
+    "anchor": {
+      "id": "2",
+      "offset": 1
+    },
+    "head": {
+      "id": "2",
+      "offset": 17
+    }
   },
   "blocks": [
     {
@@ -15,14 +37,16 @@
       "content": [
         {
           "type": "text",
-          "text": "ested Paragraph 1",
+          "text": "Nested Paragraph 1",
           "styles": {}
         }
       ],
       "children": []
-    },
+    }
+  ],
+  "content": [
     {
-      "id": "3",
+      "id": "2",
       "type": "paragraph",
       "props": {
         "backgroundColor": "default",
@@ -32,13 +56,11 @@
       "content": [
         {
           "type": "text",
-          "text": "Nested Paragraph ",
+          "text": "ested Paragraph ",
           "styles": {}
         }
       ],
       "children": []
     }
-  ],
-  "blockCutAtStart": "2",
-  "blockCutAtEnd": "3"
+  ]
 }

@@ -103,7 +103,7 @@
     "prosemirror-state": "^1.4.3",
     "prosemirror-tables": "^1.6.4",
     "prosemirror-transform": "^1.10.4",
-    "prosemirror-view": "^1.40.1",
+    "prosemirror-view": "^1.41.2",
     "rehype-format": "^5.0.1",
     "rehype-parse": "^9.0.1",
     "rehype-remark": "^10.0.1",

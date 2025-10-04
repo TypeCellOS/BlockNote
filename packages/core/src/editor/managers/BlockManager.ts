@@ -25,8 +25,9 @@ import {
   DefaultStyleSchema,
   PartialBlock,
 } from "../../blocks/defaultBlocks.js";
-import {
-  BlockIdentifier,
+import { Location } from "../../locations/types.js";
+import { getBlockId } from "../../locations/utils.js";
+import type {
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
@@ -58,9 +59,11 @@ export class BlockManager<
    * matching block was found.
    */
   public getBlock(
-    blockIdentifier: BlockIdentifier,
+    blockIdentifier: Location,
   ): Block<BSchema, ISchema, SSchema> | undefined {
-    return this.editor.transact((tr) => getBlock(tr.doc, blockIdentifier));
+    return this.editor.transact((tr) =>
+      getBlock(tr.doc, getBlockId(blockIdentifier)),
+    );
   }
 
   /**
@@ -73,9 +76,11 @@ export class BlockManager<
    * in the document.
    */
   public getPrevBlock(
-    blockIdentifier: BlockIdentifier,
+    blockIdentifier: Location,
   ): Block<BSchema, ISchema, SSchema> | undefined {
-    return this.editor.transact((tr) => getPrevBlock(tr.doc, blockIdentifier));
+    return this.editor.transact((tr) =>
+      getPrevBlock(tr.doc, getBlockId(blockIdentifier)),
+    );
   }
 
   /**
@@ -87,9 +92,11 @@ export class BlockManager<
    * the document.
    */
   public getNextBlock(
-    blockIdentifier: BlockIdentifier,
+    blockIdentifier: Location,
   ): Block<BSchema, ISchema, SSchema> | undefined {
-    return this.editor.transact((tr) => getNextBlock(tr.doc, blockIdentifier));
+    return this.editor.transact((tr) =>
+      getNextBlock(tr.doc, getBlockId(blockIdentifier)),
+    );
   }
 
   /**
@@ -100,10 +107,10 @@ export class BlockManager<
    * if no matching block was found, or the block isn't nested.
    */
   public getParentBlock(
-    blockIdentifier: BlockIdentifier,
+    blockIdentifier: Location,
   ): Block<BSchema, ISchema, SSchema> | undefined {
     return this.editor.transact((tr) =>
-      getParentBlock(tr.doc, blockIdentifier),
+      getParentBlock(tr.doc, getBlockId(blockIdentifier)),
     );
   }
 
@@ -155,7 +162,7 @@ export class BlockManager<
    */
   public insertBlocks(
     blocksToInsert: PartialBlock<BSchema, ISchema, SSchema>[],
-    referenceBlock: BlockIdentifier,
+    referenceBlock: Location,
     placement: "before" | "after" = "before",
   ) {
     return this.editor.transact((tr) =>
@@ -171,7 +178,7 @@ export class BlockManager<
    * @param update A partial block which defines how the existing block should be changed.
    */
   public updateBlock(
-    blockToUpdate: BlockIdentifier,
+    blockToUpdate: Location,
     update: PartialBlock<BSchema, ISchema, SSchema>,
   ) {
     return this.editor.transact((tr) => updateBlock(tr, blockToUpdate, update));
@@ -181,7 +188,7 @@ export class BlockManager<
    * Removes existing blocks from the editor. Throws an error if any of the blocks could not be found.
    * @param blocksToRemove An array of identifiers for existing blocks that should be removed.
    */
-  public removeBlocks(blocksToRemove: BlockIdentifier[]) {
+  public removeBlocks(blocksToRemove: Location[]) {
     return this.editor.transact(
       (tr) => removeAndInsertBlocks(tr, blocksToRemove, []).removedBlocks,
     );
@@ -195,7 +202,7 @@ export class BlockManager<
    * @param blocksToInsert An array of partial blocks to replace the old ones with.
    */
   public replaceBlocks(
-    blocksToRemove: BlockIdentifier[],
+    blocksToRemove: Location[],
     blocksToInsert: PartialBlock<BSchema, ISchema, SSchema>[],
   ) {
     return this.editor.transact((tr) =>

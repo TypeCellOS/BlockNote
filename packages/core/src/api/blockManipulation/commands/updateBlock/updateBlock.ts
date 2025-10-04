@@ -9,16 +9,16 @@ import { TableMap } from "prosemirror-tables";
 import { ReplaceStep, Transform } from "prosemirror-transform";
 
 import type { Block, PartialBlock } from "../../../../blocks/defaultBlocks.js";
-import type {
-  BlockIdentifier,
-  BlockSchema,
-} from "../../../../schema/blocks/types.js";
+import { getBlockStartPos } from "../../../../locations/location.js";
+import { Location } from "../../../../locations/types.js";
+import type { BlockSchema } from "../../../../schema/blocks/types.js";
 import type { InlineContentSchema } from "../../../../schema/inlineContent/types.js";
 import type { StyleSchema } from "../../../../schema/styles/types.js";
 import { UnreachableCaseError } from "../../../../util/typescript.js";
 import {
   type BlockInfo,
   getBlockInfoFromResolvedPos,
+  getNearestBlockPos,
 } from "../../../getBlockInfoFromPos.js";
 import {
   blockToNode,
@@ -26,7 +26,6 @@ import {
   tableContentToNodes,
 } from "../../../nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
-import { getNodeById } from "../../../nodeUtil.js";
 import { getPmSchema } from "../../../pmUtil.js";
 
 // for compatibility with tiptap. TODO: remove as we want to remove dependency on tiptap command interface
@@ -127,7 +126,7 @@ export function updateBlockTr<
     // currently, we calculate the new node and replace the entire node with the desired new node.
     // for this, we do a nodeToBlock on the existing block to get the children.
     // it would be cleaner to use a ReplaceAroundStep, but this is a bit simpler and it's quite an edge case
-    const existingBlock = nodeToBlock(blockInfo.bnBlock.node, pmSchema);
+    const existingBlock = nodeToBlock(blockInfo.bnBlock.node);
     tr.replaceWith(
       blockInfo.bnBlock.beforePos,
       blockInfo.bnBlock.afterPos,
@@ -312,32 +311,18 @@ export function updateBlock<
   S extends StyleSchema = any,
 >(
   tr: Transform,
-  blockToUpdate: BlockIdentifier,
+  blockToUpdate: Location,
   update: PartialBlock<BSchema, I, S>,
   replaceFromPos?: number,
   replaceToPos?: number,
 ): Block<BSchema, I, S> {
-  const id =
-    typeof blockToUpdate === "string" ? blockToUpdate : blockToUpdate.id;
-  const posInfo = getNodeById(id, tr.doc);
-  if (!posInfo) {
-    throw new Error(`Block with ID ${id} not found`);
-  }
+  const blockStartPos = getBlockStartPos(tr.doc, blockToUpdate);
 
-  updateBlockTr(
-    tr,
-    posInfo.posBeforeNode,
-    update,
-    replaceFromPos,
-    replaceToPos,
-  );
+  updateBlockTr(tr, blockStartPos, update, replaceFromPos, replaceToPos);
 
-  const blockContainerNode = tr.doc
-    .resolve(posInfo.posBeforeNode + 1) // TODO: clean?
-    .node();
+  const { node } = getNearestBlockPos(tr.doc, blockStartPos);
 
-  const pmSchema = getPmSchema(tr);
-  return nodeToBlock(blockContainerNode, pmSchema);
+  return nodeToBlock(node);
 }
 
 type CellAnchor = { row: number; col: number; offset: number };

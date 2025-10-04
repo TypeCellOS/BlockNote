@@ -16,6 +16,12 @@
     },
     "type": "paragraph",
   },
+  "meta": {
+    "location": {
+      "id": "target",
+      "offset": 0,
+    },
+  },
   "nextBlock": {
     "children": [],
     "content": [
@@ -118,5 +124,15 @@
       "textColor": "default",
     },
     "type": "paragraph",
+  },
+  "range": {
+    "anchor": {
+      "id": "target",
+      "offset": 0,
+    },
+    "head": {
+      "id": "target",
+      "offset": 0,
+    },
   },
 }
