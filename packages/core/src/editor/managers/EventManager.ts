@@ -4,6 +4,7 @@ import {
   type BlocksChanged,
 } from "../../api/getBlocksChangedByTransaction.js";
 import { Transaction } from "prosemirror-state";
+import { EventEmitter } from "../../util/EventEmitter.js";
 
 /**
  * A function that can be used to unsubscribe from an event.
@@ -13,8 +14,50 @@ export type Unsubscribe = () => void;
 /**
  * EventManager is a class which manages the events of the editor
  */
-export class EventManager<Editor extends BlockNoteEditor> {
-  constructor(private editor: Editor) {}
+export class EventManager<Editor extends BlockNoteEditor> extends EventEmitter<{
+  onChange: [
+    editor: Editor,
+    ctx: {
+      getChanges(): BlocksChanged<
+        Editor["schema"]["blockSchema"],
+        Editor["schema"]["inlineContentSchema"],
+        Editor["schema"]["styleSchema"]
+      >;
+    },
+  ];
+  onSelectionChange: [ctx: { editor: Editor; transaction: Transaction }];
+  onMount: [ctx: { editor: Editor }];
+  onUnmount: [ctx: { editor: Editor }];
+}> {
+  constructor(private editor: Editor) {
+    super();
+    // We register tiptap events only once the editor is finished initializing
+    // otherwise we would be trying to register events on a tiptap editor which does not exist yet
+    editor.onCreate(() => {
+      editor._tiptapEditor.on(
+        "update",
+        ({ transaction, appendedTransactions }) => {
+          this.emit("onChange", editor, {
+            getChanges() {
+              return getBlocksChangedByTransaction(
+                transaction,
+                appendedTransactions,
+              );
+            },
+          });
+        },
+      );
+      editor._tiptapEditor.on("selectionUpdate", ({ transaction }) => {
+        this.emit("onSelectionChange", { editor, transaction });
+      });
+      editor._tiptapEditor.on("mount", () => {
+        this.emit("onMount", { editor });
+      });
+      editor._tiptapEditor.on("unmount", () => {
+        this.emit("onUnmount", { editor });
+      });
+    });
+  }
 
   /**
    * Register a callback that will be called when the editor changes.
@@ -31,27 +74,10 @@ export class EventManager<Editor extends BlockNoteEditor> {
       },
     ) => void,
   ): Unsubscribe {
-    const cb = ({
-      transaction,
-      appendedTransactions,
-    }: {
-      transaction: Transaction;
-      appendedTransactions: Transaction[];
-    }) => {
-      callback(this.editor, {
-        getChanges() {
-          return getBlocksChangedByTransaction(
-            transaction,
-            appendedTransactions,
-          );
-        },
-      });
-    };
-
-    this.editor._tiptapEditor.on("update", cb);
+    this.on("onChange", callback);
 
     return () => {
-      this.editor._tiptapEditor.off("update", cb);
+      this.off("onChange", callback);
     };
   }
 
@@ -77,10 +103,10 @@ export class EventManager<Editor extends BlockNoteEditor> {
       callback(this.editor);
     };
 
-    this.editor._tiptapEditor.on("selectionUpdate", cb);
+    this.on("onSelectionChange", cb);
 
     return () => {
-      this.editor._tiptapEditor.off("selectionUpdate", cb);
+      this.off("onSelectionChange", cb);
     };
   }
 
@@ -88,14 +114,10 @@ export class EventManager<Editor extends BlockNoteEditor> {
    * Register a callback that will be called when the editor is mounted.
    */
   public onMount(callback: (ctx: { editor: Editor }) => void): Unsubscribe {
-    const cb = () => {
-      callback({ editor: this.editor });
-    };
-
-    this.editor._tiptapEditor.on("mount", cb);
+    this.on("onMount", callback);
 
     return () => {
-      this.editor._tiptapEditor.off("mount", cb);
+      this.off("onMount", callback);
     };
   }
 
@@ -103,14 +125,10 @@ export class EventManager<Editor extends BlockNoteEditor> {
    * Register a callback that will be called when the editor is unmounted.
    */
   public onUnmount(callback: (ctx: { editor: Editor }) => void): Unsubscribe {
-    const cb = () => {
-      callback({ editor: this.editor });
-    };
-
-    this.editor._tiptapEditor.on("unmount", cb);
+    this.on("onUnmount", callback);
 
     return () => {
-      this.editor._tiptapEditor.off("unmount", cb);
+      this.off("onUnmount", callback);
     };
   }
 }
