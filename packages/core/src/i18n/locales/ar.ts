@@ -156,6 +156,12 @@ export const ar: Dictionary = {
       aliases: ["رمز تعبيري", "إيموجي", "إيموت", "عاطفة", "وجه"],
       group: "آخرون",
     },
+    divider: {
+      title: "فاصل",
+      subtext: "يستخدم لفصل الكتل",
+      aliases: ["فاصل", "فاصل", "فاصل", "فاصل"],
+      group: "الكتل الأساسية",
+    },
   },
   placeholders: {
     default: "أدخل نصًا أو اكتب '/' للأوامر",

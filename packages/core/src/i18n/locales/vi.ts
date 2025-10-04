@@ -170,6 +170,12 @@ export const vi: Dictionary = {
       ],
       group: "Khác",
     },
+    divider: {
+      title: "Phân cách",
+      subtext: "Phân cách khối",
+      aliases: ["divider", "hr", "horizontal rule"],
+      group: "Khối cơ bản",
+    },
   },
   placeholders: {
     default: "Nhập văn bản hoặc gõ '/' để thêm định dạng",

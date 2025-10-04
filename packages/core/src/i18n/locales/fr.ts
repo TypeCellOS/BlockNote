@@ -216,6 +216,12 @@ export const fr: Dictionary = {
       aliases: ["emoji", "émoticône", "émotion", "visage", "smiley"],
       group: "Autres",
     },
+    divider: {
+      title: "Diviseur",
+      subtext: "Utilisé pour diviser les blocs",
+      aliases: ["diviseur", "hr", "horizontal rule"],
+      group: "Blocs de base",
+    },
   },
   placeholders: {
     default:

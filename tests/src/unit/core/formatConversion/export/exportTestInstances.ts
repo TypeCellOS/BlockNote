@@ -245,6 +245,17 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
   },
   {
     testCase: {
+      name: "divider/basic",
+      content: [
+        {
+          type: "divider",
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
       name: "pageBreak/basic",
       content: [
         {

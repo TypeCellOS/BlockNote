@@ -170,6 +170,12 @@ export const sk = {
       aliases: ["emoji", "emócia", "tvár"],
       group: "Ostatné",
     },
+    divider: {
+      title: "Oddelovač",
+      subtext: "Oddelovač blokov",
+      aliases: ["oddelovač", "hr", "horizontal rule"],
+      group: "Základné bloky",
+    },
   },
   placeholders: {
     default: "Zadajte text alebo napíšte '/' pre príkazy",
