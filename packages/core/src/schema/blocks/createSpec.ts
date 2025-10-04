@@ -218,6 +218,7 @@ export function addNodeAndExtensionsToSpec<
   return {
     config: blockConfig,
     implementation: {
+      ...blockImplementation,
       node,
       render(block, editor) {
         const blockContentDOMAttributes =
