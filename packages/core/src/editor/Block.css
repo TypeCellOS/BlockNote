@@ -233,18 +233,14 @@ NESTED BLOCKS
 
 /* Checked */
 .bn-block-content[data-content-type="checkListItem"] > div {
-  display: flex;
-  width: 100%;
-}
-
-.bn-block-content[data-content-type="checkListItem"] > div > div {
+  align-items: center;
   display: flex;
   justify-content: center;
   min-width: 24px;
   padding-right: 4px;
 }
 
-.bn-block-content[data-content-type="checkListItem"] > div > div > input {
+.bn-block-content[data-content-type="checkListItem"] > div > input {
   margin: 0;
   cursor: pointer;
 }
@@ -263,12 +259,6 @@ NESTED BLOCKS
 }
 
 /* Toggle */
-.bn-block-content:has(.bn-toggle-wrapper) > div {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
 .bn-block:has(
     > .bn-block-content > div > .bn-toggle-wrapper[data-show-children="false"]
   )
