@@ -410,26 +410,9 @@ export const createTableBlockSpec = () =>
             const block = editor.getTextCursorPosition().block;
             const content = block.content as TableContent<any, any>;
 
-            const rows = content.rows.length;
-            let cols = 0;
-
-            for (let rowIndex = 0; rowIndex < content.rows.length; rowIndex++) {
-              for (
-                let cellIndex = 0;
-                cellIndex < content.rows[rowIndex].cells.length;
-                cellIndex++
-              ) {
-                const cell = content.rows[rowIndex].cells[cellIndex];
-
-                // Counts number of columns in table from first row.
-                if (rowIndex === 0) {
-                  const colSpan =
-                    "type" in cell && cell.props.colspan
-                      ? cell.props.colspan
-                      : 1;
-                  cols += colSpan;
-                }
-
+            let numCells = 0;
+            for (const row of content.rows) {
+              for (const cell of row.cells) {
                 // Returns `false` if any cell isn't empty.
                 if (
                   ("type" in cell && cell.content.length > 0) ||
@@ -437,40 +420,30 @@ export const createTableBlockSpec = () =>
                 ) {
                   return false;
                 }
+
+                numCells++;
               }
             }
 
-            // Need to use ProseMirror API to check if selection spans table.
-            const anchorCellColIndex =
-              editor.prosemirrorState.selection.$anchorCell.index();
-            const anchorCellRowIndex =
-              editor.prosemirrorState.selection.$anchorCell.index(-1);
-            const headCellColIndex =
-              editor.prosemirrorState.selection.$headCell.index();
-            const headCellRowIndex =
-              editor.prosemirrorState.selection.$headCell.index(-1);
+            // Need to use ProseMirror API to check number of selected cells.
+            let selectionNumCells = 0;
+            editor.prosemirrorState.selection.forEachCell(() => {
+              selectionNumCells++;
+            });
 
-            const minColIndex = Math.min(anchorCellColIndex, headCellColIndex);
-            const maxColIndex = Math.max(anchorCellColIndex, headCellColIndex);
-            const minRowIndex = Math.min(anchorCellRowIndex, headCellRowIndex);
-            const maxRowIndex = Math.max(anchorCellRowIndex, headCellRowIndex);
-
-            if (
-              minColIndex !== 0 ||
-              maxColIndex !== cols - 1 ||
-              minRowIndex !== 0 ||
-              maxRowIndex !== rows - 1
-            ) {
+            if (selectionNumCells < numCells) {
               return false;
             }
 
-            const selectionBlock =
-              editor.getPrevBlock(block) || editor.getNextBlock(block);
-            if (selectionBlock) {
-              editor.setTextCursorPosition(block);
-            }
+            editor.transact(() => {
+              const selectionBlock =
+                editor.getPrevBlock(block) || editor.getNextBlock(block);
+              if (selectionBlock) {
+                editor.setTextCursorPosition(block);
+              }
 
-            editor.removeBlocks([block]);
+              editor.removeBlocks([block]);
+            });
 
             return true;
           },
