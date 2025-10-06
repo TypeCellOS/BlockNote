@@ -10,25 +10,25 @@ test.beforeEach(async ({ page }) => {
 test.describe("Check basic text block appearance", () => {
   test("Check basic text block appearance", async ({ page }) => {
     focusOnEditor(page);
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(500);
+
+    await page.locator(`[data-content-type="audio"] .bn-file-caption`).click();
+    await page.keyboard.press("Backspace");
+    await page.waitForTimeout(500);
+
+    await page.locator(`[data-content-type="video"] .bn-file-caption`).click();
+    await page.keyboard.press("Backspace");
+    await page.waitForTimeout(500);
+
     await page
       .locator(`${PARAGRAPH_SELECTOR} > p`, {
         hasText: "Welcome to this demo!",
       })
       .click();
 
-    // Scroll to top of page.
-    await page.mouse.wheel(0, -9999);
-
-    await page.waitForTimeout(500);
-    expect(await page.screenshot()).toMatchSnapshot("basic-blocks-top.png");
-
-    // Scroll to bottom of page.
-    await page.mouse.wheel(0, 9999);
-    // We have to scroll twice because Firefox gets stuck otherwise?
-    await page.mouse.wheel(0, 9999);
-
-    await page.waitForTimeout(500);
-    expect(await page.screenshot()).toMatchSnapshot("basic-blocks-bottom.png");
+    await page.waitForTimeout(100);
+    expect(await page.screenshot({ fullPage: true })).toMatchSnapshot(
+      "basicblocks.png",
+    );
   });
 });
