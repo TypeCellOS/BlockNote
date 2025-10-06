@@ -1,6 +1,6 @@
 import { Node, mergeAttributes } from "@tiptap/core";
 import { DOMParser, Fragment, Node as PMNode, Schema } from "prosemirror-model";
-import { CellSelection, TableMap, TableView } from "prosemirror-tables";
+import { CellSelection, TableView } from "prosemirror-tables";
 import { NodeView } from "prosemirror-view";
 import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import {
