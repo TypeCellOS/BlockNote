@@ -138,8 +138,6 @@ function serializeBlock<
 ) {
   const BC_NODE = editor.pmSchema.nodes["blockContainer"];
 
-  const id = block.id || "";
-  const type = block.type || "paragraph";
   // set default props in case we were passed a partial block
   const props = block.props || {};
   for (const [name, spec] of Object.entries(
@@ -149,12 +147,6 @@ function serializeBlock<
       (props as any)[name] = spec.default;
     }
   }
-  const content =
-    editor.schema.blockSchema[type].content === "table"
-      ? { type: "tableContent", rows: [] }
-      : editor.schema.blockSchema[type].content === "inline"
-        ? []
-        : undefined;
   const children = block.children || [];
 
   const impl = editor.blockImplementations[block.type as any].implementation;
@@ -163,7 +155,7 @@ function serializeBlock<
       renderType: "dom",
       props: undefined,
     },
-    { id, type, props, content, children } as any,
+    { ...block, props, children } as any,
     editor as any,
   );
 
