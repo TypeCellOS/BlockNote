@@ -70,22 +70,15 @@ export const imageRender = (
     image.src = block.props.url;
   }
 
-  // Accessibility: set alt/aria based on presence of caption per RGAA
-  const accessibleImageWithCaption = () => {
-    image.alt = block.props.caption;
+  const altText = block.props.name || block.props.caption || "";
+  image.alt = altText;
+  if (altText) {
     image.removeAttribute("aria-hidden");
     image.removeAttribute("role");
-    image.setAttribute("tabindex", "0");
-  };
-
-  const accessibleImage = () => {
-    image.alt = "";
+  } else {
     image.setAttribute("role", "presentation");
     image.setAttribute("aria-hidden", "true");
-    image.setAttribute("tabindex", "-1");
-  };
-
-  block.props.caption ? accessibleImageWithCaption() : accessibleImage();
+  }
 
   image.contentEditable = "false";
   image.draggable = false;
@@ -146,11 +139,10 @@ export const imageToExternalHTML = (
   if (block.props.showPreview) {
     image = document.createElement("img");
     image.src = block.props.url;
-    // Accessibility for exported HTML: prefer caption as alt when present
-    if (block.props.caption) {
-      image.alt = block.props.caption;
-    } else {
-      image.alt = "";
+
+    const altText = block.props.name || block.props.caption || "";
+    image.alt = altText;
+    if (!altText) {
       image.setAttribute("role", "presentation");
       image.setAttribute("aria-hidden", "true");
     }
@@ -166,9 +158,6 @@ export const imageToExternalHTML = (
   if (block.props.caption) {
     if (block.props.showPreview) {
       const { dom } = createFigureWithCaption(image, block.props.caption);
-      // Enhance figure with explicit role and aria-label
-      dom.setAttribute("role", "img");
-      dom.setAttribute("aria-label", `Image: ${block.props.caption}`);
       return { dom };
     } else {
       return createLinkWithCaption(image, block.props.caption);
