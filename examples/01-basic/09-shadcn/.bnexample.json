@@ -2,5 +2,7 @@
   "playground": true,
   "docs": true,
   "author": "matthewlipski",
-  "tags": ["Basic"]
+  "tags": ["Basic"],
+  "tailwind": true,
+  "stackBlitz": false
 }

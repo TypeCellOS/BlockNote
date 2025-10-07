@@ -159,10 +159,10 @@ export function dragStart<
     return;
   }
 
-  const view = editor.prosemirrorView;
-  if (!view) {
+  if (editor.headless) {
     return;
   }
+  const view = editor.prosemirrorView;
 
   const posInfo = getNodeById(block.id, view.state.doc);
   if (!posInfo) {

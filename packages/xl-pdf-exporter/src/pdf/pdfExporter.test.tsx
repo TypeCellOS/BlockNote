@@ -2,11 +2,11 @@ import {
   BlockNoteSchema,
   createBlockSpec,
   createInlineContentSpec,
+  createPageBreakBlockSpec,
   createStyleSpec,
   defaultBlockSpecs,
   defaultInlineContentSpecs,
   defaultStyleSpecs,
-  PageBreak,
 } from "@blocknote/core";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { Text } from "@react-pdf/renderer";
@@ -29,7 +29,7 @@ describe("exporter", () => {
     const schema = BlockNoteSchema.create({
       blockSpecs: {
         ...defaultBlockSpecs,
-        pageBreak: PageBreak,
+        pageBreak: createPageBreakBlockSpec(),
         column: ColumnBlock,
         columnList: ColumnListBlock,
         extraBlock: createBlockSpec(
@@ -39,7 +39,7 @@ describe("exporter", () => {
             propSchema: {},
           },
           {} as any,
-        ),
+        )(),
       },
     });
 
@@ -164,7 +164,7 @@ describe("exporter", () => {
       BlockNoteSchema.create({
         blockSpecs: {
           ...defaultBlockSpecs,
-          pageBreak: PageBreak,
+          pageBreak: createPageBreakBlockSpec(),
           column: ColumnBlock,
           columnList: ColumnListBlock,
         },
@@ -202,7 +202,7 @@ describe("exporter", () => {
       BlockNoteSchema.create({
         blockSpecs: {
           ...defaultBlockSpecs,
-          pageBreak: PageBreak,
+          pageBreak: createPageBreakBlockSpec(),
           column: ColumnBlock,
           columnList: ColumnListBlock,
         },
@@ -228,7 +228,7 @@ describe("exporter", () => {
     const schema = BlockNoteSchema.create({
       blockSpecs: {
         ...defaultBlockSpecs,
-        pageBreak: PageBreak,
+        pageBreak: createPageBreakBlockSpec(),
         column: ColumnBlock,
         columnList: ColumnListBlock,
       },

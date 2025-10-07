@@ -4,8 +4,8 @@ import {
   filterSuggestionItems,
   withPageBreak,
 } from "@blocknote/core";
-import * as locales from "@blocknote/core/locales";
 import "@blocknote/core/fonts/inter.css";
+import * as locales from "@blocknote/core/locales";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
@@ -29,20 +29,23 @@ import { useMemo } from "react";
 import "./styles.css";
 
 export default function App() {
-  // Creates a new editor instance with some initial content.
+  // Creates a new editor instance.
   const editor = useCreateBlockNote({
+    // Adds support for page breaks & multi-column blocks.
     schema: withMultiColumn(withPageBreak(BlockNoteSchema.create())),
     dropCursor: multiColumnDropCursor,
     dictionary: {
       ...locales.en,
       multi_column: multiColumnLocales.en,
     },
+    // Adds support for advanced table features.
     tables: {
       splitCells: true,
       cellBackgroundColor: true,
       cellTextColor: true,
       headers: true,
     },
+    // Sets initial editor content.
     initialContent: [
       {
         type: "paragraph",
@@ -89,6 +92,7 @@ export default function App() {
           backgroundColor: "red",
         },
       },
+      { type: "divider" },
       {
         type: "paragraph",
         content: [
@@ -377,6 +381,8 @@ export default function App() {
       },
     ],
   });
+
+  // Additional Slash Menu items for page breaks and multi-column blocks.
   const getSlashMenuItems = useMemo(() => {
     return async (query: string) =>
       filterSuggestionItems(
@@ -388,9 +394,10 @@ export default function App() {
         query,
       );
   }, [editor]);
+
+  // Exports the editor content to DOCX and downloads it.
   const onDownloadClick = async () => {
     const exporter = new DOCXExporter(editor.schema, docxDefaultSchemaMappings);
-
     const blob = await exporter.toBlob(editor.document);
 
     const link = document.createElement("a");
@@ -408,21 +415,24 @@ export default function App() {
     window.URL.revokeObjectURL(link.href);
   };
 
-  // Renders the editor instance, and its contents as HTML below.
+  // Renders the editor instance.
   return (
-    <div>
-      <div className={"edit-buttons"}>
-        <button className={"edit-button"} onClick={onDownloadClick}>
-          Download .docx
-        </button>
-      </div>
-      <div className="item">
-        <BlockNoteView editor={editor} slashMenu={false}>
-          <SuggestionMenuController
-            triggerCharacter={"/"}
-            getItems={getSlashMenuItems}
-          />
-        </BlockNoteView>
+    <div className="views">
+      <div className="view-wrapper">
+        <div className="view-label">
+          Editor
+          <span className="view-label-download" onClick={onDownloadClick}>
+            Download DOCX
+          </span>
+        </div>
+        <div className="view">
+          <BlockNoteView editor={editor} slashMenu={false}>
+            <SuggestionMenuController
+              triggerCharacter={"/"}
+              getItems={getSlashMenuItems}
+            />
+          </BlockNoteView>
+        </div>
       </div>
     </div>
   );

@@ -8,32 +8,32 @@ exports[`clear block formatting 1`] = `
         {
           "attrs": {
             "backgroundColor": "red",
-            "id": "ref1",
+            "textAlignment": "left",
             "textColor": "default",
           },
-          "type": "blockContainer",
+          "type": "paragraph",
         },
       ],
       "openEnd": 1,
     },
     "step": {
-      "from": 1,
+      "from": 2,
       "slice": {
         "content": [
           {
             "attrs": {
               "backgroundColor": "default",
-              "id": "ref1",
+              "textAlignment": "left",
               "textColor": "default",
             },
-            "type": "blockContainer",
+            "type": "paragraph",
           },
         ],
         "openEnd": 1,
       },
       "stepType": "replace",
       "structure": true,
-      "to": 2,
+      "to": 3,
     },
   },
 ]
@@ -46,7 +46,9 @@ exports[`clear block formatting 2`] = `
       "content": [
         {
           "attrs": {
+            "backgroundColor": "default",
             "textAlignment": "right",
+            "textColor": "default",
           },
           "type": "paragraph",
         },
@@ -59,7 +61,9 @@ exports[`clear block formatting 2`] = `
         "content": [
           {
             "attrs": {
+              "backgroundColor": "default",
               "textAlignment": "left",
+              "textColor": "default",
             },
             "type": "paragraph",
           },
@@ -795,7 +799,9 @@ exports[`turn paragraphs into list 1`] = `
       "content": [
         {
           "attrs": {
+            "backgroundColor": "default",
             "textAlignment": "left",
+            "textColor": "default",
           },
           "type": "paragraph",
         },
@@ -808,7 +814,9 @@ exports[`turn paragraphs into list 1`] = `
         "content": [
           {
             "attrs": {
+              "backgroundColor": "default",
               "textAlignment": "left",
+              "textColor": "default",
             },
             "type": "bulletListItem",
           },
@@ -830,7 +838,9 @@ exports[`turn paragraphs into list 2`] = `
       "content": [
         {
           "attrs": {
+            "backgroundColor": "default",
             "textAlignment": "left",
+            "textColor": "default",
           },
           "type": "paragraph",
         },
@@ -843,7 +853,9 @@ exports[`turn paragraphs into list 2`] = `
         "content": [
           {
             "attrs": {
+              "backgroundColor": "default",
               "textAlignment": "left",
+              "textColor": "default",
             },
             "type": "bulletListItem",
           },
@@ -865,7 +877,9 @@ exports[`update block prop 1`] = `
       "content": [
         {
           "attrs": {
+            "backgroundColor": "default",
             "textAlignment": "left",
+            "textColor": "default",
           },
           "type": "paragraph",
         },
@@ -878,7 +892,9 @@ exports[`update block prop 1`] = `
         "content": [
           {
             "attrs": {
+              "backgroundColor": "default",
               "textAlignment": "right",
+              "textColor": "default",
             },
             "type": "paragraph",
           },
@@ -900,7 +916,9 @@ exports[`update block prop and content 1`] = `
       "content": [
         {
           "attrs": {
+            "backgroundColor": "default",
             "textAlignment": "left",
+            "textColor": "default",
           },
           "type": "paragraph",
         },
@@ -913,7 +931,9 @@ exports[`update block prop and content 1`] = `
         "content": [
           {
             "attrs": {
+              "backgroundColor": "default",
               "textAlignment": "right",
+              "textColor": "default",
             },
             "type": "paragraph",
           },
@@ -958,7 +978,9 @@ exports[`update block type 1`] = `
       "content": [
         {
           "attrs": {
+            "backgroundColor": "default",
             "textAlignment": "left",
+            "textColor": "default",
           },
           "type": "paragraph",
         },
@@ -971,9 +993,11 @@ exports[`update block type 1`] = `
         "content": [
           {
             "attrs": {
+              "backgroundColor": "default",
               "isToggleable": false,
               "level": 1,
               "textAlignment": "left",
+              "textColor": "default",
             },
             "type": "heading",
           },
@@ -995,7 +1019,9 @@ exports[`update block type and content 1`] = `
       "content": [
         {
           "attrs": {
+            "backgroundColor": "default",
             "textAlignment": "left",
+            "textColor": "default",
           },
           "type": "paragraph",
         },
@@ -1008,9 +1034,11 @@ exports[`update block type and content 1`] = `
         "content": [
           {
             "attrs": {
+              "backgroundColor": "default",
               "isToggleable": false,
               "level": 1,
               "textAlignment": "left",
+              "textColor": "default",
             },
             "type": "heading",
           },

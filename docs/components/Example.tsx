@@ -12,6 +12,7 @@ import CTAButton from "@/components/CTAButton";
 import { SectionHeader } from "@/components/Headings";
 import { ExampleData } from "@/components/example/generated/exampleGroupsData.gen";
 import { authClient } from "@/util/auth-client";
+import * as Sentry from "@sentry/nextjs";
 
 function ExampleDemoBarSourceCodeLink(props: {
   name: string;
@@ -41,11 +42,13 @@ function ExampleDemoBar(props: { exampleData: ExampleData }) {
         icon={<AiFillGithub size={16} />}
         url={`https://github.com/TypeCellOS/BlockNote/tree/main/${props.exampleData.pathFromRoot}`}
       />
-      <ExampleDemoBarSourceCodeLink
-        name="StackBlitz"
-        icon={<SiStackblitz size={16} />}
-        url={`https://www.stackblitz.com/github/TypeCellOS/BlockNote/tree/main/${props.exampleData.pathFromRoot}`}
-      />
+      {props.exampleData.showStackBlitzLink && (
+        <ExampleDemoBarSourceCodeLink
+          name="StackBlitz"
+          icon={<SiStackblitz size={16} />}
+          url={`https://www.stackblitz.com/github/TypeCellOS/BlockNote/tree/main/${props.exampleData.pathFromRoot}`}
+        />
+      )}
     </div>
   );
 }
@@ -118,7 +121,7 @@ function ExampleProPrompt() {
           BlockNote Pro
         </p>
         <div className={"mt-8"}>
-          <CTAButton href={"/pricing"} size={"large"} hoverGlow={true}>
+          <CTAButton href={"/pricing"} variant={"colored"} hoverGlow={true}>
             Get BlockNote Pro
           </CTAButton>
         </div>
@@ -147,13 +150,25 @@ export default function Example(props: { exampleData: ExampleData }) {
   const userIsPro = session.data && session.data.planType !== "free";
 
   return (
-    <div className="demo">
-      <ExampleDemo exampleData={props.exampleData} />
-      {props.exampleData.isPro && !userIsPro ? (
-        <ExampleProPrompt />
-      ) : (
-        <ExampleCode exampleData={props.exampleData} />
-      )}
-    </div>
+    <Sentry.ErrorBoundary
+      fallback={
+        <div>
+          We encountered an error trying to show this example. Please report
+          this to us on GitHub at{" "}
+          <a href="https://github.com/TypeCellOS/BlockNote/issues">
+            https://github.com/TypeCellOS/BlockNote/issues
+          </a>
+        </div>
+      }
+    >
+      <div className="demo">
+        <ExampleDemo exampleData={props.exampleData} />
+        {props.exampleData.isPro && !userIsPro ? (
+          <ExampleProPrompt />
+        ) : (
+          <ExampleCode exampleData={props.exampleData} />
+        )}
+      </div>
+    </Sentry.ErrorBoundary>
   );
 }

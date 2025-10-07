@@ -11,7 +11,7 @@
     "directory": "packages/mantine"
   },
   "license": "MPL-2.0",
-  "version": "0.37.0",
+  "version": "0.40.0",
   "files": [
     "dist",
     "types",
@@ -43,9 +43,14 @@
       "require": "./dist/blocknote-mantine.cjs"
     },
     "./style.css": {
-      "import": "./dist/style.css",
-      "require": "./dist/style.css",
-      "style": "./dist/style.css"
+      "import": "./src/style.css",
+      "require": "./src/style.css",
+      "style": "./src/style.css"
+    },
+    "./blocknoteStyles.css": {
+      "import": "./src/blocknoteStyles.css",
+      "require": "./src/blocknoteStyles.css",
+      "style": "./src/blocknoteStyles.css"
     }
   },
   "scripts": {
@@ -56,11 +61,8 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "0.37.0",
-    "@blocknote/react": "0.37.0",
-    "@mantine/core": "^7.17.3",
-    "@mantine/hooks": "^7.17.3",
-    "@mantine/utils": "^6.0.21",
+    "@blocknote/core": "0.40.0",
+    "@blocknote/react": "0.40.0",
     "react-icons": "^5.2.1"
   },
   "devDependencies": {
@@ -78,6 +80,9 @@
     "vite-plugin-externalize-deps": "^0.8.0"
   },
   "peerDependencies": {
+    "@mantine/core": "^8.3.2",
+    "@mantine/hooks": "^8.3.2",
+    "@mantine/utils": "^6.0.22",
     "react": "^18.0 || ^19.0 || >= 19.0.0-rc",
     "react-dom": "^18.0 || ^19.0 || >= 19.0.0-rc"
   },

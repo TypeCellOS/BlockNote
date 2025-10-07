@@ -1,15 +1,12 @@
 import {
   BlockNoteSchema,
-  createBlockSpec,
+  addNodeAndExtensionsToSpec,
+  createImageBlockConfig,
+  createImageBlockSpec,
   createInlineContentSpec,
+  createPageBreakBlockSpec,
   createStyleSpec,
-  defaultBlockSpecs,
-  defaultInlineContentSpecs,
   defaultProps,
-  defaultStyleSpecs,
-  imagePropSchema,
-  imageRender,
-  PageBreak,
 } from "@blocknote/core";
 
 // BLOCKS ----------------------------------------------------------------------
@@ -17,18 +14,24 @@ import {
 // This is a modified version of the default image block that does not implement
 // a `toExternalHTML` function. It's used to test if the custom serializer by
 // default serializes custom blocks using their `render` function.
-const SimpleImage = createBlockSpec(
+const SimpleImage = addNodeAndExtensionsToSpec(
   {
     type: "simpleImage",
-    propSchema: imagePropSchema,
+    propSchema: createImageBlockConfig({}).propSchema,
     content: "none",
   },
   {
-    render: (block, editor) => imageRender(block as any, editor as any),
+    render(block, editor) {
+      return createImageBlockSpec().implementation.render.call(
+        this,
+        block as any,
+        editor as any,
+      );
+    },
   },
 );
 
-const CustomParagraph = createBlockSpec(
+const CustomParagraph = addNodeAndExtensionsToSpec(
   {
     type: "customParagraph",
     propSchema: defaultProps,
@@ -56,7 +59,7 @@ const CustomParagraph = createBlockSpec(
   },
 );
 
-const SimpleCustomParagraph = createBlockSpec(
+const SimpleCustomParagraph = addNodeAndExtensionsToSpec(
   {
     type: "simpleCustomParagraph",
     propSchema: defaultProps,
@@ -91,10 +94,34 @@ const Mention = createInlineContentSpec(
     render: (ic) => {
       const dom = document.createElement("span");
       dom.appendChild(document.createTextNode("@" + ic.props.user));
+      dom.className = "mention-internal";
+      dom.setAttribute("data-user", ic.props.user);
 
       return {
         dom,
       };
+    },
+
+    toExternalHTML: (ic) => {
+      const dom = document.createElement("span");
+      dom.appendChild(document.createTextNode("@" + ic.props.user));
+      dom.className = "mention-external";
+      dom.setAttribute("data-external", "true");
+      // Add attributes needed for round-trip compatibility
+      dom.setAttribute("data-inline-content-type", "mention");
+      dom.setAttribute("data-user", ic.props.user);
+
+      return {
+        dom,
+      };
+    },
+
+    parse: (el) => {
+      const user = el.getAttribute("data-user");
+      if (user !== null) {
+        return { user };
+      }
+      return undefined;
     },
   },
 );
@@ -106,12 +133,20 @@ const Tag = createInlineContentSpec(
     content: "styled",
   },
   {
+    parse: (el) => {
+      const isTag = el.getAttribute("data-tag");
+      if (isTag) {
+        return {};
+      }
+      return undefined;
+    },
     render: () => {
       const dom = document.createElement("span");
       dom.textContent = "#";
 
       const contentDOM = document.createElement("span");
       dom.appendChild(contentDOM);
+      contentDOM.setAttribute("data-tag", "true");
 
       return {
         dom,
@@ -158,21 +193,18 @@ const FontSize = createStyleSpec(
 
 // SCHEMA ----------------------------------------------------------------------
 
-export const testSchema = BlockNoteSchema.create({
+export const testSchema = BlockNoteSchema.create().extend({
   blockSpecs: {
-    ...defaultBlockSpecs,
-    pageBreak: PageBreak,
+    pageBreak: createPageBreakBlockSpec(),
     customParagraph: CustomParagraph,
     simpleCustomParagraph: SimpleCustomParagraph,
     simpleImage: SimpleImage,
   },
   inlineContentSpecs: {
-    ...defaultInlineContentSpecs,
     mention: Mention,
     tag: Tag,
   },
   styleSpecs: {
-    ...defaultStyleSpecs,
     small: Small,
     fontSize: FontSize,
   },

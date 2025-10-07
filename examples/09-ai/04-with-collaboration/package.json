@@ -1,6 +1,7 @@
 {
   "name": "@blocknote/example-ai-with-collaboration",
   "description": "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
+  "type": "module",
   "private": true,
   "version": "0.12.4",
   "scripts": {
@@ -15,12 +16,13 @@
     "@blocknote/ariakit": "latest",
     "@blocknote/mantine": "latest",
     "@blocknote/shadcn": "latest",
+    "@mantine/core": "^8.3.2",
+    "@mantine/hooks": "^8.3.2",
+    "@mantine/utils": "^6.0.22",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "@blocknote/xl-ai": "latest",
-    "@mantine/core": "^7.17.3",
-    "ai": "^4.3.15",
-    "@ai-sdk/groq": "^1.2.9",
+    "ai": "^5.0.45",
     "y-partykit": "^0.0.25",
     "yjs": "^13.6.27",
     "zustand": "^5.0.3"

@@ -1,12 +1,15 @@
 import {
   addInlineContentAttributes,
   addInlineContentKeyboardShortcuts,
+  BlockNoteEditor,
   camelToDataKebab,
   createInternalInlineContentSpec,
-  createStronglyTypedTiptapNode,
   CustomInlineContentConfig,
+  CustomInlineContentImplementation,
   getInlineContentParseRules,
   InlineContentFromConfig,
+  InlineContentSchemaWithInlineContent,
+  InlineContentSpec,
   inlineContentToNodes,
   nodeToCustomInlineContent,
   PartialCustomInlineContentFromConfig,
@@ -14,9 +17,8 @@ import {
   PropSchema,
   propsToAttributes,
   StyleSchema,
-  BlockNoteEditor,
-  InlineContentSchemaWithInlineContent,
 } from "@blocknote/core";
+import { Node } from "@tiptap/core";
 import {
   NodeViewProps,
   NodeViewWrapper,
@@ -51,12 +53,8 @@ export type ReactInlineContentImplementation<
   S extends StyleSchema,
 > = {
   render: FC<ReactCustomInlineContentRenderProps<T, S>>;
-  // TODO?
-  // toExternalHTML?: FC<{
-  //   block: BlockFromConfig<T, I, S>;
-  //   editor: BlockNoteEditor<BlockSchemaWithBlock<T["type"], T>, I, S>;
-  // }>;
-};
+  toExternalHTML?: FC<ReactCustomInlineContentRenderProps<T, S>>;
+} & Omit<CustomInlineContentImplementation<T, S>, "render" | "toExternalHTML">;
 
 // Function that adds a wrapper with necessary classes and attributes to the
 // component returned from a custom inline content's 'render' function, to
@@ -99,20 +97,20 @@ export function InlineContentWrapper<
 // A function to create custom block for API consumers
 // we want to hide the tiptap node from API consumers and provide a simpler API surface instead
 export function createReactInlineContentSpec<
-  T extends CustomInlineContentConfig,
+  const T extends CustomInlineContentConfig,
   // I extends InlineContentSchema,
   S extends StyleSchema,
 >(
   inlineContentConfig: T,
   inlineContentImplementation: ReactInlineContentImplementation<T, S>,
-) {
-  const node = createStronglyTypedTiptapNode({
+): InlineContentSpec<T> {
+  const node = Node.create({
     name: inlineContentConfig.type as T["type"],
     inline: true,
     group: "inline",
     selectable: inlineContentConfig.content === "styled",
     atom: inlineContentConfig.content === "none",
-    draggable: inlineContentConfig.draggable,
+    draggable: inlineContentImplementation.meta?.draggable,
     content: (inlineContentConfig.content === "styled"
       ? "inline*"
       : "") as T["content"] extends "styled" ? "inline*" : "",
@@ -126,7 +124,10 @@ export function createReactInlineContentSpec<
     },
 
     parseHTML() {
-      return getInlineContentParseRules(inlineContentConfig);
+      return getInlineContentParseRules(
+        inlineContentConfig,
+        inlineContentImplementation.parse,
+      );
     },
 
     renderHTML({ node }) {
@@ -137,16 +138,23 @@ export function createReactInlineContentSpec<
         editor.schema.inlineContentSchema,
         editor.schema.styleSchema,
       ) as any as InlineContentFromConfig<T, S>; // TODO: fix cast
-      const Content = inlineContentImplementation.render;
+      const Content =
+        inlineContentImplementation.toExternalHTML ||
+        inlineContentImplementation.render;
       const output = renderToDOMSpec(
-        (refCB) => (
+        (ref) => (
           <Content
+            contentRef={(element) => {
+              ref(element);
+              if (element) {
+                element.dataset.editable = "";
+              }
+            }}
             inlineContent={ic}
             updateInlineContent={() => {
               // No-op
             }}
             editor={editor}
-            contentRef={refCB}
           />
         ),
         editor,
@@ -160,7 +168,6 @@ export function createReactInlineContentSpec<
       );
     },
 
-    // TODO: needed?
     addNodeView() {
       const editor: BlockNoteEditor<any, any, any> = this.options.editor;
       return (props) =>
@@ -180,7 +187,12 @@ export function createReactInlineContentSpec<
                 propSchema={inlineContentConfig.propSchema}
               >
                 <Content
-                  contentRef={ref}
+                  contentRef={(element) => {
+                    ref(element);
+                    if (element) {
+                      element.dataset.editable = "";
+                    }
+                  }}
                   editor={editor}
                   inlineContent={
                     nodeToCustomInlineContent(
@@ -195,12 +207,14 @@ export function createReactInlineContentSpec<
                       editor.pmSchema,
                     );
 
+                    const pos = props.getPos();
+
+                    if (pos === undefined) {
+                      return;
+                    }
+
                     editor.transact((tr) =>
-                      tr.replaceWith(
-                        props.getPos(),
-                        props.getPos() + props.node.nodeSize,
-                        content,
-                      ),
+                      tr.replaceWith(pos, pos + props.node.nodeSize, content),
                     );
                   }}
                 />
@@ -216,7 +230,64 @@ export function createReactInlineContentSpec<
     },
   });
 
-  return createInternalInlineContentSpec(inlineContentConfig, {
-    node: node,
-  } as any);
+  return createInternalInlineContentSpec(
+    inlineContentConfig as CustomInlineContentConfig,
+    {
+      node,
+      render(inlineContent, updateInlineContent, editor) {
+        const Content = inlineContentImplementation.render;
+        const output = renderToDOMSpec((ref) => {
+          return (
+            <InlineContentWrapper
+              inlineContentProps={inlineContent.props}
+              inlineContentType={inlineContentConfig.type}
+              propSchema={inlineContentConfig.propSchema}
+            >
+              <Content
+                contentRef={(element) => {
+                  ref(element);
+                  if (element) {
+                    element.dataset.editable = "";
+                  }
+                }}
+                editor={editor}
+                inlineContent={inlineContent}
+                updateInlineContent={updateInlineContent}
+              />
+            </InlineContentWrapper>
+          );
+        }, editor);
+        return output;
+      },
+      toExternalHTML(inlineContent, editor) {
+        const Content =
+          inlineContentImplementation.toExternalHTML ||
+          inlineContentImplementation.render;
+        const output = renderToDOMSpec((ref) => {
+          return (
+            <InlineContentWrapper
+              inlineContentProps={inlineContent.props}
+              inlineContentType={inlineContentConfig.type}
+              propSchema={inlineContentConfig.propSchema}
+            >
+              <Content
+                contentRef={(element) => {
+                  ref(element);
+                  if (element) {
+                    element.dataset.editable = "";
+                  }
+                }}
+                editor={editor}
+                inlineContent={inlineContent}
+                updateInlineContent={() => {
+                  // no-op
+                }}
+              />
+            </InlineContentWrapper>
+          );
+        }, editor);
+        return output;
+      },
+    },
+  ) as any;
 }

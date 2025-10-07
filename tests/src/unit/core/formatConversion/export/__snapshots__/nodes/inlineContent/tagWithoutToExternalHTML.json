@@ -1,0 +1,33 @@
+[
+  {
+    "attrs": {
+      "id": "1",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "content": [
+          {
+            "text": "I love ",
+            "type": "text",
+          },
+          {
+            "content": [
+              {
+                "text": "BlockNote",
+                "type": "text",
+              },
+            ],
+            "type": "tag",
+          },
+        ],
+        "type": "paragraph",
+      },
+    ],
+    "type": "blockContainer",
+  },
+]

@@ -1,10 +1,10 @@
 import {
   BlockFromConfig,
   BlockMapping,
+  createPageBreakBlockConfig,
   DefaultBlockSchema,
   DefaultProps,
   mapTableCell,
-  pageBreakSchema,
   StyledText,
   TableCell,
 } from "@blocknote/core";
@@ -170,9 +170,9 @@ const wrapWithLists = (
 };
 
 export const odtBlockMappingForDefaultSchema: BlockMapping<
-  DefaultBlockSchema &
-    typeof pageBreakSchema.blockSchema &
-    typeof multiColumnSchema.blockSchema,
+  DefaultBlockSchema & {
+    pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
+  } & typeof multiColumnSchema.blockSchema,
   any,
   any,
   React.ReactNode,
@@ -311,6 +311,24 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
 
   pageBreak: async () => {
     return <text:p text:style-name="PageBreak" />;
+  },
+
+  divider: (block, exporter) => {
+    const styleName = createParagraphStyle(
+      exporter as ODTExporter<any, any, any>,
+      block.props,
+      "Standard",
+      {},
+      {
+        "fo:border-top": "1pt solid #cccccc",
+        "fo:margin-top": "11pt",
+        "fo:margin-bottom": "12pt",
+        "fo:padding-top": "0pt",
+        "fo:padding-bottom": "0pt",
+      },
+    );
+
+    return <text:p text:style-name={styleName} />;
   },
 
   column: (_block, exporter, _nestingLevel, _numberedListIndex, children) => {

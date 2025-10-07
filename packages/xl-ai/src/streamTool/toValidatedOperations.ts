@@ -12,12 +12,14 @@ export async function* toValidatedOperations<T extends StreamTool<any>[]>(
     partialOperation: any;
     isUpdateToPreviousOperation: boolean;
     isPossiblyPartial: boolean;
+    metadata: any;
   }>,
   streamTools: T,
 ): AsyncGenerator<{
   operation: Result<StreamToolCall<T>>;
   isUpdateToPreviousOperation: boolean;
   isPossiblyPartial: boolean;
+  metadata: any;
 }> {
   for await (const chunk of partialObjectStream) {
     const func = streamTools.find(
@@ -34,6 +36,7 @@ export async function* toValidatedOperations<T extends StreamTool<any>[]>(
         },
         isUpdateToPreviousOperation: chunk.isUpdateToPreviousOperation,
         isPossiblyPartial: chunk.isPossiblyPartial,
+        metadata: chunk.metadata,
       };
       continue;
     }
@@ -44,6 +47,7 @@ export async function* toValidatedOperations<T extends StreamTool<any>[]>(
       operation,
       isUpdateToPreviousOperation: chunk.isUpdateToPreviousOperation,
       isPossiblyPartial: chunk.isPossiblyPartial,
+      metadata: chunk.metadata,
     };
   }
 }

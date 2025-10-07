@@ -814,7 +814,6 @@ With Hard Break</p>
     },
     executeTest: testParseHTML,
   },
-
   {
     testCase: {
       name: "basicBlockquote",
@@ -838,6 +837,93 @@ With Hard Break</p>
       content: `<blockquote><strong>Bold</strong> <em>Italic</em> <s>Strikethrough</s> <strong><em>Multiple</em></strong></blockquote>
 <p>Regular paragraph</p>`,
     },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "boldStyle",
+      content: `<p><strong>Bold</strong> <b>Bold</b> <span style="font-weight: bold">Bold</span></p>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "italicStyle",
+      content: `<p><em>Italic</em> <i>Italic</i> <span style="font-style: italic">Italic</span></p>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "underlineStyle",
+      content: `<p><u>Underline</u> <span style="text-decoration: underline">Underline</span></p>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "strikeStyle",
+      content: `<p><s>Strike</s> <del>Strike</del> <strike>Strike</strike> <span style="text-decoration: line-through">Strike</span></p>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "textColorStyle",
+      content: `<p><span style="color: blue">Blue Text</span> <span data-style-type="textColor" data-value="blue">Blue Text</span></p>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "backgroundColorStyle",
+      content: `<p><span style="background-color: blue">Blue Background</span> <span data-style-type="backgroundColor" data-value="blue">Blue Background</span></p>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "orderedListStart",
+      content: `<ol start="2">
+  <li>List Item 2</li>
+  <li>List Item 3</li>
+  <li>List Item 4</li>
+</ol>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "imageWidth",
+      content: `<img src="exampleURL" width="100">`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "textAlignmentProp",
+      content: `<p style="text-align: center">Text Align Center</p>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "textColorProp",
+      content: `<p style="color: blue">Blue Text</p>
+  <p data-text-color="blue">Blue Text</p>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "backgroundColorProp",
+      content: `<p style="background-color: blue">Blue Background</p>
+  <p data-background-color="blue">Blue Background</p>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: { name: "divider", content: `<hr/>` },
     executeTest: testParseHTML,
   },
 ];
@@ -900,9 +986,15 @@ Paragraph
 
 Paragraph
 
+---
+
 P**ara***grap*h
 
+***
+
 P*ara*~~grap~~h
+
+___
 
 *   Bullet List Item
 
@@ -993,6 +1085,20 @@ Regular paragraph`,
       content: `> **Bold** *Italic* ~~Strikethrough~~ ***Multiple***
 
 Regular paragraph`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "image",
+      content: `![Image](https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png)`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "video",
+      content: `![Video](https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm)`,
     },
     executeTest: testParseMarkdown,
   },

@@ -4,16 +4,14 @@ import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
 
-import { Alert } from "./Alert";
+import { createAlert } from "./Alert";
 
 // Our schema with block specs, which contain the configs and implementations for
 // blocks that we want our editor to use.
-const schema = BlockNoteSchema.create({
+const schema = BlockNoteSchema.create().extend({
   blockSpecs: {
-    // Adds all default blocks.
-    ...defaultBlockSpecs,
-    // Adds the Alert block.
-    alert: Alert,
+    // Creates an instance of the Alert block and adds it to the schema.
+    alert: createAlert(),
   },
 });
 

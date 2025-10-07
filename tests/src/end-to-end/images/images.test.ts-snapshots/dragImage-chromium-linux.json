@@ -7,14 +7,14 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": "1",
-            "textColor": "default",
-            "backgroundColor": "default"
+            "id": "1"
           },
           "content": [
             {
               "type": "heading",
               "attrs": {
+                "backgroundColor": "default",
+                "textColor": "default",
                 "textAlignment": "left",
                 "level": 1,
                 "isToggleable": false
@@ -31,15 +31,14 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": "0",
-            "textColor": "default",
-            "backgroundColor": "default"
+            "id": "0"
           },
           "content": [
             {
               "type": "image",
               "attrs": {
                 "textAlignment": "left",
+                "backgroundColor": "default",
                 "name": "",
                 "url": "",
                 "caption": "",
@@ -51,14 +50,14 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": "2",
-            "textColor": "default",
-            "backgroundColor": "default"
+            "id": "2"
           },
           "content": [
             {
               "type": "paragraph",
               "attrs": {
+                "backgroundColor": "default",
+                "textColor": "default",
                 "textAlignment": "left"
               }
             }

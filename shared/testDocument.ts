@@ -1,11 +1,15 @@
-import { BlockNoteSchema, defaultBlockSpecs, PageBreak } from "@blocknote/core";
+import {
+  BlockNoteSchema,
+  defaultBlockSpecs,
+  createPageBreakBlockSpec,
+} from "@blocknote/core";
 
 import { partialBlocksToBlocksForTesting } from "./formatConversionTestUtil.js";
 
 // TODO: Update tests that use this to the new format and remove
 export const testDocument = partialBlocksToBlocksForTesting(
   BlockNoteSchema.create({
-    blockSpecs: { ...defaultBlockSpecs, pageBreak: PageBreak },
+    blockSpecs: { ...defaultBlockSpecs, pageBreak: createPageBreakBlockSpec() },
   }),
   [
     {
@@ -278,5 +282,6 @@ export const testDocument = partialBlocksToBlocksForTesting(
   console.log("Hello World", message);
 };`,
     },
+    { type: "divider" },
   ],
 );

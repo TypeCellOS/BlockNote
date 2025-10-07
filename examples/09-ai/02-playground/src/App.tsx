@@ -1,9 +1,3 @@
-import { createAnthropic } from "@ai-sdk/anthropic";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { createGroq } from "@ai-sdk/groq";
-import { createMistral } from "@ai-sdk/mistral";
-import { createOpenAI } from "@ai-sdk/openai";
-import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { BlockNoteEditor, filterSuggestionItems } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { en } from "@blocknote/core/locales";
@@ -23,74 +17,25 @@ import {
   AIMenuController,
   AIToolbarButton,
   createAIExtension,
-  createBlockNoteAIClient,
   getAIExtension,
   getAISlashMenuItems,
-  llmFormats,
 } from "@blocknote/xl-ai";
 import { en as aiEn } from "@blocknote/xl-ai/locales";
 import "@blocknote/xl-ai/style.css";
-import { Fieldset, MantineProvider, Switch } from "@mantine/core";
-import { LanguageModelV1 } from "ai";
-import { useEffect, useMemo, useState } from "react";
-import { useStore } from "zustand";
+import { Fieldset, MantineProvider } from "@mantine/core";
+import { useEffect, useState } from "react";
 
+import { DefaultChatTransport } from "ai";
 import { BasicAutocomplete } from "./AutoComplete";
-import RadioGroupComponent from "./components/RadioGroupComponent";
 import { getEnv } from "./getEnv";
-// Optional: proxy requests through the `@blocknote/xl-ai-server` proxy server
-// so that we don't have to expose our API keys to the client
-const client = createBlockNoteAIClient({
-  apiKey: getEnv("BLOCKNOTE_AI_SERVER_API_KEY") || "PLACEHOLDER",
-  baseURL:
-    getEnv("BLOCKNOTE_AI_SERVER_BASE_URL") || "https://localhost:3000/ai",
-});
 
-// return the AI SDK model based on the selected model string
-function getModel(aiModelString: string) {
-  const [provider, ...modelNameParts] = aiModelString.split("/");
-  const modelName = modelNameParts.join("/");
-  if (provider === "openai.chat") {
-    return createOpenAI({
-      ...client.getProviderSettings("openai"),
-    })(modelName, {});
-  } else if (provider === "groq.chat") {
-    return createGroq({
-      ...client.getProviderSettings("groq"),
-    })(modelName);
-  } else if (provider === "albert-etalab.chat") {
-    return createOpenAICompatible({
-      name: "albert-etalab",
-      baseURL: "https://albert.api.etalab.gouv.fr/v1",
-      ...client.getProviderSettings("albert-etalab"),
-    })(modelName);
-  } else if (provider === "mistral.chat") {
-    return createMistral({
-      ...client.getProviderSettings("mistral"),
-    })(modelName);
-  } else if (provider === "anthropic.chat") {
-    return createAnthropic({
-      ...client.getProviderSettings("anthropic"),
-    })(modelName);
-  } else if (provider === "google.generative-ai") {
-    return createGoogleGenerativeAI({
-      ...client.getProviderSettings("google"),
-    })(modelName, {
-      structuredOutputs: false,
-    });
-  } else {
-    return "unknown-model" as const;
-  }
-}
+const BASE_URL =
+  getEnv("BLOCKNOTE_AI_SERVER_BASE_URL") || "https://localhost:3000/ai";
 
 export default function App() {
-  const [modelString, setModelString] = useState<string>(
+  const [model, setModel] = useState<string>(
     "groq.chat/llama-3.3-70b-versatile",
   );
-
-  const model = useMemo(() => {
-    return getModel(modelString);
-  }, [modelString]);
 
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
@@ -101,7 +46,10 @@ export default function App() {
     // Register the AI extension
     extensions: [
       createAIExtension({
-        model: model as LanguageModelV1, // (type because initially it's valid)
+        transport: new DefaultChatTransport({
+          // URL to your backend API, see example source in `packages/xl-ai-server/src/routes/regular.ts`
+          api: `${BASE_URL}/model-playground/streamText`,
+        }),
       }),
     ],
     // We set some initial content for demo purposes
@@ -135,14 +83,16 @@ export default function App() {
 
   useEffect(() => {
     // update the default model in the extension
-    if (model !== "unknown-model") {
-      ai.options.setState({ model });
-    }
+
+    // Add the model string to the request body
+    ai.options.setState({
+      chatRequestOptions: {
+        body: {
+          model,
+        },
+      },
+    });
   }, [model, ai.options]);
-
-  const [dataFormat, setDataFormat] = useState("html");
-
-  const stream = useStore(ai.options, (state) => state.stream);
 
   const themePreference = usePrefersColorScheme();
   const existingContext = useBlockNoteContext();
@@ -160,46 +110,9 @@ export default function App() {
         <div className="model-settings" data-mantine-color-scheme={theme}>
           <Fieldset legend="Model settings" style={{ maxWidth: "500px" }}>
             <BasicAutocomplete
-              error={model === "unknown-model" ? "Unknown model" : undefined}
-              value={modelString}
-              onChange={setModelString}
-            />
-            <RadioGroupComponent
-              label="Data format"
-              items={[
-                { name: "HTML", description: "HTML", value: "html" },
-                {
-                  name: "JSON",
-                  description: "JSON (experimental)",
-                  value: "json",
-                },
-                {
-                  name: "Markdown",
-                  description: "Markdown (experimental)",
-                  value: "markdown",
-                },
-              ]}
-              value={dataFormat}
-              onChange={(value) => {
-                const dataFormat =
-                  value === "markdown"
-                    ? llmFormats._experimental_markdown
-                    : value === "json"
-                      ? llmFormats._experimental_json
-                      : llmFormats.html;
-                ai.options.setState({
-                  dataFormat,
-                });
-                setDataFormat(value);
-              }}
-            />
-
-            <Switch
-              checked={stream}
-              onChange={(e) =>
-                ai.options.setState({ stream: e.target.checked })
-              }
-              label="Streaming"
+              error={!model ? "Unknown model" : undefined}
+              value={model}
+              onChange={setModel}
             />
           </Fieldset>
         </div>
@@ -209,6 +122,7 @@ export default function App() {
         editor={editor}
         formattingToolbar={false}
         slashMenu={false}
+        style={{ paddingBottom: "300px" }}
       >
         {/* Add the AI Command menu to the editor */}
         <AIMenuController />

@@ -266,18 +266,24 @@ function MUITextAlignButton(props: {
   const editor = useBlockNoteEditor<TextBlockSchema>();
 
   // The text alignment of the block currently containing the text cursor.
-  const [activeTextAlignment, setActiveTextAlignment] = useState(
-    () => editor.getTextCursorPosition().block.props.textAlignment,
-  );
+  const [activeTextAlignment, setActiveTextAlignment] = useState(() => {
+    const props = editor.getTextCursorPosition().block.props;
+    if ("textAlignment" in props) {
+      return props.textAlignment;
+    }
+    return undefined;
+  });
 
   // Updates the text alignment when the editor content or selection changes.
-  useEditorContentOrSelectionChange(
-    () =>
-      setActiveTextAlignment(
-        editor.getTextCursorPosition().block.props.textAlignment,
-      ),
-    editor,
-  );
+  useEditorContentOrSelectionChange(() => {
+    setActiveTextAlignment(() => {
+      const props = editor.getTextCursorPosition().block.props;
+      if ("textAlignment" in props) {
+        return props.textAlignment;
+      }
+      return undefined;
+    });
+  }, editor);
 
   // Tooltip for the button.
   const tooltip = useMemo(
@@ -296,6 +302,10 @@ function MUITextAlignButton(props: {
     });
     editor.focus();
   }, [editor, props.textAlignment]);
+
+  if (!activeTextAlignment) {
+    return null;
+  }
 
   return (
     <MUIToolbarButton

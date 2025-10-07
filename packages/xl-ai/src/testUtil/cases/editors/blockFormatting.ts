@@ -22,12 +22,7 @@ export function getEditorWithBlockFormatting() {
     ],
     trailingBlock: false,
     schema,
-    extensions: [
-      createAIExtension({
-        model: undefined as any,
-      }),
-    ],
+    extensions: [createAIExtension({})],
   });
-  editor._tiptapEditor.forceEnablePlugins();
   return editor;
 }

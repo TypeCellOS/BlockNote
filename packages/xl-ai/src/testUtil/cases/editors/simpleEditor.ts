@@ -16,13 +16,8 @@ export function getSimpleEditor() {
     ],
     trailingBlock: false,
     schema,
-    extensions: [
-      createAIExtension({
-        model: undefined as any,
-      }),
-    ],
+    extensions: [createAIExtension({})],
   });
-  editor._tiptapEditor.forceEnablePlugins();
   return editor;
 }
 
@@ -44,13 +39,8 @@ export function getSimpleEditorWithCursorBetweenBlocks() {
     ],
     trailingBlock: false,
     schema,
-    extensions: [
-      createAIExtension({
-        model: undefined as any,
-      }),
-    ],
+    extensions: [createAIExtension({})],
   });
   editor.setTextCursorPosition("ref2");
-  editor._tiptapEditor.forceEnablePlugins();
   return editor;
 }

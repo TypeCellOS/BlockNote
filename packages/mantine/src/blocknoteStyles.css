@@ -1,0 +1,795 @@
+@import url("@blocknote/react/style.css");
+
+/* Mantine base styles*/
+
+/* Removes Mantine active styles */
+.bn-mantine .mantine-active:active {
+  transform: none;
+}
+
+/* Mantine Badge component base styles */
+.bn-mantine .mantine-Badge-root {
+  background-color: var(--bn-colors-tooltip-background);
+  color: var(--bn-colors-tooltip-text);
+}
+
+/* Mantine FileInput component base styles */
+.bn-mantine .mantine-FileInput-input {
+  align-items: center;
+  background-color: var(--bn-colors-menu-background);
+  border: none;
+  border-radius: 4px;
+  color: var(--bn-colors-menu-text);
+  display: flex;
+  flex-direction: row;
+  font-family: var(--bn-font-family);
+  justify-content: center;
+}
+
+.bn-mantine .mantine-FileInput-input:hover {
+  background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-mantine .mantine-FileInput-wrapper {
+  border: solid var(--bn-colors-border) 1px;
+  border-radius: 4px;
+}
+
+.bn-mantine .mantine-InputPlaceholder-placeholder {
+  color: var(--bn-colors-menu-text);
+  font-family: var(--bn-font-family);
+  font-weight: 600;
+}
+
+/* Mantine Menu component base styles */
+.bn-mantine .mantine-Menu-dropdown,
+.bn-mantine .bn-menu-dropdown {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  box-shadow: var(--bn-shadow-medium);
+  box-sizing: border-box;
+  color: var(--bn-colors-menu-text);
+  padding: 2px;
+  overflow: auto;
+}
+
+.bn-mantine .mantine-Menu-label {
+  background-color: var(--bn-colors-menu-background);
+  color: var(--bn-colors-menu-text);
+}
+
+.bn-mantine .mantine-Menu-item {
+  background-color: var(--bn-colors-menu-background);
+  border: none;
+  border-radius: var(--bn-border-radius-small);
+  color: var(--bn-colors-menu-text);
+}
+
+.bn-mantine .mantine-Menu-item[aria-selected="true"],
+.bn-mantine .mantine-Menu-item:hover {
+  background-color: var(--bn-colors-hovered-background);
+  border: none;
+  color: var(--bn-colors-hovered-text);
+}
+
+/* Mantine Popover component base styles */
+.bn-mantine .mantine-Popover-dropdown:not(.bn-menu-dropdown) {
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+}
+
+/* Mantine Tabs component base styles */
+.bn-mantine .mantine-Tabs-root {
+  width: 100%;
+  background-color: var(--bn-colors-menu-background);
+}
+
+.bn-mantine .mantine-Tabs-list:before {
+  border-color: var(--bn-colors-hovered-background);
+}
+
+.bn-mantine .mantine-Tabs-tab {
+  color: var(--bn-colors-menu-text);
+  border-color: var(--bn-colors-hovered-background);
+}
+
+.bn-mantine .mantine-Tabs-tab:hover {
+  background-color: var(--bn-colors-hovered-background);
+  border-color: var(--bn-colors-hovered-background);
+  color: var(--bn-colors-hovered-text);
+}
+
+.bn-mantine .mantine-Tabs-tab[data-active],
+.bn-mantine .mantine-Tabs-tab[data-active]:hover {
+  border-color: var(--bn-colors-menu-text);
+  color: var(--bn-colors-menu-text);
+}
+
+.bn-mantine .mantine-Tabs-panel {
+  padding: 8px;
+}
+
+/* Mantine TextInput component base styles */
+.bn-mantine .mantine-TextInput-input {
+  background-color: var(--bn-colors-menu-background);
+  border: solid var(--bn-colors-border) 1px;
+  border-radius: 4px;
+  color: var(--bn-colors-menu-text);
+  font-family: var(--bn-font-family);
+  height: 32px;
+}
+
+.bn-mantine .bn-mt-input-large .mantine-TextInput-input {
+  border: none;
+  font-size: 14px;
+  height: 52px;
+}
+
+/* Mantine Tooltip component base styles */
+.bn-mantine .mantine-Tooltip-tooltip {
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+}
+
+.bn-mantine .mantine-Tooltip-tooltip p:last-child {
+  white-space: pre-wrap;
+}
+
+.bn-mantine .mantine-Tooltip-tooltip p:first-child {
+  white-space: unset;
+}
+
+/* UI element styling */
+
+/* Select styling */
+.bn-mantine .bn-select {
+  overflow: auto;
+}
+
+.bn-mantine .mantine-Button-root[aria-controls*="dropdown"] {
+  min-width: fit-content;
+}
+
+/* Toolbar styling */
+.bn-mantine .bn-toolbar {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  box-shadow: var(--bn-shadow-medium);
+  flex-wrap: nowrap;
+  gap: 2px;
+  padding: 2px;
+  width: fit-content;
+  overflow-x: auto;
+  max-width: 100vw;
+}
+
+.bn-mantine .bn-toolbar:empty {
+  display: none;
+}
+
+.bn-toolbar .mantine-Button-root,
+.bn-toolbar .mantine-ActionIcon-root {
+  background-color: var(--bn-colors-menu-background);
+  border: none;
+  border-radius: var(--bn-border-radius-small);
+  color: var(--bn-colors-menu-text);
+}
+
+.bn-toolbar .mantine-Button-root:hover,
+.bn-toolbar .mantine-ActionIcon-root:hover {
+  background-color: var(--bn-colors-hovered-background);
+  border: none;
+  color: var(--bn-colors-hovered-text);
+}
+
+.bn-toolbar .mantine-Button-root[data-selected],
+.bn-toolbar .mantine-ActionIcon-root[data-selected] {
+  background-color: var(--bn-colors-selected-background);
+  border: none;
+  color: var(--bn-colors-selected-text);
+}
+
+.bn-toolbar .mantine-Button-root[data-disabled],
+.bn-toolbar .mantine-ActionIcon-root[data-disabled] {
+  background-color: var(--bn-colors-disabled-background);
+  border: none;
+  color: var(--bn-colors-disabled-text);
+}
+
+.bn-toolbar .mantine-Menu-item {
+  font-size: 12px;
+  height: 30px;
+}
+
+.bn-toolbar .mantine-Menu-item:hover {
+  background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-mantine .bn-form-popover {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  box-shadow: var(--bn-shadow-medium);
+  color: var(--bn-colors-menu-text);
+  gap: 4px;
+  min-width: 145px;
+  padding: 2px;
+}
+
+.bn-form-popover .mantine-TextInput-root,
+.bn-form-popover .mantine-FileInput-root {
+  width: 300px;
+}
+
+.bn-form-popover .mantine-TextInput-wrapper,
+.bn-form-popover .mantine-FileInput-wrapper {
+  padding: 0;
+  border-radius: 4px;
+}
+
+.bn-form-popover .mantine-TextInput-wrapper:hover {
+  background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-form-popover .mantine-TextInput-input,
+.bn-form-popover .mantine-FileInput-input {
+  border: none;
+  font-size: 12px;
+}
+
+.bn-form-popover .mantine-FileInput-input:hover {
+  background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-form-popover .mantine-FileInput-section[data-position="left"] {
+  color: var(--bn-colors-menu-text);
+}
+
+.bn-form-popover .mantine-FileInput-placeholder {
+  color: var(--bn-colors-menu-text);
+}
+
+/* Suggestion Menu styling*/
+
+/* Base styles for Suggestion Menus, copied from the Mantine Menu component. */
+/* Unfortunately necessary, as we can't use a Menu.Dropdown component on its
+ own. */
+/* https://github.com/mantinedev/mantine/blob/e3e3bb834de1f2f75a27dbc757dc0a2fc6a6cba8/packages/%40mantine/core/src/components/Menu/Menu.module.css */
+.bn-mantine .bn-suggestion-menu {
+  max-height: 100%;
+  position: relative;
+  box-shadow: var(--mantine-shadow-md);
+  border: calc(0.0625rem * var(--mantine-scale)) solid
+    var(--mantine-color-gray-2);
+  border-radius: var(--mantine-radius-default);
+  padding: 4px;
+}
+
+.bn-mantine .bn-suggestion-menu-label {
+  color: var(--mantine-color-dimmed);
+  font-weight: 500;
+  font-size: var(--mantine-font-size-xs);
+  padding: calc(var(--mantine-spacing-xs) / 2) var(--mantine-spacing-sm);
+  cursor: default;
+}
+
+.bn-mantine .bn-suggestion-menu-item {
+  font-size: var(--mantine-font-size-sm);
+  width: 100%;
+  padding: calc(var(--mantine-spacing-xs) / 1.5) var(--mantine-spacing-sm);
+  border-radius: var(--popover-radius, var(--mantine-radius-default));
+  color: var(--menu-item-color, var(--mantine-color-text));
+  display: flex;
+  align-items: center;
+  user-select: none;
+
+  &:where([data-disabled], :disabled) {
+    color: var(--mantine-color-dimmed);
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+
+/* Additional Suggestion Menu styling*/
+.bn-mt-suggestion-menu-item-body {
+  flex: 1;
+}
+
+.bn-mt-suggestion-menu-item-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &:where([data-position="left"]) {
+    margin-inline-end: var(--mantine-spacing-xs);
+  }
+
+  &:where([data-position="right"]) {
+    margin-inline-start: var(--mantine-spacing-xs);
+  }
+}
+
+.bn-mantine .bn-suggestion-menu {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  box-shadow: var(--bn-shadow-medium);
+  box-sizing: border-box;
+  color: var(--bn-colors-menu-text);
+  height: fit-content;
+  max-height: inherit;
+  overflow-y: auto;
+  padding: 2px;
+}
+
+.bn-mantine .bn-suggestion-menu-item {
+  cursor: pointer;
+  height: 52px;
+}
+
+.bn-mantine .bn-suggestion-menu-item-small {
+  height: fit-content;
+  /* Made to match with labels */
+  padding: calc(var(--mantine-spacing-xs) / 2) var(--mantine-spacing-sm);
+}
+
+.bn-mantine .bn-suggestion-menu-item[aria-selected="true"],
+.bn-mantine .bn-suggestion-menu-item:hover {
+  background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-mt-suggestion-menu-item-section {
+  color: var(--bn-colors-tooltip-text);
+}
+
+.bn-mt-suggestion-menu-item-section[data-position="left"] {
+  background-color: var(--bn-colors-tooltip-background);
+  border-radius: var(--bn-border-radius-small);
+  padding: 8px;
+}
+
+.bn-suggestion-menu-item-small
+  .bn-mt-suggestion-menu-item-section[data-position="left"] {
+  background-color: transparent;
+  padding: 0;
+}
+
+.bn-suggestion-menu-item-small
+  .bn-mt-suggestion-menu-item-section[data-position="left"]
+  svg {
+  height: 14px;
+  width: 14px;
+}
+
+.bn-mt-suggestion-menu-item-body {
+  align-items: stretch;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding-right: 16px;
+}
+
+.bn-mt-suggestion-menu-item-title {
+  color: var(--bn-colors-menu-text);
+  line-height: 20px;
+  font-weight: 500;
+  font-size: 14px;
+  margin: 0;
+  padding: 0;
+}
+
+.bn-suggestion-menu-item-small .bn-mt-suggestion-menu-item-title {
+  font-size: 12px;
+}
+
+.bn-mt-suggestion-menu-item-subtitle {
+  color: var(--bn-colors-menu-text);
+  line-height: 16px;
+  font-size: 10px;
+  margin: 0;
+  padding: 0;
+}
+
+.bn-suggestion-menu-item-small .bn-mt-suggestion-menu-item-subtitle {
+  display: none;
+}
+
+.bn-mantine .bn-suggestion-menu-label {
+  color: var(--bn-colors-hovered-text);
+}
+
+.bn-mantine .bn-suggestion-menu-loader {
+  height: 20px;
+  width: 100%;
+}
+
+.bn-mantine .bn-suggestion-menu-loader span {
+  background-color: var(--bn-colors-side-menu);
+}
+
+.bn-mantine .bn-grid-suggestion-menu {
+  background: var(--bn-colors-menu-background);
+  border-radius: var(--bn-border-radius-large);
+  box-shadow: var(--bn-shadow-medium);
+  display: grid;
+  gap: 7px;
+  height: fit-content;
+  justify-items: center;
+  max-height: inherit;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.bn-mantine .bn-grid-suggestion-menu-item {
+  align-items: center;
+  border-radius: var(--bn-border-radius-large);
+  cursor: pointer;
+  display: flex;
+  font-size: 24px;
+  height: 32px;
+  justify-content: center;
+  margin: 2px;
+  padding: 4px;
+  width: 32px;
+}
+
+.bn-mantine .bn-grid-suggestion-menu-item[aria-selected="true"],
+.bn-mantine .bn-grid-suggestion-menu-item:hover {
+  background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-mantine .bn-grid-suggestion-menu-empty-item,
+.bn-mantine .bn-grid-suggestion-menu-loader {
+  align-items: center;
+  color: var(--bn-colors-menu-text);
+  display: flex;
+  font-size: 14px;
+  font-weight: 500;
+  height: 32px;
+  justify-content: center;
+}
+
+.bn-mantine .bn-grid-suggestion-menu-loader span {
+  background-color: var(--bn-colors-side-menu);
+}
+
+/* Side Menu styling */
+.bn-mantine .bn-side-menu {
+  background-color: transparent;
+  overflow: visible;
+}
+
+.bn-side-menu .mantine-Menu-item,
+.bn-table-handle-menu .mantine-Menu-item {
+  font-size: 12px;
+  height: 30px;
+}
+
+.bn-side-menu .mantine-UnstyledButton-root:not(.mantine-Menu-item) {
+  background-color: transparent;
+}
+
+.bn-side-menu .mantine-UnstyledButton-root:hover {
+  background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-side-menu .mantine-UnstyledButton-root:not(.mantine-Menu-item) svg {
+  background-color: transparent;
+  color: var(--bn-colors-side-menu);
+  height: 22px;
+  width: 22px;
+}
+
+.bn-mantine .bn-side-menu > [draggable="true"] {
+  display: flex;
+}
+
+.bn-side-menu .mantine-Menu-dropdown {
+  min-width: 100px;
+  padding: 2px;
+  position: absolute;
+}
+
+/* Image Panel styling*/
+.bn-mantine .bn-panel {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  box-shadow: var(--bn-shadow-medium);
+  padding: 2px;
+  width: 500px;
+  max-width: 100vw;
+}
+
+.bn-mantine .bn-panel .bn-tab-panel {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.bn-panel .mantine-TextInput-root,
+.bn-panel .mantine-FileInput-root {
+  width: 100%;
+}
+
+.bn-panel .mantine-Button-root {
+  background-color: var(--bn-colors-menu-background);
+  border: solid var(--bn-colors-border) 1px;
+  border-radius: var(--bn-border-radius-small);
+  color: var(--bn-colors-menu-text);
+  height: 32px;
+  width: 60%;
+}
+
+.bn-panel .mantine-Button-root:hover {
+  background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-panel .mantine-Text-root {
+  text-align: center;
+}
+
+/* Table Handle styling */
+.bn-mantine .bn-table-handle,
+.bn-mantine .bn-extend-button,
+.bn-mantine .bn-table-cell-handle {
+  align-items: center;
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-small);
+  box-shadow: var(--bn-shadow-light);
+  color: var(--bn-colors-side-menu);
+  cursor: grab;
+  display: flex;
+  height: fit-content;
+  justify-content: center;
+  overflow: visible;
+  padding: 0;
+}
+
+.bn-mantine .bn-table-cell-handle {
+  padding: 0 4px;
+}
+
+.bn-mantine .bn-table-handle svg {
+  margin-inline: -4px;
+}
+
+.bn-mantine .bn-table-handle-not-draggable {
+  cursor: pointer;
+}
+
+.bn-mantine .bn-table-handle:hover,
+.bn-mantine .bn-table-handle-dragging,
+.bn-mantine .bn-extend-button:hover,
+.bn-mantine .bn-extend-button-editing,
+.bn-mantine .bn-table-cell-handle:hover {
+  background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-mantine .bn-extend-button-add-remove-columns {
+  height: 100%;
+  width: 18px;
+  margin-left: 4px;
+  cursor: col-resize;
+}
+
+.bn-mantine .bn-extend-button-add-remove-rows {
+  height: 18px;
+  width: 100%;
+  margin-top: 4px;
+  cursor: row-resize;
+}
+
+/* Drag Handle & Table Handle Menu styling */
+.bn-mantine .bn-drag-handle-menu,
+.bn-mantine .bn-table-handle-menu {
+  overflow: visible;
+}
+
+/* Tooltip styling */
+.bn-mantine .bn-tooltip {
+  background-color: var(--bn-colors-tooltip-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  box-shadow: var(--bn-shadow-medium);
+  color: var(--bn-colors-tooltip-text);
+  padding: 4px 10px;
+  text-align: center;
+}
+
+/* Additional menu styles */
+.bn-mantine .bn-tick-space {
+  padding: 0;
+  width: 20px;
+}
+
+/* Comment styling */
+.bn-mantine .bn-thread {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  box-shadow: var(--bn-shadow-medium);
+  color: var(--bn-colors-menu-text);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 350px;
+  overflow: visible;
+}
+
+.bn-mantine .bn-threads-sidebar .bn-thread {
+  box-shadow: none;
+}
+
+.bn-mantine .bn-thread:not(.selected) {
+  cursor: pointer;
+}
+
+.bn-mantine .bn-thread-comments,
+.bn-mantine .bn-thread-composer {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+}
+
+.bn-mantine .bn-thread-comments {
+  gap: 1rem;
+}
+
+.bn-mantine .bn-thread-comment {
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.bn-mantine .bn-thread-comment > .mantine-Group-root {
+  gap: 12px;
+}
+
+.bn-mantine .bn-thread-comment p {
+  color: var(--bn-colors-menu-text);
+}
+
+.bn-mantine .bn-thread .bn-header-text,
+.bn-mantine .bn-thread-comment .bn-resolved-text {
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.bn-mantine .bn-comment-actions-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Comment action toolbar styling */
+.bn-mantine .bn-action-toolbar {
+  align-self: flex-end;
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  gap: 0;
+  padding: 2px;
+}
+
+.bn-action-toolbar .mantine-Button-root,
+.bn-action-toolbar .mantine-ActionIcon-root {
+  background-color: var(--bn-colors-menu-background);
+  border: none;
+  border-radius: var(--bn-border-radius-small);
+  color: var(--bn-colors-menu-text);
+}
+
+.bn-action-toolbar .mantine-Button-root:hover,
+.bn-action-toolbar .mantine-ActionIcon-root:hover {
+  background-color: var(--bn-colors-hovered-background);
+  border: none;
+  color: var(--bn-colors-hovered-text);
+}
+
+.bn-action-toolbar .mantine-Button-root[data-selected],
+.bn-action-toolbar .mantine-ActionIcon-root[data-selected] {
+  background-color: var(--bn-colors-selected-background);
+  border: none;
+  color: var(--bn-colors-selected-text);
+}
+
+.bn-action-toolbar .mantine-Button-root[data-disabled],
+.bn-action-toolbar .mantine-ActionIcon-root[data-disabled] {
+  background-color: var(--bn-colors-disabled-background);
+  border: none;
+  color: var(--bn-colors-disabled-text);
+}
+
+.bn-mantine .bn-action-toolbar .mantine-Menu-itemLabel {
+  font-size: 12px;
+}
+
+/* Badge styling */
+.bn-mantine .bn-badge-group {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.bn-mantine .bn-badge {
+  flex-grow: 0;
+}
+
+.bn-mantine .bn-badge .mantine-Chip-label {
+  padding: 0 8px;
+}
+
+.bn-mantine .bn-badge .mantine-Chip-label:not([data-checked="true"]) {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  color: var(--bn-colors-menu-text);
+}
+
+.bn-mantine .bn-badge .mantine-Chip-label:hover {
+  border: 1px solid var(--mantine-primary-color-filled-hover);
+  color: var(--mantine-primary-color-filled-hover);
+}
+
+.bn-mantine
+  .bn-badge
+  .mantine-Chip-label
+  > span:not(.mantine-Chip-iconWrapper) {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.bn-mantine
+  .bn-badge
+  .mantine-Chip-label
+  > span:not(.mantine-Chip-iconWrapper)
+  > span {
+  align-items: center;
+  display: inline-flex;
+  justify-content: center;
+}
+
+/* Combobox styling */
+.bn-mantine .bn-combobox-input,
+.bn-mantine .bn-combobox-items:not(:empty) {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  box-shadow: var(--bn-shadow-medium);
+  color: var(--bn-colors-menu-text);
+  gap: 4px;
+  min-width: 145px;
+  padding: 2px;
+}
+
+.bn-mantine .bn-combobox-input .bn-combobox-icon,
+.bn-mantine .bn-combobox-input .bn-combobox-right-section {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+.bn-mantine .bn-combobox-input .bn-combobox-error {
+  color: var(--bn-colors-highlights-red-background);
+}
+
+/* We need to get rid of the checked icon - you can set the icon prop to an
+empty element (<></>), but even so Mantine leaves extra space for the icon, so
+we just don't display it in CSS instead. */
+.bn-mantine .bn-badge .mantine-Chip-iconWrapper {
+  display: none;
+}

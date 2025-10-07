@@ -50,7 +50,7 @@ export const alertTypes = [
 ] as const;
 
 // The Alert block.
-export const Alert = createReactBlockSpec(
+export const createAlert = createReactBlockSpec(
   {
     type: "alert",
     propSchema: {

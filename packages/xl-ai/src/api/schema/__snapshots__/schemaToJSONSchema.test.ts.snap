@@ -8,6 +8,46 @@ exports[`creates json schema 1`] = `
         {
           "additionalProperties": false,
           "properties": {
+            "content": undefined,
+            "props": {
+              "additionalProperties": false,
+              "properties": {
+                "caption": {
+                  "enum": undefined,
+                  "type": "string",
+                },
+                "name": {
+                  "enum": undefined,
+                  "type": "string",
+                },
+                "showPreview": {
+                  "enum": undefined,
+                  "type": "boolean",
+                },
+                "url": {
+                  "enum": undefined,
+                  "type": "string",
+                },
+              },
+              "type": "object",
+            },
+            "type": {
+              "enum": [
+                "audio",
+                "image",
+                "video",
+              ],
+              "type": "string",
+            },
+          },
+          "required": [
+            "type",
+          ],
+          "type": "object",
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
             "content": {
               "$ref": "#/$defs/inlinecontent",
             },
@@ -18,11 +58,11 @@ exports[`creates json schema 1`] = `
             },
             "type": {
               "enum": [
+                "bulletListItem",
+                "numberedListItem",
                 "paragraph",
                 "quote",
                 "toggleListItem",
-                "bulletListItem",
-                "numberedListItem",
               ],
               "type": "string",
             },
@@ -41,27 +81,16 @@ exports[`creates json schema 1`] = `
             "props": {
               "additionalProperties": false,
               "properties": {
-                "isToggleable": {
+                "checked": {
                   "enum": undefined,
                   "type": "boolean",
-                },
-                "level": {
-                  "enum": [
-                    1,
-                    2,
-                    3,
-                    4,
-                    5,
-                    6,
-                  ],
-                  "type": "number",
                 },
               },
               "type": "object",
             },
             "type": {
               "enum": [
-                "heading",
+                "checkListItem",
               ],
               "type": "string",
             },
@@ -102,22 +131,88 @@ exports[`creates json schema 1`] = `
         {
           "additionalProperties": false,
           "properties": {
-            "content": {
-              "$ref": "#/$defs/inlinecontent",
+            "content": undefined,
+            "props": {
+              "additionalProperties": false,
+              "properties": {},
+              "type": "object",
             },
+            "type": {
+              "enum": [
+                "divider",
+              ],
+              "type": "string",
+            },
+          },
+          "required": [
+            "type",
+          ],
+          "type": "object",
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "content": undefined,
             "props": {
               "additionalProperties": false,
               "properties": {
-                "checked": {
+                "caption": {
                   "enum": undefined,
-                  "type": "boolean",
+                  "type": "string",
+                },
+                "name": {
+                  "enum": undefined,
+                  "type": "string",
+                },
+                "url": {
+                  "enum": undefined,
+                  "type": "string",
                 },
               },
               "type": "object",
             },
             "type": {
               "enum": [
-                "checkListItem",
+                "file",
+              ],
+              "type": "string",
+            },
+          },
+          "required": [
+            "type",
+          ],
+          "type": "object",
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "content": {
+              "$ref": "#/$defs/inlinecontent",
+            },
+            "props": {
+              "additionalProperties": false,
+              "properties": {
+                "isToggleable": {
+                  "enum": undefined,
+                  "type": "boolean",
+                },
+                "level": {
+                  "enum": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                  ],
+                  "type": "number",
+                },
+              },
+              "type": "object",
+            },
+            "type": {
+              "enum": [
+                "heading",
               ],
               "type": "string",
             },

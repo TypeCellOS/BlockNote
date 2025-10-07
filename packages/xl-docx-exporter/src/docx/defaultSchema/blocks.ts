@@ -1,9 +1,9 @@
 import {
   BlockMapping,
   COLORS_DEFAULT,
+  createPageBreakBlockConfig,
   DefaultBlockSchema,
   DefaultProps,
-  pageBreakSchema,
   StyledText,
   UnreachableCaseError,
 } from "@blocknote/core";
@@ -61,9 +61,9 @@ function blockPropsToStyles(
   };
 }
 export const docxBlockMappingForDefaultSchema: BlockMapping<
-  DefaultBlockSchema &
-    typeof pageBreakSchema.blockSchema &
-    typeof multiColumnSchema.blockSchema,
+  DefaultBlockSchema & {
+    pageBreak: ReturnType<typeof createPageBreakBlockConfig>;
+  } & typeof multiColumnSchema.blockSchema,
   any,
   any,
   | Promise<Paragraph[] | Paragraph | DocxTable>
@@ -129,7 +129,7 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
     return new Paragraph({
       ...blockPropsToStyles(block.props, exporter.options.colors),
       children: exporter.transformInlineContent(block.content),
-      heading: `Heading${block.props.level}`,
+      heading: `Heading${block.props.level as 1 | 2 | 3 | 4 | 5 | 6}`,
     });
   },
   quote: (block, exporter) => {
@@ -190,6 +190,18 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
   pageBreak: () => {
     return new Paragraph({
       children: [new PageBreak()],
+    });
+  },
+  divider: () => {
+    return new Paragraph({
+      border: {
+        top: {
+          color: "auto",
+          space: 1,
+          style: "single",
+          size: 1,
+        },
+      },
     });
   },
   column: (block, _exporter, _nestingLevel, _numberedListIndex, children) => {

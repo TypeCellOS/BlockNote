@@ -81,6 +81,7 @@ describe("toValidatedOperations", () => {
           partialOperation: operation,
           isUpdateToPreviousOperation: false,
           isPossiblyPartial: false,
+          metadata: undefined,
         };
       }
     }

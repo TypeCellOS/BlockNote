@@ -1,10 +1,7 @@
 import {
   BlockNoteSchema,
-  defaultBlockSpecs,
-  defaultInlineContentSpecs,
+  createPageBreakBlockSpec,
   defaultProps,
-  defaultStyleSpecs,
-  PageBreak,
 } from "@blocknote/core";
 import {
   createReactBlockSpec,
@@ -15,7 +12,7 @@ import { createContext, useContext } from "react";
 
 // BLOCKS ----------------------------------------------------------------------
 
-const CustomParagraph = createReactBlockSpec(
+const createCustomParagraph = createReactBlockSpec(
   {
     type: "customParagraph",
     propSchema: defaultProps,
@@ -31,7 +28,7 @@ const CustomParagraph = createReactBlockSpec(
   },
 );
 
-const SimpleCustomParagraph = createReactBlockSpec(
+const createSimpleCustomParagraph = createReactBlockSpec(
   {
     type: "simpleCustomParagraph",
     propSchema: defaultProps,
@@ -55,7 +52,7 @@ const ContextParagraphComponent = (props: any) => {
   return <div ref={props.contentRef} />;
 };
 
-const ContextParagraph = createReactBlockSpec(
+const createContextParagraph = createReactBlockSpec(
   {
     type: "contextParagraph",
     propSchema: defaultProps,
@@ -79,8 +76,34 @@ const Mention = createReactInlineContentSpec(
     content: "none",
   },
   {
+    parse: (el) => {
+      const user = el.getAttribute("data-user");
+      if (user !== null) {
+        return { user };
+      }
+      return undefined;
+    },
     render: (props) => {
-      return <span>@{props.inlineContent.props.user}</span>;
+      return (
+        <span
+          className="mention-internal"
+          data-user={props.inlineContent.props.user}
+        >
+          @{props.inlineContent.props.user}
+        </span>
+      );
+    },
+    toExternalHTML: (props) => {
+      return (
+        <span
+          data-external={true}
+          data-inline-content-type="mention"
+          data-user={props.inlineContent.props.user}
+          className="mention-external"
+        >
+          @{props.inlineContent.props.user}
+        </span>
+      );
     },
   },
 );
@@ -92,10 +115,17 @@ const Tag = createReactInlineContentSpec(
     content: "styled",
   },
   {
+    parse: (el) => {
+      const isTag = el.getAttribute("data-tag");
+      if (isTag) {
+        return {};
+      }
+      return undefined;
+    },
     render: (props) => {
       return (
         <span>
-          #<span ref={props.contentRef}></span>
+          #<span ref={props.contentRef} data-tag="true"></span>
         </span>
       );
     },
@@ -132,21 +162,18 @@ const FontSize = createReactStyleSpec(
 
 // SCHEMA ----------------------------------------------------------------------
 
-export const testSchema = BlockNoteSchema.create({
+export const testSchema = BlockNoteSchema.create().extend({
   blockSpecs: {
-    ...defaultBlockSpecs,
-    pageBreak: PageBreak,
-    customParagraph: CustomParagraph,
-    simpleCustomParagraph: SimpleCustomParagraph,
-    contextParagraph: ContextParagraph,
+    pageBreak: createPageBreakBlockSpec(),
+    customParagraph: createCustomParagraph(),
+    simpleCustomParagraph: createSimpleCustomParagraph(),
+    contextParagraph: createContextParagraph(),
   },
   inlineContentSpecs: {
-    ...defaultInlineContentSpecs,
     mention: Mention,
     tag: Tag,
   },
   styleSpecs: {
-    ...defaultStyleSpecs,
     small: Small,
     fontSize: FontSize,
   },
