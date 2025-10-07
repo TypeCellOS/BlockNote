@@ -43,7 +43,7 @@ export default function App() {
 }
 
 function Document() {
-  const [activeUser, setActiveUser] = useState<MyUserType>(HARDCODED_USERS[4]);
+  const [activeUser, setActiveUser] = useState<MyUserType>(HARDCODED_USERS[0]);
 
   const provider = useYjsProvider();
 
@@ -104,7 +104,7 @@ function Document() {
                 ? "Editor"
                 : user.role === "comment"
                   ? "Commenter"
-                  : "Viewer Only"
+                  : "Content-Only Viewer"
             })`,
             icon: null,
             onClick: () => setActiveUser(user),
