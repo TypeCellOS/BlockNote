@@ -1,24 +1,24 @@
 import type { Node } from "prosemirror-model";
-import {
-  NodeSelection,
-  TextSelection,
-  type Transaction,
-} from "prosemirror-state";
+import { TextSelection, type Transaction } from "prosemirror-state";
 import type { TextCursorPosition } from "../../../editor/cursorPositionTypes.js";
+import {
+  getBlockEndPos,
+  getBlockStartPos,
+  resolveLocationToPM,
+  resolvePMToLocation,
+} from "../../../locations/location.js";
+import { Location } from "../../../locations/types.js";
+import {
+  isPointingToBlock,
+  normalizeToRange,
+} from "../../../locations/utils.js";
 import type {
-  BlockIdentifier,
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
 } from "../../../schema/index.js";
-import { UnreachableCaseError } from "../../../util/typescript.js";
-import {
-  getBlockInfo,
-  getBlockInfoFromTransaction,
-} from "../../getBlockInfoFromPos.js";
+import { getBlockInfoFromTransaction } from "../../getBlockInfoFromPos.js";
 import { nodeToBlock } from "../../nodeConversions/nodeToBlock.js";
-import { getNodeById } from "../../nodeUtil.js";
-import { getBlockNoteSchema, getPmSchema } from "../../pmUtil.js";
 
 export function getTextCursorPosition<
   BSchema extends BlockSchema,
@@ -26,7 +26,6 @@ export function getTextCursorPosition<
   S extends StyleSchema,
 >(tr: Transaction): TextCursorPosition<BSchema, I, S> {
   const { bnBlock } = getBlockInfoFromTransaction(tr);
-  const pmSchema = getPmSchema(tr.doc);
 
   const resolvedPos = tr.doc.resolve(bnBlock.beforePos);
   // Gets previous blockContainer node at the same nesting level, if the current node isn't the first child.
@@ -46,73 +45,43 @@ export function getTextCursorPosition<
     }
   }
 
+  const location = resolvePMToLocation(tr.doc, {
+    anchor: tr.selection.anchor,
+    head: tr.selection.head,
+  });
+
   return {
-    block: nodeToBlock(bnBlock.node, pmSchema),
-    prevBlock: prevNode === null ? undefined : nodeToBlock(prevNode, pmSchema),
-    nextBlock: nextNode === null ? undefined : nodeToBlock(nextNode, pmSchema),
-    parentBlock:
-      parentNode === undefined ? undefined : nodeToBlock(parentNode, pmSchema),
+    meta: { location },
+    range: normalizeToRange(location),
+    block: nodeToBlock(bnBlock.node),
+    prevBlock: prevNode === null ? undefined : nodeToBlock(prevNode),
+    nextBlock: nextNode === null ? undefined : nodeToBlock(nextNode),
+    parentBlock: parentNode === undefined ? undefined : nodeToBlock(parentNode),
   };
 }
 
 export function setTextCursorPosition(
   tr: Transaction,
-  targetBlock: BlockIdentifier,
+  location: Location,
   placement: "start" | "end" = "start",
 ) {
-  const id = typeof targetBlock === "string" ? targetBlock : targetBlock.id;
-  const pmSchema = getPmSchema(tr.doc);
-  const schema = getBlockNoteSchema(pmSchema);
-
-  const posInfo = getNodeById(id, tr.doc);
-  if (!posInfo) {
-    throw new Error(`Block with ID ${id} not found`);
-  }
-
-  const info = getBlockInfo(posInfo);
-
-  const contentType: "none" | "inline" | "table" =
-    schema.blockSchema[info.blockNoteType]!.content;
-
-  if (info.isBlockContainer) {
-    const blockContent = info.blockContent;
-    if (contentType === "none") {
-      tr.setSelection(NodeSelection.create(tr.doc, blockContent.beforePos));
+  if (isPointingToBlock(location)) {
+    if (placement === "start") {
+      const loc = getBlockStartPos(tr.doc, location);
+      tr.setSelection(TextSelection.near(tr.doc.resolve(loc)));
+      return;
+    } else {
+      const loc = getBlockEndPos(tr.doc, location);
+      tr.setSelection(TextSelection.near(tr.doc.resolve(loc), -1));
       return;
     }
-
-    if (contentType === "inline") {
-      if (placement === "start") {
-        tr.setSelection(
-          TextSelection.create(tr.doc, blockContent.beforePos + 1),
-        );
-      } else {
-        tr.setSelection(
-          TextSelection.create(tr.doc, blockContent.afterPos - 1),
-        );
-      }
-    } else if (contentType === "table") {
-      if (placement === "start") {
-        // Need to offset the position as we have to get through the `tableRow`
-        // and `tableCell` nodes to get to the `tableParagraph` node we want to
-        // set the selection in.
-        tr.setSelection(
-          TextSelection.create(tr.doc, blockContent.beforePos + 4),
-        );
-      } else {
-        tr.setSelection(
-          TextSelection.create(tr.doc, blockContent.afterPos - 4),
-        );
-      }
-    } else {
-      throw new UnreachableCaseError(contentType);
-    }
-  } else {
-    const child =
-      placement === "start"
-        ? info.childContainer.node.firstChild!
-        : info.childContainer.node.lastChild!;
-
-    setTextCursorPosition(tr, child.attrs.id, placement);
   }
+
+  const resolved = resolveLocationToPM(tr.doc, location);
+  tr.setSelection(
+    TextSelection.between(
+      tr.doc.resolve(resolved.anchor),
+      tr.doc.resolve(resolved.head),
+    ),
+  );
 }

@@ -1,9 +1,67 @@
 {
-  "_meta": {
-    "startPos": 15,
-    "endPos": 56
+  "meta": {
+    "location": {
+      "anchor": {
+        "id": "2",
+        "offset": 0
+      },
+      "head": {
+        "id": "3",
+        "offset": 11
+      }
+    },
+    "anchor": 18,
+    "head": 53,
+    "from": 18,
+    "to": 53
+  },
+  "range": {
+    "anchor": {
+      "id": "2",
+      "offset": 0
+    },
+    "head": {
+      "id": "3",
+      "offset": 11
+    }
   },
   "blocks": [
+    {
+      "id": "2",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Nested Paragraph 1",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "3",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Paragraph 2",
+          "styles": {}
+        }
+      ],
+      "children": []
+    }
+  ],
+  "content": [
     {
       "id": "2",
       "type": "paragraph",

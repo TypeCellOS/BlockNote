@@ -19,6 +19,12 @@ exports[`Test getTextCursorPosition & setTextCursorPosition > Column 1`] = `
     },
     "type": "paragraph",
   },
+  "meta": {
+    "location": {
+      "id": "column-paragraph-0",
+      "offset": 0,
+    },
+  },
   "nextBlock": {
     "children": [],
     "content": [
@@ -81,6 +87,16 @@ exports[`Test getTextCursorPosition & setTextCursorPosition > Column 1`] = `
     "type": "column",
   },
   "prevBlock": undefined,
+  "range": {
+    "anchor": {
+      "id": "column-paragraph-0",
+      "offset": 0,
+    },
+    "head": {
+      "id": "column-paragraph-0",
+      "offset": 0,
+    },
+  },
 }
 `;
 
@@ -103,6 +119,12 @@ exports[`Test getTextCursorPosition & setTextCursorPosition > Column list 1`] = 
     },
     "type": "paragraph",
   },
+  "meta": {
+    "location": {
+      "id": "column-paragraph-0",
+      "offset": 0,
+    },
+  },
   "nextBlock": {
     "children": [],
     "content": [
@@ -165,5 +187,15 @@ exports[`Test getTextCursorPosition & setTextCursorPosition > Column list 1`] = 
     "type": "column",
   },
   "prevBlock": undefined,
+  "range": {
+    "anchor": {
+      "id": "column-paragraph-0",
+      "offset": 0,
+    },
+    "head": {
+      "id": "column-paragraph-0",
+      "offset": 0,
+    },
+  },
 }
 `;

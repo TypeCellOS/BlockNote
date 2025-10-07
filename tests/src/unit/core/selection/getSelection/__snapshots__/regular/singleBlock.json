@@ -1,9 +1,50 @@
 {
-  "_meta": {
-    "startPos": 0,
-    "endPos": 17
+  "meta": {
+    "location": {
+      "anchor": {
+        "id": "1",
+        "offset": 0
+      },
+      "head": {
+        "id": "1",
+        "offset": 11
+      }
+    },
+    "anchor": 3,
+    "head": 14,
+    "from": 3,
+    "to": 14
+  },
+  "range": {
+    "anchor": {
+      "id": "1",
+      "offset": 0
+    },
+    "head": {
+      "id": "1",
+      "offset": 11
+    }
   },
   "blocks": [
+    {
+      "id": "1",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Paragraph 1",
+          "styles": {}
+        }
+      ],
+      "children": []
+    }
+  ],
+  "content": [
     {
       "id": "1",
       "type": "paragraph",

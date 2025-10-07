@@ -20,17 +20,15 @@ export const testIncrementSelectionStart = async <
   (window as any).__TEST_OPTIONS.mockID = 0;
   editor.replaceBlocks(editor.document, testCase.document);
 
-  const size = editor._tiptapEditor.state.doc.content.size;
+  const size = editor.transact((tr) => tr.doc.content.size);
   let ret = "";
 
   for (let i = 0; i < size; i++) {
     editor.transact((tr) =>
-      tr.setSelection(
-        TextSelection.create(editor._tiptapEditor.state.doc, i, size - 1),
-      ),
+      tr.setSelection(TextSelection.create(tr.doc, i, size - 1)),
     );
 
-    const blockNoteSelection = editor.getSelectionCutBlocks();
+    const blockNoteSelection = editor.getSelection();
     const JSONString = JSON.stringify(blockNoteSelection);
 
     ret += JSONString + "\n";
@@ -52,17 +50,15 @@ export const testIncrementSelectionEnd = async <
   (window as any).__TEST_OPTIONS.mockID = 0;
   editor.replaceBlocks(editor.document, testCase.document);
 
-  const size = editor._tiptapEditor.state.doc.content.size;
+  const size = editor.transact((tr) => tr.doc.content.size);
   let ret = "";
 
   for (let i = 0; i < size; i++) {
     editor.transact((tr) =>
-      tr.setSelection(
-        TextSelection.create(editor._tiptapEditor.state.doc, 0, i),
-      ),
+      tr.setSelection(TextSelection.create(tr.doc, 0, i)),
     );
 
-    const blockNoteSelection = editor.getSelectionCutBlocks();
+    const blockNoteSelection = editor.getSelection();
     const JSONString = JSON.stringify(blockNoteSelection);
 
     ret += JSONString + "\n";

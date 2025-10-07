@@ -7,10 +7,7 @@ import {
   TestStyleSchema,
 } from "../../testSchema.js";
 import { GetSelectionTestCase } from "../../../shared/selection/getSelection/getSelectionTestCase.js";
-import {
-  testGetSelectionRegular,
-  testGetSelectionCutBlocks,
-} from "../../../shared/selection/getSelection/getSelectionTestExecutors.js";
+import { testGetSelectionRegular } from "../../../shared/selection/getSelection/getSelectionTestExecutors.js";
 import {
   getPosOfTableCellNode,
   getPosOfTextNode,
@@ -392,22 +389,6 @@ export const getSelectionTestInstancesRegular: TestInstance<
     },
     executeTest: testGetSelectionRegular,
   },
-];
-
-export const getSelectionTestInstancesCutblocks: TestInstance<
-  GetSelectionTestCase<
-    TestBlockSchema,
-    TestInlineContentSchema,
-    TestStyleSchema
-  >,
-  TestBlockSchema,
-  TestInlineContentSchema,
-  TestStyleSchema
->[] = [
-  // ...getSelectionTestInstances.map(({ testCase }) => ({
-  //   testCase,
-  //   executeTest: testGetSelection,
-  // })),
   {
     testCase: {
       name: "singleBlockWithOffsets",
@@ -424,7 +405,7 @@ export const getSelectionTestInstancesCutblocks: TestInstance<
         return TextSelection.create(doc, startPos + 1, endPos - 1);
       },
     },
-    executeTest: testGetSelectionCutBlocks,
+    executeTest: testGetSelectionRegular,
   },
   {
     testCase: {
@@ -446,7 +427,7 @@ export const getSelectionTestInstancesCutblocks: TestInstance<
         return TextSelection.create(doc, startPos + 1, endPos - 1);
       },
     },
-    executeTest: testGetSelectionCutBlocks,
+    executeTest: testGetSelectionRegular,
   },
   {
     testCase: {
@@ -470,7 +451,7 @@ export const getSelectionTestInstancesCutblocks: TestInstance<
         return TextSelection.create(doc, startPos + 1, endPos - 1);
       },
     },
-    executeTest: testGetSelectionCutBlocks,
+    executeTest: testGetSelectionRegular,
   },
   {
     testCase: {
@@ -498,7 +479,7 @@ export const getSelectionTestInstancesCutblocks: TestInstance<
         return TextSelection.create(doc, startPos + 1, endPos - 1);
       },
     },
-    executeTest: testGetSelectionCutBlocks,
+    executeTest: testGetSelectionRegular,
   },
   {
     testCase: {
@@ -522,7 +503,7 @@ export const getSelectionTestInstancesCutblocks: TestInstance<
         return TextSelection.create(doc, startPos + 1, endPos - 1);
       },
     },
-    executeTest: testGetSelectionCutBlocks,
+    executeTest: testGetSelectionRegular,
   },
   {
     testCase: {
@@ -550,7 +531,7 @@ export const getSelectionTestInstancesCutblocks: TestInstance<
         return TextSelection.create(doc, startPos + 1, endPos - 1);
       },
     },
-    executeTest: testGetSelectionCutBlocks,
+    executeTest: testGetSelectionRegular,
   },
   {
     testCase: {
@@ -584,7 +565,7 @@ export const getSelectionTestInstancesCutblocks: TestInstance<
         return TextSelection.create(doc, startPos + 1, endPos - 1);
       },
     },
-    executeTest: testGetSelectionCutBlocks,
+    executeTest: testGetSelectionRegular,
   },
   {
     testCase: {
@@ -612,7 +593,7 @@ export const getSelectionTestInstancesCutblocks: TestInstance<
         return TextSelection.create(doc, startPos + 1, endPos - 1);
       },
     },
-    executeTest: testGetSelectionCutBlocks,
+    executeTest: testGetSelectionRegular,
   },
   {
     testCase: {
@@ -654,6 +635,6 @@ export const getSelectionTestInstancesCutblocks: TestInstance<
         return TextSelection.create(doc, startPos + 1, endPos - 1);
       },
     },
-    executeTest: testGetSelectionCutBlocks,
+    executeTest: testGetSelectionRegular,
   },
 ];

@@ -29,14 +29,12 @@ function getStreamTools<
   onBlockUpdate?: (blockId: string) => void,
 ): StreamToolsResult<string, T> {
   if (typeof selectionInfo === "boolean") {
-    const selection = selectionInfo
-      ? editor.getSelectionCutBlocks()
-      : undefined;
+    const selection = selectionInfo ? editor.getSelection() : undefined;
 
     selectionInfo = selection
       ? {
-          from: selection._meta.startPos,
-          to: selection._meta.endPos,
+          from: selection.meta.from,
+          to: selection.meta.to,
         }
       : undefined;
   }
