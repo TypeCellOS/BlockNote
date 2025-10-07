@@ -97,7 +97,7 @@
     "@ai-sdk/anthropic": "^2.0.9",
     "@ai-sdk/google": "^2.0.11",
     "@mswjs/interceptors": "^0.37.5",
-    "@types/diff": "^6.0.0",
+    "@types/diff": "^8.0.0",
     "@types/json-diff": "^1.0.3",
     "@types/json-schema": "^7.0.15",
     "@types/lodash.isequal": "^4.5.8",
