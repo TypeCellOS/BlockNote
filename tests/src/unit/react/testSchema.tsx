@@ -1,10 +1,7 @@
 import {
   BlockNoteSchema,
   createPageBreakBlockSpec,
-  defaultBlockSpecs,
-  defaultInlineContentSpecs,
   defaultProps,
-  defaultStyleSpecs,
 } from "@blocknote/core";
 import {
   createReactBlockSpec,
@@ -15,7 +12,7 @@ import { createContext, useContext } from "react";
 
 // BLOCKS ----------------------------------------------------------------------
 
-const CustomParagraph = createReactBlockSpec(
+const createCustomParagraph = createReactBlockSpec(
   {
     type: "customParagraph",
     propSchema: defaultProps,
@@ -31,7 +28,7 @@ const CustomParagraph = createReactBlockSpec(
   },
 );
 
-const SimpleCustomParagraph = createReactBlockSpec(
+const createSimpleCustomParagraph = createReactBlockSpec(
   {
     type: "simpleCustomParagraph",
     propSchema: defaultProps,
@@ -55,7 +52,7 @@ const ContextParagraphComponent = (props: any) => {
   return <div ref={props.contentRef} />;
 };
 
-const ContextParagraph = createReactBlockSpec(
+const createContextParagraph = createReactBlockSpec(
   {
     type: "contextParagraph",
     propSchema: defaultProps,
@@ -165,21 +162,18 @@ const FontSize = createReactStyleSpec(
 
 // SCHEMA ----------------------------------------------------------------------
 
-export const testSchema = BlockNoteSchema.create({
+export const testSchema = BlockNoteSchema.create().extend({
   blockSpecs: {
-    ...defaultBlockSpecs,
     pageBreak: createPageBreakBlockSpec(),
-    customParagraph: CustomParagraph(),
-    simpleCustomParagraph: SimpleCustomParagraph(),
-    contextParagraph: ContextParagraph(),
+    customParagraph: createCustomParagraph(),
+    simpleCustomParagraph: createSimpleCustomParagraph(),
+    contextParagraph: createContextParagraph(),
   },
   inlineContentSpecs: {
-    ...defaultInlineContentSpecs,
     mention: Mention,
     tag: Tag,
   },
   styleSpecs: {
-    ...defaultStyleSpecs,
     small: Small,
     fontSize: FontSize,
   },

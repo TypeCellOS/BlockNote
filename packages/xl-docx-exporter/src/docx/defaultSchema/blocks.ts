@@ -192,6 +192,18 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
       children: [new PageBreak()],
     });
   },
+  divider: () => {
+    return new Paragraph({
+      border: {
+        top: {
+          color: "auto",
+          space: 1,
+          style: "single",
+          size: 1,
+        },
+      },
+    });
+  },
   column: (block, _exporter, _nestingLevel, _numberedListIndex, children) => {
     return new TableCell({
       width: {

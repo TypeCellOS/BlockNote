@@ -1,6 +1,8 @@
+import { Chat } from "@ai-sdk/react";
 import {
   BlockNoteEditor,
   BlockNoteExtension,
+  getNodeById,
   UnreachableCaseError,
 } from "@blocknote/core";
 import {
@@ -8,18 +10,20 @@ import {
   revertSuggestions,
   suggestChanges,
 } from "@blocknote/prosemirror-suggest-changes";
-import { APICallError, LanguageModel, RetryError } from "ai";
+import { UIMessage } from "ai";
+import { Fragment, Slice } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { fixTablesKey } from "prosemirror-tables";
 import { createStore, StoreApi } from "zustand/vanilla";
-import { doLLMRequest, LLMRequestOptions } from "./api/LLMRequest.js";
-import { LLMResponse } from "./api/LLMResponse.js";
-import { PromptBuilder } from "./api/formats/PromptBuilder.js";
-import { LLMFormat, llmFormats } from "./api/index.js";
-import { createAgentCursorPlugin } from "./plugins/AgentCursorPlugin.js";
-import { Fragment, Slice } from "prosemirror-model";
 
-type MakeOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+import {
+  aiDocumentFormats,
+  buildAIRequest,
+  defaultAIRequestSender,
+  executeAIRequest,
+} from "./api/index.js";
+import { createAgentCursorPlugin } from "./plugins/AgentCursorPlugin.js";
+import { AIRequestHelpers, InvokeAIOptions } from "./types.js";
 
 type ReadonlyStoreApi<T> = Pick<
   StoreApi<T>,
@@ -50,43 +54,20 @@ type AIPluginState = {
           }
       ))
     | "closed";
-
-  /**
-   * The previous response from the LLM, used for multi-step LLM calls
-   */
-  llmResponse?: LLMResponse;
-};
-
-/**
- * configuration options for LLM calls that are shared across all calls by default
- */
-type GlobalLLMRequestOptions = {
-  /**
-   * The default language model to use for LLM calls
-   */
-  model: LanguageModel;
-  /**
-   * Whether to stream the LLM response
-   * @default true
-   */
-  stream?: boolean;
-  /**
-   * The default data format to use for LLM calls
-   * html format is recommended, the other formats are experimental
-   * @default llmFormats.html
-   */
-  dataFormat?: LLMFormat;
-  /**
-   * A function that can be used to customize the prompt sent to the LLM
-   * @default the default prompt builder for the selected {@link dataFormat}
-   */
-  promptBuilder?: PromptBuilder;
 };
 
 const PLUGIN_KEY = new PluginKey(`blocknote-ai-plugin`);
 
 export class AIExtension extends BlockNoteExtension {
-  private previousRequestOptions: LLMRequestOptions | undefined;
+  private chatSession:
+    | {
+        previousRequestOptions: InvokeAIOptions;
+        chat: Chat<UIMessage>;
+      }
+    | undefined;
+
+  private scrollInProgress = false;
+  private autoScroll = false;
 
   public static key(): string {
     return "ai";
@@ -107,14 +88,10 @@ export class AIExtension extends BlockNoteExtension {
 
   /**
    * Returns a zustand store with the global configuration of the AI Extension.
-   * These options are used by default across all LLM calls when calling {@link doLLMRequest}
+   * These options are used by default across all LLM calls when calling {@link executeLLMRequest}
    */
   public readonly options: ReturnType<
-    ReturnType<
-      typeof createStore<
-        MakeOptional<Required<GlobalLLMRequestOptions>, "promptBuilder">
-      >
-    >
+    ReturnType<typeof createStore<AIRequestHelpers>>
   >;
 
   /**
@@ -122,7 +99,7 @@ export class AIExtension extends BlockNoteExtension {
    */
   constructor(
     public readonly editor: BlockNoteEditor<any, any, any>,
-    options: GlobalLLMRequestOptions & {
+    options: AIRequestHelpers & {
       /**
        * The name and color of the agent cursor
        *
@@ -133,11 +110,7 @@ export class AIExtension extends BlockNoteExtension {
   ) {
     super();
 
-    this.options = createStore<
-      MakeOptional<Required<GlobalLLMRequestOptions>, "promptBuilder">
-    >()((_set) => ({
-      dataFormat: llmFormats.html,
-      stream: true,
+    this.options = createStore<AIRequestHelpers>()((_set) => ({
       ...options,
     }));
 
@@ -165,6 +138,31 @@ export class AIExtension extends BlockNoteExtension {
         options.agentCursor || { name: "AI", color: "#8bc6ff" },
       ),
     );
+
+    // Listens for `scroll` and `scrollend` events to see if a new scroll was
+    // started before an existing one ended. This is the most reliable way we
+    // have of checking if a scroll event was caused by the user and not by
+    // `scrollIntoView`, as the events are otherwise indistinguishable. If a
+    // scroll was started before an existing one finished (meaning the user has
+    // scrolled), auto scrolling is disabled.
+    document.addEventListener(
+      "scroll",
+      () => {
+        if (this.scrollInProgress) {
+          this.autoScroll = false;
+        }
+
+        this.scrollInProgress = true;
+      },
+      true,
+    );
+    document.addEventListener(
+      "scrollend",
+      () => {
+        this.scrollInProgress = false;
+      },
+      true,
+    );
   }
 
   /**
@@ -179,17 +177,22 @@ export class AIExtension extends BlockNoteExtension {
         status: "user-input",
       },
     });
+
+    // Scrolls to the block when the menu opens.
+    const blockElement = this.editor.domElement?.querySelector(
+      `[data-node-type="blockContainer"][data-id="${blockID}"]`,
+    );
+    blockElement?.scrollIntoView({ block: "center" });
   }
 
   /**
    * Close the AI menu
    */
   public closeAIMenu() {
-    this.previousRequestOptions = undefined;
     this._store.setState({
       aiMenuState: "closed",
-      llmResponse: undefined,
     });
+    this.chatSession = undefined;
     this.editor.setForceSelectionVisible(false);
     this.editor.isEditable = true;
     this.editor.focus();
@@ -267,32 +270,39 @@ export class AIExtension extends BlockNoteExtension {
    * Only valid if the current status is "error"
    */
   public async retry() {
-    const state = this.store.getState().aiMenuState;
+    const { aiMenuState } = this.store.getState();
     if (
-      state === "closed" ||
-      state.status !== "error" ||
-      !this.previousRequestOptions
+      aiMenuState === "closed" ||
+      aiMenuState.status !== "error" ||
+      !this.chatSession
     ) {
       throw new Error("retry() is only valid when a previous response failed");
     }
-    if (
-      state.error instanceof APICallError ||
-      state.error instanceof RetryError
-    ) {
-      // retry the previous call as-is, as there was a network error
-      return this.callLLM(this.previousRequestOptions);
+
+    /*
+    Design decisions:
+    - we cannot use chat.regenerate() because the document might have been updated already by toolcalls that failed mid-way
+    - we also cannot revert the document changes and use chat.regenerate(), 
+      because we might want to retry a subsequent user-direction that failed, not the original one
+    - this means we always need to send the new document state to the LLM
+    - an alternative would be to take a snapshot of the document before the LLM call, and revert to that specific state
+      when a call fails
+    */
+
+    if (this.chatSession?.chat.status === "error") {
+      // the LLM call failed (i.e. a network error)
+      // console.log("retry failed LLM call", this.chatSession.chat.error);
+      return this.invokeAI({
+        ...this.chatSession.previousRequestOptions,
+        userPrompt: `An error occured in the previous request. Please retry to accomplish the last user prompt.`,
+      });
     } else {
       // an error occurred while parsing / executing the previous LLM call
       // give the LLM a chance to fix the error
-      // (Possible improvement: maybe this should be a system prompt instead of the userPrompt)
-      const errorMessage =
-        state.error instanceof Error
-          ? state.error.message
-          : String(state.error);
-
-      return this.callLLM({
-        userPrompt: `An error occured: ${errorMessage}
-            Please retry the previous user request.`,
+      // console.log("retry failed tool execution");
+      return this.invokeAI({
+        ...this.chatSession.previousRequestOptions,
+        userPrompt: `An error occured while executing the previous tool call. Please retry to accomplish the last user prompt.`,
       });
     }
   }
@@ -302,7 +312,7 @@ export class AIExtension extends BlockNoteExtension {
    *
    * @warning This method should usually only be used for advanced use-cases
    * if you want to implement how an LLM call is executed. Usually, you should
-   * use {@link doLLMRequest} instead which will handle the status updates for you.
+   * use {@link executeLLMRequest} instead which will handle the status updates for you.
    */
   public setAIResponseStatus(
     status:
@@ -317,7 +327,7 @@ export class AIExtension extends BlockNoteExtension {
   ) {
     const aiMenuState = this.store.getState().aiMenuState;
     if (aiMenuState === "closed") {
-      return; // TODO: log error?
+      return;
     }
 
     if (status === "ai-writing") {
@@ -346,28 +356,57 @@ export class AIExtension extends BlockNoteExtension {
   }
 
   /**
+   * @deprecated Use {@link invokeAI} instead
+   */
+  public async callLLM(opts: InvokeAIOptions) {
+    return this.invokeAI(opts);
+  }
+
+  /**
    * Execute a call to an LLM and apply the result to the editor
    */
-  public async callLLM(opts: MakeOptional<LLMRequestOptions, "model">) {
+  public async invokeAI(opts: InvokeAIOptions) {
     this.setAIResponseStatus("thinking");
     this.editor.forkYDocPlugin?.fork();
 
-    let ret: LLMResponse | undefined;
     try {
-      const requestOptions = {
-        ...this.options.getState(),
-        ...opts,
-        previousResponse: this.store.getState().llmResponse,
-      };
-      this.previousRequestOptions = requestOptions;
+      if (!this.chatSession) {
+        // note: in the current implementation opts.transport is only used when creating a new chat
+        // (so changing transport for a subsequent call in the same chat-session is not supported)
+        this.chatSession = {
+          previousRequestOptions: opts,
+          chat: new Chat<UIMessage>({
+            sendAutomaticallyWhen: () => false,
+            transport: opts.transport || this.options.getState().transport,
+          }),
+        };
+      } else {
+        this.chatSession.previousRequestOptions = opts;
+      }
+      const chat = this.chatSession.chat;
 
-      ret = await doLLMRequest(this.editor, {
-        ...requestOptions,
-        onStart: () => {
-          this.setAIResponseStatus("ai-writing");
-          opts.onStart?.();
-        },
-        onBlockUpdate: (blockId: string) => {
+      // merge the global options with the local options
+      const globalOpts = this.options.getState();
+      opts = {
+        ...globalOpts,
+        ...opts,
+      } as InvokeAIOptions;
+
+      const sender =
+        opts.aiRequestSender ??
+        defaultAIRequestSender(
+          aiDocumentFormats.html.defaultPromptBuilder,
+          aiDocumentFormats.html.defaultPromptInputDataBuilder,
+        );
+
+      const aiRequest = buildAIRequest({
+        editor: this.editor,
+        chat,
+        userPrompt: opts.userPrompt,
+        useSelection: opts.useSelection,
+        deleteEmptyCursorBlock: opts.deleteEmptyCursorBlock,
+        streamToolsProvider: opts.streamToolsProvider,
+        onBlockUpdated: (blockId) => {
           // NOTE: does this setState with an anon object trigger unnecessary re-renders?
           this._store.setState({
             aiMenuState: {
@@ -375,28 +414,56 @@ export class AIExtension extends BlockNoteExtension {
               status: "ai-writing",
             },
           });
-          opts.onBlockUpdate?.(blockId);
+
+          // Scrolls to the block being edited by the AI while auto scrolling is
+          // enabled.
+          if (!this.autoScroll) {
+            return;
+          }
+
+          const aiMenuState = this._store.getState().aiMenuState;
+          const aiMenuOpenState =
+            aiMenuState === "closed" ? undefined : aiMenuState;
+          if (!aiMenuOpenState || aiMenuOpenState.status !== "ai-writing") {
+            return;
+          }
+
+          const nodeInfo = getNodeById(
+            aiMenuOpenState.blockId,
+            this.editor.prosemirrorState.doc,
+          );
+          if (!nodeInfo) {
+            return;
+          }
+
+          const blockElement = this.editor.prosemirrorView.domAtPos(
+            nodeInfo.posBeforeNode + 1,
+          );
+          (blockElement.node as HTMLElement).scrollIntoView({
+            block: "center",
+          });
         },
       });
 
-      this._store.setState({
-        llmResponse: ret,
+      await executeAIRequest({
+        aiRequest,
+        sender,
+        chatRequestOptions: opts.chatRequestOptions,
+        onStart: () => {
+          this.autoScroll = true;
+          this.setAIResponseStatus("ai-writing");
+        },
       });
-
-      await ret.execute();
 
       this.setAIResponseStatus("user-reviewing");
     } catch (e) {
-      // TODO in error state, should we discard the forked document?
-
       this.setAIResponseStatus({
         status: "error",
         error: e,
       });
       // eslint-disable-next-line no-console
-      console.warn("Error calling LLM", e);
+      console.warn("Error calling LLM", e, this.chatSession?.chat.messages);
     }
-    return ret;
   }
 }
 

@@ -113,6 +113,8 @@ async function generateExampleGroupsData(projects: Project[]) {
       title: project.title,
       author: project.config.author,
       isPro: project.config.pro || false,
+      inTailwindApp: project.config.tailwind || false,
+      showStackBlitzLink: project.config.stackBlitz ?? true,
       pathFromRoot: project.pathFromRoot,
       files: Object.fromEntries(
         getProjectFiles(project).map((file) => [
@@ -134,6 +136,8 @@ export type ExampleGroupsData = {
     title: string;
     author: string;
     isPro: boolean;
+    inTailwindApp: boolean;
+    showStackBlitzLink: boolean;
     pathFromRoot: string;
     files: Record<string, string>;
   }[];

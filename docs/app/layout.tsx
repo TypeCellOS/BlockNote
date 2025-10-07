@@ -23,7 +23,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       <body className="flex min-h-screen flex-col [--spacing-fd-container:1566px]">
         <Banner
           height="24px"
-          className="whitespace-break-spaces bg-[#fef6d5] text-black"
+          className="z-[10000] whitespace-break-spaces bg-[#fef6d5] text-black"
         >
           🚀 BlockNote AI is here!{" "}
           <a href="/docs/features/ai" className="italic underline">

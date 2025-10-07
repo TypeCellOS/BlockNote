@@ -292,7 +292,7 @@ export class ServerBlockNoteEditor<
   public async tryParseMarkdownToBlocks(
     markdown: string,
   ): Promise<Block<BSchema, ISchema, SSchema>[]> {
-    return this._withJSDOM(() => {
+    return this._withJSDOM(async () => {
       return this.editor.tryParseMarkdownToBlocks(markdown);
     });
   }

@@ -245,6 +245,17 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
   },
   {
     testCase: {
+      name: "divider/basic",
+      content: [
+        {
+          type: "divider",
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
       name: "pageBreak/basic",
       content: [
         {
@@ -1624,6 +1635,34 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
               },
             },
           ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "image",
+      content: [
+        {
+          type: "image",
+          props: {
+            url: "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png",
+          },
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "video",
+      content: [
+        {
+          type: "video",
+          props: {
+            url: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm",
+          },
         },
       ],
     },

@@ -1,11 +1,12 @@
 import { Node, mergeAttributes } from "@tiptap/core";
 import { DOMParser, Fragment, Node as PMNode, Schema } from "prosemirror-model";
-import { TableView } from "prosemirror-tables";
+import { CellSelection, TableView } from "prosemirror-tables";
 import { NodeView } from "prosemirror-view";
 import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import {
   BlockConfig,
   createBlockSpecFromTiptapNode,
+  TableContent,
 } from "../../schema/index.js";
 import { mergeCSSClasses } from "../../util/browser.js";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
@@ -393,6 +394,60 @@ export const createTableBlockSpec = () =>
           TiptapTableCell,
           TiptapTableRow,
         ],
+      }),
+      // Extension for keyboard shortcut which deletes the table if it's empty
+      // and all cells are selected. Uses a separate extension as it needs
+      // priority over keyboard handlers in the `TableExtension`'s
+      // `tableEditing` plugin.
+      createBlockNoteExtension({
+        key: "table-keyboard-delete",
+        keyboardShortcuts: {
+          Backspace: ({ editor }) => {
+            if (!(editor.prosemirrorState.selection instanceof CellSelection)) {
+              return false;
+            }
+
+            const block = editor.getTextCursorPosition().block;
+            const content = block.content as TableContent<any, any>;
+
+            let numCells = 0;
+            for (const row of content.rows) {
+              for (const cell of row.cells) {
+                // Returns `false` if any cell isn't empty.
+                if (
+                  ("type" in cell && cell.content.length > 0) ||
+                  (!("type" in cell) && cell.length > 0)
+                ) {
+                  return false;
+                }
+
+                numCells++;
+              }
+            }
+
+            // Need to use ProseMirror API to check number of selected cells.
+            let selectionNumCells = 0;
+            editor.prosemirrorState.selection.forEachCell(() => {
+              selectionNumCells++;
+            });
+
+            if (selectionNumCells < numCells) {
+              return false;
+            }
+
+            editor.transact(() => {
+              const selectionBlock =
+                editor.getPrevBlock(block) || editor.getNextBlock(block);
+              if (selectionBlock) {
+                editor.setTextCursorPosition(block);
+              }
+
+              editor.removeBlocks([block]);
+            });
+
+            return true;
+          },
+        },
       }),
     ],
   );

@@ -45,8 +45,20 @@ body {
   color: var(--color-fd-primary);
 }
 
+#nd-nav {
+  z-index: 10000;
+}
+
 :focus-visible {
   box-shadow: unset !important;
+}
+
+.demo {
+  overflow: none;
+}
+
+.demo .bn-container {
+  position: relative;
 }
 
 .demo .bn-container:not(.bn-comment-editor),

@@ -16,11 +16,7 @@ export function getSimpleEditor() {
     ],
     trailingBlock: false,
     schema,
-    extensions: [
-      createAIExtension({
-        model: undefined as any,
-      }),
-    ],
+    extensions: [createAIExtension({})],
   });
   return editor;
 }
@@ -43,11 +39,7 @@ export function getSimpleEditorWithCursorBetweenBlocks() {
     ],
     trailingBlock: false,
     schema,
-    extensions: [
-      createAIExtension({
-        model: undefined as any,
-      }),
-    ],
+    extensions: [createAIExtension({})],
   });
   editor.setTextCursorPosition("ref2");
   return editor;

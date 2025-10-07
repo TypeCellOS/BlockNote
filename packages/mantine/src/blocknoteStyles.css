@@ -507,6 +507,7 @@
   box-shadow: var(--bn-shadow-medium);
   padding: 2px;
   width: 500px;
+  max-width: 100vw;
 }
 
 .bn-mantine .bn-panel .bn-tab-panel {

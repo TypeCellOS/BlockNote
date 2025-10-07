@@ -42,6 +42,10 @@
   gap: 0.5rem;
 }
 
+.bn-ariakit .bn-panel {
+  max-width: 100vw;
+}
+
 .bn-ariakit .bn-tab-panel {
   align-items: center;
   display: flex;
