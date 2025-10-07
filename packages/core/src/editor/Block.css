@@ -232,17 +232,13 @@ NESTED BLOCKS
 }
 
 /* Checked */
-.bn-block-content[data-content-type="checkListItem"] > div {
-  align-items: center;
-  display: flex;
-  justify-content: center;
-  min-width: 24px;
-  padding-right: 4px;
-}
-
-.bn-block-content[data-content-type="checkListItem"] > div > input {
-  margin: 0;
+.bn-block-content[data-content-type="checkListItem"] > input {
   cursor: pointer;
+  height: 24px;
+  margin-left: 4px;
+  margin-right: 8px;
+  margin-top: 0;
+  width: 12px;
 }
 
 .bn-block-content[data-content-type="checkListItem"][data-checked="true"]

@@ -75,7 +75,6 @@ export const createCheckListItemBlockSpec = createBlockSpec(
       getListItemContent(el, schema, "checkListItem"),
     render(block, editor) {
       const dom = document.createDocumentFragment();
-      const checkboxWrapper = document.createElement("div");
 
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
@@ -91,8 +90,7 @@ export const createCheckListItemBlockSpec = createBlockSpec(
       // schema.
       const paragraph = document.createElement("p");
 
-      checkboxWrapper.append(checkbox);
-      dom.appendChild(checkboxWrapper);
+      dom.appendChild(checkbox);
       dom.appendChild(paragraph);
 
       return {
