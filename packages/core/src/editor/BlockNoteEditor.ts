@@ -1577,9 +1577,11 @@ export class BlockNoteEditor<
    * A callback function that runs when the editor has been initialized.
    *
    * This can be useful for plugins to initialize themselves after the editor has been initialized.
+   *
+   * @param callback The callback to execute.
+   * @returns A function to remove the callback.
    */
   public onCreate(callback: () => void) {
-    // TODO I think this create handler is wrong actually...
     this.on("create", callback);
 
     return () => {
@@ -1587,6 +1589,42 @@ export class BlockNoteEditor<
     };
   }
 
+  /**
+   * A callback function that runs when the editor has been mounted.
+   *
+   * This can be useful for plugins to initialize themselves after the editor has been mounted.
+   *
+   * @param callback The callback to execute.
+   * @returns A function to remove the callback.
+   */
+  public onMount(
+    callback: (ctx: {
+      editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
+    }) => void,
+  ) {
+    this._eventManager.onMount(callback);
+  }
+
+  /**
+   * A callback function that runs when the editor has been unmounted.
+   *
+   * This can be useful for plugins to clean up themselves after the editor has been unmounted.
+   *
+   * @param callback The callback to execute.
+   * @returns A function to remove the callback.
+   */
+  public onUnmount(
+    callback: (ctx: {
+      editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
+    }) => void,
+  ) {
+    this._eventManager.onUnmount(callback);
+  }
+
+  /**
+   * Gets the bounding box of the current selection.
+   * @returns The bounding box of the current selection.
+   */
   public getSelectionBoundingBox() {
     return this._selectionManager.getSelectionBoundingBox();
   }
