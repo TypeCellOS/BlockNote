@@ -14,6 +14,7 @@ import {
   tableContentToNodes,
 } from "../../../nodeConversions/blockToNode.js";
 import { nodeToCustomInlineContent } from "../../../nodeConversions/nodeToBlock.js";
+import { partialBlockToBlock } from "../../../partialBlockToBlock.js";
 
 function addAttributesAndRemoveClasses(element: HTMLElement) {
   // Removes all BlockNote specific class names.
@@ -175,20 +176,12 @@ function serializeBlock<
   const doc = options?.document ?? document;
   const BC_NODE = editor.pmSchema.nodes["blockContainer"];
 
-  // set default props in case we were passed a partial block
-  const props = block.props || {};
-  for (const [name, spec] of Object.entries(
-    editor.schema.blockSchema[block.type as any].propSchema,
-  )) {
-    if (!(name in props) && spec.default !== undefined) {
-      (props as any)[name] = spec.default;
-    }
-  }
+  const fullBlock = partialBlockToBlock(block, editor);
 
   const bc = BC_NODE.spec?.toDOM?.(
     BC_NODE.create({
-      id: block.id,
-      ...props,
+      id: fullBlock.id,
+      ...fullBlock.props,
     }),
   ) as {
     dom: HTMLElement;
@@ -199,19 +192,14 @@ function serializeBlock<
   // we should change toExternalHTML so that this is not necessary
   const attrs = Array.from(bc.dom.attributes);
 
-  const blockImplementation = editor.blockImplementations[block.type as any]
+  const blockImplementation = editor.blockImplementations[fullBlock.type]
     .implementation as BlockImplementation;
   const ret =
     blockImplementation.toExternalHTML?.call(
       {},
-      { ...block, props } as any,
+      fullBlock as any,
       editor as any,
-    ) ||
-    blockImplementation.render.call(
-      {},
-      { ...block, props } as any,
-      editor as any,
-    );
+    ) || blockImplementation.render.call({}, fullBlock as any, editor as any);
 
   const elementFragment = doc.createDocumentFragment();
 
@@ -241,10 +229,10 @@ function serializeBlock<
     elementFragment.append(ret.dom);
   }
 
-  if (ret.contentDOM && block.content) {
+  if (ret.contentDOM && fullBlock.content) {
     const ic = serializeInlineContentExternalHTML(
       editor,
-      block.content as any, // TODO
+      fullBlock.content as any, // TODO
       serializer,
       options,
     );
@@ -253,9 +241,9 @@ function serializeBlock<
   }
 
   let listType = undefined;
-  if (orderedListItemBlockTypes.has(block.type!)) {
+  if (orderedListItemBlockTypes.has(fullBlock.type!)) {
     listType = "OL";
-  } else if (unorderedListItemBlockTypes.has(block.type!)) {
+  } else if (unorderedListItemBlockTypes.has(fullBlock.type!)) {
     listType = "UL";
   }
 
@@ -265,11 +253,11 @@ function serializeBlock<
 
       if (
         listType === "OL" &&
-        "start" in props &&
-        props.start &&
-        props?.start !== 1
+        "start" in fullBlock.props &&
+        fullBlock.props.start &&
+        fullBlock.props?.start !== 1
       ) {
-        list.setAttribute("start", props.start + "");
+        list.setAttribute("start", fullBlock.props.start + "");
       }
       fragment.append(list);
     }
@@ -278,12 +266,12 @@ function serializeBlock<
     fragment.append(elementFragment);
   }
 
-  if (block.children && block.children.length > 0) {
+  if (fullBlock.children && fullBlock.children.length > 0) {
     const childFragment = doc.createDocumentFragment();
     serializeBlocksToFragment(
       childFragment,
       editor,
-      block.children,
+      fullBlock.children,
       serializer,
       orderedListItemBlockTypes,
       unorderedListItemBlockTypes,
@@ -302,7 +290,7 @@ function serializeBlock<
       }
     }
 
-    if (editor.pmSchema.nodes[block.type as any].isInGroup("blockContent")) {
+    if (editor.pmSchema.nodes[fullBlock.type].isInGroup("blockContent")) {
       // default "blockContainer" style blocks are flattened (no "nested block" support) for externalHTML, so append the child fragment to the outer fragment
       fragment.append(childFragment);
     } else {

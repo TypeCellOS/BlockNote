@@ -12,8 +12,9 @@ import {
   inlineContentToNodes,
   tableContentToNodes,
 } from "../../../nodeConversions/blockToNode.js";
-
 import { nodeToCustomInlineContent } from "../../../nodeConversions/nodeToBlock.js";
+import { partialBlockToBlock } from "../../../partialBlockToBlock.js";
+
 export function serializeInlineContentInternalHTML<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -138,45 +139,36 @@ function serializeBlock<
 ) {
   const BC_NODE = editor.pmSchema.nodes["blockContainer"];
 
-  // set default props in case we were passed a partial block
-  const props = block.props || {};
-  for (const [name, spec] of Object.entries(
-    editor.schema.blockSchema[block.type as any].propSchema,
-  )) {
-    if (!(name in props) && spec.default !== undefined) {
-      (props as any)[name] = spec.default;
-    }
-  }
-  const children = block.children || [];
+  const fullBlock = partialBlockToBlock(block, editor);
 
-  const impl = editor.blockImplementations[block.type as any].implementation;
+  const impl = editor.blockImplementations[fullBlock.type].implementation;
   const ret = impl.render.call(
     {
       renderType: "dom",
       props: undefined,
     },
-    { ...block, props, children } as any,
+    fullBlock,
     editor as any,
   );
 
-  if (ret.contentDOM && block.content) {
+  if (ret.contentDOM && fullBlock.content) {
     const ic = serializeInlineContentInternalHTML(
       editor,
-      block.content as any, // TODO
+      fullBlock.content as any, // TODO
       serializer,
-      block.type,
+      fullBlock.type,
       options,
     );
     ret.contentDOM.appendChild(ic);
   }
 
-  const pmType = editor.pmSchema.nodes[block.type as any];
+  const pmType = editor.pmSchema.nodes[fullBlock.type as any];
 
   if (pmType.isInGroup("bnBlock")) {
-    if (block.children && block.children.length > 0) {
+    if (fullBlock.children && fullBlock.children.length > 0) {
       const fragment = serializeBlocks(
         editor,
-        block.children,
+        fullBlock.children,
         serializer,
         options,
       );
@@ -189,8 +181,8 @@ function serializeBlock<
   // wrap the block in a blockContainer
   const bc = BC_NODE.spec?.toDOM?.(
     BC_NODE.create({
-      id: block.id,
-      ...props,
+      id: fullBlock.id,
+      ...fullBlock.props,
     }),
   ) as {
     dom: HTMLElement;
@@ -199,9 +191,14 @@ function serializeBlock<
 
   bc.contentDOM?.appendChild(ret.dom);
 
-  if (block.children && block.children.length > 0) {
+  if (fullBlock.children && fullBlock.children.length > 0) {
     bc.contentDOM?.appendChild(
-      serializeBlocksInternalHTML(editor, block.children, serializer, options),
+      serializeBlocksInternalHTML(
+        editor,
+        fullBlock.children,
+        serializer,
+        options,
+      ),
     );
   }
   return bc.dom;

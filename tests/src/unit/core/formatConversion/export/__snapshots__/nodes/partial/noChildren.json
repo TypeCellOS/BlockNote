@@ -1,0 +1,18 @@
+[
+  {
+    "attrs": {
+      "id": "exportTestBlock",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "exportTestBlock",
+      },
+    ],
+    "type": "blockContainer",
+  },
+]
