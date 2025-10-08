@@ -8,46 +8,6 @@ exports[`creates json schema 1`] = `
         {
           "additionalProperties": false,
           "properties": {
-            "content": undefined,
-            "props": {
-              "additionalProperties": false,
-              "properties": {
-                "caption": {
-                  "enum": undefined,
-                  "type": "string",
-                },
-                "name": {
-                  "enum": undefined,
-                  "type": "string",
-                },
-                "showPreview": {
-                  "enum": undefined,
-                  "type": "boolean",
-                },
-                "url": {
-                  "enum": undefined,
-                  "type": "string",
-                },
-              },
-              "type": "object",
-            },
-            "type": {
-              "enum": [
-                "audio",
-                "image",
-                "video",
-              ],
-              "type": "string",
-            },
-          },
-          "required": [
-            "type",
-          ],
-          "type": "object",
-        },
-        {
-          "additionalProperties": false,
-          "properties": {
             "content": {
               "$ref": "#/$defs/inlinecontent",
             },
@@ -140,40 +100,6 @@ exports[`creates json schema 1`] = `
             "type": {
               "enum": [
                 "divider",
-              ],
-              "type": "string",
-            },
-          },
-          "required": [
-            "type",
-          ],
-          "type": "object",
-        },
-        {
-          "additionalProperties": false,
-          "properties": {
-            "content": undefined,
-            "props": {
-              "additionalProperties": false,
-              "properties": {
-                "caption": {
-                  "enum": undefined,
-                  "type": "string",
-                },
-                "name": {
-                  "enum": undefined,
-                  "type": "string",
-                },
-                "url": {
-                  "enum": undefined,
-                  "type": "string",
-                },
-              },
-              "type": "object",
-            },
-            "type": {
-              "enum": [
-                "file",
               ],
               "type": "string",
             },
