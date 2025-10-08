@@ -11,18 +11,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@blocknote/ariakit": "workspace:^",
-    "@blocknote/core": "workspace:^",
-    "@blocknote/mantine": "workspace:^",
-    "@blocknote/react": "workspace:^",
-    "@blocknote/shadcn": "workspace:^",
-    "@blocknote/xl-email-exporter": "workspace:^",
+    "@blocknote/ariakit": "latest",
+    "@blocknote/core": "latest",
+    "@blocknote/mantine": "latest",
+    "@blocknote/react": "latest",
+    "@blocknote/shadcn": "latest",
     "@mantine/core": "8.3.2",
     "@mantine/hooks": "8.3.2",
     "@mantine/utils": "^6.0.22",
-    "@react-email/render": "^1.3.2",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "@blocknote/xl-email-exporter": "latest",
+    "@react-email/render": "^1.1.2"
   },
   "devDependencies": {
     "@types/react": "^19.2.2",

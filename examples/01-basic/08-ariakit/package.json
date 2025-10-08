@@ -11,11 +11,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@blocknote/ariakit": "workspace:^",
-    "@blocknote/core": "workspace:^",
-    "@blocknote/mantine": "workspace:^",
-    "@blocknote/react": "workspace:^",
-    "@blocknote/shadcn": "workspace:^",
+    "@blocknote/ariakit": "latest",
+    "@blocknote/core": "latest",
+    "@blocknote/mantine": "latest",
+    "@blocknote/react": "latest",
+    "@blocknote/shadcn": "latest",
     "@mantine/core": "8.3.2",
     "@mantine/hooks": "8.3.2",
     "@mantine/utils": "^6.0.22",

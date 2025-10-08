@@ -73,7 +73,7 @@ importers:
         specifier: ^2.0.17
         version: 2.0.17(zod@3.25.76)
       '@ai-sdk/groq':
-        specifier: ^2.0.22
+        specifier: ^2.0.16
         version: 2.0.22(zod@3.25.76)
       '@ai-sdk/mistral':
         specifier: ^2.0.17
@@ -85,40 +85,40 @@ importers:
         specifier: ^1.0.19
         version: 1.0.19(zod@3.25.76)
       '@aws-sdk/client-s3':
-        specifier: ^3.901.0
+        specifier: ^3.609.0
         version: 3.901.0
       '@aws-sdk/s3-request-presigner':
-        specifier: ^3.901.0
+        specifier: ^3.609.0
         version: 3.901.0
       '@blocknote/code-block':
-        specifier: workspace:^
+        specifier: latest
         version: link:../packages/code-block
       '@blocknote/server-util':
-        specifier: workspace:^
+        specifier: latest
         version: link:../packages/server-util
       '@blocknote/xl-ai':
-        specifier: workspace:^
+        specifier: latest
         version: link:../packages/xl-ai
       '@blocknote/xl-docx-exporter':
-        specifier: workspace:^
+        specifier: latest
         version: link:../packages/xl-docx-exporter
       '@blocknote/xl-email-exporter':
-        specifier: workspace:^
+        specifier: latest
         version: link:../packages/xl-email-exporter
       '@blocknote/xl-multi-column':
-        specifier: workspace:^
+        specifier: latest
         version: link:../packages/xl-multi-column
       '@blocknote/xl-odt-exporter':
-        specifier: workspace:^
+        specifier: latest
         version: link:../packages/xl-odt-exporter
       '@blocknote/xl-pdf-exporter':
-        specifier: workspace:^
+        specifier: latest
         version: link:../packages/xl-pdf-exporter
       '@emotion/react':
-        specifier: ^11.14.0
+        specifier: ^11.11.4
         version: 11.14.0(@types/react@19.2.2)(react@19.2.0)
       '@emotion/styled':
-        specifier: ^11.14.1
+        specifier: ^11.11.5
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.0))(@types/react@19.2.2)(react@19.2.0)
       '@fumadocs/mdx-remote':
         specifier: 1.3.0
@@ -145,7 +145,7 @@ importers:
         specifier: 3.7.1-tiptap3
         version: 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.2.1(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@mantine/core':
-        specifier: 8.3.2
+        specifier: ^8.3.2
         version: 8.3.2(@mantine/hooks@8.3.2(react@19.2.0))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@mantine/hooks':
         specifier: 8.3.2
@@ -154,10 +154,10 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.0)
       '@mui/icons-material':
-        specifier: ^5.18.0
+        specifier: ^5.16.1
         version: 5.18.0(@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.0))(@types/react@19.2.2)(react@19.2.0))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(@types/react@19.2.2)(react@19.2.0)
       '@mui/material':
-        specifier: ^5.18.0
+        specifier: ^5.16.1
         version: 5.18.0(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.0))(@types/react@19.2.2)(react@19.2.0))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@polar-sh/better-auth':
         specifier: ^1.1.8
@@ -169,28 +169,28 @@ importers:
         specifier: ^0.34.17
         version: 0.34.17
       '@react-email/render':
-        specifier: ^1.3.2
+        specifier: ^1.1.2
         version: 1.3.2(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@react-pdf/renderer':
-        specifier: ^4.3.1
+        specifier: ^4.3.0
         version: 4.3.1(react@19.2.0)
       '@sentry/nextjs':
         specifier: 9.14.0
         version: 9.14.0(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(encoding@0.1.13)(next@15.5.1(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)(webpack@5.98.0)
       '@shikijs/core':
-        specifier: ^3.13.0
+        specifier: ^3.2.1
         version: 3.13.0
       '@shikijs/engine-javascript':
-        specifier: ^3.13.0
+        specifier: ^3.2.1
         version: 3.13.0
       '@shikijs/langs-precompiled':
-        specifier: ^3.13.0
+        specifier: ^3.2.1
         version: 3.13.0
       '@shikijs/themes':
-        specifier: ^3.13.0
+        specifier: ^3.2.1
         version: 3.13.0
       '@shikijs/types':
-        specifier: ^3.13.0
+        specifier: ^3.2.1
         version: 3.13.0
       '@tiptap/core':
         specifier: https://pkg.pr.new/@tiptap/core@5e777c9
@@ -220,13 +220,13 @@ importers:
         specifier: ^3.2.0
         version: 3.2.0(@uppy/core@3.13.1)
       '@uppy/status-bar':
-        specifier: ^3.3.3
+        specifier: ^3.1.1
         version: 3.3.3(@uppy/core@3.13.1)
       '@uppy/webcam':
         specifier: ^3.4.2
         version: 3.4.2(@uppy/core@3.13.1)
       '@uppy/xhr-upload':
-        specifier: ^3.6.8
+        specifier: ^3.4.0
         version: 3.6.8(@uppy/core@3.13.1)
       '@vercel/analytics':
         specifier: ^1.5.0
@@ -235,10 +235,10 @@ importers:
         specifier: ^0.6.8
         version: 0.6.8
       '@y-sweet/react':
-        specifier: ^0.6.4
+        specifier: ^0.6.3
         version: 0.6.4(react@19.2.0)(yjs@13.6.27)
       ai:
-        specifier: ^5.0.60
+        specifier: ^5.0.45
         version: 5.0.60(zod@3.25.76)
       babel-plugin-react-compiler:
         specifier: 19.1.0-rc.2
@@ -256,28 +256,28 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       docx:
-        specifier: ^9.5.1
+        specifier: ^9.0.2
         version: 9.5.1
       framer-motion:
         specifier: ^11.18.2
         version: 11.18.2(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       fumadocs-core:
-        specifier: ^15.8.4
+        specifier: ^15.5.4
         version: 15.8.4(@types/react@19.2.2)(lucide-react@0.525.0(react@19.2.0))(next@15.5.1(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       fumadocs-docgen:
-        specifier: ^2.1.0
+        specifier: ^2.0.1
         version: 2.1.0
       fumadocs-mdx:
-        specifier: ^11.10.1
+        specifier: ^11.6.9
         version: 11.10.1(@fumadocs/mdx-remote@1.3.0(fumadocs-core@15.8.4(@types/react@19.2.2)(lucide-react@0.525.0(react@19.2.0))(next@15.5.1(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0))(fumadocs-core@15.8.4(@types/react@19.2.2)(lucide-react@0.525.0(react@19.2.0))(next@15.5.1(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(next@15.5.1(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)(vite@6.3.6(@types/node@22.15.2)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1))
       fumadocs-twoslash:
-        specifier: ^3.1.8
+        specifier: ^3.1.4
         version: 3.1.8(@types/react-dom@19.2.1(@types/react@19.2.2))(@types/react@19.2.2)(fumadocs-ui@15.8.4(@types/react-dom@19.2.1(@types/react@19.2.2))(@types/react@19.2.2)(lucide-react@0.525.0(react@19.2.0))(next@15.5.1(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(tailwindcss@4.1.14))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)
       fumadocs-typescript:
-        specifier: ^4.0.11
+        specifier: ^4.0.6
         version: 4.0.11(@types/react@19.2.2)(fumadocs-core@15.8.4(@types/react@19.2.2)(lucide-react@0.525.0(react@19.2.0))(next@15.5.1(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(fumadocs-ui@15.8.4(@types/react-dom@19.2.1(@types/react@19.2.2))(@types/react@19.2.2)(lucide-react@0.525.0(react@19.2.0))(next@15.5.1(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(tailwindcss@4.1.14))(typescript@5.9.3)
       fumadocs-ui:
-        specifier: ^15.8.4
+        specifier: ^15.5.4
         version: 15.8.4(@types/react-dom@19.2.1(@types/react@19.2.2))(@types/react@19.2.2)(lucide-react@0.525.0(react@19.2.0))(next@15.5.1(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(tailwindcss@4.1.14)
       import-in-the-middle:
         specifier: ^1.14.4
@@ -304,7 +304,7 @@ importers:
         specifier: ^1.4.0
         version: 1.4.0(react@19.2.0)
       react-icons:
-        specifier: ^5.5.0
+        specifier: ^5.2.1
         version: 5.5.0(react@19.2.0)
       remark:
         specifier: ^15.0.1
@@ -337,7 +337,7 @@ importers:
         specifier: ^3.25.76
         version: 3.25.76
       zustand:
-        specifier: ^5.0.8
+        specifier: ^5.0.3
         version: 5.0.8(@types/react@19.2.2)(immer@10.1.3)(react@19.2.0)(use-sync-external-store@1.6.0(react@19.2.0))
     devDependencies:
       '@blocknote/ariakit':
@@ -407,19 +407,19 @@ importers:
   examples/01-basic/01-minimal:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -453,19 +453,19 @@ importers:
   examples/01-basic/02-block-objects:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -499,22 +499,22 @@ importers:
   examples/01-basic/03-multi-column:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@blocknote/xl-multi-column':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/xl-multi-column
       '@mantine/core':
         specifier: 8.3.2
@@ -548,19 +548,19 @@ importers:
   examples/01-basic/04-default-blocks:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -594,19 +594,19 @@ importers:
   examples/01-basic/05-removing-default-blocks:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -640,19 +640,19 @@ importers:
   examples/01-basic/06-block-manipulation:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -686,19 +686,19 @@ importers:
   examples/01-basic/07-selection-blocks:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -732,19 +732,19 @@ importers:
   examples/01-basic/08-ariakit:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -778,19 +778,19 @@ importers:
   examples/01-basic/09-shadcn:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -833,19 +833,19 @@ importers:
   examples/01-basic/10-localization:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -879,19 +879,19 @@ importers:
   examples/01-basic/11-custom-placeholder:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -925,19 +925,19 @@ importers:
   examples/01-basic/12-multi-editor:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -971,19 +971,19 @@ importers:
   examples/01-basic/13-custom-paste-handler:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -1017,19 +1017,19 @@ importers:
   examples/01-basic/testing:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -1063,19 +1063,19 @@ importers:
   examples/02-backend/01-file-uploading:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -1109,19 +1109,19 @@ importers:
   examples/02-backend/02-saving-loading:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -1155,25 +1155,25 @@ importers:
   examples/02-backend/03-s3:
     dependencies:
       '@aws-sdk/client-s3':
-        specifier: ^3.901.0
+        specifier: ^3.609.0
         version: 3.901.0
       '@aws-sdk/s3-request-presigner':
-        specifier: ^3.901.0
+        specifier: ^3.609.0
         version: 3.901.0
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -1207,22 +1207,22 @@ importers:
   examples/02-backend/04-rendering-static-documents:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/server-util':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/server-util
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -1256,19 +1256,19 @@ importers:
   examples/03-ui-components/01-ui-elements-remove:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -1302,19 +1302,19 @@ importers:
   examples/03-ui-components/02-formatting-toolbar-buttons:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -1348,22 +1348,22 @@ importers:
   examples/03-ui-components/03-formatting-toolbar-block-type-items:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: 8.3.2
+        specifier: ^8.3.2
         version: 8.3.2(@mantine/hooks@8.3.2(react@19.2.0))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@mantine/hooks':
         specifier: 8.3.2
@@ -1378,7 +1378,7 @@ importers:
         specifier: ^19.2.0
         version: 19.2.0(react@19.2.0)
       react-icons:
-        specifier: ^5.5.0
+        specifier: ^5.2.1
         version: 5.5.0(react@19.2.0)
     devDependencies:
       '@types/react':
@@ -1397,19 +1397,19 @@ importers:
   examples/03-ui-components/04-side-menu-buttons:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -1427,7 +1427,7 @@ importers:
         specifier: ^19.2.0
         version: 19.2.0(react@19.2.0)
       react-icons:
-        specifier: ^5.5.0
+        specifier: ^5.2.1
         version: 5.5.0(react@19.2.0)
     devDependencies:
       '@types/react':
@@ -1446,19 +1446,19 @@ importers:
   examples/03-ui-components/05-side-menu-drag-handle-items:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -1476,7 +1476,7 @@ importers:
         specifier: ^19.2.0
         version: 19.2.0(react@19.2.0)
       react-icons:
-        specifier: ^5.5.0
+        specifier: ^5.2.1
         version: 5.5.0(react@19.2.0)
     devDependencies:
       '@types/react':
@@ -1495,19 +1495,19 @@ importers:
   examples/03-ui-components/06-suggestion-menus-slash-menu-items:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -1525,7 +1525,7 @@ importers:
         specifier: ^19.2.0
         version: 19.2.0(react@19.2.0)
       react-icons:
-        specifier: ^5.5.0
+        specifier: ^5.2.1
         version: 5.5.0(react@19.2.0)
     devDependencies:
       '@types/react':
@@ -1544,19 +1544,19 @@ importers:
   examples/03-ui-components/07-suggestion-menus-slash-menu-component:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -1590,19 +1590,19 @@ importers:
   examples/03-ui-components/08-suggestion-menus-emoji-picker-columns:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -1636,19 +1636,19 @@ importers:
   examples/03-ui-components/09-suggestion-menus-emoji-picker-component:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -1682,19 +1682,19 @@ importers:
   examples/03-ui-components/10-suggestion-menus-grid-mentions:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -1728,19 +1728,19 @@ importers:
   examples/03-ui-components/11-uppy-file-panel:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -1776,13 +1776,13 @@ importers:
         specifier: ^3.2.0
         version: 3.2.0(@uppy/core@3.13.1)
       '@uppy/status-bar':
-        specifier: ^3.3.3
+        specifier: ^3.1.1
         version: 3.3.3(@uppy/core@3.13.1)
       '@uppy/webcam':
         specifier: ^3.4.2
         version: 3.4.2(@uppy/core@3.13.1)
       '@uppy/xhr-upload':
-        specifier: ^3.6.8
+        specifier: ^3.4.0
         version: 3.6.8(@uppy/core@3.13.1)
       react:
         specifier: ^19.2.0
@@ -1791,7 +1791,7 @@ importers:
         specifier: ^19.2.0
         version: 19.2.0(react@19.2.0)
       react-icons:
-        specifier: ^5.5.0
+        specifier: ^5.2.1
         version: 5.5.0(react@19.2.0)
     devDependencies:
       '@types/react':
@@ -1810,19 +1810,19 @@ importers:
   examples/03-ui-components/12-static-formatting-toolbar:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -1856,25 +1856,25 @@ importers:
   examples/03-ui-components/13-custom-ui:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@emotion/react':
-        specifier: ^11.14.0
+        specifier: ^11.11.4
         version: 11.14.0(@types/react@19.2.2)(react@19.2.0)
       '@emotion/styled':
-        specifier: ^11.14.1
+        specifier: ^11.11.5
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.0))(@types/react@19.2.2)(react@19.2.0)
       '@mantine/core':
         specifier: 8.3.2
@@ -1886,10 +1886,10 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.0)
       '@mui/icons-material':
-        specifier: ^5.18.0
+        specifier: ^5.16.1
         version: 5.18.0(@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.0))(@types/react@19.2.2)(react@19.2.0))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(@types/react@19.2.2)(react@19.2.0)
       '@mui/material':
-        specifier: ^5.18.0
+        specifier: ^5.16.1
         version: 5.18.0(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.0))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.0))(@types/react@19.2.2)(react@19.2.0))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       react:
         specifier: ^19.2.0
@@ -1914,19 +1914,19 @@ importers:
   examples/03-ui-components/14-experimental-mobile-formatting-toolbar:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -1960,19 +1960,19 @@ importers:
   examples/03-ui-components/15-advanced-tables:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -2006,19 +2006,19 @@ importers:
   examples/03-ui-components/16-link-toolbar-buttons:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -2052,19 +2052,19 @@ importers:
   examples/03-ui-components/17-advanced-tables-2:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -2098,19 +2098,19 @@ importers:
   examples/04-theming/01-theming-dom-attributes:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -2144,19 +2144,19 @@ importers:
   examples/04-theming/02-changing-font:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -2190,19 +2190,19 @@ importers:
   examples/04-theming/03-theming-css:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -2236,19 +2236,19 @@ importers:
   examples/04-theming/04-theming-css-variables:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -2282,19 +2282,19 @@ importers:
   examples/04-theming/05-theming-css-variables-code:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -2328,22 +2328,22 @@ importers:
   examples/04-theming/06-code-block:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/code-block':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/code-block
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -2377,22 +2377,22 @@ importers:
   examples/04-theming/07-custom-code-block:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/code-block':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/code-block
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -2404,19 +2404,19 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.0)
       '@shikijs/core':
-        specifier: ^3.13.0
+        specifier: ^3.2.1
         version: 3.13.0
       '@shikijs/engine-javascript':
-        specifier: ^3.13.0
+        specifier: ^3.2.1
         version: 3.13.0
       '@shikijs/langs-precompiled':
-        specifier: ^3.13.0
+        specifier: ^3.2.1
         version: 3.13.0
       '@shikijs/themes':
-        specifier: ^3.13.0
+        specifier: ^3.2.1
         version: 3.13.0
       '@shikijs/types':
-        specifier: ^3.13.0
+        specifier: ^3.2.1
         version: 3.13.0
       react:
         specifier: ^19.2.0
@@ -2441,19 +2441,19 @@ importers:
   examples/05-interoperability/01-converting-blocks-to-html:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -2487,19 +2487,19 @@ importers:
   examples/05-interoperability/02-converting-blocks-from-html:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -2533,19 +2533,19 @@ importers:
   examples/05-interoperability/03-converting-blocks-to-md:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -2579,19 +2579,19 @@ importers:
   examples/05-interoperability/04-converting-blocks-from-md:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -2625,25 +2625,25 @@ importers:
   examples/05-interoperability/05-converting-blocks-to-pdf:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@blocknote/xl-multi-column':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/xl-multi-column
       '@blocknote/xl-pdf-exporter':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/xl-pdf-exporter
       '@mantine/core':
         specifier: 8.3.2
@@ -2655,7 +2655,7 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.0)
       '@react-pdf/renderer':
-        specifier: ^4.3.1
+        specifier: ^4.3.0
         version: 4.3.1(react@19.2.0)
       react:
         specifier: ^19.2.0
@@ -2680,25 +2680,25 @@ importers:
   examples/05-interoperability/06-converting-blocks-to-docx:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@blocknote/xl-docx-exporter':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/xl-docx-exporter
       '@blocknote/xl-multi-column':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/xl-multi-column
       '@mantine/core':
         specifier: 8.3.2
@@ -2710,7 +2710,7 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.0)
       docx:
-        specifier: ^9.5.1
+        specifier: ^9.0.2
         version: 9.5.1
       react:
         specifier: ^19.2.0
@@ -2735,25 +2735,25 @@ importers:
   examples/05-interoperability/07-converting-blocks-to-odt:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@blocknote/xl-multi-column':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/xl-multi-column
       '@blocknote/xl-odt-exporter':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/xl-odt-exporter
       '@mantine/core':
         specifier: 8.3.2
@@ -2787,22 +2787,22 @@ importers:
   examples/05-interoperability/08-converting-blocks-to-react-email:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@blocknote/xl-email-exporter':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/xl-email-exporter
       '@mantine/core':
         specifier: 8.3.2
@@ -2814,7 +2814,7 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.0)
       '@react-email/render':
-        specifier: ^1.3.2
+        specifier: ^1.1.2
         version: 1.3.2(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       react:
         specifier: ^19.2.0
@@ -2839,22 +2839,22 @@ importers:
   examples/06-custom-schema/01-alert-block:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: 8.3.2
+        specifier: ^8.3.2
         version: 8.3.2(@mantine/hooks@8.3.2(react@19.2.0))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@mantine/hooks':
         specifier: 8.3.2
@@ -2869,7 +2869,7 @@ importers:
         specifier: ^19.2.0
         version: 19.2.0(react@19.2.0)
       react-icons:
-        specifier: ^5.5.0
+        specifier: ^5.2.1
         version: 5.5.0(react@19.2.0)
     devDependencies:
       '@types/react':
@@ -2888,19 +2888,19 @@ importers:
   examples/06-custom-schema/02-suggestion-menus-mentions:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -2934,19 +2934,19 @@ importers:
   examples/06-custom-schema/03-font-style:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -2964,7 +2964,7 @@ importers:
         specifier: ^19.2.0
         version: 19.2.0(react@19.2.0)
       react-icons:
-        specifier: ^5.5.0
+        specifier: ^5.2.1
         version: 5.5.0(react@19.2.0)
     devDependencies:
       '@types/react':
@@ -2983,22 +2983,22 @@ importers:
   examples/06-custom-schema/04-pdf-file-block:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: 8.3.2
+        specifier: ^8.3.2
         version: 8.3.2(@mantine/hooks@8.3.2(react@19.2.0))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@mantine/hooks':
         specifier: 8.3.2
@@ -3013,7 +3013,7 @@ importers:
         specifier: ^19.2.0
         version: 19.2.0(react@19.2.0)
       react-icons:
-        specifier: ^5.5.0
+        specifier: ^5.2.1
         version: 5.5.0(react@19.2.0)
     devDependencies:
       '@types/react':
@@ -3032,22 +3032,22 @@ importers:
   examples/06-custom-schema/05-alert-block-full-ux:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: 8.3.2
+        specifier: ^8.3.2
         version: 8.3.2(@mantine/hooks@8.3.2(react@19.2.0))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@mantine/hooks':
         specifier: 8.3.2
@@ -3062,7 +3062,7 @@ importers:
         specifier: ^19.2.0
         version: 19.2.0(react@19.2.0)
       react-icons:
-        specifier: ^5.5.0
+        specifier: ^5.2.1
         version: 5.5.0(react@19.2.0)
     devDependencies:
       '@types/react':
@@ -3081,19 +3081,19 @@ importers:
   examples/06-custom-schema/06-toggleable-blocks:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -3127,19 +3127,19 @@ importers:
   examples/06-custom-schema/draggable-inline-content:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -3173,19 +3173,19 @@ importers:
   examples/06-custom-schema/react-custom-blocks:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -3219,19 +3219,19 @@ importers:
   examples/06-custom-schema/react-custom-inline-content:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -3265,19 +3265,19 @@ importers:
   examples/06-custom-schema/react-custom-styles:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -3311,19 +3311,19 @@ importers:
   examples/07-collaboration/01-partykit:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -3363,19 +3363,19 @@ importers:
   examples/07-collaboration/02-liveblocks:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@liveblocks/client':
         specifier: 3.7.1-tiptap3
@@ -3427,19 +3427,19 @@ importers:
   examples/07-collaboration/03-y-sweet:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -3451,7 +3451,7 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.0)
       '@y-sweet/react':
-        specifier: ^0.6.4
+        specifier: ^0.6.3
         version: 0.6.4(react@19.2.0)(yjs@13.6.27)
       react:
         specifier: ^19.2.0
@@ -3476,19 +3476,19 @@ importers:
   examples/07-collaboration/04-electric-sql:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -3522,22 +3522,22 @@ importers:
   examples/07-collaboration/05-comments:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: 8.3.2
+        specifier: ^8.3.2
         version: 8.3.2(@mantine/hooks@8.3.2(react@19.2.0))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@mantine/hooks':
         specifier: 8.3.2
@@ -3546,7 +3546,7 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.0)
       '@y-sweet/react':
-        specifier: ^0.6.4
+        specifier: ^0.6.3
         version: 0.6.4(react@19.2.0)(yjs@13.6.27)
       react:
         specifier: ^19.2.0
@@ -3571,22 +3571,22 @@ importers:
   examples/07-collaboration/06-comments-with-sidebar:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: 8.3.2
+        specifier: ^8.3.2
         version: 8.3.2(@mantine/hooks@8.3.2(react@19.2.0))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@mantine/hooks':
         specifier: 8.3.2
@@ -3595,7 +3595,7 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.0)
       '@y-sweet/react':
-        specifier: ^0.6.4
+        specifier: ^0.6.3
         version: 0.6.4(react@19.2.0)(yjs@13.6.27)
       react:
         specifier: ^19.2.0
@@ -3620,19 +3620,19 @@ importers:
   examples/07-collaboration/07-ghost-writer:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -3672,19 +3672,19 @@ importers:
   examples/07-collaboration/08-forking:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -3724,19 +3724,19 @@ importers:
   examples/08-extensions/01-tiptap-arrow-conversion:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -3773,25 +3773,25 @@ importers:
   examples/09-ai/01-minimal:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@blocknote/xl-ai':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/xl-ai
       '@mantine/core':
-        specifier: 8.3.2
+        specifier: ^8.3.2
         version: 8.3.2(@mantine/hooks@8.3.2(react@19.2.0))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@mantine/hooks':
         specifier: 8.3.2
@@ -3800,7 +3800,7 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.0)
       ai:
-        specifier: ^5.0.60
+        specifier: ^5.0.45
         version: 5.0.60(zod@4.1.12)
       react:
         specifier: ^19.2.0
@@ -3809,7 +3809,7 @@ importers:
         specifier: ^19.2.0
         version: 19.2.0(react@19.2.0)
       zustand:
-        specifier: ^5.0.8
+        specifier: ^5.0.3
         version: 5.0.8(@types/react@19.2.2)(immer@10.1.3)(react@19.2.0)(use-sync-external-store@1.6.0(react@19.2.0))
     devDependencies:
       '@types/react':
@@ -3828,25 +3828,25 @@ importers:
   examples/09-ai/02-playground:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@blocknote/xl-ai':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/xl-ai
       '@mantine/core':
-        specifier: 8.3.2
+        specifier: ^8.3.2
         version: 8.3.2(@mantine/hooks@8.3.2(react@19.2.0))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@mantine/hooks':
         specifier: 8.3.2
@@ -3855,7 +3855,7 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.0)
       ai:
-        specifier: ^5.0.60
+        specifier: ^5.0.45
         version: 5.0.60(zod@4.1.12)
       react:
         specifier: ^19.2.0
@@ -3864,7 +3864,7 @@ importers:
         specifier: ^19.2.0
         version: 19.2.0(react@19.2.0)
       zustand:
-        specifier: ^5.0.8
+        specifier: ^5.0.3
         version: 5.0.8(@types/react@19.2.2)(immer@10.1.3)(react@19.2.0)(use-sync-external-store@1.6.0(react@19.2.0))
     devDependencies:
       '@types/react':
@@ -3883,25 +3883,25 @@ importers:
   examples/09-ai/03-custom-ai-menu-items:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@blocknote/xl-ai':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/xl-ai
       '@mantine/core':
-        specifier: 8.3.2
+        specifier: ^8.3.2
         version: 8.3.2(@mantine/hooks@8.3.2(react@19.2.0))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@mantine/hooks':
         specifier: 8.3.2
@@ -3910,7 +3910,7 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.0)
       ai:
-        specifier: ^5.0.60
+        specifier: ^5.0.45
         version: 5.0.60(zod@4.1.12)
       react:
         specifier: ^19.2.0
@@ -3919,10 +3919,10 @@ importers:
         specifier: ^19.2.0
         version: 19.2.0(react@19.2.0)
       react-icons:
-        specifier: ^5.5.0
+        specifier: ^5.2.1
         version: 5.5.0(react@19.2.0)
       zustand:
-        specifier: ^5.0.8
+        specifier: ^5.0.3
         version: 5.0.8(@types/react@19.2.2)(immer@10.1.3)(react@19.2.0)(use-sync-external-store@1.6.0(react@19.2.0))
     devDependencies:
       '@types/react':
@@ -3941,25 +3941,25 @@ importers:
   examples/09-ai/04-with-collaboration:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@blocknote/xl-ai':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/xl-ai
       '@mantine/core':
-        specifier: 8.3.2
+        specifier: ^8.3.2
         version: 8.3.2(@mantine/hooks@8.3.2(react@19.2.0))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@mantine/hooks':
         specifier: 8.3.2
@@ -3968,7 +3968,7 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.0)
       ai:
-        specifier: ^5.0.60
+        specifier: ^5.0.45
         version: 5.0.60(zod@4.1.12)
       react:
         specifier: ^19.2.0
@@ -3983,7 +3983,7 @@ importers:
         specifier: ^13.6.27
         version: 13.6.27
       zustand:
-        specifier: ^5.0.8
+        specifier: ^5.0.3
         version: 5.0.8(@types/react@19.2.2)(immer@10.1.3)(react@19.2.0)(use-sync-external-store@1.6.0(react@19.2.0))
     devDependencies:
       '@types/react':
@@ -4002,25 +4002,25 @@ importers:
   examples/09-ai/05-manual-execution:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@blocknote/xl-ai':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/xl-ai
       '@mantine/core':
-        specifier: 8.3.2
+        specifier: ^8.3.2
         version: 8.3.2(@mantine/hooks@8.3.2(react@19.2.0))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@mantine/hooks':
         specifier: 8.3.2
@@ -4029,7 +4029,7 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.0)
       ai:
-        specifier: ^5.0.60
+        specifier: ^5.0.45
         version: 5.0.60(zod@4.1.12)
       react:
         specifier: ^19.2.0
@@ -4044,7 +4044,7 @@ importers:
         specifier: ^13.6.27
         version: 13.6.27
       zustand:
-        specifier: ^5.0.8
+        specifier: ^5.0.3
         version: 5.0.8(@types/react@19.2.2)(immer@10.1.3)(react@19.2.0)(use-sync-external-store@1.6.0(react@19.2.0))
     devDependencies:
       '@types/react':
@@ -4063,28 +4063,28 @@ importers:
   examples/09-ai/06-client-side-transport:
     dependencies:
       '@ai-sdk/groq':
-        specifier: ^2.0.22
+        specifier: ^2.0.16
         version: 2.0.22(zod@4.1.12)
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@blocknote/xl-ai':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/xl-ai
       '@mantine/core':
-        specifier: 8.3.2
+        specifier: ^8.3.2
         version: 8.3.2(@mantine/hooks@8.3.2(react@19.2.0))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@mantine/hooks':
         specifier: 8.3.2
@@ -4093,7 +4093,7 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.0)
       ai:
-        specifier: ^5.0.60
+        specifier: ^5.0.45
         version: 5.0.60(zod@4.1.12)
       react:
         specifier: ^19.2.0
@@ -4102,7 +4102,7 @@ importers:
         specifier: ^19.2.0
         version: 19.2.0(react@19.2.0)
       zustand:
-        specifier: ^5.0.8
+        specifier: ^5.0.3
         version: 5.0.8(@types/react@19.2.2)(immer@10.1.3)(react@19.2.0)(use-sync-external-store@1.6.0(react@19.2.0))
     devDependencies:
       '@types/react':
@@ -4121,25 +4121,25 @@ importers:
   examples/09-ai/07-server-promptbuilder:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@blocknote/xl-ai':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/xl-ai
       '@mantine/core':
-        specifier: 8.3.2
+        specifier: ^8.3.2
         version: 8.3.2(@mantine/hooks@8.3.2(react@19.2.0))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@mantine/hooks':
         specifier: 8.3.2
@@ -4148,7 +4148,7 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.0)
       ai:
-        specifier: ^5.0.60
+        specifier: ^5.0.45
         version: 5.0.60(zod@4.1.12)
       react:
         specifier: ^19.2.0
@@ -4157,7 +4157,7 @@ importers:
         specifier: ^19.2.0
         version: 19.2.0(react@19.2.0)
       zustand:
-        specifier: ^5.0.8
+        specifier: ^5.0.3
         version: 5.0.8(@types/react@19.2.2)(immer@10.1.3)(react@19.2.0)(use-sync-external-store@1.6.0(react@19.2.0))
     devDependencies:
       '@types/react':
@@ -4176,19 +4176,19 @@ importers:
   examples/vanilla-js/react-vanilla-custom-blocks:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -4222,19 +4222,19 @@ importers:
   examples/vanilla-js/react-vanilla-custom-inline-content:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
@@ -4268,19 +4268,19 @@ importers:
   examples/vanilla-js/react-vanilla-custom-styles:
     dependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: 8.3.2
