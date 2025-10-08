@@ -80,7 +80,7 @@
   },
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",
-    "@shikijs/types": "3.2.1",
+    "@shikijs/types": "3.13.0",
     "@tiptap/core": "^3.4.3",
     "@tiptap/extension-bold": "^3",
     "@tiptap/extension-code": "^3",

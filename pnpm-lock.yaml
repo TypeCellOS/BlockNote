@@ -190,8 +190,8 @@ importers:
         specifier: ^3.2.1
         version: 3.7.0
       '@shikijs/types':
-        specifier: ^3.2.1
-        version: 3.2.1
+        specifier: ^3.13.0
+        version: 3.13.0
       '@tiptap/core':
         specifier: https://pkg.pr.new/@tiptap/core@5e777c9
         version: https://pkg.pr.new/@tiptap/core@5e777c9(@tiptap/pm@3.4.3)
@@ -2416,8 +2416,8 @@ importers:
         specifier: ^3.2.1
         version: 3.2.1
       '@shikijs/types':
-        specifier: ^3.2.1
-        version: 3.2.1
+        specifier: ^3.13.0
+        version: 3.13.0
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -4381,8 +4381,8 @@ importers:
         specifier: ^3.2.1
         version: 3.2.1
       '@shikijs/types':
-        specifier: ^3.2.1
-        version: 3.2.1
+        specifier: ^3.13.0
+        version: 3.13.0
     devDependencies:
       eslint:
         specifier: ^8.10.0
@@ -4412,8 +4412,8 @@ importers:
         specifier: ^2.15.2
         version: 2.15.2(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)
       '@shikijs/types':
-        specifier: 3.2.1
-        version: 3.2.1
+        specifier: 3.13.0
+        version: 3.13.0
       '@tiptap/core':
         specifier: https://pkg.pr.new/@tiptap/core@5e777c9
         version: https://pkg.pr.new/@tiptap/core@5e777c9(@tiptap/pm@3.4.3)
@@ -4467,7 +4467,7 @@ importers:
         version: 1.8.2
       prosemirror-highlight:
         specifier: ^0.13.0
-        version: 0.13.0(@shikijs/types@3.2.1)(@types/hast@3.0.4)(prosemirror-model@1.25.3)(prosemirror-state@1.4.3)(prosemirror-transform@1.10.4)(prosemirror-view@1.41.2)
+        version: 0.13.0(@shikijs/types@3.13.0)(@types/hast@3.0.4)(prosemirror-model@1.25.3)(prosemirror-state@1.4.3)(prosemirror-transform@1.10.4)(prosemirror-view@1.41.2)
       prosemirror-model:
         specifier: ^1.25.3
         version: 1.25.3
@@ -9670,6 +9670,9 @@ packages:
     resolution: {integrity: sha512-EjnV193iasm/M5UHVDJg6WyX6dIMCb0YhsKKlgWv3OK7iLFjuW7sUp978ZkO2OIn3niqBT6e+CX1LgoPM8jYjQ==}
     peerDependencies:
       typescript: '>=5.5.0'
+
+  '@shikijs/types@3.13.0':
+    resolution: {integrity: sha512-oM9P+NCFri/mmQ8LoFGVfVyemm5Hi27330zuOBp0annwJdKH1kOLndw3zCtAVDehPLg9fKqoEx3Ht/wNZxolfw==}
 
   '@shikijs/types@3.2.1':
     resolution: {integrity: sha512-/NTWAk4KE2M8uac0RhOsIhYQf4pdU0OywQuYDGIGAJ6Mjunxl2cGiuLkvu4HLCMn+OTTLRWkjZITp+aYJv60yA==}
@@ -20610,6 +20613,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@shikijs/types@3.13.0':
+    dependencies:
+      '@shikijs/vscode-textmate': 10.0.2
+      '@types/hast': 3.0.4
+
   '@shikijs/types@3.2.1':
     dependencies:
       '@shikijs/vscode-textmate': 10.0.2
@@ -26262,9 +26270,9 @@ snapshots:
       prosemirror-state: 1.4.3
       prosemirror-view: 1.41.2
 
-  prosemirror-highlight@0.13.0(@shikijs/types@3.2.1)(@types/hast@3.0.4)(prosemirror-model@1.25.3)(prosemirror-state@1.4.3)(prosemirror-transform@1.10.4)(prosemirror-view@1.41.2):
+  prosemirror-highlight@0.13.0(@shikijs/types@3.13.0)(@types/hast@3.0.4)(prosemirror-model@1.25.3)(prosemirror-state@1.4.3)(prosemirror-transform@1.10.4)(prosemirror-view@1.41.2):
     optionalDependencies:
-      '@shikijs/types': 3.2.1
+      '@shikijs/types': 3.13.0
       '@types/hast': 3.0.4
       prosemirror-model: 1.25.3
       prosemirror-state: 1.4.3
