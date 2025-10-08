@@ -75,6 +75,7 @@ export const createCheckListItemBlockSpec = createBlockSpec(
       getListItemContent(el, schema, "checkListItem"),
     render(block, editor) {
       const dom = document.createDocumentFragment();
+
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.checked = block.props.checked;
