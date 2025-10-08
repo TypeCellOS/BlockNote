@@ -11,16 +11,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@blocknote/core": "latest",
-    "@blocknote/react": "latest",
-    "@blocknote/ariakit": "latest",
-    "@blocknote/mantine": "latest",
-    "@blocknote/shadcn": "latest",
-    "@mantine/core": "^8.3.2",
-    "@mantine/hooks": "^8.3.2",
+    "@blocknote/ariakit": "workspace:^",
+    "@blocknote/core": "workspace:^",
+    "@blocknote/mantine": "workspace:^",
+    "@blocknote/react": "workspace:^",
+    "@blocknote/shadcn": "workspace:^",
+    "@mantine/core": "8.3.2",
+    "@mantine/hooks": "8.3.2",
     "@mantine/utils": "^6.0.22",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
     "@uppy/core": "^3.13.1",
     "@uppy/dashboard": "^3.9.1",
     "@uppy/drag-drop": "^3.1.1",
@@ -29,15 +27,17 @@
     "@uppy/progress-bar": "^3.1.1",
     "@uppy/react": "^3.4.0",
     "@uppy/screen-capture": "^3.2.0",
-    "@uppy/status-bar": "^3.1.1",
+    "@uppy/status-bar": "^3.3.3",
     "@uppy/webcam": "^3.4.2",
-    "@uppy/xhr-upload": "^3.4.0",
-    "react-icons": "^5.2.1"
+    "@uppy/xhr-upload": "^3.6.8",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-icons": "^5.5.0"
   },
   "devDependencies": {
-    "@types/react": "^19.1.0",
-    "@types/react-dom": "^19.1.0",
-    "@vitejs/plugin-react": "^4.3.1",
-    "vite": "^5.3.4"
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.1",
+    "@vitejs/plugin-react": "^4.7.0",
+    "vite": "^5.4.20"
   }
 }
