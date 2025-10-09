@@ -5,6 +5,7 @@ on:
   push:
     tags:
       - v*.*.*
+      - v*.*.*-*
 
 env:
   NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN }}
