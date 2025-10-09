@@ -1,3 +1,13 @@
+## 0.39.2 (2025-10-09)
+
+### 🩹 Fixes
+
+- remove prosemirror-highlight dep ([0b91964bc](https://github.com/TypeCellOS/BlockNote/commit/0b91964bc))
+
+### ❤️ Thank You
+
+- Nick the Sick @nperez0111
+
 ## 0.39.1-capitol-test (2025-10-09)
 
 ### 🩹 Fixes
