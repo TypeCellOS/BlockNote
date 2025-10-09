@@ -4,8 +4,14 @@ name: Publish
 on:
   push:
     tags:
-      - "v*.*.*"
-      - "v*.*.*-*"
+      - v*.*.*
+      - v*.*.*-*
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version tag to publish (e.g., v0.x.x-hotfix)"
+        required: true
+        type: string
 
 env:
   NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN }}
@@ -23,7 +29,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ inputs.version }}
           fetch-depth: 100
+      - name: Display version being published
+        run: |
+          echo "Publishing version: ${{ inputs.version }}"
+
       - run: jq '.packageManager' package.json | tr -d '"pnpm@'
         id: package-manager-version
 
