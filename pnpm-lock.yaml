@@ -91,28 +91,28 @@ importers:
         specifier: ^3.609.0
         version: 3.901.0
       '@blocknote/code-block':
-        specifier: latest
+        specifier: workspace:*
         version: link:../packages/code-block
       '@blocknote/server-util':
-        specifier: latest
+        specifier: workspace:*
         version: link:../packages/server-util
       '@blocknote/xl-ai':
-        specifier: latest
+        specifier: workspace:*
         version: link:../packages/xl-ai
       '@blocknote/xl-docx-exporter':
-        specifier: latest
+        specifier: workspace:*
         version: link:../packages/xl-docx-exporter
       '@blocknote/xl-email-exporter':
-        specifier: latest
+        specifier: workspace:*
         version: link:../packages/xl-email-exporter
       '@blocknote/xl-multi-column':
-        specifier: latest
+        specifier: workspace:*
         version: link:../packages/xl-multi-column
       '@blocknote/xl-odt-exporter':
-        specifier: latest
+        specifier: workspace:*
         version: link:../packages/xl-odt-exporter
       '@blocknote/xl-pdf-exporter':
-        specifier: latest
+        specifier: workspace:*
         version: link:../packages/xl-pdf-exporter
       '@emotion/react':
         specifier: ^11.11.4
