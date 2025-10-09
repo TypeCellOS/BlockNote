@@ -11,7 +11,7 @@
     "directory": "packages/react"
   },
   "license": "MPL-2.0",
-  "version": "0.39.1",
+  "version": "0.39.1-capitol",
   "files": [
     "dist",
     "types",
@@ -58,7 +58,7 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "0.39.1",
+    "@blocknote/core": "0.39.1-capitol",
     "@emoji-mart/data": "^1.2.1",
     "@floating-ui/react": "^0.27.16",
     "@tiptap/core": "^3.4.3",
