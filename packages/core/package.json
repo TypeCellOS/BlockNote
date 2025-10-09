@@ -98,7 +98,6 @@
     "fast-deep-equal": "^3",
     "hast-util-from-dom": "^5.0.1",
     "prosemirror-dropcursor": "^1.8.2",
-    "prosemirror-highlight": "^0.13.0",
     "prosemirror-model": "^1.25.3",
     "prosemirror-state": "^1.4.3",
     "prosemirror-tables": "^1.6.4",
