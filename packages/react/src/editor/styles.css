@@ -286,3 +286,12 @@
   background-color: #20242a;
   border: 2px solid #23405b;
 }
+
+/* Emoji Picker styling */
+em-emoji-picker {
+  max-height: 100%;
+}
+
+.bn-emoji-picker-popover {
+  z-index: 6000;
+}

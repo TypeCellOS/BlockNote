@@ -74,11 +74,13 @@
 }
 
 /* Mantine Popover component base styles */
-.bn-mantine .mantine-Popover-dropdown:not(.bn-menu-dropdown) {
+.bn-mantine .bn-panel-popover,
+.bn-mantine .bn-emoji-picker-popover {
   background-color: transparent;
   border: none;
   border-radius: 0;
   box-shadow: none;
+  display: flex;
   padding: 0;
 }
 
