@@ -510,6 +510,74 @@
       "toExternalHTML": [Function],
     },
   },
+  "exportTestBlock": {
+    "config": {
+      "content": "none",
+      "propSchema": {
+        "backgroundColor": {
+          "default": "default",
+        },
+        "textAlignment": {
+          "default": "left",
+          "values": [
+            "left",
+            "center",
+            "right",
+            "justify",
+          ],
+        },
+        "textColor": {
+          "default": "default",
+        },
+      },
+      "type": "exportTestBlock",
+    },
+    "extensions": undefined,
+    "implementation": {
+      "node": _Node {
+        "child": _Node {
+          "child": null,
+          "config": {
+            "addAttributes": [Function],
+            "addNodeView": [Function],
+            "addOptions": [Function],
+            "code": false,
+            "content": "",
+            "defining": true,
+            "group": "blockContent",
+            "isolating": true,
+            "name": "exportTestBlock",
+            "parseHTML": [Function],
+            "priority": 101,
+            "renderHTML": [Function],
+            "selectable": true,
+          },
+          "name": "exportTestBlock",
+          "parent": null,
+          "type": "node",
+        },
+        "config": {
+          "addAttributes": [Function],
+          "addNodeView": [Function],
+          "code": false,
+          "content": "",
+          "defining": true,
+          "group": "blockContent",
+          "isolating": true,
+          "name": "exportTestBlock",
+          "parseHTML": [Function],
+          "priority": 101,
+          "renderHTML": [Function],
+          "selectable": true,
+        },
+        "name": "exportTestBlock",
+        "parent": null,
+        "type": "node",
+      },
+      "render": [Function],
+      "toExternalHTML": [Function],
+    },
+  },
   "file": {
     "config": {
       "content": "none",
