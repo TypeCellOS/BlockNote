@@ -61,6 +61,7 @@
     "@blocknote/core": "0.41.1",
     "@emoji-mart/data": "^1.2.1",
     "@floating-ui/react": "^0.27.16",
+    "@tanstack/react-store": "0.7.7",
     "@tiptap/core": "^3.4.3",
     "@tiptap/pm": "^3.4.3",
     "@tiptap/react": "^3.4.3",
