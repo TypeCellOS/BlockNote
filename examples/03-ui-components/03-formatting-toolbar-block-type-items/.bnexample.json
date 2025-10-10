@@ -10,7 +10,7 @@
     "Custom Schemas"
   ],
   "dependencies": {
-    "@mantine/core": "^8.3.2",
+    "@mantine/core": "^8.3.4",
     "react-icons": "^5.2.1"
   }
 }
