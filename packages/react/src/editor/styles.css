@@ -290,8 +290,5 @@
 /* Emoji Picker styling */
 em-emoji-picker {
   max-height: 100%;
-}
-
-.bn-emoji-picker-popover {
-  z-index: 6000;
+  z-index: 11000;
 }

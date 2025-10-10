@@ -4,8 +4,8 @@ import {
   DefaultThreadStoreAuth,
   YjsThreadStore,
 } from "@blocknote/core/comments";
-import { BlockNoteView } from "@blocknote/mantine";
-import "@blocknote/mantine/style.css";
+import { BlockNoteView } from "@blocknote/shadcn";
+import "@blocknote/shadcn/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
 import { YDocProvider, useYDoc, useYjsProvider } from "@y-sweet/react";
 import { useMemo, useState } from "react";

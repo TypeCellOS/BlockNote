@@ -58,6 +58,7 @@ export const Comment = forwardRef<
     actions,
     children,
     edited,
+    emojiPickerOpen, // Unused
     ...rest
   } = props;
 

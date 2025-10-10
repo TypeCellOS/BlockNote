@@ -8,6 +8,7 @@ import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 
 export const EmojiPicker = (props: {
   onEmojiSelect: (emoji: { native: string }) => void;
+  onOpenChange?: (open: boolean) => void;
   children: ReactNode;
 }) => {
   const [open, setOpen] = useState(false);
@@ -27,6 +28,7 @@ export const EmojiPicker = (props: {
             event.preventDefault();
             event.stopPropagation();
             setOpen(!open);
+            props.onOpenChange?.(!open);
           }}
           style={{
             display: "flex",
@@ -43,12 +45,15 @@ export const EmojiPicker = (props: {
           variant={"panel-popover"}
         >
           <Picker
-            // dynamicWidth={true}
             perLine={7}
-            onClickOutside={() => setOpen(false)}
+            onClickOutside={() => {
+              setOpen(false);
+              props.onOpenChange?.(false);
+            }}
             onEmojiSelect={(emoji: { native: string }) => {
               props.onEmojiSelect(emoji);
               setOpen(false);
+              props.onOpenChange?.(false);
             }}
             theme={blockNoteContext?.colorSchemePreference}
           />
