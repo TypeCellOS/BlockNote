@@ -1062,6 +1062,17 @@ export class BlockNoteEditor<
    * @warning Not needed to call manually when using React, use BlockNoteView to take care of mounting
    */
   public mount = (element: HTMLElement) => {
+    const extensions = this._extensionManager.getExtensions().values();
+    // TODO can do something similar for input rules
+    // extensions.filter(e => e.instance.inputRules)
+
+    const state = this._tiptapEditor.state.reconfigure({
+      plugins: this._tiptapEditor.state.plugins.concat(
+        extensions.flatMap((e) => e.instance.plugins ?? []).toArray(),
+      ),
+    });
+    this._tiptapEditor.view.updateState(state);
+
     // TODO: Fix typing for this in a TipTap PR
     this._tiptapEditor.mount({ mount: element } as any);
   };

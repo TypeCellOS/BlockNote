@@ -50,7 +50,7 @@ export class ExtensionManager {
    * Get all extensions
    */
   public getExtensions() {
-    return this.editor.extensions;
+    return this.extensions;
   }
 
   /**
