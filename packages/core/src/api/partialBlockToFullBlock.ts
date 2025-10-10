@@ -17,6 +17,7 @@ import {
   TableCell,
   TableContent,
 } from "../schema/index.js";
+import { mapTableCell } from "../util/table.js";
 
 const partialPropsToProps = (
   partialProps: Partial<Props<PropSchema>> | undefined,
@@ -149,51 +150,30 @@ const partialTableContentToTableContent = (
   partialTableContent: PartialTableContent<InlineContentSchema, StyleSchema>,
   inlineContentSchema: InlineContentSchema,
 ): TableContent<any, any> => {
-  const columnWidths: undefined[] = [];
   const rows: {
     cells: TableCell<InlineContentSchema, StyleSchema>[];
-  }[] = partialTableContent.rows.map((row, rowIndex) => {
+  }[] = partialTableContent.rows.map((row) => {
     return {
       cells: row.cells.map((cell) => {
-        if (typeof cell === "object" && "type" in cell) {
-          if (rowIndex === 0) {
-            for (let i = 0; i < (cell.props?.colspan || 1); i++) {
-              columnWidths.push(undefined);
-            }
-          }
+        const fullCell = mapTableCell(cell);
+        // `mapTableCell` doesn't actually convert `PartialInlineContent` to 
+        // `InlineContent`, so this is done manually here.
+        fullCell.content = partialInlineContentToInlineContent(
+          fullCell.content,
+          inlineContentSchema,
+        );
 
-          return {
-            type: "tableCell",
-            props: {
-              backgroundColor: "default",
-              textColor: "default",
-              textAlignment: "left",
-              ...cell.props,
-            },
-            content: partialInlineContentToInlineContent(
-              cell.content,
-              inlineContentSchema,
-            ),
-          };
-        }
-
-        columnWidths.push(undefined);
-
-        return {
-          type: "tableCell",
-          props: {
-            backgroundColor: "default",
-            textColor: "default",
-            textAlignment: "left",
-          },
-          content: partialInlineContentToInlineContent(
-            cell,
-            inlineContentSchema,
-          ),
-        };
+        return fullCell;
       }),
     };
   });
+
+  const columnWidths: undefined[] = [];
+  for (const cell of rows[0].cells) {
+    for (let i = 0; i < (cell.props?.colspan || 1); i++) {
+      columnWidths.push(undefined);
+    }
+  }
 
   return {
     type: "tableContent",
