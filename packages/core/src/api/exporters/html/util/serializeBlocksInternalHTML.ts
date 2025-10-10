@@ -13,7 +13,7 @@ import {
   tableContentToNodes,
 } from "../../../nodeConversions/blockToNode.js";
 import { nodeToCustomInlineContent } from "../../../nodeConversions/nodeToBlock.js";
-import { partialBlockToBlock } from "../../../partialBlockToBlock.js";
+import { partialBlockToFullBlock } from "../../../partialBlockToFullBlock.js";
 
 export function serializeInlineContentInternalHTML<
   BSchema extends BlockSchema,
@@ -139,7 +139,7 @@ function serializeBlock<
 ) {
   const BC_NODE = editor.pmSchema.nodes["blockContainer"];
 
-  const fullBlock = partialBlockToBlock(block, editor);
+  const fullBlock = partialBlockToFullBlock(block, editor);
 
   const impl = editor.blockImplementations[fullBlock.type].implementation;
   const ret = impl.render.call(

@@ -14,7 +14,7 @@ import {
   tableContentToNodes,
 } from "../../../nodeConversions/blockToNode.js";
 import { nodeToCustomInlineContent } from "../../../nodeConversions/nodeToBlock.js";
-import { partialBlockToBlock } from "../../../partialBlockToBlock.js";
+import { partialBlockToFullBlock } from "../../../partialBlockToFullBlock.js";
 
 function addAttributesAndRemoveClasses(element: HTMLElement) {
   // Removes all BlockNote specific class names.
@@ -176,7 +176,7 @@ function serializeBlock<
   const doc = options?.document ?? document;
   const BC_NODE = editor.pmSchema.nodes["blockContainer"];
 
-  const fullBlock = partialBlockToBlock(block, editor);
+  const fullBlock = partialBlockToFullBlock(block, editor);
 
   const bc = BC_NODE.spec?.toDOM?.(
     BC_NODE.create({

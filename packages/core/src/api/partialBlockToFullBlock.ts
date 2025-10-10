@@ -31,13 +31,10 @@ const partialPropsToProps = (
       ) {
         const propTypeMatches =
           typeof partialProps[propName] ===
-          (propSpec.default !== undefined
-            ? typeof propSpec.default
-            : propSpec.type);
-        const propValueIsValid =
-          propSpec.values === undefined
-            ? true
-            : propSpec.values.includes(partialProps[propName]);
+          ("type" in propSpec ? propSpec.type : typeof propSpec.default);
+        const propValueIsValid = Array.isArray(propSpec.values)
+          ? propSpec.values.includes(partialProps[propName])
+          : true;
 
         if (propTypeMatches && propValueIsValid) {
           return [propName, partialProps[propName]];
@@ -287,7 +284,7 @@ const partialBlockContentToBlockContent = (
   return undefined;
 };
 
-export const partialBlockToBlock = <
+export const partialBlockToFullBlock = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
@@ -311,8 +308,9 @@ export const partialBlockToBlock = <
   );
 
   const children =
-    partialBlock.children?.map((child) => partialBlockToBlock(child, editor)) ||
-    [];
+    partialBlock.children?.map((child) =>
+      partialBlockToFullBlock(child, editor),
+    ) || [];
 
   return {
     id,
