@@ -233,7 +233,7 @@ export type ComponentProps = {
       edited: boolean;
       actions?: ReactNode;
       showActions?: boolean | "hover";
-      emojiPickerOpen: boolean;
+      emojiPickerOpen?: boolean;
     };
   };
   // TODO: We should try to make everything as generic as we can
