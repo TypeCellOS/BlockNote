@@ -25,7 +25,7 @@ export function mapTableCell<
     : isPartialTableCell(content)
       ? {
           type: "tableCell",
-          content: content.content as InlineContent<T, S>[],
+          content: ([] as InlineContent<T, S>[]).concat(content.content as any),
           props: {
             backgroundColor: "default",
             textColor: "default",
@@ -35,7 +35,7 @@ export function mapTableCell<
         }
       : {
           type: "tableCell",
-          content: content as InlineContent<T, S>[],
+          content: ([] as InlineContent<T, S>[]).concat(content as any),
           props: {
             backgroundColor: "default",
             textColor: "default",
