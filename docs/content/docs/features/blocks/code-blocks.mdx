@@ -17,38 +17,46 @@ Code blocks by default are a simple way to display code. But, BlockNote also sup
 
 <Callout type="info">
   These features are disabled by default to keep the default code block
-  experience easy to use and reduce bundle size.
+  experience easy to use and reduce bundle size. The can be individually added
+  when [configuring the
+  block](/docs/features/blocks#configuring-default-blocks).
 </Callout>
 
-You can enable more advanced features by extending the editor's default schema with a new `codeBlock`, which you can pass options into when creating. For more on extending the editor schema, see [Custom Schemas](/docs/features/custom-schemas).
+**Configuration Options**
 
 ```ts
-const editor = new BlockNoteEditor({
-  schema: BlockNoteSchema.create().extend({
-    codeBlock: createCodeBlockSpec({
-      indentLineWithTab: true,
-      defaultLanguage: "typescript",
-      supportedLanguages: {
-        typescript: {
-          name: "TypeScript",
-          aliases: ["ts"],
-        },
-      },
-      createHighlighter: () =>
-        createHighlighter({
-          themes: ["light-plus", "dark-plus"],
-          langs: [],
-        }),
-    }),
-  }),
-});
+type CodeBlockOptions = {
+  indentLineWithTab?: boolean;
+  defaultLanguage?: string;
+  supportedLanguages?: Record<
+    string,
+    {
+      name: string;
+      aliases?: string[];
+    }
+  >;
+  createHighlighter?: () => Promise<HighlighterGeneric<any, any>>;
+};
 ```
 
-You can choose to enable only certain features, or none at all. Giving you the flexibility to use code blocks how you need in your app.
+`indentLineWithTab:` Whether the Tab key should indent lines, or be handled by the editor's default key handlers. Defaults to `true`.
 
-## Block Shape
+`defaultLanguage:` The syntax highlighting default language for code blocks which are created/inserted without a set language, which is `text` by default (no syntax highlighting).
 
-This describes the shape of a code block in BlockNote.
+`supportedLanguages:` The syntax highlighting languages supported by the code block, or an empty array by default.
+
+`createHighlighter:` The Shiki highliter to use for syntax highlighting.
+
+BlockNote also provides a generic set of options for syntax highlighting in the `@blocknote/code-block` package, which support a wide range of languages:
+
+```ts
+import { createCodeBlockSpec } from "@blocknote/core";
+import { codeBlockOptions } from "@blocknote/code-block";
+
+const codeBlock = createCodeBlockSpec(codeBlockOptions);
+```
+
+**Type & Props**
 
 ```ts
 type CodeBlock = {

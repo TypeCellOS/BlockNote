@@ -38,6 +38,14 @@ type FileBlock = {
 
 An image block is a block that displays an image.
 
+```ts
+type ImageBlockOptions = {
+  icon?: string;
+};
+```
+
+`icon:` The HTML string for an icon SVG. If no URL is given, the image block displays a button to add one using a link or file, and the provided SVG replaces the generic file icon in that button.
+
 **Type & Props**
 
 ```typescript
@@ -64,7 +72,17 @@ type ImageBlock = {
 
 ## Video
 
+**Configuration Options**
+
 A video block is a block that displays a video.
+
+```ts
+type VideoBlockOptions = {
+  icon?: string;
+};
+```
+
+`icon:` The HTML string for an icon SVG. If no URL is given, the video block displays a button to add one using a link or file, and the provided SVG replaces the generic file icon in that button.
 
 **Type & Props**
 
@@ -97,6 +115,16 @@ type VideoBlock = {
 ## Audio
 
 An audio block is a block that displays an audio file.
+
+**Configuration Options**
+
+```ts
+type AudioBlockOptions = {
+  icon?: string;
+};
+```
+
+`icon:` The HTML string for an icon SVG. If no URL is given, the audio block displays a button to add one using a link or file, and the provided SVG replaces the generic file icon in that button.
 
 **Type & Props**
 
