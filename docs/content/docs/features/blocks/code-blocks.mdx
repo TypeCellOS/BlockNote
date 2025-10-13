@@ -17,7 +17,7 @@ Code blocks by default are a simple way to display code. But, BlockNote also sup
 
 <Callout type="info">
   These features are disabled by default to keep the default code block
-  experience easy to use and reduce bundle size. The can be individually added
+  experience easy to use and reduce bundle size. They can be individually added
   when [configuring the
   block](/docs/features/blocks#configuring-default-blocks).
 </Callout>
@@ -45,7 +45,7 @@ type CodeBlockOptions = {
 
 `supportedLanguages:` The syntax highlighting languages supported by the code block, or an empty array by default.
 
-`createHighlighter:` The Shiki highliter to use for syntax highlighting.
+`createHighlighter:` The [Shiki](https://shiki.style) highliter to use for syntax highlighting.
 
 BlockNote also provides a generic set of options for syntax highlighting in the `@blocknote/code-block` package, which support a wide range of languages:
 
@@ -55,6 +55,8 @@ import { codeBlockOptions } from "@blocknote/code-block";
 
 const codeBlock = createCodeBlockSpec(codeBlockOptions);
 ```
+
+See [this example](/examples/theming/code-block) to see it in action.
 
 **Type & Props**
 
@@ -70,45 +72,13 @@ type CodeBlock = {
 };
 ```
 
-## Options
+`language:` The syntax highlighting language to use. Defaults to `text`, which has no highlighting.
 
-### Basic Setup
+## Custom Syntax Highlighting
 
-To enable code block syntax highlighting, you can extend the editor's default schema with a new `codeBlock`.
+To create your own syntax highlighter, you can use the [shiki-codegen](https://shiki.style/packages/codegen) CLI for generating the code to create one for your chosen languages and themes.
 
-First, install the package:
-
-```sh
-npm install @blocknote/code-block
-```
-
-Then use it like this:
-
-```tsx
-import { codeBlockOptions } from "@blocknote/code-block";
-
-export default function App() {
-  const editor = useCreateBlockNote({
-    schema: BlockNoteSchema.create().extend({
-      codeBlock: createCodeBlockSpec(codeBlockOptions),
-    }),
-  });
-
-  return <BlockNoteView editor={editor} />;
-}
-```
-
-This will extend the default schema with a custom `codeBlock` that includes options from `@blocknote/code-block`, enabling syntax highlighting.
-
-### Custom Themes & Languages
-
-To configure a code block highlighting theme and language, you can again extend the editor's default schema with a new `codeBlock`.
-
-This allows you to configure a [shiki](https://shiki.style) highlighter for the code blocks of your editor, allowing you to tailor the themes and languages you would like to use.
-
-To create a syntax highlighter, you can use the [shiki-codegen](https://shiki.style/packages/codegen) CLI for generating the code to create a syntax highlighter for your languages and themes.
-
-For example to create a syntax highlighter using the optimized javascript engine, javascript, typescript, vue, with light and dark themes, you can run the following command:
+For example, to create a syntax highlighter using the optimized javascript engine, javascript, typescript, vue, with light and dark themes, you can run the following command:
 
 ```bash
 npx shiki-codegen --langs javascript,typescript,vue --themes light,dark --engine javascript --precompiled ./shiki.bundle.ts

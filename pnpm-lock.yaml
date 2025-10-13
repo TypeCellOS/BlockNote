@@ -190,7 +190,7 @@ importers:
         specifier: ^3.2.1
         version: 3.7.0
       '@shikijs/types':
-        specifier: ^3.13.0
+        specifier: ^3.2.1
         version: 3.13.0
       '@tiptap/core':
         specifier: https://pkg.pr.new/@tiptap/core@5e777c9
@@ -1010,52 +1010,6 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^4.3.1
         version: 4.3.4(vite@5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0))
-      vite:
-        specifier: ^5.3.4
-        version: 5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0)
-
-  examples/01-basic/14-configuring-blocks:
-    dependencies:
-      '@blocknote/ariakit':
-        specifier: latest
-        version: link:../../../packages/ariakit
-      '@blocknote/core':
-        specifier: latest
-        version: link:../../../packages/core
-      '@blocknote/mantine':
-        specifier: latest
-        version: link:../../../packages/mantine
-      '@blocknote/react':
-        specifier: latest
-        version: link:../../../packages/react
-      '@blocknote/shadcn':
-        specifier: latest
-        version: link:../../../packages/shadcn
-      '@mantine/core':
-        specifier: ^8.3.4
-        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@mantine/hooks':
-        specifier: ^8.3.4
-        version: 8.3.4(react@19.1.0)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.1.0)
-      react:
-        specifier: ^19.1.0
-        version: 19.1.0
-      react-dom:
-        specifier: ^19.1.0
-        version: 19.1.0(react@19.1.0)
-    devDependencies:
-      '@types/react':
-        specifier: ^19.1.0
-        version: 19.1.8
-      '@types/react-dom':
-        specifier: ^19.1.0
-        version: 19.1.6(@types/react@19.1.8)
-      '@vitejs/plugin-react':
-        specifier: ^4.3.1
-        version: 4.4.1(vite@5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0))
       vite:
         specifier: ^5.3.4
         version: 5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0)
@@ -2462,7 +2416,7 @@ importers:
         specifier: ^3.2.1
         version: 3.2.1
       '@shikijs/types':
-        specifier: ^3.13.0
+        specifier: ^3.2.1
         version: 3.13.0
       react:
         specifier: ^19.1.0
@@ -3125,6 +3079,52 @@ importers:
         version: 5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0)
 
   examples/06-custom-schema/06-toggleable-blocks:
+    dependencies:
+      '@blocknote/ariakit':
+        specifier: latest
+        version: link:../../../packages/ariakit
+      '@blocknote/core':
+        specifier: latest
+        version: link:../../../packages/core
+      '@blocknote/mantine':
+        specifier: latest
+        version: link:../../../packages/mantine
+      '@blocknote/react':
+        specifier: latest
+        version: link:../../../packages/react
+      '@blocknote/shadcn':
+        specifier: latest
+        version: link:../../../packages/shadcn
+      '@mantine/core':
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@mantine/hooks':
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
+      '@mantine/utils':
+        specifier: ^6.0.22
+        version: 6.0.22(react@19.1.0)
+      react:
+        specifier: ^19.1.0
+        version: 19.1.0
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.1.0(react@19.1.0)
+    devDependencies:
+      '@types/react':
+        specifier: ^19.1.0
+        version: 19.1.8
+      '@types/react-dom':
+        specifier: ^19.1.0
+        version: 19.1.6(@types/react@19.1.8)
+      '@vitejs/plugin-react':
+        specifier: ^4.3.1
+        version: 4.4.1(vite@5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0))
+      vite:
+        specifier: ^5.3.4
+        version: 5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0)
+
+  examples/06-custom-schema/07-configuring-blocks:
     dependencies:
       '@blocknote/ariakit':
         specifier: latest
