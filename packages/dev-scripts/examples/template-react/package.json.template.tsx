@@ -23,6 +23,7 @@ const template = (project: Project) => ({
     "@mantine/utils": "^6.0.22",
     react: "^19.1.0",
     "react-dom": "^19.1.0",
+    zod: "^4.0.0",
     ...(project.config.tailwind
       ? {
           tailwindcss: "^4.1.12",
