@@ -40,3 +40,8 @@
   line-height: 12px;
   padding-left: 14px;
 }
+
+.bn-thread {
+  max-height: 200px;
+  overflow: auto !important;
+}

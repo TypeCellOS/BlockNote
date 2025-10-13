@@ -69,6 +69,7 @@ export const Comment = ({
   const Components = useComponentsContext()!;
 
   const [isEditing, setEditing] = useState(false);
+  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
 
   if (!editor.comments) {
     throw new Error("Comments plugin not found");
@@ -166,6 +167,7 @@ export const Comment = ({
             onEmojiSelect={(emoji: { native: string }) =>
               onReactionSelect(emoji.native)
             }
+            onOpenChange={setEmojiPickerOpen}
           >
             <Components.Generic.Toolbar.Button
               key={"add-reaction"}
@@ -250,6 +252,7 @@ export const Comment = ({
       showActions={"hover"}
       actions={actions}
       className={"bn-thread-comment"}
+      emojiPickerOpen={emojiPickerOpen}
     >
       <CommentEditor
         autoFocus={isEditing}
@@ -279,6 +282,7 @@ export const Comment = ({
                           onEmojiSelect={(emoji: { native: string }) =>
                             onReactionSelect(emoji.native)
                           }
+                          onOpenChange={setEmojiPickerOpen}
                         >
                           <Components.Generic.Badge.Root
                             className={mergeCSSClasses(

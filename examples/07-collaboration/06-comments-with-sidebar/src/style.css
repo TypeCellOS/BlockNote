@@ -23,6 +23,7 @@
   flex-direction: column;
   gap: 10px;
   max-height: 100%;
+  min-width: 350px;
   width: 0;
 }
 
@@ -45,11 +46,6 @@
 
 .sidebar-comments-main-container .editor-section {
   max-width: 700px;
-}
-
-.sidebar-comments-main-container .threads-sidebar-section,
-.sidebar-comments-main-container .bn-threads-sidebar .bn-thread {
-  min-width: 0;
 }
 
 .sidebar-comments-main-container .settings {
