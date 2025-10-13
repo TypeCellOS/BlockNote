@@ -156,7 +156,7 @@ export type BlockNoteEditorOptions<
    * @remarks `CommentsOptions`
    */
   comments?: {
-    schema?: BlockNoteSchema<any, any, any>;
+    schema?: CustomBlockNoteSchema<any, any, any>;
     threadStore: ThreadStore;
   };
 
@@ -447,7 +447,7 @@ export class BlockNoteEditor<
   /**
    * The schema of the editor. The schema defines which Blocks, InlineContent, and Styles are available in the editor.
    */
-  public readonly schema: BlockNoteSchema<BSchema, ISchema, SSchema>;
+  public readonly schema: CustomBlockNoteSchema<BSchema, ISchema, SSchema>;
 
   public readonly blockImplementations: BlockSpecs;
   public readonly inlineContentImplementations: InlineContentSpecs;

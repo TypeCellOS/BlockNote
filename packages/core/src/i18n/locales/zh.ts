@@ -2,7 +2,7 @@ import type { Dictionary } from "../dictionary.js";
 
 export const zh: Dictionary = {
   slash_menu: {
-    heading: {
+    heading_1: {
       title: "一级标题",
       subtext: "用于顶级标题",
       aliases: ["h", "heading1", "h1", "标题", "一级标题"],
@@ -38,7 +38,7 @@ export const zh: Dictionary = {
       aliases: ["h6", "heading6", "subheading6", "六级标题"],
       group: "副标题",
     },
-    toggle_heading: {
+    toggle_heading_1: {
       title: "可折叠一级标题",
       subtext: "可折叠的顶级标题",
       aliases: ["h", "heading1", "h1", "标题", "一级标题", "折叠"],

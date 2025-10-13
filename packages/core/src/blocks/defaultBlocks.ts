@@ -75,7 +75,9 @@ const TextColor = createStyleSpec(
     },
     toExternalHTML: (value) => {
       const span = document.createElement("span");
-      if (value !== defaultProps.textColor.default) {
+      // const defaultValue = defaultProps.parse({}).textColor;
+      const defaultValue = defaultProps.shape.textColor.def.defaultValue;
+      if (value !== defaultValue) {
         span.style.color =
           value in COLORS_DEFAULT ? COLORS_DEFAULT[value].text : value;
       }
@@ -111,7 +113,10 @@ const BackgroundColor = createStyleSpec(
     },
     toExternalHTML: (value) => {
       const span = document.createElement("span");
-      if (value !== defaultProps.backgroundColor.default) {
+      // TODO
+      // const defaultValues = defaultProps.parse({});
+      const defaultValue = defaultProps.shape.backgroundColor.def.defaultValue;
+      if (value !== defaultValue) {
         span.style.backgroundColor =
           value in COLORS_DEFAULT ? COLORS_DEFAULT[value].background : value;
       }

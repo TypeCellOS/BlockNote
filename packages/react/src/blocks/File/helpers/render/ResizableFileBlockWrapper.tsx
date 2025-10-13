@@ -1,19 +1,27 @@
 import { FileBlockConfig } from "@blocknote/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 
+import {
+  baseFilePropSchema,
+  optionalFileProps,
+} from "../../../../../../core/src/blocks/defaultFileProps.js";
 import { useUploadLoading } from "../../../../hooks/useUploadLoading.js";
 import { ReactCustomBlockRenderProps } from "../../../../schema/ReactBlockSpec.js";
 import { FileBlockWrapper } from "./FileBlockWrapper.js";
+
+const requiredPropSchema = baseFilePropSchema.extend({
+  ...optionalFileProps.pick({
+    url: true,
+    previewWidth: true,
+    showPreview: true,
+  }).shape,
+});
 
 export const ResizableFileBlockWrapper = (
   props: Omit<
     ReactCustomBlockRenderProps<
       FileBlockConfig["type"],
-      FileBlockConfig["propSchema"] & {
-        showPreview?: { default: true };
-        previewWidth?: { default: number };
-        textAlignment?: { default: "left" };
-      },
+      typeof requiredPropSchema,
       FileBlockConfig["content"]
     >,
     "contentRef"
@@ -49,7 +57,7 @@ export const ResizableFileBlockWrapper = (
       const clientX =
         "touches" in event ? event.touches[0].clientX : event.clientX;
 
-      if (props.block.props.textAlignment === "center") {
+      if ((props.block.props as any).textAlignment === "center") {
         if (resizeParams!.handleUsed === "left") {
           newWidth =
             resizeParams!.initialWidth +
@@ -87,7 +95,7 @@ export const ResizableFileBlockWrapper = (
     const windowMouseUpHandler = () => {
       setResizeParams(undefined);
 
-      (props.editor as any).updateBlock(props.block, {
+      props.editor.updateBlock(props.block, {
         props: {
           previewWidth: width,
         },

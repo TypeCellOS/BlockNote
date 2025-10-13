@@ -18,6 +18,7 @@ import {
   propsToAttributes,
   StyleSchema,
 } from "@blocknote/core";
+import * as z from "zod/v4/core";
 import { Node } from "@tiptap/core";
 import {
   NodeViewProps,
@@ -81,8 +82,12 @@ export function InlineContentWrapper<
       {...Object.fromEntries(
         Object.entries(props.inlineContentProps)
           .filter(([prop, value]) => {
-            const spec = props.propSchema[prop];
-            return value !== spec.default;
+            const spec = props.propSchema._zod.def.shape[prop];
+            const defaultValue =
+              spec instanceof z.$ZodDefault
+                ? spec._zod.def.defaultValue
+                : undefined;
+            return value !== defaultValue;
           })
           .map(([prop, value]) => {
             return [camelToDataKebab(prop), value];

@@ -3,23 +3,23 @@ import {
   BlockConfig,
   BlockFromConfigNoChildren,
 } from "../../../../schema/index.js";
+import {
+  baseFilePropSchema,
+  optionalFileProps,
+} from "../../../defaultFileProps.js";
 import { createFileBlockWrapper } from "./createFileBlockWrapper.js";
+
+const requiredPropSchema = baseFilePropSchema.extend({
+  ...optionalFileProps.pick({
+    url: true,
+    previewWidth: true,
+    showPreview: true,
+  }).shape,
+});
 
 export const createResizableFileBlockWrapper = (
   block: BlockFromConfigNoChildren<
-    BlockConfig<
-      string,
-      {
-        backgroundColor: { default: "default" };
-        name: { default: "" };
-        url: { default: "" };
-        caption: { default: "" };
-        showPreview?: { default: true };
-        previewWidth?: { default: number };
-        textAlignment?: { default: "left" };
-      },
-      "none"
-    >,
+    BlockConfig<string, typeof requiredPropSchema, "none">,
     any,
     any
   >,
@@ -69,7 +69,7 @@ export const createResizableFileBlockWrapper = (
         initialClientX: number;
       }
     | undefined;
-  let width = block.props.previewWidth! as number;
+  let width = block.props.previewWidth;
 
   // Updates the element width with an updated width depending on the cursor X
   // offset from when the resize began, and which resize handle is being used.
@@ -92,7 +92,7 @@ export const createResizableFileBlockWrapper = (
     const clientX =
       "touches" in event ? event.touches[0].clientX : event.clientX;
 
-    if (block.props.textAlignment === "center") {
+    if ((block.props as any).textAlignment === "center") {
       if (resizeParams.handleUsed === "left") {
         newWidth =
           resizeParams.initialWidth +

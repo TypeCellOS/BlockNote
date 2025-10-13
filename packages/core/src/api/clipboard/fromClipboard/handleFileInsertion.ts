@@ -139,7 +139,7 @@ export async function handleFileInsertion<
         props: {
           name: file.name,
         },
-      } as PartialBlock<BSchema, I, S>;
+      } as unknown as PartialBlock<BSchema, I, S>;
 
       let insertedBlockId: string | undefined = undefined;
 
@@ -187,7 +187,7 @@ export async function handleFileInsertion<
               props: {
                 url: updateData,
               },
-            } as PartialBlock<BSchema, I, S>)
+            } as unknown as PartialBlock<BSchema, I, S>)
           : { ...updateData };
 
       editor.updateBlock(insertedBlockId, updatedFileBlock);

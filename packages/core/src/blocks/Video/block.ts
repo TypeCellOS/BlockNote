@@ -1,4 +1,5 @@
 import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
+import { baseFilePropSchema, optionalFileProps } from "../defaultFileProps.js";
 import { defaultProps, parseDefaultProps } from "../defaultProps.js";
 import { parseFigureElement } from "../File/helpers/parse/parseFigureElement.js";
 import { createResizableFileBlockWrapper } from "../File/helpers/render/createResizableFileBlockWrapper.js";
@@ -15,18 +16,24 @@ export interface VideoOptions {
 
 export type VideoBlockConfig = ReturnType<typeof createVideoBlockConfig>;
 
+const videoPropSchema = defaultProps
+  .pick({
+    textAlignment: true,
+    backgroundColor: true,
+  })
+  .extend({
+    ...baseFilePropSchema.shape,
+    ...optionalFileProps.pick({
+      url: true,
+      showPreview: true,
+      previewWidth: true,
+    }).shape,
+  });
+
 export const createVideoBlockConfig = createBlockConfig(
   (_ctx: VideoOptions) => ({
     type: "video" as const,
-    propSchema: {
-      textAlignment: defaultProps.textAlignment,
-      backgroundColor: defaultProps.backgroundColor,
-      name: { default: "" as const },
-      url: { default: "" as const },
-      caption: { default: "" as const },
-      showPreview: { default: true },
-      previewWidth: { default: undefined, type: "number" as const },
-    },
+    propSchema: videoPropSchema,
     content: "none" as const,
   }),
 );
@@ -92,7 +99,9 @@ export const createVideoBlockSpec = createBlockSpec(
       video.controls = true;
       video.contentEditable = "false";
       video.draggable = false;
-      video.width = block.props.previewWidth;
+      if (block.props.previewWidth) {
+        video.width = block.props.previewWidth;
+      }
       videoWrapper.appendChild(video);
 
       return createResizableFileBlockWrapper(

@@ -50,6 +50,22 @@ describe("Test updateBlock typing", () => {
     } catch (e) {
       // ID doesn't exist, which is fine - this is a compile-time check
     }
+
+    try {
+      // TODO: props.level type should propagate correctly
+      // @TODOts-expect-error level 8 doesn't exist
+      getEditor().updateBlock(
+        { id: "placeholder-id" },
+        {
+          type: "heading",
+          props: {
+            level: 8,
+          },
+        },
+      );
+    } catch (e) {
+      // ID doesn't exist, which is fine - this is a compile-time check
+    }
   });
 });
 

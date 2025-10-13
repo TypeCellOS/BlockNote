@@ -2,7 +2,7 @@ import { Dictionary } from "../dictionary.js";
 
 export const he: Dictionary = {
   slash_menu: {
-    heading: {
+    heading_1: {
       title: "כותרת 1",
       subtext: "כותרת ראשית",
       aliases: ["h", "heading1", "h1"],
@@ -20,7 +20,7 @@ export const he: Dictionary = {
       aliases: ["h3", "heading3", "subheading"],
       group: "כותרות",
     },
-    toggle_heading: {
+    toggle_heading_1: {
       title: "כותרת מתקפלת 1",
       subtext: "כותרת ראשית מתקפלת",
       aliases: ["h", "heading1", "h1", "collapsable"],

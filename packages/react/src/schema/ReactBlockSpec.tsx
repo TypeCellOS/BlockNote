@@ -19,6 +19,7 @@ import {
   useReactNodeView,
 } from "@tiptap/react";
 import { FC, ReactNode } from "react";
+import * as z from "zod/v4/core";
 import { renderToDOMSpec } from "./@util/ReactRenderUtil.js";
 
 // this file is mostly analogoues to `customBlocks.ts`, but for React blocks
@@ -33,11 +34,7 @@ export type ReactCustomBlockRenderProps<
     any,
     any
   >;
-  editor: BlockNoteEditor<
-    Record<TName, BlockConfig<TName, TProps, TContent>>,
-    any,
-    any
-  >;
+  editor: BlockNoteEditor<any, any, any>;
   contentRef: (node: HTMLElement | null) => void;
 };
 
@@ -102,8 +99,12 @@ export function BlockContentWrapper<
       {...Object.fromEntries(
         Object.entries(props.blockProps)
           .filter(([prop, value]) => {
-            const spec = props.propSchema[prop];
-            return value !== spec.default;
+            const spec = props.propSchema._zod.def.shape[prop];
+            const defaultValue =
+              spec instanceof z.$ZodDefault
+                ? spec._zod.def.defaultValue
+                : undefined;
+            return value !== defaultValue;
           })
           .map(([prop, value]) => {
             return [camelToDataKebab(prop), value];

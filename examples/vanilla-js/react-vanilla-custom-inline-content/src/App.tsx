@@ -4,18 +4,17 @@ import {
   defaultInlineContentSpecs,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
-import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
+import { useCreateBlockNote } from "@blocknote/react";
+import { z } from "zod/v4";
 
 const mention = createInlineContentSpec(
   {
     type: "mention",
-    propSchema: {
-      user: {
-        default: "",
-      },
-    },
+    propSchema: z.object({
+      user: z.string().default(""),
+    }),
     content: "none",
   },
   {
@@ -33,7 +32,7 @@ const mention = createInlineContentSpec(
 const tag = createInlineContentSpec(
   {
     type: "tag",
-    propSchema: {},
+    propSchema: z.object({}),
     content: "styled",
   },
   {

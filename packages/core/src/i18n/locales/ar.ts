@@ -2,7 +2,7 @@ import type { Dictionary } from "../dictionary.js";
 
 export const ar: Dictionary = {
   slash_menu: {
-    heading: {
+    heading_1: {
       title: "عنوان 1",
       subtext: "يستخدم لعناوين المستوى الأعلى",
       aliases: ["ع", "عنوان1", "ع1"],
@@ -38,7 +38,7 @@ export const ar: Dictionary = {
       aliases: ["ع6", "عنوان6", "العنوان الفرعي الأدنى"],
       group: "العناوين الفرعية",
     },
-    toggle_heading: {
+    toggle_heading_1: {
       title: "عنوان قابل للطي 1",
       subtext: "عنوان قابل للطي لإظهار وإخفاء المحتوى",
       aliases: ["ع", "عنوان1", "ع1", "قابل للطي", "طي"],

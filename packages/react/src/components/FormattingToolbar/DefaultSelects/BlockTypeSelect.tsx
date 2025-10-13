@@ -51,7 +51,7 @@ export const blockTypeSelectItems = (
     isSelected: (block) => block.type === "paragraph",
   },
   {
-    name: dict.slash_menu.heading.title,
+    name: dict.slash_menu.heading_1.title,
     type: "heading",
     props: { level: 1 },
     icon: RiH1,
@@ -111,7 +111,7 @@ export const blockTypeSelectItems = (
       block.props.level === 6,
   },
   {
-    name: dict.slash_menu.toggle_heading.title,
+    name: dict.slash_menu.toggle_heading_1.title,
     type: "heading",
     props: { level: 1, isToggleable: true },
     icon: RiH1,
@@ -120,7 +120,7 @@ export const blockTypeSelectItems = (
       "level" in block.props &&
       block.props.level === 1 &&
       "isToggleable" in block.props &&
-      block.props.isToggleable,
+      block.props.isToggleable === true,
   },
   {
     name: dict.slash_menu.toggle_heading_2.title,
@@ -132,7 +132,7 @@ export const blockTypeSelectItems = (
       "level" in block.props &&
       block.props.level === 2 &&
       "isToggleable" in block.props &&
-      block.props.isToggleable,
+      block.props.isToggleable === true,
   },
   {
     name: dict.slash_menu.toggle_heading_3.title,
@@ -144,7 +144,7 @@ export const blockTypeSelectItems = (
       "level" in block.props &&
       block.props.level === 3 &&
       "isToggleable" in block.props &&
-      block.props.isToggleable,
+      block.props.isToggleable === true,
   },
   {
     name: dict.slash_menu.quote.title,

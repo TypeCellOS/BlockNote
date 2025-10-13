@@ -6,6 +6,8 @@ import {
   StyleSchema,
   defaultProps,
 } from "@blocknote/core";
+import * as z4 from "zod/v4";
+import * as z from "zod/v4/core";
 import { SimpleJSONObjectSchema } from "./JSONSchema.js";
 import { mergeSchemas } from "./mergeSchema.js";
 /*
@@ -122,21 +124,43 @@ function styledTextToJSONSchema() {
 export function propSchemaToJSONSchema(
   propSchema: PropSchema,
 ): SimpleJSONObjectSchema {
+  // FIXME: we can use something like zod-to-json-schema to generate this
+  // (for now this code is not used by default, only in experimental JSON mode)
   return {
     type: "object",
     properties: Object.fromEntries(
-      Object.entries(propSchema)
+      Object.entries(propSchema._zod.def.shape)
         .filter(([_key, val]) => {
           // for now skip optional props
-          return val.default !== undefined;
+          return !(val instanceof z.$ZodOptional);
           //&& key !== "language";
         })
         .map(([key, val]) => {
+          const v = val instanceof z.$ZodDefault ? val._zod.def.innerType : val;
+
+          // hardcoded for now (see note above to migrate to zod-to-json-schema)
+          if (v instanceof z.$ZodUnion) {
+            let type = "object";
+            // [0] assumes all options have the same type
+            if (v._zod.def.options[0] instanceof z.$ZodLiteral) {
+              type = typeof v._zod.def.options[0]._zod.def.values[0];
+            }
+            return [
+              key,
+              {
+                type,
+                enum: v._zod.def.options.flatMap((v) =>
+                  v instanceof z.$ZodLiteral ? v._zod.def.values : undefined,
+                ),
+              },
+            ];
+          }
+
           return [
             key,
             {
-              type: typeof val.default,
-              enum: val.values,
+              type: v._zod.def.type,
+              enum: undefined,
             },
           ];
         }),
@@ -237,18 +261,15 @@ function blockSchemaToJSONSchema(schema: BlockSchema) {
   };
 }
 
-type Writeable<T> = { -readonly [P in keyof T]: T[P] };
-
 function schemaOps(
   schema: BlockNoteSchema<BlockSchema, InlineContentSchema, StyleSchema>,
 ) {
-  const clone: Writeable<typeof schema> = JSON.parse(
-    JSON.stringify({
-      blockSchema: schema.blockSchema,
-      inlineContentSchema: schema.inlineContentSchema,
-      styleSchema: schema.styleSchema,
-    }),
-  );
+  const clone = {
+    blockSchema: schema.blockSchema,
+    inlineContentSchema: schema.inlineContentSchema,
+    styleSchema: schema.styleSchema,
+  };
+
   return {
     // TODO
     removeFileBlocks() {
@@ -267,11 +288,13 @@ function schemaOps(
             key,
             {
               ...val,
-              propSchema: Object.fromEntries(
-                Object.entries(val.propSchema).filter(
-                  (key) => typeof (defaultProps as any)[key[0]] === "undefined",
+              propSchema: z4.object(
+                Object.fromEntries(
+                  Object.entries(val.propSchema._zod.def.shape).filter(
+                    ([key]) => !(key in defaultProps._zod.def.shape),
+                  ),
                 ),
-              ) as any,
+              ),
             },
           ];
         }),

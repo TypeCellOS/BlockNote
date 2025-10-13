@@ -12,10 +12,10 @@ export const createQuoteBlockConfig = createBlockConfig(
   () =>
     ({
       type: "quote" as const,
-      propSchema: {
-        backgroundColor: defaultProps.backgroundColor,
-        textColor: defaultProps.textColor,
-      },
+      propSchema: defaultProps.pick({
+        backgroundColor: true,
+        textColor: true,
+      }),
       content: "inline" as const,
     }) as const,
 );

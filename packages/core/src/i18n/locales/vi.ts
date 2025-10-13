@@ -2,7 +2,7 @@ import type { Dictionary } from "../dictionary.js";
 
 export const vi: Dictionary = {
   slash_menu: {
-    heading: {
+    heading_1: {
       title: "Tiêu đề H1",
       subtext: "Sử dụng cho tiêu đề cấp cao nhất",
       aliases: ["h", "tieude1", "dd1"],
@@ -38,7 +38,7 @@ export const vi: Dictionary = {
       aliases: ["h6", "tieude6", "tieudephu6"],
       group: "Tiêu đề phụ",
     },
-    toggle_heading: {
+    toggle_heading_1: {
       title: "Tiêu đề có thể thu gọn H1",
       subtext: "Tiêu đề cấp cao nhất có thể thu gọn",
       aliases: ["h", "tieude1", "dd1", "thugon"],

@@ -1,3 +1,4 @@
+import { z } from "zod/v4";
 import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
 
@@ -7,7 +8,7 @@ export const createDividerBlockConfig = createBlockConfig(
   () =>
     ({
       type: "divider" as const,
-      propSchema: {},
+      propSchema: z.object({}),
       content: "none",
     }) as const,
 );

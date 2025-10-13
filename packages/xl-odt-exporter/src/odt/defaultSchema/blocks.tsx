@@ -8,8 +8,8 @@ import {
   StyledText,
   TableCell,
 } from "@blocknote/core";
-import { ODTExporter } from "../odtExporter.js";
 import { multiColumnSchema } from "@blocknote/xl-multi-column";
+import { ODTExporter } from "../odtExporter.js";
 
 export const getTabs = (nestingLevel: number) => {
   return Array.from({ length: nestingLevel }, () => <text:tab />);
@@ -361,7 +361,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
       {
         type: "columnList";
         content: "none";
-        propSchema: Record<string, any>;
+        propSchema: any;
       },
       any,
       any
@@ -382,7 +382,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
           const style = ex.registerStyle((name) => (
             <style:style style:name={name} style:family="table-column">
               <style:table-column-properties
-                style:rel-column-width={`${column.props.width * 100}*`}
+                style:rel-column-width={`${(column.props.width as number) * 100}*`}
               />
             </style:style>
           ));

@@ -10,9 +10,9 @@
       "props": {
         "textAlignment": "left",
         "backgroundColor": "default",
+        "caption": "",
         "name": "",
         "url": "https://ralfvanveen.com/wp-content/uploads/2021/06/Placeholder-_-Glossary.svg",
-        "caption": "",
         "showPreview": true
       },
       "children": []

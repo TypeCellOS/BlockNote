@@ -24,6 +24,7 @@
       "backgroundColor": "default",
       "caption": "",
       "name": "",
+      "previewWidth": undefined,
       "showPreview": true,
       "textAlignment": "left",
       "url": "exampleURL",

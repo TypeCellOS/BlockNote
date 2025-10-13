@@ -15,9 +15,7 @@ export const createToggleListItemBlockConfig = createBlockConfig(
   () =>
     ({
       type: "toggleListItem" as const,
-      propSchema: {
-        ...defaultProps,
-      },
+      propSchema: defaultProps,
       content: "inline" as const,
     }) as const,
 );

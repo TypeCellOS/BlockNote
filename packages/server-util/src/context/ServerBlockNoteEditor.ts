@@ -3,6 +3,7 @@ import {
   BlockNoteEditor,
   BlockNoteEditorOptions,
   BlockSchema,
+  CustomBlockNoteSchema,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
@@ -75,15 +76,19 @@ export class ServerBlockNoteEditor<
   }
 
   public static create<
-    BSchema extends BlockSchema = DefaultBlockSchema,
-    ISchema extends InlineContentSchema = DefaultInlineContentSchema,
-    SSchema extends StyleSchema = DefaultStyleSchema,
-  >(options: Partial<BlockNoteEditorOptions<BSchema, ISchema, SSchema>> = {}) {
-    return new ServerBlockNoteEditor(options) as ServerBlockNoteEditor<
-      BSchema,
-      ISchema,
-      SSchema
-    >;
+    Options extends Partial<BlockNoteEditorOptions<any, any, any>> | undefined,
+  >(
+    options?: Options,
+  ): Options extends {
+    schema: CustomBlockNoteSchema<infer BSchema, infer ISchema, infer SSchema>;
+  }
+    ? ServerBlockNoteEditor<BSchema, ISchema, SSchema>
+    : ServerBlockNoteEditor<
+        DefaultBlockSchema,
+        DefaultInlineContentSchema,
+        DefaultStyleSchema
+      > {
+    return new ServerBlockNoteEditor(options ?? {}) as any;
   }
 
   protected constructor(

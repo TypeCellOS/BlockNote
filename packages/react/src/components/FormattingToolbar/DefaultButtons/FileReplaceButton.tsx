@@ -7,6 +7,10 @@ import {
 import { useEffect, useState } from "react";
 import { RiImageEditFill } from "react-icons/ri";
 
+import {
+  baseFilePropSchema,
+  optionalFileProps,
+} from "../../../../../core/src/blocks/defaultFileProps.js";
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks.js";
@@ -35,9 +39,14 @@ export const FileReplaceButton = () => {
 
   if (
     block === undefined ||
-    !blockHasType(block, editor, block.type, {
-      url: "string",
-    }) ||
+    !blockHasType(
+      block,
+      editor,
+      block.type,
+      baseFilePropSchema.extend({
+        ...optionalFileProps.pick({ url: true }).shape,
+      }),
+    ) ||
     !editor.isEditable
   ) {
     return null;

@@ -1,11 +1,12 @@
 import { BlockNoteEditor, addNodeAndExtensionsToSpec } from "@blocknote/core";
+import { z } from "zod/v4";
 
 import { RiSeparator } from "react-icons/ri";
 
 export const Separator = addNodeAndExtensionsToSpec(
   {
     type: "separator" as const,
-    propSchema: {} as const,
+    propSchema: z.object({}),
     content: "none",
   },
   {

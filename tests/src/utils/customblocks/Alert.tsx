@@ -6,6 +6,7 @@ import {
   addNodeAndExtensionsToSpec,
   defaultProps,
 } from "@blocknote/core";
+import { z } from "zod/v4";
 
 import { RiAlertFill } from "react-icons/ri";
 const values = {
@@ -30,14 +31,16 @@ const values = {
 export const Alert = addNodeAndExtensionsToSpec(
   {
     type: "alert" as const,
-    propSchema: {
-      textAlignment: defaultProps.textAlignment,
-      textColor: defaultProps.textColor,
-      type: {
-        default: "warning",
-        values: ["warning", "error", "info", "success"],
-      },
-    },
+    propSchema: defaultProps
+      .pick({
+        textColor: true,
+        textAlignment: true,
+      })
+      .extend({
+        type: z
+          .enum(["warning", "error", "info", "success"])
+          .default("warning"),
+      }),
     content: "inline",
   },
   {

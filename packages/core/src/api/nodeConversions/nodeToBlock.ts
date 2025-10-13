@@ -1,4 +1,5 @@
 import { Mark, Node, Schema, Slice } from "@tiptap/pm/model";
+import * as z from "zod/v4/core";
 import type { Block } from "../../blocks/defaultBlocks.js";
 import UniqueID from "../../extensions/UniqueID/UniqueID.js";
 import type {
@@ -25,7 +26,6 @@ import {
   getInlineContentSchema,
   getStyleSchema,
 } from "../pmUtil.js";
-
 /**
  * Converts an internal (prosemirror) table node contentto a BlockNote Tablecontent
  */
@@ -355,7 +355,7 @@ export function nodeToCustomInlineContent<
       throw Error("ic node is of an unrecognized type: " + node.type.name);
     }
 
-    const propSchema = icConfig.propSchema;
+    const propSchema = icConfig.propSchema._zod.def.shape;
 
     if (attr in propSchema) {
       props[attr] = value;
@@ -424,20 +424,12 @@ export function nodeToBlock<
     throw Error("Block is of an unrecognized type: " + blockInfo.blockNoteType);
   }
 
-  const props: any = {};
-  for (const [attr, value] of Object.entries({
+  const rawAttrs = {
     ...node.attrs,
     ...(blockInfo.isBlockContainer ? blockInfo.blockContent.node.attrs : {}),
-  })) {
-    const propSchema = blockSpec.propSchema;
+  };
 
-    if (
-      attr in propSchema &&
-      !(propSchema[attr].default === undefined && value === undefined)
-    ) {
-      props[attr] = value;
-    }
-  }
+  const props = z.parse(blockSpec.propSchema, rawAttrs);
 
   const blockConfig = blockSchema[blockInfo.blockNoteType];
 

@@ -1,7 +1,7 @@
 import * as Y from "yjs";
 
-import { MigrationRule } from "./migrationRule.js";
 import { defaultProps } from "../../../../blocks/defaultProps.js";
+import { MigrationRule } from "./migrationRule.js";
 
 // Helper function to recursively traverse a `Y.XMLElement` and its descendant
 // elements.
@@ -45,10 +45,12 @@ export const moveColorAttributes: MigrationRule = (fragment, tr) => {
             backgroundColor: element.getAttribute("backgroundColor"),
           };
 
-          if (colors.textColor === defaultProps.textColor.default) {
+          // TODO: TBD best way to extract defaults
+          const defaultValues = defaultProps.parse({});
+          if (colors.textColor === defaultValues.textColor) {
             colors.textColor = undefined;
           }
-          if (colors.backgroundColor === defaultProps.backgroundColor.default) {
+          if (colors.backgroundColor === defaultValues.backgroundColor) {
             colors.backgroundColor = undefined;
           }
 

@@ -9,6 +9,7 @@ import {
   createReactStyleSpec,
 } from "@blocknote/react";
 import { createContext, useContext } from "react";
+import { z } from "zod/v4";
 
 // BLOCKS ----------------------------------------------------------------------
 
@@ -68,11 +69,9 @@ const createContextParagraph = createReactBlockSpec(
 const Mention = createReactInlineContentSpec(
   {
     type: "mention",
-    propSchema: {
-      user: {
-        default: "",
-      },
-    },
+    propSchema: z.object({
+      user: z.string().default(""),
+    }),
     content: "none",
   },
   {
@@ -111,7 +110,7 @@ const Mention = createReactInlineContentSpec(
 const Tag = createReactInlineContentSpec(
   {
     type: "tag",
-    propSchema: {},
+    propSchema: z.object({}),
     content: "styled",
   },
   {

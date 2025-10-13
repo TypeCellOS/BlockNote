@@ -3,6 +3,7 @@ import { BlockNoteEditor, defaultProps } from "@blocknote/core";
 import { createReactBlockSpec } from "@blocknote/react";
 import { useEffect, useState } from "react";
 import { RiAlertFill } from "react-icons/ri";
+import { z } from "zod/v4";
 
 const values = {
   warning: {
@@ -26,14 +27,16 @@ const values = {
 export const ReactAlert = createReactBlockSpec(
   {
     type: "reactAlert" as const,
-    propSchema: {
-      textAlignment: defaultProps.textAlignment,
-      textColor: defaultProps.textColor,
-      type: {
-        default: "warning",
-        values: ["warning", "error", "info", "success"],
-      } as const,
-    },
+    propSchema: defaultProps
+      .pick({
+        textAlignment: true,
+        textColor: true,
+      })
+      .extend({
+        type: z
+          .enum(["warning", "error", "info", "success"])
+          .default("warning"),
+      }),
     content: "inline" as const,
   },
   {

@@ -7,6 +7,7 @@
       "backgroundColor": "default",
       "caption": "",
       "name": "",
+      "previewWidth": undefined,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm",

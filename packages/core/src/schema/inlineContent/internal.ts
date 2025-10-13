@@ -1,4 +1,5 @@
 import { KeyboardShortcutCommand, Node } from "@tiptap/core";
+import * as z from "zod/v4/core";
 
 import { camelToDataKebab } from "../../util/string.js";
 import { PropSchema, Props } from "../propTypes.js";
@@ -32,15 +33,18 @@ export function addInlineContentAttributes<
   element.dom.setAttribute("data-inline-content-type", inlineContentType);
   // Adds props as HTML attributes in kebab-case with "data-" prefix. Skips props
   // set to their default values.
-  Object.entries(inlineContentProps)
-    .filter(([prop, value]) => {
-      const spec = propSchema[prop];
-      return value !== spec.default;
-    })
-    .map(([prop, value]) => {
-      return [camelToDataKebab(prop), value];
-    })
-    .forEach(([prop, value]) => element.dom.setAttribute(prop, value));
+  for (const [prop, value] of Object.entries(inlineContentProps)) {
+    const spec = propSchema._zod.def.shape[prop];
+    const defaultValue =
+      spec instanceof z.$ZodDefault ? spec._zod.def.defaultValue : undefined;
+    if (value !== defaultValue) {
+      if (typeof value === "string") {
+        element.dom.setAttribute(camelToDataKebab(prop), value);
+      } else {
+        element.dom.setAttribute(camelToDataKebab(prop), JSON.stringify(value));
+      }
+    }
+  }
 
   if (element.contentDOM) {
     element.contentDOM.setAttribute("data-editable", "");

@@ -1,11 +1,12 @@
+import { z } from "zod/v4";
 import {
   BlockSchema,
   createBlockConfig,
   createBlockSpec,
+  CustomBlockNoteSchema,
   InlineContentSchema,
   StyleSchema,
 } from "../../schema/index.js";
-import { BlockNoteSchema } from "../BlockNoteSchema.js";
 
 export type PageBreakBlockConfig = ReturnType<
   typeof createPageBreakBlockConfig
@@ -15,7 +16,7 @@ export const createPageBreakBlockConfig = createBlockConfig(
   () =>
     ({
       type: "pageBreak" as const,
-      propSchema: {},
+      propSchema: z.object({}),
       content: "none",
     }) as const,
 );
@@ -62,7 +63,7 @@ export const withPageBreak = <
   I extends InlineContentSchema,
   S extends StyleSchema,
 >(
-  schema: BlockNoteSchema<B, I, S>,
+  schema: CustomBlockNoteSchema<B, I, S>,
 ) => {
   return schema.extend({
     blockSpecs: {

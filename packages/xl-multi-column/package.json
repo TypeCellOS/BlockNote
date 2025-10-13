@@ -66,7 +66,7 @@
     "@types/react-dom": "^19.1.0",
     "@vitest/ui": "^2.1.4",
     "eslint": "^8.10.0",
-    "jsdom": "^21.1.0",
+    "jsdom": "^25.0.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "rimraf": "^5.0.5",

@@ -4,6 +4,7 @@ import {
   createBlockConfig,
   createBlockSpec,
 } from "../../schema/index.js";
+import { baseFilePropSchema, optionalFileProps } from "../defaultFileProps.js";
 import { defaultProps, parseDefaultProps } from "../defaultProps.js";
 import { parseFigureElement } from "../File/helpers/parse/parseFigureElement.js";
 import { createFileBlockWrapper } from "../File/helpers/render/createFileBlockWrapper.js";
@@ -20,29 +21,23 @@ export interface AudioOptions {
 
 export type AudioBlockConfig = ReturnType<typeof createAudioBlockConfig>;
 
+const audioPropSchema = defaultProps
+  .pick({
+    backgroundColor: true,
+  })
+  .extend({
+    ...baseFilePropSchema.shape,
+    ...optionalFileProps.pick({
+      url: true,
+      showPreview: true,
+    }).shape,
+  });
+
 export const createAudioBlockConfig = createBlockConfig(
   (_ctx: AudioOptions) =>
     ({
       type: "audio" as const,
-      propSchema: {
-        backgroundColor: defaultProps.backgroundColor,
-        // File name.
-        name: {
-          default: "" as const,
-        },
-        // File url.
-        url: {
-          default: "" as const,
-        },
-        // File caption.
-        caption: {
-          default: "" as const,
-        },
-
-        showPreview: {
-          default: true,
-        },
-      },
+      propSchema: audioPropSchema,
       content: "none",
     }) as const,
 );
