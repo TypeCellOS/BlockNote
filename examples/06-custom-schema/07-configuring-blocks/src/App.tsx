@@ -18,6 +18,24 @@ export default function App() {
         }),
       },
     }),
+    initialContent: [
+      {
+        type: "paragraph",
+        content: "Welcome to this demo!",
+      },
+      {
+        type: "paragraph",
+        content: "Press the '/' key to open the Slash Menu",
+      },
+      {
+        type: "paragraph",
+        content:
+          "Notice how only heading levels 1-3 are avaiable, and toggle headings are not shown.",
+      },
+      {
+        type: "paragraph",
+      },
+    ],
   });
 
   // Renders the editor instance using a React component.
