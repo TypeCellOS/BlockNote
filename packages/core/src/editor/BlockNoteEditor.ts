@@ -1482,7 +1482,7 @@ export class BlockNoteEditor<
    * @returns The blocks, serialized as an HTML string.
    */
   public blocksToFullHTML(
-    blocks: PartialBlock<BSchema, ISchema, SSchema>[],
+    blocks: PartialBlock<BSchema, ISchema, SSchema>[] = this.document,
   ): string {
     return this._exportManager.blocksToFullHTML(blocks);
   }
