@@ -37,4 +37,23 @@ describe("Test replaceBlocks", () => {
 
     expect(getEditor().document).toMatchSnapshot();
   });
+
+  it("Replace all blocks in columns with single block", () => {
+    getEditor().replaceBlocks(
+      [
+        "column-paragraph-0",
+        "column-paragraph-1",
+        "column-paragraph-2",
+        "column-paragraph-3",
+      ],
+      [
+        {
+          type: "paragraph",
+          content: "New Paragraph",
+        },
+      ],
+    );
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
 });

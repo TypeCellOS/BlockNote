@@ -101,7 +101,7 @@ export function moveFirstBlockInColumn(
           false,
         ),
       );
-      const pos = tr.doc.resolve(column.bnBlock.beforePos);
+      const pos = tr.doc.resolve(columnList.bnBlock.beforePos);
       tr.setSelection(TextSelection.between(pos, pos));
 
       return pos;
