@@ -1,5 +1,6 @@
-import type { Node } from "prosemirror-model";
-import type { Transaction } from "prosemirror-state";
+import { ResolvedPos, Slice, type Node } from "prosemirror-model";
+import { TextSelection, type Transaction } from "prosemirror-state";
+import { ReplaceAroundStep } from "prosemirror-transform";
 import type { Block, PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import type {
   BlockIdentifier,
@@ -7,9 +8,158 @@ import type {
   InlineContentSchema,
   StyleSchema,
 } from "../../../../schema/index.js";
+import { getBlockInfoFromResolvedPos } from "../../../getBlockInfoFromPos.js";
 import { blockToNode } from "../../../nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getPmSchema } from "../../../pmUtil.js";
+import {
+  getParentBlockInfo,
+  getPrevBlockInfo,
+} from "../mergeBlocks/mergeBlocks.js";
+
+// TODO: Where should this function go?
+/**
+ * Moves the first block in a column to the previous/next column and handles
+ * all necessary collapsing of `column`/`columnList` nodes. Only moves the
+ * block to the start of the next column if it's in the first column.
+ * Otherwise, moves the block to the end of the previous column.
+ * @param tr The transaction to apply changes to.
+ * @param blockBeforePos The position just before the first block in the column.
+ * @returns The position just before the block, after it's moved.
+ */
+export function moveFirstBlockInColumn(
+  tr: Transaction,
+  blockBeforePos: ResolvedPos,
+): ResolvedPos {
+  const blockInfo = getBlockInfoFromResolvedPos(blockBeforePos);
+  if (!blockInfo.isBlockContainer) {
+    throw new Error(
+      "Invalid blockBeforePos passed to moveFirstBlockInColumn: does not point to blockContainer node.",
+    );
+  }
+
+  const prevBlockInfo = getPrevBlockInfo(tr.doc, blockInfo.bnBlock.beforePos);
+  if (prevBlockInfo) {
+    throw new Error(
+      "Invalid blockBeforePos passed to moveFirstBlockInColumn: does not point to first blockContainer node in column.",
+    );
+  }
+
+  const parentBlockInfo = getParentBlockInfo(
+    tr.doc,
+    blockInfo.bnBlock.beforePos,
+  );
+  if (parentBlockInfo?.blockNoteType !== "column") {
+    throw new Error(
+      "Invalid blockBeforePos passed to moveFirstBlockInColumn: blockContainer node is not child of column.",
+    );
+  }
+
+  const column = parentBlockInfo;
+  const columnList = getParentBlockInfo(tr.doc, column.bnBlock.beforePos);
+  if (columnList?.blockNoteType !== "columnList") {
+    throw new Error(
+      "Invalid blockBeforePos passed to moveFirstBlockInColumn: blockContainer node is child of column, but column is not child of columnList node.",
+    );
+  }
+
+  const shouldRemoveColumn = column.childContainer!.node.childCount === 1;
+
+  const shouldRemoveColumnList =
+    shouldRemoveColumn && columnList.childContainer!.node.childCount === 2;
+
+  const isFirstColumn =
+    columnList.childContainer!.node.firstChild === column.bnBlock.node;
+
+  const blockToMove = tr.doc.slice(
+    blockInfo.bnBlock.beforePos,
+    blockInfo.bnBlock.afterPos,
+    false,
+  );
+
+  /*
+  There are 3 different cases:
+  a) remove entire column list (if no columns would be remaining)
+  b) remove just a column (if no blocks inside a column would be remaining)
+  c) keep columns (if there are blocks remaining inside a column)
+
+  Each of these 3 cases has 2 sub-cases, depending on whether the backspace happens at the start of the first (most-left) column,
+  or at the start of a non-first column.
+  */
+  if (shouldRemoveColumnList) {
+    if (isFirstColumn) {
+      tr.step(
+        new ReplaceAroundStep(
+          // replace entire column list
+          columnList.bnBlock.beforePos,
+          columnList.bnBlock.afterPos,
+          // select content of remaining column:
+          column.bnBlock.afterPos + 1,
+          columnList.bnBlock.afterPos - 2,
+          blockToMove,
+          blockToMove.size, // append existing content to blockToMove
+          false,
+        ),
+      );
+      const pos = tr.doc.resolve(column.bnBlock.beforePos);
+      tr.setSelection(TextSelection.between(pos, pos));
+
+      return pos;
+    } else {
+      // replaces the column list with the blockToMove slice, prepended with the content of the remaining column
+      tr.step(
+        new ReplaceAroundStep(
+          // replace entire column list
+          columnList.bnBlock.beforePos,
+          columnList.bnBlock.afterPos,
+          // select content of existing column:
+          columnList.bnBlock.beforePos + 2,
+          column.bnBlock.beforePos - 1,
+          blockToMove,
+          0, // prepend existing content to blockToMove
+          false,
+        ),
+      );
+      const pos = tr.doc.resolve(tr.mapping.map(column.bnBlock.beforePos - 1));
+      tr.setSelection(TextSelection.between(pos, pos));
+
+      return pos;
+    }
+  } else if (shouldRemoveColumn) {
+    if (isFirstColumn) {
+      // delete column
+      tr.delete(column.bnBlock.beforePos, column.bnBlock.afterPos);
+
+      // move before columnlist
+      tr.insert(columnList.bnBlock.beforePos, blockToMove.content);
+
+      const pos = tr.doc.resolve(columnList.bnBlock.beforePos);
+      tr.setSelection(TextSelection.between(pos, pos));
+
+      return pos;
+    } else {
+      // just delete the </column><column> closing and opening tags to merge the columns
+      tr.delete(column.bnBlock.beforePos - 1, column.bnBlock.beforePos + 1);
+      const pos = tr.doc.resolve(column.bnBlock.beforePos - 1);
+
+      return pos;
+    }
+  } else {
+    // delete block
+    tr.delete(blockInfo.bnBlock.beforePos, blockInfo.bnBlock.afterPos);
+    if (isFirstColumn) {
+      // move before columnlist
+      tr.insert(columnList.bnBlock.beforePos - 1, blockToMove.content);
+    } else {
+      // append block to previous column
+      tr.insert(column.bnBlock.beforePos - 1, blockToMove.content);
+    }
+    const pos = tr.doc.resolve(column.bnBlock.beforePos - 1);
+    tr.setSelection(TextSelection.between(pos, pos));
+
+    return pos;
+  }
+}
 
 export function removeAndInsertBlocks<
   BSchema extends BlockSchema,
@@ -70,15 +220,29 @@ export function removeAndInsertBlocks<
     }
 
     const oldDocSize = tr.doc.nodeSize;
-    // Checks if the block is the only child of its parent. In this case, we
-    // need to delete the parent `blockGroup` node instead of just the
-    // `blockContainer`.
+
     const $pos = tr.doc.resolve(pos - removedSize);
-    if (
+    if ($pos.node().type.name === "column" && $pos.node().childCount === 1) {
+      // Checks if the block is the only child of a parent `column` node. In
+      // this case, we need to collapse the `column` or parent `columnList`,
+      // depending on if the `columnList` has more than 2 children. This is
+      // handled by `moveFirstBlockInColumn`.
+      const $newPos = moveFirstBlockInColumn(tr, $pos);
+      // Instead of deleting it, `moveFirstBlockInColumn` moves the block in
+      // order to handle the columns after, so we have to delete it manually.
+      tr.replace(
+        $newPos.pos,
+        $newPos.pos + $newPos.nodeAfter!.nodeSize,
+        Slice.empty,
+      );
+    } else if (
       $pos.node().type.name === "blockGroup" &&
       $pos.node($pos.depth - 1).type.name !== "doc" &&
       $pos.node().childCount === 1
     ) {
+      // Checks if the block is the only child of a parent `blockGroup` node.
+      // In this case, we need to delete the parent `blockGroup` node instead
+      // of just the `blockContainer`.
       tr.delete($pos.before(), $pos.after());
     } else {
       tr.delete(pos - removedSize, pos - removedSize + node.nodeSize);
@@ -89,7 +253,7 @@ export function removeAndInsertBlocks<
     return false;
   });
 
-  // Throws an error if now all blocks could be found.
+  // Throws an error if not all blocks could be found.
   if (idsOfBlocksToRemove.size > 0) {
     const notFoundIds = [...idsOfBlocksToRemove].join("\n");
 
