@@ -11,6 +11,12 @@ describe("Test removeBlocks", () => {
     expect(getEditor().document).toMatchSnapshot();
   });
 
+  it("Remove all blocks in second column", () => {
+    getEditor().removeBlocks(["column-paragraph-2", "column-paragraph-3"]);
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
   it("Remove all blocks in columns", () => {
     getEditor().removeBlocks([
       "column-paragraph-0",
