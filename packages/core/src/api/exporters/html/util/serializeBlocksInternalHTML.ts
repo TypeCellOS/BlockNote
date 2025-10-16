@@ -1,6 +1,6 @@
 import { DOMSerializer, Fragment, Node } from "prosemirror-model";
 
-import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
+import { Block } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import {
   BlockSchema,
@@ -13,7 +13,6 @@ import {
   tableContentToNodes,
 } from "../../../nodeConversions/blockToNode.js";
 
-import * as z from "zod/v4/core";
 import { nodeToCustomInlineContent } from "../../../nodeConversions/nodeToBlock.js";
 export function serializeInlineContentInternalHTML<
   BSchema extends BlockSchema,
@@ -21,7 +20,7 @@ export function serializeInlineContentInternalHTML<
   S extends StyleSchema,
 >(
   editor: BlockNoteEditor<any, I, S>,
-  blockContent: PartialBlock<BSchema, I, S>["content"],
+  blockContent: Block<BSchema, I, S>["content"],
   serializer: DOMSerializer,
   blockType?: string,
   options?: { document?: Document },
@@ -133,28 +132,11 @@ function serializeBlock<
   S extends StyleSchema,
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
-  block: PartialBlock<BSchema, I, S>,
+  block: Block<BSchema, I, S>,
   serializer: DOMSerializer,
   options?: { document?: Document },
 ) {
   const BC_NODE = editor.pmSchema.nodes["blockContainer"];
-
-  // set default props in case we were passed a partial block
-  // TODO: should be a nicer way for this / or move to caller
-  const props = block.props || {};
-  for (const [name, spec] of Object.entries(
-    editor.schema.blockSchema[
-      block.type as keyof typeof editor.schema.blockSchema
-    ].propSchema._zod.def.shape,
-  )) {
-    if (
-      !(name in props) &&
-      spec instanceof z.$ZodDefault &&
-      spec._zod.def.defaultValue !== undefined
-    ) {
-      (props as any)[name] = spec._zod.def.defaultValue;
-    }
-  }
 
   const impl = editor.blockImplementations[block.type as any].implementation;
   const ret = impl.render.call(
@@ -162,14 +144,14 @@ function serializeBlock<
       renderType: "dom",
       props: undefined,
     },
-    { ...block, props } as any,
+    block,
     editor as any,
   );
 
   if (ret.contentDOM && block.content) {
     const ic = serializeInlineContentInternalHTML(
       editor,
-      block.content as any, // TODO
+      block.content as never, // TODO
       serializer,
       block.type,
       options,
@@ -197,7 +179,7 @@ function serializeBlock<
   const bc = BC_NODE.spec?.toDOM?.(
     BC_NODE.create({
       id: block.id,
-      ...props,
+      ...block.props,
     }),
   ) as {
     dom: HTMLElement;
@@ -220,7 +202,7 @@ function serializeBlocks<
   S extends StyleSchema,
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
-  blocks: PartialBlock<BSchema, I, S>[],
+  blocks: Block<BSchema, I, S>[],
   serializer: DOMSerializer,
   options?: { document?: Document },
 ) {
@@ -241,7 +223,7 @@ export const serializeBlocksInternalHTML = <
   S extends StyleSchema,
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
-  blocks: PartialBlock<BSchema, I, S>[],
+  blocks: Block<BSchema, I, S>[],
   serializer: DOMSerializer,
   options?: { document?: Document },
 ) => {

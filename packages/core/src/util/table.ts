@@ -1,10 +1,11 @@
 import type {
-  InlineContentSchema,
-  StyleSchema,
-  PartialInlineContent,
   InlineContent,
+  InlineContentSchema,
+  PartialInlineContent,
+  PartialTableCell,
+  StyleSchema,
+  TableCell,
 } from "../schema";
-import { PartialTableCell, TableCell } from "../schema/blocks/types.js";
 
 /**
  * This will map a table cell to a TableCell object.
@@ -36,6 +37,7 @@ export function mapTableCell<
         }
       : {
           type: "tableCell",
+          // FIXME: content can actually be Partial, we should probably handle this as well
           content: ([] as InlineContent<T, S>[]).concat(content as any),
           props: {
             backgroundColor: "default",

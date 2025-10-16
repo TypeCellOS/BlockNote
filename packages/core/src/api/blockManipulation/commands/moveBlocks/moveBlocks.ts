@@ -5,7 +5,6 @@ import {
   Transaction,
 } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
-
 import { Block } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
 import { BlockIdentifier } from "../../../../schema/index.js";

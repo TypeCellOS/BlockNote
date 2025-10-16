@@ -2,6 +2,7 @@ import {
   BlockNoteSchema,
   defaultBlockSpecs,
   defaultProps,
+  partialBlockToFullBlock,
 } from "@blocknote/core";
 import { createReactBlockSpec } from "@blocknote/react";
 import { createContext, useContext } from "react";
@@ -56,13 +57,12 @@ describe("Test ServerBlockNoteEditor with React blocks", () => {
     const editor = ServerBlockNoteEditor.create({
       schema,
     });
-    const html = await editor.blocksToFullHTML([
-      {
-        id: "1",
-        type: "simpleReactCustomParagraph",
-        content: "React Custom Paragraph",
-      },
-    ]);
+    const fullBlock = partialBlockToFullBlock(editor.editor.schema, {
+      id: "1",
+      type: "simpleReactCustomParagraph",
+      content: "React Custom Paragraph",
+    });
+    const html = await editor.blocksToFullHTML([fullBlock]);
     expect(html).toMatchSnapshot();
   });
 
@@ -75,14 +75,14 @@ describe("Test ServerBlockNoteEditor with React blocks", () => {
       ({ children }) => (
         <TestContext.Provider value={true}>{children}</TestContext.Provider>
       ),
-      async () =>
-        editor.blocksToFullHTML([
-          {
-            id: "1",
-            type: "reactContextParagraph",
-            content: "React Context Paragraph",
-          },
-        ]),
+      async () => {
+        const fullBlock = partialBlockToFullBlock(editor.editor.schema, {
+          id: "1",
+          type: "reactContextParagraph",
+          content: "React Context Paragraph",
+        });
+        return editor.blocksToFullHTML([fullBlock]);
+      },
     );
 
     expect(html).toMatchSnapshot();

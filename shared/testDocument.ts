@@ -2,15 +2,15 @@ import {
   BlockNoteSchema,
   createPageBreakBlockSpec,
   defaultBlockSpecs,
+  partialBlocksToFullBlocks,
 } from "@blocknote/core";
 import * as z from "zod/v4";
-import { partialBlocksToBlocksForTesting } from "./formatConversionTestUtil.js";
 
 // @ts-ignore
 const y = z; // needed to fix build
 
 // TODO: Update tests that use this to the new format and remove
-export const testDocument = partialBlocksToBlocksForTesting(
+export const testDocument = partialBlocksToFullBlocks(
   BlockNoteSchema.create({
     blockSpecs: { ...defaultBlockSpecs, pageBreak: createPageBreakBlockSpec() },
   }),

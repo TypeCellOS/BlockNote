@@ -11,7 +11,6 @@ import {
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
-  PartialBlock,
 } from "../../blocks/defaultBlocks.js";
 import {
   BlockSchema,
@@ -35,7 +34,7 @@ export class ExportManager<
    * @returns The blocks, serialized as an HTML string.
    */
   public blocksToHTMLLossy(
-    blocks: PartialBlock<BSchema, ISchema, SSchema>[] = this.editor.document,
+    blocks: Block<BSchema, ISchema, SSchema>[] = this.editor.document,
   ): string {
     const exporter = createExternalHTMLExporter(
       this.editor.pmSchema,
@@ -53,9 +52,7 @@ export class ExportManager<
    * @param blocks An array of blocks that should be serialized into HTML.
    * @returns The blocks, serialized as an HTML string.
    */
-  public blocksToFullHTML(
-    blocks: PartialBlock<BSchema, ISchema, SSchema>[],
-  ): string {
+  public blocksToFullHTML(blocks: Block<BSchema, ISchema, SSchema>[]): string {
     const exporter = createInternalHTMLSerializer(
       this.editor.pmSchema,
       this.editor,
@@ -83,7 +80,7 @@ export class ExportManager<
    * @returns The blocks, serialized as a Markdown string.
    */
   public blocksToMarkdownLossy(
-    blocks: PartialBlock<BSchema, ISchema, SSchema>[] = this.editor.document,
+    blocks: Block<BSchema, ISchema, SSchema>[] = this.editor.document,
   ): string {
     return blocksToMarkdown(blocks, this.editor.pmSchema, this.editor, {});
   }

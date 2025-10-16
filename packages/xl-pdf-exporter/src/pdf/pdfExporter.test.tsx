@@ -7,10 +7,10 @@ import {
   defaultBlockSpecs,
   defaultInlineContentSpecs,
   defaultStyleSpecs,
+  partialBlocksToFullBlocks,
 } from "@blocknote/core";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { Text } from "@react-pdf/renderer";
-import { partialBlocksToBlocksForTesting } from "@shared/formatConversionTestUtil.js";
 import { testDocument } from "@shared/testDocument.js";
 import reactElementToJSXString from "react-element-to-jsx-string";
 import { describe, expect, it } from "vitest";
@@ -236,7 +236,7 @@ describe("exporter", () => {
     });
     const exporter = new PDFExporter(schema, pdfDefaultSchemaMappings);
     const transformed = await exporter.toReactPDFDocument(
-      partialBlocksToBlocksForTesting(schema, [
+      partialBlocksToFullBlocks(schema, [
         {
           type: "columnList",
           children: [

@@ -1,8 +1,8 @@
 import {
   Block,
-  BlockNoteSchema,
   BlockSchema,
   COLORS_DEFAULT,
+  BlockNoteSchema,
   InlineContentSchema,
   StyleSchema,
   StyledText,

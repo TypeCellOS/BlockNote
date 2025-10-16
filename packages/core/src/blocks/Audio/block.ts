@@ -1,6 +1,6 @@
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
-  BlockFromConfig,
+  type BlockFromConfig,
   createBlockConfig,
   createBlockSpec,
 } from "../../schema/index.js";

@@ -1,9 +1,9 @@
-import {
+import type {
+  BlockFromConfig,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   InlineContentSchema,
-  SpecificBlock,
   StyleSchema,
 } from "@blocknote/core";
 
@@ -12,6 +12,6 @@ export type TableHandleMenuProps<
   S extends StyleSchema = DefaultStyleSchema,
 > = {
   orientation: "row" | "column";
-  block: SpecificBlock<{ table: DefaultBlockSchema["table"] }, "table", I, S>;
+  block: BlockFromConfig<DefaultBlockSchema["table"], I, S>;
   index: number;
 };
