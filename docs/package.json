@@ -55,7 +55,7 @@
     "@shikijs/engine-javascript": "^3.2.1",
     "@shikijs/langs-precompiled": "^3.2.1",
     "@shikijs/themes": "^3.2.1",
-    "@shikijs/types": "^3.13.0",
+    "@shikijs/types": "^3.2.1",
     "@tiptap/core": "^3.4.3",
     "@uppy/core": "^3.13.1",
     "@uppy/dashboard": "^3.9.1",
