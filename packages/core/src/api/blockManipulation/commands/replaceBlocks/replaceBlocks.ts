@@ -34,14 +34,14 @@ export function moveFirstBlockInColumn(
   const blockInfo = getBlockInfoFromResolvedPos(blockBeforePos);
   if (!blockInfo.isBlockContainer) {
     throw new Error(
-      "Invalid blockBeforePos passed to moveFirstBlockInColumn: does not point to blockContainer node.",
+      "Invalid blockBeforePos: does not point to blockContainer node.",
     );
   }
 
   const prevBlockInfo = getPrevBlockInfo(tr.doc, blockInfo.bnBlock.beforePos);
   if (prevBlockInfo) {
     throw new Error(
-      "Invalid blockBeforePos passed to moveFirstBlockInColumn: does not point to first blockContainer node in column.",
+      "Invalid blockBeforePos: does not point to first blockContainer node in column.",
     );
   }
 
@@ -51,7 +51,7 @@ export function moveFirstBlockInColumn(
   );
   if (parentBlockInfo?.blockNoteType !== "column") {
     throw new Error(
-      "Invalid blockBeforePos passed to moveFirstBlockInColumn: blockContainer node is not child of column.",
+      "Invalid blockBeforePos: blockContainer node is not child of column.",
     );
   }
 
@@ -59,7 +59,7 @@ export function moveFirstBlockInColumn(
   const columnList = getParentBlockInfo(tr.doc, column.bnBlock.beforePos);
   if (columnList?.blockNoteType !== "columnList") {
     throw new Error(
-      "Invalid blockBeforePos passed to moveFirstBlockInColumn: blockContainer node is child of column, but column is not child of columnList node.",
+      "Invalid blockBeforePos: blockContainer node is child of column, but column is not child of columnList node.",
     );
   }
 
@@ -245,18 +245,18 @@ export function removeAndInsertBlocks<
       const column = getBlockInfoFromResolvedPos($pos);
       if (column.blockNoteType !== "column") {
         throw new Error(
-          `Block of type ${column.blockNoteType} was found as child of columnList.`,
+          `Invalid block: ${column.blockNoteType} was found as child of columnList.`,
         );
       }
       const columnList = getParentBlockInfo(tr.doc, column.bnBlock.beforePos);
       if (!columnList) {
         throw new Error(
-          `Block of type column was found without a parent columnList.`,
+          `Invalid block: column was found without a parent columnList.`,
         );
       }
       if (columnList?.blockNoteType !== "columnList") {
         throw new Error(
-          `Block of type ${columnList.blockNoteType} was found as a parent of column.`,
+          `Invalid block: ${columnList.blockNoteType} was found as a parent of column.`,
         );
       }
 
