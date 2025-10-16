@@ -1,4 +1,5 @@
 import {
+  BlockFromConfig,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,

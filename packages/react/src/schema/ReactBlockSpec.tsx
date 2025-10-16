@@ -259,12 +259,13 @@ export function createReactBlockSpec<
                 // only created once, so the block we get in the node view will
                 // be outdated. Therefore, we have to get the block in the
                 // `ReactNodeViewRenderer` instead.
-                const block = getBlockFromPos(
-                  props.getPos,
-                  editor as any,
-                  props.editor,
-                  blockConfig.type,
-                );
+                const block = getBlockFromPos<
+                  TName,
+                  BlockConfig<TName, TProps, TContent>,
+                  any,
+                  any,
+                  any
+                >(props.getPos, editor as any, props.editor, blockConfig.type);
 
                 const ref = useReactNodeView().nodeViewContentRef;
 

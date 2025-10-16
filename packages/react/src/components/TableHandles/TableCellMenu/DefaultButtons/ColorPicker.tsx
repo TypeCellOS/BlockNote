@@ -8,12 +8,12 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 
+import { ReactNode } from "react";
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
 import { useDictionary } from "../../../../i18n/dictionary.js";
 import { ColorPicker } from "../../../ColorPicker/ColorPicker.js";
 import { TableCellMenuProps } from "../TableCellMenuProps.js";
-import { ReactNode } from "react";
 
 export const ColorPickerButton = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
