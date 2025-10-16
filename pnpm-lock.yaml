@@ -4970,6 +4970,9 @@ importers:
       react-icons:
         specifier: ^5.2.1
         version: 5.5.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/emoji-mart':
         specifier: ^3.0.14
@@ -5194,10 +5197,10 @@ importers:
     dependencies:
       '@ai-sdk/provider-utils':
         specifier: ^3.0.9
-        version: 3.0.9(zod@4.0.0)
+        version: 3.0.9(zod@4.1.12)
       '@ai-sdk/react':
         specifier: ^2.0.45
-        version: 2.0.45(react@19.1.0)(zod@4.0.0)
+        version: 2.0.45(react@19.1.0)(zod@4.1.12)
       '@blocknote/core':
         specifier: 0.41.1
         version: link:../core
@@ -5218,7 +5221,7 @@ importers:
         version: https://pkg.pr.new/@tiptap/core@5e777c9(@tiptap/pm@3.4.3)
       ai:
         specifier: ^5.0.45
-        version: 5.0.45(zod@4.0.0)
+        version: 5.0.45(zod@4.1.12)
       lodash.isequal:
         specifier: ^4.5.0
         version: 4.5.0
@@ -5261,28 +5264,31 @@ importers:
       y-prosemirror:
         specifier: ^1.3.7
         version: 1.3.7(patch_hash=bb65317724b2093ca634dfe5704ce0cc5480f9aa07a69d4607abb32c40fd4dd3)(prosemirror-model@1.25.3)(prosemirror-state@1.4.3)(prosemirror-view@1.41.2)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
       zustand:
         specifier: ^5.0.3
         version: 5.0.3(@types/react@19.1.8)(immer@10.1.1)(react@19.1.0)(use-sync-external-store@1.6.0(react@19.1.0))
     devDependencies:
       '@ai-sdk/anthropic':
         specifier: ^2.0.9
-        version: 2.0.9(zod@4.0.0)
+        version: 2.0.9(zod@4.1.12)
       '@ai-sdk/google':
         specifier: ^2.0.11
-        version: 2.0.11(zod@4.0.0)
+        version: 2.0.11(zod@4.1.12)
       '@ai-sdk/groq':
         specifier: ^2.0.16
-        version: 2.0.16(zod@4.0.0)
+        version: 2.0.16(zod@4.1.12)
       '@ai-sdk/mistral':
         specifier: ^2.0.12
-        version: 2.0.12(zod@4.0.0)
+        version: 2.0.12(zod@4.1.12)
       '@ai-sdk/openai':
         specifier: ^2.0.23
-        version: 2.0.23(zod@4.0.0)
+        version: 2.0.23(zod@4.1.12)
       '@ai-sdk/openai-compatible':
         specifier: ^1.0.13
-        version: 1.0.13(zod@4.0.0)
+        version: 1.0.13(zod@4.1.12)
       '@mswjs/interceptors':
         specifier: ^0.37.5
         version: 0.37.6
@@ -5354,22 +5360,22 @@ importers:
     dependencies:
       '@ai-sdk/anthropic':
         specifier: ^2.0.9
-        version: 2.0.9(zod@4.0.0)
+        version: 2.0.9(zod@4.1.12)
       '@ai-sdk/google':
         specifier: ^2.0.11
-        version: 2.0.11(zod@4.0.0)
+        version: 2.0.11(zod@4.1.12)
       '@ai-sdk/groq':
         specifier: ^2.0.16
-        version: 2.0.16(zod@4.0.0)
+        version: 2.0.16(zod@4.1.12)
       '@ai-sdk/mistral':
         specifier: ^2.0.12
-        version: 2.0.12(zod@4.0.0)
+        version: 2.0.12(zod@4.1.12)
       '@ai-sdk/openai':
         specifier: ^2.0.23
-        version: 2.0.23(zod@4.0.0)
+        version: 2.0.23(zod@4.1.12)
       '@ai-sdk/openai-compatible':
         specifier: ^1.0.13
-        version: 1.0.13(zod@4.0.0)
+        version: 1.0.13(zod@4.1.12)
       '@blocknote/xl-ai':
         specifier: 0.41.1
         version: link:../xl-ai
@@ -5378,7 +5384,7 @@ importers:
         version: 1.14.0(hono@4.7.5)
       ai:
         specifier: ^5.0.45
-        version: 5.0.45(zod@4.0.0)
+        version: 5.0.45(zod@4.1.12)
       hono:
         specifier: ^4.6.12
         version: 4.7.5
@@ -5495,6 +5501,9 @@ importers:
       react-email:
         specifier: ^4.0.16
         version: 4.0.16(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/jsdom':
         specifier: ^21.1.7
@@ -5553,6 +5562,9 @@ importers:
       react-icons:
         specifier: ^5.2.1
         version: 5.5.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -5715,12 +5727,15 @@ importers:
       vitest:
         specifier: ^2.0.3
         version: 2.1.9(@types/node@22.15.2)(@vitest/ui@2.1.9)(jsdom@25.0.1(canvas@2.11.2(encoding@0.1.13)))(lightningcss@1.30.1)(msw@2.7.3(@types/node@22.15.2)(typescript@5.8.2))(terser@5.44.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
 
   playground:
     dependencies:
       '@ai-sdk/groq':
         specifier: ^2.0.16
-        version: 2.0.16(zod@4.0.0)
+        version: 2.0.16(zod@4.1.12)
       '@aws-sdk/client-s3':
         specifier: ^3.609.0
         version: 3.775.0
@@ -5840,7 +5855,7 @@ importers:
         version: 0.6.4(react@19.1.0)(yjs@13.6.27)
       ai:
         specifier: ^5.0.45
-        version: 5.0.45(zod@4.0.0)
+        version: 5.0.45(zod@4.1.12)
       autoprefixer:
         specifier: 10.4.21
         version: 10.4.21(postcss@8.5.6)
@@ -5984,6 +5999,9 @@ importers:
       vitest:
         specifier: ^2.0.3
         version: 2.1.9(@types/node@20.17.28)(@vitest/ui@2.1.9)(jsdom@25.0.1(canvas@2.11.2(encoding@0.1.13)))(lightningcss@1.30.1)(msw@2.7.3(@types/node@20.17.28)(typescript@5.8.3))(terser@5.44.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
 
 packages:
 
@@ -16226,6 +16244,9 @@ packages:
   zod@4.0.0:
     resolution: {integrity: sha512-9diLdTPc/L7w/5jI4C3gHYNiGHDV9IZYxo1e5LSD8cabi65WVTWWb+g2BGPEpUUCOxR4D+6O5B0AzyMdUAXwrw==}
 
+  zod@4.1.12:
+    resolution: {integrity: sha512-JInaHOamG8pt5+Ey8kGmdcAcg3OL9reK8ltczgHTAwNhMys/6ThXHityHxVV2p3fkw/c+MAvBHFVYHFZDmjMCQ==}
+
   zustand@5.0.3:
     resolution: {integrity: sha512-14fwWQtU3pH4dE0dOpdMiWjddcH+QzKIgk1cl8epwSE7yag43k/AD/m4L6+K7DytAOr9gGBe3/EXj9g7cdostg==}
     engines: {node: '>=12.20.0'}
@@ -16255,11 +16276,11 @@ snapshots:
       '@ai-sdk/provider-utils': 3.0.7(zod@3.25.76)
       zod: 3.25.76
 
-  '@ai-sdk/anthropic@2.0.9(zod@4.0.0)':
+  '@ai-sdk/anthropic@2.0.9(zod@4.1.12)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.7(zod@4.0.0)
-      zod: 4.0.0
+      '@ai-sdk/provider-utils': 3.0.7(zod@4.1.12)
+      zod: 4.1.12
 
   '@ai-sdk/gateway@1.0.23(zod@3.25.76)':
     dependencies:
@@ -16273,17 +16294,23 @@ snapshots:
       '@ai-sdk/provider-utils': 3.0.9(zod@4.0.0)
       zod: 4.0.0
 
+  '@ai-sdk/gateway@1.0.23(zod@4.1.12)':
+    dependencies:
+      '@ai-sdk/provider': 2.0.0
+      '@ai-sdk/provider-utils': 3.0.9(zod@4.1.12)
+      zod: 4.1.12
+
   '@ai-sdk/google@2.0.11(zod@3.25.76)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
       '@ai-sdk/provider-utils': 3.0.7(zod@3.25.76)
       zod: 3.25.76
 
-  '@ai-sdk/google@2.0.11(zod@4.0.0)':
+  '@ai-sdk/google@2.0.11(zod@4.1.12)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.7(zod@4.0.0)
-      zod: 4.0.0
+      '@ai-sdk/provider-utils': 3.0.7(zod@4.1.12)
+      zod: 4.1.12
 
   '@ai-sdk/groq@2.0.16(zod@3.25.76)':
     dependencies:
@@ -16297,17 +16324,23 @@ snapshots:
       '@ai-sdk/provider-utils': 3.0.7(zod@4.0.0)
       zod: 4.0.0
 
+  '@ai-sdk/groq@2.0.16(zod@4.1.12)':
+    dependencies:
+      '@ai-sdk/provider': 2.0.0
+      '@ai-sdk/provider-utils': 3.0.7(zod@4.1.12)
+      zod: 4.1.12
+
   '@ai-sdk/mistral@2.0.12(zod@3.25.76)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
       '@ai-sdk/provider-utils': 3.0.7(zod@3.25.76)
       zod: 3.25.76
 
-  '@ai-sdk/mistral@2.0.12(zod@4.0.0)':
+  '@ai-sdk/mistral@2.0.12(zod@4.1.12)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.7(zod@4.0.0)
-      zod: 4.0.0
+      '@ai-sdk/provider-utils': 3.0.7(zod@4.1.12)
+      zod: 4.1.12
 
   '@ai-sdk/openai-compatible@1.0.13(zod@3.25.76)':
     dependencies:
@@ -16315,11 +16348,11 @@ snapshots:
       '@ai-sdk/provider-utils': 3.0.7(zod@3.25.76)
       zod: 3.25.76
 
-  '@ai-sdk/openai-compatible@1.0.13(zod@4.0.0)':
+  '@ai-sdk/openai-compatible@1.0.13(zod@4.1.12)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.7(zod@4.0.0)
-      zod: 4.0.0
+      '@ai-sdk/provider-utils': 3.0.7(zod@4.1.12)
+      zod: 4.1.12
 
   '@ai-sdk/openai@2.0.23(zod@3.25.76)':
     dependencies:
@@ -16327,11 +16360,11 @@ snapshots:
       '@ai-sdk/provider-utils': 3.0.7(zod@3.25.76)
       zod: 3.25.76
 
-  '@ai-sdk/openai@2.0.23(zod@4.0.0)':
+  '@ai-sdk/openai@2.0.23(zod@4.1.12)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.7(zod@4.0.0)
-      zod: 4.0.0
+      '@ai-sdk/provider-utils': 3.0.7(zod@4.1.12)
+      zod: 4.1.12
 
   '@ai-sdk/provider-utils@3.0.7(zod@3.25.76)':
     dependencies:
@@ -16347,6 +16380,13 @@ snapshots:
       eventsource-parser: 3.0.6
       zod: 4.0.0
 
+  '@ai-sdk/provider-utils@3.0.7(zod@4.1.12)':
+    dependencies:
+      '@ai-sdk/provider': 2.0.0
+      '@standard-schema/spec': 1.0.0
+      eventsource-parser: 3.0.6
+      zod: 4.1.12
+
   '@ai-sdk/provider-utils@3.0.9(zod@3.25.76)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
@@ -16361,19 +16401,26 @@ snapshots:
       eventsource-parser: 3.0.6
       zod: 4.0.0
 
+  '@ai-sdk/provider-utils@3.0.9(zod@4.1.12)':
+    dependencies:
+      '@ai-sdk/provider': 2.0.0
+      '@standard-schema/spec': 1.0.0
+      eventsource-parser: 3.0.6
+      zod: 4.1.12
+
   '@ai-sdk/provider@2.0.0':
     dependencies:
       json-schema: 0.4.0
 
-  '@ai-sdk/react@2.0.45(react@19.1.0)(zod@4.0.0)':
+  '@ai-sdk/react@2.0.45(react@19.1.0)(zod@4.1.12)':
     dependencies:
-      '@ai-sdk/provider-utils': 3.0.9(zod@4.0.0)
-      ai: 5.0.45(zod@4.0.0)
+      '@ai-sdk/provider-utils': 3.0.9(zod@4.1.12)
+      ai: 5.0.45(zod@4.1.12)
       react: 19.1.0
       swr: 2.3.6(react@19.1.0)
       throttleit: 2.1.0
     optionalDependencies:
-      zod: 4.0.0
+      zod: 4.1.12
 
   '@alloc/quick-lru@5.2.0': {}
 
@@ -22330,6 +22377,14 @@ snapshots:
       '@ai-sdk/provider-utils': 3.0.9(zod@4.0.0)
       '@opentelemetry/api': 1.9.0
       zod: 4.0.0
+
+  ai@5.0.45(zod@4.1.12):
+    dependencies:
+      '@ai-sdk/gateway': 1.0.23(zod@4.1.12)
+      '@ai-sdk/provider': 2.0.0
+      '@ai-sdk/provider-utils': 3.0.9(zod@4.1.12)
+      '@opentelemetry/api': 1.9.0
+      zod: 4.1.12
 
   ajv-formats@2.1.1(ajv@8.17.1):
     optionalDependencies:
@@ -28606,6 +28661,8 @@ snapshots:
   zod@3.25.76: {}
 
   zod@4.0.0: {}
+
+  zod@4.1.12: {}
 
   zustand@5.0.3(@types/react@19.1.8)(immer@10.1.1)(react@19.1.0)(use-sync-external-store@1.6.0(react@19.1.0)):
     optionalDependencies:

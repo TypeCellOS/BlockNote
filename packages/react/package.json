@@ -66,7 +66,8 @@
     "@tiptap/react": "^3.4.3",
     "emoji-mart": "^5.6.0",
     "lodash.merge": "^4.6.2",
-    "react-icons": "^5.2.1"
+    "react-icons": "^5.2.1",
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@types/emoji-mart": "^3.0.14",
