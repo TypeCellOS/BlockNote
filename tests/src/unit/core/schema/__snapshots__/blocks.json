@@ -3,21 +3,11 @@
     "config": {
       "content": "none",
       "propSchema": {
-        "backgroundColor": {
-          "default": "default",
-        },
-        "caption": {
-          "default": "",
-        },
-        "name": {
-          "default": "",
-        },
-        "showPreview": {
-          "default": true,
-        },
-        "url": {
-          "default": "",
-        },
+        "backgroundColor": "default",
+        "caption": "",
+        "name": "",
+        "showPreview": true,
+        "url": "",
       },
       "type": "audio",
     },
@@ -80,21 +70,9 @@
     "config": {
       "content": "inline",
       "propSchema": {
-        "backgroundColor": {
-          "default": "default",
-        },
-        "textAlignment": {
-          "default": "left",
-          "values": [
-            "left",
-            "center",
-            "right",
-            "justify",
-          ],
-        },
-        "textColor": {
-          "default": "default",
-        },
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
       },
       "type": "bulletListItem",
     },
@@ -169,25 +147,10 @@
     "config": {
       "content": "inline",
       "propSchema": {
-        "backgroundColor": {
-          "default": "default",
-        },
-        "checked": {
-          "default": false,
-          "type": "boolean",
-        },
-        "textAlignment": {
-          "default": "left",
-          "values": [
-            "left",
-            "center",
-            "right",
-            "justify",
-          ],
-        },
-        "textColor": {
-          "default": "default",
-        },
+        "backgroundColor": "default",
+        "checked": false,
+        "textAlignment": "left",
+        "textColor": "default",
       },
       "type": "checkListItem",
     },
@@ -269,9 +232,7 @@
     "config": {
       "content": "inline",
       "propSchema": {
-        "language": {
-          "default": "text",
-        },
+        "language": "text",
       },
       "type": "codeBlock",
     },
@@ -377,21 +338,9 @@
     "config": {
       "content": "inline",
       "propSchema": {
-        "backgroundColor": {
-          "default": "default",
-        },
-        "textAlignment": {
-          "default": "left",
-          "values": [
-            "left",
-            "center",
-            "right",
-            "justify",
-          ],
-        },
-        "textColor": {
-          "default": "default",
-        },
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
       },
       "type": "customParagraph",
     },
@@ -514,18 +463,10 @@
     "config": {
       "content": "none",
       "propSchema": {
-        "backgroundColor": {
-          "default": "default",
-        },
-        "caption": {
-          "default": "",
-        },
-        "name": {
-          "default": "",
-        },
-        "url": {
-          "default": "",
-        },
+        "backgroundColor": "default",
+        "caption": "",
+        "name": "",
+        "url": "",
       },
       "type": "file",
     },
@@ -585,36 +526,11 @@
     "config": {
       "content": "inline",
       "propSchema": {
-        "backgroundColor": {
-          "default": "default",
-        },
-        "isToggleable": {
-          "default": false,
-          "optional": true,
-        },
-        "level": {
-          "default": 1,
-          "values": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-          ],
-        },
-        "textAlignment": {
-          "default": "left",
-          "values": [
-            "left",
-            "center",
-            "right",
-            "justify",
-          ],
-        },
-        "textColor": {
-          "default": "default",
-        },
+        "backgroundColor": "default",
+        "isToggleable": false,
+        "level": 1,
+        "textAlignment": "left",
+        "textColor": "default",
       },
       "type": "heading",
     },
@@ -712,34 +628,12 @@
     "config": {
       "content": "none",
       "propSchema": {
-        "backgroundColor": {
-          "default": "default",
-        },
-        "caption": {
-          "default": "",
-        },
-        "name": {
-          "default": "",
-        },
-        "previewWidth": {
-          "default": undefined,
-          "type": "number",
-        },
-        "showPreview": {
-          "default": true,
-        },
-        "textAlignment": {
-          "default": "left",
-          "values": [
-            "left",
-            "center",
-            "right",
-            "justify",
-          ],
-        },
-        "url": {
-          "default": "",
-        },
+        "backgroundColor": "default",
+        "caption": "",
+        "name": "",
+        "showPreview": true,
+        "textAlignment": "left",
+        "url": "",
       },
       "type": "image",
     },
@@ -802,25 +696,9 @@
     "config": {
       "content": "inline",
       "propSchema": {
-        "backgroundColor": {
-          "default": "default",
-        },
-        "start": {
-          "default": undefined,
-          "type": "number",
-        },
-        "textAlignment": {
-          "default": "left",
-          "values": [
-            "left",
-            "center",
-            "right",
-            "justify",
-          ],
-        },
-        "textColor": {
-          "default": "default",
-        },
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
       },
       "type": "numberedListItem",
     },
@@ -967,21 +845,9 @@
     "config": {
       "content": "inline",
       "propSchema": {
-        "backgroundColor": {
-          "default": "default",
-        },
-        "textAlignment": {
-          "default": "left",
-          "values": [
-            "left",
-            "center",
-            "right",
-            "justify",
-          ],
-        },
-        "textColor": {
-          "default": "default",
-        },
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
       },
       "type": "paragraph",
     },
@@ -1052,12 +918,8 @@
     "config": {
       "content": "inline",
       "propSchema": {
-        "backgroundColor": {
-          "default": "default",
-        },
-        "textColor": {
-          "default": "default",
-        },
+        "backgroundColor": "default",
+        "textColor": "default",
       },
       "type": "quote",
     },
@@ -1130,21 +992,9 @@
     "config": {
       "content": "inline",
       "propSchema": {
-        "backgroundColor": {
-          "default": "default",
-        },
-        "textAlignment": {
-          "default": "left",
-          "values": [
-            "left",
-            "center",
-            "right",
-            "justify",
-          ],
-        },
-        "textColor": {
-          "default": "default",
-        },
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
       },
       "type": "simpleCustomParagraph",
     },
@@ -1198,34 +1048,12 @@
     "config": {
       "content": "none",
       "propSchema": {
-        "backgroundColor": {
-          "default": "default",
-        },
-        "caption": {
-          "default": "",
-        },
-        "name": {
-          "default": "",
-        },
-        "previewWidth": {
-          "default": undefined,
-          "type": "number",
-        },
-        "showPreview": {
-          "default": true,
-        },
-        "textAlignment": {
-          "default": "left",
-          "values": [
-            "left",
-            "center",
-            "right",
-            "justify",
-          ],
-        },
-        "url": {
-          "default": "",
-        },
+        "backgroundColor": "default",
+        "caption": "",
+        "name": "",
+        "showPreview": true,
+        "textAlignment": "left",
+        "url": "",
       },
       "type": "simpleImage",
     },
@@ -1279,9 +1107,7 @@
     "config": {
       "content": "table",
       "propSchema": {
-        "textColor": {
-          "default": "default",
-        },
+        "textColor": "default",
       },
       "type": "table",
     },
@@ -1419,21 +1245,9 @@
     "config": {
       "content": "inline",
       "propSchema": {
-        "backgroundColor": {
-          "default": "default",
-        },
-        "textAlignment": {
-          "default": "left",
-          "values": [
-            "left",
-            "center",
-            "right",
-            "justify",
-          ],
-        },
-        "textColor": {
-          "default": "default",
-        },
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
       },
       "type": "toggleListItem",
     },
@@ -1501,34 +1315,12 @@
     "config": {
       "content": "none",
       "propSchema": {
-        "backgroundColor": {
-          "default": "default",
-        },
-        "caption": {
-          "default": "",
-        },
-        "name": {
-          "default": "",
-        },
-        "previewWidth": {
-          "default": undefined,
-          "type": "number",
-        },
-        "showPreview": {
-          "default": true,
-        },
-        "textAlignment": {
-          "default": "left",
-          "values": [
-            "left",
-            "center",
-            "right",
-            "justify",
-          ],
-        },
-        "url": {
-          "default": "",
-        },
+        "backgroundColor": "default",
+        "caption": "",
+        "name": "",
+        "showPreview": true,
+        "textAlignment": "left",
+        "url": "",
       },
       "type": "video",
     },

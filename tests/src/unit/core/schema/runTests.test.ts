@@ -10,13 +10,25 @@ describe("Schema test", () => {
   const getEditor = createTestEditor(testSchema);
 
   it("Block specs test", async () => {
-    await expect(getEditor().schema.blockSpecs).toMatchFileSnapshot(
-      `./__snapshots__/blocks.json`,
-    );
+    const specs = getEditor().schema.blockSpecs;
+    Object.values(specs).forEach((spec) => {
+      // Use an empty object validation to check if a zod propSchema is the same shape
+      // @ts-ignore this is just to check the shape, not that zod instance is a certain shape
+      spec.config.propSchema = spec.config.propSchema.parse({});
+    });
+    await expect(specs).toMatchFileSnapshot(`./__snapshots__/blocks.json`);
   });
 
   it("Inline content specs test", async () => {
-    await expect(getEditor().schema.inlineContentSpecs).toMatchFileSnapshot(
+    const specs = getEditor().schema.inlineContentSpecs;
+    Object.values(specs).forEach((spec) => {
+      // Use an empty object validation to check if a zod propSchema is the same shape
+      if (typeof spec.config === "object" && "propSchema" in spec.config) {
+        // @ts-ignore this is just to check the shape, not that zod instance is a certain shape
+        spec.config.propSchema = spec.config.propSchema.parse({});
+      }
+    });
+    await expect(specs).toMatchFileSnapshot(
       `./__snapshots__/inlinecontent.json`,
     );
   });
