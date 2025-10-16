@@ -50,7 +50,7 @@ export function editorHasBlockWithType<
     if (typeof propSpec === "string") {
       if (
         editor.schema.blockSpecs[blockType].config.propSchema[propName]
-          .default &&
+          .default !== undefined &&
         typeof editor.schema.blockSpecs[blockType].config.propSchema[propName]
           .default !== propSpec
       ) {
@@ -58,7 +58,8 @@ export function editorHasBlockWithType<
       }
 
       if (
-        editor.schema.blockSpecs[blockType].config.propSchema[propName].type &&
+        editor.schema.blockSpecs[blockType].config.propSchema[propName].type !==
+          undefined &&
         editor.schema.blockSpecs[blockType].config.propSchema[propName].type !==
           propSpec
       ) {

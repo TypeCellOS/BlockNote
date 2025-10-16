@@ -83,4 +83,53 @@ describe("Editor block schema type guard tests", () => {
       }),
     ).toBeFalsy();
   });
+
+  it("customBlockType", () => {
+    expect(editorHasBlockWithType(getEditor(), "simpleImage")).toBeTruthy();
+  });
+
+  it("customBlockWithPropTypes", () => {
+    expect(
+      editorHasBlockWithType(getEditor(), "simpleImage", {
+        name: "string",
+        url: "string",
+      }),
+    ).toBeTruthy();
+  });
+
+  it("customBlockWithPropTypesInvalidType", () => {
+    expect(
+      editorHasBlockWithType(getEditor(), "simpleImage", {
+        name: "string",
+        url: "number",
+      }),
+    ).toBeFalsy();
+  });
+
+  it("customBlockWithPropSchema", () => {
+    expect(
+      editorHasBlockWithType(getEditor(), "simpleImage", {
+        name: { default: "" },
+        url: { default: "" },
+      }),
+    ).toBeTruthy();
+  });
+
+  it("customBlockWithPropSchemaInvalidType", () => {
+    expect(
+      editorHasBlockWithType(getEditor(), "simpleImage", {
+        name: { default: false },
+        url: { default: "" },
+      }),
+    ).toBeFalsy();
+  });
+
+  it("customBlockWithPropSchemaInvalidValues", () => {
+    expect(
+      editorHasBlockWithType(getEditor(), "simpleImage", {
+        name: { default: "", values: ["image", "photo"] },
+        url: { default: "" },
+      }),
+    ).toBeFalsy();
+  });
 });
