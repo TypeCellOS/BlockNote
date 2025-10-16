@@ -1,8 +1,8 @@
 import {
   Block,
-  BlockNoteSchema,
   BlockSchema,
   COLORS_DEFAULT,
+  CustomBlockNoteSchema,
   DefaultProps,
   Exporter,
   ExporterOptions,
@@ -78,7 +78,7 @@ export class PDFExporter<
     /**
      * The schema of your editor. The mappings are automatically typed checked against this schema.
      */
-    protected readonly schema: BlockNoteSchema<B, I, S>,
+    protected readonly schema: CustomBlockNoteSchema<B, I, S>,
     /**
      * The mappings that map the BlockNote schema to the react-pdf content.
      *

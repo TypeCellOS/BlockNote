@@ -1,6 +1,5 @@
 import {
   Block,
-  BlockNoteSchema,
   BlockSchema,
   COLORS_DEFAULT,
   DefaultProps,
@@ -9,6 +8,7 @@ import {
   InlineContentSchema,
   StyleSchema,
   StyledText,
+  CustomBlockNoteSchema,
 } from "@blocknote/core";
 import {
   Body,
@@ -36,7 +36,7 @@ export class ReactEmailExporter<
   React.ReactElement<HTMLSpanElement>
 > {
   public constructor(
-    public readonly schema: BlockNoteSchema<B, I, S>,
+    public readonly schema: CustomBlockNoteSchema<B, I, S>,
     mappings: Exporter<
       NoInfer<B>,
       NoInfer<I>,

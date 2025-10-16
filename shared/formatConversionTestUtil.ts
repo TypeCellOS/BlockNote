@@ -2,8 +2,8 @@
 
 import {
   Block,
-  BlockNoteSchema,
   BlockSchema,
+  CustomBlockNoteSchema,
   InlineContent,
   InlineContentSchema,
   isPartialLinkInlineContent,
@@ -115,7 +115,7 @@ export function partialBlocksToBlocksForTesting<
   I extends InlineContentSchema,
   S extends StyleSchema,
 >(
-  schema: BlockNoteSchema<BSchema, I, S>,
+  schema: CustomBlockNoteSchema<BSchema, I, S>,
   partialBlocks: Array<PartialBlock<BSchema, I, S>>,
 ): Array<Block<BSchema, I, S>> {
   return partialBlocks.map((partialBlock) =>

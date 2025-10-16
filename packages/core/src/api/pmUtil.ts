@@ -1,7 +1,7 @@
 import type { Node, Schema } from "prosemirror-model";
 import { Transform } from "prosemirror-transform";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
-import { BlockNoteSchema } from "../blocks/BlockNoteSchema.js";
+import { CustomBlockNoteSchema } from "../schema/schema.js";
 import type { BlockSchema } from "../schema/blocks/types.js";
 import type { InlineContentSchema } from "../schema/inlineContent/types.js";
 import type { StyleSchema } from "../schema/styles/types.js";
@@ -25,12 +25,8 @@ export function getBlockNoteSchema<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
->(schema: Schema): BlockNoteSchema<BSchema, I, S> {
-  return getBlockNoteEditor(schema).schema as unknown as BlockNoteSchema<
-    BSchema,
-    I,
-    S
-  >;
+>(schema: Schema): CustomBlockNoteSchema<BSchema, I, S> {
+  return getBlockNoteEditor(schema).schema as any;
 }
 
 export function getBlockSchema<BSchema extends BlockSchema>(

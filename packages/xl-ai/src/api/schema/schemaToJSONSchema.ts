@@ -1,5 +1,5 @@
 import {
-  BlockNoteSchema,
+  CustomBlockNoteSchema,
   BlockSchema,
   InlineContentSchema,
   PropSchema,
@@ -262,7 +262,7 @@ function blockSchemaToJSONSchema(schema: BlockSchema) {
 }
 
 function schemaOps(
-  schema: BlockNoteSchema<BlockSchema, InlineContentSchema, StyleSchema>,
+  schema: CustomBlockNoteSchema<BlockSchema, InlineContentSchema, StyleSchema>,
 ) {
   const clone = {
     blockSchema: schema.blockSchema,
@@ -309,12 +309,16 @@ function schemaOps(
 }
 
 export function blockNoteSchemaToJSONSchema(
-  schema: BlockNoteSchema<any, any, any>,
+  schema: CustomBlockNoteSchema<any, any, any>,
 ) {
   schema = schemaOps(schema)
     .removeFileBlocks()
     .removeDefaultProps()
-    .get() as BlockNoteSchema<BlockSchema, InlineContentSchema, StyleSchema>;
+    .get() as CustomBlockNoteSchema<
+    BlockSchema,
+    InlineContentSchema,
+    StyleSchema
+  >;
   return {
     $defs: {
       styles: styleSchemaToJSONSchema(schema.styleSchema),
