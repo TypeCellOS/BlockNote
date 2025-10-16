@@ -39,13 +39,13 @@ type CodeBlockOptions = {
 };
 ```
 
-`indentLineWithTab:` Whether the Tab key should indent lines, or be handled by the editor's default key handlers. Defaults to `true`.
+`indentLineWithTab:` Whether the Tab key should indent lines, or not be handled by the code block specially. Defaults to `true`.
 
 `defaultLanguage:` The syntax highlighting default language for code blocks which are created/inserted without a set language, which is `text` by default (no syntax highlighting).
 
-`supportedLanguages:` The syntax highlighting languages supported by the code block, or an empty array by default.
+`supportedLanguages:` The syntax highlighting languages supported by the code block, which is an empty array by default.
 
-`createHighlighter:` The [Shiki](https://shiki.style) highliter to use for syntax highlighting.
+`createHighlighter:` The [Shiki highliter](https://shiki.style/guide/load-theme) to use for syntax highlighting.
 
 BlockNote also provides a generic set of options for syntax highlighting in the `@blocknote/code-block` package, which support a wide range of languages:
 
