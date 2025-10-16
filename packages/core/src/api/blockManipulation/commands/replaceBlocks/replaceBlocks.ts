@@ -1,4 +1,4 @@
-import { ResolvedPos, Slice, type Node } from "prosemirror-model";
+import { Fragment, ResolvedPos, Slice, type Node } from "prosemirror-model";
 import { TextSelection, type Transaction } from "prosemirror-state";
 import { ReplaceAroundStep } from "prosemirror-transform";
 import type { Block, PartialBlock } from "../../../../blocks/defaultBlocks.js";
@@ -235,6 +235,73 @@ export function removeAndInsertBlocks<
         $newPos.pos + $newPos.nodeAfter!.nodeSize,
         Slice.empty,
       );
+    } else if (
+      $pos.node().type.name === "columnList" &&
+      $pos.node().childCount === 2
+    ) {
+      // Checks whether removing the entire column would leave only a single
+      // remaining `column` node in the columnList. In this case, we need to
+      // collapse the column list.
+      const column = getBlockInfoFromResolvedPos($pos);
+      if (column.blockNoteType !== "column") {
+        throw new Error(
+          `Block of type ${column.blockNoteType} was found as child of columnList.`,
+        );
+      }
+      const columnList = getParentBlockInfo(tr.doc, column.bnBlock.beforePos);
+      if (!columnList) {
+        throw new Error(
+          `Block of type column was found without a parent columnList.`,
+        );
+      }
+      if (columnList?.blockNoteType !== "columnList") {
+        throw new Error(
+          `Block of type ${columnList.blockNoteType} was found as a parent of column.`,
+        );
+      }
+
+      if ($pos.node().childCount === 1) {
+        tr.replaceWith(
+          columnList.bnBlock.beforePos,
+          columnList.bnBlock.afterPos,
+          Fragment.empty,
+        );
+      }
+
+      tr.replaceWith(
+        columnList.bnBlock.beforePos,
+        columnList.bnBlock.afterPos,
+        $pos.index() === 0
+          ? columnList.bnBlock.node.lastChild!.content
+          : columnList.bnBlock.node.firstChild!.content,
+      );
+    } else if (
+      node.type.name === "column" &&
+      node.attrs.id !== $pos.nodeAfter?.attrs.id
+    ) {
+      // This is a hacky work around to handle an edge case with the previous
+      // `if else` block. When each `column` of a `columnList` is in the
+      // `blocksToRemove` array, this is what happens once all but the last 2
+      // columns are removed:
+      //
+      // 1. The second-to-last `column` is removed.
+      // 2. The last `column` and wrapping `columnList` are collapsed.
+      // 3. `removedSize` increases by the size of the removed column, and more
+      // due to positions at the starts/ends of the last `column` and wrapping
+      // `columnList` also getting removed.
+      // 3. `tr.doc.descendants` traverses to the last `column`.
+      // 4. `removedSize` now includes positions that were removed after the
+      // last `column`. In order for `pos - removedSize` to correctly point to
+      // the start of the nodes that were previously wrapped by the last
+      // `column`, `removedPos` must only include positions removed before it.
+      // 5. The deletion is offset by 3, because of those removed positions
+      // included in `removedSize` that occur after the last `column`.
+      //
+      // Hence why we have to shift the start of the deletion range back by 3.
+      // The offset for the end of the range is smaller as `node.nodeSize` is
+      // the size of the whole second `column`, whereas now we are left with
+      // just its children since it's collapsed - a difference of 2 positions.
+      tr.delete(pos - removedSize + 3, pos - removedSize + node.nodeSize + 1);
     } else if (
       $pos.node().type.name === "blockGroup" &&
       $pos.node($pos.depth - 1).type.name !== "doc" &&
