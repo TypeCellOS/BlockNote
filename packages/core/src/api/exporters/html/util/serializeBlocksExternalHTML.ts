@@ -1,6 +1,5 @@
 import { DOMSerializer, Fragment, Node } from "prosemirror-model";
-import * as z from "zod/v4/core";
-import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
+import { Block } from "../../../../blocks/index.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import {
   BlockImplementation,
@@ -35,7 +34,7 @@ export function serializeInlineContentExternalHTML<
   S extends StyleSchema,
 >(
   editor: BlockNoteEditor<any, I, S>,
-  blockContent: PartialBlock<BSchema, I, S>["content"],
+  blockContent: Block<BSchema, I, S>["content"],
   serializer: DOMSerializer,
   options?: { document?: Document },
 ) {
@@ -166,7 +165,7 @@ function serializeBlock<
 >(
   fragment: DocumentFragment,
   editor: BlockNoteEditor<BSchema, I, S>,
-  block: PartialBlock<BSchema, I, S>,
+  block: Block<BSchema, I, S>,
   serializer: DOMSerializer,
   orderedListItemBlockTypes: Set<string>,
   unorderedListItemBlockTypes: Set<string>,
@@ -177,25 +176,25 @@ function serializeBlock<
 
   // set default props in case we were passed a partial block
   // TODO: should be a nicer way for this / or move to caller
-  const props = block.props || {};
-  for (const [name, spec] of Object.entries(
-    editor.schema.blockSchema[
-      block.type as keyof typeof editor.schema.blockSchema
-    ].propSchema._zod.def.shape,
-  )) {
-    if (
-      !(name in props) &&
-      spec instanceof z.$ZodDefault &&
-      spec._zod.def.defaultValue !== undefined
-    ) {
-      (props as any)[name] = spec._zod.def.defaultValue;
-    }
-  }
+  // const props = block.props || {};
+  // for (const [name, spec] of Object.entries(
+  //   editor.schema.blockSchema[
+  //     block.type as keyof typeof editor.schema.blockSchema
+  //   ].propSchema._zod.def.shape,
+  // )) {
+  //   if (
+  //     !(name in props) &&
+  //     spec instanceof z.$ZodDefault &&
+  //     spec._zod.def.defaultValue !== undefined
+  //   ) {
+  //     (props as any)[name] = spec._zod.def.defaultValue;
+  //   }
+  // }
 
   const bc = BC_NODE.spec?.toDOM?.(
     BC_NODE.create({
       id: block.id,
-      ...props,
+      ...block.props,
     }),
   ) as {
     dom: HTMLElement;
@@ -211,14 +210,10 @@ function serializeBlock<
   const ret =
     blockImplementation.toExternalHTML?.call(
       {},
-      { ...block, props } as any,
+      { ...block } as any,
       editor as any,
     ) ||
-    blockImplementation.render.call(
-      {},
-      { ...block, props } as any,
-      editor as any,
-    );
+    blockImplementation.render.call({}, { ...block } as any, editor as any);
 
   const elementFragment = doc.createDocumentFragment();
 
@@ -247,11 +242,10 @@ function serializeBlock<
   } else {
     elementFragment.append(ret.dom);
   }
-
   if (ret.contentDOM && block.content) {
     const ic = serializeInlineContentExternalHTML(
       editor,
-      block.content as any, // TODO
+      block.content as unknown as never, // TODO
       serializer,
       options,
     );
@@ -272,11 +266,11 @@ function serializeBlock<
 
       if (
         listType === "OL" &&
-        "start" in props &&
-        props.start &&
-        props?.start !== 1
+        "start" in block.props &&
+        block.props.start &&
+        block.props?.start !== 1
       ) {
-        list.setAttribute("start", props.start + "");
+        list.setAttribute("start", block.props.start + "");
       }
       fragment.append(list);
     }
@@ -326,7 +320,7 @@ const serializeBlocksToFragment = <
 >(
   fragment: DocumentFragment,
   editor: BlockNoteEditor<BSchema, I, S>,
-  blocks: PartialBlock<BSchema, I, S>[],
+  blocks: Block<BSchema, I, S>[],
   serializer: DOMSerializer,
   orderedListItemBlockTypes: Set<string>,
   unorderedListItemBlockTypes: Set<string>,
@@ -351,7 +345,7 @@ export const serializeBlocksExternalHTML = <
   S extends StyleSchema,
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
-  blocks: PartialBlock<BSchema, I, S>[],
+  blocks: Block<BSchema, I, S>[],
   serializer: DOMSerializer,
   orderedListItemBlockTypes: Set<string>,
   unorderedListItemBlockTypes: Set<string>,

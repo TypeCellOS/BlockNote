@@ -1,22 +1,21 @@
 import { Attrs, Fragment, Mark, Node, Schema } from "@tiptap/pm/model";
 
-import UniqueID from "../../extensions/UniqueID/UniqueID.js";
 import type {
+  CustomInlineContentFromConfig,
+  InlineContent,
   InlineContentSchema,
-  PartialCustomInlineContentFromConfig,
-  PartialInlineContent,
-  PartialLink,
-  PartialTableContent,
+  Link,
   StyleSchema,
   StyledText,
+  TableContent,
 } from "../../schema";
 
-import type { PartialBlock } from "../../blocks/defaultBlocks";
+import type { Block } from "../../blocks/index.js";
 import {
-  isPartialLinkInlineContent,
+  isLinkInlineContent,
   isStyledTextInlineContent,
 } from "../../schema/inlineContent/types.js";
-import { getColspan, isPartialTableCell } from "../../util/table.js";
+import { getColspan, isTableCell } from "../../util/table.js";
 import { UnreachableCaseError } from "../../util/typescript.js";
 import { getAbsoluteTableCells } from "../blockManipulation/tables/tables.js";
 import { getStyleSchema } from "../pmUtil.js";
@@ -83,7 +82,7 @@ function styledTextToNodes<T extends StyleSchema>(
  * prosemirror text nodes with the appropriate marks
  */
 function linkToNodes(
-  link: PartialLink<StyleSchema>,
+  link: Link<StyleSchema>,
   schema: Schema,
   styleSchema: StyleSchema,
 ): Node[] {
@@ -144,7 +143,7 @@ export function inlineContentToNodes<
   I extends InlineContentSchema,
   S extends StyleSchema,
 >(
-  blockContent: PartialInlineContent<I, S>,
+  blockContent: string[] | InlineContent<I, S>[],
   schema: Schema,
   blockType?: string,
   styleSchema: S = getStyleSchema(schema),
@@ -153,10 +152,11 @@ export function inlineContentToNodes<
 
   for (const content of blockContent) {
     if (typeof content === "string") {
+      // TODO: remove?
       nodes.push(
         ...styledTextArrayToNodes(content, schema, styleSchema, blockType),
       );
-    } else if (isPartialLinkInlineContent(content)) {
+    } else if (isLinkInlineContent(content)) {
       nodes.push(...linkToNodes(content, schema, styleSchema));
     } else if (isStyledTextInlineContent(content)) {
       nodes.push(
@@ -178,7 +178,7 @@ export function tableContentToNodes<
   I extends InlineContentSchema,
   S extends StyleSchema,
 >(
-  tableContent: PartialTableContent<I, S>,
+  tableContent: TableContent<I, S>,
   schema: Schema,
   styleSchema: StyleSchema = getStyleSchema(schema),
 ): Node[] {
@@ -227,7 +227,7 @@ export function tableContentToNodes<
         // No-op
       } else if (typeof cell === "string") {
         content = schema.text(cell);
-      } else if (isPartialTableCell(cell)) {
+      } else if (isTableCell(cell)) {
         if (cell.content) {
           content = inlineContentToNodes(
             cell.content,
@@ -258,7 +258,7 @@ export function tableContentToNodes<
         isHeaderCol || isHeaderRow ? "tableHeader" : "tableCell"
       ].createChecked(
         {
-          ...(isPartialTableCell(cell) ? cell.props : {}),
+          ...(isTableCell(cell) ? cell.props : {}),
           colwidth,
         },
         schema.nodes["tableParagraph"].createChecked(attrs, content),
@@ -273,9 +273,7 @@ export function tableContentToNodes<
 }
 
 function blockOrInlineContentToContentNode(
-  block:
-    | PartialBlock<any, any, any>
-    | PartialCustomInlineContentFromConfig<any, any>,
+  block: Block<any, any, any> | CustomInlineContentFromConfig<any, any>,
   schema: Schema,
   styleSchema: StyleSchema,
 ) {
@@ -322,16 +320,10 @@ function blockOrInlineContentToContentNode(
  * Converts a BlockNote block to a Prosemirror node.
  */
 export function blockToNode(
-  block: PartialBlock<any, any, any>,
+  block: Block<any, any, any>,
   schema: Schema,
   styleSchema: StyleSchema = getStyleSchema(schema),
 ) {
-  let id = block.id;
-
-  if (id === undefined) {
-    id = UniqueID.options.generateID();
-  }
-
   const children: Node[] = [];
 
   if (block.children) {
@@ -360,7 +352,7 @@ export function blockToNode(
 
     return schema.nodes["blockContainer"].createChecked(
       {
-        id: id,
+        id: block.id,
         ...block.props,
       },
       groupNode ? [contentNode, groupNode] : contentNode,
@@ -369,7 +361,7 @@ export function blockToNode(
     // this is a bnBlock node like Column or ColumnList that directly translates to a prosemirror node
     return schema.nodes[block.type].createChecked(
       {
-        id: id,
+        id: block.id,
         ...block.props,
       },
       children,

@@ -1,6 +1,6 @@
 import { DOMSerializer, Fragment, Node } from "prosemirror-model";
 
-import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
+import { Block } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import {
   BlockSchema,
@@ -21,7 +21,7 @@ export function serializeInlineContentInternalHTML<
   S extends StyleSchema,
 >(
   editor: BlockNoteEditor<any, I, S>,
-  blockContent: PartialBlock<BSchema, I, S>["content"],
+  blockContent: Block<BSchema, I, S>["content"],
   serializer: DOMSerializer,
   blockType?: string,
   options?: { document?: Document },
@@ -133,7 +133,7 @@ function serializeBlock<
   S extends StyleSchema,
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
-  block: PartialBlock<BSchema, I, S>,
+  block: Block<BSchema, I, S>,
   serializer: DOMSerializer,
   options?: { document?: Document },
 ) {
@@ -169,7 +169,7 @@ function serializeBlock<
   if (ret.contentDOM && block.content) {
     const ic = serializeInlineContentInternalHTML(
       editor,
-      block.content as any, // TODO
+      block.content as never, // TODO
       serializer,
       block.type,
       options,
@@ -220,7 +220,7 @@ function serializeBlocks<
   S extends StyleSchema,
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
-  blocks: PartialBlock<BSchema, I, S>[],
+  blocks: Block<BSchema, I, S>[],
   serializer: DOMSerializer,
   options?: { document?: Document },
 ) {
@@ -241,7 +241,7 @@ export const serializeBlocksInternalHTML = <
   S extends StyleSchema,
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
-  blocks: PartialBlock<BSchema, I, S>[],
+  blocks: Block<BSchema, I, S>[],
   serializer: DOMSerializer,
   options?: { document?: Document },
 ) => {

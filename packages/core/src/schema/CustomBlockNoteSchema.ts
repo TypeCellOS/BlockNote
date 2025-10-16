@@ -1,21 +1,20 @@
-import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
+import type { Block, PartialBlock } from "../blocks/defaultBlocks.js";
+import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import { createDependencyGraph, toposortReverse } from "../util/topo-sort.js";
+import { addNodeAndExtensionsToSpec } from "./blocks/createSpec.js";
 import {
-  BlockNoDefaults,
-  BlockSchema,
-  BlockSpecs,
-  InlineContentConfig,
-  InlineContentSchema,
-  InlineContentSpec,
-  InlineContentSpecs,
-  LooseBlockSpec,
-  PartialBlockNoDefaults,
-  StyleSchema,
-  StyleSpecs,
-  addNodeAndExtensionsToSpec,
-  getInlineContentSchemaFromSpecs,
-  getStyleSchemaFromSpecs,
+  type BlockSchema,
+  type BlockSpecs,
+  type InlineContentConfig,
+  type InlineContentSchema,
+  type InlineContentSpec,
+  type InlineContentSpecs,
+  type LooseBlockSpec,
+  type StyleSchema,
+  type StyleSpecs,
 } from "./index.js";
+import { getInlineContentSchemaFromSpecs } from "./inlineContent/internal.js";
+import { getStyleSchemaFromSpecs } from "./styles/internal.js";
 
 function removeUndefined<T extends Record<string, any> | undefined>(obj: T): T {
   if (!obj) {
@@ -35,14 +34,11 @@ export class CustomBlockNoteSchema<
   public readonly BlockNoteEditor: BlockNoteEditor<BSchema, ISchema, SSchema> =
     "only for types" as any;
 
-  public readonly Block: BlockNoDefaults<BSchema, ISchema, SSchema> =
+  public readonly Block: Block<BSchema, ISchema, SSchema> =
     "only for types" as any;
 
-  public readonly PartialBlock: PartialBlockNoDefaults<
-    BSchema,
-    ISchema,
-    SSchema
-  > = "only for types" as any;
+  public readonly PartialBlock: PartialBlock<BSchema, ISchema, SSchema> =
+    "only for types" as any;
 
   public inlineContentSpecs: InlineContentSpecs;
   public styleSpecs: StyleSpecs;

@@ -27,14 +27,18 @@ import {
 import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../api/nodeUtil.js";
 import {
-  editorHasBlockWithType,
+  blockHasType,
   isTableCellSelection,
 } from "../../blocks/defaultBlockTypeGuards.js";
-import { DefaultBlockSchema } from "../../blocks/defaultBlocks.js";
+import {
+  DefaultBlockSchema,
+  defaultBlockSpecs,
+} from "../../blocks/defaultBlocks.js";
+import { TableBlockConfig } from "../../blocks/index.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import {
-  BlockFromConfigNoChildren,
+  BlockFromConfig,
   BlockSchemaWithBlock,
   InlineContentSchema,
   StyleSchema,
@@ -54,7 +58,7 @@ export type TableHandlesState<
   referencePosCell: DOMRect | undefined;
   referencePosTable: DOMRect;
 
-  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], I, S>;
+  block: BlockFromConfig<DefaultBlockSchema["table"], I, S>;
   colIndex: number | undefined;
   rowIndex: number | undefined;
 
@@ -164,7 +168,7 @@ export class TableHandlesView<
 
   constructor(
     private readonly editor: BlockNoteEditor<
-      BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
+      BlockSchemaWithBlock<"table", TableBlockConfig>,
       I,
       S
     >,
@@ -260,7 +264,7 @@ export class TableHandlesView<
     this.tableElement = blockEl.node;
 
     let tableBlock:
-      | BlockFromConfigNoChildren<DefaultBlockSchema["table"], I, S>
+      | BlockFromConfig<DefaultBlockSchema["table"], I, S>
       | undefined;
 
     const pmNodeInfo = this.editor.transact((tr) =>
@@ -278,7 +282,14 @@ export class TableHandlesView<
       this.editor.schema.styleSchema,
     );
 
-    if (editorHasBlockWithType(this.editor, "table")) {
+    if (
+      blockHasType(
+        block,
+        this.editor,
+        "table",
+        defaultBlockSpecs.table.config.propSchema,
+      )
+    ) {
       this.tablePos = pmNodeInfo.posBeforeNode + 1;
       tableBlock = block;
     }
@@ -535,10 +546,16 @@ export class TableHandlesView<
     }
 
     // Hide handles if the table block has been removed.
-    this.state.block = this.editor.getBlock(this.state.block.id)!;
+    const block = this.editor.getBlock(this.state.block.id)!;
+
     if (
-      !this.state.block ||
-      this.state.block.type !== "table" ||
+      !block ||
+      !blockHasType(
+        block,
+        this.editor,
+        "table",
+        defaultBlockSpecs.table.config.propSchema,
+      ) ||
       // when collaborating, the table element might be replaced and out of date
       // because yjs replaces the element when for example you change the color via the side menu
       !this.tableElement?.isConnected
@@ -551,6 +568,7 @@ export class TableHandlesView<
       return;
     }
 
+    this.state.block = block;
     const { height: rowCount, width: colCount } = getDimensionsOfTable(
       this.state.block,
     );
@@ -626,7 +644,7 @@ export class TableHandlesProsemirrorPlugin<
 
   constructor(
     private readonly editor: BlockNoteEditor<
-      BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
+      BlockSchemaWithBlock<"table", TableBlockConfig>,
       I,
       S
     >,
@@ -921,7 +939,7 @@ export class TableHandlesProsemirrorPlugin<
   };
 
   getCellsAtRowHandle = (
-    block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+    block: BlockFromConfig<DefaultBlockSchema["table"], any, any>,
     relativeRowIndex: RelativeCellIndices["row"],
   ) => {
     return getCellsAtRowHandle(block, relativeRowIndex);
@@ -931,7 +949,7 @@ export class TableHandlesProsemirrorPlugin<
    * Get all the cells in a column of the table block.
    */
   getCellsAtColumnHandle = (
-    block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+    block: BlockFromConfig<DefaultBlockSchema["table"], any, any>,
     relativeColumnIndex: RelativeCellIndices["col"],
   ) => {
     return getCellsAtColumnHandle(block, relativeColumnIndex);
@@ -1161,9 +1179,7 @@ export class TableHandlesProsemirrorPlugin<
    * Returns undefined when there is no cell selection, or the selection is not within a table.
    */
   getMergeDirection = (
-    block:
-      | BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>
-      | undefined,
+    block: BlockFromConfig<DefaultBlockSchema["table"], any, any> | undefined,
   ) => {
     return this.editor.transact((tr) => {
       const isSelectingTableCells = isTableCellSelection(tr.selection)
@@ -1194,14 +1210,14 @@ export class TableHandlesProsemirrorPlugin<
   };
 
   cropEmptyRowsOrColumns = (
-    block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+    block: BlockFromConfig<DefaultBlockSchema["table"], any, any>,
     removeEmpty: "columns" | "rows",
   ) => {
     return cropEmptyRowsOrColumns(block, removeEmpty);
   };
 
   addRowsOrColumns = (
-    block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+    block: BlockFromConfig<DefaultBlockSchema["table"], any, any>,
     addType: "columns" | "rows",
     numToAdd: number,
   ) => {

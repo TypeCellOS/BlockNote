@@ -17,23 +17,21 @@ import {
   getInlineContentSchemaFromSpecs,
   getStyleSchemaFromSpecs,
 } from "../schema/index.js";
-import {
-  createAudioBlockSpec,
-  createBulletListItemBlockSpec,
-  createCheckListItemBlockSpec,
-  createCodeBlockSpec,
-  createDividerBlockSpec,
-  createFileBlockSpec,
-  createHeadingBlockSpec,
-  createImageBlockSpec,
-  createNumberedListItemBlockSpec,
-  createParagraphBlockSpec,
-  createQuoteBlockSpec,
-  createToggleListItemBlockSpec,
-  createVideoBlockSpec,
-  defaultProps,
-} from "./index.js";
+import { createAudioBlockSpec } from "./Audio/block.js";
+import { createCodeBlockSpec } from "./Code/block.js";
+import { defaultProps } from "./defaultProps.js";
+import { createDividerBlockSpec } from "./Divider/block.js";
+import { createFileBlockSpec } from "./File/block.js";
+import { createHeadingBlockSpec } from "./Heading/block.js";
+import { createImageBlockSpec } from "./Image/block.js";
+import { createBulletListItemBlockSpec } from "./ListItem/BulletListItem/block.js";
+import { createCheckListItemBlockSpec } from "./ListItem/CheckListItem/block.js";
+import { createNumberedListItemBlockSpec } from "./ListItem/NumberedListItem/block.js";
+import { createToggleListItemBlockSpec } from "./ListItem/ToggleListItem/block.js";
+import { createParagraphBlockSpec } from "./Paragraph/block.js";
+import { createQuoteBlockSpec } from "./Quote/block.js";
 import { createTableBlockSpec } from "./Table/block.js";
+import { createVideoBlockSpec } from "./Video/block.js";
 
 export const defaultBlockSpecs = {
   audio: createAudioBlockSpec(),

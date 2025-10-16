@@ -1,14 +1,14 @@
-import * as Y from "yjs";
 import { redoCommand, undoCommand } from "y-prosemirror";
-import { CommentsPlugin } from "../../extensions/Comments/CommentsPlugin.js";
-import { CommentMark } from "../../extensions/Comments/CommentMark.js";
+import * as Y from "yjs";
+import type { ThreadStore, User } from "../../comments/index.js";
+import { CursorPlugin } from "../../extensions/Collaboration/CursorPlugin.js";
 import { ForkYDocPlugin } from "../../extensions/Collaboration/ForkYDocPlugin.js";
 import { SyncPlugin } from "../../extensions/Collaboration/SyncPlugin.js";
 import { UndoPlugin } from "../../extensions/Collaboration/UndoPlugin.js";
-import { CursorPlugin } from "../../extensions/Collaboration/CursorPlugin.js";
-import type { ThreadStore, User } from "../../comments/index.js";
+import { CommentMark } from "../../extensions/Comments/CommentMark.js";
+import { CommentsPlugin } from "../../extensions/Comments/CommentsPlugin.js";
+import { CustomBlockNoteSchema } from "../../schema/CustomBlockNoteSchema.js";
 import type { BlockNoteEditor } from "../BlockNoteEditor.js";
-import { CustomBlockNoteSchema } from "../../schema/schema.js";
 
 export interface CollaborationOptions {
   /**

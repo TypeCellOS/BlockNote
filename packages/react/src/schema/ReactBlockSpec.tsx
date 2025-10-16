@@ -1,7 +1,7 @@
 import {
+  Block,
   BlockConfig,
   BlockImplementation,
-  BlockNoDefaults,
   BlockNoteEditor,
   BlockNoteExtension,
   BlockSpec,
@@ -29,11 +29,7 @@ export type ReactCustomBlockRenderProps<
   TProps extends PropSchema = PropSchema,
   TContent extends "inline" | "none" = "inline" | "none",
 > = {
-  block: BlockNoDefaults<
-    Record<TName, BlockConfig<TName, TProps, TContent>>,
-    any,
-    any
-  >;
+  block: Block<Record<TName, BlockConfig<TName, TProps, TContent>>, any, any>;
   editor: BlockNoteEditor<any, any, any>;
   contentRef: (node: HTMLElement | null) => void;
 };
@@ -265,7 +261,7 @@ export function createReactBlockSpec<
                 // `ReactNodeViewRenderer` instead.
                 const block = getBlockFromPos(
                   props.getPos,
-                  editor,
+                  editor as any,
                   props.editor,
                   blockConfig.type,
                 );

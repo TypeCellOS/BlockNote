@@ -6,12 +6,13 @@ import {
   BlockIdentifier,
   BlockSchema,
   InlineContentSchema,
+  partialBlockToFullBlock,
   StyleSchema,
 } from "../../../../schema/index.js";
 import { blockToNode } from "../../../nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../../nodeUtil.js";
-import { getPmSchema } from "../../../pmUtil.js";
+import { getBlockNoteSchema, getPmSchema } from "../../../pmUtil.js";
 
 export function insertBlocks<
   BSchema extends BlockSchema,
@@ -19,6 +20,7 @@ export function insertBlocks<
   S extends StyleSchema,
 >(
   tr: Transaction,
+  // TBD: allow PartialBlock here?
   blocksToInsert: PartialBlock<BSchema, I, S>[],
   referenceBlock: BlockIdentifier,
   placement: "before" | "after" = "before",
@@ -27,7 +29,10 @@ export function insertBlocks<
     typeof referenceBlock === "string" ? referenceBlock : referenceBlock.id;
   const pmSchema = getPmSchema(tr);
   const nodesToInsert = blocksToInsert.map((block) =>
-    blockToNode(block, pmSchema),
+    blockToNode(
+      partialBlockToFullBlock(getBlockNoteSchema(pmSchema), block),
+      pmSchema,
+    ),
   );
 
   const posInfo = getNodeById(id, tr.doc);

@@ -3,8 +3,8 @@ import {
   createPageBreakBlockSpec,
   defaultBlockSpecs,
 } from "@blocknote/core";
+import { partialBlocksToFullBlocks } from "@blocknote/core/src/schema/partialBlockToFullBlock.js";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
-import { partialBlocksToBlocksForTesting } from "@shared/formatConversionTestUtil.js";
 import { testDocument } from "@shared/testDocument.js";
 import { BlobReader, TextWriter, ZipReader } from "@zip.js/zip.js";
 import { beforeAll, describe, expect, it } from "vitest";
@@ -78,7 +78,7 @@ describe("exporter", () => {
       });
       const exporter = new ODTExporter(schema, odtDefaultSchemaMappings);
       const odt = await exporter.toODTDocument(
-        partialBlocksToBlocksForTesting(schema, [
+        partialBlocksToFullBlocks(schema, [
           {
             type: "columnList",
             children: [

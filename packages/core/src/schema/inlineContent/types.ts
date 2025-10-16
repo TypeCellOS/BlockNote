@@ -1,8 +1,8 @@
 import { Node } from "@tiptap/core";
+import { ViewMutationRecord } from "prosemirror-view";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { PropSchema, Props } from "../propTypes.js";
 import { StyleSchema, Styles } from "../styles/types.js";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { ViewMutationRecord } from "prosemirror-view";
 
 export type CustomInlineContentConfig = {
   type: string;

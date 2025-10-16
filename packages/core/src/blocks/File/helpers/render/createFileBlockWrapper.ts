@@ -1,8 +1,5 @@
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
-import {
-  BlockConfig,
-  BlockFromConfigNoChildren,
-} from "../../../../schema/index.js";
+import type { BlockConfig, BlockFromConfig } from "../../../../schema/index.js";
 import {
   baseFilePropSchema,
   optionalFileProps,
@@ -15,7 +12,7 @@ const requiredPropSchema = baseFilePropSchema.extend({
 });
 
 export const createFileBlockWrapper = (
-  block: BlockFromConfigNoChildren<
+  block: BlockFromConfig<
     BlockConfig<string, typeof requiredPropSchema, "none">,
     any,
     any

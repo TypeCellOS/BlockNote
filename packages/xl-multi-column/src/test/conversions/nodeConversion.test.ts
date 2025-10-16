@@ -3,40 +3,25 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   BlockNoteEditor,
   PartialBlock,
-  UniqueID,
   blockToNode,
   nodeToBlock,
+  partialBlockToFullBlock,
 } from "@blocknote/core";
-import { partialBlockToBlockForTesting } from "@shared/formatConversionTestUtil.js";
 
 import { multiColumnSchemaTestCases } from "./testCases.js";
-
-function addIdsToBlock(block: PartialBlock<any, any, any>) {
-  if (!block.id) {
-    block.id = UniqueID.options.generateID();
-  }
-  for (const child of block.children || []) {
-    addIdsToBlock(child);
-  }
-}
 
 function validateConversion(
   block: PartialBlock<any, any, any>,
   editor: BlockNoteEditor<any, any, any>,
 ) {
-  addIdsToBlock(block);
-  const node = blockToNode(block, editor.pmSchema);
+  const fullBlock = partialBlockToFullBlock(editor.schema, block);
+  const node = blockToNode(fullBlock, editor.pmSchema);
 
   expect(node).toMatchSnapshot();
 
   const outputBlock = nodeToBlock(node, editor.pmSchema);
 
-  const fullOriginalBlock = partialBlockToBlockForTesting(
-    editor.schema.blockSchema,
-    block,
-  );
-
-  expect(outputBlock).toStrictEqual(fullOriginalBlock);
+  expect(outputBlock).toStrictEqual(fullBlock);
 }
 
 const testCases = [multiColumnSchemaTestCases];

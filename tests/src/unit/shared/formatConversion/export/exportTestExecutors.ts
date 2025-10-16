@@ -3,9 +3,10 @@ import {
   BlockSchema,
   blockToNode,
   InlineContentSchema,
+  partialBlocksToFullBlocks,
+  partialBlockToFullBlock,
   StyleSchema,
 } from "@blocknote/core";
-import { addIdsToBlocks } from "@shared/formatConversionTestUtil.js";
 import { prettify } from "htmlfy";
 import { expect } from "vitest";
 
@@ -21,12 +22,15 @@ export const testExportBlockNoteHTML = async <
 ) => {
   (window as any).__TEST_OPTIONS.mockID = 0;
 
-  addIdsToBlocks(testCase.content);
-
   await expect(
-    prettify(await editor.blocksToFullHTML(testCase.content), {
-      tag_wrap: true,
-    }),
+    prettify(
+      await editor.blocksToFullHTML(
+        partialBlocksToFullBlocks(editor.schema, testCase.content),
+      ),
+      {
+        tag_wrap: true,
+      },
+    ),
   ).toMatchFileSnapshot(`./__snapshots__/blocknoteHTML/${testCase.name}.html`);
 };
 
@@ -40,12 +44,15 @@ export const testExportHTML = async <
 ) => {
   (window as any).__TEST_OPTIONS.mockID = 0;
 
-  addIdsToBlocks(testCase.content);
-
   await expect(
-    prettify(await editor.blocksToHTMLLossy(testCase.content), {
-      tag_wrap: true,
-    }),
+    prettify(
+      await editor.blocksToHTMLLossy(
+        partialBlocksToFullBlocks(editor.schema, testCase.content),
+      ),
+      {
+        tag_wrap: true,
+      },
+    ),
   ).toMatchFileSnapshot(`./__snapshots__/html/${testCase.name}.html`);
 };
 
@@ -59,10 +66,10 @@ export const testExportMarkdown = async <
 ) => {
   (window as any).__TEST_OPTIONS.mockID = 0;
 
-  addIdsToBlocks(testCase.content);
-
   await expect(
-    await editor.blocksToMarkdownLossy(testCase.content),
+    await editor.blocksToMarkdownLossy(
+      partialBlocksToFullBlocks(editor.schema, testCase.content),
+    ),
   ).toMatchFileSnapshot(`./__snapshots__/markdown/${testCase.name}.md`);
 };
 
@@ -76,11 +83,13 @@ export const testExportNodes = async <
 ) => {
   (window as any).__TEST_OPTIONS.mockID = 0;
 
-  addIdsToBlocks(testCase.content);
-
   await expect(
     testCase.content.map((block) =>
-      blockToNode(block, editor.pmSchema, editor.schema.styleSchema),
+      blockToNode(
+        partialBlockToFullBlock(editor.schema, block),
+        editor.pmSchema,
+        editor.schema.styleSchema,
+      ),
     ),
   ).toMatchFileSnapshot(`./__snapshots__/nodes/${testCase.name}.json`);
 };

@@ -1,6 +1,6 @@
 import { DOMSerializer, Schema } from "prosemirror-model";
 
-import { PartialBlock } from "../../../blocks/defaultBlocks.js";
+import { Block } from "../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import {
   BlockSchema,
@@ -40,7 +40,7 @@ export const createExternalHTMLExporter = <
 
   return {
     exportBlocks: (
-      blocks: PartialBlock<BSchema, I, S>[],
+      blocks: Block<BSchema, I, S>[],
       options: { document?: Document },
     ) => {
       const html = serializeBlocksExternalHTML(
@@ -62,7 +62,7 @@ export const createExternalHTMLExporter = <
     ) => {
       const domFragment = serializeInlineContentExternalHTML(
         editor,
-        inlineContent as any,
+        inlineContent as unknown as never,
         serializer,
         options,
       );
