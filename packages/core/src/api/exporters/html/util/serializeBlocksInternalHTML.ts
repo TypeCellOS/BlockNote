@@ -13,7 +13,6 @@ import {
   tableContentToNodes,
 } from "../../../nodeConversions/blockToNode.js";
 
-import * as z from "zod/v4/core";
 import { nodeToCustomInlineContent } from "../../../nodeConversions/nodeToBlock.js";
 export function serializeInlineContentInternalHTML<
   BSchema extends BlockSchema,
@@ -138,23 +137,6 @@ function serializeBlock<
   options?: { document?: Document },
 ) {
   const BC_NODE = editor.pmSchema.nodes["blockContainer"];
-
-  // set default props in case we were passed a partial block
-  // TODO: should be a nicer way for this / or move to caller
-  const props = block.props || {};
-  for (const [name, spec] of Object.entries(
-    editor.schema.blockSchema[
-      block.type as keyof typeof editor.schema.blockSchema
-    ].propSchema._zod.def.shape,
-  )) {
-    if (
-      !(name in props) &&
-      spec instanceof z.$ZodDefault &&
-      spec._zod.def.defaultValue !== undefined
-    ) {
-      (props as any)[name] = spec._zod.def.defaultValue;
-    }
-  }
 
   const impl = editor.blockImplementations[block.type as any].implementation;
   const ret = impl.render.call(

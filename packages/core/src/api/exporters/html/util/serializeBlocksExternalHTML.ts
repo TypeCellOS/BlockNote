@@ -174,23 +174,6 @@ function serializeBlock<
   const doc = options?.document ?? document;
   const BC_NODE = editor.pmSchema.nodes["blockContainer"];
 
-  // set default props in case we were passed a partial block
-  // TODO: should be a nicer way for this / or move to caller
-  // const props = block.props || {};
-  // for (const [name, spec] of Object.entries(
-  //   editor.schema.blockSchema[
-  //     block.type as keyof typeof editor.schema.blockSchema
-  //   ].propSchema._zod.def.shape,
-  // )) {
-  //   if (
-  //     !(name in props) &&
-  //     spec instanceof z.$ZodDefault &&
-  //     spec._zod.def.defaultValue !== undefined
-  //   ) {
-  //     (props as any)[name] = spec._zod.def.defaultValue;
-  //   }
-  // }
-
   const bc = BC_NODE.spec?.toDOM?.(
     BC_NODE.create({
       id: block.id,
