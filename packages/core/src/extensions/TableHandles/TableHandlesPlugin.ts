@@ -546,7 +546,7 @@ export class TableHandlesView<
     }
 
     // Hide handles if the table block has been removed.
-    const block = this.editor.getBlock(this.state.block.id)!;
+    const block = this.editor.getBlock(this.state.block.id);
 
     if (
       !block ||
