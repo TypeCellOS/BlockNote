@@ -654,8 +654,7 @@ function isCellEmpty(
     return true;
   }
   if (isPartialTableCell(cell)) {
-    // TODO: what happened here?
-    return isCellEmpty(cell);
+    return isCellEmpty(cell.content);
   } else if (typeof cell === "string") {
     return cell.length === 0;
   } else if (Array.isArray(cell)) {
