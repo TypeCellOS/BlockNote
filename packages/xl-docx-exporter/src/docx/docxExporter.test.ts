@@ -140,7 +140,7 @@ describe("exporter", () => {
         },
       });
       const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings);
-      const x = partialBlocksToFullBlocks(schema, [
+      const blocks = partialBlocksToFullBlocks(schema, [
         {
           type: "columnList",
           children: [
@@ -195,7 +195,7 @@ describe("exporter", () => {
           ],
         },
       ]);
-      const doc = await exporter.toDocxJsDocument(x, {
+      const doc = await exporter.toDocxJsDocument(blocks, {
         sectionOptions: {},
         documentOptions: {},
         locale: "en-US",

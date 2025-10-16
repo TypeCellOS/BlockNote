@@ -144,7 +144,7 @@ function serializeBlock<
       renderType: "dom",
       props: undefined,
     },
-    { ...block, props } as any,
+    block,
     editor as any,
   );
 
@@ -179,7 +179,7 @@ function serializeBlock<
   const bc = BC_NODE.spec?.toDOM?.(
     BC_NODE.create({
       id: block.id,
-      ...props,
+      ...block.props,
     }),
   ) as {
     dom: HTMLElement;
