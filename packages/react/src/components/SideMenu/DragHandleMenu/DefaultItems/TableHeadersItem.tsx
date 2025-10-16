@@ -4,7 +4,6 @@ import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   InlineContentSchema,
-  SpecificBlock,
   StyleSchema,
 } from "@blocknote/core";
 import { ReactNode } from "react";
@@ -19,7 +18,7 @@ export const TableRowHeaderItem = <
   S extends StyleSchema = DefaultStyleSchema,
 >(
   props: Omit<DragHandleMenuProps<BSchema, I, S>, "block"> & {
-    block: SpecificBlock<{ table: DefaultBlockSchema["table"] }, "table", I, S>;
+    block: BlockFromConfig<DefaultBlockSchema["table"], I, S>;
     children: ReactNode;
   },
 ) => {
@@ -68,7 +67,7 @@ export const TableColumnHeaderItem = <
   S extends StyleSchema = DefaultStyleSchema,
 >(
   props: Omit<DragHandleMenuProps<BSchema, I, S>, "block"> & {
-    block: SpecificBlock<{ table: DefaultBlockSchema["table"] }, "table", I, S>;
+    block: BlockFromConfig<DefaultBlockSchema["table"], I, S>;
     children: ReactNode;
   },
 ) => {

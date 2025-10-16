@@ -11,9 +11,9 @@ import { PropSchema, Props } from "../propTypes.js";
 import { StyleSchema } from "../styles/types.js";
 import {
   BlockConfig,
+  BlockFromConfig,
   BlockSchemaWithBlock,
   LooseBlockSpec,
-  SpecificBlock,
 } from "./types.js";
 
 // Function that uses the 'propSchema' of a blockConfig to create a TipTap
@@ -92,9 +92,8 @@ export function getBlockFromPos<
   }
 
   // Gets the block
-  const block = editor.getBlock(blockIdentifier)! as SpecificBlock<
-    BSchema,
-    BType,
+  const block = editor.getBlock(blockIdentifier)! as unknown as BlockFromConfig<
+    Config,
     I,
     S
   >;

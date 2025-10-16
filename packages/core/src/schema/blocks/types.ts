@@ -280,15 +280,6 @@ export type BlockNoDefaults<
   children: BlockNoDefaults<BSchema, I, S>[];
 };
 
-export type SpecificBlock<
-  BSchema extends BlockSchema,
-  BType extends keyof BSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
-> = BlocksWithoutChildren<BSchema, I, S>[BType] & {
-  children: BlockNoDefaults<BSchema, I, S>[];
-};
-
 type PartialBlockFromConfigNoChildren<
   B extends BlockConfig,
   I extends InlineContentSchema,
