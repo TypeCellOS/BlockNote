@@ -38,6 +38,10 @@
     inset 0 1px 1px 1px var(--shadow);
 }
 
+.bn-ak-popover {
+  z-index: 10000;
+}
+
 .bn-toolbar .bn-ak-popover {
   gap: 0.5rem;
 }

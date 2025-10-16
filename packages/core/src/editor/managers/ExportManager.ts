@@ -54,7 +54,7 @@ export class ExportManager<
    * @returns The blocks, serialized as an HTML string.
    */
   public blocksToFullHTML(
-    blocks: PartialBlock<BSchema, ISchema, SSchema>[],
+    blocks: PartialBlock<BSchema, ISchema, SSchema>[] = this.editor.document,
   ): string {
     const exporter = createInternalHTMLSerializer(
       this.editor.pmSchema,

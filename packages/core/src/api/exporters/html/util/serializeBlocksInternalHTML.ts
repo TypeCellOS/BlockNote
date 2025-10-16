@@ -155,6 +155,7 @@ function serializeBlock<
       (props as any)[name] = spec._zod.def.defaultValue;
     }
   }
+  const children = block.children || [];
 
   const impl = editor.blockImplementations[block.type as any].implementation;
   const ret = impl.render.call(
@@ -162,7 +163,7 @@ function serializeBlock<
       renderType: "dom",
       props: undefined,
     },
-    { ...block, props } as any,
+    { ...block, props, children } as any,
     editor as any,
   );
 

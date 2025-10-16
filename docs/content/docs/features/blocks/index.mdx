@@ -12,7 +12,7 @@ The demo below showcases each of BlockNote's built-in block and inline content t
 
 <Example name="basic/default-blocks" />
 
-### Default Block Properties
+## Default Block Properties
 
 There are some default block props that BlockNote uses for the built-in blocks:
 
@@ -35,6 +35,38 @@ type DefaultProps = {
   textAlignment: "left" | "center" | "right" | "justify";
 };
 ```
+
+## Configuring Default Blocks
+
+Some default blocks can be configured with options. For example, headings can be configured to have different available levels:
+
+```ts
+// Creates a new instance of the default heading block.
+const heading = createHeadingBlockSpec({
+  // Sets the block to support only heading levels 1-3.
+  levels: [1, 2, 3],
+});
+```
+
+Each default block type can be instantiated using their respective `create...BlockSpec` function. If the block can be configured, i.e. if it has options, you can pass them in an object to the function. To see which options each block type supports, read on to the next pages.
+
+To add your configured block to the editor, you must pass in a [custom schema](/docs/features/custom-schemas) with it. The simplest way to do this is by [extending the default schema](/docs/features/custom-schemas#extending-an-existing-schema):
+
+```ts
+const editor = useCreateBlockNote({
+  // Creates a default schema and extends it with the configured heading block.
+  schema: BlockNoteSchema.create().extend({
+    blockSpecs: {
+      heading: createHeadingBlockSpec({
+        // Sets the allowed heading levels.
+        levels: [1, 2, 3],
+      }),
+    },
+  }),
+});
+```
+
+You can see this in action in a working demo [here](/examples/custom-schema/configuring-blocks).
 
 ## Explore
 

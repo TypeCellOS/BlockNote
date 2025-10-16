@@ -130,6 +130,33 @@
                         ],
                         "type": "checkListItem",
                       },
+                      {
+                        "content": [
+                          {
+                            "attrs": {
+                              "id": "7",
+                            },
+                            "content": [
+                              {
+                                "attrs": {
+                                  "backgroundColor": "default",
+                                  "textAlignment": "left",
+                                  "textColor": "default",
+                                },
+                                "content": [
+                                  {
+                                    "text": "Toggle List Item 1",
+                                    "type": "text",
+                                  },
+                                ],
+                                "type": "toggleListItem",
+                              },
+                            ],
+                            "type": "blockContainer",
+                          },
+                        ],
+                        "type": "blockGroup",
+                      },
                     ],
                     "type": "blockContainer",
                   },
