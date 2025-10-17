@@ -1,3 +1,4 @@
+import type { Mark } from "@tiptap/core";
 import Bold from "@tiptap/extension-bold";
 import Code from "@tiptap/extension-code";
 import Italic from "@tiptap/extension-italic";
@@ -7,17 +8,22 @@ import { COLORS_DEFAULT } from "../editor/defaultColors.js";
 import {
   BlockNoDefaults,
   BlockSchema,
+  BlockSpec,
+  createStyleSpec,
+  createStyleSpecFromTipTapMark,
+  getInlineContentSchemaFromSpecs,
+  getStyleSchemaFromSpecs,
   InlineContentSchema,
   InlineContentSpecs,
   PartialBlockNoDefaults,
   StyleSchema,
   StyleSpecs,
-  createStyleSpec,
-  createStyleSpecFromTipTapMark,
-  getInlineContentSchemaFromSpecs,
-  getStyleSchemaFromSpecs,
 } from "../schema/index.js";
 import {
+  AudioBlockConfig,
+  BulletListItemBlockConfig,
+  CheckListItemBlockConfig,
+  CodeBlockConfig,
   createAudioBlockSpec,
   createBulletListItemBlockSpec,
   createCheckListItemBlockSpec,
@@ -32,24 +38,90 @@ import {
   createToggleListItemBlockSpec,
   createVideoBlockSpec,
   defaultProps,
+  DividerBlockConfig,
+  FileBlockConfig,
+  HeadingBlockConfig,
+  ImageBlockConfig,
+  NumberedListItemBlockConfig,
+  ParagraphBlockConfig,
+  QuoteBlockConfig,
+  ToggleListItemBlockConfig,
+  VideoBlockConfig,
 } from "./index.js";
-import { createTableBlockSpec } from "./Table/block.js";
+import { createTableBlockSpec, TableBlockConfig } from "./Table/block.js";
 
 export const defaultBlockSpecs = {
-  audio: createAudioBlockSpec(),
-  bulletListItem: createBulletListItemBlockSpec(),
-  checkListItem: createCheckListItemBlockSpec(),
-  codeBlock: createCodeBlockSpec(),
-  divider: createDividerBlockSpec(),
-  file: createFileBlockSpec(),
-  heading: createHeadingBlockSpec(),
-  image: createImageBlockSpec(),
-  numberedListItem: createNumberedListItemBlockSpec(),
-  paragraph: createParagraphBlockSpec(),
-  quote: createQuoteBlockSpec(),
-  table: createTableBlockSpec(),
-  toggleListItem: createToggleListItemBlockSpec(),
-  video: createVideoBlockSpec(),
+  // To speed up TS compilation, we re-use the type assertions to avoid TS needing to compare types all the time
+  audio: createAudioBlockSpec() as BlockSpec<
+    AudioBlockConfig["type"],
+    AudioBlockConfig["propSchema"],
+    AudioBlockConfig["content"]
+  >,
+  bulletListItem: createBulletListItemBlockSpec() as BlockSpec<
+    BulletListItemBlockConfig["type"],
+    BulletListItemBlockConfig["propSchema"],
+    BulletListItemBlockConfig["content"]
+  >,
+  checkListItem: createCheckListItemBlockSpec() as BlockSpec<
+    CheckListItemBlockConfig["type"],
+    CheckListItemBlockConfig["propSchema"],
+    CheckListItemBlockConfig["content"]
+  >,
+  codeBlock: createCodeBlockSpec() as BlockSpec<
+    CodeBlockConfig["type"],
+    CodeBlockConfig["propSchema"],
+    CodeBlockConfig["content"]
+  >,
+  divider: createDividerBlockSpec() as BlockSpec<
+    DividerBlockConfig["type"],
+    DividerBlockConfig["propSchema"],
+    DividerBlockConfig["content"]
+  >,
+  file: createFileBlockSpec() as BlockSpec<
+    FileBlockConfig["type"],
+    FileBlockConfig["propSchema"],
+    FileBlockConfig["content"]
+  >,
+  heading: createHeadingBlockSpec() as BlockSpec<
+    HeadingBlockConfig["type"],
+    HeadingBlockConfig["propSchema"],
+    HeadingBlockConfig["content"]
+  >,
+  image: createImageBlockSpec() as BlockSpec<
+    ImageBlockConfig["type"],
+    ImageBlockConfig["propSchema"],
+    ImageBlockConfig["content"]
+  >,
+  numberedListItem: createNumberedListItemBlockSpec() as BlockSpec<
+    NumberedListItemBlockConfig["type"],
+    NumberedListItemBlockConfig["propSchema"],
+    NumberedListItemBlockConfig["content"]
+  >,
+  paragraph: createParagraphBlockSpec() as BlockSpec<
+    ParagraphBlockConfig["type"],
+    ParagraphBlockConfig["propSchema"],
+    ParagraphBlockConfig["content"]
+  >,
+  quote: createQuoteBlockSpec() as BlockSpec<
+    QuoteBlockConfig["type"],
+    QuoteBlockConfig["propSchema"],
+    QuoteBlockConfig["content"]
+  >,
+  table: createTableBlockSpec() as BlockSpec<
+    TableBlockConfig["type"],
+    TableBlockConfig["propSchema"],
+    TableBlockConfig["content"]
+  >,
+  toggleListItem: createToggleListItemBlockSpec() as BlockSpec<
+    ToggleListItemBlockConfig["type"],
+    ToggleListItemBlockConfig["propSchema"],
+    ToggleListItemBlockConfig["content"]
+  >,
+  video: createVideoBlockSpec() as BlockSpec<
+    VideoBlockConfig["type"],
+    VideoBlockConfig["propSchema"],
+    VideoBlockConfig["content"]
+  >,
 } as const;
 
 // underscore is used that in case a user overrides DefaultBlockSchema,
@@ -137,11 +209,26 @@ const BackgroundColor = createStyleSpec(
 );
 
 export const defaultStyleSpecs = {
-  bold: createStyleSpecFromTipTapMark(Bold, "boolean"),
-  italic: createStyleSpecFromTipTapMark(Italic, "boolean"),
-  underline: createStyleSpecFromTipTapMark(Underline, "boolean"),
-  strike: createStyleSpecFromTipTapMark(Strike, "boolean"),
-  code: createStyleSpecFromTipTapMark(Code, "boolean"),
+  bold: createStyleSpecFromTipTapMark(
+    Bold as Mark & { name: "bold" },
+    "boolean",
+  ),
+  italic: createStyleSpecFromTipTapMark(
+    Italic as Mark & { name: "italic" },
+    "boolean",
+  ),
+  underline: createStyleSpecFromTipTapMark(
+    Underline as Mark & { name: "underline" },
+    "boolean",
+  ),
+  strike: createStyleSpecFromTipTapMark(
+    Strike as Mark & { name: "strike" },
+    "boolean",
+  ),
+  code: createStyleSpecFromTipTapMark(
+    Code as Mark & { name: "code" },
+    "boolean",
+  ),
   textColor: TextColor,
   backgroundColor: BackgroundColor,
 } satisfies StyleSpecs;
