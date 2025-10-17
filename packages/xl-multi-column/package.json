@@ -51,19 +51,19 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "workspace:*",
-    "@blocknote/react": "workspace:*",
-    "@tiptap/core": "https://pkg.pr.new/@tiptap/core@5e777c9",
+    "@blocknote/core": "0.41.0",
+    "@blocknote/react": "0.41.0",
+    "@tiptap/core": "^3.7.2",
     "prosemirror-model": "^1.25.3",
     "prosemirror-state": "^1.4.3",
     "prosemirror-tables": "^1.8.1",
     "prosemirror-transform": "^1.10.4",
-    "prosemirror-view": "^1.41.2",
+    "prosemirror-view": "^1.41.3",
     "react-icons": "^5.5.0"
   },
   "devDependencies": {
     "@types/react": "^19.2.2",
-    "@types/react-dom": "^19.2.1",
+    "@types/react-dom": "^19.2.2",
     "@vitest/ui": "^2.1.9",
     "eslint": "^8.57.1",
     "jsdom": "^21.1.2",

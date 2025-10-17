@@ -61,13 +61,13 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "workspace:*",
-    "@blocknote/react": "workspace:*",
+    "@blocknote/core": "0.41.0",
+    "@blocknote/react": "0.41.0",
     "react-icons": "^5.5.0"
   },
   "devDependencies": {
     "@types/react": "^19.2.2",
-    "@types/react-dom": "^19.2.1",
+    "@types/react-dom": "^19.2.2",
     "@vitejs/plugin-react": "^4.7.0",
     "eslint": "^8.57.1",
     "react": "^19.2.0",

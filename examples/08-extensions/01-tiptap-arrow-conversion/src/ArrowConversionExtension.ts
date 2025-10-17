@@ -12,6 +12,7 @@ export const ArrowConversionExtension = Extension.create({
           const tr = state.tr.replaceWith(from, to, state.schema.text("→"));
           chain().insertContent(tr).run();
         },
+        undoable: true,
       },
     ];
   },

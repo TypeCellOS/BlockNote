@@ -56,8 +56,8 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "workspace:*",
-    "@blocknote/react": "workspace:*",
+    "@blocknote/core": "0.41.0",
+    "@blocknote/react": "0.41.0",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-label": "^2.1.7",
@@ -71,15 +71,15 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.525.0",
-    "react-hook-form": "^7.64.0",
+    "react-hook-form": "^7.65.0",
     "tailwind-merge": "^2.6.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {
     "@radix-ui/colors": "^3.0.0",
-    "@types/node": "^20.19.19",
+    "@types/node": "^20.19.22",
     "@types/react": "^19.2.2",
-    "@types/react-dom": "^19.2.1",
+    "@types/react-dom": "^19.2.2",
     "@vitejs/plugin-react": "^4.7.0",
     "eslint": "^8.57.1",
     "react": "^19.2.0",

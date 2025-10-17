@@ -56,8 +56,8 @@
     "email": "email dev"
   },
   "dependencies": {
-    "@blocknote/core": "workspace:*",
-    "@blocknote/react": "workspace:*",
+    "@blocknote/core": "0.41.0",
+    "@blocknote/react": "0.41.0",
     "@blocknote/xl-multi-column": "workspace:*",
     "@react-pdf/renderer": "^4.3.1",
     "buffer": "^6.0.3",
@@ -68,7 +68,7 @@
     "@types/jest-image-snapshot": "^6.4.0",
     "@types/jsdom": "^21.1.7",
     "@types/react": "^19.2.2",
-    "@types/react-dom": "^19.2.1",
+    "@types/react-dom": "^19.2.2",
     "eslint": "^8.57.1",
     "jest-image-snapshot": "^6.5.1",
     "pdf-to-img": "^4.5.0",
