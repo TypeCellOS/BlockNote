@@ -50,7 +50,7 @@ export function editorHasBlockWithType<
     if (typeof propSpec === "string") {
       if (
         editor.schema.blockSpecs[blockType].config.propSchema[propName]
-          .default &&
+          .default !== undefined &&
         typeof editor.schema.blockSpecs[blockType].config.propSchema[propName]
           .default !== propSpec
       ) {
@@ -58,7 +58,8 @@ export function editorHasBlockWithType<
       }
 
       if (
-        editor.schema.blockSpecs[blockType].config.propSchema[propName].type &&
+        editor.schema.blockSpecs[blockType].config.propSchema[propName].type !==
+          undefined &&
         editor.schema.blockSpecs[blockType].config.propSchema[propName].type !==
           propSpec
       ) {
@@ -97,23 +98,11 @@ export function editorHasBlockWithType<
           .values === "object" &&
         typeof propSpec.values === "object"
       ) {
-        if (
-          editor.schema.blockSpecs[blockType].config.propSchema[propName].values
-            .length !== propSpec.values.length
-        ) {
-          return false;
-        }
-
-        for (
-          let i = 0;
-          i <
-          editor.schema.blockSpecs[blockType].config.propSchema[propName].values
-            .length;
-          i++
-        ) {
+        for (const value of propSpec.values) {
           if (
-            editor.schema.blockSpecs[blockType].config.propSchema[propName]
-              .values[i] !== propSpec.values[i]
+            !editor.schema.blockSpecs[blockType].config.propSchema[
+              propName
+            ].values.includes(value)
           ) {
             return false;
           }
