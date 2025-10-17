@@ -1,4 +1,4 @@
-import { Fragment, ResolvedPos, Slice, type Node } from "prosemirror-model";
+import { ResolvedPos, type Node } from "prosemirror-model";
 import { TextSelection, type Transaction } from "prosemirror-state";
 import { ReplaceAroundStep } from "prosemirror-transform";
 import type { Block, PartialBlock } from "../../../../blocks/defaultBlocks.js";
@@ -161,6 +161,144 @@ export function moveFirstBlockInColumn(
   }
 }
 
+/**
+ * Checks if a `column` node is empty, i.e. if it has only a single empty
+ * block.
+ * @param column The column to check.
+ * @returns Whether the column is empty.
+ */
+function isEmptyColumn(column: Node) {
+  if (!column || column.type.name !== "column") {
+    throw new Error("Invalid columnPos: does not point to column node.");
+  }
+
+  const blockContainer = column.firstChild;
+  if (!blockContainer) {
+    throw new Error("Invalid column: does not have child node.");
+  }
+
+  const blockContent = blockContainer.firstChild;
+  if (!blockContent) {
+    throw new Error("Invalid blockContainer: does not have child node.");
+  }
+
+  return (
+    column.childCount === 1 &&
+    blockContainer.childCount === 1 &&
+    blockContent.type.spec.content === "inline*" &&
+    blockContent.content.content.length === 0
+  );
+}
+
+/**
+ * Removes all empty `column` nodes in a `columnList`. A `column` node is empty
+ * if it has only a single empty block. If, however, removing the `column`s
+ * leaves the `columnList` that has fewer than two, ProseMirror will re-add
+ * empty columns.
+ * @param tr The `Transaction` to add the changes to.
+ * @param columnListPos The position just before the `columnList` node.
+ */
+function removeEmptyColumns(tr: Transaction, columnListPos: number) {
+  const $columnListPos = tr.doc.resolve(columnListPos);
+  const columnList = $columnListPos.nodeAfter;
+  if (!columnList || columnList.type.name !== "columnList") {
+    throw new Error(
+      "Invalid columnListPos: does not point to columnList node.",
+    );
+  }
+
+  for (
+    let columnIndex = columnList.childCount - 1;
+    columnIndex >= 0;
+    columnIndex--
+  ) {
+    const columnPos = tr.doc
+      .resolve($columnListPos.pos + 1)
+      .posAtIndex(columnIndex);
+    const $columnPos = tr.doc.resolve(columnPos);
+    const column = $columnPos.nodeAfter;
+    if (!column || column.type.name !== "column") {
+      throw new Error("Invalid columnPos: does not point to column node.");
+    }
+
+    if (isEmptyColumn(column)) {
+      tr.delete(columnPos, columnPos + column?.nodeSize);
+    }
+  }
+}
+
+/**
+ * Fixes potential issues in a `columnList` node after a
+ * `blockContainer`/`column` node is (re)moved from it:
+ *
+ * - Removes all empty `column` nodes. A `column` node is empty if it has only
+ * a single empty block.
+ * - If all but one `column` nodes are empty, replaces the `columnList` with
+ * the content of the non-empty `column`.
+ * - If all `column` nodes are empty, removes the `columnList` entirely.
+ * @param tr The `Transaction` to add the changes to.
+ * @param columnListPos
+ * @returns The position just before the `columnList` node.
+ */
+export function fixColumnList(tr: Transaction, columnListPos: number) {
+  removeEmptyColumns(tr, columnListPos);
+
+  const $columnListPos = tr.doc.resolve(columnListPos);
+  const columnList = $columnListPos.nodeAfter;
+  if (!columnList || columnList.type.name !== "columnList") {
+    throw new Error(
+      "Invalid columnListPos: does not point to columnList node.",
+    );
+  }
+
+  if (columnList.childCount > 2) {
+    return;
+  }
+
+  const firstColumnBeforePos = columnListPos + 1;
+  const $firstColumnBeforePos = tr.doc.resolve(firstColumnBeforePos);
+  const firstColumn = $firstColumnBeforePos.nodeAfter;
+  const lastColumnAfterPos = columnListPos + columnList.nodeSize - 1;
+  const $lastColumnAfterPos = tr.doc.resolve(lastColumnAfterPos);
+  const lastColumn = $lastColumnAfterPos.nodeBefore;
+  if (!firstColumn || !lastColumn) {
+    throw new Error("Invalid columnList: does not have child node.");
+  }
+
+  const firstColumnEmpty = isEmptyColumn(firstColumn);
+  const lastColumnEmpty = isEmptyColumn(lastColumn);
+
+  if (firstColumnEmpty && lastColumnEmpty) {
+    tr.delete(columnListPos, columnListPos + columnList.nodeSize);
+
+    return;
+  }
+
+  if (firstColumnEmpty) {
+    const lastColumnContent = tr.doc.slice(
+      lastColumnAfterPos - lastColumn.nodeSize + 1,
+      lastColumnAfterPos - 1,
+    );
+
+    tr.delete(columnListPos, columnListPos + columnList.nodeSize);
+    tr.insert(columnListPos, lastColumnContent.content);
+
+    return;
+  }
+
+  if (lastColumnEmpty) {
+    const firstColumnContent = tr.doc.slice(
+      firstColumnBeforePos + 1,
+      firstColumnBeforePos + firstColumn.nodeSize - 1,
+    );
+
+    tr.delete(columnListPos, columnListPos + columnList.nodeSize);
+    tr.insert(columnListPos, firstColumnContent.content);
+
+    return;
+  }
+}
+
 export function removeAndInsertBlocks<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -222,85 +360,32 @@ export function removeAndInsertBlocks<
     const oldDocSize = tr.doc.nodeSize;
 
     const $pos = tr.doc.resolve(pos - removedSize);
-    if ($pos.node().type.name === "column" && $pos.node().childCount === 1) {
-      // Checks if the block is the only child of a parent `column` node. In
-      // this case, we need to collapse the `column` or parent `columnList`,
-      // depending on if the `columnList` has more than 2 children. This is
-      // handled by `moveFirstBlockInColumn`.
-      const $newPos = moveFirstBlockInColumn(tr, $pos);
-      // Instead of deleting it, `moveFirstBlockInColumn` moves the block in
-      // order to handle the columns after, so we have to delete it manually.
-      tr.replace(
-        $newPos.pos,
-        $newPos.pos + $newPos.nodeAfter!.nodeSize,
-        Slice.empty,
-      );
-    } else if (
-      $pos.node().type.name === "columnList" &&
-      $pos.node().childCount === 2
-    ) {
-      // Checks whether removing the entire column would leave only a single
-      // remaining `column` node in the columnList. In this case, we need to
-      // collapse the column list.
-      const column = getBlockInfoFromResolvedPos($pos);
-      if (column.blockNoteType !== "column") {
-        throw new Error(
-          `Invalid block: ${column.blockNoteType} was found as child of columnList.`,
-        );
-      }
-      const columnList = getParentBlockInfo(tr.doc, column.bnBlock.beforePos);
-      if (!columnList) {
-        throw new Error(
-          `Invalid block: column was found without a parent columnList.`,
-        );
-      }
-      if (columnList?.blockNoteType !== "columnList") {
-        throw new Error(
-          `Invalid block: ${columnList.blockNoteType} was found as a parent of column.`,
-        );
-      }
-
-      if ($pos.node().childCount === 1) {
-        tr.replaceWith(
-          columnList.bnBlock.beforePos,
-          columnList.bnBlock.afterPos,
-          Fragment.empty,
-        );
-      }
-
-      tr.replaceWith(
-        columnList.bnBlock.beforePos,
-        columnList.bnBlock.afterPos,
-        $pos.index() === 0
-          ? columnList.bnBlock.node.lastChild!.content
-          : columnList.bnBlock.node.firstChild!.content,
-      );
-    } else if (
+    if (
       node.type.name === "column" &&
       node.attrs.id !== $pos.nodeAfter?.attrs.id
     ) {
-      // This is a hacky work around to handle an edge case with the previous
-      // `if else` block. When each `column` of a `columnList` is in the
-      // `blocksToRemove` array, this is what happens once all but the last 2
-      // columns are removed:
+      // This is a hacky work around to handle removing all columns in a
+      // columnList. This is what happens when removing the last 2 columns:
       //
       // 1. The second-to-last `column` is removed.
-      // 2. The last `column` and wrapping `columnList` are collapsed.
-      // 3. `removedSize` increases by the size of the removed column, and more
-      // due to positions at the starts/ends of the last `column` and wrapping
-      // `columnList` also getting removed.
+      // 2. `fixColumnList` runs, removing the `columnList` and inserting the
+      // contents of the last column in its place.
+      // 3. `removedSize` increases not just by the size of the second-to-last
+      // `column`, but also by the positions removed due to running
+      // `fixColumnList`. Some of these positions are after the contents of the
+      // last `column`, namely just after the `column` and `columnList`.
       // 3. `tr.doc.descendants` traverses to the last `column`.
       // 4. `removedSize` now includes positions that were removed after the
-      // last `column`. In order for `pos - removedSize` to correctly point to
-      // the start of the nodes that were previously wrapped by the last
-      // `column`, `removedPos` must only include positions removed before it.
+      // last `column`. This causes `pos - removedSize` to point to an
+      // incorrect position, as it expects that the difference in document size
+      // accounted for by `removedSize` comes before the block being removed.
       // 5. The deletion is offset by 3, because of those removed positions
       // included in `removedSize` that occur after the last `column`.
       //
       // Hence why we have to shift the start of the deletion range back by 3.
       // The offset for the end of the range is smaller as `node.nodeSize` is
-      // the size of the whole second `column`, whereas now we are left with
-      // just its children since it's collapsed - a difference of 2 positions.
+      // the size of the second `column`. Since it's been removed, we actually
+      // care about the size of its children - a difference of 2 positions.
       tr.delete(pos - removedSize + 3, pos - removedSize + node.nodeSize + 1);
     } else if (
       $pos.node().type.name === "blockGroup" &&
@@ -314,6 +399,13 @@ export function removeAndInsertBlocks<
     } else {
       tr.delete(pos - removedSize, pos - removedSize + node.nodeSize);
     }
+
+    if ($pos.node().type.name === "column") {
+      fixColumnList(tr, $pos.before(-1));
+    } else if ($pos.node().type.name === "columnList") {
+      fixColumnList(tr, $pos.before());
+    }
+
     const newDocSize = tr.doc.nodeSize;
     removedSize += oldDocSize - newDocSize;
 
