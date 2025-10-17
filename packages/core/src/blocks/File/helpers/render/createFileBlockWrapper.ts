@@ -3,22 +3,20 @@ import {
   BlockConfig,
   BlockFromConfigNoChildren,
 } from "../../../../schema/index.js";
+import {
+  baseFilePropSchema,
+  optionalFileProps,
+} from "../../../defaultFileProps.js";
 import { createAddFileButton } from "./createAddFileButton.js";
 import { createFileNameWithIcon } from "./createFileNameWithIcon.js";
 
+const requiredPropSchema = baseFilePropSchema.extend({
+  ...optionalFileProps.pick({ url: true }).shape,
+});
+
 export const createFileBlockWrapper = (
   block: BlockFromConfigNoChildren<
-    BlockConfig<
-      string,
-      {
-        backgroundColor: { default: "default" };
-        name: { default: "" };
-        url: { default: "" };
-        caption: { default: "" };
-        showPreview?: { default: true };
-      },
-      "none"
-    >,
+    BlockConfig<string, typeof requiredPropSchema, "none">,
     any,
     any
   >,
@@ -58,7 +56,7 @@ export const createFileBlockWrapper = (
   const ret: { dom: HTMLElement; destroy?: () => void } = { dom: wrapper };
 
   // Show the file preview, or the file name and icon.
-  if (block.props.showPreview === false || !element) {
+  if ((block.props as any).showPreview === false || !element) {
     // Show file name and icon.
     const fileNameWithIcon = createFileNameWithIcon(block);
     wrapper.appendChild(fileNameWithIcon.dom);

@@ -1,7 +1,9 @@
 import { Block, PartialBlock } from "../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
+import { z } from "zod/v4";
 import { editorHasBlockWithType } from "../../blocks/defaultBlockTypeGuards.js";
+import { optionalFileProps } from "../../blocks/defaultFileProps.js";
 import {
   BlockSchema,
   InlineContentSchema,
@@ -87,44 +89,24 @@ export function getDefaultSlashMenuItems<
 >(editor: BlockNoteEditor<BSchema, I, S>) {
   const items: DefaultSuggestionItem[] = [];
 
-  if (editorHasBlockWithType(editor, "heading", { level: "number" })) {
-    items.push(
-      {
-        onItemClick: () => {
-          insertOrUpdateBlock(editor, {
-            type: "heading",
-            props: { level: 1 },
-          });
-        },
-        badge: formatKeyboardShortcut("Mod-Alt-1"),
-        key: "heading",
-        ...editor.dictionary.slash_menu.heading,
-      },
-      {
-        onItemClick: () => {
-          insertOrUpdateBlock(editor, {
-            type: "heading",
-            props: { level: 2 },
-          });
-        },
-        badge: formatKeyboardShortcut("Mod-Alt-2"),
-        key: "heading_2",
-        ...editor.dictionary.slash_menu.heading_2,
-      },
-      {
-        onItemClick: () => {
-          insertOrUpdateBlock(editor, {
-            type: "heading",
-            props: { level: 3 },
-          });
-        },
-        badge: formatKeyboardShortcut("Mod-Alt-3"),
-        key: "heading_3",
-        ...editor.dictionary.slash_menu.heading_3,
-      },
-    );
+  if (editorHasBlockWithType(editor, "heading")) {
+    const headingProps = editor.schema.blockSchema.heading.propSchema;
+    for (const level of [1, 2, 3, 4, 5, 6] as const) {
+      if (z.safeParse(headingProps, { level }).success) {
+        items.push({
+          onItemClick: () => {
+            insertOrUpdateBlock(editor, {
+              type: "heading",
+              props: { level },
+            });
+          },
+          badge: formatKeyboardShortcut("Mod-Alt-1"),
+          key: `heading_${level}`,
+          ...editor.dictionary.slash_menu[`heading_${level}`],
+        });
+      }
+    }
   }
-
   if (editorHasBlockWithType(editor, "quote")) {
     items.push({
       onItemClick: () => {
@@ -249,7 +231,13 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (editorHasBlockWithType(editor, "image", { url: "string" })) {
+  if (
+    editorHasBlockWithType(
+      editor,
+      "image",
+      optionalFileProps.pick({ url: true }),
+    )
+  ) {
     items.push({
       onItemClick: () => {
         const insertedBlock = insertOrUpdateBlock(editor, {
@@ -268,7 +256,13 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (editorHasBlockWithType(editor, "video", { url: "string" })) {
+  if (
+    editorHasBlockWithType(
+      editor,
+      "video",
+      optionalFileProps.pick({ url: true }),
+    )
+  ) {
     items.push({
       onItemClick: () => {
         const insertedBlock = insertOrUpdateBlock(editor, {
@@ -287,7 +281,13 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (editorHasBlockWithType(editor, "audio", { url: "string" })) {
+  if (
+    editorHasBlockWithType(
+      editor,
+      "audio",
+      optionalFileProps.pick({ url: true }),
+    )
+  ) {
     items.push({
       onItemClick: () => {
         const insertedBlock = insertOrUpdateBlock(editor, {
@@ -306,7 +306,13 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (editorHasBlockWithType(editor, "file", { url: "string" })) {
+  if (
+    editorHasBlockWithType(
+      editor,
+      "file",
+      optionalFileProps.pick({ url: true }),
+    )
+  ) {
     items.push({
       onItemClick: () => {
         const insertedBlock = insertOrUpdateBlock(editor, {
@@ -326,23 +332,29 @@ export function getDefaultSlashMenuItems<
   }
 
   if (
-    editorHasBlockWithType(editor, "heading", {
-      level: "number",
-      isToggleable: "boolean",
-    })
+    editorHasBlockWithType(
+      editor,
+      "heading",
+      z.object({
+        isToggleable: z.boolean().default(false),
+      }),
+    )
   ) {
-    items.push(
-      {
+    const headingProps = editor.schema.blockSchema.heading.propSchema;
+    if (z.safeParse(headingProps, { level: 1 }).success) {
+      items.push({
         onItemClick: () => {
           insertOrUpdateBlock(editor, {
             type: "heading",
             props: { level: 1, isToggleable: true },
           });
         },
-        key: "toggle_heading",
-        ...editor.dictionary.slash_menu.toggle_heading,
-      },
-      {
+        key: "toggle_heading_1",
+        ...editor.dictionary.slash_menu.toggle_heading_1,
+      });
+    }
+    if (z.safeParse(headingProps, { level: 2 }).success) {
+      items.push({
         onItemClick: () => {
           insertOrUpdateBlock(editor, {
             type: "heading",
@@ -352,8 +364,10 @@ export function getDefaultSlashMenuItems<
 
         key: "toggle_heading_2",
         ...editor.dictionary.slash_menu.toggle_heading_2,
-      },
-      {
+      });
+    }
+    if (z.safeParse(headingProps, { level: 3 }).success) {
+      items.push({
         onItemClick: () => {
           insertOrUpdateBlock(editor, {
             type: "heading",
@@ -362,25 +376,8 @@ export function getDefaultSlashMenuItems<
         },
         key: "toggle_heading_3",
         ...editor.dictionary.slash_menu.toggle_heading_3,
-      },
-    );
-  }
-
-  if (editorHasBlockWithType(editor, "heading", { level: "number" })) {
-    (editor.schema.blockSchema.heading.propSchema.level.values || [])
-      .filter((level): level is 4 | 5 | 6 => level > 3)
-      .forEach((level) => {
-        items.push({
-          onItemClick: () => {
-            insertOrUpdateBlock(editor, {
-              type: "heading",
-              props: { level: level },
-            });
-          },
-          key: `heading_${level}`,
-          ...editor.dictionary.slash_menu[`heading_${level}`],
-        });
       });
+    }
   }
 
   items.push({

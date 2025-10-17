@@ -1,4 +1,5 @@
 import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
+import { baseFilePropSchema, optionalFileProps } from "../defaultFileProps.js";
 import { defaultProps, parseDefaultProps } from "../defaultProps.js";
 import { parseEmbedElement } from "./helpers/parse/parseEmbedElement.js";
 import { parseFigureElement } from "./helpers/parse/parseFigureElement.js";
@@ -7,25 +8,22 @@ import { createLinkWithCaption } from "./helpers/toExternalHTML/createLinkWithCa
 
 export type FileBlockConfig = ReturnType<typeof createFileBlockConfig>;
 
+const filePropSchema = defaultProps
+  .pick({
+    backgroundColor: true,
+  })
+  .extend({
+    ...baseFilePropSchema.shape,
+    ...optionalFileProps.pick({
+      url: true,
+    }).shape,
+  });
+
 export const createFileBlockConfig = createBlockConfig(
   () =>
     ({
       type: "file" as const,
-      propSchema: {
-        backgroundColor: defaultProps.backgroundColor,
-        // File name.
-        name: {
-          default: "" as const,
-        },
-        // File url.
-        url: {
-          default: "" as const,
-        },
-        // File caption.
-        caption: {
-          default: "" as const,
-        },
-      },
+      propSchema: filePropSchema,
       content: "none" as const,
     }) as const,
 );

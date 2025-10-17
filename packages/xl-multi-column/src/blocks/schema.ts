@@ -1,4 +1,5 @@
 import {
+  CustomBlockNoteSchema,
   BlockNoteSchema,
   BlockSchema,
   InlineContentSchema,
@@ -21,7 +22,7 @@ export const withMultiColumn = <
   I extends InlineContentSchema,
   S extends StyleSchema,
 >(
-  schema: BlockNoteSchema<B, I, S>,
+  schema: CustomBlockNoteSchema<B, I, S>,
 ) => {
   return schema.extend({
     blockSpecs: {

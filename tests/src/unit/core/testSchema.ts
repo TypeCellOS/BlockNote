@@ -8,6 +8,7 @@ import {
   createStyleSpec,
   defaultProps,
 } from "@blocknote/core";
+import { z } from "zod/v4";
 
 // BLOCKS ----------------------------------------------------------------------
 
@@ -83,11 +84,9 @@ const SimpleCustomParagraph = addNodeAndExtensionsToSpec(
 const Mention = createInlineContentSpec(
   {
     type: "mention",
-    propSchema: {
-      user: {
-        default: "",
-      },
-    },
+    propSchema: z.object({
+      user: z.string().default(""),
+    }),
     content: "none",
   },
   {
@@ -129,7 +128,7 @@ const Mention = createInlineContentSpec(
 const Tag = createInlineContentSpec(
   {
     type: "tag" as const,
-    propSchema: {},
+    propSchema: z.object({}),
     content: "styled",
   },
   {

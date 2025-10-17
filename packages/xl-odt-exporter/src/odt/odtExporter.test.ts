@@ -3,14 +3,14 @@ import {
   createPageBreakBlockSpec,
   defaultBlockSpecs,
 } from "@blocknote/core";
+import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
+import { partialBlocksToBlocksForTesting } from "@shared/formatConversionTestUtil.js";
 import { testDocument } from "@shared/testDocument.js";
 import { BlobReader, TextWriter, ZipReader } from "@zip.js/zip.js";
 import { beforeAll, describe, expect, it } from "vitest";
 import xmlFormat from "xml-formatter";
 import { odtDefaultSchemaMappings } from "./defaultSchema/index.js";
 import { ODTExporter } from "./odtExporter.js";
-import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
-import { partialBlocksToBlocksForTesting } from "@shared/formatConversionTestUtil.js";
 
 beforeAll(async () => {
   // @ts-ignore
@@ -161,10 +161,10 @@ async function testODTDocumentAgainstSnapshot(
 
   expect(stylesXML).toBeDefined();
   expect(contentXML).toBeDefined();
-  expect(
+  await expect(
     xmlFormat(await stylesXML!.getData!(stylesXMLWriter)),
   ).toMatchFileSnapshot(snapshots.styles);
-  expect(
+  await expect(
     xmlFormat(await contentXML!.getData!(contentXMLWriter)),
   ).toMatchFileSnapshot(snapshots.content);
 }

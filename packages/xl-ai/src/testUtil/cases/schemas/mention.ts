@@ -1,13 +1,11 @@
 import { BlockNoteSchema, createInlineContentSpec } from "@blocknote/core";
-
+import * as z from "zod/v4";
 export const mention = createInlineContentSpec(
   {
     type: "mention",
-    propSchema: {
-      user: {
-        default: "",
-      },
-    },
+    propSchema: z.object({
+      user: z.string().default(""),
+    }),
     content: "none",
   },
   {

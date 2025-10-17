@@ -7,7 +7,7 @@ export const ToggleBlock = createReactBlockSpec(
     type: "toggle",
     propSchema: {
       ...defaultProps,
-    },
+    } as typeof defaultProps,
     content: "inline",
   },
   {

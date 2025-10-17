@@ -4,15 +4,13 @@ import {
   defaultProps,
 } from "@blocknote/core";
 import { RiImage2Fill } from "react-icons/ri";
+import { z } from "zod/v4";
 export const Image = addNodeAndExtensionsToSpec(
   {
     type: "image" as const,
-    propSchema: {
-      ...defaultProps,
-      src: {
-        default: "https://via.placeholder.com/1000",
-      },
-    } as const,
+    propSchema: defaultProps.extend({
+      src: z.string().default("https://via.placeholder.com/1000"),
+    }),
     content: "inline",
   },
   {

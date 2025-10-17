@@ -2,7 +2,7 @@ import { Dictionary } from "../dictionary.js";
 
 export const no: Dictionary = {
   slash_menu: {
-    heading: {
+    heading_1: {
       title: "Overskrift 1",
       subtext: "Toppnivåoverskrift",
       aliases: ["h", "overskrift1", "h1"],
@@ -38,7 +38,7 @@ export const no: Dictionary = {
       aliases: ["h6", "overskrift6", "underoverskrift6"],
       group: "Underoverskrifter",
     },
-    toggle_heading: {
+    toggle_heading_1: {
       title: "Sammenleggbar Overskrift 1",
       subtext: "Toppnivåoverskrift som kan vises eller skjules",
       aliases: ["h", "overskrift1", "h1", "sammenleggbar", "toggle"],

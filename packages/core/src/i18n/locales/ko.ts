@@ -2,7 +2,7 @@ import { Dictionary } from "../dictionary.js";
 
 export const ko: Dictionary = {
   slash_menu: {
-    heading: {
+    heading_1: {
       title: "제목1",
       subtext: "섹션 제목(대)",
       aliases: ["h", "제목1", "h1", "대제목"],
@@ -38,7 +38,7 @@ export const ko: Dictionary = {
       aliases: ["h6", "제목6", "소제목6"],
       group: "소제목",
     },
-    toggle_heading: {
+    toggle_heading_1: {
       title: "접을 수 있는 제목1",
       subtext: "내용을 표시하거나 숨길 수 있는 섹션 제목(대)",
       aliases: ["h", "제목1", "h1", "대제목", "접기", "토글"],

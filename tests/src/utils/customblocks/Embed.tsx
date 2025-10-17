@@ -1,15 +1,14 @@
 import { BlockNoteEditor, addNodeAndExtensionsToSpec } from "@blocknote/core";
+import { z } from "zod/v4";
 
 import { RiLayout5Fill } from "react-icons/ri";
 
 export const Embed = addNodeAndExtensionsToSpec(
   {
     type: "embed" as const,
-    propSchema: {
-      src: {
-        default: "https://www.youtube.com/embed/wjfuB8Xjhc4",
-      },
-    } as const,
+    propSchema: z.object({
+      src: z.string().default("https://www.youtube.com/embed/wjfuB8Xjhc4"),
+    }),
     content: "none",
   },
   {

@@ -49,6 +49,7 @@ import {
   BlockNoteDOMAttributes,
   BlockSchema,
   BlockSpecs,
+  CustomBlockNoteSchema,
   InlineContentSchema,
   InlineContentSpecs,
   StyleSchema,
@@ -59,7 +60,6 @@ import type {
   BlockNoteEditorOptions,
   SupportedExtension,
 } from "./BlockNoteEditor.js";
-import { BlockNoteSchema } from "../blocks/BlockNoteSchema.js";
 
 type ExtensionOptions<
   BSchema extends BlockSchema,
@@ -94,7 +94,7 @@ type ExtensionOptions<
   >;
   tabBehavior?: "prefer-navigate-ui" | "prefer-indent";
   comments?: {
-    schema?: BlockNoteSchema<any, any, any>;
+    schema?: CustomBlockNoteSchema;
     threadStore: ThreadStore;
     resolveUsers?: (userIds: string[]) => Promise<User[]>;
   };

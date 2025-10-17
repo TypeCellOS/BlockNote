@@ -21,6 +21,7 @@
     "@mantine/utils": "^6.0.22",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "zod": "^4.0.0",
     "@blocknote/xl-pdf-exporter": "latest",
     "@blocknote/xl-multi-column": "latest",
     "@react-pdf/renderer": "^4.3.0"

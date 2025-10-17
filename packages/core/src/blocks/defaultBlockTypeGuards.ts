@@ -1,35 +1,20 @@
+import { Selection } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
-import { BlockConfig, PropSchema, PropSpec } from "../schema/index.js";
+import { BlockConfig, PropSchema } from "../schema/index.js";
 import { Block } from "./defaultBlocks.js";
-import { Selection } from "prosemirror-state";
 
+// TODO: matthew review + tests
 export function editorHasBlockWithType<
   BType extends string,
-  Props extends
-    | PropSchema
-    | Record<string, "boolean" | "number" | "string">
-    | undefined = undefined,
+  Props extends PropSchema,
 >(
   editor: BlockNoteEditor<any, any, any>,
   blockType: BType,
   props?: Props,
 ): editor is BlockNoteEditor<
   {
-    [BT in BType]: Props extends PropSchema
-      ? BlockConfig<BT, Props>
-      : Props extends Record<string, "boolean" | "number" | "string">
-        ? BlockConfig<
-            BT,
-            {
-              [PN in keyof Props]: {
-                default: undefined;
-                type: Props[PN];
-                values?: any[];
-              };
-            }
-          >
-        : BlockConfig<BT, PropSchema>;
+    [BT in BType]: BlockConfig<BT, Props>;
   },
   any,
   any
@@ -42,126 +27,34 @@ export function editorHasBlockWithType<
     return true;
   }
 
-  for (const [propName, propSpec] of Object.entries(props)) {
-    if (!(propName in editor.schema.blockSpecs[blockType].config.propSchema)) {
-      return false;
-    }
+  const editorProps: PropSchema =
+    editor.schema.blockSpecs[blockType].config.propSchema;
 
-    if (typeof propSpec === "string") {
-      if (
-        editor.schema.blockSpecs[blockType].config.propSchema[propName]
-          .default &&
-        typeof editor.schema.blockSpecs[blockType].config.propSchema[propName]
-          .default !== propSpec
-      ) {
-        return false;
-      }
-
-      if (
-        editor.schema.blockSpecs[blockType].config.propSchema[propName].type &&
-        editor.schema.blockSpecs[blockType].config.propSchema[propName].type !==
-          propSpec
-      ) {
-        return false;
-      }
-    } else {
-      if (
-        editor.schema.blockSpecs[blockType].config.propSchema[propName]
-          .default !== propSpec.default
-      ) {
-        return false;
-      }
-
-      if (
-        editor.schema.blockSpecs[blockType].config.propSchema[propName]
-          .default === undefined &&
-        propSpec.default === undefined
-      ) {
-        if (
-          editor.schema.blockSpecs[blockType].config.propSchema[propName]
-            .type !== propSpec.type
-        ) {
-          return false;
-        }
-      }
-
-      if (
-        typeof editor.schema.blockSpecs[blockType].config.propSchema[propName]
-          .values !== typeof propSpec.values
-      ) {
-        return false;
-      }
-
-      if (
-        typeof editor.schema.blockSpecs[blockType].config.propSchema[propName]
-          .values === "object" &&
-        typeof propSpec.values === "object"
-      ) {
-        if (
-          editor.schema.blockSpecs[blockType].config.propSchema[propName].values
-            .length !== propSpec.values.length
-        ) {
-          return false;
-        }
-
-        for (
-          let i = 0;
-          i <
-          editor.schema.blockSpecs[blockType].config.propSchema[propName].values
-            .length;
-          i++
-        ) {
-          if (
-            editor.schema.blockSpecs[blockType].config.propSchema[propName]
-              .values[i] !== propSpec.values[i]
-          ) {
-            return false;
-          }
-        }
-      }
-    }
-  }
-
-  return true;
+  // make sure every prop in the requested prop appears in the editor schema block props
+  return Object.entries(props._zod.def.shape).every(([key, value]) => {
+    // we do a JSON Stringify check as Zod doesn't expose
+    // equality / assignability checks
+    return (
+      JSON.stringify(value._zod.def) ===
+      JSON.stringify(editorProps._zod.def.shape[key]._zod.def)
+    );
+  });
 }
 
-export function blockHasType<
-  BType extends string,
-  Props extends
-    | PropSchema
-    | Record<string, "boolean" | "number" | "string">
-    | undefined = undefined,
->(
+export function blockHasType<BType extends string, Props extends PropSchema>(
   block: Block<any, any, any>,
   editor: BlockNoteEditor<any, any, any>,
   blockType: BType,
   props?: Props,
 ): block is Block<
   {
-    [BT in BType]: Props extends PropSchema
-      ? BlockConfig<BT, Props>
-      : Props extends Record<string, "boolean" | "number" | "string">
-        ? BlockConfig<
-            BT,
-            {
-              [PN in keyof Props]: PropSpec<
-                Props[PN] extends "boolean"
-                  ? boolean
-                  : Props[PN] extends "number"
-                    ? number
-                    : Props[PN] extends "string"
-                      ? string
-                      : never
-              >;
-            }
-          >
-        : BlockConfig<BT, PropSchema>;
+    [BT in BType]: BlockConfig<BT, Props>;
   },
   any,
   any
 > {
   return (
-    editorHasBlockWithType(editor, blockType, props) && block.type === blockType
+    block.type === blockType && editorHasBlockWithType(editor, blockType, props)
   );
 }
 

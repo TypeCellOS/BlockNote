@@ -17,9 +17,7 @@ export const createBulletListItemBlockConfig = createBlockConfig(
   () =>
     ({
       type: "bulletListItem" as const,
-      propSchema: {
-        ...defaultProps,
-      },
+      propSchema: defaultProps,
       content: "inline",
     }) as const,
 );

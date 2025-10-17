@@ -1,9 +1,14 @@
-import { FileBlockConfig } from "@blocknote/core";
+import {
+  baseFilePropSchema,
+  FileBlockConfig,
+  optionalFileProps,
+} from "@blocknote/core";
 import {
   createReactBlockSpec,
   ReactCustomBlockRenderProps,
   ResizableFileBlockWrapper,
 } from "@blocknote/react";
+import { z } from "zod/v4";
 
 import { RiFilePdfFill } from "react-icons/ri";
 
@@ -33,24 +38,14 @@ export const PDFPreview = (
 export const PDF = createReactBlockSpec(
   {
     type: "pdf",
-    propSchema: {
-      name: {
-        default: "" as const,
-      },
-      url: {
-        default: "" as const,
-      },
-      caption: {
-        default: "" as const,
-      },
-      showPreview: {
-        default: true,
-      },
-      previewWidth: {
-        default: undefined,
-        type: "number",
-      },
-    },
+    propSchema: z.object({}).extend({
+      ...baseFilePropSchema.shape,
+      ...optionalFileProps.pick({
+        url: true,
+        showPreview: true,
+        previewWidth: true,
+      }).shape,
+    }),
     content: "none",
   },
   {

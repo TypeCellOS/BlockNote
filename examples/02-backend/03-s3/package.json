@@ -21,6 +21,7 @@
     "@mantine/utils": "^6.0.22",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "zod": "^4.0.0",
     "@aws-sdk/client-s3": "^3.609.0",
     "@aws-sdk/s3-request-presigner": "^3.609.0"
   },

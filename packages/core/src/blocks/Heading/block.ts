@@ -1,5 +1,6 @@
-import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
+import { z } from "zod/v4";
 import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
+import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
 import {
   addDefaultPropsExternalHTML,
   defaultProps,
@@ -26,13 +27,14 @@ export const createHeadingBlockConfig = createBlockConfig(
   }: HeadingOptions = {}) =>
     ({
       type: "heading" as const,
-      propSchema: {
-        ...defaultProps,
-        level: { default: defaultLevel, values: levels },
+      propSchema: defaultProps.extend({
+        level: z
+          .union(levels.map((level) => z.literal(level)))
+          .default(defaultLevel),
         ...(allowToggleHeadings
-          ? { isToggleable: { default: false, optional: true } as const }
+          ? { isToggleable: z.boolean().default(false) }
           : {}),
-      },
+      }),
       content: "inline",
     }) as const,
 );

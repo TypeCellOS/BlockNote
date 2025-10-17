@@ -72,7 +72,7 @@ export interface BlockConfig<
   type: T;
   /**
    * The properties that the block supports
-   * @todo will be zod schema in the future
+   * Now uses Zod schema for validation and type inference
    */
   readonly propSchema: PS;
   /**

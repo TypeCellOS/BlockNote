@@ -4,6 +4,7 @@ import {
   createBlockConfig,
   createBlockSpec,
 } from "../../schema/index.js";
+import { baseFilePropSchema, optionalFileProps } from "../defaultFileProps.js";
 import { defaultProps, parseDefaultProps } from "../defaultProps.js";
 import { parseFigureElement } from "../File/helpers/parse/parseFigureElement.js";
 import { createResizableFileBlockWrapper } from "../File/helpers/render/createResizableFileBlockWrapper.js";
@@ -20,35 +21,25 @@ export interface ImageOptions {
 
 export type ImageBlockConfig = ReturnType<typeof createImageBlockConfig>;
 
+const imagePropSchema = defaultProps
+  .pick({
+    textAlignment: true,
+    backgroundColor: true,
+  })
+  .extend({
+    ...baseFilePropSchema.shape,
+    ...optionalFileProps.pick({
+      url: true,
+      showPreview: true,
+      previewWidth: true,
+    }).shape,
+  });
+
 export const createImageBlockConfig = createBlockConfig(
   (_ctx: ImageOptions = {}) =>
     ({
       type: "image" as const,
-      propSchema: {
-        textAlignment: defaultProps.textAlignment,
-        backgroundColor: defaultProps.backgroundColor,
-        // File name.
-        name: {
-          default: "" as const,
-        },
-        // File url.
-        url: {
-          default: "" as const,
-        },
-        // File caption.
-        caption: {
-          default: "" as const,
-        },
-
-        showPreview: {
-          default: true,
-        },
-        // File preview width in px.
-        previewWidth: {
-          default: undefined,
-          type: "number" as const,
-        },
-      },
+      propSchema: imagePropSchema,
       content: "none" as const,
     }) as const,
 );

@@ -4,6 +4,7 @@ import {
   BlockSchema,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
+  defaultProps,
   DefaultStyleSchema,
   editorHasBlockWithType,
   InlineContentSchema,
@@ -35,12 +36,18 @@ export const BlockColorsItem = <
   const block = props.block as Block<any, any, any>;
 
   if (
-    !blockHasType(block, editor, block.type, {
-      textColor: "string",
-    }) &&
-    !blockHasType(block, editor, block.type, {
-      backgroundColor: "string",
-    })
+    !blockHasType(
+      block,
+      editor,
+      block.type,
+      defaultProps.pick({ textColor: true }),
+    ) &&
+    !blockHasType(
+      block,
+      editor,
+      block.type,
+      defaultProps.pick({ backgroundColor: true }),
+    )
   ) {
     return null;
   }
@@ -63,12 +70,17 @@ export const BlockColorsItem = <
         <ColorPicker
           iconSize={18}
           text={
-            blockHasType(block, editor, block.type, {
-              textColor: "string",
-            }) &&
-            editorHasBlockWithType(editor, block.type, {
-              textColor: "string",
-            })
+            blockHasType(
+              block,
+              editor,
+              block.type,
+              defaultProps.pick({ textColor: true }),
+            ) &&
+            editorHasBlockWithType(
+              editor,
+              block.type,
+              defaultProps.pick({ textColor: true }),
+            )
               ? {
                   color: block.props.textColor,
                   setColor: (color) =>
@@ -80,12 +92,17 @@ export const BlockColorsItem = <
               : undefined
           }
           background={
-            blockHasType(block, editor, block.type, {
-              backgroundColor: "string",
-            }) &&
-            editorHasBlockWithType(editor, block.type, {
-              backgroundColor: "string",
-            })
+            blockHasType(
+              block,
+              editor,
+              block.type,
+              defaultProps.pick({ backgroundColor: true }),
+            ) &&
+            editorHasBlockWithType(
+              editor,
+              block.type,
+              defaultProps.pick({ backgroundColor: true }),
+            )
               ? {
                   color: block.props.backgroundColor,
                   setColor: (color) =>

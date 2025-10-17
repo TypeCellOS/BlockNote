@@ -1,13 +1,14 @@
 import { FileBlockConfig } from "@blocknote/core";
 import { RiFile2Line } from "react-icons/ri";
 
+import { baseFilePropSchema } from "../../../../../../core/src/blocks/defaultFileProps.js";
 import { ReactCustomBlockRenderProps } from "../../../../schema/ReactBlockSpec.js";
 
 export const FileNameWithIcon = (
   props: Omit<
     ReactCustomBlockRenderProps<
       FileBlockConfig["type"],
-      FileBlockConfig["propSchema"],
+      typeof baseFilePropSchema,
       FileBlockConfig["content"]
     >,
     "editor" | "contentRef"

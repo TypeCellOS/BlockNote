@@ -2,7 +2,7 @@ import type { Dictionary } from "../dictionary.js";
 
 export const is: Dictionary = {
   slash_menu: {
-    heading: {
+    heading_1: {
       title: "Fyrirsögn 1",
       subtext: "Notað fyrir efstu fyrirsögn",
       aliases: ["h", "fyrirsogn1", "h1"],
@@ -38,7 +38,7 @@ export const is: Dictionary = {
       aliases: ["h6", "fyrirsogn6", "undirfyrirsogn6"],
       group: "Undirfyrirsagnir",
     },
-    toggle_heading: {
+    toggle_heading_1: {
       title: "Fellanleg Fyrirsögn 1",
       subtext:
         "Fellanleg efsta fyrirsögn sem hægt er að sýna eða fela innihald",

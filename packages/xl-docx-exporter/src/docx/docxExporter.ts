@@ -1,6 +1,6 @@
 import {
   Block,
-  BlockNoteSchema,
+  CustomBlockNoteSchema,
   BlockSchema,
   COLORS_DEFAULT,
   InlineContentSchema,
@@ -54,7 +54,7 @@ export class DOCXExporter<
     /**
      * The schema of your editor. The mappings are automatically typed checked against this schema.
      */
-    protected readonly schema: BlockNoteSchema<B, I, S>,
+    protected readonly schema: CustomBlockNoteSchema<B, I, S>,
     /**
      * The mappings that map the BlockNote schema to the docxjs content.
      * Pass {@link docxDefaultSchemaMappings} for the default schema.

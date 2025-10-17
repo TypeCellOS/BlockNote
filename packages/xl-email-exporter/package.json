@@ -56,12 +56,13 @@
   "dependencies": {
     "@blocknote/core": "0.41.1",
     "@blocknote/react": "0.41.1",
+    "@react-email/components": "^0.1.0",
+    "@react-email/render": "^1.1.2",
     "buffer": "^6.0.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-email": "^4.0.16",
-    "@react-email/components": "^0.1.0",
-    "@react-email/render": "^1.1.2"
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@types/jsdom": "^21.1.7",

@@ -2,7 +2,7 @@ import { Dictionary } from "../dictionary.js";
 
 export const ru: Dictionary = {
   slash_menu: {
-    heading: {
+    heading_1: {
       title: "Заголовок 1 уровня",
       subtext: "Используется для заголовка верхнего уровня",
       aliases: ["h", "heading1", "h1", "заголовок1"],
@@ -38,7 +38,7 @@ export const ru: Dictionary = {
       aliases: ["h6", "heading6", "subheading6", "заголовок6", "подзаголовок6"],
       group: "Подзаголовки",
     },
-    toggle_heading: {
+    toggle_heading_1: {
       title: "Сворачиваемый заголовок 1 уровня",
       subtext: "Заголовок верхнего уровня, который можно свернуть/развернуть",
       aliases: ["h", "heading1", "h1", "заголовок1", "сворачиваемый"],

@@ -21,6 +21,7 @@
     "@mantine/utils": "^6.0.22",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "zod": "^4.0.0",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@mui/icons-material": "^5.16.1",

@@ -1,3 +1,4 @@
+import { z } from "zod/v4";
 import { createBlockNoteExtension } from "../../../editor/BlockNoteExtension.js";
 import { createBlockConfig, createBlockSpec } from "../../../schema/index.js";
 import {
@@ -16,10 +17,9 @@ export const createCheckListItemConfig = createBlockConfig(
   () =>
     ({
       type: "checkListItem" as const,
-      propSchema: {
-        ...defaultProps,
-        checked: { default: false, type: "boolean" },
-      },
+      propSchema: defaultProps.extend({
+        checked: z.boolean().default(false),
+      }),
       content: "inline",
     }) as const,
 );

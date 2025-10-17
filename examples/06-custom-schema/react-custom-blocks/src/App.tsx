@@ -4,9 +4,10 @@ import {
   defaultProps,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
-import { createReactBlockSpec, useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
+import { createReactBlockSpec, useCreateBlockNote } from "@blocknote/react";
+import { z } from "zod/v4";
 
 import "./styles.css";
 
@@ -37,14 +38,16 @@ const alertTypes = {
 export const alertBlock = createReactBlockSpec(
   {
     type: "alert",
-    propSchema: {
-      textAlignment: defaultProps.textAlignment,
-      textColor: defaultProps.textColor,
-      type: {
-        default: "warning",
-        values: ["warning", "error", "info", "success"],
-      } as const,
-    },
+    propSchema: defaultProps
+      .pick({
+        textAlignment: true,
+        textColor: true,
+      })
+      .extend({
+        type: z
+          .enum(["warning", "error", "info", "success"])
+          .default("warning"),
+      }),
     content: "inline",
   },
   {
@@ -79,12 +82,13 @@ export const alertBlock = createReactBlockSpec(
 const simpleImageBlock = createReactBlockSpec(
   {
     type: "simpleImage",
-    propSchema: {
-      src: {
-        default:
+    propSchema: z.object({
+      src: z
+        .string()
+        .default(
           "https://www.pulsecarshalton.co.uk/wp-content/uploads/2016/08/jk-placeholder-image.jpg",
-      },
-    },
+        ),
+    }),
     content: "none",
   },
   {
