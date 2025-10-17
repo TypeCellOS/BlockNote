@@ -135,10 +135,10 @@ importers:
         version: 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react@19.2.0)
       '@liveblocks/react-blocknote':
         specifier: 3.7.1-tiptap3
-        version: 3.7.1-tiptap3(4b1969bb56e207a881b6a56070da83e3)
+        version: 3.7.1-tiptap3(07b134fd552384145ef059f0898a2296)
       '@liveblocks/react-tiptap':
         specifier: 3.7.1-tiptap3
-        version: 3.7.1-tiptap3(a8ff9bf1e84290d3ab173e5f8d4e618e)
+        version: 3.7.1-tiptap3(9b24c80ec284fadb57845cfc311faad8)
       '@liveblocks/react-ui':
         specifier: 3.7.1-tiptap3
         version: 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -191,8 +191,8 @@ importers:
         specifier: ^3.2.1
         version: 3.13.0
       '@tiptap/core':
-        specifier: ^3.4.3
-        version: 3.4.3
+        specifier: ^3.7.2
+        version: 3.7.2(@tiptap/pm@3.7.2)
       '@uppy/core':
         specifier: ^3.13.1
         version: 3.13.1
@@ -9754,11 +9754,6 @@ packages:
     peerDependencies:
       '@tiptap/pm': ^2.7.0
 
-  '@tiptap/core@3.4.3':
-    resolution: {integrity: sha512-iWhEs6pGcxBqTjB/o3CJ06RPgFkpbDTckeT340eU3jgj043UjzG3sVB4LkVQLKXlvcg3rBzQpUZNGEd1UkTcAA==}
-    peerDependencies:
-      '@tiptap/pm': ^3.4.3
-
   '@tiptap/core@3.7.2':
     resolution: {integrity: sha512-fJwNpTx0aq4UU0HNkxPvPYfNBcTHQ/q5xBUdOB5Mgu6clwGES38jVsNNSudB8g53APUmJIS+2fJbkxl3V+0jww==}
     peerDependencies:
@@ -17927,37 +17922,6 @@ snapshots:
       - y-protocols
       - yjs
 
-  '@liveblocks/react-blocknote@3.7.1-tiptap3(4b1969bb56e207a881b6a56070da83e3)':
-    dependencies:
-      '@blocknote/core': link:packages/core
-      '@blocknote/react': link:packages/react
-      '@liveblocks/client': 3.7.1-tiptap3(@types/json-schema@7.0.15)
-      '@liveblocks/core': 3.7.1-tiptap3(@types/json-schema@7.0.15)
-      '@liveblocks/react': 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react@19.2.0)
-      '@liveblocks/react-tiptap': 3.7.1-tiptap3(a8ff9bf1e84290d3ab173e5f8d4e618e)
-      '@liveblocks/react-ui': 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      '@liveblocks/yjs': 3.7.1-tiptap3(@types/json-schema@7.0.15)(yjs@13.6.27)
-      '@tiptap/core': 3.4.3
-      react: 19.2.0
-      react-dom: 19.2.0(react@19.2.0)
-      vitest-tsconfig-paths: 3.4.1
-    optionalDependencies:
-      '@types/react': 19.2.2
-      '@types/react-dom': 19.2.2(@types/react@19.2.2)
-    transitivePeerDependencies:
-      - '@tiptap/extension-collaboration'
-      - '@tiptap/extension-collaboration-cursor'
-      - '@tiptap/pm'
-      - '@tiptap/react'
-      - '@tiptap/suggestion'
-      - '@types/json-schema'
-      - prosemirror-model
-      - prosemirror-state
-      - prosemirror-view
-      - supports-color
-      - y-protocols
-      - yjs
-
   '@liveblocks/react-tiptap@3.7.1-tiptap3(9b24c80ec284fadb57845cfc311faad8)':
     dependencies:
       '@floating-ui/react-dom': 2.1.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -17974,36 +17938,6 @@ snapshots:
       '@tiptap/pm': 3.7.2
       '@tiptap/react': 3.7.2(@floating-ui/dom@1.7.4)(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@tiptap/suggestion': 2.26.1(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)
-      cmdk: 1.1.1(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      react: 19.2.0
-      react-dom: 19.2.0(react@19.2.0)
-      y-prosemirror: 1.3.7(patch_hash=bb65317724b2093ca634dfe5704ce0cc5480f9aa07a69d4607abb32c40fd4dd3)(prosemirror-model@1.25.3)(prosemirror-state@1.4.3)(prosemirror-view@1.41.3)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)
-      yjs: 13.6.27
-    optionalDependencies:
-      '@types/react': 19.2.2
-      '@types/react-dom': 19.2.2(@types/react@19.2.2)
-    transitivePeerDependencies:
-      - '@types/json-schema'
-      - prosemirror-model
-      - prosemirror-state
-      - prosemirror-view
-      - y-protocols
-
-  '@liveblocks/react-tiptap@3.7.1-tiptap3(a8ff9bf1e84290d3ab173e5f8d4e618e)':
-    dependencies:
-      '@floating-ui/react-dom': 2.1.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      '@liveblocks/client': 3.7.1-tiptap3(@types/json-schema@7.0.15)
-      '@liveblocks/core': 3.7.1-tiptap3(@types/json-schema@7.0.15)
-      '@liveblocks/react': 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react@19.2.0)
-      '@liveblocks/react-ui': 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      '@liveblocks/yjs': 3.7.1-tiptap3(@types/json-schema@7.0.15)(yjs@13.6.27)
-      '@radix-ui/react-select': 2.2.6(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      '@radix-ui/react-toggle': 1.1.10(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      '@tiptap/core': 2.26.3(@tiptap/pm@3.7.2)
-      '@tiptap/extension-collaboration': 2.26.1(@tiptap/core@3.4.3)(y-prosemirror@1.3.7(patch_hash=bb65317724b2093ca634dfe5704ce0cc5480f9aa07a69d4607abb32c40fd4dd3)(prosemirror-model@1.25.3)(prosemirror-state@1.4.3)(prosemirror-view@1.41.3)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27))
-      '@tiptap/extension-collaboration-cursor': 2.26.1(@tiptap/core@3.4.3)(y-prosemirror@1.3.7(patch_hash=bb65317724b2093ca634dfe5704ce0cc5480f9aa07a69d4607abb32c40fd4dd3)(prosemirror-model@1.25.3)(prosemirror-state@1.4.3)(prosemirror-view@1.41.3)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27))
-      '@tiptap/react': 3.7.2(@floating-ui/dom@1.7.4)(@tiptap/core@3.4.3)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      '@tiptap/suggestion': 2.26.1(@tiptap/core@3.4.3)
       cmdk: 1.1.1(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
@@ -20781,8 +20715,6 @@ snapshots:
     dependencies:
       '@tiptap/pm': 3.7.2
 
-  '@tiptap/core@3.4.3': {}
-
   '@tiptap/core@3.7.2(@tiptap/pm@3.7.2)':
     dependencies:
       '@tiptap/pm': 3.7.2
@@ -20790,12 +20722,6 @@ snapshots:
   '@tiptap/extension-bold@3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))':
     dependencies:
       '@tiptap/core': 3.7.2(@tiptap/pm@3.7.2)
-
-  '@tiptap/extension-bubble-menu@3.7.2(@tiptap/core@3.4.3)':
-    dependencies:
-      '@floating-ui/dom': 1.7.4
-      '@tiptap/core': 3.4.3
-    optional: true
 
   '@tiptap/extension-bubble-menu@3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)':
     dependencies:
@@ -20808,19 +20734,9 @@ snapshots:
     dependencies:
       '@tiptap/core': 3.7.2(@tiptap/pm@3.7.2)
 
-  '@tiptap/extension-collaboration-cursor@2.26.1(@tiptap/core@3.4.3)(y-prosemirror@1.3.7(patch_hash=bb65317724b2093ca634dfe5704ce0cc5480f9aa07a69d4607abb32c40fd4dd3)(prosemirror-model@1.25.3)(prosemirror-state@1.4.3)(prosemirror-view@1.41.3)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27))':
-    dependencies:
-      '@tiptap/core': 3.4.3
-      y-prosemirror: 1.3.7(patch_hash=bb65317724b2093ca634dfe5704ce0cc5480f9aa07a69d4607abb32c40fd4dd3)(prosemirror-model@1.25.3)(prosemirror-state@1.4.3)(prosemirror-view@1.41.3)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)
-
   '@tiptap/extension-collaboration-cursor@2.26.1(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(y-prosemirror@1.3.7(patch_hash=bb65317724b2093ca634dfe5704ce0cc5480f9aa07a69d4607abb32c40fd4dd3)(prosemirror-model@1.25.3)(prosemirror-state@1.4.3)(prosemirror-view@1.41.3)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27))':
     dependencies:
       '@tiptap/core': 3.7.2(@tiptap/pm@3.7.2)
-      y-prosemirror: 1.3.7(patch_hash=bb65317724b2093ca634dfe5704ce0cc5480f9aa07a69d4607abb32c40fd4dd3)(prosemirror-model@1.25.3)(prosemirror-state@1.4.3)(prosemirror-view@1.41.3)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)
-
-  '@tiptap/extension-collaboration@2.26.1(@tiptap/core@3.4.3)(y-prosemirror@1.3.7(patch_hash=bb65317724b2093ca634dfe5704ce0cc5480f9aa07a69d4607abb32c40fd4dd3)(prosemirror-model@1.25.3)(prosemirror-state@1.4.3)(prosemirror-view@1.41.3)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27))':
-    dependencies:
-      '@tiptap/core': 3.4.3
       y-prosemirror: 1.3.7(patch_hash=bb65317724b2093ca634dfe5704ce0cc5480f9aa07a69d4607abb32c40fd4dd3)(prosemirror-model@1.25.3)(prosemirror-state@1.4.3)(prosemirror-view@1.41.3)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)
 
   '@tiptap/extension-collaboration@2.26.1(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)(y-prosemirror@1.3.7(patch_hash=bb65317724b2093ca634dfe5704ce0cc5480f9aa07a69d4607abb32c40fd4dd3)(prosemirror-model@1.25.3)(prosemirror-state@1.4.3)(prosemirror-view@1.41.3)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27))':
@@ -20828,12 +20744,6 @@ snapshots:
       '@tiptap/core': 3.7.2(@tiptap/pm@3.7.2)
       '@tiptap/pm': 3.7.2
       y-prosemirror: 1.3.7(patch_hash=bb65317724b2093ca634dfe5704ce0cc5480f9aa07a69d4607abb32c40fd4dd3)(prosemirror-model@1.25.3)(prosemirror-state@1.4.3)(prosemirror-view@1.41.3)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)
-
-  '@tiptap/extension-floating-menu@3.7.2(@floating-ui/dom@1.7.4)(@tiptap/core@3.4.3)':
-    dependencies:
-      '@floating-ui/dom': 1.7.4
-      '@tiptap/core': 3.4.3
-    optional: true
 
   '@tiptap/extension-floating-menu@3.7.2(@floating-ui/dom@1.7.4)(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)':
     dependencies:
@@ -20907,22 +20817,6 @@ snapshots:
       prosemirror-transform: 1.10.4
       prosemirror-view: 1.41.3
 
-  '@tiptap/react@3.7.2(@floating-ui/dom@1.7.4)(@tiptap/core@3.4.3)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
-    dependencies:
-      '@tiptap/core': 3.4.3
-      '@types/react': 19.2.2
-      '@types/react-dom': 19.2.2(@types/react@19.2.2)
-      '@types/use-sync-external-store': 0.0.6
-      fast-deep-equal: 3.1.3
-      react: 19.2.0
-      react-dom: 19.2.0(react@19.2.0)
-      use-sync-external-store: 1.6.0(react@19.2.0)
-    optionalDependencies:
-      '@tiptap/extension-bubble-menu': 3.7.2(@tiptap/core@3.4.3)
-      '@tiptap/extension-floating-menu': 3.7.2(@floating-ui/dom@1.7.4)(@tiptap/core@3.4.3)
-    transitivePeerDependencies:
-      - '@floating-ui/dom'
-
   '@tiptap/react@3.7.2(@floating-ui/dom@1.7.4)(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
     dependencies:
       '@tiptap/core': 3.7.2(@tiptap/pm@3.7.2)
@@ -20939,10 +20833,6 @@ snapshots:
       '@tiptap/extension-floating-menu': 3.7.2(@floating-ui/dom@1.7.4)(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)
     transitivePeerDependencies:
       - '@floating-ui/dom'
-
-  '@tiptap/suggestion@2.26.1(@tiptap/core@3.4.3)':
-    dependencies:
-      '@tiptap/core': 3.4.3
 
   '@tiptap/suggestion@2.26.1(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)':
     dependencies:
