@@ -45,7 +45,7 @@
     "@mantine/utils": "^6.0.22",
     "@mui/icons-material": "^5.16.1",
     "@mui/material": "^5.16.1",
-    "@polar-sh/better-auth": "^1.0.2",
+    "@polar-sh/better-auth": "^1.1.9",
     "@polar-sh/nextjs": "^0.4.1",
     "@polar-sh/sdk": "^0.34.2",
     "@react-email/render": "^1.1.2",
