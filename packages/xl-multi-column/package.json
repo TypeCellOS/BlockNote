@@ -53,12 +53,12 @@
   "dependencies": {
     "@blocknote/core": "0.41.1",
     "@blocknote/react": "0.41.1",
-    "@tiptap/core": "^3.4.3",
+    "@tiptap/core": "^3.7.2",
     "prosemirror-model": "^1.25.3",
     "prosemirror-state": "^1.4.3",
-    "prosemirror-tables": "^1.3.7",
+    "prosemirror-tables": "^1.8.1",
     "prosemirror-transform": "^1.10.4",
-    "prosemirror-view": "^1.41.2",
+    "prosemirror-view": "^1.41.3",
     "react-icons": "^5.2.1"
   },
   "devDependencies": {
