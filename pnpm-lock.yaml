@@ -188,7 +188,7 @@ importers:
         specifier: ^3.2.1
         version: 3.13.0
       '@tiptap/core':
-        specifier: ^3.0.0
+        specifier: ^3.7.2
         version: 3.7.2(@tiptap/pm@3.7.2)
       '@uppy/core':
         specifier: ^3.13.1
@@ -3789,7 +3789,7 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.0)
       '@tiptap/core':
-        specifier: ^3.0.0
+        specifier: ^3.7.2
         version: 3.7.2(@tiptap/pm@3.7.2)
       react:
         specifier: ^19.2.0
@@ -4456,7 +4456,7 @@ importers:
         specifier: 3.13.0
         version: 3.13.0
       '@tiptap/core':
-        specifier: ^3.0.0
+        specifier: ^3.7.2
         version: 3.7.2(@tiptap/pm@3.7.2)
       '@tiptap/extension-bold':
         specifier: ^3.7.2
@@ -4492,7 +4492,7 @@ importers:
         specifier: ^3.7.2
         version: 3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))
       '@tiptap/pm':
-        specifier: ^3.0.0
+        specifier: ^3.7.2
         version: 3.7.2
       emoji-mart:
         specifier: ^5.6.0
@@ -4705,10 +4705,10 @@ importers:
         specifier: ^0.27.16
         version: 0.27.16(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@tiptap/core':
-        specifier: ^3.0.0
+        specifier: ^3.7.2
         version: 3.7.2(@tiptap/pm@3.7.2)
       '@tiptap/pm':
-        specifier: ^3.0.0
+        specifier: ^3.7.2
         version: 3.7.2
       '@tiptap/react':
         specifier: ^3.7.2
@@ -4784,10 +4784,10 @@ importers:
         specifier: 0.41.1
         version: link:../react
       '@tiptap/core':
-        specifier: ^3.0.0
+        specifier: ^3.7.2
         version: 3.7.2(@tiptap/pm@3.7.2)
       '@tiptap/pm':
-        specifier: ^3.0.0
+        specifier: ^3.7.2
         version: 3.7.2
       jsdom:
         specifier: ^25.0.1
@@ -4963,7 +4963,7 @@ importers:
         specifier: ^0.26.28
         version: 0.26.28(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@tiptap/core':
-        specifier: ^3.0.0
+        specifier: ^3.7.2
         version: 3.7.2(@tiptap/pm@3.7.2)
       ai:
         specifier: ^5.0.76
@@ -5282,7 +5282,7 @@ importers:
         specifier: 0.41.1
         version: link:../react
       '@tiptap/core':
-        specifier: ^3.0.0
+        specifier: ^3.7.2
         version: 3.7.2(@tiptap/pm@3.7.2)
       prosemirror-model:
         specifier: ^1.25.3
@@ -5695,7 +5695,7 @@ importers:
         specifier: 1.51.1
         version: 1.51.1
       '@tiptap/pm':
-        specifier: ^3.0.0
+        specifier: ^3.7.2
         version: 3.7.2
       '@types/node':
         specifier: ^20.19.22
@@ -24204,7 +24204,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 20.19.22
+      '@types/node': 22.15.2
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
