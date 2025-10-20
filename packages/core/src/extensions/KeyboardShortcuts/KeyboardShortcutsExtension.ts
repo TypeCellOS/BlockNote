@@ -11,7 +11,7 @@ import { splitBlockCommand } from "../../api/blockManipulation/commands/splitBlo
 import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { getBlockInfoFromSelection } from "../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { fixColumnList } from "../../api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
+import { fixColumnList } from "../../api/blockManipulation/commands/replaceBlocks/util/fixColumnList.js";
 
 export const KeyboardShortcutsExtension = Extension.create<{
   editor: BlockNoteEditor<any, any, any>;
@@ -24,7 +24,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
   addKeyboardShortcuts() {
     // handleBackspace is partially adapted from https://github.com/ueberdosis/tiptap/blob/ed56337470efb4fd277128ab7ef792b37cfae992/packages/core/src/extensions/keymap.ts
     const handleBackspace = () =>
-      this.editor.commands.first(({ chain, commands, tr }) => [
+      this.editor.commands.first(({ chain, commands }) => [
         // Deletes the selection if it's not empty.
         () => commands.deleteSelection(),
         // Undoes an input rule if one was triggered in the last editor state change.
@@ -97,7 +97,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             return false;
           }),
         () =>
-          commands.command(({ state, dispatch }) => {
+          commands.command(({ state, tr, dispatch }) => {
             // when at the start of a first block in a column
             const blockInfo = getBlockInfoFromSelection(state);
             if (!blockInfo.isBlockContainer) {
@@ -105,12 +105,12 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const selectionAtBlockStart =
-              state.selection.from === blockInfo.blockContent.beforePos + 1;
+              tr.selection.from === blockInfo.blockContent.beforePos + 1;
             if (!selectionAtBlockStart) {
               return false;
             }
 
-            const $pos = state.doc.resolve(blockInfo.bnBlock.beforePos);
+            const $pos = tr.doc.resolve(blockInfo.bnBlock.beforePos);
 
             const prevBlock = $pos.nodeBefore;
             if (prevBlock) {
@@ -123,12 +123,12 @@ export const KeyboardShortcutsExtension = Extension.create<{
               return false;
             }
 
-            const $blockPos = state.doc.resolve(blockInfo.bnBlock.beforePos);
-            const $columnPos = state.doc.resolve($blockPos.before(-1));
+            const $blockPos = tr.doc.resolve(blockInfo.bnBlock.beforePos);
+            const $columnPos = tr.doc.resolve($blockPos.before());
             const columnListPos = $columnPos.before();
 
             if (dispatch) {
-              const fragment = state.doc.slice(
+              const fragment = tr.doc.slice(
                 blockInfo.bnBlock.beforePos,
                 blockInfo.bnBlock.afterPos,
               ).content;
@@ -140,15 +140,17 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
               if ($columnPos.index() === 0) {
                 // Fix `columnList` and insert the block before it.
-                fixColumnList(state.tr, columnListPos);
+                fixColumnList(tr, columnListPos);
                 tr.insert(columnListPos, fragment);
-                tr.setSelection(TextSelection.create(tr.doc, columnListPos));
+                tr.setSelection(
+                  TextSelection.near(tr.doc.resolve(columnListPos)),
+                );
               } else {
                 // Insert the block at the end of the first column and fix
                 // `columnList`.
                 tr.insert($columnPos.pos - 1, fragment);
                 tr.setSelection(
-                  TextSelection.create(tr.doc, $columnPos.pos - 1),
+                  TextSelection.near(tr.doc.resolve($columnPos.pos - 1)),
                 );
                 fixColumnList(tr, columnListPos);
               }
