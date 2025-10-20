@@ -6,7 +6,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { FC } from "react";
+import { FC, useEffect } from "react";
 
 import { UseFloatingOptions } from "@floating-ui/react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
@@ -22,6 +22,7 @@ export const SideMenuController = <
 >(props: {
   sideMenu?: FC<SideMenuProps<BSchema, I, S>>;
   floatingOptions?: Partial<UseFloatingOptions>;
+  useHandleDOMEvents?: boolean;
 }) => {
   const editor = useBlockNoteEditor<BSchema, I, S>();
 
@@ -31,6 +32,12 @@ export const SideMenuController = <
     freezeMenu: editor.sideMenu.freezeMenu,
     unfreezeMenu: editor.sideMenu.unfreezeMenu,
   };
+
+  useEffect(() => {
+    if (props.useHandleDOMEvents) {
+      editor.sideMenu.setUseHandleDOMEvents(props.useHandleDOMEvents);
+    }
+  }, [editor.sideMenu, props.useHandleDOMEvents]);
 
   const state = useUIPluginState(
     editor.sideMenu.onUpdate.bind(editor.sideMenu),
