@@ -10,8 +10,6 @@ Embeds are a way to display content from external sources in your documents. Blo
 
 ## File
 
-A file block is a block that displays a file.
-
 **Type & Props**
 
 ```ts
@@ -36,7 +34,15 @@ type FileBlock = {
 
 ## Image
 
-An image block is a block that displays an image.
+**Configuration Options**
+
+```ts
+type ImageBlockOptions = {
+  icon?: string;
+};
+```
+
+`icon:` The HTML string for an icon SVG. If no URL is given, the image block displays a button to add one using a link or file, and the provided SVG replaces the generic file icon in that button.
 
 **Type & Props**
 
@@ -64,7 +70,15 @@ type ImageBlock = {
 
 ## Video
 
-A video block is a block that displays a video.
+**Configuration Options**
+
+```ts
+type VideoBlockOptions = {
+  icon?: string;
+};
+```
+
+`icon:` The HTML string for an icon SVG. If no URL is given, the video block displays a button to add one using a link or file, and the provided SVG replaces the generic file icon in that button.
 
 **Type & Props**
 
@@ -96,7 +110,15 @@ type VideoBlock = {
 
 ## Audio
 
-An audio block is a block that displays an audio file.
+**Configuration Options**
+
+```ts
+type AudioBlockOptions = {
+  icon?: string;
+};
+```
+
+`icon:` The HTML string for an icon SVG. If no URL is given, the audio block displays a button to add one using a link or file, and the provided SVG replaces the generic file icon in that button.
 
 **Type & Props**
 

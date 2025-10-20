@@ -6,6 +6,7 @@ export const ArrowConversionExtension = Extension.create({
   addInputRules() {
     return [
       {
+        undoable: true,
         find: /->/g,
         handler: ({ state, range, chain }) => {
           const { from, to } = range;

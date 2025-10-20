@@ -24,6 +24,22 @@ type ParagraphBlock = {
 
 ## Heading
 
+**Configuration Options**
+
+```typescript
+type HeadingBlockOptions = Partial<{
+  defaultLevel?: number;
+  levels?: number[];
+  allowToggleHeadings?: boolean;
+}>;
+```
+
+`defaultLevel:` The default level for headings which are created/inserted without a set level, which is `1` by default.
+
+`levels:` The heading levels that the block supports, or '1'-'6' by default.
+
+`allowToggleHeadings:` Whether toggle headings should be supported, `true` by default. Toggle headings have a button which toggles between hiding and showing the block's children.
+
 **Type & Props**
 
 ```typescript
