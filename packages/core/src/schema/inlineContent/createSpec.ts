@@ -81,6 +81,8 @@ export type CustomInlineContentImplementation<
         contentDOM?: HTMLElement;
       }
     | undefined;
+
+  runsBefore?: string[];
 };
 
 export function getInlineContentParseRules<C extends CustomInlineContentConfig>(
@@ -220,6 +222,8 @@ export function createInlineContentSpec<
     node,
     inlineContentConfig.propSchema,
     {
+      ...inlineContentImplementation,
+      runsBefore: inlineContentImplementation.runsBefore || ["default"],
       toExternalHTML: inlineContentImplementation.toExternalHTML,
       render(inlineContent, updateInlineContent, editor) {
         const output = inlineContentImplementation.render(

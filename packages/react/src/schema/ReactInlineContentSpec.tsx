@@ -233,6 +233,7 @@ export function createReactInlineContentSpec<
   return createInternalInlineContentSpec(
     inlineContentConfig as CustomInlineContentConfig,
     {
+      ...inlineContentImplementation,
       node,
       render(inlineContent, updateInlineContent, editor) {
         const Content = inlineContentImplementation.render;
@@ -288,6 +289,7 @@ export function createReactInlineContentSpec<
         }, editor);
         return output;
       },
+      runsBefore: inlineContentImplementation.runsBefore || ["default"]
     },
   ) as any;
 }
