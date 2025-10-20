@@ -289,7 +289,6 @@ export function createReactInlineContentSpec<
         }, editor);
         return output;
       },
-      runsBefore: inlineContentImplementation.runsBefore || ["default"]
     },
   ) as any;
 }

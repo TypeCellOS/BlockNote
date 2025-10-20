@@ -47,6 +47,9 @@ export function getStyleParseRules<T extends StyleConfig>(
   if (customParseFunction) {
     rules.push({
       tag: "*",
+      // By default, styles can overlap each other, so the rules should not
+      // completely consume the element they parse (which can have multiple
+      // styles).
       consuming: false,
       getAttrs(node: string | HTMLElement) {
         if (typeof node === "string") {
@@ -111,7 +114,6 @@ export function createStyleSpec<const T extends StyleConfig>(
   return createInternalStyleSpec(styleConfig, {
     ...styleImplementation,
     mark,
-    runsBefore: styleImplementation.runsBefore || ["default"],
     render: (value) => {
       const renderResult = styleImplementation.render(value as any);
 

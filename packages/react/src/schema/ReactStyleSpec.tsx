@@ -169,6 +169,5 @@ export function createReactStyleSpec<T extends StyleConfig>(
         styleConfig.propSchema,
       );
     },
-    runsBefore: styleImplementation.runsBefore || ["default"],
   });
 }

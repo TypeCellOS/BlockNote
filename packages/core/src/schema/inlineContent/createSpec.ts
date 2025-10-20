@@ -223,7 +223,6 @@ export function createInlineContentSpec<
     inlineContentConfig.propSchema,
     {
       ...inlineContentImplementation,
-      runsBefore: inlineContentImplementation.runsBefore || ["default"],
       toExternalHTML: inlineContentImplementation.toExternalHTML,
       render(inlineContent, updateInlineContent, editor) {
         const output = inlineContentImplementation.render(
