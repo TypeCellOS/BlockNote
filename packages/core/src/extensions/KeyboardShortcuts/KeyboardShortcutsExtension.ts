@@ -11,7 +11,7 @@ import { splitBlockCommand } from "../../api/blockManipulation/commands/splitBlo
 import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { getBlockInfoFromSelection } from "../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { moveFirstBlockInColumn } from "../../api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
+import { fixColumnList } from "../../api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
 
 export const KeyboardShortcutsExtension = Extension.create<{
   editor: BlockNoteEditor<any, any, any>;
@@ -24,7 +24,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
   addKeyboardShortcuts() {
     // handleBackspace is partially adapted from https://github.com/ueberdosis/tiptap/blob/ed56337470efb4fd277128ab7ef792b37cfae992/packages/core/src/extensions/keymap.ts
     const handleBackspace = () =>
-      this.editor.commands.first(({ chain, commands }) => [
+      this.editor.commands.first(({ chain, commands, tr }) => [
         // Deletes the selection if it's not empty.
         () => commands.deleteSelection(),
         // Undoes an input rule if one was triggered in the last editor state change.
@@ -123,8 +123,35 @@ export const KeyboardShortcutsExtension = Extension.create<{
               return false;
             }
 
+            const $blockPos = state.doc.resolve(blockInfo.bnBlock.beforePos);
+            const $columnPos = state.doc.resolve($blockPos.before(-1));
+            const columnListPos = $columnPos.before();
+
             if (dispatch) {
-              moveFirstBlockInColumn(state.tr, $pos);
+              const fragment = state.doc.slice(
+                blockInfo.bnBlock.beforePos,
+                blockInfo.bnBlock.afterPos,
+              ).content;
+
+              tr.delete(
+                blockInfo.bnBlock.beforePos,
+                blockInfo.bnBlock.afterPos,
+              );
+
+              if ($columnPos.index() === 0) {
+                // Fix `columnList` and insert the block before it.
+                fixColumnList(state.tr, columnListPos);
+                tr.insert(columnListPos, fragment);
+                tr.setSelection(TextSelection.create(tr.doc, columnListPos));
+              } else {
+                // Insert the block at the end of the first column and fix
+                // `columnList`.
+                tr.insert($columnPos.pos - 1, fragment);
+                tr.setSelection(
+                  TextSelection.create(tr.doc, $columnPos.pos - 1),
+                );
+                fixColumnList(tr, columnListPos);
+              }
             }
 
             return true;
