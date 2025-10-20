@@ -3,6 +3,7 @@ import {
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
+  FilePanelExtension,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -11,16 +12,16 @@ import { FC } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning.js";
-import { useUIPluginState } from "../../hooks/useUIPluginState.js";
 import { FilePanel } from "./FilePanel.js";
 import { FilePanelProps } from "./FilePanelProps.js";
+import { usePluginState } from "../../hooks/usePlugin.js";
 
 export const FilePanelController = <
   B extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema,
 >(props: {
-  filePanel?: FC<FilePanelProps<I, S>>;
+  filePanel?: FC<FilePanelProps>;
   floatingOptions?: Partial<UseFloatingOptions>;
 }) => {
   const editor = useBlockNoteEditor<B, I, S>();
@@ -31,12 +32,10 @@ export const FilePanelController = <
     );
   }
 
-  const state = useUIPluginState(
-    editor.filePanel.onUpdate.bind(editor.filePanel),
-  );
+  const state = usePluginState(FilePanelExtension);
 
   const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(
-    state?.show || false,
+    !!state?.blockId,
     state?.referencePos || null,
     5000,
     {
@@ -56,13 +55,11 @@ export const FilePanelController = <
     return null;
   }
 
-  const { show, referencePos, ...data } = state;
-
   const Component = props.filePanel || FilePanel;
 
   return (
     <div ref={ref} style={style} {...getFloatingProps()}>
-      <Component {...data} />
+      {state.blockId && <Component blockId={state.blockId} />}
     </div>
   );
 };

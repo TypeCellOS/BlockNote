@@ -70,7 +70,7 @@ export const FileReplaceButton = () => {
         variant={"panel-popover"}
       >
         {/* Replaces default file panel with our Uppy one. */}
-        <UppyFilePanel block={block as any} />
+        <UppyFilePanel blockId={block.id} />
       </Components.Generic.Popover.Content>
     </Components.Generic.Popover.Root>
   );

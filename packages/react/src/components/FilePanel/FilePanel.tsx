@@ -31,8 +31,7 @@ export const FilePanel = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema,
 >(
-  props: FilePanelProps<I, S> &
-    Partial<Pick<PanelProps, "defaultOpenTab" | "tabs">>,
+  props: FilePanelProps & Partial<Pick<PanelProps, "defaultOpenTab" | "tabs">>,
 ) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
@@ -46,13 +45,15 @@ export const FilePanel = <
       ? [
           {
             name: dict.file_panel.upload.title,
-            tabPanel: <UploadTab block={props.block} setLoading={setLoading} />,
+            tabPanel: (
+              <UploadTab blockId={props.blockId} setLoading={setLoading} />
+            ),
           },
         ]
       : []),
     {
       name: dict.file_panel.embed.title,
-      tabPanel: <EmbedTab block={props.block} />,
+      tabPanel: <EmbedTab blockId={props.blockId} />,
     },
   ];
 
