@@ -85,13 +85,12 @@ function getMarkAtPos(
         return tr.doc.textBetween(markRange.from, markRange.to);
       },
       get position() {
-        // toJSON is always a new reference, so we remove it
-        const { toJSON, ...position } = posToDOMRect(
+        // to minimize re-renders, we convert to JSON, which is the same shape anyway
+        return posToDOMRect(
           editor.prosemirrorView,
           markRange.from,
           markRange.to,
-        );
-        return position;
+        ).toJSON() as DOMRect;
       },
     };
   });
@@ -125,12 +124,6 @@ export const LinkToolbarController = <
     editor,
     selector: ({ editor }) => {
       return getLinkAtSelection(editor);
-      // if (!linkAtSelection) {
-      //   return;
-      // }
-      // const { range, text, mark, position } = linkAtSelection;
-      // console.log(position);
-      // return { range, text, mark };
     },
   });
 
@@ -150,10 +143,7 @@ export const LinkToolbarController = <
     open: show,
     placement: "top-start",
     middleware: [offset(10), flip()],
-    onOpenChange: (open, event, reason) => {
-      console.log("openChange", open, event, reason);
-      setShow(open);
-    },
+    onOpenChange: setShow,
     whileElementsMounted: autoUpdate,
     ...props.floatingOptions,
   });
@@ -167,16 +157,14 @@ export const LinkToolbarController = <
       !isEventTargetWithin(e, editor.prosemirrorView.dom.parentElement),
   });
 
-  console.log(linkAtSelection);
   // Create element hover hook for link detection
   const elementHover = useElementHover(context, {
     enabled: !linkAtSelection,
     attachTo() {
       return editor.prosemirrorView.dom;
     },
-    delay: { open: 250, close: 0 },
-    restMs: 0,
-    mouseOnly: true,
+    delay: { open: 250, close: 400 },
+    restMs: 300,
     getElementAtHover: (target) => {
       // Check if there's a link at the current selection first
       if (getLinkAtSelection(editor)) {
@@ -232,6 +220,7 @@ export const LinkToolbarController = <
   useEffect(() => {
     if (!linkAtSelection) {
       setReference(null);
+      setShow(false);
       return;
     }
 
@@ -267,7 +256,6 @@ export const LinkToolbarController = <
 
   const Component = props.linkToolbar || LinkToolbar;
 
-  console.log("showing");
   return (
     <div ref={ref} style={style} {...getFloatingProps()}>
       <Component
