@@ -2,20 +2,20 @@
   "name": "root",
   "type": "module",
   "devDependencies": {
-    "@nx/js": "^21.4.1",
-    "@typescript-eslint/eslint-plugin": "^5.5.0",
-    "@typescript-eslint/parser": "^5.5.0",
+    "@nx/js": "^21.6.5",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
     "concurrently": "9.1.2",
-    "eslint": "^8.22.0",
-    "eslint-config-react-app": "^7.0.0",
-    "eslint-plugin-import": "^2.31.0",
-    "glob": "^10.3.10",
-    "nx": "^21.4.1",
-    "prettier": "^3",
-    "prettier-plugin-tailwindcss": "^0.6.11",
+    "eslint": "^8.57.1",
+    "eslint-config-react-app": "^7.0.1",
+    "eslint-plugin-import": "^2.32.0",
+    "glob": "^10.4.5",
+    "nx": "^21.6.5",
+    "prettier": "^3.6.2",
+    "prettier-plugin-tailwindcss": "^0.6.14",
     "serve": "14.2.4",
-    "typescript": "^5.3.3",
-    "vitest": "^2.0.3",
+    "typescript": "^5.9.3",
+    "vitest": "^2.1.9",
     "wait-on": "8.0.3"
   },
   "pnpm": {
@@ -35,7 +35,7 @@
       "unrs-resolver"
     ]
   },
-  "packageManager": "pnpm@10.13.1+sha512.37ebf1a5c7a30d5fabe0c5df44ee8da4c965ca0c5af3dbab28c3a1681b70a256218d05c81c9c0dcf767ef6b8551eb5b960042b9ed4300c59242336377e01cfad",
+  "packageManager": "pnpm@10.18.2+sha512.9fb969fa749b3ade6035e0f109f0b8a60b5d08a1a87fdf72e337da90dcc93336e2280ca4e44f2358a649b83c17959e9993e777c2080879f3801e6f0d999ad3dd",
   "private": true,
   "scripts": {
     "dev": "nx run @blocknote/example-editor:dev",
