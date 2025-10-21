@@ -373,7 +373,7 @@ export function useElementHover<T = HTMLElement>(
       onPointerDown: setPointerRef,
       onPointerEnter: setPointerRef,
       onMouseMove(event) {
-        const { nativeEvent } = event;
+        const nativeEvent = "nativeEvent" in event ? event.nativeEvent : event;
 
         function handleMouseMove() {
           if (!blockMouseMoveRef.current && !openRef.current) {
