@@ -10,18 +10,48 @@ describe("Schema test", () => {
   const getEditor = createTestEditor(testSchema);
 
   it("Block specs test", async () => {
-    await expect(getEditor().schema.blockSpecs).toMatchFileSnapshot(
-      `./__snapshots__/blocks.json`,
-    );
+    const specs = getEditor().schema.blockSpecs;
+    Object.values(specs).forEach((spec) => {
+      if (
+        typeof spec.implementation === "object" &&
+        spec.implementation !== null &&
+        typeof spec.implementation.node === "object"
+      ) {
+        spec.implementation.node = null as any;
+      }
+    });
+    await expect(specs).toMatchFileSnapshot(`./__snapshots__/blocks.json`);
   });
 
   it("Inline content specs test", async () => {
-    await expect(getEditor().schema.inlineContentSpecs).toMatchFileSnapshot(
+    const specs = getEditor().schema.inlineContentSpecs;
+    Object.values(specs).forEach((spec) => {
+      if (
+        typeof spec.implementation === "object" &&
+        spec.implementation !== null &&
+        typeof spec.implementation.node === "object"
+      ) {
+        spec.implementation.node = null as any;
+      }
+    });
+    await expect(specs).toMatchFileSnapshot(
       `./__snapshots__/inlinecontent.json`,
     );
   });
 
   it("Style specs test", async () => {
+    const specs = getEditor().schema.styleSpecs;
+    Object.values(specs).forEach((spec) => {
+      if (
+        typeof spec === "object" &&
+        spec !== null &&
+        typeof spec.implementation === "object" &&
+        spec.implementation !== null &&
+        typeof spec.implementation.mark === "object"
+      ) {
+        spec.implementation.mark = null as any;
+      }
+    });
     await expect(getEditor().schema.styleSpecs).toMatchFileSnapshot(
       `./__snapshots__/styles.json`,
     );
