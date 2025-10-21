@@ -332,6 +332,7 @@ export class ServerBlockNoteEditor<
         return await fn();
       } finally {
         tmpRoot.unmount();
+        await new Promise((resolve) => setTimeout(resolve, 3));
       }
     });
   }
