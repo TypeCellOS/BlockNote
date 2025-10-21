@@ -112,10 +112,11 @@ function getDecorations(
       );
 
       if (existingDecorations.length === 0) {
+        const blockNode = tr.doc.nodeAt(pos + 1);
         // Create a widget decoration to display the index
         decorationsToAdd.push(
           // move in by 1 to account for the block container
-          Decoration.node(pos + 1, pos + node.nodeSize - 1, {
+          Decoration.node(pos + 1, pos + 1 + blockNode!.nodeSize, {
             "data-index": index.toString(),
           }),
         );
