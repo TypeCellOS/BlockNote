@@ -336,19 +336,19 @@ importers:
         version: 5.0.8(@types/react@19.2.2)(immer@10.1.3)(react@19.2.0)(use-sync-external-store@1.6.0(react@19.2.0))
     devDependencies:
       '@blocknote/ariakit':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../packages/ariakit
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../packages/core
       '@blocknote/mantine':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../packages/mantine
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../packages/react
       '@blocknote/shadcn':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../packages/shadcn
       '@react-email/components':
         specifier: ^0.0.36
