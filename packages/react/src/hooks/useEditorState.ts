@@ -30,15 +30,23 @@ export type UseEditorStateOptions<
    * The editor instance. If not provided, will use the editor from BlockNoteContext.
    */
   editor?: TEditor;
+
   /**
    * A selector function to determine the value to compare for re-rendering.
    */
   selector: (context: EditorStateSnapshot<TEditor>) => TSelectorResult;
+
   /**
    * A custom equality function to determine if the editor should re-render.
    * @default `deepEqual` from `fast-deep-equal`
    */
   equalityFn?: (a: TSelectorResult, b: TSelectorResult | null) => boolean;
+
+  /**
+   * The event to subscribe to.
+   * @default "all"
+   */
+  on?: "all" | "selection" | "change";
 };
 
 /**
@@ -109,6 +117,7 @@ class EditorStateManager<
    */
   watch(
     nextEditor: BlockNoteEditor<any, any, any> | null,
+    on: "all" | "selection" | "change",
   ): undefined | (() => void) {
     this.editor = nextEditor as TEditor;
 
@@ -125,9 +134,15 @@ class EditorStateManager<
 
       const currentTiptapEditor = this.editor._tiptapEditor;
 
-      currentTiptapEditor.on("transaction", fn);
+      const EVENT_TYPES = {
+        all: "transaction",
+        selection: "selectionUpdate",
+        change: "update",
+      } as const;
+
+      currentTiptapEditor.on(EVENT_TYPES[on], fn);
       return () => {
-        currentTiptapEditor.off("transaction", fn);
+        currentTiptapEditor.off(EVENT_TYPES[on], fn);
       };
     }
 
@@ -188,6 +203,7 @@ export function useEditorState<TSelectorResult>(
 ): TSelectorResult | null {
   const editorContext = useBlockNoteContext();
   const editor = options.editor || editorContext?.editor || null;
+  const on = options.on || "all";
 
   const [editorStateManager] = useState(() => new EditorStateManager(editor));
 
@@ -204,8 +220,8 @@ export function useEditorState<TSelectorResult>(
   );
 
   useIsomorphicLayoutEffect(() => {
-    return editorStateManager.watch(editor);
-  }, [editor, editorStateManager]);
+    return editorStateManager.watch(editor, on);
+  }, [editor, editorStateManager, on]);
 
   useDebugValue(selectedState);
 
