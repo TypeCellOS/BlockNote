@@ -139,6 +139,8 @@ export class SideMenuView<
 
   public isDragOrigin = false;
 
+  public useHandleDOMEvents = false;
+
   constructor(
     private readonly editor: BlockNoteEditor<BSchema, I, S>,
     private readonly pmView: EditorView,
@@ -171,12 +173,13 @@ export class SideMenuView<
       true,
     );
 
-    // Shows or updates menu position whenever the cursor moves, if the menu isn't frozen.
-    this.pmView.root.addEventListener(
-      "mousemove",
-      this.onMouseMove as EventListener,
-      true,
-    );
+    if (!this.useHandleDOMEvents) {
+      this.pmView.root.addEventListener(
+        "mousemove",
+        this.onMouseMove as EventListener,
+        true,
+      );
+    }
 
     // Hides and unfreezes the menu whenever the user presses a key.
     this.pmView.root.addEventListener(
@@ -561,6 +564,11 @@ export class SideMenuView<
 
     this.mousePos = { x: event.clientX, y: event.clientY };
 
+    if (this.useHandleDOMEvents) {
+      this.updateStateFromMousePos();
+      return;
+    }
+
     // We want the full area of the editor to check if the cursor is hovering
     // above it though.
     const editorOuterBoundingBox = this.pmView.dom.getBoundingClientRect();
@@ -596,6 +604,30 @@ export class SideMenuView<
     }
 
     this.updateStateFromMousePos();
+  };
+
+  onMouseLeave = (event: MouseEvent) => {
+    if (this.menuFrozen) {
+      return false;
+    }
+
+    const editorOuterBoundingBox = this.pmView.dom.getBoundingClientRect();
+    const cursorWithinEditor =
+      event.clientX > editorOuterBoundingBox.left &&
+      event.clientX < editorOuterBoundingBox.right &&
+      event.clientY > editorOuterBoundingBox.top &&
+      event.clientY < editorOuterBoundingBox.bottom;
+
+    if (cursorWithinEditor) {
+      return false;
+    }
+
+    if (this.state?.show) {
+      this.state.show = false;
+      this.emitUpdate(this.state);
+    }
+
+    return false;
   };
 
   private dispatchSyntheticEvent(event: DragEvent) {
@@ -648,11 +680,15 @@ export class SideMenuView<
       this.state.show = false;
       this.emitUpdate(this.state);
     }
-    this.pmView.root.removeEventListener(
-      "mousemove",
-      this.onMouseMove as EventListener,
-      true,
-    );
+
+    if (!this.useHandleDOMEvents) {
+      this.pmView.root.removeEventListener(
+        "mousemove",
+        this.onMouseMove as EventListener,
+        true,
+      );
+    }
+
     this.pmView.root.removeEventListener(
       "dragstart",
       this.onDragStart as EventListener,
@@ -678,6 +714,26 @@ export class SideMenuView<
     );
     this.pmView.root.removeEventListener("scroll", this.onScroll, true);
   }
+
+  setUseHandleDOMEvents = (value: boolean) => {
+    if (!this.useHandleDOMEvents && value) {
+      this.pmView.root.removeEventListener(
+        "mousemove",
+        this.onMouseMove as EventListener,
+        true,
+      );
+    }
+
+    if (this.useHandleDOMEvents && !value) {
+      this.pmView.root.addEventListener(
+        "mousemove",
+        this.onMouseMove as EventListener,
+        true,
+      );
+    }
+
+    this.useHandleDOMEvents = value;
+  };
 }
 
 export const sideMenuPluginKey = new PluginKey("SideMenuPlugin");
@@ -703,6 +759,22 @@ export class SideMenuProsemirrorPlugin<
             this.emit("update", state);
           });
           return this.view;
+        },
+        props: {
+          handleDOMEvents: {
+            mousemove: (_view, event) => {
+              if (this.view?.useHandleDOMEvents) {
+                this.view.onMouseMove(event);
+              }
+              return false;
+            },
+            mouseleave: (_view, event) => {
+              if (this.view?.useHandleDOMEvents) {
+                this.view.onMouseLeave(event);
+              }
+              return false;
+            },
+          },
         },
       }),
     );
@@ -738,6 +810,15 @@ export class SideMenuProsemirrorPlugin<
     if (this.view) {
       this.view.isDragOrigin = false;
     }
+  };
+  /**
+   * Sets whether to use ProseMirror's handleDOMEvents for mousemove tracking instead of addEventListener.
+   *
+   * - When `true`: Uses handleDOMEvents (mousemove + mouseleave) - scoped to ProseMirror
+   * - When `false` (default): Uses addEventListener on root element - original behavior
+   */
+  setUseHandleDOMEvents = (value: boolean) => {
+    this.view?.setUseHandleDOMEvents(value);
   };
   /**
    * Freezes the side menu. When frozen, the side menu will stay
