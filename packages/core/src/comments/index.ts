@@ -7,3 +7,4 @@ export * from "./threadstore/yjs/RESTYjsThreadStore.js";
 export * from "./threadstore/yjs/YjsThreadStore.js";
 export * from "./threadstore/yjs/YjsThreadStoreBase.js";
 export * from "./types.js";
+export { CommentMark } from "../extensions/Comments/CommentMark.js";
