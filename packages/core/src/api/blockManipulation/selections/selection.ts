@@ -1,8 +1,13 @@
-import { TextSelection, type Transaction } from "prosemirror-state";
-import { TableMap } from "prosemirror-tables";
+import {
+  NodeSelection,
+  TextSelection,
+  type Transaction,
+} from "prosemirror-state";
+import { CellSelection } from "prosemirror-tables";
 
 import { Block } from "../../../blocks/defaultBlocks.js";
 import { Selection } from "../../../editor/selectionTypes.js";
+import { MultipleNodeSelection } from "../../../extensions-shared/MultipleNodeSelection.js";
 import {
   BlockIdentifier,
   BlockSchema,
@@ -15,7 +20,7 @@ import {
   prosemirrorSliceToSlicedBlocks,
 } from "../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../nodeUtil.js";
-import { getBlockNoteSchema, getPmSchema } from "../../pmUtil.js";
+import { getPmSchema } from "../../pmUtil.js";
 
 export function getSelection<
   BSchema extends BlockSchema,
@@ -24,16 +29,24 @@ export function getSelection<
 >(tr: Transaction): Selection<BSchema, I, S> | undefined {
   const pmSchema = getPmSchema(tr);
   // Return undefined if the selection is collapsed or a node is selected.
-  if (tr.selection.empty || "node" in tr.selection) {
+  if (tr.selection.empty || tr.selection instanceof NodeSelection) {
     return undefined;
   }
 
-  const $startBlockBeforePos = tr.doc.resolve(
-    getNearestBlockPos(tr.doc, tr.selection.from).posBeforeNode,
-  );
-  const $endBlockBeforePos = tr.doc.resolve(
-    getNearestBlockPos(tr.doc, tr.selection.to).posBeforeNode,
-  );
+  const $startBlockBeforePos =
+    tr.selection instanceof MultipleNodeSelection
+      ? tr.selection.$anchor
+      : tr.doc.resolve(
+          getNearestBlockPos(tr.doc, tr.selection.from).posBeforeNode,
+        );
+  const $endBlockBeforePos =
+    tr.selection instanceof MultipleNodeSelection
+      ? tr.doc.resolve(
+          tr.selection.head - tr.selection.$head.nodeBefore!.nodeSize,
+        )
+      : tr.doc.resolve(
+          getNearestBlockPos(tr.doc, tr.selection.to).posBeforeNode,
+        );
 
   // Converts the node at the given index and depth around `$startBlockBeforePos`
   // to a block. Used to get blocks at given indices at the shared depth and
@@ -140,84 +153,123 @@ export function setSelection(
   const startBlockId =
     typeof startBlock === "string" ? startBlock : startBlock.id;
   const endBlockId = typeof endBlock === "string" ? endBlock : endBlock.id;
-  const pmSchema = getPmSchema(tr);
-  const schema = getBlockNoteSchema(pmSchema);
 
   if (startBlockId === endBlockId) {
-    throw new Error(
-      `Attempting to set selection with the same anchor and head blocks (id ${startBlockId})`,
-    );
+    // If the same block is provided for the start and end, its content gets
+    // selected.
+    const posInfo = getNodeById(startBlockId, tr.doc);
+    if (!posInfo) {
+      throw new Error(`Block with ID ${startBlockId} not found`);
+    }
+
+    const blockInfo = getBlockInfo(posInfo);
+
+    // Case for regular blocks.
+    if (blockInfo.isBlockContainer) {
+      const content = blockInfo.blockContent.node.type.spec.content!;
+
+      // Set `NodeSelection` on the `blockContent` node if it has no content.
+      if (content === "") {
+        tr.setSelection(
+          NodeSelection.create(tr.doc, blockInfo.blockContent.beforePos),
+        );
+
+        return;
+      }
+
+      // Set a `TextSelection` spanning the block's inline content, if it has
+      // inline content.
+      if (content === "inline*") {
+        tr.setSelection(
+          TextSelection.create(
+            tr.doc,
+            blockInfo.blockContent.beforePos + 1,
+            blockInfo.blockContent.afterPos - 1,
+          ),
+        );
+
+        return;
+      }
+
+      // Set a `CellSelection` spanning all cells in the table, if it has table
+      // content.
+      if (content === "tableRow+") {
+        const firstRowBeforePos = blockInfo.blockContent.beforePos + 1;
+        const firstCellBeforePos = firstRowBeforePos + 1;
+        const lastRowAfterPos = blockInfo.blockContent.afterPos - 1;
+        const lastCellAfterPos = lastRowAfterPos - 1;
+
+        tr.setSelection(
+          CellSelection.create(
+            tr.doc,
+            firstCellBeforePos,
+            lastCellAfterPos -
+              tr.doc.resolve(lastCellAfterPos).nodeBefore!.nodeSize,
+          ),
+        );
+
+        return;
+      }
+
+      throw new Error(
+        `Invalid content type: ${content} for node type ${blockInfo.blockContent.node.type.name}`,
+      );
+    }
+
+    // Case for when block is a `columnList`.
+    if (blockInfo.blockNoteType === "columnList") {
+      const firstColumnBeforePos = blockInfo.bnBlock.beforePos + 1;
+      const firstBlockBeforePos = firstColumnBeforePos + 1;
+      const lastColumnAfterPos = blockInfo.bnBlock.afterPos - 1;
+      const lastBlockAfterPos = lastColumnAfterPos - 1;
+
+      tr.setSelection(
+        MultipleNodeSelection.create(
+          tr.doc,
+          firstBlockBeforePos,
+          lastBlockAfterPos -
+            tr.doc.resolve(lastBlockAfterPos).nodeBefore!.nodeSize,
+        ),
+      );
+    }
+
+    // Case for when block is a `column`.
+    if (blockInfo.blockNoteType === "column") {
+      const firstBlockBeforePos = blockInfo.bnBlock.beforePos + 1;
+      const lastBlockAfterPos = blockInfo.bnBlock.afterPos - 1;
+
+      // Run recursively as the column may only have one block.
+      setSelection(
+        tr,
+        tr.doc.resolve(firstBlockBeforePos).nodeAfter!.attrs.id,
+        tr.doc.resolve(lastBlockAfterPos).nodeBefore!.attrs.id,
+      );
+    }
+
+    throw new Error(`Invalid block node: ${blockInfo.blockNoteType}`);
   }
-  const anchorPosInfo = getNodeById(startBlockId, tr.doc);
-  if (!anchorPosInfo) {
+
+  const startPosInfo = getNodeById(startBlockId, tr.doc);
+  if (!startPosInfo) {
     throw new Error(`Block with ID ${startBlockId} not found`);
   }
-  const headPosInfo = getNodeById(endBlockId, tr.doc);
-  if (!headPosInfo) {
+
+  const startBlockInfo = getBlockInfo(startPosInfo);
+
+  const endPosInfo = getNodeById(endBlockId, tr.doc);
+  if (!endPosInfo) {
     throw new Error(`Block with ID ${endBlockId} not found`);
   }
 
-  const anchorBlockInfo = getBlockInfo(anchorPosInfo);
-  const headBlockInfo = getBlockInfo(headPosInfo);
+  const endBlockInfo = getBlockInfo(endPosInfo);
 
-  const anchorBlockConfig =
-    schema.blockSchema[
-      anchorBlockInfo.blockNoteType as keyof typeof schema.blockSchema
-    ];
-  const headBlockConfig =
-    schema.blockSchema[
-      headBlockInfo.blockNoteType as keyof typeof schema.blockSchema
-    ];
-
-  if (
-    !anchorBlockInfo.isBlockContainer ||
-    anchorBlockConfig.content === "none"
-  ) {
-    throw new Error(
-      `Attempting to set selection anchor in block without content (id ${startBlockId})`,
-    );
-  }
-  if (!headBlockInfo.isBlockContainer || headBlockConfig.content === "none") {
-    throw new Error(
-      `Attempting to set selection anchor in block without content (id ${endBlockId})`,
-    );
-  }
-
-  let startPos: number;
-  let endPos: number;
-
-  if (anchorBlockConfig.content === "table") {
-    const tableMap = TableMap.get(anchorBlockInfo.blockContent.node);
-    const firstCellPos =
-      anchorBlockInfo.blockContent.beforePos +
-      tableMap.positionAt(0, 0, anchorBlockInfo.blockContent.node) +
-      1;
-    startPos = firstCellPos + 2;
-  } else {
-    startPos = anchorBlockInfo.blockContent.beforePos + 1;
-  }
-
-  if (headBlockConfig.content === "table") {
-    const tableMap = TableMap.get(headBlockInfo.blockContent.node);
-    const lastCellPos =
-      headBlockInfo.blockContent.beforePos +
-      tableMap.positionAt(
-        tableMap.height - 1,
-        tableMap.width - 1,
-        headBlockInfo.blockContent.node,
-      ) +
-      1;
-    const lastCellNodeSize = tr.doc.resolve(lastCellPos).nodeAfter!.nodeSize;
-    endPos = lastCellPos + lastCellNodeSize - 2;
-  } else {
-    endPos = headBlockInfo.blockContent.afterPos - 1;
-  }
-
-  // TODO: We should polish up the `MultipleNodeSelection` and use that instead.
-  //  Right now it's missing a few things like a jsonID and styling to show
-  //  which nodes are selected. `TextSelection` is ok for now, but has the
-  //  restriction that the start/end blocks must have content.
-  tr.setSelection(TextSelection.create(tr.doc, startPos, endPos));
+  tr.setSelection(
+    MultipleNodeSelection.create(
+      tr.doc,
+      startBlockInfo.bnBlock.beforePos,
+      endBlockInfo.bnBlock.afterPos,
+    ),
+  );
 }
 
 export function getSelectionCutBlocks(tr: Transaction) {
