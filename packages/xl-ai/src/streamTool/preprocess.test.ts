@@ -1,10 +1,7 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { beforeEach, describe, expect, it } from "vitest";
 import { tools } from "../api/formats/json/tools/index.js";
-import {
-  preprocessOperationsNonStreaming,
-  preprocessOperationsStreaming,
-} from "./preprocess.js";
+import { preprocessOperationsStreaming } from "./preprocess.js";
 import { StreamTool } from "./streamTool.js";
 
 const addOperationValid = {
@@ -148,68 +145,37 @@ describe("preprocess", () => {
     });
   });
 
-  describe("preprocessOperationsNonStreaming", () => {
-    it("should pass valid operations", async () => {
-      async function* mockStream() {
-        yield {
-          partialOperation: addOperationValid,
-          isUpdateToPreviousOperation: false,
-          isPossiblyPartial: false,
-          metadata: undefined,
-        };
-      }
+  it("should throw an error on invalid operations (invalid id)", async () => {
+    async function* mockStream() {
+      yield {
+        partialOperation: addOperationInvalidId,
+        isUpdateToPreviousOperation: false,
+        isPossiblyPartial: false,
+        metadata: undefined,
+      };
+    }
 
-      const results = await collectStreamToArray(
-        preprocessOperationsNonStreaming(mockStream(), streamTools),
-      );
+    await expect(
+      collectStreamToArray(
+        preprocessOperationsStreaming(mockStream(), streamTools),
+      ),
+    ).rejects.toThrow();
+  });
 
-      expect(results.length).toBe(1);
-    });
+  it("should throw an error on invalid operations (invalid type)", async () => {
+    async function* mockStream() {
+      yield {
+        partialOperation: invalidOperationType,
+        isUpdateToPreviousOperation: false,
+        isPossiblyPartial: false,
+        metadata: undefined,
+      };
+    }
 
-    it("should throw an error on invalid operations (invalid id)", async () => {
-      async function* mockStream() {
-        yield {
-          partialOperation: addOperationInvalidId,
-          isUpdateToPreviousOperation: false,
-          isPossiblyPartial: false,
-          metadata: undefined,
-        };
-      }
-
-      await expect(
-        collectStreamToArray(
-          preprocessOperationsNonStreaming(mockStream(), streamTools),
-        ),
-      ).rejects.toThrow();
-    });
-
-    it("should throw an error on invalid operations (invalid type)", async () => {
-      async function* mockStream() {
-        yield {
-          partialOperation: invalidOperationType,
-          isUpdateToPreviousOperation: false,
-          isPossiblyPartial: false,
-          metadata: undefined,
-        };
-      }
-
-      await expect(
-        collectStreamToArray(
-          preprocessOperationsNonStreaming(mockStream(), streamTools),
-        ),
-      ).rejects.toThrow();
-    });
-
-    it("should handle empty operation streams", async () => {
-      async function* mockStream() {
-        // Empty stream
-      }
-
-      const results = await collectStreamToArray(
-        preprocessOperationsNonStreaming(mockStream(), streamTools),
-      );
-
-      expect(results).toHaveLength(0);
-    });
+    await expect(
+      collectStreamToArray(
+        preprocessOperationsStreaming(mockStream(), streamTools),
+      ),
+    ).rejects.toThrow();
   });
 });

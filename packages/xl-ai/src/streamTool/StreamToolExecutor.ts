@@ -1,17 +1,7 @@
 import { getErrorMessage } from "@ai-sdk/provider-utils";
 import { parsePartialJson } from "ai";
+import { ChunkExecutionError } from "./ChunkExecutionError.js";
 import { StreamTool, StreamToolCall } from "./streamTool.js";
-
-export class ChunkExecutionError extends Error {
-  constructor(
-    message: string,
-    public readonly chunk: any,
-    options?: { cause?: unknown },
-  ) {
-    super(message, options);
-    this.name = "ChunkExecutionError";
-  }
-}
 
 /**
  * The Operation types wraps a StreamToolCall with metadata on whether
