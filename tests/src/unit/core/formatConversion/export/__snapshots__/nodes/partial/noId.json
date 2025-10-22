@@ -1,0 +1,39 @@
+[
+  {
+    "attrs": {
+      "id": "1",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "exportTestBlock",
+      },
+      {
+        "content": [
+          {
+            "attrs": {
+              "id": "2",
+            },
+            "content": [
+              {
+                "attrs": {
+                  "backgroundColor": "default",
+                  "textAlignment": "left",
+                  "textColor": "default",
+                },
+                "type": "exportTestBlock",
+              },
+            ],
+            "type": "blockContainer",
+          },
+        ],
+        "type": "blockGroup",
+      },
+    ],
+    "type": "blockContainer",
+  },
+]

@@ -1,6 +1,9 @@
 import {
+  BlockFromConfig,
+  BlockNoteEditor,
   BlockNoteSchema,
   addNodeAndExtensionsToSpec,
+  createBlockSpec,
   createImageBlockConfig,
   createImageBlockSpec,
   createInlineContentSpec,
@@ -73,6 +76,94 @@ const SimpleCustomParagraph = addNodeAndExtensionsToSpec(
       return {
         dom: paragraph,
         contentDOM: paragraph,
+      };
+    },
+  },
+);
+
+// This block is used to test converting partial blocks into full blocks when
+// exporting. If any of the fields are incorrectly defined, will throw an
+// error.
+const validateBlock = (
+  block: BlockFromConfig<any, any, any>,
+  editor: BlockNoteEditor<any, any, any>,
+) => {
+  if (typeof block.id !== "string") {
+    throw new Error("ID of block is not a string.");
+  }
+
+  if (typeof block.type !== "string") {
+    throw new Error("Type of block is not a string.");
+  }
+
+  if (block.type !== "exportTestBlock") {
+    throw new Error(`Block has wrong type ("${block.type}").`);
+  }
+
+  if (block.props === undefined) {
+    throw new Error("Block has no props.");
+  }
+
+  const propSchema = editor.schema.blockSchema.exportTestBlock.propSchema;
+  const propSchemaSize = Object.keys(propSchema).length;
+  const propsSize = Object.keys(block.props).length;
+
+  if (propsSize !== propSchemaSize) {
+    throw new Error(
+      `Block has ${propsSize} props but its schema declares it should have ${propSchemaSize}.`,
+    );
+  }
+
+  for (const [propName, propValue] of Object.entries(block.props)) {
+    if (!(propName in propSchema)) {
+      throw new Error(
+        `Block has prop "${propName}" that is not declared in its schema.`,
+      );
+    }
+
+    if (
+      typeof propValue !==
+      typeof propSchema[propName as keyof typeof propSchema].default
+    ) {
+      throw new Error(
+        `Block has prop "${propName} that is of incorrect type (${typeof propValue}).`,
+      );
+    }
+  }
+
+  if (block.content !== undefined) {
+    throw new Error(
+      "Block has content but it's schema declares it should be undefined.",
+    );
+  }
+
+  if (!Array.isArray(block.children)) {
+    throw new Error("Block is missing children array.");
+  }
+
+  for (const child of block.children) {
+    validateBlock(child, editor);
+  }
+};
+const createExportTestBlock = createBlockSpec(
+  {
+    type: "exportTestBlock",
+    propSchema: defaultProps,
+    content: "none",
+  },
+  {
+    render: (block, editor) => {
+      validateBlock(block, editor);
+
+      return {
+        dom: document.createElement("div"),
+      };
+    },
+    toExternalHTML: (block, editor) => {
+      validateBlock(block, editor);
+
+      return {
+        dom: document.createElement("div"),
       };
     },
   },
@@ -199,6 +290,7 @@ export const testSchema = BlockNoteSchema.create().extend({
     customParagraph: CustomParagraph,
     simpleCustomParagraph: SimpleCustomParagraph,
     simpleImage: SimpleImage,
+    exportTestBlock: createExportTestBlock(),
   },
   inlineContentSpecs: {
     mention: Mention,

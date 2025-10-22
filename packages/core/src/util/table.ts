@@ -27,11 +27,10 @@ export function mapTableCell<
           type: "tableCell",
           content: ([] as InlineContent<T, S>[]).concat(content.content as any),
           props: {
-            backgroundColor: content.props?.backgroundColor ?? "default",
-            textColor: content.props?.textColor ?? "default",
-            textAlignment: content.props?.textAlignment ?? "left",
-            colspan: content.props?.colspan ?? 1,
-            rowspan: content.props?.rowspan ?? 1,
+            backgroundColor: "default",
+            textColor: "default",
+            textAlignment: "left",
+            ...content.props,
           },
         }
       : {
@@ -41,8 +40,6 @@ export function mapTableCell<
             backgroundColor: "default",
             textColor: "default",
             textAlignment: "left",
-            colspan: 1,
-            rowspan: 1,
           },
         };
 }
