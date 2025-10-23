@@ -74,6 +74,7 @@ import { updateBlockTr } from "../api/blockManipulation/commands/updateBlock/upd
 import { getBlockInfoFromTransaction } from "../api/getBlockInfoFromPos.js";
 import { blockToNode } from "../api/nodeConversions/blockToNode.js";
 import "../style.css";
+import { ExtensionFactory } from "./managers/extensions/types.js";
 
 /**
  * A factory function that returns a BlockNoteExtension
@@ -1026,9 +1027,35 @@ export class BlockNoteEditor<
     ext: { new (...args: any[]): T } & typeof BlockNoteExtension,
     key = ext.key(),
   ): T {
-    return this._extensionManager.extension(ext, key);
+    return this._extensionManager.getExtension(key) as any;
   }
 
+  /**
+   * Add an extension to the editor
+   * @param extension The extension to add
+   * @returns The extension instance
+   */
+  public addExtension(
+    extension: ReturnType<ExtensionFactory> | ExtensionFactory,
+  ) {
+    return this._extensionManager.addExtension(extension);
+  }
+
+  public getExtension<
+    T extends ExtensionFactory | ReturnType<ExtensionFactory> | string,
+  >(
+    extension: T,
+  ):
+    | (T extends ExtensionFactory
+        ? ReturnType<T>
+        : T extends ReturnType<ExtensionFactory>
+          ? T
+          : T extends string
+            ? ReturnType<ExtensionFactory>
+            : never)
+    | undefined {
+    return this._extensionManager.getExtension(extension);
+  }
   /**
    * Mount the editor to a DOM element.
    *
@@ -1047,7 +1074,18 @@ export class BlockNoteEditor<
       return;
     }
 
-    this._tiptapEditor.mount({ mount: element });
+    const extensions = this._extensionManager.getExtensions().values();
+    // TODO can do something similar for input rules
+    // extensions.filter(e => e.instance.inputRules)
+
+    const state = this._tiptapEditor.state.reconfigure({
+      plugins: this._tiptapEditor.state.plugins.concat(
+        extensions.flatMap((e) => e.instance.plugins ?? []).toArray(),
+      ),
+    });
+    this._tiptapEditor.view.updateState(state);
+
+    this._tiptapEditor.mount({ mount: element } as any);
   };
 
   /**
@@ -1596,6 +1634,17 @@ export class BlockNoteEditor<
       callback,
       includeSelectionChangedByRemote,
     );
+  }
+
+  public getBlockClientRect(blockId: string): DOMRect | undefined {
+    const blockElement = this.prosemirrorView.root.querySelector(
+      `[data-node-type="blockContainer"][data-id="${blockId}"]`,
+    );
+    if (!blockElement) {
+      return;
+    }
+
+    return blockElement.getBoundingClientRect();
   }
 
   /**

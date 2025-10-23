@@ -62,6 +62,7 @@
     "@emoji-mart/data": "^1.2.1",
     "@floating-ui/react": "^0.27.16",
     "@floating-ui/utils": "0.2.10",
+    "@tanstack/react-store": "0.7.7",
     "@tiptap/core": "^3.7.2",
     "@tiptap/pm": "^3.7.2",
     "@tiptap/react": "^3.7.2",
