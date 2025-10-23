@@ -19,15 +19,15 @@
     "lint": "eslint examples --max-warnings 0"
   },
   "devDependencies": {
-    "@types/react": "^19.1.0",
-    "@types/react-dom": "^19.1.0",
-    "eslint": "^8.10.0",
-    "glob": "^10.3.10",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "eslint": "^8.57.1",
+    "glob": "^10.4.5",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "tinyglobby": "0.2.12",
-    "tsx": "^4.6.2",
-    "typescript": "^5.3.3"
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
   },
   "eslintConfig": {
     "extends": [

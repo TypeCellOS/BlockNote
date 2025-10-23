@@ -81,12 +81,12 @@ export class ODTExporter<
       {
         name: "Inter 18pt",
         fileName: "Inter_18pt-Regular.ttf",
-        data: new Blob([interFont], { type: "font/ttf" }),
+        data: new Blob([interFont as ArrayBuffer], { type: "font/ttf" }),
       },
       {
         name: "Geist Mono",
         fileName: "GeistMono-Regular.ttf",
-        data: new Blob([geistMonoFont], { type: "font/ttf" }),
+        data: new Blob([geistMonoFont as ArrayBuffer], { type: "font/ttf" }),
       },
     ];
   }
