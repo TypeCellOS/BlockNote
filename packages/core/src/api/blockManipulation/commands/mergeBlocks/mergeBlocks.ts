@@ -109,7 +109,6 @@ const mergeBlocks = (
   prevBlockInfo: BlockInfo,
   nextBlockInfo: BlockInfo,
 ) => {
-  debugger;
   // Un-nests all children of the next block.
   if (!nextBlockInfo.isBlockContainer) {
     throw new Error(
@@ -165,7 +164,6 @@ export const mergeBlocksCommand =
     state: EditorState;
     dispatch: ((args?: any) => any) | undefined;
   }) => {
-    debugger;
     const $pos = state.doc.resolve(posBetweenBlocks);
     const nextBlockInfo = getBlockInfoFromResolvedPos($pos);
 
