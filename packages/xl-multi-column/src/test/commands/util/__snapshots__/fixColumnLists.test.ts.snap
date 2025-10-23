@@ -1,0 +1,408 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Test fixColumnList > First of two columns empty 1`] = `
+{
+  "content": [
+    {
+      "content": [
+        {
+          "attrs": {
+            "id": null,
+          },
+          "content": [
+            {
+              "attrs": {
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "content": [
+                {
+                  "text": "Paragraph 1",
+                  "type": "text",
+                },
+              ],
+              "type": "paragraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+      ],
+      "type": "blockGroup",
+    },
+  ],
+  "type": "doc",
+}
+`;
+
+exports[`Test fixColumnList > Last of two columns empty 1`] = `
+{
+  "content": [
+    {
+      "content": [
+        {
+          "attrs": {
+            "id": null,
+          },
+          "content": [
+            {
+              "attrs": {
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "content": [
+                {
+                  "text": "Paragraph 1",
+                  "type": "text",
+                },
+              ],
+              "type": "paragraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+      ],
+      "type": "blockGroup",
+    },
+  ],
+  "type": "doc",
+}
+`;
+
+exports[`Test fixColumnList > Two empty columns 1`] = `
+{
+  "content": [
+    {
+      "content": [
+        {
+          "attrs": {
+            "id": null,
+          },
+          "content": [
+            {
+              "attrs": {
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "paragraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+      ],
+      "type": "blockGroup",
+    },
+  ],
+  "type": "doc",
+}
+`;
+
+exports[`Test removeEmptyColumns > First of two columns empty 1`] = `
+{
+  "content": [
+    {
+      "content": [
+        {
+          "attrs": {
+            "id": null,
+          },
+          "content": [
+            {
+              "attrs": {
+                "id": null,
+                "width": 1,
+              },
+              "content": [
+                {
+                  "attrs": {
+                    "id": null,
+                  },
+                  "content": [
+                    {
+                      "attrs": {
+                        "backgroundColor": "default",
+                        "textAlignment": "left",
+                        "textColor": "default",
+                      },
+                      "type": "paragraph",
+                    },
+                  ],
+                  "type": "blockContainer",
+                },
+              ],
+              "type": "column",
+            },
+            {
+              "attrs": {
+                "id": null,
+                "width": 1,
+              },
+              "content": [
+                {
+                  "attrs": {
+                    "id": null,
+                  },
+                  "content": [
+                    {
+                      "attrs": {
+                        "backgroundColor": "default",
+                        "textAlignment": "left",
+                        "textColor": "default",
+                      },
+                      "content": [
+                        {
+                          "text": "Paragraph 1",
+                          "type": "text",
+                        },
+                      ],
+                      "type": "paragraph",
+                    },
+                  ],
+                  "type": "blockContainer",
+                },
+              ],
+              "type": "column",
+            },
+          ],
+          "type": "columnList",
+        },
+      ],
+      "type": "blockGroup",
+    },
+  ],
+  "type": "doc",
+}
+`;
+
+exports[`Test removeEmptyColumns > Last of two columns empty 1`] = `
+{
+  "content": [
+    {
+      "content": [
+        {
+          "attrs": {
+            "id": null,
+          },
+          "content": [
+            {
+              "attrs": {
+                "id": null,
+                "width": 1,
+              },
+              "content": [
+                {
+                  "attrs": {
+                    "id": null,
+                  },
+                  "content": [
+                    {
+                      "attrs": {
+                        "backgroundColor": "default",
+                        "textAlignment": "left",
+                        "textColor": "default",
+                      },
+                      "content": [
+                        {
+                          "text": "Paragraph 1",
+                          "type": "text",
+                        },
+                      ],
+                      "type": "paragraph",
+                    },
+                  ],
+                  "type": "blockContainer",
+                },
+              ],
+              "type": "column",
+            },
+            {
+              "attrs": {
+                "id": null,
+                "width": 1,
+              },
+              "content": [
+                {
+                  "attrs": {
+                    "id": null,
+                  },
+                  "content": [
+                    {
+                      "attrs": {
+                        "backgroundColor": "default",
+                        "textAlignment": "left",
+                        "textColor": "default",
+                      },
+                      "type": "paragraph",
+                    },
+                  ],
+                  "type": "blockContainer",
+                },
+              ],
+              "type": "column",
+            },
+          ],
+          "type": "columnList",
+        },
+      ],
+      "type": "blockGroup",
+    },
+  ],
+  "type": "doc",
+}
+`;
+
+exports[`Test removeEmptyColumns > Start and end columns empty 1`] = `
+{
+  "content": [
+    {
+      "content": [
+        {
+          "attrs": {
+            "id": null,
+          },
+          "content": [
+            {
+              "attrs": {
+                "id": null,
+                "width": 1,
+              },
+              "content": [
+                {
+                  "attrs": {
+                    "id": null,
+                  },
+                  "content": [
+                    {
+                      "attrs": {
+                        "backgroundColor": "default",
+                        "textAlignment": "left",
+                        "textColor": "default",
+                      },
+                      "content": [
+                        {
+                          "text": "Paragraph 1",
+                          "type": "text",
+                        },
+                      ],
+                      "type": "paragraph",
+                    },
+                  ],
+                  "type": "blockContainer",
+                },
+              ],
+              "type": "column",
+            },
+            {
+              "attrs": {
+                "id": null,
+                "width": 1,
+              },
+              "content": [
+                {
+                  "attrs": {
+                    "id": null,
+                  },
+                  "content": [
+                    {
+                      "attrs": {
+                        "backgroundColor": "default",
+                        "textAlignment": "left",
+                        "textColor": "default",
+                      },
+                      "content": [
+                        {
+                          "text": "Paragraph 2",
+                          "type": "text",
+                        },
+                      ],
+                      "type": "paragraph",
+                    },
+                  ],
+                  "type": "blockContainer",
+                },
+              ],
+              "type": "column",
+            },
+          ],
+          "type": "columnList",
+        },
+      ],
+      "type": "blockGroup",
+    },
+  ],
+  "type": "doc",
+}
+`;
+
+exports[`Test removeEmptyColumns > Two empty columns 1`] = `
+{
+  "content": [
+    {
+      "content": [
+        {
+          "attrs": {
+            "id": null,
+          },
+          "content": [
+            {
+              "attrs": {
+                "id": null,
+                "width": 1,
+              },
+              "content": [
+                {
+                  "attrs": {
+                    "id": null,
+                  },
+                  "content": [
+                    {
+                      "attrs": {
+                        "backgroundColor": "default",
+                        "textAlignment": "left",
+                        "textColor": "default",
+                      },
+                      "type": "paragraph",
+                    },
+                  ],
+                  "type": "blockContainer",
+                },
+              ],
+              "type": "column",
+            },
+            {
+              "attrs": {
+                "id": null,
+                "width": 1,
+              },
+              "content": [
+                {
+                  "attrs": {
+                    "id": null,
+                  },
+                  "content": [
+                    {
+                      "attrs": {
+                        "backgroundColor": "default",
+                        "textAlignment": "left",
+                        "textColor": "default",
+                      },
+                      "type": "paragraph",
+                    },
+                  ],
+                  "type": "blockContainer",
+                },
+              ],
+              "type": "column",
+            },
+          ],
+          "type": "columnList",
+        },
+      ],
+      "type": "blockGroup",
+    },
+  ],
+  "type": "doc",
+}
+`;

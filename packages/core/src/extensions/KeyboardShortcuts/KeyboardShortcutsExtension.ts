@@ -11,7 +11,7 @@ import { splitBlockCommand } from "../../api/blockManipulation/commands/splitBlo
 import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { getBlockInfoFromSelection } from "../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { moveFirstBlockInColumn } from "../../api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
+import { fixColumnList } from "../../api/blockManipulation/commands/replaceBlocks/util/fixColumnList.js";
 
 export const KeyboardShortcutsExtension = Extension.create<{
   editor: BlockNoteEditor<any, any, any>;
@@ -97,7 +97,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             return false;
           }),
         () =>
-          commands.command(({ state, dispatch }) => {
+          commands.command(({ state, tr, dispatch }) => {
             // when at the start of a first block in a column
             const blockInfo = getBlockInfoFromSelection(state);
             if (!blockInfo.isBlockContainer) {
@@ -105,12 +105,12 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const selectionAtBlockStart =
-              state.selection.from === blockInfo.blockContent.beforePos + 1;
+              tr.selection.from === blockInfo.blockContent.beforePos + 1;
             if (!selectionAtBlockStart) {
               return false;
             }
 
-            const $pos = state.doc.resolve(blockInfo.bnBlock.beforePos);
+            const $pos = tr.doc.resolve(blockInfo.bnBlock.beforePos);
 
             const prevBlock = $pos.nodeBefore;
             if (prevBlock) {
@@ -123,8 +123,37 @@ export const KeyboardShortcutsExtension = Extension.create<{
               return false;
             }
 
+            const $blockPos = tr.doc.resolve(blockInfo.bnBlock.beforePos);
+            const $columnPos = tr.doc.resolve($blockPos.before());
+            const columnListPos = $columnPos.before();
+
             if (dispatch) {
-              moveFirstBlockInColumn(state.tr, $pos);
+              const fragment = tr.doc.slice(
+                blockInfo.bnBlock.beforePos,
+                blockInfo.bnBlock.afterPos,
+              ).content;
+
+              tr.delete(
+                blockInfo.bnBlock.beforePos,
+                blockInfo.bnBlock.afterPos,
+              );
+
+              if ($columnPos.index() === 0) {
+                // Fix `columnList` and insert the block before it.
+                fixColumnList(tr, columnListPos);
+                tr.insert(columnListPos, fragment);
+                tr.setSelection(
+                  TextSelection.near(tr.doc.resolve(columnListPos)),
+                );
+              } else {
+                // Insert the block at the end of the first column and fix
+                // `columnList`.
+                tr.insert($columnPos.pos - 1, fragment);
+                tr.setSelection(
+                  TextSelection.near(tr.doc.resolve($columnPos.pos - 1)),
+                );
+                fixColumnList(tr, columnListPos);
+              }
             }
 
             return true;
