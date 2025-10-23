@@ -621,6 +621,17 @@ export const KeyboardShortcutsExtension = Extension.create<{
       "Mod-z": () => this.options.editor.undo(),
       "Mod-y": () => this.options.editor.redo(),
       "Shift-Mod-z": () => this.options.editor.redo(),
+      // By default, ProseMirror tries to find a `TextSelection` that spans the 
+      // whole editor. This can cause issues if the first/last block is a table
+      // or node without content. So we use `editor.setSelection` instead
+      "Mod-a": () => {
+        this.options.editor.setSelection(
+          this.options.editor.document[0],
+          this.options.editor.document[this.options.editor.document.length - 1],
+        );
+
+        return true;
+      },
     };
   },
 });
