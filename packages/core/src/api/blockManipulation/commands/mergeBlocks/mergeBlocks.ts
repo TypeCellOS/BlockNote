@@ -51,6 +51,27 @@ export const getPrevBlockInfo = (doc: Node, beforePos: number) => {
 };
 
 /**
+ * Returns the block info from the sibling block after (below) the given block,
+ * or undefined if the given block is the last sibling.
+ */
+export const getNextBlockInfo = (doc: Node, beforePos: number) => {
+  const $pos = doc.resolve(beforePos);
+
+  const indexInParent = $pos.index();
+
+  if (indexInParent === $pos.node().childCount - 1) {
+    return undefined;
+  }
+
+  const nextBlockBeforePos = $pos.posAtIndex(indexInParent + 1);
+
+  const nextBlockInfo = getBlockInfoFromResolvedPos(
+    doc.resolve(nextBlockBeforePos),
+  );
+  return nextBlockInfo;
+};
+
+/**
  * If a block has children like this:
  * A
  * - B
@@ -88,6 +109,7 @@ const mergeBlocks = (
   prevBlockInfo: BlockInfo,
   nextBlockInfo: BlockInfo,
 ) => {
+  debugger;
   // Un-nests all children of the next block.
   if (!nextBlockInfo.isBlockContainer) {
     throw new Error(
@@ -143,6 +165,7 @@ export const mergeBlocksCommand =
     state: EditorState;
     dispatch: ((args?: any) => any) | undefined;
   }) => {
+    debugger;
     const $pos = state.doc.resolve(posBetweenBlocks);
     const nextBlockInfo = getBlockInfoFromResolvedPos($pos);
 

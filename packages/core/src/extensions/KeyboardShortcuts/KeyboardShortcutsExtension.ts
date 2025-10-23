@@ -4,6 +4,7 @@ import { TextSelection } from "prosemirror-state";
 import { ReplaceAroundStep } from "prosemirror-transform";
 import {
   getBottomNestedBlockInfo,
+  getNextBlockInfo,
   getParentBlockInfo,
   getPrevBlockInfo,
   mergeBlocksCommand,
@@ -296,20 +297,13 @@ export const KeyboardShortcutsExtension = Extension.create<{
               } else if (
                 prevBlockInfo.blockContent.node.type.spec.content === ""
               ) {
-                const nonEditableBlockContentStartPos =
-                  prevBlockInfo.blockContent.afterPos -
-                  prevBlockInfo.blockContent.node.nodeSize;
-
                 chainedCommands = chainedCommands.setNodeSelection(
-                  nonEditableBlockContentStartPos,
+                  prevBlockInfo.blockContent.beforePos,
                 );
               } else {
-                const blockContentStartPos =
-                  prevBlockInfo.blockContent.afterPos -
-                  prevBlockInfo.blockContent.node.nodeSize;
-
-                chainedCommands =
-                  chainedCommands.setTextSelection(blockContentStartPos);
+                chainedCommands = chainedCommands.setTextSelection(
+                  prevBlockInfo.blockContent.afterPos - 1,
+                );
               }
 
               return chainedCommands
@@ -383,7 +377,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
       ]);
 
     const handleDelete = () =>
-      this.editor.commands.first(({ commands }) => [
+      this.editor.commands.first(({ chain, commands }) => [
         // Deletes the selection if it's not empty.
         () => commands.deleteSelection(),
         // Merges block with the next one (at the same nesting level or lower),
@@ -391,42 +385,142 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // end of the block.
         () =>
           commands.command(({ state }) => {
-            // TODO: Change this to not rely on offsets & schema assumptions
             const blockInfo = getBlockInfoFromSelection(state);
             if (!blockInfo.isBlockContainer) {
               return false;
             }
-            const {
-              bnBlock: blockContainer,
-              blockContent,
-              childContainer,
-            } = blockInfo;
+            const { bnBlock: blockContainer, blockContent } = blockInfo;
 
-            const { depth } = state.doc.resolve(blockContainer.beforePos);
-            const blockAtDocEnd =
-              blockContainer.afterPos === state.doc.nodeSize - 3;
             const selectionAtBlockEnd =
               state.selection.from === blockContent.afterPos - 1;
             const selectionEmpty = state.selection.empty;
-            const hasChildBlocks = childContainer !== undefined;
 
-            if (
-              !blockAtDocEnd &&
-              selectionAtBlockEnd &&
-              selectionEmpty &&
-              !hasChildBlocks
-            ) {
-              let oldDepth = depth;
-              let newPos = blockContainer.afterPos + 1;
-              let newDepth = state.doc.resolve(newPos).depth;
+            const posBetweenBlocks = blockContainer.afterPos;
 
-              while (newDepth < oldDepth) {
-                oldDepth = newDepth;
-                newPos += 2;
-                newDepth = state.doc.resolve(newPos).depth;
+            if (selectionAtBlockEnd && selectionEmpty) {
+              return chain()
+                .command(mergeBlocksCommand(posBetweenBlocks))
+                .scrollIntoView()
+                .run();
+            }
+
+            return false;
+          }),
+        // Deletes the current block if it's an empty block with inline content,
+        // and moves the selection to the next block.
+        () =>
+          commands.command(({ state }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+
+            const blockEmpty =
+              blockInfo.blockContent.node.childCount === 0 &&
+              blockInfo.blockContent.node.type.spec.content === "inline*";
+
+            if (blockEmpty) {
+              const nextBlockInfo = getNextBlockInfo(
+                state.doc,
+                blockInfo.bnBlock.beforePos,
+              );
+              if (!nextBlockInfo || !nextBlockInfo.isBlockContainer) {
+                return false;
               }
 
-              return commands.command(mergeBlocksCommand(newPos - 1));
+              let chainedCommands = chain();
+
+              if (
+                nextBlockInfo.blockContent.node.type.spec.content ===
+                "tableRow+"
+              ) {
+                const tableBlockStartPos = blockInfo.bnBlock.afterPos + 1;
+                const tableBlockContentStartPos = tableBlockStartPos + 1;
+                const firstRowStartPos = tableBlockContentStartPos + 1;
+                const firstCellStartPos = firstRowStartPos + 1;
+                const firstCellParagraphStartPos = firstCellStartPos + 1;
+
+                chainedCommands = chainedCommands.setTextSelection(
+                  firstCellParagraphStartPos,
+                );
+              } else if (
+                nextBlockInfo.blockContent.node.type.spec.content === ""
+              ) {
+                chainedCommands = chainedCommands.setNodeSelection(
+                  nextBlockInfo.blockContent.beforePos,
+                );
+              } else {
+                chainedCommands = chainedCommands.setTextSelection(
+                  nextBlockInfo.blockContent.beforePos + 1,
+                );
+              }
+
+              return chainedCommands
+                .deleteRange({
+                  from: blockInfo.bnBlock.beforePos,
+                  to: blockInfo.bnBlock.afterPos,
+                })
+                .scrollIntoView()
+                .run();
+            }
+
+            return false;
+          }),
+        // Deletes next block if it contains no content and isn't a table,
+        // when the selection is empty and at the end of the block. Moves the
+        // current block into the deleted block's place.
+        () =>
+          commands.command(({ state }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+
+            if (!blockInfo.isBlockContainer) {
+              // TODO
+              throw new Error(`todo`);
+            }
+
+            const selectionAtBlockEnd =
+              state.selection.from === blockInfo.blockContent.afterPos - 1;
+            const selectionEmpty = state.selection.empty;
+
+            const nextBlockInfo = getNextBlockInfo(
+              state.doc,
+              blockInfo.bnBlock.beforePos,
+            );
+            if (!nextBlockInfo) {
+              return false;
+            }
+            if (!nextBlockInfo.isBlockContainer) {
+              // TODO
+              throw new Error(`todo`);
+            }
+
+            if (nextBlockInfo && selectionAtBlockEnd && selectionEmpty) {
+              const nextBlockNotTableAndNoContent =
+                nextBlockInfo.blockContent.node.type.spec.content === "" ||
+                (nextBlockInfo.blockContent.node.type.spec.content ===
+                  "inline*" &&
+                  nextBlockInfo.blockContent.node.childCount === 0);
+
+              if (nextBlockNotTableAndNoContent) {
+                if (nextBlockInfo.bnBlock.node.childCount === 2) {
+                  const childBlocks =
+                    nextBlockInfo.bnBlock.node.lastChild!.content;
+                  return chain()
+                    .deleteRange({
+                      from: nextBlockInfo.bnBlock.beforePos,
+                      to: nextBlockInfo.bnBlock.afterPos,
+                    })
+                    .insertContentAt(blockInfo.bnBlock.afterPos, childBlocks)
+                    .run();
+                }
+
+                return chain()
+                  .deleteRange({
+                    from: nextBlockInfo.bnBlock.beforePos,
+                    to: nextBlockInfo.bnBlock.afterPos,
+                  })
+                  .run();
+              }
             }
 
             return false;
