@@ -12,7 +12,7 @@ import {
   FormattingToolbar,
   FormattingToolbarController,
   SuggestionMenuController,
-  blockTypeSelectItems,
+  getDefaultBlockTypeSelectItems,
   getDefaultReactSlashMenuItems,
   useCreateBlockNote,
 } from "@blocknote/react";
@@ -93,7 +93,7 @@ export default function App() {
             // Sets the items in the Block Type Select.
             blockTypeSelectItems={[
               // Gets the default Block Type Select items.
-              ...blockTypeSelectItems(editor.dictionary),
+              ...getDefaultBlockTypeSelectItems(editor),
               // Adds an item for the Alert block.
               {
                 name: "Alert",

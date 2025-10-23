@@ -4,7 +4,7 @@ import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
   FormattingToolbarController,
-  blockTypeSelectItems,
+  getDefaultBlockTypeSelectItems,
   useCreateBlockNote,
   BlockTypeSelectItem,
   FormattingToolbar,
@@ -60,7 +60,7 @@ export default function App() {
             // Sets the items in the Block Type Select.
             blockTypeSelectItems={[
               // Gets the default Block Type Select items.
-              ...blockTypeSelectItems(editor.dictionary),
+              ...getDefaultBlockTypeSelectItems(editor),
               // Adds an item for the Alert block.
               {
                 name: "Alert",
