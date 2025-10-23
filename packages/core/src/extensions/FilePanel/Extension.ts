@@ -18,14 +18,12 @@ export const FilePanelExtension = createExtension((editor) => {
     });
   }
 
-  // reset the menu when the document changes (non-remote)
-  editor.onChange((_e, { getChanges }) => {
-    if (getChanges().some((change) => change.source.type === "yjs-remote")) {
-      return;
-    }
-    // If the changes are not from remote, we should close the menu
-    closeMenu();
-  });
+  // reset the menu when the document changes
+  editor.onChange(
+    closeMenu,
+    // don't trigger the callback if the changes are caused by a remote user
+    false,
+  );
 
   // reset the menu when the selection changes
   editor.onSelectionChange(closeMenu);

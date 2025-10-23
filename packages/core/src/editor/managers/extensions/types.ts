@@ -120,9 +120,11 @@ type InputRule = {
   }) => undefined | PartialBlockNoDefaults<any, any, any>;
 };
 
-export type ExtensionFactory<Key extends string = string, State = any> = (
-  editor: BlockNoteEditor,
-) => Extension<Key, State>;
+export type ExtensionFactory<
+  Key extends string = string,
+  State = any,
+  Options = any,
+> = (editor: BlockNoteEditor, options: Options) => Extension<Key, State>;
 
 /**
  * Helper function to create a BlockNote extension.

@@ -1616,8 +1616,13 @@ export class BlockNoteEditor<
         getChanges(): BlocksChanged<BSchema, ISchema, SSchema>;
       },
     ) => void,
+    /**
+     * If true, the callback will be triggered when the changes are caused by a remote user
+     * @default true
+     */
+    includeUpdatesFromRemote?: boolean,
   ) {
-    return this._eventManager.onChange(callback);
+    return this._eventManager.onChange(callback, includeUpdatesFromRemote);
   }
 
   /**
