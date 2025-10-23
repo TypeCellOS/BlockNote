@@ -72,6 +72,8 @@ export function getDefaultBlockTypeSelectItems<
     ).forEach((level) => {
       items.push({
         name: editor.dictionary.slash_menu[
+          // TODO: This should be cleaned up, heading level 1 has no "_1"
+          // suffix which makes this more complicated than necessary.
           `heading${level === 1 ? "" : "_" + level}` as keyof typeof editor.dictionary.slash_menu
         ].title,
         type: "heading",
