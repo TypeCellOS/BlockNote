@@ -15,6 +15,7 @@
     },
     "implementation": {
       "node": null,
+      "parse": [Function],
       "render": [Function],
       "toExternalHTML": [Function],
     },
@@ -27,6 +28,7 @@
     },
     "implementation": {
       "node": null,
+      "parse": [Function],
       "render": [Function],
       "toExternalHTML": undefined,
     },

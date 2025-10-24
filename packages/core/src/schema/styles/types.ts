@@ -28,6 +28,7 @@ export type StyleImplementation<T extends StyleConfig> = {
     dom: HTMLElement;
     contentDOM?: HTMLElement;
   };
+  runsBefore?: string[];
 };
 
 // Container for both the config and implementation of a Style,

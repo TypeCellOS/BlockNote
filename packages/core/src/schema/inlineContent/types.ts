@@ -43,6 +43,7 @@ export type InlineContentImplementation<T extends InlineContentConfig> =
           ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
           destroy?: () => void;
         };
+        runsBefore?: string[];
       };
 
 export type InlineContentSchemaWithInlineContent<

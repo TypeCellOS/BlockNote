@@ -96,6 +96,7 @@ const Mention = createInlineContentSpec(
       dom.appendChild(document.createTextNode("@" + ic.props.user));
       dom.className = "mention-internal";
       dom.setAttribute("data-user", ic.props.user);
+      dom.style.backgroundColor = "red";
 
       return {
         dom,
@@ -110,6 +111,7 @@ const Mention = createInlineContentSpec(
       // Add attributes needed for round-trip compatibility
       dom.setAttribute("data-inline-content-type", "mention");
       dom.setAttribute("data-user", ic.props.user);
+      dom.style.backgroundColor = "red";
 
       return {
         dom,
