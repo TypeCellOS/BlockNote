@@ -102,6 +102,7 @@ export const createCodeBlockSpec = createBlockSpec(
       const code = el.firstElementChild!;
 
       return parser.parse(code, {
+        preserveWhitespace: "full",
         topNode: schema.nodes["codeBlock"].create(),
       }).content;
     },

@@ -816,6 +816,15 @@ With Hard Break</p>
   },
   {
     testCase: {
+      name: "codeBlocksMultiLine",
+      content: `<pre><code>console.log("First Line")
+console.log("Second Line")
+console.log("Third Line")</code></pre>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
       name: "basicBlockquote",
       content: `<blockquote>This is a blockquote</blockquote>
 <p>This is not a blockquote</p>`,

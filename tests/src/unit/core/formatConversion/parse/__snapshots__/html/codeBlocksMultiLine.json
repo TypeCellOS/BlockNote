@@ -1,0 +1,19 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "console.log("First Line")
+console.log("Second Line")
+console.log("Third Line")",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "language": "text",
+    },
+    "type": "codeBlock",
+  },
+]
