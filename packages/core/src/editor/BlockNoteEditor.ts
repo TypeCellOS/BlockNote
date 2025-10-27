@@ -2,13 +2,13 @@ import {
   AnyExtension,
   createDocument,
   EditorOptions,
-  Extension,
+  Extension as TiptapExtension,
   FocusPosition,
   getSchema,
   InputRule,
-  Mark,
+  Mark as TiptapMark,
   Editor as TiptapEditor,
-  Node as TipTapNode,
+  Node as TiptapNode,
 } from "@tiptap/core";
 import { type Command, type Plugin, type Transaction } from "@tiptap/pm/state";
 import { dropCursor } from "prosemirror-dropcursor";
@@ -53,7 +53,6 @@ import type {
 import { mergeCSSClasses } from "../util/browser.js";
 import { EventEmitter } from "../util/EventEmitter.js";
 import type { NoInfer } from "../util/typescript.js";
-import { BlockNoteExtension } from "./BlockNoteExtension.js";
 import { getBlockNoteExtensions } from "./BlockNoteExtensions.js";
 import type { TextCursorPosition } from "./cursorPositionTypes.js";
 import {
@@ -74,21 +73,12 @@ import { updateBlockTr } from "../api/blockManipulation/commands/updateBlock/upd
 import { getBlockInfoFromTransaction } from "../api/getBlockInfoFromPos.js";
 import { blockToNode } from "../api/nodeConversions/blockToNode.js";
 import "../style.css";
-import { ExtensionFactory } from "./managers/extensions/types.js";
-
-/**
- * A factory function that returns a BlockNoteExtension
- * This is useful so we can create extensions that require an editor instance
- * in the constructor
- */
-export type BlockNoteExtensionFactory = (
-  editor: BlockNoteEditor<any, any, any>,
-) => BlockNoteExtension;
+import { Extension, ExtensionFactory } from "./BlockNoteExtension.js";
 
 /**
  * We support Tiptap extensions and BlockNoteExtension based extensions
  */
-export type SupportedExtension = AnyExtension | BlockNoteExtension;
+export type SupportedExtension = AnyExtension | Extension;
 
 export type BlockCache<
   BSchema extends BlockSchema = any,
@@ -96,11 +86,11 @@ export type BlockCache<
   SSchema extends StyleSchema = any,
 > = WeakMap<Node, Block<BSchema, ISchema, SSchema>>;
 
-export type BlockNoteEditorOptions<
+export interface BlockNoteEditorOptions<
   BSchema extends BlockSchema,
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema,
-> = {
+> {
   /**
    * Whether changes to blocks (like indentation, creating lists, changing headings) should be animated or not. Defaults to `true`.
    *
@@ -394,10 +384,10 @@ export type BlockNoteEditorOptions<
    *
    * See [Extensions](/docs/features/extensions) for more info.
    *
-   * @remarks `BlockNoteExtension[]`
+   * @remarks `Extension[]`
    */
-  extensions?: Array<BlockNoteExtension | BlockNoteExtensionFactory>;
-};
+  extensions?: Array<Extension | ExtensionFactory>;
+}
 
 const blockNoteTipTapOptions = {
   enableInputRules: true,
@@ -698,18 +688,18 @@ export class BlockNoteEditor<
         return;
       }
 
-      this.extensions[key] = new (class extends BlockNoteExtension {
-        public static key() {
-          return key;
-        }
-        constructor() {
-          super();
-          this.addProsemirrorPlugin(instance.plugin);
-        }
-        public get priority() {
-          return instance.priority;
-        }
-      })();
+      // this.extensions[key] = new (class extends BlockNoteExtension {
+      //   public static key() {
+      //     return key;
+      //   }
+      //   constructor() {
+      //     super();
+      //     this.addProsemirrorPlugin(instance.plugin);
+      //   }
+      //   public get priority() {
+      //     return instance.priority;
+      //   }
+      // })();
     });
 
     if (newOptions.uploadFile) {
@@ -752,94 +742,94 @@ export class BlockNoteEditor<
       ...Object.entries({ ...this.extensions, ...blockExtensions }).map(
         ([key, ext]) => {
           if (
-            ext instanceof Extension ||
-            ext instanceof TipTapNode ||
-            ext instanceof Mark
+            ext instanceof TiptapExtension ||
+            ext instanceof TiptapNode ||
+            ext instanceof TiptapMark
           ) {
             // tiptap extension
             return ext;
           }
 
-          if (ext instanceof BlockNoteExtension) {
-            if (
-              !ext.plugins.length &&
-              !ext.keyboardShortcuts &&
-              !ext.inputRules &&
-              !ext.tiptapExtensions
-            ) {
-              return undefined;
-            }
-            // "blocknote" extensions (prosemirror plugins)
-            return Extension.create({
-              name: key,
-              priority: ext.priority,
-              addProseMirrorPlugins: () => ext.plugins,
-              addExtensions: () => ext.tiptapExtensions || [],
-              // TODO maybe collect all input rules from all extensions into one plugin
-              // TODO consider using the prosemirror-inputrules package instead
-              addInputRules: ext.inputRules
-                ? () =>
-                    ext.inputRules!.map(
-                      (inputRule) =>
-                        new InputRule({
-                          find: inputRule.find,
-                          handler: ({ range, match, state }) => {
-                            const replaceWith = inputRule.replace({
-                              match,
-                              range,
-                              editor: this,
-                            });
-                            if (replaceWith) {
-                              const cursorPosition =
-                                this.getTextCursorPosition();
+          // if (ext instanceof BlockNoteExtension) {
+          //   if (
+          //     !ext.plugins.length &&
+          //     !ext.keyboardShortcuts &&
+          //     !ext.inputRules &&
+          //     !ext.tiptapExtensions
+          //   ) {
+          //     return undefined;
+          //   }
+          //   // "blocknote" extensions (prosemirror plugins)
+          //   return Extension.create({
+          //     name: key,
+          //     priority: ext.priority,
+          //     addProseMirrorPlugins: () => ext.plugins,
+          //     addExtensions: () => ext.tiptapExtensions || [],
+          //     // TODO maybe collect all input rules from all extensions into one plugin
+          //     // TODO consider using the prosemirror-inputrules package instead
+          //     addInputRules: ext.inputRules
+          //       ? () =>
+          //           ext.inputRules!.map(
+          //             (inputRule) =>
+          //               new InputRule({
+          //                 find: inputRule.find,
+          //                 handler: ({ range, match, state }) => {
+          //                   const replaceWith = inputRule.replace({
+          //                     match,
+          //                     range,
+          //                     editor: this,
+          //                   });
+          //                   if (replaceWith) {
+          //                     const cursorPosition =
+          //                       this.getTextCursorPosition();
 
-                              if (
-                                this.schema.blockSchema[
-                                  cursorPosition.block.type
-                                ].content !== "inline"
-                              ) {
-                                return undefined;
-                              }
+          //                     if (
+          //                       this.schema.blockSchema[
+          //                         cursorPosition.block.type
+          //                       ].content !== "inline"
+          //                     ) {
+          //                       return undefined;
+          //                     }
 
-                              const blockInfo = getBlockInfoFromTransaction(
-                                state.tr,
-                              );
-                              const tr = state.tr.deleteRange(
-                                range.from,
-                                range.to,
-                              );
+          //                     const blockInfo = getBlockInfoFromTransaction(
+          //                       state.tr,
+          //                     );
+          //                     const tr = state.tr.deleteRange(
+          //                       range.from,
+          //                       range.to,
+          //                     );
 
-                              updateBlockTr(
-                                tr,
-                                blockInfo.bnBlock.beforePos,
-                                replaceWith,
-                              );
-                              return undefined;
-                            }
-                            return null;
-                          },
-                        }),
-                    )
-                : undefined,
-              addKeyboardShortcuts: ext.keyboardShortcuts
-                ? () => {
-                    return Object.fromEntries(
-                      Object.entries(ext.keyboardShortcuts!).map(
-                        ([key, value]) => [
-                          key,
-                          () => value({ editor: this as any }),
-                        ],
-                      ),
-                    );
-                  }
-                : undefined,
-            });
-          }
+          //                     updateBlockTr(
+          //                       tr,
+          //                       blockInfo.bnBlock.beforePos,
+          //                       replaceWith,
+          //                     );
+          //                     return undefined;
+          //                   }
+          //                   return null;
+          //                 },
+          //               }),
+          //           )
+          //       : undefined,
+          //     addKeyboardShortcuts: ext.keyboardShortcuts
+          //       ? () => {
+          //           return Object.fromEntries(
+          //             Object.entries(ext.keyboardShortcuts!).map(
+          //               ([key, value]) => [
+          //                 key,
+          //                 () => value({ editor: this as any }),
+          //               ],
+          //             ),
+          //           );
+          //         }
+          //       : undefined,
+          //   });
+          // }
 
           return undefined;
         },
       ),
-    ].filter((ext): ext is Extension => ext !== undefined);
+    ].filter((ext): ext is TiptapExtension => ext !== undefined);
     const tiptapOptions: EditorOptions = {
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
@@ -1012,22 +1002,6 @@ export class BlockNoteEditor<
     ) => T,
   ): T {
     return this._stateManager.transact(callback);
-  }
-
-  // TO DISCUSS
-  /**
-   * Shorthand to get a typed extension from the editor, by
-   * just passing in the extension class.
-   *
-   * @param ext - The extension class to get
-   * @param key - optional, the key of the extension in the extensions object (defaults to the extension name)
-   * @returns The extension instance
-   */
-  public extension<T extends BlockNoteExtension>(
-    ext: { new (...args: any[]): T } & typeof BlockNoteExtension,
-    key = ext.key(),
-  ): T {
-    return this._extensionManager.getExtension(key) as any;
   }
 
   /**
