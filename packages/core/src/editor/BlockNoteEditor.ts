@@ -1107,6 +1107,13 @@ export class BlockNoteEditor<
     this.prosemirrorView.focus();
   }
 
+  public blur() {
+    if (this.headless) {
+      return;
+    }
+    this.prosemirrorView.dom.blur();
+  }
+
   public onUploadStart(callback: (blockId?: string) => void) {
     this.onUploadStartCallbacks.push(callback);
 
