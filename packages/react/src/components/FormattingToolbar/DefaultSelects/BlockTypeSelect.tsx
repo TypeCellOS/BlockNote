@@ -36,106 +36,94 @@ export type BlockTypeSelectItem = {
   icon: IconType;
 };
 
-const headingLevelIcons: Record<any, IconType> = {
-  1: RiH1,
-  2: RiH2,
-  3: RiH3,
-  4: RiH4,
-  5: RiH5,
-  6: RiH6,
-};
-
-export function getDefaultBlockTypeSelectItems<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
->(editor: BlockNoteEditor<BSchema, I, S>) {
-  const items: BlockTypeSelectItem[] = [];
-
-  if (editorHasBlockWithType(editor, "paragraph")) {
-    items.push({
-      name: editor.dictionary.slash_menu.paragraph.title,
-      type: "paragraph",
-      icon: RiText,
-    });
-  }
-
-  if (editorHasBlockWithType(editor, "heading", { level: "number" })) {
-    (
-      editor.schema.blockSchema.heading.propSchema.level.values || [1, 2, 3]
-    ).forEach((level) => {
-      items.push({
-        name: editor.dictionary.slash_menu[
-          // TODO: This should be cleaned up, heading level 1 has no "_1"
-          // suffix which makes this more complicated than necessary.
-          `heading${level === 1 ? "" : "_" + level}` as keyof typeof editor.dictionary.slash_menu
-        ].title,
-        type: "heading",
-        props: { level, isToggleable: false },
-        icon: headingLevelIcons[level],
-      });
-    });
-  }
-
-  if (
-    editorHasBlockWithType(editor, "heading", {
-      level: "number",
-      isToggleable: "boolean",
-    })
-  ) {
-    (editor.schema.blockSchema.heading.propSchema.level.values || [1, 2, 3])
-      .filter((level) => level <= 3)
-      .forEach((level) => {
-        items.push({
-          name: editor.dictionary.slash_menu[
-            `toggle_heading${level === 1 ? "" : "_" + level}` as keyof typeof editor.dictionary.slash_menu
-          ].title,
-          type: "heading",
-          props: { level, isToggleable: true },
-          icon: headingLevelIcons[level],
-        });
-      });
-  }
-
-  if (editorHasBlockWithType(editor, "quote")) {
-    items.push({
-      name: editor.dictionary.slash_menu.quote.title,
-      type: "quote",
-      icon: RiQuoteText,
-    });
-  }
-
-  if (editorHasBlockWithType(editor, "toggleListItem")) {
-    items.push({
-      name: editor.dictionary.slash_menu.toggle_list.title,
-      type: "toggleListItem",
-      icon: RiPlayList2Fill,
-    });
-  }
-  if (editorHasBlockWithType(editor, "bulletListItem")) {
-    items.push({
-      name: editor.dictionary.slash_menu.bullet_list.title,
-      type: "bulletListItem",
-      icon: RiListUnordered,
-    });
-  }
-  if (editorHasBlockWithType(editor, "numberedListItem")) {
-    items.push({
-      name: editor.dictionary.slash_menu.numbered_list.title,
-      type: "numberedListItem",
-      icon: RiListOrdered,
-    });
-  }
-  if (editorHasBlockWithType(editor, "checkListItem")) {
-    items.push({
-      name: editor.dictionary.slash_menu.check_list.title,
-      type: "checkListItem",
-      icon: RiListCheck3,
-    });
-  }
-
-  return items;
-}
+export const getDefaultBlockTypeSelectItems = (
+  editor: BlockNoteEditor<any, any, any>,
+): BlockTypeSelectItem[] => [
+  {
+    name: editor.dictionary.slash_menu.paragraph.title,
+    type: "paragraph",
+    icon: RiText,
+  },
+  {
+    name: editor.dictionary.slash_menu.heading.title,
+    type: "heading",
+    props: { level: 1, isToggleable: false },
+    icon: RiH1,
+  },
+  {
+    name: editor.dictionary.slash_menu.heading_2.title,
+    type: "heading",
+    props: { level: 2, isToggleable: false },
+    icon: RiH2,
+  },
+  {
+    name: editor.dictionary.slash_menu.heading_3.title,
+    type: "heading",
+    props: { level: 3, isToggleable: false },
+    icon: RiH3,
+  },
+  {
+    name: editor.dictionary.slash_menu.heading_4.title,
+    type: "heading",
+    props: { level: 4, isToggleable: false },
+    icon: RiH4,
+  },
+  {
+    name: editor.dictionary.slash_menu.heading_5.title,
+    type: "heading",
+    props: { level: 5, isToggleable: false },
+    icon: RiH5,
+  },
+  {
+    name: editor.dictionary.slash_menu.heading_6.title,
+    type: "heading",
+    props: { level: 6, isToggleable: false },
+    icon: RiH6,
+  },
+  {
+    name: editor.dictionary.slash_menu.toggle_heading.title,
+    type: "heading",
+    props: { level: 1, isToggleable: true },
+    icon: RiH1,
+  },
+  {
+    name: editor.dictionary.slash_menu.toggle_heading_2.title,
+    type: "heading",
+    props: { level: 2, isToggleable: true },
+    icon: RiH2,
+  },
+  {
+    name: editor.dictionary.slash_menu.toggle_heading_3.title,
+    type: "heading",
+    props: { level: 3, isToggleable: true },
+    icon: RiH3,
+  },
+  {
+    name: editor.dictionary.slash_menu.quote.title,
+    type: "quote",
+    icon: RiQuoteText,
+  },
+  {
+    name: editor.dictionary.slash_menu.toggle_list.title,
+    type: "toggleListItem",
+    icon: RiPlayList2Fill,
+  },
+  {
+    name: editor.dictionary.slash_menu.bullet_list.title,
+    type: "bulletListItem",
+    icon: RiListUnordered,
+  },
+  {
+    name: editor.dictionary.slash_menu.numbered_list.title,
+    type: "numberedListItem",
+    icon: RiListOrdered,
+  },
+  {
+    name: editor.dictionary.slash_menu.check_list.title,
+    type: "checkListItem",
+    icon: RiListCheck3,
+  },
+];
 
 export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
   const Components = useComponentsContext()!;
