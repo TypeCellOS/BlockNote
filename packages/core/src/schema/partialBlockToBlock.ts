@@ -218,7 +218,7 @@ export function partialBlockToBlock<
 ): Block<BSchema, I, S> {
   const id = partialBlock.id || UniqueID.options.generateID();
 
-  // TODO
+  // Note: we might want to make "type" required for partial blocks and remove this default
   const type: string = partialBlock.type || "paragraph";
 
   const props = partialPropsToProps(

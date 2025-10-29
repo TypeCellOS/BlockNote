@@ -110,6 +110,7 @@ function linkToNodes(
  * prosemirror text nodes with the appropriate marks
  */
 function styledTextArrayToNodes<S extends StyleSchema>(
+  // this is lenient to "partial" inline content. FIXME: let's simplify and remove support for `string` here
   content: string | StyledText<S>[],
   schema: Schema,
   styleSchema: S,
@@ -144,6 +145,7 @@ export function inlineContentToNodes<
   I extends InlineContentSchema,
   S extends StyleSchema,
 >(
+  // this is lenient to "partial" inline content. FIXME: let's simplify and remove support for `string[]` here
   blockContent: string[] | InlineContent<I, S>[],
   schema: Schema,
   blockType?: string,
@@ -278,21 +280,15 @@ function blockOrInlineContentToContentNode(
   schema: Schema,
   styleSchema: StyleSchema,
 ) {
+  const type = block.type;
   let contentNode: Node;
-  let type = block.type;
-
-  // TODO: needed? came from previous code
-  if (type === undefined) {
-    // TODO: remove
-    type = "paragraph";
-  }
 
   if (!schema.nodes[type]) {
     throw new Error(`node type ${type} not found in schema`);
   }
 
   if (!block.content) {
-    contentNode = schema.nodes[type].createChecked(block.props as any);
+    contentNode = schema.nodes[type].createChecked(block.props);
   } else if (typeof block.content === "string") {
     const nodes = inlineContentToNodes(
       [block.content],
@@ -300,7 +296,7 @@ function blockOrInlineContentToContentNode(
       type,
       styleSchema,
     );
-    contentNode = schema.nodes[type].createChecked(block.props as any, nodes);
+    contentNode = schema.nodes[type].createChecked(block.props, nodes);
   } else if (Array.isArray(block.content)) {
     const nodes = inlineContentToNodes(
       block.content,
@@ -308,10 +304,10 @@ function blockOrInlineContentToContentNode(
       type,
       styleSchema,
     );
-    contentNode = schema.nodes[type].createChecked(block.props as any, nodes);
+    contentNode = schema.nodes[type].createChecked(block.props, nodes);
   } else if (block.content.type === "tableContent") {
     const nodes = tableContentToNodes(block.content, schema, styleSchema);
-    contentNode = schema.nodes[type].createChecked(block.props as any, nodes);
+    contentNode = schema.nodes[type].createChecked(block.props, nodes);
   } else {
     throw new UnreachableCaseError(block.content.type);
   }
