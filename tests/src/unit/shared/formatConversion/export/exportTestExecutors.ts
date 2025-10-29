@@ -3,8 +3,8 @@ import {
   BlockSchema,
   blockToNode,
   InlineContentSchema,
-  partialBlocksToFullBlocks,
-  partialBlockToFullBlock,
+  partialBlocksToBlocks,
+  partialBlockToBlock,
   StyleSchema,
 } from "@blocknote/core";
 import { prettify } from "htmlfy";
@@ -25,7 +25,7 @@ export const testExportBlockNoteHTML = async <
   await expect(
     prettify(
       await editor.blocksToFullHTML(
-        partialBlocksToFullBlocks(editor.schema, testCase.content),
+        partialBlocksToBlocks(editor.schema, testCase.content),
       ),
       {
         tag_wrap: true,
@@ -47,7 +47,7 @@ export const testExportHTML = async <
   await expect(
     prettify(
       await editor.blocksToHTMLLossy(
-        partialBlocksToFullBlocks(editor.schema, testCase.content),
+        partialBlocksToBlocks(editor.schema, testCase.content),
       ),
       {
         tag_wrap: true,
@@ -68,7 +68,7 @@ export const testExportMarkdown = async <
 
   await expect(
     await editor.blocksToMarkdownLossy(
-      partialBlocksToFullBlocks(editor.schema, testCase.content),
+      partialBlocksToBlocks(editor.schema, testCase.content),
     ),
   ).toMatchFileSnapshot(`./__snapshots__/markdown/${testCase.name}.md`);
 };
@@ -86,7 +86,7 @@ export const testExportNodes = async <
   await expect(
     testCase.content.map((block) =>
       blockToNode(
-        partialBlockToFullBlock(editor.schema, block),
+        partialBlockToBlock(editor.schema, block),
         editor.pmSchema,
         editor.schema.styleSchema,
       ),

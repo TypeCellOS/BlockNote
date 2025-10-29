@@ -7,7 +7,7 @@ import {
   defaultBlockSpecs,
   defaultInlineContentSpecs,
   defaultStyleSpecs,
-  partialBlocksToFullBlocks,
+  partialBlocksToBlocks,
 } from "@blocknote/core";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { Text } from "@react-pdf/renderer";
@@ -236,7 +236,7 @@ describe("exporter", () => {
     });
     const exporter = new PDFExporter(schema, pdfDefaultSchemaMappings);
     const transformed = await exporter.toReactPDFDocument(
-      partialBlocksToFullBlocks(schema, [
+      partialBlocksToBlocks(schema, [
         {
           type: "columnList",
           children: [

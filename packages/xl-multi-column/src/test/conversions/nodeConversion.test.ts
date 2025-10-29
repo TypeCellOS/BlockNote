@@ -5,7 +5,7 @@ import {
   PartialBlock,
   blockToNode,
   nodeToBlock,
-  partialBlockToFullBlock,
+  partialBlockToBlock,
 } from "@blocknote/core";
 
 import { multiColumnSchemaTestCases } from "./testCases.js";
@@ -14,7 +14,7 @@ function validateConversion(
   block: PartialBlock<any, any, any>,
   editor: BlockNoteEditor<any, any, any>,
 ) {
-  const fullBlock = partialBlockToFullBlock(editor.schema, block);
+  const fullBlock = partialBlockToBlock(editor.schema, block);
   const node = blockToNode(fullBlock, editor.pmSchema);
 
   expect(node).toMatchSnapshot();

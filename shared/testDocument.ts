@@ -2,7 +2,7 @@ import {
   BlockNoteSchema,
   createPageBreakBlockSpec,
   defaultBlockSpecs,
-  partialBlocksToFullBlocks,
+  partialBlocksToBlocks,
 } from "@blocknote/core";
 import * as z from "zod/v4";
 
@@ -10,7 +10,7 @@ import * as z from "zod/v4";
 const y = z; // needed to fix build
 
 // TODO: Update tests that use this to the new format and remove
-export const testDocument = partialBlocksToFullBlocks(
+export const testDocument = partialBlocksToBlocks(
   BlockNoteSchema.create({
     blockSpecs: { ...defaultBlockSpecs, pageBreak: createPageBreakBlockSpec() },
   }),

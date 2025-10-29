@@ -8,7 +8,7 @@ import {
   StyleSchema,
   createExternalHTMLExporter,
   createInternalHTMLSerializer,
-  partialBlocksToFullBlocks,
+  partialBlocksToBlocks,
 } from "@blocknote/core";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
@@ -25,7 +25,7 @@ async function convertToHTMLAndCompareSnapshots<
   snapshotDirectory: string,
   snapshotName: string,
 ) {
-  const fullBlocks = partialBlocksToFullBlocks(editor.schema, blocks);
+  const fullBlocks = partialBlocksToBlocks(editor.schema, blocks);
   const serializer = createInternalHTMLSerializer(editor.pmSchema, editor);
   const internalHTML = serializer.serializeBlocks(fullBlocks, {});
   const internalHTMLSnapshotPath =

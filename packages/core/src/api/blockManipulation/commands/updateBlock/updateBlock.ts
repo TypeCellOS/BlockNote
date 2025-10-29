@@ -15,10 +15,10 @@ import type {
 } from "../../../../schema/blocks/types.js";
 import type { InlineContentSchema } from "../../../../schema/inlineContent/types.js";
 import {
-  partialBlockToFullBlock,
+  partialBlockToBlock,
   partialInlineContentToInlineContent,
   partialTableContentToTableContent,
-} from "../../../../schema/partialBlockToFullBlock.js";
+} from "../../../../schema/partialBlockToBlock.js";
 import type { StyleSchema } from "../../../../schema/styles/types.js";
 import { UnreachableCaseError } from "../../../../util/typescript.js";
 import {
@@ -132,7 +132,7 @@ export function updateBlockTr<
     // currently, we calculate the new node and replace the entire node with the desired new node.
     // for this, we do a nodeToBlock on the existing block to get the children.
     // it would be cleaner to use a ReplaceAroundStep, but this is a bit simpler and it's quite an edge case
-    const newFullBlock = partialBlockToFullBlock(schema, block);
+    const newFullBlock = partialBlockToBlock(schema, block);
     if (block.children === undefined) {
       // if no children are passed in, use existing children
       const existingBlock = nodeToBlock<BSchema, I, S>(
@@ -300,7 +300,7 @@ function updateChildren<
   const schema = getBlockNoteSchema<BSchema, I, S>(pmSchema);
   if (block.children !== undefined && block.children.length > 0) {
     const childNodes = block.children.map((child) => {
-      return blockToNode(partialBlockToFullBlock(schema, child), pmSchema);
+      return blockToNode(partialBlockToBlock(schema, child), pmSchema);
     });
 
     // Checks if a blockGroup node already exists.

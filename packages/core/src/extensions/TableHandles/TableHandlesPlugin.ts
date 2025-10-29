@@ -282,14 +282,7 @@ export class TableHandlesView<
       this.editor.schema.styleSchema,
     );
 
-    if (
-      blockHasType(
-        block,
-        this.editor,
-        "table",
-        defaultBlockSpecs.table.config.propSchema,
-      )
-    ) {
+    if (blockHasType(block, this.editor, "table")) {
       this.tablePos = pmNodeInfo.posBeforeNode + 1;
       tableBlock = block;
     }

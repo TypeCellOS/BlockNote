@@ -6,7 +6,7 @@ import {
   BlockIdentifier,
   BlockSchema,
   InlineContentSchema,
-  partialBlockToFullBlock,
+  partialBlockToBlock,
   StyleSchema,
 } from "../../../../schema/index.js";
 import { blockToNode } from "../../../nodeConversions/blockToNode.js";
@@ -20,7 +20,6 @@ export function insertBlocks<
   S extends StyleSchema,
 >(
   tr: Transaction,
-  // TBD: allow PartialBlock here?
   blocksToInsert: PartialBlock<BSchema, I, S>[],
   referenceBlock: BlockIdentifier,
   placement: "before" | "after" = "before",
@@ -30,7 +29,7 @@ export function insertBlocks<
   const pmSchema = getPmSchema(tr);
   const nodesToInsert = blocksToInsert.map((block) =>
     blockToNode(
-      partialBlockToFullBlock(getBlockNoteSchema(pmSchema), block),
+      partialBlockToBlock(getBlockNoteSchema(pmSchema), block),
       pmSchema,
     ),
   );

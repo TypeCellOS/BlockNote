@@ -2,7 +2,7 @@ import type { Node } from "prosemirror-model";
 import type { Transaction } from "prosemirror-state";
 import type { Block, PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import {
-  partialBlockToFullBlock,
+  partialBlockToBlock,
   type BlockIdentifier,
   type BlockSchema,
   type InlineContentSchema,
@@ -30,7 +30,7 @@ export function removeAndInsertBlocks<
   // document.
   const nodesToInsert: Node[] = blocksToInsert.map((block) =>
     blockToNode(
-      partialBlockToFullBlock(getBlockNoteSchema(pmSchema), block),
+      partialBlockToBlock(getBlockNoteSchema(pmSchema), block),
       pmSchema,
     ),
   );

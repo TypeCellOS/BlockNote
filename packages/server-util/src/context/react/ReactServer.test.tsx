@@ -2,7 +2,7 @@ import {
   BlockNoteSchema,
   defaultBlockSpecs,
   defaultProps,
-  partialBlockToFullBlock,
+  partialBlockToBlock,
 } from "@blocknote/core";
 import { createReactBlockSpec } from "@blocknote/react";
 import { createContext, useContext } from "react";
@@ -57,7 +57,7 @@ describe("Test ServerBlockNoteEditor with React blocks", () => {
     const editor = ServerBlockNoteEditor.create({
       schema,
     });
-    const fullBlock = partialBlockToFullBlock(editor.editor.schema, {
+    const fullBlock = partialBlockToBlock(editor.editor.schema, {
       id: "1",
       type: "simpleReactCustomParagraph",
       content: "React Custom Paragraph",
@@ -76,7 +76,7 @@ describe("Test ServerBlockNoteEditor with React blocks", () => {
         <TestContext.Provider value={true}>{children}</TestContext.Provider>
       ),
       async () => {
-        const fullBlock = partialBlockToFullBlock(editor.editor.schema, {
+        const fullBlock = partialBlockToBlock(editor.editor.schema, {
           id: "1",
           type: "reactContextParagraph",
           content: "React Context Paragraph",

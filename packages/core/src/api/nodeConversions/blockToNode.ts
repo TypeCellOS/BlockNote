@@ -282,6 +282,7 @@ function blockOrInlineContentToContentNode(
 
   // TODO: needed? came from previous code
   if (type === undefined) {
+    // TODO: remove
     type = "paragraph";
   }
 

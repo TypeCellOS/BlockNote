@@ -6,7 +6,7 @@ export * from "./CustomBlockNoteSchema.js";
 export * from "./inlineContent/createSpec.js";
 export * from "./inlineContent/internal.js";
 export * from "./inlineContent/types.js";
-export * from "./partialBlockToFullBlock.js";
+export * from "./partialBlockToBlock.js";
 export * from "./propTypes.js";
 export * from "./styles/createSpec.js";
 export * from "./styles/internal.js";

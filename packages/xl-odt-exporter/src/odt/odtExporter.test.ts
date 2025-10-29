@@ -2,8 +2,8 @@ import {
   BlockNoteSchema,
   createPageBreakBlockSpec,
   defaultBlockSpecs,
+  partialBlocksToBlocks,
 } from "@blocknote/core";
-import { partialBlocksToFullBlocks } from "@blocknote/core/src/schema/partialBlockToFullBlock.js";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { testDocument } from "@shared/testDocument.js";
 import { BlobReader, TextWriter, ZipReader } from "@zip.js/zip.js";
@@ -78,7 +78,7 @@ describe("exporter", () => {
       });
       const exporter = new ODTExporter(schema, odtDefaultSchemaMappings);
       const odt = await exporter.toODTDocument(
-        partialBlocksToFullBlocks(schema, [
+        partialBlocksToBlocks(schema, [
           {
             type: "columnList",
             children: [

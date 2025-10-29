@@ -5,7 +5,7 @@ import { inlineContentToNodes } from "../../api/nodeConversions/blockToNode.js";
 import { nodeToCustomInlineContent } from "../../api/nodeConversions/nodeToBlock.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { propsToAttributes } from "../blocks/internal.js";
-import { partialInlineContentToInlineContent } from "../partialBlockToFullBlock.js";
+import { partialInlineContentToInlineContent } from "../partialBlockToBlock.js";
 import { Props } from "../propTypes.js";
 import { StyleSchema } from "../styles/types.js";
 import {

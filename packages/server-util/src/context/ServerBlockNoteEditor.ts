@@ -15,7 +15,7 @@ import {
   createExternalHTMLExporter,
   createInternalHTMLSerializer,
   nodeToBlock,
-  partialBlockToFullBlock,
+  partialBlockToBlock,
 } from "@blocknote/core";
 
 import { BlockNoteViewRaw } from "@blocknote/react";
@@ -140,7 +140,7 @@ export class ServerBlockNoteEditor<
   ) {
     const pmSchema = this.editor.pmSchema;
     const pmNodes = blocks.map((b) =>
-      blockToNode(partialBlockToFullBlock(this.editor.schema, b), pmSchema),
+      blockToNode(partialBlockToBlock(this.editor.schema, b), pmSchema),
     );
 
     const doc = pmSchema.topNodeType.create(

@@ -1,5 +1,5 @@
 import * as z from "zod/v4/core";
-import type { Block, BlockNoteSchema, PartialBlock } from "../blocks/index.js";
+import type { Block, PartialBlock } from "../blocks/index.js";
 import { UniqueID } from "../extensions/UniqueID/UniqueID.js";
 import { mapTableCell } from "../util/table.js";
 import { UnreachableCaseError } from "../util/typescript.js";
@@ -204,7 +204,7 @@ function partialBlockContentToBlockContent(
   }
 }
 
-export function partialBlockToFullBlock<
+export function partialBlockToBlock<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
@@ -229,9 +229,8 @@ export function partialBlockToFullBlock<
   );
 
   const children =
-    partialBlock.children?.map((child) =>
-      partialBlockToFullBlock(schema, child),
-    ) || [];
+    partialBlock.children?.map((child) => partialBlockToBlock(schema, child)) ||
+    [];
 
   return {
     id,
@@ -242,17 +241,15 @@ export function partialBlockToFullBlock<
   } as Block<BSchema, I, S>;
 }
 
-export function partialBlocksToFullBlocks<
+export function partialBlocksToBlocks<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
 >(
-  // TODO: I think this should be a CustomBlockNoteSchema,
-  // but that breaks docxExporter etc
-  schema: BlockNoteSchema<BSchema, I, S>,
+  schema: CustomBlockNoteSchema<BSchema, I, S>,
   partialBlocks: PartialBlock<BSchema, I, S>[],
 ): Block<BSchema, I, S>[] {
   return partialBlocks.map((partialBlock) =>
-    partialBlockToFullBlock(schema, partialBlock),
+    partialBlockToBlock(schema, partialBlock),
   );
 }

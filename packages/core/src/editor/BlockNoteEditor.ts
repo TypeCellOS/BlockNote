@@ -38,7 +38,7 @@ import { UniqueID } from "../extensions/UniqueID/UniqueID.js";
 import type { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
 import {
-  partialBlockToFullBlock,
+  partialBlockToBlock,
   type BlockIdentifier,
   type BlockNoteDOMAttributes,
   type BlockSchema,
@@ -891,7 +891,7 @@ export class BlockNoteEditor<
       const schema = getSchema(tiptapOptions.extensions!);
       const pmNodes = initialContent.map((b) =>
         blockToNode(
-          partialBlockToFullBlock(this.schema, b),
+          partialBlockToBlock(this.schema, b),
           schema,
           this.schema.styleSchema,
         ).toJSON(),

@@ -4,7 +4,7 @@ import {
   blockToNode,
   InlineContentSchema,
   nodeToBlock,
-  partialBlocksToFullBlocks,
+  partialBlocksToBlocks,
   StyleSchema,
 } from "@blocknote/core";
 import { expect } from "vitest";
@@ -20,7 +20,7 @@ export const testExportParseEqualityBlockNoteHTML = async <
   testCase: ExportParseEqualityTestCase<B, I, S>,
 ) => {
   (window as any).__TEST_OPTIONS.mockID = 0;
-  const fullBlocks = partialBlocksToFullBlocks(editor.schema, testCase.content);
+  const fullBlocks = partialBlocksToBlocks(editor.schema, testCase.content);
 
   const exported = await editor.blocksToFullHTML(fullBlocks);
 
@@ -46,7 +46,7 @@ export const testExportParseEqualityHTML = async <
 ) => {
   (window as any).__TEST_OPTIONS.mockID = 0;
 
-  const fullBlocks = partialBlocksToFullBlocks(editor.schema, testCase.content);
+  const fullBlocks = partialBlocksToBlocks(editor.schema, testCase.content);
 
   const exported = await editor.blocksToHTMLLossy(fullBlocks);
 
@@ -67,7 +67,7 @@ export const testExportParseEqualityNodes = async <
 ) => {
   (window as any).__TEST_OPTIONS.mockID = 0;
 
-  const fullBlocks = partialBlocksToFullBlocks(editor.schema, testCase.content);
+  const fullBlocks = partialBlocksToBlocks(editor.schema, testCase.content);
 
   const exported = fullBlocks.map((block) =>
     blockToNode(block, editor.pmSchema),

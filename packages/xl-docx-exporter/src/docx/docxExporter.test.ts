@@ -2,7 +2,7 @@ import {
   BlockNoteSchema,
   createPageBreakBlockSpec,
   defaultBlockSpecs,
-  partialBlocksToFullBlocks,
+  partialBlocksToBlocks,
 } from "@blocknote/core";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { testDocument } from "@shared/testDocument.js";
@@ -140,7 +140,7 @@ describe("exporter", () => {
         },
       });
       const exporter = new DOCXExporter(schema, docxDefaultSchemaMappings);
-      const blocks = partialBlocksToFullBlocks(schema, [
+      const blocks = partialBlocksToBlocks(schema, [
         {
           type: "columnList",
           children: [
