@@ -16,6 +16,7 @@ export const testDocument = partialBlocksToBlocks(
   }),
   [
     {
+      id: "test1",
       type: "paragraph",
       content: [
         {
@@ -36,10 +37,12 @@ export const testDocument = partialBlocksToBlocks(
       ],
       children: [
         {
+          id: "test2",
           type: "paragraph",
           content: "Hello World nested",
           children: [
             {
+              id: "test2child",
               type: "paragraph",
               content: "Hello World double nested",
             },
@@ -48,6 +51,7 @@ export const testDocument = partialBlocksToBlocks(
       ],
     },
     {
+      id: "test3",
       type: "paragraph",
       content: [
         {
@@ -61,14 +65,17 @@ export const testDocument = partialBlocksToBlocks(
       },
     },
     {
+      id: "test4",
       type: "paragraph",
       content: "Paragraph",
     },
     {
+      id: "test5",
       type: "heading",
       content: "Heading",
     },
     {
+      id: "test6",
       type: "heading",
       content: "Heading right",
       props: {
@@ -76,6 +83,7 @@ export const testDocument = partialBlocksToBlocks(
       },
     },
     {
+      id: "test7",
       type: "paragraph",
       content:
         "justified paragraph. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
@@ -84,18 +92,21 @@ export const testDocument = partialBlocksToBlocks(
         textAlignment: "justify",
       },
     },
-    { type: "pageBreak" },
+    { id: "test8", type: "pageBreak" },
     {
+      id: "test9",
       type: "bulletListItem",
       content:
         "Bullet List Item. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
       children: [
         {
+          id: "test10",
           type: "bulletListItem",
           content:
             "Bullet List Item.  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
         },
         {
+          id: "test11",
           type: "bulletListItem",
           content:
             "Bullet List Item right. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
@@ -104,22 +115,27 @@ export const testDocument = partialBlocksToBlocks(
           },
         },
         {
+          id: "test12",
           type: "numberedListItem",
           content: "Numbered List Item 1",
         },
         {
+          id: "test13",
           type: "numberedListItem",
           content: "Numbered List Item 2",
           children: [
             {
+              id: "test14",
               type: "numberedListItem",
               content: "Numbered List Item Nested 1",
             },
             {
+              id: "test15",
               type: "numberedListItem",
               content: "Numbered List Item Nested 2",
             },
             {
+              id: "test16",
               type: "numberedListItem",
               content: "Numbered List Item Nested funky right",
               props: {
@@ -129,6 +145,7 @@ export const testDocument = partialBlocksToBlocks(
               },
             },
             {
+              id: "test17",
               type: "numberedListItem",
               content: "Numbered List Item Nested funky center",
               props: {
@@ -142,14 +159,17 @@ export const testDocument = partialBlocksToBlocks(
       ],
     },
     {
+      id: "test18",
       type: "numberedListItem",
       content: "Numbered List Item",
     },
     {
+      id: "test19",
       type: "checkListItem",
       content: "Check List Item",
     },
     {
+      id: "test20",
       type: "table",
       content: {
         type: "tableContent",
@@ -168,9 +188,11 @@ export const testDocument = partialBlocksToBlocks(
       },
     },
     {
+      id: "test21",
       type: "file",
     },
     {
+      id: "test22",
       type: "image",
       props: {
         url: "https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg",
@@ -179,6 +201,7 @@ export const testDocument = partialBlocksToBlocks(
       },
     },
     {
+      id: "test23",
       type: "image",
       props: {
         previewWidth: 200,
@@ -187,6 +210,7 @@ export const testDocument = partialBlocksToBlocks(
       },
     },
     {
+      id: "test24",
       type: "video",
       props: {
         url: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm",
@@ -195,6 +219,7 @@ export const testDocument = partialBlocksToBlocks(
       },
     },
     {
+      id: "test25",
       type: "audio",
       props: {
         url: "https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3",
@@ -203,9 +228,11 @@ export const testDocument = partialBlocksToBlocks(
       },
     },
     {
+      id: "test26",
       type: "paragraph",
     },
     {
+      id: "test27",
       type: "audio",
       props: {
         caption: "Audio file caption",
@@ -213,6 +240,7 @@ export const testDocument = partialBlocksToBlocks(
       },
     },
     {
+      id: "test28",
       type: "paragraph",
       content: [
         {
@@ -223,6 +251,7 @@ export const testDocument = partialBlocksToBlocks(
       ],
     },
     {
+      id: "test29",
       type: "paragraph",
       content: [
         {
@@ -248,6 +277,7 @@ export const testDocument = partialBlocksToBlocks(
       ],
     },
     {
+      id: "test30",
       type: "table",
       content: {
         type: "tableContent",
@@ -277,6 +307,7 @@ export const testDocument = partialBlocksToBlocks(
       },
     },
     {
+      id: "test31",
       type: "codeBlock",
       props: {
         language: "javascript",
@@ -285,6 +316,6 @@ export const testDocument = partialBlocksToBlocks(
   console.log("Hello World", message);
 };`,
     },
-    { type: "divider" },
+    { id: "test32", type: "divider" },
   ],
 );
