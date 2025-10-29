@@ -1,4 +1,10 @@
-import { Block } from "@blocknote/core";
+import {
+  Block,
+  BlockNoteSchema,
+  createBlockSpec,
+  defaultBlockSpecs,
+  defaultProps,
+} from "@blocknote/core";
 import { describe, expect, it } from "vitest";
 import * as Y from "yjs";
 import { ServerBlockNoteEditor } from "./ServerBlockNoteEditor.js";
@@ -105,25 +111,70 @@ describe("Test ServerBlockNoteEditor", () => {
   ];
 
   it("converts to and from prosemirror (doc)", async () => {
-    const node = await editor._blocksToProsemirrorNode(blocks);
-    const blockOutput = await editor._prosemirrorNodeToBlocks(node);
+    const node = editor._blocksToProsemirrorNode(blocks);
+    const blockOutput = editor._prosemirrorNodeToBlocks(node);
     expect(blockOutput).toEqual(blocks);
   });
 
   it("converts to and from yjs (doc)", async () => {
-    const ydoc = await editor.blocksToYDoc(blocks);
-    const blockOutput = await editor.yDocToBlocks(ydoc);
+    const ydoc = editor.blocksToYDoc(blocks);
+    const blockOutput = editor.yDocToBlocks(ydoc);
     expect(blockOutput).toEqual(blocks);
   });
 
   it("converts to and from yjs (fragment)", async () => {
-    const fragment = await editor.blocksToYXmlFragment(blocks);
+    const fragment = editor.blocksToYXmlFragment(blocks);
 
     // fragment needs to be part of a Y.Doc before we can use other operations on it
     const doc = new Y.Doc();
     doc.getMap().set("prosemirror", fragment);
 
-    const blockOutput = await editor.yXmlFragmentToBlocks(fragment);
+    const blockOutput = editor.yXmlFragmentToBlocks(fragment);
+    expect(blockOutput).toEqual(blocks);
+  });
+
+  it("yXmlFragmentToBlocks with custom schema does not trigger YDoc updates", async () => {
+    const customBlock = createBlockSpec(
+      {
+        type: "customBlock",
+        propSchema: {
+          ...defaultProps,
+          customProp: { default: "default" },
+        },
+        content: "inline",
+      },
+      {
+        render: () => {
+          const div = document.createElement("div");
+          div.className = "custom-block";
+          return { dom: div, contentDOM: div };
+        },
+      }
+    );
+
+    const customSchema = BlockNoteSchema.create({
+      blockSpecs: { ...defaultBlockSpecs, customBlock },
+    });
+
+    const editor1 = ServerBlockNoteEditor.create({ schema: customSchema });
+    // @ts-expect-error
+    const ydoc = editor1.blocksToYDoc(blocks.concat([{
+      id: "6",
+      type: "customBlock",
+      props: { customProp: "customValue" },
+      content: undefined,
+      children: [],
+    }]));
+
+    const fragment = ydoc.getXmlFragment("prosemirror");
+
+    let updateTriggered = false;
+    ydoc.on("update", () => updateTriggered = true);
+
+    const editor2 = ServerBlockNoteEditor.create();
+    const blockOutput = editor2.yXmlFragmentToBlocks(fragment);
+
+    expect(updateTriggered).toBe(false);
     expect(blockOutput).toEqual(blocks);
   });
 
