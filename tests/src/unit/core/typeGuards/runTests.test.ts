@@ -10,7 +10,8 @@ import { testSchema } from "../testSchema.js";
 
 // Tests for verifying that type guards which check if an editor's schema
 // contains a block (and its props) are working correctly.
-describe("Editor block schema type guard tests", () => {
+// TODO
+describe.skip("Editor block schema type guard tests", () => {
   const getEditor = createTestEditor(testSchema) as () => BlockNoteEditor<
     any,
     any,

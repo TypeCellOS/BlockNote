@@ -536,9 +536,6 @@
                     <w:rFonts w:ascii="Inter" w:cs="Inter" w:eastAsia="Inter" w:hAnsi="Inter"/>
                 </w:rPr>
             </w:pPr>
-            <w:r>
-                <w:t xml:space="preserve"></w:t>
-            </w:r>
         </w:p>
         <w:p>
             <w:hyperlink w:history="1" r:id="FAKE-ID">

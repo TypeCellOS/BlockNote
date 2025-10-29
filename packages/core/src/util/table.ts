@@ -21,32 +21,30 @@ export function mapTableCell<
     | PartialTableCell<T, S>
     | TableCell<T, S>,
 ): TableCell<T, S> {
-  return isTableCell(content)
-    ? { ...content }
-    : isPartialTableCell(content)
-      ? {
-          type: "tableCell",
-          content: ([] as InlineContent<T, S>[]).concat(content.content as any),
-          props: {
-            backgroundColor: content.props?.backgroundColor ?? "default",
-            textColor: content.props?.textColor ?? "default",
-            textAlignment: content.props?.textAlignment ?? "left",
-            colspan: content.props?.colspan ?? 1,
-            rowspan: content.props?.rowspan ?? 1,
-          },
-        }
-      : {
-          type: "tableCell",
-          // FIXME: content can actually be Partial, we should probably handle this as well
-          content: ([] as InlineContent<T, S>[]).concat(content as any),
-          props: {
-            backgroundColor: "default",
-            textColor: "default",
-            textAlignment: "left",
-            colspan: 1,
-            rowspan: 1,
-          },
-        };
+  return isPartialTableCell(content)
+    ? {
+        type: "tableCell",
+        content: ([] as InlineContent<T, S>[]).concat(content.content as any),
+        props: {
+          backgroundColor: content.props?.backgroundColor ?? "default",
+          textColor: content.props?.textColor ?? "default",
+          textAlignment: content.props?.textAlignment ?? "left",
+          colspan: content.props?.colspan ?? 1,
+          rowspan: content.props?.rowspan ?? 1,
+        },
+      }
+    : {
+        type: "tableCell",
+        // FIXME: content can actually be Partial, we should probably handle this as well
+        content: ([] as InlineContent<T, S>[]).concat(content as any),
+        props: {
+          backgroundColor: "default",
+          textColor: "default",
+          textAlignment: "left",
+          colspan: 1,
+          rowspan: 1,
+        },
+      };
 }
 
 export function isPartialTableCell<

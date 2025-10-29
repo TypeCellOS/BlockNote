@@ -780,9 +780,7 @@
           textAlign: 'left'
         }}
       >
-        <TEXT>
-          <TEXT style={{}} />
-        </TEXT>
+        <TEXT />
       </VIEW>
     </React.Fragment>
     <React.Fragment key=".1:$test27">

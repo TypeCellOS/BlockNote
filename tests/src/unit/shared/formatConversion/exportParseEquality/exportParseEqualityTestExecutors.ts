@@ -24,15 +24,12 @@ export const testExportParseEqualityBlockNoteHTML = async <
 
   const exported = await editor.blocksToFullHTML(fullBlocks);
 
+  const parsed = await editor.tryParseHTMLToBlocks(exported);
   if (testCase.name.startsWith("malformed/")) {
     // We purposefully are okay with malformed response, we know they won't match
-    expect(await editor.tryParseHTMLToBlocks(exported)).not.toStrictEqual(
-      fullBlocks,
-    );
+    expect(parsed).not.toStrictEqual(fullBlocks);
   } else {
-    expect(await editor.tryParseHTMLToBlocks(exported)).toStrictEqual(
-      fullBlocks,
-    );
+    expect(parsed).toStrictEqual(fullBlocks);
   }
 };
 
@@ -54,7 +51,8 @@ export const testExportParseEqualityHTML = async <
   // conversion.
   (window as any).__TEST_OPTIONS.mockID = 0;
 
-  expect(await editor.tryParseHTMLToBlocks(exported)).toStrictEqual(fullBlocks);
+  const parsed = await editor.tryParseHTMLToBlocks(exported);
+  expect(parsed).toStrictEqual(fullBlocks);
 };
 
 export const testExportParseEqualityNodes = async <

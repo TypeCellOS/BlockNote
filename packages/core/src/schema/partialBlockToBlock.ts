@@ -188,7 +188,7 @@ function partialBlockContentToBlockContent(
       inlineContentSchema,
     );
   } else if (content === "inline") {
-    partialBlockContent = partialBlockContent || "";
+    partialBlockContent = partialBlockContent || undefined;
 
     if (
       typeof partialBlockContent === "object" &&
