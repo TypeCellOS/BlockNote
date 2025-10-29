@@ -1,6 +1,7 @@
 import { Attrs, Fragment, Mark, Node, Schema } from "@tiptap/pm/model";
 
 import type {
+  BlockSchema,
   CustomInlineContentFromConfig,
   InlineContent,
   InlineContentSchema,
@@ -320,10 +321,14 @@ function blockOrInlineContentToContentNode(
 /**
  * Converts a BlockNote block to a Prosemirror node.
  */
-export function blockToNode(
-  block: Block<any, any, any>,
+export function blockToNode<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema,
+>(
+  block: Block<BSchema, I, S>,
   schema: Schema,
-  styleSchema: StyleSchema = getStyleSchema(schema),
+  styleSchema: S = getStyleSchema(schema),
 ) {
   const children: Node[] = [];
 

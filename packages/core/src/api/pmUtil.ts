@@ -1,8 +1,8 @@
 import type { Node, Schema } from "prosemirror-model";
 import { Transform } from "prosemirror-transform";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
-import { CustomBlockNoteSchema } from "../schema/schema.js";
 import type { BlockSchema } from "../schema/blocks/types.js";
+import { CustomBlockNoteSchema } from "../schema/CustomBlockNoteSchema.js";
 import type { InlineContentSchema } from "../schema/inlineContent/types.js";
 import type { StyleSchema } from "../schema/styles/types.js";
 

@@ -30,7 +30,7 @@ export function removeAndInsertBlocks<
   // document.
   const nodesToInsert: Node[] = blocksToInsert.map((block) =>
     blockToNode(
-      partialBlockToBlock(getBlockNoteSchema(pmSchema), block),
+      partialBlockToBlock<BSchema, I, S>(getBlockNoteSchema(pmSchema), block),
       pmSchema,
     ),
   );

@@ -29,7 +29,7 @@ export function insertBlocks<
   const pmSchema = getPmSchema(tr);
   const nodesToInsert = blocksToInsert.map((block) =>
     blockToNode(
-      partialBlockToBlock(getBlockNoteSchema(pmSchema), block),
+      partialBlockToBlock<BSchema, I, S>(getBlockNoteSchema(pmSchema), block),
       pmSchema,
     ),
   );

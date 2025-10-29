@@ -31,16 +31,18 @@ function partialPropsToProps(
 ): Props<PropSchema> {
   const props: Props<PropSchema> = partialProps || {};
 
-  Object.entries(propSchema._zod.def.shape).forEach(([propKey, propValue]) => {
-    if (props[propKey] === undefined) {
-      if (propValue instanceof z.$ZodDefault) {
-        props[propKey] = propValue._zod.def.defaultValue;
+  Object.entries(propSchema._zodSource._zod.def.shape).forEach(
+    ([propKey, propValue]) => {
+      if (props[propKey] === undefined) {
+        if (propValue instanceof z.$ZodDefault) {
+          props[propKey] = propValue._zod.def.defaultValue;
+        }
+        if (propValue instanceof z.$ZodOptional) {
+          props[propKey] = undefined;
+        }
       }
-      if (propValue instanceof z.$ZodOptional) {
-        props[propKey] = undefined;
-      }
-    }
-  });
+    },
+  );
   return props;
 }
 
@@ -64,7 +66,9 @@ function partialLinkToLink(partialLink: PartialLink<StyleSchema>): Link<any> {
 }
 
 export function partialInlineContentToInlineContent(
-  partialInlineContent: PartialInlineContent<any, any> | undefined,
+  partialInlineContent:
+    | PartialInlineContent<InlineContentSchema, StyleSchema>
+    | undefined,
   inlineContentSchema: InlineContentSchema,
 ): InlineContent<any, any>[] {
   if (partialInlineContent === undefined) {
