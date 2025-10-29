@@ -1,4 +1,8 @@
-import { BlockNoteEditor, editorHasBlockWithType } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  createPropSchemaFromZod,
+  editorHasBlockWithType,
+} from "@blocknote/core";
 import { describe, expect, it } from "vitest";
 import * as z from "zod/v4";
 import { createTestEditor } from "../createTestEditor.js";
@@ -26,10 +30,12 @@ describe("Editor block schema type guard tests", () => {
       editorHasBlockWithType(
         getEditor(),
         "heading",
-        z.object({
-          level: z.number(),
-          textColor: z.string(),
-        }),
+        createPropSchemaFromZod(
+          z.object({
+            level: z.number(),
+            textColor: z.string(),
+          }),
+        ),
       ),
     ).toBeTruthy();
   });
@@ -39,10 +45,12 @@ describe("Editor block schema type guard tests", () => {
       editorHasBlockWithType(
         getEditor(),
         "heading",
-        z.object({
-          level: z.number(),
-          textColor: z.number(),
-        }),
+        createPropSchemaFromZod(
+          z.object({
+            level: z.number(),
+            textColor: z.number(),
+          }),
+        ),
       ),
     ).toBeFalsy();
   });
@@ -52,10 +60,14 @@ describe("Editor block schema type guard tests", () => {
       editorHasBlockWithType(
         getEditor(),
         "heading",
-        z.object({
-          level: z.union([z.literal(1), z.literal(2), z.literal(3)]).default(1),
-          textColor: z.string().default("default"),
-        }),
+        createPropSchemaFromZod(
+          z.object({
+            level: z
+              .union([z.literal(1), z.literal(2), z.literal(3)])
+              .default(1),
+            textColor: z.string().default("default"),
+          }),
+        ),
       ),
     ).toBeTruthy();
   });
@@ -65,10 +77,14 @@ describe("Editor block schema type guard tests", () => {
       editorHasBlockWithType(
         getEditor(),
         "heading",
-        z.object({
-          level: z.union([z.literal(1), z.literal(2), z.literal(3)]).default(1),
-          textColor: z.number().default(1),
-        }),
+        createPropSchemaFromZod(
+          z.object({
+            level: z
+              .union([z.literal(1), z.literal(2), z.literal(3)])
+              .default(1),
+            textColor: z.number().default(1),
+          }),
+        ),
       ),
     ).toBeFalsy();
   });
@@ -78,10 +94,14 @@ describe("Editor block schema type guard tests", () => {
       editorHasBlockWithType(
         getEditor(),
         "heading",
-        z.object({
-          level: z.union([z.literal(1), z.literal(2), z.literal(3)]).default(1),
-          textColor: z.string().default("default"),
-        }),
+        createPropSchemaFromZod(
+          z.object({
+            level: z
+              .union([z.literal(1), z.literal(2), z.literal(3)])
+              .default(1),
+            textColor: z.string().default("default"),
+          }),
+        ),
       ),
     ).toBeFalsy();
   });
@@ -91,10 +111,12 @@ describe("Editor block schema type guard tests", () => {
       editorHasBlockWithType(
         getEditor(),
         "numberedListItem",
-        z.object({
-          start: z.number(),
-          textColor: z.string(),
-        }),
+        createPropSchemaFromZod(
+          z.object({
+            start: z.number(),
+            textColor: z.string(),
+          }),
+        ),
       ),
     ).toBeTruthy();
   });
@@ -104,10 +126,12 @@ describe("Editor block schema type guard tests", () => {
       editorHasBlockWithType(
         getEditor(),
         "numberedListItem",
-        z.object({
-          start: z.string(),
-          textColor: z.string(),
-        }),
+        createPropSchemaFromZod(
+          z.object({
+            start: z.string(),
+            textColor: z.string(),
+          }),
+        ),
       ),
     ).toBeFalsy();
   });
@@ -121,10 +145,12 @@ describe("Editor block schema type guard tests", () => {
       editorHasBlockWithType(
         getEditor(),
         "simpleImage",
-        z.object({
-          name: z.string(),
-          url: z.string(),
-        }),
+        createPropSchemaFromZod(
+          z.object({
+            name: z.string(),
+            url: z.string(),
+          }),
+        ),
       ),
     ).toBeTruthy();
   });
@@ -134,10 +160,12 @@ describe("Editor block schema type guard tests", () => {
       editorHasBlockWithType(
         getEditor(),
         "simpleImage",
-        z.object({
-          name: z.string(),
-          url: z.number(),
-        }),
+        createPropSchemaFromZod(
+          z.object({
+            name: z.string(),
+            url: z.number(),
+          }),
+        ),
       ),
     ).toBeFalsy();
   });
@@ -147,10 +175,12 @@ describe("Editor block schema type guard tests", () => {
       editorHasBlockWithType(
         getEditor(),
         "simpleImage",
-        z.object({
-          name: z.string().default(""),
-          url: z.string().default(""),
-        }),
+        createPropSchemaFromZod(
+          z.object({
+            name: z.string().default(""),
+            url: z.string().default(""),
+          }),
+        ),
       ),
     ).toBeTruthy();
   });
@@ -160,10 +190,12 @@ describe("Editor block schema type guard tests", () => {
       editorHasBlockWithType(
         getEditor(),
         "simpleImage",
-        z.object({
-          name: z.boolean().default(false),
-          url: z.string().default(""),
-        }),
+        createPropSchemaFromZod(
+          z.object({
+            name: z.boolean().default(false),
+            url: z.string().default(""),
+          }),
+        ),
       ),
     ).toBeFalsy();
   });
@@ -173,12 +205,14 @@ describe("Editor block schema type guard tests", () => {
       editorHasBlockWithType(
         getEditor(),
         "simpleImage",
-        z.object({
-          name: z
-            .union([z.literal("image"), z.literal("photo")])
-            .default("photo"),
-          url: z.string().default(""),
-        }),
+        createPropSchemaFromZod(
+          z.object({
+            name: z
+              .union([z.literal("image"), z.literal("photo")])
+              .default("photo"),
+            url: z.string().default(""),
+          }),
+        ),
       ),
     ).toBeFalsy();
   });
