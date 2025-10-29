@@ -15,6 +15,10 @@ export const STATIC_URL = !process.env.RUN_IN_DOCKER
   ? `http://localhost:${PORT}/backend/rendering-static-documents?hideMenu`
   : `http://host.docker.internal:${PORT}/backend/rendering-static-documents?hideMenu`;
 
+export const BASIC_BLOCKS_URL = !process.env.RUN_IN_DOCKER
+  ? `http://localhost:${PORT}/basic/default-blocks?hideMenu`
+  : `http://host.docker.internal:${PORT}/basic/default-blocks?hideMenu`;
+
 export const CUSTOM_BLOCKS_VANILLA_URL = !process.env.RUN_IN_DOCKER
   ? `http://localhost:${PORT}/vanilla-js/react-vanilla-custom-blocks`
   : `http://host.docker.internal:${PORT}/vanilla-js/react-vanilla-custom-blocks`;

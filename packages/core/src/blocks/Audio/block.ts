@@ -3,9 +3,13 @@ import {
   type BlockFromConfig,
   createBlockConfig,
   createBlockSpec,
+  createPropSchemaFromZod,
 } from "../../schema/index.js";
-import { baseFilePropSchema, optionalFileProps } from "../defaultFileProps.js";
-import { defaultProps, parseDefaultProps } from "../defaultProps.js";
+import {
+  baseFileZodPropSchema,
+  optionalFileZodPropSchema,
+} from "../defaultFileProps.js";
+import { defaultZodPropSchema, parseDefaultProps } from "../defaultProps.js";
 import { parseFigureElement } from "../File/helpers/parse/parseFigureElement.js";
 import { createFileBlockWrapper } from "../File/helpers/render/createFileBlockWrapper.js";
 import { createFigureWithCaption } from "../File/helpers/toExternalHTML/createFigureWithCaption.js";
@@ -21,13 +25,13 @@ export interface AudioOptions {
 
 export type AudioBlockConfig = ReturnType<typeof createAudioBlockConfig>;
 
-const audioPropSchema = defaultProps
+const audioZodPropSchema = defaultZodPropSchema
   .pick({
     backgroundColor: true,
   })
   .extend({
-    ...baseFilePropSchema.shape,
-    ...optionalFileProps.pick({
+    ...baseFileZodPropSchema.shape,
+    ...optionalFileZodPropSchema.pick({
       url: true,
       showPreview: true,
     }).shape,
@@ -37,7 +41,7 @@ export const createAudioBlockConfig = createBlockConfig(
   (_ctx: AudioOptions) =>
     ({
       type: "audio" as const,
-      propSchema: audioPropSchema,
+      propSchema: createPropSchemaFromZod(audioZodPropSchema),
       content: "none",
     }) as const,
 );

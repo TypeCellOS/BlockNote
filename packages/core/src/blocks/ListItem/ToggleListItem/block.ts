@@ -2,7 +2,7 @@ import { createBlockNoteExtension } from "../../../editor/BlockNoteExtension.js"
 import { createBlockConfig, createBlockSpec } from "../../../schema/index.js";
 import {
   addDefaultPropsExternalHTML,
-  defaultProps,
+  defaultPropSchema,
 } from "../../defaultProps.js";
 import { createToggleWrapper } from "../../ToggleWrapper/createToggleWrapper.js";
 import { handleEnter } from "../../utils/listItemEnterHandler.js";
@@ -15,7 +15,7 @@ export const createToggleListItemBlockConfig = createBlockConfig(
   () =>
     ({
       type: "toggleListItem" as const,
-      propSchema: defaultProps,
+      propSchema: defaultPropSchema,
       content: "inline" as const,
     }) as const,
 );

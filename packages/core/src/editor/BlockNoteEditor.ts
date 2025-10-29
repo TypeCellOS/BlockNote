@@ -1486,7 +1486,9 @@ export class BlockNoteEditor<
    * @param blocks An array of blocks that should be serialized into HTML.
    * @returns The blocks, serialized as an HTML string.
    */
-  public blocksToFullHTML(blocks: Block<BSchema, ISchema, SSchema>[]): string {
+  public blocksToFullHTML(
+    blocks: Block<BSchema, ISchema, SSchema>[] = this.document,
+  ): string {
     return this._exportManager.blocksToFullHTML(blocks);
   }
   /**

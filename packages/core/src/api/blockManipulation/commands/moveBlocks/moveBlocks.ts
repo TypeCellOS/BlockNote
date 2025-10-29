@@ -170,7 +170,12 @@ export function moveSelectedBlocksAndSelection(
     const selectionData = getBlockSelectionData(editor);
 
     editor.removeBlocks(blocks);
-    editor.insertBlocks(flattenColumns(blocks), referenceBlock, placement);
+    // TODO
+    editor.insertBlocks(
+      flattenColumns(blocks) as any,
+      referenceBlock,
+      placement,
+    );
 
     updateBlockSelectionFromData(tr, selectionData);
   });

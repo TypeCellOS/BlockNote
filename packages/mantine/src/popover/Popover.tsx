@@ -16,7 +16,13 @@ export const Popover = (
   assertEmpty(rest);
 
   return (
-    <MantinePopover withinPortal={false} opened={opened} position={position}>
+    <MantinePopover
+      middlewares={{ size: { padding: 20 } }}
+      withinPortal={false}
+      opened={opened}
+      position={position}
+      zIndex={10000}
+    >
       {children}
     </MantinePopover>
   );

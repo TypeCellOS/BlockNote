@@ -1,9 +1,13 @@
 import { z } from "zod/v4";
 import { createBlockNoteExtension } from "../../../editor/BlockNoteExtension.js";
-import { createBlockConfig, createBlockSpec } from "../../../schema/index.js";
+import {
+  createBlockConfig,
+  createBlockSpec,
+  createPropSchemaFromZod,
+} from "../../../schema/index.js";
 import {
   addDefaultPropsExternalHTML,
-  defaultProps,
+  defaultZodPropSchema,
   parseDefaultProps,
 } from "../../defaultProps.js";
 import { handleEnter } from "../../utils/listItemEnterHandler.js";
@@ -17,9 +21,11 @@ export const createCheckListItemConfig = createBlockConfig(
   () =>
     ({
       type: "checkListItem" as const,
-      propSchema: defaultProps.extend({
-        checked: z.boolean().default(false),
-      }),
+      propSchema: createPropSchemaFromZod(
+        defaultZodPropSchema.extend({
+          checked: z.boolean().default(false),
+        }),
+      ),
       content: "inline",
     }) as const,
 );
@@ -75,6 +81,7 @@ export const createCheckListItemBlockSpec = createBlockSpec(
       getListItemContent(el, schema, "checkListItem"),
     render(block, editor) {
       const dom = document.createDocumentFragment();
+
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.checked = block.props.checked;

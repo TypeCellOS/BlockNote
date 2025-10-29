@@ -48,7 +48,7 @@ export const createExternalHTMLExporter = <
         blocks,
         serializer,
         new Set<string>(["numberedListItem"]),
-        new Set<string>(["bulletListItem", "checkListItem"]),
+        new Set<string>(["bulletListItem", "checkListItem", "toggleListItem"]),
         options,
       );
       const div = document.createElement("div");

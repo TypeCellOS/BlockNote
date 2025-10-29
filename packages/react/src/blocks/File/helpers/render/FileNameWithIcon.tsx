@@ -1,14 +1,13 @@
-import { FileBlockConfig } from "@blocknote/core";
+import { FileBlockConfig, PropSchemaFromZod } from "@blocknote/core";
 import { RiFile2Line } from "react-icons/ri";
-
-import { baseFilePropSchema } from "../../../../../../core/src/blocks/defaultFileProps.js";
+import { baseFileZodPropSchema } from "../../../../../../core/src/blocks/defaultFileProps.js";
 import { ReactCustomBlockRenderProps } from "../../../../schema/ReactBlockSpec.js";
 
 export const FileNameWithIcon = (
   props: Omit<
     ReactCustomBlockRenderProps<
       FileBlockConfig["type"],
-      typeof baseFilePropSchema,
+      PropSchemaFromZod<typeof baseFileZodPropSchema>,
       FileBlockConfig["content"]
     >,
     "editor" | "contentRef"

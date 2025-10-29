@@ -83,7 +83,7 @@ export function InlineContentWrapper<
       {...Object.fromEntries(
         Object.entries(props.inlineContentProps)
           .filter(([prop, value]) => {
-            const spec = props.propSchema._zod.def.shape[prop];
+            const spec = props.propSchema._zodSource._zod.def.shape[prop];
             const defaultValue =
               spec instanceof z.$ZodDefault
                 ? spec._zod.def.defaultValue

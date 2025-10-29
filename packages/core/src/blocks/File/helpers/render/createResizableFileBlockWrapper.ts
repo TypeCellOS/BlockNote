@@ -1,13 +1,17 @@
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
-import { BlockConfig, BlockFromConfig } from "../../../../schema/index.js";
 import {
-  baseFilePropSchema,
-  optionalFileProps,
+  BlockConfig,
+  BlockFromConfig,
+  PropSchemaFromZod,
+} from "../../../../schema/index.js";
+import {
+  baseFileZodPropSchema,
+  optionalFileZodPropSchema,
 } from "../../../defaultFileProps.js";
 import { createFileBlockWrapper } from "./createFileBlockWrapper.js";
 
-const requiredPropSchema = baseFilePropSchema.extend({
-  ...optionalFileProps.pick({
+const requiredZodPropSchema = baseFileZodPropSchema.extend({
+  ...optionalFileZodPropSchema.pick({
     url: true,
     previewWidth: true,
     showPreview: true,
@@ -16,7 +20,11 @@ const requiredPropSchema = baseFilePropSchema.extend({
 
 export const createResizableFileBlockWrapper = (
   block: BlockFromConfig<
-    BlockConfig<string, typeof requiredPropSchema, "none">,
+    BlockConfig<
+      string,
+      PropSchemaFromZod<typeof requiredZodPropSchema>,
+      "none"
+    >,
     any,
     any
   >,

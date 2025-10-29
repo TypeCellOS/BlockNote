@@ -1,6 +1,7 @@
 import {
   BlockNoteSchema,
   createInlineContentSpec,
+  createPropSchemaFromZod,
   defaultInlineContentSpecs,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
@@ -12,9 +13,11 @@ import { z } from "zod/v4";
 const mention = createInlineContentSpec(
   {
     type: "mention",
-    propSchema: z.object({
-      user: z.string().default(""),
-    }),
+    propSchema: createPropSchemaFromZod(
+      z.object({
+        user: z.string().default(""),
+      }),
+    ),
     content: "none",
   },
   {
@@ -32,7 +35,7 @@ const mention = createInlineContentSpec(
 const tag = createInlineContentSpec(
   {
     type: "tag",
-    propSchema: z.object({}),
+    propSchema: createPropSchemaFromZod(z.object({})),
     content: "styled",
   },
   {

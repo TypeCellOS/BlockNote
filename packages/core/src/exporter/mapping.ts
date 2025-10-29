@@ -1,7 +1,7 @@
-import { BlockNoteSchema } from "../blocks/BlockNoteSchema.js";
 import {
   BlockFromConfig,
   BlockSchema,
+  CustomBlockNoteSchema,
   InlineContentFromConfig,
   InlineContentSchema,
   StyleSchema,
@@ -64,7 +64,7 @@ export function mappingFactory<
   B extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
->(_schema: BlockNoteSchema<B, I, S>) {
+>(_schema: CustomBlockNoteSchema<B, I, S>) {
   return {
     createBlockMapping: <R, RI>(mapping: BlockMapping<B, I, S, R, RI>) =>
       mapping,

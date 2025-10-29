@@ -65,7 +65,7 @@ importers:
         version: 8.0.3
       zod:
         specifier: ^4.0.0
-        version: 4.0.0
+        version: 4.1.12
 
   docs:
     dependencies:
@@ -148,11 +148,11 @@ importers:
         specifier: 3.7.1-tiptap3
         version: 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -193,7 +193,7 @@ importers:
         specifier: ^3.2.1
         version: 3.7.0
       '@shikijs/types':
-        specifier: ^3.13.0
+        specifier: ^3.2.1
         version: 3.13.0
       '@tiptap/core':
         specifier: https://pkg.pr.new/@tiptap/core@5e777c9
@@ -425,11 +425,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -439,6 +439,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -471,11 +474,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -485,6 +488,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -520,11 +526,11 @@ importers:
         specifier: latest
         version: link:../../../packages/xl-multi-column
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -534,6 +540,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -566,11 +575,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -580,6 +589,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -612,11 +624,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -626,6 +638,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -658,11 +673,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -672,6 +687,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -704,11 +722,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -718,6 +736,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -750,11 +771,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -764,6 +785,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -796,11 +820,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -816,6 +840,9 @@ importers:
       tw-animate-css:
         specifier: ^1.3.7
         version: 1.3.7
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@tailwindcss/vite':
         specifier: ^4.1.12
@@ -851,11 +878,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -865,6 +892,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -897,11 +927,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -911,6 +941,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -943,11 +976,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -957,6 +990,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -989,11 +1025,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -1003,6 +1039,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -1035,11 +1074,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -1049,6 +1088,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -1081,11 +1123,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -1095,6 +1137,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -1127,11 +1172,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -1141,6 +1186,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -1179,11 +1227,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -1193,6 +1241,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -1228,11 +1279,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -1242,6 +1293,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -1274,11 +1328,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -1288,6 +1342,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -1320,11 +1377,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -1334,6 +1391,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -1366,11 +1426,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -1383,6 +1443,9 @@ importers:
       react-icons:
         specifier: ^5.2.1
         version: 5.5.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -1415,11 +1478,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -1432,6 +1495,9 @@ importers:
       react-icons:
         specifier: ^5.2.1
         version: 5.5.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -1464,11 +1530,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -1481,6 +1547,9 @@ importers:
       react-icons:
         specifier: ^5.2.1
         version: 5.5.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -1513,11 +1582,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -1530,6 +1599,9 @@ importers:
       react-icons:
         specifier: ^5.2.1
         version: 5.5.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -1562,11 +1634,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -1576,6 +1648,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -1608,11 +1683,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -1622,6 +1697,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -1654,11 +1732,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -1668,6 +1746,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -1700,11 +1781,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -1714,6 +1795,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -1746,11 +1830,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -1796,6 +1880,9 @@ importers:
       react-icons:
         specifier: ^5.2.1
         version: 5.5.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -1828,11 +1915,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -1842,6 +1929,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -1880,11 +1970,11 @@ importers:
         specifier: ^11.11.5
         version: 11.14.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0)
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -1900,6 +1990,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -1932,11 +2025,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -1946,6 +2039,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -1978,11 +2074,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -1992,6 +2088,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -2024,11 +2123,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -2038,6 +2137,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -2070,11 +2172,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -2084,6 +2186,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -2116,11 +2221,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -2130,6 +2235,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -2162,11 +2270,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -2176,6 +2284,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -2208,11 +2319,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -2222,6 +2333,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -2254,11 +2368,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -2268,6 +2382,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -2300,11 +2417,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -2314,6 +2431,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -2349,11 +2469,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -2363,6 +2483,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -2398,11 +2521,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -2419,7 +2542,7 @@ importers:
         specifier: ^3.2.1
         version: 3.2.1
       '@shikijs/types':
-        specifier: ^3.13.0
+        specifier: ^3.2.1
         version: 3.13.0
       react:
         specifier: ^19.1.0
@@ -2427,6 +2550,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -2459,11 +2585,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -2473,6 +2599,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -2505,11 +2634,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -2519,6 +2648,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -2551,11 +2683,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -2565,6 +2697,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -2597,11 +2732,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -2611,6 +2746,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -2649,11 +2787,11 @@ importers:
         specifier: latest
         version: link:../../../packages/xl-pdf-exporter
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -2666,6 +2804,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -2704,11 +2845,11 @@ importers:
         specifier: latest
         version: link:../../../packages/xl-multi-column
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -2721,6 +2862,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -2759,11 +2903,11 @@ importers:
         specifier: latest
         version: link:../../../packages/xl-odt-exporter
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -2773,6 +2917,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -2808,11 +2955,11 @@ importers:
         specifier: latest
         version: link:../../../packages/xl-email-exporter
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -2825,6 +2972,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -2857,11 +3007,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -2874,6 +3024,9 @@ importers:
       react-icons:
         specifier: ^5.2.1
         version: 5.5.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -2906,11 +3059,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -2920,6 +3073,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -2952,11 +3108,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -2969,6 +3125,9 @@ importers:
       react-icons:
         specifier: ^5.2.1
         version: 5.5.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -3001,11 +3160,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -3018,6 +3177,9 @@ importers:
       react-icons:
         specifier: ^5.2.1
         version: 5.5.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -3050,11 +3212,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -3067,6 +3229,9 @@ importers:
       react-icons:
         specifier: ^5.2.1
         version: 5.5.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -3099,11 +3264,60 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
+      '@mantine/utils':
+        specifier: ^6.0.22
+        version: 6.0.22(react@19.1.0)
+      react:
+        specifier: ^19.1.0
+        version: 19.1.0
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
+    devDependencies:
+      '@types/react':
+        specifier: ^19.1.0
+        version: 19.1.8
+      '@types/react-dom':
+        specifier: ^19.1.0
+        version: 19.1.6(@types/react@19.1.8)
+      '@vitejs/plugin-react':
+        specifier: ^4.3.1
+        version: 4.4.1(vite@5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0))
+      vite:
+        specifier: ^5.3.4
+        version: 5.4.15(@types/node@22.15.2)(lightningcss@1.30.1)(terser@5.44.0)
+
+  examples/06-custom-schema/07-configuring-blocks:
+    dependencies:
+      '@blocknote/ariakit':
+        specifier: latest
+        version: link:../../../packages/ariakit
+      '@blocknote/core':
+        specifier: latest
+        version: link:../../../packages/core
+      '@blocknote/mantine':
+        specifier: latest
+        version: link:../../../packages/mantine
+      '@blocknote/react':
+        specifier: latest
+        version: link:../../../packages/react
+      '@blocknote/shadcn':
+        specifier: latest
+        version: link:../../../packages/shadcn
+      '@mantine/core':
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@mantine/hooks':
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -3145,11 +3359,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -3159,6 +3373,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -3191,11 +3408,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -3205,6 +3422,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -3237,11 +3457,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -3251,6 +3471,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -3283,11 +3506,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -3297,6 +3520,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -3329,11 +3555,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -3349,6 +3575,9 @@ importers:
       yjs:
         specifier: ^13.6.27
         version: 13.6.27
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -3396,11 +3625,11 @@ importers:
         specifier: 3.7.1-tiptap3
         version: 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -3413,6 +3642,9 @@ importers:
       yjs:
         specifier: ^13.6.27
         version: 13.6.27
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -3445,11 +3677,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -3462,6 +3694,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -3494,11 +3729,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -3508,6 +3743,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -3540,11 +3778,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -3557,6 +3795,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -3589,11 +3830,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -3606,6 +3847,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -3638,11 +3882,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -3658,6 +3902,9 @@ importers:
       yjs:
         specifier: ^13.6.27
         version: 13.6.27
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -3690,11 +3937,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -3710,6 +3957,9 @@ importers:
       yjs:
         specifier: ^13.6.27
         version: 13.6.27
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -3742,11 +3992,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -3759,6 +4009,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -3794,23 +4047,26 @@ importers:
         specifier: latest
         version: link:../../../packages/xl-ai
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
       ai:
         specifier: ^5.0.45
-        version: 5.0.45(zod@4.0.0)
+        version: 5.0.45(zod@4.1.12)
       react:
         specifier: ^19.1.0
         version: 19.1.0
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
       zustand:
         specifier: ^5.0.3
         version: 5.0.3(@types/react@19.1.8)(immer@10.1.1)(react@19.1.0)(use-sync-external-store@1.6.0(react@19.1.0))
@@ -3849,23 +4105,26 @@ importers:
         specifier: latest
         version: link:../../../packages/xl-ai
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
       ai:
         specifier: ^5.0.45
-        version: 5.0.45(zod@4.0.0)
+        version: 5.0.45(zod@4.1.12)
       react:
         specifier: ^19.1.0
         version: 19.1.0
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
       zustand:
         specifier: ^5.0.3
         version: 5.0.3(@types/react@19.1.8)(immer@10.1.1)(react@19.1.0)(use-sync-external-store@1.6.0(react@19.1.0))
@@ -3904,17 +4163,17 @@ importers:
         specifier: latest
         version: link:../../../packages/xl-ai
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
       ai:
         specifier: ^5.0.45
-        version: 5.0.45(zod@4.0.0)
+        version: 5.0.45(zod@4.1.12)
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -3924,6 +4183,9 @@ importers:
       react-icons:
         specifier: ^5.2.1
         version: 5.5.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
       zustand:
         specifier: ^5.0.3
         version: 5.0.3(@types/react@19.1.8)(immer@10.1.1)(react@19.1.0)(use-sync-external-store@1.6.0(react@19.1.0))
@@ -3962,17 +4224,17 @@ importers:
         specifier: latest
         version: link:../../../packages/xl-ai
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
       ai:
         specifier: ^5.0.45
-        version: 5.0.45(zod@4.0.0)
+        version: 5.0.45(zod@4.1.12)
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -3985,6 +4247,9 @@ importers:
       yjs:
         specifier: ^13.6.27
         version: 13.6.27
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
       zustand:
         specifier: ^5.0.3
         version: 5.0.3(@types/react@19.1.8)(immer@10.1.1)(react@19.1.0)(use-sync-external-store@1.6.0(react@19.1.0))
@@ -4023,17 +4288,17 @@ importers:
         specifier: latest
         version: link:../../../packages/xl-ai
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
       ai:
         specifier: ^5.0.45
-        version: 5.0.45(zod@4.0.0)
+        version: 5.0.45(zod@4.1.12)
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -4046,6 +4311,9 @@ importers:
       yjs:
         specifier: ^13.6.27
         version: 13.6.27
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
       zustand:
         specifier: ^5.0.3
         version: 5.0.3(@types/react@19.1.8)(immer@10.1.1)(react@19.1.0)(use-sync-external-store@1.6.0(react@19.1.0))
@@ -4067,7 +4335,7 @@ importers:
     dependencies:
       '@ai-sdk/groq':
         specifier: ^2.0.16
-        version: 2.0.16(zod@4.0.0)
+        version: 2.0.16(zod@4.1.12)
       '@blocknote/ariakit':
         specifier: latest
         version: link:../../../packages/ariakit
@@ -4087,23 +4355,26 @@ importers:
         specifier: latest
         version: link:../../../packages/xl-ai
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
       ai:
         specifier: ^5.0.45
-        version: 5.0.45(zod@4.0.0)
+        version: 5.0.45(zod@4.1.12)
       react:
         specifier: ^19.1.0
         version: 19.1.0
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
       zustand:
         specifier: ^5.0.3
         version: 5.0.3(@types/react@19.1.8)(immer@10.1.1)(react@19.1.0)(use-sync-external-store@1.6.0(react@19.1.0))
@@ -4142,23 +4413,26 @@ importers:
         specifier: latest
         version: link:../../../packages/xl-ai
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
       ai:
         specifier: ^5.0.45
-        version: 5.0.45(zod@4.0.0)
+        version: 5.0.45(zod@4.1.12)
       react:
         specifier: ^19.1.0
         version: 19.1.0
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
       zustand:
         specifier: ^5.0.3
         version: 5.0.3(@types/react@19.1.8)(immer@10.1.1)(react@19.1.0)(use-sync-external-store@1.6.0(react@19.1.0))
@@ -4194,11 +4468,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -4208,6 +4482,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -4240,11 +4517,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -4254,6 +4531,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -4286,11 +4566,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -4300,6 +4580,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -4320,10 +4603,10 @@ importers:
         specifier: ^0.4.19
         version: 0.4.19(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@blocknote/core':
-        specifier: 0.40.0
+        specifier: 0.41.1
         version: link:../core
       '@blocknote/react':
-        specifier: 0.40.0
+        specifier: 0.41.1
         version: link:../react
     devDependencies:
       '@types/react':
@@ -4366,7 +4649,7 @@ importers:
   packages/code-block:
     dependencies:
       '@blocknote/core':
-        specifier: 0.40.0
+        specifier: 0.41.1
         version: link:../core
       '@shikijs/core':
         specifier: ^3.2.1
@@ -4530,7 +4813,7 @@ importers:
         version: 13.6.27
       zod:
         specifier: ^4.0.0
-        version: 4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/emoji-mart':
         specifier: ^3.0.14
@@ -4603,17 +4886,17 @@ importers:
   packages/mantine:
     dependencies:
       '@blocknote/core':
-        specifier: 0.40.0
+        specifier: 0.41.1
         version: link:../core
       '@blocknote/react':
-        specifier: 0.40.0
+        specifier: 0.41.1
         version: link:../react
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -4661,7 +4944,7 @@ importers:
   packages/react:
     dependencies:
       '@blocknote/core':
-        specifier: 0.40.0
+        specifier: 0.41.1
         version: link:../core
       '@emoji-mart/data':
         specifier: ^1.2.1
@@ -4687,6 +4970,9 @@ importers:
       react-icons:
         specifier: ^5.2.1
         version: 5.5.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/emoji-mart':
         specifier: ^3.0.14
@@ -4743,10 +5029,10 @@ importers:
   packages/server-util:
     dependencies:
       '@blocknote/core':
-        specifier: 0.40.0
+        specifier: 0.41.1
         version: link:../core
       '@blocknote/react':
-        specifier: 0.40.0
+        specifier: 0.41.1
         version: link:../react
       '@tiptap/core':
         specifier: https://pkg.pr.new/@tiptap/core@5e777c9
@@ -4804,10 +5090,10 @@ importers:
   packages/shadcn:
     dependencies:
       '@blocknote/core':
-        specifier: 0.40.0
+        specifier: 0.41.1
         version: link:../core
       '@blocknote/react':
-        specifier: 0.40.0
+        specifier: 0.41.1
         version: link:../react
       '@hookform/resolvers':
         specifier: ^3.10.0
@@ -4862,7 +5148,7 @@ importers:
         version: 4.1.12
       zod:
         specifier: ^3.24.2
-        version: 3.24.2
+        version: 3.25.76
     devDependencies:
       '@radix-ui/colors':
         specifier: ^3.0.0
@@ -4911,21 +5197,21 @@ importers:
     dependencies:
       '@ai-sdk/provider-utils':
         specifier: ^3.0.9
-        version: 3.0.9(zod@4.0.0)
+        version: 3.0.9(zod@4.1.12)
       '@ai-sdk/react':
         specifier: ^2.0.45
-        version: 2.0.45(react@19.1.0)(zod@4.0.0)
+        version: 2.0.45(react@19.1.0)(zod@4.1.12)
       '@blocknote/core':
-        specifier: 0.40.0
+        specifier: 0.41.1
         version: link:../core
       '@blocknote/mantine':
-        specifier: 0.40.0
+        specifier: 0.41.1
         version: link:../mantine
       '@blocknote/prosemirror-suggest-changes':
         specifier: ^0.1.3
         version: 0.1.3(prosemirror-model@1.25.3)(prosemirror-state@1.4.3)(prosemirror-transform@1.10.4)(prosemirror-view@1.41.2)
       '@blocknote/react':
-        specifier: 0.40.0
+        specifier: 0.41.1
         version: link:../react
       '@floating-ui/react':
         specifier: ^0.26.4
@@ -4935,7 +5221,7 @@ importers:
         version: https://pkg.pr.new/@tiptap/core@5e777c9(@tiptap/pm@3.4.3)
       ai:
         specifier: ^5.0.45
-        version: 5.0.45(zod@4.0.0)
+        version: 5.0.45(zod@4.1.12)
       lodash.isequal:
         specifier: ^4.5.0
         version: 4.5.0
@@ -4978,28 +5264,31 @@ importers:
       y-prosemirror:
         specifier: ^1.3.7
         version: 1.3.7(patch_hash=bb65317724b2093ca634dfe5704ce0cc5480f9aa07a69d4607abb32c40fd4dd3)(prosemirror-model@1.25.3)(prosemirror-state@1.4.3)(prosemirror-view@1.41.2)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
       zustand:
         specifier: ^5.0.3
         version: 5.0.3(@types/react@19.1.8)(immer@10.1.1)(react@19.1.0)(use-sync-external-store@1.6.0(react@19.1.0))
     devDependencies:
       '@ai-sdk/anthropic':
         specifier: ^2.0.9
-        version: 2.0.9(zod@4.0.0)
+        version: 2.0.9(zod@4.1.12)
       '@ai-sdk/google':
         specifier: ^2.0.11
-        version: 2.0.11(zod@4.0.0)
+        version: 2.0.11(zod@4.1.12)
       '@ai-sdk/groq':
         specifier: ^2.0.16
-        version: 2.0.16(zod@4.0.0)
+        version: 2.0.16(zod@4.1.12)
       '@ai-sdk/mistral':
         specifier: ^2.0.12
-        version: 2.0.12(zod@4.0.0)
+        version: 2.0.12(zod@4.1.12)
       '@ai-sdk/openai':
         specifier: ^2.0.23
-        version: 2.0.23(zod@4.0.0)
+        version: 2.0.23(zod@4.1.12)
       '@ai-sdk/openai-compatible':
         specifier: ^1.0.13
-        version: 1.0.13(zod@4.0.0)
+        version: 1.0.13(zod@4.1.12)
       '@mswjs/interceptors':
         specifier: ^0.37.5
         version: 0.37.6
@@ -5071,31 +5360,31 @@ importers:
     dependencies:
       '@ai-sdk/anthropic':
         specifier: ^2.0.9
-        version: 2.0.9(zod@4.0.0)
+        version: 2.0.9(zod@4.1.12)
       '@ai-sdk/google':
         specifier: ^2.0.11
-        version: 2.0.11(zod@4.0.0)
+        version: 2.0.11(zod@4.1.12)
       '@ai-sdk/groq':
         specifier: ^2.0.16
-        version: 2.0.16(zod@4.0.0)
+        version: 2.0.16(zod@4.1.12)
       '@ai-sdk/mistral':
         specifier: ^2.0.12
-        version: 2.0.12(zod@4.0.0)
+        version: 2.0.12(zod@4.1.12)
       '@ai-sdk/openai':
         specifier: ^2.0.23
-        version: 2.0.23(zod@4.0.0)
+        version: 2.0.23(zod@4.1.12)
       '@ai-sdk/openai-compatible':
         specifier: ^1.0.13
-        version: 1.0.13(zod@4.0.0)
+        version: 1.0.13(zod@4.1.12)
       '@blocknote/xl-ai':
-        specifier: 0.40.0
+        specifier: 0.41.1
         version: link:../xl-ai
       '@hono/node-server':
         specifier: ^1.13.7
         version: 1.14.0(hono@4.7.5)
       ai:
         specifier: ^5.0.45
-        version: 5.0.45(zod@4.0.0)
+        version: 5.0.45(zod@4.1.12)
       hono:
         specifier: ^4.6.12
         version: 4.7.5
@@ -5134,10 +5423,10 @@ importers:
   packages/xl-docx-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.40.0
+        specifier: 0.41.1
         version: link:../core
       '@blocknote/xl-multi-column':
-        specifier: 0.40.0
+        specifier: 0.41.1
         version: link:../xl-multi-column
       buffer:
         specifier: ^6.0.3
@@ -5189,10 +5478,10 @@ importers:
   packages/xl-email-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.40.0
+        specifier: 0.41.1
         version: link:../core
       '@blocknote/react':
-        specifier: 0.40.0
+        specifier: 0.41.1
         version: link:../react
       '@react-email/components':
         specifier: ^0.1.0
@@ -5212,6 +5501,9 @@ importers:
       react-email:
         specifier: ^4.0.16
         version: 4.0.16(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/jsdom':
         specifier: ^21.1.7
@@ -5244,10 +5536,10 @@ importers:
   packages/xl-multi-column:
     dependencies:
       '@blocknote/core':
-        specifier: 0.40.0
+        specifier: 0.41.1
         version: link:../core
       '@blocknote/react':
-        specifier: 0.40.0
+        specifier: 0.41.1
         version: link:../react
       '@tiptap/core':
         specifier: https://pkg.pr.new/@tiptap/core@5e777c9
@@ -5270,6 +5562,9 @@ importers:
       react-icons:
         specifier: ^5.2.1
         version: 5.5.0(react@19.1.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
     devDependencies:
       '@types/react':
         specifier: ^19.1.0
@@ -5314,10 +5609,10 @@ importers:
   packages/xl-odt-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.40.0
+        specifier: 0.41.1
         version: link:../core
       '@blocknote/xl-multi-column':
-        specifier: 0.40.0
+        specifier: 0.41.1
         version: link:../xl-multi-column
       '@zip.js/zip.js':
         specifier: ^2.7.57
@@ -5366,13 +5661,13 @@ importers:
   packages/xl-pdf-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.40.0
+        specifier: 0.41.1
         version: link:../core
       '@blocknote/react':
-        specifier: 0.40.0
+        specifier: 0.41.1
         version: link:../react
       '@blocknote/xl-multi-column':
-        specifier: 0.40.0
+        specifier: 0.41.1
         version: link:../xl-multi-column
       '@react-pdf/renderer':
         specifier: ^4.3.0
@@ -5432,12 +5727,15 @@ importers:
       vitest:
         specifier: ^2.0.3
         version: 2.1.9(@types/node@22.15.2)(@vitest/ui@2.1.9)(jsdom@25.0.1(canvas@2.11.2(encoding@0.1.13)))(lightningcss@1.30.1)(msw@2.7.3(@types/node@22.15.2)(typescript@5.8.2))(terser@5.44.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
 
   playground:
     dependencies:
       '@ai-sdk/groq':
         specifier: ^2.0.16
-        version: 2.0.16(zod@4.0.0)
+        version: 2.0.16(zod@4.1.12)
       '@aws-sdk/client-s3':
         specifier: ^3.609.0
         version: 3.775.0
@@ -5505,11 +5803,11 @@ importers:
         specifier: 3.7.1-tiptap3
         version: 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/core':
-        specifier: ^8.3.2
-        version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
-        specifier: ^8.3.2
-        version: 8.3.2(react@19.1.0)
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.1.0)
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.1.0)
@@ -5557,7 +5855,7 @@ importers:
         version: 0.6.4(react@19.1.0)(yjs@13.6.27)
       ai:
         specifier: ^5.0.45
-        version: 5.0.45(zod@4.0.0)
+        version: 5.0.45(zod@4.1.12)
       autoprefixer:
         specifier: 10.4.21
         version: 10.4.21(postcss@8.5.6)
@@ -5701,6 +5999,9 @@ importers:
       vitest:
         specifier: ^2.0.3
         version: 2.1.9(@types/node@20.17.28)(@vitest/ui@2.1.9)(jsdom@25.0.1(canvas@2.11.2(encoding@0.1.13)))(lightningcss@1.30.1)(msw@2.7.3(@types/node@20.17.28)(typescript@5.8.3))(terser@5.44.0)
+      zod:
+        specifier: ^4.0.0
+        version: 4.1.12
 
 packages:
 
@@ -7666,15 +7967,15 @@ packages:
     peerDependencies:
       yjs: ^13.6.1
 
-  '@mantine/core@8.3.2':
-    resolution: {integrity: sha512-uIHC9ooEZ9E+/pw8ag4f8pi0GmwSQ1DYnETjr4a4ZNVKJHfVv5NSkjprBxPrKJq9oox/SdcrAWy5XlKTwBzRag==}
+  '@mantine/core@8.3.4':
+    resolution: {integrity: sha512-RJ5QUe2FLLJ1uF8xWUpNhDqRFbaOn4S5yTjqLuaurqtZvzee85O/T90dRcR8UNDuE8e/Qqie/jsF/G9RiSxC6g==}
     peerDependencies:
-      '@mantine/hooks': 8.3.2
+      '@mantine/hooks': 8.3.4
       react: ^18.x || ^19.x
       react-dom: ^18.x || ^19.x
 
-  '@mantine/hooks@8.3.2':
-    resolution: {integrity: sha512-urDgQJNAs2t2mAyGaA+7uNsBMRn9U/ccvi+ZUl5ef3/Wzfv5KYHe9LA9DBNhn24BTSewxrI27W0EFpFxv/Jsbg==}
+  '@mantine/hooks@8.3.4':
+    resolution: {integrity: sha512-zsgFa9yzJ4tz0BZmI+yAjI3uNEe6SoQHZlXmvDNXuWrWImpl6Zhoxxr/oVaISB4+KZJd3pRPajklQ+CETrMdhg==}
     peerDependencies:
       react: ^18.x || ^19.x
 
@@ -11034,8 +11335,8 @@ packages:
     resolution: {integrity: sha512-lGe34o6EHj9y3Kts9R4ZYs/Gr+6N7MCaMlIFA3F1R2O5/m7K06AxfSeO5530PEERE6/WyEg3lsuyw4GHlPZHog==}
     engines: {node: ^4.5.0 || >= 5.9}
 
-  baseline-browser-mapping@2.8.12:
-    resolution: {integrity: sha512-vAPMQdnyKCBtkmQA6FMCBvU9qFIppS3nzyXnEM+Lo2IAhG4Mpjv9cCxMudhgV3YdNNJv6TNqXy97dfRVL2LmaQ==}
+  baseline-browser-mapping@2.8.16:
+    resolution: {integrity: sha512-OMu3BGQ4E7P1ErFsIPpbJh0qvDudM/UuJeHgkAvfWe+0HFJCXh+t/l8L6fVLR55RI/UbKrVLnAXZSVwd9ysWYw==}
     hasBin: true
 
   better-auth@1.2.12:
@@ -11157,8 +11458,8 @@ packages:
   caniuse-lite@1.0.30001737:
     resolution: {integrity: sha512-BiloLiXtQNrY5UyF0+1nSJLXUENuhka2pzy2Fx5pGxqavdrxSCW4U6Pn/PoG3Efspi2frRbHpBV2XsrPE6EDlw==}
 
-  caniuse-lite@1.0.30001748:
-    resolution: {integrity: sha512-5P5UgAr0+aBmNiplks08JLw+AW/XG/SurlgZLgB1dDLfAw7EfRGxIwzPHxdSCGY/BTKDqIVyJL87cCN6s0ZR0w==}
+  caniuse-lite@1.0.30001751:
+    resolution: {integrity: sha512-A0QJhug0Ly64Ii3eIqHu5X51ebln3k4yTUkY1j8drqpWHVreg/VLijN48cZ1bYPiqOQuqpkIKnzr/Ul8V+p6Cw==}
 
   canvas@2.11.2:
     resolution: {integrity: sha512-ItanGBMrmRV7Py2Z+Xhs7cT+FNt5K0vPL4p9EZ/UX/Mu7hFbkxSjKF2KVtPwX7UYWp7dRKnrTvReflgrItJbdw==}
@@ -11680,8 +11981,8 @@ packages:
   electron-to-chromium@1.5.186:
     resolution: {integrity: sha512-lur7L4BFklgepaJxj4DqPk7vKbTEl0pajNlg2QjE5shefmlmBLm2HvQ7PMf1R/GvlevT/581cop33/quQcfX3A==}
 
-  electron-to-chromium@1.5.232:
-    resolution: {integrity: sha512-ENirSe7wf8WzyPCibqKUG1Cg43cPaxH4wRR7AJsX7MCABCHBIOFqvaYODSLKUuZdraxUTHRE/0A2Aq8BYKEHOg==}
+  electron-to-chromium@1.5.237:
+    resolution: {integrity: sha512-icUt1NvfhGLar5lSWH3tHNzablaA5js3HVHacQimfP8ViEBOQv+L7DKEuHdbTZ0SKCO1ogTJTIL1Gwk9S6Qvcg==}
 
   emoji-mart@5.6.0:
     resolution: {integrity: sha512-eJp3QRe79pjwa+duv+n7+5YsNhRcMl812EcFVwrnRvYKoNPoQb5qxU8DG6Bgwji0akHdp6D4Ln6tYLG58MFSow==}
@@ -13096,8 +13397,8 @@ packages:
   linkifyjs@4.3.2:
     resolution: {integrity: sha512-NT1CJtq3hHIreOianA8aSXn6Cw0JzYOuDQbOrSPe7gqFnCpKP++MQe3ODgO3oh2GJFORkAAdqredOa60z63GbA==}
 
-  loader-runner@4.3.0:
-    resolution: {integrity: sha512-3R/1M+yS3j5ou80Me59j7F9IMs4PXs3VqRrm0TU3AbKPxlmpoY1TNscJV/oGJXo8qCatFGTfDbY6W6ipGOYXfg==}
+  loader-runner@4.3.1:
+    resolution: {integrity: sha512-IWqP2SCPhyVFTBtRcgMHdzlf9ul25NwaFx4wCEH/KjAXuuHY4yNjvPXsBokp8jCB936PyWRaPKUNh8NvylLp2Q==}
     engines: {node: '>=6.11.5'}
 
   locate-path@6.0.0:
@@ -13635,8 +13936,8 @@ packages:
   node-releases@2.0.19:
     resolution: {integrity: sha512-xxOWJsBKtzAq7DY0J+DTzuz58K8e7sJbdgwkbMWQe8UYB6ekmsQ45q0M/tJDsGaZmbC+l7n57UV8Hl5tHxO9uw==}
 
-  node-releases@2.0.23:
-    resolution: {integrity: sha512-cCmFDMSm26S6tQSDpBCg/NR8NENrVPhAJSf+XbxBG4rPFaaonlEoE9wHQmun+cls499TQGSb7ZyPBRlzgKfpeg==}
+  node-releases@2.0.25:
+    resolution: {integrity: sha512-4auku8B/vw5psvTiiN9j1dAOsXvMoGqJuKJcR+dTdqiXEK20mMTk1UEo3HS16LeGQsVG6+qKTPM9u/qQ2LqATA==}
 
   nodemailer@6.10.1:
     resolution: {integrity: sha512-Z+iLaBGVaSjbIzQ4pX6XV41HrooLsQ10ZWPUehGmuantvzWoDVBnmsdUcOIDM1t+yPor5pDhVlDESgOMEGxhHA==}
@@ -15934,14 +16235,11 @@ packages:
   youch@3.3.4:
     resolution: {integrity: sha512-UeVBXie8cA35DS6+nBkls68xaBBXCye0CNznrhszZjTbRVnJKQuNsyLKBTTL4ln1o1rh2PKtv35twV7irj5SEg==}
 
-  zod@3.24.2:
-    resolution: {integrity: sha512-lY7CDW43ECgW9u1TcT3IoXHflywfVqDYze4waEz812jR/bZ8FHDsl7pFQoSZTz5N+2NqRXs8GBwnAwo3ZNxqhQ==}
-
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
-  zod@4.0.0:
-    resolution: {integrity: sha512-9diLdTPc/L7w/5jI4C3gHYNiGHDV9IZYxo1e5LSD8cabi65WVTWWb+g2BGPEpUUCOxR4D+6O5B0AzyMdUAXwrw==}
+  zod@4.1.12:
+    resolution: {integrity: sha512-JInaHOamG8pt5+Ey8kGmdcAcg3OL9reK8ltczgHTAwNhMys/6ThXHityHxVV2p3fkw/c+MAvBHFVYHFZDmjMCQ==}
 
   zustand@5.0.3:
     resolution: {integrity: sha512-14fwWQtU3pH4dE0dOpdMiWjddcH+QzKIgk1cl8epwSE7yag43k/AD/m4L6+K7DytAOr9gGBe3/EXj9g7cdostg==}
@@ -15972,11 +16270,11 @@ snapshots:
       '@ai-sdk/provider-utils': 3.0.7(zod@3.25.76)
       zod: 3.25.76
 
-  '@ai-sdk/anthropic@2.0.9(zod@4.0.0)':
+  '@ai-sdk/anthropic@2.0.9(zod@4.1.12)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.7(zod@4.0.0)
-      zod: 4.0.0
+      '@ai-sdk/provider-utils': 3.0.7(zod@4.1.12)
+      zod: 4.1.12
 
   '@ai-sdk/gateway@1.0.23(zod@3.25.76)':
     dependencies:
@@ -15984,11 +16282,11 @@ snapshots:
       '@ai-sdk/provider-utils': 3.0.9(zod@3.25.76)
       zod: 3.25.76
 
-  '@ai-sdk/gateway@1.0.23(zod@4.0.0)':
+  '@ai-sdk/gateway@1.0.23(zod@4.1.12)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.9(zod@4.0.0)
-      zod: 4.0.0
+      '@ai-sdk/provider-utils': 3.0.9(zod@4.1.12)
+      zod: 4.1.12
 
   '@ai-sdk/google@2.0.11(zod@3.25.76)':
     dependencies:
@@ -15996,11 +16294,11 @@ snapshots:
       '@ai-sdk/provider-utils': 3.0.7(zod@3.25.76)
       zod: 3.25.76
 
-  '@ai-sdk/google@2.0.11(zod@4.0.0)':
+  '@ai-sdk/google@2.0.11(zod@4.1.12)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.7(zod@4.0.0)
-      zod: 4.0.0
+      '@ai-sdk/provider-utils': 3.0.7(zod@4.1.12)
+      zod: 4.1.12
 
   '@ai-sdk/groq@2.0.16(zod@3.25.76)':
     dependencies:
@@ -16008,11 +16306,11 @@ snapshots:
       '@ai-sdk/provider-utils': 3.0.7(zod@3.25.76)
       zod: 3.25.76
 
-  '@ai-sdk/groq@2.0.16(zod@4.0.0)':
+  '@ai-sdk/groq@2.0.16(zod@4.1.12)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.7(zod@4.0.0)
-      zod: 4.0.0
+      '@ai-sdk/provider-utils': 3.0.7(zod@4.1.12)
+      zod: 4.1.12
 
   '@ai-sdk/mistral@2.0.12(zod@3.25.76)':
     dependencies:
@@ -16020,11 +16318,11 @@ snapshots:
       '@ai-sdk/provider-utils': 3.0.7(zod@3.25.76)
       zod: 3.25.76
 
-  '@ai-sdk/mistral@2.0.12(zod@4.0.0)':
+  '@ai-sdk/mistral@2.0.12(zod@4.1.12)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.7(zod@4.0.0)
-      zod: 4.0.0
+      '@ai-sdk/provider-utils': 3.0.7(zod@4.1.12)
+      zod: 4.1.12
 
   '@ai-sdk/openai-compatible@1.0.13(zod@3.25.76)':
     dependencies:
@@ -16032,11 +16330,11 @@ snapshots:
       '@ai-sdk/provider-utils': 3.0.7(zod@3.25.76)
       zod: 3.25.76
 
-  '@ai-sdk/openai-compatible@1.0.13(zod@4.0.0)':
+  '@ai-sdk/openai-compatible@1.0.13(zod@4.1.12)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.7(zod@4.0.0)
-      zod: 4.0.0
+      '@ai-sdk/provider-utils': 3.0.7(zod@4.1.12)
+      zod: 4.1.12
 
   '@ai-sdk/openai@2.0.23(zod@3.25.76)':
     dependencies:
@@ -16044,11 +16342,11 @@ snapshots:
       '@ai-sdk/provider-utils': 3.0.7(zod@3.25.76)
       zod: 3.25.76
 
-  '@ai-sdk/openai@2.0.23(zod@4.0.0)':
+  '@ai-sdk/openai@2.0.23(zod@4.1.12)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.7(zod@4.0.0)
-      zod: 4.0.0
+      '@ai-sdk/provider-utils': 3.0.7(zod@4.1.12)
+      zod: 4.1.12
 
   '@ai-sdk/provider-utils@3.0.7(zod@3.25.76)':
     dependencies:
@@ -16057,12 +16355,12 @@ snapshots:
       eventsource-parser: 3.0.6
       zod: 3.25.76
 
-  '@ai-sdk/provider-utils@3.0.7(zod@4.0.0)':
+  '@ai-sdk/provider-utils@3.0.7(zod@4.1.12)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
       '@standard-schema/spec': 1.0.0
       eventsource-parser: 3.0.6
-      zod: 4.0.0
+      zod: 4.1.12
 
   '@ai-sdk/provider-utils@3.0.9(zod@3.25.76)':
     dependencies:
@@ -16071,26 +16369,26 @@ snapshots:
       eventsource-parser: 3.0.6
       zod: 3.25.76
 
-  '@ai-sdk/provider-utils@3.0.9(zod@4.0.0)':
+  '@ai-sdk/provider-utils@3.0.9(zod@4.1.12)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
       '@standard-schema/spec': 1.0.0
       eventsource-parser: 3.0.6
-      zod: 4.0.0
+      zod: 4.1.12
 
   '@ai-sdk/provider@2.0.0':
     dependencies:
       json-schema: 0.4.0
 
-  '@ai-sdk/react@2.0.45(react@19.1.0)(zod@4.0.0)':
+  '@ai-sdk/react@2.0.45(react@19.1.0)(zod@4.1.12)':
     dependencies:
-      '@ai-sdk/provider-utils': 3.0.9(zod@4.0.0)
-      ai: 5.0.45(zod@4.0.0)
+      '@ai-sdk/provider-utils': 3.0.9(zod@4.1.12)
+      ai: 5.0.45(zod@4.1.12)
       react: 19.1.0
       swr: 2.3.6(react@19.1.0)
       throttleit: 2.1.0
     optionalDependencies:
-      zod: 4.0.0
+      zod: 4.1.12
 
   '@alloc/quick-lru@5.2.0': {}
 
@@ -18407,10 +18705,10 @@ snapshots:
     transitivePeerDependencies:
       - '@types/json-schema'
 
-  '@mantine/core@8.3.2(@mantine/hooks@8.3.2(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@mantine/core@8.3.4(@mantine/hooks@8.3.4(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@floating-ui/react': 0.27.16(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@mantine/hooks': 8.3.2(react@19.1.0)
+      '@mantine/hooks': 8.3.4(react@19.1.0)
       clsx: 2.1.1
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
@@ -18421,7 +18719,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
-  '@mantine/hooks@8.3.2(react@19.1.0)':
+  '@mantine/hooks@8.3.4(react@19.1.0)':
     dependencies:
       react: 19.1.0
 
@@ -22040,13 +22338,13 @@ snapshots:
       '@opentelemetry/api': 1.9.0
       zod: 3.25.76
 
-  ai@5.0.45(zod@4.0.0):
+  ai@5.0.45(zod@4.1.12):
     dependencies:
-      '@ai-sdk/gateway': 1.0.23(zod@4.0.0)
+      '@ai-sdk/gateway': 1.0.23(zod@4.1.12)
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.9(zod@4.0.0)
+      '@ai-sdk/provider-utils': 3.0.9(zod@4.1.12)
       '@opentelemetry/api': 1.9.0
-      zod: 4.0.0
+      zod: 4.1.12
 
   ajv-formats@2.1.1(ajv@8.17.1):
     optionalDependencies:
@@ -22337,7 +22635,7 @@ snapshots:
 
   base64id@2.0.0: {}
 
-  baseline-browser-mapping@2.8.12: {}
+  baseline-browser-mapping@2.8.16: {}
 
   better-auth@1.2.12:
     dependencies:
@@ -22438,10 +22736,10 @@ snapshots:
 
   browserslist@4.26.3:
     dependencies:
-      baseline-browser-mapping: 2.8.12
-      caniuse-lite: 1.0.30001748
-      electron-to-chromium: 1.5.232
-      node-releases: 2.0.23
+      baseline-browser-mapping: 2.8.16
+      caniuse-lite: 1.0.30001751
+      electron-to-chromium: 1.5.237
+      node-releases: 2.0.25
       update-browserslist-db: 1.1.3(browserslist@4.26.3)
 
   buffer-from@1.1.2: {}
@@ -22493,7 +22791,7 @@ snapshots:
 
   caniuse-lite@1.0.30001737: {}
 
-  caniuse-lite@1.0.30001748: {}
+  caniuse-lite@1.0.30001751: {}
 
   canvas@2.11.2(encoding@0.1.13):
     dependencies:
@@ -22983,7 +23281,7 @@ snapshots:
 
   electron-to-chromium@1.5.186: {}
 
-  electron-to-chromium@1.5.232: {}
+  electron-to-chromium@1.5.237: {}
 
   emoji-mart@5.6.0: {}
 
@@ -24786,7 +25084,7 @@ snapshots:
 
   linkifyjs@4.3.2: {}
 
-  loader-runner@4.3.0: {}
+  loader-runner@4.3.1: {}
 
   locate-path@6.0.0:
     dependencies:
@@ -25594,7 +25892,7 @@ snapshots:
 
   node-releases@2.0.19: {}
 
-  node-releases@2.0.23: {}
+  node-releases@2.0.25: {}
 
   nodemailer@6.10.1: {}
 
@@ -28104,7 +28402,7 @@ snapshots:
       glob-to-regexp: 0.4.1
       graceful-fs: 4.2.11
       json-parse-even-better-errors: 2.3.1
-      loader-runner: 4.3.0
+      loader-runner: 4.3.1
       mime-types: 2.1.35
       neo-async: 2.6.2
       schema-utils: 4.3.3
@@ -28318,11 +28616,9 @@ snapshots:
       mustache: 4.2.0
       stacktracey: 2.1.8
 
-  zod@3.24.2: {}
-
   zod@3.25.76: {}
 
-  zod@4.0.0: {}
+  zod@4.1.12: {}
 
   zustand@5.0.3(@types/react@19.1.8)(immer@10.1.1)(react@19.1.0)(use-sync-external-store@1.6.0(react@19.1.0)):
     optionalDependencies:

@@ -3,6 +3,7 @@ import {
   BlockSchema,
   createBlockConfig,
   createBlockSpec,
+  createPropSchemaFromZod,
   CustomBlockNoteSchema,
   InlineContentSchema,
   StyleSchema,
@@ -16,7 +17,7 @@ export const createPageBreakBlockConfig = createBlockConfig(
   () =>
     ({
       type: "pageBreak" as const,
-      propSchema: z.object({}),
+      propSchema: createPropSchemaFromZod(z.object({})),
       content: "none",
     }) as const,
 );

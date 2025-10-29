@@ -3,9 +3,13 @@ import {
   BlockFromConfig,
   createBlockConfig,
   createBlockSpec,
+  createPropSchemaFromZod,
 } from "../../schema/index.js";
-import { baseFilePropSchema, optionalFileProps } from "../defaultFileProps.js";
-import { defaultProps, parseDefaultProps } from "../defaultProps.js";
+import {
+  baseFileZodPropSchema,
+  optionalFileZodPropSchema,
+} from "../defaultFileProps.js";
+import { defaultZodPropSchema, parseDefaultProps } from "../defaultProps.js";
 import { parseFigureElement } from "../File/helpers/parse/parseFigureElement.js";
 import { createResizableFileBlockWrapper } from "../File/helpers/render/createResizableFileBlockWrapper.js";
 import { createFigureWithCaption } from "../File/helpers/toExternalHTML/createFigureWithCaption.js";
@@ -21,14 +25,14 @@ export interface ImageOptions {
 
 export type ImageBlockConfig = ReturnType<typeof createImageBlockConfig>;
 
-const imagePropSchema = defaultProps
+const imageZodPropSchema = defaultZodPropSchema
   .pick({
     textAlignment: true,
     backgroundColor: true,
   })
   .extend({
-    ...baseFilePropSchema.shape,
-    ...optionalFileProps.pick({
+    ...baseFileZodPropSchema.shape,
+    ...optionalFileZodPropSchema.pick({
       url: true,
       showPreview: true,
       previewWidth: true,
@@ -39,7 +43,7 @@ export const createImageBlockConfig = createBlockConfig(
   (_ctx: ImageOptions = {}) =>
     ({
       type: "image" as const,
-      propSchema: imagePropSchema,
+      propSchema: createPropSchemaFromZod(imageZodPropSchema),
       content: "none" as const,
     }) as const,
 );

@@ -1,9 +1,13 @@
 import { z } from "zod/v4";
 import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
-import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
+import {
+  createBlockConfig,
+  createBlockSpec,
+  createPropSchemaFromZod,
+} from "../../schema/index.js";
 import {
   addDefaultPropsExternalHTML,
-  defaultProps,
+  defaultZodPropSchema,
   parseDefaultProps,
 } from "../defaultProps.js";
 import { createToggleWrapper } from "../ToggleWrapper/createToggleWrapper.js";
@@ -27,14 +31,16 @@ export const createHeadingBlockConfig = createBlockConfig(
   }: HeadingOptions = {}) =>
     ({
       type: "heading" as const,
-      propSchema: defaultProps.extend({
-        level: z
-          .union(levels.map((level) => z.literal(level)))
-          .default(defaultLevel),
-        ...(allowToggleHeadings
-          ? { isToggleable: z.boolean().default(false) }
-          : {}),
-      }),
+      propSchema: createPropSchemaFromZod(
+        defaultZodPropSchema.extend({
+          level: z
+            .union(levels.map((level) => z.literal(level)))
+            .default(defaultLevel),
+          ...(allowToggleHeadings
+            ? { isToggleable: z.boolean().default(false) }
+            : {}),
+        }),
+      ),
       content: "inline",
     }) as const,
 );

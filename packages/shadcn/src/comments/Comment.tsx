@@ -70,6 +70,7 @@ export const Comment = forwardRef<
     timeString,
     actions,
     edited,
+    emojiPickerOpen, // Unused
     children,
     ...rest
   } = props;

@@ -1,10 +1,11 @@
 import {
-  BlockNoteSchema,
   BlockSchema,
+  CustomBlockNoteSchema,
   InlineContentSchema,
   PropSchema,
   StyleSchema,
-  defaultProps,
+  createPropSchemaFromZod,
+  defaultPropSchema,
 } from "@blocknote/core";
 import * as z4 from "zod/v4";
 import * as z from "zod/v4/core";
@@ -129,7 +130,7 @@ export function propSchemaToJSONSchema(
   return {
     type: "object",
     properties: Object.fromEntries(
-      Object.entries(propSchema._zod.def.shape)
+      Object.entries(propSchema._zodSource._zod.def.shape)
         .filter(([_key, val]) => {
           // for now skip optional props
           return !(val instanceof z.$ZodOptional);
@@ -262,7 +263,7 @@ function blockSchemaToJSONSchema(schema: BlockSchema) {
 }
 
 function schemaOps(
-  schema: BlockNoteSchema<BlockSchema, InlineContentSchema, StyleSchema>,
+  schema: CustomBlockNoteSchema<BlockSchema, InlineContentSchema, StyleSchema>,
 ) {
   const clone = {
     blockSchema: schema.blockSchema,
@@ -288,10 +289,15 @@ function schemaOps(
             key,
             {
               ...val,
-              propSchema: z4.object(
-                Object.fromEntries(
-                  Object.entries(val.propSchema._zod.def.shape).filter(
-                    ([key]) => !(key in defaultProps._zod.def.shape),
+              propSchema: createPropSchemaFromZod(
+                z4.object(
+                  Object.fromEntries(
+                    Object.entries(
+                      val.propSchema._zodSource._zod.def.shape,
+                    ).filter(
+                      ([key]) =>
+                        !(key in defaultPropSchema._zodSource._zod.def.shape),
+                    ),
                   ),
                 ),
               ),
@@ -309,12 +315,16 @@ function schemaOps(
 }
 
 export function blockNoteSchemaToJSONSchema(
-  schema: BlockNoteSchema<any, any, any>,
+  schema: CustomBlockNoteSchema<any, any, any>,
 ) {
   schema = schemaOps(schema)
     .removeFileBlocks()
     .removeDefaultProps()
-    .get() as BlockNoteSchema<BlockSchema, InlineContentSchema, StyleSchema>;
+    .get() as CustomBlockNoteSchema<
+    BlockSchema,
+    InlineContentSchema,
+    StyleSchema
+  >;
   return {
     $defs: {
       styles: styleSchemaToJSONSchema(schema.styleSchema),

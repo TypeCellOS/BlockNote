@@ -1,9 +1,9 @@
 import {
   Block,
-  BlockNoteSchema,
   BlockSchema,
   COLORS_DEFAULT,
-  DefaultProps,
+  CustomBlockNoteSchema,
+  DefaultPropSchema,
   Exporter,
   ExporterOptions,
   InlineContentSchema,
@@ -78,7 +78,7 @@ export class PDFExporter<
     /**
      * The schema of your editor. The mappings are automatically typed checked against this schema.
      */
-    protected readonly schema: BlockNoteSchema<B, I, S>,
+    protected readonly schema: CustomBlockNoteSchema<B, I, S>,
     /**
      * The mappings that map the BlockNote schema to the react-pdf content.
      *
@@ -289,7 +289,7 @@ export class PDFExporter<
   }
 
   protected blocknoteDefaultPropsToReactPDFStyle(
-    props: Partial<DefaultProps>,
+    props: Partial<DefaultPropSchema>,
   ): Style {
     return {
       textAlign: props.textAlignment,

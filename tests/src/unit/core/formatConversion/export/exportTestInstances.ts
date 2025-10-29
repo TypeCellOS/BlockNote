@@ -151,6 +151,10 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
           },
           content: "Check List Item 2",
         },
+        {
+          type: "toggleListItem",
+          content: "Toggle List Item 1",
+        },
       ],
     },
     executeTest: testExportBlockNoteHTML,
@@ -185,6 +189,12 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
                     checked: true,
                   },
                   content: "Check List Item 2",
+                  children: [
+                    {
+                      type: "toggleListItem",
+                      content: "Toggle List Item 1",
+                    },
+                  ],
                 },
               ],
             },

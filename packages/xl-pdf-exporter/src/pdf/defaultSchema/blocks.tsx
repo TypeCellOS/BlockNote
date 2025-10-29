@@ -1,8 +1,8 @@
 import {
   BlockMapping,
-  DefaultBlockSchema,
-  DefaultProps,
   createPageBreakBlockConfig,
+  DefaultBlockSchema,
+  DefaultPropSchema,
   StyledText,
 } from "@blocknote/core";
 import { multiColumnSchema } from "@blocknote/xl-multi-column";
@@ -251,7 +251,7 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
 };
 
 function file(
-  props: Partial<DefaultProps & { name: string; url: string }>,
+  props: Partial<DefaultPropSchema & { name: string; url: string }>,
   defaultText: string,
   icon: React.ReactElement<Svg>,
   _exporter: any,
@@ -274,7 +274,7 @@ function file(
 }
 
 function caption(
-  props: Partial<DefaultProps & { caption: string; previewWidth: number }>,
+  props: Partial<DefaultPropSchema & { caption: string; previewWidth: number }>,
   _exporter: any,
 ) {
   if (!props.caption) {

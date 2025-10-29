@@ -1,6 +1,7 @@
 import {
   blockHasType,
   BlockSchema,
+  createPropSchemaFromZod,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -13,7 +14,7 @@ import {
 } from "react";
 import { RiInputField } from "react-icons/ri";
 
-import { baseFilePropSchema } from "../../../../../core/src/blocks/defaultFileProps.js";
+import { baseFileZodPropSchema } from "../../../../../core/src/blocks/defaultFileProps.js";
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks.js";
@@ -46,7 +47,8 @@ export const FileCaptionButton = () => {
         block,
         editor,
         block.type,
-        baseFilePropSchema.pick({ caption: true }),
+        // TODO
+        createPropSchemaFromZod(baseFileZodPropSchema.pick({ caption: true })),
       )
     ) {
       setCurrentEditingCaption(block.props.caption);

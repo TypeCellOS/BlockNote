@@ -52,7 +52,9 @@ export class ExportManager<
    * @param blocks An array of blocks that should be serialized into HTML.
    * @returns The blocks, serialized as an HTML string.
    */
-  public blocksToFullHTML(blocks: Block<BSchema, ISchema, SSchema>[]): string {
+  public blocksToFullHTML(
+    blocks: Block<BSchema, ISchema, SSchema>[] = this.editor.document,
+  ): string {
     const exporter = createInternalHTMLSerializer(
       this.editor.pmSchema,
       this.editor,

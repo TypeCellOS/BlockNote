@@ -25,10 +25,40 @@ function removeUndefined<T extends Record<string, any> | undefined>(obj: T): T {
   ) as T;
 }
 
+/**
+ * Do note that this is separate from the `BlockNoteSchema` which is now reduced to a simple factory for instantiating a {@link CustomBlockNoteSchema} instance.
+ * In the future, we will rename the `BlockNoteSchema` to `DefaultBlockNoteSchema` and this will be the default schema that is used when no schema is passed to the editor.
+ * At that time, `CustomBlockNoteSchema` will be renamed to `BlockNoteSchema` and this will be the base class for all schemas.
+ */
+
+/**
+ * The CustomBlockNoteSchema class defines the shape of the schema that BlockNote uses, it defines all of the blocks, inline content, and styles that are available in the editor.
+ * You can create a custom schema by extending the CustomBlockNoteSchema class and passing in the blocks, inline content, and styles that you want to use.
+ *
+ * @example
+ * ```typescript
+ * const schema = new CustomBlockNoteSchema({
+ *   blockSpecs: {
+ *     block: { type: "block", content: "styled" },
+ *   },
+ * });
+ * // extending the schema
+ * const extendedSchema = schema.extend({
+ *   blockSpecs: {
+ *     block: { type: "block", content: "styled" },
+ *   },
+ * });
+ *
+ * // using the schema
+ * const editor = new BlockNoteEditor({
+ *   schema: extendedSchema,
+ * });
+ * ```
+ */
 export class CustomBlockNoteSchema<
-  BSchema extends BlockSchema,
-  ISchema extends InlineContentSchema,
-  SSchema extends StyleSchema,
+  BSchema extends BlockSchema = Record<string, never>,
+  ISchema extends InlineContentSchema = Record<string, never>,
+  SSchema extends StyleSchema = Record<string, never>,
 > {
   // Helper so that you can use typeof schema.BlockNoteEditor
   public readonly BlockNoteEditor: BlockNoteEditor<BSchema, ISchema, SSchema> =

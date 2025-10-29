@@ -1,16 +1,16 @@
-import { FileBlockConfig } from "@blocknote/core";
+import { FileBlockConfig, PropSchemaFromZod } from "@blocknote/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 
 import {
-  baseFilePropSchema,
-  optionalFileProps,
+  baseFileZodPropSchema,
+  optionalFileZodPropSchema,
 } from "../../../../../../core/src/blocks/defaultFileProps.js";
 import { useUploadLoading } from "../../../../hooks/useUploadLoading.js";
 import { ReactCustomBlockRenderProps } from "../../../../schema/ReactBlockSpec.js";
 import { FileBlockWrapper } from "./FileBlockWrapper.js";
 
-const requiredPropSchema = baseFilePropSchema.extend({
-  ...optionalFileProps.pick({
+const requiredZodPropSchema = baseFileZodPropSchema.extend({
+  ...optionalFileZodPropSchema.pick({
     url: true,
     previewWidth: true,
     showPreview: true,
@@ -21,7 +21,7 @@ export const ResizableFileBlockWrapper = (
   props: Omit<
     ReactCustomBlockRenderProps<
       FileBlockConfig["type"],
-      typeof requiredPropSchema,
+      PropSchemaFromZod<typeof requiredZodPropSchema>,
       FileBlockConfig["content"]
     >,
     "contentRef"

@@ -515,6 +515,10 @@ export const copyTestInstancesHTML: TestInstance<
           content: "Check List Item 1",
         },
         {
+          type: "toggleListItem",
+          content: "Toggle List Item 1",
+        },
+        {
           type: "codeBlock",
           content: 'console.log("Hello World");',
         },
@@ -590,6 +594,13 @@ export const copyTestInstancesHTML: TestInstance<
             checked: true,
           },
           content: "Check List Item 1",
+        },
+        {
+          type: "toggleListItem",
+          props: {
+            textAlignment: "right",
+          },
+          content: "Toggle List Item 1",
         },
         {
           type: "codeBlock",

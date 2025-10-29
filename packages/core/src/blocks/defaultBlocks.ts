@@ -1,3 +1,4 @@
+import type { Mark } from "@tiptap/core";
 import Bold from "@tiptap/extension-bold";
 import Code from "@tiptap/extension-code";
 import Italic from "@tiptap/extension-italic";
@@ -7,33 +8,36 @@ import { COLORS_DEFAULT } from "../editor/defaultColors.js";
 import {
   BlockNoDefaults,
   BlockSchema,
+  createStyleSpec,
+  createStyleSpecFromTipTapMark,
+  getInlineContentSchemaFromSpecs,
+  getStyleSchemaFromSpecs,
   InlineContentSchema,
   InlineContentSpecs,
   PartialBlockNoDefaults,
   StyleSchema,
   StyleSpecs,
-  createStyleSpec,
-  createStyleSpecFromTipTapMark,
-  getInlineContentSchemaFromSpecs,
-  getStyleSchemaFromSpecs,
 } from "../schema/index.js";
-import { createAudioBlockSpec } from "./Audio/block.js";
-import { createCodeBlockSpec } from "./Code/block.js";
-import { defaultProps } from "./defaultProps.js";
-import { createDividerBlockSpec } from "./Divider/block.js";
-import { createFileBlockSpec } from "./File/block.js";
-import { createHeadingBlockSpec } from "./Heading/block.js";
-import { createImageBlockSpec } from "./Image/block.js";
-import { createBulletListItemBlockSpec } from "./ListItem/BulletListItem/block.js";
-import { createCheckListItemBlockSpec } from "./ListItem/CheckListItem/block.js";
-import { createNumberedListItemBlockSpec } from "./ListItem/NumberedListItem/block.js";
-import { createToggleListItemBlockSpec } from "./ListItem/ToggleListItem/block.js";
-import { createParagraphBlockSpec } from "./Paragraph/block.js";
-import { createQuoteBlockSpec } from "./Quote/block.js";
+import {
+  createAudioBlockSpec,
+  createBulletListItemBlockSpec,
+  createCheckListItemBlockSpec,
+  createCodeBlockSpec,
+  createDividerBlockSpec,
+  createFileBlockSpec,
+  createHeadingBlockSpec,
+  createImageBlockSpec,
+  createNumberedListItemBlockSpec,
+  createParagraphBlockSpec,
+  createQuoteBlockSpec,
+  createToggleListItemBlockSpec,
+  createVideoBlockSpec,
+  defaultZodPropSchema,
+} from "./index.js";
 import { createTableBlockSpec } from "./Table/block.js";
-import { createVideoBlockSpec } from "./Video/block.js";
 
 export const defaultBlockSpecs = {
+  // To speed up TS compilation, we re-use the type assertions to avoid TS needing to compare types all the time
   audio: createAudioBlockSpec(),
   bulletListItem: createBulletListItemBlockSpec(),
   checkListItem: createCheckListItemBlockSpec(),
@@ -74,7 +78,8 @@ const TextColor = createStyleSpec(
     toExternalHTML: (value) => {
       const span = document.createElement("span");
       // const defaultValue = defaultProps.parse({}).textColor;
-      const defaultValue = defaultProps.shape.textColor.def.defaultValue;
+      const defaultValue =
+        defaultZodPropSchema.shape.textColor.def.defaultValue;
       if (value !== defaultValue) {
         span.style.color =
           value in COLORS_DEFAULT ? COLORS_DEFAULT[value].text : value;
@@ -113,7 +118,8 @@ const BackgroundColor = createStyleSpec(
       const span = document.createElement("span");
       // TODO
       // const defaultValues = defaultProps.parse({});
-      const defaultValue = defaultProps.shape.backgroundColor.def.defaultValue;
+      const defaultValue =
+        defaultZodPropSchema.shape.backgroundColor.def.defaultValue;
       if (value !== defaultValue) {
         span.style.backgroundColor =
           value in COLORS_DEFAULT ? COLORS_DEFAULT[value].background : value;
@@ -135,11 +141,26 @@ const BackgroundColor = createStyleSpec(
 );
 
 export const defaultStyleSpecs = {
-  bold: createStyleSpecFromTipTapMark(Bold, "boolean"),
-  italic: createStyleSpecFromTipTapMark(Italic, "boolean"),
-  underline: createStyleSpecFromTipTapMark(Underline, "boolean"),
-  strike: createStyleSpecFromTipTapMark(Strike, "boolean"),
-  code: createStyleSpecFromTipTapMark(Code, "boolean"),
+  bold: createStyleSpecFromTipTapMark(
+    Bold as Mark & { name: "bold" },
+    "boolean",
+  ),
+  italic: createStyleSpecFromTipTapMark(
+    Italic as Mark & { name: "italic" },
+    "boolean",
+  ),
+  underline: createStyleSpecFromTipTapMark(
+    Underline as Mark & { name: "underline" },
+    "boolean",
+  ),
+  strike: createStyleSpecFromTipTapMark(
+    Strike as Mark & { name: "strike" },
+    "boolean",
+  ),
+  code: createStyleSpecFromTipTapMark(
+    Code as Mark & { name: "code" },
+    "boolean",
+  ),
   textColor: TextColor,
   backgroundColor: BackgroundColor,
 } satisfies StyleSpecs;

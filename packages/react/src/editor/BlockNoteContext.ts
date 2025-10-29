@@ -1,6 +1,6 @@
 import {
   BlockNoteEditor,
-  BlockNoteSchema,
+  CustomBlockNoteSchema,
   BlockSchema,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
@@ -33,7 +33,7 @@ export function useBlockNoteContext<
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
   SSchema extends StyleSchema = DefaultStyleSchema,
 >(
-  _schema?: BlockNoteSchema<BSchema, ISchema, SSchema>,
+  _schema?: CustomBlockNoteSchema<BSchema, ISchema, SSchema>,
 ): BlockNoteContextValue<BSchema, ISchema, SSchema> | undefined {
   const context = useContext(BlockNoteContext) as any;
 

@@ -3,6 +3,7 @@ import {
   createBlockSpec,
   createInlineContentSpec,
   createPageBreakBlockSpec,
+  createPropSchemaFromZod,
   createStyleSpec,
   defaultBlockSpecs,
   defaultInlineContentSpecs,
@@ -37,7 +38,7 @@ describe("exporter", () => {
           {
             content: "none",
             type: "extraBlock",
-            propSchema: z.object({}),
+            propSchema: createPropSchemaFromZod(z.object({})),
           },
           {} as any,
         )(),
@@ -77,7 +78,7 @@ describe("exporter", () => {
           {
             type: "extraInlineContent",
             content: "styled",
-            propSchema: z.object({}),
+            propSchema: createPropSchemaFromZod(z.object({})),
           },
           {} as any,
         ),
