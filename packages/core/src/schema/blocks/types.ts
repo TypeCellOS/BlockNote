@@ -313,11 +313,7 @@ export type PartialBlockNoDefaults<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
-> = PartialBlocksWithoutChildren<
-  BSchema,
-  I,
-  S
->[keyof PartialBlocksWithoutChildren<BSchema, I, S>] &
+> = PartialBlocksWithoutChildren<BSchema, I, S>[keyof BSchema] &
   Partial<{
     children: PartialBlockNoDefaults<BSchema, I, S>[];
   }>;
