@@ -10,7 +10,7 @@ import { RiImageAddFill } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
-import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks.js";
+import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 
 export const FilePreviewButton = () => {
@@ -23,44 +23,56 @@ export const FilePreviewButton = () => {
     StyleSchema
   >();
 
-  const selectedBlocks = useSelectedBlocks(editor);
+  const state = useEditorState({
+    editor,
+    selector: ({ editor }) => {
+      if (!editor.isEditable) {
+        return undefined;
+      }
 
-  const fileBlock = useMemo(() => {
-    // Checks if only one block is selected.
-    if (selectedBlocks.length !== 1) {
-      return undefined;
-    }
+      const selectedBlocks = editor.getSelection()?.blocks || [
+        editor.getTextCursorPosition().block,
+      ];
 
-    const block = selectedBlocks[0];
+      if (selectedBlocks.length !== 1) {
+        return undefined;
+      }
 
-    if (
-      blockHasType(block, editor, block.type, {
-        url: "string",
-        showPreview: "boolean",
-      })
-    ) {
-      return block;
-    }
+      const block = selectedBlocks[0];
 
-    return undefined;
-  }, [editor, selectedBlocks]);
+      if (
+        !blockHasType(block, editor, block.type, {
+          url: "string",
+          showPreview: "boolean",
+        })
+      ) {
+        return undefined;
+      }
+
+      return {
+        blockId: block.id,
+        blockType: block.type,
+        showPreview: block.props.showPreview,
+      };
+    },
+  });
 
   const onClick = useCallback(() => {
     if (
-      fileBlock &&
-      editorHasBlockWithType(editor, fileBlock.type, {
+      state !== undefined &&
+      editorHasBlockWithType(editor, state.blockType, {
         showPreview: "boolean",
       })
     ) {
-      editor.updateBlock(fileBlock, {
+      editor.updateBlock(state.blockId, {
         props: {
-          showPreview: !fileBlock.props.showPreview,
+          showPreview: !state.showPreview,
         },
       });
     }
-  }, [editor, fileBlock]);
+  }, [editor, state]);
 
-  if (!fileBlock || fileBlock.props.url === "" || !editor.isEditable) {
+  if (state === undefined) {
     return null;
   }
 
@@ -70,7 +82,7 @@ export const FilePreviewButton = () => {
       label={"Toggle preview"}
       mainTooltip={dict.formatting_toolbar.file_preview_toggle.tooltip}
       icon={<RiImageAddFill />}
-      isSelected={fileBlock.props.showPreview}
+      isSelected={state.showPreview}
       onClick={onClick}
     />
   );

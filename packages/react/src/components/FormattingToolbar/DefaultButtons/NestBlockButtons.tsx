@@ -22,30 +22,37 @@ export const NestBlockButton = () => {
     StyleSchema
   >();
 
-  const { show, canNestBlock } = useEditorState({
+  const state = useEditorState({
     editor,
     selector: ({ editor }) => {
-      if (!editor.isEditable) {
-        return { show: false, canNestBlock: false };
+      // Do not show if:
+      if (
+        // The editor is read-only.
+        !editor.isEditable ||
+        // None of the selected blocks have inline content
+        !(
+          editor.getSelection()?.blocks || [
+            editor.getTextCursorPosition().block,
+          ]
+        ).find((block) => block.content !== undefined)
+      ) {
+        return undefined;
       }
-      const selectedBlocks = editor.getSelection()?.blocks || [
-        editor.getTextCursorPosition().block,
-      ];
+
       return {
-        show: !selectedBlocks.find(
-          (block) => editor.schema.blockSchema[block.type].content !== "inline",
-        ),
         canNestBlock: editor.canNestBlock(),
       };
     },
   });
 
   const nestBlock = useCallback(() => {
-    editor.focus();
-    editor.nestBlock();
-  }, [editor]);
+    if (state !== undefined && state.canNestBlock) {
+      editor.focus();
+      editor.nestBlock();
+    }
+  }, [editor, state]);
 
-  if (!show) {
+  if (state === undefined) {
     return null;
   }
 
@@ -54,7 +61,7 @@ export const NestBlockButton = () => {
       className={"bn-button"}
       data-test="nestBlock"
       onClick={nestBlock}
-      isDisabled={!canNestBlock}
+      isDisabled={!state.canNestBlock}
       label={dict.formatting_toolbar.nest.tooltip}
       mainTooltip={dict.formatting_toolbar.nest.tooltip}
       secondaryTooltip={formatKeyboardShortcut(
@@ -72,30 +79,37 @@ export const UnnestBlockButton = () => {
 
   const editor = useBlockNoteEditor<any, any, any>();
 
-  const { show, canUnnestBlock } = useEditorState({
+  const state = useEditorState({
     editor,
     selector: ({ editor }) => {
-      if (!editor.isEditable) {
-        return { show: false, canUnnestBlock: false };
+      // Do not show if:
+      if (
+        // The editor is read-only.
+        !editor.isEditable ||
+        // None of the selected blocks have inline content
+        !(
+          editor.getSelection()?.blocks || [
+            editor.getTextCursorPosition().block,
+          ]
+        ).find((block) => block.content !== undefined)
+      ) {
+        return undefined;
       }
-      const selectedBlocks = editor.getSelection()?.blocks || [
-        editor.getTextCursorPosition().block,
-      ];
+
       return {
-        show: !selectedBlocks.find(
-          (block) => editor.schema.blockSchema[block.type].content !== "inline",
-        ),
         canUnnestBlock: editor.canUnnestBlock(),
       };
     },
   });
 
   const unnestBlock = useCallback(() => {
-    editor.focus();
-    editor.unnestBlock();
-  }, [editor]);
+    if (state !== undefined && state.canUnnestBlock) {
+      editor.focus();
+      editor.unnestBlock();
+    }
+  }, [editor, state]);
 
-  if (!show) {
+  if (state === undefined) {
     return null;
   }
 
@@ -104,7 +118,7 @@ export const UnnestBlockButton = () => {
       className={"bn-button"}
       data-test="unnestBlock"
       onClick={unnestBlock}
-      isDisabled={!canUnnestBlock}
+      isDisabled={!state.canUnnestBlock}
       label={dict.formatting_toolbar.unnest.tooltip}
       mainTooltip={dict.formatting_toolbar.unnest.tooltip}
       secondaryTooltip={formatKeyboardShortcut(

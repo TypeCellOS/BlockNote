@@ -4,12 +4,12 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { RiDownload2Fill } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
-import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks.js";
+import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 import { sanitizeUrl } from "../../../util/sanitizeUrl.js";
 
@@ -23,40 +23,52 @@ export const FileDownloadButton = () => {
     StyleSchema
   >();
 
-  const selectedBlocks = useSelectedBlocks(editor);
+  const state = useEditorState({
+    editor,
+    selector: ({ editor }) => {
+      if (!editor.isEditable) {
+        return undefined;
+      }
 
-  const fileBlock = useMemo(() => {
-    // Checks if only one block is selected.
-    if (selectedBlocks.length !== 1) {
-      return undefined;
-    }
+      const selectedBlocks = editor.getSelection()?.blocks || [
+        editor.getTextCursorPosition().block,
+      ];
 
-    const block = selectedBlocks[0];
+      if (selectedBlocks.length !== 1) {
+        return undefined;
+      }
 
-    if (blockHasType(block, editor, block.type, { url: "string" })) {
-      return block;
-    }
+      const block = selectedBlocks[0];
 
-    return undefined;
-  }, [editor, selectedBlocks]);
+      if (
+        !blockHasType(block, editor, block.type, {
+          url: "string",
+        })
+      ) {
+        return undefined;
+      }
+
+      return { blockId: block.id, blockType: block.type, url: block.props.url };
+    },
+  });
 
   const onClick = useCallback(() => {
-    if (fileBlock && fileBlock.props.url) {
+    if (state !== undefined) {
       editor.focus();
 
       if (!editor.resolveFileUrl) {
-        window.open(sanitizeUrl(fileBlock.props.url, window.location.href));
+        window.open(sanitizeUrl(state.url, window.location.href));
       } else {
         editor
-          .resolveFileUrl(fileBlock.props.url)
+          .resolveFileUrl(state.url)
           .then((downloadUrl) =>
             window.open(sanitizeUrl(downloadUrl, window.location.href)),
           );
       }
     }
-  }, [editor, fileBlock]);
+  }, [editor, state]);
 
-  if (!fileBlock || fileBlock.props.url === "") {
+  if (state === undefined) {
     return null;
   }
 
@@ -64,11 +76,11 @@ export const FileDownloadButton = () => {
     <Components.FormattingToolbar.Button
       className={"bn-button"}
       label={
-        dict.formatting_toolbar.file_download.tooltip[fileBlock.type] ||
+        dict.formatting_toolbar.file_download.tooltip[state.blockType] ||
         dict.formatting_toolbar.file_download.tooltip["file"]
       }
       mainTooltip={
-        dict.formatting_toolbar.file_download.tooltip[fileBlock.type] ||
+        dict.formatting_toolbar.file_download.tooltip[state.blockType] ||
         dict.formatting_toolbar.file_download.tooltip["file"]
       }
       icon={<RiDownload2Fill />}

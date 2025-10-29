@@ -5,7 +5,7 @@ import {
   StyleSchema,
   formatKeyboardShortcut,
 } from "@blocknote/core";
-import { useMemo, useState } from "react";
+import { useCallback } from "react";
 import { IconType } from "react-icons";
 import {
   RiBold,
@@ -17,8 +17,7 @@ import {
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
-import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange.js";
-import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks.js";
+import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 
 type BasicTextStyle = "bold" | "italic" | "underline" | "strike" | "code";
@@ -63,45 +62,40 @@ export const BasicTextStyleButton = <Style extends BasicTextStyle>(props: {
     StyleSchema
   >();
 
-  const basicTextStyleInSchema = checkBasicTextStyleInSchema(
-    props.basicTextStyle,
+  const state = useEditorState({
     editor,
+    selector: ({ editor }) => {
+      // Do not show if:
+      if (
+        // The editor is read-only.
+        !editor.isEditable ||
+        // The style is not in the schema.
+        !checkBasicTextStyleInSchema(props.basicTextStyle, editor) ||
+        // None of the selected blocks have inline content
+        !(
+          editor.getSelection()?.blocks || [
+            editor.getTextCursorPosition().block,
+          ]
+        ).find((block) => block.content !== undefined)
+      ) {
+        return undefined;
+      }
+
+      return props.basicTextStyle in editor.getActiveStyles()
+        ? { active: true }
+        : { active: false };
+    },
+  });
+
+  const toggleStyle = useCallback(
+    (style: typeof props.basicTextStyle) => {
+      editor.focus();
+      editor.toggleStyles({ [style]: true } as any);
+    },
+    [editor, props],
   );
 
-  const selectedBlocks = useSelectedBlocks(editor);
-
-  const [active, setActive] = useState<boolean>(
-    props.basicTextStyle in editor.getActiveStyles(),
-  );
-
-  useEditorContentOrSelectionChange(() => {
-    if (basicTextStyleInSchema) {
-      setActive(props.basicTextStyle in editor.getActiveStyles());
-    }
-  }, editor);
-
-  const toggleStyle = (style: typeof props.basicTextStyle) => {
-    editor.focus();
-
-    if (!basicTextStyleInSchema) {
-      return;
-    }
-
-    if (editor.schema.styleSchema[style].propSchema !== "boolean") {
-      throw new Error("can only toggle boolean styles");
-    }
-    editor.toggleStyles({ [style]: true } as any);
-  };
-
-  const show = useMemo(() => {
-    if (!basicTextStyleInSchema) {
-      return false;
-    }
-    // Also don't show when none of the selected blocks have text content
-    return !!selectedBlocks.find((block) => block.content !== undefined);
-  }, [basicTextStyleInSchema, selectedBlocks]);
-
-  if (!show || !editor.isEditable) {
+  if (state === undefined) {
     return null;
   }
 
@@ -111,7 +105,7 @@ export const BasicTextStyleButton = <Style extends BasicTextStyle>(props: {
       className="bn-button"
       data-test={props.basicTextStyle}
       onClick={() => toggleStyle(props.basicTextStyle)}
-      isSelected={active}
+      isSelected={state.active}
       label={dict.formatting_toolbar[props.basicTextStyle].tooltip}
       mainTooltip={dict.formatting_toolbar[props.basicTextStyle].tooltip}
       secondaryTooltip={formatKeyboardShortcut(
