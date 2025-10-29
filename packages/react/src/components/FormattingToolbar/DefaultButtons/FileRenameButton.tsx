@@ -16,7 +16,7 @@ import { RiFontFamily } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
-import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks.js";
+import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 
 export const FileRenameButton = () => {
@@ -31,47 +31,59 @@ export const FileRenameButton = () => {
 
   const [currentEditingName, setCurrentEditingName] = useState<string>();
 
-  const selectedBlocks = useSelectedBlocks(editor);
+  const state = useEditorState({
+    editor,
+    selector: ({ editor }) => {
+      if (!editor.isEditable) {
+        return undefined;
+      }
 
-  const fileBlock = useMemo(() => {
-    // Checks if only one block is selected.
-    if (selectedBlocks.length !== 1) {
-      return undefined;
-    }
+      const selectedBlocks = editor.getSelection()?.blocks || [
+        editor.getTextCursorPosition().block,
+      ];
 
-    const block = selectedBlocks[0];
+      if (selectedBlocks.length !== 1) {
+        return undefined;
+      }
 
-    if (
-      blockHasType(block, editor, block.type, {
-        url: "string",
-        name: "string",
-      })
-    ) {
+      const block = selectedBlocks[0];
+
+      if (
+        !blockHasType(block, editor, block.type, {
+          url: "string",
+          name: "string",
+        })
+      ) {
+        return undefined;
+      }
+
       setCurrentEditingName(block.props.name);
-      return block;
-    }
-
-    return undefined;
-  }, [editor, selectedBlocks]);
+      return {
+        blockId: block.id,
+        blockType: block.type,
+        name: block.props.name,
+      };
+    },
+  });
 
   const handleEnter = useCallback(
     (event: KeyboardEvent) => {
       if (
-        fileBlock &&
-        editorHasBlockWithType(editor, fileBlock.type, {
+        state !== undefined &&
+        editorHasBlockWithType(editor, state.blockType, {
           name: "string",
         }) &&
         event.key === "Enter"
       ) {
         event.preventDefault();
-        editor.updateBlock(fileBlock, {
+        editor.updateBlock(state.blockId, {
           props: {
             name: currentEditingName,
           },
         });
       }
     },
-    [currentEditingName, editor, fileBlock],
+    [currentEditingName, editor, state],
   );
 
   const handleChange = useCallback(
@@ -80,7 +92,7 @@ export const FileRenameButton = () => {
     [],
   );
 
-  if (!fileBlock || fileBlock.props.name === "" || !editor.isEditable) {
+  if (state === undefined) {
     return null;
   }
 
@@ -90,11 +102,11 @@ export const FileRenameButton = () => {
         <Components.FormattingToolbar.Button
           className={"bn-button"}
           label={
-            dict.formatting_toolbar.file_rename.tooltip[fileBlock.type] ||
+            dict.formatting_toolbar.file_rename.tooltip[state.blockType] ||
             dict.formatting_toolbar.file_rename.tooltip["file"]
           }
           mainTooltip={
-            dict.formatting_toolbar.file_rename.tooltip[fileBlock.type] ||
+            dict.formatting_toolbar.file_rename.tooltip[state.blockType] ||
             dict.formatting_toolbar.file_rename.tooltip["file"]
           }
           icon={<RiFontFamily />}
@@ -112,7 +124,7 @@ export const FileRenameButton = () => {
             autoFocus={true}
             placeholder={
               dict.formatting_toolbar.file_rename.input_placeholder[
-                fileBlock.type
+                state.blockType
               ] || dict.formatting_toolbar.file_rename.input_placeholder["file"]
             }
             onKeyDown={handleEnter}

@@ -5,18 +5,12 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import {
-  ChangeEvent,
-  KeyboardEvent,
-  useCallback,
-  useMemo,
-  useState,
-} from "react";
+import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
 import { RiInputField } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
-import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks.js";
+import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 
 export const FileCaptionButton = () => {
@@ -31,47 +25,59 @@ export const FileCaptionButton = () => {
 
   const [currentEditingCaption, setCurrentEditingCaption] = useState<string>();
 
-  const selectedBlocks = useSelectedBlocks(editor);
+  const state = useEditorState({
+    editor,
+    selector: ({ editor }) => {
+      if (!editor.isEditable) {
+        return undefined;
+      }
 
-  const fileBlock = useMemo(() => {
-    // Checks if only one block is selected.
-    if (selectedBlocks.length !== 1) {
-      return undefined;
-    }
+      const selectedBlocks = editor.getSelection()?.blocks || [
+        editor.getTextCursorPosition().block,
+      ];
 
-    const block = selectedBlocks[0];
+      if (selectedBlocks.length !== 1) {
+        return undefined;
+      }
 
-    if (
-      blockHasType(block, editor, block.type, {
-        url: "string",
-        caption: "string",
-      })
-    ) {
+      const block = selectedBlocks[0];
+
+      if (
+        !blockHasType(block, editor, block.type, {
+          url: "string",
+          caption: "string",
+        })
+      ) {
+        return undefined;
+      }
+
       setCurrentEditingCaption(block.props.caption);
-      return block;
-    }
-
-    return undefined;
-  }, [editor, selectedBlocks]);
+      return {
+        blockId: block.id,
+        blockType: block.type,
+        caption: block.props.caption,
+      };
+    },
+  });
 
   const handleEnter = useCallback(
     (event: KeyboardEvent) => {
       if (
-        fileBlock &&
-        editorHasBlockWithType(editor, fileBlock.type, {
+        state !== undefined &&
+        editorHasBlockWithType(editor, state.blockType, {
           caption: "string",
         }) &&
         event.key === "Enter"
       ) {
         event.preventDefault();
-        editor.updateBlock(fileBlock, {
+        editor.updateBlock(state.blockId, {
           props: {
             caption: currentEditingCaption,
           },
         });
       }
     },
-    [currentEditingCaption, editor, fileBlock],
+    [currentEditingCaption, editor, state],
   );
 
   const handleChange = useCallback(
@@ -80,7 +86,7 @@ export const FileCaptionButton = () => {
     [],
   );
 
-  if (!fileBlock || fileBlock.props.url === "" || !editor.isEditable) {
+  if (state === undefined) {
     return null;
   }
 
@@ -92,7 +98,7 @@ export const FileCaptionButton = () => {
           label={dict.formatting_toolbar.file_caption.tooltip}
           mainTooltip={dict.formatting_toolbar.file_caption.tooltip}
           icon={<RiInputField />}
-          isSelected={fileBlock.props.caption !== ""}
+          isSelected={state.caption !== ""}
         />
       </Components.Generic.Popover.Trigger>
       <Components.Generic.Popover.Content

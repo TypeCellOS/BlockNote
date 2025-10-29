@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { RiLink } from "react-icons/ri";
 
 import {
@@ -12,8 +12,7 @@ import {
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
-import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange.js";
-import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks.js";
+import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 import { EditLinkMenuItems } from "../../LinkToolbar/EditLinkMenuItems.js";
 
@@ -45,30 +44,46 @@ export const CreateLinkButton = () => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  const linkInSchema = checkLinkInSchema(editor);
+  const [showPopover, setShowPopover] = useState(false);
 
-  const selectedBlocks = useSelectedBlocks(editor);
+  const state = useEditorState({
+    editor,
+    selector: ({ editor }) => {
+      setShowPopover(false);
 
-  const [opened, setOpened] = useState(false);
-  const [url, setUrl] = useState<string>(editor.getSelectedLinkUrl() || "");
-  const [text, setText] = useState<string>(editor.getSelectedText());
+      // Do not show if:
+      if (
+        // The editor is read-only.
+        !editor.isEditable ||
+        // Links are not in the schema.
+        !checkLinkInSchema(editor) ||
+        // Table cells are selected.
+        isTableCellSelection(editor.prosemirrorState.selection) ||
+        // None of the selected blocks have inline content
+        !(
+          editor.getSelection()?.blocks || [
+            editor.getTextCursorPosition().block,
+          ]
+        ).find((block) => block.content !== undefined)
+      ) {
+        return undefined;
+      }
 
-  useEditorContentOrSelectionChange(() => {
-    setText(editor.getSelectedText() || "");
-    setUrl(editor.getSelectedLinkUrl() || "");
-  }, editor);
+      return {
+        url: editor.getSelectedLinkUrl(),
+        text: editor.getSelectedText(),
+      };
+    },
+  });
 
+  // Makes Ctrl+K/Meta+K open link creation popover.
   useEffect(() => {
     const callback = (event: KeyboardEvent) => {
       if ((event.ctrlKey || event.metaKey) && event.key === "k") {
-        setOpened(true);
+        setShowPopover(true);
         event.preventDefault();
       }
     };
-
-    if (editor.headless) {
-      return;
-    }
 
     editor.prosemirrorView.dom.addEventListener("keydown", callback);
 
@@ -80,40 +95,17 @@ export const CreateLinkButton = () => {
   const update = useCallback(
     (url: string) => {
       editor.createLink(url);
-      setOpened(false);
       editor.focus();
     },
     [editor],
   );
 
-  const isTableSelection = editor.transact((tr) =>
-    isTableCellSelection(tr.selection),
-  );
-
-  const show = useMemo(() => {
-    if (!linkInSchema) {
-      return false;
-    }
-
-    for (const block of selectedBlocks) {
-      if (block.content === undefined) {
-        return false;
-      }
-    }
-
-    return !isTableSelection;
-  }, [linkInSchema, selectedBlocks, isTableSelection]);
-
-  if (
-    !show ||
-    !("link" in editor.schema.inlineContentSchema) ||
-    !editor.isEditable
-  ) {
+  if (state === undefined) {
     return null;
   }
 
   return (
-    <Components.Generic.Popover.Root opened={opened}>
+    <Components.Generic.Popover.Root opened={showPopover}>
       <Components.Generic.Popover.Trigger>
         {/* TODO: hide tooltip on click */}
         <Components.FormattingToolbar.Button
@@ -126,7 +118,7 @@ export const CreateLinkButton = () => {
             dict.generic.ctrl_shortcut,
           )}
           icon={<RiLink />}
-          onClick={() => setOpened(true)}
+          onClick={() => setShowPopover(true)}
         />
       </Components.Generic.Popover.Trigger>
       <Components.Generic.Popover.Content
@@ -134,8 +126,8 @@ export const CreateLinkButton = () => {
         variant={"form-popover"}
       >
         <EditLinkMenuItems
-          url={url}
-          text={text}
+          url={state.url || ""}
+          text={state.text}
           editLink={update}
           showTextField={false}
         />

@@ -4,12 +4,12 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { RiImageEditFill } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
-import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks.js";
+import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 import { FilePanel } from "../../FilePanel/FilePanel.js";
 
@@ -23,39 +23,56 @@ export const FileReplaceButton = () => {
     StyleSchema
   >();
 
-  const selectedBlocks = useSelectedBlocks(editor);
+  const [showPopover, setShowPopover] = useState(false);
 
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const state = useEditorState({
+    editor,
+    selector: ({ editor }) => {
+      setShowPopover(false);
 
-  useEffect(() => {
-    setIsOpen(false);
-  }, [selectedBlocks]);
+      if (!editor.isEditable) {
+        return undefined;
+      }
 
-  const block = selectedBlocks.length === 1 ? selectedBlocks[0] : undefined;
+      const selectedBlocks = editor.getSelection()?.blocks || [
+        editor.getTextCursorPosition().block,
+      ];
 
-  if (
-    block === undefined ||
-    !blockHasType(block, editor, block.type, {
-      url: "string",
-    }) ||
-    !editor.isEditable
-  ) {
+      if (selectedBlocks.length !== 1) {
+        return undefined;
+      }
+
+      const block = selectedBlocks[0];
+
+      if (
+        !blockHasType(block, editor, block.type, {
+          url: "string",
+        })
+      ) {
+        return undefined;
+      }
+
+      return { blockId: block.id, blockType: block.type };
+    },
+  });
+
+  if (state === undefined) {
     return null;
   }
 
   return (
-    <Components.Generic.Popover.Root opened={isOpen} position={"bottom"}>
+    <Components.Generic.Popover.Root opened={showPopover} position={"bottom"}>
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button
           className={"bn-button"}
-          onClick={() => setIsOpen(!isOpen)}
-          isSelected={isOpen}
+          onClick={() => setShowPopover((showPopover) => !showPopover)}
+          isSelected={showPopover}
           mainTooltip={
-            dict.formatting_toolbar.file_replace.tooltip[block.type] ||
+            dict.formatting_toolbar.file_replace.tooltip[state.blockType] ||
             dict.formatting_toolbar.file_replace.tooltip["file"]
           }
           label={
-            dict.formatting_toolbar.file_replace.tooltip[block.type] ||
+            dict.formatting_toolbar.file_replace.tooltip[state.blockType] ||
             dict.formatting_toolbar.file_replace.tooltip["file"]
           }
           icon={<RiImageEditFill />}
@@ -65,7 +82,7 @@ export const FileReplaceButton = () => {
         className={"bn-popover-content bn-panel-popover"}
         variant={"panel-popover"}
       >
-        <FilePanel blockId={block.id} />
+        <FilePanel blockId={state.blockId} />
       </Components.Generic.Popover.Content>
     </Components.Generic.Popover.Root>
   );
