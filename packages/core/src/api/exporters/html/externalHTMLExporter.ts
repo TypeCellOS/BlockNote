@@ -7,6 +7,7 @@ import {
   InlineContent,
   InlineContentSchema,
   StyleSchema,
+  TableContent,
 } from "../../../schema/index.js";
 import {
   serializeBlocksExternalHTML,
@@ -57,7 +58,7 @@ export const createExternalHTMLExporter = <
     },
 
     exportInlineContent: (
-      inlineContent: InlineContent<I, S>[],
+      inlineContent: InlineContent<I, S>[] | TableContent<I, S>,
       options: { document?: Document },
     ) => {
       const domFragment = serializeInlineContentExternalHTML(

@@ -4,8 +4,10 @@ import { Block } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import {
   BlockSchema,
+  InlineContent,
   InlineContentSchema,
   StyleSchema,
+  TableContent,
 } from "../../../../schema/index.js";
 import { UnreachableCaseError } from "../../../../util/typescript.js";
 import {
@@ -20,7 +22,7 @@ export function serializeInlineContentInternalHTML<
   S extends StyleSchema,
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
-  blockContent: Block<BSchema, I, S>["content"],
+  blockContent: InlineContent<I, S>[] | TableContent<I, S>,
   serializer: DOMSerializer,
   blockType?: string,
   options?: { document?: Document },
@@ -30,8 +32,6 @@ export function serializeInlineContentInternalHTML<
   // TODO: reuse function from nodeconversions?
   if (!blockContent) {
     throw new Error("blockContent is required");
-  } else if (typeof blockContent === "string") {
-    nodes = inlineContentToNodes([blockContent], editor.pmSchema, blockType);
   } else if (Array.isArray(blockContent)) {
     nodes = inlineContentToNodes(blockContent, editor.pmSchema, blockType);
   } else if (blockContent.type === "tableContent") {
@@ -151,7 +151,7 @@ function serializeBlock<
   if (ret.contentDOM && block.content) {
     const ic = serializeInlineContentInternalHTML(
       editor,
-      block.content, // TODO
+      block.content,
       serializer,
       block.type,
       options,
