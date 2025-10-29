@@ -1,5 +1,6 @@
 import { DOMSerializer, Schema } from "prosemirror-model";
-import { PartialBlock } from "../../../blocks/defaultBlocks.js";
+
+import { Block } from "../../../blocks/index.js";
 import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import {
   BlockSchema,
@@ -28,7 +29,7 @@ export const createInternalHTMLSerializer = <
 
   return {
     serializeBlocks: (
-      blocks: PartialBlock<BSchema, I, S>[],
+      blocks: Block<BSchema, I, S>[],
       options: { document?: Document },
     ) => {
       return serializeBlocksInternalHTML(editor, blocks, serializer, options)

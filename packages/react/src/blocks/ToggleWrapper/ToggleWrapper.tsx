@@ -4,9 +4,8 @@ import {
   UnreachableCaseError,
 } from "@blocknote/core";
 import { ReactNode, useReducer, useState } from "react";
-
-import { ReactCustomBlockRenderProps } from "../../schema/ReactBlockSpec.js";
 import { useEditorChange } from "../../hooks/useEditorChange.js";
+import { ReactCustomBlockRenderProps } from "../../schema/ReactBlockSpec.js";
 
 const showChildrenReducer = (
   showChildren: boolean,
@@ -78,7 +77,11 @@ export const ToggleWrapper = (
   };
 
   useEditorChange(() => {
-    if ("isToggleable" in block.props && !block.props.isToggleable) {
+    // TODO (as any)
+    if (
+      "isToggleable" in (block.props as any) &&
+      !(block.props as any).isToggleable
+    ) {
       return;
     }
 
@@ -101,7 +104,11 @@ export const ToggleWrapper = (
     setChildCount(newChildCount);
   });
 
-  if ("isToggleable" in block.props && !block.props.isToggleable) {
+  // TODO
+  if (
+    "isToggleable" in (block.props as any) &&
+    !(block.props as any).isToggleable
+  ) {
     return children;
   }
 

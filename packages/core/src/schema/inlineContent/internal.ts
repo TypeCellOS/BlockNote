@@ -34,7 +34,7 @@ export function addInlineContentAttributes<
   // Adds props as HTML attributes in kebab-case with "data-" prefix. Skips props
   // set to their default values.
   for (const [prop, value] of Object.entries(inlineContentProps)) {
-    const spec = propSchema._zod.def.shape[prop];
+    const spec = propSchema._zodSource._zod.def.shape[prop];
     const defaultValue =
       spec instanceof z.$ZodDefault ? spec._zod.def.defaultValue : undefined;
     if (value !== defaultValue) {

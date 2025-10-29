@@ -1,5 +1,5 @@
 import {
-  BlockFromConfigNoChildren,
+  BlockFromConfig,
   BlockSchema,
   CustomBlockNoteSchema,
   InlineContentFromConfig,
@@ -20,7 +20,7 @@ export type BlockMapping<
   RI,
 > = {
   [K in keyof B]: (
-    block: BlockFromConfigNoChildren<B[K], I, S>,
+    block: BlockFromConfig<B[K], I, S>,
     // we don't know the exact types that are supported by the exporter at this point,
     // because the mapping only knows about converting certain types (which might be a subset of the supported types)
     // this is why there are many `any` types here (same for types below)

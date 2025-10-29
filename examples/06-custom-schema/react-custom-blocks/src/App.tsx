@@ -1,7 +1,9 @@
 import {
   BlockNoteSchema,
+  createPropSchemaFromZod,
   defaultBlockSpecs,
-  defaultProps,
+  defaultPropSchema,
+  defaultZodPropSchema,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
@@ -38,16 +40,18 @@ const alertTypes = {
 export const alertBlock = createReactBlockSpec(
   {
     type: "alert",
-    propSchema: defaultProps
-      .pick({
-        textAlignment: true,
-        textColor: true,
-      })
-      .extend({
-        type: z
-          .enum(["warning", "error", "info", "success"])
-          .default("warning"),
-      }),
+    propSchema: createPropSchemaFromZod(
+      defaultZodPropSchema
+        .pick({
+          textAlignment: true,
+          textColor: true,
+        })
+        .extend({
+          type: z
+            .enum(["warning", "error", "info", "success"])
+            .default("warning"),
+        }),
+    ),
     content: "inline",
   },
   {
@@ -82,13 +86,15 @@ export const alertBlock = createReactBlockSpec(
 const simpleImageBlock = createReactBlockSpec(
   {
     type: "simpleImage",
-    propSchema: z.object({
-      src: z
-        .string()
-        .default(
-          "https://www.pulsecarshalton.co.uk/wp-content/uploads/2016/08/jk-placeholder-image.jpg",
-        ),
-    }),
+    propSchema: createPropSchemaFromZod(
+      z.object({
+        src: z
+          .string()
+          .default(
+            "https://www.pulsecarshalton.co.uk/wp-content/uploads/2016/08/jk-placeholder-image.jpg",
+          ),
+      }),
+    ),
     content: "none",
   },
   {
@@ -106,9 +112,7 @@ export const bracketsParagraphBlock = createReactBlockSpec(
   {
     type: "bracketsParagraph",
     content: "inline",
-    propSchema: {
-      ...defaultProps,
-    },
+    propSchema: defaultPropSchema,
   },
   {
     render: (props) => (

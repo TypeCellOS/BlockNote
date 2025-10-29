@@ -2,10 +2,10 @@ import { Plugin } from "prosemirror-state";
 import { EventEmitter } from "../util/EventEmitter.js";
 
 import { AnyExtension } from "@tiptap/core";
+import { PartialBlock } from "../blocks/index.js";
 import {
   BlockSchema,
   InlineContentSchema,
-  PartialBlockNoDefaults,
   StyleSchema,
 } from "../schema/index.js";
 import { BlockNoteEditor } from "./BlockNoteEditor.js";
@@ -93,7 +93,7 @@ export type InputRule = {
      * The editor instance
      */
     editor: BlockNoteEditor<any, any, any>;
-  }) => undefined | PartialBlockNoDefaults<any, any, any>;
+  }) => undefined | PartialBlock<any, any, any>;
 };
 
 /**

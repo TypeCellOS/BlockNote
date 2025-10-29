@@ -8,7 +8,6 @@ import { COLORS_DEFAULT } from "../editor/defaultColors.js";
 import {
   BlockNoDefaults,
   BlockSchema,
-  BlockSpec,
   createStyleSpec,
   createStyleSpecFromTipTapMark,
   getInlineContentSchemaFromSpecs,
@@ -20,10 +19,6 @@ import {
   StyleSpecs,
 } from "../schema/index.js";
 import {
-  AudioBlockConfig,
-  BulletListItemBlockConfig,
-  CheckListItemBlockConfig,
-  CodeBlockConfig,
   createAudioBlockSpec,
   createBulletListItemBlockSpec,
   createCheckListItemBlockSpec,
@@ -37,91 +32,26 @@ import {
   createQuoteBlockSpec,
   createToggleListItemBlockSpec,
   createVideoBlockSpec,
-  defaultProps,
-  DividerBlockConfig,
-  FileBlockConfig,
-  HeadingBlockConfig,
-  ImageBlockConfig,
-  NumberedListItemBlockConfig,
-  ParagraphBlockConfig,
-  QuoteBlockConfig,
-  ToggleListItemBlockConfig,
-  VideoBlockConfig,
+  defaultZodPropSchema,
 } from "./index.js";
-import { createTableBlockSpec, TableBlockConfig } from "./Table/block.js";
+import { createTableBlockSpec } from "./Table/block.js";
 
 export const defaultBlockSpecs = {
   // To speed up TS compilation, we re-use the type assertions to avoid TS needing to compare types all the time
-  audio: createAudioBlockSpec() as BlockSpec<
-    AudioBlockConfig["type"],
-    AudioBlockConfig["propSchema"],
-    AudioBlockConfig["content"]
-  >,
-  bulletListItem: createBulletListItemBlockSpec() as BlockSpec<
-    BulletListItemBlockConfig["type"],
-    BulletListItemBlockConfig["propSchema"],
-    BulletListItemBlockConfig["content"]
-  >,
-  checkListItem: createCheckListItemBlockSpec() as BlockSpec<
-    CheckListItemBlockConfig["type"],
-    CheckListItemBlockConfig["propSchema"],
-    CheckListItemBlockConfig["content"]
-  >,
-  codeBlock: createCodeBlockSpec() as BlockSpec<
-    CodeBlockConfig["type"],
-    CodeBlockConfig["propSchema"],
-    CodeBlockConfig["content"]
-  >,
-  divider: createDividerBlockSpec() as BlockSpec<
-    DividerBlockConfig["type"],
-    DividerBlockConfig["propSchema"],
-    DividerBlockConfig["content"]
-  >,
-  file: createFileBlockSpec() as BlockSpec<
-    FileBlockConfig["type"],
-    FileBlockConfig["propSchema"],
-    FileBlockConfig["content"]
-  >,
-  heading: createHeadingBlockSpec() as BlockSpec<
-    HeadingBlockConfig["type"],
-    HeadingBlockConfig["propSchema"],
-    HeadingBlockConfig["content"]
-  >,
-  image: createImageBlockSpec() as BlockSpec<
-    ImageBlockConfig["type"],
-    ImageBlockConfig["propSchema"],
-    ImageBlockConfig["content"]
-  >,
-  numberedListItem: createNumberedListItemBlockSpec() as BlockSpec<
-    NumberedListItemBlockConfig["type"],
-    NumberedListItemBlockConfig["propSchema"],
-    NumberedListItemBlockConfig["content"]
-  >,
-  paragraph: createParagraphBlockSpec() as BlockSpec<
-    ParagraphBlockConfig["type"],
-    ParagraphBlockConfig["propSchema"],
-    ParagraphBlockConfig["content"]
-  >,
-  quote: createQuoteBlockSpec() as BlockSpec<
-    QuoteBlockConfig["type"],
-    QuoteBlockConfig["propSchema"],
-    QuoteBlockConfig["content"]
-  >,
-  table: createTableBlockSpec() as BlockSpec<
-    TableBlockConfig["type"],
-    TableBlockConfig["propSchema"],
-    TableBlockConfig["content"]
-  >,
-  toggleListItem: createToggleListItemBlockSpec() as BlockSpec<
-    ToggleListItemBlockConfig["type"],
-    ToggleListItemBlockConfig["propSchema"],
-    ToggleListItemBlockConfig["content"]
-  >,
-  video: createVideoBlockSpec() as BlockSpec<
-    VideoBlockConfig["type"],
-    VideoBlockConfig["propSchema"],
-    VideoBlockConfig["content"]
-  >,
+  audio: createAudioBlockSpec(),
+  bulletListItem: createBulletListItemBlockSpec(),
+  checkListItem: createCheckListItemBlockSpec(),
+  codeBlock: createCodeBlockSpec(),
+  divider: createDividerBlockSpec(),
+  file: createFileBlockSpec(),
+  heading: createHeadingBlockSpec(),
+  image: createImageBlockSpec(),
+  numberedListItem: createNumberedListItemBlockSpec(),
+  paragraph: createParagraphBlockSpec(),
+  quote: createQuoteBlockSpec(),
+  table: createTableBlockSpec(),
+  toggleListItem: createToggleListItemBlockSpec(),
+  video: createVideoBlockSpec(),
 } as const;
 
 // underscore is used that in case a user overrides DefaultBlockSchema,
@@ -148,7 +78,8 @@ const TextColor = createStyleSpec(
     toExternalHTML: (value) => {
       const span = document.createElement("span");
       // const defaultValue = defaultProps.parse({}).textColor;
-      const defaultValue = defaultProps.shape.textColor.def.defaultValue;
+      const defaultValue =
+        defaultZodPropSchema.shape.textColor.def.defaultValue;
       if (value !== defaultValue) {
         span.style.color =
           value in COLORS_DEFAULT ? COLORS_DEFAULT[value].text : value;
@@ -187,7 +118,8 @@ const BackgroundColor = createStyleSpec(
       const span = document.createElement("span");
       // TODO
       // const defaultValues = defaultProps.parse({});
-      const defaultValue = defaultProps.shape.backgroundColor.def.defaultValue;
+      const defaultValue =
+        defaultZodPropSchema.shape.backgroundColor.def.defaultValue;
       if (value !== defaultValue) {
         span.style.backgroundColor =
           value in COLORS_DEFAULT ? COLORS_DEFAULT[value].background : value;

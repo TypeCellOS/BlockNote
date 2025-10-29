@@ -1,4 +1,4 @@
-import { createBlockSpecFromTiptapNode } from "@blocknote/core";
+import { createBlockSpecFromTiptapNode, createPropSchemaFromZod } from "@blocknote/core";
 import * as z from "zod/v4";
 import { Column } from "../../pm-nodes/Column.js";
 import { ColumnList } from "../../pm-nodes/ColumnList.js";
@@ -9,9 +9,9 @@ export const ColumnBlock = createBlockSpecFromTiptapNode(
     type: "column",
     content: "none",
   },
-  z.object({
+  createPropSchemaFromZod(z.object({
     width: z.number().default(1),
-  }),
+  })),
 );
 
 export const ColumnListBlock = createBlockSpecFromTiptapNode(
@@ -20,5 +20,5 @@ export const ColumnListBlock = createBlockSpecFromTiptapNode(
     type: "columnList",
     content: "none",
   },
-  z.object({}),
+  createPropSchemaFromZod(z.object({})),
 );

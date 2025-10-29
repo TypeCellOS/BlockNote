@@ -355,7 +355,7 @@ export function nodeToCustomInlineContent<
       throw Error("ic node is of an unrecognized type: " + node.type.name);
     }
 
-    const propSchema = icConfig.propSchema._zod.def.shape;
+    const propSchema = icConfig.propSchema._zodSource._zod.def.shape;
 
     if (attr in propSchema) {
       props[attr] = value;
@@ -429,7 +429,7 @@ export function nodeToBlock<
     ...(blockInfo.isBlockContainer ? blockInfo.blockContent.node.attrs : {}),
   };
 
-  const props = z.parse(blockSpec.propSchema, rawAttrs);
+  const props = z.parse(blockSpec.propSchema._zodSource, rawAttrs);
 
   const blockConfig = blockSchema[blockInfo.blockNoteType];
 

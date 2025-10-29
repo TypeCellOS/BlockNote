@@ -1,15 +1,16 @@
 import type { Node } from "prosemirror-model";
 import type { Transaction } from "prosemirror-state";
 import type { Block, PartialBlock } from "../../../../blocks/defaultBlocks.js";
-import type {
-  BlockIdentifier,
-  BlockSchema,
-  InlineContentSchema,
-  StyleSchema,
+import {
+  partialBlockToBlock,
+  type BlockIdentifier,
+  type BlockSchema,
+  type InlineContentSchema,
+  type StyleSchema,
 } from "../../../../schema/index.js";
 import { blockToNode } from "../../../nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
-import { getPmSchema } from "../../../pmUtil.js";
+import { getBlockNoteSchema, getPmSchema } from "../../../pmUtil.js";
 
 export function removeAndInsertBlocks<
   BSchema extends BlockSchema,
@@ -18,6 +19,7 @@ export function removeAndInsertBlocks<
 >(
   tr: Transaction,
   blocksToRemove: BlockIdentifier[],
+  // TBD: allow PartialBlock here?
   blocksToInsert: PartialBlock<BSchema, I, S>[],
 ): {
   insertedBlocks: Block<BSchema, I, S>[];
@@ -27,7 +29,10 @@ export function removeAndInsertBlocks<
   // Converts the `PartialBlock`s to ProseMirror nodes to insert them into the
   // document.
   const nodesToInsert: Node[] = blocksToInsert.map((block) =>
-    blockToNode(block, pmSchema),
+    blockToNode(
+      partialBlockToBlock<BSchema, I, S>(getBlockNoteSchema(pmSchema), block),
+      pmSchema,
+    ),
   );
 
   const idsOfBlocksToRemove = new Set<string>(

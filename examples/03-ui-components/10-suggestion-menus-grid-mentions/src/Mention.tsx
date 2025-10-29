@@ -1,3 +1,4 @@
+import { createPropSchemaFromZod } from "@blocknote/core";
 import { createReactInlineContentSpec } from "@blocknote/react";
 import { z } from "zod/v4";
 
@@ -5,9 +6,11 @@ import { z } from "zod/v4";
 export const Mention = createReactInlineContentSpec(
   {
     type: "mention",
-    propSchema: z.object({
-      user: z.string().default("Unknown"),
-    }),
+    propSchema: createPropSchemaFromZod(
+      z.object({
+        user: z.string().default("Unknown"),
+      }),
+    ),
     content: "none",
   },
   {

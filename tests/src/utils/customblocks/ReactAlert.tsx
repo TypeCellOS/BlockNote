@@ -1,5 +1,9 @@
 /* eslint-disable no-console */
-import { BlockNoteEditor, defaultProps } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  createPropSchemaFromZod,
+  defaultZodPropSchema,
+} from "@blocknote/core";
 import { createReactBlockSpec } from "@blocknote/react";
 import { useEffect, useState } from "react";
 import { RiAlertFill } from "react-icons/ri";
@@ -27,16 +31,18 @@ const values = {
 export const ReactAlert = createReactBlockSpec(
   {
     type: "reactAlert" as const,
-    propSchema: defaultProps
-      .pick({
-        textAlignment: true,
-        textColor: true,
-      })
-      .extend({
-        type: z
-          .enum(["warning", "error", "info", "success"])
-          .default("warning"),
-      }),
+    propSchema: createPropSchemaFromZod(
+      defaultZodPropSchema
+        .pick({
+          textAlignment: true,
+          textColor: true,
+        })
+        .extend({
+          type: z
+            .enum(["warning", "error", "info", "success"])
+            .default("warning"),
+        }),
+    ),
     content: "inline" as const,
   },
   {

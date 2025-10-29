@@ -1,13 +1,11 @@
-import { defaultProps } from "@blocknote/core";
+import { defaultPropSchema } from "@blocknote/core";
 import { createReactBlockSpec, ToggleWrapper } from "@blocknote/react";
 
 // The Toggle block that we want to add to our editor.
 export const ToggleBlock = createReactBlockSpec(
   {
     type: "toggle",
-    propSchema: {
-      ...defaultProps,
-    } as typeof defaultProps,
+    propSchema: defaultPropSchema,
     content: "inline",
   },
   {

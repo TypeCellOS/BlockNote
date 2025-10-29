@@ -1,10 +1,11 @@
 import {
-  CustomBlockNoteSchema,
   BlockSchema,
+  CustomBlockNoteSchema,
   InlineContentSchema,
   PropSchema,
   StyleSchema,
-  defaultProps,
+  createPropSchemaFromZod,
+  defaultPropSchema,
 } from "@blocknote/core";
 import * as z4 from "zod/v4";
 import * as z from "zod/v4/core";
@@ -129,7 +130,7 @@ export function propSchemaToJSONSchema(
   return {
     type: "object",
     properties: Object.fromEntries(
-      Object.entries(propSchema._zod.def.shape)
+      Object.entries(propSchema._zodSource._zod.def.shape)
         .filter(([_key, val]) => {
           // for now skip optional props
           return !(val instanceof z.$ZodOptional);
@@ -288,10 +289,15 @@ function schemaOps(
             key,
             {
               ...val,
-              propSchema: z4.object(
-                Object.fromEntries(
-                  Object.entries(val.propSchema._zod.def.shape).filter(
-                    ([key]) => !(key in defaultProps._zod.def.shape),
+              propSchema: createPropSchemaFromZod(
+                z4.object(
+                  Object.fromEntries(
+                    Object.entries(
+                      val.propSchema._zodSource._zod.def.shape,
+                    ).filter(
+                      ([key]) =>
+                        !(key in defaultPropSchema._zodSource._zod.def.shape),
+                    ),
                   ),
                 ),
               ),

@@ -1,7 +1,7 @@
 import {
+  Block,
   BlockConfig,
   BlockImplementation,
-  BlockNoDefaults,
   BlockNoteEditor,
   BlockNoteExtension,
   BlockSpec,
@@ -29,11 +29,7 @@ export type ReactCustomBlockRenderProps<
   TProps extends PropSchema = PropSchema,
   TContent extends "inline" | "none" = "inline" | "none",
 > = {
-  block: BlockNoDefaults<
-    Record<TName, BlockConfig<TName, TProps, TContent>>,
-    any,
-    any
-  >;
+  block: Block<Record<TName, BlockConfig<TName, TProps, TContent>>, any, any>;
   editor: BlockNoteEditor<any, any, any>;
   contentRef: (node: HTMLElement | null) => void;
 };
@@ -99,7 +95,7 @@ export function BlockContentWrapper<
       {...Object.fromEntries(
         Object.entries(props.blockProps)
           .filter(([prop, value]) => {
-            const spec = props.propSchema._zod.def.shape[prop];
+            const spec = props.propSchema._zodSource._zod.def.shape[prop];
             const defaultValue =
               spec instanceof z.$ZodDefault
                 ? spec._zod.def.defaultValue
@@ -263,12 +259,13 @@ export function createReactBlockSpec<
                 // only created once, so the block we get in the node view will
                 // be outdated. Therefore, we have to get the block in the
                 // `ReactNodeViewRenderer` instead.
-                const block = getBlockFromPos(
-                  props.getPos,
-                  editor,
-                  props.editor,
-                  blockConfig.type,
-                );
+                const block = getBlockFromPos<
+                  TName,
+                  BlockConfig<TName, TProps, TContent>,
+                  any,
+                  any,
+                  any
+                >(props.getPos, editor as any, props.editor, blockConfig.type);
 
                 const ref = useReactNodeView().nodeViewContentRef;
 

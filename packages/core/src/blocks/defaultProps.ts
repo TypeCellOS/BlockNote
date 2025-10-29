@@ -2,24 +2,25 @@ import { Attribute } from "@tiptap/core";
 import { z } from "zod/v4";
 
 import { COLORS_DEFAULT } from "../editor/defaultColors.js";
-import type { Props, PropSchema } from "../schema/index.js";
+import { createPropSchemaFromZod, type Props } from "../schema/index.js";
 
 // TODO: this system should probably be moved / refactored.
 // The dependency from schema on this file doesn't make sense
 
-export const defaultProps = z.object({
+export const defaultZodPropSchema = z.object({
   backgroundColor: z.string().default("default"),
   textColor: z.string().default("default"),
   textAlignment: z.enum(["left", "center", "right", "justify"]).default("left"),
-}) satisfies PropSchema;
+});
 
-const defaultValues = defaultProps.parse({});
+export const defaultPropSchema = createPropSchemaFromZod(defaultZodPropSchema);
+export type DefaultPropSchema = Props<typeof defaultPropSchema>;
 
-export type DefaultProps = Props<typeof defaultProps>;
+const defaultValues = defaultZodPropSchema.parse({});
 
 // TODO: review below
 export const parseDefaultProps = (element: HTMLElement) => {
-  const props: Partial<DefaultProps> = {};
+  const props: Partial<DefaultPropSchema> = {};
 
   // If the `data-` attribute is found, set the prop to the value, as this most
   // likely means the parsed element was exported by BlockNote originally.
@@ -39,20 +40,21 @@ export const parseDefaultProps = (element: HTMLElement) => {
     props.textColor = element.style.color;
   }
 
-  props.textAlignment = defaultProps.shape.textAlignment._zod.values
+  props.textAlignment = defaultZodPropSchema.shape.textAlignment._zod.values
     .values()
     .some(
       (value) =>
-        value === (element.style.textAlign as DefaultProps["textAlignment"]),
+        value ===
+        (element.style.textAlign as DefaultPropSchema["textAlignment"]),
     )
-    ? (element.style.textAlign as DefaultProps["textAlignment"])
+    ? (element.style.textAlign as DefaultPropSchema["textAlignment"])
     : undefined;
 
   return props;
 };
 
 export const addDefaultPropsExternalHTML = (
-  props: Partial<DefaultProps>,
+  props: Partial<DefaultPropSchema>,
   element: HTMLElement,
 ) => {
   if (

@@ -3,11 +3,12 @@ import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 import { z } from "zod/v4";
 import { editorHasBlockWithType } from "../../blocks/defaultBlockTypeGuards.js";
-import { optionalFileProps } from "../../blocks/defaultFileProps.js";
+import { optionalFileZodPropSchema } from "../../blocks/defaultFileProps.js";
 import {
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
+  createPropSchemaFromZod,
   isStyledTextInlineContent,
 } from "../../schema/index.js";
 import { formatKeyboardShortcut } from "../../util/browser.js";
@@ -92,7 +93,7 @@ export function getDefaultSlashMenuItems<
   if (editorHasBlockWithType(editor, "heading")) {
     const headingProps = editor.schema.blockSchema.heading.propSchema;
     for (const level of [1, 2, 3, 4, 5, 6] as const) {
-      if (z.safeParse(headingProps, { level }).success) {
+      if (z.safeParse(headingProps._zodSource, { level }).success) {
         items.push({
           onItemClick: () => {
             insertOrUpdateBlock(editor, {
@@ -235,7 +236,8 @@ export function getDefaultSlashMenuItems<
     editorHasBlockWithType(
       editor,
       "image",
-      optionalFileProps.pick({ url: true }),
+      // TODO: review
+      createPropSchemaFromZod(optionalFileZodPropSchema.pick({ url: true })),
     )
   ) {
     items.push({
@@ -260,7 +262,7 @@ export function getDefaultSlashMenuItems<
     editorHasBlockWithType(
       editor,
       "video",
-      optionalFileProps.pick({ url: true }),
+      createPropSchemaFromZod(optionalFileZodPropSchema.pick({ url: true })),
     )
   ) {
     items.push({
@@ -285,7 +287,7 @@ export function getDefaultSlashMenuItems<
     editorHasBlockWithType(
       editor,
       "audio",
-      optionalFileProps.pick({ url: true }),
+      createPropSchemaFromZod(optionalFileZodPropSchema.pick({ url: true })),
     )
   ) {
     items.push({
@@ -310,7 +312,7 @@ export function getDefaultSlashMenuItems<
     editorHasBlockWithType(
       editor,
       "file",
-      optionalFileProps.pick({ url: true }),
+      createPropSchemaFromZod(optionalFileZodPropSchema.pick({ url: true })),
     )
   ) {
     items.push({
@@ -335,13 +337,15 @@ export function getDefaultSlashMenuItems<
     editorHasBlockWithType(
       editor,
       "heading",
-      z.object({
-        isToggleable: z.boolean().default(false),
-      }),
+      createPropSchemaFromZod(
+        z.object({
+          isToggleable: z.boolean().default(false),
+        }),
+      ),
     )
   ) {
     const headingProps = editor.schema.blockSchema.heading.propSchema;
-    if (z.safeParse(headingProps, { level: 1 }).success) {
+    if (z.safeParse(headingProps._zodSource, { level: 1 }).success) {
       items.push({
         onItemClick: () => {
           insertOrUpdateBlock(editor, {
@@ -353,7 +357,7 @@ export function getDefaultSlashMenuItems<
         ...editor.dictionary.slash_menu.toggle_heading_1,
       });
     }
-    if (z.safeParse(headingProps, { level: 2 }).success) {
+    if (z.safeParse(headingProps._zodSource, { level: 2 }).success) {
       items.push({
         onItemClick: () => {
           insertOrUpdateBlock(editor, {
@@ -366,7 +370,7 @@ export function getDefaultSlashMenuItems<
         ...editor.dictionary.slash_menu.toggle_heading_2,
       });
     }
-    if (z.safeParse(headingProps, { level: 3 }).success) {
+    if (z.safeParse(headingProps._zodSource, { level: 3 }).success) {
       items.push({
         onItemClick: () => {
           insertOrUpdateBlock(editor, {

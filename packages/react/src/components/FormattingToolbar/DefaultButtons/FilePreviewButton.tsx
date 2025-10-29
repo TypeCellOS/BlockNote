@@ -1,13 +1,14 @@
 import {
   blockHasType,
   BlockSchema,
+  createPropSchemaFromZod,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
 import { useCallback, useMemo } from "react";
 import { RiImageAddFill } from "react-icons/ri";
 
-import { optionalFileProps } from "../../../../../core/src/blocks/defaultFileProps.js";
+import { optionalFileZodPropSchema } from "../../../../../core/src/blocks/defaultFileProps.js";
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks.js";
@@ -38,7 +39,10 @@ export const FilePreviewButton = () => {
         block,
         editor,
         block.type,
-        optionalFileProps.pick({ url: true, showPreview: true }),
+        // TODO
+        createPropSchemaFromZod(
+          optionalFileZodPropSchema.pick({ url: true, showPreview: true }),
+        ),
       )
     ) {
       return block;

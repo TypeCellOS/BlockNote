@@ -2,10 +2,11 @@ import {
   Block,
   blockHasType,
   BlockSchema,
+  createPropSchemaFromZod,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
-  defaultProps,
   DefaultStyleSchema,
+  defaultZodPropSchema,
   editorHasBlockWithType,
   InlineContentSchema,
   StyleSchema,
@@ -40,13 +41,17 @@ export const BlockColorsItem = <
       block,
       editor,
       block.type,
-      defaultProps.pick({ textColor: true }),
+      // TODO
+      createPropSchemaFromZod(defaultZodPropSchema.pick({ textColor: true })),
     ) &&
     !blockHasType(
       block,
       editor,
       block.type,
-      defaultProps.pick({ backgroundColor: true }),
+      // TODO
+      createPropSchemaFromZod(
+        defaultZodPropSchema.pick({ backgroundColor: true }),
+      ),
     )
   ) {
     return null;
@@ -74,12 +79,18 @@ export const BlockColorsItem = <
               block,
               editor,
               block.type,
-              defaultProps.pick({ textColor: true }),
+              // TODO
+              createPropSchemaFromZod(
+                defaultZodPropSchema.pick({ textColor: true }),
+              ),
             ) &&
             editorHasBlockWithType(
               editor,
               block.type,
-              defaultProps.pick({ textColor: true }),
+              // TODO
+              createPropSchemaFromZod(
+                defaultZodPropSchema.pick({ textColor: true }),
+              ),
             )
               ? {
                   color: block.props.textColor,
@@ -96,12 +107,18 @@ export const BlockColorsItem = <
               block,
               editor,
               block.type,
-              defaultProps.pick({ backgroundColor: true }),
+              // TODO
+              createPropSchemaFromZod(
+                defaultZodPropSchema.pick({ backgroundColor: true }),
+              ),
             ) &&
             editorHasBlockWithType(
               editor,
               block.type,
-              defaultProps.pick({ backgroundColor: true }),
+              // TODO
+              createPropSchemaFromZod(
+                defaultZodPropSchema.pick({ backgroundColor: true }),
+              ),
             )
               ? {
                   color: block.props.backgroundColor,

@@ -81,7 +81,7 @@ function fragmentToExternalHTML<
 
     // Wrap in table to ensure correct parsing by spreadsheet applications
     externalHTML = `<table>${externalHTMLExporter.exportInlineContent(
-      ic as any,
+      ic,
       {},
     )}</table>`;
   } else if (isWithinBlockContent) {

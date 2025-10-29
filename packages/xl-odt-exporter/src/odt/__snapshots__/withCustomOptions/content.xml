@@ -270,7 +270,7 @@
                 <!-- -->
                 Check List Item
             </text:p>
-            <table:table table:name="" table:style-name="BN_S12">
+            <table:table table:name="test20" table:style-name="BN_S12">
                 <table:table-column table:style-name="BN_S13"></table:table-column>
                 <table:table-column table:style-name="BN_S14"></table:table-column>
                 <table:table-column table:style-name="BN_S15"></table:table-column>
@@ -395,7 +395,7 @@
                     Link
                 </text:a>
             </text:p>
-            <table:table table:name="" table:style-name="BN_S20">
+            <table:table table:name="test30" table:style-name="BN_S20">
                 <table:table-column table:style-name="BN_S21"></table:table-column>
                 <table:table-column table:style-name="BN_S22"></table:table-column>
                 <table:table-column table:style-name="BN_S23"></table:table-column>

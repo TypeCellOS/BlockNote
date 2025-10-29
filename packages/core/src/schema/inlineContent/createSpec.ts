@@ -5,6 +5,7 @@ import { inlineContentToNodes } from "../../api/nodeConversions/blockToNode.js";
 import { nodeToCustomInlineContent } from "../../api/nodeConversions/nodeToBlock.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { propsToAttributes } from "../blocks/internal.js";
+import { partialInlineContentToInlineContent } from "../partialBlockToBlock.js";
 import { Props } from "../propTypes.js";
 import { StyleSchema } from "../styles/types.js";
 import {
@@ -191,7 +192,11 @@ export function createInlineContentSpec<
             editor.schema.styleSchema,
           ) as any as InlineContentFromConfig<T, S>, // TODO: fix cast
           (update) => {
-            const content = inlineContentToNodes([update], editor.pmSchema);
+            const fullUpdate = partialInlineContentToInlineContent(
+              [update],
+              editor.schema.inlineContentSchema,
+            );
+            const content = inlineContentToNodes(fullUpdate, editor.pmSchema);
 
             const pos = getPos();
 

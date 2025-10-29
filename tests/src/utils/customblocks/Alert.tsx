@@ -4,7 +4,8 @@ import {
   BlockSchemaWithBlock,
   PartialBlock,
   addNodeAndExtensionsToSpec,
-  defaultProps,
+  createPropSchemaFromZod,
+  defaultZodPropSchema,
 } from "@blocknote/core";
 import { z } from "zod/v4";
 
@@ -31,16 +32,18 @@ const values = {
 export const Alert = addNodeAndExtensionsToSpec(
   {
     type: "alert" as const,
-    propSchema: defaultProps
-      .pick({
-        textColor: true,
-        textAlignment: true,
-      })
-      .extend({
-        type: z
-          .enum(["warning", "error", "info", "success"])
-          .default("warning"),
-      }),
+    propSchema: createPropSchemaFromZod(
+      defaultZodPropSchema
+        .pick({
+          textColor: true,
+          textAlignment: true,
+        })
+        .extend({
+          type: z
+            .enum(["warning", "error", "info", "success"])
+            .default("warning"),
+        }),
+    ),
     content: "inline",
   },
   {

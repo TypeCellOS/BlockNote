@@ -37,18 +37,19 @@ import type { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/T
 import { UniqueID } from "../extensions/UniqueID/UniqueID.js";
 import type { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
-import type {
-  BlockIdentifier,
-  BlockNoteDOMAttributes,
-  BlockSchema,
-  BlockSpecs,
-  CustomBlockNoteSchema,
-  InlineContentSchema,
-  InlineContentSpecs,
-  PartialInlineContent,
-  Styles,
-  StyleSchema,
-  StyleSpecs,
+import {
+  partialBlockToBlock,
+  type BlockIdentifier,
+  type BlockNoteDOMAttributes,
+  type BlockSchema,
+  type BlockSpecs,
+  type CustomBlockNoteSchema,
+  type InlineContentSchema,
+  type InlineContentSpecs,
+  type PartialInlineContent,
+  type Styles,
+  type StyleSchema,
+  type StyleSpecs,
 } from "../schema/index.js";
 import { mergeCSSClasses } from "../util/browser.js";
 import { EventEmitter } from "../util/EventEmitter.js";
@@ -59,13 +60,13 @@ import type { TextCursorPosition } from "./cursorPositionTypes.js";
 import {
   BlockManager,
   CollaborationManager,
-  type CollaborationOptions,
   EventManager,
   ExportManager,
   ExtensionManager,
   SelectionManager,
   StateManager,
   StyleManager,
+  type CollaborationOptions,
 } from "./managers/index.js";
 import type { Selection } from "./selectionTypes.js";
 import { transformPasted } from "./transformPasted.js";
@@ -889,7 +890,11 @@ export class BlockNoteEditor<
       }
       const schema = getSchema(tiptapOptions.extensions!);
       const pmNodes = initialContent.map((b) =>
-        blockToNode(b, schema, this.schema.styleSchema).toJSON(),
+        blockToNode(
+          partialBlockToBlock(this.schema, b),
+          schema,
+          this.schema.styleSchema,
+        ).toJSON(),
       );
       const doc = createDocument(
         {
@@ -1467,7 +1472,7 @@ export class BlockNoteEditor<
    * @returns The blocks, serialized as an HTML string.
    */
   public blocksToHTMLLossy(
-    blocks: PartialBlock<BSchema, ISchema, SSchema>[] = this.document,
+    blocks: Block<BSchema, ISchema, SSchema>[] = this.document,
   ): string {
     return this._exportManager.blocksToHTMLLossy(blocks);
   }
@@ -1482,7 +1487,7 @@ export class BlockNoteEditor<
    * @returns The blocks, serialized as an HTML string.
    */
   public blocksToFullHTML(
-    blocks: PartialBlock<BSchema, ISchema, SSchema>[] = this.document,
+    blocks: Block<BSchema, ISchema, SSchema>[] = this.document,
   ): string {
     return this._exportManager.blocksToFullHTML(blocks);
   }
@@ -1506,7 +1511,7 @@ export class BlockNoteEditor<
    * @returns The blocks, serialized as a Markdown string.
    */
   public blocksToMarkdownLossy(
-    blocks: PartialBlock<BSchema, ISchema, SSchema>[] = this.document,
+    blocks: Block<BSchema, ISchema, SSchema>[] = this.document,
   ): string {
     return this._exportManager.blocksToMarkdownLossy(blocks);
   }

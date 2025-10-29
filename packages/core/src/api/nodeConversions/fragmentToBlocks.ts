@@ -1,6 +1,6 @@
 import { Fragment } from "@tiptap/pm/model";
+import type { Block } from "../../blocks/index.js";
 import {
-  BlockNoDefaults,
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
@@ -18,7 +18,7 @@ export function fragmentToBlocks<
 >(fragment: Fragment) {
   // first convert selection to blocknote-style blocks, and then
   // pass these to the exporter
-  const blocks: BlockNoDefaults<B, I, S>[] = [];
+  const blocks: Block<B, I, S>[] = [];
   fragment.descendants((node) => {
     const pmSchema = getPmSchema(node);
     if (node.type.name === "blockContainer") {

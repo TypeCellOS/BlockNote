@@ -6,16 +6,19 @@ import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import {
   BlockConfig,
   createBlockSpecFromTiptapNode,
+  createPropSchemaFromZod,
   TableContent,
 } from "../../schema/index.js";
 import { mergeCSSClasses } from "../../util/browser.js";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
-import { defaultProps } from "../defaultProps.js";
+import { defaultZodPropSchema } from "../defaultProps.js";
 import { EMPTY_CELL_WIDTH, TableExtension } from "./TableExtension.js";
 
-export const tablePropSchema = defaultProps.pick({
+export const tableZodPropSchema = defaultZodPropSchema.pick({
   textColor: true,
 });
+
+const tablePropSchema = createPropSchemaFromZod(tableZodPropSchema);
 
 const TiptapTableHeader = Node.create<{
   HTMLAttributes: Record<string, any>;

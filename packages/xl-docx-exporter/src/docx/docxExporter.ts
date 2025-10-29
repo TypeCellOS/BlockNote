@@ -1,12 +1,16 @@
 import {
   Block,
-  CustomBlockNoteSchema,
   BlockSchema,
   COLORS_DEFAULT,
+  CustomBlockNoteSchema,
+  Exporter,
+  ExporterOptions,
   InlineContentSchema,
   StyleSchema,
   StyledText,
 } from "@blocknote/core";
+import { corsProxyResolveFileUrl } from "@shared/api/corsProxy.js";
+import { loadFileBuffer } from "@shared/util/fileUtil.js";
 import {
   AlignmentType,
   Document,
@@ -20,11 +24,6 @@ import {
   Table,
   TextRun,
 } from "docx";
-
-import { Exporter, ExporterOptions } from "@blocknote/core";
-import { corsProxyResolveFileUrl } from "@shared/api/corsProxy.js";
-import { loadFileBuffer } from "@shared/util/fileUtil.js";
-
 // get constructor arg type from Document
 type DocumentOptions = Partial<ConstructorParameters<typeof Document>[0]>;
 

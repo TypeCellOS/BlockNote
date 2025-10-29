@@ -1,9 +1,9 @@
-import { defaultProps } from "@blocknote/core";
 import { createReactBlockSpec } from "@blocknote/react";
 import { Menu } from "@mantine/core";
 import { MdCancel, MdCheckCircle, MdError, MdInfo } from "react-icons/md";
 import { z } from "zod/v4";
 
+import { createPropSchemaFromZod, defaultZodPropSchema } from "@blocknote/core";
 import "./styles.css";
 
 // The types of alerts that users can choose from.
@@ -54,16 +54,18 @@ export const alertTypes = [
 export const Alert = createReactBlockSpec(
   {
     type: "alert",
-    propSchema: defaultProps
-      .pick({
-        textAlignment: true,
-        textColor: true,
-      })
-      .extend({
-        type: z
-          .enum(["warning", "error", "info", "success"])
-          .default("warning"),
-      }),
+    propSchema: createPropSchemaFromZod(
+      defaultZodPropSchema
+        .pick({
+          textAlignment: true,
+          textColor: true,
+        })
+        .extend({
+          type: z
+            .enum(["warning", "error", "info", "success"])
+            .default("warning"),
+        }),
+    ),
     content: "inline",
   },
   {

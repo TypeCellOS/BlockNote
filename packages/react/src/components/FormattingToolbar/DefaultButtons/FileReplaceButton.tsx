@@ -1,6 +1,7 @@
 import {
   blockHasType,
   BlockSchema,
+  createPropSchemaFromZod,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -8,8 +9,8 @@ import { useEffect, useState } from "react";
 import { RiImageEditFill } from "react-icons/ri";
 
 import {
-  baseFilePropSchema,
-  optionalFileProps,
+  baseFileZodPropSchema,
+  optionalFileZodPropSchema,
 } from "../../../../../core/src/blocks/defaultFileProps.js";
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
@@ -43,9 +44,12 @@ export const FileReplaceButton = () => {
       block,
       editor,
       block.type,
-      baseFilePropSchema.extend({
-        ...optionalFileProps.pick({ url: true }).shape,
-      }),
+      // TODO
+      createPropSchemaFromZod(
+        baseFileZodPropSchema.extend({
+          ...optionalFileZodPropSchema.pick({ url: true }).shape,
+        }),
+      ) || !editor.isEditable,
     ) ||
     !editor.isEditable
   ) {

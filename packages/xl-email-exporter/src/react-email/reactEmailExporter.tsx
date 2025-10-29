@@ -2,13 +2,13 @@ import {
   Block,
   BlockSchema,
   COLORS_DEFAULT,
-  DefaultProps,
+  CustomBlockNoteSchema,
+  DefaultPropSchema,
   Exporter,
   ExporterOptions,
   InlineContentSchema,
   StyleSchema,
   StyledText,
-  CustomBlockNoteSchema,
 } from "@blocknote/core";
 import {
   Body,
@@ -326,7 +326,7 @@ export class ReactEmailExporter<
   }
 
   protected blocknoteDefaultPropsToReactEmailStyle(
-    props: Partial<DefaultProps>,
+    props: Partial<DefaultPropSchema>,
   ): any {
     return {
       textAlign: props.textAlignment,
