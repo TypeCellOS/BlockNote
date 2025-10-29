@@ -7,7 +7,7 @@ import { Mappable } from "prosemirror-transform";
  * to drag multiple blocks at the same time. Expects the selection anchor and head to be between nodes, i.e. just before
  * the first target node and just after the last, and that anchor and head are at the same nesting level.
  *
- * Partially based on ProseMirror's NodeSelection implementation:
+ * Based on ProseMirror's NodeSelection implementation:
  * (https://github.com/ProseMirror/prosemirror-state/blob/master/src/selection.ts)
  * MultipleNodeSelection differs from NodeSelection in the following ways:
  * 1. Stores which nodes are included in the selection instead of just a single node.
@@ -83,6 +83,17 @@ export class MultipleNodeSelection extends Selection {
 
   toJSON(): any {
     return { type: "multiple-node", anchor: this.anchor, head: this.head };
+  }
+
+  static fromJSON(doc: Node, json: any) {
+    if (typeof json.anchor != "number" || json.head !== "number") {
+      throw new RangeError("Invalid input for NodeSelection.fromJSON");
+    }
+
+    return new MultipleNodeSelection(
+      doc.resolve(json.anchor),
+      doc.resolve(json.head),
+    );
   }
 }
 

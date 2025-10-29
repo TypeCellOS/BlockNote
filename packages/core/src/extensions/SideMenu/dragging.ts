@@ -14,7 +14,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../schema/index.js";
-import { MultipleNodeSelection } from "./MultipleNodeSelection.js";
+import { MultipleNodeSelection } from "../../extensions-shared/MultipleNodeSelection.js";
 
 let dragImageElement: Element | undefined;
 

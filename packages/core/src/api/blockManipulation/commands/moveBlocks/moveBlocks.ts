@@ -8,6 +8,7 @@ import { CellSelection } from "prosemirror-tables";
 
 import { Block } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
+import { MultipleNodeSelection } from "../../../../extensions-shared/MultipleNodeSelection.js";
 import { BlockIdentifier } from "../../../../schema/index.js";
 import { getNearestBlockPos } from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
@@ -21,6 +22,10 @@ type BlockSelectionData = (
     }
   | {
       type: "node";
+    }
+  | {
+      type: "multiple-node";
+      headBlockId: string;
     }
   | {
       type: "cell";
@@ -59,6 +64,17 @@ function getBlockSelectionData(
       return {
         type: "node" as const,
         anchorBlockId: anchorBlockPosInfo.node.attrs.id,
+      };
+    } else if (tr.selection instanceof MultipleNodeSelection) {
+      const headBlockPosInfo = getNearestBlockPos(
+        tr.doc,
+        tr.selection.head - tr.selection.$head.nodeBefore!.nodeSize,
+      );
+
+      return {
+        type: "multiple-node" as const,
+        anchorBlockId: anchorBlockPosInfo.node.attrs.id,
+        headBlockId: headBlockPosInfo.node.attrs.id,
       };
     } else {
       const headBlockPosInfo = getNearestBlockPos(tr.doc, tr.selection.head);
@@ -105,6 +121,19 @@ function updateBlockSelectionFromData(
     );
   } else if (data.type === "node") {
     selection = NodeSelection.create(tr.doc, anchorBlockPos + 1);
+  } else if (data.type === "multiple-node") {
+    const headBlockPos = getNodeById(data.headBlockId, tr.doc)?.posBeforeNode;
+    if (headBlockPos === undefined) {
+      throw new Error(
+        `Could not find block with ID ${data.headBlockId} to update selection`,
+      );
+    }
+
+    selection = MultipleNodeSelection.create(
+      tr.doc,
+      anchorBlockPos,
+      headBlockPos + tr.doc.resolve(headBlockPos).nodeAfter!.nodeSize,
+    );
   } else {
     const headBlockPos = getNodeById(data.headBlockId, tr.doc)?.posBeforeNode;
     if (headBlockPos === undefined) {
