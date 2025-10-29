@@ -13,7 +13,7 @@ export type PropSchema<Output = any, Input = any> = {
 
 // Props type is derived from the Zod schema output
 export type Props<PSchema extends PropSchema<any, any>> =
-  PSchema extends PropSchema<infer O, any> ? O : never;
+  PSchema extends PropSchema<infer O, any> ? O : any;
 
 // We infer Output/Input from the provided schema using z.output / z.input
 export function createPropSchemaFromZod<S extends z.$ZodObject>(schema: S) {
