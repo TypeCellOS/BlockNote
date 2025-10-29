@@ -33,7 +33,7 @@ export function serializeInlineContentExternalHTML<
   I extends InlineContentSchema,
   S extends StyleSchema,
 >(
-  editor: BlockNoteEditor<any, I, S>,
+  editor: BlockNoteEditor<BSchema, I, S>,
   blockContent: Block<BSchema, I, S>["content"],
   serializer: DOMSerializer,
   options?: { document?: Document },
@@ -228,7 +228,7 @@ function serializeBlock<
   if (ret.contentDOM && block.content) {
     const ic = serializeInlineContentExternalHTML(
       editor,
-      block.content as unknown as never, // TODO
+      block.content,
       serializer,
       options,
     );

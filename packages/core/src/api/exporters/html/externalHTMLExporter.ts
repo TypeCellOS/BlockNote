@@ -62,7 +62,7 @@ export const createExternalHTMLExporter = <
     ) => {
       const domFragment = serializeInlineContentExternalHTML(
         editor,
-        inlineContent as unknown as never,
+        inlineContent,
         serializer,
         options,
       );
