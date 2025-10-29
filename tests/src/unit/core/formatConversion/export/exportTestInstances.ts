@@ -1680,6 +1680,112 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
   },
   {
     testCase: {
+      name: "partial/empty",
+      content: [{}],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "partial/noId",
+      content: [
+        {
+          type: "exportTestBlock",
+          props: {
+            textAlignment: "left",
+            textColor: "default",
+            backgroundColor: "default",
+          },
+          content: undefined,
+          children: [
+            {
+              type: "exportTestBlock",
+              props: {
+                textAlignment: "left",
+                textColor: "default",
+                backgroundColor: "default",
+              },
+              content: undefined,
+              children: [],
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "partial/noType",
+      content: [
+        {
+          id: "exportTestBlock",
+          props: {
+            textAlignment: "left",
+            textColor: "default",
+            backgroundColor: "default",
+            invalidProp: true,
+          },
+          content: undefined,
+          children: [
+            {
+              id: "exportTestBlock",
+              props: {
+                textAlignment: "left",
+                textColor: "default",
+                backgroundColor: "default",
+                invalidProp: true,
+              },
+              content: undefined,
+              children: [],
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "partial/noProps",
+      content: [
+        {
+          id: "exportTestBlock",
+          type: "exportTestBlock",
+          content: undefined,
+          children: [
+            {
+              id: "exportTestBlock",
+              type: "exportTestBlock",
+              content: undefined,
+              children: [],
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "partial/noChildren",
+      content: [
+        {
+          id: "exportTestBlock",
+          type: "exportTestBlock",
+          props: {
+            textAlignment: "left",
+            textColor: "default",
+            backgroundColor: "default",
+          },
+          content: undefined,
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
       name: "inlineContent/mentionWithToExternalHTML",
       content: [
         {

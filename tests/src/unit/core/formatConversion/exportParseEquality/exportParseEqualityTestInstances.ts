@@ -20,10 +20,12 @@ export const exportParseEqualityTestInstancesBlockNoteHTML: TestInstance<
   TestBlockSchema,
   TestInlineContentSchema,
   TestStyleSchema
->[] = exportTestInstancesBlockNoteHTML.map(({ testCase }) => ({
-  testCase,
-  executeTest: testExportParseEqualityBlockNoteHTML,
-}));
+>[] = exportTestInstancesBlockNoteHTML
+  .filter(({ testCase }) => !testCase.name.startsWith("partial/"))
+  .map(({ testCase }) => ({
+    testCase,
+    executeTest: testExportParseEqualityBlockNoteHTML,
+  }));
 
 export const exportParseEqualityTestInstancesHTML: TestInstance<
   ExportParseEqualityTestCase<
