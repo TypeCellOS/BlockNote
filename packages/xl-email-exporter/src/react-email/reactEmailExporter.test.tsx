@@ -3,6 +3,7 @@ import {
   createBlockSpec,
   createInlineContentSpec,
   createPageBreakBlockSpec,
+  createPropSchemaFromZod,
   createStyleSpec,
   defaultBlockSpecs,
   defaultInlineContentSpecs,
@@ -34,7 +35,7 @@ describe("react email exporter", () => {
           {
             content: "none",
             type: "extraBlock",
-            propSchema: z.object({}),
+            propSchema: createPropSchemaFromZod(z.object({})),
           },
           {} as any,
         )(),
@@ -76,7 +77,7 @@ describe("react email exporter", () => {
           {
             type: "extraInlineContent",
             content: "styled",
-            propSchema: z.object({}),
+            propSchema: createPropSchemaFromZod(z.object({})),
           },
           {} as any,
         ),

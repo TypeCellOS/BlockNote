@@ -22,43 +22,45 @@ import {
 export function propsToAttributes(propSchema: PropSchema): Attributes {
   const tiptapAttributes: Record<string, Attribute> = {};
 
-  Object.entries(propSchema._zod.def.shape).forEach(([name, spec]) => {
-    const def =
-      spec instanceof z.$ZodDefault ? spec._zod.def.defaultValue : undefined;
+  Object.entries(propSchema._zodSource._zod.def.shape).forEach(
+    ([name, spec]) => {
+      const def =
+        spec instanceof z.$ZodDefault ? spec._zod.def.defaultValue : undefined;
 
-    tiptapAttributes[name] = {
-      default: def,
-      keepOnSplit: true,
-      // Props are displayed in kebab-case as HTML attributes. If a prop's
-      // value is the same as its default, we don't display an HTML
-      // attribute for it.
-      parseHTML: (element) => {
-        const value = element.getAttribute(camelToDataKebab(name));
+      tiptapAttributes[name] = {
+        default: def,
+        keepOnSplit: true,
+        // Props are displayed in kebab-case as HTML attributes. If a prop's
+        // value is the same as its default, we don't display an HTML
+        // attribute for it.
+        parseHTML: (element) => {
+          const value = element.getAttribute(camelToDataKebab(name));
 
-        if (value === null) {
-          return null;
-        }
+          if (value === null) {
+            return null;
+          }
 
-        // TBD: this might not be fault proof, but it's also ugly to store prop="&quot;...&quot;" for strings
-        try {
-          const jsonValue = JSON.parse(value);
-          // it was a number / boolean / json object stored as attribute
-          return z.parse(spec, jsonValue);
-        } catch (e) {
-          // it might have been a string directly stored as attribute
-          return z.parse(spec, value);
-        }
-      },
-      renderHTML: (attributes) => {
-        // don't render to html if the value is the same as the default
-        return attributes[name] !== def
-          ? {
-              [camelToDataKebab(name)]: attributes[name],
-            }
-          : {};
-      },
-    };
-  });
+          // TBD: this might not be fault proof, but it's also ugly to store prop="&quot;...&quot;" for strings
+          try {
+            const jsonValue = JSON.parse(value);
+            // it was a number / boolean / json object stored as attribute
+            return z.parse(spec, jsonValue);
+          } catch (e) {
+            // it might have been a string directly stored as attribute
+            return z.parse(spec, value);
+          }
+        },
+        renderHTML: (attributes) => {
+          // don't render to html if the value is the same as the default
+          return attributes[name] !== def
+            ? {
+                [camelToDataKebab(name)]: attributes[name],
+              }
+            : {};
+        },
+      };
+    },
+  );
 
   return tiptapAttributes;
 }
@@ -150,7 +152,7 @@ export function wrapInBlockStructure<
   // which are already added as HTML attributes to the parent `blockContent`
   // element (inheritedProps) and props set to their default values.
   for (const [prop, value] of Object.entries(blockProps)) {
-    const spec = propSchema._zod.def.shape[prop];
+    const spec = propSchema._zodSource._zod.def.shape[prop];
     const defaultValue =
       spec instanceof z.$ZodDefault ? spec._zod.def.defaultValue : undefined;
     if (value !== defaultValue) {

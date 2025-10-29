@@ -1,16 +1,19 @@
 import {
   BlockNoteEditor,
   addNodeAndExtensionsToSpec,
-  defaultProps,
+  createPropSchemaFromZod,
+  defaultZodPropSchema,
 } from "@blocknote/core";
 import { RiRadioButtonFill } from "react-icons/ri";
 
 export const Button = addNodeAndExtensionsToSpec(
   {
     type: "button" as const,
-    propSchema: defaultProps.pick({
-      backgroundColor: true,
-    }),
+    propSchema: createPropSchemaFromZod(
+      defaultZodPropSchema.pick({
+        backgroundColor: true,
+      }),
+    ),
     content: "none",
   },
   {

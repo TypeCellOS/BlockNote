@@ -1,6 +1,14 @@
-import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
-import { baseFilePropSchema, optionalFileProps } from "../defaultFileProps.js";
-import { defaultProps, parseDefaultProps } from "../defaultProps.js";
+import {
+  createBlockConfig,
+  createBlockSpec,
+  createPropSchemaFromZod,
+} from "../../schema/index.js";
+import {
+  baseFileZodPropSchema,
+  optionalFileZodPropSchema,
+} from "../defaultFileProps.js";
+
+import { defaultZodPropSchema, parseDefaultProps } from "../defaultProps.js";
 import { parseFigureElement } from "../File/helpers/parse/parseFigureElement.js";
 import { createResizableFileBlockWrapper } from "../File/helpers/render/createResizableFileBlockWrapper.js";
 import { createFigureWithCaption } from "../File/helpers/toExternalHTML/createFigureWithCaption.js";
@@ -16,14 +24,14 @@ export interface VideoOptions {
 
 export type VideoBlockConfig = ReturnType<typeof createVideoBlockConfig>;
 
-const videoPropSchema = defaultProps
+const videoZodPropSchema = defaultZodPropSchema
   .pick({
     textAlignment: true,
     backgroundColor: true,
   })
   .extend({
-    ...baseFilePropSchema.shape,
-    ...optionalFileProps.pick({
+    ...baseFileZodPropSchema.shape,
+    ...optionalFileZodPropSchema.pick({
       url: true,
       showPreview: true,
       previewWidth: true,
@@ -33,7 +41,7 @@ const videoPropSchema = defaultProps
 export const createVideoBlockConfig = createBlockConfig(
   (_ctx: VideoOptions) => ({
     type: "video" as const,
-    propSchema: videoPropSchema,
+    propSchema: createPropSchemaFromZod(videoZodPropSchema),
     content: "none" as const,
   }),
 );

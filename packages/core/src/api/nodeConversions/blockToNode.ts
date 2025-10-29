@@ -292,7 +292,7 @@ function blockOrInlineContentToContentNode(
   }
 
   if (!block.content) {
-    contentNode = schema.nodes[type].createChecked(block.props);
+    contentNode = schema.nodes[type].createChecked(block.props as any);
   } else if (typeof block.content === "string") {
     const nodes = inlineContentToNodes(
       [block.content],
@@ -300,7 +300,7 @@ function blockOrInlineContentToContentNode(
       type,
       styleSchema,
     );
-    contentNode = schema.nodes[type].createChecked(block.props, nodes);
+    contentNode = schema.nodes[type].createChecked(block.props as any, nodes);
   } else if (Array.isArray(block.content)) {
     const nodes = inlineContentToNodes(
       block.content,
@@ -308,10 +308,10 @@ function blockOrInlineContentToContentNode(
       type,
       styleSchema,
     );
-    contentNode = schema.nodes[type].createChecked(block.props, nodes);
+    contentNode = schema.nodes[type].createChecked(block.props as any, nodes);
   } else if (block.content.type === "tableContent") {
     const nodes = tableContentToNodes(block.content, schema, styleSchema);
-    contentNode = schema.nodes[type].createChecked(block.props, nodes);
+    contentNode = schema.nodes[type].createChecked(block.props as any, nodes);
   } else {
     throw new UnreachableCaseError(block.content.type);
   }

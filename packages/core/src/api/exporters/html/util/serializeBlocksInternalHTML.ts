@@ -145,7 +145,7 @@ function serializeBlock<
   for (const [name, spec] of Object.entries(
     editor.schema.blockSchema[
       block.type as keyof typeof editor.schema.blockSchema
-    ].propSchema._zod.def.shape,
+    ].propSchema._zodSource._zod.def.shape,
   )) {
     if (
       !(name in props) &&

@@ -3,7 +3,7 @@ import {
   BlockMapping,
   createPageBreakBlockConfig,
   DefaultBlockSchema,
-  DefaultProps,
+  DefaultPropSchema,
   mapTableCell,
   StyledText,
   TableCell,
@@ -17,7 +17,7 @@ export const getTabs = (nestingLevel: number) => {
 
 const createParagraphStyle = (
   exporter: ODTExporter<any, any, any>,
-  props: Partial<DefaultProps>,
+  props: Partial<DefaultPropSchema>,
   parentStyleName = "Standard",
   styleAttributes: Record<string, string> = {},
   paragraphStyleAttributes: Record<string, string> = {},

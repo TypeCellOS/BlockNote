@@ -3,7 +3,7 @@ import {
   BlockSchema,
   COLORS_DEFAULT,
   CustomBlockNoteSchema,
-  DefaultProps,
+  DefaultPropSchema,
   Exporter,
   ExporterOptions,
   InlineContentSchema,
@@ -289,7 +289,7 @@ export class PDFExporter<
   }
 
   protected blocknoteDefaultPropsToReactPDFStyle(
-    props: Partial<DefaultProps>,
+    props: Partial<DefaultPropSchema>,
   ): Style {
     return {
       textAlign: props.textAlignment,

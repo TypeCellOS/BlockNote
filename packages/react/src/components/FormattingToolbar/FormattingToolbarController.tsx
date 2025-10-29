@@ -1,6 +1,6 @@
 import {
   BlockSchema,
-  DefaultProps,
+  DefaultPropSchema,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -17,7 +17,7 @@ import { FormattingToolbar } from "./FormattingToolbar.js";
 import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
 
 const textAlignmentToPlacement = (
-  textAlignment: DefaultProps["textAlignment"],
+  textAlignment: DefaultPropSchema["textAlignment"],
 ) => {
   switch (textAlignment) {
     case "left":
@@ -52,7 +52,7 @@ export const FormattingToolbarController = (props: {
       }
 
       return textAlignmentToPlacement(
-        block.props.textAlignment as DefaultProps["textAlignment"],
+        block.props.textAlignment as DefaultPropSchema["textAlignment"],
       );
     },
   );
@@ -65,7 +65,7 @@ export const FormattingToolbarController = (props: {
     } else {
       setPlacement(
         textAlignmentToPlacement(
-          block.props.textAlignment as DefaultProps["textAlignment"],
+          block.props.textAlignment as DefaultPropSchema["textAlignment"],
         ),
       );
     }

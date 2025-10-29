@@ -154,19 +154,18 @@ export function partialBlockToBlockForTesting<
     ...partialBlock,
   };
 
-  Object.entries(schema[partialBlock.type!].propSchema._zod.def.shape).forEach(
-    ([propKey, propValue]) => {
-      if (withDefaults.props[propKey] === undefined) {
-        if (propValue instanceof z.$ZodDefault) {
-          (withDefaults.props as any)[propKey] =
-            propValue._zod.def.defaultValue;
-        }
-        if (propValue instanceof z.$ZodOptional) {
-          (withDefaults.props as any)[propKey] = undefined;
-        }
+  Object.entries(
+    schema[partialBlock.type!].propSchema._zodSource._zod.def.shape,
+  ).forEach(([propKey, propValue]) => {
+    if (withDefaults.props[propKey] === undefined) {
+      if (propValue instanceof z.$ZodDefault) {
+        (withDefaults.props as any)[propKey] = propValue._zod.def.defaultValue;
       }
-    },
-  );
+      if (propValue instanceof z.$ZodOptional) {
+        (withDefaults.props as any)[propKey] = undefined;
+      }
+    }
+  });
 
   if (contentType === "inline") {
     const content = withDefaults.content as InlineContent<I, S>[] | undefined;

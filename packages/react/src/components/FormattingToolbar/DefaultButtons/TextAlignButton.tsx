@@ -1,8 +1,9 @@
 import {
   blockHasType,
   BlockSchema,
-  defaultProps,
-  DefaultProps,
+  createPropSchemaFromZod,
+  DefaultPropSchema,
+  defaultZodPropSchema,
   InlineContentSchema,
   mapTableCell,
   StyleSchema,
@@ -22,7 +23,7 @@ import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 
-type TextAlignment = DefaultProps["textAlignment"];
+type TextAlignment = DefaultPropSchema["textAlignment"];
 
 const icons: Record<TextAlignment, IconType> = {
   left: RiAlignLeft,
@@ -51,7 +52,10 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
         block,
         editor,
         block.type,
-        defaultProps.pick({ textAlignment: true }),
+        // TODO
+        createPropSchemaFromZod(
+          defaultZodPropSchema.pick({ textAlignment: true }),
+        ),
       )
     ) {
       return block.props.textAlignment;
@@ -87,7 +91,10 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
             block,
             editor,
             block.type,
-            defaultProps.pick({ textAlignment: true }),
+            // TODO
+            createPropSchemaFromZod(
+              defaultZodPropSchema.pick({ textAlignment: true }),
+            ),
           )
         ) {
           editor.updateBlock(block, {
@@ -140,7 +147,10 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
           block,
           editor,
           block.type,
-          defaultProps.pick({ textAlignment: true }),
+          // TODO
+          createPropSchemaFromZod(
+            defaultZodPropSchema.pick({ textAlignment: true }),
+          ),
         ) ||
         (block.type === "table" && block.children),
     );

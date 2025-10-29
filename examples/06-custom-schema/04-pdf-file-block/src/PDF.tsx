@@ -1,7 +1,8 @@
 import {
-  baseFilePropSchema,
+  baseFileZodPropSchema,
+  createPropSchemaFromZod,
   FileBlockConfig,
-  optionalFileProps,
+  optionalFileZodPropSchema,
 } from "@blocknote/core";
 import {
   createReactBlockSpec,
@@ -38,14 +39,16 @@ export const PDFPreview = (
 export const PDF = createReactBlockSpec(
   {
     type: "pdf",
-    propSchema: z.object({}).extend({
-      ...baseFilePropSchema.shape,
-      ...optionalFileProps.pick({
-        url: true,
-        showPreview: true,
-        previewWidth: true,
-      }).shape,
-    }),
+    propSchema: createPropSchemaFromZod(
+      z.object({}).extend({
+        ...baseFileZodPropSchema.shape,
+        ...optionalFileZodPropSchema.pick({
+          url: true,
+          showPreview: true,
+          previewWidth: true,
+        }).shape,
+      }),
+    ),
     content: "none",
   },
   {

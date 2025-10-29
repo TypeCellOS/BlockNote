@@ -31,14 +31,16 @@ export function editorHasBlockWithType<
     editor.schema.blockSpecs[blockType].config.propSchema;
 
   // make sure every prop in the requested prop appears in the editor schema block props
-  return Object.entries(props._zod.def.shape).every(([key, value]) => {
-    // we do a JSON Stringify check as Zod doesn't expose
-    // equality / assignability checks
-    return (
-      JSON.stringify(value._zod.def) ===
-      JSON.stringify(editorProps._zod.def.shape[key]._zod.def)
-    );
-  });
+  return Object.entries(props._zodSource._zod.def.shape).every(
+    ([key, value]) => {
+      // we do a JSON Stringify check as Zod doesn't expose
+      // equality / assignability checks
+      return (
+        JSON.stringify(value._zod.def) ===
+        JSON.stringify(editorProps._zodSource._zod.def.shape[key]._zod.def)
+      );
+    },
+  );
 }
 
 export function blockHasType<BType extends string, Props extends PropSchema>(

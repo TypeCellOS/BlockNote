@@ -2,21 +2,25 @@ import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import {
   BlockConfig,
   BlockFromConfigNoChildren,
+  PropSchemaFromZod,
 } from "../../../../schema/index.js";
 import {
-  baseFilePropSchema,
-  optionalFileProps,
+  baseFileZodPropSchema,
+  optionalFileZodPropSchema,
 } from "../../../defaultFileProps.js";
 import { createAddFileButton } from "./createAddFileButton.js";
 import { createFileNameWithIcon } from "./createFileNameWithIcon.js";
 
-const requiredPropSchema = baseFilePropSchema.extend({
-  ...optionalFileProps.pick({ url: true }).shape,
+const requiredZodPropSchema = baseFileZodPropSchema.extend({
+  ...optionalFileZodPropSchema.pick({ url: true }).shape,
 });
-
 export const createFileBlockWrapper = (
   block: BlockFromConfigNoChildren<
-    BlockConfig<string, typeof requiredPropSchema, "none">,
+    BlockConfig<
+      string,
+      PropSchemaFromZod<typeof requiredZodPropSchema>,
+      "none"
+    >,
     any,
     any
   >,

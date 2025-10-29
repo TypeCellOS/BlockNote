@@ -3,7 +3,7 @@ import { createBlockNoteExtension } from "../../../editor/BlockNoteExtension.js"
 import { createBlockConfig, createBlockSpec } from "../../../schema/index.js";
 import {
   addDefaultPropsExternalHTML,
-  defaultProps,
+  defaultPropSchema,
   parseDefaultProps,
 } from "../../defaultProps.js";
 import { handleEnter } from "../../utils/listItemEnterHandler.js";
@@ -17,7 +17,7 @@ export const createBulletListItemBlockConfig = createBlockConfig(
   () =>
     ({
       type: "bulletListItem" as const,
-      propSchema: defaultProps,
+      propSchema: defaultPropSchema,
       content: "inline",
     }) as const,
 );

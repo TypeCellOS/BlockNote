@@ -1,7 +1,7 @@
 import {
   BlockNoteSchema,
   defaultBlockSpecs,
-  defaultProps,
+  defaultPropSchema,
 } from "@blocknote/core";
 import { createReactBlockSpec } from "@blocknote/react";
 import { createContext, useContext } from "react";
@@ -11,7 +11,7 @@ import { ServerBlockNoteEditor } from "../ServerBlockNoteEditor.js";
 const SimpleReactCustomParagraph = createReactBlockSpec(
   {
     type: "simpleReactCustomParagraph" as const,
-    propSchema: defaultProps,
+    propSchema: defaultPropSchema,
     content: "inline" as const,
   },
   () => ({
@@ -35,7 +35,7 @@ const ReactContextParagraphComponent = (props: any) => {
 const ReactContextParagraph = createReactBlockSpec(
   {
     type: "reactContextParagraph" as const,
-    propSchema: defaultProps,
+    propSchema: defaultPropSchema,
     content: "inline" as const,
   },
   {

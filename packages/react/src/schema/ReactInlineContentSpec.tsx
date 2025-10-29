@@ -18,7 +18,6 @@ import {
   propsToAttributes,
   StyleSchema,
 } from "@blocknote/core";
-import * as z from "zod/v4/core";
 import { Node } from "@tiptap/core";
 import {
   NodeViewProps,
@@ -26,6 +25,7 @@ import {
   ReactNodeViewRenderer,
   useReactNodeView,
 } from "@tiptap/react";
+import * as z from "zod/v4/core";
 // import { useReactNodeView } from "@tiptap/react/dist/packages/react/src/useReactNodeView";
 import { FC, JSX } from "react";
 import { renderToDOMSpec } from "./@util/ReactRenderUtil.js";
@@ -82,7 +82,7 @@ export function InlineContentWrapper<
       {...Object.fromEntries(
         Object.entries(props.inlineContentProps)
           .filter(([prop, value]) => {
-            const spec = props.propSchema._zod.def.shape[prop];
+            const spec = props.propSchema._zodSource._zod.def.shape[prop];
             const defaultValue =
               spec instanceof z.$ZodDefault
                 ? spec._zod.def.defaultValue

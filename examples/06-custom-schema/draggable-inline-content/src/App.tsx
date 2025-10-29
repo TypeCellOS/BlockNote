@@ -1,4 +1,8 @@
-import { BlockNoteSchema, defaultInlineContentSpecs } from "@blocknote/core";
+import {
+  BlockNoteSchema,
+  createPropSchemaFromZod,
+  defaultInlineContentSpecs,
+} from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
@@ -11,9 +15,11 @@ import { z } from "zod/v4";
 const draggableButton = createReactInlineContentSpec(
   {
     type: "draggableButton",
-    propSchema: z.object({
-      title: z.string().default(""),
-    }),
+    propSchema: createPropSchemaFromZod(
+      z.object({
+        title: z.string().default(""),
+      }),
+    ),
     content: "none",
   },
   {

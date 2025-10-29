@@ -1,10 +1,14 @@
 import { z } from "zod/v4";
 import { getBlockInfoFromSelection } from "../../../api/getBlockInfoFromPos.js";
 import { createBlockNoteExtension } from "../../../editor/BlockNoteExtension.js";
-import { createBlockConfig, createBlockSpec } from "../../../schema/index.js";
+import {
+  createBlockConfig,
+  createBlockSpec,
+  createPropSchemaFromZod,
+} from "../../../schema/index.js";
 import {
   addDefaultPropsExternalHTML,
-  defaultProps,
+  defaultZodPropSchema,
   parseDefaultProps,
 } from "../../defaultProps.js";
 import { handleEnter } from "../../utils/listItemEnterHandler.js";
@@ -19,9 +23,11 @@ export const createNumberedListItemBlockConfig = createBlockConfig(
   () =>
     ({
       type: "numberedListItem" as const,
-      propSchema: defaultProps.extend({
-        start: z.number().optional(),
-      }),
+      propSchema: createPropSchemaFromZod(
+        defaultZodPropSchema.extend({
+          start: z.number().optional(),
+        }),
+      ),
       content: "inline",
     }) as const,
 );
