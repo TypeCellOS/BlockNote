@@ -92,6 +92,7 @@ export function BlockContentWrapper<
       // props which are already added as HTML attributes to the parent
       // `blockContent` element (inheritedProps) and props set to their default
       // values
+      // TODO: reuse same code from core
       {...Object.fromEntries(
         Object.entries(props.blockProps)
           .filter(([prop, value]) => {
@@ -103,6 +104,9 @@ export function BlockContentWrapper<
             return value !== defaultValue;
           })
           .map(([prop, value]) => {
+            if (typeof value === "object") {
+              return [camelToDataKebab(prop), JSON.stringify(value)];
+            }
             return [camelToDataKebab(prop), value];
           }),
       )}

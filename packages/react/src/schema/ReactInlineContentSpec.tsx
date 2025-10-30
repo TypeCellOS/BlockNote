@@ -80,6 +80,7 @@ export function InlineContentWrapper<
       data-inline-content-type={props.inlineContentType}
       // Adds props as HTML attributes in kebab-case with "data-" prefix. Skips
       // props set to their default values.
+      // TODO: reuse same code from core
       {...Object.fromEntries(
         Object.entries(props.inlineContentProps)
           .filter(([prop, value]) => {
@@ -91,6 +92,9 @@ export function InlineContentWrapper<
             return value !== defaultValue;
           })
           .map(([prop, value]) => {
+            if (typeof value === "object") {
+              return [camelToDataKebab(prop), JSON.stringify(value)];
+            }
             return [camelToDataKebab(prop), value];
           }),
       )}

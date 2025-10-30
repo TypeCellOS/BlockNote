@@ -33,6 +33,7 @@ export function propsToAttributes(propSchema: PropSchema): Attributes {
         // Props are displayed in kebab-case as HTML attributes. If a prop's
         // value is the same as its default, we don't display an HTML
         // attribute for it.
+        // TODO: needed? (seems tiptap specific)
         parseHTML: (element) => {
           const value = element.getAttribute(camelToDataKebab(name));
 
@@ -50,13 +51,20 @@ export function propsToAttributes(propSchema: PropSchema): Attributes {
             return z.parse(spec, value);
           }
         },
+        // TODO: needed? (seems tiptap specific)
         renderHTML: (attributes) => {
           // don't render to html if the value is the same as the default
-          return attributes[name] !== def
-            ? {
-                [camelToDataKebab(name)]: attributes[name],
-              }
-            : {};
+          if (attributes[name] === def) {
+            return {};
+          }
+          if (typeof attributes[name] === "object") {
+            return {
+              [camelToDataKebab(name)]: JSON.stringify(attributes[name]),
+            };
+          }
+          return {
+            [camelToDataKebab(name)]: attributes[name],
+          };
         },
       };
     },

@@ -83,6 +83,36 @@ export const alertBlock = createReactBlockSpec(
   },
 );
 
+// TODO
+export const advancedBlock = createReactBlockSpec(
+  {
+    type: "advanced",
+    propSchema: createPropSchemaFromZod(
+      z.object({
+        nested: z.object({
+          type: z.enum(["warning", "error", "info", "success"]),
+          message: z.string(),
+        }),
+      }),
+    ),
+    content: "inline",
+  },
+  {
+    render: (props) => (
+      <div
+        className={"alert"}
+        style={{
+          backgroundColor:
+            alertTypes[props.block.props.nested.type].backgroundColor,
+        }}
+      >
+        <span>{props.block.props.nested.message}</span>
+        <div className={"inline-content"} ref={props.contentRef} />
+      </div>
+    ),
+  },
+);
+
 const simpleImageBlock = createReactBlockSpec(
   {
     type: "simpleImage",
@@ -133,6 +163,7 @@ const schema = BlockNoteSchema.create({
     alert: alertBlock(),
     simpleImage: simpleImageBlock(),
     bracketsParagraph: bracketsParagraphBlock(),
+    advanced: advancedBlock(),
   },
 });
 
@@ -141,12 +172,23 @@ export default function App() {
     schema,
     initialContent: [
       {
+        type: "advanced",
+        props: {
+          nested: {
+            type: "warning",
+            message: "Warning",
+          },
+        },
+        content: "Advanced",
+      },
+      {
         type: "alert",
         props: {
           type: "success",
         },
         content: "Alert",
       },
+
       {
         type: "simpleImage",
         props: {
