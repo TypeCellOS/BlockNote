@@ -6,7 +6,13 @@ import {
 } from "@blocknote/core";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { testDocument } from "@shared/testDocument.js";
-import { BlobReader, Entry, TextWriter, ZipReader } from "@zip.js/zip.js";
+import {
+  BlobReader,
+  Entry,
+  FileEntry,
+  TextWriter,
+  ZipReader,
+} from "@zip.js/zip.js";
 import { Packer, Paragraph, TextRun } from "docx";
 import { describe, expect, it } from "vitest";
 import xmlFormat from "xml-formatter";
@@ -15,8 +21,8 @@ import { DOCXExporter } from "./docxExporter.js";
 
 const getZIPEntryContent = (entries: Entry[], fileName: string) => {
   const entry = entries.find((entry) => {
-    return entry.filename === fileName;
-  });
+    return entry.filename === fileName && !entry.directory;
+  }) as FileEntry | undefined;
 
   if (!entry) {
     return "";

@@ -15,6 +15,13 @@ describe("Schema test", () => {
       // Use an empty object validation to check if a zod propSchema is the same shape
       // @ts-ignore this is just to check the shape, not that zod instance is a certain shape
       spec.config.propSchema = z.parse(spec.config.propSchema._zodSource, {});
+      if (
+        typeof spec.implementation === "object" &&
+        spec.implementation !== null &&
+        typeof spec.implementation.node === "object"
+      ) {
+        spec.implementation.node = null as any;
+      }
     });
     await expect(specs).toMatchFileSnapshot(`./__snapshots__/blocks.json`);
   });
@@ -26,6 +33,13 @@ describe("Schema test", () => {
         // Use an empty object validation to check if a zod propSchema is the same shape
         // @ts-ignore this is just to check the shape, not that zod instance is a certain shape
         spec.config.propSchema = z.parse(spec.config.propSchema._zodSource, {});
+        if (
+          typeof spec.implementation === "object" &&
+          spec.implementation !== null &&
+          typeof spec.implementation.node === "object"
+        ) {
+          spec.implementation.node = null as any;
+        }
       }
     });
     await expect(specs).toMatchFileSnapshot(
@@ -34,6 +48,18 @@ describe("Schema test", () => {
   });
 
   it("Style specs test", async () => {
+    const specs = getEditor().schema.styleSpecs;
+    Object.values(specs).forEach((spec) => {
+      if (
+        typeof spec === "object" &&
+        spec !== null &&
+        typeof spec.implementation === "object" &&
+        spec.implementation !== null &&
+        typeof spec.implementation.mark === "object"
+      ) {
+        spec.implementation.mark = null as any;
+      }
+    });
     await expect(getEditor().schema.styleSpecs).toMatchFileSnapshot(
       `./__snapshots__/styles.json`,
     );

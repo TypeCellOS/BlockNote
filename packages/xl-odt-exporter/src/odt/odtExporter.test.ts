@@ -6,7 +6,7 @@ import {
 } from "@blocknote/core";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { testDocument } from "@shared/testDocument.js";
-import { BlobReader, TextWriter, ZipReader } from "@zip.js/zip.js";
+import { BlobReader, FileEntry, TextWriter, ZipReader } from "@zip.js/zip.js";
 import { beforeAll, describe, expect, it } from "vitest";
 import xmlFormat from "xml-formatter";
 import { odtDefaultSchemaMappings } from "./defaultSchema/index.js";
@@ -154,17 +154,19 @@ async function testODTDocumentAgainstSnapshot(
   const entries = await zipReader.getEntries();
   const stylesXMLWriter = new TextWriter();
   const contentXMLWriter = new TextWriter();
-  const stylesXML = entries.find((entry) => entry.filename === "styles.xml");
+  const stylesXML = entries.find(
+    (entry) => entry.filename === "styles.xml",
+  ) as FileEntry;
   const contentXML = entries.find((entry) => {
     return entry.filename === "content.xml";
-  });
+  }) as FileEntry;
 
   expect(stylesXML).toBeDefined();
   expect(contentXML).toBeDefined();
   await expect(
-    xmlFormat(await stylesXML!.getData!(stylesXMLWriter)),
+    xmlFormat(await stylesXML.getData(stylesXMLWriter)),
   ).toMatchFileSnapshot(snapshots.styles);
   await expect(
-    xmlFormat(await contentXML!.getData!(contentXMLWriter)),
+    xmlFormat(await contentXML.getData(contentXMLWriter)),
   ).toMatchFileSnapshot(snapshots.content);
 }
