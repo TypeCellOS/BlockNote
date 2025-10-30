@@ -1,15 +1,17 @@
 import {
+  blockHasType,
   BlockSchema,
+  defaultProps,
   DefaultProps,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
 import { UseFloatingOptions, flip, offset, shift } from "@floating-ui/react";
 import { isEventTargetWithin } from "@floating-ui/react/utils";
-import { FC, useMemo, useRef, useState } from "react";
+import { FC, useMemo, useRef } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
-import { useEditorContentOrSelectionChange } from "../../hooks/useEditorContentOrSelectionChange.js";
+import { useEditorState } from "../../hooks/useEditorState.js";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning.js";
 import { useUIPluginState } from "../../hooks/useUIPluginState.js";
 import { mergeRefs } from "../../util/mergeRefs.js";
@@ -43,33 +45,22 @@ export const FormattingToolbarController = (props: {
     StyleSchema
   >();
 
-  const [placement, setPlacement] = useState<"top-start" | "top" | "top-end">(
-    () => {
+  const placement = useEditorState({
+    editor,
+    selector: ({ editor }) => {
       const block = editor.getTextCursorPosition().block;
 
-      if (!("textAlignment" in block.props)) {
+      if (
+        !blockHasType(block, editor, block.type, {
+          textAlignment: defaultProps.textAlignment,
+        })
+      ) {
         return "top-start";
+      } else {
+        return textAlignmentToPlacement(block.props.textAlignment);
       }
-
-      return textAlignmentToPlacement(
-        block.props.textAlignment as DefaultProps["textAlignment"],
-      );
     },
-  );
-
-  useEditorContentOrSelectionChange(() => {
-    const block = editor.getTextCursorPosition().block;
-
-    if (!("textAlignment" in block.props)) {
-      setPlacement("top-start");
-    } else {
-      setPlacement(
-        textAlignmentToPlacement(
-          block.props.textAlignment as DefaultProps["textAlignment"],
-        ),
-      );
-    }
-  }, editor);
+  });
 
   // TODO refactor this to actually use the new extension & a hook for positioning to a selection
 
