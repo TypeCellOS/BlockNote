@@ -65,9 +65,8 @@
   "devDependencies": {
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
-    "@vitest/ui": "^2.1.9",
     "eslint": "^8.57.1",
-    "jsdom": "^21.1.2",
+    "jsdom": "^25.0.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "rimraf": "^5.0.10",

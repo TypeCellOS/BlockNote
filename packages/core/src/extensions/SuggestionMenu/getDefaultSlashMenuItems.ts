@@ -90,7 +90,13 @@ export function getDefaultSlashMenuItems<
 >(editor: BlockNoteEditor<BSchema, I, S>) {
   const items: DefaultSuggestionItem[] = [];
 
-  if (editorHasBlockWithType(editor, "heading")) {
+  if (
+    editorHasBlockWithType(
+      editor,
+      "heading",
+      createPropSchemaFromZod(z.object({ level: z.number() })),
+    )
+  ) {
     const headingProps = editor.schema.blockSchema.heading.propSchema;
     for (const level of [1, 2, 3, 4, 5, 6] as const) {
       if (z.safeParse(headingProps._zodSource, { level }).success) {
@@ -340,6 +346,7 @@ export function getDefaultSlashMenuItems<
       createPropSchemaFromZod(
         z.object({
           isToggleable: z.boolean().default(false),
+          level: z.number(), // TODO
         }),
       ),
     )
