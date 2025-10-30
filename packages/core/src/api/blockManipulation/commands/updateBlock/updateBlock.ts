@@ -14,6 +14,11 @@ import type {
   BlockSchema,
 } from "../../../../schema/blocks/types.js";
 import type { InlineContentSchema } from "../../../../schema/inlineContent/types.js";
+import {
+  partialBlockToBlock,
+  partialInlineContentToInlineContent,
+  partialTableContentToTableContent,
+} from "../../../../schema/partialBlockToBlock.js";
 import type { StyleSchema } from "../../../../schema/styles/types.js";
 import { UnreachableCaseError } from "../../../../util/typescript.js";
 import {
@@ -27,7 +32,7 @@ import {
 } from "../../../nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../../nodeUtil.js";
-import { getPmSchema } from "../../../pmUtil.js";
+import { getBlockNoteSchema, getPmSchema } from "../../../pmUtil.js";
 
 // for compatibility with tiptap. TODO: remove as we want to remove dependency on tiptap command interface
 export const updateBlockCommand = <
@@ -71,7 +76,7 @@ export function updateBlockTr<
   }
 
   const pmSchema = getPmSchema(tr);
-
+  const schema = getBlockNoteSchema<BSchema, I, S>(pmSchema);
   if (
     replaceFromPos !== undefined &&
     replaceToPos !== undefined &&
@@ -127,17 +132,19 @@ export function updateBlockTr<
     // currently, we calculate the new node and replace the entire node with the desired new node.
     // for this, we do a nodeToBlock on the existing block to get the children.
     // it would be cleaner to use a ReplaceAroundStep, but this is a bit simpler and it's quite an edge case
-    const existingBlock = nodeToBlock(blockInfo.bnBlock.node, pmSchema);
+    const newFullBlock = partialBlockToBlock(schema, block);
+    if (block.children === undefined) {
+      // if no children are passed in, use existing children
+      const existingBlock = nodeToBlock<BSchema, I, S>(
+        blockInfo.bnBlock.node,
+        pmSchema,
+      );
+      newFullBlock.children = existingBlock.children;
+    }
     tr.replaceWith(
       blockInfo.bnBlock.beforePos,
       blockInfo.bnBlock.afterPos,
-      blockToNode(
-        {
-          children: existingBlock.children, // if no children are passed in, use existing children
-          ...block,
-        },
-        pmSchema,
-      ),
+      blockToNode(newFullBlock, pmSchema),
     );
 
     return;
@@ -174,6 +181,7 @@ function updateBlockContentNode<
   replaceToOffset?: number,
 ) {
   const pmSchema = getPmSchema(tr);
+  const schema = getBlockNoteSchema<BSchema, I, S>(pmSchema);
   let content: PMNode[] | "keep" = "keep";
 
   // Has there been any custom content provided?
@@ -188,9 +196,22 @@ function updateBlockContentNode<
     } else if (Array.isArray(block.content)) {
       // Adds a text node with the provided styles converted into marks to the content,
       // for each InlineContent object.
-      content = inlineContentToNodes(block.content, pmSchema, newNodeType.name);
+      content = inlineContentToNodes(
+        partialInlineContentToInlineContent(
+          block.content,
+          schema.inlineContentSchema,
+        ),
+        pmSchema,
+        newNodeType.name,
+      );
     } else if (block.content.type === "tableContent") {
-      content = tableContentToNodes(block.content, pmSchema);
+      content = tableContentToNodes(
+        partialTableContentToTableContent(
+          block.content,
+          schema.inlineContentSchema,
+        ),
+        pmSchema,
+      );
     } else {
       throw new UnreachableCaseError(block.content.type);
     }
@@ -276,9 +297,10 @@ function updateChildren<
   S extends StyleSchema,
 >(block: PartialBlock<BSchema, I, S>, tr: Transform, blockInfo: BlockInfo) {
   const pmSchema = getPmSchema(tr);
+  const schema = getBlockNoteSchema<BSchema, I, S>(pmSchema);
   if (block.children !== undefined && block.children.length > 0) {
     const childNodes = block.children.map((child) => {
-      return blockToNode(child, pmSchema);
+      return blockToNode(partialBlockToBlock(schema, child), pmSchema);
     });
 
     // Checks if a blockGroup node already exists.

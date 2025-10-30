@@ -1,12 +1,13 @@
 import { DOMSerializer, Fragment, Node } from "prosemirror-model";
-
-import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
+import { Block } from "../../../../blocks/index.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import {
   BlockImplementation,
   BlockSchema,
+  InlineContent,
   InlineContentSchema,
   StyleSchema,
+  TableContent,
 } from "../../../../schema/index.js";
 import { UnreachableCaseError } from "../../../../util/typescript.js";
 import {
@@ -34,8 +35,8 @@ export function serializeInlineContentExternalHTML<
   I extends InlineContentSchema,
   S extends StyleSchema,
 >(
-  editor: BlockNoteEditor<any, I, S>,
-  blockContent: PartialBlock<BSchema, I, S>["content"],
+  editor: BlockNoteEditor<BSchema, I, S>,
+  blockContent: InlineContent<I, S>[] | TableContent<I, S>,
   serializer: DOMSerializer,
   options?: { document?: Document },
 ) {
@@ -44,8 +45,6 @@ export function serializeInlineContentExternalHTML<
   // TODO: reuse function from nodeconversions?
   if (!blockContent) {
     throw new Error("blockContent is required");
-  } else if (typeof blockContent === "string") {
-    nodes = inlineContentToNodes([blockContent], editor.pmSchema);
   } else if (Array.isArray(blockContent)) {
     nodes = inlineContentToNodes(blockContent, editor.pmSchema);
   } else if (blockContent.type === "tableContent") {
@@ -166,7 +165,7 @@ function serializeBlock<
 >(
   fragment: DocumentFragment,
   editor: BlockNoteEditor<BSchema, I, S>,
-  block: PartialBlock<BSchema, I, S>,
+  block: Block<BSchema, I, S>,
   serializer: DOMSerializer,
   orderedListItemBlockTypes: Set<string>,
   unorderedListItemBlockTypes: Set<string>,
@@ -175,20 +174,10 @@ function serializeBlock<
   const doc = options?.document ?? document;
   const BC_NODE = editor.pmSchema.nodes["blockContainer"];
 
-  // set default props in case we were passed a partial block
-  const props = block.props || {};
-  for (const [name, spec] of Object.entries(
-    editor.schema.blockSchema[block.type as any].propSchema,
-  )) {
-    if (!(name in props) && spec.default !== undefined) {
-      (props as any)[name] = spec.default;
-    }
-  }
-
   const bc = BC_NODE.spec?.toDOM?.(
     BC_NODE.create({
       id: block.id,
-      ...props,
+      ...block.props,
     }),
   ) as {
     dom: HTMLElement;
@@ -204,14 +193,10 @@ function serializeBlock<
   const ret =
     blockImplementation.toExternalHTML?.call(
       {},
-      { ...block, props } as any,
+      { ...block } as any,
       editor as any,
     ) ||
-    blockImplementation.render.call(
-      {},
-      { ...block, props } as any,
-      editor as any,
-    );
+    blockImplementation.render.call({}, { ...block } as any, editor as any);
 
   const elementFragment = doc.createDocumentFragment();
 
@@ -240,11 +225,10 @@ function serializeBlock<
   } else {
     elementFragment.append(ret.dom);
   }
-
   if (ret.contentDOM && block.content) {
     const ic = serializeInlineContentExternalHTML(
       editor,
-      block.content as any, // TODO
+      block.content,
       serializer,
       options,
     );
@@ -265,11 +249,11 @@ function serializeBlock<
 
       if (
         listType === "OL" &&
-        "start" in props &&
-        props.start &&
-        props?.start !== 1
+        "start" in block.props &&
+        block.props.start &&
+        block.props?.start !== 1
       ) {
-        list.setAttribute("start", props.start + "");
+        list.setAttribute("start", block.props.start + "");
       }
       fragment.append(list);
     }
@@ -319,7 +303,7 @@ const serializeBlocksToFragment = <
 >(
   fragment: DocumentFragment,
   editor: BlockNoteEditor<BSchema, I, S>,
-  blocks: PartialBlock<BSchema, I, S>[],
+  blocks: Block<BSchema, I, S>[],
   serializer: DOMSerializer,
   orderedListItemBlockTypes: Set<string>,
   unorderedListItemBlockTypes: Set<string>,
@@ -344,7 +328,7 @@ export const serializeBlocksExternalHTML = <
   S extends StyleSchema,
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
-  blocks: PartialBlock<BSchema, I, S>[],
+  blocks: Block<BSchema, I, S>[],
   serializer: DOMSerializer,
   orderedListItemBlockTypes: Set<string>,
   unorderedListItemBlockTypes: Set<string>,

@@ -61,7 +61,8 @@
     "buffer": "^6.0.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-email": "^4.3.0"
+    "react-email": "^4.3.0",
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@types/jsdom": "^21.1.7",

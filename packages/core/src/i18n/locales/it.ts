@@ -2,7 +2,7 @@ import { Dictionary } from "../dictionary.js";
 
 export const it: Dictionary = {
   slash_menu: {
-    heading: {
+    heading_1: {
       title: "Intestazione 1",
       subtext: "Intestazione di primo livello",
       aliases: ["h", "intestazione1", "h1"],
@@ -38,7 +38,7 @@ export const it: Dictionary = {
       aliases: ["h6", "intestazione6", "sottotitolo6"],
       group: "Sottotitoli",
     },
-    toggle_heading: {
+    toggle_heading_1: {
       title: "Intestazione Espandibile 1",
       subtext:
         "Intestazione di primo livello che può essere espansa o compressa per mostrare il contenuto",

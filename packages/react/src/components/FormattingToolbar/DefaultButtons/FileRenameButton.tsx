@@ -1,7 +1,7 @@
 import {
   blockHasType,
   BlockSchema,
-  editorHasBlockWithType,
+  createPropSchemaFromZod,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -14,6 +14,10 @@ import {
 } from "react";
 import { RiFontFamily } from "react-icons/ri";
 
+import {
+  baseFileZodPropSchema,
+  optionalFileZodPropSchema,
+} from "../../../../../core/src/blocks/defaultFileProps.js";
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks.js";
@@ -42,10 +46,16 @@ export const FileRenameButton = () => {
     const block = selectedBlocks[0];
 
     if (
-      blockHasType(block, editor, block.type, {
-        url: "string",
-        name: "string",
-      })
+      blockHasType(
+        block,
+        editor,
+        block.type,
+        createPropSchemaFromZod(
+          baseFileZodPropSchema
+            .pick({ name: true })
+            .extend({ ...optionalFileZodPropSchema.pick({ url: true }) }.shape),
+        ),
+      )
     ) {
       setCurrentEditingName(block.props.name);
       return block;
@@ -56,13 +66,7 @@ export const FileRenameButton = () => {
 
   const handleEnter = useCallback(
     (event: KeyboardEvent) => {
-      if (
-        fileBlock &&
-        editorHasBlockWithType(editor, fileBlock.type, {
-          name: "string",
-        }) &&
-        event.key === "Enter"
-      ) {
+      if (fileBlock && event.key === "Enter") {
         event.preventDefault();
         editor.updateBlock(fileBlock, {
           props: {

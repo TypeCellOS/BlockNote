@@ -1,7 +1,8 @@
 import {
   BlockNoteSchema,
   defaultBlockSpecs,
-  defaultProps,
+  defaultPropSchema,
+  partialBlockToBlock,
 } from "@blocknote/core";
 import { createReactBlockSpec } from "@blocknote/react";
 import { createContext, useContext } from "react";
@@ -11,7 +12,7 @@ import { ServerBlockNoteEditor } from "../ServerBlockNoteEditor.js";
 const SimpleReactCustomParagraph = createReactBlockSpec(
   {
     type: "simpleReactCustomParagraph" as const,
-    propSchema: defaultProps,
+    propSchema: defaultPropSchema,
     content: "inline" as const,
   },
   () => ({
@@ -35,7 +36,7 @@ const ReactContextParagraphComponent = (props: any) => {
 const ReactContextParagraph = createReactBlockSpec(
   {
     type: "reactContextParagraph" as const,
-    propSchema: defaultProps,
+    propSchema: defaultPropSchema,
     content: "inline" as const,
   },
   {
@@ -56,13 +57,12 @@ describe("Test ServerBlockNoteEditor with React blocks", () => {
     const editor = ServerBlockNoteEditor.create({
       schema,
     });
-    const html = await editor.blocksToFullHTML([
-      {
-        id: "1",
-        type: "simpleReactCustomParagraph",
-        content: "React Custom Paragraph",
-      },
-    ]);
+    const fullBlock = partialBlockToBlock(editor.editor.schema, {
+      id: "1",
+      type: "simpleReactCustomParagraph",
+      content: "React Custom Paragraph",
+    });
+    const html = await editor.blocksToFullHTML([fullBlock]);
     expect(html).toMatchSnapshot();
   });
 
@@ -75,14 +75,14 @@ describe("Test ServerBlockNoteEditor with React blocks", () => {
       ({ children }) => (
         <TestContext.Provider value={true}>{children}</TestContext.Provider>
       ),
-      async () =>
-        editor.blocksToFullHTML([
-          {
-            id: "1",
-            type: "reactContextParagraph",
-            content: "React Context Paragraph",
-          },
-        ]),
+      async () => {
+        const fullBlock = partialBlockToBlock(editor.editor.schema, {
+          id: "1",
+          type: "reactContextParagraph",
+          content: "React Context Paragraph",
+        });
+        return editor.blocksToFullHTML([fullBlock]);
+      },
     );
 
     expect(html).toMatchSnapshot();

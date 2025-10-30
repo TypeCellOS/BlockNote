@@ -3,6 +3,7 @@ import {
   BlockNoteEditor,
   BlockNoteEditorOptions,
   BlockSchema,
+  CustomBlockNoteSchema,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
@@ -14,6 +15,7 @@ import {
   createExternalHTMLExporter,
   createInternalHTMLSerializer,
   nodeToBlock,
+  partialBlockToBlock,
 } from "@blocknote/core";
 
 import { BlockNoteViewRaw } from "@blocknote/react";
@@ -75,15 +77,19 @@ export class ServerBlockNoteEditor<
   }
 
   public static create<
-    BSchema extends BlockSchema = DefaultBlockSchema,
-    ISchema extends InlineContentSchema = DefaultInlineContentSchema,
-    SSchema extends StyleSchema = DefaultStyleSchema,
-  >(options: Partial<BlockNoteEditorOptions<BSchema, ISchema, SSchema>> = {}) {
-    return new ServerBlockNoteEditor(options) as ServerBlockNoteEditor<
-      BSchema,
-      ISchema,
-      SSchema
-    >;
+    Options extends Partial<BlockNoteEditorOptions<any, any, any>> | undefined,
+  >(
+    options?: Options,
+  ): Options extends {
+    schema: CustomBlockNoteSchema<infer BSchema, infer ISchema, infer SSchema>;
+  }
+    ? ServerBlockNoteEditor<BSchema, ISchema, SSchema>
+    : ServerBlockNoteEditor<
+        DefaultBlockSchema,
+        DefaultInlineContentSchema,
+        DefaultStyleSchema
+      > {
+    return new ServerBlockNoteEditor(options ?? {}) as any;
   }
 
   protected constructor(
@@ -133,7 +139,9 @@ export class ServerBlockNoteEditor<
     blocks: PartialBlock<BSchema, ISchema, SSchema>[],
   ) {
     const pmSchema = this.editor.pmSchema;
-    const pmNodes = blocks.map((b) => blockToNode(b, pmSchema));
+    const pmNodes = blocks.map((b) =>
+      blockToNode(partialBlockToBlock(this.editor.schema, b), pmSchema),
+    );
 
     const doc = pmSchema.topNodeType.create(
       null,
@@ -211,7 +219,7 @@ export class ServerBlockNoteEditor<
    * @returns The blocks, serialized as an HTML string.
    */
   public async blocksToHTMLLossy(
-    blocks: PartialBlock<BSchema, ISchema, SSchema>[],
+    blocks: Block<BSchema, ISchema, SSchema>[],
   ): Promise<string> {
     return this._withJSDOM(async () => {
       const exporter = createExternalHTMLExporter(
@@ -235,7 +243,7 @@ export class ServerBlockNoteEditor<
    * @returns The blocks, serialized as an HTML string.
    */
   public async blocksToFullHTML(
-    blocks: PartialBlock<BSchema, ISchema, SSchema>[],
+    blocks: Block<BSchema, ISchema, SSchema>[],
   ): Promise<string> {
     return this._withJSDOM(async () => {
       const exporter = createInternalHTMLSerializer(
@@ -273,7 +281,7 @@ export class ServerBlockNoteEditor<
    * @returns The blocks, serialized as a Markdown string.
    */
   public async blocksToMarkdownLossy(
-    blocks: PartialBlock<BSchema, ISchema, SSchema>[],
+    blocks: Block<BSchema, ISchema, SSchema>[],
   ): Promise<string> {
     return this._withJSDOM(async () => {
       return blocksToMarkdown(blocks, this.editor.pmSchema, this.editor, {

@@ -5,9 +5,11 @@ import {
   createImageBlockSpec,
   createInlineContentSpec,
   createPageBreakBlockSpec,
+  createPropSchemaFromZod,
   createStyleSpec,
-  defaultProps,
+  defaultPropSchema,
 } from "@blocknote/core";
+import { z } from "zod/v4";
 
 // BLOCKS ----------------------------------------------------------------------
 
@@ -34,7 +36,7 @@ const SimpleImage = addNodeAndExtensionsToSpec(
 const CustomParagraph = addNodeAndExtensionsToSpec(
   {
     type: "customParagraph",
-    propSchema: defaultProps,
+    propSchema: defaultPropSchema,
     content: "inline",
   },
   {
@@ -62,7 +64,7 @@ const CustomParagraph = addNodeAndExtensionsToSpec(
 const SimpleCustomParagraph = addNodeAndExtensionsToSpec(
   {
     type: "simpleCustomParagraph",
-    propSchema: defaultProps,
+    propSchema: defaultPropSchema,
     content: "inline",
   },
   {
@@ -83,11 +85,11 @@ const SimpleCustomParagraph = addNodeAndExtensionsToSpec(
 const Mention = createInlineContentSpec(
   {
     type: "mention",
-    propSchema: {
-      user: {
-        default: "",
-      },
-    },
+    propSchema: createPropSchemaFromZod(
+      z.object({
+        user: z.string().default(""),
+      }),
+    ),
     content: "none",
   },
   {
@@ -131,7 +133,7 @@ const Mention = createInlineContentSpec(
 const Tag = createInlineContentSpec(
   {
     type: "tag" as const,
-    propSchema: {},
+    propSchema: createPropSchemaFromZod(z.object({})),
     content: "styled",
   },
   {

@@ -1,12 +1,16 @@
 import {
   Block,
-  BlockNoteSchema,
   BlockSchema,
   COLORS_DEFAULT,
+  CustomBlockNoteSchema,
+  Exporter,
+  ExporterOptions,
   InlineContentSchema,
   StyleSchema,
   StyledText,
 } from "@blocknote/core";
+import { corsProxyResolveFileUrl } from "@shared/api/corsProxy.js";
+import { loadFileBuffer } from "@shared/util/fileUtil.js";
 import {
   AlignmentType,
   Document,
@@ -20,11 +24,6 @@ import {
   Table,
   TextRun,
 } from "docx";
-
-import { Exporter, ExporterOptions } from "@blocknote/core";
-import { corsProxyResolveFileUrl } from "@shared/api/corsProxy.js";
-import { loadFileBuffer } from "@shared/util/fileUtil.js";
-
 // get constructor arg type from Document
 type DocumentOptions = Partial<ConstructorParameters<typeof Document>[0]>;
 
@@ -54,7 +53,7 @@ export class DOCXExporter<
     /**
      * The schema of your editor. The mappings are automatically typed checked against this schema.
      */
-    protected readonly schema: BlockNoteSchema<B, I, S>,
+    protected readonly schema: CustomBlockNoteSchema<B, I, S>,
     /**
      * The mappings that map the BlockNote schema to the docxjs content.
      * Pass {@link docxDefaultSchemaMappings} for the default schema.

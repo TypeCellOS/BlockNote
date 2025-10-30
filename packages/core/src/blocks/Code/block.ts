@@ -1,8 +1,13 @@
 import type { HighlighterGeneric } from "@shikijs/types";
-import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
-import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
-import { lazyShikiPlugin } from "./shiki.js";
 import { DOMParser } from "@tiptap/pm/model";
+import { z } from "zod/v4";
+import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
+import {
+  createBlockConfig,
+  createBlockSpec,
+  createPropSchemaFromZod,
+} from "../../schema/index.js";
+import { lazyShikiPlugin } from "./shiki.js";
 
 export type CodeBlockOptions = {
   /**
@@ -57,11 +62,11 @@ export const createCodeBlockConfig = createBlockConfig(
   ({ defaultLanguage = "text" }: CodeBlockOptions) =>
     ({
       type: "codeBlock" as const,
-      propSchema: {
-        language: {
-          default: defaultLanguage,
-        },
-      },
+      propSchema: createPropSchemaFromZod(
+        z.object({
+          language: z.string().default(defaultLanguage),
+        }),
+      ),
       content: "inline",
     }) as const,
 );

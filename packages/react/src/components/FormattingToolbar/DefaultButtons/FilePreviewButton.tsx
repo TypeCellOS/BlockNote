@@ -1,13 +1,14 @@
 import {
   blockHasType,
   BlockSchema,
-  editorHasBlockWithType,
+  createPropSchemaFromZod,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
 import { useCallback, useMemo } from "react";
 import { RiImageAddFill } from "react-icons/ri";
 
+import { optionalFileZodPropSchema } from "../../../../../core/src/blocks/defaultFileProps.js";
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks.js";
@@ -34,10 +35,15 @@ export const FilePreviewButton = () => {
     const block = selectedBlocks[0];
 
     if (
-      blockHasType(block, editor, block.type, {
-        url: "string",
-        showPreview: "boolean",
-      })
+      blockHasType(
+        block,
+        editor,
+        block.type,
+        // TODO
+        createPropSchemaFromZod(
+          optionalFileZodPropSchema.pick({ url: true, showPreview: true }),
+        ),
+      )
     ) {
       return block;
     }
@@ -46,12 +52,7 @@ export const FilePreviewButton = () => {
   }, [editor, selectedBlocks]);
 
   const onClick = useCallback(() => {
-    if (
-      fileBlock &&
-      editorHasBlockWithType(editor, fileBlock.type, {
-        showPreview: "boolean",
-      })
-    ) {
+    if (fileBlock) {
       editor.updateBlock(fileBlock, {
         props: {
           showPreview: !fileBlock.props.showPreview,

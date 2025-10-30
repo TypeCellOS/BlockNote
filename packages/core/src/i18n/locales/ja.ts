@@ -2,7 +2,7 @@ import { Dictionary } from "../dictionary.js";
 
 export const ja: Dictionary = {
   slash_menu: {
-    heading: {
+    heading_1: {
       title: "見出し１",
       subtext: "トップレベルの見出しに使用",
       aliases: ["h", "見出し１", "h1", "大見出し"],
@@ -38,7 +38,7 @@ export const ja: Dictionary = {
       aliases: ["h6", "見出し6", "subheading6", "小見出し6"],
       group: "サブ見出し",
     },
-    toggle_heading: {
+    toggle_heading_1: {
       title: "折りたたみ見出し１",
       subtext: "内容の表示/非表示が切り替え可能なトップレベルの見出し",
       aliases: ["h", "見出し１", "h1", "大見出し", "折りたたみ", "トグル"],

@@ -1,7 +1,8 @@
 import {
   BlockNoteSchema,
   createPageBreakBlockSpec,
-  defaultProps,
+  createPropSchemaFromZod,
+  defaultPropSchema,
 } from "@blocknote/core";
 import {
   createReactBlockSpec,
@@ -9,13 +10,14 @@ import {
   createReactStyleSpec,
 } from "@blocknote/react";
 import { createContext, useContext } from "react";
+import { z } from "zod/v4";
 
 // BLOCKS ----------------------------------------------------------------------
 
 const createCustomParagraph = createReactBlockSpec(
   {
     type: "customParagraph",
-    propSchema: defaultProps,
+    propSchema: defaultPropSchema,
     content: "inline",
   },
   {
@@ -31,7 +33,7 @@ const createCustomParagraph = createReactBlockSpec(
 const createSimpleCustomParagraph = createReactBlockSpec(
   {
     type: "simpleCustomParagraph",
-    propSchema: defaultProps,
+    propSchema: defaultPropSchema,
     content: "inline",
   },
   {
@@ -55,7 +57,7 @@ const ContextParagraphComponent = (props: any) => {
 const createContextParagraph = createReactBlockSpec(
   {
     type: "contextParagraph",
-    propSchema: defaultProps,
+    propSchema: defaultPropSchema,
     content: "inline",
   },
   {
@@ -68,11 +70,11 @@ const createContextParagraph = createReactBlockSpec(
 const Mention = createReactInlineContentSpec(
   {
     type: "mention",
-    propSchema: {
-      user: {
-        default: "",
-      },
-    },
+    propSchema: createPropSchemaFromZod(
+      z.object({
+        user: z.string().default(""),
+      }),
+    ),
     content: "none",
   },
   {
@@ -111,7 +113,7 @@ const Mention = createReactInlineContentSpec(
 const Tag = createReactInlineContentSpec(
   {
     type: "tag",
-    propSchema: {},
+    propSchema: createPropSchemaFromZod(z.object({})),
     content: "styled",
   },
   {

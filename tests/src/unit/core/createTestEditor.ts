@@ -1,8 +1,8 @@
 import {
   BlockNoteEditor,
-  BlockNoteSchema,
   BlockSchema,
   createCodeBlockSpec,
+  CustomBlockNoteSchema,
   InlineContentSchema,
   StyleSchema,
   uploadToTmpFilesDotOrg_DEV_ONLY,
@@ -14,7 +14,7 @@ export const createTestEditor = <
   I extends InlineContentSchema,
   S extends StyleSchema,
 >(
-  schema: BlockNoteSchema<B, I, S>,
+  schema: CustomBlockNoteSchema<B, I, S>,
 ): (() => BlockNoteEditor<B, I, S>) => {
   let editor: BlockNoteEditor<B, I, S>;
   const div = document.createElement("div");

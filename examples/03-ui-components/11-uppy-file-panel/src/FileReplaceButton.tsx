@@ -1,8 +1,11 @@
 import {
-  BlockSchema,
+  baseFileZodPropSchema,
   blockHasType,
+  BlockSchema,
   InlineContentSchema,
+  optionalFileZodPropSchema,
   StyleSchema,
+  createPropSchemaFromZod
 } from "@blocknote/core";
 import {
   useBlockNoteEditor,
@@ -41,7 +44,15 @@ export const FileReplaceButton = () => {
 
   if (
     block === undefined ||
-    !blockHasType(block, editor, "file", { url: "string" }) ||
+    !blockHasType(
+      block,
+      editor,
+      block.type,
+      // TODO
+      createPropSchemaFromZod(baseFileZodPropSchema.extend({
+        ...optionalFileZodPropSchema.pick({ url: true }).shape,
+      })),
+    ) ||
     !editor.isEditable
   ) {
     return null;

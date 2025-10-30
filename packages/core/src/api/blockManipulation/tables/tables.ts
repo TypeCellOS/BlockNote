@@ -1,11 +1,9 @@
 import { DefaultBlockSchema } from "../../../blocks/defaultBlocks.js";
 import {
-  BlockFromConfigNoChildren,
-  PartialTableContent,
-  TableCell,
-  TableContent,
-} from "../../../schema/blocks/types.js";
-import {
+  type BlockFromConfig,
+  type PartialTableContent,
+  type TableCell,
+  type TableContent,
   isPartialLinkInlineContent,
   isStyledTextInlineContent,
 } from "../../../schema/index.js";
@@ -185,7 +183,7 @@ type OccupancyGrid = (RelativeCellIndices & {
  * @returns an {@link OccupancyGrid}
  */
 export function getTableCellOccupancyGrid(
-  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+  block: BlockFromConfig<DefaultBlockSchema["table"], any, any>,
 ): OccupancyGrid {
   const { height, width } = getDimensionsOfTable(block);
 
@@ -295,7 +293,7 @@ export function getAbsoluteTableCells(
   /**
    * The table block containing the cell.
    */
-  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+  block: BlockFromConfig<DefaultBlockSchema["table"], any, any>,
   /**
    * The occupancy grid of the table.
    */
@@ -327,7 +325,7 @@ export function getAbsoluteTableCells(
  * @returns The height and width of the table.
  */
 export function getDimensionsOfTable(
-  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+  block: BlockFromConfig<DefaultBlockSchema["table"], any, any>,
 ): {
   /**
    * The number of rows in the table.
@@ -370,7 +368,7 @@ export function getRelativeTableCells(
   /**
    * The table block containing the cell.
    */
-  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+  block: BlockFromConfig<DefaultBlockSchema["table"], any, any>,
   /**
    * The occupancy grid of the table.
    */
@@ -428,7 +426,7 @@ export function getRelativeTableCells(
  * @returns All of the cells associated with the relative row of the table. (All cells that have the same relative row index)
  */
 export function getCellsAtRowHandle(
-  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+  block: BlockFromConfig<DefaultBlockSchema["table"], any, any>,
   relativeRowIndex: RelativeCellIndices["row"],
 ) {
   const occupancyGrid = getTableCellOccupancyGrid(block);
@@ -507,7 +505,7 @@ export function getCellsAtRowHandle(
  * @returns All of the cells associated with the relative column of the table. (All cells that have the same relative column index)
  */
 export function getCellsAtColumnHandle(
-  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+  block: BlockFromConfig<DefaultBlockSchema["table"], any, any>,
   relativeColumnIndex: RelativeCellIndices["col"],
 ) {
   const occupancyGrid = getTableCellOccupancyGrid(block);
@@ -563,7 +561,7 @@ export function getCellsAtColumnHandle(
  * @note This is a destructive operation, it will modify the provided {@link OccupancyGrid} in place.
  */
 export function moveColumn(
-  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+  block: BlockFromConfig<DefaultBlockSchema["table"], any, any>,
   fromColIndex: RelativeCellIndices["col"],
   toColIndex: RelativeCellIndices["col"],
   occupancyGrid: OccupancyGrid = getTableCellOccupancyGrid(block),
@@ -607,7 +605,7 @@ export function moveColumn(
  * @note This is a destructive operation, it will modify the {@link OccupancyGrid} in place.
  */
 export function moveRow(
-  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+  block: BlockFromConfig<DefaultBlockSchema["table"], any, any>,
   fromRowIndex: RelativeCellIndices["row"],
   toRowIndex: RelativeCellIndices["row"],
   occupancyGrid: OccupancyGrid = getTableCellOccupancyGrid(block),
@@ -682,7 +680,7 @@ function isCellEmpty(
  * @note This is a destructive operation, it will modify the {@link OccupancyGrid} in place.
  */
 export function cropEmptyRowsOrColumns(
-  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+  block: BlockFromConfig<DefaultBlockSchema["table"], any, any>,
   removeEmpty: "columns" | "rows",
   occupancyGrid: OccupancyGrid = getTableCellOccupancyGrid(block),
 ): TableContent<any, any>["rows"] {
@@ -744,7 +742,7 @@ export function cropEmptyRowsOrColumns(
  * @note This is a destructive operation, it will modify the {@link OccupancyGrid} in place.
  */
 export function addRowsOrColumns(
-  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+  block: BlockFromConfig<DefaultBlockSchema["table"], any, any>,
   addType: "columns" | "rows",
   /**
    * The number of rows or columns to add.
@@ -800,7 +798,7 @@ export function addRowsOrColumns(
  * Checks if a row can be safely dropped at the target row index without splitting merged cells.
  */
 export function canRowBeDraggedInto(
-  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+  block: BlockFromConfig<DefaultBlockSchema["table"], any, any>,
   draggingIndex: RelativeCellIndices["row"],
   targetRowIndex: RelativeCellIndices["row"],
 ) {
@@ -835,7 +833,7 @@ export function canRowBeDraggedInto(
  * Checks if a column can be safely dropped at the target column index without splitting merged cells.
  */
 export function canColumnBeDraggedInto(
-  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+  block: BlockFromConfig<DefaultBlockSchema["table"], any, any>,
   draggingIndex: RelativeCellIndices["col"],
   targetColumnIndex: RelativeCellIndices["col"],
 ) {
@@ -874,7 +872,7 @@ export function canColumnBeDraggedInto(
 export function areInSameColumn(
   from: RelativeCellIndices,
   to: RelativeCellIndices,
-  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+  block: BlockFromConfig<DefaultBlockSchema["table"], any, any>,
 ) {
   // Table indices are relative to the table, so we need to resolve the absolute cell indices
   const anchorAbsoluteCellIndices = getAbsoluteTableCells(from, block);

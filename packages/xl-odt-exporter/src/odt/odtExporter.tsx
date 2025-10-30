@@ -1,6 +1,6 @@
 import {
   Block,
-  BlockNoteSchema,
+  CustomBlockNoteSchema,
   BlockSchema,
   COLORS_DEFAULT,
   Exporter,
@@ -49,7 +49,7 @@ export class ODTExporter<
   public readonly options: ExporterOptions;
 
   constructor(
-    protected readonly schema: BlockNoteSchema<B, I, S>,
+    protected readonly schema: CustomBlockNoteSchema<B, I, S>,
     mappings: Exporter<
       NoInfer<B>,
       NoInfer<I>,

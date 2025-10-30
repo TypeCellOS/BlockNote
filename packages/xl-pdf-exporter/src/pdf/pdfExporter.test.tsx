@@ -3,19 +3,21 @@ import {
   createBlockSpec,
   createInlineContentSpec,
   createPageBreakBlockSpec,
+  createPropSchemaFromZod,
   createStyleSpec,
   defaultBlockSpecs,
   defaultInlineContentSpecs,
   defaultStyleSpecs,
+  partialBlocksToBlocks,
 } from "@blocknote/core";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { Text } from "@react-pdf/renderer";
 import { testDocument } from "@shared/testDocument.js";
 import reactElementToJSXString from "react-element-to-jsx-string";
 import { describe, expect, it } from "vitest";
+import * as z from "zod/v4";
 import { pdfDefaultSchemaMappings } from "./defaultSchema/index.js";
 import { PDFExporter } from "./pdfExporter.js";
-import { partialBlocksToBlocksForTesting } from "@shared/formatConversionTestUtil.js";
 // import * as ReactPDF from "@react-pdf/renderer";
 // expect.extend({ toMatchImageSnapshot });
 // import { toMatchImageSnapshot } from "jest-image-snapshot";
@@ -36,7 +38,7 @@ describe("exporter", () => {
           {
             content: "none",
             type: "extraBlock",
-            propSchema: {},
+            propSchema: createPropSchemaFromZod(z.object({})),
           },
           {} as any,
         )(),
@@ -76,7 +78,7 @@ describe("exporter", () => {
           {
             type: "extraInlineContent",
             content: "styled",
-            propSchema: {},
+            propSchema: createPropSchemaFromZod(z.object({})),
           },
           {} as any,
         ),
@@ -235,7 +237,7 @@ describe("exporter", () => {
     });
     const exporter = new PDFExporter(schema, pdfDefaultSchemaMappings);
     const transformed = await exporter.toReactPDFDocument(
-      partialBlocksToBlocksForTesting(schema, [
+      partialBlocksToBlocks(schema, [
         {
           type: "columnList",
           children: [

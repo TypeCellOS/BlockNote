@@ -5,7 +5,6 @@ import {
   Transaction,
 } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
-
 import { Block } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
 import { BlockIdentifier } from "../../../../schema/index.js";
@@ -171,7 +170,12 @@ export function moveSelectedBlocksAndSelection(
     const selectionData = getBlockSelectionData(editor);
 
     editor.removeBlocks(blocks);
-    editor.insertBlocks(flattenColumns(blocks), referenceBlock, placement);
+    // TODO
+    editor.insertBlocks(
+      flattenColumns(blocks) as any,
+      referenceBlock,
+      placement,
+    );
 
     updateBlockSelectionFromData(tr, selectionData);
   });

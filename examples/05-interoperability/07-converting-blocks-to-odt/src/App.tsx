@@ -396,7 +396,10 @@ export default function App() {
 
   // Exports the editor content to ODT and downloads it.
   const onDownloadClick = async () => {
-    const exporter = new ODTExporter(editor.schema, odtDefaultSchemaMappings);
+    const exporter = new ODTExporter(
+      editor.schema,
+      odtDefaultSchemaMappings as any,
+    );
     const blob = await exporter.toODTDocument(editor.document);
 
     const link = document.createElement("a");

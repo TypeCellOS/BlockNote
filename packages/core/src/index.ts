@@ -55,3 +55,5 @@ export * from "./api/parsers/markdown/parseMarkdown.js";
 // TODO: for ai, remove?
 export * from "./api/blockManipulation/getBlock/getBlock.js";
 export * from "./api/positionMapping.js";
+
+// export type * from "zod";

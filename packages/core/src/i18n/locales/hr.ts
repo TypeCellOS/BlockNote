@@ -2,7 +2,7 @@ import { Dictionary } from "../dictionary.js";
 
 export const hr: Dictionary = {
   slash_menu: {
-    heading: {
+    heading_1: {
       title: "Naslov 1",
       subtext: "Glavni naslov",
       aliases: ["h", "naslov1", "h1"],
@@ -38,7 +38,7 @@ export const hr: Dictionary = {
       aliases: ["h6", "naslov6", "podnaslov6"],
       group: "Podnaslovi",
     },
-    toggle_heading: {
+    toggle_heading_1: {
       title: "Proširivi Naslov 1",
       subtext: "Proširivi glavni naslov",
       aliases: ["h", "naslov1", "h1", "proširivi"],
