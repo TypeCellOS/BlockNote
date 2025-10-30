@@ -4,6 +4,7 @@
     "content": [
       {
         "styles": {
+          "backgroundColor": "transparent",
           "bold": true,
           "textColor": "rgb(0, 0, 0)",
         },
@@ -26,6 +27,7 @@
     "content": [
       {
         "styles": {
+          "backgroundColor": "transparent",
           "bold": true,
           "textColor": "rgb(0, 0, 0)",
         },
@@ -48,6 +50,7 @@
     "content": [
       {
         "styles": {
+          "backgroundColor": "transparent",
           "bold": true,
           "textColor": "rgb(0, 0, 0)",
         },
@@ -70,6 +73,7 @@
     "content": [
       {
         "styles": {
+          "backgroundColor": "transparent",
           "bold": true,
           "textColor": "rgb(0, 0, 0)",
         },
@@ -92,6 +96,7 @@
     "content": [
       {
         "styles": {
+          "backgroundColor": "transparent",
           "bold": true,
           "textColor": "rgb(0, 0, 0)",
         },
@@ -114,6 +119,7 @@
     "content": [
       {
         "styles": {
+          "backgroundColor": "transparent",
           "bold": true,
           "textColor": "rgb(0, 0, 0)",
         },
@@ -136,6 +142,7 @@
     "content": [
       {
         "styles": {
+          "backgroundColor": "transparent",
           "textColor": "rgb(0, 0, 0)",
         },
         "text": "Paragraph 1",
@@ -155,6 +162,7 @@
     "content": [
       {
         "styles": {
+          "backgroundColor": "transparent",
           "textColor": "rgb(0, 0, 0)",
         },
         "text": "Paragraph 2",
@@ -174,6 +182,7 @@
     "content": [
       {
         "styles": {
+          "backgroundColor": "transparent",
           "textColor": "rgb(0, 0, 0)",
         },
         "text": "Paragraph 3",
@@ -193,6 +202,7 @@
     "content": [
       {
         "styles": {
+          "backgroundColor": "transparent",
           "textColor": "rgb(0, 0, 0)",
         },
         "text": "Paragraph With 
@@ -213,6 +223,7 @@ Hard Break",
     "content": [
       {
         "styles": {
+          "backgroundColor": "transparent",
           "bold": true,
           "textColor": "rgb(0, 0, 0)",
         },
@@ -221,6 +232,7 @@ Hard Break",
       },
       {
         "styles": {
+          "backgroundColor": "transparent",
           "textColor": "rgb(0, 0, 0)",
         },
         "text": " ",
@@ -228,6 +240,7 @@ Hard Break",
       },
       {
         "styles": {
+          "backgroundColor": "transparent",
           "italic": true,
           "textColor": "rgb(0, 0, 0)",
         },
@@ -236,6 +249,7 @@ Hard Break",
       },
       {
         "styles": {
+          "backgroundColor": "transparent",
           "textColor": "rgb(0, 0, 0)",
         },
         "text": " Underline ",
@@ -243,6 +257,7 @@ Hard Break",
       },
       {
         "styles": {
+          "backgroundColor": "transparent",
           "strike": true,
           "textColor": "rgb(0, 0, 0)",
         },
@@ -251,6 +266,7 @@ Hard Break",
       },
       {
         "styles": {
+          "backgroundColor": "transparent",
           "textColor": "rgb(0, 0, 0)",
         },
         "text": " ",
@@ -258,6 +274,7 @@ Hard Break",
       },
       {
         "styles": {
+          "backgroundColor": "transparent",
           "bold": true,
           "italic": true,
           "strike": true,
@@ -284,6 +301,7 @@ Hard Break",
             "content": [
               {
                 "styles": {
+                  "backgroundColor": "transparent",
                   "textColor": "rgb(0, 0, 0)",
                 },
                 "text": "Nested Numbered List Item 1",
@@ -304,6 +322,7 @@ Hard Break",
             "content": [
               {
                 "styles": {
+                  "backgroundColor": "transparent",
                   "textColor": "rgb(0, 0, 0)",
                 },
                 "text": "Nested Numbered List Item 2",
@@ -323,6 +342,7 @@ Hard Break",
         "content": [
           {
             "styles": {
+              "backgroundColor": "transparent",
               "textColor": "rgb(0, 0, 0)",
             },
             "text": "Nested Bullet List Item 1",
@@ -342,6 +362,7 @@ Hard Break",
         "content": [
           {
             "styles": {
+              "backgroundColor": "transparent",
               "textColor": "rgb(0, 0, 0)",
             },
             "text": "Nested Bullet List Item 2",
@@ -360,6 +381,7 @@ Hard Break",
     "content": [
       {
         "styles": {
+          "backgroundColor": "transparent",
           "textColor": "rgb(0, 0, 0)",
         },
         "text": "Bullet List Item 1",
@@ -379,6 +401,7 @@ Hard Break",
     "content": [
       {
         "styles": {
+          "backgroundColor": "transparent",
           "textColor": "rgb(0, 0, 0)",
         },
         "text": "Bullet List Item 2",
@@ -398,6 +421,7 @@ Hard Break",
     "content": [
       {
         "styles": {
+          "backgroundColor": "transparent",
           "textColor": "rgb(0, 0, 0)",
         },
         "text": "Numbered List Item 1",
@@ -418,6 +442,7 @@ Hard Break",
     "content": [
       {
         "styles": {
+          "backgroundColor": "transparent",
           "textColor": "rgb(0, 0, 0)",
         },
         "text": "Numbered List Item 2",
@@ -483,6 +508,7 @@ Hard Break",
               "content": [
                 {
                   "styles": {
+                    "backgroundColor": "transparent",
                     "textColor": "rgb(0, 0, 0)",
                   },
                   "text": "Cell 1",
@@ -502,6 +528,7 @@ Hard Break",
               "content": [
                 {
                   "styles": {
+                    "backgroundColor": "transparent",
                     "textColor": "rgb(0, 0, 0)",
                   },
                   "text": "Cell 2",
@@ -521,6 +548,7 @@ Hard Break",
               "content": [
                 {
                   "styles": {
+                    "backgroundColor": "transparent",
                     "textColor": "rgb(0, 0, 0)",
                   },
                   "text": "Cell 3",
@@ -544,6 +572,7 @@ Hard Break",
               "content": [
                 {
                   "styles": {
+                    "backgroundColor": "transparent",
                     "textColor": "rgb(0, 0, 0)",
                   },
                   "text": "Cell 4",
@@ -563,6 +592,7 @@ Hard Break",
               "content": [
                 {
                   "styles": {
+                    "backgroundColor": "transparent",
                     "textColor": "rgb(0, 0, 0)",
                   },
                   "text": "Cell 5",
@@ -582,6 +612,7 @@ Hard Break",
               "content": [
                 {
                   "styles": {
+                    "backgroundColor": "transparent",
                     "textColor": "rgb(0, 0, 0)",
                   },
                   "text": "Cell 6",
@@ -605,6 +636,7 @@ Hard Break",
               "content": [
                 {
                   "styles": {
+                    "backgroundColor": "transparent",
                     "textColor": "rgb(0, 0, 0)",
                   },
                   "text": "Cell 7",
@@ -624,6 +656,7 @@ Hard Break",
               "content": [
                 {
                   "styles": {
+                    "backgroundColor": "transparent",
                     "textColor": "rgb(0, 0, 0)",
                   },
                   "text": "Cell 8",
@@ -643,6 +676,7 @@ Hard Break",
               "content": [
                 {
                   "styles": {
+                    "backgroundColor": "transparent",
                     "textColor": "rgb(0, 0, 0)",
                   },
                   "text": "Cell 9",
@@ -674,6 +708,7 @@ Hard Break",
     "content": [
       {
         "styles": {
+          "backgroundColor": "transparent",
           "textColor": "rgb(0, 0, 0)",
         },
         "text": "Paragraph",

@@ -650,4 +650,30 @@ export const copyTestInstancesHTML: TestInstance<
     },
     executeTest: testCopyHTML,
   },
+  {
+    testCase: {
+      name: "mentionWithBackgroundColor",
+      document: [
+        {
+          type: "paragraph",
+          content: "Paragraph 1",
+        },
+        {
+          type: "paragraph",
+          content: [{ type: "mention", props: { user: "User" } }],
+        },
+        {
+          type: "paragraph",
+          content: "Paragraph 2",
+        },
+      ],
+      getCopySelection: (doc) => {
+        const startPos = getPosOfTextNode(doc, "Paragraph 1");
+        const endPos = getPosOfTextNode(doc, "Paragraph 2", true);
+
+        return TextSelection.create(doc, startPos, endPos);
+      },
+    },
+    executeTest: testCopyHTML,
+  },
 ];

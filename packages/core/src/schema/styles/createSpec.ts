@@ -20,6 +20,7 @@ export type CustomStyleImplementation<T extends StyleConfig> = {
   parse?: (
     element: HTMLElement,
   ) => (T["propSchema"] extends "boolean" ? true : string) | undefined;
+  runsBefore?: string[];
 };
 
 export function getStyleParseRules<T extends StyleConfig>(
@@ -44,6 +45,10 @@ export function getStyleParseRules<T extends StyleConfig>(
   if (customParseFunction) {
     rules.push({
       tag: "*",
+      // By default, styles can overlap each other, so the rules should not
+      // completely consume the element they parse (which can have multiple
+      // styles).
+      consuming: false,
       getAttrs(node: string | HTMLElement) {
         if (typeof node === "string") {
           return false;
@@ -105,6 +110,7 @@ export function createStyleSpec<const T extends StyleConfig>(
   });
 
   return createInternalStyleSpec(styleConfig, {
+    ...styleImplementation,
     mark,
     render: (value) => {
       const renderResult = styleImplementation.render(value as any);

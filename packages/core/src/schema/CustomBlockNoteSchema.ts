@@ -110,8 +110,12 @@ export class CustomBlockNoteSchema<
     const defaultSet = new Set<string>();
     dag.set("default", defaultSet);
 
-    for (const [key, specDef] of Object.entries(this.opts.blockSpecs)) {
-      if (specDef.implementation.runsBefore) {
+    for (const [key, specDef] of Object.entries({
+      ...this.opts.blockSpecs,
+      ...this.opts.inlineContentSpecs,
+      ...this.opts.styleSpecs,
+    })) {
+      if (specDef.implementation?.runsBefore) {
         dag.set(key, new Set(specDef.implementation.runsBefore));
       } else {
         defaultSet.add(key);
@@ -156,6 +160,45 @@ export class CustomBlockNoteSchema<
         : never;
     };
 
+    const inlineContentSpecs = Object.fromEntries(
+      Object.entries(this.opts.inlineContentSpecs).map(
+        ([key, inlineContentSpec]) => {
+          // Case for text and links.
+          if (typeof inlineContentSpec.config !== "object") {
+            return [key, inlineContentSpec];
+          }
+
+          return [
+            key,
+            {
+              ...inlineContentSpec,
+              implementation: {
+                ...inlineContentSpec.implementation,
+                node: inlineContentSpec.implementation?.node.extend({
+                  priority: getPriority(key),
+                }),
+              },
+            },
+          ];
+        },
+      ),
+    ) as InlineContentSpecs;
+
+    const styleSpecs = Object.fromEntries(
+      Object.entries(this.opts.styleSpecs).map(([key, styleSpec]) => [
+        key,
+        {
+          ...styleSpec,
+          implementation: {
+            ...styleSpec.implementation,
+            mark: styleSpec.implementation?.mark.extend({
+              priority: getPriority(key),
+            }),
+          },
+        },
+      ]),
+    ) as StyleSpecs;
+
     return {
       blockSpecs,
       blockSchema: Object.fromEntries(
@@ -163,12 +206,12 @@ export class CustomBlockNoteSchema<
           return [key, blockDef.config];
         }),
       ) as any,
-      inlineContentSpecs: removeUndefined(this.opts.inlineContentSpecs),
-      styleSpecs: removeUndefined(this.opts.styleSpecs),
+      inlineContentSpecs: removeUndefined(inlineContentSpecs),
+      styleSpecs: removeUndefined(styleSpecs),
       inlineContentSchema: getInlineContentSchemaFromSpecs(
-        this.opts.inlineContentSpecs,
+        inlineContentSpecs,
       ) as any,
-      styleSchema: getStyleSchemaFromSpecs(this.opts.styleSpecs) as any,
+      styleSchema: getStyleSchemaFromSpecs(styleSpecs) as any,
     };
   }
 
