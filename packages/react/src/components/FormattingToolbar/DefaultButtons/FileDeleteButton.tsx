@@ -4,7 +4,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { RiDeleteBin7Line } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";

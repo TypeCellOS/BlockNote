@@ -28,7 +28,7 @@ import {
 } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange.js";
-import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks.js";
+import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 
 export type BlockTypeSelectItem = {
@@ -188,7 +188,11 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
     StyleSchema
   >();
 
-  const selectedBlocks = useSelectedBlocks(editor);
+  const selectedBlocks = useEditorState({
+    editor,
+    selector: ({ editor }) =>
+      editor.getSelection()?.blocks || [editor.getTextCursorPosition().block],
+  });
 
   const [block, setBlock] = useState(editor.getTextCursorPosition().block);
 
