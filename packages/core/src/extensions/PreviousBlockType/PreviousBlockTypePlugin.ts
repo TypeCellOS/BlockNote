@@ -1,7 +1,7 @@
 import { findChildren } from "@tiptap/core";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
-import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
+import { createExtension } from "../../editor/BlockNoteExtension.js";
 
 const PLUGIN_KEY = new PluginKey(`previous-blocks`);
 
@@ -24,15 +24,14 @@ const nodeAttributes: Record<string, string> = {
  *
  * Solution: When attributes change on a node, this plugin sets a data-* attribute with the "previous" value. This way we can still use CSS transitions. (See block.module.css)
  */
-export class PreviousBlockTypePlugin extends BlockNoteExtension {
-  public static key() {
-    return "previousBlockType";
+export const PreviousBlockTypePlugin = createExtension((_editor, options) => {
+  if (options.animations === false) {
+    return;
   }
-
-  constructor() {
-    super();
-    let timeout: ReturnType<typeof setTimeout>;
-    this.addProsemirrorPlugin(
+  let timeout: ReturnType<typeof setTimeout>;
+  return {
+    key: "previousBlockType",
+    plugins: [
       new Plugin({
         key: PLUGIN_KEY,
         view(_editorView) {
@@ -207,6 +206,6 @@ export class PreviousBlockTypePlugin extends BlockNoteExtension {
           },
         },
       }),
-    );
-  }
-}
+    ],
+  } as const;
+});

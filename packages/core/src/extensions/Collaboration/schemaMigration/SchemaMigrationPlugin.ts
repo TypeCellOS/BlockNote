@@ -2,7 +2,7 @@ import { Plugin, PluginKey } from "@tiptap/pm/state";
 import { ySyncPluginKey } from "y-prosemirror";
 import * as Y from "yjs";
 
-import { BlockNoteExtension } from "../../../editor/BlockNoteExtension.js";
+import { createExtension } from "../../../editor/BlockNoteExtension.js";
 import migrationRules from "./migrationRules/index.js";
 
 // This plugin allows us to update collaboration YDocs whenever BlockNote's
@@ -11,22 +11,25 @@ import migrationRules from "./migrationRules/index.js";
 // case things are found in the fragment that don't adhere to the editor schema
 // and need to be fixed. These fixes are defined as `MigrationRule`s within the
 // `migrationRules` directory.
-export class SchemaMigrationPlugin extends BlockNoteExtension {
-  private migrationDone = false;
+export const SchemaMigrationPlugin = createExtension((_editor, options) => {
+  const fragment = (options as any)?.collaboration?.fragment as
+    | Y.XmlFragment
+    | undefined;
 
-  public static key() {
-    return "schemaMigrationPlugin";
+  if (!fragment) {
+    return;
   }
 
-  constructor(fragment: Y.XmlFragment) {
-    const pluginKey = new PluginKey(SchemaMigrationPlugin.key());
+  let migrationDone = false;
+  const pluginKey = new PluginKey("schemaMigrationPlugin");
 
-    super();
-    this.addProsemirrorPlugin(
+  return {
+    key: "schemaMigrationPlugin",
+    plugins: [
       new Plugin({
         key: pluginKey,
         appendTransaction: (transactions, _oldState, newState) => {
-          if (this.migrationDone) {
+          if (migrationDone) {
             return undefined;
           }
 
@@ -42,11 +45,10 @@ export class SchemaMigrationPlugin extends BlockNoteExtension {
             migrationRule(fragment, tr);
           }
 
-          this.migrationDone = true;
-
+          migrationDone = true;
           return tr;
         },
       }),
-    );
-  }
-}
+    ],
+  } as const;
+});

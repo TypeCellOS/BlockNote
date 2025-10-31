@@ -71,69 +71,73 @@ export const FormattingToolbarController = (props: {
     }
   }, editor);
 
-  const state = useUIPluginState(
-    editor.formattingToolbar.onUpdate.bind(editor.formattingToolbar),
-  );
+  // TODO refactor this to actually use the new extension & a hook for positioning to a selection
 
-  const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(
-    state?.show || false,
-    state?.referencePos || null,
-    3000,
-    {
-      placement,
-      middleware: [offset(10), shift(), flip()],
-      onOpenChange: (open, _event) => {
-        // console.log("change", event);
-        if (!open) {
-          editor.formattingToolbar.closeMenu();
-          editor.focus();
-        }
-      },
-      canDismiss: {
-        enabled: true,
-        escapeKey: true,
-        outsidePress: (e) => {
-          const view = editor._tiptapEditor?.view;
-          if (!view) {
-            return false;
-          }
+  return null;
 
-          const target = e.target;
-          if (!target) {
-            return false;
-          }
+  // const state = useUIPluginState(
+  //   editor.formattingToolbar.onUpdate.bind(editor.formattingToolbar),
+  // );
 
-          return !isEventTargetWithin(e, view.dom.parentElement);
-        },
-      },
-      ...props.floatingOptions,
-    },
-  );
+  // const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(
+  //   state?.show || false,
+  //   state?.referencePos || null,
+  //   3000,
+  //   {
+  //     placement,
+  //     middleware: [offset(10), shift(), flip()],
+  //     onOpenChange: (open, _event) => {
+  //       // console.log("change", event);
+  //       if (!open) {
+  //         editor.formattingToolbar.closeMenu();
+  //         editor.focus();
+  //       }
+  //     },
+  //     canDismiss: {
+  //       enabled: true,
+  //       escapeKey: true,
+  //       outsidePress: (e) => {
+  //         const view = editor._tiptapEditor?.view;
+  //         if (!view) {
+  //           return false;
+  //         }
 
-  const combinedRef = useMemo(() => mergeRefs([divRef, ref]), [divRef, ref]);
+  //         const target = e.target;
+  //         if (!target) {
+  //           return false;
+  //         }
 
-  if (!isMounted || !state) {
-    return null;
-  }
+  //         return !isEventTargetWithin(e, view.dom.parentElement);
+  //       },
+  //     },
+  //     ...props.floatingOptions,
+  //   },
+  // );
 
-  if (!state.show && divRef.current) {
-    // The component is fading out. Use the previous state to render the toolbar with innerHTML,
-    // because otherwise the toolbar will quickly flickr (i.e.: show a different state) while fading out,
-    // which looks weird
-    return (
-      <div
-        ref={combinedRef}
-        style={style}
-        dangerouslySetInnerHTML={{ __html: divRef.current.innerHTML }}
-      ></div>
-    );
-  }
+  // const combinedRef = useMemo(() => mergeRefs([divRef, ref]), [divRef, ref]);
 
-  const Component = props.formattingToolbar || FormattingToolbar;
+  // if (!isMounted || !state) {
+  //   return null;
+  // }
 
-  return (
-    <div ref={combinedRef} style={style} {...getFloatingProps()}>
-      <Component />
-    </div>
-  );
+  // if (!state.show && divRef.current) {
+  //   // The component is fading out. Use the previous state to render the toolbar with innerHTML,
+  //   // because otherwise the toolbar will quickly flickr (i.e.: show a different state) while fading out,
+  //   // which looks weird
+  //   return (
+  //     <div
+  //       ref={combinedRef}
+  //       style={style}
+  //       dangerouslySetInnerHTML={{ __html: divRef.current.innerHTML }}
+  //     ></div>
+  //   );
+  // }
+
+  // const Component = props.formattingToolbar || FormattingToolbar;
+
+  // return (
+  //   <div ref={combinedRef} style={style} {...getFloatingProps()}>
+  //     <Component />
+  //   </div>
+  // );
 };

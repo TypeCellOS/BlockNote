@@ -65,7 +65,7 @@ export const FileReplaceButton = () => {
         className={"bn-popover-content bn-panel-popover"}
         variant={"panel-popover"}
       >
-        <FilePanel block={block as any} />
+        <FilePanel blockId={block.id} />
       </Components.Generic.Popover.Content>
     </Components.Generic.Popover.Root>
   );

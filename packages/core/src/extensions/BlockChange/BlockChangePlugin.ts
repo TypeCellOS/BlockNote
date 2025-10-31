@@ -3,25 +3,19 @@ import {
   BlocksChanged,
   getBlocksChangedByTransaction,
 } from "../../api/getBlocksChangedByTransaction.js";
-import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
+import { createExtension } from "../../editor/BlockNoteExtension.js";
 
 /**
  * This plugin can filter transactions before they are applied to the editor, but with a higher-level API than `filterTransaction` from prosemirror.
  */
-export class BlockChangePlugin extends BlockNoteExtension {
-  public static key() {
-    return "blockChange";
-  }
-
-  private beforeChangeCallbacks: ((context: {
+export const BlockChangePlugin = createExtension((_editor, _options) => {
+  const beforeChangeCallbacks: ((context: {
     getChanges: () => BlocksChanged<any, any, any>;
     tr: Transaction;
   }) => boolean | void)[] = [];
-
-  constructor() {
-    super();
-
-    this.addProsemirrorPlugin(
+  return {
+    key: "blockChange",
+    plugins: [
       new Plugin({
         key: new PluginKey("blockChange"),
         filterTransaction: (tr) => {
@@ -29,7 +23,7 @@ export class BlockChangePlugin extends BlockNoteExtension {
             | ReturnType<typeof getBlocksChangedByTransaction>
             | undefined = undefined;
 
-          return this.beforeChangeCallbacks.reduce((acc, cb) => {
+          return beforeChangeCallbacks.reduce((acc, cb) => {
             if (acc === false) {
               // We only care that we hit a `false` result, so we can stop iterating.
               return acc;
@@ -49,21 +43,25 @@ export class BlockChangePlugin extends BlockNoteExtension {
           }, true);
         },
       }),
-    );
-  }
+    ],
 
-  public subscribe(
-    callback: (context: {
-      getChanges: () => BlocksChanged<any, any, any>;
-      tr: Transaction;
-    }) => boolean | void,
-  ) {
-    this.beforeChangeCallbacks.push(callback);
+    /**
+     * Subscribe to the block change events.
+     */
+    subscribe(
+      callback: (context: {
+        getChanges: () => BlocksChanged<any, any, any>;
+        tr: Transaction;
+      }) => boolean | void,
+    ) {
+      beforeChangeCallbacks.push(callback);
 
-    return () => {
-      this.beforeChangeCallbacks = this.beforeChangeCallbacks.filter(
-        (cb) => cb !== callback,
-      );
-    };
-  }
-}
+      return () => {
+        beforeChangeCallbacks.splice(
+          beforeChangeCallbacks.indexOf(callback),
+          1,
+        );
+      };
+    },
+  } as const;
+});

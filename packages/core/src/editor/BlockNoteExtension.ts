@@ -1,42 +1,59 @@
-import { Plugin } from "prosemirror-state";
-import { EventEmitter } from "../util/EventEmitter.js";
+import { Store, StoreOptions } from "@tanstack/store";
+import { type AnyExtension } from "@tiptap/core";
+import type { Plugin } from "prosemirror-state";
+import type { PartialBlockNoDefaults } from "../schema/index.js";
+import type {
+  BlockNoteEditor,
+  BlockNoteEditorOptions,
+} from "./BlockNoteEditor.js";
 
-import { AnyExtension } from "@tiptap/core";
-import {
-  BlockSchema,
-  InlineContentSchema,
-  PartialBlockNoDefaults,
-  StyleSchema,
-} from "../schema/index.js";
-import { BlockNoteEditor } from "./BlockNoteEditor.js";
+/**
+ * This function is called when the extension is destroyed.
+ */
+type OnDestroy = () => void;
 
-export abstract class BlockNoteExtension<
-  TEvent extends Record<string, any> = any,
-> extends EventEmitter<TEvent> {
-  public static key(): string {
-    throw new Error("You must implement the key method in your extension");
-  }
-
-  protected addProsemirrorPlugin(plugin: Plugin) {
-    this.plugins.push(plugin);
-  }
-
-  public readonly plugins: Plugin[] = [];
-  public get priority(): number | undefined {
-    return undefined;
-  }
-
-  // eslint-disable-next-line
-  constructor(..._args: any[]) {
-    super();
-    // Allow subclasses to have constructors with parameters
-    // without this, we can't easily implement BlockNoteEditor.extension(MyExtension) pattern
-  }
+/**
+ * Describes a BlockNote extension.
+ */
+export interface Extension<State = any, Key extends string = string> {
+  /**
+   * The unique identifier for the extension.
+   */
+  readonly key: Key;
 
   /**
-   * Input rules for the block
+   * Triggered when the extension is mounted to the editor.
    */
-  public inputRules?: InputRule[];
+  readonly init?: (ctx: {
+    /**
+     * The DOM element that the editor is mounted to.
+     */
+    dom: HTMLElement;
+    /**
+     * The root document of the {@link document} that the editor is mounted to.
+     */
+    root: Document | ShadowRoot;
+    /**
+     * An {@link AbortController} that will be aborted when the extension is destroyed.
+     */
+    abortController: AbortController;
+  }) => void | OnDestroy;
+
+  /**
+   * The store for the extension.
+   */
+  readonly store?: Store<State>;
+
+  /**
+   * Declares what {@link Extension}s that this extension depends on.
+   */
+  readonly runsBefore?: ReadonlyArray<string>;
+
+  /**
+   * Input rules for a block: An input rule is what is used to replace text in a block when a regular expression match is found.
+   * As an example, typing `#` in a paragraph block will trigger an input rule to replace the text with a heading block.
+   */
+  readonly inputRules?: ReadonlyArray<InputRule>;
 
   /**
    * A mapping of a keyboard shortcut to a function that will be called when the shortcut is pressed
@@ -60,17 +77,27 @@ export abstract class BlockNoteExtension<
    * }
    * ```
    */
-  public keyboardShortcuts?: Record<
+  readonly keyboardShortcuts?: Record<
     string,
-    (ctx: {
-      editor: BlockNoteEditor<BlockSchema, InlineContentSchema, StyleSchema>;
-    }) => boolean
+    (ctx: { editor: BlockNoteEditor<any, any, any> }) => boolean
   >;
 
-  public tiptapExtensions?: AnyExtension[];
+  /**
+   * Add additional prosemirror plugins to the editor.
+   */
+  readonly plugins?: ReadonlyArray<Plugin>;
+
+  /**
+   * Add additional tiptap extensions to the editor.
+   */
+  readonly tiptapExtensions?: ReadonlyArray<AnyExtension>;
 }
 
-export type InputRule = {
+/**
+ * An input rule is what is used to replace text in a block when a regular expression match is found.
+ * As an example, typing `#` in a paragraph block will trigger an input rule to replace the text with a heading block.
+ */
+type InputRule = {
   /**
    * The regex to match when to trigger the input rule
    */
@@ -96,23 +123,83 @@ export type InputRule = {
   }) => undefined | PartialBlockNoDefaults<any, any, any>;
 };
 
+export type ExtensionFactory<
+  State = any,
+  Options extends BlockNoteEditorOptions<
+    any,
+    any,
+    any
+  > = BlockNoteEditorOptions<any, any, any>,
+  Key extends string = string,
+> = (
+  editor: BlockNoteEditor<any, any, any>,
+  options: Options,
+) => Extension<State, Key> | undefined;
+
+export type ExtractExtensionKey<T extends ExtensionFactory | undefined> =
+  T extends (
+    editor: BlockNoteEditor<any, any, any>,
+    options: BlockNoteEditorOptions<any, any, any>,
+  ) => Extension<any, infer Key> | undefined
+    ? Key
+    : never;
+
+export type ExtractExtensionByKey<
+  T extends ExtensionFactory<any, any, any>,
+  Key extends string,
+> = T extends (
+  editor: BlockNoteEditor<any, any, any>,
+  options: BlockNoteEditorOptions<any, any, any>,
+) => Extension<any, Key> | undefined
+  ? ReturnType<T>
+  : never;
+
+// a type that maps the extension key to the return type of the extension factory
+export type ExtensionMap<
+  T extends ReadonlyArray<ExtensionFactory | undefined>,
+> = {
+  [K in ExtractExtensionKey<T[number]>]: ExtractExtensionByKey<
+    Exclude<T[number], undefined>,
+    K
+  >;
+};
+
 /**
- * This creates an instance of a BlockNoteExtension that can be used to add to a schema.
- * It is a bit of a hack, but it works.
+ * Helper function to create a BlockNote extension.
+ * Can accept either an ExtensionFactory (function) or an Extension (object).
+ * If an Extension is provided, it will be wrapped in a factory function.
  */
-export function createBlockNoteExtension(
-  options: Partial<
-    Pick<
-      BlockNoteExtension,
-      "inputRules" | "keyboardShortcuts" | "plugins" | "tiptapExtensions"
-    >
-  > & { key: string },
-) {
-  const x = Object.create(BlockNoteExtension.prototype);
-  x.key = options.key;
-  x.inputRules = options.inputRules;
-  x.keyboardShortcuts = options.keyboardShortcuts;
-  x.plugins = options.plugins ?? [];
-  x.tiptapExtensions = options.tiptapExtensions;
-  return x as BlockNoteExtension;
+export function createExtension<const T extends ExtensionFactory>(ext: T): T;
+export function createExtension<const Key extends string, const State = any>(
+  ext: Extension<State, Key>,
+): () => Extension<State, Key>;
+export function createExtension<
+  const T extends ExtensionFactory | Extension | undefined = any,
+>(
+  extension: T,
+): T extends Extension
+  ? () => T
+  : T extends ExtensionFactory
+    ? T
+    : () => undefined {
+  if (typeof extension === "function") {
+    return extension as any;
+  }
+
+  if (typeof extension === "object" && "key" in extension) {
+    return (() => extension) as any;
+  }
+
+  if (!extension) {
+    return (() => undefined) as any;
+  }
+
+  throw new Error("Invalid extension", { cause: { extension } });
+}
+
+export function createStore<T = any>(
+  initialState: T,
+  options?: StoreOptions<T>,
+): Store<T> {
+  return new Store(initialState, options);
 }

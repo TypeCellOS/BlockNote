@@ -1,5 +1,5 @@
 import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
-import { createDependencyGraph, toposortReverse } from "../util/topo-sort.js";
+import { sortByDependencies } from "../util/topo-sort.js";
 import {
   BlockNoDefaults,
   BlockSchema,
@@ -80,41 +80,16 @@ export class CustomBlockNoteSchema<
   }
 
   private init() {
-    const dag = createDependencyGraph();
-    const defaultSet = new Set<string>();
-    dag.set("default", defaultSet);
-
-    for (const [key, specDef] of Object.entries({
-      ...this.opts.blockSpecs,
-      ...this.opts.inlineContentSpecs,
-      ...this.opts.styleSpecs,
-    })) {
-      if (specDef.implementation?.runsBefore) {
-        dag.set(key, new Set(specDef.implementation.runsBefore));
-      } else {
-        defaultSet.add(key);
-      }
-    }
-    const sortedSpecs = toposortReverse(dag);
-    const defaultIndex = sortedSpecs.findIndex((set) => set.has("default"));
-
-    /**
-     * The priority of a block is described relative to the "default" block (an arbitrary block which can be used as the reference)
-     *
-     * Since blocks are topologically sorted, we can see what their relative position is to the "default" block
-     * Each layer away from the default block is 10 priority points (arbitrarily chosen)
-     * The default block is fixed at 101 (1 point higher than any tiptap extension, giving priority to custom blocks than any defaults)
-     *
-     * This is a bit of a hack, but it's a simple way to ensure that custom blocks are always rendered with higher priority than default blocks
-     * and that custom blocks are rendered in the order they are defined in the schema
-     */
-    const getPriority = (key: string) => {
-      const index = sortedSpecs.findIndex((set) => set.has(key));
-      // the default index should map to 101
-      // one before the default index is 91
-      // one after is 111
-      return 91 + (index + defaultIndex) * 10;
-    };
+    const getPriority = sortByDependencies(
+      Object.entries({
+        ...this.opts.blockSpecs,
+        ...this.opts.inlineContentSpecs,
+        ...this.opts.styleSpecs,
+      }).map(([key, val]) => ({
+        key: key,
+        runsBefore: val.implementation?.runsBefore ?? [],
+      })),
+    );
 
     const blockSpecs = Object.fromEntries(
       Object.entries(this.opts.blockSpecs).map(([key, blockSpec]) => {

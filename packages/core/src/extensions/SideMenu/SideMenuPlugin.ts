@@ -10,7 +10,10 @@ import { EditorView } from "@tiptap/pm/view";
 
 import { Block } from "../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
+import {
+  createExtension,
+  createStore,
+} from "../../editor/BlockNoteExtension.js";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition.js";
 import {
   BlockSchema,
@@ -682,83 +685,72 @@ export class SideMenuView<
 
 export const sideMenuPluginKey = new PluginKey("SideMenuPlugin");
 
-export class SideMenuProsemirrorPlugin<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
-> extends BlockNoteExtension {
-  public static key() {
-    return "sideMenu";
-  }
+export const SideMenuProsemirrorPlugin = createExtension((editor) => {
+  let view: SideMenuView<any, any, any> | undefined;
+  const store = createStore<SideMenuState<any, any, any> | undefined>(
+    undefined,
+  );
 
-  public view: SideMenuView<BSchema, I, S> | undefined;
-
-  constructor(private readonly editor: BlockNoteEditor<BSchema, I, S>) {
-    super();
-    this.addProsemirrorPlugin(
+  return {
+    key: "sideMenu",
+    store,
+    plugins: [
       new Plugin({
         key: sideMenuPluginKey,
         view: (editorView) => {
-          this.view = new SideMenuView(editor, editorView, (state) => {
-            this.emit("update", state);
+          view = new SideMenuView(editor, editorView, (state) => {
+            store.setState(state);
           });
-          return this.view;
+          return view;
         },
       }),
-    );
-  }
+    ],
 
-  public onUpdate(callback: (state: SideMenuState<BSchema, I, S>) => void) {
-    return this.on("update", callback);
-  }
-
-  /**
-   * Handles drag & drop events for blocks.
-   */
-  blockDragStart = (
-    event: {
-      dataTransfer: DataTransfer | null;
-      clientY: number;
+    /**
+     * Handles drag & drop events for blocks.
+     */
+    blockDragStart(
+      event: { dataTransfer: DataTransfer | null; clientY: number },
+      block: Block<any, any, any>,
+    ) {
+      if (view) {
+        view.isDragOrigin = true;
+      }
+      dragStart(event, block, editor);
     },
-    block: Block<BSchema, I, S>,
-  ) => {
-    if (this.view) {
-      this.view.isDragOrigin = true;
-    }
 
-    dragStart(event, block, this.editor);
-  };
+    /**
+     * Handles drag & drop events for blocks.
+     */
+    blockDragEnd() {
+      unsetDragImage(editor.prosemirrorView.root);
+      if (view) {
+        view.isDragOrigin = false;
+      }
 
-  /**
-   * Handles drag & drop events for blocks.
-   */
-  blockDragEnd = () => {
-    unsetDragImage(this.editor.prosemirrorView.root);
+      editor.blur();
+    },
 
-    if (this.view) {
-      this.view.isDragOrigin = false;
-    }
+    /**
+     * Freezes the side menu. When frozen, the side menu will stay
+     * attached to the same block regardless of which block is hovered by the
+     * mouse cursor.
+     */
+    freezeMenu() {
+      view!.menuFrozen = true;
+      view!.state!.show = true;
+      view!.emitUpdate(view!.state!);
+    },
 
-    this.editor.blur();
-  };
-  /**
-   * Freezes the side menu. When frozen, the side menu will stay
-   * attached to the same block regardless of which block is hovered by the
-   * mouse cursor.
-   */
-  freezeMenu = () => {
-    this.view!.menuFrozen = true;
-    this.view!.state!.show = true;
-    this.view!.emitUpdate(this.view!.state!);
-  };
-  /**
-   * Unfreezes the side menu. When frozen, the side menu will stay
-   * attached to the same block regardless of which block is hovered by the
-   * mouse cursor.
-   */
-  unfreezeMenu = () => {
-    this.view!.menuFrozen = false;
-    this.view!.state!.show = false;
-    this.view!.emitUpdate(this.view!.state!);
-  };
-}
+    /**
+     * Unfreezes the side menu. When frozen, the side menu will stay
+     * attached to the same block regardless of which block is hovered by the
+     * mouse cursor.
+     */
+    unfreezeMenu() {
+      view!.menuFrozen = false;
+      view!.state!.show = false;
+      view!.emitUpdate(view!.state!);
+    },
+  } as const;
+});

@@ -2,6 +2,7 @@ import {
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
+  SuggestionMenuPlugin,
   SuggestionMenuState,
 } from "@blocknote/core";
 import { flip, offset, size, UseFloatingOptions } from "@floating-ui/react";
@@ -17,6 +18,7 @@ import {
   DefaultReactGridSuggestionItem,
   GridSuggestionMenuProps,
 } from "./types.js";
+import { usePlugin } from "../../../hooks/usePlugin.js";
 
 type ArrayElement<A> = A extends readonly (infer T)[] ? T : never;
 
@@ -88,16 +90,19 @@ export function GridSuggestionMenuController<
     );
   }, [editor, getItems])!;
 
+  const suggestionMenu = usePlugin(SuggestionMenuPlugin);
+
   const callbacks = {
-    closeMenu: editor.suggestionMenus.closeMenu,
-    clearQuery: editor.suggestionMenus.clearQuery,
+    closeMenu: suggestionMenu.closeMenu,
+    clearQuery: suggestionMenu.clearQuery,
   };
 
   const cb = useCallback(
     (callback: (state: SuggestionMenuState) => void) => {
-      return editor.suggestionMenus.onUpdate(triggerCharacter, callback);
+      // TODO remove
+      // return editor.suggestionMenus.onUpdate(triggerCharacter, callback);
     },
-    [editor.suggestionMenus, triggerCharacter],
+    [triggerCharacter],
   );
 
   const state = useUIPluginState(cb);
@@ -123,7 +128,7 @@ export function GridSuggestionMenuController<
       ],
       onOpenChange(open) {
         if (!open) {
-          editor.suggestionMenus.closeMenu();
+          suggestionMenu.closeMenu();
         }
       },
       ...floatingOptions,

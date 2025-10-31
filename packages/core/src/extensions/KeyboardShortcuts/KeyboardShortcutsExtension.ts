@@ -587,9 +587,11 @@ export const KeyboardShortcutsExtension = Extension.create<{
       Tab: () => {
         if (
           this.options.tabBehavior !== "prefer-indent" &&
-          (this.options.editor.formattingToolbar?.shown ||
-            this.options.editor.linkToolbar?.shown ||
-            this.options.editor.filePanel?.shown)
+          true
+          // TODO what??
+          // (this.options.editor.formattingToolbar?.shown ||
+          //   this.options.editor.linkToolbar?.shown ||
+          //   this.options.editor.filePanel?.shown)
         ) {
           // don't handle tabs if a toolbar is shown, so we can tab into / out of it
           return false;
@@ -600,9 +602,11 @@ export const KeyboardShortcutsExtension = Extension.create<{
       "Shift-Tab": () => {
         if (
           this.options.tabBehavior !== "prefer-indent" &&
-          (this.options.editor.formattingToolbar?.shown ||
-            this.options.editor.linkToolbar?.shown ||
-            this.options.editor.filePanel?.shown)
+          true
+          // TODO what??
+          // (this.options.editor.formattingToolbar?.shown ||
+          //   this.options.editor.linkToolbar?.shown ||
+          //   this.options.editor.filePanel?.shown)
         ) {
           // don't handle tabs if a toolbar is shown, so we can tab into / out of it
           return false;

@@ -4,6 +4,7 @@ import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   InlineContentSchema,
+  SideMenuProsemirrorPlugin,
   StyleSchema,
 } from "@blocknote/core";
 import { FC } from "react";
@@ -11,9 +12,9 @@ import { FC } from "react";
 import { UseFloatingOptions } from "@floating-ui/react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning.js";
-import { useUIPluginState } from "../../hooks/useUIPluginState.js";
 import { SideMenu } from "./SideMenu.js";
 import { SideMenuProps } from "./SideMenuProps.js";
+import { usePlugin, usePluginState } from "../../hooks/usePlugin.js";
 
 export const SideMenuController = <
   BSchema extends BlockSchema = DefaultBlockSchema,
@@ -24,17 +25,17 @@ export const SideMenuController = <
   floatingOptions?: Partial<UseFloatingOptions>;
 }) => {
   const editor = useBlockNoteEditor<BSchema, I, S>();
+  const sideMenu = usePlugin(SideMenuProsemirrorPlugin);
 
   const callbacks = {
-    blockDragStart: editor.sideMenu.blockDragStart,
-    blockDragEnd: editor.sideMenu.blockDragEnd,
-    freezeMenu: editor.sideMenu.freezeMenu,
-    unfreezeMenu: editor.sideMenu.unfreezeMenu,
+    blockDragStart: sideMenu.blockDragStart,
+    blockDragEnd: sideMenu.blockDragEnd,
+    freezeMenu: sideMenu.freezeMenu,
+    unfreezeMenu: sideMenu.unfreezeMenu,
   };
 
-  const state = useUIPluginState(
-    editor.sideMenu.onUpdate.bind(editor.sideMenu),
-  );
+  // TODO refactor this to use a hook for positioning to a block
+  const state = usePluginState(SideMenuProsemirrorPlugin);
   const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(
     state?.show || false,
     state?.referencePos || null,

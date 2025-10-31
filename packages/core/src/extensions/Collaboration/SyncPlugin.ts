@@ -1,18 +1,15 @@
 import { ySyncPlugin } from "y-prosemirror";
-import type * as Y from "yjs";
-import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
+import { createExtension } from "../../editor/BlockNoteExtension.js";
 
-export class SyncPlugin extends BlockNoteExtension {
-  public static key() {
-    return "ySyncPlugin";
+export const SyncPlugin = createExtension((_editor, options) => {
+  const fragment = options?.collaboration?.fragment;
+  if (!fragment) {
+    return;
   }
 
-  constructor(fragment: Y.XmlFragment) {
-    super();
-    this.addProsemirrorPlugin(ySyncPlugin(fragment));
-  }
-
-  public get priority() {
-    return 1001;
-  }
-}
+  return {
+    key: "ySyncPlugin",
+    plugins: [ySyncPlugin(fragment)],
+    dependsOn: ["yCursorPlugin", "yUndoPlugin"],
+  } as const;
+});

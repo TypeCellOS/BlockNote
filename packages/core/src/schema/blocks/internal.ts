@@ -1,7 +1,7 @@
 import { Attribute, Attributes, Editor, Node } from "@tiptap/core";
 import { defaultBlockToHTML } from "../../blocks/defaultBlockHelpers.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
+import type { ExtensionFactory } from "../../editor/BlockNoteExtension.js";
 import { mergeCSSClasses } from "../../util/browser.js";
 import { camelToDataKebab } from "../../util/string.js";
 import { InlineContentSchema } from "../inlineContent/types.js";
@@ -203,7 +203,7 @@ export function createBlockSpecFromTiptapNode<
 >(
   config: T,
   propSchema: P,
-  extensions?: BlockNoteExtension<any>[],
+  extensions?: ExtensionFactory[],
 ): LooseBlockSpec<T["type"], P, T["content"]> {
   return {
     config: {

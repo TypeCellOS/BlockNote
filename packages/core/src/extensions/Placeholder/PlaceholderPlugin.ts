@@ -1,25 +1,16 @@
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import { v4 } from "uuid";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
+import { createExtension } from "../../editor/BlockNoteExtension.js";
 
 const PLUGIN_KEY = new PluginKey(`blocknote-placeholder`);
 
-export class PlaceholderPlugin extends BlockNoteExtension {
-  public static key() {
-    return "placeholder";
-  }
-
-  constructor(
-    editor: BlockNoteEditor<any, any, any>,
-    placeholders: Record<
-      string | "default" | "emptyDocument",
-      string | undefined
-    >,
-  ) {
-    super();
-    this.addProsemirrorPlugin(
+export const PlaceholderPlugin = createExtension((editor, options) => {
+  // TODO defaults?
+  const placeholders = options.placeholders;
+  return {
+    key: "placeholder",
+    plugins: [
       new Plugin({
         key: PLUGIN_KEY,
         view: (view) => {
@@ -142,6 +133,6 @@ export class PlaceholderPlugin extends BlockNoteExtension {
           },
         },
       }),
-    );
-  }
-}
+    ],
+  } as const;
+});
