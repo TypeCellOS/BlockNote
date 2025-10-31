@@ -1,6 +1,6 @@
 import { Block } from "@blocknote/core";
 import {
-  getDefaultBlockTypeSelectItems,
+  blockTypeSelectItems,
   useBlockNoteEditor,
   useEditorContentOrSelectionChange,
 } from "@blocknote/react";
@@ -122,7 +122,7 @@ function MUIBlockTypeSelect() {
 
   // Gets the default items for the select.
   const defaultBlockTypeSelectItems = useMemo(
-    () => getDefaultBlockTypeSelectItems(editor),
+    () => blockTypeSelectItems(editor.dictionary),
     [editor.dictionary],
   );
 
