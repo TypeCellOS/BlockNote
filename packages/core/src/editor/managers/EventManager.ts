@@ -16,13 +16,10 @@ export type Unsubscribe = () => void;
  */
 export class EventManager<Editor extends BlockNoteEditor> extends EventEmitter<{
   onChange: [
-    editor: Editor,
     ctx: {
-      getChanges(): BlocksChanged<
-        Editor["schema"]["blockSchema"],
-        Editor["schema"]["inlineContentSchema"],
-        Editor["schema"]["styleSchema"]
-      >;
+      editor: Editor;
+      transaction: Transaction;
+      appendedTransactions: Transaction[];
     },
   ];
   onSelectionChange: [ctx: { editor: Editor; transaction: Transaction }];
@@ -37,14 +34,7 @@ export class EventManager<Editor extends BlockNoteEditor> extends EventEmitter<{
       editor._tiptapEditor.on(
         "update",
         ({ transaction, appendedTransactions }) => {
-          this.emit("onChange", editor, {
-            getChanges() {
-              return getBlocksChangedByTransaction(
-                transaction,
-                appendedTransactions,
-              );
-            },
-          });
+          this.emit("onChange", { editor, transaction, appendedTransactions });
         },
       );
       editor._tiptapEditor.on("selectionUpdate", ({ transaction }) => {
@@ -73,11 +63,36 @@ export class EventManager<Editor extends BlockNoteEditor> extends EventEmitter<{
         >;
       },
     ) => void,
+    /**
+     * If true, the callback will be triggered when the changes are caused by a remote user
+     * @default true
+     */
+    includeUpdatesFromRemote = true,
   ): Unsubscribe {
-    this.on("onChange", callback);
+    const cb = ({
+      transaction,
+      appendedTransactions,
+    }: {
+      transaction: Transaction;
+      appendedTransactions: Transaction[];
+    }) => {
+      if (!includeUpdatesFromRemote && isRemoteTransaction(transaction)) {
+        // don't trigger the callback if the changes are caused by a remote user
+        return;
+      }
+      callback(this.editor, {
+        getChanges() {
+          return getBlocksChangedByTransaction(
+            transaction,
+            appendedTransactions,
+          );
+        },
+      });
+    };
+    this.on("onChange", cb);
 
     return () => {
-      this.off("onChange", callback);
+      this.off("onChange", cb);
     };
   }
 
@@ -93,11 +108,10 @@ export class EventManager<Editor extends BlockNoteEditor> extends EventEmitter<{
   ): Unsubscribe {
     const cb = (e: { transaction: Transaction }) => {
       if (
-        e.transaction.getMeta("$y-sync") &&
-        !includeSelectionChangedByRemote
+        !includeSelectionChangedByRemote &&
+        isRemoteTransaction(e.transaction)
       ) {
-        // selection changed because of a yjs sync (i.e.: other user was typing)
-        // we don't want to trigger the callback in this case
+        // don't trigger the callback if the selection changed because of a remote user
         return;
       }
       callback(this.editor);
@@ -131,4 +145,8 @@ export class EventManager<Editor extends BlockNoteEditor> extends EventEmitter<{
       this.off("onUnmount", callback);
     };
   }
+}
+
+function isRemoteTransaction(transaction: Transaction): boolean {
+  return !!transaction.getMeta("$y-sync");
 }

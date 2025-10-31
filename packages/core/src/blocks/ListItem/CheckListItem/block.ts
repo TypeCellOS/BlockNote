@@ -1,4 +1,4 @@
-import { createBlockNoteExtension } from "../../../editor/BlockNoteExtension.js";
+import { createExtension } from "../../../editor/BlockNoteExtension.js";
 import { createBlockConfig, createBlockSpec } from "../../../schema/index.js";
 import {
   addDefaultPropsExternalHTML,
@@ -123,7 +123,7 @@ export const createCheckListItemBlockSpec = createBlockSpec(
     runsBefore: ["bulletListItem"],
   },
   [
-    createBlockNoteExtension({
+    createExtension({
       key: "check-list-item-shortcuts",
       keyboardShortcuts: {
         Enter: ({ editor }) => {

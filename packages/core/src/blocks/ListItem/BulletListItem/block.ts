@@ -1,5 +1,5 @@
 import { getBlockInfoFromSelection } from "../../../api/getBlockInfoFromPos.js";
-import { createBlockNoteExtension } from "../../../editor/BlockNoteExtension.js";
+import { createExtension } from "../../../editor/BlockNoteExtension.js";
 import { createBlockConfig, createBlockSpec } from "../../../schema/index.js";
 import {
   addDefaultPropsExternalHTML,
@@ -78,7 +78,7 @@ export const createBulletListItemBlockSpec = createBlockSpec(
     },
   },
   [
-    createBlockNoteExtension({
+    createExtension({
       key: "bullet-list-item-shortcuts",
       keyboardShortcuts: {
         Enter: ({ editor }) => {

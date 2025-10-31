@@ -3,14 +3,12 @@ import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 
 import { trackPosition } from "../../api/positionMapping.js";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
-import { UiElementPosition } from "../../extensions-shared/UiElementPosition.js";
 import {
-  BlockSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "../../schema/index.js";
+  createExtension,
+  createStore,
+} from "../../editor/BlockNoteExtension.js";
+import { UiElementPosition } from "../../extensions-shared/UiElementPosition.js";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 const findBlock = findParentNode((node) => node.type.name === "blockContainer");
 
@@ -19,18 +17,14 @@ export type SuggestionMenuState = UiElementPosition & {
   ignoreQueryLength?: boolean;
 };
 
-class SuggestionMenuView<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
-> {
+class SuggestionMenuView {
   public state?: SuggestionMenuState;
   public emitUpdate: (triggerCharacter: string) => void;
   private rootEl?: Document | ShadowRoot;
   pluginState: SuggestionPluginState;
 
   constructor(
-    private readonly editor: BlockNoteEditor<BSchema, I, S>,
+    private readonly editor: BlockNoteEditor,
     emitUpdate: (menuName: string, state: SuggestionMenuState) => void,
     view: EditorView,
   ) {
@@ -163,34 +157,68 @@ const suggestionMenuPluginKey = new PluginKey("SuggestionMenuPlugin");
  * - This version hides some unnecessary complexity from the user of the plugin.
  * - This version handles key events differently
  */
-export class SuggestionMenuProseMirrorPlugin<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
-> extends BlockNoteExtension {
-  public static key() {
-    return "suggestionMenu";
-  }
+export const SuggestionMenuPlugin = createExtension((editor) => {
+  const triggerCharacters: string[] = [];
+  let view: SuggestionMenuView | undefined = undefined;
+  const store = createStore<
+    (SuggestionMenuState & { triggerCharacter: string }) | undefined
+  >(undefined);
+  return {
+    key: "suggestionMenu",
+    store,
+    addTriggerCharacter: (triggerCharacter: string) => {
+      triggerCharacters.push(triggerCharacter);
+    },
+    removeTriggerCharacter: (triggerCharacter: string) => {
+      triggerCharacters.splice(triggerCharacters.indexOf(triggerCharacter), 1);
+    },
+    closeMenu: () => {
+      view?.closeMenu();
+    },
+    clearQuery: () => {
+      view?.clearQuery();
+    },
+    shown: () => {
+      return view?.state?.show || false;
+    },
+    openSuggestionMenu: (
+      triggerCharacter: string,
+      pluginState?: {
+        deleteTriggerCharacter?: boolean;
+        ignoreQueryLength?: boolean;
+      },
+    ) => {
+      if (editor.headless) {
+        return;
+      }
 
-  private view: SuggestionMenuView<BSchema, I, S> | undefined;
-  private triggerCharacters: string[] = [];
+      editor.focus();
 
-  constructor(editor: BlockNoteEditor<BSchema, I, S>) {
-    super();
-    const triggerCharacters = this.triggerCharacters;
-    this.addProsemirrorPlugin(
+      editor.transact((tr) => {
+        if (pluginState?.deleteTriggerCharacter) {
+          tr.insertText(triggerCharacter);
+        }
+        tr.scrollIntoView().setMeta(suggestionMenuPluginKey, {
+          triggerCharacter: triggerCharacter,
+          deleteTriggerCharacter: pluginState?.deleteTriggerCharacter || false,
+          ignoreQueryLength: pluginState?.ignoreQueryLength || false,
+        });
+      });
+    },
+    // TODO this whole plugin needs to be refactored (but I've done the minimal)
+    plugins: [
       new Plugin({
         key: suggestionMenuPluginKey,
 
-        view: (view) => {
-          this.view = new SuggestionMenuView<BSchema, I, S>(
+        view: (v) => {
+          view = new SuggestionMenuView(
             editor,
             (triggerCharacter, state) => {
-              this.emit(`update ${triggerCharacter}`, state);
+              store.setState({ ...state, triggerCharacter });
             },
-            view,
+            v,
           );
-          return this.view;
+          return view;
         },
 
         state: {
@@ -225,7 +253,7 @@ export class SuggestionMenuProseMirrorPlugin<
             ) {
               if (prev) {
                 // Close the previous menu if it exists
-                this.closeMenu();
+                view?.closeMenu();
               }
               const trackedPosition = trackPosition(
                 editor,
@@ -360,44 +388,6 @@ export class SuggestionMenuProseMirrorPlugin<
           },
         },
       }),
-    );
-  }
-
-  public onUpdate(
-    triggerCharacter: string,
-    callback: (state: SuggestionMenuState) => void,
-  ) {
-    if (!this.triggerCharacters.includes(triggerCharacter)) {
-      this.addTriggerCharacter(triggerCharacter);
-    }
-    // TODO: be able to remove the triggerCharacter
-    return this.on(`update ${triggerCharacter}`, callback);
-  }
-
-  addTriggerCharacter = (triggerCharacter: string) => {
-    this.triggerCharacters.push(triggerCharacter);
-  };
-
-  // TODO: Should this be called automatically when listeners are removed?
-  removeTriggerCharacter = (triggerCharacter: string) => {
-    this.triggerCharacters = this.triggerCharacters.filter(
-      (c) => c !== triggerCharacter,
-    );
-  };
-
-  closeMenu = () => this.view!.closeMenu();
-
-  clearQuery = () => this.view!.clearQuery();
-
-  public get shown() {
-    return this.view?.state?.show || false;
-  }
-}
-
-export function createSuggestionMenu<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
->(editor: BlockNoteEditor<BSchema, I, S>, triggerCharacter: string) {
-  editor.suggestionMenus.addTriggerCharacter(triggerCharacter);
-}
+    ],
+  } as const;
+});

@@ -19,14 +19,14 @@ export const EmbedTab = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema,
 >(
-  props: FilePanelProps<I, S>,
+  props: FilePanelProps,
 ) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  const { block } = props;
-
   const editor = useBlockNoteEditor<B, I, S>();
+
+  const block = editor.getBlock(props.blockId)!;
 
   const [currentURL, setCurrentURL] = useState<string>("");
 
@@ -41,7 +41,7 @@ export const EmbedTab = <
     (event: KeyboardEvent) => {
       if (event.key === "Enter") {
         event.preventDefault();
-        editor.updateBlock(block, {
+        editor.updateBlock(block.id, {
           props: {
             name: filenameFromURL(currentURL),
             url: currentURL,
@@ -49,17 +49,17 @@ export const EmbedTab = <
         });
       }
     },
-    [editor, block, currentURL],
+    [editor, block.id, currentURL],
   );
 
   const handleURLClick = useCallback(() => {
-    editor.updateBlock(block, {
+    editor.updateBlock(block.id, {
       props: {
         name: filenameFromURL(currentURL),
         url: currentURL,
       } as any,
     });
-  }, [editor, block, currentURL]);
+  }, [editor, block.id, currentURL]);
 
   return (
     <Components.FilePanel.TabPanel className={"bn-tab-panel"}>

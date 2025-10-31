@@ -1,4 +1,4 @@
-import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
+import { createExtension } from "../../editor/BlockNoteExtension.js";
 import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
 import {
   addDefaultPropsExternalHTML,
@@ -55,7 +55,7 @@ export const createParagraphBlockSpec = createBlockSpec(
     runsBefore: ["default"],
   },
   [
-    createBlockNoteExtension({
+    createExtension({
       key: "paragraph-shortcuts",
       keyboardShortcuts: {
         "Mod-Alt-0": ({ editor }) => {

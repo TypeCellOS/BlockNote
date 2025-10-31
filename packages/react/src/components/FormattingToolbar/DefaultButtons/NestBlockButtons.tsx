@@ -4,13 +4,12 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback } from "react";
 import { RiIndentDecrease, RiIndentIncrease } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
-import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange.js";
-import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks.js";
+import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 
 export const NestBlockButton = () => {
@@ -23,28 +22,30 @@ export const NestBlockButton = () => {
     StyleSchema
   >();
 
-  const selectedBlocks = useSelectedBlocks(editor);
-
-  const [canNestBlock, setCanNestBlock] = useState<boolean>(() =>
-    editor.canNestBlock(),
-  );
-
-  useEditorContentOrSelectionChange(() => {
-    setCanNestBlock(editor.canNestBlock());
-  }, editor);
+  const { show, canNestBlock } = useEditorState({
+    editor,
+    selector: ({ editor }) => {
+      if (!editor.isEditable) {
+        return { show: false, canNestBlock: false };
+      }
+      const selectedBlocks = editor.getSelection()?.blocks || [
+        editor.getTextCursorPosition().block,
+      ];
+      return {
+        show: !selectedBlocks.find(
+          (block) => editor.schema.blockSchema[block.type].content !== "inline",
+        ),
+        canNestBlock: editor.canNestBlock(),
+      };
+    },
+  });
 
   const nestBlock = useCallback(() => {
     editor.focus();
     editor.nestBlock();
   }, [editor]);
 
-  const show = useMemo(() => {
-    return !selectedBlocks.find(
-      (block) => editor.schema.blockSchema[block.type].content !== "inline",
-    );
-  }, [editor.schema.blockSchema, selectedBlocks]);
-
-  if (!show || !editor.isEditable) {
+  if (!show) {
     return null;
   }
 
@@ -71,28 +72,30 @@ export const UnnestBlockButton = () => {
 
   const editor = useBlockNoteEditor<any, any, any>();
 
-  const selectedBlocks = useSelectedBlocks(editor);
-
-  const [canUnnestBlock, setCanUnnestBlock] = useState<boolean>(() =>
-    editor.canUnnestBlock(),
-  );
-
-  useEditorContentOrSelectionChange(() => {
-    setCanUnnestBlock(editor.canUnnestBlock());
-  }, editor);
+  const { show, canUnnestBlock } = useEditorState({
+    editor,
+    selector: ({ editor }) => {
+      if (!editor.isEditable) {
+        return { show: false, canUnnestBlock: false };
+      }
+      const selectedBlocks = editor.getSelection()?.blocks || [
+        editor.getTextCursorPosition().block,
+      ];
+      return {
+        show: !selectedBlocks.find(
+          (block) => editor.schema.blockSchema[block.type].content !== "inline",
+        ),
+        canUnnestBlock: editor.canUnnestBlock(),
+      };
+    },
+  });
 
   const unnestBlock = useCallback(() => {
     editor.focus();
     editor.unnestBlock();
   }, [editor]);
 
-  const show = useMemo(() => {
-    return !selectedBlocks.find(
-      (block) => editor.schema.blockSchema[block.type].content !== "inline",
-    );
-  }, [editor.schema.blockSchema, selectedBlocks]);
-
-  if (!show || !editor.isEditable) {
+  if (!show) {
     return null;
   }
 
