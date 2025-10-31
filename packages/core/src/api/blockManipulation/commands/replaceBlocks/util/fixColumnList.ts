@@ -4,7 +4,7 @@ import { ReplaceAroundStep } from "prosemirror-transform";
 
 /**
  * Checks if a `column` node is empty, i.e. if it has only a single empty
- * block.
+ * paragraph.
  * @param column The column to check.
  * @returns Whether the column is empty.
  */
@@ -26,7 +26,7 @@ export function isEmptyColumn(column: Node) {
   return (
     column.childCount === 1 &&
     blockContainer.childCount === 1 &&
-    blockContent.type.spec.content === "inline*" &&
+    blockContent.type.name === "paragraph" &&
     blockContent.content.content.length === 0
   );
 }
@@ -63,7 +63,7 @@ export function removeEmptyColumns(tr: Transaction, columnListPos: number) {
     }
 
     if (isEmptyColumn(column)) {
-      tr.delete(columnPos, columnPos + column?.nodeSize);
+      tr.delete(columnPos, columnPos + column.nodeSize);
     }
   }
 }
@@ -93,11 +93,21 @@ export function fixColumnList(tr: Transaction, columnListPos: number) {
   }
 
   if (columnList.childCount > 2) {
-    // Do nothing if the `columnList` has at least two non-empty `column`s.
+    // Do nothing if the `columnList` has more than two non-empty `column`s. In
+    // the case that the `columnList` has exactly two columns, we may need to
+    // still remove it, as it's possible that one or both columns are empty.
+    // This is because after `removeEmptyColumns` is called, if the
+    // `columnList` has fewer than two `column`s, ProseMirror will re-add empty
+    // `column`s until there are two total, in order to fit the schema.
     return;
   }
 
   if (columnList.childCount < 2) {
+    // Throw an error if the `columnList` has fewer than two columns. After
+    // `removeEmptyColumns` is called, if the `columnList` has fewer than two
+    // `column`s, ProseMirror will re-add empty `column`s until there are two
+    // total, in order to fit the schema. So if there are fewer than two here,
+    // either the schema, or ProseMirror's internals, must have changed.
     throw new Error("Invalid columnList: contains fewer than two children.");
   }
 

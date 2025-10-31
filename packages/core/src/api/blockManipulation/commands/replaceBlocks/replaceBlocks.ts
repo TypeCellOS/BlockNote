@@ -37,6 +37,7 @@ export function removeAndInsertBlocks<
     ),
   );
   const removedBlocks: Block<BSchema, I, S>[] = [];
+  const columnListPositions = new Set<number>();
 
   const idOfFirstBlock =
     typeof blocksToRemove[0] === "string"
@@ -73,34 +74,14 @@ export function removeAndInsertBlocks<
     const oldDocSize = tr.doc.nodeSize;
 
     const $pos = tr.doc.resolve(pos - removedSize);
+
+    if ($pos.node().type.name === "column") {
+      columnListPositions.add($pos.before(-1));
+    } else if ($pos.node().type.name === "columnList") {
+      columnListPositions.add($pos.before());
+    }
+
     if (
-      node.type.name === "column" &&
-      node.attrs.id !== $pos.nodeAfter?.attrs.id
-    ) {
-      // This is a hacky work around to handle removing all columns in a
-      // columnList. This is what happens when removing the last 2 columns:
-      //
-      // 1. The second-to-last `column` is removed.
-      // 2. `fixColumnList` runs, removing the `columnList` and inserting the
-      // contents of the last column in its place.
-      // 3. `removedSize` increases not just by the size of the second-to-last
-      // `column`, but also by the positions removed due to running
-      // `fixColumnList`. Some of these positions are after the contents of the
-      // last `column`, namely just after the `column` and `columnList`.
-      // 3. `tr.doc.descendants` traverses to the last `column`.
-      // 4. `removedSize` now includes positions that were removed after the
-      // last `column`. This causes `pos - removedSize` to point to an
-      // incorrect position, as it expects that the difference in document size
-      // accounted for by `removedSize` comes before the block being removed.
-      // 5. The deletion is offset by 3, because of those removed positions
-      // included in `removedSize` that occur after the last `column`.
-      //
-      // Hence why we have to shift the start of the deletion range back by 3.
-      // The offset for the end of the range is smaller as `node.nodeSize` is
-      // the size of the second `column`. Since it's been removed, we actually
-      // care about the size of its children - a difference of 2 positions.
-      tr.delete(pos - removedSize + 3, pos - removedSize + node.nodeSize + 1);
-    } else if (
       $pos.node().type.name === "blockGroup" &&
       $pos.node($pos.depth - 1).type.name !== "doc" &&
       $pos.node().childCount === 1
@@ -111,12 +92,6 @@ export function removeAndInsertBlocks<
       tr.delete($pos.before(), $pos.after());
     } else {
       tr.delete(pos - removedSize, pos - removedSize + node.nodeSize);
-    }
-
-    if ($pos.node().type.name === "column") {
-      fixColumnList(tr, $pos.before(-1));
-    } else if ($pos.node().type.name === "columnList") {
-      fixColumnList(tr, $pos.before());
     }
 
     const newDocSize = tr.doc.nodeSize;
@@ -134,6 +109,8 @@ export function removeAndInsertBlocks<
         notFoundIds,
     );
   }
+
+  columnListPositions.forEach((pos) => fixColumnList(tr, pos));
 
   // Converts the nodes created from `blocksToInsert` into full `Block`s.
   const insertedBlocks = nodesToInsert.map((node) =>
