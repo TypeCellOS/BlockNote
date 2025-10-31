@@ -99,7 +99,6 @@ export default function App() {
                 name: "Alert",
                 type: "alert",
                 icon: RiAlertFill,
-                isSelected: (block) => block.type === "alert",
               } satisfies BlockTypeSelectItem,
             ]}
           />

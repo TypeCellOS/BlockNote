@@ -129,9 +129,16 @@ function MUIBlockTypeSelect() {
   // Gets the selected item.
   const selectedItem = useMemo(
     () =>
-      defaultBlockTypeSelectItems.find((item) =>
-        item.isSelected(block as any),
-      )!,
+      defaultBlockTypeSelectItems.find((item) => {
+        const typesMatch = item.type === block.type;
+        const propsMatch =
+          Object.entries(item.props || {}).filter(
+            ([propName, propValue]) =>
+              propValue !== (block as any).props[propName],
+          ).length === 0;
+
+        return typesMatch && propsMatch;
+      })!,
     [defaultBlockTypeSelectItems, block],
   );
 
