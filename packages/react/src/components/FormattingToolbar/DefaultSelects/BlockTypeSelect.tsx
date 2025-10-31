@@ -1,6 +1,6 @@
 import {
-  BlockNoteEditor,
   BlockSchema,
+  Dictionary,
   editorHasBlockWithType,
   InlineContentSchema,
   StyleSchema,
@@ -36,90 +36,90 @@ export type BlockTypeSelectItem = {
   icon: IconType;
 };
 
-export const getDefaultBlockTypeSelectItems = (
-  editor: BlockNoteEditor<any, any, any>,
+export const blockTypeSelectItems = (
+  dict: Dictionary,
 ): BlockTypeSelectItem[] => [
   {
-    name: editor.dictionary.slash_menu.paragraph.title,
+    name: dict.slash_menu.paragraph.title,
     type: "paragraph",
     icon: RiText,
   },
   {
-    name: editor.dictionary.slash_menu.heading.title,
+    name: dict.slash_menu.heading.title,
     type: "heading",
     props: { level: 1, isToggleable: false },
     icon: RiH1,
   },
   {
-    name: editor.dictionary.slash_menu.heading_2.title,
+    name: dict.slash_menu.heading_2.title,
     type: "heading",
     props: { level: 2, isToggleable: false },
     icon: RiH2,
   },
   {
-    name: editor.dictionary.slash_menu.heading_3.title,
+    name: dict.slash_menu.heading_3.title,
     type: "heading",
     props: { level: 3, isToggleable: false },
     icon: RiH3,
   },
   {
-    name: editor.dictionary.slash_menu.heading_4.title,
+    name: dict.slash_menu.heading_4.title,
     type: "heading",
     props: { level: 4, isToggleable: false },
     icon: RiH4,
   },
   {
-    name: editor.dictionary.slash_menu.heading_5.title,
+    name: dict.slash_menu.heading_5.title,
     type: "heading",
     props: { level: 5, isToggleable: false },
     icon: RiH5,
   },
   {
-    name: editor.dictionary.slash_menu.heading_6.title,
+    name: dict.slash_menu.heading_6.title,
     type: "heading",
     props: { level: 6, isToggleable: false },
     icon: RiH6,
   },
   {
-    name: editor.dictionary.slash_menu.toggle_heading.title,
+    name: dict.slash_menu.toggle_heading.title,
     type: "heading",
     props: { level: 1, isToggleable: true },
     icon: RiH1,
   },
   {
-    name: editor.dictionary.slash_menu.toggle_heading_2.title,
+    name: dict.slash_menu.toggle_heading_2.title,
     type: "heading",
     props: { level: 2, isToggleable: true },
     icon: RiH2,
   },
   {
-    name: editor.dictionary.slash_menu.toggle_heading_3.title,
+    name: dict.slash_menu.toggle_heading_3.title,
     type: "heading",
     props: { level: 3, isToggleable: true },
     icon: RiH3,
   },
   {
-    name: editor.dictionary.slash_menu.quote.title,
+    name: dict.slash_menu.quote.title,
     type: "quote",
     icon: RiQuoteText,
   },
   {
-    name: editor.dictionary.slash_menu.toggle_list.title,
+    name: dict.slash_menu.toggle_list.title,
     type: "toggleListItem",
     icon: RiPlayList2Fill,
   },
   {
-    name: editor.dictionary.slash_menu.bullet_list.title,
+    name: dict.slash_menu.bullet_list.title,
     type: "bulletListItem",
     icon: RiListUnordered,
   },
   {
-    name: editor.dictionary.slash_menu.numbered_list.title,
+    name: dict.slash_menu.numbered_list.title,
     type: "numberedListItem",
     icon: RiListOrdered,
   },
   {
-    name: editor.dictionary.slash_menu.check_list.title,
+    name: dict.slash_menu.check_list.title,
     type: "checkListItem",
     icon: RiListCheck3,
   },
@@ -141,7 +141,7 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
   // the schema.
   const filteredItems = useMemo(
     () =>
-      (props.items || getDefaultBlockTypeSelectItems(editor)).filter((item) =>
+      (props.items || blockTypeSelectItems(editor.dictionary)).filter((item) =>
         editorHasBlockWithType(
           editor,
           item.type,
