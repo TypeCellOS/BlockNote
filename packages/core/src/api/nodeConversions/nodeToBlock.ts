@@ -346,21 +346,16 @@ export function nodeToCustomInlineContent<
   if (node.type.name === "text" || node.type.name === "link") {
     throw new Error("unexpected");
   }
-  const props: any = {};
+
   const icConfig = inlineContentSchema[
     node.type.name
   ] as CustomInlineContentConfig;
-  for (const [attr, value] of Object.entries(node.attrs)) {
-    if (!icConfig) {
-      throw Error("ic node is of an unrecognized type: " + node.type.name);
-    }
 
-    const propSchema = icConfig.propSchema._zodSource._zod.def.shape;
-
-    if (attr in propSchema) {
-      props[attr] = value;
-    }
+  if (!icConfig) {
+    throw Error("ic node is of an unrecognized type: " + node.type.name);
   }
+
+  const props = z.parse(icConfig.propSchema._zodSource, node.attrs);
 
   let content: CustomInlineContentFromConfig<any, any>["content"];
 

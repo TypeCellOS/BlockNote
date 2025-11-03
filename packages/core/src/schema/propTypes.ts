@@ -17,6 +17,7 @@ export type Props<PSchema extends PropSchema<any, any>> =
 
 // We infer Output/Input from the provided schema using z.output / z.input
 export function createPropSchemaFromZod<S extends z.$ZodObject>(schema: S) {
+  // TODO: should we validate that everything is optional
   return {
     _output: undefined as any,
     _input: undefined as any,
