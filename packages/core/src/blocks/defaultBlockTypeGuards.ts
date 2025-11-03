@@ -27,21 +27,19 @@ export function editorHasBlockWithType<
     return true;
   }
 
-  const editorProps: PropSchema =
-    editor.schema.blockSpecs[blockType].config.propSchema;
+  // const editorProps: PropSchema =
+  //   editor.schema.blockSpecs[blockType].config.propSchema;
 
   // make sure every prop in the requested prop appears in the editor schema block props
-  return Object.entries(props._zodSource._zod.def.shape).every(
-    ([key, value]) => {
-      return true;
-      // we do a JSON Stringify check as Zod doesn't expose
-      // equality / assignability checks
-      // return (
-      //   JSON.stringify(value._zod.def) ===
-      //   JSON.stringify(editorProps._zodSource._zod.def.shape[key]._zod.def)
-      // );
-    },
-  );
+  return Object.entries(props._zodSource._zod.def.shape).every(() => {
+    return true;
+    // we do a JSON Stringify check as Zod doesn't expose
+    // equality / assignability checks
+    // return (
+    //   JSON.stringify(value._zod.def) ===
+    //   JSON.stringify(editorProps._zodSource._zod.def.shape[key]._zod.def)
+    // );
+  });
 }
 
 export function blockHasType<BType extends string, Props extends PropSchema>(
