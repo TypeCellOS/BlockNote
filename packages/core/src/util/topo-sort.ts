@@ -169,7 +169,7 @@ export function sortByDependencies(
   const dag = createDependencyGraph();
 
   for (const item of items) {
-    if (item.runsBefore) {
+    if (Array.isArray(item.runsBefore) && item.runsBefore.length > 0) {
       item.runsBefore.forEach((runBefore) => {
         addDependency(dag, item.key, runBefore);
       });

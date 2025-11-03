@@ -24,7 +24,7 @@ class SuggestionMenuView {
   pluginState: SuggestionPluginState;
 
   constructor(
-    private readonly editor: BlockNoteEditor,
+    private readonly editor: BlockNoteEditor<any, any, any>,
     emitUpdate: (menuName: string, state: SuggestionMenuState) => void,
     view: EditorView,
   ) {
