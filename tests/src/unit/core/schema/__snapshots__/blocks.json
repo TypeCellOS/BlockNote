@@ -1,4 +1,28 @@
 {
+  "advancedComplexAttributeNode": {
+    "config": {
+      "content": "none",
+      "propSchema": {
+        "user": {
+          "age": 30,
+          "name": {
+            "first": "John",
+            "last": "Doe",
+          },
+        },
+      },
+      "type": "advancedComplexAttributeNode",
+    },
+    "extensions": undefined,
+    "implementation": {
+      "node": null,
+      "render": [Function],
+      "runsBefore": [
+        "default",
+      ],
+      "toExternalHTML": [Function],
+    },
+  },
   "audio": {
     "config": {
       "content": "none",
@@ -62,6 +86,7 @@
       "parse": [Function],
       "parseContent": [Function],
       "render": [Function],
+      "runsBefore": [],
       "toExternalHTML": [Function],
     },
   },
@@ -175,6 +200,7 @@
       "parse": [Function],
       "parseContent": [Function],
       "render": [Function],
+      "runsBefore": [],
       "toExternalHTML": [Function],
     },
   },
@@ -191,7 +217,11 @@
     "extensions": undefined,
     "implementation": {
       "node": null,
+      "parse": [Function],
       "render": [Function],
+      "runsBefore": [
+        "default",
+      ],
       "toExternalHTML": [Function],
     },
   },
@@ -222,6 +252,7 @@
       "node": null,
       "parse": [Function],
       "render": [Function],
+      "runsBefore": [],
       "toExternalHTML": [Function],
     },
   },
@@ -246,6 +277,7 @@
       "node": null,
       "parse": [Function],
       "render": [Function],
+      "runsBefore": [],
       "toExternalHTML": [Function],
     },
   },
@@ -309,6 +341,7 @@
       "node": null,
       "parse": [Function],
       "render": [Function],
+      "runsBefore": [],
       "toExternalHTML": [Function],
     },
   },
@@ -395,6 +428,7 @@
       "parse": [Function],
       "parseContent": [Function],
       "render": [Function],
+      "runsBefore": [],
       "toExternalHTML": [Function],
     },
   },
@@ -409,6 +443,7 @@
       "node": null,
       "parse": [Function],
       "render": [Function],
+      "runsBefore": [],
       "toExternalHTML": [Function],
     },
   },
@@ -478,6 +513,7 @@
       "node": null,
       "parse": [Function],
       "render": [Function],
+      "runsBefore": [],
       "toExternalHTML": [Function],
     },
   },
@@ -495,6 +531,9 @@
     "implementation": {
       "node": null,
       "render": [Function],
+      "runsBefore": [
+        "default",
+      ],
       "toExternalHTML": [Function],
     },
   },
@@ -515,6 +554,9 @@
     "implementation": {
       "node": null,
       "render": [Function],
+      "runsBefore": [
+        "default",
+      ],
       "toExternalHTML": [Function],
     },
   },
@@ -651,6 +693,7 @@
       },
       "node": null,
       "render": [Function],
+      "runsBefore": [],
       "toExternalHTML": [Function],
     },
   },

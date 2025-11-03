@@ -46,6 +46,7 @@ export const createToggleListItemBlockSpec = createBlockSpec(
         contentDOM: p,
       };
     },
+    runsBefore: [],
   },
   [
     createBlockNoteExtension({

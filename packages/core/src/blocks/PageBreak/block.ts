@@ -53,6 +53,7 @@ export const createPageBreakBlockSpec = createBlockSpec(
         dom: pageBreak,
       };
     },
+    runsBefore: [],
   },
 );
 

@@ -103,6 +103,7 @@ export const createHeadingBlockSpec = createBlockSpec(
         contentDOM: dom,
       };
     },
+    runsBefore: [],
   }),
   ({ levels = HEADING_LEVELS }: HeadingOptions = {}) => [
     createBlockNoteExtension({
