@@ -242,6 +242,7 @@
     "extensions": undefined,
     "implementation": {
       "node": null,
+      "parse": [Function],
       "render": [Function],
       "toExternalHTML": [Function],
     },
