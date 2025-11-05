@@ -18,16 +18,18 @@ export const UploadTab = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema,
 >(
-  props: FilePanelProps<I, S> & {
+  props: FilePanelProps & {
     setLoading: (loading: boolean) => void;
   },
 ) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  const { block, setLoading } = props;
+  const { setLoading } = props;
 
   const editor = useBlockNoteEditor<B, I, S>();
+
+  const block = editor.getBlock(props.blockId)!;
 
   const [uploadFailed, setUploadFailed] = useState<boolean>(false);
 
@@ -50,7 +52,7 @@ export const UploadTab = <
 
         if (editor.uploadFile !== undefined) {
           try {
-            let updateData = await editor.uploadFile(file, block.id);
+            let updateData = await editor.uploadFile(file, props.blockId);
             if (typeof updateData === "string") {
               // received a url
               updateData = {
@@ -60,7 +62,7 @@ export const UploadTab = <
                 },
               };
             }
-            editor.updateBlock(block, updateData);
+            editor.updateBlock(props.blockId, updateData);
           } catch (e) {
             setUploadFailed(true);
           } finally {
@@ -71,7 +73,7 @@ export const UploadTab = <
 
       upload(file);
     },
-    [block, editor, setLoading],
+    [props.blockId, editor, setLoading],
   );
 
   const spec = editor.schema.blockSpecs[block.type];

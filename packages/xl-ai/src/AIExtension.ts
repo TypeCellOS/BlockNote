@@ -1,7 +1,6 @@
 import { Chat } from "@ai-sdk/react";
 import {
   BlockNoteEditor,
-  BlockNoteExtension,
   getNodeById,
   UnreachableCaseError,
 } from "@blocknote/core";
@@ -58,7 +57,8 @@ type AIPluginState = {
 
 const PLUGIN_KEY = new PluginKey(`blocknote-ai-plugin`);
 
-export class AIExtension extends BlockNoteExtension {
+// TODO refactor this into an extension
+export class AIExtension {
   private chatSession:
     | {
         previousRequestOptions: InvokeAIOptions;
@@ -108,13 +108,12 @@ export class AIExtension extends BlockNoteExtension {
       agentCursor?: { name: string; color: string };
     },
   ) {
-    super();
-
     this.options = createStore<AIRequestHelpers>()((_set) => ({
       ...options,
     }));
 
-    this.addProsemirrorPlugin(
+    this.plugins = [];
+    this.plugins.push(
       new Plugin({
         key: PLUGIN_KEY,
         filterTransaction: (tr) => {

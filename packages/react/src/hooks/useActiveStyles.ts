@@ -1,9 +1,7 @@
 import { BlockNoteEditor, StyleSchema } from "@blocknote/core";
 
-import { useCallback, useState } from "react";
 import { useBlockNoteContext } from "../editor/BlockNoteContext.js";
-import { useEditorChange } from "./useEditorChange.js";
-import { useEditorSelectionChange } from "./useEditorSelectionChange.js";
+import { useEditorState } from "./useEditorState.js";
 
 export function useActiveStyles<T extends StyleSchema>(
   editor?: BlockNoteEditor<any, any, T>,
@@ -19,19 +17,10 @@ export function useActiveStyles<T extends StyleSchema>(
     );
   }
 
-  const e = editor;
-
-  const [styles, setStyles] = useState(() => e.getActiveStyles());
-
-  const updateStyles = useCallback(() => {
-    setStyles(e.getActiveStyles());
-  }, [e]);
-
-  // Updates state on editor content change.
-  useEditorChange(updateStyles, e);
-
-  // Updates state on selection change.
-  useEditorSelectionChange(updateStyles, e);
+  const styles = useEditorState({
+    editor,
+    selector: ({ editor }) => editor.getActiveStyles(),
+  });
 
   return styles;
 }

@@ -1,18 +1,16 @@
-import { yUndoPlugin } from "y-prosemirror";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
+import { redoCommand, undoCommand, yUndoPlugin } from "y-prosemirror";
+import { createExtension } from "../../editor/BlockNoteExtension.js";
 
-export class UndoPlugin extends BlockNoteExtension {
-  public static key() {
-    return "yUndoPlugin";
+export const UndoPlugin = createExtension((editor, options) => {
+  if (!options.collaboration) {
+    return;
   }
 
-  constructor({ editor }: { editor: BlockNoteEditor<any, any, any> }) {
-    super();
-    this.addProsemirrorPlugin(yUndoPlugin({ trackedOrigins: [editor] }));
-  }
-
-  public get priority() {
-    return 1000;
-  }
-}
+  return {
+    key: "yUndoPlugin",
+    plugins: [yUndoPlugin({ trackedOrigins: [editor] })],
+    dependsOn: ["yCursorPlugin"],
+    undoCommand: undoCommand,
+    redoCommand: redoCommand,
+  } as const;
+});

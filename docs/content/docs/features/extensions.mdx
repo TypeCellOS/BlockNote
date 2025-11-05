@@ -14,7 +14,7 @@ BlockNote includes an extensions system which lets you expand the editor's behav
 
 ## Creating an extension
 
-An extension is an instance of the [`BlockNoteExtension`](https://github.com/TypeCellOS/BlockNote/blob/10cdbfb5f77ef82f3617c0fa1191e0bf5b7358c5/packages/core/src/editor/BlockNoteExtension.ts#L13) class. However, it's recommended for most use cases to create extensions using the `createBlockNoteExtension` function, rather than instanciating the class directly:
+An extension is an instance of the [`BlockNoteExtension`](https://github.com/TypeCellOS/BlockNote/blob/10cdbfb5f77ef82f3617c0fa1191e0bf5b7358c5/packages/core/src/editor/BlockNoteExtension.ts#L13) class. However, it's recommended for most use cases to create extensions using the `createExtension` function, rather than instanciating the class directly:
 
 ```typescript
 type BlockNoteExtensionOptions = {
@@ -43,10 +43,10 @@ const customBlockExtensionOptions: BlockNoteExtensionOptions = {
   tiptapExtensions: ...,
 }
 
-const CustomExtension = createBlockNoteExtension(customBlockExtensionOptions);
+const CustomExtension = createExtension(customBlockExtensionOptions);
 ```
 
-Let's go over the options that can be passed into `createBlockNoteExtension`:
+Let's go over the options that can be passed into `createExtension`:
 
 `key:` The name of the extension.
 
@@ -74,7 +74,7 @@ The `extensions` [editor option](/docs/reference/editor/overview#options) takes 
 const editor = useCreateBlockNote({
   extensions: [
     // Add extensions here:
-    createBlockNoteExtension({ ... })
+    createExtension({ ... })
   ],
 });
 ```
@@ -95,7 +95,7 @@ const createCustomBlock = createReactBlockSpec(
   }
   [
     // Add extensions here:
-    createBlockNoteExtension({ ... })
+    createExtension({ ... })
   ],
 });
 ```

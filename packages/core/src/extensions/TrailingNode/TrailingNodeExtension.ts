@@ -1,5 +1,5 @@
-import { Extension } from "@tiptap/core";
 import { Plugin, PluginKey } from "prosemirror-state";
+import { createExtension } from "../../editor/BlockNoteExtension.js";
 
 // based on https://github.com/ueberdosis/tiptap/blob/40a9404c94c7fef7900610c195536384781ae101/demos/src/Experiments/TrailingNode/Vue/trailing-node.ts
 
@@ -8,24 +8,18 @@ import { Plugin, PluginKey } from "prosemirror-state";
  * - https://github.com/ueberdosis/tiptap/blob/v1/packages/tiptap-extensions/src/extensions/TrailingNode.js
  * - https://github.com/remirror/remirror/blob/e0f1bec4a1e8073ce8f5500d62193e52321155b9/packages/prosemirror-trailing-node/src/trailing-node-plugin.ts
  */
-
-export interface TrailingNodeOptions {
-  node: string;
-}
+const plugin = new PluginKey("trailingNode");
 
 /**
  * Add a trailing node to the document so the user can always click at the bottom of the document and start typing
  */
-export const TrailingNode = Extension.create<TrailingNodeOptions>({
-  name: "trailingNode",
-
-  addProseMirrorPlugins() {
-    const plugin = new PluginKey(this.name);
-    // const disabledNodes = Object.entries(this.editor.schema.nodes)
-    //   .map(([, value]) => value)
-    //   .filter((node) => this.options.notAfter.includes(node.name));
-
-    return [
+export const TrailingNode = createExtension((_editor, options) => {
+  if (options.trailingBlock === false) {
+    return;
+  }
+  return {
+    key: "trailingNode",
+    plugins: [
       new Plugin({
         key: plugin,
         appendTransaction: (_, __, state) => {
@@ -80,6 +74,6 @@ export const TrailingNode = Extension.create<TrailingNodeOptions>({
           },
         },
       }),
-    ];
-  },
+    ],
+  } as const;
 });

@@ -29,10 +29,10 @@ export const getFormattingToolbarItems = (
   blockTypeSelectItems?: BlockTypeSelectItem[],
 ): JSX.Element[] => [
   <BlockTypeSelect key={"blockTypeSelect"} items={blockTypeSelectItems} />,
-  <TableCellMergeButton key={"tableCellMergeButton"} />,
-  <FileCaptionButton key={"fileCaptionButton"} />,
-  <FileReplaceButton key={"replaceFileButton"} />,
-  <FileRenameButton key={"fileRenameButton"} />,
+  // <TableCellMergeButton key={"tableCellMergeButton"} />,
+  // <FileCaptionButton key={"fileCaptionButton"} />,
+  // <FileReplaceButton key={"replaceFileButton"} />,
+  // <FileRenameButton key={"fileRenameButton"} />,
   <FileDeleteButton key={"fileDeleteButton"} />,
   <FileDownloadButton key={"fileDownloadButton"} />,
   <FilePreviewButton key={"filePreviewButton"} />,
@@ -49,7 +49,7 @@ export const getFormattingToolbarItems = (
   <ColorStyleButton key={"colorStyleButton"} />,
   <NestBlockButton key={"nestBlockButton"} />,
   <UnnestBlockButton key={"unnestBlockButton"} />,
-  <CreateLinkButton key={"createLinkButton"} />,
+  // <CreateLinkButton key={"createLinkButton"} />,
   <AddCommentButton key={"addCommentButton"} />,
   <AddTiptapCommentButton key={"addTiptapCommentButton"} />,
 ];

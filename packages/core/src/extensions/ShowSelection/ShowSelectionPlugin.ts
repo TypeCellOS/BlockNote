@@ -1,7 +1,10 @@
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
+import {
+  createExtension,
+  createStore,
+} from "../../editor/BlockNoteExtension.js";
 
 const PLUGIN_KEY = new PluginKey(`blocknote-show-selection`);
 
@@ -10,48 +13,36 @@ const PLUGIN_KEY = new PluginKey(`blocknote-show-selection`);
  * This can be used to highlight the current selection in the UI even when the
  * text editor is not focused.
  */
-export class ShowSelectionPlugin extends BlockNoteExtension {
-  public static key() {
-    return "showSelection";
-  }
-
-  private enabled = false;
-
-  public constructor(private readonly editor: BlockNoteEditor<any, any, any>) {
-    super();
-    this.addProsemirrorPlugin(
-      new Plugin({
-        key: PLUGIN_KEY,
-        props: {
-          decorations: (state) => {
-            const { doc, selection } = state;
-
-            if (!this.enabled) {
-              return DecorationSet.empty;
-            }
-
-            const dec = Decoration.inline(selection.from, selection.to, {
-              "data-show-selection": "true",
-            });
-
-            return DecorationSet.create(doc, [dec]);
-          },
+export const ShowSelectionPlugin = createExtension(
+  (editor: BlockNoteEditor<any, any, any>, _options) => {
+    const store = createStore(
+      { enabled: false },
+      {
+        onUpdate() {
+          editor.transact((tr) => tr.setMeta(PLUGIN_KEY, {}));
         },
-      }),
+      },
     );
-  }
-
-  public setEnabled(enabled: boolean) {
-    if (this.enabled === enabled) {
-      return;
-    }
-
-    this.enabled = enabled;
-
-    this.editor.transact((tr) => tr.setMeta(PLUGIN_KEY, {}));
-  }
-
-  public getEnabled() {
-    return this.enabled;
-  }
-}
+    return {
+      key: "showSelection",
+      store,
+      plugins: [
+        new Plugin({
+          key: PLUGIN_KEY,
+          props: {
+            decorations: (state) => {
+              const { doc, selection } = state;
+              if (!store.state.enabled) {
+                return DecorationSet.empty;
+              }
+              const dec = Decoration.inline(selection.from, selection.to, {
+                "data-show-selection": "true",
+              });
+              return DecorationSet.create(doc, [dec]);
+            },
+          },
+        }),
+      ],
+    } as const;
+  },
+);

@@ -2,6 +2,7 @@ import { expect, it } from "vitest";
 import * as Y from "yjs";
 import { Awareness } from "y-protocols/awareness";
 import { BlockNoteEditor } from "../../index.js";
+import { ForkYDocPlugin } from "./ForkYDocPlugin.js";
 
 /**
  * @vitest-environment jsdom
@@ -36,7 +37,7 @@ it("can fork a document", async () => {
     "__snapshots__/fork-yjs-snap-editor.json",
   );
 
-  editor.forkYDocPlugin!.fork();
+  editor.getExtension(ForkYDocPlugin)!.fork();
 
   editor.replaceBlocks(editor.document, [
     {
@@ -83,7 +84,7 @@ it("can merge a document", async () => {
     "__snapshots__/fork-yjs-snap-editor.json",
   );
 
-  editor.forkYDocPlugin!.fork();
+  editor.getExtension(ForkYDocPlugin)!.fork();
 
   editor.replaceBlocks(editor.document, [
     {
@@ -99,7 +100,7 @@ it("can merge a document", async () => {
     "__snapshots__/fork-yjs-snap-editor-forked.json",
   );
 
-  editor.forkYDocPlugin!.merge({ keepChanges: false });
+  editor.getExtension(ForkYDocPlugin)!.merge({ keepChanges: false });
 
   await expect(fragment.toJSON()).toMatchFileSnapshot(
     "__snapshots__/fork-yjs-snap.html",
@@ -139,7 +140,7 @@ it("can fork an keep the changes to the original document", async () => {
     "__snapshots__/fork-yjs-snap-editor.json",
   );
 
-  editor.forkYDocPlugin!.fork();
+  editor.getExtension(ForkYDocPlugin)!.fork();
 
   editor.replaceBlocks(editor.document, [
     {
@@ -155,7 +156,7 @@ it("can fork an keep the changes to the original document", async () => {
     "__snapshots__/fork-yjs-snap-editor-forked.json",
   );
 
-  editor.forkYDocPlugin!.merge({ keepChanges: true });
+  editor.getExtension(ForkYDocPlugin)!.merge({ keepChanges: true });
 
   await expect(fragment.toJSON()).toMatchFileSnapshot(
     "__snapshots__/fork-yjs-snap-forked.html",

@@ -1,5 +1,5 @@
 import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
-import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
+import { createExtension } from "../../editor/BlockNoteExtension.js";
 import {
   addDefaultPropsExternalHTML,
   defaultProps,
@@ -97,7 +97,7 @@ export const createHeadingBlockSpec = createBlockSpec(
     },
   }),
   ({ levels = HEADING_LEVELS }: HeadingOptions = {}) => [
-    createBlockNoteExtension({
+    createExtension({
       key: "heading-shortcuts",
       keyboardShortcuts: Object.fromEntries(
         levels.map((level) => [
