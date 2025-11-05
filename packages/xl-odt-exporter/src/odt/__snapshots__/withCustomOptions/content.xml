@@ -92,6 +92,9 @@
         <style:style style:name="BN_T25" style:family="text">
             <style:text-properties fo:font-weight="bold"></style:text-properties>
         </style:style>
+        <style:style style:family="paragraph" style:name="BN_S26" style:parent-style-name="Standard">
+            <style:paragraph-properties fo:border-top="1pt solid #cccccc" fo:margin-top="11pt" fo:margin-bottom="12pt" fo:padding-top="0pt" fo:padding-bottom="0pt"></style:paragraph-properties>
+        </style:style>
     </office:automatic-styles>
     <office:master-styles>
         <style:master-page style:name="Standard" style:page-layout-name="Mpm1" draw:style-name="Mdp1">
@@ -457,6 +460,7 @@
                 <text:line-break></text:line-break>
                 };
             </text:p>
+            <text:p text:style-name="BN_S26"></text:p>
         </office:text>
     </office:body>
 </office:document-content>

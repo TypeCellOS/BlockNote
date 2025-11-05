@@ -419,7 +419,7 @@
             "Custom Schemas"
           ],
           "dependencies": {
-            "@mantine/core": "^8.3.2",
+            "@mantine/core": "^8.3.4",
             "react-icons": "^5.2.1"
           } as any
         },
@@ -1144,7 +1144,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^8.3.2",
+            "@mantine/core": "^8.3.4",
             "react-icons": "^5.2.1"
           } as any
         },
@@ -1218,7 +1218,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^8.3.2",
+            "@mantine/core": "^8.3.4",
             "react-icons": "^5.2.1"
           } as any,
           "pro": true
@@ -1247,7 +1247,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^8.3.2",
+            "@mantine/core": "^8.3.4",
             "react-icons": "^5.2.1"
           } as any
         },
@@ -1276,6 +1276,25 @@
           "slug": "custom-schema"
         },
         "readme": "This example shows how to create custom blocks with a toggle button to show/hide their children, like with the default toggle heading and list item blocks. This is done using the use the `ToggleWrapper` component from `@blocknote/react`.\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Default Schema](/docs/features/blocks)"
+      },
+      {
+        "projectSlug": "configuring-blocks",
+        "fullSlug": "custom-schema/configuring-blocks",
+        "pathFromRoot": "examples/06-custom-schema/07-configuring-blocks",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Configuring Default Blocks",
+        "group": {
+          "pathFromRoot": "examples/06-custom-schema",
+          "slug": "custom-schema"
+        },
+        "readme": "This example shows how you can configure the editor's default blocks. Specifically, heading blocks are made to only support levels 1-3, and cannot be toggleable.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Default Schema](/docs/foundations/schemas)\n- [Custom Schemas](/docs/features/custom-schemas)"
       },
       {
         "projectSlug": "draggable-inline-content",
@@ -1465,7 +1484,7 @@
           ],
           "dependencies": {
             "@y-sweet/react": "^0.6.3",
-            "@mantine/core": "^8.3.2"
+            "@mantine/core": "^8.3.4"
           } as any
         },
         "title": "Comments & Threads",
@@ -1490,7 +1509,7 @@
           ],
           "dependencies": {
             "@y-sweet/react": "^0.6.3",
-            "@mantine/core": "^8.3.2"
+            "@mantine/core": "^8.3.4"
           } as any
         },
         "title": "Threads Sidebar",
@@ -1569,7 +1588,7 @@
           ],
           "pro": true,
           "dependencies": {
-            "@tiptap/core": "^3.4.3"
+            "@tiptap/core": "^3.7.2"
           } as any
         },
         "title": "TipTap extension (arrow InputRule)",
@@ -1599,7 +1618,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.2",
+            "@mantine/core": "^8.3.4",
             "ai": "^5.0.45",
             "zustand": "^5.0.3"
           } as any
@@ -1625,7 +1644,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.2",
+            "@mantine/core": "^8.3.4",
             "ai": "^5.0.45",
             "zustand": "^5.0.3"
           } as any
@@ -1651,7 +1670,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.2",
+            "@mantine/core": "^8.3.4",
             "ai": "^5.0.45",
             "react-icons": "^5.2.1",
             "zustand": "^5.0.3"
@@ -1678,7 +1697,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.2",
+            "@mantine/core": "^8.3.4",
             "ai": "^5.0.45",
             "y-partykit": "^0.0.25",
             "yjs": "^13.6.27",
@@ -1706,7 +1725,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.2",
+            "@mantine/core": "^8.3.4",
             "ai": "^5.0.45",
             "y-partykit": "^0.0.25",
             "yjs": "^13.6.27",
@@ -1735,7 +1754,7 @@
           "dependencies": {
             "@ai-sdk/groq": "^2.0.16",
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.2",
+            "@mantine/core": "^8.3.4",
             "ai": "^5.0.45",
             "zustand": "^5.0.3"
           } as any
@@ -1761,7 +1780,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.2",
+            "@mantine/core": "^8.3.4",
             "ai": "^5.0.45",
             "zustand": "^5.0.3"
           } as any

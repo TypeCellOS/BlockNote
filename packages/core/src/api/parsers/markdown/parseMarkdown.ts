@@ -14,6 +14,7 @@ import {
   StyleSchema,
 } from "../../../schema/index.js";
 import { HTMLToBlocks } from "../html/parseHTML.js";
+import { isVideoUrl } from "../../../util/string.js";
 
 // modified version of https://github.com/syntax-tree/mdast-util-to-hast/blob/main/lib/handlers/code.js
 // that outputs a data-language attribute instead of a CSS class (e.g.: language-typescript)
@@ -54,6 +55,27 @@ function code(state: any, node: any) {
   return result;
 }
 
+function video(state: any, node: any) {
+  const url = String(node?.url || "");
+  const title = node?.title ? String(node.title) : undefined;
+
+  let result: any = {
+    type: "element",
+    tagName: "video",
+    properties: {
+      src: url,
+      "data-name": title,
+      "data-url": url,
+      controls: true,
+    },
+    children: [],
+  };
+  state.patch?.(node, result);
+  result = state.applyData ? state.applyData(node, result) : result;
+
+  return result;
+}
+
 export function markdownToHTML(markdown: string): string {
   const htmlString = unified()
     .use(remarkParse)
@@ -61,6 +83,15 @@ export function markdownToHTML(markdown: string): string {
     .use(remarkRehype, {
       handlers: {
         ...(remarkRehypeDefaultHandlers as any),
+        image: (state: any, node: any) => {
+          const url = String(node?.url || "");
+
+          if (isVideoUrl(url)) {
+            return video(state, node);
+          } else {
+            return remarkRehypeDefaultHandlers.image(state, node);
+          }
+        },
         code,
       },
     })

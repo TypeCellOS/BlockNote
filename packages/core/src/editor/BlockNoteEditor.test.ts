@@ -4,6 +4,7 @@ import {
   getNearestBlockPos,
 } from "../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "./BlockNoteEditor.js";
+import { BlockNoteExtension } from "./BlockNoteExtension.js";
 
 /**
  * @vitest-environment jsdom
@@ -101,4 +102,47 @@ it("block prop types", () => {
     // eslint-disable-next-line
     expect(level).toBe(1);
   }
+});
+
+it("onMount and onUnmount", async () => {
+  const editor = BlockNoteEditor.create();
+  let mounted = false;
+  let unmounted = false;
+  editor.onMount(() => {
+    mounted = true;
+  });
+  editor.onUnmount(() => {
+    unmounted = true;
+  });
+  editor.mount(document.createElement("div"));
+  expect(mounted).toBe(true);
+  expect(unmounted).toBe(false);
+  editor.unmount();
+  // expect the unmount event to not have been triggered yet, since it waits 2 ticks
+  expect(unmounted).toBe(false);
+  // wait 3 ticks to ensure the unmount event is triggered
+  await new Promise((resolve) => setTimeout(resolve, 3));
+  expect(mounted).toBe(true);
+  expect(unmounted).toBe(true);
+});
+
+it("onCreate event", () => {
+  let created = false;
+  BlockNoteEditor.create({
+    extensions: [
+      (e) =>
+        new (class extends BlockNoteExtension {
+          public static key() {
+            return "test";
+          }
+          constructor(editor: BlockNoteEditor) {
+            super(editor);
+            editor.onCreate(() => {
+              created = true;
+            });
+          }
+        })(e),
+    ],
+  });
+  expect(created).toBe(true);
 });

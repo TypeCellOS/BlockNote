@@ -1036,15 +1036,40 @@ export class BlockNoteEditor<
    * @warning Not needed to call manually when using React, use BlockNoteView to take care of mounting
    */
   public mount = (element: HTMLElement) => {
-    // TODO: Fix typing for this in a TipTap PR
-    this._tiptapEditor.mount({ mount: element } as any);
+    if (
+      // If the editor is scheduled for destruction, and
+      this.scheduledDestructionTimeout &&
+      // If the editor is being remounted to the same element as the one which is scheduled for destruction,
+      // then just cancel the destruction timeout
+      this.prosemirrorView.dom === element
+    ) {
+      clearTimeout(this.scheduledDestructionTimeout);
+      this.scheduledDestructionTimeout = undefined;
+      return;
+    }
+
+    this._tiptapEditor.mount({ mount: element });
   };
+
+  /**
+   * Timeout to schedule the {@link unmount}ing of the editor.
+   */
+  private scheduledDestructionTimeout:
+    | ReturnType<typeof setTimeout>
+    | undefined = undefined;
 
   /**
    * Unmount the editor from the DOM element it is bound to
    */
   public unmount = () => {
-    this._tiptapEditor.unmount();
+    // Due to how React's StrictMode works, it will `unmount` & `mount` the component twice in development mode.
+    // This can result in the editor being unmounted mid-rendering the content of node views.
+    // To avoid this, we only ever schedule the `unmount`ing of the editor when we've seen whether React "meant" to actually unmount the editor (i.e. not calling mount one tick later).
+    // So, we wait two ticks to see if the component is still meant to be unmounted, and if not, we actually unmount the editor.
+    this.scheduledDestructionTimeout = setTimeout(() => {
+      this._tiptapEditor.unmount();
+      this.scheduledDestructionTimeout = undefined;
+    }, 1);
   };
 
   /**
@@ -1081,6 +1106,13 @@ export class BlockNoteEditor<
       return;
     }
     this.prosemirrorView.focus();
+  }
+
+  public blur() {
+    if (this.headless) {
+      return;
+    }
+    this.prosemirrorView.dom.blur();
   }
 
   public onUploadStart(callback: (blockId?: string) => void) {
@@ -1478,7 +1510,7 @@ export class BlockNoteEditor<
    * @returns The blocks, serialized as an HTML string.
    */
   public blocksToFullHTML(
-    blocks: PartialBlock<BSchema, ISchema, SSchema>[],
+    blocks: PartialBlock<BSchema, ISchema, SSchema>[] = this.document,
   ): string {
     return this._exportManager.blocksToFullHTML(blocks);
   }
@@ -1573,9 +1605,11 @@ export class BlockNoteEditor<
    * A callback function that runs when the editor has been initialized.
    *
    * This can be useful for plugins to initialize themselves after the editor has been initialized.
+   *
+   * @param callback The callback to execute.
+   * @returns A function to remove the callback.
    */
   public onCreate(callback: () => void) {
-    // TODO I think this create handler is wrong actually...
     this.on("create", callback);
 
     return () => {
@@ -1583,6 +1617,42 @@ export class BlockNoteEditor<
     };
   }
 
+  /**
+   * A callback function that runs when the editor has been mounted.
+   *
+   * This can be useful for plugins to initialize themselves after the editor has been mounted.
+   *
+   * @param callback The callback to execute.
+   * @returns A function to remove the callback.
+   */
+  public onMount(
+    callback: (ctx: {
+      editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
+    }) => void,
+  ) {
+    this._eventManager.onMount(callback);
+  }
+
+  /**
+   * A callback function that runs when the editor has been unmounted.
+   *
+   * This can be useful for plugins to clean up themselves after the editor has been unmounted.
+   *
+   * @param callback The callback to execute.
+   * @returns A function to remove the callback.
+   */
+  public onUnmount(
+    callback: (ctx: {
+      editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
+    }) => void,
+  ) {
+    this._eventManager.onUnmount(callback);
+  }
+
+  /**
+   * Gets the bounding box of the current selection.
+   * @returns The bounding box of the current selection.
+   */
   public getSelectionBoundingBox() {
     return this._selectionManager.getSelectionBoundingBox();
   }

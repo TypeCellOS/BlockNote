@@ -1,0 +1,22 @@
+[
+  {
+    "attrs": {
+      "id": "1",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "caption": "",
+          "name": "",
+          "previewWidth": undefined,
+          "showPreview": true,
+          "textAlignment": "left",
+          "url": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm",
+        },
+        "type": "video",
+      },
+    ],
+    "type": "blockContainer",
+  },
+]

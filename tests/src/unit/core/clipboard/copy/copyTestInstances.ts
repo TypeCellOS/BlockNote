@@ -515,6 +515,10 @@ export const copyTestInstancesHTML: TestInstance<
           content: "Check List Item 1",
         },
         {
+          type: "toggleListItem",
+          content: "Toggle List Item 1",
+        },
+        {
           type: "codeBlock",
           content: 'console.log("Hello World");',
         },
@@ -534,6 +538,9 @@ export const copyTestInstancesHTML: TestInstance<
         },
         {
           type: "image",
+        },
+        {
+          type: "divider",
         },
         {
           type: "paragraph",
@@ -589,6 +596,13 @@ export const copyTestInstancesHTML: TestInstance<
           content: "Check List Item 1",
         },
         {
+          type: "toggleListItem",
+          props: {
+            textAlignment: "right",
+          },
+          content: "Toggle List Item 1",
+        },
+        {
           type: "codeBlock",
           props: {
             language: "typescript",
@@ -618,6 +632,35 @@ export const copyTestInstancesHTML: TestInstance<
             showPreview: true,
             previewWidth: 256,
           },
+        },
+        {
+          type: "divider",
+        },
+        {
+          type: "paragraph",
+          content: "Paragraph 2",
+        },
+      ],
+      getCopySelection: (doc) => {
+        const startPos = getPosOfTextNode(doc, "Paragraph 1");
+        const endPos = getPosOfTextNode(doc, "Paragraph 2", true);
+
+        return TextSelection.create(doc, startPos, endPos);
+      },
+    },
+    executeTest: testCopyHTML,
+  },
+  {
+    testCase: {
+      name: "mentionWithBackgroundColor",
+      document: [
+        {
+          type: "paragraph",
+          content: "Paragraph 1",
+        },
+        {
+          type: "paragraph",
+          content: [{ type: "mention", props: { user: "User" } }],
         },
         {
           type: "paragraph",

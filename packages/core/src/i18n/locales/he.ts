@@ -172,6 +172,12 @@ export const he: Dictionary = {
       aliases: ["emoji", "emote", "emotion", "face"],
       group: "אחר",
     },
+    divider: {
+      title: "מחיצה",
+      subtext: "מחיצה בין בלוקים",
+      aliases: ["divider", "hr", "horizontal rule"],
+      group: "בלוקים בסיסיים",
+    },
   },
   placeholders: {
     default: "הזן טקסט או הקלד '/' לפקודות",

@@ -151,6 +151,10 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
           },
           content: "Check List Item 2",
         },
+        {
+          type: "toggleListItem",
+          content: "Toggle List Item 1",
+        },
       ],
     },
     executeTest: testExportBlockNoteHTML,
@@ -185,6 +189,12 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
                     checked: true,
                   },
                   content: "Check List Item 2",
+                  children: [
+                    {
+                      type: "toggleListItem",
+                      content: "Toggle List Item 1",
+                    },
+                  ],
                 },
               ],
             },
@@ -238,6 +248,17 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
           type: "codeBlock",
           props: { language: "javascript" },
           content: "const hello = 'world';\nconsole.log(hello);\n",
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "divider/basic",
+      content: [
+        {
+          type: "divider",
         },
       ],
     },
@@ -1631,6 +1652,34 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
   },
   {
     testCase: {
+      name: "image",
+      content: [
+        {
+          type: "image",
+          props: {
+            url: "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png",
+          },
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "video",
+      content: [
+        {
+          type: "video",
+          props: {
+            url: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm",
+          },
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
       name: "inlineContent/mentionWithToExternalHTML",
       content: [
         {
@@ -1663,6 +1712,18 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
               content: "BlockNote",
             },
           ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "custom-blocks/simpleCustomParagraph",
+      content: [
+        {
+          type: "simpleCustomParagraph",
+          content: "Simple Custom Paragraph",
         },
       ],
     },

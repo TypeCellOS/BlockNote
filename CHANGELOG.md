@@ -1,3 +1,32 @@
+## 0.41.1 (2025-10-09)
+
+This was a version bump only, there were no code changes.
+
+## 0.41.0 (2025-10-08)
+
+### 🚀 Features
+
+- AI menu auto scrolling ([#2039](https://github.com/TypeCellOS/BlockNote/pull/2039))
+- Shortcut to delete empty table while cells are selected ([#2052](https://github.com/TypeCellOS/BlockNote/pull/2052))
+- **divider:** add a divider block ([#2014](https://github.com/TypeCellOS/BlockNote/pull/2014))
+
+### 🩹 Fixes
+
+- Code block language select value not updating properly ([#2050](https://github.com/TypeCellOS/BlockNote/pull/2050))
+- disable input rules for numbered headings #1789 ([#2032](https://github.com/TypeCellOS/BlockNote/pull/2032), [#1789](https://github.com/TypeCellOS/BlockNote/issues/1789))
+- video parsing and export for markdown ([#1955](https://github.com/TypeCellOS/BlockNote/pull/1955))
+- Reaction picker shown for users who can't react ([#2061](https://github.com/TypeCellOS/BlockNote/pull/2061))
+- Add Mantine dependency to individual examples ([#2070](https://github.com/TypeCellOS/BlockNote/pull/2070))
+- allow listening to `onChange` and other events before the underlying editor is initialized ([#2063](https://github.com/TypeCellOS/BlockNote/pull/2063))
+- toggle and check list item blocks ([#2071](https://github.com/TypeCellOS/BlockNote/pull/2071))
+- added missing fields to implementations in editor schema block specs ([#2046](https://github.com/TypeCellOS/BlockNote/pull/2046))
+
+### ❤️ Thank You
+
+- Héctor Zhuang @Hector-Zhuang
+- Matthew Lipski @matthewlipski
+- Nick Perez
+
 ## 0.40.0 (2025-09-30)
 
 ### 🚀 Features

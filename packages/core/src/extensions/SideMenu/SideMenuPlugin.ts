@@ -738,6 +738,8 @@ export class SideMenuProsemirrorPlugin<
     if (this.view) {
       this.view.isDragOrigin = false;
     }
+
+    this.editor.blur();
   };
   /**
    * Freezes the side menu. When frozen, the side menu will stay

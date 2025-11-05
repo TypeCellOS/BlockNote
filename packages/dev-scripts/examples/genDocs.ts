@@ -167,6 +167,19 @@ async function addDependenciesToExample(project: Project) {
       ...packageJsonObject.devDependencies,
       ...devDependencies,
     };
+    // Change all instances of `@blocknote/*` to `workspace:*`, since we want packages to be installed from the workspace
+    Object.entries(packageJsonObject.dependencies).forEach(([key, value]) => {
+      if (key.startsWith("@blocknote/")) {
+        packageJsonObject.dependencies[key] = "workspace:*";
+      }
+    });
+    Object.entries(packageJsonObject.devDependencies).forEach(
+      ([key, value]) => {
+        if (key.startsWith("@blocknote/")) {
+          packageJsonObject.devDependencies[key] = "workspace:*";
+        }
+      },
+    );
     fs.writeFileSync(packageJson, JSON.stringify(packageJsonObject, null, 2));
   }
 }
