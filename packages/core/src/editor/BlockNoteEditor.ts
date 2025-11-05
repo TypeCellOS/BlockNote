@@ -930,7 +930,7 @@ export class BlockNoteEditor<
       const ret = oldCreateAndFill.apply(this.pmSchema.nodes.doc, args)!;
 
       // create a copy that we can mutate (otherwise, assigning attrs is not safe and corrupts the pm state)
-      const jsonNode = ret.toJSON();
+      const jsonNode = JSON.parse(JSON.stringify(ret.toJSON()));
       jsonNode.content[0].content[0].attrs.id = "initialBlockId";
 
       cache = Node.fromJSON(this.pmSchema, jsonNode);
