@@ -105,7 +105,7 @@
       ],
       "type": "tableContent",
     },
-    "id": "initialBlockId",
+    "id": "2",
     "props": {
       "textColor": "default",
     },

@@ -219,7 +219,7 @@ exports[`Test removeBlocks > Remove all columns in columnList 1`] = `
           {
             "children": [],
             "content": [],
-            "id": "initialBlockId",
+            "id": "1",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -240,7 +240,7 @@ exports[`Test removeBlocks > Remove all columns in columnList 1`] = `
           {
             "children": [],
             "content": [],
-            "id": "initialBlockId",
+            "id": "3",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -250,7 +250,7 @@ exports[`Test removeBlocks > Remove all columns in columnList 1`] = `
           },
         ],
         "content": undefined,
-        "id": "1",
+        "id": "2",
         "props": {
           "width": 1,
         },
