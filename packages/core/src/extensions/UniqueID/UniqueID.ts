@@ -130,18 +130,10 @@ const UniqueID = Extension.create({
   addProseMirrorPlugins() {
     let dragSourceElement: any = null;
     let transformPasted = false;
-    let isFirstCollaborationTransaction = true;
     return [
       new Plugin({
         key: new PluginKey("uniqueID"),
         appendTransaction: (transactions, oldState, newState) => {
-          if (
-            isFirstCollaborationTransaction &&
-            transactions.some((tr) => tr.getMeta("y-sync$"))
-          ) {
-            isFirstCollaborationTransaction = false;
-            return;
-          }
           const docChanges =
             transactions.some((transaction) => transaction.docChanged) &&
             !oldState.doc.eq(newState.doc);
