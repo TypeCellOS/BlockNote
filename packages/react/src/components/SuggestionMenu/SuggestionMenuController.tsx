@@ -3,7 +3,6 @@ import {
   InlineContentSchema,
   StyleSchema,
   SuggestionMenuPlugin,
-  SuggestionMenuState,
   filterSuggestionItems,
 } from "@blocknote/core";
 import {
@@ -13,16 +12,15 @@ import {
   shift,
   size,
 } from "@floating-ui/react";
-import { FC, useCallback, useMemo } from "react";
+import { FC, useEffect, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
-import { useUIElementPositioning } from "../../hooks/useUIElementPositioning.js";
-import { useUIPluginState } from "../../hooks/useUIPluginState.js";
+import { usePlugin, usePluginState } from "../../hooks/usePlugin.js";
+import { GenericPopover } from "../Popovers/GenericPopover.js";
 import { SuggestionMenu } from "./SuggestionMenu.js";
 import { SuggestionMenuWrapper } from "./SuggestionMenuWrapper.js";
 import { getDefaultReactSlashMenuItems } from "./getDefaultReactSlashMenuItems.js";
 import { DefaultReactSuggestionItem, SuggestionMenuProps } from "./types.js";
-import { usePlugin } from "../../hooks/usePlugin.js";
 
 type ArrayElement<A> = A extends readonly (infer T)[] ? T : never;
 
@@ -40,7 +38,7 @@ export function SuggestionMenuController<
     triggerCharacter: string;
     getItems?: GetItemsType;
     minQueryLength?: number;
-    floatingOptions?: Partial<UseFloatingOptions>;
+    floatingUIOptions?: UseFloatingOptions;
   } & (ItemType<GetItemsType> extends DefaultReactSuggestionItem
     ? {
         // can be undefined
@@ -69,7 +67,6 @@ export function SuggestionMenuController<
     minQueryLength,
     onItemClick,
     getItems,
-    floatingOptions,
   } = props;
 
   const onItemClickOrDefault = useMemo(() => {
@@ -93,27 +90,47 @@ export function SuggestionMenuController<
   }, [editor, getItems])!;
 
   const suggestionMenu = usePlugin(SuggestionMenuPlugin);
-
   const callbacks = {
     closeMenu: suggestionMenu.closeMenu,
     clearQuery: suggestionMenu.clearQuery,
   };
 
-  const cb = useCallback(
-    (callback: (state: SuggestionMenuState) => void) => {
-      // TODO remove
-      // return editor.suggestionMenus.onUpdate(triggerCharacter, callback);
-    },
-    [triggerCharacter],
+  useEffect(() => {
+    suggestionMenu.addTriggerCharacter(triggerCharacter);
+  }, [
+    props.triggerCharacter,
+    suggestionMenu,
+    suggestionMenu.store,
+    triggerCharacter,
+  ]);
+
+  const show = usePluginState(SuggestionMenuPlugin, {
+    selector: (state) => state?.show || false,
+  });
+  const referencePos = usePluginState(SuggestionMenuPlugin, {
+    selector: (state) =>
+      (state?.referencePos || new DOMRect()).toJSON() as {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+        top: number;
+        right: number;
+        bottom: number;
+        left: number;
+      },
+  });
+
+  const virtualElement = useMemo(
+    () => ({
+      getBoundingClientRect: () => referencePos,
+    }),
+    [referencePos],
   );
 
-  const state = useUIPluginState(cb);
-
-  const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(
-    state?.show || false,
-    state?.referencePos || null,
-    2000,
-    {
+  const floatingUIOptions = useMemo<UseFloatingOptions>(
+    () => ({
+      open: show,
       placement: "bottom-start",
       middleware: [
         offset(10),
@@ -133,35 +150,28 @@ export function SuggestionMenuController<
           },
         }),
       ],
-      onOpenChange(open) {
-        if (!open) {
-          suggestionMenu.closeMenu();
-        }
-      },
-      ...floatingOptions,
-    },
+      ...props.floatingUIOptions,
+    }),
+    [props.floatingUIOptions, show],
   );
 
   if (
-    !isMounted ||
-    !state ||
-    (!state?.ignoreQueryLength &&
+    !suggestionMenu.store.state ||
+    (!suggestionMenu.store.state.ignoreQueryLength &&
       minQueryLength &&
-      (state.query.startsWith(" ") || state.query.length < minQueryLength))
+      (suggestionMenu.store.state.query.startsWith(" ") ||
+        suggestionMenu.store.state.query.length < minQueryLength))
   ) {
     return null;
   }
 
   return (
-    <div
-      ref={ref}
-      style={style}
-      {...getFloatingProps()}
-      // Prevents editor blurring when clicking the scroll bar.
-      onMouseDown={(e) => e.preventDefault()}
+    <GenericPopover
+      virtualElement={virtualElement}
+      floatingUIOptions={floatingUIOptions}
     >
       <SuggestionMenuWrapper
-        query={state.query}
+        query={suggestionMenu.store.state.query}
         closeMenu={callbacks.closeMenu}
         clearQuery={callbacks.clearQuery}
         getItems={getItemsOrDefault}
@@ -170,6 +180,6 @@ export function SuggestionMenuController<
         }
         onItemClick={onItemClickOrDefault}
       />
-    </div>
+    </GenericPopover>
   );
 }

@@ -1,3 +1,11 @@
+import {
+  CommentsPlugin,
+  FormattingToolbarExtension,
+  SideMenuProsemirrorPlugin,
+  SuggestionMenuPlugin,
+  TableHandlesPlugin,
+} from "@blocknote/core";
+
 import { FloatingComposerController } from "../components/Comments/FloatingComposerController.js";
 import { FloatingThreadController } from "../components/Comments/FloatingThreadController.js";
 import { FilePanelController } from "../components/FilePanel/FilePanelController.js";
@@ -70,24 +78,27 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
 
   return (
     <>
-      {props.formattingToolbar !== false && <FormattingToolbarController />}
+      {editor.getExtension(FormattingToolbarExtension) &&
+        props.formattingToolbar !== false && <FormattingToolbarController />}
       {props.linkToolbar !== false && <LinkToolbarController />}
-      {props.slashMenu !== false && (
-        <SuggestionMenuController triggerCharacter="/" />
-      )}
-      {props.emojiPicker !== false && (
-        <GridSuggestionMenuController
-          triggerCharacter=":"
-          columns={10}
-          minQueryLength={2}
-        />
-      )}
-      {props.sideMenu !== false && <SideMenuController />}
-      {editor.filePanel && props.filePanel !== false && <FilePanelController />}
-      {editor.tableHandles && props.tableHandles !== false && (
-        <TableHandlesController />
-      )}
-      {editor.comments && props.comments !== false && (
+      {editor.getExtension(SuggestionMenuPlugin) &&
+        props.slashMenu !== false && (
+          <SuggestionMenuController triggerCharacter="/" />
+        )}
+      {editor.getExtension(SuggestionMenuPlugin) &&
+        props.emojiPicker !== false && (
+          <GridSuggestionMenuController
+            triggerCharacter=":"
+            columns={10}
+            minQueryLength={2}
+          />
+        )}
+      {editor.getExtension(SideMenuProsemirrorPlugin) &&
+        props.sideMenu !== false && <SideMenuController />}
+      {props.filePanel !== false && <FilePanelController />}
+      {editor.getExtension(TableHandlesPlugin) &&
+        props.tableHandles !== false && <TableHandlesController />}
+      {editor.getExtension(CommentsPlugin) && props.comments !== false && (
         <>
           <FloatingComposerController />
           <FloatingThreadController />
