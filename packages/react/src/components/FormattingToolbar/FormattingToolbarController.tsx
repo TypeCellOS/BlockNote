@@ -4,7 +4,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { UseFloatingOptions, flip, offset, shift } from "@floating-ui/react";
+import { Middleware, UseFloatingOptions, flip, offset, shift } from "@floating-ui/react";
 import { isEventTargetWithin } from "@floating-ui/react/utils";
 import { FC, useMemo, useRef, useState } from "react";
 
@@ -34,6 +34,13 @@ const textAlignmentToPlacement = (
 export const FormattingToolbarController = (props: {
   formattingToolbar?: FC<FormattingToolbarProps>;
   floatingOptions?: Partial<UseFloatingOptions>;
+  /**
+   * Custom Floating UI middleware for positioning the toolbar.
+   * If not provided, defaults to [offset(10), shift(), flip()].
+   * Useful for customizing toolbar behavior on mobile devices.
+   * Can also be provided via floatingOptions.middleware.
+   */
+  middleware?: Middleware[];
 }) => {
   const divRef = useRef<HTMLDivElement>(null);
 
@@ -81,7 +88,7 @@ export const FormattingToolbarController = (props: {
     3000,
     {
       placement,
-      middleware: [offset(10), shift(), flip()],
+      middleware: props.middleware || props.floatingOptions?.middleware || [offset(10), shift(), flip()],
       onOpenChange: (open, _event) => {
         // console.log("change", event);
         if (!open) {
