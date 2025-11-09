@@ -49,8 +49,6 @@ export const CreateLinkButton = () => {
   const state = useEditorState({
     editor,
     selector: ({ editor }) => {
-      setShowPopover(false);
-
       // Do not show if:
       if (
         // The editor is read-only.

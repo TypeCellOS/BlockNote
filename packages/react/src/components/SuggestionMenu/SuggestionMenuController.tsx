@@ -167,19 +167,21 @@ export function SuggestionMenuController<
 
   return (
     <GenericPopover
-      virtualElement={virtualElement}
+      positionReference={virtualElement}
       floatingUIOptions={floatingUIOptions}
     >
-      <SuggestionMenuWrapper
-        query={suggestionMenu.store.state.query}
-        closeMenu={callbacks.closeMenu}
-        clearQuery={callbacks.clearQuery}
-        getItems={getItemsOrDefault}
-        suggestionMenuComponent={
-          suggestionMenuComponent || SuggestionMenu<ItemType<GetItemsType>>
-        }
-        onItemClick={onItemClickOrDefault}
-      />
+      {triggerCharacter && (
+        <SuggestionMenuWrapper
+          query={suggestionMenu.store.state.query}
+          closeMenu={callbacks.closeMenu}
+          clearQuery={callbacks.clearQuery}
+          getItems={getItemsOrDefault}
+          suggestionMenuComponent={
+            suggestionMenuComponent || SuggestionMenu<ItemType<GetItemsType>>
+          }
+          onItemClick={onItemClickOrDefault}
+        />
+      )}
     </GenericPopover>
   );
 }

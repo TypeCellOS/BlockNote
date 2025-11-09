@@ -1,42 +1,34 @@
 import { FilePanelPlugin } from "@blocknote/core";
 import { UseFloatingOptions, flip, offset } from "@floating-ui/react";
-import { FC, useCallback, useMemo } from "react";
+import { FC, useMemo } from "react";
 
 import { FilePanel } from "./FilePanel.js";
 import { FilePanelProps } from "./FilePanelProps.js";
 import { BlockPopover } from "../Popovers/BlockPopover.js";
-import { usePlugin, usePluginState } from "../../hooks/usePlugin.js";
+import { usePluginState } from "../../hooks/usePlugin.js";
 
 export const FilePanelController = (props: {
   filePanel?: FC<FilePanelProps>;
   floatingUIOptions?: UseFloatingOptions;
 }) => {
-  const filePanel = usePlugin(FilePanelPlugin);
-  const state = usePluginState(FilePanelPlugin, {
-    selector: (state) => {
-      return {
-        blockId: state.blockId || filePanel.store.prevState.blockId,
-        show: state.blockId !== undefined,
-      };
-    },
+  const blockId = usePluginState(FilePanelPlugin, {
+    selector: (state) => state.blockId,
   });
-
-  const getBlockId = useCallback(() => state.blockId, [state.blockId]);
 
   const floatingUIOptions = useMemo<UseFloatingOptions>(
     () => ({
-      open: state.show,
+      open: blockId !== undefined,
       middleware: [offset(10), flip()],
       ...props.floatingUIOptions,
     }),
-    [props.floatingUIOptions, state.show],
+    [blockId, props.floatingUIOptions],
   );
 
   const Component = props.filePanel || FilePanel;
 
   return (
-    <BlockPopover getBlockId={getBlockId} floatingUIOptions={floatingUIOptions}>
-      {state.blockId && <Component blockId={state.blockId} />}
+    <BlockPopover blockId={blockId} floatingUIOptions={floatingUIOptions}>
+      {blockId && <Component blockId={blockId} />}
     </BlockPopover>
   );
 };

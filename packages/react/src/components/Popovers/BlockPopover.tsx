@@ -1,4 +1,4 @@
-import { BlockNoteEditor, getNodeById } from "@blocknote/core";
+import { getNodeById } from "@blocknote/core";
 import { posToDOMRect } from "@tiptap/core";
 import { useMemo, useRef } from "react";
 
@@ -9,23 +9,22 @@ import { FloatingUIPopoverProps } from "./util/FloatingUIPopoverProps.js";
 
 export const BlockPopover = (
   props: FloatingUIPopoverProps & {
-    getBlockId: (editor: BlockNoteEditor<any, any, any>) => string | undefined;
+    blockId: string | undefined;
     placement?: "before" | "after" | "across";
   },
 ) => {
-  const { getBlockId, placement, floatingUIOptions, elementProps, children } =
+  const { blockId, placement, floatingUIOptions, elementProps, children } =
     props;
 
   const editor = useBlockNoteEditor<any, any, any>();
 
-  // Store the current `boundingClientRect` to use in case `getBlockId` returns
-  // `undefined`.
+  // Stores the last created `boundingClientRect` to use in case `blockId` is
+  // not defined.
   const boundingClientRect = useRef<DOMRect>(new DOMRect());
   const virtualElement = useMemo(
     () => ({
       getBoundingClientRect: () => {
         return editor.transact((tr) => {
-          const blockId = getBlockId(editor);
           if (!blockId) {
             return boundingClientRect.current;
           }
@@ -59,18 +58,13 @@ export const BlockPopover = (
           return boundingClientRect.current;
         });
       },
-      // contextElement:
-      //   // TODO should not need to know the DOM structure here
-      //   editor.prosemirrorView.dom.querySelector(
-      //     `[data-id="${props.blockId}"]`,
-      //   ) || editor.prosemirrorView.dom,
     }),
-    [getBlockId, editor, placement],
+    [editor, blockId, placement],
   );
 
   return (
     <GenericPopover
-      virtualElement={virtualElement}
+      positionReference={virtualElement}
       floatingUIOptions={floatingUIOptions}
       elementProps={elementProps}
     >

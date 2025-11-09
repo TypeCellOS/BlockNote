@@ -1,4 +1,3 @@
-import { BlockNoteEditor } from "@blocknote/core";
 import { posToDOMRect } from "@tiptap/core";
 import { useMemo, useRef } from "react";
 
@@ -9,50 +8,41 @@ import { FloatingUIPopoverProps } from "./util/FloatingUIPopoverProps.js";
 
 export const PositionPopover = (
   props: FloatingUIPopoverProps & {
-    getPosition: (editor: BlockNoteEditor<any, any, any>) =>
-      | {
-          from: number;
-          to?: number;
-        }
-      | undefined;
+    position: { from: number; to?: number } | undefined;
   },
 ) => {
-  const { getPosition, floatingUIOptions, elementProps, children } = props;
+  const { position, floatingUIOptions, elementProps, children } = props;
 
   const editor = useBlockNoteEditor<any, any, any>();
 
-  // Store the current `boundingClientRect` to use in case `getPosition`
-  // returns `undefined`.
+  // Stores the last created `boundingClientRect` to use in case `position` is
+  // not defined.
   const boundingClientRect = useRef<DOMRect>(new DOMRect());
   const virtualElement = useMemo(
     () => ({
       getBoundingClientRect: () => {
-        const range = getPosition(editor);
-        if (!range) {
-          throw new Error(
-            "getPosition returned undefined while popover is open.",
-          );
+        if (!position) {
+          return boundingClientRect.current;
         }
 
         // Flatten to JSON to avoid re-renders.
         boundingClientRect.current = flattenDOMRect(
           posToDOMRect(
             editor.prosemirrorView,
-            range.from,
-            range.to ?? range.from,
+            position.from,
+            position.to ?? position.from,
           ),
         );
 
         return boundingClientRect.current;
       },
-      // contextElement: editor.prosemirrorView.dom,
     }),
-    [editor, getPosition],
+    [editor, position],
   );
 
   return (
     <GenericPopover
-      virtualElement={virtualElement}
+      positionReference={virtualElement}
       floatingUIOptions={floatingUIOptions}
       elementProps={elementProps}
     >

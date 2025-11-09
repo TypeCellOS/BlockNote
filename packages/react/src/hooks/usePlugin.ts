@@ -46,7 +46,7 @@ export function usePluginState<
 >(
   plugin: T,
   ctx?: {
-    editor?: BlockNoteEditor;
+    editor?: BlockNoteEditor<any, any, any>;
     selector?: (state: NoInfer<ExtractStore<TStore>>) => TSelected;
   },
 ): TSelected {

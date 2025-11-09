@@ -4,7 +4,6 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { useState } from "react";
 import { RiImageEditFill } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
@@ -23,13 +22,9 @@ export const FileReplaceButton = () => {
     StyleSchema
   >();
 
-  const [showPopover, setShowPopover] = useState(false);
-
   const state = useEditorState({
     editor,
     selector: ({ editor }) => {
-      setShowPopover(false);
-
       if (!editor.isEditable) {
         return undefined;
       }
@@ -61,12 +56,10 @@ export const FileReplaceButton = () => {
   }
 
   return (
-    <Components.Generic.Popover.Root opened={showPopover} position={"bottom"}>
+    <Components.Generic.Popover.Root position={"bottom"}>
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button
           className={"bn-button"}
-          onClick={() => setShowPopover((showPopover) => !showPopover)}
-          isSelected={showPopover}
           mainTooltip={
             dict.formatting_toolbar.file_replace.tooltip[state.blockType] ||
             dict.formatting_toolbar.file_replace.tooltip["file"]

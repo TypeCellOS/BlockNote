@@ -1,6 +1,5 @@
 import {
   blockHasType,
-  BlockNoteEditor,
   BlockSchema,
   defaultProps,
   DefaultProps,
@@ -9,7 +8,7 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import { UseFloatingOptions, flip, offset, shift } from "@floating-ui/react";
-import { FC, useCallback, useMemo } from "react";
+import { FC, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../hooks/useEditorState.js";
@@ -37,23 +36,27 @@ export const FormattingToolbarController = (props: {
   formattingToolbar?: FC<FormattingToolbarProps>;
   floatingUIOptions?: UseFloatingOptions;
 }) => {
-  const show = usePluginState(FormattingToolbarExtension, {
-    selector: (state) => state.show,
-  });
-
-  const getPosition = useCallback(
-    (editor: BlockNoteEditor<any, any, any>) => ({
-      from: editor.prosemirrorState.selection.from,
-      to: editor.prosemirrorState.selection.to,
-    }),
-    [],
-  );
-
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
     StyleSchema
   >();
+
+  const show = usePluginState(FormattingToolbarExtension, {
+    editor,
+    selector: (state) => state.show,
+  });
+
+  const position = useEditorState({
+    editor,
+    selector: ({ editor }) =>
+      show
+        ? {
+            from: editor.prosemirrorState.selection.from,
+            to: editor.prosemirrorState.selection.to,
+          }
+        : undefined,
+  });
 
   const placement = useEditorState({
     editor,
@@ -85,11 +88,8 @@ export const FormattingToolbarController = (props: {
   const Component = props.formattingToolbar || FormattingToolbar;
 
   return (
-    <PositionPopover
-      getPosition={getPosition}
-      floatingUIOptions={floatingUIOptions}
-    >
-      <Component />
+    <PositionPopover position={position} floatingUIOptions={floatingUIOptions}>
+      {show && <Component />}
     </PositionPopover>
   );
 };

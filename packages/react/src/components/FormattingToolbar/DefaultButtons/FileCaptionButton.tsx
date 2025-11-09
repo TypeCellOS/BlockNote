@@ -5,7 +5,13 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
+import {
+  ChangeEvent,
+  KeyboardEvent,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { RiInputField } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
@@ -22,8 +28,6 @@ export const FileCaptionButton = () => {
     InlineContentSchema,
     StyleSchema
   >();
-
-  const [currentEditingCaption, setCurrentEditingCaption] = useState<string>();
 
   const state = useEditorState({
     editor,
@@ -51,7 +55,6 @@ export const FileCaptionButton = () => {
         return undefined;
       }
 
-      setCurrentEditingCaption(block.props.caption);
       return {
         blockId: block.id,
         blockType: block.type,
@@ -59,6 +62,21 @@ export const FileCaptionButton = () => {
       };
     },
   });
+
+  const [currentEditingCaption, setCurrentEditingCaption] = useState<string>();
+
+  useEffect(() => {
+    if (!state) {
+      return;
+    }
+    setCurrentEditingCaption(state.caption);
+  }, [state]);
+
+  const handleChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) =>
+      setCurrentEditingCaption(event.currentTarget.value),
+    [],
+  );
 
   const handleEnter = useCallback(
     (event: KeyboardEvent) => {
@@ -80,12 +98,6 @@ export const FileCaptionButton = () => {
     [currentEditingCaption, editor, state],
   );
 
-  const handleChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) =>
-      setCurrentEditingCaption(event.currentTarget.value),
-    [],
-  );
-
   if (state === undefined) {
     return null;
   }
@@ -98,7 +110,6 @@ export const FileCaptionButton = () => {
           label={dict.formatting_toolbar.file_caption.tooltip}
           mainTooltip={dict.formatting_toolbar.file_caption.tooltip}
           icon={<RiInputField />}
-          isSelected={state.caption !== ""}
         />
       </Components.Generic.Popover.Trigger>
       <Components.Generic.Popover.Content

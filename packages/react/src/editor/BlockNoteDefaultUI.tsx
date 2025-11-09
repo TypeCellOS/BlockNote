@@ -96,8 +96,8 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
       {editor.getExtension(SideMenuProsemirrorPlugin) &&
         props.sideMenu !== false && <SideMenuController />}
       {props.filePanel !== false && <FilePanelController />}
-      {editor.getExtension(TableHandlesPlugin) &&
-        props.tableHandles !== false && <TableHandlesController />}
+      {/* {editor.getExtension(TableHandlesPlugin) &&
+        props.tableHandles !== false && <TableHandlesController />} */}
       {editor.getExtension(CommentsPlugin) && props.comments !== false && (
         <>
           <FloatingComposerController />

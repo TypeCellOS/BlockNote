@@ -5,7 +5,13 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
+import {
+  ChangeEvent,
+  KeyboardEvent,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { RiFontFamily } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
@@ -22,8 +28,6 @@ export const FileRenameButton = () => {
     InlineContentSchema,
     StyleSchema
   >();
-
-  const [currentEditingName, setCurrentEditingName] = useState<string>();
 
   const state = useEditorState({
     editor,
@@ -51,7 +55,6 @@ export const FileRenameButton = () => {
         return undefined;
       }
 
-      setCurrentEditingName(block.props.name);
       return {
         blockId: block.id,
         blockType: block.type,
@@ -59,6 +62,21 @@ export const FileRenameButton = () => {
       };
     },
   });
+
+  const [currentEditingName, setCurrentEditingName] = useState<string>();
+
+  useEffect(() => {
+    if (!state) {
+      return;
+    }
+    setCurrentEditingName(state.name);
+  }, [state]);
+
+  const handleChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) =>
+      setCurrentEditingName(event.currentTarget.value),
+    [],
+  );
 
   const handleEnter = useCallback(
     (event: KeyboardEvent) => {
@@ -78,12 +96,6 @@ export const FileRenameButton = () => {
       }
     },
     [currentEditingName, editor, state],
-  );
-
-  const handleChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) =>
-      setCurrentEditingName(event.currentTarget.value),
-    [],
   );
 
   if (state === undefined) {
