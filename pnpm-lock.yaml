@@ -3635,15 +3635,18 @@ importers:
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.0)
-      '@y-sweet/react':
-        specifier: ^0.6.3
-        version: 0.6.4(react@19.2.0)(yjs@13.6.27)
       react:
         specifier: ^19.2.0
         version: 19.2.0
       react-dom:
         specifier: ^19.2.0
         version: 19.2.0(react@19.2.0)
+      y-partykit:
+        specifier: ^0.0.25
+        version: 0.0.25
+      yjs:
+        specifier: ^13.6.27
+        version: 13.6.27
     devDependencies:
       '@types/react':
         specifier: ^19.2.2

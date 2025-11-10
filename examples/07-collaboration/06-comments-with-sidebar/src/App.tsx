@@ -12,8 +12,9 @@ import {
   ThreadsSidebar,
   useCreateBlockNote,
 } from "@blocknote/react";
-import { YDocProvider, useYDoc, useYjsProvider } from "@y-sweet/react";
 import { useMemo, useState } from "react";
+import YPartyKitProvider from "y-partykit/provider";
+import * as Y from "yjs";
 
 import { SettingsSelect } from "./SettingsSelect";
 import { HARDCODED_USERS, MyUserType, getRandomColor } from "./userdata";
@@ -31,23 +32,19 @@ async function resolveUsers(userIds: string[]) {
   return HARDCODED_USERS.filter((user) => userIds.includes(user.id));
 }
 
+// Sets up Yjs document and PartyKit Yjs provider.
+const doc = new Y.Doc();
+const provider = new YPartyKitProvider(
+  "blocknote-dev.yousefed.partykit.dev",
+  // Use a unique name as a "room" for your application.
+  "comments-with-sidebar",
+  doc,
+);
+
 // This follows the Y-Sweet example to setup a collabotive editor
 // (but of course, you also use other collaboration providers
 // see the docs for more information)
 export default function App() {
-  const docId = "my-blocknote-document-with-comments-2";
-
-  return (
-    <YDocProvider
-      docId={docId}
-      authEndpoint="https://demos.y-sweet.dev/api/auth"
-    >
-      <Document />
-    </YDocProvider>
-  );
-}
-
-function Document() {
   const [activeUser, setActiveUser] = useState<MyUserType>(HARDCODED_USERS[0]);
   const [commentFilter, setCommentFilter] = useState<
     "open" | "resolved" | "all"
@@ -55,11 +52,6 @@ function Document() {
   const [commentSort, setCommentSort] = useState<
     "position" | "recent-activity" | "oldest"
   >("position");
-
-  const provider = useYjsProvider();
-
-  // take the Y.Doc collaborative document from Y-Sweet
-  const doc = useYDoc();
 
   // setup the thread store which stores / and syncs thread / comment data
   const threadStore = useMemo(() => {
