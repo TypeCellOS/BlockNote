@@ -3,26 +3,26 @@
     "location": {
       "anchor": {
         "id": "1",
-        "offset": 3
+        "offset": 50
       },
       "head": {
-        "id": "1",
-        "offset": 65
+        "id": "2",
+        "offset": 44
       }
     },
-    "anchor": 6,
-    "head": 68,
-    "from": 6,
-    "to": 68
+    "anchor": 53,
+    "head": 143,
+    "from": 53,
+    "to": 143
   },
   "range": {
     "anchor": {
       "id": "1",
-      "offset": 3
+      "offset": 50
     },
     "head": {
-      "id": "1",
-      "offset": 65
+      "id": "2",
+      "offset": 44
     }
   },
   "blocks": [
@@ -46,7 +46,7 @@
                 "content": [
                   {
                     "type": "text",
-                    "text": "Table Cell 1",
+                    "text": "First Table Cell 1",
                     "styles": {}
                   }
                 ],
@@ -63,7 +63,7 @@
                 "content": [
                   {
                     "type": "text",
-                    "text": "Table Cell 2",
+                    "text": "First Table Cell 2",
                     "styles": {}
                   }
                 ],
@@ -84,7 +84,7 @@
                 "content": [
                   {
                     "type": "text",
-                    "text": "Table Cell 3",
+                    "text": "First Table Cell 3",
                     "styles": {}
                   }
                 ],
@@ -101,7 +101,100 @@
                 "content": [
                   {
                     "type": "text",
-                    "text": "Table Cell 4",
+                    "text": "First Table Cell 4",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "children": []
+    },
+    {
+      "id": "2",
+      "type": "table",
+      "props": {
+        "textColor": "default"
+      },
+      "content": {
+        "type": "tableContent",
+        "columnWidths": [
+          null,
+          null
+        ],
+        "rows": [
+          {
+            "cells": [
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Second Table Cell 1",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              },
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Second Table Cell 2",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Second Table Cell 3",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              },
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Second Table Cell 4",
                     "styles": {}
                   }
                 ],
@@ -141,7 +234,7 @@
                 "content": [
                   {
                     "type": "text",
-                    "text": "Table Cell 1",
+                    "text": "irst Table Cell 3",
                     "styles": {}
                   }
                 ],
@@ -158,7 +251,7 @@
                 "content": [
                   {
                     "type": "text",
-                    "text": "Table Cell 2",
+                    "text": "First Table Cell 4",
                     "styles": {}
                   }
                 ],
@@ -171,7 +264,24 @@
                 }
               }
             ]
-          },
+          }
+        ]
+      },
+      "children": []
+    },
+    {
+      "id": "2",
+      "type": "table",
+      "props": {
+        "textColor": "default"
+      },
+      "content": {
+        "type": "tableContent",
+        "columnWidths": [
+          null,
+          null
+        ],
+        "rows": [
           {
             "cells": [
               {
@@ -179,7 +289,7 @@
                 "content": [
                   {
                     "type": "text",
-                    "text": "Table Cell 3",
+                    "text": "Second Table Cell 1",
                     "styles": {}
                   }
                 ],
@@ -196,7 +306,7 @@
                 "content": [
                   {
                     "type": "text",
-                    "text": "Table Cell 4",
+                    "text": "Second Table Cell ",
                     "styles": {}
                   }
                 ],

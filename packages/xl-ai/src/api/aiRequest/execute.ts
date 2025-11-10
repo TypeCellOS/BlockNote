@@ -35,16 +35,14 @@ export function buildAIRequest(opts: {
       ? cursorBlock.id
       : undefined;
 
-  const selectionInfo = useSelection
-    ? opts.editor.getSelectionCutBlocks()
-    : undefined;
+  const selectionInfo = useSelection ? opts.editor.getSelection() : undefined;
 
   const streamTools = streamToolsProvider.getStreamTools(
     opts.editor,
     selectionInfo
       ? {
-          from: selectionInfo._meta.startPos,
-          to: selectionInfo._meta.endPos,
+          from: selectionInfo.meta.from,
+          to: selectionInfo.meta.to,
         }
       : undefined,
     opts.onBlockUpdated,
@@ -54,7 +52,7 @@ export function buildAIRequest(opts: {
     editor: opts.editor,
     chat: opts.chat,
     userPrompt: opts.userPrompt,
-    selectedBlocks: selectionInfo?.blocks,
+    selectedBlocks: selectionInfo?.content,
     streamTools,
     emptyCursorBlockToDelete,
   };

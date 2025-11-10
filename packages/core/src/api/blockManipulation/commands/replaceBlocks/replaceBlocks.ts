@@ -2,7 +2,6 @@ import type { Node } from "prosemirror-model";
 import type { Transaction } from "prosemirror-state";
 import type { Block, PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import type {
-  BlockIdentifier,
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
@@ -10,6 +9,8 @@ import type {
 import { blockToNode } from "../../../nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getPmSchema } from "../../../pmUtil.js";
+import { Location } from "../../../../locations/types.js";
+import { getBlockRange } from "../../../../locations/utils.js";
 
 export function removeAndInsertBlocks<
   BSchema extends BlockSchema,
@@ -17,7 +18,7 @@ export function removeAndInsertBlocks<
   S extends StyleSchema,
 >(
   tr: Transaction,
-  blocksToRemove: BlockIdentifier[],
+  blocksToRemove: Location[],
   blocksToInsert: PartialBlock<BSchema, I, S>[],
 ): {
   insertedBlocks: Block<BSchema, I, S>[];
@@ -30,17 +31,12 @@ export function removeAndInsertBlocks<
     blockToNode(block, pmSchema),
   );
 
+  const [insertionBlockId] = getBlockRange(blocksToRemove[0]);
   const idsOfBlocksToRemove = new Set<string>(
-    blocksToRemove.map((block) =>
-      typeof block === "string" ? block : block.id,
-    ),
+    blocksToRemove.flatMap((block) => getBlockRange(block)),
   );
   const removedBlocks: Block<BSchema, I, S>[] = [];
 
-  const idOfFirstBlock =
-    typeof blocksToRemove[0] === "string"
-      ? blocksToRemove[0]
-      : blocksToRemove[0].id;
   let removedSize = 0;
 
   tr.doc.descendants((node, pos) => {
@@ -61,7 +57,7 @@ export function removeAndInsertBlocks<
     removedBlocks.push(nodeToBlock(node, pmSchema));
     idsOfBlocksToRemove.delete(node.attrs.id);
 
-    if (blocksToInsert.length > 0 && node.attrs.id === idOfFirstBlock) {
+    if (blocksToInsert.length > 0 && node.attrs.id === insertionBlockId) {
       const oldDocSize = tr.doc.nodeSize;
       tr.insert(pos, nodesToInsert);
       const newDocSize = tr.doc.nodeSize;

@@ -12,4 +12,8 @@ export type TextCursorPositionTestCase<
 > = {
   name: string;
   document: PartialBlock<B, I, S>[];
+  rangeConfig?: {
+    anchor: { id: string; offset: number };
+    head: { id: string; offset: number };
+  };
 };

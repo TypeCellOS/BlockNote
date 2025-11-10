@@ -1,9 +1,126 @@
 {
-  "_meta": {
-    "startPos": 0,
-    "endPos": 20
+  "meta": {
+    "location": {
+      "anchor": {
+        "id": "1",
+        "offset": 2
+      },
+      "head": {
+        "id": "1",
+        "offset": 16
+      }
+    },
+    "anchor": 5,
+    "head": 19,
+    "from": 5,
+    "to": 19
+  },
+  "range": {
+    "anchor": {
+      "id": "1",
+      "offset": 2
+    },
+    "head": {
+      "id": "1",
+      "offset": 16
+    }
   },
   "blocks": [
+    {
+      "id": "1",
+      "type": "table",
+      "props": {
+        "textColor": "default"
+      },
+      "content": {
+        "type": "tableContent",
+        "columnWidths": [
+          null,
+          null
+        ],
+        "rows": [
+          {
+            "cells": [
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Table Cell 1",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              },
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Table Cell 2",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Table Cell 3",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              },
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Table Cell 4",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "children": []
+    }
+  ],
+  "content": [
     {
       "id": "1",
       "type": "table",
@@ -41,6 +158,5 @@
       },
       "children": []
     }
-  ],
-  "blockCutAtEnd": "1"
+  ]
 }

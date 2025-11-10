@@ -1,27 +1,26 @@
+import { isNodeSelection, posToDOMRect } from "@tiptap/core";
 import {
   getSelection,
-  getSelectionCutBlocks,
   setSelection,
 } from "../../api/blockManipulation/selections/selection.js";
 import {
   getTextCursorPosition,
   setTextCursorPosition,
 } from "../../api/blockManipulation/selections/textCursorPosition.js";
-import { isNodeSelection, posToDOMRect } from "@tiptap/core";
-import {
-  BlockIdentifier,
-  BlockSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "../../schema/index.js";
 import {
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
 } from "../../blocks/defaultBlocks.js";
-import { Selection } from "../selectionTypes.js";
-import { TextCursorPosition } from "../cursorPositionTypes.js";
+import { Location } from "../../locations/types.js";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../schema/index.js";
 import { BlockNoteEditor } from "../BlockNoteEditor.js";
+import { TextCursorPosition } from "../cursorPositionTypes.js";
+import { Selection } from "../selectionTypes.js";
 
 export class SelectionManager<
   BSchema extends BlockSchema = DefaultBlockSchema,
@@ -41,22 +40,11 @@ export class SelectionManager<
   }
 
   /**
-   * Gets a snapshot of the current selection. This contains all blocks (included nested blocks)
-   * that the selection spans across.
-   *
-   * If the selection starts / ends halfway through a block, the returned block will be
-   * only the part of the block that is included in the selection.
-   */
-  public getSelectionCutBlocks() {
-    return this.editor.transact((tr) => getSelectionCutBlocks(tr));
-  }
-
-  /**
    * Sets the selection to a range of blocks.
    * @param startBlock The identifier of the block that should be the start of the selection.
    * @param endBlock The identifier of the block that should be the end of the selection.
    */
-  public setSelection(startBlock: BlockIdentifier, endBlock: BlockIdentifier) {
+  public setSelection(startBlock: Location, endBlock: Location) {
     return this.editor.transact((tr) => setSelection(tr, startBlock, endBlock));
   }
 
@@ -79,7 +67,7 @@ export class SelectionManager<
    * @param placement Whether the text cursor should be placed at the start or end of the block.
    */
   public setTextCursorPosition(
-    targetBlock: BlockIdentifier,
+    targetBlock: Location,
     placement: "start" | "end" = "start",
   ) {
     return this.editor.transact((tr) =>
@@ -91,8 +79,9 @@ export class SelectionManager<
    * Gets the bounding box of the current selection.
    */
   public getSelectionBoundingBox() {
-    if (!this.editor.prosemirrorView) {
-      return undefined;
+    if (!this.editor.headless) {
+      // There is no selection bounding box in headless mode, so we return a dummy DOMRect.
+      return new DOMRect(0, 0, 0, 0);
     }
 
     const { selection } = this.editor.prosemirrorState;

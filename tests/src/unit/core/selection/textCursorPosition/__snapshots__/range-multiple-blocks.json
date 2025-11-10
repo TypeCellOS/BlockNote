@@ -1,0 +1,12 @@
+{
+  "from": {
+    "node": "First paragraph",
+    "parentOffset": 2,
+    "pos": 5,
+  },
+  "to": {
+    "node": "Third paragraph",
+    "parentOffset": 4,
+    "pos": 46,
+  },
+}

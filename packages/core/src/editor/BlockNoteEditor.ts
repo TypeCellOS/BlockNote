@@ -74,6 +74,7 @@ import { updateBlockTr } from "../api/blockManipulation/commands/updateBlock/upd
 import { getBlockInfoFromTransaction } from "../api/getBlockInfoFromPos.js";
 import { blockToNode } from "../api/nodeConversions/blockToNode.js";
 import "../style.css";
+import { Location } from "../locations/types.js";
 
 /**
  * A factory function that returns a BlockNoteExtension
@@ -1276,7 +1277,7 @@ export class BlockNoteEditor<
    * @param placement Whether the text cursor should be placed at the start or end of the block.
    */
   public setTextCursorPosition(
-    targetBlock: BlockIdentifier,
+    targetBlock: Location,
     placement: "start" | "end" = "start",
   ) {
     return this._selectionManager.setTextCursorPosition(targetBlock, placement);
@@ -1293,22 +1294,11 @@ export class BlockNoteEditor<
   }
 
   /**
-   * Gets a snapshot of the current selection. This contains all blocks (included nested blocks)
-   * that the selection spans across.
-   *
-   * If the selection starts / ends halfway through a block, the returned block will be
-   * only the part of the block that is included in the selection.
-   */
-  public getSelectionCutBlocks() {
-    return this._selectionManager.getSelectionCutBlocks();
-  }
-
-  /**
    * Sets the selection to a range of blocks.
    * @param startBlock The identifier of the block that should be the start of the selection.
    * @param endBlock The identifier of the block that should be the end of the selection.
    */
-  public setSelection(startBlock: BlockIdentifier, endBlock: BlockIdentifier) {
+  public setSelection(startBlock: Location, endBlock: Location) {
     return this._selectionManager.setSelection(startBlock, endBlock);
   }
 
@@ -1405,9 +1395,15 @@ export class BlockNoteEditor<
    */
   public insertInlineContent(
     content: PartialInlineContent<ISchema, SSchema>,
-    { updateSelection = false }: { updateSelection?: boolean } = {},
+    {
+      updateSelection = false,
+      location,
+    }: { updateSelection?: boolean; location?: Location } = {},
   ) {
-    this._styleManager.insertInlineContent(content, { updateSelection });
+    this._styleManager.insertInlineContent(content, {
+      updateSelection,
+      location,
+    });
   }
 
   /**

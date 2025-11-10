@@ -16,7 +16,23 @@
     },
     "type": "paragraph",
   },
+  "meta": {
+    "location": {
+      "id": "target",
+      "offset": 0,
+    },
+  },
   "nextBlock": undefined,
   "parentBlock": undefined,
   "prevBlock": undefined,
+  "range": {
+    "anchor": {
+      "id": "target",
+      "offset": 0,
+    },
+    "head": {
+      "id": "target",
+      "offset": 0,
+    },
+  },
 }
