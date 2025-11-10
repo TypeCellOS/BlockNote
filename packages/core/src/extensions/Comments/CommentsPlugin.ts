@@ -268,7 +268,7 @@ export class CommentsPlugin extends BlockNoteExtension {
   /**
    * Set the selected thread
    */
-  public selectThread(threadId: string | undefined, scrollToThread = true) {
+  public selectThread(threadId: string | undefined) {
     if (this.selectedThreadId === threadId) {
       return;
     }
@@ -280,7 +280,7 @@ export class CommentsPlugin extends BlockNoteExtension {
       }),
     );
 
-    if (threadId && scrollToThread) {
+    if (threadId) {
       const selectedThreadPosition = this.threadPositions.get(threadId);
 
       if (!selectedThreadPosition) {
@@ -289,11 +289,10 @@ export class CommentsPlugin extends BlockNoteExtension {
 
       // When a new thread is selected, scrolls the page to its reference text in
       // the editor.
-      const node = this.editor.prosemirrorView?.domAtPos(
-        selectedThreadPosition.from,
-      ).node as Element | undefined;
-
-      node?.scrollIntoView({
+      (
+        this.editor.prosemirrorView?.domAtPos(selectedThreadPosition.from)
+          .node as Element | undefined
+      )?.scrollIntoView({
         behavior: "smooth",
         block: "center",
       });
