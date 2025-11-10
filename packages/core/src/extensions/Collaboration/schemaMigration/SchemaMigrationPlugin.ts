@@ -1,5 +1,4 @@
 import { Plugin, PluginKey } from "@tiptap/pm/state";
-import { ySyncPluginKey } from "y-prosemirror";
 import * as Y from "yjs";
 
 import { BlockNoteExtension } from "../../../editor/BlockNoteExtension.js";
@@ -31,8 +30,12 @@ export class SchemaMigrationPlugin extends BlockNoteExtension {
           }
 
           if (
-            transactions.length !== 1 ||
-            !transactions[0].getMeta(ySyncPluginKey)
+            // If any of the transactions are not due to a yjs sync, we don't need to run the migration
+            !transactions.some((tr) => tr.getMeta("y-sync$")) ||
+            // If none of the transactions result in a document change, we don't need to run the migration
+            transactions.every((tr) => !tr.docChanged) ||
+            // If the fragment is still empty, we can't run the migration (since it has not yet been applied to the Y.Doc)
+            !fragment.firstChild
           ) {
             return undefined;
           }
@@ -43,6 +46,10 @@ export class SchemaMigrationPlugin extends BlockNoteExtension {
           }
 
           this.migrationDone = true;
+
+          if (!tr.docChanged) {
+            return undefined;
+          }
 
           return tr;
         },
