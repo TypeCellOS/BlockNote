@@ -245,7 +245,7 @@ export class CommentsPlugin extends BlockNoteExtension {
             );
 
             const threadId = commentMark?.attrs.threadId as string | undefined;
-            self.selectThread(threadId, false);
+            self.selectThread(threadId);
           },
         },
       }),
@@ -289,10 +289,11 @@ export class CommentsPlugin extends BlockNoteExtension {
 
       // When a new thread is selected, scrolls the page to its reference text in
       // the editor.
-      (
-        this.editor.prosemirrorView?.domAtPos(selectedThreadPosition.from)
-          .node as Element | undefined
-      )?.scrollIntoView({
+      const node = this.editor.prosemirrorView?.domAtPos(
+        selectedThreadPosition.from,
+      ).node as Element | undefined;
+
+      node?.scrollIntoView({
         behavior: "smooth",
         block: "center",
       });

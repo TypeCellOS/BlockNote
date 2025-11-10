@@ -88,6 +88,7 @@ function Document() {
   );
 
   return (
+    // <div style={{ height: "1000px", overflow: "scroll", position: "relative" }}>
     <BlockNoteView
       className={"comments-main-container"}
       editor={editor}
@@ -109,5 +110,6 @@ function Document() {
         />
       </div>
     </BlockNoteView>
+    // </div>
   );
 }

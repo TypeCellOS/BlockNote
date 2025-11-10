@@ -45,3 +45,10 @@
   max-height: 200px;
   overflow: auto !important;
 }
+
+/* .bn-editor,
+.bn-container {
+  position: relative;
+  overflow: none !important;
+  height: fit-content;
+} */
