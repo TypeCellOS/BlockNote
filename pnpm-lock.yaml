@@ -4489,8 +4489,8 @@ importers:
         specifier: ^3.7.2
         version: 3.7.2(@tiptap/core@3.10.2(@tiptap/pm@3.10.2))
       '@tiptap/extension-underline':
-        specifier: ^3.7.2
-        version: 3.7.2(@tiptap/core@3.10.2(@tiptap/pm@3.10.2))
+        specifier: ^3.10.5
+        version: 3.10.5(@tiptap/core@3.10.2(@tiptap/pm@3.10.2))
       '@tiptap/pm':
         specifier: ^3.0.0
         version: 3.10.2
@@ -9869,8 +9869,8 @@ packages:
     peerDependencies:
       '@tiptap/core': ^3.0.0
 
-  '@tiptap/extension-underline@3.7.2':
-    resolution: {integrity: sha512-GDpUZllTD7uIdHjTzYJ6i4jUgCeviW40SCpLVVv1xH0gj1t1xu0Rnxmk+bXkF2XNe8jPXkMCgYNr6DR6eO8roQ==}
+  '@tiptap/extension-underline@3.10.5':
+    resolution: {integrity: sha512-2SUQTsD5CYwTAdEFIifGHW/N363B9x5qxdzz2wrzn1mbJB4yG6QKyYY0uAGHmSOeC8iHS8scWDFiU09NlAhoew==}
     peerDependencies:
       '@tiptap/core': ^3.0.0
 
@@ -11414,8 +11414,8 @@ packages:
   electron-to-chromium@1.5.237:
     resolution: {integrity: sha512-icUt1NvfhGLar5lSWH3tHNzablaA5js3HVHacQimfP8ViEBOQv+L7DKEuHdbTZ0SKCO1ogTJTIL1Gwk9S6Qvcg==}
 
-  electron-to-chromium@1.5.245:
-    resolution: {integrity: sha512-rdmGfW47ZhL/oWEJAY4qxRtdly2B98ooTJ0pdEI4jhVLZ6tNf8fPtov2wS1IRKwFJT92le3x4Knxiwzl7cPPpQ==}
+  electron-to-chromium@1.5.249:
+    resolution: {integrity: sha512-5vcfL3BBe++qZ5kuFhD/p8WOM1N9m3nwvJPULJx+4xf2usSlZFJ0qoNYO2fOX4hi3ocuDcmDobtA+5SFr4OmBg==}
 
   emoji-mart@5.6.0:
     resolution: {integrity: sha512-eJp3QRe79pjwa+duv+n7+5YsNhRcMl812EcFVwrnRvYKoNPoQb5qxU8DG6Bgwji0akHdp6D4Ln6tYLG58MFSow==}
@@ -20811,7 +20811,7 @@ snapshots:
     dependencies:
       '@tiptap/core': 3.10.2(@tiptap/pm@3.10.2)
 
-  '@tiptap/extension-underline@3.7.2(@tiptap/core@3.10.2(@tiptap/pm@3.10.2))':
+  '@tiptap/extension-underline@3.10.5(@tiptap/core@3.10.2(@tiptap/pm@3.10.2))':
     dependencies:
       '@tiptap/core': 3.10.2(@tiptap/pm@3.10.2)
 
@@ -22008,7 +22008,7 @@ snapshots:
     dependencies:
       baseline-browser-mapping: 2.8.25
       caniuse-lite: 1.0.30001754
-      electron-to-chromium: 1.5.245
+      electron-to-chromium: 1.5.249
       node-releases: 2.0.27
       update-browserslist-db: 1.1.4(browserslist@4.27.0)
 
@@ -22565,7 +22565,7 @@ snapshots:
 
   electron-to-chromium@1.5.237: {}
 
-  electron-to-chromium@1.5.245: {}
+  electron-to-chromium@1.5.249: {}
 
   emoji-mart@5.6.0: {}
 

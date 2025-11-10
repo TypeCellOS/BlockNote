@@ -92,7 +92,7 @@
     "@tiptap/extension-paragraph": "^3.7.2",
     "@tiptap/extension-strike": "^3.7.2",
     "@tiptap/extension-text": "^3.7.2",
-    "@tiptap/extension-underline": "^3.7.2",
+    "@tiptap/extension-underline": "^3.10.5",
     "@tiptap/pm": "^3.10.2",
     "emoji-mart": "^5.6.0",
     "fast-deep-equal": "^3.1.3",
