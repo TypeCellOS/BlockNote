@@ -1,4 +1,4 @@
 {
   "title": "Editor",
-  "pages": ["overview", "manipulating-content", "cursor-selections", "..."]
+  "pages": ["overview", "manipulating-content", "cursor-selections", "yjs-utilities", "..."]
 }
