@@ -6,7 +6,13 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { UseFloatingOptions, flip, offset, shift } from "@floating-ui/react";
+import {
+  UseFloatingOptions,
+  autoUpdate,
+  flip,
+  offset,
+  shift,
+} from "@floating-ui/react";
 import {
   ComponentProps,
   FC,
@@ -55,6 +61,7 @@ export const FloatingThreadController = <
           editor.focus();
         }
       },
+      whileElementsMounted: autoUpdate,
       ...props.floatingOptions,
     });
 
