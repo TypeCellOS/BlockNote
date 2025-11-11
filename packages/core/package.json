@@ -66,6 +66,11 @@
       "types": "./types/src/i18n/index.d.ts",
       "import": "./dist/locales.js",
       "require": "./dist/locales.cjs"
+    },
+    "./yjs": {
+      "types": "./types/src/yjs/index.d.ts",
+      "import": "./dist/yjs.js",
+      "require": "./dist/yjs.cjs"
     }
   },
   "scripts": {

@@ -21,6 +21,7 @@ export default defineConfig({
         comments: path.resolve(__dirname, "src/comments/index.ts"),
         blocks: path.resolve(__dirname, "src/blocks/index.ts"),
         locales: path.resolve(__dirname, "src/i18n/index.ts"),
+        yjs: path.resolve(__dirname, "src/yjs/index.ts"),
       },
       name: "blocknote",
       formats: ["es", "cjs"],
