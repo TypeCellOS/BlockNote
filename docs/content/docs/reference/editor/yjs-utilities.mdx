@@ -8,6 +8,13 @@ imageTitle: YJS Utilities
 
 The `@blocknote/core/yjs` export provides utilities for converting between BlockNote blocks and YJS collaborative documents. These utilities are useful when you need to work with YJS documents outside of the standard collaboration setup, such as importing existing content or working with YJS documents programmatically.
 
+<Callout type="warning">
+  **Important:** This package is for advanced use cases where you need to
+  convert between BlockNote blocks and YJS documents programmatically. For most
+  use cases, you should use the [collaboration
+  features](/docs/features/collaboration) directly instead.
+</Callout>
+
 ## Import
 
 ```typescript
@@ -16,8 +23,6 @@ import {
   blocksToYXmlFragment,
   yDocToBlocks,
   yXmlFragmentToBlocks,
-  _blocksToProsemirrorNode,
-  _prosemirrorJSONToBlocks,
 } from "@blocknote/core/yjs";
 ```
 
@@ -27,7 +32,6 @@ YJS utilities enable bidirectional conversion between:
 
 - **BlockNote blocks** ↔ **Y.Doc** (YJS document)
 - **BlockNote blocks** ↔ **Y.XmlFragment** (YJS XML fragment)
-- **BlockNote blocks** ↔ **Prosemirror nodes** (intermediate format)
 
 These conversions are essential for:
 
@@ -221,101 +225,6 @@ const fragment = doc.getXmlFragment("my-fragment");
 
 // Convert fragment back to blocks
 const blocks = yXmlFragmentToBlocks(editor, fragment);
-```
-
-## Prosemirror Conversions
-
-### `_blocksToProsemirrorNode`
-
-Converts BlockNote blocks to a Prosemirror node. This is an intermediate conversion step used internally.
-
-```typescript
-function _blocksToProsemirrorNode<
-  BSchema extends BlockSchema,
-  ISchema extends InlineContentSchema,
-  SSchema extends StyleSchema,
->(
-  editor: BlockNoteEditor<BSchema, ISchema, SSchema>,
-  blocks: PartialBlock<BSchema, ISchema, SSchema>[],
-): Node;
-```
-
-**Parameters:**
-
-- `editor` - The BlockNote editor instance
-- `blocks` - Array of blocks to convert
-
-**Returns:** Prosemirror root node
-
-### `_prosemirrorJSONToBlocks`
-
-Converts Prosemirror JSON to BlockNote blocks.
-
-```typescript
-function _prosemirrorJSONToBlocks<
-  BSchema extends BlockSchema,
-  ISchema extends InlineContentSchema,
-  SSchema extends StyleSchema,
->(
-  editor: BlockNoteEditor<BSchema, ISchema, SSchema>,
-  json: any,
-): Block<BSchema, ISchema, SSchema>[];
-```
-
-**Parameters:**
-
-- `editor` - The BlockNote editor instance
-- `json` - Prosemirror JSON object
-
-**Returns:** Array of BlockNote blocks
-
-## Complete Example: Importing Existing Content
-
-Here's a complete example showing how to import existing BlockNote content into a YJS document for collaboration:
-
-```typescript
-import { BlockNoteEditor } from "@blocknote/core";
-import { blocksToYDoc, yDocToBlocks } from "@blocknote/core/yjs";
-import { WebrtcProvider } from "y-webrtc";
-import * as Y from "yjs";
-
-// Create editor
-const editor = BlockNoteEditor.create();
-
-// Existing content you want to import
-const existingBlocks = [
-  {
-    type: "heading",
-    props: { level: 1 },
-    content: "Welcome to Collaboration",
-  },
-  {
-    type: "paragraph",
-    content: "This content will be synced across all users.",
-  },
-];
-
-// Convert blocks to Y.Doc
-const ydoc = blocksToYDoc(editor, existingBlocks);
-
-// Set up collaboration provider
-const provider = new WebrtcProvider("my-room", ydoc);
-
-// Create editor with collaboration
-const collaborativeEditor = BlockNoteEditor.create({
-  collaboration: {
-    provider,
-    fragment: ydoc.getXmlFragment("prosemirror"),
-    user: {
-      name: "User 1",
-      color: "#ff0000",
-    },
-  },
-});
-
-// Later, you can read the content back
-const currentBlocks = yDocToBlocks(editor, ydoc);
-console.log("Current document:", currentBlocks);
 ```
 
 ## Round-trip Conversion
