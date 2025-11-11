@@ -1,11 +1,9 @@
 import { getErrorMessage } from "@ai-sdk/provider-utils";
 import { Chat } from "@ai-sdk/react";
 import { DeepPartial, isToolUIPart, UIMessage } from "ai";
+import { ChunkExecutionError } from "../../ChunkExecutionError.js";
 import { StreamTool, StreamToolCall } from "../../streamTool.js";
-import {
-  ChunkExecutionError,
-  StreamToolExecutor,
-} from "../../StreamToolExecutor.js";
+import { StreamToolExecutor } from "../../StreamToolExecutor.js";
 import { objectStreamToOperationsResult } from "./UIMessageStreamToOperationsResult.js";
 
 /**
@@ -117,6 +115,8 @@ export async function setupToolCallStreaming(
   let error: ChunkExecutionError | undefined;
   if (result.status === "rejected") {
     if (result.reason instanceof ChunkExecutionError) {
+      // all errors thrown in the pipeline should be ChunkExecutionErrors,
+      // so we can retrieve the chunk that caused the error
       error = result.reason;
     } else {
       if (!chat.error) {
