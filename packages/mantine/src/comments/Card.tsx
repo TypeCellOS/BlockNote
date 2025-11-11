@@ -1,11 +1,11 @@
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
-import { ComponentProps, mergeRefs } from "@blocknote/react";
+import { ComponentProps } from "@blocknote/react";
 import {
   Card as MantineCard,
   Divider as MantineDivider,
   Text as MantineText,
 } from "@mantine/core";
-import { forwardRef, useEffect, useRef } from "react";
+import { forwardRef } from "react";
 
 export const Card = forwardRef<
   HTMLDivElement,
@@ -24,24 +24,13 @@ export const Card = forwardRef<
 
   assertEmpty(rest, false);
 
-  // Makes the card scroll into view when selected.
-  const scrollRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (selected) {
-      scrollRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
-    }
-  }, [selected]);
-
   return (
     <MantineCard
       className={mergeCSSClasses(className, selected ? "selected" : "")}
       onFocus={onFocus}
       onBlur={onBlur}
       tabIndex={tabIndex}
-      ref={mergeRefs([ref, scrollRef])}
+      ref={ref}
     >
       {headerText && (
         <MantineText className={"bn-header-text"}>{headerText}</MantineText>

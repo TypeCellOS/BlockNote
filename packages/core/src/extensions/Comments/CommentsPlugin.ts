@@ -275,7 +275,7 @@ export class CommentsPlugin extends BlockNoteExtension {
               })[0]?.mark;
 
             const threadId = commentMark?.attrs.threadId as string | undefined;
-            self.selectThread(threadId, false);
+            self.selectThread(threadId);
           },
         },
       }),
@@ -298,7 +298,7 @@ export class CommentsPlugin extends BlockNoteExtension {
   /**
    * Set the selected thread
    */
-  public selectThread(threadId: string | undefined, scrollToThread = true) {
+  public selectThread(threadId: string | undefined) {
     if (this.selectedThreadId === threadId) {
       return;
     }
@@ -310,7 +310,7 @@ export class CommentsPlugin extends BlockNoteExtension {
       }),
     );
 
-    if (threadId && scrollToThread) {
+    if (threadId) {
       const selectedThreadPosition = this.threadPositions.get(threadId);
 
       if (!selectedThreadPosition) {
