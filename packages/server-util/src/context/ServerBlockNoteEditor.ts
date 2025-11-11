@@ -12,11 +12,11 @@ import {
   blocksToMarkdown,
   createExternalHTMLExporter,
   createInternalHTMLSerializer,
+  docToBlocks,
 } from "@blocknote/core";
 import {
   _blocksToProsemirrorNode as blocksToProsemirrorNodeUtil,
   _prosemirrorJSONToBlocks as prosemirrorJSONToBlocksUtil,
-  _prosemirrorNodeToBlocks as prosemirrorNodeToBlocksUtil,
   blocksToYDoc as blocksToYDocUtil,
   blocksToYXmlFragment as blocksToYXmlFragmentUtil,
   yDocToBlocks as yDocToBlocksUtil,
@@ -102,7 +102,7 @@ export class ServerBlockNoteEditor<
    * @returns BlockNote style JSON
    */
   public _prosemirrorNodeToBlocks(pmNode: Node) {
-    return prosemirrorNodeToBlocksUtil(pmNode);
+    return docToBlocks(pmNode);
   }
 
   /**
