@@ -869,7 +869,7 @@
             Styled Text
           </TEXT>
           <TEXT style={{}}>
-            {' '}
+             
           </TEXT>
           <LINK href="https://www.blocknotejs.org">
             <TEXT style={{}}>
