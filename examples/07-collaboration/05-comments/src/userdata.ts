@@ -16,7 +16,7 @@ const getRandomElement = (list: any[]) =>
 export const getRandomColor = () => getRandomElement(colors);
 
 export type MyUserType = User & {
-  role: "editor" | "comment";
+  role: "editor" | "comment" | "document-only";
 };
 
 export const HARDCODED_USERS: MyUserType[] = [
@@ -43,5 +43,11 @@ export const HARDCODED_USERS: MyUserType[] = [
     username: "Betty Smith",
     avatarUrl: "https://placehold.co/100x100?text=Betty",
     role: "comment",
+  },
+  {
+    id: "5",
+    username: "Donna Document",
+    avatarUrl: "https://placehold.co/100x100?text=Donna",
+    role: "document-only",
   },
 ];

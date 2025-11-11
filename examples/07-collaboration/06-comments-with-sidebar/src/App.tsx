@@ -117,7 +117,11 @@ export default function App() {
               label={"User"}
               items={HARDCODED_USERS.map((user) => ({
                 text: `${user.username} (${
-                  user.role === "editor" ? "Editor" : "Commenter"
+                  user.role === "editor"
+                    ? "Editor"
+                    : user.role === "comment"
+                      ? "Commenter"
+                      : "Content-Only Viewer"
                 })`,
                 icon: null,
                 onClick: () => {

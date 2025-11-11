@@ -181,6 +181,12 @@ export class CommentsPlugin extends BlockNoteExtension {
             if (!tr.docChanged && !action) {
               return state;
             }
+            if (!self.threadStore.auth.canViewComments()) {
+              // if the user doesn't have comment access, don't display the marks in the document
+              return {
+                decorations: DecorationSet.empty,
+              };
+            }
 
             // only update threadPositions if the doc changed
             const threadPositions = tr.docChanged
@@ -229,7 +235,10 @@ export class CommentsPlugin extends BlockNoteExtension {
            * Handle click on a thread mark and mark it as selected
            */
           handleClick: (view, pos, event) => {
-            if (event.button !== 0) {
+            if (
+              event.button !== 0 ||
+              !self.threadStore.auth.canViewComments()
+            ) {
               return;
             }
 
