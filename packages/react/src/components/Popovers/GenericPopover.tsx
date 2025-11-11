@@ -62,9 +62,12 @@ export const GenericPopover = (
         // behaviour.
         innerHTML.current = ref.current.innerHTML;
       }
-      refs.setPositionReference(props.positionReference);
     }
-  }, [props.positionReference, refs, status]);
+  }, [status]);
+
+  useEffect(() => {
+    refs.setPositionReference(props.positionReference);
+  }, [props.positionReference, refs]);
 
   if (!isMounted) {
     return false;

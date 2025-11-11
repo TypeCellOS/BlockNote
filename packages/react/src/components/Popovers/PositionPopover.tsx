@@ -12,6 +12,7 @@ export const PositionPopover = (
   },
 ) => {
   const { position, floatingUIOptions, elementProps, children } = props;
+  const { from, to } = position || {};
 
   const editor = useBlockNoteEditor<any, any, any>();
 
@@ -21,23 +22,19 @@ export const PositionPopover = (
   const virtualElement = useMemo(
     () => ({
       getBoundingClientRect: () => {
-        if (!position) {
+        if (from === undefined || to === undefined) {
           return boundingClientRect.current;
         }
 
         // Flatten to JSON to avoid re-renders.
         boundingClientRect.current = flattenDOMRect(
-          posToDOMRect(
-            editor.prosemirrorView,
-            position.from,
-            position.to ?? position.from,
-          ),
+          posToDOMRect(editor.prosemirrorView, from, to ?? from),
         );
 
         return boundingClientRect.current;
       },
     }),
-    [editor, position],
+    [editor, from, to],
   );
 
   return (
