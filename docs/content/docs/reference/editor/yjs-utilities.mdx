@@ -42,7 +42,8 @@ These conversions are essential for:
 Converts BlockNote blocks into a Y.Doc. This is useful when importing existing content to a Y.Doc for the first time.
 
 <Callout type="warning">
-  **Important:** This should not be used to rehydrate a Y.Doc from a database once collaboration has begun, as all history will be lost.
+  **Important:** This should not be used to rehydrate a Y.Doc from a database
+  once collaboration has begun, as all history will be lost.
 </Callout>
 
 ```typescript
@@ -53,8 +54,8 @@ function blocksToYDoc<
 >(
   editor: BlockNoteEditor<BSchema, ISchema, SSchema>,
   blocks: PartialBlock<BSchema, ISchema, SSchema>[],
-  xmlFragment?: string
-): Y.Doc
+  xmlFragment?: string,
+): Y.Doc;
 ```
 
 **Parameters:**
@@ -105,8 +106,8 @@ function blocksToYXmlFragment<
 >(
   editor: BlockNoteEditor<BSchema, ISchema, SSchema>,
   blocks: Block<BSchema, ISchema, SSchema>[],
-  xmlFragment?: Y.XmlFragment
-): Y.XmlFragment
+  xmlFragment?: Y.XmlFragment,
+): Y.XmlFragment;
 ```
 
 **Parameters:**
@@ -153,8 +154,8 @@ function yDocToBlocks<
 >(
   editor: BlockNoteEditor<BSchema, ISchema, SSchema>,
   ydoc: Y.Doc,
-  xmlFragment?: string
-): Block<BSchema, ISchema, SSchema>[]
+  xmlFragment?: string,
+): Block<BSchema, ISchema, SSchema>[];
 ```
 
 **Parameters:**
@@ -194,8 +195,8 @@ function yXmlFragmentToBlocks<
   SSchema extends StyleSchema,
 >(
   editor: BlockNoteEditor<BSchema, ISchema, SSchema>,
-  xmlFragment: Y.XmlFragment
-): Block<BSchema, ISchema, SSchema>[]
+  xmlFragment: Y.XmlFragment,
+): Block<BSchema, ISchema, SSchema>[];
 ```
 
 **Parameters:**
@@ -235,8 +236,8 @@ function _blocksToProsemirrorNode<
   SSchema extends StyleSchema,
 >(
   editor: BlockNoteEditor<BSchema, ISchema, SSchema>,
-  blocks: PartialBlock<BSchema, ISchema, SSchema>[]
-): Node
+  blocks: PartialBlock<BSchema, ISchema, SSchema>[],
+): Node;
 ```
 
 **Parameters:**
@@ -257,8 +258,8 @@ function _prosemirrorJSONToBlocks<
   SSchema extends StyleSchema,
 >(
   editor: BlockNoteEditor<BSchema, ISchema, SSchema>,
-  json: any
-): Block<BSchema, ISchema, SSchema>[]
+  json: any,
+): Block<BSchema, ISchema, SSchema>[];
 ```
 
 **Parameters:**
@@ -346,5 +347,4 @@ console.log(originalBlocks); // Same structure as convertedBlocks
 
 - [Real-time Collaboration](/docs/features/collaboration) - Learn how to set up collaboration in BlockNote
 - [Manipulating Content](/docs/reference/editor/manipulating-content) - Working with blocks and inline content
-- [Server Utilities](/docs/reference/server-util) - Server-side utilities for BlockNote (uses these YJS utilities internally)
-
+- [Server Processing](/docs/features/server-processing) - Server-side processing for BlockNote (uses these YJS utilities internally)
