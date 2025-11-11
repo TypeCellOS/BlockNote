@@ -12,6 +12,7 @@ import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import { CustomBlockNoteSchema } from "../../schema/schema.js";
 import { UserStore } from "./userstore/UserStore.js";
+import { getMarkRange } from "@tiptap/core";
 
 const PLUGIN_KEY = new PluginKey(`blocknote-comments`);
 const SET_SELECTED_THREAD_ID = "SET_SELECTED_THREAD_ID";
@@ -239,10 +240,39 @@ export class CommentsPlugin extends BlockNoteExtension {
               return;
             }
 
-            const commentMark = node.marks.find(
-              (mark) =>
-                mark.type.name === markType && mark.attrs.orphan !== true,
-            );
+            const markInSchema = view.state.schema.marks[markType];
+            const resolvedPos = view.state.doc.resolve(pos);
+            const commentMark = node.marks
+              .filter(
+                (mark) =>
+                  mark.type.name === markType && mark.attrs.orphan !== true,
+              )
+              .map((mark) => {
+                // get the range of this mark within the document, to check how close it is to the click position
+                const range = getMarkRange(
+                  resolvedPos,
+                  markInSchema,
+                  mark.attrs,
+                )!;
+
+                return {
+                  mark,
+                  // calculate how far the mark is from the click position
+                  distance:
+                    (Math.abs(range.from - pos) + Math.abs(range.to - pos)) / 2,
+                  // calculate the length of text the mark spans
+                  length: range.to - range.from,
+                };
+              })
+              // This allows us to not have comments which are unreachable because they are completely overlapped by other comments (issue #2073)
+              .sort((a, b) => {
+                // Find the mark which is closest to the click position
+                if (a.distance !== b.distance) {
+                  return a.distance - b.distance;
+                }
+                // Otherwise, select the mark which spans the smallest amount of text (most likely to be unreachable)
+                return a.length - b.length;
+              })[0]?.mark;
 
             const threadId = commentMark?.attrs.threadId as string | undefined;
             self.selectThread(threadId, false);
