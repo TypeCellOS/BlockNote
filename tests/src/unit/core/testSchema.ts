@@ -49,6 +49,7 @@ const CustomParagraph = createBlockSpec(
   ),
   {
     parse: (e) => {
+      // TODO: make sure this is needed
       if (e.tagName !== "P") {
         return undefined;
       }

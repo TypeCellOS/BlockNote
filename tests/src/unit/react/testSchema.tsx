@@ -65,7 +65,8 @@ const createContextParagraph = createReactBlockSpec(
   },
 );
 
-// const ComplexAttributeNode = addNodeAndExtensionsToSpec(
+// TODO: enable and test this
+// const ComplexAttributeNode = createReactBlockSpec(
 //   {
 //     type: "advancedComplexAttributeNode",
 //     propSchema: createPropSchemaFromZod(
@@ -82,14 +83,8 @@ const createContextParagraph = createReactBlockSpec(
 //     content: "none",
 //   },
 //   {
-//     render: (block) => {
-//       const paragraph = document.createElement("div");
-//       paragraph.setAttribute("data-user", JSON.stringify(block.props.user));
-
-//       return {
-//         dom: paragraph,
-//         contentDOM: paragraph,
-//       };
+//     render: (props) => {
+//       return <div data-user={JSON.stringify(props.block.props.user)} />;
 //     },
 //   },
 // );
@@ -199,6 +194,7 @@ export const testSchema = BlockNoteSchema.create().extend({
     customParagraph: createCustomParagraph(),
     simpleCustomParagraph: createSimpleCustomParagraph(),
     contextParagraph: createContextParagraph(),
+    advancedComplexAttributeNode: ComplexAttributeNode(),
   },
   inlineContentSpecs: {
     mention: Mention,
