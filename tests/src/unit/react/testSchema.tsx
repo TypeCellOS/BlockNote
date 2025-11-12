@@ -65,29 +65,30 @@ const createContextParagraph = createReactBlockSpec(
   },
 );
 
-// TODO: enable and test this
-// const ComplexAttributeNode = createReactBlockSpec(
-//   {
-//     type: "advancedComplexAttributeNode",
-//     propSchema: createPropSchemaFromZod(
-//       z.object({
-//         user: z.object({
-//           name: z.object({
-//             first: z.string(),
-//             last: z.string(),
-//           }),
-//           age: z.number(),
-//         }),
-//       }),
-//     ),
-//     content: "none",
-//   },
-//   {
-//     render: (props) => {
-//       return <div data-user={JSON.stringify(props.block.props.user)} />;
-//     },
-//   },
-// );
+const ComplexAttributeNode = createReactBlockSpec(
+  {
+    type: "advancedComplexAttributeNode",
+    propSchema: createPropSchemaFromZod(
+      z.object({
+        user: z.object({
+          name: z.object({
+            first: z.string(),
+            last: z.string(),
+          }),
+          age: z.number(),
+        }),
+      }),
+    ),
+    content: "none",
+  },
+  {
+    render: (props) => {
+      return <div data-user-manual={JSON.stringify(props.block.props.user)} />;
+    },
+    // Run with higher priority than paragraph
+    runsBefore: ["paragraph"],
+  },
+);
 
 // INLINE CONTENT --------------------------------------------------------------
 
@@ -194,7 +195,7 @@ export const testSchema = BlockNoteSchema.create().extend({
     customParagraph: createCustomParagraph(),
     simpleCustomParagraph: createSimpleCustomParagraph(),
     contextParagraph: createContextParagraph(),
-    // advancedComplexAttributeNode: ComplexAttributeNode(),
+    advancedComplexAttributeNode: ComplexAttributeNode(),
   },
   inlineContentSpecs: {
     mention: Mention,
