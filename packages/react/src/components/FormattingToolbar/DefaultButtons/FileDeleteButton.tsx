@@ -1,17 +1,12 @@
 import {
-  blockHasType,
   BlockSchema,
-  createPropSchemaFromZod,
   InlineContentSchema,
+  isFileBlock,
   StyleSchema,
 } from "@blocknote/core";
 import { useCallback, useMemo } from "react";
 import { RiDeleteBin7Line } from "react-icons/ri";
 
-import {
-  baseFileZodPropSchema,
-  optionalFileZodPropSchema,
-} from "../../../../../core/src/blocks/defaultFileProps.js";
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks.js";
@@ -37,19 +32,7 @@ export const FileDeleteButton = () => {
 
     const block = selectedBlocks[0];
 
-    if (
-      blockHasType(
-        block,
-        editor,
-        block.type,
-        // TODO
-        createPropSchemaFromZod(
-          baseFileZodPropSchema.extend({
-            ...optionalFileZodPropSchema.pick({ url: true }).shape,
-          }),
-        ),
-      )
-    ) {
+    if (isFileBlock(editor, block.type)) {
       return block;
     }
 

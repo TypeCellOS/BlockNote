@@ -1,5 +1,5 @@
 import {
-  blockHasType,
+  BlockFromConfig,
   DefaultBlockSchema,
   InlineContentSchema,
   StyleSchema,
@@ -33,8 +33,10 @@ export const TableCellMergeButton = () => {
 
     const block = selectedBlocks[0];
 
-    if (blockHasType(block, editor, "table")) {
-      return editor.tableHandles?.getMergeDirection(block);
+    if (block.type === "table") {
+      return editor.tableHandles?.getMergeDirection(
+        block as BlockFromConfig<DefaultBlockSchema["table"], any, any>,
+      );
     }
 
     return undefined;

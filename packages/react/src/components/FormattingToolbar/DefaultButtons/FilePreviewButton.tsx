@@ -1,8 +1,8 @@
 import {
-  blockHasType,
+  blockHasZodProps,
   BlockSchema,
-  createPropSchemaFromZod,
   InlineContentSchema,
+  isFileBlock,
   StyleSchema,
 } from "@blocknote/core";
 import { useCallback, useMemo } from "react";
@@ -35,14 +35,11 @@ export const FilePreviewButton = () => {
     const block = selectedBlocks[0];
 
     if (
-      blockHasType(
+      isFileBlock(editor, block.type) &&
+      blockHasZodProps(
         block,
         editor,
-        block.type,
-        // TODO
-        createPropSchemaFromZod(
-          optionalFileZodPropSchema.pick({ url: true, showPreview: true }),
-        ),
+        optionalFileZodPropSchema.pick({ url: true, showPreview: true }),
       )
     ) {
       return block;

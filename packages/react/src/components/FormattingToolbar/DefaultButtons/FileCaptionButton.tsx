@@ -1,8 +1,8 @@
 import {
-  blockHasType,
+  blockHasZodProps,
   BlockSchema,
-  createPropSchemaFromZod,
   InlineContentSchema,
+  isFileBlock,
   StyleSchema,
 } from "@blocknote/core";
 import {
@@ -43,12 +43,11 @@ export const FileCaptionButton = () => {
     const block = selectedBlocks[0];
 
     if (
-      blockHasType(
+      isFileBlock(editor, block.type) &&
+      blockHasZodProps(
         block,
         editor,
-        block.type,
-        // TODO
-        createPropSchemaFromZod(baseFileZodPropSchema.pick({ caption: true })),
+        baseFileZodPropSchema.pick({ caption: true }),
       )
     ) {
       setCurrentEditingCaption(block.props.caption);

@@ -14,15 +14,14 @@ import { type Command, type Plugin, type Transaction } from "@tiptap/pm/state";
 import { dropCursor } from "prosemirror-dropcursor";
 import { Node, Schema } from "prosemirror-model";
 import * as Y from "yjs";
-
 import type { BlocksChanged } from "../api/getBlocksChangedByTransaction.js";
-import { editorHasBlockWithType } from "../blocks/defaultBlockTypeGuards.js";
 import {
   Block,
   BlockNoteSchema,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
+  editorHasBlockType,
   PartialBlock,
 } from "../blocks/index.js";
 import type { ThreadStore, User } from "../comments/index.js";
@@ -652,7 +651,7 @@ export class BlockNoteEditor<
         disableExtensions: newOptions.disableExtensions,
         setIdAttribute: newOptions.setIdAttribute,
         animations: newOptions.animations ?? true,
-        tableHandles: editorHasBlockWithType(this, "table"),
+        tableHandles: editorHasBlockType(this, "table"),
         dropCursor: this.options.dropCursor ?? dropCursor,
         placeholders: newOptions.placeholders,
         tabBehavior: newOptions.tabBehavior,

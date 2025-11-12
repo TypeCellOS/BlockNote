@@ -1,7 +1,11 @@
 import {
   BlockNoteEditor,
-  createPropSchemaFromZod,
-  editorHasBlockWithType,
+  BlockSchema,
+  editorHasBlockType,
+  editorHasBlockTypeAndPropsAreValid,
+  editorHasBlockTypeAndZodProps,
+  InlineContentSchema,
+  StyleSchema,
 } from "@blocknote/core";
 import { describe, expect, it } from "vitest";
 import * as z from "zod/v4";
@@ -11,209 +15,260 @@ import { testSchema } from "../testSchema.js";
 // Tests for verifying that type guards which check if an editor's schema
 // contains a block (and its props) are working correctly.
 // TODO
-describe.skip("Editor block schema type guard tests", () => {
-  const getEditor = createTestEditor(testSchema) as () => BlockNoteEditor<
-    any,
-    any,
-    any
-  >;
+describe("Editor block schema type guard tests", <BSchema extends
+  BlockSchema, I extends InlineContentSchema, S extends StyleSchema>() => {
+  const getEditor = createTestEditor(
+    testSchema,
+  ) as any as () => BlockNoteEditor<BSchema, I, S>;
 
-  it("blockType", () => {
-    expect(editorHasBlockWithType(getEditor(), "heading")).toBeTruthy();
+  it("editorHasBlockType valid", () => {
+    const editor = getEditor();
+
+    if (editorHasBlockType(editor, "heading")) {
+      // if we're not checking props, we should be able to update the block with any props
+
+      // Below is just for type checking. We don't actually execute this
+      // @ts-expect-error
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _f = () => {
+        editor.updateBlock("fake-id", {
+          type: "heading",
+          props: {
+            textColor: "default",
+            level: 1,
+            anyRandomProp: "anyRandomValue",
+          },
+        });
+
+        // @ts-expect-error
+        editor.updateBlock("fake-id", {
+          type: "invalid-type",
+          props: {
+            textColor: "default",
+            level: 1,
+          },
+        });
+      };
+    } else {
+      throw new Error("Heading block not found");
+    }
   });
 
-  it("blockTypeInvalid", () => {
-    expect(editorHasBlockWithType(getEditor(), "embed")).toBeFalsy();
+  it("editorHasBlockType invalid", () => {
+    expect(editorHasBlockType(getEditor(), "embed")).toBeFalsy();
   });
 
-  it("blockWithPropTypes", () => {
+  it("editorHasBlockTypeAndPropsAreValid valid", () => {
+    const editor = getEditor();
+
+    if (
+      editorHasBlockTypeAndPropsAreValid(editor, "heading", {
+        level: 3 as const,
+      })
+    ) {
+      // Below is just for type checking. We don't actually execute this
+      // @ts-expect-error
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _f = () => {
+        // if we're not checking props, we should be able to update the block with any props
+        editor.updateBlock("fake-id", {
+          type: "heading",
+          props: {
+            level: 3,
+          },
+        });
+
+        // @ts-expect-error
+        editor.updateBlock("fake-id", {
+          type: "heading",
+          props: {
+            level: 1,
+          },
+        });
+      };
+    } else {
+      throw new Error("Heading block not found");
+    }
+  });
+
+  it("editorHasBlockTypeAndPropsAreValid invalid", () => {
+    const editor = getEditor();
+
     expect(
-      editorHasBlockWithType(
+      editorHasBlockTypeAndPropsAreValid(editor, "heading", {
+        level: "hello",
+      }),
+    ).toBeFalsy();
+  });
+
+  it("editorHasBlockTypeAndZodProps valid", () => {
+    const editor = getEditor();
+
+    if (
+      editorHasBlockTypeAndZodProps(
+        editor,
+        "heading",
+        z.object({
+          textColor: z.string().default("default"),
+        }),
+      )
+    ) {
+      // Below is just for type checking. We don't actually execute this
+      // @ts-expect-error
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _f = () => {
+        // if we're not checking props, we should be able to update the block with any props
+        editor.updateBlock("fake-id", {
+          type: "heading",
+          props: {
+            textColor: "red",
+          },
+        });
+
+        // @ts-expect-error
+        editor.updateBlock("fake-id", {
+          type: "heading",
+          props: {
+            level: 1,
+          },
+        });
+      };
+    } else {
+      throw new Error("Heading block not found");
+    }
+  });
+
+  it("editorHasBlockTypeAndZodProps invalid", () => {
+    expect(
+      editorHasBlockTypeAndZodProps(
         getEditor(),
         "heading",
-        createPropSchemaFromZod(
-          z.object({
-            level: z.number(),
-            textColor: z.string(),
-          }),
-        ),
-      ),
-    ).toBeTruthy();
-  });
-
-  it("blockWithPropTypesInvalidType", () => {
-    expect(
-      editorHasBlockWithType(
-        getEditor(),
-        "heading",
-        createPropSchemaFromZod(
-          z.object({
-            level: z.number(),
-            textColor: z.number(),
-          }),
-        ),
+        z.object({
+          textColor: z.number(),
+        }),
       ),
     ).toBeFalsy();
   });
 
-  it("blockWithPropSchema", () => {
+  it("editorHasBlockTypeAndZodProps invalid 2", () => {
     expect(
-      editorHasBlockWithType(
+      editorHasBlockTypeAndZodProps(
         getEditor(),
         "heading",
-        createPropSchemaFromZod(
-          z.object({
-            level: z
-              .union([z.literal(1), z.literal(2), z.literal(3)])
-              .default(1),
-            textColor: z.string().default("default"),
-          }),
-        ),
-      ),
-    ).toBeTruthy();
-  });
-
-  it("blockWithPropSchemaInvalidType", () => {
-    expect(
-      editorHasBlockWithType(
-        getEditor(),
-        "heading",
-        createPropSchemaFromZod(
-          z.object({
-            level: z
-              .union([z.literal(1), z.literal(2), z.literal(3)])
-              .default(1),
-            textColor: z.number().default(1),
-          }),
-        ),
+        z.object({
+          level: z.union([z.literal(1), z.literal(2), z.literal(3)]).default(1),
+          textColor: z.number().default(1),
+        }),
       ),
     ).toBeFalsy();
   });
 
-  it("blockWithPropSchemaInvalidValues", () => {
+  it("editorHasBlockTypeAndZodProps invalid 3", () => {
     expect(
-      editorHasBlockWithType(
+      editorHasBlockTypeAndZodProps(
         getEditor(),
         "heading",
-        createPropSchemaFromZod(
-          z.object({
-            level: z
-              .union([z.literal(1), z.literal(2), z.literal(3)])
-              .default(1),
-            textColor: z.string().default("default"),
-          }),
-        ),
+        z.object({
+          level: z.union([z.literal(1), z.literal(2), z.literal(3)]).default(1),
+          textColor: z.string().default("default"),
+        }),
       ),
     ).toBeFalsy();
   });
 
-  it("blockWithPropTypesUndefinedDefault", () => {
+  it("editorHasBlockTypeAndZodProps valid 2", () => {
     expect(
-      editorHasBlockWithType(
+      editorHasBlockTypeAndZodProps(
         getEditor(),
         "numberedListItem",
-        createPropSchemaFromZod(
-          z.object({
-            start: z.number(),
-            textColor: z.string(),
-          }),
-        ),
+        z.object({
+          start: z.number().optional(),
+          textColor: z.string().default("default"),
+        }),
       ),
     ).toBeTruthy();
   });
 
-  it("blockWithPropSchemaUndefinedDefaultInvalidType", () => {
+  it("editorHasBlockTypeAndZodProps invalid 4", () => {
     expect(
-      editorHasBlockWithType(
+      editorHasBlockTypeAndZodProps(
         getEditor(),
         "numberedListItem",
-        createPropSchemaFromZod(
-          z.object({
-            start: z.string(),
-            textColor: z.string(),
-          }),
-        ),
+        z.object({
+          start: z.string().optional(),
+          textColor: z.string().default("default"),
+        }),
       ),
     ).toBeFalsy();
   });
 
-  it("customBlockType", () => {
-    expect(editorHasBlockWithType(getEditor(), "simpleImage")).toBeTruthy();
+  it("editorhasBlockType valid customBlockType", () => {
+    expect(editorHasBlockType(getEditor(), "simpleImage")).toBeTruthy();
   });
 
-  it("customBlockWithPropTypes", () => {
+  it("editorHasBlockTypeAndZodProps valid 3", () => {
     expect(
-      editorHasBlockWithType(
+      editorHasBlockTypeAndZodProps(
         getEditor(),
         "simpleImage",
-        createPropSchemaFromZod(
-          z.object({
-            name: z.string(),
-            url: z.string(),
-          }),
-        ),
+        z.object({
+          name: z.string().default(""),
+          url: z.string().default(""),
+        }),
       ),
     ).toBeTruthy();
   });
 
-  it("customBlockWithPropTypesInvalidType", () => {
+  it("editorHasBlockTypeAndZodProps invalid customBlockType", () => {
     expect(
-      editorHasBlockWithType(
+      editorHasBlockTypeAndZodProps(
         getEditor(),
         "simpleImage",
-        createPropSchemaFromZod(
-          z.object({
-            name: z.string(),
-            url: z.number(),
-          }),
-        ),
+        z.object({
+          name: z.string(),
+          url: z.number(),
+        }),
       ),
     ).toBeFalsy();
   });
 
-  it("customBlockWithPropSchema", () => {
+  it("editorHasBlockTypeAndZodProps valid customBlockType", () => {
     expect(
-      editorHasBlockWithType(
+      editorHasBlockTypeAndZodProps(
         getEditor(),
         "simpleImage",
-        createPropSchemaFromZod(
-          z.object({
-            name: z.string().default(""),
-            url: z.string().default(""),
-          }),
-        ),
+        z.object({
+          name: z.string().default(""),
+          url: z.string().default(""),
+        }),
       ),
     ).toBeTruthy();
   });
 
-  it("customBlockWithPropSchemaInvalidType", () => {
+  it("editorHasBlockTypeAndZodProps invalid customBlockType 2", () => {
     expect(
-      editorHasBlockWithType(
+      editorHasBlockTypeAndZodProps(
         getEditor(),
         "simpleImage",
-        createPropSchemaFromZod(
-          z.object({
-            name: z.boolean().default(false),
-            url: z.string().default(""),
-          }),
-        ),
+        z.object({
+          name: z.boolean().default(false),
+          url: z.string().default(""),
+        }),
       ),
     ).toBeFalsy();
   });
 
-  it("customBlockWithPropSchemaInvalidValues", () => {
+  it("editorHasBlockTypeAndZodProps invalid customBlockType 3", () => {
     expect(
-      editorHasBlockWithType(
+      editorHasBlockTypeAndZodProps(
         getEditor(),
         "simpleImage",
-        createPropSchemaFromZod(
-          z.object({
-            name: z
-              .union([z.literal("image"), z.literal("photo")])
-              .default("photo"),
-            url: z.string().default(""),
-          }),
-        ),
+        z.object({
+          name: z
+            .union([z.literal("image"), z.literal("photo")])
+            .default("photo"),
+          url: z.string().default(""),
+        }),
       ),
     ).toBeFalsy();
   });

@@ -26,14 +26,8 @@ import {
 } from "../../api/blockManipulation/tables/tables.js";
 import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../api/nodeUtil.js";
-import {
-  blockHasType,
-  isTableCellSelection,
-} from "../../blocks/defaultBlockTypeGuards.js";
-import {
-  DefaultBlockSchema,
-  defaultBlockSpecs,
-} from "../../blocks/defaultBlocks.js";
+import { isTableCellSelection } from "../../blocks/defaultBlockTypeGuards.js";
+import { DefaultBlockSchema } from "../../blocks/defaultBlocks.js";
 import { TableBlockConfig } from "../../blocks/index.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
@@ -282,9 +276,9 @@ export class TableHandlesView<
       this.editor.schema.styleSchema,
     );
 
-    if (blockHasType(block, this.editor, "table")) {
+    if (block.type === "table") {
       this.tablePos = pmNodeInfo.posBeforeNode + 1;
-      tableBlock = block;
+      tableBlock = block as BlockFromConfig<DefaultBlockSchema["table"], I, S>;
     }
 
     if (!tableBlock) {
@@ -543,12 +537,7 @@ export class TableHandlesView<
 
     if (
       !block ||
-      !blockHasType(
-        block,
-        this.editor,
-        "table",
-        defaultBlockSpecs.table.config.propSchema,
-      ) ||
+      block.type !== "table" ||
       // when collaborating, the table element might be replaced and out of date
       // because yjs replaces the element when for example you change the color via the side menu
       !this.tableElement?.isConnected
@@ -561,7 +550,11 @@ export class TableHandlesView<
       return;
     }
 
-    this.state.block = block;
+    this.state.block = block as unknown as BlockFromConfig<
+      DefaultBlockSchema["table"],
+      I,
+      S
+    >;
     const { height: rowCount, width: colCount } = getDimensionsOfTable(
       this.state.block,
     );

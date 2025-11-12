@@ -1,14 +1,14 @@
 import { Block, PartialBlock } from "../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
-import { z } from "zod/v4";
-import { editorHasBlockWithType } from "../../blocks/defaultBlockTypeGuards.js";
-import { optionalFileZodPropSchema } from "../../blocks/defaultFileProps.js";
+import {
+  editorHasBlockType,
+  editorHasBlockTypeAndPropsAreValid,
+} from "../../blocks/defaultBlockTypeGuards.js";
 import {
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
-  createPropSchemaFromZod,
   isStyledTextInlineContent,
 } from "../../schema/index.js";
 import { formatKeyboardShortcut } from "../../util/browser.js";
@@ -90,16 +90,9 @@ export function getDefaultSlashMenuItems<
 >(editor: BlockNoteEditor<BSchema, I, S>) {
   const items: DefaultSuggestionItem[] = [];
 
-  if (
-    editorHasBlockWithType(
-      editor,
-      "heading",
-      createPropSchemaFromZod(z.object({ level: z.number() })),
-    )
-  ) {
-    const headingProps = editor.schema.blockSchema.heading.propSchema;
+  if (editorHasBlockType(editor, "heading")) {
     for (const level of [1, 2, 3, 4, 5, 6] as const) {
-      if (z.safeParse(headingProps._zodSource, { level }).success) {
+      if (editorHasBlockTypeAndPropsAreValid(editor, "heading", { level })) {
         items.push({
           onItemClick: () => {
             insertOrUpdateBlock(editor, {
@@ -114,7 +107,7 @@ export function getDefaultSlashMenuItems<
       }
     }
   }
-  if (editorHasBlockWithType(editor, "quote")) {
+  if (editorHasBlockType(editor, "quote")) {
     items.push({
       onItemClick: () => {
         insertOrUpdateBlock(editor, {
@@ -126,7 +119,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (editorHasBlockWithType(editor, "toggleListItem")) {
+  if (editorHasBlockType(editor, "toggleListItem")) {
     items.push({
       onItemClick: () => {
         insertOrUpdateBlock(editor, {
@@ -139,7 +132,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (editorHasBlockWithType(editor, "numberedListItem")) {
+  if (editorHasBlockType(editor, "numberedListItem")) {
     items.push({
       onItemClick: () => {
         insertOrUpdateBlock(editor, {
@@ -152,7 +145,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (editorHasBlockWithType(editor, "bulletListItem")) {
+  if (editorHasBlockType(editor, "bulletListItem")) {
     items.push({
       onItemClick: () => {
         insertOrUpdateBlock(editor, {
@@ -165,7 +158,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (editorHasBlockWithType(editor, "checkListItem")) {
+  if (editorHasBlockType(editor, "checkListItem")) {
     items.push({
       onItemClick: () => {
         insertOrUpdateBlock(editor, {
@@ -178,7 +171,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (editorHasBlockWithType(editor, "paragraph")) {
+  if (editorHasBlockType(editor, "paragraph")) {
     items.push({
       onItemClick: () => {
         insertOrUpdateBlock(editor, {
@@ -191,7 +184,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (editorHasBlockWithType(editor, "codeBlock")) {
+  if (editorHasBlockType(editor, "codeBlock")) {
     items.push({
       onItemClick: () => {
         insertOrUpdateBlock(editor, {
@@ -204,7 +197,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (editorHasBlockWithType(editor, "divider")) {
+  if (editorHasBlockType(editor, "divider")) {
     items.push({
       onItemClick: () => {
         insertOrUpdateBlock(editor, { type: "divider" });
@@ -214,7 +207,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (editorHasBlockWithType(editor, "table")) {
+  if (editorHasBlockType(editor, "table")) {
     items.push({
       onItemClick: () => {
         insertOrUpdateBlock(editor, {
@@ -238,14 +231,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (
-    editorHasBlockWithType(
-      editor,
-      "image",
-      // TODO: review
-      createPropSchemaFromZod(optionalFileZodPropSchema.pick({ url: true })),
-    )
-  ) {
+  if (editorHasBlockType(editor, "image")) {
     items.push({
       onItemClick: () => {
         const insertedBlock = insertOrUpdateBlock(editor, {
@@ -264,13 +250,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (
-    editorHasBlockWithType(
-      editor,
-      "video",
-      createPropSchemaFromZod(optionalFileZodPropSchema.pick({ url: true })),
-    )
-  ) {
+  if (editorHasBlockType(editor, "video")) {
     items.push({
       onItemClick: () => {
         const insertedBlock = insertOrUpdateBlock(editor, {
@@ -289,13 +269,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (
-    editorHasBlockWithType(
-      editor,
-      "audio",
-      createPropSchemaFromZod(optionalFileZodPropSchema.pick({ url: true })),
-    )
-  ) {
+  if (editorHasBlockType(editor, "audio")) {
     items.push({
       onItemClick: () => {
         const insertedBlock = insertOrUpdateBlock(editor, {
@@ -314,13 +288,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (
-    editorHasBlockWithType(
-      editor,
-      "file",
-      createPropSchemaFromZod(optionalFileZodPropSchema.pick({ url: true })),
-    )
-  ) {
+  if (editorHasBlockType(editor, "file")) {
     items.push({
       onItemClick: () => {
         const insertedBlock = insertOrUpdateBlock(editor, {
@@ -339,55 +307,25 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (
-    editorHasBlockWithType(
-      editor,
-      "heading",
-      createPropSchemaFromZod(
-        z.object({
-          isToggleable: z.boolean().default(false),
-          level: z.number(), // TODO
-        }),
-      ),
-    )
-  ) {
-    const headingProps = editor.schema.blockSchema.heading.propSchema;
-    if (z.safeParse(headingProps._zodSource, { level: 1 }).success) {
-      items.push({
-        onItemClick: () => {
-          insertOrUpdateBlock(editor, {
-            type: "heading",
-            props: { level: 1, isToggleable: true },
-          });
-        },
-        key: "toggle_heading_1",
-        ...editor.dictionary.slash_menu.toggle_heading_1,
-      });
-    }
-    if (z.safeParse(headingProps._zodSource, { level: 2 }).success) {
-      items.push({
-        onItemClick: () => {
-          insertOrUpdateBlock(editor, {
-            type: "heading",
-            props: { level: 2, isToggleable: true },
-          });
-        },
-
-        key: "toggle_heading_2",
-        ...editor.dictionary.slash_menu.toggle_heading_2,
-      });
-    }
-    if (z.safeParse(headingProps._zodSource, { level: 3 }).success) {
-      items.push({
-        onItemClick: () => {
-          insertOrUpdateBlock(editor, {
-            type: "heading",
-            props: { level: 3, isToggleable: true },
-          });
-        },
-        key: "toggle_heading_3",
-        ...editor.dictionary.slash_menu.toggle_heading_3,
-      });
+  if (editorHasBlockType(editor, "heading")) {
+    for (const level of [1, 2, 3] as const) {
+      if (
+        editorHasBlockTypeAndPropsAreValid(editor, "heading", {
+          level,
+          isToggleable: true,
+        })
+      ) {
+        items.push({
+          onItemClick: () => {
+            insertOrUpdateBlock(editor, {
+              type: "heading",
+              props: { level: 2, isToggleable: true },
+            });
+          },
+          key: `toggle_heading_${level}`,
+          ...editor.dictionary.slash_menu[`toggle_heading_${level}`],
+        });
+      }
     }
   }
 

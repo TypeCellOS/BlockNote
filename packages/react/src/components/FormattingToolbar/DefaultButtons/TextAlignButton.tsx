@@ -1,7 +1,6 @@
 import {
-  blockHasType,
+  blockHasZodProps,
   BlockSchema,
-  createPropSchemaFromZod,
   DefaultPropSchema,
   defaultZodPropSchema,
   InlineContentSchema,
@@ -48,14 +47,10 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
     const block = selectedBlocks[0];
 
     if (
-      blockHasType(
+      blockHasZodProps(
         block,
         editor,
-        block.type,
-        // TODO
-        createPropSchemaFromZod(
-          defaultZodPropSchema.pick({ textAlignment: true }),
-        ),
+        defaultZodPropSchema.pick({ textAlignment: true }),
       )
     ) {
       return block.props.textAlignment;
@@ -87,14 +82,10 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
 
       for (const block of selectedBlocks) {
         if (
-          blockHasType(
+          blockHasZodProps(
             block,
             editor,
-            block.type,
-            // TODO
-            createPropSchemaFromZod(
-              defaultZodPropSchema.pick({ textAlignment: true }),
-            ),
+            defaultZodPropSchema.pick({ textAlignment: true }),
           )
         ) {
           editor.updateBlock(block, {
@@ -143,14 +134,10 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
   const show = useMemo(() => {
     return !!selectedBlocks.find(
       (block) =>
-        blockHasType(
+        blockHasZodProps(
           block,
           editor,
-          block.type,
-          // TODO
-          createPropSchemaFromZod(
-            defaultZodPropSchema.pick({ textAlignment: true }),
-          ),
+          defaultZodPropSchema.pick({ textAlignment: true }),
         ) ||
         (block.type === "table" && block.children),
     );

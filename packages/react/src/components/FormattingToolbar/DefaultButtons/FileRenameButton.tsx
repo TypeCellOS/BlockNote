@@ -1,8 +1,7 @@
 import {
-  blockHasType,
   BlockSchema,
-  createPropSchemaFromZod,
   InlineContentSchema,
+  isFileBlock,
   StyleSchema,
 } from "@blocknote/core";
 import {
@@ -14,10 +13,6 @@ import {
 } from "react";
 import { RiFontFamily } from "react-icons/ri";
 
-import {
-  baseFileZodPropSchema,
-  optionalFileZodPropSchema,
-} from "../../../../../core/src/blocks/defaultFileProps.js";
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks.js";
@@ -45,18 +40,7 @@ export const FileRenameButton = () => {
 
     const block = selectedBlocks[0];
 
-    if (
-      blockHasType(
-        block,
-        editor,
-        block.type,
-        createPropSchemaFromZod(
-          baseFileZodPropSchema
-            .pick({ name: true })
-            .extend({ ...optionalFileZodPropSchema.pick({ url: true }) }.shape),
-        ),
-      )
-    ) {
+    if (isFileBlock(editor, block.type)) {
       setCurrentEditingName(block.props.name);
       return block;
     }
