@@ -1588,7 +1588,7 @@
           ],
           "pro": true,
           "dependencies": {
-            "@tiptap/core": "^3.7.2"
+            "@tiptap/core": "^3.10.2"
           } as any
         },
         "title": "TipTap extension (arrow InputRule)",

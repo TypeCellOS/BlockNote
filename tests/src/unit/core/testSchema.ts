@@ -1,6 +1,7 @@
 import {
   BlockNoteSchema,
-  addNodeAndExtensionsToSpec,
+  createBlockConfig,
+  createBlockSpec,
   createImageBlockConfig,
   createImageBlockSpec,
   createInlineContentSpec,
@@ -8,6 +9,7 @@ import {
   createPropSchemaFromZod,
   createStyleSpec,
   defaultPropSchema,
+  parseDefaultProps,
 } from "@blocknote/core";
 import { z } from "zod/v4";
 
@@ -16,12 +18,15 @@ import { z } from "zod/v4";
 // This is a modified version of the default image block that does not implement
 // a `toExternalHTML` function. It's used to test if the custom serializer by
 // default serializes custom blocks using their `render` function.
-const SimpleImage = addNodeAndExtensionsToSpec(
-  {
-    type: "simpleImage",
-    propSchema: createImageBlockConfig({}).propSchema,
-    content: "none",
-  },
+const SimpleImage = createBlockSpec(
+  createBlockConfig(
+    () =>
+      ({
+        type: "simpleImage",
+        propSchema: createImageBlockConfig({}).propSchema,
+        content: "none",
+      }) as const,
+  ),
   {
     render(block, editor) {
       return createImageBlockSpec().implementation.render.call(
@@ -33,13 +38,27 @@ const SimpleImage = addNodeAndExtensionsToSpec(
   },
 );
 
-const CustomParagraph = addNodeAndExtensionsToSpec(
+const CustomParagraph = createBlockSpec(
+  createBlockConfig(
+    () =>
+      ({
+        type: "customParagraph",
+        propSchema: defaultPropSchema,
+        content: "inline",
+      }) as const,
+  ),
   {
-    type: "customParagraph",
-    propSchema: defaultPropSchema,
-    content: "inline",
-  },
-  {
+    parse: (e) => {
+      if (e.tagName !== "P") {
+        return undefined;
+      }
+
+      if (e.classList.contains("custom-paragraph")) {
+        return parseDefaultProps(e);
+      }
+
+      return undefined;
+    },
     render: () => {
       const paragraph = document.createElement("p");
       paragraph.className = "custom-paragraph";
@@ -52,7 +71,6 @@ const CustomParagraph = addNodeAndExtensionsToSpec(
     toExternalHTML: () => {
       const paragraph = document.createElement("p");
       paragraph.className = "custom-paragraph";
-      paragraph.innerHTML = "Hello World";
 
       return {
         dom: paragraph,
@@ -61,12 +79,15 @@ const CustomParagraph = addNodeAndExtensionsToSpec(
   },
 );
 
-const SimpleCustomParagraph = addNodeAndExtensionsToSpec(
-  {
-    type: "simpleCustomParagraph",
-    propSchema: defaultPropSchema,
-    content: "inline",
-  },
+const SimpleCustomParagraph = createBlockSpec(
+  createBlockConfig(
+    () =>
+      ({
+        type: "simpleCustomParagraph",
+        propSchema: defaultPropSchema,
+        content: "inline",
+      }) as const,
+  ),
   {
     render: () => {
       const paragraph = document.createElement("p");
@@ -200,9 +221,9 @@ const FontSize = createStyleSpec(
 export const testSchema = BlockNoteSchema.create().extend({
   blockSpecs: {
     pageBreak: createPageBreakBlockSpec(),
-    customParagraph: CustomParagraph,
-    simpleCustomParagraph: SimpleCustomParagraph,
-    simpleImage: SimpleImage,
+    customParagraph: CustomParagraph(),
+    simpleCustomParagraph: SimpleCustomParagraph(),
+    simpleImage: SimpleImage(),
   },
   inlineContentSpecs: {
     mention: Mention,
