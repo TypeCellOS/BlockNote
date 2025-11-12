@@ -121,14 +121,7 @@ export const LinkToolbarController = (props: {
 
   return (
     <GenericPopover reference={link?.element} {...floatingUIOptions}>
-      {link && (
-        <Component
-          url={link.url}
-          text={link.text}
-          deleteLink={linkToolbar.deleteLink}
-          editLink={linkToolbar.editLink}
-        />
-      )}
+      {link && <Component url={link.url} text={link.text} />}
     </GenericPopover>
   );
 };

@@ -4,7 +4,7 @@ import { EditLinkMenuItems } from "../EditLinkMenuItems.js";
 import { LinkToolbarProps } from "../LinkToolbarProps.js";
 
 export const EditLinkButton = (
-  props: Pick<LinkToolbarProps, "url" | "text" | "editLink">,
+  props: Pick<LinkToolbarProps, "url" | "text">,
 ) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();

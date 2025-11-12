@@ -1,14 +1,9 @@
-import {
-  BlockSchema,
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "@blocknote/core";
+import { SideMenuProsemirrorPlugin } from "@blocknote/core";
 import { ReactNode, useMemo } from "react";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
+import { usePluginState } from "../../hooks/usePlugin.js";
 import { AddBlockButton } from "./DefaultButtons/AddBlockButton.js";
 import { DragHandleButton } from "./DefaultButtons/DragHandleButton.js";
 import { SideMenuProps } from "./SideMenuProps.js";
@@ -22,29 +17,33 @@ import { SideMenuProps } from "./SideMenuProps.js";
  * - Default buttons: Components found within the `/DefaultButtons` directory.
  * - Custom buttons: The `SideMenuButton` component.
  */
-export const SideMenu = <
-  BSchema extends BlockSchema = DefaultBlockSchema,
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema,
->(
-  props: SideMenuProps<BSchema, I, S> & { children?: ReactNode },
-) => {
+export const SideMenu = (props: SideMenuProps & { children?: ReactNode }) => {
   const Components = useComponentsContext()!;
 
+  const editor = useBlockNoteEditor<any, any, any>();
+
+  const block = usePluginState(SideMenuProsemirrorPlugin, {
+    editor,
+    selector: (state) => state?.block,
+  });
+
   const dataAttributes = useMemo(() => {
+    if (block === undefined) {
+      return {};
+    }
+
     const attrs: Record<string, string> = {
-      "data-block-type": props.block.type,
+      "data-block-type": block.type,
     };
 
-    if (props.block.type === "heading") {
-      attrs["data-level"] = (props.block.props as any).level.toString();
+    if (block.type === "heading") {
+      attrs["data-level"] = (block.props as any).level.toString();
     }
 
     if (
-      props.editor.schema.blockSpecs[props.block.type].implementation.meta
-        ?.fileBlockAccept
+      editor.schema.blockSpecs[block.type].implementation.meta?.fileBlockAccept
     ) {
-      if (props.block.props.url) {
+      if (block.props.url) {
         attrs["data-url"] = "true";
       } else {
         attrs["data-url"] = "false";
@@ -52,14 +51,14 @@ export const SideMenu = <
     }
 
     return attrs;
-  }, [props.block.props, props.block.type, props.editor.schema.blockSpecs]);
+  }, [block, editor.schema.blockSpecs]);
 
   return (
     <Components.SideMenu.Root className={"bn-side-menu"} {...dataAttributes}>
       {props.children || (
         <>
-          <AddBlockButton {...props} />
-          <DragHandleButton {...props} />
+          <AddBlockButton />
+          <DragHandleButton />
         </>
       )}
     </Components.SideMenu.Root>

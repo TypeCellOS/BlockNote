@@ -70,7 +70,7 @@ export const GenericPopover = (
         innerHTML.current = ref.current.innerHTML;
       }
     }
-  }, [status]);
+  }, [status, props.reference]);
 
   if (!isMounted) {
     return false;

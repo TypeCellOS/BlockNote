@@ -1,10 +1,6 @@
 import {
-  BlockSchema,
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  InlineContentSchema,
-  StyleSchema,
+  SideMenuProsemirrorPlugin,
+  SuggestionMenuPlugin,
 } from "@blocknote/core";
 import { AiOutlinePlus } from "react-icons/ai";
 
@@ -12,40 +8,48 @@ import { useCallback } from "react";
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
-import { SideMenuProps } from "../SideMenuProps.js";
+import { usePlugin, usePluginState } from "../../../hooks/usePlugin.js";
 
-export const AddBlockButton = <
-  BSchema extends BlockSchema = DefaultBlockSchema,
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema,
->(
-  props: Pick<SideMenuProps<BSchema, I, S>, "block">,
-) => {
+export const AddBlockButton = () => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  const editor = useBlockNoteEditor<BSchema, I, S>();
+  const editor = useBlockNoteEditor<any, any, any>();
+
+  const suggestionMenu = usePlugin(SuggestionMenuPlugin);
+  const block = usePluginState(SideMenuProsemirrorPlugin, {
+    editor,
+    selector: (state) => state?.block,
+  });
 
   const onClick = useCallback(() => {
-    const blockContent = props.block.content;
+    if (block === undefined) {
+      return;
+    }
+
+    const blockContent = block.content;
     const isBlockEmpty =
       blockContent !== undefined &&
       Array.isArray(blockContent) &&
       blockContent.length === 0;
 
     if (isBlockEmpty) {
-      editor.setTextCursorPosition(props.block);
-      editor.openSuggestionMenu("/");
+      editor.setTextCursorPosition(block);
+      suggestionMenu.openSuggestionMenu("/");
     } else {
       const insertedBlock = editor.insertBlocks(
         [{ type: "paragraph" }],
-        props.block,
+        block,
         "after",
       )[0];
       editor.setTextCursorPosition(insertedBlock);
-      editor.openSuggestionMenu("/");
+      suggestionMenu.openSuggestionMenu("/");
     }
-  }, [editor, props.block]);
+  }, [block, editor, suggestionMenu]);
+
+  if (block === undefined) {
+    return null;
+  }
 
   return (
     <Components.SideMenu.Button

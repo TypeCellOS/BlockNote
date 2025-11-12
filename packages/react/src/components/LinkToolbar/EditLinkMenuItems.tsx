@@ -1,4 +1,8 @@
-import { DEFAULT_LINK_PROTOCOL, VALID_LINK_PROTOCOLS } from "@blocknote/core";
+import {
+  DEFAULT_LINK_PROTOCOL,
+  LinkToolbarPlugin,
+  VALID_LINK_PROTOCOLS,
+} from "@blocknote/core";
 import {
   ChangeEvent,
   KeyboardEvent,
@@ -8,6 +12,7 @@ import {
 } from "react";
 import { RiLink, RiText } from "react-icons/ri";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
+import { usePlugin } from "../../hooks/usePlugin.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { LinkToolbarProps } from "./LinkToolbarProps.js";
 
@@ -22,14 +27,16 @@ const validateUrl = (url: string) => {
 };
 
 export const EditLinkMenuItems = (
-  props: Pick<LinkToolbarProps, "url" | "text" | "editLink"> & {
+  props: Pick<LinkToolbarProps, "url" | "text"> & {
     showTextField?: boolean;
   },
 ) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  const { url, text, editLink, showTextField } = props;
+  const { editLink } = usePlugin(LinkToolbarPlugin);
+
+  const { url, text, showTextField } = props;
 
   const [currentUrl, setCurrentUrl] = useState<string>(url);
   const [currentText, setCurrentText] = useState<string>(text);

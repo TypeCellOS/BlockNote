@@ -9,8 +9,6 @@ import {
 } from "@blocknote/core";
 import { DragEvent, FC } from "react";
 
-import { DragHandleMenuProps } from "../SideMenu/DragHandleMenu/DragHandleMenuProps.js";
-
 export type TableHandleProps<
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema,
@@ -28,15 +26,7 @@ export type TableHandleProps<
   showOtherSide: () => void;
   hideOtherSide: () => void;
   menuContainer: HTMLDivElement;
-  tableHandleMenu?: FC<
-    DragHandleMenuProps<
-      {
-        table: DefaultBlockSchema["table"];
-      },
-      I,
-      S
-    >
-  >;
+  tableHandleMenu?: FC;
 } & Pick<TableHandlesState<I, S>, "block"> &
   Pick<
     Exclude<

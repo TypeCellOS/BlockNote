@@ -699,7 +699,9 @@ export const SideMenuProsemirrorPlugin = createExtension((editor) => {
         key: sideMenuPluginKey,
         view: (editorView) => {
           view = new SideMenuView(editor, editorView, (state) => {
-            store.setState(state);
+            // TODO: Without spreading the state, in some cases like toggling
+            // `show`, this doesn't trigger an update.
+            store.setState({ ...state });
           });
           return view;
         },

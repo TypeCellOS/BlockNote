@@ -22,13 +22,9 @@ export const LinkToolbar = (props: LinkToolbarProps) => {
     <Components.LinkToolbar.Root className={"bn-toolbar bn-link-toolbar"}>
       {props.children || (
         <>
-          <EditLinkButton
-            url={props.url}
-            text={props.text}
-            editLink={props.editLink}
-          />
+          <EditLinkButton url={props.url} text={props.text} />
           <OpenLinkButton url={props.url} />
-          <DeleteLinkButton deleteLink={props.deleteLink} />
+          <DeleteLinkButton />
         </>
       )}
     </Components.LinkToolbar.Root>
