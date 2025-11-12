@@ -95,6 +95,7 @@ export const createNumberedListItemBlockSpec = createBlockSpec(
         contentDOM: p,
       };
     },
+    runsBefore: [],
   },
   [
     createBlockNoteExtension({

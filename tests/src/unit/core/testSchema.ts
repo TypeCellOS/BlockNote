@@ -11,7 +11,7 @@ import {
   defaultPropSchema,
   parseDefaultProps,
 } from "@blocknote/core";
-import { z } from "zod/v4";
+import z from "zod/v4";
 
 // BLOCKS ----------------------------------------------------------------------
 
@@ -96,6 +96,40 @@ const SimpleCustomParagraph = createBlockSpec(
       return {
         dom: paragraph,
         contentDOM: paragraph,
+      };
+    },
+  },
+);
+
+const ComplexAttributeNode = createBlockSpec(
+  createBlockConfig(
+    () =>
+      ({
+        type: "advancedComplexAttributeNode",
+        propSchema: createPropSchemaFromZod(
+          z.object({
+            user: z
+              .object({
+                name: z.object({
+                  first: z.string(),
+                  last: z.string(),
+                }),
+                age: z.number(),
+              })
+              .default({ name: { first: "John", last: "Doe" }, age: 30 }),
+          }),
+        ),
+        content: "none",
+      }) as const,
+  ),
+  {
+    render(block) {
+      const paragraph = document.createElement("div");
+
+      paragraph.setAttribute("data-user", JSON.stringify(block.props.user));
+
+      return {
+        dom: paragraph,
       };
     },
   },
@@ -224,6 +258,7 @@ export const testSchema = BlockNoteSchema.create().extend({
     customParagraph: CustomParagraph(),
     simpleCustomParagraph: SimpleCustomParagraph(),
     simpleImage: SimpleImage(),
+    advancedComplexAttributeNode: ComplexAttributeNode(),
   },
   inlineContentSpecs: {
     mention: Mention,

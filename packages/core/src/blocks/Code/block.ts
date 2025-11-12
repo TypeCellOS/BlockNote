@@ -171,6 +171,7 @@ export const createCodeBlockSpec = createBlockSpec(
         contentDOM: code,
       };
     },
+    runsBefore: [],
   }),
   (options) => {
     return [

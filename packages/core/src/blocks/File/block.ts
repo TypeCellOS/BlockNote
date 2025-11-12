@@ -100,4 +100,5 @@ export const createFileBlockSpec = createBlockSpec(createFileBlockConfig, {
       dom: fileSrcLink,
     };
   },
+  runsBefore: [],
 });

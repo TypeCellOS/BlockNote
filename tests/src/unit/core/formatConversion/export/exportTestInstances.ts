@@ -1729,6 +1729,23 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
     },
     executeTest: testExportBlockNoteHTML,
   },
+  {
+    testCase: {
+      name: "custom-blocks/advancedComplexAttributeNode",
+      content: [
+        {
+          type: "advancedComplexAttributeNode",
+          props: {
+            user: {
+              name: { first: "USER_FIRST_NAME", last: "USER_LAST_NAME" },
+              age: 30,
+            },
+          },
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
 ];
 
 export const exportTestInstancesHTML: TestInstance<

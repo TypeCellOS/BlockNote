@@ -58,6 +58,7 @@ export const createQuoteBlockSpec = createBlockSpec(
         contentDOM: quote,
       };
     },
+    runsBefore: [],
   },
   [
     createBlockNoteExtension({

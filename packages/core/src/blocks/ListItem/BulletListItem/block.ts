@@ -74,6 +74,7 @@ export const createBulletListItemBlockSpec = createBlockSpec(
         contentDOM: p,
       };
     },
+    runsBefore: [],
   },
   [
     createBlockNoteExtension({

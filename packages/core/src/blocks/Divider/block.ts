@@ -37,6 +37,7 @@ export const createDividerBlockSpec = createBlockSpec(
         dom,
       };
     },
+    runsBefore: [],
   },
   [
     createBlockNoteExtension({

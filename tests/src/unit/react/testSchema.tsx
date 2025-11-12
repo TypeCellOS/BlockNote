@@ -65,6 +65,35 @@ const createContextParagraph = createReactBlockSpec(
   },
 );
 
+// const ComplexAttributeNode = addNodeAndExtensionsToSpec(
+//   {
+//     type: "advancedComplexAttributeNode",
+//     propSchema: createPropSchemaFromZod(
+//       z.object({
+//         user: z.object({
+//           name: z.object({
+//             first: z.string(),
+//             last: z.string(),
+//           }),
+//           age: z.number(),
+//         }),
+//       }),
+//     ),
+//     content: "none",
+//   },
+//   {
+//     render: (block) => {
+//       const paragraph = document.createElement("div");
+//       paragraph.setAttribute("data-user", JSON.stringify(block.props.user));
+
+//       return {
+//         dom: paragraph,
+//         contentDOM: paragraph,
+//       };
+//     },
+//   },
+// );
+
 // INLINE CONTENT --------------------------------------------------------------
 
 const Mention = createReactInlineContentSpec(
