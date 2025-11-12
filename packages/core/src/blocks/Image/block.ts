@@ -45,7 +45,7 @@ export const createImageBlockConfig = createBlockConfig(
         },
         // File preview width in px.
         previewWidth: {
-          default: undefined,
+          default: 512 as const,
           type: "number" as const,
         },
       },
