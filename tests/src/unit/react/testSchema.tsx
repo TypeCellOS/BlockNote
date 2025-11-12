@@ -194,7 +194,7 @@ export const testSchema = BlockNoteSchema.create().extend({
     customParagraph: createCustomParagraph(),
     simpleCustomParagraph: createSimpleCustomParagraph(),
     contextParagraph: createContextParagraph(),
-    advancedComplexAttributeNode: ComplexAttributeNode(),
+    // advancedComplexAttributeNode: ComplexAttributeNode(),
   },
   inlineContentSpecs: {
     mention: Mention,

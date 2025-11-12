@@ -127,7 +127,10 @@ const ComplexAttributeNode = createBlockSpec(
     render(block) {
       const paragraph = document.createElement("div");
 
-      paragraph.setAttribute("data-user", JSON.stringify(block.props.user));
+      paragraph.setAttribute(
+        "data-user-manual",
+        JSON.stringify(block.props.user),
+      );
 
       return {
         dom: paragraph,
