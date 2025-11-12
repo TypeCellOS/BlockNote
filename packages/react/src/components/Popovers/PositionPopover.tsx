@@ -1,20 +1,21 @@
 import { posToDOMRect } from "@tiptap/core";
-import { useMemo, useRef } from "react";
+import { ReactNode, useMemo, useRef } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
+import { FloatingUIOptions } from "./FloatingUIOptions.js";
 import { GenericPopover } from "./GenericPopover.js";
-import { flattenDOMRect } from "./util/flattenDOMRect.js";
-import { FloatingUIPopoverProps } from "./util/FloatingUIPopoverProps.js";
 
 export const PositionPopover = (
-  props: FloatingUIPopoverProps & {
+  props: FloatingUIOptions & {
     position: { from: number; to?: number } | undefined;
+    children: ReactNode;
   },
 ) => {
-  const { position, floatingUIOptions, elementProps, children } = props;
+  const { position, children, ...rest } = props;
   const { from, to } = position || {};
 
   const editor = useBlockNoteEditor<any, any, any>();
+  const { headless } = editor;
 
   // Stores the last created `boundingClientRect` to use in case `position` is
   // not defined.
@@ -26,23 +27,21 @@ export const PositionPopover = (
           return boundingClientRect.current;
         }
 
-        // Flatten to JSON to avoid re-renders.
-        boundingClientRect.current = flattenDOMRect(
-          posToDOMRect(editor.prosemirrorView, from, to ?? from),
+        boundingClientRect.current = posToDOMRect(
+          editor.prosemirrorView,
+          from,
+          to ?? from,
         );
 
         return boundingClientRect.current;
       },
+      contextElement: headless ? undefined : editor.domElement,
     }),
-    [editor, from, to],
+    [editor, headless, from, to],
   );
 
   return (
-    <GenericPopover
-      positionReference={virtualElement}
-      floatingUIOptions={floatingUIOptions}
-      elementProps={elementProps}
-    >
+    <GenericPopover reference={virtualElement} {...rest}>
       {children}
     </GenericPopover>
   );

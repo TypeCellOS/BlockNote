@@ -1,4 +1,3 @@
-import { Plugin, PluginKey } from "@tiptap/pm/state";
 import {
   createExtension,
   createStore,
@@ -10,65 +9,36 @@ export const FormattingToolbarExtension = createExtension((editor) => {
   return {
     key: "formattingToolbar",
     store: store,
-    plugins: [
-      new Plugin({
-        key: new PluginKey("formattingToolbar"),
-        props: {
-          handleKeyDown: (_view, event) => {
-            if (event.key === "Escape" && store.state.show) {
-              store.setState({ show: false });
-              return true;
-            }
-            return false;
-          },
-        },
-      }),
-    ],
     init({ dom }) {
-      const isElementWithinEditorWrapper = (element: Node | null) => {
-        if (!element) {
-          return false;
-        }
-        const editorWrapper = dom.parentElement;
-        if (!editorWrapper) {
-          return false;
-        }
+      let preventShowWhileMouseDown = false;
 
-        return editorWrapper.contains(element);
-      };
-
-      function onMouseDownHandler(e: MouseEvent) {
-        if (!isElementWithinEditorWrapper(e.target as Node) || e.button === 0) {
-          store.setState({ show: false });
+      editor.onChange((editor) => {
+        if (!preventShowWhileMouseDown) {
+          store.setState({ show: !editor.prosemirrorState.selection.empty });
         }
+      });
+      editor.onSelectionChange((editor) => {
+        if (!preventShowWhileMouseDown) {
+          store.setState({ show: !editor.prosemirrorState.selection.empty });
+        }
+      });
+
+      function onMouseDownHandler() {
+        preventShowWhileMouseDown = true;
+        store.setState({ show: false });
       }
 
       function onMouseUpHandler() {
-        setTimeout(() => {
-          if (editor.prosemirrorState.selection.empty) {
-            store.setState({ show: false });
-          } else {
-            store.setState({ show: true });
-          }
-        }, 1);
-      }
-
-      function onDragHandler() {
-        if (store.state.show) {
-          store.setState({ show: false });
-        }
+        preventShowWhileMouseDown = false;
+        store.setState({ show: !editor.prosemirrorState.selection.empty });
       }
 
       dom.addEventListener("mousedown", onMouseDownHandler);
       dom.addEventListener("mouseup", onMouseUpHandler);
-      dom.addEventListener("dragstart", onDragHandler);
-      dom.addEventListener("dragover", onDragHandler);
 
       return () => {
         dom.removeEventListener("mousedown", onMouseDownHandler);
         dom.removeEventListener("mouseup", onMouseUpHandler);
-        dom.removeEventListener("dragstart", onDragHandler);
-        dom.removeEventListener("dragover", onDragHandler);
       };
     },
   } as const;

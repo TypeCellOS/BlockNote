@@ -1,18 +1,9 @@
-import {
-  BlockNoteEditor,
-  BlockSchema,
-  LinkToolbarState,
-  InlineContentSchema,
-  StyleSchema,
-  UiElementPosition,
-} from "@blocknote/core";
+import { ReactNode } from "react";
 
-export type LinkToolbarProps = Omit<LinkToolbarState, keyof UiElementPosition> &
-  Pick<
-    BlockNoteEditor<
-      BlockSchema,
-      InlineContentSchema,
-      StyleSchema
-    >["linkToolbar"],
-    "deleteLink" | "editLink" | "startHideTimer" | "stopHideTimer"
-  >;
+export type LinkToolbarProps = {
+  url: string;
+  text: string;
+  editLink: (url: string, text: string) => void;
+  deleteLink: () => void;
+  children?: ReactNode;
+};

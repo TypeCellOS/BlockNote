@@ -34,6 +34,7 @@ export const createAddFileButton = (
   // Prevents focus from moving to the button.
   const addFileButtonMouseDownHandler = (event: MouseEvent) => {
     event.preventDefault();
+    event.stopPropagation();
   };
   // Opens the file toolbar.
   const addFileButtonClickHandler = () => {

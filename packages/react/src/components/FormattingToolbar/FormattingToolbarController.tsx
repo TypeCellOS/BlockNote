@@ -7,13 +7,14 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { UseFloatingOptions, flip, offset, shift } from "@floating-ui/react";
-import { FC, useMemo } from "react";
+import { flip, offset, shift } from "@floating-ui/react";
+import { FC, useEffect, useMemo, useState } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../hooks/useEditorState.js";
 import { usePluginState } from "../../hooks/usePlugin.js";
 import { PositionPopover } from "../Popovers/PositionPopover.js";
+import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import { FormattingToolbar } from "./FormattingToolbar.js";
 import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
 
@@ -34,7 +35,7 @@ const textAlignmentToPlacement = (
 
 export const FormattingToolbarController = (props: {
   formattingToolbar?: FC<FormattingToolbarProps>;
-  floatingUIOptions?: UseFloatingOptions;
+  floatingUIOptions?: FloatingUIOptions;
 }) => {
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -42,10 +43,15 @@ export const FormattingToolbarController = (props: {
     StyleSchema
   >();
 
+  const [open, setOpen] = useState(false);
+
   const show = usePluginState(FormattingToolbarExtension, {
     editor,
     selector: (state) => state.show,
   });
+  useEffect(() => {
+    setOpen(show);
+  }, [show]);
 
   const position = useEditorState({
     editor,
@@ -75,20 +81,25 @@ export const FormattingToolbarController = (props: {
     },
   });
 
-  const floatingUIOptions = useMemo<UseFloatingOptions>(
+  const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
-      open: show,
-      placement,
-      middleware: [offset(10), shift(), flip()],
+      useFloatingOptions: {
+        open,
+        // Needed as hooks like `useDismiss` call `onOpenChange` to change the
+        // open state.
+        onOpenChange: setOpen,
+        placement,
+        middleware: [offset(10), shift(), flip()],
+      },
       ...props.floatingUIOptions,
     }),
-    [placement, props.floatingUIOptions, show],
+    [open, placement, props.floatingUIOptions],
   );
 
   const Component = props.formattingToolbar || FormattingToolbar;
 
   return (
-    <PositionPopover position={position} floatingUIOptions={floatingUIOptions}>
+    <PositionPopover position={position} {...floatingUIOptions}>
       {show && <Component />}
     </PositionPopover>
   );

@@ -167,8 +167,8 @@ export function SuggestionMenuController<
 
   return (
     <GenericPopover
-      positionReference={virtualElement}
-      floatingUIOptions={floatingUIOptions}
+      reference={virtualElement}
+      useFloatingOptions={floatingUIOptions}
     >
       {triggerCharacter && (
         <SuggestionMenuWrapper

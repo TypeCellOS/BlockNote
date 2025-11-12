@@ -1,73 +1,51 @@
 import { getNodeById } from "@blocknote/core";
-import { posToDOMRect } from "@tiptap/core";
-import { useMemo, useRef } from "react";
+import { ReactNode, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
+import { FloatingUIOptions } from "./FloatingUIOptions.js";
 import { GenericPopover } from "./GenericPopover.js";
-import { flattenDOMRect } from "./util/flattenDOMRect.js";
-import { FloatingUIPopoverProps } from "./util/FloatingUIPopoverProps.js";
 
 export const BlockPopover = (
-  props: FloatingUIPopoverProps & {
+  props: FloatingUIOptions & {
     blockId: string | undefined;
     placement?: "before" | "after" | "across";
+    children: ReactNode;
   },
 ) => {
-  const { blockId, placement, floatingUIOptions, elementProps, children } =
-    props;
+  const { blockId, placement, children, ...rest } = props;
 
   const editor = useBlockNoteEditor<any, any, any>();
 
-  // Stores the last created `boundingClientRect` to use in case `blockId` is
-  // not defined.
-  const boundingClientRect = useRef<DOMRect>(new DOMRect());
-  const virtualElement = useMemo(
-    () => ({
-      getBoundingClientRect: () => {
-        return editor.transact((tr) => {
-          if (!blockId) {
-            return boundingClientRect.current;
-          }
+  // Seems like unlike with virtual elements, we don't need to use the last
+  // defined reference element in case it's currently undefined. FloatingUI 
+  // appears to already do this internally.
+  const element = useMemo(
+    () =>
+      editor.transact((tr) => {
+        if (!blockId) {
+          return undefined;
+        }
 
-          // TODO use the location API for this
-          const nodePosInfo = getNodeById(blockId, tr.doc);
-          if (!nodePosInfo) {
-            return boundingClientRect.current;
-          }
+        // TODO use the location API for this
+        const nodePosInfo = getNodeById(blockId, tr.doc);
+        if (!nodePosInfo) {
+          return undefined;
+        }
 
-          const startPos = nodePosInfo.posBeforeNode + 1;
-          const endPos =
-            nodePosInfo.posBeforeNode + nodePosInfo.node.content.size + 1;
+        const { node } = editor.prosemirrorView.domAtPos(
+          nodePosInfo.posBeforeNode + 1,
+        );
+        if (!(node instanceof Element)) {
+          return undefined;
+        }
 
-          const range =
-            placement === "before"
-              ? { from: startPos }
-              : placement === "after"
-                ? { from: endPos }
-                : { from: startPos, to: endPos };
-
-          // Flatten to JSON to avoid re-renders.
-          boundingClientRect.current = flattenDOMRect(
-            posToDOMRect(
-              editor.prosemirrorView,
-              range.from,
-              range.to ?? range.from,
-            ),
-          );
-
-          return boundingClientRect.current;
-        });
-      },
-    }),
-    [editor, blockId, placement],
+        return node;
+      }),
+    [editor, blockId],
   );
 
   return (
-    <GenericPopover
-      positionReference={virtualElement}
-      floatingUIOptions={floatingUIOptions}
-      elementProps={elementProps}
-    >
+    <GenericPopover reference={element} {...rest}>
       {children}
     </GenericPopover>
   );

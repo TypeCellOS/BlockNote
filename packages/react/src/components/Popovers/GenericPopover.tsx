@@ -7,67 +7,70 @@ import {
   useTransitionStatus,
   autoUpdate,
   ReferenceType,
+  useHover,
 } from "@floating-ui/react";
-import { isEventTargetWithin } from "@floating-ui/react/utils";
-import { useEffect, useRef } from "react";
+import { ReactNode, useEffect, useRef } from "react";
 
-import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
-import { FloatingUIPopoverProps } from "./util/FloatingUIPopoverProps.js";
+import { FloatingUIOptions } from "./FloatingUIOptions.js";
 
 export const GenericPopover = (
-  props: FloatingUIPopoverProps & {
-    positionReference: ReferenceType;
+  props: FloatingUIOptions & {
+    reference?: ReferenceType | null;
+    children: ReactNode;
   },
 ) => {
-  const editor = useBlockNoteEditor<any, any, any>();
-
   const { refs, floatingStyles, context } = useFloating<HTMLDivElement>({
     whileElementsMounted: autoUpdate,
-    ...props.floatingUIOptions,
+    ...props.useFloatingOptions,
   });
 
-  const { isMounted, styles } = useTransitionStyles(context);
-  const { status } = useTransitionStatus(context);
+  const { isMounted, styles } = useTransitionStyles(
+    context,
+    props.useTransitionStylesProps,
+  );
+  const { status } = useTransitionStatus(
+    context,
+    props.useTransitionStatusProps,
+  );
 
-  // Handle "escape" and other dismiss events, like clicking outside the
-  // editor.
-  const dismiss = useDismiss(context, {
-    enabled: true,
-    escapeKey: true,
-    // TODO: Not working
-    outsidePress: (e) => {
-      const view = editor.prosemirrorView;
-
-      const target = e.target;
-      if (!target) {
-        return false;
-      }
-
-      return !isEventTargetWithin(e, view.dom.parentElement);
-    },
-  });
-
-  const { getFloatingProps } = useInteractions([dismiss]);
+  const dismiss = useDismiss(context, props.useDismissProps);
+  const hover = useHover(context, { enabled: false, ...props.useHoverProps });
+  const { getFloatingProps } = useInteractions([dismiss, hover]);
 
   const innerHTML = useRef<string>("");
   const ref = useRef<HTMLDivElement>(null);
   const mergedRefs = useMergeRefs([ref, refs.setFloating]);
 
   useEffect(() => {
+    if (props.reference) {
+      if (props.reference instanceof Element) {
+        refs.setReference(props.reference);
+      } else {
+        // FloatingUI's virtual elements can have a `contextElement`, which is
+        // useful for automatically calling `getBoundingClientRect` when said
+        // element changes position. However, it's pretty limited as FloatingUI
+        // doesn't attach listeners to `contextElement` for e.g. `useHover`.
+        // Therefore, we also set the reference element to `contextElement` so
+        // event listeners can be attached.
+        if (props.reference.contextElement) {
+          refs.setReference(props.reference.contextElement);
+        }
+        refs.setPositionReference(props.reference);
+      }
+    }
+  }, [props.reference, refs]);
+
+  // Stores the last rendered `innerHTML` of the popover while it was
+  // open. The `innerHTML` is used while the popover is closing, as the
+  // React children may rerender during this time, causing unwanted
+  // behaviour.
+  useEffect(() => {
     if (status === "initial" || status === "open") {
       if (ref.current?.innerHTML) {
-        // Stores the last rendered `innerHTML` of the popover while it was
-        // open. The `innerHTML` is used while the popover is closing, as the
-        // React children may rerender during this time, causing unwanted
-        // behaviour.
         innerHTML.current = ref.current.innerHTML;
       }
     }
   }, [status]);
-
-  useEffect(() => {
-    refs.setPositionReference(props.positionReference);
-  }, [props.positionReference, refs]);
 
   if (!isMounted) {
     return false;

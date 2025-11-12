@@ -1,199 +1,134 @@
 import {
   BlockSchema,
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
   InlineContentSchema,
   LinkToolbarPlugin,
   StyleSchema,
 } from "@blocknote/core";
-import {
-  UseFloatingOptions,
-  autoUpdate,
-  flip,
-  offset,
-  useDismiss,
-  useFloating,
-  useInteractions,
-  useTransitionStyles,
-} from "@floating-ui/react";
-import { FC, useEffect, useState } from "react";
+import { flip, offset, safePolygon } from "@floating-ui/react";
+import { FC, useEffect, useMemo, useState } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { LinkToolbar } from "./LinkToolbar.js";
 import { LinkToolbarProps } from "./LinkToolbarProps.js";
-import { isEventTargetWithin } from "@floating-ui/react/utils";
 import { useEditorState } from "../../hooks/useEditorState.js";
-import { useElementHover } from "../../hooks/useElementHover.js";
 import { usePlugin } from "../../hooks/usePlugin.js";
+import { GenericPopover } from "../Popovers/GenericPopover.js";
+import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 
-export const LinkToolbarController = <
-  BSchema extends BlockSchema = DefaultBlockSchema,
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema,
->(props: {
+export const LinkToolbarController = (props: {
   linkToolbar?: FC<LinkToolbarProps>;
-  floatingOptions?: Partial<UseFloatingOptions>;
+  floatingUIOptions?: FloatingUIOptions;
 }) => {
-  const editor = useBlockNoteEditor<BSchema, I, S>();
+  const editor = useBlockNoteEditor<
+    BlockSchema,
+    InlineContentSchema,
+    StyleSchema
+  >();
+
+  const [open, setOpen] = useState(false);
 
   const linkToolbar = usePlugin(LinkToolbarPlugin);
-  const linkAtSelection = useEditorState({
+  const selectionLink = useEditorState({
     editor,
     selector: () => {
-      return linkToolbar.getLinkAtSelection();
-    },
-  });
-
-  const callbacks = {
-    deleteLink: linkToolbar.deleteLink,
-    editLink: linkToolbar.editLink,
-  };
-  const [show, setShow] = useState(false);
-
-  const {
-    refs: { setFloating: ref, setReference },
-    context,
-    floatingStyles,
-  } = useFloating({
-    open: show,
-    placement: "top-start",
-    middleware: [offset(10), flip()],
-    onOpenChange: setShow,
-    whileElementsMounted: autoUpdate,
-    ...props.floatingOptions,
-  });
-
-  const { isMounted, styles } = useTransitionStyles(context);
-
-  // handle "escape" and other dismiss events, these will add some listeners to
-  // getFloatingProps which need to be attached to the floating element
-  const dismiss = useDismiss(context, {
-    outsidePress: (e) =>
-      !isEventTargetWithin(e, editor.prosemirrorView.dom.parentElement),
-  });
-
-  // Create element hover hook for link detection
-  const elementHover = useElementHover(context, {
-    enabled: !linkAtSelection,
-    attachTo() {
-      return editor.prosemirrorView.dom;
-    },
-    delay: { open: 250, close: 400 },
-    restMs: 300,
-    getElementAtHover: (target) => {
-      // Check if there's a link at the current selection first
-      if (editor.getExtension(LinkToolbarPlugin)?.getLinkAtSelection()) {
-        return null; // Disable hover when link is selected
+      const link = linkToolbar.getLinkAtSelection();
+      if (!link) {
+        return undefined;
       }
 
-      // Check for link at the hovered element
-      const linkAtElement = editor
-        .getExtension(LinkToolbarPlugin)
-        ?.getLinkAtElement(target as HTMLElement);
-      if (linkAtElement) {
-        return editor
-          .getExtension(LinkToolbarPlugin)
-          ?.getLinkElementAtPos(linkAtElement.range.from);
-      }
-
-      return null;
-    },
-    onHover: (element) => {
-      if (element) {
-        setReference(element);
-        setShow(true);
-      } else {
-        setReference(null);
-        setShow(false);
-      }
+      return {
+        url: link.mark.attrs.href as string,
+        text: link.text,
+        element: linkToolbar.getLinkElementAtPos(link.range.from)!,
+      };
     },
   });
-
-  const { getReferenceProps, getFloatingProps } = useInteractions([
-    dismiss,
-    elementHover,
-  ]);
-
   useEffect(() => {
-    const abortController = new AbortController();
-    const props = getReferenceProps();
+    setOpen(!!selectionLink);
+  }, [selectionLink]);
 
-    for (const [key, eventListener] of Object.entries(props)) {
-      if (typeof eventListener === "function" && key.startsWith("on")) {
-        editor.prosemirrorView.dom.addEventListener(
-          // e.g. "onKeyDown" -> "keydown"
-          key.slice(2).toLowerCase() as keyof HTMLElementEventMap,
-          eventListener as (e: Event) => void,
-          {
-            signal: abortController.signal,
-          },
-        );
+  // The `mouseHoverLink` state is completely separate from the `open` state as
+  // the FloatingUI `useHover` hook handles opening/closing the popover when a
+  // link is hovered with the mouse cursor. Therefore, we only need to update
+  // the link when a new one is hovered.
+  const [mouseHoverLink, setMouseHoverLink] = useState<
+    { url: string; text: string; element: HTMLAnchorElement } | undefined
+  >(undefined);
+  useEffect(() => {
+    const cb = (event: MouseEvent) => {
+      if (!(event.target instanceof HTMLElement)) {
+        return;
       }
-    }
+
+      const link = linkToolbar.getLinkAtElement(event.target);
+      if (!link) {
+        return;
+      }
+
+      setMouseHoverLink({
+        url: link.mark.attrs.href as string,
+        text: link.text,
+        element: linkToolbar.getLinkElementAtPos(link.range.from)!,
+      });
+    };
+
+    document.body.addEventListener("mouseover", cb);
 
     return () => {
-      abortController.abort();
+      document.body.removeEventListener("mouseover", cb);
     };
-  }, [editor, getReferenceProps]);
+  }, [linkToolbar, mouseHoverLink?.url]);
 
-  useEffect(() => {
-    if (!linkAtSelection) {
-      setReference(null);
-      setShow(false);
-      return;
-    }
+  const link = useMemo(
+    () => selectionLink || mouseHoverLink,
+    [mouseHoverLink, selectionLink],
+  );
 
-    setReference(
-      editor
-        .getExtension(LinkToolbarPlugin)
-        ?.getLinkElementAtPos(linkAtSelection.range.from) || null,
-    );
-    setShow(true);
-  }, [editor, linkAtSelection, setReference]);
-  const style = {
-    display: "flex",
-    ...styles,
-    ...floatingStyles,
-    zIndex: 4000,
-  };
-  // const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(
-  //   state?.show || false,
-  //   state?.referencePos || null,
-  //   4000,
-  //   // {
-  //   //   placement: "top-start",
-  //   //   middleware: [offset(10), flip()],
-  //   //   onOpenChange: (open) => {
-  //   //     if (!open) {
-  //   //       editor.linkToolbar.closeMenu();
-  //   //       editor.focus();
-  //   //     }
-  //   //   },
-  //   //   ...props.floatingOptions,
-  //   // },
-  // );
-  // console.log(show, linkAtSelection);
-  if (!isMounted) {
-    return null;
-  }
+  const floatingUIOptions = useMemo<FloatingUIOptions>(
+    () => ({
+      useFloatingOptions: {
+        open,
+        onOpenChange: (open, _event, reason) => {
+          // We want to prioritize `selectionLink` over `mouseHoverLink`, so we
+          // ignore opening/closing from hover events.
+          if (selectionLink && reason === "hover") {
+            return;
+          }
+
+          setOpen(open);
+        },
+        placement: "top-start",
+        middleware: [offset(10), flip()],
+      },
+      useHoverProps: {
+        // `useHover` hook only enabled when a link is hovered with the
+        // mouse.
+        enabled: !selectionLink && !!mouseHoverLink,
+        delay: {
+          // TODO: Figure out good values
+          open: 250,
+          close: 250,
+        },
+        // restMs: 300,
+        handleClose: safePolygon(),
+      },
+      ...props.floatingUIOptions,
+    }),
+    [mouseHoverLink, open, props.floatingUIOptions, selectionLink],
+  );
 
   const Component = props.linkToolbar || LinkToolbar;
 
   return (
-    <div ref={ref} style={style} {...getFloatingProps()}>
-      <Component
-        url={String(linkAtSelection?.mark.attrs.href || "")}
-        text={linkAtSelection?.text || ""}
-        deleteLink={callbacks.deleteLink}
-        editLink={callbacks.editLink}
-        startHideTimer={() => {
-          // todo remove timer
-        }}
-        stopHideTimer={() => {
-          // todo remove timer
-        }}
-      />
-    </div>
+    <GenericPopover reference={link?.element} {...floatingUIOptions}>
+      {link && (
+        <Component
+          url={link.url}
+          text={link.text}
+          deleteLink={linkToolbar.deleteLink}
+          editLink={linkToolbar.editLink}
+        />
+      )}
+    </GenericPopover>
   );
 };
