@@ -55,77 +55,412 @@ exports[`Test removeBlocks > Remove all blocks in column 1`] = `
     "type": "paragraph",
   },
   {
-    "children": [
+    "children": [],
+    "content": [
       {
-        "children": [
-          {
-            "children": [],
-            "content": [],
-            "id": "0",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-        ],
-        "content": undefined,
-        "id": "column-0",
-        "props": {
-          "width": 1,
-        },
-        "type": "column",
-      },
-      {
-        "children": [
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 2",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-2",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 3",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-3",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-        ],
-        "content": undefined,
-        "id": "column-1",
-        "props": {
-          "width": 1,
-        },
-        "type": "column",
+        "styles": {},
+        "text": "Column Paragraph 2",
+        "type": "text",
       },
     ],
-    "content": undefined,
-    "id": "column-list-0",
-    "props": {},
-    "type": "columnList",
+    "id": "column-paragraph-2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Column Paragraph 3",
+        "type": "text",
+      },
+    ],
+    "id": "column-paragraph-3",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 2",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "trailing-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Test removeBlocks > Remove all blocks in column and block after 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested Paragraph 0",
+            "type": "text",
+          },
+        ],
+        "id": "nested-paragraph-0",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 0",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Column Paragraph 2",
+        "type": "text",
+      },
+    ],
+    "id": "column-paragraph-2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Column Paragraph 3",
+        "type": "text",
+      },
+    ],
+    "id": "column-paragraph-3",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "trailing-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Test removeBlocks > Remove all blocks in columns 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested Paragraph 0",
+            "type": "text",
+          },
+        ],
+        "id": "nested-paragraph-0",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 0",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 2",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "trailing-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Test removeBlocks > Remove all blocks in columns and block after 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested Paragraph 0",
+            "type": "text",
+          },
+        ],
+        "id": "nested-paragraph-0",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 0",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "trailing-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Test removeBlocks > Remove all blocks in second column 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested Paragraph 0",
+            "type": "text",
+          },
+        ],
+        "id": "nested-paragraph-0",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 0",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Column Paragraph 0",
+        "type": "text",
+      },
+    ],
+    "id": "column-paragraph-0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Column Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "column-paragraph-1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
   },
   {
     "children": [],
@@ -213,54 +548,174 @@ exports[`Test removeBlocks > Remove all columns in columnList 1`] = `
     "type": "paragraph",
   },
   {
-    "children": [
+    "children": [],
+    "content": [
       {
-        "children": [
-          {
-            "children": [],
-            "content": [],
-            "id": "1",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-        ],
-        "content": undefined,
-        "id": "0",
-        "props": {
-          "width": 1,
-        },
-        "type": "column",
-      },
-      {
-        "children": [
-          {
-            "children": [],
-            "content": [],
-            "id": "3",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-        ],
-        "content": undefined,
-        "id": "2",
-        "props": {
-          "width": 1,
-        },
-        "type": "column",
+        "styles": {},
+        "text": "Paragraph 2",
+        "type": "text",
       },
     ],
-    "content": undefined,
-    "id": "column-list-0",
-    "props": {},
-    "type": "columnList",
+    "id": "paragraph-2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "trailing-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Test removeBlocks > Remove all columns in columnList and block after 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested Paragraph 0",
+            "type": "text",
+          },
+        ],
+        "id": "nested-paragraph-0",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 0",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "trailing-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Test removeBlocks > Remove column and and block in column after 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested Paragraph 0",
+            "type": "text",
+          },
+        ],
+        "id": "nested-paragraph-0",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 0",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Column Paragraph 3",
+        "type": "text",
+      },
+    ],
+    "id": "column-paragraph-3",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
   },
   {
     "children": [],
@@ -272,6 +727,227 @@ exports[`Test removeBlocks > Remove all columns in columnList 1`] = `
       },
     ],
     "id": "paragraph-2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "trailing-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Test removeBlocks > Remove column in columnList 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested Paragraph 0",
+            "type": "text",
+          },
+        ],
+        "id": "nested-paragraph-0",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 0",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Column Paragraph 2",
+        "type": "text",
+      },
+    ],
+    "id": "column-paragraph-2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Column Paragraph 3",
+        "type": "text",
+      },
+    ],
+    "id": "column-paragraph-3",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 2",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "trailing-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Test removeBlocks > Remove column in columnList and block after 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested Paragraph 0",
+            "type": "text",
+          },
+        ],
+        "id": "nested-paragraph-0",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 0",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Column Paragraph 2",
+        "type": "text",
+      },
+    ],
+    "id": "column-paragraph-2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Column Paragraph 3",
+        "type": "text",
+      },
+    ],
+    "id": "column-paragraph-3",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",

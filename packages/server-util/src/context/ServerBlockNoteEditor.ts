@@ -10,13 +10,19 @@ import {
   InlineContentSchema,
   PartialBlock,
   StyleSchema,
-  blockToNode,
   blocksToMarkdown,
   createExternalHTMLExporter,
   createInternalHTMLSerializer,
-  nodeToBlock,
-  partialBlockToBlock,
+  docToBlocks,
 } from "@blocknote/core";
+import {
+  _blocksToProsemirrorNode as blocksToProsemirrorNodeUtil,
+  blocksToYDoc as blocksToYDocUtil,
+  blocksToYXmlFragment as blocksToYXmlFragmentUtil,
+  _prosemirrorJSONToBlocks as prosemirrorJSONToBlocksUtil,
+  yDocToBlocks as yDocToBlocksUtil,
+  yXmlFragmentToBlocks as yXmlFragmentToBlocksUtil,
+} from "@blocknote/core/yjs";
 
 import { BlockNoteViewRaw } from "@blocknote/react";
 import { Node } from "@tiptap/pm/model";
@@ -25,11 +31,6 @@ import * as React from "react";
 import { createElement } from "react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
-import {
-  prosemirrorToYDoc,
-  prosemirrorToYXmlFragment,
-  yXmlFragmentToProseMirrorRootNode,
-} from "y-prosemirror";
 import type * as Y from "yjs";
 
 /**
@@ -106,16 +107,7 @@ export class ServerBlockNoteEditor<
    * @returns BlockNote style JSON
    */
   public _prosemirrorNodeToBlocks(pmNode: Node) {
-    const blocks: Block<BSchema, InlineContentSchema, StyleSchema>[] = [];
-
-    // note, this code is similar to editor.document
-    pmNode.firstChild!.descendants((node) => {
-      blocks.push(nodeToBlock(node, this.editor.pmSchema));
-
-      return false;
-    });
-
-    return blocks;
+    return docToBlocks(pmNode);
   }
 
   /**
@@ -124,10 +116,7 @@ export class ServerBlockNoteEditor<
    * @returns BlockNote style JSON
    */
   public _prosemirrorJSONToBlocks(json: any) {
-    // note: theoretically this should also be possible without creating prosemirror nodes,
-    // but this is definitely the easiest way
-    const doc = this.editor.pmSchema.nodeFromJSON(json);
-    return this._prosemirrorNodeToBlocks(doc);
+    return prosemirrorJSONToBlocksUtil(this.editor, json);
   }
 
   /**
@@ -138,16 +127,7 @@ export class ServerBlockNoteEditor<
   public _blocksToProsemirrorNode(
     blocks: PartialBlock<BSchema, ISchema, SSchema>[],
   ) {
-    const pmSchema = this.editor.pmSchema;
-    const pmNodes = blocks.map((b) =>
-      blockToNode(partialBlockToBlock(this.editor.schema, b), pmSchema),
-    );
-
-    const doc = pmSchema.topNodeType.create(
-      null,
-      pmSchema.nodes["blockGroup"].create(null, pmNodes),
-    );
-    return doc;
+    return blocksToProsemirrorNodeUtil(this.editor, blocks);
   }
 
   /** YJS / BLOCKNOTE conversions */
@@ -157,11 +137,7 @@ export class ServerBlockNoteEditor<
    * @returns BlockNote document (BlockNote style JSON of all blocks)
    */
   public yXmlFragmentToBlocks(xmlFragment: Y.XmlFragment) {
-    const pmNode = yXmlFragmentToProseMirrorRootNode(
-      xmlFragment,
-      this.editor.pmSchema,
-    );
-    return this._prosemirrorNodeToBlocks(pmNode);
+    return yXmlFragmentToBlocksUtil(this.editor, xmlFragment);
   }
 
   /**
@@ -178,10 +154,7 @@ export class ServerBlockNoteEditor<
     blocks: Block<BSchema, ISchema, SSchema>[],
     xmlFragment?: Y.XmlFragment,
   ) {
-    return prosemirrorToYXmlFragment(
-      this._blocksToProsemirrorNode(blocks),
-      xmlFragment,
-    );
+    return blocksToYXmlFragmentUtil(this.editor, blocks, xmlFragment);
   }
 
   /**
@@ -189,7 +162,7 @@ export class ServerBlockNoteEditor<
    * @returns BlockNote document (BlockNote style JSON of all blocks)
    */
   public yDocToBlocks(ydoc: Y.Doc, xmlFragment = "prosemirror") {
-    return this.yXmlFragmentToBlocks(ydoc.getXmlFragment(xmlFragment));
+    return yDocToBlocksUtil(this.editor, ydoc, xmlFragment);
   }
 
   /**
@@ -203,10 +176,7 @@ export class ServerBlockNoteEditor<
     blocks: PartialBlock<BSchema, ISchema, SSchema>[],
     xmlFragment = "prosemirror",
   ) {
-    return prosemirrorToYDoc(
-      this._blocksToProsemirrorNode(blocks),
-      xmlFragment,
-    );
+    return blocksToYDocUtil(this.editor, blocks, xmlFragment);
   }
 
   /** HTML / BLOCKNOTE conversions */

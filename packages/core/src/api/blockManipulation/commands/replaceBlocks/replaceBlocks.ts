@@ -1,5 +1,5 @@
-import type { Node } from "prosemirror-model";
-import type { Transaction } from "prosemirror-state";
+import { type Node } from "prosemirror-model";
+import { type Transaction } from "prosemirror-state";
 import type { Block, PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import {
   partialBlockToBlock,
@@ -11,6 +11,7 @@ import {
 import { blockToNode } from "../../../nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getBlockNoteSchema, getPmSchema } from "../../../pmUtil.js";
+import { fixColumnList } from "./util/fixColumnList.js";
 
 export function removeAndInsertBlocks<
   BSchema extends BlockSchema,
@@ -41,6 +42,7 @@ export function removeAndInsertBlocks<
     ),
   );
   const removedBlocks: Block<BSchema, I, S>[] = [];
+  const columnListPositions = new Set<number>();
 
   const idOfFirstBlock =
     typeof blocksToRemove[0] === "string"
@@ -75,26 +77,35 @@ export function removeAndInsertBlocks<
     }
 
     const oldDocSize = tr.doc.nodeSize;
-    // Checks if the block is the only child of its parent. In this case, we
-    // need to delete the parent `blockGroup` node instead of just the
-    // `blockContainer`.
+
     const $pos = tr.doc.resolve(pos - removedSize);
+
+    if ($pos.node().type.name === "column") {
+      columnListPositions.add($pos.before(-1));
+    } else if ($pos.node().type.name === "columnList") {
+      columnListPositions.add($pos.before());
+    }
+
     if (
       $pos.node().type.name === "blockGroup" &&
       $pos.node($pos.depth - 1).type.name !== "doc" &&
       $pos.node().childCount === 1
     ) {
+      // Checks if the block is the only child of a parent `blockGroup` node.
+      // In this case, we need to delete the parent `blockGroup` node instead
+      // of just the `blockContainer`.
       tr.delete($pos.before(), $pos.after());
     } else {
       tr.delete(pos - removedSize, pos - removedSize + node.nodeSize);
     }
+
     const newDocSize = tr.doc.nodeSize;
     removedSize += oldDocSize - newDocSize;
 
     return false;
   });
 
-  // Throws an error if now all blocks could be found.
+  // Throws an error if not all blocks could be found.
   if (idsOfBlocksToRemove.size > 0) {
     const notFoundIds = [...idsOfBlocksToRemove].join("\n");
 
@@ -103,6 +114,8 @@ export function removeAndInsertBlocks<
         notFoundIds,
     );
   }
+
+  columnListPositions.forEach((pos) => fixColumnList(tr, pos));
 
   // Converts the nodes created from `blocksToInsert` into full `Block`s.
   const insertedBlocks = nodesToInsert.map((node) =>

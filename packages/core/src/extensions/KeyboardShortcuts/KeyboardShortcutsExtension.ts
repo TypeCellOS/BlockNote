@@ -1,10 +1,8 @@
 import { Extension } from "@tiptap/core";
 
 import { TextSelection } from "prosemirror-state";
-import { ReplaceAroundStep } from "prosemirror-transform";
 import {
   getBottomNestedBlockInfo,
-  getParentBlockInfo,
   getPrevBlockInfo,
   mergeBlocksCommand,
 } from "../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
@@ -13,6 +11,7 @@ import { splitBlockCommand } from "../../api/blockManipulation/commands/splitBlo
 import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { getBlockInfoFromSelection } from "../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { fixColumnList } from "../../api/blockManipulation/commands/replaceBlocks/util/fixColumnList.js";
 
 export const KeyboardShortcutsExtension = Extension.create<{
   editor: BlockNoteEditor<any, any, any>;
@@ -98,7 +97,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             return false;
           }),
         () =>
-          commands.command(({ state, dispatch }) => {
+          commands.command(({ state, tr, dispatch }) => {
             // when at the start of a first block in a column
             const blockInfo = getBlockInfoFromSelection(state);
             if (!blockInfo.isBlockContainer) {
@@ -106,151 +105,54 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const selectionAtBlockStart =
-              state.selection.from === blockInfo.blockContent.beforePos + 1;
-
+              tr.selection.from === blockInfo.blockContent.beforePos + 1;
             if (!selectionAtBlockStart) {
               return false;
             }
 
-            const prevBlockInfo = getPrevBlockInfo(
-              state.doc,
-              blockInfo.bnBlock.beforePos,
-            );
+            const $pos = tr.doc.resolve(blockInfo.bnBlock.beforePos);
 
-            if (prevBlockInfo) {
+            const prevBlock = $pos.nodeBefore;
+            if (prevBlock) {
               // should be no previous block
               return false;
             }
 
-            const parentBlockInfo = getParentBlockInfo(
-              state.doc,
-              blockInfo.bnBlock.beforePos,
-            );
-
-            if (parentBlockInfo?.blockNoteType !== "column") {
+            const parentBlock = $pos.node();
+            if (parentBlock.type.name !== "column") {
               return false;
             }
 
-            const column = parentBlockInfo;
-
-            const columnList = getParentBlockInfo(
-              state.doc,
-              column.bnBlock.beforePos,
-            );
-            if (columnList?.blockNoteType !== "columnList") {
-              throw new Error("parent of column is not a column list");
-            }
-
-            const shouldRemoveColumn =
-              column.childContainer!.node.childCount === 1;
-
-            const shouldRemoveColumnList =
-              shouldRemoveColumn &&
-              columnList.childContainer!.node.childCount === 2;
-
-            const isFirstColumn =
-              columnList.childContainer!.node.firstChild ===
-              column.bnBlock.node;
+            const $blockPos = tr.doc.resolve(blockInfo.bnBlock.beforePos);
+            const $columnPos = tr.doc.resolve($blockPos.before());
+            const columnListPos = $columnPos.before();
 
             if (dispatch) {
-              const blockToMove = state.doc.slice(
+              const fragment = tr.doc.slice(
                 blockInfo.bnBlock.beforePos,
                 blockInfo.bnBlock.afterPos,
-                false,
+              ).content;
+
+              tr.delete(
+                blockInfo.bnBlock.beforePos,
+                blockInfo.bnBlock.afterPos,
               );
 
-              /*
-              There are 3 different cases:
-              a) remove entire column list (if no columns would be remaining)
-              b) remove just a column (if no blocks inside a column would be remaining)
-              c) keep columns (if there are blocks remaining inside a column)
-
-              Each of these 3 cases has 2 sub-cases, depending on whether the backspace happens at the start of the first (most-left) column,
-              or at the start of a non-first column.
-              */
-              if (shouldRemoveColumnList) {
-                if (isFirstColumn) {
-                  state.tr.step(
-                    new ReplaceAroundStep(
-                      // replace entire column list
-                      columnList.bnBlock.beforePos,
-                      columnList.bnBlock.afterPos,
-                      // select content of remaining column:
-                      column.bnBlock.afterPos + 1,
-                      columnList.bnBlock.afterPos - 2,
-                      blockToMove,
-                      blockToMove.size, // append existing content to blockToMove
-                      false,
-                    ),
-                  );
-                  const pos = state.tr.doc.resolve(column.bnBlock.beforePos);
-                  state.tr.setSelection(TextSelection.between(pos, pos));
-                } else {
-                  // replaces the column list with the blockToMove slice, prepended with the content of the remaining column
-                  state.tr.step(
-                    new ReplaceAroundStep(
-                      // replace entire column list
-                      columnList.bnBlock.beforePos,
-                      columnList.bnBlock.afterPos,
-                      // select content of existing column:
-                      columnList.bnBlock.beforePos + 2,
-                      column.bnBlock.beforePos - 1,
-                      blockToMove,
-                      0, // prepend existing content to blockToMove
-                      false,
-                    ),
-                  );
-                  const pos = state.tr.doc.resolve(
-                    state.tr.mapping.map(column.bnBlock.beforePos - 1),
-                  );
-                  state.tr.setSelection(TextSelection.between(pos, pos));
-                }
-              } else if (shouldRemoveColumn) {
-                if (isFirstColumn) {
-                  // delete column
-                  state.tr.delete(
-                    column.bnBlock.beforePos,
-                    column.bnBlock.afterPos,
-                  );
-
-                  // move before columnlist
-                  state.tr.insert(
-                    columnList.bnBlock.beforePos,
-                    blockToMove.content,
-                  );
-
-                  const pos = state.tr.doc.resolve(
-                    columnList.bnBlock.beforePos,
-                  );
-                  state.tr.setSelection(TextSelection.between(pos, pos));
-                } else {
-                  // just delete the </column><column> closing and opening tags to merge the columns
-                  state.tr.delete(
-                    column.bnBlock.beforePos - 1,
-                    column.bnBlock.beforePos + 1,
-                  );
-                }
-              } else {
-                // delete block
-                state.tr.delete(
-                  blockInfo.bnBlock.beforePos,
-                  blockInfo.bnBlock.afterPos,
+              if ($columnPos.index() === 0) {
+                // Fix `columnList` and insert the block before it.
+                fixColumnList(tr, columnListPos);
+                tr.insert(columnListPos, fragment);
+                tr.setSelection(
+                  TextSelection.near(tr.doc.resolve(columnListPos)),
                 );
-                if (isFirstColumn) {
-                  // move before columnlist
-                  state.tr.insert(
-                    columnList.bnBlock.beforePos - 1,
-                    blockToMove.content,
-                  );
-                } else {
-                  // append block to previous column
-                  state.tr.insert(
-                    column.bnBlock.beforePos - 1,
-                    blockToMove.content,
-                  );
-                }
-                const pos = state.tr.doc.resolve(column.bnBlock.beforePos - 1);
-                state.tr.setSelection(TextSelection.between(pos, pos));
+              } else {
+                // Insert the block at the end of the first column and fix
+                // `columnList`.
+                tr.insert($columnPos.pos - 1, fragment);
+                tr.setSelection(
+                  TextSelection.near(tr.doc.resolve($columnPos.pos - 1)),
+                );
+                fixColumnList(tr, columnListPos);
               }
             }
 

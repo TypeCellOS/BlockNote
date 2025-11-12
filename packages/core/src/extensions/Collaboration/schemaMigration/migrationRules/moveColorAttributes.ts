@@ -23,14 +23,13 @@ const traverseElement = (
 export const moveColorAttributes: MigrationRule = (fragment, tr) => {
   // Stores necessary info for all `blockContainer` nodes which still have
   // `textColor` or `backgroundColor` attributes that need to be moved.
-  const targetBlockContainers: Record<
+  const targetBlockContainers: Map<
     string,
     {
-      textColor?: string;
-      backgroundColor?: string;
+      textColor: string | undefined;
+      backgroundColor: string | undefined;
     }
-  > = {};
-
+  > = new Map();
   // Finds all elements which still have `textColor` or `backgroundColor`
   // attributes in the current Yjs fragment.
   fragment.forEach((element) => {
@@ -40,27 +39,32 @@ export const moveColorAttributes: MigrationRule = (fragment, tr) => {
           element.nodeName === "blockContainer" &&
           element.hasAttribute("id")
         ) {
-          const colors = {
-            textColor: element.getAttribute("textColor"),
-            backgroundColor: element.getAttribute("backgroundColor"),
-          };
+          const textColor = element.getAttribute("textColor");
+          const backgroundColor = element.getAttribute("backgroundColor");
 
           // TODO: TBD best way to extract defaults
           const defaultValues = defaultZodPropSchema.parse({});
-          if (colors.textColor === defaultValues.textColor) {
-            colors.textColor = undefined;
-          }
-          if (colors.backgroundColor === defaultValues.backgroundColor) {
-            colors.backgroundColor = undefined;
-          }
+
+          const colors = {
+            textColor:
+              textColor === defaultValues.textColor ? undefined : textColor,
+            backgroundColor:
+              backgroundColor === defaultValues.backgroundColor
+                ? undefined
+                : backgroundColor,
+          };
 
           if (colors.textColor || colors.backgroundColor) {
-            targetBlockContainers[element.getAttribute("id")!] = colors;
+            targetBlockContainers.set(element.getAttribute("id")!, colors);
           }
         }
       });
     }
   });
+
+  if (targetBlockContainers.size === 0) {
+    return false;
+  }
 
   // Appends transactions to add the `textColor` and `backgroundColor`
   // attributes found on each `blockContainer` node to move them to the child
@@ -68,13 +72,21 @@ export const moveColorAttributes: MigrationRule = (fragment, tr) => {
   tr.doc.descendants((node, pos) => {
     if (
       node.type.name === "blockContainer" &&
-      targetBlockContainers[node.attrs.id]
+      targetBlockContainers.has(node.attrs.id)
     ) {
-      tr = tr.setNodeMarkup(
-        pos + 1,
-        undefined,
-        targetBlockContainers[node.attrs.id],
-      );
+      const el = tr.doc.nodeAt(pos + 1);
+      if (!el) {
+        throw new Error("No element found");
+      }
+
+      tr.setNodeMarkup(pos + 1, undefined, {
+        // preserve existing attributes
+        ...el.attrs,
+        // add the textColor and backgroundColor attributes
+        ...targetBlockContainers.get(node.attrs.id),
+      });
     }
   });
+
+  return true;
 };

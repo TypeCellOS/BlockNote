@@ -24,6 +24,7 @@ import {
   getBlockCache,
   getBlockSchema,
   getInlineContentSchema,
+  getPmSchema,
   getStyleSchema,
 } from "../pmUtil.js";
 /**
@@ -490,26 +491,28 @@ export function docToBlocks<
   S extends StyleSchema,
 >(
   doc: Node,
-  schema: Schema,
+  schema: Schema = getPmSchema(doc),
   blockSchema: BSchema = getBlockSchema(schema) as BSchema,
   inlineContentSchema: I = getInlineContentSchema(schema) as I,
   styleSchema: S = getStyleSchema(schema) as S,
   blockCache = getBlockCache(schema),
 ) {
   const blocks: Block<BSchema, I, S>[] = [];
-  doc.firstChild!.descendants((node) => {
-    blocks.push(
-      nodeToBlock(
-        node,
-        schema,
-        blockSchema,
-        inlineContentSchema,
-        styleSchema,
-        blockCache,
-      ),
-    );
-    return false;
-  });
+  if (doc.firstChild) {
+    doc.firstChild.descendants((node) => {
+      blocks.push(
+        nodeToBlock(
+          node,
+          schema,
+          blockSchema,
+          inlineContentSchema,
+          styleSchema,
+          blockCache,
+        ),
+      );
+      return false;
+    });
+  }
   return blocks;
 }
 
