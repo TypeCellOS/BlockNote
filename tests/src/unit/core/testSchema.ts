@@ -49,20 +49,14 @@ const CustomParagraph = createBlockSpec(
   ),
   {
     parse: (e) => {
-      // TODO: make sure this is needed
-      if (e.tagName !== "P") {
-        return undefined;
-      }
-
-      if (e.classList.contains("custom-paragraph")) {
+      if (e.tagName === "CUSTOM-PARAGRAPH") {
         return parseDefaultProps(e);
       }
 
       return undefined;
     },
     render: () => {
-      const paragraph = document.createElement("p");
-      paragraph.className = "custom-paragraph";
+      const paragraph = document.createElement("custom-paragraph");
 
       return {
         dom: paragraph,
@@ -70,11 +64,11 @@ const CustomParagraph = createBlockSpec(
       };
     },
     toExternalHTML: () => {
-      const paragraph = document.createElement("p");
-      paragraph.className = "custom-paragraph";
+      const paragraph = document.createElement("custom-paragraph");
 
       return {
         dom: paragraph,
+        contentDOM: paragraph,
       };
     },
   },
