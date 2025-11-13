@@ -10,7 +10,6 @@ import {
   type BlockNoteEditor,
   type BlockSchema,
   type InlineContentSchema,
-  type PartialBlock,
   type StyleSchema,
   blockToNode,
   docToBlocks,
@@ -45,7 +44,7 @@ export function _blocksToProsemirrorNode<
   SSchema extends StyleSchema,
 >(
   editor: BlockNoteEditor<BSchema, ISchema, SSchema>,
-  blocks: PartialBlock<BSchema, ISchema, SSchema>[],
+  blocks: Block<BSchema, ISchema, SSchema>[],
 ) {
   const pmNodes = blocks.map((b) => blockToNode(b, editor.pmSchema));
 
@@ -140,7 +139,7 @@ export function blocksToYDoc<
   SSchema extends StyleSchema,
 >(
   editor: BlockNoteEditor<BSchema, ISchema, SSchema>,
-  blocks: PartialBlock<BSchema, ISchema, SSchema>[],
+  blocks: Block<BSchema, ISchema, SSchema>[],
   xmlFragment = "prosemirror",
 ) {
   return prosemirrorToYDoc(

@@ -8,7 +8,6 @@ import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   InlineContentSchema,
-  PartialBlock,
   StyleSchema,
   blocksToMarkdown,
   createExternalHTMLExporter,
@@ -125,7 +124,7 @@ export class ServerBlockNoteEditor<
    * @returns Prosemirror root node
    */
   public _blocksToProsemirrorNode(
-    blocks: PartialBlock<BSchema, ISchema, SSchema>[],
+    blocks: Block<BSchema, ISchema, SSchema>[],
   ) {
     return blocksToProsemirrorNodeUtil(this.editor, blocks);
   }
@@ -173,7 +172,7 @@ export class ServerBlockNoteEditor<
    * @param blocks
    */
   public blocksToYDoc(
-    blocks: PartialBlock<BSchema, ISchema, SSchema>[],
+    blocks: Block<BSchema, ISchema, SSchema>[],
     xmlFragment = "prosemirror",
   ) {
     return blocksToYDocUtil(this.editor, blocks, xmlFragment);
