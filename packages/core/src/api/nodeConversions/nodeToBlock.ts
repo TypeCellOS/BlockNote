@@ -421,9 +421,14 @@ export function nodeToBlock<
   }
 
   const rawAttrs = {
+    // technically we only need this for "width" on ColumnList nodes
     ...node.attrs,
+    // the actual block props are stored on the blockContent node
     ...(blockInfo.isBlockContainer ? blockInfo.blockContent.node.attrs : {}),
   };
+
+  // remove the id that was added by node.attrs above. It's not part of the block props
+  delete rawAttrs.id;
 
   const props = z.parse(blockSpec.propSchema._zodSource, rawAttrs);
 

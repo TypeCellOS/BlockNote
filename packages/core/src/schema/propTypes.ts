@@ -21,7 +21,7 @@ export function createPropSchemaFromZod<S extends z.$ZodObject>(schema: S) {
   return {
     _output: undefined as any,
     _input: undefined as any,
-    _zodSource: schema,
+    _zodSource: (schema as any).strict(), // force strict parsing
   } as PropSchema<z.output<S>, z.input<S>>;
 }
 

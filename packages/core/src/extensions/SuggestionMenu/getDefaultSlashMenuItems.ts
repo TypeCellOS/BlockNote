@@ -100,7 +100,7 @@ export function getDefaultSlashMenuItems<
               props: { level },
             });
           },
-          badge: formatKeyboardShortcut("Mod-Alt-1"),
+          badge: formatKeyboardShortcut(`Mod-Alt-${level}`),
           key: `heading_${level}`,
           ...editor.dictionary.slash_menu[`heading_${level}`],
         });
