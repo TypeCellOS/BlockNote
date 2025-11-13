@@ -25,12 +25,54 @@ import {
 
 import { BlockNoteViewRaw } from "@blocknote/react";
 import { Node } from "@tiptap/pm/model";
-import * as jsdom from "jsdom";
 import * as React from "react";
 import { createElement } from "react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
 import type * as Y from "yjs";
+
+/**
+ * Globals that a DOM shim should provide
+ */
+export type DomGlobals = { window: any; document: any };
+
+/**
+ * Interface for DOM shims that can be used with ServerBlockNoteEditor.
+ *
+ * Example with jsdom:
+ * ```ts
+ * import { JSDOM } from 'jsdom';
+ * const jsdomShim: DomShim = {
+ *   acquire() {
+ *     const dom = new JSDOM();
+ *     return { window: dom.window as any, document: dom.window.document as any };
+ *   },
+ * };
+ * ```
+ *
+ * Example with happydom:
+ * ```ts
+ * import { Window } from 'happy-dom';
+ * const happydomShim: DomShim = {
+ *   acquire() {
+ *     const window = new Window();
+ *     return { window: window as any, document: window.document as any };
+ *   },
+ * };
+ * ```
+ */
+export interface DomShim {
+  /**
+   * Acquire DOM globals (window and document) for use during the operation.
+   * Can return synchronously or asynchronously.
+   */
+  acquire(): Promise<DomGlobals> | DomGlobals;
+  /**
+   * Optional cleanup method called after the operation completes.
+   * Can be synchronous or asynchronous.
+   */
+  release?(globals: DomGlobals): Promise<void> | void;
+}
 
 /**
  * Use the ServerBlockNoteEditor to interact with BlockNote documents in a server (nodejs) environment.
@@ -46,33 +88,87 @@ export class ServerBlockNoteEditor<
   public readonly editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
 
   /**
-   * We currently use a JSDOM instance to mock document and window methods
-   *
-   * A possible improvement could be to make this:
-   * a) pluggable so other shims can be used as well
-   * b) obsolete, but for this all blocks should be React based and we need to remove all references to document / window
-   *    from the core / react package. (and even then, it's likely some custom blocks would still use document / window methods)
+   * Optional DOM shim for providing window and document in server environments.
+   * If not provided, methods that require DOM will throw errors when accessed.
    */
-  private jsdom = new jsdom.JSDOM();
+  private readonly domShim?: DomShim;
 
   /**
-   * Calls a function with mocking window and document using JSDOM
-   *
-   * We could make this obsolete by passing in a document / window object to the render / serialize methods of Blocks
+   * Calls a function with DOM globals (window and document) provided by the shim.
+   * If no shim is provided and globals don't exist, throws errors on access rather than immediately.
+   * The callback receives document and window as arguments for easier access.
    */
-  public async _withJSDOM<T>(fn: () => Promise<T>) {
+  public async _withDOM<T>(
+    fn: (globals: DomGlobals) => Promise<T>,
+  ): Promise<T> {
     const prevWindow = globalThis.window;
     const prevDocument = globalThis.document;
-    globalThis.document = this.jsdom.window.document;
-    (globalThis as any).window = this.jsdom.window;
-    (globalThis as any).window.__TEST_OPTIONS = (
-      prevWindow as any
-    )?.__TEST_OPTIONS;
+
+    let acquiredGlobals: DomGlobals | undefined;
+    let document: any;
+    let window: any;
+
+    if (this.domShim) {
+      const result = this.domShim.acquire();
+      acquiredGlobals = result instanceof Promise ? await result : result;
+      document = acquiredGlobals.document;
+      window = acquiredGlobals.window;
+      globalThis.document = document;
+      (globalThis as any).window = window;
+      // Preserve __TEST_OPTIONS if it existed
+      (globalThis as any).window.__TEST_OPTIONS = (
+        prevWindow as any
+      )?.__TEST_OPTIONS;
+    } else if (prevWindow && prevDocument) {
+      // Globals already exist, use them as-is
+      document = prevDocument;
+      window = prevWindow;
+    } else {
+      // No shim and no globals - create proxy objects that throw on access
+      const errorMessage =
+        "DOM globals (window/document) are required but not available. " +
+        "Please provide a DomShim when creating ServerBlockNoteEditor, " +
+        "or ensure window/document are available globally.";
+
+      const throwingProxy = new Proxy(
+        {},
+        {
+          get() {
+            throw new Error(errorMessage);
+          },
+          set() {
+            throw new Error(errorMessage);
+          },
+          has() {
+            throw new Error(errorMessage);
+          },
+          ownKeys() {
+            throw new Error(errorMessage);
+          },
+          getOwnPropertyDescriptor() {
+            throw new Error(errorMessage);
+          },
+        },
+      );
+
+      document = throwingProxy as any;
+      window = throwingProxy as any;
+      globalThis.document = document;
+      (globalThis as any).window = window;
+    }
+
     try {
-      return await fn();
+      return await fn({ document, window });
     } finally {
       globalThis.document = prevDocument;
       globalThis.window = prevWindow;
+
+      if (this.domShim && acquiredGlobals && this.domShim.release) {
+        const releaseResult = this.domShim.release(acquiredGlobals);
+        if (releaseResult instanceof Promise) {
+          await releaseResult;
+        }
+      }
     }
   }
 
@@ -80,8 +176,11 @@ export class ServerBlockNoteEditor<
     BSchema extends BlockSchema = DefaultBlockSchema,
     ISchema extends InlineContentSchema = DefaultInlineContentSchema,
     SSchema extends StyleSchema = DefaultStyleSchema,
-  >(options: Partial<BlockNoteEditorOptions<BSchema, ISchema, SSchema>> = {}) {
-    return new ServerBlockNoteEditor(options) as ServerBlockNoteEditor<
+  >(
+    options: Partial<BlockNoteEditorOptions<BSchema, ISchema, SSchema>> = {},
+    domShim?: DomShim,
+  ) {
+    return new ServerBlockNoteEditor(options, domShim) as ServerBlockNoteEditor<
       BSchema,
       ISchema,
       SSchema
@@ -90,8 +189,10 @@ export class ServerBlockNoteEditor<
 
   protected constructor(
     options: Partial<BlockNoteEditorOptions<any, any, any>>,
+    domShim?: DomShim,
   ) {
     this.editor = BlockNoteEditor.create(options) as any;
+    this.domShim = domShim;
   }
 
   /** PROSEMIRROR / BLOCKNOTE conversions */
@@ -186,14 +287,14 @@ export class ServerBlockNoteEditor<
   public async blocksToHTMLLossy(
     blocks: PartialBlock<BSchema, ISchema, SSchema>[],
   ): Promise<string> {
-    return this._withJSDOM(async () => {
+    return this._withDOM(async ({ document }) => {
       const exporter = createExternalHTMLExporter(
         this.editor.pmSchema,
         this.editor,
       );
 
       return exporter.exportBlocks(blocks, {
-        document: this.jsdom.window.document,
+        document,
       });
     });
   }
@@ -210,14 +311,14 @@ export class ServerBlockNoteEditor<
   public async blocksToFullHTML(
     blocks: PartialBlock<BSchema, ISchema, SSchema>[],
   ): Promise<string> {
-    return this._withJSDOM(async () => {
+    return this._withDOM(async ({ document }) => {
       const exporter = createInternalHTMLSerializer(
         this.editor.pmSchema,
         this.editor,
       );
 
       return exporter.serializeBlocks(blocks, {
-        document: this.jsdom.window.document,
+        document,
       });
     });
   }
@@ -232,7 +333,7 @@ export class ServerBlockNoteEditor<
   public async tryParseHTMLToBlocks(
     html: string,
   ): Promise<Block<BSchema, ISchema, SSchema>[]> {
-    return this._withJSDOM(async () => {
+    return this._withDOM(async () => {
       return this.editor.tryParseHTMLToBlocks(html);
     });
   }
@@ -248,9 +349,9 @@ export class ServerBlockNoteEditor<
   public async blocksToMarkdownLossy(
     blocks: PartialBlock<BSchema, ISchema, SSchema>[],
   ): Promise<string> {
-    return this._withJSDOM(async () => {
+    return this._withDOM(async ({ document }) => {
       return blocksToMarkdown(blocks, this.editor.pmSchema, this.editor, {
-        document: this.jsdom.window.document,
+        document,
       });
     });
   }
@@ -265,7 +366,7 @@ export class ServerBlockNoteEditor<
   public async tryParseMarkdownToBlocks(
     markdown: string,
   ): Promise<Block<BSchema, ISchema, SSchema>[]> {
-    return this._withJSDOM(async () => {
+    return this._withDOM(async () => {
       return this.editor.tryParseMarkdownToBlocks(markdown);
     });
   }
@@ -285,10 +386,8 @@ export class ServerBlockNoteEditor<
     );
    */
   public async withReactContext<T>(comp: React.FC<any>, fn: () => Promise<T>) {
-    return this._withJSDOM(async () => {
-      const tmpRoot = createRoot(
-        this.jsdom.window.document.createElement("div"),
-      );
+    return this._withDOM(async ({ document }) => {
+      const tmpRoot = createRoot(document.createElement("div"));
 
       flushSync(() => {
         tmpRoot.render(

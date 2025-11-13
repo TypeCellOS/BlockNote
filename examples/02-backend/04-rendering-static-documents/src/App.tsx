@@ -4,9 +4,20 @@ import "@blocknote/mantine/style.css";
 /**
  On Server Side, you can use the ServerBlockNoteEditor to render BlockNote documents to HTML. e.g.:
 
-  import { ServerBlockNoteEditor } from "@blocknote/server-util";
+  import { ServerBlockNoteEditor, DomShim } from "@blocknote/server-util";
+  import { JSDOM } from "jsdom";
 
-  const editor = ServerBlockNoteEditor.create();
+  const jsdomShim: DomShim = {
+    acquire() {
+      const dom = new JSDOM();
+      return {
+        window: dom.window as any,
+        document: dom.window.document as any,
+      };
+    },
+  };
+
+  const editor = ServerBlockNoteEditor.create({}, jsdomShim);
   const html = await editor.blocksToFullHTML(document);
 
 You can then use render this HTML as a static page or send it to the client. Make sure to include the editor stylesheets:

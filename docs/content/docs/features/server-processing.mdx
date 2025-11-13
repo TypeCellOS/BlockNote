@@ -12,14 +12,28 @@ While you can use the `BlockNoteEditor` on the client side, you can also use `Se
 For example, use the following code to convert a BlockNote document to HTML on the server:
 
 ```tsx
-import { ServerBlockNoteEditor } from "@blocknote/server-util";
+import { ServerBlockNoteEditor, DomShim } from "@blocknote/server-util";
+import { JSDOM } from "jsdom";
 
-const editor = ServerBlockNoteEditor.create();
+// Create a DOM shim (you can use jsdom, happydom, or any other DOM implementation)
+const jsdomShim: DomShim = {
+  acquire() {
+    const dom = new JSDOM();
+    return {
+      window: dom.window as any,
+      document: dom.window.document as any,
+    };
+  },
+};
+
+const editor = ServerBlockNoteEditor.create({}, jsdomShim);
 const html = await editor.blocksToFullHTML(blocks);
 ```
 
 `ServerBlockNoteEditor.create` takes the same BlockNoteEditorOptions as `useCreateBlockNote` and `BlockNoteEditor.create` ([see docs](/docs/getting-started)),
 so you can pass the same configuration (for example, your custom schema) to your server-side BlockNote editor as on the client.
+
+**Note:** Methods that require DOM (like `blocksToFullHTML`, `blocksToHTMLLossy`, `blocksToMarkdownLossy`, etc.) require a `DomShim` to be provided. You can use any DOM implementation (jsdom, happydom, etc.) by implementing the `DomShim` interface.
 
 ## Functions for converting blocks
 
