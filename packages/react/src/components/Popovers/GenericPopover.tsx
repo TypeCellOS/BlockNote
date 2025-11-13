@@ -91,14 +91,10 @@ export const GenericPopover = (
     // it was open, instead of the React children. This is because they may
     // rerender during this time, causing unwanted behaviour.
     //
-    // An example of this is with the Formatting Toolbar. While it's open,
-    // clicking a different block will cause the popover to close as the
-    // selection collapses. At the same time, the popover begins to close and
-    // the toolbar re-renders, showing buttons corresponding to the block at
-    // the new selection while it's still displayed at the previous selection.
-    // The File Panel meanwhile, will throw an error, as it requires a block
-    // ID to be passed to it, which will be undefined while the popver is
-    // closing.
+    // When we use the `GenericPopover` for BlockNote's internal UI elements
+    // this isn't a huge deal, as we only pass child components if the popover
+    // should be open. So without this fix, the popover just won't transition
+    // out and will instead appear to hide instantly.
     return (
       <div
         ref={mergedRefs}
