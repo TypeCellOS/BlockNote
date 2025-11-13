@@ -4,7 +4,7 @@ import {
   getNearestBlockPos,
 } from "../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "./BlockNoteEditor.js";
-import { BlockNoteExtension } from "./BlockNoteExtension.js";
+import { createExtension } from "./BlockNoteExtension.js";
 
 /**
  * @vitest-environment jsdom
@@ -130,18 +130,12 @@ it("onCreate event", () => {
   let created = false;
   BlockNoteEditor.create({
     extensions: [
-      (e) =>
-        new (class extends BlockNoteExtension {
-          public static key() {
-            return "test";
-          }
-          constructor(editor: BlockNoteEditor) {
-            super(editor);
-            editor.onCreate(() => {
-              created = true;
-            });
-          }
-        })(e),
+      createExtension({
+        key: "test",
+        init: () => {
+          created = true;
+        },
+      }),
     ],
   });
   expect(created).toBe(true);

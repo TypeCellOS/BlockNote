@@ -40,7 +40,7 @@ export const PlaceholderPlugin = createExtension((editor, options) => {
               default: defaultPlaceholder,
               emptyDocument: emptyPlaceholder,
               ...rest
-            } = placeholders;
+            } = placeholders || {};
 
             // add block specific placeholders
             for (const [blockType, placeholder] of Object.entries(rest)) {
