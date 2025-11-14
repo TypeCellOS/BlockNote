@@ -37,8 +37,12 @@ export type BlockTypeSelectItem = {
   icon: IconType;
 };
 
-export const blockTypeSelectItems = (
-  editor: BlockNoteEditor<BlockSchema, InlineContentSchema, StyleSchema>,
+export const blockTypeSelectItems = <
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema,
+>(
+  editor: BlockNoteEditor<BSchema, I, S>,
 ): BlockTypeSelectItem[] => {
   const items: BlockTypeSelectItem[] = [];
   items.push({
