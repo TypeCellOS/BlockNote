@@ -46,17 +46,34 @@ async function fetchAutoCompleteSuggestions(
   state: EditorState,
   _signal: AbortSignal,
 ) {
-  console.log("fetch");
-  return [
+  // TODO: options to get block json until selection
+  const text = state.doc.textBetween(
+    state.selection.from - 300,
+    state.selection.from,
+  );
+
+  const response = await fetch(
+    `https://localhost:3000/ai/autocomplete/generateText`,
     {
-      position: state.selection.from,
-      suggestion: "Hello World",
+      method: "POST",
+      body: JSON.stringify({ text }),
     },
-    {
-      position: state.selection.from,
-      suggestion: "Hello Planet",
-    },
-  ];
+  );
+  const data = await response.json();
+  return data.suggestions.map((suggestion: string) => ({
+    position: state.selection.from,
+    suggestion: suggestion,
+  }));
+  //   return [
+  //     {
+  //       position: state.selection.from,
+  //       suggestion: "Hello World",
+  //     },
+  //     {
+  //       position: state.selection.from,
+  //       suggestion: "Hello Planet",
+  //     },
+  //   ];
 }
 
 function getMatchingSuggestions(
@@ -136,7 +153,10 @@ export class AutoCompleteProseMirrorPlugin<
     },
   );
 
-  constructor(private readonly editor: BlockNoteEditor<BSchema, I, S>) {
+  constructor(
+    private readonly editor: BlockNoteEditor<BSchema, I, S>,
+    options: {},
+  ) {
     super();
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias
@@ -416,14 +436,15 @@ export interface DebouncedFunction<T extends any[], R> {
 // TODO: test with Collaboration edits
 // TODO: compare kilocode / cline etc
 // TODO: think about advanced scenarios (e.g.: multiple suggestions, etc.)
-
+// TODO: double tap -> extra long
 /**
  * Create a new AIExtension instance, this can be passed to the BlockNote editor via the `extensions` option
  */
-export function createAIAutoCompleteExtension() {
-  // options: ConstructorParameters<typeof AIAutoCom>[1],
+export function createAIAutoCompleteExtension(
+  options: ConstructorParameters<typeof AutoCompleteProseMirrorPlugin>[1],
+) {
   return (editor: BlockNoteEditor<any, any, any>) => {
-    return new AutoCompleteProseMirrorPlugin(editor);
+    return new AutoCompleteProseMirrorPlugin(editor, options);
   };
 }
 
