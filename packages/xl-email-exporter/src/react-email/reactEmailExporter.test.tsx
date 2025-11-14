@@ -1,17 +1,19 @@
-import { describe, it, expect } from "vitest";
-import { ReactEmailExporter } from "./reactEmailExporter.jsx";
-import { reactEmailDefaultSchemaMappings } from "./defaultSchema/index.js";
 import {
   BlockNoteSchema,
   createBlockSpec,
   createInlineContentSpec,
   createPageBreakBlockSpec,
+  createPropSchemaFromZod,
   createStyleSpec,
   defaultBlockSpecs,
   defaultInlineContentSpecs,
   defaultStyleSpecs,
 } from "@blocknote/core";
 import { testDocument } from "@shared/testDocument.js";
+import { describe, expect, it } from "vitest";
+import * as z from "zod/v4";
+import { reactEmailDefaultSchemaMappings } from "./defaultSchema/index.js";
+import { ReactEmailExporter } from "./reactEmailExporter.jsx";
 
 describe("react email exporter", () => {
   it("should export a document (HTML snapshot)", async () => {
@@ -33,7 +35,7 @@ describe("react email exporter", () => {
           {
             content: "none",
             type: "extraBlock",
-            propSchema: {},
+            propSchema: createPropSchemaFromZod(z.object({})),
           },
           {} as any,
         )(),
@@ -75,7 +77,7 @@ describe("react email exporter", () => {
           {
             type: "extraInlineContent",
             content: "styled",
-            propSchema: {},
+            propSchema: createPropSchemaFromZod(z.object({})),
           },
           {} as any,
         ),

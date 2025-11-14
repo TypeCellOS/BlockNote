@@ -9,6 +9,7 @@
           "backgroundColor": "default",
           "caption": "",
           "name": "",
+          "previewWidth": undefined,
           "showPreview": true,
           "textAlignment": "left",
           "url": "http://localhost:3000/exampleURL",

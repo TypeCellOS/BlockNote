@@ -13,6 +13,7 @@ import {
   inlineContentToNodes,
   nodeToCustomInlineContent,
   PartialCustomInlineContentFromConfig,
+  partialInlineContentToInlineContent,
   Props,
   PropSchema,
   propsToAttributes,
@@ -25,6 +26,7 @@ import {
   ReactNodeViewRenderer,
   useReactNodeView,
 } from "@tiptap/react";
+import * as z from "zod/v4/core";
 // import { useReactNodeView } from "@tiptap/react/dist/packages/react/src/useReactNodeView";
 import { FC, JSX } from "react";
 import { renderToDOMSpec } from "./@util/ReactRenderUtil.js";
@@ -78,13 +80,21 @@ export function InlineContentWrapper<
       data-inline-content-type={props.inlineContentType}
       // Adds props as HTML attributes in kebab-case with "data-" prefix. Skips
       // props set to their default values.
+      // TODO: reuse same code from core
       {...Object.fromEntries(
         Object.entries(props.inlineContentProps)
           .filter(([prop, value]) => {
-            const spec = props.propSchema[prop];
-            return value !== spec.default;
+            const spec = props.propSchema._zodSource._zod.def.shape[prop];
+            const defaultValue =
+              spec instanceof z.$ZodDefault
+                ? spec._zod.def.defaultValue
+                : undefined;
+            return value !== defaultValue;
           })
           .map(([prop, value]) => {
+            if (typeof value === "object") {
+              return [camelToDataKebab(prop), JSON.stringify(value)];
+            }
             return [camelToDataKebab(prop), value];
           }),
       )}
@@ -202,8 +212,12 @@ export function createReactInlineContentSpec<
                     ) as any as InlineContentFromConfig<T, S> // TODO: fix cast
                   }
                   updateInlineContent={(update) => {
-                    const content = inlineContentToNodes(
+                    const fullUpdate = partialInlineContentToInlineContent(
                       [update],
+                      editor.schema.inlineContentSchema,
+                    );
+                    const content = inlineContentToNodes(
+                      fullUpdate,
                       editor.pmSchema,
                     );
 

@@ -1,11 +1,11 @@
 import {
   Block,
-  blockHasType,
   BlockSchema,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
-  editorHasBlockWithType,
+  defaultZodPropSchema,
+  editorHasBlockTypeAndZodProps,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -29,18 +29,19 @@ export const BlockColorsItem = <
 
   const editor = useBlockNoteEditor<BSchema, I, S>();
 
-  // We cast the block to a generic one, as the base type causes type errors
-  // with runtime type checking using `blockHasType`. Runtime type checking is
-  // more valuable than static checks, so better to do it like this.
   const block = props.block as Block<any, any, any>;
 
   if (
-    !blockHasType(block, editor, block.type, {
-      textColor: "string",
-    }) &&
-    !blockHasType(block, editor, block.type, {
-      backgroundColor: "string",
-    })
+    !editorHasBlockTypeAndZodProps(
+      editor,
+      block.type,
+      defaultZodPropSchema.pick({ textColor: true }),
+    ) &&
+    !editorHasBlockTypeAndZodProps(
+      editor,
+      block.type,
+      defaultZodPropSchema.pick({ backgroundColor: true }),
+    )
   ) {
     return null;
   }
@@ -63,12 +64,11 @@ export const BlockColorsItem = <
         <ColorPicker
           iconSize={18}
           text={
-            blockHasType(block, editor, block.type, {
-              textColor: "string",
-            }) &&
-            editorHasBlockWithType(editor, block.type, {
-              textColor: "string",
-            })
+            editorHasBlockTypeAndZodProps(
+              editor,
+              block.type,
+              defaultZodPropSchema.pick({ textColor: true }),
+            )
               ? {
                   color: block.props.textColor,
                   setColor: (color) =>
@@ -80,12 +80,11 @@ export const BlockColorsItem = <
               : undefined
           }
           background={
-            blockHasType(block, editor, block.type, {
-              backgroundColor: "string",
-            }) &&
-            editorHasBlockWithType(editor, block.type, {
-              backgroundColor: "string",
-            })
+            editorHasBlockTypeAndZodProps(
+              editor,
+              block.type,
+              defaultZodPropSchema.pick({ backgroundColor: true }),
+            )
               ? {
                   color: block.props.backgroundColor,
                   setColor: (color) =>

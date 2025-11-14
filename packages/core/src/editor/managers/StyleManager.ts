@@ -1,18 +1,19 @@
+import { TextSelection } from "@tiptap/pm/state";
 import { insertContentAt } from "../../api/blockManipulation/insertContentAt.js";
 import { inlineContentToNodes } from "../../api/nodeConversions/blockToNode.js";
+import {
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
+} from "../../blocks/defaultBlocks.js";
 import {
   BlockSchema,
   InlineContentSchema,
   PartialInlineContent,
   StyleSchema,
   Styles,
+  partialInlineContentToInlineContent,
 } from "../../schema/index.js";
-import {
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-} from "../../blocks/defaultBlocks.js";
-import { TextSelection } from "@tiptap/pm/state";
 import { UnreachableCaseError } from "../../util/typescript.js";
 import { BlockNoteEditor } from "../BlockNoteEditor.js";
 
@@ -32,7 +33,11 @@ export class StyleManager<
     content: PartialInlineContent<ISchema, SSchema>,
     { updateSelection = false }: { updateSelection?: boolean } = {},
   ) {
-    const nodes = inlineContentToNodes(content, this.editor.pmSchema);
+    const fullContent = partialInlineContentToInlineContent(
+      content,
+      this.editor.schema.inlineContentSchema,
+    );
+    const nodes = inlineContentToNodes(fullContent, this.editor.pmSchema);
 
     this.editor.transact((tr) => {
       insertContentAt(

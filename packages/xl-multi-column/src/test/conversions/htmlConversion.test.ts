@@ -8,11 +8,8 @@ import {
   StyleSchema,
   createExternalHTMLExporter,
   createInternalHTMLSerializer,
+  partialBlocksToBlocks,
 } from "@blocknote/core";
-import {
-  addIdsToBlocks,
-  partialBlocksToBlocksForTesting,
-} from "@shared/formatConversionTestUtil.js";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { multiColumnSchemaTestCases } from "./testCases.js";
@@ -28,9 +25,9 @@ async function convertToHTMLAndCompareSnapshots<
   snapshotDirectory: string,
   snapshotName: string,
 ) {
-  addIdsToBlocks(blocks);
+  const fullBlocks = partialBlocksToBlocks(editor.schema, blocks);
   const serializer = createInternalHTMLSerializer(editor.pmSchema, editor);
-  const internalHTML = serializer.serializeBlocks(blocks, {});
+  const internalHTML = serializer.serializeBlocks(fullBlocks, {});
   const internalHTMLSnapshotPath =
     "./__snapshots__/" +
     snapshotDirectory +
@@ -40,14 +37,13 @@ async function convertToHTMLAndCompareSnapshots<
   await expect(internalHTML).toMatchFileSnapshot(internalHTMLSnapshotPath);
 
   // turn the internalHTML back into blocks, and make sure no data was lost
-  const fullBlocks = partialBlocksToBlocksForTesting(editor.schema, blocks);
   const parsed = await editor.tryParseHTMLToBlocks(internalHTML);
 
   expect(parsed).toStrictEqual(fullBlocks);
 
   // Create the "external" HTML, which is a cleaned up HTML representation, but lossy
   const exporter = createExternalHTMLExporter(editor.pmSchema, editor);
-  const externalHTML = exporter.exportBlocks(blocks, {});
+  const externalHTML = exporter.exportBlocks(fullBlocks, {});
   const externalHTMLSnapshotPath =
     "./__snapshots__/" +
     snapshotDirectory +

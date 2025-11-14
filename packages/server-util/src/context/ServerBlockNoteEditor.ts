@@ -3,11 +3,11 @@ import {
   BlockNoteEditor,
   BlockNoteEditorOptions,
   BlockSchema,
+  CustomBlockNoteSchema,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   InlineContentSchema,
-  PartialBlock,
   StyleSchema,
   blocksToMarkdown,
   createExternalHTMLExporter,
@@ -16,9 +16,9 @@ import {
 } from "@blocknote/core";
 import {
   _blocksToProsemirrorNode as blocksToProsemirrorNodeUtil,
-  _prosemirrorJSONToBlocks as prosemirrorJSONToBlocksUtil,
   blocksToYDoc as blocksToYDocUtil,
   blocksToYXmlFragment as blocksToYXmlFragmentUtil,
+  _prosemirrorJSONToBlocks as prosemirrorJSONToBlocksUtil,
   yDocToBlocks as yDocToBlocksUtil,
   yXmlFragmentToBlocks as yXmlFragmentToBlocksUtil,
 } from "@blocknote/core/yjs";
@@ -77,15 +77,19 @@ export class ServerBlockNoteEditor<
   }
 
   public static create<
-    BSchema extends BlockSchema = DefaultBlockSchema,
-    ISchema extends InlineContentSchema = DefaultInlineContentSchema,
-    SSchema extends StyleSchema = DefaultStyleSchema,
-  >(options: Partial<BlockNoteEditorOptions<BSchema, ISchema, SSchema>> = {}) {
-    return new ServerBlockNoteEditor(options) as ServerBlockNoteEditor<
-      BSchema,
-      ISchema,
-      SSchema
-    >;
+    Options extends Partial<BlockNoteEditorOptions<any, any, any>> | undefined,
+  >(
+    options?: Options,
+  ): Options extends {
+    schema: CustomBlockNoteSchema<infer BSchema, infer ISchema, infer SSchema>;
+  }
+    ? ServerBlockNoteEditor<BSchema, ISchema, SSchema>
+    : ServerBlockNoteEditor<
+        DefaultBlockSchema,
+        DefaultInlineContentSchema,
+        DefaultStyleSchema
+      > {
+    return new ServerBlockNoteEditor(options ?? {}) as any;
   }
 
   protected constructor(
@@ -120,7 +124,7 @@ export class ServerBlockNoteEditor<
    * @returns Prosemirror root node
    */
   public _blocksToProsemirrorNode(
-    blocks: PartialBlock<BSchema, ISchema, SSchema>[],
+    blocks: Block<BSchema, ISchema, SSchema>[],
   ) {
     return blocksToProsemirrorNodeUtil(this.editor, blocks);
   }
@@ -168,7 +172,7 @@ export class ServerBlockNoteEditor<
    * @param blocks
    */
   public blocksToYDoc(
-    blocks: PartialBlock<BSchema, ISchema, SSchema>[],
+    blocks: Block<BSchema, ISchema, SSchema>[],
     xmlFragment = "prosemirror",
   ) {
     return blocksToYDocUtil(this.editor, blocks, xmlFragment);
@@ -184,7 +188,7 @@ export class ServerBlockNoteEditor<
    * @returns The blocks, serialized as an HTML string.
    */
   public async blocksToHTMLLossy(
-    blocks: PartialBlock<BSchema, ISchema, SSchema>[],
+    blocks: Block<BSchema, ISchema, SSchema>[],
   ): Promise<string> {
     return this._withJSDOM(async () => {
       const exporter = createExternalHTMLExporter(
@@ -208,7 +212,7 @@ export class ServerBlockNoteEditor<
    * @returns The blocks, serialized as an HTML string.
    */
   public async blocksToFullHTML(
-    blocks: PartialBlock<BSchema, ISchema, SSchema>[],
+    blocks: Block<BSchema, ISchema, SSchema>[],
   ): Promise<string> {
     return this._withJSDOM(async () => {
       const exporter = createInternalHTMLSerializer(
@@ -246,7 +250,7 @@ export class ServerBlockNoteEditor<
    * @returns The blocks, serialized as a Markdown string.
    */
   public async blocksToMarkdownLossy(
-    blocks: PartialBlock<BSchema, ISchema, SSchema>[],
+    blocks: Block<BSchema, ISchema, SSchema>[],
   ): Promise<string> {
     return this._withJSDOM(async () => {
       return blocksToMarkdown(blocks, this.editor.pmSchema, this.editor, {

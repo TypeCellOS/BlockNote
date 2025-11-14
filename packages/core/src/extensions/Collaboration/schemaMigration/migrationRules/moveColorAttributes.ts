@@ -1,7 +1,7 @@
 import * as Y from "yjs";
 
+import { defaultZodPropSchema } from "../../../../blocks/defaultProps.js";
 import { MigrationRule } from "./migrationRule.js";
-import { defaultProps } from "../../../../blocks/defaultProps.js";
 
 // Helper function to recursively traverse a `Y.XMLElement` and its descendant
 // elements.
@@ -42,13 +42,14 @@ export const moveColorAttributes: MigrationRule = (fragment, tr) => {
           const textColor = element.getAttribute("textColor");
           const backgroundColor = element.getAttribute("backgroundColor");
 
+          // TODO: TBD best way to extract defaults
+          const defaultValues = defaultZodPropSchema.parse({});
+
           const colors = {
             textColor:
-              textColor === defaultProps.textColor.default
-                ? undefined
-                : textColor,
+              textColor === defaultValues.textColor ? undefined : textColor,
             backgroundColor:
-              backgroundColor === defaultProps.backgroundColor.default
+              backgroundColor === defaultValues.backgroundColor
                 ? undefined
                 : backgroundColor,
           };

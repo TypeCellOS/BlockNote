@@ -2,7 +2,7 @@ import { Dictionary } from "../dictionary.js";
 
 export const es: Dictionary = {
   slash_menu: {
-    heading: {
+    heading_1: {
       title: "Encabezado 1",
       subtext: "Encabezado de primer nivel",
       aliases: ["h", "encabezado1", "h1"],
@@ -38,7 +38,7 @@ export const es: Dictionary = {
       aliases: ["h6", "encabezado6", "subencabezado6"],
       group: "Subencabezados",
     },
-    toggle_heading: {
+    toggle_heading_1: {
       title: "Encabezado Plegable 1",
       subtext: "Encabezado de primer nivel que se puede plegar",
       aliases: ["h", "encabezado1", "h1", "plegable", "contraible"],

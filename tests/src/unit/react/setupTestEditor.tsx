@@ -1,7 +1,7 @@
 import {
   BlockNoteEditor,
-  BlockNoteSchema,
   BlockSchema,
+  CustomBlockNoteSchema,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -17,7 +17,7 @@ export const setupTestEditor = <
   I extends InlineContentSchema,
   S extends StyleSchema,
 >(
-  schema: BlockNoteSchema<B, I, S>,
+  schema: CustomBlockNoteSchema<B, I, S>,
 ): (() => BlockNoteEditor<B, I, S>) => {
   let editor: BlockNoteEditor<B, I, S>;
   const div = document.createElement("div");

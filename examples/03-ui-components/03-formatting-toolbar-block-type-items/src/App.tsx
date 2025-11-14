@@ -3,11 +3,11 @@ import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
+  BlockTypeSelectItem,
+  FormattingToolbar,
   FormattingToolbarController,
   blockTypeSelectItems,
   useCreateBlockNote,
-  BlockTypeSelectItem,
-  FormattingToolbar,
 } from "@blocknote/react";
 
 import { RiAlertFill } from "react-icons/ri";
@@ -60,7 +60,7 @@ export default function App() {
             // Sets the items in the Block Type Select.
             blockTypeSelectItems={[
               // Gets the default Block Type Select items.
-              ...blockTypeSelectItems(editor.dictionary),
+              ...blockTypeSelectItems(editor),
               // Adds an item for the Alert block.
               {
                 name: "Alert",

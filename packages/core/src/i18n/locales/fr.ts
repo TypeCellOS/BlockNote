@@ -2,7 +2,7 @@ import { Dictionary } from "../dictionary.js";
 
 export const fr: Dictionary = {
   slash_menu: {
-    heading: {
+    heading_1: {
       title: "Titre 1",
       subtext: "Utilisé pour un titre de premier niveau",
       aliases: ["h", "titre1", "h1"],
@@ -39,7 +39,7 @@ export const fr: Dictionary = {
       aliases: ["h6", "titre6", "sous-titre6"],
       group: "Sous-titres",
     },
-    toggle_heading: {
+    toggle_heading_1: {
       title: "Titre Repliable 1",
       subtext:
         "Titre de premier niveau qui peut être replié pour masquer son contenu",

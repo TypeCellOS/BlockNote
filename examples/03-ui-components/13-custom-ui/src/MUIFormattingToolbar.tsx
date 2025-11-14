@@ -34,12 +34,12 @@ import {
   Typography,
 } from "@mui/material";
 import {
-  MouseEvent,
-  useCallback,
-  useState,
-  useMemo,
   FC,
+  MouseEvent,
   ReactNode,
+  useCallback,
+  useMemo,
+  useState,
 } from "react";
 
 import { TextBlockSchema } from "./schema";
@@ -122,8 +122,8 @@ function MUIBlockTypeSelect() {
 
   // Gets the default items for the select.
   const defaultBlockTypeSelectItems = useMemo(
-    () => blockTypeSelectItems(editor.dictionary),
-    [editor.dictionary],
+    () => blockTypeSelectItems(editor),
+    [editor],
   );
 
   // Gets the selected item.

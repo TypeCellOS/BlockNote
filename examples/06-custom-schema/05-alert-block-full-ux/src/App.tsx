@@ -1,6 +1,5 @@
 import {
   BlockNoteSchema,
-  defaultBlockSpecs,
   filterSuggestionItems,
   insertOrUpdateBlock,
 } from "@blocknote/core";
@@ -93,7 +92,7 @@ export default function App() {
             // Sets the items in the Block Type Select.
             blockTypeSelectItems={[
               // Gets the default Block Type Select items.
-              ...blockTypeSelectItems(editor.dictionary),
+              ...blockTypeSelectItems(editor),
               // Adds an item for the Alert block.
               {
                 name: "Alert",

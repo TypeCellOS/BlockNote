@@ -1,9 +1,9 @@
 import {
   Block,
-  BlockNoteSchema,
   BlockSchema,
   COLORS_DEFAULT,
-  DefaultProps,
+  CustomBlockNoteSchema,
+  DefaultPropSchema,
   Exporter,
   ExporterOptions,
   InlineContentSchema,
@@ -36,7 +36,7 @@ export class ReactEmailExporter<
   React.ReactElement<HTMLSpanElement>
 > {
   public constructor(
-    public readonly schema: BlockNoteSchema<B, I, S>,
+    public readonly schema: CustomBlockNoteSchema<B, I, S>,
     mappings: Exporter<
       NoInfer<B>,
       NoInfer<I>,
@@ -326,7 +326,7 @@ export class ReactEmailExporter<
   }
 
   protected blocknoteDefaultPropsToReactEmailStyle(
-    props: Partial<DefaultProps>,
+    props: Partial<DefaultPropSchema>,
   ): any {
     return {
       textAlign: props.textAlignment,

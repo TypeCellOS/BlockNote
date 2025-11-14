@@ -32,7 +32,7 @@ export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
     // Adds support for page breaks & multi-column blocks.
-    schema: withMultiColumn(withPageBreak(BlockNoteSchema.create())),
+    schema: withMultiColumn(withPageBreak(BlockNoteSchema.create())) as any,
     dropCursor: multiColumnDropCursor,
     dictionary: {
       ...locales.en,
@@ -397,7 +397,10 @@ export default function App() {
 
   // Exports the editor content to DOCX and downloads it.
   const onDownloadClick = async () => {
-    const exporter = new DOCXExporter(editor.schema, docxDefaultSchemaMappings);
+    const exporter = new DOCXExporter(
+      editor.schema,
+      docxDefaultSchemaMappings as any,
+    );
     const blob = await exporter.toBlob(editor.document);
 
     const link = document.createElement("a");

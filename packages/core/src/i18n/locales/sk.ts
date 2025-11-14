@@ -1,6 +1,6 @@
 export const sk = {
   slash_menu: {
-    heading: {
+    heading_1: {
       title: "Nadpis 1",
       subtext: "Nadpis najvyššej úrovne",
       aliases: ["h", "nadpis1", "h1"],
@@ -36,7 +36,7 @@ export const sk = {
       aliases: ["h6", "nadpis6", "podnadpis"],
       group: "Podnáslovi",
     },
-    toggle_heading: {
+    toggle_heading_1: {
       title: "Rozbaľovací Nadpis 1",
       subtext: "Rozbaľovací nadpis najvyššej úrovne",
       aliases: ["h", "nadpis1", "h1", "rozbaľovací"],

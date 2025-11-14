@@ -1,12 +1,12 @@
 import { blockToNode } from "../api/nodeConversions/blockToNode.js";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import type {
-  BlockNoDefaults,
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
 } from "../schema/index.js";
 import { mergeCSSClasses } from "../util/browser.js";
+import type { Block } from "./index.js";
 
 // Function that creates a ProseMirror `DOMOutputSpec` for a default block.
 // Since all default blocks have the same structure (`blockContent` div with a
@@ -61,7 +61,7 @@ export const defaultBlockToHTML = <
   I extends InlineContentSchema,
   S extends StyleSchema,
 >(
-  block: BlockNoDefaults<BSchema, I, S>,
+  block: Block<BSchema, I, S>,
   editor: BlockNoteEditor<BSchema, I, S>,
 ): {
   dom: HTMLElement;

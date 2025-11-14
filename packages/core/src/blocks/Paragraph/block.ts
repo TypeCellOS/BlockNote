@@ -2,7 +2,7 @@ import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
 import {
   addDefaultPropsExternalHTML,
-  defaultProps,
+  defaultPropSchema,
   parseDefaultProps,
 } from "../defaultProps.js";
 
@@ -14,13 +14,13 @@ export const createParagraphBlockConfig = createBlockConfig(
   () =>
     ({
       type: "paragraph" as const,
-      propSchema: defaultProps,
+      propSchema: defaultPropSchema,
       content: "inline" as const,
     }) as const,
 );
 
 export const createParagraphBlockSpec = createBlockSpec(
-  createParagraphBlockConfig,
+  createParagraphBlockConfig(),
   {
     meta: {
       isolating: false,

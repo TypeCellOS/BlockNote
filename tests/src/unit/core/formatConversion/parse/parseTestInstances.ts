@@ -935,6 +935,13 @@ console.log("Third Line")</code></pre>`,
     testCase: { name: "divider", content: `<hr/>` },
     executeTest: testParseHTML,
   },
+  {
+    testCase: {
+      name: "customParagraph",
+      content: `<custom-paragraph>Custom Paragraph</custom-paragraph>`,
+    },
+    executeTest: testParseHTML,
+  },
 ];
 
 export const parseTestInstancesMarkdown: TestInstance<

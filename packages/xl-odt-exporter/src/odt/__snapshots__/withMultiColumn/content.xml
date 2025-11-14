@@ -43,7 +43,7 @@
     </office:automatic-styles>
     <office:body>
         <office:text>
-            <table:table table:name="" table:style-name="BN_S7">
+            <table:table table:name="0" table:style-name="BN_S7">
                 <table:table-column table:style-name="BN_S8"></table:table-column>
                 <table:table-column table:style-name="BN_S9"></table:table-column>
                 <table:table-column table:style-name="BN_S10"></table:table-column>

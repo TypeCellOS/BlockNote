@@ -1,8 +1,8 @@
-import { BlockNoteSchema } from "../blocks/BlockNoteSchema.js";
 import { COLORS_DEFAULT } from "../editor/defaultColors.js";
 import {
   BlockFromConfig,
   BlockSchema,
+  CustomBlockNoteSchema,
   InlineContent,
   InlineContentSchema,
   StyleSchema,
@@ -45,7 +45,7 @@ export abstract class Exporter<
   TS,
 > {
   public constructor(
-    _schema: BlockNoteSchema<B, I, S>, // only used for type inference
+    _schema: CustomBlockNoteSchema<B, I, S>, // only used for type inference
     protected readonly mappings: {
       blockMapping: BlockMapping<B, I, S, RB, RI>;
       inlineContentMapping: InlineContentMapping<I, S, RI, TS>;

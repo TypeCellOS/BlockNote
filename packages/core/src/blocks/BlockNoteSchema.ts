@@ -38,7 +38,7 @@ export class BlockNoteSchema<
      * A list of custom Styles that should be available in the editor.
      */
     styleSpecs?: SSpecs;
-  }): BlockNoteSchema<
+  }): CustomBlockNoteSchema<
     BSpecs extends undefined
       ? BlockSchemaFromSpecs<typeof defaultBlockSpecs>
       : BlockSchemaFromSpecs<NonNullable<BSpecs>>,
@@ -49,7 +49,7 @@ export class BlockNoteSchema<
       ? StyleSchemaFromSpecs<typeof defaultStyleSpecs>
       : StyleSchemaFromSpecs<NonNullable<SSpecs>>
   > {
-    return new BlockNoteSchema<any, any, any>({
+    return new CustomBlockNoteSchema<any, any, any>({
       blockSpecs: options?.blockSpecs ?? defaultBlockSpecs,
       inlineContentSpecs:
         options?.inlineContentSpecs ?? defaultInlineContentSpecs,

@@ -1,13 +1,11 @@
 import { Mark } from "@tiptap/core";
-
 import { ParseRule, TagParseRule } from "@tiptap/pm/model";
 import {
   addStyleAttributes,
   createInternalStyleSpec,
   stylePropsToAttributes,
 } from "./internal.js";
-import { StyleConfig, StyleSpec } from "./types.js";
-
+import type { StyleConfig, StyleSpec } from "./types.js";
 export type CustomStyleImplementation<T extends StyleConfig> = {
   render: (value: T["propSchema"] extends "boolean" ? undefined : string) => {
     dom: HTMLElement;

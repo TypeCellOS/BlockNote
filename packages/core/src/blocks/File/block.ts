@@ -1,5 +1,13 @@
-import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
-import { defaultProps, parseDefaultProps } from "../defaultProps.js";
+import {
+  createBlockConfig,
+  createBlockSpec,
+  createPropSchemaFromZod,
+} from "../../schema/index.js";
+import {
+  baseFileZodPropSchema,
+  optionalFileZodPropSchema,
+} from "../defaultFileProps.js";
+import { defaultZodPropSchema, parseDefaultProps } from "../defaultProps.js";
 import { parseEmbedElement } from "./helpers/parse/parseEmbedElement.js";
 import { parseFigureElement } from "./helpers/parse/parseFigureElement.js";
 import { createFileBlockWrapper } from "./helpers/render/createFileBlockWrapper.js";
@@ -7,25 +15,22 @@ import { createLinkWithCaption } from "./helpers/toExternalHTML/createLinkWithCa
 
 export type FileBlockConfig = ReturnType<typeof createFileBlockConfig>;
 
+const fileZodPropSchema = defaultZodPropSchema
+  .pick({
+    backgroundColor: true,
+  })
+  .extend({
+    ...baseFileZodPropSchema.shape,
+    ...optionalFileZodPropSchema.pick({
+      url: true,
+    }).shape,
+  });
+
 export const createFileBlockConfig = createBlockConfig(
   () =>
     ({
       type: "file" as const,
-      propSchema: {
-        backgroundColor: defaultProps.backgroundColor,
-        // File name.
-        name: {
-          default: "" as const,
-        },
-        // File url.
-        url: {
-          default: "" as const,
-        },
-        // File caption.
-        caption: {
-          default: "" as const,
-        },
-      },
+      propSchema: createPropSchemaFromZod(fileZodPropSchema),
       content: "none" as const,
     }) as const,
 );
@@ -95,4 +100,5 @@ export const createFileBlockSpec = createBlockSpec(createFileBlockConfig, {
       dom: fileSrcLink,
     };
   },
+  runsBefore: [],
 });

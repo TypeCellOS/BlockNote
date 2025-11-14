@@ -201,7 +201,7 @@ export function dragStart<
 
     const externalHTMLExporter = createExternalHTMLExporter(schema, editor);
 
-    const blocks = fragmentToBlocks(selectedSlice.content);
+    const blocks = fragmentToBlocks<BSchema, I, S>(selectedSlice.content);
     const externalHTML = externalHTMLExporter.exportBlocks(blocks, {});
 
     const plainText = cleanHTMLToMarkdown(externalHTML);

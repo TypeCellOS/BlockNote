@@ -1,4 +1,4 @@
-import { defaultProps, type PartialBlock } from "@blocknote/core";
+import { defaultZodPropSchema, type PartialBlock } from "@blocknote/core";
 import {
   getApplySuggestionsTr,
   rebaseTool,
@@ -38,18 +38,14 @@ export const tools = {
     rebaseTool: async (_id, editor) =>
       rebaseTool(editor, getApplySuggestionsTr(editor)),
     toJSONToolCall: async (_editor, chunk) => {
-      const defaultPropsVals = Object.fromEntries(
-        Object.entries(defaultProps).map(([key, val]) => {
-          return [key, val.default];
-        }),
-      );
+      const defaults = defaultZodPropSchema.parse({});
 
       return {
         ...chunk.operation,
         block: {
           ...chunk.operation.block,
           props: {
-            ...defaultPropsVals,
+            ...defaults,
             ...chunk.operation.block.props,
           },
         },

@@ -1,7 +1,7 @@
 import {
-  blockHasType,
   BlockSchema,
   InlineContentSchema,
+  isFileBlock,
   StyleSchema,
 } from "@blocknote/core";
 import { useCallback, useMemo } from "react";
@@ -33,7 +33,7 @@ export const FileDownloadButton = () => {
 
     const block = selectedBlocks[0];
 
-    if (blockHasType(block, editor, block.type, { url: "string" })) {
+    if (isFileBlock(editor, block.type)) {
       return block;
     }
 
@@ -44,11 +44,12 @@ export const FileDownloadButton = () => {
     if (fileBlock && fileBlock.props.url) {
       editor.focus();
 
+      const url = fileBlock.props.url as string;
       if (!editor.resolveFileUrl) {
-        window.open(sanitizeUrl(fileBlock.props.url, window.location.href));
+        window.open(sanitizeUrl(url, window.location.href));
       } else {
         editor
-          .resolveFileUrl(fileBlock.props.url)
+          .resolveFileUrl(url)
           .then((downloadUrl) =>
             window.open(sanitizeUrl(downloadUrl, window.location.href)),
           );

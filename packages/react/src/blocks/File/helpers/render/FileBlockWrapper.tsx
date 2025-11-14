@@ -1,16 +1,24 @@
-import { FileBlockConfig } from "@blocknote/core";
+import { FileBlockConfig, PropSchemaFromZod } from "@blocknote/core";
 import { CSSProperties, ReactNode } from "react";
 
+import {
+  baseFileZodPropSchema,
+  optionalFileZodPropSchema,
+} from "../../../../../../core/src/blocks/defaultFileProps.js";
 import { useUploadLoading } from "../../../../hooks/useUploadLoading.js";
 import { ReactCustomBlockRenderProps } from "../../../../schema/ReactBlockSpec.js";
 import { AddFileButton } from "./AddFileButton.js";
 import { FileNameWithIcon } from "./FileNameWithIcon.js";
 
+const requiredZodPropSchema = baseFileZodPropSchema.extend({
+  ...optionalFileZodPropSchema.pick({ url: true }).shape,
+});
+
 export const FileBlockWrapper = (
   props: Omit<
     ReactCustomBlockRenderProps<
       FileBlockConfig["type"],
-      FileBlockConfig["propSchema"] & { showPreview?: { default: true } },
+      PropSchemaFromZod<typeof requiredZodPropSchema>,
       FileBlockConfig["content"]
     >,
     "contentRef"
@@ -43,7 +51,8 @@ export const FileBlockWrapper = (
       ) : (
         // Show the file preview, or the file name and icon.
         <>
-          {props.block.props.showPreview === false || !props.children ? (
+          {(props.block.props as any).showPreview === false ||
+          !props.children ? (
             // Show file name and icon.
             <FileNameWithIcon {...props} />
           ) : (

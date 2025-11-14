@@ -1,5 +1,10 @@
+import { z } from "zod/v4";
 import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
-import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
+import {
+  createBlockConfig,
+  createBlockSpec,
+  createPropSchemaFromZod,
+} from "../../schema/index.js";
 
 export type DividerBlockConfig = ReturnType<typeof createDividerBlockConfig>;
 
@@ -7,7 +12,7 @@ export const createDividerBlockConfig = createBlockConfig(
   () =>
     ({
       type: "divider" as const,
-      propSchema: {},
+      propSchema: createPropSchemaFromZod(z.object({})),
       content: "none",
     }) as const,
 );
@@ -32,6 +37,7 @@ export const createDividerBlockSpec = createBlockSpec(
         dom,
       };
     },
+    runsBefore: [],
   },
   [
     createBlockNoteExtension({

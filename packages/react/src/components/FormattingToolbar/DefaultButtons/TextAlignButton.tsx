@@ -1,9 +1,8 @@
 import {
-  blockHasType,
+  blockHasZodProps,
   BlockSchema,
-  defaultProps,
-  DefaultProps,
-  editorHasBlockWithType,
+  DefaultPropSchema,
+  defaultZodPropSchema,
   InlineContentSchema,
   mapTableCell,
   StyleSchema,
@@ -23,7 +22,7 @@ import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 
-type TextAlignment = DefaultProps["textAlignment"];
+type TextAlignment = DefaultPropSchema["textAlignment"];
 
 const icons: Record<TextAlignment, IconType> = {
   left: RiAlignLeft,
@@ -48,9 +47,11 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
     const block = selectedBlocks[0];
 
     if (
-      blockHasType(block, editor, block.type, {
-        textAlignment: defaultProps.textAlignment,
-      })
+      blockHasZodProps(
+        block,
+        editor,
+        defaultZodPropSchema.pick({ textAlignment: true }),
+      )
     ) {
       return block.props.textAlignment;
     }
@@ -81,12 +82,11 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
 
       for (const block of selectedBlocks) {
         if (
-          blockHasType(block, editor, block.type, {
-            textAlignment: defaultProps.textAlignment,
-          }) &&
-          editorHasBlockWithType(editor, block.type, {
-            textAlignment: defaultProps.textAlignment,
-          })
+          blockHasZodProps(
+            block,
+            editor,
+            defaultZodPropSchema.pick({ textAlignment: true }),
+          )
         ) {
           editor.updateBlock(block, {
             props: { textAlignment: textAlignment },
@@ -134,9 +134,11 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
   const show = useMemo(() => {
     return !!selectedBlocks.find(
       (block) =>
-        blockHasType(block, editor, block.type, {
-          textAlignment: defaultProps.textAlignment,
-        }) ||
+        blockHasZodProps(
+          block,
+          editor,
+          defaultZodPropSchema.pick({ textAlignment: true }),
+        ) ||
         (block.type === "table" && block.children),
     );
   }, [editor, selectedBlocks]);
