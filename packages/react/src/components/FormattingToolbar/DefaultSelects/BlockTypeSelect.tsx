@@ -1,7 +1,6 @@
 import {
   BlockNoteEditor,
   BlockSchema,
-  Dictionary,
   editorHasBlockType,
   editorHasBlockTypeAndPropsAreValid,
   InlineContentSchema,
@@ -40,11 +39,10 @@ export type BlockTypeSelectItem = {
 
 export const blockTypeSelectItems = (
   editor: BlockNoteEditor<BlockSchema, InlineContentSchema, StyleSchema>,
-  dict: Dictionary,
 ): BlockTypeSelectItem[] => {
   const items: BlockTypeSelectItem[] = [];
   items.push({
-    name: dict.slash_menu.paragraph.title,
+    name: editor.dictionary.slash_menu.paragraph.title,
     type: "paragraph",
     icon: RiText,
   });
@@ -60,7 +58,7 @@ export const blockTypeSelectItems = (
     // if toggleable headings are allowed, explicitly set isToggleable to false for all levels
     for (const level of [1, 2, 3, 4, 5, 6] as const) {
       items.push({
-        name: dict.slash_menu[`heading_${level}`].title,
+        name: editor.dictionary.slash_menu[`heading_${level}`].title,
         type: "heading",
         props: { level, isToggleable: false },
         icon: icons[level - 1],
@@ -70,7 +68,7 @@ export const blockTypeSelectItems = (
     // if toggleable headings are allowed, don't  set isToggleable
     for (const level of [1, 2, 3, 4, 5, 6] as const) {
       items.push({
-        name: dict.slash_menu[`heading_${level}`].title,
+        name: editor.dictionary.slash_menu[`heading_${level}`].title,
         type: "heading",
         props: { level },
         icon: icons[level - 1],
@@ -81,7 +79,7 @@ export const blockTypeSelectItems = (
   // toggle headings
   for (const level of [1, 2, 3] as const) {
     items.push({
-      name: dict.slash_menu[`toggle_heading_${level}`].title,
+      name: editor.dictionary.slash_menu[`toggle_heading_${level}`].title,
       type: "heading",
       props: { level, isToggleable: true },
       icon: icons[level - 1],
@@ -90,27 +88,27 @@ export const blockTypeSelectItems = (
 
   items.push(
     {
-      name: dict.slash_menu.quote.title,
+      name: editor.dictionary.slash_menu.quote.title,
       type: "quote",
       icon: RiQuoteText,
     },
     {
-      name: dict.slash_menu.toggle_list.title,
+      name: editor.dictionary.slash_menu.toggle_list.title,
       type: "toggleListItem",
       icon: RiPlayList2Fill,
     },
     {
-      name: dict.slash_menu.bullet_list.title,
+      name: editor.dictionary.slash_menu.bullet_list.title,
       type: "bulletListItem",
       icon: RiListUnordered,
     },
     {
-      name: dict.slash_menu.numbered_list.title,
+      name: editor.dictionary.slash_menu.numbered_list.title,
       type: "numberedListItem",
       icon: RiListOrdered,
     },
     {
-      name: dict.slash_menu.check_list.title,
+      name: editor.dictionary.slash_menu.check_list.title,
       type: "checkListItem",
       icon: RiListCheck3,
     },
@@ -134,11 +132,10 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
   // the schema.
   const filteredItems = useMemo(
     () =>
-      (props.items || blockTypeSelectItems(editor, editor.dictionary)).filter(
-        (item) =>
-          item.props
-            ? editorHasBlockTypeAndPropsAreValid(editor, item.type, item.props)
-            : editorHasBlockType(editor, item.type),
+      (props.items || blockTypeSelectItems(editor)).filter((item) =>
+        item.props
+          ? editorHasBlockTypeAndPropsAreValid(editor, item.type, item.props)
+          : editorHasBlockType(editor, item.type),
       ),
     [editor, props.items],
   );
