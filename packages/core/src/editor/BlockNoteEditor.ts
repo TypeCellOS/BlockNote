@@ -1085,6 +1085,18 @@ export class BlockNoteEditor<
     // To avoid this, we only ever schedule the `unmount`ing of the editor when we've seen whether React "meant" to actually unmount the editor (i.e. not calling mount one tick later).
     // So, we wait two ticks to see if the component is still meant to be unmounted, and if not, we actually unmount the editor.
     this.scheduledDestructionTimeout = setTimeout(() => {
+      if (
+        this._tiptapEditor.isInitialized &&
+        // when tiptap creates a view it stores a reference to the tiptap editor which created it
+        "editor" in this._tiptapEditor.view.dom &&
+        // If the editor it has exists
+        this._tiptapEditor.view.dom.editor &&
+        // And, is not the current editor, it means that another editor has mounted over our instance
+        this._tiptapEditor.view.dom.editor !== this._tiptapEditor
+      ) {
+        // So, we exit since this instance has already been clobbered, and if we were to unmount, we would destroy that instance
+        return;
+      }
       this._tiptapEditor.unmount();
       this.scheduledDestructionTimeout = undefined;
     }, 1);
