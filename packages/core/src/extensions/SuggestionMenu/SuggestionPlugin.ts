@@ -290,7 +290,7 @@ export class SuggestionMenuProseMirrorPlugin<
         },
 
         props: {
-          handleTextInput(view, from, to, text) {
+          handleTextInput(view, from, to, text, deflt) {
             // only on insert
             if (from === to) {
               const doc = view.state.doc;
@@ -301,17 +301,20 @@ export class SuggestionMenuProseMirrorPlugin<
                     : text;
 
                 if (str === snippet) {
-                  view.dispatch(view.state.tr.insertText(text));
                   view.dispatch(
-                    view.state.tr
-                      .setMeta(suggestionMenuPluginKey, {
-                        triggerCharacter: snippet,
-                      })
-                      .scrollIntoView(),
+                    deflt().setMeta(suggestionMenuPluginKey, {
+                      triggerCharacter: snippet,
+                    }),
                   );
                   return true;
                 }
               }
+            }
+            if (this.getState(view.state)) {
+              // when menu is open, we dispatch the default transaction
+              // and return true so that other event handlers (i.e.: AI AutoComplete) are not triggered
+              view.dispatch(deflt());
+              return true;
             }
             return false;
           },

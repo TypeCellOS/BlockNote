@@ -14,6 +14,7 @@ import {
 import {
   AIMenuController,
   AIToolbarButton,
+  createAIAutoCompleteExtension,
   createAIExtension,
   getAISlashMenuItems,
 } from "@blocknote/xl-ai";
@@ -41,6 +42,7 @@ export default function App() {
           api: `${BASE_URL}/regular/streamText`,
         }),
       }),
+      createAIAutoCompleteExtension(),
     ],
     // We set some initial content for demo purposes
     initialContent: [

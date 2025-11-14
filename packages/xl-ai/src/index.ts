@@ -11,4 +11,5 @@ export * from "./components/AIMenu/PromptSuggestionMenu.js";
 export * from "./components/FormattingToolbar/AIToolbarButton.js";
 export * from "./components/SuggestionMenu/getAISlashMenuItems.js";
 export * from "./i18n/dictionary.js";
+export * from "./plugins/AutoCompletePlugin.js";
 export * from "./streamTool/index.js";
