@@ -1,4 +1,4 @@
-import { ThreadList } from "@/components/assistant-ui/thread-list";
+import { DocumentList } from "@/components/DocumentList";
 import {
   Sidebar,
   SidebarContent,
@@ -42,7 +42,8 @@ export function ThreadListSidebar({
         </div>
       </SidebarHeader>
       <SidebarContent className="aui-sidebar-content px-2">
-        <ThreadList />
+        {/* <ThreadList /> */}
+        <DocumentList />
       </SidebarContent>
       <SidebarRail />
       {/* <SidebarFooter className="aui-sidebar-footer border-t">
