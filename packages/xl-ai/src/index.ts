@@ -12,4 +12,5 @@ export * from "./components/FormattingToolbar/AIToolbarButton.js";
 export * from "./components/SuggestionMenu/getAISlashMenuItems.js";
 export * from "./i18n/dictionary.js";
 export * from "./plugins/AutoCompletePlugin.js";
+export { getApplySuggestionsTr as _getApplySuggestionsTr } from "./prosemirror/rebaseTool.js";
 export * from "./streamTool/index.js";

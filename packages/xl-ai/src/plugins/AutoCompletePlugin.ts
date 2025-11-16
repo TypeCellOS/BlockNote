@@ -155,7 +155,7 @@ export class AutoCompleteProseMirrorPlugin<
 
   constructor(
     private readonly editor: BlockNoteEditor<BSchema, I, S>,
-    options: {},
+    _options: any,
   ) {
     super();
 
@@ -179,7 +179,7 @@ export class AutoCompleteProseMirrorPlugin<
           // Apply changes to the plugin state from an editor transaction.
           apply: (
             transaction,
-            prev,
+            _prev,
             _oldState,
             newState,
           ): AutoCompleteState => {
