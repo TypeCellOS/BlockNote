@@ -35,16 +35,25 @@ function blockPropsToStyles(
         ? undefined
         : {
             type: ShadingType.SOLID,
-            color:
-              colors[
-                props.backgroundColor as keyof typeof colors
-              ].background.slice(1),
+            color: (() => {
+              const color = colors[props.backgroundColor]?.background;
+              if (!color) {
+                return undefined;
+              }
+              return color.slice(1);
+            })(),
           },
     run:
       props.textColor === "default" || !props.textColor
         ? undefined
         : {
-            color: colors[props.textColor as keyof typeof colors].text.slice(1),
+            color: (() => {
+              const color = colors[props.textColor]?.text;
+              if (!color) {
+                return undefined;
+              }
+              return color.slice(1);
+            })(),
           },
     alignment:
       !props.textAlignment || props.textAlignment === "left"

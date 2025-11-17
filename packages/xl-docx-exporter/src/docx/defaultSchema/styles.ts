@@ -43,11 +43,13 @@ export const docxStyleMappingForDefaultSchema: StyleMapping<
     if (!val) {
       return {};
     }
+    const color = exporter.options.colors[val]?.background;
+    if (!color) {
+      return {};
+    }
     return {
       shading: {
-        fill: exporter.options.colors[
-          val as keyof typeof exporter.options.colors
-        ].background.slice(1),
+        fill: color.slice(1),
       },
     };
   },
@@ -55,11 +57,12 @@ export const docxStyleMappingForDefaultSchema: StyleMapping<
     if (!val) {
       return {};
     }
+    const color = exporter.options.colors[val]?.text;
+    if (!color) {
+      return {};
+    }
     return {
-      color:
-        exporter.options.colors[
-          val as keyof typeof exporter.options.colors
-        ].text.slice(1),
+      color: color.slice(1),
     };
   },
   code: (val) => {
