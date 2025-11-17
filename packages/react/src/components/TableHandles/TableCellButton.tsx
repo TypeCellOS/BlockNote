@@ -1,14 +1,10 @@
-import {
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "@blocknote/core";
+import { TableHandlesPlugin } from "@blocknote/core";
 import { ReactNode } from "react";
-
-import { createPortal } from "react-dom";
 import { MdArrowDropDown } from "react-icons/md";
+
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
+import { usePlugin } from "../../hooks/usePlugin.js";
 import { TableCellButtonProps } from "./TableCellButtonProps.js";
 import { TableCellMenu } from "./TableCellMenu/TableCellMenu.js";
 
@@ -16,20 +12,21 @@ import { TableCellMenu } from "./TableCellMenu/TableCellMenu.js";
  * By default, the TableCellHandle component will render with the default icon.
  * However, you can override the icon to render by passing children.
  */
-export const TableCellButton = <
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema,
->(
-  props: TableCellButtonProps<I, S> & { children?: ReactNode },
+export const TableCellButton = (
+  props: TableCellButtonProps & { children?: ReactNode },
 ) => {
   const Components = useComponentsContext()!;
+
+  const editor = useBlockNoteEditor<any, any, any>();
+
+  const tableHandles = usePlugin(TableHandlesPlugin);
 
   const Component = props.tableCellMenu || TableCellMenu;
 
   if (
-    !props.editor.settings.tables.splitCells &&
-    !props.editor.settings.tables.cellBackgroundColor &&
-    !props.editor.settings.tables.cellTextColor
+    !editor.settings.tables.splitCells &&
+    !editor.settings.tables.cellBackgroundColor &&
+    !editor.settings.tables.cellTextColor
   ) {
     // Hide the button altogether if all table cell settings are disabled
     return null;
@@ -39,10 +36,10 @@ export const TableCellButton = <
     <Components.Generic.Menu.Root
       onOpenChange={(open: boolean) => {
         if (open) {
-          props.freezeHandles();
+          tableHandles.freezeHandles();
         } else {
-          props.unfreezeHandles();
-          props.editor.focus();
+          tableHandles.unfreezeHandles();
+          editor.focus();
         }
       }}
       position={"right"}
@@ -54,15 +51,7 @@ export const TableCellButton = <
           )}
         </Components.Generic.Menu.Button>
       </Components.Generic.Menu.Trigger>
-      {/* the menu can extend outside of the table, so we use a portal to prevent clipping */}
-      {createPortal(
-        <Component
-          block={props.block as any}
-          rowIndex={props.rowIndex}
-          colIndex={props.colIndex}
-        />,
-        props.menuContainer,
-      )}
+      <Component />
     </Components.Generic.Menu.Root>
   );
 };

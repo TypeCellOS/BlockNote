@@ -1,41 +1,26 @@
-import {
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "@blocknote/core";
+import { TableHandlesPlugin } from "@blocknote/core";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
-import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
 import { useDictionary } from "../../../../i18n/dictionary.js";
-import { TableHandleMenuProps } from "../TableHandleMenuProps.js";
+import { usePlugin, usePluginState } from "../../../../hooks/usePlugin.js";
 
-export const DeleteButton = <
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema,
->(
-  props: TableHandleMenuProps<I, S> & { orientation: "row" | "column" },
-) => {
+export const DeleteButton = (props: { orientation: "row" | "column" }) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
-  const editor = useBlockNoteEditor<
-    { table: DefaultBlockSchema["table"] },
-    I,
-    S
-  >();
 
-  const tableHandles = editor.tableHandles;
+  const tableHandles = usePlugin(TableHandlesPlugin);
+  const index = usePluginState(TableHandlesPlugin, {
+    selector: (state) =>
+      props.orientation === "column" ? state?.colIndex : state?.rowIndex,
+  });
 
-  if (!tableHandles) {
+  if (tableHandles === undefined || index === undefined) {
     return null;
   }
 
   return (
     <Components.Generic.Menu.Item
-      onClick={() => {
-        tableHandles.removeRowOrColumn(props.index, props.orientation);
-      }}
+      onClick={() => tableHandles.removeRowOrColumn(index, props.orientation)}
     >
       {props.orientation === "row"
         ? dict.table_handle.delete_row_menuitem

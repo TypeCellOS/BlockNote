@@ -1,35 +1,36 @@
 import {
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
   getColspan,
   getRowspan,
-  InlineContentSchema,
   isTableCell,
-  StyleSchema,
+  TableHandlesPlugin,
 } from "@blocknote/core";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
 import { useDictionary } from "../../../../i18n/dictionary.js";
-import { TableCellMenuProps } from "../TableCellMenuProps.js";
+import { usePlugin, usePluginState } from "../../../../hooks/usePlugin.js";
 
-export const SplitButton = <
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema,
->(
-  props: TableCellMenuProps<I, S>,
-) => {
+export const SplitButton = () => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
-  const editor = useBlockNoteEditor<
-    { table: DefaultBlockSchema["table"] },
-    I,
-    S
-  >();
+  const editor = useBlockNoteEditor<any, any, any>();
 
-  const currentCell =
-    props.block.content.rows[props.rowIndex]?.cells?.[props.colIndex];
+  const tableHandles = usePlugin(TableHandlesPlugin);
+  const block = usePluginState(TableHandlesPlugin, {
+    selector: (state) => state?.block,
+  });
+  const colIndex = usePluginState(TableHandlesPlugin, {
+    selector: (state) => state?.colIndex,
+  });
+  const rowIndex = usePluginState(TableHandlesPlugin, {
+    selector: (state) => state?.rowIndex,
+  });
+
+  if (block === undefined || colIndex === undefined || rowIndex === undefined) {
+    return null;
+  }
+
+  const currentCell = block.content.rows[rowIndex]?.cells?.[colIndex];
 
   if (
     !currentCell ||
@@ -43,9 +44,9 @@ export const SplitButton = <
   return (
     <Components.Generic.Menu.Item
       onClick={() => {
-        editor.tableHandles?.splitCell({
-          row: props.rowIndex,
-          col: props.colIndex,
+        tableHandles.splitCell({
+          row: rowIndex,
+          col: colIndex,
         });
       }}
     >

@@ -2,98 +2,60 @@ import {
   BlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
+  getNodeById,
   InlineContentSchema,
   StyleSchema,
+  TableHandlesPlugin,
 } from "@blocknote/core";
-import { FC, useCallback, useMemo, useState } from "react";
+import { FC, useMemo } from "react";
 
-import { FloatingPortal } from "@floating-ui/react";
+import { offset, size } from "@floating-ui/react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
-import { useUIPluginState } from "../../hooks/useUIPluginState.js";
 import { ExtendButton } from "./ExtendButton/ExtendButton.js";
 import { ExtendButtonProps } from "./ExtendButton/ExtendButtonProps.js";
 import { TableHandle } from "./TableHandle.js";
-import { TableHandleProps } from "./TableHandleProps.js";
-import { useExtendButtonsPositioning } from "./hooks/useExtendButtonsPositioning.js";
-import { useTableHandlesPositioning } from "./hooks/useTableHandlesPositioning.js";
 import { TableCellButton } from "./TableCellButton.js";
 import { TableCellButtonProps } from "./TableCellButtonProps.js";
+import { usePluginState } from "../../hooks/usePlugin.js";
+import { TableCellPopover } from "../Popovers/TableCellPopover.js";
+import { TableHandleProps } from "./TableHandleProps.js";
+import { GenericPopover } from "../Popovers/GenericPopover.js";
 
 export const TableHandlesController = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema,
 >(props: {
-  tableCellHandle?: FC<TableCellButtonProps<I, S>>;
-  tableHandle?: FC<TableHandleProps<I, S>>;
-  extendButton?: FC<ExtendButtonProps<I, S>>;
+  tableCellHandle?: FC<TableCellButtonProps>;
+  tableHandle?: FC<TableHandleProps>;
+  extendButton?: FC<ExtendButtonProps>;
 }) => {
   const editor = useBlockNoteEditor<BlockSchema, I, S>();
 
-  const [menuContainerRef, setMenuContainerRef] =
-    useState<HTMLDivElement | null>(null);
+  const state = usePluginState(TableHandlesPlugin);
 
-  if (!editor.tableHandles) {
-    throw new Error(
-      "TableHandlesController can only be used when BlockNote editor schema contains table block",
+  const tableElement = useMemo(() => {
+    if (state === undefined) {
+      return undefined;
+    }
+
+    // TODO use the locatieon API for this
+    const nodePosInfo = getNodeById(
+      state.block.id,
+      editor.prosemirrorState.doc,
     );
-  }
+    if (!nodePosInfo) {
+      return undefined;
+    }
 
-  const callbacks = {
-    rowDragStart: editor.tableHandles.rowDragStart,
-    colDragStart: editor.tableHandles.colDragStart,
-    dragEnd: editor.tableHandles.dragEnd,
-    freezeHandles: editor.tableHandles.freezeHandles,
-    unfreezeHandles: editor.tableHandles.unfreezeHandles,
-  };
+    const tableBeforePos = nodePosInfo.posBeforeNode + 1;
 
-  const { freezeHandles, unfreezeHandles } = callbacks;
+    const { node } = editor.prosemirrorView.domAtPos(tableBeforePos + 1);
+    if (!(node instanceof Element)) {
+      return undefined;
+    }
 
-  const onStartExtend = useCallback(() => {
-    freezeHandles();
-    setHideCol(true);
-    setHideRow(true);
-  }, [freezeHandles]);
-
-  const onEndExtend = useCallback(() => {
-    unfreezeHandles();
-    setHideCol(false);
-    setHideRow(false);
-  }, [unfreezeHandles]);
-
-  const state = useUIPluginState(
-    editor.tableHandles.onUpdate.bind(editor.tableHandles),
-  );
-
-  const draggingState = useMemo(() => {
-    return state?.draggingState
-      ? {
-          draggedCellOrientation: state?.draggingState?.draggedCellOrientation,
-          mousePos: state?.draggingState?.mousePos,
-        }
-      : undefined;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    state?.draggingState,
-    state?.draggingState?.draggedCellOrientation,
-    state?.draggingState?.mousePos,
-  ]);
-
-  const { rowHandle, colHandle, cellHandle } = useTableHandlesPositioning(
-    state?.show || false,
-    state?.referencePosCell || null,
-    state?.referencePosTable || null,
-    draggingState,
-  );
-
-  const { addOrRemoveColumnsButton, addOrRemoveRowsButton } =
-    useExtendButtonsPositioning(
-      state?.showAddOrRemoveColumnsButton || false,
-      state?.showAddOrRemoveRowsButton || false,
-      state?.referencePosTable || null,
-    );
-
-  const [hideRow, setHideRow] = useState<boolean>(false);
-  const [hideCol, setHideCol] = useState<boolean>(false);
+    return node;
+  }, [state, editor]);
 
   if (!state) {
     return null;
@@ -105,97 +67,82 @@ export const TableHandlesController = <
 
   return (
     <>
-      <div ref={setMenuContainerRef}></div>
-      {/* we want to make sure the elements are clipped by the .tableWrapper element (so that we scroll the table, widgets also dissappear)
-      we do this by rendering in a portal into the table's widget container (defined in TableBlockContent.ts)
-      */}
-      <FloatingPortal root={state.widgetContainer}>
-        {!hideRow &&
-          menuContainerRef &&
-          rowHandle.isMounted &&
-          state.rowIndex !== undefined && (
-            <div ref={rowHandle.ref} style={rowHandle.style}>
-              <TableHandleComponent
-                // This "as any" unfortunately seems complicated to fix
-                editor={editor as any}
-                orientation={"row"}
-                showOtherSide={() => setHideCol(false)}
-                hideOtherSide={() => setHideCol(true)}
-                index={state.rowIndex}
-                block={state.block}
-                dragStart={callbacks.rowDragStart}
-                dragEnd={callbacks.dragEnd}
-                freezeHandles={callbacks.freezeHandles}
-                unfreezeHandles={callbacks.unfreezeHandles}
-                menuContainer={menuContainerRef}
-              />
-            </div>
-          )}
-        {!hideCol &&
-          menuContainerRef &&
-          colHandle.isMounted &&
-          state.colIndex !== undefined && (
-            <div ref={colHandle.ref} style={colHandle.style}>
-              <TableHandleComponent
-                editor={editor as any}
-                orientation={"column"}
-                showOtherSide={() => setHideRow(false)}
-                hideOtherSide={() => setHideRow(true)}
-                index={state.colIndex}
-                block={state.block}
-                dragStart={callbacks.colDragStart}
-                dragEnd={callbacks.dragEnd}
-                freezeHandles={callbacks.freezeHandles}
-                unfreezeHandles={callbacks.unfreezeHandles}
-                menuContainer={menuContainerRef}
-              />
-            </div>
-          )}
-
-        {menuContainerRef &&
-          cellHandle.isMounted &&
-          state.colIndex !== undefined &&
-          state.rowIndex !== undefined && (
-            <div ref={cellHandle.ref} style={cellHandle.style}>
-              <TableCellHandleComponent
-                editor={editor as any}
-                block={state.block}
-                rowIndex={state.rowIndex}
-                colIndex={state.colIndex}
-                menuContainer={menuContainerRef}
-                freezeHandles={callbacks.freezeHandles}
-                unfreezeHandles={callbacks.unfreezeHandles}
-              />
-            </div>
-          )}
-
-        {/* note that the extend buttons are always shown (we don't look at isMounted etc, 
-        because otherwise the table slightly shifts when they unmount  */}
-        <div
-          ref={addOrRemoveRowsButton.ref}
-          style={addOrRemoveRowsButton.style}
-        >
-          <ExtendButtonComponent
-            editor={editor as any}
-            orientation={"addOrRemoveRows"}
-            block={state.block}
-            onMouseDown={onStartExtend}
-            onMouseUp={onEndExtend}
-          />
-        </div>
-        <div
-          ref={addOrRemoveColumnsButton.ref}
-          style={addOrRemoveColumnsButton.style}
-        >
-          <ExtendButtonComponent
-            editor={editor as any}
-            orientation={"addOrRemoveColumns"}
-            block={state.block}
-            onMouseDown={onStartExtend}
-            onMouseUp={onEndExtend}
-          />
-        </div>
-      </FloatingPortal>
+      <TableCellPopover
+        blockId={state.block.id}
+        colIndex={0}
+        rowIndex={state.rowIndex}
+        useFloatingOptions={{
+          open: state.rowIndex !== undefined,
+          placement: "left",
+          middleware: [offset(-10)],
+        }}
+      >
+        {state.rowIndex !== undefined && (
+          <TableHandleComponent orientation="row" />
+        )}
+      </TableCellPopover>
+      <TableCellPopover
+        blockId={state.block.id}
+        colIndex={state.colIndex}
+        rowIndex={0}
+        useFloatingOptions={{
+          open: state.colIndex !== undefined,
+          placement: "top",
+          middleware: [offset(-12)],
+        }}
+      >
+        {state.colIndex !== undefined && (
+          <TableHandleComponent orientation="column" />
+        )}
+      </TableCellPopover>
+      <TableCellPopover
+        blockId={state.block.id}
+        colIndex={state.colIndex}
+        rowIndex={state.rowIndex}
+        useFloatingOptions={{
+          open: true,
+          placement: "top-end",
+          middleware: [offset({ mainAxis: -15, crossAxis: -1 })],
+        }}
+      >
+        <TableCellHandleComponent />
+      </TableCellPopover>
+      <GenericPopover
+        reference={tableElement}
+        useFloatingOptions={{
+          open: state.showAddOrRemoveRowsButton,
+          placement: "bottom",
+          middleware: [
+            size({
+              apply({ rects, elements }) {
+                Object.assign(elements.floating.style, {
+                  width: `${rects.reference.width}px`,
+                });
+              },
+            }),
+          ],
+        }}
+      >
+        <ExtendButtonComponent orientation="addOrRemoveRows" />
+      </GenericPopover>
+      <GenericPopover
+        reference={tableElement}
+        useFloatingOptions={{
+          open: state.showAddOrRemoveColumnsButton,
+          placement: "right",
+          middleware: [
+            size({
+              apply({ rects, elements }) {
+                Object.assign(elements.floating.style, {
+                  height: `${rects.reference.height}px`,
+                });
+              },
+            }),
+          ],
+        }}
+      >
+        <ExtendButtonComponent orientation="addOrRemoveColumns" />
+      </GenericPopover>
     </>
   );
 };

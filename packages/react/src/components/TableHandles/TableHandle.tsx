@@ -1,17 +1,15 @@
 import {
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
   getColspan,
   getRowspan,
-  InlineContentSchema,
   mergeCSSClasses,
-  StyleSchema,
+  TableHandlesPlugin,
 } from "@blocknote/core";
 import { ReactNode, useMemo, useState } from "react";
 
-import { createPortal } from "react-dom";
 import { MdDragIndicator } from "react-icons/md";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
+import { usePlugin, usePluginState } from "../../hooks/usePlugin.js";
 import { TableHandleMenu } from "./TableHandleMenu/TableHandleMenu.js";
 import { TableHandleProps } from "./TableHandleProps.js";
 
@@ -19,45 +17,56 @@ import { TableHandleProps } from "./TableHandleProps.js";
  * By default, the TableHandle component will render with the default icon.
  * However, you can override the icon to render by passing children.
  */
-export const TableHandle = <
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema,
->(
-  props: TableHandleProps<I, S> & { children?: ReactNode },
+export const TableHandle = (
+  props: TableHandleProps & {
+    children?: ReactNode;
+  },
 ) => {
+  const editor = useBlockNoteEditor<any, any, any>();
   const Components = useComponentsContext()!;
 
   const [isDragging, setIsDragging] = useState(false);
 
   const Component = props.tableHandleMenu || TableHandleMenu;
 
+  const tableHandles = usePlugin(TableHandlesPlugin);
+  const state = usePluginState(TableHandlesPlugin);
+
   const isDraggable = useMemo(() => {
-    const tableHandles = props.editor.tableHandles;
-    if (!tableHandles || !props.block || props.block.type !== "table") {
+    if (
+      !tableHandles ||
+      !state ||
+      !state.block ||
+      state.block.type !== "table"
+    ) {
       return false;
     }
 
     if (props.orientation === "column") {
       return tableHandles
-        .getCellsAtColumnHandle(props.block, props.index)
+        .getCellsAtColumnHandle(state.block, state.colIndex!)
         .every(({ cell }) => getColspan(cell) === 1);
     }
 
     return tableHandles
-      .getCellsAtRowHandle(props.block, props.index)
+      .getCellsAtRowHandle(state.block, state.rowIndex!)
       .every(({ cell }) => getRowspan(cell) === 1);
-  }, [props.block, props.editor.tableHandles, props.index, props.orientation]);
+  }, [props.orientation, state, tableHandles]);
+
+  if (!state) {
+    return null;
+  }
 
   return (
     <Components.Generic.Menu.Root
       onOpenChange={(open: boolean) => {
         if (open) {
-          props.freezeHandles();
-          props.hideOtherSide();
+          tableHandles.freezeHandles();
+          // tableHandles.hideOtherSide();
         } else {
-          props.unfreezeHandles();
-          props.showOtherSide();
-          props.editor.focus();
+          tableHandles.unfreezeHandles();
+          // props.showOtherSide();
+          editor.focus();
         }
       }}
       position={"right"}
@@ -72,10 +81,14 @@ export const TableHandle = <
           draggable={isDraggable}
           onDragStart={(e) => {
             setIsDragging(true);
-            props.dragStart(e);
+            if (props.orientation === "column") {
+              tableHandles.colDragStart(e);
+            } else {
+              tableHandles.rowDragStart(e);
+            }
           }}
           onDragEnd={() => {
-            props.dragEnd();
+            tableHandles.dragEnd();
             setIsDragging(false);
           }}
           style={
@@ -89,15 +102,7 @@ export const TableHandle = <
           )}
         </Components.TableHandle.Root>
       </Components.Generic.Menu.Trigger>
-      {/* the menu can extend outside of the table, so we use a portal to prevent clipping */}
-      {createPortal(
-        <Component
-          orientation={props.orientation}
-          block={props.block as any}
-          index={props.index}
-        />,
-        props.menuContainer,
-      )}
+      <Component orientation={props.orientation} />
     </Components.Generic.Menu.Root>
   );
 };

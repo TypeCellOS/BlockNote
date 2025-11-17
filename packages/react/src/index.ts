@@ -89,7 +89,6 @@ export * from "./components/TableHandles/hooks/useTableHandlesPositioning.js";
 export * from "./components/TableHandles/TableCellMenu/DefaultButtons/ColorPicker.js";
 export * from "./components/TableHandles/TableCellMenu/DefaultButtons/SplitButton.js";
 export * from "./components/TableHandles/TableCellMenu/TableCellMenu.js";
-export * from "./components/TableHandles/TableCellMenu/TableCellMenuProps.js";
 export * from "./components/TableHandles/TableCellButton.js";
 export * from "./components/TableHandles/TableCellButtonProps.js";
 
