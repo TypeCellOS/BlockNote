@@ -1054,52 +1054,20 @@ export class BlockNoteEditor<
    * @warning Not needed to call manually when using React, use BlockNoteView to take care of mounting
    */
   public mount = (element: HTMLElement) => {
-    if (
-      // If the editor is scheduled for destruction, and
-      this.scheduledDestructionTimeout &&
-      // If the editor is being remounted to the same element as the one which is scheduled for destruction,
-      // then just cancel the destruction timeout
-      this.prosemirrorView.dom === element
-    ) {
-      clearTimeout(this.scheduledDestructionTimeout);
-      this.scheduledDestructionTimeout = undefined;
-      return;
+    console.log("attempting to mount", this._tiptapEditor.instanceId);
+    if (this.headless) {
+      console.log("actually mounting");
+      this._tiptapEditor.mount({ mount: element });
+      console.log("done mounting");
     }
-
-    this._tiptapEditor.mount({ mount: element });
   };
-
-  /**
-   * Timeout to schedule the {@link unmount}ing of the editor.
-   */
-  private scheduledDestructionTimeout:
-    | ReturnType<typeof setTimeout>
-    | undefined = undefined;
 
   /**
    * Unmount the editor from the DOM element it is bound to
    */
   public unmount = () => {
-    // Due to how React's StrictMode works, it will `unmount` & `mount` the component twice in development mode.
-    // This can result in the editor being unmounted mid-rendering the content of node views.
-    // To avoid this, we only ever schedule the `unmount`ing of the editor when we've seen whether React "meant" to actually unmount the editor (i.e. not calling mount one tick later).
-    // So, we wait two ticks to see if the component is still meant to be unmounted, and if not, we actually unmount the editor.
-    this.scheduledDestructionTimeout = setTimeout(() => {
-      if (
-        this._tiptapEditor.isInitialized &&
-        // when tiptap creates a view it stores a reference to the tiptap editor which created it
-        "editor" in this._tiptapEditor.view.dom &&
-        // If the editor it has exists
-        this._tiptapEditor.view.dom.editor &&
-        // And, is not the current editor, it means that another editor has mounted over our instance
-        this._tiptapEditor.view.dom.editor !== this._tiptapEditor
-      ) {
-        // So, we exit since this instance has already been clobbered, and if we were to unmount, we would destroy that instance
-        return;
-      }
-      this._tiptapEditor.unmount();
-      this.scheduledDestructionTimeout = undefined;
-    }, 1);
+    console.log("called unmount", this._tiptapEditor.instanceId);
+    this._tiptapEditor.unmount();
   };
 
   /**

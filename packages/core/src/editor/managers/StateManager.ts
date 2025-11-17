@@ -124,6 +124,7 @@ export class StateManager {
       tr: Transaction,
     ) => T,
   ): T {
+    // console.log("transact", new Error());
     if (this.activeTransaction) {
       // Already in a transaction, so we can just callback immediately
       return callback(this.activeTransaction);

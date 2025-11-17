@@ -303,7 +303,12 @@ export const BlockNoteViewEditor = (props: {
   return (
     <>
       <Portals contentComponent={portalManager} />
-      <ContentEditableElement {...ctx.editorProps} {...props} mount={mount} />
+      <ContentEditableElement
+        {...ctx.editorProps}
+        {...props}
+        mount={mount}
+        key={editor._tiptapEditor.instanceId}
+      />
       {/* Renders the UI elements such as formatting toolbar, etc, unless they have been explicitly disabled  in defaultUIProps */}
       <BlockNoteDefaultUI {...ctx.defaultUIProps} />
       {/* Manually passed in children, such as customized UI elements / controllers */}

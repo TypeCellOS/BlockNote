@@ -257,6 +257,13 @@ export function createReactBlockSpec<
           if (this.renderType === "nodeView") {
             return ReactNodeViewRenderer(
               (props: NodeViewProps) => {
+                if (!props.getPos()) {
+                  console.log(
+                    "is headless, when it should not be",
+                    editor._tiptapEditor.instanceId,
+                  );
+                  return null;
+                }
                 // Vanilla JS node views are recreated on each update. However,
                 // using `ReactNodeViewRenderer` makes it so the node view is
                 // only created once, so the block we get in the node view will
