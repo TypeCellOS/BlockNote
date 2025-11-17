@@ -8,16 +8,15 @@ import { GenericPopover } from "./GenericPopover.js";
 export const BlockPopover = (
   props: FloatingUIOptions & {
     blockId: string | undefined;
-    placement?: "before" | "after" | "across";
     children: ReactNode;
   },
 ) => {
-  const { blockId, placement, children, ...rest } = props;
+  const { blockId, children, ...rest } = props;
 
   const editor = useBlockNoteEditor<any, any, any>();
 
   // Seems like unlike with virtual elements, we don't need to use the last
-  // defined reference element in case it's currently undefined. FloatingUI 
+  // defined reference element in case it's currently undefined. FloatingUI
   // appears to already do this internally.
   const element = useMemo(
     () =>

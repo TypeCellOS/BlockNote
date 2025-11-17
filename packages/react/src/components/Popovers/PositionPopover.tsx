@@ -35,7 +35,13 @@ export const PositionPopover = (
 
         return boundingClientRect.current;
       },
-      contextElement: headless ? undefined : editor.domElement,
+      contextElement:
+        // Use first child as the editor DOM element may itself be scrollable.
+        // For FloatingUI to auto-update the position during scrolling, the
+        // `contextElement` must be a descendant of the scroll container.
+        headless && editor.domElement?.firstChild instanceof Element
+          ? editor.domElement.firstChild
+          : undefined,
     }),
     [editor, headless, from, to],
   );

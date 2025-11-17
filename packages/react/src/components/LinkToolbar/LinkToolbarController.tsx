@@ -45,6 +45,11 @@ export const LinkToolbarController = (props: {
   });
   useEffect(() => {
     setOpen(!!selectionLink);
+    if (selectionLink) {
+      // Clears the link hovered by the mouse cursor, when the text cursor is
+      // within a link, to avoid any potential clashes in positioning.
+      setMouseHoverLink(undefined);
+    }
   }, [selectionLink]);
 
   // The `mouseHoverLink` state is completely separate from the `open` state as
@@ -56,6 +61,12 @@ export const LinkToolbarController = (props: {
   >(undefined);
   useEffect(() => {
     const cb = (event: MouseEvent) => {
+      // Ignores the link hovered by the mouse cursor, when the text cursor is
+      // within a link, to avoid any potential clashes in positioning.
+      if (selectionLink) {
+        return;
+      }
+
       if (!(event.target instanceof HTMLElement)) {
         return;
       }
@@ -77,7 +88,7 @@ export const LinkToolbarController = (props: {
     return () => {
       document.body.removeEventListener("mouseover", cb);
     };
-  }, [linkToolbar, mouseHoverLink?.url]);
+  }, [linkToolbar, mouseHoverLink?.url, selectionLink]);
 
   const link = useMemo(
     () => selectionLink || mouseHoverLink,
