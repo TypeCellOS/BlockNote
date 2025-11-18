@@ -1,3 +1,14 @@
+## 0.42.1 (2025-11-18)
+
+### 🩹 Fixes
+
+- do not error on invalid `backgroundColor` or `textColor` #2176 ([#2179](https://github.com/TypeCellOS/BlockNote/pull/2179), [#2176](https://github.com/TypeCellOS/BlockNote/issues/2176))
+- remove dependency array from comments re-rendering ([#2177](https://github.com/TypeCellOS/BlockNote/pull/2177))
+
+### ❤️ Thank You
+
+- Nick Perez
+
 ## 0.42.0 (2025-11-11)
 
 ### 🚀 Features
