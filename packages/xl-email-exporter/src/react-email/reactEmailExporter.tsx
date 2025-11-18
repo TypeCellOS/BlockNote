@@ -314,14 +314,15 @@ export class ReactEmailExporter<
       <Html>
         <Head>{options?.head}</Head>
         <Body
-          style={{
-            fontFamily:
-              "'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif",
-            fontSize: "16px",
-            lineHeight: "1.5",
-            color: "#333",
-            ...options?.bodyStyles,
-          }}
+          style={
+            options?.bodyStyles ?? {
+              fontFamily:
+                "'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif",
+              fontSize: "16px",
+              lineHeight: "1.5",
+              color: "#333",
+            }
+          }
         >
           {options?.preview && <Preview>{options.preview}</Preview>}
           <Tailwind>
