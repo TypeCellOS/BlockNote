@@ -30,6 +30,9 @@ export const FilePanelController = (props: {
         onOpenChange: setOpen,
         middleware: [offset(10), flip()],
       },
+      useDismissProps: {
+        outsidePress: false,
+      },
       ...props.floatingUIOptions,
     }),
     [open, props.floatingUIOptions],

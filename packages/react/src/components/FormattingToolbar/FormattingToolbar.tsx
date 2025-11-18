@@ -29,7 +29,7 @@ export const getFormattingToolbarItems = (
   blockTypeSelectItems?: BlockTypeSelectItem[],
 ): JSX.Element[] => [
   <BlockTypeSelect key={"blockTypeSelect"} items={blockTypeSelectItems} />,
-  // <TableCellMergeButton key={"tableCellMergeButton"} />,
+  <TableCellMergeButton key={"tableCellMergeButton"} />,
   <FileCaptionButton key={"fileCaptionButton"} />,
   <FileReplaceButton key={"replaceFileButton"} />,
   <FileRenameButton key={"fileRenameButton"} />,

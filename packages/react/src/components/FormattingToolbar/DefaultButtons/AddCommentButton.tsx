@@ -1,33 +1,23 @@
-import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
+import { CommentsPlugin, FormattingToolbarExtension } from "@blocknote/core";
 import { useCallback } from "react";
 import { RiChat3Line } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
+import { usePlugin } from "../../../hooks/usePlugin.js";
 
-export const AddCommentButton = () => {
+export const AddCommentButtonInner = () => {
   const dict = useDictionary();
   const Components = useComponentsContext()!;
 
-  const editor = useBlockNoteEditor<
-    BlockSchema,
-    InlineContentSchema,
-    StyleSchema
-  >();
+  const comments = usePlugin(CommentsPlugin);
+  const { store } = usePlugin(FormattingToolbarExtension);
 
   const onClick = useCallback(() => {
-    editor.comments?.startPendingComment();
-    editor.formattingToolbar.closeMenu();
-  }, [editor]);
-
-  if (
-    // We manually check if a comment extension (like liveblocks) is installed
-    // By adding default support for this, the user doesn't need to customize the formatting toolbar
-    !editor.comments
-  ) {
-    return null;
-  }
+    comments.startPendingComment();
+    store.setState({ show: false });
+  }, [comments, store]);
 
   return (
     <Components.FormattingToolbar.Button
@@ -38,4 +28,14 @@ export const AddCommentButton = () => {
       onClick={onClick}
     />
   );
+};
+
+export const AddCommentButton = () => {
+  const editor = useBlockNoteEditor<any, any, any>();
+
+  if (!editor.getExtension(CommentsPlugin)) {
+    return null;
+  }
+
+  return <AddCommentButtonInner />;
 };

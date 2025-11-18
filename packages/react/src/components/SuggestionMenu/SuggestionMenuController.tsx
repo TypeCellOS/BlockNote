@@ -7,6 +7,7 @@ import {
 } from "@blocknote/core";
 import {
   UseFloatingOptions,
+  VirtualElement,
   flip,
   offset,
   shift,
@@ -90,10 +91,6 @@ export function SuggestionMenuController<
   }, [editor, getItems])!;
 
   const suggestionMenu = usePlugin(SuggestionMenuPlugin);
-  const callbacks = {
-    closeMenu: suggestionMenu.closeMenu,
-    clearQuery: suggestionMenu.clearQuery,
-  };
 
   useEffect(() => {
     suggestionMenu.addTriggerCharacter(triggerCharacter);
@@ -104,9 +101,7 @@ export function SuggestionMenuController<
     triggerCharacter,
   ]);
 
-  const show = usePluginState(SuggestionMenuPlugin, {
-    selector: (state) => state?.show || false,
-  });
+  const state = usePluginState(SuggestionMenuPlugin);
   const referencePos = usePluginState(SuggestionMenuPlugin, {
     selector: (state) =>
       (state?.referencePos || new DOMRect()).toJSON() as {
@@ -121,7 +116,7 @@ export function SuggestionMenuController<
       },
   });
 
-  const virtualElement = useMemo(
+  const virtualElement = useMemo<VirtualElement>(
     () => ({
       getBoundingClientRect: () => referencePos,
     }),
@@ -130,7 +125,7 @@ export function SuggestionMenuController<
 
   const floatingUIOptions = useMemo<UseFloatingOptions>(
     () => ({
-      open: show,
+      open: state?.show && state?.triggerCharacter === triggerCharacter,
       placement: "bottom-start",
       middleware: [
         offset(10),
@@ -152,15 +147,19 @@ export function SuggestionMenuController<
       ],
       ...props.floatingUIOptions,
     }),
-    [props.floatingUIOptions, show],
+    [
+      props.floatingUIOptions,
+      state?.show,
+      state?.triggerCharacter,
+      triggerCharacter,
+    ],
   );
 
   if (
-    !suggestionMenu.store.state ||
-    (!suggestionMenu.store.state.ignoreQueryLength &&
+    !state ||
+    (!state.ignoreQueryLength &&
       minQueryLength &&
-      (suggestionMenu.store.state.query.startsWith(" ") ||
-        suggestionMenu.store.state.query.length < minQueryLength))
+      (state.query.startsWith(" ") || state.query.length < minQueryLength))
   ) {
     return null;
   }
@@ -172,9 +171,9 @@ export function SuggestionMenuController<
     >
       {triggerCharacter && (
         <SuggestionMenuWrapper
-          query={suggestionMenu.store.state.query}
-          closeMenu={callbacks.closeMenu}
-          clearQuery={callbacks.clearQuery}
+          query={state.query}
+          closeMenu={suggestionMenu.closeMenu}
+          clearQuery={suggestionMenu.clearQuery}
           getItems={getItemsOrDefault}
           suggestionMenuComponent={
             suggestionMenuComponent || SuggestionMenu<ItemType<GetItemsType>>

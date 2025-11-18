@@ -1,9 +1,10 @@
-import { FileBlockConfig } from "@blocknote/core";
+import { FileBlockConfig, FilePanelPlugin } from "@blocknote/core";
 import { ReactNode, useCallback } from "react";
 import { RiFile2Line } from "react-icons/ri";
 
 import { useDictionary } from "../../../../i18n/dictionary.js";
 import { ReactCustomBlockRenderProps } from "../../../../schema/ReactBlockSpec.js";
+import { usePlugin } from "../../../../hooks/usePlugin.js";
 
 export const AddFileButton = (
   props: Omit<
@@ -19,6 +20,8 @@ export const AddFileButton = (
 ) => {
   const dict = useDictionary();
 
+  const filePanel = usePlugin(FilePanelPlugin);
+
   // Prevents focus from moving to the button.
   const addFileButtonMouseDownHandler = useCallback(
     (event: React.MouseEvent) => {
@@ -28,12 +31,8 @@ export const AddFileButton = (
   );
   // Opens the file toolbar.
   const addFileButtonClickHandler = useCallback(() => {
-    props.editor.transact((tr) =>
-      tr.setMeta(props.editor.filePanel!.plugins[0], {
-        block: props.block,
-      }),
-    );
-  }, [props.block, props.editor]);
+    props.editor.transact(() => filePanel.showMenu(props.block.id));
+  }, [filePanel, props.block.id, props.editor]);
 
   return (
     <div

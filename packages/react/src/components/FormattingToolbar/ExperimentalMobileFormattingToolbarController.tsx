@@ -1,8 +1,13 @@
-import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
-import { UseFloatingOptions } from "@floating-ui/react";
+import {
+  BlockSchema,
+  FormattingToolbarExtension,
+  InlineContentSchema,
+  StyleSchema,
+} from "@blocknote/core";
 import { FC, CSSProperties, useMemo, useRef, useState, useEffect } from "react";
+
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
-import { useUIPluginState } from "../../hooks/useUIPluginState.js";
+import { usePluginState } from "../../hooks/usePlugin.js";
 import { FormattingToolbar } from "./FormattingToolbar.js";
 import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
 
@@ -14,7 +19,6 @@ import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
  */
 export const ExperimentalMobileFormattingToolbarController = (props: {
   formattingToolbar?: FC<FormattingToolbarProps>;
-  floatingOptions?: Partial<UseFloatingOptions>;
 }) => {
   const [transform, setTransform] = useState<string>("none");
   const divRef = useRef<HTMLDivElement>(null);
@@ -23,9 +27,12 @@ export const ExperimentalMobileFormattingToolbarController = (props: {
     InlineContentSchema,
     StyleSchema
   >();
-  const state = useUIPluginState(
-    editor.formattingToolbar.onUpdate.bind(editor.formattingToolbar),
-  );
+
+  const show = usePluginState(FormattingToolbarExtension, {
+    editor,
+    selector: (state) => state.show,
+  });
+
   const style = useMemo<CSSProperties>(() => {
     return {
       display: "flex",
@@ -63,11 +70,7 @@ export const ExperimentalMobileFormattingToolbarController = (props: {
     };
   }, []);
 
-  if (!state) {
-    return null;
-  }
-
-  if (!state.show && divRef.current) {
+  if (!show && divRef.current) {
     // The component is fading out. Use the previous state to render the toolbar with innerHTML,
     // because otherwise the toolbar will quickly flickr (i.e.: show a different state) while fading out,
     // which looks weird

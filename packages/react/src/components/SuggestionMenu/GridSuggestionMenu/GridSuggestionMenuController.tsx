@@ -3,14 +3,21 @@ import {
   InlineContentSchema,
   StyleSchema,
   SuggestionMenuPlugin,
-  SuggestionMenuState,
 } from "@blocknote/core";
-import { flip, offset, size, UseFloatingOptions } from "@floating-ui/react";
-import { FC, useCallback, useMemo } from "react";
+import {
+  flip,
+  offset,
+  shift,
+  size,
+  UseFloatingOptions,
+  VirtualElement,
+} from "@floating-ui/react";
+import { FC, useEffect, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
-import { useUIElementPositioning } from "../../../hooks/useUIElementPositioning.js";
-import { useUIPluginState } from "../../../hooks/useUIPluginState.js";
+import { usePlugin, usePluginState } from "../../../hooks/usePlugin.js";
+import { FloatingUIOptions } from "../../Popovers/FloatingUIOptions.js";
+import { GenericPopover } from "../../Popovers/GenericPopover.js";
 import { getDefaultReactEmojiPickerItems } from "./getDefaultReactEmojiPickerItems.js";
 import { GridSuggestionMenu } from "./GridSuggestionMenu.js";
 import { GridSuggestionMenuWrapper } from "./GridSuggestionMenuWrapper.js";
@@ -18,7 +25,6 @@ import {
   DefaultReactGridSuggestionItem,
   GridSuggestionMenuProps,
 } from "./types.js";
-import { usePlugin } from "../../../hooks/usePlugin.js";
 
 type ArrayElement<A> = A extends readonly (infer T)[] ? T : never;
 
@@ -37,7 +43,7 @@ export function GridSuggestionMenuController<
     getItems?: GetItemsType;
     columns: number;
     minQueryLength?: number;
-    floatingOptions?: Partial<UseFloatingOptions>;
+    floatingUIOptions?: FloatingUIOptions;
   } & (ItemType<GetItemsType> extends DefaultReactGridSuggestionItem
     ? {
         // can be undefined
@@ -67,7 +73,6 @@ export function GridSuggestionMenuController<
     minQueryLength,
     onItemClick,
     getItems,
-    floatingOptions,
   } = props;
 
   const onItemClickOrDefault = useMemo(() => {
@@ -92,32 +97,50 @@ export function GridSuggestionMenuController<
 
   const suggestionMenu = usePlugin(SuggestionMenuPlugin);
 
-  const callbacks = {
-    closeMenu: suggestionMenu.closeMenu,
-    clearQuery: suggestionMenu.clearQuery,
-  };
+  useEffect(() => {
+    suggestionMenu.addTriggerCharacter(triggerCharacter);
+  }, [
+    props.triggerCharacter,
+    suggestionMenu,
+    suggestionMenu.store,
+    triggerCharacter,
+  ]);
 
-  const cb = useCallback(
-    (callback: (state: SuggestionMenuState) => void) => {
-      // TODO remove
-      // return editor.suggestionMenus.onUpdate(triggerCharacter, callback);
-    },
-    [triggerCharacter],
+  const state = usePluginState(SuggestionMenuPlugin);
+  const referencePos = usePluginState(SuggestionMenuPlugin, {
+    selector: (state) =>
+      (state?.referencePos || new DOMRect()).toJSON() as {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+        top: number;
+        right: number;
+        bottom: number;
+        left: number;
+      },
+  });
+
+  const virtualElement = useMemo<VirtualElement>(
+    () => ({
+      getBoundingClientRect: () => referencePos,
+    }),
+    [referencePos],
   );
 
-  const state = useUIPluginState(cb);
-
-  const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(
-    state?.show || false,
-    state?.referencePos || null,
-    2000,
-    {
+  const floatingUIOptions = useMemo<UseFloatingOptions>(
+    () => ({
+      open: state?.show && state?.triggerCharacter === triggerCharacter,
       placement: "bottom-start",
       middleware: [
         offset(10),
         // Flips the menu placement to maximize the space available, and prevents
         // the menu from being cut off by the confines of the screen.
-        flip(),
+        flip({
+          mainAxis: true,
+          crossAxis: false,
+        }),
+        shift(),
         size({
           apply({ availableHeight, elements }) {
             Object.assign(elements.floating.style, {
@@ -126,19 +149,14 @@ export function GridSuggestionMenuController<
           },
         }),
       ],
-      onOpenChange(open) {
-        if (!open) {
-          suggestionMenu.closeMenu();
-        }
-      },
-      ...floatingOptions,
-    },
+      ...props.floatingUIOptions,
+    }),
+    [props.floatingUIOptions, state?.show],
   );
 
   if (
-    !isMounted ||
     !state ||
-    (!state?.ignoreQueryLength &&
+    (!state.ignoreQueryLength &&
       minQueryLength &&
       (state.query.startsWith(" ") || state.query.length < minQueryLength))
   ) {
@@ -146,19 +164,24 @@ export function GridSuggestionMenuController<
   }
 
   return (
-    <div ref={ref} style={style} {...getFloatingProps()}>
-      <GridSuggestionMenuWrapper
-        query={state.query}
-        closeMenu={callbacks.closeMenu}
-        clearQuery={callbacks.clearQuery}
-        getItems={getItemsOrDefault}
-        columns={columns}
-        gridSuggestionMenuComponent={
-          gridSuggestionMenuComponent ||
-          GridSuggestionMenu<ItemType<GetItemsType>>
-        }
-        onItemClick={onItemClickOrDefault}
-      />
-    </div>
+    <GenericPopover
+      reference={virtualElement}
+      useFloatingOptions={floatingUIOptions}
+    >
+      {triggerCharacter && (
+        <GridSuggestionMenuWrapper
+          query={state.query}
+          closeMenu={suggestionMenu.closeMenu}
+          clearQuery={suggestionMenu.clearQuery}
+          getItems={getItemsOrDefault}
+          columns={columns}
+          gridSuggestionMenuComponent={
+            gridSuggestionMenuComponent ||
+            GridSuggestionMenu<ItemType<GetItemsType>>
+          }
+          onItemClick={onItemClickOrDefault}
+        />
+      )}
+    </GenericPopover>
   );
 }

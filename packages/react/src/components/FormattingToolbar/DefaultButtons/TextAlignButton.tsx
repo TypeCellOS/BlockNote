@@ -8,6 +8,7 @@ import {
   mapTableCell,
   StyleSchema,
   TableContent,
+  TableHandlesPlugin,
 } from "@blocknote/core";
 import { useCallback } from "react";
 import { IconType } from "react-icons";
@@ -21,6 +22,7 @@ import {
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
+import { usePlugin } from "../../../hooks/usePlugin.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 
 type TextAlignment = DefaultProps["textAlignment"];
@@ -41,6 +43,8 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
     InlineContentSchema,
     StyleSchema
   >();
+
+  const tableHandles = usePlugin(TableHandlesPlugin);
 
   const state = useEditorState({
     editor,
@@ -70,7 +74,7 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
         selectedBlocks.length === 1 &&
         blockHasType(firstBlock, editor, "table")
       ) {
-        const cellSelection = editor.tableHandles?.getCellSelection();
+        const cellSelection = tableHandles.getCellSelection();
         if (!cellSelection) {
           return undefined;
         }
@@ -108,7 +112,7 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
             props: { textAlignment: textAlignment },
           });
         } else if (block.type === "table") {
-          const cellSelection = editor.tableHandles?.getCellSelection();
+          const cellSelection = tableHandles.getCellSelection();
           if (!cellSelection) {
             continue;
           }
@@ -144,7 +148,7 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
         }
       }
     },
-    [editor, state],
+    [editor, state, tableHandles],
   );
 
   if (state === undefined) {

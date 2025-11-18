@@ -2,6 +2,7 @@ import {
   DefaultBlockSchema,
   InlineContentSchema,
   StyleSchema,
+  TableHandlesPlugin,
 } from "@blocknote/core";
 import { useCallback } from "react";
 import { RiMergeCellsHorizontal, RiMergeCellsVertical } from "react-icons/ri";
@@ -10,6 +11,7 @@ import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
+import { usePlugin } from "../../../hooks/usePlugin.js";
 
 export const TableCellMergeButton = () => {
   const dict = useDictionary();
@@ -23,14 +25,11 @@ export const TableCellMergeButton = () => {
     StyleSchema
   >();
 
+  const tableHandles = usePlugin(TableHandlesPlugin);
   const state = useEditorState({
     editor,
     selector: ({ editor }) => {
-      if (
-        !editor.isEditable ||
-        !editor.tableHandles ||
-        !editor.settings.tables.splitCells
-      ) {
+      if (!editor.isEditable || !editor.settings.tables.splitCells) {
         return undefined;
       }
 
@@ -49,14 +48,14 @@ export const TableCellMergeButton = () => {
       }
 
       return {
-        mergeDirection: editor.tableHandles.getMergeDirection(block),
+        mergeDirection: tableHandles.getMergeDirection(block),
       };
     },
   });
 
   const onClick = useCallback(() => {
-    editor.tableHandles?.mergeCells();
-  }, [editor]);
+    tableHandles?.mergeCells();
+  }, [tableHandles]);
 
   if (state === undefined) {
     return null;

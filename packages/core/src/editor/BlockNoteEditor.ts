@@ -653,7 +653,7 @@ export class BlockNoteEditor<
   // Manager instances
   private readonly _blockManager: BlockManager<any, any, any>;
   private readonly _collaborationManager?: CollaborationManager;
-  private readonly _eventManager: EventManager<any>;
+  private readonly _eventManager: EventManager<any, any, any>;
   private readonly _exportManager: ExportManager<any, any, any>;
   private readonly _extensionManager: ExtensionManager;
   private readonly _selectionManager: SelectionManager<any, any, any>;

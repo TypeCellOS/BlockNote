@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { RiLink } from "react-icons/ri";
 
 import {
@@ -90,14 +90,6 @@ export const CreateLinkButton = () => {
     };
   }, [editor.prosemirrorView, editor.headless]);
 
-  const update = useCallback(
-    (url: string) => {
-      editor.createLink(url);
-      editor.focus();
-    },
-    [editor],
-  );
-
   if (state === undefined) {
     return null;
   }
@@ -126,7 +118,6 @@ export const CreateLinkButton = () => {
         <EditLinkMenuItems
           url={state.url || ""}
           text={state.text}
-          editLink={update}
           showTextField={false}
         />
       </Components.Generic.Popover.Content>
