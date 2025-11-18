@@ -1,5 +1,5 @@
 import { SideMenuProsemirrorPlugin } from "@blocknote/core";
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC, useMemo } from "react";
 
 import { usePluginState } from "../../hooks/usePlugin.js";
 import { BlockPopover } from "../Popovers/BlockPopover.js";
@@ -11,8 +11,6 @@ export const SideMenuController = (props: {
   sideMenu?: FC<SideMenuProps>;
   floatingUIOptions?: Partial<FloatingUIOptions>;
 }) => {
-  const [open, setOpen] = useState(false);
-
   const state = usePluginState(SideMenuProsemirrorPlugin, {
     selector: (state) => {
       return state !== undefined
@@ -25,20 +23,19 @@ export const SideMenuController = (props: {
   });
 
   const { show, block } = state || {};
-  useEffect(() => {
-    setOpen(!!show);
-  }, [show]);
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
       useFloatingOptions: {
-        open,
-        onOpenChange: setOpen,
+        open: show,
         placement: "left-start",
+      },
+      useDismissProps: {
+        enabled: false,
       },
       ...props.floatingUIOptions,
     }),
-    [open, props.floatingUIOptions],
+    [props.floatingUIOptions, show],
   );
 
   const Component = props.sideMenu || SideMenu;

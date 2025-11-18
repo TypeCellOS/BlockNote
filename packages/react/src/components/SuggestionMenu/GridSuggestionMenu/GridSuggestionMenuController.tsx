@@ -4,14 +4,7 @@ import {
   StyleSchema,
   SuggestionMenuPlugin,
 } from "@blocknote/core";
-import {
-  flip,
-  offset,
-  shift,
-  size,
-  UseFloatingOptions,
-  VirtualElement,
-} from "@floating-ui/react";
+import { flip, offset, shift, size, VirtualElement } from "@floating-ui/react";
 import { FC, useEffect, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
@@ -128,30 +121,41 @@ export function GridSuggestionMenuController<
     [referencePos],
   );
 
-  const floatingUIOptions = useMemo<UseFloatingOptions>(
+  const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
-      open: state?.show && state?.triggerCharacter === triggerCharacter,
-      placement: "bottom-start",
-      middleware: [
-        offset(10),
-        // Flips the menu placement to maximize the space available, and prevents
-        // the menu from being cut off by the confines of the screen.
-        flip({
-          mainAxis: true,
-          crossAxis: false,
-        }),
-        shift(),
-        size({
-          apply({ availableHeight, elements }) {
-            Object.assign(elements.floating.style, {
-              maxHeight: `${availableHeight - 10}px`,
-            });
-          },
-        }),
-      ],
+      useFloatingOptions: {
+        open: state?.show && state?.triggerCharacter === triggerCharacter,
+        placement: "bottom-start",
+        middleware: [
+          offset(10),
+          // Flips the menu placement to maximize the space available, and prevents
+          // the menu from being cut off by the confines of the screen.
+          flip({
+            mainAxis: true,
+            crossAxis: false,
+          }),
+          shift(),
+          size({
+            apply({ availableHeight, elements }) {
+              Object.assign(elements.floating.style, {
+                maxHeight: `${availableHeight - 10}px`,
+              });
+            },
+          }),
+        ],
+      },
+      elementProps: {
+        // Prevents editor blurring when clicking the scroll bar.
+        onMouseDown: (event) => event.preventDefault(),
+      },
       ...props.floatingUIOptions,
     }),
-    [props.floatingUIOptions, state?.show],
+    [
+      props.floatingUIOptions,
+      state?.show,
+      state?.triggerCharacter,
+      triggerCharacter,
+    ],
   );
 
   if (
@@ -164,10 +168,7 @@ export function GridSuggestionMenuController<
   }
 
   return (
-    <GenericPopover
-      reference={virtualElement}
-      useFloatingOptions={floatingUIOptions}
-    >
+    <GenericPopover reference={virtualElement} {...floatingUIOptions}>
       {triggerCharacter && (
         <GridSuggestionMenuWrapper
           query={state.query}

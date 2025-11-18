@@ -18,6 +18,7 @@ import { FC, useEffect, useMemo } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { usePlugin, usePluginState } from "../../hooks/usePlugin.js";
 import { GenericPopover } from "../Popovers/GenericPopover.js";
+import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import { SuggestionMenu } from "./SuggestionMenu.js";
 import { SuggestionMenuWrapper } from "./SuggestionMenuWrapper.js";
 import { getDefaultReactSlashMenuItems } from "./getDefaultReactSlashMenuItems.js";
@@ -123,28 +124,34 @@ export function SuggestionMenuController<
     [referencePos],
   );
 
-  const floatingUIOptions = useMemo<UseFloatingOptions>(
+  const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
-      open: state?.show && state?.triggerCharacter === triggerCharacter,
-      placement: "bottom-start",
-      middleware: [
-        offset(10),
-        // Flips the menu placement to maximize the space available, and prevents
-        // the menu from being cut off by the confines of the screen.
-        flip({
-          mainAxis: true,
-          crossAxis: false,
-        }),
-        shift(),
-        size({
-          apply({ availableHeight, elements }) {
-            Object.assign(elements.floating.style, {
-              maxHeight: `${availableHeight - 10}px`,
-              minHeight: "300px",
-            });
-          },
-        }),
-      ],
+      useFloatingOptions: {
+        open: state?.show && state?.triggerCharacter === triggerCharacter,
+        placement: "bottom-start",
+        middleware: [
+          offset(10),
+          // Flips the menu placement to maximize the space available, and prevents
+          // the menu from being cut off by the confines of the screen.
+          flip({
+            mainAxis: true,
+            crossAxis: false,
+          }),
+          shift(),
+          size({
+            apply({ availableHeight, elements }) {
+              Object.assign(elements.floating.style, {
+                maxHeight: `${availableHeight - 10}px`,
+                minHeight: "300px",
+              });
+            },
+          }),
+        ],
+      },
+      elementProps: {
+        // Prevents editor blurring when clicking the scroll bar.
+        onMouseDown: (event) => event.preventDefault(),
+      },
       ...props.floatingUIOptions,
     }),
     [
@@ -165,10 +172,7 @@ export function SuggestionMenuController<
   }
 
   return (
-    <GenericPopover
-      reference={virtualElement}
-      useFloatingOptions={floatingUIOptions}
-    >
+    <GenericPopover reference={virtualElement} {...floatingUIOptions}>
       {triggerCharacter && (
         <SuggestionMenuWrapper
           query={state.query}
