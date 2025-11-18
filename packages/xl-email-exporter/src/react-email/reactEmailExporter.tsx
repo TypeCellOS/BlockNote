@@ -333,15 +333,11 @@ export class ReactEmailExporter<
       backgroundColor:
         props.backgroundColor === "default" || !props.backgroundColor
           ? undefined
-          : this.options.colors[
-              props.backgroundColor as keyof typeof this.options.colors
-            ].background,
+          : this.options.colors[props.backgroundColor]?.background,
       color:
         props.textColor === "default" || !props.textColor
           ? undefined
-          : this.options.colors[
-              props.textColor as keyof typeof this.options.colors
-            ].text,
+          : this.options.colors[props.textColor]?.text,
       alignItems:
         props.textAlignment === "right"
           ? "flex-end"
