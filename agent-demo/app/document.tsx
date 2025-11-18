@@ -28,18 +28,15 @@ import {
   aiDocumentFormats,
   AIMenuController,
   AIToolbarButton,
-  createAIAutoCompleteExtension,
   createAIExtension,
   createStreamToolsArraySchema,
   getAISlashMenuItems,
-  setupToolCallStreaming,
 } from "@blocknote/xl-ai";
 import { en as aiEn } from "@blocknote/xl-ai/locales";
 import "@blocknote/xl-ai/style.css";
-import { DefaultChatTransport, isToolOrDynamicToolUIPart, UIMessage } from "ai";
 import { PencilIcon, UndoIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo } from "react";
-import { getMessageWithToolCallId, useChatContext } from "./assistant";
+import { getMessageWithToolCallId, useChatContext } from "./page";
 const BASE_URL = "https://localhost:3000/ai";
 
 const UndoActionBar: FC = () => {
@@ -137,12 +134,13 @@ export default function Document() {
     // Register the AI extension
     extensions: [
       createAIExtension({
-        transport: new DefaultChatTransport({
-          // URL to your backend API, see example source in `packages/xl-ai-server/src/routes/regular.ts`
-          api: `${BASE_URL}/regular/streamText`,
-        }),
+        chatProvider: () => ctx.chat,
+        // transport: new DefaultChatTransport({
+        //   // URL to your backend API, see example source in `packages/xl-ai-server/src/routes/regular.ts`
+        //   api: `${BASE_URL}/regular/streamText`,
+        // }),
       }),
-      createAIAutoCompleteExtension(),
+      // createAIAutoCompleteExtension(),
     ],
     // We set some initial content for demo purposes
     initialContent: [
@@ -180,94 +178,6 @@ export default function Document() {
       .getStreamToolsProvider()
       .getStreamTools(editor); // TODO: not document dependent?
   }, [editor]);
-
-  useEffect(() => {
-    // a somewhat hacky way to insert document state before the user submits a new message to the llm
-    // this way, the llm always has the latest document state to work with
-
-    // hacky, other options:
-    // - use assistant-ui api?
-    // - inject in transport?
-    // - inject on backend?
-
-    (chatRaw as any).sendMessageAlt = async (message: UIMessage) => {
-      if (!message) {
-        throw new Error("not implemented");
-      }
-      if (message.role === "user") {
-        const beforeLastMessage = chatRaw.messages[chatRaw.messages.length - 1];
-
-        if (beforeLastMessage?.id.startsWith("document-state-")) {
-          // already inserted
-          return;
-        }
-
-        // TODO: this async might break if it's actually async
-        const f = async () => {
-          const doc =
-            await aiDocumentFormats.html.promptHelpers.getDataForPromptNoSelection(
-              editor,
-              {},
-            );
-
-          chatRaw.messages = [
-            ...chatRaw.messages,
-
-            {
-              id: "document-state-" + chatRaw.messages.length,
-              role: "assistant",
-              parts: [
-                {
-                  toolCallId: "document-state-tc-" + chatRaw.messages.length,
-                  type: "dynamic-tool",
-                  toolName: "document-state",
-                  state: "output-available",
-                  input: {},
-                  output: JSON.stringify(doc.htmlBlocks),
-                  //   text: "The latest state of the document is: \n\n",
-                  // },
-                  // {
-                  //   type: "text",
-                  //   text: JSON.stringify(doc.htmlBlocks),
-                },
-              ],
-              metadata: {
-                documentState: {
-                  pm: editor.prosemirrorState.doc.toJSON(),
-                  bn: editor.document,
-                },
-              },
-            },
-          ];
-
-          const p = setupToolCallStreaming(streamTools, chatRaw, () => {
-            // debugger;
-          });
-
-          p.then(() => {
-            const lastMessage = chatRaw.messages[chatRaw.messages.length - 1];
-            if (
-              lastMessage.role === "assistant" &&
-              lastMessage.parts.some(
-                (p) =>
-                  isToolOrDynamicToolUIPart(p) &&
-                  p.type === "tool-applyDocumentOperations",
-              )
-            ) {
-              lastMessage.metadata = {
-                documentState: {
-                  pm: editor.prosemirrorState.doc.toJSON(),
-                  bn: editor.document,
-                },
-              };
-            }
-          });
-          (await (chatRaw as any).sendMessageOrig(message)) as any;
-        };
-        f();
-      }
-    };
-  }, [chatRaw, editor]);
 
   const BlockNoteTool = makeAssistantTool({
     // type: "frontend",

@@ -33,7 +33,7 @@ import { ToolFallback } from "@/components/assistant-ui/tool-fallback";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
 import { Button } from "@/components/ui/button";
 
-import { useChatContext } from "@/app/assistant";
+import { useChatContext } from "@/app/page";
 import { cn } from "@/lib/utils";
 
 export const Thread: FC = () => {

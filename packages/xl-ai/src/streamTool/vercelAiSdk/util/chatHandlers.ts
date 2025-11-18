@@ -29,7 +29,7 @@ import { objectStreamToOperationsResult } from "./UIMessageStreamToOperationsRes
  */
 export async function setupToolCallStreaming(
   streamTools: StreamTool<any>[],
-  chat: Chat<UIMessage>,
+  chat: Chat<any>,
   onStart?: () => void,
 ) {
   /*
@@ -140,26 +140,38 @@ export async function setupToolCallStreaming(
       errorSeen = true;
     }
 
-    chat.addToolResult({
-      tool: toolCalls[index].toolName,
-      toolCallId: toolCalls[index].toolCallId,
-      output:
-        errorSeen === false
-          ? { status: "ok" }
-          : isErrorTool
+    // TODO: it would be better to add these tool outputs "live" as they occur,
+    // possibly including a callback to create checkpoints after applying a tool
+    if (!errorSeen) {
+      chat.addToolOutput({
+        tool: toolCalls[index].toolName,
+        toolCallId: toolCalls[index].toolCallId,
+
+        output: { status: "ok" },
+      });
+    } else {
+      chat.addToolOutput({
+        tool: toolCalls[index].toolName,
+        toolCallId: toolCalls[index].toolCallId,
+        state: "output-error",
+        errorText: JSON.stringify(
+          isErrorTool
             ? { status: "error", error: getErrorMessage(error) }
             : { status: "not-executed-previous-tool-errored" },
-    });
+        ),
+      });
+    }
   });
+  // TODO: migrate rest of codease to new prompt / tool system
 
-  if (error) {
-    throw error;
-  }
+  // if (error) {
+  // throw error;
+  // }
 
-  if (chat.error) {
-    // response failed
-    throw chat.error;
-  }
+  // if (chat.error) {
+  //   // response failed
+  //   throw chat.error;
+  // }
 }
 
 function createAppendableStream<T>() {
@@ -237,6 +249,7 @@ function processToolCallParts(
     toolCallId: string;
   }) => ToolCallStreamData,
 ) {
+  // TODO: better to check if tool has output instead of hardcoding lastMessage
   for (const part of chat.lastMessage?.parts ?? []) {
     if (!isToolUIPart(part)) {
       continue;
