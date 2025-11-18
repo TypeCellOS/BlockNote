@@ -56,6 +56,7 @@ See the [full example](/examples/interoperability/converting-blocks-to-react-ema
 - **footer**: Add content to the bottom of the email (must be a React-Email compatible component)
 - **head**: Inject elements into the [Head element](https://react.email/docs/components/head)
 - **container**: Customize the container element (A component which will wrap the email content including the header and footer)
+- **bodyStyles**: Customize the body styles (a `CSSProperties` object)
 
 Example usage:
 
@@ -82,6 +83,12 @@ const html = await exporter.toReactEmailDocument(editor.document, {
   footer: <Text>Footer</Text>,
   head: <title>My email</title>,
   container: ({ children }) => <Container>{children}</Container>,
+  bodyStyles: {
+    fontFamily: "Arial, sans-serif",
+    fontSize: "14px",
+    lineHeight: "1.5",
+    color: "#333",
+  },
 });
 ```
 

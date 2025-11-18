@@ -292,6 +292,16 @@ export class ReactEmailExporter<
        * Customize the container element
        */
       container?: React.FC<{ children: React.ReactNode }>;
+      /**
+       * Customize the body styles
+       * @default {
+       *   fontFamily: "'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif",
+       *   fontSize: "16px",
+       *   lineHeight: "1.5",
+       *   color: "#333",
+       * }
+       */
+      bodyStyles?: CSSProperties;
     },
   ) {
     const transformedBlocks = await this.transformBlocks(blocks);
@@ -310,6 +320,7 @@ export class ReactEmailExporter<
             fontSize: "16px",
             lineHeight: "1.5",
             color: "#333",
+            ...options?.bodyStyles,
           }}
         >
           {options?.preview && <Preview>{options.preview}</Preview>}
