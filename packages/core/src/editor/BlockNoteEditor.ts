@@ -1082,10 +1082,16 @@ export class BlockNoteEditor<
   }
 
   public get domElement() {
+    if (this.headless) {
+      return undefined;
+    }
     return this.prosemirrorView?.dom as HTMLDivElement | undefined;
   }
 
   public isFocused() {
+    if (this.headless) {
+      return false;
+    }
     return this.prosemirrorView?.hasFocus() || false;
   }
 
@@ -1673,7 +1679,7 @@ export class BlockNoteEditor<
       ignoreQueryLength?: boolean;
     },
   ) {
-    if (!this.prosemirrorView) {
+    if (!this.prosemirrorView || this.headless) {
       return;
     }
 
