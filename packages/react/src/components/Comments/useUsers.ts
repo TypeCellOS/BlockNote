@@ -1,25 +1,18 @@
-import { BlockNoteEditor } from "@blocknote/core";
+import { CommentsPlugin } from "@blocknote/core";
 import { User } from "@blocknote/core/comments";
 import { useCallback, useMemo, useSyncExternalStore } from "react";
 
-export function useUser(
-  editor: BlockNoteEditor<any, any, any>,
-  userId: string,
-) {
-  return useUsers(editor, [userId]).get(userId);
+import { usePlugin } from "../../hooks/usePlugin.js";
+
+export function useUser(userId: string) {
+  return useUsers([userId]).get(userId);
 }
 
 /**
  * Bridges the UserStore to React using useSyncExternalStore.
  */
-export function useUsers(
-  editor: BlockNoteEditor<any, any, any>,
-  userIds: string[],
-) {
-  const comments = editor.comments;
-  if (!comments) {
-    throw new Error("Comments plugin not found");
-  }
+export function useUsers(userIds: string[]) {
+  const comments = usePlugin(CommentsPlugin);
 
   const store = comments.userStore;
 

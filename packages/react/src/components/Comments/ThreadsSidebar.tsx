@@ -1,10 +1,15 @@
-import { BlockNoteEditor, UnreachableCaseError } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  CommentsPlugin,
+  UnreachableCaseError,
+} from "@blocknote/core";
 import { ThreadData } from "@blocknote/core/comments";
 import React, { FocusEvent, useCallback, useMemo } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useUIPluginState } from "../../hooks/useUIPluginState.js";
 import { Thread } from "./Thread.js";
 import { useThreads } from "./useThreads.js";
+import { usePlugin } from "../../hooks/usePlugin.js";
 
 type ThreadItemProps = {
   thread: ThreadData;
@@ -22,10 +27,11 @@ const ThreadItem = React.memo(
   ({
     thread,
     selectedThreadId,
-    editor,
     maxCommentsBeforeCollapse,
     referenceText,
   }: ThreadItemProps) => {
+    const comments = usePlugin(CommentsPlugin);
+
     const onFocus = useCallback(
       (event: FocusEvent) => {
         // If the focused element is within the action toolbar, we don't want to
@@ -34,9 +40,9 @@ const ThreadItem = React.memo(
           return;
         }
 
-        editor.comments?.selectThread(thread.id);
+        comments.selectThread(thread.id);
       },
-      [editor.comments, thread.id],
+      [comments, thread.id],
     );
 
     const onBlur = useCallback(
@@ -64,10 +70,10 @@ const ThreadItem = React.memo(
           !parentThreadElement ||
           !parentThreadElement.contains(targetElement)
         ) {
-          editor.comments?.selectThread(undefined);
+          comments.selectThread(undefined);
         }
       },
-      [editor.comments],
+      [comments],
     );
 
     return (
@@ -190,20 +196,16 @@ export function ThreadsSidebar(props: {
 }) {
   const editor = useBlockNoteEditor();
 
-  if (!editor.comments) {
-    throw new Error("Comments plugin not found");
-  }
+  const comments = usePlugin(CommentsPlugin);
 
   // Note: because "threadPositions" is part of the state,
   // this will potentially trigger a re-render on every document update
   // this means we need to be mindful of children memoization
-  const state = useUIPluginState(
-    editor.comments.onUpdate.bind(editor.comments),
-  );
+  const state = useUIPluginState(comments.onUpdate.bind(comments));
 
   const selectedThreadId = state?.selectedThreadId;
 
-  const threads = useThreads(editor);
+  const threads = useThreads();
 
   const filteredAndSortedThreads = useMemo(() => {
     const threadsArray = Array.from(threads.values());

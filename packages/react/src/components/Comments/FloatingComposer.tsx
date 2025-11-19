@@ -1,8 +1,8 @@
-import { mergeCSSClasses } from "@blocknote/core";
+import { CommentsPlugin, mergeCSSClasses } from "@blocknote/core";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
-import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
+import { usePlugin } from "../../hooks/usePlugin.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { CommentEditor } from "./CommentEditor.js";
 import { defaultCommentEditorSchema } from "./defaultCommentEditorSchema.js";
@@ -13,13 +13,7 @@ import { defaultCommentEditorSchema } from "./defaultCommentEditorSchema.js";
  * It's used when the user highlights a parts of the document to create a new comment / thread.
  */
 export function FloatingComposer() {
-  const editor = useBlockNoteEditor();
-
-  if (!editor.comments) {
-    throw new Error("Comments plugin not found");
-  }
-
-  const comments = editor.comments;
+  const comments = usePlugin(CommentsPlugin);
 
   const Components = useComponentsContext()!;
   const dict = useDictionary();
@@ -32,7 +26,7 @@ export function FloatingComposer() {
         emptyDocument: dict.placeholders.new_comment,
       },
     },
-    schema: editor.comments.commentEditorSchema || defaultCommentEditorSchema,
+    schema: comments.commentEditorSchema || defaultCommentEditorSchema,
   });
 
   return (

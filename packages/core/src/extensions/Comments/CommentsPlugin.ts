@@ -2,18 +2,12 @@ import { Node } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import { getRelativeSelection, ySyncPluginKey } from "y-prosemirror";
-import type {
-  CommentBody,
-  ThreadData,
-  ThreadStore,
-  User,
-} from "../../comments/index.js";
+import type { CommentBody, ThreadData, User } from "../../comments/index.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   createExtension,
   createStore,
 } from "../../editor/BlockNoteExtension.js";
-import { CustomBlockNoteSchema } from "../../schema/schema.js";
 import { UserStore } from "./userstore/UserStore.js";
 import { CommentMark } from "./CommentMark.js";
 
@@ -63,20 +57,14 @@ function getUpdatedThreadPositions(doc: Node, markType: string) {
 
 export const CommentsPlugin = createExtension(
   (editor: BlockNoteEditor<any, any, any>, options) => {
-    const commentsOptions = options?.comments as
-      | {
-          threadStore: ThreadStore;
-          resolveUsers?: (userIds: string[]) => Promise<User[]>;
-          schema?: CustomBlockNoteSchema<any, any, any>;
-        }
-      | undefined;
+    const commentsOptions = options?.comments;
     if (!commentsOptions) {
       return undefined;
     }
 
     const markType = CommentMark.name;
     const threadStore = commentsOptions.threadStore;
-    const resolveUsers = commentsOptions.resolveUsers;
+    const resolveUsers = options.resolveUsers;
     const commentEditorSchema = commentsOptions.schema;
 
     if (!resolveUsers) {
@@ -245,6 +233,7 @@ export const CommentsPlugin = createExtension(
           },
         }),
       ],
+      threadStore: threadStore,
       init() {
         const unsubscribe = threadStore.subscribe(updateMarksFromThreads);
         editor.onCreate(() => {

@@ -1,5 +1,6 @@
 import {
   BlockSchema,
+  CommentsPlugin,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
@@ -20,6 +21,7 @@ import { useUIElementPositioning } from "../../hooks/useUIElementPositioning.js"
 import { useUIPluginState } from "../../hooks/useUIPluginState.js";
 import { Thread } from "./Thread.js";
 import { useThreads } from "./useThreads.js";
+import { usePlugin } from "../../hooks/usePlugin.js";
 
 /**
  * This component is used to display a thread in a floating card.
@@ -35,15 +37,9 @@ export const FloatingThreadController = <
 }) => {
   const editor = useBlockNoteEditor<B, I, S>();
 
-  if (!editor.comments) {
-    throw new Error(
-      "FloatingComposerController can only be used when BlockNote editor has enabled comments",
-    );
-  }
+  const comments = usePlugin(CommentsPlugin);
 
-  const state = useUIPluginState(
-    editor.comments.onUpdate.bind(editor.comments),
-  );
+  const state = useUIPluginState(comments.onUpdate.bind(comments));
 
   const { isMounted, ref, style, getFloatingProps, setReference } =
     useUIElementPositioning(!!state?.selectedThreadId, null, 5000, {
@@ -51,7 +47,7 @@ export const FloatingThreadController = <
       middleware: [offset(10), shift(), flip()],
       onOpenChange: (open) => {
         if (!open) {
-          editor.comments?.selectThread(undefined);
+          comments.selectThread(undefined);
           editor.focus();
         }
       },
@@ -87,7 +83,7 @@ export const FloatingThreadController = <
 
   useLayoutEffect(updateRef, [updateRef]);
 
-  const threads = useThreads(editor);
+  const threads = useThreads();
 
   if (!isMounted || !state) {
     return null;
