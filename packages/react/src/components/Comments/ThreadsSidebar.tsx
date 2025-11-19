@@ -6,10 +6,9 @@ import {
 import { ThreadData } from "@blocknote/core/comments";
 import React, { FocusEvent, useCallback, useMemo } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
-import { useUIPluginState } from "../../hooks/useUIPluginState.js";
+import { usePlugin, usePluginState } from "../../hooks/usePlugin.js";
 import { Thread } from "./Thread.js";
 import { useThreads } from "./useThreads.js";
-import { usePlugin } from "../../hooks/usePlugin.js";
 
 type ThreadItemProps = {
   thread: ThreadData;
@@ -194,16 +193,9 @@ export function ThreadsSidebar(props: {
    */
   sort?: "position" | "recent-activity" | "oldest";
 }) {
-  const editor = useBlockNoteEditor();
+  const editor = useBlockNoteEditor<any, any, any>();
 
-  const comments = usePlugin(CommentsPlugin);
-
-  // Note: because "threadPositions" is part of the state,
-  // this will potentially trigger a re-render on every document update
-  // this means we need to be mindful of children memoization
-  const state = useUIPluginState(comments.onUpdate.bind(comments));
-
-  const selectedThreadId = state?.selectedThreadId;
+  const { selectedThreadId, threadPositions } = usePluginState(CommentsPlugin);
 
   const threads = useThreads();
 
@@ -213,7 +205,7 @@ export function ThreadsSidebar(props: {
     const sortedThreads = sortThreads(
       threadsArray,
       props.sort || "position",
-      state?.threadPositions,
+      threadPositions,
     );
 
     const ret: Array<{ thread: ThreadData; referenceText: string }> = [];
@@ -225,7 +217,7 @@ export function ThreadsSidebar(props: {
             thread,
             referenceText: getReferenceText(
               editor,
-              state?.threadPositions.get(thread.id),
+              threadPositions.get(thread.id),
             ),
           });
         }
@@ -235,7 +227,7 @@ export function ThreadsSidebar(props: {
             thread,
             referenceText: getReferenceText(
               editor,
-              state?.threadPositions.get(thread.id),
+              threadPositions.get(thread.id),
             ),
           });
         }
@@ -243,7 +235,7 @@ export function ThreadsSidebar(props: {
     }
 
     return ret;
-  }, [threads, state?.threadPositions, props.filter, props.sort, editor]);
+  }, [threads, props.sort, props.filter, threadPositions, editor]);
 
   return (
     <div className={"bn-threads-sidebar"}>
