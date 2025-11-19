@@ -79,7 +79,7 @@
     "clsx": "2.1.1",
     "docx": "^9.0.2",
     "framer-motion": "^11.18.2",
-    "fumadocs-core": "15.5.4",
+    "fumadocs-core": "16.0.14",
     "fumadocs-docgen": "2.0.1",
     "fumadocs-mdx": "11.6.9",
     "fumadocs-twoslash": "3.1.4",
