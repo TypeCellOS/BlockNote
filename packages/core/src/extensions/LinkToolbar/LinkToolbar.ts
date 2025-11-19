@@ -3,72 +3,85 @@ import { createExtension } from "../../editor/BlockNoteExtension.js";
 import { getPmSchema } from "../../api/pmUtil.js";
 
 export const LinkToolbarPlugin = createExtension((editor) => {
+  function getLinkElementAtPos(pos: number) {
+    let currentNode = editor.prosemirrorView.nodeDOM(pos);
+    while (currentNode && currentNode.parentElement) {
+      if (currentNode.nodeName === "A") {
+        return currentNode as HTMLAnchorElement;
+      }
+      currentNode = currentNode.parentElement;
+    }
+    return null;
+  }
+
+  function getMarkAtPos(pos: number, markType: string) {
+    return editor.transact((tr) => {
+      const resolvedPos = tr.doc.resolve(pos);
+      const mark = resolvedPos
+        .marks()
+        .find((mark) => mark.type.name === markType);
+
+      if (!mark) {
+        return;
+      }
+
+      const markRange = getMarkRange(resolvedPos, mark.type);
+      if (!markRange) {
+        return;
+      }
+
+      return {
+        range: markRange,
+        mark,
+        get text() {
+          return tr.doc.textBetween(markRange.from, markRange.to);
+        },
+        get position() {
+          // to minimize re-renders, we convert to JSON, which is the same shape anyway
+          return posToDOMRect(
+            editor.prosemirrorView,
+            markRange.from,
+            markRange.to,
+          ).toJSON() as DOMRect;
+        },
+      };
+    });
+  }
+
+  function getLinkAtSelection() {
+    return editor.transact((tr) => {
+      const selection = tr.selection;
+      return getMarkAtPos(selection.anchor, "link");
+    });
+  }
+
   return {
     key: "linkToolbar",
 
-    getLinkElementAtPos(pos: number) {
-      let currentNode = editor.prosemirrorView.nodeDOM(pos);
-      while (currentNode && currentNode.parentElement) {
-        if (currentNode.nodeName === "A") {
-          return currentNode as HTMLAnchorElement;
-        }
-        currentNode = currentNode.parentElement;
-      }
-      return null;
-    },
+    getLinkAtSelection,
+    getLinkElementAtPos,
+    getMarkAtPos,
 
     getLinkAtElement(element: HTMLElement) {
       return editor.transact(() => {
         const posAtElement = editor.prosemirrorView.posAtDOM(element, 0) + 1;
-        return this.getMarkAtPos(posAtElement, "link");
+        return getMarkAtPos(posAtElement, "link");
       });
     },
 
-    getLinkAtSelection() {
-      return editor.transact((tr) => {
-        const selection = tr.selection;
-        return this.getMarkAtPos(selection.anchor, "link");
-      });
-    },
-
-    getMarkAtPos(pos: number, markType: string) {
-      return editor.transact((tr) => {
-        const resolvedPos = tr.doc.resolve(pos);
-        const mark = resolvedPos
-          .marks()
-          .find((mark) => mark.type.name === markType);
-
-        if (!mark) {
-          return;
-        }
-
-        const markRange = getMarkRange(resolvedPos, mark.type);
-        if (!markRange) {
-          return;
-        }
-
-        return {
-          range: markRange,
-          mark,
-          get text() {
-            return tr.doc.textBetween(markRange.from, markRange.to);
-          },
-          get position() {
-            // to minimize re-renders, we convert to JSON, which is the same shape anyway
-            return posToDOMRect(
-              editor.prosemirrorView,
-              markRange.from,
-              markRange.to,
-            ).toJSON() as DOMRect;
-          },
-        };
-      });
-    },
-
-    editLink(url: string, text: string) {
+    editLink(
+      url: string,
+      text: string,
+      position = editor.transact((tr) => tr.selection.anchor),
+    ) {
       editor.transact((tr) => {
         const pmSchema = getPmSchema(tr);
-        const range = this.getLinkAtSelection()?.range;
+        const { range } = getMarkAtPos(position + 1, "link") || {
+          range: {
+            from: tr.selection.from,
+            to: tr.selection.to,
+          },
+        };
         if (!range) {
           return;
         }
@@ -85,7 +98,7 @@ export const LinkToolbarPlugin = createExtension((editor) => {
     deleteLink() {
       editor.transact((tr) => {
         const pmSchema = getPmSchema(tr);
-        const range = this.getLinkAtSelection()?.range;
+        const range = getLinkAtSelection()?.range;
         if (!range) {
           return;
         }

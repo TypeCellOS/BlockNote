@@ -70,6 +70,10 @@ export const CreateLinkButton = () => {
       return {
         url: editor.getSelectedLinkUrl(),
         text: editor.getSelectedText(),
+        range: {
+          from: editor.prosemirrorState.selection.from,
+          to: editor.prosemirrorState.selection.to,
+        },
       };
     },
   });
@@ -118,6 +122,7 @@ export const CreateLinkButton = () => {
         <EditLinkMenuItems
           url={state.url || ""}
           text={state.text}
+          range={state.range}
           showTextField={false}
         />
       </Components.Generic.Popover.Content>

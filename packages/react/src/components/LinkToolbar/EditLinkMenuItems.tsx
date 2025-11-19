@@ -27,7 +27,7 @@ const validateUrl = (url: string) => {
 };
 
 export const EditLinkMenuItems = (
-  props: Pick<LinkToolbarProps, "url" | "text"> & {
+  props: Pick<LinkToolbarProps, "url" | "text" | "range"> & {
     showTextField?: boolean;
   },
 ) => {
@@ -50,10 +50,10 @@ export const EditLinkMenuItems = (
     (event: KeyboardEvent) => {
       if (event.key === "Enter") {
         event.preventDefault();
-        editLink(validateUrl(currentUrl), currentText);
+        editLink(validateUrl(currentUrl), currentText, props.range.from);
       }
     },
-    [editLink, currentUrl, currentText],
+    [editLink, currentUrl, currentText, props.range.from],
   );
 
   const handleUrlChange = useCallback(
@@ -69,8 +69,8 @@ export const EditLinkMenuItems = (
   );
 
   const handleSubmit = useCallback(
-    () => editLink(validateUrl(currentUrl), currentText),
-    [editLink, currentUrl, currentText],
+    () => editLink(validateUrl(currentUrl), currentText, props.range.from),
+    [editLink, currentUrl, currentText, props.range],
   );
 
   return (

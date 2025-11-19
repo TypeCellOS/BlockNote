@@ -5,6 +5,7 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import { flip, offset, safePolygon } from "@floating-ui/react";
+import { Range } from "@tiptap/core";
 import { FC, useEffect, useMemo, useState } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
@@ -39,6 +40,7 @@ export const LinkToolbarController = (props: {
       return {
         url: link.mark.attrs.href as string,
         text: link.text,
+        range: link.range,
         element: linkToolbar.getLinkElementAtPos(link.range.from)!,
       };
     },
@@ -57,7 +59,8 @@ export const LinkToolbarController = (props: {
   // link is hovered with the mouse cursor. Therefore, we only need to update
   // the link when a new one is hovered.
   const [mouseHoverLink, setMouseHoverLink] = useState<
-    { url: string; text: string; element: HTMLAnchorElement } | undefined
+    | { url: string; text: string; range: Range; element: HTMLAnchorElement }
+    | undefined
   >(undefined);
   useEffect(() => {
     const cb = (event: MouseEvent) => {
@@ -79,6 +82,7 @@ export const LinkToolbarController = (props: {
       setMouseHoverLink({
         url: link.mark.attrs.href as string,
         text: link.text,
+        range: link.range,
         element: linkToolbar.getLinkElementAtPos(link.range.from)!,
       });
     };
@@ -132,7 +136,7 @@ export const LinkToolbarController = (props: {
 
   return (
     <GenericPopover reference={link?.element} {...floatingUIOptions}>
-      {link && <Component url={link.url} text={link.text} />}
+      {link && <Component url={link.url} text={link.text} range={link.range} />}
     </GenericPopover>
   );
 };
