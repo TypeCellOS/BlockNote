@@ -1,3 +1,13 @@
+## 0.42.2 (2025-11-19)
+
+### 🩹 Fixes
+
+- put back mounting system ([#2183](https://github.com/TypeCellOS/BlockNote/pull/2183))
+
+### ❤️ Thank You
+
+- Nick Perez
+
 ## 0.42.1 (2025-11-18)
 
 ### 🩹 Fixes
