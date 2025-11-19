@@ -6,7 +6,21 @@ import {
 import { createReactBlockSpec } from "@blocknote/react";
 import { createContext, useContext } from "react";
 import { describe, expect, it } from "vitest";
-import { ServerBlockNoteEditor } from "../ServerBlockNoteEditor.js";
+import { JSDOM } from "jsdom";
+import {
+  DomShim,
+  ServerBlockNoteEditor,
+} from "../ServerBlockNoteEditor.js";
+
+const jsdomShim: DomShim = {
+  acquire() {
+    const dom = new JSDOM();
+    return {
+      window: dom.window as any,
+      document: dom.window.document as any,
+    };
+  },
+};
 
 const SimpleReactCustomParagraph = createReactBlockSpec(
   {
@@ -53,9 +67,12 @@ const schema = BlockNoteSchema.create({
 
 describe("Test ServerBlockNoteEditor with React blocks", () => {
   it("works for simple blocks", async () => {
-    const editor = ServerBlockNoteEditor.create({
-      schema,
-    });
+    const editor = ServerBlockNoteEditor.create(
+      {
+        schema,
+      },
+      jsdomShim,
+    );
     const html = await editor.blocksToFullHTML([
       {
         id: "1",
@@ -67,9 +84,12 @@ describe("Test ServerBlockNoteEditor with React blocks", () => {
   });
 
   it("works for blocks with context", async () => {
-    const editor = ServerBlockNoteEditor.create({
-      schema,
-    });
+    const editor = ServerBlockNoteEditor.create(
+      {
+        schema,
+      },
+      jsdomShim,
+    );
 
     const html = await editor.withReactContext(
       ({ children }) => (

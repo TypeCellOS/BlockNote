@@ -4792,9 +4792,6 @@ importers:
       '@tiptap/pm':
         specifier: ^3.0.0
         version: 3.10.2
-      jsdom:
-        specifier: ^25.0.1
-        version: 25.0.1(canvas@2.11.2(encoding@0.1.13))
       y-prosemirror:
         specifier: ^1.3.7
         version: 1.3.7(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.3)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)
@@ -4817,6 +4814,9 @@ importers:
       eslint:
         specifier: ^8.57.1
         version: 8.57.1
+      jsdom:
+        specifier: ^25.0.1
+        version: 25.0.1(canvas@2.11.2(encoding@0.1.13))
       react:
         specifier: ^19.2.0
         version: 19.2.0
