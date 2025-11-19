@@ -1054,40 +1054,14 @@ export class BlockNoteEditor<
    * @warning Not needed to call manually when using React, use BlockNoteView to take care of mounting
    */
   public mount = (element: HTMLElement) => {
-    if (
-      // If the editor is scheduled for destruction, and
-      this.scheduledDestructionTimeout &&
-      // If the editor is being remounted to the same element as the one which is scheduled for destruction,
-      // then just cancel the destruction timeout
-      this.prosemirrorView.dom === element
-    ) {
-      clearTimeout(this.scheduledDestructionTimeout);
-      this.scheduledDestructionTimeout = undefined;
-      return;
-    }
-
     this._tiptapEditor.mount({ mount: element });
   };
-
-  /**
-   * Timeout to schedule the {@link unmount}ing of the editor.
-   */
-  private scheduledDestructionTimeout:
-    | ReturnType<typeof setTimeout>
-    | undefined = undefined;
 
   /**
    * Unmount the editor from the DOM element it is bound to
    */
   public unmount = () => {
-    // Due to how React's StrictMode works, it will `unmount` & `mount` the component twice in development mode.
-    // This can result in the editor being unmounted mid-rendering the content of node views.
-    // To avoid this, we only ever schedule the `unmount`ing of the editor when we've seen whether React "meant" to actually unmount the editor (i.e. not calling mount one tick later).
-    // So, we wait two ticks to see if the component is still meant to be unmounted, and if not, we actually unmount the editor.
-    this.scheduledDestructionTimeout = setTimeout(() => {
-      this._tiptapEditor.unmount();
-      this.scheduledDestructionTimeout = undefined;
-    }, 1);
+    this._tiptapEditor.unmount();
   };
 
   /**
