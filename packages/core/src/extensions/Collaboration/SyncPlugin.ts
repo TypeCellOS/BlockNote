@@ -10,6 +10,6 @@ export const SyncPlugin = createExtension((_editor, options) => {
   return {
     key: "ySyncPlugin",
     plugins: [ySyncPlugin(fragment)],
-    dependsOn: ["yCursorPlugin", "yUndoPlugin"],
+    runsBefore: ["default"],
   } as const;
 });

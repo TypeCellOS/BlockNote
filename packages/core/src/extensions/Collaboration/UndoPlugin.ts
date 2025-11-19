@@ -9,7 +9,7 @@ export const UndoPlugin = createExtension((editor, options) => {
   return {
     key: "yUndoPlugin",
     plugins: [yUndoPlugin({ trackedOrigins: [editor] })],
-    dependsOn: ["yCursorPlugin"],
+    dependsOn: ["yCursorPlugin", "ySyncPlugin"],
     undoCommand: undoCommand,
     redoCommand: redoCommand,
   } as const;

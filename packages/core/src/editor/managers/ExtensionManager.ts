@@ -1,6 +1,7 @@
 import {
   AnyExtension as AnyTiptapExtension,
   extensions,
+  getExtensionField,
   Node,
   Extension as TiptapExtension,
 } from "@tiptap/core";

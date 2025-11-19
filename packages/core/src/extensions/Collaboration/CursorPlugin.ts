@@ -172,7 +172,7 @@ export const CursorPlugin = createExtension((_editor, options) => {
         },
       }),
     ],
-    dependsOn: ["default"],
+    dependsOn: ["ySyncPlugin"],
     updateUser(user: { name: string; color: string; [key: string]: string }) {
       collaboration.provider.awareness.setLocalStateField("user", user);
     },
