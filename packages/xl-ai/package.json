@@ -11,7 +11,7 @@
     "directory": "packages/xl-ai"
   },
   "license": "GPL-3.0 OR PROPRIETARY",
-  "version": "0.42.2",
+  "version": "0.42.3",
   "files": [
     "dist",
     "types",
@@ -66,10 +66,10 @@
   "dependencies": {
     "@ai-sdk/provider-utils": "^3.0.12",
     "@ai-sdk/react": "^2.0.76",
-    "@blocknote/core": "0.42.2",
-    "@blocknote/mantine": "0.42.2",
+    "@blocknote/core": "0.42.3",
+    "@blocknote/mantine": "0.42.3",
     "@blocknote/prosemirror-suggest-changes": "^0.1.3",
-    "@blocknote/react": "0.42.2",
+    "@blocknote/react": "0.42.3",
     "@floating-ui/react": "^0.26.28",
     "@tiptap/core": "^3.11.0",
     "ai": "^5.0.76",

@@ -1,3 +1,13 @@
+## 0.42.3 (2025-11-19)
+
+### 🩹 Fixes
+
+- disallow access to the `domElement` or `isFocused` if the editor is unmounted ([#2187](https://github.com/TypeCellOS/BlockNote/pull/2187))
+
+### ❤️ Thank You
+
+- Nick Perez
+
 ## 0.42.2 (2025-11-19)
 
 ### 🩹 Fixes
