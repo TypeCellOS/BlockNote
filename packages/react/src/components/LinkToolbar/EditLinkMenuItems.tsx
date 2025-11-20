@@ -12,7 +12,7 @@ import {
 } from "react";
 import { RiLink, RiText } from "react-icons/ri";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
-import { usePlugin } from "../../hooks/usePlugin.js";
+import { useExtension } from "../../hooks/useExtension.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { LinkToolbarProps } from "./LinkToolbarProps.js";
 
@@ -34,7 +34,7 @@ export const EditLinkMenuItems = (
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  const { editLink } = usePlugin(LinkToolbar);
+  const { editLink } = useExtension(LinkToolbar);
 
   const { url, text, showTextField } = props;
 

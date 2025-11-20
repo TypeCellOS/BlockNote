@@ -760,7 +760,7 @@ export class BlockNoteEditor<
       return;
     }
 
-    this._tiptapEditor.mount({ mount: element } as any);
+    this._tiptapEditor.mount({ mount: element });
   };
 
   /**

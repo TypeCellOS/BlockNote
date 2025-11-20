@@ -5,7 +5,10 @@ import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 import { DragHandleMenu } from "../DragHandleMenu/DragHandleMenu.js";
 import { SideMenuProps } from "../SideMenuProps.js";
-import { usePlugin, usePluginState } from "../../../hooks/usePlugin.js";
+import {
+  useExtension,
+  useExtensionState,
+} from "../../../hooks/useExtension.js";
 
 export const DragHandleButton = (
   props: SideMenuProps & {
@@ -15,8 +18,8 @@ export const DragHandleButton = (
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  const sideMenu = usePlugin(SideMenu);
-  const block = usePluginState(SideMenu, {
+  const sideMenu = useExtension(SideMenu);
+  const block = useExtensionState(SideMenu, {
     selector: (state) => state?.block,
   });
 

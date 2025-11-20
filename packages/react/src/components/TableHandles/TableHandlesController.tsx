@@ -16,7 +16,7 @@ import { ExtendButtonProps } from "./ExtendButton/ExtendButtonProps.js";
 import { TableHandle } from "./TableHandle.js";
 import { TableCellButton } from "./TableCellButton.js";
 import { TableCellButtonProps } from "./TableCellButtonProps.js";
-import { usePluginState } from "../../hooks/usePlugin.js";
+import { useExtensionState } from "../../hooks/useExtension.js";
 import { TableCellPopover } from "../Popovers/TableCellPopover.js";
 import { TableHandleProps } from "./TableHandleProps.js";
 import { GenericPopover } from "../Popovers/GenericPopover.js";
@@ -31,7 +31,7 @@ export const TableHandlesController = <
 }) => {
   const editor = useBlockNoteEditor<BlockSchema, I, S>();
 
-  const state = usePluginState(TableHandles);
+  const state = useExtensionState(TableHandles);
 
   const tableElement = useMemo(() => {
     if (state === undefined) {

@@ -1,9 +1,9 @@
-import {  } from "@blocknote/core";
+import {} from "@blocknote/core";
 import { SideMenu } from "@blocknote/core/extensions";
 import {
   useBlockNoteEditor,
   useComponentsContext,
-  usePlugin,
+  useExtension,
 } from "@blocknote/react";
 import { MdDelete } from "react-icons/md";
 
@@ -13,7 +13,7 @@ export function RemoveBlockButton() {
 
   const Components = useComponentsContext()!;
 
-  const sideMenu = usePlugin(SideMenu);
+  const sideMenu = useExtension(SideMenu);
 
   return (
     <Components.SideMenu.Button

@@ -12,7 +12,7 @@ import { FC, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../hooks/useEditorState.js";
-import { usePlugin, usePluginState } from "../../hooks/usePlugin.js";
+import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import { PositionPopover } from "../Popovers/PositionPopover.js";
 import { FormattingToolbar } from "./FormattingToolbar.js";
@@ -42,8 +42,10 @@ export const FormattingToolbarController = (props: {
     InlineContentSchema,
     StyleSchema
   >();
-  const formattingToolbar = usePlugin(FormattingToolbarExtension, { editor });
-  const show = usePluginState(FormattingToolbarExtension, {
+  const formattingToolbar = useExtension(FormattingToolbarExtension, {
+    editor,
+  });
+  const show = useExtensionState(FormattingToolbarExtension, {
     editor,
     selector: (state) => state.show,
   });

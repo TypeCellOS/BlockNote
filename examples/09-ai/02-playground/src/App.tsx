@@ -1,4 +1,4 @@
-import { BlockNoteEditor,  } from "@blocknote/core";
+import { BlockNoteEditor } from "@blocknote/core";
 import { filterSuggestionItems } from "@blocknote/core/extensions";
 import "@blocknote/core/fonts/inter.css";
 import { en } from "@blocknote/core/locales";
@@ -12,7 +12,7 @@ import {
   getFormattingToolbarItems,
   useBlockNoteContext,
   useCreateBlockNote,
-  usePlugin,
+  useExtension,
   usePrefersColorScheme,
 } from "@blocknote/react";
 import {
@@ -79,7 +79,7 @@ export default function App() {
     ],
   });
 
-  const ai = usePlugin(AIExtension, { editor });
+  const ai = useExtension(AIExtension, { editor });
 
   useEffect(() => {
     // update the default model in the extension

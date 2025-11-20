@@ -1,8 +1,4 @@
-import {
-  BlockSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "@blocknote/core";
+import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 import { LinkToolbar as LinkToolbarExtension } from "@blocknote/core/extensions";
 import { flip, offset, safePolygon } from "@floating-ui/react";
 import { Range } from "@tiptap/core";
@@ -12,7 +8,7 @@ import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { LinkToolbar } from "./LinkToolbar.js";
 import { LinkToolbarProps } from "./LinkToolbarProps.js";
 import { useEditorState } from "../../hooks/useEditorState.js";
-import { usePlugin } from "../../hooks/usePlugin.js";
+import { useExtension } from "../../hooks/useExtension.js";
 import { GenericPopover } from "../Popovers/GenericPopover.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 
@@ -28,7 +24,7 @@ export const LinkToolbarController = (props: {
 
   const [open, setOpen] = useState(false);
 
-  const linkToolbar = usePlugin(LinkToolbarExtension);
+  const linkToolbar = useExtension(LinkToolbarExtension);
   const selectionLink = useEditorState({
     editor,
     selector: () => {

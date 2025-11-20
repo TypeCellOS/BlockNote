@@ -9,7 +9,7 @@ import { useDictionary } from "../../i18n/dictionary.js";
 import { CommentEditor } from "./CommentEditor.js";
 import { Comments } from "./Comments.js";
 import { defaultCommentEditorSchema } from "./defaultCommentEditorSchema.js";
-import { usePlugin } from "../../hooks/usePlugin.js";
+import { useExtension } from "../../hooks/useExtension.js";
 
 export type ThreadProps = {
   /**
@@ -67,7 +67,7 @@ export const Thread = ({
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  const comments = usePlugin(CommentsExtension);
+  const comments = useExtension(CommentsExtension);
 
   const newCommentEditor = useCreateBlockNote({
     trailingBlock: false,

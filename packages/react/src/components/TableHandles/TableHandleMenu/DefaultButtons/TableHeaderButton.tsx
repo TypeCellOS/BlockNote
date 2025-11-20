@@ -9,7 +9,10 @@ import { TableHandles } from "@blocknote/core/extensions";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
-import { usePlugin, usePluginState } from "../../../../hooks/usePlugin.js";
+import {
+  useExtension,
+  useExtensionState,
+} from "../../../../hooks/useExtension.js";
 import { useDictionary } from "../../../../i18n/dictionary.js";
 
 export const TableHeaderRowButton = <
@@ -26,11 +29,11 @@ export const TableHeaderRowButton = <
     I,
     S
   >();
-  const tableHandles = usePlugin(TableHandles);
-  const block = usePluginState(TableHandles, {
+  const tableHandles = useExtension(TableHandles);
+  const block = useExtensionState(TableHandles, {
     selector: (state) => state?.block,
   });
-  const index = usePluginState(TableHandles, {
+  const index = useExtensionState(TableHandles, {
     selector: (state) =>
       props.orientation === "column" ? state?.colIndex : state?.rowIndex,
   });
@@ -81,11 +84,11 @@ export const TableHeaderColumnButton = <
     I,
     S
   >();
-  const tableHandles = usePlugin(TableHandles);
-  const block = usePluginState(TableHandles, {
+  const tableHandles = useExtension(TableHandles);
+  const block = useExtensionState(TableHandles, {
     selector: (state) => state?.block,
   });
-  const index = usePluginState(TableHandles, {
+  const index = useExtensionState(TableHandles, {
     selector: (state) =>
       props.orientation === "column" ? state?.colIndex : state?.rowIndex,
   });

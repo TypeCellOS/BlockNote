@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
-import { usePluginState } from "../../../../hooks/usePlugin.js";
+import { useExtensionState } from "../../../../hooks/useExtension.js";
 
 export const TableRowHeaderItem = (props: { children: ReactNode }) => {
   const Components = useComponentsContext()!;
@@ -15,7 +15,7 @@ export const TableRowHeaderItem = (props: { children: ReactNode }) => {
     any
   >();
 
-  const block = usePluginState(SideMenu, {
+  const block = useExtensionState(SideMenu, {
     editor,
     selector: (state) =>
       state?.block as
@@ -66,7 +66,7 @@ export const TableColumnHeaderItem = (props: { children: ReactNode }) => {
     any
   >();
 
-  const block = usePluginState(SideMenu, {
+  const block = useExtensionState(SideMenu, {
     editor,
     selector: (state) =>
       state?.block as

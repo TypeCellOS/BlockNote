@@ -14,7 +14,7 @@ import {
 import { FC, useEffect, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
-import { usePlugin, usePluginState } from "../../hooks/usePlugin.js";
+import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
 import { GenericPopover } from "../Popovers/GenericPopover.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import { SuggestionMenu } from "./SuggestionMenu.js";
@@ -89,7 +89,7 @@ export function SuggestionMenuController<
     );
   }, [editor, getItems])!;
 
-  const suggestionMenu = usePlugin(SuggestionMenuExtension);
+  const suggestionMenu = useExtension(SuggestionMenuExtension);
 
   useEffect(() => {
     suggestionMenu.addTriggerCharacter(triggerCharacter);
@@ -100,8 +100,8 @@ export function SuggestionMenuController<
     triggerCharacter,
   ]);
 
-  const state = usePluginState(SuggestionMenuExtension);
-  const referencePos = usePluginState(SuggestionMenuExtension, {
+  const state = useExtensionState(SuggestionMenuExtension);
+  const referencePos = useExtensionState(SuggestionMenuExtension, {
     selector: (state) => state?.referencePos || new DOMRect(),
   });
 

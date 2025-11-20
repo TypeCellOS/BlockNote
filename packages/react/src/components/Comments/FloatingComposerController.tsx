@@ -11,7 +11,7 @@ import { flip, offset, shift } from "@floating-ui/react";
 import { ComponentProps, FC, useEffect, useMemo, useState } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
-import { usePlugin, usePluginState } from "../../hooks/usePlugin.js";
+import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
 import { FloatingComposer } from "./FloatingComposer.js";
 import { PositionPopover } from "../Popovers/PositionPopover.js";
 import { useEditorState } from "../../hooks/useEditorState.js";
@@ -29,7 +29,7 @@ export const FloatingComposerController = <
 
   const editor = useBlockNoteEditor<B, I, S>();
 
-  const comments = usePlugin(Comments);
+  const comments = useExtension(Comments);
 
   // TODO: `setForceSelectionVisible` no longer exists?
   // useEffect(() => {
@@ -40,7 +40,7 @@ export const FloatingComposerController = <
   //   return () => offUpdate();
   // }, [comments, editor]);
 
-  const pendingComment = usePluginState(Comments, {
+  const pendingComment = useExtensionState(Comments, {
     editor,
     selector: (state) => state.pendingComment,
   });

@@ -5,7 +5,7 @@ import { RiFile2Line } from "react-icons/ri";
 
 import { useDictionary } from "../../../../i18n/dictionary.js";
 import { ReactCustomBlockRenderProps } from "../../../../schema/ReactBlockSpec.js";
-import { usePlugin } from "../../../../hooks/usePlugin.js";
+import { useExtension } from "../../../../hooks/useExtension.js";
 
 export const AddFileButton = (
   props: Omit<
@@ -21,7 +21,7 @@ export const AddFileButton = (
 ) => {
   const dict = useDictionary();
 
-  const filePanel = usePlugin(FilePanel);
+  const filePanel = useExtension(FilePanel);
 
   // Prevents focus from moving to the button.
   const addFileButtonMouseDownHandler = useCallback(
