@@ -101,17 +101,7 @@ export function GridSuggestionMenuController<
 
   const state = usePluginState(SuggestionMenu);
   const referencePos = usePluginState(SuggestionMenu, {
-    selector: (state) =>
-      (state?.referencePos || new DOMRect()).toJSON() as {
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-        top: number;
-        right: number;
-        bottom: number;
-        left: number;
-      },
+    selector: (state) => state?.referencePos || new DOMRect(),
   });
 
   const virtualElement = useMemo<VirtualElement>(

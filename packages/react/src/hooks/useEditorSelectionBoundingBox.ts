@@ -8,6 +8,6 @@ export function useEditorSelectionBoundingBox(
   return useEditorState({
     editor,
     selector: ({ editor }) =>
-      enabled ? editor.getSelectionBoundingBox()?.toJSON() : undefined,
+      enabled ? editor.getSelectionBoundingBox() : undefined,
   });
 }

@@ -104,17 +104,7 @@ export function SuggestionMenuController<
 
   const state = usePluginState(SuggestionMenuExtension);
   const referencePos = usePluginState(SuggestionMenuExtension, {
-    selector: (state) =>
-      (state?.referencePos || new DOMRect()).toJSON() as {
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-        top: number;
-        right: number;
-        bottom: number;
-        left: number;
-      },
+    selector: (state) => state?.referencePos || new DOMRect(),
   });
 
   const virtualElement = useMemo<VirtualElement>(

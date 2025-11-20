@@ -57,7 +57,9 @@ class SuggestionMenuView {
       if (!decorationNode) {
         return;
       }
-      this.state.referencePos = decorationNode.getBoundingClientRect();
+      this.state.referencePos = decorationNode
+        .getBoundingClientRect()
+        .toJSON() as DOMRect;
       this.emitUpdate(this.pluginState!.triggerCharacter!);
     }
   };
@@ -97,7 +99,9 @@ class SuggestionMenuView {
     if (this.editor.isEditable && decorationNode) {
       this.state = {
         show: true,
-        referencePos: decorationNode.getBoundingClientRect(),
+        referencePos: decorationNode
+          .getBoundingClientRect()
+          .toJSON() as DOMRect,
         query: this.pluginState!.query,
       };
 
