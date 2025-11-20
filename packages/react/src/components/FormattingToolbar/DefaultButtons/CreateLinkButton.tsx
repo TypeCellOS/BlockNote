@@ -70,12 +70,23 @@ export const CreateLinkButton = () => {
       return;
     }
 
-    editor.prosemirrorView.dom.addEventListener("keydown", callback);
+    // Capture the DOM element at the time the effect runs. Guard against
+    // cases where the editor view is not available (e.g. during unmount).
+    const dom = editor.prosemirrorView?.dom;
+    if (!dom) {
+      return;
+    }
+
+    dom.addEventListener("keydown", callback);
 
     return () => {
-      editor.prosemirrorView.dom.removeEventListener("keydown", callback);
+      // Use the captured `dom` reference for cleanup. If the editor view
+      // was torn down, this avoids accessing `editor.prosemirrorView.dom`.
+      if (dom && dom.removeEventListener) {
+        dom.removeEventListener("keydown", callback);
+      }
     };
-  }, [editor.prosemirrorView, editor.headless]);
+  }, [editor.headless, editor.prosemirrorView]);
 
   const update = useCallback(
     (url: string) => {
