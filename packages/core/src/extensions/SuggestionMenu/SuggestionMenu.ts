@@ -210,7 +210,7 @@ export const SuggestionMenu = createExtension((editor) => {
       });
     },
     // TODO this whole plugin needs to be refactored (but I've done the minimal)
-    plugins: [
+    prosemirrorPlugins: [
       new Plugin({
         key: suggestionMenuPluginKey,
 

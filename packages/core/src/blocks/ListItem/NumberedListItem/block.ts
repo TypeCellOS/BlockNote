@@ -135,7 +135,7 @@ export const createNumberedListItemBlockSpec = createBlockSpec(
           return true;
         },
       },
-      plugins: [NumberedListIndexingDecorationPlugin()],
+      prosemirrorPlugins: [NumberedListIndexingDecorationPlugin()],
     }),
   ],
 );

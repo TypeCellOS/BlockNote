@@ -8,7 +8,7 @@ export const YUndo = createExtension((editor, options) => {
 
   return {
     key: "yUndo",
-    plugins: [yUndoPlugin({ trackedOrigins: [editor] })],
+    prosemirrorPlugins: [yUndoPlugin({ trackedOrigins: [editor] })],
     dependsOn: ["yCursor", "ySync"],
     undoCommand: undoCommand,
     redoCommand: redoCommand,

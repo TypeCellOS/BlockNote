@@ -694,7 +694,7 @@ export const SideMenu = createExtension((editor) => {
   return {
     key: "sideMenu",
     store,
-    plugins: [
+    prosemirrorPlugins: [
       new Plugin({
         key: sideMenuPluginKey,
         view: (editorView) => {

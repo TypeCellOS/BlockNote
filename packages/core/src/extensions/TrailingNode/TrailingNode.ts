@@ -19,7 +19,7 @@ export const TrailingNode = createExtension((_editor, options) => {
   }
   return {
     key: "trailingNode",
-    plugins: [
+    prosemirrorPlugins: [
       new Plugin({
         key: plugin,
         appendTransaction: (_, __, state) => {
