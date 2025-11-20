@@ -12,23 +12,23 @@ import { createDropFileExtension } from "../../api/clipboard/fromClipboard/fileD
 import { createPasteFromClipboardExtension } from "../../api/clipboard/fromClipboard/pasteExtension.js";
 import { createCopyToClipboardExtension } from "../../api/clipboard/toClipboard/copyExtension.js";
 import { getBlockInfoFromTransaction } from "../../api/getBlockInfoFromPos.js";
-import { BackgroundColorExtension } from "../../extensions/BackgroundColor/BackgroundColorExtension.js";
-import { HardBreak } from "../../extensions/HardBreak/HardBreak.js";
+import { BackgroundColorExtension } from "../../extensions/tiptap-extensions/BackgroundColor/BackgroundColorExtension.js";
+import { HardBreak } from "../../extensions/tiptap-extensions/HardBreak/HardBreak.js";
 import { DEFAULT_EXTENSIONS } from "../../extensions/index.js";
-import { KeyboardShortcutsExtension } from "../../extensions/KeyboardShortcuts/KeyboardShortcutsExtension.js";
+import { KeyboardShortcutsExtension } from "../../extensions/tiptap-extensions/KeyboardShortcuts/KeyboardShortcutsExtension.js";
 import {
   DEFAULT_LINK_PROTOCOL,
   VALID_LINK_PROTOCOLS,
 } from "../../extensions/LinkToolbar/protocols.js";
-import { SuggestionMenuPlugin } from "../../extensions/SuggestionMenu/SuggestionPlugin.js";
+import { SuggestionMenu } from "../../extensions/SuggestionMenu/SuggestionMenu.js";
 import {
   SuggestionAddMark,
   SuggestionDeleteMark,
   SuggestionModificationMark,
-} from "../../extensions/Suggestions/SuggestionMarks.js";
-import { TextAlignmentExtension } from "../../extensions/TextAlignment/TextAlignmentExtension.js";
-import { TextColorExtension } from "../../extensions/TextColor/TextColorExtension.js";
-import UniqueID from "../../extensions/UniqueID/UniqueID.js";
+} from "../../extensions/tiptap-extensions/Suggestions/SuggestionMarks.js";
+import { TextAlignmentExtension } from "../../extensions/tiptap-extensions/TextAlignment/TextAlignmentExtension.js";
+import { TextColorExtension } from "../../extensions/tiptap-extensions/TextColor/TextColorExtension.js";
+import UniqueID from "../../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 import { BlockContainer, BlockGroup, Doc } from "../../pm-nodes/index.js";
 import type {
   BlockNoteEditor,
@@ -522,7 +522,7 @@ export class ExtensionManager {
           return {
             Escape: () => {
               // TODO should this be like this?
-              if (this.editor.getExtension(SuggestionMenuPlugin)?.shown()) {
+              if (this.editor.getExtension(SuggestionMenu)?.shown()) {
                 // escape is handled by suggestionmenu
                 return false;
               }

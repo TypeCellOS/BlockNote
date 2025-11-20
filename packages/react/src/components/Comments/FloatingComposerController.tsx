@@ -1,6 +1,6 @@
 import {
   BlockSchema,
-  CommentsPlugin,
+  Comments,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
@@ -29,7 +29,7 @@ export const FloatingComposerController = <
 
   const editor = useBlockNoteEditor<B, I, S>();
 
-  const comments = usePlugin(CommentsPlugin);
+  const comments = usePlugin(Comments);
 
   // TODO: `setForceSelectionVisible` no longer exists?
   // useEffect(() => {
@@ -40,7 +40,7 @@ export const FloatingComposerController = <
   //   return () => offUpdate();
   // }, [comments, editor]);
 
-  const pendingComment = usePluginState(CommentsPlugin, {
+  const pendingComment = usePluginState(Comments, {
     editor,
     selector: (state) => state.pendingComment,
   });

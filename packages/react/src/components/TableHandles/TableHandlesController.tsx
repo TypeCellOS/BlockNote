@@ -5,7 +5,7 @@ import {
   getNodeById,
   InlineContentSchema,
   StyleSchema,
-  TableHandlesPlugin,
+  TableHandles,
 } from "@blocknote/core";
 import { FC, useMemo } from "react";
 
@@ -31,7 +31,7 @@ export const TableHandlesController = <
 }) => {
   const editor = useBlockNoteEditor<BlockSchema, I, S>();
 
-  const state = usePluginState(TableHandlesPlugin);
+  const state = usePluginState(TableHandles);
 
   const tableElement = useMemo(() => {
     if (state === undefined) {

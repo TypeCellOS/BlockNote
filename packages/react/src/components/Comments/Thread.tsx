@@ -1,4 +1,7 @@
-import { CommentsPlugin, mergeCSSClasses } from "@blocknote/core";
+import {
+  Comments as CommentsExtension,
+  mergeCSSClasses,
+} from "@blocknote/core";
 import { ThreadData } from "@blocknote/core/comments";
 import { FocusEvent, useCallback } from "react";
 
@@ -66,7 +69,7 @@ export const Thread = ({
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  const comments = usePlugin(CommentsPlugin);
+  const comments = usePlugin(CommentsExtension);
 
   const newCommentEditor = useCreateBlockNote({
     trailingBlock: false,

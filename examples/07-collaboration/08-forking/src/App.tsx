@@ -1,5 +1,5 @@
 import "@blocknote/core/fonts/inter.css";
-import { ForkYDocPlugin } from "@blocknote/core";
+import { ForkYDoc } from "@blocknote/core";
 import {
   useCreateBlockNote,
   usePlugin,
@@ -33,8 +33,8 @@ export default function App() {
       },
     },
   });
-  const forkYDocPlugin = usePlugin(ForkYDocPlugin, { editor });
-  const isForked = usePluginState(ForkYDocPlugin, {
+  const forkYDocPlugin = usePlugin(ForkYDoc, { editor });
+  const isForked = usePluginState(ForkYDoc, {
     editor,
     selector: (state) => state.isForked,
   });

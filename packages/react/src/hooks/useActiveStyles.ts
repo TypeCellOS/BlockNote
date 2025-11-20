@@ -1,11 +1,11 @@
-import { BlockNoteEditor, StyleSchema } from "@blocknote/core";
+import { BlockNoteEditor, Styles, StyleSchema } from "@blocknote/core";
 
 import { useBlockNoteContext } from "../editor/BlockNoteContext.js";
 import { useEditorState } from "./useEditorState.js";
 
 export function useActiveStyles<T extends StyleSchema>(
   editor?: BlockNoteEditor<any, any, T>,
-) {
+): Styles<T> {
   const editorContext = useBlockNoteContext<any, any, T>();
   if (!editor) {
     editor = editorContext?.editor;

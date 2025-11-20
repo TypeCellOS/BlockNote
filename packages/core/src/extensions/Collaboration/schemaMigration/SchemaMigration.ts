@@ -11,7 +11,7 @@ import migrationRules from "./migrationRules/index.js";
 // case things are found in the fragment that don't adhere to the editor schema
 // and need to be fixed. These fixes are defined as `MigrationRule`s within the
 // `migrationRules` directory.
-export const SchemaMigrationPlugin = createExtension((_editor, options) => {
+export const SchemaMigration = createExtension((_editor, options) => {
   const fragment = (options as any)?.collaboration?.fragment as
     | Y.XmlFragment
     | undefined;
@@ -21,10 +21,10 @@ export const SchemaMigrationPlugin = createExtension((_editor, options) => {
   }
 
   let migrationDone = false;
-  const pluginKey = new PluginKey("schemaMigrationPlugin");
+  const pluginKey = new PluginKey("schemaMigration");
 
   return {
-    key: "schemaMigrationPlugin",
+    key: "schemaMigration",
     plugins: [
       new Plugin({
         key: pluginKey,

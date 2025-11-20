@@ -1,4 +1,4 @@
-import { CommentsPlugin, FormattingToolbarExtension } from "@blocknote/core";
+import { Comments, FormattingToolbar } from "@blocknote/core";
 import { useCallback } from "react";
 import { RiChat3Line } from "react-icons/ri";
 
@@ -11,8 +11,8 @@ export const AddCommentButtonInner = () => {
   const dict = useDictionary();
   const Components = useComponentsContext()!;
 
-  const comments = usePlugin(CommentsPlugin);
-  const { store } = usePlugin(FormattingToolbarExtension);
+  const comments = usePlugin(Comments);
+  const { store } = usePlugin(FormattingToolbar);
 
   const onClick = useCallback(() => {
     comments.startPendingComment();
@@ -33,7 +33,7 @@ export const AddCommentButtonInner = () => {
 export const AddCommentButton = () => {
   const editor = useBlockNoteEditor<any, any, any>();
 
-  if (!editor.getExtension(CommentsPlugin)) {
+  if (!editor.getExtension(Comments)) {
     return null;
   }
 

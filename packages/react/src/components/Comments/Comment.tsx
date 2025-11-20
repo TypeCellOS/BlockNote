@@ -1,6 +1,6 @@
 "use client";
 
-import { CommentsPlugin, mergeCSSClasses } from "@blocknote/core";
+import { Comments, mergeCSSClasses } from "@blocknote/core";
 import type { CommentData, ThreadData } from "@blocknote/core/comments";
 import { MouseEvent, ReactNode, useCallback, useState } from "react";
 import {
@@ -42,7 +42,7 @@ export const Comment = ({
 }: CommentProps) => {
   // TODO: if REST API becomes popular, all interactions (click handlers) should implement a loading state and error state
   // (or optimistic local updates)
-  const comments = usePlugin(CommentsPlugin);
+  const comments = usePlugin(Comments);
 
   const dict = useDictionary();
 

@@ -1,4 +1,4 @@
-import { FilePanelPlugin } from "@blocknote/core";
+import { FilePanel as FilePanelExtension } from "@blocknote/core";
 import { flip, offset } from "@floating-ui/react";
 import { FC, useEffect, useMemo, useState } from "react";
 
@@ -14,7 +14,7 @@ export const FilePanelController = (props: {
 }) => {
   const [open, setOpen] = useState(false);
 
-  const blockId = usePluginState(FilePanelPlugin, {
+  const blockId = usePluginState(FilePanelExtension, {
     selector: (state) => state.blockId,
   });
   useEffect(() => {

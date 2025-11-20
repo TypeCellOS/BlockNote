@@ -1,7 +1,7 @@
 import {
   blockHasType,
   editorHasBlockWithType,
-  SideMenuProsemirrorPlugin,
+  SideMenu,
 } from "@blocknote/core";
 import { ReactNode } from "react";
 
@@ -15,7 +15,7 @@ export const BlockColorsItem = (props: { children: ReactNode }) => {
 
   const editor = useBlockNoteEditor<any, any, any>();
 
-  const block = usePluginState(SideMenuProsemirrorPlugin, {
+  const block = usePluginState(SideMenu, {
     editor,
     selector: (state) => state?.block,
   });

@@ -2,7 +2,7 @@ import {
   getColspan,
   getRowspan,
   mergeCSSClasses,
-  TableHandlesPlugin,
+  TableHandles,
 } from "@blocknote/core";
 import { ReactNode, useMemo, useState } from "react";
 
@@ -29,8 +29,8 @@ export const TableHandle = (
 
   const Component = props.tableHandleMenu || TableHandleMenu;
 
-  const tableHandles = usePlugin(TableHandlesPlugin);
-  const state = usePluginState(TableHandlesPlugin);
+  const tableHandles = usePlugin(TableHandles);
+  const state = usePluginState(TableHandles);
 
   const isDraggable = useMemo(() => {
     if (

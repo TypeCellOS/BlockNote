@@ -2,7 +2,7 @@ import {
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
-  SuggestionMenuPlugin,
+  SuggestionMenu,
 } from "@blocknote/core";
 import { flip, offset, shift, size, VirtualElement } from "@floating-ui/react";
 import { FC, useEffect, useMemo } from "react";
@@ -88,7 +88,7 @@ export function GridSuggestionMenuController<
     );
   }, [editor, getItems])!;
 
-  const suggestionMenu = usePlugin(SuggestionMenuPlugin);
+  const suggestionMenu = usePlugin(SuggestionMenu);
 
   useEffect(() => {
     suggestionMenu.addTriggerCharacter(triggerCharacter);
@@ -99,8 +99,8 @@ export function GridSuggestionMenuController<
     triggerCharacter,
   ]);
 
-  const state = usePluginState(SuggestionMenuPlugin);
-  const referencePos = usePluginState(SuggestionMenuPlugin, {
+  const state = usePluginState(SuggestionMenu);
+  const referencePos = usePluginState(SuggestionMenu, {
     selector: (state) =>
       (state?.referencePos || new DOMRect()).toJSON() as {
         x: number;

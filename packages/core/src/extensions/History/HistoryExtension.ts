@@ -1,15 +1,14 @@
-import { History } from "@tiptap/extension-history";
+import { history, redo, undo } from "@tiptap/pm/history";
 import { createExtension } from "../../editor/BlockNoteExtension.js";
-import { redo, undo } from "@tiptap/pm/history";
 
-export const HistoryExtension = createExtension((_editor, options) => {
+export const History = createExtension((_editor, options) => {
   if (options.collaboration) {
     return;
   }
 
   return {
     key: "history",
-    tiptapExtensions: [History],
+    plugins: [history()],
     undoCommand: undo,
     redoCommand: redo,
   } as const;

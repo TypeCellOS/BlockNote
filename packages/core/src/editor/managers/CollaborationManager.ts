@@ -1,5 +1,5 @@
 import type { User } from "../../comments/index.js";
-import { CursorPlugin } from "../../extensions/Collaboration/CursorPlugin.js";
+import { YCursor } from "../../extensions/Collaboration/YCursorPlugin.js";
 import type {
   BlockNoteEditor,
   BlockNoteEditorOptions,
@@ -27,7 +27,7 @@ export class CollaborationManager {
    * Update the user info for the current user that's shown to other collaborators
    */
   public updateUserInfo(user: { name: string; color: string }) {
-    const cursor = this.editor.getExtension(CursorPlugin);
+    const cursor = this.editor.getExtension(YCursor);
     if (!cursor) {
       throw new Error(
         "Cannot update collaboration user info when collaboration is disabled.",

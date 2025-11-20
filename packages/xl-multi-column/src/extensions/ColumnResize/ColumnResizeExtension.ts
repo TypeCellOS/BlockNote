@@ -1,8 +1,4 @@
-import {
-  BlockNoteEditor,
-  getNodeById,
-  SideMenuProsemirrorPlugin,
-} from "@blocknote/core";
+import { BlockNoteEditor, getNodeById, SideMenu } from "@blocknote/core";
 import { Extension } from "@tiptap/core";
 import { Node } from "prosemirror-model";
 import { Plugin, PluginKey, PluginView } from "prosemirror-state";
@@ -193,7 +189,7 @@ class ColumnResizePluginView implements PluginView {
       this.view.state.tr.setMeta(columnResizePluginKey, newState),
     );
 
-    this.editor.getExtension(SideMenuProsemirrorPlugin)?.freezeMenu();
+    this.editor.getExtension(SideMenu)?.freezeMenu();
   };
 
   // If the plugin isn't in a resize state, we want to update it to either a
@@ -228,7 +224,7 @@ class ColumnResizePluginView implements PluginView {
       // if the side menu is already open.
       if (
         newState.type === "hover" &&
-        this.editor.getExtension(SideMenuProsemirrorPlugin)?.store.state?.show
+        this.editor.getExtension(SideMenu)?.store.state?.show
       ) {
         return;
       }
@@ -304,7 +300,7 @@ class ColumnResizePluginView implements PluginView {
       this.view.state.tr.setMeta(columnResizePluginKey, newState),
     );
 
-    this.editor.getExtension(SideMenuProsemirrorPlugin)?.unfreezeMenu();
+    this.editor.getExtension(SideMenu)?.unfreezeMenu();
   };
 
   destroy() {

@@ -3,7 +3,7 @@ import {
   BlockSchema,
   defaultProps,
   DefaultProps,
-  FormattingToolbarExtension,
+  FormattingToolbar as FormattingToolbarExtension,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";

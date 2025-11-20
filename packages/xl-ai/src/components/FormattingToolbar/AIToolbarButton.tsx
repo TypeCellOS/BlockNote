@@ -1,6 +1,6 @@
 import {
   BlockSchema,
-  FormattingToolbarExtension,
+  FormattingToolbar,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -25,9 +25,7 @@ export const AIToolbarButton = () => {
   const ai = usePlugin(AIExtension);
 
   const onClick = () => {
-    editor
-      .getExtension(FormattingToolbarExtension)
-      ?.store.setState({ show: false });
+    editor.getExtension(FormattingToolbar)?.store.setState({ show: false });
     const selection = editor.getSelection();
     if (!selection) {
       throw new Error("No selection");

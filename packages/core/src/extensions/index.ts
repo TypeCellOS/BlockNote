@@ -1,43 +1,43 @@
-import { BlockChangePlugin } from "./BlockChange/BlockChangePlugin.js";
-import { CommentsPlugin } from "./Comments/CommentsPlugin.js";
-import { CursorPlugin } from "./Collaboration/CursorPlugin.js";
+import { BlockChange } from "./BlockChange/BlockChange.js";
+import { Comments } from "./Comments/Comments.js";
+import { YCursor } from "./Collaboration/YCursorPlugin.js";
 import { DropCursor } from "./DropCursor/DropCursor.js";
-import { FilePanelPlugin } from "./FilePanel/FilePanelPlugin.js";
-import { ForkYDocPlugin } from "./Collaboration/ForkYDocPlugin.js";
-import { FormattingToolbarExtension } from "./FormattingToolbar/FormattingToolbarPlugin.js";
-import { HistoryExtension } from "./History/HistoryExtension.js";
-import { LinkToolbarPlugin } from "./LinkToolbar/LinkToolbar.js";
-import { NodeSelectionKeyboardPlugin } from "./NodeSelectionKeyboard/NodeSelectionKeyboardPlugin.js";
-import { PlaceholderPlugin } from "./Placeholder/PlaceholderPlugin.js";
-import { PreviousBlockTypePlugin } from "./PreviousBlockType/PreviousBlockTypePlugin.js";
-import { SchemaMigrationPlugin } from "./Collaboration/schemaMigration/SchemaMigrationPlugin.js";
-import { ShowSelectionPlugin } from "./ShowSelection/ShowSelectionPlugin.js";
-import { SideMenuProsemirrorPlugin } from "./SideMenu/SideMenuPlugin.js";
-import { SuggestionMenuPlugin } from "./SuggestionMenu/SuggestionPlugin.js";
-import { SyncPlugin } from "./Collaboration/SyncPlugin.js";
-import { TableHandlesPlugin } from "./TableHandles/TableHandlesPlugin.js";
-import { TrailingNode } from "./TrailingNode/TrailingNodeExtension.js";
-import { UndoPlugin } from "./Collaboration/UndoPlugin.js";
+import { FilePanel } from "./FilePanel/FilePanel.js";
+import { ForkYDoc } from "./Collaboration/ForkYDoc.js";
+import { FormattingToolbar } from "./FormattingToolbar/FormattingToolbar.js";
+import { History } from "./History/HistoryExtension.js";
+import { LinkToolbar } from "./LinkToolbar/LinkToolbar.js";
+import { NodeSelectionKeyboard } from "./NodeSelectionKeyboard/NodeSelectionKeyboard.js";
+import { Placeholder } from "./Placeholder/Placeholder.js";
+import { PreviousBlockType } from "./PreviousBlockType/PreviousBlockType.js";
+import { SchemaMigration } from "./Collaboration/schemaMigration/SchemaMigration.js";
+import { ShowSelection } from "./ShowSelection/ShowSelection.js";
+import { SideMenu } from "./SideMenu/SideMenu.js";
+import { SuggestionMenu } from "./SuggestionMenu/SuggestionMenu.js";
+import { YSync } from "./Collaboration/YSync.js";
+import { TableHandles } from "./TableHandles/TableHandles.js";
+import { TrailingNode } from "./TrailingNode/TrailingNode.js";
+import { YUndo } from "./Collaboration/YUndo.js";
 
 export const DEFAULT_EXTENSIONS = [
-  BlockChangePlugin,
-  CommentsPlugin,
-  CursorPlugin,
+  BlockChange,
+  Comments,
+  YCursor,
   DropCursor,
-  FilePanelPlugin,
-  ForkYDocPlugin,
-  FormattingToolbarExtension,
-  HistoryExtension,
-  LinkToolbarPlugin,
-  NodeSelectionKeyboardPlugin,
-  PlaceholderPlugin,
-  PreviousBlockTypePlugin,
-  SchemaMigrationPlugin,
-  ShowSelectionPlugin,
-  SideMenuProsemirrorPlugin,
-  SuggestionMenuPlugin,
-  SyncPlugin,
-  TableHandlesPlugin,
+  FilePanel,
+  ForkYDoc,
+  FormattingToolbar,
+  History,
+  LinkToolbar,
+  NodeSelectionKeyboard,
+  Placeholder,
+  PreviousBlockType,
+  SchemaMigration,
+  ShowSelection,
+  SideMenu,
+  SuggestionMenu,
+  YSync,
+  TableHandles,
   TrailingNode,
-  UndoPlugin,
+  YUndo,
 ] as const;

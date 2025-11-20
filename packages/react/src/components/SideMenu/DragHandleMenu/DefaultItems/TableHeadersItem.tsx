@@ -1,8 +1,4 @@
-import {
-  DefaultBlockSchema,
-  SideMenuProsemirrorPlugin,
-  SpecificBlock,
-} from "@blocknote/core";
+import { DefaultBlockSchema, SideMenu, SpecificBlock } from "@blocknote/core";
 import { ReactNode } from "react";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
@@ -18,7 +14,7 @@ export const TableRowHeaderItem = (props: { children: ReactNode }) => {
     any
   >();
 
-  const block = usePluginState(SideMenuProsemirrorPlugin, {
+  const block = usePluginState(SideMenu, {
     editor,
     selector: (state) =>
       state?.block as
@@ -69,7 +65,7 @@ export const TableColumnHeaderItem = (props: { children: ReactNode }) => {
     any
   >();
 
-  const block = usePluginState(SideMenuProsemirrorPlugin, {
+  const block = usePluginState(SideMenu, {
     editor,
     selector: (state) =>
       state?.block as

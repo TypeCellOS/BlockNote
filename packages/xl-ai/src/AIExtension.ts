@@ -23,8 +23,8 @@ import {
 } from "./api/index.js";
 import { createAgentCursorPlugin } from "./plugins/AgentCursorPlugin.js";
 import { AIRequestHelpers, InvokeAIOptions } from "./types.js";
-import { ShowSelectionPlugin } from "../../core/src/extensions/ShowSelection/ShowSelectionPlugin.js";
-import { ForkYDocPlugin } from "../../core/src/extensions/Collaboration/ForkYDocPlugin.js";
+import { ShowSelection } from "../../core/src/extensions/ShowSelection/ShowSelection.js";
+import { ForkYDoc } from "../../core/src/extensions/Collaboration/ForkYDoc.js";
 
 type AIPluginState = {
   aiMenuState:
@@ -140,7 +140,7 @@ export const AIExtension = createExtension((editor, editorOptions) => {
      * Open the AI menu at a specific block
      */
     openAIMenuAtBlock(blockID: string) {
-      editor.getExtension(ShowSelectionPlugin)?.showSelection(true);
+      editor.getExtension(ShowSelection)?.showSelection(true);
       editor.isEditable = false;
       store.setState({
         aiMenuState: {
@@ -164,7 +164,7 @@ export const AIExtension = createExtension((editor, editorOptions) => {
         aiMenuState: "closed",
       });
       chatSession = undefined;
-      editor.getExtension(ShowSelectionPlugin)?.showSelection(false);
+      editor.getExtension(ShowSelection)?.showSelection(false);
       editor.isEditable = true;
       editor.focus();
     },
@@ -213,7 +213,7 @@ export const AIExtension = createExtension((editor, editorOptions) => {
       });
 
       // If in collaboration mode, merge the changes back into the original yDoc
-      editor.getExtension(ForkYDocPlugin)?.merge({ keepChanges: true });
+      editor.getExtension(ForkYDoc)?.merge({ keepChanges: true });
 
       this.closeAIMenu();
     },
@@ -231,7 +231,7 @@ export const AIExtension = createExtension((editor, editorOptions) => {
       });
 
       // If in collaboration mode, discard the changes and revert to the original yDoc
-      editor.getExtension(ForkYDocPlugin)?.merge({ keepChanges: false });
+      editor.getExtension(ForkYDoc)?.merge({ keepChanges: false });
       this.closeAIMenu();
     },
 
@@ -304,7 +304,7 @@ export const AIExtension = createExtension((editor, editorOptions) => {
       }
 
       if (status === "ai-writing") {
-        editor.getExtension(ShowSelectionPlugin)?.showSelection(false);
+        editor.getExtension(ShowSelection)?.showSelection(false);
       }
 
       if (typeof status === "object") {
@@ -340,7 +340,7 @@ export const AIExtension = createExtension((editor, editorOptions) => {
      */
     async invokeAI(opts: InvokeAIOptions) {
       this.setAIResponseStatus("thinking");
-      editor.getExtension(ForkYDocPlugin)?.fork();
+      editor.getExtension(ForkYDoc)?.fork();
 
       try {
         if (!chatSession) {

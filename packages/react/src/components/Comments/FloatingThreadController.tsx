@@ -1,4 +1,4 @@
-import { CommentsPlugin } from "@blocknote/core";
+import { Comments } from "@blocknote/core";
 import { flip, offset, shift } from "@floating-ui/react";
 import { ComponentProps, FC, useEffect, useMemo, useState } from "react";
 
@@ -21,7 +21,7 @@ export const FloatingThreadController = (props: {
 
   const [open, setOpen] = useState(false);
 
-  const selectedThread = usePluginState(CommentsPlugin, {
+  const selectedThread = usePluginState(Comments, {
     editor,
     selector: (state) =>
       state.selectedThreadId

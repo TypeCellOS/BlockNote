@@ -1,5 +1,5 @@
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
-import { FilePanelPlugin } from "../../../../extensions/FilePanel/FilePanelPlugin.js";
+import { FilePanel } from "../../../../extensions/FilePanel/FilePanel.js";
 import {
   BlockConfig,
   BlockFromConfigNoChildren,
@@ -38,7 +38,7 @@ export const createAddFileButton = (
   };
   // Opens the file toolbar.
   const addFileButtonClickHandler = () => {
-    editor.getExtension(FilePanelPlugin)?.showMenu(block.id);
+    editor.getExtension(FilePanel)?.showMenu(block.id);
   };
   addFileButton.addEventListener(
     "mousedown",

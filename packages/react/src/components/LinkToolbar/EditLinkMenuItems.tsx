@@ -1,6 +1,6 @@
 import {
   DEFAULT_LINK_PROTOCOL,
-  LinkToolbarPlugin,
+  LinkToolbar,
   VALID_LINK_PROTOCOLS,
 } from "@blocknote/core";
 import {
@@ -34,7 +34,7 @@ export const EditLinkMenuItems = (
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  const { editLink } = usePlugin(LinkToolbarPlugin);
+  const { editLink } = usePlugin(LinkToolbar);
 
   const { url, text, showTextField } = props;
 

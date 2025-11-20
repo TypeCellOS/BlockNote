@@ -1,4 +1,4 @@
-import { TableHandlesPlugin } from "@blocknote/core";
+import { TableHandles } from "@blocknote/core";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
 import { useDictionary } from "../../../../i18n/dictionary.js";
@@ -12,8 +12,8 @@ export const AddButton = (
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  const tableHandles = usePlugin(TableHandlesPlugin);
-  const index = usePluginState(TableHandlesPlugin, {
+  const tableHandles = usePlugin(TableHandles);
+  const index = usePluginState(TableHandles, {
     selector: (state) =>
       props.orientation === "column" ? state?.colIndex : state?.rowIndex,
   });

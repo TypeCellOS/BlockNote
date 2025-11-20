@@ -6,7 +6,7 @@ import {
   isTableCell,
   mapTableCell,
   StyleSchema,
-  TableHandlesPlugin,
+  TableHandles,
 } from "@blocknote/core";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
@@ -31,11 +31,11 @@ export const ColorPickerButton = <
     S
   >();
 
-  const tableHandles = usePlugin(TableHandlesPlugin);
-  const block = usePluginState(TableHandlesPlugin, {
+  const tableHandles = usePlugin(TableHandles);
+  const block = usePluginState(TableHandles, {
     selector: (state) => state?.block,
   });
-  const index = usePluginState(TableHandlesPlugin, {
+  const index = usePluginState(TableHandles, {
     selector: (state) =>
       props.orientation === "column" ? state?.colIndex : state?.rowIndex,
   });

@@ -2,7 +2,7 @@ import { getMarkRange, posToDOMRect } from "@tiptap/core";
 import { createExtension } from "../../editor/BlockNoteExtension.js";
 import { getPmSchema } from "../../api/pmUtil.js";
 
-export const LinkToolbarPlugin = createExtension((editor) => {
+export const LinkToolbar = createExtension((editor) => {
   function getLinkElementAtPos(pos: number) {
     let currentNode = editor.prosemirrorView.nodeDOM(pos);
     while (currentNode && currentNode.parentElement) {

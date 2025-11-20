@@ -2,7 +2,7 @@ import {
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
-  SuggestionMenuPlugin,
+  SuggestionMenu as SuggestionMenuExtension,
   filterSuggestionItems,
 } from "@blocknote/core";
 import {
@@ -91,7 +91,7 @@ export function SuggestionMenuController<
     );
   }, [editor, getItems])!;
 
-  const suggestionMenu = usePlugin(SuggestionMenuPlugin);
+  const suggestionMenu = usePlugin(SuggestionMenuExtension);
 
   useEffect(() => {
     suggestionMenu.addTriggerCharacter(triggerCharacter);
@@ -102,8 +102,8 @@ export function SuggestionMenuController<
     triggerCharacter,
   ]);
 
-  const state = usePluginState(SuggestionMenuPlugin);
-  const referencePos = usePluginState(SuggestionMenuPlugin, {
+  const state = usePluginState(SuggestionMenuExtension);
+  const referencePos = usePluginState(SuggestionMenuExtension, {
     selector: (state) =>
       (state?.referencePos || new DOMRect()).toJSON() as {
         x: number;

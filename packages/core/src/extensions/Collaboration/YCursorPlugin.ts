@@ -62,7 +62,7 @@ function defaultCursorRender(user: CollaborationUser) {
   return cursorElement;
 }
 
-export const CursorPlugin = createExtension((_editor, options) => {
+export const YCursor = createExtension((_editor, options) => {
   const collaboration = options?.collaboration;
   if (!collaboration) {
     return;
@@ -122,7 +122,7 @@ export const CursorPlugin = createExtension((_editor, options) => {
   }
 
   return {
-    key: "yCursorPlugin",
+    key: "yCursor",
     plugins: [
       yCursorPlugin(collaboration.provider.awareness, {
         selectionBuilder: defaultSelectionBuilder,
@@ -172,7 +172,7 @@ export const CursorPlugin = createExtension((_editor, options) => {
         },
       }),
     ],
-    dependsOn: ["ySyncPlugin"],
+    dependsOn: ["ySync"],
     updateUser(user: { name: string; color: string; [key: string]: string }) {
       collaboration.provider.awareness.setLocalStateField("user", user);
     },

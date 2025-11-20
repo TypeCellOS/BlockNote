@@ -21,7 +21,7 @@ import {
   PartialBlock,
 } from "../blocks/index.js";
 import type { ThreadStore, User } from "../comments/index.js";
-import { UniqueID } from "../extensions/UniqueID/UniqueID.js";
+import { UniqueID } from "../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 import type { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
 import type {
@@ -541,8 +541,7 @@ export class BlockNoteEditor<
     this.resolveFileUrl = newOptions.resolveFileUrl;
 
     const collaborationEnabled =
-      "ySyncPlugin" in this.extensions ||
-      "liveblocksExtension" in this.extensions;
+      "ySync" in this.extensions || "liveblocksExtension" in this.extensions;
 
     if (collaborationEnabled && newOptions.initialContent) {
       // eslint-disable-next-line no-console

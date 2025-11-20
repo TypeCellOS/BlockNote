@@ -87,7 +87,6 @@
     "@tiptap/extension-bold": "^3.7.2",
     "@tiptap/extension-code": "^3.7.2",
     "@tiptap/extension-gapcursor": "^3.7.2",
-    "@tiptap/extension-history": "^3.7.2",
     "@tiptap/extension-horizontal-rule": "^3.7.2",
     "@tiptap/extension-italic": "^3.7.2",
     "@tiptap/extension-link": "^3.7.2",

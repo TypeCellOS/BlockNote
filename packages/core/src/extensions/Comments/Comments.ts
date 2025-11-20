@@ -55,7 +55,7 @@ function getUpdatedThreadPositions(doc: Node, markType: string) {
   return threadPositions;
 }
 
-export const CommentsPlugin = createExtension(
+export const Comments = createExtension(
   (editor: BlockNoteEditor<any, any, any>, options) => {
     const commentsOptions = options?.comments;
     if (!commentsOptions) {

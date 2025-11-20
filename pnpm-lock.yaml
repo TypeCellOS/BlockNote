@@ -4473,9 +4473,6 @@ importers:
       '@tiptap/extension-gapcursor':
         specifier: ^3.7.2
         version: 3.7.2(@tiptap/extensions@3.4.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2))
-      '@tiptap/extension-history':
-        specifier: ^3.7.2
-        version: 3.7.2(@tiptap/extensions@3.4.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2))
       '@tiptap/extension-horizontal-rule':
         specifier: ^3.7.2
         version: 3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)
@@ -9866,11 +9863,6 @@ packages:
 
   '@tiptap/extension-gapcursor@3.7.2':
     resolution: {integrity: sha512-vCLo2dL2SfeWjh/gJKDiu0/fz6OF7obGTJvHg/yStkoUqlAEiwKoyHP/NXeTGYJMzZzUi0kY9DtTEJdGFvphuQ==}
-    peerDependencies:
-      '@tiptap/extensions': ^3.7.2
-
-  '@tiptap/extension-history@3.7.2':
-    resolution: {integrity: sha512-iAGTUxAr7r+tQ/PtIG94jqTJLy/S/VwE43USfWzXCHvbLn60cPJJG7MTCZxYbd+ZuivZVhEhp3EbzCNmHxjp8A==}
     peerDependencies:
       '@tiptap/extensions': ^3.7.2
 
@@ -20837,10 +20829,6 @@ snapshots:
     dependencies:
       '@tiptap/extensions': 3.4.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)
 
-  '@tiptap/extension-history@3.7.2(@tiptap/extensions@3.4.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2))':
-    dependencies:
-      '@tiptap/extensions': 3.4.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)
-
   '@tiptap/extension-horizontal-rule@3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)':
     dependencies:
       '@tiptap/core': 3.7.2(@tiptap/pm@3.7.2)
@@ -24242,7 +24230,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 22.15.2
+      '@types/node': 20.19.22
       merge-stream: 2.0.0
       supports-color: 8.1.1
 

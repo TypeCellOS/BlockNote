@@ -1,6 +1,6 @@
 import {
   BlockSchema,
-  FormattingToolbarExtension,
+  FormattingToolbar as FormattingToolbarExtension,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";

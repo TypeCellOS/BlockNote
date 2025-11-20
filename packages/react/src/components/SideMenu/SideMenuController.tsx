@@ -1,4 +1,4 @@
-import { SideMenuProsemirrorPlugin } from "@blocknote/core";
+import { SideMenu as SideMenuExtension } from "@blocknote/core";
 import { FC, useMemo } from "react";
 
 import { usePluginState } from "../../hooks/usePlugin.js";
@@ -11,7 +11,7 @@ export const SideMenuController = (props: {
   sideMenu?: FC<SideMenuProps>;
   floatingUIOptions?: Partial<FloatingUIOptions>;
 }) => {
-  const state = usePluginState(SideMenuProsemirrorPlugin, {
+  const state = usePluginState(SideMenuExtension, {
     selector: (state) => {
       return state !== undefined
         ? {

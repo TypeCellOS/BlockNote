@@ -16,7 +16,7 @@ const PLUGIN_KEY = new PluginKey("node-selection-keyboard");
 // While a more elegant solution would probably process transactions instead of
 // keystrokes, this brings us most of the way to Notion's UX without much added
 // complexity.
-export const NodeSelectionKeyboardPlugin = createExtension(
+export const NodeSelectionKeyboard = createExtension(
   () =>
     ({
       key: "nodeSelectionKeyboard",

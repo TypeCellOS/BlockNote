@@ -4,9 +4,9 @@ import {
   createExtension,
   createStore,
 } from "../../editor/BlockNoteExtension.js";
-import { CursorPlugin } from "./CursorPlugin.js";
-import { SyncPlugin } from "./SyncPlugin.js";
-import { UndoPlugin } from "./UndoPlugin.js";
+import { YCursor } from "./YCursorPlugin.js";
+import { YSync } from "./YSync.js";
+import { YUndo } from "./YUndo.js";
 
 /**
  * To find a fragment in another ydoc, we need to search for it.
@@ -41,7 +41,7 @@ function findTypeInOtherYdoc<T extends Y.AbstractType<any>>(
   }
 }
 
-export const ForkYDocPlugin = createExtension((editor, options) => {
+export const ForkYDoc = createExtension((editor, options) => {
   if (!options.collaboration) {
     return;
   }
@@ -90,7 +90,7 @@ export const ForkYDocPlugin = createExtension((editor, options) => {
       };
 
       // Need to reset all the yjs plugins
-      editor.removeExtension([UndoPlugin, CursorPlugin, SyncPlugin]);
+      editor.removeExtension([YUndo, YCursor, YSync]);
       const newOptions = {
         ...options,
         collaboration: {
@@ -100,9 +100,9 @@ export const ForkYDocPlugin = createExtension((editor, options) => {
       };
       // Register them again, based on the new forked fragment
       editor.registerExtension([
-        SyncPlugin(editor, newOptions),
+        YSync(editor, newOptions),
         // No need to register the cursor plugin again, it's a local fork
-        UndoPlugin(editor, newOptions),
+        YUndo(editor, newOptions),
       ]);
 
       // Tell the store that the editor is now forked
@@ -119,11 +119,11 @@ export const ForkYDocPlugin = createExtension((editor, options) => {
         return;
       }
       // Remove the forked fragment's plugins
-      editor.removeExtension(["ySyncPlugin", "yCursorPlugin", "yUndoPlugin"]);
+      editor.removeExtension(["ySync", "yCursor", "yUndo"]);
 
       const { originalFragment, forkedFragment, undoStack } = forkedState;
       // Register the plugins again, based on the original fragment (which is still in the original options)
-      editor.registerExtension([SyncPlugin, CursorPlugin, UndoPlugin]);
+      editor.registerExtension([YSync, YCursor, YUndo]);
 
       // Reset the undo stack to the original undo stack
       yUndoPluginKey.getState(editor.prosemirrorState)!.undoManager.undoStack =

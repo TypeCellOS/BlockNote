@@ -4,7 +4,7 @@ import {
   createStore,
 } from "../../editor/BlockNoteExtension.js";
 
-export const FormattingToolbarExtension = createExtension((editor) => {
+export const FormattingToolbar = createExtension((editor) => {
   const store = createStore({ show: false });
 
   return {

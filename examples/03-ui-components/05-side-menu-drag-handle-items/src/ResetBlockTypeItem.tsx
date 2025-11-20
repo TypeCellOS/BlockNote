@@ -1,4 +1,4 @@
-import { SideMenuProsemirrorPlugin } from "@blocknote/core";
+import { SideMenu } from "@blocknote/core";
 import {
   useBlockNoteEditor,
   useComponentsContext,
@@ -11,7 +11,7 @@ export function ResetBlockTypeItem(props: { children: ReactNode }) {
 
   const Components = useComponentsContext()!;
 
-  const sideMenu = usePlugin(SideMenuProsemirrorPlugin);
+  const sideMenu = usePlugin(SideMenu);
 
   return (
     <Components.Generic.Menu.Item

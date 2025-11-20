@@ -7,12 +7,12 @@ import {
   getParentBlockInfo,
   getPrevBlockInfo,
   mergeBlocksCommand,
-} from "../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
-import { nestBlock } from "../../api/blockManipulation/commands/nestBlock/nestBlock.js";
-import { splitBlockCommand } from "../../api/blockManipulation/commands/splitBlock/splitBlock.js";
-import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import { getBlockInfoFromSelection } from "../../api/getBlockInfoFromPos.js";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+} from "../../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
+import { nestBlock } from "../../../api/blockManipulation/commands/nestBlock/nestBlock.js";
+import { splitBlockCommand } from "../../../api/blockManipulation/commands/splitBlock/splitBlock.js";
+import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
+import { getBlockInfoFromSelection } from "../../../api/getBlockInfoFromPos.js";
+import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 
 export const KeyboardShortcutsExtension = Extension.create<{
   editor: BlockNoteEditor<any, any, any>;

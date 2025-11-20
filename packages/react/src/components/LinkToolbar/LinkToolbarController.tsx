@@ -1,7 +1,7 @@
 import {
   BlockSchema,
   InlineContentSchema,
-  LinkToolbarPlugin,
+  LinkToolbar as LinkToolbarExtension,
   StyleSchema,
 } from "@blocknote/core";
 import { flip, offset, safePolygon } from "@floating-ui/react";
@@ -28,7 +28,7 @@ export const LinkToolbarController = (props: {
 
   const [open, setOpen] = useState(false);
 
-  const linkToolbar = usePlugin(LinkToolbarPlugin);
+  const linkToolbar = usePlugin(LinkToolbarExtension);
   const selectionLink = useEditorState({
     editor,
     selector: () => {

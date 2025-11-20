@@ -1,4 +1,4 @@
-import { SideMenuProsemirrorPlugin } from "@blocknote/core";
+import { SideMenu } from "@blocknote/core";
 import { MdDragIndicator } from "react-icons/md";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
@@ -15,8 +15,8 @@ export const DragHandleButton = (
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  const sideMenu = usePlugin(SideMenuProsemirrorPlugin);
-  const block = usePluginState(SideMenuProsemirrorPlugin, {
+  const sideMenu = usePlugin(SideMenu);
+  const block = usePluginState(SideMenu, {
     selector: (state) => state?.block,
   });
 

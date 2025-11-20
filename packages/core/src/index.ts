@@ -14,19 +14,19 @@ export * from "./editor/defaultColors.js";
 export * from "./editor/selectionTypes.js";
 export * from "./exporter/index.js";
 export * from "./extensions-shared/UiElementPosition.js";
-export * from "./extensions/Comments/CommentsPlugin.js";
-export * from "./extensions/FilePanel/FilePanelPlugin.js";
-export * from "./extensions/FormattingToolbar/FormattingToolbarPlugin.js";
-export * from "./extensions/Collaboration/ForkYDocPlugin.js";
+export * from "./extensions/Comments/Comments.js";
+export * from "./extensions/FilePanel/FilePanel.js";
+export * from "./extensions/FormattingToolbar/FormattingToolbar.js";
+export * from "./extensions/Collaboration/ForkYDoc.js";
 export * from "./extensions/LinkToolbar/LinkToolbar.js";
 export * from "./extensions/LinkToolbar/protocols.js";
-export * from "./extensions/SideMenu/SideMenuPlugin.js";
+export * from "./extensions/SideMenu/SideMenu.js";
 export * from "./extensions/SuggestionMenu/DefaultGridSuggestionItem.js";
 export * from "./extensions/SuggestionMenu/DefaultSuggestionItem.js";
 export * from "./extensions/SuggestionMenu/getDefaultEmojiPickerItems.js";
 export * from "./extensions/SuggestionMenu/getDefaultSlashMenuItems.js";
-export * from "./extensions/SuggestionMenu/SuggestionPlugin.js";
-export * from "./extensions/TableHandles/TableHandlesPlugin.js";
+export * from "./extensions/SuggestionMenu/SuggestionMenu.js";
+export * from "./extensions/TableHandles/TableHandles.js";
 export * from "./i18n/dictionary.js";
 export * from "./schema/index.js";
 export * from "./util/browser.js";
@@ -46,7 +46,7 @@ export { selectedFragmentToHTML } from "./api/clipboard/toClipboard/copyExtensio
 // Node conversions
 export * from "./api/nodeConversions/blockToNode.js";
 export * from "./api/nodeConversions/nodeToBlock.js";
-export * from "./extensions/UniqueID/UniqueID.js";
+export * from "./extensions/tiptap-extensions/UniqueID/UniqueID.js";
 
 // for server-util (TODO: maybe move):
 export * from "./api/exporters/markdown/markdownExporter.js";

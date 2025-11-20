@@ -1,4 +1,4 @@
-import { CommentsPlugin, mergeCSSClasses } from "@blocknote/core";
+import { Comments, mergeCSSClasses } from "@blocknote/core";
 import { CommentData } from "@blocknote/core/comments";
 import { useState } from "react";
 
@@ -15,7 +15,7 @@ export const ReactionBadge = (props: {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  const comments = usePlugin(CommentsPlugin);
+  const comments = usePlugin(Comments);
 
   const reaction = props.comment.reactions.find(
     (reaction) => reaction.emoji === props.emoji,

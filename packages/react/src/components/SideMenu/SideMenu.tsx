@@ -1,4 +1,4 @@
-import { SideMenuProsemirrorPlugin } from "@blocknote/core";
+import { SideMenu as SideMenuExtension } from "@blocknote/core";
 import { ReactNode, useMemo } from "react";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
@@ -22,7 +22,7 @@ export const SideMenu = (props: SideMenuProps & { children?: ReactNode }) => {
 
   const editor = useBlockNoteEditor<any, any, any>();
 
-  const block = usePluginState(SideMenuProsemirrorPlugin, {
+  const block = usePluginState(SideMenuExtension, {
     editor,
     selector: (state) => state?.block,
   });

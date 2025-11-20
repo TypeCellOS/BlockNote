@@ -55,10 +55,10 @@ export default function App() {
             <EditLinkButton
               url={props.url}
               text={props.text}
-              editLink={props.editLink}
+              range={props.range}
             />
             <OpenLinkButton url={props.url} />
-            <DeleteLinkButton deleteLink={props.deleteLink} />
+            <DeleteLinkButton />
             {/* Extra button to open alert. */}
             <AlertButton {...props} />
           </LinkToolbar>
