@@ -1,5 +1,5 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { createAIExtension } from "../../../AIExtension.js";
+import { AIExtension } from "../../../AIExtension.js";
 import { schemaWithMention as schema } from "../schemas/mention.js";
 
 export function getSimpleEditor() {
@@ -16,7 +16,7 @@ export function getSimpleEditor() {
     ],
     trailingBlock: false,
     schema,
-    extensions: [createAIExtension({})],
+    extensions: [AIExtension],
   });
   return editor;
 }
@@ -39,7 +39,7 @@ export function getSimpleEditorWithCursorBetweenBlocks() {
     ],
     trailingBlock: false,
     schema,
-    extensions: [createAIExtension({})],
+    extensions: [AIExtension],
   });
   editor.setTextCursorPosition("ref2");
   return editor;

@@ -1,7 +1,6 @@
 import {
   AnyExtension as AnyTiptapExtension,
   extensions,
-  getExtensionField,
   Node,
   Extension as TiptapExtension,
 } from "@tiptap/core";
@@ -136,21 +135,23 @@ export class ExtensionManager {
   public registerExtension(
     extension:
       | undefined
-      | string
       | Extension
       | ExtensionFactory
-      | (Extension | ExtensionFactory | string | undefined)[],
+      | (Extension | ExtensionFactory | undefined)[],
   ): void {
-    const extensions = this.resolveExtensions(extension);
+    const extensions = ([] as (Extension | ExtensionFactory | undefined)[])
+      .concat(extension)
+      .filter(Boolean) as (Extension | ExtensionFactory)[];
+
     if (!extensions.length) {
       // eslint-disable-next-line no-console
       console.warn(`No extensions found to register`, extension);
       return;
     }
 
-    const registeredExtensions = extensions.map((extension) =>
-      this.addExtension(extension),
-    );
+    const registeredExtensions = extensions
+      .map((extension) => this.addExtension(extension))
+      .filter(Boolean) as Extension[];
 
     const pluginsToAdd = new Set<Plugin>();
     for (const extension of registeredExtensions) {

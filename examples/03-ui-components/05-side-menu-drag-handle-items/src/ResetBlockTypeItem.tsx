@@ -1,21 +1,25 @@
+import { SideMenuProsemirrorPlugin } from "@blocknote/core";
 import {
-  DragHandleMenuProps,
   useBlockNoteEditor,
   useComponentsContext,
+  usePlugin,
 } from "@blocknote/react";
+import { ReactNode } from "react";
 
-export function ResetBlockTypeItem(props: DragHandleMenuProps) {
+export function ResetBlockTypeItem(props: { children: ReactNode }) {
   const editor = useBlockNoteEditor();
 
   const Components = useComponentsContext()!;
 
+  const sideMenu = usePlugin(SideMenuProsemirrorPlugin);
+
   return (
     <Components.Generic.Menu.Item
       onClick={() => {
-        editor.updateBlock(props.block, { type: "paragraph" });
+        editor.updateBlock(sideMenu.store.state!.block, { type: "paragraph" });
       }}
     >
-      Reset Type
+      {props.children}
     </Components.Generic.Menu.Item>
   );
 }

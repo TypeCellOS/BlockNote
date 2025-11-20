@@ -13,7 +13,7 @@ import { DeleteBlockToolCall } from "../../base-tools/delete.js";
 import { tools } from "./index.js";
 
 // Helper function to create a mock stream from operations
-import { getAIExtension } from "../../../../AIExtension.js";
+import { AIExtension } from "../../../../AIExtension.js";
 import { StreamToolExecutor } from "../../../../streamTool/StreamToolExecutor.js";
 import { StreamTool } from "../../../../streamTool/streamTool.js";
 import { getExpectedEditor } from "../../../../testUtil/cases/index.js";
@@ -64,7 +64,7 @@ async function executeTestCase(
 
   validateRejectingResultsInOriginalDoc(editor, originalDoc);
 
-  getAIExtension(editor).acceptChanges();
+  editor.getExtension(AIExtension)?.acceptChanges();
   expect(editor.document).toEqual(getExpectedEditor(testCase).document);
 }
 

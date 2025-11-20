@@ -1,10 +1,14 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { useBlockNoteEditor, useComponentsContext } from "@blocknote/react";
+import {
+  useBlockNoteEditor,
+  useComponentsContext,
+  usePlugin,
+  usePluginState,
+} from "@blocknote/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { RiSparkling2Fill } from "react-icons/ri";
-import { useStore } from "zustand";
 
-import { getAIExtension } from "../../AIExtension.js";
+import { AIExtension } from "../../AIExtension.js";
 import { useAIDictionary } from "../../i18n/useAIDictionary.js";
 import { PromptSuggestionMenu } from "./PromptSuggestionMenu.js";
 import {
@@ -33,11 +37,12 @@ export const AIMenu = (props: AIMenuProps) => {
 
   const Components = useComponentsContext()!;
 
-  const ai = getAIExtension(editor);
+  const ai = usePlugin(AIExtension);
 
-  const aiResponseStatus = useStore(ai.store, (state) =>
-    state.aiMenuState !== "closed" ? state.aiMenuState.status : "closed",
-  );
+  const aiResponseStatus = usePluginState(AIExtension, {
+    selector: (state) =>
+      state.aiMenuState !== "closed" ? state.aiMenuState.status : "closed",
+  });
 
   const { items: externalItems } = props;
   // note, technically there might be a bug with this useMemo when quickly changing the selection and opening the menu

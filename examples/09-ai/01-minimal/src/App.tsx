@@ -12,9 +12,9 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 import {
+  AIExtension,
   AIMenuController,
   AIToolbarButton,
-  createAIExtension,
   getAISlashMenuItems,
 } from "@blocknote/xl-ai";
 import { en as aiEn } from "@blocknote/xl-ai/locales";
@@ -34,14 +34,13 @@ export default function App() {
       ai: aiEn, // add default translations for the AI extension
     },
     // Register the AI extension
-    extensions: [
-      createAIExtension({
-        transport: new DefaultChatTransport({
-          // URL to your backend API, see example source in `packages/xl-ai-server/src/routes/regular.ts`
-          api: `${BASE_URL}/regular/streamText`,
-        }),
+    extensions: [AIExtension],
+    ai: {
+      transport: new DefaultChatTransport({
+        // URL to your backend API, see example source in `packages/xl-ai-server/src/routes/regular.ts`
+        api: `${BASE_URL}/regular/streamText`,
       }),
-    ],
+    },
     // We set some initial content for demo purposes
     initialContent: [
       {

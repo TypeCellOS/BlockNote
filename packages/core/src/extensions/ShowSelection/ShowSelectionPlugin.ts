@@ -43,6 +43,12 @@ export const ShowSelectionPlugin = createExtension(
           },
         }),
       ],
+      /**
+       * Show or hide the selection decoration
+       */
+      showSelection(shouldShow: boolean) {
+        store.setState({ enabled: shouldShow });
+      },
     } as const;
   },
 );
