@@ -27,27 +27,14 @@ export const Assistant = () => {
   const ctx = useChatContext();
   const chat = useChat({
     chat: ctx.chat,
-    // api: "/api/chat",
-    // transport,
   });
-  console.log(chat);
+
   const runtime = useAISDKRuntime(chat);
 
   useEffect(() => {
     // not documented!
-    debugger;
     (ctx.transport as any).setRuntime(runtime);
   }, [runtime, ctx.transport]);
-  // const runtime = useChatRuntime({
-  //   transport: new AssistantChatTransport({
-  //     api: "/api/chat",
-  //   }),
-  // });
-
-  useEffect(() => {
-    console.log(chat);
-    // debugger;
-  }, [chat]);
 
   return (
     <AssistantRuntimeProvider runtime={runtime}>

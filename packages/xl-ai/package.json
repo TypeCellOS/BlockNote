@@ -53,6 +53,11 @@
       "types": "./types/src/i18n/locales/index.d.ts",
       "import": "./dist/locales.js",
       "require": "./dist/locales.cjs"
+    },
+    "./server": {
+      "types": "./types/src/server.d.ts",
+      "import": "./dist/server.js",
+      "require": "./dist/server.cjs"
     }
   },
   "scripts": {

@@ -1,5 +1,5 @@
 import { getErrorMessage } from "@ai-sdk/provider-utils";
-import { Chat } from "@ai-sdk/react";
+import type { Chat } from "@ai-sdk/react";
 import { DeepPartial, isToolUIPart, UIMessage } from "ai";
 import { StreamTool, StreamToolCall } from "../../streamTool.js";
 import {
@@ -144,6 +144,7 @@ export async function setupToolCallStreaming(
     // possibly including a callback to create checkpoints after applying a tool
     if (!errorSeen) {
       chat.addToolOutput({
+        state: "output-available",
         tool: toolCalls[index].toolName,
         toolCallId: toolCalls[index].toolCallId,
 

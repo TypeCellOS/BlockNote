@@ -5,7 +5,7 @@ import { RiSparkling2Fill } from "react-icons/ri";
 import { useBlockNoteEditor } from "@blocknote/react";
 
 import { getAIExtension } from "../../AIExtension.js";
-import { useAIDictionary } from "../../i18n/useAIDictionary.js";
+import { useAIDictionary } from "../../hooks/useAIDictionary.js";
 
 export const AIToolbarButton = () => {
   const dict = useAIDictionary();

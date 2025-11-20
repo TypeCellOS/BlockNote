@@ -83,7 +83,6 @@ const BlockNoteToolUI: ToolCallMessagePartComponent<any, any> = (
       </div>
     );
   } else if (props.status.type === "complete") {
-    debugger;
     return (
       // TODO: should get rid of min-h-10, but otherwise layout shifts when undo is shown
       <div

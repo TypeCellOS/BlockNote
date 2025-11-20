@@ -26,7 +26,8 @@ export function injectDocumentStateMessages(
                   },
                   {
                     type: "text" as const,
-                    text: "This is the latest state of the entire document (INCLUDING the selected text), find the selected text in there to understand the context:",
+                    text: `This is the latest state of the entire document (INCLUDING the selected text), 
+you can use this to find the selected text to understand the context (but you MUST NOT issue operations against this document, you MUST issue operations against the selection):`,
                   },
                   {
                     type: "text" as const,

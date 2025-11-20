@@ -1,4 +1,4 @@
-import { Chat } from "@ai-sdk/react";
+import type { Chat } from "@ai-sdk/react";
 import { ChatTransport, UIMessage } from "ai";
 import { DocumentStateBuilder, StreamToolsProvider } from "./index.js";
 

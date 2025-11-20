@@ -33,15 +33,15 @@ class BlockNoteAISDKChatRaw<
 
     aiRequest =
       aiRequest ??
-      buildAIRequest({
+      (await buildAIRequest({
         editor: this.editor!,
         useSelection: false,
         deleteEmptyCursorBlock: true,
         streamToolsProvider: aiDocumentFormats.html.getStreamToolsProvider(),
         onBlockUpdated: () => {},
         documentStateBuilder:
-          aiDocumentFormats.html.defaultPromptInputDataBuilder,
-      });
+          aiDocumentFormats.html.defaultDocumentStateBuilder,
+      }));
 
     return sendMessageWithAIRequest(
       this as Chat<any>,

@@ -27,16 +27,21 @@ export function trackToolCallCheckpoints(
    */
   const dispose = chat["~registerMessagesCallback"](() => {
     for (const message of chat.messages) {
-      const part = message.parts[0];
-      if (isToolUIPart(part) && part.type === "tool-applyDocumentOperations") {
+      for (const part of message.parts) {
         if (
-          part.state === "output-available" &&
-          !checkpoints.has(part.toolCallId)
+          isToolUIPart(part) &&
+          part.type === "tool-applyDocumentOperations"
         ) {
-          checkpoints.set(part.toolCallId, {
-            bn: editor.document,
-            pm: editor.prosemirrorState.doc.toJSON(),
-          });
+          if (
+            part.state === "output-available" &&
+            part.output !== "<no result>" && // this <no-result> is an assistant-ui thing
+            !checkpoints.has(part.toolCallId)
+          ) {
+            checkpoints.set(part.toolCallId, {
+              bn: editor.document,
+              pm: editor.prosemirrorState.doc.toJSON(),
+            });
+          }
         }
       }
     }

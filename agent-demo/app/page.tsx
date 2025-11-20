@@ -73,6 +73,10 @@ const ChatContextProvider = ({
     BlockNoteEditor<any, any, any> | undefined
   >(undefined);
 
+  useEffect(() => {
+    chat.editor = editor;
+  }, [editor, chat]);
+
   // TODO: dispose is never called
   const { checkpoints } = useMemo(
     () =>
@@ -171,7 +175,7 @@ const ChatContextProvider = ({
     const documentState = checkpoints.get(previewDocument)!;
 
     if (!documentState || !documentState.pm) {
-      debugger;
+      throw new Error("Document state not found");
     }
 
     const newNode = Node.fromJSON(editor.pmSchema, documentState.pm);
