@@ -27,6 +27,9 @@ import { getEnv } from "./getEnv";
 const BASE_URL =
   getEnv("BLOCKNOTE_AI_SERVER_BASE_URL") || "https://localhost:3000/ai";
 
+/**
+ * Fetches suggestions for the auto complete plugin from our backend API.
+ */
 async function autoCompleteProvider(
   editor: BlockNoteEditor<any, any, any>,
   signal: AbortSignal,

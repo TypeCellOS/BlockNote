@@ -14,25 +14,6 @@ export type AutoCompleteState =
     }
   | undefined;
 
-// class AutoCompleteView<
-//   BSchema extends BlockSchema,
-//   I extends InlineContentSchema,
-//   S extends StyleSchema,
-// > implements PluginView
-// {
-//   public state?: AutoCompleteState;
-
-//   private rootEl?: Document | ShadowRoot;
-//   //   pluginState: AutoCompleteState;
-
-//   constructor(
-//     private readonly editor: BlockNoteEditor<BSchema, I, S>,
-//     public readonly view: EditorView,
-//   ) {
-//     // this.pluginState = undefined;
-//   }
-// }
-
 const autoCompletePluginKey = new PluginKey<{ isUserInput: boolean }>(
   "AutoCompletePlugin",
 );
