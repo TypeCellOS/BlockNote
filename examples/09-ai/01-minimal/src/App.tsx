@@ -45,7 +45,8 @@ async function autoCompleteProvider(
   );
 
   const response = await fetch(
-    `https://localhost:3000/ai/autocomplete/generateText`,
+    "https://blocknote-pr-2191.onrender.com/ai/autocomplete/generateText",
+    // `https://localhost:3000/ai/autocomplete/generateText`,
     {
       method: "POST",
       body: JSON.stringify({ text }),
