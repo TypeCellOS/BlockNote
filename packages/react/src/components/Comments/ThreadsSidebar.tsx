@@ -1,8 +1,8 @@
 import {
   BlockNoteEditor,
-  Comments,
   UnreachableCaseError,
 } from "@blocknote/core";
+import { Comments } from "@blocknote/core/extensions";
 import { ThreadData } from "@blocknote/core/comments";
 import React, { FocusEvent, useCallback, useMemo } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";

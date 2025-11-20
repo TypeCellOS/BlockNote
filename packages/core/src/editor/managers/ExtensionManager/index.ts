@@ -1,47 +1,20 @@
+import { InputRule, inputRules } from "@handlewithcare/prosemirror-inputrules";
 import {
   AnyExtension as AnyTiptapExtension,
-  extensions,
-  Node,
   Extension as TiptapExtension,
 } from "@tiptap/core";
-import { Gapcursor } from "@tiptap/extension-gapcursor";
-import { Link } from "@tiptap/extension-link";
-import { Text } from "@tiptap/extension-text";
-import { updateBlockTr } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import { createDropFileExtension } from "../../api/clipboard/fromClipboard/fileDropExtension.js";
-import { createPasteFromClipboardExtension } from "../../api/clipboard/fromClipboard/pasteExtension.js";
-import { createCopyToClipboardExtension } from "../../api/clipboard/toClipboard/copyExtension.js";
-import { getBlockInfoFromTransaction } from "../../api/getBlockInfoFromPos.js";
-import { BackgroundColorExtension } from "../../extensions/tiptap-extensions/BackgroundColor/BackgroundColorExtension.js";
-import { HardBreak } from "../../extensions/tiptap-extensions/HardBreak/HardBreak.js";
-import { DEFAULT_EXTENSIONS } from "../../extensions/index.js";
-import { KeyboardShortcutsExtension } from "../../extensions/tiptap-extensions/KeyboardShortcuts/KeyboardShortcutsExtension.js";
-import {
-  DEFAULT_LINK_PROTOCOL,
-  VALID_LINK_PROTOCOLS,
-} from "../../extensions/LinkToolbar/protocols.js";
-import { SuggestionMenu } from "../../extensions/SuggestionMenu/SuggestionMenu.js";
-import {
-  SuggestionAddMark,
-  SuggestionDeleteMark,
-  SuggestionModificationMark,
-} from "../../extensions/tiptap-extensions/Suggestions/SuggestionMarks.js";
-import { TextAlignmentExtension } from "../../extensions/tiptap-extensions/TextAlignment/TextAlignmentExtension.js";
-import { TextColorExtension } from "../../extensions/tiptap-extensions/TextColor/TextColorExtension.js";
-import UniqueID from "../../extensions/tiptap-extensions/UniqueID/UniqueID.js";
-import { BlockContainer, BlockGroup, Doc } from "../../pm-nodes/index.js";
+import { keymap } from "@tiptap/pm/keymap";
+import { Plugin } from "prosemirror-state";
+import { updateBlockTr } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
+import { getBlockInfoFromTransaction } from "../../../api/getBlockInfoFromPos.js";
+import { sortByDependencies } from "../../../util/topo-sort.js";
 import type {
   BlockNoteEditor,
   BlockNoteEditorOptions,
-} from "../BlockNoteEditor.js";
-import type { Extension, ExtensionFactory } from "../BlockNoteExtension.js";
-import { sortByDependencies } from "../../util/topo-sort.js";
-import { Plugin } from "prosemirror-state";
-import { keymap } from "@tiptap/pm/keymap";
-import { InputRule, inputRules } from "@handlewithcare/prosemirror-inputrules";
-
-// TODO remove linkify completely by vendoring the link extension & dropping linkifyjs as a dependency
-let LINKIFY_INITIALIZED = false;
+} from "../../BlockNoteEditor.js";
+import type { Extension, ExtensionFactory } from "../../BlockNoteExtension.js";
+import { DEFAULT_EXTENSIONS } from "../../../extensions/index.js";
+import { getDefaultTiptapExtensions } from "./extensions.js";
 
 export class ExtensionManager {
   /**
@@ -313,7 +286,10 @@ export class ExtensionManager {
    */
   public getTiptapExtensions(): AnyTiptapExtension[] {
     // Start with the default tiptap extensions
-    const tiptapExtensions = this.getDefaultTiptapExtensions();
+    const tiptapExtensions = getDefaultTiptapExtensions(
+      this.editor,
+      this.options,
+    );
     // TODO filter out the default extensions via the disabledExtensions set?
 
     const getPriority = sortByDependencies(this.extensions);
@@ -472,116 +448,4 @@ export class ExtensionManager {
     }
     return false;
   }
-
-  /**
-   * Get all the Tiptap extensions BlockNote is configured with by default
-   */
-  private getDefaultTiptapExtensions = () => {
-    const tiptapExtensions: AnyTiptapExtension[] = [
-      extensions.ClipboardTextSerializer,
-      extensions.Commands,
-      extensions.Editable,
-      extensions.FocusEvents,
-      extensions.Tabindex,
-      Gapcursor,
-
-      UniqueID.configure({
-        // everything from bnBlock group (nodes that represent a BlockNote block should have an id)
-        types: ["blockContainer", "columnList", "column"],
-        setIdAttribute: this.options.setIdAttribute,
-      }),
-      HardBreak,
-      Text,
-
-      // marks:
-      SuggestionAddMark,
-      SuggestionDeleteMark,
-      SuggestionModificationMark,
-      Link.extend({
-        inclusive: false,
-      }).configure({
-        defaultProtocol: DEFAULT_LINK_PROTOCOL,
-        // only call this once if we have multiple editors installed. Or fix https://github.com/ueberdosis/tiptap/issues/5450
-        protocols: LINKIFY_INITIALIZED ? [] : VALID_LINK_PROTOCOLS,
-      }),
-      ...(Object.values(this.editor.schema.styleSpecs).map((styleSpec) => {
-        return styleSpec.implementation.mark.configure({
-          editor: this.editor,
-        });
-      }) as any[]),
-
-      TextColorExtension,
-
-      BackgroundColorExtension,
-      TextAlignmentExtension,
-
-      // make sure escape blurs editor, so that we can tab to other elements in the host page (accessibility)
-      TiptapExtension.create({
-        name: "OverrideEscape",
-        addKeyboardShortcuts: () => {
-          return {
-            Escape: () => {
-              // TODO should this be like this?
-              if (this.editor.getExtension(SuggestionMenu)?.shown()) {
-                // escape is handled by suggestionmenu
-                return false;
-              }
-              return this.editor._tiptapEditor.commands.blur();
-            },
-          };
-        },
-      }),
-
-      // nodes
-      Doc,
-      BlockContainer.configure({
-        editor: this.editor,
-        domAttributes: this.options.domAttributes,
-      }),
-      KeyboardShortcutsExtension.configure({
-        editor: this.editor,
-        tabBehavior: this.options.tabBehavior,
-      }),
-      BlockGroup.configure({
-        domAttributes: this.options.domAttributes,
-      }),
-      ...Object.values(this.editor.schema.inlineContentSpecs)
-        .filter((a) => a.config !== "link" && a.config !== "text")
-        .map((inlineContentSpec) => {
-          return inlineContentSpec.implementation!.node.configure({
-            editor: this.editor,
-          });
-        }),
-
-      ...Object.values(this.editor.schema.blockSpecs).flatMap((blockSpec) => {
-        return [
-          // the node extension implementations
-          ...("node" in blockSpec.implementation
-            ? [
-                (blockSpec.implementation.node as Node).configure({
-                  editor: this.editor,
-                  domAttributes: this.options.domAttributes,
-                }),
-              ]
-            : []),
-        ];
-      }),
-      createCopyToClipboardExtension(this.editor),
-      createPasteFromClipboardExtension(
-        this.editor,
-        this.options.pasteHandler ||
-          ((context: {
-            defaultPasteHandler: (context?: {
-              prioritizeMarkdownOverHTML?: boolean;
-              plainTextAsMarkdown?: boolean;
-            }) => boolean | undefined;
-          }) => context.defaultPasteHandler()),
-      ),
-      createDropFileExtension(this.editor),
-    ];
-
-    LINKIFY_INITIALIZED = true;
-
-    return tiptapExtensions;
-  };
 }

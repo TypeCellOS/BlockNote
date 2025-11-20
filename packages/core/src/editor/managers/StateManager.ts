@@ -1,6 +1,6 @@
 import { Command, Transaction } from "prosemirror-state";
 import type { YUndo } from "../../extensions/Collaboration/YUndo.js";
-import type { History } from "../../extensions/History/HistoryExtension.js";
+import type { History } from "../../extensions/History/History.js";
 import { BlockNoteEditor } from "../BlockNoteEditor.js";
 
 export class StateManager {

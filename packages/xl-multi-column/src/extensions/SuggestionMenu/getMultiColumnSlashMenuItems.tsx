@@ -2,9 +2,9 @@ import {
   BlockNoteEditor,
   BlockSchema,
   InlineContentSchema,
-  insertOrUpdateBlock,
   StyleSchema,
 } from "@blocknote/core";
+import { insertOrUpdateBlockForSlashMenu } from "@blocknote/core/extensions";
 import { DefaultReactSuggestionItem } from "@blocknote/react";
 import { TbColumns2, TbColumns3 } from "react-icons/tb";
 
@@ -40,7 +40,7 @@ export function getMultiColumnSlashMenuItems<
         ...getMultiColumnDictionary(editor).slash_menu.two_columns,
         icon: <TbColumns2 size={18} />,
         onItemClick: () => {
-          insertOrUpdateBlock(editor, {
+          insertOrUpdateBlockForSlashMenu(editor, {
             type: "columnList",
             children: [
               {
@@ -67,7 +67,7 @@ export function getMultiColumnSlashMenuItems<
         ...getMultiColumnDictionary(editor).slash_menu.three_columns,
         icon: <TbColumns3 size={18} />,
         onItemClick: () => {
-          insertOrUpdateBlock(editor, {
+          insertOrUpdateBlockForSlashMenu(editor, {
             type: "columnList",
             children: [
               {

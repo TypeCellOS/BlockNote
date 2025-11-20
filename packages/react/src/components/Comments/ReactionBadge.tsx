@@ -1,4 +1,5 @@
-import { Comments, mergeCSSClasses } from "@blocknote/core";
+import { mergeCSSClasses } from "@blocknote/core";
+import { Comments } from "@blocknote/core/extensions";
 import { CommentData } from "@blocknote/core/comments";
 import { useState } from "react";
 

@@ -1,4 +1,4 @@
-import { SideMenu } from "@blocknote/core";
+import { SideMenu } from "@blocknote/core/extensions";
 import { ReactNode } from "react";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";

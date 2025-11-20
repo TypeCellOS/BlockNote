@@ -1,4 +1,5 @@
-import { BlockNoteEditor, getNodeById, SideMenu } from "@blocknote/core";
+import { BlockNoteEditor, getNodeById } from "@blocknote/core";
+import { SideMenu } from "@blocknote/core/extensions";
 import { Extension } from "@tiptap/core";
 import { Node } from "prosemirror-model";
 import { Plugin, PluginKey, PluginView } from "prosemirror-state";

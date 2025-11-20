@@ -2,8 +2,8 @@ import {
   DefaultBlockSchema,
   InlineContentSchema,
   StyleSchema,
-  TableHandles,
 } from "@blocknote/core";
+import { TableHandles } from "@blocknote/core/extensions";
 import { useCallback } from "react";
 import { RiMergeCellsHorizontal, RiMergeCellsVertical } from "react-icons/ri";
 

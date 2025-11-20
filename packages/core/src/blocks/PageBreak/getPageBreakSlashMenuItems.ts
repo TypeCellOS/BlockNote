@@ -1,6 +1,6 @@
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { DefaultSuggestionItem } from "../../extensions/SuggestionMenu/DefaultSuggestionItem.js";
-import { insertOrUpdateBlock } from "../../extensions/SuggestionMenu/getDefaultSlashMenuItems.js";
+import { insertOrUpdateBlockForSlashMenu } from "../../extensions/SuggestionMenu/getDefaultSlashMenuItems.js";
 import {
   BlockSchema,
   InlineContentSchema,
@@ -35,7 +35,7 @@ export function getPageBreakSlashMenuItems<
     items.push({
       ...editor.dictionary.slash_menu.page_break,
       onItemClick: () => {
-        insertOrUpdateBlock(editor, {
+        insertOrUpdateBlockForSlashMenu(editor, {
           type: "pageBreak",
         });
       },

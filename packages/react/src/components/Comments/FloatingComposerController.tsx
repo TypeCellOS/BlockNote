@@ -1,12 +1,12 @@
 import {
   BlockSchema,
-  Comments,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
+import { Comments } from "@blocknote/core/extensions";
 import { flip, offset, shift } from "@floating-ui/react";
 import { ComponentProps, FC, useEffect, useMemo, useState } from "react";
 

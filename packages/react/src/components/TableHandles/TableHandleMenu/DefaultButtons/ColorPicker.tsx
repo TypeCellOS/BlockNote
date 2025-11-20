@@ -6,8 +6,8 @@ import {
   isTableCell,
   mapTableCell,
   StyleSchema,
-  TableHandles,
 } from "@blocknote/core";
+import { TableHandles } from "@blocknote/core/extensions";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";

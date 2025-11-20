@@ -1,4 +1,4 @@
-import { SideMenu as SideMenuExtension } from "@blocknote/core";
+import { SideMenu as SideMenuExtension } from "@blocknote/core/extensions";
 import { FC, useMemo } from "react";
 
 import { usePluginState } from "../../hooks/usePlugin.js";

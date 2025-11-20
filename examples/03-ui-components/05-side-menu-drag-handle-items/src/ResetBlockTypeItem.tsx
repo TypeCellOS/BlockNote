@@ -1,4 +1,5 @@
-import { SideMenu } from "@blocknote/core";
+import {  } from "@blocknote/core";
+import { SideMenu } from "@blocknote/core/extensions";
 import {
   useBlockNoteEditor,
   useComponentsContext,

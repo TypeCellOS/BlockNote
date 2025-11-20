@@ -1,4 +1,5 @@
-import { filterSuggestionItems, mergeCSSClasses } from "@blocknote/core";
+import { mergeCSSClasses } from "@blocknote/core";
+import { filterSuggestionItems } from "@blocknote/core/extensions";
 import {
   DefaultReactSuggestionItem,
   useComponentsContext,

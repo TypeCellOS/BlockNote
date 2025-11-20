@@ -1,9 +1,5 @@
-import {
-  getColspan,
-  getRowspan,
-  mergeCSSClasses,
-  TableHandles,
-} from "@blocknote/core";
+import { getColspan, getRowspan, mergeCSSClasses } from "@blocknote/core";
+import { TableHandles } from "@blocknote/core/extensions";
 import { ReactNode, useMemo, useState } from "react";
 
 import { MdDragIndicator } from "react-icons/md";

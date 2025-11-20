@@ -3,7 +3,7 @@ import { RiLinkUnlink } from "react-icons/ri";
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 import { usePlugin } from "../../../hooks/usePlugin.js";
-import { LinkToolbar } from "@blocknote/core";
+import { LinkToolbar } from "@blocknote/core/extensions";
 
 export const DeleteLinkButton = () => {
   const Components = useComponentsContext()!;

@@ -5,6 +5,7 @@ import {
   getNodeById,
   UnreachableCaseError,
 } from "@blocknote/core";
+import { ForkYDoc, ShowSelection } from "@blocknote/core/extensions";
 import {
   applySuggestions,
   revertSuggestions,
@@ -23,8 +24,6 @@ import {
 } from "./api/index.js";
 import { createAgentCursorPlugin } from "./plugins/AgentCursorPlugin.js";
 import { AIRequestHelpers, InvokeAIOptions } from "./types.js";
-import { ShowSelection } from "../../core/src/extensions/ShowSelection/ShowSelection.js";
-import { ForkYDoc } from "../../core/src/extensions/Collaboration/ForkYDoc.js";
 
 type AIPluginState = {
   aiMenuState:

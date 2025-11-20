@@ -1,6 +1,7 @@
 "use client";
 
-import { Comments, mergeCSSClasses } from "@blocknote/core";
+import { mergeCSSClasses } from "@blocknote/core";
+import { Comments } from "@blocknote/core/extensions";
 import type { CommentData, ThreadData } from "@blocknote/core/comments";
 import { MouseEvent, ReactNode, useCallback, useState } from "react";
 import {

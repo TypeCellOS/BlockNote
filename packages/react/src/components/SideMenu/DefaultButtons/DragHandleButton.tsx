@@ -1,4 +1,4 @@
-import { SideMenu } from "@blocknote/core";
+import { SideMenu } from "@blocknote/core/extensions";
 import { MdDragIndicator } from "react-icons/md";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";

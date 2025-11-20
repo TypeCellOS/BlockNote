@@ -1,4 +1,5 @@
-import { Comments, mergeCSSClasses } from "@blocknote/core";
+import { mergeCSSClasses } from "@blocknote/core";
+import { Comments } from "@blocknote/core/extensions";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";

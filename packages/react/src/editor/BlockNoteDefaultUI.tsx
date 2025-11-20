@@ -4,7 +4,7 @@ import {
   SideMenu,
   SuggestionMenu,
   TableHandles,
-} from "@blocknote/core";
+} from "@blocknote/core/extensions";
 
 import { FloatingComposerController } from "../components/Comments/FloatingComposerController.js";
 import { FloatingThreadController } from "../components/Comments/FloatingThreadController.js";

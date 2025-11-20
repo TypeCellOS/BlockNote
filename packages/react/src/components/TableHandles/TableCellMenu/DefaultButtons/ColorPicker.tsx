@@ -1,4 +1,5 @@
-import { isTableCell, mapTableCell, TableHandles } from "@blocknote/core";
+import { isTableCell, mapTableCell } from "@blocknote/core";
+import { TableHandles } from "@blocknote/core/extensions";
 import { ReactNode } from "react";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";

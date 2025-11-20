@@ -1,5 +1,6 @@
 import "@blocknote/core/fonts/inter.css";
-import { ForkYDoc } from "@blocknote/core";
+import {  } from "@blocknote/core";
+import { ForkYDoc } from "@blocknote/core/extensions";
 import {
   useCreateBlockNote,
   usePlugin,

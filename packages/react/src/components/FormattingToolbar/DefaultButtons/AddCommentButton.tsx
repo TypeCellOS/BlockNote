@@ -1,4 +1,4 @@
-import { Comments, FormattingToolbar } from "@blocknote/core";
+import { Comments, FormattingToolbar } from "@blocknote/core/extensions";
 import { useCallback } from "react";
 import { RiChat3Line } from "react-icons/ri";
 

@@ -1,4 +1,4 @@
-import { TableHandles } from "@blocknote/core";
+import { TableHandles } from "@blocknote/core/extensions";
 import { ReactNode } from "react";
 import { MdArrowDropDown } from "react-icons/md";
 

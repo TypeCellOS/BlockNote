@@ -1,4 +1,4 @@
-import { SideMenu, SuggestionMenu } from "@blocknote/core";
+import { SideMenu, SuggestionMenu } from "@blocknote/core/extensions";
 import { AiOutlinePlus } from "react-icons/ai";
 
 import { useCallback } from "react";

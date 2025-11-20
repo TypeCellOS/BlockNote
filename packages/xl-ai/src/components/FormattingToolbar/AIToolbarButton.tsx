@@ -1,9 +1,9 @@
 import {
   BlockSchema,
-  FormattingToolbar,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
+import { FormattingToolbar } from "@blocknote/core/extensions";
 import { useComponentsContext, usePlugin } from "@blocknote/react";
 import { RiSparkling2Fill } from "react-icons/ri";
 

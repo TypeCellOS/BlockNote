@@ -7,8 +7,8 @@ import {
   mergeCSSClasses,
   PartialTableContent,
   StyleSchema,
-  TableHandles,
 } from "@blocknote/core";
+import { TableHandles } from "@blocknote/core/extensions";
 import {
   MouseEvent as ReactMouseEvent,
   ReactNode,

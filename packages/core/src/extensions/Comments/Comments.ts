@@ -68,7 +68,6 @@ export const Comments = createExtension(
     const commentEditorSchema = commentsOptions.schema;
 
     if (!resolveUsers) {
-      // TODO check this?
       throw new Error("resolveUsers is required for comments");
     }
 

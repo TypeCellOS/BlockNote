@@ -2,8 +2,8 @@ import {
   getColspan,
   getRowspan,
   isTableCell,
-  TableHandles,
 } from "@blocknote/core";
+import { TableHandles } from "@blocknote/core/extensions";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";

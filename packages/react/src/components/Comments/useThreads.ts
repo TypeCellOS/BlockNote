@@ -1,4 +1,4 @@
-import { Comments } from "@blocknote/core";
+import { Comments } from "@blocknote/core/extensions";
 import { ThreadData } from "@blocknote/core/comments";
 import { useCallback, useRef, useSyncExternalStore } from "react";
 

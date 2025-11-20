@@ -1,4 +1,5 @@
-import { filterSuggestionItems } from "@blocknote/core";
+import {  } from "@blocknote/core";
+import { filterSuggestionItems } from "@blocknote/core/extensions";
 import "@blocknote/core/fonts/inter.css";
 import {
   BlockNoteViewRaw,

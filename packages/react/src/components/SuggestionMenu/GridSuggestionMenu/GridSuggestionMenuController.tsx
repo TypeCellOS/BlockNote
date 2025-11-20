@@ -1,9 +1,5 @@
-import {
-  BlockSchema,
-  InlineContentSchema,
-  StyleSchema,
-  SuggestionMenu,
-} from "@blocknote/core";
+import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
+import { SuggestionMenu } from "@blocknote/core/extensions";
 import { flip, offset, shift, size, VirtualElement } from "@floating-ui/react";
 import { FC, useEffect, useMemo } from "react";
 

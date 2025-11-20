@@ -5,8 +5,8 @@ import {
   getNodeById,
   InlineContentSchema,
   StyleSchema,
-  TableHandles,
 } from "@blocknote/core";
+import { TableHandles } from "@blocknote/core/extensions";
 import { FC, useMemo } from "react";
 
 import { offset, size } from "@floating-ui/react";

@@ -43,7 +43,7 @@ function setSelectionToNextContentEditableBlock<
 // updates the current block instead of inserting a new one below. If the new
 // block doesn't contain editable content, the cursor is moved to the next block
 // that does.
-export function insertOrUpdateBlock<
+export function insertOrUpdateBlockForSlashMenu<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
@@ -93,7 +93,7 @@ export function getDefaultSlashMenuItems<
     items.push(
       {
         onItemClick: () => {
-          insertOrUpdateBlock(editor, {
+          insertOrUpdateBlockForSlashMenu(editor, {
             type: "heading",
             props: { level: 1 },
           });
@@ -104,7 +104,7 @@ export function getDefaultSlashMenuItems<
       },
       {
         onItemClick: () => {
-          insertOrUpdateBlock(editor, {
+          insertOrUpdateBlockForSlashMenu(editor, {
             type: "heading",
             props: { level: 2 },
           });
@@ -115,7 +115,7 @@ export function getDefaultSlashMenuItems<
       },
       {
         onItemClick: () => {
-          insertOrUpdateBlock(editor, {
+          insertOrUpdateBlockForSlashMenu(editor, {
             type: "heading",
             props: { level: 3 },
           });
@@ -130,7 +130,7 @@ export function getDefaultSlashMenuItems<
   if (editorHasBlockWithType(editor, "quote")) {
     items.push({
       onItemClick: () => {
-        insertOrUpdateBlock(editor, {
+        insertOrUpdateBlockForSlashMenu(editor, {
           type: "quote",
         });
       },
@@ -142,7 +142,7 @@ export function getDefaultSlashMenuItems<
   if (editorHasBlockWithType(editor, "toggleListItem")) {
     items.push({
       onItemClick: () => {
-        insertOrUpdateBlock(editor, {
+        insertOrUpdateBlockForSlashMenu(editor, {
           type: "toggleListItem",
         });
       },
@@ -155,7 +155,7 @@ export function getDefaultSlashMenuItems<
   if (editorHasBlockWithType(editor, "numberedListItem")) {
     items.push({
       onItemClick: () => {
-        insertOrUpdateBlock(editor, {
+        insertOrUpdateBlockForSlashMenu(editor, {
           type: "numberedListItem",
         });
       },
@@ -168,7 +168,7 @@ export function getDefaultSlashMenuItems<
   if (editorHasBlockWithType(editor, "bulletListItem")) {
     items.push({
       onItemClick: () => {
-        insertOrUpdateBlock(editor, {
+        insertOrUpdateBlockForSlashMenu(editor, {
           type: "bulletListItem",
         });
       },
@@ -181,7 +181,7 @@ export function getDefaultSlashMenuItems<
   if (editorHasBlockWithType(editor, "checkListItem")) {
     items.push({
       onItemClick: () => {
-        insertOrUpdateBlock(editor, {
+        insertOrUpdateBlockForSlashMenu(editor, {
           type: "checkListItem",
         });
       },
@@ -194,7 +194,7 @@ export function getDefaultSlashMenuItems<
   if (editorHasBlockWithType(editor, "paragraph")) {
     items.push({
       onItemClick: () => {
-        insertOrUpdateBlock(editor, {
+        insertOrUpdateBlockForSlashMenu(editor, {
           type: "paragraph",
         });
       },
@@ -207,7 +207,7 @@ export function getDefaultSlashMenuItems<
   if (editorHasBlockWithType(editor, "codeBlock")) {
     items.push({
       onItemClick: () => {
-        insertOrUpdateBlock(editor, {
+        insertOrUpdateBlockForSlashMenu(editor, {
           type: "codeBlock",
         });
       },
@@ -220,7 +220,7 @@ export function getDefaultSlashMenuItems<
   if (editorHasBlockWithType(editor, "divider")) {
     items.push({
       onItemClick: () => {
-        insertOrUpdateBlock(editor, { type: "divider" });
+        insertOrUpdateBlockForSlashMenu(editor, { type: "divider" });
       },
       key: "divider",
       ...editor.dictionary.slash_menu.divider,
@@ -230,7 +230,7 @@ export function getDefaultSlashMenuItems<
   if (editorHasBlockWithType(editor, "table")) {
     items.push({
       onItemClick: () => {
-        insertOrUpdateBlock(editor, {
+        insertOrUpdateBlockForSlashMenu(editor, {
           type: "table",
           content: {
             type: "tableContent",
@@ -254,7 +254,7 @@ export function getDefaultSlashMenuItems<
   if (editorHasBlockWithType(editor, "image", { url: "string" })) {
     items.push({
       onItemClick: () => {
-        const insertedBlock = insertOrUpdateBlock(editor, {
+        const insertedBlock = insertOrUpdateBlockForSlashMenu(editor, {
           type: "image",
         });
 
@@ -269,7 +269,7 @@ export function getDefaultSlashMenuItems<
   if (editorHasBlockWithType(editor, "video", { url: "string" })) {
     items.push({
       onItemClick: () => {
-        const insertedBlock = insertOrUpdateBlock(editor, {
+        const insertedBlock = insertOrUpdateBlockForSlashMenu(editor, {
           type: "video",
         });
 
@@ -284,7 +284,7 @@ export function getDefaultSlashMenuItems<
   if (editorHasBlockWithType(editor, "audio", { url: "string" })) {
     items.push({
       onItemClick: () => {
-        const insertedBlock = insertOrUpdateBlock(editor, {
+        const insertedBlock = insertOrUpdateBlockForSlashMenu(editor, {
           type: "audio",
         });
 
@@ -299,7 +299,7 @@ export function getDefaultSlashMenuItems<
   if (editorHasBlockWithType(editor, "file", { url: "string" })) {
     items.push({
       onItemClick: () => {
-        const insertedBlock = insertOrUpdateBlock(editor, {
+        const insertedBlock = insertOrUpdateBlockForSlashMenu(editor, {
           type: "file",
         });
 
@@ -320,7 +320,7 @@ export function getDefaultSlashMenuItems<
     items.push(
       {
         onItemClick: () => {
-          insertOrUpdateBlock(editor, {
+          insertOrUpdateBlockForSlashMenu(editor, {
             type: "heading",
             props: { level: 1, isToggleable: true },
           });
@@ -330,7 +330,7 @@ export function getDefaultSlashMenuItems<
       },
       {
         onItemClick: () => {
-          insertOrUpdateBlock(editor, {
+          insertOrUpdateBlockForSlashMenu(editor, {
             type: "heading",
             props: { level: 2, isToggleable: true },
           });
@@ -341,7 +341,7 @@ export function getDefaultSlashMenuItems<
       },
       {
         onItemClick: () => {
-          insertOrUpdateBlock(editor, {
+          insertOrUpdateBlockForSlashMenu(editor, {
             type: "heading",
             props: { level: 3, isToggleable: true },
           });
@@ -358,7 +358,7 @@ export function getDefaultSlashMenuItems<
       .forEach((level) => {
         items.push({
           onItemClick: () => {
-            insertOrUpdateBlock(editor, {
+            insertOrUpdateBlockForSlashMenu(editor, {
               type: "heading",
               props: { level: level },
             });

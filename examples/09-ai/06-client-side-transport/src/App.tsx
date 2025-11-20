@@ -1,5 +1,6 @@
 import { createGroq } from "@ai-sdk/groq";
-import { BlockNoteEditor, filterSuggestionItems } from "@blocknote/core";
+import { BlockNoteEditor,  } from "@blocknote/core";
+import { filterSuggestionItems } from "@blocknote/core/extensions";
 import "@blocknote/core/fonts/inter.css";
 import { en } from "@blocknote/core/locales";
 import { BlockNoteView } from "@blocknote/mantine";

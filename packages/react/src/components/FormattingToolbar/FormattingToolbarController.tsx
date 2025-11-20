@@ -3,10 +3,10 @@ import {
   BlockSchema,
   defaultProps,
   DefaultProps,
-  FormattingToolbar as FormattingToolbarExtension,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
+import { FormattingToolbar as FormattingToolbarExtension } from "@blocknote/core/extensions";
 import { flip, offset, shift } from "@floating-ui/react";
 import { FC, useEffect, useMemo, useState } from "react";
 

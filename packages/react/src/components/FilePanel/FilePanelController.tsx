@@ -1,4 +1,4 @@
-import { FilePanel as FilePanelExtension } from "@blocknote/core";
+import { FilePanel as FilePanelExtension } from "@blocknote/core/extensions";
 import { flip, offset } from "@floating-ui/react";
 import { FC, useEffect, useMemo, useState } from "react";
 

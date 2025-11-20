@@ -1,10 +1,8 @@
+import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 import {
-  BlockSchema,
-  InlineContentSchema,
-  StyleSchema,
   SuggestionMenu as SuggestionMenuExtension,
   filterSuggestionItems,
-} from "@blocknote/core";
+} from "@blocknote/core/extensions";
 import {
   UseFloatingOptions,
   VirtualElement,
