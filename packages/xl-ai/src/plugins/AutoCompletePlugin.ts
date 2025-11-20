@@ -42,39 +42,10 @@ type AutoCompleteSuggestion = {
   suggestion: string;
 };
 
-async function fetchAutoCompleteSuggestions(
-  state: EditorState,
-  _signal: AbortSignal,
-) {
-  // TODO: options to get block json until selection
-  const text = state.doc.textBetween(
-    state.selection.from - 300,
-    state.selection.from,
-  );
-
-  const response = await fetch(
-    `https://localhost:3000/ai/autocomplete/generateText`,
-    {
-      method: "POST",
-      body: JSON.stringify({ text }),
-    },
-  );
-  const data = await response.json();
-  return data.suggestions.map((suggestion: string) => ({
-    position: state.selection.from,
-    suggestion: suggestion,
-  }));
-  //   return [
-  //     {
-  //       position: state.selection.from,
-  //       suggestion: "Hello World",
-  //     },
-  //     {
-  //       position: state.selection.from,
-  //       suggestion: "Hello Planet",
-  //     },
-  //   ];
-}
+type AutoCompleteProvider = (
+  editor: BlockNoteEditor<any, any, any>,
+  signal: AbortSignal,
+) => Promise<AutoCompleteSuggestion[]>;
 
 function getMatchingSuggestions(
   autoCompleteSuggestions: AutoCompleteSuggestion[],
@@ -131,10 +102,10 @@ export class AutoCompleteProseMirrorPlugin<
   private autoCompleteSuggestions: AutoCompleteSuggestion[] = [];
 
   private debounceFetchSuggestions = debounceWithAbort(
-    async (state: EditorState, signal: AbortSignal) => {
+    async (editor: BlockNoteEditor<any, any, any>, signal: AbortSignal) => {
       // fetch suggestions
-      const autoCompleteSuggestions = await fetchAutoCompleteSuggestions(
-        state,
+      const autoCompleteSuggestions = await this.options.autoCompleteProvider(
+        editor,
         signal,
       );
 
@@ -155,7 +126,9 @@ export class AutoCompleteProseMirrorPlugin<
 
   constructor(
     private readonly editor: BlockNoteEditor<BSchema, I, S>,
-    options: {},
+    private readonly options: {
+      autoCompleteProvider: AutoCompleteProvider;
+    },
   ) {
     super();
 
@@ -179,7 +152,7 @@ export class AutoCompleteProseMirrorPlugin<
           // Apply changes to the plugin state from an editor transaction.
           apply: (
             transaction,
-            prev,
+            _prev,
             _oldState,
             newState,
           ): AutoCompleteState => {
@@ -204,96 +177,19 @@ export class AutoCompleteProseMirrorPlugin<
 
             // No matching suggestions, if isUserInput is true, debounce fetch suggestions
             if (transaction.getMeta(autoCompletePluginKey)?.isUserInput) {
-              this.debounceFetchSuggestions(newState).catch((error) => {
-                /* eslint-disable-next-line no-console */
-                console.error(error);
+              // TODO: this queueMicrotask is a workaround to ensure the transaction is applied before the debounceFetchSuggestions is called
+              // (discuss with Nick what ideal architecture would be)
+              queueMicrotask(() => {
+                this.debounceFetchSuggestions(self.editor).catch((error) => {
+                  /* eslint-disable-next-line no-console */
+                  console.error(error);
+                });
               });
             } else {
               // clear suggestions
               this.autoCompleteSuggestions = [];
             }
             return undefined;
-
-            // Ignore transactions in code blocks.
-            // if (transaction.selection.$from.parent.type.spec.code) {
-            //   return prev;
-            // }
-
-            // // Either contains the trigger character if the menu should be shown,
-            // // or null if it should be hidden.
-            // const suggestionPluginTransactionMeta: {
-            //   triggerCharacter: string;
-            //   deleteTriggerCharacter?: boolean;
-            //   ignoreQueryLength?: boolean;
-            // } | null = transaction.getMeta(autoCompletePluginKey);
-
-            // if (
-            //   typeof suggestionPluginTransactionMeta === "object" &&
-            //   suggestionPluginTransactionMeta !== null
-            // ) {
-            //   if (prev) {
-            //     // Close the previous menu if it exists
-            //     this.closeMenu();
-            //   }
-            //   const trackedPosition = trackPosition(
-            //     editor,
-            //     newState.selection.from -
-            //       // Need to account for the trigger char that was inserted, so we offset the position by the length of the trigger character.
-            //       suggestionPluginTransactionMeta.triggerCharacter.length,
-            //   );
-            //   return {
-            //     triggerCharacter:
-            //       suggestionPluginTransactionMeta.triggerCharacter,
-            //     deleteTriggerCharacter:
-            //       suggestionPluginTransactionMeta.deleteTriggerCharacter !==
-            //       false,
-            //     // When reading the queryStartPos, we offset the result by the length of the trigger character, to make it easy on the caller
-            //     queryStartPos: () =>
-            //       trackedPosition() +
-            //       suggestionPluginTransactionMeta.triggerCharacter.length,
-            //     query: "",
-            //     decorationId: `id_${Math.floor(Math.random() * 0xffffffff)}`,
-            //     ignoreQueryLength:
-            //       suggestionPluginTransactionMeta?.ignoreQueryLength,
-            //   };
-            // }
-
-            // // Checks if the menu is hidden, in which case it doesn't need to be hidden or updated.
-            // if (prev === undefined) {
-            //   return prev;
-            // }
-
-            // // Checks if the menu should be hidden.
-            // if (
-            //   // Highlighting text should hide the menu.
-            //   newState.selection.from !== newState.selection.to ||
-            //   // Transactions with plugin metadata should hide the menu.
-            //   suggestionPluginTransactionMeta === null ||
-            //   // Certain mouse events should hide the menu.
-            //   // TODO: Change to global mousedown listener.
-            //   transaction.getMeta("focus") ||
-            //   transaction.getMeta("blur") ||
-            //   transaction.getMeta("pointer") ||
-            //   // Moving the caret before the character which triggered the menu should hide it.
-            //   (prev.triggerCharacter !== undefined &&
-            //     newState.selection.from < prev.queryStartPos()) ||
-            //   // Moving the caret to a new block should hide the menu.
-            //   !newState.selection.$from.sameParent(
-            //     newState.doc.resolve(prev.queryStartPos()),
-            //   )
-            // ) {
-            //   return undefined;
-            // }
-
-            // const next = { ...prev };
-            // // here we wi
-            // // Updates the current query.
-            // next.query = newState.doc.textBetween(
-            //   prev.queryStartPos(),
-            //   newState.selection.from,
-            // );
-
-            // return next;
           },
         },
 
@@ -352,7 +248,7 @@ export class AutoCompleteProseMirrorPlugin<
               return null;
             }
 
-            console.log(autoCompleteState);
+            // console.log(autoCompleteState);
             // Creates an inline decoration around the trigger character.
             return DecorationSet.create(state.doc, [
               Decoration.widget(
@@ -432,11 +328,6 @@ export interface DebouncedFunction<T extends any[], R> {
   cancel(): void;
 }
 
-// TODO: more to blocknote API?
-// TODO: test with Collaboration edits
-// TODO: compare kilocode / cline etc
-// TODO: think about advanced scenarios (e.g.: multiple suggestions, etc.)
-// TODO: double tap -> extra long
 /**
  * Create a new AIExtension instance, this can be passed to the BlockNote editor via the `extensions` option
  */
@@ -456,3 +347,9 @@ export function getAIAutoCompleteExtension(
 ) {
   return editor.extension(AutoCompleteProseMirrorPlugin);
 }
+
+// TODO: move more to blocknote API?
+// TODO: test with Collaboration edits
+// TODO: compare kilocode / cline etc
+// TODO: think about advanced scenarios (e.g.: multiple suggestions, etc.)
+// TODO: double tap -> insert extra long suggestion

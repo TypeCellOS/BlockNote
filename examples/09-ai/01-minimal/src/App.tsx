@@ -27,6 +27,45 @@ import { getEnv } from "./getEnv";
 const BASE_URL =
   getEnv("BLOCKNOTE_AI_SERVER_BASE_URL") || "https://localhost:3000/ai";
 
+async function autoCompleteProvider(
+  editor: BlockNoteEditor<any, any, any>,
+  signal: AbortSignal,
+) {
+  // TODO:
+  // - API is very prosemirror-based, make something more BlockNote-native
+  // - Add simple method to retrieve relevant context (e.g. block content / json until selection)
+
+  const state = editor.prosemirrorState;
+  const text = state.doc.textBetween(
+    state.selection.from - 300,
+    state.selection.from,
+  );
+
+  const response = await fetch(
+    `https://localhost:3000/ai/autocomplete/generateText`,
+    {
+      method: "POST",
+      body: JSON.stringify({ text }),
+      signal,
+    },
+  );
+  const data = await response.json();
+  return data.suggestions.map((suggestion: string) => ({
+    position: state.selection.from,
+    suggestion: suggestion,
+  }));
+  //   return [
+  //     {
+  //       position: state.selection.from,
+  //       suggestion: "Hello World",
+  //     },
+  //     {
+  //       position: state.selection.from,
+  //       suggestion: "Hello Planet",
+  //     },
+  //   ];
+}
+
 export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
@@ -42,7 +81,7 @@ export default function App() {
           api: `${BASE_URL}/regular/streamText`,
         }),
       }),
-      createAIAutoCompleteExtension(),
+      createAIAutoCompleteExtension({ autoCompleteProvider }),
     ],
     // We set some initial content for demo purposes
     initialContent: [

@@ -24,9 +24,9 @@ autocompleteRoute.post("/generateText", async (c) => {
 - max 3 suggestions
 - keep it short, max 5 words per suggestion
 - don't include other text (or explanations)
-- ONLY return the text to be appended. Your suggestion will EXACTLY replace [SUGGESTION_HERE].
-- DONT include the original text / characters (prefix)
-- add a space (or other relevant punctuation) before the suggestion if starting a new word`,
+- YOU MUST ONLY return the text to be appended. Your suggestion will EXACTLY replace [SUGGESTION_HERE].
+- YOU MUST NOT include the original text / characters (prefix) in your suggestion.
+- YOU MUST add a space (or other relevant punctuation) before the suggestion IF starting a new word (the suggestion will be directly concatenated to the text)`,
     messages: [
       {
         role: "user",
