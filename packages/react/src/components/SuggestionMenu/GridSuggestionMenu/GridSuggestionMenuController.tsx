@@ -147,6 +147,9 @@ export function GridSuggestionMenuController<
       elementProps: {
         // Prevents editor blurring when clicking the scroll bar.
         onMouseDown: (event) => event.preventDefault(),
+        style: {
+          zIndex: 70,
+        },
       },
       ...props.floatingUIOptions,
     }),

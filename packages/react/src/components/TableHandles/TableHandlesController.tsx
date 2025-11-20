@@ -76,6 +76,11 @@ export const TableHandlesController = <
           placement: "left",
           middleware: [offset(-10)],
         }}
+        elementProps={{
+          style: {
+            zIndex: 10,
+          },
+        }}
       >
         {state.rowIndex !== undefined && (
           <TableHandleComponent orientation="row" />
@@ -90,6 +95,11 @@ export const TableHandlesController = <
           placement: "top",
           middleware: [offset(-12)],
         }}
+        elementProps={{
+          style: {
+            zIndex: 10,
+          },
+        }}
       >
         {state.colIndex !== undefined && (
           <TableHandleComponent orientation="column" />
@@ -103,6 +113,11 @@ export const TableHandlesController = <
           open: true,
           placement: "top-end",
           middleware: [offset({ mainAxis: -15, crossAxis: -1 })],
+        }}
+        elementProps={{
+          style: {
+            zIndex: 10,
+          },
         }}
       >
         <TableCellHandleComponent />
@@ -122,6 +137,11 @@ export const TableHandlesController = <
             }),
           ],
         }}
+        elementProps={{
+          style: {
+            zIndex: 10,
+          },
+        }}
       >
         <ExtendButtonComponent orientation="addOrRemoveRows" />
       </GenericPopover>
@@ -139,6 +159,11 @@ export const TableHandlesController = <
               },
             }),
           ],
+        }}
+        elementProps={{
+          style: {
+            zIndex: 10,
+          },
         }}
       >
         <ExtendButtonComponent orientation="addOrRemoveColumns" />

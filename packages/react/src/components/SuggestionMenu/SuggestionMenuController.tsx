@@ -151,6 +151,9 @@ export function SuggestionMenuController<
       elementProps: {
         // Prevents editor blurring when clicking the scroll bar.
         onMouseDown: (event) => event.preventDefault(),
+        style: {
+          zIndex: 80,
+        },
       },
       ...props.floatingUIOptions,
     }),

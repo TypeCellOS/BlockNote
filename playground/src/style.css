@@ -37,6 +37,7 @@ body {
   padding-top: 8px;
   margin: 0 auto;
   max-width: 731px;
+  --bn-ui-base-z-index: 100;
 }
 
 .bn-comment-composer .bn-container {

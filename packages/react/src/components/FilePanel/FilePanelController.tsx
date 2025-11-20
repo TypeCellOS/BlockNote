@@ -33,6 +33,11 @@ export const FilePanelController = (props: {
       useDismissProps: {
         outsidePress: false,
       },
+      elementProps: {
+        style: {
+          zIndex: 90,
+        },
+      },
       ...props.floatingUIOptions,
     }),
     [open, props.floatingUIOptions],

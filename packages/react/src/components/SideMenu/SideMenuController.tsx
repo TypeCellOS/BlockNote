@@ -33,6 +33,11 @@ export const SideMenuController = (props: {
       useDismissProps: {
         enabled: false,
       },
+      elementProps: {
+        style: {
+          zIndex: 20,
+        },
+      },
       ...props.floatingUIOptions,
     }),
     [props.floatingUIOptions, show],

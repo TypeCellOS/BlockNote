@@ -9,7 +9,7 @@ import {
   ReferenceType,
   useHover,
 } from "@floating-ui/react";
-import { ReactNode, useEffect, useRef } from "react";
+import { HTMLAttributes, ReactNode, useEffect, useRef } from "react";
 
 import { FloatingUIOptions } from "./FloatingUIOptions.js";
 
@@ -76,15 +76,17 @@ export const GenericPopover = (
     return false;
   }
 
-  const { style, ...rest } = props.elementProps || {};
-
-  const mergedStyles = {
-    display: "flex",
-    ...styles,
-    ...floatingStyles,
-    ...style,
+  const mergedProps: HTMLAttributes<HTMLDivElement> = {
+    ...props.elementProps,
+    style: {
+      display: "flex",
+      ...props.elementProps?.style,
+      zIndex: `calc(var(--bn-ui-base-z-index) + ${props.elementProps?.style?.zIndex || 0})`,
+      ...floatingStyles,
+      ...styles,
+    },
+    ...getFloatingProps(),
   };
-  const mergedProps = { ...getFloatingProps(), ...rest };
 
   if (status === "close") {
     // While the popover is closing, shows its last rendered `innerHTML` while
@@ -98,7 +100,6 @@ export const GenericPopover = (
     return (
       <div
         ref={mergedRefs}
-        style={mergedStyles}
         {...mergedProps}
         dangerouslySetInnerHTML={{ __html: innerHTML.current }}
       />
@@ -106,7 +107,7 @@ export const GenericPopover = (
   }
 
   return (
-    <div ref={mergedRefs} style={mergedStyles} {...mergedProps}>
+    <div ref={mergedRefs} {...mergedProps}>
       {props.children}
     </div>
   );

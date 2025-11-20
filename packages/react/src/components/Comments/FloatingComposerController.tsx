@@ -76,6 +76,11 @@ export const FloatingComposerController = <
         placement: "bottom",
         middleware: [offset(10), shift(), flip()],
       },
+      elementProps: {
+        style: {
+          zIndex: 60,
+        },
+      },
       ...props.floatingUIOptions,
     }),
     [comments, editor, open, props.floatingUIOptions],

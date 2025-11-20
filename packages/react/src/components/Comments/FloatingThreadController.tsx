@@ -47,6 +47,11 @@ export const FloatingThreadController = (props: {
         placement: "bottom",
         middleware: [offset(10), shift(), flip()],
       },
+      elementProps: {
+        style: {
+          zIndex: 30,
+        },
+      },
       ...props.floatingUIOptions,
     }),
     [open, props.floatingUIOptions],

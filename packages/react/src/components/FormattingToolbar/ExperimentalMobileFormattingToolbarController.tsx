@@ -38,7 +38,7 @@ export const ExperimentalMobileFormattingToolbarController = (props: {
       display: "flex",
       position: "fixed",
       bottom: 0,
-      zIndex: 3000,
+      zIndex: `calc(var(--bn-ui-base-z-index) + 40)`,
       transform,
     };
   }, [transform]);

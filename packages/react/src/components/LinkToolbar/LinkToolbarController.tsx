@@ -127,6 +127,11 @@ export const LinkToolbarController = (props: {
         // restMs: 300,
         handleClose: safePolygon(),
       },
+      elementProps: {
+        style: {
+          zIndex: 50,
+        },
+      },
       ...props.floatingUIOptions,
     }),
     [mouseHoverLink, open, props.floatingUIOptions, selectionLink],

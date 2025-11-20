@@ -91,6 +91,11 @@ export const FormattingToolbarController = (props: {
         placement,
         middleware: [offset(10), shift(), flip()],
       },
+      elementProps: {
+        style: {
+          zIndex: 40,
+        },
+      },
       ...props.floatingUIOptions,
     }),
     [open, placement, props.floatingUIOptions],
