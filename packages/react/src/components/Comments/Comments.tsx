@@ -23,7 +23,7 @@ export const Comments = ({
   // Maps all comments to elements.
   const comments = thread.comments.map((comment, index) => (
     <Comment
-      key={comment.id}
+      key={comment.id + JSON.stringify(comment.body || "{}")}
       thread={thread}
       comment={comment}
       showResolveButton={index === 0}

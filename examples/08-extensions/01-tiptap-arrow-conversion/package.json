@@ -21,7 +21,7 @@
     "@mantine/utils": "^6.0.22",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "@tiptap/core": "^3.10.2"
+    "@tiptap/core": "^3.11.0"
   },
   "devDependencies": {
     "@types/react": "^19.2.2",
