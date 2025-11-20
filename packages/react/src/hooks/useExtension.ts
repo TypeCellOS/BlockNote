@@ -5,7 +5,6 @@ import {
   ExtensionFactory,
 } from "@blocknote/core";
 import { useStore } from "@tanstack/react-store";
-import { useMemo } from "react";
 import { useBlockNoteEditor } from "./useBlockNoteEditor.js";
 
 type Store<T> = ReturnType<typeof createStore<T>>;
@@ -20,7 +19,7 @@ export function useExtension<const T extends ExtensionFactory | Extension>(
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const editor = ctx?.editor ?? useBlockNoteEditor();
 
-  const instance = useMemo(() => editor.getExtension(plugin), [editor, plugin]);
+  const instance = editor.getExtension(plugin);
 
   if (!instance) {
     throw new Error("Extension not found", { cause: { plugin } });
