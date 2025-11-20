@@ -14,6 +14,6 @@ export function useSelectedBlocks<
   return useEditorState({
     editor,
     selector: ({ editor }) =>
-      editor.getSelection() || [editor.getTextCursorPosition().block],
+      editor.getSelection()?.blocks || [editor.getTextCursorPosition().block],
   });
 }
