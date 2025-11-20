@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
-import { usePluginState } from "../../../../hooks/usePlugin.js";
+import { useExtensionState } from "../../../../hooks/useExtension.js";
 import { useDictionary } from "../../../../i18n/dictionary.js";
 import { ColorPicker } from "../../../ColorPicker/ColorPicker.js";
 
@@ -13,13 +13,13 @@ export const ColorPickerButton = (props: { children?: ReactNode }) => {
   const dict = useDictionary();
   const editor = useBlockNoteEditor<any, any, any>();
 
-  const block = usePluginState(TableHandles, {
+  const block = useExtensionState(TableHandles, {
     selector: (state) => state?.block,
   });
-  const colIndex = usePluginState(TableHandles, {
+  const colIndex = useExtensionState(TableHandles, {
     selector: (state) => state?.colIndex,
   });
-  const rowIndex = usePluginState(TableHandles, {
+  const rowIndex = useExtensionState(TableHandles, {
     selector: (state) => state?.rowIndex,
   });
 

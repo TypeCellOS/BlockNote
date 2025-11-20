@@ -5,7 +5,10 @@ import { useCallback } from "react";
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
-import { usePlugin, usePluginState } from "../../../hooks/usePlugin.js";
+import {
+  useExtension,
+  useExtensionState,
+} from "../../../hooks/useExtension.js";
 
 export const AddBlockButton = () => {
   const Components = useComponentsContext()!;
@@ -13,8 +16,8 @@ export const AddBlockButton = () => {
 
   const editor = useBlockNoteEditor<any, any, any>();
 
-  const suggestionMenu = usePlugin(SuggestionMenu);
-  const block = usePluginState(SideMenu, {
+  const suggestionMenu = useExtension(SuggestionMenu);
+  const block = useExtensionState(SideMenu, {
     editor,
     selector: (state) => state?.block,
   });

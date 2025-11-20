@@ -21,7 +21,10 @@ import { RiAddFill } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
-import { usePlugin, usePluginState } from "../../../hooks/usePlugin.js";
+import {
+  useExtension,
+  useExtensionState,
+} from "../../../hooks/useExtension.js";
 import { ExtendButtonProps } from "./ExtendButtonProps.js";
 
 // Rounds a number up or down, depending on whether we're close (as defined by
@@ -49,8 +52,8 @@ export const ExtendButton = <
 
   const editor = useBlockNoteEditor<any, any, any>();
 
-  const tableHandles = usePlugin(TableHandles);
-  const block = usePluginState(TableHandles, {
+  const tableHandles = useExtension(TableHandles);
+  const block = useExtensionState(TableHandles, {
     selector: (state) => state?.block,
   });
 

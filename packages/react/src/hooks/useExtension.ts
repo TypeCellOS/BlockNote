@@ -13,9 +13,9 @@ type Store<T> = ReturnType<typeof createStore<T>>;
 /**
  * Use an extension instance
  */
-export function usePlugin<const T extends ExtensionFactory | Extension>(
+export function useExtension<const T extends ExtensionFactory | Extension>(
   plugin: T,
-  ctx?: { editor?: BlockNoteEditor },
+  ctx?: { editor?: BlockNoteEditor<any, any, any> },
 ): T extends ExtensionFactory ? NonNullable<ReturnType<T>> : T {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const editor = ctx?.editor ?? useBlockNoteEditor();
@@ -36,7 +36,7 @@ type ExtractStore<T> = T extends Store<infer U> ? U : never;
 /**
  * Use the state of an extension
  */
-export function usePluginState<
+export function useExtensionState<
   T extends ExtensionFactory | Extension,
   TExtension = T extends ExtensionFactory ? ReturnType<T> : T,
   TStore = TExtension extends { store: Store<any> }
@@ -50,7 +50,7 @@ export function usePluginState<
     selector?: (state: NoInfer<ExtractStore<TStore>>) => TSelected;
   },
 ): TSelected {
-  const { store } = usePlugin(plugin, ctx);
+  const { store } = useExtension(plugin, ctx);
   if (!store) {
     throw new Error("Store not found on plugin", { cause: { plugin } });
   }

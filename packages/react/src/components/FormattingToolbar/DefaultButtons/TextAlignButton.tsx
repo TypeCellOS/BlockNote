@@ -22,7 +22,7 @@ import {
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
-import { usePlugin } from "../../../hooks/usePlugin.js";
+import { useExtension } from "../../../hooks/useExtension.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 
 type TextAlignment = DefaultProps["textAlignment"];
@@ -44,7 +44,7 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
     StyleSchema
   >();
 
-  const tableHandles = usePlugin(TableHandles);
+  const tableHandles = useExtension(TableHandles);
 
   const state = useEditorState({
     editor,

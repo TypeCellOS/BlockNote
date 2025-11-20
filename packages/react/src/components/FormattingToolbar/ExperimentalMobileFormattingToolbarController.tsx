@@ -1,13 +1,9 @@
-import {
-  BlockSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "@blocknote/core";
+import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 import { FormattingToolbar as FormattingToolbarExtension } from "@blocknote/core/extensions";
 import { FC, CSSProperties, useMemo, useRef, useState, useEffect } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
-import { usePluginState } from "../../hooks/usePlugin.js";
+import { useExtensionState } from "../../hooks/useExtension.js";
 import { FormattingToolbar } from "./FormattingToolbar.js";
 import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
 
@@ -28,7 +24,7 @@ export const ExperimentalMobileFormattingToolbarController = (props: {
     StyleSchema
   >();
 
-  const show = usePluginState(FormattingToolbarExtension, {
+  const show = useExtensionState(FormattingToolbarExtension, {
     editor,
     selector: (state) => state.show,
   });

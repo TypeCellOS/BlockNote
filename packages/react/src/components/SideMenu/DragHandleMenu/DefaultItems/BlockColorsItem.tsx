@@ -1,21 +1,18 @@
-import {
-  blockHasType,
-  editorHasBlockWithType,
-} from "@blocknote/core";
+import { blockHasType, editorHasBlockWithType } from "@blocknote/core";
 import { SideMenu } from "@blocknote/core/extensions";
 import { ReactNode } from "react";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
 import { ColorPicker } from "../../../ColorPicker/ColorPicker.js";
-import { usePluginState } from "../../../../hooks/usePlugin.js";
+import { useExtensionState } from "../../../../hooks/useExtension.js";
 
 export const BlockColorsItem = (props: { children: ReactNode }) => {
   const Components = useComponentsContext()!;
 
   const editor = useBlockNoteEditor<any, any, any>();
 
-  const block = usePluginState(SideMenu, {
+  const block = useExtensionState(SideMenu, {
     editor,
     selector: (state) => state?.block,
   });

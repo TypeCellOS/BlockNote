@@ -9,7 +9,7 @@ export const YSync = createExtension((_editor, options) => {
 
   return {
     key: "ySync",
-    plugins: [ySyncPlugin(fragment)],
+    prosemirrorPlugins: [ySyncPlugin(fragment)],
     runsBefore: ["default"],
   } as const;
 });

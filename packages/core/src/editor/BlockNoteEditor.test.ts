@@ -132,7 +132,7 @@ it("onCreate event", () => {
     extensions: [
       createExtension({
         key: "test",
-        init: () => {
+        mount: () => {
           created = true;
         },
       }),

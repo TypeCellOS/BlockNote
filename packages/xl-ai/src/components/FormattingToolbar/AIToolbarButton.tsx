@@ -1,10 +1,6 @@
-import {
-  BlockSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "@blocknote/core";
+import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 import { FormattingToolbar } from "@blocknote/core/extensions";
-import { useComponentsContext, usePlugin } from "@blocknote/react";
+import { useComponentsContext, useExtension } from "@blocknote/react";
 import { RiSparkling2Fill } from "react-icons/ri";
 
 import { useBlockNoteEditor } from "@blocknote/react";
@@ -22,7 +18,7 @@ export const AIToolbarButton = () => {
     StyleSchema
   >();
 
-  const ai = usePlugin(AIExtension);
+  const ai = useExtension(AIExtension);
 
   const onClick = () => {
     editor.getExtension(FormattingToolbar)?.store.setState({ show: false });

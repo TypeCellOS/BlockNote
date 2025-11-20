@@ -79,7 +79,7 @@ export const AIExtension = createExtension((editor, editorOptions) => {
     key: "ai",
     options,
     store,
-    init: ({ abortController }) => {
+    mount({ signal }: { signal: AbortSignal }) {
       let scrollInProgress = false;
       // Listens for `scroll` and `scrollend` events to see if a new scroll was
       // started before an existing one ended. This is the most reliable way we
@@ -98,7 +98,7 @@ export const AIExtension = createExtension((editor, editorOptions) => {
         },
         {
           capture: true,
-          signal: abortController.signal,
+          signal,
         },
       );
       document.addEventListener(
@@ -108,11 +108,11 @@ export const AIExtension = createExtension((editor, editorOptions) => {
         },
         {
           capture: true,
-          signal: abortController.signal,
+          signal,
         },
       );
     },
-    plugins: [
+    prosemirrorPlugins: [
       new Plugin({
         key: PLUGIN_KEY,
         filterTransaction: (tr) => {
@@ -437,5 +437,5 @@ export const AIExtension = createExtension((editor, editorOptions) => {
         console.warn("Error calling LLM", e, chatSession?.chat.messages);
       }
     },
-  };
+  } as const;
 });

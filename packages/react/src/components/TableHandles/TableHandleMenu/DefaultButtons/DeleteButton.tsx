@@ -2,14 +2,17 @@ import { TableHandles } from "@blocknote/core/extensions";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
 import { useDictionary } from "../../../../i18n/dictionary.js";
-import { usePlugin, usePluginState } from "../../../../hooks/usePlugin.js";
+import {
+  useExtension,
+  useExtensionState,
+} from "../../../../hooks/useExtension.js";
 
 export const DeleteButton = (props: { orientation: "row" | "column" }) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  const tableHandles = usePlugin(TableHandles);
-  const index = usePluginState(TableHandles, {
+  const tableHandles = useExtension(TableHandles);
+  const index = useExtensionState(TableHandles, {
     selector: (state) =>
       props.orientation === "column" ? state?.colIndex : state?.rowIndex,
   });

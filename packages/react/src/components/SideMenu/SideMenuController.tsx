@@ -1,7 +1,7 @@
 import { SideMenu as SideMenuExtension } from "@blocknote/core/extensions";
 import { FC, useMemo } from "react";
 
-import { usePluginState } from "../../hooks/usePlugin.js";
+import { useExtensionState } from "../../hooks/useExtension.js";
 import { BlockPopover } from "../Popovers/BlockPopover.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import { SideMenu } from "./SideMenu.js";
@@ -11,7 +11,7 @@ export const SideMenuController = (props: {
   sideMenu?: FC<SideMenuProps>;
   floatingUIOptions?: Partial<FloatingUIOptions>;
 }) => {
-  const state = usePluginState(SideMenuExtension, {
+  const state = useExtensionState(SideMenuExtension, {
     selector: (state) => {
       return state !== undefined
         ? {

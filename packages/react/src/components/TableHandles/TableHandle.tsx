@@ -5,7 +5,7 @@ import { ReactNode, useMemo, useState } from "react";
 import { MdDragIndicator } from "react-icons/md";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
-import { usePlugin, usePluginState } from "../../hooks/usePlugin.js";
+import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
 import { TableHandleMenu } from "./TableHandleMenu/TableHandleMenu.js";
 import { TableHandleProps } from "./TableHandleProps.js";
 
@@ -25,8 +25,8 @@ export const TableHandle = (
 
   const Component = props.tableHandleMenu || TableHandleMenu;
 
-  const tableHandles = usePlugin(TableHandles);
-  const state = usePluginState(TableHandles);
+  const tableHandles = useExtension(TableHandles);
+  const state = useExtensionState(TableHandles);
 
   const isDraggable = useMemo(() => {
     if (

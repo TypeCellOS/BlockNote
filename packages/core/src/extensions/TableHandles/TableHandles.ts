@@ -616,7 +616,7 @@ export const TableHandles = createExtension((editor) => {
   return {
     key: "tableHandles",
     store,
-    plugins: [
+    prosemirrorPlugins: [
       new Plugin({
         key: tableHandlesPluginKey,
         view: (editorView) => {

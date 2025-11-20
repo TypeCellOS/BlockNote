@@ -6,7 +6,7 @@ import { FilePanel } from "./FilePanel.js";
 import { FilePanelProps } from "./FilePanelProps.js";
 import { BlockPopover } from "../Popovers/BlockPopover.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
-import { usePluginState } from "../../hooks/usePlugin.js";
+import { useExtensionState } from "../../hooks/useExtension.js";
 
 export const FilePanelController = (props: {
   filePanel?: FC<FilePanelProps>;
@@ -14,7 +14,7 @@ export const FilePanelController = (props: {
 }) => {
   const [open, setOpen] = useState(false);
 
-  const blockId = usePluginState(FilePanelExtension, {
+  const blockId = useExtensionState(FilePanelExtension, {
     selector: (state) => state.blockId,
   });
   useEffect(() => {

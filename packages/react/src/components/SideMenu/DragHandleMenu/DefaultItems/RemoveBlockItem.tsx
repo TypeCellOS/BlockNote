@@ -3,14 +3,14 @@ import { ReactNode } from "react";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
-import { usePluginState } from "../../../../hooks/usePlugin.js";
+import { useExtensionState } from "../../../../hooks/useExtension.js";
 
 export const RemoveBlockItem = (props: { children: ReactNode }) => {
   const Components = useComponentsContext()!;
 
   const editor = useBlockNoteEditor<any, any, any>();
 
-  const block = usePluginState(SideMenu, {
+  const block = useExtensionState(SideMenu, {
     editor,
     selector: (state) => state?.block,
   });

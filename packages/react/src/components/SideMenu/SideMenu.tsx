@@ -3,7 +3,7 @@ import { ReactNode, useMemo } from "react";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
-import { usePluginState } from "../../hooks/usePlugin.js";
+import { useExtensionState } from "../../hooks/useExtension.js";
 import { AddBlockButton } from "./DefaultButtons/AddBlockButton.js";
 import { DragHandleButton } from "./DefaultButtons/DragHandleButton.js";
 import { SideMenuProps } from "./SideMenuProps.js";
@@ -22,7 +22,7 @@ export const SideMenu = (props: SideMenuProps & { children?: ReactNode }) => {
 
   const editor = useBlockNoteEditor<any, any, any>();
 
-  const block = usePluginState(SideMenuExtension, {
+  const block = useExtensionState(SideMenuExtension, {
     editor,
     selector: (state) => state?.block,
   });

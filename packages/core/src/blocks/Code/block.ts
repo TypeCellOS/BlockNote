@@ -171,7 +171,7 @@ export const createCodeBlockSpec = createBlockSpec(
     return [
       createExtension({
         key: "code-block-highlighter",
-        plugins: [lazyShikiPlugin(options)],
+        prosemirrorPlugins: [lazyShikiPlugin(options)],
       }),
       createExtension({
         key: "code-block-keyboard-shortcuts",

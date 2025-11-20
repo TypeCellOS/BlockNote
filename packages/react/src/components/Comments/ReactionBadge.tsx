@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useUsers } from "./useUsers.js";
-import { usePlugin } from "../../hooks/usePlugin.js";
+import { useExtension } from "../../hooks/useExtension.js";
 
 export const ReactionBadge = (props: {
   comment: CommentData;
@@ -16,7 +16,7 @@ export const ReactionBadge = (props: {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  const comments = usePlugin(Comments);
+  const comments = useExtension(Comments);
 
   const reaction = props.comment.reactions.find(
     (reaction) => reaction.emoji === props.emoji,

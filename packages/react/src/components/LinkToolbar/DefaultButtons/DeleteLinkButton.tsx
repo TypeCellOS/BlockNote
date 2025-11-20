@@ -2,14 +2,14 @@ import { RiLinkUnlink } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
-import { usePlugin } from "../../../hooks/usePlugin.js";
+import { useExtension } from "../../../hooks/useExtension.js";
 import { LinkToolbar } from "@blocknote/core/extensions";
 
 export const DeleteLinkButton = () => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  const { deleteLink } = usePlugin(LinkToolbar);
+  const { deleteLink } = useExtension(LinkToolbar);
 
   return (
     <Components.LinkToolbar.Button

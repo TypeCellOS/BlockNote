@@ -3,7 +3,7 @@ import { flip, offset, shift } from "@floating-ui/react";
 import { ComponentProps, FC, useEffect, useMemo, useState } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
-import { usePluginState } from "../../hooks/usePlugin.js";
+import { useExtensionState } from "../../hooks/useExtension.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import { PositionPopover } from "../Popovers/PositionPopover.js";
 import { Thread } from "./Thread.js";
@@ -21,7 +21,7 @@ export const FloatingThreadController = (props: {
 
   const [open, setOpen] = useState(false);
 
-  const selectedThread = usePluginState(Comments, {
+  const selectedThread = useExtensionState(Comments, {
     editor,
     selector: (state) =>
       state.selectedThreadId
