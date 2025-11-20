@@ -1,16 +1,19 @@
 import { useBlockNoteEditor } from "@blocknote/react";
 import { FC } from "react";
-import { useStore } from "zustand";
+import { usePlugin, usePluginState } from "@blocknote/react";
 
-import { getAIExtension } from "../../AIExtension.js";
+import { AIExtension } from "../../AIExtension.js";
 import { AIMenu, AIMenuProps } from "./AIMenu.js";
 import { BlockPositioner } from "./BlockPositioner.js";
 
 export const AIMenuController = (props: { aiMenu?: FC<AIMenuProps> }) => {
   const editor = useBlockNoteEditor();
-  const ai = getAIExtension(editor);
+  const ai = usePlugin(AIExtension);
 
-  const aiMenuState = useStore(ai.store, (state) => state.aiMenuState);
+  const aiMenuState = usePluginState(AIExtension, {
+    editor,
+    selector: (state) => state.aiMenuState,
+  });
 
   const blockId = aiMenuState === "closed" ? undefined : aiMenuState.blockId;
 

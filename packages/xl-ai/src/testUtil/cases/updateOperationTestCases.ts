@@ -1,5 +1,5 @@
 import { BlockNoteEditor, getBlockInfo, getNodeById } from "@blocknote/core";
-import { createAIExtension } from "../../AIExtension.js";
+import { AIExtension } from "../../AIExtension.js";
 import { getEditorWithBlockFormatting } from "./editors/blockFormatting.js";
 import { getEditorWithFormattingAndMentions } from "./editors/formattingAndMentions.js";
 import { DocumentOperationTestCase } from "./index.js";
@@ -683,7 +683,7 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
           },
         ],
         schema,
-        extensions: [createAIExtension({})],
+        extensions: [AIExtension],
       });
       return editor;
     },
@@ -736,7 +736,7 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
           },
         ],
         schema,
-        extensions: [createAIExtension({})],
+        extensions: [AIExtension],
       });
       return editor;
     },
@@ -771,7 +771,7 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
           },
         ],
         schema,
-        extensions: [createAIExtension({})],
+        extensions: [AIExtension],
       });
       return editor;
     },

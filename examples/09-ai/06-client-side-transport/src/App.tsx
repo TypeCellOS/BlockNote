@@ -13,10 +13,10 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 import {
+  AIExtension,
   AIMenuController,
   AIToolbarButton,
   ClientSideTransport,
-  createAIExtension,
   fetchViaProxy,
   getAISlashMenuItems,
 } from "@blocknote/xl-ai";
@@ -47,16 +47,15 @@ export default function App() {
       ai: aiEn, // add default translations for the AI extension
     },
     // Register the AI extension
-    extensions: [
-      createAIExtension({
-        // The ClientSideTransport is used so the client makes calls directly to `streamText`
-        // (whereas normally in the Vercel AI SDK, the client makes calls to your server, which then calls these methods)
-        // (see https://github.com/vercel/ai/issues/5140 for background info)
-        transport: new ClientSideTransport({
-          model,
-        }),
+    extensions: [AIExtension],
+    ai: {
+      // The ClientSideTransport is used so the client makes calls directly to `streamText`
+      // (whereas normally in the Vercel AI SDK, the client makes calls to your server, which then calls these methods)
+      // (see https://github.com/vercel/ai/issues/5140 for background info)
+      transport: new ClientSideTransport({
+        model,
       }),
-    ],
+    },
     // We set some initial content for demo purposes
     initialContent: [
       {
