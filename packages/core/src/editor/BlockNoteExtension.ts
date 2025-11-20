@@ -34,9 +34,9 @@ export interface Extension<State = any, Key extends string = string> {
      */
     root: Document | ShadowRoot;
     /**
-     * An {@link AbortController} that will be aborted when the extension is destroyed.
+     * An {@link AbortSignal} that will be aborted when the extension is destroyed.
      */
-    abortController: AbortController;
+    signal: AbortSignal;
   }) => void | OnDestroy;
 
   /**

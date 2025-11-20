@@ -55,7 +55,7 @@ export class ExtensionManager {
           const unmountCallback = extension.init({
             dom: editor.prosemirrorView.dom,
             root: editor.prosemirrorView.root,
-            abortController,
+            signal: abortController.signal,
           });
           // If the extension returns a method to unmount it, we can register it to be called when the abort controller is aborted
           if (unmountCallback) {
