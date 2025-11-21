@@ -7,13 +7,13 @@ import { keymap } from "@tiptap/pm/keymap";
 import { Plugin } from "prosemirror-state";
 import { updateBlockTr } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { getBlockInfoFromTransaction } from "../../../api/getBlockInfoFromPos.js";
+import { DEFAULT_EXTENSIONS } from "../../../extensions/index.js";
 import { sortByDependencies } from "../../../util/topo-sort.js";
 import type {
   BlockNoteEditor,
   BlockNoteEditorOptions,
 } from "../../BlockNoteEditor.js";
 import type { Extension, ExtensionFactory } from "../../BlockNoteExtension.js";
-import { DEFAULT_EXTENSIONS } from "../../../extensions/index.js";
 import { getDefaultTiptapExtensions } from "./extensions.js";
 
 export class ExtensionManager {
@@ -103,7 +103,9 @@ export class ExtensionManager {
   }
 
   /**
-   * Register one or more extensions to the editor
+   * Register one or more extensions to the editor after the editor is initialized.
+   *
+   * This allows users to switch on & off extensions "at runtime".
    */
   public registerExtension(
     extension:
@@ -129,9 +131,12 @@ export class ExtensionManager {
     const pluginsToAdd = new Set<Plugin>();
     for (const extension of registeredExtensions) {
       if (extension?.tiptapExtensions) {
+        // This is necessary because this can only switch out prosemirror plugins at runtime,
+        // it can't switch out Tiptap extensions since that can have more widespread effects (since a Tiptap extension can even add/remove to the schema).
+
         // eslint-disable-next-line no-console
         console.warn(
-          `Extension ${extension.key} has tiptap extensions, but they will not be added to the editor. Please separate the extension into multiple extensions if you want to add them, or re-initialize the editor.`,
+          `Extension ${extension.key} has tiptap extensions, but these cannot be changed after initializing the editor. Please separate the extension into multiple extensions if you want to add them, or re-initialize the editor.`,
           extension,
         );
       }
