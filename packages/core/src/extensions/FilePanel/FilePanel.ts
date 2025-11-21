@@ -14,19 +14,25 @@ export const FilePanel = createExtension((editor) => {
     });
   }
 
-  // reset the menu when the document changes
-  editor.onChange(
-    closeMenu,
-    // don't trigger the callback if the changes are caused by a remote user
-    false,
-  );
-
-  // reset the menu when the selection changes
-  editor.onSelectionChange(closeMenu);
-
   return {
     key: "filePanel",
     store,
+    mount({ signal }) {
+      // reset the menu when the document changes
+      const unsubscribeOnChange = editor.onChange(
+        closeMenu,
+        // don't trigger the callback if the changes are caused by a remote user
+        false,
+      );
+
+      // reset the menu when the selection changes
+      const unsubscribeOnSelectionChange = editor.onSelectionChange(closeMenu);
+
+      signal.addEventListener("abort", () => {
+        unsubscribeOnChange();
+        unsubscribeOnSelectionChange();
+      });
+    },
     closeMenu,
     showMenu(blockId: string) {
       store.setState({
