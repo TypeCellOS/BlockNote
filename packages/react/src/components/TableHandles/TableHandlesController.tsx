@@ -38,7 +38,7 @@ export const TableHandlesController = <
       return undefined;
     }
 
-    // TODO use the locatieon API for this
+    // TODO use the location API for this
     const nodePosInfo = getNodeById(
       state.block.id,
       editor.prosemirrorState.doc,
@@ -72,7 +72,7 @@ export const TableHandlesController = <
         colIndex={0}
         rowIndex={state.rowIndex}
         useFloatingOptions={{
-          open: state.rowIndex !== undefined,
+          open: state.show,
           placement: "left",
           middleware: [offset(-10)],
         }}
@@ -91,7 +91,7 @@ export const TableHandlesController = <
         colIndex={state.colIndex}
         rowIndex={0}
         useFloatingOptions={{
-          open: state.colIndex !== undefined,
+          open: state.show,
           placement: "top",
           middleware: [offset(-12)],
         }}
@@ -110,7 +110,7 @@ export const TableHandlesController = <
         colIndex={state.colIndex}
         rowIndex={state.rowIndex}
         useFloatingOptions={{
-          open: true,
+          open: state.show,
           placement: "top-end",
           middleware: [offset({ mainAxis: -15, crossAxis: -1 })],
         }}
@@ -125,7 +125,7 @@ export const TableHandlesController = <
       <GenericPopover
         reference={tableElement}
         useFloatingOptions={{
-          open: state.showAddOrRemoveRowsButton,
+          open: state.show && state.showAddOrRemoveRowsButton,
           placement: "bottom",
           middleware: [
             size({
@@ -148,7 +148,7 @@ export const TableHandlesController = <
       <GenericPopover
         reference={tableElement}
         useFloatingOptions={{
-          open: state.showAddOrRemoveColumnsButton,
+          open: state.show && state.showAddOrRemoveColumnsButton,
           placement: "right",
           middleware: [
             size({
