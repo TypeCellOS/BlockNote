@@ -1,6 +1,6 @@
 import { Store, StoreOptions } from "@tanstack/store";
 import { type AnyExtension } from "@tiptap/core";
-import type { Plugin } from "prosemirror-state";
+import type { Plugin as ProsemirrorPlugin } from "prosemirror-state";
 import type { PartialBlockNoDefaults } from "../schema/index.js";
 import type {
   BlockNoteEditor,
@@ -24,7 +24,7 @@ export interface Extension<State = any, Key extends string = string> {
   /**
    * Triggered when the extension is mounted to the editor.
    */
-  readonly init?: (ctx: {
+  readonly mount?: (ctx: {
     /**
      * The DOM element that the editor is mounted to.
      */
@@ -85,7 +85,7 @@ export interface Extension<State = any, Key extends string = string> {
   /**
    * Add additional prosemirror plugins to the editor.
    */
-  readonly plugins?: ReadonlyArray<Plugin>;
+  readonly prosemirrorPlugins?: ReadonlyArray<ProsemirrorPlugin>;
 
   /**
    * Add additional tiptap extensions to the editor.

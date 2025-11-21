@@ -49,10 +49,10 @@ export class ExtensionManager {
     editor.onMount(() => {
       for (const extension of this.extensions) {
         // If the extension has an init function, we can initialize it, otherwise, it is already added to the editor
-        if (extension.init) {
+        if (extension.mount) {
           // We create an abort controller for each extension, so that we can abort the extension when the editor is unmounted
           const abortController = new AbortController();
-          const unmountCallback = extension.init({
+          const unmountCallback = extension.mount({
             dom: editor.prosemirrorView.dom,
             root: editor.prosemirrorView.root,
             signal: abortController.signal,
@@ -334,7 +334,7 @@ export class ExtensionManager {
    */
   private getProsemirrorPluginsFromExtension(extension: Extension): Plugin[] {
     if (
-      !extension.plugins?.length &&
+      !extension.prosemirrorPlugins?.length &&
       !extension.keyboardShortcuts?.length &&
       !extension.inputRules?.length
     ) {
@@ -342,7 +342,7 @@ export class ExtensionManager {
       return [];
     }
 
-    const plugins: Plugin[] = [...(extension.plugins ?? [])];
+    const plugins: Plugin[] = [...(extension.prosemirrorPlugins ?? [])];
 
     this.extensionPlugins.set(extension, plugins);
 

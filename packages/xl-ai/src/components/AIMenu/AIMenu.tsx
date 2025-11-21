@@ -2,8 +2,8 @@ import { BlockNoteEditor } from "@blocknote/core";
 import {
   useBlockNoteEditor,
   useComponentsContext,
-  usePlugin,
-  usePluginState,
+  useExtension,
+  useExtensionState,
 } from "@blocknote/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { RiSparkling2Fill } from "react-icons/ri";
@@ -37,9 +37,9 @@ export const AIMenu = (props: AIMenuProps) => {
 
   const Components = useComponentsContext()!;
 
-  const ai = usePlugin(AIExtension);
+  const ai = useExtension(AIExtension);
 
-  const aiResponseStatus = usePluginState(AIExtension, {
+  const aiResponseStatus = useExtensionState(AIExtension, {
     selector: (state) =>
       state.aiMenuState !== "closed" ? state.aiMenuState.status : "closed",
   });

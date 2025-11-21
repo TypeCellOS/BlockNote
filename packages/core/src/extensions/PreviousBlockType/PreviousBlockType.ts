@@ -31,7 +31,7 @@ export const PreviousBlockType = createExtension((_editor, options) => {
   let timeout: ReturnType<typeof setTimeout>;
   return {
     key: "previousBlockType",
-    plugins: [
+    prosemirrorPlugins: [
       new Plugin({
         key: PLUGIN_KEY,
         view(_editorView) {

@@ -26,7 +26,7 @@ export const ShowSelection = createExtension(
     return {
       key: "showSelection",
       store,
-      plugins: [
+      prosemirrorPlugins: [
         new Plugin({
           key: PLUGIN_KEY,
           props: {

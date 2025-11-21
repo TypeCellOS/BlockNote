@@ -14,7 +14,10 @@ import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
 import { useDictionary } from "../../../../i18n/dictionary.js";
 import { ColorPicker } from "../../../ColorPicker/ColorPicker.js";
 import { ReactNode, useMemo } from "react";
-import { usePlugin, usePluginState } from "../../../../hooks/usePlugin.js";
+import {
+  useExtension,
+  useExtensionState,
+} from "../../../../hooks/useExtension.js";
 
 export const ColorPickerButton = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
@@ -31,11 +34,11 @@ export const ColorPickerButton = <
     S
   >();
 
-  const tableHandles = usePlugin(TableHandles);
-  const block = usePluginState(TableHandles, {
+  const tableHandles = useExtension(TableHandles);
+  const block = useExtensionState(TableHandles, {
     selector: (state) => state?.block,
   });
-  const index = usePluginState(TableHandles, {
+  const index = useExtensionState(TableHandles, {
     selector: (state) =>
       props.orientation === "column" ? state?.colIndex : state?.rowIndex,
   });

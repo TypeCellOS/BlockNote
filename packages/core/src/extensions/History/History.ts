@@ -8,7 +8,7 @@ export const History = createExtension((_editor, options) => {
 
   return {
     key: "history",
-    plugins: [history()],
+    prosemirrorPlugins: [history()],
     undoCommand: undo,
     redoCommand: redo,
   } as const;

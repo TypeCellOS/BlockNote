@@ -123,7 +123,7 @@ export const YCursor = createExtension((_editor, options) => {
 
   return {
     key: "yCursor",
-    plugins: [
+    prosemirrorPlugins: [
       yCursorPlugin(collaboration.provider.awareness, {
         selectionBuilder: defaultSelectionBuilder,
         cursorBuilder(user: CollaborationUser, clientID: number) {

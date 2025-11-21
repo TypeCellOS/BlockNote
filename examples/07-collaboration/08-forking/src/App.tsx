@@ -1,10 +1,10 @@
 import "@blocknote/core/fonts/inter.css";
-import {  } from "@blocknote/core";
+import {} from "@blocknote/core";
 import { ForkYDoc } from "@blocknote/core/extensions";
 import {
   useCreateBlockNote,
-  usePlugin,
-  usePluginState,
+  useExtension,
+  useExtensionState,
 } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
@@ -34,8 +34,8 @@ export default function App() {
       },
     },
   });
-  const forkYDocPlugin = usePlugin(ForkYDoc, { editor });
-  const isForked = usePluginState(ForkYDoc, {
+  const forkYDocPlugin = useExtension(ForkYDoc, { editor });
+  const isForked = useExtensionState(ForkYDoc, {
     editor,
     selector: (state) => state.isForked,
   });

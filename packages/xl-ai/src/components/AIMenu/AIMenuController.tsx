@@ -1,6 +1,6 @@
 import { useBlockNoteEditor } from "@blocknote/react";
 import { FC } from "react";
-import { usePlugin, usePluginState } from "@blocknote/react";
+import { useExtension, useExtensionState } from "@blocknote/react";
 
 import { AIExtension } from "../../AIExtension.js";
 import { AIMenu, AIMenuProps } from "./AIMenu.js";
@@ -8,9 +8,9 @@ import { BlockPositioner } from "./BlockPositioner.js";
 
 export const AIMenuController = (props: { aiMenu?: FC<AIMenuProps> }) => {
   const editor = useBlockNoteEditor();
-  const ai = usePlugin(AIExtension);
+  const ai = useExtension(AIExtension);
 
-  const aiMenuState = usePluginState(AIExtension, {
+  const aiMenuState = useExtensionState(AIExtension, {
     editor,
     selector: (state) => state.aiMenuState,
   });

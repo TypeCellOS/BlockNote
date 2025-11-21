@@ -4,7 +4,7 @@ import type { History } from "../../extensions/History/History.js";
 import { BlockNoteEditor } from "../BlockNoteEditor.js";
 
 export class StateManager {
-  constructor(private editor: BlockNoteEditor) {}
+  constructor(private editor: BlockNoteEditor<any, any, any>) {}
 
   /**
    * Stores the currently active transaction, which is the accumulated transaction from all {@link dispatch} calls during a {@link transact} calls

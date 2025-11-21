@@ -8,13 +8,13 @@ import {
 } from "@blocknote/core";
 import { FormattingToolbar as FormattingToolbarExtension } from "@blocknote/core/extensions";
 import { flip, offset, shift } from "@floating-ui/react";
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../hooks/useEditorState.js";
-import { usePluginState } from "../../hooks/usePlugin.js";
-import { PositionPopover } from "../Popovers/PositionPopover.js";
+import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
+import { PositionPopover } from "../Popovers/PositionPopover.js";
 import { FormattingToolbar } from "./FormattingToolbar.js";
 import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
 
@@ -42,21 +42,18 @@ export const FormattingToolbarController = (props: {
     InlineContentSchema,
     StyleSchema
   >();
-
-  const [open, setOpen] = useState(false);
-
-  const show = usePluginState(FormattingToolbarExtension, {
+  const formattingToolbar = useExtension(FormattingToolbarExtension, {
+    editor,
+  });
+  const show = useExtensionState(FormattingToolbarExtension, {
     editor,
     selector: (state) => state.show,
   });
-  useEffect(() => {
-    setOpen(show);
-  }, [show]);
 
   const position = useEditorState({
     editor,
     selector: ({ editor }) =>
-      show
+      formattingToolbar.store.state.show
         ? {
             from: editor.prosemirrorState.selection.from,
             to: editor.prosemirrorState.selection.to,
@@ -84,10 +81,12 @@ export const FormattingToolbarController = (props: {
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
       useFloatingOptions: {
-        open,
+        open: show,
         // Needed as hooks like `useDismiss` call `onOpenChange` to change the
         // open state.
-        onOpenChange: setOpen,
+        onOpenChange: (open) => {
+          formattingToolbar.store.setState({ show: open });
+        },
         placement,
         middleware: [offset(10), shift(), flip()],
       },
@@ -96,15 +95,18 @@ export const FormattingToolbarController = (props: {
           zIndex: 40,
         },
       },
-      ...props.floatingUIOptions,
     }),
-    [open, placement, props.floatingUIOptions],
+    [formattingToolbar.store, show, placement],
   );
 
   const Component = props.formattingToolbar || FormattingToolbar;
 
   return (
-    <PositionPopover position={position} {...floatingUIOptions}>
+    <PositionPopover
+      position={position}
+      {...floatingUIOptions}
+      {...props.floatingUIOptions}
+    >
       {show && <Component />}
     </PositionPopover>
   );

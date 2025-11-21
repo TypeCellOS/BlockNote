@@ -15,7 +15,7 @@ export const BlockChange = createExtension((_editor, _options) => {
   }) => boolean | void)[] = [];
   return {
     key: "blockChange",
-    plugins: [
+    prosemirrorPlugins: [
       new Plugin({
         key: new PluginKey("blockChange"),
         filterTransaction: (tr) => {

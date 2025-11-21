@@ -4,7 +4,7 @@ import { MdArrowDropDown } from "react-icons/md";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
-import { usePlugin } from "../../hooks/usePlugin.js";
+import { useExtension } from "../../hooks/useExtension.js";
 import { TableCellButtonProps } from "./TableCellButtonProps.js";
 import { TableCellMenu } from "./TableCellMenu/TableCellMenu.js";
 
@@ -19,7 +19,7 @@ export const TableCellButton = (
 
   const editor = useBlockNoteEditor<any, any, any>();
 
-  const tableHandles = usePlugin(TableHandles);
+  const tableHandles = useExtension(TableHandles);
 
   const Component = props.tableCellMenu || TableCellMenu;
 

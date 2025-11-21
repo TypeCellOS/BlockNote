@@ -15,7 +15,7 @@ import {
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
-import { usePlugin } from "../../hooks/usePlugin.js";
+import { useExtension } from "../../hooks/useExtension.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { CommentEditor } from "./CommentEditor.js";
 import { EmojiPicker } from "./EmojiPicker.js";
@@ -43,7 +43,7 @@ export const Comment = ({
 }: CommentProps) => {
   // TODO: if REST API becomes popular, all interactions (click handlers) should implement a loading state and error state
   // (or optimistic local updates)
-  const comments = usePlugin(Comments);
+  const comments = useExtension(Comments);
 
   const dict = useDictionary();
 

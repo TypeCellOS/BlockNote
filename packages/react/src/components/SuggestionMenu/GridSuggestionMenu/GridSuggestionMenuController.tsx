@@ -4,7 +4,10 @@ import { flip, offset, shift, size, VirtualElement } from "@floating-ui/react";
 import { FC, useEffect, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
-import { usePlugin, usePluginState } from "../../../hooks/usePlugin.js";
+import {
+  useExtension,
+  useExtensionState,
+} from "../../../hooks/useExtension.js";
 import { FloatingUIOptions } from "../../Popovers/FloatingUIOptions.js";
 import { GenericPopover } from "../../Popovers/GenericPopover.js";
 import { getDefaultReactEmojiPickerItems } from "./getDefaultReactEmojiPickerItems.js";
@@ -84,7 +87,7 @@ export function GridSuggestionMenuController<
     );
   }, [editor, getItems])!;
 
-  const suggestionMenu = usePlugin(SuggestionMenu);
+  const suggestionMenu = useExtension(SuggestionMenu);
 
   useEffect(() => {
     suggestionMenu.addTriggerCharacter(triggerCharacter);
@@ -95,8 +98,8 @@ export function GridSuggestionMenuController<
     triggerCharacter,
   ]);
 
-  const state = usePluginState(SuggestionMenu);
-  const referencePos = usePluginState(SuggestionMenu, {
+  const state = useExtensionState(SuggestionMenu);
+  const referencePos = useExtensionState(SuggestionMenu, {
     selector: (state) => state?.referencePos || new DOMRect(),
   });
 
@@ -132,7 +135,7 @@ export function GridSuggestionMenuController<
       },
       elementProps: {
         // Prevents editor blurring when clicking the scroll bar.
-        onMouseDown: (event) => event.preventDefault(),
+        onMouseDownCapture: (event) => event.preventDefault(),
         style: {
           zIndex: 70,
         },

@@ -20,7 +20,7 @@ export const NodeSelectionKeyboard = createExtension(
   () =>
     ({
       key: "nodeSelectionKeyboard",
-      plugins: [
+      prosemirrorPlugins: [
         new Plugin({
           key: PLUGIN_KEY,
           props: {

@@ -4,7 +4,7 @@ import { createExtension } from "../../editor/BlockNoteExtension.js";
 export const DropCursor = createExtension((editor, options) => {
   return {
     key: "dropCursor",
-    plugins: [
+    prosemirrorPlugins: [
       (options.dropCursor ?? dropCursor)({
         width: 5,
         color: "#ddeeff",

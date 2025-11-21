@@ -144,7 +144,7 @@ export const Comments = createExtension(
     return {
       key: "comments",
       store,
-      plugins: [
+      prosemirrorPlugins: [
         new Plugin<CommentsPluginState>({
           key: PLUGIN_KEY,
           state: {

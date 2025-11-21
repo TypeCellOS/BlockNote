@@ -10,7 +10,7 @@ export const Placeholder = createExtension((editor, options) => {
   const placeholders = options.placeholders;
   return {
     key: "placeholder",
-    plugins: [
+    prosemirrorPlugins: [
       new Plugin({
         key: PLUGIN_KEY,
         view: (view) => {

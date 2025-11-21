@@ -10,10 +10,10 @@ export const FormattingToolbar = createExtension((editor) => {
   return {
     key: "formattingToolbar",
     store: store,
-    init({ dom }) {
+    mount({ dom, signal }) {
       let preventShowWhileMouseDown = false;
 
-      editor.onChange((editor) => {
+      const unsubscribeOnChange = editor.onChange((editor) => {
         // Don't show in code block.
         if (
           editor.prosemirrorState.selection.$from.parent.type.spec.code ||
@@ -27,11 +27,13 @@ export const FormattingToolbar = createExtension((editor) => {
           store.setState({ show: !editor.prosemirrorState.selection.empty });
         }
       });
-      editor.onSelectionChange((editor) => {
-        if (!preventShowWhileMouseDown) {
-          store.setState({ show: !editor.prosemirrorState.selection.empty });
-        }
-      });
+      const unsubscribeOnSelectionChange = editor.onSelectionChange(
+        (editor) => {
+          if (!preventShowWhileMouseDown) {
+            store.setState({ show: !editor.prosemirrorState.selection.empty });
+          }
+        },
+      );
 
       function onMouseDownHandler() {
         preventShowWhileMouseDown = true;
@@ -53,13 +55,13 @@ export const FormattingToolbar = createExtension((editor) => {
         store.setState({ show: !editor.prosemirrorState.selection.empty });
       }
 
-      dom.addEventListener("mousedown", onMouseDownHandler);
-      dom.addEventListener("mouseup", onMouseUpHandler);
+      dom.addEventListener("mousedown", onMouseDownHandler, { signal });
+      dom.addEventListener("mouseup", onMouseUpHandler, { signal });
 
-      return () => {
-        dom.removeEventListener("mousedown", onMouseDownHandler);
-        dom.removeEventListener("mouseup", onMouseUpHandler);
-      };
+      signal.addEventListener("abort", () => {
+        unsubscribeOnChange();
+        unsubscribeOnSelectionChange();
+      });
     },
   } as const;
 });

@@ -25,7 +25,7 @@ export const SchemaMigration = createExtension((_editor, options) => {
 
   return {
     key: "schemaMigration",
-    plugins: [
+    prosemirrorPlugins: [
       new Plugin({
         key: pluginKey,
         appendTransaction: (transactions, _oldState, newState) => {

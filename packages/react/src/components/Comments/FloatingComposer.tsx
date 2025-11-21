@@ -3,7 +3,7 @@ import { Comments } from "@blocknote/core/extensions";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
-import { usePlugin } from "../../hooks/usePlugin.js";
+import { useExtension } from "../../hooks/useExtension.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { CommentEditor } from "./CommentEditor.js";
 import { defaultCommentEditorSchema } from "./defaultCommentEditorSchema.js";
@@ -14,7 +14,7 @@ import { defaultCommentEditorSchema } from "./defaultCommentEditorSchema.js";
  * It's used when the user highlights a parts of the document to create a new comment / thread.
  */
 export function FloatingComposer() {
-  const comments = usePlugin(Comments);
+  const comments = useExtension(Comments);
 
   const Components = useComponentsContext()!;
   const dict = useDictionary();

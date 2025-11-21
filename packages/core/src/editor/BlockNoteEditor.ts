@@ -1,5 +1,4 @@
 import {
-  AnyExtension as AnyTiptapExtension,
   createDocument,
   EditorOptions,
   FocusPosition,
@@ -7,11 +6,11 @@ import {
   Editor as TiptapEditor,
 } from "@tiptap/core";
 import { type Command, type Plugin, type Transaction } from "@tiptap/pm/state";
-
 import { Node, Schema } from "prosemirror-model";
 import * as Y from "yjs";
 
 import type { BlocksChanged } from "../api/getBlocksChangedByTransaction.js";
+import { blockToNode } from "../api/nodeConversions/blockToNode.js";
 import {
   Block,
   BlockNoteSchema,
@@ -37,9 +36,11 @@ import type {
   StyleSchema,
   StyleSpecs,
 } from "../schema/index.js";
+import "../style.css";
 import { mergeCSSClasses } from "../util/browser.js";
 import { EventEmitter } from "../util/EventEmitter.js";
 import type { NoInfer } from "../util/typescript.js";
+import { Extension, ExtensionFactory } from "./BlockNoteExtension.js";
 import type { TextCursorPosition } from "./cursorPositionTypes.js";
 import {
   BlockManager,
@@ -53,10 +54,6 @@ import {
 } from "./managers/index.js";
 import type { Selection } from "./selectionTypes.js";
 import { transformPasted } from "./transformPasted.js";
-
-import { blockToNode } from "../api/nodeConversions/blockToNode.js";
-import "../style.css";
-import { Extension, ExtensionFactory } from "./BlockNoteExtension.js";
 
 export type BlockCache<
   BSchema extends BlockSchema = any,
@@ -375,8 +372,6 @@ export class BlockNoteEditor<
    */
   public extensions = new Map<string, Extension>();
 
-  public tiptapExtensions: AnyTiptapExtension[] = [];
-
   public readonly _tiptapEditor: TiptapEditor & {
     contentComponent: any;
   };
@@ -555,7 +550,6 @@ export class BlockNoteEditor<
 
     const tiptapExtensions = this._extensionManager.getTiptapExtensions();
 
-    this.tiptapExtensions = tiptapExtensions;
     this.extensions = this._extensionManager.getExtensions();
 
     const tiptapOptions: EditorOptions = {
@@ -760,7 +754,7 @@ export class BlockNoteEditor<
       return;
     }
 
-    this._tiptapEditor.mount({ mount: element } as any);
+    this._tiptapEditor.mount({ mount: element });
   };
 
   /**

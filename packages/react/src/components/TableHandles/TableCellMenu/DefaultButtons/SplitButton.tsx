@@ -1,28 +1,27 @@
-import {
-  getColspan,
-  getRowspan,
-  isTableCell,
-} from "@blocknote/core";
+import { getColspan, getRowspan, isTableCell } from "@blocknote/core";
 import { TableHandles } from "@blocknote/core/extensions";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
 import { useDictionary } from "../../../../i18n/dictionary.js";
-import { usePlugin, usePluginState } from "../../../../hooks/usePlugin.js";
+import {
+  useExtension,
+  useExtensionState,
+} from "../../../../hooks/useExtension.js";
 
 export const SplitButton = () => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
   const editor = useBlockNoteEditor<any, any, any>();
 
-  const tableHandles = usePlugin(TableHandles);
-  const block = usePluginState(TableHandles, {
+  const tableHandles = useExtension(TableHandles);
+  const block = useExtensionState(TableHandles, {
     selector: (state) => state?.block,
   });
-  const colIndex = usePluginState(TableHandles, {
+  const colIndex = useExtensionState(TableHandles, {
     selector: (state) => state?.colIndex,
   });
-  const rowIndex = usePluginState(TableHandles, {
+  const rowIndex = useExtensionState(TableHandles, {
     selector: (state) => state?.rowIndex,
   });
 

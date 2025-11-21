@@ -124,7 +124,7 @@ export * from "./hooks/useSelectedBlocks.js";
 export * from "./hooks/useUIElementPositioning.js";
 export * from "./hooks/useUIPluginState.js";
 export * from "./hooks/useUploadLoading.js";
-export * from "./hooks/usePlugin.js";
+export * from "./hooks/useExtension.js";
 
 export * from "./schema/ReactBlockSpec.js";
 export * from "./schema/ReactInlineContentSpec.js";
