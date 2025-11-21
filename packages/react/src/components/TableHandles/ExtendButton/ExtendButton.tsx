@@ -1,12 +1,8 @@
 import {
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
   EMPTY_CELL_HEIGHT,
   EMPTY_CELL_WIDTH,
-  InlineContentSchema,
   mergeCSSClasses,
   PartialTableContent,
-  StyleSchema,
 } from "@blocknote/core";
 import { TableHandles } from "@blocknote/core/extensions";
 import {
@@ -42,10 +38,7 @@ const marginRound = (num: number, margin = 0.3) => {
   }
 };
 
-export const ExtendButton = <
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema,
->(
+export const ExtendButton = (
   props: ExtendButtonProps & { children?: ReactNode },
 ) => {
   const Components = useComponentsContext()!;
@@ -63,8 +56,8 @@ export const ExtendButton = <
 
   const [editingState, setEditingState] = useState<
     | {
-        originalContent: PartialTableContent<I, S>;
-        originalCroppedContent: PartialTableContent<I, S>;
+        originalContent: PartialTableContent<any, any>;
+        originalCroppedContent: PartialTableContent<any, any>;
         startPos: number;
       }
     | undefined
@@ -74,6 +67,7 @@ export const ExtendButton = <
   const mouseDownHandler = useCallback(
     (event: ReactMouseEvent) => {
       tableHandles.freezeHandles();
+      props.hideOtherElements(true);
 
       if (!block) {
         return;
@@ -97,7 +91,7 @@ export const ExtendButton = <
       // preventdefault, otherwise text in the table might be selected
       event.preventDefault();
     },
-    [block, props.orientation, tableHandles],
+    [block, props, tableHandles],
   );
 
   const onClickHandler = useCallback(() => {
@@ -212,6 +206,7 @@ export const ExtendButton = <
   // to add any, imitating a click.
   useEffect(() => {
     const callback = () => {
+      props.hideOtherElements(false);
       tableHandles.unfreezeHandles();
       setEditingState(undefined);
     };
@@ -223,7 +218,7 @@ export const ExtendButton = <
     return () => {
       window.removeEventListener("mouseup", callback);
     };
-  }, [editingState, tableHandles]);
+  }, [editingState, props, tableHandles]);
 
   if (!editor.isEditable) {
     return null;

@@ -37,8 +37,10 @@ export const TableCellButton = (
       onOpenChange={(open: boolean) => {
         if (open) {
           tableHandles.freezeHandles();
+          props.hideOtherElements(true);
         } else {
           tableHandles.unfreezeHandles();
+          props.hideOtherElements(false);
           editor.focus();
         }
       }}

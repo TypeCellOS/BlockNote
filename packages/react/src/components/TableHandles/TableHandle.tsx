@@ -58,10 +58,10 @@ export const TableHandle = (
       onOpenChange={(open: boolean) => {
         if (open) {
           tableHandles.freezeHandles();
-          // tableHandles.hideOtherSide();
+          props.hideOtherElements(true);
         } else {
           tableHandles.unfreezeHandles();
-          // props.showOtherSide();
+          props.hideOtherElements(false);
           editor.focus();
         }
       }}
@@ -77,6 +77,7 @@ export const TableHandle = (
           draggable={isDraggable}
           onDragStart={(e) => {
             setIsDragging(true);
+            props.hideOtherElements(true);
             if (props.orientation === "column") {
               tableHandles.colDragStart(e);
             } else {
@@ -85,6 +86,7 @@ export const TableHandle = (
           }}
           onDragEnd={() => {
             tableHandles.dragEnd();
+            props.hideOtherElements(false);
             setIsDragging(false);
           }}
           style={

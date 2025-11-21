@@ -7,9 +7,9 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import { TableHandles } from "@blocknote/core/extensions";
-import { FC, useMemo } from "react";
+import { FC, useMemo, useState } from "react";
 
-import { offset, size } from "@floating-ui/react";
+import { offset, size, VirtualElement } from "@floating-ui/react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { ExtendButton } from "./ExtendButton/ExtendButton.js";
 import { ExtendButtonProps } from "./ExtendButton/ExtendButtonProps.js";
@@ -17,7 +17,6 @@ import { TableHandle } from "./TableHandle.js";
 import { TableCellButton } from "./TableCellButton.js";
 import { TableCellButtonProps } from "./TableCellButtonProps.js";
 import { useExtensionState } from "../../hooks/useExtension.js";
-import { TableCellPopover } from "../Popovers/TableCellPopover.js";
 import { TableHandleProps } from "./TableHandleProps.js";
 import { GenericPopover } from "../Popovers/GenericPopover.js";
 
@@ -31,11 +30,24 @@ export const TableHandlesController = <
 }) => {
   const editor = useBlockNoteEditor<BlockSchema, I, S>();
 
+  const [onlyShownElement, setOnlyShownElement] = useState<
+    | "rowTableHandle"
+    | "columnTableHandle"
+    | "tableCellHandle"
+    | "extendRowsButton"
+    | "extendColumnsButton"
+    | undefined
+  >();
+
   const state = useExtensionState(TableHandles);
 
-  const tableElement = useMemo(() => {
-    if (state === undefined) {
-      return undefined;
+  const elements = useMemo(() => {
+    if (
+      state === undefined ||
+      state.rowIndex === undefined ||
+      state.colIndex === undefined
+    ) {
+      return {};
     }
 
     // TODO use the location API for this
@@ -44,18 +56,67 @@ export const TableHandlesController = <
       editor.prosemirrorState.doc,
     );
     if (!nodePosInfo) {
-      return undefined;
+      return {};
     }
 
     const tableBeforePos = nodePosInfo.posBeforeNode + 1;
 
-    const { node } = editor.prosemirrorView.domAtPos(tableBeforePos + 1);
-    if (!(node instanceof Element)) {
+    const tableElement = editor.prosemirrorView.domAtPos(
+      tableBeforePos + 1,
+    ).node;
+    if (!(tableElement instanceof Element)) {
       return undefined;
     }
 
-    return node;
-  }, [state, editor]);
+    const rowBeforePos = editor.prosemirrorState.doc
+      .resolve(tableBeforePos + 1)
+      .posAtIndex(state.rowIndex);
+    const cellBeforePos = editor.prosemirrorState.doc
+      .resolve(rowBeforePos + 1)
+      .posAtIndex(state.colIndex);
+
+    const cellElement = editor.prosemirrorView.domAtPos(cellBeforePos + 1).node;
+    if (!(cellElement instanceof Element)) {
+      return undefined;
+    }
+
+    const tableBoundingRect = tableElement.getBoundingClientRect();
+    const cellBoundingRect = cellElement.getBoundingClientRect();
+
+    const rowVirtualElement: VirtualElement = {
+      getBoundingClientRect: () =>
+        new DOMRect(
+          tableBoundingRect.x,
+          state.draggingState &&
+          state.draggingState.draggedCellOrientation === "row"
+            ? state.draggingState.mousePos - cellBoundingRect.height / 2
+            : cellBoundingRect.y,
+          tableBoundingRect.width,
+          cellBoundingRect.height,
+        ),
+      contextElement: tableElement,
+    };
+    const columnVirtualElement: VirtualElement = {
+      getBoundingClientRect: () =>
+        new DOMRect(
+          state.draggingState &&
+          state.draggingState.draggedCellOrientation === "col"
+            ? state.draggingState.mousePos - cellBoundingRect.width / 2
+            : cellBoundingRect.x,
+          tableBoundingRect.y,
+          cellBoundingRect.width,
+          tableBoundingRect.height,
+        ),
+      contextElement: tableElement,
+    };
+
+    return {
+      tableElement,
+      cellElement,
+      rowVirtualElement,
+      columnVirtualElement,
+    };
+  }, [editor, state]);
 
   if (!state) {
     return null;
@@ -67,12 +128,13 @@ export const TableHandlesController = <
 
   return (
     <>
-      <TableCellPopover
-        blockId={state.block.id}
-        colIndex={0}
-        rowIndex={state.rowIndex}
+      <GenericPopover
+        reference={elements?.rowVirtualElement}
         useFloatingOptions={{
-          open: state.show,
+          open:
+            state.show &&
+            state.rowIndex !== undefined &&
+            (!onlyShownElement || onlyShownElement === "rowTableHandle"),
           placement: "left",
           middleware: [offset(-10)],
         }}
@@ -82,16 +144,24 @@ export const TableHandlesController = <
           },
         }}
       >
-        {state.rowIndex !== undefined && (
-          <TableHandleComponent orientation="row" />
-        )}
-      </TableCellPopover>
-      <TableCellPopover
-        blockId={state.block.id}
-        colIndex={state.colIndex}
-        rowIndex={0}
+        {state.show &&
+          state.rowIndex !== undefined &&
+          (!onlyShownElement || onlyShownElement === "rowTableHandle") && (
+            <TableHandleComponent
+              orientation="row"
+              hideOtherElements={(hide) =>
+                setOnlyShownElement(hide ? "rowTableHandle" : undefined)
+              }
+            />
+          )}
+      </GenericPopover>
+      <GenericPopover
+        reference={elements?.columnVirtualElement}
         useFloatingOptions={{
-          open: state.show,
+          open:
+            state.show &&
+            state.colIndex !== undefined &&
+            (!onlyShownElement || onlyShownElement === "columnTableHandle"),
           placement: "top",
           middleware: [offset(-12)],
         }}
@@ -101,16 +171,25 @@ export const TableHandlesController = <
           },
         }}
       >
-        {state.colIndex !== undefined && (
-          <TableHandleComponent orientation="column" />
-        )}
-      </TableCellPopover>
-      <TableCellPopover
-        blockId={state.block.id}
-        colIndex={state.colIndex}
-        rowIndex={state.rowIndex}
+        {state.show &&
+          state.colIndex !== undefined &&
+          (!onlyShownElement || onlyShownElement === "columnTableHandle") && (
+            <TableHandleComponent
+              orientation="column"
+              hideOtherElements={(hide) =>
+                setOnlyShownElement(hide ? "columnTableHandle" : undefined)
+              }
+            />
+          )}
+      </GenericPopover>
+      <GenericPopover
+        reference={elements?.cellElement}
         useFloatingOptions={{
-          open: state.show,
+          open:
+            state.show &&
+            state.rowIndex !== undefined &&
+            state.colIndex !== undefined &&
+            (!onlyShownElement || onlyShownElement === "tableCellHandle"),
           placement: "top-end",
           middleware: [offset({ mainAxis: -15, crossAxis: -1 })],
         }}
@@ -120,12 +199,24 @@ export const TableHandlesController = <
           },
         }}
       >
-        <TableCellHandleComponent />
-      </TableCellPopover>
+        {state.show &&
+          state.rowIndex !== undefined &&
+          state.colIndex !== undefined &&
+          (!onlyShownElement || onlyShownElement === "tableCellHandle") && (
+            <TableCellHandleComponent
+              hideOtherElements={(hide) =>
+                setOnlyShownElement(hide ? "tableCellHandle" : undefined)
+              }
+            />
+          )}
+      </GenericPopover>
       <GenericPopover
-        reference={tableElement}
+        reference={elements?.tableElement}
         useFloatingOptions={{
-          open: state.show && state.showAddOrRemoveRowsButton,
+          open:
+            state.show &&
+            state.showAddOrRemoveRowsButton &&
+            (!onlyShownElement || onlyShownElement === "extendRowsButton"),
           placement: "bottom",
           middleware: [
             size({
@@ -143,12 +234,24 @@ export const TableHandlesController = <
           },
         }}
       >
-        <ExtendButtonComponent orientation="addOrRemoveRows" />
+        {state.show &&
+          state.showAddOrRemoveRowsButton &&
+          (!onlyShownElement || onlyShownElement === "extendRowsButton") && (
+            <ExtendButtonComponent
+              orientation="addOrRemoveRows"
+              hideOtherElements={(hide) =>
+                setOnlyShownElement(hide ? "extendRowsButton" : undefined)
+              }
+            />
+          )}
       </GenericPopover>
       <GenericPopover
-        reference={tableElement}
+        reference={elements?.tableElement}
         useFloatingOptions={{
-          open: state.show && state.showAddOrRemoveColumnsButton,
+          open:
+            state.show &&
+            state.showAddOrRemoveColumnsButton &&
+            (!onlyShownElement || onlyShownElement === "extendColumnsButton"),
           placement: "right",
           middleware: [
             size({
@@ -166,7 +269,16 @@ export const TableHandlesController = <
           },
         }}
       >
-        <ExtendButtonComponent orientation="addOrRemoveColumns" />
+        {state.show &&
+          state.showAddOrRemoveColumnsButton &&
+          (!onlyShownElement || onlyShownElement === "extendColumnsButton") && (
+            <ExtendButtonComponent
+              orientation="addOrRemoveColumns"
+              hideOtherElements={(hide) =>
+                setOnlyShownElement(hide ? "extendColumnsButton" : undefined)
+              }
+            />
+          )}
       </GenericPopover>
     </>
   );
