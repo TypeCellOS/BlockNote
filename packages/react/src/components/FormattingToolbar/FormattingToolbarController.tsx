@@ -47,13 +47,12 @@ export const FormattingToolbarController = (props: {
   });
   const show = useExtensionState(FormattingToolbarExtension, {
     editor,
-    selector: (state) => state.show,
   });
 
   const position = useEditorState({
     editor,
     selector: ({ editor }) =>
-      formattingToolbar.store.state.show
+      formattingToolbar.store.state
         ? {
             from: editor.prosemirrorState.selection.from,
             to: editor.prosemirrorState.selection.to,
@@ -85,7 +84,7 @@ export const FormattingToolbarController = (props: {
         // Needed as hooks like `useDismiss` call `onOpenChange` to change the
         // open state.
         onOpenChange: (open) => {
-          formattingToolbar.store.setState({ show: open });
+          formattingToolbar.store.setState(open);
         },
         placement,
         middleware: [offset(10), shift(), flip()],

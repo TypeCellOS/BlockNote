@@ -21,7 +21,7 @@ export const AIToolbarButton = () => {
   const ai = useExtension(AIExtension);
 
   const onClick = () => {
-    editor.getExtension(FormattingToolbar)?.store.setState({ show: false });
+    editor.getExtension(FormattingToolbar)?.store.setState(false);
     const selection = editor.getSelection();
     if (!selection) {
       throw new Error("No selection");
