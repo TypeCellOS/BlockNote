@@ -1508,7 +1508,8 @@
             "Collaboration"
           ],
           "dependencies": {
-            "@y-sweet/react": "^0.6.3",
+            "y-partykit": "^0.0.25",
+            "yjs": "^13.6.27",
             "@mantine/core": "^8.3.4"
           } as any
         },
@@ -1588,7 +1589,7 @@
           ],
           "pro": true,
           "dependencies": {
-            "@tiptap/core": "^3.7.2"
+            "@tiptap/core": "^3.11.0"
           } as any
         },
         "title": "TipTap extension (arrow InputRule)",

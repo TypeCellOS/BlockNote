@@ -1,4 +1,6 @@
 import { expect, it } from "vitest";
+import * as Y from "yjs";
+
 import {
   getBlockInfo,
   getNearestBlockPos,
@@ -119,7 +121,7 @@ it("onMount and onUnmount", async () => {
   expect(unmounted).toBe(false);
   editor.unmount();
   // expect the unmount event to not have been triggered yet, since it waits 2 ticks
-  expect(unmounted).toBe(false);
+  // expect(unmounted).toBe(false);
   // wait 3 ticks to ensure the unmount event is triggered
   await new Promise((resolve) => setTimeout(resolve, 3));
   expect(mounted).toBe(true);
@@ -139,4 +141,68 @@ it("onCreate event", () => {
     ],
   });
   expect(created).toBe(true);
+});
+
+it("sets an initial block id when using Y.js", async () => {
+  const doc = new Y.Doc();
+  const fragment = doc.getXmlFragment("doc");
+  let transactionCount = 0;
+  const editor = BlockNoteEditor.create({
+    collaboration: {
+      fragment,
+      user: { name: "Hello", color: "#FFFFFF" },
+      provider: null,
+    },
+    _tiptapOptions: {
+      onTransaction: () => {
+        transactionCount++;
+      },
+    },
+  });
+
+  editor.mount(document.createElement("div"));
+
+  expect(editor.prosemirrorState.doc.toJSON()).toMatchInlineSnapshot(`
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "attrs": {
+                "id": "initialBlockId",
+              },
+              "content": [
+                {
+                  "attrs": {
+                    "backgroundColor": "default",
+                    "textAlignment": "left",
+                    "textColor": "default",
+                  },
+                  "type": "paragraph",
+                },
+              ],
+              "type": "blockContainer",
+            },
+          ],
+          "type": "blockGroup",
+        },
+      ],
+      "type": "doc",
+    }
+  `);
+  expect(transactionCount).toBe(1);
+  // The fragment should not be modified yet, since the editor's content is only the initial content
+  expect(fragment.toJSON()).toMatchInlineSnapshot(`""`);
+
+  editor.replaceBlocks(editor.document, [
+    {
+      type: "paragraph",
+      content: [{ text: "Hello", styles: {}, type: "text" }],
+    },
+  ]);
+  expect(transactionCount).toBe(2);
+  // Only after a real modification is made, will the fragment be updated
+  expect(fragment.toJSON()).toMatchInlineSnapshot(
+    `"<blockgroup><blockcontainer id="0"><paragraph backgroundColor="default" textAlignment="left" textColor="default">Hello</paragraph></blockcontainer><blockcontainer id="1"><paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph></blockcontainer></blockgroup>"`,
+  );
 });

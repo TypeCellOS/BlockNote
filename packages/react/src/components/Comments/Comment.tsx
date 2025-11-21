@@ -47,20 +47,17 @@ export const Comment = ({
 
   const dict = useDictionary();
 
-  const commentEditor = useCreateBlockNote(
-    {
-      initialContent: comment.body,
-      trailingBlock: false,
-      dictionary: {
-        ...dict,
-        placeholders: {
-          emptyDocument: dict.placeholders.edit_comment,
-        },
+  const commentEditor = useCreateBlockNote({
+    initialContent: comment.body,
+    trailingBlock: false,
+    dictionary: {
+      ...dict,
+      placeholders: {
+        emptyDocument: dict.placeholders.edit_comment,
       },
-      schema: comments.commentEditorSchema || defaultCommentEditorSchema,
     },
-    [comment.body],
-  );
+    schema: comments.commentEditorSchema || defaultCommentEditorSchema,
+  });
 
   const Components = useComponentsContext()!;
 

@@ -21,7 +21,8 @@
     "@mantine/utils": "^6.0.22",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "@y-sweet/react": "^0.6.3"
+    "y-partykit": "^0.0.25",
+    "yjs": "^13.6.27"
   },
   "devDependencies": {
     "@types/react": "^19.2.2",

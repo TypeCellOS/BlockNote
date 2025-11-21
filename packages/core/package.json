@@ -11,7 +11,7 @@
     "directory": "packages/core"
   },
   "license": "MPL-2.0",
-  "version": "0.41.1",
+  "version": "0.42.3",
   "files": [
     "dist",
     "types",
@@ -71,6 +71,11 @@
       "types": "./types/src/extensions/index.d.ts",
       "import": "./dist/extensions.js",
       "require": "./dist/extensions.cjs"
+    },
+    "./yjs": {
+      "types": "./types/src/yjs/index.d.ts",
+      "import": "./dist/yjs.js",
+      "require": "./dist/yjs.cjs"
     }
   },
   "scripts": {
@@ -88,7 +93,7 @@
     "@handlewithcare/prosemirror-inputrules": "0.1.3",
     "@shikijs/types": "3.13.0",
     "@tanstack/store": "0.7.7",
-    "@tiptap/core": "^3.7.2",
+    "@tiptap/core": "^3.11.0",
     "@tiptap/extension-bold": "^3.7.2",
     "@tiptap/extension-code": "^3.7.2",
     "@tiptap/extension-gapcursor": "^3.7.2",
@@ -99,7 +104,7 @@
     "@tiptap/extension-strike": "^3.7.2",
     "@tiptap/extension-text": "^3.7.2",
     "@tiptap/extension-underline": "^3.7.2",
-    "@tiptap/pm": "^3.7.2",
+    "@tiptap/pm": "^3.11.0",
     "emoji-mart": "^5.6.0",
     "fast-deep-equal": "^3.1.3",
     "hast-util-from-dom": "^5.0.1",

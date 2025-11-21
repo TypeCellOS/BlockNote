@@ -55,11 +55,15 @@ export const Table = (
                 ? undefined
                 : {
                     type: ShadingType.SOLID,
-                    color:
-                      t.options.colors[
-                        cell.props
-                          .backgroundColor as keyof typeof t.options.colors
-                      ].background.slice(1),
+                    color: (() => {
+                      const color =
+                        t.options.colors[cell.props.backgroundColor]
+                          ?.background;
+                      if (!color) {
+                        return undefined;
+                      }
+                      return color.slice(1);
+                    })(),
                   },
             children: [
               new Paragraph({
@@ -88,9 +92,14 @@ export const Table = (
                   color:
                     cell.props.textColor === "default" || !cell.props.textColor
                       ? undefined
-                      : t.options.colors[
-                          cell.props.textColor as keyof typeof t.options.colors
-                        ].text.slice(1),
+                      : (() => {
+                          const color =
+                            t.options.colors[cell.props.textColor]?.text;
+                          if (!color) {
+                            return undefined;
+                          }
+                          return color.slice(1);
+                        })(),
                 },
               }),
             ],
