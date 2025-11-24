@@ -5,9 +5,9 @@ import {
   createStore,
   ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
-import { YCursor } from "./YCursorPlugin.js";
-import { YSync } from "./YSync.js";
-import { YUndo } from "./YUndo.js";
+import { YCursorExtension } from "./YCursorPlugin.js";
+import { YSyncExtension } from "./YSync.js";
+import { YUndoExtension } from "./YUndo.js";
 import { BlockNoteEditorOptions } from "../../editor/BlockNoteEditor.js";
 
 /**
@@ -43,7 +43,7 @@ function findTypeInOtherYdoc<T extends Y.AbstractType<any>>(
   }
 }
 
-export const ForkYDoc = createExtension(
+export const ForkYDocExtension = createExtension(
   ({
     editor,
     options,
@@ -94,16 +94,20 @@ export const ForkYDoc = createExtension(
         };
 
         // Need to reset all the yjs plugins
-        editor.unregisterExtension([YUndo, YCursor, YSync]);
+        editor.unregisterExtension([
+          YUndoExtension,
+          YCursorExtension,
+          YSyncExtension,
+        ]);
         const newOptions = {
           ...options,
           fragment: forkedFragment,
         };
         // Register them again, based on the new forked fragment
         editor.registerExtension([
-          YSync(newOptions),
+          YSyncExtension(newOptions),
           // No need to register the cursor plugin again, it's a local fork
-          YUndo({}),
+          YUndoExtension({}),
         ]);
 
         // Tell the store that the editor is now forked
@@ -124,7 +128,11 @@ export const ForkYDoc = createExtension(
 
         const { originalFragment, forkedFragment, undoStack } = forkedState;
         // Register the plugins again, based on the original fragment (which is still in the original options)
-        editor.registerExtension([YSync(options), YCursor(options), YUndo({})]);
+        editor.registerExtension([
+          YSyncExtension(options),
+          YCursorExtension(options),
+          YUndoExtension({}),
+        ]);
 
         // Reset the undo stack to the original undo stack
         yUndoPluginKey.getState(

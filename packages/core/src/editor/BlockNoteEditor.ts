@@ -19,7 +19,6 @@ import {
   DefaultStyleSchema,
   PartialBlock,
 } from "../blocks/index.js";
-import type { ThreadStore, User } from "../comments/index.js";
 import { UniqueID } from "../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 import type { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
@@ -40,11 +39,10 @@ import "../style.css";
 import { mergeCSSClasses } from "../util/browser.js";
 import { EventEmitter } from "../util/EventEmitter.js";
 import type { NoInfer } from "../util/typescript.js";
-import { Extension, ExtensionFactoryInstance } from "./BlockNoteExtension.js";
+import { ExtensionFactoryInstance } from "./BlockNoteExtension.js";
 import type { TextCursorPosition } from "./cursorPositionTypes.js";
 import {
   BlockManager,
-  CollaborationManager,
   EventManager,
   ExportManager,
   ExtensionManager,
@@ -113,17 +111,6 @@ export interface BlockNoteEditorOptions<
      * or types. Defaults to "activity".
      */
     showCursorLabels?: "always" | "activity";
-  };
-
-  /**
-   * Configuration for the comments feature, requires a `threadStore`.
-   *
-   * See [Comments](https://www.blocknotejs.org/docs/features/collaboration/comments) for more info.
-   * @remarks `CommentsOptions`
-   */
-  comments?: {
-    schema?: BlockNoteSchema<any, any, any>;
-    threadStore: ThreadStore;
   };
 
   /**
@@ -245,13 +232,6 @@ export interface BlockNoteEditorOptions<
   resolveFileUrl?: (url: string) => Promise<string>;
 
   /**
-   * Resolve user information for comments.
-   *
-   * See [Comments](https://www.blocknotejs.org/docs/features/collaboration/comments) for more info.
-   */
-  resolveUsers?: (userIds: string[]) => Promise<User[]>;
-
-  /**
    * The schema of the editor. The schema defines which Blocks, InlineContent, and Styles are available in the editor.
    *
    * See [Custom Schemas](https://www.blocknotejs.org/docs/custom-schemas) for more info.
@@ -367,11 +347,6 @@ export class BlockNoteEditor<
    */
   public readonly pmSchema: Schema;
 
-  /**
-   * BlockNote extensions that are added to the editor, keyed by the extension key
-   */
-  public extensions = new Map<string, Extension>();
-
   public readonly _tiptapEditor: TiptapEditor & {
     contentComponent: any;
   };
@@ -421,7 +396,6 @@ export class BlockNoteEditor<
   private onUploadEndCallbacks: ((blockId?: string) => void)[] = [];
 
   public readonly resolveFileUrl?: (url: string) => Promise<string>;
-  public readonly resolveUsers?: (userIds: string[]) => Promise<User[]>;
   /**
    * Editor settings
    */
@@ -483,33 +457,6 @@ export class BlockNoteEditor<
       },
     };
 
-    // Initialize CollaborationManager if collaboration is enabled or if comments are configured
-    if (newOptions.collaboration || newOptions.comments) {
-      // const collaborationOptions: CollaborationOptions = {
-      //   // Use collaboration options if available, otherwise provide defaults
-      //   fragment: newOptions.collaboration?.fragment || new Y.XmlFragment(),
-      //   user: newOptions.collaboration?.user || {
-      //     name: "User",
-      //     color: "#FF0000",
-      //   },
-      //   provider: newOptions.collaboration?.provider || null,
-      //   renderCursor: newOptions.collaboration?.renderCursor,
-      //   showCursorLabels: newOptions.collaboration?.showCursorLabels,
-      //   comments: newOptions.comments,
-      //   resolveUsers: newOptions.resolveUsers,
-      // };
-      this._collaborationManager = new CollaborationManager(
-        this as any,
-        newOptions,
-      );
-    } else {
-      this._collaborationManager = undefined;
-    }
-
-    if (newOptions.comments && !newOptions.resolveUsers) {
-      throw new Error("resolveUsers is required when using comments");
-    }
-
     // @ts-ignore
     this.schema = newOptions.schema;
     this.blockImplementations = newOptions.schema.blockSpecs;
@@ -535,8 +482,14 @@ export class BlockNoteEditor<
 
     this.resolveFileUrl = newOptions.resolveFileUrl;
 
+    this._eventManager = new EventManager(this as any);
+    this._extensionManager = new ExtensionManager(this, newOptions);
+
+    const tiptapExtensions = this._extensionManager.getTiptapExtensions();
+
     const collaborationEnabled =
-      "ySync" in this.extensions || "liveblocksExtension" in this.extensions;
+      this._extensionManager.hasExtension("ySync") ||
+      this._extensionManager.hasExtension("liveblocksExtension");
 
     if (collaborationEnabled && newOptions.initialContent) {
       // eslint-disable-next-line no-console
@@ -544,13 +497,6 @@ export class BlockNoteEditor<
         "When using Collaboration, initialContent might cause conflicts, because changes should come from the collaboration provider",
       );
     }
-
-    this._eventManager = new EventManager(this as any);
-    this._extensionManager = new ExtensionManager(this, newOptions);
-
-    const tiptapExtensions = this._extensionManager.getTiptapExtensions();
-
-    this.extensions = this._extensionManager.getExtensions();
 
     const tiptapOptions: EditorOptions = {
       ...blockNoteTipTapOptions,
@@ -664,13 +610,19 @@ export class BlockNoteEditor<
 
   // Manager instances
   private readonly _blockManager: BlockManager<any, any, any>;
-  private readonly _collaborationManager?: CollaborationManager;
   private readonly _eventManager: EventManager<any, any, any>;
   private readonly _exportManager: ExportManager<any, any, any>;
   private readonly _extensionManager: ExtensionManager;
   private readonly _selectionManager: SelectionManager<any, any, any>;
   private readonly _stateManager: StateManager;
   private readonly _styleManager: StyleManager<any, any, any>;
+
+  /**
+   * BlockNote extensions that are added to the editor, keyed by the extension key
+   */
+  public get extensions() {
+    return this._extensionManager.getExtensions();
+  }
 
   /**
    * Execute a prosemirror command. This is mostly for backwards compatibility with older code.
@@ -1272,19 +1224,6 @@ export class BlockNoteEditor<
   }
 
   /**
-   * Updates the user info for the current user that's shown to other collaborators.
-   */
-  public updateCollaborationUserInfo(user: { name: string; color: string }) {
-    if (!this._collaborationManager) {
-      throw new Error(
-        "Cannot update collaboration user info when collaboration is disabled.",
-      );
-    }
-
-    this._collaborationManager.updateUserInfo(user);
-  }
-
-  /**
    * A callback function that runs whenever the editor's contents change.
    *
    * @param callback The callback to execute.
@@ -1323,22 +1262,6 @@ export class BlockNoteEditor<
       callback,
       includeSelectionChangedByRemote,
     );
-  }
-
-  /**
-   * Gets the bounding box of a block.
-   * @param blockId The id of the block to get the bounding box of.
-   * @returns The bounding box of the block or undefined if the block is not found.
-   */
-  public getBlockClientRect(blockId: string): DOMRect | undefined {
-    const blockElement = this.prosemirrorView.root.querySelector(
-      `[data-node-type="blockContainer"][data-id="${blockId}"]`,
-    );
-    if (!blockElement) {
-      return;
-    }
-
-    return blockElement.getBoundingClientRect();
   }
 
   /**
@@ -1408,31 +1331,6 @@ export class BlockNoteEditor<
         (doc[0].content as any).length === 0)
     );
   }
-
-  // TODO move to extension
-  // public openSuggestionMenu(
-  //   triggerCharacter: string,
-  //   pluginState?: {
-  //     deleteTriggerCharacter?: boolean;
-  //     ignoreQueryLength?: boolean;
-  //   },
-  // ) {
-  //   if (!this.prosemirrorView) {
-  //     return;
-  //   }
-
-  //   this.focus();
-  //   this.transact((tr) => {
-  //     if (pluginState?.deleteTriggerCharacter) {
-  //       tr.insertText(triggerCharacter);
-  //     }
-  //     tr.scrollIntoView().setMeta(this.suggestionMenus.plugins[0], {
-  //       triggerCharacter: triggerCharacter,
-  //       deleteTriggerCharacter: pluginState?.deleteTriggerCharacter || false,
-  //       ignoreQueryLength: pluginState?.ignoreQueryLength || false,
-  //     });
-  //   });
-  // }
 
   /**
    * Paste HTML into the editor. Defaults to converting HTML to BlockNote HTML.

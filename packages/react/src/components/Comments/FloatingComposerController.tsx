@@ -6,7 +6,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { Comments } from "@blocknote/core/extensions";
+import { CommentsExtension } from "@blocknote/core/comments";
 import { flip, offset, shift } from "@floating-ui/react";
 import { ComponentProps, FC, useEffect, useMemo, useState } from "react";
 
@@ -17,19 +17,19 @@ import { PositionPopover } from "../Popovers/PositionPopover.js";
 import { useEditorState } from "../../hooks/useEditorState.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 
-export const FloatingComposerController = <
+export default function FloatingComposerController<
   B extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema,
 >(props: {
   floatingComposer?: FC<ComponentProps<typeof FloatingComposer>>;
   floatingUIOptions?: FloatingUIOptions;
-}) => {
+}) {
   const [open, setOpen] = useState(false);
 
   const editor = useBlockNoteEditor<B, I, S>();
 
-  const comments = useExtension(Comments);
+  const comments = useExtension(CommentsExtension);
 
   // TODO: `setForceSelectionVisible` no longer exists?
   // useEffect(() => {
@@ -40,7 +40,7 @@ export const FloatingComposerController = <
   //   return () => offUpdate();
   // }, [comments, editor]);
 
-  const pendingComment = useExtensionState(Comments, {
+  const pendingComment = useExtensionState(CommentsExtension, {
     editor,
     selector: (state) => state.pendingComment,
   });
@@ -97,4 +97,4 @@ export const FloatingComposerController = <
       <Component />
     </PositionPopover>
   );
-};
+}

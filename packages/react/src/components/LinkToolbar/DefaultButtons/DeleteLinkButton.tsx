@@ -1,4 +1,4 @@
-import { LinkToolbar } from "@blocknote/core/extensions";
+import { LinkToolbarExtension } from "@blocknote/core/extensions";
 import { RiLinkUnlink } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
@@ -12,7 +12,7 @@ export const DeleteLinkButton = (
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  const { deleteLink } = useExtension(LinkToolbar);
+  const { deleteLink } = useExtension(LinkToolbarExtension);
 
   return (
     <Components.LinkToolbar.Button

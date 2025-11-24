@@ -1,4 +1,4 @@
-import { Comments } from "@blocknote/core/extensions";
+import { CommentsExtension } from "@blocknote/core/comments";
 import { User } from "@blocknote/core/comments";
 import { useCallback, useMemo, useSyncExternalStore } from "react";
 
@@ -12,7 +12,7 @@ export function useUser(userId: string) {
  * Bridges the UserStore to React using useSyncExternalStore.
  */
 export function useUsers(userIds: string[]) {
-  const comments = useExtension(Comments);
+  const comments = useExtension(CommentsExtension);
 
   const store = comments.userStore;
 

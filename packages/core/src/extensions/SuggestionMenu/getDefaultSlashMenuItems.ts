@@ -10,7 +10,7 @@ import {
 } from "../../schema/index.js";
 import { formatKeyboardShortcut } from "../../util/browser.js";
 import { DefaultSuggestionItem } from "./DefaultSuggestionItem.js";
-import { FilePanel } from "../FilePanel/FilePanel.js";
+import { FilePanelExtension } from "../FilePanel/FilePanel.js";
 import { SuggestionMenu } from "./SuggestionMenu.js";
 
 // Sets the editor's text cursor position to the next content editable block,
@@ -259,7 +259,7 @@ export function getDefaultSlashMenuItems<
         });
 
         // Immediately open the file toolbar
-        editor.getExtension(FilePanel)?.showMenu(insertedBlock.id);
+        editor.getExtension(FilePanelExtension)?.showMenu(insertedBlock.id);
       },
       key: "image",
       ...editor.dictionary.slash_menu.image,
@@ -274,7 +274,7 @@ export function getDefaultSlashMenuItems<
         });
 
         // Immediately open the file toolbar
-        editor.getExtension(FilePanel)?.showMenu(insertedBlock.id);
+        editor.getExtension(FilePanelExtension)?.showMenu(insertedBlock.id);
       },
       key: "video",
       ...editor.dictionary.slash_menu.video,
@@ -289,7 +289,7 @@ export function getDefaultSlashMenuItems<
         });
 
         // Immediately open the file toolbar
-        editor.getExtension(FilePanel)?.showMenu(insertedBlock.id);
+        editor.getExtension(FilePanelExtension)?.showMenu(insertedBlock.id);
       },
       key: "audio",
       ...editor.dictionary.slash_menu.audio,
@@ -304,7 +304,7 @@ export function getDefaultSlashMenuItems<
         });
 
         // Immediately open the file toolbar
-        editor.getExtension(FilePanel)?.showMenu(insertedBlock.id);
+        editor.getExtension(FilePanelExtension)?.showMenu(insertedBlock.id);
       },
       key: "file",
       ...editor.dictionary.slash_menu.file,

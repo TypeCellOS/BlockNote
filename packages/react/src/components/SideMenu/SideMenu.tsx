@@ -1,4 +1,4 @@
-import { SideMenu as SideMenuExtension } from "@blocknote/core/extensions";
+import { SideMenuExtension as SideMenuExtension } from "@blocknote/core/extensions";
 import { ReactNode, useMemo } from "react";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";

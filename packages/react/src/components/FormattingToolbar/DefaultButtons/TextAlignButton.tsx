@@ -9,7 +9,7 @@ import {
   StyleSchema,
   TableContent,
 } from "@blocknote/core";
-import { TableHandles } from "@blocknote/core/extensions";
+import { TableHandlesExtension } from "@blocknote/core/extensions";
 import { useCallback } from "react";
 import { IconType } from "react-icons";
 import {
@@ -44,7 +44,7 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
     StyleSchema
   >();
 
-  const tableHandles = useExtension(TableHandles);
+  const tableHandles = useExtension(TableHandlesExtension);
 
   const state = useEditorState({
     editor,

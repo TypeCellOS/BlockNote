@@ -1,5 +1,5 @@
 import {} from "@blocknote/core";
-import { SideMenu } from "@blocknote/core/extensions";
+import { SideMenuExtension } from "@blocknote/core/extensions";
 import {
   useBlockNoteEditor,
   useComponentsContext,
@@ -12,7 +12,7 @@ export function ResetBlockTypeItem(props: { children: ReactNode }) {
 
   const Components = useComponentsContext()!;
 
-  const sideMenu = useExtension(SideMenu);
+  const sideMenu = useExtension(SideMenuExtension);
 
   return (
     <Components.Generic.Menu.Item

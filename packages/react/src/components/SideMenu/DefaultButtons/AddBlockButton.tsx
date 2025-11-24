@@ -1,4 +1,4 @@
-import { SideMenu, SuggestionMenu } from "@blocknote/core/extensions";
+import { SideMenuExtension, SuggestionMenu } from "@blocknote/core/extensions";
 import { AiOutlinePlus } from "react-icons/ai";
 
 import { useCallback } from "react";
@@ -17,7 +17,7 @@ export const AddBlockButton = () => {
   const editor = useBlockNoteEditor<any, any, any>();
 
   const suggestionMenu = useExtension(SuggestionMenu);
-  const block = useExtensionState(SideMenu, {
+  const block = useExtensionState(SideMenuExtension, {
     editor,
     selector: (state) => state?.block,
   });

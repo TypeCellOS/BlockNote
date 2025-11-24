@@ -12,7 +12,7 @@ const PLUGIN_KEY = new PluginKey(`blocknote-show-selection`);
  * This can be used to highlight the current selection in the UI even when the
  * text editor is not focused.
  */
-export const ShowSelection = createExtension(({ editor }) => {
+export const ShowSelectionExtension = createExtension(({ editor }) => {
   const store = createStore(
     { enabled: false },
     {

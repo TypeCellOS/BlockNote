@@ -5,7 +5,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { TableHandles } from "@blocknote/core/extensions";
+import { TableHandlesExtension } from "@blocknote/core/extensions";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
@@ -29,11 +29,11 @@ export const TableHeaderRowButton = <
     I,
     S
   >();
-  const tableHandles = useExtension(TableHandles);
-  const block = useExtensionState(TableHandles, {
+  const tableHandles = useExtension(TableHandlesExtension);
+  const block = useExtensionState(TableHandlesExtension, {
     selector: (state) => state?.block,
   });
-  const index = useExtensionState(TableHandles, {
+  const index = useExtensionState(TableHandlesExtension, {
     selector: (state) =>
       props.orientation === "column" ? state?.colIndex : state?.rowIndex,
   });
@@ -84,11 +84,11 @@ export const TableHeaderColumnButton = <
     I,
     S
   >();
-  const tableHandles = useExtension(TableHandles);
-  const block = useExtensionState(TableHandles, {
+  const tableHandles = useExtension(TableHandlesExtension);
+  const block = useExtensionState(TableHandlesExtension, {
     selector: (state) => state?.block,
   });
-  const index = useExtensionState(TableHandles, {
+  const index = useExtensionState(TableHandlesExtension, {
     selector: (state) =>
       props.orientation === "column" ? state?.colIndex : state?.rowIndex,
   });

@@ -8,7 +8,7 @@ import { createExtension } from "../../editor/BlockNoteExtension.js";
 /**
  * This plugin can filter transactions before they are applied to the editor, but with a higher-level API than `filterTransaction` from prosemirror.
  */
-export const BlockChange = createExtension(() => {
+export const BlockChangeExtension = createExtension(() => {
   const beforeChangeCallbacks: ((context: {
     getChanges: () => BlocksChanged<any, any, any>;
     tr: Transaction;

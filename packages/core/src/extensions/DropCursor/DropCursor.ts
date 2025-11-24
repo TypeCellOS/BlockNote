@@ -5,7 +5,7 @@ import {
 } from "../../editor/BlockNoteExtension.js";
 import { BlockNoteEditorOptions } from "../../editor/BlockNoteEditor.js";
 
-export const DropCursor = createExtension(
+export const DropCursorExtension = createExtension(
   ({
     editor,
     options,

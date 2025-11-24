@@ -66,7 +66,7 @@ function defaultCursorRender(user: CollaborationUser) {
   return cursorElement;
 }
 
-export const YCursor = createExtension(
+export const YCursorExtension = createExtension(
   ({
     options,
   }: ExtensionOptions<

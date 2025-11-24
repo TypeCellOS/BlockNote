@@ -1,4 +1,4 @@
-import { SideMenu } from "@blocknote/core/extensions";
+import { SideMenuExtension } from "@blocknote/core/extensions";
 import { MdDragIndicator } from "react-icons/md";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
@@ -18,8 +18,8 @@ export const DragHandleButton = (
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  const sideMenu = useExtension(SideMenu);
-  const block = useExtensionState(SideMenu, {
+  const sideMenu = useExtension(SideMenuExtension);
+  const block = useExtensionState(SideMenuExtension, {
     selector: (state) => state?.block,
   });
 

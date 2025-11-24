@@ -11,26 +11,25 @@ import { createDropFileExtension } from "../../../api/clipboard/fromClipboard/fi
 import { createPasteFromClipboardExtension } from "../../../api/clipboard/fromClipboard/pasteExtension.js";
 import { createCopyToClipboardExtension } from "../../../api/clipboard/toClipboard/copyExtension.js";
 import {
-  BlockChange,
-  Comments,
-  DropCursor,
-  FilePanel,
-  ForkYDoc,
-  FormattingToolbar,
-  History,
-  LinkToolbar,
-  NodeSelectionKeyboard,
-  Placeholder,
-  PreviousBlockType,
+  BlockChangeExtension,
+  DropCursorExtension,
+  FilePanelExtension,
+  ForkYDocExtension,
+  FormattingToolbarExtension,
+  HistoryExtension,
+  LinkToolbarExtension,
+  NodeSelectionKeyboardExtension,
+  PlaceholderExtension,
+  PreviousBlockTypeExtension,
   SchemaMigration,
-  ShowSelection,
-  SideMenu,
+  ShowSelectionExtension,
+  SideMenuExtension,
   SuggestionMenu,
-  TableHandles,
-  TrailingNode,
-  YCursor,
-  YSync,
-  YUndo,
+  TableHandlesExtension,
+  TrailingNodeExtension,
+  YCursorExtension,
+  YSyncExtension,
+  YUndoExtension,
 } from "../../../extensions/index.js";
 import {
   DEFAULT_LINK_PROTOCOL,
@@ -178,43 +177,36 @@ export function getDefaultExtensions(
   options: BlockNoteEditorOptions<any, any, any>,
 ) {
   const extensions = [
-    BlockChange(),
-    DropCursor(options),
-    FilePanel(options),
-    FormattingToolbar(options),
-    LinkToolbar(options),
-    NodeSelectionKeyboard(),
-    Placeholder(options),
-    ShowSelection(options),
-    SideMenu(options),
+    BlockChangeExtension(),
+    DropCursorExtension(options),
+    FilePanelExtension(options),
+    FormattingToolbarExtension(options),
+    LinkToolbarExtension(options),
+    NodeSelectionKeyboardExtension(),
+    PlaceholderExtension(options),
+    ShowSelectionExtension(options),
+    SideMenuExtension(options),
     SuggestionMenu(options),
-    TrailingNode(),
+    TrailingNodeExtension(),
   ] as ExtensionFactoryInstance[];
 
   if (options.collaboration) {
-    extensions.push(ForkYDoc(options.collaboration));
-    extensions.push(YCursor(options.collaboration));
-    extensions.push(YSync(options.collaboration));
-    extensions.push(YUndo(options.collaboration));
+    extensions.push(ForkYDocExtension(options.collaboration));
+    extensions.push(YCursorExtension(options.collaboration));
+    extensions.push(YSyncExtension(options.collaboration));
+    extensions.push(YUndoExtension(options.collaboration));
     extensions.push(SchemaMigration(options.collaboration));
   } else {
     // YUndo is not compatible with ProseMirror's history plugin
-    extensions.push(History());
-  }
-
-  if (options.comments) {
-    // TODO comments should now be pulled out of the core package
-    extensions.push(
-      Comments({ ...options.comments, resolveUsers: editor.resolveUsers! }),
-    );
+    extensions.push(HistoryExtension());
   }
 
   if ("table" in editor.schema.blockSpecs) {
-    extensions.push(TableHandles(options));
+    extensions.push(TableHandlesExtension(options));
   }
 
   if (options.animations !== false) {
-    extensions.push(PreviousBlockType());
+    extensions.push(PreviousBlockTypeExtension());
   }
 
   return extensions;

@@ -1,5 +1,5 @@
 import { DefaultBlockSchema, SpecificBlock } from "@blocknote/core";
-import { SideMenu } from "@blocknote/core/extensions";
+import { SideMenuExtension } from "@blocknote/core/extensions";
 import { ReactNode } from "react";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
@@ -15,7 +15,7 @@ export const TableRowHeaderItem = (props: { children: ReactNode }) => {
     any
   >();
 
-  const block = useExtensionState(SideMenu, {
+  const block = useExtensionState(SideMenuExtension, {
     editor,
     selector: (state) =>
       state?.block as
@@ -66,7 +66,7 @@ export const TableColumnHeaderItem = (props: { children: ReactNode }) => {
     any
   >();
 
-  const block = useExtensionState(SideMenu, {
+  const block = useExtensionState(SideMenuExtension, {
     editor,
     selector: (state) =>
       state?.block as

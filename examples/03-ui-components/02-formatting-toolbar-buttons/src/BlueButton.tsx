@@ -2,10 +2,9 @@ import "@blocknote/mantine/style.css";
 import {
   useBlockNoteEditor,
   useComponentsContext,
-  useEditorContentOrSelectionChange,
+  useEditorState,
   useSelectedBlocks,
 } from "@blocknote/react";
-import { useState } from "react";
 
 // Custom Formatting Toolbar Button to toggle blue text & background color.
 export function BlueButton() {
@@ -14,18 +13,12 @@ export function BlueButton() {
   const Components = useComponentsContext()!;
 
   // Tracks whether the text & background are both blue.
-  const [isSelected, setIsSelected] = useState<boolean>(
-    editor.getActiveStyles().textColor === "blue" &&
-      editor.getActiveStyles().backgroundColor === "blue",
-  );
-
-  // Updates state on content or selection change.
-  useEditorContentOrSelectionChange(() => {
-    setIsSelected(
+  const isSelected = useEditorState({
+    editor,
+    selector: ({ editor }) =>
       editor.getActiveStyles().textColor === "blue" &&
-        editor.getActiveStyles().backgroundColor === "blue",
-    );
-  }, editor);
+      editor.getActiveStyles().backgroundColor === "blue",
+  });
 
   // Doesn't render unless a at least one block with inline content is
   // selected. You can use a similar pattern of returning `null` to

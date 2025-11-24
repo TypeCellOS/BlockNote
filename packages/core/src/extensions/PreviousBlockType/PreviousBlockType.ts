@@ -24,7 +24,7 @@ const nodeAttributes: Record<string, string> = {
  *
  * Solution: When attributes change on a node, this plugin sets a data-* attribute with the "previous" value. This way we can still use CSS transitions. (See block.module.css)
  */
-export const PreviousBlockType = createExtension(() => {
+export const PreviousBlockTypeExtension = createExtension(() => {
   let timeout: ReturnType<typeof setTimeout>;
   return {
     key: "previousBlockType",
