@@ -26,7 +26,6 @@ export const ExperimentalMobileFormattingToolbarController = (props: {
 
   const show = useExtensionState(FormattingToolbarExtension, {
     editor,
-    selector: (state) => state,
   });
 
   const style = useMemo<CSSProperties>(() => {

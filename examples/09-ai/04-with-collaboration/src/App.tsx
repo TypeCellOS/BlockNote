@@ -80,12 +80,13 @@ export default function App() {
       ai: aiEn, // add default translations for the AI extension
     },
     // Register the AI extension
-    extensions: [AIExtension()],
-    ai: {
-      transport: new DefaultChatTransport({
-        api: `${BASE_URL}/regular/streamText`,
+    extensions: [
+      AIExtension({
+        transport: new DefaultChatTransport({
+          api: `${BASE_URL}/regular/streamText`,
+        }),
       }),
-    },
+    ],
     // We set some initial content for demo purposes
     initialContent: [
       {
