@@ -159,5 +159,5 @@ export class EventManager<
 }
 
 function isRemoteTransaction(transaction: Transaction): boolean {
-  return !!transaction.getMeta("$y-sync");
+  return !!transaction.getMeta("y-sync$");
 }
