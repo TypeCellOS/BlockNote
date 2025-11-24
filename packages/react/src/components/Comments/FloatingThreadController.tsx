@@ -70,7 +70,7 @@ export default function FloatingThreadController(props: {
       },
       ...props.floatingUIOptions,
     }),
-    [editor, open, props.floatingUIOptions],
+    [comments, editor, open, props.floatingUIOptions],
   );
 
   // nice to have improvements:

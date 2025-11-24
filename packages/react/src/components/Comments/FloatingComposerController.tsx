@@ -7,16 +7,15 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import { CommentsExtension } from "@blocknote/core/comments";
-import { ShowSelectionExtension } from "@blocknote/core/extensions";
 import { flip, offset, shift } from "@floating-ui/react";
 import { ComponentProps, FC, useEffect, useMemo, useState } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
-import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
-import { FloatingComposer } from "./FloatingComposer.js";
-import { PositionPopover } from "../Popovers/PositionPopover.js";
 import { useEditorState } from "../../hooks/useEditorState.js";
+import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
+import { PositionPopover } from "../Popovers/PositionPopover.js";
+import { FloatingComposer } from "./FloatingComposer.js";
 
 export default function FloatingComposerController<
   B extends BlockSchema = DefaultBlockSchema,
@@ -31,17 +30,6 @@ export default function FloatingComposerController<
   const editor = useBlockNoteEditor<B, I, S>();
 
   const comments = useExtension(CommentsExtension);
-  const showSelection = useExtension(ShowSelectionExtension);
-
-  useEffect(() => {
-    const offUpdate = comments.onUpdate((state) =>
-      showSelection.showSelection(!!state.pendingComment),
-    );
-
-    return () => {
-      offUpdate();
-    };
-  }, [comments, editor, showSelection]);
 
   const pendingComment = useExtensionState(CommentsExtension, {
     editor,

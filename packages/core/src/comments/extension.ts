@@ -7,15 +7,15 @@ import {
   createStore,
   ExtensionOptions,
 } from "../editor/BlockNoteExtension.js";
+import { ShowSelectionExtension } from "../extensions/ShowSelection/ShowSelection.js";
 import { CustomBlockNoteSchema } from "../schema/schema.js";
 import { CommentMark } from "./mark.js";
-import { User } from "./types.js";
 import type { ThreadStore } from "./threadstore/ThreadStore.js";
 import type { CommentBody, ThreadData } from "./types.js";
+import { User } from "./types.js";
 import { UserStore } from "./userstore/UserStore.js";
 
-const PLUGIN_KEY = new PluginKey(`blocknote-comments`);
-const SET_SELECTED_THREAD_ID = "SET_SELECTED_THREAD_ID";
+const PLUGIN_KEY = new PluginKey("blocknote-comments");
 
 type CommentsPluginState = {
   /**
@@ -91,31 +91,24 @@ export const CommentsExtension = createExtension(
     const markType = CommentMark.name;
 
     const userStore = new UserStore<User>(resolveUsers);
-    let pendingComment = false;
-    let selectedThreadId: string | undefined;
-    let threadPositions: Map<string, { from: number; to: number }> = new Map();
-    const store = createStore({
-      pendingComment,
-      selectedThreadId,
-      threadPositions,
-    });
-    const subscribers = new Set<
-      (state: {
-        pendingComment: boolean;
-        selectedThreadId: string | undefined;
-        threadPositions: Map<string, { from: number; to: number }>;
-      }) => void
-    >();
-
-    const emitStateUpdate = () => {
-      const snapshot = {
-        pendingComment,
-        selectedThreadId,
-        threadPositions,
-      };
-      store.setState(snapshot);
-      subscribers.forEach((cb) => cb(snapshot));
-    };
+    const store = createStore(
+      {
+        pendingComment: false,
+        selectedThreadId: undefined as string | undefined,
+        threadPositions: new Map<string, { from: number; to: number }>(),
+      },
+      {
+        onUpdate() {
+          // If the selected thread id changed, we need to update the decorations
+          if (
+            store.state.selectedThreadId !== store.prevState.selectedThreadId
+          ) {
+            // So, we issue a transaction to update the decorations
+            editor.transact((tr) => tr.setMeta(PLUGIN_KEY, true));
+          }
+        },
+      },
+    );
 
     const updateMarksFromThreads = (threads: Map<string, ThreadData>) => {
       editor.transact((tr) => {
@@ -123,7 +116,7 @@ export const CommentsExtension = createExtension(
           node.marks.forEach((mark) => {
             if (mark.type.name === markType) {
               const markTypeInstance = mark.type;
-              const markThreadId = mark.attrs.threadId;
+              const markThreadId = mark.attrs.threadId as string;
               const thread = threads.get(markThreadId);
               const isOrphan = !!(
                 !thread ||
@@ -148,10 +141,12 @@ export const CommentsExtension = createExtension(
                   }),
                 );
 
-                if (isOrphan && selectedThreadId === markThreadId) {
+                if (isOrphan && store.state.selectedThreadId === markThreadId) {
                   // unselect
-                  selectedThreadId = undefined;
-                  emitStateUpdate();
+                  store.setState((prev) => ({
+                    ...prev,
+                    selectedThreadId: undefined,
+                  }));
                 }
               }
             }
@@ -182,20 +177,26 @@ export const CommentsExtension = createExtension(
               // only update threadPositions if the doc changed
               const newThreadPositions = tr.docChanged
                 ? getUpdatedThreadPositions(tr.doc, markType)
-                : threadPositions;
+                : store.state.threadPositions;
 
-              if (newThreadPositions.size > 0 || threadPositions.size > 0) {
+              if (
+                newThreadPositions.size > 0 ||
+                store.state.threadPositions.size > 0
+              ) {
                 // small optimization; don't emit event if threadPositions before / after were both empty
-                threadPositions = newThreadPositions;
-                emitStateUpdate();
+                store.setState((prev) => ({
+                  ...prev,
+                  threadPositions: newThreadPositions,
+                }));
               }
 
               // update decorations if doc or selected thread changed
               const decorations = [] as any[];
 
-              if (selectedThreadId) {
-                const selectedThreadPosition =
-                  newThreadPositions.get(selectedThreadId);
+              if (store.state.selectedThreadId) {
+                const selectedThreadPosition = newThreadPositions.get(
+                  store.state.selectedThreadId,
+                );
 
                 if (selectedThreadPosition) {
                   decorations.push(
@@ -230,8 +231,10 @@ export const CommentsExtension = createExtension(
 
               if (!node) {
                 // unselect
-                selectedThreadId = undefined;
-                emitStateUpdate();
+                store.setState((prev) => ({
+                  ...prev,
+                  selectedThreadId: undefined,
+                }));
                 return;
               }
 
@@ -243,52 +246,48 @@ export const CommentsExtension = createExtension(
               const threadId = commentMark?.attrs.threadId as
                 | string
                 | undefined;
-              if (threadId !== selectedThreadId) {
-                selectedThreadId = threadId;
-                emitStateUpdate();
+              if (threadId !== store.state.selectedThreadId) {
+                store.setState((prev) => ({
+                  ...prev,
+                  selectedThreadId: threadId,
+                }));
               }
             },
           },
         }),
       ],
       threadStore: threadStore,
-      init() {
+      mount() {
         const unsubscribe = threadStore.subscribe(updateMarksFromThreads);
-        editor.onCreate(() => {
-          updateMarksFromThreads(threadStore.getThreads());
-          editor.onSelectionChange(() => {
-            if (pendingComment) {
-              pendingComment = false;
-              emitStateUpdate();
-            }
-          });
+        updateMarksFromThreads(threadStore.getThreads());
+
+        const unsubscribeOnSelectionChange = editor.onSelectionChange(() => {
+          if (store.state.pendingComment) {
+            store.setState((prev) => ({
+              ...prev,
+              pendingComment: false,
+            }));
+          }
         });
-        return () => unsubscribe();
-      },
-      onUpdate(
-        callback: (state: {
-          pendingComment: boolean;
-          selectedThreadId: string | undefined;
-          threadPositions: Map<string, { from: number; to: number }>;
-        }) => void,
-      ) {
-        subscribers.add(callback);
-        return () => subscribers.delete(callback);
+
+        return () => {
+          unsubscribe();
+          unsubscribeOnSelectionChange();
+        };
       },
       selectThread(threadId: string | undefined, scrollToThread = true) {
-        if (selectedThreadId === threadId) {
+        if (store.state.selectedThreadId === threadId) {
           return;
         }
-        selectedThreadId = threadId;
-        emitStateUpdate();
-        editor.transact((tr) =>
-          tr.setMeta(PLUGIN_KEY, {
-            name: SET_SELECTED_THREAD_ID,
-          }),
-        );
+        store.setState((prev) => ({
+          ...prev,
+          pendingComment: false,
+          selectedThreadId: threadId,
+        }));
 
         if (threadId && scrollToThread) {
-          const selectedThreadPosition = threadPositions.get(threadId);
+          const selectedThreadPosition =
+            store.state.threadPositions.get(threadId);
           if (!selectedThreadPosition) {
             return;
           }
@@ -302,12 +301,20 @@ export const CommentsExtension = createExtension(
         }
       },
       startPendingComment() {
-        pendingComment = true;
-        emitStateUpdate();
+        store.setState((prev) => ({
+          ...prev,
+          selectedThreadId: undefined,
+          pendingComment: true,
+        }));
+        editor.getExtension(ShowSelectionExtension)?.showSelection(true);
       },
       stopPendingComment() {
-        pendingComment = false;
-        emitStateUpdate();
+        store.setState((prev) => ({
+          ...prev,
+          selectedThreadId: undefined,
+          pendingComment: false,
+        }));
+        editor.getExtension(ShowSelectionExtension)?.showSelection(false);
       },
       async createThread(options: {
         initialComment: { body: CommentBody; metadata?: any };
