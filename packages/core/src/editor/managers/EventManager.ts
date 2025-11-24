@@ -41,7 +41,7 @@ export class EventManager<
     super();
     // We register tiptap events only once the editor is finished initializing
     // otherwise we would be trying to register events on a tiptap editor which does not exist yet
-    editor.onCreate(() => {
+    editor.on("create", () => {
       editor._tiptapEditor.on(
         "update",
         ({ transaction, appendedTransactions }) => {

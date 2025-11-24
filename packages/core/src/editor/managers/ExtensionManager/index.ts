@@ -17,12 +17,11 @@ import type {
   ExtensionFactoryInstance,
   ExtensionFactory,
 } from "../../BlockNoteExtension.js";
+import { originalFactorySymbol } from "./symbol.js";
 import {
   getDefaultExtensions,
   getDefaultTiptapExtensions,
 } from "./extensions.js";
-
-export const originalFactorySymbol = Symbol("originalFactory");
 
 export class ExtensionManager {
   /**
