@@ -251,7 +251,7 @@ export class ExtensionManager {
     const pluginsToRemove = new Set<Plugin>();
     for (const extension of extensions) {
       this.extensions = this.extensions.filter((e) => e !== extension);
-      this.extensionFactories.entries().forEach(([factory, instance]) => {
+      this.extensionFactories.forEach((instance, factory) => {
         if (instance === extension) {
           this.extensionFactories.delete(factory);
         }
