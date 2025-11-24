@@ -19,7 +19,7 @@ export default function App() {
       ai: aiEn, // add default translations for the AI extension
     },
     // Register the AI extension
-    extensions: [AIExtension],
+    extensions: [AIExtension()],
     // We set some initial content for demo purposes
     initialContent: [
       {

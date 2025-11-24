@@ -1,15 +1,26 @@
 import { dropCursor } from "prosemirror-dropcursor";
-import { createExtension } from "../../editor/BlockNoteExtension.js";
+import {
+  createExtension,
+  ExtensionOptions,
+} from "../../editor/BlockNoteExtension.js";
+import { BlockNoteEditorOptions } from "../../editor/BlockNoteEditor.js";
 
-export const DropCursor = createExtension((editor, options) => {
-  return {
-    key: "dropCursor",
-    prosemirrorPlugins: [
-      (options.dropCursor ?? dropCursor)({
-        width: 5,
-        color: "#ddeeff",
-        editor: editor,
-      }),
-    ],
-  } as const;
-});
+export const DropCursor = createExtension(
+  ({
+    editor,
+    options,
+  }: ExtensionOptions<
+    Pick<BlockNoteEditorOptions<any, any, any>, "dropCursor">
+  >) => {
+    return {
+      key: "dropCursor",
+      prosemirrorPlugins: [
+        (options.dropCursor ?? dropCursor)({
+          width: 5,
+          color: "#ddeeff",
+          editor: editor,
+        }),
+      ],
+    } as const;
+  },
+);

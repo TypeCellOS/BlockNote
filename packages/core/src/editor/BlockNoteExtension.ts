@@ -2,10 +2,8 @@ import { Store, StoreOptions } from "@tanstack/store";
 import { type AnyExtension } from "@tiptap/core";
 import type { Plugin as ProsemirrorPlugin } from "prosemirror-state";
 import type { PartialBlockNoDefaults } from "../schema/index.js";
-import type {
-  BlockNoteEditor,
-  BlockNoteEditorOptions,
-} from "./BlockNoteEditor.js";
+import type { BlockNoteEditor } from "./BlockNoteEditor.js";
+import { originalFactorySymbol } from "./managers/ExtensionManager/index.js";
 
 /**
  * This function is called when the extension is destroyed.
@@ -123,78 +121,104 @@ type InputRule = {
   }) => undefined | PartialBlockNoDefaults<any, any, any>;
 };
 
-export type ExtensionFactory<
-  State = any,
-  Options extends BlockNoteEditorOptions<
-    any,
-    any,
-    any
-  > = BlockNoteEditorOptions<any, any, any>,
-  Key extends string = string,
-> = (
-  editor: BlockNoteEditor<any, any, any>,
-  options: Options,
-) => Extension<State, Key> | undefined;
-
-export type ExtractExtensionKey<T extends ExtensionFactory | undefined> =
-  T extends (
-    editor: BlockNoteEditor<any, any, any>,
-    options: BlockNoteEditorOptions<any, any, any>,
-  ) => Extension<any, infer Key> | undefined
-    ? Key
-    : never;
-
-export type ExtractExtensionByKey<
-  T extends ExtensionFactory<any, any, any>,
-  Key extends string,
-> = T extends (
-  editor: BlockNoteEditor<any, any, any>,
-  options: BlockNoteEditorOptions<any, any, any>,
-) => Extension<any, Key> | undefined
-  ? ReturnType<T>
-  : never;
+/**
+ * These are the arguments that are passed to an {@link ExtensionFactoryInstance}.
+ */
+export interface ExtensionOptions<
+  Options extends Record<string, any> | undefined =
+    | Record<string, any>
+    | undefined,
+> {
+  options: Options;
+  editor: BlockNoteEditor<any, any, any>;
+}
 
 // a type that maps the extension key to the return type of the extension factory
-export type ExtensionMap<
-  T extends ReadonlyArray<ExtensionFactory | undefined>,
-> = {
-  [K in ExtractExtensionKey<T[number]>]: ExtractExtensionByKey<
-    Exclude<T[number], undefined>,
-    K
-  >;
+export type ExtensionMap<T extends ReadonlyArray<ExtensionFactoryInstance>> = {
+  [K in T[number] extends ExtensionFactoryInstance<infer Ext>
+    ? Ext["key"]
+    : never]: T[number] extends ExtensionFactoryInstance<infer Ext>
+    ? Ext
+    : never;
 };
 
 /**
- * Helper function to create a BlockNote extension.
- * Can accept either an ExtensionFactory (function) or an Extension (object).
- * If an Extension is provided, it will be wrapped in a factory function.
+ * This is a type that represents the function which will actually create the extension.
+ * It requires the editor instance to be passed in, but will already have the options applied automatically.
+ *
+ * @note Only the BlockNoteEditor should instantiate this function, not the user. Look at {@link createExtension} for user-facing functions.
  */
-export function createExtension<const T extends ExtensionFactory>(ext: T): T;
-export function createExtension<const Key extends string, const State = any>(
-  ext: Extension<State, Key>,
-): () => Extension<State, Key>;
+export type ExtensionFactoryInstance<
+  Ext extends Extension<any, any> = Extension<any, any>,
+> = (ctx: Omit<ExtensionOptions<any>, "options">) => Ext;
+
+/**
+ * This is the return type of the {@link createExtension} function.
+ * It is a function that can be invoked with the extension's options to create a new extension factory.
+ */
+export type ExtensionFactory<
+  State = any,
+  Key extends string = string,
+  Factory extends (ctx: any) => Extension<State, Key> = (
+    ctx: ExtensionOptions<any>,
+  ) => Extension<State, Key>,
+> =
+  Parameters<Factory>[0] extends ExtensionOptions<infer Options>
+    ? undefined extends Options
+      ? (
+          options?: Exclude<Options, undefined>,
+        ) => ExtensionFactoryInstance<ReturnType<Factory>>
+      : (options: Options) => ExtensionFactoryInstance<ReturnType<Factory>>
+    : () => ExtensionFactoryInstance<ReturnType<Factory>>;
+
+/**
+ * Constructs a BlockNote {@link ExtensionFactory} from a factory function or object
+ */
 export function createExtension<
-  const T extends ExtensionFactory | Extension | undefined = any,
+  const State = any,
+  const Key extends string = string,
+  const Ext extends Extension<State, Key> = Extension<State, Key>,
+>(factory: Ext): ExtensionFactoryInstance<Ext>;
+export function createExtension<
+  const State = any,
+  const Options extends Record<string, any> | undefined = any,
+  const Key extends string = string,
+  const Factory extends (ctx: any) => Extension<State, Key> = (
+    ctx: ExtensionOptions<Options>,
+  ) => Extension<State, Key>,
+>(factory: Factory): ExtensionFactory<State, Key, Factory>;
+export function createExtension<
+  const State = any,
+  const Options extends Record<string, any> | undefined = any,
+  const Key extends string = string,
+  const Factory extends
+    | Extension<State, Key>
+    | ((ctx: any) => Extension<State, Key>) = (
+    ctx: ExtensionOptions<Options>,
+  ) => Extension<State, Key>,
 >(
-  extension: T,
-): T extends Extension
-  ? () => T
-  : T extends ExtensionFactory
-    ? T
-    : () => undefined {
-  if (typeof extension === "function") {
-    return extension as any;
+  factory: Factory,
+): Factory extends Extension<State, Key>
+  ? ExtensionFactoryInstance<Factory>
+  : Factory extends (ctx: any) => Extension<State, Key>
+    ? ExtensionFactory<State, Key, Factory>
+    : never {
+  // TODO typing for this
+  if (typeof factory === "object" && "key" in factory) {
+    return function factoryFn() {
+      (factory as any)[originalFactorySymbol] = factoryFn;
+      return factory;
+    } as any;
   }
-
-  if (typeof extension === "object" && "key" in extension) {
-    return (() => extension) as any;
-  }
-
-  if (!extension) {
-    return (() => undefined) as any;
-  }
-
-  throw new Error("Invalid extension", { cause: { extension } });
+  return function factoryFn(options: Options) {
+    return (ctx: { editor: BlockNoteEditor<any, any, any> }) => {
+      const extension = factory({ editor: ctx.editor, options });
+      // We stick a symbol onto the extension to allow us to retrieve the original factory for comparison later.
+      // This enables us to do things like: `editor.getExtension(YSync).prosemirrorPlugins`
+      (extension as any)[originalFactorySymbol] = factoryFn;
+      return extension;
+    };
+  } as any;
 }
 
 export function createStore<T = any>(

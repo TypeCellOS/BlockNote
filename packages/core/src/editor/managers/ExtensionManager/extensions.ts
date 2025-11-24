@@ -11,26 +11,48 @@ import { createDropFileExtension } from "../../../api/clipboard/fromClipboard/fi
 import { createPasteFromClipboardExtension } from "../../../api/clipboard/fromClipboard/pasteExtension.js";
 import { createCopyToClipboardExtension } from "../../../api/clipboard/toClipboard/copyExtension.js";
 import {
-  BackgroundColorExtension,
-  HardBreak,
-  KeyboardShortcutsExtension,
-  TextAlignmentExtension,
-  TextColorExtension,
-  UniqueID,
-  SuggestionAddMark,
-  SuggestionDeleteMark,
-  SuggestionModificationMark,
-} from "../../../extensions/tiptap-extensions/index.js";
+  BlockChange,
+  Comments,
+  DropCursor,
+  FilePanel,
+  ForkYDoc,
+  FormattingToolbar,
+  History,
+  LinkToolbar,
+  NodeSelectionKeyboard,
+  Placeholder,
+  PreviousBlockType,
+  SchemaMigration,
+  ShowSelection,
+  SideMenu,
+  SuggestionMenu,
+  TableHandles,
+  TrailingNode,
+  YCursor,
+  YSync,
+  YUndo,
+} from "../../../extensions/index.js";
 import {
   DEFAULT_LINK_PROTOCOL,
   VALID_LINK_PROTOCOLS,
 } from "../../../extensions/LinkToolbar/protocols.js";
+import {
+  BackgroundColorExtension,
+  HardBreak,
+  KeyboardShortcutsExtension,
+  SuggestionAddMark,
+  SuggestionDeleteMark,
+  SuggestionModificationMark,
+  TextAlignmentExtension,
+  TextColorExtension,
+  UniqueID,
+} from "../../../extensions/tiptap-extensions/index.js";
 import { BlockContainer, BlockGroup, Doc } from "../../../pm-nodes/index.js";
 import {
   BlockNoteEditor,
   BlockNoteEditorOptions,
 } from "../../BlockNoteEditor.js";
-import { SuggestionMenu } from "../../../extensions/index.js";
+import { ExtensionFactoryInstance } from "../../BlockNoteExtension.js";
 
 // TODO remove linkify completely by vendoring the link extension & dropping linkifyjs as a dependency
 let LINKIFY_INITIALIZED = false;
@@ -149,4 +171,51 @@ export function getDefaultTiptapExtensions(
   LINKIFY_INITIALIZED = true;
 
   return tiptapExtensions;
+}
+
+export function getDefaultExtensions(
+  editor: BlockNoteEditor<any, any, any>,
+  options: BlockNoteEditorOptions<any, any, any>,
+) {
+  const extensions = [
+    BlockChange(),
+    DropCursor(options),
+    FilePanel(options),
+    FormattingToolbar(options),
+    LinkToolbar(options),
+    NodeSelectionKeyboard(),
+    Placeholder(options),
+    ShowSelection(options),
+    SideMenu(options),
+    SuggestionMenu(options),
+    TrailingNode(),
+  ].filter((a) => a !== undefined) as ExtensionFactoryInstance[];
+
+  if (options.collaboration) {
+    extensions.push(ForkYDoc(options.collaboration));
+    extensions.push(YCursor(options.collaboration));
+    extensions.push(YSync(options.collaboration));
+    extensions.push(YUndo(options.collaboration));
+    extensions.push(SchemaMigration(options.collaboration));
+  } else {
+    // YUndo is not compatible with ProseMirror's history plugin
+    extensions.push(History());
+  }
+
+  if (options.comments) {
+    // TODO comments should now be pulled out of the core package
+    extensions.push(
+      Comments({ ...options.comments, resolveUsers: editor.resolveUsers! }),
+    );
+  }
+
+  if ("table" in editor.schema.blockSpecs) {
+    extensions.push(TableHandles(options));
+  }
+
+  if (options.animations === false) {
+    extensions.push(PreviousBlockType());
+  }
+
+  return extensions;
 }

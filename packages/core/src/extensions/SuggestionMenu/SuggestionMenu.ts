@@ -161,7 +161,7 @@ const suggestionMenuPluginKey = new PluginKey("SuggestionMenuPlugin");
  * - This version hides some unnecessary complexity from the user of the plugin.
  * - This version handles key events differently
  */
-export const SuggestionMenu = createExtension((editor) => {
+export const SuggestionMenu = createExtension(({ editor }) => {
   const triggerCharacters: string[] = [];
   let view: SuggestionMenuView | undefined = undefined;
   const store = createStore<

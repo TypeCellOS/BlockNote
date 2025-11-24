@@ -1,5 +1,5 @@
 import { createGroq } from "@ai-sdk/groq";
-import { BlockNoteEditor,  } from "@blocknote/core";
+import { BlockNoteEditor } from "@blocknote/core";
 import { filterSuggestionItems } from "@blocknote/core/extensions";
 import "@blocknote/core/fonts/inter.css";
 import { en } from "@blocknote/core/locales";
@@ -48,7 +48,7 @@ export default function App() {
       ai: aiEn, // add default translations for the AI extension
     },
     // Register the AI extension
-    extensions: [AIExtension],
+    extensions: [AIExtension()],
     ai: {
       // The ClientSideTransport is used so the client makes calls directly to `streamText`
       // (whereas normally in the Vercel AI SDK, the client makes calls to your server, which then calls these methods)

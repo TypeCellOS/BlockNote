@@ -4,7 +4,7 @@ import { NodeView } from "@tiptap/pm/view";
 import { mergeParagraphs } from "../../blocks/defaultBlockHelpers.js";
 import {
   Extension,
-  ExtensionFactory,
+  ExtensionFactoryInstance,
 } from "../../editor/BlockNoteExtension.js";
 import { PropSchema } from "../propTypes.js";
 import {
@@ -134,7 +134,7 @@ export function addNodeAndExtensionsToSpec<
 >(
   blockConfig: BlockConfig<TName, TProps, TContent>,
   blockImplementation: BlockImplementation<TName, TProps, TContent>,
-  extensions?: (ExtensionFactory | Extension)[],
+  extensions?: (ExtensionFactoryInstance | Extension)[],
   priority?: number,
 ): LooseBlockSpec<TName, TProps, TContent> {
   const node =
@@ -299,10 +299,10 @@ export function createBlockSpec<
             options: Partial<TOptions>,
           ) => BlockImplementation<TName, TProps, TContent>),
   extensionsOrCreator?:
-    | ExtensionFactory[]
+    | ExtensionFactoryInstance[]
     | (TOptions extends undefined
-        ? () => ExtensionFactory[]
-        : (options: Partial<TOptions>) => ExtensionFactory[]),
+        ? () => ExtensionFactoryInstance[]
+        : (options: Partial<TOptions>) => ExtensionFactoryInstance[]),
 ): (options?: Partial<TOptions>) => BlockSpec<TName, TProps, TContent>;
 export function createBlockSpec<
   const TName extends string,
@@ -332,10 +332,10 @@ export function createBlockSpec<
             BlockConf["content"]
           >),
   extensionsOrCreator?:
-    | ExtensionFactory[]
+    | ExtensionFactoryInstance[]
     | (TOptions extends undefined
-        ? () => ExtensionFactory[]
-        : (options: Partial<TOptions>) => ExtensionFactory[]),
+        ? () => ExtensionFactoryInstance[]
+        : (options: Partial<TOptions>) => ExtensionFactoryInstance[]),
 ): (
   options?: Partial<TOptions>,
 ) => BlockSpec<
@@ -362,10 +362,10 @@ export function createBlockSpec<
             options: Partial<TOptions>,
           ) => BlockImplementation<TName, TProps, TContent>),
   extensionsOrCreator?:
-    | ExtensionFactory[]
+    | ExtensionFactoryInstance[]
     | (TOptions extends undefined
-        ? () => ExtensionFactory[]
-        : (options: Partial<TOptions>) => ExtensionFactory[]),
+        ? () => ExtensionFactoryInstance[]
+        : (options: Partial<TOptions>) => ExtensionFactoryInstance[]),
 ): (options?: Partial<TOptions>) => BlockSpec<TName, TProps, TContent> {
   return (options = {} as TOptions) => {
     const blockConfig =

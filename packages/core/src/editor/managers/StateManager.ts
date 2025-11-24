@@ -216,16 +216,12 @@ export class StateManager {
    */
   public undo(): boolean {
     // Purposefully not using the UndoPlugin to not import y-prosemirror when not needed
-    const undoPlugin = this.editor.getExtension("yUndo") as ReturnType<
-      typeof YUndo
-    >;
+    const undoPlugin = this.editor.getExtension<typeof YUndo>("yUndo");
     if (undoPlugin) {
       return this.exec(undoPlugin.undoCommand);
     }
 
-    const historyPlugin = this.editor.getExtension("history") as ReturnType<
-      typeof History
-    >;
+    const historyPlugin = this.editor.getExtension<typeof History>("history");
     if (historyPlugin) {
       return this.exec(historyPlugin.undoCommand);
     }
@@ -237,16 +233,12 @@ export class StateManager {
    * Redo the last action.
    */
   public redo() {
-    const undoPlugin = this.editor.getExtension("yUndo") as ReturnType<
-      typeof YUndo
-    >;
+    const undoPlugin = this.editor.getExtension<typeof YUndo>("yUndo");
     if (undoPlugin) {
       return this.exec(undoPlugin.redoCommand);
     }
 
-    const historyPlugin = this.editor.getExtension("history") as ReturnType<
-      typeof History
-    >;
+    const historyPlugin = this.editor.getExtension<typeof History>("history");
     if (historyPlugin) {
       return this.exec(historyPlugin.redoCommand);
     }

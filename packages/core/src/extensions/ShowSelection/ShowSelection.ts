@@ -1,6 +1,5 @@
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   createExtension,
   createStore,
@@ -13,42 +12,40 @@ const PLUGIN_KEY = new PluginKey(`blocknote-show-selection`);
  * This can be used to highlight the current selection in the UI even when the
  * text editor is not focused.
  */
-export const ShowSelection = createExtension(
-  (editor: BlockNoteEditor<any, any, any>, _options) => {
-    const store = createStore(
-      { enabled: false },
-      {
-        onUpdate() {
-          editor.transact((tr) => tr.setMeta(PLUGIN_KEY, {}));
-        },
+export const ShowSelection = createExtension(({ editor }) => {
+  const store = createStore(
+    { enabled: false },
+    {
+      onUpdate() {
+        editor.transact((tr) => tr.setMeta(PLUGIN_KEY, {}));
       },
-    );
-    return {
-      key: "showSelection",
-      store,
-      prosemirrorPlugins: [
-        new Plugin({
-          key: PLUGIN_KEY,
-          props: {
-            decorations: (state) => {
-              const { doc, selection } = state;
-              if (!store.state.enabled) {
-                return DecorationSet.empty;
-              }
-              const dec = Decoration.inline(selection.from, selection.to, {
-                "data-show-selection": "true",
-              });
-              return DecorationSet.create(doc, [dec]);
-            },
+    },
+  );
+  return {
+    key: "showSelection",
+    store,
+    prosemirrorPlugins: [
+      new Plugin({
+        key: PLUGIN_KEY,
+        props: {
+          decorations: (state) => {
+            const { doc, selection } = state;
+            if (!store.state.enabled) {
+              return DecorationSet.empty;
+            }
+            const dec = Decoration.inline(selection.from, selection.to, {
+              "data-show-selection": "true",
+            });
+            return DecorationSet.create(doc, [dec]);
           },
-        }),
-      ],
-      /**
-       * Show or hide the selection decoration
-       */
-      showSelection(shouldShow: boolean) {
-        store.setState({ enabled: shouldShow });
-      },
-    } as const;
-  },
-);
+        },
+      }),
+    ],
+    /**
+     * Show or hide the selection decoration
+     */
+    showSelection(shouldShow: boolean) {
+      store.setState({ enabled: shouldShow });
+    },
+  } as const;
+});

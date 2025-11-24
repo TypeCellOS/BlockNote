@@ -38,7 +38,7 @@ export function getEditorWithTables() {
     ],
     schema,
     trailingBlock: false,
-    extensions: [AIExtension],
+    extensions: [AIExtension()],
   });
   return editor;
 }

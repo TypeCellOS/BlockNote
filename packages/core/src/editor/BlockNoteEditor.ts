@@ -40,7 +40,7 @@ import "../style.css";
 import { mergeCSSClasses } from "../util/browser.js";
 import { EventEmitter } from "../util/EventEmitter.js";
 import type { NoInfer } from "../util/typescript.js";
-import { Extension, ExtensionFactory } from "./BlockNoteExtension.js";
+import { Extension, ExtensionFactoryInstance } from "./BlockNoteExtension.js";
 import type { TextCursorPosition } from "./cursorPositionTypes.js";
 import {
   BlockManager,
@@ -344,9 +344,9 @@ export interface BlockNoteEditorOptions<
    *
    * See [Extensions](/docs/features/extensions) for more info.
    *
-   * @remarks `Extension[]`
+   * @remarks `ExtensionFactory[]`
    */
-  extensions?: Array<Extension | ExtensionFactory>;
+  extensions?: Array<ExtensionFactoryInstance>;
 }
 
 const blockNoteTipTapOptions = {
@@ -736,14 +736,14 @@ export class BlockNoteEditor<
   }
 
   /**
-   * Remove an extension(s) from the editor
+   * Remove extension(s) from the editor
    */
-  public removeExtension: ExtensionManager["unregisterExtension"] = (
+  public unregisterExtension: ExtensionManager["unregisterExtension"] = (
     ...args: Parameters<ExtensionManager["unregisterExtension"]>
   ) => this._extensionManager.unregisterExtension(...args);
 
   /**
-   * Register an extension to the editor
+   * Register extension(s) to the editor
    */
   public registerExtension: ExtensionManager["registerExtension"] = (
     ...args: Parameters<ExtensionManager["registerExtension"]>
@@ -752,8 +752,9 @@ export class BlockNoteEditor<
   /**
    * Get an extension from the editor
    */
-  public getExtension: ExtensionManager["getExtension"] = (...args) =>
-    this._extensionManager.getExtension(...args);
+  public getExtension: ExtensionManager["getExtension"] = ((
+    ...args: Parameters<ExtensionManager["getExtension"]>
+  ) => this._extensionManager.getExtension(...args)) as any;
 
   /**
    * Mount the editor to a DOM element.

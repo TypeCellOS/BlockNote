@@ -16,7 +16,7 @@ export function getSimpleEditor() {
     ],
     trailingBlock: false,
     schema,
-    extensions: [AIExtension],
+    extensions: [AIExtension()],
   });
   return editor;
 }
@@ -39,7 +39,7 @@ export function getSimpleEditorWithCursorBetweenBlocks() {
     ],
     trailingBlock: false,
     schema,
-    extensions: [AIExtension],
+    extensions: [AIExtension()],
   });
   editor.setTextCursorPosition("ref2");
   return editor;

@@ -72,7 +72,7 @@ export function getEditorWithFormattingAndMentions() {
     ],
     trailingBlock: false,
     schema,
-    extensions: [AIExtension],
+    extensions: [AIExtension()],
   });
   return editor;
 }

@@ -7,14 +7,22 @@ import { keymap } from "@tiptap/pm/keymap";
 import { Plugin } from "prosemirror-state";
 import { updateBlockTr } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { getBlockInfoFromTransaction } from "../../../api/getBlockInfoFromPos.js";
-import { DEFAULT_EXTENSIONS } from "../../../extensions/index.js";
 import { sortByDependencies } from "../../../util/topo-sort.js";
 import type {
   BlockNoteEditor,
   BlockNoteEditorOptions,
 } from "../../BlockNoteEditor.js";
-import type { Extension, ExtensionFactory } from "../../BlockNoteExtension.js";
-import { getDefaultTiptapExtensions } from "./extensions.js";
+import type {
+  Extension,
+  ExtensionFactoryInstance,
+  ExtensionFactory,
+} from "../../BlockNoteExtension.js";
+import {
+  getDefaultExtensions,
+  getDefaultTiptapExtensions,
+} from "./extensions.js";
+
+export const originalFactorySymbol = Symbol("originalFactory");
 
 export class ExtensionManager {
   /**
@@ -85,7 +93,7 @@ export class ExtensionManager {
     this.disabledExtensions = new Set(options.disableExtensions || []);
 
     // Add the default extensions
-    for (const extension of DEFAULT_EXTENSIONS) {
+    for (const extension of getDefaultExtensions(this.editor, this.options)) {
       this.addExtension(extension);
     }
 
@@ -109,14 +117,13 @@ export class ExtensionManager {
    */
   public registerExtension(
     extension:
-      | undefined
       | Extension
-      | ExtensionFactory
-      | (Extension | ExtensionFactory | undefined)[],
+      | ExtensionFactoryInstance
+      | (Extension | ExtensionFactoryInstance)[],
   ): void {
-    const extensions = ([] as (Extension | ExtensionFactory | undefined)[])
+    const extensions = ([] as (Extension | ExtensionFactoryInstance)[])
       .concat(extension)
-      .filter(Boolean) as (Extension | ExtensionFactory)[];
+      .filter(Boolean) as (Extension | ExtensionFactoryInstance)[];
 
     if (!extensions.length) {
       // eslint-disable-next-line no-console
@@ -147,6 +154,7 @@ export class ExtensionManager {
     }
 
     // TODO there isn't a great way to do sorting right now. This is something that should be improved in the future.
+    // So, we just append to the end of the list for now.
     this.updatePlugins((plugins) => [...plugins, ...pluginsToAdd]);
   }
 
@@ -155,16 +163,12 @@ export class ExtensionManager {
    * @param extension - The extension to register
    * @returns The extension instance
    */
-  private addExtension<T extends ExtensionFactory | Extension>(
-    extension: T,
-  ): T extends ExtensionFactory
-    ? ReturnType<T>
-    : T extends Extension | undefined
-      ? T
-      : never {
-    let instance: Extension | undefined;
+  private addExtension(
+    extension: Extension | ExtensionFactoryInstance,
+  ): Extension | undefined {
+    let instance: Extension;
     if (typeof extension === "function") {
-      instance = extension(this.editor, this.options);
+      instance = extension({ editor: this.editor });
     } else {
       instance = extension;
     }
@@ -175,7 +179,13 @@ export class ExtensionManager {
 
     // Now that we know that the extension is not disabled, we can add it to the extension factories
     if (typeof extension === "function") {
-      this.extensionFactories.set(extension, instance);
+      const originalFactory = (instance as any)[originalFactorySymbol] as (
+        ...args: any[]
+      ) => ExtensionFactoryInstance;
+
+      if (typeof originalFactory === "function") {
+        this.extensionFactories.set(originalFactory, instance);
+      }
     }
 
     this.extensions.push(instance);
@@ -408,21 +418,29 @@ export class ExtensionManager {
    * Get a specific extension by it's instance
    */
   public getExtension<
-    T extends ExtensionFactory | Extension | string | undefined,
+    const Ext extends Extension | ExtensionFactory = Extension,
   >(
+    extension: string,
+  ):
+    | (Ext extends Extension
+        ? Ext
+        : Ext extends ExtensionFactory
+          ? ReturnType<ReturnType<Ext>>
+          : never)
+    | undefined;
+  public getExtension<const T extends ExtensionFactory>(
+    extension: T,
+  ): ReturnType<ReturnType<T>> | undefined;
+  public getExtension<const T extends ExtensionFactory | string = string>(
     extension: T,
   ):
     | (T extends ExtensionFactory
-        ? ReturnType<T>
-        : T extends Extension
-          ? T
-          : T extends string
-            ? Extension
-            : never)
+        ? ReturnType<ReturnType<T>>
+        : T extends string
+          ? Extension
+          : never)
     | undefined {
-    if (!extension) {
-      return undefined;
-    } else if (typeof extension === "string") {
+    if (typeof extension === "string") {
       const instance = this.extensions.find((e) => e.key === extension);
       if (!instance) {
         return undefined;
@@ -434,8 +452,6 @@ export class ExtensionManager {
         return undefined;
       }
       return instance as any;
-    } else if (typeof extension === "object" && "key" in extension) {
-      return this.getExtension(extension.key) as any;
     }
     throw new Error(`Invalid extension type: ${typeof extension}`);
   }

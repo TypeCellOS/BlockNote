@@ -1,4 +1,4 @@
-import { BlockNoteEditor,  } from "@blocknote/core";
+import { BlockNoteEditor } from "@blocknote/core";
 import { filterSuggestionItems } from "@blocknote/core/extensions";
 import "@blocknote/core/fonts/inter.css";
 import { en } from "@blocknote/core/locales";
@@ -36,7 +36,7 @@ export default function App() {
       ai: aiEn, // add default translations for the AI extension
     },
     // Register the AI extension
-    extensions: [AIExtension],
+    extensions: [AIExtension()],
     ai: {
       // similar to https://ai-sdk.dev/docs/ai-sdk-ui/chatbot-message-persistence#sending-only-the-last-message
       // we adjust the transport to not send all messages to the backend

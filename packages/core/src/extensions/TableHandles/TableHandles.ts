@@ -608,7 +608,7 @@ export class TableHandlesView implements PluginView {
 
 export const tableHandlesPluginKey = new PluginKey("TableHandlesPlugin");
 
-export const TableHandles = createExtension((editor) => {
+export const TableHandles = createExtension(({ editor }) => {
   let view: TableHandlesView | undefined = undefined;
 
   const store = createStore<TableHandlesState | undefined>(undefined);
