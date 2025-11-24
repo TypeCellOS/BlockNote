@@ -624,7 +624,6 @@ export class BlockNoteEditor<
       }) as any;
       this.pmSchema = this._tiptapEditor.schema;
     } catch (e) {
-      console.error(e);
       throw new Error(
         "Error creating document from blocks passed as `initialContent`",
         { cause: e },
