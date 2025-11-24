@@ -1,37 +1,41 @@
-import { FilePanelExtension as FilePanelExtension } from "@blocknote/core/extensions";
+import { FilePanelExtension } from "@blocknote/core/extensions";
 import { flip, offset } from "@floating-ui/react";
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC, useMemo } from "react";
 
 import { FilePanel } from "./FilePanel.js";
 import { FilePanelProps } from "./FilePanelProps.js";
 import { BlockPopover } from "../Popovers/BlockPopover.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
-import { useExtensionState } from "../../hooks/useExtension.js";
+import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 
 export const FilePanelController = (props: {
   filePanel?: FC<FilePanelProps>;
   floatingUIOptions?: FloatingUIOptions;
 }) => {
-  const [open, setOpen] = useState(false);
+  const editor = useBlockNoteEditor<any, any, any>();
 
+  const filePanel = useExtension(FilePanelExtension);
   const blockId = useExtensionState(FilePanelExtension, {
     selector: (state) => state.blockId,
   });
-  useEffect(() => {
-    setOpen(blockId !== undefined);
-  }, [blockId]);
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
       useFloatingOptions: {
-        open,
+        open: !!blockId,
         // Needed as hooks like `useDismiss` call `onOpenChange` to change the
         // open state.
-        onOpenChange: setOpen,
+        onOpenChange: (open, _event, reason) => {
+          if (!open) {
+            filePanel.closeMenu();
+          }
+
+          if (reason === "escape-key") {
+            editor.focus();
+          }
+        },
         middleware: [offset(10), flip()],
-      },
-      useDismissProps: {
-        outsidePress: false,
       },
       elementProps: {
         style: {
@@ -40,7 +44,7 @@ export const FilePanelController = (props: {
       },
       ...props.floatingUIOptions,
     }),
-    [open, props.floatingUIOptions],
+    [blockId, editor, filePanel, props.floatingUIOptions],
   );
 
   const Component = props.filePanel || FilePanel;

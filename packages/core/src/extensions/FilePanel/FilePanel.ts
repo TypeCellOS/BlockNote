@@ -18,15 +18,19 @@ export const FilePanelExtension = createExtension(({ editor }) => {
     key: "filePanel",
     store,
     mount({ signal }) {
-      // reset the menu when the document changes
+      // Reset the menu when the document changes.
       const unsubscribeOnChange = editor.onChange(
         closeMenu,
-        // don't trigger the callback if the changes are caused by a remote user
+        // Don't trigger if the changes are caused by a remote user.
         false,
       );
 
       // reset the menu when the selection changes
-      const unsubscribeOnSelectionChange = editor.onSelectionChange(closeMenu);
+      const unsubscribeOnSelectionChange = editor.onSelectionChange(
+        closeMenu,
+        // Don't trigger if the changes are caused by a remote user.
+        false,
+      );
 
       signal.addEventListener("abort", () => {
         unsubscribeOnChange();

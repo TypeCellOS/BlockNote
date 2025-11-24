@@ -9,14 +9,23 @@ export const FormattingToolbarExtension = createExtension(({ editor }) => {
 
   const shouldShow = () => {
     return editor.transact((tr) => {
-      // if the selection is empty, or not a text selection, we should not show the toolbar
-      if (tr.selection.empty || !(tr.selection instanceof TextSelection)) {
+      // Don't show if the selection is empty, or is a text selection with no
+      // text.
+      if (tr.selection.empty) {
         return false;
       }
 
-      // We don't want to show the toolbar if the selection has code in it
+      // Don't show if the selection is a text selection but contains no text.
+      if (
+        tr.selection instanceof TextSelection &&
+        tr.doc.textBetween(tr.selection.from, tr.selection.to).length === 0
+      ) {
+        return false;
+      }
+
+      // Searches the content of the selection to see if it spans a node with a
+      // code spec.
       let spansCode = false;
-      // search the content of the selection to see if it ever spans a node with a code spec
       tr.selection.content().content.descendants((node) => {
         if (node.type.spec.code) {
           spansCode = true;
@@ -24,12 +33,12 @@ export const FormattingToolbarExtension = createExtension(({ editor }) => {
         return !spansCode; // keep descending if we haven't found a code block
       });
 
-      // if the selection is in a code block, we should not show the toolbar
+      // Don't show if the selection spans a code block.
       if (spansCode) {
         return false;
       }
 
-      // otherwise, we should show the toolbar at the current selection
+      // Show toolbar otherwise.
       return true;
     });
   };
