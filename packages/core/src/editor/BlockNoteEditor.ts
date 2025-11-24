@@ -19,7 +19,6 @@ import {
   DefaultStyleSchema,
   PartialBlock,
 } from "../blocks/index.js";
-import type { ThreadStore, User } from "../comments/index.js";
 import { UniqueID } from "../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 import type { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
@@ -112,17 +111,6 @@ export interface BlockNoteEditorOptions<
      * or types. Defaults to "activity".
      */
     showCursorLabels?: "always" | "activity";
-  };
-
-  /**
-   * Configuration for the comments feature, requires a `threadStore`.
-   *
-   * See [Comments](https://www.blocknotejs.org/docs/features/collaboration/comments) for more info.
-   * @remarks `CommentsOptions`
-   */
-  comments?: {
-    schema?: BlockNoteSchema<any, any, any>;
-    threadStore: ThreadStore;
   };
 
   /**
@@ -242,13 +230,6 @@ export interface BlockNoteEditorOptions<
    * @returns The URL that's
    */
   resolveFileUrl?: (url: string) => Promise<string>;
-
-  /**
-   * Resolve user information for comments.
-   *
-   * See [Comments](https://www.blocknotejs.org/docs/features/collaboration/comments) for more info.
-   */
-  resolveUsers?: (userIds: string[]) => Promise<User[]>;
 
   /**
    * The schema of the editor. The schema defines which Blocks, InlineContent, and Styles are available in the editor.
