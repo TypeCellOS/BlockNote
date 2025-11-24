@@ -179,8 +179,6 @@ export const CommentsExtension = createExtension(
                 return state;
               }
 
-              console.log("fuck");
-
               // only update threadPositions if the doc changed
               const newThreadPositions = tr.docChanged
                 ? getUpdatedThreadPositions(tr.doc, markType)
@@ -196,7 +194,6 @@ export const CommentsExtension = createExtension(
               const decorations = [] as any[];
 
               if (selectedThreadId) {
-                console.log(selectedThreadId);
                 const selectedThreadPosition =
                   newThreadPositions.get(selectedThreadId);
 
