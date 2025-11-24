@@ -56,9 +56,14 @@ export default function App() {
               url={props.url}
               text={props.text}
               range={props.range}
+              setToolbarOpen={props.setToolbarOpen}
+              setToolbarFrozen={props.setToolbarFrozen}
             />
             <OpenLinkButton url={props.url} />
-            <DeleteLinkButton />
+            <DeleteLinkButton
+              range={props.range}
+              setToolbarOpen={props.setToolbarOpen}
+            />
             {/* Extra button to open alert. */}
             <AlertButton {...props} />
           </LinkToolbar>

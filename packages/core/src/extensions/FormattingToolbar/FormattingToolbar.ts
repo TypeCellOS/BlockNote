@@ -36,7 +36,7 @@ export const FormattingToolbar = createExtension((editor) => {
 
   return {
     key: "formattingToolbar",
-    store: store,
+    store,
     mount({ dom, signal }) {
       /**
        * We want to mimic the Notion behavior of not showing the toolbar while the user is holding down the mouse button (to create a selection)

@@ -15,7 +15,7 @@ import { FloatingUIOptions } from "./FloatingUIOptions.js";
 
 export const GenericPopover = (
   props: FloatingUIOptions & {
-    reference?: ReferenceType | null;
+    reference?: ReferenceType;
     children: ReactNode;
   },
 ) => {

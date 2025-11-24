@@ -5,14 +5,15 @@ import {
   BlockNoteEditor,
   BlockSchema,
   formatKeyboardShortcut,
-  InlineContentSchema,
   isTableCellSelection,
   StyleSchema,
 } from "@blocknote/core";
+import { FormattingToolbar } from "@blocknote/core/extensions";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
+import { useExtension } from "../../../hooks/useExtension.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 import { EditLinkMenuItems } from "../../LinkToolbar/EditLinkMenuItems.js";
 
@@ -36,13 +37,11 @@ function checkLinkInSchema(
 }
 
 export const CreateLinkButton = () => {
-  const editor = useBlockNoteEditor<
-    BlockSchema,
-    InlineContentSchema,
-    StyleSchema
-  >();
+  const editor = useBlockNoteEditor<any, any, any>();
   const Components = useComponentsContext()!;
   const dict = useDictionary();
+
+  const formattingToolbar = useExtension(FormattingToolbar);
 
   const [showPopover, setShowPopover] = useState(false);
 
@@ -99,7 +98,7 @@ export const CreateLinkButton = () => {
   }
 
   return (
-    <Components.Generic.Popover.Root opened={showPopover}>
+    <Components.Generic.Popover.Root open={showPopover}>
       <Components.Generic.Popover.Trigger>
         {/* TODO: hide tooltip on click */}
         <Components.FormattingToolbar.Button
@@ -124,6 +123,7 @@ export const CreateLinkButton = () => {
           text={state.text}
           range={state.range}
           showTextField={false}
+          setToolbarOpen={(open) => formattingToolbar.store.setState(open)}
         />
       </Components.Generic.Popover.Content>
     </Components.Generic.Popover.Root>
