@@ -1284,22 +1284,6 @@ export class BlockNoteEditor<
   }
 
   /**
-   * Gets the bounding box of a block.
-   * @param blockId The id of the block to get the bounding box of.
-   * @returns The bounding box of the block or undefined if the block is not found.
-   */
-  public getBlockClientRect(blockId: string): DOMRect | undefined {
-    const blockElement = this.prosemirrorView.root.querySelector(
-      `[data-node-type="blockContainer"][data-id="${blockId}"]`,
-    );
-    if (!blockElement) {
-      return;
-    }
-
-    return blockElement.getBoundingClientRect();
-  }
-
-  /**
    * A callback function that runs when the editor has been initialized.
    *
    * This can be useful for plugins to initialize themselves after the editor has been initialized.
@@ -1366,31 +1350,6 @@ export class BlockNoteEditor<
         (doc[0].content as any).length === 0)
     );
   }
-
-  // TODO move to extension
-  // public openSuggestionMenu(
-  //   triggerCharacter: string,
-  //   pluginState?: {
-  //     deleteTriggerCharacter?: boolean;
-  //     ignoreQueryLength?: boolean;
-  //   },
-  // ) {
-  //   if (!this.prosemirrorView) {
-  //     return;
-  //   }
-
-  //   this.focus();
-  //   this.transact((tr) => {
-  //     if (pluginState?.deleteTriggerCharacter) {
-  //       tr.insertText(triggerCharacter);
-  //     }
-  //     tr.scrollIntoView().setMeta(this.suggestionMenus.plugins[0], {
-  //       triggerCharacter: triggerCharacter,
-  //       deleteTriggerCharacter: pluginState?.deleteTriggerCharacter || false,
-  //       ignoreQueryLength: pluginState?.ignoreQueryLength || false,
-  //     });
-  //   });
-  // }
 
   /**
    * Paste HTML into the editor. Defaults to converting HTML to BlockNote HTML.
