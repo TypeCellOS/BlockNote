@@ -1,5 +1,9 @@
 import { defaultSelectionBuilder, yCursorPlugin } from "y-prosemirror";
-import { createExtension } from "../../editor/BlockNoteExtension.js";
+import {
+  createExtension,
+  ExtensionOptions,
+} from "../../editor/BlockNoteExtension.js";
+import { BlockNoteEditorOptions } from "../../editor/BlockNoteEditor.js";
 
 export type CollaborationUser = {
   name: string;
@@ -62,119 +66,117 @@ function defaultCursorRender(user: CollaborationUser) {
   return cursorElement;
 }
 
-export const YCursor = createExtension((_editor, options) => {
-  const collaboration = options?.collaboration;
-  if (!collaboration) {
-    return;
-  }
+export const YCursor = createExtension(
+  ({
+    options,
+  }: ExtensionOptions<
+    NonNullable<BlockNoteEditorOptions<any, any, any>["collaboration"]>
+  >) => {
+    const recentlyUpdatedCursors = new Map();
 
-  const recentlyUpdatedCursors = new Map();
-
-  if (
-    "awareness" in collaboration.provider &&
-    typeof collaboration.provider.awareness === "object"
-  ) {
     if (
-      "setLocalStateField" in collaboration.provider.awareness &&
-      typeof collaboration.provider.awareness.setLocalStateField === "function"
+      "awareness" in options.provider &&
+      typeof options.provider.awareness === "object"
     ) {
-      collaboration.provider.awareness.setLocalStateField(
-        "user",
-        collaboration.user,
-      );
-    }
-    if (
-      "on" in collaboration.provider.awareness &&
-      typeof collaboration.provider.awareness.on === "function"
-    ) {
-      if (collaboration.showCursorLabels !== "always") {
-        collaboration.provider.awareness.on(
-          "change",
-          ({
-            updated,
-          }: {
-            added: Array<number>;
-            updated: Array<number>;
-            removed: Array<number>;
-          }) => {
-            for (const clientID of updated) {
-              const cursor = recentlyUpdatedCursors.get(clientID);
-
-              if (cursor) {
-                cursor.element.setAttribute("data-active", "");
-
-                if (cursor.hideTimeout) {
-                  clearTimeout(cursor.hideTimeout);
-                }
-
-                recentlyUpdatedCursors.set(clientID, {
-                  element: cursor.element,
-                  hideTimeout: setTimeout(() => {
-                    cursor.element.removeAttribute("data-active");
-                  }, 2000),
-                });
-              }
-            }
-          },
-        );
+      if (
+        "setLocalStateField" in options.provider.awareness &&
+        typeof options.provider.awareness.setLocalStateField === "function"
+      ) {
+        options.provider.awareness.setLocalStateField("user", options.user);
       }
-    }
-  }
+      if (
+        "on" in options.provider.awareness &&
+        typeof options.provider.awareness.on === "function"
+      ) {
+        if (options.showCursorLabels !== "always") {
+          options.provider.awareness.on(
+            "change",
+            ({
+              updated,
+            }: {
+              added: Array<number>;
+              updated: Array<number>;
+              removed: Array<number>;
+            }) => {
+              for (const clientID of updated) {
+                const cursor = recentlyUpdatedCursors.get(clientID);
 
-  return {
-    key: "yCursor",
-    prosemirrorPlugins: [
-      yCursorPlugin(collaboration.provider.awareness, {
-        selectionBuilder: defaultSelectionBuilder,
-        cursorBuilder(user: CollaborationUser, clientID: number) {
-          let cursorData = recentlyUpdatedCursors.get(clientID);
+                if (cursor) {
+                  cursor.element.setAttribute("data-active", "");
 
-          if (!cursorData) {
-            const cursorElement = (
-              collaboration.renderCursor ?? defaultCursorRender
-            )(user);
+                  if (cursor.hideTimeout) {
+                    clearTimeout(cursor.hideTimeout);
+                  }
 
-            if (collaboration.showCursorLabels !== "always") {
-              cursorElement.addEventListener("mouseenter", () => {
-                const cursor = recentlyUpdatedCursors.get(clientID)!;
-                cursor.element.setAttribute("data-active", "");
-
-                if (cursor.hideTimeout) {
-                  clearTimeout(cursor.hideTimeout);
                   recentlyUpdatedCursors.set(clientID, {
                     element: cursor.element,
-                    hideTimeout: undefined,
+                    hideTimeout: setTimeout(() => {
+                      cursor.element.removeAttribute("data-active");
+                    }, 2000),
                   });
                 }
-              });
+              }
+            },
+          );
+        }
+      }
+    }
 
-              cursorElement.addEventListener("mouseleave", () => {
-                const cursor = recentlyUpdatedCursors.get(clientID)!;
+    return {
+      key: "yCursor",
+      prosemirrorPlugins: [
+        yCursorPlugin(options.provider.awareness, {
+          selectionBuilder: defaultSelectionBuilder,
+          cursorBuilder(user: CollaborationUser, clientID: number) {
+            let cursorData = recentlyUpdatedCursors.get(clientID);
 
-                recentlyUpdatedCursors.set(clientID, {
-                  element: cursor.element,
-                  hideTimeout: setTimeout(() => {
-                    cursor.element.removeAttribute("data-active");
-                  }, 2000),
+            if (!cursorData) {
+              const cursorElement = (
+                options.renderCursor ?? defaultCursorRender
+              )(user);
+
+              if (options.showCursorLabels !== "always") {
+                cursorElement.addEventListener("mouseenter", () => {
+                  const cursor = recentlyUpdatedCursors.get(clientID)!;
+                  cursor.element.setAttribute("data-active", "");
+
+                  if (cursor.hideTimeout) {
+                    clearTimeout(cursor.hideTimeout);
+                    recentlyUpdatedCursors.set(clientID, {
+                      element: cursor.element,
+                      hideTimeout: undefined,
+                    });
+                  }
                 });
-              });
+
+                cursorElement.addEventListener("mouseleave", () => {
+                  const cursor = recentlyUpdatedCursors.get(clientID)!;
+
+                  recentlyUpdatedCursors.set(clientID, {
+                    element: cursor.element,
+                    hideTimeout: setTimeout(() => {
+                      cursor.element.removeAttribute("data-active");
+                    }, 2000),
+                  });
+                });
+              }
+
+              cursorData = {
+                element: cursorElement,
+                hideTimeout: undefined,
+              };
+
+              recentlyUpdatedCursors.set(clientID, cursorData);
             }
 
-            cursorData = {
-              element: cursorElement,
-              hideTimeout: undefined,
-            };
-
-            recentlyUpdatedCursors.set(clientID, cursorData);
-          }
-
-          return cursorData.element;
-        },
-      }),
-    ],
-    dependsOn: ["ySync"],
-    updateUser(user: { name: string; color: string; [key: string]: string }) {
-      collaboration.provider.awareness.setLocalStateField("user", user);
-    },
-  } as const;
-});
+            return cursorData.element;
+          },
+        }),
+      ],
+      dependsOn: ["ySync"],
+      updateUser(user: { name: string; color: string; [key: string]: string }) {
+        options.provider.awareness.setLocalStateField("user", user);
+      },
+    } as const;
+  },
+);

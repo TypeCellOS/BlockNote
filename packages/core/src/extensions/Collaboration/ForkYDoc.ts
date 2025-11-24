@@ -3,10 +3,12 @@ import * as Y from "yjs";
 import {
   createExtension,
   createStore,
+  ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
 import { YCursor } from "./YCursorPlugin.js";
 import { YSync } from "./YSync.js";
 import { YUndo } from "./YUndo.js";
+import { BlockNoteEditorOptions } from "../../editor/BlockNoteEditor.js";
 
 /**
  * To find a fragment in another ydoc, we need to search for it.
@@ -41,107 +43,108 @@ function findTypeInOtherYdoc<T extends Y.AbstractType<any>>(
   }
 }
 
-export const ForkYDoc = createExtension((editor, options) => {
-  if (!options.collaboration) {
-    return;
-  }
+export const ForkYDoc = createExtension(
+  ({
+    editor,
+    options,
+  }: ExtensionOptions<
+    NonNullable<BlockNoteEditorOptions<any, any, any>["collaboration"]>
+  >) => {
+    let forkedState:
+      | {
+          originalFragment: Y.XmlFragment;
+          undoStack: Y.UndoManager["undoStack"];
+          forkedFragment: Y.XmlFragment;
+        }
+      | undefined = undefined;
 
-  let forkedState:
-    | {
-        originalFragment: Y.XmlFragment;
-        undoStack: Y.UndoManager["undoStack"];
-        forkedFragment: Y.XmlFragment;
-      }
-    | undefined = undefined;
+    const store = createStore({ isForked: false });
 
-  const store = createStore({ isForked: false });
+    return {
+      key: "yForkDoc",
+      store,
+      /**
+       * Fork the Y.js document from syncing to the remote,
+       * allowing modifications to the document without affecting the remote.
+       * These changes can later be rolled back or applied to the remote.
+       */
+      fork() {
+        if (forkedState) {
+          return;
+        }
 
-  return {
-    key: "yForkDoc",
-    store,
-    /**
-     * Fork the Y.js document from syncing to the remote,
-     * allowing modifications to the document without affecting the remote.
-     * These changes can later be rolled back or applied to the remote.
-     */
-    fork() {
-      if (forkedState) {
-        return;
-      }
+        const originalFragment = options.fragment;
 
-      const originalFragment = options.collaboration?.fragment;
+        if (!originalFragment) {
+          throw new Error("No fragment to fork from");
+        }
 
-      if (!originalFragment) {
-        throw new Error("No fragment to fork from");
-      }
+        const doc = new Y.Doc();
+        // Copy the original document to a new Yjs document
+        Y.applyUpdate(doc, Y.encodeStateAsUpdate(originalFragment.doc!));
 
-      const doc = new Y.Doc();
-      // Copy the original document to a new Yjs document
-      Y.applyUpdate(doc, Y.encodeStateAsUpdate(originalFragment.doc!));
+        // Find the forked fragment in the new Yjs document
+        const forkedFragment = findTypeInOtherYdoc(originalFragment, doc);
 
-      // Find the forked fragment in the new Yjs document
-      const forkedFragment = findTypeInOtherYdoc(originalFragment, doc);
+        forkedState = {
+          undoStack: yUndoPluginKey.getState(editor.prosemirrorState)!
+            .undoManager.undoStack,
+          originalFragment,
+          forkedFragment,
+        };
 
-      forkedState = {
-        undoStack: yUndoPluginKey.getState(editor.prosemirrorState)!.undoManager
-          .undoStack,
-        originalFragment,
-        forkedFragment,
-      };
-
-      // Need to reset all the yjs plugins
-      editor.removeExtension([YUndo, YCursor, YSync]);
-      const newOptions = {
-        ...options,
-        collaboration: {
-          ...options.collaboration!,
+        // Need to reset all the yjs plugins
+        editor.unregisterExtension([YUndo, YCursor, YSync]);
+        const newOptions = {
+          ...options,
           fragment: forkedFragment,
-        },
-      };
-      // Register them again, based on the new forked fragment
-      editor.registerExtension([
-        YSync(editor, newOptions),
-        // No need to register the cursor plugin again, it's a local fork
-        YUndo(editor, newOptions),
-      ]);
+        };
+        // Register them again, based on the new forked fragment
+        editor.registerExtension([
+          YSync(newOptions),
+          // No need to register the cursor plugin again, it's a local fork
+          YUndo({}),
+        ]);
 
-      // Tell the store that the editor is now forked
-      store.setState({ isForked: true });
-    },
+        // Tell the store that the editor is now forked
+        store.setState({ isForked: true });
+      },
 
-    /**
-     * Resume syncing the Y.js document to the remote
-     * If `keepChanges` is true, any changes that have been made to the forked document will be applied to the original document.
-     * Otherwise, the original document will be restored and the changes will be discarded.
-     */
-    merge({ keepChanges }: { keepChanges: boolean }) {
-      if (!forkedState) {
-        return;
-      }
-      // Remove the forked fragment's plugins
-      editor.removeExtension(["ySync", "yCursor", "yUndo"]);
+      /**
+       * Resume syncing the Y.js document to the remote
+       * If `keepChanges` is true, any changes that have been made to the forked document will be applied to the original document.
+       * Otherwise, the original document will be restored and the changes will be discarded.
+       */
+      merge({ keepChanges }: { keepChanges: boolean }) {
+        if (!forkedState) {
+          return;
+        }
+        // Remove the forked fragment's plugins
+        editor.unregisterExtension(["ySync", "yCursor", "yUndo"]);
 
-      const { originalFragment, forkedFragment, undoStack } = forkedState;
-      // Register the plugins again, based on the original fragment (which is still in the original options)
-      editor.registerExtension([YSync, YCursor, YUndo]);
+        const { originalFragment, forkedFragment, undoStack } = forkedState;
+        // Register the plugins again, based on the original fragment (which is still in the original options)
+        editor.registerExtension([YSync(options), YCursor(options), YUndo({})]);
 
-      // Reset the undo stack to the original undo stack
-      yUndoPluginKey.getState(editor.prosemirrorState)!.undoManager.undoStack =
-        undoStack;
+        // Reset the undo stack to the original undo stack
+        yUndoPluginKey.getState(
+          editor.prosemirrorState,
+        )!.undoManager.undoStack = undoStack;
 
-      if (keepChanges) {
-        // Apply any changes that have been made to the fork, onto the original doc
-        const update = Y.encodeStateAsUpdate(
-          forkedFragment.doc!,
-          Y.encodeStateVector(originalFragment.doc!),
-        );
-        // Applying this change will add to the undo stack, allowing it to be undone normally
-        Y.applyUpdate(originalFragment.doc!, update, editor);
-      }
-      // Reset the forked state
-      forkedState = undefined;
-      // Tell the store that the editor is no longer forked
-      store.setState({ isForked: false });
-    },
-  } as const;
-});
+        if (keepChanges) {
+          // Apply any changes that have been made to the fork, onto the original doc
+          const update = Y.encodeStateAsUpdate(
+            forkedFragment.doc!,
+            Y.encodeStateVector(originalFragment.doc!),
+          );
+          // Applying this change will add to the undo stack, allowing it to be undone normally
+          Y.applyUpdate(originalFragment.doc!, update, editor);
+        }
+        // Reset the forked state
+        forkedState = undefined;
+        // Tell the store that the editor is no longer forked
+        store.setState({ isForked: false });
+      },
+    } as const;
+  },
+);

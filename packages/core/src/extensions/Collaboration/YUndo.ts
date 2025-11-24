@@ -1,11 +1,7 @@
 import { redoCommand, undoCommand, yUndoPlugin } from "y-prosemirror";
 import { createExtension } from "../../editor/BlockNoteExtension.js";
 
-export const YUndo = createExtension((editor, options) => {
-  if (!options.collaboration) {
-    return;
-  }
-
+export const YUndo = createExtension(({ editor }) => {
   return {
     key: "yUndo",
     prosemirrorPlugins: [yUndoPlugin({ trackedOrigins: [editor] })],

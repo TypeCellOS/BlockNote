@@ -4,7 +4,7 @@ import {
 } from "../../editor/BlockNoteExtension.js";
 import { TextSelection } from "prosemirror-state";
 
-export const FormattingToolbar = createExtension((editor) => {
+export const FormattingToolbar = createExtension(({ editor }) => {
   const store = createStore(false);
 
   const shouldShow = () => {

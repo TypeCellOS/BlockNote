@@ -1,15 +1,16 @@
 import { ySyncPlugin } from "y-prosemirror";
-import { createExtension } from "../../editor/BlockNoteExtension.js";
+import { XmlFragment } from "yjs";
+import {
+  ExtensionOptions,
+  createExtension,
+} from "../../editor/BlockNoteExtension.js";
 
-export const YSync = createExtension((_editor, options) => {
-  const fragment = options?.collaboration?.fragment;
-  if (!fragment) {
-    return;
-  }
-
-  return {
-    key: "ySync",
-    prosemirrorPlugins: [ySyncPlugin(fragment)],
-    runsBefore: ["default"],
-  } as const;
-});
+export const YSync = createExtension(
+  ({ options }: ExtensionOptions<{ fragment: XmlFragment }>) => {
+    return {
+      key: "ySync",
+      prosemirrorPlugins: [ySyncPlugin(options.fragment)],
+      runsBefore: ["default"],
+    } as const;
+  },
+);

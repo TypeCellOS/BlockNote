@@ -3,7 +3,7 @@ import {
   createStore,
 } from "../../editor/BlockNoteExtension.js";
 
-export const FilePanel = createExtension((editor) => {
+export const FilePanel = createExtension(({ editor }) => {
   const store = createStore({
     blockId: undefined as string | undefined,
   });

@@ -10,7 +10,7 @@ export function getEmptyEditor() {
       },
     ],
     trailingBlock: false,
-    extensions: [AIExtension],
+    extensions: [AIExtension()],
   });
   return editor;
 }

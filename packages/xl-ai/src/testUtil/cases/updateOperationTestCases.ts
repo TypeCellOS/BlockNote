@@ -683,7 +683,7 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
           },
         ],
         schema,
-        extensions: [AIExtension],
+        extensions: [AIExtension()],
       });
       return editor;
     },
@@ -736,7 +736,7 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
           },
         ],
         schema,
-        extensions: [AIExtension],
+        extensions: [AIExtension()],
       });
       return editor;
     },
@@ -771,7 +771,7 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
           },
         ],
         schema,
-        extensions: [AIExtension],
+        extensions: [AIExtension()],
       });
       return editor;
     },

@@ -1,4 +1,4 @@
-import { BlockNoteEditor,  } from "@blocknote/core";
+import { BlockNoteEditor } from "@blocknote/core";
 import { filterSuggestionItems } from "@blocknote/core/extensions";
 import "@blocknote/core/fonts/inter.css";
 import { en } from "@blocknote/core/locales";
@@ -35,7 +35,7 @@ export default function App() {
       ai: aiEn, // add default translations for the AI extension
     },
     // Register the AI extension
-    extensions: [AIExtension],
+    extensions: [AIExtension()],
     ai: {
       transport: new DefaultChatTransport({
         // URL to your backend API, see example source in `packages/xl-ai-server/src/routes/regular.ts`

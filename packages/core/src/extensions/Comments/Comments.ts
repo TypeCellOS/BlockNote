@@ -2,14 +2,20 @@ import { Node } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import { getRelativeSelection, ySyncPluginKey } from "y-prosemirror";
-import type { CommentBody, ThreadData, User } from "../../comments/index.js";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import type {
+  CommentBody,
+  ThreadData,
+  ThreadStore,
+  User,
+} from "../../comments/index.js";
 import {
   createExtension,
   createStore,
+  ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
-import { UserStore } from "./userstore/UserStore.js";
+import { CustomBlockNoteSchema } from "../../schema/schema.js";
 import { CommentMark } from "./CommentMark.js";
+import { UserStore } from "./userstore/UserStore.js";
 
 const PLUGIN_KEY = new PluginKey(`blocknote-comments`);
 const SET_SELECTED_THREAD_ID = "SET_SELECTED_THREAD_ID";
@@ -55,21 +61,29 @@ function getUpdatedThreadPositions(doc: Node, markType: string) {
   return threadPositions;
 }
 
+// TODO this is entirely self-contained now, so we can actually remove the comments extension from the core package (into the sub-package)
+
 export const Comments = createExtension(
-  (editor: BlockNoteEditor<any, any, any>, options) => {
-    const commentsOptions = options?.comments;
-    if (!commentsOptions) {
-      return undefined;
-    }
-
+  ({
+    editor,
+    options: { schema: commentEditorSchema, threadStore, resolveUsers },
+  }: ExtensionOptions<{
+    /**
+     * The thread store implementation to use for storing and retrieving comment threads
+     */
+    threadStore: ThreadStore;
+    /**
+     * Resolve user information for comments.
+     *
+     * See [Comments](https://www.blocknotejs.org/docs/features/collaboration/comments) for more info.
+     */
+    resolveUsers: (userIds: string[]) => Promise<User[]>;
+    /**
+     * A schema to use for the comment editor (which allows you to customize the blocks and styles that are available in the comment editor)
+     */
+    schema?: CustomBlockNoteSchema<any, any, any>;
+  }>) => {
     const markType = CommentMark.name;
-    const threadStore = commentsOptions.threadStore;
-    const resolveUsers = options.resolveUsers;
-    const commentEditorSchema = commentsOptions.schema;
-
-    if (!resolveUsers) {
-      throw new Error("resolveUsers is required for comments");
-    }
 
     const userStore = new UserStore<User>(resolveUsers);
     let pendingComment = false;

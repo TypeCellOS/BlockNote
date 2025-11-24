@@ -22,7 +22,7 @@ export function getEditorWithBlockFormatting() {
     ],
     trailingBlock: false,
     schema,
-    extensions: [AIExtension],
+    extensions: [AIExtension()],
   });
   return editor;
 }
