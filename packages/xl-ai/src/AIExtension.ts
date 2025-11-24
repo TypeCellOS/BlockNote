@@ -11,12 +11,11 @@ import {
   suggestChanges,
 } from "@blocknote/prosemirror-suggest-changes";
 import { UIMessage } from "ai";
+import merge from "lodash.merge";
 import { Fragment, Slice } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { fixTablesKey } from "prosemirror-tables";
 import { createStore, StoreApi } from "zustand/vanilla";
-
-import merge from "lodash.merge";
 import { AIRequest, buildAIRequest } from "./api/index.js";
 import { createAgentCursorPlugin } from "./plugins/AgentCursorPlugin.js";
 import {

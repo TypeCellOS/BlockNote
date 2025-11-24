@@ -18,6 +18,7 @@ export type AIRequestHelpers = {
    * - use a different transport layer (e.g.: websockets)
    */
   transport?: ChatTransport<UIMessage>;
+
   /**
    * Customize which stream tools are available to the LLM
    */
