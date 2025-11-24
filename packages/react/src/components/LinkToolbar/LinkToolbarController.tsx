@@ -145,14 +145,12 @@ export const LinkToolbarController = (props: {
   // unmounted. However, the reference still exists and so FloatingUI can still
   // call `getBoundingClientRect` on it, which will return a `DOMRect` that has
   // an x, y, height, and width of 0. This is why we instead use a virtual
-  // element for the reference, and use the last obtained `DOMRect` from when 
+  // element for the reference, and use the last obtained `DOMRect` from when
   // the link element was still mounted to the DOM.
   const mountedBoundingClientRect = useRef(new DOMRect());
-  useEffect(() => {
-    if (link?.element && editor.prosemirrorView.root.contains(link.element)) {
-      mountedBoundingClientRect.current = link.element.getBoundingClientRect();
-    }
-  }, [editor.prosemirrorView.root, link?.element]);
+  if (link?.element && editor.prosemirrorView.root.contains(link.element)) {
+    mountedBoundingClientRect.current = link.element.getBoundingClientRect();
+  }
 
   const Component = props.linkToolbar || LinkToolbar;
 

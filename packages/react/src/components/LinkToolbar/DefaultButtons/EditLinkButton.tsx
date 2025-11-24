@@ -32,6 +32,7 @@ export const EditLinkButton = (
           text={props.text}
           range={props.range}
           setToolbarOpen={props.setToolbarOpen}
+          setToolbarFrozen={props.setToolbarFrozen}
         />
       </Components.Generic.Popover.Content>
     </Components.Generic.Popover.Root>
