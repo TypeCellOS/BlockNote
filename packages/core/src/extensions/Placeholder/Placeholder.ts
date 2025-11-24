@@ -9,7 +9,7 @@ import { BlockNoteEditorOptions } from "../../editor/BlockNoteEditor.js";
 
 const PLUGIN_KEY = new PluginKey(`blocknote-placeholder`);
 
-export const Placeholder = createExtension(
+export const PlaceholderExtension = createExtension(
   ({
     editor,
     options,

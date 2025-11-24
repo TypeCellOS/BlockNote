@@ -1,5 +1,5 @@
 import { blockHasType, editorHasBlockWithType } from "@blocknote/core";
-import { SideMenu } from "@blocknote/core/extensions";
+import { SideMenuExtension } from "@blocknote/core/extensions";
 import { ReactNode } from "react";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
@@ -12,7 +12,7 @@ export const BlockColorsItem = (props: { children: ReactNode }) => {
 
   const editor = useBlockNoteEditor<any, any, any>();
 
-  const block = useExtensionState(SideMenu, {
+  const block = useExtensionState(SideMenuExtension, {
     editor,
     selector: (state) => state?.block,
   });

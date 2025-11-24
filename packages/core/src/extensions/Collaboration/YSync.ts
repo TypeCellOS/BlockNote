@@ -5,7 +5,7 @@ import {
   createExtension,
 } from "../../editor/BlockNoteExtension.js";
 
-export const YSync = createExtension(
+export const YSyncExtension = createExtension(
   ({ options }: ExtensionOptions<{ fragment: XmlFragment }>) => {
     return {
       key: "ySync",

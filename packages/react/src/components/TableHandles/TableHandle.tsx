@@ -1,5 +1,5 @@
 import { getColspan, getRowspan, mergeCSSClasses } from "@blocknote/core";
-import { TableHandles } from "@blocknote/core/extensions";
+import { TableHandlesExtension } from "@blocknote/core/extensions";
 import { ReactNode, useMemo, useState } from "react";
 
 import { MdDragIndicator } from "react-icons/md";
@@ -25,8 +25,8 @@ export const TableHandle = (
 
   const Component = props.tableHandleMenu || TableHandleMenu;
 
-  const tableHandles = useExtension(TableHandles);
-  const state = useExtensionState(TableHandles);
+  const tableHandles = useExtension(TableHandlesExtension);
+  const state = useExtensionState(TableHandlesExtension);
 
   const isDraggable = useMemo(() => {
     if (

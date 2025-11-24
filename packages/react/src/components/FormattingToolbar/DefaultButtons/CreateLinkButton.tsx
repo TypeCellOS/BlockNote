@@ -8,7 +8,7 @@ import {
   isTableCellSelection,
   StyleSchema,
 } from "@blocknote/core";
-import { FormattingToolbar } from "@blocknote/core/extensions";
+import { FormattingToolbarExtension } from "@blocknote/core/extensions";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
@@ -41,7 +41,7 @@ export const CreateLinkButton = () => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  const formattingToolbar = useExtension(FormattingToolbar);
+  const formattingToolbar = useExtension(FormattingToolbarExtension);
 
   const [showPopover, setShowPopover] = useState(false);
 

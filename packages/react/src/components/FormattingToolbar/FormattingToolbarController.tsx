@@ -6,7 +6,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { FormattingToolbar as FormattingToolbarExtension } from "@blocknote/core/extensions";
+import { FormattingToolbarExtension as FormattingToolbarExtension } from "@blocknote/core/extensions";
 import { flip, offset, shift } from "@floating-ui/react";
 import { FC, useMemo } from "react";
 
@@ -85,7 +85,7 @@ export const FormattingToolbarController = (props: {
         // open state.
         onOpenChange: (open, _event, reason) => {
           formattingToolbar.store.setState(open);
-          
+
           if (reason === "escape-key") {
             editor.focus();
           }

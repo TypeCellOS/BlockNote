@@ -1,8 +1,8 @@
 import {
-  FormattingToolbar,
-  SideMenu,
+  FormattingToolbarExtension,
+  SideMenuExtension,
   SuggestionMenu,
-  TableHandles,
+  TableHandlesExtension,
 } from "@blocknote/core/extensions";
 import { FilePanelController } from "../components/FilePanel/FilePanelController.js";
 import { FormattingToolbarController } from "../components/FormattingToolbar/FormattingToolbarController.js";
@@ -83,7 +83,7 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
 
   return (
     <>
-      {editor.getExtension(FormattingToolbar) &&
+      {editor.getExtension(FormattingToolbarExtension) &&
         props.formattingToolbar !== false && <FormattingToolbarController />}
       {props.linkToolbar !== false && <LinkToolbarController />}
       {editor.getExtension(SuggestionMenu) && props.slashMenu !== false && (
@@ -96,13 +96,12 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
           minQueryLength={2}
         />
       )}
-      {editor.getExtension(SideMenu) && props.sideMenu !== false && (
+      {editor.getExtension(SideMenuExtension) && props.sideMenu !== false && (
         <SideMenuController />
       )}
       {props.filePanel !== false && <FilePanelController />}
-      {editor.getExtension(TableHandles) && props.tableHandles !== false && (
-        <TableHandlesController />
-      )}
+      {editor.getExtension(TableHandlesExtension) &&
+        props.tableHandles !== false && <TableHandlesController />}
       {editor.getExtension("comments") && props.comments !== false && (
         <Suspense>
           <FloatingComposerController />

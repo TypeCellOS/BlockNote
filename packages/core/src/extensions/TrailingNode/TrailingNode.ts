@@ -13,7 +13,7 @@ const plugin = new PluginKey("trailingNode");
 /**
  * Add a trailing node to the document so the user can always click at the bottom of the document and start typing
  */
-export const TrailingNode = createExtension(() => {
+export const TrailingNodeExtension = createExtension(() => {
   return {
     key: "trailingNode",
     prosemirrorPlugins: [

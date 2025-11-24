@@ -1,5 +1,5 @@
 import { FileBlockConfig } from "@blocknote/core";
-import { FilePanel } from "@blocknote/core/extensions";
+import { FilePanelExtension } from "@blocknote/core/extensions";
 import { ReactNode, useCallback } from "react";
 import { RiFile2Line } from "react-icons/ri";
 
@@ -21,7 +21,7 @@ export const AddFileButton = (
 ) => {
   const dict = useDictionary();
 
-  const filePanel = useExtension(FilePanel);
+  const filePanel = useExtension(FilePanelExtension);
 
   // Prevents focus from moving to the button.
   const addFileButtonMouseDownHandler = useCallback(

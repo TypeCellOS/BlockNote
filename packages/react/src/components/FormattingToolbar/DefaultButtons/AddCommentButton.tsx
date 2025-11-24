@@ -1,4 +1,4 @@
-import { FormattingToolbar } from "@blocknote/core/extensions";
+import { FormattingToolbarExtension } from "@blocknote/core/extensions";
 // Specifically using type here to avoid pulling in the comments extensions into the main bundle
 import type { CommentsExtension } from "@blocknote/core/comments";
 import { useCallback } from "react";
@@ -16,7 +16,7 @@ export const AddCommentButtonInner = () => {
   const comments = useExtension("comments") as unknown as ReturnType<
     ReturnType<typeof CommentsExtension>
   >;
-  const { store } = useExtension(FormattingToolbar);
+  const { store } = useExtension(FormattingToolbarExtension);
 
   const onClick = useCallback(() => {
     comments.startPendingComment();

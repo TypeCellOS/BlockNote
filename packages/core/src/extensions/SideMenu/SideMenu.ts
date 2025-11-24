@@ -685,7 +685,7 @@ export class SideMenuView<
 
 export const sideMenuPluginKey = new PluginKey("SideMenuPlugin");
 
-export const SideMenu = createExtension(({ editor }) => {
+export const SideMenuExtension = createExtension(({ editor }) => {
   let view: SideMenuView<any, any, any> | undefined;
   const store = createStore<SideMenuState<any, any, any> | undefined>(
     undefined,

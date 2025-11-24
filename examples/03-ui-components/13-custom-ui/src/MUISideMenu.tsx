@@ -1,5 +1,5 @@
 import {} from "@blocknote/core";
-import { SideMenu } from "@blocknote/core/extensions";
+import { SideMenuExtension } from "@blocknote/core/extensions";
 import {
   SideMenuProps,
   useBlockNoteEditor,
@@ -25,7 +25,7 @@ function MUIRemoveBlockItem(
   props: SideMenuProps & { closeDragHandleMenu: () => void },
 ) {
   const editor = useBlockNoteEditor();
-  const sideMenu = useExtension(SideMenu, { editor });
+  const sideMenu = useExtension(SideMenuExtension, { editor });
   // Deletes the block next to the side menu.
   const onClick = useCallback(() => {
     sideMenu.unfreezeMenu();
@@ -82,7 +82,7 @@ function MUIDragHandleButton(props: SideMenuProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const editor = useBlockNoteEditor();
-  const sideMenu = useExtension(SideMenu, { editor });
+  const sideMenu = useExtension(SideMenuExtension, { editor });
   // Handles opening and closing the drag handle menu.
   const onClick = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => {
@@ -130,7 +130,7 @@ function MUISideMenu(props: SideMenuProps & { children: ReactNode }) {
   // Since the side menu is positioned by the top-left corner of a block, we
   // manually set its height based on the hovered block so that it's vertically
   // centered.
-  const sideMenuHeight = useExtensionState(SideMenu, {
+  const sideMenuHeight = useExtensionState(SideMenuExtension, {
     selector: (state) => {
       // TODO this feels like a hack
       if (state && state.block.type === "heading") {

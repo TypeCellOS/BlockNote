@@ -4,7 +4,7 @@ import {
   mergeCSSClasses,
   PartialTableContent,
 } from "@blocknote/core";
-import { TableHandles } from "@blocknote/core/extensions";
+import { TableHandlesExtension } from "@blocknote/core/extensions";
 import {
   MouseEvent as ReactMouseEvent,
   ReactNode,
@@ -45,8 +45,8 @@ export const ExtendButton = (
 
   const editor = useBlockNoteEditor<any, any, any>();
 
-  const tableHandles = useExtension(TableHandles);
-  const block = useExtensionState(TableHandles, {
+  const tableHandles = useExtension(TableHandlesExtension);
+  const block = useExtensionState(TableHandlesExtension, {
     selector: (state) => state?.block,
   });
 

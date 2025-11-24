@@ -6,7 +6,10 @@ import {
   getNodeById,
   UnreachableCaseError,
 } from "@blocknote/core";
-import { ForkYDoc, ShowSelection } from "@blocknote/core/extensions";
+import {
+  ForkYDocExtension,
+  ShowSelectionExtension,
+} from "@blocknote/core/extensions";
 import {
   applySuggestions,
   revertSuggestions,
@@ -140,7 +143,7 @@ export const AIExtension = createExtension(
        * Open the AI menu at a specific block
        */
       openAIMenuAtBlock(blockID: string) {
-        editor.getExtension(ShowSelection)?.showSelection(true);
+        editor.getExtension(ShowSelectionExtension)?.showSelection(true);
         editor.isEditable = false;
         store.setState({
           aiMenuState: {
@@ -164,7 +167,7 @@ export const AIExtension = createExtension(
           aiMenuState: "closed",
         });
         chatSession = undefined;
-        editor.getExtension(ShowSelection)?.showSelection(false);
+        editor.getExtension(ShowSelectionExtension)?.showSelection(false);
         editor.isEditable = true;
         editor.focus();
       },
@@ -213,7 +216,7 @@ export const AIExtension = createExtension(
         });
 
         // If in collaboration mode, merge the changes back into the original yDoc
-        editor.getExtension(ForkYDoc)?.merge({ keepChanges: true });
+        editor.getExtension(ForkYDocExtension)?.merge({ keepChanges: true });
 
         this.closeAIMenu();
       },
@@ -231,7 +234,7 @@ export const AIExtension = createExtension(
         });
 
         // If in collaboration mode, discard the changes and revert to the original yDoc
-        editor.getExtension(ForkYDoc)?.merge({ keepChanges: false });
+        editor.getExtension(ForkYDocExtension)?.merge({ keepChanges: false });
         this.closeAIMenu();
       },
 
@@ -304,7 +307,7 @@ export const AIExtension = createExtension(
         }
 
         if (status === "ai-writing") {
-          editor.getExtension(ShowSelection)?.showSelection(false);
+          editor.getExtension(ShowSelectionExtension)?.showSelection(false);
         }
 
         if (typeof status === "object") {
@@ -340,7 +343,7 @@ export const AIExtension = createExtension(
        */
       async invokeAI(opts: InvokeAIOptions) {
         this.setAIResponseStatus("thinking");
-        editor.getExtension(ForkYDoc)?.fork();
+        editor.getExtension(ForkYDocExtension)?.fork();
 
         try {
           if (!chatSession) {

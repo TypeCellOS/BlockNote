@@ -1,4 +1,4 @@
-import { TableHandles } from "@blocknote/core/extensions";
+import { TableHandlesExtension } from "@blocknote/core/extensions";
 import { ReactNode } from "react";
 import { MdArrowDropDown } from "react-icons/md";
 
@@ -19,7 +19,7 @@ export const TableCellButton = (
 
   const editor = useBlockNoteEditor<any, any, any>();
 
-  const tableHandles = useExtension(TableHandles);
+  const tableHandles = useExtension(TableHandlesExtension);
 
   const Component = props.tableCellMenu || TableCellMenu;
 

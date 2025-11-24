@@ -1,5 +1,5 @@
 import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
-import { LinkToolbar as LinkToolbarExtension } from "@blocknote/core/extensions";
+import { LinkToolbarExtension as LinkToolbarExtension } from "@blocknote/core/extensions";
 import { flip, offset, safePolygon } from "@floating-ui/react";
 import { Range } from "@tiptap/core";
 import { FC, useEffect, useMemo, useRef, useState } from "react";

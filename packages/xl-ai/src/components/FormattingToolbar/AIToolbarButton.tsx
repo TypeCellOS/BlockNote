@@ -1,5 +1,5 @@
 import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
-import { FormattingToolbar } from "@blocknote/core/extensions";
+import { FormattingToolbarExtension } from "@blocknote/core/extensions";
 import { useComponentsContext, useExtension } from "@blocknote/react";
 import { RiSparkling2Fill } from "react-icons/ri";
 
@@ -21,7 +21,7 @@ export const AIToolbarButton = () => {
   const ai = useExtension(AIExtension);
 
   const onClick = () => {
-    editor.getExtension(FormattingToolbar)?.store.setState(false);
+    editor.getExtension(FormattingToolbarExtension)?.store.setState(false);
     const selection = editor.getSelection();
     if (!selection) {
       throw new Error("No selection");

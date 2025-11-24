@@ -3,7 +3,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { TableHandles } from "@blocknote/core/extensions";
+import { TableHandlesExtension } from "@blocknote/core/extensions";
 import { useCallback } from "react";
 import { RiMergeCellsHorizontal, RiMergeCellsVertical } from "react-icons/ri";
 
@@ -25,7 +25,7 @@ export const TableCellMergeButton = () => {
     StyleSchema
   >();
 
-  const tableHandles = useExtension(TableHandles);
+  const tableHandles = useExtension(TableHandlesExtension);
   const state = useEditorState({
     editor,
     selector: ({ editor }) => {

@@ -1,6 +1,6 @@
 import { Command, Transaction } from "prosemirror-state";
-import type { YUndo } from "../../extensions/Collaboration/YUndo.js";
-import type { History } from "../../extensions/History/History.js";
+import type { YUndoExtension } from "../../extensions/Collaboration/YUndo.js";
+import type { HistoryExtension } from "../../extensions/History/History.js";
 import { BlockNoteEditor } from "../BlockNoteEditor.js";
 
 export class StateManager {
@@ -216,12 +216,13 @@ export class StateManager {
    */
   public undo(): boolean {
     // Purposefully not using the UndoPlugin to not import y-prosemirror when not needed
-    const undoPlugin = this.editor.getExtension<typeof YUndo>("yUndo");
+    const undoPlugin = this.editor.getExtension<typeof YUndoExtension>("yUndo");
     if (undoPlugin) {
       return this.exec(undoPlugin.undoCommand);
     }
 
-    const historyPlugin = this.editor.getExtension<typeof History>("history");
+    const historyPlugin =
+      this.editor.getExtension<typeof HistoryExtension>("history");
     if (historyPlugin) {
       return this.exec(historyPlugin.undoCommand);
     }
@@ -233,12 +234,13 @@ export class StateManager {
    * Redo the last action.
    */
   public redo() {
-    const undoPlugin = this.editor.getExtension<typeof YUndo>("yUndo");
+    const undoPlugin = this.editor.getExtension<typeof YUndoExtension>("yUndo");
     if (undoPlugin) {
       return this.exec(undoPlugin.redoCommand);
     }
 
-    const historyPlugin = this.editor.getExtension<typeof History>("history");
+    const historyPlugin =
+      this.editor.getExtension<typeof HistoryExtension>("history");
     if (historyPlugin) {
       return this.exec(historyPlugin.redoCommand);
     }

@@ -1,5 +1,5 @@
 import { isTableCell, mapTableCell } from "@blocknote/core";
-import { TableHandles } from "@blocknote/core/extensions";
+import { TableHandlesExtension } from "@blocknote/core/extensions";
 import { ReactNode } from "react";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
@@ -13,13 +13,13 @@ export const ColorPickerButton = (props: { children?: ReactNode }) => {
   const dict = useDictionary();
   const editor = useBlockNoteEditor<any, any, any>();
 
-  const block = useExtensionState(TableHandles, {
+  const block = useExtensionState(TableHandlesExtension, {
     selector: (state) => state?.block,
   });
-  const colIndex = useExtensionState(TableHandles, {
+  const colIndex = useExtensionState(TableHandlesExtension, {
     selector: (state) => state?.colIndex,
   });
-  const rowIndex = useExtensionState(TableHandles, {
+  const rowIndex = useExtensionState(TableHandlesExtension, {
     selector: (state) => state?.rowIndex,
   });
 

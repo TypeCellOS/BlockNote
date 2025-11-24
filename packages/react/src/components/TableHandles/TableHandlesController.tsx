@@ -6,7 +6,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { TableHandles } from "@blocknote/core/extensions";
+import { TableHandlesExtension } from "@blocknote/core/extensions";
 import { FC, useMemo, useState } from "react";
 
 import { offset, size, VirtualElement } from "@floating-ui/react";
@@ -39,7 +39,7 @@ export const TableHandlesController = <
     | undefined
   >();
 
-  const state = useExtensionState(TableHandles);
+  const state = useExtensionState(TableHandlesExtension);
 
   const elements = useMemo(() => {
     if (

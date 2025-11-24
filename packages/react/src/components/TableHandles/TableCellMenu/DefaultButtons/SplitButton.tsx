@@ -1,5 +1,5 @@
 import { getColspan, getRowspan, isTableCell } from "@blocknote/core";
-import { TableHandles } from "@blocknote/core/extensions";
+import { TableHandlesExtension } from "@blocknote/core/extensions";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
@@ -14,14 +14,14 @@ export const SplitButton = () => {
   const dict = useDictionary();
   const editor = useBlockNoteEditor<any, any, any>();
 
-  const tableHandles = useExtension(TableHandles);
-  const block = useExtensionState(TableHandles, {
+  const tableHandles = useExtension(TableHandlesExtension);
+  const block = useExtensionState(TableHandlesExtension, {
     selector: (state) => state?.block,
   });
-  const colIndex = useExtensionState(TableHandles, {
+  const colIndex = useExtensionState(TableHandlesExtension, {
     selector: (state) => state?.colIndex,
   });
-  const rowIndex = useExtensionState(TableHandles, {
+  const rowIndex = useExtensionState(TableHandlesExtension, {
     selector: (state) => state?.rowIndex,
   });
 
