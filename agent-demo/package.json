@@ -18,7 +18,9 @@
     "tailwindStylesheet": "app/globals.css"
   },
   "dependencies": {
+    "@ai-sdk/react": "^2.0.93",
     "@ai-sdk/openai": "^2.0.46",
+    "json-schema": "^0.4.0",
     "ai": "^5.0.93",
     "@assistant-ui/react": "^0.11.38",
     "@assistant-ui/react-ai-sdk": "^1.1.5",
@@ -66,6 +68,7 @@
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "@types/json-schema": "^7.0.15"
   }
 }

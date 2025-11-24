@@ -1,15 +1,16 @@
 "use client";
 
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
-import { useChat } from "@ai-sdk/react";
+import {
+  getMessageWithToolCallId,
+  useChatContext,
+} from "@/components/ChatContext";
 import {
   ActionBarPrimitive,
   makeAssistantTool,
   makeAssistantToolUI,
   tool,
-  ToolCallMessagePartComponent,
   ToolCallMessagePartProps,
-  useAssistantApi,
 } from "@assistant-ui/react";
 import { BlockNoteEditor, filterSuggestionItems } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
@@ -36,10 +37,8 @@ import { en as aiEn } from "@blocknote/xl-ai/locales";
 import "@blocknote/xl-ai/style.css";
 import { PencilIcon, UndoIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo } from "react";
-import { getMessageWithToolCallId, useChatContext } from "./page";
-const BASE_URL = "https://localhost:3000/ai";
 
-const UndoActionBar: FC = () => {
+const UndoActionBar = () => {
   return (
     <ActionBarPrimitive.Root
       hideWhenRunning
@@ -58,7 +57,7 @@ const UndoActionBar: FC = () => {
   );
 };
 
-const BlockNoteToolUI: ToolCallMessagePartComponent<any, any> = (
+const BlockNoteToolUI = (
   props: ToolCallMessagePartProps<any, any> & {
     editor: BlockNoteEditor<any, any, any>;
   },
@@ -78,7 +77,7 @@ const BlockNoteToolUI: ToolCallMessagePartComponent<any, any> = (
 
   if (props.status.type === "running") {
     return (
-      <div className="flex flex-col items-end text-sm text-muted-foreground">
+      <div className="flex min-h-10 flex-row items-center gap-2 text-sm text-muted-foreground">
         <PencilIcon className="size-4" /> Updating document...
       </div>
     );
@@ -92,7 +91,9 @@ const BlockNoteToolUI: ToolCallMessagePartComponent<any, any> = (
       >
         <PencilIcon className="size-4" />{" "}
         <span
-          className={message?.metadata?.applied === false ? "line-through" : ""}
+          className={
+            (message?.metadata as any)?.applied === false ? "line-through" : ""
+          }
         >
           Updated document
         </span>
@@ -106,23 +107,7 @@ const BlockNoteToolUI: ToolCallMessagePartComponent<any, any> = (
 };
 
 export default function Document() {
-  const api = useAssistantApi();
-
   const ctx = useChatContext();
-  const chatRaw = ctx.chat;
-  const chat = useChat({
-    chat: chatRaw,
-  });
-
-  // TODO: prefer to migrate to this?
-  // useEffect(() => {
-  //   api.on({ event: "*", scope: "*" }, (event) => {
-  //     console.log("composer.sendMessages", event);
-  //     debugger;
-  //     // const message = api.thread().getState().messages[0];
-  //     // message.
-  //   });
-  // }, [api]);
 
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
@@ -191,6 +176,7 @@ export default function Document() {
     render: (props) => <BlockNoteToolUI {...props} editor={editor} />,
   });
 
+  debugger;
   const DocumentStateTool = makeAssistantToolUI({
     toolName: "document-state",
     render: (props) => null,

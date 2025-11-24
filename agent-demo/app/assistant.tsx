@@ -15,14 +15,17 @@ import {
 } from "@/components/ui/sidebar";
 import { AssistantRuntimeProvider } from "@assistant-ui/react";
 import { useAISDKRuntime } from "@assistant-ui/react-ai-sdk";
-import { useEffect } from "react";
 
+import { useChatContext } from "@/components/ChatContext";
 import { useChat } from "@ai-sdk/react";
 import dynamic from "next/dynamic";
-import { useChatContext } from "./page";
+import { useEffect } from "react";
 
-const Document = dynamic(() => import("./document"), { ssr: false });
+const Document = dynamic(() => import("./document"), {
+  ssr: false,
+});
 
+console.log("Assistant", Document);
 export const Assistant = () => {
   const ctx = useChatContext();
   const chat = useChat({
@@ -63,7 +66,7 @@ export const Assistant = () => {
                 </BreadcrumbList>
               </Breadcrumb>
             </header>
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 overflow-scroll">
               {/* <Thread /> */}
               <div className="mx-auto max-w-2xl">
                 <Document />

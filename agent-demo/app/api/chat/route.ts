@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     //     reasoningEffort: "low",
     //   },
     // },
-    // toolChoice: "required", // TODO: make configurable from client?
+    // toolChoice: "required", // TODO: make configurable from client and make toolbar "required"
   });
 
   return result.toUIMessageStreamResponse();
