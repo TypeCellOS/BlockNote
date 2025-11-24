@@ -154,6 +154,7 @@ export function SuggestionMenuController<
       props.floatingUIOptions,
       state?.show,
       state?.triggerCharacter,
+      suggestionMenu,
       triggerCharacter,
     ],
   );
