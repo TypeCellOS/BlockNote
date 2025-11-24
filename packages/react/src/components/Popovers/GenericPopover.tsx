@@ -60,17 +60,22 @@ export const GenericPopover = (
     }
   }, [props.reference, refs]);
 
-  // Stores the last rendered `innerHTML` of the popover while it was
-  // open. The `innerHTML` is used while the popover is closing, as the
-  // React children may rerender during this time, causing unwanted
-  // behaviour.
-  useEffect(() => {
-    if (status === "initial" || status === "open") {
-      if (ref.current?.innerHTML) {
-        innerHTML.current = ref.current.innerHTML;
+  // Stores the last rendered `innerHTML` of the popover while it was open. The
+  // `innerHTML` is used while the popover is closing, as the React children
+  // may rerender during this time, causing unwanted behaviour.
+  useEffect(
+    () => {
+      if (status === "initial" || status === "open") {
+        if (ref.current?.innerHTML) {
+          innerHTML.current = ref.current.innerHTML;
+        }
       }
-    }
-  }, [status, props.reference]);
+    },
+    // All of `props` is included in the deps, as we also need to run this
+    // effect whenever the passed children change, since it's ultimately the
+    // HTML of the children that we're storing.
+    [status, props],
+  );
 
   if (!isMounted) {
     return false;
