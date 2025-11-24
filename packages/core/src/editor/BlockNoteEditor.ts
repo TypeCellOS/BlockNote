@@ -1265,22 +1265,6 @@ export class BlockNoteEditor<
   }
 
   /**
-   * A callback function that runs when the editor has been initialized.
-   *
-   * This can be useful for plugins to initialize themselves after the editor has been initialized.
-   *
-   * @param callback The callback to execute.
-   * @returns A function to remove the callback.
-   */
-  public onCreate(callback: () => void) {
-    this.on("create", callback);
-
-    return () => {
-      this.off("create", callback);
-    };
-  }
-
-  /**
    * A callback function that runs when the editor has been mounted.
    *
    * This can be useful for plugins to initialize themselves after the editor has been mounted.
