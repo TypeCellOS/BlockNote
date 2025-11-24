@@ -191,7 +191,9 @@ export function getDefaultExtensions(
 
   if (options.collaboration) {
     extensions.push(ForkYDocExtension(options.collaboration));
-    extensions.push(YCursorExtension(options.collaboration));
+    if (options.collaboration.provider?.awareness) {
+      extensions.push(YCursorExtension(options.collaboration));
+    }
     extensions.push(YSyncExtension(options.collaboration));
     extensions.push(YUndoExtension(options.collaboration));
     extensions.push(SchemaMigration(options.collaboration));

@@ -75,6 +75,7 @@ export const YCursorExtension = createExtension(
     const recentlyUpdatedCursors = new Map();
 
     if (
+      options.provider &&
       "awareness" in options.provider &&
       typeof options.provider.awareness === "object"
     ) {
