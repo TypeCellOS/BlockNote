@@ -12,6 +12,8 @@ import { splitBlockCommand } from "../../../api/blockManipulation/commands/split
 import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { getBlockInfoFromSelection } from "../../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import { FormattingToolbarExtension } from "../../FormattingToolbar/FormattingToolbar.js";
+import { FilePanelExtension } from "../../FilePanel/FilePanel.js";
 
 export const KeyboardShortcutsExtension = Extension.create<{
   editor: BlockNoteEditor<any, any, any>;
@@ -489,32 +491,31 @@ export const KeyboardShortcutsExtension = Extension.create<{
       Tab: () => {
         if (
           this.options.tabBehavior !== "prefer-indent" &&
-          true
-          // TODO what??
-          // (this.options.editor.formattingToolbar?.shown ||
-          //   this.options.editor.linkToolbar?.shown ||
-          //   this.options.editor.filePanel?.shown)
+          (this.options.editor.getExtension(FormattingToolbarExtension)?.store
+            .state ||
+            this.options.editor.getExtension(FilePanelExtension)?.store.state
+              .blockId)
+          // TODO need to check if the link toolbar is open or another alternative entirely
         ) {
           // don't handle tabs if a toolbar is shown, so we can tab into / out of it
           return false;
         }
         return nestBlock(this.options.editor);
-        // return true;
       },
       "Shift-Tab": () => {
         if (
           this.options.tabBehavior !== "prefer-indent" &&
-          true
-          // TODO what??
-          // (this.options.editor.formattingToolbar?.shown ||
-          //   this.options.editor.linkToolbar?.shown ||
-          //   this.options.editor.filePanel?.shown)
+          (this.options.editor.getExtension(FormattingToolbarExtension)?.store
+            .state ||
+            this.options.editor.getExtension(FilePanelExtension)?.store.state
+              .blockId)
+          // TODO need to check if the link toolbar is open or another alternative entirely
+          // other menu types?
         ) {
           // don't handle tabs if a toolbar is shown, so we can tab into / out of it
           return false;
         }
-        this.editor.commands.liftListItem("blockContainer");
-        return true;
+        return this.editor.commands.liftListItem("blockContainer");
       },
       "Shift-Mod-ArrowUp": () => {
         this.options.editor.moveBlocksUp();

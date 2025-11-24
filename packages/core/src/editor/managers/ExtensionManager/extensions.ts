@@ -107,9 +107,8 @@ export function getDefaultTiptapExtensions(
       addKeyboardShortcuts: () => {
         return {
           Escape: () => {
-            // TODO should this be like this?
             if (editor.getExtension(SuggestionMenu)?.shown()) {
-              // escape is handled by suggestionmenu
+              // escape should close the suggestion menu, but not blur the editor
               return false;
             }
             editor.blur();
