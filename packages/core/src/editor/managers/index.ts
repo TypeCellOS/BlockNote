@@ -1,5 +1,4 @@
 export { BlockManager } from "./BlockManager.js";
-export { CollaborationManager } from "./CollaborationManager.js";
 export { EventManager } from "./EventManager.js";
 export { ExportManager } from "./ExportManager.js";
 export { ExtensionManager } from "./ExtensionManager/index.js";

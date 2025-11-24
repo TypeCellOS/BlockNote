@@ -40,11 +40,10 @@ import "../style.css";
 import { mergeCSSClasses } from "../util/browser.js";
 import { EventEmitter } from "../util/EventEmitter.js";
 import type { NoInfer } from "../util/typescript.js";
-import { Extension, ExtensionFactoryInstance } from "./BlockNoteExtension.js";
+import { ExtensionFactoryInstance } from "./BlockNoteExtension.js";
 import type { TextCursorPosition } from "./cursorPositionTypes.js";
 import {
   BlockManager,
-  CollaborationManager,
   EventManager,
   ExportManager,
   ExtensionManager,
@@ -367,11 +366,6 @@ export class BlockNoteEditor<
    */
   public readonly pmSchema: Schema;
 
-  /**
-   * BlockNote extensions that are added to the editor, keyed by the extension key
-   */
-  public extensions = new Map<string, Extension>();
-
   public readonly _tiptapEditor: TiptapEditor & {
     contentComponent: any;
   };
@@ -483,29 +477,6 @@ export class BlockNoteEditor<
       },
     };
 
-    // Initialize CollaborationManager if collaboration is enabled or if comments are configured
-    if (newOptions.collaboration || newOptions.comments) {
-      // const collaborationOptions: CollaborationOptions = {
-      //   // Use collaboration options if available, otherwise provide defaults
-      //   fragment: newOptions.collaboration?.fragment || new Y.XmlFragment(),
-      //   user: newOptions.collaboration?.user || {
-      //     name: "User",
-      //     color: "#FF0000",
-      //   },
-      //   provider: newOptions.collaboration?.provider || null,
-      //   renderCursor: newOptions.collaboration?.renderCursor,
-      //   showCursorLabels: newOptions.collaboration?.showCursorLabels,
-      //   comments: newOptions.comments,
-      //   resolveUsers: newOptions.resolveUsers,
-      // };
-      this._collaborationManager = new CollaborationManager(
-        this as any,
-        newOptions,
-      );
-    } else {
-      this._collaborationManager = undefined;
-    }
-
     if (newOptions.comments && !newOptions.resolveUsers) {
       throw new Error("resolveUsers is required when using comments");
     }
@@ -535,8 +506,14 @@ export class BlockNoteEditor<
 
     this.resolveFileUrl = newOptions.resolveFileUrl;
 
+    this._eventManager = new EventManager(this as any);
+    this._extensionManager = new ExtensionManager(this, newOptions);
+
+    const tiptapExtensions = this._extensionManager.getTiptapExtensions();
+
     const collaborationEnabled =
-      "ySync" in this.extensions || "liveblocksExtension" in this.extensions;
+      this._extensionManager.hasExtension("ySync") ||
+      this._extensionManager.hasExtension("liveblocksExtension");
 
     if (collaborationEnabled && newOptions.initialContent) {
       // eslint-disable-next-line no-console
@@ -544,13 +521,6 @@ export class BlockNoteEditor<
         "When using Collaboration, initialContent might cause conflicts, because changes should come from the collaboration provider",
       );
     }
-
-    this._eventManager = new EventManager(this as any);
-    this._extensionManager = new ExtensionManager(this, newOptions);
-
-    const tiptapExtensions = this._extensionManager.getTiptapExtensions();
-
-    this.extensions = this._extensionManager.getExtensions();
 
     const tiptapOptions: EditorOptions = {
       ...blockNoteTipTapOptions,
@@ -664,13 +634,19 @@ export class BlockNoteEditor<
 
   // Manager instances
   private readonly _blockManager: BlockManager<any, any, any>;
-  private readonly _collaborationManager?: CollaborationManager;
   private readonly _eventManager: EventManager<any, any, any>;
   private readonly _exportManager: ExportManager<any, any, any>;
   private readonly _extensionManager: ExtensionManager;
   private readonly _selectionManager: SelectionManager<any, any, any>;
   private readonly _stateManager: StateManager;
   private readonly _styleManager: StyleManager<any, any, any>;
+
+  /**
+   * BlockNote extensions that are added to the editor, keyed by the extension key
+   */
+  public get extensions() {
+    return this._extensionManager.getExtensions();
+  }
 
   /**
    * Execute a prosemirror command. This is mostly for backwards compatibility with older code.
@@ -1269,19 +1245,6 @@ export class BlockNoteEditor<
     markdown: string,
   ): Block<BSchema, ISchema, SSchema>[] {
     return this._exportManager.tryParseMarkdownToBlocks(markdown);
-  }
-
-  /**
-   * Updates the user info for the current user that's shown to other collaborators.
-   */
-  public updateCollaborationUserInfo(user: { name: string; color: string }) {
-    if (!this._collaborationManager) {
-      throw new Error(
-        "Cannot update collaboration user info when collaboration is disabled.",
-      );
-    }
-
-    this._collaborationManager.updateUserInfo(user);
   }
 
   /**
