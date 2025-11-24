@@ -415,7 +415,6 @@ export class BlockNoteEditor<
   private onUploadEndCallbacks: ((blockId?: string) => void)[] = [];
 
   public readonly resolveFileUrl?: (url: string) => Promise<string>;
-  public readonly resolveUsers?: (userIds: string[]) => Promise<User[]>;
   /**
    * Editor settings
    */
@@ -476,10 +475,6 @@ export class BlockNoteEditor<
         ...options.placeholders,
       },
     };
-
-    if (newOptions.comments && !newOptions.resolveUsers) {
-      throw new Error("resolveUsers is required when using comments");
-    }
 
     // @ts-ignore
     this.schema = newOptions.schema;
