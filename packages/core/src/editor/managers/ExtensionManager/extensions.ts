@@ -189,7 +189,7 @@ export function getDefaultExtensions(
     SideMenu(options),
     SuggestionMenu(options),
     TrailingNode(),
-  ].filter((a) => a !== undefined) as ExtensionFactoryInstance[];
+  ] as ExtensionFactoryInstance[];
 
   if (options.collaboration) {
     extensions.push(ForkYDoc(options.collaboration));
@@ -213,7 +213,7 @@ export function getDefaultExtensions(
     extensions.push(TableHandles(options));
   }
 
-  if (options.animations === false) {
+  if (options.animations !== false) {
     extensions.push(PreviousBlockType());
   }
 

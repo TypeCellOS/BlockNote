@@ -174,11 +174,13 @@ export type ExtensionFactory<
 /**
  * Constructs a BlockNote {@link ExtensionFactory} from a factory function or object
  */
+// This overload is for `createExtension({ key: "test", ... })`
 export function createExtension<
   const State = any,
   const Key extends string = string,
   const Ext extends Extension<State, Key> = Extension<State, Key>,
 >(factory: Ext): ExtensionFactoryInstance<Ext>;
+// This overload is for `createExtension(({editor, options}) => ({ key: "test", ... }))`
 export function createExtension<
   const State = any,
   const Options extends Record<string, any> | undefined = any,
@@ -187,6 +189,7 @@ export function createExtension<
     ctx: ExtensionOptions<Options>,
   ) => Extension<State, Key>,
 >(factory: Factory): ExtensionFactory<State, Key, Factory>;
+// This overload is for both of the above overloads as it is the implementation of the function
 export function createExtension<
   const State = any,
   const Options extends Record<string, any> | undefined = any,
@@ -203,13 +206,17 @@ export function createExtension<
   : Factory extends (ctx: any) => Extension<State, Key>
     ? ExtensionFactory<State, Key, Factory>
     : never {
-  // TODO typing for this
   if (typeof factory === "object" && "key" in factory) {
     return function factoryFn() {
       (factory as any)[originalFactorySymbol] = factoryFn;
       return factory;
     } as any;
   }
+
+  if (typeof factory !== "function") {
+    throw new Error("factory must be a function");
+  }
+
   return function factoryFn(options: Options) {
     return (ctx: { editor: BlockNoteEditor<any, any, any> }) => {
       const extension = factory({ editor: ctx.editor, options });

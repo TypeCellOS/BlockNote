@@ -14,9 +14,9 @@ it("creates an extension factory", () => {
     } as const;
   });
 
-  const factory = extension()({ editor });
-  expect(factory.key).toBe("test");
-  expect(factory.prosemirrorPlugins).toEqual([]);
+  const extInstance = extension()({ editor });
+  expect(extInstance.key).toBe("test");
+  expect(extInstance.prosemirrorPlugins).toEqual([]);
 });
 
 it("creates an extension factory with options", () => {
@@ -28,9 +28,9 @@ it("creates an extension factory with options", () => {
     } as const;
   });
 
-  const factory = extension({ x: 1 })({ editor });
-  expect(factory.key).toBe("test");
-  expect(factory.prosemirrorPlugins).toEqual([]);
+  const extInstance = extension({ x: 1 })({ editor });
+  expect(extInstance.key).toBe("test");
+  expect(extInstance.prosemirrorPlugins).toEqual([]);
 });
 
 it("creates an extension factory with undefined options", () => {
@@ -44,9 +44,9 @@ it("creates an extension factory with undefined options", () => {
     },
   );
 
-  const factory = extension()({ editor });
-  expect(factory.key).toBe("test");
-  expect(factory.prosemirrorPlugins).toEqual([]);
+  const extInstance = extension()({ editor });
+  expect(extInstance.key).toBe("test");
+  expect(extInstance.prosemirrorPlugins).toEqual([]);
 });
 
 it("creates an extension factory from an object", () => {
@@ -55,9 +55,9 @@ it("creates an extension factory from an object", () => {
     prosemirrorPlugins: [],
   } as const);
 
-  const factory = extension({ editor });
-  expect(factory.key).toBe("test");
-  expect(factory.prosemirrorPlugins).toEqual([]);
+  const extInstance = extension({ editor });
+  expect(extInstance.key).toBe("test");
+  expect(extInstance.prosemirrorPlugins).toEqual([]);
 });
 
 it("allows arbitrary properties on a no-options extension", () => {
@@ -72,13 +72,13 @@ it("allows arbitrary properties on a no-options extension", () => {
     } as const;
   });
 
-  const factory = extension()({ editor });
-  expect(factory.arbitraryProperty).toBe("arbitraryValue");
-  expect(factory.arbitraryMethod()).toBe("arbitraryValue");
+  const extInstance = extension()({ editor });
+  expect(extInstance.arbitraryProperty).toBe("arbitraryValue");
+  expect(extInstance.arbitraryMethod()).toBe("arbitraryValue");
   // @ts-expect-error - this method takes no arguments
-  factory.arbitraryMethod(90);
+  extInstance.arbitraryMethod(90);
   // @ts-expect-error - this property is not defined
-  factory.nonExistentProperty = "newArbitraryValue";
+  extInstance.nonExistentProperty = "newArbitraryValue";
 });
 
 it("allows arbitrary properties on an extension with options", () => {
@@ -94,10 +94,10 @@ it("allows arbitrary properties on an extension with options", () => {
     } as const;
   });
 
-  const factory = extension({ x: 1 })({ editor });
-  expect(factory.arbitraryProperty).toBe("arbitraryValue");
+  const extInstance = extension({ x: 1 })({ editor });
+  expect(extInstance.arbitraryProperty).toBe("arbitraryValue");
   // @ts-expect-error - this method takes no arguments
-  factory.arbitraryMethod(90);
+  extInstance.arbitraryMethod(90);
   // @ts-expect-error - this property is not defined
-  factory.nonExistentProperty = "newArbitraryValue";
+  extInstance.nonExistentProperty = "newArbitraryValue";
 });
