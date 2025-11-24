@@ -5,7 +5,7 @@ export type LinkToolbarProps = {
   url: string;
   text: string;
   range: Range;
-  setToolbarFrozen: (frozen: boolean) => void;
-  setToolbarOpen: (open: boolean) => void;
+  setToolbarFrozen?: (frozen: boolean) => void;
+  setToolbarOpen?: (open: boolean) => void;
   children?: ReactNode;
 };

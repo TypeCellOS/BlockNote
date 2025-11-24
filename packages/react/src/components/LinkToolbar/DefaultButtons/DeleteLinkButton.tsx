@@ -22,7 +22,7 @@ export const DeleteLinkButton = (
       isSelected={false}
       onClick={() => {
         deleteLink(props.range.from);
-        props.setToolbarOpen(false);
+        props.setToolbarOpen?.(false);
       }}
       icon={<RiLinkUnlink />}
     />
