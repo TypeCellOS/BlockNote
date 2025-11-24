@@ -2,7 +2,7 @@ import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 import { LinkToolbar as LinkToolbarExtension } from "@blocknote/core/extensions";
 import { flip, offset, safePolygon } from "@floating-ui/react";
 import { Range } from "@tiptap/core";
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { LinkToolbar } from "./LinkToolbar.js";
@@ -23,6 +23,7 @@ export const LinkToolbarController = (props: {
   >();
 
   const [open, setOpen] = useState(false);
+  const [frozen, setFrozen] = useState(false);
 
   const linkToolbar = useExtension(LinkToolbarExtension);
   const selectionLink = useEditorState({
@@ -42,13 +43,17 @@ export const LinkToolbarController = (props: {
     },
   });
   useEffect(() => {
+    if (frozen) {
+      return;
+    }
+
     setOpen(!!selectionLink);
     if (selectionLink) {
       // Clears the link hovered by the mouse cursor, when the text cursor is
       // within a link, to avoid any potential clashes in positioning.
       setMouseHoverLink(undefined);
     }
-  }, [selectionLink]);
+  }, [frozen, selectionLink]);
 
   // The `mouseHoverLink` state is completely separate from the `open` state as
   // the FloatingUI `useHover` hook handles opening/closing the popover when a
@@ -88,7 +93,7 @@ export const LinkToolbarController = (props: {
     return () => {
       document.body.removeEventListener("mouseover", cb);
     };
-  }, [linkToolbar, mouseHoverLink?.url, selectionLink]);
+  }, [frozen, linkToolbar, mouseHoverLink?.url, selectionLink]);
 
   const link = useMemo(
     () => selectionLink || mouseHoverLink,
@@ -100,6 +105,9 @@ export const LinkToolbarController = (props: {
       useFloatingOptions: {
         open,
         onOpenChange: (open, _event, reason) => {
+          if (frozen) {
+            return;
+          }
           // We want to prioritize `selectionLink` over `mouseHoverLink`, so we
           // ignore opening/closing from hover events.
           if (selectionLink && reason === "hover") {
@@ -130,14 +138,39 @@ export const LinkToolbarController = (props: {
       },
       ...props.floatingUIOptions,
     }),
-    [mouseHoverLink, open, props.floatingUIOptions, selectionLink],
+    [frozen, mouseHoverLink, open, props.floatingUIOptions, selectionLink],
   );
+
+  // When a link is deleted, the element representing it in the DOM gets
+  // unmounted. However, the reference still exists and so FloatingUI can still
+  // call `getBoundingClientRect` on it, which will return a `DOMRect` that has
+  // an x, y, height, and width of 0. This is why we instead use a virtual
+  // element for the reference, and use the last obtained `DOMRect` from when
+  // the link element was still mounted to the DOM.
+  const mountedBoundingClientRect = useRef(new DOMRect());
+  if (link?.element && editor.prosemirrorView.root.contains(link.element)) {
+    mountedBoundingClientRect.current = link.element.getBoundingClientRect();
+  }
 
   const Component = props.linkToolbar || LinkToolbar;
 
   return (
-    <GenericPopover reference={link?.element} {...floatingUIOptions}>
-      {link && <Component url={link.url} text={link.text} range={link.range} />}
+    <GenericPopover
+      reference={{
+        getBoundingClientRect: () => mountedBoundingClientRect.current,
+        contextElement: link?.element,
+      }}
+      {...floatingUIOptions}
+    >
+      {link && (
+        <Component
+          url={link.url}
+          text={link.text}
+          range={link.range}
+          setToolbarFrozen={setFrozen}
+          setToolbarOpen={setOpen}
+        />
+      )}
     </GenericPopover>
   );
 };

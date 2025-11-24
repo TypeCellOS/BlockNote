@@ -4,13 +4,16 @@ import { EditLinkMenuItems } from "../EditLinkMenuItems.js";
 import { LinkToolbarProps } from "../LinkToolbarProps.js";
 
 export const EditLinkButton = (
-  props: Pick<LinkToolbarProps, "url" | "text" | "range">,
+  props: Pick<
+    LinkToolbarProps,
+    "url" | "text" | "range" | "setToolbarFrozen" | "setToolbarOpen"
+  >,
 ) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
   return (
-    <Components.Generic.Popover.Root>
+    <Components.Generic.Popover.Root onOpenChange={props.setToolbarFrozen}>
       <Components.Generic.Popover.Trigger>
         <Components.LinkToolbar.Button
           className={"bn-button"}
@@ -24,7 +27,13 @@ export const EditLinkButton = (
         className={"bn-popover-content bn-form-popover"}
         variant={"form-popover"}
       >
-        <EditLinkMenuItems {...props} />
+        <EditLinkMenuItems
+          url={props.url}
+          text={props.text}
+          range={props.range}
+          setToolbarOpen={props.setToolbarOpen}
+          setToolbarFrozen={props.setToolbarFrozen}
+        />
       </Components.Generic.Popover.Content>
     </Components.Generic.Popover.Root>
   );

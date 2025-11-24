@@ -45,13 +45,14 @@ export default function App() {
       ai: aiEn, // add default translations for the AI extension
     },
     // Register the AI extension
-    extensions: [AIExtension()],
-    ai: {
-      transport: new DefaultChatTransport({
-        // URL to your backend API, see example source in `packages/xl-ai-server/src/routes/regular.ts`
-        api: `${BASE_URL}/model-playground/streamText`,
+    extensions: [
+      AIExtension({
+        transport: new DefaultChatTransport({
+          // URL to your backend API, see example source in `packages/xl-ai-server/src/routes/regular.ts`
+          api: `${BASE_URL}/model-playground/streamText`,
+        }),
       }),
-    },
+    ],
     // We set some initial content for demo purposes
     initialContent: [
       {

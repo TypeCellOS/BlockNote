@@ -27,7 +27,10 @@ const validateUrl = (url: string) => {
 };
 
 export const EditLinkMenuItems = (
-  props: Pick<LinkToolbarProps, "url" | "text" | "range"> & {
+  props: Pick<
+    LinkToolbarProps,
+    "url" | "text" | "range" | "setToolbarOpen" | "setToolbarFrozen"
+  > & {
     showTextField?: boolean;
   },
 ) => {
@@ -51,9 +54,11 @@ export const EditLinkMenuItems = (
       if (event.key === "Enter") {
         event.preventDefault();
         editLink(validateUrl(currentUrl), currentText, props.range.from);
+        props.setToolbarOpen?.(false);
+        props.setToolbarFrozen?.(false);
       }
     },
-    [editLink, currentUrl, currentText, props.range.from],
+    [editLink, currentUrl, currentText, props],
   );
 
   const handleUrlChange = useCallback(
@@ -68,10 +73,11 @@ export const EditLinkMenuItems = (
     [],
   );
 
-  const handleSubmit = useCallback(
-    () => editLink(validateUrl(currentUrl), currentText, props.range.from),
-    [editLink, currentUrl, currentText, props.range],
-  );
+  const handleSubmit = useCallback(() => {
+    editLink(validateUrl(currentUrl), currentText, props.range.from);
+    props.setToolbarOpen?.(false);
+    props.setToolbarFrozen?.(false);
+  }, [editLink, currentUrl, currentText, props]);
 
   return (
     <Components.Generic.Form.Root>

@@ -26,9 +26,14 @@ export const LinkToolbar = (props: LinkToolbarProps) => {
             url={props.url}
             text={props.text}
             range={props.range}
+            setToolbarFrozen={props.setToolbarFrozen}
+            setToolbarOpen={props.setToolbarOpen}
           />
           <OpenLinkButton url={props.url} />
-          <DeleteLinkButton />
+          <DeleteLinkButton
+            range={props.range}
+            setToolbarOpen={props.setToolbarOpen}
+          />
         </>
       )}
     </Components.LinkToolbar.Root>

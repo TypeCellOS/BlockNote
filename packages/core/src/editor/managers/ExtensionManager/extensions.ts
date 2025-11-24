@@ -189,7 +189,7 @@ export function getDefaultExtensions(
     SideMenu(options),
     SuggestionMenu(options),
     TrailingNode(),
-  ].filter((a) => a !== undefined) as ExtensionFactoryInstance[];
+  ] as ExtensionFactoryInstance[];
 
   if (options.collaboration) {
     extensions.push(ForkYDoc(options.collaboration));
@@ -203,9 +203,14 @@ export function getDefaultExtensions(
   }
 
   if (options.comments) {
+    if (!options.resolveUsers) {
+      throw new Error(
+        "resolveUsers is required to be defined when using comments",
+      );
+    }
     // TODO comments should now be pulled out of the core package
     extensions.push(
-      Comments({ ...options.comments, resolveUsers: editor.resolveUsers! }),
+      Comments({ ...options.comments, resolveUsers: options.resolveUsers }),
     );
   }
 
@@ -213,7 +218,7 @@ export function getDefaultExtensions(
     extensions.push(TableHandles(options));
   }
 
-  if (options.animations === false) {
+  if (options.animations !== false) {
     extensions.push(PreviousBlockType());
   }
 

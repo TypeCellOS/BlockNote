@@ -48,7 +48,7 @@ export const FileReplaceButton = () => {
   }
 
   return (
-    <Components.Generic.Popover.Root opened={isOpen} position={"bottom"}>
+    <Components.Generic.Popover.Root open={isOpen} position={"bottom"}>
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button
           className={"bn-button"}

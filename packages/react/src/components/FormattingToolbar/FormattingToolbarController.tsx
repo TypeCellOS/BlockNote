@@ -83,8 +83,12 @@ export const FormattingToolbarController = (props: {
         open: show,
         // Needed as hooks like `useDismiss` call `onOpenChange` to change the
         // open state.
-        onOpenChange: (open) => {
+        onOpenChange: (open, _event, reason) => {
           formattingToolbar.store.setState(open);
+          
+          if (reason === "escape-key") {
+            editor.focus();
+          }
         },
         placement,
         middleware: [offset(10), shift(), flip()],
@@ -95,7 +99,7 @@ export const FormattingToolbarController = (props: {
         },
       },
     }),
-    [formattingToolbar.store, show, placement],
+    [show, placement, formattingToolbar.store, editor],
   );
 
   const Component = props.formattingToolbar || FormattingToolbar;

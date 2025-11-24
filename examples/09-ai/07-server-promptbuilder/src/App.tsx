@@ -36,50 +36,51 @@ export default function App() {
       ai: aiEn, // add default translations for the AI extension
     },
     // Register the AI extension
-    extensions: [AIExtension()],
-    ai: {
-      // similar to https://ai-sdk.dev/docs/ai-sdk-ui/chatbot-message-persistence#sending-only-the-last-message
-      // we adjust the transport to not send all messages to the backend
-      transport: new DefaultChatTransport({
-        // (see packages/xl-ai-server/src/routes/vercelAiSdkPersistence.ts)
-        api: `${BASE_URL}/server-promptbuilder/streamText`,
-        prepareSendMessagesRequest({ id, body, messages, requestMetadata }) {
-          // we don't send the messages, just the information we need to compose / append messages server-side:
-          // - the conversation id
-          // - the promptData
-          // - the tool results of the last message
+    extensions: [
+      AIExtension({
+        // similar to https://ai-sdk.dev/docs/ai-sdk-ui/chatbot-message-persistence#sending-only-the-last-message
+        // we adjust the transport to not send all messages to the backend
+        transport: new DefaultChatTransport({
+          // (see packages/xl-ai-server/src/routes/vercelAiSdkPersistence.ts)
+          api: `${BASE_URL}/server-promptbuilder/streamText`,
+          prepareSendMessagesRequest({ id, body, messages, requestMetadata }) {
+            // we don't send the messages, just the information we need to compose / append messages server-side:
+            // - the conversation id
+            // - the promptData
+            // - the tool results of the last message
 
-          // we need to share data about tool calls with the backend,
-          // as these can be client-side executed. The backend needs to know the tool outputs
-          // in order to compose a new valid LLM request
-          const lastToolParts =
-            messages.length > 0
-              ? messages[messages.length - 1].parts.filter((part) =>
-                  isToolOrDynamicToolUIPart(part),
-                )
-              : [];
+            // we need to share data about tool calls with the backend,
+            // as these can be client-side executed. The backend needs to know the tool outputs
+            // in order to compose a new valid LLM request
+            const lastToolParts =
+              messages.length > 0
+                ? messages[messages.length - 1].parts.filter((part) =>
+                    isToolOrDynamicToolUIPart(part),
+                  )
+                : [];
 
-          return {
-            body: {
-              ...body,
-              // TODO: this conversation id is client-side generated, we
-              // should have a server-side generated id to ensure uniqueness
-              // see https://github.com/vercel/ai/issues/7340#issuecomment-3307559636
-              id,
-              // get the promptData from requestMetadata (set by `promptAIRequestSender`) and send to backend
-              promptData: (requestMetadata as any).promptData,
-              lastToolParts,
-              // messages, -> we explicitly don't send the messages array as we compose messages server-side
-            },
-          };
-        },
+            return {
+              body: {
+                ...body,
+                // TODO: this conversation id is client-side generated, we
+                // should have a server-side generated id to ensure uniqueness
+                // see https://github.com/vercel/ai/issues/7340#issuecomment-3307559636
+                id,
+                // get the promptData from requestMetadata (set by `promptAIRequestSender`) and send to backend
+                promptData: (requestMetadata as any).promptData,
+                lastToolParts,
+                // messages, -> we explicitly don't send the messages array as we compose messages server-side
+              },
+            };
+          },
+        }),
+        // customize the aiRequestSender to not update the messages array on the client-side
+        aiRequestSender: defaultAIRequestSender(
+          async () => {}, // disable the client-side promptbuilder
+          aiDocumentFormats.html.defaultPromptInputDataBuilder,
+        ),
       }),
-      // customize the aiRequestSender to not update the messages array on the client-side
-      aiRequestSender: defaultAIRequestSender(
-        async () => {}, // disable the client-side promptbuilder
-        aiDocumentFormats.html.defaultPromptInputDataBuilder,
-      ),
-    },
+    ],
     // We set some initial content for demo purposes
     initialContent: [
       {

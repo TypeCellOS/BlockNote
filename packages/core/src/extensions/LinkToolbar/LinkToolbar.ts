@@ -51,6 +51,9 @@ export const LinkToolbar = createExtension(({ editor }) => {
   function getLinkAtSelection() {
     return editor.transact((tr) => {
       const selection = tr.selection;
+      if (!selection.empty) {
+        return undefined;
+      }
       return getMarkAtPos(selection.anchor, "link");
     });
   }
@@ -94,16 +97,20 @@ export const LinkToolbar = createExtension(({ editor }) => {
       });
       editor.prosemirrorView.focus();
     },
-
-    deleteLink() {
+    deleteLink(position = editor.transact((tr) => tr.selection.anchor)) {
       editor.transact((tr) => {
         const pmSchema = getPmSchema(tr);
-        const range = getLinkAtSelection()?.range;
+        const { range } = getMarkAtPos(position + 1, "link") || {
+          range: {
+            from: tr.selection.from,
+            to: tr.selection.to,
+          },
+        };
         if (!range) {
           return;
         }
 
-        tr.removeMark(range.from, range.to, pmSchema.mark("link")).setMeta(
+        tr.removeMark(range.from, range.to, pmSchema.marks["link"]).setMeta(
           "preventAutolink",
           true,
         );
