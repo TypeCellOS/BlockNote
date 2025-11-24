@@ -1,6 +1,6 @@
-import { Chat } from "@ai-sdk/react";
+import type { Chat } from "@ai-sdk/react";
 import { ChatTransport, UIMessage } from "ai";
-import { AIRequestSender, StreamToolsProvider } from "./index.js";
+import { DocumentStateBuilder, StreamToolsProvider } from "./index.js";
 
 /**
  * Extra options (header, body, metadata) that can be passed to LLM requests
@@ -18,7 +18,6 @@ export type AIRequestHelpers = {
    * - use a different transport layer (e.g.: websockets)
    */
   transport?: ChatTransport<UIMessage>;
-
   /**
    * Customize which stream tools are available to the LLM
    */
@@ -30,13 +29,9 @@ export type AIRequestHelpers = {
    */
   chatRequestOptions?: ChatRequestOptions;
 
-  /**
-   * Responsible for submitting a BlockNote `AIRequest` to the Vercel AI SDK.
-   * Use this to transform the messages sent to the LLM
-   *
-   * @default `defaultAIRequestSender(aiDocumentFormats.html.defaultPromptBuilder, aiDocumentFormats.html.defaultPromptInputDataBuilder)`
-   */
-  aiRequestSender?: AIRequestSender;
+  documentStateBuilder?: DocumentStateBuilder<any>;
+
+  chatProvider?: () => Chat<UIMessage>;
 };
 
 export type InvokeAIOptions = {

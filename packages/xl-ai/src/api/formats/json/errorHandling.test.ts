@@ -6,11 +6,10 @@ import { setupServer } from "msw/node";
 
 import { Chat } from "@ai-sdk/react";
 import { UIMessage } from "ai";
-import { aiDocumentFormats } from "../../../index.js";
+import { sendMessageWithAIRequest } from "../../../index.js";
 import { ClientSideTransport } from "../../../streamTool/vercelAiSdk/clientside/ClientSideTransport.js";
 import { testAIModels } from "../../../testUtil/testAIModels.js";
-import { defaultAIRequestSender } from "../../aiRequest/defaultAIRequestSender.js";
-import { buildAIRequest, executeAIRequest } from "../../aiRequest/execute.js";
+import { buildAIRequest } from "../../aiRequest/builder.js";
 
 // Separate test suite for error handling with its own server
 // skipping because it throws a (false) unhandled promise rejection in vitest
@@ -78,17 +77,17 @@ describe.skip("Error handling", () => {
             objectGeneration: true, // TODO: switch to text
           }),
         });
-        const aiRequest = buildAIRequest({
+        const aiRequest = await buildAIRequest({
           editor,
-          chat,
-          userPrompt: "translate to Spanish",
         });
-        await executeAIRequest({
-          aiRequest,
-          sender: defaultAIRequestSender(
-            aiDocumentFormats.html.defaultPromptBuilder,
-            aiDocumentFormats.html.defaultPromptInputDataBuilder,
-          ),
+        await sendMessageWithAIRequest(chat, aiRequest, {
+          role: "user",
+          parts: [
+            {
+              type: "text",
+              text: "translate to Spanish",
+            },
+          ],
         });
       } catch (error: any) {
         errorThrown = true;

@@ -16,13 +16,14 @@ import { Plugin, PluginKey } from "prosemirror-state";
 import { fixTablesKey } from "prosemirror-tables";
 import { createStore, StoreApi } from "zustand/vanilla";
 
-import {
-  aiDocumentFormats,
-  buildAIRequest,
-  defaultAIRequestSender,
-  executeAIRequest,
-} from "./api/index.js";
+import merge from "lodash.merge";
+import { AIRequest, buildAIRequest } from "./api/index.js";
 import { createAgentCursorPlugin } from "./plugins/AgentCursorPlugin.js";
+import {
+  setupToolCallStreaming,
+  streamToolsToToolSet,
+  toolSetToToolDefinitions,
+} from "./streamTool/index.js";
 import { AIRequestHelpers, InvokeAIOptions } from "./types.js";
 
 type ReadonlyStoreApi<T> = Pick<
@@ -375,10 +376,14 @@ export class AIExtension extends BlockNoteExtension {
         // (so changing transport for a subsequent call in the same chat-session is not supported)
         this.chatSession = {
           previousRequestOptions: opts,
-          chat: new Chat<UIMessage>({
-            sendAutomaticallyWhen: () => false,
-            transport: opts.transport || this.options.getState().transport,
-          }),
+          chat:
+            opts.chatProvider?.() ||
+            this.options.getState().chatProvider?.() ||
+            new Chat<UIMessage>({
+              sendAutomaticallyWhen: () => false,
+              // TODO: does transport still make sense? or just rely on chatProvider?
+              transport: opts.transport || this.options.getState().transport,
+            }),
         };
       } else {
         this.chatSession.previousRequestOptions = opts;
@@ -392,17 +397,8 @@ export class AIExtension extends BlockNoteExtension {
         ...opts,
       } as InvokeAIOptions;
 
-      const sender =
-        opts.aiRequestSender ??
-        defaultAIRequestSender(
-          aiDocumentFormats.html.defaultPromptBuilder,
-          aiDocumentFormats.html.defaultPromptInputDataBuilder,
-        );
-
-      const aiRequest = buildAIRequest({
+      const aiRequest = await buildAIRequest({
         editor: this.editor,
-        chat,
-        userPrompt: opts.userPrompt,
         useSelection: opts.useSelection,
         deleteEmptyCursorBlock: opts.deleteEmptyCursorBlock,
         streamToolsProvider: opts.streamToolsProvider,
@@ -443,27 +439,97 @@ export class AIExtension extends BlockNoteExtension {
             block: "center",
           });
         },
-      });
-
-      await executeAIRequest({
-        aiRequest,
-        sender,
-        chatRequestOptions: opts.chatRequestOptions,
+        // fix: we might be able to make this more a generic listener to "chat"
         onStart: () => {
           this.autoScroll = true;
           this.setAIResponseStatus("ai-writing");
+
+          if (
+            aiRequest.emptyCursorBlockToDelete &&
+            aiRequest.editor.getBlock(aiRequest.emptyCursorBlockToDelete)
+          ) {
+            aiRequest.editor.removeBlocks([aiRequest.emptyCursorBlockToDelete]);
+          }
         },
       });
 
+      // expose as helper?
+      await sendMessageWithAIRequest(chat, aiRequest, {
+        role: "user",
+        parts: [
+          {
+            type: "text",
+            text: opts.userPrompt,
+          },
+        ],
+      });
+
+      // TODO: check chat status
+
+      console.log("done");
+      // TODO: wait for tool calls to finish
+
       this.setAIResponseStatus("user-reviewing");
     } catch (e) {
+      // TODO: this would never happen. we need to base this state on the chat state
+
       this.setAIResponseStatus({
         status: "error",
         error: e,
       });
       // eslint-disable-next-line no-console
-      console.warn("Error calling LLM", e, this.chatSession?.chat.messages);
+      console.error("Error calling LLM", e, this.chatSession?.chat.messages);
     }
+  }
+}
+export async function sendMessageWithAIRequest(
+  chat: Chat<UIMessage>,
+  aiRequest: AIRequest,
+  message?: Parameters<Chat<UIMessage>["sendMessage"]>[0],
+  options?: Parameters<Chat<UIMessage>["sendMessage"]>[1],
+) {
+  const sendingMessage = message ?? chat.lastMessage!;
+
+  sendingMessage.metadata = merge(sendingMessage.metadata, {
+    documentState: aiRequest.documentState,
+  });
+
+  const toolCallProcessing = setupToolCallStreaming(
+    aiRequest.streamTools,
+    chat,
+    aiRequest.onStart,
+  );
+  options = merge(options, {
+    metadata: {
+      source: "blocknote-ai",
+    },
+    body: {
+      toolDefinitions: toolSetToToolDefinitions(
+        streamToolsToToolSet(aiRequest.streamTools),
+      ),
+    },
+  });
+
+  await chat.sendMessage(message, options);
+
+  // if (this.status === "ready") {
+  //   // mark as streaming while processing calls
+  //   this.setStatus({ status: "streaming" });
+  // }
+
+  try {
+    await toolCallProcessing;
+    // this.setStatus({ status: "ready" });
+  } catch (e) {
+    // unexpected that this throws
+    console.error("Error tool call streaming", e);
+    throw e;
+    // this.setStatus({
+    //   status: "error",
+    //   error: new Error("An unexpected application error occurred.", {
+    //     cause: e,
+    //   }),
+    // });
   }
 }
 

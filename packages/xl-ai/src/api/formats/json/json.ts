@@ -1,18 +1,16 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { StreamTool } from "../../../streamTool/streamTool.js";
 
-import {
-  defaultJSONPromptDataBuilder,
-  getDataForPromptNoSelection,
-  getDataForPromptWithSelection,
-} from "./jsonPromptData.js";
 import { tools } from "./tools/index.js";
 
 // Import the tool call types
 import { StreamToolsProvider } from "../../index.js";
-import { defaultJSONPromptBuilder } from "./defaultJSONPromptBuilder.js";
 
-import { StreamToolsConfig, StreamToolsResult } from "../index.js";
+import {
+  makeDocumentStateBuilder,
+  StreamToolsConfig,
+  StreamToolsResult,
+} from "../index.js";
 
 function getStreamTools<
   T extends StreamToolsConfig = { add: true; update: true; delete: true },
@@ -92,23 +90,14 @@ export const jsonBlockLLMFormat = {
   }),
 
   tools,
-
-  /**
-   * The default PromptBuilder that determines how a userPrompt is converted to an array of
-   * LLM Messages (CoreMessage[])
-   */
-  defaultPromptBuilder: defaultJSONPromptBuilder,
-
-  /**
-   * The default PromptInputDataBuilder that can take an editor and user request and convert it to the input required for the PromptBuilder
-   */
-  defaultPromptInputDataBuilder: defaultJSONPromptDataBuilder,
-
-  /**
-   * Helper functions which can be used when implementing a custom PromptBuilder
-   */
-  promptHelpers: {
-    getDataForPromptNoSelection,
-    getDataForPromptWithSelection,
-  },
+  systemPrompt: "TODO",
+  defaultDocumentStateBuilder: makeDocumentStateBuilder(
+    async (_editor, block) => {
+      return {
+        ...block,
+        id: undefined, // don't pass id, because LLM should use `jsonSelectedBlocks` for this
+        children: undefined,
+      };
+    },
+  ),
 };

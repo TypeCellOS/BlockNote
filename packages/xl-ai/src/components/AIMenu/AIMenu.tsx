@@ -5,7 +5,7 @@ import { RiSparkling2Fill } from "react-icons/ri";
 import { useStore } from "zustand";
 
 import { getAIExtension } from "../../AIExtension.js";
-import { useAIDictionary } from "../../i18n/useAIDictionary.js";
+import { useAIDictionary } from "../../hooks/useAIDictionary.js";
 import { PromptSuggestionMenu } from "./PromptSuggestionMenu.js";
 import {
   AIMenuSuggestionItem,
