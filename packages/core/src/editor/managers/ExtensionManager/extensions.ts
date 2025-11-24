@@ -186,7 +186,7 @@ export function getDefaultExtensions(
     ShowSelectionExtension(options),
     SideMenuExtension(options),
     SuggestionMenu(options),
-    TrailingNodeExtension(),
+    ...(options.trailingBlock !== false ? [TrailingNodeExtension()] : []),
   ] as ExtensionFactoryInstance[];
 
   if (options.collaboration) {
