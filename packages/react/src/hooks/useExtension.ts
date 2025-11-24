@@ -12,10 +12,18 @@ type Store<T> = ReturnType<typeof createStore<T>>;
 /**
  * Use an extension instance
  */
-export function useExtension<const T extends ExtensionFactory | Extension>(
+export function useExtension<
+  const T extends ExtensionFactory | Extension | string,
+>(
   plugin: T,
   ctx?: { editor?: BlockNoteEditor<any, any, any> },
-): T extends ExtensionFactory ? NonNullable<ReturnType<ReturnType<T>>> : T {
+): T extends ExtensionFactory
+  ? NonNullable<ReturnType<ReturnType<T>>>
+  : T extends string
+    ? Extension
+    : T extends Extension
+      ? T
+      : never {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const editor = ctx?.editor ?? useBlockNoteEditor();
 

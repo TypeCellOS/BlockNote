@@ -1,4 +1,4 @@
-import { Comments } from "@blocknote/core/extensions";
+import { CommentsExtension } from "@blocknote/core/comments";
 import { ThreadData } from "@blocknote/core/comments";
 import { useCallback, useRef, useSyncExternalStore } from "react";
 
@@ -8,7 +8,7 @@ import { useExtension } from "../../hooks/useExtension.js";
  * Bridges the ThreadStore to React using useSyncExternalStore.
  */
 export function useThreads() {
-  const comments = useExtension(Comments);
+  const comments = useExtension(CommentsExtension);
 
   const store = comments.threadStore;
 

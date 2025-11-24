@@ -1,5 +1,5 @@
 import { BlockNoteEditor, UnreachableCaseError } from "@blocknote/core";
-import { Comments } from "@blocknote/core/extensions";
+import { CommentsExtension } from "@blocknote/core/comments";
 import { ThreadData } from "@blocknote/core/comments";
 import React, { FocusEvent, useCallback, useMemo } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
@@ -26,7 +26,7 @@ const ThreadItem = React.memo(
     maxCommentsBeforeCollapse,
     referenceText,
   }: ThreadItemProps) => {
-    const comments = useExtension(Comments);
+    const comments = useExtension(CommentsExtension);
 
     const onFocus = useCallback(
       (event: FocusEvent) => {
@@ -192,7 +192,8 @@ export function ThreadsSidebar(props: {
 }) {
   const editor = useBlockNoteEditor<any, any, any>();
 
-  const { selectedThreadId, threadPositions } = useExtensionState(Comments);
+  const { selectedThreadId, threadPositions } =
+    useExtensionState(CommentsExtension);
 
   const threads = useThreads();
 

@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  CommentsExtension,
   DefaultThreadStoreAuth,
   YjsThreadStore,
 } from "@blocknote/core/comments";
@@ -74,10 +75,7 @@ function Document() {
   // setup the editor with comments and collaboration
   const editor = useCreateBlockNote(
     {
-      resolveUsers,
-      comments: {
-        threadStore,
-      },
+      extensions: [CommentsExtension({ threadStore, resolveUsers })],
       collaboration: {
         provider,
         fragment: doc.getXmlFragment("blocknote"),

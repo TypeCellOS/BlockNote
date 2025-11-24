@@ -1,4 +1,6 @@
-import { Comments, FormattingToolbar } from "@blocknote/core/extensions";
+import { FormattingToolbar } from "@blocknote/core/extensions";
+// Specifically using type here to avoid pulling in the comments extensions into the main bundle
+import type { CommentsExtension } from "@blocknote/core/comments";
 import { useCallback } from "react";
 import { RiChat3Line } from "react-icons/ri";
 
@@ -11,7 +13,9 @@ export const AddCommentButtonInner = () => {
   const dict = useDictionary();
   const Components = useComponentsContext()!;
 
-  const comments = useExtension(Comments);
+  const comments = useExtension("comments") as unknown as ReturnType<
+    ReturnType<typeof CommentsExtension>
+  >;
   const { store } = useExtension(FormattingToolbar);
 
   const onClick = useCallback(() => {
@@ -33,7 +37,7 @@ export const AddCommentButtonInner = () => {
 export const AddCommentButton = () => {
   const editor = useBlockNoteEditor<any, any, any>();
 
-  if (!editor.getExtension(Comments)) {
+  if (!editor.getExtension("comments")) {
     return null;
   }
 

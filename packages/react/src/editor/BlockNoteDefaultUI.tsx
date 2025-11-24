@@ -1,13 +1,9 @@
 import {
-  Comments,
   FormattingToolbar,
   SideMenu,
   SuggestionMenu,
   TableHandles,
 } from "@blocknote/core/extensions";
-
-import { FloatingComposerController } from "../components/Comments/FloatingComposerController.js";
-import { FloatingThreadController } from "../components/Comments/FloatingThreadController.js";
 import { FilePanelController } from "../components/FilePanel/FilePanelController.js";
 import { FormattingToolbarController } from "../components/FormattingToolbar/FormattingToolbarController.js";
 import { LinkToolbarController } from "../components/LinkToolbar/LinkToolbarController.js";
@@ -16,6 +12,15 @@ import { GridSuggestionMenuController } from "../components/SuggestionMenu/GridS
 import { SuggestionMenuController } from "../components/SuggestionMenu/SuggestionMenuController.js";
 import { TableHandlesController } from "../components/TableHandles/TableHandlesController.js";
 import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor.js";
+import { lazy, Suspense } from "react";
+
+// Lazily load the comments components to avoid pulling in the comments extensions into the main bundle
+const FloatingComposerController = lazy(
+  () => import("../components/Comments/FloatingComposerController.js"),
+);
+const FloatingThreadController = lazy(
+  () => import("../components/Comments/FloatingThreadController.js"),
+);
 
 export type BlockNoteDefaultUIProps = {
   /**
@@ -98,11 +103,11 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
       {editor.getExtension(TableHandles) && props.tableHandles !== false && (
         <TableHandlesController />
       )}
-      {editor.getExtension(Comments) && props.comments !== false && (
-        <>
+      {editor.getExtension("comments") && props.comments !== false && (
+        <Suspense>
           <FloatingComposerController />
           <FloatingThreadController />
-        </>
+        </Suspense>
       )}
     </>
   );

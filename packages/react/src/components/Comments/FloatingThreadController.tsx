@@ -1,4 +1,4 @@
-import { Comments } from "@blocknote/core/extensions";
+import { CommentsExtension } from "@blocknote/core/comments";
 import { flip, offset, shift } from "@floating-ui/react";
 import { ComponentProps, FC, useEffect, useMemo, useState } from "react";
 
@@ -13,15 +13,15 @@ import { useThreads } from "./useThreads.js";
  * This component is used to display a thread in a floating card.
  * It can be used when the user clicks on a thread / comment in the document.
  */
-export const FloatingThreadController = (props: {
+export default function FloatingThreadController(props: {
   floatingThread?: FC<ComponentProps<typeof Thread>>;
   floatingUIOptions?: FloatingUIOptions;
-}) => {
+}) {
   const editor = useBlockNoteEditor<any, any, any>();
 
   const [open, setOpen] = useState(false);
 
-  const selectedThread = useExtensionState(Comments, {
+  const selectedThread = useExtensionState(CommentsExtension, {
     editor,
     selector: (state) =>
       state.selectedThreadId
@@ -70,4 +70,4 @@ export const FloatingThreadController = (props: {
       )}
     </PositionPopover>
   );
-};
+}

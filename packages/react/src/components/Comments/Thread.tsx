@@ -1,5 +1,5 @@
 import { mergeCSSClasses } from "@blocknote/core";
-import { Comments as CommentsExtension } from "@blocknote/core/extensions";
+import { CommentsExtension } from "@blocknote/core/comments";
 import { ThreadData } from "@blocknote/core/comments";
 import { FocusEvent, useCallback } from "react";
 

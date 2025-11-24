@@ -1,5 +1,5 @@
-import type { User } from "../../../comments/index.js";
-import { EventEmitter } from "../../../util/EventEmitter.js";
+import type { User } from "../types.js";
+import { EventEmitter } from "../../util/EventEmitter.js";
 
 /**
  * The `UserStore` is used to retrieve and cache information about users.

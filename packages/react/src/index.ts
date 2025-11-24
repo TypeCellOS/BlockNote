@@ -101,8 +101,8 @@ export * from "./components/TableHandles/TableHandleMenu/TableHandleMenuProps.js
 export * from "./components/Comments/Comment.js";
 export * from "./components/Comments/Comments.js";
 export * from "./components/Comments/FloatingComposer.js";
-export * from "./components/Comments/FloatingComposerController.js";
-export * from "./components/Comments/FloatingThreadController.js";
+export { default as FloatingComposerController } from "./components/Comments/FloatingComposerController.js";
+export { default as FloatingThreadController } from "./components/Comments/FloatingThreadController.js";
 export * from "./components/Comments/Thread.js";
 export * from "./components/Comments/ThreadsSidebar.js";
 export * from "./components/Comments/useThreads.js";

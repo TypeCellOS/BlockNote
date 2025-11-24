@@ -12,7 +12,6 @@ import { createPasteFromClipboardExtension } from "../../../api/clipboard/fromCl
 import { createCopyToClipboardExtension } from "../../../api/clipboard/toClipboard/copyExtension.js";
 import {
   BlockChange,
-  Comments,
   DropCursor,
   FilePanel,
   ForkYDoc,
@@ -200,18 +199,6 @@ export function getDefaultExtensions(
   } else {
     // YUndo is not compatible with ProseMirror's history plugin
     extensions.push(History());
-  }
-
-  if (options.comments) {
-    if (!options.resolveUsers) {
-      throw new Error(
-        "resolveUsers is required to be defined when using comments",
-      );
-    }
-    // TODO comments should now be pulled out of the core package
-    extensions.push(
-      Comments({ ...options.comments, resolveUsers: options.resolveUsers }),
-    );
   }
 
   if ("table" in editor.schema.blockSpecs) {

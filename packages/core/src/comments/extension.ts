@@ -2,19 +2,16 @@ import { Node } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import { getRelativeSelection, ySyncPluginKey } from "y-prosemirror";
-import type {
-  CommentBody,
-  ThreadData,
-  ThreadStore,
-  User,
-} from "../../comments/index.js";
 import {
   createExtension,
   createStore,
   ExtensionOptions,
-} from "../../editor/BlockNoteExtension.js";
-import { CustomBlockNoteSchema } from "../../schema/schema.js";
-import { CommentMark } from "./CommentMark.js";
+} from "../editor/BlockNoteExtension.js";
+import { CustomBlockNoteSchema } from "../schema/schema.js";
+import { CommentMark } from "./mark.js";
+import { User } from "./types.js";
+import type { ThreadStore } from "./threadstore/ThreadStore.js";
+import type { CommentBody, ThreadData } from "./types.js";
 import { UserStore } from "./userstore/UserStore.js";
 
 const PLUGIN_KEY = new PluginKey(`blocknote-comments`);
@@ -61,9 +58,7 @@ function getUpdatedThreadPositions(doc: Node, markType: string) {
   return threadPositions;
 }
 
-// TODO this is entirely self-contained now, so we can actually remove the comments extension from the core package (into the sub-package)
-
-export const Comments = createExtension(
+export const CommentsExtension = createExtension(
   ({
     editor,
     options: { schema: commentEditorSchema, threadStore, resolveUsers },
@@ -83,6 +78,16 @@ export const Comments = createExtension(
      */
     schema?: CustomBlockNoteSchema<any, any, any>;
   }>) => {
+    if (!resolveUsers) {
+      throw new Error(
+        "resolveUsers is required to be defined when using comments",
+      );
+    }
+    if (!threadStore) {
+      throw new Error(
+        "threadStore is required to be defined when using comments",
+      );
+    }
     const markType = CommentMark.name;
 
     const userStore = new UserStore<User>(resolveUsers);
