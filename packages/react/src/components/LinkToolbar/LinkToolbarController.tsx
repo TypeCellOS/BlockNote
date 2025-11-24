@@ -1,5 +1,5 @@
 import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
-import { LinkToolbarExtension as LinkToolbarExtension } from "@blocknote/core/extensions";
+import { LinkToolbarExtension } from "@blocknote/core/extensions";
 import { flip, offset, safePolygon } from "@floating-ui/react";
 import { Range } from "@tiptap/core";
 import { FC, useEffect, useMemo, useRef, useState } from "react";
@@ -108,10 +108,15 @@ export const LinkToolbarController = (props: {
           if (frozen) {
             return;
           }
+
           // We want to prioritize `selectionLink` over `mouseHoverLink`, so we
           // ignore opening/closing from hover events.
           if (selectionLink && reason === "hover") {
             return;
+          }
+
+          if (reason === "escape-key") {
+            editor.focus();
           }
 
           setOpen(open);
@@ -138,7 +143,14 @@ export const LinkToolbarController = (props: {
       },
       ...props.floatingUIOptions,
     }),
-    [frozen, mouseHoverLink, open, props.floatingUIOptions, selectionLink],
+    [
+      editor,
+      frozen,
+      mouseHoverLink,
+      open,
+      props.floatingUIOptions,
+      selectionLink,
+    ],
   );
 
   // When a link is deleted, the element representing it in the DOM gets

@@ -6,7 +6,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { FormattingToolbarExtension as FormattingToolbarExtension } from "@blocknote/core/extensions";
+import { FormattingToolbarExtension } from "@blocknote/core/extensions";
 import { flip, offset, shift } from "@floating-ui/react";
 import { FC, useMemo } from "react";
 

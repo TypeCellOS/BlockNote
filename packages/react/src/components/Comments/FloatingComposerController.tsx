@@ -7,6 +7,7 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import { CommentsExtension } from "@blocknote/core/comments";
+import { ShowSelectionExtension } from "@blocknote/core/extensions";
 import { flip, offset, shift } from "@floating-ui/react";
 import { ComponentProps, FC, useEffect, useMemo, useState } from "react";
 
@@ -30,15 +31,17 @@ export default function FloatingComposerController<
   const editor = useBlockNoteEditor<B, I, S>();
 
   const comments = useExtension(CommentsExtension);
+  const showSelection = useExtension(ShowSelectionExtension);
 
-  // TODO: `setForceSelectionVisible` no longer exists?
-  // useEffect(() => {
-  //   const offUpdate = comments.onUpdate((state) =>
-  //     editor.setForceSelectionVisible(state.pendingComment),
-  //   );
+  useEffect(() => {
+    const offUpdate = comments.onUpdate((state) =>
+      showSelection.showSelection(!!state.pendingComment),
+    );
 
-  //   return () => offUpdate();
-  // }, [comments, editor]);
+    return () => {
+      offUpdate();
+    };
+  }, [comments, editor, showSelection]);
 
   const pendingComment = useExtensionState(CommentsExtension, {
     editor,

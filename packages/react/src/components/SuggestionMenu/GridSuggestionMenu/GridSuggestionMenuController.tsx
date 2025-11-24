@@ -114,8 +114,8 @@ export function GridSuggestionMenuController<
     () => ({
       useFloatingOptions: {
         open: state?.show && state?.triggerCharacter === triggerCharacter,
-        onOpenChange: (open, _event, reason) => {
-          if (!open && reason === "escape-key") {
+        onOpenChange: (open) => {
+          if (!open) {
             suggestionMenu.closeMenu();
           }
         },
@@ -151,6 +151,7 @@ export function GridSuggestionMenuController<
       props.floatingUIOptions,
       state?.show,
       state?.triggerCharacter,
+      suggestionMenu,
       triggerCharacter,
     ],
   );

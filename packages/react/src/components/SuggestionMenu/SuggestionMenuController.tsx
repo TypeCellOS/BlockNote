@@ -116,8 +116,8 @@ export function SuggestionMenuController<
     () => ({
       useFloatingOptions: {
         open: state?.show && state?.triggerCharacter === triggerCharacter,
-        onOpenChange: (open, _event, reason) => {
-          if (!open && reason === "escape-key") {
+        onOpenChange: (open) => {
+          if (!open) {
             suggestionMenu.closeMenu();
           }
         },

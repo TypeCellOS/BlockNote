@@ -3,7 +3,7 @@ import { flip, offset, shift } from "@floating-ui/react";
 import { ComponentProps, FC, useEffect, useMemo, useState } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
-import { useExtensionState } from "../../hooks/useExtension.js";
+import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import { PositionPopover } from "../Popovers/PositionPopover.js";
 import { Thread } from "./Thread.js";
@@ -21,6 +21,7 @@ export default function FloatingThreadController(props: {
 
   const [open, setOpen] = useState(false);
 
+  const comments = useExtension(CommentsExtension);
   const selectedThread = useExtensionState(CommentsExtension, {
     editor,
     selector: (state) =>
@@ -37,13 +38,28 @@ export default function FloatingThreadController(props: {
 
   const threads = useThreads();
 
+  const thread = useMemo(
+    () => (selectedThread ? threads.get(selectedThread.id) : undefined),
+    [selectedThread, threads],
+  );
+
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
       useFloatingOptions: {
         open,
         // Needed as hooks like `useDismiss` call `onOpenChange` to change the
         // open state.
-        onOpenChange: setOpen,
+        onOpenChange: (open, _event, reason) => {
+          if (reason === "escape-key") {
+            editor.focus();
+          }
+
+          if (!open) {
+            comments.selectThread(undefined);
+          }
+
+          setOpen(open);
+        },
         placement: "bottom",
         middleware: [offset(10), shift(), flip()],
       },
@@ -54,7 +70,7 @@ export default function FloatingThreadController(props: {
       },
       ...props.floatingUIOptions,
     }),
-    [open, props.floatingUIOptions],
+    [editor, open, props.floatingUIOptions],
   );
 
   // nice to have improvements:
@@ -65,9 +81,7 @@ export default function FloatingThreadController(props: {
 
   return (
     <PositionPopover position={selectedThread?.position} {...floatingUIOptions}>
-      {selectedThread && (
-        <Component thread={threads.get(selectedThread.id)!} selected={true} />
-      )}
+      {thread && <Component thread={thread} selected={true} />}
     </PositionPopover>
   );
 }
