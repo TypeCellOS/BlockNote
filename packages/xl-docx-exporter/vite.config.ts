@@ -13,7 +13,6 @@ const deps = Object.keys({
 // https://vitejs.dev/config/
 export default defineConfig((conf) => ({
   test: {
-    environment: "jsdom",
     setupFiles: ["./vitestSetup.ts"],
   },
   plugins: [webpackStats() as any],
