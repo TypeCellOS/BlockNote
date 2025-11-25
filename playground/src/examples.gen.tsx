@@ -267,6 +267,24 @@
         "readme": "In this example, we change the default paste handler to append some text to the pasted content when the content is plain text.\n\n**Try it out:** Use the buttons to copy some content to the clipboard and paste it in the editor to trigger our custom paste handler.\n\n**Relevant Docs:**\n\n- [Paste Handling](/docs/reference/editor/paste-handling)"
       },
       {
+        "projectSlug": "rtl-direction",
+        "fullSlug": "basic/rtl-direction",
+        "pathFromRoot": "examples/01-basic/10-rtl-direction",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "zaaakher",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "RTL Direction",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
+      },
+      {
         "projectSlug": "testing",
         "fullSlug": "basic/testing",
         "pathFromRoot": "examples/01-basic/testing",
