@@ -4453,7 +4453,7 @@ importers:
         specifier: ^1.2.1
         version: 1.2.1
       '@hocuspocus/provider':
-        specifier: ^2.15.2
+        specifier: ^2.15.2 || ^3.0.0
         version: 2.15.3(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)
       '@shikijs/types':
         specifier: 3.13.0
