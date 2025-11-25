@@ -17,10 +17,10 @@
 
   --bn-colors-shadow: #cfcfcf;
   --bn-colors-border: #efefef;
-  --bn-colors-side-menu: #cfcfcf;
+  --bn-colors-side-menu: #595959;
 
   --bn-colors-highlights-gray-text: #9b9a97;
-  --bn-colors-highlights-gray-background: #ebeced;
+  --bn-colors-highlights-gray-background: #687078;
   --bn-colors-highlights-brown-text: #64473a;
   --bn-colors-highlights-brown-background: #e9e5e3;
   --bn-colors-highlights-red-text: #e03e3e;
@@ -69,7 +69,7 @@
 
   --bn-colors-shadow: #0f0f0f;
   --bn-colors-border: #161616;
-  --bn-colors-side-menu: #7f7f7f;
+  --bn-colors-side-menu: #aaaaaa;
 
   --bn-colors-highlights-gray-text: #bebdb8;
   --bn-colors-highlights-gray-background: #9b9a97;
