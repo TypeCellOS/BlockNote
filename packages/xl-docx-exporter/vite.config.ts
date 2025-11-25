@@ -13,6 +13,7 @@ const deps = Object.keys({
 // https://vitejs.dev/config/
 export default defineConfig((conf) => ({
   test: {
+    environment: "jsdom",
     setupFiles: ["./vitestSetup.ts"],
   },
   plugins: [webpackStats() as any],
@@ -28,6 +29,10 @@ export default defineConfig((conf) => ({
             // load live from sources with live reload working
             "@blocknote/core": path.resolve(__dirname, "../core/src/"),
             "@blocknote/react": path.resolve(__dirname, "../react/src/"),
+            "@blocknote/xl-multi-column": path.resolve(
+              __dirname,
+              "../xl-multi-column/src/",
+            ),
           } as Record<string, string>),
   },
   server: {
@@ -59,7 +64,11 @@ export default defineConfig((conf) => ({
           return true;
         }
 
-        if (source.startsWith("prosemirror-")) {
+        if (
+          source.startsWith("prosemirror-") ||
+          source.startsWith("@tiptap/") ||
+          source.startsWith("@blocknote/")
+        ) {
           return true;
         }
 
