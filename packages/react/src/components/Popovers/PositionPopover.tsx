@@ -1,3 +1,4 @@
+import { ClientRectObject } from "@floating-ui/react";
 import { posToDOMRect } from "@tiptap/core";
 import { ReactNode, useMemo, useRef } from "react";
 
@@ -11,7 +12,7 @@ export const PositionPopover = (
     children: ReactNode;
   },
 ) => {
-  const { position, children, ...rest } = props;
+  const { position, children, ...floatingUIOptions } = props;
   const { from, to } = position || {};
 
   const editor = useBlockNoteEditor<any, any, any>();
@@ -19,7 +20,8 @@ export const PositionPopover = (
 
   // Stores the last created `boundingClientRect` to use in case `position` is
   // not defined.
-  const boundingClientRect = useRef<DOMRect>(new DOMRect());
+  // TODO: Move this logic to the `GenericPopover`.
+  const boundingClientRect = useRef<ClientRectObject>(new DOMRect());
   const virtualElement = useMemo(
     () => ({
       getBoundingClientRect: () => {
@@ -47,8 +49,8 @@ export const PositionPopover = (
   );
 
   return (
-    <GenericPopover reference={virtualElement} {...rest}>
-      {children}
+    <GenericPopover reference={virtualElement} {...floatingUIOptions}>
+      {position !== undefined && children}
     </GenericPopover>
   );
 };

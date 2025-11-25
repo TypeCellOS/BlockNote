@@ -87,6 +87,7 @@ export default function App() {
 
     // Add the model string to the request body
     ai.options.setState({
+      ...ai.options.state,
       chatRequestOptions: {
         body: {
           model,

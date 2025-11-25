@@ -19,15 +19,18 @@ export const AIToolbarButton = () => {
   >();
 
   const ai = useExtension(AIExtension);
+  const formattingToolbar = useExtension(FormattingToolbarExtension);
 
   const onClick = () => {
-    editor.getExtension(FormattingToolbarExtension)?.store.setState(false);
     const selection = editor.getSelection();
     if (!selection) {
       throw new Error("No selection");
     }
+
     const position = selection.blocks[selection.blocks.length - 1].id;
+
     ai.openAIMenuAtBlock(position);
+    formattingToolbar.store.setState(false);
   };
 
   if (!editor.isEditable) {

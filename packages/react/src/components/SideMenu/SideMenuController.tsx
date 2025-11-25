@@ -1,4 +1,4 @@
-import { SideMenuExtension as SideMenuExtension } from "@blocknote/core/extensions";
+import { SideMenuExtension } from "@blocknote/core/extensions";
 import { FC, useMemo } from "react";
 
 import { useExtensionState } from "../../hooks/useExtension.js";
@@ -47,7 +47,7 @@ export const SideMenuController = (props: {
 
   return (
     <BlockPopover blockId={block?.id} {...floatingUIOptions}>
-      <Component />
+      {block?.id && <Component />}
     </BlockPopover>
   );
 };

@@ -71,10 +71,9 @@ export const GenericPopover = (
         }
       }
     },
-    // All of `props` is included in the deps, as we also need to run this
-    // effect whenever the passed children change, since it's ultimately the
-    // HTML of the children that we're storing.
-    [status, props],
+    // `props.children` is added to the deps, since it's ultimately the HTML of
+    // the children that we're storing.
+    [status, props.reference, props.children],
   );
 
   if (!isMounted) {

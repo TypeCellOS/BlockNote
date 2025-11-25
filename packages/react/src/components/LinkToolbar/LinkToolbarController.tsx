@@ -159,6 +159,7 @@ export const LinkToolbarController = (props: {
   // an x, y, height, and width of 0. This is why we instead use a virtual
   // element for the reference, and use the last obtained `DOMRect` from when
   // the link element was still mounted to the DOM.
+  // TODO: Logic should be in `GenericPopover`.
   const mountedBoundingClientRect = useRef(new DOMRect());
   if (link?.element && editor.prosemirrorView.root.contains(link.element)) {
     mountedBoundingClientRect.current = link.element.getBoundingClientRect();

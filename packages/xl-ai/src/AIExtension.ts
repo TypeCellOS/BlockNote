@@ -383,20 +383,6 @@ export const AIExtension = createExtension(
             deleteEmptyCursorBlock: opts.deleteEmptyCursorBlock,
             streamToolsProvider: opts.streamToolsProvider,
             onBlockUpdated: (blockId) => {
-              // NOTE: does this setState with an anon object trigger unnecessary re-renders?
-              store.setState({
-                aiMenuState: {
-                  blockId,
-                  status: "ai-writing",
-                },
-              });
-
-              // Scrolls to the block being edited by the AI while auto scrolling is
-              // enabled.
-              if (!autoScroll) {
-                return;
-              }
-
               const aiMenuState = store.state.aiMenuState;
               const aiMenuOpenState =
                 aiMenuState === "closed" ? undefined : aiMenuState;
@@ -404,20 +390,31 @@ export const AIExtension = createExtension(
                 return;
               }
 
+              // TODO: Sometimes, the updated block doesn't actually exist in
+              // the editor. I don't know why this happens, seems like a bug?
               const nodeInfo = getNodeById(
-                aiMenuOpenState.blockId,
+                blockId,
                 editor.prosemirrorState.doc,
               );
               if (!nodeInfo) {
                 return;
               }
 
-              const blockElement = editor.prosemirrorView.domAtPos(
-                nodeInfo.posBeforeNode + 1,
-              );
-              (blockElement.node as HTMLElement).scrollIntoView({
-                block: "center",
+              store.setState({
+                aiMenuState: {
+                  blockId,
+                  status: "ai-writing",
+                },
               });
+
+              if (autoScroll) {
+                const blockElement = editor.prosemirrorView.domAtPos(
+                  nodeInfo.posBeforeNode + 1,
+                );
+                (blockElement.node as HTMLElement).scrollIntoView({
+                  block: "center",
+                });
+              }
             },
           });
 

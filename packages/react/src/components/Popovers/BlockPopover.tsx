@@ -1,5 +1,6 @@
 import { getNodeById } from "@blocknote/core";
-import { ReactNode, useMemo } from "react";
+import { ClientRectObject, VirtualElement } from "@floating-ui/react";
+import { ReactNode, useMemo, useRef } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { FloatingUIOptions } from "./FloatingUIOptions.js";
@@ -11,41 +12,51 @@ export const BlockPopover = (
     children: ReactNode;
   },
 ) => {
-  const { blockId, children, ...rest } = props;
+  const { blockId, children, ...floatingUIOptions } = props;
 
   const editor = useBlockNoteEditor<any, any, any>();
 
-  // Seems like unlike with virtual elements, we don't need to use the last
-  // defined reference element in case it's currently undefined. FloatingUI
-  // appears to already do this internally.
-  const element = useMemo(
+  // Stores the last `boundingClientRect` to use from when the block's DOM
+  // element was still mounted. This is because `DOMRect`s returned from
+  // calling `getBoundingClientRect` on unmounted elements will have x, y,
+  // height, and width of 0. This can cause issues when the popover is
+  // transitioning out.
+  // TODO: Move this logic to the `GenericPopover`.
+  const mountedBoundingClientRect = useRef<ClientRectObject>(new DOMRect());
+  const virtualElement = useMemo(
     () =>
       editor.transact((tr) => {
+        const virtualElement: VirtualElement = {
+          getBoundingClientRect: () => mountedBoundingClientRect.current,
+        };
+
         if (!blockId) {
-          return undefined;
+          return virtualElement;
         }
 
         // TODO use the location API for this
         const nodePosInfo = getNodeById(blockId, tr.doc);
         if (!nodePosInfo) {
-          return undefined;
+          return virtualElement;
         }
 
         const { node } = editor.prosemirrorView.domAtPos(
           nodePosInfo.posBeforeNode + 1,
         );
         if (!(node instanceof Element)) {
-          return undefined;
+          return virtualElement;
         }
 
-        return node;
+        mountedBoundingClientRect.current = node.getBoundingClientRect();
+
+        return virtualElement;
       }),
     [editor, blockId],
   );
 
   return (
-    <GenericPopover reference={element} {...rest}>
-      {children}
+    <GenericPopover reference={virtualElement} {...floatingUIOptions}>
+      {blockId !== undefined && children}
     </GenericPopover>
   );
 };

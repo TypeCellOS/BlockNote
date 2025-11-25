@@ -13,7 +13,7 @@ export const TableCellPopover = (
     children: ReactNode;
   },
 ) => {
-  const { blockId, colIndex, rowIndex, children, ...rest } = props;
+  const { blockId, colIndex, rowIndex, children, ...floatingUIOptions } = props;
 
   const editor = useBlockNoteEditor<any, any, any>();
 
@@ -50,7 +50,7 @@ export const TableCellPopover = (
   }, [editor, blockId, colIndex, rowIndex]);
 
   return (
-    <GenericPopover reference={element} {...rest}>
+    <GenericPopover reference={element} {...floatingUIOptions}>
       {children}
     </GenericPopover>
   );
