@@ -1063,7 +1063,7 @@
           "dependencies": {
             "@blocknote/xl-docx-exporter": "latest",
             "@blocknote/xl-multi-column": "latest",
-            "docx": "^9.0.2"
+            "docx": "^9.5.1"
           } as any,
           "pro": true
         },
@@ -1620,8 +1620,7 @@
           "dependencies": {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^8.3.4",
-            "ai": "^5.0.45",
-            "zustand": "^5.0.3"
+            "ai": "^5.0.45"
           } as any
         },
         "title": "Rich Text editor AI integration",
@@ -1646,8 +1645,7 @@
           "dependencies": {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^8.3.4",
-            "ai": "^5.0.45",
-            "zustand": "^5.0.3"
+            "ai": "^5.0.45"
           } as any
         },
         "title": "AI Playground",
@@ -1673,8 +1671,7 @@
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^8.3.4",
             "ai": "^5.0.45",
-            "react-icons": "^5.2.1",
-            "zustand": "^5.0.3"
+            "react-icons": "^5.2.1"
           } as any
         },
         "title": "Adding AI Menu Items",
@@ -1701,8 +1698,7 @@
             "@mantine/core": "^8.3.4",
             "ai": "^5.0.45",
             "y-partykit": "^0.0.25",
-            "yjs": "^13.6.27",
-            "zustand": "^5.0.3"
+            "yjs": "^13.6.27"
           } as any
         },
         "title": "AI + Ghost Writer",
@@ -1729,8 +1725,7 @@
             "@mantine/core": "^8.3.4",
             "ai": "^5.0.45",
             "y-partykit": "^0.0.25",
-            "yjs": "^13.6.27",
-            "zustand": "^5.0.3"
+            "yjs": "^13.6.27"
           } as any
         },
         "title": "AI manual execution",
@@ -1756,8 +1751,7 @@
             "@ai-sdk/groq": "^2.0.16",
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^8.3.4",
-            "ai": "^5.0.45",
-            "zustand": "^5.0.3"
+            "ai": "^5.0.45"
           } as any
         },
         "title": "AI Integration with ClientSideTransport",
@@ -1782,8 +1776,7 @@
           "dependencies": {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^8.3.4",
-            "ai": "^5.0.45",
-            "zustand": "^5.0.3"
+            "ai": "^5.0.45"
           } as any
         },
         "title": "AI Integration with server LLM execution + promptbuilder",
