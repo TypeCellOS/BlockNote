@@ -138,7 +138,7 @@
     "vitest": "^2.1.9"
   },
   "peerDependencies": {
-    "@hocuspocus/provider": "^2.15.2"
+    "@hocuspocus/provider": "^2.15.2 || ^3.0.0"
   },
   "peerDependenciesMeta": {
     "@hocuspocus/provider": {
