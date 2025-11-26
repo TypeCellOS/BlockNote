@@ -61,43 +61,34 @@ describe.skip("Error handling", () => {
         ],
       });
 
-      // Use a flag to track if an error was thrown
-      let errorThrown = false;
-      let caughtError: any = null;
+      const chat = new Chat<UIMessage>({
+        sendAutomaticallyWhen: () => false,
+        transport: new ClientSideTransport({
+          model: testAIModels.openai,
+          stream,
+          _additionalOptions: {
+            maxRetries: 0,
+          },
+          objectGeneration: true, // TODO: switch to text
+        }),
+      });
+      const aiRequest = await buildAIRequest({
+        editor,
+      });
+      const ret = await sendMessageWithAIRequest(chat, aiRequest, {
+        role: "user",
+        parts: [
+          {
+            type: "text",
+            text: "translate to Spanish",
+          },
+        ],
+      });
 
-      try {
-        const chat = new Chat<UIMessage>({
-          sendAutomaticallyWhen: () => false,
-          transport: new ClientSideTransport({
-            model: testAIModels.openai,
-            stream,
-            _additionalOptions: {
-              maxRetries: 0,
-            },
-            objectGeneration: true, // TODO: switch to text
-          }),
-        });
-        const aiRequest = await buildAIRequest({
-          editor,
-        });
-        await sendMessageWithAIRequest(chat, aiRequest, {
-          role: "user",
-          parts: [
-            {
-              type: "text",
-              text: "translate to Spanish",
-            },
-          ],
-        });
-      } catch (error: any) {
-        errorThrown = true;
-        caughtError = error;
-      }
-
-      // Assertions outside the try/catch
-      expect(errorThrown).toBe(true);
-      expect(caughtError).toBeDefined();
-      expect(caughtError.message || caughtError.toString()).toContain(
+      expect(ret.ok).toBe(true);
+      expect(chat.status).toBe("error");
+      expect(chat.error).toBeDefined();
+      expect(chat.error?.message).toContain(
         "Rate limit exceeded, please try again later",
       );
     });
