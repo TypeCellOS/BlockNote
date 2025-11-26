@@ -58,6 +58,7 @@ export class AIExtension extends BlockNoteExtension {
     | {
         previousRequestOptions: InvokeAIOptions;
         chat: Chat<UIMessage>;
+        abortController: AbortController;
       }
     | undefined;
 
@@ -260,6 +261,36 @@ export class AIExtension extends BlockNoteExtension {
   }
 
   /**
+   * Abort the current LLM request.
+   *
+   * This will stop the ongoing request and revert any changes made by the AI.
+   * Only valid when there is an active AI request in progress.
+   */
+  public async abort(reason?: any) {
+    const { aiMenuState } = this.store.getState();
+    if (aiMenuState === "closed" || !this.chatSession) {
+      return;
+    }
+
+    // Only abort if the request is in progress (thinking or ai-writing)
+    if (
+      aiMenuState.status !== "thinking" &&
+      aiMenuState.status !== "ai-writing"
+    ) {
+      return;
+    }
+
+    const chat = this.chatSession.chat;
+    const abortController = this.chatSession.abortController;
+
+    // Abort the tool call operations
+    abortController.abort(reason);
+
+    // Stop the chat request
+    await chat.stop();
+  }
+
+  /**
    * Retry the previous LLM call.
    *
    * Only valid if the current status is "error"
@@ -365,6 +396,9 @@ export class AIExtension extends BlockNoteExtension {
     this.editor.forkYDocPlugin?.fork();
 
     try {
+      // Create a new AbortController for this request
+      const abortController = new AbortController();
+
       if (!this.chatSession) {
         // note: in the current implementation opts.transport is only used when creating a new chat
         // (so changing transport for a subsequent call in the same chat-session is not supported)
@@ -377,9 +411,11 @@ export class AIExtension extends BlockNoteExtension {
               sendAutomaticallyWhen: () => false,
               transport: opts.transport || this.options.getState().transport,
             }),
+          abortController,
         };
       } else {
         this.chatSession.previousRequestOptions = opts;
+        this.chatSession.abortController = abortController;
       }
       const chat = this.chatSession.chat;
 
@@ -464,6 +500,7 @@ export class AIExtension extends BlockNoteExtension {
           ],
         },
         opts.chatRequestOptions || this.options.getState().chatRequestOptions,
+        this.chatSession.abortController.signal,
       );
 
       if (result.ok && chat.status !== "error") {
@@ -481,6 +518,7 @@ export class AIExtension extends BlockNoteExtension {
         });
       }
     } catch (e) {
+      debugger;
       this.setAIResponseStatus({
         status: "error",
         error: e,

@@ -19,6 +19,7 @@ import { AIRequest } from "./types.js";
  * @param aiRequest - the AI request (create using {@link buildAIRequest})
  * @param message - the message to send to the LLM (optional, defaults to the last message)
  * @param options - the `ChatRequestOptions` to pass to the `chat.sendMessage` method (custom metadata, body, etc)
+ * @param abortSignal - Optional AbortSignal to cancel ongoing tool call operations
  *
  * @returns the result of the tool call processing. Consumer should check both `chat.status` and `result.ok`;
  * - `chat.status` indicates if the LLM request succeeeded
@@ -29,6 +30,7 @@ export async function sendMessageWithAIRequest(
   aiRequest: AIRequest,
   message?: Parameters<Chat<UIMessage>["sendMessage"]>[0],
   options?: Parameters<Chat<UIMessage>["sendMessage"]>[1],
+  abortSignal?: AbortSignal,
 ) {
   const sendingMessage = message ?? chat.lastMessage;
 
@@ -44,6 +46,7 @@ export async function sendMessageWithAIRequest(
     aiRequest.streamTools,
     chat,
     aiRequest.onStart,
+    abortSignal,
   );
   options = merge(options, {
     metadata: {

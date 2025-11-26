@@ -29,6 +29,7 @@ export async function setupToolCallStreaming(
   streamTools: StreamTool<any>[],
   chat: Chat<any>,
   onStart?: () => void,
+  abortSignal?: AbortSignal,
 ): Promise<Result<void>> {
   /*
   We use a single executor even for multiple tool calls.
@@ -36,7 +37,7 @@ export async function setupToolCallStreaming(
   if a block has been added earlier (i.e.: executing tools can keep state, 
   and this state is shared across parallel tool calls).
   */
-  const executor = new StreamToolExecutor(streamTools);
+  const executor = new StreamToolExecutor(streamTools, abortSignal);
 
   const appendableStream = createAppendableStream<any>();
 
@@ -104,23 +105,36 @@ export async function setupToolCallStreaming(
   // wait until all messages have been received
   // (possible improvement(?): we can abort the request if any of the tool calls fail
   //  instead of waiting for the entire llm response)
+  console.log("waiting for status handler");
   await statusHandler;
+  console.log("status handler finished");
 
   // we're not going to append any more streams from tool calls, because we've seen all tool calls
-  await appendableStream.finalize();
+  try {
+    await appendableStream.finalize();
+  } catch (e) {
+    console.error("error finalizing appendableStream", e);
+  }
+  console.log("appendableStream finalized");
   // let all stream executors finish, this can take longer due to artificial delays
   // (e.g. to simulate human typing behaviour)
   const results = await Promise.allSettled([executor.finish(), pipeToPromise]); // awaiting pipeToPromise as well to prevent unhandled promises
+  debugger;
   const result = results[0];
 
-  if (results[1].status === "rejected" && (results[0].status !== "rejected" || results[0].reason !== results[1].reason)){
-    throw new Error("unexpected, pipeToPromise rejected but executor.finish() doesn't have same error!?")
+  if (
+    results[1].status === "rejected" &&
+    (results[0].status !== "rejected" ||
+      results[0].reason !== results[1].reason)
+  ) {
+    throw new Error(
+      "unexpected, pipeToPromise rejected but executor.finish() doesn't have same error!?",
+    );
   }
 
   let error: ChunkExecutionError | undefined;
-  
+
   if (result.status === "rejected") {
-    
     if (result.reason instanceof ChunkExecutionError) {
       error = result.reason;
     } else {
@@ -131,6 +145,8 @@ export async function setupToolCallStreaming(
       }
     }
   }
+
+  debugger;
 
   let errorSeen = false;
   // process results
@@ -199,19 +215,23 @@ function createAppendableStream<T>() {
 
     // Chain appends in sequence
     ready = ready.then(async () => {
-      // eslint-disable-next-line no-constant-condition
-      while (true) {
-        try {
-          const { done, value } = await reader.read();
-          if (done || canceled) {
+      try {
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+          try {
+            const { done, value } = await reader.read();
+            if (done || canceled) {
+              break;
+            }
+            controller.enqueue(value);
+          } catch (e) {
+            canceled = true;
+            controller.error(e);
             break;
           }
-          controller.enqueue(value);
-        } catch (e) {
-          canceled = true;
-          controller.error(e);
-          break;
         }
+      } finally {
+        reader.releaseLock();
       }
     });
 
@@ -219,6 +239,7 @@ function createAppendableStream<T>() {
   }
 
   async function finalize() {
+    debugger;
     await ready; // wait for last appended stream to finish
 
     if (!canceled) {

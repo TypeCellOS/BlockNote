@@ -177,7 +177,7 @@ export function createUpdateBlockTool<T>(config: {
             }
           : undefined;
         return {
-          execute: async (chunk) => {
+          execute: async (chunk, abortSignal?: AbortSignal) => {
             if (chunk.operation.type !== "update") {
               // pass through non-update operations
               return false;
@@ -244,6 +244,11 @@ export function createUpdateBlockTool<T>(config: {
             const agentSteps = getStepsAsAgent(tr);
 
             for (const step of agentSteps) {
+              if (abortSignal?.aborted) {
+                const error = new Error("Operation was aborted");
+                error.name = "AbortError";
+                throw error;
+              }
               if (options.withDelays) {
                 await delayAgentStep(step);
               }

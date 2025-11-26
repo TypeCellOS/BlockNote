@@ -182,7 +182,7 @@ export function createAddBlocksTool<T>(config: {
         const referenceIdMap: Record<string, string> = {}; // TODO: unit test
 
         return {
-          execute: async (chunk) => {
+          execute: async (chunk, abortSignal?: AbortSignal) => {
             if (!chunk.isUpdateToPreviousOperation) {
               // we have a new operation, reset the added block ids
               addedBlockIds = [];
@@ -268,6 +268,11 @@ export function createAddBlocksTool<T>(config: {
               // }
 
               for (const step of agentSteps) {
+                if (abortSignal?.aborted) {
+                  const error = new Error("Operation was aborted");
+                  error.name = "AbortError";
+                  throw error;
+                }
                 if (options.withDelays) {
                   await delayAgentStep(step);
                 }

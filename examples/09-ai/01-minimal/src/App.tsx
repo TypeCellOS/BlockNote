@@ -15,12 +15,14 @@ import {
   AIMenuController,
   AIToolbarButton,
   createAIExtension,
+  getAIExtension,
   getAISlashMenuItems,
 } from "@blocknote/xl-ai";
 import { en as aiEn } from "@blocknote/xl-ai/locales";
 import "@blocknote/xl-ai/style.css";
 
 import { DefaultChatTransport } from "ai";
+import { useEffect } from "react";
 import { getEnv } from "./getEnv";
 
 const BASE_URL =
@@ -68,6 +70,10 @@ export default function App() {
       },
     ],
   });
+
+  useEffect(() => {
+    (window as any).editor = getAIExtension(editor);
+  }, [editor]);
 
   // Renders the editor instance using a React component.
   return (
