@@ -12,11 +12,9 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 import {
-  aiDocumentFormats,
   AIMenuController,
   AIToolbarButton,
   createAIExtension,
-  defaultAIRequestSender,
   getAISlashMenuItems,
 } from "@blocknote/xl-ai";
 import { en as aiEn } from "@blocknote/xl-ai/locales";
@@ -41,7 +39,7 @@ export default function App() {
         // we adjust the transport to not send all messages to the backend
         transport: new DefaultChatTransport({
           // (see packages/xl-ai-server/src/routes/vercelAiSdkPersistence.ts)
-          api: `${BASE_URL}/server-promptbuilder/streamText`,
+          api: `${BASE_URL}/server-persistence/streamText`,
           prepareSendMessagesRequest({ id, body, messages, requestMetadata }) {
             // we don't send the messages, just the information we need to compose / append messages server-side:
             // - the conversation id
@@ -65,19 +63,12 @@ export default function App() {
                 // should have a server-side generated id to ensure uniqueness
                 // see https://github.com/vercel/ai/issues/7340#issuecomment-3307559636
                 id,
-                // get the promptData from requestMetadata (set by `promptAIRequestSender`) and send to backend
-                promptData: (requestMetadata as any).promptData,
                 lastToolParts,
                 // messages, -> we explicitly don't send the messages array as we compose messages server-side
               },
             };
           },
         }),
-        // customize the aiRequestSender to not update the messages array on the client-side
-        aiRequestSender: defaultAIRequestSender(
-          async () => {}, // disable the client-side promptbuilder
-          aiDocumentFormats.html.defaultPromptInputDataBuilder,
-        ),
       }),
     ],
     // We set some initial content for demo purposes

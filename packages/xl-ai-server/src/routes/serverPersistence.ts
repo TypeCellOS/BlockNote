@@ -1,5 +1,9 @@
 import { createOpenAI } from "@ai-sdk/openai";
-import { aiDocumentFormats, toolDefinitionsToToolSet } from "@blocknote/xl-ai";
+import {
+  aiDocumentFormats,
+  injectDocumentStateMessages,
+  toolDefinitionsToToolSet,
+} from "@blocknote/xl-ai/server";
 import {
   convertToModelMessages,
   createIdGenerator,
@@ -11,7 +15,7 @@ import {
 } from "ai";
 import { Hono } from "hono";
 
-export const serverPromptbuilderRoute = new Hono();
+export const serverPersistenceRoute = new Hono();
 
 // Setup your model
 const model = createOpenAI({
@@ -44,8 +48,8 @@ async function saveChat({
 
 // follows this example:
 // https://ai-sdk.dev/docs/ai-sdk-ui/chatbot-message-persistence#sending-only-the-last-message
-serverPromptbuilderRoute.post("/streamText", async (c) => {
-  const { id, promptData, toolDefinitions, lastToolParts } = await c.req.json();
+serverPersistenceRoute.post("/streamText", async (c) => {
+  const { id, toolDefinitions, lastToolParts } = await c.req.json();
 
   const tools = toolDefinitionsToToolSet(toolDefinitions);
 
@@ -81,17 +85,16 @@ serverPromptbuilderRoute.post("/streamText", async (c) => {
     };
   }
 
-  await aiDocumentFormats.html.defaultPromptBuilder(messages, promptData);
-
   // validate messages if they contain tools, metadata, or data parts:
   const validatedMessages = await validateUIMessages({
     messages,
-    tools,
+    tools: tools as any,
   });
 
   const result = streamText({
     model,
-    messages: convertToModelMessages(validatedMessages),
+    system: aiDocumentFormats.html.systemPrompt,
+    messages: convertToModelMessages(injectDocumentStateMessages(messages)),
     tools,
     toolChoice: "required",
   });
