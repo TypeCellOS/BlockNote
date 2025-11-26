@@ -10,7 +10,7 @@ class FakeTransport extends DefaultChatTransport<any> {
     super();
   }
 
-  override async sendMessages({ }: Parameters<ChatTransport<UIMessage>['sendMessages']>[0]) {
+  override async sendMessages(_: Parameters<ChatTransport<UIMessage>['sendMessages']>[0]) {
    const chunks = this.chunks;
     return new ReadableStream<UIMessageChunk>({
       start(controller) {
@@ -61,11 +61,13 @@ describe("setupToolCallStreaming", () => {
 
     expect(chat.status).toBe("ready");
     expect(ret.ok).toBe(false);
-    if (!ret.ok) {
-      expect(ret.error).toBeDefined();
-      // We can check if the error message contains "No matching function" or similar
-      // The error is likely wrapped or is the ChunkExecutionError
-      // console.log(ret.error);
+    if (ret.ok) {
+      throw new Error("expected error");
     }
+
+    expect(ret.error).toBeDefined();
+    // We can check if the error message contains "No matching function" or similar
+    // The error is likely wrapped or is the ChunkExecutionError
+    // console.log(ret.error);
   });
 });
