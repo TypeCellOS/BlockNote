@@ -1,5 +1,5 @@
 import { UIMessage } from "ai";
-import { DocumentState } from "../../..";
+import { DocumentState } from "../../../api/formats/DocumentStateBuilder.js";
 
 export function injectDocumentStateMessages(
   messages: UIMessage[],
@@ -50,7 +50,7 @@ The cursor is BETWEEN two blocks as indicated by cursor: true.
                     text: JSON.stringify(documentState.blocks),
                   },
                 ]),
-            // Alternatively, we can use dynamic tools to fake document state retrieval:
+            // Alternatively, we could explore using dynamic tools to fake document state retrieval:
             // {
             //   type: "dynamic-tool",
             //   toolName: "getDocument",

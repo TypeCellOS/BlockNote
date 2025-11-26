@@ -31,9 +31,33 @@ export type AIRequestHelpers = {
   chatRequestOptions?: ChatRequestOptions;
 
   documentStateBuilder?: DocumentStateBuilder<any>;
-
-  chatProvider?: () => Chat<UIMessage>;
-};
+} & (
+  | {
+      /**
+       * Use the ChatProvider to customize how the AI SDK Chat instance (orchestrating Message lifecycle) is created
+       */
+      chatProvider?: () => Chat<UIMessage>;
+      /**
+       * Not valid if chatProvider is provided
+       */
+      transport?: never;
+    }
+  | {
+      /**
+       * Not valid if transport is provided
+       */
+      chatProvider?: never;
+      /**
+       * The Vercel AI SDK transport is responsible for sending the AI SDK Request to the LLM backend
+       *
+       * Implement this function if you want to:
+       * - use a custom backend
+       * - change backend URLs
+       * - use a different transport layer (e.g.: websockets)
+       */
+      transport: ChatTransport<UIMessage>;
+    }
+);
 
 export type InvokeAIOptions = {
   /**

@@ -11,18 +11,12 @@ import {
   suggestChanges,
 } from "@blocknote/prosemirror-suggest-changes";
 import { UIMessage } from "ai";
-import merge from "lodash.merge";
 import { Fragment, Slice } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { fixTablesKey } from "prosemirror-tables";
 import { createStore, StoreApi } from "zustand/vanilla";
-import { AIRequest, buildAIRequest } from "./api/index.js";
+import { buildAIRequest, sendMessageWithAIRequest } from "./api/index.js";
 import { createAgentCursorPlugin } from "./plugins/AgentCursorPlugin.js";
-import {
-  setupToolCallStreaming,
-  streamToolsToToolSet,
-  toolSetToToolDefinitions,
-} from "./streamTool/index.js";
 import { AIRequestHelpers, InvokeAIOptions } from "./types.js";
 
 type ReadonlyStoreApi<T> = Pick<
@@ -50,6 +44,7 @@ type AIPluginState = {
             error: any;
           }
         | {
+            // fix: it might be nice to derive this from the Chat status and Tool call status
             status: "user-input" | "thinking" | "ai-writing" | "user-reviewing";
           }
       ))
@@ -380,7 +375,6 @@ export class AIExtension extends BlockNoteExtension {
             this.options.getState().chatProvider?.() ||
             new Chat<UIMessage>({
               sendAutomaticallyWhen: () => false,
-              // TODO: does transport still make sense? or just rely on chatProvider?
               transport: opts.transport || this.options.getState().transport,
             }),
         };
@@ -438,7 +432,7 @@ export class AIExtension extends BlockNoteExtension {
             block: "center",
           });
         },
-        // fix: we might be able to make this more a generic listener to "chat"
+        // fix: we might be able to make this more a tool call status listener to "chat" (see comment above about deriving status from chat status)
         onStart: () => {
           this.autoScroll = true;
           this.setAIResponseStatus("ai-writing");
@@ -452,8 +446,7 @@ export class AIExtension extends BlockNoteExtension {
         },
       });
 
-      // expose as helper?
-      await sendMessageWithAIRequest(chat, aiRequest, {
+      const result = await sendMessageWithAIRequest(chat, aiRequest, {
         role: "user",
         parts: [
           {
@@ -463,72 +456,32 @@ export class AIExtension extends BlockNoteExtension {
         ],
       });
 
-      // TODO: check chat status
-
-      console.log("done");
-      // TODO: wait for tool calls to finish
-
-      this.setAIResponseStatus("user-reviewing");
+      if (result.ok && chat.status !== "error") {
+        this.setAIResponseStatus("user-reviewing");
+      } else {
+        // eslint-disable-next-line no-console
+        console.warn("Error calling LLM", {
+          result,
+          chatStatus: chat.status,
+          chatError: chat.error,
+        });
+        this.setAIResponseStatus({
+          status: "error",
+          error: result.ok ? chat.error : result.error,
+        });
+      }
     } catch (e) {
-      // TODO: this would never happen. we need to base this state on the chat state
-
       this.setAIResponseStatus({
         status: "error",
         error: e,
       });
       // eslint-disable-next-line no-console
-      console.error("Error calling LLM", e, this.chatSession?.chat.messages);
+      console.error(
+        "Unexpected error calling LLM",
+        e,
+        this.chatSession?.chat.messages,
+      );
     }
-  }
-}
-export async function sendMessageWithAIRequest(
-  chat: Chat<UIMessage>,
-  aiRequest: AIRequest,
-  message?: Parameters<Chat<UIMessage>["sendMessage"]>[0],
-  options?: Parameters<Chat<UIMessage>["sendMessage"]>[1],
-) {
-  const sendingMessage = message ?? chat.lastMessage!;
-
-  sendingMessage.metadata = merge(sendingMessage.metadata, {
-    documentState: aiRequest.documentState,
-  });
-
-  const toolCallProcessing = setupToolCallStreaming(
-    aiRequest.streamTools,
-    chat,
-    aiRequest.onStart,
-  );
-  options = merge(options, {
-    metadata: {
-      source: "blocknote-ai",
-    },
-    body: {
-      toolDefinitions: toolSetToToolDefinitions(
-        streamToolsToToolSet(aiRequest.streamTools),
-      ),
-    },
-  });
-
-  await chat.sendMessage(message, options);
-
-  // if (this.status === "ready") {
-  //   // mark as streaming while processing calls
-  //   this.setStatus({ status: "streaming" });
-  // }
-
-  try {
-    await toolCallProcessing;
-    // this.setStatus({ status: "ready" });
-  } catch (e) {
-    // unexpected that this throws
-    console.error("Error tool call streaming", e);
-    throw e;
-    // this.setStatus({
-    //   status: "error",
-    //   error: new Error("An unexpected application error occurred.", {
-    //     cause: e,
-    //   }),
-    // });
   }
 }
 

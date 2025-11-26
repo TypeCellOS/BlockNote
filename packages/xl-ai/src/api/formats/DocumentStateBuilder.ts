@@ -10,18 +10,42 @@ import { suffixIDs } from "../promptHelpers/suffixIds.js";
 import { trimEmptyBlocks } from "../promptHelpers/trimEmptyBlocks.js";
 
 /**
- * A serializable version of the document state that can be passed to the backend
+ * A serializable version of the document state that can be passed to the backend.
+ * This will be used as input to the LLM calls.
  */
 export type DocumentState<T> =
   | {
+      /**
+       * No selection is active
+       */
       selection: false;
+      /**
+       * The entire document and cursor position information.
+       * Operations should be issued against these blocks and the cursor position can be used to determine the "attention" of the user
+       * (i.e.: the AI suggestions should probably be made in / around the cursor position)
+       */
       blocks: BlocksWithCursor<T>[];
+      /**
+       * Boolean to indicate if the document is empty
+       */
       isEmptyDocument: boolean;
     }
   | {
+      /**
+       * A selection is active
+       */
       selection: true;
-      selectedBlocks: BlocksWithCursor<T>[];
+      /**
+       * The selected blocks. Operations should be issued against these blocks.
+       */
+      selectedBlocks: { id: string; block: T }[];
+      /**
+       * The entire document
+       */
       blocks: { block: T }[];
+      /**
+       * Boolean to indicate if the document is empty
+       */
       isEmptyDocument: boolean;
     };
 

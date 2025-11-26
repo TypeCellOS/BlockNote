@@ -69,6 +69,17 @@ function getStreamTools<
   return streamTools as StreamToolsResult<string, T>;
 }
 
+const systemPrompt = `You're manipulating a text document using JSON blocks. 
+Make sure to follow the json schema provided. When referencing ids they MUST be EXACTLY the same (including the trailing $). 
+
+If the user requests updates to the document, use the "applyDocumentOperations" tool to update the document.
+---
+IF there is no selection active in the latest state, first, determine what part of the document the user is talking about. You SHOULD probably take cursor info into account if needed.
+  EXAMPLE: if user says "below" (without pointing to a specific part of the document) he / she probably indicates the block(s) after the cursor. 
+  EXAMPLE: If you want to insert content AT the cursor position (UNLESS indicated otherwise by the user), then you need \`referenceId\` to point to the block before the cursor with position \`after\` (or block below and \`before\`
+---
+ `;
+
 export const jsonBlockLLMFormat = {
   /**
    * Function to get the stream tools that can apply JSON block updates to the editor
@@ -90,7 +101,7 @@ export const jsonBlockLLMFormat = {
   }),
 
   tools,
-  systemPrompt: "TODO",
+  systemPrompt,
   defaultDocumentStateBuilder: makeDocumentStateBuilder(
     async (_editor, block) => {
       return {

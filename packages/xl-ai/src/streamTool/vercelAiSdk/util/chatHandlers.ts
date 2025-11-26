@@ -1,7 +1,7 @@
 import { getErrorMessage } from "@ai-sdk/provider-utils";
 import type { Chat } from "@ai-sdk/react";
 import { DeepPartial, isToolUIPart, UIMessage } from "ai";
-import { StreamTool, StreamToolCall } from "../../streamTool.js";
+import { Result, StreamTool, StreamToolCall } from "../../streamTool.js";
 import {
   ChunkExecutionError,
   StreamToolExecutor,
@@ -31,7 +31,7 @@ export async function setupToolCallStreaming(
   streamTools: StreamTool<any>[],
   chat: Chat<any>,
   onStart?: () => void,
-) {
+): Promise<Result<void>> {
   /*
   We use a single executor even for multiple tool calls.
   This is because a tool call operation (like Add), might behave differently
@@ -163,16 +163,13 @@ export async function setupToolCallStreaming(
       });
     }
   });
-  // TODO: migrate rest of codease to new prompt / tool system
 
-  // if (error) {
-  // throw error;
-  // }
-
-  // if (chat.error) {
-  //   // response failed
-  //   throw chat.error;
-  // }
+  return error
+    ? {
+        ok: false,
+        error,
+      }
+    : { ok: true, value: void 0 };
 }
 
 function createAppendableStream<T>() {

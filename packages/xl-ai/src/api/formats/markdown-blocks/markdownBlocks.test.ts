@@ -117,11 +117,6 @@ describe("Models", () => {
             aiDocumentFormats._experimental_markdown.getStreamToolsProvider({
               withDelays: false,
             }),
-          // aiRequestSender: defaultAIRequestSender(
-          //   aiDocumentFormats._experimental_markdown.defaultPromptBuilder,
-          //   aiDocumentFormats._experimental_markdown
-          //     .defaultPromptInputDataBuilder,
-          // ),
           transport: new ClientSideTransport({
             systemPrompt: aiDocumentFormats._experimental_markdown.systemPrompt,
             model: params.model,

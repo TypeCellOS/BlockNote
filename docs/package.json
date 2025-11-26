@@ -71,7 +71,7 @@
     "@vercel/analytics": "^1.5.0",
     "@vercel/og": "^0.6.8",
     "@y-sweet/react": "^0.6.3",
-    "ai": "^5.0.45",
+    "ai": "^5.0.102",
     "babel-plugin-react-compiler": "19.1.0-rc.2",
     "better-auth": "^1.3.27",
     "better-sqlite3": "^11.10.0",

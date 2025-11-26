@@ -1620,7 +1620,7 @@
           "dependencies": {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^8.3.4",
-            "ai": "^5.0.45",
+            "ai": "^5.0.102",
             "zustand": "^5.0.3"
           } as any
         },
@@ -1646,7 +1646,7 @@
           "dependencies": {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^8.3.4",
-            "ai": "^5.0.45",
+            "ai": "^5.0.102",
             "zustand": "^5.0.3"
           } as any
         },
@@ -1672,7 +1672,7 @@
           "dependencies": {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^8.3.4",
-            "ai": "^5.0.45",
+            "ai": "^5.0.102",
             "react-icons": "^5.2.1",
             "zustand": "^5.0.3"
           } as any
@@ -1699,7 +1699,7 @@
           "dependencies": {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^8.3.4",
-            "ai": "^5.0.45",
+            "ai": "^5.0.102",
             "y-partykit": "^0.0.25",
             "yjs": "^13.6.27",
             "zustand": "^5.0.3"
@@ -1727,7 +1727,7 @@
           "dependencies": {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^8.3.4",
-            "ai": "^5.0.45",
+            "ai": "^5.0.102",
             "y-partykit": "^0.0.25",
             "yjs": "^13.6.27",
             "zustand": "^5.0.3"
@@ -1756,7 +1756,7 @@
             "@ai-sdk/groq": "^2.0.16",
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^8.3.4",
-            "ai": "^5.0.45",
+            "ai": "^5.0.102",
             "zustand": "^5.0.3"
           } as any
         },
@@ -1782,7 +1782,7 @@
           "dependencies": {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^8.3.4",
-            "ai": "^5.0.45",
+            "ai": "^5.0.102",
             "zustand": "^5.0.3"
           } as any
         },
