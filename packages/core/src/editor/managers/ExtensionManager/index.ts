@@ -356,9 +356,7 @@ export class ExtensionManager {
         name: "blocknote-input-rules",
         addProseMirrorPlugins() {
           const rules = [] as InputRule[];
-          inputRulesByPriority
-            .keys()
-            .toArray()
+          Array.from(inputRulesByPriority.keys())
             // We sort the rules by their priority (the key)
             .sort()
             .reverse()
@@ -393,7 +391,7 @@ export class ExtensionManager {
     const inputRules: InputRule[] = [];
     if (
       !extension.prosemirrorPlugins?.length &&
-      !extension.keyboardShortcuts?.length &&
+      !Object.keys(extension.keyboardShortcuts || {}).length &&
       !extension.inputRules?.length
     ) {
       // We can bail out early if the extension has no features to add to the tiptap editor
@@ -433,11 +431,11 @@ export class ExtensionManager {
       );
     }
 
-    if (extension.keyboardShortcuts?.length) {
+    if (Object.keys(extension.keyboardShortcuts || {}).length) {
       plugins.push(
         keymap(
           Object.fromEntries(
-            Object.entries(extension.keyboardShortcuts).map(([key, value]) => [
+            Object.entries(extension.keyboardShortcuts!).map(([key, value]) => [
               key,
               () => value({ editor: this.editor }),
             ]),
