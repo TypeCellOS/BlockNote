@@ -1,4 +1,7 @@
-import { InputRule, inputRules } from "@handlewithcare/prosemirror-inputrules";
+import {
+  InputRule,
+  inputRules as inputRulesPlugin,
+} from "@handlewithcare/prosemirror-inputrules";
 import {
   AnyExtension as AnyTiptapExtension,
   Extension as TiptapExtension,
@@ -147,9 +150,20 @@ export class ExtensionManager {
         );
       }
 
-      this.getProsemirrorPluginsFromExtension(extension).forEach((plugin) => {
-        pluginsToAdd.add(plugin);
-      });
+      if (extension?.inputRules?.length) {
+        // This is necessary because input rules are defined in a single prosemirror plugin which cannot be re-initialized.
+        // eslint-disable-next-line no-console
+        console.warn(
+          `Extension ${extension.key} has input rules, but these cannot be changed after initializing the editor. Please separate the extension into multiple extensions if you want to add them, or re-initialize the editor.`,
+          extension,
+        );
+      }
+
+      this.getProsemirrorPluginsFromExtension(extension).plugins.forEach(
+        (plugin) => {
+          pluginsToAdd.add(plugin);
+        },
+      );
     }
 
     // TODO there isn't a great way to do sorting right now. This is something that should be improved in the future.
@@ -308,24 +322,54 @@ export class ExtensionManager {
 
     const getPriority = sortByDependencies(this.extensions);
 
+    const inputRulesByPriority = new Map<number, InputRule[]>();
     for (const extension of this.extensions) {
       if (extension.tiptapExtensions) {
         tiptapExtensions.push(...extension.tiptapExtensions);
       }
 
-      const prosemirrorPlugins =
+      const priority = getPriority(extension.key);
+
+      const { plugins: prosemirrorPlugins, inputRules } =
         this.getProsemirrorPluginsFromExtension(extension);
       // Sometimes a blocknote extension might need to make additional prosemirror plugins, so we generate them here
       if (prosemirrorPlugins.length) {
         tiptapExtensions.push(
           TiptapExtension.create({
             name: extension.key,
-            priority: getPriority(extension.key),
+            priority,
             addProseMirrorPlugins: () => prosemirrorPlugins,
           }),
         );
       }
+      if (inputRules.length) {
+        if (!inputRulesByPriority.has(priority)) {
+          inputRulesByPriority.set(priority, []);
+        }
+        inputRulesByPriority.get(priority)!.push(...inputRules);
+      }
     }
+
+    // Collect all input rules into 1 extension to reduce conflicts
+    tiptapExtensions.push(
+      TiptapExtension.create({
+        name: "blocknote-input-rules",
+        addProseMirrorPlugins() {
+          const rules = [] as InputRule[];
+          inputRulesByPriority
+            .keys()
+            .toArray()
+            // We sort the rules by their priority (the key)
+            .sort()
+            .reverse()
+            .forEach((priority) => {
+              // Append in reverse priority order
+              rules.push(...inputRulesByPriority.get(priority)!);
+            });
+          return [inputRulesPlugin({ rules })];
+        },
+      }),
+    );
 
     // Add any tiptap extensions from the `_tiptapOptions`
     for (const extension of this.options._tiptapOptions?.extensions ?? []) {
@@ -341,49 +385,50 @@ export class ExtensionManager {
    * - keyboard shortcuts
    * - input rules
    */
-  private getProsemirrorPluginsFromExtension(extension: Extension): Plugin[] {
+  private getProsemirrorPluginsFromExtension(extension: Extension): {
+    plugins: Plugin[];
+    inputRules: InputRule[];
+  } {
+    const plugins: Plugin[] = [...(extension.prosemirrorPlugins ?? [])];
+    const inputRules: InputRule[] = [];
     if (
       !extension.prosemirrorPlugins?.length &&
       !extension.keyboardShortcuts?.length &&
       !extension.inputRules?.length
     ) {
       // We can bail out early if the extension has no features to add to the tiptap editor
-      return [];
+      return { plugins, inputRules };
     }
-
-    const plugins: Plugin[] = [...(extension.prosemirrorPlugins ?? [])];
 
     this.extensionPlugins.set(extension, plugins);
 
     if (extension.inputRules?.length) {
-      plugins.push(
-        inputRules({
-          rules: extension.inputRules.map((inputRule) => {
-            return new InputRule(inputRule.find, (state, match, start, end) => {
-              const replaceWith = inputRule.replace({
-                match,
-                range: { from: start, to: end },
-                editor: this.editor,
-              });
-              if (replaceWith) {
-                const cursorPosition = this.editor.getTextCursorPosition();
-
-                if (
-                  this.editor.schema.blockSchema[cursorPosition.block.type]
-                    .content !== "inline"
-                ) {
-                  return null;
-                }
-
-                const blockInfo = getBlockInfoFromTransaction(state.tr);
-                const tr = state.tr.deleteRange(start, end);
-
-                updateBlockTr(tr, blockInfo.bnBlock.beforePos, replaceWith);
-                return tr;
-              }
-              return null;
+      inputRules.push(
+        ...extension.inputRules.map((inputRule) => {
+          return new InputRule(inputRule.find, (state, match, start, end) => {
+            const replaceWith = inputRule.replace({
+              match,
+              range: { from: start, to: end },
+              editor: this.editor,
             });
-          }),
+            if (replaceWith) {
+              const cursorPosition = this.editor.getTextCursorPosition();
+
+              if (
+                this.editor.schema.blockSchema[cursorPosition.block.type]
+                  .content !== "inline"
+              ) {
+                return null;
+              }
+
+              const blockInfo = getBlockInfoFromTransaction(state.tr);
+              const tr = state.tr.deleteRange(start, end);
+
+              updateBlockTr(tr, blockInfo.bnBlock.beforePos, replaceWith);
+              return tr;
+            }
+            return null;
+          });
         }),
       );
     }
@@ -401,7 +446,7 @@ export class ExtensionManager {
       );
     }
 
-    return plugins;
+    return { plugins, inputRules };
   }
 
   /**
