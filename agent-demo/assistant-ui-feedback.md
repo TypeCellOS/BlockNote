@@ -1,3 +1,4 @@
 - need to call `transport.setRuntime` with manual ai-sdk setup is not document
 - npx create creates an API handler that doesn't read tools (route.ts)
 - some components don't have examples / screenshots (reasoning)
+- sendmessage metadata

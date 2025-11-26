@@ -9,6 +9,7 @@ import {
   sendMessageWithAIRequest,
 } from "@blocknote/xl-ai";
 
+// maybe better to use a custom transport for this?
 class BlockNoteAISDKChatRaw<
   UI_MESSAGE extends UIMessage,
 > extends Chat<UI_MESSAGE> {
