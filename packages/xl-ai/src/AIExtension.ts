@@ -394,7 +394,12 @@ export class AIExtension extends BlockNoteExtension {
         editor: this.editor,
         useSelection: opts.useSelection,
         deleteEmptyCursorBlock: opts.deleteEmptyCursorBlock,
-        streamToolsProvider: opts.streamToolsProvider,
+        streamToolsProvider:
+          opts.streamToolsProvider ??
+          this.options.getState().streamToolsProvider,
+        documentStateBuilder:
+          opts.documentStateBuilder ??
+          this.options.getState().documentStateBuilder,
         onBlockUpdated: (blockId) => {
           // NOTE: does this setState with an anon object trigger unnecessary re-renders?
           this._store.setState({
@@ -446,15 +451,20 @@ export class AIExtension extends BlockNoteExtension {
         },
       });
 
-      const result = await sendMessageWithAIRequest(chat, aiRequest, {
-        role: "user",
-        parts: [
-          {
-            type: "text",
-            text: opts.userPrompt,
-          },
-        ],
-      });
+      const result = await sendMessageWithAIRequest(
+        chat,
+        aiRequest,
+        {
+          role: "user",
+          parts: [
+            {
+              type: "text",
+              text: opts.userPrompt,
+            },
+          ],
+        },
+        opts.chatRequestOptions || this.options.getState().chatRequestOptions,
+      );
 
       if (result.ok && chat.status !== "error") {
         this.setAIResponseStatus("user-reviewing");
