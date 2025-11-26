@@ -1,8 +1,9 @@
+import { NodeSelection, TextSelection } from "prosemirror-state";
+
 import {
   createExtension,
   createStore,
 } from "../../editor/BlockNoteExtension.js";
-import { TextSelection } from "prosemirror-state";
 
 export const FormattingToolbarExtension = createExtension(({ editor }) => {
   const store = createStore(false);
@@ -12,6 +13,15 @@ export const FormattingToolbarExtension = createExtension(({ editor }) => {
       // Don't show if the selection is empty, or is a text selection with no
       // text.
       if (tr.selection.empty) {
+        return false;
+      }
+
+      // Don't show if a block with inline content is selected.
+      if (
+        tr.selection instanceof NodeSelection &&
+        (tr.selection.node.type.spec.content === "inline*" ||
+          tr.selection.node.firstChild?.type.spec.content === "inline*")
+      ) {
         return false;
       }
 
