@@ -1,11 +1,9 @@
 import { getErrorMessage } from "@ai-sdk/provider-utils";
 import type { Chat } from "@ai-sdk/react";
 import { DeepPartial, isToolUIPart, UIMessage } from "ai";
+import { ChunkExecutionError } from "../../ChunkExecutionError.js";
 import { Result, StreamTool, StreamToolCall } from "../../streamTool.js";
-import {
-  ChunkExecutionError,
-  StreamToolExecutor,
-} from "../../StreamToolExecutor.js";
+import { StreamToolExecutor } from "../../StreamToolExecutor.js";
 import { objectStreamToOperationsResult } from "./UIMessageStreamToOperationsResult.js";
 
 /**
@@ -42,7 +40,7 @@ export async function setupToolCallStreaming(
 
   const appendableStream = createAppendableStream<any>();
 
-  appendableStream.output.pipeTo(executor.writable);
+  const pipeToPromise = appendableStream.output.pipeTo(executor.writable);
 
   const toolCallStreams = new Map<string, ToolCallStreamData>();
 
@@ -112,10 +110,17 @@ export async function setupToolCallStreaming(
   await appendableStream.finalize();
   // let all stream executors finish, this can take longer due to artificial delays
   // (e.g. to simulate human typing behaviour)
-  const result = (await Promise.allSettled([executor.finish()]))[0];
+  const results = await Promise.allSettled([executor.finish(), pipeToPromise]); // awaiting pipeToPromise as well to prevent unhandled promises
+  const result = results[0];
+
+  if (results[1].status === "rejected" && (results[0].status !== "rejected" || results[0].reason !== results[1].reason)){
+    throw new Error("unexpected, pipeToPromise rejected but executor.finish() doesn't have same error!?")
+  }
 
   let error: ChunkExecutionError | undefined;
+  
   if (result.status === "rejected") {
+    
     if (result.reason instanceof ChunkExecutionError) {
       error = result.reason;
     } else {

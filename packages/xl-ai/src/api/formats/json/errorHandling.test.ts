@@ -12,8 +12,7 @@ import { testAIModels } from "../../../testUtil/testAIModels.js";
 import { buildAIRequest } from "../../aiRequest/builder.js";
 
 // Separate test suite for error handling with its own server
-// skipping because it throws a (false) unhandled promise rejection in vitest
-describe.skip("Error handling", () => {
+describe("Error handling", () => {
   // Create a separate server for error tests with custom handlers
   const errorServer = setupServer();
 
