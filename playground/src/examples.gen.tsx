@@ -1768,9 +1768,9 @@
         "readme": "The standard setup is to have BlockNote AI call your server, which then calls an LLM of your choice. In this example, we show how you can use the `ClientSideTransport` to make calls directly to your LLM provider.\n\nTo hide API keys of our LLM provider, we do still route calls through a proxy server using `fetchViaProxy` (this is optional)."
       },
       {
-        "projectSlug": "server-promptbuilder",
-        "fullSlug": "ai/server-promptbuilder",
-        "pathFromRoot": "examples/09-ai/07-server-promptbuilder",
+        "projectSlug": "server-persistence",
+        "fullSlug": "ai/server-persistence",
+        "pathFromRoot": "examples/09-ai/07-server-persistence",
         "config": {
           "playground": true,
           "docs": false,
@@ -1786,12 +1786,12 @@
             "zustand": "^5.0.3"
           } as any
         },
-        "title": "AI Integration with server LLM execution + promptbuilder",
+        "title": "AI Integration with server LLM message persistence",
         "group": {
           "pathFromRoot": "examples/09-ai",
           "slug": "ai"
         },
-        "readme": "This example shows how to setup to add AI integration while handling the LLM calls (in this case, using the Vercel AI SDK) on your server, using a custom executor.\n\nPrompt building is done on the server as well"
+        "readme": "This example shows how to setup to add AI integration while handling the LLM calls (in this case, using the Vercel AI SDK) on your server, using a custom executor.\n\nInstead of sending all messages, these are kept server-side and we only submit the latest message."
       }
     ]
   },

@@ -49,7 +49,7 @@ async function saveChat({
 // follows this example:
 // https://ai-sdk.dev/docs/ai-sdk-ui/chatbot-message-persistence#sending-only-the-last-message
 serverPersistenceRoute.post("/streamText", async (c) => {
-  const { id, toolDefinitions, lastToolParts } = await c.req.json();
+  const { id, toolDefinitions, lastToolParts, message } = await c.req.json();
 
   const tools = toolDefinitionsToToolSet(toolDefinitions);
 
@@ -84,6 +84,8 @@ serverPersistenceRoute.post("/streamText", async (c) => {
       }),
     };
   }
+
+  messages.push(message);
 
   // validate messages if they contain tools, metadata, or data parts:
   const validatedMessages = await validateUIMessages({

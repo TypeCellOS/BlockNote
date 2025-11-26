@@ -43,15 +43,15 @@ export default function App() {
           prepareSendMessagesRequest({ id, body, messages, requestMetadata }) {
             // we don't send the messages, just the information we need to compose / append messages server-side:
             // - the conversation id
-            // - the promptData
+            // - the new (last) message to send
             // - the tool results of the last message
 
             // we need to share data about tool calls with the backend,
             // as these can be client-side executed. The backend needs to know the tool outputs
-            // in order to compose a new valid LLM request
+            // in order to compose a new valid LLM request.
             const lastToolParts =
-              messages.length > 0
-                ? messages[messages.length - 1].parts.filter((part) =>
+              messages.length > 1
+                ? messages[messages.length - 2].parts.filter((part) =>
                     isToolOrDynamicToolUIPart(part),
                   )
                 : [];
@@ -64,6 +64,7 @@ export default function App() {
                 // see https://github.com/vercel/ai/issues/7340#issuecomment-3307559636
                 id,
                 lastToolParts,
+                message: messages[messages.length - 1],
                 // messages, -> we explicitly don't send the messages array as we compose messages server-side
               },
             };
