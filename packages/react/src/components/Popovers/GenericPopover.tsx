@@ -35,6 +35,10 @@ export const GenericPopover = (
 
   const dismiss = useDismiss(context, props.useDismissProps);
   const hover = useHover(context, { enabled: false, ...props.useHoverProps });
+  // Also returns `getReferenceProps` but unused as the reference element may
+  // not even be managed by React, so we may be unable to set them. Seems like
+  // `refs.setReferences` attaches most of the same listeners anyway, but
+  // possible both are needed.
   const { getFloatingProps } = useInteractions([dismiss, hover]);
 
   const innerHTML = useRef<string>("");
