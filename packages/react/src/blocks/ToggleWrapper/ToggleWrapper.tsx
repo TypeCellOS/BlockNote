@@ -133,7 +133,7 @@ export const ToggleWrapper = (
         </button>
         {children}
       </div>
-      {showChildren && childCount === 0 && (
+      {editor.isEditable && showChildren && childCount === 0 && (
         <button
           className="bn-toggle-add-block-button"
           type="button"

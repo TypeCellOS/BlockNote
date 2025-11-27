@@ -164,6 +164,10 @@ export const LinkToolbarController = (props: {
     mountedBoundingClientRect.current = link.element.getBoundingClientRect();
   }
 
+  if (!editor.isEditable) {
+    return null;
+  }
+
   const Component = props.linkToolbar || LinkToolbar;
 
   return (

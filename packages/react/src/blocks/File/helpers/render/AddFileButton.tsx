@@ -6,6 +6,7 @@ import { RiFile2Line } from "react-icons/ri";
 import { useDictionary } from "../../../../i18n/dictionary.js";
 import { ReactCustomBlockRenderProps } from "../../../../schema/ReactBlockSpec.js";
 import { useExtension } from "../../../../hooks/useExtension.js";
+import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
 
 export const AddFileButton = (
   props: Omit<
@@ -19,6 +20,7 @@ export const AddFileButton = (
     buttonIcon?: ReactNode;
   },
 ) => {
+  const editor = useBlockNoteEditor<any, any, any>();
   const dict = useDictionary();
 
   const filePanel = useExtension(FilePanelExtension);
@@ -32,8 +34,12 @@ export const AddFileButton = (
   );
   // Opens the file toolbar.
   const addFileButtonClickHandler = useCallback(() => {
+    if (!editor.isEditable) {
+      return;
+    }
+
     props.editor.transact(() => filePanel.showMenu(props.block.id));
-  }, [filePanel, props.block.id, props.editor]);
+  }, [editor.isEditable, filePanel, props.block.id, props.editor]);
 
   return (
     <div

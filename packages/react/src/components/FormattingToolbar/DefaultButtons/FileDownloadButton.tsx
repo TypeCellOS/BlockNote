@@ -26,10 +26,6 @@ export const FileDownloadButton = () => {
   const state = useEditorState({
     editor,
     selector: ({ editor }) => {
-      if (!editor.isEditable) {
-        return undefined;
-      }
-
       const selectedBlocks = editor.getSelection()?.blocks || [
         editor.getTextCursorPosition().block,
       ];

@@ -38,6 +38,10 @@ export const createAddFileButton = (
   };
   // Opens the file toolbar.
   const addFileButtonClickHandler = () => {
+    if (!editor.isEditable) {
+      return;
+    }
+
     editor.getExtension(FilePanelExtension)?.showMenu(block.id);
   };
   addFileButton.addEventListener(
