@@ -4,6 +4,7 @@ import { DeepPartial, isToolUIPart, UIMessage } from "ai";
 import { ChunkExecutionError } from "../../ChunkExecutionError.js";
 import { Result, StreamTool, StreamToolCall } from "../../streamTool.js";
 import { StreamToolExecutor } from "../../StreamToolExecutor.js";
+import { createAppendableStream } from "./appendableStream.js";
 import { objectStreamToOperationsResult } from "./UIMessageStreamToOperationsResult.js";
 
 /**
@@ -110,11 +111,7 @@ export async function setupToolCallStreaming(
   console.log("status handler finished");
 
   // we're not going to append any more streams from tool calls, because we've seen all tool calls
-  try {
-    await appendableStream.finalize();
-  } catch (e) {
-    console.error("error finalizing appendableStream", e);
-  }
+  await appendableStream.finalize();
   console.log("appendableStream finalized");
   // let all stream executors finish, this can take longer due to artificial delays
   // (e.g. to simulate human typing behaviour)
@@ -191,63 +188,6 @@ export async function setupToolCallStreaming(
         error,
       }
     : { ok: true, value: void 0 };
-}
-
-function createAppendableStream<T>() {
-  let controller: ReadableStreamDefaultController<T>;
-  let ready = Promise.resolve();
-  let canceled = false;
-  const output = new ReadableStream({
-    start(c) {
-      controller = c;
-    },
-    cancel(reason) {
-      canceled = true;
-      controller.error(reason);
-    },
-  });
-
-  async function append(readable: ReadableStream<T>) {
-    if (canceled) {
-      throw new Error("Appendable stream canceled, can't append");
-    }
-    const reader = readable.getReader();
-
-    // Chain appends in sequence
-    ready = ready.then(async () => {
-      try {
-        // eslint-disable-next-line no-constant-condition
-        while (true) {
-          try {
-            const { done, value } = await reader.read();
-            if (done || canceled) {
-              break;
-            }
-            controller.enqueue(value);
-          } catch (e) {
-            canceled = true;
-            controller.error(e);
-            break;
-          }
-        }
-      } finally {
-        reader.releaseLock();
-      }
-    });
-
-    return ready;
-  }
-
-  async function finalize() {
-    debugger;
-    await ready; // wait for last appended stream to finish
-
-    if (!canceled) {
-      controller.close(); // only close once no more streams will come
-    }
-  }
-
-  return { output, append, finalize };
 }
 
 // Types for tool call streaming
