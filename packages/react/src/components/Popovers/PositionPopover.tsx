@@ -1,4 +1,4 @@
-import { ClientRectObject } from "@floating-ui/react";
+import { ClientRectObject, VirtualElement } from "@floating-ui/react";
 import { posToDOMRect } from "@tiptap/core";
 import { ReactNode, useMemo, useRef } from "react";
 
@@ -22,7 +22,7 @@ export const PositionPopover = (
   // not defined.
   // TODO: Move this logic to the `GenericPopover`.
   const boundingClientRect = useRef<ClientRectObject>(new DOMRect());
-  const virtualElement = useMemo(
+  const virtualElement = useMemo<VirtualElement>(
     () => ({
       getBoundingClientRect: () => {
         if (from === undefined || to === undefined) {

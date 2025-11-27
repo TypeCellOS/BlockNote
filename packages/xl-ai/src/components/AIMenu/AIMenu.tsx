@@ -130,7 +130,7 @@ export const AIMenu = (props: AIMenuProps) => {
         props.onManualPromptSubmit || onManualPromptSubmitDefault
       }
       items={items}
-      promptText={prompt}
+      promptText={aiResponseStatus === "user-input" ? prompt : undefined}
       onPromptTextChange={setPrompt}
       placeholder={placeholder}
       disabled={

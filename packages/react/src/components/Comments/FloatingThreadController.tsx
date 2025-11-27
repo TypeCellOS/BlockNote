@@ -74,7 +74,6 @@ export default function FloatingThreadController(props: {
   );
 
   // nice to have improvements:
-  // - fade out on close
   // - transition transform property so composer box animates when remote document is changed
 
   const Component = props.floatingThread || Thread;

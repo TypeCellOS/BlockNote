@@ -129,7 +129,6 @@ export const LinkToolbarController = (props: {
         // mouse.
         enabled: !selectionLink && !!mouseHoverLink,
         delay: {
-          // TODO: Figure out good values
           open: 250,
           close: 250,
         },
