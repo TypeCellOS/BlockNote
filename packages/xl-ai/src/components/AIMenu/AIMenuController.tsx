@@ -2,10 +2,11 @@ import {
   BlockPopover,
   FloatingUIOptions,
   useBlockNoteEditor,
+  useExtension,
+  useExtensionState,
 } from "@blocknote/react";
-import { FC, useMemo } from "react";
-import { useExtension, useExtensionState } from "@blocknote/react";
 import { offset, size } from "@floating-ui/react";
+import { FC, useMemo } from "react";
 
 import { AIExtension } from "../../AIExtension.js";
 import { AIMenu, AIMenuProps } from "./AIMenu.js";
@@ -59,7 +60,8 @@ export const AIMenuController = (props: {
         enabled:
           aiMenuState === "closed" || aiMenuState.status === "user-input",
         // We should just be able to set `referencePress: true` instead of
-        // using this listener, but for some reason it doesn't seem to trigger.
+        // using this listener, but this doesn't seem to trigger.
+        // (probably because we don't assign the referenceProps to the reference element)
         outsidePress: (event) => {
           if (event.target instanceof Element) {
             const blockElement = event.target.closest(".bn-block");

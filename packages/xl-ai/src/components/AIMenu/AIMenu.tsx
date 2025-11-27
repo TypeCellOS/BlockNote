@@ -79,7 +79,11 @@ export const AIMenu = (props: AIMenuProps) => {
 
   useEffect(() => {
     // this is a bit hacky to run a useeffect to reset the prompt when the AI response is done
-    if (aiResponseStatus === "user-reviewing" || aiResponseStatus === "error") {
+    if (
+      aiResponseStatus === "ai-writing" ||
+      aiResponseStatus === "user-reviewing" ||
+      aiResponseStatus === "error"
+    ) {
       setPrompt("");
     }
   }, [aiResponseStatus]);
@@ -130,7 +134,7 @@ export const AIMenu = (props: AIMenuProps) => {
         props.onManualPromptSubmit || onManualPromptSubmitDefault
       }
       items={items}
-      promptText={aiResponseStatus === "user-input" ? prompt : undefined}
+      promptText={prompt}
       onPromptTextChange={setPrompt}
       placeholder={placeholder}
       disabled={
