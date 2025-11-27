@@ -46,7 +46,7 @@ export const SideMenuController = (props: {
   const Component = props.sideMenu || SideMenu;
 
   return (
-    <BlockPopover blockId={block?.id} {...floatingUIOptions}>
+    <BlockPopover blockId={show ? block?.id : undefined} {...floatingUIOptions}>
       {block?.id && <Component />}
     </BlockPopover>
   );

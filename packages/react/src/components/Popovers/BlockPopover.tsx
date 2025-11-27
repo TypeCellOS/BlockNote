@@ -1,5 +1,5 @@
 import { getNodeById } from "@blocknote/core";
-import { ClientRectObject, VirtualElement } from "@floating-ui/react";
+import { VirtualElement } from "@floating-ui/react";
 import { ReactNode, useMemo, useRef } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
@@ -16,40 +16,44 @@ export const BlockPopover = (
 
   const editor = useBlockNoteEditor<any, any, any>();
 
-  // Stores the last `boundingClientRect` to use from when the block's DOM
-  // element was still mounted. This is because `DOMRect`s returned from
-  // calling `getBoundingClientRect` on unmounted elements will have x, y,
-  // height, and width of 0. This can cause issues when the popover is
-  // transitioning out.
+  // Stores the last created `boundingClientRect` to use in case `blockId` is
+  // not defined, or the block could not be found in the editor.
   // TODO: Move this logic to the `GenericPopover`.
-  const mountedBoundingClientRect = useRef<ClientRectObject>(new DOMRect());
-  const virtualElement = useMemo(
+  const boundingClientRect = useRef<DOMRect>(new DOMRect());
+  // Uses a virtual element instead of directly using the block's DOM element
+  // to better handle when the block is deleted from the editor. When using the
+  // DOM element directly, this will cause the element to unmount. FloatingUI
+  // will then call `getBoundingClientRect` on a the unmounted DOM element,
+  // resulting in an incorrect `DOMRect` with x, y, height, and width of 0.
+  // With a virtual element, we can instead use the last `DOMRect` from when
+  // the block still existed.
+  const virtualElement = useMemo<VirtualElement>(
     () =>
       editor.transact((tr) => {
-        const virtualElement: VirtualElement = {
-          getBoundingClientRect: () => mountedBoundingClientRect.current,
-        };
-
         if (!blockId) {
-          return virtualElement;
+          return { getBoundingClientRect: () => boundingClientRect.current };
         }
 
         // TODO use the location API for this
         const nodePosInfo = getNodeById(blockId, tr.doc);
         if (!nodePosInfo) {
-          return virtualElement;
+          return { getBoundingClientRect: () => boundingClientRect.current };
         }
 
         const { node } = editor.prosemirrorView.domAtPos(
           nodePosInfo.posBeforeNode + 1,
         );
         if (!(node instanceof Element)) {
-          return virtualElement;
+          return { getBoundingClientRect: () => boundingClientRect.current };
         }
 
-        mountedBoundingClientRect.current = node.getBoundingClientRect();
-
-        return virtualElement;
+        return {
+          getBoundingClientRect: () => {
+            boundingClientRect.current = node.getBoundingClientRect();
+            return boundingClientRect.current;
+          },
+          contextElement: node,
+        };
       }),
     [editor, blockId],
   );
