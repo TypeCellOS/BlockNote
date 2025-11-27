@@ -503,7 +503,10 @@ export class AIExtension extends BlockNoteExtension {
         this.chatSession.abortController.signal,
       );
 
-      if (result.ok && chat.status !== "error") {
+      if (
+        (result.ok && chat.status !== "error") ||
+        abortController.signal.aborted
+      ) {
         this.setAIResponseStatus("user-reviewing");
       } else {
         // eslint-disable-next-line no-console
@@ -518,7 +521,6 @@ export class AIExtension extends BlockNoteExtension {
         });
       }
     } catch (e) {
-      debugger;
       this.setAIResponseStatus({
         status: "error",
         error: e,
