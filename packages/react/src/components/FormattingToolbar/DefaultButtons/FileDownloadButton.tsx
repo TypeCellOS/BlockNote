@@ -23,7 +23,7 @@ export const FileDownloadButton = () => {
     StyleSchema
   >();
 
-  const state = useEditorState({
+  const block = useEditorState({
     editor,
     selector: ({ editor }) => {
       const selectedBlocks = editor.getSelection()?.blocks || [
@@ -44,27 +44,27 @@ export const FileDownloadButton = () => {
         return undefined;
       }
 
-      return { blockId: block.id, blockType: block.type, url: block.props.url };
+      return block;
     },
   });
 
   const onClick = useCallback(() => {
-    if (state !== undefined) {
+    if (block !== undefined) {
       editor.focus();
 
       if (!editor.resolveFileUrl) {
-        window.open(sanitizeUrl(state.url, window.location.href));
+        window.open(sanitizeUrl(block.props.url, window.location.href));
       } else {
         editor
-          .resolveFileUrl(state.url)
+          .resolveFileUrl(block.props.url)
           .then((downloadUrl) =>
             window.open(sanitizeUrl(downloadUrl, window.location.href)),
           );
       }
     }
-  }, [editor, state]);
+  }, [block, editor]);
 
-  if (state === undefined) {
+  if (block === undefined) {
     return null;
   }
 
@@ -72,11 +72,11 @@ export const FileDownloadButton = () => {
     <Components.FormattingToolbar.Button
       className={"bn-button"}
       label={
-        dict.formatting_toolbar.file_download.tooltip[state.blockType] ||
+        dict.formatting_toolbar.file_download.tooltip[block.type] ||
         dict.formatting_toolbar.file_download.tooltip["file"]
       }
       mainTooltip={
-        dict.formatting_toolbar.file_download.tooltip[state.blockType] ||
+        dict.formatting_toolbar.file_download.tooltip[block.type] ||
         dict.formatting_toolbar.file_download.tooltip["file"]
       }
       icon={<RiDownload2Fill />}

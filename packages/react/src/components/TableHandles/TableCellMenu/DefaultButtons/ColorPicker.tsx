@@ -13,15 +13,16 @@ export const ColorPickerButton = (props: { children?: ReactNode }) => {
   const dict = useDictionary();
   const editor = useBlockNoteEditor<any, any, any>();
 
-  const block = useExtensionState(TableHandlesExtension, {
-    selector: (state) => state?.block,
-  });
-  const colIndex = useExtensionState(TableHandlesExtension, {
-    selector: (state) => state?.colIndex,
-  });
-  const rowIndex = useExtensionState(TableHandlesExtension, {
-    selector: (state) => state?.rowIndex,
-  });
+  const { block, colIndex, rowIndex } = useExtensionState(
+    TableHandlesExtension,
+    {
+      selector: (state) => ({
+        block: state?.block,
+        colIndex: state?.colIndex,
+        rowIndex: state?.rowIndex,
+      }),
+    },
+  );
 
   const updateColor = (color: string, type: "text" | "background") => {
     if (
@@ -50,7 +51,7 @@ export const ColorPickerButton = (props: { children?: ReactNode }) => {
       content: {
         ...block.content,
         rows: newTable,
-      } as any,
+      },
     });
 
     // Have to reset text cursor position to the block as `updateBlock`

@@ -9,8 +9,8 @@ import { LinkToolbar } from "./LinkToolbar.js";
 import { LinkToolbarProps } from "./LinkToolbarProps.js";
 import { useEditorState } from "../../hooks/useEditorState.js";
 import { useExtension } from "../../hooks/useExtension.js";
-import { GenericPopover } from "../Popovers/GenericPopover.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
+import { GenericPopover } from "../Popovers/GenericPopover.js";
 
 export const LinkToolbarController = (props: {
   linkToolbar?: FC<LinkToolbarProps>;
@@ -132,7 +132,6 @@ export const LinkToolbarController = (props: {
           open: 250,
           close: 250,
         },
-        // restMs: 300,
         handleClose: safePolygon(),
       },
       elementProps: {

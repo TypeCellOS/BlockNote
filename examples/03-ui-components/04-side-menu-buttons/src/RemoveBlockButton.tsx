@@ -3,7 +3,7 @@ import { SideMenuExtension } from "@blocknote/core/extensions";
 import {
   useBlockNoteEditor,
   useComponentsContext,
-  useExtension,
+  useExtensionState,
 } from "@blocknote/react";
 import { MdDelete } from "react-icons/md";
 
@@ -13,7 +13,13 @@ export function RemoveBlockButton() {
 
   const Components = useComponentsContext()!;
 
-  const sideMenu = useExtension(SideMenuExtension);
+  const block = useExtensionState(SideMenuExtension, {
+    selector: (state) => state?.block,
+  });
+
+  if (!block) {
+    return null;
+  }
 
   return (
     <Components.SideMenu.Button
@@ -22,7 +28,7 @@ export function RemoveBlockButton() {
         <MdDelete
           size={24}
           onClick={() => {
-            editor.removeBlocks([sideMenu.store.state!.block]);
+            editor.removeBlocks([block]);
           }}
         />
       }

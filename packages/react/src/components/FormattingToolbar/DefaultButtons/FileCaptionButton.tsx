@@ -29,7 +29,7 @@ export const FileCaptionButton = () => {
     StyleSchema
   >();
 
-  const state = useEditorState({
+  const block = useEditorState({
     editor,
     selector: ({ editor }) => {
       if (!editor.isEditable) {
@@ -55,22 +55,18 @@ export const FileCaptionButton = () => {
         return undefined;
       }
 
-      return {
-        blockId: block.id,
-        blockType: block.type,
-        caption: block.props.caption,
-      };
+      return block;
     },
   });
 
   const [currentEditingCaption, setCurrentEditingCaption] = useState<string>();
 
   useEffect(() => {
-    if (!state) {
+    if (block === undefined) {
       return;
     }
-    setCurrentEditingCaption(state.caption);
-  }, [state]);
+    setCurrentEditingCaption(block.props.caption);
+  }, [block]);
 
   const handleChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) =>
@@ -81,24 +77,24 @@ export const FileCaptionButton = () => {
   const handleEnter = useCallback(
     (event: KeyboardEvent) => {
       if (
-        state !== undefined &&
-        editorHasBlockWithType(editor, state.blockType, {
+        block !== undefined &&
+        editorHasBlockWithType(editor, block.type, {
           caption: "string",
         }) &&
         event.key === "Enter"
       ) {
         event.preventDefault();
-        editor.updateBlock(state.blockId, {
+        editor.updateBlock(block.id, {
           props: {
             caption: currentEditingCaption,
           },
         });
       }
     },
-    [currentEditingCaption, editor, state],
+    [block, currentEditingCaption, editor],
   );
 
-  if (state === undefined) {
+  if (block === undefined) {
     return null;
   }
 

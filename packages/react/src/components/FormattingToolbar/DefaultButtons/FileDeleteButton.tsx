@@ -22,7 +22,7 @@ export const FileDeleteButton = () => {
     StyleSchema
   >();
 
-  const state = useEditorState({
+  const block = useEditorState({
     editor,
     selector: ({ editor }) => {
       if (!editor.isEditable) {
@@ -47,18 +47,18 @@ export const FileDeleteButton = () => {
         return undefined;
       }
 
-      return { blockId: block.id, blockType: block.type };
+      return block;
     },
   });
 
   const onClick = useCallback(() => {
-    if (state !== undefined) {
+    if (block !== undefined) {
       editor.focus();
-      editor.removeBlocks([state.blockId]);
+      editor.removeBlocks([block.id]);
     }
-  }, [editor, state]);
+  }, [block, editor]);
 
-  if (state === undefined) {
+  if (block === undefined) {
     return null;
   }
 

@@ -26,6 +26,7 @@ function MUIRemoveBlockItem(
 ) {
   const editor = useBlockNoteEditor();
   const sideMenu = useExtension(SideMenuExtension, { editor });
+
   // Deletes the block next to the side menu.
   const onClick = useCallback(() => {
     sideMenu.unfreezeMenu();
@@ -83,6 +84,11 @@ function MUIDragHandleButton(props: SideMenuProps) {
 
   const editor = useBlockNoteEditor();
   const sideMenu = useExtension(SideMenuExtension, { editor });
+  const block = useExtensionState(SideMenuExtension, {
+    editor,
+    selector: (state) => state?.block,
+  });
+
   // Handles opening and closing the drag handle menu.
   const onClick = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => {
@@ -95,6 +101,10 @@ function MUIDragHandleButton(props: SideMenuProps) {
     setAnchorEl(null);
   }, []);
 
+  if (!block) {
+    return null;
+  }
+
   return (
     <>
       <IconButton
@@ -102,9 +112,7 @@ function MUIDragHandleButton(props: SideMenuProps) {
         component={"button"}
         draggable={"true"}
         onClick={onClick}
-        onDragStart={(e) =>
-          sideMenu.blockDragStart(e, sideMenu.store.state!.block)
-        }
+        onDragStart={(e) => sideMenu.blockDragStart(e, block)}
         onDragEnd={sideMenu.blockDragEnd}
       >
         <DragIndicator
@@ -132,7 +140,6 @@ function MUISideMenu(props: SideMenuProps & { children: ReactNode }) {
   // centered.
   const sideMenuHeight = useExtensionState(SideMenuExtension, {
     selector: (state) => {
-      // TODO this feels like a hack
       if (state && state.block.type === "heading") {
         if (state.block.props.level === 1) {
           return 78;

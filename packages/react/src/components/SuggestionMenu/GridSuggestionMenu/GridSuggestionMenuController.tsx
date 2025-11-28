@@ -91,12 +91,7 @@ export function GridSuggestionMenuController<
 
   useEffect(() => {
     suggestionMenu.addTriggerCharacter(triggerCharacter);
-  }, [
-    props.triggerCharacter,
-    suggestionMenu,
-    suggestionMenu.store,
-    triggerCharacter,
-  ]);
+  }, [suggestionMenu, triggerCharacter]);
 
   const state = useExtensionState(SuggestionMenu);
   const referencePos = useExtensionState(SuggestionMenu, {

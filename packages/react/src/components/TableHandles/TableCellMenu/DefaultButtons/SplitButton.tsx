@@ -15,15 +15,16 @@ export const SplitButton = () => {
   const editor = useBlockNoteEditor<any, any, any>();
 
   const tableHandles = useExtension(TableHandlesExtension);
-  const block = useExtensionState(TableHandlesExtension, {
-    selector: (state) => state?.block,
-  });
-  const colIndex = useExtensionState(TableHandlesExtension, {
-    selector: (state) => state?.colIndex,
-  });
-  const rowIndex = useExtensionState(TableHandlesExtension, {
-    selector: (state) => state?.rowIndex,
-  });
+  const { block, colIndex, rowIndex } = useExtensionState(
+    TableHandlesExtension,
+    {
+      selector: (state) => ({
+        block: state?.block,
+        colIndex: state?.colIndex,
+        rowIndex: state?.rowIndex,
+      }),
+    },
+  );
 
   if (block === undefined || colIndex === undefined || rowIndex === undefined) {
     return null;

@@ -1,9 +1,14 @@
+import { CommentsExtension } from "@blocknote/core/comments";
 import {
+  FilePanelExtension,
   FormattingToolbarExtension,
+  LinkToolbarExtension,
   SideMenuExtension,
   SuggestionMenu,
   TableHandlesExtension,
 } from "@blocknote/core/extensions";
+import { lazy, Suspense } from "react";
+
 import { FilePanelController } from "../components/FilePanel/FilePanelController.js";
 import { FormattingToolbarController } from "../components/FormattingToolbar/FormattingToolbarController.js";
 import { LinkToolbarController } from "../components/LinkToolbar/LinkToolbarController.js";
@@ -12,7 +17,6 @@ import { GridSuggestionMenuController } from "../components/SuggestionMenu/GridS
 import { SuggestionMenuController } from "../components/SuggestionMenu/SuggestionMenuController.js";
 import { TableHandlesController } from "../components/TableHandles/TableHandlesController.js";
 import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor.js";
-import { lazy, Suspense } from "react";
 
 // Lazily load the comments components to avoid pulling in the comments extensions into the main bundle
 const FloatingComposerController = lazy(
@@ -85,7 +89,8 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
     <>
       {editor.getExtension(FormattingToolbarExtension) &&
         props.formattingToolbar !== false && <FormattingToolbarController />}
-      {props.linkToolbar !== false && <LinkToolbarController />}
+      {editor.getExtension(LinkToolbarExtension) &&
+        props.linkToolbar !== false && <LinkToolbarController />}
       {editor.getExtension(SuggestionMenu) && props.slashMenu !== false && (
         <SuggestionMenuController triggerCharacter="/" />
       )}
@@ -99,10 +104,12 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
       {editor.getExtension(SideMenuExtension) && props.sideMenu !== false && (
         <SideMenuController />
       )}
-      {props.filePanel !== false && <FilePanelController />}
+      {editor.getExtension(FilePanelExtension) && props.filePanel !== false && (
+        <FilePanelController />
+      )}
       {editor.getExtension(TableHandlesExtension) &&
         props.tableHandles !== false && <TableHandlesController />}
-      {editor.getExtension("comments") && props.comments !== false && (
+      {editor.getExtension(CommentsExtension) && props.comments !== false && (
         <Suspense>
           <FloatingComposerController />
           <FloatingThreadController />

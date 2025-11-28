@@ -125,7 +125,6 @@ export * from "./hooks/useOnUploadEnd.js";
 export * from "./hooks/useOnUploadStart.js";
 export * from "./hooks/usePrefersColorScheme.js";
 export * from "./hooks/useSelectedBlocks.js";
-export * from "./hooks/useUIElementPositioning.js";
 export * from "./hooks/useUploadLoading.js";
 export * from "./hooks/useExtension.js";
 export * from "./hooks/useEditorState.js";

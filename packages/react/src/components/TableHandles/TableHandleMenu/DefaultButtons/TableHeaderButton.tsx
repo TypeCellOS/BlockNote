@@ -30,12 +30,11 @@ export const TableHeaderRowButton = <
     S
   >();
   const tableHandles = useExtension(TableHandlesExtension);
-  const block = useExtensionState(TableHandlesExtension, {
-    selector: (state) => state?.block,
-  });
-  const index = useExtensionState(TableHandlesExtension, {
-    selector: (state) =>
-      props.orientation === "column" ? state?.colIndex : state?.rowIndex,
+  const { block, index } = useExtensionState(TableHandlesExtension, {
+    selector: (state) => ({
+      block: state?.block,
+      index: props.orientation === "column" ? state?.colIndex : state?.rowIndex,
+    }),
   });
 
   if (

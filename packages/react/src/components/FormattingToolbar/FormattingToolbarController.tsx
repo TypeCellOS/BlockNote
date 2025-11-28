@@ -98,18 +98,15 @@ export const FormattingToolbarController = (props: {
           zIndex: 40,
         },
       },
+      ...props.floatingUIOptions,
     }),
-    [show, placement, formattingToolbar.store, editor],
+    [show, placement, props.floatingUIOptions, formattingToolbar.store, editor],
   );
 
   const Component = props.formattingToolbar || FormattingToolbar;
 
   return (
-    <PositionPopover
-      position={position}
-      {...floatingUIOptions}
-      {...props.floatingUIOptions}
-    >
+    <PositionPopover position={position} {...floatingUIOptions}>
       {show && <Component />}
     </PositionPopover>
   );

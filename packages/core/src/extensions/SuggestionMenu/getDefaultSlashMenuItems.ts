@@ -1,7 +1,6 @@
 import { Block, PartialBlock } from "../../blocks/defaultBlocks.js";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-
 import { editorHasBlockWithType } from "../../blocks/defaultBlockTypeGuards.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   BlockSchema,
   InlineContentSchema,
@@ -9,8 +8,8 @@ import {
   isStyledTextInlineContent,
 } from "../../schema/index.js";
 import { formatKeyboardShortcut } from "../../util/browser.js";
-import { DefaultSuggestionItem } from "./DefaultSuggestionItem.js";
 import { FilePanelExtension } from "../FilePanel/FilePanel.js";
+import { DefaultSuggestionItem } from "./DefaultSuggestionItem.js";
 import { SuggestionMenu } from "./SuggestionMenu.js";
 
 // Sets the editor's text cursor position to the next content editable block,

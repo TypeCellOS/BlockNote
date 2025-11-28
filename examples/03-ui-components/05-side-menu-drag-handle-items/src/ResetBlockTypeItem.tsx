@@ -3,7 +3,7 @@ import { SideMenuExtension } from "@blocknote/core/extensions";
 import {
   useBlockNoteEditor,
   useComponentsContext,
-  useExtension,
+  useExtensionState,
 } from "@blocknote/react";
 import { ReactNode } from "react";
 
@@ -12,12 +12,18 @@ export function ResetBlockTypeItem(props: { children: ReactNode }) {
 
   const Components = useComponentsContext()!;
 
-  const sideMenu = useExtension(SideMenuExtension);
+  const block = useExtensionState(SideMenuExtension, {
+    selector: (state) => state?.block,
+  });
+
+  if (!block) {
+    return null;
+  }
 
   return (
     <Components.Generic.Menu.Item
       onClick={() => {
-        editor.updateBlock(sideMenu.store.state!.block, { type: "paragraph" });
+        editor.updateBlock(block, { type: "paragraph" });
       }}
     >
       {props.children}

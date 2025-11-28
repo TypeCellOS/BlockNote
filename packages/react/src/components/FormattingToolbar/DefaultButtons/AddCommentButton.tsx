@@ -6,8 +6,8 @@ import { RiChat3Line } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
-import { useDictionary } from "../../../i18n/dictionary.js";
 import { useExtension } from "../../../hooks/useExtension.js";
+import { useDictionary } from "../../../i18n/dictionary.js";
 
 export const AddCommentButtonInner = () => {
   const dict = useDictionary();

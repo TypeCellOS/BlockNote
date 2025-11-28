@@ -22,7 +22,7 @@ export const FileReplaceButton = () => {
     StyleSchema
   >();
 
-  const state = useEditorState({
+  const block = useEditorState({
     editor,
     selector: ({ editor }) => {
       if (!editor.isEditable) {
@@ -47,11 +47,11 @@ export const FileReplaceButton = () => {
         return undefined;
       }
 
-      return { blockId: block.id, blockType: block.type };
+      return block;
     },
   });
 
-  if (state === undefined) {
+  if (block === undefined) {
     return null;
   }
 
@@ -61,11 +61,11 @@ export const FileReplaceButton = () => {
         <Components.FormattingToolbar.Button
           className={"bn-button"}
           mainTooltip={
-            dict.formatting_toolbar.file_replace.tooltip[state.blockType] ||
+            dict.formatting_toolbar.file_replace.tooltip[block.type] ||
             dict.formatting_toolbar.file_replace.tooltip["file"]
           }
           label={
-            dict.formatting_toolbar.file_replace.tooltip[state.blockType] ||
+            dict.formatting_toolbar.file_replace.tooltip[block.type] ||
             dict.formatting_toolbar.file_replace.tooltip["file"]
           }
           icon={<RiImageEditFill />}

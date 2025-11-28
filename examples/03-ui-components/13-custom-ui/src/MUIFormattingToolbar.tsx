@@ -108,6 +108,7 @@ function MUIToolbarSelect<Item extends { name: string; icon?: FC }>(props: {
 function MUIBlockTypeSelect() {
   const editor = useBlockNoteEditor<TextBlockSchema>();
 
+  // The block currently containing the text cursor.
   const block = useEditorState({
     editor,
     selector: ({ editor }) => editor.getTextCursorPosition().block,

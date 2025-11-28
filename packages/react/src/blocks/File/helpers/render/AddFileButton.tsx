@@ -3,10 +3,10 @@ import { FilePanelExtension } from "@blocknote/core/extensions";
 import { ReactNode, useCallback } from "react";
 import { RiFile2Line } from "react-icons/ri";
 
+import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
+import { useExtension } from "../../../../hooks/useExtension.js";
 import { useDictionary } from "../../../../i18n/dictionary.js";
 import { ReactCustomBlockRenderProps } from "../../../../schema/ReactBlockSpec.js";
-import { useExtension } from "../../../../hooks/useExtension.js";
-import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
 
 export const AddFileButton = (
   props: Omit<

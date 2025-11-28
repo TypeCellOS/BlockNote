@@ -75,12 +75,12 @@ function Document() {
   // setup the editor with comments and collaboration
   const editor = useCreateBlockNote(
     {
-      extensions: [CommentsExtension({ threadStore, resolveUsers })],
       collaboration: {
         provider,
         fragment: doc.getXmlFragment("blocknote"),
         user: { color: getRandomColor(), name: activeUser.username },
       },
+      extensions: [CommentsExtension({ threadStore, resolveUsers })],
     },
     [activeUser, threadStore],
   );

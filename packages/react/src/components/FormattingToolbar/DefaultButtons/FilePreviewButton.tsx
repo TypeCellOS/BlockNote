@@ -23,7 +23,7 @@ export const FilePreviewButton = () => {
     StyleSchema
   >();
 
-  const state = useEditorState({
+  const block = useEditorState({
     editor,
     selector: ({ editor }) => {
       if (!editor.isEditable) {
@@ -49,30 +49,26 @@ export const FilePreviewButton = () => {
         return undefined;
       }
 
-      return {
-        blockId: block.id,
-        blockType: block.type,
-        showPreview: block.props.showPreview,
-      };
+      return block;
     },
   });
 
   const onClick = useCallback(() => {
     if (
-      state !== undefined &&
-      editorHasBlockWithType(editor, state.blockType, {
+      block !== undefined &&
+      editorHasBlockWithType(editor, block.type, {
         showPreview: "boolean",
       })
     ) {
-      editor.updateBlock(state.blockId, {
+      editor.updateBlock(block.id, {
         props: {
-          showPreview: !state.showPreview,
+          showPreview: !block.props.showPreview,
         },
       });
     }
-  }, [editor, state]);
+  }, [block, editor]);
 
-  if (state === undefined) {
+  if (block === undefined) {
     return null;
   }
 
@@ -82,7 +78,7 @@ export const FilePreviewButton = () => {
       label={"Toggle preview"}
       mainTooltip={dict.formatting_toolbar.file_preview_toggle.tooltip}
       icon={<RiImageAddFill />}
-      isSelected={state.showPreview}
+      isSelected={block.props.showPreview}
       onClick={onClick}
     />
   );

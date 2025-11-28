@@ -29,7 +29,7 @@ export const FileRenameButton = () => {
     StyleSchema
   >();
 
-  const state = useEditorState({
+  const block = useEditorState({
     editor,
     selector: ({ editor }) => {
       if (!editor.isEditable) {
@@ -55,22 +55,19 @@ export const FileRenameButton = () => {
         return undefined;
       }
 
-      return {
-        blockId: block.id,
-        blockType: block.type,
-        name: block.props.name,
-      };
+      return block;
     },
   });
 
   const [currentEditingName, setCurrentEditingName] = useState<string>();
 
   useEffect(() => {
-    if (!state) {
+    if (block === undefined) {
       return;
     }
-    setCurrentEditingName(state.name);
-  }, [state]);
+
+    setCurrentEditingName(block.props.name);
+  }, [block]);
 
   const handleChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) =>
@@ -81,24 +78,24 @@ export const FileRenameButton = () => {
   const handleEnter = useCallback(
     (event: KeyboardEvent) => {
       if (
-        state !== undefined &&
-        editorHasBlockWithType(editor, state.blockType, {
+        block !== undefined &&
+        editorHasBlockWithType(editor, block.type, {
           name: "string",
         }) &&
         event.key === "Enter"
       ) {
         event.preventDefault();
-        editor.updateBlock(state.blockId, {
+        editor.updateBlock(block.id, {
           props: {
             name: currentEditingName,
           },
         });
       }
     },
-    [currentEditingName, editor, state],
+    [block, currentEditingName, editor],
   );
 
-  if (state === undefined) {
+  if (block === undefined) {
     return null;
   }
 
@@ -108,11 +105,11 @@ export const FileRenameButton = () => {
         <Components.FormattingToolbar.Button
           className={"bn-button"}
           label={
-            dict.formatting_toolbar.file_rename.tooltip[state.blockType] ||
+            dict.formatting_toolbar.file_rename.tooltip[block.type] ||
             dict.formatting_toolbar.file_rename.tooltip["file"]
           }
           mainTooltip={
-            dict.formatting_toolbar.file_rename.tooltip[state.blockType] ||
+            dict.formatting_toolbar.file_rename.tooltip[block.type] ||
             dict.formatting_toolbar.file_rename.tooltip["file"]
           }
           icon={<RiFontFamily />}
@@ -130,7 +127,7 @@ export const FileRenameButton = () => {
             autoFocus={true}
             placeholder={
               dict.formatting_toolbar.file_rename.input_placeholder[
-                state.blockType
+                block.type
               ] || dict.formatting_toolbar.file_rename.input_placeholder["file"]
             }
             onKeyDown={handleEnter}

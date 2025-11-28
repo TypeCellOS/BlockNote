@@ -6,8 +6,8 @@ import {
 } from "@blocknote/core";
 import { ReactNode, useReducer } from "react";
 
-import { ReactCustomBlockRenderProps } from "../../schema/ReactBlockSpec.js";
 import { useEditorState } from "../../hooks/useEditorState.js";
+import { ReactCustomBlockRenderProps } from "../../schema/ReactBlockSpec.js";
 
 const showChildrenReducer = (
   showChildren: boolean,

@@ -5,11 +5,11 @@ import { FocusEvent, useCallback } from "react";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
+import { useExtension } from "../../hooks/useExtension.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { CommentEditor } from "./CommentEditor.js";
 import { Comments } from "./Comments.js";
 import { defaultCommentEditorSchema } from "./defaultCommentEditorSchema.js";
-import { useExtension } from "../../hooks/useExtension.js";
 
 export type ThreadProps = {
   /**
