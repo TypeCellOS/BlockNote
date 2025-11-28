@@ -4,14 +4,10 @@ import {
 } from "../../editor/BlockNoteExtension.js";
 
 export const FilePanelExtension = createExtension(({ editor }) => {
-  const store = createStore({
-    blockId: undefined as string | undefined,
-  });
+  const store = createStore<string | undefined>(undefined);
 
   function closeMenu() {
-    store.setState({
-      blockId: undefined,
-    });
+    store.setState(undefined);
   }
 
   return {
@@ -39,9 +35,7 @@ export const FilePanelExtension = createExtension(({ editor }) => {
     },
     closeMenu,
     showMenu(blockId: string) {
-      store.setState({
-        blockId,
-      });
+      store.setState(blockId);
     },
   } as const;
 });

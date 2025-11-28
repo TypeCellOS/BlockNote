@@ -16,9 +16,7 @@ export const FilePanelController = (props: {
   const editor = useBlockNoteEditor<any, any, any>();
 
   const filePanel = useExtension(FilePanelExtension);
-  const blockId = useExtensionState(FilePanelExtension, {
-    selector: (state) => state.blockId,
-  });
+  const blockId = useExtensionState(FilePanelExtension);
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({

@@ -493,8 +493,8 @@ export const KeyboardShortcutsExtension = Extension.create<{
           this.options.tabBehavior !== "prefer-indent" &&
           (this.options.editor.getExtension(FormattingToolbarExtension)?.store
             .state ||
-            this.options.editor.getExtension(FilePanelExtension)?.store.state
-              .blockId)
+            this.options.editor.getExtension(FilePanelExtension)?.store
+              .state !== undefined)
           // TODO need to check if the link toolbar is open or another alternative entirely
         ) {
           // don't handle tabs if a toolbar is shown, so we can tab into / out of it
@@ -507,8 +507,8 @@ export const KeyboardShortcutsExtension = Extension.create<{
           this.options.tabBehavior !== "prefer-indent" &&
           (this.options.editor.getExtension(FormattingToolbarExtension)?.store
             .state ||
-            this.options.editor.getExtension(FilePanelExtension)?.store.state
-              .blockId)
+            this.options.editor.getExtension(FilePanelExtension)?.store
+              .state !== undefined)
           // TODO need to check if the link toolbar is open or another alternative entirely
           // other menu types?
         ) {
