@@ -16,7 +16,6 @@ export const PlaceholderExtension = createExtension(
   }: ExtensionOptions<
     Pick<BlockNoteEditorOptions<any, any, any>, "placeholders">
   >) => {
-    // TODO defaults?
     const placeholders = options.placeholders;
     return {
       key: "placeholder",
