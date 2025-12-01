@@ -2,7 +2,7 @@ import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 import { LinkToolbarExtension } from "@blocknote/core/extensions";
 import { flip, offset, safePolygon } from "@floating-ui/react";
 import { Range } from "@tiptap/core";
-import { FC, useEffect, useMemo, useRef, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { LinkToolbar } from "./LinkToolbar.js";
@@ -10,7 +10,10 @@ import { LinkToolbarProps } from "./LinkToolbarProps.js";
 import { useEditorState } from "../../hooks/useEditorState.js";
 import { useExtension } from "../../hooks/useExtension.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
-import { GenericPopover } from "../Popovers/GenericPopover.js";
+import {
+  GenericPopover,
+  GenericPopoverReference,
+} from "../Popovers/GenericPopover.js";
 
 export const LinkToolbarController = (props: {
   linkToolbar?: FC<LinkToolbarProps>;
@@ -95,10 +98,7 @@ export const LinkToolbarController = (props: {
     };
   }, [frozen, linkToolbar, mouseHoverLink?.url, selectionLink]);
 
-  const link = useMemo(
-    () => selectionLink || mouseHoverLink,
-    [mouseHoverLink, selectionLink],
-  );
+  const link = selectionLink || mouseHoverLink;
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
@@ -151,17 +151,10 @@ export const LinkToolbarController = (props: {
     ],
   );
 
-  // When a link is deleted, the element representing it in the DOM gets
-  // unmounted. However, the reference still exists and so FloatingUI can still
-  // call `getBoundingClientRect` on it, which will return a `DOMRect` that has
-  // an x, y, height, and width of 0. This is why we instead use a virtual
-  // element for the reference, and use the last obtained `DOMRect` from when
-  // the link element was still mounted to the DOM.
-  // TODO: Logic should be in `GenericPopover`.
-  const mountedBoundingClientRect = useRef(new DOMRect());
-  if (link?.element && editor.prosemirrorView.root.contains(link.element)) {
-    mountedBoundingClientRect.current = link.element.getBoundingClientRect();
-  }
+  const reference = useMemo<GenericPopoverReference | undefined>(
+    () => (link?.element ? { element: link.element } : undefined),
+    [link?.element],
+  );
 
   if (!editor.isEditable) {
     return null;
@@ -170,13 +163,7 @@ export const LinkToolbarController = (props: {
   const Component = props.linkToolbar || LinkToolbar;
 
   return (
-    <GenericPopover
-      reference={{
-        getBoundingClientRect: () => mountedBoundingClientRect.current,
-        contextElement: link?.element,
-      }}
-      {...floatingUIOptions}
-    >
+    <GenericPopover reference={reference} {...floatingUIOptions}>
       {link && (
         <Component
           url={link.url}

@@ -5,7 +5,6 @@ import {
 } from "@blocknote/core/extensions";
 import {
   UseFloatingOptions,
-  VirtualElement,
   flip,
   offset,
   shift,
@@ -16,7 +15,10 @@ import { FC, useEffect, useMemo } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
-import { GenericPopover } from "../Popovers/GenericPopover.js";
+import {
+  GenericPopover,
+  GenericPopoverReference,
+} from "../Popovers/GenericPopover.js";
 import { SuggestionMenu } from "./SuggestionMenu.js";
 import { SuggestionMenuWrapper } from "./SuggestionMenuWrapper.js";
 import { getDefaultReactSlashMenuItems } from "./getDefaultReactSlashMenuItems.js";
@@ -100,11 +102,15 @@ export function SuggestionMenuController<
     selector: (state) => state?.referencePos || new DOMRect(),
   });
 
-  const virtualElement = useMemo<VirtualElement>(
+  const reference = useMemo<GenericPopoverReference>(
     () => ({
+      // Use first child as the editor DOM element may itself be scrollable.
+      // For FloatingUI to auto-update the position during scrolling, the
+      // `contextElement` must be a descendant of the scroll container.
+      element: editor.domElement?.firstChild || undefined,
       getBoundingClientRect: () => referencePos,
     }),
-    [referencePos],
+    [editor.domElement?.firstChild, referencePos],
   );
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
@@ -164,7 +170,7 @@ export function SuggestionMenuController<
   }
 
   return (
-    <GenericPopover reference={virtualElement} {...floatingUIOptions}>
+    <GenericPopover reference={reference} {...floatingUIOptions}>
       {triggerCharacter && (
         <SuggestionMenuWrapper
           query={state.query}

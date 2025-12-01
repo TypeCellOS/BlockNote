@@ -6,16 +6,78 @@ import {
   useMergeRefs,
   useTransitionStatus,
   autoUpdate,
-  ReferenceType,
   useHover,
 } from "@floating-ui/react";
 import { HTMLAttributes, ReactNode, useEffect, useRef } from "react";
 
 import { FloatingUIOptions } from "./FloatingUIOptions.js";
 
+export type GenericPopoverReference =
+  | {
+      // A DOM element to use as the reference element for the popover.
+      element: Element;
+      // To update the popover position, `element.getReferenceBoundingRect`
+      // is called. This flag caches the last result of the call while the
+      // element is mounted to the DOM, so it doesn't update while the
+      // popover is closing and transitioning out. Useful for if the
+      // reference element unmounts, as `element.getReferenceBoundingRect`
+      // would return a `DOMRect` with x, y, width, and height of 0.
+      // Defaults to `true`.
+      cacheMountedBoundingClientRect?: boolean;
+    }
+  | {
+      // When no reference element is provided, this can be provided as an
+      // alternative "virtual" element to position the popover around.
+      getBoundingClientRect: () => DOMRect;
+    }
+  | {
+      element: Element;
+      cacheMountedBoundingClientRect?: boolean;
+      // If both `element` and `getBoundingClientRect` are provided, uses
+      // `getBoundingClientRect` to position the popover, but still treats
+      // `element` as the reference element for all other purposes. When
+      // `cacheMountedBoundingClientRect` is `true` or unspecified, this
+      // function is not called while the reference element is not mounted.
+      getBoundingClientRect: () => DOMRect;
+    };
+
+// Returns a modified version of `getBoundingClientRect`, if
+// `reference.element` is passed and `reference.cacheMountedBoundingClientRect`
+// is `true` or `undefined`. In the modified version, each new result is cached
+// and returned while `reference.element` is connected to the DOM. If it is no
+// longer connected, the cache is no longer updated and the last cached result
+// is used.
+//
+// In all other cases, just returns `reference.getBoundingClientRect`, or
+// `reference.element.getBoundingClientRect` if it's not defined.
+export function getMountedBoundingClientRectCache(
+  reference: GenericPopoverReference,
+) {
+  let lastBoundingClientRect = new DOMRect();
+  const getBoundingClientRect =
+    "getBoundingClientRect" in reference
+      ? () => reference.getBoundingClientRect()
+      : () => reference.element.getBoundingClientRect();
+
+  return () => {
+    if (
+      "element" in reference &&
+      (reference.cacheMountedBoundingClientRect ?? true)
+    ) {
+      if (reference.element.isConnected) {
+        lastBoundingClientRect = getBoundingClientRect();
+      }
+
+      return lastBoundingClientRect;
+    }
+
+    return getBoundingClientRect();
+  };
+}
+
 export const GenericPopover = (
   props: FloatingUIOptions & {
-    reference?: ReferenceType;
+    reference?: GenericPopoverReference;
     children: ReactNode;
   },
 ) => {
@@ -47,20 +109,15 @@ export const GenericPopover = (
 
   useEffect(() => {
     if (props.reference) {
-      if (props.reference instanceof Element) {
-        refs.setReference(props.reference);
-      } else {
-        // FloatingUI's virtual elements can have a `contextElement`, which is
-        // useful for automatically calling `getBoundingClientRect` when said
-        // element changes position. However, it's pretty limited as FloatingUI
-        // doesn't attach listeners to `contextElement` for e.g. `useHover`.
-        // Therefore, we also set the reference element to `contextElement` so
-        // event listeners can be attached.
-        if (props.reference.contextElement) {
-          refs.setReference(props.reference.contextElement);
-        }
-        refs.setPositionReference(props.reference);
+      if ("element" in props.reference) {
+        refs.setReference(props.reference.element);
       }
+
+      refs.setPositionReference({
+        getBoundingClientRect: getMountedBoundingClientRectCache(
+          props.reference,
+        ),
+      });
     }
   }, [props.reference, refs]);
 

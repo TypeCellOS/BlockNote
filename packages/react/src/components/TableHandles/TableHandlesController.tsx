@@ -9,16 +9,19 @@ import {
 import { TableHandlesExtension } from "@blocknote/core/extensions";
 import { FC, useMemo, useState } from "react";
 
-import { offset, size, VirtualElement } from "@floating-ui/react";
+import { offset, size } from "@floating-ui/react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
+import { useExtensionState } from "../../hooks/useExtension.js";
+import {
+  GenericPopover,
+  GenericPopoverReference,
+} from "../Popovers/GenericPopover.js";
 import { ExtendButton } from "./ExtendButton/ExtendButton.js";
 import { ExtendButtonProps } from "./ExtendButton/ExtendButtonProps.js";
 import { TableHandle } from "./TableHandle.js";
 import { TableCellButton } from "./TableCellButton.js";
 import { TableCellButtonProps } from "./TableCellButtonProps.js";
-import { useExtensionState } from "../../hooks/useExtension.js";
 import { TableHandleProps } from "./TableHandleProps.js";
-import { GenericPopover } from "../Popovers/GenericPopover.js";
 
 export const TableHandlesController = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
@@ -41,7 +44,20 @@ export const TableHandlesController = <
 
   const state = useExtensionState(TableHandlesExtension);
 
-  const elements = useMemo(() => {
+  const references = useMemo<
+    | {
+        tableReference: undefined;
+        cellReference: undefined;
+        rowReference: undefined;
+        columnReference: undefined;
+      }
+    | {
+        tableReference: GenericPopoverReference;
+        cellReference: GenericPopoverReference;
+        rowReference: GenericPopoverReference;
+        columnReference: GenericPopoverReference;
+      }
+  >(() => {
     if (
       state === undefined ||
       state.rowIndex === undefined ||
@@ -65,8 +81,10 @@ export const TableHandlesController = <
       tableBeforePos + 1,
     ).node;
     if (!(tableElement instanceof Element)) {
-      return undefined;
+      return {};
     }
+
+    const tableReference = { element: tableElement };
 
     const rowBeforePos = editor.prosemirrorState.doc
       .resolve(tableBeforePos + 1)
@@ -77,15 +95,18 @@ export const TableHandlesController = <
 
     const cellElement = editor.prosemirrorView.domAtPos(cellBeforePos + 1).node;
     if (!(cellElement instanceof Element)) {
-      return undefined;
+      return {};
     }
 
-    const tableBoundingRect = tableElement.getBoundingClientRect();
-    const cellBoundingRect = cellElement.getBoundingClientRect();
+    const cellReference = { element: cellElement };
 
-    const rowVirtualElement: VirtualElement = {
-      getBoundingClientRect: () =>
-        new DOMRect(
+    const rowReference = {
+      element: tableElement,
+      getBoundingClientRect: () => {
+        const tableBoundingRect = tableElement.getBoundingClientRect();
+        const cellBoundingRect = cellElement.getBoundingClientRect();
+
+        return new DOMRect(
           tableBoundingRect.x,
           state.draggingState &&
           state.draggingState.draggedCellOrientation === "row"
@@ -93,12 +114,16 @@ export const TableHandlesController = <
             : cellBoundingRect.y,
           tableBoundingRect.width,
           cellBoundingRect.height,
-        ),
-      contextElement: tableElement,
+        );
+      },
     };
-    const columnVirtualElement: VirtualElement = {
-      getBoundingClientRect: () =>
-        new DOMRect(
+    const columnReference = {
+      element: tableElement,
+      getBoundingClientRect: () => {
+        const tableBoundingRect = tableElement.getBoundingClientRect();
+        const cellBoundingRect = cellElement.getBoundingClientRect();
+
+        return new DOMRect(
           state.draggingState &&
           state.draggingState.draggedCellOrientation === "col"
             ? state.draggingState.mousePos - cellBoundingRect.width / 2
@@ -106,15 +131,15 @@ export const TableHandlesController = <
           tableBoundingRect.y,
           cellBoundingRect.width,
           tableBoundingRect.height,
-        ),
-      contextElement: tableElement,
+        );
+      },
     };
 
     return {
-      tableElement,
-      cellElement,
-      rowVirtualElement,
-      columnVirtualElement,
+      tableReference,
+      cellReference,
+      rowReference,
+      columnReference,
     };
   }, [editor, state]);
 
@@ -129,7 +154,7 @@ export const TableHandlesController = <
   return (
     <>
       <GenericPopover
-        reference={elements?.rowVirtualElement}
+        reference={references?.rowReference}
         useFloatingOptions={{
           open:
             state.show &&
@@ -156,7 +181,7 @@ export const TableHandlesController = <
           )}
       </GenericPopover>
       <GenericPopover
-        reference={elements?.columnVirtualElement}
+        reference={references?.columnReference}
         useFloatingOptions={{
           open:
             state.show &&
@@ -183,7 +208,7 @@ export const TableHandlesController = <
           )}
       </GenericPopover>
       <GenericPopover
-        reference={elements?.cellElement}
+        reference={references?.cellReference}
         useFloatingOptions={{
           open:
             state.show &&
@@ -211,7 +236,7 @@ export const TableHandlesController = <
           )}
       </GenericPopover>
       <GenericPopover
-        reference={elements?.tableElement}
+        reference={references?.tableReference}
         useFloatingOptions={{
           open:
             state.show &&
@@ -246,7 +271,7 @@ export const TableHandlesController = <
           )}
       </GenericPopover>
       <GenericPopover
-        reference={elements?.tableElement}
+        reference={references?.tableReference}
         useFloatingOptions={{
           open:
             state.show &&

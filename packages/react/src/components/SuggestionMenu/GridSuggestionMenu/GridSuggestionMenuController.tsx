@@ -1,6 +1,6 @@
 import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 import { SuggestionMenu } from "@blocknote/core/extensions";
-import { flip, offset, shift, size, VirtualElement } from "@floating-ui/react";
+import { flip, offset, shift, size } from "@floating-ui/react";
 import { FC, useEffect, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
@@ -9,7 +9,10 @@ import {
   useExtensionState,
 } from "../../../hooks/useExtension.js";
 import { FloatingUIOptions } from "../../Popovers/FloatingUIOptions.js";
-import { GenericPopover } from "../../Popovers/GenericPopover.js";
+import {
+  GenericPopover,
+  GenericPopoverReference,
+} from "../../Popovers/GenericPopover.js";
 import { getDefaultReactEmojiPickerItems } from "./getDefaultReactEmojiPickerItems.js";
 import { GridSuggestionMenu } from "./GridSuggestionMenu.js";
 import { GridSuggestionMenuWrapper } from "./GridSuggestionMenuWrapper.js";
@@ -98,11 +101,15 @@ export function GridSuggestionMenuController<
     selector: (state) => state?.referencePos || new DOMRect(),
   });
 
-  const virtualElement = useMemo<VirtualElement>(
+  const reference = useMemo<GenericPopoverReference>(
     () => ({
+      // Use first child as the editor DOM element may itself be scrollable.
+      // For FloatingUI to auto-update the position during scrolling, the
+      // `contextElement` must be a descendant of the scroll container.
+      element: editor.domElement?.firstChild || undefined,
       getBoundingClientRect: () => referencePos,
     }),
-    [referencePos],
+    [editor.domElement?.firstChild, referencePos],
   );
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
@@ -161,7 +168,7 @@ export function GridSuggestionMenuController<
   }
 
   return (
-    <GenericPopover reference={virtualElement} {...floatingUIOptions}>
+    <GenericPopover reference={reference} {...floatingUIOptions}>
       {triggerCharacter && (
         <GridSuggestionMenuWrapper
           query={state.query}

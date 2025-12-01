@@ -1,10 +1,9 @@
-import { ClientRectObject, VirtualElement } from "@floating-ui/react";
 import { posToDOMRect } from "@tiptap/core";
-import { ReactNode, useMemo, useRef } from "react";
+import { ReactNode, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { FloatingUIOptions } from "./FloatingUIOptions.js";
-import { GenericPopover } from "./GenericPopover.js";
+import { GenericPopover, GenericPopoverReference } from "./GenericPopover.js";
 
 export const PositionPopover = (
   props: FloatingUIOptions & {
@@ -16,40 +15,24 @@ export const PositionPopover = (
   const { from, to } = position || {};
 
   const editor = useBlockNoteEditor<any, any, any>();
-  const { headless } = editor;
 
-  // Stores the last created `boundingClientRect` to use in case `position` is
-  // not defined.
-  // TODO: Move this logic to the `GenericPopover`.
-  const boundingClientRect = useRef<ClientRectObject>(new DOMRect());
-  const virtualElement = useMemo<VirtualElement>(
-    () => ({
-      getBoundingClientRect: () => {
-        if (from === undefined || to === undefined) {
-          return boundingClientRect.current;
-        }
+  const reference = useMemo<GenericPopoverReference | undefined>(() => {
+    if (from === undefined || to === undefined) {
+      return undefined;
+    }
 
-        boundingClientRect.current = posToDOMRect(
-          editor.prosemirrorView,
-          from,
-          to ?? from,
-        );
-
-        return boundingClientRect.current;
-      },
-      contextElement:
-        // Use first child as the editor DOM element may itself be scrollable.
-        // For FloatingUI to auto-update the position during scrolling, the
-        // `contextElement` must be a descendant of the scroll container.
-        !headless && editor.domElement?.firstChild instanceof Element
-          ? editor.domElement.firstChild
-          : undefined,
-    }),
-    [editor, headless, from, to],
-  );
+    return {
+      // Use first child as the editor DOM element may itself be scrollable.
+      // For FloatingUI to auto-update the position during scrolling, the
+      // `contextElement` must be a descendant of the scroll container.
+      element: editor.domElement?.firstElementChild || undefined,
+      getBoundingClientRect: () =>
+        posToDOMRect(editor.prosemirrorView, from, to ?? from),
+    };
+  }, [editor, from, to]);
 
   return (
-    <GenericPopover reference={virtualElement} {...floatingUIOptions}>
+    <GenericPopover reference={reference} {...floatingUIOptions}>
       {position !== undefined && children}
     </GenericPopover>
   );
