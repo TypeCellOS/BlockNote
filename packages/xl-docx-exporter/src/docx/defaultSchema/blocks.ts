@@ -34,8 +34,8 @@ function blockPropsToStyles(
       props.backgroundColor === "default" || !props.backgroundColor
         ? undefined
         : {
-            type: ShadingType.SOLID,
-            color: (() => {
+            type: ShadingType.CLEAR,
+            fill: (() => {
               const color = colors[props.backgroundColor]?.background;
               if (!color) {
                 return undefined;
@@ -84,11 +84,7 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
   paragraph: (block, exporter) => {
     return new Paragraph({
       ...blockPropsToStyles(block.props, exporter.options.colors),
-      children: exporter.transformInlineContent(block.content),
-      style: "Normal",
-      run: {
-        font: "Inter",
-      },
+      children: exporter.transformInlineContent(block.content)
     });
   },
   toggleListItem: (block, exporter) => {
@@ -143,17 +139,7 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
   },
   quote: (block, exporter) => {
     return new Paragraph({
-      shading: {
-        color: "#7D797A",
-      },
-      border: {
-        left: {
-          color: "#7D797A",
-          space: 100,
-          style: "single",
-          size: 8,
-        },
-      },
+      style: "BlockQuote",
       ...blockPropsToStyles(block.props, exporter.options.colors),
       children: exporter.transformInlineContent(block.content),
     });
@@ -180,12 +166,7 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
     const textContent = (block.content as StyledText<any>[])[0]?.text || "";
 
     return new Paragraph({
-      style: "Codeblock",
-      shading: {
-        type: ShadingType.SOLID,
-        fill: "161616",
-        color: "161616",
-      },
+      style: "SourceCode",
       children: [
         ...textContent.split("\n").map((line, index) => {
           return new TextRun({
