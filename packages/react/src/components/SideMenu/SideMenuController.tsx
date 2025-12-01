@@ -1,61 +1,53 @@
-import {
-  BlockSchema,
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "@blocknote/core";
-import { FC } from "react";
+import { SideMenuExtension } from "@blocknote/core/extensions";
+import { FC, useMemo } from "react";
 
-import { UseFloatingOptions } from "@floating-ui/react";
-import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
-import { useUIElementPositioning } from "../../hooks/useUIElementPositioning.js";
-import { useUIPluginState } from "../../hooks/useUIPluginState.js";
+import { useExtensionState } from "../../hooks/useExtension.js";
+import { BlockPopover } from "../Popovers/BlockPopover.js";
+import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import { SideMenu } from "./SideMenu.js";
 import { SideMenuProps } from "./SideMenuProps.js";
 
-export const SideMenuController = <
-  BSchema extends BlockSchema = DefaultBlockSchema,
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema,
->(props: {
-  sideMenu?: FC<SideMenuProps<BSchema, I, S>>;
-  floatingOptions?: Partial<UseFloatingOptions>;
+export const SideMenuController = (props: {
+  sideMenu?: FC<SideMenuProps>;
+  floatingUIOptions?: Partial<FloatingUIOptions>;
 }) => {
-  const editor = useBlockNoteEditor<BSchema, I, S>();
-
-  const callbacks = {
-    blockDragStart: editor.sideMenu.blockDragStart,
-    blockDragEnd: editor.sideMenu.blockDragEnd,
-    freezeMenu: editor.sideMenu.freezeMenu,
-    unfreezeMenu: editor.sideMenu.unfreezeMenu,
-  };
-
-  const state = useUIPluginState(
-    editor.sideMenu.onUpdate.bind(editor.sideMenu),
-  );
-  const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(
-    state?.show || false,
-    state?.referencePos || null,
-    1000,
-    {
-      placement: "left-start",
-      ...props.floatingOptions,
+  const state = useExtensionState(SideMenuExtension, {
+    selector: (state) => {
+      return state !== undefined
+        ? {
+            show: state.show,
+            block: state.block,
+          }
+        : undefined;
     },
+  });
+
+  const { show, block } = state || {};
+
+  const floatingUIOptions = useMemo<FloatingUIOptions>(
+    () => ({
+      useFloatingOptions: {
+        open: show,
+        placement: "left-start",
+      },
+      useDismissProps: {
+        enabled: false,
+      },
+      elementProps: {
+        style: {
+          zIndex: 20,
+        },
+      },
+      ...props.floatingUIOptions,
+    }),
+    [props.floatingUIOptions, show],
   );
-
-  if (!isMounted || !state) {
-    return null;
-  }
-
-  const { show, referencePos, ...data } = state;
 
   const Component = props.sideMenu || SideMenu;
 
   return (
-    <div ref={ref} style={style} {...getFloatingProps()}>
-      <Component {...data} {...callbacks} editor={editor} />
-    </div>
+    <BlockPopover blockId={show ? block?.id : undefined} {...floatingUIOptions}>
+      {block?.id && <Component />}
+    </BlockPopover>
   );
 };

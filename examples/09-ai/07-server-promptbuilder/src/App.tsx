@@ -1,4 +1,5 @@
-import { BlockNoteEditor, filterSuggestionItems } from "@blocknote/core";
+import { BlockNoteEditor } from "@blocknote/core";
+import { filterSuggestionItems } from "@blocknote/core/extensions";
 import "@blocknote/core/fonts/inter.css";
 import { en } from "@blocknote/core/locales";
 import { BlockNoteView } from "@blocknote/mantine";
@@ -12,10 +13,10 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 import {
+  AIExtension,
   aiDocumentFormats,
   AIMenuController,
   AIToolbarButton,
-  createAIExtension,
   defaultAIRequestSender,
   getAISlashMenuItems,
 } from "@blocknote/xl-ai";
@@ -36,7 +37,7 @@ export default function App() {
     },
     // Register the AI extension
     extensions: [
-      createAIExtension({
+      AIExtension({
         // similar to https://ai-sdk.dev/docs/ai-sdk-ui/chatbot-message-persistence#sending-only-the-last-message
         // we adjust the transport to not send all messages to the backend
         transport: new DefaultChatTransport({

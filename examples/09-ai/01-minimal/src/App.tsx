@@ -1,4 +1,5 @@
-import { BlockNoteEditor, filterSuggestionItems } from "@blocknote/core";
+import { BlockNoteEditor } from "@blocknote/core";
+import { filterSuggestionItems } from "@blocknote/core/extensions";
 import "@blocknote/core/fonts/inter.css";
 import { en } from "@blocknote/core/locales";
 import { BlockNoteView } from "@blocknote/mantine";
@@ -12,9 +13,9 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 import {
+  AIExtension,
   AIMenuController,
   AIToolbarButton,
-  createAIExtension,
   getAISlashMenuItems,
 } from "@blocknote/xl-ai";
 import { en as aiEn } from "@blocknote/xl-ai/locales";
@@ -35,7 +36,7 @@ export default function App() {
     },
     // Register the AI extension
     extensions: [
-      createAIExtension({
+      AIExtension({
         transport: new DefaultChatTransport({
           // URL to your backend API, see example source in `packages/xl-ai-server/src/routes/regular.ts`
           api: `${BASE_URL}/regular/streamText`,

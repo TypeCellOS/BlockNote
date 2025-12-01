@@ -1,22 +1,10 @@
-import {
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "@blocknote/core";
 import { ReactNode } from "react";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { ColorPickerButton } from "./DefaultButtons/ColorPicker.js";
 import { SplitButton } from "./DefaultButtons/SplitButton.js";
-import { TableCellMenuProps } from "./TableCellMenuProps.js";
 
-export const TableCellMenu = <
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema,
->(
-  props: TableCellMenuProps<I, S> & { children?: ReactNode },
-) => {
+export const TableCellMenu = (props: { children?: ReactNode }) => {
   const Components = useComponentsContext()!;
 
   return (
@@ -25,16 +13,8 @@ export const TableCellMenu = <
     >
       {props.children || (
         <>
-          <SplitButton
-            block={props.block}
-            rowIndex={props.rowIndex}
-            colIndex={props.colIndex}
-          />
-          <ColorPickerButton
-            block={props.block}
-            rowIndex={props.rowIndex}
-            colIndex={props.colIndex}
-          />
+          <SplitButton />
+          <ColorPickerButton />
         </>
       )}
     </Components.Generic.Menu.Dropdown>

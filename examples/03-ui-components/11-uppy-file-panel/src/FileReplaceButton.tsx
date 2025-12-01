@@ -48,7 +48,7 @@ export const FileReplaceButton = () => {
   }
 
   return (
-    <Components.Generic.Popover.Root opened={isOpen} position={"bottom"}>
+    <Components.Generic.Popover.Root open={isOpen} position={"bottom"}>
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button
           className={"bn-button"}
@@ -70,7 +70,7 @@ export const FileReplaceButton = () => {
         variant={"panel-popover"}
       >
         {/* Replaces default file panel with our Uppy one. */}
-        <UppyFilePanel block={block as any} />
+        <UppyFilePanel blockId={block.id} />
       </Components.Generic.Popover.Content>
     </Components.Generic.Popover.Root>
   );

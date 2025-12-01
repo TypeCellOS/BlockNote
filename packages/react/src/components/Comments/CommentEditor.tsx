@@ -1,7 +1,7 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { FC, useCallback, useEffect, useState } from "react";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
-import { useEditorChange } from "../../hooks/useEditorChange.js";
+import { useEditorState } from "../../hooks/useEditorState.js";
 
 /**
  * The CommentEditor component displays an editor for creating or editing a comment.
@@ -23,13 +23,12 @@ export const CommentEditor = (props: {
   editor: BlockNoteEditor<any, any, any>;
 }) => {
   const [isFocused, setIsFocused] = useState(false);
-  const [isEmpty, setIsEmpty] = useState(props.editor.isEmpty);
+  const isEmpty = useEditorState({
+    editor: props.editor,
+    selector: ({ editor }) => editor.isEmpty,
+  });
 
   const components = useComponentsContext()!;
-
-  useEditorChange(() => {
-    setIsEmpty(props.editor.isEmpty);
-  }, props.editor);
 
   const onFocus = useCallback(() => {
     setIsFocused(true);

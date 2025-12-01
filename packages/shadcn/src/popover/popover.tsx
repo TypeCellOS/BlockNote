@@ -10,7 +10,8 @@ export const Popover = (
 ) => {
   const {
     children,
-    opened,
+    open,
+    onOpenChange,
     position, // unused
     ...rest
   } = props;
@@ -20,7 +21,7 @@ export const Popover = (
   const ShadCNComponents = useShadCNComponentsContext()!;
 
   return (
-    <ShadCNComponents.Popover.Popover open={opened}>
+    <ShadCNComponents.Popover.Popover open={open} onOpenChange={onOpenChange}>
       {children}
     </ShadCNComponents.Popover.Popover>
   );

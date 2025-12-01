@@ -1,21 +1,10 @@
-import { redo, undo } from "@tiptap/pm/history";
 import { Command, Transaction } from "prosemirror-state";
+import type { YUndoExtension } from "../../extensions/Collaboration/YUndo.js";
+import type { HistoryExtension } from "../../extensions/History/History.js";
 import { BlockNoteEditor } from "../BlockNoteEditor.js";
 
 export class StateManager {
-  constructor(
-    private editor: BlockNoteEditor,
-    private options?: {
-      /**
-       * Swap the default undo command with a custom command.
-       */
-      undo?: typeof undo;
-      /**
-       * Swap the default redo command with a custom command.
-       */
-      redo?: typeof redo;
-    },
-  ) {}
+  constructor(private editor: BlockNoteEditor<any, any, any>) {}
 
   /**
    * Stores the currently active transaction, which is the accumulated transaction from all {@link dispatch} calls during a {@link transact} calls
@@ -225,14 +214,37 @@ export class StateManager {
   /**
    * Undo the last action.
    */
-  public undo() {
-    return this.exec(this.options?.undo ?? undo);
+  public undo(): boolean {
+    // Purposefully not using the UndoPlugin to not import y-prosemirror when not needed
+    const undoPlugin = this.editor.getExtension<typeof YUndoExtension>("yUndo");
+    if (undoPlugin) {
+      return this.exec(undoPlugin.undoCommand);
+    }
+
+    const historyPlugin =
+      this.editor.getExtension<typeof HistoryExtension>("history");
+    if (historyPlugin) {
+      return this.exec(historyPlugin.undoCommand);
+    }
+
+    throw new Error("No undo plugin found");
   }
 
   /**
    * Redo the last action.
    */
   public redo() {
-    return this.exec(this.options?.redo ?? redo);
+    const undoPlugin = this.editor.getExtension<typeof YUndoExtension>("yUndo");
+    if (undoPlugin) {
+      return this.exec(undoPlugin.redoCommand);
+    }
+
+    const historyPlugin =
+      this.editor.getExtension<typeof HistoryExtension>("history");
+    if (historyPlugin) {
+      return this.exec(historyPlugin.redoCommand);
+    }
+
+    throw new Error("No redo plugin found");
   }
 }

@@ -1,10 +1,11 @@
 import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
-import { useComponentsContext } from "@blocknote/react";
+import { FormattingToolbarExtension } from "@blocknote/core/extensions";
+import { useComponentsContext, useExtension } from "@blocknote/react";
 import { RiSparkling2Fill } from "react-icons/ri";
 
 import { useBlockNoteEditor } from "@blocknote/react";
 
-import { getAIExtension } from "../../AIExtension.js";
+import { AIExtension } from "../../AIExtension.js";
 import { useAIDictionary } from "../../i18n/useAIDictionary.js";
 
 export const AIToolbarButton = () => {
@@ -17,16 +18,19 @@ export const AIToolbarButton = () => {
     StyleSchema
   >();
 
-  const ai = getAIExtension(editor);
+  const ai = useExtension(AIExtension);
+  const formattingToolbar = useExtension(FormattingToolbarExtension);
 
   const onClick = () => {
-    editor.formattingToolbar.closeMenu();
     const selection = editor.getSelection();
     if (!selection) {
       throw new Error("No selection");
     }
+
     const position = selection.blocks[selection.blocks.length - 1].id;
+
     ai.openAIMenuAtBlock(position);
+    formattingToolbar.store.setState(false);
   };
 
   if (!editor.isEditable) {
