@@ -7,9 +7,8 @@ import {
 } from "@blocknote/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { RiSparkling2Fill } from "react-icons/ri";
-
 import { AIExtension } from "../../AIExtension.js";
-import { useAIDictionary } from "../../i18n/useAIDictionary.js";
+import { useAIDictionary } from "../../hooks/useAIDictionary.js";
 import { PromptSuggestionMenu } from "./PromptSuggestionMenu.js";
 import {
   AIMenuSuggestionItem,

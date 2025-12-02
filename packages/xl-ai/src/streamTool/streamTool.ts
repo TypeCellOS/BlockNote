@@ -4,7 +4,7 @@ import type { JSONSchema7 } from "json-schema";
 export type Result<T> =
   | {
       ok: false;
-      error: string;
+      error: string | Error;
     }
   | { ok: true; value: T };
 

@@ -19,13 +19,7 @@ import { UIMessage } from "ai";
 import { Fragment, Slice } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { fixTablesKey } from "prosemirror-tables";
-
-import {
-  aiDocumentFormats,
-  buildAIRequest,
-  defaultAIRequestSender,
-  executeAIRequest,
-} from "./api/index.js";
+import { buildAIRequest, sendMessageWithAIRequest } from "./api/index.js";
 import { createAgentCursorPlugin } from "./plugins/AgentCursorPlugin.js";
 import { AIRequestHelpers, InvokeAIOptions } from "./types.js";
 
@@ -43,6 +37,7 @@ type AIPluginState = {
             error: any;
           }
         | {
+            // fix: it might be nice to derive this from the Chat status and Tool call status
             status: "user-input" | "thinking" | "ai-writing" | "user-reviewing";
           }
       ))
@@ -314,7 +309,7 @@ export const AIExtension = createExtension(
           if (status.status !== "error") {
             throw new UnreachableCaseError(status.status);
           }
-          store.setState({
+          this.store.setState({
             aiMenuState: {
               status: status.status,
               error: status.error,
@@ -322,7 +317,7 @@ export const AIExtension = createExtension(
             },
           });
         } else {
-          store.setState({
+          this.store.setState({
             aiMenuState: {
               status: status,
               blockId: aiMenuState.blockId,
@@ -351,10 +346,13 @@ export const AIExtension = createExtension(
             // (so changing transport for a subsequent call in the same chat-session is not supported)
             chatSession = {
               previousRequestOptions: opts,
-              chat: new Chat<UIMessage>({
-                sendAutomaticallyWhen: () => false,
-                transport: opts.transport || options.state.transport,
-              }),
+              chat:
+                opts.chatProvider?.() ||
+                this.options.state.chatProvider?.() ||
+                new Chat<UIMessage>({
+                  sendAutomaticallyWhen: () => false,
+                  transport: opts.transport || this.options.state.transport,
+                }),
             };
           } else {
             chatSession.previousRequestOptions = opts;
@@ -368,20 +366,16 @@ export const AIExtension = createExtension(
             ...opts,
           } as InvokeAIOptions;
 
-          const sender =
-            opts.aiRequestSender ??
-            defaultAIRequestSender(
-              aiDocumentFormats.html.defaultPromptBuilder,
-              aiDocumentFormats.html.defaultPromptInputDataBuilder,
-            );
-
-          const aiRequest = buildAIRequest({
+          const aiRequest = await buildAIRequest({
             editor,
-            chat,
-            userPrompt: opts.userPrompt,
             useSelection: opts.useSelection,
             deleteEmptyCursorBlock: opts.deleteEmptyCursorBlock,
-            streamToolsProvider: opts.streamToolsProvider,
+            streamToolsProvider:
+              opts.streamToolsProvider ??
+              this.options.state.streamToolsProvider,
+            documentStateBuilder:
+              opts.documentStateBuilder ??
+              this.options.state.documentStateBuilder,
             onBlockUpdated: (blockId) => {
               const aiMenuState = store.state.aiMenuState;
               const aiMenuOpenState =
@@ -400,6 +394,7 @@ export const AIExtension = createExtension(
                 return;
               }
 
+              // NOTE: does this setState with an anon object trigger unnecessary re-renders?
               store.setState({
                 aiMenuState: {
                   blockId,
@@ -416,28 +411,63 @@ export const AIExtension = createExtension(
                 });
               }
             },
-          });
-
-          await executeAIRequest({
-            aiRequest,
-            sender,
-            chatRequestOptions: opts.chatRequestOptions,
             onStart: () => {
               autoScroll = true;
               this.setAIResponseStatus("ai-writing");
+
+              if (
+                aiRequest.emptyCursorBlockToDelete &&
+                aiRequest.editor.getBlock(aiRequest.emptyCursorBlockToDelete)
+              ) {
+                aiRequest.editor.removeBlocks([
+                  aiRequest.emptyCursorBlockToDelete,
+                ]);
+              }
             },
           });
 
-          this.setAIResponseStatus("user-reviewing");
+          const result = await sendMessageWithAIRequest(
+            chat,
+            aiRequest,
+            {
+              role: "user",
+              parts: [
+                {
+                  type: "text",
+                  text: opts.userPrompt,
+                },
+              ],
+            },
+            opts.chatRequestOptions || this.options.state.chatRequestOptions,
+          );
+
+          if (result.ok && chat.status !== "error") {
+            this.setAIResponseStatus("user-reviewing");
+          } else {
+            // eslint-disable-next-line no-console
+            console.warn("Error calling LLM", {
+              result,
+              chatStatus: chat.status,
+              chatError: chat.error,
+            });
+            this.setAIResponseStatus({
+              status: "error",
+              error: result.ok ? chat.error : result.error,
+            });
+          }
         } catch (e) {
           this.setAIResponseStatus({
             status: "error",
             error: e,
           });
           // eslint-disable-next-line no-console
-          console.warn("Error calling LLM", e, chatSession?.chat.messages);
+          console.error(
+            "Unexpected error calling LLM",
+            e,
+            chatSession?.chat.messages,
+          );
         }
       },
-    } as const;
+    };
   },
 );

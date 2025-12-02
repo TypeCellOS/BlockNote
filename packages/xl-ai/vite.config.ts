@@ -35,6 +35,7 @@ export default defineConfig((conf) => ({
       entry: {
         "blocknote-xl-ai": path.resolve(__dirname, "src/index.ts"),
         locales: path.resolve(__dirname, "src/i18n/locales/index.ts"),
+        server: path.resolve(__dirname, "src/server.ts"),
       },
       name: "blocknote-xl-ai",
       formats: ["es", "cjs"],
