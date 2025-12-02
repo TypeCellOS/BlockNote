@@ -7,7 +7,7 @@ import {
 import { DefaultReactSuggestionItem } from "@blocknote/react";
 import { RiSparkling2Fill } from "react-icons/ri";
 
-import { getAIExtension } from "../../AIExtension.js";
+import { AIExtension } from "../../AIExtension.js";
 import { getAIDictionary } from "../../i18n/dictionary.js";
 const Icons = {
   AI: RiSparkling2Fill,
@@ -21,7 +21,10 @@ export function getAISlashMenuItems<
   I extends InlineContentSchema,
   S extends StyleSchema,
 >(editor: BlockNoteEditor<BSchema, I, S>): DefaultReactSuggestionItem[] {
-  const ai = getAIExtension(editor);
+  const ai = editor.getExtension(AIExtension);
+  if (!ai) {
+    return [];
+  }
   const items = [
     {
       key: "ai",

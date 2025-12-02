@@ -4,7 +4,7 @@ import { getCurrentTest, TaskContext } from "@vitest/runner";
 import path from "path";
 import { TextSelection } from "prosemirror-state";
 import { describe, expect, it } from "vitest";
-import { getAIExtension } from "../../../AIExtension.js";
+import { AIExtension } from "../../../AIExtension.js";
 import { sendMessageWithAIRequest } from "../../../index.js";
 import { addOperationTestCases } from "../../../testUtil/cases/addOperationTestCases.js";
 import { combinedOperationsTestCases } from "../../../testUtil/cases/combinedOperationsTestCases.js";
@@ -126,7 +126,7 @@ export function generateSharedTestCases(
     validateRejectingResultsInOriginalDoc(editor, originalDoc);
 
     // we first need to accept changes to get the correct result
-    getAIExtension(editor).acceptChanges();
+    editor.getExtension(AIExtension)?.acceptChanges();
     expect(editor.document).toEqual(
       getExpectedEditor(test, {
         deleteEmptyCursorBlock: true,

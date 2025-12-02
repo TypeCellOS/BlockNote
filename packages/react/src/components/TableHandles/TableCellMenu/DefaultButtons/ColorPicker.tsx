@@ -1,38 +1,39 @@
-import {
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  InlineContentSchema,
-  isTableCell,
-  mapTableCell,
-  StyleSchema,
-} from "@blocknote/core";
+import { isTableCell, mapTableCell } from "@blocknote/core";
+import { TableHandlesExtension } from "@blocknote/core/extensions";
+import { ReactNode } from "react";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
+import { useExtensionState } from "../../../../hooks/useExtension.js";
 import { useDictionary } from "../../../../i18n/dictionary.js";
 import { ColorPicker } from "../../../ColorPicker/ColorPicker.js";
-import { TableCellMenuProps } from "../TableCellMenuProps.js";
-import { ReactNode } from "react";
 
-export const ColorPickerButton = <
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema,
->(
-  props: TableCellMenuProps<I, S> & {
-    children?: ReactNode;
-  },
-) => {
+export const ColorPickerButton = (props: { children?: ReactNode }) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
-  const editor = useBlockNoteEditor<
-    { table: DefaultBlockSchema["table"] },
-    I,
-    S
-  >();
+  const editor = useBlockNoteEditor<any, any, any>();
+
+  const { block, colIndex, rowIndex } = useExtensionState(
+    TableHandlesExtension,
+    {
+      selector: (state) => ({
+        block: state?.block,
+        colIndex: state?.colIndex,
+        rowIndex: state?.rowIndex,
+      }),
+    },
+  );
 
   const updateColor = (color: string, type: "text" | "background") => {
-    const newTable = props.block.content.rows.map((row) => {
+    if (
+      block === undefined ||
+      colIndex === undefined ||
+      rowIndex === undefined
+    ) {
+      return;
+    }
+
+    const newTable = block.content.rows.map((row) => {
       return {
         ...row,
         cells: row.cells.map((cell) => mapTableCell(cell)),
@@ -40,27 +41,29 @@ export const ColorPickerButton = <
     });
 
     if (type === "text") {
-      newTable[props.rowIndex].cells[props.colIndex].props.textColor = color;
+      newTable[rowIndex].cells[colIndex].props.textColor = color;
     } else {
-      newTable[props.rowIndex].cells[props.colIndex].props.backgroundColor =
-        color;
+      newTable[rowIndex].cells[colIndex].props.backgroundColor = color;
     }
 
-    editor.updateBlock(props.block, {
+    editor.updateBlock(block, {
       type: "table",
       content: {
-        ...props.block.content,
+        ...block.content,
         rows: newTable,
       },
     });
 
     // Have to reset text cursor position to the block as `updateBlock`
     // moves the existing selection out of the block.
-    editor.setTextCursorPosition(props.block);
+    editor.setTextCursorPosition(block);
   };
 
-  const currentCell =
-    props.block.content.rows[props.rowIndex]?.cells?.[props.colIndex];
+  if (block === undefined || colIndex === undefined || rowIndex === undefined) {
+    return null;
+  }
+
+  const currentCell = block.content.rows[rowIndex]?.cells?.[colIndex];
 
   if (
     !currentCell ||

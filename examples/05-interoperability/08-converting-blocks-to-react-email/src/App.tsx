@@ -3,9 +3,9 @@ import {
   COLORS_DARK_MODE_DEFAULT,
   COLORS_DEFAULT,
   combineByGroup,
-  filterSuggestionItems,
   withPageBreak,
 } from "@blocknote/core";
+import { filterSuggestionItems } from "@blocknote/core/extensions";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";

@@ -1,6 +1,6 @@
 import { Attrs, Fragment, Mark, Node, Schema } from "@tiptap/pm/model";
 
-import UniqueID from "../../extensions/UniqueID/UniqueID.js";
+import UniqueID from "../../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 import type {
   InlineContentSchema,
   PartialCustomInlineContentFromConfig,

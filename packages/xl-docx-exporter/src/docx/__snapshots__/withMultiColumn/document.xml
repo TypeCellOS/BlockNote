@@ -25,12 +25,6 @@
                         <w:tcW w:type="pct" w:w="26.666666666666668%"/>
                     </w:tcPr>
                     <w:p>
-                        <w:pPr>
-                            <w:pStyle w:val="Normal"/>
-                            <w:rPr>
-                                <w:rFonts w:ascii="Inter" w:cs="Inter" w:eastAsia="Inter" w:hAnsi="Inter"/>
-                            </w:rPr>
-                        </w:pPr>
                         <w:r>
                             <w:t xml:space="preserve">This paragraph is in a column!</w:t>
                         </w:r>
@@ -54,12 +48,6 @@
                         <w:tcW w:type="pct" w:w="26.666666666666668%"/>
                     </w:tcPr>
                     <w:p>
-                        <w:pPr>
-                            <w:pStyle w:val="Normal"/>
-                            <w:rPr>
-                                <w:rFonts w:ascii="Inter" w:cs="Inter" w:eastAsia="Inter" w:hAnsi="Inter"/>
-                            </w:rPr>
-                        </w:pPr>
                         <w:r>
                             <w:t xml:space="preserve">You can have multiple blocks in a column too</w:t>
                         </w:r>

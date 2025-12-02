@@ -1,8 +1,9 @@
 import { BlockNoteEditor, UnreachableCaseError } from "@blocknote/core";
+import { CommentsExtension } from "@blocknote/core/comments";
 import { ThreadData } from "@blocknote/core/comments";
 import React, { FocusEvent, useCallback, useMemo } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
-import { useUIPluginState } from "../../hooks/useUIPluginState.js";
+import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
 import { Thread } from "./Thread.js";
 import { useThreads } from "./useThreads.js";
 
@@ -22,10 +23,11 @@ const ThreadItem = React.memo(
   ({
     thread,
     selectedThreadId,
-    editor,
     maxCommentsBeforeCollapse,
     referenceText,
   }: ThreadItemProps) => {
+    const comments = useExtension(CommentsExtension);
+
     const onFocus = useCallback(
       (event: FocusEvent) => {
         // If the focused element is within the action toolbar, we don't want to
@@ -34,9 +36,9 @@ const ThreadItem = React.memo(
           return;
         }
 
-        editor.comments?.selectThread(thread.id);
+        comments.selectThread(thread.id);
       },
-      [editor.comments, thread.id],
+      [comments, thread.id],
     );
 
     const onBlur = useCallback(
@@ -64,10 +66,10 @@ const ThreadItem = React.memo(
           !parentThreadElement ||
           !parentThreadElement.contains(targetElement)
         ) {
-          editor.comments?.selectThread(undefined);
+          comments.selectThread(undefined);
         }
       },
-      [editor.comments],
+      [comments],
     );
 
     return (
@@ -188,22 +190,12 @@ export function ThreadsSidebar(props: {
    */
   sort?: "position" | "recent-activity" | "oldest";
 }) {
-  const editor = useBlockNoteEditor();
+  const editor = useBlockNoteEditor<any, any, any>();
 
-  if (!editor.comments) {
-    throw new Error("Comments plugin not found");
-  }
+  const { selectedThreadId, threadPositions } =
+    useExtensionState(CommentsExtension);
 
-  // Note: because "threadPositions" is part of the state,
-  // this will potentially trigger a re-render on every document update
-  // this means we need to be mindful of children memoization
-  const state = useUIPluginState(
-    editor.comments.onUpdate.bind(editor.comments),
-  );
-
-  const selectedThreadId = state?.selectedThreadId;
-
-  const threads = useThreads(editor);
+  const threads = useThreads();
 
   const filteredAndSortedThreads = useMemo(() => {
     const threadsArray = Array.from(threads.values());
@@ -211,7 +203,7 @@ export function ThreadsSidebar(props: {
     const sortedThreads = sortThreads(
       threadsArray,
       props.sort || "position",
-      state?.threadPositions,
+      threadPositions,
     );
 
     const ret: Array<{ thread: ThreadData; referenceText: string }> = [];
@@ -223,7 +215,7 @@ export function ThreadsSidebar(props: {
             thread,
             referenceText: getReferenceText(
               editor,
-              state?.threadPositions.get(thread.id),
+              threadPositions.get(thread.id),
             ),
           });
         }
@@ -233,7 +225,7 @@ export function ThreadsSidebar(props: {
             thread,
             referenceText: getReferenceText(
               editor,
-              state?.threadPositions.get(thread.id),
+              threadPositions.get(thread.id),
             ),
           });
         }
@@ -241,7 +233,7 @@ export function ThreadsSidebar(props: {
     }
 
     return ret;
-  }, [threads, state?.threadPositions, props.filter, props.sort, editor]);
+  }, [threads, props.sort, props.filter, threadPositions, editor]);
 
   return (
     <div className={"bn-threads-sidebar"}>

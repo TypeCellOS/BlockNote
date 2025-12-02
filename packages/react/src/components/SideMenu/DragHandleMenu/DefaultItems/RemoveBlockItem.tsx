@@ -1,34 +1,28 @@
-import {
-  BlockSchema,
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "@blocknote/core";
+import { SideMenuExtension } from "@blocknote/core/extensions";
 import { ReactNode } from "react";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
-import { DragHandleMenuProps } from "../DragHandleMenuProps.js";
+import { useExtensionState } from "../../../../hooks/useExtension.js";
 
-export const RemoveBlockItem = <
-  BSchema extends BlockSchema = DefaultBlockSchema,
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema,
->(
-  props: DragHandleMenuProps<BSchema, I, S> & {
-    children: ReactNode;
-  },
-) => {
+export const RemoveBlockItem = (props: { children: ReactNode }) => {
   const Components = useComponentsContext()!;
 
-  const editor = useBlockNoteEditor<BSchema, I, S>();
+  const editor = useBlockNoteEditor<any, any, any>();
+
+  const block = useExtensionState(SideMenuExtension, {
+    editor,
+    selector: (state) => state?.block,
+  });
+
+  if (block === undefined) {
+    return null;
+  }
 
   return (
     <Components.Generic.Menu.Item
       className={"bn-menu-item"}
-      onClick={() => editor.removeBlocks([props.block])}
+      onClick={() => editor.removeBlocks([block])}
     >
       {props.children}
     </Components.Generic.Menu.Item>

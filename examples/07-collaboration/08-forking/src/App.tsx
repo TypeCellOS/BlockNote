@@ -1,11 +1,15 @@
 import "@blocknote/core/fonts/inter.css";
-import { useCreateBlockNote } from "@blocknote/react";
+import {} from "@blocknote/core";
+import { ForkYDocExtension } from "@blocknote/core/extensions";
+import {
+  useCreateBlockNote,
+  useExtension,
+  useExtensionState,
+} from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import YPartyKitProvider from "y-partykit/provider";
 import * as Y from "yjs";
-import { useEffect } from "react";
-import { useState } from "react";
 
 // Sets up Yjs document and PartyKit Yjs provider.
 const doc = new Y.Doc();
@@ -30,18 +34,18 @@ export default function App() {
       },
     },
   });
-  const [isForked, setIsForked] = useState(false);
-
-  useEffect(() => {
-    editor.forkYDocPlugin!.on("forked", setIsForked);
-  }, [editor]);
+  const forkYDocPlugin = useExtension(ForkYDocExtension, { editor });
+  const isForked = useExtensionState(ForkYDocExtension, {
+    editor,
+    selector: (state) => state.isForked,
+  });
 
   // Renders the editor instance.
   return (
     <>
       <button
         onClick={() => {
-          editor.forkYDocPlugin!.fork();
+          forkYDocPlugin.fork();
         }}
         disabled={isForked}
       >
@@ -49,7 +53,7 @@ export default function App() {
       </button>
       <button
         onClick={() => {
-          editor.forkYDocPlugin!.merge({ keepChanges: true });
+          forkYDocPlugin.merge({ keepChanges: true });
         }}
         disabled={!isForked}
       >
@@ -57,7 +61,7 @@ export default function App() {
       </button>
       <button
         onClick={() => {
-          editor.forkYDocPlugin!.merge({ keepChanges: false });
+          forkYDocPlugin.merge({ keepChanges: false });
         }}
         disabled={!isForked}
       >

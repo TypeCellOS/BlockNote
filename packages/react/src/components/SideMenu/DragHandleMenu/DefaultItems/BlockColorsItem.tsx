@@ -1,46 +1,30 @@
-import {
-  Block,
-  blockHasType,
-  BlockSchema,
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  editorHasBlockWithType,
-  InlineContentSchema,
-  StyleSchema,
-} from "@blocknote/core";
+import { blockHasType, editorHasBlockWithType } from "@blocknote/core";
+import { SideMenuExtension } from "@blocknote/core/extensions";
 import { ReactNode } from "react";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
 import { ColorPicker } from "../../../ColorPicker/ColorPicker.js";
-import { DragHandleMenuProps } from "../DragHandleMenuProps.js";
+import { useExtensionState } from "../../../../hooks/useExtension.js";
 
-export const BlockColorsItem = <
-  BSchema extends BlockSchema = DefaultBlockSchema,
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema,
->(
-  props: DragHandleMenuProps<BSchema, I, S> & {
-    children: ReactNode;
-  },
-) => {
+export const BlockColorsItem = (props: { children: ReactNode }) => {
   const Components = useComponentsContext()!;
 
-  const editor = useBlockNoteEditor<BSchema, I, S>();
+  const editor = useBlockNoteEditor<any, any, any>();
 
-  // We cast the block to a generic one, as the base type causes type errors
-  // with runtime type checking using `blockHasType`. Runtime type checking is
-  // more valuable than static checks, so better to do it like this.
-  const block = props.block as Block<any, any, any>;
+  const block = useExtensionState(SideMenuExtension, {
+    editor,
+    selector: (state) => state?.block,
+  });
 
   if (
-    !blockHasType(block, editor, block.type, {
+    block === undefined ||
+    (!blockHasType(block, editor, block.type, {
       textColor: "string",
     }) &&
-    !blockHasType(block, editor, block.type, {
-      backgroundColor: "string",
-    })
+      !blockHasType(block, editor, block.type, {
+        backgroundColor: "string",
+      }))
   ) {
     return null;
   }

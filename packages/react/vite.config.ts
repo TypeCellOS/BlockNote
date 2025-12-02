@@ -36,15 +36,27 @@ export default defineConfig((conf) => ({
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
       // into your library
-      external: [
-        ...Object.keys({
-          ...pkg.dependencies,
-          ...pkg.peerDependencies,
-          ...pkg.devDependencies,
-        }),
-        "react-dom/client",
-        "react/jsx-runtime",
-      ],
+      external: (source) => {
+        if (
+          [
+            ...Object.keys({
+              ...pkg.dependencies,
+              ...pkg.peerDependencies,
+              ...pkg.devDependencies,
+            }),
+            "react-dom/client",
+            "react/jsx-runtime",
+          ].includes(source)
+        ) {
+          return true;
+        }
+
+        return (
+          source.startsWith("prosemirror-") ||
+          source.startsWith("@tiptap/") ||
+          source.startsWith("@blocknote/")
+        );
+      },
       output: {
         // Provide global variables to use in the UMD build
         // for externalized deps

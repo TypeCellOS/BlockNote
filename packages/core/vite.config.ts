@@ -1,6 +1,6 @@
 import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 import pkg from "./package.json";
 // import eslintPlugin from "vite-plugin-eslint";
 
@@ -21,6 +21,7 @@ export default defineConfig({
         comments: path.resolve(__dirname, "src/comments/index.ts"),
         blocks: path.resolve(__dirname, "src/blocks/index.ts"),
         locales: path.resolve(__dirname, "src/i18n/index.ts"),
+        extensions: path.resolve(__dirname, "src/extensions/index.ts"),
         yjs: path.resolve(__dirname, "src/yjs/index.ts"),
       },
       name: "blocknote",
