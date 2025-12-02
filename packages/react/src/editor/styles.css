@@ -230,7 +230,14 @@
   background-color: var(--bn-colors-highlights-pink-background);
 }
 
-/* Matching Side Menu height to block line height */
+/* Sets base Z-index on UI elements, i.e. elements which use the 
+`GenericPopover` component. If a z-index is passed to the `GenericPopover` via 
+inline styles, it is added to the base z-index. */
+.bn-container {
+  --bn-ui-base-z-index: 0;
+}
+
+/* Matches Side Menu height to block line height */
 .bn-side-menu {
   height: 30px;
 }

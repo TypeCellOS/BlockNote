@@ -51,7 +51,7 @@
     "@uppy/webcam": "^3.4.2",
     "@uppy/xhr-upload": "^3.6.8",
     "@y-sweet/react": "^0.6.4",
-    "ai": "^5.0.93",
+    "ai": "^5.0.102",
     "autoprefixer": "10.4.21",
     "docx": "^9.5.1",
     "react": "^19.2.0",
@@ -59,8 +59,7 @@
     "react-icons": "^5.5.0",
     "react-router-dom": "^6.30.1",
     "y-partykit": "^0.0.25",
-    "yjs": "^13.6.27",
-    "zustand": "^5.0.8"
+    "yjs": "^13.6.27"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.14",

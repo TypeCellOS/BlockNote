@@ -4,7 +4,6 @@ import "@blocknote/mantine/style.css";
 import {
   BlockColorsItem,
   DragHandleMenu,
-  DragHandleMenuProps,
   RemoveBlockItem,
   SideMenu,
   SideMenuController,
@@ -16,12 +15,12 @@ import { ResetBlockTypeItem } from "./ResetBlockTypeItem";
 // To avoid rendering issues, it's good practice to define your custom drag
 // handle menu in a separate component, instead of inline within the `sideMenu`
 // prop of `SideMenuController`.
-const CustomDragHandleMenu = (props: DragHandleMenuProps) => (
-  <DragHandleMenu {...props}>
-    <RemoveBlockItem {...props}>Delete</RemoveBlockItem>
-    <BlockColorsItem {...props}>Colors</BlockColorsItem>
+const CustomDragHandleMenu = () => (
+  <DragHandleMenu>
+    <RemoveBlockItem>Delete</RemoveBlockItem>
+    <BlockColorsItem>Colors</BlockColorsItem>
     {/* Item which resets the hovered block's type. */}
-    <ResetBlockTypeItem {...props}>Reset Type</ResetBlockTypeItem>
+    <ResetBlockTypeItem>Reset Type</ResetBlockTypeItem>
   </DragHandleMenu>
 );
 

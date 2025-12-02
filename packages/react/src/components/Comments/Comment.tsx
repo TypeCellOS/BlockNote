@@ -1,6 +1,7 @@
 "use client";
 
 import { mergeCSSClasses } from "@blocknote/core";
+import { CommentsExtension } from "@blocknote/core/comments";
 import type { CommentData, ThreadData } from "@blocknote/core/comments";
 import { MouseEvent, ReactNode, useCallback, useState } from "react";
 import {
@@ -13,8 +14,8 @@ import {
 } from "react-icons/ri";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
-import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
+import { useExtension } from "../../hooks/useExtension.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { CommentEditor } from "./CommentEditor.js";
 import { EmojiPicker } from "./EmojiPicker.js";
@@ -42,40 +43,28 @@ export const Comment = ({
 }: CommentProps) => {
   // TODO: if REST API becomes popular, all interactions (click handlers) should implement a loading state and error state
   // (or optimistic local updates)
-
-  const editor = useBlockNoteEditor();
-
-  if (!editor.comments) {
-    throw new Error("Comments plugin not found");
-  }
+  const comments = useExtension(CommentsExtension);
 
   const dict = useDictionary();
 
-  const commentEditor = useCreateBlockNote(
-    {
-      initialContent: comment.body,
-      trailingBlock: false,
-      dictionary: {
-        ...dict,
-        placeholders: {
-          emptyDocument: dict.placeholders.edit_comment,
-        },
+  const commentEditor = useCreateBlockNote({
+    initialContent: comment.body,
+    trailingBlock: false,
+    dictionary: {
+      ...dict,
+      placeholders: {
+        emptyDocument: dict.placeholders.edit_comment,
       },
-      schema: editor.comments.commentEditorSchema || defaultCommentEditorSchema,
     },
-    [comment.body],
-  );
+    schema: comments.commentEditorSchema || defaultCommentEditorSchema,
+  });
 
   const Components = useComponentsContext()!;
 
   const [isEditing, setEditing] = useState(false);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
 
-  if (!editor.comments) {
-    throw new Error("Comments plugin not found");
-  }
-
-  const threadStore = editor.comments.threadStore;
+  const threadStore = comments.threadStore;
 
   const handleEdit = useCallback(() => {
     setEditing(true);
@@ -139,7 +128,7 @@ export const Comment = ({
     });
   }, [thread.id, threadStore]);
 
-  const user = useUser(editor, comment.userId);
+  const user = useUser(comment.userId);
 
   if (!comment.body) {
     return null;

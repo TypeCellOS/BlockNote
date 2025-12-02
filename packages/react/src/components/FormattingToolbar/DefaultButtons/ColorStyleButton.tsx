@@ -4,12 +4,11 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback } from "react";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
-import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange.js";
-import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks.js";
+import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 import { ColorIcon } from "../../ColorPicker/ColorIcon.js";
 import { ColorPicker } from "../../ColorPicker/ColorPicker.js";
@@ -53,29 +52,40 @@ export const ColorStyleButton = () => {
   const textColorInSchema = checkColorInSchema("text", editor);
   const backgroundColorInSchema = checkColorInSchema("background", editor);
 
-  const selectedBlocks = useSelectedBlocks(editor);
+  const state = useEditorState({
+    editor,
+    selector: ({ editor }) => {
+      // Do not show if:
+      if (
+        // The editor is read-only.
+        !editor.isEditable ||
+        // None of the selected blocks have inline content
+        !(
+          editor.getSelection()?.blocks || [
+            editor.getTextCursorPosition().block,
+          ]
+        ).find((block) => block.content !== undefined)
+      ) {
+        return undefined;
+      }
 
-  const [currentTextColor, setCurrentTextColor] = useState<string>(
-    textColorInSchema
-      ? editor.getActiveStyles().textColor || "default"
-      : "default",
-  );
-  const [currentBackgroundColor, setCurrentBackgroundColor] = useState<string>(
-    backgroundColorInSchema
-      ? editor.getActiveStyles().backgroundColor || "default"
-      : "default",
-  );
+      const textColorInSchema = checkColorInSchema("text", editor);
+      const backgroundColorInSchema = checkColorInSchema("background", editor);
 
-  useEditorContentOrSelectionChange(() => {
-    if (textColorInSchema) {
-      setCurrentTextColor(editor.getActiveStyles().textColor || "default");
-    }
-    if (backgroundColorInSchema) {
-      setCurrentBackgroundColor(
-        editor.getActiveStyles().backgroundColor || "default",
-      );
-    }
-  }, editor);
+      if (!textColorInSchema && !backgroundColorInSchema) {
+        return undefined;
+      }
+
+      return {
+        textColor: (textColorInSchema
+          ? editor.getActiveStyles().textColor || "default"
+          : undefined) as string | undefined,
+        backgroundColor: (backgroundColorInSchema
+          ? editor.getActiveStyles().backgroundColor || "default"
+          : undefined) as string | undefined,
+      };
+    },
+  });
 
   const setTextColor = useCallback(
     (color: string) => {
@@ -117,21 +127,7 @@ export const ColorStyleButton = () => {
     [backgroundColorInSchema, editor],
   );
 
-  const show = useMemo(() => {
-    if (!textColorInSchema && !backgroundColorInSchema) {
-      return false;
-    }
-
-    for (const block of selectedBlocks) {
-      if (block.content !== undefined) {
-        return true;
-      }
-    }
-
-    return false;
-  }, [backgroundColorInSchema, selectedBlocks, textColorInSchema]);
-
-  if (!show || !editor.isEditable) {
+  if (state === undefined) {
     return null;
   }
 
@@ -145,8 +141,8 @@ export const ColorStyleButton = () => {
           mainTooltip={dict.formatting_toolbar.colors.tooltip}
           icon={
             <ColorIcon
-              textColor={currentTextColor}
-              backgroundColor={currentBackgroundColor}
+              textColor={state.textColor}
+              backgroundColor={state.backgroundColor}
               size={20}
             />
           }
@@ -157,17 +153,17 @@ export const ColorStyleButton = () => {
       >
         <ColorPicker
           text={
-            textColorInSchema
+            state.textColor
               ? {
-                  color: currentTextColor,
+                  color: state.textColor,
                   setColor: setTextColor,
                 }
               : undefined
           }
           background={
-            backgroundColorInSchema
+            state.backgroundColor
               ? {
-                  color: currentBackgroundColor,
+                  color: state.backgroundColor,
                   setColor: setBackgroundColor,
                 }
               : undefined

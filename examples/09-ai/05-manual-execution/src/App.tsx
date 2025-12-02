@@ -4,10 +4,9 @@ import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
 import {
+  AIExtension,
   StreamToolExecutor,
   aiDocumentFormats,
-  createAIExtension,
-  getAIExtension,
 } from "@blocknote/xl-ai";
 import { en as aiEn } from "@blocknote/xl-ai/locales";
 import "@blocknote/xl-ai/style.css";
@@ -20,7 +19,7 @@ export default function App() {
       ai: aiEn, // add default translations for the AI extension
     },
     // Register the AI extension
-    extensions: [createAIExtension({})],
+    extensions: [AIExtension()],
     // We set some initial content for demo purposes
     initialContent: [
       {
@@ -77,7 +76,7 @@ export default function App() {
             });
             // accept the changes after 1 second
             await new Promise((resolve) => setTimeout(resolve, 1000));
-            await getAIExtension(editor).acceptChanges();
+            await editor.getExtension(AIExtension)?.acceptChanges();
           }}
         >
           Update first block
@@ -139,7 +138,7 @@ export default function App() {
 
             // accept the changes after 1 second
             await new Promise((resolve) => setTimeout(resolve, 1000));
-            await getAIExtension(editor).acceptChanges();
+            await editor.getExtension(AIExtension)?.acceptChanges();
           }}
         >
           Update first block (streaming)
@@ -187,7 +186,7 @@ export default function App() {
 
             // accept the changes after 1 second
             await new Promise((resolve) => setTimeout(resolve, 1000));
-            await getAIExtension(editor).acceptChanges();
+            await editor.getExtension(AIExtension)?.acceptChanges();
           }}
         >
           Update first block (streaming strings)

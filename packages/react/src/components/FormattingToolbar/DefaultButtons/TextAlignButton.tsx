@@ -9,7 +9,8 @@ import {
   StyleSchema,
   TableContent,
 } from "@blocknote/core";
-import { useCallback, useMemo } from "react";
+import { TableHandlesExtension } from "@blocknote/core/extensions";
+import { useCallback } from "react";
 import { IconType } from "react-icons";
 import {
   RiAlignCenter,
@@ -20,7 +21,8 @@ import {
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
-import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks.js";
+import { useEditorState } from "../../../hooks/useEditorState.js";
+import { useExtension } from "../../../hooks/useExtension.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 
 type TextAlignment = DefaultProps["textAlignment"];
@@ -42,44 +44,62 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
     StyleSchema
   >();
 
-  const selectedBlocks = useSelectedBlocks(editor);
+  const tableHandles = useExtension(TableHandlesExtension);
 
-  const textAlignment = useMemo(() => {
-    const block = selectedBlocks[0];
-
-    if (
-      blockHasType(block, editor, block.type, {
-        textAlignment: defaultProps.textAlignment,
-      })
-    ) {
-      return block.props.textAlignment;
-    }
-    if (block.type === "table") {
-      const cellSelection = editor.tableHandles?.getCellSelection();
-      if (!cellSelection) {
-        return;
+  const state = useEditorState({
+    editor,
+    selector: ({ editor }) => {
+      if (!editor.isEditable) {
+        return undefined;
       }
-      const allCellsInTable = cellSelection.cells.map(
-        ({ row, col }) =>
-          mapTableCell(
-            (block.content as TableContent<any, any>).rows[row].cells[col],
+
+      const selectedBlocks = editor.getSelection()?.blocks || [
+        editor.getTextCursorPosition().block,
+      ];
+
+      const firstBlock = selectedBlocks[0];
+
+      if (
+        blockHasType(firstBlock, editor, firstBlock.type, {
+          textAlignment: defaultProps.textAlignment,
+        })
+      ) {
+        return {
+          textAlignment: firstBlock.props.textAlignment,
+          blocks: selectedBlocks,
+        };
+      }
+
+      if (
+        selectedBlocks.length === 1 &&
+        blockHasType(firstBlock, editor, "table")
+      ) {
+        const cellSelection = tableHandles.getCellSelection();
+        if (!cellSelection) {
+          return undefined;
+        }
+
+        return {
+          textAlignment: mapTableCell(
+            (firstBlock.content as TableContent<any, any>).rows[0].cells[0],
           ).props.textAlignment,
-      );
-      const firstAlignment = allCellsInTable[0];
-
-      if (allCellsInTable.every((alignment) => alignment === firstAlignment)) {
-        return firstAlignment;
+          blocks: [firstBlock],
+        };
       }
-    }
 
-    return;
-  }, [editor, selectedBlocks]);
+      return undefined;
+    },
+  });
 
   const setTextAlignment = useCallback(
     (textAlignment: TextAlignment) => {
+      if (state === undefined) {
+        return;
+      }
+
       editor.focus();
 
-      for (const block of selectedBlocks) {
+      for (const block of state.blocks) {
         if (
           blockHasType(block, editor, block.type, {
             textAlignment: defaultProps.textAlignment,
@@ -92,7 +112,7 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
             props: { textAlignment: textAlignment },
           });
         } else if (block.type === "table") {
-          const cellSelection = editor.tableHandles?.getCellSelection();
+          const cellSelection = tableHandles.getCellSelection();
           if (!cellSelection) {
             continue;
           }
@@ -128,20 +148,10 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
         }
       }
     },
-    [editor, selectedBlocks],
+    [editor, state, tableHandles],
   );
 
-  const show = useMemo(() => {
-    return !!selectedBlocks.find(
-      (block) =>
-        blockHasType(block, editor, block.type, {
-          textAlignment: defaultProps.textAlignment,
-        }) ||
-        (block.type === "table" && block.children),
-    );
-  }, [editor, selectedBlocks]);
-
-  if (!show || !editor.isEditable) {
+  if (state === undefined) {
     return null;
   }
 
@@ -154,7 +164,7 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
         props.textAlignment.slice(1)
       }`}
       onClick={() => setTextAlignment(props.textAlignment)}
-      isSelected={textAlignment === props.textAlignment}
+      isSelected={state.textAlignment === props.textAlignment}
       label={dict.formatting_toolbar[`align_${props.textAlignment}`].tooltip}
       mainTooltip={
         dict.formatting_toolbar[`align_${props.textAlignment}`].tooltip

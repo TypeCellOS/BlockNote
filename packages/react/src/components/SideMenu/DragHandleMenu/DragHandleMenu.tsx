@@ -1,18 +1,9 @@
-import {
-  BlockSchema,
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "@blocknote/core";
 import { ReactNode } from "react";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 import { BlockColorsItem } from "./DefaultItems/BlockColorsItem.js";
 import { RemoveBlockItem } from "./DefaultItems/RemoveBlockItem.js";
-import { DragHandleMenuProps } from "./DragHandleMenuProps.js";
 import {
   TableColumnHeaderItem,
   TableRowHeaderItem,
@@ -26,13 +17,7 @@ import {
  * - Default items: Components found within the `/DefaultItems` directory.
  * - Custom items: The `DragHandleMenuItem` component.
  */
-export const DragHandleMenu = <
-  BSchema extends BlockSchema = DefaultBlockSchema,
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema,
->(
-  props: DragHandleMenuProps<BSchema, I, S> & { children?: ReactNode },
-) => {
+export const DragHandleMenu = (props: { children?: ReactNode }) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
@@ -42,16 +27,12 @@ export const DragHandleMenu = <
     >
       {props.children || (
         <>
-          <RemoveBlockItem {...props}>
-            {dict.drag_handle.delete_menuitem}
-          </RemoveBlockItem>
-          <BlockColorsItem {...props}>
-            {dict.drag_handle.colors_menuitem}
-          </BlockColorsItem>
-          <TableRowHeaderItem {...(props as any)}>
+          <RemoveBlockItem>{dict.drag_handle.delete_menuitem}</RemoveBlockItem>
+          <BlockColorsItem>{dict.drag_handle.colors_menuitem}</BlockColorsItem>
+          <TableRowHeaderItem>
             {dict.drag_handle.header_row_menuitem}
           </TableRowHeaderItem>
-          <TableColumnHeaderItem {...(props as any)}>
+          <TableColumnHeaderItem>
             {dict.drag_handle.header_column_menuitem}
           </TableColumnHeaderItem>
         </>

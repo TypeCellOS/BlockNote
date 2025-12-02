@@ -7,6 +7,5 @@
 export * from "./api/index.js";
 export * from "./blocknoteAIClient/client.js";
 export * from "./i18n/dictionary.js";
-export * from "./plugins/AutoCompletePlugin.js";
 export { getApplySuggestionsTr as _getApplySuggestionsTr } from "./prosemirror/rebaseTool.js";
 export * from "./streamTool/index.js";

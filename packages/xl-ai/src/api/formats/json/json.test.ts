@@ -117,10 +117,6 @@ describe.skip("Models", () => {
           aiDocumentFormats._experimental_json.getStreamToolsProvider({
             withDelays: false,
           }),
-        // aiRequestSender: defaultAIRequestSender(
-        //   aiDocumentFormats._experimental_json.defaultPromptBuilder,
-        //   aiDocumentFormats._experimental_json.defaultPromptInputDataBuilder,
-        // ),
         transport: new ClientSideTransport({
           systemPrompt: aiDocumentFormats._experimental_json.systemPrompt,
           model: params.model,

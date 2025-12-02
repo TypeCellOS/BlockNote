@@ -1,15 +1,14 @@
-import { BlockNoteEditor } from "@blocknote/core";
+import { CommentsExtension } from "@blocknote/core/comments";
 import { ThreadData } from "@blocknote/core/comments";
 import { useCallback, useRef, useSyncExternalStore } from "react";
+
+import { useExtension } from "../../hooks/useExtension.js";
 
 /**
  * Bridges the ThreadStore to React using useSyncExternalStore.
  */
-export function useThreads(editor: BlockNoteEditor<any, any, any>) {
-  const comments = editor.comments;
-  if (!comments) {
-    throw new Error("Comments plugin not found");
-  }
+export function useThreads() {
+  const comments = useExtension(CommentsExtension);
 
   const store = comments.threadStore;
 

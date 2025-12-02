@@ -1,3 +1,4 @@
+import { ChunkExecutionError } from "./ChunkExecutionError.js";
 import { filterValidOperations } from "./filterValidOperations.js";
 import { StreamTool, StreamToolCall } from "./streamTool.js";
 import { toValidatedOperations } from "./toValidatedOperations.js";
@@ -35,8 +36,8 @@ export async function* preprocessOperationsStreaming<
     (chunk) => {
       if (!chunk.isPossiblyPartial) {
         // only throw if the operation is not possibly partial
-        // TODO: I think there's a bug here in unit tests, for example if operations don't include $. validate with main
-        throw new Error("invalid operation: " + chunk.operation.error);
+        
+        throw new ChunkExecutionError("invalid operation: " + chunk.operation.error, chunk);
       }
     },
   );

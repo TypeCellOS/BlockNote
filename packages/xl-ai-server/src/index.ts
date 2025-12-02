@@ -10,7 +10,7 @@ import { modelPlaygroundRoute } from "./routes/model-playground/index.js";
 import { objectGenerationRoute } from "./routes/objectGeneration.js";
 import { proxyRoute } from "./routes/proxy.js";
 import { regularRoute } from "./routes/regular.js";
-import { serverPromptbuilderRoute } from "./routes/serverPromptbuilder.js";
+import { serverPersistenceRoute } from "./routes/serverPersistence.js";
 
 // make sure our fetch request uses HTTP/2
 setGlobalDispatcher(
@@ -36,7 +36,7 @@ app.use("/ai/*", cors());
 app.route("/ai/regular", regularRoute);
 app.route("/ai/proxy", proxyRoute);
 app.route("/ai/object-generation", objectGenerationRoute);
-app.route("/ai/server-promptbuilder", serverPromptbuilderRoute);
+app.route("/ai/server-persistence", serverPersistenceRoute);
 app.route("/ai/model-playground", modelPlaygroundRoute);
 app.route("/ai/autocomplete", autocompleteRoute);
 

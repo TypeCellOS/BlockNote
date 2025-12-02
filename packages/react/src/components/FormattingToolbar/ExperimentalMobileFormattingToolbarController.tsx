@@ -1,8 +1,9 @@
 import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
-import { UseFloatingOptions } from "@floating-ui/react";
+import { FormattingToolbarExtension } from "@blocknote/core/extensions";
 import { FC, CSSProperties, useMemo, useRef, useState, useEffect } from "react";
+
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
-import { useUIPluginState } from "../../hooks/useUIPluginState.js";
+import { useExtensionState } from "../../hooks/useExtension.js";
 import { FormattingToolbar } from "./FormattingToolbar.js";
 import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
 
@@ -14,7 +15,6 @@ import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
  */
 export const ExperimentalMobileFormattingToolbarController = (props: {
   formattingToolbar?: FC<FormattingToolbarProps>;
-  floatingOptions?: Partial<UseFloatingOptions>;
 }) => {
   const [transform, setTransform] = useState<string>("none");
   const divRef = useRef<HTMLDivElement>(null);
@@ -23,15 +23,17 @@ export const ExperimentalMobileFormattingToolbarController = (props: {
     InlineContentSchema,
     StyleSchema
   >();
-  const state = useUIPluginState(
-    editor.formattingToolbar.onUpdate.bind(editor.formattingToolbar),
-  );
+
+  const show = useExtensionState(FormattingToolbarExtension, {
+    editor,
+  });
+
   const style = useMemo<CSSProperties>(() => {
     return {
       display: "flex",
       position: "fixed",
       bottom: 0,
-      zIndex: 3000,
+      zIndex: `calc(var(--bn-ui-base-z-index) + 40)`,
       transform,
     };
   }, [transform]);
@@ -63,11 +65,7 @@ export const ExperimentalMobileFormattingToolbarController = (props: {
     };
   }, []);
 
-  if (!state) {
-    return null;
-  }
-
-  if (!state.show && divRef.current) {
+  if (!show && divRef.current) {
     // The component is fading out. Use the previous state to render the toolbar with innerHTML,
     // because otherwise the toolbar will quickly flickr (i.e.: show a different state) while fading out,
     // which looks weird

@@ -1,4 +1,5 @@
-import { filterSuggestionItems, mergeCSSClasses } from "@blocknote/core";
+import { mergeCSSClasses } from "@blocknote/core";
+import { filterSuggestionItems } from "@blocknote/core/extensions";
 import {
   DefaultReactSuggestionItem,
   useComponentsContext,
@@ -111,7 +112,8 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
       </Components.Generic.Form.Root>
       <Components.SuggestionMenu.Root
         className={"bn-combobox-items"}
-        id={"ai-suggestion-menu"}>
+        id={"ai-suggestion-menu"}
+      >
         {items.map((item, i) => (
           <Components.SuggestionMenu.Item
             key={item.title}

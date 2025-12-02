@@ -1,35 +1,36 @@
-import {
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  getColspan,
-  getRowspan,
-  InlineContentSchema,
-  isTableCell,
-  StyleSchema,
-} from "@blocknote/core";
+import { getColspan, getRowspan, isTableCell } from "@blocknote/core";
+import { TableHandlesExtension } from "@blocknote/core/extensions";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
 import { useDictionary } from "../../../../i18n/dictionary.js";
-import { TableCellMenuProps } from "../TableCellMenuProps.js";
+import {
+  useExtension,
+  useExtensionState,
+} from "../../../../hooks/useExtension.js";
 
-export const SplitButton = <
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema,
->(
-  props: TableCellMenuProps<I, S>,
-) => {
+export const SplitButton = () => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
-  const editor = useBlockNoteEditor<
-    { table: DefaultBlockSchema["table"] },
-    I,
-    S
-  >();
+  const editor = useBlockNoteEditor<any, any, any>();
 
-  const currentCell =
-    props.block.content.rows[props.rowIndex]?.cells?.[props.colIndex];
+  const tableHandles = useExtension(TableHandlesExtension);
+  const { block, colIndex, rowIndex } = useExtensionState(
+    TableHandlesExtension,
+    {
+      selector: (state) => ({
+        block: state?.block,
+        colIndex: state?.colIndex,
+        rowIndex: state?.rowIndex,
+      }),
+    },
+  );
+
+  if (block === undefined || colIndex === undefined || rowIndex === undefined) {
+    return null;
+  }
+
+  const currentCell = block.content.rows[rowIndex]?.cells?.[colIndex];
 
   if (
     !currentCell ||
@@ -43,9 +44,9 @@ export const SplitButton = <
   return (
     <Components.Generic.Menu.Item
       onClick={() => {
-        editor.tableHandles?.splitCell({
-          row: props.rowIndex,
-          col: props.colIndex,
+        tableHandles.splitCell({
+          row: rowIndex,
+          col: colIndex,
         });
       }}
     >
