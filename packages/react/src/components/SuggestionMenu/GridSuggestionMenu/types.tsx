@@ -1,4 +1,4 @@
-import { DefaultGridSuggestionItem } from "@blocknote/core";
+import { DefaultGridSuggestionItem } from "@blocknote/core/extensions";
 import { JSX } from "react";
 
 import { SuggestionMenuProps } from "../types.js";

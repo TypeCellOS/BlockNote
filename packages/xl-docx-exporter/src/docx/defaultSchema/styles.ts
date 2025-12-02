@@ -1,5 +1,5 @@
 import { DefaultStyleSchema, StyleMapping } from "@blocknote/core";
-import { IRunPropertiesOptions } from "docx";
+import { IRunPropertiesOptions, ShadingType } from "docx";
 
 export const docxStyleMappingForDefaultSchema: StyleMapping<
   DefaultStyleSchema,
@@ -49,6 +49,7 @@ export const docxStyleMappingForDefaultSchema: StyleMapping<
     }
     return {
       shading: {
+        type: ShadingType.CLEAR,
         fill: color.slice(1),
       },
     };
@@ -70,7 +71,7 @@ export const docxStyleMappingForDefaultSchema: StyleMapping<
       return {};
     }
     return {
-      font: "GeistMono",
+      style: "VerbatimChar"
     };
   },
 };

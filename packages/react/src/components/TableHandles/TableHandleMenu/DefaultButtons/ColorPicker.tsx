@@ -7,22 +7,25 @@ import {
   mapTableCell,
   StyleSchema,
 } from "@blocknote/core";
+import { TableHandlesExtension } from "@blocknote/core/extensions";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
 import { useDictionary } from "../../../../i18n/dictionary.js";
 import { ColorPicker } from "../../../ColorPicker/ColorPicker.js";
-import { TableHandleMenuProps } from "../TableHandleMenuProps.js";
 import { ReactNode, useMemo } from "react";
+import {
+  useExtension,
+  useExtensionState,
+} from "../../../../hooks/useExtension.js";
 
 export const ColorPickerButton = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema,
->(
-  props: TableHandleMenuProps<I, S> & {
-    children?: ReactNode;
-  },
-) => {
+>(props: {
+  orientation: "row" | "column";
+  children?: ReactNode;
+}) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
   const editor = useBlockNoteEditor<
@@ -30,22 +33,37 @@ export const ColorPickerButton = <
     I,
     S
   >();
-  const tableHandles = editor.tableHandles;
+
+  const tableHandles = useExtension(TableHandlesExtension);
+  const { block, index } = useExtensionState(TableHandlesExtension, {
+    selector: (state) => ({
+      block: state?.block,
+      index: props.orientation === "column" ? state?.colIndex : state?.rowIndex,
+    }),
+  });
 
   const currentCells = useMemo(() => {
-    if (!tableHandles || !props.block) {
+    if (
+      tableHandles === undefined ||
+      block === undefined ||
+      index === undefined
+    ) {
       return [];
     }
 
     if (props.orientation === "row") {
-      return tableHandles.getCellsAtRowHandle(props.block, props.index);
+      return tableHandles.getCellsAtRowHandle(block, index);
     }
 
-    return tableHandles.getCellsAtColumnHandle(props.block, props.index);
-  }, [props.block, props.index, props.orientation, tableHandles]);
+    return tableHandles.getCellsAtColumnHandle(block, index);
+  }, [block, index, props.orientation, tableHandles]);
 
   const updateColor = (color: string, type: "text" | "background") => {
-    const newTable = props.block.content.rows.map((row) => {
+    if (block === undefined) {
+      return;
+    }
+
+    const newTable = block.content.rows.map((row) => {
       return {
         ...row,
         cells: row.cells.map((cell) => mapTableCell(cell)),
@@ -60,17 +78,17 @@ export const ColorPickerButton = <
       }
     });
 
-    editor.updateBlock(props.block, {
+    editor.updateBlock(block, {
       type: "table",
       content: {
-        ...props.block.content,
+        ...block.content,
         rows: newTable,
-      },
+      } as any,
     });
 
     // Have to reset text cursor position to the block as `updateBlock`
     // moves the existing selection out of the block.
-    editor.setTextCursorPosition(props.block);
+    editor.setTextCursorPosition(block);
   };
 
   if (

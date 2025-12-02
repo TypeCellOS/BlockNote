@@ -39,7 +39,7 @@ export default function App() {
         sideMenu={(props) => (
           <SideMenu {...props}>
             {/* Button which removes the hovered block. */}
-            <RemoveBlockButton {...props} />
+            <RemoveBlockButton />
             <DragHandleButton {...props} />
           </SideMenu>
         )}

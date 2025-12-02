@@ -109,6 +109,10 @@ export class SelectionManager<
       }
     }
 
-    return posToDOMRect(this.editor.prosemirrorView, from, to);
+    return posToDOMRect(
+      this.editor.prosemirrorView,
+      from,
+      to,
+    ).toJSON() as DOMRect;
   }
 }

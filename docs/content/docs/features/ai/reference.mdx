@@ -59,14 +59,6 @@ type AIRequestHelpers = {
 };
 ```
 
-## `getAIExtension`
-
-Use `getAIExtension` to retrieve the AI extension instance registered to the editor:
-
-```typescript
-function getAIExtension(editor: BlockNoteEditor): AIExtension;
-```
-
 ## `AIExtension`
 
 The `AIExtension` class is the main class for the AI extension. It exposes state and methods to interact with BlockNote's AI features.
@@ -79,9 +71,9 @@ class AIExtension {
   invokeAI(opts: InvokeAIOptions): Promise<void>;
 
   /**
-   * Returns a read-only zustand store with the state of the AI Menu
+   * Returns a read-only Tanstack Store with the state of the AI Menu
    */
-  get store(): ReadonlyStoreApi<{
+  get store(): Store<{
     aiMenuState:
       | ({
           /**
@@ -106,10 +98,10 @@ class AIExtension {
   }>;
 
   /**
-   * Returns a zustand store with the global configuration of the AI Extension.
+   * Returns a Tanstack Store with the global configuration of the AI Extension.
    * These options are used by default across all LLM calls when calling {@link invokeAI}
    */
-  readonly options: StoreApi<AIRequestHelpers>;
+  readonly options: Store<AIRequestHelpers>;
 
   /** Open the AI menu at a specific block */
   openAIMenuAtBlock(blockID: string): void;

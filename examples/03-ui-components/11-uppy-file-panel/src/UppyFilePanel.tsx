@@ -43,7 +43,7 @@ const uppy = new Uppy()
   });
 
 export function UppyFilePanel(props: FilePanelProps) {
-  const { block } = props;
+  const { blockId } = props;
   const editor = useBlockNoteEditor();
 
   useEffect(() => {
@@ -68,7 +68,7 @@ export function UppyFilePanel(props: FilePanelProps) {
             url: response.uploadURL,
           },
         };
-        editor.updateBlock(block, updateData);
+        editor.updateBlock(blockId, updateData);
 
         // File should be removed from the Uppy instance after upload.
         uppy.removeFile(file.id);
@@ -78,7 +78,7 @@ export function UppyFilePanel(props: FilePanelProps) {
     return () => {
       uppy.off("upload-success", handler);
     };
-  }, [block, editor]);
+  }, [blockId, editor]);
 
   // set up dashboard as in https://uppy.io/examples/
   return <Dashboard uppy={uppy} width={400} height={500} />;

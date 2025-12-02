@@ -11,7 +11,7 @@
     "directory": "packages/react"
   },
   "license": "MPL-2.0",
-  "version": "0.42.3",
+  "version": "0.43.0",
   "files": [
     "dist",
     "types",
@@ -58,15 +58,20 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "0.42.3",
+    "@blocknote/core": "0.43.0",
     "@emoji-mart/data": "^1.2.1",
     "@floating-ui/react": "^0.27.16",
+    "@floating-ui/utils": "0.2.10",
+    "@tanstack/react-store": "0.7.7",
     "@tiptap/core": "^3.11.0",
     "@tiptap/pm": "^3.11.0",
     "@tiptap/react": "^3.11.0",
+    "@types/use-sync-external-store": "1.5.0",
     "emoji-mart": "^5.6.0",
+    "fast-deep-equal": "^3.1.3",
     "lodash.merge": "^4.6.2",
-    "react-icons": "^5.5.0"
+    "react-icons": "^5.5.0",
+    "use-sync-external-store": "1.6.0"
   },
   "devDependencies": {
     "@types/emoji-mart": "^3.0.14",

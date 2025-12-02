@@ -1,5 +1,5 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { createAIExtension } from "../../../AIExtension.js";
+import { AIExtension } from "../../../AIExtension.js";
 
 export function getEmptyEditor() {
   const editor = BlockNoteEditor.create({
@@ -10,7 +10,7 @@ export function getEmptyEditor() {
       },
     ],
     trailingBlock: false,
-    extensions: [createAIExtension({})],
+    extensions: [AIExtension()],
   });
   return editor;
 }

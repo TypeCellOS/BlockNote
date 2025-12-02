@@ -1,11 +1,11 @@
 import { expect, it } from "vitest";
+import * as Y from "yjs";
+
 import {
   getBlockInfo,
   getNearestBlockPos,
 } from "../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "./BlockNoteEditor.js";
-import { BlockNoteExtension } from "./BlockNoteExtension.js";
-import * as Y from "yjs";
 
 /**
  * @vitest-environment jsdom
@@ -125,27 +125,6 @@ it("onMount and onUnmount", async () => {
   await new Promise((resolve) => setTimeout(resolve, 3));
   expect(mounted).toBe(true);
   expect(unmounted).toBe(true);
-});
-
-it("onCreate event", () => {
-  let created = false;
-  BlockNoteEditor.create({
-    extensions: [
-      (e) =>
-        new (class extends BlockNoteExtension {
-          public static key() {
-            return "test";
-          }
-          constructor(editor: BlockNoteEditor) {
-            super(editor);
-            editor.onCreate(() => {
-              created = true;
-            });
-          }
-        })(e),
-    ],
-  });
-  expect(created).toBe(true);
 });
 
 it("sets an initial block id when using Y.js", async () => {

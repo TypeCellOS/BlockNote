@@ -106,17 +106,13 @@ export async function setupToolCallStreaming(
   // wait until all messages have been received
   // (possible improvement(?): we can abort the request if any of the tool calls fail
   //  instead of waiting for the entire llm response)
-  console.log("waiting for status handler");
   await statusHandler;
-  console.log("status handler finished");
 
   // we're not going to append any more streams from tool calls, because we've seen all tool calls
   await appendableStream.finalize();
-  console.log("appendableStream finalized");
   // let all stream executors finish, this can take longer due to artificial delays
   // (e.g. to simulate human typing behaviour)
   const results = await Promise.allSettled([executor.finish(), pipeToPromise]); // awaiting pipeToPromise as well to prevent unhandled promises
-  debugger;
   const result = results[0];
 
   if (
