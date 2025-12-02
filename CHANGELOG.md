@@ -1,3 +1,29 @@
+## 0.44.0 (2025-12-02)
+
+### 🚀 Features
+
+- **ai:** Abort requests ([#2213](https://github.com/TypeCellOS/BlockNote/pull/2213))
+
+### ❤️ Thank You
+
+- Yousef
+
+## 0.43.0 (2025-12-01)
+
+### 🚀 Features
+
+- Major Extensions & UI Refactor ([#2143](https://github.com/TypeCellOS/BlockNote/pull/2143))
+
+### 🩹 Fixes
+
+- allow configuring the email body's styles ([#2182](https://github.com/TypeCellOS/BlockNote/pull/2182))
+- **xl-docx-exporter:** improve OOXML interoperability ([#2206](https://github.com/TypeCellOS/BlockNote/pull/2206))
+
+### ❤️ Thank You
+
+- Nick Perez
+- Stephan Meijer @StephanMeijer
+
 ## 0.42.3 (2025-11-19)
 
 ### 🩹 Fixes

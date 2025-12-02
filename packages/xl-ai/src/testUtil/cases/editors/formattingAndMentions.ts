@@ -1,5 +1,5 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { createAIExtension } from "../../../AIExtension.js";
+import { AIExtension } from "../../../AIExtension.js";
 import { schemaWithMention as schema } from "../schemas/mention.js";
 
 export function getEditorWithFormattingAndMentions() {
@@ -72,7 +72,7 @@ export function getEditorWithFormattingAndMentions() {
     ],
     trailingBlock: false,
     schema,
-    extensions: [createAIExtension({})],
+    extensions: [AIExtension()],
   });
   return editor;
 }

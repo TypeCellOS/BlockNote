@@ -1,4 +1,5 @@
-import { BlockNoteEditor, filterSuggestionItems } from "@blocknote/core";
+import { BlockNoteEditor } from "@blocknote/core";
+import { filterSuggestionItems } from "@blocknote/core/extensions";
 import "@blocknote/core/fonts/inter.css";
 import { en } from "@blocknote/core/locales";
 import { BlockNoteView } from "@blocknote/mantine";
@@ -12,10 +13,10 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 import {
+  AIAutoCompleteExtension,
+  AIExtension,
   AIMenuController,
   AIToolbarButton,
-  createAIAutoCompleteExtension,
-  createAIExtension,
   getAISlashMenuItems,
 } from "@blocknote/xl-ai";
 import { en as aiEn } from "@blocknote/xl-ai/locales";
@@ -45,8 +46,8 @@ async function autoCompleteProvider(
   );
 
   const response = await fetch(
-    "https://blocknote-pr-2191.onrender.com/ai/autocomplete/generateText",
-    // `https://localhost:3000/ai/autocomplete/generateText`,
+    // "https://blocknote-pr-2191.onrender.com/ai/autocomplete/generateText",
+    `https://localhost:3000/ai/autocomplete/generateText`,
     {
       method: "POST",
       body: JSON.stringify({ text }),
@@ -79,13 +80,13 @@ export default function App() {
     },
     // Register the AI extension
     extensions: [
-      createAIExtension({
+      AIExtension({
         transport: new DefaultChatTransport({
           // URL to your backend API, see example source in `packages/xl-ai-server/src/routes/regular.ts`
           api: `${BASE_URL}/regular/streamText`,
         }),
       }),
-      createAIAutoCompleteExtension({ autoCompleteProvider }),
+      AIAutoCompleteExtension({ autoCompleteProvider }),
     ],
     // We set some initial content for demo purposes
     initialContent: [

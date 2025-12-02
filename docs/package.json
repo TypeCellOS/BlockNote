@@ -71,13 +71,13 @@
     "@vercel/analytics": "^1.5.0",
     "@vercel/og": "^0.6.8",
     "@y-sweet/react": "^0.6.3",
-    "ai": "^5.0.45",
+    "ai": "^5.0.102",
     "babel-plugin-react-compiler": "19.1.0-rc.2",
     "better-auth": "^1.3.27",
     "better-sqlite3": "^11.10.0",
     "classnames": "2.3.2",
     "clsx": "2.1.1",
-    "docx": "^9.0.2",
+    "docx": "^9.5.1",
     "framer-motion": "^11.18.2",
     "fumadocs-core": "15.5.4",
     "fumadocs-docgen": "2.0.1",
@@ -103,8 +103,7 @@
     "twoslash": "^0.3.4",
     "y-partykit": "^0.0.25",
     "yjs": "^13.6.27",
-    "zod": "^3.25.76",
-    "zustand": "^5.0.3"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@blocknote/ariakit": "workspace:*",

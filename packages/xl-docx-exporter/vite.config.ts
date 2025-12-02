@@ -4,11 +4,7 @@ import { defineConfig } from "vite";
 import pkg from "./package.json";
 // import eslintPlugin from "vite-plugin-eslint";
 
-const deps = Object.keys({
-  ...pkg.dependencies,
-  ...pkg.peerDependencies,
-  ...pkg.devDependencies,
-});
+
 
 // https://vitejs.dev/config/
 export default defineConfig((conf) => ({
@@ -28,6 +24,10 @@ export default defineConfig((conf) => ({
             // load live from sources with live reload working
             "@blocknote/core": path.resolve(__dirname, "../core/src/"),
             "@blocknote/react": path.resolve(__dirname, "../react/src/"),
+            "@blocknote/xl-multi-column": path.resolve(
+              __dirname,
+              "../xl-multi-column/src/",
+            ),
           } as Record<string, string>),
   },
   server: {
@@ -50,20 +50,25 @@ export default defineConfig((conf) => ({
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
       // into your library
-      external: (source: string) => {
-        if (deps.includes(source)) {
+      external: (source) => {
+        if (
+          Object.keys({
+            ...pkg.dependencies,
+            ...((pkg as any).peerDependencies || {}),
+            ...pkg.devDependencies,
+          }).includes(source)
+        ) {
           return true;
         }
-
-        if (source === "react/jsx-runtime") {
-          return true;
-        }
-
-        if (source.startsWith("prosemirror-")) {
-          return true;
-        }
-
-        return false;
+        return (
+          source.startsWith("react/") ||
+          source.startsWith("react-dom/") ||
+          source.startsWith("prosemirror-") ||
+          source.startsWith("@tiptap/") ||
+          source.startsWith("@blocknote/") ||
+          source.startsWith("@shikijs/") ||
+          source.startsWith("node:")
+        );
       },
       output: {
         // Provide global variables to use in the UMD build

@@ -43,7 +43,8 @@ export const Table = (
           return new TableCell({
             width: width
               ? {
-                  size: `${width * 0.75}pt`,
+                  // The type is twentieths of a point (dxa)
+                  size: width * 0.75 * 20,
                   type: "dxa",
                 }
               : undefined,

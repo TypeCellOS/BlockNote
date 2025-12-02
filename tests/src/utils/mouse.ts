@@ -39,6 +39,7 @@ export async function dragAndDropBlock(
   dropAbove: boolean,
 ) {
   await moveMouseOverElement(page, dragTarget);
+  await page.waitForTimeout(100);
 
   await page.waitForSelector(DRAG_HANDLE_SELECTOR);
   const dragHandle = await page.locator(DRAG_HANDLE_SELECTOR);
@@ -46,7 +47,9 @@ export async function dragAndDropBlock(
   await page.mouse.move(dragHandleCenterCoords.x, dragHandleCenterCoords.y, {
     steps: 5,
   });
+  await page.waitForTimeout(100);
   await page.mouse.down();
+  await page.waitForTimeout(100);
 
   const dropTargetCoords = dropAbove
     ? await getElementLeftCoords(page, dropTarget)

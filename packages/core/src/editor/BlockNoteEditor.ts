@@ -1,22 +1,16 @@
 import {
-  AnyExtension,
   createDocument,
   EditorOptions,
-  Extension,
   FocusPosition,
   getSchema,
-  InputRule,
-  Mark,
   Editor as TiptapEditor,
-  Node as TipTapNode,
 } from "@tiptap/core";
 import { type Command, type Plugin, type Transaction } from "@tiptap/pm/state";
-import { dropCursor } from "prosemirror-dropcursor";
 import { Node, Schema } from "prosemirror-model";
 import * as Y from "yjs";
 
 import type { BlocksChanged } from "../api/getBlocksChangedByTransaction.js";
-import { editorHasBlockWithType } from "../blocks/defaultBlockTypeGuards.js";
+import { blockToNode } from "../api/nodeConversions/blockToNode.js";
 import {
   Block,
   BlockNoteSchema,
@@ -25,16 +19,7 @@ import {
   DefaultStyleSchema,
   PartialBlock,
 } from "../blocks/index.js";
-import type { ThreadStore, User } from "../comments/index.js";
-import type { CommentsPlugin } from "../extensions/Comments/CommentsPlugin.js";
-import type { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlugin.js";
-import type { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin.js";
-import type { LinkToolbarProsemirrorPlugin } from "../extensions/LinkToolbar/LinkToolbarPlugin.js";
-import type { ShowSelectionPlugin } from "../extensions/ShowSelection/ShowSelectionPlugin.js";
-import type { SideMenuProsemirrorPlugin } from "../extensions/SideMenu/SideMenuPlugin.js";
-import type { SuggestionMenuProseMirrorPlugin } from "../extensions/SuggestionMenu/SuggestionPlugin.js";
-import type { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableHandlesPlugin.js";
-import { UniqueID } from "../extensions/UniqueID/UniqueID.js";
+import { UniqueID } from "../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 import type { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
 import type {
@@ -50,16 +35,14 @@ import type {
   StyleSchema,
   StyleSpecs,
 } from "../schema/index.js";
+import "../style.css";
 import { mergeCSSClasses } from "../util/browser.js";
 import { EventEmitter } from "../util/EventEmitter.js";
 import type { NoInfer } from "../util/typescript.js";
-import { BlockNoteExtension } from "./BlockNoteExtension.js";
-import { getBlockNoteExtensions } from "./BlockNoteExtensions.js";
+import { ExtensionFactoryInstance } from "./BlockNoteExtension.js";
 import type { TextCursorPosition } from "./cursorPositionTypes.js";
 import {
   BlockManager,
-  CollaborationManager,
-  type CollaborationOptions,
   EventManager,
   ExportManager,
   ExtensionManager,
@@ -70,36 +53,17 @@ import {
 import type { Selection } from "./selectionTypes.js";
 import { transformPasted } from "./transformPasted.js";
 
-import { updateBlockTr } from "../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import { getBlockInfoFromTransaction } from "../api/getBlockInfoFromPos.js";
-import { blockToNode } from "../api/nodeConversions/blockToNode.js";
-import "../style.css";
-
-/**
- * A factory function that returns a BlockNoteExtension
- * This is useful so we can create extensions that require an editor instance
- * in the constructor
- */
-export type BlockNoteExtensionFactory = (
-  editor: BlockNoteEditor<any, any, any>,
-) => BlockNoteExtension;
-
-/**
- * We support Tiptap extensions and BlockNoteExtension based extensions
- */
-export type SupportedExtension = AnyExtension | BlockNoteExtension;
-
 export type BlockCache<
   BSchema extends BlockSchema = any,
   ISchema extends InlineContentSchema = any,
   SSchema extends StyleSchema = any,
 > = WeakMap<Node, Block<BSchema, ISchema, SSchema>>;
 
-export type BlockNoteEditorOptions<
+export interface BlockNoteEditorOptions<
   BSchema extends BlockSchema,
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema,
-> = {
+> {
   /**
    * Whether changes to blocks (like indentation, creating lists, changing headings) should be animated or not. Defaults to `true`.
    *
@@ -147,17 +111,6 @@ export type BlockNoteEditorOptions<
      * or types. Defaults to "activity".
      */
     showCursorLabels?: "always" | "activity";
-  };
-
-  /**
-   * Configuration for the comments feature, requires a `threadStore`.
-   *
-   * See [Comments](https://www.blocknotejs.org/docs/features/collaboration/comments) for more info.
-   * @remarks `CommentsOptions`
-   */
-  comments?: {
-    schema?: BlockNoteSchema<any, any, any>;
-    threadStore: ThreadStore;
   };
 
   /**
@@ -279,13 +232,6 @@ export type BlockNoteEditorOptions<
   resolveFileUrl?: (url: string) => Promise<string>;
 
   /**
-   * Resolve user information for comments.
-   *
-   * See [Comments](https://www.blocknotejs.org/docs/features/collaboration/comments) for more info.
-   */
-  resolveUsers?: (userIds: string[]) => Promise<User[]>;
-
-  /**
    * The schema of the editor. The schema defines which Blocks, InlineContent, and Styles are available in the editor.
    *
    * See [Custom Schemas](https://www.blocknotejs.org/docs/custom-schemas) for more info.
@@ -374,29 +320,14 @@ export type BlockNoteEditorOptions<
   _tiptapOptions?: Partial<EditorOptions>;
 
   /**
-   * (experimental) add extra extensions to the editor
-   *
-   * @deprecated, should use `extensions` instead
-   * @internal
-   */
-  _extensions?: Record<
-    string,
-    | { plugin: Plugin; priority?: number }
-    | ((editor: BlockNoteEditor<any, any, any>) => {
-        plugin: Plugin;
-        priority?: number;
-      })
-  >;
-
-  /**
    * Register extensions to the editor.
    *
    * See [Extensions](/docs/features/extensions) for more info.
    *
-   * @remarks `BlockNoteExtension[]`
+   * @remarks `ExtensionFactory[]`
    */
-  extensions?: Array<BlockNoteExtension | BlockNoteExtensionFactory>;
-};
+  extensions?: Array<ExtensionFactoryInstance>;
+}
 
 const blockNoteTipTapOptions = {
   enableInputRules: true,
@@ -415,11 +346,6 @@ export class BlockNoteEditor<
    * The underlying prosemirror schema
    */
   public readonly pmSchema: Schema;
-
-  /**
-   * extensions that are added to the editor, can be tiptap extensions or prosemirror plugins
-   */
-  public extensions: Record<string, SupportedExtension> = {};
 
   public readonly _tiptapEditor: TiptapEditor & {
     contentComponent: any;
@@ -453,56 +379,6 @@ export class BlockNoteEditor<
   public readonly inlineContentImplementations: InlineContentSpecs;
   public readonly styleImplementations: StyleSpecs;
 
-  public get formattingToolbar(): FormattingToolbarProsemirrorPlugin {
-    return this._extensionManager.formattingToolbar;
-  }
-
-  public get linkToolbar(): LinkToolbarProsemirrorPlugin<
-    BSchema,
-    ISchema,
-    SSchema
-  > {
-    return this._extensionManager.linkToolbar;
-  }
-
-  public get sideMenu(): SideMenuProsemirrorPlugin<BSchema, ISchema, SSchema> {
-    return this._extensionManager.sideMenu;
-  }
-
-  public get suggestionMenus(): SuggestionMenuProseMirrorPlugin<
-    BSchema,
-    ISchema,
-    SSchema
-  > {
-    return this._extensionManager.suggestionMenus;
-  }
-
-  public get filePanel():
-    | FilePanelProsemirrorPlugin<ISchema, SSchema>
-    | undefined {
-    return this._extensionManager.filePanel;
-  }
-
-  public get tableHandles():
-    | TableHandlesProsemirrorPlugin<ISchema, SSchema>
-    | undefined {
-    return this._extensionManager.tableHandles;
-  }
-
-  public get comments(): CommentsPlugin | undefined {
-    return this._collaborationManager?.comments;
-  }
-
-  public get showSelectionPlugin(): ShowSelectionPlugin {
-    return this._extensionManager.showSelectionPlugin;
-  }
-
-  /**
-   * The plugin for forking a document, only defined if in collaboration mode
-   */
-  public get forkYDocPlugin() {
-    return this._collaborationManager?.forkYDocPlugin;
-  }
   /**
    * The `uploadFile` method is what the editor uses when files need to be uploaded (for example when selecting an image to upload).
    * This method should set when creating the editor as this is application-specific.
@@ -520,7 +396,6 @@ export class BlockNoteEditor<
   private onUploadEndCallbacks: ((blockId?: string) => void)[] = [];
 
   public readonly resolveFileUrl?: (url: string) => Promise<string>;
-  public readonly resolveUsers?: (userIds: string[]) => Promise<User[]>;
   /**
    * Editor settings
    */
@@ -554,30 +429,6 @@ export class BlockNoteEditor<
     >,
   ) {
     super();
-    const anyOpts = options as any;
-    if (anyOpts.onEditorContentChange) {
-      throw new Error(
-        "onEditorContentChange initialization option is deprecated, use <BlockNoteView onChange={...} />, the useEditorChange(...) hook, or editor.onChange(...)",
-      );
-    }
-
-    if (anyOpts.onTextCursorPositionChange) {
-      throw new Error(
-        "onTextCursorPositionChange initialization option is deprecated, use <BlockNoteView onSelectionChange={...} />, the useEditorSelectionChange(...) hook, or editor.onSelectionChange(...)",
-      );
-    }
-
-    if (anyOpts.onEditorReady) {
-      throw new Error(
-        "onEditorReady is deprecated. Editor is immediately ready for use after creation.",
-      );
-    }
-
-    if (anyOpts.editable) {
-      throw new Error(
-        "editable initialization option is deprecated, use <BlockNoteView editable={true/false} />, or alternatively editor.isEditable = true/false",
-      );
-    }
 
     this.dictionary = options.dictionary || en;
     this.settings = {
@@ -606,111 +457,13 @@ export class BlockNoteEditor<
       },
     };
 
-    // Initialize CollaborationManager if collaboration is enabled or if comments are configured
-    if (newOptions.collaboration || newOptions.comments) {
-      const collaborationOptions: CollaborationOptions = {
-        // Use collaboration options if available, otherwise provide defaults
-        fragment: newOptions.collaboration?.fragment || new Y.XmlFragment(),
-        user: newOptions.collaboration?.user || {
-          name: "User",
-          color: "#FF0000",
-        },
-        provider: newOptions.collaboration?.provider || null,
-        renderCursor: newOptions.collaboration?.renderCursor,
-        showCursorLabels: newOptions.collaboration?.showCursorLabels,
-        comments: newOptions.comments,
-        resolveUsers: newOptions.resolveUsers,
-      };
-      this._collaborationManager = new CollaborationManager(
-        this as any,
-        collaborationOptions,
-      );
-    } else {
-      this._collaborationManager = undefined;
-    }
-
-    if (newOptions.comments && !newOptions.resolveUsers) {
-      throw new Error("resolveUsers is required when using comments");
-    }
-
     // @ts-ignore
     this.schema = newOptions.schema;
     this.blockImplementations = newOptions.schema.blockSpecs;
     this.inlineContentImplementations = newOptions.schema.inlineContentSpecs;
     this.styleImplementations = newOptions.schema.styleSpecs;
 
-    this.extensions = {
-      ...getBlockNoteExtensions({
-        editor: this,
-        domAttributes: newOptions.domAttributes || {},
-        blockSpecs: this.schema.blockSpecs,
-        styleSpecs: this.schema.styleSpecs,
-        inlineContentSpecs: this.schema.inlineContentSpecs,
-        collaboration: newOptions.collaboration,
-        trailingBlock: newOptions.trailingBlock,
-        disableExtensions: newOptions.disableExtensions,
-        setIdAttribute: newOptions.setIdAttribute,
-        animations: newOptions.animations ?? true,
-        tableHandles: editorHasBlockWithType(this, "table"),
-        dropCursor: this.options.dropCursor ?? dropCursor,
-        placeholders: newOptions.placeholders,
-        tabBehavior: newOptions.tabBehavior,
-        pasteHandler: newOptions.pasteHandler,
-      }),
-      ...this._collaborationManager?.initExtensions(),
-    } as any;
-
-    // add extensions from _tiptapOptions
-    (newOptions._tiptapOptions?.extensions || []).forEach((ext) => {
-      this.extensions[ext.name] = ext;
-    });
-
-    // add extensions from options
-    for (let ext of newOptions.extensions || []) {
-      if (typeof ext === "function") {
-        // factory
-        ext = ext(this);
-      }
-      const key = (ext as any).key ?? (ext.constructor as any).key();
-      if (!key) {
-        throw new Error(
-          `Extension ${ext.constructor.name} does not have a key method`,
-        );
-      }
-      if (this.extensions[key]) {
-        throw new Error(
-          `Extension ${ext.constructor.name} already exists with key ${key}`,
-        );
-      }
-      this.extensions[key] = ext;
-    }
-
-    // (when passed in via the deprecated `_extensions` option)
-    Object.entries(newOptions._extensions || {}).forEach(([key, ext]) => {
-      // eslint-disable-next-line @typescript-eslint/no-this-alias
-      const editor = this;
-
-      const instance = typeof ext === "function" ? ext(editor) : ext;
-      if (!("plugin" in instance)) {
-        // Assume it is an Extension/Mark/Node
-        this.extensions[key] = instance;
-        return;
-      }
-
-      this.extensions[key] = new (class extends BlockNoteExtension {
-        public static key() {
-          return key;
-        }
-        constructor() {
-          super();
-          this.addProsemirrorPlugin(instance.plugin);
-        }
-        public get priority() {
-          return instance.priority;
-        }
-      })();
-    });
-
+    // TODO this should just be an extension
     if (newOptions.uploadFile) {
       const uploadFile = newOptions.uploadFile;
       this.uploadFile = async (file, blockId) => {
@@ -729,9 +482,14 @@ export class BlockNoteEditor<
 
     this.resolveFileUrl = newOptions.resolveFileUrl;
 
+    this._eventManager = new EventManager(this as any);
+    this._extensionManager = new ExtensionManager(this, newOptions);
+
+    const tiptapExtensions = this._extensionManager.getTiptapExtensions();
+
     const collaborationEnabled =
-      "ySyncPlugin" in this.extensions ||
-      "liveblocksExtension" in this.extensions;
+      this._extensionManager.hasExtension("ySync") ||
+      this._extensionManager.hasExtension("liveblocksExtension");
 
     if (collaborationEnabled && newOptions.initialContent) {
       // eslint-disable-next-line no-console
@@ -740,105 +498,6 @@ export class BlockNoteEditor<
       );
     }
 
-    const blockExtensions = Object.fromEntries(
-      Object.values(this.schema.blockSpecs)
-        .map((block) => (block as any).extensions as any)
-        .filter((ext) => ext !== undefined)
-        .flat()
-        .map((ext) => [ext.key ?? ext.constructor.key(), ext]),
-    );
-    const tiptapExtensions = [
-      ...Object.entries({ ...this.extensions, ...blockExtensions }).map(
-        ([key, ext]) => {
-          if (
-            ext instanceof Extension ||
-            ext instanceof TipTapNode ||
-            ext instanceof Mark
-          ) {
-            // tiptap extension
-            return ext;
-          }
-
-          if (ext instanceof BlockNoteExtension) {
-            if (
-              !ext.plugins.length &&
-              !ext.keyboardShortcuts &&
-              !ext.inputRules &&
-              !ext.tiptapExtensions
-            ) {
-              return undefined;
-            }
-            // "blocknote" extensions (prosemirror plugins)
-            return Extension.create({
-              name: key,
-              priority: ext.priority,
-              addProseMirrorPlugins: () => ext.plugins,
-              addExtensions: () => ext.tiptapExtensions || [],
-              // TODO maybe collect all input rules from all extensions into one plugin
-              // TODO consider using the prosemirror-inputrules package instead
-              addInputRules: ext.inputRules
-                ? () =>
-                    ext.inputRules!.map(
-                      (inputRule) =>
-                        new InputRule({
-                          find: inputRule.find,
-                          handler: ({ range, match, state }) => {
-                            const replaceWith = inputRule.replace({
-                              match,
-                              range,
-                              editor: this,
-                            });
-                            if (replaceWith) {
-                              const cursorPosition =
-                                this.getTextCursorPosition();
-
-                              if (
-                                this.schema.blockSchema[
-                                  cursorPosition.block.type
-                                ].content !== "inline"
-                              ) {
-                                return undefined;
-                              }
-
-                              const blockInfo = getBlockInfoFromTransaction(
-                                state.tr,
-                              );
-                              const tr = state.tr.deleteRange(
-                                range.from,
-                                range.to,
-                              );
-
-                              updateBlockTr(
-                                tr,
-                                blockInfo.bnBlock.beforePos,
-                                replaceWith,
-                              );
-                              return undefined;
-                            }
-                            return null;
-                          },
-                        }),
-                    )
-                : undefined,
-              addKeyboardShortcuts: ext.keyboardShortcuts
-                ? () => {
-                    return Object.fromEntries(
-                      Object.entries(ext.keyboardShortcuts!).map(
-                        ([key, value]) => [
-                          key,
-                          () => value({ editor: this as any }),
-                        ],
-                      ),
-                    );
-                  }
-                : undefined,
-            });
-          }
-
-          return undefined;
-        },
-      ),
-    ].filter((ext): ext is Extension => ext !== undefined);
     const tiptapOptions: EditorOptions = {
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
@@ -941,19 +600,9 @@ export class BlockNoteEditor<
     // Initialize managers
     this._blockManager = new BlockManager(this as any);
 
-    this._eventManager = new EventManager(this as any);
     this._exportManager = new ExportManager(this as any);
-    this._extensionManager = new ExtensionManager(this as any);
     this._selectionManager = new SelectionManager(this as any);
-    this._stateManager = new StateManager(
-      this as any,
-      collaborationEnabled
-        ? {
-            undo: this._collaborationManager?.getUndoCommand(),
-            redo: this._collaborationManager?.getRedoCommand(),
-          }
-        : undefined,
-    );
+    this._stateManager = new StateManager(this as any);
     this._styleManager = new StyleManager(this as any);
 
     this.emit("create");
@@ -961,13 +610,19 @@ export class BlockNoteEditor<
 
   // Manager instances
   private readonly _blockManager: BlockManager<any, any, any>;
-  private readonly _collaborationManager?: CollaborationManager;
-  private readonly _eventManager: EventManager<any>;
+  private readonly _eventManager: EventManager<any, any, any>;
   private readonly _exportManager: ExportManager<any, any, any>;
   private readonly _extensionManager: ExtensionManager;
   private readonly _selectionManager: SelectionManager<any, any, any>;
   private readonly _stateManager: StateManager;
   private readonly _styleManager: StyleManager<any, any, any>;
+
+  /**
+   * BlockNote extensions that are added to the editor, keyed by the extension key
+   */
+  public get extensions() {
+    return this._extensionManager.getExtensions();
+  }
 
   /**
    * Execute a prosemirror command. This is mostly for backwards compatibility with older code.
@@ -1032,21 +687,26 @@ export class BlockNoteEditor<
     return this._stateManager.transact(callback);
   }
 
-  // TO DISCUSS
   /**
-   * Shorthand to get a typed extension from the editor, by
-   * just passing in the extension class.
-   *
-   * @param ext - The extension class to get
-   * @param key - optional, the key of the extension in the extensions object (defaults to the extension name)
-   * @returns The extension instance
+   * Remove extension(s) from the editor
    */
-  public extension<T extends BlockNoteExtension>(
-    ext: { new (...args: any[]): T } & typeof BlockNoteExtension,
-    key = ext.key(),
-  ): T {
-    return this._extensionManager.extension(ext, key);
-  }
+  public unregisterExtension: ExtensionManager["unregisterExtension"] = (
+    ...args: Parameters<ExtensionManager["unregisterExtension"]>
+  ) => this._extensionManager.unregisterExtension(...args);
+
+  /**
+   * Register extension(s) to the editor
+   */
+  public registerExtension: ExtensionManager["registerExtension"] = (
+    ...args: Parameters<ExtensionManager["registerExtension"]>
+  ) => this._extensionManager.registerExtension(...args) as any;
+
+  /**
+   * Get an extension from the editor
+   */
+  public getExtension: ExtensionManager["getExtension"] = ((
+    ...args: Parameters<ExtensionManager["getExtension"]>
+  ) => this._extensionManager.getExtension(...args)) as any;
 
   /**
    * Mount the editor to a DOM element.
@@ -1099,6 +759,9 @@ export class BlockNoteEditor<
     return !this._tiptapEditor.isInitialized;
   }
 
+  /**
+   * Focus on the editor
+   */
   public focus() {
     if (this.headless) {
       return;
@@ -1106,6 +769,9 @@ export class BlockNoteEditor<
     this.prosemirrorView.focus();
   }
 
+  /**
+   * Blur the editor
+   */
   public blur() {
     if (this.headless) {
       return;
@@ -1113,6 +779,7 @@ export class BlockNoteEditor<
     this.prosemirrorView.dom.blur();
   }
 
+  // TODO move to extension
   public onUploadStart(callback: (blockId?: string) => void) {
     this.onUploadStartCallbacks.push(callback);
 
@@ -1367,14 +1034,14 @@ export class BlockNoteEditor<
   /**
    * Undo the last action.
    */
-  public undo() {
+  public undo(): boolean {
     return this._stateManager.undo();
   }
 
   /**
    * Redo the last action.
    */
-  public redo() {
+  public redo(): boolean {
     return this._stateManager.redo();
   }
 
@@ -1517,6 +1184,7 @@ export class BlockNoteEditor<
   ): string {
     return this._exportManager.blocksToFullHTML(blocks);
   }
+
   /**
    * Parses blocks from an HTML string. Tries to create `Block` objects out of any HTML block-level elements, and
    * `InlineNode` objects from any HTML inline elements, though not all element types are recognized. If BlockNote
@@ -1556,19 +1224,6 @@ export class BlockNoteEditor<
   }
 
   /**
-   * Updates the user info for the current user that's shown to other collaborators.
-   */
-  public updateCollaborationUserInfo(user: { name: string; color: string }) {
-    if (!this._collaborationManager) {
-      throw new Error(
-        "Cannot update collaboration user info when collaboration is disabled.",
-      );
-    }
-
-    this._collaborationManager.updateUserInfo(user);
-  }
-
-  /**
    * A callback function that runs whenever the editor's contents change.
    *
    * @param callback The callback to execute.
@@ -1584,8 +1239,13 @@ export class BlockNoteEditor<
         getChanges(): BlocksChanged<BSchema, ISchema, SSchema>;
       },
     ) => void,
+    /**
+     * If true, the callback will be triggered when the changes are caused by a remote user
+     * @default true
+     */
+    includeUpdatesFromRemote?: boolean,
   ) {
-    return this._eventManager.onChange(callback);
+    return this._eventManager.onChange(callback, includeUpdatesFromRemote);
   }
 
   /**
@@ -1602,22 +1262,6 @@ export class BlockNoteEditor<
       callback,
       includeSelectionChangedByRemote,
     );
-  }
-
-  /**
-   * A callback function that runs when the editor has been initialized.
-   *
-   * This can be useful for plugins to initialize themselves after the editor has been initialized.
-   *
-   * @param callback The callback to execute.
-   * @returns A function to remove the callback.
-   */
-  public onCreate(callback: () => void) {
-    this.on("create", callback);
-
-    return () => {
-      this.off("create", callback);
-    };
   }
 
   /**
@@ -1670,43 +1314,6 @@ export class BlockNoteEditor<
         doc[0].type === "paragraph" &&
         (doc[0].content as any).length === 0)
     );
-  }
-
-  public openSuggestionMenu(
-    triggerCharacter: string,
-    pluginState?: {
-      deleteTriggerCharacter?: boolean;
-      ignoreQueryLength?: boolean;
-    },
-  ) {
-    if (!this.prosemirrorView || this.headless) {
-      return;
-    }
-
-    this.focus();
-    this.transact((tr) => {
-      if (pluginState?.deleteTriggerCharacter) {
-        tr.insertText(triggerCharacter);
-      }
-      tr.scrollIntoView().setMeta(this.suggestionMenus.plugins[0], {
-        triggerCharacter: triggerCharacter,
-        deleteTriggerCharacter: pluginState?.deleteTriggerCharacter || false,
-        ignoreQueryLength: pluginState?.ignoreQueryLength || false,
-      });
-    });
-  }
-
-  // `forceSelectionVisible` determines whether the editor selection is shows
-  // even when the editor is not focused. This is useful for e.g. creating new
-  // links, so the user still sees the affected content when an input field is
-  // focused.
-  // TODO: Reconsider naming?
-  public getForceSelectionVisible() {
-    return this.showSelectionPlugin.getEnabled();
-  }
-
-  public setForceSelectionVisible(forceSelectionVisible: boolean) {
-    this.showSelectionPlugin.setEnabled(forceSelectionVisible);
   }
 
   /**

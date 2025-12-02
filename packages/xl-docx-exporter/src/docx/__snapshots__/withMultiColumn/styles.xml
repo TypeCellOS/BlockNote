@@ -404,7 +404,7 @@
             <w:spacing w:before="45" w:after="45" w:line="360" w:lineRule="auto"/>
         </w:pPr>
         <w:rPr>
-            <w:rFonts w:ascii="Inter" w:hAnsi="Inter" w:cs="Times New Roman (Body CS)"/>
+            <w:rFonts w:ascii="Inter" w:cs="Inter" w:eastAsia="Inter" w:hAnsi="Inter"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:styleId="Heading1">
@@ -596,6 +596,13 @@
         <w:name w:val="Default Paragraph Font"/>
         <w:uiPriority w:val="1"/>
         <w:unhideWhenUsed/>
+    </w:style>
+    <w:style w:type="character" w:customStyle="1" w:styleId="VerbatimChar">
+        <w:name w:val="Verbatim Char"/>
+        <w:basedOn w:val="DefaultParagraphFont"/>
+        <w:rPr>
+            <w:rFonts w:ascii="GeistMono" w:cs="GeistMono" w:eastAsia="GeistMono" w:hAnsi="GeistMono"/>
+        </w:rPr>
     </w:style>
     <w:style w:type="table" w:default="1" w:styleId="TableNormal">
         <w:name w:val="Normal Table"/>
@@ -948,13 +955,31 @@
             <w:szCs w:val="18"/>
         </w:rPr>
     </w:style>
-    <w:style w:type="paragraph" w:styleId="Codeblock">
-        <w:name w:val="Codeblock"/>
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="SourceCode">
+        <w:name w:val="Source Code"/>
         <w:basedOn w:val="Normal"/>
+        <w:link w:val="VerbatimChar"/>
+        <w:pPr>
+            <w:shd w:val="solid" w:color="161616" w:fill="161616"/>
+        </w:pPr>
         <w:rPr>
             <w:noProof/>
+            <w:wordWrap w:val="off"/>
             <w:color w:val="ffffff"/>
             <w:rFonts w:ascii="GeistMono" w:cs="GeistMono" w:eastAsia="GeistMono" w:hAnsi="GeistMono"/>
         </w:rPr>
+    </w:style>
+    <w:style w:type="paragraph" w:styleId="BlockQuote">
+        <w:name w:val="Block Quote"/>
+        <w:basedOn w:val="Normal"/>
+        <w:next w:val="Normal"/>
+        <w:uiPriority w:val="9"/>
+        <w:unhideWhenUsed/>
+        <w:qFormat/>
+        <w:pPr>
+            <w:pBdr>
+                <w:left w:val="single" w:color="7D797A" w:sz="8" w:space="100"/>
+            </w:pBdr>
+        </w:pPr>
     </w:style>
 </w:styles>
