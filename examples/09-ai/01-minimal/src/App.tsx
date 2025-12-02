@@ -43,6 +43,7 @@ async function autoCompleteProvider(
   const text = state.doc.textBetween(
     state.selection.from - 300,
     state.selection.from,
+    "\n",
   );
 
   const response = await fetch(
