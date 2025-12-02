@@ -1,9 +1,7 @@
 import {
   BlockNoteEditor,
-  BlockNoteExtension,
-  BlockSchema,
-  InlineContentSchema,
-  StyleSchema,
+  createExtension,
+  ExtensionOptions,
 } from "@blocknote/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
@@ -64,188 +62,171 @@ function getMatchingSuggestions(
     .filter((suggestion) => suggestion !== false);
 }
 
-export class AutoCompleteProseMirrorPlugin<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
-> extends BlockNoteExtension {
-  public static key() {
-    return "suggestionMenu";
-  }
+export const AIAutoCompleteExtension = createExtension(
+  ({
+    editor,
+    options,
+  }: ExtensionOptions<{ autoCompleteProvider: AutoCompleteProvider }>) => {
+    let autoCompleteSuggestions: AutoCompleteSuggestion[] = [];
 
-  public get priority(): number | undefined {
-    return 1000000; // should be lower (e.g.: -1000 to be below suggestion menu, but that currently breaks Tab)
-  }
+    const debounceFetchSuggestions = debounceWithAbort(
+      async (editor: BlockNoteEditor<any, any, any>, signal: AbortSignal) => {
+        // fetch suggestions
+        const newAutoCompleteSuggestions = await options.autoCompleteProvider(
+          editor,
+          signal,
+        );
 
-  //   private view: AutoCompleteView<BSchema, I, S> | undefined;
+        // TODO: map positions?
 
-  //   private view: EditorView | undefined;
-  private autoCompleteSuggestions: AutoCompleteSuggestion[] = [];
+        if (signal.aborted) {
+          return;
+        }
 
-  private debounceFetchSuggestions = debounceWithAbort(
-    async (editor: BlockNoteEditor<any, any, any>, signal: AbortSignal) => {
-      // fetch suggestions
-      const autoCompleteSuggestions = await this.options.autoCompleteProvider(
-        editor,
-        signal,
-      );
-
-      // TODO: map positions?
-
-      if (signal.aborted) {
-        return;
-      }
-
-      this.autoCompleteSuggestions = autoCompleteSuggestions;
-      this.editor.transact((tr) => {
-        tr.setMeta(autoCompletePluginKey, {
-          autoCompleteSuggestions,
+        autoCompleteSuggestions = newAutoCompleteSuggestions;
+        editor.transact((tr) => {
+          tr.setMeta(autoCompletePluginKey, {
+            autoCompleteSuggestions,
+          });
         });
-      });
-    },
-  );
+      },
+    );
 
-  constructor(
-    private readonly editor: BlockNoteEditor<BSchema, I, S>,
-    private readonly options: {
-      autoCompleteProvider: AutoCompleteProvider;
-    },
-  ) {
-    super();
+    return {
+      key: "aiAutoCompleteExtension",
+      priority: 1000000, // should be lower (e.g.: -1000 to be below suggestion menu, but that currently breaks Tab)
+      prosemirrorPlugins: [
+        new Plugin({
+          key: autoCompletePluginKey,
 
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const self = this;
-    this.addProsemirrorPlugin(
-      new Plugin({
-        key: autoCompletePluginKey,
+          // view: (view) => {
+          //   this.view = new AutoCompleteView<BSchema, I, S>(editor, view);
+          //   return this.view;
+          // },
 
-        // view: (view) => {
-        //   this.view = new AutoCompleteView<BSchema, I, S>(editor, view);
-        //   return this.view;
-        // },
-
-        state: {
-          // Initialize the plugin's internal state.
-          init(): AutoCompleteState {
-            return undefined;
-          },
-
-          // Apply changes to the plugin state from an editor transaction.
-          apply: (
-            transaction,
-            _prev,
-            _oldState,
-            newState,
-          ): AutoCompleteState => {
-            // selection is active, no autocomplete
-            if (newState.selection.from !== newState.selection.to) {
-              this.debounceFetchSuggestions.cancel();
+          state: {
+            // Initialize the plugin's internal state.
+            init(): AutoCompleteState {
               return undefined;
-            }
+            },
 
-            // Are there matching suggestions?
-            const matchingSuggestions = getMatchingSuggestions(
-              this.autoCompleteSuggestions,
+            // Apply changes to the plugin state from an editor transaction.
+            apply: (
+              transaction,
+              _prev,
+              _oldState,
               newState,
-            );
+            ): AutoCompleteState => {
+              // selection is active, no autocomplete
+              if (newState.selection.from !== newState.selection.to) {
+                debounceFetchSuggestions.cancel();
+                return undefined;
+              }
 
-            if (matchingSuggestions.length > 0) {
-              this.debounceFetchSuggestions.cancel();
-              return {
-                autoCompleteSuggestion: matchingSuggestions[0],
-              };
-            }
+              // Are there matching suggestions?
+              const matchingSuggestions = getMatchingSuggestions(
+                autoCompleteSuggestions,
+                newState,
+              );
 
-            // No matching suggestions, if isUserInput is true, debounce fetch suggestions
-            if (transaction.getMeta(autoCompletePluginKey)?.isUserInput) {
-              // TODO: this queueMicrotask is a workaround to ensure the transaction is applied before the debounceFetchSuggestions is called
-              // (discuss with Nick what ideal architecture would be)
-              queueMicrotask(() => {
-                this.debounceFetchSuggestions(self.editor).catch((error) => {
-                  /* eslint-disable-next-line no-console */
-                  console.error(error);
+              if (matchingSuggestions.length > 0) {
+                debounceFetchSuggestions.cancel();
+                return {
+                  autoCompleteSuggestion: matchingSuggestions[0],
+                };
+              }
+
+              // No matching suggestions, if isUserInput is true, debounce fetch suggestions
+              if (transaction.getMeta(autoCompletePluginKey)?.isUserInput) {
+                // TODO: this queueMicrotask is a workaround to ensure the transaction is applied before the debounceFetchSuggestions is called
+                // (discuss with Nick what ideal architecture would be)
+                queueMicrotask(() => {
+                  debounceFetchSuggestions(editor).catch((error) => {
+                    /* eslint-disable-next-line no-console */
+                    console.error(error);
+                  });
                 });
-              });
-            } else {
-              // clear suggestions
-              this.autoCompleteSuggestions = [];
-            }
-            return undefined;
+              } else {
+                // clear suggestions
+                autoCompleteSuggestions = [];
+              }
+              return undefined;
+            },
           },
-        },
 
-        props: {
-          handleKeyDown(view, event) {
-            if (event.key === "Tab") {
-              // TODO (discuss with Nick):
-              // Plugin priority needs to be below suggestion menu, so no auto complete is triggered when the suggestion menu is open
-              // However, Plugin priority needs to be above other Tab handlers (because now indentation will be wrongly prioritized over auto complete)
-              const autoCompleteState = this.getState(view.state);
+          props: {
+            handleKeyDown(view, event) {
+              if (event.key === "Tab") {
+                // TODO (discuss with Nick):
+                // Plugin priority needs to be below suggestion menu, so no auto complete is triggered when the suggestion menu is open
+                // However, Plugin priority needs to be above other Tab handlers (because now indentation will be wrongly prioritized over auto complete)
+                const autoCompleteState = this.getState(view.state);
 
-              if (autoCompleteState) {
-                // insert suggestion
+                if (autoCompleteState) {
+                  // insert suggestion
+                  view.dispatch(
+                    view.state.tr
+                      .insertText(
+                        autoCompleteState.autoCompleteSuggestion.suggestion,
+                      )
+                      .setMeta(autoCompletePluginKey, { isUserInput: true }), // isUserInput true to trigger new fetch
+                  );
+                  return true;
+                }
+
+                // if tab to suggest is enabled (TODO: make configurable)
                 view.dispatch(
-                  view.state.tr
-                    .insertText(
-                      autoCompleteState.autoCompleteSuggestion.suggestion,
-                    )
-                    .setMeta(autoCompletePluginKey, { isUserInput: true }), // isUserInput true to trigger new fetch
+                  view.state.tr.setMeta(autoCompletePluginKey, {
+                    isUserInput: true,
+                  }),
                 );
                 return true;
               }
 
-              // if tab to suggest is enabled (TODO: make configurable)
-              view.dispatch(
-                view.state.tr.setMeta(autoCompletePluginKey, {
-                  isUserInput: true,
-                }),
-              );
+              if (event.key === "Escape") {
+                autoCompleteSuggestions = [];
+                debounceFetchSuggestions.cancel();
+                view.dispatch(view.state.tr.setMeta(autoCompletePluginKey, {}));
+                return true;
+              }
+
+              return false;
+            },
+            handleTextInput(view, _from, _to, _text, deflt) {
+              const tr = deflt();
+              tr.setMeta(autoCompletePluginKey, {
+                isUserInput: true,
+              });
+              view.dispatch(tr);
               return true;
-            }
+            },
 
-            if (event.key === "Escape") {
-              self.autoCompleteSuggestions = [];
-              self.debounceFetchSuggestions.cancel();
-              view.dispatch(view.state.tr.setMeta(autoCompletePluginKey, {}));
-              return true;
-            }
+            // Setup decorator on the currently active suggestion.
+            decorations(state) {
+              const autoCompleteState: AutoCompleteState = this.getState(state);
 
-            return false;
-          },
-          handleTextInput(view, _from, _to, _text, deflt) {
-            const tr = deflt();
-            tr.setMeta(autoCompletePluginKey, {
-              isUserInput: true,
-            });
-            view.dispatch(tr);
-            return true;
-          },
+              if (!autoCompleteState) {
+                return null;
+              }
 
-          // Setup decorator on the currently active suggestion.
-          decorations(state) {
-            const autoCompleteState: AutoCompleteState = this.getState(state);
-
-            if (!autoCompleteState) {
-              return null;
-            }
-
-            // console.log(autoCompleteState);
-            // Creates an inline decoration around the trigger character.
-            return DecorationSet.create(state.doc, [
-              Decoration.widget(
-                state.selection.from,
-                renderAutoCompleteSuggestion(
-                  autoCompleteState.autoCompleteSuggestion.suggestion,
+              // console.log(autoCompleteState);
+              // Creates an inline decoration around the trigger character.
+              return DecorationSet.create(state.doc, [
+                Decoration.widget(
+                  state.selection.from,
+                  renderAutoCompleteSuggestion(
+                    autoCompleteState.autoCompleteSuggestion.suggestion,
+                  ),
+                  {},
                 ),
-                {},
-              ),
-            ]);
+              ]);
+            },
           },
-        },
-      }),
-    );
-  }
-}
+        }),
+      ],
+    };
+  },
+);
 
 function renderAutoCompleteSuggestion(suggestion: string) {
   const element = document.createElement("span");
@@ -307,26 +288,6 @@ export function debounceWithAbort<T extends any[], R>(
 export interface DebouncedFunction<T extends any[], R> {
   (...args: T): Promise<R>;
   cancel(): void;
-}
-
-/**
- * Create a new AIExtension instance, this can be passed to the BlockNote editor via the `extensions` option
- */
-export function createAIAutoCompleteExtension(
-  options: ConstructorParameters<typeof AutoCompleteProseMirrorPlugin>[1],
-) {
-  return (editor: BlockNoteEditor<any, any, any>) => {
-    return new AutoCompleteProseMirrorPlugin(editor, options);
-  };
-}
-
-/**
- * Return the AIExtension instance from the editor
- */
-export function getAIAutoCompleteExtension(
-  editor: BlockNoteEditor<any, any, any>,
-) {
-  return editor.extension(AutoCompleteProseMirrorPlugin);
 }
 
 // TODO: move more to blocknote API?
