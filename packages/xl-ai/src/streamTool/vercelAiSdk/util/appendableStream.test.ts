@@ -5,9 +5,12 @@ async function collectStream<T>(stream: ReadableStream<T>): Promise<T[]> {
   const reader = stream.getReader();
   const results: T[] = [];
   try {
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       const { done, value } = await reader.read();
-      if (done) break;
+      if (done) {
+        break;
+      }
       results.push(value);
     }
   } finally {
@@ -22,7 +25,9 @@ describe("createAppendableStream", () => {
 
     // Create a stream that never ends and provides no data
     const infiniteStream = new ReadableStream<string>({
-      start() {},
+      start() {
+        // noop
+      },
     });
 
     append(infiniteStream);

@@ -71,10 +71,6 @@ export default function App() {
     ],
   });
 
-  useEffect(() => {
-    (window as any).editor = getAIExtension(editor);
-  }, [editor]);
-
   // Renders the editor instance using a React component.
   return (
     <div>

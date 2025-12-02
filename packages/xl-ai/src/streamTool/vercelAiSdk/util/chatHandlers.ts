@@ -139,8 +139,6 @@ export async function setupToolCallStreaming(
     }
   }
 
-  debugger;
-
   let errorSeen = false;
   // process results
   const toolCalls = Array.from(
