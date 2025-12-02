@@ -70,6 +70,7 @@ export const AIExtension = createExtension(
       | {
           previousRequestOptions: InvokeAIOptions;
           chat: Chat<UIMessage>;
+          abortController: AbortController;
         }
       | undefined;
     let autoScroll = false;
@@ -234,6 +235,36 @@ export const AIExtension = createExtension(
       },
 
       /**
+       * Abort the current LLM request.
+       *
+       * This will stop the ongoing request and revert any changes made by the AI.
+       * Only valid when there is an active AI request in progress.
+       */
+      async abort(reason?: any) {
+        const { aiMenuState } = store.state;
+        if (aiMenuState === "closed" || !chatSession) {
+          return;
+        }
+
+        // Only abort if the request is in progress (thinking or ai-writing)
+        if (
+          aiMenuState.status !== "thinking" &&
+          aiMenuState.status !== "ai-writing"
+        ) {
+          return;
+        }
+
+        const chat = chatSession.chat;
+        const abortController = chatSession.abortController;
+
+        // Abort the tool call operations
+        abortController.abort(reason);
+
+        // Stop the chat request
+        await chat.stop();
+      },
+
+      /**
        * Retry the previous LLM call.
        *
        * Only valid if the current status is "error"
@@ -341,6 +372,9 @@ export const AIExtension = createExtension(
         editor.getExtension(ForkYDocExtension)?.fork();
 
         try {
+          // Create a new AbortController for this request
+          const abortController = new AbortController();
+
           if (!chatSession) {
             // note: in the current implementation opts.transport is only used when creating a new chat
             // (so changing transport for a subsequent call in the same chat-session is not supported)
@@ -353,9 +387,11 @@ export const AIExtension = createExtension(
                   sendAutomaticallyWhen: () => false,
                   transport: opts.transport || this.options.state.transport,
                 }),
+              abortController,
             };
           } else {
             chatSession.previousRequestOptions = opts;
+            chatSession.abortController = abortController;
           }
           const chat = chatSession.chat;
 
@@ -439,9 +475,13 @@ export const AIExtension = createExtension(
               ],
             },
             opts.chatRequestOptions || this.options.state.chatRequestOptions,
+            chatSession.abortController.signal,
           );
 
-          if (result.ok && chat.status !== "error") {
+          if (
+            (result.ok && chat.status !== "error") ||
+            abortController.signal.aborted
+          ) {
             this.setAIResponseStatus("user-reviewing");
           } else {
             // eslint-disable-next-line no-console
