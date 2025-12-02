@@ -9,6 +9,7 @@ import {
 import { updateToReplaceSteps } from "../../../prosemirror/changeset.js";
 import { RebaseTool } from "../../../prosemirror/rebaseTool.js";
 import { Result, streamTool } from "../../../streamTool/streamTool.js";
+import { AbortError } from "../../../util/AbortError.js";
 
 export type UpdateBlockToolCall<T> = {
   type: "update";
@@ -245,9 +246,7 @@ export function createUpdateBlockTool<T>(config: {
 
             for (const step of agentSteps) {
               if (abortSignal?.aborted) {
-                const error = new Error("Operation was aborted");
-                error.name = "AbortError";
-                throw error;
+                throw new AbortError("Operation was aborted");
               }
               if (options.withDelays) {
                 await delayAgentStep(step);
