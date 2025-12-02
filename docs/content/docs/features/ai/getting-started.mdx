@@ -25,7 +25,7 @@ import { createBlockNoteEditor } from "@blocknote/core";
 import { BlockNoteAIExtension } from "@blocknote/xl-ai";
 import { en } from "@blocknote/core/locales";
 import { en as aiEn } from "@blocknote/xl-ai/locales";
-import { createAIExtension } from "@blocknote/xl-ai";
+import { AIExtension } from "@blocknote/xl-ai";
 import "@blocknote/xl-ai/style.css"; // add the AI stylesheet
 
 const editor = createBlockNoteEditor({
@@ -34,7 +34,7 @@ const editor = createBlockNoteEditor({
     ai: aiEn, // add default translations for the AI extension
   },
   extensions: [
-    createAIExtension({
+    AIExtension({
       transport: new DefaultChatTransport({
         api: `/api/chat`,
       }),
@@ -44,7 +44,7 @@ const editor = createBlockNoteEditor({
 });
 ```
 
-See the [API Reference](/docs/features/ai/reference) for more information on the `createAIExtension` method.
+See the [API Reference](/docs/features/ai/reference) for more information on the `AIExtension` options.
 
 ## Adding AI UI elements
 

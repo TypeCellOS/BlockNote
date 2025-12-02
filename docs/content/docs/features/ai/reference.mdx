@@ -4,16 +4,17 @@ description: Reference documentation for the BlockNote AI extension
 imageTitle: BlockNote AI
 ---
 
-## `createAIExtension`
+## `AIExtension`
 
-Use `createAIExtension` to create a new AI Extension that can be registered to an editor when calling `useCreateBlockNote`.
+Use `AIExtension` to create a new AI Extension that can be registered to an editor when calling `useCreateBlockNote`.
 
 ```typescript
 // Usage:
-const aiExtension = createAIExtension(opts: AIExtensionOptions);
-
-// Definitions:
-function createAIExtension(options: AIExtensionOptions): (editor: BlockNoteEditor) => AIExtension;
+useCreateBlockNote({
+  // Register the AI extension
+  extensions: [AIExtension(options)],
+  // other editor options
+});
 
 type AIExtensionOptions = AIRequestHelpers & {
   /**
@@ -42,7 +43,7 @@ type AIRequestHelpers = {
    * Customize which stream tools are available to the LLM.
    */
   streamToolsProvider?: StreamToolsProvider<any, any>;
-  // Provide `streamToolsProvider` in createAIExtension(options) or override per call via InvokeAIOptions.
+  // Provide `streamToolsProvider` in AIExtension(options) or override per call via InvokeAIOptions.
   // If omitted, defaults to using `aiDocumentFormats.html.getStreamToolsProvider()`.
 
   /**
@@ -59,12 +60,12 @@ type AIRequestHelpers = {
 };
 ```
 
-## `AIExtension`
+## `AIExtension` extension instance
 
-The `AIExtension` class is the main class for the AI extension. It exposes state and methods to interact with BlockNote's AI features.
+The `AIExtension` extension instance returned by `editor.getExtension(AIExtension)` exposes state and methods to interact with BlockNote's AI features.
 
 ```typescript
-class AIExtension {
+type AIExtensionInstance = {
   /**
    * Execute a call to an LLM and apply the result to the editor
    */
@@ -113,6 +114,8 @@ class AIExtension {
   rejectChanges(): void;
   /** Retry the previous LLM call (only valid when status is "error") */
   retry(): Promise<void>;
+  /** Abort the current LLM request */
+  abort(reason?: any): Promise<void>;
   /** Advanced: manually update the status shown by the AI menu */
   setAIResponseStatus(
     status:
@@ -122,12 +125,12 @@ class AIExtension {
       | "user-reviewing"
       | { status: "error"; error: any },
   ): void;
-}
+};
 ```
 
 ### `InvokeAI`
 
-Requests to an LLM are made by calling `invokeAI` on the `AIExtension` object. This takes an `InvokeAIOptions` object as an argument.
+Requests to an LLM are made by calling `invokeAI` on the `AIExtension` instance. This takes an `InvokeAIOptions` object as an argument.
 
 ```typescript
 type InvokeAIOptions = {
