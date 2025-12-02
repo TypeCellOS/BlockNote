@@ -13,6 +13,11 @@ export const autocompleteRoute = new Hono();
 //   apiKey: process.env.GROQ_API_KEY,
 // })("openai/gpt-oss-20b");
 
+/**
+ * For this demo, we use `codestral-latest` from Mistral.
+ * It's originally designed for code completion, but it's
+ * performance make it a good candidate for fast text completions as well
+ */
 const model = createMistral({
   apiKey: process.env.MISTRAL_API_KEY,
 })("codestral-latest");
