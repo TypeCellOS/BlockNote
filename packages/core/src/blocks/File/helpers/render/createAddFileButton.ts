@@ -1,5 +1,7 @@
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import { FilePanelExtension } from "../../../../extensions/FilePanel/FilePanel.js";
+import type { Block } from "../../../defaultBlocks.js";
+
 
 export const createAddFileButton = (
   block: Block<any, any, any>,

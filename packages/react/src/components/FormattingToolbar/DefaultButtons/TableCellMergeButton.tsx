@@ -1,4 +1,5 @@
 import {
+  BlockFromConfig,
   DefaultBlockSchema,
   InlineContentSchema,
   StyleSchema
@@ -48,7 +49,7 @@ export const TableCellMergeButton = () => {
       }
 
       return {
-        mergeDirection: tableHandles.getMergeDirection(block),
+        mergeDirection: tableHandles.getMergeDirection(block as BlockFromConfig<DefaultBlockSchema["table"], any, any>),
       };
     },
   });

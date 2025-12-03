@@ -1,5 +1,6 @@
+import z from "zod/v4";
 import { createExtension } from "../../editor/BlockNoteExtension.js";
-import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
+import { createBlockConfig, createBlockSpec, createPropSchemaFromZod } from "../../schema/index.js";
 
 export type DividerBlockConfig = ReturnType<typeof createDividerBlockConfig>;
 

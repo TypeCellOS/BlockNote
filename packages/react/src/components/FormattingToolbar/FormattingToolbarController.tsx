@@ -1,8 +1,8 @@
 import {
-  blockHasType,
+  blockHasZodProps,
   BlockSchema,
-  defaultProps,
   DefaultPropSchema,
+  defaultZodPropSchema,
   InlineContentSchema,
   StyleSchema
 } from "@blocknote/core";
@@ -66,9 +66,9 @@ export const FormattingToolbarController = (props: {
       const block = editor.getTextCursorPosition().block;
 
       if (
-        !blockHasType(block, editor, block.type, {
-          textAlignment: defaultProps.textAlignment,
-        })
+        !blockHasZodProps(block, editor, defaultZodPropSchema.pick({
+          textAlignment: true,
+        }))
       ) {
         return "top-start";
       } else {

@@ -60,8 +60,8 @@ export const TableHeaderRowButton = <
           content: {
             ...block.content,
             headerRows: isHeaderRow ? undefined : 1,
-          } as any,
-        });
+          },
+        } as any); // NOTE: would be nice to remove this as any, but then we need to make TableExtension and the extension system parameterized
       }}
     >
       {dict.drag_handle.header_row_menuitem}
@@ -115,8 +115,8 @@ export const TableHeaderColumnButton = <
           content: {
             ...block.content,
             headerCols: isHeaderColumn ? undefined : 1,
-          } as any,
-        });
+          },
+        } as any);
       }}
     >
       {dict.drag_handle.header_column_menuitem}

@@ -1,6 +1,5 @@
 import {
   Block,
-  blockHasType,
   defaultToggledState,
   UnreachableCaseError,
 } from "@blocknote/core";
@@ -81,7 +80,7 @@ export const ToggleWrapper = (
     selector: ({ editor }) => {
       // TODO: checlk
       if (
-        !blockHasType(block, editor, block.type, { isToggleable: "boolean" }) &&
+        !("isToggleable" in block.props) ||
         !block.props.isToggleable
       ) {
         return 0;

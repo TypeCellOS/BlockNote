@@ -1,6 +1,7 @@
 import { Store, StoreOptions } from "@tanstack/store";
 import { type AnyExtension } from "@tiptap/core";
 import type { Plugin as ProsemirrorPlugin } from "prosemirror-state";
+import { PartialBlock } from "../blocks/index.js";
 import type { BlockNoteEditor } from "./BlockNoteEditor.js";
 import { originalFactorySymbol } from "./managers/ExtensionManager/symbol.js";
 
@@ -117,7 +118,7 @@ type InputRule = {
      * The editor instance
      */
     editor: BlockNoteEditor<any, any, any>;
-  }) => undefined | PartialBlock<any, any, any>;
+  }) => undefined | PartialBlock<any, any, any>; // TODO: depreate partialblock here?
 };
 
 /**
@@ -126,7 +127,7 @@ type InputRule = {
 export interface ExtensionOptions<
   Options extends Record<string, any> | undefined =
     | Record<string, any>
-    | undefined,
+    | undefined
 > {
   options: Options;
   editor: BlockNoteEditor<any, any, any>;

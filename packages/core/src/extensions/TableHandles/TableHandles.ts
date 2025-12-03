@@ -11,8 +11,6 @@ import {
   splitCell,
 } from "prosemirror-tables";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
-import { S } from "vitest/dist/chunks/config.Cy0C388Z.js";
-import { I } from "vitest/dist/chunks/reporters.nr4dxCkA.js";
 import {
   RelativeCellIndices,
   addRowsOrColumns,
@@ -36,9 +34,9 @@ import {
   createExtension,
   createStore,
 } from "../../editor/BlockNoteExtension.js";
-import {
+import type {
   BlockFromConfig,
-  BlockSchemaWithBlock,
+  BlockSchemaWithBlock
 } from "../../schema/index.js";
 import { getDraggableBlockFromElement } from "../getDraggableBlockFromElement.js";
 
@@ -52,7 +50,7 @@ export type TableHandlesState = {
   referencePosCell: DOMRect | undefined;
   referencePosTable: DOMRect;
 
-  block: BlockFromConfig<DefaultBlockSchema["table"], I, S>;
+  block: BlockFromConfig<DefaultBlockSchema["table"], any, any>;
   colIndex: number | undefined;
   rowIndex: number | undefined;
 
@@ -264,7 +262,7 @@ export class TableHandlesView implements PluginView {
       throw new Error(`Block with ID ${blockEl.id} not found`);
     }
 
-    const block = nodeToBlock(
+    const block = nodeToBlock<any, any, any>(
       pmNodeInfo.node,
       this.editor.pmSchema,
       this.editor.schema.blockSchema,
@@ -615,7 +613,7 @@ export class TableHandlesView implements PluginView {
 export const tableHandlesPluginKey = new PluginKey("TableHandlesPlugin");
 
 export const TableHandlesExtension = createExtension(({ editor }) => {
-  let view: TableHandlesView | undefined = undefined;
+  let view: TableHandlesView| undefined = undefined;
 
   const store = createStore<TableHandlesState | undefined>(undefined);
 
@@ -626,7 +624,7 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
       new Plugin({
         key: tableHandlesPluginKey,
         view: (editorView) => {
-          view = new TableHandlesView(editor as any, editorView, (state) => {
+          view = new TableHandlesView(editor, editorView, (state) => {
             store.setState({
               ...state,
               draggingState: state.draggingState

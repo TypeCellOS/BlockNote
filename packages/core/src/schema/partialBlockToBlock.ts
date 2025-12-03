@@ -1,6 +1,6 @@
 import * as z from "zod/v4/core";
 import type { Block, PartialBlock } from "../blocks/index.js";
-import { UniqueID } from "../extensions/UniqueID/UniqueID.js";
+import { UniqueID } from "../extensions/tiptap-extensions/index.js";
 import { mapTableCell } from "../util/table.js";
 import { UnreachableCaseError } from "../util/typescript.js";
 import type { BlockSchema } from "./blocks/types.js";
