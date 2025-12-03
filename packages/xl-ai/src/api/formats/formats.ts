@@ -1,0 +1,62 @@
+import { BlockNoteEditor } from "@blocknote/core";
+import { StreamTool } from "../../streamTool/streamTool.js";
+import { AddBlocksToolCall } from "./base-tools/createAddBlocksTool.js";
+import { UpdateBlockToolCall } from "./base-tools/createUpdateBlockTool.js";
+import { DeleteBlockToolCall } from "./base-tools/delete.js";
+import { DocumentStateBuilder } from "./DocumentStateBuilder.js";
+import { htmlBlockLLMFormat } from "./html-blocks/htmlBlocks.js";
+import { jsonBlockLLMFormat } from "./json/json.js";
+import { markdownBlockLLMFormat } from "./markdown-blocks/markdownBlocks.js";
+
+// Define the tool types
+export type AddTool<T> = StreamTool<AddBlocksToolCall<T>>;
+export type UpdateTool<T> = StreamTool<UpdateBlockToolCall<T>>;
+export type DeleteTool = StreamTool<DeleteBlockToolCall>;
+
+// Create a conditional type that maps boolean flags to tool types
+export type StreamToolsConfig = {
+  add?: boolean;
+  update?: boolean;
+  delete?: boolean;
+};
+
+export type StreamToolsResult<TT, T extends StreamToolsConfig> = [
+  ...(T extends { update: true } ? [UpdateTool<TT>] : []),
+  ...(T extends { add: true } ? [AddTool<TT>] : []),
+  ...(T extends { delete: true } ? [DeleteTool] : []),
+];
+
+export type StreamToolsProvider<
+  TT,
+  T extends StreamToolsConfig = { add: true; update: true; delete: true },
+> = {
+  getStreamTools: (
+    editor: BlockNoteEditor<any, any, any>,
+    selectionInfo?:
+      | {
+          from: number;
+          to: number;
+        }
+      | boolean,
+    onBlockUpdate?: (blockId: string) => void,
+  ) => StreamToolsResult<TT, T>;
+};
+
+type AIDocumentFormat<TT> = {
+  /**
+   * Function to get the stream tools that can apply HTML block updates to the editor
+   */
+  getStreamToolsProvider: <T extends StreamToolsConfig>(opts: {
+    withDelays?: boolean;
+    defaultStreamTools?: T;
+  }) => StreamToolsProvider<TT, T>;
+
+  systemPrompt: string;
+  defaultDocumentStateBuilder: DocumentStateBuilder<any>;
+};
+
+export const aiDocumentFormats = {
+  _experimental_json: jsonBlockLLMFormat,
+  _experimental_markdown: markdownBlockLLMFormat,
+  html: htmlBlockLLMFormat,
+} satisfies Record<string, AIDocumentFormat<any>>;
