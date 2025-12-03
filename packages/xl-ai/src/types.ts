@@ -1,6 +1,6 @@
-import type { Chat } from "@ai-sdk/react";
+import { Chat } from "@ai-sdk/react";
 import { ChatTransport, UIMessage } from "ai";
-import { DocumentStateBuilder, StreamToolsProvider } from "./index.js";
+import { AIRequestSender, StreamToolsProvider } from "./index.js";
 
 /**
  * Extra options (header, body, metadata) that can be passed to LLM requests
@@ -30,34 +30,14 @@ export type AIRequestHelpers = {
    */
   chatRequestOptions?: ChatRequestOptions;
 
-  documentStateBuilder?: DocumentStateBuilder<any>;
-} & (
-  | {
-      /**
-       * Use the ChatProvider to customize how the AI SDK Chat instance (orchestrating Message lifecycle) is created
-       */
-      chatProvider?: () => Chat<UIMessage>;
-      /**
-       * Not valid if chatProvider is provided
-       */
-      transport?: never;
-    }
-  | {
-      /**
-       * Not valid if transport is provided
-       */
-      chatProvider?: never;
-      /**
-       * The Vercel AI SDK transport is responsible for sending the AI SDK Request to the LLM backend
-       *
-       * Implement this function if you want to:
-       * - use a custom backend
-       * - change backend URLs
-       * - use a different transport layer (e.g.: websockets)
-       */
-      transport: ChatTransport<UIMessage>;
-    }
-);
+  /**
+   * Responsible for submitting a BlockNote `AIRequest` to the Vercel AI SDK.
+   * Use this to transform the messages sent to the LLM
+   *
+   * @default `defaultAIRequestSender(aiDocumentFormats.html.defaultPromptBuilder, aiDocumentFormats.html.defaultPromptInputDataBuilder)`
+   */
+  aiRequestSender?: AIRequestSender;
+};
 
 export type InvokeAIOptions = {
   /**

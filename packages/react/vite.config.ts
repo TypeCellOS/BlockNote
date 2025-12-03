@@ -38,22 +38,23 @@ export default defineConfig((conf) => ({
       // into your library
       external: (source) => {
         if (
-          Object.keys({
-            ...pkg.dependencies,
-            ...((pkg as any).peerDependencies || {}),
-            ...pkg.devDependencies,
-          }).includes(source)
+          [
+            ...Object.keys({
+              ...pkg.dependencies,
+              ...pkg.peerDependencies,
+              ...pkg.devDependencies,
+            }),
+            "react-dom/client",
+            "react/jsx-runtime",
+          ].includes(source)
         ) {
           return true;
         }
+
         return (
-          source.startsWith("react/") ||
-          source.startsWith("react-dom/") ||
           source.startsWith("prosemirror-") ||
           source.startsWith("@tiptap/") ||
-          source.startsWith("@blocknote/") ||
-          source.startsWith("@shikijs/") ||
-          source.startsWith("node:")
+          source.startsWith("@blocknote/")
         );
       },
       output: {

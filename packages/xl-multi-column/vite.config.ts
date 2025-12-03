@@ -4,7 +4,11 @@ import { defineConfig } from "vite";
 import pkg from "./package.json";
 // import eslintPlugin from "vite-plugin-eslint";
 
-
+const deps = Object.keys({
+  ...pkg.dependencies,
+  ...pkg.peerDependencies,
+  ...pkg.devDependencies,
+});
 
 // https://vitejs.dev/config/
 export default defineConfig((conf) => ({
@@ -39,25 +43,20 @@ export default defineConfig((conf) => ({
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
       // into your library
-      external: (source) => {
-        if (
-          Object.keys({
-            ...pkg.dependencies,
-            ...((pkg as any).peerDependencies || {}),
-            ...pkg.devDependencies,
-          }).includes(source)
-        ) {
+      external: (source: string) => {
+        if (deps.includes(source)) {
           return true;
         }
-        return (
-          source.startsWith("react/") ||
-          source.startsWith("react-dom/") ||
-          source.startsWith("prosemirror-") ||
-          source.startsWith("@tiptap/") ||
-          source.startsWith("@blocknote/") ||
-          source.startsWith("@shikijs/") ||
-          source.startsWith("node:")
-        );
+
+        if (source === "react/jsx-runtime") {
+          return true;
+        }
+
+        if (source.startsWith("prosemirror-")) {
+          return true;
+        }
+
+        return false;
       },
       output: {
         // Provide global variables to use in the UMD build

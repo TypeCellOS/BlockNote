@@ -32,26 +32,15 @@ export default defineConfig((conf) => ({
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
       // into your library
-      external: (source) => {
-        if (
-          Object.keys({
-            ...pkg.dependencies,
-            ...((pkg as any).peerDependencies || {}),
-            ...pkg.devDependencies,
-          }).includes(source)
-        ) {
-          return true;
-        }
-        return (
-          source.startsWith("react/") ||
-          source.startsWith("react-dom/") ||
-          source.startsWith("prosemirror-") ||
-          source.startsWith("@tiptap/") ||
-          source.startsWith("@blocknote/") ||
-          source.startsWith("@shikijs/") ||
-          source.startsWith("node:")
-        );
-      },
+      external: [
+        ...Object.keys({
+          ...pkg.dependencies,
+          ...pkg.peerDependencies,
+          ...pkg.devDependencies,
+        }),
+        "node:fs",
+        "node:http2",
+      ],
       output: {
         // Provide global variables to use in the UMD build
         // for externalized deps

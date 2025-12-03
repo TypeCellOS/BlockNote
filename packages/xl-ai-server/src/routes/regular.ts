@@ -1,9 +1,5 @@
 import { createOpenAI } from "@ai-sdk/openai";
-import {
-  aiDocumentFormats,
-  injectDocumentStateMessages,
-  toolDefinitionsToToolSet,
-} from "@blocknote/xl-ai/server";
+import { toolDefinitionsToToolSet } from "@blocknote/xl-ai";
 import { convertToModelMessages, streamText } from "ai";
 import { Hono } from "hono";
 
@@ -28,8 +24,7 @@ regularRoute.post("/streamText", async (c) => {
 
   const result = streamText({
     model,
-    system: aiDocumentFormats.html.systemPrompt,
-    messages: convertToModelMessages(injectDocumentStateMessages(messages)),
+    messages: convertToModelMessages(messages),
     tools: toolDefinitionsToToolSet(toolDefinitions),
     toolChoice: "required",
   });

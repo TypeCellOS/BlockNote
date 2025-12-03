@@ -4,7 +4,7 @@ import { defineConfig } from "vitest/config";
 import pkg from "./package.json";
 // import eslintPlugin from "vite-plugin-eslint";
 
-
+const deps = Object.keys(pkg.dependencies);
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -32,24 +32,14 @@ export default defineConfig({
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
       // into your library
-      external: (source) => {
-        if (
-          Object.keys({
-            ...pkg.dependencies,
-            ...((pkg as any).peerDependencies || {}),
-            ...pkg.devDependencies,
-          }).includes(source)
-        ) {
+      external: (source: string) => {
+        if (deps.includes(source)) {
           return true;
         }
         return (
-          source.startsWith("react/") ||
-          source.startsWith("react-dom/") ||
           source.startsWith("prosemirror-") ||
-          source.startsWith("@tiptap/") ||
-          source.startsWith("@blocknote/") ||
-          source.startsWith("@shikijs/") ||
-          source.startsWith("node:")
+          source.startsWith("@shikijs/lang") ||
+          source.startsWith("@shikijs/theme")
         );
       },
       output: {

@@ -55,7 +55,6 @@ export async function* filterNewOrUpdatedOperations(
   }
 
   if (!lastOp) {
-    // TODO: this should be handled somewhere else
     throw new Error("No operations seen");
   }
 

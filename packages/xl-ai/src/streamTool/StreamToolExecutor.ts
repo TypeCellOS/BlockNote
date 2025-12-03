@@ -1,7 +1,17 @@
 import { getErrorMessage } from "@ai-sdk/provider-utils";
 import { parsePartialJson } from "ai";
-import { ChunkExecutionError } from "./ChunkExecutionError.js";
 import { StreamTool, StreamToolCall } from "./streamTool.js";
+
+export class ChunkExecutionError extends Error {
+  constructor(
+    message: string,
+    public readonly chunk: any,
+    options?: { cause?: unknown },
+  ) {
+    super(message, options);
+    this.name = "ChunkExecutionError";
+  }
+}
 
 /**
  * The Operation types wraps a StreamToolCall with metadata on whether
@@ -51,12 +61,8 @@ export class StreamToolExecutor<T extends StreamTool<any>[]> {
 
   /**
    * @param streamTools - The StreamTools to use to apply the StreamToolCalls
-   * @param abortSignal - Optional AbortSignal to cancel ongoing operations
    */
-  constructor(
-    private streamTools: T,
-    private abortSignal?: AbortSignal,
-  ) {
+  constructor(private streamTools: T) {
     this.stream = this.createStream();
   }
 
@@ -119,35 +125,27 @@ export class StreamToolExecutor<T extends StreamTool<any>[]> {
         let handled = false;
         for (const executor of executors) {
           try {
-            // Pass the signal to executor - it should handle abort internally
-            const result = await executor.execute(chunk, this.abortSignal);
+            const result = await executor.execute(chunk);
             if (result) {
               controller.enqueue({ status: "ok", chunk });
               handled = true;
               break;
             }
           } catch (error) {
-            controller.error(
-              new ChunkExecutionError(
-                `Tool execution failed: ${getErrorMessage(error)}`,
-                chunk,
-                {
-                  cause: error,
-                  aborted: this.abortSignal?.aborted ?? false,
-                },
-              ),
+            throw new ChunkExecutionError(
+              `Tool execution failed: ${getErrorMessage(error)}`,
+              chunk,
+              {
+                cause: error,
+              },
             );
-            return;
           }
         }
         if (!handled) {
           const operationType = (chunk.operation as any)?.type || "unknown";
-          controller.error(
-            new Error(
-              `No tool could handle operation of type: ${operationType}`,
-            ),
+          throw new Error(
+            `No tool could handle operation of type: ${operationType}`,
           );
-          return;
         }
       },
     });

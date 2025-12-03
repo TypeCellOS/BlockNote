@@ -9,7 +9,6 @@ import {
 import { updateToReplaceSteps } from "../../../prosemirror/changeset.js";
 import { RebaseTool } from "../../../prosemirror/rebaseTool.js";
 import { Result, streamTool } from "../../../streamTool/streamTool.js";
-import { AbortError } from "../../../util/AbortError.js";
 import { isEmptyParagraph } from "../../../util/emptyBlock.js";
 import { validateBlockArray } from "./util/validateBlockArray.js";
 
@@ -183,7 +182,7 @@ export function createAddBlocksTool<T>(config: {
         const referenceIdMap: Record<string, string> = {}; // TODO: unit test
 
         return {
-          execute: async (chunk, abortSignal?: AbortSignal) => {
+          execute: async (chunk) => {
             if (!chunk.isUpdateToPreviousOperation) {
               // we have a new operation, reset the added block ids
               addedBlockIds = [];
@@ -269,9 +268,6 @@ export function createAddBlocksTool<T>(config: {
               // }
 
               for (const step of agentSteps) {
-                if (abortSignal?.aborted) {
-                  throw new AbortError("Operation was aborted");
-                }
                 if (options.withDelays) {
                   await delayAgentStep(step);
                 }

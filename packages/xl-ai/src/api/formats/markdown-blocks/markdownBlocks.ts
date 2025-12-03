@@ -1,16 +1,18 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { StreamTool } from "../../../streamTool/streamTool.js";
 
+import {
+  getDataForPromptNoSelection,
+  getDataForPromptWithSelection,
+} from "./markdownPromptData.js";
 import { tools } from "./tools/index.js";
 
 // Import the tool call types
 import { StreamToolsProvider } from "../../index.js";
+import { defaultMarkdownPromptBuilder } from "./defaultMarkdownPromptBuilder.js";
+import { defaultMarkdownPromptDataBuilder } from "./markdownPromptData.js";
 
-import {
-  makeDocumentStateBuilder,
-  StreamToolsConfig,
-  StreamToolsResult,
-} from "../index.js";
+import { StreamToolsConfig, StreamToolsResult } from "../index.js";
 
 function getStreamTools<
   T extends StreamToolsConfig = { add: true; update: true; delete: true },
@@ -69,18 +71,6 @@ function getStreamTools<
   return streamTools as StreamToolsResult<string, T>;
 }
 
-const systemPrompt = `You're manipulating a text document using Markdown blocks. 
-Make sure to follow the json schema provided. When referencing ids they MUST be EXACTLY the same (including the trailing $). 
-List items are 1 block with 1 list item each, so block content \`- item1\` is valid, but \`- item1\n- item2\` is invalid. We'll merge them automatically.
-
-If the user requests updates to the document, use the "applyDocumentOperations" tool to update the document.
----
-IF there is no selection active in the latest state, first, determine what part of the document the user is talking about. You SHOULD probably take cursor info into account if needed.
-  EXAMPLE: if user says "below" (without pointing to a specific part of the document) he / she probably indicates the block(s) after the cursor. 
-  EXAMPLE: If you want to insert content AT the cursor position (UNLESS indicated otherwise by the user), then you need \`referenceId\` to point to the block before the cursor with position \`after\` (or block below and \`before\`
----
- `;
-
 export const markdownBlockLLMFormat = {
   /**
    * Function to get the stream tools that can apply Markdown block updates to the editor
@@ -100,12 +90,25 @@ export const markdownBlockLLMFormat = {
       );
     },
   }),
-  systemPrompt,
+
   tools,
 
-  defaultDocumentStateBuilder: makeDocumentStateBuilder(
-    async (editor, block) => {
-      return editor.blocksToMarkdownLossy([block]);
-    },
-  ),
+  /**
+   * The default PromptBuilder that determines how a userPrompt is converted to an array of
+   * LLM Messages (CoreMessage[])
+   */
+  defaultPromptBuilder: defaultMarkdownPromptBuilder,
+
+  /**
+   * The default PromptInputDataBuilder that can take an editor and user request and convert it to the input required for the PromptBuilder
+   */
+  defaultPromptInputDataBuilder: defaultMarkdownPromptDataBuilder,
+
+  /**
+   * Helper functions which can be used when implementing a custom PromptBuilder
+   */
+  promptHelpers: {
+    getDataForPromptNoSelection,
+    getDataForPromptWithSelection,
+  },
 };

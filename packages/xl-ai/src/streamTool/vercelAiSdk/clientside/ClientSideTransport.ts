@@ -10,12 +10,11 @@ import {
   streamObject,
   streamText,
 } from "ai";
-import { injectDocumentStateMessages } from "../util/injectDocumentStateMessages.js";
+import { toolDefinitionsToToolSet } from "../../../streamTool/toolDefinitionsToToolSet.js";
 import {
   objectAsToolCallInUIMessageStream,
   partialObjectStreamAsToolCallInUIMessageStream,
 } from "../util/partialObjectStreamUtil.js";
-import { toolDefinitionsToToolSet } from "../util/toolDefinitions.js";
 
 export const PROVIDER_OVERRIDES = {
   "mistral.chat": {
@@ -53,13 +52,6 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
        * Note: perhaps we want to remove this
        */
       model: LanguageModel;
-
-      /**
-       * The system prompt to use for the LLM call
-       *
-       * @default undefined
-       */
-      systemPrompt?: string;
 
       /**
        * Whether to stream the LLM response or not
@@ -110,8 +102,7 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
       schema,
       model,
       mode: "tool",
-      system: this.opts.systemPrompt,
-      messages: convertToModelMessages(injectDocumentStateMessages(messages)),
+      messages: convertToModelMessages(messages),
       ...getProviderOverrides(model),
       ...((_additionalOptions ?? {}) as any),
     });
@@ -140,8 +131,7 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
       schema,
       model,
       mode: "tool",
-      system: this.opts.systemPrompt,
-      messages: convertToModelMessages(injectDocumentStateMessages(messages)),
+      messages: convertToModelMessages(messages),
       ...getProviderOverrides(model),
       ...((_additionalOptions ?? {}) as any),
     });
@@ -163,8 +153,7 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
 
     const ret = streamText({
       model,
-      system: this.opts.systemPrompt,
-      messages: convertToModelMessages(injectDocumentStateMessages(messages)),
+      messages: convertToModelMessages(messages),
       tools,
       toolChoice: "required",
       // extra options for streamObject

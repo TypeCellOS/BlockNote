@@ -1,38 +1,34 @@
 import { BlockNoteEditor } from "@blocknote/core";
 
-export type BlocksWithCursor<T> =
-  | {
-      id: string;
-      block: T;
-    }
-  | {
-      cursor: true;
-    };
-
-export function addCursorPosition<T>(
-  editor: BlockNoteEditor<any, any, any>,
-  source: Array<{
+type BlocksWithCursor<T> = {
     id: string;
     block: T;
-  }>,
-): Array<BlocksWithCursor<T>> {
-  const cursorPosition = editor.getTextCursorPosition();
-  const ret: Array<BlocksWithCursor<T>> = [];
+} | {
+    cursor: true;
+}
 
-  for (const block of source) {
-    const isBlockWithCursor = block.id === cursorPosition.block.id;
+export function addCursorPosition<T>(editor: BlockNoteEditor<any, any, any>, source: Array<{
+  id: string;
+  block: T;
+}>): Array<BlocksWithCursor<T>>
+{
+    const cursorPosition = editor.getTextCursorPosition();
+    const ret: Array<BlocksWithCursor<T>> = [];
 
-    ret.push({
-      id: block.id,
-      block: block.block,
-    });
+    for (const block of source) {
+      const isBlockWithCursor = block.id === cursorPosition.block.id;
 
-    if (isBlockWithCursor) {
       ret.push({
-        cursor: true,
+          id: block.id,
+          block: block.block,
       });
-    }
-  }
 
-  return ret;
+      if (isBlockWithCursor) {
+        ret.push({
+            cursor: true,
+        });
+      }
+    }
+
+    return ret;
 }

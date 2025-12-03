@@ -5,7 +5,7 @@ import path from "path";
 import { TextSelection } from "prosemirror-state";
 import { describe, expect, it } from "vitest";
 import { AIExtension } from "../../../AIExtension.js";
-import { sendMessageWithAIRequest } from "../../../index.js";
+import { aiDocumentFormats, defaultAIRequestSender } from "../../../index.js";
 import { addOperationTestCases } from "../../../testUtil/cases/addOperationTestCases.js";
 import { combinedOperationsTestCases } from "../../../testUtil/cases/combinedOperationsTestCases.js";
 import { deleteOperationTestCases } from "../../../testUtil/cases/deleteOperationTestCases.js";
@@ -16,7 +16,7 @@ import {
 import { updateOperationTestCases } from "../../../testUtil/cases/updateOperationTestCases.js";
 import { validateRejectingResultsInOriginalDoc } from "../../../testUtil/suggestChangesTestUtil.js";
 import { AIRequestHelpers } from "../../../types.js";
-import { buildAIRequest } from "../../aiRequest/builder.js";
+import { buildAIRequest, executeAIRequest } from "../../aiRequest/execute.js";
 
 const BASE_FILE_PATH = path.resolve(__dirname, "__snapshots__");
 
@@ -78,35 +78,27 @@ export function generateSharedTestCases(
     const chat = new Chat<UIMessage>({
       sendAutomaticallyWhen: () => false,
       transport: aiOptions.transport,
-      onError: (error) => {
-        throw error;
-      },
     });
 
-    const aiRequest = await buildAIRequest({
+    const aiRequest = buildAIRequest({
       editor,
+      chat,
+      userPrompt: test.userPrompt,
       useSelection: selection !== undefined,
       streamToolsProvider: aiOptions.streamToolsProvider,
     });
+    const sender =
+      aiOptions.aiRequestSender ??
+      defaultAIRequestSender(
+        aiDocumentFormats.html.defaultPromptBuilder,
+        aiDocumentFormats.html.defaultPromptInputDataBuilder,
+      );
 
-    await sendMessageWithAIRequest(
-      chat,
+    await executeAIRequest({
       aiRequest,
-      {
-        role: "user",
-        parts: [
-          {
-            type: "text",
-            text: test.userPrompt,
-          },
-        ],
-      },
-      aiOptions.chatRequestOptions,
-    );
-
-    if (chat.status !== "ready") {
-      throw new Error(`Chat status is not "ready": ${chat.status}`);
-    }
+      sender,
+      chatRequestOptions: aiOptions.chatRequestOptions,
+    });
 
     // const result = await callLLM(editor, {
     //   userPrompt: test.userPrompt,

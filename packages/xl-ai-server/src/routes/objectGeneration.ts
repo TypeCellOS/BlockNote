@@ -1,10 +1,8 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import {
-  aiDocumentFormats,
-  injectDocumentStateMessages,
   objectAsToolCallInUIMessageStream,
   partialObjectStreamAsToolCallInUIMessageStream,
-} from "@blocknote/xl-ai/server";
+} from "@blocknote/xl-ai";
 import {
   convertToModelMessages,
   createUIMessageStreamResponse,
@@ -36,8 +34,7 @@ objectGenerationRoute.post("/streamObject", async (c) => {
   const schema = jsonSchema(toolDefinitions[toolName].inputSchema);
   const result = streamObject({
     model,
-    system: aiDocumentFormats.html.systemPrompt,
-    messages: convertToModelMessages(injectDocumentStateMessages(messages)),
+    messages: convertToModelMessages(messages),
     output: "object",
     schema,
   });
@@ -60,8 +57,7 @@ objectGenerationRoute.post("/generateObject", async (c) => {
 
   const result = await generateObject({
     model,
-    system: aiDocumentFormats.html.systemPrompt,
-    messages: convertToModelMessages(injectDocumentStateMessages(messages)),
+    messages: convertToModelMessages(messages),
     output: "object",
     schema,
   });

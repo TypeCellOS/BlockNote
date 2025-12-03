@@ -4,11 +4,7 @@ import { createGroq } from "@ai-sdk/groq";
 import { createMistral } from "@ai-sdk/mistral";
 import { createOpenAI } from "@ai-sdk/openai";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
-import {
-  aiDocumentFormats,
-  injectDocumentStateMessages,
-  toolDefinitionsToToolSet,
-} from "@blocknote/xl-ai/server";
+import { toolDefinitionsToToolSet } from "@blocknote/xl-ai";
 import { convertToModelMessages, streamText } from "ai";
 import { Hono } from "hono";
 
@@ -30,8 +26,7 @@ modelPlaygroundRoute.post("/streamText", async (c) => {
 
   const result = streamText({
     model,
-    system: aiDocumentFormats.html.systemPrompt,
-    messages: convertToModelMessages(injectDocumentStateMessages(messages)),
+    messages: convertToModelMessages(messages),
     tools: toolDefinitionsToToolSet(toolDefinitions),
     toolChoice: "required",
   });

@@ -35,7 +35,6 @@ export default defineConfig((conf) => ({
       entry: {
         "blocknote-xl-ai": path.resolve(__dirname, "src/index.ts"),
         locales: path.resolve(__dirname, "src/i18n/locales/index.ts"),
-        server: path.resolve(__dirname, "src/server.ts"),
       },
       name: "blocknote-xl-ai",
       formats: ["es", "cjs"],
@@ -45,26 +44,15 @@ export default defineConfig((conf) => ({
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
       // into your library
-      external: (source) => {
-        if (
-          Object.keys({
-            ...pkg.dependencies,
-            ...((pkg as any).peerDependencies || {}),
-            ...pkg.devDependencies,
-          }).includes(source)
-        ) {
-          return true;
-        }
-        return (
-          source.startsWith("react/") ||
-          source.startsWith("react-dom/") ||
-          source.startsWith("prosemirror-") ||
-          source.startsWith("@tiptap/") ||
-          source.startsWith("@blocknote/") ||
-          source.startsWith("@shikijs/") ||
-          source.startsWith("node:")
-        );
-      },
+      external: [
+        ...Object.keys({
+          ...pkg.dependencies,
+          ...pkg.peerDependencies,
+          ...pkg.devDependencies,
+        }),
+        "react-dom/client",
+        "react/jsx-runtime",
+      ],
       output: {
         // Provide global variables to use in the UMD build
         // for externalized deps
