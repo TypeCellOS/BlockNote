@@ -6,16 +6,14 @@ import { LinkToolbarProps } from "../LinkToolbarProps.js";
 export const EditLinkButton = (
   props: Pick<
     LinkToolbarProps,
-    "url" | "text" | "range" | "setToolbarOpen" | "setToolbarPositionFrozen"
+    "url" | "text" | "range" | "setToolbarFrozen" | "setToolbarOpen"
   >,
 ) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
   return (
-    <Components.Generic.Popover.Root
-      onOpenChange={props.setToolbarPositionFrozen}
-    >
+    <Components.Generic.Popover.Root onOpenChange={props.setToolbarFrozen}>
       <Components.Generic.Popover.Trigger>
         <Components.LinkToolbar.Button
           className={"bn-button"}
@@ -34,7 +32,7 @@ export const EditLinkButton = (
           text={props.text}
           range={props.range}
           setToolbarOpen={props.setToolbarOpen}
-          setToolbarPositionFrozen={props.setToolbarPositionFrozen}
+          setToolbarFrozen={props.setToolbarFrozen}
         />
       </Components.Generic.Popover.Content>
     </Components.Generic.Popover.Root>
