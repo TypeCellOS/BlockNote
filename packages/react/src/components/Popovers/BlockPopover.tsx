@@ -8,6 +8,7 @@ import { GenericPopover, GenericPopoverReference } from "./GenericPopover.js";
 export const BlockPopover = (
   props: FloatingUIOptions & {
     blockId: string | undefined;
+    includeNestedBlocks?: boolean;
     children: ReactNode;
   },
 ) => {
@@ -28,18 +29,48 @@ export const BlockPopover = (
           return undefined;
         }
 
-        const { node } = editor.prosemirrorView.domAtPos(
+        const blockElement = editor.prosemirrorView.domAtPos(
           nodePosInfo.posBeforeNode + 1,
-        );
-        if (!(node instanceof Element)) {
+        ).node;
+        if (!(blockElement instanceof Element)) {
+          return undefined;
+        }
+
+        if (props.includeNestedBlocks) {
+          return {
+            element: blockElement,
+          };
+        }
+
+        const blockContentNode = blockElement.firstElementChild;
+        if (blockContentNode === null) {
           return undefined;
         }
 
         return {
-          element: node,
+          element: blockContentNode,
+          getBoundingClientRect: () => {
+            const outerBlockGroupClientRect =
+              editor.domElement?.firstElementChild?.getBoundingClientRect();
+            if (outerBlockGroupClientRect === undefined) {
+              throw new Error(
+                "Root blockGroup element doesn't exist, yet descendant blockContent element does.",
+              );
+            }
+
+            const blockContentBoundingClientRect =
+              blockContentNode.getBoundingClientRect();
+
+            return new DOMRect(
+              outerBlockGroupClientRect.x,
+              blockContentBoundingClientRect.y,
+              outerBlockGroupClientRect.width,
+              blockContentBoundingClientRect.height,
+            );
+          },
         };
       }),
-    [editor, blockId],
+    [editor, blockId, props.includeNestedBlocks],
   );
 
   return (
