@@ -42,13 +42,13 @@ export const BlockPopover = (
           };
         }
 
-        const blockContentNode = blockElement.firstElementChild;
-        if (blockContentNode === null) {
+        const blockContentElement = blockElement.firstElementChild;
+        if (blockContentElement === null) {
           return undefined;
         }
 
         return {
-          element: blockContentNode,
+          element: blockContentElement,
           getBoundingClientRect: () => {
             const outerBlockGroupClientRect =
               editor.domElement?.firstElementChild?.getBoundingClientRect();
@@ -59,7 +59,7 @@ export const BlockPopover = (
             }
 
             const blockContentBoundingClientRect =
-              blockContentNode.getBoundingClientRect();
+              blockContentElement.getBoundingClientRect();
 
             return new DOMRect(
               outerBlockGroupClientRect.x,
