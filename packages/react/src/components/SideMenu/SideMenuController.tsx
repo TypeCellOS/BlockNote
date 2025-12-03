@@ -117,7 +117,11 @@ export const SideMenuController = (props: {
   const Component = props.sideMenu || SideMenu;
 
   return (
-    <BlockPopover blockId={show ? block?.id : undefined} {...floatingUIOptions}>
+    <BlockPopover
+      blockId={show ? block?.id : undefined}
+      spanEditorWidth={true}
+      {...floatingUIOptions}
+    >
       {block?.id && <Component />}
     </BlockPopover>
   );

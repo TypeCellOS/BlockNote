@@ -8,6 +8,7 @@ import { GenericPopover, GenericPopoverReference } from "./GenericPopover.js";
 export const BlockPopover = (
   props: FloatingUIOptions & {
     blockId: string | undefined;
+    spanEditorWidth?: boolean;
     includeNestedBlocks?: boolean;
     children: ReactNode;
   },
@@ -36,41 +37,44 @@ export const BlockPopover = (
           return undefined;
         }
 
-        if (props.includeNestedBlocks) {
-          return {
-            element: blockElement,
-          };
-        }
-
         const blockContentElement = blockElement.firstElementChild;
-        if (blockContentElement === null) {
+        if (!(blockContentElement instanceof Element)) {
           return undefined;
         }
 
-        return {
-          element: blockContentElement,
-          getBoundingClientRect: () => {
-            const outerBlockGroupClientRect =
-              editor.domElement?.firstElementChild?.getBoundingClientRect();
-            if (outerBlockGroupClientRect === undefined) {
-              throw new Error(
-                "Root blockGroup element doesn't exist, yet descendant blockContent element does.",
+        const element =
+          props.includeNestedBlocks === false
+            ? blockContentElement
+            : blockElement;
+
+        if (props.spanEditorWidth) {
+          return {
+            element,
+            getBoundingClientRect: () => {
+              const boundingClientRect = element.getBoundingClientRect();
+
+              const outerBlockGroupElement =
+                editor.domElement?.firstElementChild;
+              if (!(outerBlockGroupElement instanceof Element)) {
+                return undefined;
+              }
+
+              const outerBlockGroupBoundingClientRect =
+                outerBlockGroupElement.getBoundingClientRect();
+
+              return new DOMRect(
+                outerBlockGroupBoundingClientRect.x,
+                boundingClientRect.y,
+                outerBlockGroupBoundingClientRect.width,
+                boundingClientRect.height,
               );
-            }
+            },
+          };
+        }
 
-            const blockContentBoundingClientRect =
-              blockContentElement.getBoundingClientRect();
-
-            return new DOMRect(
-              outerBlockGroupClientRect.x,
-              blockContentBoundingClientRect.y,
-              outerBlockGroupClientRect.width,
-              blockContentBoundingClientRect.height,
-            );
-          },
-        };
+        return { element };
       }),
-    [editor, blockId, props.includeNestedBlocks],
+    [editor, blockId, props.includeNestedBlocks, props.spanEditorWidth],
   );
 
   return (
