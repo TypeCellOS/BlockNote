@@ -1,7 +1,7 @@
 import type { HighlighterGeneric } from "@shikijs/types";
 import { DOMParser } from "@tiptap/pm/model";
 import { z } from "zod/v4";
-import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
+import { createExtension } from "../../editor/BlockNoteExtension.js";
 import {
   createBlockConfig,
   createBlockSpec,
@@ -175,11 +175,11 @@ export const createCodeBlockSpec = createBlockSpec(
   }),
   (options) => {
     return [
-      createBlockNoteExtension({
+      createExtension({
         key: "code-block-highlighter",
-        plugins: [lazyShikiPlugin(options)],
+        prosemirrorPlugins: [lazyShikiPlugin(options)],
       }),
-      createBlockNoteExtension({
+      createExtension({
         key: "code-block-keyboard-shortcuts",
         keyboardShortcuts: {
           Delete: ({ editor }) => {

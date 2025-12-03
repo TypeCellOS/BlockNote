@@ -1,10 +1,5 @@
-import { z } from "zod/v4";
-import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
-import {
-  createBlockConfig,
-  createBlockSpec,
-  createPropSchemaFromZod,
-} from "../../schema/index.js";
+import { createExtension } from "../../editor/BlockNoteExtension.js";
+import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
 
 export type DividerBlockConfig = ReturnType<typeof createDividerBlockConfig>;
 
@@ -40,7 +35,7 @@ export const createDividerBlockSpec = createBlockSpec(
     runsBefore: [],
   },
   [
-    createBlockNoteExtension({
+    createExtension({
       key: "divider-block-shortcuts",
       inputRules: [
         {

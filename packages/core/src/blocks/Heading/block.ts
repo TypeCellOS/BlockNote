@@ -1,5 +1,6 @@
 import { z } from "zod/v4";
-import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { createExtension } from "../../editor/BlockNoteExtension.js";
 import {
   createBlockConfig,
   createBlockSpec,
@@ -20,6 +21,25 @@ export interface HeadingOptions {
   // TODO should probably use composition instead of this
   allowToggleHeadings?: boolean;
 }
+
+const createHeadingKeyboardShortcut =
+  (level: number) =>
+  ({ editor }: { editor: BlockNoteEditor<any, any, any> }) => {
+    const cursorPosition = editor.getTextCursorPosition();
+
+    if (
+      editor.schema.blockSchema[cursorPosition.block.type].content !== "inline"
+    ) {
+      return false;
+    }
+
+    editor.updateBlock(cursorPosition.block, {
+      type: "heading",
+      props: { level },
+    });
+
+    return true;
+  };
 
 export type HeadingBlockConfig = ReturnType<typeof createHeadingBlockConfig>;
 
@@ -106,29 +126,12 @@ export const createHeadingBlockSpec = createBlockSpec(
     runsBefore: [],
   }),
   ({ levels = HEADING_LEVELS }: HeadingOptions = {}) => [
-    createBlockNoteExtension({
+    createExtension({
       key: "heading-shortcuts",
       keyboardShortcuts: Object.fromEntries(
         levels.map((level) => [
           `Mod-Alt-${level}`,
-          ({ editor }) => {
-            const cursorPosition = editor.getTextCursorPosition();
-
-            if (
-              editor.schema.blockSchema[cursorPosition.block.type].content !==
-              "inline"
-            ) {
-              return false;
-            }
-
-            editor.updateBlock(cursorPosition.block, {
-              type: "heading",
-              props: {
-                level: level as any,
-              },
-            });
-            return true;
-          },
+          createHeadingKeyboardShortcut(level),
         ]) ?? [],
       ),
       inputRules: levels.map((level) => ({

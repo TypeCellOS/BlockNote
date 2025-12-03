@@ -1,8 +1,8 @@
+import { BlockNoteEditor } from "@blocknote/core";
 import {
-  BlockNoteEditor,
   filterSuggestionItems,
-  insertOrUpdateBlock,
-} from "@blocknote/core";
+  insertOrUpdateBlockForSlashMenu,
+} from "@blocknote/core/extensions";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
@@ -22,7 +22,7 @@ const insertHelloWorldItem = (editor: BlockNoteEditor) => ({
     // changes its type to the provided block. Otherwise, it inserts the new
     // block below and moves the text caret to it. We use this function with
     // a block containing 'Hello World' in bold.
-    insertOrUpdateBlock(editor, {
+    insertOrUpdateBlockForSlashMenu(editor, {
       type: "paragraph",
       content: [{ type: "text", text: "Hello World", styles: { bold: true } }],
     }),

@@ -18,7 +18,7 @@ import {
   RiTextWrap,
 } from "react-icons/ri";
 
-import { getAIExtension } from "../../AIExtension.js";
+import { AIExtension } from "../../AIExtension.js";
 import { aiDocumentFormats } from "../../api/index.js";
 import { getAIDictionary } from "../../i18n/dictionary.js";
 
@@ -40,7 +40,10 @@ function getDefaultAIMenuItemsWithoutSelection<
   S extends StyleSchema,
 >(editor: BlockNoteEditor<BSchema, I, S>): AIMenuSuggestionItem[] {
   const dict = getAIDictionary(editor);
-  const ai = getAIExtension(editor);
+  const ai = editor.getExtension(AIExtension);
+  if (!ai) {
+    return [];
+  }
   return [
     {
       key: "continue_writing",
@@ -128,7 +131,10 @@ function getDefaultAIMenuItemsWithSelection<
 >(editor: BlockNoteEditor<BSchema, I, S>): AIMenuSuggestionItem[] {
   const dict = getAIDictionary(editor);
 
-  const ai = getAIExtension(editor);
+  const ai = editor.getExtension(AIExtension);
+  if (!ai) {
+    return [];
+  }
 
   return [
     {
@@ -216,7 +222,10 @@ function getDefaultAIMenuItemsForReview<
   S extends StyleSchema,
 >(editor: BlockNoteEditor<BSchema, I, S>): AIMenuSuggestionItem[] {
   const dict = getAIDictionary(editor);
-  const ai = getAIExtension(editor);
+  const ai = editor.getExtension(AIExtension);
+  if (!ai) {
+    return [];
+  }
 
   return [
     {
@@ -251,7 +260,10 @@ function getDefaultAIMenuItemsForError<
   S extends StyleSchema,
 >(editor: BlockNoteEditor<BSchema, I, S>): AIMenuSuggestionItem[] {
   const dict = getAIDictionary(editor);
-  const ai = getAIExtension(editor);
+  const ai = editor.getExtension(AIExtension);
+  if (!ai) {
+    return [];
+  }
 
   return [
     {

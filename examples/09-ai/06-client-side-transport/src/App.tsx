@@ -1,5 +1,6 @@
 import { createGroq } from "@ai-sdk/groq";
-import { BlockNoteEditor, filterSuggestionItems } from "@blocknote/core";
+import { BlockNoteEditor } from "@blocknote/core";
+import { filterSuggestionItems } from "@blocknote/core/extensions";
 import "@blocknote/core/fonts/inter.css";
 import { en } from "@blocknote/core/locales";
 import { BlockNoteView } from "@blocknote/mantine";
@@ -13,10 +14,10 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 import {
+  AIExtension,
   AIMenuController,
   AIToolbarButton,
   ClientSideTransport,
-  createAIExtension,
   fetchViaProxy,
   getAISlashMenuItems,
 } from "@blocknote/xl-ai";
@@ -48,7 +49,7 @@ export default function App() {
     },
     // Register the AI extension
     extensions: [
-      createAIExtension({
+      AIExtension({
         // The ClientSideTransport is used so the client makes calls directly to `streamText`
         // (whereas normally in the Vercel AI SDK, the client makes calls to your server, which then calls these methods)
         // (see https://github.com/vercel/ai/issues/5140 for background info)

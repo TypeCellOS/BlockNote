@@ -18,7 +18,7 @@ export const EmojiPicker = (props: {
   const blockNoteContext = useBlockNoteContext();
 
   return (
-    <Components.Generic.Popover.Root opened={open}>
+    <Components.Generic.Popover.Root open={open}>
       <Components.Generic.Popover.Trigger>
         <div
           onClick={(event) => {

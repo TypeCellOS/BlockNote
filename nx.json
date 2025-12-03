@@ -40,7 +40,7 @@
     },
     "lint": {
       "cache": true,
-      "dependsOn": ["^lint"]
+      "dependsOn": []
     },
     "e2e": {
       "cache": true,

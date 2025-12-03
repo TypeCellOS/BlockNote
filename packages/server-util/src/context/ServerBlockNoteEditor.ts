@@ -301,6 +301,15 @@ export class ServerBlockNoteEditor<
             {},
             createElement(BlockNoteViewRaw<any, any, any>, {
               editor: this.editor,
+              // Skip UI components to avoid rendering them in the server environment
+              formattingToolbar: false,
+              linkToolbar: false,
+              slashMenu: false,
+              emojiPicker: false,
+              sideMenu: false,
+              filePanel: false,
+              tableHandles: false,
+              comments: false,
             }),
           ),
         );

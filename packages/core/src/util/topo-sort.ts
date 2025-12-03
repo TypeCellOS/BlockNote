@@ -158,3 +158,49 @@ export function hasDependency(
   const dependents = graph.get(from);
   return dependents ? dependents.has(to) : false;
 }
+
+/**
+ * Sorts a list of items by their dependencies
+ * @returns A function which can retrieve the priority of an item
+ */
+export function sortByDependencies(
+  items: { key: string; runsBefore?: ReadonlyArray<string> }[],
+) {
+  const dag = createDependencyGraph();
+
+  for (const item of items) {
+    if (Array.isArray(item.runsBefore) && item.runsBefore.length > 0) {
+      item.runsBefore.forEach((runBefore) => {
+        addDependency(dag, item.key, runBefore);
+      });
+    } else {
+      addDependency(dag, "default", item.key);
+    }
+  }
+  const sortedSpecs = toposortReverse(dag);
+  const defaultIndex = sortedSpecs.findIndex((set) => set.has("default"));
+
+  /**
+   * The priority of an item is described relative to the "default" (an arbitrary string which can be used as the reference)
+   *
+   * Since items are topologically sorted, we can see what their relative position is to the "default"
+   * Each layer away from the default is 10 priority points (arbitrarily chosen)
+   * The default is fixed at 101 (1 point higher than any tiptap extension, giving priority to custom blocks than any defaults)
+   *
+   * This is a bit of a hack, but it's a simple way to ensure that custom items are always rendered with higher priority than default items
+   * and that custom items are rendered in the order they are defined in the list
+   */
+
+  /**
+   * Retrieves the priority of an item based on its position in the topologically sorted list
+   * @param key - The key of the item to get the priority of
+   * @returns The priority of the item
+   */
+  return (key: string) => {
+    const index = sortedSpecs.findIndex((set) => set.has(key));
+    // the default index should map to 101
+    // one before the default index is 91
+    // one after is 111
+    return 91 + (index + defaultIndex) * 10;
+  };
+}

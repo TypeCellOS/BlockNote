@@ -11,22 +11,10 @@ export * from "./api/pmUtil.js";
 export * from "./blocks/index.js";
 export * from "./editor/BlockNoteEditor.js";
 export * from "./editor/BlockNoteExtension.js";
-export * from "./editor/BlockNoteExtensions.js";
 export * from "./editor/defaultColors.js";
 export * from "./editor/selectionTypes.js";
 export * from "./exporter/index.js";
 export * from "./extensions-shared/UiElementPosition.js";
-export * from "./extensions/FilePanel/FilePanelPlugin.js";
-export * from "./extensions/FormattingToolbar/FormattingToolbarPlugin.js";
-export * from "./extensions/LinkToolbar/LinkToolbarPlugin.js";
-export * from "./extensions/LinkToolbar/protocols.js";
-export * from "./extensions/SideMenu/SideMenuPlugin.js";
-export * from "./extensions/SuggestionMenu/DefaultGridSuggestionItem.js";
-export * from "./extensions/SuggestionMenu/DefaultSuggestionItem.js";
-export * from "./extensions/SuggestionMenu/getDefaultEmojiPickerItems.js";
-export * from "./extensions/SuggestionMenu/getDefaultSlashMenuItems.js";
-export * from "./extensions/SuggestionMenu/SuggestionPlugin.js";
-export * from "./extensions/TableHandles/TableHandlesPlugin.js";
 export * from "./i18n/dictionary.js";
 export * from "./schema/index.js";
 export * from "./util/browser.js";
@@ -46,7 +34,7 @@ export { selectedFragmentToHTML } from "./api/clipboard/toClipboard/copyExtensio
 // Node conversions
 export * from "./api/nodeConversions/blockToNode.js";
 export * from "./api/nodeConversions/nodeToBlock.js";
-export * from "./extensions/UniqueID/UniqueID.js";
+export * from "./extensions/tiptap-extensions/UniqueID/UniqueID.js";
 
 // for server-util (TODO: maybe move):
 export * from "./api/exporters/markdown/markdownExporter.js";

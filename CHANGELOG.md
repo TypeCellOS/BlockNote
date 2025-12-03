@@ -1,3 +1,60 @@
+## 0.44.0 (2025-12-02)
+
+### 🚀 Features
+
+- **ai:** Abort requests ([#2213](https://github.com/TypeCellOS/BlockNote/pull/2213))
+
+### ❤️ Thank You
+
+- Yousef
+
+## 0.43.0 (2025-12-01)
+
+### 🚀 Features
+
+- Major Extensions & UI Refactor ([#2143](https://github.com/TypeCellOS/BlockNote/pull/2143))
+
+### 🩹 Fixes
+
+- allow configuring the email body's styles ([#2182](https://github.com/TypeCellOS/BlockNote/pull/2182))
+- **xl-docx-exporter:** improve OOXML interoperability ([#2206](https://github.com/TypeCellOS/BlockNote/pull/2206))
+
+### ❤️ Thank You
+
+- Nick Perez
+- Stephan Meijer @StephanMeijer
+
+## 0.42.3 (2025-11-19)
+
+### 🩹 Fixes
+
+- disallow access to the `domElement` or `isFocused` if the editor is unmounted ([#2187](https://github.com/TypeCellOS/BlockNote/pull/2187))
+
+### ❤️ Thank You
+
+- Nick Perez
+
+## 0.42.2 (2025-11-19)
+
+### 🩹 Fixes
+
+- put back mounting system ([#2183](https://github.com/TypeCellOS/BlockNote/pull/2183))
+
+### ❤️ Thank You
+
+- Nick Perez
+
+## 0.42.1 (2025-11-18)
+
+### 🩹 Fixes
+
+- do not error on invalid `backgroundColor` or `textColor` #2176 ([#2179](https://github.com/TypeCellOS/BlockNote/pull/2179), [#2176](https://github.com/TypeCellOS/BlockNote/issues/2176))
+- remove dependency array from comments re-rendering ([#2177](https://github.com/TypeCellOS/BlockNote/pull/2177))
+
+### ❤️ Thank You
+
+- Nick Perez
+
 ## 0.42.0 (2025-11-11)
 
 ### 🚀 Features

@@ -1,10 +1,10 @@
 import {
   BlockNoteEditor,
   BlockSchema,
-  getDefaultSlashMenuItems,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
+import { getDefaultSlashMenuItems } from "@blocknote/core/extensions";
 import {
   RiCodeBlock,
   RiEmotionFill,

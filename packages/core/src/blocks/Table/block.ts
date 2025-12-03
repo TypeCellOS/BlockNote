@@ -2,7 +2,8 @@ import { mergeAttributes, Node } from "@tiptap/core";
 import { DOMParser, Fragment, Node as PMNode, Schema } from "prosemirror-model";
 import { CellSelection, TableView } from "prosemirror-tables";
 import { NodeView } from "prosemirror-view";
-import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
+
+import { createExtension } from "../../editor/BlockNoteExtension.js";
 import {
   BlockConfig,
   createBlockSpecFromTiptapNode,
@@ -384,7 +385,7 @@ export const createTableBlockSpec = () =>
     { node: TiptapTableNode, type: "table", content: "table" },
     tablePropSchema,
     [
-      createBlockNoteExtension({
+      createExtension({
         key: "table-extensions",
         tiptapExtensions: [
           TableExtension,
@@ -398,7 +399,7 @@ export const createTableBlockSpec = () =>
       // and all cells are selected. Uses a separate extension as it needs
       // priority over keyboard handlers in the `TableExtension`'s
       // `tableEditing` plugin.
-      createBlockNoteExtension({
+      createExtension({
         key: "table-keyboard-delete",
         keyboardShortcuts: {
           Backspace: ({ editor }) => {

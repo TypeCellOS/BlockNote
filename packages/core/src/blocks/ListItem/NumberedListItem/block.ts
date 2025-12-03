@@ -1,6 +1,6 @@
 import { z } from "zod/v4";
 import { getBlockInfoFromSelection } from "../../../api/getBlockInfoFromPos.js";
-import { createBlockNoteExtension } from "../../../editor/BlockNoteExtension.js";
+import { createExtension } from "../../../editor/BlockNoteExtension.js";
 import {
   createBlockConfig,
   createBlockSpec,
@@ -98,7 +98,7 @@ export const createNumberedListItemBlockSpec = createBlockSpec(
     runsBefore: [],
   },
   [
-    createBlockNoteExtension({
+    createExtension({
       key: "numbered-list-item-shortcuts",
       inputRules: [
         {
@@ -142,7 +142,7 @@ export const createNumberedListItemBlockSpec = createBlockSpec(
           return true;
         },
       },
-      plugins: [NumberedListIndexingDecorationPlugin()],
+      prosemirrorPlugins: [NumberedListIndexingDecorationPlugin()],
     }),
   ],
 );

@@ -28,7 +28,7 @@ import {
   useComponentsContext,
 } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
-import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks.js";
+import { useEditorState } from "../../../hooks/useEditorState.js";
 
 export type BlockTypeSelectItem = {
   name: string;
@@ -129,7 +129,11 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
     StyleSchema
   >();
 
-  const selectedBlocks = useSelectedBlocks(editor);
+  const selectedBlocks = useEditorState({
+    editor,
+    selector: ({ editor }) =>
+      editor.getSelection()?.blocks || [editor.getTextCursorPosition().block],
+  });
   const firstSelectedBlock = selectedBlocks[0];
 
   // Filters out all items in which the block type and props don't conform to

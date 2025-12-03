@@ -1,11 +1,14 @@
 import { FileBlockConfig, PropSchemaFromZod } from "@blocknote/core";
+import { FilePanelExtension } from "@blocknote/core/extensions";
 import { ReactNode, useCallback } from "react";
 import { RiFile2Line } from "react-icons/ri";
-
 import {
   baseFileZodPropSchema,
   optionalFileZodPropSchema,
 } from "../../../../../../core/src/blocks/defaultFileProps.js";
+
+import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
+import { useExtension } from "../../../../hooks/useExtension.js";
 import { useDictionary } from "../../../../i18n/dictionary.js";
 import { ReactCustomBlockRenderProps } from "../../../../schema/ReactBlockSpec.js";
 
@@ -25,7 +28,10 @@ export const AddFileButton = (
     buttonIcon?: ReactNode;
   },
 ) => {
+  const editor = useBlockNoteEditor<any, any, any>();
   const dict = useDictionary();
+
+  const filePanel = useExtension(FilePanelExtension);
 
   // Prevents focus from moving to the button.
   const addFileButtonMouseDownHandler = useCallback(
@@ -36,12 +42,12 @@ export const AddFileButton = (
   );
   // Opens the file toolbar.
   const addFileButtonClickHandler = useCallback(() => {
-    props.editor.transact((tr) =>
-      tr.setMeta(props.editor.filePanel!.plugins[0], {
-        block: props.block,
-      }),
-    );
-  }, [props.block, props.editor]);
+    if (!editor.isEditable) {
+      return;
+    }
+
+    props.editor.transact(() => filePanel.showMenu(props.block.id));
+  }, [editor.isEditable, filePanel, props.block.id, props.editor]);
 
   return (
     <div

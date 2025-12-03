@@ -1,9 +1,9 @@
 import {
   BlockNoteSchema,
   combineByGroup,
-  filterSuggestionItems,
   withPageBreak,
 } from "@blocknote/core";
+import { filterSuggestionItems } from "@blocknote/core/extensions";
 import "@blocknote/core/fonts/inter.css";
 import * as locales from "@blocknote/core/locales";
 import { BlockNoteView } from "@blocknote/mantine";

@@ -97,7 +97,7 @@ export class DOCXExporter<
 
     return new TextRun({
       ...styles,
-      style: hyperlink ? "Hyperlink" : undefined,
+      style: hyperlink ? "Hyperlink" : styles.style,
       text: styledText.text,
     });
   }

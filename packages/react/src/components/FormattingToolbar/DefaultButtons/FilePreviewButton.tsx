@@ -5,13 +5,12 @@ import {
   isFileBlock,
   StyleSchema,
 } from "@blocknote/core";
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { RiImageAddFill } from "react-icons/ri";
-
 import { optionalFileZodPropSchema } from "../../../../../core/src/blocks/defaultFileProps.js";
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
-import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks.js";
+import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 
 export const FilePreviewButton = () => {
@@ -24,41 +23,49 @@ export const FilePreviewButton = () => {
     StyleSchema
   >();
 
-  const selectedBlocks = useSelectedBlocks(editor);
+  const block = useEditorState({
+    editor,
+    selector: ({ editor }) => {
+      if (!editor.isEditable) {
+        return undefined;
+      }
 
-  const fileBlock = useMemo(() => {
-    // Checks if only one block is selected.
-    if (selectedBlocks.length !== 1) {
-      return undefined;
-    }
+      const selectedBlocks = editor.getSelection()?.blocks || [
+        editor.getTextCursorPosition().block,
+      ];
 
-    const block = selectedBlocks[0];
+      if (selectedBlocks.length !== 1) {
+        return undefined;
+      }
 
-    if (
-      isFileBlock(editor, block.type) &&
-      blockHasZodProps(
-        block,
-        editor,
-        optionalFileZodPropSchema.pick({ url: true, showPreview: true }),
+      const block = selectedBlocks[0];
+
+      if (
+        !isFileBlock(editor, block.type) ||
+        !blockHasZodProps(
+          block,
+          editor,
+          optionalFileZodPropSchema.pick({ url: true, showPreview: true }),
       )
-    ) {
-      return block;
-    }
+      ) {
+        return undefined;
+      }
 
-    return undefined;
-  }, [editor, selectedBlocks]);
+      return block;
+    },
+  });
 
   const onClick = useCallback(() => {
-    if (fileBlock) {
-      editor.updateBlock(fileBlock, {
+    if (block !== undefined) {
+      editor.updateBlock(block.id, {
         props: {
-          showPreview: !fileBlock.props.showPreview,
+          showPreview: !block.props.showPreview,
         },
       });
     }
-  }, [editor, fileBlock]);
+  }, [block, editor]);
 
-  if (!fileBlock || fileBlock.props.url === "" || !editor.isEditable) {
+  if (block === undefined) {
     return null;
   }
 
@@ -68,7 +75,7 @@ export const FilePreviewButton = () => {
       label={"Toggle preview"}
       mainTooltip={dict.formatting_toolbar.file_preview_toggle.tooltip}
       icon={<RiImageAddFill />}
-      isSelected={fileBlock.props.showPreview}
+      isSelected={block.props.showPreview}
       onClick={onClick}
     />
   );

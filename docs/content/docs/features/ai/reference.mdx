@@ -4,16 +4,17 @@ description: Reference documentation for the BlockNote AI extension
 imageTitle: BlockNote AI
 ---
 
-## `createAIExtension`
+## `AIExtension`
 
-Use `createAIExtension` to create a new AI Extension that can be registered to an editor when calling `useCreateBlockNote`.
+Use `AIExtension` to create a new AI Extension that can be registered to an editor when calling `useCreateBlockNote`.
 
 ```typescript
 // Usage:
-const aiExtension = createAIExtension(opts: AIExtensionOptions);
-
-// Definitions:
-function createAIExtension(options: AIExtensionOptions): (editor: BlockNoteEditor) => AIExtension;
+useCreateBlockNote({
+  // Register the AI extension
+  extensions: [AIExtension(options)],
+  // other editor options
+});
 
 type AIExtensionOptions = AIRequestHelpers & {
   /**
@@ -31,10 +32,18 @@ type AIRequestHelpers = {
   transport?: ChatTransport<UIMessage>;
 
   /**
+   * Use the ChatProvider to customize how the AI SDK Chat instance is created.
+   * For example, when you want to reuse an existing Chat instance used in the rest of your application.
+   *
+   * @note you cannot use both `chatProvider` and `transport` together.
+   */
+  chatProvider?: () => Chat<UIMessage>;
+
+  /**
    * Customize which stream tools are available to the LLM.
    */
   streamToolsProvider?: StreamToolsProvider<any, any>;
-  // Provide `streamToolsProvider` in createAIExtension(options) or override per call via InvokeAIOptions.
+  // Provide `streamToolsProvider` in AIExtension(options) or override per call via InvokeAIOptions.
   // If omitted, defaults to using `aiDocumentFormats.html.getStreamToolsProvider()`.
 
   /**
@@ -43,38 +52,29 @@ type AIRequestHelpers = {
   chatRequestOptions?: ChatRequestOptions;
 
   /**
-   * Responsible for submitting a BlockNote AIRequest to the AI SDK.
-   * Use to transform the messages sent to the LLM.
+   * Build the serializable document state that will be forwarded to the backend.
    *
-   * @default defaultAIRequestSender(aiDocumentFormats.html.defaultPromptBuilder, aiDocumentFormats.html.defaultPromptInputDataBuilder)
+   * @default aiDocumentFormats.html.defaultDocumentStateBuilder
    */
-  aiRequestSender?: AIRequestSender;
+  documentStateBuilder?: DocumentStateBuilder<any>;
 };
 ```
 
-## `getAIExtension`
+## `AIExtension` extension instance
 
-Use `getAIExtension` to retrieve the AI extension instance registered to the editor:
-
-```typescript
-function getAIExtension(editor: BlockNoteEditor): AIExtension;
-```
-
-## `AIExtension`
-
-The `AIExtension` class is the main class for the AI extension. It exposes state and methods to interact with BlockNote's AI features.
+The `AIExtension` extension instance returned by `editor.getExtension(AIExtension)` exposes state and methods to interact with BlockNote's AI features.
 
 ```typescript
-class AIExtension {
+type AIExtensionInstance = {
   /**
    * Execute a call to an LLM and apply the result to the editor
    */
   invokeAI(opts: InvokeAIOptions): Promise<void>;
 
   /**
-   * Returns a read-only zustand store with the state of the AI Menu
+   * Returns a read-only Tanstack Store with the state of the AI Menu
    */
-  get store(): ReadonlyStoreApi<{
+  get store(): Store<{
     aiMenuState:
       | ({
           /**
@@ -99,10 +99,10 @@ class AIExtension {
   }>;
 
   /**
-   * Returns a zustand store with the global configuration of the AI Extension.
+   * Returns a Tanstack Store with the global configuration of the AI Extension.
    * These options are used by default across all LLM calls when calling {@link invokeAI}
    */
-  readonly options: StoreApi<AIRequestHelpers>;
+  readonly options: Store<AIRequestHelpers>;
 
   /** Open the AI menu at a specific block */
   openAIMenuAtBlock(blockID: string): void;
@@ -114,6 +114,8 @@ class AIExtension {
   rejectChanges(): void;
   /** Retry the previous LLM call (only valid when status is "error") */
   retry(): Promise<void>;
+  /** Abort the current LLM request */
+  abort(reason?: any): Promise<void>;
   /** Advanced: manually update the status shown by the AI menu */
   setAIResponseStatus(
     status:
@@ -123,12 +125,12 @@ class AIExtension {
       | "user-reviewing"
       | { status: "error"; error: any },
   ): void;
-}
+};
 ```
 
-### `InvokeAIOptions`
+### `InvokeAI`
 
-Requests to an LLM are made by calling `invokeAI` on the `AIExtension` object. This takes an `InvokeAIOptions` object as an argument.
+Requests to an LLM are made by calling `invokeAI` on the `AIExtension` instance. This takes an `InvokeAIOptions` object as an argument.
 
 ```typescript
 type InvokeAIOptions = {
@@ -145,6 +147,8 @@ type InvokeAIOptions = {
   deleteEmptyCursorBlock?: boolean;
 } & AIRequestHelpers; // Optionally override helpers per request
 ```
+
+Because `InvokeAIOptions` extends `AIRequestHelpers`, you can override these options on a per-call basis without changing the global extension configuration.
 
 ## `getStreamToolsProvider`
 
@@ -167,85 +171,72 @@ type getStreamToolsProvider = (
 ) => StreamToolsProvider;
 ```
 
-## `AIRequest` and `AIRequestSender` (advanced)
+## Document state builders (advanced)
 
-The AIRequest models a single AI operation against the editor (prompt, selection, tools). The AIRequestSender is responsible for submitting that request to the AI SDK layer.
+When BlockNote AI sends a request it also forwards a serialized snapshot of the editor. LLMs use this document state to understand document, cursor position and active selection. The `DocumentStateBuilder` type defines how that snapshot is produced:
+
+```typescript
+type DocumentStateBuilder<T> = (
+  aiRequest: Omit<AIRequest, "documentState">,
+) => Promise<
+  | {
+      selection: false;
+      blocks: BlocksWithCursor<T>[];
+      isEmptyDocument: boolean;
+    }
+  | {
+      selection: true;
+      selectedBlocks: { id: string; block: T }[];
+      blocks: { block: T }[];
+      isEmptyDocument: boolean;
+    }
+>;
+```
+
+By default, `aiDocumentFormats.html.defaultDocumentStateBuilder` is used.
+
+## `AIRequest` (advanced)
+
+`buildAIRequest` returns everything BlockNote AI needs to execute an AI call:
 
 ```typescript
 type AIRequest = {
   editor: BlockNoteEditor;
-  chat: Chat<UIMessage>;
-  userPrompt: string;
   selectedBlocks?: Block[];
   emptyCursorBlockToDelete?: string;
   streamTools: StreamTool<any>[];
-};
-
-type AIRequestSender = {
-  sendAIRequest: (
-    aiRequest: AIRequest,
-    options: ChatRequestOptions,
-  ) => Promise<void>;
+  documentState: DocumentState<any>;
+  onStart: () => void;
 };
 ```
 
-The default `AIRequestSender` used is `defaultAIRequestSender(aiDocumentFormats.html.defaultPromptBuilder, aiDocumentFormats.html.defaultPromptInputDataBuilder)`. It takes an AIRequest and the default prompt builder (see below) to construct the updated messages array and submits this to the AI SDK.
+## `sendMessageWithAIRequest` (advanced)
 
-## PromptBuilder (advanced)
-
-A `PromptBuilder` allows you to fine-tune the messages sent to the LLM. A `PromptBuilder` mutates the AI SDK `UIMessage[]` in place based on the user prompt and document-specific input data. Input data is produced by a paired `PromptInputDataBuilder`.
-
-We recommend forking the [default PromptBuilder](https://github.com/TypeCellOS/BlockNote/blob/main/packages/xl-ai/src/api/formats/html-blocks/defaultHTMLPromptBuilder.ts) as a starting point.
+Use `sendMessageWithAIRequest` when you need to manually call the LLM without updating the state of the BlockNote AI menu.
+For example, you could use this when you want to submit LLM requests from a different context (e.g.: a chat window).
+`sendMessageWithAIRequest` is similar to `chat.sendMessages`, but it attaches the `documentState` to the outgoing message metadata, configures tool streaming, and forwards tool definitions (JSON Schemas) to your backend.
 
 ```typescript
-// Mutates the messages based on format-specific input data
-export type PromptBuilder<E> = (
-  messages: UIMessage[],
-  inputData: E,
-) => Promise<void>;
-
-// Builds the input data passed to the PromptBuilder from a BlockNote AIRequest
-export type PromptInputDataBuilder<E> = (aiRequest: AIRequest) => Promise<E>;
-
-// Create an AIRequestSender from your custom builders.
-// This lets you plug your PromptBuilder into the request pipeline used by invokeAI/executeAIRequest.
-function defaultAIRequestSender<E>(
-  promptBuilder: PromptBuilder<E>,
-  promptInputDataBuilder: PromptInputDataBuilder<E>,
-): AIRequestSender;
+async function sendMessageWithAIRequest(
+  chat: Chat<UIMessage>,
+  aiRequest: AIRequest,
+  message?: Parameters<Chat<UIMessage>["sendMessage"]>[0],
+  options?: Parameters<Chat<UIMessage>["sendMessage"]>[1],
+): Promise<Result<void>>;
 ```
 
-## Lower-level functions (advanced)
+## `buildAIRequest` (advanced)
 
-The `invokeAI` function automatically passes the default options set in the `AIExtension` to the LLM request. It also handles the LLM response and updates the state of the AI menu accordingly.
-
-For advanced use cases, you can also directly use the lower-level `buildAIRequest` and `executeAIRequest` functions to issue an LLM request directly.
-
-### `buildAIRequest`
-
-Use buildAIRequest to assemble an AIRequest from editor state and configuration.
+Use `buildAIRequest` to assemble an `AIRequest` from editor state if you are bypassing `invokeAI` and call `sendMessageWithAIRequest` directly.
 
 ```typescript
-function buildAIRequest(opts: {
+async function buildAIRequest(opts: {
   editor: BlockNoteEditor;
-  chat: Chat<UIMessage>;
-  userPrompt: string;
   useSelection?: boolean;
   deleteEmptyCursorBlock?: boolean;
   streamToolsProvider?: StreamToolsProvider<any, any>;
+  documentStateBuilder?: DocumentStateBuilder<any>;
   onBlockUpdated?: (blockId: string) => void;
-}): AIRequest;
-```
-
-### `executeAIRequest`
-
-Use executeAIRequest to send it with an AIRequestSender and process streaming tool calls.
-
-```typescript
-function executeAIRequest(opts: {
-  aiRequest: AIRequest;
-  sender: AIRequestSender;
-  chatRequestOptions?: ChatRequestOptions;
   onStart?: () => void;
-}): Promise<void>;
+}): Promise<AIRequest>;
 ```

@@ -1,7 +1,7 @@
 import { Mark, Node, Schema, Slice } from "@tiptap/pm/model";
 import * as z from "zod/v4/core";
 import type { Block } from "../../blocks/defaultBlocks.js";
-import UniqueID from "../../extensions/UniqueID/UniqueID.js";
+import UniqueID from "../../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 import type {
   BlockSchema,
   CustomInlineContentConfig,

@@ -62,21 +62,7 @@
       "type": "bulletListItem",
     },
     "extensions": [
-      BlockNoteExtension {
-        "inputRules": [
-          {
-            "find": /\^\[-\+\*\]\\s\$/,
-            "replace": [Function],
-          },
-        ],
-        "key": "bullet-list-item-shortcuts",
-        "keyboardShortcuts": {
-          "Enter": [Function],
-          "Mod-Shift-8": [Function],
-        },
-        "plugins": [],
-        "tiptapExtensions": undefined,
-      },
+      [Function],
     ],
     "implementation": {
       "meta": {
@@ -102,25 +88,7 @@
       "type": "checkListItem",
     },
     "extensions": [
-      BlockNoteExtension {
-        "inputRules": [
-          {
-            "find": /\\\[\\s\*\\\]\\s\$/,
-            "replace": [Function],
-          },
-          {
-            "find": /\\\[\[Xx\]\\\]\\s\$/,
-            "replace": [Function],
-          },
-        ],
-        "key": "check-list-item-shortcuts",
-        "keyboardShortcuts": {
-          "Enter": [Function],
-          "Mod-Shift-9": [Function],
-        },
-        "plugins": [],
-        "tiptapExtensions": undefined,
-      },
+      [Function],
     ],
     "implementation": {
       "meta": {
@@ -145,50 +113,8 @@
       "type": "codeBlock",
     },
     "extensions": [
-      BlockNoteExtension {
-        "inputRules": undefined,
-        "key": "code-block-highlighter",
-        "keyboardShortcuts": undefined,
-        "plugins": [
-          Plugin {
-            "key": "prosemirror-highlight$1",
-            "props": {
-              "decorations": [Function],
-            },
-            "spec": {
-              "key": PluginKey {
-                "key": "prosemirror-highlight$1",
-              },
-              "props": {
-                "decorations": [Function],
-              },
-              "state": {
-                "apply": [Function],
-                "init": [Function],
-              },
-              "view": [Function],
-            },
-          },
-        ],
-        "tiptapExtensions": undefined,
-      },
-      BlockNoteExtension {
-        "inputRules": [
-          {
-            "find": /\^```\(\.\*\?\)\\s\$/,
-            "replace": [Function],
-          },
-        ],
-        "key": "code-block-keyboard-shortcuts",
-        "keyboardShortcuts": {
-          "Delete": [Function],
-          "Enter": [Function],
-          "Shift-Enter": [Function],
-          "Tab": [Function],
-        },
-        "plugins": [],
-        "tiptapExtensions": undefined,
-      },
+      [Function],
+      [Function],
     ],
     "implementation": {
       "meta": {
@@ -232,18 +158,7 @@
       "type": "divider",
     },
     "extensions": [
-      BlockNoteExtension {
-        "inputRules": [
-          {
-            "find": /\^---\$/,
-            "replace": [Function],
-          },
-        ],
-        "key": "divider-block-shortcuts",
-        "keyboardShortcuts": undefined,
-        "plugins": [],
-        "tiptapExtensions": undefined,
-      },
+      [Function],
     ],
     "implementation": {
       "meta": {
@@ -294,45 +209,7 @@
       "type": "heading",
     },
     "extensions": [
-      BlockNoteExtension {
-        "inputRules": [
-          {
-            "find": /\^\(#\{1\}\)\\s\$/,
-            "replace": [Function],
-          },
-          {
-            "find": /\^\(#\{2\}\)\\s\$/,
-            "replace": [Function],
-          },
-          {
-            "find": /\^\(#\{3\}\)\\s\$/,
-            "replace": [Function],
-          },
-          {
-            "find": /\^\(#\{4\}\)\\s\$/,
-            "replace": [Function],
-          },
-          {
-            "find": /\^\(#\{5\}\)\\s\$/,
-            "replace": [Function],
-          },
-          {
-            "find": /\^\(#\{6\}\)\\s\$/,
-            "replace": [Function],
-          },
-        ],
-        "key": "heading-shortcuts",
-        "keyboardShortcuts": {
-          "Mod-Alt-1": [Function],
-          "Mod-Alt-2": [Function],
-          "Mod-Alt-3": [Function],
-          "Mod-Alt-4": [Function],
-          "Mod-Alt-5": [Function],
-          "Mod-Alt-6": [Function],
-        },
-        "plugins": [],
-        "tiptapExtensions": undefined,
-      },
+      [Function],
     ],
     "implementation": {
       "meta": {
@@ -385,40 +262,7 @@
       "type": "numberedListItem",
     },
     "extensions": [
-      BlockNoteExtension {
-        "inputRules": [
-          {
-            "find": /\^\(\\d\+\)\\\.\\s\$/,
-            "replace": [Function],
-          },
-        ],
-        "key": "numbered-list-item-shortcuts",
-        "keyboardShortcuts": {
-          "Enter": [Function],
-          "Mod-Shift-7": [Function],
-        },
-        "plugins": [
-          Plugin {
-            "key": "numbered-list-indexing-decorations$",
-            "props": {
-              "decorations": [Function],
-            },
-            "spec": {
-              "key": PluginKey {
-                "key": "numbered-list-indexing-decorations$",
-              },
-              "props": {
-                "decorations": [Function],
-              },
-              "state": {
-                "apply": [Function],
-                "init": [Function],
-              },
-            },
-          },
-        ],
-        "tiptapExtensions": undefined,
-      },
+      [Function],
     ],
     "implementation": {
       "meta": {
@@ -458,15 +302,7 @@
       "type": "paragraph",
     },
     "extensions": [
-      BlockNoteExtension {
-        "inputRules": undefined,
-        "key": "paragraph-shortcuts",
-        "keyboardShortcuts": {
-          "Mod-Alt-0": [Function],
-        },
-        "plugins": [],
-        "tiptapExtensions": undefined,
-      },
+      [Function],
     ],
     "implementation": {
       "meta": {
@@ -491,20 +327,7 @@
       "type": "quote",
     },
     "extensions": [
-      BlockNoteExtension {
-        "inputRules": [
-          {
-            "find": /\^>\\s\$/,
-            "replace": [Function],
-          },
-        ],
-        "key": "quote-block-shortcuts",
-        "keyboardShortcuts": {
-          "Mod-Alt-q": [Function],
-        },
-        "plugins": [],
-        "tiptapExtensions": undefined,
-      },
+      [Function],
     ],
     "implementation": {
       "meta": {
@@ -569,95 +392,8 @@
       "type": "table",
     },
     "extensions": [
-      BlockNoteExtension {
-        "inputRules": undefined,
-        "key": "table-extensions",
-        "keyboardShortcuts": undefined,
-        "plugins": [],
-        "tiptapExtensions": [
-          _Extension {
-            "child": null,
-            "config": {
-              "addKeyboardShortcuts": [Function],
-              "addProseMirrorPlugins": [Function],
-              "extendNodeSchema": [Function],
-              "name": "BlockNoteTableExtension",
-            },
-            "name": "BlockNoteTableExtension",
-            "parent": null,
-            "type": "extension",
-          },
-          _Node {
-            "child": null,
-            "config": {
-              "content": "inline*",
-              "group": "tableContent",
-              "name": "tableParagraph",
-              "parseHTML": [Function],
-              "renderHTML": [Function],
-            },
-            "name": "tableParagraph",
-            "parent": null,
-            "type": "node",
-          },
-          _Node {
-            "child": null,
-            "config": {
-              "addAttributes": [Function],
-              "addOptions": [Function],
-              "content": "tableContent+",
-              "isolating": true,
-              "name": "tableHeader",
-              "parseHTML": [Function],
-              "renderHTML": [Function],
-              "tableRole": "header_cell",
-            },
-            "name": "tableHeader",
-            "parent": null,
-            "type": "node",
-          },
-          _Node {
-            "child": null,
-            "config": {
-              "addAttributes": [Function],
-              "addOptions": [Function],
-              "content": "tableContent+",
-              "isolating": true,
-              "name": "tableCell",
-              "parseHTML": [Function],
-              "renderHTML": [Function],
-              "tableRole": "cell",
-            },
-            "name": "tableCell",
-            "parent": null,
-            "type": "node",
-          },
-          _Node {
-            "child": null,
-            "config": {
-              "addOptions": [Function],
-              "content": "(tableCell | tableHeader)+",
-              "marks": "deletion insertion modification",
-              "name": "tableRow",
-              "parseHTML": [Function],
-              "renderHTML": [Function],
-              "tableRole": "row",
-            },
-            "name": "tableRow",
-            "parent": null,
-            "type": "node",
-          },
-        ],
-      },
-      BlockNoteExtension {
-        "inputRules": undefined,
-        "key": "table-keyboard-delete",
-        "keyboardShortcuts": {
-          "Backspace": [Function],
-        },
-        "plugins": [],
-        "tiptapExtensions": undefined,
-      },
+      [Function],
+      [Function],
     ],
     "implementation": {
       "node": null,
@@ -676,16 +412,7 @@
       "type": "toggleListItem",
     },
     "extensions": [
-      BlockNoteExtension {
-        "inputRules": undefined,
-        "key": "toggle-list-item-shortcuts",
-        "keyboardShortcuts": {
-          "Enter": [Function],
-          "Mod-Shift-6": [Function],
-        },
-        "plugins": [],
-        "tiptapExtensions": undefined,
-      },
+      [Function],
     ],
     "implementation": {
       "meta": {

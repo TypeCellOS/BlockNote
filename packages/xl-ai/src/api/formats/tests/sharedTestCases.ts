@@ -4,8 +4,8 @@ import { getCurrentTest, TaskContext } from "@vitest/runner";
 import path from "path";
 import { TextSelection } from "prosemirror-state";
 import { describe, expect, it } from "vitest";
-import { getAIExtension } from "../../../AIExtension.js";
-import { aiDocumentFormats, defaultAIRequestSender } from "../../../index.js";
+import { AIExtension } from "../../../AIExtension.js";
+import { sendMessageWithAIRequest } from "../../../index.js";
 import { addOperationTestCases } from "../../../testUtil/cases/addOperationTestCases.js";
 import { combinedOperationsTestCases } from "../../../testUtil/cases/combinedOperationsTestCases.js";
 import { deleteOperationTestCases } from "../../../testUtil/cases/deleteOperationTestCases.js";
@@ -16,7 +16,7 @@ import {
 import { updateOperationTestCases } from "../../../testUtil/cases/updateOperationTestCases.js";
 import { validateRejectingResultsInOriginalDoc } from "../../../testUtil/suggestChangesTestUtil.js";
 import { AIRequestHelpers } from "../../../types.js";
-import { buildAIRequest, executeAIRequest } from "../../aiRequest/execute.js";
+import { buildAIRequest } from "../../aiRequest/builder.js";
 
 const BASE_FILE_PATH = path.resolve(__dirname, "__snapshots__");
 
@@ -78,27 +78,35 @@ export function generateSharedTestCases(
     const chat = new Chat<UIMessage>({
       sendAutomaticallyWhen: () => false,
       transport: aiOptions.transport,
+      onError: (error) => {
+        throw error;
+      },
     });
 
-    const aiRequest = buildAIRequest({
+    const aiRequest = await buildAIRequest({
       editor,
-      chat,
-      userPrompt: test.userPrompt,
       useSelection: selection !== undefined,
       streamToolsProvider: aiOptions.streamToolsProvider,
     });
-    const sender =
-      aiOptions.aiRequestSender ??
-      defaultAIRequestSender(
-        aiDocumentFormats.html.defaultPromptBuilder,
-        aiDocumentFormats.html.defaultPromptInputDataBuilder,
-      );
 
-    await executeAIRequest({
+    await sendMessageWithAIRequest(
+      chat,
       aiRequest,
-      sender,
-      chatRequestOptions: aiOptions.chatRequestOptions,
-    });
+      {
+        role: "user",
+        parts: [
+          {
+            type: "text",
+            text: test.userPrompt,
+          },
+        ],
+      },
+      aiOptions.chatRequestOptions,
+    );
+
+    if (chat.status !== "ready") {
+      throw new Error(`Chat status is not "ready": ${chat.status}`);
+    }
 
     // const result = await callLLM(editor, {
     //   userPrompt: test.userPrompt,
@@ -118,7 +126,7 @@ export function generateSharedTestCases(
     validateRejectingResultsInOriginalDoc(editor, originalDoc);
 
     // we first need to accept changes to get the correct result
-    getAIExtension(editor).acceptChanges();
+    editor.getExtension(AIExtension)?.acceptChanges();
     expect(editor.document).toEqual(
       getExpectedEditor(test, {
         deleteEmptyCursorBlock: true,

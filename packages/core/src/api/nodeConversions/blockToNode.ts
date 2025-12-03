@@ -1,5 +1,5 @@
 import { Attrs, Fragment, Mark, Node, Schema } from "@tiptap/pm/model";
-
+import type { Block } from "../../blocks/index.js";
 import type {
   BlockSchema,
   CustomInlineContentFromConfig,
@@ -10,8 +10,6 @@ import type {
   StyledText,
   TableContent,
 } from "../../schema";
-
-import type { Block } from "../../blocks/index.js";
 import {
   isLinkInlineContent,
   isStyledTextInlineContent,

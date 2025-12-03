@@ -292,6 +292,16 @@ export class ReactEmailExporter<
        * Customize the container element
        */
       container?: React.FC<{ children: React.ReactNode }>;
+      /**
+       * Customize the body styles
+       * @default {
+       *   fontFamily: "'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif",
+       *   fontSize: "16px",
+       *   lineHeight: "1.5",
+       *   color: "#333",
+       * }
+       */
+      bodyStyles?: CSSProperties;
     },
   ) {
     const transformedBlocks = await this.transformBlocks(blocks);
@@ -304,13 +314,15 @@ export class ReactEmailExporter<
       <Html>
         <Head>{options?.head}</Head>
         <Body
-          style={{
-            fontFamily:
-              "'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif",
-            fontSize: "16px",
-            lineHeight: "1.5",
-            color: "#333",
-          }}
+          style={
+            options?.bodyStyles ?? {
+              fontFamily:
+                "'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif",
+              fontSize: "16px",
+              lineHeight: "1.5",
+              color: "#333",
+            }
+          }
         >
           {options?.preview && <Preview>{options.preview}</Preview>}
           <Tailwind>
@@ -333,15 +345,11 @@ export class ReactEmailExporter<
       backgroundColor:
         props.backgroundColor === "default" || !props.backgroundColor
           ? undefined
-          : this.options.colors[
-              props.backgroundColor as keyof typeof this.options.colors
-            ].background,
+          : this.options.colors[props.backgroundColor]?.background,
       color:
         props.textColor === "default" || !props.textColor
           ? undefined
-          : this.options.colors[
-              props.textColor as keyof typeof this.options.colors
-            ].text,
+          : this.options.colors[props.textColor]?.text,
       alignItems:
         props.textAlignment === "right"
           ? "flex-end"

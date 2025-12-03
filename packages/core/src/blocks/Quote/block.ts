@@ -1,4 +1,4 @@
-import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
+import { createExtension } from "../../editor/BlockNoteExtension.js";
 import {
   createBlockConfig,
   createBlockSpec,
@@ -61,7 +61,7 @@ export const createQuoteBlockSpec = createBlockSpec(
     runsBefore: [],
   },
   [
-    createBlockNoteExtension({
+    createExtension({
       key: "quote-block-shortcuts",
       keyboardShortcuts: {
         "Mod-Alt-q": ({ editor }) => {

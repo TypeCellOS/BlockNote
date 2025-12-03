@@ -47,6 +47,12 @@ export * from "./components/LinkToolbar/LinkToolbar.js";
 export * from "./components/LinkToolbar/LinkToolbarController.js";
 export * from "./components/LinkToolbar/LinkToolbarProps.js";
 
+export * from "./components/Popovers/BlockPopover.js";
+export * from "./components/Popovers/FloatingUIOptions.js";
+export * from "./components/Popovers/GenericPopover.js";
+export * from "./components/Popovers/PositionPopover.js";
+export * from "./components/Popovers/TableCellPopover.js";
+
 export * from "./components/SideMenu/DefaultButtons/AddBlockButton.js";
 export * from "./components/SideMenu/DefaultButtons/DragHandleButton.js";
 export * from "./components/SideMenu/SideMenu.js";
@@ -57,7 +63,6 @@ export * from "./components/SideMenu/DragHandleMenu/DefaultItems/BlockColorsItem
 export * from "./components/SideMenu/DragHandleMenu/DefaultItems/RemoveBlockItem.js";
 export * from "./components/SideMenu/DragHandleMenu/DefaultItems/TableHeadersItem.js";
 export * from "./components/SideMenu/DragHandleMenu/DragHandleMenu.js";
-export * from "./components/SideMenu/DragHandleMenu/DragHandleMenuProps.js";
 
 export * from "./components/SuggestionMenu/SuggestionMenuController.js";
 export * from "./components/SuggestionMenu/SuggestionMenuWrapper.js";
@@ -90,7 +95,6 @@ export * from "./components/TableHandles/hooks/useTableHandlesPositioning.js";
 export * from "./components/TableHandles/TableCellMenu/DefaultButtons/ColorPicker.js";
 export * from "./components/TableHandles/TableCellMenu/DefaultButtons/SplitButton.js";
 export * from "./components/TableHandles/TableCellMenu/TableCellMenu.js";
-export * from "./components/TableHandles/TableCellMenu/TableCellMenuProps.js";
 export * from "./components/TableHandles/TableCellButton.js";
 export * from "./components/TableHandles/TableCellButtonProps.js";
 
@@ -103,8 +107,8 @@ export * from "./components/TableHandles/TableHandleMenu/TableHandleMenuProps.js
 export * from "./components/Comments/Comment.js";
 export * from "./components/Comments/Comments.js";
 export * from "./components/Comments/FloatingComposer.js";
-export * from "./components/Comments/FloatingComposerController.js";
-export * from "./components/Comments/FloatingThreadController.js";
+export { default as FloatingComposerController } from "./components/Comments/FloatingComposerController.js";
+export { default as FloatingThreadController } from "./components/Comments/FloatingThreadController.js";
 export * from "./components/Comments/Thread.js";
 export * from "./components/Comments/ThreadsSidebar.js";
 export * from "./components/Comments/useThreads.js";
@@ -114,8 +118,6 @@ export * from "./hooks/useActiveStyles.js";
 export * from "./hooks/useBlockNoteEditor.js";
 export * from "./hooks/useCreateBlockNote.js";
 export * from "./hooks/useEditorChange.js";
-export * from "./hooks/useEditorContentOrSelectionChange.js";
-export * from "./hooks/useEditorForceUpdate.js";
 export * from "./hooks/useEditorSelectionBoundingBox.js";
 export * from "./hooks/useEditorSelectionChange.js";
 export * from "./hooks/useFocusWithin.js";
@@ -123,9 +125,9 @@ export * from "./hooks/useOnUploadEnd.js";
 export * from "./hooks/useOnUploadStart.js";
 export * from "./hooks/usePrefersColorScheme.js";
 export * from "./hooks/useSelectedBlocks.js";
-export * from "./hooks/useUIElementPositioning.js";
-export * from "./hooks/useUIPluginState.js";
 export * from "./hooks/useUploadLoading.js";
+export * from "./hooks/useExtension.js";
+export * from "./hooks/useEditorState.js";
 
 export * from "./schema/ReactBlockSpec.js";
 export * from "./schema/ReactInlineContentSpec.js";
@@ -135,5 +137,3 @@ export * from "./util/elementOverflow.js";
 export * from "./util/mergeRefs.js";
 
 export * from "./components/SuggestionMenu/hooks/useSuggestionMenuKeyboardHandler.js";
-export * from "./hooks/useUIElementPositioning.js";
-export * from "./hooks/useUIPluginState.js";

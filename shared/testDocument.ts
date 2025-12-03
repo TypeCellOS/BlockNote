@@ -316,6 +316,27 @@ export const testDocument = partialBlocksToBlocks(
   console.log("Hello World", message);
 };`,
     },
-    { id: "test32", type: "divider" },
+    {
+      id: "test32",
+      type: "paragraph",
+      content: [
+        {
+          type: "text",
+          text: "Some inline code: ",
+          styles: { bold: true }
+        },
+        {
+          type: "text",
+          text: "var foo = 'bar';",
+          styles: { code: true },
+        },
+      ]
+    },
+    { id: "test33",type: "divider" },
+    {
+      id: "test34",
+      type: "quote",
+      content: "All those moments will be lost in time, like tears in rain."
+    }
   ],
 );

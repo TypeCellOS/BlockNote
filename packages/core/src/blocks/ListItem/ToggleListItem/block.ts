@@ -1,4 +1,4 @@
-import { createBlockNoteExtension } from "../../../editor/BlockNoteExtension.js";
+import { createExtension } from "../../../editor/BlockNoteExtension.js";
 import { createBlockConfig, createBlockSpec } from "../../../schema/index.js";
 import {
   addDefaultPropsExternalHTML,
@@ -49,7 +49,7 @@ export const createToggleListItemBlockSpec = createBlockSpec(
     runsBefore: [],
   },
   [
-    createBlockNoteExtension({
+    createExtension({
       key: "toggle-list-item-shortcuts",
       keyboardShortcuts: {
         Enter: ({ editor }) => {

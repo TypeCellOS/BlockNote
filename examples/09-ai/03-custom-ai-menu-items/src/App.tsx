@@ -1,4 +1,5 @@
-import { BlockNoteEditor, filterSuggestionItems } from "@blocknote/core";
+import { BlockNoteEditor } from "@blocknote/core";
+import { filterSuggestionItems } from "@blocknote/core/extensions";
 import "@blocknote/core/fonts/inter.css";
 import { en } from "@blocknote/core/locales";
 import { BlockNoteView } from "@blocknote/mantine";
@@ -12,10 +13,10 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 import {
+  AIExtension,
   AIMenu,
   AIMenuController,
   AIToolbarButton,
-  createAIExtension,
   getAISlashMenuItems,
   getDefaultAIMenuItems,
 } from "@blocknote/xl-ai";
@@ -38,7 +39,7 @@ export default function App() {
     },
     // Register the AI extension
     extensions: [
-      createAIExtension({
+      AIExtension({
         transport: new DefaultChatTransport({
           api: `${BASE_URL}/regular/streamText`,
         }),

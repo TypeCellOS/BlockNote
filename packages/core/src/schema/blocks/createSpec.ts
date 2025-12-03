@@ -2,7 +2,10 @@ import { Editor, Node } from "@tiptap/core";
 import { DOMParser, Fragment, TagParseRule } from "@tiptap/pm/model";
 import { NodeView } from "@tiptap/pm/view";
 import { mergeParagraphs } from "../../blocks/defaultBlockHelpers.js";
-import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
+import {
+  Extension,
+  ExtensionFactoryInstance,
+} from "../../editor/BlockNoteExtension.js";
 import { PropSchema } from "../propTypes.js";
 import {
   getBlockFromPos,
@@ -131,7 +134,7 @@ export function addNodeAndExtensionsToSpec<
 >(
   blockConfig: BlockConfig<TName, TProps, TContent>,
   blockImplementation: BlockImplementation<TName, TProps, TContent>,
-  extensions?: BlockNoteExtension<any>[],
+  extensions?: (ExtensionFactoryInstance | Extension)[],
   priority?: number,
 ): LooseBlockSpec<TName, TProps, TContent> {
   const node =
@@ -296,10 +299,10 @@ export function createBlockSpec<
             options: Partial<TOptions>,
           ) => BlockImplementation<TName, TProps, TContent>),
   extensionsOrCreator?:
-    | BlockNoteExtension<any>[]
+    | ExtensionFactoryInstance[]
     | (TOptions extends undefined
-        ? () => BlockNoteExtension<any>[]
-        : (options: Partial<TOptions>) => BlockNoteExtension<any>[]),
+        ? () => ExtensionFactoryInstance[]
+        : (options: Partial<TOptions>) => ExtensionFactoryInstance[]),
 ): (options?: Partial<TOptions>) => BlockSpec<TName, TProps, TContent>;
 export function createBlockSpec<
   const TName extends string,
@@ -329,10 +332,10 @@ export function createBlockSpec<
             BlockConf["content"]
           >),
   extensionsOrCreator?:
-    | BlockNoteExtension<any>[]
+    | ExtensionFactoryInstance[]
     | (TOptions extends undefined
-        ? () => BlockNoteExtension<any>[]
-        : (options: Partial<TOptions>) => BlockNoteExtension<any>[]),
+        ? () => ExtensionFactoryInstance[]
+        : (options: Partial<TOptions>) => ExtensionFactoryInstance[]),
 ): (
   options?: Partial<TOptions>,
 ) => BlockSpec<
@@ -359,10 +362,10 @@ export function createBlockSpec<
             options: Partial<TOptions>,
           ) => BlockImplementation<TName, TProps, TContent>),
   extensionsOrCreator?:
-    | BlockNoteExtension<any>[]
+    | ExtensionFactoryInstance[]
     | (TOptions extends undefined
-        ? () => BlockNoteExtension<any>[]
-        : (options: Partial<TOptions>) => BlockNoteExtension<any>[]),
+        ? () => ExtensionFactoryInstance[]
+        : (options: Partial<TOptions>) => ExtensionFactoryInstance[]),
 ): (options?: Partial<TOptions>) => BlockSpec<TName, TProps, TContent> {
   return (options = {} as TOptions) => {
     const blockConfig =

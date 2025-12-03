@@ -1,37 +1,27 @@
 import {
-  Block,
-  BlockSchema,
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
   defaultZodPropSchema,
-  editorHasBlockTypeAndZodProps,
-  InlineContentSchema,
-  StyleSchema,
+  editorHasBlockTypeAndZodProps
 } from "@blocknote/core";
+import { SideMenuExtension } from "@blocknote/core/extensions";
 import { ReactNode } from "react";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
+import { useExtensionState } from "../../../../hooks/useExtension.js";
 import { ColorPicker } from "../../../ColorPicker/ColorPicker.js";
-import { DragHandleMenuProps } from "../DragHandleMenuProps.js";
 
-export const BlockColorsItem = <
-  BSchema extends BlockSchema = DefaultBlockSchema,
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema,
->(
-  props: DragHandleMenuProps<BSchema, I, S> & {
-    children: ReactNode;
-  },
-) => {
+export const BlockColorsItem = (props: { children: ReactNode }) => {
   const Components = useComponentsContext()!;
 
-  const editor = useBlockNoteEditor<BSchema, I, S>();
+  const editor = useBlockNoteEditor<any, any, any>();
 
-  const block = props.block as Block<any, any, any>;
+  const block = useExtensionState(SideMenuExtension, {
+    editor,
+    selector: (state) => state?.block,
+  });
 
   if (
+    block === undefined ||
     !editorHasBlockTypeAndZodProps(
       editor,
       block.type,

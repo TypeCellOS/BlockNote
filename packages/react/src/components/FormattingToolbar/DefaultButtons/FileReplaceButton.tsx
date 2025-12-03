@@ -4,12 +4,11 @@ import {
   isFileBlock,
   StyleSchema,
 } from "@blocknote/core";
-import { useEffect, useState } from "react";
 import { RiImageEditFill } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
-import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks.js";
+import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 import { FilePanel } from "../../FilePanel/FilePanel.js";
 
@@ -23,31 +22,42 @@ export const FileReplaceButton = () => {
     StyleSchema
   >();
 
-  const selectedBlocks = useSelectedBlocks(editor);
+  const block = useEditorState({
+    editor,
+    selector: ({ editor }) => {
+      if (!editor.isEditable) {
+        return undefined;
+      }
 
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+      const selectedBlocks = editor.getSelection()?.blocks || [
+        editor.getTextCursorPosition().block,
+      ];
 
-  useEffect(() => {
-    setIsOpen(false);
-  }, [selectedBlocks]);
+      if (selectedBlocks.length !== 1) {
+        return undefined;
+      }
 
-  const block = selectedBlocks.length === 1 ? selectedBlocks[0] : undefined;
+      const block = selectedBlocks[0];
 
-  if (
-    block === undefined ||
-    !isFileBlock(editor, block.type) ||
-    !editor.isEditable
-  ) {
+      if (
+        !isFileBlock(editor, block.type)
+      ) {
+        return undefined;
+      }
+
+      return block;
+    },
+  });
+
+  if (block === undefined) {
     return null;
   }
 
   return (
-    <Components.Generic.Popover.Root opened={isOpen} position={"bottom"}>
+    <Components.Generic.Popover.Root position={"bottom"}>
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button
           className={"bn-button"}
-          onClick={() => setIsOpen(!isOpen)}
-          isSelected={isOpen}
           mainTooltip={
             dict.formatting_toolbar.file_replace.tooltip[block.type] ||
             dict.formatting_toolbar.file_replace.tooltip["file"]
@@ -63,7 +73,7 @@ export const FileReplaceButton = () => {
         className={"bn-popover-content bn-panel-popover"}
         variant={"panel-popover"}
       >
-        <FilePanel block={block as any} />
+        <FilePanel blockId={block.id} />
       </Components.Generic.Popover.Content>
     </Components.Generic.Popover.Root>
   );

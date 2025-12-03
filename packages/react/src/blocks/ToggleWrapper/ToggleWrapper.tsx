@@ -1,10 +1,11 @@
 import {
   Block,
+  blockHasType,
   defaultToggledState,
   UnreachableCaseError,
 } from "@blocknote/core";
-import { ReactNode, useReducer, useState } from "react";
-import { useEditorChange } from "../../hooks/useEditorChange.js";
+import { ReactNode, useReducer } from "react";
+import { useEditorState } from "../../hooks/useEditorState.js";
 import { ReactCustomBlockRenderProps } from "../../schema/ReactBlockSpec.js";
 
 const showChildrenReducer = (
@@ -50,7 +51,6 @@ export const ToggleWrapper = (
     showChildrenReducer,
     (toggledState || defaultToggledState).get(block),
   );
-  const [childCount, setChildCount] = useState(block.children.length);
 
   const handleToggle = (block: Block<any, any, any>) => {
     (toggledState || defaultToggledState).set(
@@ -76,32 +76,35 @@ export const ToggleWrapper = (
     });
   };
 
-  useEditorChange(() => {
-    // TODO (as any)
-    if (
-      "isToggleable" in (block.props as any) &&
-      !(block.props as any).isToggleable
-    ) {
-      return;
-    }
-
-    const newBlock = editor.getBlock(block)!;
-    const newChildCount = newBlock.children.length ?? 0;
-
-    if (newChildCount > childCount) {
-      // If a child block is added while children are hidden, show children.
-      if (!showChildren) {
-        handleChildAdded(newBlock);
+  const childCount = useEditorState({
+    editor,
+    selector: ({ editor }) => {
+      // TODO: checlk
+      if (
+        !blockHasType(block, editor, block.type, { isToggleable: "boolean" }) &&
+        !block.props.isToggleable
+      ) {
+        return 0;
       }
-    } else if (newChildCount === 0 && newChildCount < childCount) {
-      // If the last child block is removed while children are shown, hide
-      // children.
-      if (showChildren) {
-        handleLastChildRemoved(newBlock);
-      }
-    }
 
-    setChildCount(newChildCount);
+      const newBlock = editor.getBlock(block)!;
+      const newChildCount = newBlock.children.length || 0;
+
+      if (newChildCount > childCount) {
+        // If a child block is added while children are hidden, show children.
+        if (!showChildren) {
+          handleChildAdded(newBlock);
+        }
+      } else if (newChildCount === 0 && newChildCount < childCount) {
+        // If the last child block is removed while children are shown, hide
+        // children.
+        if (showChildren) {
+          handleLastChildRemoved(newBlock);
+        }
+      }
+
+      return newChildCount;
+    },
   });
 
   // TODO
@@ -134,7 +137,7 @@ export const ToggleWrapper = (
         </button>
         {children}
       </div>
-      {showChildren && childCount === 0 && (
+      {editor.isEditable && showChildren && childCount === 0 && (
         <button
           className="bn-toggle-add-block-button"
           type="button"
