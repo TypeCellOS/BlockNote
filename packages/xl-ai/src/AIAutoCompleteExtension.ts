@@ -12,70 +12,149 @@ export type AutoCompleteState =
     }
   | undefined;
 
-const autoCompletePluginKey = new PluginKey<{ isUserInput: boolean }>(
+const autoCompletePluginKey = new PluginKey<AutoCompleteState>(
   "AutoCompletePlugin",
 );
 
-type AutoCompleteSuggestion = {
+export type AutoCompleteSuggestion = {
+  position?: number;
+  suggestion: string;
+};
+
+type InternalAutoCompleteSuggestion = {
   position: number;
   suggestion: string;
 };
 
-type AutoCompleteProvider = (
+export type AutoCompleteProvider = (
   editor: BlockNoteEditor<any, any, any>,
   signal: AbortSignal,
 ) => Promise<AutoCompleteSuggestion[]>;
 
+export type AutoCompleteOptions = {
+  /**
+   * The provider to fetch autocomplete suggestions from.
+   * Can be a URL string (uses default provider) or a custom function.
+   */
+  provider: AutoCompleteProvider | string;
+  /**
+   * Number of characters of context to send to the API when using the default provider (string URL).
+   * Default: 300
+   */
+  contextLength?: number;
+  /** Key to accept autocomplete suggestion. Default: "Tab" */
+  acceptKey?: string;
+  /** Key to cancel/discard autocomplete suggestion. Default: "Escape" */
+  cancelKey?: string;
+  /** Debounce delay in milliseconds before fetching suggestions. Default: 300 */
+  debounceDelay?: number;
+};
+
 function getMatchingSuggestions(
-  autoCompleteSuggestions: AutoCompleteSuggestion[],
+  autoCompleteSuggestions: InternalAutoCompleteSuggestion[],
   state: EditorState,
-): AutoCompleteSuggestion[] {
-  return autoCompleteSuggestions
-    .map((suggestion) => {
-      if (suggestion.position > state.selection.from) {
-        return false;
-      }
+): InternalAutoCompleteSuggestion[] {
+  return autoCompleteSuggestions.flatMap((suggestion) => {
+    // Suggestion must be before or at current cursor position
+    if (suggestion.position > state.selection.from) {
+      return [];
+    }
 
-      if (
-        !state.doc
-          .resolve(suggestion.position)
-          .sameParent(state.selection.$from)
-      ) {
-        return false;
-      }
+    // Suggestion must be in the same parent block
+    if (
+      !state.doc
+        .resolve(suggestion.position)
+        .sameParent(state.selection.$from)
+    ) {
+      return [];
+    }
 
-      const text = state.doc.textBetween(
-        suggestion.position,
-        state.selection.from,
-      );
-      if (
-        suggestion.suggestion.startsWith(text) &&
-        suggestion.suggestion.length > text.length
-      ) {
-        return {
+    // Get text that has been typed since the suggestion 
+    // start position
+    const text = state.doc.textBetween(
+      suggestion.position,
+      state.selection.from,
+    );
+    
+    // User's typed text must be a prefix of the suggestion
+    if (
+      suggestion.suggestion.startsWith(text) &&
+      suggestion.suggestion.length > text.length
+    ) {
+      return [
+        {
           position: suggestion.position,
           suggestion: suggestion.suggestion.slice(text.length),
-        };
-      }
-      return false;
-    })
-    .filter((suggestion) => suggestion !== false);
+        },
+      ];
+    }
+
+    return [];
+  });
+}
+
+export function createDefaultAutoCompleteProvider(args: {
+  url: string;
+  contextLength?: number;
+}): AutoCompleteProvider {
+  const { url, contextLength = 300 } = args;
+  return async (editor, signal) => {
+    const state = editor.prosemirrorState;
+    // Get last N chars of context
+    const text = state.doc.textBetween(
+      Math.max(0, state.selection.from - contextLength),
+      state.selection.from,
+      "\n",
+    );
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ text }),
+      signal,
+    });
+
+    if (!response.ok) {
+      throw new Error(`AutoComplete request failed: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.suggestions.map((suggestion: string) => ({
+      suggestion: suggestion,
+    }));
+  };
 }
 
 export const AIAutoCompleteExtension = createExtension(
   ({
     editor,
     options,
-  }: ExtensionOptions<{ autoCompleteProvider: AutoCompleteProvider }>) => {
-    let autoCompleteSuggestions: AutoCompleteSuggestion[] = [];
+  }: ExtensionOptions<AutoCompleteOptions>) => {
+    let autoCompleteSuggestions: InternalAutoCompleteSuggestion[] = [];
+
+    const acceptKey = options.acceptKey || "Tab";
+    const cancelKey = options.cancelKey || "Escape";
+    const debounceDelay = options.debounceDelay ?? 300;
+
+    // Determine the provider to use:
+    // 1. If a string is provided, create a default provider that fetches from that URL.
+    // 2. If a function is provided, use it directly.
+    const provider =
+      typeof options.provider === "string"
+        ? createDefaultAutoCompleteProvider({
+            url: options.provider,
+            contextLength: options.contextLength,
+          })
+        : options.provider;
 
     const debounceFetchSuggestions = debounceWithAbort(
       async (editor: BlockNoteEditor<any, any, any>, signal: AbortSignal) => {
         // fetch suggestions
-        const newAutoCompleteSuggestions = await options.autoCompleteProvider(
-          editor,
-          signal,
-        );
+        const newAutoCompleteSuggestions = await provider(editor, signal);
+
+        
 
         // TODO: map positions?
 
@@ -83,26 +162,60 @@ export const AIAutoCompleteExtension = createExtension(
           return;
         }
 
-        autoCompleteSuggestions = newAutoCompleteSuggestions;
+        // Fill in missing positions with current cursor position
+        const processedSuggestions = newAutoCompleteSuggestions.map(
+          (suggestion) => ({
+            position: editor.prosemirrorState.selection.from,
+            ...suggestion,
+          }),
+        );
+        
+        autoCompleteSuggestions = processedSuggestions;
+        // Force plugin state update to trigger decorations refresh
         editor.transact((tr) => {
-          tr.setMeta(autoCompletePluginKey, {
-            autoCompleteSuggestions,
-          });
+          tr.setMeta(autoCompletePluginKey, {});
         });
       },
+      debounceDelay,
     );
 
+    /**
+     * Accepts the current autocomplete suggestion and inserts it into the editor.
+     * @returns true if a suggestion was accepted, false otherwise
+     */
+    const acceptAutoCompleteSuggestion = (): boolean => {
+      const state = autoCompletePluginKey.getState(editor.prosemirrorState);
+      if (state) {
+        editor.transact((tr) => {
+          tr.insertText(state.autoCompleteSuggestion.suggestion).setMeta(
+            autoCompletePluginKey,
+            { isUserInput: true },
+          );
+        });
+        return true;
+      }
+      return false;
+    };
+
+    /**
+     * Discards all current autocomplete suggestions.
+     */
+    const discardAutoCompleteSuggestions = (): void => {
+      autoCompleteSuggestions = [];
+      debounceFetchSuggestions.cancel();
+      editor.transact((tr) => {
+        tr.setMeta(autoCompletePluginKey, {});
+      });
+    };
+
     return {
+      acceptAutoCompleteSuggestion,
+      discardAutoCompleteSuggestions,
       key: "aiAutoCompleteExtension",
       priority: 1000000, // should be lower (e.g.: -1000 to be below suggestion menu, but that currently breaks Tab)
       prosemirrorPlugins: [
         new Plugin({
           key: autoCompletePluginKey,
-
-          // view: (view) => {
-          //   this.view = new AutoCompleteView<BSchema, I, S>(editor, view);
-          //   return this.view;
-          // },
 
           state: {
             // Initialize the plugin's internal state.
@@ -156,7 +269,7 @@ export const AIAutoCompleteExtension = createExtension(
 
           props: {
             handleKeyDown(view, event) {
-              if (event.key === "Tab") {
+              if (event.key === acceptKey) {
                 // TODO (discuss with Nick):
                 // Plugin priority needs to be below suggestion menu, so no auto complete is triggered when the suggestion menu is open
                 // However, Plugin priority needs to be above other Tab handlers (because now indentation will be wrongly prioritized over auto complete)
@@ -183,10 +296,8 @@ export const AIAutoCompleteExtension = createExtension(
                 return true;
               }
 
-              if (event.key === "Escape") {
-                autoCompleteSuggestions = [];
-                debounceFetchSuggestions.cancel();
-                view.dispatch(view.state.tr.setMeta(autoCompletePluginKey, {}));
+              if (event.key === cancelKey) {
+                discardAutoCompleteSuggestions();
                 return true;
               }
 
@@ -237,7 +348,7 @@ function renderAutoCompleteSuggestion(suggestion: string) {
 
 export function debounceWithAbort<T extends any[], R>(
   fn: (...args: [...T, AbortSignal]) => Promise<R> | R,
-  delay = 300, // TODO: configurable
+  delay = 300,
 ) {
   let timeoutId: ReturnType<typeof setTimeout> | null = null;
   let controller: AbortController | null = null;
