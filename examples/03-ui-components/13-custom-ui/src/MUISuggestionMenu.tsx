@@ -44,7 +44,7 @@ function MUISuggestionMenuItem(
 
     const overflow = elementOverflow(
       itemRef.current,
-      document.querySelector(
+      itemRef.current.closest(
         `.MuiPaper-root:has([aria-label="suggestion-menu"])`,
       )!,
     );
