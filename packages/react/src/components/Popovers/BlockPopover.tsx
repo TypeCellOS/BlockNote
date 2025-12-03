@@ -8,6 +8,8 @@ import { GenericPopover, GenericPopoverReference } from "./GenericPopover.js";
 export const BlockPopover = (
   props: FloatingUIOptions & {
     blockId: string | undefined;
+    spanEditorWidth?: boolean;
+    includeNestedBlocks?: boolean;
     children: ReactNode;
   },
 ) => {
@@ -28,18 +30,51 @@ export const BlockPopover = (
           return undefined;
         }
 
-        const { node } = editor.prosemirrorView.domAtPos(
+        const blockElement = editor.prosemirrorView.domAtPos(
           nodePosInfo.posBeforeNode + 1,
-        );
-        if (!(node instanceof Element)) {
+        ).node;
+        if (!(blockElement instanceof Element)) {
           return undefined;
         }
 
-        return {
-          element: node,
-        };
+        const blockContentElement = blockElement.firstElementChild;
+        if (!(blockContentElement instanceof Element)) {
+          return undefined;
+        }
+
+        const element =
+          props.includeNestedBlocks === false
+            ? blockContentElement
+            : blockElement;
+
+        if (props.spanEditorWidth) {
+          return {
+            element,
+            getBoundingClientRect: () => {
+              const boundingClientRect = element.getBoundingClientRect();
+
+              const outerBlockGroupElement =
+                editor.domElement?.firstElementChild;
+              if (!(outerBlockGroupElement instanceof Element)) {
+                return undefined;
+              }
+
+              const outerBlockGroupBoundingClientRect =
+                outerBlockGroupElement.getBoundingClientRect();
+
+              return new DOMRect(
+                outerBlockGroupBoundingClientRect.x,
+                boundingClientRect.y,
+                outerBlockGroupBoundingClientRect.width,
+                boundingClientRect.height,
+              );
+            },
+          };
+        }
+
+        return { element };
       }),
-    [editor, blockId],
+    [editor, blockId, props.includeNestedBlocks, props.spanEditorWidth],
   );
 
   return (
