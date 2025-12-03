@@ -57,7 +57,7 @@ export default function App() {
               text={props.text}
               range={props.range}
               setToolbarOpen={props.setToolbarOpen}
-              setToolbarFrozen={props.setToolbarFrozen}
+              setToolbarPositionFrozen={props.setToolbarPositionFrozen}
             />
             <OpenLinkButton url={props.url} />
             <DeleteLinkButton

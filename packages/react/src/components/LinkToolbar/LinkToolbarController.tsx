@@ -1,4 +1,3 @@
-import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 import { LinkToolbarExtension } from "@blocknote/core/extensions";
 import { flip, offset, safePolygon } from "@floating-ui/react";
 import { Range } from "@tiptap/core";
@@ -7,7 +6,6 @@ import { FC, useEffect, useMemo, useState } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { LinkToolbar } from "./LinkToolbar.js";
 import { LinkToolbarProps } from "./LinkToolbarProps.js";
-import { useEditorState } from "../../hooks/useEditorState.js";
 import { useExtension } from "../../hooks/useExtension.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import {
@@ -19,58 +17,62 @@ export const LinkToolbarController = (props: {
   linkToolbar?: FC<LinkToolbarProps>;
   floatingUIOptions?: FloatingUIOptions;
 }) => {
-  const editor = useBlockNoteEditor<
-    BlockSchema,
-    InlineContentSchema,
-    StyleSchema
-  >();
+  const editor = useBlockNoteEditor<any, any, any>();
 
-  const [open, setOpen] = useState(false);
-  const [frozen, setFrozen] = useState(false);
+  const [toolbarOpen, setToolbarOpen] = useState(false);
+  const [toolbarPositionFrozen, setToolbarPositionFrozen] = useState(false);
 
   const linkToolbar = useExtension(LinkToolbarExtension);
-  const selectionLink = useEditorState({
-    editor,
-    selector: () => {
-      const link = linkToolbar.getLinkAtSelection();
-      if (!link) {
-        return undefined;
+
+  // Because the toolbar opens with a delay when a link is hovered by the mouse
+  // cursor, We need separate `toolbarOpen` and `link` states.
+  const [link, setLink] = useState<
+    | {
+        cursorType: "text" | "mouse";
+        url: string;
+        text: string;
+        range: Range;
+        element: HTMLAnchorElement;
       }
-
-      return {
-        url: link.mark.attrs.href as string,
-        text: link.text,
-        range: link.range,
-        element: linkToolbar.getLinkElementAtPos(link.range.from)!,
-      };
-    },
-  });
-  useEffect(() => {
-    if (frozen) {
-      return;
-    }
-
-    setOpen(!!selectionLink);
-    if (selectionLink) {
-      // Clears the link hovered by the mouse cursor, when the text cursor is
-      // within a link, to avoid any potential clashes in positioning.
-      setMouseHoverLink(undefined);
-    }
-  }, [frozen, selectionLink]);
-
-  // The `mouseHoverLink` state is completely separate from the `open` state as
-  // the FloatingUI `useHover` hook handles opening/closing the popover when a
-  // link is hovered with the mouse cursor. Therefore, we only need to update
-  // the link when a new one is hovered.
-  const [mouseHoverLink, setMouseHoverLink] = useState<
-    | { url: string; text: string; range: Range; element: HTMLAnchorElement }
     | undefined
   >(undefined);
+  // Updates the link to show the toolbar for. Uses the link found at the text
+  // cursor position. If there is none, uses the link hovered by the mouse
+  // cursor. Otherwise, the toolbar remains closed.
   useEffect(() => {
-    const cb = (event: MouseEvent) => {
-      // Ignores the link hovered by the mouse cursor, when the text cursor is
-      // within a link, to avoid any potential clashes in positioning.
-      if (selectionLink) {
+    const textCursorCallback = () => {
+      const textCursorLink = linkToolbar.getLinkAtSelection();
+      if (!textCursorLink) {
+        setLink(undefined);
+
+        if (!toolbarPositionFrozen) {
+          setToolbarOpen(false);
+        }
+
+        return;
+      }
+
+      setLink({
+        cursorType: "text",
+        url: textCursorLink.mark.attrs.href as string,
+        text: textCursorLink.text,
+        range: textCursorLink.range,
+        element: linkToolbar.getLinkElementAtPos(textCursorLink.range.from)!,
+      });
+
+      if (!toolbarPositionFrozen) {
+        setToolbarOpen(true);
+      }
+    };
+
+    // At no point in this callback is `setToolbarOpen` called, even though
+    // hovering a link with the mouse cursor should open the toolbar. This is
+    // because the FloatingUI `useHover` hook basically does this for us, so we
+    // only need to update `link` when a new one is hovered.
+    const mouseCursorCallback = (event: MouseEvent) => {
+      // Links selected by the text cursor take priority over those hovered by
+      // the mouse cursor.
+      if (link !== undefined && link.cursorType === "text") {
         return;
       }
 
@@ -78,40 +80,50 @@ export const LinkToolbarController = (props: {
         return;
       }
 
-      const link = linkToolbar.getLinkAtElement(event.target);
-      if (!link) {
+      const mouseCursorLink = linkToolbar.getLinkAtElement(event.target);
+      if (!mouseCursorLink) {
         return;
       }
 
-      setMouseHoverLink({
-        url: link.mark.attrs.href as string,
-        text: link.text,
-        range: link.range,
-        element: linkToolbar.getLinkElementAtPos(link.range.from)!,
+      setLink({
+        cursorType: "mouse",
+        url: mouseCursorLink.mark.attrs.href as string,
+        text: mouseCursorLink.text,
+        range: mouseCursorLink.range,
+        element: linkToolbar.getLinkElementAtPos(mouseCursorLink.range.from)!,
       });
     };
 
-    document.body.addEventListener("mouseover", cb);
+    const destroyOnChangeHandler = editor.onChange(textCursorCallback);
+    const destroyOnSelectionChangeHandler =
+      editor.onSelectionChange(textCursorCallback);
+
+    editor.domElement?.addEventListener("mouseover", mouseCursorCallback);
 
     return () => {
-      document.body.removeEventListener("mouseover", cb);
-    };
-  }, [frozen, linkToolbar, mouseHoverLink?.url, selectionLink]);
+      destroyOnChangeHandler();
+      destroyOnSelectionChangeHandler();
 
-  const link = selectionLink || mouseHoverLink;
+      editor.domElement?.removeEventListener("mouseover", mouseCursorCallback);
+    };
+  }, [editor, linkToolbar, link, toolbarPositionFrozen]);
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
       useFloatingOptions: {
-        open,
+        open: toolbarOpen,
         onOpenChange: (open, _event, reason) => {
-          if (frozen) {
+          if (toolbarPositionFrozen) {
             return;
           }
 
           // We want to prioritize `selectionLink` over `mouseHoverLink`, so we
           // ignore opening/closing from hover events.
-          if (selectionLink && reason === "hover") {
+          if (
+            link !== undefined &&
+            link.cursorType === "text" &&
+            reason === "hover"
+          ) {
             return;
           }
 
@@ -119,7 +131,7 @@ export const LinkToolbarController = (props: {
             editor.focus();
           }
 
-          setOpen(open);
+          setToolbarOpen(open);
         },
         placement: "top-start",
         middleware: [offset(10), flip()],
@@ -127,7 +139,7 @@ export const LinkToolbarController = (props: {
       useHoverProps: {
         // `useHover` hook only enabled when a link is hovered with the
         // mouse.
-        enabled: !selectionLink && !!mouseHoverLink,
+        enabled: link !== undefined && link.cursorType === "mouse",
         delay: {
           open: 250,
           close: 250,
@@ -141,14 +153,7 @@ export const LinkToolbarController = (props: {
       },
       ...props.floatingUIOptions,
     }),
-    [
-      editor,
-      frozen,
-      mouseHoverLink,
-      open,
-      props.floatingUIOptions,
-      selectionLink,
-    ],
+    [editor, link, props.floatingUIOptions, toolbarOpen, toolbarPositionFrozen],
   );
 
   const reference = useMemo<GenericPopoverReference | undefined>(
@@ -169,8 +174,8 @@ export const LinkToolbarController = (props: {
           url={link.url}
           text={link.text}
           range={link.range}
-          setToolbarFrozen={setFrozen}
-          setToolbarOpen={setOpen}
+          setToolbarOpen={setToolbarOpen}
+          setToolbarPositionFrozen={setToolbarPositionFrozen}
         />
       )}
     </GenericPopover>
