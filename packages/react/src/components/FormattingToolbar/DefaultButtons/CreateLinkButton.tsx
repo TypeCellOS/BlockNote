@@ -50,6 +50,7 @@ export const CreateLinkButton = () => {
   const [showPopover, setShowPopover] = useState(false);
   useEffect(() => {
     showSelection(showPopover);
+    return () => showSelection(false);
   }, [showPopover, showSelection]);
 
   const state = useEditorState({
