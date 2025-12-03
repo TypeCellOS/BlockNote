@@ -388,6 +388,9 @@ export function createBlockSpec<
       config: blockConfig,
       implementation: {
         ...blockImplementation,
+        // If the block implementation does not specify a runsBefore, we default to ["default"]
+        // This allows for custom blocks to always be prioritized over default blocks.
+        runsBefore: blockImplementation.runsBefore ?? ["default"],
         // TODO: this should not have wrapInBlockStructure and generally be a lot simpler
         // post-processing in externalHTMLExporter should not be necessary
         toExternalHTML(block, editor) {

@@ -28,7 +28,11 @@ export const createToggleWrapper = (
   ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
   destroy?: () => void;
 } => {
-  if ("isToggleable" in block.props && !block.props.isToggleable) {
+  // TODO
+  if (
+    "isToggleable" in (block.props as any) &&
+    !(block.props as any).isToggleable
+  ) {
     return {
       dom: renderedElement,
     };

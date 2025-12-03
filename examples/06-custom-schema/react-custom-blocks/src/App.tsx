@@ -1,12 +1,15 @@
 import {
   BlockNoteSchema,
+  createPropSchemaFromZod,
   defaultBlockSpecs,
-  defaultProps,
+  defaultPropSchema,
+  defaultZodPropSchema,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
-import { createReactBlockSpec, useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
+import { createReactBlockSpec, useCreateBlockNote } from "@blocknote/react";
+import { z } from "zod/v4";
 
 import "./styles.css";
 
@@ -37,14 +40,18 @@ const alertTypes = {
 export const alertBlock = createReactBlockSpec(
   {
     type: "alert",
-    propSchema: {
-      textAlignment: defaultProps.textAlignment,
-      textColor: defaultProps.textColor,
-      type: {
-        default: "warning",
-        values: ["warning", "error", "info", "success"],
-      } as const,
-    },
+    propSchema: createPropSchemaFromZod(
+      defaultZodPropSchema
+        .pick({
+          textAlignment: true,
+          textColor: true,
+        })
+        .extend({
+          type: z
+            .enum(["warning", "error", "info", "success"])
+            .default("warning"),
+        }),
+    ),
     content: "inline",
   },
   {
@@ -76,15 +83,48 @@ export const alertBlock = createReactBlockSpec(
   },
 );
 
+// TODO
+export const advancedBlock = createReactBlockSpec(
+  {
+    type: "advanced",
+    propSchema: createPropSchemaFromZod(
+      z.object({
+        nested: z.object({
+          type: z.enum(["warning", "error", "info", "success"]),
+          message: z.string(),
+        }),
+      }),
+    ),
+    content: "inline",
+  },
+  {
+    render: (props) => (
+      <div
+        className={"alert"}
+        style={{
+          backgroundColor:
+            alertTypes[props.block.props.nested.type].backgroundColor,
+        }}
+      >
+        <span>{props.block.props.nested.message}</span>
+        <div className={"inline-content"} ref={props.contentRef} />
+      </div>
+    ),
+  },
+);
+
 const simpleImageBlock = createReactBlockSpec(
   {
     type: "simpleImage",
-    propSchema: {
-      src: {
-        default:
-          "https://www.pulsecarshalton.co.uk/wp-content/uploads/2016/08/jk-placeholder-image.jpg",
-      },
-    },
+    propSchema: createPropSchemaFromZod(
+      z.object({
+        src: z
+          .string()
+          .default(
+            "https://www.pulsecarshalton.co.uk/wp-content/uploads/2016/08/jk-placeholder-image.jpg",
+          ),
+      }),
+    ),
     content: "none",
   },
   {
@@ -102,9 +142,7 @@ export const bracketsParagraphBlock = createReactBlockSpec(
   {
     type: "bracketsParagraph",
     content: "inline",
-    propSchema: {
-      ...defaultProps,
-    },
+    propSchema: defaultPropSchema,
   },
   {
     render: (props) => (
@@ -125,6 +163,7 @@ const schema = BlockNoteSchema.create({
     alert: alertBlock(),
     simpleImage: simpleImageBlock(),
     bracketsParagraph: bracketsParagraphBlock(),
+    advanced: advancedBlock(),
   },
 });
 
@@ -133,12 +172,23 @@ export default function App() {
     schema,
     initialContent: [
       {
+        type: "advanced",
+        props: {
+          nested: {
+            type: "warning",
+            message: "Warning",
+          },
+        },
+        content: "Advanced",
+      },
+      {
         type: "alert",
         props: {
           type: "success",
         },
         content: "Alert",
       },
+
       {
         type: "simpleImage",
         props: {

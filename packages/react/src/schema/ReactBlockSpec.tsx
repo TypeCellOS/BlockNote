@@ -1,7 +1,7 @@
 import {
+  Block,
   BlockConfig,
   BlockImplementation,
-  BlockNoDefaults,
   BlockNoteEditor,
   Extension,
   BlockSpec,
@@ -19,6 +19,7 @@ import {
   useReactNodeView,
 } from "@tiptap/react";
 import { FC, ReactNode } from "react";
+import * as z from "zod/v4/core";
 import { renderToDOMSpec } from "./@util/ReactRenderUtil.js";
 
 // this file is mostly analogoues to `customBlocks.ts`, but for React blocks
@@ -28,16 +29,8 @@ export type ReactCustomBlockRenderProps<
   TProps extends PropSchema = PropSchema,
   TContent extends "inline" | "none" = "inline" | "none",
 > = {
-  block: BlockNoDefaults<
-    Record<TName, BlockConfig<TName, TProps, TContent>>,
-    any,
-    any
-  >;
-  editor: BlockNoteEditor<
-    Record<TName, BlockConfig<TName, TProps, TContent>>,
-    any,
-    any
-  >;
+  block: Block<Record<TName, BlockConfig<TName, TProps, TContent>>, any, any>;
+  editor: BlockNoteEditor<any, any, any>;
   contentRef: (node: HTMLElement | null) => void;
 };
 
@@ -99,13 +92,21 @@ export function BlockContentWrapper<
       // props which are already added as HTML attributes to the parent
       // `blockContent` element (inheritedProps) and props set to their default
       // values
+      // TODO: reuse same code from core
       {...Object.fromEntries(
         Object.entries(props.blockProps)
           .filter(([prop, value]) => {
-            const spec = props.propSchema[prop];
-            return value !== spec.default;
+            const spec = props.propSchema._zodSource._zod.def.shape[prop];
+            const defaultValue =
+              spec instanceof z.$ZodDefault
+                ? spec._zod.def.defaultValue
+                : undefined;
+            return value !== defaultValue;
           })
           .map(([prop, value]) => {
+            if (typeof value === "object") {
+              return [camelToDataKebab(prop), JSON.stringify(value)];
+            }
             return [camelToDataKebab(prop), value];
           }),
       )}
@@ -262,12 +263,13 @@ export function createReactBlockSpec<
                 // only created once, so the block we get in the node view will
                 // be outdated. Therefore, we have to get the block in the
                 // `ReactNodeViewRenderer` instead.
-                const block = getBlockFromPos(
-                  props.getPos,
-                  editor,
-                  props.editor,
-                  blockConfig.type,
-                );
+                const block = getBlockFromPos<
+                  TName,
+                  BlockConfig<TName, TProps, TContent>,
+                  any,
+                  any,
+                  any
+                >(props.getPos, editor as any, props.editor, blockConfig.type);
 
                 const ref = useReactNodeView().nodeViewContentRef;
 

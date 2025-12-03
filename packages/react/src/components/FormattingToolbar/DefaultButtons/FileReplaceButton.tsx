@@ -1,7 +1,7 @@
 import {
-  blockHasType,
   BlockSchema,
   InlineContentSchema,
+  isFileBlock,
   StyleSchema,
 } from "@blocknote/core";
 import { RiImageEditFill } from "react-icons/ri";
@@ -40,9 +40,7 @@ export const FileReplaceButton = () => {
       const block = selectedBlocks[0];
 
       if (
-        !blockHasType(block, editor, block.type, {
-          url: "string",
-        })
+        !isFileBlock(editor, block.type)
       ) {
         return undefined;
       }

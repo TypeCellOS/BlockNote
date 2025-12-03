@@ -1,21 +1,20 @@
-import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
+import { Block, PartialBlock } from "../blocks/index.js";
+import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import { sortByDependencies } from "../util/topo-sort.js";
 import {
-  BlockNoDefaults,
-  BlockSchema,
-  BlockSpecs,
-  InlineContentConfig,
-  InlineContentSchema,
-  InlineContentSpec,
-  InlineContentSpecs,
-  LooseBlockSpec,
-  PartialBlockNoDefaults,
-  StyleSchema,
-  StyleSpecs,
   addNodeAndExtensionsToSpec,
-  getInlineContentSchemaFromSpecs,
-  getStyleSchemaFromSpecs,
+  type BlockSchema,
+  type BlockSpecs,
+  type InlineContentConfig,
+  type InlineContentSchema,
+  type InlineContentSpec,
+  type InlineContentSpecs,
+  type LooseBlockSpec,
+  type StyleSchema,
+  type StyleSpecs,
 } from "./index.js";
+import { getInlineContentSchemaFromSpecs } from "./inlineContent/internal.js";
+import { getStyleSchemaFromSpecs } from "./styles/internal.js";
 
 function removeUndefined<T extends Record<string, any> | undefined>(obj: T): T {
   if (!obj) {
@@ -26,23 +25,50 @@ function removeUndefined<T extends Record<string, any> | undefined>(obj: T): T {
   ) as T;
 }
 
+/**
+ * Do note that this is separate from the `BlockNoteSchema` which is now reduced to a simple factory for instantiating a {@link CustomBlockNoteSchema} instance.
+ * In the future, we will rename the `BlockNoteSchema` to `DefaultBlockNoteSchema` and this will be the default schema that is used when no schema is passed to the editor.
+ * At that time, `CustomBlockNoteSchema` will be renamed to `BlockNoteSchema` and this will be the base class for all schemas.
+ */
+
+/**
+ * The CustomBlockNoteSchema class defines the shape of the schema that BlockNote uses, it defines all of the blocks, inline content, and styles that are available in the editor.
+ * You can create a custom schema by extending the CustomBlockNoteSchema class and passing in the blocks, inline content, and styles that you want to use.
+ *
+ * @example
+ * ```typescript
+ * const schema = new CustomBlockNoteSchema({
+ *   blockSpecs: {
+ *     block: { type: "block", content: "styled" },
+ *   },
+ * });
+ * // extending the schema
+ * const extendedSchema = schema.extend({
+ *   blockSpecs: {
+ *     block: { type: "block", content: "styled" },
+ *   },
+ * });
+ *
+ * // using the schema
+ * const editor = new BlockNoteEditor({
+ *   schema: extendedSchema,
+ * });
+ * ```
+ */
 export class CustomBlockNoteSchema<
-  BSchema extends BlockSchema,
-  ISchema extends InlineContentSchema,
-  SSchema extends StyleSchema,
+  BSchema extends BlockSchema = Record<string, never>,
+  ISchema extends InlineContentSchema = Record<string, never>,
+  SSchema extends StyleSchema = Record<string, never>,
 > {
   // Helper so that you can use typeof schema.BlockNoteEditor
   public readonly BlockNoteEditor: BlockNoteEditor<BSchema, ISchema, SSchema> =
     "only for types" as any;
 
-  public readonly Block: BlockNoDefaults<BSchema, ISchema, SSchema> =
+  public readonly Block: Block<BSchema, ISchema, SSchema> =
     "only for types" as any;
 
-  public readonly PartialBlock: PartialBlockNoDefaults<
-    BSchema,
-    ISchema,
-    SSchema
-  > = "only for types" as any;
+  public readonly PartialBlock: PartialBlock<BSchema, ISchema, SSchema> =
+    "only for types" as any;
 
   public inlineContentSpecs: InlineContentSpecs;
   public styleSpecs: StyleSpecs;

@@ -1,0 +1,22 @@
+[
+  {
+    "attrs": {
+      "id": "1",
+    },
+    "content": [
+      {
+        "attrs": {
+          "user": {
+            "age": 30,
+            "name": {
+              "first": "USER_FIRST_NAME",
+              "last": "USER_LAST_NAME",
+            },
+          },
+        },
+        "type": "advancedComplexAttributeNode",
+      },
+    ],
+    "type": "blockContainer",
+  },
+]

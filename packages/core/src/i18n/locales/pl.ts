@@ -2,7 +2,7 @@ import type { Dictionary } from "../dictionary.js";
 
 export const pl: Dictionary = {
   slash_menu: {
-    heading: {
+    heading_1: {
       title: "Nagłówek 1",
       subtext: "Używany dla nagłówka najwyższego poziomu",
       aliases: ["h", "naglowek1", "h1"],
@@ -38,7 +38,7 @@ export const pl: Dictionary = {
       aliases: ["h6", "naglowek6", "podnaglowek6"],
       group: "Podnagłówki",
     },
-    toggle_heading: {
+    toggle_heading_1: {
       title: "Nagłówek rozwijany 1",
       subtext: "Rozwijany nagłówek najwyższego poziomu",
       aliases: ["h", "naglowek1", "h1", "rozwijany"],

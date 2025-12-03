@@ -1,4 +1,5 @@
 import { Mark, Node, Schema, Slice } from "@tiptap/pm/model";
+import * as z from "zod/v4/core";
 import type { Block } from "../../blocks/defaultBlocks.js";
 import UniqueID from "../../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 import type {
@@ -26,7 +27,6 @@ import {
   getPmSchema,
   getStyleSchema,
 } from "../pmUtil.js";
-
 /**
  * Converts an internal (prosemirror) table node contentto a BlockNote Tablecontent
  */
@@ -347,21 +347,16 @@ export function nodeToCustomInlineContent<
   if (node.type.name === "text" || node.type.name === "link") {
     throw new Error("unexpected");
   }
-  const props: any = {};
+
   const icConfig = inlineContentSchema[
     node.type.name
   ] as CustomInlineContentConfig;
-  for (const [attr, value] of Object.entries(node.attrs)) {
-    if (!icConfig) {
-      throw Error("ic node is of an unrecognized type: " + node.type.name);
-    }
 
-    const propSchema = icConfig.propSchema;
-
-    if (attr in propSchema) {
-      props[attr] = value;
-    }
+  if (!icConfig) {
+    throw Error("ic node is of an unrecognized type: " + node.type.name);
   }
+
+  const props = z.parse(icConfig.propSchema._zodSource, node.attrs);
 
   let content: CustomInlineContentFromConfig<any, any>["content"];
 
@@ -425,20 +420,17 @@ export function nodeToBlock<
     throw Error("Block is of an unrecognized type: " + blockInfo.blockNoteType);
   }
 
-  const props: any = {};
-  for (const [attr, value] of Object.entries({
+  const rawAttrs = {
+    // technically we only need this for "width" on ColumnList nodes
     ...node.attrs,
+    // the actual block props are stored on the blockContent node
     ...(blockInfo.isBlockContainer ? blockInfo.blockContent.node.attrs : {}),
-  })) {
-    const propSchema = blockSpec.propSchema;
+  };
 
-    if (
-      attr in propSchema &&
-      !(propSchema[attr].default === undefined && value === undefined)
-    ) {
-      props[attr] = value;
-    }
-  }
+  // remove the id that was added by node.attrs above. It's not part of the block props
+  delete rawAttrs.id;
+
+  const props = z.parse(blockSpec.propSchema._zodSource, rawAttrs);
 
   const blockConfig = blockSchema[blockInfo.blockNoteType];
 

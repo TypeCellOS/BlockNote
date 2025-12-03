@@ -32,13 +32,13 @@ import { IconType } from "react-icons";
 import { DefaultReactSuggestionItem } from "./types.js";
 
 const icons: Record<string, IconType> = {
-  heading: RiH1,
+  heading_1: RiH1,
   heading_2: RiH2,
   heading_3: RiH3,
   heading_4: RiH4,
   heading_5: RiH5,
   heading_6: RiH6,
-  toggle_heading: RiH1,
+  toggle_heading_1: RiH1,
   toggle_heading_2: RiH2,
   toggle_heading_3: RiH3,
   quote: RiQuoteText,

@@ -171,7 +171,7 @@ function collectSnapshot<
     if (!childrenByParent[key]) {
       childrenByParent[key] = [];
     }
-    const block = nodeToBlock(node, pmSchema);
+    const block = nodeToBlock<BSchema, ISchema, SSchema>(node, pmSchema);
     byId[node.attrs.id] = { block, parentId };
     childrenByParent[key].push(node.attrs.id);
     return true;

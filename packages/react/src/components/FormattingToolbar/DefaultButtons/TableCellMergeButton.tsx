@@ -1,7 +1,8 @@
 import {
+  BlockFromConfig,
   DefaultBlockSchema,
   InlineContentSchema,
-  StyleSchema,
+  StyleSchema
 } from "@blocknote/core";
 import { TableHandlesExtension } from "@blocknote/core/extensions";
 import { useCallback } from "react";
@@ -48,7 +49,7 @@ export const TableCellMergeButton = () => {
       }
 
       return {
-        mergeDirection: tableHandles.getMergeDirection(block),
+        mergeDirection: tableHandles.getMergeDirection(block as BlockFromConfig<DefaultBlockSchema["table"], any, any>),
       };
     },
   });

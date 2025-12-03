@@ -1,4 +1,4 @@
-import { Node, mergeAttributes } from "@tiptap/core";
+import { mergeAttributes, Node } from "@tiptap/core";
 import { DOMParser, Fragment, Node as PMNode, Schema } from "prosemirror-model";
 import { CellSelection, TableView } from "prosemirror-tables";
 import { NodeView } from "prosemirror-view";
@@ -7,16 +7,19 @@ import { createExtension } from "../../editor/BlockNoteExtension.js";
 import {
   BlockConfig,
   createBlockSpecFromTiptapNode,
+  createPropSchemaFromZod,
   TableContent,
 } from "../../schema/index.js";
 import { mergeCSSClasses } from "../../util/browser.js";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
-import { defaultProps } from "../defaultProps.js";
+import { defaultZodPropSchema } from "../defaultProps.js";
 import { EMPTY_CELL_WIDTH, TableExtension } from "./TableExtension.js";
 
-export const tablePropSchema = {
-  textColor: defaultProps.textColor,
-};
+export const tableZodPropSchema = defaultZodPropSchema.pick({
+  textColor: true,
+});
+
+const tablePropSchema = createPropSchemaFromZod(tableZodPropSchema);
 
 const TiptapTableHeader = Node.create<{
   HTMLAttributes: Record<string, any>;
@@ -373,11 +376,7 @@ function parseTableContent(node: HTMLElement, schema: Schema) {
 
 export type TableBlockConfig = BlockConfig<
   "table",
-  {
-    textColor: {
-      default: "default";
-    };
-  },
+  typeof tablePropSchema,
   "table"
 >;
 

@@ -1,9 +1,8 @@
 import {
-  blockHasType,
+  blockHasZodProps,
   BlockSchema,
-  defaultProps,
-  DefaultProps,
-  editorHasBlockWithType,
+  DefaultPropSchema,
+  defaultZodPropSchema,
   InlineContentSchema,
   mapTableCell,
   StyleSchema,
@@ -25,7 +24,7 @@ import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useExtension } from "../../../hooks/useExtension.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 
-type TextAlignment = DefaultProps["textAlignment"];
+type TextAlignment =  DefaultPropSchema["textAlignment"];
 
 const icons: Record<TextAlignment, IconType> = {
   left: RiAlignLeft,
@@ -60,9 +59,11 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
       const firstBlock = selectedBlocks[0];
 
       if (
-        blockHasType(firstBlock, editor, firstBlock.type, {
-          textAlignment: defaultProps.textAlignment,
-        })
+        blockHasZodProps(
+        firstBlock,
+        editor,
+        defaultZodPropSchema.pick({ textAlignment: true }),
+      )
       ) {
         return {
           textAlignment: firstBlock.props.textAlignment,
@@ -72,7 +73,7 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
 
       if (
         selectedBlocks.length === 1 &&
-        blockHasType(firstBlock, editor, "table")
+        firstBlock.type === "table"
       ) {
         const cellSelection = tableHandles.getCellSelection();
         if (!cellSelection) {
@@ -101,12 +102,11 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
 
       for (const block of state.blocks) {
         if (
-          blockHasType(block, editor, block.type, {
-            textAlignment: defaultProps.textAlignment,
-          }) &&
-          editorHasBlockWithType(editor, block.type, {
-            textAlignment: defaultProps.textAlignment,
-          })
+          blockHasZodProps(
+            block,
+            editor,
+            defaultZodPropSchema.pick({ textAlignment: true }),
+          )
         ) {
           editor.updateBlock(block, {
             props: { textAlignment: textAlignment },

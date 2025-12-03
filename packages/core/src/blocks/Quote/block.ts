@@ -1,8 +1,12 @@
 import { createExtension } from "../../editor/BlockNoteExtension.js";
-import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
+import {
+  createBlockConfig,
+  createBlockSpec,
+  createPropSchemaFromZod,
+} from "../../schema/index.js";
 import {
   addDefaultPropsExternalHTML,
-  defaultProps,
+  defaultZodPropSchema,
   parseDefaultProps,
 } from "../defaultProps.js";
 
@@ -12,10 +16,12 @@ export const createQuoteBlockConfig = createBlockConfig(
   () =>
     ({
       type: "quote" as const,
-      propSchema: {
-        backgroundColor: defaultProps.backgroundColor,
-        textColor: defaultProps.textColor,
-      },
+      propSchema: createPropSchemaFromZod(
+        defaultZodPropSchema.pick({
+          backgroundColor: true,
+          textColor: true,
+        }),
+      ),
       content: "inline" as const,
     }) as const,
 );
@@ -52,6 +58,7 @@ export const createQuoteBlockSpec = createBlockSpec(
         contentDOM: quote,
       };
     },
+    runsBefore: [],
   },
   [
     createExtension({

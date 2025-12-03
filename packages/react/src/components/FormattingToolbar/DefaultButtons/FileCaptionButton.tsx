@@ -1,8 +1,8 @@
 import {
-  blockHasType,
+  blockHasZodProps,
   BlockSchema,
-  editorHasBlockWithType,
   InlineContentSchema,
+  isFileBlock,
   StyleSchema,
 } from "@blocknote/core";
 import {
@@ -13,7 +13,7 @@ import {
   useState,
 } from "react";
 import { RiInputField } from "react-icons/ri";
-
+import { baseFileZodPropSchema } from "../../../../../core/src/blocks/defaultFileProps.js";
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
@@ -47,11 +47,13 @@ export const FileCaptionButton = () => {
       const block = selectedBlocks[0];
 
       if (
-        !blockHasType(block, editor, block.type, {
-          url: "string",
-          caption: "string",
-        })
-      ) {
+      isFileBlock(editor, block.type) &&
+      blockHasZodProps(
+        block,
+        editor,
+        baseFileZodPropSchema.pick({ caption: true }),
+      )
+    ) {
         return undefined;
       }
 
@@ -68,6 +70,7 @@ export const FileCaptionButton = () => {
     setCurrentEditingCaption(block.props.caption);
   }, [block]);
 
+  
   const handleChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) =>
       setCurrentEditingCaption(event.currentTarget.value),
@@ -78,9 +81,11 @@ export const FileCaptionButton = () => {
     (event: KeyboardEvent) => {
       if (
         block !== undefined &&
-        editorHasBlockWithType(editor, block.type, {
-          caption: "string",
-        }) &&
+        blockHasZodProps(
+          block,
+          editor,
+          baseFileZodPropSchema.pick({ caption: true }),
+        ) &&
         event.key === "Enter"
       ) {
         event.preventDefault();

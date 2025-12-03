@@ -15,6 +15,7 @@ import type {
 } from "../inlineContent/types.js";
 import type { PropSchema, Props } from "../propTypes.js";
 import type { StyleSchema } from "../styles/types.js";
+import { PartialTableContent, TableContent } from "./types/tableContent.js";
 
 export type BlockNoteDOMElement =
   | "editor"
@@ -75,7 +76,7 @@ export interface BlockConfig<
   type: T;
   /**
    * The properties that the block supports
-   * @todo will be zod schema in the future
+   * Now uses Zod schema for validation and type inference
    */
   readonly propSchema: PS;
   /**
@@ -225,44 +226,17 @@ export type BlockSpecsFromSchema<BS extends BlockSchema> = {
   };
 };
 
-export type BlockSchemaWithBlock<T extends string, C extends BlockConfig> = {
+export type BlockSchemaWithBlock<
+  T extends string,
+  C extends BlockConfig,
+> = NamesMatch<{
   [k in T]: C;
-};
-
-export type TableCellProps = {
-  backgroundColor: string;
-  textColor: string;
-  textAlignment: "left" | "center" | "right" | "justify";
-  colspan?: number;
-  rowspan?: number;
-};
-
-export type TableCell<
-  I extends InlineContentSchema,
-  S extends StyleSchema = StyleSchema,
-> = {
-  type: "tableCell";
-  props: TableCellProps;
-  content: InlineContent<I, S>[];
-};
-
-export type TableContent<
-  I extends InlineContentSchema,
-  S extends StyleSchema = StyleSchema,
-> = {
-  type: "tableContent";
-  columnWidths: (number | undefined)[];
-  headerRows?: number;
-  headerCols?: number;
-  rows: {
-    cells: InlineContent<I, S>[][] | TableCell<I, S>[];
-  }[];
-};
+}>;
 
 // A BlockConfig has all the information to get the type of a Block (which is a specific instance of the BlockConfig.
 // i.e.: paragraphConfig: BlockConfig defines what a "paragraph" is / supports, and BlockFromConfigNoChildren<paragraphConfig> is the shape of a specific paragraph block.
 // (for internal use)
-export type BlockFromConfigNoChildren<
+type BlockFromConfigNoChildren<
   B extends BlockConfig,
   I extends InlineContentSchema,
   S extends StyleSchema,
@@ -300,50 +274,13 @@ type BlocksWithoutChildren<
 
 // Converts each block spec into a Block object without children, merges them
 // into a union type, and adds a children property
+// TODO: should only be exposed internally
 export type BlockNoDefaults<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
 > = BlocksWithoutChildren<BSchema, I, S>[keyof BSchema] & {
   children: BlockNoDefaults<BSchema, I, S>[];
-};
-
-export type SpecificBlock<
-  BSchema extends BlockSchema,
-  BType extends keyof BSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
-> = BlocksWithoutChildren<BSchema, I, S>[BType] & {
-  children: BlockNoDefaults<BSchema, I, S>[];
-};
-
-/** CODE FOR PARTIAL BLOCKS, analogous to above
- *
- * Partial blocks are convenience-wrappers to make it easier to
- *create/update blocks in the editor.
- *
- */
-
-export type PartialTableCell<
-  I extends InlineContentSchema,
-  S extends StyleSchema = StyleSchema,
-> = {
-  type: "tableCell";
-  props?: Partial<TableCellProps>;
-  content?: PartialInlineContent<I, S>;
-};
-
-export type PartialTableContent<
-  I extends InlineContentSchema,
-  S extends StyleSchema = StyleSchema,
-> = {
-  type: "tableContent";
-  columnWidths?: (number | undefined)[];
-  headerRows?: number;
-  headerCols?: number;
-  rows: {
-    cells: PartialInlineContent<I, S>[] | PartialTableCell<I, S>[];
-  }[];
 };
 
 type PartialBlockFromConfigNoChildren<
@@ -379,31 +316,10 @@ export type PartialBlockNoDefaults<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
-> = PartialBlocksWithoutChildren<
-  BSchema,
-  I,
-  S
->[keyof PartialBlocksWithoutChildren<BSchema, I, S>] &
+> = PartialBlocksWithoutChildren<BSchema, I, S>[keyof BSchema] &
   Partial<{
     children: PartialBlockNoDefaults<BSchema, I, S>[];
   }>;
-
-export type SpecificPartialBlock<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  BType extends keyof BSchema,
-  S extends StyleSchema,
-> = PartialBlocksWithoutChildren<BSchema, I, S>[BType] & {
-  children?: BlockNoDefaults<BSchema, I, S>[];
-};
-
-export type PartialBlockFromConfig<
-  B extends BlockConfig,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
-> = PartialBlockFromConfigNoChildren<B, I, S> & {
-  children?: BlockNoDefaults<BlockSchema, I, S>[];
-};
 
 export type BlockIdentifier = { id: string } | string;
 

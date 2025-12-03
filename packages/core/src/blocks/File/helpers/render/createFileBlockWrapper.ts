@@ -1,22 +1,24 @@
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
-import {
+import type {
   BlockConfig,
-  BlockFromConfigNoChildren,
+  BlockFromConfig,
+  PropSchemaFromZod,
 } from "../../../../schema/index.js";
+import {
+  baseFileZodPropSchema,
+  optionalFileZodPropSchema,
+} from "../../../defaultFileProps.js";
 import { createAddFileButton } from "./createAddFileButton.js";
 import { createFileNameWithIcon } from "./createFileNameWithIcon.js";
 
+const requiredZodPropSchema = baseFileZodPropSchema.extend({
+  ...optionalFileZodPropSchema.pick({ url: true }).shape,
+});
 export const createFileBlockWrapper = (
-  block: BlockFromConfigNoChildren<
+  block: BlockFromConfig<
     BlockConfig<
       string,
-      {
-        backgroundColor: { default: "default" };
-        name: { default: "" };
-        url: { default: "" };
-        caption: { default: "" };
-        showPreview?: { default: true };
-      },
+      PropSchemaFromZod<typeof requiredZodPropSchema>,
       "none"
     >,
     any,
@@ -58,7 +60,7 @@ export const createFileBlockWrapper = (
   const ret: { dom: HTMLElement; destroy?: () => void } = { dom: wrapper };
 
   // Show the file preview, or the file name and icon.
-  if (block.props.showPreview === false || !element) {
+  if ((block.props as any).showPreview === false || !element) {
     // Show file name and icon.
     const fileNameWithIcon = createFileNameWithIcon(block);
     wrapper.appendChild(fileNameWithIcon.dom);

@@ -1,28 +1,26 @@
 import { Attribute } from "@tiptap/core";
+import { z } from "zod/v4";
 
 import { COLORS_DEFAULT } from "../editor/defaultColors.js";
-import type { Props, PropSchema } from "../schema/index.js";
+import { createPropSchemaFromZod, type Props } from "../schema/index.js";
 
 // TODO: this system should probably be moved / refactored.
 // The dependency from schema on this file doesn't make sense
 
-export const defaultProps = {
-  backgroundColor: {
-    default: "default" as const,
-  },
-  textColor: {
-    default: "default" as const,
-  },
-  textAlignment: {
-    default: "left" as const,
-    values: ["left", "center", "right", "justify"] as const,
-  },
-} satisfies PropSchema;
+export const defaultZodPropSchema = z.object({
+  backgroundColor: z.string().default("default"),
+  textColor: z.string().default("default"),
+  textAlignment: z.enum(["left", "center", "right", "justify"]).default("left"),
+});
 
-export type DefaultProps = Props<typeof defaultProps>;
+export const defaultPropSchema = createPropSchemaFromZod(defaultZodPropSchema);
+export type DefaultPropSchema = Props<typeof defaultPropSchema>;
 
+const defaultValues = defaultZodPropSchema.parse({});
+
+// TODO: review below
 export const parseDefaultProps = (element: HTMLElement) => {
-  const props: Partial<DefaultProps> = {};
+  const props: Partial<DefaultPropSchema> = {};
 
   // If the `data-` attribute is found, set the prop to the value, as this most
   // likely means the parsed element was exported by BlockNote originally.
@@ -42,22 +40,26 @@ export const parseDefaultProps = (element: HTMLElement) => {
     props.textColor = element.style.color;
   }
 
-  props.textAlignment = defaultProps.textAlignment.values.includes(
-    element.style.textAlign as DefaultProps["textAlignment"],
-  )
-    ? (element.style.textAlign as DefaultProps["textAlignment"])
+  props.textAlignment = defaultZodPropSchema.shape.textAlignment._zod.values
+    .values()
+    .some(
+      (value) =>
+        value ===
+        (element.style.textAlign as DefaultPropSchema["textAlignment"]),
+    )
+    ? (element.style.textAlign as DefaultPropSchema["textAlignment"])
     : undefined;
 
   return props;
 };
 
 export const addDefaultPropsExternalHTML = (
-  props: Partial<DefaultProps>,
+  props: Partial<DefaultPropSchema>,
   element: HTMLElement,
 ) => {
   if (
     props.backgroundColor &&
-    props.backgroundColor !== defaultProps.backgroundColor.default
+    props.backgroundColor !== defaultValues.backgroundColor
   ) {
     // The color can be any string. If the string matches one of the default
     // theme color names, set the theme color. Otherwise, set the color as-is
@@ -68,7 +70,7 @@ export const addDefaultPropsExternalHTML = (
         : props.backgroundColor;
   }
 
-  if (props.textColor && props.textColor !== defaultProps.textColor.default) {
+  if (props.textColor && props.textColor !== defaultValues.textColor) {
     // The color can be any string. If the string matches one of the default
     // theme color names, set the theme color. Otherwise, set the color as-is
     // (may be a CSS color name, hex value, RGB value, etc).
@@ -80,7 +82,7 @@ export const addDefaultPropsExternalHTML = (
 
   if (
     props.textAlignment &&
-    props.textAlignment !== defaultProps.textAlignment.default
+    props.textAlignment !== defaultValues.textAlignment
   ) {
     element.style.textAlign = props.textAlignment;
   }
@@ -89,7 +91,7 @@ export const addDefaultPropsExternalHTML = (
 export const getBackgroundColorAttribute = (
   attributeName = "backgroundColor",
 ): Attribute => ({
-  default: defaultProps.backgroundColor.default,
+  default: defaultValues.backgroundColor,
   parseHTML: (element) => {
     if (element.hasAttribute("data-background-color")) {
       return element.getAttribute("data-background-color")!;
@@ -99,10 +101,10 @@ export const getBackgroundColorAttribute = (
       return element.style.backgroundColor;
     }
 
-    return defaultProps.backgroundColor.default;
+    return defaultValues.backgroundColor;
   },
   renderHTML: (attributes) => {
-    if (attributes[attributeName] === defaultProps.backgroundColor.default) {
+    if (attributes[attributeName] === defaultValues.backgroundColor) {
       return {};
     }
 
@@ -115,7 +117,7 @@ export const getBackgroundColorAttribute = (
 export const getTextColorAttribute = (
   attributeName = "textColor",
 ): Attribute => ({
-  default: defaultProps.textColor.default,
+  default: defaultValues.textColor,
   parseHTML: (element) => {
     if (element.hasAttribute("data-text-color")) {
       return element.getAttribute("data-text-color")!;
@@ -125,10 +127,10 @@ export const getTextColorAttribute = (
       return element.style.color;
     }
 
-    return defaultProps.textColor.default;
+    return defaultValues.textColor;
   },
   renderHTML: (attributes) => {
-    if (attributes[attributeName] === defaultProps.textColor.default) {
+    if (attributes[attributeName] === defaultValues.textColor) {
       return {};
     }
 
@@ -141,7 +143,7 @@ export const getTextColorAttribute = (
 export const getTextAlignmentAttribute = (
   attributeName = "textAlignment",
 ): Attribute => ({
-  default: defaultProps.textAlignment.default,
+  default: defaultValues.textAlignment,
   parseHTML: (element) => {
     if (element.hasAttribute("data-text-alignment")) {
       return element.getAttribute("data-text-alignment");
@@ -151,10 +153,10 @@ export const getTextAlignmentAttribute = (
       return element.style.textAlign;
     }
 
-    return defaultProps.textAlignment.default;
+    return defaultValues.textAlignment;
   },
   renderHTML: (attributes) => {
-    if (attributes[attributeName] === defaultProps.textAlignment.default) {
+    if (attributes[attributeName] === defaultValues.textAlignment) {
       return {};
     }
 

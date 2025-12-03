@@ -1,11 +1,14 @@
-import { blockHasType, editorHasBlockWithType } from "@blocknote/core";
+import {
+  defaultZodPropSchema,
+  editorHasBlockTypeAndZodProps
+} from "@blocknote/core";
 import { SideMenuExtension } from "@blocknote/core/extensions";
 import { ReactNode } from "react";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
-import { ColorPicker } from "../../../ColorPicker/ColorPicker.js";
 import { useExtensionState } from "../../../../hooks/useExtension.js";
+import { ColorPicker } from "../../../ColorPicker/ColorPicker.js";
 
 export const BlockColorsItem = (props: { children: ReactNode }) => {
   const Components = useComponentsContext()!;
@@ -19,12 +22,16 @@ export const BlockColorsItem = (props: { children: ReactNode }) => {
 
   if (
     block === undefined ||
-    (!blockHasType(block, editor, block.type, {
-      textColor: "string",
-    }) &&
-      !blockHasType(block, editor, block.type, {
-        backgroundColor: "string",
-      }))
+    !editorHasBlockTypeAndZodProps(
+      editor,
+      block.type,
+      defaultZodPropSchema.pick({ textColor: true }),
+    ) &&
+    !editorHasBlockTypeAndZodProps(
+      editor,
+      block.type,
+      defaultZodPropSchema.pick({ backgroundColor: true }),
+    )
   ) {
     return null;
   }
@@ -47,12 +54,11 @@ export const BlockColorsItem = (props: { children: ReactNode }) => {
         <ColorPicker
           iconSize={18}
           text={
-            blockHasType(block, editor, block.type, {
-              textColor: "string",
-            }) &&
-            editorHasBlockWithType(editor, block.type, {
-              textColor: "string",
-            })
+            editorHasBlockTypeAndZodProps(
+              editor,
+              block.type,
+              defaultZodPropSchema.pick({ textColor: true }),
+            )
               ? {
                   color: block.props.textColor,
                   setColor: (color) =>
@@ -64,12 +70,11 @@ export const BlockColorsItem = (props: { children: ReactNode }) => {
               : undefined
           }
           background={
-            blockHasType(block, editor, block.type, {
-              backgroundColor: "string",
-            }) &&
-            editorHasBlockWithType(editor, block.type, {
-              backgroundColor: "string",
-            })
+            editorHasBlockTypeAndZodProps(
+              editor,
+              block.type,
+              defaultZodPropSchema.pick({ backgroundColor: true }),
+            )
               ? {
                   color: block.props.backgroundColor,
                   setColor: (color) =>

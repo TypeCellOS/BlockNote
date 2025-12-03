@@ -1,23 +1,37 @@
 {
+  "advancedComplexAttributeNode": {
+    "config": {
+      "content": "none",
+      "propSchema": {
+        "user": {
+          "age": 30,
+          "name": {
+            "first": "John",
+            "last": "Doe",
+          },
+        },
+      },
+      "type": "advancedComplexAttributeNode",
+    },
+    "extensions": undefined,
+    "implementation": {
+      "node": null,
+      "render": [Function],
+      "runsBefore": [
+        "default",
+      ],
+      "toExternalHTML": [Function],
+    },
+  },
   "audio": {
     "config": {
       "content": "none",
       "propSchema": {
-        "backgroundColor": {
-          "default": "default",
-        },
-        "caption": {
-          "default": "",
-        },
-        "name": {
-          "default": "",
-        },
-        "showPreview": {
-          "default": true,
-        },
-        "url": {
-          "default": "",
-        },
+        "backgroundColor": "default",
+        "caption": "",
+        "name": "",
+        "showPreview": true,
+        "url": "",
       },
       "type": "audio",
     },
@@ -41,21 +55,9 @@
     "config": {
       "content": "inline",
       "propSchema": {
-        "backgroundColor": {
-          "default": "default",
-        },
-        "textAlignment": {
-          "default": "left",
-          "values": [
-            "left",
-            "center",
-            "right",
-            "justify",
-          ],
-        },
-        "textColor": {
-          "default": "default",
-        },
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
       },
       "type": "bulletListItem",
     },
@@ -70,6 +72,7 @@
       "parse": [Function],
       "parseContent": [Function],
       "render": [Function],
+      "runsBefore": [],
       "toExternalHTML": [Function],
     },
   },
@@ -77,25 +80,10 @@
     "config": {
       "content": "inline",
       "propSchema": {
-        "backgroundColor": {
-          "default": "default",
-        },
-        "checked": {
-          "default": false,
-          "type": "boolean",
-        },
-        "textAlignment": {
-          "default": "left",
-          "values": [
-            "left",
-            "center",
-            "right",
-            "justify",
-          ],
-        },
-        "textColor": {
-          "default": "default",
-        },
+        "backgroundColor": "default",
+        "checked": false,
+        "textAlignment": "left",
+        "textColor": "default",
       },
       "type": "checkListItem",
     },
@@ -120,9 +108,7 @@
     "config": {
       "content": "inline",
       "propSchema": {
-        "language": {
-          "default": "text",
-        },
+        "language": "text",
       },
       "type": "codeBlock",
     },
@@ -140,6 +126,7 @@
       "parse": [Function],
       "parseContent": [Function],
       "render": [Function],
+      "runsBefore": [],
       "toExternalHTML": [Function],
     },
   },
@@ -147,21 +134,9 @@
     "config": {
       "content": "inline",
       "propSchema": {
-        "backgroundColor": {
-          "default": "default",
-        },
-        "textAlignment": {
-          "default": "left",
-          "values": [
-            "left",
-            "center",
-            "right",
-            "justify",
-          ],
-        },
-        "textColor": {
-          "default": "default",
-        },
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
       },
       "type": "customParagraph",
     },
@@ -170,6 +145,9 @@
       "node": null,
       "parse": [Function],
       "render": [Function],
+      "runsBefore": [
+        "default",
+      ],
       "toExternalHTML": [Function],
     },
   },
@@ -189,6 +167,7 @@
       "node": null,
       "parse": [Function],
       "render": [Function],
+      "runsBefore": [],
       "toExternalHTML": [Function],
     },
   },
@@ -196,18 +175,10 @@
     "config": {
       "content": "none",
       "propSchema": {
-        "backgroundColor": {
-          "default": "default",
-        },
-        "caption": {
-          "default": "",
-        },
-        "name": {
-          "default": "",
-        },
-        "url": {
-          "default": "",
-        },
+        "backgroundColor": "default",
+        "caption": "",
+        "name": "",
+        "url": "",
       },
       "type": "file",
     },
@@ -221,6 +192,7 @@
       "node": null,
       "parse": [Function],
       "render": [Function],
+      "runsBefore": [],
       "toExternalHTML": [Function],
     },
   },
@@ -228,36 +200,11 @@
     "config": {
       "content": "inline",
       "propSchema": {
-        "backgroundColor": {
-          "default": "default",
-        },
-        "isToggleable": {
-          "default": false,
-          "optional": true,
-        },
-        "level": {
-          "default": 1,
-          "values": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-          ],
-        },
-        "textAlignment": {
-          "default": "left",
-          "values": [
-            "left",
-            "center",
-            "right",
-            "justify",
-          ],
-        },
-        "textColor": {
-          "default": "default",
-        },
+        "backgroundColor": "default",
+        "isToggleable": false,
+        "level": 1,
+        "textAlignment": "left",
+        "textColor": "default",
       },
       "type": "heading",
     },
@@ -271,6 +218,7 @@
       "node": null,
       "parse": [Function],
       "render": [Function],
+      "runsBefore": [],
       "toExternalHTML": [Function],
     },
   },
@@ -278,34 +226,12 @@
     "config": {
       "content": "none",
       "propSchema": {
-        "backgroundColor": {
-          "default": "default",
-        },
-        "caption": {
-          "default": "",
-        },
-        "name": {
-          "default": "",
-        },
-        "previewWidth": {
-          "default": undefined,
-          "type": "number",
-        },
-        "showPreview": {
-          "default": true,
-        },
-        "textAlignment": {
-          "default": "left",
-          "values": [
-            "left",
-            "center",
-            "right",
-            "justify",
-          ],
-        },
-        "url": {
-          "default": "",
-        },
+        "backgroundColor": "default",
+        "caption": "",
+        "name": "",
+        "showPreview": true,
+        "textAlignment": "left",
+        "url": "",
       },
       "type": "image",
     },
@@ -329,25 +255,9 @@
     "config": {
       "content": "inline",
       "propSchema": {
-        "backgroundColor": {
-          "default": "default",
-        },
-        "start": {
-          "default": undefined,
-          "type": "number",
-        },
-        "textAlignment": {
-          "default": "left",
-          "values": [
-            "left",
-            "center",
-            "right",
-            "justify",
-          ],
-        },
-        "textColor": {
-          "default": "default",
-        },
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
       },
       "type": "numberedListItem",
     },
@@ -362,6 +272,7 @@
       "parse": [Function],
       "parseContent": [Function],
       "render": [Function],
+      "runsBefore": [],
       "toExternalHTML": [Function],
     },
   },
@@ -376,6 +287,7 @@
       "node": null,
       "parse": [Function],
       "render": [Function],
+      "runsBefore": [],
       "toExternalHTML": [Function],
     },
   },
@@ -383,21 +295,9 @@
     "config": {
       "content": "inline",
       "propSchema": {
-        "backgroundColor": {
-          "default": "default",
-        },
-        "textAlignment": {
-          "default": "left",
-          "values": [
-            "left",
-            "center",
-            "right",
-            "justify",
-          ],
-        },
-        "textColor": {
-          "default": "default",
-        },
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
       },
       "type": "paragraph",
     },
@@ -421,12 +321,8 @@
     "config": {
       "content": "inline",
       "propSchema": {
-        "backgroundColor": {
-          "default": "default",
-        },
-        "textColor": {
-          "default": "default",
-        },
+        "backgroundColor": "default",
+        "textColor": "default",
       },
       "type": "quote",
     },
@@ -440,6 +336,7 @@
       "node": null,
       "parse": [Function],
       "render": [Function],
+      "runsBefore": [],
       "toExternalHTML": [Function],
     },
   },
@@ -447,21 +344,9 @@
     "config": {
       "content": "inline",
       "propSchema": {
-        "backgroundColor": {
-          "default": "default",
-        },
-        "textAlignment": {
-          "default": "left",
-          "values": [
-            "left",
-            "center",
-            "right",
-            "justify",
-          ],
-        },
-        "textColor": {
-          "default": "default",
-        },
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
       },
       "type": "simpleCustomParagraph",
     },
@@ -469,6 +354,9 @@
     "implementation": {
       "node": null,
       "render": [Function],
+      "runsBefore": [
+        "default",
+      ],
       "toExternalHTML": [Function],
     },
   },
@@ -476,34 +364,12 @@
     "config": {
       "content": "none",
       "propSchema": {
-        "backgroundColor": {
-          "default": "default",
-        },
-        "caption": {
-          "default": "",
-        },
-        "name": {
-          "default": "",
-        },
-        "previewWidth": {
-          "default": undefined,
-          "type": "number",
-        },
-        "showPreview": {
-          "default": true,
-        },
-        "textAlignment": {
-          "default": "left",
-          "values": [
-            "left",
-            "center",
-            "right",
-            "justify",
-          ],
-        },
-        "url": {
-          "default": "",
-        },
+        "backgroundColor": "default",
+        "caption": "",
+        "name": "",
+        "showPreview": true,
+        "textAlignment": "left",
+        "url": "",
       },
       "type": "simpleImage",
     },
@@ -511,6 +377,9 @@
     "implementation": {
       "node": null,
       "render": [Function],
+      "runsBefore": [
+        "default",
+      ],
       "toExternalHTML": [Function],
     },
   },
@@ -518,9 +387,7 @@
     "config": {
       "content": "table",
       "propSchema": {
-        "textColor": {
-          "default": "default",
-        },
+        "textColor": "default",
       },
       "type": "table",
     },
@@ -538,21 +405,9 @@
     "config": {
       "content": "inline",
       "propSchema": {
-        "backgroundColor": {
-          "default": "default",
-        },
-        "textAlignment": {
-          "default": "left",
-          "values": [
-            "left",
-            "center",
-            "right",
-            "justify",
-          ],
-        },
-        "textColor": {
-          "default": "default",
-        },
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
       },
       "type": "toggleListItem",
     },
@@ -565,6 +420,7 @@
       },
       "node": null,
       "render": [Function],
+      "runsBefore": [],
       "toExternalHTML": [Function],
     },
   },
@@ -572,34 +428,12 @@
     "config": {
       "content": "none",
       "propSchema": {
-        "backgroundColor": {
-          "default": "default",
-        },
-        "caption": {
-          "default": "",
-        },
-        "name": {
-          "default": "",
-        },
-        "previewWidth": {
-          "default": undefined,
-          "type": "number",
-        },
-        "showPreview": {
-          "default": true,
-        },
-        "textAlignment": {
-          "default": "left",
-          "values": [
-            "left",
-            "center",
-            "right",
-            "justify",
-          ],
-        },
-        "url": {
-          "default": "",
-        },
+        "backgroundColor": "default",
+        "caption": "",
+        "name": "",
+        "showPreview": true,
+        "textAlignment": "left",
+        "url": "",
       },
       "type": "video",
     },

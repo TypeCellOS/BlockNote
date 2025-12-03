@@ -1,10 +1,10 @@
 import {
-  blockHasType,
+  blockHasZodProps,
   BlockSchema,
-  defaultProps,
-  DefaultProps,
+  DefaultPropSchema,
+  defaultZodPropSchema,
   InlineContentSchema,
-  StyleSchema,
+  StyleSchema
 } from "@blocknote/core";
 import { FormattingToolbarExtension } from "@blocknote/core/extensions";
 import { flip, offset, shift } from "@floating-ui/react";
@@ -19,7 +19,7 @@ import { FormattingToolbar } from "./FormattingToolbar.js";
 import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
 
 const textAlignmentToPlacement = (
-  textAlignment: DefaultProps["textAlignment"],
+  textAlignment: DefaultPropSchema["textAlignment"],
 ) => {
   switch (textAlignment) {
     case "left":
@@ -66,9 +66,9 @@ export const FormattingToolbarController = (props: {
       const block = editor.getTextCursorPosition().block;
 
       if (
-        !blockHasType(block, editor, block.type, {
-          textAlignment: defaultProps.textAlignment,
-        })
+        !blockHasZodProps(block, editor, defaultZodPropSchema.pick({
+          textAlignment: true,
+        }))
       ) {
         return "top-start";
       } else {

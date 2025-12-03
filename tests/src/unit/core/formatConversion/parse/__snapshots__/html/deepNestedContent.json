@@ -206,6 +206,7 @@
       "backgroundColor": "default",
       "caption": "Image Caption",
       "name": "",
+      "previewWidth": undefined,
       "showPreview": true,
       "textAlignment": "left",
       "url": "exampleURL",

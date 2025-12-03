@@ -1,5 +1,8 @@
 import { Block, PartialBlock } from "../../blocks/defaultBlocks.js";
-import { editorHasBlockWithType } from "../../blocks/defaultBlockTypeGuards.js";
+import {
+  editorHasBlockType,
+  editorHasBlockTypeAndPropsAreValid,
+} from "../../blocks/defaultBlockTypeGuards.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   BlockSchema,
@@ -88,45 +91,24 @@ export function getDefaultSlashMenuItems<
 >(editor: BlockNoteEditor<BSchema, I, S>) {
   const items: DefaultSuggestionItem[] = [];
 
-  if (editorHasBlockWithType(editor, "heading", { level: "number" })) {
-    items.push(
-      {
-        onItemClick: () => {
-          insertOrUpdateBlockForSlashMenu(editor, {
-            type: "heading",
-            props: { level: 1 },
-          });
-        },
-        badge: formatKeyboardShortcut("Mod-Alt-1"),
-        key: "heading",
-        ...editor.dictionary.slash_menu.heading,
-      },
-      {
-        onItemClick: () => {
-          insertOrUpdateBlockForSlashMenu(editor, {
-            type: "heading",
-            props: { level: 2 },
-          });
-        },
-        badge: formatKeyboardShortcut("Mod-Alt-2"),
-        key: "heading_2",
-        ...editor.dictionary.slash_menu.heading_2,
-      },
-      {
-        onItemClick: () => {
-          insertOrUpdateBlockForSlashMenu(editor, {
-            type: "heading",
-            props: { level: 3 },
-          });
-        },
-        badge: formatKeyboardShortcut("Mod-Alt-3"),
-        key: "heading_3",
-        ...editor.dictionary.slash_menu.heading_3,
-      },
-    );
+  if (editorHasBlockType(editor, "heading")) {
+    for (const level of [1, 2, 3, 4, 5, 6] as const) {
+      if (editorHasBlockTypeAndPropsAreValid(editor, "heading", { level })) {
+        items.push({
+          onItemClick: () => {
+            insertOrUpdateBlockForSlashMenu(editor, {
+              type: "heading",
+              props: { level },
+            });
+          },
+          badge: formatKeyboardShortcut(`Mod-Alt-${level}`),
+          key: `heading_${level}`,
+          ...editor.dictionary.slash_menu[`heading_${level}`],
+        });
+      }
+    }
   }
-
-  if (editorHasBlockWithType(editor, "quote")) {
+  if (editorHasBlockType(editor, "quote")) {
     items.push({
       onItemClick: () => {
         insertOrUpdateBlockForSlashMenu(editor, {
@@ -138,7 +120,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (editorHasBlockWithType(editor, "toggleListItem")) {
+  if (editorHasBlockType(editor, "toggleListItem")) {
     items.push({
       onItemClick: () => {
         insertOrUpdateBlockForSlashMenu(editor, {
@@ -151,7 +133,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (editorHasBlockWithType(editor, "numberedListItem")) {
+  if (editorHasBlockType(editor, "numberedListItem")) {
     items.push({
       onItemClick: () => {
         insertOrUpdateBlockForSlashMenu(editor, {
@@ -164,7 +146,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (editorHasBlockWithType(editor, "bulletListItem")) {
+  if (editorHasBlockType(editor, "bulletListItem")) {
     items.push({
       onItemClick: () => {
         insertOrUpdateBlockForSlashMenu(editor, {
@@ -177,7 +159,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (editorHasBlockWithType(editor, "checkListItem")) {
+  if (editorHasBlockType(editor, "checkListItem")) {
     items.push({
       onItemClick: () => {
         insertOrUpdateBlockForSlashMenu(editor, {
@@ -190,7 +172,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (editorHasBlockWithType(editor, "paragraph")) {
+  if (editorHasBlockType(editor, "paragraph")) {
     items.push({
       onItemClick: () => {
         insertOrUpdateBlockForSlashMenu(editor, {
@@ -203,7 +185,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (editorHasBlockWithType(editor, "codeBlock")) {
+  if (editorHasBlockType(editor, "codeBlock")) {
     items.push({
       onItemClick: () => {
         insertOrUpdateBlockForSlashMenu(editor, {
@@ -216,7 +198,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (editorHasBlockWithType(editor, "divider")) {
+  if (editorHasBlockType(editor, "divider")) {
     items.push({
       onItemClick: () => {
         insertOrUpdateBlockForSlashMenu(editor, { type: "divider" });
@@ -226,7 +208,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (editorHasBlockWithType(editor, "table")) {
+  if (editorHasBlockType(editor, "table")) {
     items.push({
       onItemClick: () => {
         insertOrUpdateBlockForSlashMenu(editor, {
@@ -250,7 +232,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (editorHasBlockWithType(editor, "image", { url: "string" })) {
+  if (editorHasBlockType(editor, "image")) {
     items.push({
       onItemClick: () => {
         const insertedBlock = insertOrUpdateBlockForSlashMenu(editor, {
@@ -265,7 +247,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (editorHasBlockWithType(editor, "video", { url: "string" })) {
+  if (editorHasBlockType(editor, "video")) {
     items.push({
       onItemClick: () => {
         const insertedBlock = insertOrUpdateBlockForSlashMenu(editor, {
@@ -280,7 +262,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (editorHasBlockWithType(editor, "audio", { url: "string" })) {
+  if (editorHasBlockType(editor, "audio")) {
     items.push({
       onItemClick: () => {
         const insertedBlock = insertOrUpdateBlockForSlashMenu(editor, {
@@ -295,7 +277,7 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (editorHasBlockWithType(editor, "file", { url: "string" })) {
+  if (editorHasBlockType(editor, "file")) {
     items.push({
       onItemClick: () => {
         const insertedBlock = insertOrUpdateBlockForSlashMenu(editor, {
@@ -310,62 +292,26 @@ export function getDefaultSlashMenuItems<
     });
   }
 
-  if (
-    editorHasBlockWithType(editor, "heading", {
-      level: "number",
-      isToggleable: "boolean",
-    })
-  ) {
-    items.push(
-      {
-        onItemClick: () => {
-          insertOrUpdateBlockForSlashMenu(editor, {
-            type: "heading",
-            props: { level: 1, isToggleable: true },
-          });
-        },
-        key: "toggle_heading",
-        ...editor.dictionary.slash_menu.toggle_heading,
-      },
-      {
-        onItemClick: () => {
-          insertOrUpdateBlockForSlashMenu(editor, {
-            type: "heading",
-            props: { level: 2, isToggleable: true },
-          });
-        },
-
-        key: "toggle_heading_2",
-        ...editor.dictionary.slash_menu.toggle_heading_2,
-      },
-      {
-        onItemClick: () => {
-          insertOrUpdateBlockForSlashMenu(editor, {
-            type: "heading",
-            props: { level: 3, isToggleable: true },
-          });
-        },
-        key: "toggle_heading_3",
-        ...editor.dictionary.slash_menu.toggle_heading_3,
-      },
-    );
-  }
-
-  if (editorHasBlockWithType(editor, "heading", { level: "number" })) {
-    (editor.schema.blockSchema.heading.propSchema.level.values || [])
-      .filter((level): level is 4 | 5 | 6 => level > 3)
-      .forEach((level) => {
+  if (editorHasBlockType(editor, "heading")) {
+    for (const level of [1, 2, 3] as const) {
+      if (
+        editorHasBlockTypeAndPropsAreValid(editor, "heading", {
+          level,
+          isToggleable: true,
+        })
+      ) {
         items.push({
           onItemClick: () => {
             insertOrUpdateBlockForSlashMenu(editor, {
               type: "heading",
-              props: { level: level },
+              props: { level: 2, isToggleable: true },
             });
           },
-          key: `heading_${level}`,
-          ...editor.dictionary.slash_menu[`heading_${level}`],
+          key: `toggle_heading_${level}`,
+          ...editor.dictionary.slash_menu[`toggle_heading_${level}`],
         });
-      });
+      }
+    }
   }
 
   items.push({

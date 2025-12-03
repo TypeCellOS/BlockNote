@@ -59,14 +59,14 @@
     "prosemirror-tables": "^1.8.1",
     "prosemirror-transform": "^1.10.5",
     "prosemirror-view": "^1.41.3",
-    "react-icons": "^5.5.0"
+    "react-icons": "^5.5.0",
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
-    "@vitest/ui": "^2.1.9",
     "eslint": "^8.57.1",
-    "jsdom": "^21.1.2",
+    "jsdom": "^25.0.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "rimraf": "^5.0.10",

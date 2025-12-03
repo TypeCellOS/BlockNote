@@ -1,18 +1,26 @@
-import { FileBlockConfig } from "@blocknote/core";
+import { FileBlockConfig, PropSchemaFromZod } from "@blocknote/core";
 import { FilePanelExtension } from "@blocknote/core/extensions";
 import { ReactNode, useCallback } from "react";
 import { RiFile2Line } from "react-icons/ri";
+import {
+  baseFileZodPropSchema,
+  optionalFileZodPropSchema,
+} from "../../../../../../core/src/blocks/defaultFileProps.js";
 
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
 import { useExtension } from "../../../../hooks/useExtension.js";
 import { useDictionary } from "../../../../i18n/dictionary.js";
 import { ReactCustomBlockRenderProps } from "../../../../schema/ReactBlockSpec.js";
 
+const requiredZodPropSchema = baseFileZodPropSchema.extend({
+  ...optionalFileZodPropSchema.pick({ url: true }).shape,
+});
+
 export const AddFileButton = (
   props: Omit<
     ReactCustomBlockRenderProps<
       FileBlockConfig["type"],
-      FileBlockConfig["propSchema"],
+      PropSchemaFromZod<typeof requiredZodPropSchema>,
       FileBlockConfig["content"]
     >,
     "contentRef"

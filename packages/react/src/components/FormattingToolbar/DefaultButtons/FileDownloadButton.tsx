@@ -1,7 +1,7 @@
 import {
-  blockHasType,
   BlockSchema,
   InlineContentSchema,
+  isFileBlock,
   StyleSchema,
 } from "@blocknote/core";
 import { useCallback } from "react";
@@ -36,11 +36,7 @@ export const FileDownloadButton = () => {
 
       const block = selectedBlocks[0];
 
-      if (
-        !blockHasType(block, editor, block.type, {
-          url: "string",
-        })
-      ) {
+      if (!isFileBlock(editor, block.type)) {
         return undefined;
       }
 

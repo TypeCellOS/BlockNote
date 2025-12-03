@@ -6,10 +6,12 @@ import {
   createImageBlockSpec,
   createInlineContentSpec,
   createPageBreakBlockSpec,
+  createPropSchemaFromZod,
   createStyleSpec,
-  defaultProps,
+  defaultPropSchema,
   parseDefaultProps,
 } from "@blocknote/core";
+import z from "zod/v4";
 
 // BLOCKS ----------------------------------------------------------------------
 
@@ -41,25 +43,20 @@ const CustomParagraph = createBlockSpec(
     () =>
       ({
         type: "customParagraph",
-        propSchema: defaultProps,
+        propSchema: defaultPropSchema,
         content: "inline",
       }) as const,
   ),
   {
     parse: (e) => {
-      if (e.tagName !== "P") {
-        return undefined;
-      }
-
-      if (e.classList.contains("custom-paragraph")) {
+      if (e.tagName === "CUSTOM-PARAGRAPH") {
         return parseDefaultProps(e);
       }
 
       return undefined;
     },
     render: () => {
-      const paragraph = document.createElement("p");
-      paragraph.className = "custom-paragraph";
+      const paragraph = document.createElement("custom-paragraph");
 
       return {
         dom: paragraph,
@@ -67,11 +64,11 @@ const CustomParagraph = createBlockSpec(
       };
     },
     toExternalHTML: () => {
-      const paragraph = document.createElement("p");
-      paragraph.className = "custom-paragraph";
+      const paragraph = document.createElement("custom-paragraph");
 
       return {
         dom: paragraph,
+        contentDOM: paragraph,
       };
     },
   },
@@ -82,7 +79,7 @@ const SimpleCustomParagraph = createBlockSpec(
     () =>
       ({
         type: "simpleCustomParagraph",
-        propSchema: defaultProps,
+        propSchema: defaultPropSchema,
         content: "inline",
       }) as const,
   ),
@@ -99,16 +96,53 @@ const SimpleCustomParagraph = createBlockSpec(
   },
 );
 
+const ComplexAttributeNode = createBlockSpec(
+  createBlockConfig(
+    () =>
+      ({
+        type: "advancedComplexAttributeNode",
+        propSchema: createPropSchemaFromZod(
+          z.object({
+            user: z
+              .object({
+                name: z.object({
+                  first: z.string(),
+                  last: z.string(),
+                }),
+                age: z.number(),
+              })
+              .default({ name: { first: "John", last: "Doe" }, age: 30 }),
+          }),
+        ),
+        content: "none",
+      }) as const,
+  ),
+  {
+    render(block) {
+      const paragraph = document.createElement("div");
+
+      paragraph.setAttribute(
+        "data-user-manual",
+        JSON.stringify(block.props.user),
+      );
+
+      return {
+        dom: paragraph,
+      };
+    },
+  },
+);
+
 // INLINE CONTENT --------------------------------------------------------------
 
 const Mention = createInlineContentSpec(
   {
     type: "mention",
-    propSchema: {
-      user: {
-        default: "",
-      },
-    },
+    propSchema: createPropSchemaFromZod(
+      z.object({
+        user: z.string().default(""),
+      }),
+    ),
     content: "none",
   },
   {
@@ -152,7 +186,7 @@ const Mention = createInlineContentSpec(
 const Tag = createInlineContentSpec(
   {
     type: "tag" as const,
-    propSchema: {},
+    propSchema: createPropSchemaFromZod(z.object({})),
     content: "styled",
   },
   {
@@ -222,6 +256,7 @@ export const testSchema = BlockNoteSchema.create().extend({
     customParagraph: CustomParagraph(),
     simpleCustomParagraph: SimpleCustomParagraph(),
     simpleImage: SimpleImage(),
+    advancedComplexAttributeNode: ComplexAttributeNode(),
   },
   inlineContentSpecs: {
     mention: Mention,

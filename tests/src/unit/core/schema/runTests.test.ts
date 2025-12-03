@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-
+import * as z from "zod/v4/core";
 import { createTestEditor } from "../createTestEditor.js";
 import { testSchema } from "../testSchema.js";
 
@@ -12,6 +12,9 @@ describe("Schema test", () => {
   it("Block specs test", async () => {
     const specs = getEditor().schema.blockSpecs;
     Object.values(specs).forEach((spec) => {
+      // Use an empty object validation to check if a zod propSchema is the same shape
+      // @ts-ignore this is just to check the shape, not that zod instance is a certain shape
+      spec.config.propSchema = z.parse(spec.config.propSchema._zodSource, {});
       if (
         typeof spec.implementation === "object" &&
         spec.implementation !== null &&
@@ -26,12 +29,17 @@ describe("Schema test", () => {
   it("Inline content specs test", async () => {
     const specs = getEditor().schema.inlineContentSpecs;
     Object.values(specs).forEach((spec) => {
-      if (
-        typeof spec.implementation === "object" &&
-        spec.implementation !== null &&
-        typeof spec.implementation.node === "object"
-      ) {
-        spec.implementation.node = null as any;
+      if (typeof spec.config === "object" && "propSchema" in spec.config) {
+        // Use an empty object validation to check if a zod propSchema is the same shape
+        // @ts-ignore this is just to check the shape, not that zod instance is a certain shape
+        spec.config.propSchema = z.parse(spec.config.propSchema._zodSource, {});
+        if (
+          typeof spec.implementation === "object" &&
+          spec.implementation !== null &&
+          typeof spec.implementation.node === "object"
+        ) {
+          spec.implementation.node = null as any;
+        }
       }
     });
     await expect(specs).toMatchFileSnapshot(

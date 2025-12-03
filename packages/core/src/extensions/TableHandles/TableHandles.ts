@@ -26,19 +26,17 @@ import {
 } from "../../api/blockManipulation/tables/tables.js";
 import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../api/nodeUtil.js";
-import {
-  editorHasBlockWithType,
-  isTableCellSelection,
-} from "../../blocks/defaultBlockTypeGuards.js";
+import { isTableCellSelection } from "../../blocks/defaultBlockTypeGuards.js";
 import { DefaultBlockSchema } from "../../blocks/defaultBlocks.js";
+import { TableBlockConfig } from "../../blocks/index.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   createExtension,
   createStore,
 } from "../../editor/BlockNoteExtension.js";
-import {
-  BlockFromConfigNoChildren,
-  BlockSchemaWithBlock,
+import type {
+  BlockFromConfig,
+  BlockSchemaWithBlock
 } from "../../schema/index.js";
 import { getDraggableBlockFromElement } from "../getDraggableBlockFromElement.js";
 
@@ -52,7 +50,7 @@ export type TableHandlesState = {
   referencePosCell: DOMRect | undefined;
   referencePosTable: DOMRect;
 
-  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>;
+  block: BlockFromConfig<DefaultBlockSchema["table"], any, any>;
   colIndex: number | undefined;
   rowIndex: number | undefined;
 
@@ -158,7 +156,7 @@ export class TableHandlesView implements PluginView {
 
   constructor(
     private readonly editor: BlockNoteEditor<
-      BlockSchemaWithBlock<"table", DefaultBlockSchema["table"]>,
+      BlockSchemaWithBlock<"table", TableBlockConfig>,
       any,
       any
     >,
@@ -254,7 +252,7 @@ export class TableHandlesView implements PluginView {
     this.tableElement = blockEl.node;
 
     let tableBlock:
-      | BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>
+      | BlockFromConfig<DefaultBlockSchema["table"], any, any>
       | undefined;
 
     const pmNodeInfo = this.editor.transact((tr) =>
@@ -264,7 +262,7 @@ export class TableHandlesView implements PluginView {
       throw new Error(`Block with ID ${blockEl.id} not found`);
     }
 
-    const block = nodeToBlock(
+    const block = nodeToBlock<any, any, any>(
       pmNodeInfo.node,
       this.editor.pmSchema,
       this.editor.schema.blockSchema,
@@ -272,9 +270,9 @@ export class TableHandlesView implements PluginView {
       this.editor.schema.styleSchema,
     );
 
-    if (editorHasBlockWithType(this.editor, "table")) {
+    if (block.type === "table") {
       this.tablePos = pmNodeInfo.posBeforeNode + 1;
-      tableBlock = block;
+      tableBlock = block as BlockFromConfig<DefaultBlockSchema["table"], any, any>;
     }
 
     if (!tableBlock) {
@@ -529,10 +527,11 @@ export class TableHandlesView implements PluginView {
     }
 
     // Hide handles if the table block has been removed.
-    this.state.block = this.editor.getBlock(this.state.block.id)!;
+    const block = this.editor.getBlock(this.state.block.id);
+
     if (
-      !this.state.block ||
-      this.state.block.type !== "table" ||
+      !block ||
+      block.type !== "table" ||
       // when collaborating, the table element might be replaced and out of date
       // because yjs replaces the element when for example you change the color via the side menu
       !this.tableElement?.isConnected
@@ -545,6 +544,11 @@ export class TableHandlesView implements PluginView {
       return;
     }
 
+    this.state.block = block as unknown as BlockFromConfig<
+      DefaultBlockSchema["table"],
+      any,
+      any
+    >;
     const { height: rowCount, width: colCount } = getDimensionsOfTable(
       this.state.block,
     );
@@ -609,7 +613,7 @@ export class TableHandlesView implements PluginView {
 export const tableHandlesPluginKey = new PluginKey("TableHandlesPlugin");
 
 export const TableHandlesExtension = createExtension(({ editor }) => {
-  let view: TableHandlesView | undefined = undefined;
+  let view: TableHandlesView| undefined = undefined;
 
   const store = createStore<TableHandlesState | undefined>(undefined);
 
@@ -620,7 +624,7 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
       new Plugin({
         key: tableHandlesPluginKey,
         view: (editorView) => {
-          view = new TableHandlesView(editor as any, editorView, (state) => {
+          view = new TableHandlesView(editor, editorView, (state) => {
             store.setState({
               ...state,
               draggingState: state.draggingState
@@ -901,7 +905,7 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
     },
 
     getCellsAtRowHandle(
-      block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+      block: BlockFromConfig<DefaultBlockSchema["table"], any, any>,
       relativeRowIndex: RelativeCellIndices["row"],
     ) {
       return getCellsAtRowHandle(block, relativeRowIndex);
@@ -911,7 +915,7 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
      * Get all the cells in a column of the table block.
      */
     getCellsAtColumnHandle(
-      block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+      block: BlockFromConfig<DefaultBlockSchema["table"], any, any>,
       relativeColumnIndex: RelativeCellIndices["col"],
     ) {
       return getCellsAtColumnHandle(block, relativeColumnIndex);
@@ -1140,7 +1144,7 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
      */
     getMergeDirection(
       block:
-        | BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>
+        | BlockFromConfig<DefaultBlockSchema["table"], any, any>
         | undefined,
     ) {
       return editor.transact((tr) => {
@@ -1172,14 +1176,14 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
     },
 
     cropEmptyRowsOrColumns(
-      block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+      block: BlockFromConfig<DefaultBlockSchema["table"], any, any>,
       removeEmpty: "columns" | "rows",
     ) {
       return cropEmptyRowsOrColumns(block, removeEmpty);
     },
 
     addRowsOrColumns(
-      block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+      block: BlockFromConfig<DefaultBlockSchema["table"], any, any>,
       addType: "columns" | "rows",
       numToAdd: number,
     ) {

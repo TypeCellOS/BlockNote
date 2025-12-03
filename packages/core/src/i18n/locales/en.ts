@@ -1,6 +1,6 @@
 export const en = {
   slash_menu: {
-    heading: {
+    heading_1: {
       title: "Heading 1",
       subtext: "Top-level heading",
       aliases: ["h", "heading1", "h1"],
@@ -36,7 +36,7 @@ export const en = {
       aliases: ["h6", "heading6", "subheading6"],
       group: "Subheadings",
     },
-    toggle_heading: {
+    toggle_heading_1: {
       title: "Toggle Heading 1",
       subtext: "Toggleable top-level heading",
       aliases: ["h", "heading1", "h1", "collapsable"],

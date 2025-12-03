@@ -1,10 +1,15 @@
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
-  BlockFromConfig,
+  type BlockFromConfig,
   createBlockConfig,
   createBlockSpec,
+  createPropSchemaFromZod,
 } from "../../schema/index.js";
-import { defaultProps, parseDefaultProps } from "../defaultProps.js";
+import {
+  baseFileZodPropSchema,
+  optionalFileZodPropSchema,
+} from "../defaultFileProps.js";
+import { defaultZodPropSchema, parseDefaultProps } from "../defaultProps.js";
 import { parseFigureElement } from "../File/helpers/parse/parseFigureElement.js";
 import { createFileBlockWrapper } from "../File/helpers/render/createFileBlockWrapper.js";
 import { createFigureWithCaption } from "../File/helpers/toExternalHTML/createFigureWithCaption.js";
@@ -20,29 +25,23 @@ export interface AudioOptions {
 
 export type AudioBlockConfig = ReturnType<typeof createAudioBlockConfig>;
 
+const audioZodPropSchema = defaultZodPropSchema
+  .pick({
+    backgroundColor: true,
+  })
+  .extend({
+    ...baseFileZodPropSchema.shape,
+    ...optionalFileZodPropSchema.pick({
+      url: true,
+      showPreview: true,
+    }).shape,
+  });
+
 export const createAudioBlockConfig = createBlockConfig(
   (_ctx: AudioOptions) =>
     ({
       type: "audio" as const,
-      propSchema: {
-        backgroundColor: defaultProps.backgroundColor,
-        // File name.
-        name: {
-          default: "" as const,
-        },
-        // File url.
-        url: {
-          default: "" as const,
-        },
-        // File caption.
-        caption: {
-          default: "" as const,
-        },
-
-        showPreview: {
-          default: true,
-        },
-      },
+      propSchema: createPropSchemaFromZod(audioZodPropSchema),
       content: "none",
     }) as const,
 );

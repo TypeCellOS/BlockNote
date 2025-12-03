@@ -8,7 +8,7 @@ import {
   ExtensionOptions,
 } from "../editor/BlockNoteExtension.js";
 import { ShowSelectionExtension } from "../extensions/ShowSelection/ShowSelection.js";
-import { CustomBlockNoteSchema } from "../schema/schema.js";
+import { CustomBlockNoteSchema } from "../schema/CustomBlockNoteSchema.js";
 import { CommentMark } from "./mark.js";
 import type { ThreadStore } from "./threadstore/ThreadStore.js";
 import type { CommentBody, ThreadData } from "./types.js";

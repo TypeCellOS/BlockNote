@@ -1,7 +1,7 @@
+import { createBlockSpecFromTiptapNode, createPropSchemaFromZod } from "@blocknote/core";
+import * as z from "zod/v4";
 import { Column } from "../../pm-nodes/Column.js";
 import { ColumnList } from "../../pm-nodes/ColumnList.js";
-
-import { createBlockSpecFromTiptapNode } from "@blocknote/core";
 
 export const ColumnBlock = createBlockSpecFromTiptapNode(
   {
@@ -9,11 +9,9 @@ export const ColumnBlock = createBlockSpecFromTiptapNode(
     type: "column",
     content: "none",
   },
-  {
-    width: {
-      default: 1,
-    },
-  },
+  createPropSchemaFromZod(z.object({
+    width: z.number().default(1),
+  })),
 );
 
 export const ColumnListBlock = createBlockSpecFromTiptapNode(
@@ -22,5 +20,5 @@ export const ColumnListBlock = createBlockSpecFromTiptapNode(
     type: "columnList",
     content: "none",
   },
-  {},
+  createPropSchemaFromZod(z.object({})),
 );

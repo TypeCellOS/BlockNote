@@ -1,9 +1,14 @@
-import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
+import { z } from "zod/v4";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { createExtension } from "../../editor/BlockNoteExtension.js";
 import {
+  createBlockConfig,
+  createBlockSpec,
+  createPropSchemaFromZod,
+} from "../../schema/index.js";
+import {
   addDefaultPropsExternalHTML,
-  defaultProps,
+  defaultZodPropSchema,
   parseDefaultProps,
 } from "../defaultProps.js";
 import { createToggleWrapper } from "../ToggleWrapper/createToggleWrapper.js";
@@ -46,13 +51,16 @@ export const createHeadingBlockConfig = createBlockConfig(
   }: HeadingOptions = {}) =>
     ({
       type: "heading" as const,
-      propSchema: {
-        ...defaultProps,
-        level: { default: defaultLevel, values: levels },
-        ...(allowToggleHeadings
-          ? { isToggleable: { default: false, optional: true } as const }
-          : {}),
-      },
+      propSchema: createPropSchemaFromZod(
+        defaultZodPropSchema.extend({
+          level: z
+            .union(levels.map((level) => z.literal(level)))
+            .default(defaultLevel),
+          ...(allowToggleHeadings
+            ? { isToggleable: z.boolean().default(false) }
+            : {}),
+        }),
+      ),
       content: "inline",
     }) as const,
 );
@@ -115,6 +123,7 @@ export const createHeadingBlockSpec = createBlockSpec(
         contentDOM: dom,
       };
     },
+    runsBefore: [],
   }),
   ({ levels = HEADING_LEVELS }: HeadingOptions = {}) => [
     createExtension({

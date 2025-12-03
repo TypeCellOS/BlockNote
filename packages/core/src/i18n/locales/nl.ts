@@ -2,7 +2,7 @@ import type { Dictionary } from "../dictionary.js";
 
 export const nl: Dictionary = {
   slash_menu: {
-    heading: {
+    heading_1: {
       title: "Kop 1",
       subtext: "Gebruikt voor een hoofdkop",
       aliases: ["h", "kop1", "h1"],
@@ -38,7 +38,7 @@ export const nl: Dictionary = {
       aliases: ["h6", "kop6", "subkop6"],
       group: "Subkoppen",
     },
-    toggle_heading: {
+    toggle_heading_1: {
       title: "Uitklapbare Kop 1",
       subtext: "Hoofdkop die kan worden uit- en ingeklapt om inhoud te tonen",
       aliases: ["h", "kop1", "h1", "uitklapbaar", "inklapbaar"],

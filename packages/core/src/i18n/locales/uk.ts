@@ -2,7 +2,7 @@ import { Dictionary } from "../dictionary.js";
 
 export const uk: Dictionary = {
   slash_menu: {
-    heading: {
+    heading_1: {
       title: "Заголовок 1",
       subtext: "Заголовок найвищого рівня",
       aliases: ["h", "heading1", "h1", "заголовок1"],
@@ -38,7 +38,7 @@ export const uk: Dictionary = {
       aliases: ["h6", "heading6", "subheading6", "заголовок6", "підзаголовок6"],
       group: "Підзаголовки",
     },
-    toggle_heading: {
+    toggle_heading_1: {
       title: "Розгортаємий заголовок 1",
       subtext: "Розгортаємий заголовок найвищого рівня",
       aliases: ["h", "heading1", "h1", "заголовок1", "розгортаємий"],

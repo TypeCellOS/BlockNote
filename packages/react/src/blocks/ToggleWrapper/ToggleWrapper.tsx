@@ -1,11 +1,9 @@
 import {
   Block,
-  blockHasType,
   defaultToggledState,
   UnreachableCaseError,
 } from "@blocknote/core";
 import { ReactNode, useReducer } from "react";
-
 import { useEditorState } from "../../hooks/useEditorState.js";
 import { ReactCustomBlockRenderProps } from "../../schema/ReactBlockSpec.js";
 
@@ -80,8 +78,9 @@ export const ToggleWrapper = (
   const childCount = useEditorState({
     editor,
     selector: ({ editor }) => {
+      // TODO: checlk
       if (
-        !blockHasType(block, editor, block.type, { isToggleable: "boolean" }) &&
+        !("isToggleable" in block.props) ||
         !block.props.isToggleable
       ) {
         return 0;
@@ -107,7 +106,11 @@ export const ToggleWrapper = (
     },
   });
 
-  if ("isToggleable" in block.props && !block.props.isToggleable) {
+  // TODO
+  if (
+    "isToggleable" in (block.props as any) &&
+    !(block.props as any).isToggleable
+  ) {
     return children;
   }
 

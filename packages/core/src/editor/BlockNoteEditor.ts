@@ -8,7 +8,6 @@ import {
 import { type Command, type Plugin, type Transaction } from "@tiptap/pm/state";
 import { Node, Schema } from "prosemirror-model";
 import * as Y from "yjs";
-
 import type { BlocksChanged } from "../api/getBlocksChangedByTransaction.js";
 import { blockToNode } from "../api/nodeConversions/blockToNode.js";
 import {
@@ -22,18 +21,19 @@ import {
 import { UniqueID } from "../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 import type { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
-import type {
-  BlockIdentifier,
-  BlockNoteDOMAttributes,
-  BlockSchema,
-  BlockSpecs,
-  CustomBlockNoteSchema,
-  InlineContentSchema,
-  InlineContentSpecs,
-  PartialInlineContent,
-  Styles,
-  StyleSchema,
-  StyleSpecs,
+import {
+  partialBlockToBlock,
+  type BlockIdentifier,
+  type BlockNoteDOMAttributes,
+  type BlockSchema,
+  type BlockSpecs,
+  type CustomBlockNoteSchema,
+  type InlineContentSchema,
+  type InlineContentSpecs,
+  type PartialInlineContent,
+  type Styles,
+  type StyleSchema,
+  type StyleSpecs,
 } from "../schema/index.js";
 import "../style.css";
 import { mergeCSSClasses } from "../util/browser.js";
@@ -373,7 +373,7 @@ export class BlockNoteEditor<
   /**
    * The schema of the editor. The schema defines which Blocks, InlineContent, and Styles are available in the editor.
    */
-  public readonly schema: BlockNoteSchema<BSchema, ISchema, SSchema>;
+  public readonly schema: CustomBlockNoteSchema<BSchema, ISchema, SSchema>;
 
   public readonly blockImplementations: BlockSpecs;
   public readonly inlineContentImplementations: InlineContentSpecs;
@@ -548,7 +548,11 @@ export class BlockNoteEditor<
       }
       const schema = getSchema(tiptapOptions.extensions!);
       const pmNodes = initialContent.map((b) =>
-        blockToNode(b, schema, this.schema.styleSchema).toJSON(),
+        blockToNode(
+          partialBlockToBlock(this.schema, b),
+          schema,
+          this.schema.styleSchema,
+        ).toJSON(),
       );
       const doc = createDocument(
         {
@@ -1165,7 +1169,7 @@ export class BlockNoteEditor<
    * @returns The blocks, serialized as an HTML string.
    */
   public blocksToHTMLLossy(
-    blocks: PartialBlock<BSchema, ISchema, SSchema>[] = this.document,
+    blocks: Block<BSchema, ISchema, SSchema>[] = this.document,
   ): string {
     return this._exportManager.blocksToHTMLLossy(blocks);
   }
@@ -1180,7 +1184,7 @@ export class BlockNoteEditor<
    * @returns The blocks, serialized as an HTML string.
    */
   public blocksToFullHTML(
-    blocks: PartialBlock<BSchema, ISchema, SSchema>[] = this.document,
+    blocks: Block<BSchema, ISchema, SSchema>[] = this.document,
   ): string {
     return this._exportManager.blocksToFullHTML(blocks);
   }
@@ -1205,7 +1209,7 @@ export class BlockNoteEditor<
    * @returns The blocks, serialized as a Markdown string.
    */
   public blocksToMarkdownLossy(
-    blocks: PartialBlock<BSchema, ISchema, SSchema>[] = this.document,
+    blocks: Block<BSchema, ISchema, SSchema>[] = this.document,
   ): string {
     return this._exportManager.blocksToMarkdownLossy(blocks);
   }

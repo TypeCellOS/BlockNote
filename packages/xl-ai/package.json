@@ -92,7 +92,8 @@
     "remark-parse": "^11.0.0",
     "remark-stringify": "^11.0.0",
     "unified": "^11.0.5",
-    "y-prosemirror": "^1.3.7"
+    "y-prosemirror": "^1.3.7",
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@ai-sdk/anthropic": "^2.0.31",

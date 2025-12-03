@@ -1,7 +1,6 @@
 import { isTableCell, mapTableCell } from "@blocknote/core";
 import { TableHandlesExtension } from "@blocknote/core/extensions";
 import { ReactNode } from "react";
-
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
 import { useExtensionState } from "../../../../hooks/useExtension.js";

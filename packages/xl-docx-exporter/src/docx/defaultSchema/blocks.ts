@@ -3,10 +3,11 @@ import {
   COLORS_DEFAULT,
   createPageBreakBlockConfig,
   DefaultBlockSchema,
-  DefaultProps,
+  DefaultPropSchema,
   StyledText,
   UnreachableCaseError,
 } from "@blocknote/core";
+import { multiColumnSchema } from "@blocknote/xl-multi-column";
 import { getImageDimensions } from "@shared/util/imageUtil.js";
 import {
   CheckBox,
@@ -23,10 +24,9 @@ import {
   TextRun,
 } from "docx";
 import { Table } from "../util/Table.js";
-import { multiColumnSchema } from "@blocknote/xl-multi-column";
 
 function blockPropsToStyles(
-  props: Partial<DefaultProps>,
+  props: Partial<DefaultPropSchema>,
   colors: typeof COLORS_DEFAULT,
 ): IParagraphOptions {
   return {
@@ -280,7 +280,7 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
 };
 
 function file(
-  props: Partial<DefaultProps & { name: string; url: string }>,
+  props: Partial<DefaultPropSchema & { name: string; url: string }>,
   defaultText: string,
   exporter: any,
 ) {
@@ -301,7 +301,7 @@ function file(
 }
 
 function caption(
-  props: Partial<DefaultProps & { caption: string }>,
+  props: Partial<DefaultPropSchema & { caption: string }>,
   exporter: any,
 ) {
   if (!props.caption) {

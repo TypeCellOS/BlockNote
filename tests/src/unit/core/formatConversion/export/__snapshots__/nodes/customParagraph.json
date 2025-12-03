@@ -1,0 +1,24 @@
+[
+  {
+    "attrs": {
+      "id": "1",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "content": [
+          {
+            "text": "Custom Paragraph",
+            "type": "text",
+          },
+        ],
+        "type": "customParagraph",
+      },
+    ],
+    "type": "blockContainer",
+  },
+]

@@ -1,12 +1,10 @@
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import { FilePanelExtension } from "../../../../extensions/FilePanel/FilePanel.js";
-import {
-  BlockConfig,
-  BlockFromConfigNoChildren,
-} from "../../../../schema/index.js";
+import type { Block } from "../../../defaultBlocks.js";
+
 
 export const createAddFileButton = (
-  block: BlockFromConfigNoChildren<BlockConfig<string, any, "none">, any, any>,
+  block: Block<any, any, any>,
   editor: BlockNoteEditor<any, any, any>,
   buttonIcon?: HTMLElement,
 ) => {

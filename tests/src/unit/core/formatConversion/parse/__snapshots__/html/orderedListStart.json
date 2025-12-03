@@ -29,6 +29,7 @@
     "id": "2",
     "props": {
       "backgroundColor": "default",
+      "start": undefined,
       "textAlignment": "left",
       "textColor": "default",
     },
@@ -46,6 +47,7 @@
     "id": "3",
     "props": {
       "backgroundColor": "default",
+      "start": undefined,
       "textAlignment": "left",
       "textColor": "default",
     },

@@ -30,6 +30,7 @@
         "id": "3",
         "props": {
           "backgroundColor": "default",
+          "start": undefined,
           "textAlignment": "left",
           "textColor": "default",
         },
@@ -47,6 +48,7 @@
         "id": "4",
         "props": {
           "backgroundColor": "default",
+          "start": undefined,
           "textAlignment": "left",
           "textColor": "default",
         },
@@ -97,6 +99,7 @@
     "id": "6",
     "props": {
       "backgroundColor": "default",
+      "start": undefined,
       "textAlignment": "left",
       "textColor": "default",
     },
@@ -151,6 +154,7 @@
     "id": "7",
     "props": {
       "backgroundColor": "default",
+      "start": undefined,
       "textAlignment": "left",
       "textColor": "default",
     },
@@ -168,6 +172,7 @@
     "id": "10",
     "props": {
       "backgroundColor": "default",
+      "start": undefined,
       "textAlignment": "left",
       "textColor": "default",
     },

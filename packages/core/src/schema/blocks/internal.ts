@@ -1,5 +1,7 @@
 import { Attribute, Attributes, Editor, Node } from "@tiptap/core";
+import * as z from "zod/v4/core";
 import { defaultBlockToHTML } from "../../blocks/defaultBlockHelpers.js";
+
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { ExtensionFactoryInstance } from "../../editor/BlockNoteExtension.js";
 import { mergeCSSClasses } from "../../util/browser.js";
@@ -9,9 +11,9 @@ import { PropSchema, Props } from "../propTypes.js";
 import { StyleSchema } from "../styles/types.js";
 import {
   BlockConfig,
+  BlockFromConfig,
   BlockSchemaWithBlock,
   LooseBlockSpec,
-  SpecificBlock,
 } from "./types.js";
 
 // Function that uses the 'propSchema' of a blockConfig to create a TipTap
@@ -20,62 +22,53 @@ import {
 export function propsToAttributes(propSchema: PropSchema): Attributes {
   const tiptapAttributes: Record<string, Attribute> = {};
 
-  Object.entries(propSchema).forEach(([name, spec]) => {
-    tiptapAttributes[name] = {
-      default: spec.default,
-      keepOnSplit: true,
-      // Props are displayed in kebab-case as HTML attributes. If a prop's
-      // value is the same as its default, we don't display an HTML
-      // attribute for it.
-      parseHTML: (element) => {
-        const value = element.getAttribute(camelToDataKebab(name));
+  Object.entries(propSchema._zodSource._zod.def.shape).forEach(
+    ([name, spec]) => {
+      const def =
+        spec instanceof z.$ZodDefault ? spec._zod.def.defaultValue : undefined;
 
-        if (value === null) {
-          return null;
-        }
+      tiptapAttributes[name] = {
+        default: def,
+        keepOnSplit: true,
+        // Props are displayed in kebab-case as HTML attributes. If a prop's
+        // value is the same as its default, we don't display an HTML
+        // attribute for it.
+        // TODO: needed? (seems tiptap specific)
+        parseHTML: (element) => {
+          const value = element.getAttribute(camelToDataKebab(name));
 
-        if (
-          (spec.default === undefined && spec.type === "boolean") ||
-          (spec.default !== undefined && typeof spec.default === "boolean")
-        ) {
-          if (value === "true") {
-            return true;
+          if (value === null) {
+            return null;
           }
 
-          if (value === "false") {
-            return false;
+          // TBD: this might not be fault proof, but it's also ugly to store prop="&quot;...&quot;" for strings
+          try {
+            const jsonValue = JSON.parse(value);
+            // it was a number / boolean / json object stored as attribute
+            return z.parse(spec, jsonValue);
+          } catch (e) {
+            // it might have been a string directly stored as attribute
+            return z.parse(spec, value);
           }
-
-          return null;
-        }
-
-        if (
-          (spec.default === undefined && spec.type === "number") ||
-          (spec.default !== undefined && typeof spec.default === "number")
-        ) {
-          const asNumber = parseFloat(value);
-          const isNumeric =
-            !Number.isNaN(asNumber) && Number.isFinite(asNumber);
-
-          if (isNumeric) {
-            return asNumber;
+        },
+        // TODO: needed? (seems tiptap specific)
+        renderHTML: (attributes) => {
+          // don't render to html if the value is the same as the default
+          if (attributes[name] === def) {
+            return {};
           }
-
-          return null;
-        }
-
-        return value;
-      },
-      renderHTML: (attributes) => {
-        // don't render to html if the value is the same as the default
-        return attributes[name] !== spec.default
-          ? {
-              [camelToDataKebab(name)]: attributes[name],
-            }
-          : {};
-      },
-    };
-  });
+          if (typeof attributes[name] === "object") {
+            return {
+              [camelToDataKebab(name)]: JSON.stringify(attributes[name]),
+            };
+          }
+          return {
+            [camelToDataKebab(name)]: attributes[name],
+          };
+        },
+      };
+    },
+  );
 
   return tiptapAttributes;
 }
@@ -109,9 +102,8 @@ export function getBlockFromPos<
   }
 
   // Gets the block
-  const block = editor.getBlock(blockIdentifier)! as SpecificBlock<
-    BSchema,
-    BType,
+  const block = editor.getBlock(blockIdentifier)! as unknown as BlockFromConfig<
+    Config,
     I,
     S
   >;
@@ -167,10 +159,18 @@ export function wrapInBlockStructure<
   // which are already added as HTML attributes to the parent `blockContent`
   // element (inheritedProps) and props set to their default values.
   for (const [prop, value] of Object.entries(blockProps)) {
-    const spec = propSchema[prop];
-    const defaultValue = spec.default;
+    const spec = propSchema._zodSource._zod.def.shape[prop];
+    const defaultValue =
+      spec instanceof z.$ZodDefault ? spec._zod.def.defaultValue : undefined;
     if (value !== defaultValue) {
-      blockContent.setAttribute(camelToDataKebab(prop), value);
+      if (typeof value === "string") {
+        blockContent.setAttribute(camelToDataKebab(prop), value);
+      } else {
+        blockContent.setAttribute(
+          camelToDataKebab(prop),
+          JSON.stringify(value),
+        );
+      }
     }
   }
   // Adds file block attribute

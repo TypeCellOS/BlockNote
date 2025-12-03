@@ -1,16 +1,20 @@
-import { BlockNoteEditor, defaultProps } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  createPropSchemaFromZod,
+  defaultZodPropSchema,
+} from "@blocknote/core";
 import { createReactBlockSpec } from "@blocknote/react";
 import { RiImage2Fill } from "react-icons/ri";
+import { z } from "zod/v4";
 
 export const ReactImage = createReactBlockSpec(
   {
     type: "reactImage" as const,
-    propSchema: {
-      ...defaultProps,
-      src: {
-        default: "https://via.placeholder.com/1000",
-      },
-    },
+    propSchema: createPropSchemaFromZod(
+      defaultZodPropSchema.extend({
+        src: z.string().default("https://via.placeholder.com/1000"),
+      }),
+    ),
     content: "inline" as const,
   },
   {

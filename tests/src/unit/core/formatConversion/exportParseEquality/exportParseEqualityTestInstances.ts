@@ -314,4 +314,16 @@ export const exportParseEqualityTestInstancesHTML: TestInstance<
     },
     executeTest: testExportParseEqualityHTML,
   },
+  {
+    testCase: {
+      name: "customParagraph",
+      content: [
+        {
+          type: "customParagraph",
+          content: "Custom Paragraph",
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityHTML,
+  },
 ];
