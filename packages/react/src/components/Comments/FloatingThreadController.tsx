@@ -1,6 +1,6 @@
 import { CommentsExtension } from "@blocknote/core/comments";
 import { flip, offset, shift } from "@floating-ui/react";
-import { ComponentProps, FC, useEffect, useMemo, useState } from "react";
+import { ComponentProps, FC, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
@@ -19,8 +19,6 @@ export default function FloatingThreadController(props: {
 }) {
   const editor = useBlockNoteEditor<any, any, any>();
 
-  const [open, setOpen] = useState(false);
-
   const comments = useExtension(CommentsExtension);
   const selectedThread = useExtensionState(CommentsExtension, {
     editor,
@@ -32,9 +30,6 @@ export default function FloatingThreadController(props: {
           }
         : undefined,
   });
-  useEffect(() => {
-    setOpen(!!selectedThread);
-  }, [selectedThread]);
 
   const threads = useThreads();
 
@@ -46,7 +41,7 @@ export default function FloatingThreadController(props: {
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
       useFloatingOptions: {
-        open,
+        open: !!selectedThread,
         // Needed as hooks like `useDismiss` call `onOpenChange` to change the
         // open state.
         onOpenChange: (open, _event, reason) => {
@@ -57,8 +52,6 @@ export default function FloatingThreadController(props: {
           if (!open) {
             comments.selectThread(undefined);
           }
-
-          setOpen(open);
         },
         placement: "bottom",
         middleware: [offset(10), shift(), flip()],
@@ -70,7 +63,7 @@ export default function FloatingThreadController(props: {
       },
       ...props.floatingUIOptions,
     }),
-    [comments, editor, open, props.floatingUIOptions],
+    [comments, editor, props.floatingUIOptions, selectedThread],
   );
 
   // nice to have improvements:
