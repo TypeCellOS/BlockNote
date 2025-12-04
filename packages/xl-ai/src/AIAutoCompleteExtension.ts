@@ -2,6 +2,7 @@ import {
   BlockNoteEditor,
   createExtension,
   ExtensionOptions,
+  trackPosition,
 } from "@blocknote/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
@@ -93,7 +94,7 @@ function getMatchingSuggestions(
   });
 }
 
-export function createDefaultAutoCompleteProvider(args: {
+function createDefaultAutoCompleteProvider(args: {
   url: string;
   contextLength?: number;
 }): AutoCompleteProvider {
@@ -151,12 +152,11 @@ export const AIAutoCompleteExtension = createExtension(
 
     const debounceFetchSuggestions = debounceWithAbort(
       async (editor: BlockNoteEditor<any, any, any>, signal: AbortSignal) => {
+        const position = editor.prosemirrorState.selection.from;
+        const tracked = trackPosition(editor, position);
+
         // fetch suggestions
         const newAutoCompleteSuggestions = await provider(editor, signal);
-
-        
-
-        // TODO: map positions?
 
         if (signal.aborted) {
           return;
@@ -165,7 +165,7 @@ export const AIAutoCompleteExtension = createExtension(
         // Fill in missing positions with current cursor position
         const processedSuggestions = newAutoCompleteSuggestions.map(
           (suggestion) => ({
-            position: editor.prosemirrorState.selection.from,
+            position: tracked(),
             ...suggestion,
           }),
         );
@@ -251,7 +251,6 @@ export const AIAutoCompleteExtension = createExtension(
 
               // No matching suggestions, if isUserInput is true, debounce fetch suggestions
               if (transaction.getMeta(autoCompletePluginKey)?.isUserInput) {
-                // TODO: this queueMicrotask is a workaround to ensure the transaction is applied before the debounceFetchSuggestions is called
                 // (discuss with Nick what ideal architecture would be)
                 queueMicrotask(() => {
                   debounceFetchSuggestions(editor).catch((error) => {
@@ -400,9 +399,3 @@ export interface DebouncedFunction<T extends any[], R> {
   (...args: T): Promise<R>;
   cancel(): void;
 }
-
-// TODO: move more to blocknote API?
-// TODO: test with Collaboration edits
-// TODO: compare kilocode / cline etc
-// TODO: think about advanced scenarios (e.g.: multiple suggestions, etc.)
-// TODO: double tap -> insert extra long suggestion

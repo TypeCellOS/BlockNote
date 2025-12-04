@@ -1,12 +1,15 @@
 ---
-title: AI Autocomplete
+title: Autocomplete
 description: Add AI-powered autocomplete suggestions to your BlockNote editor
 imageTitle: BlockNote AI Autocomplete
 ---
 
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+
 # AI Autocomplete
 
-The AI Autocomplete extension provides real-time, AI-powered text completion suggestions as users type. When enabled, the editor will display inline suggestions that can be accepted with the **Tab** key or dismissed with **Escape**.
+The AI Autocomplete extension provides real-time, AI-powered text completion suggestions as users type. 
+When enabled, the editor will display inline suggestions that can be accepted with the **Tab** key or dismissed with **Escape**.
 
 ## Installation
 
@@ -44,54 +47,41 @@ const editor = useCreateBlockNote({
 
 The `AIAutoCompleteExtension` accepts the following options:
 
-| Option | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `provider` | `string` \| `function` | Required | URL to fetch suggestions from, or a custom provider function. |
-| `contextLength` | `number` | `300` | Number of characters of context to send when using a URL provider. |
-| `acceptKey` | `string` | `"Tab"` | Key to accept the current suggestion. |
-| `cancelKey` | `string` | `"Escape"` | Key to discard suggestions. |
-| `debounceDelay` | `number` | `300` | Delay in ms before fetching suggestions. |
+<TypeTable
+  type={{
+    provider: {
+      description: 'URL to fetch suggestions from, or a custom provider function.',
+      type: 'string | function',
+      required: true
+    },
+    contextLength: {
+      description: 'Number of characters of context to send to your backend when using a URL provider.',
+      type: 'number',
+      default: '300'
+    },
+    acceptKey: {
+      description: 'Key to accept the current suggestion.',
+      type: 'string',
+      default: '"Tab"'
+    },
+    cancelKey: {
+      description: 'Key to discard suggestions.',
+      type: 'string',
+      default: '"Escape"'
+    },
+    debounceDelay: {
+      description: 'Delay in ms before fetching suggestions.',
+      type: 'number',
+      default: '300'
+    }
+  }}
+/>
 
 ### Using a Custom Provider
 
-If you need more control than the default URL provider offers, you can pass a function to `provider`.
+When you provide a URL (`string`) as provider, the extension will use the default provider that fetches suggestions from that URL.
 
-```typescript
-AIAutoCompleteExtension({
-  provider: async (editor, signal) => {
-    // Get context
-    const state = editor.prosemirrorState;
-    const text = state.doc.textBetween(
-      state.selection.from - 500,
-      state.selection.from,
-      "\n"
-    );
-
-    // Fetch suggestions
-    const response = await fetch("/api/autocomplete", {
-      method: "POST",
-      body: JSON.stringify({ text }),
-      signal,
-    });
-    const data = await response.json();
-
-    // Return suggestions
-    return data.suggestions.map(suggestion => ({
-      suggestion: suggestion,
-      // Optional: specify position (defaults to cursor)
-      // position: state.selection.from
-    }));
-  },
-})
-```
-
-## User Interaction
-
-When autocomplete suggestions are available:
-
-- **Tab** (or configured `acceptKey`): Accept the current suggestion
-- **Escape** (or configured `cancelKey`): Dismiss the suggestion
-- **Continue typing**: The suggestion updates as you type if it still matches
+Alternatively, you can provide a custom provider function that should return an array of suggestions at the current cursor position.
 
 ## Backend Integration
 
@@ -99,7 +89,7 @@ The default URL provider sends a `POST` request with the following body:
 
 ```json
 {
-  "text": "The last 300 characters of text before the cursor..."
+  "text": "The last 300 characters of text before the cursor"
 }
 ```
 
@@ -107,27 +97,53 @@ It expects a JSON response with an array of suggestion strings:
 
 ```json
 {
-  "suggestions": ["completion text"]
+  "suggestions": ["completion text", "more text"]
 }
 ```
 
-Here's an example API route using the Vercel AI SDK:
+When multiple suggestions are returned, the first one will be used by default. As the user continues typing, the extension will automatically select alternative matching suggestions (or do a new backend requests if none of the cached suggestions match).
+
+Here's an example API route using the Vercel AI SDK with Mistral's Codestral model:
+
+<Callout type="info">
+  **Codestral** is a code completion model that excels in latency (for as-you-type suggestions you want a fast model). 
+  Even though it's designed for code completion, we can use it for general text completion as well.
+  See the [reference implementation](https://github.com/TypeCellOS/BlockNote/blob/main/packages/xl-ai-server/src/routes/autocomplete.ts) for a complete example.
+</Callout>
 
 ```typescript
 // app/api/autocomplete/route.ts
-import { openai } from "@ai-sdk/openai";
+import { createMistral } from "@ai-sdk/mistral";
 import { generateText } from "ai";
+
+const model = createMistral({
+  apiKey: process.env.MISTRAL_API_KEY,
+})("codestral-latest");
 
 export async function POST(req: Request) {
   const { text } = await req.json();
 
   const result = await generateText({
-    model: openai("gpt-4"),
-    prompt: `Complete the following text:\n\n${text}`,
+    model,
+    system: `You are a writing assistant. Predict the most likely next part of the text.
+- Provide up to 3 suggestions separated by newlines
+- Keep suggestions short (max 5 words each)
+- Only return the text to append (no explanations)
+- Add a space before the suggestion if starting a new word`,
+    messages: [
+      {
+        role: "user",
+        content: `Complete the following text: \n${text}[SUGGESTION_HERE]`,
+      },
+    ],
+    abortSignal: req.signal,
   });
 
   return Response.json({
-    suggestions: [result.text],
+    suggestions: result.text
+      .split("\n")
+      .map((s) => s.trimEnd())
+      .filter((s) => s.trim().length > 0),
   });
 }
 ```
@@ -145,24 +161,3 @@ ext.acceptAutoCompleteSuggestion();
 // Discard suggestions
 ext.discardAutoCompleteSuggestions();
 ```
-
-## Combining with Other AI Features
-
-The `AIAutoCompleteExtension` works seamlessly alongside the main `AIExtension`:
-
-```tsx
-import { AIExtension, AIAutoCompleteExtension } from "@blocknote/xl-ai";
-
-const editor = useCreateBlockNote({
-  extensions: [
-    AIExtension({
-      transport: new DefaultChatTransport({ api: "/api/chat" }),
-    }),
-    AIAutoCompleteExtension({
-      provider: "/api/autocomplete",
-    }),
-  ],
-});
-```
-
-See the [AI Getting Started](/docs/features/ai/getting-started) guide for more information on the main AI extension.
