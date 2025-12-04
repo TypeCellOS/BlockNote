@@ -49,6 +49,13 @@ export type AutoCompleteOptions = {
   cancelKey?: string;
   /** Debounce delay in milliseconds before fetching suggestions. Default: 300 */
   debounceDelay?: number;
+  /** 
+   * when true: only fetch suggestions when the cursor is at the end of a block
+   * when false: fetch suggestions at every cursor position (also in the middle of a sentence).
+   * 
+   * @default: false
+   */
+  onlyAtEndOfBlock?: boolean;
 };
 
 function getMatchingSuggestions(
@@ -153,6 +160,16 @@ export const AIAutoCompleteExtension = createExtension(
     const debounceFetchSuggestions = debounceWithAbort(
       async (editor: BlockNoteEditor<any, any, any>, signal: AbortSignal) => {
         const position = editor.prosemirrorState.selection.from;
+
+        if (options.onlyAtEndOfBlock) {
+          const pos = editor.prosemirrorState.doc.resolve(position);
+          const textAfter = editor.prosemirrorState.doc.textBetween(position, pos.after())
+
+          if (textAfter.trim() !== "") {
+            return;
+          }
+        } 
+
         const tracked = trackPosition(editor, position);
 
         // fetch suggestions
@@ -208,9 +225,25 @@ export const AIAutoCompleteExtension = createExtension(
       });
     };
 
+    /**
+     * manually trigger fetching autocomplete suggestions at the current 
+     * cursor position
+     * 
+     * (can be used if you want to configure a key to let the user trigger
+     * autocomplete suggestions without having to type)
+     */
+    const triggerAutoComplete = (): void => {
+      editor.transact((tr) => {
+        tr.setMeta(autoCompletePluginKey, {
+          isUserInput: true,
+        });
+      });
+    };
+
     return {
       acceptAutoCompleteSuggestion,
       discardAutoCompleteSuggestions,
+      triggerAutoComplete,
       key: "aiAutoCompleteExtension",
       priority: 1000000, // should be lower (e.g.: -1000 to be below suggestion menu, but that currently breaks Tab)
       prosemirrorPlugins: [
@@ -254,6 +287,10 @@ export const AIAutoCompleteExtension = createExtension(
                 // (discuss with Nick what ideal architecture would be)
                 queueMicrotask(() => {
                   debounceFetchSuggestions(editor).catch((error) => {
+                    if (error.name === "AbortError") {
+                      // don't log
+                      return;
+                    }
                     /* eslint-disable-next-line no-console */
                     console.error(error);
                   });
@@ -266,12 +303,15 @@ export const AIAutoCompleteExtension = createExtension(
             },
           },
 
+          // TODO (discuss with Nick):
+          // - We need to make sure autocomplete is not triggered when a suggestion menu is open
+          // - --> priority of handleTextInput needs to be below suggestion menu so that is handled first
+          // (currently broken)
+          // - We need to make sure Tab completion (handleKeyDown) is handled before Tab-to-indent
+          // (currently ok)
           props: {
             handleKeyDown(view, event) {
               if (event.key === acceptKey) {
-                // TODO (discuss with Nick):
-                // Plugin priority needs to be below suggestion menu, so no auto complete is triggered when the suggestion menu is open
-                // However, Plugin priority needs to be above other Tab handlers (because now indentation will be wrongly prioritized over auto complete)
                 const autoCompleteState = this.getState(view.state);
 
                 if (autoCompleteState) {
@@ -286,13 +326,7 @@ export const AIAutoCompleteExtension = createExtension(
                   return true;
                 }
 
-                // if tab to suggest is enabled (TODO: make configurable)
-                view.dispatch(
-                  view.state.tr.setMeta(autoCompletePluginKey, {
-                    isUserInput: true,
-                  }),
-                );
-                return true;
+                return false;
               }
 
               if (event.key === cancelKey) {
