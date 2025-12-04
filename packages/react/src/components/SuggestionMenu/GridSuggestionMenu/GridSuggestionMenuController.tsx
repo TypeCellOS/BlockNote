@@ -1,6 +1,6 @@
 import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 import { SuggestionMenu } from "@blocknote/core/extensions";
-import { flip, offset, shift, size } from "@floating-ui/react";
+import { autoPlacement, offset, shift, size } from "@floating-ui/react";
 import { FC, useEffect, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
@@ -126,17 +126,22 @@ export function GridSuggestionMenuController<
           offset(10),
           // Flips the menu placement to maximize the space available, and prevents
           // the menu from being cut off by the confines of the screen.
-          flip({
-            mainAxis: true,
-            crossAxis: false,
+          autoPlacement({
+            allowedPlacements: ["bottom-start", "top-start"],
+            padding: 10,
           }),
           shift(),
           size({
-            apply({ availableHeight, elements }) {
-              Object.assign(elements.floating.style, {
-                maxHeight: `${availableHeight - 10}px`,
-              });
+            apply(p) {
+              // Because the height of the suggestion menu is dynamic and based
+              // on the number of items, the `autoPlacement` middleware gets
+              // confused when the height is set on the initial render.
+              // Therefore, it's set right after instead.
+              setTimeout(() => {
+                p.elements.floating.style.maxHeight = `${p.availableHeight}px`;
+              }, 10);
             },
+            padding: 10,
           }),
         ],
       },
