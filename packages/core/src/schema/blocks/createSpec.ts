@@ -97,6 +97,7 @@ export function getParseRules<
                 const parser = DOMParser.fromSchema(schema);
                 const parsed = parser.parse(clone, {
                   topNode: schema.nodes.paragraph.create(),
+                  preserveWhitespace: true,
                 });
 
                 return parsed.content;
