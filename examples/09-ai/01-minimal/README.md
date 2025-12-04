@@ -1,4 +1,4 @@
-# Rich Text editor AI integration
+# Rich Text Editor AI Integration
 
 This example shows the minimal setup to add AI integration to your BlockNote rich text editor.
 
@@ -6,6 +6,6 @@ Select some text and click the AI (stars) button, or type `/ai` anywhere in the 
 
 **Relevant Docs:**
 
-- [Getting Stared with BlockNote AI](/docs/features/ai/getting-started)
+- [Getting Started with BlockNote AI](/docs/features/ai/getting-started)
 - [Changing the Formatting Toolbar](/docs/react/components/formatting-toolbar)
 - [Changing Slash Menu Items](/docs/react/components/suggestion-menus)

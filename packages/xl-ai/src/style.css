@@ -31,3 +31,8 @@ del,
   text-decoration: line-through;
   text-decoration-thickness: 1px;
 }
+
+.bn-autocomplete-decorator {
+  display: inline;
+  color: var(--bn-colors-side-menu); /* Hacky, shoyuld review variable setup */
+}

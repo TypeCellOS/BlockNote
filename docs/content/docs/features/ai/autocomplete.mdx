@@ -1,0 +1,157 @@
+---
+title: Autocomplete
+description: Add AI-powered autocomplete suggestions to your BlockNote editor
+imageTitle: BlockNote AI Autocomplete
+---
+
+import { TypeTable } from 'fumadocs-ui/components/type-table';
+
+# AI Autocomplete
+
+The AI Autocomplete extension provides real-time, AI-powered text completion suggestions as users type. 
+When enabled, the editor will display inline suggestions that can be accepted with the **Tab** key or dismissed with **Escape**.
+
+## Installation
+
+First, ensure you have the `@blocknote/xl-ai` package installed:
+
+```bash
+npm install @blocknote/xl-ai
+```
+
+## Basic Setup and demo
+
+To enable AI autocomplete in your editor, add the `AIAutoCompleteExtension` to your editor configuration. 
+Here's a the basic code setup and live demo:
+
+<Example name="ai/autocomplete" />
+
+## Configuration
+
+The `AIAutoCompleteExtension` accepts the following options:
+
+<TypeTable
+  type={{
+    provider: {
+      description: 'URL to fetch suggestions from, or a custom provider function.',
+      type: 'string | function',
+      required: true
+    },
+    contextLength: {
+      description: 'Number of characters of context to send to your backend when using a URL provider.',
+      type: 'number',
+      default: '300'
+    },
+    acceptKey: {
+      description: 'Key to accept the current suggestion.',
+      type: 'string',
+      default: '"Tab"'
+    },
+    cancelKey: {
+      description: 'Key to discard suggestions.',
+      type: 'string',
+      default: '"Escape"'
+    },
+    debounceDelay: {
+      description: 'Delay in ms before fetching suggestions.',
+      type: 'number',
+      default: '300'
+    },
+    onlyAtEndOfBlock: {
+      description: 'When true, only fetch suggestions when the cursor is at the end of a block. When false, fetch suggestions at every cursor position (also in the middle of a sentence).',
+      type: 'boolean',
+      default: 'false'
+    }
+  }}
+/>
+
+### Using a Custom Provider
+
+When you provide a URL (`string`) as provider, the extension will use the default provider that fetches suggestions from that URL.
+
+Alternatively, you can provide a custom provider function that should return an array of suggestions at the current cursor position.
+
+## Backend Integration
+
+With BlockNote AI Autocomplete, you have full control over the backend and LLM integration.
+
+The default URL provider sends a `POST` request with the following body:
+
+```json
+{
+  "text": "The last 300 characters of text before the cursor"
+}
+```
+
+It expects a JSON response with an array of suggestion strings:
+
+```json
+{
+  "suggestions": ["completion text", "more text"]
+}
+```
+
+_When multiple suggestions are returned, the first one will be used by default. As the user continues typing, the extension will automatically select alternative matching suggestions (or do a new backend requests if none of the cached suggestions match)._
+
+Here's an example API route using the Vercel AI SDK with Mistral's Codestral model:
+
+<Callout type="info">
+  **Codestral** is a code completion model that excels in speed (for as-you-type suggestions low latency is important). 
+  Even though it's designed for code completion, we can use it for general text completion as well.
+  See the [reference implementation](https://github.com/TypeCellOS/BlockNote/blob/main/packages/xl-ai-server/src/routes/autocomplete.ts) for a complete example.
+</Callout>
+
+```typescript
+// app/api/autocomplete/route.ts
+import { createMistral } from "@ai-sdk/mistral";
+import { generateText } from "ai";
+
+const model = createMistral({
+  apiKey: process.env.MISTRAL_API_KEY,
+})("codestral-latest");
+
+export async function POST(req: Request) {
+  const { text } = await req.json();
+
+  const result = await generateText({
+    model,
+    system: `You are a writing assistant. Predict the most likely next part of the text.
+- Provide up to 3 suggestions separated by newlines
+- Keep suggestions short (max 5 words each)
+- Only return the text to append (no explanations)
+- Add a space before the suggestion if starting a new word`,
+    messages: [
+      {
+        role: "user",
+        content: `Complete the following text: \n${text}[SUGGESTION_HERE]`,
+      },
+    ],
+    abortSignal: req.signal,
+  });
+
+  return Response.json({
+    suggestions: result.text
+      .split("\n")
+      .map((s) => s.trimEnd())
+      .filter((s) => s.trim().length > 0),
+  });
+}
+```
+
+## Programmatic Control
+
+You can also control the autocomplete extension programmatically:
+
+```typescript
+const ext = editor.getExtension(AIAutoCompleteExtension);
+
+// Accept the current suggestion
+ext.acceptAutoCompleteSuggestion();
+
+// Discard suggestions
+ext.discardAutoCompleteSuggestions();
+
+// Manually trigger autocomplete at the current cursor position
+// (useful if you want to configure a custom key to trigger autocomplete)
+ext.triggerAutoComplete();
+```

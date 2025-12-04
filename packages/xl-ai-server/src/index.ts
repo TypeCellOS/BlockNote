@@ -5,6 +5,7 @@ import { cors } from "hono/cors";
 import { existsSync, readFileSync } from "node:fs";
 import { createSecureServer } from "node:http2";
 import { Agent, setGlobalDispatcher } from "undici";
+import { autocompleteRoute } from "./routes/autocomplete.js";
 import { modelPlaygroundRoute } from "./routes/model-playground/index.js";
 import { objectGenerationRoute } from "./routes/objectGeneration.js";
 import { proxyRoute } from "./routes/proxy.js";
@@ -37,6 +38,7 @@ app.route("/ai/proxy", proxyRoute);
 app.route("/ai/object-generation", objectGenerationRoute);
 app.route("/ai/server-persistence", serverPersistenceRoute);
 app.route("/ai/model-playground", modelPlaygroundRoute);
+app.route("/ai/autocomplete", autocompleteRoute);
 
 const http2 = existsSync("localhost.pem");
 serve(

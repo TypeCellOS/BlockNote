@@ -4193,6 +4193,58 @@ importers:
         specifier: ^5.4.20
         version: 5.4.20(@types/node@24.8.1)(lightningcss@1.30.1)(terser@5.44.1)
 
+  examples/09-ai/08-autocomplete:
+    dependencies:
+      '@blocknote/ariakit':
+        specifier: latest
+        version: link:../../../packages/ariakit
+      '@blocknote/core':
+        specifier: latest
+        version: link:../../../packages/core
+      '@blocknote/mantine':
+        specifier: latest
+        version: link:../../../packages/mantine
+      '@blocknote/react':
+        specifier: latest
+        version: link:../../../packages/react
+      '@blocknote/shadcn':
+        specifier: latest
+        version: link:../../../packages/shadcn
+      '@blocknote/xl-ai':
+        specifier: latest
+        version: link:../../../packages/xl-ai
+      '@mantine/core':
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.2.0))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@mantine/hooks':
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.2.0)
+      '@mantine/utils':
+        specifier: ^6.0.22
+        version: 6.0.22(react@19.2.0)
+      ai:
+        specifier: ^5.0.102
+        version: 5.0.102(zod@4.1.12)
+      react:
+        specifier: ^19.2.0
+        version: 19.2.0
+      react-dom:
+        specifier: ^19.2.0
+        version: 19.2.0(react@19.2.0)
+    devDependencies:
+      '@types/react':
+        specifier: ^19.2.2
+        version: 19.2.2
+      '@types/react-dom':
+        specifier: ^19.2.1
+        version: 19.2.2(@types/react@19.2.2)
+      '@vitejs/plugin-react':
+        specifier: ^4.7.0
+        version: 4.7.0(vite@5.4.20(@types/node@24.8.1)(lightningcss@1.30.1)(terser@5.44.1))
+      vite:
+        specifier: ^5.4.20
+        version: 5.4.20(@types/node@24.8.1)(lightningcss@1.30.1)(terser@5.44.1)
+
   examples/vanilla-js/react-vanilla-custom-blocks:
     dependencies:
       '@blocknote/ariakit':
