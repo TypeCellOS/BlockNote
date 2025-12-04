@@ -19,29 +19,12 @@ First, ensure you have the `@blocknote/xl-ai` package installed:
 npm install @blocknote/xl-ai
 ```
 
-## Basic Setup
+## Basic Setup and demo
 
-To enable AI autocomplete in your editor, add the `AIAutoCompleteExtension` to your editor configuration:
+To enable AI autocomplete in your editor, add the `AIAutoCompleteExtension` to your editor configuration. 
+Here's a the basic code setup and live demo:
 
-```tsx
-import { useCreateBlockNote } from "@blocknote/react";
-import { AIAutoCompleteExtension } from "@blocknote/xl-ai";
-import { en as aiEn } from "@blocknote/xl-ai/locales";
-import "@blocknote/xl-ai/style.css";
-
-const editor = useCreateBlockNote({
-  dictionary: {
-    ...en,
-    ai: aiEn, // add translations for the AI extension
-  },
-  extensions: [
-    AIAutoCompleteExtension({
-      // Fetch suggestions from this URL
-      provider: "/api/autocomplete",
-    }),
-  ],
-});
-```
+<Example name="ai/autocomplete" />
 
 ## Configuration
 
@@ -73,6 +56,11 @@ The `AIAutoCompleteExtension` accepts the following options:
       description: 'Delay in ms before fetching suggestions.',
       type: 'number',
       default: '300'
+    },
+    onlyAtEndOfBlock: {
+      description: 'When true, only fetch suggestions when the cursor is at the end of a block. When false, fetch suggestions at every cursor position (also in the middle of a sentence).',
+      type: 'boolean',
+      default: 'false'
     }
   }}
 />
@@ -84,6 +72,8 @@ When you provide a URL (`string`) as provider, the extension will use the defaul
 Alternatively, you can provide a custom provider function that should return an array of suggestions at the current cursor position.
 
 ## Backend Integration
+
+With BlockNote AI Autocomplete, you have full control over the backend and LLM integration.
 
 The default URL provider sends a `POST` request with the following body:
 
@@ -101,12 +91,12 @@ It expects a JSON response with an array of suggestion strings:
 }
 ```
 
-When multiple suggestions are returned, the first one will be used by default. As the user continues typing, the extension will automatically select alternative matching suggestions (or do a new backend requests if none of the cached suggestions match).
+_When multiple suggestions are returned, the first one will be used by default. As the user continues typing, the extension will automatically select alternative matching suggestions (or do a new backend requests if none of the cached suggestions match)._
 
 Here's an example API route using the Vercel AI SDK with Mistral's Codestral model:
 
 <Callout type="info">
-  **Codestral** is a code completion model that excels in latency (for as-you-type suggestions you want a fast model). 
+  **Codestral** is a code completion model that excels in speed (for as-you-type suggestions low latency is important). 
   Even though it's designed for code completion, we can use it for general text completion as well.
   See the [reference implementation](https://github.com/TypeCellOS/BlockNote/blob/main/packages/xl-ai-server/src/routes/autocomplete.ts) for a complete example.
 </Callout>
@@ -153,11 +143,15 @@ export async function POST(req: Request) {
 You can also control the autocomplete extension programmatically:
 
 ```typescript
-const ext = editor.extensions.aiAutoCompleteExtension;
+const ext = editor.getExtension(AIAutoCompleteExtension);
 
 // Accept the current suggestion
 ext.acceptAutoCompleteSuggestion();
 
 // Discard suggestions
 ext.discardAutoCompleteSuggestions();
+
+// Manually trigger autocomplete at the current cursor position
+// (useful if you want to configure a custom key to trigger autocomplete)
+ext.triggerAutoComplete();
 ```

@@ -9,13 +9,10 @@ import {
 import { en as aiEn } from "@blocknote/xl-ai/locales";
 import "@blocknote/xl-ai/style.css";
 
-
 import { getEnv } from "./getEnv";
 
 const BASE_URL =
   getEnv("BLOCKNOTE_AI_SERVER_BASE_URL") || "https://localhost:3000/ai";
-
-
 
 export default function App() {
   // Creates a new editor instance with AI autocomplete enabled
@@ -42,12 +39,12 @@ export default function App() {
       {
         type: "paragraph",
         content:
-          "Start typing and the AI will suggest completions based on your current context.",
+          "Start typing and the AI will suggest completions based on the current context. When suggestions appear, you can press Tab to accept the suggestion.",
       },
       {
         type: "paragraph",
         content:
-          "For example, try typing 'Open source software is'. When suggestions appear, you can press Tab to accept the suggestion.",
+          "For example, type at the end of this sentence. Open source software is: ",
       },
       {
         type: "paragraph",
