@@ -42,12 +42,12 @@ export default function App() {
       {
         type: "paragraph",
         content:
-          "Start typing and press Tab to trigger AI autocomplete suggestions. The AI will suggest completions based on your current context.",
+          "Start typing and the AI will suggest completions based on your current context.",
       },
       {
         type: "paragraph",
         content:
-          "For example, try typing 'Open source software is' and then press Tab to see autocomplete suggestions appear.",
+          "For example, try typing 'Open source software is'. When suggestions appear, you can press Tab to accept the suggestion.",
       },
       {
         type: "paragraph",
