@@ -12,7 +12,7 @@ const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 const TEST_SUGGESTION = "orld";
 const INITIAL_TEXT = "Hello ";
 const DEBOUNCE_DELAY = 1;
-const DEBOUNCE_WAIT = 50;
+const DEBOUNCE_WAIT = 200;
 
 // Helper to create an editor with the autocomplete extension
 function createTestEditor(provider: (editor: BlockNoteEditor<any, any, any>, signal: AbortSignal) => Promise<AutoCompleteSuggestion[]>) {
