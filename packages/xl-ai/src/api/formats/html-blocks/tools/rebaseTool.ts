@@ -48,8 +48,12 @@ export async function createHTMLRebaseTool(
   );
 
   if (steps.length) {
-    // console.error("html diff", steps);
-    throw new Error("html diff");
+    throw new Error("html diff", {
+      cause: {
+        html,
+        htmlBlock
+      }
+    });
   }
 
   return rebaseTool(editor, tr);
