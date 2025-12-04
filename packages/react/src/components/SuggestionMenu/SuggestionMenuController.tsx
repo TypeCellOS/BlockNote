@@ -5,7 +5,7 @@ import {
 } from "@blocknote/core/extensions";
 import {
   UseFloatingOptions,
-  flip,
+  autoPlacement,
   offset,
   shift,
   size,
@@ -127,18 +127,22 @@ export function SuggestionMenuController<
           offset(10),
           // Flips the menu placement to maximize the space available, and prevents
           // the menu from being cut off by the confines of the screen.
-          flip({
-            mainAxis: true,
-            crossAxis: false,
+          autoPlacement({
+            allowedPlacements: ["bottom-start", "top-start"],
+            padding: 10,
           }),
           shift(),
           size({
-            apply({ availableHeight, elements }) {
-              Object.assign(elements.floating.style, {
-                maxHeight: `${availableHeight - 10}px`,
-                minHeight: "300px",
-              });
+            apply(p) {
+              // Because the height of the suggestion menu is dynamic and based
+              // on the number of items, the `flip` middleware gets confused
+              // when the height is set on the initial render. Therefore, it's
+              // set right after instead.
+              setTimeout(() => {
+                p.elements.floating.style.maxHeight = `${p.availableHeight}px`;
+              }, 10);
             },
+            padding: 10,
           }),
         ],
       },
