@@ -1,5 +1,5 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { applySuggestions } from "@blocknote/prosemirror-suggest-changes";
+import { applySuggestions } from "@handlewithcare/prosemirror-suggest-changes";
 import { Transaction } from "prosemirror-state";
 import { Transform } from "prosemirror-transform";
 
