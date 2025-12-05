@@ -59,8 +59,8 @@
     "@react-email/components": "^0.1.1",
     "@react-email/render": "^1.4.0",
     "buffer": "^6.0.3",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
     "react-email": "^4.3.0"
   },
   "devDependencies": {
