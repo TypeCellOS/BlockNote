@@ -45,25 +45,20 @@ export const TableHandlesController = <
 
   const state = useExtensionState(TableHandlesExtension);
 
-  const references = useMemo<
-    | {
-        tableReference: undefined;
-        cellReference: undefined;
-        rowReference: undefined;
-        columnReference: undefined;
-      }
-    | {
-        tableReference: GenericPopoverReference;
-        cellReference: GenericPopoverReference;
-        rowReference: GenericPopoverReference;
-        columnReference: GenericPopoverReference;
-      }
-  >(() => {
-    if (
-      state === undefined ||
-      state.rowIndex === undefined ||
-      state.colIndex === undefined
-    ) {
+  const references = useMemo<{
+    tableReference?: GenericPopoverReference;
+    cellReference?: GenericPopoverReference;
+    rowReference?: GenericPopoverReference;
+    columnReference?: GenericPopoverReference;
+  }>(() => {
+    const references: {
+      tableReference?: GenericPopoverReference;
+      cellReference?: GenericPopoverReference;
+      rowReference?: GenericPopoverReference;
+      columnReference?: GenericPopoverReference;
+    } = {};
+
+    if (state === undefined) {
       return {};
     }
 
@@ -85,7 +80,11 @@ export const TableHandlesController = <
       return {};
     }
 
-    const tableReference = { element: tableElement };
+    references.tableReference = { element: tableElement };
+
+    if (state.rowIndex === undefined || state.colIndex === undefined) {
+      return references;
+    }
 
     const rowBeforePos = editor.prosemirrorState.doc
       .resolve(tableBeforePos + 1)
@@ -99,9 +98,8 @@ export const TableHandlesController = <
       return {};
     }
 
-    const cellReference = { element: cellElement };
-
-    const rowReference = {
+    references.cellReference = { element: cellElement };
+    references.rowReference = {
       element: tableElement,
       getBoundingClientRect: () => {
         const tableBoundingRect = tableElement.getBoundingClientRect();
@@ -118,7 +116,7 @@ export const TableHandlesController = <
         );
       },
     };
-    const columnReference = {
+    references.columnReference = {
       element: tableElement,
       getBoundingClientRect: () => {
         const tableBoundingRect = tableElement.getBoundingClientRect();
@@ -136,12 +134,7 @@ export const TableHandlesController = <
       },
     };
 
-    return {
-      tableReference,
-      cellReference,
-      rowReference,
-      columnReference,
-    };
+    return references;
   }, [editor, state]);
 
   const floatingUIOptions = useMemo<
