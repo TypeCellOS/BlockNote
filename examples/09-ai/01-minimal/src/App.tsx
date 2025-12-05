@@ -22,6 +22,7 @@ import { en as aiEn } from "@blocknote/xl-ai/locales";
 import "@blocknote/xl-ai/style.css";
 
 import { DefaultChatTransport } from "ai";
+import { useEffect } from "react";
 import { getEnv } from "./getEnv";
 
 const BASE_URL =

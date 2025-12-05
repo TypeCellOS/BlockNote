@@ -4,7 +4,7 @@ import type { JSONSchema7 } from "json-schema";
 export type Result<T> =
   | {
       ok: false;
-      error: string;
+      error: string | Error;
     }
   | { ok: true; value: T };
 
@@ -46,12 +46,15 @@ export type StreamTool<T extends { type: string }> = {
    * @returns the stream of operations that have not been processed (and should be passed on to execute handlers of other StreamTools)
    */
   executor: () => {
-    execute: (chunk: {
-      operation: StreamToolCall<StreamTool<{ type: string }>[]>;
-      isUpdateToPreviousOperation: boolean;
-      isPossiblyPartial: boolean;
-      metadata: any;
-    }) => Promise<boolean>;
+    execute: (
+      chunk: {
+        operation: StreamToolCall<StreamTool<{ type: string }>[]>;
+        isUpdateToPreviousOperation: boolean;
+        isPossiblyPartial: boolean;
+        metadata: any;
+      },
+      abortSignal?: AbortSignal,
+    ) => Promise<boolean>;
   };
 };
 

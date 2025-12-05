@@ -1,3 +1,13 @@
+## 0.44.0 (2025-12-02)
+
+### 🚀 Features
+
+- **ai:** Abort requests ([#2213](https://github.com/TypeCellOS/BlockNote/pull/2213))
+
+### ❤️ Thank You
+
+- Yousef
+
 ## 0.43.0 (2025-12-01)
 
 ### 🚀 Features

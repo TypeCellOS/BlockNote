@@ -1,12 +1,13 @@
 import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 import { FormattingToolbarExtension } from "@blocknote/core/extensions";
-import { useComponentsContext, useExtension } from "@blocknote/react";
+import {
+  useBlockNoteEditor,
+  useComponentsContext,
+  useExtension,
+} from "@blocknote/react";
 import { RiSparkling2Fill } from "react-icons/ri";
-
-import { useBlockNoteEditor } from "@blocknote/react";
-
 import { AIExtension } from "../../AIExtension.js";
-import { useAIDictionary } from "../../i18n/useAIDictionary.js";
+import { useAIDictionary } from "../../hooks/useAIDictionary.js";
 
 export const AIToolbarButton = () => {
   const dict = useAIDictionary();
