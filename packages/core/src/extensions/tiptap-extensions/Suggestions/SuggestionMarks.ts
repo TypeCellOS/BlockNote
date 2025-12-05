@@ -12,7 +12,7 @@ export const SuggestionAddMark = Mark.create({
   excludes: "deletion modification insertion",
   addAttributes() {
     return {
-      id: { default: null, validate: "number" }, // note: validate is supported in prosemirror but not in tiptap, so this doesn't actually work (considered not critical)
+      id: { default: null, validate: "number|null" }, // note: validate is supported in prosemirror but not in tiptap, so this doesn't actually work (considered not critical)
     };
   },
   extendMarkSchema(extension) {
@@ -57,7 +57,7 @@ export const SuggestionDeleteMark = Mark.create({
   excludes: "insertion modification deletion",
   addAttributes() {
     return {
-      id: { default: null, validate: "number" }, // note: validate is supported in prosemirror but not in tiptap
+      id: { default: null, validate: "number|null" }, // note: validate is supported in prosemirror but not in tiptap
     };
   },
   extendMarkSchema(extension) {
