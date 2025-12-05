@@ -129,6 +129,8 @@ export async function setupToolCallStreaming(
 
   if (result.status === "rejected") {
     if (result.reason instanceof ChunkExecutionError) {
+      // all errors thrown in the pipeline should be ChunkExecutionErrors,
+      // so we can retrieve the chunk that caused the error
       error = result.reason;
     } else {
       if (!chat.error) {
