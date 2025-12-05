@@ -13,32 +13,45 @@ Getting started with BlockNote is quick and easy. Install the required packages 
 To install BlockNote with [NPM](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm), run:
 
 ```console tab="npm"
-npm install @mantine/core @mantine/hooks @mantine/utils
 npm install @blocknote/core @blocknote/react @blocknote/mantine
 ```
 
 ```console tab="pnpm"
-pnpm add @mantine/core @mantine/hooks @mantine/utils
 pnpm add @blocknote/core @blocknote/react @blocknote/mantine
 ```
 
 ```console tab="bun"
-bun add @mantine/core @mantine/hooks @mantine/utils
 bun add @blocknote/core @blocknote/react @blocknote/mantine
 ```
 
-This will install the [Mantine UI](https://mantine.dev/) version of BlockNote, which works great out of the box and is recommended for new projects.
+BlockNote provides multiple UI library options. Choose the one that best fits your project:
 
-BlockNote also provides multiple alternative UI library options. Choose the one that best fits your needs:
-
-- **[ShadCN](/docs/getting-started/shadcn)** (`@blocknote/shadcn`): Recommended for projects that already use ShadCN components or [Tailwind CSS](https://tailwindcss.com/).
-- **[Ariakit](/docs/getting-started/ariakit)** (`@blocknote/ariakit`): Recommended for projects which require unstyled components for the editor.
+- **[Mantine](/docs/getting-started/mantine)** (`@blocknote/mantine`) - Recommended for new projects
+- **[Shadcn](/docs/getting-started/shadcn)** (`@blocknote/shadcn`)
+- **[Ariakit](/docs/getting-started/ariakit)** (`@blocknote/ariakit`)
 
 ## Create an editor
 
 The fastest way to get started with the BlockNote is by using the `useCreateBlockNote` hook and `BlockNoteView` component:
 
-<Example name="basic/minimal" />
+```tsx
+import React from "react";
+import { useCreateBlockNote } from "@blocknote/react";
+// Or, you can use ariakit, shadcn, etc.
+import { BlockNoteView } from "@blocknote/mantine";
+// Default styles for the mantine editor
+import "@blocknote/mantine/style.css";
+// Include the included Inter font
+import "@blocknote/core/fonts/inter.css";
+
+export default function MyEditor() {
+  // Create a new editor instance
+  const editor = useCreateBlockNote();
+
+  // Render the editor
+  return <BlockNoteView editor={editor} />;
+}
+```
 
 For more information about the `useCreateBlockNote` hook and the `BlockNoteView` component, see [React Overview](/docs/react/overview).
 
@@ -50,10 +63,6 @@ For more information about the `useCreateBlockNote` hook and the `BlockNoteView`
   component, make sure to disable server-side rendering of BlockNote. [Read our
   guide on setting up Next.js + BlockNote](/docs/getting-started/nextjs)
 </Callout>
-
-## Usage in Mantine apps
-
-In the demo above, the `@blocknote/mantine/style.css` stylesheet is imported to style the UI components. If your application already uses Mantine UI though, you should use the `@blocknote/mantine/blocknoteStyles.css` stylesheet instead. It only contains the styles added by BlockNote on top of the Mantine core styles, whereas `@blocknote/mantine/style.css` includes both.
 
 ## Next steps
 

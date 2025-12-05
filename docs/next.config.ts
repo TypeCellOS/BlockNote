@@ -29,11 +29,6 @@ const config = {
   },
   redirects: async () => [
     {
-      source: "/docs/getting-started/mantine",
-      destination: "/docs/getting-started",
-      permanent: true,
-    },
-    {
       source: "/docs/editor-api/converting-blocks",
       destination: "/docs/features/interoperability",
       permanent: true,
