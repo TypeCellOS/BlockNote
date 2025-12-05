@@ -5,7 +5,7 @@
   "license": "GPL-3.0 OR PROPRIETARY",
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build:agent-demo": "next build",
     "start": "next start",
     "lint": "next lint",
     "prettier": "prettier --check .",
