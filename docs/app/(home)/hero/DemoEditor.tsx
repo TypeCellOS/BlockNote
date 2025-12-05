@@ -1,9 +1,9 @@
 import {
   BlockNoteSchema,
   combineByGroup,
-  filterSuggestionItems,
   uploadToTmpFilesDotOrg_DEV_ONLY,
 } from "@blocknote/core";
+import { filterSuggestionItems } from "@blocknote/core/extensions";
 import * as locales from "@blocknote/core/locales";
 import "@blocknote/core/fonts/inter.css";
 import {
