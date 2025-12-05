@@ -44,12 +44,16 @@ export const PopoverContent = forwardRef<
 export const Popover = (
   props: ComponentProps["Generic"]["Popover"]["Root"],
 ) => {
-  const { children, opened, position, ...rest } = props;
+  const { children, open, onOpenChange, position, ...rest } = props;
 
   assertEmpty(rest);
 
   return (
-    <AriakitPopoverProvider open={opened} placement={position}>
+    <AriakitPopoverProvider
+      open={open}
+      setOpen={onOpenChange}
+      placement={position}
+    >
       {children}
     </AriakitPopoverProvider>
   );

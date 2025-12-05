@@ -38,8 +38,16 @@
     inset 0 1px 1px 1px var(--shadow);
 }
 
+.bn-ak-popover {
+  z-index: 10000;
+}
+
 .bn-toolbar .bn-ak-popover {
   gap: 0.5rem;
+}
+
+.bn-ariakit .bn-panel {
+  max-width: 100vw;
 }
 
 .bn-ariakit .bn-tab-panel {

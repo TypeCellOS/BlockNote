@@ -34,17 +34,26 @@ function blockPropsToStyles(
       props.backgroundColor === "default" || !props.backgroundColor
         ? undefined
         : {
-            type: ShadingType.SOLID,
-            color:
-              colors[
-                props.backgroundColor as keyof typeof colors
-              ].background.slice(1),
+            type: ShadingType.CLEAR,
+            fill: (() => {
+              const color = colors[props.backgroundColor]?.background;
+              if (!color) {
+                return undefined;
+              }
+              return color.slice(1);
+            })(),
           },
     run:
       props.textColor === "default" || !props.textColor
         ? undefined
         : {
-            color: colors[props.textColor as keyof typeof colors].text.slice(1),
+            color: (() => {
+              const color = colors[props.textColor]?.text;
+              if (!color) {
+                return undefined;
+              }
+              return color.slice(1);
+            })(),
           },
     alignment:
       !props.textAlignment || props.textAlignment === "left"
@@ -75,11 +84,7 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
   paragraph: (block, exporter) => {
     return new Paragraph({
       ...blockPropsToStyles(block.props, exporter.options.colors),
-      children: exporter.transformInlineContent(block.content),
-      style: "Normal",
-      run: {
-        font: "Inter",
-      },
+      children: exporter.transformInlineContent(block.content)
     });
   },
   toggleListItem: (block, exporter) => {
@@ -134,17 +139,7 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
   },
   quote: (block, exporter) => {
     return new Paragraph({
-      shading: {
-        color: "#7D797A",
-      },
-      border: {
-        left: {
-          color: "#7D797A",
-          space: 100,
-          style: "single",
-          size: 8,
-        },
-      },
+      style: "BlockQuote",
       ...blockPropsToStyles(block.props, exporter.options.colors),
       children: exporter.transformInlineContent(block.content),
     });
@@ -171,12 +166,7 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
     const textContent = (block.content as StyledText<any>[])[0]?.text || "";
 
     return new Paragraph({
-      style: "Codeblock",
-      shading: {
-        type: ShadingType.SOLID,
-        fill: "161616",
-        color: "161616",
-      },
+      style: "SourceCode",
       children: [
         ...textContent.split("\n").map((line, index) => {
           return new TextRun({
@@ -190,6 +180,18 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
   pageBreak: () => {
     return new Paragraph({
       children: [new PageBreak()],
+    });
+  },
+  divider: () => {
+    return new Paragraph({
+      border: {
+        top: {
+          color: "auto",
+          space: 1,
+          style: "single",
+          size: 1,
+        },
+      },
     });
   },
   column: (block, _exporter, _nestingLevel, _numberedListIndex, children) => {

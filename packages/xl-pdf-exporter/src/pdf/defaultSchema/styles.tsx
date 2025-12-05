@@ -42,9 +42,7 @@ export const pdfStyleMappingForDefaultSchema: StyleMapping<
       return {};
     }
     return {
-      backgroundColor:
-        exporter.options.colors[val as keyof typeof exporter.options.colors]
-          .background,
+      backgroundColor: exporter.options.colors[val]?.background,
     };
   },
   textColor: (val, exporter) => {
@@ -52,9 +50,7 @@ export const pdfStyleMappingForDefaultSchema: StyleMapping<
       return {};
     }
     return {
-      color:
-        exporter.options.colors[val as keyof typeof exporter.options.colors]
-          .text,
+      color: exporter.options.colors[val]?.text,
     };
   },
   code: (val) => {

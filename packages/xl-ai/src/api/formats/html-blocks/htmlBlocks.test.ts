@@ -135,6 +135,7 @@ describe("Models", () => {
           withDelays: false,
         }),
         transport: new ClientSideTransport({
+          systemPrompt: htmlBlockLLMFormat.systemPrompt,
           model: params.model,
           stream: params.stream,
           objectGeneration: params.generateObject,

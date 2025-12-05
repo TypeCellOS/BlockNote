@@ -88,17 +88,14 @@ export const Table = (props: {
                     color:
                       cell.props.textColor === "default"
                         ? undefined
-                        : props.transformer.options.colors[
-                            cell.props
-                              .textColor as keyof typeof props.transformer.options.colors
-                          ].text,
+                        : props.transformer.options.colors[cell.props.textColor]
+                            ?.text,
                     backgroundColor:
                       cell.props.backgroundColor === "default"
                         ? undefined
                         : props.transformer.options.colors[
-                            cell.props
-                              .backgroundColor as keyof typeof props.transformer.options.colors
-                          ].background,
+                            cell.props.backgroundColor
+                          ]?.background,
                     textAlign: cell.props.textAlignment,
                   },
                 ]}

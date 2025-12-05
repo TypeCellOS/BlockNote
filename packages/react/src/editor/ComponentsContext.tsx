@@ -233,6 +233,7 @@ export type ComponentProps = {
       edited: boolean;
       actions?: ReactNode;
       showActions?: boolean | "hover";
+      emojiPickerOpen?: boolean;
     };
   };
   // TODO: We should try to make everything as generic as we can
@@ -315,7 +316,8 @@ export type ComponentProps = {
     };
     Popover: {
       Root: {
-        opened?: boolean;
+        open?: boolean;
+        onOpenChange?: (open: boolean) => void;
         position?:
           | "top"
           | "right"

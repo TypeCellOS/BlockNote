@@ -51,8 +51,12 @@ export class StreamToolExecutor<T extends StreamTool<any>[]> {
 
   /**
    * @param streamTools - The StreamTools to use to apply the StreamToolCalls
+   * @param abortSignal - Optional AbortSignal to cancel ongoing operations
    */
-  constructor(private streamTools: T) {
+  constructor(
+    private streamTools: T,
+    private abortSignal?: AbortSignal,
+  ) {
     this.stream = this.createStream();
   }
 
@@ -115,27 +119,35 @@ export class StreamToolExecutor<T extends StreamTool<any>[]> {
         let handled = false;
         for (const executor of executors) {
           try {
-            const result = await executor.execute(chunk);
+            // Pass the signal to executor - it should handle abort internally
+            const result = await executor.execute(chunk, this.abortSignal);
             if (result) {
               controller.enqueue({ status: "ok", chunk });
               handled = true;
               break;
             }
           } catch (error) {
-            throw new ChunkExecutionError(
-              `Tool execution failed: ${getErrorMessage(error)}`,
-              chunk,
-              {
-                cause: error,
-              },
+            controller.error(
+              new ChunkExecutionError(
+                `Tool execution failed: ${getErrorMessage(error)}`,
+                chunk,
+                {
+                  cause: error,
+                  aborted: this.abortSignal?.aborted ?? false,
+                },
+              ),
             );
+            return;
           }
         }
         if (!handled) {
           const operationType = (chunk.operation as any)?.type || "unknown";
-          throw new Error(
-            `No tool could handle operation of type: ${operationType}`,
+          controller.error(
+            new Error(
+              `No tool could handle operation of type: ${operationType}`,
+            ),
           );
+          return;
         }
       },
     });

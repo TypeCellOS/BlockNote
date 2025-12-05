@@ -1,0 +1,103 @@
+{
+  "backgroundColor": {
+    "config": {
+      "propSchema": "string",
+      "type": "backgroundColor",
+    },
+    "implementation": {
+      "mark": null,
+      "parse": [Function],
+      "render": [Function],
+      "toExternalHTML": [Function],
+    },
+  },
+  "bold": {
+    "config": {
+      "propSchema": "boolean",
+      "type": "bold",
+    },
+    "implementation": {
+      "mark": null,
+      "render": [Function],
+      "toExternalHTML": [Function],
+    },
+  },
+  "code": {
+    "config": {
+      "propSchema": "boolean",
+      "type": "code",
+    },
+    "implementation": {
+      "mark": null,
+      "render": [Function],
+      "toExternalHTML": [Function],
+    },
+  },
+  "fontSize": {
+    "config": {
+      "propSchema": "string",
+      "type": "fontSize",
+    },
+    "implementation": {
+      "mark": null,
+      "render": [Function],
+      "toExternalHTML": [Function],
+    },
+  },
+  "italic": {
+    "config": {
+      "propSchema": "boolean",
+      "type": "italic",
+    },
+    "implementation": {
+      "mark": null,
+      "render": [Function],
+      "toExternalHTML": [Function],
+    },
+  },
+  "small": {
+    "config": {
+      "propSchema": "boolean",
+      "type": "small",
+    },
+    "implementation": {
+      "mark": null,
+      "render": [Function],
+      "toExternalHTML": [Function],
+    },
+  },
+  "strike": {
+    "config": {
+      "propSchema": "boolean",
+      "type": "strike",
+    },
+    "implementation": {
+      "mark": null,
+      "render": [Function],
+      "toExternalHTML": [Function],
+    },
+  },
+  "textColor": {
+    "config": {
+      "propSchema": "string",
+      "type": "textColor",
+    },
+    "implementation": {
+      "mark": null,
+      "parse": [Function],
+      "render": [Function],
+      "toExternalHTML": [Function],
+    },
+  },
+  "underline": {
+    "config": {
+      "propSchema": "boolean",
+      "type": "underline",
+    },
+    "implementation": {
+      "mark": null,
+      "render": [Function],
+      "toExternalHTML": [Function],
+    },
+  },
+}

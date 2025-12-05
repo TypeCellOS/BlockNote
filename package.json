@@ -2,20 +2,20 @@
   "name": "root",
   "type": "module",
   "devDependencies": {
-    "@nx/js": "^21.4.1",
-    "@typescript-eslint/eslint-plugin": "^5.5.0",
-    "@typescript-eslint/parser": "^5.5.0",
+    "@nx/js": "^21.6.5",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
     "concurrently": "9.1.2",
-    "eslint": "^8.22.0",
-    "eslint-config-react-app": "^7.0.0",
-    "eslint-plugin-import": "^2.31.0",
-    "glob": "^10.3.10",
-    "nx": "^21.4.1",
-    "prettier": "^3",
-    "prettier-plugin-tailwindcss": "^0.6.11",
+    "eslint": "^8.57.1",
+    "eslint-config-react-app": "^7.0.1",
+    "eslint-plugin-import": "^2.32.0",
+    "glob": "^10.4.5",
+    "nx": "^21.6.5",
+    "prettier": "^3.6.2",
+    "prettier-plugin-tailwindcss": "^0.6.14",
     "serve": "14.2.4",
-    "typescript": "^5.3.3",
-    "vitest": "^2.0.3",
+    "typescript": "^5.9.3",
+    "vitest": "^2.1.9",
     "wait-on": "8.0.3"
   },
   "pnpm": {
@@ -33,12 +33,9 @@
       "msw",
       "nx",
       "unrs-resolver"
-    ],
-    "patchedDependencies": {
-      "y-prosemirror": "patches/y-prosemirror.patch"
-    }
+    ]
   },
-  "packageManager": "pnpm@10.13.1+sha512.37ebf1a5c7a30d5fabe0c5df44ee8da4c965ca0c5af3dbab28c3a1681b70a256218d05c81c9c0dcf767ef6b8551eb5b960042b9ed4300c59242336377e01cfad",
+  "packageManager": "pnpm@10.23.0+sha512.21c4e5698002ade97e4efe8b8b4a89a8de3c85a37919f957e7a0f30f38fbc5bbdd05980ffe29179b2fb6e6e691242e098d945d1601772cad0fef5fb6411e2a4b",
   "private": true,
   "scripts": {
     "dev": "nx run @blocknote/example-editor:dev",

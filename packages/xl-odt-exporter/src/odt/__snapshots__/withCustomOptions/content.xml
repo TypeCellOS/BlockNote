@@ -92,6 +92,19 @@
         <style:style style:name="BN_T25" style:family="text">
             <style:text-properties fo:font-weight="bold"></style:text-properties>
         </style:style>
+        <style:style style:name="BN_T26" style:family="text">
+            <style:text-properties fo:font-weight="bold"></style:text-properties>
+        </style:style>
+        <style:style style:name="BN_T27" style:family="text">
+            <style:text-properties style:font-name="Courier New"></style:text-properties>
+        </style:style>
+        <style:style style:family="paragraph" style:name="BN_S28" style:parent-style-name="Standard">
+            <style:paragraph-properties fo:border-top="1pt solid #cccccc" fo:margin-top="11pt" fo:margin-bottom="12pt" fo:padding-top="0pt" fo:padding-bottom="0pt"></style:paragraph-properties>
+        </style:style>
+        <style:style style:family="paragraph" style:name="BN_S29" style:parent-style-name="Standard">
+            <style:paragraph-properties fo:border-left="2pt solid #7D797A" fo:padding-left="0.25in"></style:paragraph-properties>
+            <style:text-properties fo:color="#7D797A"></style:text-properties>
+        </style:style>
     </office:automatic-styles>
     <office:master-styles>
         <style:master-page style:name="Standard" style:page-layout-name="Mpm1" draw:style-name="Mdp1">
@@ -456,6 +469,18 @@
                 console.log(&quot;Hello World&quot;, message);
                 <text:line-break></text:line-break>
                 };
+            </text:p>
+            <text:p text:style-name="Standard">
+                <text:span text:style-name="BN_T26">
+                    Some inline code:
+                </text:span>
+                <text:span text:style-name="BN_T27">
+                    var foo = &#x27;bar&#x27;;
+                </text:span>
+            </text:p>
+            <text:p text:style-name="BN_S28"></text:p>
+            <text:p text:style-name="BN_S29">
+                All those moments will be lost in time, like tears in rain.
             </text:p>
         </office:text>
     </office:body>

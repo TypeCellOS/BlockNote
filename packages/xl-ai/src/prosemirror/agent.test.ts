@@ -2,7 +2,7 @@ import { BlockNoteEditor, getBlockInfo, getNodeById } from "@blocknote/core";
 import { Fragment, Slice } from "prosemirror-model";
 import { ReplaceStep, Transform } from "prosemirror-transform";
 import { describe, expect, it } from "vitest";
-import { getAIExtension } from "../AIExtension.js";
+import { AIExtension } from "../AIExtension.js";
 import {
   DocumentOperationTestCase,
   getExpectedEditor,
@@ -247,7 +247,7 @@ async function executeTestCase(
   validateRejectingResultsInOriginalDoc(editor, doc);
   expect(results).toMatchSnapshot();
 
-  getAIExtension(editor).acceptChanges();
+  editor.getExtension(AIExtension)?.acceptChanges();
   expect(editor.document).toEqual(getExpectedEditor(test).document);
 
   return results;

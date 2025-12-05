@@ -12,18 +12,27 @@ BlockNote provides several event callbacks that allow you to respond to changes 
 
 The editor emits events for:
 
-- **Editor initialization** - When the editor is ready for use
+- **Editor lifecycle** - When the editor is created, mounted, unmounted, etc.
 - **Content changes** - When blocks are inserted, updated, or deleted
 - **Selection changes** - When the cursor position or selection changes
 
-## `onCreate`
+## `onMount`
 
-The `onCreate` callback is called when the editor has been initialized and is ready for use.
+The `onMount` callback is called when the editor has been mounted.
 
 ```typescript
-editor.onCreate(() => {
-  console.log("Editor is ready for use");
-  // Initialize plugins, set up event listeners, etc.
+editor.onMount(() => {
+  console.log("Editor is mounted");
+});
+```
+
+## `onUnmount`
+
+The `onUnmount` callback is called when the editor has been unmounted.
+
+```typescript
+editor.onUnmount(() => {
+  console.log("Editor is unmounted");
 });
 ```
 

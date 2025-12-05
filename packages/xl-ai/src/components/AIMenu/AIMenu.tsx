@@ -1,11 +1,14 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { useBlockNoteEditor, useComponentsContext } from "@blocknote/react";
+import {
+  useBlockNoteEditor,
+  useComponentsContext,
+  useExtension,
+  useExtensionState,
+} from "@blocknote/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { RiSparkling2Fill } from "react-icons/ri";
-import { useStore } from "zustand";
-
-import { getAIExtension } from "../../AIExtension.js";
-import { useAIDictionary } from "../../i18n/useAIDictionary.js";
+import { AIExtension } from "../../AIExtension.js";
+import { useAIDictionary } from "../../hooks/useAIDictionary.js";
 import { PromptSuggestionMenu } from "./PromptSuggestionMenu.js";
 import {
   AIMenuSuggestionItem,
@@ -33,11 +36,12 @@ export const AIMenu = (props: AIMenuProps) => {
 
   const Components = useComponentsContext()!;
 
-  const ai = getAIExtension(editor);
+  const ai = useExtension(AIExtension);
 
-  const aiResponseStatus = useStore(ai.store, (state) =>
-    state.aiMenuState !== "closed" ? state.aiMenuState.status : "closed",
-  );
+  const aiResponseStatus = useExtensionState(AIExtension, {
+    selector: (state) =>
+      state.aiMenuState !== "closed" ? state.aiMenuState.status : "closed",
+  });
 
   const { items: externalItems } = props;
   // note, technically there might be a bug with this useMemo when quickly changing the selection and opening the menu
@@ -74,7 +78,11 @@ export const AIMenu = (props: AIMenuProps) => {
 
   useEffect(() => {
     // this is a bit hacky to run a useeffect to reset the prompt when the AI response is done
-    if (aiResponseStatus === "user-reviewing" || aiResponseStatus === "error") {
+    if (
+      aiResponseStatus === "ai-writing" ||
+      aiResponseStatus === "user-reviewing" ||
+      aiResponseStatus === "error"
+    ) {
       setPrompt("");
     }
   }, [aiResponseStatus]);

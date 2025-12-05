@@ -18,7 +18,7 @@ export const PanelTextInput = forwardRef<
   return (
     <ShadCNComponents.Input.Input
       data-test={"embed-input"}
-      className={cn(className, "w-80")}
+      className={cn(className, "w-80 max-w-full")}
       ref={ref}
       value={value}
       placeholder={placeholder}

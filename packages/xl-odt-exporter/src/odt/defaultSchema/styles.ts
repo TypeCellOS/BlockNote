@@ -35,8 +35,10 @@ export const odtStyleMappingForDefaultSchema: StyleMapping<
     if (!val) {
       return {};
     }
-    const color =
-      exporter.options.colors[val as keyof typeof exporter.options.colors].text;
+    const color = exporter.options.colors[val]?.text;
+    if (!color) {
+      return {};
+    }
     return { "fo:color": color };
   },
 
@@ -44,9 +46,10 @@ export const odtStyleMappingForDefaultSchema: StyleMapping<
     if (!val) {
       return {};
     }
-    const color =
-      exporter.options.colors[val as keyof typeof exporter.options.colors]
-        .background;
+    const color = exporter.options.colors[val]?.background;
+    if (!color) {
+      return {};
+    }
     return { "fo:background-color": color };
   },
 

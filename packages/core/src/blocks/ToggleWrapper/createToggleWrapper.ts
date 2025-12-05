@@ -28,7 +28,7 @@ export const createToggleWrapper = (
   ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
   destroy?: () => void;
 } => {
-  if (!("isToggleable" in block.props) || !block.props.isToggleable) {
+  if ("isToggleable" in block.props && !block.props.isToggleable) {
     return {
       dom: renderedElement,
     };
@@ -62,6 +62,7 @@ export const createToggleWrapper = (
       toggledState.set(editor.getBlock(block)!, true);
 
       if (
+        editor.isEditable &&
         editor.getBlock(block)?.children.length === 0 &&
         !dom.contains(toggleAddBlockButton)
       ) {
@@ -139,7 +140,7 @@ export const createToggleWrapper = (
   if (toggledState.get(block)) {
     toggleWrapper.setAttribute("data-show-children", "true");
 
-    if (block.children.length === 0) {
+    if (editor.isEditable && block.children.length === 0) {
       // If the toggle is set to show children, but there are no children,
       // we add the "add block" button.
       dom.appendChild(toggleAddBlockButton);

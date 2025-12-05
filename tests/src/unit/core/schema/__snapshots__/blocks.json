@@ -1,0 +1,622 @@
+{
+  "audio": {
+    "config": {
+      "content": "none",
+      "propSchema": {
+        "backgroundColor": {
+          "default": "default",
+        },
+        "caption": {
+          "default": "",
+        },
+        "name": {
+          "default": "",
+        },
+        "showPreview": {
+          "default": true,
+        },
+        "url": {
+          "default": "",
+        },
+      },
+      "type": "audio",
+    },
+    "extensions": undefined,
+    "implementation": {
+      "meta": {
+        "fileBlockAccept": [
+          "audio/*",
+        ],
+      },
+      "node": null,
+      "parse": [Function],
+      "render": [Function],
+      "runsBefore": [
+        "file",
+      ],
+      "toExternalHTML": [Function],
+    },
+  },
+  "bulletListItem": {
+    "config": {
+      "content": "inline",
+      "propSchema": {
+        "backgroundColor": {
+          "default": "default",
+        },
+        "textAlignment": {
+          "default": "left",
+          "values": [
+            "left",
+            "center",
+            "right",
+            "justify",
+          ],
+        },
+        "textColor": {
+          "default": "default",
+        },
+      },
+      "type": "bulletListItem",
+    },
+    "extensions": [
+      [Function],
+    ],
+    "implementation": {
+      "meta": {
+        "isolating": false,
+      },
+      "node": null,
+      "parse": [Function],
+      "parseContent": [Function],
+      "render": [Function],
+      "toExternalHTML": [Function],
+    },
+  },
+  "checkListItem": {
+    "config": {
+      "content": "inline",
+      "propSchema": {
+        "backgroundColor": {
+          "default": "default",
+        },
+        "checked": {
+          "default": false,
+          "type": "boolean",
+        },
+        "textAlignment": {
+          "default": "left",
+          "values": [
+            "left",
+            "center",
+            "right",
+            "justify",
+          ],
+        },
+        "textColor": {
+          "default": "default",
+        },
+      },
+      "type": "checkListItem",
+    },
+    "extensions": [
+      [Function],
+    ],
+    "implementation": {
+      "meta": {
+        "isolating": false,
+      },
+      "node": null,
+      "parse": [Function],
+      "parseContent": [Function],
+      "render": [Function],
+      "runsBefore": [
+        "bulletListItem",
+      ],
+      "toExternalHTML": [Function],
+    },
+  },
+  "codeBlock": {
+    "config": {
+      "content": "inline",
+      "propSchema": {
+        "language": {
+          "default": "text",
+        },
+      },
+      "type": "codeBlock",
+    },
+    "extensions": [
+      [Function],
+      [Function],
+    ],
+    "implementation": {
+      "meta": {
+        "code": true,
+        "defining": true,
+        "isolating": false,
+      },
+      "node": null,
+      "parse": [Function],
+      "parseContent": [Function],
+      "render": [Function],
+      "toExternalHTML": [Function],
+    },
+  },
+  "customParagraph": {
+    "config": {
+      "content": "inline",
+      "propSchema": {
+        "backgroundColor": {
+          "default": "default",
+        },
+        "textAlignment": {
+          "default": "left",
+          "values": [
+            "left",
+            "center",
+            "right",
+            "justify",
+          ],
+        },
+        "textColor": {
+          "default": "default",
+        },
+      },
+      "type": "customParagraph",
+    },
+    "extensions": undefined,
+    "implementation": {
+      "node": null,
+      "parse": [Function],
+      "render": [Function],
+      "toExternalHTML": [Function],
+    },
+  },
+  "divider": {
+    "config": {
+      "content": "none",
+      "propSchema": {},
+      "type": "divider",
+    },
+    "extensions": [
+      [Function],
+    ],
+    "implementation": {
+      "meta": {
+        "isolating": false,
+      },
+      "node": null,
+      "parse": [Function],
+      "render": [Function],
+      "toExternalHTML": [Function],
+    },
+  },
+  "file": {
+    "config": {
+      "content": "none",
+      "propSchema": {
+        "backgroundColor": {
+          "default": "default",
+        },
+        "caption": {
+          "default": "",
+        },
+        "name": {
+          "default": "",
+        },
+        "url": {
+          "default": "",
+        },
+      },
+      "type": "file",
+    },
+    "extensions": undefined,
+    "implementation": {
+      "meta": {
+        "fileBlockAccept": [
+          "*/*",
+        ],
+      },
+      "node": null,
+      "parse": [Function],
+      "render": [Function],
+      "toExternalHTML": [Function],
+    },
+  },
+  "heading": {
+    "config": {
+      "content": "inline",
+      "propSchema": {
+        "backgroundColor": {
+          "default": "default",
+        },
+        "isToggleable": {
+          "default": false,
+          "optional": true,
+        },
+        "level": {
+          "default": 1,
+          "values": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+          ],
+        },
+        "textAlignment": {
+          "default": "left",
+          "values": [
+            "left",
+            "center",
+            "right",
+            "justify",
+          ],
+        },
+        "textColor": {
+          "default": "default",
+        },
+      },
+      "type": "heading",
+    },
+    "extensions": [
+      [Function],
+    ],
+    "implementation": {
+      "meta": {
+        "isolating": false,
+      },
+      "node": null,
+      "parse": [Function],
+      "render": [Function],
+      "toExternalHTML": [Function],
+    },
+  },
+  "image": {
+    "config": {
+      "content": "none",
+      "propSchema": {
+        "backgroundColor": {
+          "default": "default",
+        },
+        "caption": {
+          "default": "",
+        },
+        "name": {
+          "default": "",
+        },
+        "previewWidth": {
+          "default": undefined,
+          "type": "number",
+        },
+        "showPreview": {
+          "default": true,
+        },
+        "textAlignment": {
+          "default": "left",
+          "values": [
+            "left",
+            "center",
+            "right",
+            "justify",
+          ],
+        },
+        "url": {
+          "default": "",
+        },
+      },
+      "type": "image",
+    },
+    "extensions": undefined,
+    "implementation": {
+      "meta": {
+        "fileBlockAccept": [
+          "image/*",
+        ],
+      },
+      "node": null,
+      "parse": [Function],
+      "render": [Function],
+      "runsBefore": [
+        "file",
+      ],
+      "toExternalHTML": [Function],
+    },
+  },
+  "numberedListItem": {
+    "config": {
+      "content": "inline",
+      "propSchema": {
+        "backgroundColor": {
+          "default": "default",
+        },
+        "start": {
+          "default": undefined,
+          "type": "number",
+        },
+        "textAlignment": {
+          "default": "left",
+          "values": [
+            "left",
+            "center",
+            "right",
+            "justify",
+          ],
+        },
+        "textColor": {
+          "default": "default",
+        },
+      },
+      "type": "numberedListItem",
+    },
+    "extensions": [
+      [Function],
+    ],
+    "implementation": {
+      "meta": {
+        "isolating": false,
+      },
+      "node": null,
+      "parse": [Function],
+      "parseContent": [Function],
+      "render": [Function],
+      "toExternalHTML": [Function],
+    },
+  },
+  "pageBreak": {
+    "config": {
+      "content": "none",
+      "propSchema": {},
+      "type": "pageBreak",
+    },
+    "extensions": undefined,
+    "implementation": {
+      "node": null,
+      "parse": [Function],
+      "render": [Function],
+      "toExternalHTML": [Function],
+    },
+  },
+  "paragraph": {
+    "config": {
+      "content": "inline",
+      "propSchema": {
+        "backgroundColor": {
+          "default": "default",
+        },
+        "textAlignment": {
+          "default": "left",
+          "values": [
+            "left",
+            "center",
+            "right",
+            "justify",
+          ],
+        },
+        "textColor": {
+          "default": "default",
+        },
+      },
+      "type": "paragraph",
+    },
+    "extensions": [
+      [Function],
+    ],
+    "implementation": {
+      "meta": {
+        "isolating": false,
+      },
+      "node": null,
+      "parse": [Function],
+      "render": [Function],
+      "runsBefore": [
+        "default",
+      ],
+      "toExternalHTML": [Function],
+    },
+  },
+  "quote": {
+    "config": {
+      "content": "inline",
+      "propSchema": {
+        "backgroundColor": {
+          "default": "default",
+        },
+        "textColor": {
+          "default": "default",
+        },
+      },
+      "type": "quote",
+    },
+    "extensions": [
+      [Function],
+    ],
+    "implementation": {
+      "meta": {
+        "isolating": false,
+      },
+      "node": null,
+      "parse": [Function],
+      "render": [Function],
+      "toExternalHTML": [Function],
+    },
+  },
+  "simpleCustomParagraph": {
+    "config": {
+      "content": "inline",
+      "propSchema": {
+        "backgroundColor": {
+          "default": "default",
+        },
+        "textAlignment": {
+          "default": "left",
+          "values": [
+            "left",
+            "center",
+            "right",
+            "justify",
+          ],
+        },
+        "textColor": {
+          "default": "default",
+        },
+      },
+      "type": "simpleCustomParagraph",
+    },
+    "extensions": undefined,
+    "implementation": {
+      "node": null,
+      "render": [Function],
+      "toExternalHTML": [Function],
+    },
+  },
+  "simpleImage": {
+    "config": {
+      "content": "none",
+      "propSchema": {
+        "backgroundColor": {
+          "default": "default",
+        },
+        "caption": {
+          "default": "",
+        },
+        "name": {
+          "default": "",
+        },
+        "previewWidth": {
+          "default": undefined,
+          "type": "number",
+        },
+        "showPreview": {
+          "default": true,
+        },
+        "textAlignment": {
+          "default": "left",
+          "values": [
+            "left",
+            "center",
+            "right",
+            "justify",
+          ],
+        },
+        "url": {
+          "default": "",
+        },
+      },
+      "type": "simpleImage",
+    },
+    "extensions": undefined,
+    "implementation": {
+      "node": null,
+      "render": [Function],
+      "toExternalHTML": [Function],
+    },
+  },
+  "table": {
+    "config": {
+      "content": "table",
+      "propSchema": {
+        "textColor": {
+          "default": "default",
+        },
+      },
+      "type": "table",
+    },
+    "extensions": [
+      [Function],
+      [Function],
+    ],
+    "implementation": {
+      "node": null,
+      "render": [Function],
+      "toExternalHTML": [Function],
+    },
+  },
+  "toggleListItem": {
+    "config": {
+      "content": "inline",
+      "propSchema": {
+        "backgroundColor": {
+          "default": "default",
+        },
+        "textAlignment": {
+          "default": "left",
+          "values": [
+            "left",
+            "center",
+            "right",
+            "justify",
+          ],
+        },
+        "textColor": {
+          "default": "default",
+        },
+      },
+      "type": "toggleListItem",
+    },
+    "extensions": [
+      [Function],
+    ],
+    "implementation": {
+      "meta": {
+        "isolating": false,
+      },
+      "node": null,
+      "render": [Function],
+      "toExternalHTML": [Function],
+    },
+  },
+  "video": {
+    "config": {
+      "content": "none",
+      "propSchema": {
+        "backgroundColor": {
+          "default": "default",
+        },
+        "caption": {
+          "default": "",
+        },
+        "name": {
+          "default": "",
+        },
+        "previewWidth": {
+          "default": undefined,
+          "type": "number",
+        },
+        "showPreview": {
+          "default": true,
+        },
+        "textAlignment": {
+          "default": "left",
+          "values": [
+            "left",
+            "center",
+            "right",
+            "justify",
+          ],
+        },
+        "url": {
+          "default": "",
+        },
+      },
+      "type": "video",
+    },
+    "extensions": undefined,
+    "implementation": {
+      "meta": {
+        "fileBlockAccept": [
+          "video/*",
+        ],
+      },
+      "node": null,
+      "parse": [Function],
+      "render": [Function],
+      "runsBefore": [
+        "file",
+      ],
+      "toExternalHTML": [Function],
+    },
+  },
+}

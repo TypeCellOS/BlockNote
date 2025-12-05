@@ -41,9 +41,7 @@ const createParagraphStyle = (
 
   const backgroundColor =
     props.backgroundColor && props.backgroundColor !== "default"
-      ? exporter.options.colors[
-          props.backgroundColor as keyof typeof exporter.options.colors
-        ].background
+      ? exporter.options.colors[props.backgroundColor]?.background
       : undefined;
 
   if (backgroundColor) {
@@ -54,7 +52,7 @@ const createParagraphStyle = (
     const color =
       exporter.options.colors[
         props.textColor as keyof typeof exporter.options.colors
-      ].text;
+      ]?.text ?? props.textColor;
     textStyles["fo:color"] = color;
   }
 
@@ -115,18 +113,14 @@ const createTableCellStyle = (
           fo:background-color={
             cell.props.backgroundColor !== "default" &&
             cell.props.backgroundColor
-              ? exporter.options.colors[
-                  cell.props
-                    .backgroundColor as keyof typeof exporter.options.colors
-                ].background
+              ? exporter.options.colors?.[cell.props.backgroundColor]
+                  ?.background
               : undefined
           }
           // TODO This is not applying because the children set their own colors
           fo:color={
             cell.props.textColor !== "default" && cell.props.textColor
-              ? exporter.options.colors[
-                  cell.props.textColor as keyof typeof exporter.options.colors
-                ].text
+              ? exporter.options.colors[cell.props.textColor]?.text
               : undefined
           }
         />
@@ -311,6 +305,24 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
 
   pageBreak: async () => {
     return <text:p text:style-name="PageBreak" />;
+  },
+
+  divider: (block, exporter) => {
+    const styleName = createParagraphStyle(
+      exporter as ODTExporter<any, any, any>,
+      block.props,
+      "Standard",
+      {},
+      {
+        "fo:border-top": "1pt solid #cccccc",
+        "fo:margin-top": "11pt",
+        "fo:margin-bottom": "12pt",
+        "fo:padding-top": "0pt",
+        "fo:padding-bottom": "0pt",
+      },
+    );
+
+    return <text:p text:style-name={styleName} />;
   },
 
   column: (_block, exporter, _nestingLevel, _numberedListIndex, children) => {

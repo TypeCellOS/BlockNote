@@ -1,5 +1,5 @@
 import type { HighlighterGeneric } from "@shikijs/types";
-import { createBlockNoteExtension } from "../../editor/BlockNoteExtension.js";
+import { createExtension } from "../../editor/BlockNoteExtension.js";
 import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
 import { lazyShikiPlugin } from "./shiki.js";
 import { DOMParser } from "@tiptap/pm/model";
@@ -102,6 +102,7 @@ export const createCodeBlockSpec = createBlockSpec(
       const code = el.firstElementChild!;
 
       return parser.parse(code, {
+        preserveWhitespace: "full",
         topNode: schema.nodes["codeBlock"].create(),
       }).content;
     },
@@ -117,18 +118,6 @@ export const createCodeBlockSpec = createBlockSpec(
       if (options.supportedLanguages) {
         const select = document.createElement("select");
 
-        const handleLanguageChange = (event: Event) => {
-          const language = (event.target as HTMLSelectElement).value;
-
-          editor.updateBlock(block.id, { props: { language } });
-        };
-        select.addEventListener("change", handleLanguageChange);
-
-        const selectWrapper = document.createElement("div");
-        selectWrapper.contentEditable = "false";
-        select.value =
-          block.props.language || options.defaultLanguage || "text";
-
         Object.entries(options.supportedLanguages ?? {}).forEach(
           ([id, { name }]) => {
             const option = document.createElement("option");
@@ -138,11 +127,23 @@ export const createCodeBlockSpec = createBlockSpec(
             select.appendChild(option);
           },
         );
-        selectWrapper.appendChild(select);
-        wrapper.appendChild(selectWrapper);
+        select.value =
+          block.props.language || options.defaultLanguage || "text";
 
+        const handleLanguageChange = (event: Event) => {
+          const language = (event.target as HTMLSelectElement).value;
+
+          editor.updateBlock(block.id, { props: { language } });
+        };
+        select.addEventListener("change", handleLanguageChange);
         removeSelectChangeListener = () =>
           select.removeEventListener("change", handleLanguageChange);
+
+        const selectWrapper = document.createElement("div");
+        selectWrapper.contentEditable = "false";
+
+        selectWrapper.appendChild(select);
+        wrapper.appendChild(selectWrapper);
       }
       wrapper.appendChild(pre);
 
@@ -168,11 +169,11 @@ export const createCodeBlockSpec = createBlockSpec(
   }),
   (options) => {
     return [
-      createBlockNoteExtension({
+      createExtension({
         key: "code-block-highlighter",
-        plugins: [lazyShikiPlugin(options)],
+        prosemirrorPlugins: [lazyShikiPlugin(options)],
       }),
-      createBlockNoteExtension({
+      createExtension({
         key: "code-block-keyboard-shortcuts",
         keyboardShortcuts: {
           Delete: ({ editor }) => {

@@ -1,9 +1,8 @@
+import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
 import {
-  BlockNoteSchema,
-  defaultBlockSpecs,
   filterSuggestionItems,
-  insertOrUpdateBlock,
-} from "@blocknote/core";
+  insertOrUpdateBlockForSlashMenu,
+} from "@blocknote/core/extensions";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
@@ -38,7 +37,7 @@ const insertAlert = (editor: typeof schema.BlockNoteEditor) => ({
     // changes its type to the provided block. Otherwise, it inserts the new
     // block below and moves the text caret to it. We use this function with an
     // Alert block.
-    insertOrUpdateBlock(editor, {
+    insertOrUpdateBlockForSlashMenu(editor, {
       type: "alert",
     }),
   aliases: [
@@ -99,7 +98,6 @@ export default function App() {
                 name: "Alert",
                 type: "alert",
                 icon: RiAlertFill,
-                isSelected: (block) => block.type === "alert",
               } satisfies BlockTypeSelectItem,
             ]}
           />

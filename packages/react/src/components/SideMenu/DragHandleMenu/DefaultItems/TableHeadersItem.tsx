@@ -1,55 +1,50 @@
-import {
-  BlockSchema,
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  InlineContentSchema,
-  SpecificBlock,
-  StyleSchema,
-} from "@blocknote/core";
+import { DefaultBlockSchema, SpecificBlock } from "@blocknote/core";
+import { SideMenuExtension } from "@blocknote/core/extensions";
 import { ReactNode } from "react";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
-import { DragHandleMenuProps } from "../DragHandleMenuProps.js";
+import { useExtensionState } from "../../../../hooks/useExtension.js";
 
-export const TableRowHeaderItem = <
-  BSchema extends BlockSchema = DefaultBlockSchema,
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema,
->(
-  props: Omit<DragHandleMenuProps<BSchema, I, S>, "block"> & {
-    block: SpecificBlock<{ table: DefaultBlockSchema["table"] }, "table", I, S>;
-    children: ReactNode;
-  },
-) => {
+export const TableRowHeaderItem = (props: { children: ReactNode }) => {
   const Components = useComponentsContext()!;
 
   const editor = useBlockNoteEditor<
     { table: DefaultBlockSchema["table"] },
-    I,
-    S
+    any,
+    any
   >();
 
-  if (props.block.type !== "table" || !editor.settings.tables.headers) {
+  const block = useExtensionState(SideMenuExtension, {
+    editor,
+    selector: (state) =>
+      state?.block as
+        | SpecificBlock<
+            { table: DefaultBlockSchema["table"] },
+            "table",
+            any,
+            any
+          >
+        | undefined,
+  });
+
+  if (
+    block === undefined ||
+    block.type !== "table" ||
+    !editor.settings.tables.headers
+  ) {
     return null;
   }
 
   // TODO only support 1 header row for now
-  const isHeaderRow = Boolean(props.block.content.headerRows);
+  const isHeaderRow = Boolean(block.content.headerRows);
 
   return (
     <Components.Generic.Menu.Item
       className={"bn-menu-item"}
       checked={isHeaderRow}
       onClick={() => {
-        // The block may have been modified and out of date, so we get the latest block
-        const block = editor.getBlock(props.block.id);
-        if (!block) {
-          return;
-        }
         editor.updateBlock(block, {
-          ...block,
           content: {
             ...block.content,
             headerRows: isHeaderRow ? undefined : 1,
@@ -62,41 +57,47 @@ export const TableRowHeaderItem = <
   );
 };
 
-export const TableColumnHeaderItem = <
-  BSchema extends BlockSchema = DefaultBlockSchema,
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema,
->(
-  props: Omit<DragHandleMenuProps<BSchema, I, S>, "block"> & {
-    block: SpecificBlock<{ table: DefaultBlockSchema["table"] }, "table", I, S>;
-    children: ReactNode;
-  },
-) => {
+export const TableColumnHeaderItem = (props: { children: ReactNode }) => {
   const Components = useComponentsContext()!;
 
   const editor = useBlockNoteEditor<
     { table: DefaultBlockSchema["table"] },
-    I,
-    S
+    any,
+    any
   >();
 
-  if (props.block.type !== "table" || !editor.settings.tables.headers) {
+  const block = useExtensionState(SideMenuExtension, {
+    editor,
+    selector: (state) =>
+      state?.block as
+        | SpecificBlock<
+            { table: DefaultBlockSchema["table"] },
+            "table",
+            any,
+            any
+          >
+        | undefined,
+  });
+
+  if (
+    block === undefined ||
+    block.type !== "table" ||
+    !editor.settings.tables.headers
+  ) {
     return null;
   }
 
   // TODO only support 1 header column for now
-  const isHeaderColumn = Boolean(props.block.content.headerCols);
+  const isHeaderColumn = Boolean(block.content.headerCols);
 
   return (
     <Components.Generic.Menu.Item
       className={"bn-menu-item"}
       checked={isHeaderColumn}
       onClick={() => {
-        editor.updateBlock(props.block, {
-          type: "table",
+        editor.updateBlock(block, {
           content: {
-            ...props.block.content,
-            type: "tableContent",
+            ...block.content,
             headerCols: isHeaderColumn ? undefined : 1,
           },
         });

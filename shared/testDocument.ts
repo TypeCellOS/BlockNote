@@ -282,5 +282,25 @@ export const testDocument = partialBlocksToBlocksForTesting(
   console.log("Hello World", message);
 };`,
     },
+    {
+      type: "paragraph",
+      content: [
+        {
+          type: "text",
+          text: "Some inline code: ",
+          styles: { bold: true }
+        },
+        {
+          type: "text",
+          text: "var foo = 'bar';",
+          styles: { code: true },
+        },
+      ]
+    },
+    { type: "divider" },
+    {
+      type: "quote",
+      content: "All those moments will be lost in time, like tears in rain."
+    }
   ],
 );

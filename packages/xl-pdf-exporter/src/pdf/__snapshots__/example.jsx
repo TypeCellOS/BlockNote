@@ -1117,5 +1117,75 @@
         </VIEW>
       </VIEW>
     </React.Fragment>
+    <React.Fragment key=".1:$">
+      <VIEW
+        style={{
+          alignItems: undefined,
+          backgroundColor: undefined,
+          color: undefined,
+          paddingVertical: 2.25,
+          textAlign: 'left'
+        }}
+      >
+        <TEXT>
+          <TEXT
+            style={{
+              fontWeight: 'bold'
+            }}
+          >
+            Some inline code:{' '}
+          </TEXT>
+          <TEXT
+            style={{
+              fontFamily: 'GeistMono'
+            }}
+          >
+            var foo = 'bar';
+          </TEXT>
+        </TEXT>
+      </VIEW>
+    </React.Fragment>
+    <React.Fragment key=".1:$">
+      <VIEW
+        style={{
+          alignItems: undefined,
+          backgroundColor: undefined,
+          color: undefined,
+          paddingVertical: 2.25,
+          textAlign: undefined
+        }}
+      >
+        <VIEW
+          style={{
+            borderTop: '1px solid #ccc',
+            marginBottom: 8.625,
+            marginTop: 8.625
+          }}
+         />
+      </VIEW>
+    </React.Fragment>
+    <React.Fragment key=".1:$">
+      <VIEW
+        style={{
+          alignItems: undefined,
+          backgroundColor: undefined,
+          color: undefined,
+          paddingVertical: 2.25,
+          textAlign: undefined
+        }}
+      >
+        <TEXT
+          style={{
+            borderLeft: '#7D797A',
+            color: '#7D797A',
+            paddingLeft: 7.125
+          }}
+        >
+          <TEXT style={{}}>
+            All those moments will be lost in time, like tears in rain.
+          </TEXT>
+        </TEXT>
+      </VIEW>
+    </React.Fragment>
   </PAGE>
 </DOCUMENT>

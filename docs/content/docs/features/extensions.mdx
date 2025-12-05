@@ -14,10 +14,10 @@ BlockNote includes an extensions system which lets you expand the editor's behav
 
 ## Creating an extension
 
-An extension is an instance of the [`BlockNoteExtension`](https://github.com/TypeCellOS/BlockNote/blob/10cdbfb5f77ef82f3617c0fa1191e0bf5b7358c5/packages/core/src/editor/BlockNoteExtension.ts#L13) class. However, it's recommended for most use cases to create extensions using the `createBlockNoteExtension` function, rather than instanciating the class directly:
+You can create extensions using the `createExtension` function:
 
 ```typescript
-type BlockNoteExtensionOptions = {
+type Extension = {
   key: string;
   keyboardShortcuts?: Record<
     string,
@@ -35,18 +35,16 @@ type BlockNoteExtensionOptions = {
   tiptapExtensions?: AnyExtension[];
 }
 
-const customBlockExtensionOptions: BlockNoteExtensionOptions = {
+const CustomExtension = createExtension({
   key: "customBlockExtension",
   keyboardShortcuts: ...,
   inputRules: ...,
   plugins: ...,
   tiptapExtensions: ...,
-}
-
-const CustomExtension = createBlockNoteExtension(customBlockExtensionOptions);
+});
 ```
 
-Let's go over the options that can be passed into `createBlockNoteExtension`:
+Let's go over the options that can be passed into `createExtension`:
 
 `key:` The name of the extension.
 
@@ -68,20 +66,20 @@ Extensions can be added to the editor on their own via the [editor options](/doc
 
 ### Adding directly to the editor
 
-The `extensions` [editor option](/docs/reference/editor/overview#options) takes an array of `BlockNoteExtension`s to be added to the editor:
+The `extensions` [editor option](/docs/reference/editor/overview#options) takes an array of extensions to be added to the editor:
 
 ```typescript
 const editor = useCreateBlockNote({
   extensions: [
     // Add extensions here:
-    createBlockNoteExtension({ ... })
+    createExtension({ ... })
   ],
 });
 ```
 
 ### Adding to custom blocks
 
-When creating a [custom block](/docs/features/custom-schemas/custom-blocks#creating-a-custom-block-type) using `createReactBlockSpec`, you can pass an array of `BlockNoteExtension`s to the third parameter:
+When creating a [custom block](/docs/features/custom-schemas/custom-blocks#creating-a-custom-block-type) using `createReactBlockSpec`, you can pass an array of extensions to the third parameter:
 
 ```typescript
 const createCustomBlock = createReactBlockSpec(
@@ -95,7 +93,7 @@ const createCustomBlock = createReactBlockSpec(
   }
   [
     // Add extensions here:
-    createBlockNoteExtension({ ... })
+    createExtension({ ... })
   ],
 });
 ```

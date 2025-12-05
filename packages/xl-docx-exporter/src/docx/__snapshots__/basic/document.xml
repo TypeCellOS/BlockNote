@@ -2,12 +2,6 @@
 <w:document mc:Ignorable="w14 w15 wp14" xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:w15="http://schemas.microsoft.com/office/word/2012/wordml" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" xmlns:cx="http://schemas.microsoft.com/office/drawing/2014/chartex" xmlns:cx1="http://schemas.microsoft.com/office/drawing/2015/9/8/chartex" xmlns:cx2="http://schemas.microsoft.com/office/drawing/2015/10/21/chartex" xmlns:cx3="http://schemas.microsoft.com/office/drawing/2016/5/9/chartex" xmlns:cx4="http://schemas.microsoft.com/office/drawing/2016/5/10/chartex" xmlns:cx5="http://schemas.microsoft.com/office/drawing/2016/5/11/chartex" xmlns:cx6="http://schemas.microsoft.com/office/drawing/2016/5/12/chartex" xmlns:cx7="http://schemas.microsoft.com/office/drawing/2016/5/13/chartex" xmlns:cx8="http://schemas.microsoft.com/office/drawing/2016/5/14/chartex" xmlns:aink="http://schemas.microsoft.com/office/drawing/2016/ink" xmlns:am3d="http://schemas.microsoft.com/office/drawing/2017/model3d" xmlns:w16cex="http://schemas.microsoft.com/office/word/2018/wordml/cex" xmlns:w16cid="http://schemas.microsoft.com/office/word/2016/wordml/cid" xmlns:w16="http://schemas.microsoft.com/office/word/2018/wordml" xmlns:w16sdtdh="http://schemas.microsoft.com/office/word/2020/wordml/sdtdatahash" xmlns:w16se="http://schemas.microsoft.com/office/word/2015/wordml/symex">
     <w:body>
         <w:p>
-            <w:pPr>
-                <w:pStyle w:val="Normal"/>
-                <w:rPr>
-                    <w:rFonts w:ascii="Inter" w:cs="Inter" w:eastAsia="Inter" w:hAnsi="Inter"/>
-                </w:rPr>
-            </w:pPr>
             <w:r>
                 <w:rPr>
                     <w:i/>
@@ -26,12 +20,6 @@
             </w:r>
         </w:p>
         <w:p>
-            <w:pPr>
-                <w:pStyle w:val="Normal"/>
-                <w:rPr>
-                    <w:rFonts w:ascii="Inter" w:cs="Inter" w:eastAsia="Inter" w:hAnsi="Inter"/>
-                </w:rPr>
-            </w:pPr>
             <w:r>
                 <w:tab/>
             </w:r>
@@ -40,12 +28,6 @@
             </w:r>
         </w:p>
         <w:p>
-            <w:pPr>
-                <w:pStyle w:val="Normal"/>
-                <w:rPr>
-                    <w:rFonts w:ascii="Inter" w:cs="Inter" w:eastAsia="Inter" w:hAnsi="Inter"/>
-                </w:rPr>
-            </w:pPr>
             <w:r>
                 <w:tab/>
             </w:r>
@@ -58,11 +40,7 @@
         </w:p>
         <w:p>
             <w:pPr>
-                <w:pStyle w:val="Normal"/>
-                <w:shd w:color="fbe4e4" w:val="solid"/>
-                <w:rPr>
-                    <w:rFonts w:ascii="Inter" w:cs="Inter" w:eastAsia="Inter" w:hAnsi="Inter"/>
-                </w:rPr>
+                <w:shd w:fill="fbe4e4" w:val="clear"/>
             </w:pPr>
             <w:r>
                 <w:rPr>
@@ -73,12 +51,6 @@
             </w:r>
         </w:p>
         <w:p>
-            <w:pPr>
-                <w:pStyle w:val="Normal"/>
-                <w:rPr>
-                    <w:rFonts w:ascii="Inter" w:cs="Inter" w:eastAsia="Inter" w:hAnsi="Inter"/>
-                </w:rPr>
-            </w:pPr>
             <w:r>
                 <w:t xml:space="preserve">Paragraph</w:t>
             </w:r>
@@ -102,11 +74,7 @@
         </w:p>
         <w:p>
             <w:pPr>
-                <w:pStyle w:val="Normal"/>
                 <w:jc w:val="distribute"/>
-                <w:rPr>
-                    <w:rFonts w:ascii="Inter" w:cs="Inter" w:eastAsia="Inter" w:hAnsi="Inter"/>
-                </w:rPr>
             </w:pPr>
             <w:r>
                 <w:t xml:space="preserve">justified paragraph. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</w:t>
@@ -209,7 +177,7 @@
                     <w:ilvl w:val="2"/>
                     <w:numId w:val="3"/>
                 </w:numPr>
-                <w:shd w:color="fbe4e4" w:val="solid"/>
+                <w:shd w:fill="fbe4e4" w:val="clear"/>
                 <w:jc w:val="right"/>
                 <w:rPr>
                     <w:color w:val="0b6e99"/>
@@ -226,7 +194,7 @@
                     <w:ilvl w:val="2"/>
                     <w:numId w:val="3"/>
                 </w:numPr>
-                <w:shd w:color="fbe4e4" w:val="solid"/>
+                <w:shd w:fill="fbe4e4" w:val="clear"/>
                 <w:jc w:val="center"/>
                 <w:rPr>
                     <w:color w:val="0b6e99"/>
@@ -291,7 +259,7 @@
             <w:tr>
                 <w:tc>
                     <w:tcPr>
-                        <w:tcW w:type="dxa" w:w="150pt"/>
+                        <w:tcW w:type="dxa" w:w="3000"/>
                         <w:gridSpan w:val="1"/>
                     </w:tcPr>
                     <w:p>
@@ -324,7 +292,7 @@
             <w:tr>
                 <w:tc>
                     <w:tcPr>
-                        <w:tcW w:type="dxa" w:w="150pt"/>
+                        <w:tcW w:type="dxa" w:w="3000"/>
                         <w:gridSpan w:val="1"/>
                     </w:tcPr>
                     <w:p>
@@ -357,7 +325,7 @@
             <w:tr>
                 <w:tc>
                     <w:tcPr>
-                        <w:tcW w:type="dxa" w:w="150pt"/>
+                        <w:tcW w:type="dxa" w:w="3000"/>
                         <w:gridSpan w:val="1"/>
                     </w:tcPr>
                     <w:p>
@@ -529,14 +497,7 @@
                 <w:t xml:space="preserve">From https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3</w:t>
             </w:r>
         </w:p>
-        <w:p>
-            <w:pPr>
-                <w:pStyle w:val="Normal"/>
-                <w:rPr>
-                    <w:rFonts w:ascii="Inter" w:cs="Inter" w:eastAsia="Inter" w:hAnsi="Inter"/>
-                </w:rPr>
-            </w:pPr>
-        </w:p>
+        <w:p/>
         <w:p>
             <w:hyperlink w:history="1" r:id="FAKE-ID">
                 <w:r>
@@ -556,12 +517,6 @@
             </w:r>
         </w:p>
         <w:p>
-            <w:pPr>
-                <w:pStyle w:val="Normal"/>
-                <w:rPr>
-                    <w:rFonts w:ascii="Inter" w:cs="Inter" w:eastAsia="Inter" w:hAnsi="Inter"/>
-                </w:rPr>
-            </w:pPr>
             <w:r>
                 <w:rPr>
                     <w:b/>
@@ -571,12 +526,6 @@
             </w:r>
         </w:p>
         <w:p>
-            <w:pPr>
-                <w:pStyle w:val="Normal"/>
-                <w:rPr>
-                    <w:rFonts w:ascii="Inter" w:cs="Inter" w:eastAsia="Inter" w:hAnsi="Inter"/>
-                </w:rPr>
-            </w:pPr>
             <w:r>
                 <w:rPr>
                     <w:b/>
@@ -584,7 +533,7 @@
                     <w:i/>
                     <w:iCs/>
                     <w:color w:val="e03e3e"/>
-                    <w:shd w:fill="ddebf1"/>
+                    <w:shd w:fill="ddebf1" w:val="clear"/>
                 </w:rPr>
                 <w:t xml:space="preserve">Styled Text</w:t>
             </w:r>
@@ -721,8 +670,7 @@
         </w:tbl>
         <w:p>
             <w:pPr>
-                <w:pStyle w:val="Codeblock"/>
-                <w:shd w:fill="161616" w:color="161616" w:val="solid"/>
+                <w:pStyle w:val="SourceCode"/>
             </w:pPr>
             <w:r>
                 <w:t xml:space="preserve">const helloWorld = (message) =&gt; {</w:t>
@@ -734,6 +682,36 @@
             <w:r>
                 <w:br/>
                 <w:t xml:space="preserve">};</w:t>
+            </w:r>
+        </w:p>
+        <w:p>
+            <w:r>
+                <w:rPr>
+                    <w:b/>
+                    <w:bCs/>
+                </w:rPr>
+                <w:t xml:space="preserve">Some inline code: </w:t>
+            </w:r>
+            <w:r>
+                <w:rPr>
+                    <w:rStyle w:val="VerbatimChar"/>
+                </w:rPr>
+                <w:t xml:space="preserve">var foo = &apos;bar&apos;;</w:t>
+            </w:r>
+        </w:p>
+        <w:p>
+            <w:pPr>
+                <w:pBdr>
+                    <w:top w:val="single" w:color="auto" w:sz="1" w:space="1"/>
+                </w:pBdr>
+            </w:pPr>
+        </w:p>
+        <w:p>
+            <w:pPr>
+                <w:pStyle w:val="BlockQuote"/>
+            </w:pPr>
+            <w:r>
+                <w:t xml:space="preserve">All those moments will be lost in time, like tears in rain.</w:t>
             </w:r>
         </w:p>
         <w:sectPr>

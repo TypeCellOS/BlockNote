@@ -1,4 +1,5 @@
-import { BlockNoteEditor, filterSuggestionItems } from "@blocknote/core";
+import { BlockNoteEditor } from "@blocknote/core";
+import { filterSuggestionItems } from "@blocknote/core/extensions";
 import "@blocknote/core/fonts/inter.css";
 import { en } from "@blocknote/core/locales";
 import { BlockNoteView } from "@blocknote/mantine";
@@ -11,13 +12,13 @@ import {
   getFormattingToolbarItems,
   useBlockNoteContext,
   useCreateBlockNote,
+  useExtension,
   usePrefersColorScheme,
 } from "@blocknote/react";
 import {
+  AIExtension,
   AIMenuController,
   AIToolbarButton,
-  createAIExtension,
-  getAIExtension,
   getAISlashMenuItems,
 } from "@blocknote/xl-ai";
 import { en as aiEn } from "@blocknote/xl-ai/locales";
@@ -45,7 +46,7 @@ export default function App() {
     },
     // Register the AI extension
     extensions: [
-      createAIExtension({
+      AIExtension({
         transport: new DefaultChatTransport({
           // URL to your backend API, see example source in `packages/xl-ai-server/src/routes/regular.ts`
           api: `${BASE_URL}/model-playground/streamText`,
@@ -79,20 +80,21 @@ export default function App() {
     ],
   });
 
-  const ai = getAIExtension(editor);
+  const ai = useExtension(AIExtension, { editor });
 
   useEffect(() => {
     // update the default model in the extension
 
     // Add the model string to the request body
     ai.options.setState({
+      ...ai.options.state,
       chatRequestOptions: {
         body: {
           model,
         },
       },
     });
-  }, [model, ai.options]);
+  }, [model, ai]);
 
   const themePreference = usePrefersColorScheme();
   const existingContext = useBlockNoteContext();
@@ -122,6 +124,7 @@ export default function App() {
         editor={editor}
         formattingToolbar={false}
         slashMenu={false}
+        style={{ paddingBottom: "300px" }}
       >
         {/* Add the AI Command menu to the editor */}
         <AIMenuController />

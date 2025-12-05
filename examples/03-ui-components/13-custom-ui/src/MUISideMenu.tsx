@@ -1,4 +1,11 @@
-import { SideMenuProps } from "@blocknote/react";
+import {} from "@blocknote/core";
+import { SideMenuExtension } from "@blocknote/core/extensions";
+import {
+  SideMenuProps,
+  useBlockNoteEditor,
+  useExtension,
+  useExtensionState,
+} from "@blocknote/react";
 import { Delete, DragIndicator } from "@mui/icons-material";
 import {
   Box,
@@ -9,22 +16,23 @@ import {
   MenuItem,
   Typography,
 } from "@mui/material";
-import { MouseEvent, ReactNode, useCallback, useMemo, useState } from "react";
-
-import { TextBlockSchema } from "./schema";
+import { MouseEvent, ReactNode, useCallback, useState } from "react";
 
 // This replaces the default `RemoveBlockItem` component with a simplified
 // MUI version:
 // https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/components/SideMenu/DragHandleMenu/DefaultItems/RemoveBlockItem.tsx
 function MUIRemoveBlockItem(
-  props: SideMenuProps<TextBlockSchema> & { closeDragHandleMenu: () => void },
+  props: SideMenuProps & { closeDragHandleMenu: () => void },
 ) {
+  const editor = useBlockNoteEditor();
+  const sideMenu = useExtension(SideMenuExtension, { editor });
+
   // Deletes the block next to the side menu.
   const onClick = useCallback(() => {
-    props.unfreezeMenu();
+    sideMenu.unfreezeMenu();
     props.closeDragHandleMenu();
-    props.editor.removeBlocks([props.editor.getTextCursorPosition().block]);
-    props.editor.focus();
+    editor.removeBlocks([editor.getTextCursorPosition().block]);
+    editor.focus();
   }, [props]);
 
   return (
@@ -70,21 +78,32 @@ function MUIDragHandleMenu(props: {
 // This replaces the default `DragHandleButton` component with a simplified MUI
 // version:
 // https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/components/SideMenu/DefaultButtons/DragHandleButton.tsx
-function MUIDragHandleButton(props: SideMenuProps<TextBlockSchema>) {
+function MUIDragHandleButton(props: SideMenuProps) {
   // Anchor/trigger element for the color menu.
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const editor = useBlockNoteEditor();
+  const sideMenu = useExtension(SideMenuExtension, { editor });
+  const block = useExtensionState(SideMenuExtension, {
+    editor,
+    selector: (state) => state?.block,
+  });
 
   // Handles opening and closing the drag handle menu.
   const onClick = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => {
-      props.freezeMenu();
+      sideMenu.freezeMenu();
       setAnchorEl(event.currentTarget);
     },
-    [props],
+    [sideMenu],
   );
   const onClose = useCallback(() => {
     setAnchorEl(null);
   }, []);
+
+  if (!block) {
+    return null;
+  }
 
   return (
     <>
@@ -93,8 +112,8 @@ function MUIDragHandleButton(props: SideMenuProps<TextBlockSchema>) {
         component={"button"}
         draggable={"true"}
         onClick={onClick}
-        onDragStart={(e) => props.blockDragStart(e, props.block)}
-        onDragEnd={props.blockDragEnd}
+        onDragStart={(e) => sideMenu.blockDragStart(e, block)}
+        onDragEnd={sideMenu.blockDragEnd}
       >
         <DragIndicator
           sx={{
@@ -115,29 +134,29 @@ function MUIDragHandleButton(props: SideMenuProps<TextBlockSchema>) {
 
 // This replaces the generic Mantine `SideMenu` component:
 // https://github.com/TypeCellOS/BlockNote/blob/main/packages/mantine/src/sideMenu/SideMenu.tsx
-function MUISideMenu(
-  props: SideMenuProps<TextBlockSchema> & { children: ReactNode },
-) {
+function MUISideMenu(props: SideMenuProps & { children: ReactNode }) {
   // Since the side menu is positioned by the top-left corner of a block, we
   // manually set its height based on the hovered block so that it's vertically
   // centered.
-  const sideMenuHeight = useMemo(() => {
-    if (props.block.type === "heading") {
-      if (props.block.props.level === 1) {
-        return 78;
+  const sideMenuHeight = useExtensionState(SideMenuExtension, {
+    selector: (state) => {
+      if (state && state.block.type === "heading") {
+        if (state.block.props.level === 1) {
+          return 78;
+        }
+
+        if (state.block.props.level === 2) {
+          return 54;
+        }
+
+        if (state.block.props.level === 3) {
+          return 37;
+        }
       }
 
-      if (props.block.props.level === 2) {
-        return 54;
-      }
-
-      if (props.block.props.level === 3) {
-        return 37;
-      }
-    }
-
-    return 30;
-  }, [props.block]);
+      return 30;
+    },
+  });
 
   return (
     <Box
@@ -160,7 +179,7 @@ function MUISideMenu(
 // components specific to the Side Menu since there is really nothing more to
 // them than just an MUI `IconButton` and some styles passed via the `sx` prop,
 // as you can see in `MUIDragHandleButton`.
-export function CustomMUISideMenu(props: SideMenuProps<TextBlockSchema>) {
+export function CustomMUISideMenu(props: SideMenuProps) {
   return (
     <MUISideMenu {...props}>
       <MUIDragHandleButton {...props} />

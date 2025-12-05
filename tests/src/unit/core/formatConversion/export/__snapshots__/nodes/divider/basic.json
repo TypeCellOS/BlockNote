@@ -1,0 +1,13 @@
+[
+  {
+    "attrs": {
+      "id": "1",
+    },
+    "content": [
+      {
+        "type": "divider",
+      },
+    ],
+    "type": "blockContainer",
+  },
+]

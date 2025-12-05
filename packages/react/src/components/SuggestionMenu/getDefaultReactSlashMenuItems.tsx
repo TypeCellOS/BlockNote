@@ -1,10 +1,10 @@
 import {
   BlockNoteEditor,
   BlockSchema,
-  getDefaultSlashMenuItems,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
+import { getDefaultSlashMenuItems } from "@blocknote/core/extensions";
 import {
   RiCodeBlock,
   RiEmotionFill,
@@ -22,6 +22,7 @@ import {
   RiListUnordered,
   RiPlayList2Fill,
   RiQuoteText,
+  RiSubtractLine,
   RiTable2,
   RiText,
   RiVolumeUpFill,
@@ -53,6 +54,7 @@ const icons: Record<string, IconType> = {
   file: RiFile2Line,
   emoji: RiEmotionFill,
   code_block: RiCodeBlock,
+  divider: RiSubtractLine,
 };
 
 export function getDefaultReactSlashMenuItems<

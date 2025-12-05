@@ -1,7 +1,6 @@
 import { Block, PartialBlock } from "../../blocks/defaultBlocks.js";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-
 import { editorHasBlockWithType } from "../../blocks/defaultBlockTypeGuards.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   BlockSchema,
   InlineContentSchema,
@@ -9,7 +8,9 @@ import {
   isStyledTextInlineContent,
 } from "../../schema/index.js";
 import { formatKeyboardShortcut } from "../../util/browser.js";
+import { FilePanelExtension } from "../FilePanel/FilePanel.js";
 import { DefaultSuggestionItem } from "./DefaultSuggestionItem.js";
+import { SuggestionMenu } from "./SuggestionMenu.js";
 
 // Sets the editor's text cursor position to the next content editable block,
 // so either a block with inline content or a table. The last block is always a
@@ -41,7 +42,7 @@ function setSelectionToNextContentEditableBlock<
 // updates the current block instead of inserting a new one below. If the new
 // block doesn't contain editable content, the cursor is moved to the next block
 // that does.
-export function insertOrUpdateBlock<
+export function insertOrUpdateBlockForSlashMenu<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
@@ -91,7 +92,7 @@ export function getDefaultSlashMenuItems<
     items.push(
       {
         onItemClick: () => {
-          insertOrUpdateBlock(editor, {
+          insertOrUpdateBlockForSlashMenu(editor, {
             type: "heading",
             props: { level: 1 },
           });
@@ -102,7 +103,7 @@ export function getDefaultSlashMenuItems<
       },
       {
         onItemClick: () => {
-          insertOrUpdateBlock(editor, {
+          insertOrUpdateBlockForSlashMenu(editor, {
             type: "heading",
             props: { level: 2 },
           });
@@ -113,7 +114,7 @@ export function getDefaultSlashMenuItems<
       },
       {
         onItemClick: () => {
-          insertOrUpdateBlock(editor, {
+          insertOrUpdateBlockForSlashMenu(editor, {
             type: "heading",
             props: { level: 3 },
           });
@@ -128,7 +129,7 @@ export function getDefaultSlashMenuItems<
   if (editorHasBlockWithType(editor, "quote")) {
     items.push({
       onItemClick: () => {
-        insertOrUpdateBlock(editor, {
+        insertOrUpdateBlockForSlashMenu(editor, {
           type: "quote",
         });
       },
@@ -140,7 +141,7 @@ export function getDefaultSlashMenuItems<
   if (editorHasBlockWithType(editor, "toggleListItem")) {
     items.push({
       onItemClick: () => {
-        insertOrUpdateBlock(editor, {
+        insertOrUpdateBlockForSlashMenu(editor, {
           type: "toggleListItem",
         });
       },
@@ -153,7 +154,7 @@ export function getDefaultSlashMenuItems<
   if (editorHasBlockWithType(editor, "numberedListItem")) {
     items.push({
       onItemClick: () => {
-        insertOrUpdateBlock(editor, {
+        insertOrUpdateBlockForSlashMenu(editor, {
           type: "numberedListItem",
         });
       },
@@ -166,7 +167,7 @@ export function getDefaultSlashMenuItems<
   if (editorHasBlockWithType(editor, "bulletListItem")) {
     items.push({
       onItemClick: () => {
-        insertOrUpdateBlock(editor, {
+        insertOrUpdateBlockForSlashMenu(editor, {
           type: "bulletListItem",
         });
       },
@@ -179,7 +180,7 @@ export function getDefaultSlashMenuItems<
   if (editorHasBlockWithType(editor, "checkListItem")) {
     items.push({
       onItemClick: () => {
-        insertOrUpdateBlock(editor, {
+        insertOrUpdateBlockForSlashMenu(editor, {
           type: "checkListItem",
         });
       },
@@ -192,7 +193,7 @@ export function getDefaultSlashMenuItems<
   if (editorHasBlockWithType(editor, "paragraph")) {
     items.push({
       onItemClick: () => {
-        insertOrUpdateBlock(editor, {
+        insertOrUpdateBlockForSlashMenu(editor, {
           type: "paragraph",
         });
       },
@@ -205,7 +206,7 @@ export function getDefaultSlashMenuItems<
   if (editorHasBlockWithType(editor, "codeBlock")) {
     items.push({
       onItemClick: () => {
-        insertOrUpdateBlock(editor, {
+        insertOrUpdateBlockForSlashMenu(editor, {
           type: "codeBlock",
         });
       },
@@ -215,10 +216,20 @@ export function getDefaultSlashMenuItems<
     });
   }
 
+  if (editorHasBlockWithType(editor, "divider")) {
+    items.push({
+      onItemClick: () => {
+        insertOrUpdateBlockForSlashMenu(editor, { type: "divider" });
+      },
+      key: "divider",
+      ...editor.dictionary.slash_menu.divider,
+    });
+  }
+
   if (editorHasBlockWithType(editor, "table")) {
     items.push({
       onItemClick: () => {
-        insertOrUpdateBlock(editor, {
+        insertOrUpdateBlockForSlashMenu(editor, {
           type: "table",
           content: {
             type: "tableContent",
@@ -242,16 +253,12 @@ export function getDefaultSlashMenuItems<
   if (editorHasBlockWithType(editor, "image", { url: "string" })) {
     items.push({
       onItemClick: () => {
-        const insertedBlock = insertOrUpdateBlock(editor, {
+        const insertedBlock = insertOrUpdateBlockForSlashMenu(editor, {
           type: "image",
         });
 
         // Immediately open the file toolbar
-        editor.transact((tr) =>
-          tr.setMeta(editor.filePanel!.plugins[0], {
-            block: insertedBlock,
-          }),
-        );
+        editor.getExtension(FilePanelExtension)?.showMenu(insertedBlock.id);
       },
       key: "image",
       ...editor.dictionary.slash_menu.image,
@@ -261,16 +268,12 @@ export function getDefaultSlashMenuItems<
   if (editorHasBlockWithType(editor, "video", { url: "string" })) {
     items.push({
       onItemClick: () => {
-        const insertedBlock = insertOrUpdateBlock(editor, {
+        const insertedBlock = insertOrUpdateBlockForSlashMenu(editor, {
           type: "video",
         });
 
         // Immediately open the file toolbar
-        editor.transact((tr) =>
-          tr.setMeta(editor.filePanel!.plugins[0], {
-            block: insertedBlock,
-          }),
-        );
+        editor.getExtension(FilePanelExtension)?.showMenu(insertedBlock.id);
       },
       key: "video",
       ...editor.dictionary.slash_menu.video,
@@ -280,16 +283,12 @@ export function getDefaultSlashMenuItems<
   if (editorHasBlockWithType(editor, "audio", { url: "string" })) {
     items.push({
       onItemClick: () => {
-        const insertedBlock = insertOrUpdateBlock(editor, {
+        const insertedBlock = insertOrUpdateBlockForSlashMenu(editor, {
           type: "audio",
         });
 
         // Immediately open the file toolbar
-        editor.transact((tr) =>
-          tr.setMeta(editor.filePanel!.plugins[0], {
-            block: insertedBlock,
-          }),
-        );
+        editor.getExtension(FilePanelExtension)?.showMenu(insertedBlock.id);
       },
       key: "audio",
       ...editor.dictionary.slash_menu.audio,
@@ -299,16 +298,12 @@ export function getDefaultSlashMenuItems<
   if (editorHasBlockWithType(editor, "file", { url: "string" })) {
     items.push({
       onItemClick: () => {
-        const insertedBlock = insertOrUpdateBlock(editor, {
+        const insertedBlock = insertOrUpdateBlockForSlashMenu(editor, {
           type: "file",
         });
 
         // Immediately open the file toolbar
-        editor.transact((tr) =>
-          tr.setMeta(editor.filePanel!.plugins[0], {
-            block: insertedBlock,
-          }),
-        );
+        editor.getExtension(FilePanelExtension)?.showMenu(insertedBlock.id);
       },
       key: "file",
       ...editor.dictionary.slash_menu.file,
@@ -324,7 +319,7 @@ export function getDefaultSlashMenuItems<
     items.push(
       {
         onItemClick: () => {
-          insertOrUpdateBlock(editor, {
+          insertOrUpdateBlockForSlashMenu(editor, {
             type: "heading",
             props: { level: 1, isToggleable: true },
           });
@@ -334,7 +329,7 @@ export function getDefaultSlashMenuItems<
       },
       {
         onItemClick: () => {
-          insertOrUpdateBlock(editor, {
+          insertOrUpdateBlockForSlashMenu(editor, {
             type: "heading",
             props: { level: 2, isToggleable: true },
           });
@@ -345,7 +340,7 @@ export function getDefaultSlashMenuItems<
       },
       {
         onItemClick: () => {
-          insertOrUpdateBlock(editor, {
+          insertOrUpdateBlockForSlashMenu(editor, {
             type: "heading",
             props: { level: 3, isToggleable: true },
           });
@@ -362,7 +357,7 @@ export function getDefaultSlashMenuItems<
       .forEach((level) => {
         items.push({
           onItemClick: () => {
-            insertOrUpdateBlock(editor, {
+            insertOrUpdateBlockForSlashMenu(editor, {
               type: "heading",
               props: { level: level },
             });
@@ -375,7 +370,7 @@ export function getDefaultSlashMenuItems<
 
   items.push({
     onItemClick: () => {
-      editor.openSuggestionMenu(":", {
+      editor.getExtension(SuggestionMenu)?.openSuggestionMenu(":", {
         deleteTriggerCharacter: true,
         ignoreQueryLength: true,
       });

@@ -3,7 +3,7 @@
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": true,
   "license": "GPL-3.0 OR PROPRIETARY",
-  "version": "0.40.0",
+  "version": "0.44.0",
   "files": [
     "dist",
     "types",
@@ -43,30 +43,29 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@hono/node-server": "^1.13.7",
-    "hono": "^4.6.12",
-    "ai": "^5.0.45",
-    "@blocknote/xl-ai": "0.40.0",
-    "@ai-sdk/google": "^2.0.11",
-    "@ai-sdk/openai": "^2.0.23",
-    "@ai-sdk/openai-compatible": "^1.0.13",
-    "@ai-sdk/groq": "^2.0.16",
-    "@ai-sdk/anthropic": "^2.0.9",
-    "@ai-sdk/mistral": "^2.0.12"
+    "@ai-sdk/anthropic": "^2.0.31",
+    "@ai-sdk/google": "^2.0.23",
+    "@ai-sdk/groq": "^2.0.24",
+    "@ai-sdk/mistral": "^2.0.19",
+    "@ai-sdk/openai": "^2.0.52",
+    "@ai-sdk/openai-compatible": "^1.0.22",
+    "@blocknote/xl-ai": "workspace:*",
+    "@hono/node-server": "^1.19.5",
+    "ai": "^5.0.102",
+    "hono": "^4.10.0"
   },
   "devDependencies": {
-    "eslint": "^8.10.0",
-    "rimraf": "^5.0.5",
-    "rollup-plugin-webpack-stats": "^0.2.2",
-    "typescript": "^5.3.3",
-    "vite": "^5.3.4",
-    "vite-node": "^2.1.6",
+    "eslint": "^8.57.1",
+    "rimraf": "^5.0.10",
+    "rollup-plugin-webpack-stats": "^0.2.6",
+    "typescript": "^5.9.3",
+    "undici": "^6.22.0",
+    "vite": "^5.4.20",
+    "vite-node": "^2.1.9",
     "vite-plugin-eslint": "^1.8.1",
     "vite-plugin-externalize-deps": "^0.8.0",
-    "vitest": "^2.0.3",
-    "undici": "^6"
+    "vitest": "^2.1.9"
   },
-  "peerDependencies": {},
   "eslintConfig": {
     "extends": [
       "../../.eslintrc.json"

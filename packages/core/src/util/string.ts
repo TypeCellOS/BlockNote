@@ -13,3 +13,24 @@ export function filenameFromURL(url: string): string {
   }
   return parts[parts.length - 1];
 }
+
+export function isVideoUrl(url: string) {
+  const videoExtensions = [
+    "mp4",
+    "webm",
+    "ogg",
+    "mov",
+    "mkv",
+    "flv",
+    "avi",
+    "wmv",
+    "m4v",
+  ];
+  try {
+    const pathname = new URL(url).pathname;
+    const ext = pathname.split(".").pop()?.toLowerCase() || "";
+    return videoExtensions.includes(ext);
+  } catch (_) {
+    return false;
+  }
+}
