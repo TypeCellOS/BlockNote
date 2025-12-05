@@ -1,13 +1,13 @@
-import type { FC } from "react";
 import {
   ThreadListItemPrimitive,
   ThreadListPrimitive,
   useAssistantState,
 } from "@assistant-ui/react";
 import { ArchiveIcon, PlusIcon } from "lucide-react";
+import type { FC } from "react";
 
-import { Button } from "@/components/ui/button";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const ThreadList: FC = () => {
@@ -75,7 +75,7 @@ const ThreadListItem: FC = () => {
 const ThreadListItemTitle: FC = () => {
   return (
     <span className="aui-thread-list-item-title text-sm">
-      <ThreadListItemPrimitive.Title fallback="New Chat" />
+      <ThreadListItemPrimitive.Title fallback="Sample Document" />
     </span>
   );
 };

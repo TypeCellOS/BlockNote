@@ -5,6 +5,7 @@ import {
   getMessageWithToolCallId,
   useChatContext,
 } from "@/components/ChatContext";
+import { Chat } from "@ai-sdk/react";
 import {
   ActionBarPrimitive,
   makeAssistantTool,
@@ -50,6 +51,9 @@ const UndoActionBar = () => {
       <TooltipIconButton
         tooltip="Revert to before this change"
         className="aui-user-action-edit"
+        onClick={() => {
+          window.alert("Not implemented");
+        }}
       >
         <UndoIcon className="size-4" />
       </TooltipIconButton>

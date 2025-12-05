@@ -1,13 +1,12 @@
 import { Chat } from "@ai-sdk/react";
 import { BlockNoteEditor } from "@blocknote/core";
-import { ChatInit, UIMessage } from "ai";
-
 import {
   aiDocumentFormats,
   AIRequest,
   buildAIRequest,
   sendMessageWithAIRequest,
 } from "@blocknote/xl-ai";
+import { ChatInit, UIMessage } from "ai";
 
 // maybe better to use a custom transport for this?
 class BlockNoteAISDKChatRaw<
@@ -44,7 +43,7 @@ class BlockNoteAISDKChatRaw<
           aiDocumentFormats.html.defaultDocumentStateBuilder,
       }));
 
-    return sendMessageWithAIRequest(
+    await sendMessageWithAIRequest(
       this as Chat<any>,
       aiRequest,
       message,

@@ -21,7 +21,12 @@ export const DocumentList: FC = () => {
 
 const DocumentListNew: FC = () => {
   return (
-    <ThreadListPrimitive.New asChild>
+    <ThreadListPrimitive.New
+      asChild
+      onClick={() => {
+        window.alert("Not implemented");
+      }}
+    >
       <Button
         className="aui-thread-list-new flex items-center justify-start gap-1 rounded-lg px-2.5 py-2 text-start hover:bg-muted data-active:bg-muted"
         variant="ghost"
@@ -79,7 +84,7 @@ const DocumentListItem: FC = () => {
 const DocumentListItemTitle: FC = () => {
   return (
     <span className="aui-thread-list-item-title text-sm">
-      <ThreadListItemPrimitive.Title fallback="New Chat" />
+      <ThreadListItemPrimitive.Title fallback="Sample Document" />
     </span>
   );
 };
