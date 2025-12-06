@@ -33,3 +33,18 @@ class DragEventMock extends Event {
   };
 }
 (global as any).DragEvent = DragEventMock;
+
+// Mock matchMedia for Mantine
+Object.defineProperty(window, "matchMedia", {
+  writable: true,
+  value: (query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: () => {}, // deprecated
+    removeListener: () => {}, // deprecated
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => {},
+  }),
+});

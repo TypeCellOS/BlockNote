@@ -160,7 +160,7 @@ export async function handleFileInsertion<
 
         insertedBlockId = editor.transact((tr) => {
           const posInfo = getNearestBlockPos(tr.doc, pos.pos);
-          const blockElement = editor.prosemirrorView.dom.querySelector(
+          const blockElement = editor.domElement?.querySelector(
             `[data-id="${posInfo.node.attrs.id}"]`,
           );
 
