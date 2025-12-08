@@ -1,3 +1,15 @@
+## 0.44.1 (2025-12-08)
+
+### 🩹 Fixes
+
+- clearing selection was not being called when create link button is no longer rendered ([#2217](https://github.com/TypeCellOS/BlockNote/pull/2217))
+- AI menu not updating position on new line ([#2233](https://github.com/TypeCellOS/BlockNote/pull/2233))
+- UI elements not scrolling when editor DOM element is scrollable ([#2231](https://github.com/TypeCellOS/BlockNote/pull/2231))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+
 ## 0.44.0 (2025-12-02)
 
 ### 🚀 Features
