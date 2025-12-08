@@ -24,7 +24,7 @@ export default function App() {
     // Register the AI Autocomplete extension
     extensions: [
       AIAutoCompleteExtension({
-        provider: `${BASE_URL}/autocomplete/generateText`,
+        provider: `https://blocknote-pr-2191.onrender.com/ai/autocomplete/generateText`,
       }),
     ],
     // We set some initial content for demo purposes
