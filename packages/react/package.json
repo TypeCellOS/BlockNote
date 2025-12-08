@@ -11,7 +11,7 @@
     "directory": "packages/react"
   },
   "license": "MPL-2.0",
-  "version": "0.43.0",
+  "version": "0.44.0",
   "files": [
     "dist",
     "types",
@@ -58,7 +58,7 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "0.43.0",
+    "@blocknote/core": "0.44.0",
     "@emoji-mart/data": "^1.2.1",
     "@floating-ui/react": "^0.27.16",
     "@floating-ui/utils": "0.2.10",
@@ -82,8 +82,8 @@
     "@types/react-dom": "^19.2.2",
     "@vitejs/plugin-react": "^4.7.0",
     "eslint": "^8.57.1",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
     "rimraf": "^5.0.10",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^5.9.3",

@@ -9,7 +9,7 @@
     "directory": "packages/xl-pdf-exporter"
   },
   "license": "GPL-3.0 OR PROPRIETARY",
-  "version": "0.43.0",
+  "version": "0.44.0",
   "files": [
     "dist",
     "types",
@@ -56,9 +56,9 @@
     "email": "email dev"
   },
   "dependencies": {
-    "@blocknote/core": "0.43.0",
-    "@blocknote/react": "0.43.0",
-    "@blocknote/xl-multi-column": "0.43.0",
+    "@blocknote/core": "0.44.0",
+    "@blocknote/react": "0.44.0",
+    "@blocknote/xl-multi-column": "0.44.0",
     "@react-pdf/renderer": "^4.3.0",
     "buffer": "^6.0.3",
     "docx": "^9.5.1"
@@ -72,8 +72,8 @@
     "eslint": "^8.57.1",
     "jest-image-snapshot": "^6.5.1",
     "pdf-to-img": "^4.5.0",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
     "react-element-to-jsx-string": "^17.0.1",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^5.9.3",
