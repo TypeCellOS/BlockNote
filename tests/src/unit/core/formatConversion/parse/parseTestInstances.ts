@@ -1111,4 +1111,17 @@ Regular paragraph`,
     },
     executeTest: testParseMarkdown,
   },
+  {
+    testCase: {
+      name: "issue2241NumberedListStartProperty",
+      content: `1. First item
+2. Second item
+3. Third item
+
+5. List starting at 5
+6. Second item
+7. Third item`,
+    },
+    executeTest: testParseMarkdown,
+  },
 ];
