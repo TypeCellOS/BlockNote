@@ -12,6 +12,7 @@ import { FC, useMemo, useState } from "react";
 import { offset, size } from "@floating-ui/react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useExtensionState } from "../../hooks/useExtension.js";
+import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import {
   GenericPopover,
   GenericPopoverReference,
@@ -44,25 +45,20 @@ export const TableHandlesController = <
 
   const state = useExtensionState(TableHandlesExtension);
 
-  const references = useMemo<
-    | {
-        tableReference: undefined;
-        cellReference: undefined;
-        rowReference: undefined;
-        columnReference: undefined;
-      }
-    | {
-        tableReference: GenericPopoverReference;
-        cellReference: GenericPopoverReference;
-        rowReference: GenericPopoverReference;
-        columnReference: GenericPopoverReference;
-      }
-  >(() => {
-    if (
-      state === undefined ||
-      state.rowIndex === undefined ||
-      state.colIndex === undefined
-    ) {
+  const references = useMemo<{
+    tableReference?: GenericPopoverReference;
+    cellReference?: GenericPopoverReference;
+    rowReference?: GenericPopoverReference;
+    columnReference?: GenericPopoverReference;
+  }>(() => {
+    const references: {
+      tableReference?: GenericPopoverReference;
+      cellReference?: GenericPopoverReference;
+      rowReference?: GenericPopoverReference;
+      columnReference?: GenericPopoverReference;
+    } = {};
+
+    if (state === undefined) {
       return {};
     }
 
@@ -84,7 +80,11 @@ export const TableHandlesController = <
       return {};
     }
 
-    const tableReference = { element: tableElement };
+    references.tableReference = { element: tableElement };
+
+    if (state.rowIndex === undefined || state.colIndex === undefined) {
+      return references;
+    }
 
     const rowBeforePos = editor.prosemirrorState.doc
       .resolve(tableBeforePos + 1)
@@ -98,9 +98,8 @@ export const TableHandlesController = <
       return {};
     }
 
-    const cellReference = { element: cellElement };
-
-    const rowReference = {
+    references.cellReference = { element: cellElement };
+    references.rowReference = {
       element: tableElement,
       getBoundingClientRect: () => {
         const tableBoundingRect = tableElement.getBoundingClientRect();
@@ -117,7 +116,7 @@ export const TableHandlesController = <
         );
       },
     };
-    const columnReference = {
+    references.columnReference = {
       element: tableElement,
       getBoundingClientRect: () => {
         const tableBoundingRect = tableElement.getBoundingClientRect();
@@ -135,13 +134,121 @@ export const TableHandlesController = <
       },
     };
 
-    return {
-      tableReference,
-      cellReference,
-      rowReference,
-      columnReference,
-    };
+    return references;
   }, [editor, state]);
+
+  const floatingUIOptions = useMemo<
+    | {
+        rowTableHandle: FloatingUIOptions;
+        columnTableHandle: FloatingUIOptions;
+        tableCellHandle: FloatingUIOptions;
+        extendRowsButton: FloatingUIOptions;
+        extendColumnsButton: FloatingUIOptions;
+      }
+    | undefined
+  >(
+    () =>
+      state !== undefined
+        ? {
+            rowTableHandle: {
+              useFloatingOptions: {
+                open:
+                  state.show &&
+                  state.rowIndex !== undefined &&
+                  (!onlyShownElement || onlyShownElement === "rowTableHandle"),
+                placement: "left",
+                middleware: [offset(-10)],
+              },
+              elementProps: {
+                style: {
+                  zIndex: 10,
+                },
+              },
+            },
+            columnTableHandle: {
+              useFloatingOptions: {
+                open:
+                  state.show &&
+                  state.colIndex !== undefined &&
+                  (!onlyShownElement ||
+                    onlyShownElement === "columnTableHandle"),
+                placement: "top",
+                middleware: [offset(-12)],
+              },
+              elementProps: {
+                style: {
+                  zIndex: 10,
+                },
+              },
+            },
+            tableCellHandle: {
+              useFloatingOptions: {
+                open:
+                  state.show &&
+                  state.rowIndex !== undefined &&
+                  state.colIndex !== undefined &&
+                  (!onlyShownElement || onlyShownElement === "tableCellHandle"),
+                placement: "top-end",
+                middleware: [offset({ mainAxis: -15, crossAxis: -1 })],
+              },
+              elementProps: {
+                style: {
+                  zIndex: 10,
+                },
+              },
+            },
+            extendRowsButton: {
+              useFloatingOptions: {
+                open:
+                  state.show &&
+                  state.showAddOrRemoveRowsButton &&
+                  (!onlyShownElement ||
+                    onlyShownElement === "extendRowsButton"),
+                placement: "bottom",
+                middleware: [
+                  size({
+                    apply({ rects, elements }) {
+                      Object.assign(elements.floating.style, {
+                        width: `${rects.reference.width}px`,
+                      });
+                    },
+                  }),
+                ],
+              },
+              elementProps: {
+                style: {
+                  zIndex: 10,
+                },
+              },
+            },
+            extendColumnsButton: {
+              useFloatingOptions: {
+                open:
+                  state.show &&
+                  state.showAddOrRemoveColumnsButton &&
+                  (!onlyShownElement ||
+                    onlyShownElement === "extendColumnsButton"),
+                placement: "right",
+                middleware: [
+                  size({
+                    apply({ rects, elements }) {
+                      Object.assign(elements.floating.style, {
+                        height: `${rects.reference.height}px`,
+                      });
+                    },
+                  }),
+                ],
+              },
+              elementProps: {
+                style: {
+                  zIndex: 10,
+                },
+              },
+            },
+          }
+        : undefined,
+    [onlyShownElement, state],
+  );
 
   if (!state) {
     return null;
@@ -155,19 +262,7 @@ export const TableHandlesController = <
     <>
       <GenericPopover
         reference={references?.rowReference}
-        useFloatingOptions={{
-          open:
-            state.show &&
-            state.rowIndex !== undefined &&
-            (!onlyShownElement || onlyShownElement === "rowTableHandle"),
-          placement: "left",
-          middleware: [offset(-10)],
-        }}
-        elementProps={{
-          style: {
-            zIndex: 10,
-          },
-        }}
+        {...floatingUIOptions?.rowTableHandle}
       >
         {state.show &&
           state.rowIndex !== undefined &&
@@ -182,19 +277,7 @@ export const TableHandlesController = <
       </GenericPopover>
       <GenericPopover
         reference={references?.columnReference}
-        useFloatingOptions={{
-          open:
-            state.show &&
-            state.colIndex !== undefined &&
-            (!onlyShownElement || onlyShownElement === "columnTableHandle"),
-          placement: "top",
-          middleware: [offset(-12)],
-        }}
-        elementProps={{
-          style: {
-            zIndex: 10,
-          },
-        }}
+        {...floatingUIOptions?.columnTableHandle}
       >
         {state.show &&
           state.colIndex !== undefined &&
@@ -209,20 +292,7 @@ export const TableHandlesController = <
       </GenericPopover>
       <GenericPopover
         reference={references?.cellReference}
-        useFloatingOptions={{
-          open:
-            state.show &&
-            state.rowIndex !== undefined &&
-            state.colIndex !== undefined &&
-            (!onlyShownElement || onlyShownElement === "tableCellHandle"),
-          placement: "top-end",
-          middleware: [offset({ mainAxis: -15, crossAxis: -1 })],
-        }}
-        elementProps={{
-          style: {
-            zIndex: 10,
-          },
-        }}
+        {...floatingUIOptions?.tableCellHandle}
       >
         {state.show &&
           state.rowIndex !== undefined &&
@@ -237,27 +307,7 @@ export const TableHandlesController = <
       </GenericPopover>
       <GenericPopover
         reference={references?.tableReference}
-        useFloatingOptions={{
-          open:
-            state.show &&
-            state.showAddOrRemoveRowsButton &&
-            (!onlyShownElement || onlyShownElement === "extendRowsButton"),
-          placement: "bottom",
-          middleware: [
-            size({
-              apply({ rects, elements }) {
-                Object.assign(elements.floating.style, {
-                  width: `${rects.reference.width}px`,
-                });
-              },
-            }),
-          ],
-        }}
-        elementProps={{
-          style: {
-            zIndex: 10,
-          },
-        }}
+        {...floatingUIOptions?.extendRowsButton}
       >
         {state.show &&
           state.showAddOrRemoveRowsButton &&
@@ -272,27 +322,7 @@ export const TableHandlesController = <
       </GenericPopover>
       <GenericPopover
         reference={references?.tableReference}
-        useFloatingOptions={{
-          open:
-            state.show &&
-            state.showAddOrRemoveColumnsButton &&
-            (!onlyShownElement || onlyShownElement === "extendColumnsButton"),
-          placement: "right",
-          middleware: [
-            size({
-              apply({ rects, elements }) {
-                Object.assign(elements.floating.style, {
-                  height: `${rects.reference.height}px`,
-                });
-              },
-            }),
-          ],
-        }}
-        elementProps={{
-          style: {
-            zIndex: 10,
-          },
-        }}
+        {...floatingUIOptions?.extendColumnsButton}
       >
         {state.show &&
           state.showAddOrRemoveColumnsButton &&
