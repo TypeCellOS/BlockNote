@@ -1,3 +1,23 @@
+## 0.44.2 (2025-12-09)
+
+### 🩹 Fixes
+
+- put back `onBeforeChange` method #2221 ([#2243](https://github.com/TypeCellOS/BlockNote/pull/2243), [#2221](https://github.com/TypeCellOS/BlockNote/issues/2221))
+- Improper accessing of editor DOM element ([#2234](https://github.com/TypeCellOS/BlockNote/pull/2234))
+- make validation errors recoverable by llm ([#2054](https://github.com/TypeCellOS/BlockNote/pull/2054))
+- shadowdom support and example ([#2223](https://github.com/TypeCellOS/BlockNote/pull/2223))
+- ensure numbered list start property always present ([#2241](https://github.com/TypeCellOS/BlockNote/pull/2241), [#2242](https://github.com/TypeCellOS/BlockNote/pull/2242))
+- Suggestion menu positioning ([#2232](https://github.com/TypeCellOS/BlockNote/pull/2232))
+- conditionally access the TableHandles extension from React ([#2248](https://github.com/TypeCellOS/BlockNote/pull/2248))
+- **ai:** upgrade prosemirror-suggest-changes ([#2235](https://github.com/TypeCellOS/BlockNote/pull/2235))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- wcyat @sdip15fa
+- Yousef
+
 ## 0.44.1 (2025-12-08)
 
 ### 🩹 Fixes

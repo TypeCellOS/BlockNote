@@ -4429,10 +4429,10 @@ importers:
         specifier: ^0.4.19
         version: 0.4.19(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       '@blocknote/core':
-        specifier: 0.44.1
+        specifier: 0.44.2
         version: link:../core
       '@blocknote/react':
-        specifier: 0.44.1
+        specifier: 0.44.2
         version: link:../react
     devDependencies:
       '@types/react':
@@ -4475,7 +4475,7 @@ importers:
   packages/code-block:
     dependencies:
       '@blocknote/core':
-        specifier: 0.44.1
+        specifier: 0.44.2
         version: link:../core
       '@shikijs/core':
         specifier: ^3.13.0
@@ -4712,10 +4712,10 @@ importers:
   packages/mantine:
     dependencies:
       '@blocknote/core':
-        specifier: 0.44.1
+        specifier: 0.44.2
         version: link:../core
       '@blocknote/react':
-        specifier: 0.44.1
+        specifier: 0.44.2
         version: link:../react
       '@mantine/core':
         specifier: ^8.3.4
@@ -4770,7 +4770,7 @@ importers:
   packages/react:
     dependencies:
       '@blocknote/core':
-        specifier: 0.44.1
+        specifier: 0.44.2
         version: link:../core
       '@emoji-mart/data':
         specifier: ^1.2.1
@@ -4867,10 +4867,10 @@ importers:
   packages/server-util:
     dependencies:
       '@blocknote/core':
-        specifier: 0.44.1
+        specifier: 0.44.2
         version: link:../core
       '@blocknote/react':
-        specifier: 0.44.1
+        specifier: 0.44.2
         version: link:../react
       '@tiptap/core':
         specifier: ^3.0.0
@@ -4928,10 +4928,10 @@ importers:
   packages/shadcn:
     dependencies:
       '@blocknote/core':
-        specifier: 0.44.1
+        specifier: 0.44.2
         version: link:../core
       '@blocknote/react':
-        specifier: 0.44.1
+        specifier: 0.44.2
         version: link:../react
       '@radix-ui/react-avatar':
         specifier: ^1.1.10
@@ -5037,13 +5037,13 @@ importers:
         specifier: ^2.0.102
         version: 2.0.102(react@19.2.1)(zod@4.1.12)
       '@blocknote/core':
-        specifier: 0.44.1
+        specifier: 0.44.2
         version: link:../core
       '@blocknote/mantine':
-        specifier: 0.44.1
+        specifier: 0.44.2
         version: link:../mantine
       '@blocknote/react':
-        specifier: 0.44.1
+        specifier: 0.44.2
         version: link:../react
       '@floating-ui/react':
         specifier: ^0.26.28
@@ -5258,10 +5258,10 @@ importers:
   packages/xl-docx-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.44.1
+        specifier: 0.44.2
         version: link:../core
       '@blocknote/xl-multi-column':
-        specifier: 0.44.1
+        specifier: 0.44.2
         version: link:../xl-multi-column
       buffer:
         specifier: ^6.0.3
@@ -5313,10 +5313,10 @@ importers:
   packages/xl-email-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.44.1
+        specifier: 0.44.2
         version: link:../core
       '@blocknote/react':
-        specifier: 0.44.1
+        specifier: 0.44.2
         version: link:../react
       '@react-email/components':
         specifier: ^0.1.1
@@ -5368,10 +5368,10 @@ importers:
   packages/xl-multi-column:
     dependencies:
       '@blocknote/core':
-        specifier: 0.44.1
+        specifier: 0.44.2
         version: link:../core
       '@blocknote/react':
-        specifier: 0.44.1
+        specifier: 0.44.2
         version: link:../react
       '@tiptap/core':
         specifier: ^3.0.0
@@ -5438,10 +5438,10 @@ importers:
   packages/xl-odt-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.44.1
+        specifier: 0.44.2
         version: link:../core
       '@blocknote/xl-multi-column':
-        specifier: 0.44.1
+        specifier: 0.44.2
         version: link:../xl-multi-column
       '@zip.js/zip.js':
         specifier: ^2.8.8
@@ -5490,13 +5490,13 @@ importers:
   packages/xl-pdf-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.44.1
+        specifier: 0.44.2
         version: link:../core
       '@blocknote/react':
-        specifier: 0.44.1
+        specifier: 0.44.2
         version: link:../react
       '@blocknote/xl-multi-column':
-        specifier: 0.44.1
+        specifier: 0.44.2
         version: link:../xl-multi-column
       '@react-pdf/renderer':
         specifier: ^4.3.0
