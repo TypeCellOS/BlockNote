@@ -776,7 +776,7 @@ export class BlockNoteEditor<
     if (this.headless) {
       return;
     }
-    this.prosemirrorView.dom.blur();
+    this.domElement?.blur();
   }
 
   // TODO move to extension
