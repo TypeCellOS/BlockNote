@@ -132,14 +132,8 @@ export function GridSuggestionMenuController<
           }),
           shift(),
           size({
-            apply(p) {
-              // Because the height of the suggestion menu is dynamic and based
-              // on the number of items, the `autoPlacement` middleware gets
-              // confused when the height is set on the initial render.
-              // Therefore, it's set right after instead.
-              setTimeout(() => {
-                p.elements.floating.style.maxHeight = `${p.availableHeight}px`;
-              }, 10);
+            apply({ elements, availableHeight }) {
+              elements.floating.style.maxHeight = `${Math.max(0, availableHeight)}px`;
             },
             padding: 10,
           }),
