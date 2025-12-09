@@ -22,6 +22,18 @@ export async function* toValidatedOperations<T extends StreamTool<any>[]>(
   metadata: any;
 }> {
   for await (const chunk of partialObjectStream) {
+    if (!chunk.partialOperation.type) {
+      yield {
+        operation: {
+          ok: false,
+          error: "The `type` property of an operation is required.",
+        },
+        isUpdateToPreviousOperation: chunk.isUpdateToPreviousOperation,
+        isPossiblyPartial: chunk.isPossiblyPartial,
+        metadata: chunk.metadata,
+      };
+      continue;
+    }
     const func = streamTools.find(
       (f) => f.name === chunk.partialOperation.type,
     )!;
