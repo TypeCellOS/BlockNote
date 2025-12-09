@@ -19,14 +19,14 @@
     "@mantine/core": "^8.3.4",
     "@mantine/hooks": "^8.3.4",
     "@mantine/utils": "^6.0.22",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
     "@blocknote/xl-email-exporter": "latest",
     "@react-email/render": "^1.1.2"
   },
   "devDependencies": {
     "@types/react": "^19.2.2",
-    "@types/react-dom": "^19.2.1",
+    "@types/react-dom": "^19.2.2",
     "@vitejs/plugin-react": "^4.7.0",
     "vite": "^5.4.20"
   }

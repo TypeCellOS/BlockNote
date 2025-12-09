@@ -29,7 +29,7 @@ const validateUrl = (url: string) => {
 export const EditLinkMenuItems = (
   props: Pick<
     LinkToolbarProps,
-    "url" | "text" | "range" | "setToolbarOpen" | "setToolbarFrozen"
+    "url" | "text" | "range" | "setToolbarOpen" | "setToolbarPositionFrozen"
   > & {
     showTextField?: boolean;
   },
@@ -55,7 +55,7 @@ export const EditLinkMenuItems = (
         event.preventDefault();
         editLink(validateUrl(currentUrl), currentText, props.range.from);
         props.setToolbarOpen?.(false);
-        props.setToolbarFrozen?.(false);
+        props.setToolbarPositionFrozen?.(false);
       }
     },
     [editLink, currentUrl, currentText, props],
@@ -76,7 +76,7 @@ export const EditLinkMenuItems = (
   const handleSubmit = useCallback(() => {
     editLink(validateUrl(currentUrl), currentText, props.range.from);
     props.setToolbarOpen?.(false);
-    props.setToolbarFrozen?.(false);
+    props.setToolbarPositionFrozen?.(false);
   }, [editLink, currentUrl, currentText, props]);
 
   return (

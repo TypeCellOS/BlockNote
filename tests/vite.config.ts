@@ -1,13 +1,12 @@
 import * as path from "path";
 import { defineConfig } from "vite";
-import eslintPlugin from "vite-plugin-eslint";
 
 // https://vitejs.dev/config/
 export default defineConfig((conf) => ({
   test: {
     environment: "jsdom",
     setupFiles: ["./vitestSetup.ts"],
-    include: ["./src/unit/**/*.test.ts"],
+    include: ["./src/unit/**/*.test.ts", "./src/unit/**/*.test.tsx"],
   },
   resolve: {
     alias:
