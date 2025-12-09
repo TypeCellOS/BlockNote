@@ -5,7 +5,7 @@ import {
   useExtension,
   useExtensionState,
 } from "@blocknote/react";
-import { autoUpdate, offset, size } from "@floating-ui/react";
+import { autoUpdate, flip, offset, size } from "@floating-ui/react";
 import { FC, useMemo } from "react";
 
 import { AIExtension } from "../../AIExtension.js";
@@ -32,7 +32,7 @@ export const AIMenuController = (props: {
         placement: "bottom",
         middleware: [
           offset(10),
-          // flip(),
+          flip(),
           size({
             apply({ rects, elements }) {
               Object.assign(elements.floating.style, {
