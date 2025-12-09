@@ -94,12 +94,12 @@ export const CreateLinkButton = () => {
       }
     };
 
-    editor.prosemirrorView.dom.addEventListener("keydown", callback);
+    editor.domElement?.addEventListener("keydown", callback);
 
     return () => {
-      editor.prosemirrorView.dom.removeEventListener("keydown", callback);
+      editor.domElement?.removeEventListener("keydown", callback);
     };
-  }, [editor.prosemirrorView, editor.headless]);
+  }, [editor.domElement]);
 
   if (state === undefined) {
     return null;
