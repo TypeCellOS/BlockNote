@@ -13,7 +13,7 @@ import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useExtension } from "../../../hooks/useExtension.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 
-export const TableCellMergeButton = () => {
+const TableCellMergeButtonInner = () => {
   const dict = useDictionary();
   const Components = useComponentsContext()!;
 
@@ -76,4 +76,12 @@ export const TableCellMergeButton = () => {
       onClick={onClick}
     />
   );
+};
+
+export const TableCellMergeButton = () => {
+  const editor = useBlockNoteEditor();
+  if (!editor.getExtension(TableHandlesExtension)) {
+    return null;
+  }
+  return <TableCellMergeButtonInner />;
 };
