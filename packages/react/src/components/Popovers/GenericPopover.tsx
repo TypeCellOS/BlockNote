@@ -109,14 +109,18 @@ export const GenericPopover = (
 
   useEffect(() => {
     if (props.reference) {
-      if ("element" in props.reference) {
-        refs.setReference(props.reference.element);
+      const element =
+        "element" in props.reference ? props.reference.element : undefined;
+
+      if (element !== undefined) {
+        refs.setReference(element);
       }
 
       refs.setPositionReference({
         getBoundingClientRect: getMountedBoundingClientRectCache(
           props.reference,
         ),
+        contextElement: element,
       });
     }
   }, [props.reference, refs]);

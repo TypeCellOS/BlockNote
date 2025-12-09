@@ -267,6 +267,25 @@
         "readme": "In this example, we change the default paste handler to append some text to the pasted content when the content is plain text.\n\n**Try it out:** Use the buttons to copy some content to the clipboard and paste it in the editor to trigger our custom paste handler.\n\n**Relevant Docs:**\n\n- [Paste Handling](/docs/reference/editor/paste-handling)"
       },
       {
+        "projectSlug": "editor-scrollable",
+        "fullSlug": "basic/editor-scrollable",
+        "pathFromRoot": "examples/01-basic/14-editor-scrollable",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Scrollable Editor",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        },
+        "readme": "This example shows how to constrain the editor height and make it scrollable.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)"
+      },
+      {
         "projectSlug": "shadowdom",
         "fullSlug": "basic/shadowdom",
         "pathFromRoot": "examples/01-basic/14-shadowdom",

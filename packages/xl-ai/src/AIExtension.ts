@@ -14,7 +14,7 @@ import {
   applySuggestions,
   revertSuggestions,
   suggestChanges,
-} from "@blocknote/prosemirror-suggest-changes";
+} from "@handlewithcare/prosemirror-suggest-changes";
 import { UIMessage } from "ai";
 import { Fragment, Slice } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
@@ -75,6 +75,10 @@ export const AIExtension = createExtension(
       | undefined;
     let autoScroll = false;
 
+    const suggestChangesPlugin = suggestChanges();
+    // disable decorations for suggest changes, not needed
+    // (and the pilcrows are ugly)
+    suggestChangesPlugin.props.decorations = undefined;
     return {
       key: "ai",
       options,
@@ -129,7 +133,7 @@ export const AIExtension = createExtension(
             return true;
           },
         }),
-        suggestChanges(),
+        suggestChangesPlugin,
         createAgentCursorPlugin(
           editorOptions?.agentCursor || { name: "AI", color: "#8bc6ff" },
         ),

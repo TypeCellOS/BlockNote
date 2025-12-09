@@ -8,7 +8,7 @@
     "directory": "packages/dev-scripts"
   },
   "license": "MPL-2.0",
-  "version": "0.44.0",
+  "version": "0.44.1",
   "description": "",
   "type": "module",
   "scripts": {
@@ -23,8 +23,8 @@
     "@types/react-dom": "^19.2.2",
     "eslint": "^8.57.1",
     "glob": "^10.4.5",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
     "tinyglobby": "0.2.12",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"

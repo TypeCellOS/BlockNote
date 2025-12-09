@@ -52,6 +52,7 @@ import {
 } from "./managers/index.js";
 import type { Selection } from "./selectionTypes.js";
 import { transformPasted } from "./transformPasted.js";
+import { BlockChangeExtension } from "../extensions/index.js";
 
 export type BlockCache<
   BSchema extends BlockSchema = any,
@@ -776,7 +777,7 @@ export class BlockNoteEditor<
     if (this.headless) {
       return;
     }
-    this.prosemirrorView.dom.blur();
+    this.domElement?.blur();
   }
 
   // TODO move to extension
@@ -902,6 +903,22 @@ export class BlockNoteEditor<
    */
   public onEditorSelectionChange(callback: () => void) {
     this._tiptapEditor.on("selectionUpdate", callback);
+  }
+
+  /**
+   * Executes a callback before any change is applied to the editor, allowing you to cancel the change.
+   * @param callback The callback to execute.
+   * @returns A function to remove the callback.
+   */
+  public onBeforeChange(
+    callback: (context: {
+      getChanges: () => BlocksChanged<any, any, any>;
+      tr: Transaction;
+    }) => boolean | void,
+  ) {
+    return this._extensionManager
+      .getExtension(BlockChangeExtension)
+      ?.subscribe(callback);
   }
 
   /**

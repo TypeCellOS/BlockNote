@@ -5,7 +5,7 @@ import {
   useExtension,
   useExtensionState,
 } from "@blocknote/react";
-import { offset, size } from "@floating-ui/react";
+import { autoUpdate, offset, size } from "@floating-ui/react";
 import { FC, useMemo } from "react";
 
 import { AIExtension } from "../../AIExtension.js";
@@ -54,6 +54,11 @@ export const AIMenuController = (props: {
           ) {
             ai.rejectChanges();
           }
+        },
+        whileElementsMounted(reference, floating, update) {
+          return autoUpdate(reference, floating, update, {
+            animationFrame: true,
+          });
         },
       },
       useDismissProps: {
