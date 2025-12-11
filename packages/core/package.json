@@ -94,7 +94,7 @@
     "@shikijs/types": "3.13.0",
     "@tanstack/store": "0.7.7",
     "@tiptap/core": "^3.11.0",
-    "@tiptap/extension-bold": "^3.7.2",
+    "@tiptap/extension-bold": "^3.13.0",
     "@tiptap/extension-code": "^3.7.2",
     "@tiptap/extension-gapcursor": "^3.7.2",
     "@tiptap/extension-horizontal-rule": "^3.7.2",

@@ -4536,8 +4536,8 @@ importers:
         specifier: ^3.0.0
         version: 3.11.0(@tiptap/pm@3.11.0)
       '@tiptap/extension-bold':
-        specifier: ^3.7.2
-        version: 3.7.2(@tiptap/core@3.11.0(@tiptap/pm@3.11.0))
+        specifier: ^3.13.0
+        version: 3.13.0(@tiptap/core@3.11.0(@tiptap/pm@3.11.0))
       '@tiptap/extension-code':
         specifier: ^3.7.2
         version: 3.7.2(@tiptap/core@3.11.0(@tiptap/pm@3.11.0))
@@ -9902,8 +9902,8 @@ packages:
     peerDependencies:
       '@tiptap/pm': ^3.0.0
 
-  '@tiptap/extension-bold@3.7.2':
-    resolution: {integrity: sha512-bwCn9lQEXnEi7LfIx3G/oaH4I0ZapAgrHzLCNJH/tNgRKVWym1H1Oa8PlkiFDbalWOdUkbgeAUqUaIB13k408Q==}
+  '@tiptap/extension-bold@3.13.0':
+    resolution: {integrity: sha512-VYiDN9EEwR6ShaDLclG8mphkb/wlIzqfk7hxaKboq1G+NSDj8PcaSI9hldKKtTCLeaSNu6UR5nkdu/YHdzYWTw==}
     peerDependencies:
       '@tiptap/core': ^3.0.0
 
@@ -20868,7 +20868,7 @@ snapshots:
     dependencies:
       '@tiptap/pm': 3.11.0
 
-  '@tiptap/extension-bold@3.7.2(@tiptap/core@3.11.0(@tiptap/pm@3.11.0))':
+  '@tiptap/extension-bold@3.13.0(@tiptap/core@3.11.0(@tiptap/pm@3.11.0))':
     dependencies:
       '@tiptap/core': 3.11.0(@tiptap/pm@3.11.0)
 
