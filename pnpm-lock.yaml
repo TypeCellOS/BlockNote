@@ -281,8 +281,8 @@ importers:
         specifier: 15.5.7
         version: 15.5.7(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       nodemailer:
-        specifier: ^6.10.1
-        version: 6.10.1
+        specifier: ^7.0.11
+        version: 7.0.11
       partykit:
         specifier: ^0.0.115
         version: 0.0.115
@@ -13528,8 +13528,8 @@ packages:
   node-releases@2.0.27:
     resolution: {integrity: sha512-nmh3lCkYZ3grZvqcCH+fjmQ7X+H0OeZgP40OierEaAptX4XofMh5kwNbWh7lBduUzCcV/8kZ+NDLCwm2iorIlA==}
 
-  nodemailer@6.10.1:
-    resolution: {integrity: sha512-Z+iLaBGVaSjbIzQ4pX6XV41HrooLsQ10ZWPUehGmuantvzWoDVBnmsdUcOIDM1t+yPor5pDhVlDESgOMEGxhHA==}
+  nodemailer@7.0.11:
+    resolution: {integrity: sha512-gnXhNRE0FNhD7wPSCGhdNh46Hs6nm+uTyg+Kq0cZukNQiYdnCsoQjodNP9BQVG9XrcK/v6/MgpAPBUFyzh9pvw==}
     engines: {node: '>=6.0.0'}
 
   nopt@5.0.0:
@@ -25356,7 +25356,7 @@ snapshots:
 
   node-releases@2.0.27: {}
 
-  nodemailer@6.10.1: {}
+  nodemailer@7.0.11: {}
 
   nopt@5.0.0:
     dependencies:
