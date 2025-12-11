@@ -10,3 +10,6 @@ updates:
       - "npm dependencies"
     commit-message:
       prefix: "chore"
+    allow:
+      - dependency-name: "@tiptap/*"
+      - dependency-name: "prosemirror-*"
