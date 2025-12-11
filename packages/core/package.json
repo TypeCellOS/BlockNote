@@ -98,7 +98,7 @@
     "@tiptap/extension-code": "^3.7.2",
     "@tiptap/extension-gapcursor": "^3.7.2",
     "@tiptap/extension-horizontal-rule": "^3.7.2",
-    "@tiptap/extension-italic": "^3.7.2",
+    "@tiptap/extension-italic": "^3.13.0",
     "@tiptap/extension-link": "^3.7.2",
     "@tiptap/extension-paragraph": "^3.7.2",
     "@tiptap/extension-strike": "^3.7.2",
