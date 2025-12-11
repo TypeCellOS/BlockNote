@@ -546,6 +546,140 @@ const tableWithColspansAndRowspans = {
   any
 >;
 
+const invalidTableShape = {
+  type: "table",
+  id: "table-0",
+  props: {
+    textColor: "default",
+  },
+  content: {
+    type: "tableContent",
+    columnWidths: [100, 100],
+    rows: [
+      {
+        cells: [
+          {
+            type: "tableCell",
+            content: [
+              {
+                type: "text",
+                text: "Table Cell",
+                styles: {},
+                props: {
+                  backgroundColor: "default",
+                  textColor: "default",
+                  textAlignment: "left",
+                },
+              },
+            ],
+            props: {
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
+            },
+          },
+        ],
+      },
+      {
+        cells: [
+          {
+            type: "tableCell",
+            content: [
+              {
+                type: "text",
+                text: "Table Cell",
+                styles: {},
+                props: {
+                  backgroundColor: "default",
+                  textColor: "default",
+                  textAlignment: "left",
+                },
+              },
+            ],
+            props: {
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
+            },
+          },
+        ],
+      },
+      {
+        cells: [
+          {
+            type: "tableCell",
+            content: [
+              {
+                type: "text",
+                text: "Table Cell",
+                styles: {},
+                props: {
+                  backgroundColor: "default",
+                  textColor: "default",
+                  textAlignment: "left",
+                },
+              },
+            ],
+            props: {
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
+            },
+          },
+          {
+            type: "tableCell",
+            content: [
+              {
+                type: "text",
+                text: "Table Cell",
+                styles: {},
+                props: {
+                  backgroundColor: "default",
+                  textColor: "default",
+                  textAlignment: "left",
+                },
+              },
+            ],
+            props: {
+              colspan: 2,
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
+            },
+          },
+          {
+            type: "tableCell",
+            content: [
+              {
+                type: "text",
+                text: "Table x",
+                styles: {},
+                props: {
+                  backgroundColor: "default",
+                  textColor: "default",
+                  textAlignment: "left",
+                },
+              },
+            ],
+            props: {
+              backgroundColor: "default",
+              textColor: "default",
+              textAlignment: "left",
+            },
+          },
+        ],
+      },
+    ],
+  },
+  children: [],
+} satisfies Block<
+  {
+    table: DefaultBlockSchema["table"];
+  },
+  any,
+  any
+>;
+
 /**
  *  Normal table
  *  | 1-1 | 1-2 | 1-3 | 1-4 |
@@ -881,6 +1015,12 @@ describe("Test getAbsoluteTableCellIndices", () => {
       col: 3,
       cell: tableWithComplexRowspansAndColspans.content.rows[2].cells[2],
     });
+  });
+
+  it("should not crash at an invalid table shape", () => {
+    expect(() =>
+      getAbsoluteTableCells({ row: 2, col: 2 }, invalidTableShape),
+    ).not.toThrow();
   });
 });
 
