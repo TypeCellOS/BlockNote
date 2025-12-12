@@ -1,9 +1,6 @@
-import { SideMenuExtension } from "@blocknote/core/extensions";
-import { ReactNode, useMemo } from "react";
+import { ReactNode } from "react";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
-import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
-import { useExtensionState } from "../../hooks/useExtension.js";
 import { AddBlockButton } from "./DefaultButtons/AddBlockButton.js";
 import { DragHandleButton } from "./DefaultButtons/DragHandleButton.js";
 import { SideMenuProps } from "./SideMenuProps.js";
@@ -20,41 +17,8 @@ import { SideMenuProps } from "./SideMenuProps.js";
 export const SideMenu = (props: SideMenuProps & { children?: ReactNode }) => {
   const Components = useComponentsContext()!;
 
-  const editor = useBlockNoteEditor<any, any, any>();
-
-  const block = useExtensionState(SideMenuExtension, {
-    editor,
-    selector: (state) => state?.block,
-  });
-
-  const dataAttributes = useMemo(() => {
-    if (block === undefined) {
-      return {};
-    }
-
-    const attrs: Record<string, string> = {
-      "data-block-type": block.type,
-    };
-
-    if (block.type === "heading") {
-      attrs["data-level"] = (block.props as any).level.toString();
-    }
-
-    if (
-      editor.schema.blockSpecs[block.type].implementation.meta?.fileBlockAccept
-    ) {
-      if (block.props.url) {
-        attrs["data-url"] = "true";
-      } else {
-        attrs["data-url"] = "false";
-      }
-    }
-
-    return attrs;
-  }, [block, editor.schema.blockSpecs]);
-
   return (
-    <Components.SideMenu.Root className={"bn-side-menu"} {...dataAttributes}>
+    <Components.SideMenu.Root className={"bn-side-menu"}>
       {props.children || (
         <>
           <AddBlockButton />

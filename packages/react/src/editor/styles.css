@@ -237,35 +237,6 @@ inline styles, it is added to the base z-index. */
   --bn-ui-base-z-index: 0;
 }
 
-/* Matches Side Menu height to block line height */
-.bn-side-menu {
-  height: 30px;
-}
-
-.bn-side-menu[data-block-type="heading"][data-level="1"] {
-  height: 78px;
-}
-
-.bn-side-menu[data-block-type="heading"][data-level="2"] {
-  height: 54px;
-}
-
-.bn-side-menu[data-block-type="heading"][data-level="3"] {
-  height: 37px;
-}
-
-.bn-side-menu[data-block-type="file"] {
-  height: 38px;
-}
-
-.bn-side-menu[data-block-type="audio"] {
-  height: 60px;
-}
-
-.bn-side-menu[data-url="false"] {
-  height: 54px;
-}
-
 /* Thread sidebar styling */
 .bn-threads-sidebar {
   border-radius: var(--bn-border-radius-medium);
