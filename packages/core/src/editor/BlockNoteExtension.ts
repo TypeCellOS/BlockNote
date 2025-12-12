@@ -89,6 +89,11 @@ export interface Extension<State = any, Key extends string = string> {
    * Add additional tiptap extensions to the editor.
    */
   readonly tiptapExtensions?: ReadonlyArray<AnyExtension>;
+
+  /**
+   * Add additional BlockNote extensions to the editor.
+   */
+  readonly blockNoteExtensions?: ReadonlyArray<ExtensionFactoryInstance>;
 }
 
 /**

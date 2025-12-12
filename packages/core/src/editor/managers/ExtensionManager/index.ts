@@ -203,6 +203,12 @@ export class ExtensionManager {
 
     this.extensions.push(instance);
 
+    if (instance.blockNoteExtensions) {
+      for (const extension of instance.blockNoteExtensions) {
+        this.addExtension(extension);
+      }
+    }
+
     return instance as any;
   }
 
