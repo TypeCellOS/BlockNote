@@ -50,12 +50,12 @@
   },
   "dependencies": {
     "@blocknote/core": "0.44.2",
-    "@shikijs/core": "^3.13.0",
-    "@shikijs/engine-javascript": "^3.13.0",
-    "@shikijs/langs": "^3.13.0",
-    "@shikijs/langs-precompiled": "^3.13.0",
-    "@shikijs/themes": "^3.13.0",
-    "@shikijs/types": "^3.13.0"
+    "@shikijs/core": "^3",
+    "@shikijs/engine-javascript": "^3",
+    "@shikijs/langs": "^3",
+    "@shikijs/langs-precompiled": "^3",
+    "@shikijs/themes": "^3",
+    "@shikijs/types": "^3"
   },
   "devDependencies": {
     "eslint": "^8.57.1",
