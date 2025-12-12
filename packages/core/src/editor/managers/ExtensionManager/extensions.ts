@@ -85,6 +85,7 @@ export function getDefaultTiptapExtensions(
     SuggestionModificationMark,
     Link.extend({
       inclusive: false,
+      priority: 100,
     }).configure({
       defaultProtocol: DEFAULT_LINK_PROTOCOL,
       // only call this once if we have multiple editors installed. Or fix https://github.com/ueberdosis/tiptap/issues/5450
