@@ -9,6 +9,7 @@ export function useGridSuggestionMenuKeyboardNavigation<Item>(
   items: Item[],
   columns: number,
   onItemClick?: (item: Item) => void,
+  isMenuVisible?: boolean,
 ) {
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
@@ -16,6 +17,10 @@ export function useGridSuggestionMenuKeyboardNavigation<Item>(
 
   useEffect(() => {
     const handleMenuNavigationKeys = (event: KeyboardEvent) => {
+      if (isMenuVisible === false) {
+        return false;
+      }
+
       if (event.key === "ArrowLeft") {
         event.preventDefault();
         if (items.length) {
@@ -53,12 +58,24 @@ export function useGridSuggestionMenuKeyboardNavigation<Item>(
       }
 
       if (event.key === "Enter" && !event.isComposing) {
+        
+        if (!items.length || selectedIndex < 0 || selectedIndex >= items.length) {
+          return false;
+        }
+
+        const suggestionMenuElement = document.querySelector('#bn-grid-suggestion-menu, .bn-grid-suggestion-menu');
+        const isMenuInDOM = !!suggestionMenuElement;
+        
+        if (!isMenuVisible || !isMenuInDOM) {
+          return false;
+        }
+
         event.stopPropagation();
         event.preventDefault();
 
-        if (items.length) {
-          onItemClick?.(items[selectedIndex]);
-        }
+        if (onItemClick) {
+          onItemClick(items[selectedIndex]);
+        } 
 
         return true;
       }
@@ -79,7 +96,7 @@ export function useGridSuggestionMenuKeyboardNavigation<Item>(
         true,
       );
     };
-  }, [editor.domElement, items, selectedIndex, onItemClick, columns, isGrid]);
+  }, [editor.domElement, items, selectedIndex, onItemClick, columns, isGrid, isMenuVisible]);
 
   // Resets index when items change
   useEffect(() => {
