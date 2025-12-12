@@ -107,7 +107,7 @@ export const ForkYDocExtension = createExtension(
         editor.registerExtension([
           YSyncExtension(newOptions),
           // No need to register the cursor plugin again, it's a local fork
-          YUndoExtension({}),
+          YUndoExtension(),
         ]);
 
         // Tell the store that the editor is now forked
@@ -131,7 +131,7 @@ export const ForkYDocExtension = createExtension(
         editor.registerExtension([
           YSyncExtension(options),
           YCursorExtension(options),
-          YUndoExtension({}),
+          YUndoExtension(),
         ]);
 
         // Reset the undo stack to the original undo stack
