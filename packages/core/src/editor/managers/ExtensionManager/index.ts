@@ -317,8 +317,7 @@ export class ExtensionManager {
     const tiptapExtensions = getDefaultTiptapExtensions(
       this.editor,
       this.options,
-    );
-    // TODO filter out the default extensions via the disabledExtensions set?
+    ).filter((extension) => !this.disabledExtensions.has(extension.name));
 
     const getPriority = sortByDependencies(this.extensions);
 
