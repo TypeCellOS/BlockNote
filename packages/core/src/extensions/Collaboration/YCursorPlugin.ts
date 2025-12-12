@@ -3,7 +3,7 @@ import {
   createExtension,
   ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
-import { BlockNoteEditorOptions } from "../../editor/BlockNoteEditor.js";
+import { CollaborationOptions } from "./Collaboration.js";
 
 export type CollaborationUser = {
   name: string;
@@ -67,29 +67,24 @@ function defaultCursorRender(user: CollaborationUser) {
 }
 
 export const YCursorExtension = createExtension(
-  ({
-    options,
-  }: ExtensionOptions<
-    NonNullable<BlockNoteEditorOptions<any, any, any>["collaboration"]>
-  >) => {
+  ({ options }: ExtensionOptions<CollaborationOptions>) => {
     const recentlyUpdatedCursors = new Map();
-    const hasAwareness =
+    const awareness =
       options.provider &&
       "awareness" in options.provider &&
-      typeof options.provider.awareness === "object";
-    if (hasAwareness) {
+      typeof options.provider.awareness === "object"
+        ? options.provider.awareness
+        : undefined;
+    if (awareness) {
       if (
-        "setLocalStateField" in options.provider.awareness &&
-        typeof options.provider.awareness.setLocalStateField === "function"
+        "setLocalStateField" in awareness &&
+        typeof awareness.setLocalStateField === "function"
       ) {
-        options.provider.awareness.setLocalStateField("user", options.user);
+        awareness.setLocalStateField("user", options.user);
       }
-      if (
-        "on" in options.provider.awareness &&
-        typeof options.provider.awareness.on === "function"
-      ) {
+      if ("on" in awareness && typeof awareness.on === "function") {
         if (options.showCursorLabels !== "always") {
-          options.provider.awareness.on(
+          awareness.on(
             "change",
             ({
               updated,
@@ -125,8 +120,8 @@ export const YCursorExtension = createExtension(
     return {
       key: "yCursor",
       prosemirrorPlugins: [
-        hasAwareness
-          ? yCursorPlugin(options.provider.awareness, {
+        awareness
+          ? yCursorPlugin(awareness, {
               selectionBuilder: defaultSelectionBuilder,
               cursorBuilder(user: CollaborationUser, clientID: number) {
                 let cursorData = recentlyUpdatedCursors.get(clientID);
@@ -177,7 +172,7 @@ export const YCursorExtension = createExtension(
       ].filter(Boolean),
       dependsOn: ["ySync"],
       updateUser(user: { name: string; color: string; [key: string]: string }) {
-        options.provider.awareness.setLocalStateField("user", user);
+        awareness?.setLocalStateField("user", user);
       },
     } as const;
   },
