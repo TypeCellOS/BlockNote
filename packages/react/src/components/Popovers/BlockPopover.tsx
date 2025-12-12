@@ -8,7 +8,7 @@ import { GenericPopover, GenericPopoverReference } from "./GenericPopover.js";
 export const BlockPopover = (
   props: FloatingUIOptions & {
     blockId: string | undefined;
-    spanEditorWidth?: boolean;
+    ignoreNestingOffset?: boolean;
     includeNestedBlocks?: boolean;
     children: ReactNode;
   },
@@ -47,14 +47,15 @@ export const BlockPopover = (
             ? blockContentElement
             : blockElement;
 
-        if (props.spanEditorWidth) {
+        if (props.ignoreNestingOffset) {
           return {
             element,
             getBoundingClientRect: () => {
               const boundingClientRect = element.getBoundingClientRect();
 
-              const outerBlockGroupElement =
-                editor.domElement?.firstElementChild;
+              const outerBlockGroupElement = element.closest(
+                ".bn-editor > .bn-block-group > .bn-block-outer, .bn-block-column > .bn-block-outer",
+              );
               if (!(outerBlockGroupElement instanceof Element)) {
                 return undefined;
               }
@@ -74,7 +75,7 @@ export const BlockPopover = (
 
         return { element };
       }),
-    [editor, blockId, props.includeNestedBlocks, props.spanEditorWidth],
+    [editor, blockId, props.includeNestedBlocks, props.ignoreNestingOffset],
   );
 
   return (

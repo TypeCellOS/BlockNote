@@ -168,7 +168,7 @@ export const SideMenuController = (props: {
   return (
     <BlockPopover
       blockId={show ? block?.id : undefined}
-      spanEditorWidth={true}
+      ignoreNestingOffset={true}
       {...floatingUIOptions}
     >
       {block?.id && <Component />}
