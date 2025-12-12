@@ -23,6 +23,7 @@ export function HTMLToBlocks<
 
   const parentNode = parser.parse(htmlNode, {
     topNode: pmSchema.nodes["blockGroup"].create(),
+    preserveWhitespace: true
   });
 
   const blocks: Block<BSchema, I, S>[] = [];
