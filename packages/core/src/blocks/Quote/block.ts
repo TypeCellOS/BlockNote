@@ -23,9 +23,6 @@ export const createQuoteBlockConfig = createBlockConfig(
 export const createQuoteBlockSpec = createBlockSpec(
   createQuoteBlockConfig,
   {
-    meta: {
-      isolating: false,
-    },
     parse(element) {
       if (element.tagName === "BLOCKQUOTE") {
         const { backgroundColor, textColor } = parseDefaultProps(element);
