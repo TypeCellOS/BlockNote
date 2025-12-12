@@ -90,9 +90,9 @@
   },
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",
-    "@handlewithcare/prosemirror-inputrules": "0.1.3",
-    "@shikijs/types": "3.13.0",
-    "@tanstack/store": "0.7.7",
+    "@handlewithcare/prosemirror-inputrules": "^0.1.3",
+    "@shikijs/types": "^3",
+    "@tanstack/store": "^0.7.7",
     "@tiptap/core": "^3.13.0",
     "@tiptap/extension-bold": "^3.13.0",
     "@tiptap/extension-code": "^3.13.0",
