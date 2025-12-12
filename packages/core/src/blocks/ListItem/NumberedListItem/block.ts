@@ -51,13 +51,9 @@ export const createNumberedListItemBlockSpec = createBlockSpec(
 
         const defaultProps = parseDefaultProps(element);
 
-        if (element.previousElementSibling || startIndex === 1) {
-          return defaultProps;
-        }
-
         return {
           ...defaultProps,
-          start: startIndex,
+          start: element.previousElementSibling || startIndex === 1 ? undefined : startIndex,
         };
       }
 

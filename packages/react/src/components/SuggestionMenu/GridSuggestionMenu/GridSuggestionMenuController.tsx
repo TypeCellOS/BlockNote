@@ -1,6 +1,6 @@
 import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 import { SuggestionMenu } from "@blocknote/core/extensions";
-import { flip, offset, shift, size } from "@floating-ui/react";
+import { autoPlacement, offset, shift, size } from "@floating-ui/react";
 import { FC, useEffect, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
@@ -9,10 +9,7 @@ import {
   useExtensionState,
 } from "../../../hooks/useExtension.js";
 import { FloatingUIOptions } from "../../Popovers/FloatingUIOptions.js";
-import {
-  GenericPopover,
-  GenericPopoverReference,
-} from "../../Popovers/GenericPopover.js";
+import { GenericPopover } from "../../Popovers/GenericPopover.js";
 import { getDefaultReactEmojiPickerItems } from "./getDefaultReactEmojiPickerItems.js";
 import { GridSuggestionMenu } from "./GridSuggestionMenu.js";
 import { GridSuggestionMenuWrapper } from "./GridSuggestionMenuWrapper.js";
@@ -97,20 +94,15 @@ export function GridSuggestionMenuController<
   }, [suggestionMenu, triggerCharacter]);
 
   const state = useExtensionState(SuggestionMenu);
-  const referencePos = useExtensionState(SuggestionMenu, {
-    selector: (state) => state?.referencePos || new DOMRect(),
-  });
-
-  const reference = useMemo<GenericPopoverReference>(
-    () => ({
+  const reference = useExtensionState(SuggestionMenu, {
+    selector: (state) => ({
       // Use first child as the editor DOM element may itself be scrollable.
       // For FloatingUI to auto-update the position during scrolling, the
       // `contextElement` must be a descendant of the scroll container.
       element: editor.domElement?.firstChild || undefined,
-      getBoundingClientRect: () => referencePos,
+      getBoundingClientRect: () => state?.referencePos || new DOMRect(),
     }),
-    [editor.domElement?.firstChild, referencePos],
-  );
+  });
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
@@ -126,17 +118,16 @@ export function GridSuggestionMenuController<
           offset(10),
           // Flips the menu placement to maximize the space available, and prevents
           // the menu from being cut off by the confines of the screen.
-          flip({
-            mainAxis: true,
-            crossAxis: false,
+          autoPlacement({
+            allowedPlacements: ["bottom-start", "top-start"],
+            padding: 10,
           }),
           shift(),
           size({
-            apply({ availableHeight, elements }) {
-              Object.assign(elements.floating.style, {
-                maxHeight: `${availableHeight - 10}px`,
-              });
+            apply({ elements, availableHeight }) {
+              elements.floating.style.maxHeight = `${Math.max(0, availableHeight)}px`;
             },
+            padding: 10,
           }),
         ],
       },

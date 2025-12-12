@@ -5,7 +5,7 @@ import {
 } from "@blocknote/core/extensions";
 import {
   UseFloatingOptions,
-  flip,
+  autoPlacement,
   offset,
   shift,
   size,
@@ -15,10 +15,7 @@ import { FC, useEffect, useMemo } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
-import {
-  GenericPopover,
-  GenericPopoverReference,
-} from "../Popovers/GenericPopover.js";
+import { GenericPopover } from "../Popovers/GenericPopover.js";
 import { SuggestionMenu } from "./SuggestionMenu.js";
 import { SuggestionMenuWrapper } from "./SuggestionMenuWrapper.js";
 import { getDefaultReactSlashMenuItems } from "./getDefaultReactSlashMenuItems.js";
@@ -98,20 +95,15 @@ export function SuggestionMenuController<
   }, [suggestionMenu, triggerCharacter]);
 
   const state = useExtensionState(SuggestionMenuExtension);
-  const referencePos = useExtensionState(SuggestionMenuExtension, {
-    selector: (state) => state?.referencePos || new DOMRect(),
-  });
-
-  const reference = useMemo<GenericPopoverReference>(
-    () => ({
+  const reference = useExtensionState(SuggestionMenuExtension, {
+    selector: (state) => ({
       // Use first child as the editor DOM element may itself be scrollable.
       // For FloatingUI to auto-update the position during scrolling, the
       // `contextElement` must be a descendant of the scroll container.
       element: editor.domElement?.firstChild || undefined,
-      getBoundingClientRect: () => referencePos,
+      getBoundingClientRect: () => state?.referencePos || new DOMRect(),
     }),
-    [editor.domElement?.firstChild, referencePos],
-  );
+  });
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
@@ -127,18 +119,16 @@ export function SuggestionMenuController<
           offset(10),
           // Flips the menu placement to maximize the space available, and prevents
           // the menu from being cut off by the confines of the screen.
-          flip({
-            mainAxis: true,
-            crossAxis: false,
+          autoPlacement({
+            allowedPlacements: ["bottom-start", "top-start"],
+            padding: 10,
           }),
           shift(),
           size({
-            apply({ availableHeight, elements }) {
-              Object.assign(elements.floating.style, {
-                maxHeight: `${availableHeight - 10}px`,
-                minHeight: "300px",
-              });
+            apply({ elements, availableHeight }) {
+              elements.floating.style.maxHeight = `${Math.max(0, availableHeight)}px`;
             },
+            padding: 10,
           }),
         ],
       },

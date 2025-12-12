@@ -29,6 +29,7 @@ export async function* filterValidOperations<T>(
   let forceNewOperation = false;
   for await (const chunk of operationsStream) {
     const operation = chunk.operation;
+
     if (operation.ok) {
       yield {
         operation: operation.value,

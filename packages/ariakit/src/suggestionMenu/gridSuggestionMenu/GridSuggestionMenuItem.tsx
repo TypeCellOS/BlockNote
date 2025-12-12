@@ -19,7 +19,7 @@ export const GridSuggestionMenuItem = forwardRef<
 
     const overflow = elementOverflow(
       itemRef.current,
-      document.querySelector(".bn-grid-suggestion-menu")!,
+      itemRef.current.closest(".bn-grid-suggestion-menu")!,
     );
 
     if (overflow === "top") {
