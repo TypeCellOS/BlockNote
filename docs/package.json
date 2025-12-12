@@ -86,7 +86,7 @@
     "fumadocs-typescript": "4.0.6",
     "fumadocs-ui": "15.5.4",
     "import-in-the-middle": "^1.15.0",
-    "next": "15.5.7",
+    "next": "15.5.9",
     "nodemailer": "^7.0.11",
     "partykit": "^0.0.115",
     "pg": "^8.16.3",
