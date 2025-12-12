@@ -1,4 +1,4 @@
-import { blockHasType } from "@blocknote/core";
+import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 import { SideMenuExtension } from "@blocknote/core/extensions";
 import { size } from "@floating-ui/react";
 import { FC, useMemo } from "react";
@@ -14,7 +14,11 @@ export const SideMenuController = (props: {
   sideMenu?: FC<SideMenuProps>;
   floatingUIOptions?: Partial<FloatingUIOptions>;
 }) => {
-  const editor = useBlockNoteEditor<any, any, any>();
+  const editor = useBlockNoteEditor<
+    BlockSchema,
+    InlineContentSchema,
+    StyleSchema
+  >();
 
   const state = useExtensionState(SideMenuExtension, {
     selector: (state) => {
@@ -35,6 +39,10 @@ export const SideMenuController = (props: {
         open: show,
         placement: "left-start",
         middleware: [
+          // Adjusts the side menu height to align it vertically with the
+          // block's content. In some cases, like file blocks with captions,
+          // the height and top offset is adjusted to align it with a specific
+          // element within the block's content instead.
           size({
             apply({ elements }) {
               // TODO: Need to fetch the block from extension, else it's
@@ -47,56 +55,97 @@ export const SideMenuController = (props: {
                 return;
               }
 
-              if (block.type === "heading") {
-                if (!block.props.level || block.props.level === 1) {
-                  elements.floating.style.setProperty("height", "78px");
-                  return;
-                }
+              const blockElement =
+                elements.reference instanceof Element
+                  ? elements.reference
+                  : elements.reference.contextElement;
+              if (blockElement === undefined) {
+                return;
+              }
 
-                if (block.props.level === 2) {
-                  elements.floating.style.setProperty("height", "54px");
-                  return;
-                }
+              const blockContentElement =
+                blockElement.querySelector(".bn-block-content");
+              if (blockContentElement === null) {
+                return;
+              }
 
-                if (block.props.level === 2) {
-                  elements.floating.style.setProperty("height", "37px");
+              const blockContentBoundingClientRect =
+                blockContentElement.getBoundingClientRect();
+
+              // Special case for file blocks with captions. In this case, we
+              // align the side menu with the first sibling of the file caption
+              // element.
+              const fileCaptionParentElement =
+                blockContentElement.querySelector(".bn-file-caption")
+                  ?.parentElement || null;
+              if (fileCaptionParentElement !== null) {
+                const fileElement = fileCaptionParentElement.firstElementChild;
+                if (fileElement) {
+                  const fileBoundingClientRect =
+                    fileElement.getBoundingClientRect();
+
+                  elements.floating.style.setProperty(
+                    "height",
+                    `${fileBoundingClientRect.height}px`,
+                  );
+                  elements.floating.style.setProperty(
+                    "top",
+                    `${fileBoundingClientRect.y - blockContentBoundingClientRect.y}px`,
+                  );
+
                   return;
                 }
               }
 
-              if (
-                editor.schema.blockSpecs[block.type].implementation.meta
-                  ?.fileBlockAccept
-              ) {
-                if (
-                  blockHasType(block, editor, block.type, {
-                    url: "string",
-                  }) &&
-                  block.props.url === ""
-                ) {
-                  elements.floating.style.setProperty("height", "54px");
-                  return;
-                }
+              // Special case for toggleable blocks. In this case, we align the
+              // side menu with the element containing the toggle button and
+              // rich text.
+              const toggleWrapperElement =
+                blockContentElement.querySelector(".bn-toggle-wrapper");
+              if (toggleWrapperElement !== null) {
+                const toggleWrapperBoundingClientRect =
+                  toggleWrapperElement.getBoundingClientRect();
 
-                if (
-                  block.type === "file" ||
-                  (blockHasType(block, editor, block.type, {
-                    showPreview: "boolean",
-                  }) &&
-                    !block.props.showPreview)
-                ) {
-                  elements.floating.style.setProperty("height", "38px");
-                  return;
-                }
+                elements.floating.style.setProperty(
+                  "height",
+                  `${toggleWrapperBoundingClientRect.height}px`,
+                );
+                elements.floating.style.setProperty(
+                  "top",
+                  `${toggleWrapperBoundingClientRect.y - blockContentBoundingClientRect.y}px`,
+                );
 
-                if (block.type === "audio") {
-                  elements.floating.style.setProperty("height", "60px");
-                  return;
-                }
+                return;
               }
 
-              elements.floating.style.setProperty("height", "30px");
-              elements.floating.style.height = "30px";
+              // Special case for table blocks. In this case, we align the side
+              // menu with the table element inside the block.
+              const tableElement = blockContentElement.querySelector(
+                ".tableWrapper table",
+              );
+              if (tableElement !== null) {
+                const tableBoundingClientRect =
+                  tableElement.getBoundingClientRect();
+
+                elements.floating.style.setProperty(
+                  "height",
+                  `${tableBoundingClientRect.height}px`,
+                );
+                elements.floating.style.setProperty(
+                  "top",
+                  `${tableBoundingClientRect.y - blockContentBoundingClientRect.y}px`,
+                );
+
+                return;
+              }
+
+              // Regular case, in which the side menu is aligned with the block
+              // content element.
+              elements.floating.style.setProperty(
+                "height",
+                `${blockContentBoundingClientRect.height}px`,
+              );
+              elements.floating.style.setProperty("top", "0");
             },
           }),
         ],
