@@ -915,10 +915,10 @@ export class BlockNoteEditor<
       getChanges: () => BlocksChanged<any, any, any>;
       tr: Transaction;
     }) => boolean | void,
-  ) {
+  ): () => void {
     return this._extensionManager
-      .getExtension(BlockChangeExtension)
-      ?.subscribe(callback);
+      .getExtension(BlockChangeExtension)!
+      .subscribe(callback);
   }
 
   /**
