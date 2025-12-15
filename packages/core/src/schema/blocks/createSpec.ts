@@ -70,6 +70,8 @@ export function getParseRules<
 
         return props;
       },
+      // Because we do the parsing ourselves, we want to preserve whitespace for content we've parsed
+      preserveWhitespace: true,
       getContent:
         config.content === "inline" || config.content === "none"
           ? (node, schema) => {
