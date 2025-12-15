@@ -542,15 +542,11 @@ NESTED BLOCKS
 }
 
 /* PLACEHOLDERS*/
-.bn-inline-content:has(> .ProseMirror-trailingBreak:only-child):before {
-  /*float: left; */
+/* TODO: should this be here? */
+.bn-inline-content:has(> .ProseMirror-trailingBreak:only-child):after {
   pointer-events: none;
-  height: 0;
-  /* width: 0; */
-  position: absolute;
   font-style: italic;
 }
-/* TODO: should this be here? */
 
 /* TEXT COLORS */
 [data-style-type="textColor"][data-value="gray"],
