@@ -935,6 +935,13 @@ console.log("Third Line")</code></pre>`,
     testCase: { name: "divider", content: `<hr/>` },
     executeTest: testParseHTML,
   },
+  {
+    testCase: {
+      name: "trailing whitespace",
+      content: `<p>hello, </p>`,
+    },
+    executeTest: testParseHTML,
+  },
 ];
 
 export const parseTestInstancesMarkdown: TestInstance<
