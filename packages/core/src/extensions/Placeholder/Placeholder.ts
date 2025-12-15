@@ -23,11 +23,6 @@ export const PlaceholderExtension = createExtension(
         new Plugin({
           key: PLUGIN_KEY,
           view: (view) => {
-            view.dom.setAttribute(
-              "data-selection-empty",
-              view.state.selection.empty ? "true" : "false",
-            );
-
             const uniqueEditorSelector = `placeholder-selector-${v4()}`;
             view.dom.classList.add(uniqueEditorSelector);
             const styleEl = document.createElement("style");
@@ -45,22 +40,9 @@ export const PlaceholderExtension = createExtension(
 
             const styleSheet = styleEl.sheet!;
 
-            const createPlaceholderRule = (
-              placeholder: string | undefined,
-              additionalEditorSelectors = "",
-              additionalBlockSelectors = "",
-            ) => {
-              // Creates CSS rule to set placeholder content at the given selector.
-              styleSheet.insertRule(
-                `.${uniqueEditorSelector}${additionalEditorSelectors} .bn-block-content${additionalBlockSelectors} .bn-inline-content:has(> .ProseMirror-trailingBreak:only-child):after { content: ${JSON.stringify(placeholder)}; }`,
-              );
-              // Creates CSS rule to hide the trailing break node while the
-              // placeholder is visible. This is because it's rendered as a
-              // `br` element, forcing the placeholder onto the next line.
-              styleSheet.insertRule(
-                `.${uniqueEditorSelector}${additionalEditorSelectors} .bn-block-content${additionalBlockSelectors} .bn-inline-content > .ProseMirror-trailingBreak:only-child { display: none; }`,
-              );
-            };
+            const getSelector = (additionalSelectors = "") =>
+              `.${uniqueEditorSelector} .bn-block-content${additionalSelectors}:has(.ProseMirror-trailingBreak:only-child):after`;
+
             try {
               // FIXME: the names "default" and "emptyDocument" are hardcoded
               const {
@@ -71,30 +53,30 @@ export const PlaceholderExtension = createExtension(
 
               // add block specific placeholders
               for (const [blockType, placeholder] of Object.entries(rest)) {
-                createPlaceholderRule(
-                  placeholder,
-                  "[data-selection-empty='true']",
-                  `[data-content-type="${blockType}"]`,
-                );
-                createPlaceholderRule(
-                  placeholder,
-                  "[data-selection-empty='false']",
-                  `[data-content-type="${blockType}"]:not([data-is-empty-and-focused])`,
+                const blockTypeSelector = `[data-content-type="${blockType}"]`;
+
+                styleSheet.insertRule(
+                  `${getSelector(blockTypeSelector)} { content: ${JSON.stringify(
+                    placeholder,
+                  )}; }`,
                 );
               }
 
+              const onlyBlockSelector = `[data-is-only-empty-block]`;
+              const mustBeFocusedSelector = `[data-is-empty-and-focused]`;
+
               // placeholder for when there's only one empty block
-              createPlaceholderRule(
-                emptyPlaceholder,
-                "[data-selection-empty='true']",
-                "[data-is-only-empty-block]",
+              styleSheet.insertRule(
+                `${getSelector(onlyBlockSelector)} { content: ${JSON.stringify(
+                  emptyPlaceholder,
+                )}; }`,
               );
 
               // placeholder for default blocks, only when the cursor is in the block (mustBeFocused)
-              createPlaceholderRule(
-                defaultPlaceholder,
-                "[data-selection-empty='true']",
-                "[data-is-empty-and-focused]",
+              styleSheet.insertRule(
+                `${getSelector(mustBeFocusedSelector)} { content: ${JSON.stringify(
+                  defaultPlaceholder,
+                )}; }`,
               );
             } catch (e) {
               // eslint-disable-next-line no-console
@@ -105,12 +87,6 @@ export const PlaceholderExtension = createExtension(
             }
 
             return {
-              update: (view) => {
-                view.dom.setAttribute(
-                  "data-selection-empty",
-                  view.state.selection.empty ? "true" : "false",
-                );
-              },
               destroy: () => {
                 if (view.root instanceof window.ShadowRoot) {
                   view.root.removeChild(styleEl);
@@ -125,6 +101,10 @@ export const PlaceholderExtension = createExtension(
               const { doc, selection } = state;
 
               if (!editor.isEditable) {
+                return;
+              }
+
+              if (!selection.empty) {
                 return;
               }
 
