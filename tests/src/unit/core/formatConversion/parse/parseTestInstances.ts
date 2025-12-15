@@ -942,6 +942,13 @@ console.log("Third Line")</code></pre>`,
     },
     executeTest: testParseHTML,
   },
+  {
+    testCase: {
+      name: "whitespace prefix",
+      content: `<p> hello,</p>`,
+    },
+    executeTest: testParseHTML,
+  },
 ];
 
 export const parseTestInstancesMarkdown: TestInstance<
