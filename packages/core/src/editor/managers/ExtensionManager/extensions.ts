@@ -14,22 +14,17 @@ import {
   BlockChangeExtension,
   DropCursorExtension,
   FilePanelExtension,
-  ForkYDocExtension,
   FormattingToolbarExtension,
   HistoryExtension,
   LinkToolbarExtension,
   NodeSelectionKeyboardExtension,
   PlaceholderExtension,
   PreviousBlockTypeExtension,
-  SchemaMigration,
   ShowSelectionExtension,
   SideMenuExtension,
   SuggestionMenu,
   TableHandlesExtension,
   TrailingNodeExtension,
-  YCursorExtension,
-  YSyncExtension,
-  YUndoExtension,
 } from "../../../extensions/index.js";
 import {
   DEFAULT_LINK_PROTOCOL,
@@ -52,6 +47,7 @@ import {
   BlockNoteEditorOptions,
 } from "../../BlockNoteEditor.js";
 import { ExtensionFactoryInstance } from "../../BlockNoteExtension.js";
+import { CollaborationExtension } from "../../../extensions/Collaboration/Collaboration.js";
 
 // TODO remove linkify completely by vendoring the link extension & dropping linkifyjs as a dependency
 let LINKIFY_INITIALIZED = false;
@@ -190,11 +186,7 @@ export function getDefaultExtensions(
   ] as ExtensionFactoryInstance[];
 
   if (options.collaboration) {
-    extensions.push(ForkYDocExtension(options.collaboration));
-    extensions.push(YCursorExtension(options.collaboration));
-    extensions.push(YSyncExtension(options.collaboration));
-    extensions.push(YUndoExtension());
-    extensions.push(SchemaMigration(options.collaboration));
+    extensions.push(CollaborationExtension(options.collaboration));
   } else {
     // YUndo is not compatible with ProseMirror's history plugin
     extensions.push(HistoryExtension());
