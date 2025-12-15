@@ -7,7 +7,6 @@ import {
 } from "@tiptap/core";
 import { type Command, type Plugin, type Transaction } from "@tiptap/pm/state";
 import { Node, Schema } from "prosemirror-model";
-
 import type { BlocksChanged } from "../api/getBlocksChangedByTransaction.js";
 import { blockToNode } from "../api/nodeConversions/blockToNode.js";
 import {
@@ -18,6 +17,8 @@ import {
   DefaultStyleSchema,
   PartialBlock,
 } from "../blocks/index.js";
+import type { CollaborationOptions } from "../extensions/Collaboration/Collaboration.js";
+import { BlockChangeExtension } from "../extensions/index.js";
 import { UniqueID } from "../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 import type { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
@@ -51,8 +52,6 @@ import {
 } from "./managers/index.js";
 import type { Selection } from "./selectionTypes.js";
 import { transformPasted } from "./transformPasted.js";
-import { BlockChangeExtension } from "../extensions/index.js";
-import type { CollaborationOptions } from "../extensions/Collaboration/Collaboration.js";
 
 export type BlockCache<
   BSchema extends BlockSchema = any,
@@ -934,8 +933,8 @@ export class BlockNoteEditor<
    * If the selection starts / ends halfway through a block, the returned block will be
    * only the part of the block that is included in the selection.
    */
-  public getSelectionCutBlocks() {
-    return this._selectionManager.getSelectionCutBlocks();
+  public getSelectionCutBlocks(expandToWords = false) {
+    return this._selectionManager.getSelectionCutBlocks(expandToWords);
   }
 
   /**

@@ -51,7 +51,7 @@ export async function buildAIRequest(opts: {
       : undefined;
 
   const selectionInfo = useSelection
-    ? opts.editor.getSelectionCutBlocks()
+    ? opts.editor.getSelectionCutBlocks(true)
     : undefined;
 
   const streamTools = streamToolsProvider.getStreamTools(
