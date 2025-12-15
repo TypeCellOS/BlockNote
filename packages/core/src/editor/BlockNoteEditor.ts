@@ -883,7 +883,7 @@ export class BlockNoteEditor<
    */
   public onBeforeChange(
     callback: (context: {
-      getChanges: () => BlocksChanged<any, any, any>;
+      getChanges: () => BlocksChanged<BSchema, ISchema, SSchema>;
       tr: Transaction;
     }) => boolean | void,
   ) {
