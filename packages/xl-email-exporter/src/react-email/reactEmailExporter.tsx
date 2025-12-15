@@ -310,7 +310,15 @@ export class ReactEmailExporter<
       (({ children }: { children: React.ReactNode }) => (
         <React.Fragment>{children}</React.Fragment>
       ));
-    return renderEmail(
+    const needsPolyfill = !globalThis.ReadableByteStreamController;
+    if (needsPolyfill) {
+      // needed for safari compatibility;
+      // https://github.com/resend/react-email/blob/f02e21e998d507aa3fdfbb7b8639f915b8df6cb5/apps/docs/utilities/render.mdx#3-convert-to-html
+      (globalThis as any).ReadableByteStreamController = (
+        await import("web-streams-polyfill")
+      ).default.ReadableByteStreamController;
+    }
+    const ret = await renderEmail(
       <Html>
         <Head>{options?.head}</Head>
         <Body
@@ -335,6 +343,10 @@ export class ReactEmailExporter<
         </Body>
       </Html>,
     );
+    if (needsPolyfill) {
+      delete (globalThis as any).ReadableByteStreamController;
+    }
+    return ret;
   }
 
   protected blocknoteDefaultPropsToReactEmailStyle(
