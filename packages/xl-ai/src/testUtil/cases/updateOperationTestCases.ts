@@ -34,7 +34,7 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
         type: "update",
         id: "ref2",
         block: {
-          content: [{ type: "text", text: "Hallo", styles: {} }],
+          content: [{ type: "text", text: "Hallo,", styles: {} }],
         },
       },
     ],
@@ -71,9 +71,10 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
       if (!block.isBlockContainer) {
         throw new Error("Block is not a block container");
       }
+      // 'ello, world! Dow are yo'
       return {
         from: block.blockContent.beforePos + 2,
-        to: block.blockContent.afterPos - 2,
+        to: block.blockContent.afterPos - 3,
       };
     },
     userPrompt: "fix spelling",

@@ -1,6 +1,5 @@
 import { TextSelection, type Transaction } from "prosemirror-state";
 import { TableMap } from "prosemirror-tables";
-
 import { Block } from "../../../blocks/defaultBlocks.js";
 import { Selection } from "../../../editor/selectionTypes.js";
 import {
@@ -9,6 +8,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../schema/index.js";
+import { expandPMRangeToWords } from "../../../util/expandToWords.js";
 import { getBlockInfo, getNearestBlockPos } from "../../getBlockInfoFromPos.js";
 import {
   nodeToBlock,
@@ -224,39 +224,16 @@ export function getSelectionCutBlocks(tr: Transaction, expandToWords = false) {
   // TODO: fix image node selection
 
   const pmSchema = getPmSchema(tr);
-  let start = tr.selection.$from;
-  let end = tr.selection.$to;
+
+  const range = expandToWords
+    ? expandPMRangeToWords(tr.doc, tr.selection)
+    : tr.selection;
+
+  let start = range.$from;
+  let end = range.$to;
 
   // the selection moves below are used to make sure `prosemirrorSliceToSlicedBlocks` returns
   // the correct information about whether content is cut at the start or end of a block
-
-  if (expandToWords) {
-    // Expand Start
-    // If the selection starts with a word character, check if we need to expand left to include the rest of the word
-    if (start.pos > start.start() && start.pos < tr.doc.content.size) {
-      const charAfterStart = tr.doc.textBetween(start.pos, start.pos + 1);
-      if (/^[\w]$/.test(charAfterStart)) {
-        const textBefore = tr.doc.textBetween(start.start(), start.pos);
-        const wordMatch = textBefore.match(/[\w]+$/);
-        if (wordMatch) {
-          start = tr.doc.resolve(start.pos - wordMatch[0].length);
-        }
-      }
-    }
-
-    // Expand End
-    // If the selection ends with a word character, check if we need to expand right to include the rest of the word
-    if (end.pos < end.end() && end.pos > 0) {
-      const charBeforeEnd = tr.doc.textBetween(end.pos - 1, end.pos);
-      if (/^[\w]$/.test(charBeforeEnd)) {
-        const textAfter = tr.doc.textBetween(end.pos, end.end());
-        const wordMatch = textAfter.match(/^[\w]+/);
-        if (wordMatch) {
-          end = tr.doc.resolve(end.pos + wordMatch[0].length);
-        }
-      }
-    }
-  }
 
   // if the end is at the end of a node (|</span></p>) move it forward so we include all closing tags (</span></p>|)
   while (end.parentOffset >= end.parent.nodeSize - 2 && end.depth > 0) {
