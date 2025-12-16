@@ -52,7 +52,7 @@
     "@blocknote/xl-ai": "workspace:*",
     "@hono/node-server": "^1.19.5",
     "ai": "^5.0.102",
-    "hono": "^4.10.0"
+    "hono": "^4.10.3"
   },
   "devDependencies": {
     "eslint": "^8.57.1",
