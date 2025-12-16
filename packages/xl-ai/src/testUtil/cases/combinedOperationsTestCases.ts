@@ -39,7 +39,7 @@ export const combinedOperationsTestCases: DocumentOperationTestCase[] = [
         type: "update",
         id: "ref2",
         block: {
-          content: [{ type: "text", text: "Hallo", styles: {} }],
+          content: [{ type: "text", text: "Hallo,", styles: {} }],
         },
       },
     ],
