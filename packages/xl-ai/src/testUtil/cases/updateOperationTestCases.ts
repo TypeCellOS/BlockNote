@@ -2,6 +2,7 @@ import { BlockNoteEditor, getBlockInfo, getNodeById } from "@blocknote/core";
 import { AIExtension } from "../../AIExtension.js";
 import { getEditorWithBlockFormatting } from "./editors/blockFormatting.js";
 import { getEditorWithFormattingAndMentions } from "./editors/formattingAndMentions.js";
+import { getSimpleEditorSpellingError } from "./editors/simpleEditor.js";
 import { DocumentOperationTestCase } from "./index.js";
 import { schemaWithMention as schema } from "./schemas/mention.js";
 
@@ -49,6 +50,33 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
       };
     },
     userPrompt: "translate to German",
+  },
+  {
+    editor: getSimpleEditorSpellingError,
+    description: "fix spelling mid-word selection",
+    baseToolCalls: [
+      {
+        type: "update",
+        id: "ref1",
+        block: {
+          content: [
+            { type: "text", text: "Hello, world! How are you?", styles: {} },
+          ],
+        },
+      },
+    ],
+    getTestSelection: (editor: BlockNoteEditor<any, any, any>) => {
+      const posInfo = getNodeById("ref1", editor.prosemirrorState.doc)!;
+      const block = getBlockInfo(posInfo);
+      if (!block.isBlockContainer) {
+        throw new Error("Block is not a block container");
+      }
+      return {
+        from: block.blockContent.beforePos + 2,
+        to: block.blockContent.afterPos - 2,
+      };
+    },
+    userPrompt: "fix spelling",
   },
   {
     editor: getEditorWithFormattingAndMentions,
