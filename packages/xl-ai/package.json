@@ -112,7 +112,7 @@
     "@vitejs/plugin-react": "^4.7.0",
     "@vitest/runner": "^2.1.9",
     "eslint": "^8.57.1",
-    "glob": "^10.4.5",
+    "glob": "^10.5.0",
     "headers-polyfill": "^4.0.3",
     "msw": "^2.11.5",
     "msw-snapshot": "^5.3.0",
