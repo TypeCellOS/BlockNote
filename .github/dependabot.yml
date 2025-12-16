@@ -13,3 +13,16 @@ updates:
     allow:
       - dependency-name: "@tiptap/*"
       - dependency-name: "prosemirror-*"
+      - dependency-name: "react"
+      - dependency-name: "react-*"
+      - dependency-name: "yjs"
+      - dependency-name: "y-prosemirror"
+    groups:
+      editor-dependencies:
+        patterns:
+          - "@tiptap/*"
+          - "prosemirror-*"
+          - "react"
+          - "react-*"
+          - "yjs"
+          - "y-prosemirror"
