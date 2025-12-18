@@ -10,7 +10,10 @@ import {
   testPasteHTML,
   testPasteMarkdown,
 } from "../../../shared/clipboard/paste/pasteTestExecutors.js";
-import { getPosOfTextNode } from "../../../shared/testUtil.js";
+import {
+  getPosInEmptyBlockContentNode,
+  getPosOfTextNode,
+} from "../../../shared/testUtil.js";
 import { TestInstance } from "../../../types.js";
 
 export const pasteTestInstancesHTML: TestInstance<
@@ -131,6 +134,23 @@ export const pasteTestInstancesHTML: TestInstance<
       ],
       getPasteSelection: (doc) => {
         const startPos = getPosOfTextNode(doc, "Custom Paragraph 1", true);
+
+        return TextSelection.create(doc, startPos);
+      },
+    },
+    executeTest: testPasteHTML,
+  },
+  {
+    testCase: {
+      name: "pasteEmptyQuote",
+      content: `<p>Paragraph</p>`,
+      document: [
+        {
+          type: "quote",
+        },
+      ],
+      getPasteSelection: (doc) => {
+        const startPos = getPosInEmptyBlockContentNode(doc, "quote");
 
         return TextSelection.create(doc, startPos);
       },
