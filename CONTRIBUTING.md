@@ -1,6 +1,85 @@
 # Contributing
 
-Directory structure:
+Thank you for your interest in contributing to BlockNote. This project welcomes contributions from the community. This document explains **how to participate**, **how decisions are made**, and **how to work with the codebase**.
+
+---
+
+## Ways to Contribute
+
+There are many ways to contribute to BlockNote:
+
+- Sharing ideas, feedback, or use cases
+- Reporting bugs
+- Improving documentation or examples
+
+- Proposing new features or changes
+- Submitting code contributions
+
+You do **not** need to start with code to contribute.
+
+> Open-ended ideas, early exploration, and feedback are best shared via GitHub Discussions, while actionable work and implementation tasks are tracked as GitHub Issues.
+> 
+
+---
+
+## Sharing Ideas and Feedback
+
+Ideas, suggestions, and early proposals are welcome and encouraged.
+
+- Start with a GitHub Issue or Discussion
+- Focus on the **problem or need**, not just a solution
+- Keep it lightweight — early feedback does not require an RFC
+
+See **How Work Flows** for an overview of how ideas move through the project.
+
+---
+
+## Proposing Significant Changes (RFCs)
+
+Some changes require an RFC (Request for Comments) before they can be accepted.
+
+An RFC is required when a change:
+
+- Affects core behavior or public APIs
+- Introduces new core concepts
+- Sets long-term technical precedent
+- Has broad impact across users or integrations
+
+Anyone may propose an RFC.
+
+RFCs are intentionally higher-effort and are required only when a change is ready for formal consideration.
+
+See **[RFC_PROCESS.md](/RFC_PROCESS.md)** and **[RFC_TEMPLATE.md](/.github/RFC_TEMPLATE.md)** for details.
+
+---
+
+## Code Contributions
+
+### Small Changes
+
+For small, low-risk changes (bug fixes, documentation, minor improvements):
+
+- Open a pull request directly
+- Keep changes focused and scoped
+- Include tests where appropriate
+
+Maintainers will review and provide feedback.
+
+---
+
+### Larger Changes
+
+For larger or higher-impact changes:
+
+- Confirm whether an RFC is required
+- Ensure the change aligns with an accepted RFC, if applicable
+- Coordinate early with maintainers
+
+Pull requests that introduce significant changes without prior discussion may be redirected or closed.
+
+---
+
+## Directory structure:
 
 ```
 BlockNote
@@ -19,7 +98,9 @@ BlockNote
 
 An introduction into the BlockNote Prosemirror schema can be found in [packages/core/src/pm-nodes/README.md](https://github.com/TypeCellOS/BlockNote/blob/main/packages/core/src/pm-nodes/README.md).
 
-## Running
+---
+
+## Running the project
 
 To run the project, open the command line in the project's root directory and enter the following commands:
 
@@ -31,10 +112,14 @@ pnpm install
 pnpm start
 ```
 
+---
+
 ## Adding packages
 
 - Add the dependency to the relevant `package.json` file (packages/xxx/package.json)
 - Double check `pnpm-lock.yaml` to make sure only the relevant packages have been affected
+
+---
 
 ## Packages
 
@@ -46,6 +131,8 @@ pnpm start
 | [@blocknote/mantine](https://github.com/TypeCellOS/BlockNote/tree/main/packages/mantine)         | <a href="https://bundlephobia.com/result?p=@blocknote/mantine@latest"><img src="https://img.shields.io/bundlephobia/minzip/@blocknote/mantine?color=%238ab4f8&label=gzip%20size"></a>         | <a href="https://www.npmjs.com/package/@blocknote/mantine"><img src="https://img.shields.io/npm/v/@blocknote/mantine?color=%23c1a8e2"></a>         |
 | [@blocknote/shadcn](https://github.com/TypeCellOS/BlockNote/tree/main/packages/shadcn)           | <a href="https://bundlephobia.com/result?p=@blocknote/shadcn@latest"><img src="https://img.shields.io/bundlephobia/minzip/@blocknote/shadcn?color=%238ab4f8&label=gzip%20size"></a>           | <a href="https://www.npmjs.com/package/@blocknote/shadcn"><img src="https://img.shields.io/npm/v/@blocknote/shadcn?color=%23c1a8e2"></a>           |
 | [@blocknote/server-util](https://github.com/TypeCellOS/BlockNote/tree/main/packages/server-util) | <a href="https://bundlephobia.com/result?p=@blocknote/server-util@latest"><img src="https://img.shields.io/bundlephobia/minzip/@blocknote/server-util?color=%238ab4f8&label=gzip%20size"></a> | <a href="https://www.npmjs.com/package/@blocknote/server-util"><img src="https://img.shields.io/npm/v/@blocknote/server-util?color=%23c1a8e2"></a> |
+
+---
 
 ## Releasing
 
