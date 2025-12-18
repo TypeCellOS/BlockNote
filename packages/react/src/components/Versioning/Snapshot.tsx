@@ -8,8 +8,13 @@ import { dateToString } from "./dateToString.js";
 import { useState } from "react";
 
 export const Snapshot = ({ snapshot }: { snapshot: VersionSnapshot }) => {
-  const { restoreSnapshot, updateSnapshotName, selectSnapshot } =
-    useExtension(VersioningExtension);
+  const {
+    canRestoreSnapshot,
+    restoreSnapshot,
+    canUpdateSnapshotName,
+    updateSnapshotName,
+    selectSnapshot,
+  } = useExtension(VersioningExtension);
   const selected = useExtensionState(VersioningExtension, {
     selector: (state) => state.selectedSnapshotId === snapshot.id,
   });
@@ -40,6 +45,7 @@ export const Snapshot = ({ snapshot }: { snapshot: VersionSnapshot }) => {
         <input
           className="bn-snapshot-name"
           type="text"
+          readOnly={canUpdateSnapshotName}
           value={snapshotName}
           onChange={(e) => setSnapshotName(e.target.value)}
           onBlur={() => updateSnapshotName?.(snapshot.id, snapshotName)}
@@ -56,12 +62,14 @@ export const Snapshot = ({ snapshot }: { snapshot: VersionSnapshot }) => {
             <div className="bn-snapshot-user">{`Edited by ${snapshot.meta.userIds.join(", ")}`}</div>
           )}
       </div>
-      <button
-        className="bn-snapshot-button"
-        onClick={() => restoreSnapshot?.(snapshot.id)}
-      >
-        Restore
-      </button>
+      {canRestoreSnapshot && (
+        <button
+          className="bn-snapshot-button"
+          onClick={() => restoreSnapshot?.(snapshot.id)}
+        >
+          Restore
+        </button>
+      )}
     </div>
   );
 };

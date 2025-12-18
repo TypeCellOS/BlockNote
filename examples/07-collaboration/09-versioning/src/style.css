@@ -16,7 +16,6 @@
   flex-direction: column;
   gap: 10px;
   max-height: 100%;
-  min-width: 350px;
   width: 0;
 }
 
@@ -79,11 +78,10 @@
 }
 
 .bn-snapshot-button {
-  /* align-self: flex-end; */
-  background-color: #c2dcf8;
+  background-color: #4da3ff;
   border: none;
   border-radius: 4px;
-  color: var(--bn-colors-menu-text);
+  color: var(--bn-colors-selected-text);
   cursor: pointer;
   font-size: 12px;
   font-weight: 600;
@@ -92,7 +90,15 @@
 }
 
 .dark .bn-snapshot-button {
-  background-color: #226fb7;
+  background-color: #0070e8;
+}
+
+.bn-snapshot-button:hover {
+  background-color: #73b7ff;
+}
+
+.dark .bn-snapshot-button:hover {
+  background-color: #3785d8;
 }
 
 .bn-versioning-sidebar .bn-snapshot.selected {

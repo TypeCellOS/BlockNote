@@ -88,6 +88,8 @@ const updateSnapshotName: VersioningEndpoints["updateSnapshotName"] = async (
   }
 
   snapshot.name = name;
+  snapshot.updatedAt = Date.now();
+
   localStorage.setItem("snapshots", JSON.stringify(snapshots));
 
   return Promise.resolve();

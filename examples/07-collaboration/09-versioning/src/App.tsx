@@ -6,23 +6,21 @@ import {
 import {
   BlockNoteViewEditor,
   useCreateBlockNote,
+  useExtensionState,
   VersioningSidebar,
 } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
+import * as Y from "yjs";
 
 import "./style.css";
-// import YPartyKitProvider from "y-partykit/provider";
-import * as Y from "yjs";
 
 const doc = new Y.Doc();
 
 export default function App() {
   const editor = useCreateBlockNote({
     collaboration: {
-      // Where to store BlockNote data in the Y.Doc:
       fragment: doc.getXmlFragment(),
-      // Information (name and color) for this user:
       user: {
         name: "My Username",
         color: "#ff0000",
@@ -36,7 +34,10 @@ export default function App() {
     ],
   });
 
-  // Renders the editor instance.
+  const { selectedSnapshotId } = useExtensionState(VersioningExtension, {
+    editor,
+  });
+
   return (
     <BlockNoteView
       className={"version-history-main-container"}
@@ -45,7 +46,7 @@ export default function App() {
       onChange={() => console.log(doc.getXmlFragment().toJSON())}
     >
       <div className={"editor-section"}>
-        <h1>Editor</h1>
+        <h1>Editor {selectedSnapshotId !== undefined ? "(Preview)" : ""}</h1>
         <BlockNoteViewEditor />
       </div>
       <div className={"version-history-section"}>

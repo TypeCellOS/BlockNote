@@ -44,13 +44,6 @@ export interface VersionSnapshot {
      * Additional metadata about the snapshot.
      */
     [key: string]: unknown;
-
-    // TODO this should not be exposed to the user (make it internal only)
-    /**
-     * The content of the snapshot.
-     */
-    contents?: Uint8Array;
-    selected?: boolean;
   };
 }
 
@@ -150,17 +143,25 @@ export const VersioningExtension = createExtension(
         snapshots,
       }));
     };
-    const updateSnapshotsSync = () => {
-      updateSnapshots();
+
+    const initSnapshots = async () => {
+      await updateSnapshots();
+
+      if (store.state.snapshots.length > 0) {
+        const snapshotContent = await endpoints.fetchSnapshotContent(
+          store.state.snapshots[0].id,
+        );
+
+        applySnapshot(snapshotContent);
+      }
     };
 
     return {
       key: "versioning",
       store,
-      mount: () => updateSnapshotsSync(),
-      // TODO I'd probably have:
-      // canRestoreSnapshot: () => boolean;
-      // canUpdateSnapshotName: () => boolean;
+      mount: () => {
+        initSnapshots();
+      },
       listSnapshots: async (): Promise<VersionSnapshot[]> => {
         await updateSnapshots();
 
@@ -172,6 +173,7 @@ export const VersioningExtension = createExtension(
 
         return store.state.snapshots[0];
       },
+      canRestoreSnapshot: endpoints.restoreSnapshot !== undefined,
       restoreSnapshot: endpoints.restoreSnapshot
         ? async (id: string): Promise<Uint8Array> => {
             const snapshotContent = await endpoints.restoreSnapshot!(
@@ -181,22 +183,15 @@ export const VersioningExtension = createExtension(
             applySnapshot(snapshotContent);
             await updateSnapshots();
 
+            store.setState((state) => ({
+              ...state,
+              selectedSnapshotId: undefined,
+            }));
+
             return snapshotContent;
           }
         : undefined,
-      fetchSnapshotContent: async (id: string): Promise<Uint8Array> => {
-        const storeSnapshot = store.state.snapshots.find(
-          (snapshot) => snapshot.id === id,
-        );
-        if (storeSnapshot && storeSnapshot.meta.contents !== undefined) {
-          return storeSnapshot.meta.contents;
-        }
-
-        const snapshotContent = await endpoints.fetchSnapshotContent(id);
-        await updateSnapshots();
-
-        return snapshotContent;
-      },
+      canUpdateSnapshotName: endpoints.updateSnapshotName !== undefined,
       updateSnapshotName: endpoints.updateSnapshotName
         ? async (id: string, name: string): Promise<void> => {
             await endpoints.updateSnapshotName!(id, name);
@@ -226,101 +221,3 @@ export const VersioningExtension = createExtension(
     } as const;
   },
 );
-
-// /**
-//  * Here is a mock implementation of the VersionAPI for the demo
-//  */
-// export const MockVersionAPI = Object.assign(
-//   {
-//     listSnapshots: async () => {
-//       await new Promise((resolve) =>
-//         setTimeout(resolve, 600 + Math.random() * 1000),
-//       );
-//       return JSON.parse(
-//         localStorage.getItem("versions") ?? "[]",
-//       ) as VersionSnapshot[];
-//     },
-//     createSnapshot: async (name, fragment) => {
-//       await new Promise((resolve) =>
-//         setTimeout(resolve, 600 + Math.random() * 1000),
-//       );
-//       const snapshot = {
-//         id: v4(),
-//         name,
-//         createdAt: Date.now(),
-//         updatedAt: Date.now(),
-//         meta: {
-//           userIds: ["User"],
-//           // @ts-expect-error - toBase64 is not a method on Uint8Array in types, but exists in chrome
-//           contents: Y.encodeStateAsUpdateV2(fragment.doc!).toBase64(),
-//         },
-//       } satisfies VersionSnapshot;
-//       localStorage.setItem(
-//         "versions",
-//         JSON.stringify([
-//           snapshot,
-//           ...(JSON.parse(
-//             localStorage.getItem("versions") ?? "[]",
-//           ) as VersionSnapshot[]),
-//         ]),
-//       );
-//       return Promise.resolve(snapshot);
-//     },
-//     fetchSnapshotContent: async (id: string) => {
-//       await new Promise((resolve) =>
-//         setTimeout(resolve, 600 + Math.random() * 1000),
-//       );
-//       const snapshot = (
-//         JSON.parse(
-//           localStorage.getItem("versions") ?? "[]",
-//         ) as VersionSnapshot[]
-//       ).find((snapshot) => snapshot.id === id);
-//       if (snapshot === undefined) {
-//         throw new Error(`Document snapshot ${id} could not be found.`);
-//       }
-//       const binaryString = atob(snapshot.meta.contents as string);
-//       const uint8Array = Uint8Array.from(binaryString, (c) => c.charCodeAt(0));
-//       return Promise.resolve(uint8Array);
-//     },
-//     restoreSnapshot: async (id: string) => {
-//       await new Promise((resolve) =>
-//         setTimeout(resolve, 600 + Math.random() * 1000),
-//       );
-//       const versions = JSON.parse(
-//         localStorage.getItem("versions") ?? "[]",
-//       ) as VersionSnapshot[];
-//       const snapshotIndex = versions.findIndex(
-//         (snapshot: VersionSnapshot) => snapshot.id === id,
-//       );
-//       if (snapshotIndex === -1) {
-//         throw new Error(`Document snapshot ${id} could not be found.`);
-//       }
-//       const snapshot = versions[snapshotIndex].meta.contents as string;
-//       const binaryString = atob(snapshot);
-//       const uint8Array = Uint8Array.from(binaryString, (c) => c.charCodeAt(0));
-//       return Promise.resolve(uint8Array);
-//     },
-//     updateSnapshotName: async (id: string, name: string) => {
-//       await new Promise((resolve) =>
-//         setTimeout(resolve, 600 + Math.random() * 1000),
-//       );
-//       const snapshot = JSON.parse(
-//         localStorage.getItem("versions") ?? "[]",
-//       ).find((snapshot: VersionSnapshot) => snapshot.id === id);
-//       if (snapshot === undefined) {
-//         throw new Error(`Document snapshot ${id} could not be found.`);
-//       }
-//       snapshot.name = name;
-//       localStorage.setItem("versions", JSON.stringify(snapshot));
-//       return Promise.resolve();
-//     },
-//   } satisfies VersioningEndpoints,
-//   {
-//     // This will load the initial snapshot from the localStorage for the demo
-//     getInitialSnapshot: () => {
-//       return JSON.parse(
-//         localStorage.getItem("versions") ?? "[]",
-//       )[0] as VersionSnapshot;
-//     },
-//   },
-// );
