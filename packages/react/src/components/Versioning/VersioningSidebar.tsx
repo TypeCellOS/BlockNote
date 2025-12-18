@@ -10,8 +10,8 @@ export const VersioningSidebar = () => {
   return (
     <div className="bn-versioning-sidebar">
       <CurrentSnapshot />
-      {snapshots.map((snapshot, index) => {
-        return <Snapshot key={index} snapshot={snapshot} />;
+      {snapshots.map((snapshot) => {
+        return <Snapshot key={snapshot.id} snapshot={snapshot} />;
       })}
     </div>
   );

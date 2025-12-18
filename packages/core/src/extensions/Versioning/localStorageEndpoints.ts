@@ -9,15 +9,15 @@ const listSnapshots: VersioningEndpoints["listSnapshots"] = async () =>
 const createSnapshot = async (
   fragment: Y.XmlFragment,
   name?: string,
-  revertedSnapshotId?: string,
+  restoredFromSnapshotId?: string,
 ): Promise<VersionSnapshot> => {
   const snapshot = {
     id: v4(),
     name,
     createdAt: Date.now(),
     updatedAt: Date.now(),
-    revertedSnapshotId,
     meta: {
+      restoredFromSnapshotId,
       userIds: ["User1"],
       // @ts-expect-error - toBase64 is not a method on Uint8Array in types, but exists in chrome
       contents: Y.encodeStateAsUpdateV2(fragment.doc!).toBase64(),
@@ -58,16 +58,20 @@ const restoreSnapshot: VersioningEndpoints["restoreSnapshot"] = async (
   fragment,
   id,
 ) => {
+  // take a snapshot of the current document
   await createSnapshot(fragment, "Backup");
 
-  Y.mergeUpdatesV2([await fetchSnapshotContent(id)]);
+  // hydrates the version document from it's contents, into a new Y.Doc
+  const snapshotContent = await fetchSnapshotContent(id);
+  const yDoc = new Y.Doc();
+  Y.applyUpdateV2(yDoc, snapshotContent);
 
-  await createSnapshot(fragment, "Restored Snapshot", id);
+  // create a new snapshot from that, to store it back in the list
+  // Don't mind that the xmlFragment is not the right one, we just snapshot the whole doc anyway
+  await createSnapshot(yDoc.getXmlFragment(), "Restored Snapshot", id);
 
-  return Promise.resolve(
-    // @ts-expect-error - toBase64 is not a method on Uint8Array in types, but exists in chrome
-    Y.encodeStateAsUpdateV2(fragment.doc!).toBase64(),
-  );
+  // return what the new state should be
+  return snapshotContent;
 };
 
 const updateSnapshotName: VersioningEndpoints["updateSnapshotName"] = async (

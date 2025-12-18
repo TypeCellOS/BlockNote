@@ -5,6 +5,7 @@ import {
 
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
 import { dateToString } from "./dateToString.js";
+import { useState } from "react";
 
 export const Snapshot = ({ snapshot }: { snapshot: VersionSnapshot }) => {
   const { restoreSnapshot, updateSnapshotName, selectSnapshot } =
@@ -14,14 +15,17 @@ export const Snapshot = ({ snapshot }: { snapshot: VersionSnapshot }) => {
   });
   const revertedSnapshot = useExtensionState(VersioningExtension, {
     selector: (state) =>
-      snapshot?.revertedSnapshotId !== undefined
+      snapshot?.meta.restoredFromSnapshotId !== undefined
         ? state.snapshots.find(
-            (snap) => snap.id === snapshot.revertedSnapshotId,
+            (snap) => snap.id === snapshot.meta.restoredFromSnapshotId,
           )
         : undefined,
   });
 
   const dateString = dateToString(new Date(snapshot?.createdAt || 0));
+  const [snapshotName, setSnapshotName] = useState(
+    snapshot?.name || dateString,
+  );
 
   if (snapshot === undefined) {
     return null;
@@ -36,10 +40,9 @@ export const Snapshot = ({ snapshot }: { snapshot: VersionSnapshot }) => {
         <input
           className="bn-snapshot-name"
           type="text"
-          defaultValue={snapshot?.name || dateString}
-          onBlur={(event) => {
-            updateSnapshotName?.(snapshot.id, event.target.value);
-          }}
+          value={snapshotName}
+          onChange={(e) => setSnapshotName(e.target.value)}
+          onBlur={() => updateSnapshotName?.(snapshot.id, snapshotName)}
         />
         {snapshot.name && snapshot.name !== dateString && (
           <div className="bn-snapshot-date">{dateString}</div>

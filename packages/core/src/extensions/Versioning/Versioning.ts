@@ -5,6 +5,11 @@ import {
   createStore,
   ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
+import {
+  findTypeInOtherYdoc,
+  ForkYDocExtension,
+} from "../Collaboration/ForkYDoc.js";
+import { yXmlFragmentToProseMirrorRootNode } from "y-prosemirror";
 
 export interface VersionSnapshot {
   /**
@@ -24,11 +29,6 @@ export interface VersionSnapshot {
    */
   updatedAt: number;
   /**
-   * If defined, indicates that the snapshot was created by reverting to a
-   * previous snapshot with the given ID.
-   */
-  revertedSnapshotId?: string;
-  /**
    * Additional metadata about the snapshot.
    */
   meta: {
@@ -37,14 +37,20 @@ export interface VersionSnapshot {
      */
     userIds?: string[];
     /**
-     * The content of the snapshot.
+     * The ID of the previous snapshot that this snapshot was restored from.
      */
-    contents?: Uint8Array;
-    selected?: boolean;
+    restoredFromSnapshotId?: string;
     /**
      * Additional metadata about the snapshot.
      */
     [key: string]: unknown;
+
+    // TODO this should not be exposed to the user (make it internal only)
+    /**
+     * The content of the snapshot.
+     */
+    contents?: Uint8Array;
+    selected?: boolean;
   };
 }
 
@@ -62,6 +68,10 @@ export interface VersioningEndpoints {
      * The optional name for this snapshot.
      */
     name?: string,
+    /**
+     * The ID of the previous snapshot that this snapshot was restored from.
+     */
+    restoredFromSnapshotId?: string,
   ) => Promise<VersionSnapshot>;
   /**
    * Restore the current document to the provided snapshot ID. This should also
@@ -99,6 +109,7 @@ export interface VersioningEndpoints {
 
 export const VersioningExtension = createExtension(
   ({
+    editor,
     options: { endpoints, fragment },
   }: ExtensionOptions<{
     /**
@@ -114,6 +125,23 @@ export const VersioningExtension = createExtension(
       snapshots: [],
       selectedSnapshotId: undefined,
     });
+
+    const applySnapshot = (snapshotContent: Uint8Array) => {
+      const yDoc = new Y.Doc();
+      Y.applyUpdateV2(yDoc, snapshotContent);
+
+      // Find the fragment within the newly restored document to then apply
+      const restoreFragment = findTypeInOtherYdoc(fragment, yDoc);
+
+      const pmDoc = yXmlFragmentToProseMirrorRootNode(
+        restoreFragment,
+        editor.prosemirrorState.schema,
+      );
+
+      editor.transact((tr) => {
+        tr.replace(0, tr.doc.content.size - 2, pmDoc.slice(0));
+      });
+    };
 
     const updateSnapshots = async () => {
       const snapshots = await endpoints.listSnapshots();
@@ -150,6 +178,7 @@ export const VersioningExtension = createExtension(
               fragment,
               id,
             );
+            applySnapshot(snapshotContent);
             await updateSnapshots();
 
             return snapshotContent;
@@ -175,11 +204,24 @@ export const VersioningExtension = createExtension(
           }
         : undefined,
 
-      selectSnapshot: (id: string | undefined) => {
+      selectSnapshot: async (id: string | undefined) => {
         store.setState((state) => ({
           ...state,
           selectedSnapshotId: id,
         }));
+
+        if (id === undefined) {
+          editor.isEditable = true;
+          // when we go back to the original document, just revert changes `.merge({ keepChanges: false })`
+          editor.getExtension(ForkYDocExtension)!.merge({ keepChanges: false });
+          return;
+        }
+        editor.getExtension(ForkYDocExtension)!.fork();
+        editor.isEditable = false;
+        const snapshotContent = await endpoints.fetchSnapshotContent(id);
+
+        // replace editor contents with the snapshot contents (affecting the forked document not the original)
+        applySnapshot(snapshotContent);
       },
     } as const;
   },
