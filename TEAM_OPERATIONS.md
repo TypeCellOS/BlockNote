@@ -1,6 +1,6 @@
 # Team Operations
 
-This document describes how the core team collaborates day to day to plan, prioritize, and deliver work. It complements higher-level documents such as **How Work Flows**, **GOVERNANCE**, and the RFC process by focusing on practical execution rather than decision authority.
+This document describes how the core team collaborates day to day to plan, prioritize, and deliver work. It complements higher-level documents such as [How Work Flows](/HOW_WORK_FLOWS.md), [GOVERNANCE](/GOVERNANCE.md), and the [RFC process](/RFC_PROCESS.md) by focusing on practical execution rather than decision authority.
 
 The goal is to provide clarity without bureaucracy, and to support a small, senior team working on an open-source library used by a diverse community.
 
@@ -110,13 +110,9 @@ High-severity maintenance work (for example P0 or P1 bugs) may be prioritized im
 
 ---
 
----
-
 ## Roles in Day-to-Day Operations
 
 ### Maintainers
-
-Maintainers:
 
 - Own technical decisions
 - Triage and classify bugs
@@ -136,7 +132,7 @@ Product management supports execution by:
 - Proposing focus and sequencing
 - Communicating status externally
 
-Product does not assign work or override maintainer or TSC authority. When acting as Product Owner, product operates strictly within accepted scope.
+Product does not assign work or override maintainer or TSC authority. When acting as Product Owner, Product operates strictly within accepted scope.
 
 ---
 
@@ -154,11 +150,11 @@ The TSC is not involved in daily operations. Its role is to:
 
 ### Daily
 
-The team uses a lightweight, asynchronous daily check-in (for example via chat):
+The team uses a lightweight, daily check-in to share:
 
 - What was worked on
 - What is planned next
-- Any blockers
+- What is blocking them
 
 ---
 
@@ -175,7 +171,9 @@ Typical agenda:
 
 The outcome is shared alignment on near-term focus, not delivery commitments.
 
-### **Reflections and Continuous Improvement**
+---
+
+### Reflections and Continuous Improvement
 
 The team periodically reflects on how it works together and may adjust practices as needed.
 
@@ -208,9 +206,9 @@ This ensures transparency, long-term traceability, and shared understanding acro
 
 ## Relationship to Other Documents
 
-- **How Work Flows** describes the conceptual lifecycle from ideas to code
-- **RFC Process** governs significant technical decisions
-- **GOVERNANCE** defines authority and decision rights
-- **BUGS** defines bug reporting and triage
+- [How Work Flows](/HOW_WORK_FLOWS.md) describes the conceptual lifecycle from ideas to code
+- [RFC Process](/RFC_PROCESS.md) governs significant technical decisions
+- [GOVERNANCE](/GOVERNANCE.md) defines authority and decision rights
+- [BUGS](/BUGS.md) defines bug reporting and triage
 
 This document focuses exclusively on how the core team executes work within those constraints.
