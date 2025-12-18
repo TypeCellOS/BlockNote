@@ -10,13 +10,13 @@ Governance is intentionally documented early to support trust with contributors,
 
 ## Core Project Roles
 
-The project uses a simple three-role structure for **project governance and technical authority**. These roles define who makes technical decisions and how the project is stewarded over time. Individuals may hold multiple roles, but the authority exercised depends on the role relevant to the decision at hand.
+The project uses a simple three-role structure for project governance and technical authority. These roles define who makes technical decisions and how the project is stewarded over time. Individuals may hold multiple roles, but the authority exercised depends on the role relevant to the decision at hand.
 
-The project uses a simple three-role structure designed to match its current size while supporting future growth. Individuals may hold multiple roles, but the authority exercised depends on the role relevant to the decision at hand.
+The project uses this structure designed to match its current size while supporting future growth. Individuals may hold multiple roles, but the authority exercised depends on the role relevant to the decision at hand.
 
 ### Technical Steering Committee (TSC)
 
-*TSC members may also serve as maintainers. When doing so, they exercise only the authority of the role relevant to the decision at hand.*
+> TSC members may also serve as maintainers. When doing so, they exercise only the authority of the role relevant to the decision at hand.
 
 The Technical Steering Committee (TSC) is responsible for the long-term technical direction and health of the project.
 
@@ -24,7 +24,7 @@ The TSC operates independently of Product Management. Product may facilitate pro
 
 **Responsibilities**:
 
-- Approving or rejecting significant technical changes (via the RFC process)
+- Approving or rejecting significant technical changes (via the [RFC process](/RFC_PROCESS.md))
 - Setting and maintaining long-term architectural direction
 - Sanity-checking alignment with the project mission to prevent long-term drift
 - Acting as stewards of the project’s technical integrity and sustainability

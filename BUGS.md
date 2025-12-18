@@ -18,7 +18,7 @@ A bug is behavior that:
 - Regresses previously working functionality
 - Causes crashes, data loss, or security issues
 
-Requests for new features or behavior changes are **not bugs** and should be raised as ideas or proposals instead.
+Requests for new features or behavior changes are NOT bugs and should be raised as ideas or proposals instead.
 
 ---
 
@@ -26,7 +26,7 @@ Requests for new features or behavior changes are **not bugs** and should be r
 
 Anyone may report a bug.
 
-Please open a **GitHub Issue** and include:
+Please open a GitHub Issue and select 'Bug Report'. The template provided will require:
 
 - A clear description of the problem
 - Steps to reproduce (if possible)
@@ -53,7 +53,7 @@ Bug triage is the process of classifying and prioritizing reported bugs.
 
 Maintainers classify bugs based on technical severity.
 
-Severity reflects **technical correctness and safety impact**, not business priority or operational uptime.
+Severity reflects technical correctness and safety impact, not business priority or operational uptime.
 
 Severity levels:
 
@@ -105,7 +105,7 @@ High-severity bugs may be addressed immediately, regardless of roadmap prioritie
 
 ## Prioritization
 
-While maintainers determine technical severity, **Product** may:
+While maintainers determine technical severity, Product may:
 
 - Help prioritize bugs relative to other work
 - Balance bug fixing with feature development
@@ -125,7 +125,7 @@ If fixing a bug:
 
 Then the fix may require an RFC.
 
-See `RFC_PROCESS.md` and **How Work Flows** for guidance.
+See [RFC_PROCESS.md](/RFC_PROCESS.md) and [How Work Flows](/HOW_WORK_FLOWS.md) for guidance.
 
 ---
 
@@ -136,8 +136,9 @@ Issues may be closed if:
 - The issue cannot be reproduced
 - Required information is missing and no response is received
 - The behavior is working as intended
-    
-    nClosure should include a brief explanation.
+
+
+> Closure should include a brief explanation.
     
 
 ---

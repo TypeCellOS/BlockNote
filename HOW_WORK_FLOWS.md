@@ -2,7 +2,7 @@
 
 This document describes how work moves through the project from an initial idea or user need to code being written, reviewed, and shipped.
 
-Its purpose is to provide a **shared mental model** for contributors, maintainers, Product, and the TSC, without prescribing heavy process.
+Its purpose is to provide a shared mental model for contributors, maintainers, Product, and the TSC, without prescribing heavy process.
 
 ---
 
@@ -29,7 +29,7 @@ Outcome
 
 ```
 
-This pipeline is **risk-based**: the higher the impact or precedent, the more explicit the decision-making.
+This pipeline is risk-based: the higher the impact or precedent, the more explicit the decision-making.
 
 ---
 
@@ -42,13 +42,13 @@ Ideas and needs can originate from many places:
 - Maintainers
 - Product observations
 
-At this stage, ideas should be expressed as **problems or needs**, not solutions. Ideas may be shared informally to gather early feedback. Writing an RFC is not required at this stage.
+At this stage, ideas should be expressed as problems or needs, not solutions. Ideas may be shared informally to gather early feedback. Writing an RFC is not required at this stage.
 
 ---
 
 ## Step 2: Triage
 
-The goal of triage is to decide **what kind of work this is**, not whether it will be done.
+The goal of triage is to decide what kind of work this is, not whether it will be done.
 
 Typical questions:
 
@@ -72,11 +72,11 @@ Before choosing an outcome path, ask the following questions:
 - Does this set a long-term technical precedent?
 - Does this have broad impact across users, integrations, or deployments?
 
-If **yes** to any of the above → an RFC is required.
+If **YES** to any of the above → an RFC is required.
 
-If **no** → proceed via the appropriate non-RFC path (bug, docs, or small feature).
+If **NO** → proceed via the appropriate non-RFC path (bug, docs, or small feature).
 
-This decision is intentionally **conservative**: when in doubt, proposing an RFC is preferred over bypassing the process.
+This decision is intentionally conservative: when in doubt, proposing an RFC is preferred over bypassing the process.
 
 ---
 
@@ -131,7 +131,7 @@ RFCs are discussed openly and decided by the TSC. An RFC may be **accepted**, 
 
 Acceptance indicates that the proposed approach is technically acceptable. Rejection indicates that the approach should not proceed in its current form.
 
-Acceptance of an RFC does **not** imply prioritization, scheduling, or delivery commitment.
+Acceptance of an RFC does not imply prioritization, scheduling, or delivery commitment.
 
 ---
 
@@ -143,7 +143,7 @@ If an RFC is:
 - **Rejected**: the change does not proceed in its current form
 - **Returned for revision**: the author may iterate and resubmit
 
-Detailed mechanics of RFC discussion and decision-making are documented separately in `RFC_PROCESS.md`.
+Detailed mechanics of RFC discussion and decision-making are documented separately in [RFC_PROCESS.md](/RFC_PROCESS.md).
 
 ---
 
@@ -179,8 +179,8 @@ Engineering owns implementation details. Product owns sequencing and communicati
 
 ## Relationship to Other Documents
 
-- `[GOVERNANCE.md](/GOVERNANCE.md)` defines **who decides**
-- `[CONCEPT_TO_CODE.md](/CONCEPT_TO_CODE.md)` defines **how work flows**
-- `[RFC_PROCESS.md](/RFC_PROCESS.md)` (separate document) defines **how significant decisions are made**
+- [GOVERNANCE.md](/GOVERNANCE.md) defines **who decides**
+- [HOW_WORK_FLOWS.md](/HOW_WORK_FLOWS.md) defines **how work flows**
+- [RFC_PROCESS.md](/RFC_PROCESS.md) (separate document) defines **how significant decisions are made**
 
 This document intentionally stays high-level and may evolve as the project grows.

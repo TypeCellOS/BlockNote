@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for your interest in contributing to BlockNote. This project welcomes contributions from the community. This document explains **how to participate**, **how decisions are made**, and **how to work with the codebase**.
+Thank you for your interest in contributing to BlockNote. This project welcomes contributions from the community. This document explains how to participate, how decisions are made, and how to work with the codebase.
 
 ---
 
@@ -15,7 +15,7 @@ There are many ways to contribute to BlockNote:
 - Proposing new features or changes
 - Submitting code contributions
 
-You do **not** need to start with code to contribute.
+You do NOT need to start with code to contribute.
 
 > Open-ended ideas, early exploration, and feedback are best shared via GitHub Discussions, while actionable work and implementation tasks are tracked as GitHub Issues.
 > 
@@ -27,10 +27,10 @@ You do **not** need to start with code to contribute.
 Ideas, suggestions, and early proposals are welcome and encouraged.
 
 - Start with a GitHub Issue or Discussion
-- Focus on the **problem or need**, not just a solution
+- Focus on the problem or need, not just a solution
 - Keep it lightweight — early feedback does not require an RFC
 
-See **How Work Flows** for an overview of how ideas move through the project.
+See [How Work Flows](/HOW_WORK_FLOWS.md) for an overview of how ideas move through the project.
 
 ---
 
@@ -49,7 +49,7 @@ Anyone may propose an RFC.
 
 RFCs are intentionally higher-effort and are required only when a change is ready for formal consideration.
 
-See **[RFC_PROCESS.md](/RFC_PROCESS.md)** and **[RFC_TEMPLATE.md](/.github/RFC_TEMPLATE.md)** for details.
+See [RFC_PROCESS.md](/RFC_PROCESS.md) and [RFC_TEMPLATE.md](/.github/RFC_TEMPLATE.md) for details.
 
 ---
 
