@@ -240,7 +240,7 @@ NESTED BLOCKS
 }
 
 /* Checked */
-.bn-block-content[data-content-type="checkListItem"] > input {
+.bn-block-content[data-content-type="checkListItem"] > div > input {
   cursor: pointer;
   height: 24px;
   margin-left: 4px;
