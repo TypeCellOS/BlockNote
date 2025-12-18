@@ -48,7 +48,11 @@ export const FilePanelController = (props: {
   const Component = props.filePanel || FilePanel;
 
   return (
-    <BlockPopover blockId={blockId} {...floatingUIOptions}>
+    <BlockPopover
+      blockId={blockId}
+      includeNestedBlocks={false}
+      {...floatingUIOptions}
+    >
       {blockId && <Component blockId={blockId} />}
     </BlockPopover>
   );
