@@ -1607,6 +1607,31 @@
           "slug": "collaboration"
         },
         "readme": "In this example, we can fork a document and edit it independently of other collaborators. Then, we can choose to merge the changes back into the original document, or discard the changes.\n\n**Try it out:** Open this page in a new browser tab or window to see it in action!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)"
+      },
+      {
+        "projectSlug": "versioning",
+        "fullSlug": "collaboration/versioning",
+        "pathFromRoot": "examples/07-collaboration/09-versioning",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Advanced",
+            "Development",
+            "Collaboration"
+          ],
+          "dependencies": {
+            "y-partykit": "^0.0.25",
+            "yjs": "^13.6.27"
+          } as any
+        },
+        "title": "Collaborative Editing with Versioning",
+        "group": {
+          "pathFromRoot": "examples/07-collaboration",
+          "slug": "collaboration"
+        },
+        "readme": "In this example, we can save snapshots of the document that we can later preview and revert to. \n\n**Try it out:** Press the save button in the versioning sidebar to save a document snapshot!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)"
       }
     ]
   },

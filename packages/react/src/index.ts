@@ -114,6 +114,8 @@ export * from "./components/Comments/ThreadsSidebar.js";
 export * from "./components/Comments/useThreads.js";
 export * from "./components/Comments/useUsers.js";
 
+export * from "./components/Versioning/VersioningSidebar.js";
+
 export * from "./hooks/useActiveStyles.js";
 export * from "./hooks/useBlockNoteEditor.js";
 export * from "./hooks/useCreateBlockNote.js";

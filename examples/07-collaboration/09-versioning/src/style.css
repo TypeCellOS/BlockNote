@@ -1,0 +1,106 @@
+.version-history-main-container {
+  background-color: var(--bn-colors-disabled-background);
+  display: flex;
+  gap: 10px;
+  height: 100%;
+  max-width: none;
+  padding: 10px;
+  width: 100%;
+}
+
+.version-history-main-container .editor-section,
+.version-history-section {
+  border-radius: var(--bn-border-radius-large);
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 100%;
+  min-width: 350px;
+  width: 0;
+}
+
+.version-history-main-container .editor-section h1,
+.version-history-section h1 {
+  color: var(--bn-colors-menu-text);
+  margin: 0;
+  font-size: 32px;
+}
+
+.version-history-main-container .bn-editor,
+.bn-versioning-sidebar {
+  border-radius: var(--bn-border-radius-medium);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+  overflow: auto;
+}
+
+.version-history-main-container .editor-section {
+  max-width: 700px;
+}
+
+.bn-versioning-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bn-snapshot {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  color: var(--bn-colors-menu-text);
+  cursor: pointer;
+  flex-direction: column;
+  gap: 16px;
+  display: flex;
+  overflow: visible;
+  padding: 16px 32px;
+  width: 100%;
+}
+
+.bn-snapshot-name {
+  background: transparent;
+  border: none;
+  color: var(--bn-colors-menu-text);
+  font-size: 16px;
+  font-weight: 600;
+  padding: 0;
+  width: 100%;
+}
+
+.bn-snapshot-body {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  gap: 4px;
+}
+
+.bn-snapshot-button {
+  /* align-self: flex-end; */
+  background-color: #c2dcf8;
+  border: none;
+  border-radius: 4px;
+  color: var(--bn-colors-menu-text);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 0 8px;
+  width: fit-content;
+}
+
+.dark .bn-snapshot-button {
+  background-color: #226fb7;
+}
+
+.bn-versioning-sidebar .bn-snapshot.selected {
+  background-color: #f5f9fd;
+  border: 2px solid #c2dcf8;
+}
+
+.dark .bn-versioning-sidebar .bn-snapshot.selected {
+  background-color: #20242a;
+  border: 2px solid #23405b;
+}

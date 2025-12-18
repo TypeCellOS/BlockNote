@@ -22,3 +22,5 @@ export * from "./SuggestionMenu/DefaultSuggestionItem.js";
 export * from "./SuggestionMenu/DefaultGridSuggestionItem.js";
 export * from "./TableHandles/TableHandles.js";
 export * from "./TrailingNode/TrailingNode.js";
+export * from "./Versioning/Versioning.js";
+export * from "./Versioning/localStorageEndpoints.js";
