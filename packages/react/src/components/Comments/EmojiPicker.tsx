@@ -39,27 +39,28 @@ export const EmojiPicker = (props: {
           {props.children}
         </div>
       </Components.Generic.Popover.Trigger>
-      {createPortal(
-        <Components.Generic.Popover.Content
-          className={"bn-emoji-picker-popover"}
-          variant={"panel-popover"}
-        >
-          <Picker
-            perLine={7}
-            onClickOutside={() => {
-              setOpen(false);
-              props.onOpenChange?.(false);
-            }}
-            onEmojiSelect={(emoji: { native: string }) => {
-              props.onEmojiSelect(emoji);
-              setOpen(false);
-              props.onOpenChange?.(false);
-            }}
-            theme={blockNoteContext?.colorSchemePreference}
-          />
-        </Components.Generic.Popover.Content>,
-        editor.domElement!.parentElement!,
-      )}
+      {editor.domElement?.parentElement &&
+        createPortal(
+          <Components.Generic.Popover.Content
+            className={"bn-emoji-picker-popover"}
+            variant={"panel-popover"}
+          >
+            <Picker
+              perLine={7}
+              onClickOutside={() => {
+                setOpen(false);
+                props.onOpenChange?.(false);
+              }}
+              onEmojiSelect={(emoji: { native: string }) => {
+                props.onEmojiSelect(emoji);
+                setOpen(false);
+                props.onOpenChange?.(false);
+              }}
+              theme={blockNoteContext?.colorSchemePreference}
+            />
+          </Components.Generic.Popover.Content>,
+          editor.domElement.parentElement,
+        )}
     </Components.Generic.Popover.Root>
   );
 };
