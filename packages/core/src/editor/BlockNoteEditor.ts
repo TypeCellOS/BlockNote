@@ -1,4 +1,8 @@
 import {
+  toggleSuggestChanges,
+  withSuggestChanges,
+} from "@handlewithcare/prosemirror-suggest-changes";
+import {
   createDocument,
   EditorOptions,
   FocusPosition,
@@ -547,6 +551,18 @@ export class BlockNoteEditor<
       );
     }
 
+    const origDispatchTransaction = (
+      this._tiptapEditor as any
+    ).dispatchTransaction.bind(this._tiptapEditor);
+
+    (this._tiptapEditor as any).dispatchTransaction = withSuggestChanges(
+      origDispatchTransaction,
+    );
+
+    if (!(window as any).editors) {
+      (window as any).editors = [];
+    }
+    (window as any).editors.push(this);
     // When y-prosemirror creates an empty document, the `blockContainer` node is created with an `id` of `null`.
     // This causes the unique id extension to generate a new id for the initial block, which is not what we want
     // Since it will be randomly generated & cause there to be more updates to the ydoc
@@ -609,6 +625,11 @@ export class BlockNoteEditor<
    */
   public exec(command: Command) {
     return this._stateManager.exec(command);
+  }
+
+  public toggleSuggestions() {
+    // debugger;
+    toggleSuggestChanges(this.prosemirrorState, (this._tiptapEditor as any).dispatchTransaction.bind(this._tiptapEditor));
   }
 
   /**
