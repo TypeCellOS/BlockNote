@@ -70,6 +70,10 @@
   width: 100%;
 }
 
+.bn-snapshot-name:focus {
+  outline: none;
+}
+
 .bn-snapshot-body {
   display: flex;
   flex-direction: column;

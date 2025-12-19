@@ -43,7 +43,6 @@ export default function App() {
       className={"version-history-main-container"}
       editor={editor}
       renderEditor={false}
-      onChange={() => console.log(doc.getXmlFragment().toJSON())}
     >
       <div className={"editor-section"}>
         <h1>Editor {selectedSnapshotId !== undefined ? "(Preview)" : ""}</h1>

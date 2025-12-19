@@ -156,6 +156,26 @@ export const VersioningExtension = createExtension(
       }
     };
 
+    const selectSnapshot = async (id: string | undefined) => {
+      store.setState((state) => ({
+        ...state,
+        selectedSnapshotId: id,
+      }));
+
+      if (id === undefined) {
+        editor.isEditable = true;
+        // when we go back to the original document, just revert changes `.merge({ keepChanges: false })`
+        editor.getExtension(ForkYDocExtension)!.merge({ keepChanges: false });
+        return;
+      }
+      editor.getExtension(ForkYDocExtension)!.fork();
+      editor.isEditable = false;
+      const snapshotContent = await endpoints.fetchSnapshotContent(id);
+
+      // replace editor contents with the snapshot contents (affecting the forked document not the original)
+      applySnapshot(snapshotContent);
+    };
+
     return {
       key: "versioning",
       store,
@@ -176,17 +196,14 @@ export const VersioningExtension = createExtension(
       canRestoreSnapshot: endpoints.restoreSnapshot !== undefined,
       restoreSnapshot: endpoints.restoreSnapshot
         ? async (id: string): Promise<Uint8Array> => {
+            selectSnapshot(undefined);
+
             const snapshotContent = await endpoints.restoreSnapshot!(
               fragment,
               id,
             );
             applySnapshot(snapshotContent);
             await updateSnapshots();
-
-            store.setState((state) => ({
-              ...state,
-              selectedSnapshotId: undefined,
-            }));
 
             return snapshotContent;
           }
@@ -199,25 +216,7 @@ export const VersioningExtension = createExtension(
           }
         : undefined,
 
-      selectSnapshot: async (id: string | undefined) => {
-        store.setState((state) => ({
-          ...state,
-          selectedSnapshotId: id,
-        }));
-
-        if (id === undefined) {
-          editor.isEditable = true;
-          // when we go back to the original document, just revert changes `.merge({ keepChanges: false })`
-          editor.getExtension(ForkYDocExtension)!.merge({ keepChanges: false });
-          return;
-        }
-        editor.getExtension(ForkYDocExtension)!.fork();
-        editor.isEditable = false;
-        const snapshotContent = await endpoints.fetchSnapshotContent(id);
-
-        // replace editor contents with the snapshot contents (affecting the forked document not the original)
-        applySnapshot(snapshotContent);
-      },
+      selectSnapshot,
     } as const;
   },
 );

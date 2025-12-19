@@ -45,7 +45,7 @@ export const Snapshot = ({ snapshot }: { snapshot: VersionSnapshot }) => {
         <input
           className="bn-snapshot-name"
           type="text"
-          readOnly={canUpdateSnapshotName}
+          readOnly={!canUpdateSnapshotName}
           value={snapshotName}
           onChange={(e) => setSnapshotName(e.target.value)}
           onBlur={() => updateSnapshotName?.(snapshot.id, snapshotName)}
@@ -65,7 +65,13 @@ export const Snapshot = ({ snapshot }: { snapshot: VersionSnapshot }) => {
       {canRestoreSnapshot && (
         <button
           className="bn-snapshot-button"
-          onClick={() => restoreSnapshot?.(snapshot.id)}
+          onClick={(event) => {
+            // Prevent event bubbling to avoid calling `selectSnapshot`.
+            event.preventDefault();
+            event.stopPropagation();
+
+            restoreSnapshot?.(snapshot.id);
+          }}
         >
           Restore
         </button>

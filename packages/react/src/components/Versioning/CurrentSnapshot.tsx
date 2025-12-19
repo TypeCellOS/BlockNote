@@ -29,7 +29,11 @@ export const CurrentSnapshot = () => {
       </div>
       <button
         className="bn-snapshot-button"
-        onClick={() => {
+        onClick={(event) => {
+          // Prevent event bubbling to avoid calling `selectSnapshot`.
+          event.preventDefault();
+          event.stopPropagation();
+
           createSnapshot(
             snapshotName !== "Current Version" ? snapshotName : undefined,
           );
