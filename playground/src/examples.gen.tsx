@@ -1627,12 +1627,12 @@
             "yjs": "^13.6.27"
           } as any
         },
-        "title": "Collaborative Editing with Versioning",
+        "title": "Collaborative Editing Features Showcase",
         "group": {
           "pathFromRoot": "examples/07-collaboration",
           "slug": "collaboration"
         },
-        "readme": "In this example, we can save snapshots of the document that we can later preview and revert to. \n\n**Try it out:** Press the save button in the versioning sidebar to save a document snapshot!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)"
+        "readme": "In this example, you can play with all of the collaboration features BlockNote has to offer:\n\n**Comments**: Add comments to parts of the document - other users can then view, reply to, react to, and resolve them.\n\n**Versioning**: Save snapshots of the document - later preview saved snapshots and restore them to ensure work is never lost.\n\n**Suggestions**: Suggest changes directly in the editor - users can choose to then apply or reject those changes.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Comments](/docs/features/collaboration/comments)\n- [Real-time collaboration](/docs/features/collaboration)"
       }
     ]
   },
