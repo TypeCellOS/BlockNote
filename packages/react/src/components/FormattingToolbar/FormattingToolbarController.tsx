@@ -8,6 +8,7 @@ import {
 } from "@blocknote/core";
 import { FormattingToolbarExtension } from "@blocknote/core/extensions";
 import { flip, offset, shift } from "@floating-ui/react";
+import merge from "lodash.merge";
 import { FC, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
@@ -78,29 +79,32 @@ export const FormattingToolbarController = (props: {
   });
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
-    () => ({
-      useFloatingOptions: {
-        open: show,
-        // Needed as hooks like `useDismiss` call `onOpenChange` to change the
-        // open state.
-        onOpenChange: (open, _event, reason) => {
-          formattingToolbar.store.setState(open);
+    () =>
+      merge(
+        {
+          useFloatingOptions: {
+            open: show,
+            // Needed as hooks like `useDismiss` call `onOpenChange` to change the
+            // open state.
+            onOpenChange: (open, _event, reason) => {
+              formattingToolbar.store.setState(open);
 
-          if (reason === "escape-key") {
-            editor.focus();
-          }
-        },
-        placement,
-        middleware: [offset(10), shift(), flip()],
-      },
-      elementProps: {
-        style: {
-          zIndex: 40,
-        },
-      },
-      ...props.floatingUIOptions,
-    }),
-    [show, placement, props.floatingUIOptions, formattingToolbar.store, editor],
+              if (reason === "escape-key") {
+                editor.focus();
+              }
+            },
+            placement,
+            middleware: [offset(10), shift(), flip()],
+          },
+          elementProps: {
+            style: {
+              zIndex: 40,
+            },
+          },
+        } satisfies FloatingUIOptions,
+        props.floatingUIOptions
+      ),
+    [show, placement, props.floatingUIOptions, formattingToolbar.store, editor]
   );
 
   const Component = props.formattingToolbar || FormattingToolbar;

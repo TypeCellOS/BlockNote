@@ -1,6 +1,7 @@
 import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 import { SuggestionMenu } from "@blocknote/core/extensions";
 import { autoPlacement, offset, shift, size } from "@floating-ui/react";
+import merge from "lodash.merge";
 import { FC, useEffect, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
@@ -105,48 +106,51 @@ export function GridSuggestionMenuController<
   });
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
-    () => ({
-      useFloatingOptions: {
-        open: state?.show && state?.triggerCharacter === triggerCharacter,
-        onOpenChange: (open) => {
-          if (!open) {
-            suggestionMenu.closeMenu();
-          }
-        },
-        placement: "bottom-start",
-        middleware: [
-          offset(10),
-          // Flips the menu placement to maximize the space available, and prevents
-          // the menu from being cut off by the confines of the screen.
-          autoPlacement({
-            allowedPlacements: ["bottom-start", "top-start"],
-            padding: 10,
-          }),
-          shift(),
-          size({
-            apply({ elements, availableHeight }) {
-              elements.floating.style.maxHeight = `${Math.max(0, availableHeight)}px`;
+    () =>
+      merge(
+        {
+          useFloatingOptions: {
+            open: state?.show && state?.triggerCharacter === triggerCharacter,
+            onOpenChange: (open) => {
+              if (!open) {
+                suggestionMenu.closeMenu();
+              }
             },
-            padding: 10,
-          }),
-        ],
-      },
-      elementProps: {
-        // Prevents editor blurring when clicking the scroll bar.
-        onMouseDownCapture: (event) => event.preventDefault(),
-        style: {
-          zIndex: 70,
-        },
-      },
-      ...props.floatingUIOptions,
-    }),
+            placement: "bottom-start",
+            middleware: [
+              offset(10),
+              // Flips the menu placement to maximize the space available, and prevents
+              // the menu from being cut off by the confines of the screen.
+              autoPlacement({
+                allowedPlacements: ["bottom-start", "top-start"],
+                padding: 10,
+              }),
+              shift(),
+              size({
+                apply({ elements, availableHeight }) {
+                  elements.floating.style.maxHeight = `${Math.max(0, availableHeight)}px`;
+                },
+                padding: 10,
+              }),
+            ],
+          },
+          elementProps: {
+            // Prevents editor blurring when clicking the scroll bar.
+            onMouseDownCapture: (event) => event.preventDefault(),
+            style: {
+              zIndex: 70,
+            },
+          },
+        } satisfies FloatingUIOptions,
+        props.floatingUIOptions
+      ),
     [
       props.floatingUIOptions,
       state?.show,
       state?.triggerCharacter,
       suggestionMenu,
       triggerCharacter,
-    ],
+    ]
   );
 
   if (

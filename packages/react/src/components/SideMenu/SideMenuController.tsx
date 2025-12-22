@@ -1,4 +1,5 @@
 import { SideMenuExtension } from "@blocknote/core/extensions";
+import merge from "lodash.merge";
 import { FC, useMemo } from "react";
 
 import { useExtensionState } from "../../hooks/useExtension.js";
@@ -25,22 +26,25 @@ export const SideMenuController = (props: {
   const { show, block } = state || {};
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
-    () => ({
-      useFloatingOptions: {
-        open: show,
-        placement: "left-start",
-      },
-      useDismissProps: {
-        enabled: false,
-      },
-      elementProps: {
-        style: {
-          zIndex: 20,
-        },
-      },
-      ...props.floatingUIOptions,
-    }),
-    [props.floatingUIOptions, show],
+    () =>
+      merge(
+        {
+          useFloatingOptions: {
+            open: show,
+            placement: "left-start",
+          },
+          useDismissProps: {
+            enabled: false,
+          },
+          elementProps: {
+            style: {
+              zIndex: 20,
+            },
+          },
+        } satisfies FloatingUIOptions,
+        props.floatingUIOptions
+      ),
+    [props.floatingUIOptions, show]
   );
 
   const Component = props.sideMenu || SideMenu;

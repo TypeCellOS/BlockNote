@@ -1,6 +1,7 @@
 import { LinkToolbarExtension } from "@blocknote/core/extensions";
 import { flip, offset, safePolygon } from "@floating-ui/react";
 import { Range } from "@tiptap/core";
+import merge from "lodash.merge";
 import { FC, useEffect, useMemo, useState } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
@@ -109,51 +110,54 @@ export const LinkToolbarController = (props: {
   }, [editor, linkToolbar, link, toolbarPositionFrozen]);
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
-    () => ({
-      useFloatingOptions: {
-        open: toolbarOpen,
-        onOpenChange: (open, _event, reason) => {
-          if (toolbarPositionFrozen) {
-            return;
-          }
+    () =>
+      merge(
+        {
+          useFloatingOptions: {
+            open: toolbarOpen,
+            onOpenChange: (open, _event, reason) => {
+              if (toolbarPositionFrozen) {
+                return;
+              }
 
-          // We want to prioritize `selectionLink` over `mouseHoverLink`, so we
-          // ignore opening/closing from hover events.
-          if (
-            link !== undefined &&
-            link.cursorType === "text" &&
-            reason === "hover"
-          ) {
-            return;
-          }
+              // We want to prioritize `selectionLink` over `mouseHoverLink`, so we
+              // ignore opening/closing from hover events.
+              if (
+                link !== undefined &&
+                link.cursorType === "text" &&
+                reason === "hover"
+              ) {
+                return;
+              }
 
-          if (reason === "escape-key") {
-            editor.focus();
-          }
+              if (reason === "escape-key") {
+                editor.focus();
+              }
 
-          setToolbarOpen(open);
-        },
-        placement: "top-start",
-        middleware: [offset(10), flip()],
-      },
-      useHoverProps: {
-        // `useHover` hook only enabled when a link is hovered with the
-        // mouse.
-        enabled: link !== undefined && link.cursorType === "mouse",
-        delay: {
-          open: 250,
-          close: 250,
-        },
-        handleClose: safePolygon(),
-      },
-      elementProps: {
-        style: {
-          zIndex: 50,
-        },
-      },
-      ...props.floatingUIOptions,
-    }),
-    [editor, link, props.floatingUIOptions, toolbarOpen, toolbarPositionFrozen],
+              setToolbarOpen(open);
+            },
+            placement: "top-start",
+            middleware: [offset(10), flip()],
+          },
+          useHoverProps: {
+            // `useHover` hook only enabled when a link is hovered with the
+            // mouse.
+            enabled: link !== undefined && link.cursorType === "mouse",
+            delay: {
+              open: 250,
+              close: 250,
+            },
+            handleClose: safePolygon(),
+          },
+          elementProps: {
+            style: {
+              zIndex: 50,
+            },
+          },
+        } satisfies FloatingUIOptions,
+        props.floatingUIOptions
+      ),
+    [editor, link, props.floatingUIOptions, toolbarOpen, toolbarPositionFrozen]
   );
 
   const reference = useMemo<GenericPopoverReference | undefined>(
