@@ -8,6 +8,7 @@ import {
 } from "@blocknote/core";
 import { CommentsExtension } from "@blocknote/core/comments";
 import { flip, offset, shift } from "@floating-ui/react";
+import merge from "lodash.merge";
 import { ComponentProps, FC, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
@@ -46,28 +47,31 @@ export default function FloatingComposerController<
   });
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
-    () => ({
-      useFloatingOptions: {
-        open: !!pendingComment,
-        // Needed as hooks like `useDismiss` call `onOpenChange` to change the
-        // open state.
-        onOpenChange: (open) => {
-          if (!open) {
-            comments.stopPendingComment();
-            editor.focus();
-          }
-        },
-        placement: "bottom",
-        middleware: [offset(10), shift(), flip()],
-      },
-      elementProps: {
-        style: {
-          zIndex: 60,
-        },
-      },
-      ...props.floatingUIOptions,
-    }),
-    [comments, editor, pendingComment, props.floatingUIOptions],
+    () =>
+      merge(
+        {
+          useFloatingOptions: {
+            open: !!pendingComment,
+            // Needed as hooks like `useDismiss` call `onOpenChange` to change the
+            // open state.
+            onOpenChange: (open) => {
+              if (!open) {
+                comments.stopPendingComment();
+                editor.focus();
+              }
+            },
+            placement: "bottom",
+            middleware: [offset(10), shift(), flip()],
+          },
+          elementProps: {
+            style: {
+              zIndex: 60,
+            },
+          },
+        } satisfies FloatingUIOptions,
+        props.floatingUIOptions
+      ),
+    [comments, editor, pendingComment, props.floatingUIOptions]
   );
 
   // nice to have improvements would be:

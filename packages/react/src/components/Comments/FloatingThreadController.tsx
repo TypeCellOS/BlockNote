@@ -1,5 +1,6 @@
 import { CommentsExtension } from "@blocknote/core/comments";
 import { flip, offset, shift } from "@floating-ui/react";
+import merge from "lodash.merge";
 import { ComponentProps, FC, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
@@ -39,31 +40,34 @@ export default function FloatingThreadController(props: {
   );
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
-    () => ({
-      useFloatingOptions: {
-        open: !!selectedThread,
-        // Needed as hooks like `useDismiss` call `onOpenChange` to change the
-        // open state.
-        onOpenChange: (open, _event, reason) => {
-          if (reason === "escape-key") {
-            editor.focus();
-          }
+    () =>
+      merge(
+        {
+          useFloatingOptions: {
+            open: !!selectedThread,
+            // Needed as hooks like `useDismiss` call `onOpenChange` to change the
+            // open state.
+            onOpenChange: (open, _event, reason) => {
+              if (reason === "escape-key") {
+                editor.focus();
+              }
 
-          if (!open) {
-            comments.selectThread(undefined);
-          }
-        },
-        placement: "bottom",
-        middleware: [offset(10), shift(), flip()],
-      },
-      elementProps: {
-        style: {
-          zIndex: 30,
-        },
-      },
-      ...props.floatingUIOptions,
-    }),
-    [comments, editor, props.floatingUIOptions, selectedThread],
+              if (!open) {
+                comments.selectThread(undefined);
+              }
+            },
+            placement: "bottom",
+            middleware: [offset(10), shift(), flip()],
+          },
+          elementProps: {
+            style: {
+              zIndex: 30,
+            },
+          },
+        } satisfies FloatingUIOptions,
+        props.floatingUIOptions
+      ),
+    [comments, editor, props.floatingUIOptions, selectedThread]
   );
 
   // nice to have improvements:

@@ -1,5 +1,6 @@
 import { FilePanelExtension } from "@blocknote/core/extensions";
 import { flip, offset } from "@floating-ui/react";
+import merge from "lodash.merge";
 import { FC, useMemo } from "react";
 
 import { FilePanel } from "./FilePanel.js";
@@ -19,30 +20,33 @@ export const FilePanelController = (props: {
   const blockId = useExtensionState(FilePanelExtension);
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
-    () => ({
-      useFloatingOptions: {
-        open: !!blockId,
-        // Needed as hooks like `useDismiss` call `onOpenChange` to change the
-        // open state.
-        onOpenChange: (open, _event, reason) => {
-          if (!open) {
-            filePanel.closeMenu();
-          }
+    () =>
+      merge(
+        {
+          useFloatingOptions: {
+            open: !!blockId,
+            // Needed as hooks like `useDismiss` call `onOpenChange` to change the
+            // open state.
+            onOpenChange: (open, _event, reason) => {
+              if (!open) {
+                filePanel.closeMenu();
+              }
 
-          if (reason === "escape-key") {
-            editor.focus();
-          }
-        },
-        middleware: [offset(10), flip()],
-      },
-      elementProps: {
-        style: {
-          zIndex: 90,
-        },
-      },
-      ...props.floatingUIOptions,
-    }),
-    [blockId, editor, filePanel, props.floatingUIOptions],
+              if (reason === "escape-key") {
+                editor.focus();
+              }
+            },
+            middleware: [offset(10), flip()],
+          },
+          elementProps: {
+            style: {
+              zIndex: 90,
+            },
+          },
+        } satisfies FloatingUIOptions,
+        props.floatingUIOptions
+      ),
+    [blockId, editor, filePanel, props.floatingUIOptions]
   );
 
   const Component = props.filePanel || FilePanel;
