@@ -155,32 +155,34 @@ export default function App() {
                     isSelected: user.id === activeUser.id,
                   }))}
                 />
-                <SettingsSelect
-                  label={"Mode"}
-                  items={[
-                    {
-                      text: "Editing",
-                      icon: null,
-                      onClick: () => {
-                        disableSuggestions();
-                        setEditingMode("editing");
+                {activeUser.role === "editor" && (
+                  <SettingsSelect
+                    label={"Mode"}
+                    items={[
+                      {
+                        text: "Editing",
+                        icon: null,
+                        onClick: () => {
+                          disableSuggestions();
+                          setEditingMode("editing");
+                        },
+                        isSelected: editingMode === "editing",
                       },
-                      isSelected: editingMode === "editing",
-                    },
-                    {
-                      text: "Suggestions",
-                      icon: null,
-                      onClick: () => {
-                        enableSuggestions();
-                        setEditingMode("suggestions");
+                      {
+                        text: "Suggestions",
+                        icon: null,
+                        onClick: () => {
+                          enableSuggestions();
+                          setEditingMode("suggestions");
+                        },
+                        isSelected: editingMode === "suggestions",
                       },
-                      isSelected: editingMode === "suggestions",
-                    },
-                  ]}
-                />
-                {editingMode === "suggestions" && hasUnresolvedSuggestions && (
-                  <SuggestionActions />
+                    ]}
+                  />
                 )}
+                {activeUser.role === "editor" &&
+                  editingMode === "suggestions" &&
+                  hasUnresolvedSuggestions && <SuggestionActions />}
               </div>
             )}
             {/* Because we set `renderEditor` to false, we can now manually place
