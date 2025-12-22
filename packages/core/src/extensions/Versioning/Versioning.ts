@@ -97,7 +97,7 @@ export interface VersioningEndpoints {
    *
    * @note if not provided, the UI will not allow the user to update the name
    */
-  updateSnapshotName?: (id: string, name: string) => Promise<void>;
+  updateSnapshotName?: (id: string, name?: string) => Promise<void>;
 }
 
 export const VersioningExtension = createExtension(
@@ -163,13 +163,11 @@ export const VersioningExtension = createExtension(
       }));
 
       if (id === undefined) {
-        editor.isEditable = true;
         // when we go back to the original document, just revert changes `.merge({ keepChanges: false })`
         editor.getExtension(ForkYDocExtension)!.merge({ keepChanges: false });
         return;
       }
       editor.getExtension(ForkYDocExtension)!.fork();
-      editor.isEditable = false;
       const snapshotContent = await endpoints.fetchSnapshotContent(id);
 
       // replace editor contents with the snapshot contents (affecting the forked document not the original)
@@ -210,7 +208,7 @@ export const VersioningExtension = createExtension(
         : undefined,
       canUpdateSnapshotName: endpoints.updateSnapshotName !== undefined,
       updateSnapshotName: endpoints.updateSnapshotName
-        ? async (id: string, name: string): Promise<void> => {
+        ? async (id: string, name?: string): Promise<void> => {
             await endpoints.updateSnapshotName!(id, name);
             await updateSnapshots();
           }

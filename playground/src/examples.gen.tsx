@@ -1622,7 +1622,7 @@
             "Collaboration"
           ],
           "dependencies": {
-            "y-partykit": "^0.0.25",
+            "react-icons": "^5.2.1",
             "yjs": "^13.6.27"
           } as any
         },

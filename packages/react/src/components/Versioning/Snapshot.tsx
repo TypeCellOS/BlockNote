@@ -48,7 +48,12 @@ export const Snapshot = ({ snapshot }: { snapshot: VersionSnapshot }) => {
           readOnly={!canUpdateSnapshotName}
           value={snapshotName}
           onChange={(e) => setSnapshotName(e.target.value)}
-          onBlur={() => updateSnapshotName?.(snapshot.id, snapshotName)}
+          onBlur={() =>
+            updateSnapshotName?.(
+              snapshot.id,
+              snapshotName === dateString ? undefined : snapshotName,
+            )
+          }
         />
         {snapshot.name && snapshot.name !== dateString && (
           <div className="bn-snapshot-date">{dateString}</div>

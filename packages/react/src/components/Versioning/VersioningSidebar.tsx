@@ -4,15 +4,19 @@ import { useExtensionState } from "../../hooks/useExtension.js";
 import { CurrentSnapshot } from "./CurrentSnapshot.js";
 import { Snapshot } from "./Snapshot.js";
 
-export const VersioningSidebar = () => {
+export const VersioningSidebar = (props: { filter?: "named" | "all" }) => {
   const { snapshots } = useExtensionState(VersioningExtension);
 
   return (
     <div className="bn-versioning-sidebar">
       <CurrentSnapshot />
-      {snapshots.map((snapshot) => {
-        return <Snapshot key={snapshot.id} snapshot={snapshot} />;
-      })}
+      {snapshots
+        .filter((snapshot) =>
+          props.filter === "named" ? snapshot.name !== undefined : true,
+        )
+        .map((snapshot) => {
+          return <Snapshot key={snapshot.id} snapshot={snapshot} />;
+        })}
     </div>
   );
 };

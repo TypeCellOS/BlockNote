@@ -3886,9 +3886,9 @@ importers:
       react-dom:
         specifier: ^19.2.1
         version: 19.2.1(react@19.2.1)
-      y-partykit:
-        specifier: ^0.0.25
-        version: 0.0.25
+      react-icons:
+        specifier: ^5.2.1
+        version: 5.5.0(react@19.2.1)
       yjs:
         specifier: ^13.6.27
         version: 13.6.27
