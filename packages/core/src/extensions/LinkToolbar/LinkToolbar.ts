@@ -65,10 +65,14 @@ export const LinkToolbarExtension = createExtension(({ editor }) => {
     getLinkElementAtPos,
     getMarkAtPos,
 
-    getLinkAtElement(element: HTMLElement) {
+    getLinkAtCoords(coords: { left: number; top: number }) {
       return editor.transact(() => {
-        const posAtElement = editor.prosemirrorView.posAtDOM(element, 0) + 1;
-        return getMarkAtPos(posAtElement, "link");
+        const posAtCoords = editor.prosemirrorView.posAtCoords(coords);
+        if (posAtCoords === null || posAtCoords.inside === -1) {
+          return undefined;
+        }
+
+        return getMarkAtPos(posAtCoords.pos, "link");
       });
     },
 

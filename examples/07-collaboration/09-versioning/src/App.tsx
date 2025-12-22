@@ -1,18 +1,20 @@
 import "@blocknote/core/fonts/inter.css";
 import {
   localStorageEndpoints,
+  SuggestionsExtension,
   VersioningExtension,
 } from "@blocknote/core/extensions";
 import {
   BlockNoteViewEditor,
   FloatingComposerController,
   useCreateBlockNote,
+  useEditorState,
   useExtension,
   useExtensionState,
 } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { RiChat3Line, RiHistoryLine } from "react-icons/ri";
 import * as Y from "yjs";
 
@@ -27,6 +29,8 @@ import {
 
 import { CommentsSidebar } from "./CommentsSidebar";
 import { VersionHistorySidebar } from "./VersionHistorySidebar";
+import { SuggestionActions } from "./SuggestionActions";
+import { SuggestionActionsPopup } from "./SuggestionActionsPopup";
 
 const doc = new Y.Doc();
 
@@ -39,12 +43,6 @@ async function resolveUsers(userIds: string[]) {
 
 export default function App() {
   const [activeUser, setActiveUser] = useState<MyUserType>(HARDCODED_USERS[0]);
-  const [editingMode, setEditingMode] = useState<"editing" | "suggestions">(
-    "editing",
-  );
-  const [sidebar, setSidebar] = useState<
-    "comments" | "versionHistory" | "none"
-  >("none");
 
   const threadStore = useMemo(() => {
     return new YjsThreadStore(
@@ -61,6 +59,7 @@ export default function App() {
     },
     extensions: [
       CommentsExtension({ threadStore, resolveUsers }),
+      SuggestionsExtension(),
       VersioningExtension({
         endpoints: localStorageEndpoints,
         fragment: doc.getXmlFragment(),
@@ -68,10 +67,27 @@ export default function App() {
     ],
   });
 
+  const { enableSuggestions, disableSuggestions, checkUnresolvedSuggestions } =
+    useExtension(SuggestionsExtension, { editor });
+  const hasUnresolvedSuggestions = useEditorState({
+    selector: () => checkUnresolvedSuggestions(),
+    editor,
+  });
+
   const { selectSnapshot } = useExtension(VersioningExtension, { editor });
   const { selectedSnapshotId } = useExtensionState(VersioningExtension, {
     editor,
   });
+
+  const [editingMode, setEditingMode] = useState<"editing" | "suggestions">(
+    "editing",
+  );
+  useEffect(() => {
+    setEditingMode("editing");
+  }, [selectedSnapshotId]);
+  const [sidebar, setSidebar] = useState<
+    "comments" | "versionHistory" | "none"
+  >("none");
 
   return (
     <BlockNoteView
@@ -146,6 +162,7 @@ export default function App() {
                       text: "Editing",
                       icon: null,
                       onClick: () => {
+                        disableSuggestions();
                         setEditingMode("editing");
                       },
                       isSelected: editingMode === "editing",
@@ -154,18 +171,23 @@ export default function App() {
                       text: "Suggestions",
                       icon: null,
                       onClick: () => {
+                        enableSuggestions();
                         setEditingMode("suggestions");
                       },
                       isSelected: editingMode === "suggestions",
                     },
                   ]}
                 />
+                {editingMode === "suggestions" && hasUnresolvedSuggestions && (
+                  <SuggestionActions />
+                )}
               </div>
             )}
             {/* Because we set `renderEditor` to false, we can now manually place
             `BlockNoteViewEditor` (the actual editor component) in its own
             section below the user settings select. */}
             <BlockNoteViewEditor />
+            <SuggestionActionsPopup />
             {/* Since we disabled rendering of comments with `comments={false}`,
             we need to re-add the floating composer, which is the UI element that
             appears when creating new threads. */}

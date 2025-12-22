@@ -115,6 +115,9 @@ importers:
       '@emotion/styled':
         specifier: ^11.11.5
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.1))(@types/react@19.2.2)(react@19.2.1)
+      '@floating-ui/react':
+        specifier: ^0.27.16
+        version: 0.27.16(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       '@fumadocs/mdx-remote':
         specifier: 1.3.0
         version: 1.3.0(fumadocs-core@15.5.4(@types/react@19.2.2)(next@15.5.9(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(react@19.2.1)
@@ -3871,6 +3874,9 @@ importers:
       '@blocknote/shadcn':
         specifier: latest
         version: link:../../../packages/shadcn
+      '@floating-ui/react':
+        specifier: ^0.27.16
+        version: 0.27.16(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       '@mantine/core':
         specifier: ^8.3.4
         version: 8.3.4(@mantine/hooks@8.3.4(react@19.2.1))(@types/react@19.2.2)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
@@ -4575,6 +4581,9 @@ importers:
       '@handlewithcare/prosemirror-inputrules':
         specifier: ^0.1.3
         version: 0.1.3(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)
+      '@handlewithcare/prosemirror-suggest-changes':
+        specifier: ^0.1.8
+        version: 0.1.8(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-transform@1.10.5)(prosemirror-view@1.41.4)
       '@hocuspocus/provider':
         specifier: ^2.15.2 || ^3.0.0
         version: 2.15.3(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)

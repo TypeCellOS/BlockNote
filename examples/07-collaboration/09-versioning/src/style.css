@@ -221,3 +221,23 @@
   background-color: #20242a;
   border: 2px solid #23405b;
 }
+
+.full-collaboration ins {
+  background-color: hsl(120 100 90);
+  color: hsl(120 100 30);
+}
+
+.dark.full-collaboration ins {
+  background-color: hsl(120 100 10);
+  color: hsl(120 80 70);
+}
+
+.full-collaboration del {
+  background-color: hsl(0 100 90);
+  color: hsl(0 100 30);
+}
+
+.dark.full-collaboration del {
+  background-color: hsl(0 100 10);
+  color: hsl(0 80 70);
+}

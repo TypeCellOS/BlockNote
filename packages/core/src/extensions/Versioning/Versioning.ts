@@ -1,3 +1,4 @@
+import { yXmlFragmentToProseMirrorRootNode } from "y-prosemirror";
 import * as Y from "yjs";
 
 import {
@@ -9,7 +10,8 @@ import {
   findTypeInOtherYdoc,
   ForkYDocExtension,
 } from "../Collaboration/ForkYDoc.js";
-import { yXmlFragmentToProseMirrorRootNode } from "y-prosemirror";
+
+import { SuggestionsExtension } from "../Suggestions/Suggestions.js";
 
 export interface VersionSnapshot {
   /**
@@ -214,7 +216,14 @@ export const VersioningExtension = createExtension(
           }
         : undefined,
 
-      selectSnapshot,
+      selectSnapshot: async (id: string | undefined) => {
+        const suggestions = editor.getExtension(SuggestionsExtension);
+        if (suggestions !== undefined) {
+          suggestions.disableSuggestions();
+        }
+
+        await selectSnapshot(id);
+      },
     } as const;
   },
 );

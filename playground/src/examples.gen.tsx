@@ -1622,6 +1622,7 @@
             "Collaboration"
           ],
           "dependencies": {
+            "@floating-ui/react": "^0.27.16",
             "react-icons": "^5.2.1",
             "yjs": "^13.6.27"
           } as any

@@ -21,6 +21,7 @@
     "@mantine/utils": "^6.0.22",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
+    "@floating-ui/react": "^0.27.16",
     "react-icons": "^5.2.1",
     "yjs": "^13.6.27"
   },
