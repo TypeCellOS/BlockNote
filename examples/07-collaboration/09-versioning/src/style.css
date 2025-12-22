@@ -148,7 +148,7 @@
 }
 
 .full-collaboration .bn-threads-sidebar > .bn-thread {
-  box-shadow: var(--bn-shadow-medium);
+  box-shadow: var(--bn-shadow-medium) !important;
   min-width: auto;
 }
 
