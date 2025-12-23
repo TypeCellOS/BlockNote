@@ -1,5 +1,6 @@
 import { v4 } from "uuid";
 import * as Y from "yjs";
+import { toBase64, fromBase64 } from "lib0/buffer";
 
 import { VersioningEndpoints, VersionSnapshot } from "./Versioning.js";
 
@@ -19,8 +20,7 @@ const createSnapshot = async (
     meta: {
       restoredFromSnapshotId,
       userIds: ["User1"],
-      // @ts-expect-error - toBase64 is not a method on Uint8Array in types, but exists in chrome
-      contents: Y.encodeStateAsUpdateV2(fragment.doc!).toBase64(),
+      contents: toBase64(Y.encodeSnapshotV2(Y.snapshot(fragment.doc!))),
     },
   } satisfies VersionSnapshot;
 
@@ -32,27 +32,28 @@ const createSnapshot = async (
   return Promise.resolve(snapshot);
 };
 
-const fetchSnapshotContent: VersioningEndpoints["fetchSnapshotContent"] =
-  async (id) => {
-    const snapshots = await listSnapshots();
+const fetchSnapshotContent: VersioningEndpoints["fetchSnapshot"] = async (
+  id,
+) => {
+  const snapshots = await listSnapshots();
 
-    const snapshot = snapshots.find(
-      (snapshot: VersionSnapshot) => snapshot.id === id,
-    );
-    if (snapshot === undefined) {
-      throw new Error(`Document snapshot ${id} could not be found.`);
-    }
-    if (!("contents" in snapshot.meta)) {
-      throw new Error(`Document snapshot ${id} doesn't contain content.`);
-    }
-    if (typeof snapshot.meta.contents !== "string") {
-      throw new Error(`Document snapshot ${id} contains invalid content.`);
-    }
+  const snapshot = snapshots.find(
+    (snapshot: VersionSnapshot) => snapshot.id === id,
+  );
+  if (snapshot === undefined) {
+    throw new Error(`Document snapshot ${id} could not be found.`);
+  }
+  if (!("contents" in snapshot.meta)) {
+    throw new Error(`Document snapshot ${id} doesn't contain content.`);
+  }
+  if (typeof snapshot.meta.contents !== "string") {
+    throw new Error(`Document snapshot ${id} contains invalid content.`);
+  }
 
-    return Promise.resolve(
-      Uint8Array.from(atob(snapshot.meta.contents), (c) => c.charCodeAt(0)),
-    );
-  };
+  return Promise.resolve(
+    Y.decodeSnapshotV2(fromBase64(snapshot.meta.contents)),
+  );
+};
 
 const restoreSnapshot: VersioningEndpoints["restoreSnapshot"] = async (
   fragment,
@@ -63,8 +64,7 @@ const restoreSnapshot: VersioningEndpoints["restoreSnapshot"] = async (
 
   // hydrates the version document from it's contents, into a new Y.Doc
   const snapshotContent = await fetchSnapshotContent(id);
-  const yDoc = new Y.Doc();
-  Y.applyUpdateV2(yDoc, snapshotContent);
+  const yDoc = Y.createDocFromSnapshot(fragment.doc!, snapshotContent);
 
   // create a new snapshot from that, to store it back in the list
   // Don't mind that the xmlFragment is not the right one, we just snapshot the whole doc anyway
@@ -98,7 +98,7 @@ const updateSnapshotName: VersioningEndpoints["updateSnapshotName"] = async (
 export const localStorageEndpoints: VersioningEndpoints = {
   listSnapshots,
   createSnapshot,
-  fetchSnapshotContent,
+  fetchSnapshot: fetchSnapshotContent,
   restoreSnapshot,
   updateSnapshotName,
 };

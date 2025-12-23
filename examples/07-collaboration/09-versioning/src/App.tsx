@@ -32,7 +32,7 @@ import { VersionHistorySidebar } from "./VersionHistorySidebar";
 import { SuggestionActions } from "./SuggestionActions";
 import { SuggestionActionsPopup } from "./SuggestionActionsPopup";
 
-const doc = new Y.Doc();
+const doc = new Y.Doc({ gc: false });
 
 async function resolveUsers(userIds: string[]) {
   // fake a (slow) network request

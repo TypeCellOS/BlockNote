@@ -47,7 +47,19 @@ export interface VersionSnapshot {
      */
     [key: string]: unknown;
   };
+  /**
+   * The snapshot object.
+   */
+  snapshot: Y.Snapshot;
 }
+
+/**
+ * TODO I need to re-think how all of this works.
+ *
+ * I want to be able to support:
+ *  - The user using Y.Snapshot (scrubbing through the current document)
+ *  - The user using completely separate snapshots (independent documents)
+ */
 
 export interface VersioningEndpoints {
   /**
@@ -58,6 +70,9 @@ export interface VersioningEndpoints {
    * Create a new snapshot for this document with the current content.
    */
   createSnapshot: (
+    /**
+     * The fragment of the snapshot to create.
+     */
     fragment: Y.XmlFragment,
     /**
      * The optional name for this snapshot.
@@ -76,24 +91,32 @@ export interface VersioningEndpoints {
    *
    * @note if not provided, the UI will not allow the user to restore a
    * snapshot.
-   * @returns the binary contents of the `Y.Doc` of the snapshot.
+   * @returns the snapshot object
    */
   restoreSnapshot?: (
     fragment: Y.XmlFragment,
     id: string,
-  ) => Promise<Uint8Array>;
+  ) => Promise<{ snapshot: Y.Snapshot; fragment: Y.XmlFragment }>;
   /**
    * Fetch the contents of a snapshot. This is useful for previewing a
    * snapshot before choosing to revert it.
    *
-   * @returns the binary contents of the `Y.Doc` of the snapshot.
+   * @returns the fragment to render
    */
-  fetchSnapshotContent: (
+  fetchSnapshot?: (
     /**
      * The id of the snapshot to fetch the contents of.
      */
     id: string,
-  ) => Promise<Uint8Array>;
+    /**
+     * The current fragment of the document.
+     */
+    fragment: Y.XmlFragment,
+    /**
+     * Get the snapshot object.
+     */
+    getSnapshot: () => Y.Snapshot,
+  ) => Promise<Y.XmlFragment>;
   /**
    * Update the name of a snapshot.
    *
@@ -121,9 +144,8 @@ export const VersioningExtension = createExtension(
       selectedSnapshotId: undefined,
     });
 
-    const applySnapshot = (snapshotContent: Uint8Array) => {
-      const yDoc = new Y.Doc();
-      Y.applyUpdateV2(yDoc, snapshotContent);
+    const applySnapshot = (snapshot: Y.Snapshot) => {
+      const yDoc = Y.createDocFromSnapshot(fragment.doc!, snapshot);
 
       // Find the fragment within the newly restored document to then apply
       const restoreFragment = findTypeInOtherYdoc(fragment, yDoc);
@@ -147,10 +169,11 @@ export const VersioningExtension = createExtension(
     };
 
     const initSnapshots = async () => {
-      await updateSnapshots();
+      // TODO probably only need to do this when viewing version history, otherwise this would be a hit each editor load
+      // await updateSnapshots();
 
       if (store.state.snapshots.length > 0) {
-        const snapshotContent = await endpoints.fetchSnapshotContent(
+        const snapshotContent = await endpoints.fetchSnapshot(
           store.state.snapshots[0].id,
         );
 
@@ -170,7 +193,7 @@ export const VersioningExtension = createExtension(
         return;
       }
       editor.getExtension(ForkYDocExtension)!.fork();
-      const snapshotContent = await endpoints.fetchSnapshotContent(id);
+      const snapshotContent = await endpoints.fetchSnapshot(id);
 
       // replace editor contents with the snapshot contents (affecting the forked document not the original)
       applySnapshot(snapshotContent);
@@ -195,7 +218,7 @@ export const VersioningExtension = createExtension(
       },
       canRestoreSnapshot: endpoints.restoreSnapshot !== undefined,
       restoreSnapshot: endpoints.restoreSnapshot
-        ? async (id: string): Promise<Uint8Array> => {
+        ? async (id: string): Promise<Y.Snapshot> => {
             selectSnapshot(undefined);
 
             const snapshotContent = await endpoints.restoreSnapshot!(
