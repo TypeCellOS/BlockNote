@@ -19,6 +19,7 @@ import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useExtension } from "../../../hooks/useExtension.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 import { EditLinkMenuItems } from "../../LinkToolbar/EditLinkMenuItems.js";
+import { useEditorChange } from "../../../hooks/useEditorChange.js";
 
 function checkLinkInSchema(
   editor: BlockNoteEditor<BlockSchema, any, StyleSchema>,
@@ -52,6 +53,11 @@ export const CreateLinkButton = () => {
     showSelection(showPopover);
     return () => showSelection(false);
   }, [showPopover, showSelection]);
+
+  useEditorChange(() => {
+    // Close the popover when the editor is updated after a link has been created
+    setShowPopover(false);
+  }, editor);
 
   const state = useEditorState({
     editor,
@@ -106,7 +112,10 @@ export const CreateLinkButton = () => {
   }
 
   return (
-    <Components.Generic.Popover.Root open={showPopover}>
+    <Components.Generic.Popover.Root
+      open={showPopover}
+      onOpenChange={setShowPopover}
+    >
       <Components.Generic.Popover.Trigger>
         {/* TODO: hide tooltip on click */}
         <Components.FormattingToolbar.Button
@@ -119,7 +128,7 @@ export const CreateLinkButton = () => {
             dict.generic.ctrl_shortcut,
           )}
           icon={<RiLink />}
-          onClick={() => setShowPopover(true)}
+          onClick={() => setShowPopover(open => !open)}
         />
       </Components.Generic.Popover.Trigger>
       <Components.Generic.Popover.Content
