@@ -1,7 +1,7 @@
 import { BlockNoteEditor, BlockNoteSchema } from "@blocknote/core";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-import { createReactBlockSpec, useBlockNoteEditor } from "@blocknote/react";
+import { createReactBlockSpec } from "@blocknote/react";
 import { StrictMode } from "react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
@@ -33,8 +33,6 @@ describe("BlockNoteView Rapid Remount", () => {
       },
       {
         render: (props) => {
-          // This hook usage might affect timing/context
-          useBlockNoteEditor();
           return (
             <div className={"alert"}>
               <div className={"inline-content"} ref={props.contentRef} />
