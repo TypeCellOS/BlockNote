@@ -1423,7 +1423,7 @@
           ],
           "dependencies": {
             "y-partykit": "^0.0.25",
-            "yjs": "^13.6.27"
+            "@y/y": "14.0.0-19"
           } as any
         },
         "title": "Collaborative Editing with PartyKit",
@@ -1452,7 +1452,7 @@
             "@liveblocks/react-blocknote": "3.7.1-tiptap3",
             "@liveblocks/react-tiptap": "3.7.1-tiptap3",
             "@liveblocks/react-ui": "3.7.1-tiptap3",
-            "yjs": "^13.6.27"
+            "@y/y": "14.0.0-19"
           } as any
         },
         "title": "Collaborative Editing with Liveblocks",
@@ -1547,7 +1547,7 @@
           ],
           "dependencies": {
             "y-partykit": "^0.0.25",
-            "yjs": "^13.6.27",
+            "@y/y": "14.0.0-19",
             "@mantine/core": "^8.3.4"
           } as any
         },
@@ -1573,7 +1573,7 @@
           ],
           "dependencies": {
             "y-partykit": "^0.0.25",
-            "yjs": "^13.6.27"
+            "@y/y": "14.0.0-19"
           } as any
         },
         "title": "Ghost Writer",
@@ -1598,7 +1598,7 @@
           ],
           "dependencies": {
             "y-partykit": "^0.0.25",
-            "yjs": "^13.6.27"
+            "@y/y": "14.0.0-19"
           } as any
         },
         "title": "Collaborative Editing with Forking",
@@ -1736,7 +1736,7 @@
             "@mantine/core": "^8.3.4",
             "ai": "^5.0.102",
             "y-partykit": "^0.0.25",
-            "yjs": "^13.6.27"
+            "@y/y": "14.0.0-19"
           } as any
         },
         "title": "AI + Ghost Writer",
@@ -1763,7 +1763,7 @@
             "@mantine/core": "^8.3.4",
             "ai": "^5.0.102",
             "y-partykit": "^0.0.25",
-            "yjs": "^13.6.27"
+            "@y/y": "14.0.0-19"
           } as any
         },
         "title": "AI manual execution",

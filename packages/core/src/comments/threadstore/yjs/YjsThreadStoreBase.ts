@@ -1,4 +1,4 @@
-import * as Y from "yjs";
+import * as Y from "@y/y";
 import { ThreadData } from "../../types.js";
 import { ThreadStore } from "../ThreadStore.js";
 import { ThreadStoreAuth } from "../ThreadStoreAuth.js";

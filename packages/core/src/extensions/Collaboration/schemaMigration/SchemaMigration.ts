@@ -1,5 +1,5 @@
 import { Plugin, PluginKey } from "@tiptap/pm/state";
-import * as Y from "yjs";
+import * as Y from "@y/y";
 
 import {
   createExtension,

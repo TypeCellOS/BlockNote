@@ -1,5 +1,5 @@
-import { yUndoPluginKey } from "y-prosemirror";
-import * as Y from "yjs";
+import { yUndoPluginKey } from "@y/prosemirror";
+import * as Y from "@y/y";
 import {
   createExtension,
   createStore,

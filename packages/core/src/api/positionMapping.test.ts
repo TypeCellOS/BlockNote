@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import * as Y from "yjs";
+import * as Y from "@y/y";
 import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import { trackPosition } from "./positionMapping.js";
 

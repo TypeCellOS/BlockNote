@@ -22,7 +22,7 @@ import {
 import { useTheme } from "next-themes";
 import { useCallback, useMemo, useState } from "react";
 import YPartyKitProvider from "y-partykit/provider";
-import * as Y from "yjs";
+import * as Y from "@y/y";
 
 const colors = [
   "#958DF1",
