@@ -1607,6 +1607,32 @@
           "slug": "collaboration"
         },
         "readme": "In this example, we can fork a document and edit it independently of other collaborators. Then, we can choose to merge the changes back into the original document, or discard the changes.\n\n**Try it out:** Open this page in a new browser tab or window to see it in action!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)"
+      },
+      {
+        "projectSlug": "versioning",
+        "fullSlug": "collaboration/versioning",
+        "pathFromRoot": "examples/07-collaboration/09-versioning",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Advanced",
+            "Development",
+            "Collaboration"
+          ],
+          "dependencies": {
+            "@floating-ui/react": "^0.27.16",
+            "react-icons": "^5.2.1",
+            "yjs": "^13.6.27"
+          } as any
+        },
+        "title": "Collaborative Editing Features Showcase",
+        "group": {
+          "pathFromRoot": "examples/07-collaboration",
+          "slug": "collaboration"
+        },
+        "readme": "In this example, you can play with all of the collaboration features BlockNote has to offer:\n\n**Comments**: Add comments to parts of the document - other users can then view, reply to, react to, and resolve them.\n\n**Versioning**: Save snapshots of the document - later preview saved snapshots and restore them to ensure work is never lost.\n\n**Suggestions**: Suggest changes directly in the editor - users can choose to then apply or reject those changes.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Comments](/docs/features/collaboration/comments)\n- [Real-time collaboration](/docs/features/collaboration)"
       }
     ]
   },

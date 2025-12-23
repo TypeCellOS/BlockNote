@@ -13,7 +13,7 @@ import { YUndoExtension } from "./YUndo.js";
 /**
  * To find a fragment in another ydoc, we need to search for it.
  */
-function findTypeInOtherYdoc<T extends Y.AbstractType<any>>(
+export function findTypeInOtherYdoc<T extends Y.AbstractType<any>>(
   ytype: T,
   otherYdoc: Y.Doc,
 ): T {
