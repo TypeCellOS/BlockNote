@@ -1,5 +1,6 @@
 import { v4 } from "uuid";
 import * as Y from "yjs";
+import { toBase64, fromBase64 } from "lib0/buffer";
 
 import { VersioningEndpoints, VersionSnapshot } from "./Versioning.js";
 
@@ -19,8 +20,7 @@ const createSnapshot = async (
     meta: {
       restoredFromSnapshotId,
       userIds: ["User1"],
-      // @ts-expect-error - toBase64 is not a method on Uint8Array in types, but exists in chrome
-      contents: Y.encodeStateAsUpdateV2(fragment.doc!).toBase64(),
+      contents: toBase64(Y.encodeStateAsUpdateV2(fragment.doc!)),
     },
   } satisfies VersionSnapshot;
 
@@ -49,9 +49,7 @@ const fetchSnapshotContent: VersioningEndpoints["fetchSnapshotContent"] =
       throw new Error(`Document snapshot ${id} contains invalid content.`);
     }
 
-    return Promise.resolve(
-      Uint8Array.from(atob(snapshot.meta.contents), (c) => c.charCodeAt(0)),
-    );
+    return Promise.resolve(fromBase64(snapshot.meta.contents));
   };
 
 const restoreSnapshot: VersioningEndpoints["restoreSnapshot"] = async (
