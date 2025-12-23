@@ -2,8 +2,8 @@ import {
   prosemirrorToYDoc,
   prosemirrorToYXmlFragment,
   yXmlFragmentToProseMirrorRootNode,
-} from "y-prosemirror";
-import * as Y from "yjs";
+} from "@y/prosemirror";
+import * as Y from "@y/y";
 
 import {
   type Block,

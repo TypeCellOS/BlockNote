@@ -1,7 +1,7 @@
 import { Node } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
-import { getRelativeSelection, ySyncPluginKey } from "y-prosemirror";
+import { getRelativeSelection, ySyncPluginKey } from "@y/prosemirror";
 import {
   createExtension,
   createStore,
@@ -331,7 +331,7 @@ export const CommentsExtension = createExtension(
               anchor: pmSelection.anchor,
             },
             yjs: ystate
-              ? getRelativeSelection(ystate.binding, view.state)
+              ? getRelativeSelection((ystate as any).binding, view.state)
               : undefined,
           };
           await threadStore.addThreadToDocument({
