@@ -75,15 +75,6 @@ export const SuggestionsExtension = createExtension(({ editor }) => {
   return {
     key: "suggestions",
     prosemirrorPlugins: [suggestChanges()],
-    // mount: () => {
-    //   const origDispatchTransaction = (
-    //     editor._tiptapEditor as any
-    //   ).dispatchTransaction.bind(editor._tiptapEditor);
-
-    //   (editor._tiptapEditor as any).dispatchTransaction = withSuggestChanges(
-    //     origDispatchTransaction,
-    //   );
-    // },
     enableSuggestions: () =>
       enableSuggestChanges(
         editor.prosemirrorState,
