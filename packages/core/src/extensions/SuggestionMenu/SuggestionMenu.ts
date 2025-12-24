@@ -347,6 +347,20 @@ export const SuggestionMenu = createExtension(({ editor }) => {
             }
             return false;
           },
+          handleKeyDown(view, event) {
+            const pluginState = suggestionMenuPluginKey.getState(view.state);
+
+            if (!pluginState) {
+              return false;
+            }
+
+            if (event.key === "PageDown" || event.key === "PageUp") {
+              event.preventDefault();
+              return true;
+            }
+
+            return false;
+          },
 
           // Setup decorator on the currently active suggestion.
           decorations(state) {
