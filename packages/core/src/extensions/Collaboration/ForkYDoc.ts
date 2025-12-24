@@ -17,7 +17,10 @@ export function findTypeInOtherYdoc<T extends Y.AbstractType<any>>(
   ytype: T,
   otherYdoc: Y.Doc,
 ): T {
-  const ydoc = ytype.doc!;
+  const ydoc = ytype.doc;
+  if (!ydoc) {
+    throw new Error("type does not have a ydoc");
+  }
   if (ytype._item === null) {
     /**
      * If is a root type, we need to find the root key in the original ydoc
@@ -37,8 +40,14 @@ export function findTypeInOtherYdoc<T extends Y.AbstractType<any>>(
     const ytypeItem = ytype._item;
     const otherStructs = otherYdoc.store.clients.get(ytypeItem.id.client) ?? [];
     const itemIndex = Y.findIndexSS(otherStructs, ytypeItem.id.clock);
-    const otherItem = otherStructs[itemIndex] as Y.Item;
-    const otherContent = otherItem.content as Y.ContentType;
+    const otherItem = otherStructs[itemIndex] as Y.Item | undefined;
+    if (!otherItem) {
+      throw new Error("type does not exist in other ydoc");
+    }
+    const otherContent = otherItem.content as Y.ContentType | undefined;
+    if (!otherContent) {
+      throw new Error("type does not exist in other ydoc");
+    }
     return otherContent.type as T;
   }
 }
