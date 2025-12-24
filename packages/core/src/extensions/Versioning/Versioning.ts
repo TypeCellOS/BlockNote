@@ -1,5 +1,6 @@
-import { yXmlFragmentToProseMirrorRootNode } from "y-prosemirror";
-import * as Y from "yjs";
+import * as delta from "lib0/delta";
+import { deltaToPSteps, nodeToDelta } from "@y/prosemirror";
+import * as Y from "@y/y";
 
 import {
   createExtension,
@@ -128,13 +129,17 @@ export const VersioningExtension = createExtension(
       // Find the fragment within the newly restored document to then apply
       const restoreFragment = findTypeInOtherYdoc(fragment, yDoc);
 
-      const pmDoc = yXmlFragmentToProseMirrorRootNode(
-        restoreFragment,
-        editor.prosemirrorState.schema,
-      );
-
       editor.transact((tr) => {
-        tr.replace(0, tr.doc.content.size - 2, pmDoc.slice(0));
+        // TODO need to make a utility for this in @y/prosemirror
+        deltaToPSteps(
+          tr,
+          delta
+            .diff(
+              nodeToDelta(tr.doc) as any,
+              restoreFragment.getContentDeep().done() as any,
+            )
+            .done() as any,
+        );
       });
     };
 
@@ -169,8 +174,10 @@ export const VersioningExtension = createExtension(
         editor.getExtension(ForkYDocExtension)!.merge({ keepChanges: false });
         return;
       }
-      editor.getExtension(ForkYDocExtension)!.fork();
       const snapshotContent = await endpoints.fetchSnapshotContent(id);
+      editor
+        .getExtension(ForkYDocExtension)!
+        .fork({ initialUpdate: snapshotContent });
 
       // replace editor contents with the snapshot contents (affecting the forked document not the original)
       applySnapshot(snapshotContent);

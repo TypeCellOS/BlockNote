@@ -4,7 +4,7 @@ import {
   createExtension,
   ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
-// import { ForkYDocExtension } from "./ForkYDoc.js";
+import { ForkYDocExtension } from "./ForkYDoc.js";
 // import { SchemaMigration } from "./schemaMigration/SchemaMigration.js";
 // import { YCursorExtension } from "./YCursorPlugin.js";
 import { YSyncExtension } from "./YSync.js";
@@ -48,7 +48,7 @@ export const CollaborationExtension = createExtension(
     return {
       key: "collaboration",
       blockNoteExtensions: [
-        // ForkYDocExtension(options),
+        ForkYDocExtension(options),
         // YCursorExtension(options),
         YSyncExtension(options),
         // YUndoExtension(),

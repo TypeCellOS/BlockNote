@@ -16,7 +16,7 @@ import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useEffect, useMemo, useState } from "react";
 import { RiChat3Line, RiHistoryLine } from "react-icons/ri";
-import * as Y from "yjs";
+import * as Y from "@y/y";
 
 import { getRandomColor, HARDCODED_USERS, MyUserType } from "./userdata";
 import { SettingsSelect } from "./SettingsSelect";

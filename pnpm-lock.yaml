@@ -3457,6 +3457,9 @@ importers:
       '@mantine/utils':
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.1)
+      '@y/y':
+        specifier: 14.0.0-19
+        version: 14.0.0-19
       react:
         specifier: ^19.2.1
         version: 19.2.1
@@ -3466,9 +3469,6 @@ importers:
       react-icons:
         specifier: ^5.2.1
         version: 5.5.0(react@19.2.1)
-      yjs:
-        specifier: ^13.6.27
-        version: 13.6.28
     devDependencies:
       '@types/react':
         specifier: ^19.2.2
@@ -14940,10 +14940,6 @@ packages:
   yargs@17.7.2:
     resolution: {integrity: sha512-7dSzzRQ++CKnNI/krKnYRV7JKKPUXMEh61soaHKg9mrWEhzFWhFnxPxGl+69cD1Ou63C13NUPCnmIcrvqCuM6w==}
     engines: {node: '>=12'}
-
-  yjs@13.6.28:
-    resolution: {integrity: sha512-EgnDOXs8+hBVm6mq3/S89Kiwzh5JRbn7w2wXwbrMRyKy/8dOFsLvuIfC+x19ZdtaDc0tA9rQmdZzbqqNHG44wA==}
-    engines: {node: '>=16.0.0', npm: '>=8.0.0'}
 
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
@@ -26769,10 +26765,6 @@ snapshots:
       string-width: 4.2.3
       y18n: 5.0.8
       yargs-parser: 21.1.1
-
-  yjs@13.6.28:
-    dependencies:
-      lib0: 0.2.116
 
   yocto-queue@0.1.0: {}
 
