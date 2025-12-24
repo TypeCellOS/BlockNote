@@ -120,6 +120,9 @@ importers:
       '@emotion/styled':
         specifier: ^11.11.5
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.1))(@types/react@19.2.2)(react@19.2.1)
+      '@floating-ui/react':
+        specifier: ^0.27.16
+        version: 0.27.16(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       '@fumadocs/mdx-remote':
         specifier: 1.3.0
         version: 1.3.0(fumadocs-core@15.5.4(@types/react@19.2.2)(next@15.5.9(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(react@19.2.1)
@@ -3425,6 +3428,61 @@ importers:
         specifier: ^5.4.20
         version: 5.4.20(@types/node@24.8.1)(lightningcss@1.30.1)(terser@5.44.1)
 
+  examples/07-collaboration/09-versioning:
+    dependencies:
+      '@blocknote/ariakit':
+        specifier: latest
+        version: link:../../../packages/ariakit
+      '@blocknote/core':
+        specifier: latest
+        version: link:../../../packages/core
+      '@blocknote/mantine':
+        specifier: latest
+        version: link:../../../packages/mantine
+      '@blocknote/react':
+        specifier: latest
+        version: link:../../../packages/react
+      '@blocknote/shadcn':
+        specifier: latest
+        version: link:../../../packages/shadcn
+      '@floating-ui/react':
+        specifier: ^0.27.16
+        version: 0.27.16(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+      '@mantine/core':
+        specifier: ^8.3.4
+        version: 8.3.4(@mantine/hooks@8.3.4(react@19.2.1))(@types/react@19.2.2)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+      '@mantine/hooks':
+        specifier: ^8.3.4
+        version: 8.3.4(react@19.2.1)
+      '@mantine/utils':
+        specifier: ^6.0.22
+        version: 6.0.22(react@19.2.1)
+      react:
+        specifier: ^19.2.1
+        version: 19.2.1
+      react-dom:
+        specifier: ^19.2.1
+        version: 19.2.1(react@19.2.1)
+      react-icons:
+        specifier: ^5.2.1
+        version: 5.5.0(react@19.2.1)
+      yjs:
+        specifier: ^13.6.27
+        version: 13.6.28
+    devDependencies:
+      '@types/react':
+        specifier: ^19.2.2
+        version: 19.2.2
+      '@types/react-dom':
+        specifier: ^19.2.2
+        version: 19.2.2(@types/react@19.2.2)
+      '@vitejs/plugin-react':
+        specifier: ^4.7.0
+        version: 4.7.0(vite@5.4.20(@types/node@24.8.1)(lightningcss@1.30.1)(terser@5.44.1))
+      vite:
+        specifier: ^5.4.20
+        version: 5.4.20(@types/node@24.8.1)(lightningcss@1.30.1)(terser@5.44.1)
+
   examples/08-extensions/01-tiptap-arrow-conversion:
     dependencies:
       '@blocknote/ariakit':
@@ -3978,6 +4036,9 @@ importers:
       '@handlewithcare/prosemirror-inputrules':
         specifier: ^0.1.3
         version: 0.1.3(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)
+      '@handlewithcare/prosemirror-suggest-changes':
+        specifier: ^0.1.8
+        version: 0.1.8(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-transform@1.10.5)(prosemirror-view@1.41.4)
       '@shikijs/types':
         specifier: ^3
         version: 3.19.0
@@ -14879,6 +14940,10 @@ packages:
   yargs@17.7.2:
     resolution: {integrity: sha512-7dSzzRQ++CKnNI/krKnYRV7JKKPUXMEh61soaHKg9mrWEhzFWhFnxPxGl+69cD1Ou63C13NUPCnmIcrvqCuM6w==}
     engines: {node: '>=12'}
+
+  yjs@13.6.28:
+    resolution: {integrity: sha512-EgnDOXs8+hBVm6mq3/S89Kiwzh5JRbn7w2wXwbrMRyKy/8dOFsLvuIfC+x19ZdtaDc0tA9rQmdZzbqqNHG44wA==}
+    engines: {node: '>=16.0.0', npm: '>=8.0.0'}
 
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
@@ -26704,6 +26769,10 @@ snapshots:
       string-width: 4.2.3
       y18n: 5.0.8
       yargs-parser: 21.1.1
+
+  yjs@13.6.28:
+    dependencies:
+      lib0: 0.2.116
 
   yocto-queue@0.1.0: {}
 
