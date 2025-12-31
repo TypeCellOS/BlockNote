@@ -1,4 +1,4 @@
-import { redoCommand, undoCommand, yUndoPlugin } from "y-prosemirror";
+import { redoCommand, undoCommand, yUndoPlugin } from "@y/prosemirror";
 import { createExtension } from "../../editor/BlockNoteExtension.js";
 
 export const YUndoExtension = createExtension(() => {

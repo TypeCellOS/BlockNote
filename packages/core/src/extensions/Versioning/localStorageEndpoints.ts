@@ -1,5 +1,5 @@
 import { v4 } from "uuid";
-import * as Y from "yjs";
+import * as Y from "@y/y";
 import { toBase64, fromBase64 } from "lib0/buffer";
 
 import { VersioningEndpoints, VersionSnapshot } from "./Versioning.js";

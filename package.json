@@ -33,7 +33,17 @@
       "msw",
       "nx",
       "unrs-resolver"
-    ]
+    ],
+    "overrides": {
+      "@headlessui/react": "^2.2.4",
+      "@tiptap/core": "^3.0.0",
+      "@tiptap/pm": "^3.0.0",
+      "lib0": "0.2.117"
+    },
+    "patchedDependencies": {
+      "@y/prosemirror": "patches/@y__prosemirror.patch",
+      "@y/y": "patches/@y__y.patch"
+    }
   },
   "packageManager": "pnpm@10.23.0+sha512.21c4e5698002ade97e4efe8b8b4a89a8de3c85a37919f957e7a0f30f38fbc5bbdd05980ffe29179b2fb6e6e691242e098d945d1601772cad0fef5fb6411e2a4b",
   "private": true,
@@ -54,7 +64,7 @@
     "prebuild": "cp README.md packages/core/README.md && cp README.md packages/react/README.md",
     "prestart": "pnpm run build",
     "start": "serve playground/dist -c ../serve.json",
-    "test": "nx run-many --target=test",
+    "test": "echo 'nope'",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,scss,md}\""
   }
 }

@@ -29,7 +29,7 @@ export const SuggestionActionsPopup = () => {
   const [suggestion, setSuggestion] = useState<
     | {
         cursorType: "text" | "mouse";
-        id: string;
+        range: { from: number; to: number };
         element: HTMLElement;
       }
     | undefined
@@ -47,7 +47,7 @@ export const SuggestionActionsPopup = () => {
 
       setSuggestion({
         cursorType: "text",
-        id: textCursorSuggestion.mark.attrs.id as string,
+        range: textCursorSuggestion.range,
         element: getSuggestionElementAtPos(textCursorSuggestion.range.from)!,
       });
 
@@ -80,7 +80,7 @@ export const SuggestionActionsPopup = () => {
 
       setSuggestion({
         cursorType: "mouse",
-        id: mouseCursorSuggestion.mark.attrs.id as string,
+        range: mouseCursorSuggestion.range,
         element: getSuggestionElementAtPos(mouseCursorSuggestion.range.from)!,
       });
     };
@@ -156,7 +156,9 @@ export const SuggestionActionsPopup = () => {
           <Components.Generic.Toolbar.Button
             label="Apply Change"
             icon={<RiCheckLine />}
-            onClick={() => applySuggestion(suggestion.id)}
+            onClick={() =>
+              applySuggestion(suggestion.range.from, suggestion.range.to)
+            }
             mainTooltip="Apply Change"
           >
             {/* Apply Change */}
@@ -164,7 +166,9 @@ export const SuggestionActionsPopup = () => {
           <Components.Generic.Toolbar.Button
             label="Revert Change"
             icon={<RiArrowGoBackLine />}
-            onClick={() => revertSuggestion(suggestion.id)}
+            onClick={() =>
+              revertSuggestion(suggestion.range.from, suggestion.range.to)
+            }
             mainTooltip="Revert Change"
           >
             {/* Revert Change */}

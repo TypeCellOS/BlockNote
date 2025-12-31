@@ -53,8 +53,6 @@ import {
 import type { Selection } from "./selectionTypes.js";
 import { transformPasted } from "./transformPasted.js";
 
-import { withSuggestChanges } from "@handlewithcare/prosemirror-suggest-changes";
-
 export type BlockCache<
   BSchema extends BlockSchema = any,
   ISchema extends InlineContentSchema = any,
@@ -548,14 +546,6 @@ export class BlockNoteEditor<
         { cause: e },
       );
     }
-
-    const origDispatchTransaction = (
-      this._tiptapEditor as any
-    ).dispatchTransaction.bind(this._tiptapEditor);
-
-    (this._tiptapEditor as any).dispatchTransaction = withSuggestChanges(
-      origDispatchTransaction,
-    );
 
     // When y-prosemirror creates an empty document, the `blockContainer` node is created with an `id` of `null`.
     // This causes the unique id extension to generate a new id for the initial block, which is not what we want

@@ -7,7 +7,13 @@ import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
 import { dateToString } from "./dateToString.js";
 import { useState } from "react";
 
-export const Snapshot = ({ snapshot }: { snapshot: VersionSnapshot }) => {
+export const Snapshot = ({
+  snapshot,
+  previousSnapshot,
+}: {
+  snapshot: VersionSnapshot;
+  previousSnapshot?: VersionSnapshot;
+}) => {
   const {
     canRestoreSnapshot,
     restoreSnapshot,
@@ -39,7 +45,7 @@ export const Snapshot = ({ snapshot }: { snapshot: VersionSnapshot }) => {
   return (
     <div
       className={`bn-snapshot ${selected ? "selected" : ""}`}
-      onClick={() => selectSnapshot(snapshot.id)}
+      onClick={() => selectSnapshot(snapshot.id, previousSnapshot?.id)}
     >
       <div className="bn-snapshot-body">
         <input

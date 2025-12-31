@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import * as Y from "yjs";
+import * as Y from "@y/y";
 import { CommentBody } from "../../types.js";
 import { DefaultThreadStoreAuth } from "../DefaultThreadStoreAuth.js";
 import { YjsThreadStore } from "./YjsThreadStore.js";

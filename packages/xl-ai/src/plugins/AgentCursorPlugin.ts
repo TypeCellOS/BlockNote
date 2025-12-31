@@ -1,6 +1,6 @@
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
-import { defaultSelectionBuilder } from "y-prosemirror";
+import { defaultSelectionBuilder } from "@y/prosemirror";
 
 type AgentCursorState = {
   selection: { anchor: number; head: number } | undefined;

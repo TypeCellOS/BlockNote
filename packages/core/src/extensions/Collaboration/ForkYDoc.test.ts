@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
-import * as Y from "yjs";
-import { Awareness } from "y-protocols/awareness";
+import * as Y from "@y/y";
+import { Awareness } from "@y/protocols/awareness";
 import { BlockNoteEditor } from "../../index.js";
 import { ForkYDocExtension } from "./ForkYDoc.js";
 

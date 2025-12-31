@@ -14,8 +14,14 @@ export const VersioningSidebar = (props: { filter?: "named" | "all" }) => {
         .filter((snapshot) =>
           props.filter === "named" ? snapshot.name !== undefined : true,
         )
-        .map((snapshot) => {
-          return <Snapshot key={snapshot.id} snapshot={snapshot} />;
+        .map((snapshot, i, arr) => {
+          return (
+            <Snapshot
+              key={snapshot.id}
+              snapshot={snapshot}
+              previousSnapshot={arr[i + 1]}
+            />
+          );
         })}
     </div>
   );

@@ -1,16 +1,7 @@
-import {
-  applySuggestion,
-  applySuggestions,
-  disableSuggestChanges,
-  enableSuggestChanges,
-  revertSuggestion,
-  revertSuggestions,
-  suggestChanges,
-  withSuggestChanges,
-} from "@handlewithcare/prosemirror-suggest-changes";
 import { getMarkRange, posToDOMRect } from "@tiptap/core";
 
 import { createExtension } from "../../editor/BlockNoteExtension.js";
+import { ySyncPluginKey } from "@y/prosemirror";
 
 export const SuggestionsExtension = createExtension(({ editor }) => {
   function getSuggestionElementAtPos(pos: number) {
@@ -74,60 +65,56 @@ export const SuggestionsExtension = createExtension(({ editor }) => {
 
   return {
     key: "suggestions",
-    prosemirrorPlugins: [suggestChanges()],
-    // mount: () => {
-    //   const origDispatchTransaction = (
-    //     editor._tiptapEditor as any
-    //   ).dispatchTransaction.bind(editor._tiptapEditor);
-
-    //   (editor._tiptapEditor as any).dispatchTransaction = withSuggestChanges(
-    //     origDispatchTransaction,
-    //   );
-    // },
-    enableSuggestions: () =>
-      enableSuggestChanges(
-        editor.prosemirrorState,
-        (editor._tiptapEditor as any).dispatchTransaction.bind(
-          editor._tiptapEditor,
-        ),
-      ),
-    disableSuggestions: () =>
-      disableSuggestChanges(
-        editor.prosemirrorState,
-        (editor._tiptapEditor as any).dispatchTransaction.bind(
-          editor._tiptapEditor,
-        ),
-      ),
-    applySuggestion: (id: string) =>
-      applySuggestion(id)(
-        editor.prosemirrorState,
-        withSuggestChanges(editor.prosemirrorView.dispatch).bind(
-          editor._tiptapEditor,
-        ),
-        editor.prosemirrorView,
-      ),
-    revertSuggestion: (id: string) =>
-      revertSuggestion(id)(
-        editor.prosemirrorState,
-        withSuggestChanges(editor.prosemirrorView.dispatch).bind(
-          editor._tiptapEditor,
-        ),
-        editor.prosemirrorView,
-      ),
-    applyAllSuggestions: () =>
-      applySuggestions(
-        editor.prosemirrorState,
-        withSuggestChanges(editor.prosemirrorView.dispatch).bind(
-          editor._tiptapEditor,
-        ),
-      ),
-    revertAllSuggestions: () =>
-      revertSuggestions(
-        editor.prosemirrorState,
-        withSuggestChanges(editor.prosemirrorView.dispatch).bind(
-          editor._tiptapEditor,
-        ),
-      ),
+    runsBefore: ["ySync"],
+    showSuggestions: () => {
+      const pluginState = ySyncPluginKey.getState(editor.prosemirrorState);
+      if (!pluginState) {
+        throw new Error("ySync plugin state not found");
+      }
+      pluginState.setSuggestionMode("view");
+    },
+    enableSuggestions: () => {
+      const pluginState = ySyncPluginKey.getState(editor.prosemirrorState);
+      if (!pluginState) {
+        throw new Error("ySync plugin state not found");
+      }
+      pluginState.setSuggestionMode("edit");
+    },
+    disableSuggestions: () => {
+      const pluginState = ySyncPluginKey.getState(editor.prosemirrorState);
+      if (!pluginState) {
+        throw new Error("ySync plugin state not found");
+      }
+      pluginState.setSuggestionMode("off");
+    },
+    applySuggestion: (start: number, end?: number) => {
+      const pluginState = ySyncPluginKey.getState(editor.prosemirrorState);
+      if (!pluginState) {
+        throw new Error("ySync plugin state not found");
+      }
+      pluginState.acceptChanges(start, end);
+    },
+    revertSuggestion: (start: number, end?: number) => {
+      const pluginState = ySyncPluginKey.getState(editor.prosemirrorState);
+      if (!pluginState) {
+        throw new Error("ySync plugin state not found");
+      }
+      pluginState.rejectChanges(start, end);
+    },
+    applyAllSuggestions: () => {
+      const pluginState = ySyncPluginKey.getState(editor.prosemirrorState);
+      if (!pluginState) {
+        throw new Error("ySync plugin state not found");
+      }
+      pluginState.acceptAllChanges();
+    },
+    revertAllSuggestions: () => {
+      const pluginState = ySyncPluginKey.getState(editor.prosemirrorState);
+      if (!pluginState) {
+        throw new Error("ySync plugin state not found");
+      }
+      pluginState.rejectAllChanges();
+    },
 
     getSuggestionElementAtPos,
     getMarkAtPos,

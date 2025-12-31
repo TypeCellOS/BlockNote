@@ -75,7 +75,7 @@ function blocksToYDoc<
 ```typescript
 import { BlockNoteEditor } from "@blocknote/core";
 import { blocksToYDoc } from "@blocknote/core/yjs";
-import * as Y from "yjs";
+import * as Y from "@y/y";
 
 const editor = BlockNoteEditor.create();
 
@@ -127,7 +127,7 @@ function blocksToYXmlFragment<
 ```typescript
 import { BlockNoteEditor } from "@blocknote/core";
 import { blocksToYXmlFragment } from "@blocknote/core/yjs";
-import * as Y from "yjs";
+import * as Y from "@y/y";
 
 const editor = BlockNoteEditor.create();
 const doc = new Y.Doc();
@@ -175,7 +175,7 @@ function yDocToBlocks<
 ```typescript
 import { BlockNoteEditor } from "@blocknote/core";
 import { yDocToBlocks } from "@blocknote/core/yjs";
-import * as Y from "yjs";
+import * as Y from "@y/y";
 
 const editor = BlockNoteEditor.create();
 const ydoc = new Y.Doc();
@@ -215,7 +215,7 @@ function yXmlFragmentToBlocks<
 ```typescript
 import { BlockNoteEditor } from "@blocknote/core";
 import { yXmlFragmentToBlocks } from "@blocknote/core/yjs";
-import * as Y from "yjs";
+import * as Y from "@y/y";
 
 const editor = BlockNoteEditor.create();
 const doc = new Y.Doc();

@@ -1,4 +1,4 @@
-import * as Y from "yjs";
+import * as Y from "@y/y";
 import { CommentBody } from "../../types.js";
 import { ThreadStoreAuth } from "../ThreadStoreAuth.js";
 import { YjsThreadStoreBase } from "./YjsThreadStoreBase.js";

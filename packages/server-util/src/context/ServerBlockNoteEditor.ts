@@ -30,7 +30,7 @@ import * as React from "react";
 import { createElement } from "react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
-import type * as Y from "yjs";
+import type * as Y from "@y/y";
 
 /**
  * Use the ServerBlockNoteEditor to interact with BlockNote documents in a server (nodejs) environment.

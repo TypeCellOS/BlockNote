@@ -148,7 +148,7 @@ export const createCheckListItemBlockSpec = createBlockSpec(
       },
       inputRules: [
         {
-          find: new RegExp(`\\[\\s*\\]\\s$`),
+          find: new RegExp(`^\\[\\s*\\]\\s$`),
           replace() {
             return {
               type: "checkListItem",
@@ -160,7 +160,7 @@ export const createCheckListItemBlockSpec = createBlockSpec(
           },
         },
         {
-          find: new RegExp(`\\[[Xx]\\]\\s$`),
+          find: new RegExp(`^\\[[Xx]\\]\\s$`),
           replace() {
             return {
               type: "checkListItem",
