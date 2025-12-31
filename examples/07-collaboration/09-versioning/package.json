@@ -20,6 +20,8 @@
     "@mantine/core": "^8.3.4",
     "@mantine/hooks": "^8.3.4",
     "@mantine/utils": "^6.0.22",
+    "@y/protocols": "1.0.6-3",
+    "@y/websocket": "^4.0.0-3",
     "@y/y": "14.0.0-19",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",

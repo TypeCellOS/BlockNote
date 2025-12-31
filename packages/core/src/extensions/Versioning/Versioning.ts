@@ -1,5 +1,8 @@
-import * as delta from "lib0/delta";
-import { deltaToPSteps, nodeToDelta } from "@y/prosemirror";
+import {
+  findTypeInOtherYdoc,
+  ySyncPluginKey,
+  SnapshotItem,
+} from "@y/prosemirror";
 import * as Y from "@y/y";
 
 import {
@@ -7,12 +10,6 @@ import {
   createStore,
   ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
-import {
-  findTypeInOtherYdoc,
-  ForkYDocExtension,
-} from "../Collaboration/ForkYDoc.js";
-
-import { SuggestionsExtension } from "../Suggestions/Suggestions.js";
 
 export interface VersionSnapshot {
   /**
@@ -122,27 +119,6 @@ export const VersioningExtension = createExtension(
       selectedSnapshotId: undefined,
     });
 
-    const applySnapshot = (snapshotContent: Uint8Array) => {
-      const yDoc = new Y.Doc();
-      Y.applyUpdateV2(yDoc, snapshotContent);
-
-      // Find the fragment within the newly restored document to then apply
-      const restoreFragment = findTypeInOtherYdoc(fragment, yDoc);
-
-      editor.transact((tr) => {
-        // TODO need to make a utility for this in @y/prosemirror
-        deltaToPSteps(
-          tr,
-          delta
-            .diff(
-              nodeToDelta(tr.doc) as any,
-              restoreFragment.getContentDeep().done() as any,
-            )
-            .done() as any,
-        );
-      });
-    };
-
     const updateSnapshots = async () => {
       const snapshots = await endpoints.listSnapshots();
       store.setState((state) => ({
@@ -159,28 +135,46 @@ export const VersioningExtension = createExtension(
           store.state.snapshots[0].id,
         );
 
-        applySnapshot(snapshotContent);
+        Y.applyUpdateV2(fragment.doc!, snapshotContent);
       }
     };
 
-    const selectSnapshot = async (id: string | undefined) => {
+    const selectSnapshot = async (
+      id: string | undefined,
+      compareToSnapshotId?: string,
+    ) => {
       store.setState((state) => ({
         ...state,
         selectedSnapshotId: id,
       }));
 
       if (id === undefined) {
-        // when we go back to the original document, just revert changes `.merge({ keepChanges: false })`
-        editor.getExtension(ForkYDocExtension)!.merge({ keepChanges: false });
+        // when we go back to the original document, just revert changes
+        ySyncPluginKey.getState(editor.prosemirrorState)?.resumeSync();
         return;
       }
-      const snapshotContent = await endpoints.fetchSnapshotContent(id);
-      editor
-        .getExtension(ForkYDocExtension)!
-        .fork({ initialUpdate: snapshotContent });
 
-      // replace editor contents with the snapshot contents (affecting the forked document not the original)
-      applySnapshot(snapshotContent);
+      let prevSnapshot: SnapshotItem | undefined = undefined;
+      if (compareToSnapshotId) {
+        const compareToSnapshotContent =
+          await endpoints.fetchSnapshotContent(compareToSnapshotId);
+        const compareToDoc = new Y.Doc({ isSuggestionDoc: true });
+        Y.applyUpdateV2(compareToDoc, compareToSnapshotContent);
+        const compareToFragment = findTypeInOtherYdoc(fragment, compareToDoc);
+        prevSnapshot = {
+          fragment: compareToFragment,
+        };
+      }
+
+      const snapshotContent = await endpoints.fetchSnapshotContent(id);
+      const doc = new Y.Doc();
+      Y.applyUpdateV2(doc, snapshotContent);
+      ySyncPluginKey
+        .getState(editor.prosemirrorState)
+        ?.renderSnapshot(
+          { fragment: findTypeInOtherYdoc(fragment, doc) },
+          prevSnapshot,
+        );
     };
 
     return {
@@ -202,17 +196,18 @@ export const VersioningExtension = createExtension(
       },
       canRestoreSnapshot: endpoints.restoreSnapshot !== undefined,
       restoreSnapshot: endpoints.restoreSnapshot
-        ? async (id: string): Promise<Uint8Array> => {
+        ? async (_id: string): Promise<Uint8Array> => {
             selectSnapshot(undefined);
 
-            const snapshotContent = await endpoints.restoreSnapshot!(
-              fragment,
-              id,
-            );
-            applySnapshot(snapshotContent);
-            await updateSnapshots();
+            // const snapshotContent = await endpoints.restoreSnapshot!(
+            //   fragment,
+            //   id,
+            // );
+            throw new Error("Not implemented");
+            // applySnapshot(snapshotContent);
+            // await updateSnapshots();
 
-            return snapshotContent;
+            // return snapshotContent;
           }
         : undefined,
       canUpdateSnapshotName: endpoints.updateSnapshotName !== undefined,
@@ -223,13 +218,11 @@ export const VersioningExtension = createExtension(
           }
         : undefined,
 
-      selectSnapshot: async (id: string | undefined) => {
-        const suggestions = editor.getExtension(SuggestionsExtension);
-        if (suggestions !== undefined) {
-          suggestions.disableSuggestions();
-        }
-
-        await selectSnapshot(id);
+      selectSnapshot: async (
+        id: string | undefined,
+        compareToSnapshotId?: string,
+      ) => {
+        await selectSnapshot(id, compareToSnapshotId);
       },
     } as const;
   },

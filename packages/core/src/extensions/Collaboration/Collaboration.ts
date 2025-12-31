@@ -40,7 +40,11 @@ export type CollaborationOptions = {
   /**
    * The attribution manager for the collaboration.
    */
-  attributionManager?: Y.AbstractAttributionManager | Y.DiffAttributionManager;
+  attributionManager?: Y.DiffAttributionManager;
+  /**
+   * The suggestion doc for the collaboration. If using suggestion mode
+   */
+  suggestionDoc?: Y.Doc;
 };
 
 export const CollaborationExtension = createExtension(
