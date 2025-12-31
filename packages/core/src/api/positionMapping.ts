@@ -59,9 +59,7 @@ export function trackPosition(
    */
   side: "left" | "right" = "left",
 ): () => number {
-  const ySyncPluginState = ySyncPluginKey.getState(
-    editor.prosemirrorState,
-  ) as any;
+  const ySyncPluginState = ySyncPluginKey.getState(editor.prosemirrorState);
 
   if (!ySyncPluginState) {
     // No y-prosemirror sync plugin, so we need to track the mapping manually
@@ -84,19 +82,22 @@ export function trackPosition(
   const relativePosition = absolutePositionToRelativePosition(
     // Track the position after the position if we are on the right side
     position + (side === "right" ? 1 : -1),
-    ySyncPluginState.binding.type,
-    ySyncPluginState.binding.mapping,
+    ySyncPluginState.ytype,
+    editor.prosemirrorState.doc,
   );
 
   return () => {
     const curYSyncPluginState = ySyncPluginKey.getState(
       editor.prosemirrorState,
-    ) as any;
+    );
+    if (!curYSyncPluginState || !curYSyncPluginState.ytype.doc) {
+      throw new Error("YSync plugin state not found");
+    }
     const pos = relativePositionToAbsolutePosition(
-      curYSyncPluginState.doc,
-      curYSyncPluginState.binding.type,
+      curYSyncPluginState.ytype.doc,
+      curYSyncPluginState.ytype,
       relativePosition,
-      curYSyncPluginState.binding.mapping,
+      editor.prosemirrorState.doc,
     );
 
     // This can happen if the element is garbage collected

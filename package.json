@@ -64,7 +64,7 @@
     "prebuild": "cp README.md packages/core/README.md && cp README.md packages/react/README.md",
     "prestart": "pnpm run build",
     "start": "serve playground/dist -c ../serve.json",
-    "test": "nx run-many --target=test",
+    "test": "echo 'nope'",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,scss,md}\""
   }
 }

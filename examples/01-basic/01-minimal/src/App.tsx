@@ -75,7 +75,7 @@ function Editor({
 }: {
   fragment: Y.XmlFragment;
   provider: { awareness: Awareness };
-  attributionManager?: Y.AbstractAttributionManager;
+  attributionManager?: Y.DiffAttributionManager;
 }) {
   const editor = useCreateBlockNote({
     collaboration: {
