@@ -170,6 +170,7 @@ function serializeBlock<
   serializer: DOMSerializer,
   orderedListItemBlockTypes: Set<string>,
   unorderedListItemBlockTypes: Set<string>,
+  nestingLevel: number,
   options?: { document?: Document },
 ) {
   const doc = options?.document ?? document;
@@ -236,9 +237,21 @@ function serializeBlock<
     }
 
     addAttributesAndRemoveClasses(ret.dom.firstChild! as HTMLElement);
+    if (nestingLevel > 0) {
+      (ret.dom.firstChild! as HTMLElement).setAttribute(
+        "data-nesting-level",
+        nestingLevel.toString(),
+      );
+    }
     elementFragment.append(...Array.from(ret.dom.childNodes));
   } else {
     elementFragment.append(ret.dom);
+    if (nestingLevel > 0) {
+      (ret.dom as HTMLElement).setAttribute(
+        "data-nesting-level",
+        nestingLevel.toString(),
+      );
+    }
   }
 
   if (ret.contentDOM && block.content) {
@@ -287,6 +300,7 @@ function serializeBlock<
       serializer,
       orderedListItemBlockTypes,
       unorderedListItemBlockTypes,
+      nestingLevel + 1,
       options,
     );
     if (
@@ -323,6 +337,7 @@ const serializeBlocksToFragment = <
   serializer: DOMSerializer,
   orderedListItemBlockTypes: Set<string>,
   unorderedListItemBlockTypes: Set<string>,
+  nestingLevel = 0,
   options?: { document?: Document },
 ) => {
   for (const block of blocks) {
@@ -333,6 +348,7 @@ const serializeBlocksToFragment = <
       serializer,
       orderedListItemBlockTypes,
       unorderedListItemBlockTypes,
+      nestingLevel,
       options,
     );
   }
@@ -360,6 +376,7 @@ export const serializeBlocksExternalHTML = <
     serializer,
     orderedListItemBlockTypes,
     unorderedListItemBlockTypes,
+    0,
     options,
   );
   return fragment;
