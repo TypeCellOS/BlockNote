@@ -5404,9 +5404,6 @@ importers:
       '@types/react-dom':
         specifier: ^19.2.2
         version: 19.2.2(@types/react@19.2.2)
-      '@vitest/ui':
-        specifier: ^2.1.9
-        version: 2.1.9(vitest@2.1.9)
       eslint:
         specifier: ^8.57.1
         version: 8.57.1
@@ -21525,9 +21522,10 @@ snapshots:
       flatted: 3.3.3
       pathe: 1.1.2
       sirv: 3.0.2
-      tinyglobby: 0.2.15
+      tinyglobby: 0.2.12
       tinyrainbow: 1.2.0
       vitest: 2.1.9(@types/node@24.8.1)(@vitest/ui@2.1.9)(jsdom@25.0.1(canvas@2.11.2(encoding@0.1.13)))(lightningcss@1.30.1)(msw@2.11.5(@types/node@24.8.1)(typescript@5.9.3))(terser@5.44.1)
+    optional: true
 
   '@vitest/utils@2.1.9':
     dependencies:
@@ -23234,7 +23232,8 @@ snapshots:
 
   fflate@0.7.4: {}
 
-  fflate@0.8.2: {}
+  fflate@0.8.2:
+    optional: true
 
   figures@3.2.0:
     dependencies:
