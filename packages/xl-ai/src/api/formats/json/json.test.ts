@@ -121,7 +121,7 @@ describe.skip("Models", () => {
           systemPrompt: aiDocumentFormats._experimental_json.systemPrompt,
           model: params.model,
           stream: params.stream,
-          objectGeneration: true,
+
           _additionalOptions: {
             maxRetries: 0,
           },

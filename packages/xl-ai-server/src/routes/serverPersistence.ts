@@ -96,7 +96,7 @@ serverPersistenceRoute.post("/streamText", async (c) => {
   const result = streamText({
     model,
     system: aiDocumentFormats.html.systemPrompt,
-    messages: convertToModelMessages(injectDocumentStateMessages(messages)),
+    messages: await convertToModelMessages(injectDocumentStateMessages(messages)),
     tools,
     toolChoice: "required",
   });
