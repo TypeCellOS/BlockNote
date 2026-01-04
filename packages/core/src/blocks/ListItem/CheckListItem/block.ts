@@ -154,8 +154,7 @@ export const createCheckListItemBlockSpec = createBlockSpec(
               type: "checkListItem",
               props: {
                 checked: false,
-              },
-              content: [],
+              }
             };
           },
         },
