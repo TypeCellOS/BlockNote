@@ -14,6 +14,7 @@ export const YSyncExtension = createExtension(
       "fragment" | "attributionManager" | "suggestionDoc"
     >
   >) => {
+    const id = Date.now();
     return {
       key: "ySync",
       prosemirrorPlugins: [
@@ -25,17 +26,17 @@ export const YSyncExtension = createExtension(
             console.log("format", format);
             if (attribution.delete) {
               return Object.assign({}, format, {
-                deletion: { id: Date.now(), user: attribution.delete?.[0] },
+                deletion: { id, user: attribution.delete?.[0] },
               });
             }
             if (attribution.insert) {
               return Object.assign({}, format, {
-                insertion: { id: Date.now(), user: attribution.insert?.[0] },
+                insertion: { id, user: attribution.insert?.[0] },
               });
             }
             if (attribution.format) {
               return Object.assign({}, format, {
-                insertion: { id: Date.now(), user: attribution.format?.[0] },
+                insertion: { id, user: attribution.format?.[0] },
               });
             }
             return format;
