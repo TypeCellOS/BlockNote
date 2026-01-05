@@ -13,6 +13,7 @@ export const SuggestionAddMark = Mark.create({
   addAttributes() {
     return {
       id: { default: null, validate: "number" }, // note: validate is supported in prosemirror but not in tiptap, so this doesn't actually work (considered not critical)
+      user: { default: null, validate: "string" },
     };
   },
   extendMarkSchema(extension) {
@@ -28,6 +29,7 @@ export const SuggestionAddMark = Mark.create({
           "ins",
           {
             "data-id": String(mark.attrs["id"]),
+            "data-user": String(mark.attrs["user"]),
             "data-inline": String(inline),
             ...(!inline && { style: "display: contents" }), // changed to "contents" to make this work for table rows
           },
@@ -43,6 +45,7 @@ export const SuggestionAddMark = Mark.create({
             }
             return {
               id: parseInt(node.dataset["id"], 10),
+              user: node.dataset["user"],
             };
           },
         },
@@ -58,6 +61,7 @@ export const SuggestionDeleteMark = Mark.create({
   addAttributes() {
     return {
       id: { default: null, validate: "number" }, // note: validate is supported in prosemirror but not in tiptap
+      user: { default: null, validate: "string" },
     };
   },
   extendMarkSchema(extension) {
@@ -76,6 +80,7 @@ export const SuggestionDeleteMark = Mark.create({
           "del",
           {
             "data-id": String(mark.attrs["id"]),
+            "data-user": String(mark.attrs["user"]),
             "data-inline": String(inline),
             ...(!inline && { style: "display: contents" }), // changed to "contents" to make this work for table rows
           },
@@ -91,6 +96,7 @@ export const SuggestionDeleteMark = Mark.create({
             }
             return {
               id: parseInt(node.dataset["id"], 10),
+              user: node.dataset["user"],
             };
           },
         },
@@ -108,6 +114,7 @@ export const SuggestionModificationMark = Mark.create({
     return {
       id: { default: null, validate: "number" },
       type: { validate: "string" },
+      user: { default: null, validate: "string" },
       attrName: { default: null, validate: "string|null" },
       previousValue: { default: null },
       newValue: { default: null },
@@ -133,6 +140,7 @@ export const SuggestionModificationMark = Mark.create({
           {
             "data-type": "modification",
             "data-id": String(mark.attrs["id"]),
+            "data-user": String(mark.attrs["user"]),
             "data-mod-type": mark.attrs["type"] as string,
             "data-mod-prev-val": JSON.stringify(mark.attrs["previousValue"]),
             // TODO: Try to serialize marks with toJSON?
@@ -150,6 +158,7 @@ export const SuggestionModificationMark = Mark.create({
             }
             return {
               id: parseInt(node.dataset["id"], 10),
+              user: node.dataset["user"],
               type: node.dataset["modType"],
               previousValue: node.dataset["modPrevVal"],
               newValue: node.dataset["modNewVal"],
@@ -164,6 +173,7 @@ export const SuggestionModificationMark = Mark.create({
             }
             return {
               id: parseInt(node.dataset["id"], 10),
+              user: node.dataset["user"],
               type: node.dataset["modType"],
               previousValue: node.dataset["modPrevVal"],
             };
