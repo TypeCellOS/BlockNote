@@ -4,14 +4,14 @@ import { Range } from "@tiptap/core";
 import { FC, useEffect, useMemo, useState } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
-import { LinkToolbar } from "./LinkToolbar.js";
-import { LinkToolbarProps } from "./LinkToolbarProps.js";
 import { useExtension } from "../../hooks/useExtension.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import {
   GenericPopover,
   GenericPopoverReference,
 } from "../Popovers/GenericPopover.js";
+import { LinkToolbar } from "./LinkToolbar.js";
+import { LinkToolbarProps } from "./LinkToolbarProps.js";
 
 export const LinkToolbarController = (props: {
   linkToolbar?: FC<LinkToolbarProps>;
@@ -98,13 +98,16 @@ export const LinkToolbarController = (props: {
     const destroyOnSelectionChangeHandler =
       editor.onSelectionChange(textCursorCallback);
 
-    editor.domElement?.addEventListener("mouseover", mouseCursorCallback);
+    const domElement = editor.domElement;
+
+    // Q 1: why can domElement be available when <LinkToolbarController/> is rendered?
+    // Q 2: this useEffect will not necessarily run when editor.domElement changes
+    domElement?.addEventListener("mouseover", mouseCursorCallback);
 
     return () => {
       destroyOnChangeHandler();
       destroyOnSelectionChangeHandler();
-
-      editor.domElement?.removeEventListener("mouseover", mouseCursorCallback);
+      domElement?.removeEventListener("mouseover", mouseCursorCallback);
     };
   }, [editor, linkToolbar, link, toolbarPositionFrozen]);
 
@@ -161,6 +164,7 @@ export const LinkToolbarController = (props: {
     [link?.element],
   );
 
+  // Q3: similar to Q2; are we sure the component rerenders when editor.isEditable changes?
   if (!editor.isEditable) {
     return null;
   }

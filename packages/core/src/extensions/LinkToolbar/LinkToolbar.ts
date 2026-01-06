@@ -1,6 +1,6 @@
 import { getMarkRange, posToDOMRect } from "@tiptap/core";
-import { createExtension } from "../../editor/BlockNoteExtension.js";
 import { getPmSchema } from "../../api/pmUtil.js";
+import { createExtension } from "../../editor/BlockNoteExtension.js";
 
 export const LinkToolbarExtension = createExtension(({ editor }) => {
   function getLinkElementAtPos(pos: number) {
@@ -67,6 +67,11 @@ export const LinkToolbarExtension = createExtension(({ editor }) => {
 
     getLinkAtElement(element: HTMLElement) {
       return editor.transact(() => {
+        // Q4: posAtDOM can fail if the editor view is not available
+        //     (e.g. if the editor is not mounted)
+        //     a) Unfortunately, TS doesn't give an error about this. Can we make this type safe?
+        //     b) Double check other references of editor.prosemirrorView
+
         const posAtElement = editor.prosemirrorView.posAtDOM(element, 0) + 1;
         return getMarkAtPos(posAtElement, "link");
       });

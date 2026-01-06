@@ -94,10 +94,11 @@ export const CreateLinkButton = () => {
       }
     };
 
-    editor.domElement?.addEventListener("keydown", callback);
+    const domElement = editor.domElement;
+    domElement?.addEventListener("keydown", callback);
 
     return () => {
-      editor.domElement?.removeEventListener("keydown", callback);
+      domElement?.removeEventListener("keydown", callback);
     };
   }, [editor.domElement]);
 
