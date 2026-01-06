@@ -12,7 +12,7 @@ overrides:
 
 patchedDependencies:
   '@y/prosemirror':
-    hash: 7f59e57763f087a039402c1d1adc6d308fdc93021574e310f80d79f1e1f79912
+    hash: 3bfcbc65c43185c9fd9e8eb41edc6a6e25df63c364a7fef7894b4a3d7af40483
     path: patches/@y__prosemirror.patch
   '@y/y':
     hash: ee59875d101cd0b2663067e6a112d3bb6f50996a084438bd0e647c5496ec570d
@@ -3470,9 +3470,6 @@ importers:
       '@y/y':
         specifier: 14.0.0-19
         version: 14.0.0-19(patch_hash=ee59875d101cd0b2663067e6a112d3bb6f50996a084438bd0e647c5496ec570d)
-      lib0:
-        specifier: 0.2.117
-        version: 0.2.117
       react:
         specifier: ^19.2.1
         version: 19.2.1
@@ -4096,7 +4093,7 @@ importers:
         version: 3.13.0
       '@y/prosemirror':
         specifier: 2.0.0-2
-        version: 2.0.0-2(patch_hash=7f59e57763f087a039402c1d1adc6d308fdc93021574e310f80d79f1e1f79912)(@y/protocols@1.0.6-3(@y/y@14.0.0-19(patch_hash=ee59875d101cd0b2663067e6a112d3bb6f50996a084438bd0e647c5496ec570d)))(@y/y@14.0.0-19(patch_hash=ee59875d101cd0b2663067e6a112d3bb6f50996a084438bd0e647c5496ec570d))(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)
+        version: 2.0.0-2(patch_hash=3bfcbc65c43185c9fd9e8eb41edc6a6e25df63c364a7fef7894b4a3d7af40483)(@y/protocols@1.0.6-3(@y/y@14.0.0-19(patch_hash=ee59875d101cd0b2663067e6a112d3bb6f50996a084438bd0e647c5496ec570d)))(@y/y@14.0.0-19(patch_hash=ee59875d101cd0b2663067e6a112d3bb6f50996a084438bd0e647c5496ec570d))(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)
       '@y/protocols':
         specifier: 1.0.6-3
         version: 1.0.6-3(@y/y@14.0.0-19(patch_hash=ee59875d101cd0b2663067e6a112d3bb6f50996a084438bd0e647c5496ec570d))
@@ -4409,7 +4406,7 @@ importers:
         version: 3.13.0
       '@y/prosemirror':
         specifier: 2.0.0-2
-        version: 2.0.0-2(patch_hash=7f59e57763f087a039402c1d1adc6d308fdc93021574e310f80d79f1e1f79912)(@y/protocols@1.0.6-3(@y/y@14.0.0-19(patch_hash=ee59875d101cd0b2663067e6a112d3bb6f50996a084438bd0e647c5496ec570d)))(@y/y@14.0.0-19(patch_hash=ee59875d101cd0b2663067e6a112d3bb6f50996a084438bd0e647c5496ec570d))(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)
+        version: 2.0.0-2(patch_hash=3bfcbc65c43185c9fd9e8eb41edc6a6e25df63c364a7fef7894b4a3d7af40483)(@y/protocols@1.0.6-3(@y/y@14.0.0-19(patch_hash=ee59875d101cd0b2663067e6a112d3bb6f50996a084438bd0e647c5496ec570d)))(@y/y@14.0.0-19(patch_hash=ee59875d101cd0b2663067e6a112d3bb6f50996a084438bd0e647c5496ec570d))(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)
       '@y/protocols':
         specifier: 1.0.6-3
         version: 1.0.6-3(@y/y@14.0.0-19(patch_hash=ee59875d101cd0b2663067e6a112d3bb6f50996a084438bd0e647c5496ec570d))
@@ -4585,7 +4582,7 @@ importers:
         version: 3.13.0(@tiptap/pm@3.13.0)
       '@y/prosemirror':
         specifier: 2.0.0-2
-        version: 2.0.0-2(patch_hash=7f59e57763f087a039402c1d1adc6d308fdc93021574e310f80d79f1e1f79912)(@y/protocols@1.0.6-3(@y/y@14.0.0-19(patch_hash=ee59875d101cd0b2663067e6a112d3bb6f50996a084438bd0e647c5496ec570d)))(@y/y@14.0.0-19(patch_hash=ee59875d101cd0b2663067e6a112d3bb6f50996a084438bd0e647c5496ec570d))(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)
+        version: 2.0.0-2(patch_hash=3bfcbc65c43185c9fd9e8eb41edc6a6e25df63c364a7fef7894b4a3d7af40483)(@y/protocols@1.0.6-3(@y/y@14.0.0-19(patch_hash=ee59875d101cd0b2663067e6a112d3bb6f50996a084438bd0e647c5496ec570d)))(@y/y@14.0.0-19(patch_hash=ee59875d101cd0b2663067e6a112d3bb6f50996a084438bd0e647c5496ec570d))(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)
       ai:
         specifier: ^5.0.102
         version: 5.0.102(zod@4.1.12)
@@ -20613,7 +20610,7 @@ snapshots:
 
   '@xtuc/long@4.2.2': {}
 
-  '@y/prosemirror@2.0.0-2(patch_hash=7f59e57763f087a039402c1d1adc6d308fdc93021574e310f80d79f1e1f79912)(@y/protocols@1.0.6-3(@y/y@14.0.0-19(patch_hash=ee59875d101cd0b2663067e6a112d3bb6f50996a084438bd0e647c5496ec570d)))(@y/y@14.0.0-19(patch_hash=ee59875d101cd0b2663067e6a112d3bb6f50996a084438bd0e647c5496ec570d))(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)':
+  '@y/prosemirror@2.0.0-2(patch_hash=3bfcbc65c43185c9fd9e8eb41edc6a6e25df63c364a7fef7894b4a3d7af40483)(@y/protocols@1.0.6-3(@y/y@14.0.0-19(patch_hash=ee59875d101cd0b2663067e6a112d3bb6f50996a084438bd0e647c5496ec570d)))(@y/y@14.0.0-19(patch_hash=ee59875d101cd0b2663067e6a112d3bb6f50996a084438bd0e647c5496ec570d))(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)':
     dependencies:
       '@y/protocols': 1.0.6-3(@y/y@14.0.0-19(patch_hash=ee59875d101cd0b2663067e6a112d3bb6f50996a084438bd0e647c5496ec570d))
       '@y/y': 14.0.0-19(patch_hash=ee59875d101cd0b2663067e6a112d3bb6f50996a084438bd0e647c5496ec570d)

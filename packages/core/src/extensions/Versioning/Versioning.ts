@@ -174,6 +174,10 @@ export const VersioningExtension = createExtension(
         ?.renderSnapshot(
           { fragment: findTypeInOtherYdoc(fragment, doc) },
           prevSnapshot,
+          [
+            Y.createAttributionItem("insert", ["John Doe"]),
+            // Y.createAttributionItem("delete", ["John Doe"]),
+          ],
         );
     };
 
