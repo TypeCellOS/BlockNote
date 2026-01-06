@@ -43,8 +43,14 @@ const provider = new WebsocketProvider(
   { connect: false },
 );
 provider.connectBc();
+doc.on("update", () => {
+  console.log("doc-update", doc.getXmlFragment().toJSON());
+});
 
 const suggestionModeDoc = new Y.Doc({ isSuggestionDoc: true });
+suggestionModeDoc.on("update", () => {
+  console.log("suggestion-update", suggestionModeDoc.getXmlFragment().toJSON());
+});
 const suggestionModeProvider = new WebsocketProvider(
   "wss://demos.yjs.dev/ws",
   roomName + "-suggestions",
@@ -54,7 +60,12 @@ const suggestionModeProvider = new WebsocketProvider(
 const suggestionModeAttributionManager = Y.createAttributionManagerFromDiff(
   doc,
   suggestionModeDoc,
-  { attrs: [Y.createAttributionItem("insert", ["nickthesick"])] },
+  {
+    attrs: [
+      Y.createAttributionItem("insert", ["John Doe"]),
+      // Y.createAttributionItem("delete", ["John Doe"]),
+    ],
+  },
 );
 suggestionModeProvider.connectBc();
 
