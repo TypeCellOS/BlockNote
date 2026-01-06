@@ -109,7 +109,7 @@ export const LinkToolbarController = (props: {
       destroyOnSelectionChangeHandler();
       domElement?.removeEventListener("mouseover", mouseCursorCallback);
     };
-  }, [editor, linkToolbar, link, toolbarPositionFrozen]);
+  }, [editor, editor.domElement, linkToolbar, link, toolbarPositionFrozen]);
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
