@@ -110,24 +110,26 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
           rightSection={props.rightSection}
         />
       </Components.Generic.Form.Root>
-      <Components.SuggestionMenu.Root
-        className={"bn-combobox-items"}
-        id={"ai-suggestion-menu"}
-      >
-        {items.map((item, i) => (
-          <Components.SuggestionMenu.Item
-            key={item.title}
-            className={mergeCSSClasses(
-              "bn-suggestion-menu-item",
-              item.size === "small" ? "bn-suggestion-menu-item-small" : "",
-            )}
-            id={`bn-suggestion-menu-item-${i}`}
-            isSelected={i === selectedIndex}
-            onClick={item.onItemClick}
-            item={item}
-          />
-        ))}
-      </Components.SuggestionMenu.Root>
+      {items.length > 0 && (
+        <Components.SuggestionMenu.Root
+          className={"bn-combobox-items"}
+          id={"ai-suggestion-menu"}
+        >
+          {items.map((item, i) => (
+            <Components.SuggestionMenu.Item
+              key={item.title}
+              className={mergeCSSClasses(
+                "bn-suggestion-menu-item",
+                item.size === "small" ? "bn-suggestion-menu-item-small" : "",
+              )}
+              id={`bn-suggestion-menu-item-${i}`}
+              isSelected={i === selectedIndex}
+              onClick={item.onItemClick}
+              item={item}
+            />
+          ))}
+        </Components.SuggestionMenu.Root>
+      )}
     </div>
   );
 };
