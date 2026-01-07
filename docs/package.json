@@ -103,7 +103,8 @@
     "twoslash": "^0.3.4",
     "y-partykit": "^0.0.25",
     "yjs": "^13.6.27",
-    "zod": "^3.25.76"
+    "zod": "^3.25.76",
+    "@floating-ui/react": "^0.27.16"
   },
   "devDependencies": {
     "@blocknote/ariakit": "workspace:*",

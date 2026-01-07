@@ -80,8 +80,18 @@ export const LinkToolbarController = (props: {
         return;
       }
 
-      const mouseCursorLink = linkToolbar.getLinkAtElement(event.target);
+      const mouseCursorLink = linkToolbar.getLinkAtCoords({
+        left: event.clientX,
+        top: event.clientY,
+      });
       if (!mouseCursorLink) {
+        return;
+      }
+
+      const element = linkToolbar.getLinkElementAtPos(
+        mouseCursorLink.range.from,
+      )!;
+      if (element === link?.element) {
         return;
       }
 
@@ -98,13 +108,13 @@ export const LinkToolbarController = (props: {
     const destroyOnSelectionChangeHandler =
       editor.onSelectionChange(textCursorCallback);
 
-    editor.domElement?.addEventListener("mouseover", mouseCursorCallback);
+    editor.domElement?.addEventListener("mousemove", mouseCursorCallback);
 
     return () => {
       destroyOnChangeHandler();
       destroyOnSelectionChangeHandler();
 
-      editor.domElement?.removeEventListener("mouseover", mouseCursorCallback);
+      editor.domElement?.removeEventListener("mousemove", mouseCursorCallback);
     };
   }, [editor, linkToolbar, link, toolbarPositionFrozen]);
 
