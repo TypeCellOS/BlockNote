@@ -457,7 +457,7 @@
             "Custom Schemas"
           ],
           "dependencies": {
-            "@mantine/core": "^8.3.4",
+            "@mantine/core": "^8.3.11",
             "react-icons": "^5.2.1"
           } as any
         },
@@ -1182,7 +1182,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^8.3.4",
+            "@mantine/core": "^8.3.11",
             "react-icons": "^5.2.1"
           } as any
         },
@@ -1256,7 +1256,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^8.3.4",
+            "@mantine/core": "^8.3.11",
             "react-icons": "^5.2.1"
           } as any,
           "pro": true
@@ -1285,7 +1285,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^8.3.4",
+            "@mantine/core": "^8.3.11",
             "react-icons": "^5.2.1"
           } as any
         },
@@ -1522,7 +1522,7 @@
           ],
           "dependencies": {
             "@y-sweet/react": "^0.6.3",
-            "@mantine/core": "^8.3.4"
+            "@mantine/core": "^8.3.11"
           } as any
         },
         "title": "Comments & Threads",
@@ -1548,7 +1548,7 @@
           "dependencies": {
             "y-partykit": "^0.0.25",
             "yjs": "^13.6.27",
-            "@mantine/core": "^8.3.4"
+            "@mantine/core": "^8.3.11"
           } as any
         },
         "title": "Threads Sidebar",
@@ -1657,8 +1657,8 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.4",
-            "ai": "^5.0.102"
+            "@mantine/core": "^8.3.11",
+            "ai": "^6.0.5"
           } as any
         },
         "title": "Rich Text editor AI integration",
@@ -1682,8 +1682,8 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.4",
-            "ai": "^5.0.102"
+            "@mantine/core": "^8.3.11",
+            "ai": "^6.0.5"
           } as any
         },
         "title": "AI Playground",
@@ -1707,8 +1707,8 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.4",
-            "ai": "^5.0.102",
+            "@mantine/core": "^8.3.11",
+            "ai": "^6.0.5",
             "react-icons": "^5.2.1"
           } as any
         },
@@ -1733,8 +1733,8 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.4",
-            "ai": "^5.0.102",
+            "@mantine/core": "^8.3.11",
+            "ai": "^6.0.5",
             "y-partykit": "^0.0.25",
             "yjs": "^13.6.27"
           } as any
@@ -1760,8 +1760,8 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.4",
-            "ai": "^5.0.102",
+            "@mantine/core": "^8.3.11",
+            "ai": "^6.0.5",
             "y-partykit": "^0.0.25",
             "yjs": "^13.6.27"
           } as any
@@ -1786,10 +1786,10 @@
             "llm"
           ],
           "dependencies": {
-            "@ai-sdk/groq": "^2.0.16",
+            "@ai-sdk/groq": "^3.0.2",
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.4",
-            "ai": "^5.0.102"
+            "@mantine/core": "^8.3.11",
+            "ai": "^6.0.5"
           } as any
         },
         "title": "AI Integration with ClientSideTransport",
@@ -1813,8 +1813,8 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.4",
-            "ai": "^5.0.102"
+            "@mantine/core": "^8.3.11",
+            "ai": "^6.0.5"
           } as any
         },
         "title": "AI Integration with server LLM message persistence",

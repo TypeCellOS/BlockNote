@@ -72,8 +72,7 @@
     "clsx": "^2.1.1",
     "lucide-react": "^0.525.0",
     "react-hook-form": "^7.65.0",
-    "tailwind-merge": "^2.6.0",
-    "zod": "^3.25.76"
+    "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {
     "@radix-ui/colors": "^3.0.0",
