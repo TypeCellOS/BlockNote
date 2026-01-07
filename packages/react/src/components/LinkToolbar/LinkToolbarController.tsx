@@ -100,8 +100,6 @@ export const LinkToolbarController = (props: {
 
     const domElement = editor.domElement;
 
-    // Q 1: why can domElement be available when <LinkToolbarController/> is rendered?
-    // Q 2: this useEffect will not necessarily run when editor.domElement changes
     domElement?.addEventListener("mouseover", mouseCursorCallback);
 
     return () => {
@@ -164,7 +162,7 @@ export const LinkToolbarController = (props: {
     [link?.element],
   );
 
-  // Q3: similar to Q2; are we sure the component rerenders when editor.isEditable changes?
+  // TODO: this should be a hook to be reactive
   if (!editor.isEditable) {
     return null;
   }
