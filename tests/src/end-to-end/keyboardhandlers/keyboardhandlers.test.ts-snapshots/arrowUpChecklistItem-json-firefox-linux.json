@@ -1,0 +1,71 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "blockGroup",
+      "content": [
+        {
+          "type": "blockContainer",
+          "attrs": {
+            "id": "0"
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "ParagraphAbove"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "blockContainer",
+          "attrs": {
+            "id": "2"
+          },
+          "content": [
+            {
+              "type": "checkListItem",
+              "attrs": {
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left",
+                "checked": false
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Checklist item"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "blockContainer",
+          "attrs": {
+            "id": "4"
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
