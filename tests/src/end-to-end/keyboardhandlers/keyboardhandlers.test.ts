@@ -197,4 +197,30 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
       "checkListItemInputRuleCheckedPreservesContent.json",
     );
   });
+  test("Check bulletListItem inputRule preserves content", async ({ page }) => {
+    await focusOnEditor(page);
+    // Type - followed by space at the start to trigger inputRule, then add content
+    // The inputRule should convert the paragraph to a bulletListItem and preserve the content
+    await page.keyboard.type("- My task");
+    await page.waitForTimeout(500);
+
+    await compareDocToSnapshot(
+      page,
+      "bulletListItemInputRulePreservesContent.json",
+    );
+  });
+  test("Check numberedListItem inputRule preserves content", async ({
+    page,
+  }) => {
+    await focusOnEditor(page);
+    // Type 1. followed by space at the start to trigger inputRule, then add content
+    // The inputRule should convert the paragraph to a numberedListItem and preserve the content
+    await page.keyboard.type("1. My task");
+    await page.waitForTimeout(500);
+
+    await compareDocToSnapshot(
+      page,
+      "numberedListItemInputRulePreservesContent.json",
+    );
+  });
 });
