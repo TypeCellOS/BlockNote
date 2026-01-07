@@ -12,21 +12,21 @@
   },
   "dependencies": {
     "@blocknote/ariakit": "latest",
+    "@blocknote/code-block": "latest",
     "@blocknote/core": "latest",
     "@blocknote/mantine": "latest",
     "@blocknote/react": "latest",
     "@blocknote/shadcn": "latest",
-    "@mantine/core": "^8.3.4",
-    "@mantine/hooks": "^8.3.4",
+    "@mantine/core": "^8.3.11",
+    "@mantine/hooks": "^8.3.11",
     "@mantine/utils": "^6.0.22",
-    "react": "^19.2.1",
-    "react-dom": "^19.2.1",
-    "@blocknote/code-block": "latest",
     "@shikijs/core": "^3.19.0",
     "@shikijs/engine-javascript": "^3.19.0",
     "@shikijs/langs-precompiled": "^3.19.0",
     "@shikijs/themes": "^3.19.0",
-    "@shikijs/types": "^3.19.0"
+    "@shikijs/types": "^3.19.0",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1"
   },
   "devDependencies": {
     "@types/react": "^19.2.2",
