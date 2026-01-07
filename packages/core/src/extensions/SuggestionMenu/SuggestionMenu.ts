@@ -3,12 +3,12 @@ import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 
 import { trackPosition } from "../../api/positionMapping.js";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   createExtension,
   createStore,
 } from "../../editor/BlockNoteExtension.js";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition.js";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 const findBlock = findParentNode((node) => node.type.name === "blockContainer");
 
@@ -129,7 +129,7 @@ class SuggestionMenuView {
       .deleteRange({
         from:
           this.pluginState.queryStartPos() -
-          (this.pluginState.deleteTriggerCharacter
+          (this.pluginState.userDidTypeTriggerCharacter
             ? this.pluginState.triggerCharacter!.length
             : 0),
         to: this.editor.transact((tr) => tr.selection.from),
@@ -141,7 +141,7 @@ class SuggestionMenuView {
 type SuggestionPluginState =
   | {
       triggerCharacter: string;
-      deleteTriggerCharacter: boolean;
+      userDidTypeTriggerCharacter: boolean;
       queryStartPos: () => number;
       query: string;
       decorationId: string;
@@ -149,7 +149,9 @@ type SuggestionPluginState =
     }
   | undefined;
 
-const suggestionMenuPluginKey = new PluginKey("SuggestionMenuPlugin");
+const suggestionMenuPluginKey = new PluginKey<SuggestionPluginState>(
+  "SuggestionMenuPlugin",
+);
 
 /**
  * A ProseMirror plugin for suggestions, designed to make '/'-commands possible as well as mentions.
@@ -187,8 +189,8 @@ export const SuggestionMenu = createExtension(({ editor }) => {
     },
     openSuggestionMenu: (
       triggerCharacter: string,
-      pluginState?: {
-        deleteTriggerCharacter?: boolean;
+      opts?: {
+        insertTriggerCharacter?: boolean;
         ignoreQueryLength?: boolean;
       },
     ) => {
@@ -199,13 +201,13 @@ export const SuggestionMenu = createExtension(({ editor }) => {
       editor.focus();
 
       editor.transact((tr) => {
-        if (pluginState?.deleteTriggerCharacter) {
+        if (opts?.insertTriggerCharacter) {
           tr.insertText(triggerCharacter);
         }
         tr.scrollIntoView().setMeta(suggestionMenuPluginKey, {
           triggerCharacter: triggerCharacter,
-          deleteTriggerCharacter: pluginState?.deleteTriggerCharacter || false,
-          ignoreQueryLength: pluginState?.ignoreQueryLength || false,
+          userDidTypeTriggerCharacter: opts?.insertTriggerCharacter || false,
+          ignoreQueryLength: opts?.ignoreQueryLength || false,
         });
       });
     },
@@ -247,7 +249,7 @@ export const SuggestionMenu = createExtension(({ editor }) => {
             // or null if it should be hidden.
             const suggestionPluginTransactionMeta: {
               triggerCharacter: string;
-              deleteTriggerCharacter?: boolean;
+              userDidTypeTriggerCharacter?: boolean;
               ignoreQueryLength?: boolean;
             } | null = transaction.getMeta(suggestionMenuPluginKey);
 
@@ -259,22 +261,30 @@ export const SuggestionMenu = createExtension(({ editor }) => {
                 // Close the previous menu if it exists
                 view?.closeMenu();
               }
+
+              const userDidTypeTriggerCharacter =
+                !!suggestionPluginTransactionMeta.userDidTypeTriggerCharacter;
+
               const trackedPosition = trackPosition(
                 editor,
                 newState.selection.from -
                   // Need to account for the trigger char that was inserted, so we offset the position by the length of the trigger character.
-                  suggestionPluginTransactionMeta.triggerCharacter.length,
+                  (userDidTypeTriggerCharacter
+                    ? suggestionPluginTransactionMeta.triggerCharacter.length
+                    : 0),
               );
               return {
                 triggerCharacter:
                   suggestionPluginTransactionMeta.triggerCharacter,
-                deleteTriggerCharacter:
-                  suggestionPluginTransactionMeta.deleteTriggerCharacter !==
+                userDidTypeTriggerCharacter:
+                  suggestionPluginTransactionMeta.userDidTypeTriggerCharacter !==
                   false,
                 // When reading the queryStartPos, we offset the result by the length of the trigger character, to make it easy on the caller
                 queryStartPos: () =>
                   trackedPosition() +
-                  suggestionPluginTransactionMeta.triggerCharacter.length,
+                  (userDidTypeTriggerCharacter
+                    ? suggestionPluginTransactionMeta.triggerCharacter.length
+                    : 0),
                 query: "",
                 decorationId: `id_${Math.floor(Math.random() * 0xffffffff)}`,
                 ignoreQueryLength:
@@ -358,9 +368,9 @@ export const SuggestionMenu = createExtension(({ editor }) => {
               return null;
             }
 
-            // If the menu was opened programmatically by another extension, it may not use a trigger character. In this
+            // If the menu was opened programmatically by another extension, it may not use an actual trigger character in the editor. In this
             // case, the decoration is set on the whole block instead, as the decoration range would otherwise be empty.
-            if (!suggestionPluginState.deleteTriggerCharacter) {
+            if (!suggestionPluginState.userDidTypeTriggerCharacter) {
               const blockNode = findBlock(state.selection);
               if (blockNode) {
                 return DecorationSet.create(state.doc, [
