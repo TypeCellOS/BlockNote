@@ -171,4 +171,30 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
 
     await compareDocToSnapshot(page, "checkedListItemShortcut.json");
   });
+  test("Check checkListItem inputRule preserves content", async ({ page }) => {
+    await focusOnEditor(page);
+    // Type [ ] followed by space at the start to trigger inputRule, then add content
+    // The inputRule should convert the paragraph to a checkListItem and preserve the content we type after
+    await page.keyboard.type("[ ] My task");
+    await page.waitForTimeout(500);
+
+    await compareDocToSnapshot(
+      page,
+      "checkListItemInputRulePreservesContent.json",
+    );
+  });
+  test("Check checkListItem inputRule with checked preserves content", async ({
+    page,
+  }) => {
+    await focusOnEditor(page);
+    // Type [x] followed by space at the start to trigger inputRule with checked=true, then add content
+    // This should convert the paragraph to a checkListItem with checked=true and preserve the content
+    await page.keyboard.type("[x] Completed task");
+    await page.waitForTimeout(150);
+
+    await compareDocToSnapshot(
+      page,
+      "checkListItemInputRuleCheckedPreservesContent.json",
+    );
+  });
 });
