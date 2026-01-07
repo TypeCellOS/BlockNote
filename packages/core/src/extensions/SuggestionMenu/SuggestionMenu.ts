@@ -263,7 +263,8 @@ export const SuggestionMenu = createExtension(({ editor }) => {
               }
 
               const userDidTypeTriggerCharacter =
-                !!suggestionPluginTransactionMeta.userDidTypeTriggerCharacter;
+                suggestionPluginTransactionMeta.userDidTypeTriggerCharacter !==
+                false;
 
               const trackedPosition = trackPosition(
                 editor,
@@ -276,9 +277,7 @@ export const SuggestionMenu = createExtension(({ editor }) => {
               return {
                 triggerCharacter:
                   suggestionPluginTransactionMeta.triggerCharacter,
-                userDidTypeTriggerCharacter:
-                  suggestionPluginTransactionMeta.userDidTypeTriggerCharacter !==
-                  false,
+                userDidTypeTriggerCharacter,
                 // When reading the queryStartPos, we offset the result by the length of the trigger character, to make it easy on the caller
                 queryStartPos: () =>
                   trackedPosition() +
