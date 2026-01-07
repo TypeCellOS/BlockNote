@@ -1,14 +1,14 @@
-import type * as Y from "yjs";
-import type { Awareness } from "y-protocols/awareness";
+import type * as Y from "@y/y";
+import type { Awareness } from "@y/protocols/awareness";
 import {
   createExtension,
   ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
 import { ForkYDocExtension } from "./ForkYDoc.js";
-import { SchemaMigration } from "./schemaMigration/SchemaMigration.js";
-import { YCursorExtension } from "./YCursorPlugin.js";
+// import { SchemaMigration } from "./schemaMigration/SchemaMigration.js";
+// import { YCursorExtension } from "./YCursorPlugin.js";
 import { YSyncExtension } from "./YSync.js";
-import { YUndoExtension } from "./YUndo.js";
+// import { YUndoExtension } from "./YUndo.js";
 
 export type CollaborationOptions = {
   /**
@@ -37,6 +37,14 @@ export type CollaborationOptions = {
    * or types. Defaults to "activity".
    */
   showCursorLabels?: "always" | "activity";
+  /**
+   * The attribution manager for the collaboration.
+   */
+  attributionManager?: Y.DiffAttributionManager;
+  /**
+   * The suggestion doc for the collaboration. If using suggestion mode
+   */
+  suggestionDoc?: Y.Doc;
 };
 
 export const CollaborationExtension = createExtension(
@@ -45,10 +53,10 @@ export const CollaborationExtension = createExtension(
       key: "collaboration",
       blockNoteExtensions: [
         ForkYDocExtension(options),
-        YCursorExtension(options),
+        // YCursorExtension(options),
         YSyncExtension(options),
-        YUndoExtension(),
-        SchemaMigration(options),
+        // YUndoExtension(),
+        // SchemaMigration(options),
       ],
     } as const;
   },

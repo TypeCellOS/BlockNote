@@ -1,4 +1,4 @@
-import * as Y from "yjs";
+import * as Y from "@y/y";
 
 import { MigrationRule } from "./migrationRule.js";
 import { defaultProps } from "../../../../blocks/defaultProps.js";

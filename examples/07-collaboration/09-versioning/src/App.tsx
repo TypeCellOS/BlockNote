@@ -16,7 +16,9 @@ import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useEffect, useMemo, useState } from "react";
 import { RiChat3Line, RiHistoryLine } from "react-icons/ri";
-import * as Y from "yjs";
+import * as Y from "@y/y";
+import { Awareness } from "@y/protocols/awareness";
+import { WebsocketProvider } from "@y/websocket";
 
 import { getRandomColor, HARDCODED_USERS, MyUserType } from "./userdata";
 import { SettingsSelect } from "./SettingsSelect";
@@ -32,7 +34,40 @@ import { VersionHistorySidebar } from "./VersionHistorySidebar";
 import { SuggestionActions } from "./SuggestionActions";
 import { SuggestionActionsPopup } from "./SuggestionActionsPopup";
 
+const roomName = "blocknote-versioning-example";
 const doc = new Y.Doc();
+const provider = new WebsocketProvider(
+  "wss://demos.yjs.dev/ws",
+  roomName,
+  doc,
+  { connect: false },
+);
+provider.connectBc();
+doc.on("update", () => {
+  console.log("doc-update", doc.getXmlFragment().toJSON());
+});
+
+const suggestionModeDoc = new Y.Doc({ isSuggestionDoc: true });
+suggestionModeDoc.on("update", () => {
+  console.log("suggestion-update", suggestionModeDoc.getXmlFragment().toJSON());
+});
+const suggestionModeProvider = new WebsocketProvider(
+  "wss://demos.yjs.dev/ws",
+  roomName + "-suggestions",
+  suggestionModeDoc,
+  { connect: false },
+);
+const suggestionModeAttributionManager = Y.createAttributionManagerFromDiff(
+  doc,
+  suggestionModeDoc,
+  {
+    attrs: [
+      Y.createAttributionItem("insert", ["John Doe"]),
+      // Y.createAttributionItem("delete", ["John Doe"]),
+    ],
+  },
+);
+suggestionModeProvider.connectBc();
 
 async function resolveUsers(userIds: string[]) {
   // fake a (slow) network request
@@ -54,6 +89,9 @@ export default function App() {
 
   const editor = useCreateBlockNote({
     collaboration: {
+      provider,
+      suggestionDoc: suggestionModeDoc,
+      attributionManager: suggestionModeAttributionManager,
       fragment: doc.getXmlFragment(),
       user: { color: getRandomColor(), name: activeUser.username },
     },
@@ -67,8 +105,12 @@ export default function App() {
     ],
   });
 
-  const { enableSuggestions, disableSuggestions, checkUnresolvedSuggestions } =
-    useExtension(SuggestionsExtension, { editor });
+  const {
+    enableSuggestions,
+    disableSuggestions,
+    showSuggestions,
+    checkUnresolvedSuggestions,
+  } = useExtension(SuggestionsExtension, { editor });
   const hasUnresolvedSuggestions = useEditorState({
     selector: () => checkUnresolvedSuggestions(),
     editor,
@@ -79,11 +121,14 @@ export default function App() {
     editor,
   });
 
-  const [editingMode, setEditingMode] = useState<"editing" | "suggestions">(
-    "editing",
-  );
+  const [editingMode, setEditingMode] = useState<
+    "editing" | "suggestions" | "view-suggestions"
+  >("editing");
   useEffect(() => {
-    setEditingMode("editing");
+    if (editingMode !== "editing") {
+      disableSuggestions();
+      setEditingMode("editing");
+    }
   }, [selectedSnapshotId]);
   const [sidebar, setSidebar] = useState<
     "comments" | "versionHistory" | "none"
@@ -169,7 +214,16 @@ export default function App() {
                         isSelected: editingMode === "editing",
                       },
                       {
-                        text: "Suggestions",
+                        text: "Editing + Viewing Suggestions",
+                        icon: null,
+                        onClick: () => {
+                          showSuggestions();
+                          setEditingMode("view-suggestions");
+                        },
+                        isSelected: editingMode === "view-suggestions",
+                      },
+                      {
+                        text: "Suggesting",
                         icon: null,
                         onClick: () => {
                           enableSuggestions();

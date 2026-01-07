@@ -225,6 +225,24 @@
 .full-collaboration ins {
   background-color: hsl(120 100 90);
   color: hsl(120 100 30);
+  position: relative;
+}
+
+.full-collaboration ins:hover::after {
+  content: attr(data-user);
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 4px;
+  padding: 4px 8px;
+  background-color: rgba(0, 0, 0, 0.9);
+  color: white;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 1000;
 }
 
 .dark.full-collaboration ins {
@@ -232,12 +250,42 @@
   color: hsl(120 80 70);
 }
 
+.dark.full-collaboration ins:hover::after {
+  background-color: rgba(30, 30, 30, 0.95);
+  color: hsl(120 80 70);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 .full-collaboration del {
   background-color: hsl(0 100 90);
   color: hsl(0 100 30);
+  position: relative;
+}
+
+.full-collaboration del:hover::after {
+  content: attr(data-user);
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 4px;
+  padding: 4px 8px;
+  background-color: rgba(0, 0, 0, 0.9);
+  color: white;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 1000;
 }
 
 .dark.full-collaboration del {
   background-color: hsl(0 100 10);
   color: hsl(0 80 70);
+}
+
+.dark.full-collaboration del:hover::after {
+  background-color: rgba(30, 30, 30, 0.95);
+  color: hsl(0 80 70);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }

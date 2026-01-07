@@ -1,14 +1,14 @@
-import { yUndoPluginKey } from "y-prosemirror";
-import * as Y from "yjs";
+// import { yUndoPluginKey } from "@y/prosemirror";
+import * as Y from "@y/y";
 import {
   createExtension,
   createStore,
   ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
 import { CollaborationOptions } from "./Collaboration.js";
-import { YCursorExtension } from "./YCursorPlugin.js";
+// import { YCursorExtension } from "./YCursorPlugin.js";
 import { YSyncExtension } from "./YSync.js";
-import { YUndoExtension } from "./YUndo.js";
+// import { YUndoExtension } from "./YUndo.js";
 
 /**
  * To find a fragment in another ydoc, we need to search for it.
@@ -17,7 +17,10 @@ export function findTypeInOtherYdoc<T extends Y.AbstractType<any>>(
   ytype: T,
   otherYdoc: Y.Doc,
 ): T {
-  const ydoc = ytype.doc!;
+  const ydoc = ytype.doc;
+  if (!ydoc) {
+    throw new Error("type does not have a ydoc");
+  }
   if (ytype._item === null) {
     /**
      * If is a root type, we need to find the root key in the original ydoc
@@ -37,8 +40,14 @@ export function findTypeInOtherYdoc<T extends Y.AbstractType<any>>(
     const ytypeItem = ytype._item;
     const otherStructs = otherYdoc.store.clients.get(ytypeItem.id.client) ?? [];
     const itemIndex = Y.findIndexSS(otherStructs, ytypeItem.id.clock);
-    const otherItem = otherStructs[itemIndex] as Y.Item;
-    const otherContent = otherItem.content as Y.ContentType;
+    const otherItem = otherStructs[itemIndex] as Y.Item | undefined;
+    if (!otherItem) {
+      throw new Error("type does not exist in other ydoc");
+    }
+    const otherContent = otherItem.content as Y.ContentType | undefined;
+    if (!otherContent) {
+      throw new Error("type does not exist in other ydoc");
+    }
     return otherContent.type as T;
   }
 }
@@ -48,7 +57,7 @@ export const ForkYDocExtension = createExtension(
     let forkedState:
       | {
           originalFragment: Y.XmlFragment;
-          undoStack: Y.UndoManager["undoStack"];
+          // undoStack: Y.UndoManager["undoStack"];
           forkedFragment: Y.XmlFragment;
         }
       | undefined = undefined;
@@ -63,7 +72,14 @@ export const ForkYDocExtension = createExtension(
        * allowing modifications to the document without affecting the remote.
        * These changes can later be rolled back or applied to the remote.
        */
-      fork() {
+      fork({
+        /**
+         * The initial update to apply to the forked document.
+         */
+        initialUpdate,
+      }: {
+        initialUpdate?: Uint8Array;
+      } = {}) {
         if (forkedState) {
           return;
         }
@@ -76,22 +92,25 @@ export const ForkYDocExtension = createExtension(
 
         const doc = new Y.Doc();
         // Copy the original document to a new Yjs document
-        Y.applyUpdate(doc, Y.encodeStateAsUpdate(originalFragment.doc!));
+        Y.applyUpdateV2(
+          doc,
+          initialUpdate ?? Y.encodeStateAsUpdateV2(originalFragment.doc!),
+        );
 
         // Find the forked fragment in the new Yjs document
         const forkedFragment = findTypeInOtherYdoc(originalFragment, doc);
 
         forkedState = {
-          undoStack: yUndoPluginKey.getState(editor.prosemirrorState)!
-            .undoManager.undoStack,
+          // undoStack: yUndoPluginKey.getState(editor.prosemirrorState)!
+          //   .undoManager.undoStack,
           originalFragment,
           forkedFragment,
         };
 
         // Need to reset all the yjs plugins
         editor.unregisterExtension([
-          YUndoExtension,
-          YCursorExtension,
+          // YUndoExtension,
+          // YCursorExtension,
           YSyncExtension,
         ]);
         const newOptions = {
@@ -102,7 +121,7 @@ export const ForkYDocExtension = createExtension(
         editor.registerExtension([
           YSyncExtension(newOptions),
           // No need to register the cursor plugin again, it's a local fork
-          YUndoExtension(),
+          // YUndoExtension(),
         ]);
 
         // Tell the store that the editor is now forked
@@ -121,18 +140,22 @@ export const ForkYDocExtension = createExtension(
         // Remove the forked fragment's plugins
         editor.unregisterExtension(["ySync", "yCursor", "yUndo"]);
 
-        const { originalFragment, forkedFragment, undoStack } = forkedState;
+        const {
+          originalFragment,
+          forkedFragment,
+          //, undoStack
+        } = forkedState;
         // Register the plugins again, based on the original fragment (which is still in the original options)
         editor.registerExtension([
           YSyncExtension(options),
-          YCursorExtension(options),
-          YUndoExtension(),
+          // YCursorExtension(options),
+          // YUndoExtension(),
         ]);
 
         // Reset the undo stack to the original undo stack
-        yUndoPluginKey.getState(
-          editor.prosemirrorState,
-        )!.undoManager.undoStack = undoStack;
+        // yUndoPluginKey.getState(
+        //   editor.prosemirrorState,
+        // )!.undoManager.undoStack = undoStack;
 
         if (keepChanges) {
           // Apply any changes that have been made to the fork, onto the original doc
