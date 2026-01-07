@@ -11,19 +11,19 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@ai-sdk/groq": "^2.0.16",
     "@blocknote/ariakit": "latest",
     "@blocknote/core": "latest",
     "@blocknote/mantine": "latest",
     "@blocknote/react": "latest",
     "@blocknote/shadcn": "latest",
-    "@blocknote/xl-ai": "latest",
     "@mantine/core": "^8.3.11",
     "@mantine/hooks": "^8.3.11",
     "@mantine/utils": "^6.0.22",
-    "ai": "^5.0.102",
     "react": "^19.2.1",
-    "react-dom": "^19.2.1"
+    "react-dom": "^19.2.1",
+    "@ai-sdk/groq": "^3.0.2",
+    "@blocknote/xl-ai": "latest",
+    "ai": "^6.0.5"
   },
   "devDependencies": {
     "@types/react": "^19.2.2",

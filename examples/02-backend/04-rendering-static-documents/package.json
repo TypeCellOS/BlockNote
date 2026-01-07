@@ -15,13 +15,13 @@
     "@blocknote/core": "latest",
     "@blocknote/mantine": "latest",
     "@blocknote/react": "latest",
-    "@blocknote/server-util": "latest",
     "@blocknote/shadcn": "latest",
     "@mantine/core": "^8.3.11",
     "@mantine/hooks": "^8.3.11",
     "@mantine/utils": "^6.0.22",
     "react": "^19.2.1",
-    "react-dom": "^19.2.1"
+    "react-dom": "^19.2.1",
+    "@blocknote/server-util": "latest"
   },
   "devDependencies": {
     "@types/react": "^19.2.2",

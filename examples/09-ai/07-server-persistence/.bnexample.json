@@ -5,7 +5,7 @@
   "tags": ["AI", "llm"],
   "dependencies": {
     "@blocknote/xl-ai": "latest",
-    "@mantine/core": "^8.3.4",
-    "ai": "^5.0.102"
+    "@mantine/core": "^8.3.11",
+    "ai": "^6.0.5"
   }
 }

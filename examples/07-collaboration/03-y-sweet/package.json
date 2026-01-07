@@ -19,9 +19,9 @@
     "@mantine/core": "^8.3.11",
     "@mantine/hooks": "^8.3.11",
     "@mantine/utils": "^6.0.22",
-    "@y-sweet/react": "^0.6.3",
     "react": "^19.2.1",
-    "react-dom": "^19.2.1"
+    "react-dom": "^19.2.1",
+    "@y-sweet/react": "^0.6.3"
   },
   "devDependencies": {
     "@types/react": "^19.2.2",
