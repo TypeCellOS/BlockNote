@@ -171,6 +171,25 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
 
     await compareDocToSnapshot(page, "checkedListItemShortcut.json");
   });
+  test("Check arrow up on checklist item moves to element above", async ({
+    page,
+  }) => {
+    await focusOnEditor(page);
+    await insertParagraph(page);
+    await page.keyboard.press("ControlOrMeta+Shift+9");
+    await page.keyboard.type("Checklist item");
+
+    await page.waitForTimeout(150);
+    // Move cursor to the start of the checklist item
+    await page.keyboard.press("Control+ArrowLeft");
+    // Press arrow up - should move to the paragraph above
+    await page.keyboard.press("ArrowUp");
+    // Type to verify cursor is in the paragraph above
+    await page.keyboard.type("Above");
+
+    await compareDocToSnapshot(page, "arrowUpChecklistItem.json");
+  });
+
   test("Check checkListItem inputRule preserves content", async ({ page }) => {
     await focusOnEditor(page);
     // Type [ ] followed by space at the start to trigger inputRule, then add content

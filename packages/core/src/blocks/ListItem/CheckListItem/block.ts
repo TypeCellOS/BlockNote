@@ -90,7 +90,10 @@ export const createCheckListItemBlockSpec = createBlockSpec(
       // schema.
       const paragraph = document.createElement("p");
 
-      dom.appendChild(checkbox);
+      const div = document.createElement("div");
+      div.contentEditable = "false";
+      div.appendChild(checkbox);
+      dom.appendChild(div);
       dom.appendChild(paragraph);
 
       return {
