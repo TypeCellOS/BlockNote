@@ -29,11 +29,6 @@
     "@blocknote/xl-pdf-exporter": "workspace:^",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@liveblocks/core": "3.7.1-tiptap3",
-    "@liveblocks/react": "3.7.1-tiptap3",
-    "@liveblocks/react-blocknote": "3.7.1-tiptap3",
-    "@liveblocks/react-tiptap": "3.7.1-tiptap3",
-    "@liveblocks/react-ui": "3.7.1-tiptap3",
     "@mantine/core": "^8.3.4",
     "@mantine/hooks": "^8.3.4",
     "@mantine/utils": "^6.0.22",
@@ -50,7 +45,6 @@
     "@uppy/status-bar": "^3.3.3",
     "@uppy/webcam": "^3.4.2",
     "@uppy/xhr-upload": "^3.6.8",
-    "@y-sweet/react": "^0.6.4",
     "ai": "^5.0.102",
     "autoprefixer": "10.4.21",
     "docx": "^9.5.1",
@@ -58,8 +52,7 @@
     "react-dom": "^19.2.1",
     "react-icons": "^5.5.0",
     "react-router-dom": "^6.30.1",
-    "y-partykit": "^0.0.25",
-    "yjs": "^13.6.27"
+    "@y/y": "14.0.0-19"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.14",

@@ -1,8 +1,8 @@
 import { expect, it } from "vitest";
-import * as Y from "yjs";
+import * as Y from "@y/y";
 import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import { moveColorAttributes } from "./moveColorAttributes.js";
-import { prosemirrorJSONToYXmlFragment } from "y-prosemirror";
+import { prosemirrorJSONToYXmlFragment } from "@y/prosemirror";
 
 it("can move color attributes on older documents", async () => {
   const doc = new Y.Doc();

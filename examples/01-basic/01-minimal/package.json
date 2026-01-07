@@ -11,6 +11,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@y/protocols": "1.0.6-3",
+    "@y/y": "14.0.0-19",
     "@blocknote/ariakit": "latest",
     "@blocknote/core": "latest",
     "@blocknote/mantine": "latest",

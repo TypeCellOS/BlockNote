@@ -3,10 +3,8 @@ import {
   absolutePositionToRelativePosition,
   relativePositionToAbsolutePosition,
   ySyncPluginKey,
-} from "y-prosemirror";
+} from "@y/prosemirror";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
-import * as Y from "yjs";
-import type { ProsemirrorBinding } from "y-prosemirror";
 
 /**
  * This is used to track a mapping for each editor. The mapping stores the mappings for each transaction since the first transaction that was tracked.
@@ -61,10 +59,9 @@ export function trackPosition(
    */
   side: "left" | "right" = "left",
 ): () => number {
-  const ySyncPluginState = ySyncPluginKey.getState(editor.prosemirrorState) as {
-    doc: Y.Doc;
-    binding: ProsemirrorBinding;
-  };
+  const ySyncPluginState = ySyncPluginKey.getState(
+    editor.prosemirrorState,
+  ) as any;
 
   if (!ySyncPluginState) {
     // No y-prosemirror sync plugin, so we need to track the mapping manually
@@ -94,7 +91,7 @@ export function trackPosition(
   return () => {
     const curYSyncPluginState = ySyncPluginKey.getState(
       editor.prosemirrorState,
-    ) as typeof ySyncPluginState;
+    ) as any;
     const pos = relativePositionToAbsolutePosition(
       curYSyncPluginState.doc,
       curYSyncPluginState.binding.type,

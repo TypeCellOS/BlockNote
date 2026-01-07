@@ -1,4 +1,4 @@
-import * as Y from "yjs";
+import * as Y from "@y/y";
 import { CommentData, CommentReactionData, ThreadData } from "../../types.js";
 
 export function commentToYMap(comment: CommentData) {
