@@ -151,18 +151,18 @@ export const createCheckListItemBlockSpec = createBlockSpec(
       },
       inputRules: [
         {
-          find: new RegExp(`^\\[\\s*\\]\\s$`),
+          find: /^\s?\[\s*\]\s$/,
           replace() {
             return {
               type: "checkListItem",
               props: {
                 checked: false,
-              }
+              },
             };
           },
         },
         {
-          find: new RegExp(`^\\[[Xx]\\]\\s$`),
+          find: /^\s?\[[Xx]\]\s$/,
           replace() {
             return {
               type: "checkListItem",

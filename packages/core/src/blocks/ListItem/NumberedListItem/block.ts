@@ -95,7 +95,7 @@ export const createNumberedListItemBlockSpec = createBlockSpec(
       key: "numbered-list-item-shortcuts",
       inputRules: [
         {
-          find: new RegExp(`^(\\d+)\\.\\s$`),
+          find: /^\s?(\d+)\.\s$/,
           replace({ match, editor }) {
             const blockInfo = getBlockInfoFromSelection(
               editor.prosemirrorState,
