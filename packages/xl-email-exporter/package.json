@@ -9,7 +9,7 @@
     "directory": "packages/xl-email-exporter"
   },
   "license": "GPL-3.0 OR PROPRIETARY",
-  "version": "0.45.0",
+  "version": "0.46.0",
   "files": [
     "dist",
     "types",
@@ -55,8 +55,8 @@
   },
   "dependencies": {
     "web-streams-polyfill": "^4.2.0",
-    "@blocknote/core": "0.45.0",
-    "@blocknote/react": "0.45.0",
+    "@blocknote/core": "0.46.0",
+    "@blocknote/react": "0.46.0",
     "@react-email/components": "^0.1.1",
     "@react-email/render": "^1.4.0",
     "buffer": "^6.0.3",
