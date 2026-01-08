@@ -4541,11 +4541,8 @@ importers:
       '@tiptap/extension-code':
         specifier: ^3.13.0
         version: 3.15.3(@tiptap/core@3.15.3(@tiptap/pm@3.15.3))
-      '@tiptap/extension-gapcursor':
-        specifier: ^3.7.2
-        version: 3.15.3(@tiptap/extensions@3.4.2(@tiptap/core@3.15.3(@tiptap/pm@3.15.3))(@tiptap/pm@3.15.3))
       '@tiptap/extension-horizontal-rule':
-        specifier: ^3.7.2
+        specifier: ^3.13.0
         version: 3.15.3(@tiptap/core@3.15.3(@tiptap/pm@3.15.3))(@tiptap/pm@3.15.3)
       '@tiptap/extension-italic':
         specifier: ^3.13.0
@@ -4554,7 +4551,7 @@ importers:
         specifier: ^3.13.0
         version: 3.15.3(@tiptap/core@3.15.3(@tiptap/pm@3.15.3))(@tiptap/pm@3.15.3)
       '@tiptap/extension-paragraph':
-        specifier: ^3.7.2
+        specifier: ^3.13.0
         version: 3.15.3(@tiptap/core@3.15.3(@tiptap/pm@3.15.3))
       '@tiptap/extension-strike':
         specifier: ^3.13.0
@@ -4565,6 +4562,9 @@ importers:
       '@tiptap/extension-underline':
         specifier: ^3.13.0
         version: 3.15.3(@tiptap/core@3.15.3(@tiptap/pm@3.15.3))
+      '@tiptap/extensions':
+        specifier: ^3.13.0
+        version: 3.15.3(@tiptap/core@3.15.3(@tiptap/pm@3.15.3))(@tiptap/pm@3.15.3)
       '@tiptap/pm':
         specifier: ^3.0.0
         version: 3.15.3
@@ -9959,11 +9959,6 @@ packages:
       '@tiptap/core': ^3.0.0
       '@tiptap/pm': ^3.0.0
 
-  '@tiptap/extension-gapcursor@3.15.3':
-    resolution: {integrity: sha512-Kaw0sNzP0bQI/xEAMSfIpja6xhsu9WqqAK/puzOIS1RKWO47Wps/tzqdSJ9gfslPIb5uY5mKCfy8UR8Xgiia8w==}
-    peerDependencies:
-      '@tiptap/extensions': ^3.15.3
-
   '@tiptap/extension-horizontal-rule@3.15.3':
     resolution: {integrity: sha512-FYkN7L6JsfwwNEntmLklCVKvgL0B0N47OXMacRk6kYKQmVQ4Nvc7q/VJLpD9sk4wh4KT1aiCBfhKEBTu5pv1fg==}
     peerDependencies:
@@ -10001,8 +9996,8 @@ packages:
     peerDependencies:
       '@tiptap/core': ^3.0.0
 
-  '@tiptap/extensions@3.4.2':
-    resolution: {integrity: sha512-0EOPKVU0whK4tw7TenmJe0M+DfV8Fjj0b6ZO0hqq2rOFWtBRUdRd7QLdg8XUk70D1BbZ52kO0ggM4zZqhW/57A==}
+  '@tiptap/extensions@3.15.3':
+    resolution: {integrity: sha512-ycx/BgxR4rc9tf3ZyTdI98Z19yKLFfqM3UN+v42ChuIwkzyr9zyp7kG8dB9xN2lNqrD+5y/HyJobz/VJ7T90gA==}
     peerDependencies:
       '@tiptap/core': ^3.0.0
       '@tiptap/pm': ^3.0.0
@@ -20886,10 +20881,6 @@ snapshots:
       '@tiptap/pm': 3.15.3
     optional: true
 
-  '@tiptap/extension-gapcursor@3.15.3(@tiptap/extensions@3.4.2(@tiptap/core@3.15.3(@tiptap/pm@3.15.3))(@tiptap/pm@3.15.3))':
-    dependencies:
-      '@tiptap/extensions': 3.4.2(@tiptap/core@3.15.3(@tiptap/pm@3.15.3))(@tiptap/pm@3.15.3)
-
   '@tiptap/extension-horizontal-rule@3.15.3(@tiptap/core@3.15.3(@tiptap/pm@3.15.3))(@tiptap/pm@3.15.3)':
     dependencies:
       '@tiptap/core': 3.15.3(@tiptap/pm@3.15.3)
@@ -20921,7 +20912,7 @@ snapshots:
     dependencies:
       '@tiptap/core': 3.15.3(@tiptap/pm@3.15.3)
 
-  '@tiptap/extensions@3.4.2(@tiptap/core@3.15.3(@tiptap/pm@3.15.3))(@tiptap/pm@3.15.3)':
+  '@tiptap/extensions@3.15.3(@tiptap/core@3.15.3(@tiptap/pm@3.15.3))(@tiptap/pm@3.15.3)':
     dependencies:
       '@tiptap/core': 3.15.3(@tiptap/pm@3.15.3)
       '@tiptap/pm': 3.15.3
@@ -21546,7 +21537,7 @@ snapshots:
       flatted: 3.3.3
       pathe: 1.1.2
       sirv: 3.0.2
-      tinyglobby: 0.2.15
+      tinyglobby: 0.2.12
       tinyrainbow: 1.2.0
       vitest: 2.1.9(@types/node@24.8.1)(@vitest/ui@2.1.9)(jsdom@25.0.1(canvas@2.11.2(encoding@0.1.13)))(lightningcss@1.30.1)(msw@2.11.5(@types/node@24.8.1)(typescript@5.9.3))(terser@5.44.1)
     optional: true
@@ -24268,7 +24259,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 22.15.2
+      '@types/node': 20.19.22
       merge-stream: 2.0.0
       supports-color: 8.1.1
 

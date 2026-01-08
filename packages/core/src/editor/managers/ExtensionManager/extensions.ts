@@ -4,7 +4,7 @@ import {
   Node,
   Extension as TiptapExtension,
 } from "@tiptap/core";
-import { Gapcursor } from "@tiptap/extension-gapcursor";
+import { Gapcursor } from "@tiptap/extensions/gap-cursor";
 import { Link } from "@tiptap/extension-link";
 import { Text } from "@tiptap/extension-text";
 import { createDropFileExtension } from "../../../api/clipboard/fromClipboard/fileDropExtension.js";
