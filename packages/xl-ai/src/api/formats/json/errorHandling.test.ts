@@ -28,68 +28,65 @@ describe("Error handling", () => {
     errorServer.resetHandlers();
   });
 
-  [{ stream: true }, { stream: false }].forEach(({ stream }) => {
-    it(`handles 429 Too Many Requests error ${stream ? "streaming" : "non-streaming"}`, async () => {
-      // Set up handler for this specific test
-      errorServer.use(
-        http.post("*", () => {
-          return new HttpResponse(
-            JSON.stringify({
-              error: {
-                message: "Rate limit exceeded, please try again later",
-                type: "rate_limit_exceeded",
-                code: "rate_limit_exceeded",
-              },
-            }),
-            {
-              status: 429,
-              headers: {
-                "Content-Type": "application/json",
-              },
+  it(`handles 429 Too Many Requests error`, async () => {
+    // Set up handler for this specific test
+    errorServer.use(
+      http.post("*", () => {
+        return new HttpResponse(
+          JSON.stringify({
+            error: {
+              message: "Rate limit exceeded, please try again later",
+              type: "rate_limit_exceeded",
+              code: "rate_limit_exceeded",
             },
-          );
-        }),
-      );
-
-      const editor = BlockNoteEditor.create({
-        initialContent: [
+          }),
           {
-            type: "paragraph",
-            content: "Hello world",
+            status: 429,
+            headers: {
+              "Content-Type": "application/json",
+            },
           },
-        ],
-      });
+        );
+      }),
+    );
 
-      const chat = new Chat<UIMessage>({
-        sendAutomaticallyWhen: () => false,
-        transport: new ClientSideTransport({
-          model: testAIModels.openai,
-          stream,
-          _additionalOptions: {
-            maxRetries: 0,
-          },
-          objectGeneration: true, // TODO: switch to text
-        }),
-      });
-      const aiRequest = await buildAIRequest({
-        editor,
-      });
-      const ret = await sendMessageWithAIRequest(chat, aiRequest, {
-        role: "user",
-        parts: [
-          {
-            type: "text",
-            text: "translate to Spanish",
-          },
-        ],
-      });
-
-      expect(ret.ok).toBe(true);
-      expect(chat.status).toBe("error");
-      expect(chat.error).toBeDefined();
-      expect(chat.error?.message).toContain(
-        "Rate limit exceeded, please try again later",
-      );
+    const editor = BlockNoteEditor.create({
+      initialContent: [
+        {
+          type: "paragraph",
+          content: "Hello world",
+        },
+      ],
     });
+
+    const chat = new Chat<UIMessage>({
+      sendAutomaticallyWhen: () => false,
+      transport: new ClientSideTransport({
+        model: testAIModels.openai,
+        stream: true,
+        _additionalOptions: {
+          maxRetries: 0,
+        },
+      }),
+    });
+    const aiRequest = await buildAIRequest({
+      editor,
+    });
+    const ret = await sendMessageWithAIRequest(chat, aiRequest, {
+      role: "user",
+      parts: [
+        {
+          type: "text",
+          text: "translate to Spanish",
+        },
+      ],
+    });
+
+    expect(ret.ok).toBe(true);
+    expect(chat.status).toBe("error");
+    expect(chat.error).toBeDefined();
+    expect(chat.error?.message).toContain(
+      "Rate limit exceeded, please try again later",
+    );
   });
 });

@@ -250,9 +250,14 @@ export class ReactEmailExporter<
       const children = await this.transformBlocks(b.children, nestingLevel + 1);
       const self = (await this.mapBlock(b as any, nestingLevel, 0)) as any;
       const style = this.blocknoteDefaultPropsToReactEmailStyle(b.props as any);
+
       ret.push(
         <React.Fragment key={b.id}>
-          <Section style={style}>{self}</Section>
+          {Object.entries(style).length > 0 ? (
+            <div style={style}>{self}</div> // TODO: maybe nicer to set style on child element instead of wrapping in a div?
+          ) : (
+            self
+          )}
           {children.length > 0 && (
             <div style={{ marginLeft: "24px" }}>{children}</div>
           )}
@@ -351,9 +356,10 @@ export class ReactEmailExporter<
 
   protected blocknoteDefaultPropsToReactEmailStyle(
     props: Partial<DefaultProps>,
-  ): any {
-    return {
-      textAlign: props.textAlignment,
+  ): CSSProperties {
+    const style: CSSProperties = {
+      textAlign:
+        props.textAlignment === "left" ? undefined : props.textAlignment,
       backgroundColor:
         props.backgroundColor === "default" || !props.backgroundColor
           ? undefined
@@ -369,5 +375,8 @@ export class ReactEmailExporter<
             ? "center"
             : undefined,
     };
+    return Object.fromEntries(
+      Object.entries(style).filter(([_, value]) => value !== undefined),
+    );
   }
 }
