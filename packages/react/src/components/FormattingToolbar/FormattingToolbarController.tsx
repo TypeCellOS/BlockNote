@@ -79,6 +79,7 @@ export const FormattingToolbarController = (props: {
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
+      ...props.floatingUIOptions,
       useFloatingOptions: {
         open: show,
         // Needed as hooks like `useDismiss` call `onOpenChange` to change the
@@ -92,13 +93,14 @@ export const FormattingToolbarController = (props: {
         },
         placement,
         middleware: [offset(10), shift(), flip()],
+        ...props.floatingUIOptions?.useFloatingOptions,
       },
       elementProps: {
         style: {
           zIndex: 40,
         },
+        ...props.floatingUIOptions?.elementProps,
       },
-      ...props.floatingUIOptions,
     }),
     [show, placement, props.floatingUIOptions, formattingToolbar.store, editor],
   );
