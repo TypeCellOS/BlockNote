@@ -9,7 +9,7 @@
     "directory": "packages/xl-docx-exporter"
   },
   "license": "GPL-3.0 OR PROPRIETARY",
-  "version": "0.46.0",
+  "version": "0.46.1",
   "files": [
     "dist",
     "types",
@@ -57,8 +57,8 @@
     "email": "email dev"
   },
   "dependencies": {
-    "@blocknote/core": "0.46.0",
-    "@blocknote/xl-multi-column": "0.46.0",
+    "@blocknote/core": "0.46.1",
+    "@blocknote/xl-multi-column": "0.46.1",
     "buffer": "^6.0.3",
     "docx": "^9.5.1",
     "image-meta": "^0.2.2"
