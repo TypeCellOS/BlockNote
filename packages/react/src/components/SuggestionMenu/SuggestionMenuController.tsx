@@ -3,13 +3,7 @@ import {
   SuggestionMenu as SuggestionMenuExtension,
   filterSuggestionItems,
 } from "@blocknote/core/extensions";
-import {
-  UseFloatingOptions,
-  autoPlacement,
-  offset,
-  shift,
-  size,
-} from "@floating-ui/react";
+import { autoPlacement, offset, shift, size } from "@floating-ui/react";
 import { FC, useEffect, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
@@ -37,7 +31,7 @@ export function SuggestionMenuController<
     triggerCharacter: string;
     getItems?: GetItemsType;
     minQueryLength?: number;
-    floatingUIOptions?: UseFloatingOptions;
+    floatingUIOptions?: FloatingUIOptions;
   } & (ItemType<GetItemsType> extends DefaultReactSuggestionItem
     ? {
         // can be undefined
@@ -107,6 +101,7 @@ export function SuggestionMenuController<
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
+      ...props.floatingUIOptions,
       useFloatingOptions: {
         open: state?.show && state?.triggerCharacter === triggerCharacter,
         onOpenChange: (open) => {
@@ -131,6 +126,7 @@ export function SuggestionMenuController<
             padding: 10,
           }),
         ],
+        ...props.floatingUIOptions?.useFloatingOptions,
       },
       elementProps: {
         // Prevents editor blurring when clicking the scroll bar.
@@ -138,8 +134,8 @@ export function SuggestionMenuController<
         style: {
           zIndex: 80,
         },
+        ...props.floatingUIOptions?.elementProps,
       },
-      ...props.floatingUIOptions,
     }),
     [
       props.floatingUIOptions,

@@ -20,6 +20,7 @@ export const FilePanelController = (props: {
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
+      ...props.floatingUIOptions,
       useFloatingOptions: {
         open: !!blockId,
         // Needed as hooks like `useDismiss` call `onOpenChange` to change the
@@ -34,13 +35,14 @@ export const FilePanelController = (props: {
           }
         },
         middleware: [offset(10), flip()],
+        ...props.floatingUIOptions?.useFloatingOptions,
       },
       elementProps: {
         style: {
           zIndex: 90,
         },
+        ...props.floatingUIOptions?.elementProps,
       },
-      ...props.floatingUIOptions,
     }),
     [blockId, editor, filePanel, props.floatingUIOptions],
   );

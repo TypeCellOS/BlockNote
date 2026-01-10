@@ -106,6 +106,7 @@ export function GridSuggestionMenuController<
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
+      ...props.floatingUIOptions,
       useFloatingOptions: {
         open: state?.show && state?.triggerCharacter === triggerCharacter,
         onOpenChange: (open) => {
@@ -130,6 +131,7 @@ export function GridSuggestionMenuController<
             padding: 10,
           }),
         ],
+        ...props.floatingUIOptions?.useFloatingOptions,
       },
       elementProps: {
         // Prevents editor blurring when clicking the scroll bar.
@@ -137,8 +139,8 @@ export function GridSuggestionMenuController<
         style: {
           zIndex: 70,
         },
+        ...props.floatingUIOptions?.elementProps,
       },
-      ...props.floatingUIOptions,
     }),
     [
       props.floatingUIOptions,

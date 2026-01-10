@@ -111,6 +111,7 @@ export const LinkToolbarController = (props: {
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
+      ...props.floatingUIOptions,
       useFloatingOptions: {
         open: toolbarOpen,
         onOpenChange: (open, _event, reason) => {
@@ -136,6 +137,7 @@ export const LinkToolbarController = (props: {
         },
         placement: "top-start",
         middleware: [offset(10), flip()],
+        ...props.floatingUIOptions?.useFloatingOptions,
       },
       useHoverProps: {
         // `useHover` hook only enabled when a link is hovered with the
@@ -146,13 +148,14 @@ export const LinkToolbarController = (props: {
           close: 250,
         },
         handleClose: safePolygon(),
+        ...props.floatingUIOptions?.useHoverProps,
       },
       elementProps: {
         style: {
           zIndex: 50,
         },
+        ...props.floatingUIOptions?.elementProps,
       },
-      ...props.floatingUIOptions,
     }),
     [editor, link, props.floatingUIOptions, toolbarOpen, toolbarPositionFrozen],
   );

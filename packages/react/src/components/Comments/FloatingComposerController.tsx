@@ -47,6 +47,7 @@ export default function FloatingComposerController<
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
+      ...props.floatingUIOptions,
       useFloatingOptions: {
         open: !!pendingComment,
         // Needed as hooks like `useDismiss` call `onOpenChange` to change the
@@ -59,13 +60,14 @@ export default function FloatingComposerController<
         },
         placement: "bottom",
         middleware: [offset(10), shift(), flip()],
+        ...props.floatingUIOptions?.useFloatingOptions,
       },
       elementProps: {
         style: {
           zIndex: 60,
         },
+        ...props.floatingUIOptions?.elementProps,
       },
-      ...props.floatingUIOptions,
     }),
     [comments, editor, pendingComment, props.floatingUIOptions],
   );

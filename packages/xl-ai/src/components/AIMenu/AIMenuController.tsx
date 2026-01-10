@@ -27,6 +27,7 @@ export const AIMenuController = (props: {
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
+      ...props.floatingUIOptions,
       useFloatingOptions: {
         open: aiMenuState !== "closed",
         placement: "bottom",
@@ -60,6 +61,7 @@ export const AIMenuController = (props: {
             animationFrame: true,
           });
         },
+        ...props.floatingUIOptions?.useFloatingOptions,
       },
       useDismissProps: {
         enabled:
@@ -80,13 +82,14 @@ export const AIMenuController = (props: {
 
           return true;
         },
+        ...props.floatingUIOptions?.useDismissProps,
       },
       elementProps: {
         style: {
           zIndex: 100,
         },
+        ...props.floatingUIOptions?.elementProps,
       },
-      ...props.floatingUIOptions,
     }),
     [ai, aiMenuState, blockId, props.floatingUIOptions],
   );
