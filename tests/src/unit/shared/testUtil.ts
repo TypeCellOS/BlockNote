@@ -34,6 +34,32 @@ export const getPosOfTextNode = (
   return ret;
 };
 
+// Helper function to get the position inside an empty block content node with
+// the given type.
+export const getPosInEmptyBlockContentNode = (
+  doc: Node,
+  blockContentType: string,
+) => {
+  let ret: number | undefined = undefined;
+
+  doc.descendants((node, pos) => {
+    if (node.type.name === blockContentType && node.childCount === 0) {
+      ret = pos + 1;
+      return false;
+    }
+
+    return ret === undefined;
+  });
+
+  if (ret === undefined) {
+    throw new Error(
+      `Block content node with type "${blockContentType}" not found.`,
+    );
+  }
+
+  return ret;
+};
+
 // Helper function to get the position of a table cell node with given text
 // content. Returns the position just before the node.
 export const getPosOfTableCellNode = (doc: Node, textContent: string) => {
