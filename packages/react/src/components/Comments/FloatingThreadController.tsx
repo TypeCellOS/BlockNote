@@ -40,6 +40,7 @@ export default function FloatingThreadController(props: {
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
+      ...props.floatingUIOptions,
       useFloatingOptions: {
         open: !!selectedThread,
         // Needed as hooks like `useDismiss` call `onOpenChange` to change the
@@ -55,13 +56,14 @@ export default function FloatingThreadController(props: {
         },
         placement: "bottom",
         middleware: [offset(10), shift(), flip()],
+        ...props.floatingUIOptions?.useFloatingOptions,
       },
       elementProps: {
         style: {
           zIndex: 30,
         },
+        ...props.floatingUIOptions?.elementProps,
       },
-      ...props.floatingUIOptions,
     }),
     [comments, editor, props.floatingUIOptions, selectedThread],
   );
