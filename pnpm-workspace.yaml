@@ -4,6 +4,7 @@ packages:
   - "playground"
   - "fumadocs"
   - "docs"
+  - "docs2"
   - "shared"
   - "tests"
 preferWorkspacePackages: true
