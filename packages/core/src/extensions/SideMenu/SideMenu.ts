@@ -419,6 +419,23 @@ export class SideMenuView<
    *  - Whether the drop event is within the bounds of the current editor instance
    */
   getDragEventContext = (event: DragEvent) => {
+    // Relevance gate: Only handle drags that belong to BlockNote
+    // Check if at least one of the following is true:
+    // 1. ProseMirror drag started in an editor
+    // 2. Side menu drag
+    // 3. BlockNote-specific data type in the drag
+    // 4. (optional stricter mode) Event target is inside this editor
+    const isBlockNoteDrag =
+      this.pmView.dragging !== null ||
+      this.isDragOrigin ||
+      event.dataTransfer?.types.includes("blocknote/html") ||
+      (event.target instanceof Node && this.pmView.dom.contains(event.target));
+
+    if (!isBlockNoteDrag) {
+      // Not a BlockNote-related drag, return early
+      return undefined;
+    }
+
     // We need to check if there is text content that is being dragged (select some text & just drag it)
     const textContentIsBeingDragged =
       !event.dataTransfer?.types.includes("blocknote/html") &&
