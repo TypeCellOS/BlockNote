@@ -380,6 +380,20 @@ export class SideMenuView<
       return;
     }
 
+    // Relevance gate: Only handle drags that belong to BlockNote
+    // This prevents interference with external drag-and-drop libraries
+    // by avoiding calls to closeDropCursor() for non-BlockNote drags
+    const isBlockNoteDrag =
+      this.pmView.dragging !== null ||
+      this.isDragOrigin ||
+      event.dataTransfer?.types.includes("blocknote/html") ||
+      (event.target instanceof Node && this.pmView.dom.contains(event.target));
+
+    if (!isBlockNoteDrag) {
+      // Not a BlockNote-related drag, return early without any processing
+      return;
+    }
+
     const dragEventContext = this.getDragEventContext(event);
 
     if (!dragEventContext || !dragEventContext.isDropPoint) {
@@ -491,6 +505,19 @@ export class SideMenuView<
    */
   onDrop = (event: DragEvent) => {
     if ((event as any).synthetic) {
+      return;
+    }
+
+    // Relevance gate: Only handle drags that belong to BlockNote
+    // This prevents interference with external drag-and-drop libraries
+    const isBlockNoteDrag =
+      this.pmView.dragging !== null ||
+      this.isDragOrigin ||
+      event.dataTransfer?.types.includes("blocknote/html") ||
+      (event.target instanceof Node && this.pmView.dom.contains(event.target));
+
+    if (!isBlockNoteDrag) {
+      // Not a BlockNote-related drag, return early without any processing
       return;
     }
 
