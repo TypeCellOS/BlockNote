@@ -1,15 +1,25 @@
-import { Inter } from 'next/font/google';
-import { Provider } from '@/components/provider';
-import './global.css';
+import { Provider } from "@/components/provider";
+import { EB_Garamond, Public_Sans } from "next/font/google";
+import "./global.css";
 
-const inter = Inter({
-  subsets: ['latin'],
+const publicSans = Public_Sans({
+  subsets: ["latin"],
+  variable: "--font-public",
 });
 
-export default function Layout({ children }: LayoutProps<'/'>) {
+const ebGaramond = EB_Garamond({
+  subsets: ["latin"],
+  variable: "--font-serif",
+});
+
+export default function Layout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={inter.className} suppressHydrationWarning>
-      <body className="flex flex-col min-h-screen">
+    <html
+      lang="en"
+      className={`${publicSans.variable} ${ebGaramond.variable}`}
+      suppressHydrationWarning
+    >
+      <body className="flex min-h-screen flex-col">
         <Provider>{children}</Provider>
       </body>
     </html>
