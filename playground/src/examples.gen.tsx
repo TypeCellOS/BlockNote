@@ -1174,12 +1174,33 @@
             "Import/Export"
           ]
         },
-        "title": "Rendering HTML Converted From Blocks",
+        "title": "Rendering HTML Converted From Blocks (Side by Side)",
         "group": {
           "pathFromRoot": "examples/05-interoperability",
           "slug": "interoperability"
         },
         "readme": "This example exports the current document (all blocks) as HTML and renders it below the editor.\n\n**Try it out:** Edit the document to see the rendered static HTML!\n\n**Relevant Docs:**\n\n- [Converting Blocks to HTML](/docs/features/export/html)"
+      },
+      {
+        "projectSlug": "static-html-render",
+        "fullSlug": "interoperability/static-html-render",
+        "pathFromRoot": "examples/05-interoperability/10-static-html-render",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic",
+            "Blocks",
+            "Inline Content"
+          ]
+        },
+        "title": "Rendering HTML Converted From Blocks",
+        "group": {
+          "pathFromRoot": "examples/05-interoperability",
+          "slug": "interoperability"
+        },
+        "readme": "This example exports the current document (all blocks) as HTML and renders it.\n\n**Relevant Docs:**\n\n- [Converting Blocks to HTML](/docs/features/export/html)"
       }
     ]
   },

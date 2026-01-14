@@ -1,4 +1,4 @@
-# Rendering HTML Converted From Blocks
+# Rendering HTML Converted From Blocks (Side by Side)
 
 This example exports the current document (all blocks) as HTML and renders it below the editor.
 

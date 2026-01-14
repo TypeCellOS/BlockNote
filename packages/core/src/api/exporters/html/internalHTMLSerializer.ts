@@ -10,7 +10,7 @@ import {
 } from "../../../schema/index.js";
 import { serializeBlocksInternalHTML } from "./util/serializeBlocksInternalHTML.js";
 
-// This is normally handled using decorations in the 
+// This is normally handled using decorations in the
 // `NumberedListIndexingDecorationPlugin`. This does not run when exporting, so
 // we have to add the necessary HTML attributes ourselves.
 const addIndexToNumberedListItems = (element: HTMLElement) => {
@@ -70,8 +70,8 @@ const forceToggleBlocksShow = (element: HTMLElement) => {
   return element;
 };
 
-// Adds minimum cell widths, which would normally be done by the 
-// `columnResizing` extension. This extension doesn't run when exporting to 
+// Adds minimum cell widths, which would normally be done by the
+// `columnResizing` extension. This extension doesn't run when exporting to
 // HTML, so we have to add this manually.
 const addTableMinCellWidths = (element: HTMLElement) => {
   const tables = element.querySelectorAll('[data-content-type="table"] table');
@@ -86,9 +86,9 @@ const addTableMinCellWidths = (element: HTMLElement) => {
   return element;
 };
 
-// Adds table wrapping elements, which would normally be done by the 
-// `columnResizing` extension. This extension doesn't run when exporting to 
-// HTML, so we have to add this manually. This adds the correct padding to 
+// Adds table wrapping elements, which would normally be done by the
+// `columnResizing` extension. This extension doesn't run when exporting to
+// HTML, so we have to add this manually. This adds the correct padding to
 // tables.
 const addTableWrappers = (element: HTMLElement) => {
   const tables = element.querySelectorAll('[data-content-type="table"] table');
@@ -106,16 +106,19 @@ const addTableWrappers = (element: HTMLElement) => {
   return element;
 };
 
-// Adds trailing breaks to blocks with empty inline content. This is normally 
-// done by ProseMirror, but only when rendering an actual editor. Without them, 
+// Adds trailing breaks to blocks with empty inline content. This is normally
+// done by ProseMirror, but only when rendering an actual editor. Without them,
 // empty inline content has a height of 0.
 const addTrailingBreakToEmptyInlineContent = (element: HTMLElement) => {
   const emptyInlineContent = element.querySelectorAll(
     ".bn-inline-content:empty",
   );
   emptyInlineContent.forEach((inlineContent) => {
-    const trailingBreak = document.createElement("br");
+    // We actually use a `span` instead of a `br` to avoid potential false 
+    // positives when parsing.
+    const trailingBreak = document.createElement("span");
     trailingBreak.className = "ProseMirror-trailingBreak";
+    trailingBreak.setAttribute("style", "display: inline-block;");
 
     inlineContent.appendChild(trailingBreak);
   });
@@ -142,10 +145,10 @@ export const createInternalHTMLSerializer = <
 ) => {
   const serializer = DOMSerializer.fromSchema(schema);
 
-  // Set of transforms to run on the output HTML element after serializing 
+  // Set of transforms to run on the output HTML element after serializing
   // blocks. These are used to add HTML elements, attributes, or class names
   // which would normally be done by extensions and plugins. Since these don't
-  // run when converting blocks to HTML, tranforms are used to mock their 
+  // run when converting blocks to HTML, tranforms are used to mock their
   // functionality so that the rendered HTML looks identical to that of a live
   // editor.
   const transforms: ((element: HTMLElement) => HTMLElement)[] = [
