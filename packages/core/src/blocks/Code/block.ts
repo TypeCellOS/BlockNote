@@ -130,14 +130,18 @@ export const createCodeBlockSpec = createBlockSpec(
         select.value =
           block.props.language || options.defaultLanguage || "text";
 
-        const handleLanguageChange = (event: Event) => {
-          const language = (event.target as HTMLSelectElement).value;
+        if (editor.isEditable) {
+          const handleLanguageChange = (event: Event) => {
+            const language = (event.target as HTMLSelectElement).value;
 
-          editor.updateBlock(block.id, { props: { language } });
-        };
-        select.addEventListener("change", handleLanguageChange);
-        removeSelectChangeListener = () =>
-          select.removeEventListener("change", handleLanguageChange);
+            editor.updateBlock(block.id, { props: { language } });
+          };
+          select.addEventListener("change", handleLanguageChange);
+          removeSelectChangeListener = () =>
+            select.removeEventListener("change", handleLanguageChange);
+        } else {
+          select.disabled = true;
+        }
 
         const selectWrapper = document.createElement("div");
         selectWrapper.contentEditable = "false";
