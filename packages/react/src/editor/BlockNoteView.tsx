@@ -10,7 +10,6 @@ import React, {
   ReactNode,
   Ref,
   useCallback,
-  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -141,10 +140,6 @@ function BlockNoteViewComponent<
   useEditorChange(onChange || emptyFn, editor);
   useEditorSelectionChange(onSelectionChange || emptyFn, editor);
 
-  useEffect(() => {
-    editor.isEditable = editable !== false;
-  }, [editable, editor]);
-
   const setElementRenderer = useCallback(
     (ref: (typeof editor)["elementRenderer"]) => {
       editor.elementRenderer = ref;
@@ -272,12 +267,8 @@ export const BlockNoteViewEditor = (props: { children?: ReactNode }) => {
 
   const mount = useCallback(
     (element: HTMLElement | null) => {
-      if (
-        ctx.editorProps.editable !== undefined &&
-        ctx.editorProps.editable !== editor.isEditable
-      ) {
-        editor.isEditable = ctx.editorProps.editable;
-      }
+      // Set editable state of the actual editor.
+      editor.isEditable = ctx.editorProps.editable !== false;
       // Since we are not using TipTap's React Components, we need to set up the contentComponent it expects
       // This is a simple replacement for the state management that Tiptap does internally
       editor._tiptapEditor.contentComponent = portalManager;
