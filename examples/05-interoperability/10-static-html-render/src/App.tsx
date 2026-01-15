@@ -152,26 +152,23 @@ export default function App() {
     ],
   });
 
-  const ref = useRef<HTMLDivElement>(null);
   const systemColorScheme = usePrefersColorScheme();
   const theme =
     systemColorScheme === "no-preference" ? "light" : systemColorScheme;
 
-  // Updates rendered static HTML with initial editor content.
-  useEffect(() => {
-    if (ref.current) {
-      ref.current.innerHTML = editor.blocksToFullHTML(editor.document);
-    }
-  }, []);
-
-  // Renders the editor instance using a React component.
+  // Renders the exported static HTML from the editor.
   return (
     <div
       className="bn-container bn-mantine"
       data-color-scheme={theme}
       data-mantine-color-scheme={theme}
     >
-      <div className="ProseMirror bn-editor bn-default-styles" ref={ref} />
+      <div
+        className="ProseMirror bn-editor bn-default-styles"
+        dangerouslySetInnerHTML={{
+          __html: editor.blocksToFullHTML(editor.document),
+        }}
+      />
     </div>
   );
 }
