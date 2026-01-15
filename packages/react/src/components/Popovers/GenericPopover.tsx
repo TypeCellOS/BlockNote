@@ -8,9 +8,20 @@ import {
   autoUpdate,
   useHover,
 } from "@floating-ui/react";
-import { HTMLAttributes, ReactNode, useEffect, useRef } from "react";
+import {
+  createContext,
+  HTMLAttributes,
+  ReactNode,
+  useEffect,
+  useRef,
+} from "react";
 
 import { FloatingUIOptions } from "./FloatingUIOptions.js";
+import { FloatingUIReturns } from "./FloatingUIReturns.js";
+
+export const GenericPopoverContext = createContext<
+  FloatingUIReturns | undefined
+>(undefined);
 
 export type GenericPopoverReference =
   | {
@@ -81,10 +92,11 @@ export const GenericPopover = (
     children: ReactNode;
   },
 ) => {
-  const { refs, floatingStyles, context } = useFloating<HTMLDivElement>({
+  const useFloatingReturn = useFloating<HTMLDivElement>({
     whileElementsMounted: autoUpdate,
     ...props.useFloatingOptions,
   });
+  const { refs, floatingStyles, context } = useFloatingReturn;
 
   const { isMounted, styles } = useTransitionStyles(
     context,
@@ -101,7 +113,8 @@ export const GenericPopover = (
   // not even be managed by React, so we may be unable to set them. Seems like
   // `refs.setReferences` attaches most of the same listeners anyway, but
   // possible both are needed.
-  const { getFloatingProps } = useInteractions([dismiss, hover]);
+  const useInteractionsReturn = useInteractions([dismiss, hover]);
+  const { getFloatingProps } = useInteractionsReturn;
 
   const innerHTML = useRef<string>("");
   const ref = useRef<HTMLDivElement>(null);
@@ -167,17 +180,41 @@ export const GenericPopover = (
     // should be open. So without this fix, the popover just won't transition
     // out and will instead appear to hide instantly.
     return (
-      <div
-        ref={mergedRefs}
-        {...mergedProps}
-        dangerouslySetInnerHTML={{ __html: innerHTML.current }}
-      />
+      <GenericPopoverContext
+        value={{
+          useFloatingReturn,
+          isMounted,
+          styles,
+          status,
+          dismiss,
+          hover,
+          useInteractionsReturn,
+        }}
+      >
+        <div
+          ref={mergedRefs}
+          {...mergedProps}
+          dangerouslySetInnerHTML={{ __html: innerHTML.current }}
+        />
+      </GenericPopoverContext>
     );
   }
 
   return (
-    <div ref={mergedRefs} {...mergedProps}>
-      {props.children}
-    </div>
+    <GenericPopoverContext
+      value={{
+        useFloatingReturn,
+        isMounted,
+        styles,
+        status,
+        dismiss,
+        hover,
+        useInteractionsReturn,
+      }}
+    >
+      <div ref={mergedRefs} {...mergedProps}>
+        {props.children}
+      </div>
+    </GenericPopoverContext>
   );
 };

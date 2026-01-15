@@ -1,8 +1,9 @@
 import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
-import { FC, useCallback, useEffect } from "react";
+import { FC, useCallback, useContext, useEffect } from "react";
 
 import { useBlockNoteContext } from "../../editor/BlockNoteContext.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
+import { GenericPopoverContext } from "../Popovers/GenericPopover.js";
 import { useCloseSuggestionMenuNoItems } from "./hooks/useCloseSuggestionMenuNoItems.js";
 import { useLoadSuggestionMenuItems } from "./hooks/useLoadSuggestionMenuItems.js";
 import { useSuggestionMenuKeyboardNavigation } from "./hooks/useSuggestionMenuKeyboardNavigation.js";
@@ -46,6 +47,15 @@ export function SuggestionMenuWrapper<Item>(props: {
     query,
     getItems,
   );
+
+  // If this component is used inside a `GenericPopover`, the position of the
+  // popover should be recalculated once all the items are fetched. This is
+  // because it may need to resize/shift/flip if the height of the suggestion 
+  // menu with all items is too tall and overflows.
+  const update = useContext(GenericPopoverContext)?.useFloatingReturn.update;
+  useEffect(() => {
+    update?.();
+  }, [loadingState, update]);
 
   useCloseSuggestionMenuNoItems(items, usedQuery, closeMenu);
 
