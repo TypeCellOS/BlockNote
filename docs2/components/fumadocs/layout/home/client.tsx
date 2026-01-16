@@ -12,6 +12,7 @@ import {
   useEffect,
   useEffectEvent,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { cn } from "../../../../lib/fumadocs/cn";
@@ -30,7 +31,7 @@ import {
   NavigationMenuTrigger,
 } from "../../ui/navigation-menu";
 import { LanguageToggle, LanguageToggleText } from "../language-toggle";
-import { LinkItem } from "../link-item";
+import { LinkItem, MenuItemType } from "../link-item";
 import { LargeSearchToggle, SearchToggle } from "../search-toggle";
 import {
   type LinkItemType,
@@ -94,6 +95,8 @@ export function Header({
     return { navItems, menuItems };
   }, [links, githubUrl]);
 
+  const listRef = useRef<HTMLUListElement>(null);
+
   return (
     <MobileMenuCollapsible
       render={(_, s) => (
@@ -106,7 +109,10 @@ export function Header({
               className: "inline-flex items-center gap-2.5 font-semibold",
             })}
             {nav.children}
-            <ul className="flex flex-row items-center gap-2 px-6 max-sm:hidden">
+            <ul
+              className="flex flex-row items-center gap-2 px-6 max-sm:hidden"
+              ref={listRef} // added
+            >
               {navItems
                 .filter((item) => !isSecondary(item))
                 .map((item, i) => (
@@ -199,14 +205,17 @@ export function Header({
           </CollapsibleContent>
           <NavigationMenu.Portal>
             <NavigationMenu.Positioner
-              sideOffset={10}
-              className="h-(--positioner-height) w-(--positioner-width) max-w-(--available-width) duration-(--duration) ease-(--easing) z-20 transition-[left,right] data-[instant]:transition-none"
+              sideOffset={5}
+              align="start" // added
+              anchor={listRef} // added
+              className="h-(--positioner-height) w-(--positioner-width) max-w-(--available-width) duration-(--duration) ease-(--easing) z-200 transition-[left,right] data-[instant]:transition-none"
               style={{
                 ["--duration" as string]: "0.35s",
                 ["--easing" as string]: "cubic-bezier(0.22, 1, 0.36, 1)",
               }}
             >
-              <NavigationMenu.Popup className="w-(--popup-width) h-(--popup-height) max-w-(--fd-layout-width,1400px) origin-(--transform-origin) bg-fd-background/80 duration-(--duration) ease-(--easing) relative rounded-xl border shadow-lg backdrop-blur-lg transition-[opacity,transform,width,height,scale,translate] data-[ending-style]:scale-90 data-[starting-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0 data-[ending-style]:duration-150">
+              {/* bg changed from fd-background/80 to white */}
+              <NavigationMenu.Popup className="w-(--popup-width) h-(--popup-height) max-w-(--fd-layout-width,1400px) origin-(--transform-origin) duration-(--duration) ease-(--easing) relative rounded-xl border bg-white shadow-lg backdrop-blur-lg transition-[opacity,transform,width,height,scale,translate] data-[ending-style]:scale-90 data-[starting-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0 data-[ending-style]:duration-150">
                 <NavigationMenu.Viewport className="relative size-full overflow-hidden" />
               </NavigationMenu.Popup>
             </NavigationMenu.Positioner>
@@ -267,14 +276,19 @@ function HeaderRoot({
   const isTransparent =
     transparentMode === "top" ? isTop : transparentMode === "always";
 
+  // modified to move border-b backdrop-blur-lg to header
   return (
-    <header id="nd-nav" className="sticky top-0 z-40 h-14">
+    <header
+      id="nd-nav"
+      className="sticky top-0 z-40 h-14 border-b backdrop-blur-lg"
+    >
       <NavigationMenuRoot
+        delay={10} // added
         render={(_, s) => (
           <nav
             className={cn(
-              "max-w-(--fd-layout-width) mx-auto w-full border-b backdrop-blur-lg transition-colors",
-              (!isTransparent || s.open) && "bg-fd-background/80",
+              "max-w-(--fd-layout-width) mx-auto w-full transition-colors",
+              // (!isTransparent || s.open) && "bg-fd-background/80",
               className,
             )}
             {...props}
@@ -297,47 +311,91 @@ function NavigationMenuLinkItem({
   if (item.type === "custom") return <div {...props}>{item.children}</div>;
 
   if (item.type === "menu") {
-    const children = item.items.map((child, j) => {
-      if (child.type === "custom") {
-        return <Fragment key={j}>{child.children}</Fragment>;
-      }
+    // modified significantly to make groups
+    const groups = new Map<string, MenuItemType["items"]>();
 
-      const {
-        banner = child.icon ? (
-          <div className="bg-fd-muted w-fit rounded-md border p-1 [&_svg]:size-4">
-            {child.icon}
-          </div>
-        ) : null,
-        ...rest
-      } = child.menu ?? {};
+    for (const child of item.items) {
+      const groupName =
+        (child.type !== "custom" ? child.groupName : undefined) ?? "default";
+      const list = groups.get(groupName) ?? [];
+      list.push(child);
+      groups.set(groupName, list);
+    }
 
-      return (
-        <NavigationMenuLink
-          key={`${j}-${child.url}`}
-          render={
-            <Link
-              href={child.url}
-              external={child.external}
-              {...rest}
-              className={cn(
-                "bg-fd-card hover:bg-fd-accent/80 hover:text-fd-accent-foreground flex flex-col gap-2 rounded-lg border p-3 transition-colors",
-                rest.className,
-              )}
+    const children = Array.from(groups.entries()).map(
+      ([groupName, items], j) => (
+        <li key={j} className={cn("flex w-[248px] flex-col gap-4")}>
+          {groupName !== "default" && (
+            <h5
+              className="text-fd-muted-foreground pl-2.5 text-sm font-semibold"
+              id={`nav-group-${groupName}-${j}`}
             >
-              {rest.children ?? (
-                <>
-                  {banner}
-                  <p className="text-base font-medium">{child.text}</p>
-                  <p className="text-fd-muted-foreground text-sm empty:hidden">
-                    {child.description}
-                  </p>
-                </>
-              )}
-            </Link>
-          }
-        />
-      );
-    });
+              {groupName}
+            </h5>
+          )}
+          <ul
+            className={cn("flex flex-col gap-2")}
+            aria-labelledby={
+              groupName !== "default"
+                ? `nav-group-${groupName}-${j}`
+                : undefined
+            }
+          >
+            {items.map((child, k) => {
+              if (child.type === "custom") {
+                return (
+                  <li key={k}>
+                    <Fragment>{child.children}</Fragment>
+                  </li>
+                );
+              }
+
+              const {
+                banner = child.icon ? (
+                  <div className="bg-fd-muted mt-1 w-fit rounded-md border p-1 [&_svg]:size-5">
+                    {child.icon}
+                  </div>
+                ) : null,
+                ...rest
+              } = child.menu ?? {};
+
+              return (
+                // added <li>
+                <li key={k}>
+                  <NavigationMenuLink
+                    render={
+                      <Link
+                        href={child.url}
+                        external={child.external}
+                        {...rest}
+                        className={cn(
+                          "hover:bg-fd-accent hover:text-fd-accent-foreground flex flex-row items-start gap-3 rounded-lg p-2.5 transition-colors",
+                          rest.className,
+                        )}
+                      >
+                        {rest.children ?? (
+                          <>
+                            {banner}
+                            <div className="flex flex-col gap-0.5">
+                              <p className="text-sm font-medium">
+                                {child.text}
+                              </p>
+                              <p className="text-fd-muted-foreground text-xs empty:hidden">
+                                {child.description}
+                              </p>
+                            </div>
+                          </>
+                        )}
+                      </Link>
+                    }
+                  />
+                </li>
+              );
+            })}
+          </ul>
+        </li>
+      ),
+    );
 
     return (
       <NavigationMenuItem {...props}>
@@ -350,7 +408,11 @@ function NavigationMenuLinkItem({
             item.text
           )}
         </NavigationMenuTrigger>
-        <NavigationMenuContent className="grid grid-cols-1 gap-2 p-4 md:grid-cols-2 lg:grid-cols-3">
+        <NavigationMenuContent
+          className={"flex"}
+          // className="grid grid-cols-1 gap-2 p-4 md:grid-cols-2 lg:grid-cols-3"
+          render={({ children, ...props }) => <ul {...props}>{children}</ul>} // added
+        >
           {children}
         </NavigationMenuContent>
       </NavigationMenuItem>

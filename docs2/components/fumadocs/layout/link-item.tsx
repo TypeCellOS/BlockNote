@@ -29,6 +29,7 @@ export interface MainItemType extends WithHref, Filterable {
   icon?: ReactNode;
   text: ReactNode;
   description?: ReactNode;
+  groupName?: string; // added to group into columns
 }
 
 export interface IconItemType extends WithHref, Filterable {
