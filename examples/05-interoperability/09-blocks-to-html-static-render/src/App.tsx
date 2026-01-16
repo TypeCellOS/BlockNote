@@ -2,7 +2,7 @@ import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote, usePrefersColorScheme } from "@blocknote/react";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import "./styles.css";
 
@@ -155,6 +155,8 @@ export default function App() {
     ],
   });
 
+  const [html, setHTML] = useState("");
+
   const ref = useRef<HTMLDivElement>(null);
   const systemColorScheme = usePrefersColorScheme();
   const theme =
@@ -162,9 +164,7 @@ export default function App() {
 
   // Function to update the rendered static HTML.
   const updateRenderedHTML = useCallback(async () => {
-    if (ref.current) {
-      ref.current.innerHTML = editor.blocksToFullHTML(editor.document);
-    }
+    setHTML(editor.blocksToFullHTML(editor.document));
   }, []);
   // Updates rendered static HTML with initial editor content.
   useEffect(() => {
@@ -198,7 +198,7 @@ export default function App() {
           >
             <div
               className="ProseMirror bn-editor bn-default-styles"
-              ref={ref}
+              dangerouslySetInnerHTML={{ __html: html }}
             />
           </div>
         </div>

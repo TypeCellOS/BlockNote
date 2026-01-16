@@ -24,7 +24,7 @@ const addIndexToNumberedListItems = (element: HTMLElement) => {
         '[data-content-type="numberedListItem"]',
       );
 
-    if (prevNumberedListItem === null || prevNumberedListItem === undefined) {
+    if (!prevNumberedListItem) {
       numberedListItem.setAttribute(
         "data-index",
         numberedListItem.getAttribute("data-start") || "1",
@@ -114,7 +114,7 @@ const addTrailingBreakToEmptyInlineContent = (element: HTMLElement) => {
     ".bn-inline-content:empty",
   );
   emptyInlineContent.forEach((inlineContent) => {
-    // We actually use a `span` instead of a `br` to avoid potential false 
+    // We actually use a `span` instead of a `br` to avoid potential false
     // positives when parsing.
     const trailingBreak = document.createElement("span");
     trailingBreak.className = "ProseMirror-trailingBreak";
