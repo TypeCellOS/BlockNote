@@ -273,7 +273,7 @@ function HeaderRoot({
         render={(_, s) => (
           <nav
             className={cn(
-              "max-w-(--fd-layout-width) mx-auto w-full transition-colors",
+              "max-w-(--fd-layout-width) mx-auto w-full border-b backdrop-blur-lg transition-colors",
               (!isTransparent || s.open) && "bg-fd-background/80",
               className,
             )}
