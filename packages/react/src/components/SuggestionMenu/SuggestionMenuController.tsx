@@ -121,7 +121,7 @@ export function SuggestionMenuController<
           shift(),
           size({
             apply({ elements, availableHeight }) {
-              elements.floating.style.maxHeight = `${Math.max(0, availableHeight)}px`;
+              elements.floating.style.maxHeight = `${Math.min(600, availableHeight)}px`;
             },
             padding: 10,
           }),
