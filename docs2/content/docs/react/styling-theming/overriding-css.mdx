@@ -1,0 +1,45 @@
+---
+title: Overriding CSS
+description: You can change any styles applied to the editor by setting your own CSS styles.
+imageTitle: Overriding CSS
+path: docs/react/styling-theming/overriding-css
+---
+
+# Overriding CSS
+
+BlockNote provides several ways to customize the editor's appearance through CSS. You can override default styles using CSS classes and attributes.
+
+## Basic Example
+
+In the demo below, we create additional CSS rules to make the editor text and hovered slash menu items blue:
+
+<Example name="theming/theming-css" />
+
+## CSS Selectors Reference
+
+### BlockNote CSS Classes
+
+BlockNote uses classes with the `bn-` prefix to style editor elements. Here are the key classes you can target:
+
+#### Editor Structure
+
+- `.bn-container`: Container for editor and all menus/toolbars.
+- `.bn-editor`: Main editor element.
+- `.bn-block`: Individual block element (including nested).
+- `.bn-block-group`: Container for nested blocks.
+- `.bn-block-content`: Block content wrapper.
+- `.bn-inline-content`: Block's editable rich text content.
+
+#### UI Components
+
+- `.bn-toolbar`: Formatting & link toolbars.
+- `.bn-side-menu`: Side menu element.
+- `.bn-drag-handle-menu`: Drag handle menu.
+- `.bn-suggestion-menu`: Suggestion menu.
+
+### BlockNote CSS Attributes
+
+BlockNote uses data attributes to target specific block types and properties:
+
+- `[data-content-type="blockType"]`: Targets blocks of type `blockType`.
+- `[data-propName="propValue"]`: Targets blocks with specific prop values. If the value is the same as the default value, the `data-propName` attribute will not be added.

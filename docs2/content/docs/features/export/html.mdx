@@ -1,0 +1,62 @@
+---
+title: HTML
+description: It's possible to export Blocks to HTML, completely client-side.
+imageTitle: BlockNote HTML Export
+path: /docs/converting-blocks
+---
+
+# HTML Export
+
+<Callout type={"warning"}>
+    The functions to export to HTML are considered "lossy"; some information might be dropped when you export Blocks to HTML.
+
+    To serialize Blocks to a non-lossy format (for example, to store the contents of the editor in your backend), simply export the built-in Block format using `JSON.stringify(editor.document)`.
+
+</Callout>
+
+## Export to BlockNote HTML
+
+Use `editor.blocksToFullHTML` to export blocks with their full HTML structure, the same as BlockNote uses in its rendered HTML.
+
+For example, you an use this for static rendering documents that have been created in the editor.
+
+<Callout type={"info"}>
+    For the exported HTML to look the same as the editor, make sure to wrap it in the same `div`s that the editor renders, and add the same stylesheets. To learn more, see [this example](/examples/backend/rendering-static-documents).
+
+</Callout>
+
+```typescript
+async blocksToFullHTML(blocks?: Block[]): Promise<string>;
+
+// Usage
+const HTMLFromBlocks = await editor.blocksToFullHTML(blocks);
+```
+
+`blocks:` The blocks to convert. If not provided, the entire document (all top-level blocks) is used.
+
+`returns:` The blocks, exported to an HTML string.
+
+## Export to Interoperable HTML
+
+The editor exposes functions to convert Blocks to and from HTML for interoperability with other applications.
+
+Converting Blocks to HTML this way will lose some information such as the nesting of nodes in order to export a simple HTML structure.
+
+Use `blocksToHTMLLossy` to export `Block` objects to an HTML string:
+
+```typescript
+async blocksToHTMLLossy(blocks?: Block[]): Promise<string>;
+
+// Usage
+const HTMLFromBlocks = await editor.blocksToHTMLLossy(blocks);
+```
+
+`blocks:` The blocks to convert. If not provided, the entire document (all top-level blocks) is used.
+
+`returns:` The blocks, exported to an HTML string.
+
+To better conform to HTML standards, children of blocks which aren't list items are un-nested in the output HTML.
+
+**Demo**
+
+<Example name="interoperability/converting-blocks-to-html" />

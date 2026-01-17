@@ -1,0 +1,56 @@
+---
+title: Import
+description: It's possible to import content into BlockNote.
+imageTitle: Importing Content
+---
+
+# Importing Content
+
+There are two main paths to importing content into BlockNote:
+
+- **HTML**: (Recommended) Import HTML content into BlockNote.
+- **Markdown**: Import Markdown content into BlockNote.
+
+## Migrating Between Editors
+
+When switching editors, there are several migration strategies to consider:
+
+- **Legacy Editor Approach**: Keep both the old and new editors running in parallel. Use the legacy editor for existing content while creating new content in BlockNote.
+  - Minimizes disruption to your existing application
+  - Can segment usage by content type, organization, or other criteria
+- **Hard Cutoff**: Migrate all content at once on a specific date
+  - Provides a clean break and fresh start
+  - May require more upfront preparation
+- **Gradual Migration**: Convert content progressively, such as when files are opened
+  - Smoother transition with less immediate impact
+  - Migration period may extend over a longer time
+
+Choose the strategy that best fits your specific needs and constraints.
+
+### Importing to BlockNote
+
+The recommended approach for importing content into BlockNote is to convert your source content to HTML first, then use `editor.tryParseHTMLToBlocks`:
+
+```tsx
+const existingContent = "<p>This is a paragraph.</p>";
+
+const blocks = await editor.tryParseHTMLToBlocks(existingContent);
+
+await storeToDB(blocks);
+```
+
+<Callout type="info">
+  For details on server-side processing, see our [server-side
+  guide](/docs/features/server-processing).
+</Callout>
+
+### Migrating from BlockNote
+
+To migrate content out of BlockNote, convert it to HTML using the `editor.blocksToHTMLLossy` method.
+
+HTML is widely supported and can be easily imported into most other editors.
+
+<Callout type="info">
+  For details on server-side processing, see our [server-side
+  guide](/docs/features/server-processing).
+</Callout>

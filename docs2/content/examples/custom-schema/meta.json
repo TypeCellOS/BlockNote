@@ -1,0 +1,12 @@
+{
+  "title": "Custom Schemas",
+  "pages": [
+    "alert-block",
+    "suggestion-menus-mentions",
+    "font-style",
+    "pdf-file-block",
+    "alert-block-full-ux",
+    "toggleable-blocks",
+    "configuring-blocks"
+  ]
+}

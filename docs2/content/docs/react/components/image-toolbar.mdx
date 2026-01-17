@@ -1,0 +1,46 @@
+---
+title: File Panel
+description: The File Panel appears whenever you select an image that doesn't have a URL, or when you click the "Replace File" button in the Formatting Panel when an image is selected.
+imageTitle: File Panel
+path: /docs/image-toolbar
+---
+
+# File Panel
+
+The File Panel appears whenever you select a file (e.g. an image or video) that doesn't have a URL, or when you click the "Replace File" button in the [Formatting Toolbar](/docs/react/components/formatting-toolbar) when a file is selected.
+
+<ThemedImage
+  src={{
+    light: "/img/screenshots/image_toolbar.png",
+    dark: "/img/screenshots/image_toolbar_dark.png",
+  }}
+  alt="image"
+  width={600}
+  height={600}
+/>
+
+## File Upload
+
+You may notice that upon creating a new BlockNote editor, the "Upload" tab in the File Panel is missing. This is because you must provide BlockNote with a function to handle file uploads using the `uploadFile` [Editor Option](/docs/reference/editor/overview#options):
+
+```ts
+type uploadFile = (file: File) => Promise<string>;
+```
+
+`file:` The file to upload, in this case an image.
+
+`returns:` A `Promise`, which resolves to the URL that the image can be accessed at.
+
+You can use the provided `uploadToTempFilesOrg` function to as a starting point, which uploads files to [tmpfiles.org](https://tmpfiles.org/). However, it's not recommended to use this in a production environment - you should use your own backend:
+
+<Example name="backend/file-uploading" />
+
+## Resolving URLs
+
+Depending on your backend implementation, the URL returned after uploading a file may not point to the file itself, but an API endpoint which lets you access the file. In this case, said file will need to be fetched from when rendering the block.
+
+BlockNote supports this use case using the `resolveFileUrl` [editor option](/docs/reference/editor/overview#options):
+
+```ts
+type resolveFileUrl = (url: string) => Promise<string>;
+```
