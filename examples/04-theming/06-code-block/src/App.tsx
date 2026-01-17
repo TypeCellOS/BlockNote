@@ -3,11 +3,16 @@ import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
-// This packages some of the most used languages in on-demand bundle
+import { useState } from "react";
 import { codeBlockOptions } from "@blocknote/code-block";
 
 export default function App() {
-  // Creates a new editor instance.
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+  };
+
   const editor = useCreateBlockNote({
     schema: BlockNoteSchema.create().extend({
       blockSpecs: {
@@ -53,6 +58,20 @@ export default function App() {
     ],
   });
 
-  // Renders the editor instance using a React component.
-  return <BlockNoteView editor={editor} />;
+  return (
+    <div style={{ padding: "20px" }}>
+      <button
+        onClick={toggleTheme}
+        style={{
+          marginBottom: "20px",
+          padding: "10px 20px",
+          cursor: "pointer",
+          fontSize: "16px",
+        }}
+      >
+        Switch to {theme === "light" ? "Dark" : "Light"} Theme
+      </button>
+      <BlockNoteView editor={editor} theme={theme} />
+    </div>
+  );
 }

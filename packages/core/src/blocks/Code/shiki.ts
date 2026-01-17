@@ -11,12 +11,17 @@ export const shikiHighlighterPromiseSymbol = Symbol.for(
 export function lazyShikiPlugin(options: CodeBlockOptions) {
   const globalThisForShiki = globalThis as {
     [shikiHighlighterPromiseSymbol]?: Promise<HighlighterGeneric<any, any>>;
-    [shikiParserSymbol]?: Parser;
   };
 
   let highlighter: HighlighterGeneric<any, any> | undefined;
-  let parser: Parser | undefined;
   let hasWarned = false;
+  const parserCache = new Map<string, Parser>();
+  
+  const getCurrentTheme = () => {
+    const container = document.querySelector('[data-color-scheme]');
+    return container?.getAttribute('data-color-scheme') || 'light';
+  };
+
   const lazyParser: Parser = (parserOptions) => {
     if (!options.createHighlighter) {
       if (process.env.NODE_ENV === "development" && !hasWarned) {
@@ -55,11 +60,13 @@ export function lazyShikiPlugin(options: CodeBlockOptions) {
       return highlighter.loadLanguage(language);
     }
 
+    const theme = getCurrentTheme();
+    const shikiTheme = theme === 'dark' ? 'github-dark' : 'github-light';
+    
+    let parser = parserCache.get(shikiTheme);
     if (!parser) {
-      parser =
-        globalThisForShiki[shikiParserSymbol] ||
-        createParser(highlighter as any);
-      globalThisForShiki[shikiParserSymbol] = parser;
+      parser = createParser(highlighter as any, { theme: shikiTheme });
+      parserCache.set(shikiTheme, parser);
     }
 
     return parser(parserOptions);
