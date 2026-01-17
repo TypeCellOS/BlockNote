@@ -58,7 +58,13 @@ export function lazyShikiPlugin(options: CodeBlockOptions) {
     if (!parser) {
       parser =
         globalThisForShiki[shikiParserSymbol] ||
-        createParser(highlighter as any);
+        createParser(highlighter as any, {
+          themes: {
+            light: "github-light",
+            dark: "github-dark",
+          },
+          defaultColor: false,
+        });
       globalThisForShiki[shikiParserSymbol] = parser;
     }
 

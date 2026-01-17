@@ -91,6 +91,16 @@
   --bn-colors-highlights-pink-background: #ad1a72;
 }
 
+.bn-container [data-color-scheme="dark"] .bn-code-block span,
+.bn-container[data-color-scheme="dark"] .bn-code-block span {
+  color: var(--shiki-dark) !important;
+}
+
+.bn-container [data-color-scheme="light"] .bn-code-block span,
+.bn-container[data-color-scheme="light"] .bn-code-block span {
+  color: var(--shiki-light) !important;
+}
+
 .bn-container {
   font-family: var(--bn-font-family);
 }
