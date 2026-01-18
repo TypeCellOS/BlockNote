@@ -1,6 +1,8 @@
+import { Footer } from "@/components/Footer";
 import { Provider } from "@/components/provider";
 import { EB_Garamond, Public_Sans } from "next/font/google";
 import "./global.css";
+import "./styles.css";
 
 const publicSans = Public_Sans({
   subsets: ["latin"],
@@ -20,7 +22,10 @@ export default function Layout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
     >
       <body className="flex min-h-screen flex-col">
-        <Provider>{children}</Provider>
+        <Provider>
+          {children}
+          <Footer />
+        </Provider>
       </body>
     </html>
   );
