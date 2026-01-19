@@ -1,4 +1,4 @@
-"use client";
+"use client"; // TODO: remove
 import React, { useEffect, useRef, useState } from "react";
 import { MockEditor } from "../Shared";
 

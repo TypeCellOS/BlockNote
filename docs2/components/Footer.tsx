@@ -1,5 +1,3 @@
-"use client";
-
 import { ThemeToggle } from "@/components/fumadocs/layout/theme-toggle";
 import { cn } from "@/lib/fumadocs/cn";
 import LogoDark from "@/public/img/logos/banner.dark.svg";

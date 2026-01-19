@@ -1,3 +1,4 @@
+import { AuthNavButton } from "@/components/AuthNavButton";
 import ThemedImage from "@/components/ThemedImage";
 import LogoDark from "@/public/img/logos/banner.dark.svg";
 import LogoLight from "@/public/img/logos/banner.svg";
@@ -367,12 +368,12 @@ const links = [
     text: "GitHub",
     url: "https://github.com/TypeCellOS/BlockNote",
   },
-  // {
-  //   type: "custom",
-  //   on: "all",
-  //   secondary: true,
-  //   children: <AuthNavButton />,
-  // },
+  {
+    type: "custom",
+    on: "all",
+    secondary: true,
+    children: <AuthNavButton />,
+  },
 ];
 export function baseOptions(): BaseLayoutProps {
   return {

@@ -55,3 +55,5 @@ resources:
 - login / polar
 - examples
 - go through old files
+- test all page
+- TODO: db migrations?
