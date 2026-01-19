@@ -42,6 +42,9 @@ import {
 import { ThemeToggle } from "../theme-toggle";
 import type { HomeLayoutProps } from "./index";
 
+/*
+  See `components/fumadocs/README.md` for more information on changes
+*/
 const MobileMenuContext = createContext<{
   open: boolean;
   setOpen: (open: boolean) => void;
