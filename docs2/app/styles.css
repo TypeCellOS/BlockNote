@@ -1,6 +1,6 @@
 /* TODO: 
 - review this vs global.css  
-- everything here needs to be in a global css file, or can we use props / tw classnames for consistency?
+- does everything here needs to be in a global css file, or can we use props / tw classnames / css modules for consistency?
 */
 html {
   -webkit-font-smoothing: antialiased;

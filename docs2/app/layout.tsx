@@ -2,6 +2,7 @@ import { Footer } from "@/components/Footer";
 import { Provider } from "@/components/provider";
 import { EB_Garamond, Public_Sans } from "next/font/google";
 import "./global.css";
+import "./gradients.css";
 import "./styles.css";
 
 const publicSans = Public_Sans({

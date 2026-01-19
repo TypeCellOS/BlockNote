@@ -11,8 +11,7 @@ import { SiStackblitz } from "react-icons/si";
 import CTAButton from "@/components/CTAButton";
 import { SectionHeader } from "@/components/Headings";
 import { ExampleData } from "@/components/example/generated/exampleGroupsData.gen";
-// import { authClient } from "@/util/auth-client";
-// TODO
+import { authClient } from "@/lib/auth-client";
 import * as Sentry from "@sentry/nextjs";
 
 function ExampleDemoBarSourceCodeLink(props: {
@@ -147,9 +146,8 @@ function ExampleProPrompt() {
 }
 
 export default function Example(props: { exampleData: ExampleData }) {
-  // TODO
-  // const session = authClient.useSession();
-  const userIsPro = true; //session.data && session.data.planType !== "free";
+  const session = authClient.useSession();
+  const userIsPro = session.data && session.data.planType !== "free";
 
   return (
     <Sentry.ErrorBoundary

@@ -57,3 +57,4 @@ resources:
 - go through old files
 - test all page
 - TODO: db migrations?
+- og metadata

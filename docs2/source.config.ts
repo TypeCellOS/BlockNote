@@ -7,6 +7,7 @@ import {
 } from "fumadocs-mdx/config";
 import { transformerTwoslash } from "fumadocs-twoslash";
 import { createFileSystemTypesCache } from "fumadocs-twoslash/cache-fs";
+import { z } from "zod/v4";
 
 // You can customise Zod schemas for frontmatter and `meta.json` here
 // see https://fumadocs.dev/docs/mdx/collections
@@ -31,6 +32,23 @@ export const pages = defineDocs({
       includeProcessedMarkdown: true,
     },
   },
+  meta: {
+    schema: metaSchema,
+  },
+});
+
+export const examples = defineDocs({
+  dir: "content/examples",
+  docs: {
+    schema: frontmatterSchema.extend({
+      author: z.string().optional(),
+      isPro: z.boolean().optional(),
+    }),
+    postprocess: {
+      includeProcessedMarkdown: true,
+    },
+  },
+
   meta: {
     schema: metaSchema,
   },

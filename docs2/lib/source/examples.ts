@@ -1,10 +1,10 @@
 import { type InferPageType, loader } from "fumadocs-core/source";
-import { pages } from "fumadocs-mdx:collections/server";
+import { examples } from "fumadocs-mdx:collections/server";
 
 // See https://fumadocs.dev/docs/headless/source-api for more info
 export const source = loader({
-  baseUrl: "/pages",
-  source: pages.toFumadocsSource(),
+  baseUrl: "/examples",
+  source: examples.toFumadocsSource(),
   plugins: [],
 });
 
@@ -13,7 +13,7 @@ export function getPageImage(page: InferPageType<typeof source>) {
 
   return {
     segments,
-    url: `/og/pages/${segments.join("/")}`,
+    url: `/og/examples/${segments.join("/")}`,
   };
 }
 
