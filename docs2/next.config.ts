@@ -9,6 +9,22 @@ const config = {
   reactStrictMode: true,
   serverExternalPackages: ["typescript", "twoslash"],
   reactCompiler: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "avatars.githubusercontent.com",
+        port: "",
+        pathname: "/u/**",
+      },
+      {
+        protocol: "https",
+        hostname: "github.com",
+        port: "",
+        pathname: "/**",
+      },
+    ],
+  },
 } satisfies NextConfig;
 
 export default withSentryConfig(withMDX(config), {
