@@ -1,3 +1,4 @@
+import CTAButton from "@/components/CTAButton";
 import Example from "@/components/Example";
 import ThemedImage from "@/components/ThemedImage";
 import { getExampleData } from "@/lib/getExampleData";
@@ -12,6 +13,7 @@ import { TypeTable } from "fumadocs-ui/components/type-table";
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import type { MDXComponents } from "mdx/types";
 import { Suspense } from "react";
+import GitHubButton from "./components/GitHubButton";
 
 const generator = createGenerator({
   // set a cache, necessary for serverless platform like Vercel
@@ -39,6 +41,8 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     AutoTypeTable: (props) => (
       <AutoTypeTable {...props} generator={generator} />
     ),
+    CTAButton,
+    GitHubButton,
     ...components,
   };
 }

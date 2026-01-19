@@ -50,3 +50,4 @@ resources:
 
 - fix search on mobile (docs)
 - what's CardTable?
+- test all docs pages

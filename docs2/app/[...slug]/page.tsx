@@ -1,11 +1,11 @@
-import { getPageImage, source } from "@/lib/source/docs";
+import { getPageImage, source } from "@/lib/source/pages";
 import { getMDXComponents } from "@/mdx-components";
-import { DocsBody, DocsPage } from "fumadocs-ui/layouts/docs/page";
+import { DocsBody } from "fumadocs-ui/layouts/docs/page";
 import { createRelativeLink } from "fumadocs-ui/mdx";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
+export default async function Page(props: PageProps<"/[...slug]">) {
   const params = await props.params;
   const page = source.getPage(params.slug);
   if (!page) notFound();
@@ -13,23 +13,7 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
   const MDX = page.data.body;
 
   return (
-    <DocsPage
-      toc={page.data.toc}
-      full={page.data.full}
-      breadcrumb={{
-        enabled: true,
-        includeRoot: true,
-        includePage: true,
-        includeSeparator: true,
-      }}
-      tableOfContent={{ style: "clerk" }}
-      // Removes the ToC dropdown on mobile views. Have to pass an empty
-      // element as `null` renders the default dropdown.
-      tableOfContentPopover={{ component: <></> }}
-      className="md:pt-6 xl:pt-6"
-    >
-      {/* <DocsTitle>{page.data.title}</DocsTitle>
-      <DocsDescription>{page.data.description}</DocsDescription> */}
+    <div className="mx-auto max-w-3xl pt-8">
       <DocsBody>
         <MDX
           components={getMDXComponents({
@@ -39,7 +23,7 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
           })}
         />
       </DocsBody>
-    </DocsPage>
+    </div>
   );
 }
 
@@ -48,7 +32,7 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata(
-  props: PageProps<"/docs/[[...slug]]">,
+  props: PageProps<"/[...slug]">,
 ): Promise<Metadata> {
   const params = await props.params;
   const page = source.getPage(params.slug);

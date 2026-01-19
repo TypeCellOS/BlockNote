@@ -2,7 +2,7 @@ import { Header } from "@/components/fumadocs/layout/home/client";
 import { buttonVariants } from "@/components/fumadocs/ui/button";
 import { cn } from "@/lib/fumadocs/cn";
 import { baseOptions } from "@/lib/layout.shared";
-import { source } from "@/lib/source";
+import { source } from "@/lib/source/docs";
 import { SidebarTrigger } from "fumadocs-ui/components/sidebar/base";
 import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import { SidebarIcon } from "lucide-react";
@@ -17,6 +17,7 @@ export default function Layout({ children }: LayoutProps<"/docs">) {
       <DocsLayout
         tree={source.getPageTree()}
         {...base}
+        links={[]}
         searchToggle={{ enabled: false }}
         themeSwitch={{ enabled: false }}
         // inject regular header

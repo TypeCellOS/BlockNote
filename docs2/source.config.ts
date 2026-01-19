@@ -23,6 +23,25 @@ export const docs = defineDocs({
   },
 });
 
+export const pages = defineDocs({
+  dir: "content/pages",
+  docs: {
+    schema: frontmatterSchema,
+    postprocess: {
+      includeProcessedMarkdown: true,
+    },
+  },
+  meta: {
+    schema: metaSchema,
+  },
+});
+
+// TODO?
+// schema: frontmatterSchema.extend({
+//       description: z.string(),
+//       imageTitle: z.string().optional(),
+//     }),
+
 // TODO: needed?
 // await getSingletonHighlighter({
 //   langs: Object.keys(bundledLanguages),
