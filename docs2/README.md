@@ -52,8 +52,6 @@ resources:
 - what's CardTable?
 - test all docs pages
 
-- header
 - login / polar
 - examples
-- footer
 - go through old files
