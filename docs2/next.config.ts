@@ -1,15 +1,15 @@
 import { withSentryConfig } from "@sentry/nextjs";
 import { createMDX } from "fumadocs-mdx/next";
+import { NextConfig } from "next";
 
 const withMDX = createMDX();
 
-/** @type {import('next').NextConfig} */
 const config = {
   // output: "export",
   reactStrictMode: true,
   serverExternalPackages: ["typescript", "twoslash"],
   reactCompiler: true,
-};
+} satisfies NextConfig;
 
 export default withSentryConfig(withMDX(config), {
   // For all available options, see:
