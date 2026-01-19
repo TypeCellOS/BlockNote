@@ -50,14 +50,9 @@ resources:
 
 - fix search on mobile (docs)
 - what's CardTable?
-- test all docs pages
 
-- login / polar
-- examples
 - go through old files
-- test all page
+- test all pages / viewports / dark mode
 - TODO: db migrations?
 
 - og metadata
-- homepage
-- redirects

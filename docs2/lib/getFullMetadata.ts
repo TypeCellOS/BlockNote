@@ -1,6 +1,5 @@
 import { Metadata } from "next";
 
-// TODO: review
 export const getFullMetadata = (metadata: {
   title: string;
   description?: string;
@@ -11,11 +10,11 @@ export const getFullMetadata = (metadata: {
   description: metadata.description,
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any", type: "image/x-icon" },
+      { url: "/favicon.svg", sizes: "any", type: "image/svg+xml" },
       { url: "/favicon.png", type: "image/png" },
     ],
-    apple: "/apple-touch-icon.png",
+    apple: { url: "/apple-touch-icon.png", type: "image/png" },
   },
   manifest: "/site.webmanifest",
   openGraph: {

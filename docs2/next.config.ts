@@ -1,6 +1,7 @@
 import { withSentryConfig } from "@sentry/nextjs";
 import { createMDX } from "fumadocs-mdx/next";
 import { NextConfig } from "next";
+import { redirects } from "./redirects";
 
 const withMDX = createMDX();
 
@@ -9,6 +10,7 @@ const config = {
   reactStrictMode: true,
   serverExternalPackages: ["typescript", "twoslash"],
   reactCompiler: true,
+  redirects,
   images: {
     remotePatterns: [
       {

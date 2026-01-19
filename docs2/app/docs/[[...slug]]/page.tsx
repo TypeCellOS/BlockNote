@@ -1,3 +1,4 @@
+import { getFullMetadata } from "@/lib/getFullMetadata";
 import { getPageImage, source } from "@/lib/source/docs";
 import { getMDXComponents } from "@/mdx-components";
 import { DocsBody, DocsPage } from "fumadocs-ui/layouts/docs/page";
@@ -54,13 +55,13 @@ export async function generateMetadata(
   const page = source.getPage(params.slug);
   if (!page) notFound();
 
-  return {
+  return getFullMetadata({
     title: page.data.title,
     description: page.data.description,
     openGraph: {
       images: getPageImage(page).url,
     },
-    // TODO: imagetitle?
-    // TODO: path?
-  };
+    path: page.url,
+    ogImageTitle: page.data.imageTitle || page.data.title,
+  });
 }
