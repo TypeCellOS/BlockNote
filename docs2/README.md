@@ -51,3 +51,9 @@ resources:
 - fix search on mobile (docs)
 - what's CardTable?
 - test all docs pages
+
+- header
+- login / polar
+- examples
+- footer
+- go through old files
