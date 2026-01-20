@@ -15,7 +15,7 @@ export const docs = defineDocs({
   dir: "content/docs",
   docs: {
     schema: frontmatterSchema.extend({
-      description: z.string(), // make required
+      // description: z.string(), // make required (unfortunately, breaks build)
       imageTitle: z.string().optional(), // add imageTitle to customize text on og image
     }),
     postprocess: {
@@ -31,7 +31,7 @@ export const pages = defineDocs({
   dir: "content/pages",
   docs: {
     schema: frontmatterSchema.extend({
-      description: z.string(), // make required
+      // description: z.string(), // make required (unfortunately, breaks build)
       imageTitle: z.string().optional(), // add imageTitle to customize text on og image
     }),
     postprocess: {
@@ -60,12 +60,6 @@ export const examples = defineDocs({
     schema: metaSchema,
   },
 });
-
-// TODO?
-// schema: frontmatterSchema.extend({
-//       description: z.string(),
-//       imageTitle: z.string().optional(),
-//     }),
 
 // TODO: needed?
 // await getSingletonHighlighter({

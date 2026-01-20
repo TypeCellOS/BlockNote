@@ -43,6 +43,7 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     ),
     CTAButton,
     GitHubButton,
+    CardTable: (props: any) => <div>TODO</div>,
     ...components,
   };
 }

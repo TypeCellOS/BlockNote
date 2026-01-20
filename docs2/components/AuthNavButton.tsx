@@ -5,7 +5,7 @@ import { cn } from "@/lib/fumadocs/cn";
 import { Menu } from "@base-ui/react/menu";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { ReactElement, ReactNode } from "react";
+import { ComponentProps, ReactElement, ReactNode } from "react";
 import CTAButton from "./CTAButton";
 
 interface User {
@@ -160,7 +160,7 @@ function NavbarMenu({
   );
 }
 
-function ArrowSvg(props: React.ComponentProps<"svg">) {
+function ArrowSvg(props: ComponentProps<"svg">) {
   return (
     <svg width="20" height="10" viewBox="0 0 20 10" fill="none" {...props}>
       <path

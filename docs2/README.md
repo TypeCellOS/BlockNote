@@ -50,7 +50,7 @@ resources:
 
 - fix search on mobile (docs)
 - what's CardTable?
-
 - go through old files
 - test all pages / viewports / dark mode
 - TODO: db migrations?
+- lint

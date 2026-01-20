@@ -96,7 +96,7 @@ export const auth = betterAuth({
               // };
               // use API data:
               const data = await resSponsor.json();
-              // eslint-disable-next-line no-console
+              //// eslint-disable-next-line no-console
               console.log("sponsor data", data);
               // {
               //   "data": {

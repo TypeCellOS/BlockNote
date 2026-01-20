@@ -2,7 +2,7 @@ import { AuthNavButton } from "@/components/AuthNavButton";
 import ThemedImage from "@/components/ThemedImage";
 import LogoDark from "@/public/img/logos/banner.dark.svg";
 import LogoLight from "@/public/img/logos/banner.svg";
-import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
+import type { BaseLayoutProps, LinkItemType } from "fumadocs-ui/layouts/shared";
 import { FaGithub } from "react-icons/fa6";
 // import { LinkItemType } from "@/components/fumadocs/layout/link-item";
 // import {
@@ -318,7 +318,7 @@ import { FaGithub } from "react-icons/fa6";
 //   },
 // ];
 
-const links = [
+const links: LinkItemType[] = [
   // {
   //   type: "menu",
   //   icon: <FaUser />,

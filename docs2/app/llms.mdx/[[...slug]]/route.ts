@@ -3,6 +3,7 @@ import { type NextRequest, NextResponse } from "next/server";
 
 import { notFound } from "next/navigation";
 
+// TODO: why force-dynamic!?
 export const dynamic = "force-dynamic";
 export const revalidate = false;
 
