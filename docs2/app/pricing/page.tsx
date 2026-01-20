@@ -6,7 +6,6 @@ import { getFullMetadata } from "@/lib/getFullMetadata";
 export const metadata = getFullMetadata({
   title: "Pricing",
   path: "/pricing",
-  ogImageTitle: "Pricing",
 });
 
 const tiers: Tier[] = [

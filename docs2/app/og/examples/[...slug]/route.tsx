@@ -1,4 +1,4 @@
-import { getPageImage, source } from "@/lib/source/docs";
+import { getPageImage, source } from "@/lib/source/examples";
 import { notFound } from "next/navigation";
 import { ogImageResponse } from "../../ogImageResponse";
 

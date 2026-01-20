@@ -1,4 +1,4 @@
-import { getPageImage, source } from "@/lib/source/docs";
+import { getPageImage, source } from "@/lib/source/pages";
 import { notFound } from "next/navigation";
 import { ogImageResponse } from "../../ogImageResponse";
 
@@ -6,7 +6,7 @@ export const revalidate = false;
 
 export async function GET(
   _req: Request,
-  { params }: RouteContext<"/og/docs/[...slug]">,
+  { params }: RouteContext<"/og/pages/[...slug]">,
 ) {
   const { slug } = await params;
   const page = source.getPage(slug.slice(0, -1));

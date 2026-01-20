@@ -54,5 +54,3 @@ resources:
 - go through old files
 - test all pages / viewports / dark mode
 - TODO: db migrations?
-
-- og metadata

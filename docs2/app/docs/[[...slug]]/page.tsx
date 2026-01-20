@@ -58,10 +58,7 @@ export async function generateMetadata(
   return getFullMetadata({
     title: page.data.title,
     description: page.data.description,
-    openGraph: {
-      images: getPageImage(page).url,
-    },
+    openGraphImages: getPageImage(page).url,
     path: page.url,
-    ogImageTitle: page.data.imageTitle || page.data.title,
   });
 }

@@ -14,7 +14,10 @@ import { z } from "zod/v4";
 export const docs = defineDocs({
   dir: "content/docs",
   docs: {
-    schema: frontmatterSchema,
+    schema: frontmatterSchema.extend({
+      description: z.string(), // make required
+      imageTitle: z.string().optional(), // add imageTitle to customize text on og image
+    }),
     postprocess: {
       includeProcessedMarkdown: true,
     },
@@ -27,7 +30,10 @@ export const docs = defineDocs({
 export const pages = defineDocs({
   dir: "content/pages",
   docs: {
-    schema: frontmatterSchema,
+    schema: frontmatterSchema.extend({
+      description: z.string(), // make required
+      imageTitle: z.string().optional(), // add imageTitle to customize text on og image
+    }),
     postprocess: {
       includeProcessedMarkdown: true,
     },
@@ -43,6 +49,7 @@ export const examples = defineDocs({
     schema: frontmatterSchema.extend({
       author: z.string().optional(),
       isPro: z.boolean().optional(),
+      imageTitle: z.string().optional(), // add imageTitle to customize text on og image
     }),
     postprocess: {
       includeProcessedMarkdown: true,

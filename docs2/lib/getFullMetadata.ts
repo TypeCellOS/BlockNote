@@ -4,8 +4,9 @@ export const getFullMetadata = (metadata: {
   title: string;
   description?: string;
   path?: string;
-  ogImageTitle?: string;
+  openGraphImages?: Exclude<Metadata["openGraph"], null | undefined>["images"];
 }): Metadata => ({
+  metadataBase: "https://www.blocknotejs.org",
   title: `BlockNote - ${metadata.title}`,
   description: metadata.description,
   icons: {
@@ -18,11 +19,11 @@ export const getFullMetadata = (metadata: {
   },
   manifest: "/site.webmanifest",
   openGraph: {
-    images: `/api/og${metadata.ogImageTitle ? `?title=${metadata.ogImageTitle}` : ""}`,
+    images: metadata.openGraphImages || "/og/image.png",
     locale: "en_US",
     siteName: "BlockNote",
     type: "website",
-    url: `https://www.blocknotejs.org${metadata.path || ""}`,
+    // url: metadata.path || "/"`,
   },
   robots: {
     follow: true,

@@ -5,7 +5,6 @@ import { Suspense } from "react";
 export const metadata = getFullMetadata({
   title: "Sign Up",
   path: "/signup",
-  ogImageTitle: "Sign Up",
 });
 
 // Suspense + imported AuthenticationPage because AuthenticationPage is a client component
