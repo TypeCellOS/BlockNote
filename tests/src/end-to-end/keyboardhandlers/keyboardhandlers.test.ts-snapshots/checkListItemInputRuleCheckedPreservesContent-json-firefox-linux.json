@@ -1,0 +1,49 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "blockGroup",
+      "content": [
+        {
+          "type": "blockContainer",
+          "attrs": {
+            "id": "0"
+          },
+          "content": [
+            {
+              "type": "checkListItem",
+              "attrs": {
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left",
+                "checked": true
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Completed task"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "blockContainer",
+          "attrs": {
+            "id": "1"
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

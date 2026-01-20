@@ -1,5 +1,6 @@
 import {
   BlockNoteEditor,
+  expandPMRangeToWords,
   getNodeById,
   PartialBlock,
   updateBlockTr,
@@ -82,8 +83,12 @@ export function getExpectedEditor(
 
   for (const toolCall of testCase.baseToolCalls) {
     if (toolCall.type === "update") {
-      const selection = testCase.getTestSelection?.(editor);
+      let selection = testCase.getTestSelection?.(editor);
       if (selection) {
+        selection = expandPMRangeToWords(editor.prosemirrorState.doc, {
+          $from: editor.prosemirrorState.doc.resolve(selection.from),
+          $to: editor.prosemirrorState.doc.resolve(selection.to),
+        });
         editor.transact((tr) => {
           const pos = getNodeById(toolCall.id, tr.doc)!;
           // this is a bit of an ugly internal API, do we want to expose this (updating a selection)

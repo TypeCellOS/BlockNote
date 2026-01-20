@@ -935,6 +935,20 @@ console.log("Third Line")</code></pre>`,
     testCase: { name: "divider", content: `<hr/>` },
     executeTest: testParseHTML,
   },
+  {
+    testCase: {
+      name: "trailing whitespace",
+      content: `<p>hello, </p>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "whitespace prefix",
+      content: `<p> hello,</p>`,
+    },
+    executeTest: testParseHTML,
+  },
 ];
 
 export const parseTestInstancesMarkdown: TestInstance<
@@ -1108,19 +1122,6 @@ Regular paragraph`,
     testCase: {
       name: "video",
       content: `![Video](https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm)`,
-    },
-    executeTest: testParseMarkdown,
-  },
-  {
-    testCase: {
-      name: "issue2241NumberedListStartProperty",
-      content: `1. First item
-2. Second item
-3. Third item
-
-5. List starting at 5
-6. Second item
-7. Third item`,
     },
     executeTest: testParseMarkdown,
   },

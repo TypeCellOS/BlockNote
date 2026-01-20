@@ -457,7 +457,7 @@
             "Custom Schemas"
           ],
           "dependencies": {
-            "@mantine/core": "^8.3.4",
+            "@mantine/core": "^8.3.11",
             "react-icons": "^5.2.1"
           } as any
         },
@@ -958,11 +958,11 @@
           ],
           "dependencies": {
             "@blocknote/code-block": "latest",
-            "@shikijs/types": "^3.2.1",
-            "@shikijs/core": "^3.2.1",
-            "@shikijs/engine-javascript": "^3.2.1",
-            "@shikijs/langs-precompiled": "^3.2.1",
-            "@shikijs/themes": "^3.2.1"
+            "@shikijs/core": "^3.19.0",
+            "@shikijs/engine-javascript": "^3.19.0",
+            "@shikijs/langs-precompiled": "^3.19.0",
+            "@shikijs/themes": "^3.19.0",
+            "@shikijs/types": "^3.19.0"
           } as any
         },
         "title": "Custom Code Block Theme & Language",
@@ -1159,6 +1159,48 @@
           "slug": "interoperability"
         },
         "readme": "This example exports the current document (all blocks) as an HTML file for use in emails, and downloads it to your computer.\n\n**Try it out:** Edit the document and click \"Download email .html\" at the top to download the HTML file."
+      },
+      {
+        "projectSlug": "blocks-to-html-static-render",
+        "fullSlug": "interoperability/blocks-to-html-static-render",
+        "pathFromRoot": "examples/05-interoperability/09-blocks-to-html-static-render",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic",
+            "Blocks",
+            "Import/Export"
+          ]
+        },
+        "title": "Rendering HTML Converted From Blocks (Side by Side)",
+        "group": {
+          "pathFromRoot": "examples/05-interoperability",
+          "slug": "interoperability"
+        },
+        "readme": "This example exports the current document (all blocks) as HTML and renders it below the editor.\n\n**Try it out:** Edit the document to see the rendered static HTML!\n\n**Relevant Docs:**\n\n- [Converting Blocks to HTML](/docs/features/export/html)"
+      },
+      {
+        "projectSlug": "static-html-render",
+        "fullSlug": "interoperability/static-html-render",
+        "pathFromRoot": "examples/05-interoperability/10-static-html-render",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic",
+            "Blocks",
+            "Inline Content"
+          ]
+        },
+        "title": "Rendering HTML Converted From Blocks",
+        "group": {
+          "pathFromRoot": "examples/05-interoperability",
+          "slug": "interoperability"
+        },
+        "readme": "This example exports the current document (all blocks) as HTML and renders it.\n\n**Relevant Docs:**\n\n- [Converting Blocks to HTML](/docs/features/export/html)"
       }
     ]
   },
@@ -1182,7 +1224,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^8.3.4",
+            "@mantine/core": "^8.3.11",
             "react-icons": "^5.2.1"
           } as any
         },
@@ -1256,7 +1298,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^8.3.4",
+            "@mantine/core": "^8.3.11",
             "react-icons": "^5.2.1"
           } as any,
           "pro": true
@@ -1285,7 +1327,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^8.3.4",
+            "@mantine/core": "^8.3.11",
             "react-icons": "^5.2.1"
           } as any
         },
@@ -1522,7 +1564,7 @@
           ],
           "dependencies": {
             "@y-sweet/react": "^0.6.3",
-            "@mantine/core": "^8.3.4"
+            "@mantine/core": "^8.3.11"
           } as any
         },
         "title": "Comments & Threads",
@@ -1548,7 +1590,7 @@
           "dependencies": {
             "y-partykit": "^0.0.25",
             "yjs": "^13.6.27",
-            "@mantine/core": "^8.3.4"
+            "@mantine/core": "^8.3.11"
           } as any
         },
         "title": "Threads Sidebar",
@@ -1627,7 +1669,7 @@
           ],
           "pro": true,
           "dependencies": {
-            "@tiptap/core": "^3.11.0"
+            "@tiptap/core": "^3.13.0"
           } as any
         },
         "title": "TipTap extension (arrow InputRule)",
@@ -1657,8 +1699,8 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.4",
-            "ai": "^5.0.102"
+            "@mantine/core": "^8.3.11",
+            "ai": "^6.0.5"
           } as any
         },
         "title": "Rich Text editor AI integration",
@@ -1682,8 +1724,8 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.4",
-            "ai": "^5.0.102"
+            "@mantine/core": "^8.3.11",
+            "ai": "^6.0.5"
           } as any
         },
         "title": "AI Playground",
@@ -1707,8 +1749,8 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.4",
-            "ai": "^5.0.102",
+            "@mantine/core": "^8.3.11",
+            "ai": "^6.0.5",
             "react-icons": "^5.2.1"
           } as any
         },
@@ -1733,8 +1775,8 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.4",
-            "ai": "^5.0.102",
+            "@mantine/core": "^8.3.11",
+            "ai": "^6.0.5",
             "y-partykit": "^0.0.25",
             "yjs": "^13.6.27"
           } as any
@@ -1760,8 +1802,8 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.4",
-            "ai": "^5.0.102",
+            "@mantine/core": "^8.3.11",
+            "ai": "^6.0.5",
             "y-partykit": "^0.0.25",
             "yjs": "^13.6.27"
           } as any
@@ -1786,10 +1828,10 @@
             "llm"
           ],
           "dependencies": {
-            "@ai-sdk/groq": "^2.0.16",
+            "@ai-sdk/groq": "^3.0.2",
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.4",
-            "ai": "^5.0.102"
+            "@mantine/core": "^8.3.11",
+            "ai": "^6.0.5"
           } as any
         },
         "title": "AI Integration with ClientSideTransport",
@@ -1813,8 +1855,8 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.4",
-            "ai": "^5.0.102"
+            "@mantine/core": "^8.3.11",
+            "ai": "^6.0.5"
           } as any
         },
         "title": "AI Integration with server LLM message persistence",

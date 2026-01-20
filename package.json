@@ -9,7 +9,7 @@
     "eslint": "^8.57.1",
     "eslint-config-react-app": "^7.0.1",
     "eslint-plugin-import": "^2.32.0",
-    "glob": "^10.4.5",
+    "glob": "^10.5.0",
     "nx": "^21.6.5",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",

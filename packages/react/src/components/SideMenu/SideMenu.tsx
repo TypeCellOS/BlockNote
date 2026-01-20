@@ -58,7 +58,7 @@ export const SideMenu = (props: SideMenuProps & { children?: ReactNode }) => {
       {props.children || (
         <>
           <AddBlockButton />
-          <DragHandleButton />
+          <DragHandleButton dragHandleMenu={props.dragHandleMenu} />
         </>
       )}
     </Components.SideMenu.Root>

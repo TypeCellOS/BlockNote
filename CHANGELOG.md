@@ -1,3 +1,81 @@
+## 0.46.1 (2026-01-10)
+
+This was a version bump only, there were no code changes.
+
+## 0.46.0 (2026-01-08)
+
+### 🚀 Features
+
+- add data-nesting-level to HTML export ([#2329](https://github.com/TypeCellOS/BlockNote/pull/2329))
+- migrate to ai sdk 6 ([#2328](https://github.com/TypeCellOS/BlockNote/pull/2328))
+
+### 🩹 Fixes
+
+- emojipicker can sometimes fail to mount ([575b81cec](https://github.com/TypeCellOS/BlockNote/commit/575b81cec))
+- LinkToolbar Event Listener leak ([#2335](https://github.com/TypeCellOS/BlockNote/pull/2335))
+- when you convert a block into checkListItem via inputRule, it should transfer its content into checkListItem content ([#2331](https://github.com/TypeCellOS/BlockNote/pull/2331))
+- do not return focus back to menu ([484d7da36](https://github.com/TypeCellOS/BlockNote/commit/484d7da36))
+- arrow up on a checklist item should move to the element above BLO-362 ([#2306](https://github.com/TypeCellOS/BlockNote/pull/2306))
+- getPos race condition in React StrictMode ([#2311](https://github.com/TypeCellOS/BlockNote/pull/2311))
+- adjust input rules to be more tolerant to starting whitespace ([#2341](https://github.com/TypeCellOS/BlockNote/pull/2341))
+- **ai:** make sure ShowSelection works ([#2297](https://github.com/TypeCellOS/BlockNote/pull/2297))
+- **xl-email-exporter:** remove redundant sections in email export ([#2323](https://github.com/TypeCellOS/BlockNote/pull/2323))
+
+### ❤️ Thank You
+
+- Nick Perez
+- Nick the Sick @nperez0111
+- supernova @tmpluto
+- Yousef
+
+## 0.45.0 (2025-12-17)
+
+### 🚀 Features
+
+- **ai:** expand selections to contain words ([#2304](https://github.com/TypeCellOS/BlockNote/pull/2304))
+- **extensions:** extensions can now include other extensions for grouping into one extension ([#2284](https://github.com/TypeCellOS/BlockNote/pull/2284))
+
+### 🩹 Fixes
+
+- an invalidly specified table should not crash the editor ([#2255](https://github.com/TypeCellOS/BlockNote/pull/2255))
+- filter out invalid heading items based on the current block schema in the slash menu #2253 ([#2259](https://github.com/TypeCellOS/BlockNote/pull/2259), [#2253](https://github.com/TypeCellOS/BlockNote/issues/2253))
+- relax shiki package requirements #2279 ([#2280](https://github.com/TypeCellOS/BlockNote/pull/2280), [#2279](https://github.com/TypeCellOS/BlockNote/issues/2279))
+- filter the default tiptap extensions #2282 ([#2283](https://github.com/TypeCellOS/BlockNote/pull/2283), [#2282](https://github.com/TypeCellOS/BlockNote/issues/2282))
+- always include the cursor extension #2244 ([#2260](https://github.com/TypeCellOS/BlockNote/pull/2260), [#2244](https://github.com/TypeCellOS/BlockNote/issues/2244))
+- make `onBeforeChange` return the correct type again ([9009369b1](https://github.com/TypeCellOS/BlockNote/commit/9009369b1))
+- if there is no table block, there is no table handles to show #1055 ([#2281](https://github.com/TypeCellOS/BlockNote/pull/2281), [#1055](https://github.com/TypeCellOS/BlockNote/issues/1055))
+- pass dragHandleMenu prop to DragHandleButton ([#2254](https://github.com/TypeCellOS/BlockNote/pull/2254))
+- html diff error with whitespace ([#2230](https://github.com/TypeCellOS/BlockNote/pull/2230))
+- update regex for checklist items #2288 ([#2305](https://github.com/TypeCellOS/BlockNote/pull/2305), [#2288](https://github.com/TypeCellOS/BlockNote/issues/2288))
+- **email-exporter:** ReadableByteStreamController for safari react-email ([#2295](https://github.com/TypeCellOS/BlockNote/pull/2295))
+
+### ❤️ Thank You
+
+- Max @maqen
+- Nick Perez
+- Nick the Sick @nperez0111
+- Yousef
+
+## 0.44.2 (2025-12-09)
+
+### 🩹 Fixes
+
+- put back `onBeforeChange` method #2221 ([#2243](https://github.com/TypeCellOS/BlockNote/pull/2243), [#2221](https://github.com/TypeCellOS/BlockNote/issues/2221))
+- Improper accessing of editor DOM element ([#2234](https://github.com/TypeCellOS/BlockNote/pull/2234))
+- make validation errors recoverable by llm ([#2054](https://github.com/TypeCellOS/BlockNote/pull/2054))
+- shadowdom support and example ([#2223](https://github.com/TypeCellOS/BlockNote/pull/2223))
+- ensure numbered list start property always present ([#2241](https://github.com/TypeCellOS/BlockNote/pull/2241), [#2242](https://github.com/TypeCellOS/BlockNote/pull/2242))
+- Suggestion menu positioning ([#2232](https://github.com/TypeCellOS/BlockNote/pull/2232))
+- conditionally access the TableHandles extension from React ([#2248](https://github.com/TypeCellOS/BlockNote/pull/2248))
+- **ai:** upgrade prosemirror-suggest-changes ([#2235](https://github.com/TypeCellOS/BlockNote/pull/2235))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- wcyat @sdip15fa
+- Yousef
+
 ## 0.44.1 (2025-12-08)
 
 ### 🩹 Fixes

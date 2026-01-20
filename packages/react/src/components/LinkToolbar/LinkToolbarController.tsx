@@ -4,14 +4,14 @@ import { Range } from "@tiptap/core";
 import { FC, useEffect, useMemo, useState } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
-import { LinkToolbar } from "./LinkToolbar.js";
-import { LinkToolbarProps } from "./LinkToolbarProps.js";
 import { useExtension } from "../../hooks/useExtension.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import {
   GenericPopover,
   GenericPopoverReference,
 } from "../Popovers/GenericPopover.js";
+import { LinkToolbar } from "./LinkToolbar.js";
+import { LinkToolbarProps } from "./LinkToolbarProps.js";
 
 export const LinkToolbarController = (props: {
   linkToolbar?: FC<LinkToolbarProps>;
@@ -98,18 +98,20 @@ export const LinkToolbarController = (props: {
     const destroyOnSelectionChangeHandler =
       editor.onSelectionChange(textCursorCallback);
 
-    editor.domElement?.addEventListener("mouseover", mouseCursorCallback);
+    const domElement = editor.domElement;
+
+    domElement?.addEventListener("mouseover", mouseCursorCallback);
 
     return () => {
       destroyOnChangeHandler();
       destroyOnSelectionChangeHandler();
-
-      editor.domElement?.removeEventListener("mouseover", mouseCursorCallback);
+      domElement?.removeEventListener("mouseover", mouseCursorCallback);
     };
-  }, [editor, linkToolbar, link, toolbarPositionFrozen]);
+  }, [editor, editor.domElement, linkToolbar, link, toolbarPositionFrozen]);
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
+      ...props.floatingUIOptions,
       useFloatingOptions: {
         open: toolbarOpen,
         onOpenChange: (open, _event, reason) => {
@@ -135,6 +137,7 @@ export const LinkToolbarController = (props: {
         },
         placement: "top-start",
         middleware: [offset(10), flip()],
+        ...props.floatingUIOptions?.useFloatingOptions,
       },
       useHoverProps: {
         // `useHover` hook only enabled when a link is hovered with the
@@ -145,13 +148,14 @@ export const LinkToolbarController = (props: {
           close: 250,
         },
         handleClose: safePolygon(),
+        ...props.floatingUIOptions?.useHoverProps,
       },
       elementProps: {
         style: {
           zIndex: 50,
         },
+        ...props.floatingUIOptions?.elementProps,
       },
-      ...props.floatingUIOptions,
     }),
     [editor, link, props.floatingUIOptions, toolbarOpen, toolbarPositionFrozen],
   );
@@ -161,6 +165,7 @@ export const LinkToolbarController = (props: {
     [link?.element],
   );
 
+  // TODO: this should be a hook to be reactive
   if (!editor.isEditable) {
     return null;
   }

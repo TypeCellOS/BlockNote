@@ -11,7 +11,7 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@ai-sdk/groq": "^2.0.24",
+    "@ai-sdk/groq": "^3.0.2",
     "@aws-sdk/client-s3": "^3.911.0",
     "@aws-sdk/s3-request-presigner": "^3.911.0",
     "@blocknote/ariakit": "workspace:^",
@@ -34,8 +34,8 @@
     "@liveblocks/react-blocknote": "3.7.1-tiptap3",
     "@liveblocks/react-tiptap": "3.7.1-tiptap3",
     "@liveblocks/react-ui": "3.7.1-tiptap3",
-    "@mantine/core": "^8.3.4",
-    "@mantine/hooks": "^8.3.4",
+    "@mantine/core": "^8.3.11",
+    "@mantine/hooks": "^8.3.11",
     "@mantine/utils": "^6.0.22",
     "@mui/icons-material": "^5.18.0",
     "@mui/material": "^5.18.0",
@@ -51,7 +51,7 @@
     "@uppy/webcam": "^3.4.2",
     "@uppy/xhr-upload": "^3.6.8",
     "@y-sweet/react": "^0.6.4",
-    "ai": "^5.0.102",
+    "ai": "^6.0.5",
     "autoprefixer": "10.4.21",
     "docx": "^9.5.1",
     "react": "^19.2.1",

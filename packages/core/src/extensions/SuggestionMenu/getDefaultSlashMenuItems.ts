@@ -89,41 +89,24 @@ export function getDefaultSlashMenuItems<
   const items: DefaultSuggestionItem[] = [];
 
   if (editorHasBlockWithType(editor, "heading", { level: "number" })) {
-    items.push(
-      {
-        onItemClick: () => {
-          insertOrUpdateBlockForSlashMenu(editor, {
-            type: "heading",
-            props: { level: 1 },
-          });
-        },
-        badge: formatKeyboardShortcut("Mod-Alt-1"),
-        key: "heading",
-        ...editor.dictionary.slash_menu.heading,
-      },
-      {
-        onItemClick: () => {
-          insertOrUpdateBlockForSlashMenu(editor, {
-            type: "heading",
-            props: { level: 2 },
-          });
-        },
-        badge: formatKeyboardShortcut("Mod-Alt-2"),
-        key: "heading_2",
-        ...editor.dictionary.slash_menu.heading_2,
-      },
-      {
-        onItemClick: () => {
-          insertOrUpdateBlockForSlashMenu(editor, {
-            type: "heading",
-            props: { level: 3 },
-          });
-        },
-        badge: formatKeyboardShortcut("Mod-Alt-3"),
-        key: "heading_3",
-        ...editor.dictionary.slash_menu.heading_3,
-      },
-    );
+    (editor.schema.blockSchema.heading.propSchema.level.values || [])
+      .filter((level): level is 1 | 2 | 3 => level <= 3)
+      .forEach((level) => {
+        items.push({
+          onItemClick: () => {
+            insertOrUpdateBlockForSlashMenu(editor, {
+              type: "heading",
+              props: { level: level },
+            });
+          },
+          badge: formatKeyboardShortcut(`Mod-Alt-${level}`),
+          key:
+            level === 1 ? ("heading" as const) : (`heading_${level}` as const),
+          ...editor.dictionary.slash_menu[
+            level === 1 ? ("heading" as const) : (`heading_${level}` as const)
+          ],
+        });
+      });
   }
 
   if (editorHasBlockWithType(editor, "quote")) {
@@ -316,39 +299,27 @@ export function getDefaultSlashMenuItems<
       isToggleable: "boolean",
     })
   ) {
-    items.push(
-      {
-        onItemClick: () => {
-          insertOrUpdateBlockForSlashMenu(editor, {
-            type: "heading",
-            props: { level: 1, isToggleable: true },
-          });
-        },
-        key: "toggle_heading",
-        ...editor.dictionary.slash_menu.toggle_heading,
-      },
-      {
-        onItemClick: () => {
-          insertOrUpdateBlockForSlashMenu(editor, {
-            type: "heading",
-            props: { level: 2, isToggleable: true },
-          });
-        },
-
-        key: "toggle_heading_2",
-        ...editor.dictionary.slash_menu.toggle_heading_2,
-      },
-      {
-        onItemClick: () => {
-          insertOrUpdateBlockForSlashMenu(editor, {
-            type: "heading",
-            props: { level: 3, isToggleable: true },
-          });
-        },
-        key: "toggle_heading_3",
-        ...editor.dictionary.slash_menu.toggle_heading_3,
-      },
-    );
+    (editor.schema.blockSchema.heading.propSchema.level.values || [])
+      .filter((level): level is 1 | 2 | 3 => level <= 3)
+      .forEach((level) => {
+        items.push({
+          onItemClick: () => {
+            insertOrUpdateBlockForSlashMenu(editor, {
+              type: "heading",
+              props: { level: level, isToggleable: true },
+            });
+          },
+          key:
+            level === 1
+              ? ("toggle_heading" as const)
+              : (`toggle_heading_${level}` as const),
+          ...editor.dictionary.slash_menu[
+            level === 1
+              ? ("toggle_heading" as const)
+              : (`toggle_heading_${level}` as const)
+          ],
+        });
+      });
   }
 
   if (editorHasBlockWithType(editor, "heading", { level: "number" })) {
@@ -362,6 +333,7 @@ export function getDefaultSlashMenuItems<
               props: { level: level },
             });
           },
+          badge: formatKeyboardShortcut(`Mod-Alt-${level}`),
           key: `heading_${level}`,
           ...editor.dictionary.slash_menu[`heading_${level}`],
         });

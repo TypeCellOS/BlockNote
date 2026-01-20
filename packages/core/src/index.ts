@@ -1,7 +1,7 @@
 export * from "./api/blockManipulation/commands/insertBlocks/insertBlocks.js";
 export * from "./api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
-export * from "./api/blockManipulation/commands/updateBlock/updateBlock.js";
 export * from "./api/blockManipulation/commands/replaceBlocks/util/fixColumnList.js";
+export * from "./api/blockManipulation/commands/updateBlock/updateBlock.js";
 export * from "./api/exporters/html/externalHTMLExporter.js";
 export * from "./api/exporters/html/internalHTMLSerializer.js";
 export * from "./api/getBlockInfoFromPos.js";
@@ -19,6 +19,7 @@ export * from "./i18n/dictionary.js";
 export * from "./schema/index.js";
 export * from "./util/browser.js";
 export * from "./util/combineByGroup.js";
+export * from "./util/expandToWords.js";
 export * from "./util/string.js";
 export * from "./util/table.js";
 export * from "./util/typescript.js";

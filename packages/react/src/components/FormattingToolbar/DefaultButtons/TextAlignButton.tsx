@@ -22,7 +22,6 @@ import {
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
-import { useExtension } from "../../../hooks/useExtension.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 
 type TextAlignment = DefaultProps["textAlignment"];
@@ -43,8 +42,6 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
     InlineContentSchema,
     StyleSchema
   >();
-
-  const tableHandles = useExtension(TableHandlesExtension);
 
   const state = useEditorState({
     editor,
@@ -74,7 +71,10 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
         selectedBlocks.length === 1 &&
         blockHasType(firstBlock, editor, "table")
       ) {
-        const cellSelection = tableHandles.getCellSelection();
+        const cellSelection = editor
+          .getExtension(TableHandlesExtension)
+          ?.getCellSelection();
+
         if (!cellSelection) {
           return undefined;
         }
@@ -112,7 +112,9 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
             props: { textAlignment: textAlignment },
           });
         } else if (block.type === "table") {
-          const cellSelection = tableHandles.getCellSelection();
+          const cellSelection = editor
+            .getExtension(TableHandlesExtension)
+            ?.getCellSelection();
           if (!cellSelection) {
             continue;
           }
@@ -148,7 +150,7 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
         }
       }
     },
-    [editor, state, tableHandles],
+    [editor, state],
   );
 
   if (state === undefined) {
