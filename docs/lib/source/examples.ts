@@ -1,12 +1,26 @@
-import { examples } from "@/.source";
-import { InferMetaType, InferPageType, loader } from "fumadocs-core/source";
+import { type InferPageType, loader } from "fumadocs-core/source";
+import { examples } from "fumadocs-mdx:collections/server";
 
-// See https://fumadocs.vercel.app/docs/headless/source-api for more info
+// See https://fumadocs.dev/docs/headless/source-api for more info
 export const source = loader({
-  // it assigns a URL to your pages
   baseUrl: "/examples",
   source: examples.toFumadocsSource(),
+  plugins: [],
 });
 
-export type Page = InferPageType<typeof source>;
-export type Meta = InferMetaType<typeof source>;
+export function getPageImage(page: InferPageType<typeof source>) {
+  const segments = [...page.slugs, "image.png"];
+
+  return {
+    segments,
+    url: `/og/examples/${segments.join("/")}`,
+  };
+}
+
+export async function getLLMText(page: InferPageType<typeof source>) {
+  const processed = await page.data.getText("processed");
+
+  return `# ${page.data.title}
+
+${processed}`;
+}

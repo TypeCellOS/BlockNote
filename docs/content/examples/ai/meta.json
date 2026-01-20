@@ -1,0 +1,9 @@
+{
+  "title": "AI",
+  "pages": [
+    "minimal",
+    "playground",
+    "custom-ai-menu-items",
+    "client-side-transport"
+  ]
+}

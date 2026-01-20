@@ -1,9 +1,6 @@
-import {
-  SponsorCard,
-  SponsorCardProps,
-} from "@/app/(home)/community/SponsorCard";
 import { FadeIn } from "@/components/FadeIn";
 import { SectionSubHeader } from "@/components/Headings";
+import { SponsorCard, SponsorCardProps } from "./SponsorCard";
 
 import agree from "@/public/img/sponsors/agree.png";
 import atuin from "@/public/img/sponsors/atuin.png";

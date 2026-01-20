@@ -1,0 +1,13 @@
+{
+  "$schema": "node_modules/@fumadocs/cli/dist/schema/default.json",
+  "aliases": {
+    "uiDir": "./components/fumadocs/ui",
+    "componentsDir": "./components/fumadocs/",
+    "blockDir": "./components/fumadocs/",
+    "cssDir": "./styles/fumadocs/",
+    "libDir": "./lib/fumadocs/"
+  },
+  "baseDir": "",
+  "uiLibrary": "base-ui",
+  "commands": {}
+}

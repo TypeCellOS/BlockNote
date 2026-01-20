@@ -1,9 +1,0 @@
-{
-  "title": "Backend",
-  "pages": [
-    "file-uploading",
-    "saving-loading",
-    "s3",
-    "rendering-static-documents"
-  ]
-}

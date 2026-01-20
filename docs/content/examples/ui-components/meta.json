@@ -1,0 +1,22 @@
+{
+  "title": "UI Components",
+  "pages": [
+    "ui-elements-remove",
+    "formatting-toolbar-buttons",
+    "formatting-toolbar-block-type-items",
+    "side-menu-buttons",
+    "side-menu-drag-handle-items",
+    "suggestion-menus-slash-menu-items",
+    "suggestion-menus-slash-menu-component",
+    "suggestion-menus-emoji-picker-columns",
+    "suggestion-menus-emoji-picker-component",
+    "suggestion-menus-grid-mentions",
+    "uppy-file-panel",
+    "static-formatting-toolbar",
+    "custom-ui",
+    "experimental-mobile-formatting-toolbar",
+    "advanced-tables",
+    "link-toolbar-buttons",
+    "advanced-tables-2"
+  ]
+}
