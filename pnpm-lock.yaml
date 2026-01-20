@@ -112,6 +112,12 @@ importers:
       '@blocknote/xl-pdf-exporter':
         specifier: workspace:*
         version: link:../packages/xl-pdf-exporter
+      '@emotion/react':
+        specifier: ^11.11.4
+        version: 11.14.0(@types/react@19.2.8)(react@19.2.3)
+      '@emotion/styled':
+        specifier: ^11.11.5
+        version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.8)(react@19.2.3))(@types/react@19.2.8)(react@19.2.3)
       '@fumadocs/base-ui':
         specifier: ^16.4.7
         version: 16.4.7(@types/react@19.2.8)(fumadocs-core@16.4.7(@types/react@19.2.8)(lucide-react@0.562.0(react@19.2.3))(next@16.1.1(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(zod@4.3.5))(next@16.1.1(@babel/core@7.28.4)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(tailwindcss@4.1.18)
@@ -158,8 +164,8 @@ importers:
         specifier: ^1.0.4
         version: 1.0.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@react-email/render':
-        specifier: ^2.0.2
-        version: 2.0.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        specifier: ^1.1.2
+        version: 1.4.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@react-pdf/renderer':
         specifier: ^4.3.0
         version: 4.3.1(react@19.2.3)
@@ -235,6 +241,9 @@ importers:
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
+      docx:
+        specifier: ^9.5.1
+        version: 9.5.1
       framer-motion:
         specifier: ^12.26.2
         version: 12.26.2(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -281,7 +290,7 @@ importers:
         specifier: ^1.4.0
         version: 1.4.0(react@19.2.3)
       react-icons:
-        specifier: ^5.5.0
+        specifier: ^5.2.1
         version: 5.5.0(react@19.2.3)
       scroll-into-view-if-needed:
         specifier: ^3.1.0
@@ -323,6 +332,9 @@ importers:
       '@types/react-dom':
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.8)
+      '@vitejs/plugin-react':
+        specifier: ^4.7.0
+        version: 4.7.0(vite@6.4.0(@types/node@25.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))
       babel-plugin-react-compiler:
         specifier: ^1.0.0
         version: 1.0.0
@@ -367,7 +379,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -375,18 +387,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -413,7 +425,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -421,18 +433,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -462,7 +474,7 @@ importers:
         version: link:../../../packages/xl-multi-column
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -470,18 +482,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -508,7 +520,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -516,18 +528,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -554,7 +566,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -562,18 +574,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -600,7 +612,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -608,18 +620,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -646,7 +658,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -654,18 +666,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -692,7 +704,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -700,18 +712,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -738,7 +750,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -746,10 +758,10 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       tailwindcss:
         specifier: ^4.1.14
@@ -762,11 +774,11 @@ importers:
         specifier: ^4.1.14
         version: 4.1.14(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -793,7 +805,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -801,18 +813,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -839,7 +851,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -847,18 +859,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -885,7 +897,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -893,18 +905,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -931,7 +943,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -939,18 +951,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -977,7 +989,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -985,18 +997,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -1023,7 +1035,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -1031,18 +1043,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -1069,7 +1081,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -1077,18 +1089,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -1115,7 +1127,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -1123,18 +1135,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -1161,7 +1173,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -1169,18 +1181,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -1213,7 +1225,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -1221,18 +1233,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -1262,7 +1274,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -1270,18 +1282,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -1308,7 +1320,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -1316,18 +1328,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -1354,7 +1366,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -1362,18 +1374,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -1400,7 +1412,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -1408,21 +1420,21 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       react-icons:
         specifier: ^5.2.1
         version: 5.5.0(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -1449,7 +1461,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -1457,21 +1469,21 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       react-icons:
         specifier: ^5.2.1
         version: 5.5.0(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -1498,7 +1510,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -1506,21 +1518,21 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       react-icons:
         specifier: ^5.2.1
         version: 5.5.0(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -1547,7 +1559,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -1555,21 +1567,21 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       react-icons:
         specifier: ^5.2.1
         version: 5.5.0(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -1596,7 +1608,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -1604,18 +1616,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -1642,7 +1654,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -1650,18 +1662,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -1688,7 +1700,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -1696,18 +1708,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -1734,7 +1746,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -1742,18 +1754,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -1780,7 +1792,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -1821,21 +1833,21 @@ importers:
         specifier: ^3.4.0
         version: 3.6.8(@uppy/core@3.13.1)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       react-icons:
         specifier: ^5.2.1
         version: 5.5.0(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -1862,7 +1874,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -1870,18 +1882,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -1908,13 +1920,13 @@ importers:
         version: link:../../../packages/shadcn
       '@emotion/react':
         specifier: ^11.11.4
-        version: 11.14.0(@types/react@19.2.2)(react@19.2.3)
+        version: 11.14.0(@types/react@19.2.8)(react@19.2.3)
       '@emotion/styled':
         specifier: ^11.11.5
-        version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.3))(@types/react@19.2.2)(react@19.2.3)
+        version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.8)(react@19.2.3))(@types/react@19.2.8)(react@19.2.3)
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -1923,23 +1935,23 @@ importers:
         version: 6.0.22(react@19.2.3)
       '@mui/icons-material':
         specifier: ^5.16.1
-        version: 5.18.0(@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.3))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.3))(@types/react@19.2.2)(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(@types/react@19.2.2)(react@19.2.3)
+        version: 5.18.0(@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@19.2.8)(react@19.2.3))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.8)(react@19.2.3))(@types/react@19.2.8)(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(@types/react@19.2.8)(react@19.2.3)
       '@mui/material':
         specifier: ^5.16.1
-        version: 5.18.0(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.3))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.3))(@types/react@19.2.2)(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 5.18.0(@emotion/react@11.14.0(@types/react@19.2.8)(react@19.2.3))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.8)(react@19.2.3))(@types/react@19.2.8)(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -1966,7 +1978,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -1974,18 +1986,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -2012,7 +2024,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -2020,18 +2032,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -2058,7 +2070,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -2066,18 +2078,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -2104,7 +2116,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -2112,18 +2124,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -2150,7 +2162,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -2158,18 +2170,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -2196,7 +2208,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -2204,18 +2216,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -2242,7 +2254,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -2250,18 +2262,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -2288,7 +2300,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -2296,18 +2308,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -2334,7 +2346,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -2342,18 +2354,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -2383,7 +2395,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -2391,18 +2403,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -2432,7 +2444,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -2455,18 +2467,18 @@ importers:
         specifier: ^3.19.0
         version: 3.19.0
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -2493,7 +2505,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -2501,18 +2513,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -2539,7 +2551,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -2547,18 +2559,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -2585,7 +2597,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -2593,18 +2605,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -2631,7 +2643,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -2639,18 +2651,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -2683,7 +2695,7 @@ importers:
         version: link:../../../packages/xl-pdf-exporter
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -2694,18 +2706,18 @@ importers:
         specifier: ^4.3.0
         version: 4.3.1(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -2738,7 +2750,7 @@ importers:
         version: link:../../../packages/xl-multi-column
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -2749,18 +2761,18 @@ importers:
         specifier: ^9.5.1
         version: 9.5.1
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -2793,7 +2805,7 @@ importers:
         version: link:../../../packages/xl-odt-exporter
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -2801,18 +2813,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -2842,7 +2854,7 @@ importers:
         version: link:../../../packages/xl-email-exporter
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -2853,18 +2865,18 @@ importers:
         specifier: ^1.1.2
         version: 1.4.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -2891,7 +2903,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -2899,21 +2911,21 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       react-icons:
         specifier: ^5.2.1
         version: 5.5.0(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -2940,7 +2952,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -2948,18 +2960,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -2986,7 +2998,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -2994,21 +3006,21 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       react-icons:
         specifier: ^5.2.1
         version: 5.5.0(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -3035,7 +3047,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -3043,21 +3055,21 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       react-icons:
         specifier: ^5.2.1
         version: 5.5.0(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -3084,7 +3096,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -3092,21 +3104,21 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       react-icons:
         specifier: ^5.2.1
         version: 5.5.0(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -3133,7 +3145,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -3141,18 +3153,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -3179,7 +3191,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -3187,18 +3199,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -3225,7 +3237,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -3233,18 +3245,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -3271,7 +3283,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -3279,18 +3291,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -3317,7 +3329,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -3325,18 +3337,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -3363,7 +3375,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -3371,18 +3383,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -3409,7 +3421,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -3417,10 +3429,10 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       y-partykit:
         specifier: ^0.0.25
@@ -3430,11 +3442,11 @@ importers:
         version: 13.6.29
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -3464,19 +3476,19 @@ importers:
         version: 3.7.1-tiptap3(@types/json-schema@7.0.15)
       '@liveblocks/react':
         specifier: 3.7.1-tiptap3
-        version: 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react@19.2.3)
+        version: 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react@19.2.3)
       '@liveblocks/react-blocknote':
         specifier: 3.7.1-tiptap3
-        version: 3.7.1-tiptap3(db773e85162b971c4b1ca879503626f5)
+        version: 3.7.1-tiptap3(721f821d7672e3f7ac2e97f398cd193d)
       '@liveblocks/react-tiptap':
         specifier: 3.7.1-tiptap3
-        version: 3.7.1-tiptap3(a15e2716e4e8a1db37a8f17de3f45b06)
+        version: 3.7.1-tiptap3(5b659a9c23caa66435ae020ce36bb966)
       '@liveblocks/react-ui':
         specifier: 3.7.1-tiptap3
-        version: 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -3484,21 +3496,21 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       yjs:
         specifier: ^13.6.27
         version: 13.6.29
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -3525,7 +3537,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -3536,18 +3548,18 @@ importers:
         specifier: ^0.6.3
         version: 0.6.4(react@19.2.3)(yjs@13.6.29)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -3574,7 +3586,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -3582,18 +3594,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -3620,7 +3632,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -3631,18 +3643,18 @@ importers:
         specifier: ^0.6.3
         version: 0.6.4(react@19.2.3)(yjs@13.6.29)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -3669,7 +3681,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -3677,10 +3689,10 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       y-partykit:
         specifier: ^0.0.25
@@ -3690,11 +3702,11 @@ importers:
         version: 13.6.29
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -3721,7 +3733,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -3729,10 +3741,10 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       y-partykit:
         specifier: ^0.0.25
@@ -3742,11 +3754,11 @@ importers:
         version: 13.6.29
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -3773,7 +3785,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -3781,10 +3793,10 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       y-partykit:
         specifier: ^0.0.25
@@ -3794,11 +3806,11 @@ importers:
         version: 13.6.29
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -3825,7 +3837,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -3836,18 +3848,18 @@ importers:
         specifier: ^3.0.0
         version: 3.15.3(@tiptap/pm@3.15.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -3877,7 +3889,7 @@ importers:
         version: link:../../../packages/xl-ai
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -3888,18 +3900,18 @@ importers:
         specifier: ^6.0.5
         version: 6.0.5(zod@4.3.5)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -3929,7 +3941,7 @@ importers:
         version: link:../../../packages/xl-ai
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -3940,18 +3952,18 @@ importers:
         specifier: ^6.0.5
         version: 6.0.5(zod@4.3.5)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -3981,7 +3993,7 @@ importers:
         version: link:../../../packages/xl-ai
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -3992,21 +4004,21 @@ importers:
         specifier: ^6.0.5
         version: 6.0.5(zod@4.3.5)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       react-icons:
         specifier: ^5.2.1
         version: 5.5.0(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -4036,7 +4048,7 @@ importers:
         version: link:../../../packages/xl-ai
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -4047,10 +4059,10 @@ importers:
         specifier: ^6.0.5
         version: 6.0.5(zod@4.3.5)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       y-partykit:
         specifier: ^0.0.25
@@ -4060,11 +4072,11 @@ importers:
         version: 13.6.29
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -4094,7 +4106,7 @@ importers:
         version: link:../../../packages/xl-ai
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -4105,10 +4117,10 @@ importers:
         specifier: ^6.0.5
         version: 6.0.5(zod@4.3.5)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       y-partykit:
         specifier: ^0.0.25
@@ -4118,11 +4130,11 @@ importers:
         version: 13.6.29
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -4155,7 +4167,7 @@ importers:
         version: link:../../../packages/xl-ai
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -4166,18 +4178,18 @@ importers:
         specifier: ^6.0.5
         version: 6.0.5(zod@4.3.5)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -4207,7 +4219,7 @@ importers:
         version: link:../../../packages/xl-ai
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -4218,18 +4230,18 @@ importers:
         specifier: ^6.0.5
         version: 6.0.5(zod@4.3.5)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -4256,7 +4268,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -4264,18 +4276,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -4302,7 +4314,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -4310,18 +4322,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -4348,7 +4360,7 @@ importers:
         version: link:../../../packages/shadcn
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -4356,18 +4368,18 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.3)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -4388,11 +4400,11 @@ importers:
         version: link:../react
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -4400,10 +4412,10 @@ importers:
         specifier: ^8.57.1
         version: 8.57.1
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       rimraf:
         specifier: ^5.0.10
@@ -4634,11 +4646,11 @@ importers:
         version: 3.5.3
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       eslint:
         specifier: ^8.57.1
         version: 8.57.1
@@ -4646,10 +4658,10 @@ importers:
         specifier: ^10.5.0
         version: 10.5.0
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       tinyglobby:
         specifier: 0.2.12
@@ -4671,7 +4683,7 @@ importers:
         version: link:../react
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -4683,11 +4695,11 @@ importers:
         version: 5.5.0(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -4695,10 +4707,10 @@ importers:
         specifier: ^8.57.1
         version: 8.57.1
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       rimraf:
         specifier: ^5.0.10
@@ -4744,7 +4756,7 @@ importers:
         version: 3.15.3
       '@tiptap/react':
         specifier: ^3.13.0
-        version: 3.15.3(@floating-ui/dom@1.7.4)(@tiptap/core@3.15.3(@tiptap/pm@3.15.3))(@tiptap/pm@3.15.3)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 3.15.3(@floating-ui/dom@1.7.4)(@tiptap/core@3.15.3(@tiptap/pm@3.15.3))(@tiptap/pm@3.15.3)(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@types/use-sync-external-store':
         specifier: 1.5.0
         version: 1.5.0
@@ -4777,11 +4789,11 @@ importers:
         specifier: ^4.6.9
         version: 4.6.9
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -4789,10 +4801,10 @@ importers:
         specifier: ^8.57.1
         version: 8.57.1
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       rimraf:
         specifier: ^5.0.10
@@ -4847,19 +4859,19 @@ importers:
         specifier: ^21.1.7
         version: 21.1.7
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       eslint:
         specifier: ^8.57.1
         version: 8.57.1
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       rollup-plugin-webpack-stats:
         specifier: ^0.2.6
@@ -4887,31 +4899,31 @@ importers:
         version: link:../react
       '@radix-ui/react-avatar':
         specifier: ^1.1.10
-        version: 1.1.10(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 1.1.10(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@radix-ui/react-dropdown-menu':
         specifier: ^2.1.16
-        version: 2.1.16(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 2.1.16(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@radix-ui/react-label':
         specifier: ^2.1.7
-        version: 2.1.7(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 2.1.7(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@radix-ui/react-popover':
         specifier: ^1.1.15
-        version: 1.1.15(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 1.1.15(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@radix-ui/react-select':
         specifier: ^2.2.6
-        version: 2.2.6(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 2.2.6(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@radix-ui/react-slot':
         specifier: ^1.2.3
-        version: 1.2.3(@types/react@19.2.2)(react@19.2.3)
+        version: 1.2.3(@types/react@19.2.8)(react@19.2.3)
       '@radix-ui/react-tabs':
         specifier: ^1.1.13
-        version: 1.1.13(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 1.1.13(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@radix-ui/react-toggle':
         specifier: ^1.1.10
-        version: 1.1.10(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 1.1.10(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@radix-ui/react-tooltip':
         specifier: ^1.2.8
-        version: 1.2.8(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 1.2.8(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       autoprefixer:
         specifier: ^10.4.21
         version: 10.4.21(postcss@8.5.6)
@@ -4941,11 +4953,11 @@ importers:
         specifier: ^20.19.22
         version: 20.19.22
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@20.19.22)(lightningcss@1.30.2)(terser@5.44.1))
@@ -4953,10 +4965,10 @@ importers:
         specifier: ^8.57.1
         version: 8.57.1
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       rimraf:
         specifier: ^5.0.10
@@ -5031,10 +5043,10 @@ importers:
         specifier: ^1.41.4
         version: 1.41.4
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       react-icons:
         specifier: ^5.5.0
@@ -5089,11 +5101,11 @@ importers:
         specifier: ^4.6.9
         version: 4.6.9
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
@@ -5223,11 +5235,11 @@ importers:
         version: 0.2.2
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@zip.js/zip.js':
         specifier: ^2.8.8
         version: 2.8.8
@@ -5235,10 +5247,10 @@ importers:
         specifier: ^8.57.1
         version: 8.57.1
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       rollup-plugin-webpack-stats:
         specifier: ^0.2.6
@@ -5277,10 +5289,10 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       react-email:
         specifier: ^5.2.5
@@ -5293,11 +5305,11 @@ importers:
         specifier: ^21.1.7
         version: 21.1.7
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       eslint:
         specifier: ^8.57.1
         version: 8.57.1
@@ -5348,11 +5360,11 @@ importers:
         version: 5.5.0(react@19.2.3)
     devDependencies:
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       eslint:
         specifier: ^8.57.1
         version: 8.57.1
@@ -5360,10 +5372,10 @@ importers:
         specifier: ^25.0.1
         version: 25.0.1(canvas@2.11.2(encoding@0.1.13))
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       rimraf:
         specifier: ^5.0.10
@@ -5404,18 +5416,18 @@ importers:
     devDependencies:
       '@testing-library/react':
         specifier: ^16.3.0
-        version: 16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       rollup-plugin-webpack-stats:
         specifier: ^0.2.6
@@ -5428,7 +5440,7 @@ importers:
         version: 5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1)
       vite-plugin-eslint:
         specifier: ^1.8.1
-        version: 1.8.1(eslint@8.57.1)(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
+        version: 1.8.1(eslint@9.39.2(jiti@2.6.1))(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
       vitest:
         specifier: ^2.1.9
         version: 2.1.9(@types/node@25.0.7)(@vitest/ui@2.1.9)(jsdom@25.0.1(canvas@2.11.2(encoding@0.1.13)))(lightningcss@1.30.2)(msw@2.11.5(@types/node@25.0.7)(typescript@5.9.3))(terser@5.44.1)
@@ -5459,7 +5471,7 @@ importers:
     devDependencies:
       '@testing-library/react':
         specifier: ^16.3.0
-        version: 16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@types/jest-image-snapshot':
         specifier: ^6.4.0
         version: 6.4.0
@@ -5467,11 +5479,11 @@ importers:
         specifier: ^21.1.7
         version: 21.1.7
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       eslint:
         specifier: ^8.57.1
         version: 8.57.1
@@ -5482,10 +5494,10 @@ importers:
         specifier: ^4.5.0
         version: 4.5.0(encoding@0.1.13)
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       react-element-to-jsx-string:
         specifier: ^17.0.1
@@ -5558,28 +5570,28 @@ importers:
         version: link:../packages/xl-pdf-exporter
       '@emotion/react':
         specifier: ^11.14.0
-        version: 11.14.0(@types/react@19.2.2)(react@19.2.3)
+        version: 11.14.0(@types/react@19.2.8)(react@19.2.3)
       '@emotion/styled':
         specifier: ^11.14.1
-        version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.3))(@types/react@19.2.2)(react@19.2.3)
+        version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.8)(react@19.2.3))(@types/react@19.2.8)(react@19.2.3)
       '@liveblocks/core':
         specifier: 3.7.1-tiptap3
         version: 3.7.1-tiptap3(@types/json-schema@7.0.15)
       '@liveblocks/react':
         specifier: 3.7.1-tiptap3
-        version: 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react@19.2.3)
+        version: 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react@19.2.3)
       '@liveblocks/react-blocknote':
         specifier: 3.7.1-tiptap3
-        version: 3.7.1-tiptap3(db773e85162b971c4b1ca879503626f5)
+        version: 3.7.1-tiptap3(721f821d7672e3f7ac2e97f398cd193d)
       '@liveblocks/react-tiptap':
         specifier: 3.7.1-tiptap3
-        version: 3.7.1-tiptap3(a15e2716e4e8a1db37a8f17de3f45b06)
+        version: 3.7.1-tiptap3(5b659a9c23caa66435ae020ce36bb966)
       '@liveblocks/react-ui':
         specifier: 3.7.1-tiptap3
-        version: 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@mantine/hooks':
         specifier: ^8.3.11
         version: 8.3.11(react@19.2.3)
@@ -5588,10 +5600,10 @@ importers:
         version: 6.0.22(react@19.2.3)
       '@mui/icons-material':
         specifier: ^5.18.0
-        version: 5.18.0(@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.3))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.3))(@types/react@19.2.2)(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(@types/react@19.2.2)(react@19.2.3)
+        version: 5.18.0(@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@19.2.8)(react@19.2.3))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.8)(react@19.2.3))(@types/react@19.2.8)(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(@types/react@19.2.8)(react@19.2.3)
       '@mui/material':
         specifier: ^5.18.0
-        version: 5.18.0(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.3))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.3))(@types/react@19.2.2)(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 5.18.0(@emotion/react@11.14.0(@types/react@19.2.8)(react@19.2.3))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.8)(react@19.2.3))(@types/react@19.2.8)(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@uppy/core':
         specifier: ^3.13.1
         version: 3.13.1
@@ -5638,10 +5650,10 @@ importers:
         specifier: ^9.5.1
         version: 9.5.1
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       react-icons:
         specifier: ^5.5.0
@@ -5660,11 +5672,11 @@ importers:
         specifier: ^4.1.14
         version: 4.1.14(vite@6.4.0(@types/node@25.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@6.4.0(@types/node@25.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))
@@ -5739,11 +5751,11 @@ importers:
         specifier: ^20.19.22
         version: 20.19.22
       '@types/react':
-        specifier: ^19.2.2
-        version: 19.2.2
+        specifier: ^19.2.3
+        version: 19.2.8
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
       eslint:
         specifier: ^8.57.1
         version: 8.57.1
@@ -5751,10 +5763,10 @@ importers:
         specifier: ^0.6.7
         version: 0.6.7
       react:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3
       react-dom:
-        specifier: ^19.2.1
+        specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       react-icons:
         specifier: ^5.5.0
@@ -10370,11 +10382,6 @@ packages:
   '@types/prop-types@15.7.15':
     resolution: {integrity: sha512-F6bEyamV9jKGAFBEmlQnesRPGOQqS2+Uwi0Em15xenOxHaf2hv6L8YCVn3rPdPJOiJfPiCnLIRyvwVaqMY3MIw==}
 
-  '@types/react-dom@19.2.2':
-    resolution: {integrity: sha512-9KQPoO6mZCi7jcIStSnlOWn2nEF3mNmyr3rIAsGnAbQKYbRLyqmeSc39EVgtxXVia+LMT8j3knZLAZAh+xLmrw==}
-    peerDependencies:
-      '@types/react': ^19.2.0
-
   '@types/react-dom@19.2.3':
     resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
     peerDependencies:
@@ -10384,9 +10391,6 @@ packages:
     resolution: {integrity: sha512-8TV6R3h2j7a91c+1DXdJi3Syo69zzIZbz7Lg5tORM5LEJG7X/E6a1V3drRyBRZq7/utz7A+c4OgYLiLcYGHG6w==}
     peerDependencies:
       '@types/react': '*'
-
-  '@types/react@19.2.2':
-    resolution: {integrity: sha512-6mDvHUFSjyT2B2yeNx2nUgMxh9LtOWvkhIU3uePn2I2oyNymUAX1NIsdgviM4CH+JSrp2D2hsMvJOkxY+0wNRA==}
 
   '@types/react@19.2.8':
     resolution: {integrity: sha512-3MbSL37jEchWZz2p2mjntRZtPt837ij10ApxKfgmXCTuHWagYg7iA5bqPw6C8BMPfwidlvfPI/fxOc42HLhcyg==}
@@ -18280,22 +18284,6 @@ snapshots:
 
   '@emotion/memoize@0.9.0': {}
 
-  '@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.3)':
-    dependencies:
-      '@babel/runtime': 7.28.4
-      '@emotion/babel-plugin': 11.13.5
-      '@emotion/cache': 11.14.0
-      '@emotion/serialize': 1.3.3
-      '@emotion/use-insertion-effect-with-fallbacks': 1.2.0(react@19.2.3)
-      '@emotion/utils': 1.4.2
-      '@emotion/weak-memoize': 0.4.0
-      hoist-non-react-statics: 3.3.2
-      react: 19.2.3
-    optionalDependencies:
-      '@types/react': 19.2.2
-    transitivePeerDependencies:
-      - supports-color
-
   '@emotion/react@11.14.0(@types/react@19.2.8)(react@19.2.3)':
     dependencies:
       '@babel/runtime': 7.28.4
@@ -18311,7 +18299,6 @@ snapshots:
       '@types/react': 19.2.8
     transitivePeerDependencies:
       - supports-color
-    optional: true
 
   '@emotion/serialize@1.3.3':
     dependencies:
@@ -18322,21 +18309,6 @@ snapshots:
       csstype: 3.2.3
 
   '@emotion/sheet@1.4.0': {}
-
-  '@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.3))(@types/react@19.2.2)(react@19.2.3)':
-    dependencies:
-      '@babel/runtime': 7.28.4
-      '@emotion/babel-plugin': 11.13.5
-      '@emotion/is-prop-valid': 1.4.0
-      '@emotion/react': 11.14.0(@types/react@19.2.2)(react@19.2.3)
-      '@emotion/serialize': 1.3.3
-      '@emotion/use-insertion-effect-with-fallbacks': 1.2.0(react@19.2.3)
-      '@emotion/utils': 1.4.2
-      react: 19.2.3
-    optionalDependencies:
-      '@types/react': 19.2.2
-    transitivePeerDependencies:
-      - supports-color
 
   '@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.8)(react@19.2.3))(@types/react@19.2.8)(react@19.2.3)':
     dependencies:
@@ -18352,7 +18324,6 @@ snapshots:
       '@types/react': 19.2.8
     transitivePeerDependencies:
       - supports-color
-    optional: true
 
   '@emotion/unitless@0.10.0': {}
 
@@ -19051,37 +19022,6 @@ snapshots:
       - y-protocols
       - yjs
 
-  '@liveblocks/react-blocknote@3.7.1-tiptap3(db773e85162b971c4b1ca879503626f5)':
-    dependencies:
-      '@blocknote/core': link:packages/core
-      '@blocknote/react': link:packages/react
-      '@liveblocks/client': 3.7.1-tiptap3(@types/json-schema@7.0.15)
-      '@liveblocks/core': 3.7.1-tiptap3(@types/json-schema@7.0.15)
-      '@liveblocks/react': 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react@19.2.3)
-      '@liveblocks/react-tiptap': 3.7.1-tiptap3(a15e2716e4e8a1db37a8f17de3f45b06)
-      '@liveblocks/react-ui': 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@liveblocks/yjs': 3.7.1-tiptap3(@types/json-schema@7.0.15)(yjs@13.6.29)
-      '@tiptap/core': 3.15.3(@tiptap/pm@3.15.3)
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
-      vitest-tsconfig-paths: 3.4.1
-    optionalDependencies:
-      '@types/react': 19.2.2
-      '@types/react-dom': 19.2.2(@types/react@19.2.2)
-    transitivePeerDependencies:
-      - '@tiptap/extension-collaboration'
-      - '@tiptap/extension-collaboration-cursor'
-      - '@tiptap/pm'
-      - '@tiptap/react'
-      - '@tiptap/suggestion'
-      - '@types/json-schema'
-      - prosemirror-model
-      - prosemirror-state
-      - prosemirror-view
-      - supports-color
-      - y-protocols
-      - yjs
-
   '@liveblocks/react-tiptap@3.7.1-tiptap3(5b659a9c23caa66435ae020ce36bb966)':
     dependencies:
       '@floating-ui/react-dom': 2.1.6(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -19113,62 +19053,6 @@ snapshots:
       - prosemirror-view
       - y-protocols
 
-  '@liveblocks/react-tiptap@3.7.1-tiptap3(a15e2716e4e8a1db37a8f17de3f45b06)':
-    dependencies:
-      '@floating-ui/react-dom': 2.1.6(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@liveblocks/client': 3.7.1-tiptap3(@types/json-schema@7.0.15)
-      '@liveblocks/core': 3.7.1-tiptap3(@types/json-schema@7.0.15)
-      '@liveblocks/react': 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react@19.2.3)
-      '@liveblocks/react-ui': 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@liveblocks/yjs': 3.7.1-tiptap3(@types/json-schema@7.0.15)(yjs@13.6.29)
-      '@radix-ui/react-select': 2.2.6(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-toggle': 1.1.10(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@tiptap/core': 3.15.3(@tiptap/pm@3.15.3)
-      '@tiptap/extension-collaboration': 2.26.1(@tiptap/core@3.15.3(@tiptap/pm@3.15.3))(@tiptap/pm@3.15.3)(y-prosemirror@1.3.7(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)(y-protocols@1.0.6(yjs@13.6.29))(yjs@13.6.29))
-      '@tiptap/extension-collaboration-cursor': 2.26.1(@tiptap/core@3.15.3(@tiptap/pm@3.15.3))(y-prosemirror@1.3.7(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)(y-protocols@1.0.6(yjs@13.6.29))(yjs@13.6.29))
-      '@tiptap/pm': 3.15.3
-      '@tiptap/react': 3.15.3(@floating-ui/dom@1.7.4)(@tiptap/core@3.15.3(@tiptap/pm@3.15.3))(@tiptap/pm@3.15.3)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@tiptap/suggestion': 2.26.1(@tiptap/core@3.15.3(@tiptap/pm@3.15.3))(@tiptap/pm@3.15.3)
-      cmdk: 1.1.1(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
-      y-prosemirror: 1.3.7(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)(y-protocols@1.0.6(yjs@13.6.29))(yjs@13.6.29)
-      yjs: 13.6.29
-    optionalDependencies:
-      '@types/react': 19.2.2
-      '@types/react-dom': 19.2.2(@types/react@19.2.2)
-    transitivePeerDependencies:
-      - '@types/json-schema'
-      - prosemirror-model
-      - prosemirror-state
-      - prosemirror-view
-      - y-protocols
-
-  '@liveblocks/react-ui@3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
-    dependencies:
-      '@floating-ui/react-dom': 2.1.6(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@liveblocks/client': 3.7.1-tiptap3(@types/json-schema@7.0.15)
-      '@liveblocks/core': 3.7.1-tiptap3(@types/json-schema@7.0.15)
-      '@liveblocks/react': 3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-dropdown-menu': 2.1.16(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-popover': 1.1.15(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-slot': 1.2.3(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-toggle': 1.1.10(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-tooltip': 1.2.8(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      frimousse: 0.2.0(react@19.2.3)
-      marked: 15.0.12
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
-      slate: 0.110.2
-      slate-history: 0.110.3(slate@0.110.2)
-      slate-hyperscript: 0.100.0(slate@0.110.2)
-      slate-react: 0.110.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(slate@0.110.2)
-    optionalDependencies:
-      '@types/react': 19.2.2
-      '@types/react-dom': 19.2.2(@types/react@19.2.2)
-    transitivePeerDependencies:
-      - '@types/json-schema'
-
   '@liveblocks/react-ui@3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
       '@floating-ui/react-dom': 2.1.6(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -19194,17 +19078,6 @@ snapshots:
     transitivePeerDependencies:
       - '@types/json-schema'
 
-  '@liveblocks/react@3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react@19.2.3)':
-    dependencies:
-      '@liveblocks/client': 3.7.1-tiptap3(@types/json-schema@7.0.15)
-      '@liveblocks/core': 3.7.1-tiptap3(@types/json-schema@7.0.15)
-      react: 19.2.3
-    optionalDependencies:
-      '@types/react': 19.2.2
-      '@types/react-dom': 19.2.2(@types/react@19.2.2)
-    transitivePeerDependencies:
-      - '@types/json-schema'
-
   '@liveblocks/react@3.7.1-tiptap3(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react@19.2.3)':
     dependencies:
       '@liveblocks/client': 3.7.1-tiptap3(@types/json-schema@7.0.15)
@@ -19226,20 +19099,6 @@ snapshots:
       yjs: 13.6.29
     transitivePeerDependencies:
       - '@types/json-schema'
-
-  '@mantine/core@8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
-    dependencies:
-      '@floating-ui/react': 0.27.16(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@mantine/hooks': 8.3.11(react@19.2.3)
-      clsx: 2.1.1
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
-      react-number-format: 5.4.4(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      react-remove-scroll: 2.7.2(@types/react@19.2.2)(react@19.2.3)
-      react-textarea-autosize: 8.5.9(@types/react@19.2.2)(react@19.2.3)
-      type-fest: 4.41.0
-    transitivePeerDependencies:
-      - '@types/react'
 
   '@mantine/core@8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
@@ -19329,14 +19188,6 @@ snapshots:
 
   '@mui/core-downloads-tracker@5.18.0': {}
 
-  '@mui/icons-material@5.18.0(@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.3))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.3))(@types/react@19.2.2)(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(@types/react@19.2.2)(react@19.2.3)':
-    dependencies:
-      '@babel/runtime': 7.28.4
-      '@mui/material': 5.18.0(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.3))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.3))(@types/react@19.2.2)(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      react: 19.2.3
-    optionalDependencies:
-      '@types/react': 19.2.2
-
   '@mui/icons-material@5.18.0(@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@19.2.8)(react@19.2.3))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.8)(react@19.2.3))(@types/react@19.2.8)(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(@types/react@19.2.8)(react@19.2.3)':
     dependencies:
       '@babel/runtime': 7.28.4
@@ -19344,27 +19195,6 @@ snapshots:
       react: 19.2.3
     optionalDependencies:
       '@types/react': 19.2.8
-
-  '@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.3))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.3))(@types/react@19.2.2)(react@19.2.3))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
-    dependencies:
-      '@babel/runtime': 7.28.4
-      '@mui/core-downloads-tracker': 5.18.0
-      '@mui/system': 5.18.0(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.3))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.3))(@types/react@19.2.2)(react@19.2.3))(@types/react@19.2.2)(react@19.2.3)
-      '@mui/types': 7.2.24(@types/react@19.2.2)
-      '@mui/utils': 5.17.1(@types/react@19.2.2)(react@19.2.3)
-      '@popperjs/core': 2.11.8
-      '@types/react-transition-group': 4.4.12(@types/react@19.2.2)
-      clsx: 2.1.1
-      csstype: 3.1.3
-      prop-types: 15.8.1
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
-      react-is: 19.2.0
-      react-transition-group: 4.4.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-    optionalDependencies:
-      '@emotion/react': 11.14.0(@types/react@19.2.2)(react@19.2.3)
-      '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.3))(@types/react@19.2.2)(react@19.2.3)
-      '@types/react': 19.2.2
 
   '@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@19.2.8)(react@19.2.3))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.8)(react@19.2.3))(@types/react@19.2.8)(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
@@ -19387,15 +19217,6 @@ snapshots:
       '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@19.2.8)(react@19.2.3))(@types/react@19.2.8)(react@19.2.3)
       '@types/react': 19.2.8
 
-  '@mui/private-theming@5.17.1(@types/react@19.2.2)(react@19.2.3)':
-    dependencies:
-      '@babel/runtime': 7.28.4
-      '@mui/utils': 5.17.1(@types/react@19.2.2)(react@19.2.3)
-      prop-types: 15.8.1
-      react: 19.2.3
-    optionalDependencies:
-      '@types/react': 19.2.2
-
   '@mui/private-theming@5.17.1(@types/react@19.2.8)(react@19.2.3)':
     dependencies:
       '@babel/runtime': 7.28.4
@@ -19404,18 +19225,6 @@ snapshots:
       react: 19.2.3
     optionalDependencies:
       '@types/react': 19.2.8
-
-  '@mui/styled-engine@5.18.0(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.3))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.3))(@types/react@19.2.2)(react@19.2.3))(react@19.2.3)':
-    dependencies:
-      '@babel/runtime': 7.28.4
-      '@emotion/cache': 11.14.0
-      '@emotion/serialize': 1.3.3
-      csstype: 3.2.3
-      prop-types: 15.8.1
-      react: 19.2.3
-    optionalDependencies:
-      '@emotion/react': 11.14.0(@types/react@19.2.2)(react@19.2.3)
-      '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.3))(@types/react@19.2.2)(react@19.2.3)
 
   '@mui/styled-engine@5.18.0(@emotion/react@11.14.0(@types/react@19.2.8)(react@19.2.3))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.8)(react@19.2.3))(@types/react@19.2.8)(react@19.2.3))(react@19.2.3)':
     dependencies:
@@ -19428,22 +19237,6 @@ snapshots:
     optionalDependencies:
       '@emotion/react': 11.14.0(@types/react@19.2.8)(react@19.2.3)
       '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@19.2.8)(react@19.2.3))(@types/react@19.2.8)(react@19.2.3)
-
-  '@mui/system@5.18.0(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.3))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.3))(@types/react@19.2.2)(react@19.2.3))(@types/react@19.2.2)(react@19.2.3)':
-    dependencies:
-      '@babel/runtime': 7.28.4
-      '@mui/private-theming': 5.17.1(@types/react@19.2.2)(react@19.2.3)
-      '@mui/styled-engine': 5.18.0(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.3))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.3))(@types/react@19.2.2)(react@19.2.3))(react@19.2.3)
-      '@mui/types': 7.2.24(@types/react@19.2.2)
-      '@mui/utils': 5.17.1(@types/react@19.2.2)(react@19.2.3)
-      clsx: 2.1.1
-      csstype: 3.2.3
-      prop-types: 15.8.1
-      react: 19.2.3
-    optionalDependencies:
-      '@emotion/react': 11.14.0(@types/react@19.2.2)(react@19.2.3)
-      '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@19.2.3))(@types/react@19.2.2)(react@19.2.3)
-      '@types/react': 19.2.2
 
   '@mui/system@5.18.0(@emotion/react@11.14.0(@types/react@19.2.8)(react@19.2.3))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.8)(react@19.2.3))(@types/react@19.2.8)(react@19.2.3))(@types/react@19.2.8)(react@19.2.3)':
     dependencies:
@@ -19461,25 +19254,9 @@ snapshots:
       '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@19.2.8)(react@19.2.3))(@types/react@19.2.8)(react@19.2.3)
       '@types/react': 19.2.8
 
-  '@mui/types@7.2.24(@types/react@19.2.2)':
-    optionalDependencies:
-      '@types/react': 19.2.2
-
   '@mui/types@7.2.24(@types/react@19.2.8)':
     optionalDependencies:
       '@types/react': 19.2.8
-
-  '@mui/utils@5.17.1(@types/react@19.2.2)(react@19.2.3)':
-    dependencies:
-      '@babel/runtime': 7.28.4
-      '@mui/types': 7.2.24(@types/react@19.2.2)
-      '@types/prop-types': 15.7.15
-      clsx: 2.1.1
-      prop-types: 15.8.1
-      react: 19.2.3
-      react-is: 19.2.0
-    optionalDependencies:
-      '@types/react': 19.2.2
 
   '@mui/utils@5.17.1(@types/react@19.2.8)(react@19.2.3)':
     dependencies:
@@ -20079,15 +19856,6 @@ snapshots:
       '@types/react': 19.2.8
       '@types/react-dom': 19.2.3(@types/react@19.2.8)
 
-  '@radix-ui/react-arrow@1.1.7(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
-    dependencies:
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
-    optionalDependencies:
-      '@types/react': 19.2.2
-      '@types/react-dom': 19.2.2(@types/react@19.2.2)
-
   '@radix-ui/react-arrow@1.1.7(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
       '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -20097,18 +19865,18 @@ snapshots:
       '@types/react': 19.2.8
       '@types/react-dom': 19.2.3(@types/react@19.2.8)
 
-  '@radix-ui/react-avatar@1.1.10(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
+  '@radix-ui/react-avatar@1.1.10(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
-      '@radix-ui/react-context': 1.1.2(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-use-is-hydrated': 0.1.0(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@19.2.2)(react@19.2.3)
+      '@radix-ui/react-context': 1.1.2(@types/react@19.2.8)(react@19.2.3)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@19.2.8)(react@19.2.3)
+      '@radix-ui/react-use-is-hydrated': 0.1.0(@types/react@19.2.8)(react@19.2.3)
+      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@19.2.8)(react@19.2.3)
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
     optionalDependencies:
-      '@types/react': 19.2.2
-      '@types/react-dom': 19.2.2(@types/react@19.2.2)
+      '@types/react': 19.2.8
+      '@types/react-dom': 19.2.3(@types/react@19.2.8)
 
   '@radix-ui/react-checkbox@1.3.3(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
@@ -20142,18 +19910,6 @@ snapshots:
       '@types/react': 19.2.8
       '@types/react-dom': 19.2.3(@types/react@19.2.8)
 
-  '@radix-ui/react-collection@1.1.7(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
-    dependencies:
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-context': 1.1.2(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-slot': 1.2.3(@types/react@19.2.2)(react@19.2.3)
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
-    optionalDependencies:
-      '@types/react': 19.2.2
-      '@types/react-dom': 19.2.2(@types/react@19.2.2)
-
   '@radix-ui/react-collection@1.1.7(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
       '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.2.8)(react@19.2.3)
@@ -20166,51 +19922,17 @@ snapshots:
       '@types/react': 19.2.8
       '@types/react-dom': 19.2.3(@types/react@19.2.8)
 
-  '@radix-ui/react-compose-refs@1.1.2(@types/react@19.2.2)(react@19.2.3)':
-    dependencies:
-      react: 19.2.3
-    optionalDependencies:
-      '@types/react': 19.2.2
-
   '@radix-ui/react-compose-refs@1.1.2(@types/react@19.2.8)(react@19.2.3)':
     dependencies:
       react: 19.2.3
     optionalDependencies:
       '@types/react': 19.2.8
 
-  '@radix-ui/react-context@1.1.2(@types/react@19.2.2)(react@19.2.3)':
-    dependencies:
-      react: 19.2.3
-    optionalDependencies:
-      '@types/react': 19.2.2
-
   '@radix-ui/react-context@1.1.2(@types/react@19.2.8)(react@19.2.3)':
     dependencies:
       react: 19.2.3
     optionalDependencies:
       '@types/react': 19.2.8
-
-  '@radix-ui/react-dialog@1.1.15(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
-    dependencies:
-      '@radix-ui/primitive': 1.1.3
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-context': 1.1.2(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-dismissable-layer': 1.1.11(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-focus-guards': 1.1.3(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-focus-scope': 1.1.7(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-id': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-portal': 1.1.9(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-presence': 1.1.5(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-slot': 1.2.3(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@19.2.2)(react@19.2.3)
-      aria-hidden: 1.2.6
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
-      react-remove-scroll: 2.7.2(@types/react@19.2.2)(react@19.2.3)
-    optionalDependencies:
-      '@types/react': 19.2.2
-      '@types/react-dom': 19.2.2(@types/react@19.2.2)
 
   '@radix-ui/react-dialog@1.1.15(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
@@ -20234,30 +19956,11 @@ snapshots:
       '@types/react': 19.2.8
       '@types/react-dom': 19.2.3(@types/react@19.2.8)
 
-  '@radix-ui/react-direction@1.1.1(@types/react@19.2.2)(react@19.2.3)':
-    dependencies:
-      react: 19.2.3
-    optionalDependencies:
-      '@types/react': 19.2.2
-
   '@radix-ui/react-direction@1.1.1(@types/react@19.2.8)(react@19.2.3)':
     dependencies:
       react: 19.2.3
     optionalDependencies:
       '@types/react': 19.2.8
-
-  '@radix-ui/react-dismissable-layer@1.1.11(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
-    dependencies:
-      '@radix-ui/primitive': 1.1.3
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-use-escape-keydown': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
-    optionalDependencies:
-      '@types/react': 19.2.2
-      '@types/react-dom': 19.2.2(@types/react@19.2.2)
 
   '@radix-ui/react-dismissable-layer@1.1.11(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
@@ -20271,21 +19974,6 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.8
       '@types/react-dom': 19.2.3(@types/react@19.2.8)
-
-  '@radix-ui/react-dropdown-menu@2.1.16(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
-    dependencies:
-      '@radix-ui/primitive': 1.1.3
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-context': 1.1.2(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-id': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-menu': 2.1.16(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@19.2.2)(react@19.2.3)
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
-    optionalDependencies:
-      '@types/react': 19.2.2
-      '@types/react-dom': 19.2.2(@types/react@19.2.2)
 
   '@radix-ui/react-dropdown-menu@2.1.16(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
@@ -20302,28 +19990,11 @@ snapshots:
       '@types/react': 19.2.8
       '@types/react-dom': 19.2.3(@types/react@19.2.8)
 
-  '@radix-ui/react-focus-guards@1.1.3(@types/react@19.2.2)(react@19.2.3)':
-    dependencies:
-      react: 19.2.3
-    optionalDependencies:
-      '@types/react': 19.2.2
-
   '@radix-ui/react-focus-guards@1.1.3(@types/react@19.2.8)(react@19.2.3)':
     dependencies:
       react: 19.2.3
     optionalDependencies:
       '@types/react': 19.2.8
-
-  '@radix-ui/react-focus-scope@1.1.7(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
-    dependencies:
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
-    optionalDependencies:
-      '@types/react': 19.2.2
-      '@types/react-dom': 19.2.2(@types/react@19.2.2)
 
   '@radix-ui/react-focus-scope@1.1.7(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
@@ -20336,28 +20007,12 @@ snapshots:
       '@types/react': 19.2.8
       '@types/react-dom': 19.2.3(@types/react@19.2.8)
 
-  '@radix-ui/react-id@1.1.1(@types/react@19.2.2)(react@19.2.3)':
-    dependencies:
-      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      react: 19.2.3
-    optionalDependencies:
-      '@types/react': 19.2.2
-
   '@radix-ui/react-id@1.1.1(@types/react@19.2.8)(react@19.2.3)':
     dependencies:
       '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@19.2.8)(react@19.2.3)
       react: 19.2.3
     optionalDependencies:
       '@types/react': 19.2.8
-
-  '@radix-ui/react-label@2.1.7(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
-    dependencies:
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
-    optionalDependencies:
-      '@types/react': 19.2.2
-      '@types/react-dom': 19.2.2(@types/react@19.2.2)
 
   '@radix-ui/react-label@2.1.7(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
@@ -20367,32 +20022,6 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.8
       '@types/react-dom': 19.2.3(@types/react@19.2.8)
-
-  '@radix-ui/react-menu@2.1.16(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
-    dependencies:
-      '@radix-ui/primitive': 1.1.3
-      '@radix-ui/react-collection': 1.1.7(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-context': 1.1.2(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-direction': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-dismissable-layer': 1.1.11(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-focus-guards': 1.1.3(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-focus-scope': 1.1.7(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-id': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-popper': 1.2.8(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-portal': 1.1.9(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-presence': 1.1.5(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-roving-focus': 1.1.11(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-slot': 1.2.3(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      aria-hidden: 1.2.6
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
-      react-remove-scroll: 2.7.2(@types/react@19.2.2)(react@19.2.3)
-    optionalDependencies:
-      '@types/react': 19.2.2
-      '@types/react-dom': 19.2.2(@types/react@19.2.2)
 
   '@radix-ui/react-menu@2.1.16(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
@@ -20420,29 +20049,6 @@ snapshots:
       '@types/react': 19.2.8
       '@types/react-dom': 19.2.3(@types/react@19.2.8)
 
-  '@radix-ui/react-popover@1.1.15(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
-    dependencies:
-      '@radix-ui/primitive': 1.1.3
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-context': 1.1.2(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-dismissable-layer': 1.1.11(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-focus-guards': 1.1.3(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-focus-scope': 1.1.7(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-id': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-popper': 1.2.8(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-portal': 1.1.9(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-presence': 1.1.5(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-slot': 1.2.3(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@19.2.2)(react@19.2.3)
-      aria-hidden: 1.2.6
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
-      react-remove-scroll: 2.7.1(@types/react@19.2.2)(react@19.2.3)
-    optionalDependencies:
-      '@types/react': 19.2.2
-      '@types/react-dom': 19.2.2(@types/react@19.2.2)
-
   '@radix-ui/react-popover@1.1.15(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
       '@radix-ui/primitive': 1.1.3
@@ -20466,24 +20072,6 @@ snapshots:
       '@types/react': 19.2.8
       '@types/react-dom': 19.2.3(@types/react@19.2.8)
 
-  '@radix-ui/react-popper@1.2.8(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
-    dependencies:
-      '@floating-ui/react-dom': 2.1.6(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-arrow': 1.1.7(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-context': 1.1.2(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-use-rect': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-use-size': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/rect': 1.1.1
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
-    optionalDependencies:
-      '@types/react': 19.2.2
-      '@types/react-dom': 19.2.2(@types/react@19.2.2)
-
   '@radix-ui/react-popper@1.2.8(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
       '@floating-ui/react-dom': 2.1.6(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -20502,16 +20090,6 @@ snapshots:
       '@types/react': 19.2.8
       '@types/react-dom': 19.2.3(@types/react@19.2.8)
 
-  '@radix-ui/react-portal@1.1.9(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
-    dependencies:
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
-    optionalDependencies:
-      '@types/react': 19.2.2
-      '@types/react-dom': 19.2.2(@types/react@19.2.2)
-
   '@radix-ui/react-portal@1.1.9(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
       '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -20522,16 +20100,6 @@ snapshots:
       '@types/react': 19.2.8
       '@types/react-dom': 19.2.3(@types/react@19.2.8)
 
-  '@radix-ui/react-presence@1.1.5(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
-    dependencies:
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
-    optionalDependencies:
-      '@types/react': 19.2.2
-      '@types/react-dom': 19.2.2(@types/react@19.2.2)
-
   '@radix-ui/react-presence@1.1.5(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
       '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.2.8)(react@19.2.3)
@@ -20541,15 +20109,6 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.8
       '@types/react-dom': 19.2.3(@types/react@19.2.8)
-
-  '@radix-ui/react-primitive@2.1.3(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
-    dependencies:
-      '@radix-ui/react-slot': 1.2.3(@types/react@19.2.2)(react@19.2.3)
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
-    optionalDependencies:
-      '@types/react': 19.2.2
-      '@types/react-dom': 19.2.2(@types/react@19.2.2)
 
   '@radix-ui/react-primitive@2.1.3(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
@@ -20578,23 +20137,6 @@ snapshots:
       '@types/react': 19.2.8
       '@types/react-dom': 19.2.3(@types/react@19.2.8)
 
-  '@radix-ui/react-roving-focus@1.1.11(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
-    dependencies:
-      '@radix-ui/primitive': 1.1.3
-      '@radix-ui/react-collection': 1.1.7(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-context': 1.1.2(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-direction': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-id': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@19.2.2)(react@19.2.3)
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
-    optionalDependencies:
-      '@types/react': 19.2.2
-      '@types/react-dom': 19.2.2(@types/react@19.2.2)
-
   '@radix-ui/react-roving-focus@1.1.11(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
       '@radix-ui/primitive': 1.1.3
@@ -20611,35 +20153,6 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.8
       '@types/react-dom': 19.2.3(@types/react@19.2.8)
-
-  '@radix-ui/react-select@2.2.6(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
-    dependencies:
-      '@radix-ui/number': 1.1.1
-      '@radix-ui/primitive': 1.1.3
-      '@radix-ui/react-collection': 1.1.7(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-context': 1.1.2(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-direction': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-dismissable-layer': 1.1.11(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-focus-guards': 1.1.3(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-focus-scope': 1.1.7(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-id': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-popper': 1.2.8(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-portal': 1.1.9(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-slot': 1.2.3(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-use-previous': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-visually-hidden': 1.2.3(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      aria-hidden: 1.2.6
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
-      react-remove-scroll: 2.7.1(@types/react@19.2.2)(react@19.2.3)
-    optionalDependencies:
-      '@types/react': 19.2.2
-      '@types/react-dom': 19.2.2(@types/react@19.2.2)
 
   '@radix-ui/react-select@2.2.6(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
@@ -20679,13 +20192,6 @@ snapshots:
       '@types/react': 19.2.8
       '@types/react-dom': 19.2.3(@types/react@19.2.8)
 
-  '@radix-ui/react-slot@1.2.3(@types/react@19.2.2)(react@19.2.3)':
-    dependencies:
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.2.2)(react@19.2.3)
-      react: 19.2.3
-    optionalDependencies:
-      '@types/react': 19.2.2
-
   '@radix-ui/react-slot@1.2.3(@types/react@19.2.8)(react@19.2.3)':
     dependencies:
       '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.2.8)(react@19.2.3)
@@ -20707,22 +20213,6 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.8
       '@types/react-dom': 19.2.3(@types/react@19.2.8)
-
-  '@radix-ui/react-tabs@1.1.13(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
-    dependencies:
-      '@radix-ui/primitive': 1.1.3
-      '@radix-ui/react-context': 1.1.2(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-direction': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-id': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-presence': 1.1.5(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-roving-focus': 1.1.11(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@19.2.2)(react@19.2.3)
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
-    optionalDependencies:
-      '@types/react': 19.2.2
-      '@types/react-dom': 19.2.2(@types/react@19.2.2)
 
   '@radix-ui/react-tabs@1.1.13(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
@@ -20775,17 +20265,6 @@ snapshots:
       '@types/react': 19.2.8
       '@types/react-dom': 19.2.3(@types/react@19.2.8)
 
-  '@radix-ui/react-toggle@1.1.10(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
-    dependencies:
-      '@radix-ui/primitive': 1.1.3
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@19.2.2)(react@19.2.3)
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
-    optionalDependencies:
-      '@types/react': 19.2.2
-      '@types/react-dom': 19.2.2(@types/react@19.2.2)
-
   '@radix-ui/react-toggle@1.1.10(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
       '@radix-ui/primitive': 1.1.3
@@ -20796,26 +20275,6 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.8
       '@types/react-dom': 19.2.3(@types/react@19.2.8)
-
-  '@radix-ui/react-tooltip@1.2.8(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
-    dependencies:
-      '@radix-ui/primitive': 1.1.3
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-context': 1.1.2(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-dismissable-layer': 1.1.11(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-id': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-popper': 1.2.8(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-portal': 1.1.9(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-presence': 1.1.5(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-slot': 1.2.3(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-visually-hidden': 1.2.3(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
-    optionalDependencies:
-      '@types/react': 19.2.2
-      '@types/react-dom': 19.2.2(@types/react@19.2.2)
 
   '@radix-ui/react-tooltip@1.2.8(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
@@ -20837,25 +20296,11 @@ snapshots:
       '@types/react': 19.2.8
       '@types/react-dom': 19.2.3(@types/react@19.2.8)
 
-  '@radix-ui/react-use-callback-ref@1.1.1(@types/react@19.2.2)(react@19.2.3)':
-    dependencies:
-      react: 19.2.3
-    optionalDependencies:
-      '@types/react': 19.2.2
-
   '@radix-ui/react-use-callback-ref@1.1.1(@types/react@19.2.8)(react@19.2.3)':
     dependencies:
       react: 19.2.3
     optionalDependencies:
       '@types/react': 19.2.8
-
-  '@radix-ui/react-use-controllable-state@1.2.2(@types/react@19.2.2)(react@19.2.3)':
-    dependencies:
-      '@radix-ui/react-use-effect-event': 0.0.2(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      react: 19.2.3
-    optionalDependencies:
-      '@types/react': 19.2.2
 
   '@radix-ui/react-use-controllable-state@1.2.2(@types/react@19.2.8)(react@19.2.3)':
     dependencies:
@@ -20865,26 +20310,12 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.8
 
-  '@radix-ui/react-use-effect-event@0.0.2(@types/react@19.2.2)(react@19.2.3)':
-    dependencies:
-      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      react: 19.2.3
-    optionalDependencies:
-      '@types/react': 19.2.2
-
   '@radix-ui/react-use-effect-event@0.0.2(@types/react@19.2.8)(react@19.2.3)':
     dependencies:
       '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@19.2.8)(react@19.2.3)
       react: 19.2.3
     optionalDependencies:
       '@types/react': 19.2.8
-
-  '@radix-ui/react-use-escape-keydown@1.1.1(@types/react@19.2.2)(react@19.2.3)':
-    dependencies:
-      '@radix-ui/react-use-callback-ref': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      react: 19.2.3
-    optionalDependencies:
-      '@types/react': 19.2.2
 
   '@radix-ui/react-use-escape-keydown@1.1.1(@types/react@19.2.8)(react@19.2.3)':
     dependencies:
@@ -20893,18 +20324,12 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.8
 
-  '@radix-ui/react-use-is-hydrated@0.1.0(@types/react@19.2.2)(react@19.2.3)':
+  '@radix-ui/react-use-is-hydrated@0.1.0(@types/react@19.2.8)(react@19.2.3)':
     dependencies:
       react: 19.2.3
       use-sync-external-store: 1.6.0(react@19.2.3)
     optionalDependencies:
-      '@types/react': 19.2.2
-
-  '@radix-ui/react-use-layout-effect@1.1.1(@types/react@19.2.2)(react@19.2.3)':
-    dependencies:
-      react: 19.2.3
-    optionalDependencies:
-      '@types/react': 19.2.2
+      '@types/react': 19.2.8
 
   '@radix-ui/react-use-layout-effect@1.1.1(@types/react@19.2.8)(react@19.2.3)':
     dependencies:
@@ -20912,24 +20337,11 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.8
 
-  '@radix-ui/react-use-previous@1.1.1(@types/react@19.2.2)(react@19.2.3)':
-    dependencies:
-      react: 19.2.3
-    optionalDependencies:
-      '@types/react': 19.2.2
-
   '@radix-ui/react-use-previous@1.1.1(@types/react@19.2.8)(react@19.2.3)':
     dependencies:
       react: 19.2.3
     optionalDependencies:
       '@types/react': 19.2.8
-
-  '@radix-ui/react-use-rect@1.1.1(@types/react@19.2.2)(react@19.2.3)':
-    dependencies:
-      '@radix-ui/rect': 1.1.1
-      react: 19.2.3
-    optionalDependencies:
-      '@types/react': 19.2.2
 
   '@radix-ui/react-use-rect@1.1.1(@types/react@19.2.8)(react@19.2.3)':
     dependencies:
@@ -20938,28 +20350,12 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.8
 
-  '@radix-ui/react-use-size@1.1.1(@types/react@19.2.2)(react@19.2.3)':
-    dependencies:
-      '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      react: 19.2.3
-    optionalDependencies:
-      '@types/react': 19.2.2
-
   '@radix-ui/react-use-size@1.1.1(@types/react@19.2.8)(react@19.2.3)':
     dependencies:
       '@radix-ui/react-use-layout-effect': 1.1.1(@types/react@19.2.8)(react@19.2.3)
       react: 19.2.3
     optionalDependencies:
       '@types/react': 19.2.8
-
-  '@radix-ui/react-visually-hidden@1.2.3(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
-    dependencies:
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
-    optionalDependencies:
-      '@types/react': 19.2.2
-      '@types/react-dom': 19.2.2(@types/react@19.2.2)
 
   '@radix-ui/react-visually-hidden@1.2.3(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
@@ -22373,15 +21769,15 @@ snapshots:
       lz-string: 1.5.0
       pretty-format: 27.5.1
 
-  '@testing-library/react@16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
+  '@testing-library/react@16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
       '@babel/runtime': 7.28.4
       '@testing-library/dom': 10.4.0
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
     optionalDependencies:
-      '@types/react': 19.2.2
-      '@types/react-dom': 19.2.2(@types/react@19.2.2)
+      '@types/react': 19.2.8
+      '@types/react-dom': 19.2.3(@types/react@19.2.8)
 
   '@tiptap/core@3.15.3(@tiptap/pm@3.15.3)':
     dependencies:
@@ -22476,23 +21872,6 @@ snapshots:
       prosemirror-trailing-node: 3.0.0(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)
       prosemirror-transform: 1.10.5
       prosemirror-view: 1.41.4
-
-  '@tiptap/react@3.15.3(@floating-ui/dom@1.7.4)(@tiptap/core@3.15.3(@tiptap/pm@3.15.3))(@tiptap/pm@3.15.3)(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
-    dependencies:
-      '@tiptap/core': 3.15.3(@tiptap/pm@3.15.3)
-      '@tiptap/pm': 3.15.3
-      '@types/react': 19.2.2
-      '@types/react-dom': 19.2.2(@types/react@19.2.2)
-      '@types/use-sync-external-store': 0.0.6
-      fast-equals: 5.4.0
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
-      use-sync-external-store: 1.6.0(react@19.2.3)
-    optionalDependencies:
-      '@tiptap/extension-bubble-menu': 3.15.3(@tiptap/core@3.15.3(@tiptap/pm@3.15.3))(@tiptap/pm@3.15.3)
-      '@tiptap/extension-floating-menu': 3.15.3(@floating-ui/dom@1.7.4)(@tiptap/core@3.15.3(@tiptap/pm@3.15.3))(@tiptap/pm@3.15.3)
-    transitivePeerDependencies:
-      - '@floating-ui/dom'
 
   '@tiptap/react@3.15.3(@floating-ui/dom@1.7.4)(@tiptap/core@3.15.3(@tiptap/pm@3.15.3))(@tiptap/pm@3.15.3)(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
@@ -22746,25 +22125,13 @@ snapshots:
 
   '@types/prop-types@15.7.15': {}
 
-  '@types/react-dom@19.2.2(@types/react@19.2.2)':
-    dependencies:
-      '@types/react': 19.2.2
-
   '@types/react-dom@19.2.3(@types/react@19.2.8)':
     dependencies:
       '@types/react': 19.2.8
 
-  '@types/react-transition-group@4.4.12(@types/react@19.2.2)':
-    dependencies:
-      '@types/react': 19.2.2
-
   '@types/react-transition-group@4.4.12(@types/react@19.2.8)':
     dependencies:
       '@types/react': 19.2.8
-
-  '@types/react@19.2.2':
-    dependencies:
-      csstype: 3.1.3
 
   '@types/react@19.2.8':
     dependencies:
@@ -24003,18 +23370,6 @@ snapshots:
   clone@2.1.2: {}
 
   clsx@2.1.1: {}
-
-  cmdk@1.1.1(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
-    dependencies:
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-dialog': 1.1.15(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@radix-ui/react-id': 1.1.1(@types/react@19.2.2)(react@19.2.3)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
-    transitivePeerDependencies:
-      - '@types/react'
-      - '@types/react-dom'
 
   cmdk@1.1.1(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
     dependencies:
@@ -28003,14 +27358,6 @@ snapshots:
 
   react-refresh@0.17.0: {}
 
-  react-remove-scroll-bar@2.3.8(@types/react@19.2.2)(react@19.2.3):
-    dependencies:
-      react: 19.2.3
-      react-style-singleton: 2.2.3(@types/react@19.2.2)(react@19.2.3)
-      tslib: 2.8.1
-    optionalDependencies:
-      '@types/react': 19.2.2
-
   react-remove-scroll-bar@2.3.8(@types/react@19.2.8)(react@19.2.3):
     dependencies:
       react: 19.2.3
@@ -28018,17 +27365,6 @@ snapshots:
       tslib: 2.8.1
     optionalDependencies:
       '@types/react': 19.2.8
-
-  react-remove-scroll@2.7.1(@types/react@19.2.2)(react@19.2.3):
-    dependencies:
-      react: 19.2.3
-      react-remove-scroll-bar: 2.3.8(@types/react@19.2.2)(react@19.2.3)
-      react-style-singleton: 2.2.3(@types/react@19.2.2)(react@19.2.3)
-      tslib: 2.8.1
-      use-callback-ref: 1.3.3(@types/react@19.2.2)(react@19.2.3)
-      use-sidecar: 1.1.3(@types/react@19.2.2)(react@19.2.3)
-    optionalDependencies:
-      '@types/react': 19.2.2
 
   react-remove-scroll@2.7.1(@types/react@19.2.8)(react@19.2.3):
     dependencies:
@@ -28040,17 +27376,6 @@ snapshots:
       use-sidecar: 1.1.3(@types/react@19.2.8)(react@19.2.3)
     optionalDependencies:
       '@types/react': 19.2.8
-
-  react-remove-scroll@2.7.2(@types/react@19.2.2)(react@19.2.3):
-    dependencies:
-      react: 19.2.3
-      react-remove-scroll-bar: 2.3.8(@types/react@19.2.2)(react@19.2.3)
-      react-style-singleton: 2.2.3(@types/react@19.2.2)(react@19.2.3)
-      tslib: 2.8.1
-      use-callback-ref: 1.3.3(@types/react@19.2.2)(react@19.2.3)
-      use-sidecar: 1.1.3(@types/react@19.2.2)(react@19.2.3)
-    optionalDependencies:
-      '@types/react': 19.2.2
 
   react-remove-scroll@2.7.2(@types/react@19.2.8)(react@19.2.3):
     dependencies:
@@ -28075,14 +27400,6 @@ snapshots:
       '@remix-run/router': 1.23.0
       react: 19.2.3
 
-  react-style-singleton@2.2.3(@types/react@19.2.2)(react@19.2.3):
-    dependencies:
-      get-nonce: 1.0.1
-      react: 19.2.3
-      tslib: 2.8.1
-    optionalDependencies:
-      '@types/react': 19.2.2
-
   react-style-singleton@2.2.3(@types/react@19.2.8)(react@19.2.3):
     dependencies:
       get-nonce: 1.0.1
@@ -28090,15 +27407,6 @@ snapshots:
       tslib: 2.8.1
     optionalDependencies:
       '@types/react': 19.2.8
-
-  react-textarea-autosize@8.5.9(@types/react@19.2.2)(react@19.2.3):
-    dependencies:
-      '@babel/runtime': 7.28.4
-      react: 19.2.3
-      use-composed-ref: 1.4.0(@types/react@19.2.2)(react@19.2.3)
-      use-latest: 1.3.0(@types/react@19.2.2)(react@19.2.3)
-    transitivePeerDependencies:
-      - '@types/react'
 
   react-textarea-autosize@8.5.9(@types/react@19.2.8)(react@19.2.3):
     dependencies:
@@ -29408,13 +28716,6 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
-  use-callback-ref@1.3.3(@types/react@19.2.2)(react@19.2.3):
-    dependencies:
-      react: 19.2.3
-      tslib: 2.8.1
-    optionalDependencies:
-      '@types/react': 19.2.2
-
   use-callback-ref@1.3.3(@types/react@19.2.8)(react@19.2.3):
     dependencies:
       react: 19.2.3
@@ -29422,23 +28723,11 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.8
 
-  use-composed-ref@1.4.0(@types/react@19.2.2)(react@19.2.3):
-    dependencies:
-      react: 19.2.3
-    optionalDependencies:
-      '@types/react': 19.2.2
-
   use-composed-ref@1.4.0(@types/react@19.2.8)(react@19.2.3):
     dependencies:
       react: 19.2.3
     optionalDependencies:
       '@types/react': 19.2.8
-
-  use-isomorphic-layout-effect@1.2.1(@types/react@19.2.2)(react@19.2.3):
-    dependencies:
-      react: 19.2.3
-    optionalDependencies:
-      '@types/react': 19.2.2
 
   use-isomorphic-layout-effect@1.2.1(@types/react@19.2.8)(react@19.2.3):
     dependencies:
@@ -29446,27 +28735,12 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.8
 
-  use-latest@1.3.0(@types/react@19.2.2)(react@19.2.3):
-    dependencies:
-      react: 19.2.3
-      use-isomorphic-layout-effect: 1.2.1(@types/react@19.2.2)(react@19.2.3)
-    optionalDependencies:
-      '@types/react': 19.2.2
-
   use-latest@1.3.0(@types/react@19.2.8)(react@19.2.3):
     dependencies:
       react: 19.2.3
       use-isomorphic-layout-effect: 1.2.1(@types/react@19.2.8)(react@19.2.3)
     optionalDependencies:
       '@types/react': 19.2.8
-
-  use-sidecar@1.1.3(@types/react@19.2.2)(react@19.2.3):
-    dependencies:
-      detect-node-es: 1.1.0
-      react: 19.2.3
-      tslib: 2.8.1
-    optionalDependencies:
-      '@types/react': 19.2.2
 
   use-sidecar@1.1.3(@types/react@19.2.8)(react@19.2.3):
     dependencies:
@@ -29597,6 +28871,14 @@ snapshots:
       eslint: 8.57.1
       rollup: 2.79.2
       vite: 6.4.0(@types/node@25.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
+
+  vite-plugin-eslint@1.8.1(eslint@9.39.2(jiti@2.6.1))(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1)):
+    dependencies:
+      '@rollup/pluginutils': 4.2.1
+      '@types/eslint': 8.56.12
+      eslint: 9.39.2(jiti@2.6.1)
+      rollup: 2.79.2
+      vite: 5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1)
 
   vite-plugin-externalize-deps@0.8.0(vite@5.4.20(@types/node@20.19.22)(lightningcss@1.30.2)(terser@5.44.1)):
     dependencies:

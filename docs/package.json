@@ -48,7 +48,7 @@
     "@polar-sh/better-auth": "^1.6.4",
     "@polar-sh/sdk": "^0.42.2",
     "@react-email/components": "^1.0.4",
-    "@react-email/render": "^2.0.2",
+    "@react-email/render": "^2.0.4",
     "@react-pdf/renderer": "^4.3.0",
     "@sentry/nextjs": "^10.34.0",
     "@shikijs/core": "^3.19.0",

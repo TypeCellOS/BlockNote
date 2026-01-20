@@ -19,8 +19,8 @@
     "@mantine/core": "^8.3.11",
     "@mantine/hooks": "^8.3.11",
     "@mantine/utils": "^6.0.22",
-    "react": "^19.2.1",
-    "react-dom": "^19.2.1",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
     "@blocknote/code-block": "latest",
     "@shikijs/core": "^3.19.0",
     "@shikijs/engine-javascript": "^3.19.0",
@@ -29,8 +29,8 @@
     "@shikijs/types": "^3.19.0"
   },
   "devDependencies": {
-    "@types/react": "^19.2.2",
-    "@types/react-dom": "^19.2.2",
+    "@types/react": "^19.2.3",
+    "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^4.7.0",
     "vite": "^5.4.20"
   }

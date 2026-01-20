@@ -458,7 +458,7 @@
           ],
           "dependencies": {
             "@mantine/core": "^8.3.11",
-            "react-icons": "^5.2.1"
+            "react-icons": "^5.5.0"
           } as any
         },
         "title": "Adding Block Type Select Items",
@@ -483,7 +483,7 @@
             "Block Side Menu"
           ],
           "dependencies": {
-            "react-icons": "^5.2.1"
+            "react-icons": "^5.5.0"
           } as any
         },
         "title": "Adding Block Side Menu Buttons",
@@ -508,7 +508,7 @@
             "Block Side Menu"
           ],
           "dependencies": {
-            "react-icons": "^5.2.1"
+            "react-icons": "^5.5.0"
           } as any
         },
         "title": "Adding Drag Handle Menu Items",
@@ -534,7 +534,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "react-icons": "^5.2.1"
+            "react-icons": "^5.5.0"
           } as any
         },
         "title": "Adding Slash Menu Items",
@@ -659,7 +659,7 @@
             "@uppy/status-bar": "^3.1.1",
             "@uppy/webcam": "^3.4.2",
             "@uppy/xhr-upload": "^3.4.0",
-            "react-icons": "^5.2.1"
+            "react-icons": "^5.5.0"
           } as any,
           "pro": true
         },
@@ -711,8 +711,6 @@
             "Appearance & Styling"
           ],
           "dependencies": {
-            "@emotion/react": "^11.11.4",
-            "@emotion/styled": "^11.11.5",
             "@mui/icons-material": "^5.16.1",
             "@mui/material": "^5.16.1"
           } as any,
@@ -1100,8 +1098,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-docx-exporter": "latest",
-            "@blocknote/xl-multi-column": "latest",
-            "docx": "^9.5.1"
+            "@blocknote/xl-multi-column": "latest"
           } as any,
           "pro": true
         },
@@ -1149,7 +1146,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-email-exporter": "latest",
-            "@react-email/render": "^1.1.2"
+            "@react-email/render": "^2.0.4"
           } as any,
           "pro": true
         },
@@ -1183,7 +1180,7 @@
           ],
           "dependencies": {
             "@mantine/core": "^8.3.11",
-            "react-icons": "^5.2.1"
+            "react-icons": "^5.5.0"
           } as any
         },
         "title": "Alert Block",
@@ -1230,7 +1227,7 @@
             "Formatting Toolbar"
           ],
           "dependencies": {
-            "react-icons": "^5.2.1"
+            "react-icons": "^5.5.0"
           } as any
         },
         "title": "Font Style",
@@ -1257,7 +1254,7 @@
           ],
           "dependencies": {
             "@mantine/core": "^8.3.11",
-            "react-icons": "^5.2.1"
+            "react-icons": "^5.5.0"
           } as any,
           "pro": true
         },
@@ -1286,7 +1283,7 @@
           ],
           "dependencies": {
             "@mantine/core": "^8.3.11",
-            "react-icons": "^5.2.1"
+            "react-icons": "^5.5.0"
           } as any
         },
         "title": "Alert Block with Full UX",
@@ -1709,7 +1706,7 @@
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^8.3.11",
             "ai": "^6.0.5",
-            "react-icons": "^5.2.1"
+            "react-icons": "^5.5.0"
           } as any
         },
         "title": "Adding AI Menu Items",
