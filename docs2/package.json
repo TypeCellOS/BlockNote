@@ -13,7 +13,7 @@
     "postinstall": "fumadocs-mdx",
     "lint": "eslint",
     "init-db": "pnpx @better-auth/cli migrate",
-    "test": "node validate-links.js"
+    "test": "node validate-links.mjs"
   },
   "dependencies": {
     "@ai-sdk/groq": "^3.0.2",
@@ -110,15 +110,16 @@
     "@blocknote/xl-odt-exporter": "workspace:*",
     "@blocknote/xl-pdf-exporter": "workspace:*",
     "@tailwindcss/postcss": "^4.1.18",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/mdx": "^2.0.13",
     "@types/node": "^25.0.5",
     "@types/nodemailer": "^7.0.5",
-    "@types/react": "^19.2.8",
-    "@types/better-sqlite3": "^7.6.13",
     "@types/pg": "^8.16.0",
+    "@types/react": "^19.2.8",
     "@types/react-dom": "^19.2.3",
     "eslint": "^9.39.2",
     "eslint-config-next": "16.1.1",
+    "next-validate-link": "^1.6.4",
     "postcss": "^8.5.6",
     "serve": "^14.2.5",
     "tailwindcss": "^4.1.18",
