@@ -16,6 +16,7 @@ export default function Layout({ children }: LayoutProps<"/docs">) {
             exampleName.replace(".mdx", ""),
           );
 
+          // eslint-disable-next-line
           page.name = (
             <span>
               <span className="mr-1">{exampleData.title}</span>
