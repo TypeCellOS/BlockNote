@@ -1,47 +1,105 @@
-# docs2
+# Website Development
 
-This is a Next.js application generated with
-[Create Fumadocs](https://github.com/fuma-nama/fumadocs).
+This is the code for the [BlockNote documentation website](https://www.blocknotejs.org). If you're looking to work on BlockNote itself, check the [`packages`](/packages/) folder.
 
-It is a Next.js app with [Static Export](https://nextjs.org/docs/app/guides/static-exports) configured.
+To get started with development of the website, you can follow these steps:
 
-Run development server:
+1. Initialize the DB
+
+If you haven't already, you can initialize the database with the following command:
 
 ```bash
-npm run dev
-# or
-pnpm dev
-# or
-yarn dev
+cd docs && pnpm run init-db
 ```
 
-Open http://localhost:3000 with your browser to see the result.
+This will initialize an SQLite database at `./docs/sqlite.db`.
 
-## Explore
+2. Setup environment variables
 
-In the project, you can see:
+Copy the `.env.example` file to `.env.local` and set the environment variables.
 
-- `lib/source.ts`: Code for content source adapter, [`loader()`](https://fumadocs.dev/docs/headless/source-api) provides the interface to access your content.
-- `lib/layout.shared.tsx`: Shared options for layouts, optional but preferred to keep.
+```bash
+cp .env.example .env.local
+```
 
-| Route                     | Description                                            |
-| ------------------------- | ------------------------------------------------------ |
-| `app/(home)`              | The route group for your landing page and other pages. |
-| `app/docs`                | The documentation layout and pages.                    |
-| `app/api/search/route.ts` | The Route Handler for search.                          |
+If you want to test logging in, or payments see more information below [in the environment variables section](#environment-variables).
 
-### Fumadocs MDX
+3. Start the development server from within the `./docs` directory.
 
-A `source.config.ts` config file has been included, you can customise different options like frontmatter schema.
+```bash
+pnpm run dev
+```
 
-Read the [Introduction](https://fumadocs.dev/docs/mdx) for further details.
+This will start the development server on port 3000.
 
-## Learn More
+## Environment Variables
 
-To learn more about Next.js and Fumadocs, take a look at the following
-resources:
+### Logging in
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js
-  features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-- [Fumadocs](https://fumadocs.dev) - learn about Fumadocs
+To test logging in, you can set the following environment variables:
+
+```bash
+AUTH_SECRET=test
+# Github OAuth optionally
+AUTH_GITHUB_ID=test
+AUTH_GITHUB_SECRET=test
+```
+
+Note: the GITHUB_ID and GITHUB_SECRET are optional, but if you want to test logging in with Github you'll need to set them. For local development, you'll need to set the callback URL to `http://localhost:3000/api/auth/callback/github`
+
+### Payments
+
+To test payments, you can set the following environment variables:
+
+```bash
+POLAR_ACCESS_TOKEN=test
+POLAR_WEBHOOK_SECRET=test
+```
+
+For testing payments, you'll need access to the polar sandbox which needs to be configured to point a webhook to your local server. This can be configured at: <https://sandbox.polar.sh/dashboard/blocknote/settings/webhooks>
+
+You'll need something like [ngrok](https://ngrok.com/) to expose your local server to the internet.
+
+```bash
+ngrok http http://localhost:3000
+```
+
+You'll need the webhook to point to ngrok like so:
+
+```
+https://0000-00-00-000-00.ngrok-free.app/api/auth/polar/webhooks
+```
+
+With this webhook pointing to your local server, you should be able to test payments.
+
+### Email sending
+
+Note, this is not required, if email sending is not configured, the app will log the email it would send to the console. Often this is more convenient for development.
+
+To test email sending, you can set the following environment variables:
+
+```bash
+SMTP_HOST=
+SMTP_USER=
+SMTP_PASS=
+SMTP_PORT=
+SMTP_SECURE=false
+```
+
+When configured, you'll be able to send emails to the email address you've configured.
+
+To setup with protonmail, you'll need to go to <https://account.proton.me/u/0/mail/imap-smtp> and create a new SMTP submission token.
+
+You'll need to set the following environment variables:
+
+```bash
+SMTP_HOST=smtp.protonmail.com
+SMTP_USER=my.email@protonmail.com
+SMTP_PASS=my-smtp-token
+SMTP_PORT=587
+SMTP_SECURE=false
+```
+
+# Contributing
+
+To submit your changes, open a pull request to the [BlockNote GitHub repo](https://github.com/TypeCellOS/BlockNote). Pull requests will automatically be deployed to a preview environment.
