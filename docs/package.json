@@ -13,7 +13,7 @@
     "postinstall": "fumadocs-mdx",
     "lint": "eslint",
     "init-db": "pnpx @better-auth/cli migrate",
-    "test": "node validate-links.mjs"
+    "test": "pnpm -w run gen && node validate-links.mjs"
   },
   "dependencies": {
     "@ai-sdk/groq": "^3.0.2",
