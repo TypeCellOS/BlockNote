@@ -5,7 +5,8 @@
 @import "fumadocs-twoslash/twoslash.css";
 
 /* Code below needed for ShadCN examples, check docs for more info. */
-@source "../node_modules/@blocknote/shadcn";
+/* TODO: we should review this (and worst case, extract to separate file) */
+@source "../node_modules/@blocknote/shadcn/src/**/*.{ts,tsx}";
 
 @custom-variant dark (&:is(.dark *));
 
