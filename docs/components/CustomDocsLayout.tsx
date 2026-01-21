@@ -27,7 +27,6 @@ export function CustomDocsLayout({
         {...base}
         links={[]}
         searchToggle={{ enabled: false }}
-        themeSwitch={{ enabled: false }}
         // inject regular header
         nav={{
           component: (

@@ -279,19 +279,15 @@ function HeaderRoot({
   const isTransparent =
     transparentMode === "top" ? isTop : transparentMode === "always";
 
-  // modified to move border-b backdrop-blur-lg to header
   return (
-    <header
-      id="nd-nav"
-      className="sticky top-0 z-40 h-14 border-b backdrop-blur-lg"
-    >
+    <header id="nd-nav" className="sticky top-0 z-40 h-14">
       <NavigationMenuRoot
         delay={10} // added
         render={(_, s) => (
           <nav
             className={cn(
-              "max-w-(--fd-layout-width) mx-auto w-full transition-colors",
-              // (!isTransparent || s.open) && "bg-fd-background/80",
+              "max-w-(--fd-layout-width) mx-auto w-full border-b backdrop-blur-lg transition-colors",
+              (!isTransparent || s.open) && "bg-fd-background/80",
               className,
             )}
             {...props}
