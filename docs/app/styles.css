@@ -49,10 +49,6 @@ body {
   color: var(--color-fd-primary);
 }
 
-#nd-nav {
-  z-index: 10000;
-}
-
 :focus-visible {
   box-shadow: unset !important;
 }
