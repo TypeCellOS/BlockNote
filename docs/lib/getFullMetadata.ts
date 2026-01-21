@@ -23,7 +23,7 @@ export const getFullMetadata = (metadata: {
     locale: "en_US",
     siteName: "BlockNote",
     type: "website",
-    // url: metadata.path || "/"`,
+    url: metadata.path || "/",
   },
   robots: {
     follow: true,

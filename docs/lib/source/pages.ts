@@ -3,7 +3,7 @@ import { pages } from "fumadocs-mdx:collections/server";
 
 // See https://fumadocs.dev/docs/headless/source-api for more info
 export const source = loader({
-  baseUrl: "/pages",
+  baseUrl: "/",
   source: pages.toFumadocsSource(),
   plugins: [],
 });
