@@ -61,11 +61,6 @@ export const examples = defineDocs({
   },
 });
 
-// TODO: needed?
-// await getSingletonHighlighter({
-//   langs: Object.keys(bundledLanguages),
-// });
-
 export default defineConfig({
   mdxOptions: {
     rehypeCodeOptions: {
@@ -81,7 +76,6 @@ export default defineConfig({
       ],
       // important: Shiki doesn't support lazy loading languages for codeblocks in Twoslash popups
       // make sure to define them first (e.g. the common ones)
-      // TODO: bundledLanguages? or just this list?
       langs: ["js", "jsx", "ts", "tsx", "css"],
     },
   },
