@@ -3,10 +3,10 @@ import {
   BlockImplementation,
   BlockNoDefaults,
   BlockNoteEditor,
-  Extension,
   BlockSpec,
   camelToDataKebab,
   CustomBlockImplementation,
+  Extension,
   getBlockFromPos,
   mergeCSSClasses,
   Props,
@@ -51,7 +51,13 @@ export type ReactCustomBlockImplementation<
   "render" | "toExternalHTML"
 > & {
   render: FC<ReactCustomBlockRenderProps<TName, TProps, TContent>>;
-  toExternalHTML?: FC<ReactCustomBlockRenderProps<TName, TProps, TContent>>;
+  toExternalHTML?: FC<
+    ReactCustomBlockRenderProps<TName, TProps, TContent> & {
+      context: {
+        nestingLevel: number;
+      };
+    }
+  >;
 };
 
 export type ReactCustomBlockSpec<
@@ -224,7 +230,7 @@ export function createReactBlockSpec<
       config: blockConfig,
       implementation: {
         ...blockImplementation,
-        toExternalHTML(block, editor) {
+        toExternalHTML(block, editor, context) {
           const BlockContent =
             blockImplementation.toExternalHTML || blockImplementation.render;
           const output = renderToDOMSpec((refCB) => {
@@ -247,6 +253,7 @@ export function createReactBlockSpec<
                       );
                     }
                   }}
+                  context={context}
                 />
               </BlockContentWrapper>
             );

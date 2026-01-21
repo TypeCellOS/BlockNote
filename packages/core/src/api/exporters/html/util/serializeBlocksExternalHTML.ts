@@ -207,6 +207,9 @@ function serializeBlock<
       {},
       { ...block, props } as any,
       editor as any,
+      {
+        nestingLevel,
+      },
     ) ||
     blockImplementation.render.call(
       {},
