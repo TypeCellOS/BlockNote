@@ -23,16 +23,16 @@ const fallbackPages: SearchResult[] = [
     url: "/docs/getting-started",
   },
   {
-    id: "/docs/install",
+    id: "/docs",
     type: "page",
-    content: "Installation",
-    url: "/docs/install",
+    content: "Introduction",
+    url: "/docs",
   },
   {
-    id: "/examples/01-basic/01-minimal",
+    id: "/examples/basic/minimal",
     type: "page",
     content: "Basic Example",
-    url: "/examples/01-basic/01-minimal",
+    url: "/examples/basic/minimal",
   },
   {
     id: "/docs/react/components",

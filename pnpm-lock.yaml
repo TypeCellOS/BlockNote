@@ -344,6 +344,9 @@ importers:
       tailwindcss:
         specifier: ^4.1.18
         version: 4.1.18
+      tw-animate-css:
+        specifier: ^1.4.0
+        version: 1.4.0
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -5511,7 +5514,7 @@ importers:
         version: 5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1)
       vite-plugin-eslint:
         specifier: ^1.8.1
-        version: 1.8.1(eslint@9.39.2(jiti@2.6.1))(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
+        version: 1.8.1(eslint@8.57.1)(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1))
       vitest:
         specifier: ^2.1.9
         version: 2.1.9(@types/node@25.0.7)(@vitest/ui@2.1.9)(jsdom@25.0.1(canvas@2.11.2(encoding@0.1.13)))(lightningcss@1.30.2)(msw@2.11.5(@types/node@25.0.7)(typescript@5.9.3))(terser@5.44.1)
@@ -28932,14 +28935,6 @@ snapshots:
       eslint: 8.57.1
       rollup: 2.79.2
       vite: 6.4.0(@types/node@25.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
-
-  vite-plugin-eslint@1.8.1(eslint@9.39.2(jiti@2.6.1))(vite@5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1)):
-    dependencies:
-      '@rollup/pluginutils': 4.2.1
-      '@types/eslint': 8.56.12
-      eslint: 9.39.2(jiti@2.6.1)
-      rollup: 2.79.2
-      vite: 5.4.20(@types/node@25.0.7)(lightningcss@1.30.2)(terser@5.44.1)
 
   vite-plugin-externalize-deps@0.8.0(vite@5.4.20(@types/node@20.19.22)(lightningcss@1.30.2)(terser@5.44.1)):
     dependencies:
