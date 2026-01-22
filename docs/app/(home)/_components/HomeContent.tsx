@@ -132,16 +132,13 @@ export const HomeContent: React.FC = () => {
             </div>
           </div>
         </section>
-
-        {/* Letter from Creators */}
-        <Letter />
       </div>
       {/* Tech Stack Marquee */}
       <section className="border-y border-stone-100 bg-stone-50/50 py-10">
         <div className="mx-auto max-w-7xl overflow-hidden">
           <div className="mb-6 text-center">
             <span className="text-xs font-bold uppercase tracking-widest text-stone-400">
-              Integrates with your stack
+              Integrates with your stack (TBD)
             </span>
           </div>
           <Marquee />
@@ -153,7 +150,7 @@ export const HomeContent: React.FC = () => {
         <div className="mx-auto max-w-7xl px-6">
           <div className="mx-auto mb-20 max-w-2xl text-center">
             <h2 className="mb-6 font-serif text-4xl text-stone-900">
-              The editor you'd build, if you had the time.
+              ?? The editor you'd build, if you had the time.
             </h2>
             <p className="text-lg text-stone-500">
               BlockNote combines a premium editing experience with the
@@ -167,7 +164,7 @@ export const HomeContent: React.FC = () => {
                 ✨
               </div>
               <h3 className="mb-3 font-serif text-2xl text-stone-900">
-                Notion-Quality UX
+                ?? Notion-Quality UX
               </h3>
               <p className="relative z-10 mb-6 text-stone-500">
                 Give your users the modern, block-based experience they expect.
@@ -185,10 +182,10 @@ export const HomeContent: React.FC = () => {
                 🛡️
               </div>
               <h3 className="mb-3 font-serif text-2xl text-stone-900">
-                Sovereign Infrastructure
+                ?? Sovereign Infrastructure
               </h3>
               <p className="relative z-10 mb-6 text-stone-500">
-                100% open source and self-hostable. Own your data, extend the
+                ?? 100% open source and self-hostable. Own your data, extend the
                 core, and never worry about platform risk.
               </p>
               <div className="flex gap-2 text-[10px] font-bold uppercase tracking-wider text-stone-400">
@@ -206,7 +203,7 @@ export const HomeContent: React.FC = () => {
                 🧠
               </div>
               <h3 className="mb-3 font-serif text-2xl text-stone-900">
-                Intelligence You Own
+                ?? Intelligence You Own
               </h3>
               <p className="relative z-10 mb-6 text-stone-500">
                 Add AI features like autocomplete and rewriting without leaking
@@ -485,6 +482,9 @@ export const HomeContent: React.FC = () => {
           </div>
         </div>
       </section>
+      {/* Letter from Creators */}
+      <Letter />
+
       {/* FAQ */}
       <FAQ />
     </div>
