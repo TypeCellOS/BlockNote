@@ -96,12 +96,12 @@ export const DigitalCommons: React.FC = () => {
               {!isPlaying && (
                 <button
                   onClick={handlePlayPause}
-                  className="absolute inset-0 flex items-center justify-center transition-all"
+                  className="absolute inset-0 flex items-center justify-center bg-black/20 transition-all hover:bg-black/30"
                   aria-label="Play video"
                 >
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm transition-transform hover:scale-110">
+                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white shadow-xl transition-transform hover:scale-110">
                     <svg
-                      className="ml-1 h-6 w-6 text-white"
+                      className="ml-1 h-8 w-8 text-purple-600"
                       fill="currentColor"
                       viewBox="0 0 24 24"
                     >
