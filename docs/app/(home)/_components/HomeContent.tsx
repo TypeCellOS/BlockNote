@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import React from "react";
+import { DigitalCommons } from "./DigitalCommons";
 import { FAQ } from "./FAQ";
 import { FeatureAI } from "./FeatureAI";
 import { FeatureCollab } from "./FeatureCollab";
@@ -218,6 +219,10 @@ export const HomeContent: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* Digital Commons */}
+      <DigitalCommons />
+
       {/* Feature Pillars */}
       <div className="space-y-32 bg-white/50 py-32 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-6">
