@@ -286,13 +286,13 @@ function HeaderRoot({
         render={(_, s) => (
           <nav
             className={cn(
-              "max-w-(--fd-layout-width) mx-auto w-full border-b backdrop-blur-lg transition-colors",
+              "w-full border-b backdrop-blur-lg transition-colors",
               (!isTransparent || s.open) && "bg-fd-background/80",
               className,
             )}
             {...props}
           >
-            {children}
+            <div className="max-w-(--fd-layout-width) mx-auto">{children}</div>
           </nav>
         )}
       />
