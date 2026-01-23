@@ -9,7 +9,7 @@ import ThemedImage from "@/components/ThemedImage";
 
 function FooterLink({ href, children }: { href: string; children: ReactNode }) {
   const classes =
-    "text-sm text-fd-muted-foreground no-underline transition hover:text-fd-foreground";
+    "text-sm text-stone-500 no-underline transition-colors hover:text-purple-600 block py-1";
   if (href.startsWith("http")) {
     return (
       <a className={classes} href={href}>
@@ -25,7 +25,9 @@ function FooterLink({ href, children }: { href: string; children: ReactNode }) {
 }
 
 function FooterHeader({ children }: { children: ReactNode }) {
-  return <h3 className="text-fd-foreground text-sm">{children}</h3>;
+  return (
+    <h3 className="mb-4 font-serif text-base text-stone-900">{children}</h3>
+  );
 }
 
 const navigation = {
@@ -69,86 +71,75 @@ export function FooterContent() {
       </h2>
       <div className="mx-auto w-full">
         <div className="xl:grid xl:grid-cols-3 xl:gap-16">
-          <div className="">
-            {/* <FooterHeader>Subscribe to our newsletter</FooterHeader> */}
+          <div className="mb-12 xl:mb-0">
             <ThemedImage
               src={{ light: LogoLight, dark: LogoDark }}
               alt="BlockNote"
-              className="w-40"
+              className="mb-6 w-40"
             />
-            <p className="text-fd-muted-foreground mt-4 text-sm">
+            <p className="max-w-sm text-sm leading-relaxed text-stone-500">
               BlockNote is an extensible React rich text editor with support for
-              block-based editing, collaboration and comes with ready-to-use
-              customizable UI components.
+              block-based editing, real-time collaboration, and comes with
+              ready-to-use customizable UI components.
             </p>
-            {/* <SubmitForm /> */}
           </div>
-          <div className="grid grid-cols-1 gap-8 xl:col-span-2">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 md:gap-8">
-              <div className="mt-12 xl:!mt-0">
-                <FooterHeader>Learn</FooterHeader>
-                <ul className="ml-0 mt-4 list-none space-y-1.5">
-                  {navigation.general.map((item) => (
-                    <li key={item.name}>
-                      <FooterLink href={item.href}>{item.name}</FooterLink>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="mt-12 xl:!mt-0">
-                <FooterHeader>Collaborate</FooterHeader>
-                <ul className="ml-0 mt-4 list-none space-y-1.5">
-                  {navigation.collaborate().map((item) => (
-                    <li key={item.name}>
-                      <FooterLink href={item.href}>{item.name}</FooterLink>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="mt-12 xl:!mt-0">
-                <FooterHeader>Community</FooterHeader>
-                <ul className="ml-0 mt-4 list-none space-y-1.5">
-                  {navigation.community.map((item) => (
-                    <li key={item.name}>
-                      <FooterLink href={item.href}>{item.name}</FooterLink>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="mt-12 xl:!mt-0">
-                <FooterHeader>Legal</FooterHeader>
-                <ul className="ml-0 mt-4 list-none space-y-1.5">
-                  <li key={"terms-and-conditions"}>
-                    <FooterLink href={"/legal/terms-and-conditions"}>
-                      Terms & Conditions
-                    </FooterLink>
+          <div className="grid grid-cols-2 gap-8 md:grid-cols-4 xl:col-span-2">
+            <div>
+              <FooterHeader>Learn</FooterHeader>
+              <ul className="space-y-1">
+                {navigation.general.map((item) => (
+                  <li key={item.name}>
+                    <FooterLink href={item.href}>{item.name}</FooterLink>
                   </li>
-                  <li key={"privacy-policy"}>
-                    <FooterLink href={"/legal/privacy-policy"}>
-                      Privacy Policy
-                    </FooterLink>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <FooterHeader>Collaborate</FooterHeader>
+              <ul className="space-y-1">
+                {navigation.collaborate().map((item) => (
+                  <li key={item.name}>
+                    <FooterLink href={item.href}>{item.name}</FooterLink>
                   </li>
-                </ul>
-              </div>
-              <div className="mt-12 xl:!mt-0">
-                <FooterHeader>Theme</FooterHeader>
-                <ul className="ml-0 mt-4 list-none space-y-1.5">
-                  <li key={"theme"}>
-                    <ThemeToggle mode="light-dark-system" />
+                ))}
+              </ul>
+            </div>
+            <div>
+              <FooterHeader>Community</FooterHeader>
+              <ul className="space-y-1">
+                {navigation.community.map((item) => (
+                  <li key={item.name}>
+                    <FooterLink href={item.href}>{item.name}</FooterLink>
                   </li>
-                </ul>
-              </div>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <FooterHeader>Legal & Theme</FooterHeader>
+              <ul className="space-y-1">
+                <li>
+                  <FooterLink href={"/legal/terms-and-conditions"}>
+                    Terms & Conditions
+                  </FooterLink>
+                </li>
+                <li>
+                  <FooterLink href={"/legal/privacy-policy"}>
+                    Privacy Policy
+                  </FooterLink>
+                </li>
+                <li className="pt-2">
+                  <ThemeToggle mode="light-dark-system" />
+                </li>
+              </ul>
             </div>
           </div>
         </div>
 
-        <div className="mt-8 pt-8 sm:flex sm:items-center sm:justify-between">
-          <div>
-            <p className="text-fd-muted-foreground mt-4 text-xs">
-              &copy; {new Date().getFullYear()} BlockNote maintainers. All
-              rights reserved.
-            </p>
-          </div>
+        <div className="mt-16 border-t border-stone-200 pt-8 sm:flex sm:items-center sm:justify-between">
+          <p className="text-xs text-stone-400">
+            &copy; {new Date().getFullYear()} BlockNote maintainers. All rights
+            reserved.
+          </p>
         </div>
       </div>
     </div>
@@ -157,19 +148,10 @@ export function FooterContent() {
 
 export function Footer({ menu }: { menu?: boolean }): ReactElement {
   return (
-    <footer className="bg-fd-secondary relative z-30 mt-10">
-      {/* <div className="pointer-events-none absolute top-0 h-12 w-full -translate-y-full bg-gradient-to-t from-[#FAFAFA] to-transparent dark:from-black" /> */}
-      {/* <div
-        className={cn(
-          "mx-auto flex max-w-[90rem] gap-2 px-4 py-2",
-          menu ? "flex" : "hidden",
-        )}>
-        <ThemeSwitch />
-      </div>
-      <hr className="dark:border-neutral-800" /> */}
+    <footer className="relative z-30 border-t border-stone-200 bg-stone-50">
       <div
         className={cn(
-          "mx-auto flex max-w-[90rem] justify-center py-12 text-black md:justify-center dark:text-white",
+          "mx-auto flex max-w-[90rem] justify-center py-16 text-stone-900 md:justify-center",
           "pl-[max(env(safe-area-inset-left),1.5rem)] pr-[max(env(safe-area-inset-right),1.5rem)]",
         )}
       >

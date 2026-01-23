@@ -39,7 +39,7 @@ export const DigitalCommons: React.FC = () => {
 
             {/* Headline - editorial style */}
             <h2 className="mb-6 font-serif text-3xl leading-tight text-white md:text-4xl">
-              Three nations chose
+              Three nations choose
               <br />
               <span className="bg-gradient-to-r from-purple-300 to-blue-300 bg-clip-text text-transparent">
                 open source
@@ -51,7 +51,7 @@ export const DigitalCommons: React.FC = () => {
 
             {/* Short punchy copy */}
             <p className="mb-8 text-base leading-relaxed text-stone-400">
-              France, Germany, and the Netherlands partnered to build{" "}
+              France, Germany, and the Netherlands partner to build{" "}
               <strong className="text-white">Docs</strong> — a collaborative
               writing tool for thousands of public servants.{" "}
               <strong className="text-white">BlockNote is the engine.</strong>
