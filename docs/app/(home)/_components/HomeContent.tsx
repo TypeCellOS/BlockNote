@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { BlockCatalog } from "./BlockCatalog";
@@ -110,14 +111,18 @@ export const HomeContent: React.FC = () => {
 
           <div className="relative h-[450px]">
             {/* Editor Placeholder */}
-            <div className="flex h-full w-full items-center justify-center rounded-xl border-2 border-dashed border-stone-200 bg-white/50">
-              <div className="text-center">
-                <div className="mb-2 text-2xl">✨</div>
-                <p className="text-sm font-medium text-stone-400">
-                  Editor Demo Coming Soon
-                </p>
+            {/* Editor Preview */}
+            <Link href="/demo" className="block h-full w-full">
+              <div className="relative h-full w-full overflow-hidden rounded-xl border border-stone-200 shadow-2xl transition-all hover:scale-[1.02] hover:shadow-purple-200/50">
+                <Image
+                  src="/hero-demo.png"
+                  alt="BlockNote Editor Demo"
+                  fill
+                  className="object-cover object-top"
+                  priority
+                />
               </div>
-            </div>
+            </Link>
           </div>
         </section>
       </div>

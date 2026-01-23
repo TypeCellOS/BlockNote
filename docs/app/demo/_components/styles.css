@@ -1,0 +1,14 @@
+/* Custom scrollbar for sidebar */
+.bn-threads-sidebar {
+  height: 100%;
+}
+
+/* Ensure editor content takes full height */
+.bn-editor {
+  min-height: 100%;
+}
+
+.bn-threads-sidebar .bn-thread {
+  /* todo: fix in blocknote */
+  min-width: auto !important;
+}
