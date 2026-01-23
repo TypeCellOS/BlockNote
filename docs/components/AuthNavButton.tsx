@@ -49,16 +49,16 @@ export const UserImage = ({ user }: UserImageProps) => {
 };
 
 export function AuthNavButton() {
-  // const session = authClient.useSession();
-  const session = {
-    data: {
-      planType: "free",
-      user: {
-        name: "You",
-        image: undefined,
-      },
-    },
-  };
+  const session = authClient.useSession();
+  // const session = {
+  //   data: {
+  //     planType: "free",
+  //     user: {
+  //       name: "You",
+  //       image: undefined,
+  //     },
+  //   },
+  // };
   const pathname = usePathname();
 
   if (!session.data) {
