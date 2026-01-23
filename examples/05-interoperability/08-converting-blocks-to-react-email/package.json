@@ -22,7 +22,7 @@
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "@blocknote/xl-email-exporter": "latest",
-    "@react-email/render": "^1.1.2"
+    "@react-email/render": "^2.0.4"
   },
   "devDependencies": {
     "@types/react": "^19.2.2",
