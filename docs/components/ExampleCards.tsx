@@ -1,8 +1,7 @@
 import { Card, Cards } from "fumadocs-ui/components/card";
 import { Heading } from "fumadocs-ui/components/heading";
-
-import { exampleGroupsData } from "./example/generated/exampleGroupsData.gen";
 import { Fragment } from "react";
+import { exampleGroupsData } from "./example/generated/exampleGroupsData.gen";
 import { ProBadge } from "./ProBadge";
 
 export default function ExampleCards() {

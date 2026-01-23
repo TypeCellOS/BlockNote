@@ -1,3 +1,8 @@
+/* TODO: 
+- review this vs global.css  
+- does everything here needs to be in a global css file, or can we use props / tw classnames / css modules for consistency?
+*/
+
 body {
   --text-color: var(--color-fd-foreground);
   --bg-color: var(--color-fd-background);

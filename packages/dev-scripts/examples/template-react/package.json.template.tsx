@@ -21,8 +21,8 @@ const template = (project: Project) => ({
     "@mantine/core": "^8.3.11",
     "@mantine/hooks": "^8.3.11",
     "@mantine/utils": "^6.0.22",
-    react: "^19.2.1",
-    "react-dom": "^19.2.1",
+    react: "^19.2.3",
+    "react-dom": "^19.2.3",
     ...(project.config.tailwind
       ? {
           tailwindcss: "^4.1.14",
@@ -37,8 +37,8 @@ const template = (project: Project) => ({
           "@tailwindcss/vite": "^4.1.14",
         }
       : {}),
-    "@types/react": "^19.2.2",
-    "@types/react-dom": "^19.2.2",
+    "@types/react": "^19.2.3",
+    "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^4.7.0",
     vite: "^5.4.20",
     ...(project.config?.devDependencies || {}),

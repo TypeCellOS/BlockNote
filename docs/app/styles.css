@@ -1,3 +1,7 @@
+/* TODO: 
+- review this vs global.css  
+- does everything here needs to be in a global css file, or can we use props / tw classnames / css modules for consistency?
+*/
 html {
   -webkit-font-smoothing: antialiased;
 }
@@ -43,10 +47,6 @@ body {
 /* TODO: Don't think we should need to add this manually - bug in fumadocs? */
 #nd-subnav [data-active="true"] {
   color: var(--color-fd-primary);
-}
-
-#nd-nav {
-  z-index: 10000;
 }
 
 :focus-visible {
