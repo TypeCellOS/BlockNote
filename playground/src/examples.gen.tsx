@@ -1149,7 +1149,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-email-exporter": "latest",
-            "@react-email/render": "^1.1.2"
+            "@react-email/render": "^2.0.4"
           } as any,
           "pro": true
         },
