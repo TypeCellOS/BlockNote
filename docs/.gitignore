@@ -29,3 +29,4 @@ next-env.d.ts
 
 /content/examples/*/*
 /components/example/generated/
+sqlite.db
