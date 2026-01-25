@@ -91,7 +91,7 @@ export function DemoEditor() {
         setIsNewRoom(false);
       } else {
         const newId = Math.random().toString(36).substring(2, 7);
-        window.location.hash = newId;
+        window.history.replaceState(null, "", "#" + newId);
         setRoomId(newId);
         setIsNewRoom(true);
       }
@@ -181,7 +181,6 @@ function DemoEditorInner({
 
   const { doc, provider } = useMemo(() => {
     const doc = new Y.Doc();
-    console.log("open room", "demo/" + roomId);
     const provider = new YPartyKitProvider(
       "blocknote-dev.yousefed.partykit.dev",
       "demo-" + roomId,
@@ -198,7 +197,6 @@ function DemoEditorInner({
     );
   }, [activeUser, doc]);
 
-  console.log(activeUser);
   const editor = useCreateBlockNote(
     {
       // Schema with MultiColumn & PageBreak
