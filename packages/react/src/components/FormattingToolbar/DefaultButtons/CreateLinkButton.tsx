@@ -19,7 +19,6 @@ import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useExtension } from "../../../hooks/useExtension.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 import { EditLinkMenuItems } from "../../LinkToolbar/EditLinkMenuItems.js";
-import { useEditorChange } from "../../../hooks/useEditorChange.js";
 
 function checkLinkInSchema(
   editor: BlockNoteEditor<BlockSchema, any, StyleSchema>,
@@ -54,11 +53,6 @@ export const CreateLinkButton = () => {
     return () => showSelection(false, "createLinkButton");
   }, [showPopover, showSelection]);
 
-  useEditorChange(() => {
-    // Close the popover when the editor is updated after a link has been created
-    setShowPopover(false);
-  }, editor);
-
   const state = useEditorState({
     editor,
     selector: ({ editor }) => {
@@ -90,6 +84,11 @@ export const CreateLinkButton = () => {
       };
     },
   });
+  useEffect(() => {
+    if (state?.url === undefined) {
+      setShowPopover(false);
+    }
+  }, [state?.url]);
 
   // Makes Ctrl+K/Meta+K open link creation popover.
   useEffect(() => {
@@ -129,7 +128,7 @@ export const CreateLinkButton = () => {
             dict.generic.ctrl_shortcut,
           )}
           icon={<RiLink />}
-          onClick={() => setShowPopover(open => !open)}
+          onClick={() => setShowPopover((open) => !open)}
         />
       </Components.Generic.Popover.Trigger>
       <Components.Generic.Popover.Content
