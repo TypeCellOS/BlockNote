@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { BlockCatalog } from "./BlockCatalog";
@@ -9,6 +8,7 @@ import { FeatureAI } from "./FeatureAI";
 import { FeatureCollab } from "./FeatureCollab";
 import { FeatureDX } from "./FeatureDX";
 import { FeatureUX } from "./FeatureUX";
+import { HeroVideo } from "./HeroVideo";
 import { Letter } from "./Letter";
 import { Marquee } from "./Marquee";
 import { OpenSource } from "./OpenSource";
@@ -60,9 +60,8 @@ export const HomeContent: React.FC = () => {
       `}</style>
       <div className="w-full bg-[#fdfbf7]">
         {/* Hero Section */}
-        <section className="relative mx-auto grid w-full max-w-7xl items-center gap-20 px-6 py-24 lg:grid-cols-2">
+        <section className="relative mx-auto grid w-full max-w-7xl items-center gap-10 px-6 py-24 lg:grid-cols-2 lg:gap-20">
           {/* Passive Neural Background */}
-
           <div>
             {/* Badge */}
             <TextLoop interval={5}>
@@ -92,7 +91,7 @@ export const HomeContent: React.FC = () => {
 
             <div className="flex flex-wrap items-center gap-4">
               <Link
-                href="/examples"
+                href="/demo"
                 className="group flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-8 py-3.5 font-medium text-stone-900 shadow-sm transition-all hover:border-purple-300 hover:shadow-lg"
               >
                 <span>View Demo</span>
@@ -108,21 +107,8 @@ export const HomeContent: React.FC = () => {
               </Link>
             </div>
           </div>
-
-          <div className="relative h-[450px]">
-            {/* Editor Placeholder */}
-            {/* Editor Preview */}
-            <Link href="/demo" className="block h-full w-full">
-              <div className="relative h-full w-full overflow-hidden rounded-xl border border-stone-200 shadow-2xl transition-all hover:scale-[1.02] hover:shadow-purple-200/50">
-                <Image
-                  src="/hero-demo.png"
-                  alt="BlockNote Editor Demo"
-                  fill
-                  className="object-cover object-top"
-                  priority
-                />
-              </div>
-            </Link>
+          <div className="relative w-full md:ml-auto md:mr-4 lg:mt-12 lg:w-[85%]">
+            <HeroVideo />
           </div>
         </section>
       </div>

@@ -1,6 +1,11 @@
 "use client";
 
-import { combineByGroup } from "@blocknote/core";
+import { codeBlockOptions } from "@blocknote/code-block";
+import {
+  BlockNoteSchema,
+  combineByGroup,
+  createCodeBlockSpec,
+} from "@blocknote/core";
 import {
   CommentsExtension,
   DefaultThreadStoreAuth,
@@ -54,7 +59,7 @@ import { HARDCODED_USERS, resolveUsers, uploadFile } from "./utils";
 
 import "./styles.css";
 
-const AI_API_URL = "http://localhost:3000/api/ai/regular/streamText";
+const AI_API_URL = "https://localhost:3000/ai/regular/streamText";
 
 // Formatting toolbar with AI button
 function FormattingToolbarWithAI() {
@@ -202,6 +207,11 @@ function DemoEditorInner({
       // Schema with MultiColumn & PageBreak
       // schema: withMultiColumn(withPageBreak(BlockNoteSchema.create())),
       // dropCursor: multiColumnDropCursor,
+      schema: BlockNoteSchema.create().extend({
+        blockSpecs: {
+          codeBlock: createCodeBlockSpec(codeBlockOptions),
+        },
+      }),
 
       // Locales
       dictionary: {

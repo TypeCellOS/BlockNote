@@ -12,3 +12,9 @@
   /* todo: fix in blocknote */
   min-width: auto !important;
 }
+
+/* 
+(for recording demo video, also needs bn-ai-prompt on combo)
+.bn-ai-prompt {
+  width: 350px;
+} */

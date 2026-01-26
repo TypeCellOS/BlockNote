@@ -2,50 +2,42 @@ export const HARDCODED_USERS = [
   {
     id: "user-1",
     username: "Kev",
-    color: "#ff0000",
-    avatarUrl: "https://github.com/shadcn.png",
+    color: "#9810fa",
   },
   {
     id: "user-2",
     username: "Matt",
     color: "#00ff00",
-    avatarUrl: "https://github.com/shadcn.png",
   },
   {
     id: "user-3",
     username: "Sef",
-    color: "#0000ff",
-    avatarUrl: "https://github.com/shadcn.png",
+    color: "#ababffff",
   },
   {
     id: "user-4",
     username: "Nicky",
     color: "#ff00ff",
-    avatarUrl: "https://github.com/shadcn.png",
   },
   {
     id: "user-5",
     username: "Sam",
     color: "#00ffff",
-    avatarUrl: "https://github.com/shadcn.png",
   },
   {
     id: "user-6",
     username: "Walter",
     color: "#ffff00",
-    avatarUrl: "https://github.com/shadcn.png",
   },
   {
     id: "user-7",
     username: "Amanda",
     color: "#ffa500",
-    avatarUrl: "https://github.com/shadcn.png",
   },
   {
     id: "user-8",
     username: "Sara",
     color: "#800080",
-    avatarUrl: "https://github.com/shadcn.png",
   },
 ];
 
