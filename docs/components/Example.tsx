@@ -1,17 +1,17 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import { useTheme } from "next-themes";
 import { BlockNoteContext } from "@blocknote/react";
+import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
+import { Tab, Tabs } from "fumadocs-ui/components/tabs";
+import { useTheme } from "next-themes";
+import dynamic from "next/dynamic";
 import { AiFillGithub } from "react-icons/ai";
 import { SiStackblitz } from "react-icons/si";
-import { Tab, Tabs } from "fumadocs-ui/components/tabs";
-import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
 
 import CTAButton from "@/components/CTAButton";
 import { SectionHeader } from "@/components/Headings";
 import { ExampleData } from "@/components/example/generated/exampleGroupsData.gen";
-import { authClient } from "@/util/auth-client";
+import { authClient } from "@/lib/auth-client";
 import * as Sentry from "@sentry/nextjs";
 
 function ExampleDemoBarSourceCodeLink(props: {

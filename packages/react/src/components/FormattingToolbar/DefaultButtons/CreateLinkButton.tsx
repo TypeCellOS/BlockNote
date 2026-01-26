@@ -50,8 +50,8 @@ export const CreateLinkButton = () => {
 
   const [showPopover, setShowPopover] = useState(false);
   useEffect(() => {
-    showSelection(showPopover);
-    return () => showSelection(false);
+    showSelection(showPopover, "createLinkButton");
+    return () => showSelection(false, "createLinkButton");
   }, [showPopover, showSelection]);
 
   useEditorChange(() => {
@@ -100,10 +100,11 @@ export const CreateLinkButton = () => {
       }
     };
 
-    editor.domElement?.addEventListener("keydown", callback);
+    const domElement = editor.domElement;
+    domElement?.addEventListener("keydown", callback);
 
     return () => {
-      editor.domElement?.removeEventListener("keydown", callback);
+      domElement?.removeEventListener("keydown", callback);
     };
   }, [editor.domElement]);
 

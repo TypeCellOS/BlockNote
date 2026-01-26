@@ -1,7 +1,7 @@
 ---
 title: Getting Started
 description: Add AI functionality to your BlockNote rich text editor
-imageTitle: BlockNote AI
+imageTitle: Getting Started with BlockNote AI
 ---
 
 # Getting Started with BlockNote AI
@@ -100,7 +100,9 @@ export async function POST(req: Request) {
   const result = streamText({
     model: openai("gpt-4.1"), // see https://ai-sdk.dev/docs/foundations/providers-and-models
     system: aiDocumentFormats.html.systemPrompt,
-    messages: convertToModelMessages(injectDocumentStateMessages(messages)),
+    messages: await convertToModelMessages(
+      injectDocumentStateMessages(messages),
+    ),
     tools: toolDefinitionsToToolSet(toolDefinitions),
     toolChoice: "required",
   });

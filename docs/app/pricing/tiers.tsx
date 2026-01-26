@@ -1,10 +1,10 @@
 "use client";
-import { authClient, useSession } from "@/util/auth-client";
-import { CheckIcon } from "@heroicons/react/20/solid";
-import { track } from "@vercel/analytics";
-import classNames from "classnames";
-import React from "react";
+import { authClient, useSession } from "@/lib/auth-client";
+import { cn } from "@/lib/fumadocs/cn";
 import * as Sentry from "@sentry/nextjs";
+import { track } from "@vercel/analytics";
+import { CheckIcon } from "lucide-react";
+import React from "react";
 
 type Frequency = "month" | "year";
 
@@ -22,7 +22,7 @@ function TierTitle({ tier }: { tier: Tier }) {
   return (
     <h3
       id={tier.id}
-      className={classNames(
+      className={cn(
         tier.mostPopular && "text-indigo-600",
         "text-3xl font-semibold leading-8",
       )}
@@ -128,7 +128,7 @@ function TierCTAButton({ tier }: { tier: Tier }) {
       }}
       href={tier.href ?? (session ? undefined : "/signup")}
       aria-describedby={tier.id}
-      className={classNames(
+      className={cn(
         tier.mostPopular
           ? "text-fd-background dark:text-fd-foreground bg-indigo-600 shadow-sm hover:bg-indigo-500"
           : "text-indigo-600 ring-1 ring-inset ring-indigo-600 hover:text-indigo-500 hover:ring-indigo-500",
@@ -174,7 +174,7 @@ export function Tiers({
       {tiers.map((tier) => (
         <div
           key={tier.id}
-          className={classNames(
+          className={cn(
             tier.mostPopular ? "ring-indigo-600" : "ring-fd-border",
             "bg-fd-accent rounded-md p-8 ring-2 xl:p-10",
           )}

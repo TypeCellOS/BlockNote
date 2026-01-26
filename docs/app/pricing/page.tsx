@@ -1,12 +1,12 @@
 import { FAQ } from "@/app/pricing/faq";
 import { Tier, Tiers } from "@/app/pricing/tiers";
 import { SectionSubHeader } from "@/components/Headings";
-import { getFullMetadata } from "@/util/getFullMetadata";
+import { getFullMetadata } from "@/lib/getFullMetadata";
+import Link from "next/link";
 
 export const metadata = getFullMetadata({
   title: "Pricing",
   path: "/pricing",
-  ogImageTitle: "Pricing",
 });
 
 const tiers: Tier[] = [
@@ -45,7 +45,7 @@ const tiers: Tier[] = [
       "Best for companies that want a direct line to the team and a commercial license.",
     price: { month: 390, year: 48 },
     features: [
-      <span>Commercial license for XL packages:</span>,
+      <span key="commercial">Commercial license for XL packages:</span>,
       "- AI integration",
       "- Multi-column layouts",
       "- Export to PDF, Docx, ODT, Email",
@@ -53,9 +53,9 @@ const tiers: Tier[] = [
       "Prioritized Bug Reports on GitHub",
       "Support maintenance and new versions of our open source library",
       "Logo on our website and repositories",
-      <span>
+      <span key="sla">
         Standard Support included (
-        <a href="/legal/service-level-agreement">see SLA</a>)
+        <Link href="/legal/service-level-agreement">see SLA</Link>)
       </span>,
     ],
   },
@@ -69,7 +69,7 @@ const tiers: Tier[] = [
       "Development of BlockNote features required for your organization",
       "Access to a private Slack channel with the maintainers",
       "Guidance on integrating BlockNote into your project",
-      <span>Commercial license for XL packages:</span>,
+      <span key="commercial">Commercial license for XL packages:</span>,
       "- AI integration",
       "- Multi-column layouts",
       "- Export to PDF, Docx, ODT, Email",
@@ -77,9 +77,9 @@ const tiers: Tier[] = [
       "Prioritized Bug Reports and Feature Requests on GitHub",
       "Support maintenance and new versions of our open source library",
       "Logo on our website and repositories",
-      <span>
+      <span key="sla">
         Priority Support included (
-        <a href="/legal/service-level-agreement">see SLA</a>)
+        <Link href="/legal/service-level-agreement">see SLA</Link>)
       </span>,
     ],
     href: "/about/",

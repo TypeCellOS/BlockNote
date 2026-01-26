@@ -1,8 +1,8 @@
-import { FC } from "react";
-import { Contributors } from "@/app/(home)/community/Contributors";
-import { Section } from "@/components/Section";
-import { Sponsors } from "@/app/(home)/community/Sponsors";
 import { SectionIntro } from "@/components/Headings";
+import { Section } from "@/components/Section";
+import { FC } from "react";
+import { Contributors } from "./Contributors";
+import { Sponsors } from "./Sponsors";
 
 export const Community: FC = () => (
   <Section gradientBackground className="pb-24 pt-12 xl:pb-32 xl:pt-16">

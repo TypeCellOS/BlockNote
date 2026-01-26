@@ -1,3 +1,33 @@
+## 0.46.1 (2026-01-10)
+
+This was a version bump only, there were no code changes.
+
+## 0.46.0 (2026-01-08)
+
+### 🚀 Features
+
+- add data-nesting-level to HTML export ([#2329](https://github.com/TypeCellOS/BlockNote/pull/2329))
+- migrate to ai sdk 6 ([#2328](https://github.com/TypeCellOS/BlockNote/pull/2328))
+
+### 🩹 Fixes
+
+- emojipicker can sometimes fail to mount ([575b81cec](https://github.com/TypeCellOS/BlockNote/commit/575b81cec))
+- LinkToolbar Event Listener leak ([#2335](https://github.com/TypeCellOS/BlockNote/pull/2335))
+- when you convert a block into checkListItem via inputRule, it should transfer its content into checkListItem content ([#2331](https://github.com/TypeCellOS/BlockNote/pull/2331))
+- do not return focus back to menu ([484d7da36](https://github.com/TypeCellOS/BlockNote/commit/484d7da36))
+- arrow up on a checklist item should move to the element above BLO-362 ([#2306](https://github.com/TypeCellOS/BlockNote/pull/2306))
+- getPos race condition in React StrictMode ([#2311](https://github.com/TypeCellOS/BlockNote/pull/2311))
+- adjust input rules to be more tolerant to starting whitespace ([#2341](https://github.com/TypeCellOS/BlockNote/pull/2341))
+- **ai:** make sure ShowSelection works ([#2297](https://github.com/TypeCellOS/BlockNote/pull/2297))
+- **xl-email-exporter:** remove redundant sections in email export ([#2323](https://github.com/TypeCellOS/BlockNote/pull/2323))
+
+### ❤️ Thank You
+
+- Nick Perez
+- Nick the Sick @nperez0111
+- supernova @tmpluto
+- Yousef
+
 ## 0.45.0 (2025-12-17)
 
 ### 🚀 Features

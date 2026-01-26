@@ -11,7 +11,7 @@
     "directory": "packages/ariakit"
   },
   "license": "MPL-2.0",
-  "version": "0.45.0",
+  "version": "0.46.1",
   "files": [
     "dist",
     "types",
@@ -57,16 +57,16 @@
   },
   "dependencies": {
     "@ariakit/react": "^0.4.19",
-    "@blocknote/core": "0.45.0",
-    "@blocknote/react": "0.45.0"
+    "@blocknote/core": "0.46.1",
+    "@blocknote/react": "0.46.1"
   },
   "devDependencies": {
-    "@types/react": "^19.2.2",
-    "@types/react-dom": "^19.2.2",
+    "@types/react": "^19.2.3",
+    "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^4.7.0",
     "eslint": "^8.57.1",
-    "react": "^19.2.1",
-    "react-dom": "^19.2.1",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
     "rimraf": "^5.0.10",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^5.9.3",
