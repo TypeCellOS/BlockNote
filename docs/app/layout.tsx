@@ -1,4 +1,3 @@
-import { Footer } from "@/components/Footer";
 import { Provider } from "@/components/provider";
 import { getFullMetadata } from "@/lib/getFullMetadata";
 import { Analytics } from "@vercel/analytics/next";
@@ -19,7 +18,7 @@ export default function Layout({ children }: LayoutProps<"/">) {
       <body className="flex min-h-screen flex-col">
         <Provider>
           {children}
-          <Footer />
+          {/* <Footer /> */}
         </Provider>
         <Analytics />
       </body>
