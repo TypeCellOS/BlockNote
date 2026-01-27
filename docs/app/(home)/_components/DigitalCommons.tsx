@@ -52,7 +52,7 @@ export const DigitalCommons: React.FC = () => {
             {/* Short punchy copy */}
             <p className="mb-8 text-base leading-relaxed text-stone-400">
               France, Germany, and the Netherlands partner to build{" "}
-              <strong className="text-white">Docs</strong> — a collaborative
+              <strong className="text-white">Docs</strong>, a collaborative
               writing tool for thousands of public servants.{" "}
               <strong className="text-white">BlockNote is the engine.</strong>
             </p>
@@ -65,12 +65,13 @@ export const DigitalCommons: React.FC = () => {
 
             {/* CTA */}
             <Link
-              href="https://lasuite.numerique.gouv.fr/en/produits/docs"
-              target="_blank"
-              rel="noopener noreferrer"
+              // href="https://lasuite.numerique.gouv.fr/en/produits/docs"
+              href="/about"
+              // target="_blank"
+              // rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm font-medium text-purple-300 transition-colors hover:text-purple-200"
             >
-              <span>Watch the story</span>
+              <span>Partner with us</span>
               <span>→</span>
             </Link>
           </div>
