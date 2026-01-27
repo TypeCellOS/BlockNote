@@ -106,7 +106,7 @@ const tiers: Tier[] = [
         )
       </span>,
     ],
-    cta: "Start free trial",
+    cta: "Buy now",
   },
   {
     id: "enterprise",
