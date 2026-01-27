@@ -27,6 +27,15 @@ test.describe("Check SlashMenu Functionality", () => {
     await focusOnEditor(page);
     await openSlashMenu(page);
   });
+  test("Should be able to use PageUp/Down to navigate", async ({ page }) => {
+    await focusOnEditor(page);
+    await openSlashMenu(page);
+    await page.waitForTimeout(500);
+    await page.keyboard.press("PageDown");
+    expect(await page.screenshot()).toMatchSnapshot("slash_menu_page_down.png");
+    await page.keyboard.press("PageUp");
+    expect(await page.screenshot()).toMatchSnapshot("slash_menu_page_up.png");
+  });
   test("Should be able to create h1", async ({ page }) => {
     await focusOnEditor(page);
     await executeSlashCommand(page, "h1");
