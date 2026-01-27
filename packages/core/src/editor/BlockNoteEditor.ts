@@ -7,8 +7,6 @@ import {
 } from "@tiptap/core";
 import { type Command, type Plugin, type Transaction } from "@tiptap/pm/state";
 import { Node, Schema } from "prosemirror-model";
-import * as Y from "yjs";
-
 import type { BlocksChanged } from "../api/getBlocksChangedByTransaction.js";
 import { blockToNode } from "../api/nodeConversions/blockToNode.js";
 import {
@@ -19,6 +17,8 @@ import {
   DefaultStyleSchema,
   PartialBlock,
 } from "../blocks/index.js";
+import type { CollaborationOptions } from "../extensions/Collaboration/Collaboration.js";
+import { BlockChangeExtension } from "../extensions/index.js";
 import { UniqueID } from "../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 import type { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
@@ -81,37 +81,8 @@ export interface BlockNoteEditorOptions<
   /**
    * When enabled, allows for collaboration between multiple users.
    * See [Real-time Collaboration](https://www.blocknotejs.org/docs/advanced/real-time-collaboration) for more info.
-   *
-   * @remarks `CollaborationOptions`
    */
-  collaboration?: {
-    /**
-     * The Yjs XML fragment that's used for collaboration.
-     */
-    fragment: Y.XmlFragment;
-    /**
-     * The user info for the current user that's shown to other collaborators.
-     */
-    user: {
-      name: string;
-      color: string;
-    };
-    /**
-     * A Yjs provider (used for awareness / cursor information)
-     */
-    provider: any;
-    /**
-     * Optional function to customize how cursors of users are rendered
-     */
-    renderCursor?: (user: any) => HTMLElement;
-    /**
-     * Optional flag to set when the user label should be shown with the default
-     * collaboration cursor. Setting to "always" will always show the label,
-     * while "activity" will only show the label when the user moves the cursor
-     * or types. Defaults to "activity".
-     */
-    showCursorLabels?: "always" | "activity";
-  };
+  collaboration?: CollaborationOptions;
 
   /**
    * Use default BlockNote font and reset the styles of <p> <li> <h1> elements etc., that are used in BlockNote.
@@ -776,7 +747,7 @@ export class BlockNoteEditor<
     if (this.headless) {
       return;
     }
-    this.prosemirrorView.dom.blur();
+    this.domElement?.blur();
   }
 
   // TODO move to extension
@@ -905,6 +876,22 @@ export class BlockNoteEditor<
   }
 
   /**
+   * Executes a callback before any change is applied to the editor, allowing you to cancel the change.
+   * @param callback The callback to execute.
+   * @returns A function to remove the callback.
+   */
+  public onBeforeChange(
+    callback: (context: {
+      getChanges: () => BlocksChanged<BSchema, ISchema, SSchema>;
+      tr: Transaction;
+    }) => boolean | void,
+  ): () => void {
+    return this._extensionManager
+      .getExtension(BlockChangeExtension)!
+      .subscribe(callback);
+  }
+
+  /**
    * Gets a snapshot of the current text cursor position.
    * @returns A snapshot of the current text cursor position.
    */
@@ -946,8 +933,8 @@ export class BlockNoteEditor<
    * If the selection starts / ends halfway through a block, the returned block will be
    * only the part of the block that is included in the selection.
    */
-  public getSelectionCutBlocks() {
-    return this._selectionManager.getSelectionCutBlocks();
+  public getSelectionCutBlocks(expandToWords = false) {
+    return this._selectionManager.getSelectionCutBlocks(expandToWords);
   }
 
   /**

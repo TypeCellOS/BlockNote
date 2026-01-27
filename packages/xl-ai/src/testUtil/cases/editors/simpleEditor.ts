@@ -44,3 +44,18 @@ export function getSimpleEditorWithCursorBetweenBlocks() {
   editor.setTextCursorPosition("ref2");
   return editor;
 }
+
+export function getSimpleEditorSpellingError() {
+  const editor = BlockNoteEditor.create({
+    initialContent: [
+      {
+        id: "ref1",
+        content: "Hello, world! Dow are you?",
+      },
+    ],
+    trailingBlock: false,
+    schema,
+    extensions: [AIExtension()],
+  });
+  return editor;
+}

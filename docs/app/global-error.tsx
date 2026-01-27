@@ -10,9 +10,14 @@ export default function GlobalError({
   error: Error & { digest?: string };
 }) {
   useEffect(() => {
-    Sentry.captureException(error, { tags: { type: "react-render" } });
+    Sentry.captureException(error, {
+      tags: { type: "react-render", source: "global-error" },
+    });
   }, [error]);
 
+  // Theoretically, errors should never appear here because they should be caught by the error boundaries
+  // This page keeps the default, simple next.js layout, because including our own custom code could also raise errors
+  // and this should be a last resort fallback
   return (
     <html>
       <body>

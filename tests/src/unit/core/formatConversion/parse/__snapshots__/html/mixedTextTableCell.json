@@ -15,7 +15,10 @@
                 {
                   "styles": {},
                   "text": "Table Cell
-Table Cell Table Cell",
+Table Cell
+        
+        Table Cell
+",
                   "type": "text",
                 },
               ],

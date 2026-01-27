@@ -306,7 +306,9 @@ export const CommentsExtension = createExtension(
           selectedThreadId: undefined,
           pendingComment: true,
         }));
-        editor.getExtension(ShowSelectionExtension)?.showSelection(true);
+        editor
+          .getExtension(ShowSelectionExtension)
+          ?.showSelection(true, "comments");
       },
       stopPendingComment() {
         store.setState((prev) => ({
@@ -314,7 +316,9 @@ export const CommentsExtension = createExtension(
           selectedThreadId: undefined,
           pendingComment: false,
         }));
-        editor.getExtension(ShowSelectionExtension)?.showSelection(false);
+        editor
+          .getExtension(ShowSelectionExtension)
+          ?.showSelection(false, "comments");
       },
       async createThread(options: {
         initialComment: { body: CommentBody; metadata?: any };

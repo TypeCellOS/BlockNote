@@ -5,10 +5,10 @@ import {
   createStore,
   ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
+import { CollaborationOptions } from "./Collaboration.js";
 import { YCursorExtension } from "./YCursorPlugin.js";
 import { YSyncExtension } from "./YSync.js";
 import { YUndoExtension } from "./YUndo.js";
-import { BlockNoteEditorOptions } from "../../editor/BlockNoteEditor.js";
 
 /**
  * To find a fragment in another ydoc, we need to search for it.
@@ -44,12 +44,7 @@ function findTypeInOtherYdoc<T extends Y.AbstractType<any>>(
 }
 
 export const ForkYDocExtension = createExtension(
-  ({
-    editor,
-    options,
-  }: ExtensionOptions<
-    NonNullable<BlockNoteEditorOptions<any, any, any>["collaboration"]>
-  >) => {
+  ({ editor, options }: ExtensionOptions<CollaborationOptions>) => {
     let forkedState:
       | {
           originalFragment: Y.XmlFragment;
@@ -107,7 +102,7 @@ export const ForkYDocExtension = createExtension(
         editor.registerExtension([
           YSyncExtension(newOptions),
           // No need to register the cursor plugin again, it's a local fork
-          YUndoExtension({}),
+          YUndoExtension(),
         ]);
 
         // Tell the store that the editor is now forked
@@ -131,7 +126,7 @@ export const ForkYDocExtension = createExtension(
         editor.registerExtension([
           YSyncExtension(options),
           YCursorExtension(options),
-          YUndoExtension({}),
+          YUndoExtension(),
         ]);
 
         // Reset the undo stack to the original undo stack

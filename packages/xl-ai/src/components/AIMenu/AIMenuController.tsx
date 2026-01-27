@@ -5,7 +5,7 @@ import {
   useExtension,
   useExtensionState,
 } from "@blocknote/react";
-import { offset, size } from "@floating-ui/react";
+import { autoUpdate, offset, size } from "@floating-ui/react";
 import { FC, useMemo } from "react";
 
 import { AIExtension } from "../../AIExtension.js";
@@ -27,6 +27,7 @@ export const AIMenuController = (props: {
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
+      ...props.floatingUIOptions,
       useFloatingOptions: {
         open: aiMenuState !== "closed",
         placement: "bottom",
@@ -55,6 +56,12 @@ export const AIMenuController = (props: {
             ai.rejectChanges();
           }
         },
+        whileElementsMounted(reference, floating, update) {
+          return autoUpdate(reference, floating, update, {
+            animationFrame: true,
+          });
+        },
+        ...props.floatingUIOptions?.useFloatingOptions,
       },
       useDismissProps: {
         enabled:
@@ -75,13 +82,14 @@ export const AIMenuController = (props: {
 
           return true;
         },
+        ...props.floatingUIOptions?.useDismissProps,
       },
       elementProps: {
         style: {
           zIndex: 100,
         },
+        ...props.floatingUIOptions?.elementProps,
       },
-      ...props.floatingUIOptions,
     }),
     [ai, aiMenuState, blockId, props.floatingUIOptions],
   );

@@ -621,12 +621,16 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
         key: tableHandlesPluginKey,
         view: (editorView) => {
           view = new TableHandlesView(editor as any, editorView, (state) => {
-            store.setState({
-              ...state,
-              draggingState: state.draggingState
-                ? { ...state.draggingState }
+            store.setState(
+              state.block
+                ? {
+                    ...state,
+                    draggingState: state.draggingState
+                      ? { ...state.draggingState }
+                      : undefined,
+                  }
                 : undefined,
-            });
+            );
           });
           return view;
         },

@@ -26,19 +26,22 @@ export const SideMenuController = (props: {
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
+      ...props.floatingUIOptions,
       useFloatingOptions: {
         open: show,
         placement: "left-start",
+        ...props.floatingUIOptions?.useFloatingOptions,
       },
       useDismissProps: {
         enabled: false,
+        ...props.floatingUIOptions?.useDismissProps,
       },
       elementProps: {
         style: {
           zIndex: 20,
         },
+        ...props.floatingUIOptions?.elementProps,
       },
-      ...props.floatingUIOptions,
     }),
     [props.floatingUIOptions, show],
   );

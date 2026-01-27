@@ -1,4 +1,4 @@
-import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor, expandPMRangeToWords } from "@blocknote/core";
 import { describe, expect, it } from "vitest";
 import { getEditorWithFormattingAndMentions } from "../testUtil/cases/editors/formattingAndMentions.js";
 import {
@@ -18,7 +18,13 @@ function executeTestCase(
     }
     const blockId = update.id;
 
-    const selection = test.getTestSelection?.(editor);
+    let selection = test.getTestSelection?.(editor);
+    if (selection) {
+      selection = expandPMRangeToWords(editor.prosemirrorState.doc, {
+        $from: editor.prosemirrorState.doc.resolve(selection.from),
+        $to: editor.prosemirrorState.doc.resolve(selection.to),
+      });
+    }
     const steps = updateToReplaceSteps(
       {
         id: blockId,

@@ -6,6 +6,7 @@ import {
   getNearestBlockPos,
 } from "../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "./BlockNoteEditor.js";
+import { BlocksChanged } from "../api/getBlocksChangedByTransaction.js";
 
 /**
  * @vitest-environment jsdom
@@ -135,7 +136,6 @@ it("sets an initial block id when using Y.js", async () => {
     collaboration: {
       fragment,
       user: { name: "Hello", color: "#FFFFFF" },
-      provider: null,
     },
     _tiptapOptions: {
       onTransaction: () => {
@@ -189,4 +189,63 @@ it("sets an initial block id when using Y.js", async () => {
   expect(fragment.toJSON()).toMatchInlineSnapshot(
     `"<blockgroup><blockcontainer id="0"><paragraph backgroundColor="default" textAlignment="left" textColor="default">Hello</paragraph></blockcontainer><blockcontainer id="1"><paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph></blockcontainer></blockgroup>"`,
   );
+});
+
+it("onBeforeChange", () => {
+  const editor = BlockNoteEditor.create();
+  let beforeChangeCalled = false;
+  let changes: BlocksChanged<any, any, any> = [];
+  editor.onBeforeChange(({ getChanges }) => {
+    beforeChangeCalled = true;
+    changes = getChanges();
+    return true;
+  });
+  editor.mount(document.createElement("div"));
+  editor.replaceBlocks(editor.document, [
+    {
+      type: "paragraph",
+      content: [{ text: "Hello", styles: {}, type: "text" }],
+    },
+  ]);
+  expect(beforeChangeCalled).toBe(true);
+  expect(changes).toMatchInlineSnapshot(`
+    [
+      {
+        "block": {
+          "children": [],
+          "content": [],
+          "id": "3",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+        "prevBlock": undefined,
+        "source": {
+          "type": "local",
+        },
+        "type": "insert",
+      },
+      {
+        "block": {
+          "children": [],
+          "content": [],
+          "id": "2",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+        "prevBlock": undefined,
+        "source": {
+          "type": "local",
+        },
+        "type": "delete",
+      },
+    ]
+  `);
 });

@@ -1,9 +1,9 @@
+import { FadeIn } from "@/components/FadeIn";
+import { SectionSubHeader } from "@/components/Headings";
 import Image from "next/image";
 import Link from "next/link";
 import { RiDiscordFill, RiGithubFill } from "react-icons/ri";
-import { SectionSubHeader } from "@/components/Headings";
-import { JoinButton } from "@/app/(home)/community/JoinButton";
-import { FadeIn } from "@/components/FadeIn";
+import { JoinButton } from "./JoinButton";
 
 // TODO: Use GitHub API
 function fetchContributors(): { username: string; avatarUrl: string }[] {

@@ -70,6 +70,8 @@ export function getParseRules<
 
         return props;
       },
+      // Because we do the parsing ourselves, we want to preserve whitespace for content we've parsed
+      preserveWhitespace: true,
       getContent:
         config.content === "inline" || config.content === "none"
           ? (node, schema) => {
@@ -97,6 +99,7 @@ export function getParseRules<
                 const parser = DOMParser.fromSchema(schema);
                 const parsed = parser.parse(clone, {
                   topNode: schema.nodes.paragraph.create(),
+                  preserveWhitespace: true,
                 });
 
                 return parsed.content;

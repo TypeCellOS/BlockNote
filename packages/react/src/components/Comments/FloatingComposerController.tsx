@@ -8,7 +8,7 @@ import {
 } from "@blocknote/core";
 import { CommentsExtension } from "@blocknote/core/comments";
 import { flip, offset, shift } from "@floating-ui/react";
-import { ComponentProps, FC, useEffect, useMemo, useState } from "react";
+import { ComponentProps, FC, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useEditorState } from "../../hooks/useEditorState.js";
@@ -25,8 +25,6 @@ export default function FloatingComposerController<
   floatingComposer?: FC<ComponentProps<typeof FloatingComposer>>;
   floatingUIOptions?: FloatingUIOptions;
 }) {
-  const [open, setOpen] = useState(false);
-
   const editor = useBlockNoteEditor<B, I, S>();
 
   const comments = useExtension(CommentsExtension);
@@ -35,9 +33,6 @@ export default function FloatingComposerController<
     editor,
     selector: (state) => state.pendingComment,
   });
-  useEffect(() => {
-    setOpen(pendingComment);
-  }, [pendingComment]);
 
   const position = useEditorState({
     editor,
@@ -52,8 +47,9 @@ export default function FloatingComposerController<
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
+      ...props.floatingUIOptions,
       useFloatingOptions: {
-        open,
+        open: !!pendingComment,
         // Needed as hooks like `useDismiss` call `onOpenChange` to change the
         // open state.
         onOpenChange: (open) => {
@@ -61,20 +57,19 @@ export default function FloatingComposerController<
             comments.stopPendingComment();
             editor.focus();
           }
-
-          setOpen(open);
         },
         placement: "bottom",
         middleware: [offset(10), shift(), flip()],
+        ...props.floatingUIOptions?.useFloatingOptions,
       },
       elementProps: {
         style: {
           zIndex: 60,
         },
+        ...props.floatingUIOptions?.elementProps,
       },
-      ...props.floatingUIOptions,
     }),
-    [comments, editor, open, props.floatingUIOptions],
+    [comments, editor, pendingComment, props.floatingUIOptions],
   );
 
   // nice to have improvements would be:

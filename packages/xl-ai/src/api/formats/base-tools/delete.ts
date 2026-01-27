@@ -62,7 +62,11 @@ export const deleteBlockTool = (
       if (!block) {
         return {
           ok: false,
-          error: "block not found",
+          error: new Error("Block not found (delete)", {
+            cause: {
+              blockId: id,
+            },
+          }),
         };
       }
 

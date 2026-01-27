@@ -14,7 +14,7 @@ import {
   applySuggestions,
   revertSuggestions,
   suggestChanges,
-} from "@blocknote/prosemirror-suggest-changes";
+} from "@handlewithcare/prosemirror-suggest-changes";
 import { UIMessage } from "ai";
 import { Fragment, Slice } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
@@ -75,6 +75,10 @@ export const AIExtension = createExtension(
       | undefined;
     let autoScroll = false;
 
+    const suggestChangesPlugin = suggestChanges();
+    // disable decorations for suggest changes, not needed
+    // (and the pilcrows are ugly)
+    suggestChangesPlugin.props.decorations = undefined;
     return {
       key: "ai",
       options,
@@ -129,7 +133,7 @@ export const AIExtension = createExtension(
             return true;
           },
         }),
-        suggestChanges(),
+        suggestChangesPlugin,
         createAgentCursorPlugin(
           editorOptions?.agentCursor || { name: "AI", color: "#8bc6ff" },
         ),
@@ -139,7 +143,9 @@ export const AIExtension = createExtension(
        * Open the AI menu at a specific block
        */
       openAIMenuAtBlock(blockID: string) {
-        editor.getExtension(ShowSelectionExtension)?.showSelection(true);
+        editor
+          .getExtension(ShowSelectionExtension)
+          ?.showSelection(true, "aiMenu");
         editor.isEditable = false;
         store.setState({
           aiMenuState: {
@@ -163,7 +169,9 @@ export const AIExtension = createExtension(
           aiMenuState: "closed",
         });
         chatSession = undefined;
-        editor.getExtension(ShowSelectionExtension)?.showSelection(false);
+        editor
+          .getExtension(ShowSelectionExtension)
+          ?.showSelection(false, "aiMenu");
         editor.isEditable = true;
         editor.focus();
       },
@@ -333,7 +341,9 @@ export const AIExtension = createExtension(
         }
 
         if (status === "ai-writing") {
-          editor.getExtension(ShowSelectionExtension)?.showSelection(false);
+          editor
+            .getExtension(ShowSelectionExtension)
+            ?.showSelection(false, "aiMenu");
         }
 
         if (typeof status === "object") {

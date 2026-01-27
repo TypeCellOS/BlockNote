@@ -27,8 +27,8 @@ const faqs = [
       <>
         100% of BlockNote is open source. We offer consultancy, support services
         and commercial licenses for specific XL packages to help sustain
-        BlockNote. Explore our <a href="/pricing">pricing page</a> for more
-        details.
+        BlockNote. Explore our <Link href="/pricing">pricing page</Link> for
+        more details.
       </>
     ),
   },

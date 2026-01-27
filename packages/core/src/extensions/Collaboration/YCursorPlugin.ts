@@ -3,7 +3,7 @@ import {
   createExtension,
   ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
-import { BlockNoteEditorOptions } from "../../editor/BlockNoteEditor.js";
+import { CollaborationOptions } from "./Collaboration.js";
 
 export type CollaborationUser = {
   name: string;
@@ -67,30 +67,24 @@ function defaultCursorRender(user: CollaborationUser) {
 }
 
 export const YCursorExtension = createExtension(
-  ({
-    options,
-  }: ExtensionOptions<
-    NonNullable<BlockNoteEditorOptions<any, any, any>["collaboration"]>
-  >) => {
+  ({ options }: ExtensionOptions<CollaborationOptions>) => {
     const recentlyUpdatedCursors = new Map();
-
-    if (
+    const awareness =
       options.provider &&
       "awareness" in options.provider &&
       typeof options.provider.awareness === "object"
-    ) {
+        ? options.provider.awareness
+        : undefined;
+    if (awareness) {
       if (
-        "setLocalStateField" in options.provider.awareness &&
-        typeof options.provider.awareness.setLocalStateField === "function"
+        "setLocalStateField" in awareness &&
+        typeof awareness.setLocalStateField === "function"
       ) {
-        options.provider.awareness.setLocalStateField("user", options.user);
+        awareness.setLocalStateField("user", options.user);
       }
-      if (
-        "on" in options.provider.awareness &&
-        typeof options.provider.awareness.on === "function"
-      ) {
+      if ("on" in awareness && typeof awareness.on === "function") {
         if (options.showCursorLabels !== "always") {
-          options.provider.awareness.on(
+          awareness.on(
             "change",
             ({
               updated,
@@ -126,57 +120,59 @@ export const YCursorExtension = createExtension(
     return {
       key: "yCursor",
       prosemirrorPlugins: [
-        yCursorPlugin(options.provider.awareness, {
-          selectionBuilder: defaultSelectionBuilder,
-          cursorBuilder(user: CollaborationUser, clientID: number) {
-            let cursorData = recentlyUpdatedCursors.get(clientID);
+        awareness
+          ? yCursorPlugin(awareness, {
+              selectionBuilder: defaultSelectionBuilder,
+              cursorBuilder(user: CollaborationUser, clientID: number) {
+                let cursorData = recentlyUpdatedCursors.get(clientID);
 
-            if (!cursorData) {
-              const cursorElement = (
-                options.renderCursor ?? defaultCursorRender
-              )(user);
+                if (!cursorData) {
+                  const cursorElement = (
+                    options.renderCursor ?? defaultCursorRender
+                  )(user);
 
-              if (options.showCursorLabels !== "always") {
-                cursorElement.addEventListener("mouseenter", () => {
-                  const cursor = recentlyUpdatedCursors.get(clientID)!;
-                  cursor.element.setAttribute("data-active", "");
+                  if (options.showCursorLabels !== "always") {
+                    cursorElement.addEventListener("mouseenter", () => {
+                      const cursor = recentlyUpdatedCursors.get(clientID)!;
+                      cursor.element.setAttribute("data-active", "");
 
-                  if (cursor.hideTimeout) {
-                    clearTimeout(cursor.hideTimeout);
-                    recentlyUpdatedCursors.set(clientID, {
-                      element: cursor.element,
-                      hideTimeout: undefined,
+                      if (cursor.hideTimeout) {
+                        clearTimeout(cursor.hideTimeout);
+                        recentlyUpdatedCursors.set(clientID, {
+                          element: cursor.element,
+                          hideTimeout: undefined,
+                        });
+                      }
+                    });
+
+                    cursorElement.addEventListener("mouseleave", () => {
+                      const cursor = recentlyUpdatedCursors.get(clientID)!;
+
+                      recentlyUpdatedCursors.set(clientID, {
+                        element: cursor.element,
+                        hideTimeout: setTimeout(() => {
+                          cursor.element.removeAttribute("data-active");
+                        }, 2000),
+                      });
                     });
                   }
-                });
 
-                cursorElement.addEventListener("mouseleave", () => {
-                  const cursor = recentlyUpdatedCursors.get(clientID)!;
+                  cursorData = {
+                    element: cursorElement,
+                    hideTimeout: undefined,
+                  };
 
-                  recentlyUpdatedCursors.set(clientID, {
-                    element: cursor.element,
-                    hideTimeout: setTimeout(() => {
-                      cursor.element.removeAttribute("data-active");
-                    }, 2000),
-                  });
-                });
-              }
+                  recentlyUpdatedCursors.set(clientID, cursorData);
+                }
 
-              cursorData = {
-                element: cursorElement,
-                hideTimeout: undefined,
-              };
-
-              recentlyUpdatedCursors.set(clientID, cursorData);
-            }
-
-            return cursorData.element;
-          },
-        }),
-      ],
+                return cursorData.element;
+              },
+            })
+          : undefined,
+      ].filter(Boolean),
       dependsOn: ["ySync"],
       updateUser(user: { name: string; color: string; [key: string]: string }) {
-        options.provider.awareness.setLocalStateField("user", user);
+        awareness?.setLocalStateField("user", user);
       },
     } as const;
   },

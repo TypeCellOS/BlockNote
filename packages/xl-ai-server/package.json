@@ -3,7 +3,7 @@
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": true,
   "license": "GPL-3.0 OR PROPRIETARY",
-  "version": "0.44.0",
+  "version": "0.46.1",
   "files": [
     "dist",
     "types",
@@ -43,16 +43,16 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^2.0.31",
-    "@ai-sdk/google": "^2.0.23",
-    "@ai-sdk/groq": "^2.0.24",
-    "@ai-sdk/mistral": "^2.0.19",
-    "@ai-sdk/openai": "^2.0.52",
-    "@ai-sdk/openai-compatible": "^1.0.22",
+    "@ai-sdk/anthropic": "^3.0.2",
+    "@ai-sdk/google": "^3.0.2",
+    "@ai-sdk/groq": "^3.0.2",
+    "@ai-sdk/mistral": "^3.0.2",
+    "@ai-sdk/openai": "^3.0.2",
+    "@ai-sdk/openai-compatible": "^2.0.2",
     "@blocknote/xl-ai": "workspace:*",
     "@hono/node-server": "^1.19.5",
-    "ai": "^5.0.102",
-    "hono": "^4.10.0"
+    "ai": "^6.0.5",
+    "hono": "^4.10.3"
   },
   "devDependencies": {
     "eslint": "^8.57.1",

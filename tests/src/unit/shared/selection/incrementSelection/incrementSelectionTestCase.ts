@@ -12,4 +12,5 @@ export type IncrementSelectionTestCase<
 > = {
   name: string;
   document: PartialBlock<B, I, S>[];
+  expandToWord: boolean;
 };

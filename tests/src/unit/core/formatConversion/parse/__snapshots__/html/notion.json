@@ -169,7 +169,8 @@
     "content": [
       {
         "styles": {},
-        "text": "Paragraph With Hard Break",
+        "text": "Paragraph
+With Hard Break",
         "type": "text",
       },
     ],

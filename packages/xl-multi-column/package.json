@@ -9,7 +9,7 @@
     "directory": "packages/xl-multi-column"
   },
   "license": "GPL-3.0 OR PROPRIETARY",
-  "version": "0.44.0",
+  "version": "0.46.1",
   "files": [
     "dist",
     "types",
@@ -51,24 +51,23 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "0.44.0",
-    "@blocknote/react": "0.44.0",
-    "@tiptap/core": "^3.11.0",
+    "@blocknote/core": "0.46.1",
+    "@blocknote/react": "0.46.1",
+    "@tiptap/core": "^3.13.0",
     "prosemirror-model": "^1.25.4",
     "prosemirror-state": "^1.4.4",
-    "prosemirror-tables": "^1.8.1",
+    "prosemirror-tables": "^1.8.3",
     "prosemirror-transform": "^1.10.5",
-    "prosemirror-view": "^1.41.3",
+    "prosemirror-view": "^1.41.4",
     "react-icons": "^5.5.0"
   },
   "devDependencies": {
-    "@types/react": "^19.2.2",
-    "@types/react-dom": "^19.2.2",
-    "@vitest/ui": "^2.1.9",
+    "@types/react": "^19.2.3",
+    "@types/react-dom": "^19.2.3",
     "eslint": "^8.57.1",
-    "jsdom": "^21.1.2",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
+    "jsdom": "^25.0.1",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
     "rimraf": "^5.0.10",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^5.9.3",

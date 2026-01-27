@@ -11,17 +11,21 @@ type ToolDefinition = {
 
 type ToolDefinitions = Record<string, ToolDefinition>;
 
-export function toolSetToToolDefinitions(toolSet: ToolSet): ToolDefinitions {
-  return Object.fromEntries(
-    Object.entries(toolSet).map(([name, tool]) => [
+export async function toolSetToToolDefinitions(
+  toolSet: ToolSet,
+): Promise<ToolDefinitions> {
+  const entries = await Promise.all(
+    Object.entries(toolSet).map(async ([name, tool]) => [
       name,
       {
         description: tool.description,
-        inputSchema: asSchema(tool.inputSchema).jsonSchema,
-        outputSchema: asSchema(tool.outputSchema).jsonSchema,
+        inputSchema: await asSchema(tool.inputSchema).jsonSchema,
+        outputSchema: await asSchema(tool.outputSchema).jsonSchema,
       },
     ]),
   );
+
+  return Object.fromEntries(entries);
 }
 
 export function toolDefinitionsToToolSet(

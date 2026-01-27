@@ -24,7 +24,7 @@ function getStreamTools<
 ): StreamToolsResult<string, T> {
   if (typeof selectionInfo === "boolean") {
     const selection = selectionInfo
-      ? editor.getSelectionCutBlocks()
+      ? editor.getSelectionCutBlocks(true)
       : undefined;
 
     selectionInfo = selection
