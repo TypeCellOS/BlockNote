@@ -1,3 +1,27 @@
+## 0.46.2 (2026-01-27)
+
+### 🩹 Fixes
+
+- deep merge floatingUIOptions using nested spread operators ([#2310](https://github.com/TypeCellOS/BlockNote/pull/2310))
+- Visual differences between live editor and rendered exported HTML ([#2348](https://github.com/TypeCellOS/BlockNote/pull/2348))
+- `BlockNoteViewEditor` mismatched editable value ([#2357](https://github.com/TypeCellOS/BlockNote/pull/2357))
+- add `font-synthesis` for italic & bold in fonts that don't have them specified #2325 ([#2354](https://github.com/TypeCellOS/BlockNote/pull/2354), [#2325](https://github.com/TypeCellOS/BlockNote/issues/2325))
+- disable code block language selector when editor is not editable ([#2351](https://github.com/TypeCellOS/BlockNote/pull/2351))
+- table handles would crash ([#2384](https://github.com/TypeCellOS/BlockNote/pull/2384))
+- update CreateLinkButton to be able to toggle popover visibility ([#2316](https://github.com/TypeCellOS/BlockNote/pull/2316), [#2313](https://github.com/TypeCellOS/BlockNote/issues/2313))
+- add context,nestingLevel to toExternalHTML ([#2373](https://github.com/TypeCellOS/BlockNote/pull/2373))
+- **ai:** re-enable flipping the AIMenu when there is not enough space #2245 ([#2247](https://github.com/TypeCellOS/BlockNote/pull/2247), [#2245](https://github.com/TypeCellOS/BlockNote/issues/2245))
+- **link-toolbar:** prevent Enter from submitting during IME composition ([#2361](https://github.com/TypeCellOS/BlockNote/pull/2361))
+
+### ❤️ Thank You
+
+- hanios123
+- Jean-Baptiste PENRATH
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- Shohei Yoshida @ysds
+- Yousef
+
 ## 0.46.1 (2026-01-10)
 
 This was a version bump only, there were no code changes.
