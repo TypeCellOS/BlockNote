@@ -1,7 +1,6 @@
 "use client";
 import React, { useState } from "react";
 import { FeatureSection } from "./FeatureSection";
-import { MockEditor } from "./Shared";
 
 export const FeatureAI: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"toolbar" | "models" | "human">(
@@ -30,79 +29,46 @@ export const FeatureAI: React.FC = () => {
     },
   ];
 
-  const getEditorState = () => {
-    switch (activeTab) {
-      case "toolbar":
-        return {
-          body: (
-            <>
-              <span className="rounded bg-purple-100 px-0.5 text-purple-900">
-                BlockNote is a text editor.
-              </span>
-            </>
-          ),
-          cursorVisible: false,
-          aiSelection: true,
-          aiPopupVisible: true,
-        };
-      case "models":
-        return {
-          body: (
-            <>
-              Connect to <strong>OpenAI</strong>, <strong>Anthropic</strong>, or
-              your own inference endpoints.
-            </>
-          ),
-          cursorVisible: false,
-          aiSelection: false,
-          aiPopupVisible: false,
-        };
-      case "human":
-        return {
-          body: (
-            <>
-              <div className="mb-3 rounded border border-green-200 bg-green-50 p-2 text-green-800">
-                <span className="font-medium">AI Suggestion:</span> Improved
-                version of your text...
-              </div>
-              <div className="flex gap-2">
-                <button className="rounded bg-green-600 px-3 py-1 text-xs text-white">
-                  Accept
-                </button>
-                <button className="rounded bg-stone-200 px-3 py-1 text-xs text-stone-600">
-                  Reject
-                </button>
-              </div>
-            </>
-          ),
-          cursorVisible: false,
-          aiSelection: false,
-          aiPopupVisible: false,
-        };
-      default:
-        return {};
-    }
-  };
-
-  const editorState = getEditorState();
-
   return (
     <FeatureSection
-      title="Built for What's Next."
-      description="Build the future of document editing. Let users co-author with AI. Connect any model and integrate RAG, tools, and agents—powered by the AI SDK."
+      title="Build for What's Next."
+      description="Build the future of document editing. Let users co-author with AI. Connect any model and integrate RAG, tools, and agents: powered by the AI SDK."
       tabs={tabs}
       activeTabId={activeTab}
       onTabChange={(id) => setActiveTab(id as any)}
       reverse={true}
     >
-      <MockEditor
-        title="AI Editor"
-        body={editorState.body}
-        cursorVisible={editorState.cursorVisible}
-        aiSelection={editorState.aiSelection}
-        aiPopupVisible={editorState.aiPopupVisible}
-        className="h-[380px] border-none"
-      />
+      {activeTab === "models" || activeTab === "human" ? (
+        <img
+          src={
+            activeTab === "models"
+              ? "/img/screenshots/home/any_model.png"
+              : "/img/screenshots/home/human_in_the_loop.png"
+          }
+          alt={activeTab === "models" ? "Bring Any Model" : "Human in the Loop"}
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <div className="relative h-[380px] w-full overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm">
+          <div className="flex items-center gap-2 border-b border-gray-100 bg-gray-50 px-4 py-3">
+            <div className="flex gap-1.5">
+              <div className="h-3 w-3 rounded-full bg-red-400" />
+              <div className="h-3 w-3 rounded-full bg-amber-400" />
+              <div className="h-3 w-3 rounded-full bg-green-400" />
+            </div>
+          </div>
+          <div className="relative h-full w-full bg-white">
+            <video
+              src="/video/ai-select.mp4"
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="h-full w-full object-contain px-4"
+            />
+          </div>
+        </div>
+      )}
     </FeatureSection>
   );
 };

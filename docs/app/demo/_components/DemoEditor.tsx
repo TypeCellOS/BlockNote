@@ -7,7 +7,6 @@ import {
   createCodeBlockSpec,
 } from "@blocknote/core";
 import {
-  CommentsExtension,
   DefaultThreadStoreAuth,
   YjsThreadStore,
 } from "@blocknote/core/comments";
@@ -18,12 +17,9 @@ import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
   BlockNoteViewEditor,
-  FloatingComposerController,
-  FloatingThreadController,
   FormattingToolbar,
   FormattingToolbarController,
   SuggestionMenuController,
-  ThreadsSidebar,
   getDefaultReactSlashMenuItems,
   getFormattingToolbarItems,
   useCreateBlockNote,
@@ -55,7 +51,7 @@ import { useEffect, useMemo, useState } from "react";
 import YPartyKitProvider from "y-partykit/provider";
 import * as Y from "yjs";
 import { EditorMenu } from "./EditorMenu";
-import { HARDCODED_USERS, resolveUsers, uploadFile } from "./utils";
+import { HARDCODED_USERS, uploadFile } from "./utils";
 
 import "./styles.css";
 
@@ -234,7 +230,7 @@ function DemoEditorInner({
             api: AI_API_URL,
           }),
         }),
-        CommentsExtension({ threadStore, resolveUsers }),
+        // CommentsExtension({ threadStore, resolveUsers }),
       ],
 
       uploadFile,
@@ -387,8 +383,8 @@ function DemoEditorInner({
               <div className="mx-auto min-h-full max-w-[800px] py-4">
                 <BlockNoteViewEditor />
               </div>
-              <FloatingComposerController />
-              {!sidebarOpen && <FloatingThreadController />}
+              {/* <FloatingComposerController /> */}
+              {/* {!sidebarOpen && <FloatingThreadController />} */}
             </div>
 
             <div
@@ -402,7 +398,7 @@ function DemoEditorInner({
                 Comments
               </div>
               <div className="p-2">
-                <ThreadsSidebar filter="all" sort="recent-activity" />
+                {/* <ThreadsSidebar filter="all" sort="recent-activity" /> */}
               </div>
             </div>
           </div>

@@ -1,7 +1,6 @@
 "use client";
 import React, { useState } from "react";
 import { FeatureSection } from "./FeatureSection";
-import { MockEditor } from "./Shared";
 
 export const FeatureUX: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"components" | "ai" | "blocks">(
@@ -11,7 +10,7 @@ export const FeatureUX: React.FC = () => {
   const tabs = [
     {
       id: "components",
-      icon: <span>⚡️</span>,
+      icon: <span>🔋</span>,
       label: "Ready to Use",
       description:
         "Slash menus, formatting toolbars, and drag handles work instantly.",
@@ -20,7 +19,7 @@ export const FeatureUX: React.FC = () => {
       id: "ai",
       icon: <span>✨</span>,
       label: "AI Assistance",
-      description: "Select text, ask AI. Completions and edits built-in.",
+      description: "Write and redact content with AI.",
     },
     {
       id: "blocks",
@@ -30,71 +29,48 @@ export const FeatureUX: React.FC = () => {
     },
   ];
 
-  const getEditorState = () => {
+  const getVideo = () => {
     switch (activeTab) {
       case "components":
-        return {
-          body: (
-            <>
-              Type '<strong>/</strong>' for commands...
-            </>
-          ),
-          cursorVisible: true,
-          aiSelection: false,
-          aiPopupVisible: false,
-        };
+        return "/video/batteries-included.mp4";
       case "ai":
-        return {
-          body: (
-            <>
-              <span className="rounded bg-purple-100 px-0.5 text-purple-900">
-                BlockNote is a text editor.
-              </span>
-            </>
-          ),
-          cursorVisible: false,
-          aiSelection: true,
-          aiPopupVisible: true,
-        };
+        return "/video/ai-select.mp4";
       case "blocks":
-        return {
-          body: (
-            <>
-              <div className="mb-2 flex items-center gap-2 rounded bg-stone-100 p-2">
-                <span className="text-stone-400">⋮⋮</span>
-                <span>Drag blocks to reorder content.</span>
-              </div>
-              <div>Nest blocks to create structure.</div>
-            </>
-          ),
-          cursorVisible: false,
-          aiSelection: false,
-          aiPopupVisible: false,
-        };
+        return "/video/dragdrop.mp4";
       default:
-        return {};
+        return "";
     }
   };
-
-  const editorState = getEditorState();
 
   return (
     <FeatureSection
       title="A modern editor, ready to ship."
-      description="Built-in components provide a Notion-style editing experience out of the box. Customize everything when you need to."
+      description="Built-in components provide a complete, block-based editing experience out of the box. Customize everything when you need to."
       tabs={tabs}
       activeTabId={activeTab}
       onTabChange={(id) => setActiveTab(id as any)}
       reverse={false}
     >
-      <MockEditor
-        title="Demo Editor"
-        body={editorState.body}
-        cursorVisible={editorState.cursorVisible}
-        aiSelection={editorState.aiSelection}
-        aiPopupVisible={editorState.aiPopupVisible}
-        className="h-[380px] border-none"
-      />
+      <div className="relative h-[380px] w-full overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm">
+        <div className="flex items-center gap-2 border-b border-gray-100 bg-gray-50 px-4 py-3">
+          <div className="flex gap-1.5">
+            <div className="h-3 w-3 rounded-full bg-red-400" />
+            <div className="h-3 w-3 rounded-full bg-amber-400" />
+            <div className="h-3 w-3 rounded-full bg-green-400" />
+          </div>
+        </div>
+        <div className="relative h-full w-full bg-white">
+          <video
+            key={activeTab}
+            src={getVideo()}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className={`h-full w-full ${activeTab === "ai" ? "object-contain px-4" : "object-cover"}`}
+          />
+        </div>
+      </div>
     </FeatureSection>
   );
 };

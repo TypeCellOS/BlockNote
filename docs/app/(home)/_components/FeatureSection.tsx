@@ -91,7 +91,7 @@ export const FeatureSection: React.FC<FeatureSectionProps> = ({
 
       {/* Right Visual */}
       <div className="perspective-1000 group relative w-full flex-1 lg:pt-16">
-        <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-stone-200 to-purple-200 opacity-20 blur transition duration-1000 group-hover:opacity-40"></div>
+        {/* <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-stone-200 to-purple-200 opacity-20 blur transition duration-1000 group-hover:opacity-40"></div> */}
         <div className="group-hover:rotate-y-2 relative transform overflow-hidden rounded-xl border border-stone-200 bg-white shadow-2xl transition-transform duration-500">
           {children}
         </div>

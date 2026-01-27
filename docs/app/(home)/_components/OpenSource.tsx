@@ -6,26 +6,26 @@ const pillars = [
     icon: "🏛️",
     title: "Built on Giants",
     description:
-      "ProseMirror and Yjs are battle-tested foundations trusted by teams worldwide. We build on top of them, not around them.",
+      "ProseMirror and Yjs are battle-tested foundations trusted by teams worldwide, we're excited to build with these technologies.",
   },
-  {
-    icon: "🤝",
-    title: "Community First",
-    description:
-      "We collaborate closely with the Yjs team and contribute back to the ecosystem. Open source thrives on shared innovation.",
-  },
-  {
-    icon: "🔓",
-    title: "Yours to Own",
-    description:
-      "No vendor lock-in. Self-host, fork, extend. Your editing infrastructure, under your control.",
-  },
-  {
-    icon: "🇪🇺",
-    title: "Digital Autonomy",
-    description:
-      "Partnering with DINUM (France) and Zendis (Germany) to build open European alternatives — reducing dependencies on big tech.",
-  },
+  // {
+  //   icon: "🤝",
+  //   title: "Community First",
+  //   description:
+  //     "We collaborate closely with the Yjs team and contribute back to the ecosystem. Open source thrives on shared innovation.",
+  // },
+  // {
+  //   icon: "🔓",
+  //   title: "Yours to Own",
+  //   description:
+  //     "No vendor lock-in. Self-host, fork, extend. Your editing layer, under your control.",
+  // },
+  // {
+  //   icon: "🇪🇺",
+  //   title: "Digital Autonomy",
+  //   description:
+  //     "Partnering with DINUM (France) and Zendis (Germany) to build open European alternatives — reducing dependencies on big tech.",
+  // },
   {
     icon: "⬆️",
     title: "Contributing Upstream",
@@ -94,14 +94,14 @@ export const OpenSource: React.FC = () => {
         </div>
 
         {/* Founder Quote */}
-        <div className="mb-12 text-center">
+        {/* <div className="mb-12 text-center">
           <blockquote className="mx-auto max-w-2xl">
             <p className="mb-4 font-serif text-xl italic text-stone-300">
               "Here we could put a quote about our open source commitment."
             </p>
             <footer className="text-sm text-stone-500">— Cool person</footer>
           </blockquote>
-        </div>
+        </div> */}
 
         <div className="flex justify-center">
           <a

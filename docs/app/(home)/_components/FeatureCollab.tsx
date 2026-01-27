@@ -11,10 +11,11 @@ export const FeatureCollab: React.FC = () => {
     realtime: {
       file: "CollaborativeEditor.tsx",
       code: `import * as Y from "yjs";
-import { WebrtcProvider } from "y-webrtc";
+import { WebsocketProvider } from "y-websocket";
 
 const doc = new Y.Doc();
-const provider = new WebrtcProvider("room-id", doc);
+const provider = new WebsocketProvider(
+  "ws://localhost:1234", "room-id", doc);
 
 const editor = useCreateBlockNote({
   collaboration: {
@@ -28,31 +29,11 @@ const editor = useCreateBlockNote({
     },
     comments: {
       file: "Comments.tsx",
-      code: `// Add inline comment threads
-editor.comments.add({
-  blockId: "block-123",
-  content: "Can we clarify this section?",
-  author: currentUser,
-});
-
-// Subscribe to comment updates
-editor.comments.onChange((comments) => {
-  updateCommentSidebar(comments);
-});`,
+      code: "", // Using image override
     },
     suggestions: {
-      file: "Suggestions.tsx",
-      code: `// Enable suggestion mode
-editor.suggestions.enable();
-
-// All edits are now tracked as suggestions
-const pending = editor.suggestions.getPending();
-
-// Accept or reject changes
-editor.suggestions.accept(pending[0].id);
-editor.suggestions.reject(pending[1].id);
-
-// Review history and versions`,
+      file: "History.tsx",
+      code: "", // Using image override
     },
   };
 
@@ -72,7 +53,7 @@ editor.suggestions.reject(pending[1].id);
     {
       id: "suggestions",
       icon: <span>📝</span>,
-      label: "Suggestions & Versioning",
+      label: "Suggestions & Versioning (coming soon)",
       description:
         "Track changes, accept or reject edits. Full document history.",
     },
@@ -88,26 +69,42 @@ editor.suggestions.reject(pending[1].id);
       reverse={false}
     >
       {/* Window Chrome */}
-      <div className="flex items-center justify-between border-b border-white/5 bg-[#18181B] px-4 py-3">
-        <div className="flex gap-1.5">
-          <div className="h-2.5 w-2.5 rounded-full bg-[#FF5F56]"></div>
-          <div className="h-2.5 w-2.5 rounded-full bg-[#FFBD2E]"></div>
-          <div className="h-2.5 w-2.5 rounded-full bg-[#27C93F]"></div>
+      {activeTab !== "suggestions" && activeTab !== "comments" && (
+        <div className="flex items-center justify-between border-b border-white/5 bg-[#18181B] px-4 py-3">
+          <div className="flex gap-1.5">
+            <div className="h-2.5 w-2.5 rounded-full bg-[#FF5F56]"></div>
+            <div className="h-2.5 w-2.5 rounded-full bg-[#FFBD2E]"></div>
+            <div className="h-2.5 w-2.5 rounded-full bg-[#27C93F]"></div>
+          </div>
+          <span className="font-mono text-xs text-stone-500">
+            {content[activeTab].file}
+          </span>
+          <div className="w-4"></div>
         </div>
-        <span className="font-mono text-xs text-stone-500">
-          {content[activeTab].file}
-        </span>
-        <div className="w-4"></div>
-      </div>
+      )}
 
       {/* Code */}
-      <div className="min-h-[300px] overflow-x-auto bg-[#0F0F11] p-6">
-        <pre className="whitespace-pre font-mono text-sm leading-relaxed text-stone-300">
-          {content[activeTab].code}
-        </pre>
+      <div
+        className={`min-h-[300px] overflow-x-auto bg-[#0F0F11] ${activeTab === "realtime" ? "p-6" : ""}`}
+      >
+        {activeTab === "suggestions" ? (
+          <img
+            src="/img/screenshots/home/versioning.png"
+            alt="Versioning"
+            className="w-full rounded-md"
+          />
+        ) : activeTab === "comments" ? (
+          <img
+            src="/img/screenshots/home/comments.png"
+            alt="Comments"
+            className="w-full rounded-md"
+          />
+        ) : (
+          <pre className="whitespace-pre font-mono text-sm leading-relaxed text-stone-300">
+            {content[activeTab].code}
+          </pre>
+        )}
       </div>
-
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-[#0F0F11] to-transparent"></div>
     </FeatureSection>
   );
 };

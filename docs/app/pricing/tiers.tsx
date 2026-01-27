@@ -20,23 +20,23 @@ export type Tier = {
   price: Record<Frequency, number> | string;
   features: React.ReactNode[];
   href?: string;
-  cta?: string;
+  cta?: "get-started" | "buy" | "contact";
 };
-
-// ... (TierCTAButton and TierFeature remain unchanged, I'll use context to skip them or just target the Tier definition and Tiers component if possible, but replace_file_content is convenient for small files)
-// Wait, replace_file_content replaces a contiguous block. I need to replace Tier type AND the rendering. They are far apart.
-// I'll use multi_replace_file_content or just replace the Tier type first, then the rendering.
-// tiers.tsx is small enough, maybe I can do it in one go if I include everything between.
-// But Tier rendering is at the bottom.
-// I will use multi_replace_file_content.
 
 function TierCTAButton({ tier }: { tier: Tier }) {
   const { data: session } = useSession();
-  let text = tier.cta || "Sign up";
+  let text =
+    tier.cta === "get-started"
+      ? "Get Started"
+      : tier.cta === "buy"
+        ? "Sign up"
+        : tier.cta === "contact"
+          ? "Contact us"
+          : "Sign up";
 
-  if (session) {
+  if (session && tier.cta === "buy") {
     if (session.planType === "free") {
-      text = tier.cta || "Buy now";
+      text = "Buy now";
     } else {
       text =
         session.planType === tier.id
@@ -63,6 +63,10 @@ function TierCTAButton({ tier }: { tier: Tier }) {
   return (
     <a
       onClick={async (e) => {
+        if (tier.cta !== "buy") {
+          return;
+        }
+
         track("Signup", { tier: tier.id });
         // ... rest of analytic logic kept simple for brevity in replacement,
         // in real implementation we keep the existing logic.
@@ -112,7 +116,7 @@ function TierCTAButton({ tier }: { tier: Tier }) {
       aria-describedby={tier.id}
       className={buttonClasses}
     >
-      {tier.id === "enterprise" ? tier.cta || "Contact us" : text}
+      {text}
       <span
         className={cn(
           "transition-transform group-hover:translate-x-0.5",

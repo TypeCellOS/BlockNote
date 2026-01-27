@@ -1,4 +1,3 @@
-import { ThemeToggle } from "@/components/fumadocs/layout/theme-toggle";
 import { cn } from "@/lib/fumadocs/cn";
 import LogoDark from "@/public/img/logos/banner.dark.svg";
 import LogoLight from "@/public/img/logos/banner.svg";
@@ -127,9 +126,9 @@ export function FooterContent() {
                     Privacy Policy
                   </FooterLink>
                 </li>
-                <li className="pt-2">
+                {/* <li className="pt-2">
                   <ThemeToggle mode="light-dark-system" />
-                </li>
+                </li> */}
               </ul>
             </div>
           </div>

@@ -68,7 +68,7 @@ const tiers: Tier[] = [
         XL Packages free for OSS under GPL-3.0
       </span>,
     ],
-    cta: "Get Started",
+    cta: "get-started",
     href: "/docs",
   },
   {
@@ -106,7 +106,7 @@ const tiers: Tier[] = [
         )
       </span>,
     ],
-    cta: "Buy now",
+    cta: "buy",
   },
   {
     id: "enterprise",
@@ -134,7 +134,7 @@ const tiers: Tier[] = [
       </span>,
     ],
     href: "/about/",
-    cta: "Contact us",
+    cta: "contact",
   },
 ];
 
@@ -184,6 +184,24 @@ export default function Pricing() {
               </div>
             ))}
           </InfiniteSlider>
+        </div>
+
+        {/* Startup Discounts */}
+        <div className="mt-24 w-full max-w-4xl rounded-3xl border border-purple-100 bg-gradient-to-br from-purple-50 to-white p-8 text-center sm:p-12">
+          <h2 className="mb-4 text-2xl font-bold text-stone-900 sm:text-3xl">
+            Discounts for Startups
+          </h2>
+          <p className="mx-auto mb-8 max-w-2xl text-lg text-stone-600">
+            Building the next big thing? We love supporting early-stage
+            companies. If you&apos;re a seed-stage startup or non-profit, get in
+            touch for special pricing on our Business plan.
+          </p>
+          <a
+            href="mailto:team@blocknotejs.org?subject=Startup%20Discount%20Inquiry"
+            className="inline-flex items-center rounded-full bg-purple-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
+          >
+            Apply for Startup Program
+          </a>
         </div>
 
         {/* FAQ */}

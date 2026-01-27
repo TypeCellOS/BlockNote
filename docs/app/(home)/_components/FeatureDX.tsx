@@ -29,13 +29,13 @@ type MyBlock = typeof schema.Block;
       code: `import { useCreateBlockNote } from "@blocknote/react";
 import { ShadCNComponents } from "@blocknote/shadcn";
 
-// Use your design system
 const editor = useCreateBlockNote();
 
 return (
   <BlockNoteView
     editor={editor}
     theme="light"
+    // Use built-in components or your own
     components={ShadCNComponents}
   />
 );`,
@@ -71,14 +71,14 @@ export const AlertBlock = createReactBlockSpec({
     {
       id: "theming",
       icon: <span>🎨</span>,
-      label: "Use Your Stack",
-      description: "Works with Mantine, Shadcn/ui, or go headless.",
+      label: "Bring your Design System",
+      description: "Works with Mantine, shadcn/ui, or go headless.",
     },
     {
       id: "extend",
       icon: <span>🔧</span>,
       label: "Extend Everything",
-      description: "Create custom blocks, inline content, and plugins.",
+      description: "Create custom blocks, inline content, menus and more.",
     },
   ];
 
@@ -105,13 +105,21 @@ export const AlertBlock = createReactBlockSpec({
       </div>
 
       {/* Code */}
-      <div className="min-h-[300px] overflow-x-auto bg-[#0F0F11] p-6">
-        <pre className="whitespace-pre font-mono text-sm leading-relaxed text-stone-300">
-          {content[activeTab].code}
-        </pre>
+      <div className="min-h-[300px] bg-[#0F0F11]">
+        {activeTab === "types" ? (
+          <img
+            src="/img/screenshots/home/code-typescript-support.png"
+            alt="Type-Safe Schema"
+            className="w-full"
+          />
+        ) : (
+          <div className="overflow-x-auto p-6">
+            <pre className="whitespace-pre font-mono text-sm leading-relaxed text-stone-300">
+              {content[activeTab].code}
+            </pre>
+          </div>
+        )}
       </div>
-
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-[#0F0F11] to-transparent"></div>
     </FeatureSection>
   );
 };
