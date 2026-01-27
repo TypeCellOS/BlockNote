@@ -13,7 +13,11 @@ import { SlideGitComparison } from "./slides/SlideGitComparison";
 import { SlideIntroduction } from "./slides/SlideIntroduction";
 import { SlideOverview } from "./slides/SlideOverview";
 import { SlideProblem } from "./slides/SlideProblem";
+import { SlideContentRenderer } from "./slides/SlideContentRenderer";
+import { SlideDeltas } from "./slides/SlideDeltas";
+import { SlideUnifiedYType } from "./slides/SlideUnifiedYType";
 import { SlideYjsInternals } from "./slides/SlideYjsInternals";
+import { SlideAttributionManager } from "./slides/SlideAttributionManager";
 import { SlideYProsemirror } from "./slides/SlideYProsemirror";
 
 export default function PresentationPage() {
@@ -68,6 +72,10 @@ export default function PresentationPage() {
         <Slide3_Architecture />
         <SlideAttributions />
         <SlideYjsInternals />
+        <SlideDeltas />
+        <SlideUnifiedYType />
+        <SlideAttributionManager />
+        <SlideContentRenderer />
         <SlideYProsemirror />
         <Slide5_TheEnd />
       </div>
