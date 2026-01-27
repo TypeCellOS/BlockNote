@@ -6,7 +6,6 @@ import "reveal.js/dist/reveal.css";
 
 import { Slide1_Intro } from "./slides/Slide1_Intro";
 import { Slide3_Architecture } from "./slides/Slide3_Architecture";
-import { Slide4_APIs } from "./slides/Slide4_APIs";
 import { Slide5_TheEnd } from "./slides/Slide5_TheEnd";
 import { SlideAttributions } from "./slides/SlideAttributions";
 import { SlideDemo } from "./slides/SlideDemo";
@@ -14,6 +13,8 @@ import { SlideGitComparison } from "./slides/SlideGitComparison";
 import { SlideIntroduction } from "./slides/SlideIntroduction";
 import { SlideOverview } from "./slides/SlideOverview";
 import { SlideProblem } from "./slides/SlideProblem";
+import { SlideYjsInternals } from "./slides/SlideYjsInternals";
+import { SlideYProsemirror } from "./slides/SlideYProsemirror";
 
 export default function PresentationPage() {
   const deckDivRef = useRef<HTMLDivElement>(null);
@@ -66,7 +67,8 @@ export default function PresentationPage() {
         <SlideGitComparison />
         <Slide3_Architecture />
         <SlideAttributions />
-        <Slide4_APIs />
+        <SlideYjsInternals />
+        <SlideYProsemirror />
         <Slide5_TheEnd />
       </div>
 

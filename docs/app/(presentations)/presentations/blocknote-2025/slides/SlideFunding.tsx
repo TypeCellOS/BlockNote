@@ -41,11 +41,6 @@ export const SlideFunding = () => {
           <SlideCard className="border-stone-100 p-8">
             <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-8 opacity-70 grayscale transition-all hover:opacity-100 hover:grayscale-0">
               <img
-                src="/img/sponsors/semrush.light.png"
-                alt="Semrush"
-                className="h-8"
-              />
-              <img
                 src="/img/sponsors/openproject.svg"
                 alt="OpenProject"
                 className="h-8"
@@ -71,6 +66,21 @@ export const SlideFunding = () => {
                 className="h-7"
               />
               <img src="/img/sponsors/krisp.svg" alt="Krisp" className="h-7" />
+              <img
+                src="/img/sponsors/claimer.svg"
+                alt="Claimer"
+                className="h-7"
+              />
+              <img src="/img/sponsors/atlas.svg" alt="Atlas" className="h-7" />
+              <img src="/img/sponsors/juma.svg" alt="Juma" className="h-7" />
+              <img src="/img/sponsors/atuin.png" alt="Atuin" className="h-8" />
+              <img src="/img/sponsors/cella.png" alt="Cella" className="h-7" />
+              <img
+                src="/img/sponsors/illumi.png"
+                alt="Illumi"
+                className="h-7"
+              />
+              <img src="/img/sponsors/agree.png" alt="Agree" className="h-8" />
             </div>
             <p className="mt-6 text-center text-xl font-medium text-stone-400">
               (thank you!)

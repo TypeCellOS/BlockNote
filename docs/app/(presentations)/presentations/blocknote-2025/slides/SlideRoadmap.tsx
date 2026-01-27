@@ -10,11 +10,15 @@ export const SlideRoadmap = () => {
         <div className="space-y-6">
           <SlideCard>
             <SlideHeading>Foundations</SlideHeading>
-            <SlideText>Improving core stability and performance.</SlideText>
+            <SlideText>
+              Improved mobile support, stability and accessibility.
+            </SlideText>
           </SlideCard>
           <SlideCard>
-            <SlideHeading>Mobile Support</SlideHeading>
-            <SlideText>First-class mobile editing experience.</SlideText>
+            <SlideHeading>Extension API &amp; Gallery</SlideHeading>
+            <SlideText>
+              Unified API for bundling editor customizations.
+            </SlideText>
           </SlideCard>
         </div>
         <div className="space-y-6">
@@ -25,10 +29,8 @@ export const SlideRoadmap = () => {
             </SlideText>
           </SlideCard>
           <SlideCard>
-            <SlideHeading>Stability</SlideHeading>
-            <SlideText>
-              Focus on LTS releases and minimizing breaking changes.
-            </SlideText>
+            <SlideHeading>Document Imports</SlideHeading>
+            <SlideText>Import .docx and .odt documents.</SlideText>
           </SlideCard>
         </div>
       </div>

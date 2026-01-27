@@ -9,7 +9,7 @@ export const SlideOverview = () => {
           <li>Demo</li>
           <li>Architectural overview</li>
           <li>Updates in Yjs, y-prosemirror and BlockNote</li>
-          <li>Looking forward</li>
+          <li>Looking ahead</li>
         </ul>
       </div>
     </ContentSlide>
