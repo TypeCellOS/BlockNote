@@ -40,6 +40,7 @@ export const NodeSelectionKeyboardExtension = createExtension(
                 // Checks if key press is Enter
                 if (
                   event.key === "Enter" &&
+                  !event.isComposing &&
                   !event.shiftKey &&
                   !event.altKey &&
                   !event.ctrlKey &&

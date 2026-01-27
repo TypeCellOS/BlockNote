@@ -82,7 +82,8 @@ export const FileRenameButton = () => {
         editorHasBlockWithType(editor, block.type, {
           name: "string",
         }) &&
-        event.key === "Enter"
+        event.key === "Enter" &&
+        !event.nativeEvent.isComposing
       ) {
         event.preventDefault();
         editor.updateBlock(block.id, {
