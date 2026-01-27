@@ -1,7 +1,7 @@
-import { Section } from "@/components/Section";
-import { Text } from "@/app/(home)/hero/Text";
-import { Demo } from "@/app/(home)/hero/Demo";
 import { FadeIn } from "@/components/FadeIn";
+import { Section } from "@/components/Section";
+import { Demo } from "./Demo";
+import { Text } from "./Text";
 
 import "./styles.css";
 

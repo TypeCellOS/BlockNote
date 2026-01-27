@@ -3,7 +3,7 @@ import { FadeIn } from "@/components/FadeIn";
 import { HeroText } from "@/components/Headings";
 import { Section } from "@/components/Section";
 import gradients from "@/components/gradients.module.css";
-import cn from "classnames";
+import { cn } from "@/lib/fumadocs/cn";
 
 export function Letter() {
   return (

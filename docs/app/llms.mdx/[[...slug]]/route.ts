@@ -1,11 +1,13 @@
-import { source } from "@/lib/source/docs";
+import { getLLMText, source } from "@/lib/source/docs";
 import { type NextRequest, NextResponse } from "next/server";
-import { getLLMText } from "@/lib/get-llm-text";
+
 import { notFound } from "next/navigation";
 
+// TODO: why force-dynamic!?
 export const dynamic = "force-dynamic";
 export const revalidate = false;
 
+// TODO: review use of llms.mdx
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ slug?: string[] }> },

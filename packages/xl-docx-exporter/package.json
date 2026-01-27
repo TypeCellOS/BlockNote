@@ -64,12 +64,12 @@
     "image-meta": "^0.2.2"
   },
   "devDependencies": {
-    "@types/react": "^19.2.2",
-    "@types/react-dom": "^19.2.2",
+    "@types/react": "^19.2.3",
+    "@types/react-dom": "^19.2.3",
     "@zip.js/zip.js": "^2.8.8",
     "eslint": "^8.57.1",
-    "react": "^19.2.1",
-    "react-dom": "^19.2.1",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^5.9.3",
     "vite": "^5.4.20",
