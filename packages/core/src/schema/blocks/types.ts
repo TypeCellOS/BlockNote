@@ -139,6 +139,9 @@ export type LooseBlockSpec<
     toExternalHTML?: (
       block: any,
       editor: BlockNoteEditor<any>,
+      context: {
+        nestingLevel: number;
+      },
     ) =>
       | {
           dom: HTMLElement | DocumentFragment;
@@ -193,6 +196,9 @@ export type BlockSpecs = {
       toExternalHTML?: (
         block: any,
         editor: BlockNoteEditor<any>,
+        context: {
+          nestingLevel: number;
+        },
       ) =>
         | {
             dom: HTMLElement | DocumentFragment;
@@ -463,6 +469,9 @@ export type BlockImplementation<
     editor: BlockNoteEditor<
       Record<TName, BlockConfig<TName, TProps, TContent>>
     >,
+    context: {
+      nestingLevel: number;
+    },
   ) =>
     | {
         dom: HTMLElement | DocumentFragment;

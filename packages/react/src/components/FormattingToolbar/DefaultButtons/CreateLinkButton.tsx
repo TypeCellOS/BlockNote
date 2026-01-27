@@ -85,10 +85,8 @@ export const CreateLinkButton = () => {
     },
   });
   useEffect(() => {
-    if (state?.url === undefined) {
-      setShowPopover(false);
-    }
-  }, [state?.url]);
+    setShowPopover(false);
+  }, [state]);
 
   // Makes Ctrl+K/Meta+K open link creation popover.
   useEffect(() => {

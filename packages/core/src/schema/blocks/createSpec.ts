@@ -242,7 +242,7 @@ export function addNodeAndExtensionsToSpec<
       },
       // TODO: this should not have wrapInBlockStructure and generally be a lot simpler
       // post-processing in externalHTMLExporter should not be necessary
-      toExternalHTML: (block, editor) => {
+      toExternalHTML: (block, editor, context) => {
         const blockContentDOMAttributes =
           node.options.domAttributes?.blockContent || {};
 
@@ -251,6 +251,7 @@ export function addNodeAndExtensionsToSpec<
             { blockContentDOMAttributes },
             block as any,
             editor as any,
+            context,
           ) ??
           blockImplementation.render.call(
             { blockContentDOMAttributes, renderType: "dom", props: undefined },
@@ -393,11 +394,12 @@ export function createBlockSpec<
         ...blockImplementation,
         // TODO: this should not have wrapInBlockStructure and generally be a lot simpler
         // post-processing in externalHTMLExporter should not be necessary
-        toExternalHTML(block, editor) {
+        toExternalHTML(block, editor, context) {
           const output = blockImplementation.toExternalHTML?.call(
             { blockContentDOMAttributes: this.blockContentDOMAttributes },
             block as any,
             editor as any,
+            context,
           );
 
           if (output === undefined) {
