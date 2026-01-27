@@ -5,15 +5,16 @@ interface ContentSlideProps {
   title: ReactNode;
   children: ReactNode;
   className?: string;
-  maxWidth?: string;
+  wide?: boolean;
 }
 
 export const ContentSlide = ({
   title,
   children,
   className = "",
-  maxWidth = "max-w-5xl",
+  wide = false,
 }: ContentSlideProps) => {
+  const maxWidth = wide ? "max-w-7xl" : "max-w-5xl";
   return (
     <SlideSection>
       <div

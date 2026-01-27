@@ -20,7 +20,7 @@ export const FeatureAI: React.FC = () => {
       id: "models",
       icon: <span>🔌</span>,
       label: "Bring Any Model",
-      description: "Connect OpenAI, Anthropic, or your own endpoints.",
+      description: "Connect your own LLM endpoints.",
     },
     {
       id: "human",

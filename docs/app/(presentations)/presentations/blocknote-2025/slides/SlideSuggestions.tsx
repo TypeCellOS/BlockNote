@@ -4,12 +4,16 @@ export const SlideSuggestions = () => {
   return (
     <ContentSlide title="Looking ahead: Suggestions & Versioning">
       <div className="grid grid-cols-2 items-center gap-12">
-        <div className="flex h-[350px] w-full items-center justify-center rounded-xl border border-stone-200 bg-stone-100 text-stone-400">
-          {/* Placeholder for Video */}
-          <div className="flex flex-col items-center gap-2">
-            <span className="text-4xl">✨</span>
-            <span>(Video placeholder)</span>
-          </div>
+        <div className="flex w-full items-center justify-center overflow-hidden rounded-xl border border-stone-200 bg-stone-100 shadow-sm">
+          <video
+            className="w-full"
+            src="/video/demo-suggestions.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            data-preview-video="/video/demo-suggestions.mp4"
+          />
         </div>
 
         <div className="rounded-xl border border-purple-100 bg-purple-50 p-6">

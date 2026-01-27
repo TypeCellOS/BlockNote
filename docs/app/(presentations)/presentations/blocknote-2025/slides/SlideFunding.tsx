@@ -66,11 +66,7 @@ export const SlideFunding = () => {
                 className="h-7"
               />
               <img src="/img/sponsors/krisp.svg" alt="Krisp" className="h-7" />
-              <img
-                src="/img/sponsors/claimer.svg"
-                alt="Claimer"
-                className="h-7"
-              />
+
               <img src="/img/sponsors/atlas.svg" alt="Atlas" className="h-7" />
               <img src="/img/sponsors/juma.svg" alt="Juma" className="h-7" />
               <img src="/img/sponsors/atuin.png" alt="Atuin" className="h-8" />

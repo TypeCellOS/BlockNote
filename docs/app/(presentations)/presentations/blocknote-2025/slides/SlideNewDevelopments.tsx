@@ -3,7 +3,7 @@ import { SlideHeading } from "../../_components/SlideHeading";
 
 export const SlideNewDevelopments = () => {
   return (
-    <ContentSlide title="New Developments" maxWidth="max-w-7xl">
+    <ContentSlide title="New Developments" wide>
       <div className="grid grid-cols-3 gap-8">
         {/* Features */}
         <div>

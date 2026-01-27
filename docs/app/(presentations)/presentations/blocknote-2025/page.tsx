@@ -15,6 +15,7 @@ import { SlideFunding } from "./slides/SlideFunding";
 import { SlideWhyBlockNote } from "./slides/SlideWhyBlockNote";
 
 import { SlideAI } from "./slides/SlideAI";
+import { SlideAgentDemo } from "./slides/SlideAgentDemo";
 import { SlideComments } from "./slides/SlideComments";
 import { SlideDemo } from "./slides/SlideDemo";
 import { SlideKeyNumbers } from "./slides/SlideKeyNumbers";
@@ -22,7 +23,6 @@ import { SlideNewDevelopments } from "./slides/SlideNewDevelopments";
 import { SlideRoadmap } from "./slides/SlideRoadmap";
 import { SlideSuggestions } from "./slides/SlideSuggestions";
 import { SlideThankYou } from "./slides/SlideThankYou";
-import { SlideVision } from "./slides/SlideVision";
 import { SlideWhyBlocks } from "./slides/SlideWhyBlocks";
 
 export default function PresentationPage() {
@@ -40,6 +40,8 @@ export default function PresentationPage() {
         center: false,
         transition: "slide", // none/fade/slide/convex/concave/zoom
         backgroundTransition: "fade",
+        width: 1280,
+        height: 720,
       });
 
       deckRef.current.initialize().then(() => {
@@ -68,7 +70,7 @@ export default function PresentationPage() {
       ref={deckDivRef}
       style={{ height: "100vh", width: "100vw" }}
     >
-      <div className="absolute left-[3vmin] top-[3vmin] z-50 flex items-center gap-2">
+      <div className="slide-logo absolute left-[3vmin] top-[3vmin] z-50 flex items-center gap-2">
         <img
           src="/img/logos/banner.svg"
           alt="BlockNote Logo"
@@ -87,9 +89,9 @@ export default function PresentationPage() {
         <SlideNewDevelopments />
         <SlideComments />
         <SlideAI />
+        <SlideAgentDemo />
         <SlideSuggestions />
         <SlideRoadmap />
-        <SlideVision />
         <SlideThankYou />
       </div>
 
@@ -111,6 +113,12 @@ export default function PresentationPage() {
           font-family:
             ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
           font-weight: 400;
+        }
+        .slide-logo {
+          transition: opacity 0.3s;
+        }
+        .reveal.hide-logo .slide-logo {
+          opacity: 0;
         }
       `}</style>
     </div>

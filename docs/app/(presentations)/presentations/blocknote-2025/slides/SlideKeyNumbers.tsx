@@ -3,7 +3,7 @@ import { SlideCard } from "../../_components/SlideCard";
 
 export const SlideKeyNumbers = () => {
   return (
-    <ContentSlide title="2025: A Year of Growth">
+    <ContentSlide title="2025 key numbers">
       <div className="grid grid-cols-3 gap-8 py-8">
         <SlideCard className="flex flex-col gap-2">
           <span className="text-7xl font-bold text-purple-600">60</span>
