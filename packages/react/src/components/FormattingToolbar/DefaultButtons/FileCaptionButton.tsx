@@ -81,7 +81,8 @@ export const FileCaptionButton = () => {
         editorHasBlockWithType(editor, block.type, {
           caption: "string",
         }) &&
-        event.key === "Enter"
+        event.key === "Enter" &&
+        !event.nativeEvent.isComposing
       ) {
         event.preventDefault();
         editor.updateBlock(block.id, {
