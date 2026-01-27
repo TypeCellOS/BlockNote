@@ -51,13 +51,7 @@ export const EditLinkMenuItems = (
 
   const handleEnter = useCallback(
     (event: KeyboardEvent) => {
-      // Don't submit during IME composition (e.g., when converting to Kanji)
-      // The nativeEvent.isComposing check is crucial for CJK input methods
-      if (event.nativeEvent.isComposing) {
-        return;
-      }
-
-      if (event.key === "Enter") {
+      if (event.key === "Enter" && !event.nativeEvent.isComposing) {
         event.preventDefault();
         editLink(validateUrl(currentUrl), currentText, props.range.from);
         props.setToolbarOpen?.(false);
