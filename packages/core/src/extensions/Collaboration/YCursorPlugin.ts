@@ -97,7 +97,9 @@ export const YCursorExtension = createExtension(
                 const cursor = recentlyUpdatedCursors.get(clientID);
 
                 if (cursor) {
-                  cursor.element.setAttribute("data-active", "");
+                  setTimeout(() => {
+                    cursor.element.setAttribute("data-active", "");
+                  }, 10);
 
                   if (cursor.hideTimeout) {
                     clearTimeout(cursor.hideTimeout);
