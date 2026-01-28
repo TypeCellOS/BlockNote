@@ -12,7 +12,15 @@ import { Pricing } from "./Pricing";
 import { Sponsors } from "./Sponsors";
 import { SpotlightCard } from "./SpotlightCard";
 
-export const HomeContent: React.FC = () => {
+type HomeContentProps = {
+  code: {
+    realtime: string;
+    theming: string;
+    extend: string;
+  };
+};
+
+export const HomeContent: React.FC<HomeContentProps> = ({ code }) => {
   return (
     <div className="bg-ai-bg text-ai-text font-public flex flex-col overflow-x-hidden selection:bg-purple-100 selection:text-purple-900">
       {/* Styles for custom animations */}
@@ -145,10 +153,10 @@ export const HomeContent: React.FC = () => {
           <FeatureUX />
         </div>
         <div className="mx-auto max-w-6xl px-6">
-          <FeatureDX />
+          <FeatureDX code={{ theming: code.theming, extend: code.extend }} />
         </div>
         <div className="mx-auto max-w-6xl px-6">
-          <FeatureCollab />
+          <FeatureCollab code={{ realtime: code.realtime }} />
         </div>
         <div className="mx-auto max-w-6xl px-6">
           <FeatureAI />

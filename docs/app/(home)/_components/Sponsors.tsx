@@ -67,23 +67,23 @@ const sponsors = [
       />
     ),
   },
-  {
-    name: "Poggio",
-    logo: (
-      <>
-        <img
-          src="/img/sponsors/poggioLight.svg"
-          alt="Poggio"
-          className="h-7 dark:hidden"
-        />
-        <img
-          src="/img/sponsors/poggioDark.svg"
-          alt="Poggio"
-          className="hidden h-7 dark:block"
-        />
-      </>
-    ),
-  },
+  // {
+  //   name: "Poggio",
+  //   logo: (
+  //     <>
+  //       <img
+  //         src="/img/sponsors/poggioLight.svg"
+  //         alt="Poggio"
+  //         className="h-7 dark:hidden"
+  //       />
+  //       <img
+  //         src="/img/sponsors/poggioDark.svg"
+  //         alt="Poggio"
+  //         className="hidden h-7 dark:block"
+  //       />
+  //     </>
+  //   ),
+  // },
   {
     name: "Capitol",
     logo: (
@@ -140,10 +140,6 @@ const sponsors = [
   //   name: "Claimer",
   //   logo: <img src="/img/sponsors/claimer.svg" alt="Claimer" className="h-7" />,
   // },
-  {
-    name: "Atlas",
-    logo: <img src="/img/sponsors/atlas.svg" alt="Atlas" className="h-7" />,
-  },
   {
     name: "Juma",
     logo: <img src="/img/sponsors/juma.svg" alt="Juma" className="h-7" />,

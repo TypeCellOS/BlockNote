@@ -56,7 +56,7 @@ export const FeatureSection: React.FC<FeatureSectionProps> = ({
               <button
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
-                className={`flex w-full items-center gap-4 rounded-xl border p-4 text-left transition-all duration-300 ${
+                className={`flex w-full cursor-pointer items-center gap-4 rounded-xl border p-4 text-left transition-all duration-300 ${
                   isActive
                     ? "border-stone-200 bg-stone-50 shadow-sm"
                     : "border-transparent bg-white hover:bg-stone-50"

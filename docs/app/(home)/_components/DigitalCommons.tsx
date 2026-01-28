@@ -52,8 +52,15 @@ export const DigitalCommons: React.FC = () => {
             {/* Short punchy copy */}
             <p className="mb-8 text-base leading-relaxed text-stone-400">
               France, Germany, and the Netherlands partner to build{" "}
-              <strong className="text-white">Docs</strong>, a collaborative
-              writing tool for thousands of public servants.{" "}
+              <Link
+                href="https://github.com/suitenumerique/docs"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold text-white decoration-purple-400 underline-offset-2 transition-colors hover:text-purple-300 hover:underline"
+              >
+                Docs
+              </Link>
+              , a collaborative writing tool for thousands of public servants.{" "}
               <strong className="text-white">BlockNote is the engine.</strong>
             </p>
 

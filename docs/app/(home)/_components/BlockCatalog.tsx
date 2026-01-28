@@ -49,7 +49,7 @@ export const BlockCatalog: React.FC = () => {
             🧩
           </div>
           <h2 className="mb-6 font-serif text-4xl text-stone-900 md:text-6xl">
-            A universe of blocks.
+            Build anything, block by block.
           </h2>
           <p className="mx-auto max-w-2xl text-xl font-light leading-relaxed text-stone-600">
             Every BlockNote document is a collection of blocks—headings, lists,

@@ -33,7 +33,7 @@ export const Hero: React.FC = () => {
           </TextLoop>
 
           <h1 className="mb-8 text-balance font-serif text-5xl leading-[1.05] tracking-tight text-stone-900 md:text-7xl">
-            Build a <span className="ai-gradient-text">Notion-quality</span>{" "}
+            Build a <span className="ai-gradient-text">Notion-style</span>{" "}
             editor in minutes.
           </h1>
           <p className="mb-10 max-w-lg text-lg font-light leading-relaxed text-stone-600 md:text-xl">
