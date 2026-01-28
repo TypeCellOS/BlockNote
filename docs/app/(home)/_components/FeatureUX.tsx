@@ -10,17 +10,15 @@ export const FeatureUX: React.FC = () => {
     components: {
       type: "video",
       src: "/video/batteries-included.mp4",
-      className: "object-cover",
     },
     ai: {
       type: "video",
       src: "/video/ai-select.mp4",
-      className: "object-contain px-4",
+      className: "px-4",
     },
     blocks: {
       type: "video",
       src: "/video/dragdrop.mp4",
-      className: "object-cover",
     },
   };
 

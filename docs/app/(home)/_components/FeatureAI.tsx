@@ -11,7 +11,7 @@ export const FeatureAI: React.FC = () => {
     toolbar: {
       type: "video",
       src: "/video/ai-select.mp4",
-      className: "object-contain px-4",
+      className: "px-4",
     },
     models: {
       type: "image",

@@ -31,7 +31,7 @@ export const FeatureWindow: React.FC<FeatureWindowProps> = ({
       <img
         src={content.src}
         alt={content.alt}
-        className={`h-full w-full object-cover ${content.className || ""}`}
+        className={`h-full w-full ${content.className || ""}`}
       />
     );
   }
@@ -58,7 +58,7 @@ export const FeatureWindow: React.FC<FeatureWindowProps> = ({
             loop
             muted
             playsInline
-            className={`h-full w-full ${content.className || "object-cover"}`}
+            className={`h-full w-full ${content.className}`}
           />
         )}
         {content.type === "code" && (
