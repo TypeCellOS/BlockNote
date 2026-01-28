@@ -8,6 +8,7 @@ import { Heading } from "fumadocs-ui/components/heading";
 import { DocsBody, DocsPage } from "fumadocs-ui/layouts/docs/page";
 import { createRelativeLink } from "fumadocs-ui/mdx";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 export default async function Page(props: PageProps<"/examples/[[...slug]]">) {
@@ -42,6 +43,24 @@ export default async function Page(props: PageProps<"/examples/[[...slug]]">) {
     >
       <DocsBody>
         <Heading>{page.data.title}</Heading>
+        {!params.slug || params.slug.length === 0 ? (
+          <div className="not-prose my-6 flex flex-col items-start justify-between gap-4 rounded-xl border border-purple-100 bg-purple-50/50 p-4 sm:flex-row sm:items-center sm:p-6">
+            <div>
+              <h3 className="text-base font-semibold text-purple-900">
+                Interactive Playground
+              </h3>
+              <p className="text-sm text-stone-600">
+                Try all features combined in our full-featured demo editor.
+              </p>
+            </div>
+            <Link
+              href="/demo"
+              className="whitespace-nowrap rounded-full bg-purple-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-purple-700"
+            >
+              Try the Demo &rarr;
+            </Link>
+          </div>
+        ) : null}
         <MDX
           components={getMDXComponents({
             // this allows you to link to other pages with relative file paths

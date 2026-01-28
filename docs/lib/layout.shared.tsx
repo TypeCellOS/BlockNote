@@ -351,11 +351,11 @@ const links: LinkItemType[] = [
     url: "/pricing",
     active: "url",
   },
-  {
-    text: "About",
-    url: "/about",
-    active: "url",
-  },
+  // {
+  //   text: "About",
+  //   url: "/about",
+  //   active: "url",
+  // },
   // {
   //   type: "icon",
   //   icon: <FaDiscord />,

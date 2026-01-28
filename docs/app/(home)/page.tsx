@@ -1,30 +1,31 @@
-import { FadeIn } from "@/components/FadeIn";
-import { FAQ } from "./faq/FAQ";
-import { Community } from "./community/Community";
-import { Features } from "./features/Features";
-import { Hero } from "./hero/Hero";
-import { Letter } from "./letter/Letter";
+import { createHighlighter } from "shiki";
+import { HomeContent } from "./_components/HomeContent";
+import { codeSamples } from "./code-samples";
 
-export default function Home() {
+export default async function Home() {
+  const highlighter = await createHighlighter({
+    themes: ["github-dark"],
+    langs: ["typescript", "tsx"],
+  });
+
+  const highlightedCode = {
+    realtime: highlighter.codeToHtml(codeSamples.realtime, {
+      lang: "typescript",
+      theme: "github-dark",
+    }),
+    theming: highlighter.codeToHtml(codeSamples.theming, {
+      lang: "tsx",
+      theme: "github-dark",
+    }),
+    extend: highlighter.codeToHtml(codeSamples.extend, {
+      lang: "tsx",
+      theme: "github-dark",
+    }),
+  };
+
   return (
     <main className="relative">
-      <Hero />
-      <FadeIn noVertical>
-        <div className={"h-px w-full bg-gray-500 opacity-20"} />
-      </FadeIn>
-      <Features />
-      <FadeIn noVertical>
-        <div className={"section-border"} />
-      </FadeIn>
-      <Letter />
-      <FadeIn noVertical>
-        <div className={"section-border"} />
-      </FadeIn>
-      <Community />
-      <FadeIn noVertical>
-        <div className={"h-px w-full bg-gray-500 opacity-20"} />
-      </FadeIn>
-      <FAQ />
+      <HomeContent code={highlightedCode} />
     </main>
   );
 }
