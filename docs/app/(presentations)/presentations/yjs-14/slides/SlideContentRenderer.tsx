@@ -1,96 +1,133 @@
-import { ArrowDown, User, GitCompare } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowUpDown,
+  GitCompare,
+  Users,
+  FileDiff,
+  FileText,
+  Search,
+} from "lucide-react";
 import { ContentSlide } from "../../_components/ContentSlide";
 
 export const SlideContentRenderer = () => {
   return (
-    <ContentSlide title="Display changes & suggestions" wide>
-      <div className="flex h-full flex-col items-center justify-center gap-6">
-        {/* Fixed width container to align all rows */}
-        <div className="flex w-[800px] flex-col items-center gap-6">
-          {/* Two source documents */}
-          <div className="flex w-full justify-center gap-12">
+    <ContentSlide title="Content Renderer: Views on documents" wide>
+      <div className="flex h-full items-center justify-center">
+        {/* 3-column layout: Inputs -> Content Renderer -> Outputs */}
+        <div className="flex items-center gap-8">
+          {/* Left column: Documents A & B */}
+          <div className="flex flex-col items-center gap-4">
             {/* Document A */}
-            <div className="flex w-[220px] flex-col items-center gap-3">
-              <div className="text-xs font-bold uppercase tracking-widest text-stone-400">
+            <div className="flex w-[200px] flex-col items-center gap-1">
+              <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-stone-600">
+                <FileText size={14} />
                 Document A
               </div>
-              <div className="flex h-[60px] items-center rounded-lg border-2 border-blue-200 bg-blue-50 px-6 shadow-sm">
-                <div className="whitespace-nowrap font-mono text-xl">
+              <div className="w-full rounded-lg border-2 border-blue-200 bg-blue-50 px-4 py-2 shadow-sm">
+                <div className="flex justify-center whitespace-nowrap font-mono text-base">
                   <span className="text-stone-800">Hello world</span>
                 </div>
               </div>
             </div>
-
+            {/* Two-way arrow for comparison */}
+            <ArrowUpDown
+              size={18}
+              strokeWidth={1.5}
+              className="text-stone-400"
+            />
             {/* Document B */}
-            <div className="flex w-[220px] flex-col items-center gap-3">
-              <div className="text-xs font-bold uppercase tracking-widest text-stone-400">
+            <div className="flex w-[200px] flex-col items-center gap-1">
+              <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-stone-600">
+                <FileText size={14} />
                 Document B
               </div>
-              <div className="flex h-[60px] items-center rounded-lg border-2 border-purple-200 bg-purple-50 px-6 shadow-sm">
-                <div className="whitespace-nowrap font-mono text-xl">
+              <div className="w-full rounded-lg border-2 border-purple-200 bg-purple-50 px-4 py-2 shadow-sm">
+                <div className="flex justify-center whitespace-nowrap font-mono text-base">
                   <span className="text-stone-800">Hello everyone!</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <ArrowDown size={28} strokeWidth={1.5} className="text-stone-300" />
+          {/* Arrow from input */}
+          <ArrowRight size={24} strokeWidth={1.5} className="text-stone-300" />
 
-          {/* Content Renderer in the middle */}
-          <div className="rounded-xl border-2 border-dashed border-amber-400 bg-amber-50 px-8 py-4">
-            <div className="text-center text-xl font-semibold text-amber-700">
-              Content Renderer
+          {/* Center: Content Renderer (shared) */}
+          <div className="flex flex-col items-center gap-2">
+            <div className="rounded-xl border-2 border-dashed border-amber-400 bg-amber-50 px-8 py-6">
+              <div className="flex flex-col items-center gap-2">
+                <Search
+                  size={28}
+                  strokeWidth={1.5}
+                  className="text-amber-600"
+                />
+                <div className="text-center text-xl font-semibold text-amber-700">
+                  Content Renderer
+                </div>
+              </div>
             </div>
-            <div className="mt-1 text-center text-sm text-amber-600">
-              enhances content with external context
-            </div>
+            <p className="max-w-[180px] text-center text-xs text-stone-500">
+              Hydrate document with context
+            </p>
           </div>
 
-          <ArrowDown size={28} strokeWidth={1.5} className="text-stone-300" />
+          {/* Arrows to outputs */}
+          <div className="flex flex-col items-center gap-24">
+            <ArrowRight
+              size={24}
+              strokeWidth={1.5}
+              className="-rotate-[30deg] text-stone-300"
+            />
+            <ArrowRight
+              size={24}
+              strokeWidth={1.5}
+              className="text-stone-300"
+            />
+            <ArrowRight
+              size={24}
+              strokeWidth={1.5}
+              className="rotate-[30deg] text-stone-300"
+            />
+          </div>
 
-          {/* Two use cases side by side */}
-          <div className="flex w-full justify-center gap-16">
-            {/* Use Case 1: Diff View */}
-            <div className="flex w-[300px] flex-col items-center gap-3">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-stone-400">
+          {/* Right column: Outputs */}
+          <div className="flex flex-col items-start gap-12">
+            {/* Output 1: Diff View */}
+            <div className="flex w-[260px] flex-col items-center gap-2">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-stone-600">
                 <GitCompare size={14} />
                 Diff View
               </div>
-              <div className="flex h-[90px] items-center rounded-lg border-2 border-green-200 bg-white px-6 shadow-md">
-                <div className="whitespace-nowrap font-mono text-xl">
-                  <span className="text-stone-800">Hello </span>
+              <div className="w-full rounded-lg border-2 border-green-200 bg-white px-4 py-2 shadow-md">
+                <div className="flex justify-center whitespace-nowrap font-mono text-base">
+                  <span className="text-stone-800">Hello&nbsp;</span>
                   <span className="bg-red-100 text-red-600 line-through">
                     world
                   </span>
                   <span className="bg-green-100 text-green-600">everyone!</span>
                 </div>
               </div>
-              <p className="h-[40px] text-center text-sm text-stone-500">
-                Show differences between
-                <br />
-                two document states
+              <p className="text-center text-xs text-stone-500">
+                Show differences between documents
               </p>
             </div>
 
-            {/* Vertical divider */}
-            <div className="h-[160px] w-px bg-stone-200" />
-
-            {/* Use Case 2: Attribution View */}
-            <div className="flex w-[300px] flex-col items-center gap-3">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-stone-400">
-                <User size={14} />
+            {/* Output 2: Attribution View */}
+            <div className="flex w-[260px] flex-col items-center gap-2">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-stone-600">
+                <Users size={14} />
                 Attribution View
               </div>
-              <div className="flex h-[90px] flex-col items-center justify-center rounded-lg border-2 border-indigo-200 bg-white px-6 shadow-md">
-                <div className="whitespace-nowrap font-mono text-xl">
+              <div className="w-full rounded-lg border-2 border-indigo-200 bg-white px-4 py-2 shadow-md">
+                <div className="flex justify-center whitespace-nowrap font-mono text-base">
                   <span className="border-b-2 border-blue-400 text-stone-800">
-                    Hello{" "}
+                    Hello&nbsp;
                   </span>
                   <span className="border-b-2 border-pink-400 text-stone-800">
                     everyone!
                   </span>
                 </div>
-                <div className="mt-2 flex justify-center gap-4 text-xs">
+                <div className="mt-2 flex justify-center gap-3 text-[10px]">
                   <span className="flex items-center gap-1">
                     <span className="h-2 w-2 rounded-full bg-blue-400" />
                     <span className="text-stone-500">Jane</span>
@@ -101,10 +138,40 @@ export const SlideContentRenderer = () => {
                   </span>
                 </div>
               </div>
-              <p className="h-[40px] text-center text-sm text-stone-500">
-                Show who contributed
-                <br />
-                each piece of content
+              <p className="text-center text-xs text-stone-500">
+                Show who wrote each piece
+              </p>
+            </div>
+
+            {/* Output 3: Diff with Attribution */}
+            <div className="flex w-[260px] flex-col items-center gap-2">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-stone-600">
+                <FileDiff size={14} />
+                Diff + Attribution
+              </div>
+              <div className="w-full rounded-lg border-2 border-teal-200 bg-white px-4 py-2 shadow-md">
+                <div className="flex justify-center whitespace-nowrap font-mono text-base">
+                  <span className="text-stone-800">Hello&nbsp;</span>
+                  <span className="border-b-2 border-blue-400 bg-red-100 text-red-600 line-through">
+                    world
+                  </span>
+                  <span className="border-b-2 border-pink-400 bg-green-100 text-green-600">
+                    everyone!
+                  </span>
+                </div>
+                <div className="mt-2 flex justify-center gap-3 text-[10px]">
+                  <span className="flex items-center gap-1">
+                    <span className="h-2 w-2 rounded-full bg-blue-400" />
+                    <span className="text-stone-500">Jane</span>
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="h-2 w-2 rounded-full bg-pink-400" />
+                    <span className="text-stone-500">Alex</span>
+                  </span>
+                </div>
+              </div>
+              <p className="text-center text-xs text-stone-500">
+                Diff showing who made each change
               </p>
             </div>
           </div>

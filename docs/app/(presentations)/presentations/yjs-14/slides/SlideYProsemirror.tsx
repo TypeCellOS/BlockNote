@@ -71,9 +71,9 @@ export const SlideYProsemirror = () => {
               Delta-Based Mapping
             </div>
             <div className="text-center text-xs text-cyan-600">
-              PM already expresses changes
+              Prosemirror expresses changes
               <br />
-              in OT-like deltas
+              in a delta-compatible way
             </div>
           </div>
 

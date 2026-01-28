@@ -72,8 +72,8 @@ export default function PresentationPage() {
         <Slide3_Architecture />
         <SlideAttributions />
         <SlideYjsInternals />
-        <SlideDeltas />
         <SlideUnifiedYType />
+        <SlideDeltas />
         <SlideAttributionManager />
         <SlideContentRenderer />
         <SlideYProsemirror />
