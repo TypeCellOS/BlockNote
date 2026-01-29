@@ -25,7 +25,7 @@ export const GridSuggestionMenuItem = forwardRef<
     );
 
     if (overflow !== "none") {
-      itemRef.current.scrollIntoView({ block: "nearest" });
+      itemRef.current.scrollIntoView({block: "nearest"});
     }
   }, [isSelected]);
 

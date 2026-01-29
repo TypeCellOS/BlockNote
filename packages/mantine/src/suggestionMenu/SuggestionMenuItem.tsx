@@ -31,7 +31,7 @@ export const SuggestionMenuItem = forwardRef<
     );
 
     if (overflow !== "none") {
-      itemRef.current.scrollIntoView({ block: "nearest" });
+      itemRef.current.scrollIntoView({block: "nearest"});
     }
   }, [isSelected]);
 
@@ -73,3 +73,14 @@ export const SuggestionMenuItem = forwardRef<
     </MantineGroup>
   );
 });
+
+
+//  if (overflow === "top") {
+//       itemRef.current.scrollIntoView(true);
+//     } else if (overflow === "bottom") {
+//       itemRef.current.scrollIntoView(false);
+
+//        if (overflow !== "none") {
+//       itemRef.current.scrollIntoView({ block: "nearest" });
+//     }
+//   }, [isSelected]);
