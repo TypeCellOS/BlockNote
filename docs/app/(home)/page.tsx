@@ -29,9 +29,5 @@ export default async function Home() {
     // }),
   };
 
-  return (
-    <main className="relative">
-      <HomeContent code={highlightedCode} />
-    </main>
-  );
+  return <HomeContent code={highlightedCode} />;
 }
