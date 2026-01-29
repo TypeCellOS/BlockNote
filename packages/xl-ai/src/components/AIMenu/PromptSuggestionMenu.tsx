@@ -38,7 +38,7 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
 
   const handleEnter = useCallback(
     async (event: KeyboardEvent) => {
-      if (event.key === "Enter") {
+      if (event.key === "Enter" && !event.nativeEvent.isComposing) {
         // console.log("ENTER", currentEditingPrompt);
         onManualPromptSubmit(promptTextToUse);
       }
@@ -71,7 +71,7 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       // TODO: handle backspace to close
-      if (event.key === "Enter") {
+      if (event.key === "Enter" && !event.nativeEvent.isComposing) {
         if (items.length > 0) {
           handler(event);
         } else {
