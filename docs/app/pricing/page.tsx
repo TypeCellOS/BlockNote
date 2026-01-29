@@ -133,7 +133,7 @@ const tiers: Tier[] = [
         )
       </span>,
     ],
-    href: "/about/",
+    href: "mailto:team@blocknotejs.org",
     cta: "contact",
   },
 ];
