@@ -7,7 +7,9 @@ import { defineConfig } from "vite";
 // https://vitejs.dev/config/
 export default defineConfig((conf) => ({
   plugins: [react()],
-  optimizeDeps: {},
+  optimizeDeps: {
+    exclude: ["@blocknote/code-block"],
+  },
   build: {
     sourcemap: true,
   },
@@ -21,12 +23,17 @@ export default defineConfig((conf) => ({
             // or, keep as is to load live from sources with live reload working
             "@blocknote/core": path.resolve(
               __dirname,
-              "../../packages/core/src/"
+              "../../packages/core/src/",
             ),
             "@blocknote/react": path.resolve(
               __dirname,
-              "../../packages/react/src/"
+              "../../packages/react/src/",
+            ),
+            "@blocknote/code-block": path.resolve(
+              __dirname,
+              "../../packages/code-block/src/",
             ),
           } as any),
+    dedupe: ["@blocknote/code-block"],
   },
 }));

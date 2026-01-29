@@ -35,18 +35,18 @@ export const FormattingToolbarExtension = createExtension(({ editor }) => {
 
       // Searches the content of the selection to see if it spans a node with a
       // code spec.
-      let spansCode = false;
-      tr.selection.content().content.descendants((node) => {
-        if (node.type.spec.code) {
-          spansCode = true;
-        }
-        return !spansCode; // keep descending if we haven't found a code block
-      });
+      // let spansCode = false;
+      // tr.selection.content().content.descendants((node) => {
+      //   if (node.type.spec.code) {
+      //     spansCode = true;
+      //   }
+      //   return !spansCode; // keep descending if we haven't found a code block
+      // });
 
-      // Don't show if the selection spans a code block.
-      if (spansCode) {
-        return false;
-      }
+      // // Don't show if the selection spans a code block.
+      // if (spansCode) {
+      //   return false;
+      // }
 
       // Show toolbar otherwise.
       return true;
@@ -91,13 +91,15 @@ export const FormattingToolbarExtension = createExtension(({ editor }) => {
         "pointerup",
         () => {
           preventShowWhileMouseDown = false;
-          // We only want to re-show the toolbar if the mouse made the selection
           if (editor.isFocused()) {
-            store.setState(shouldShow());
+            requestAnimationFrame(() => {
+              store.setState(shouldShow());
+            });
           }
         },
         { signal, capture: true },
       );
+
       // If the pointer gets cancelled, we don't want to be stuck in the `preventShowWhileMouseDown` state
       dom.addEventListener(
         "pointercancel",

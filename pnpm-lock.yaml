@@ -2323,7 +2323,7 @@ importers:
         specifier: latest
         version: link:../../../packages/ariakit
       '@blocknote/code-block':
-        specifier: latest
+        specifier: workspace:^
         version: link:../../../packages/code-block
       '@blocknote/core':
         specifier: latest
