@@ -1,4 +1,4 @@
-"use client";
+// "use client";
 import React from "react";
 import { BlockCatalog } from "./BlockCatalog";
 import { DigitalCommons } from "./DigitalCommons";
@@ -17,44 +17,13 @@ type HomeContentProps = {
     realtime: string;
     theming: string;
     extend: string;
+    types: string;
   };
 };
 
 export const HomeContent: React.FC<HomeContentProps> = ({ code }) => {
   return (
     <div className="bg-ai-bg text-ai-text font-public flex flex-col overflow-x-hidden selection:bg-purple-100 selection:text-purple-900">
-      {/* Styles for custom animations */}
-      <style>{`
-        @keyframes marquee {
-          0% { transform: translateX(0%); }
-          100% { transform: translateX(-100%); }
-        }
-        @keyframes marquee2 {
-          0% { transform: translateX(100%); }
-          100% { transform: translateX(0%); }
-        }
-        .animate-marquee {
-          animation: marquee 25s linear infinite;
-        }
-        .animate-marquee2 {
-          animation: marquee2 25s linear infinite;
-        }
-        @keyframes float-up-fade {
-          0% { transform: translateY(0); opacity: 0; }
-          20% { opacity: 1; }
-          80% { opacity: 1; }
-          100% { transform: translateY(-60px); opacity: 0; }
-        }
-        @keyframes pulse-aura {
-          0% { box-shadow: 0 0 0 0px rgba(168, 85, 247, 0.0); }
-          50% { box-shadow: 0 0 20px 10px rgba(168, 85, 247, 0.1); }
-          100% { box-shadow: 0 0 0 0px rgba(168, 85, 247, 0.0); }
-        }
-        @keyframes flow-line {
-          0% { stroke-dashoffset: 200; }
-          100% { stroke-dashoffset: 0; }
-        }
-      `}</style>
       <Hero />
       <Sponsors />
       <div className="w-full bg-[#fdfbf7]"></div>
@@ -153,7 +122,13 @@ export const HomeContent: React.FC<HomeContentProps> = ({ code }) => {
           <FeatureUX />
         </div>
         <div className="mx-auto max-w-6xl px-6">
-          <FeatureDX code={{ theming: code.theming, extend: code.extend }} />
+          <FeatureDX
+            code={{
+              theming: code.theming,
+              extend: code.extend,
+              // types: code.types,
+            }}
+          />
         </div>
         <div className="mx-auto max-w-6xl px-6">
           <FeatureCollab code={{ realtime: code.realtime }} />

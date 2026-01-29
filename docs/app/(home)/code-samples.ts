@@ -13,6 +13,19 @@ return (
     components={ShadCNComponents}
   />
 );`,
+  // TODO: need to get twoslash working, for now using screenshot
+  // FeatureDX: "Type-Safe"
+  //   types: `const BlockNoteSchema: any = {};
+  // // Define your custom block schema
+  // const schema = BlockNoteSchema.create({
+  //   blockSpecs: {
+  //     // ...
+  //   },
+  // });
+
+  // // Full type inference for your blocks
+  // type MyBlock = typeof schema.Block;
+  // //   ^?`,
 
   // FeatureDX: "Extend Everything"
   extend: `import { createReactBlockSpec } from "@blocknote/react";

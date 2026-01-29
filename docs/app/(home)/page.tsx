@@ -2,12 +2,12 @@ import { createHighlighter } from "shiki";
 import { HomeContent } from "./_components/HomeContent";
 import { codeSamples } from "./code-samples";
 
-export default async function Home() {
-  const highlighter = await createHighlighter({
-    themes: ["github-dark"],
-    langs: ["typescript", "tsx"],
-  });
+const highlighter = await createHighlighter({
+  themes: ["github-dark"],
+  langs: ["typescript", "tsx"],
+});
 
+export default async function Home() {
   const highlightedCode = {
     realtime: highlighter.codeToHtml(codeSamples.realtime, {
       lang: "typescript",
@@ -21,6 +21,12 @@ export default async function Home() {
       lang: "tsx",
       theme: "github-dark",
     }),
+    // types: highlighter.codeToHtml(codeSamples.types, {
+    //   lang: "typescript",
+    //   theme: "github-dark",
+    //   meta: { __raw: "twoslash" },
+    //   transformers: [transformerTwoslash()],
+    // }),
   };
 
   return (

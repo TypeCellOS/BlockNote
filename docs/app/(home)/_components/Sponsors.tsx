@@ -1,4 +1,3 @@
-"use client";
 import { InfiniteSlider } from "@/components/InfiniteSlider";
 
 const sponsors = [

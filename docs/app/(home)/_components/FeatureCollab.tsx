@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from "react";
 import { FeatureSection } from "./FeatureSection";
 import { ContentItem, FeatureWindow } from "./ui/FeatureWindow";

@@ -16,8 +16,8 @@ export const metadata = getFullMetadata({
 });
 
 const sponsors = [
-  { name: "Semrush", logo: "/img/sponsors/semrush.light.png" },
-  { name: "NLnet", logo: "/img/sponsors/nlnetLight.svg" },
+  // { name: "Semrush", logo: "/img/sponsors/semrush.light.png" },
+  // { name: "NLnet", logo: "/img/sponsors/nlnetLight.svg" },
   { name: "DINUM", logo: "/img/sponsors/dinumLight.svg" },
   { name: "ZenDiS", logo: "/img/sponsors/zendis.svg" },
   { name: "OpenProject", logo: "/img/sponsors/openproject.svg" },
@@ -25,7 +25,7 @@ const sponsors = [
   { name: "Capitol", logo: "/img/sponsors/capitolLight.svg" },
   { name: "Twenty", logo: "/img/sponsors/twentyLight.png" },
   { name: "Deep Origin", logo: "/img/sponsors/deepOrigin.svg" },
-  { name: "Krisp", logo: "/img/sponsors/krisp.svg" },
+  // { name: "Krisp", logo: "/img/sponsors/krisp.svg" },
 ];
 
 const tiers: Tier[] = [
