@@ -15,7 +15,7 @@ export const Pricing: React.FC = () => {
             Subscribe to BlockNote XL.
           </h2>
           <p className="mx-auto max-w-2xl text-lg text-stone-500">
-            BlockNote is 100% open source. Here's how licensing works.
+            BlockNote is 100% open source. Here&apos;s how licensing works.
           </p>
         </div>
 

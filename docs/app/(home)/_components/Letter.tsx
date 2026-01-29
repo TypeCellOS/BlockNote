@@ -16,7 +16,7 @@ export const Letter: React.FC = () => {
         <div className="relative">
           <div className="mb-16">
             <h2 className="font-serif text-6xl font-medium italic tracking-tight text-stone-900 md:text-8xl">
-              Let's build.
+              Let&apos;s build.
             </h2>
           </div>
 
@@ -30,11 +30,12 @@ export const Letter: React.FC = () => {
                 </p>
                 <p>
                   We believe that great tools should be{" "}
-                  <strong>sovereign</strong> by default. You shouldn't have to
-                  choose between a cohesive UX and owning your infrastructure.
+                  <strong>sovereign</strong> by default. You shouldn&apos;t have
+                  to choose between a cohesive UX and owning your
+                  infrastructure.
                 </p>
                 <p>
-                  That's why we built BlockNote. A{" "}
+                  That&apos;s why we built BlockNote. A{" "}
                   <strong>batteries-included</strong> editor that gives you a
                   Notion-quality experience in minutes, while staying grounded
                   in open standards like{" "}
@@ -46,8 +47,8 @@ export const Letter: React.FC = () => {
               </div>
               <div className="mt-12 text-lg text-stone-600">
                 <p>
-                  Whether you're a startup or a public institution, you deserve
-                  software that lasts. Join us to{" "}
+                  Whether you&apos;re a startup or a public institution, you
+                  deserve software that lasts. Join us to{" "}
                   <span className="relative inline-block font-medium text-stone-900">
                     shape the future
                     <svg

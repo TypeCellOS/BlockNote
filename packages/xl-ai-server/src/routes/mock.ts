@@ -37,7 +37,7 @@ regularRoute.post("/streamText", async (c) => {
   const { messages } = await c.req.json();
   const blockId =
     messages[messages.length - 1].metadata.documentState.blocks[0].id;
-  console.log(blockId);
+  // console.log(blockId);
   MANUAL_TOOL_CALLS[0].args.operations[0].referenceId = blockId;
   const stream = createUIMessageStream<any>({
     execute: async ({ writer }) => {

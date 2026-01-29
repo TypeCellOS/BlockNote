@@ -7,7 +7,7 @@ export const USP = () => {
       <div className="mx-auto max-w-7xl px-6">
         <div className="mx-auto mb-20 max-w-3xl text-center">
           <h2 className="mb-6 font-serif text-4xl text-stone-900">
-            The editor you'd build, if you had the time.
+            The editor you&apos;d build, if you had the time.
           </h2>
           {/* <p className="text-lg text-stone-500">
             BlockNote combines a premium editing experience with the flexibility

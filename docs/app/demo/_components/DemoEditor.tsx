@@ -92,6 +92,7 @@ export function DemoEditor() {
       // Initial check
       const hash = window.location.hash.replace("#", "");
       if (hash) {
+        // eslint-disable-next-line
         setRoomId(hash);
         setIsNewRoom(false);
       } else {

@@ -39,8 +39,7 @@ export const DigitalCommons: React.FC = () => {
 
             {/* Headline - editorial style */}
             <h2 className="mb-6 font-serif text-3xl leading-tight text-white md:text-4xl">
-              Three nations choose
-              <br />
+              Three nations choose <br />
               <span className="bg-gradient-to-r from-purple-300 to-blue-300 bg-clip-text text-transparent">
                 open source
               </span>{" "}
@@ -66,8 +65,8 @@ export const DigitalCommons: React.FC = () => {
 
             {/* Compelling social proof - simpler */}
             <p className="mb-8 text-sm italic text-stone-500">
-              "Building Digital Commons means better tools, data sovereignty,
-              and shared progress."
+              &quot;Building Digital Commons means better tools, data
+              sovereignty, and shared progress.&quot;
             </p>
 
             {/* CTA */}

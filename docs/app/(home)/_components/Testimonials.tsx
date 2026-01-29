@@ -43,7 +43,7 @@ const TestimonialCard: React.FC<{ testimonial: Testimonial }> = ({
       {testimonial.company}
     </div>
     <p className="mb-6 flex-1 text-sm leading-relaxed text-stone-500">
-      "{testimonial.quote}"
+      &quot;{testimonial.quote}&quot;
     </p>
     <div className="flex items-center gap-3">
       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-stone-100 text-sm font-medium text-stone-600">
@@ -89,7 +89,7 @@ export const Testimonials: React.FC = () => {
             href="/examples"
             className="group flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-8 py-4 font-medium text-stone-900 shadow-sm transition-all hover:border-purple-300 hover:shadow-md"
           >
-            <span>See who's using BlockNote</span>
+            <span>See who&apos;s using BlockNote</span>
             <span className="transition-transform group-hover:translate-x-1">
               →
             </span>

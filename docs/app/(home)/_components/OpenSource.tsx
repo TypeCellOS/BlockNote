@@ -73,7 +73,7 @@ export const OpenSource: React.FC = () => {
           <p className="mx-auto max-w-3xl text-lg leading-relaxed text-stone-300">
             Document editing is foundational infrastructure for the modern
             workforce. We believe the tools we use to create and share knowledge
-            should be open, transparent, and free from lock-in. That's why
+            should be open, transparent, and free from lock-in. That&apos;s why
             everything we build is open source.
           </p>
         </div>

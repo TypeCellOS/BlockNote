@@ -47,9 +47,9 @@ const tiers: Tier[] = [
             </TooltipTrigger>
             <TooltipContent className="max-w-[280px] p-3 leading-normal">
               BlockNote is MPL-licensed. This is close to MIT and free for any
-              use. The key difference is a "share-alike" requirement: if you
-              modify BlockNote's internal files, you must share those specific
-              changes.
+              use. The key difference is a &quot;share-alike&quot; requirement:
+              if you modify BlockNote&apos;s internal files, you must share
+              those specific changes.
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>{" "}
