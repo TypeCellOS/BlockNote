@@ -1,36 +1,40 @@
 import { InfiniteSlider } from "@/components/InfiniteSlider";
+import agree from "@/public/img/sponsors/agree.png";
+import atuin from "@/public/img/sponsors/atuin.png";
+import capitolDark from "@/public/img/sponsors/capitolDark.svg";
+import capitolLight from "@/public/img/sponsors/capitolLight.svg";
+import cella from "@/public/img/sponsors/cella.png";
+import deepOrigin from "@/public/img/sponsors/deepOrigin.svg";
+import dinumDark from "@/public/img/sponsors/dinumDark.svg";
+import dinumLight from "@/public/img/sponsors/dinumLight.svg";
+import illumi from "@/public/img/sponsors/illumi.png";
+import juma from "@/public/img/sponsors/juma.svg";
+import nlnetDark from "@/public/img/sponsors/nlnetDark.svg";
+import nlnetLight from "@/public/img/sponsors/nlnetLight.svg";
+import openproject from "@/public/img/sponsors/openproject.svg";
+import twentyDark from "@/public/img/sponsors/twentyDark.png";
+import twentyLight from "@/public/img/sponsors/twentyLight.png";
+import zendis from "@/public/img/sponsors/zendis.svg";
+import Image from "next/image";
 
 const sponsors = [
   // {
   //   name: "Semrush",
-  //   logo: (
-  //     <>
-  //       <img
-  //         src="/img/sponsors/semrush.light.png"
-  //         alt="Semrush"
-  //         className="h-8 dark:hidden"
-  //       />
-  //       <img
-  //         src="/img/sponsors/semrush.dark.png"
-  //         alt="Semrush"
-  //         className="hidden h-8 dark:block"
-  //       />
-  //     </>
-  //   ),
+  //   logo: ( ... )
   // },
   {
     name: "NLnet",
     logo: (
       <>
-        <img
-          src="/img/sponsors/nlnetLight.svg"
+        <Image
+          src={nlnetLight}
           alt="NLnet"
-          className="h-9 dark:hidden"
+          className="h-9 w-auto dark:hidden"
         />
-        <img
-          src="/img/sponsors/nlnetDark.svg"
+        <Image
+          src={nlnetDark}
           alt="NLnet"
-          className="hidden h-9 dark:block"
+          className="hidden h-9 w-auto dark:block"
         />
       </>
     ),
@@ -39,63 +43,44 @@ const sponsors = [
     name: "DINUM",
     logo: (
       <>
-        <img
-          src="/img/sponsors/dinumLight.svg"
+        <Image
+          src={dinumLight}
           alt="DINUM"
-          className="h-8 dark:hidden"
+          className="h-8 w-auto dark:hidden"
         />
-        <img
-          src="/img/sponsors/dinumDark.svg"
+        <Image
+          src={dinumDark}
           alt="DINUM"
-          className="hidden h-8 dark:block"
+          className="hidden h-8 w-auto dark:block"
         />
       </>
     ),
   },
   {
     name: "ZenDiS",
-    logo: <img src="/img/sponsors/zendis.svg" alt="ZenDiS" className="h-8" />,
+    logo: <Image src={zendis} alt="ZenDiS" className="h-8 w-auto" />,
   },
   {
     name: "OpenProject",
-    logo: (
-      <img
-        src="/img/sponsors/openproject.svg"
-        alt="OpenProject"
-        className="h-8"
-      />
-    ),
+    logo: <Image src={openproject} alt="OpenProject" className="h-8 w-auto" />,
   },
   // {
   //   name: "Poggio",
-  //   logo: (
-  //     <>
-  //       <img
-  //         src="/img/sponsors/poggioLight.svg"
-  //         alt="Poggio"
-  //         className="h-7 dark:hidden"
-  //       />
-  //       <img
-  //         src="/img/sponsors/poggioDark.svg"
-  //         alt="Poggio"
-  //         className="hidden h-7 dark:block"
-  //       />
-  //     </>
-  //   ),
+  //   logo: ( ... )
   // },
   {
     name: "Capitol",
     logo: (
       <>
-        <img
-          src="/img/sponsors/capitolLight.svg"
+        <Image
+          src={capitolLight}
           alt="Capitol"
-          className="h-7 dark:hidden"
+          className="h-7 w-auto dark:hidden"
         />
-        <img
-          src="/img/sponsors/capitolDark.svg"
+        <Image
+          src={capitolDark}
           alt="Capitol"
-          className="hidden h-7 dark:block"
+          className="hidden h-7 w-auto dark:block"
         />
       </>
     ),
@@ -104,60 +89,54 @@ const sponsors = [
     name: "Twenty",
     logo: (
       <>
-        <img
-          src="/img/sponsors/twentyLight.png"
+        <Image
+          src={twentyLight}
           alt="Twenty"
-          className="h-7 dark:hidden"
+          className="h-7 w-auto dark:hidden"
         />
-        <img
-          src="/img/sponsors/twentyDark.png"
+        <Image
+          src={twentyDark}
           alt="Twenty"
-          className="hidden h-7 dark:block"
+          className="hidden h-7 w-auto dark:block"
         />
       </>
     ),
   },
   {
     name: "Deep Origin",
-    logo: (
-      <img
-        src="/img/sponsors/deepOrigin.svg"
-        alt="Deep Origin"
-        className="h-7"
-      />
-    ),
+    logo: <Image src={deepOrigin} alt="Deep Origin" className="h-7 w-auto" />,
   },
   // {
   //   name: "Krisp",
-  //   logo: <img src="/img/sponsors/krisp.svg" alt="Krisp" className="h-7" />,
+  //   ...
   // },
   //  {
   //   name: "Lemni",
-  //   logo: <img src="/img/sponsors/krisp.svg" alt="Krisp" className="h-7" />,
+  //   ...
   // },
   // {
   //   name: "Claimer",
-  //   logo: <img src="/img/sponsors/claimer.svg" alt="Claimer" className="h-7" />,
+  //   ...
   // },
   {
     name: "Juma",
-    logo: <img src="/img/sponsors/juma.svg" alt="Juma" className="h-7" />,
+    logo: <Image src={juma} alt="Juma" className="h-7 w-auto" />,
   },
   {
     name: "Atuin",
-    logo: <img src="/img/sponsors/atuin.png" alt="Atuin" className="h-9" />,
+    logo: <Image src={atuin} alt="Atuin" className="h-9 w-auto" />,
   },
   {
     name: "Cella",
-    logo: <img src="/img/sponsors/cella.png" alt="Cella" className="h-7" />,
+    logo: <Image src={cella} alt="Cella" className="h-7 w-auto" />,
   },
   {
     name: "Illumi",
-    logo: <img src="/img/sponsors/illumi.png" alt="Illumi" className="h-7" />,
+    logo: <Image src={illumi} alt="Illumi" className="h-7 w-auto" />,
   },
   {
     name: "Agree",
-    logo: <img src="/img/sponsors/agree.png" alt="Agree" className="h-9" />,
+    logo: <Image src={agree} alt="Agree" className="h-9 w-auto" />,
   },
 ];
 

@@ -58,6 +58,7 @@ export const FeatureWindow: React.FC<FeatureWindowProps> = ({
             loop
             muted
             playsInline
+            preload="none"
             className={`h-full w-full ${content.className}`}
           />
         )}
