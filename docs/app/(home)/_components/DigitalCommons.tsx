@@ -95,6 +95,7 @@ export const DigitalCommons: React.FC = () => {
                 onClick={handlePlayPause}
                 onEnded={() => setIsPlaying(false)}
                 playsInline
+                preload="none"
               >
                 <source src="/video/docs.mp4" type="video/mp4" />
               </video>
