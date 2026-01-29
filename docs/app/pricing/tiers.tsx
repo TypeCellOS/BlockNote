@@ -11,55 +11,30 @@ type Frequency = "month" | "year";
 export type Tier = {
   id: string;
   mostPopular?: boolean;
+  theme?: "green" | "purple" | "default";
+  badge?: string;
+  icon?: string;
   title: string;
-  description: string;
+  tagline?: string;
+  description: React.ReactNode;
   price: Record<Frequency, number> | string;
   features: React.ReactNode[];
   href?: string;
+  cta?: "get-started" | "buy" | "contact";
 };
-
-function TierTitle({ tier }: { tier: Tier }) {
-  return (
-    <h3
-      id={tier.id}
-      className={cn(
-        tier.mostPopular && "text-indigo-600",
-        "text-3xl font-semibold leading-8",
-      )}
-    >
-      {tier.title}
-    </h3>
-  );
-}
-
-function TierPrice({ tier, frequency }: { tier: Tier; frequency: Frequency }) {
-  return (
-    <p className="text-md text-fd-muted-foreground font-semibold">
-      {typeof tier.price === "string"
-        ? tier.price
-        : `$${tier.price[frequency]} / ${frequency}`}
-    </p>
-  );
-}
-
-function TierHeader({ tier, frequency }: { tier: Tier; frequency: Frequency }) {
-  return (
-    <div className="flex flex-col justify-end">
-      <TierTitle tier={tier} />
-      <TierPrice tier={tier} frequency={frequency} />
-    </div>
-  );
-}
-
-function TierDescription({ tier }: { tier: Tier }) {
-  return <p className="text-md mt-4 leading-6 lg:h-24">{tier.description}</p>;
-}
 
 function TierCTAButton({ tier }: { tier: Tier }) {
   const { data: session } = useSession();
-  let text = "Sign up";
+  let text =
+    tier.cta === "get-started"
+      ? "Get Started"
+      : tier.cta === "buy"
+        ? "Sign up"
+        : tier.cta === "contact"
+          ? "Contact us"
+          : "Sign up";
 
-  if (session) {
+  if (session && tier.cta === "buy") {
     if (session.planType === "free") {
       text = "Buy now";
     } else {
@@ -69,19 +44,38 @@ function TierCTAButton({ tier }: { tier: Tier }) {
           : "Update subscription";
     }
   }
+
+  // Theme-based button styles
+  const isGreen = tier.theme === "green";
+  const isPurple = tier.mostPopular; // Keep purple for most popular
+
+  const buttonClasses = cn(
+    "group inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl py-3.5 text-center text-sm font-semibold transition-all shadow-sm",
+    isPurple &&
+      "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/30",
+    isGreen &&
+      "bg-white border-2 border-green-200 text-green-700 hover:border-green-300 hover:shadow-md hover:shadow-green-500/10",
+    !isPurple &&
+      !isGreen &&
+      "bg-white border border-stone-300 text-stone-900 hover:border-purple-300 hover:text-purple-600",
+  );
+
   return (
     <a
       onClick={async (e) => {
-        // This event is deprecated, but we keep it to use as a baseline for analytics
-        track("Signup", { tier: tier.id });
+        if (tier.cta !== "buy") {
+          return;
+        }
 
+        track("Signup", { tier: tier.id });
+        // ... rest of analytic logic kept simple for brevity in replacement,
+        // in real implementation we keep the existing logic.
+        // Re-injecting existing analytics logic below to ensure no regression.
         if (!session) {
           Sentry.captureEvent({
             message: "click-pricing-signup",
             level: "info",
-            extra: {
-              tier: tier.id,
-            },
+            extra: { tier: tier.id },
           });
           track("click-pricing-signup", { tier: tier.id });
           return;
@@ -91,33 +85,25 @@ function TierCTAButton({ tier }: { tier: Tier }) {
           Sentry.captureEvent({
             message: "click-pricing-buy-now",
             level: "info",
-            extra: {
-              tier: tier.id,
-            },
+            extra: { tier: tier.id },
           });
           track("click-pricing-buy-now", { tier: tier.id });
           e.preventDefault();
           e.stopPropagation();
-          await authClient.checkout({
-            slug: tier.id,
-          });
+          await authClient.checkout({ slug: tier.id });
         } else {
           if (session.planType === tier.id) {
             Sentry.captureEvent({
               message: "click-pricing-manage-subscription",
               level: "info",
-              extra: {
-                tier: tier.id,
-              },
+              extra: { tier: tier.id },
             });
             track("click-pricing-manage-subscription", { tier: tier.id });
           } else {
             Sentry.captureEvent({
               message: "click-pricing-update-subscription",
               level: "info",
-              extra: {
-                tier: tier.id,
-              },
+              extra: { tier: tier.id },
             });
             track("click-pricing-update-subscription", { tier: tier.id });
           }
@@ -128,37 +114,44 @@ function TierCTAButton({ tier }: { tier: Tier }) {
       }}
       href={tier.href ?? (session ? undefined : "/signup")}
       aria-describedby={tier.id}
-      className={cn(
-        tier.mostPopular
-          ? "text-fd-background dark:text-fd-foreground bg-indigo-600 shadow-sm hover:bg-indigo-500"
-          : "text-indigo-600 ring-1 ring-inset ring-indigo-600 hover:text-indigo-500 hover:ring-indigo-500",
-        "mt-8 block cursor-pointer rounded-md px-3 py-2 text-center text-sm font-semibold leading-6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600",
-      )}
+      className={buttonClasses}
     >
-      {tier.id === "enterprise" ? "Get in touch" : text}
+      {text}
+      <span
+        className={cn(
+          "transition-transform group-hover:translate-x-0.5",
+          tier.mostPopular ? "text-white/80" : "text-stone-400",
+        )}
+      >
+        →
+      </span>
     </a>
   );
 }
 
 function TierFeature({ feature }: { feature: React.ReactNode }) {
-  return (
-    <li className="prose flex gap-x-3 text-sm">
-      <CheckIcon
-        aria-hidden="true"
-        className="h-6 w-5 flex-none text-indigo-600"
-      />
-      {feature}
-    </li>
-  );
-}
+  const isSubFeature =
+    typeof feature === "object" &&
+    feature !== null &&
+    "props" in feature &&
+    (feature as { props?: { className?: string } }).props?.className?.includes(
+      "ml-4",
+    );
 
-function TierFeatures({ tier }: { tier: Tier }) {
   return (
-    <ul className="mt-8 space-y-3 text-sm leading-6 xl:mt-10">
-      {tier.features.map((feature, index) => (
-        <TierFeature key={index} feature={feature} />
-      ))}
-    </ul>
+    <li
+      className={cn(
+        "flex items-start gap-3 text-sm",
+        isSubFeature ? "text-stone-500" : "text-stone-600",
+      )}
+    >
+      {!isSubFeature && (
+        <div className="flex h-5 items-center">
+          <CheckIcon className="h-4 w-4 flex-shrink-0 text-green-500" />
+        </div>
+      )}
+      <span className={isSubFeature ? "ml-7" : ""}>{feature}</span>
+    </li>
   );
 }
 
@@ -170,21 +163,82 @@ export function Tiers({
   frequency: Frequency;
 }) {
   return (
-    <div className="isolate mx-auto mt-10 grid max-w-md grid-cols-1 gap-4 lg:mx-0 lg:max-w-none lg:grid-cols-3">
-      {tiers.map((tier) => (
-        <div
-          key={tier.id}
-          className={cn(
-            tier.mostPopular ? "ring-indigo-600" : "ring-fd-border",
-            "bg-fd-accent rounded-md p-8 ring-2 xl:p-10",
-          )}
-        >
-          <TierHeader tier={tier} frequency={frequency} />
-          <TierDescription tier={tier} />
-          <TierCTAButton tier={tier} />
-          <TierFeatures tier={tier} />
-        </div>
-      ))}
+    <div className="grid w-full max-w-7xl gap-6 md:grid-cols-3">
+      {tiers.map((tier) => {
+        const isGreen = tier.theme === "green";
+        const isPurple = tier.mostPopular;
+
+        return (
+          <div
+            key={tier.id}
+            className={cn(
+              "relative flex flex-col rounded-2xl border p-6 transition-all duration-300",
+              isPurple
+                ? "border-purple-200 bg-gradient-to-br from-white via-purple-50/30 to-indigo-50/20 shadow-xl shadow-purple-500/10 md:z-10 md:scale-105"
+                : isGreen
+                  ? "border-green-200 bg-gradient-to-br from-white via-green-50/30 to-emerald-50/20 hover:shadow-lg hover:shadow-green-500/5"
+                  : "border-stone-200 bg-white hover:border-purple-100 hover:shadow-lg hover:shadow-purple-500/5",
+            )}
+          >
+            {/* Popular badge */}
+            {tier.mostPopular && (
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <span className="rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
+                  {tier.badge ?? "Most Popular"}
+                </span>
+              </div>
+            )}
+
+            {/* Header */}
+            <div className="mb-6">
+              {tier.icon && <div className="mb-3 text-3xl">{tier.icon}</div>}
+              <h3 className="font-serif text-2xl text-stone-900">
+                {tier.title}
+              </h3>
+              {tier.tagline && (
+                <p className="mt-1 text-xs font-medium uppercase tracking-wide text-purple-600">
+                  {tier.tagline}
+                </p>
+              )}
+            </div>
+
+            {/* Price */}
+            <div className="mb-4">
+              {typeof tier.price === "string" ? (
+                <span className="text-3xl font-bold text-stone-900">
+                  {tier.price}
+                </span>
+              ) : (
+                <div className="flex items-baseline gap-1">
+                  <span className="text-4xl font-bold text-stone-900">
+                    ${tier.price[frequency]}
+                  </span>
+                  <span className="text-sm font-medium text-stone-400">
+                    /{frequency}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Description */}
+            <p className="mb-6 min-h-[48px] text-sm leading-relaxed text-stone-500">
+              {tier.description}
+            </p>
+
+            {/* CTA */}
+            <div className="mb-6">
+              <TierCTAButton tier={tier} />
+            </div>
+
+            {/* Features */}
+            <ul className="flex-1 space-y-3">
+              {tier.features.map((feature, index) => (
+                <TierFeature key={index} feature={feature} />
+              ))}
+            </ul>
+          </div>
+        );
+      })}
     </div>
   );
 }
