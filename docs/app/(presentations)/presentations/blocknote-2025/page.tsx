@@ -23,6 +23,7 @@ import { SlideNewDevelopments } from "./slides/SlideNewDevelopments";
 import { SlideRoadmap } from "./slides/SlideRoadmap";
 import { SlideSuggestions } from "./slides/SlideSuggestions";
 import { SlideThankYou } from "./slides/SlideThankYou";
+import { SlideVersionDemo } from "./slides/SlideVersionDemo";
 import { SlideWhyBlocks } from "./slides/SlideWhyBlocks";
 
 export default function PresentationPage() {
@@ -91,6 +92,7 @@ export default function PresentationPage() {
         <SlideAI />
         <SlideAgentDemo />
         <SlideSuggestions />
+        <SlideVersionDemo />
         <SlideRoadmap />
         <SlideThankYou />
       </div>

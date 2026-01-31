@@ -28,7 +28,7 @@ export const SlideAI = () => {
                 Bring Any Model
               </h3>
               <p className="text-xl text-stone-600">
-                Connect OpenAI, Anthropic, or your own endpoints.
+                Connect your own LLM inference endpoints.
               </p>
             </div>
           </div>
