@@ -1,11 +1,11 @@
 import {
   ArrowRight,
   ArrowUpDown,
-  GitCompare,
-  Users,
   FileDiff,
   FileText,
+  GitCompare,
   Search,
+  Users,
 } from "lucide-react";
 import { ContentSlide } from "../../_components/ContentSlide";
 
@@ -33,7 +33,7 @@ export const SlideContentRenderer = () => {
             <ArrowUpDown
               size={18}
               strokeWidth={1.5}
-              className="text-stone-400"
+              className="hidden text-stone-400"
             />
             {/* Document B */}
             <div className="flex w-[200px] flex-col items-center gap-1">
