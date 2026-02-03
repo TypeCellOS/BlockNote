@@ -272,6 +272,7 @@ export type ComponentProps = {
         onChange: (event: ChangeEvent<HTMLInputElement>) => void;
         onSubmit?: () => void;
         autoComplete?: HTMLInputAutoCompleteAttribute;
+        "aria-activedescendant"?: string;
       };
     };
     Menu: {
