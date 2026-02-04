@@ -1,0 +1,101 @@
+name: \U0001F41B Bug report
+description: Report a bug or broken behavior in BlockNote
+labels:
+  - bug
+  - needs-triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug!
+        Please use this template to describe **broken or incorrect behavior**.
+
+        Feature ideas or questions should go to **Discussions**.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What’s broken?
+      description: >
+        Describe the problem clearly and concisely.
+        What is happening that should not be happening?
+      placeholder: >
+        Example:
+        When editing a table cell and pressing Enter, the editor crashes and the document cannot be recovered.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+      description: >
+        Describe the expected or correct behavior.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: >
+        Provide clear steps so we can reproduce the issue.
+        If possible, an online reproduction (e.g. StackBlitz) is extremely helpful.
+      placeholder: |
+        1. Create a new document
+        2. Insert a table
+        3. Click inside a cell
+        4. Press Enter
+
+        Optional: If you can, provide a minimal online reproduction.
+        You can use this starter sandbox:
+        https://stackblitz.com/github/TypeCellOS/BlockNote/tree/main/examples/01-basic/01-minimal?file=App.tsx
+    validations:
+      required: false
+
+  - type: input
+    id: version
+    attributes:
+      label: BlockNote version
+      description: >
+        Optional — specify the version you’re using, if known.
+      placeholder: e.g. v0.18.2
+    validations:
+      required: false
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: >
+        Browser, OS, framework, or other relevant environment details.
+      placeholder: e.g. Chrome 121, macOS 14, React 18
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: >
+        Screenshots, videos, logs, or any other context that might help.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Contribution
+      options:
+        - label: "I'd be interested in contributing a fix for this issue"
+          required: false
+
+  - type: checkboxes
+    id: sponsor
+    attributes:
+      label: Sponsor
+      description: >
+        Optional — helps us prioritize first response according to our SLA.
+      options:
+        - label: "I'm a [sponsor](https://www.blocknotejs.org/pricing) and would appreciate if you could look into this sooner than later 💖"
+          required: false

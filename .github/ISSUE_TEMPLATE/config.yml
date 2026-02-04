@@ -1,0 +1,6 @@
+blank_issues_enabled: false
+
+contact_links:
+  - name: Share an idea or suggest an enhancement
+    url: https://github.com/TypeCellOS/BlockNote/discussions/categories/ideas-enhancements
+    about: Share feature ideas, enhancement suggestions, or other ideas for the BlockNote project.
