@@ -1,4 +1,4 @@
-name: \U0001F41B Bug report
+name: Bug report
 description: Report a bug or broken behavior in BlockNote
 labels:
   - bug
