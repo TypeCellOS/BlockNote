@@ -1,20 +1,32 @@
-import type { ComponentProps } from 'react';
-import { cn } from '../../../../lib/fumadocs/cn';
-import { type BaseLayoutProps, type NavOptions } from '../shared';
-import { Header } from './client';
+import type { ComponentProps } from "react";
+import { cn } from "../../../../lib/fumadocs/cn";
+import { type BaseLayoutProps, type NavOptions } from "../shared";
+import { Header } from "./client";
 
 export interface HomeLayoutProps extends BaseLayoutProps {
   nav?: Partial<NavOptions>;
 }
 
-export function HomeLayout(props: HomeLayoutProps & ComponentProps<'main'>) {
-  const { nav = {}, links, githubUrl, i18n, themeSwitch = {}, searchToggle, ...rest } = props;
+export function HomeLayout(props: HomeLayoutProps & ComponentProps<"main">) {
+  const {
+    nav = {},
+    links,
+    githubUrl,
+    i18n,
+    themeSwitch = {},
+    searchToggle,
+    children,
+    ...rest
+  } = props;
 
   return (
     <main
       id="nd-home-layout"
       {...rest}
-      className={cn('flex flex-1 flex-col [--fd-layout-width:1400px]', rest.className)}
+      className={cn(
+        "flex flex-1 flex-col [--fd-layout-width:1400px]",
+        rest.className,
+      )}
     >
       {nav.enabled !== false &&
         (nav.component ?? (
@@ -27,7 +39,7 @@ export function HomeLayout(props: HomeLayoutProps & ComponentProps<'main'>) {
             githubUrl={githubUrl}
           />
         ))}
-      {props.children}
+      {children}
     </main>
   );
 }
