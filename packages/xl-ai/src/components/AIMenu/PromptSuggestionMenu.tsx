@@ -68,6 +68,11 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
   const { selectedIndex, setSelectedIndex, handler } =
     useSuggestionMenuKeyboardHandler(items, (item) => item.onItemClick());
 
+  const activeDescendantId =
+    items.length > 0 && selectedIndex >= 0 && selectedIndex < items.length
+      ? `bn-suggestion-menu-item-${selectedIndex}`
+      : undefined;
+
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       // TODO: handle backspace to close
@@ -108,6 +113,7 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
           onChange={handleChange}
           autoComplete={"off"}
           rightSection={props.rightSection}
+          aria-activedescendant={activeDescendantId}
         />
       </Components.Generic.Form.Root>
       {items.length > 0 && (

@@ -23,6 +23,7 @@ export const TextInput = forwardRef<
     onChange,
     onSubmit,
     autoComplete,
+    "aria-activedescendant": ariaActivedescendant,
     rightSection, // TODO: add rightSection
     ...rest
   } = props;
@@ -58,6 +59,7 @@ export const TextInput = forwardRef<
           onChange={onChange}
           onSubmit={onSubmit}
           ref={ref}
+          aria-activedescendant={ariaActivedescendant}
         />
       </div>
       {rightSection}
