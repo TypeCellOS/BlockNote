@@ -9,6 +9,10 @@ export default function DemoPage() {
         </h1>
       </div>
       <DemoEditor />
+      <script
+        async
+        src="https://heyo.so/embed/script?projectId=6982d5659ff7b5fcebeeff26"
+      ></script>
     </main>
   );
 }

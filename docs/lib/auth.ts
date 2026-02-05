@@ -3,6 +3,7 @@ import { Polar } from "@polar-sh/sdk";
 import * as Sentry from "@sentry/nextjs";
 import { betterAuth } from "better-auth";
 import {
+  captcha,
   createAuthMiddleware,
   customSession,
   magicLink,
@@ -138,6 +139,11 @@ export const auth = betterAuth({
         })
       : new Database("./sqlite.db"),
   plugins: [
+    captcha({
+      provider: "cloudflare-turnstile",
+      secretKey: process.env.TURNSTILE_SECRET_KEY!,
+      endpoints: ["/sign-up/email"],
+    }),
     customSession(
       async ({ user, session }) => {
         // If they are a GitHub sponsor, use that plan type
@@ -273,13 +279,13 @@ export const auth = betterAuth({
             // no need to send welcome email
             return false;
           }
-          await sendEmail({
-            to: newSession.user.email,
-            template: "welcome",
-            props: {
-              name: newSession.user.name,
-            },
-          });
+          // await sendEmail({
+          //   to: newSession.user.email,
+          //   template: "welcome",
+          //   props: {
+          //     name: newSession.user.name,
+          //   },
+          // });
           return;
         }
       }
