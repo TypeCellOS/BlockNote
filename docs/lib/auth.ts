@@ -279,13 +279,13 @@ export const auth = betterAuth({
             // no need to send welcome email
             return false;
           }
-          await sendEmail({
-            to: newSession.user.email,
-            template: "welcome",
-            props: {
-              name: newSession.user.name,
-            },
-          });
+          // await sendEmail({
+          //   to: newSession.user.email,
+          //   template: "welcome",
+          //   props: {
+          //     name: newSession.user.name,
+          //   },
+          // });
           return;
         }
       }
