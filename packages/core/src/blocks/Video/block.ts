@@ -11,6 +11,7 @@ export const FILE_VIDEO_ICON_SVG =
 
 export interface VideoOptions {
   icon?: string;
+  preload?: "none" | "metadata" | "auto";
 }
 
 export type VideoBlockConfig = ReturnType<typeof createVideoBlockConfig>;
@@ -93,6 +94,9 @@ export const createVideoBlockSpec = createBlockSpec(
       video.contentEditable = "false";
       video.draggable = false;
       video.width = block.props.previewWidth;
+      if (config.preload) {
+        video.preload = config.preload;
+      }
       videoWrapper.appendChild(video);
 
       return createResizableFileBlockWrapper(
