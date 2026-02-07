@@ -59,7 +59,11 @@ import { HARDCODED_USERS, resolveUsers, uploadFile } from "./utils";
 
 import "./styles.css";
 
-const AI_API_URL = "https://localhost:3000/ai/regular/streamText";
+const BASE_URL =
+  process.env.NEXT_PUBLIC_BLOCKNOTE_AI_SERVER_BASE_URL ||
+  "https://localhost:3000/ai";
+
+const AI_API_URL = `${BASE_URL}/regular/streamText`;
 
 // Formatting toolbar with AI button
 function FormattingToolbarWithAI() {
