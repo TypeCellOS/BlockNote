@@ -372,7 +372,7 @@ NESTED BLOCKS
   > .bn-block-outer[data-prev-type="bulletListItem"]
   > .bn-block
   > .bn-block-content::before {
-  content: "▪";
+  content: "▪\FE0E";
 }
 
 [data-content-type="bulletListItem"]
@@ -390,7 +390,7 @@ NESTED BLOCKS
   > .bn-block
   > div[data-type="modification"]
   > .bn-block-content[data-content-type="bulletListItem"]::before {
-  content: "▪";
+  content: "▪\FE0E";
 }
 
 /* CODE BLOCKS */
