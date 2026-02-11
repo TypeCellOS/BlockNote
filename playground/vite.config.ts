@@ -44,10 +44,10 @@ export default defineConfig((conf) => ({
               __dirname,
               "../packages/xl-multi-column/src",
             ),
-            "@liveblocks/react-blocknote": resolve(
-              __dirname,
-              "../../liveblocks/packages/liveblocks-react-blocknote/src/",
-            ),
+            // "@liveblocks/react-blocknote": resolve(
+            //   __dirname,
+            //   "../../liveblocks/packages/liveblocks-react-blocknote/src/",
+            // ),
             "@blocknote/xl-email-exporter": resolve(
               __dirname,
               "../packages/xl-email-exporter/src",
