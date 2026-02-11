@@ -82,7 +82,11 @@ export const createCheckListItemBlockSpec = createBlockSpec(
       if (block.props.checked) {
         checkbox.setAttribute("checked", "");
       }
+      checkbox.disabled = !editor.isEditable;
       checkbox.addEventListener("change", () => {
+        if (!editor.isEditable) {
+          return;
+        }
         editor.updateBlock(block, { props: { checked: !block.props.checked } });
       });
       // We use a <p> tag, because for <li> tags we'd need a <ul> element to put
