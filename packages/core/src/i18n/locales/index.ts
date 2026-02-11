@@ -2,6 +2,7 @@ export * from "./ar.js";
 export * from "./de.js";
 export * from "./en.js";
 export * from "./es.js";
+export * from "./fa.js";
 export * from "./fr.js";
 export * from "./he.js";
 export * from "./hr.js";
