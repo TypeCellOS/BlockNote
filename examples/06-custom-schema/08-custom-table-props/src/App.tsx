@@ -117,7 +117,7 @@ export default function App() {
           flex: 1,
         }}
       >
-        <BlockNoteView theme="light" editor={editor}></BlockNoteView>
+        <BlockNoteView editor={editor}></BlockNoteView>
         <button
           onClick={() =>
             editor.updateBlock(editor.document[0], {
