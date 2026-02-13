@@ -343,7 +343,7 @@ export function getDefaultSlashMenuItems<
   items.push({
     onItemClick: () => {
       editor.getExtension(SuggestionMenu)?.openSuggestionMenu(":", {
-        deleteTriggerCharacter: true,
+        insertTriggerCharacter: true,
         ignoreQueryLength: true,
       });
     },
