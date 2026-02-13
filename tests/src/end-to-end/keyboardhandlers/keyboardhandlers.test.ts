@@ -67,12 +67,31 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
     await page.keyboard.press("ArrowUp");
     await page.keyboard.press("ArrowUp");
     await page.keyboard.press("ArrowUp");
-    await page.keyboard.press("ArrowUp");
     await page.keyboard.press("Control+ArrowLeft");
     await page.keyboard.press("ArrowRight");
     await page.keyboard.press("Enter");
 
     await compareDocToSnapshot(page, "enterPreservesNestedBlocks.json");
+  });
+  test("Check Enter preserves nested blocks for empty block", async ({
+    page,
+  }) => {
+    await focusOnEditor(page);
+    await page.keyboard.press("#");
+    await page.keyboard.press(" ");
+    await page.keyboard.press("ArrowDown", { delay: 10 });
+    await page.keyboard.press("Tab");
+    await insertHeading(page, 2);
+    await page.keyboard.press("Tab");
+    await insertHeading(page, 3);
+
+    await page.waitForTimeout(500);
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("Enter");
+
+    await compareDocToSnapshot(page, "enterPreservesNestedBlocksEmpty.json");
   });
   test("Check Backspace at the start of a block", async ({ page }) => {
     await focusOnEditor(page);
@@ -128,6 +147,29 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
     await page.keyboard.press("Backspace");
 
     await compareDocToSnapshot(page, "backspacePreservesNestedBlocks.json");
+  });
+  test("Check Backspace preserves nested blocks for empty block", async ({
+    page,
+  }) => {
+    await focusOnEditor(page);
+    await insertParagraph(page);
+    await page.keyboard.press("Enter", { delay: 10 });
+    await page.keyboard.press("Tab");
+    await insertParagraph(page);
+    await page.keyboard.press("Tab");
+    await page.keyboard.press("Tab");
+    await insertParagraph(page);
+
+    for (let i = 0; i < 3; i++) {
+      await page.keyboard.press("ArrowUp");
+    }
+
+    await page.keyboard.press("Backspace");
+
+    await compareDocToSnapshot(
+      page,
+      "backspacePreservesNestedBlocksEmpty.json",
+    );
   });
   test("Check heading 1 shortcut", async ({ page }) => {
     await focusOnEditor(page);
