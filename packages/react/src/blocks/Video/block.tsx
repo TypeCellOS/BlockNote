@@ -1,14 +1,14 @@
-import { createVideoBlockConfig, videoParse } from "@blocknote/core";
+import { createVideoBlockConfig, VideoOptions, videoParse } from "@blocknote/core";
 import { RiVideoFill } from "react-icons/ri";
 
 import {
   createReactBlockSpec,
   ReactCustomBlockRenderProps,
 } from "../../schema/ReactBlockSpec.js";
-import { useResolveUrl } from "../File/useResolveUrl.js";
-import { FigureWithCaption } from "../File/helpers/toExternalHTML/FigureWithCaption.js";
 import { ResizableFileBlockWrapper } from "../File/helpers/render/ResizableFileBlockWrapper.js";
+import { FigureWithCaption } from "../File/helpers/toExternalHTML/FigureWithCaption.js";
 import { LinkWithCaption } from "../File/helpers/toExternalHTML/LinkWithCaption.js";
+import { useResolveUrl } from "../File/useResolveUrl.js";
 
 export const VideoPreview = (
   props: Omit<
@@ -18,7 +18,9 @@ export const VideoPreview = (
       ReturnType<typeof createVideoBlockConfig>["content"]
     >,
     "contentRef"
-  >,
+  > & {
+    preload?: "none" | "metadata" | "auto";
+  },
 ) => {
   const resolved = useResolveUrl(props.block.props.url!);
 
@@ -33,6 +35,7 @@ export const VideoPreview = (
       controls={true}
       contentEditable={false}
       draggable={false}
+      preload={props.preload}
     />
   );
 };
@@ -74,7 +77,7 @@ export const VideoToExternalHTML = (
   return video;
 };
 
-export const VideoBlock = (
+export const VideoBlock = (config: VideoOptions) => (
   props: ReactCustomBlockRenderProps<
     ReturnType<typeof createVideoBlockConfig>["type"],
     ReturnType<typeof createVideoBlockConfig>["propSchema"],
@@ -86,7 +89,7 @@ export const VideoBlock = (
       {...(props as any)}
       buttonIcon={<RiVideoFill size={24} />}
     >
-      <VideoPreview {...(props as any)} />
+      <VideoPreview preload={config.preload} {...(props as any)} />
     </ResizableFileBlockWrapper>
   );
 };
@@ -94,7 +97,7 @@ export const VideoBlock = (
 export const ReactVideoBlock = createReactBlockSpec(
   createVideoBlockConfig,
   (config) => ({
-    render: VideoBlock,
+    render: VideoBlock(config),
     parse: videoParse(config),
     toExternalHTML: VideoToExternalHTML,
   }),
