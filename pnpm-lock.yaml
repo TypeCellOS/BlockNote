@@ -3304,6 +3304,52 @@ importers:
         specifier: ^5.4.20
         version: 5.4.20(@types/node@25.2.1)(lightningcss@1.30.2)(terser@5.46.0)
 
+  examples/06-custom-schema/08-custom-table-props:
+    dependencies:
+      '@blocknote/ariakit':
+        specifier: latest
+        version: link:../../../packages/ariakit
+      '@blocknote/core':
+        specifier: latest
+        version: link:../../../packages/core
+      '@blocknote/mantine':
+        specifier: latest
+        version: link:../../../packages/mantine
+      '@blocknote/react':
+        specifier: latest
+        version: link:../../../packages/react
+      '@blocknote/shadcn':
+        specifier: latest
+        version: link:../../../packages/shadcn
+      '@mantine/core':
+        specifier: ^8.3.11
+        version: 8.3.11(@mantine/hooks@8.3.11(react@19.2.3))(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@mantine/hooks':
+        specifier: ^8.3.11
+        version: 8.3.11(react@19.2.3)
+      '@mantine/utils':
+        specifier: ^6.0.22
+        version: 6.0.22(react@19.2.3)
+      react:
+        specifier: ^19.2.3
+        version: 19.2.3
+      react-dom:
+        specifier: ^19.2.3
+        version: 19.2.3(react@19.2.3)
+    devDependencies:
+      '@types/react':
+        specifier: ^19.2.3
+        version: 19.2.8
+      '@types/react-dom':
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.8)
+      '@vitejs/plugin-react':
+        specifier: ^4.7.0
+        version: 4.7.0(vite@5.4.20(@types/node@25.2.1)(lightningcss@1.30.2)(terser@5.46.0))
+      vite:
+        specifier: ^5.4.20
+        version: 5.4.20(@types/node@25.2.1)(lightningcss@1.30.2)(terser@5.46.0)
+
   examples/06-custom-schema/draggable-inline-content:
     dependencies:
       '@blocknote/ariakit':

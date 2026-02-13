@@ -1374,6 +1374,28 @@
         "readme": "This example shows how you can configure the editor's default blocks. Specifically, heading blocks are made to only support levels 1-3, and cannot be toggleable.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Default Schema](/docs/foundations/schemas)\n- [Custom Schemas](/docs/features/custom-schemas)"
       },
       {
+        "projectSlug": "custom-table-props",
+        "fullSlug": "custom-schema/custom-table-props",
+        "pathFromRoot": "examples/06-custom-schema/08-custom-table-props",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "Richard Misiak",
+          "tags": [
+            "Intermediate",
+            "UI Components",
+            "Tables",
+            "Appearance & Styling"
+          ]
+        },
+        "title": "Custom table props",
+        "group": {
+          "pathFromRoot": "examples/06-custom-schema",
+          "slug": "custom-schema"
+        },
+        "readme": "This example demonstrates overriding the schema for tables to allow for custom props to be used.\n\n**Relevant Docs:**\n\n- [Tables](/docs/features/custom-schemas)\n- [Custom Schemas](/docs/features/custom-schemas)"
+      },
+      {
         "projectSlug": "draggable-inline-content",
         "fullSlug": "custom-schema/draggable-inline-content",
         "pathFromRoot": "examples/06-custom-schema/draggable-inline-content",

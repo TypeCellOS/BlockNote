@@ -425,11 +425,25 @@ export function nodeToBlock<
     throw Error("Block is of an unrecognized type: " + blockInfo.blockNoteType);
   }
 
+  const blockConfig = blockSchema[blockInfo.blockNoteType];
+
   const props: any = {};
-  for (const [attr, value] of Object.entries({
+
+  // Collect attributes from node, blockContent, and table content node (for tables)
+  const attrsToCheck = {
     ...node.attrs,
     ...(blockInfo.isBlockContainer ? blockInfo.blockContent.node.attrs : {}),
-  })) {
+  };
+
+  // For table blocks, also check the table content node for custom props
+  if (blockConfig.content === "table" && blockInfo.isBlockContainer) {
+    const tableContentNode = blockInfo.blockContent.node;
+    if (tableContentNode && tableContentNode.attrs) {
+      Object.assign(attrsToCheck, tableContentNode.attrs);
+    }
+  }
+
+  for (const [attr, value] of Object.entries(attrsToCheck)) {
     const propSchema = blockSpec.propSchema;
 
     if (
@@ -439,8 +453,6 @@ export function nodeToBlock<
       props[attr] = value;
     }
   }
-
-  const blockConfig = blockSchema[blockInfo.blockNoteType];
 
   const children: Block<BSchema, I, S>[] = [];
   blockInfo.childContainer?.node.forEach((child) => {
