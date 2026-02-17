@@ -305,6 +305,24 @@
         "readme": "This example shows how to render the BlockNote editor inside a Shadow DOM.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
+        "projectSlug": "rtl-direction",
+        "fullSlug": "basic/rtl-direction",
+        "pathFromRoot": "examples/01-basic/10-rtl-direction",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "zaaakher",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "RTL Direction",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
+      },
+      {
         "projectSlug": "testing",
         "fullSlug": "basic/testing",
         "pathFromRoot": "examples/01-basic/testing",
