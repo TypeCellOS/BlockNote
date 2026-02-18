@@ -26,10 +26,10 @@ For example, you an use this for static rendering documents that have been creat
 </Callout>
 
 ```typescript
-async blocksToFullHTML(blocks?: Block[]): Promise<string>;
+blocksToFullHTML(blocks?: Block[]): string;
 
 // Usage
-const HTMLFromBlocks = await editor.blocksToFullHTML(blocks);
+const HTMLFromBlocks = editor.blocksToFullHTML(blocks);
 ```
 
 `blocks:` The blocks to convert. If not provided, the entire document (all top-level blocks) is used.
@@ -45,10 +45,10 @@ Converting Blocks to HTML this way will lose some information such as the nestin
 Use `blocksToHTMLLossy` to export `Block` objects to an HTML string:
 
 ```typescript
-async blocksToHTMLLossy(blocks?: Block[]): Promise<string>;
+blocksToHTMLLossy(blocks?: Block[]): string;
 
 // Usage
-const HTMLFromBlocks = await editor.blocksToHTMLLossy(blocks);
+const HTMLFromBlocks = editor.blocksToHTMLLossy(blocks);
 ```
 
 `blocks:` The blocks to convert. If not provided, the entire document (all top-level blocks) is used.

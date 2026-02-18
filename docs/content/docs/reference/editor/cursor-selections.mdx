@@ -18,12 +18,14 @@ type TextCursorPosition = {
   block: Block;
   prevBlock: Block | undefined;
   nextBlock: Block | undefined;
+  parentBlock: Block | undefined;
 };
 ```
 
 - `block`: The block currently containing the text cursor
 - `prevBlock`: The previous block at the same nesting level (undefined if first)
 - `nextBlock`: The next block at the same nesting level (undefined if last)
+- `parentBlock`: The parent block if the cursor is in a nested block (undefined if at the top level)
 
 ### Getting Cursor Position
 

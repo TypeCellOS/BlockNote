@@ -35,13 +35,13 @@ The content manipulation APIs fall into two main categories:
 Most block methods require a `BlockIdentifier` to reference existing blocks:
 
 ```typescript
-type BlockIdentifier = string | Block;
+type BlockIdentifier = string | { id: string };
 ```
 
 You can pass either:
 
 - A `string` representing the block ID
-- A `Block` object (the ID will be extracted automatically)
+- Any object with an `id: string` property, such as a `Block`
 
 ### Partial Blocks
 
@@ -119,7 +119,7 @@ const parentBlock = editor.getParentBlock("nested-block-123");
 
 ```typescript
 forEachBlock(
-  callback: (block: Block) => boolean | undefined,
+  callback: (block: Block) => boolean,
   reverse: boolean = false
 ): void
 ```

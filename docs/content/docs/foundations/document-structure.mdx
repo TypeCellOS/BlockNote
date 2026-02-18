@@ -128,6 +128,9 @@ While both of these act as regular blocks, there are a few additional restrictio
 ```typescript
 type TableContent = {
   type: "tableContent";
+  columnWidths: (number | undefined)[];
+  headerRows?: number;
+  headerCols?: number;
   rows: {
     cells: InlineContent[][];
   }[];

@@ -21,10 +21,10 @@ BlockNote can export Blocks to Markdown. Note that this is also considered "loss
 `blocksToMarkdownLossy` converts `Block` objects to a Markdown string:
 
 ```typescript
-async blocksToMarkdownLossy(blocks?: Block[]): Promise<string>;
+blocksToMarkdownLossy(blocks?: Block[]): string;
 
 // Usage
-const markdownFromBlocks = await editor.blocksToMarkdownLossy(blocks);
+const markdownFromBlocks = editor.blocksToMarkdownLossy(blocks);
 ```
 
 `blocks:` The blocks to convert. If not provided, the entire document (all top-level blocks) is used.

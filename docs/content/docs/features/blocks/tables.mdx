@@ -51,8 +51,9 @@ type TableBlock = {
 
 type TableContent = {
   type: "tableContent";
-  columnWidths: number[];
-  headerRows: number;
+  columnWidths: (number | undefined)[];
+  headerRows?: number;
+  headerCols?: number;
   rows: {
     cells: TableCell[];
   }[];
@@ -61,6 +62,9 @@ type TableContent = {
 type TableCell = {
   type: "tableCell";
   props: {
+    backgroundColor: string;
+    textColor: string;
+    textAlignment: "left" | "center" | "right" | "justify";
     colspan?: number;
     rowspan?: number;
   };
