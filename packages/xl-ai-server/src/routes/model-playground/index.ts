@@ -73,6 +73,12 @@ function getModel(aiModelString: string) {
       baseURL: "https://albert.api.etalab.gouv.fr/v1",
       apiKey: providerKey,
     })(modelName);
+  } else if (provider === "eurouter.chat") {
+    return createOpenAICompatible({
+      name: "eurouter",
+      baseURL: "https://eurouter.ai/api/v1",
+      apiKey: providerKey,
+    })(modelName);
   } else if (provider === "mistral.chat") {
     return createMistral({
       apiKey: providerKey,

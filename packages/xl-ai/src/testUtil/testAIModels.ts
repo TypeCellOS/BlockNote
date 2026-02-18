@@ -22,12 +22,19 @@ const albert = createOpenAICompatible({
   apiKey: process.env.ALBERT_API_KEY || "not-available-in-ci",
 })("albert-etalab.chat/albert-large");
 
+const eurouter = createOpenAICompatible({
+  name: "eurouter",
+  baseURL: "https://eurouter.ai/api/v1",
+  apiKey: process.env.EUROUTER_API_KEY || "not-available-in-ci",
+})("openai/gpt-4o");
+
 export const testAIModels: Record<
-  "groq" | "openai" | "albert" | "anthropic",
+  "groq" | "openai" | "albert" | "anthropic" | "eurouter",
   Exclude<LanguageModel, string>
 > = {
   groq,
   openai,
   albert,
   anthropic,
+  eurouter,
 };

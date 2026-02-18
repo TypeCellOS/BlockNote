@@ -20,4 +20,7 @@ export const AI_MODELS = [
   "google.generative-ai/gemini-1.5-flash",
   "google.generative-ai/gemini-2.5-pro",
   "google.generative-ai/gemini-2.5-flash",
+  "eurouter.chat/openai/gpt-4o",
+  "eurouter.chat/anthropic/claude-sonnet-4-5",
+  "eurouter.chat/google/gemini-2.5-pro",
 ];
