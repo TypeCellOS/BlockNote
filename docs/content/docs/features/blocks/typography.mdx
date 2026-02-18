@@ -46,14 +46,14 @@ type HeadingBlock = {
   id: string;
   type: "heading";
   props: {
-    level: 1 | 2 | 3 = 1;
+    level: 1 | 2 | 3 | 4 | 5 | 6 = 1;
   } & DefaultProps;
   content: InlineContent[];
   children: Block[];
 };
 ```
 
-`level:` The heading level, representing a title (`level: 1`), heading (`level: 2`), and subheading (`level: 3`).
+`level:` The heading level, representing a title (`level: 1`), heading (`level: 2`), and subheadings (`level: 3`, `level: 4`, `level: 5`, `level: 6`).
 
 ## Quote
 
