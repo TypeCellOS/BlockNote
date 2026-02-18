@@ -42,7 +42,9 @@ This describes the shape of a table block in BlockNote.
 type TableBlock = {
   id: string;
   type: "table";
-  props: DefaultProps;
+  props: {
+    textColor: string;
+  };
   content: TableContent;
   children: Block[];
 };
@@ -61,10 +63,12 @@ type TableCell = {
   props: {
     colspan?: number;
     rowspan?: number;
-  } & DefaultProps;
+  };
   content: InlineContent[];
 };
 ```
+
+`textColor:` The text color of the table block. Defaults to `"default"`.
 
 ## Options
 
