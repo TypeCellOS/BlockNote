@@ -207,7 +207,15 @@ export function updateToReplaceSteps(
     updateToPos,
   );
 
-  let updatedDoc = updatedTr.doc;
+  return trToReplaceSteps(updatedTr, doc, dontReplaceContentAtEnd);
+}
+
+export function trToReplaceSteps(
+  tr: Transform,
+  doc: Node,
+  dontReplaceContentAtEnd = false,
+) {
+  let updatedDoc = tr.doc;
 
   let changeset = ChangeSet.create(
     doc,
@@ -215,7 +223,7 @@ export function updateToReplaceSteps(
     createEncoder(doc, updatedDoc),
   );
 
-  changeset = changeset.addSteps(updatedDoc, updatedTr.mapping.maps, 0);
+  changeset = changeset.addSteps(updatedDoc, tr.mapping.maps, 0);
 
   // When we're streaming (we sent `dontReplaceContentAtEnd = true`),
   // we need to add back the content that was removed at the end of the block.
@@ -238,16 +246,16 @@ export function updateToReplaceSteps(
         lastChange.fromA + lengthB,
         lastChange.toA,
       );
-      updatedTr.step(
+      tr.step(
         new ReplaceStep(lastChange.toB, lastChange.toB, endOfBlockToReAdd),
       );
-      updatedDoc = updatedTr.doc;
+      updatedDoc = tr.doc;
       changeset = ChangeSet.create(
         changeset.startDoc,
         undefined,
         createEncoder(changeset.startDoc, updatedDoc),
       );
-      changeset = changeset.addSteps(updatedDoc, updatedTr.mapping.maps, 0);
+      changeset = changeset.addSteps(updatedDoc, tr.mapping.maps, 0);
     }
   }
 
@@ -295,7 +303,7 @@ export function updateToReplaceSteps(
     }
   }
 
-  addMissingChanges(changes, doc, updatedDoc);
+  // addMissingChanges(changes, doc, updatedDoc);
 
   for (let i = 0; i < changes.length; i++) {
     const step = changes[i];

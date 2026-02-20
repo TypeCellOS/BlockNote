@@ -39,15 +39,17 @@ type Operation<T extends StreamTool<any>[] | StreamTool<any>> = {
  * @example see the `manual-execution` example
  */
 export class StreamToolExecutor<T extends StreamTool<any>[]> {
-  private readonly stream: TransformStream<
-    string | Operation<T>,
-    {
-      status: "ok";
-      chunk: Operation<T>;
-    }
-  > & {
-    finishPromise: Promise<void>;
-  };
+  private stream:
+    | undefined
+    | (TransformStream<
+        string | Operation<T>,
+        {
+          status: "ok";
+          chunk: Operation<T>;
+        }
+      > & {
+        finishPromise: Promise<void>;
+      });
 
   /**
    * @param streamTools - The StreamTools to use to apply the StreamToolCalls
@@ -57,10 +59,14 @@ export class StreamToolExecutor<T extends StreamTool<any>[]> {
     private streamTools: T,
     private abortSignal?: AbortSignal,
   ) {
-    this.stream = this.createStream();
+    // this.stream = this.createStream();
   }
 
-  private createStream() {
+  async init() {
+    this.stream = await this.createStream();
+  }
+
+  private async createStream() {
     let lastParsedResult: Operation<T> | undefined;
     const stream = new TransformStream<string | Operation<T>, Operation<T>>({
       transform: async (chunk, controller) => {
@@ -93,7 +99,9 @@ export class StreamToolExecutor<T extends StreamTool<any>[]> {
     // - Works regardless of the number of internal transforms.
     // - The readable can still be exposed if the consumer wants it, but they don’t have to consume it for close() to guarantee processing is done.
 
-    const secondTransform = stream.readable.pipeThrough(this.createExecutor());
+    const secondTransform = stream.readable.pipeThrough(
+      await this.createExecutor(),
+    );
 
     const [internalReadable, externalReadable] = secondTransform.tee();
 
@@ -108,8 +116,10 @@ export class StreamToolExecutor<T extends StreamTool<any>[]> {
     };
   }
 
-  private createExecutor() {
-    const executors = this.streamTools.map((tool) => tool.executor());
+  private async createExecutor() {
+    const executors = await Promise.all(
+      this.streamTools.map((tool) => tool.executor()),
+    );
 
     return new TransformStream<
       Operation<T>,
@@ -161,6 +171,9 @@ export class StreamToolExecutor<T extends StreamTool<any>[]> {
    * Make sure to call `close` on the StreamToolExecutor instead of on the writable returned here!
    */
   public get writable() {
+    if (!this.stream) {
+      throw new Error("StreamToolExecutor not initialized");
+    }
     return this.stream.writable;
   }
 
@@ -168,10 +181,16 @@ export class StreamToolExecutor<T extends StreamTool<any>[]> {
    * Returns a ReadableStream that can be used to read the results of the executor.
    */
   public get readable() {
+    if (!this.stream) {
+      throw new Error("StreamToolExecutor not initialized");
+    }
     return this.stream.readable;
   }
 
   public async finish() {
+    if (!this.stream) {
+      throw new Error("StreamToolExecutor not initialized");
+    }
     await this.stream.finishPromise;
   }
 

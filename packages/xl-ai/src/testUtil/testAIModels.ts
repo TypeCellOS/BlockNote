@@ -14,7 +14,7 @@ const openai = createOpenAI({
 
 const anthropic = createAnthropic({
   apiKey: process.env.ANTHROPIC_API_KEY || "not-available-in-ci",
-})("claude-3-7-sonnet-latest");
+})("claude-haiku-4-5");
 
 const albert = createOpenAICompatible({
   name: "albert-etalab",

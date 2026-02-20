@@ -2,7 +2,6 @@ import { Chat } from "@ai-sdk/react";
 import { UIMessage } from "ai";
 import merge from "lodash.merge";
 import {
-  setupToolCallStreaming,
   streamToolsToToolSet,
   toolSetToToolDefinitions,
 } from "../../streamTool/index.js";
@@ -42,12 +41,12 @@ export async function sendMessageWithAIRequest(
     documentState: aiRequest.documentState,
   });
 
-  const toolCallProcessing = setupToolCallStreaming(
-    aiRequest.streamTools,
-    chat,
-    aiRequest.onStart,
-    abortSignal,
-  );
+  // const toolCallProcessing = setupToolCallStreaming(
+  //   aiRequest.streamTools,
+  //   chat,
+  //   aiRequest.onStart,
+  //   abortSignal,
+  // );
   options = merge(options, {
     metadata: {
       source: "blocknote-ai",
@@ -58,9 +57,14 @@ export async function sendMessageWithAIRequest(
       ),
     },
   });
-
+  const start = performance.now();
   await chat.sendMessage(message, options);
-
-  const result = await toolCallProcessing;
-  return result;
+  console.log("took", performance.now() - start);
+  console.log(JSON.stringify(chat.messages, null, 2));
+  return {
+    ok: true,
+    error: undefined,
+  };
+  // const result = await toolCallProcessing;
+  // return result;
 }

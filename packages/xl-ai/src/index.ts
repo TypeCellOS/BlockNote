@@ -1,6 +1,7 @@
 import "./style.css";
 
 export * from "./AIExtension.js";
+export * from "./api/exporters/tsx/index.js";
 export * from "./components/AIMenu/AIMenu.js";
 export * from "./components/AIMenu/AIMenuController.js";
 export * from "./components/AIMenu/getDefaultAIMenuItems.js";

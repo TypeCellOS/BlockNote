@@ -45,7 +45,7 @@ export type StreamTool<T extends { type: string }> = {
    *
    * @returns the stream of operations that have not been processed (and should be passed on to execute handlers of other StreamTools)
    */
-  executor: () => {
+  executor: () => Promise<{
     execute: (
       chunk: {
         operation: StreamToolCall<StreamTool<{ type: string }>[]>;
@@ -55,7 +55,7 @@ export type StreamTool<T extends { type: string }> = {
       },
       abortSignal?: AbortSignal,
     ) => Promise<boolean>;
-  };
+  }>;
 };
 
 export type StreamToolCallSingle<T extends StreamTool<any>> =

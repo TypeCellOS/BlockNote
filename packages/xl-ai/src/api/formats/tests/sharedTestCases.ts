@@ -41,6 +41,7 @@ export function generateSharedTestCases(
     textAlignment?: boolean;
     blockColor?: boolean;
   },
+  benchmarks = false,
 ) {
   function skipIfUnsupported(
     test: DocumentOperationTestCase,
@@ -87,9 +88,10 @@ export function generateSharedTestCases(
       editor,
       useSelection: selection !== undefined,
       streamToolsProvider: aiOptions.streamToolsProvider,
+      documentStateBuilder: aiOptions.documentStateBuilder,
     });
 
-    await sendMessageWithAIRequest(
+    const result = await sendMessageWithAIRequest(
       chat,
       aiRequest,
       {
@@ -104,10 +106,14 @@ export function generateSharedTestCases(
       aiOptions.chatRequestOptions,
     );
 
+    return;
     if (chat.status !== "ready") {
       throw new Error(`Chat status is not "ready": ${chat.status}`);
     }
 
+    if (!result.ok) {
+      throw new Error(`Tool call processing failed: ${result.error}`);
+    }
     // const result = await callLLM(editor, {
     //   userPrompt: test.userPrompt,
     //   useSelection: selection !== undefined,

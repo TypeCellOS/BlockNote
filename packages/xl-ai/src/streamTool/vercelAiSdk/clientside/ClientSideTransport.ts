@@ -89,12 +89,31 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
         injectDocumentStateMessages(messages),
       ),
       tools,
+      // tools: {
+      //   str_replace_based_edit_tool: anthropic.tools.textEditor_20250728({
+      //     execute: async ({}) => {
+      //       return {};
+      //     },
+      //     needsApproval: true,
+      //   }),
+      // },
+
       toolChoice: "required",
       // extra options for streamObject
       ...((_additionalOptions ?? {}) as any),
       // activeTools: ["applyDocumentOperations"],
+      onFinish: ({ usage }) => {
+        // your own logic, e.g. for saving the chat history or recording usage
+        console.log("usage:", JSON.stringify(usage, null, 2));
+      },
     });
-
+    // console.log(
+    //   JSON.stringify(
+    //     await convertToModelMessages(injectDocumentStateMessages(messages)),
+    //     null,
+    //     2,
+    //   ),
+    // );
     return ret.toUIMessageStream();
   }
 

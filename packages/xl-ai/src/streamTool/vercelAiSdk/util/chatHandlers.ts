@@ -1,11 +1,20 @@
 import { getErrorMessage } from "@ai-sdk/provider-utils";
 import type { Chat } from "@ai-sdk/react";
-import { DeepPartial, isToolUIPart, UIMessage } from "ai";
+import {
+  DeepPartial,
+  isToolUIPart,
+  UIMessage,
+  UITool,
+  UIToolInvocation,
+} from "ai";
 import { ChunkExecutionError } from "../../ChunkExecutionError.js";
 import { Result, StreamTool, StreamToolCall } from "../../streamTool.js";
 import { StreamToolExecutor } from "../../StreamToolExecutor.js";
 import { createAppendableStream } from "./appendableStream.js";
-import { objectStreamToOperationsResult } from "./UIMessageStreamToOperationsResult.js";
+import {
+  objectStreamToOperationsResult,
+  operationsObjectStreamToOperationsResult,
+} from "./UIMessageStreamToOperationsResult.js";
 
 /**
  * Listens to messages received in the `chat` object and processes tool calls
@@ -39,6 +48,7 @@ export async function setupToolCallStreaming(
   and this state is shared across parallel tool calls).
   */
   const executor = new StreamToolExecutor(streamTools, abortSignal);
+  await executor.init();
 
   const appendableStream = createAppendableStream<any>();
 
@@ -54,22 +64,29 @@ export async function setupToolCallStreaming(
   // streaming steps in case downstream consumer (like the StreamToolExecutor)
   // are slower than the producer
   const unsub = chat["~registerMessagesCallback"](() => {
-    processToolCallParts(chat, (data) => {
-      if (!toolCallStreams.has(data.toolCallId)) {
+    const calls = getToolCalls(chat);
+    for (const call of calls) {
+      if (!toolCallStreams.has(call.part.toolCallId)) {
         const toolCallStreamData = createToolCallStream(
           streamTools,
-          data.toolName,
-          data.toolCallId,
+          call.toolName,
+          call.part.toolCallId,
         );
+        if (!toolCallStreamData) {
+          continue;
+        }
         appendableStream.append(toolCallStreamData.operationsStream);
-        toolCallStreams.set(data.toolCallId, toolCallStreamData);
+        toolCallStreams.set(call.part.toolCallId, toolCallStreamData);
         if (first) {
           first = false;
           onStart?.();
         }
       }
-      return toolCallStreams.get(data.toolCallId)!;
-    });
+      const data = toolCallStreams.get(call.part.toolCallId);
+      if (data) {
+        processToolCallPart(call.part, data);
+      }
+    }
   });
 
   const statusHandler = new Promise<void>((resolve) => {
@@ -202,13 +219,11 @@ type ToolCallStreamData = {
 /**
  * Process tool call parts and manage individual streams per toolCallId
  */
-function processToolCallParts(
-  chat: Chat<UIMessage>,
-  getToolCallStreamData: (data: {
+function getToolCalls(chat: Chat<UIMessage>) {
+  const toolCalls: {
     toolName: string;
-    toolCallId: string;
-  }) => ToolCallStreamData,
-) {
+    part: UIToolInvocation<UITool>;
+  }[] = [];
   // TODO: better to check if tool has output instead of hardcoding lastMessage
   for (const part of chat.lastMessage?.parts ?? []) {
     if (!isToolUIPart(part)) {
@@ -217,21 +232,10 @@ function processToolCallParts(
 
     const toolName = part.type.replace("tool-", "");
 
-    if (toolName !== "applyDocumentOperations") {
-      // we only process the combined operations tool call
-      // in a future improvement we can add more generic support for different tool streaming
-      continue;
-    }
-
-    const toolCallId = part.toolCallId;
-
-    const toolCallData = getToolCallStreamData({
-      toolName: part.type.replace("tool-", ""),
-      toolCallId,
-    });
-
-    processToolCallPart(part, toolCallData);
+    toolCalls.push({ toolName, part });
   }
+
+  return toolCalls;
 }
 
 /**
@@ -241,15 +245,26 @@ function createToolCallStream(
   streamTools: StreamTool<any>[],
   toolName: string,
   toolCallId: string,
-): ToolCallStreamData {
+): ToolCallStreamData | undefined {
   const stream = new TransformStream<
     DeepPartial<{ operations: StreamToolCall<any>[] }>
   >();
-  const operationsStream = objectStreamToOperationsResult(
-    stream.readable,
-    streamTools,
-    { toolCallId },
-  );
+  let operationsStream: ReturnType<typeof objectStreamToOperationsResult>;
+  if (toolName === "applyDocumentOperations") {
+    operationsStream = operationsObjectStreamToOperationsResult(
+      stream.readable,
+      streamTools,
+      { toolCallId },
+    );
+  } else if (streamTools.find((tool) => tool.name === toolName)) {
+    operationsStream = objectStreamToOperationsResult(
+      stream.readable,
+      streamTools,
+      { toolCallId },
+    );
+  } else {
+    return undefined;
+  }
 
   const writer = stream.writable.getWriter();
 
@@ -268,6 +283,7 @@ function createToolCallStream(
  * Process a single tool call part (streaming or available)
  */
 function processToolCallPart(part: any, toolCallData: ToolCallStreamData) {
+  // TODO: what if data is the same?
   if (part.state === "input-streaming") {
     const input = part.input;
     if (input !== undefined) {

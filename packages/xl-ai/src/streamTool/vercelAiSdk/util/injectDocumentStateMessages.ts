@@ -47,7 +47,11 @@ The cursor is BETWEEN two blocks as indicated by cursor: true.
                   },
                   {
                     type: "text" as const,
-                    text: JSON.stringify(documentState.blocks),
+                    text: JSON.stringify(
+                      typeof documentState === "string"
+                        ? documentState
+                        : documentState.blocks,
+                    ),
                   },
                 ]),
             // Alternatively, we could explore using dynamic tools to fake document state retrieval:

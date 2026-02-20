@@ -69,7 +69,7 @@ describe("Models", () => {
   );
 
   beforeAll(() => {
-    server.listen();
+    // server.listen();
   });
 
   afterAll(() => {

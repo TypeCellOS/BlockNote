@@ -67,3 +67,42 @@ export async function* filterNewOrUpdatedOperations(
     metadata,
   };
 }
+
+// TODO: rename?
+export async function* filterNewOrUpdatedCalls(
+  partialObjectStream: AsyncIterable<any>,
+  metadata: any,
+): AsyncGenerator<{
+  partialOperation: any;
+  isUpdateToPreviousOperation: boolean;
+  isPossiblyPartial: boolean;
+  metadata: any;
+}> {
+  let first = true;
+
+  let lastOp: any;
+
+  for await (const chunk of partialObjectStream) {
+    lastOp = chunk;
+    yield {
+      partialOperation: chunk,
+      isUpdateToPreviousOperation: !first,
+      isPossiblyPartial: !first,
+      metadata,
+    };
+    first = false;
+  }
+
+  if (!lastOp) {
+    // TODO: this should be handled somewhere else
+    throw new Error("No operations seen");
+  }
+
+  // mark final operation as final (by emitting with isPossiblyPartial: false)
+  yield {
+    partialOperation: lastOp,
+    isUpdateToPreviousOperation: true,
+    isPossiblyPartial: false,
+    metadata,
+  };
+}

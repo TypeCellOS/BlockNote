@@ -3,7 +3,10 @@ import {
   createAsyncIterableStream,
   createAsyncIterableStreamFromAsyncIterable,
 } from "../../../util/stream.js";
-import { filterNewOrUpdatedOperations } from "../../filterNewOrUpdatedOperations.js";
+import {
+  filterNewOrUpdatedCalls,
+  filterNewOrUpdatedOperations,
+} from "../../operations/filterNewOrUpdatedOperations.js";
 import { preprocessOperationsStreaming } from "../../preprocess.js";
 import { StreamTool, StreamToolCall } from "../../streamTool.js";
 
@@ -33,7 +36,9 @@ type OperationsResult<T extends StreamTool<any>[]> = AsyncIterableStream<{
   metadata: any;
 }>;
 
-export function objectStreamToOperationsResult<T extends StreamTool<any>[]>(
+export function operationsObjectStreamToOperationsResult<
+  T extends StreamTool<any>[],
+>(
   stream: ReadableStream<DeepPartial<{ operations: StreamToolCall<T>[] }>>,
   streamTools: T,
   chunkMetadata: any,
@@ -45,6 +50,20 @@ export function objectStreamToOperationsResult<T extends StreamTool<any>[]>(
         createAsyncIterableStream(stream),
         chunkMetadata,
       ),
+      streamTools,
+    ),
+  );
+}
+
+export function objectStreamToOperationsResult<T extends StreamTool<any>[]>(
+  stream: ReadableStream<DeepPartial<T>>,
+  streamTools: T,
+  chunkMetadata: any,
+): OperationsResult<T> {
+  // Note: we can probably clean this up by switching to streams instead of async iterables
+  return createAsyncIterableStreamFromAsyncIterable(
+    preprocessOperationsStreaming(
+      filterNewOrUpdatedCalls(createAsyncIterableStream(stream), chunkMetadata),
       streamTools,
     ),
   );

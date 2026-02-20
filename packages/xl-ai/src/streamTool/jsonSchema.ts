@@ -81,10 +81,19 @@ export function createStreamToolsArraySchema(
 }
 
 export function streamToolsToToolSet(streamTools: StreamTool<any>[]): ToolSet {
-  return {
-    applyDocumentOperations: {
-      inputSchema: jsonSchema(createStreamToolsArraySchema(streamTools)),
-      outputSchema: jsonSchema({ type: "object" }),
-    },
-  };
+  return Object.fromEntries(
+    streamTools.map((tool) => [
+      tool.name,
+      {
+        inputSchema: jsonSchema(tool.inputSchema),
+        outputSchema: jsonSchema({ type: "object" }),
+      },
+    ]),
+  );
+  // return {
+  //   applyDocumentOperations: {
+  //     inputSchema: jsonSchema(createStreamToolsArraySchema(streamTools)),
+  //     outputSchema: jsonSchema({ type: "object" }),
+  //   },
+  // };
 }

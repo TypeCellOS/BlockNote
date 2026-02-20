@@ -1,4 +1,3 @@
-import { BlockNoteEditor } from "@blocknote/core";
 import { StreamTool } from "../../streamTool/streamTool.js";
 import { AddBlocksToolCall } from "./base-tools/createAddBlocksTool.js";
 import { UpdateBlockToolCall } from "./base-tools/createUpdateBlockTool.js";
@@ -8,22 +7,32 @@ import { htmlBlockLLMFormat } from "./html-blocks/htmlBlocks.js";
 import { jsonBlockLLMFormat } from "./json/json.js";
 import { markdownBlockLLMFormat } from "./markdown-blocks/markdownBlocks.js";
 
+// ... imports
+
+import { BlockNoteEditor } from "@blocknote/core";
+import { tsxDocumentLLMFormat } from "./tsx-document/tsxDocument.js";
+// ... imports
+
 // Define the tool types
 export type AddTool<T> = StreamTool<AddBlocksToolCall<T>>;
 export type UpdateTool<T> = StreamTool<UpdateBlockToolCall<T>>;
 export type DeleteTool = StreamTool<DeleteBlockToolCall>;
+// We assume T is the replacement operation type, or just generic
+export type ReplaceTool<T extends { type: string }> = StreamTool<T>;
 
 // Create a conditional type that maps boolean flags to tool types
 export type StreamToolsConfig = {
   add?: boolean;
   update?: boolean;
   delete?: boolean;
+  replace?: boolean;
 };
 
 export type StreamToolsResult<TT, T extends StreamToolsConfig> = [
   ...(T extends { update: true } ? [UpdateTool<TT>] : []),
   ...(T extends { add: true } ? [AddTool<TT>] : []),
   ...(T extends { delete: true } ? [DeleteTool] : []),
+  ...(T extends { replace: true } ? [ReplaceTool<any>] : []),
 ];
 
 export type StreamToolsProvider<
@@ -59,4 +68,5 @@ export const aiDocumentFormats = {
   _experimental_json: jsonBlockLLMFormat,
   _experimental_markdown: markdownBlockLLMFormat,
   html: htmlBlockLLMFormat,
+  tsx: tsxDocumentLLMFormat,
 } satisfies Record<string, AIDocumentFormat<any>>;
