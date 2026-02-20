@@ -184,6 +184,14 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
               let chainedCommands = chain();
 
+              // Moves the children of the current block to the previous one.
+              if (blockInfo.childContainer) {
+                chainedCommands.insertContentAt(
+                  blockInfo.bnBlock.afterPos,
+                  blockInfo.childContainer?.node.content,
+                );
+              }
+
               if (
                 prevBlockInfo.blockContent.node.type.spec.content ===
                 "tableRow+"
@@ -209,8 +217,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
                 );
               } else {
                 const blockContentStartPos =
-                  prevBlockInfo.blockContent.afterPos -
-                  prevBlockInfo.blockContent.node.nodeSize;
+                  prevBlockInfo.blockContent.afterPos - 1;
 
                 chainedCommands =
                   chainedCommands.setTextSelection(blockContentStartPos);
@@ -413,7 +420,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // Creates a new block and moves the selection to it if the current one is empty, while the selection is also
         // empty & at the start of the block.
         () =>
-          commands.command(({ state, dispatch }) => {
+          commands.command(({ state, dispatch, tr }) => {
             const blockInfo = getBlockInfoFromSelection(state);
             if (!blockInfo.isBlockContainer) {
               return false;
@@ -431,15 +438,34 @@ export const KeyboardShortcutsExtension = Extension.create<{
               const newBlockContentPos = newBlockInsertionPos + 2;
 
               if (dispatch) {
-                const newBlock =
-                  state.schema.nodes["blockContainer"].createAndFill()!;
+                // Creates a new block with the children of the current block,
+                // if it has any.
+                const newBlock = state.schema.nodes[
+                  "blockContainer"
+                ].createAndFill(
+                  undefined,
+                  [
+                    state.schema.nodes["paragraph"].createAndFill() ||
+                      undefined,
+                    blockInfo.childContainer?.node,
+                  ].filter((node) => node !== undefined),
+                )!;
 
-                state.tr
-                  .insert(newBlockInsertionPos, newBlock)
+                // Inserts the new block and moves the selection to it.
+                tr.insert(newBlockInsertionPos, newBlock)
+                  .setSelection(
+                    new TextSelection(tr.doc.resolve(newBlockContentPos)),
+                  )
                   .scrollIntoView();
-                state.tr.setSelection(
-                  new TextSelection(state.doc.resolve(newBlockContentPos)),
-                );
+
+                // Deletes old block's children, as they have been moved to
+                // the new one.
+                if (blockInfo.childContainer) {
+                  tr.delete(
+                    blockInfo.childContainer.beforePos,
+                    blockInfo.childContainer.afterPos,
+                  );
+                }
               }
 
               return true;
