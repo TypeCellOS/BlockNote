@@ -267,6 +267,44 @@
         "readme": "In this example, we change the default paste handler to append some text to the pasted content when the content is plain text.\n\n**Try it out:** Use the buttons to copy some content to the clipboard and paste it in the editor to trigger our custom paste handler.\n\n**Relevant Docs:**\n\n- [Paste Handling](/docs/reference/editor/paste-handling)"
       },
       {
+        "projectSlug": "editor-scrollable",
+        "fullSlug": "basic/editor-scrollable",
+        "pathFromRoot": "examples/01-basic/14-editor-scrollable",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Scrollable Editor",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        },
+        "readme": "This example shows how to constrain the editor height and make it scrollable.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)"
+      },
+      {
+        "projectSlug": "shadowdom",
+        "fullSlug": "basic/shadowdom",
+        "pathFromRoot": "examples/01-basic/14-shadowdom",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Shadow DOM",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        },
+        "readme": "This example shows how to render the BlockNote editor inside a Shadow DOM.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)"
+      },
+      {
         "projectSlug": "testing",
         "fullSlug": "basic/testing",
         "pathFromRoot": "examples/01-basic/testing",
@@ -419,8 +457,8 @@
             "Custom Schemas"
           ],
           "dependencies": {
-            "@mantine/core": "^8.3.4",
-            "react-icons": "^5.2.1"
+            "@mantine/core": "^8.3.11",
+            "react-icons": "^5.5.0"
           } as any
         },
         "title": "Adding Block Type Select Items",
@@ -445,7 +483,7 @@
             "Block Side Menu"
           ],
           "dependencies": {
-            "react-icons": "^5.2.1"
+            "react-icons": "^5.5.0"
           } as any
         },
         "title": "Adding Block Side Menu Buttons",
@@ -470,7 +508,7 @@
             "Block Side Menu"
           ],
           "dependencies": {
-            "react-icons": "^5.2.1"
+            "react-icons": "^5.5.0"
           } as any
         },
         "title": "Adding Drag Handle Menu Items",
@@ -496,7 +534,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "react-icons": "^5.2.1"
+            "react-icons": "^5.5.0"
           } as any
         },
         "title": "Adding Slash Menu Items",
@@ -621,7 +659,7 @@
             "@uppy/status-bar": "^3.1.1",
             "@uppy/webcam": "^3.4.2",
             "@uppy/xhr-upload": "^3.4.0",
-            "react-icons": "^5.2.1"
+            "react-icons": "^5.5.0"
           } as any,
           "pro": true
         },
@@ -673,8 +711,6 @@
             "Appearance & Styling"
           ],
           "dependencies": {
-            "@emotion/react": "^11.11.4",
-            "@emotion/styled": "^11.11.5",
             "@mui/icons-material": "^5.16.1",
             "@mui/material": "^5.16.1"
           } as any,
@@ -920,11 +956,11 @@
           ],
           "dependencies": {
             "@blocknote/code-block": "latest",
-            "@shikijs/types": "^3.2.1",
-            "@shikijs/core": "^3.2.1",
-            "@shikijs/engine-javascript": "^3.2.1",
-            "@shikijs/langs-precompiled": "^3.2.1",
-            "@shikijs/themes": "^3.2.1"
+            "@shikijs/core": "^3.19.0",
+            "@shikijs/engine-javascript": "^3.19.0",
+            "@shikijs/langs-precompiled": "^3.19.0",
+            "@shikijs/themes": "^3.19.0",
+            "@shikijs/types": "^3.19.0"
           } as any
         },
         "title": "Custom Code Block Theme & Language",
@@ -1062,8 +1098,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-docx-exporter": "latest",
-            "@blocknote/xl-multi-column": "latest",
-            "docx": "^9.0.2"
+            "@blocknote/xl-multi-column": "latest"
           } as any,
           "pro": true
         },
@@ -1111,7 +1146,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-email-exporter": "latest",
-            "@react-email/render": "^1.1.2"
+            "@react-email/render": "^2.0.4"
           } as any,
           "pro": true
         },
@@ -1121,6 +1156,48 @@
           "slug": "interoperability"
         },
         "readme": "This example exports the current document (all blocks) as an HTML file for use in emails, and downloads it to your computer.\n\n**Try it out:** Edit the document and click \"Download email .html\" at the top to download the HTML file."
+      },
+      {
+        "projectSlug": "blocks-to-html-static-render",
+        "fullSlug": "interoperability/blocks-to-html-static-render",
+        "pathFromRoot": "examples/05-interoperability/09-blocks-to-html-static-render",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic",
+            "Blocks",
+            "Import/Export"
+          ]
+        },
+        "title": "Rendering HTML Converted From Blocks (Side by Side)",
+        "group": {
+          "pathFromRoot": "examples/05-interoperability",
+          "slug": "interoperability"
+        },
+        "readme": "This example exports the current document (all blocks) as HTML and renders it below the editor.\n\n**Try it out:** Edit the document to see the rendered static HTML!\n\n**Relevant Docs:**\n\n- [Converting Blocks to HTML](/docs/features/export/html)"
+      },
+      {
+        "projectSlug": "static-html-render",
+        "fullSlug": "interoperability/static-html-render",
+        "pathFromRoot": "examples/05-interoperability/10-static-html-render",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic",
+            "Blocks",
+            "Inline Content"
+          ]
+        },
+        "title": "Rendering HTML Converted From Blocks",
+        "group": {
+          "pathFromRoot": "examples/05-interoperability",
+          "slug": "interoperability"
+        },
+        "readme": "This example exports the current document (all blocks) as HTML and renders it.\n\n**Relevant Docs:**\n\n- [Converting Blocks to HTML](/docs/features/export/html)"
       }
     ]
   },
@@ -1144,8 +1221,8 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^8.3.4",
-            "react-icons": "^5.2.1"
+            "@mantine/core": "^8.3.11",
+            "react-icons": "^5.5.0"
           } as any
         },
         "title": "Alert Block",
@@ -1192,7 +1269,7 @@
             "Formatting Toolbar"
           ],
           "dependencies": {
-            "react-icons": "^5.2.1"
+            "react-icons": "^5.5.0"
           } as any
         },
         "title": "Font Style",
@@ -1218,8 +1295,8 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^8.3.4",
-            "react-icons": "^5.2.1"
+            "@mantine/core": "^8.3.11",
+            "react-icons": "^5.5.0"
           } as any,
           "pro": true
         },
@@ -1247,8 +1324,8 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^8.3.4",
-            "react-icons": "^5.2.1"
+            "@mantine/core": "^8.3.11",
+            "react-icons": "^5.5.0"
           } as any
         },
         "title": "Alert Block with Full UX",
@@ -1484,7 +1561,7 @@
           ],
           "dependencies": {
             "@y-sweet/react": "^0.6.3",
-            "@mantine/core": "^8.3.4"
+            "@mantine/core": "^8.3.11"
           } as any
         },
         "title": "Comments & Threads",
@@ -1508,8 +1585,9 @@
             "Collaboration"
           ],
           "dependencies": {
-            "@y-sweet/react": "^0.6.3",
-            "@mantine/core": "^8.3.4"
+            "y-partykit": "^0.0.25",
+            "yjs": "^13.6.27",
+            "@mantine/core": "^8.3.11"
           } as any
         },
         "title": "Threads Sidebar",
@@ -1588,7 +1666,7 @@
           ],
           "pro": true,
           "dependencies": {
-            "@tiptap/core": "^3.7.2"
+            "@tiptap/core": "^3.13.0"
           } as any
         },
         "title": "TipTap extension (arrow InputRule)",
@@ -1618,9 +1696,8 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.4",
-            "ai": "^5.0.45",
-            "zustand": "^5.0.3"
+            "@mantine/core": "^8.3.11",
+            "ai": "^6.0.5"
           } as any
         },
         "title": "Rich Text editor AI integration",
@@ -1644,9 +1721,8 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.4",
-            "ai": "^5.0.45",
-            "zustand": "^5.0.3"
+            "@mantine/core": "^8.3.11",
+            "ai": "^6.0.5"
           } as any
         },
         "title": "AI Playground",
@@ -1670,10 +1746,9 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.4",
-            "ai": "^5.0.45",
-            "react-icons": "^5.2.1",
-            "zustand": "^5.0.3"
+            "@mantine/core": "^8.3.11",
+            "ai": "^6.0.5",
+            "react-icons": "^5.5.0"
           } as any
         },
         "title": "Adding AI Menu Items",
@@ -1697,11 +1772,10 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.4",
-            "ai": "^5.0.45",
+            "@mantine/core": "^8.3.11",
+            "ai": "^6.0.5",
             "y-partykit": "^0.0.25",
-            "yjs": "^13.6.27",
-            "zustand": "^5.0.3"
+            "yjs": "^13.6.27"
           } as any
         },
         "title": "AI + Ghost Writer",
@@ -1725,11 +1799,10 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.4",
-            "ai": "^5.0.45",
+            "@mantine/core": "^8.3.11",
+            "ai": "^6.0.5",
             "y-partykit": "^0.0.25",
-            "yjs": "^13.6.27",
-            "zustand": "^5.0.3"
+            "yjs": "^13.6.27"
           } as any
         },
         "title": "AI manual execution",
@@ -1752,11 +1825,10 @@
             "llm"
           ],
           "dependencies": {
-            "@ai-sdk/groq": "^2.0.16",
+            "@ai-sdk/groq": "^3.0.2",
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.4",
-            "ai": "^5.0.45",
-            "zustand": "^5.0.3"
+            "@mantine/core": "^8.3.11",
+            "ai": "^6.0.5"
           } as any
         },
         "title": "AI Integration with ClientSideTransport",
@@ -1767,9 +1839,9 @@
         "readme": "The standard setup is to have BlockNote AI call your server, which then calls an LLM of your choice. In this example, we show how you can use the `ClientSideTransport` to make calls directly to your LLM provider.\n\nTo hide API keys of our LLM provider, we do still route calls through a proxy server using `fetchViaProxy` (this is optional)."
       },
       {
-        "projectSlug": "server-promptbuilder",
-        "fullSlug": "ai/server-promptbuilder",
-        "pathFromRoot": "examples/09-ai/07-server-promptbuilder",
+        "projectSlug": "server-persistence",
+        "fullSlug": "ai/server-persistence",
+        "pathFromRoot": "examples/09-ai/07-server-persistence",
         "config": {
           "playground": true,
           "docs": false,
@@ -1780,17 +1852,16 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.4",
-            "ai": "^5.0.45",
-            "zustand": "^5.0.3"
+            "@mantine/core": "^8.3.11",
+            "ai": "^6.0.5"
           } as any
         },
-        "title": "AI Integration with server LLM execution + promptbuilder",
+        "title": "AI Integration with server LLM message persistence",
         "group": {
           "pathFromRoot": "examples/09-ai",
           "slug": "ai"
         },
-        "readme": "This example shows how to setup to add AI integration while handling the LLM calls (in this case, using the Vercel AI SDK) on your server, using a custom executor.\n\nPrompt building is done on the server as well"
+        "readme": "This example shows how to setup to add AI integration while handling the LLM calls (in this case, using the Vercel AI SDK) on your server, using a custom executor.\n\nInstead of sending all messages, these are kept server-side and we only submit the latest message."
       }
     ]
   },

@@ -3,10 +3,10 @@ import {
   BlockImplementation,
   BlockNoDefaults,
   BlockNoteEditor,
-  BlockNoteExtension,
   BlockSpec,
   camelToDataKebab,
   CustomBlockImplementation,
+  Extension,
   getBlockFromPos,
   mergeCSSClasses,
   Props,
@@ -51,7 +51,13 @@ export type ReactCustomBlockImplementation<
   "render" | "toExternalHTML"
 > & {
   render: FC<ReactCustomBlockRenderProps<TName, TProps, TContent>>;
-  toExternalHTML?: FC<ReactCustomBlockRenderProps<TName, TProps, TContent>>;
+  toExternalHTML?: FC<
+    ReactCustomBlockRenderProps<TName, TProps, TContent> & {
+      context: {
+        nestingLevel: number;
+      };
+    }
+  >;
 };
 
 export type ReactCustomBlockSpec<
@@ -61,7 +67,7 @@ export type ReactCustomBlockSpec<
 > = {
   config: BlockConfig<T, PS, C>;
   implementation: ReactCustomBlockImplementation<T, PS, C>;
-  extensions?: BlockNoteExtension<any>[];
+  extensions?: Extension<any>[];
 };
 
 // Function that wraps the React component returned from 'blockConfig.render' in
@@ -135,10 +141,10 @@ export function createReactBlockSpec<
             options: Partial<TOptions>,
           ) => ReactCustomBlockImplementation<TName, TProps, TContent>),
   extensionsOrCreator?:
-    | BlockNoteExtension<any>[]
+    | Extension<any>[]
     | (TOptions extends undefined
-        ? () => BlockNoteExtension<any>[]
-        : (options: Partial<TOptions>) => BlockNoteExtension<any>[]),
+        ? () => Extension<any>[]
+        : (options: Partial<TOptions>) => Extension<any>[]),
 ): (options?: Partial<TOptions>) => BlockSpec<TName, TProps, TContent>;
 export function createReactBlockSpec<
   const TName extends string,
@@ -168,10 +174,10 @@ export function createReactBlockSpec<
             BlockConf["content"]
           >),
   extensionsOrCreator?:
-    | BlockNoteExtension<any>[]
+    | Extension<any>[]
     | (TOptions extends undefined
-        ? () => BlockNoteExtension<any>[]
-        : (options: Partial<TOptions>) => BlockNoteExtension<any>[]),
+        ? () => Extension<any>[]
+        : (options: Partial<TOptions>) => Extension<any>[]),
 ): (
   options?: Partial<TOptions>,
 ) => BlockSpec<
@@ -198,10 +204,10 @@ export function createReactBlockSpec<
             options: Partial<TOptions>,
           ) => ReactCustomBlockImplementation<TName, TProps, TContent>),
   extensionsOrCreator?:
-    | BlockNoteExtension<any>[]
+    | Extension<any>[]
     | (TOptions extends undefined
-        ? () => BlockNoteExtension<any>[]
-        : (options: Partial<TOptions>) => BlockNoteExtension<any>[]),
+        ? () => Extension<any>[]
+        : (options: Partial<TOptions>) => Extension<any>[]),
 ): (options?: Partial<TOptions>) => BlockSpec<TName, TProps, TContent> {
   return (options = {} as TOptions) => {
     const blockConfig =
@@ -224,7 +230,7 @@ export function createReactBlockSpec<
       config: blockConfig,
       implementation: {
         ...blockImplementation,
-        toExternalHTML(block, editor) {
+        toExternalHTML(block, editor, context) {
           const BlockContent =
             blockImplementation.toExternalHTML || blockImplementation.render;
           const output = renderToDOMSpec((refCB) => {
@@ -247,6 +253,7 @@ export function createReactBlockSpec<
                       );
                     }
                   }}
+                  context={context}
                 />
               </BlockContentWrapper>
             );

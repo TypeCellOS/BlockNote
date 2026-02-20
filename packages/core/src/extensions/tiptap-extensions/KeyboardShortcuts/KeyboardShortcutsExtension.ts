@@ -1,0 +1,656 @@
+import { Extension } from "@tiptap/core";
+
+import { TextSelection } from "prosemirror-state";
+import {
+  getBottomNestedBlockInfo,
+  getNextBlockInfo,
+  getPrevBlockInfo,
+  mergeBlocksCommand,
+} from "../../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
+import { nestBlock } from "../../../api/blockManipulation/commands/nestBlock/nestBlock.js";
+import { fixColumnList } from "../../../api/blockManipulation/commands/replaceBlocks/util/fixColumnList.js";
+import { splitBlockCommand } from "../../../api/blockManipulation/commands/splitBlock/splitBlock.js";
+import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
+import { getBlockInfoFromSelection } from "../../../api/getBlockInfoFromPos.js";
+import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import { FormattingToolbarExtension } from "../../FormattingToolbar/FormattingToolbar.js";
+import { FilePanelExtension } from "../../FilePanel/FilePanel.js";
+
+export const KeyboardShortcutsExtension = Extension.create<{
+  editor: BlockNoteEditor<any, any, any>;
+  tabBehavior: "prefer-navigate-ui" | "prefer-indent";
+}>({
+  priority: 50,
+
+  // TODO: The shortcuts need a refactor. Do we want to use a command priority
+  //  design as there is now, or clump the logic into a single function?
+  addKeyboardShortcuts() {
+    // handleBackspace is partially adapted from https://github.com/ueberdosis/tiptap/blob/ed56337470efb4fd277128ab7ef792b37cfae992/packages/core/src/extensions/keymap.ts
+    const handleBackspace = () =>
+      this.editor.commands.first(({ chain, commands }) => [
+        // Deletes the selection if it's not empty.
+        () => commands.deleteSelection(),
+        // Undoes an input rule if one was triggered in the last editor state change.
+        () => commands.undoInputRule(),
+        // Reverts block content type to a paragraph if the selection is at the start of the block.
+        () =>
+          commands.command(({ state }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+
+            const selectionAtBlockStart =
+              state.selection.from === blockInfo.blockContent.beforePos + 1;
+            const isParagraph =
+              blockInfo.blockContent.node.type.name === "paragraph";
+
+            if (selectionAtBlockStart && !isParagraph) {
+              return commands.command(
+                updateBlockCommand(blockInfo.bnBlock.beforePos, {
+                  type: "paragraph",
+                  props: {},
+                }),
+              );
+            }
+
+            return false;
+          }),
+        // Removes a level of nesting if the block is indented if the selection is at the start of the block.
+        () =>
+          commands.command(({ state }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+            const { blockContent } = blockInfo;
+
+            const selectionAtBlockStart =
+              state.selection.from === blockContent.beforePos + 1;
+
+            if (selectionAtBlockStart) {
+              return commands.liftListItem("blockContainer");
+            }
+
+            return false;
+          }),
+        // Merges block with the previous one if it isn't indented, and the selection is at the start of the
+        // block. The target block for merging must contain inline content.
+        () =>
+          commands.command(({ state }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+            const { bnBlock: blockContainer, blockContent } = blockInfo;
+
+            const selectionAtBlockStart =
+              state.selection.from === blockContent.beforePos + 1;
+            const selectionEmpty = state.selection.empty;
+
+            const posBetweenBlocks = blockContainer.beforePos;
+
+            if (selectionAtBlockStart && selectionEmpty) {
+              return chain()
+                .command(mergeBlocksCommand(posBetweenBlocks))
+                .scrollIntoView()
+                .run();
+            }
+
+            return false;
+          }),
+        () =>
+          commands.command(({ state, tr, dispatch }) => {
+            // when at the start of a first block in a column
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+
+            const selectionAtBlockStart =
+              tr.selection.from === blockInfo.blockContent.beforePos + 1;
+            if (!selectionAtBlockStart) {
+              return false;
+            }
+
+            const $pos = tr.doc.resolve(blockInfo.bnBlock.beforePos);
+
+            const prevBlock = $pos.nodeBefore;
+            if (prevBlock) {
+              // should be no previous block
+              return false;
+            }
+
+            const parentBlock = $pos.node();
+            if (parentBlock.type.name !== "column") {
+              return false;
+            }
+
+            const $blockPos = tr.doc.resolve(blockInfo.bnBlock.beforePos);
+            const $columnPos = tr.doc.resolve($blockPos.before());
+            const columnListPos = $columnPos.before();
+
+            if (dispatch) {
+              const fragment = tr.doc.slice(
+                blockInfo.bnBlock.beforePos,
+                blockInfo.bnBlock.afterPos,
+              ).content;
+
+              tr.delete(
+                blockInfo.bnBlock.beforePos,
+                blockInfo.bnBlock.afterPos,
+              );
+
+              if ($columnPos.index() === 0) {
+                // Fix `columnList` and insert the block before it.
+                fixColumnList(tr, columnListPos);
+                tr.insert(columnListPos, fragment);
+                tr.setSelection(
+                  TextSelection.near(tr.doc.resolve(columnListPos)),
+                );
+              } else {
+                // Insert the block at the end of the first column and fix
+                // `columnList`.
+                tr.insert($columnPos.pos - 1, fragment);
+                tr.setSelection(
+                  TextSelection.near(tr.doc.resolve($columnPos.pos - 1)),
+                );
+                fixColumnList(tr, columnListPos);
+              }
+            }
+
+            return true;
+          }),
+        // Deletes the current block if it's an empty block with inline content,
+        // and moves the selection to the previous block.
+        () =>
+          commands.command(({ state }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+
+            const blockEmpty =
+              blockInfo.blockContent.node.childCount === 0 &&
+              blockInfo.blockContent.node.type.spec.content === "inline*";
+
+            if (blockEmpty) {
+              const prevBlockInfo = getPrevBlockInfo(
+                state.doc,
+                blockInfo.bnBlock.beforePos,
+              );
+              if (!prevBlockInfo || !prevBlockInfo.isBlockContainer) {
+                return false;
+              }
+
+              let chainedCommands = chain();
+
+              // Moves the children of the current block to the previous one.
+              if (blockInfo.childContainer) {
+                chainedCommands.insertContentAt(
+                  blockInfo.bnBlock.afterPos,
+                  blockInfo.childContainer?.node.content,
+                );
+              }
+
+              if (
+                prevBlockInfo.blockContent.node.type.spec.content ===
+                "tableRow+"
+              ) {
+                const tableBlockEndPos = blockInfo.bnBlock.beforePos - 1;
+                const tableBlockContentEndPos = tableBlockEndPos - 1;
+                const lastRowEndPos = tableBlockContentEndPos - 1;
+                const lastCellEndPos = lastRowEndPos - 1;
+                const lastCellParagraphEndPos = lastCellEndPos - 1;
+
+                chainedCommands = chainedCommands.setTextSelection(
+                  lastCellParagraphEndPos,
+                );
+              } else if (
+                prevBlockInfo.blockContent.node.type.spec.content === ""
+              ) {
+                chainedCommands = chainedCommands.setNodeSelection(
+                  prevBlockInfo.blockContent.beforePos,
+                );
+              } else {
+                const blockContentStartPos =
+                  prevBlockInfo.blockContent.afterPos - 1;
+
+                chainedCommands =
+                  chainedCommands.setTextSelection(blockContentStartPos);
+              }
+
+              return chainedCommands
+                .deleteRange({
+                  from: blockInfo.bnBlock.beforePos,
+                  to: blockInfo.bnBlock.afterPos,
+                })
+                .scrollIntoView()
+                .run();
+            }
+
+            return false;
+          }),
+        // Deletes previous block if it contains no content and isn't a table,
+        // when the selection is empty and at the start of the block. Moves the
+        // current block into the deleted block's place.
+        () =>
+          commands.command(({ state }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+
+            if (!blockInfo.isBlockContainer) {
+              // TODO
+              throw new Error(`todo`);
+            }
+
+            const selectionAtBlockStart =
+              state.selection.from === blockInfo.blockContent.beforePos + 1;
+            const selectionEmpty = state.selection.empty;
+
+            const prevBlockInfo = getPrevBlockInfo(
+              state.doc,
+              blockInfo.bnBlock.beforePos,
+            );
+
+            if (prevBlockInfo && selectionAtBlockStart && selectionEmpty) {
+              const bottomBlock = getBottomNestedBlockInfo(
+                state.doc,
+                prevBlockInfo,
+              );
+
+              if (!bottomBlock.isBlockContainer) {
+                // TODO
+                throw new Error(`todo`);
+              }
+
+              const prevBlockNotTableAndNoContent =
+                bottomBlock.blockContent.node.type.spec.content === "" ||
+                (bottomBlock.blockContent.node.type.spec.content ===
+                  "inline*" &&
+                  bottomBlock.blockContent.node.childCount === 0);
+
+              if (prevBlockNotTableAndNoContent) {
+                return chain()
+                  .cut(
+                    {
+                      from: blockInfo.bnBlock.beforePos,
+                      to: blockInfo.bnBlock.afterPos,
+                    },
+                    bottomBlock.bnBlock.afterPos,
+                  )
+                  .deleteRange({
+                    from: bottomBlock.bnBlock.beforePos,
+                    to: bottomBlock.bnBlock.afterPos,
+                  })
+                  .run();
+              }
+            }
+
+            return false;
+          }),
+      ]);
+
+    const handleDelete = () =>
+      this.editor.commands.first(({ chain, commands }) => [
+        // Deletes the selection if it's not empty.
+        () => commands.deleteSelection(),
+        // Merges block with the next one (at the same nesting level or lower),
+        // if one exists, the block has no children, and the selection is at the
+        // end of the block.
+        () =>
+          commands.command(({ state }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+            const { bnBlock: blockContainer, blockContent } = blockInfo;
+
+            const selectionAtBlockEnd =
+              state.selection.from === blockContent.afterPos - 1;
+            const selectionEmpty = state.selection.empty;
+
+            const posBetweenBlocks = blockContainer.afterPos;
+
+            if (selectionAtBlockEnd && selectionEmpty) {
+              return chain()
+                .command(mergeBlocksCommand(posBetweenBlocks))
+                .scrollIntoView()
+                .run();
+            }
+
+            return false;
+          }),
+        // Deletes the current block if it's an empty block with inline content,
+        // and moves the selection to the next block.
+        () =>
+          commands.command(({ state }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+
+            const blockEmpty =
+              blockInfo.blockContent.node.childCount === 0 &&
+              blockInfo.blockContent.node.type.spec.content === "inline*";
+
+            if (blockEmpty) {
+              const nextBlockInfo = getNextBlockInfo(
+                state.doc,
+                blockInfo.bnBlock.beforePos,
+              );
+              if (!nextBlockInfo || !nextBlockInfo.isBlockContainer) {
+                return false;
+              }
+
+              let chainedCommands = chain();
+
+              if (
+                nextBlockInfo.blockContent.node.type.spec.content ===
+                "tableRow+"
+              ) {
+                const tableBlockStartPos = blockInfo.bnBlock.afterPos + 1;
+                const tableBlockContentStartPos = tableBlockStartPos + 1;
+                const firstRowStartPos = tableBlockContentStartPos + 1;
+                const firstCellStartPos = firstRowStartPos + 1;
+                const firstCellParagraphStartPos = firstCellStartPos + 1;
+
+                chainedCommands = chainedCommands.setTextSelection(
+                  firstCellParagraphStartPos,
+                );
+              } else if (
+                nextBlockInfo.blockContent.node.type.spec.content === ""
+              ) {
+                chainedCommands = chainedCommands.setNodeSelection(
+                  nextBlockInfo.blockContent.beforePos,
+                );
+              } else {
+                chainedCommands = chainedCommands.setTextSelection(
+                  nextBlockInfo.blockContent.beforePos + 1,
+                );
+              }
+
+              return chainedCommands
+                .deleteRange({
+                  from: blockInfo.bnBlock.beforePos,
+                  to: blockInfo.bnBlock.afterPos,
+                })
+                .scrollIntoView()
+                .run();
+            }
+
+            return false;
+          }),
+        // Deletes next block if it contains no content and isn't a table,
+        // when the selection is empty and at the end of the block. Moves the
+        // current block into the deleted block's place.
+        () =>
+          commands.command(({ state }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+
+            if (!blockInfo.isBlockContainer) {
+              // TODO
+              throw new Error(`todo`);
+            }
+
+            const selectionAtBlockEnd =
+              state.selection.from === blockInfo.blockContent.afterPos - 1;
+            const selectionEmpty = state.selection.empty;
+
+            const nextBlockInfo = getNextBlockInfo(
+              state.doc,
+              blockInfo.bnBlock.beforePos,
+            );
+            if (!nextBlockInfo) {
+              return false;
+            }
+            if (!nextBlockInfo.isBlockContainer) {
+              // TODO
+              throw new Error(`todo`);
+            }
+
+            if (nextBlockInfo && selectionAtBlockEnd && selectionEmpty) {
+              const nextBlockNotTableAndNoContent =
+                nextBlockInfo.blockContent.node.type.spec.content === "" ||
+                (nextBlockInfo.blockContent.node.type.spec.content ===
+                  "inline*" &&
+                  nextBlockInfo.blockContent.node.childCount === 0);
+
+              if (nextBlockNotTableAndNoContent) {
+                if (nextBlockInfo.bnBlock.node.childCount === 2) {
+                  const childBlocks =
+                    nextBlockInfo.bnBlock.node.lastChild!.content;
+                  return chain()
+                    .deleteRange({
+                      from: nextBlockInfo.bnBlock.beforePos,
+                      to: nextBlockInfo.bnBlock.afterPos,
+                    })
+                    .insertContentAt(blockInfo.bnBlock.afterPos, childBlocks)
+                    .run();
+                }
+
+                return chain()
+                  .deleteRange({
+                    from: nextBlockInfo.bnBlock.beforePos,
+                    to: nextBlockInfo.bnBlock.afterPos,
+                  })
+                  .run();
+              }
+            }
+
+            return false;
+          }),
+      ]);
+
+    const handleEnter = (withShift = false) => {
+      return this.editor.commands.first(({ commands, tr }) => [
+        // Removes a level of nesting if the block is empty & indented, while the selection is also empty & at the start
+        // of the block.
+        () =>
+          commands.command(({ state }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+            const { bnBlock: blockContainer, blockContent } = blockInfo;
+
+            const { depth } = state.doc.resolve(blockContainer.beforePos);
+
+            const selectionAtBlockStart =
+              state.selection.$anchor.parentOffset === 0;
+            const selectionEmpty =
+              state.selection.anchor === state.selection.head;
+            const blockEmpty = blockContent.node.childCount === 0;
+            const blockIndented = depth > 1;
+
+            if (
+              selectionAtBlockStart &&
+              selectionEmpty &&
+              blockEmpty &&
+              blockIndented
+            ) {
+              return commands.liftListItem("blockContainer");
+            }
+
+            return false;
+          }),
+        // Creates a hard break if block is configured to do so.
+        () =>
+          commands.command(({ state }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+
+            const blockHardBreakShortcut =
+              this.options.editor.schema.blockSchema[
+                blockInfo.blockNoteType as keyof typeof this.options.editor.schema.blockSchema
+              ].meta?.hardBreakShortcut ?? "shift+enter";
+
+            if (blockHardBreakShortcut === "none") {
+              return false;
+            }
+
+            if (
+              // If shortcut is not configured, or is configured as "shift+enter",
+              // create a hard break for shift+enter, but not for enter.
+              (blockHardBreakShortcut === "shift+enter" && withShift) ||
+              // If shortcut is configured as "enter", create a hard break for
+              // both enter and shift+enter.
+              blockHardBreakShortcut === "enter"
+            ) {
+              const marks =
+                tr.storedMarks ||
+                tr.selection.$head
+                  .marks()
+                  .filter((m) =>
+                    this.editor.extensionManager.splittableMarks.includes(
+                      m.type.name,
+                    ),
+                  );
+
+              tr.insert(
+                tr.selection.head,
+                tr.doc.type.schema.nodes.hardBreak.create(),
+              ).ensureMarks(marks);
+              return true;
+            }
+
+            return false;
+          }),
+        // Creates a new block and moves the selection to it if the current one is empty, while the selection is also
+        // empty & at the start of the block.
+        () =>
+          commands.command(({ state, dispatch, tr }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+            const { bnBlock: blockContainer, blockContent } = blockInfo;
+
+            const selectionAtBlockStart =
+              state.selection.$anchor.parentOffset === 0;
+            const selectionEmpty =
+              state.selection.anchor === state.selection.head;
+            const blockEmpty = blockContent.node.childCount === 0;
+
+            if (selectionAtBlockStart && selectionEmpty && blockEmpty) {
+              const newBlockInsertionPos = blockContainer.afterPos;
+              const newBlockContentPos = newBlockInsertionPos + 2;
+
+              if (dispatch) {
+                // Creates a new block with the children of the current block,
+                // if it has any.
+                const newBlock = state.schema.nodes[
+                  "blockContainer"
+                ].createAndFill(
+                  undefined,
+                  [
+                    state.schema.nodes["paragraph"].createAndFill() ||
+                      undefined,
+                    blockInfo.childContainer?.node,
+                  ].filter((node) => node !== undefined),
+                )!;
+
+                // Inserts the new block and moves the selection to it.
+                tr.insert(newBlockInsertionPos, newBlock)
+                  .setSelection(
+                    new TextSelection(tr.doc.resolve(newBlockContentPos)),
+                  )
+                  .scrollIntoView();
+
+                // Deletes old block's children, as they have been moved to
+                // the new one.
+                if (blockInfo.childContainer) {
+                  tr.delete(
+                    blockInfo.childContainer.beforePos,
+                    blockInfo.childContainer.afterPos,
+                  );
+                }
+              }
+
+              return true;
+            }
+
+            return false;
+          }),
+        // Splits the current block, moving content inside that's after the cursor to a new text block below. Also
+        // deletes the selection beforehand, if it's not empty.
+        () =>
+          commands.command(({ state, chain }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+            const { blockContent } = blockInfo;
+
+            const selectionAtBlockStart =
+              state.selection.$anchor.parentOffset === 0;
+            const blockEmpty = blockContent.node.childCount === 0;
+
+            if (!blockEmpty) {
+              chain()
+                .deleteSelection()
+                .command(
+                  splitBlockCommand(
+                    state.selection.from,
+                    selectionAtBlockStart,
+                    selectionAtBlockStart,
+                  ),
+                )
+                .run();
+
+              return true;
+            }
+
+            return false;
+          }),
+      ]);
+    };
+
+    return {
+      Backspace: handleBackspace,
+      Delete: handleDelete,
+      Enter: () => handleEnter(),
+      "Shift-Enter": () => handleEnter(true),
+      // Always returning true for tab key presses ensures they're not captured by the browser. Otherwise, they blur the
+      // editor since the browser will try to use tab for keyboard navigation.
+      Tab: () => {
+        if (
+          this.options.tabBehavior !== "prefer-indent" &&
+          (this.options.editor.getExtension(FormattingToolbarExtension)?.store
+            .state ||
+            this.options.editor.getExtension(FilePanelExtension)?.store
+              .state !== undefined)
+          // TODO need to check if the link toolbar is open or another alternative entirely
+        ) {
+          // don't handle tabs if a toolbar is shown, so we can tab into / out of it
+          return false;
+        }
+        return nestBlock(this.options.editor);
+      },
+      "Shift-Tab": () => {
+        if (
+          this.options.tabBehavior !== "prefer-indent" &&
+          (this.options.editor.getExtension(FormattingToolbarExtension)?.store
+            .state ||
+            this.options.editor.getExtension(FilePanelExtension)?.store
+              .state !== undefined)
+          // TODO need to check if the link toolbar is open or another alternative entirely
+          // other menu types?
+        ) {
+          // don't handle tabs if a toolbar is shown, so we can tab into / out of it
+          return false;
+        }
+        return this.editor.commands.liftListItem("blockContainer");
+      },
+      "Shift-Mod-ArrowUp": () => {
+        this.options.editor.moveBlocksUp();
+        return true;
+      },
+      "Shift-Mod-ArrowDown": () => {
+        this.options.editor.moveBlocksDown();
+        return true;
+      },
+      "Mod-z": () => this.options.editor.undo(),
+      "Mod-y": () => this.options.editor.redo(),
+      "Shift-Mod-z": () => this.options.editor.redo(),
+    };
+  },
+});

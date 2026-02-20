@@ -1,68 +1,57 @@
-import {
-  BlockSchema,
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "@blocknote/core";
-import { UseFloatingOptions, flip, offset } from "@floating-ui/react";
-import { FC } from "react";
+import { FilePanelExtension } from "@blocknote/core/extensions";
+import { flip, offset } from "@floating-ui/react";
+import { FC, useMemo } from "react";
 
-import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
-import { useUIElementPositioning } from "../../hooks/useUIElementPositioning.js";
-import { useUIPluginState } from "../../hooks/useUIPluginState.js";
 import { FilePanel } from "./FilePanel.js";
 import { FilePanelProps } from "./FilePanelProps.js";
+import { BlockPopover } from "../Popovers/BlockPopover.js";
+import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
+import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 
-export const FilePanelController = <
-  B extends BlockSchema = DefaultBlockSchema,
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema,
->(props: {
-  filePanel?: FC<FilePanelProps<I, S>>;
-  floatingOptions?: Partial<UseFloatingOptions>;
+export const FilePanelController = (props: {
+  filePanel?: FC<FilePanelProps>;
+  floatingUIOptions?: FloatingUIOptions;
 }) => {
-  const editor = useBlockNoteEditor<B, I, S>();
+  const editor = useBlockNoteEditor<any, any, any>();
 
-  if (!editor.filePanel) {
-    throw new Error(
-      "FileToolbarController can only be used when BlockNote editor schema contains file block",
-    );
-  }
+  const filePanel = useExtension(FilePanelExtension);
+  const blockId = useExtensionState(FilePanelExtension);
 
-  const state = useUIPluginState(
-    editor.filePanel.onUpdate.bind(editor.filePanel),
-  );
+  const floatingUIOptions = useMemo<FloatingUIOptions>(
+    () => ({
+      ...props.floatingUIOptions,
+      useFloatingOptions: {
+        open: !!blockId,
+        // Needed as hooks like `useDismiss` call `onOpenChange` to change the
+        // open state.
+        onOpenChange: (open, _event, reason) => {
+          if (!open) {
+            filePanel.closeMenu();
+          }
 
-  const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(
-    state?.show || false,
-    state?.referencePos || null,
-    5000,
-    {
-      placement: "bottom",
-      middleware: [offset(10), flip()],
-      onOpenChange: (open) => {
-        if (!open) {
-          editor.filePanel!.closeMenu();
-          editor.focus();
-        }
+          if (reason === "escape-key") {
+            editor.focus();
+          }
+        },
+        middleware: [offset(10), flip()],
+        ...props.floatingUIOptions?.useFloatingOptions,
       },
-      ...props.floatingOptions,
-    },
+      elementProps: {
+        style: {
+          zIndex: 90,
+        },
+        ...props.floatingUIOptions?.elementProps,
+      },
+    }),
+    [blockId, editor, filePanel, props.floatingUIOptions],
   );
-
-  if (!isMounted || !state) {
-    return null;
-  }
-
-  const { show, referencePos, ...data } = state;
 
   const Component = props.filePanel || FilePanel;
 
   return (
-    <div ref={ref} style={style} {...getFloatingProps()}>
-      <Component {...data} />
-    </div>
+    <BlockPopover blockId={blockId} {...floatingUIOptions}>
+      {blockId && <Component blockId={blockId} />}
+    </BlockPopover>
   );
 };

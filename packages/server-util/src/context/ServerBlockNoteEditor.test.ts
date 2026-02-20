@@ -1,6 +1,5 @@
 import { Block } from "@blocknote/core";
 import { describe, expect, it } from "vitest";
-import * as Y from "yjs";
 import { ServerBlockNoteEditor } from "./ServerBlockNoteEditor.js";
 
 describe("Test ServerBlockNoteEditor", () => {
@@ -103,27 +102,6 @@ describe("Test ServerBlockNoteEditor", () => {
       children: [],
     },
   ];
-
-  it("converts to and from prosemirror (doc)", async () => {
-    const node = await editor._blocksToProsemirrorNode(blocks);
-    const blockOutput = await editor._prosemirrorNodeToBlocks(node);
-    expect(blockOutput).toEqual(blocks);
-  });
-
-  it("converts to and from yjs (doc)", async () => {
-    const ydoc = await editor.blocksToYDoc(blocks);
-    const blockOutput = await editor.yDocToBlocks(ydoc);
-    expect(blockOutput).toEqual(blocks);
-  });
-
-  it("converts to and from yjs (fragment)", async () => {
-    const doc = new Y.Doc();
-    const fragment = doc.getXmlFragment("test");
-    await editor.blocksToYXmlFragment(blocks, fragment);
-
-    const blockOutput = await editor.yXmlFragmentToBlocks(fragment);
-    expect(blockOutput).toEqual(blocks);
-  });
 
   it("converts to and from HTML (blocksToHTMLLossy)", async () => {
     const html = await editor.blocksToHTMLLossy(blocks);

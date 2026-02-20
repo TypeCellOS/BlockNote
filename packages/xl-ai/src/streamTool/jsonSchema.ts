@@ -1,3 +1,4 @@
+import { jsonSchema, ToolSet } from "ai";
 import type { JSONSchema7, JSONSchema7Definition } from "json-schema";
 import isEqual from "lodash.isequal";
 import { StreamTool } from "./streamTool.js";
@@ -76,5 +77,14 @@ export function createStreamToolsArraySchema(
     additionalProperties: false,
     required: ["operations"] as string[],
     $defs: Object.keys($defs).length > 0 ? $defs : undefined,
+  };
+}
+
+export function streamToolsToToolSet(streamTools: StreamTool<any>[]): ToolSet {
+  return {
+    applyDocumentOperations: {
+      inputSchema: jsonSchema(createStreamToolsArraySchema(streamTools)),
+      outputSchema: jsonSchema({ type: "object" }),
+    },
   };
 }

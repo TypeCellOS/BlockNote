@@ -1,9 +1,8 @@
+import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
 import {
-  BlockNoteSchema,
-  defaultBlockSpecs,
   filterSuggestionItems,
-  insertOrUpdateBlock,
-} from "@blocknote/core";
+  insertOrUpdateBlockForSlashMenu,
+} from "@blocknote/core/extensions";
 import { en } from "@blocknote/core/locales";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
@@ -39,7 +38,7 @@ const schema = BlockNoteSchema.create({
 const insertPDF = (editor: typeof schema.BlockNoteEditor) => ({
   title: "PDF",
   onItemClick: () => {
-    insertOrUpdateBlock(editor, {
+    insertOrUpdateBlockForSlashMenu(editor, {
       type: "pdf",
     });
   },

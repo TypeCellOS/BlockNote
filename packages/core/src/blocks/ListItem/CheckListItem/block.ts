@@ -1,4 +1,4 @@
-import { createBlockNoteExtension } from "../../../editor/BlockNoteExtension.js";
+import { createExtension } from "../../../editor/BlockNoteExtension.js";
 import { createBlockConfig, createBlockSpec } from "../../../schema/index.js";
 import {
   addDefaultPropsExternalHTML,
@@ -82,7 +82,11 @@ export const createCheckListItemBlockSpec = createBlockSpec(
       if (block.props.checked) {
         checkbox.setAttribute("checked", "");
       }
+      checkbox.disabled = !editor.isEditable;
       checkbox.addEventListener("change", () => {
+        if (!editor.isEditable) {
+          return;
+        }
         editor.updateBlock(block, { props: { checked: !block.props.checked } });
       });
       // We use a <p> tag, because for <li> tags we'd need a <ul> element to put
@@ -90,7 +94,10 @@ export const createCheckListItemBlockSpec = createBlockSpec(
       // schema.
       const paragraph = document.createElement("p");
 
-      dom.appendChild(checkbox);
+      const div = document.createElement("div");
+      div.contentEditable = "false";
+      div.appendChild(checkbox);
+      dom.appendChild(div);
       dom.appendChild(paragraph);
 
       return {
@@ -123,7 +130,7 @@ export const createCheckListItemBlockSpec = createBlockSpec(
     runsBefore: ["bulletListItem"],
   },
   [
-    createBlockNoteExtension({
+    createExtension({
       key: "check-list-item-shortcuts",
       keyboardShortcuts: {
         Enter: ({ editor }) => {
@@ -148,19 +155,18 @@ export const createCheckListItemBlockSpec = createBlockSpec(
       },
       inputRules: [
         {
-          find: new RegExp(`\\[\\s*\\]\\s$`),
+          find: /^\s?\[\s*\]\s$/,
           replace() {
             return {
               type: "checkListItem",
               props: {
                 checked: false,
               },
-              content: [],
             };
           },
         },
         {
-          find: new RegExp(`\\[[Xx]\\]\\s$`),
+          find: /^\s?\[[Xx]\]\s$/,
           replace() {
             return {
               type: "checkListItem",

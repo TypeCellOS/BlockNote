@@ -1,8 +1,7 @@
 ---
 title: Markdown
 description: It's possible to import Markdown content into BlockNote blocks, completely client-side.
-imageTitle: BlockNote Markdown Import
-path: /docs/converting-blocks
+imageTitle: Markdown Import
 ---
 
 # Markdown Import
@@ -21,10 +20,10 @@ BlockNote can import Markdown content into Block objects. Note that this is cons
 Use `tryParseMarkdownToBlocks` to try parsing a Markdown string into `Block` objects:
 
 ```typescript
-async tryParseMarkdownToBlocks(markdown: string): Promise<Blocks[]>;
+tryParseMarkdownToBlocks(markdown: string): Block[];
 
 // Usage
-const blocksFromMarkdown = await editor.tryParseMarkdownToBlocks(markdown);
+const blocksFromMarkdown = editor.tryParseMarkdownToBlocks(markdown);
 ```
 
 `returns:` The blocks parsed from the Markdown string.

@@ -25,15 +25,12 @@ export const SuggestionMenuItem = forwardRef<
       return;
     }
 
-    const overflow = elementOverflow(
-      itemRef.current,
-      document.querySelector(".bn-suggestion-menu, #ai-suggestion-menu")!, // TODO
-    );
+    const overflow = elementOverflow(itemRef.current, itemRef.current.closest(
+      ".bn-suggestion-menu, #ai-suggestion-menu"
+    )!);
 
-    if (overflow === "top") {
-      itemRef.current.scrollIntoView(true);
-    } else if (overflow === "bottom") {
-      itemRef.current.scrollIntoView(false);
+    if (overflow !== "none") {
+      itemRef.current.scrollIntoView({ block: "nearest" });
     }
   }, [isSelected]);
 

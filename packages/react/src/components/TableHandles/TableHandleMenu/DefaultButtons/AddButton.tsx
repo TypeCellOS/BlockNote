@@ -1,38 +1,27 @@
-import {
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "@blocknote/core";
+import { TableHandlesExtension } from "@blocknote/core/extensions";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
-import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
 import { useDictionary } from "../../../../i18n/dictionary.js";
-import { TableHandleMenuProps } from "../TableHandleMenuProps.js";
+import {
+  useExtension,
+  useExtensionState,
+} from "../../../../hooks/useExtension.js";
 
-export const AddButton = <
-  I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema,
->(
-  props: TableHandleMenuProps<I, S> &
-    (
-      | { orientation: "row"; side: "above" | "below" }
-      | { orientation: "column"; side: "left" | "right" }
-    ),
+export const AddButton = (
+  props:
+    | { orientation: "row"; side: "above" | "below" }
+    | { orientation: "column"; side: "left" | "right" },
 ) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  const editor = useBlockNoteEditor<
-    { table: DefaultBlockSchema["table"] },
-    I,
-    S
-  >();
+  const tableHandles = useExtension(TableHandlesExtension);
+  const index = useExtensionState(TableHandlesExtension, {
+    selector: (state) =>
+      props.orientation === "column" ? state?.colIndex : state?.rowIndex,
+  });
 
-  const tableHandles = editor.tableHandles;
-
-  if (!tableHandles) {
+  if (tableHandles === undefined || index === undefined) {
     return null;
   }
 
@@ -40,7 +29,7 @@ export const AddButton = <
     <Components.Generic.Menu.Item
       onClick={() => {
         tableHandles.addRowOrColumn(
-          props.index,
+          index,
           props.orientation === "row"
             ? { orientation: "row", side: props.side }
             : { orientation: "column", side: props.side },

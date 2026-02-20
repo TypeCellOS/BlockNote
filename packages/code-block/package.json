@@ -9,7 +9,7 @@
     "directory": "packages/code-block"
   },
   "license": "MPL-2.0",
-  "version": "0.41.1",
+  "version": "0.46.2",
   "files": [
     "dist",
     "types",
@@ -49,13 +49,13 @@
     "test-watch": "vitest watch"
   },
   "dependencies": {
-    "@blocknote/core": "0.41.1",
-    "@shikijs/core": "^3.13.0",
-    "@shikijs/engine-javascript": "^3.13.0",
-    "@shikijs/langs": "^3.13.0",
-    "@shikijs/langs-precompiled": "^3.13.0",
-    "@shikijs/themes": "^3.13.0",
-    "@shikijs/types": "^3.13.0"
+    "@blocknote/core": "0.46.2",
+    "@shikijs/core": "^3",
+    "@shikijs/engine-javascript": "^3",
+    "@shikijs/langs": "^3",
+    "@shikijs/langs-precompiled": "^3",
+    "@shikijs/themes": "^3",
+    "@shikijs/types": "^3"
   },
   "devDependencies": {
     "eslint": "^8.57.1",

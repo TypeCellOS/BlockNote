@@ -125,7 +125,7 @@
   -moz-osx-font-smoothing: var(--mantine-moz-font-smoothing);
 }
 
-@media screen and (max-device-width: em(500px)) {
+@media screen and (max-device-width: 500px) {
   .bn-mantine {
     -webkit-text-size-adjust: 100%;
   }

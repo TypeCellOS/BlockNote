@@ -1,11 +1,10 @@
 import { getErrorMessage } from "@ai-sdk/provider-utils";
-import { Chat } from "@ai-sdk/react";
+import type { Chat } from "@ai-sdk/react";
 import { DeepPartial, isToolUIPart, UIMessage } from "ai";
-import { StreamTool, StreamToolCall } from "../../streamTool.js";
-import {
-  ChunkExecutionError,
-  StreamToolExecutor,
-} from "../../StreamToolExecutor.js";
+import { ChunkExecutionError } from "../../ChunkExecutionError.js";
+import { Result, StreamTool, StreamToolCall } from "../../streamTool.js";
+import { StreamToolExecutor } from "../../StreamToolExecutor.js";
+import { createAppendableStream } from "./appendableStream.js";
 import { objectStreamToOperationsResult } from "./UIMessageStreamToOperationsResult.js";
 
 /**
@@ -29,20 +28,21 @@ import { objectStreamToOperationsResult } from "./UIMessageStreamToOperationsRes
  */
 export async function setupToolCallStreaming(
   streamTools: StreamTool<any>[],
-  chat: Chat<UIMessage>,
+  chat: Chat<any>,
   onStart?: () => void,
-) {
+  abortSignal?: AbortSignal,
+): Promise<Result<void>> {
   /*
   We use a single executor even for multiple tool calls.
   This is because a tool call operation (like Add), might behave differently
   if a block has been added earlier (i.e.: executing tools can keep state, 
   and this state is shared across parallel tool calls).
   */
-  const executor = new StreamToolExecutor(streamTools);
+  const executor = new StreamToolExecutor(streamTools, abortSignal);
 
   const appendableStream = createAppendableStream<any>();
 
-  appendableStream.output.pipeTo(executor.writable);
+  const pipeToPromise = appendableStream.output.pipeTo(executor.writable);
 
   const toolCallStreams = new Map<string, ToolCallStreamData>();
 
@@ -112,11 +112,25 @@ export async function setupToolCallStreaming(
   await appendableStream.finalize();
   // let all stream executors finish, this can take longer due to artificial delays
   // (e.g. to simulate human typing behaviour)
-  const result = (await Promise.allSettled([executor.finish()]))[0];
+  const results = await Promise.allSettled([executor.finish(), pipeToPromise]); // awaiting pipeToPromise as well to prevent unhandled promises
+  const result = results[0];
+
+  if (
+    results[1].status === "rejected" &&
+    (results[0].status !== "rejected" ||
+      results[0].reason !== results[1].reason)
+  ) {
+    throw new Error(
+      "unexpected, pipeToPromise rejected but executor.finish() doesn't have same error!?",
+    );
+  }
 
   let error: ChunkExecutionError | undefined;
+
   if (result.status === "rejected") {
     if (result.reason instanceof ChunkExecutionError) {
+      // all errors thrown in the pipeline should be ChunkExecutionErrors,
+      // so we can retrieve the chunk that caused the error
       error = result.reason;
     } else {
       if (!chat.error) {
@@ -140,78 +154,36 @@ export async function setupToolCallStreaming(
       errorSeen = true;
     }
 
-    chat.addToolResult({
-      tool: toolCalls[index].toolName,
-      toolCallId: toolCalls[index].toolCallId,
-      output:
-        errorSeen === false
-          ? { status: "ok" }
-          : isErrorTool
+    // TODO: it would be better to add these tool outputs "live" as they occur,
+    // possibly including a callback to create checkpoints after applying a tool
+    if (!errorSeen) {
+      chat.addToolOutput({
+        state: "output-available",
+        tool: toolCalls[index].toolName,
+        toolCallId: toolCalls[index].toolCallId,
+
+        output: { status: "ok" },
+      });
+    } else {
+      chat.addToolOutput({
+        tool: toolCalls[index].toolName,
+        toolCallId: toolCalls[index].toolCallId,
+        state: "output-error",
+        errorText: JSON.stringify(
+          isErrorTool
             ? { status: "error", error: getErrorMessage(error) }
             : { status: "not-executed-previous-tool-errored" },
-    });
-  });
-
-  if (error) {
-    throw error;
-  }
-
-  if (chat.error) {
-    // response failed
-    throw chat.error;
-  }
-}
-
-function createAppendableStream<T>() {
-  let controller: ReadableStreamDefaultController<T>;
-  let ready = Promise.resolve();
-  let canceled = false;
-  const output = new ReadableStream({
-    start(c) {
-      controller = c;
-    },
-    cancel(reason) {
-      canceled = true;
-      controller.error(reason);
-    },
-  });
-
-  async function append(readable: ReadableStream<T>) {
-    if (canceled) {
-      throw new Error("Appendable stream canceled, can't append");
+        ),
+      });
     }
-    const reader = readable.getReader();
+  });
 
-    // Chain appends in sequence
-    ready = ready.then(async () => {
-      // eslint-disable-next-line no-constant-condition
-      while (true) {
-        try {
-          const { done, value } = await reader.read();
-          if (done || canceled) {
-            break;
-          }
-          controller.enqueue(value);
-        } catch (e) {
-          canceled = true;
-          controller.error(e);
-          break;
-        }
+  return error
+    ? {
+        ok: false,
+        error,
       }
-    });
-
-    return ready;
-  }
-
-  async function finalize() {
-    await ready; // wait for last appended stream to finish
-
-    if (!canceled) {
-      controller.close(); // only close once no more streams will come
-    }
-  }
-
-  return { output, append, finalize };
+    : { ok: true, value: void 0 };
 }
 
 // Types for tool call streaming
@@ -237,6 +209,7 @@ function processToolCallParts(
     toolCallId: string;
   }) => ToolCallStreamData,
 ) {
+  // TODO: better to check if tool has output instead of hardcoding lastMessage
   for (const part of chat.lastMessage?.parts ?? []) {
     if (!isToolUIPart(part)) {
       continue;

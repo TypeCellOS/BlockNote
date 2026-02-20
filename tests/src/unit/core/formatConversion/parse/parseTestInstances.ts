@@ -816,6 +816,15 @@ With Hard Break</p>
   },
   {
     testCase: {
+      name: "codeBlocksMultiLine",
+      content: `<pre><code>console.log("First Line")
+console.log("Second Line")
+console.log("Third Line")</code></pre>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
       name: "basicBlockquote",
       content: `<blockquote>This is a blockquote</blockquote>
 <p>This is not a blockquote</p>`,
@@ -924,6 +933,20 @@ With Hard Break</p>
   },
   {
     testCase: { name: "divider", content: `<hr/>` },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "trailing whitespace",
+      content: `<p>hello, </p>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "whitespace prefix",
+      content: `<p> hello,</p>`,
+    },
     executeTest: testParseHTML,
   },
 ];

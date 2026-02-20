@@ -40,6 +40,7 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
       middlewares={{ flip: true, shift: true, inline: false, size: true }}
       onChange={onOpenChange}
       position={position}
+      returnFocus={false}
     >
       {children}
     </MantineMenu>

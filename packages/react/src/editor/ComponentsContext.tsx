@@ -273,6 +273,7 @@ export type ComponentProps = {
         onChange: (event: ChangeEvent<HTMLInputElement>) => void;
         onSubmit?: () => void;
         autoComplete?: HTMLInputAutoCompleteAttribute;
+        "aria-activedescendant"?: string;
       };
     };
     Menu: {
@@ -316,7 +317,8 @@ export type ComponentProps = {
     };
     Popover: {
       Root: {
-        opened?: boolean;
+        open?: boolean;
+        onOpenChange?: (open: boolean) => void;
         position?:
           | "top"
           | "right"

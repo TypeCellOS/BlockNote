@@ -1,18 +1,11 @@
-import {
-  BlockNoteEditor,
-  BlockSchema,
-  LinkToolbarState,
-  InlineContentSchema,
-  StyleSchema,
-  UiElementPosition,
-} from "@blocknote/core";
+import { Range } from "@tiptap/core";
+import { ReactNode } from "react";
 
-export type LinkToolbarProps = Omit<LinkToolbarState, keyof UiElementPosition> &
-  Pick<
-    BlockNoteEditor<
-      BlockSchema,
-      InlineContentSchema,
-      StyleSchema
-    >["linkToolbar"],
-    "deleteLink" | "editLink" | "startHideTimer" | "stopHideTimer"
-  >;
+export type LinkToolbarProps = {
+  url: string;
+  text: string;
+  range: Range;
+  setToolbarOpen?: (open: boolean) => void;
+  setToolbarPositionFrozen?: (frozen: boolean) => void;
+  children?: ReactNode;
+};

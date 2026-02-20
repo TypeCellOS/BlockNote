@@ -1,3 +1,4 @@
+import { isNodeSelection, posToDOMRect } from "@tiptap/core";
 import {
   getSelection,
   getSelectionCutBlocks,
@@ -7,21 +8,20 @@ import {
   getTextCursorPosition,
   setTextCursorPosition,
 } from "../../api/blockManipulation/selections/textCursorPosition.js";
-import { isNodeSelection, posToDOMRect } from "@tiptap/core";
+import {
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
+} from "../../blocks/defaultBlocks.js";
 import {
   BlockIdentifier,
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
 } from "../../schema/index.js";
-import {
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-} from "../../blocks/defaultBlocks.js";
-import { Selection } from "../selectionTypes.js";
-import { TextCursorPosition } from "../cursorPositionTypes.js";
 import { BlockNoteEditor } from "../BlockNoteEditor.js";
+import { TextCursorPosition } from "../cursorPositionTypes.js";
+import { Selection } from "../selectionTypes.js";
 
 export class SelectionManager<
   BSchema extends BlockSchema = DefaultBlockSchema,
@@ -47,8 +47,8 @@ export class SelectionManager<
    * If the selection starts / ends halfway through a block, the returned block will be
    * only the part of the block that is included in the selection.
    */
-  public getSelectionCutBlocks() {
-    return this.editor.transact((tr) => getSelectionCutBlocks(tr));
+  public getSelectionCutBlocks(expandToWords = false) {
+    return this.editor.transact((tr) => getSelectionCutBlocks(tr, expandToWords));
   }
 
   /**
@@ -109,6 +109,10 @@ export class SelectionManager<
       }
     }
 
-    return posToDOMRect(this.editor.prosemirrorView, from, to);
+    return posToDOMRect(
+      this.editor.prosemirrorView,
+      from,
+      to,
+    ).toJSON() as DOMRect;
   }
 }

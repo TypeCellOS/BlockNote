@@ -635,10 +635,6 @@
   box-shadow: none;
 }
 
-.bn-mantine .bn-thread:not(.selected) {
-  cursor: pointer;
-}
-
 .bn-mantine .bn-thread-comments,
 .bn-mantine .bn-thread-composer {
   display: flex;

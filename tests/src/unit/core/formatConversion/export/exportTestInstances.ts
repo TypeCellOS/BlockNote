@@ -1717,6 +1717,18 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
     },
     executeTest: testExportBlockNoteHTML,
   },
+  {
+    testCase: {
+      name: "custom-blocks/simpleCustomParagraph",
+      content: [
+        {
+          type: "simpleCustomParagraph",
+          content: "Simple Custom Paragraph",
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
 ];
 
 export const exportTestInstancesHTML: TestInstance<

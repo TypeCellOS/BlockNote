@@ -1,0 +1,31 @@
+{
+  "name": "@blocknote/example-basic-shadowdom",
+  "description": "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
+  "type": "module",
+  "private": true,
+  "version": "0.12.4",
+  "scripts": {
+    "start": "vite",
+    "dev": "vite",
+    "build:prod": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@blocknote/ariakit": "latest",
+    "@blocknote/core": "latest",
+    "@blocknote/mantine": "latest",
+    "@blocknote/react": "latest",
+    "@blocknote/shadcn": "latest",
+    "@mantine/core": "^8.3.11",
+    "@mantine/hooks": "^8.3.11",
+    "@mantine/utils": "^6.0.22",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.3",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^4.7.0",
+    "vite": "^5.4.20"
+  }
+}

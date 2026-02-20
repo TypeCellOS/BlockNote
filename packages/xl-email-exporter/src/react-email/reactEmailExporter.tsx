@@ -250,9 +250,14 @@ export class ReactEmailExporter<
       const children = await this.transformBlocks(b.children, nestingLevel + 1);
       const self = (await this.mapBlock(b as any, nestingLevel, 0)) as any;
       const style = this.blocknoteDefaultPropsToReactEmailStyle(b.props as any);
+
       ret.push(
         <React.Fragment key={b.id}>
-          <Section style={style}>{self}</Section>
+          {Object.entries(style).length > 0 ? (
+            <div style={style}>{self}</div> // TODO: maybe nicer to set style on child element instead of wrapping in a div?
+          ) : (
+            self
+          )}
           {children.length > 0 && (
             <div style={{ marginLeft: "24px" }}>{children}</div>
           )}
@@ -292,6 +297,16 @@ export class ReactEmailExporter<
        * Customize the container element
        */
       container?: React.FC<{ children: React.ReactNode }>;
+      /**
+       * Customize the body styles
+       * @default {
+       *   fontFamily: "'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif",
+       *   fontSize: "16px",
+       *   lineHeight: "1.5",
+       *   color: "#333",
+       * }
+       */
+      bodyStyles?: CSSProperties;
     },
   ) {
     const transformedBlocks = await this.transformBlocks(blocks);
@@ -300,17 +315,27 @@ export class ReactEmailExporter<
       (({ children }: { children: React.ReactNode }) => (
         <React.Fragment>{children}</React.Fragment>
       ));
-    return renderEmail(
+    const needsPolyfill = !globalThis.ReadableByteStreamController;
+    if (needsPolyfill) {
+      // needed for safari compatibility;
+      // https://github.com/resend/react-email/blob/f02e21e998d507aa3fdfbb7b8639f915b8df6cb5/apps/docs/utilities/render.mdx#3-convert-to-html
+      (globalThis as any).ReadableByteStreamController = (
+        await import("web-streams-polyfill")
+      ).default.ReadableByteStreamController;
+    }
+    const ret = await renderEmail(
       <Html>
         <Head>{options?.head}</Head>
         <Body
-          style={{
-            fontFamily:
-              "'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif",
-            fontSize: "16px",
-            lineHeight: "1.5",
-            color: "#333",
-          }}
+          style={
+            options?.bodyStyles ?? {
+              fontFamily:
+                "'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif",
+              fontSize: "16px",
+              lineHeight: "1.5",
+              color: "#333",
+            }
+          }
         >
           {options?.preview && <Preview>{options.preview}</Preview>}
           <Tailwind>
@@ -323,25 +348,26 @@ export class ReactEmailExporter<
         </Body>
       </Html>,
     );
+    if (needsPolyfill) {
+      delete (globalThis as any).ReadableByteStreamController;
+    }
+    return ret;
   }
 
   protected blocknoteDefaultPropsToReactEmailStyle(
     props: Partial<DefaultProps>,
-  ): any {
-    return {
-      textAlign: props.textAlignment,
+  ): CSSProperties {
+    const style: CSSProperties = {
+      textAlign:
+        props.textAlignment === "left" ? undefined : props.textAlignment,
       backgroundColor:
         props.backgroundColor === "default" || !props.backgroundColor
           ? undefined
-          : this.options.colors[
-              props.backgroundColor as keyof typeof this.options.colors
-            ].background,
+          : this.options.colors[props.backgroundColor]?.background,
       color:
         props.textColor === "default" || !props.textColor
           ? undefined
-          : this.options.colors[
-              props.textColor as keyof typeof this.options.colors
-            ].text,
+          : this.options.colors[props.textColor]?.text,
       alignItems:
         props.textAlignment === "right"
           ? "flex-end"
@@ -349,5 +375,8 @@ export class ReactEmailExporter<
             ? "center"
             : undefined,
     };
+    return Object.fromEntries(
+      Object.entries(style).filter(([_, value]) => value !== undefined),
+    );
   }
 }

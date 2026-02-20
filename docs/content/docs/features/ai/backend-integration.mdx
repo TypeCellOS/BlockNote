@@ -11,12 +11,16 @@ The most common (and recommended) setup to integrate BlockNote AI with an LLM is
 ## Default setup (Vercel AI SDK)
 
 The example below closely follows the [basic example from the Vercel AI SDK](https://ai-sdk.dev/docs/ai-sdk-ui/chatbot#example) for Next.js.
-The only difference is that we're retrieving the BlockNote tools from the request body and using the `toolDefinitionsToToolSet` function to convert them to AI SDK tools. The LLM will now be able to invoke these tools to make modifications to the BlockNote document as requested by the user. The tool calls are forwarded to the client application where they're handled automatically by the AI Extension.
+The only difference is that we're retrieving the BlockNote tools from the request body and using the `toolDefinitionsToToolSet` function to convert them to AI SDK tools. We also forward the serialized document state (selection, cursor, block IDs) that BlockNote adds to every user message by calling `injectDocumentStateMessages`. The LLM will now be able to invoke these tools to make modifications to the BlockNote document as requested by the user. The tool calls are forwarded to the client application where they're handled automatically by the AI Extension.
 
 ```ts app/api/chat/route.ts
 import { openai } from "@ai-sdk/openai";
 import { convertToModelMessages, streamText } from "ai";
-import { toolDefinitionsToToolSet } from "@blocknote/xl-ai";
+import {
+  aiDocumentFormats,
+  injectDocumentStateMessages,
+  toolDefinitionsToToolSet,
+} from "@blocknote/xl-ai/server";
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -26,7 +30,10 @@ export async function POST(req: Request) {
 
   const result = streamText({
     model: openai("gpt-4.1"), // see https://ai-sdk.dev/docs/foundations/providers-and-models
-    messages: convertToModelMessages(messages),
+    system: aiDocumentFormats.html.systemPrompt,
+    messages: await convertToModelMessages(
+      injectDocumentStateMessages(messages),
+    ),
     tools: toolDefinitionsToToolSet(toolDefinitions),
     toolChoice: "required",
   });
@@ -65,7 +72,7 @@ const model = createOpenAICompatible({
 })('model-id');
 
 // ...
- createAIExtension({
+ AIExtension({
     transport: new ClientSideTransport({
         model,
     }),
@@ -103,4 +110,4 @@ You can connect BlockNote AI features with more advanced AI pipelines. You can i
   with BlockNote AI, [get in touch](/about).
 </Callout>
 
-- By default, BlockNote AI composes the LLM request (messages) based on the user's prompt and passes these to your backend. See [this example](https://github.com/TypeCellOS/BlockNote/blob/main/examples/09-ai/07-server-promptbuilder/src/App.tsx) for an example where composing the LLM request (prompt building) is delegated to the server.
+- By default, BlockNote AI sends the entire LLM chat history to the backend. See [the server persistence example](https://github.com/TypeCellOS/BlockNote/tree/main/examples/09-ai/07-server-persistence) for a pattern where the backend stores chat and only the latest message is sent to the backend.

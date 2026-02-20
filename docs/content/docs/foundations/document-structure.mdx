@@ -1,7 +1,6 @@
 ---
 title: Document Structure
 description: Learn how documents (the content of the rich text editor) are structured to make the most out of BlockNote.
-imageTitle: Document Structure
 ---
 
 # Document Structure
@@ -74,8 +73,7 @@ type CustomInlineContent = {
 };
 
 type InlineContent = Link | StyledText | CustomInlineContent;
-
-````
+```
 
 The `styles` property is explained below.
 
@@ -130,6 +128,9 @@ While both of these act as regular blocks, there are a few additional restrictio
 ```typescript
 type TableContent = {
   type: "tableContent";
+  columnWidths: (number | undefined)[];
+  headerRows?: number;
+  headerCols?: number;
   rows: {
     cells: InlineContent[][];
   }[];

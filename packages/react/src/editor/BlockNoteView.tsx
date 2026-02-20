@@ -10,7 +10,6 @@ import React, {
   ReactNode,
   Ref,
   useCallback,
-  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -141,10 +140,6 @@ function BlockNoteViewComponent<
   useEditorChange(onChange || emptyFn, editor);
   useEditorSelectionChange(onSelectionChange || emptyFn, editor);
 
-  useEffect(() => {
-    editor.isEditable = editable !== false;
-  }, [editable, editor]);
-
   const setElementRenderer = useCallback(
     (ref: (typeof editor)["elementRenderer"]) => {
       editor.elementRenderer = ref;
@@ -170,6 +165,7 @@ function BlockNoteViewComponent<
       editorProps: {
         autoFocus,
         contentEditableProps,
+        editable,
       },
       defaultUIProps: {
         formattingToolbar,
@@ -185,6 +181,7 @@ function BlockNoteViewComponent<
   }, [
     autoFocus,
     contentEditableProps,
+    editable,
     formattingToolbar,
     linkToolbar,
     slashMenu,
@@ -202,7 +199,6 @@ function BlockNoteViewComponent<
         <BlockNoteViewContainer
           className={className}
           renderEditor={renderEditor}
-          editable={editable}
           editorColorScheme={editorColorScheme}
           ref={ref}
           {...rest}
@@ -222,34 +218,26 @@ const BlockNoteViewContainer = React.forwardRef<
   HTMLDivElement,
   {
     renderEditor: boolean;
-    editable?: boolean;
     editorColorScheme: "light" | "dark";
     children: ReactNode;
   } & Omit<
     HTMLAttributes<HTMLDivElement>,
     "onChange" | "onSelectionChange" | "children"
   >
->(
-  (
-    { className, renderEditor, editable, editorColorScheme, children, ...rest },
-    ref,
-  ) => (
-    <div
-      className={mergeCSSClasses("bn-container", editorColorScheme, className)}
-      data-color-scheme={editorColorScheme}
-      {...rest}
-      ref={ref}
-    >
-      {renderEditor ? (
-        <BlockNoteViewEditor editable={editable}>
-          {children}
-        </BlockNoteViewEditor>
-      ) : (
-        children
-      )}
-    </div>
-  ),
-);
+>(({ className, renderEditor, editorColorScheme, children, ...rest }, ref) => (
+  <div
+    className={mergeCSSClasses("bn-container", editorColorScheme, className)}
+    data-color-scheme={editorColorScheme}
+    {...rest}
+    ref={ref}
+  >
+    {renderEditor ? (
+      <BlockNoteViewEditor>{children}</BlockNoteViewEditor>
+    ) : (
+      children
+    )}
+  </div>
+));
 
 // https://fettblog.eu/typescript-react-generic-forward-refs/
 export const BlockNoteViewRaw = React.forwardRef(BlockNoteViewComponent) as <
@@ -269,10 +257,7 @@ export const BlockNoteViewRaw = React.forwardRef(BlockNoteViewComponent) as <
  * Renders the contentEditable editor itself (.bn-editor element) and the
  * default UI elements.
  */
-export const BlockNoteViewEditor = (props: {
-  editable?: boolean;
-  children?: ReactNode;
-}) => {
+export const BlockNoteViewEditor = (props: { children?: ReactNode }) => {
   const ctx = useBlockNoteViewContext()!;
   const editor = useBlockNoteEditor();
 
@@ -282,12 +267,12 @@ export const BlockNoteViewEditor = (props: {
 
   const mount = useCallback(
     (element: HTMLElement | null) => {
-      if (
-        props.editable !== undefined &&
-        props.editable !== editor.isEditable
-      ) {
-        editor.isEditable = props.editable;
-      }
+      // Set editable state of the actual editor.
+      // We need to re-mount the editor when changing `isEditable` as TipTap 
+      // removes the `tabIndex="0"` attribute we set (see 
+      // `BlockNoteEditor.ts`). Ideally though, this logic would exist in a 
+      // separate hook.
+      editor.isEditable = ctx.editorProps.editable !== false;
       // Since we are not using TipTap's React Components, we need to set up the contentComponent it expects
       // This is a simple replacement for the state management that Tiptap does internally
       editor._tiptapEditor.contentComponent = portalManager;
@@ -297,7 +282,7 @@ export const BlockNoteViewEditor = (props: {
         editor.unmount();
       }
     },
-    [editor, portalManager, props.editable],
+    [ctx.editorProps.editable, editor, portalManager],
   );
 
   return (

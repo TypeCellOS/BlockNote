@@ -1,181 +1,109 @@
-// Custom Docs Layout adapted from base fumadocs Docs Layout:
-// https://github.com/fuma-nama/fumadocs/blob/dev/packages/ui/src/layouts/docs.tsx
+import { Header } from "@/components/fumadocs/layout/home/client";
+import { buttonVariants } from "@/components/fumadocs/ui/button";
+import { cn } from "@/lib/fumadocs/cn";
+import { baseOptions } from "@/lib/layout.shared";
+import { SidebarTrigger } from "fumadocs-ui/components/sidebar/base";
+import { DocsLayout, DocsLayoutProps } from "fumadocs-ui/layouts/docs";
+import { SidebarIcon } from "lucide-react";
+import { FaBook, FaCode } from "react-icons/fa6";
 
-// We customize the docs layout for 2 main reasons:
-// 1. Navbar customization - The base Docs Layout can't have  a navbar at all,
-// while the Notebook & Home Layout navbars are quite different. The custom
-// layout allows us to use the Home Layout navbar for all pages.
-// 2. Sidebar customization - We can now offset the sidebar from the side of
-// the viewport, and have better control of its content for smaller viewports.
-// This is useful as the bas Docs Layout e.g. moves navbar items to the side
-// bar, and forces displaying a footer element even with no content.
-
-// The Custom Docs Layout generally tries to ensure that the options from
-// `layout.config.tsx` all still work, with the exception of items that are
-// already in the navbar.
-
-import type { PageTree } from "fumadocs-core/server";
-import { type HTMLAttributes, type ReactNode, useMemo } from "react";
-import { LuLanguages as Languages } from "react-icons/lu";
-import { cn } from "fumadocs-ui/utils/cn";
-import {
-  Sidebar,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarPageTree,
-  SidebarViewport,
-} from "fumadocs-ui/components/layout/sidebar";
-import { type LinkItemType } from "fumadocs-ui/layouts/links";
-import { RootToggle } from "fumadocs-ui/components/layout/root-toggle";
-import { type BaseLayoutProps, getLinks } from "fumadocs-ui/layouts/shared";
-import {
-  LanguageToggle,
-  LanguageToggleText,
-} from "fumadocs-ui/components/layout/language-toggle";
-import {
-  CollapsibleControl,
-  LayoutBody,
-  Navbar,
-  NavbarSidebarTrigger,
-} from "fumadocs-ui/layouts/docs-client";
-import { TreeContextProvider } from "fumadocs-ui/contexts/tree";
-import { ThemeToggle } from "fumadocs-ui/components/layout/theme-toggle";
-import {
-  getSidebarTabsFromOptions,
-  type SidebarOptions,
-} from "fumadocs-ui/layouts/docs/shared";
-import { NavProvider } from "fumadocs-ui/contexts/layout";
-import { HideIfEmpty } from "fumadocs-core/hide-if-empty";
-import { Header } from "fumadocs-ui/layouts/home";
-
-export interface DocsLayoutProps extends BaseLayoutProps {
-  tree: PageTree.Root;
-
-  sidebar?: Partial<SidebarOptions> & {
-    enabled?: boolean;
-    component?: ReactNode;
-  };
-
-  /**
-   * Props for the `div` container
-   */
-  containerProps?: HTMLAttributes<HTMLDivElement>;
-}
-
+/**
+ * We wrap the default fumadocs docs layout
+ * to add the header (navbar) from the customized home layout
+ *
+ * The default Docs layout doesn't support a navbar on all screensizes
+ */
 export function CustomDocsLayout({
-  nav: { transparentMode, ...nav } = {},
-  sidebar: {
-    tabs: sidebarTabs,
-    footer: sidebarFooter,
-    banner: sidebarBanner,
-    enabled: sidebarEnabled = true,
-    collapsible: sidebarCollapsible = true,
-    component: sidebarComponent,
-    components: sidebarComponents,
-    ...sidebarProps
-  } = {},
-  searchToggle = {},
-  disableThemeSwitch = false,
-  themeSwitch = { enabled: !disableThemeSwitch },
-  i18n = false,
   children,
-  ...props
-}: DocsLayoutProps) {
-  const tabs = useMemo(
-    () => getSidebarTabsFromOptions(sidebarTabs, props.tree) ?? [],
-    [sidebarTabs, props.tree],
-  );
-  const links = getLinks(props.links ?? [], props.githubUrl);
-
-  const variables = cn(
-    "[--fd-layout-offset:0px] [--fd-layout-width:100vw] [--fd-page-width:1280px] md:[--fd-sidebar-width:286px] md:[--fd-toc-width:286px]",
-    !nav.component && nav.enabled !== false
-      ? "[--fd-nav-height:56px]"
-      : undefined,
-  );
-
-  const sidebar = sidebarComponent ?? (
-    <>
-      {sidebarCollapsible ? <CollapsibleControl /> : null}
-      <Sidebar
-        {...sidebarProps}
-        collapsible={sidebarCollapsible}
-        className="md:sticky md:top-[calc(var(--fd-sidebar-top)+32px)] md:h-[calc(100vh-var(--fd-sidebar-top)-32px)]"
-      >
-        <HideIfEmpty>
-          <SidebarHeader className="data-[empty=true]:hidden">
-            {/* Removed navbar links & title. */}
-            {/* Also removed optional collapse button since it messes with
-              the layout. */}
-            {tabs.length > 0 && <RootToggle options={tabs} />}
-            {sidebarBanner}
-          </SidebarHeader>
-        </HideIfEmpty>
-        <SidebarViewport>
-          {/* Removed navbar links. */}
-          <SidebarPageTree components={sidebarComponents} />
-        </SidebarViewport>
-        <HideIfEmpty>
-          <SidebarFooter className="data-[empty=true]:hidden">
-            {/* Removed navbar links. */}
-            <div className="flex items-center justify-end empty:hidden">
-              {i18n ? (
-                <LanguageToggle className="me-1.5">
-                  <Languages className="size-4.5" />
-                  <LanguageToggleText className="md:hidden" />
-                </LanguageToggle>
-              ) : null}
-              {themeSwitch.enabled !== false &&
-                (themeSwitch.component ?? (
-                  <ThemeToggle className="p-0" mode={themeSwitch.mode} />
-                ))}
-            </div>
-            {sidebarFooter}
-          </SidebarFooter>
-        </HideIfEmpty>
-      </Sidebar>
-    </>
-  );
+  tree,
+}: Pick<DocsLayoutProps, "tree" | "children">) {
+  const base = baseOptions();
 
   return (
-    <TreeContextProvider tree={props.tree}>
-      <NavProvider transparentMode={transparentMode}>
-        {/* Replaced default navbar with Home Layout Header. */}
-        <Header
-          {...props}
-          nav={{
-            ...nav,
-            children: (
-              <>
-                {/* Added custom sidebar toggle button for mobile views. */}
-                <NavbarSidebarTrigger className="ml-1.5 p-2 md:hidden" />
-                {nav.children}
-              </>
-            ),
-          }}
-          links={links}
-          searchToggle={searchToggle}
-          disableThemeSwitch={disableThemeSwitch}
-          themeSwitch={themeSwitch}
-          i18n={i18n}
-        />
-        <LayoutBody
-          {...props.containerProps}
-          className={cn(
-            variables,
-            props.containerProps?.className,
-            "!mx-0 flex flex-row",
-          )}
-        >
-          {/* Added structuring/styling div */}
-          <div className="flex w-screen flex-row items-start justify-center">
-            {sidebarEnabled && sidebar}
-            {children}
-          </div>
-        </LayoutBody>
-      </NavProvider>
-    </TreeContextProvider>
+    // width needed for our header
+    <main className={cn("flex flex-1 flex-col [--fd-layout-width:1400px]")}>
+      <DocsLayout
+        tree={tree}
+        {...base}
+        links={[]}
+        searchToggle={{ enabled: false }}
+        // inject regular header
+        nav={{
+          component: (
+            <div className="col-span-full [grid-area:header]">
+              <Header
+                {...base}
+                themeSwitch={{ enabled: false }}
+                nav={{
+                  ...base.nav,
+                  children: (
+                    <>
+                      {/* 
+                      Added custom sidebar toggle button for mobile views. 
+                      This is specific to Docs, because it triggers the left sidebar (not the top nav)
+                      */}
+                      <SidebarTrigger
+                        className={cn(
+                          buttonVariants({
+                            color: "ghost",
+                            size: "icon-sm",
+                            className: "p-2",
+                          }),
+                          "md:hidden",
+                        )}
+                      >
+                        <SidebarIcon />
+                      </SidebarTrigger>
+                      {base.nav?.children}
+                    </>
+                  ),
+                }}
+              />
+            </div>
+          ),
+        }}
+        // We override the gridTemplate to add support for our full-width header
+        // (the default can be seen when ejecting the docs layout, or
+        // https://github.com/fuma-nama/fumadocs/blob/e2fbe21c8aca4485ee189f3bf2a83ceb1edc336e/packages/base-ui/src/layouts/docs/client.tsx#L61 )
+        containerProps={{
+          style: {
+            gridTemplate: `"header header header"
+          "sidebar main toc" 1fr / minmax(var(--fd-sidebar-col), 1fr) minmax(0, calc(var(--fd-layout-width,97rem) - var(--fd-sidebar-width) - var(--fd-toc-width))) minmax(var(--fd-toc-width), 1fr)`,
+            "--fd-docs-row-1": "var(--fd-banner-height, 0px)",
+            "--fd-docs-row-2":
+              "calc(var(--fd-docs-row-1) + var(--fd-header-height))",
+            "--fd-docs-row-3":
+              "calc(var(--fd-docs-row-2) + var(--fd-toc-popover-height))",
+            // '--fd-sidebar-col': collapsed ? '0px' : 'var(--fd-sidebar-width)',
+          } as object,
+          className: "[--fd-layout-width:1400px]",
+        }}
+        sidebar={{
+          // don't allow collapsing when sidebar when not on mobile
+          collapsible: false,
+          // tabs for the dropdown (top of sidebar)
+          tabs: [
+            {
+              icon: (
+                <FaBook className="border-fd-primary text-fd-primary bg-fd-primary/10 h-full w-full rounded-sm border p-2 md:p-0.5" />
+              ),
+              title: "Documentation",
+              description: "Learn how to use BlockNote",
+              url: "/docs",
+            },
+            {
+              icon: (
+                <FaCode className="border-fd-primary text-fd-primary bg-fd-primary/10 h-full w-full rounded-sm border p-2 md:p-0.5" />
+              ),
+              title: "Examples",
+              description: "See BlockNote in action",
+              url: "/examples",
+            },
+          ],
+        }}
+      >
+        {children}
+      </DocsLayout>
+    </main>
   );
 }
-
-export { CollapsibleControl, Navbar, NavbarSidebarTrigger, type LinkItemType };

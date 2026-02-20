@@ -5,6 +5,11 @@ import {
 } from "../../api/getBlocksChangedByTransaction.js";
 import { Transaction } from "prosemirror-state";
 import { EventEmitter } from "../../util/EventEmitter.js";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../schema/index.js";
 
 /**
  * A function that can be used to unsubscribe from an event.
@@ -14,37 +19,33 @@ export type Unsubscribe = () => void;
 /**
  * EventManager is a class which manages the events of the editor
  */
-export class EventManager<Editor extends BlockNoteEditor> extends EventEmitter<{
+export class EventManager<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema,
+> extends EventEmitter<{
   onChange: [
-    editor: Editor,
     ctx: {
-      getChanges(): BlocksChanged<
-        Editor["schema"]["blockSchema"],
-        Editor["schema"]["inlineContentSchema"],
-        Editor["schema"]["styleSchema"]
-      >;
+      editor: BlockNoteEditor<BSchema, I, S>;
+      transaction: Transaction;
+      appendedTransactions: Transaction[];
     },
   ];
-  onSelectionChange: [ctx: { editor: Editor; transaction: Transaction }];
-  onMount: [ctx: { editor: Editor }];
-  onUnmount: [ctx: { editor: Editor }];
+  onSelectionChange: [
+    ctx: { editor: BlockNoteEditor<BSchema, I, S>; transaction: Transaction },
+  ];
+  onMount: [ctx: { editor: BlockNoteEditor<BSchema, I, S> }];
+  onUnmount: [ctx: { editor: BlockNoteEditor<BSchema, I, S> }];
 }> {
-  constructor(private editor: Editor) {
+  constructor(private editor: BlockNoteEditor<BSchema, I, S>) {
     super();
     // We register tiptap events only once the editor is finished initializing
     // otherwise we would be trying to register events on a tiptap editor which does not exist yet
-    editor.onCreate(() => {
+    editor.on("create", () => {
       editor._tiptapEditor.on(
         "update",
         ({ transaction, appendedTransactions }) => {
-          this.emit("onChange", editor, {
-            getChanges() {
-              return getBlocksChangedByTransaction(
-                transaction,
-                appendedTransactions,
-              );
-            },
-          });
+          this.emit("onChange", { editor, transaction, appendedTransactions });
         },
       );
       editor._tiptapEditor.on("selectionUpdate", ({ transaction }) => {
@@ -64,20 +65,41 @@ export class EventManager<Editor extends BlockNoteEditor> extends EventEmitter<{
    */
   public onChange(
     callback: (
-      editor: Editor,
+      editor: BlockNoteEditor<BSchema, I, S>,
       ctx: {
-        getChanges(): BlocksChanged<
-          Editor["schema"]["blockSchema"],
-          Editor["schema"]["inlineContentSchema"],
-          Editor["schema"]["styleSchema"]
-        >;
+        getChanges(): BlocksChanged<BSchema, I, S>;
       },
     ) => void,
+    /**
+     * If true, the callback will be triggered when the changes are caused by a remote user
+     * @default true
+     */
+    includeUpdatesFromRemote = true,
   ): Unsubscribe {
-    this.on("onChange", callback);
+    const cb = ({
+      transaction,
+      appendedTransactions,
+    }: {
+      transaction: Transaction;
+      appendedTransactions: Transaction[];
+    }) => {
+      if (!includeUpdatesFromRemote && isRemoteTransaction(transaction)) {
+        // don't trigger the callback if the changes are caused by a remote user
+        return;
+      }
+      callback(this.editor, {
+        getChanges() {
+          return getBlocksChangedByTransaction<BSchema, I, S>(
+            transaction,
+            appendedTransactions,
+          );
+        },
+      });
+    };
+    this.on("onChange", cb);
 
     return () => {
-      this.off("onChange", callback);
+      this.off("onChange", cb);
     };
   }
 
@@ -85,7 +107,7 @@ export class EventManager<Editor extends BlockNoteEditor> extends EventEmitter<{
    * Register a callback that will be called when the selection changes.
    */
   public onSelectionChange(
-    callback: (editor: Editor) => void,
+    callback: (editor: BlockNoteEditor<BSchema, I, S>) => void,
     /**
      * If true, the callback will be triggered when the selection changes due to a yjs sync (i.e.: other user was typing)
      */
@@ -93,11 +115,10 @@ export class EventManager<Editor extends BlockNoteEditor> extends EventEmitter<{
   ): Unsubscribe {
     const cb = (e: { transaction: Transaction }) => {
       if (
-        e.transaction.getMeta("$y-sync") &&
-        !includeSelectionChangedByRemote
+        !includeSelectionChangedByRemote &&
+        isRemoteTransaction(e.transaction)
       ) {
-        // selection changed because of a yjs sync (i.e.: other user was typing)
-        // we don't want to trigger the callback in this case
+        // don't trigger the callback if the selection changed because of a remote user
         return;
       }
       callback(this.editor);
@@ -113,7 +134,9 @@ export class EventManager<Editor extends BlockNoteEditor> extends EventEmitter<{
   /**
    * Register a callback that will be called when the editor is mounted.
    */
-  public onMount(callback: (ctx: { editor: Editor }) => void): Unsubscribe {
+  public onMount(
+    callback: (ctx: { editor: BlockNoteEditor<BSchema, I, S> }) => void,
+  ): Unsubscribe {
     this.on("onMount", callback);
 
     return () => {
@@ -124,11 +147,17 @@ export class EventManager<Editor extends BlockNoteEditor> extends EventEmitter<{
   /**
    * Register a callback that will be called when the editor is unmounted.
    */
-  public onUnmount(callback: (ctx: { editor: Editor }) => void): Unsubscribe {
+  public onUnmount(
+    callback: (ctx: { editor: BlockNoteEditor<BSchema, I, S> }) => void,
+  ): Unsubscribe {
     this.on("onUnmount", callback);
 
     return () => {
       this.off("onUnmount", callback);
     };
   }
+}
+
+function isRemoteTransaction(transaction: Transaction): boolean {
+  return !!transaction.getMeta("y-sync$");
 }

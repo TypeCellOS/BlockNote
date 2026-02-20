@@ -9,7 +9,7 @@
     "directory": "packages/xl-docx-exporter"
   },
   "license": "GPL-3.0 OR PROPRIETARY",
-  "version": "0.41.1",
+  "version": "0.46.2",
   "files": [
     "dist",
     "types",
@@ -57,19 +57,19 @@
     "email": "email dev"
   },
   "dependencies": {
-    "@blocknote/core": "0.41.1",
-    "@blocknote/xl-multi-column": "0.41.1",
+    "@blocknote/core": "0.46.2",
+    "@blocknote/xl-multi-column": "0.46.2",
     "buffer": "^6.0.3",
     "docx": "^9.5.1",
     "image-meta": "^0.2.2"
   },
   "devDependencies": {
-    "@types/react": "^19.2.2",
-    "@types/react-dom": "^19.2.2",
+    "@types/react": "^19.2.3",
+    "@types/react-dom": "^19.2.3",
     "@zip.js/zip.js": "^2.8.8",
     "eslint": "^8.57.1",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^5.9.3",
     "vite": "^5.4.20",

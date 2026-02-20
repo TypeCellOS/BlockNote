@@ -1,3 +1,5 @@
+import { getErrorMessage } from "@ai-sdk/provider-utils";
+import { ChunkExecutionError } from "./ChunkExecutionError.js";
 import { filterValidOperations } from "./filterValidOperations.js";
 import { StreamTool, StreamToolCall } from "./streamTool.js";
 import { toValidatedOperations } from "./toValidatedOperations.js";
@@ -35,46 +37,16 @@ export async function* preprocessOperationsStreaming<
     (chunk) => {
       if (!chunk.isPossiblyPartial) {
         // only throw if the operation is not possibly partial
-        throw new Error("invalid operation: " + chunk.operation.error);
+        throw new ChunkExecutionError(
+          `Invalid operation. ${getErrorMessage(chunk.operation.error)}`,
+          chunk,
+          {
+            cause: chunk.operation.error,
+          },
+        );
       }
     },
   );
 
-  yield* validOperationsStream;
-}
-
-/**
- * Validates an stream of operations and throws an error if an invalid operation is found.
- *
- * TODO: remove
- *
- * @deprecated
- */
-export async function* preprocessOperationsNonStreaming<
-  T extends StreamTool<any>[],
->(
-  operationsStream: AsyncIterable<{
-    partialOperation: any;
-    isUpdateToPreviousOperation: boolean;
-    isPossiblyPartial: boolean;
-    metadata: any;
-  }>,
-  streamTools: T,
-): AsyncGenerator<PreprocessOperationResult<T>> {
-  // from partial operations to valid / invalid operations
-  const validatedOperationsStream = toValidatedOperations(
-    operationsStream,
-    streamTools,
-  );
-
-  // filter valid operations, invalid operations should throw an error
-  const validOperationsStream = filterValidOperations(
-    validatedOperationsStream,
-    (chunk) => {
-      throw new Error("invalid operation: " + chunk.operation.error);
-    },
-  );
-
-  // yield results
   yield* validOperationsStream;
 }

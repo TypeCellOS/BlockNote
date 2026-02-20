@@ -1,5 +1,3 @@
-import { ReactNode } from "react";
-
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { DeleteLinkButton } from "./DefaultButtons/DeleteLinkButton.js";
 import { EditLinkButton } from "./DefaultButtons/EditLinkButton.js";
@@ -17,26 +15,25 @@ import { LinkToolbarProps } from "./LinkToolbarProps.js";
  * - Custom buttons: The `ToolbarButton` component in the
  * `components/mantine-shared/Toolbar` directory.
  */
-export const LinkToolbar = (
-  props: LinkToolbarProps & { children?: ReactNode },
-) => {
+export const LinkToolbar = (props: LinkToolbarProps) => {
   const Components = useComponentsContext()!;
 
   return (
-    <Components.LinkToolbar.Root
-      className={"bn-toolbar bn-link-toolbar"}
-      onMouseEnter={props.stopHideTimer}
-      onMouseLeave={props.startHideTimer}
-    >
+    <Components.LinkToolbar.Root className={"bn-toolbar bn-link-toolbar"}>
       {props.children || (
         <>
           <EditLinkButton
             url={props.url}
             text={props.text}
-            editLink={props.editLink}
+            range={props.range}
+            setToolbarOpen={props.setToolbarOpen}
+            setToolbarPositionFrozen={props.setToolbarPositionFrozen}
           />
           <OpenLinkButton url={props.url} />
-          <DeleteLinkButton deleteLink={props.deleteLink} />
+          <DeleteLinkButton
+            range={props.range}
+            setToolbarOpen={props.setToolbarOpen}
+          />
         </>
       )}
     </Components.LinkToolbar.Root>

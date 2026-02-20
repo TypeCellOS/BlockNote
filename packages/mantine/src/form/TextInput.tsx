@@ -22,6 +22,7 @@ export const TextInput = forwardRef<
     onChange,
     onSubmit,
     autoComplete,
+    "aria-activedescendant": ariaActivedescendant,
     rightSection,
     ...rest
   } = props;
@@ -49,6 +50,7 @@ export const TextInput = forwardRef<
       onChange={onChange}
       onSubmit={onSubmit}
       autoComplete={autoComplete}
+      aria-activedescendant={ariaActivedescendant}
     />
   );
 });

@@ -67,12 +67,31 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
     await page.keyboard.press("ArrowUp");
     await page.keyboard.press("ArrowUp");
     await page.keyboard.press("ArrowUp");
-    await page.keyboard.press("ArrowUp");
     await page.keyboard.press("Control+ArrowLeft");
     await page.keyboard.press("ArrowRight");
     await page.keyboard.press("Enter");
 
     await compareDocToSnapshot(page, "enterPreservesNestedBlocks.json");
+  });
+  test("Check Enter preserves nested blocks for empty block", async ({
+    page,
+  }) => {
+    await focusOnEditor(page);
+    await page.keyboard.press("#");
+    await page.keyboard.press(" ");
+    await page.keyboard.press("ArrowDown", { delay: 10 });
+    await page.keyboard.press("Tab");
+    await insertHeading(page, 2);
+    await page.keyboard.press("Tab");
+    await insertHeading(page, 3);
+
+    await page.waitForTimeout(500);
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("Enter");
+
+    await compareDocToSnapshot(page, "enterPreservesNestedBlocksEmpty.json");
   });
   test("Check Backspace at the start of a block", async ({ page }) => {
     await focusOnEditor(page);
@@ -129,6 +148,29 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
 
     await compareDocToSnapshot(page, "backspacePreservesNestedBlocks.json");
   });
+  test("Check Backspace preserves nested blocks for empty block", async ({
+    page,
+  }) => {
+    await focusOnEditor(page);
+    await insertParagraph(page);
+    await page.keyboard.press("Enter", { delay: 10 });
+    await page.keyboard.press("Tab");
+    await insertParagraph(page);
+    await page.keyboard.press("Tab");
+    await page.keyboard.press("Tab");
+    await insertParagraph(page);
+
+    for (let i = 0; i < 3; i++) {
+      await page.keyboard.press("ArrowUp");
+    }
+
+    await page.keyboard.press("Backspace");
+
+    await compareDocToSnapshot(
+      page,
+      "backspacePreservesNestedBlocksEmpty.json",
+    );
+  });
   test("Check heading 1 shortcut", async ({ page }) => {
     await focusOnEditor(page);
     await page.keyboard.type("Paragraph");
@@ -170,5 +212,76 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
     await page.keyboard.press("ControlOrMeta+Shift+9");
 
     await compareDocToSnapshot(page, "checkedListItemShortcut.json");
+  });
+  test("Check arrow up on checklist item moves to element above", async ({
+    page,
+  }) => {
+    await focusOnEditor(page);
+    await insertParagraph(page);
+    await page.keyboard.press("ControlOrMeta+Shift+9");
+    await page.keyboard.type("Checklist item");
+
+    await page.waitForTimeout(150);
+    // Move cursor to the start of the checklist item
+    await page.keyboard.press("Control+ArrowLeft");
+    // Press arrow up - should move to the paragraph above
+    await page.keyboard.press("ArrowUp");
+    // Type to verify cursor is in the paragraph above
+    await page.keyboard.type("Above");
+
+    await compareDocToSnapshot(page, "arrowUpChecklistItem.json");
+  });
+
+  test("Check checkListItem inputRule preserves content", async ({ page }) => {
+    await focusOnEditor(page);
+    // Type [ ] followed by space at the start to trigger inputRule, then add content
+    // The inputRule should convert the paragraph to a checkListItem and preserve the content we type after
+    await page.keyboard.type("[ ] My task");
+    await page.waitForTimeout(500);
+
+    await compareDocToSnapshot(
+      page,
+      "checkListItemInputRulePreservesContent.json",
+    );
+  });
+  test("Check checkListItem inputRule with checked preserves content", async ({
+    page,
+  }) => {
+    await focusOnEditor(page);
+    // Type [x] followed by space at the start to trigger inputRule with checked=true, then add content
+    // This should convert the paragraph to a checkListItem with checked=true and preserve the content
+    await page.keyboard.type("[x] Completed task");
+    await page.waitForTimeout(150);
+
+    await compareDocToSnapshot(
+      page,
+      "checkListItemInputRuleCheckedPreservesContent.json",
+    );
+  });
+  test("Check bulletListItem inputRule preserves content", async ({ page }) => {
+    await focusOnEditor(page);
+    // Type - followed by space at the start to trigger inputRule, then add content
+    // The inputRule should convert the paragraph to a bulletListItem and preserve the content
+    await page.keyboard.type("- My task");
+    await page.waitForTimeout(500);
+
+    await compareDocToSnapshot(
+      page,
+      "bulletListItemInputRulePreservesContent.json",
+    );
+  });
+  test("Check numberedListItem inputRule preserves content", async ({
+    page,
+  }) => {
+    await focusOnEditor(page);
+    // Type 1. followed by space at the start to trigger inputRule, then add content
+    // The inputRule should convert the paragraph to a numberedListItem and preserve the content
+    await page.keyboard.type("1. My task");
+    await page.waitForTimeout(500);
+
+    await compareDocToSnapshot(
+      page,
+      "numberedListItemInputRulePreservesContent.json",
+    );
   });
 });

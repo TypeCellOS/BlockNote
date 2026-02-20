@@ -1,4 +1,8 @@
-import { DEFAULT_LINK_PROTOCOL, VALID_LINK_PROTOCOLS } from "@blocknote/core";
+import {
+  DEFAULT_LINK_PROTOCOL,
+  LinkToolbarExtension,
+  VALID_LINK_PROTOCOLS,
+} from "@blocknote/core/extensions";
 import {
   ChangeEvent,
   KeyboardEvent,
@@ -8,6 +12,7 @@ import {
 } from "react";
 import { RiLink, RiText } from "react-icons/ri";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
+import { useExtension } from "../../hooks/useExtension.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { LinkToolbarProps } from "./LinkToolbarProps.js";
 
@@ -22,14 +27,19 @@ const validateUrl = (url: string) => {
 };
 
 export const EditLinkMenuItems = (
-  props: Pick<LinkToolbarProps, "url" | "text" | "editLink"> & {
+  props: Pick<
+    LinkToolbarProps,
+    "url" | "text" | "range" | "setToolbarOpen" | "setToolbarPositionFrozen"
+  > & {
     showTextField?: boolean;
   },
 ) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  const { url, text, editLink, showTextField } = props;
+  const { editLink } = useExtension(LinkToolbarExtension);
+
+  const { url, text, showTextField } = props;
 
   const [currentUrl, setCurrentUrl] = useState<string>(url);
   const [currentText, setCurrentText] = useState<string>(text);
@@ -41,12 +51,14 @@ export const EditLinkMenuItems = (
 
   const handleEnter = useCallback(
     (event: KeyboardEvent) => {
-      if (event.key === "Enter") {
+      if (event.key === "Enter" && !event.nativeEvent.isComposing) {
         event.preventDefault();
-        editLink(validateUrl(currentUrl), currentText);
+        editLink(validateUrl(currentUrl), currentText, props.range.from);
+        props.setToolbarOpen?.(false);
+        props.setToolbarPositionFrozen?.(false);
       }
     },
-    [editLink, currentUrl, currentText],
+    [editLink, currentUrl, currentText, props],
   );
 
   const handleUrlChange = useCallback(
@@ -61,10 +73,11 @@ export const EditLinkMenuItems = (
     [],
   );
 
-  const handleSubmit = useCallback(
-    () => editLink(validateUrl(currentUrl), currentText),
-    [editLink, currentUrl, currentText],
-  );
+  const handleSubmit = useCallback(() => {
+    editLink(validateUrl(currentUrl), currentText, props.range.from);
+    props.setToolbarOpen?.(false);
+    props.setToolbarPositionFrozen?.(false);
+  }, [editLink, currentUrl, currentText, props]);
 
   return (
     <Components.Generic.Form.Root>

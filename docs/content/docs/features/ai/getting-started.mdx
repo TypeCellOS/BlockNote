@@ -1,7 +1,7 @@
 ---
 title: Getting Started
 description: Add AI functionality to your BlockNote rich text editor
-imageTitle: BlockNote AI
+imageTitle: Getting Started with BlockNote AI
 ---
 
 # Getting Started with BlockNote AI
@@ -25,7 +25,7 @@ import { createBlockNoteEditor } from "@blocknote/core";
 import { BlockNoteAIExtension } from "@blocknote/xl-ai";
 import { en } from "@blocknote/core/locales";
 import { en as aiEn } from "@blocknote/xl-ai/locales";
-import { createAIExtension } from "@blocknote/xl-ai";
+import { AIExtension } from "@blocknote/xl-ai";
 import "@blocknote/xl-ai/style.css"; // add the AI stylesheet
 
 const editor = createBlockNoteEditor({
@@ -34,7 +34,7 @@ const editor = createBlockNoteEditor({
     ai: aiEn, // add default translations for the AI extension
   },
   extensions: [
-    createAIExtension({
+    AIExtension({
       transport: new DefaultChatTransport({
         api: `/api/chat`,
       }),
@@ -44,7 +44,7 @@ const editor = createBlockNoteEditor({
 });
 ```
 
-See the [API Reference](/docs/features/ai/reference) for more information on the `createAIExtension` method.
+See the [API Reference](/docs/features/ai/reference) for more information on the `AIExtension` options.
 
 ## Adding AI UI elements
 
@@ -85,7 +85,11 @@ This example follows the [basic example from the AI SDK](https://ai-sdk.dev/docs
 ```ts app/api/chat/route.ts
 import { openai } from "@ai-sdk/openai";
 import { convertToModelMessages, streamText } from "ai";
-import { toolDefinitionsToToolSet } from "@blocknote/xl-ai";
+import {
+  aiDocumentFormats,
+  injectDocumentStateMessages,
+  toolDefinitionsToToolSet,
+} from "@blocknote/xl-ai/server";
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -95,7 +99,10 @@ export async function POST(req: Request) {
 
   const result = streamText({
     model: openai("gpt-4.1"), // see https://ai-sdk.dev/docs/foundations/providers-and-models
-    messages: convertToModelMessages(messages),
+    system: aiDocumentFormats.html.systemPrompt,
+    messages: await convertToModelMessages(
+      injectDocumentStateMessages(messages),
+    ),
     tools: toolDefinitionsToToolSet(toolDefinitions),
     toolChoice: "required",
   });
@@ -103,6 +110,12 @@ export async function POST(req: Request) {
   return result.toUIMessageStreamResponse();
 }
 ```
+
+This follows the regular `streamText` pattern of the AI SDK, with 3 exceptions:
+
+- the BlockNote document state is extracted from message metadata and injected into the messages, using `injectDocumentStateMessages`
+- BlockNote client-side tool definitions are extracted from the request body and passed to the LLM using `toolDefinitionsToToolSet`
+- The system prompt is set to the default BlockNote system prompt (`aiDocumentFormats.html.systemPrompt`). You can override or extend the system prompt. If you do so, make sure your modified system prompt still explains the AI on how to modify the BlockNote document.
 
 See [Backend integrations](/docs/features/ai/backend-integration) for more information on how to integrate BlockNote AI with your backend.
 

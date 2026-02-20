@@ -19,13 +19,17 @@ export const BASIC_BLOCKS_URL = !process.env.RUN_IN_DOCKER
   ? `http://localhost:${PORT}/basic/default-blocks?hideMenu`
   : `http://host.docker.internal:${PORT}/basic/default-blocks?hideMenu`;
 
+export const BASIC_BLOCKS_STATIC_URL = !process.env.RUN_IN_DOCKER
+  ? `http://localhost:${PORT}/interoperability/static-html-render?hideMenu`
+  : `http://host.docker.internal:${PORT}/interoperability/static-html-render?hideMenu`;
+
 export const CUSTOM_BLOCKS_VANILLA_URL = !process.env.RUN_IN_DOCKER
-  ? `http://localhost:${PORT}/vanilla-js/react-vanilla-custom-blocks`
-  : `http://host.docker.internal:${PORT}/vanilla-js/react-vanilla-custom-blocks`;
+  ? `http://localhost:${PORT}/vanilla-js/react-vanilla-custom-blocks?hideMenu`
+  : `http://host.docker.internal:${PORT}/vanilla-js/react-vanilla-custom-blocks?hideMenu`;
 
 export const CUSTOM_BLOCKS_REACT_URL = !process.env.RUN_IN_DOCKER
-  ? `http://localhost:${PORT}/custom-schema/react-custom-blocks`
-  : `http://host.docker.internal:${PORT}/custom-schema/react-custom-blocks`;
+  ? `http://localhost:${PORT}/custom-schema/react-custom-blocks?hideMenu`
+  : `http://host.docker.internal:${PORT}/custom-schema/react-custom-blocks?hideMenu`;
 
 export const PASTE_ZONE_SELECTOR = "#pasteZone";
 

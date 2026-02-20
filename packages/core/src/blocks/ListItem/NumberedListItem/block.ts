@@ -1,5 +1,5 @@
 import { getBlockInfoFromSelection } from "../../../api/getBlockInfoFromPos.js";
-import { createBlockNoteExtension } from "../../../editor/BlockNoteExtension.js";
+import { createExtension } from "../../../editor/BlockNoteExtension.js";
 import { createBlockConfig, createBlockSpec } from "../../../schema/index.js";
 import {
   addDefaultPropsExternalHTML,
@@ -91,11 +91,11 @@ export const createNumberedListItemBlockSpec = createBlockSpec(
     },
   },
   [
-    createBlockNoteExtension({
+    createExtension({
       key: "numbered-list-item-shortcuts",
       inputRules: [
         {
-          find: new RegExp(`^(\\d+)\\.\\s$`),
+          find: /^\s?(\d+)\.\s$/,
           replace({ match, editor }) {
             const blockInfo = getBlockInfoFromSelection(
               editor.prosemirrorState,
@@ -135,7 +135,7 @@ export const createNumberedListItemBlockSpec = createBlockSpec(
           return true;
         },
       },
-      plugins: [NumberedListIndexingDecorationPlugin()],
+      prosemirrorPlugins: [NumberedListIndexingDecorationPlugin()],
     }),
   ],
 );

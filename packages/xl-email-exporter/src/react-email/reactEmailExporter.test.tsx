@@ -783,4 +783,19 @@ describe("react email exporter", () => {
 
     expect(html).toMatchSnapshot("__snapshots__/reactEmailExporterMixedLists");
   });
+
+  it("should handle document with custom body styles", async () => {
+    const exporter = new ReactEmailExporter(
+      BlockNoteSchema.create(),
+      reactEmailDefaultSchemaMappings,
+    );
+
+    const html = await exporter.toReactEmailDocument(testDocument as any, {
+      bodyStyles: { fontFamily: "Arial, sans-serif" },
+    });
+
+    expect(html).toMatchSnapshot(
+      "__snapshots__/reactEmailExporterCustomBodyStyles",
+    );
+  });
 });

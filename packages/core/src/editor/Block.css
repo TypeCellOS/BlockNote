@@ -240,12 +240,16 @@ NESTED BLOCKS
 }
 
 /* Checked */
-.bn-block-content[data-content-type="checkListItem"] > input {
+.bn-block-content[data-content-type="checkListItem"] > div:has(> input) {
+  height: 24px;
+}
+
+.bn-block-content[data-content-type="checkListItem"] > div > input {
   cursor: pointer;
   height: 24px;
   margin-left: 4px;
   margin-right: 8px;
-  margin-top: 0;
+  margin-block: 0;
   width: 12px;
 }
 
@@ -368,7 +372,7 @@ NESTED BLOCKS
   > .bn-block-outer[data-prev-type="bulletListItem"]
   > .bn-block
   > .bn-block-content::before {
-  content: "▪";
+  content: "▪\FE0E";
 }
 
 [data-content-type="bulletListItem"]
@@ -386,7 +390,7 @@ NESTED BLOCKS
   > .bn-block
   > div[data-type="modification"]
   > .bn-block-content[data-content-type="bulletListItem"]::before {
-  content: "▪";
+  content: "▪\FE0E";
 }
 
 /* CODE BLOCKS */

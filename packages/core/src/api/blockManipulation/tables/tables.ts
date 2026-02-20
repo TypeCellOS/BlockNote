@@ -305,9 +305,9 @@ export function getAbsoluteTableCells(
 } {
   for (let r = 0; r < occupancyGrid.length; r++) {
     for (let c = 0; c < occupancyGrid[r].length; c++) {
-      // console.log(r, c, occupancyGrid);
       const cell = occupancyGrid[r][c];
       if (
+        cell &&
         cell.row === relativeCellIndices.row &&
         cell.col === relativeCellIndices.col
       ) {

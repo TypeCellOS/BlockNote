@@ -39,7 +39,7 @@ export const combinedOperationsTestCases: DocumentOperationTestCase[] = [
         type: "update",
         id: "ref2",
         block: {
-          content: [{ type: "text", text: "Hallo", styles: {} }],
+          content: [{ type: "text", text: "Hallo,", styles: {} }],
         },
       },
     ],
@@ -56,6 +56,6 @@ export const combinedOperationsTestCases: DocumentOperationTestCase[] = [
       };
     },
     userPrompt:
-      "add a paragraph with the text 'You look great today!' at the beginning and translate selection to German",
+      "add a paragraph with the text 'You look great today!' before the selection and translate selection to German",
   },
 ];

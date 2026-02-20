@@ -1,15 +1,15 @@
-import {
-  BlockSchema,
-  InlineContentSchema,
-  StyleSchema,
-  SuggestionMenuState,
-} from "@blocknote/core";
-import { flip, offset, size, UseFloatingOptions } from "@floating-ui/react";
-import { FC, useCallback, useMemo } from "react";
+import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
+import { SuggestionMenu } from "@blocknote/core/extensions";
+import { autoPlacement, offset, shift, size } from "@floating-ui/react";
+import { FC, useEffect, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
-import { useUIElementPositioning } from "../../../hooks/useUIElementPositioning.js";
-import { useUIPluginState } from "../../../hooks/useUIPluginState.js";
+import {
+  useExtension,
+  useExtensionState,
+} from "../../../hooks/useExtension.js";
+import { FloatingUIOptions } from "../../Popovers/FloatingUIOptions.js";
+import { GenericPopover } from "../../Popovers/GenericPopover.js";
 import { getDefaultReactEmojiPickerItems } from "./getDefaultReactEmojiPickerItems.js";
 import { GridSuggestionMenu } from "./GridSuggestionMenu.js";
 import { GridSuggestionMenuWrapper } from "./GridSuggestionMenuWrapper.js";
@@ -35,7 +35,7 @@ export function GridSuggestionMenuController<
     getItems?: GetItemsType;
     columns: number;
     minQueryLength?: number;
-    floatingOptions?: Partial<UseFloatingOptions>;
+    floatingUIOptions?: FloatingUIOptions;
   } & (ItemType<GetItemsType> extends DefaultReactGridSuggestionItem
     ? {
         // can be undefined
@@ -65,7 +65,6 @@ export function GridSuggestionMenuController<
     minQueryLength,
     onItemClick,
     getItems,
-    floatingOptions,
   } = props;
 
   const onItemClickOrDefault = useMemo(() => {
@@ -88,52 +87,73 @@ export function GridSuggestionMenuController<
     );
   }, [editor, getItems])!;
 
-  const callbacks = {
-    closeMenu: editor.suggestionMenus.closeMenu,
-    clearQuery: editor.suggestionMenus.clearQuery,
-  };
+  const suggestionMenu = useExtension(SuggestionMenu);
 
-  const cb = useCallback(
-    (callback: (state: SuggestionMenuState) => void) => {
-      return editor.suggestionMenus.onUpdate(triggerCharacter, callback);
-    },
-    [editor.suggestionMenus, triggerCharacter],
-  );
+  useEffect(() => {
+    suggestionMenu.addTriggerCharacter(triggerCharacter);
+  }, [suggestionMenu, triggerCharacter]);
 
-  const state = useUIPluginState(cb);
+  const state = useExtensionState(SuggestionMenu);
+  const reference = useExtensionState(SuggestionMenu, {
+    selector: (state) => ({
+      // Use first child as the editor DOM element may itself be scrollable.
+      // For FloatingUI to auto-update the position during scrolling, the
+      // `contextElement` must be a descendant of the scroll container.
+      element: editor.domElement?.firstChild || undefined,
+      getBoundingClientRect: () => state?.referencePos || new DOMRect(),
+    }),
+  });
 
-  const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(
-    state?.show || false,
-    state?.referencePos || null,
-    2000,
-    {
-      placement: "bottom-start",
-      middleware: [
-        offset(10),
-        // Flips the menu placement to maximize the space available, and prevents
-        // the menu from being cut off by the confines of the screen.
-        flip(),
-        size({
-          apply({ availableHeight, elements }) {
-            Object.assign(elements.floating.style, {
-              maxHeight: `${availableHeight - 10}px`,
-            });
-          },
-        }),
-      ],
-      onOpenChange(open) {
-        if (!open) {
-          editor.suggestionMenus.closeMenu();
-        }
+  const floatingUIOptions = useMemo<FloatingUIOptions>(
+    () => ({
+      ...props.floatingUIOptions,
+      useFloatingOptions: {
+        open: state?.show && state?.triggerCharacter === triggerCharacter,
+        onOpenChange: (open) => {
+          if (!open) {
+            suggestionMenu.closeMenu();
+          }
+        },
+        placement: "bottom-start",
+        middleware: [
+          offset(10),
+          // Flips the menu placement to maximize the space available, and prevents
+          // the menu from being cut off by the confines of the screen.
+          autoPlacement({
+            allowedPlacements: ["bottom-start", "top-start"],
+            padding: 10,
+          }),
+          shift(),
+          size({
+            apply({ elements, availableHeight }) {
+              elements.floating.style.maxHeight = `${Math.max(0, availableHeight)}px`;
+            },
+            padding: 10,
+          }),
+        ],
+        ...props.floatingUIOptions?.useFloatingOptions,
       },
-      ...floatingOptions,
-    },
+      elementProps: {
+        // Prevents editor blurring when clicking the scroll bar.
+        onMouseDownCapture: (event) => event.preventDefault(),
+        style: {
+          zIndex: 70,
+        },
+        ...props.floatingUIOptions?.elementProps,
+      },
+    }),
+    [
+      props.floatingUIOptions,
+      state?.show,
+      state?.triggerCharacter,
+      suggestionMenu,
+      triggerCharacter,
+    ],
   );
 
   if (
-    !isMounted ||
     !state ||
-    (!state?.ignoreQueryLength &&
+    (!state.ignoreQueryLength &&
       minQueryLength &&
       (state.query.startsWith(" ") || state.query.length < minQueryLength))
   ) {
@@ -141,19 +161,21 @@ export function GridSuggestionMenuController<
   }
 
   return (
-    <div ref={ref} style={style} {...getFloatingProps()}>
-      <GridSuggestionMenuWrapper
-        query={state.query}
-        closeMenu={callbacks.closeMenu}
-        clearQuery={callbacks.clearQuery}
-        getItems={getItemsOrDefault}
-        columns={columns}
-        gridSuggestionMenuComponent={
-          gridSuggestionMenuComponent ||
-          GridSuggestionMenu<ItemType<GetItemsType>>
-        }
-        onItemClick={onItemClickOrDefault}
-      />
-    </div>
+    <GenericPopover reference={reference} {...floatingUIOptions}>
+      {triggerCharacter && (
+        <GridSuggestionMenuWrapper
+          query={state.query}
+          closeMenu={suggestionMenu.closeMenu}
+          clearQuery={suggestionMenu.clearQuery}
+          getItems={getItemsOrDefault}
+          columns={columns}
+          gridSuggestionMenuComponent={
+            gridSuggestionMenuComponent ||
+            GridSuggestionMenu<ItemType<GetItemsType>>
+          }
+          onItemClick={onItemClickOrDefault}
+        />
+      )}
+    </GenericPopover>
   );
 }

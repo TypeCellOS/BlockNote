@@ -1,4 +1,5 @@
-import { filterSuggestionItems, mergeCSSClasses } from "@blocknote/core";
+import { mergeCSSClasses } from "@blocknote/core";
+import { filterSuggestionItems } from "@blocknote/core/extensions";
 import {
   DefaultReactSuggestionItem,
   useComponentsContext,
@@ -37,7 +38,7 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
 
   const handleEnter = useCallback(
     async (event: KeyboardEvent) => {
-      if (event.key === "Enter") {
+      if (event.key === "Enter" && !event.nativeEvent.isComposing) {
         // console.log("ENTER", currentEditingPrompt);
         onManualPromptSubmit(promptTextToUse);
       }
@@ -67,10 +68,15 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
   const { selectedIndex, setSelectedIndex, handler } =
     useSuggestionMenuKeyboardHandler(items, (item) => item.onItemClick());
 
+  const activeDescendantId =
+    items.length > 0 && selectedIndex >= 0 && selectedIndex < items.length
+      ? `bn-suggestion-menu-item-${selectedIndex}`
+      : undefined;
+
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       // TODO: handle backspace to close
-      if (event.key === "Enter") {
+      if (event.key === "Enter" && !event.nativeEvent.isComposing) {
         if (items.length > 0) {
           handler(event);
         } else {
@@ -107,25 +113,29 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
           onChange={handleChange}
           autoComplete={"off"}
           rightSection={props.rightSection}
+          aria-activedescendant={activeDescendantId}
         />
       </Components.Generic.Form.Root>
-      <Components.SuggestionMenu.Root
-        className={"bn-combobox-items"}
-        id={"ai-suggestion-menu"}>
-        {items.map((item, i) => (
-          <Components.SuggestionMenu.Item
-            key={item.title}
-            className={mergeCSSClasses(
-              "bn-suggestion-menu-item",
-              item.size === "small" ? "bn-suggestion-menu-item-small" : "",
-            )}
-            id={`bn-suggestion-menu-item-${i}`}
-            isSelected={i === selectedIndex}
-            onClick={item.onItemClick}
-            item={item}
-          />
-        ))}
-      </Components.SuggestionMenu.Root>
+      {items.length > 0 && (
+        <Components.SuggestionMenu.Root
+          className={"bn-combobox-items"}
+          id={"ai-suggestion-menu"}
+        >
+          {items.map((item, i) => (
+            <Components.SuggestionMenu.Item
+              key={item.title}
+              className={mergeCSSClasses(
+                "bn-suggestion-menu-item",
+                item.size === "small" ? "bn-suggestion-menu-item-small" : "",
+              )}
+              id={`bn-suggestion-menu-item-${i}`}
+              isSelected={i === selectedIndex}
+              onClick={item.onItemClick}
+              item={item}
+            />
+          ))}
+        </Components.SuggestionMenu.Root>
+      )}
     </div>
   );
 };

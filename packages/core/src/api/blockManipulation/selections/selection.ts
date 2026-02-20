@@ -1,6 +1,5 @@
 import { TextSelection, type Transaction } from "prosemirror-state";
 import { TableMap } from "prosemirror-tables";
-
 import { Block } from "../../../blocks/defaultBlocks.js";
 import { Selection } from "../../../editor/selectionTypes.js";
 import {
@@ -9,6 +8,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../schema/index.js";
+import { expandPMRangeToWords } from "../../../util/expandToWords.js";
 import { getBlockInfo, getNearestBlockPos } from "../../getBlockInfoFromPos.js";
 import {
   nodeToBlock,
@@ -220,12 +220,17 @@ export function setSelection(
   tr.setSelection(TextSelection.create(tr.doc, startPos, endPos));
 }
 
-export function getSelectionCutBlocks(tr: Transaction) {
+export function getSelectionCutBlocks(tr: Transaction, expandToWords = false) {
   // TODO: fix image node selection
 
   const pmSchema = getPmSchema(tr);
-  let start = tr.selection.$from;
-  let end = tr.selection.$to;
+
+  const range = expandToWords
+    ? expandPMRangeToWords(tr.doc, tr.selection)
+    : tr.selection;
+
+  let start = range.$from;
+  let end = range.$to;
 
   // the selection moves below are used to make sure `prosemirrorSliceToSlicedBlocks` returns
   // the correct information about whether content is cut at the start or end of a block

@@ -1,7 +1,6 @@
 ---
 title: Code Blocks
 description: How to add syntax highlighting to code blocks.
-imageTitle: Code Blocks
 ---
 
 # Code Blocks
@@ -66,7 +65,7 @@ type CodeBlock = {
   type: "codeBlock";
   props: {
     language: string;
-  } & DefaultProps;
+  };
   content: InlineContent[];
   children: Block[];
 };

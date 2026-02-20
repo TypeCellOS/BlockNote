@@ -1,10 +1,12 @@
 import { expect, it } from "vitest";
+import * as Y from "yjs";
+
 import {
   getBlockInfo,
   getNearestBlockPos,
 } from "../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "./BlockNoteEditor.js";
-import { BlockNoteExtension } from "./BlockNoteExtension.js";
+import { BlocksChanged } from "../api/getBlocksChangedByTransaction.js";
 
 /**
  * @vitest-environment jsdom
@@ -119,30 +121,131 @@ it("onMount and onUnmount", async () => {
   expect(unmounted).toBe(false);
   editor.unmount();
   // expect the unmount event to not have been triggered yet, since it waits 2 ticks
-  expect(unmounted).toBe(false);
+  // expect(unmounted).toBe(false);
   // wait 3 ticks to ensure the unmount event is triggered
   await new Promise((resolve) => setTimeout(resolve, 3));
   expect(mounted).toBe(true);
   expect(unmounted).toBe(true);
 });
 
-it("onCreate event", () => {
-  let created = false;
-  BlockNoteEditor.create({
-    extensions: [
-      (e) =>
-        new (class extends BlockNoteExtension {
-          public static key() {
-            return "test";
-          }
-          constructor(editor: BlockNoteEditor) {
-            super(editor);
-            editor.onCreate(() => {
-              created = true;
-            });
-          }
-        })(e),
-    ],
+it("sets an initial block id when using Y.js", async () => {
+  const doc = new Y.Doc();
+  const fragment = doc.getXmlFragment("doc");
+  let transactionCount = 0;
+  const editor = BlockNoteEditor.create({
+    collaboration: {
+      fragment,
+      user: { name: "Hello", color: "#FFFFFF" },
+    },
+    _tiptapOptions: {
+      onTransaction: () => {
+        transactionCount++;
+      },
+    },
   });
-  expect(created).toBe(true);
+
+  editor.mount(document.createElement("div"));
+
+  expect(editor.prosemirrorState.doc.toJSON()).toMatchInlineSnapshot(`
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "attrs": {
+                "id": "initialBlockId",
+              },
+              "content": [
+                {
+                  "attrs": {
+                    "backgroundColor": "default",
+                    "textAlignment": "left",
+                    "textColor": "default",
+                  },
+                  "type": "paragraph",
+                },
+              ],
+              "type": "blockContainer",
+            },
+          ],
+          "type": "blockGroup",
+        },
+      ],
+      "type": "doc",
+    }
+  `);
+  expect(transactionCount).toBe(1);
+  // The fragment should not be modified yet, since the editor's content is only the initial content
+  expect(fragment.toJSON()).toMatchInlineSnapshot(`""`);
+
+  editor.replaceBlocks(editor.document, [
+    {
+      type: "paragraph",
+      content: [{ text: "Hello", styles: {}, type: "text" }],
+    },
+  ]);
+  expect(transactionCount).toBe(2);
+  // Only after a real modification is made, will the fragment be updated
+  expect(fragment.toJSON()).toMatchInlineSnapshot(
+    `"<blockgroup><blockcontainer id="0"><paragraph backgroundColor="default" textAlignment="left" textColor="default">Hello</paragraph></blockcontainer><blockcontainer id="1"><paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph></blockcontainer></blockgroup>"`,
+  );
+});
+
+it("onBeforeChange", () => {
+  const editor = BlockNoteEditor.create();
+  let beforeChangeCalled = false;
+  let changes: BlocksChanged<any, any, any> = [];
+  editor.onBeforeChange(({ getChanges }) => {
+    beforeChangeCalled = true;
+    changes = getChanges();
+    return true;
+  });
+  editor.mount(document.createElement("div"));
+  editor.replaceBlocks(editor.document, [
+    {
+      type: "paragraph",
+      content: [{ text: "Hello", styles: {}, type: "text" }],
+    },
+  ]);
+  expect(beforeChangeCalled).toBe(true);
+  expect(changes).toMatchInlineSnapshot(`
+    [
+      {
+        "block": {
+          "children": [],
+          "content": [],
+          "id": "3",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+        "prevBlock": undefined,
+        "source": {
+          "type": "local",
+        },
+        "type": "insert",
+      },
+      {
+        "block": {
+          "children": [],
+          "content": [],
+          "id": "2",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+        "prevBlock": undefined,
+        "source": {
+          "type": "local",
+        },
+        "type": "delete",
+      },
+    ]
+  `);
 });

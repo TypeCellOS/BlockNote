@@ -4,7 +4,10 @@ import type { Node, NodeViewRendererProps } from "@tiptap/core";
 import type { Fragment, Schema } from "prosemirror-model";
 import type { ViewMutationRecord } from "prosemirror-view";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import type { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
+import type {
+  Extension,
+  ExtensionFactoryInstance,
+} from "../../editor/BlockNoteExtension.js";
 import type {
   InlineContent,
   InlineContentSchema,
@@ -98,7 +101,7 @@ export type BlockSpec<
 > = {
   config: BlockConfig<T, PS, C>;
   implementation: BlockImplementation<T, PS, C>;
-  extensions?: BlockNoteExtension<any>[];
+  extensions?: (Extension | ExtensionFactoryInstance)[];
 };
 
 /**
@@ -136,6 +139,9 @@ export type LooseBlockSpec<
     toExternalHTML?: (
       block: any,
       editor: BlockNoteEditor<any>,
+      context: {
+        nestingLevel: number;
+      },
     ) =>
       | {
           dom: HTMLElement | DocumentFragment;
@@ -145,7 +151,7 @@ export type LooseBlockSpec<
 
     node: Node;
   };
-  extensions?: BlockNoteExtension<any>[];
+  extensions?: (Extension | ExtensionFactoryInstance)[];
 };
 
 // Utility type. For a given object block schema, ensures that the key of each
@@ -190,6 +196,9 @@ export type BlockSpecs = {
       toExternalHTML?: (
         block: any,
         editor: BlockNoteEditor<any>,
+        context: {
+          nestingLevel: number;
+        },
       ) =>
         | {
             dom: HTMLElement | DocumentFragment;
@@ -197,7 +206,7 @@ export type BlockSpecs = {
           }
         | undefined;
     };
-    extensions?: BlockNoteExtension<any>[];
+    extensions?: BlockSpec<k>["extensions"];
   };
 };
 
@@ -218,7 +227,7 @@ export type BlockSpecsFromSchema<BS extends BlockSchema> = {
       BS[K]["propSchema"],
       BS[K]["content"]
     >;
-    extensions?: BlockNoteExtension<any>[];
+    extensions?: (Extension | ExtensionFactoryInstance)[];
   };
 };
 
@@ -460,6 +469,9 @@ export type BlockImplementation<
     editor: BlockNoteEditor<
       Record<TName, BlockConfig<TName, TProps, TContent>>
     >,
+    context: {
+      nestingLevel: number;
+    },
   ) =>
     | {
         dom: HTMLElement | DocumentFragment;

@@ -23,6 +23,7 @@ export type ReactCustomStyleImplementation<T extends StyleConfig> = {
     contentRef: (el: HTMLElement | null) => void;
     editor: BlockNoteEditor<any, any, any>;
   }>;
+  runsBefore?: string[];
 };
 
 // A function to create custom block for API consumers
@@ -116,6 +117,7 @@ export function createReactStyleSpec<T extends StyleConfig>(
   });
 
   return createInternalStyleSpec(styleConfig, {
+    ...styleImplementation,
     mark,
     render(value, editor) {
       const Content = styleImplementation.render;

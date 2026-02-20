@@ -1,5 +1,5 @@
 /* eslint-disable jest/valid-title */
-import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor, expandPMRangeToWords } from "@blocknote/core";
 import { describe, expect, it } from "vitest";
 import { addOperationTestCases } from "../../../../testUtil/cases/addOperationTestCases.js";
 import { combinedOperationsTestCases } from "../../../../testUtil/cases/combinedOperationsTestCases.js";
@@ -13,7 +13,7 @@ import { DeleteBlockToolCall } from "../../base-tools/delete.js";
 import { tools } from "./index.js";
 
 // Helper function to create a mock stream from operations
-import { getAIExtension } from "../../../../AIExtension.js";
+import { AIExtension } from "../../../../AIExtension.js";
 import { StreamToolExecutor } from "../../../../streamTool/StreamToolExecutor.js";
 import { StreamTool } from "../../../../streamTool/streamTool.js";
 import { getExpectedEditor } from "../../../../testUtil/cases/index.js";
@@ -44,12 +44,22 @@ async function executeTestCase(
   testCase: DocumentOperationTestCase,
 ) {
   const originalDoc = editor.prosemirrorState.doc;
+  let selection: { from: number; to: number } | undefined =
+    testCase.getTestSelection?.(editor);
+
+  if (selection) {
+    selection = expandPMRangeToWords(editor.prosemirrorState.doc, {
+      $from: editor.prosemirrorState.doc.resolve(selection.from),
+      $to: editor.prosemirrorState.doc.resolve(selection.to),
+    });
+  }
+
   const streamTools = [
     tools.add(editor, { idsSuffixed: true, withDelays: false }),
     tools.update(editor, {
       idsSuffixed: true,
       withDelays: false,
-      updateSelection: testCase.getTestSelection?.(editor),
+      updateSelection: selection,
     }),
     tools.delete(editor, { idsSuffixed: true, withDelays: false }),
   ];
@@ -64,7 +74,7 @@ async function executeTestCase(
 
   validateRejectingResultsInOriginalDoc(editor, originalDoc);
 
-  getAIExtension(editor).acceptChanges();
+  editor.getExtension(AIExtension)?.acceptChanges();
   expect(editor.document).toEqual(getExpectedEditor(testCase).document);
 }
 

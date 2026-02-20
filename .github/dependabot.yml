@@ -1,6 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: "npm"
+    versioning-strategy: "lockfile-only"
     directories:
       - "/"
       - "/packages/*"
@@ -10,3 +11,42 @@ updates:
       - "npm dependencies"
     commit-message:
       prefix: "chore"
+    allow:
+      # @tiptap packages
+      - dependency-name: "@tiptap/core"
+      - dependency-name: "@tiptap/pm"
+      - dependency-name: "@tiptap/react"
+      - dependency-name: "@tiptap/extensions"
+      - dependency-name: "@tiptap/extension-bold"
+      - dependency-name: "@tiptap/extension-code"
+      - dependency-name: "@tiptap/extension-horizontal-rule"
+      - dependency-name: "@tiptap/extension-italic"
+      - dependency-name: "@tiptap/extension-link"
+      - dependency-name: "@tiptap/extension-paragraph"
+      - dependency-name: "@tiptap/extension-strike"
+      - dependency-name: "@tiptap/extension-text"
+      - dependency-name: "@tiptap/extension-underline"
+      # prosemirror packages
+      - dependency-name: "prosemirror-changeset"
+      - dependency-name: "prosemirror-dropcursor"
+      - dependency-name: "prosemirror-highlight"
+      - dependency-name: "prosemirror-model"
+      - dependency-name: "prosemirror-state"
+      - dependency-name: "prosemirror-tables"
+      - dependency-name: "prosemirror-transform"
+      - dependency-name: "prosemirror-view"
+      # react packages
+      - dependency-name: "react"
+      - dependency-name: "react-dom"
+      # yjs packages
+      - dependency-name: "yjs"
+      - dependency-name: "y-prosemirror"
+    groups:
+      editor-dependencies:
+        patterns:
+          - "@tiptap/*"
+          - "prosemirror-*"
+          - "react"
+          - "react-dom"
+          - "yjs"
+          - "y-prosemirror"

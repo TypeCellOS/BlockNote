@@ -16,18 +16,18 @@
     "@blocknote/mantine": "latest",
     "@blocknote/react": "latest",
     "@blocknote/shadcn": "latest",
-    "@mantine/core": "^8.3.4",
-    "@mantine/hooks": "^8.3.4",
+    "@mantine/core": "^8.3.11",
+    "@mantine/hooks": "^8.3.11",
     "@mantine/utils": "^6.0.22",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
     "@blocknote/xl-pdf-exporter": "latest",
     "@blocknote/xl-multi-column": "latest",
     "@react-pdf/renderer": "^4.3.0"
   },
   "devDependencies": {
-    "@types/react": "^19.2.2",
-    "@types/react-dom": "^19.2.1",
+    "@types/react": "^19.2.3",
+    "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^4.7.0",
     "vite": "^5.4.20"
   }

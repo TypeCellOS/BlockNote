@@ -8,7 +8,7 @@
         "type": "text",
       },
     ],
-    "id": "3",
+    "id": "2",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -19,7 +19,7 @@
   {
     "children": [],
     "content": [],
-    "id": "4",
+    "id": "3",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",

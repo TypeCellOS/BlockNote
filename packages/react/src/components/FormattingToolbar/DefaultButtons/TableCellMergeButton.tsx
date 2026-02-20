@@ -3,15 +3,17 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { useCallback, useMemo } from "react";
+import { TableHandlesExtension } from "@blocknote/core/extensions";
+import { useCallback } from "react";
 import { RiMergeCellsHorizontal, RiMergeCellsVertical } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
-import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks.js";
+import { useEditorState } from "../../../hooks/useEditorState.js";
+import { useExtension } from "../../../hooks/useExtension.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 
-export const TableCellMergeButton = () => {
+const TableCellMergeButtonInner = () => {
   const dict = useDictionary();
   const Components = useComponentsContext()!;
 
@@ -23,31 +25,39 @@ export const TableCellMergeButton = () => {
     StyleSchema
   >();
 
-  const selectedBlocks = useSelectedBlocks(editor);
-  const mergeDirection = useMemo(() => {
-    // Checks if only one block is selected.
-    if (selectedBlocks.length !== 1) {
-      return undefined;
-    }
+  const tableHandles = useExtension(TableHandlesExtension);
+  const state = useEditorState({
+    editor,
+    selector: ({ editor }) => {
+      if (!editor.isEditable || !editor.settings.tables.splitCells) {
+        return undefined;
+      }
 
-    const block = selectedBlocks[0];
+      const selectedBlocks = editor.getSelection()?.blocks || [
+        editor.getTextCursorPosition().block,
+      ];
 
-    if (block.type === "table") {
-      return editor.tableHandles?.getMergeDirection(block);
-    }
+      if (selectedBlocks.length !== 1) {
+        return undefined;
+      }
 
-    return undefined;
-  }, [editor, selectedBlocks]);
+      const block = selectedBlocks[0];
+
+      if (block.type !== "table") {
+        return undefined;
+      }
+
+      return {
+        mergeDirection: tableHandles.getMergeDirection(block),
+      };
+    },
+  });
 
   const onClick = useCallback(() => {
-    editor.tableHandles?.mergeCells();
-  }, [editor]);
+    tableHandles?.mergeCells();
+  }, [tableHandles]);
 
-  if (
-    !editor.isEditable ||
-    mergeDirection === undefined ||
-    !editor.settings.tables.splitCells
-  ) {
+  if (state === undefined) {
     return null;
   }
 
@@ -57,7 +67,7 @@ export const TableCellMergeButton = () => {
       label={dict.formatting_toolbar.table_cell_merge.tooltip}
       mainTooltip={dict.formatting_toolbar.table_cell_merge.tooltip}
       icon={
-        mergeDirection === "horizontal" ? (
+        state.mergeDirection === "horizontal" ? (
           <RiMergeCellsHorizontal />
         ) : (
           <RiMergeCellsVertical />
@@ -66,4 +76,12 @@ export const TableCellMergeButton = () => {
       onClick={onClick}
     />
   );
+};
+
+export const TableCellMergeButton = () => {
+  const editor = useBlockNoteEditor();
+  if (!editor.getExtension(TableHandlesExtension)) {
+    return null;
+  }
+  return <TableCellMergeButtonInner />;
 };

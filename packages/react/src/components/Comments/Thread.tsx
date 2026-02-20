@@ -1,10 +1,11 @@
 import { mergeCSSClasses } from "@blocknote/core";
+import { CommentsExtension } from "@blocknote/core/comments";
 import { ThreadData } from "@blocknote/core/comments";
 import { FocusEvent, useCallback } from "react";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
-import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
+import { useExtension } from "../../hooks/useExtension.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { CommentEditor } from "./CommentEditor.js";
 import { Comments } from "./Comments.js";
@@ -66,12 +67,7 @@ export const Thread = ({
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  const editor = useBlockNoteEditor();
-
-  const comments = editor.comments;
-  if (!comments) {
-    throw new Error("Comments plugin not found");
-  }
+  const comments = useExtension(CommentsExtension);
 
   const newCommentEditor = useCreateBlockNote({
     trailingBlock: false,
@@ -81,7 +77,7 @@ export const Thread = ({
         emptyDocument: dict.placeholders.comment_reply,
       },
     },
-    schema: editor.comments.commentEditorSchema || defaultCommentEditorSchema,
+    schema: comments.commentEditorSchema || defaultCommentEditorSchema,
   });
 
   const onNewCommentSave = useCallback(async () => {

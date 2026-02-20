@@ -2,7 +2,10 @@ import { Editor, Node } from "@tiptap/core";
 import { DOMParser, Fragment, TagParseRule } from "@tiptap/pm/model";
 import { NodeView } from "@tiptap/pm/view";
 import { mergeParagraphs } from "../../blocks/defaultBlockHelpers.js";
-import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
+import {
+  Extension,
+  ExtensionFactoryInstance,
+} from "../../editor/BlockNoteExtension.js";
 import { PropSchema } from "../propTypes.js";
 import {
   getBlockFromPos,
@@ -67,6 +70,8 @@ export function getParseRules<
 
         return props;
       },
+      // Because we do the parsing ourselves, we want to preserve whitespace for content we've parsed
+      preserveWhitespace: true,
       getContent:
         config.content === "inline" || config.content === "none"
           ? (node, schema) => {
@@ -94,6 +99,7 @@ export function getParseRules<
                 const parser = DOMParser.fromSchema(schema);
                 const parsed = parser.parse(clone, {
                   topNode: schema.nodes.paragraph.create(),
+                  preserveWhitespace: true,
                 });
 
                 return parsed.content;
@@ -131,7 +137,7 @@ export function addNodeAndExtensionsToSpec<
 >(
   blockConfig: BlockConfig<TName, TProps, TContent>,
   blockImplementation: BlockImplementation<TName, TProps, TContent>,
-  extensions?: BlockNoteExtension<any>[],
+  extensions?: (ExtensionFactoryInstance | Extension)[],
   priority?: number,
 ): LooseBlockSpec<TName, TProps, TContent> {
   const node =
@@ -236,7 +242,7 @@ export function addNodeAndExtensionsToSpec<
       },
       // TODO: this should not have wrapInBlockStructure and generally be a lot simpler
       // post-processing in externalHTMLExporter should not be necessary
-      toExternalHTML: (block, editor) => {
+      toExternalHTML: (block, editor, context) => {
         const blockContentDOMAttributes =
           node.options.domAttributes?.blockContent || {};
 
@@ -245,6 +251,7 @@ export function addNodeAndExtensionsToSpec<
             { blockContentDOMAttributes },
             block as any,
             editor as any,
+            context,
           ) ??
           blockImplementation.render.call(
             { blockContentDOMAttributes, renderType: "dom", props: undefined },
@@ -296,10 +303,10 @@ export function createBlockSpec<
             options: Partial<TOptions>,
           ) => BlockImplementation<TName, TProps, TContent>),
   extensionsOrCreator?:
-    | BlockNoteExtension<any>[]
+    | ExtensionFactoryInstance[]
     | (TOptions extends undefined
-        ? () => BlockNoteExtension<any>[]
-        : (options: Partial<TOptions>) => BlockNoteExtension<any>[]),
+        ? () => ExtensionFactoryInstance[]
+        : (options: Partial<TOptions>) => ExtensionFactoryInstance[]),
 ): (options?: Partial<TOptions>) => BlockSpec<TName, TProps, TContent>;
 export function createBlockSpec<
   const TName extends string,
@@ -329,10 +336,10 @@ export function createBlockSpec<
             BlockConf["content"]
           >),
   extensionsOrCreator?:
-    | BlockNoteExtension<any>[]
+    | ExtensionFactoryInstance[]
     | (TOptions extends undefined
-        ? () => BlockNoteExtension<any>[]
-        : (options: Partial<TOptions>) => BlockNoteExtension<any>[]),
+        ? () => ExtensionFactoryInstance[]
+        : (options: Partial<TOptions>) => ExtensionFactoryInstance[]),
 ): (
   options?: Partial<TOptions>,
 ) => BlockSpec<
@@ -359,10 +366,10 @@ export function createBlockSpec<
             options: Partial<TOptions>,
           ) => BlockImplementation<TName, TProps, TContent>),
   extensionsOrCreator?:
-    | BlockNoteExtension<any>[]
+    | ExtensionFactoryInstance[]
     | (TOptions extends undefined
-        ? () => BlockNoteExtension<any>[]
-        : (options: Partial<TOptions>) => BlockNoteExtension<any>[]),
+        ? () => ExtensionFactoryInstance[]
+        : (options: Partial<TOptions>) => ExtensionFactoryInstance[]),
 ): (options?: Partial<TOptions>) => BlockSpec<TName, TProps, TContent> {
   return (options = {} as TOptions) => {
     const blockConfig =
@@ -387,11 +394,12 @@ export function createBlockSpec<
         ...blockImplementation,
         // TODO: this should not have wrapInBlockStructure and generally be a lot simpler
         // post-processing in externalHTMLExporter should not be necessary
-        toExternalHTML(block, editor) {
+        toExternalHTML(block, editor, context) {
           const output = blockImplementation.toExternalHTML?.call(
             { blockContentDOMAttributes: this.blockContentDOMAttributes },
             block as any,
             editor as any,
+            context,
           );
 
           if (output === undefined) {

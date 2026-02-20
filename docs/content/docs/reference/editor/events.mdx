@@ -1,7 +1,6 @@
 ---
 title: Events
 description: BlockNote emits events when certain actions occur in the editor
-imageTitle: Events
 ---
 
 # Events
@@ -15,17 +14,6 @@ The editor emits events for:
 - **Editor lifecycle** - When the editor is created, mounted, unmounted, etc.
 - **Content changes** - When blocks are inserted, updated, or deleted
 - **Selection changes** - When the cursor position or selection changes
-
-## `onCreate`
-
-The `onCreate` callback is called when the editor has been initialized and is ready for use.
-
-```typescript
-editor.onCreate(() => {
-  console.log("Editor is ready for use");
-  // Initialize plugins, set up event listeners, etc.
-});
-```
 
 ## `onMount`
 
@@ -87,7 +75,7 @@ See [Understanding Changes](#understanding-changes) for more information about t
 The `onBeforeChange` callback is called before any change is applied to the editor, allowing you to cancel the change.
 
 ```typescript
-editor.onBeforeChange((editor, { getChanges, tr }) => {
+editor.onBeforeChange(({ getChanges, tr }) => {
   if (
     // Cancel inserting new blocks
     getChanges().some((change) => change.type === "insert")

@@ -1,8 +1,13 @@
-import { BlockNoteEditor, getBlockInfo, getNodeById } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  expandPMRangeToWords,
+  getBlockInfo,
+  getNodeById,
+} from "@blocknote/core";
 import { Fragment, Slice } from "prosemirror-model";
 import { ReplaceStep, Transform } from "prosemirror-transform";
 import { describe, expect, it } from "vitest";
-import { getAIExtension } from "../AIExtension.js";
+import { AIExtension } from "../AIExtension.js";
 import {
   DocumentOperationTestCase,
   getExpectedEditor,
@@ -213,7 +218,14 @@ async function executeTestCase(
     const blockId = updateOp.id;
     const update = updateOp.block;
 
-    const selection = test.getTestSelection?.(editor);
+    let selection = test.getTestSelection?.(editor);
+
+    if (selection) {
+      selection = expandPMRangeToWords(editor.prosemirrorState.doc, {
+        $from: editor.prosemirrorState.doc.resolve(selection.from),
+        $to: editor.prosemirrorState.doc.resolve(selection.to),
+      });
+    }
 
     const steps = updateToReplaceSteps(
       {
@@ -247,7 +259,7 @@ async function executeTestCase(
   validateRejectingResultsInOriginalDoc(editor, doc);
   expect(results).toMatchSnapshot();
 
-  getAIExtension(editor).acceptChanges();
+  editor.getExtension(AIExtension)?.acceptChanges();
   expect(editor.document).toEqual(getExpectedEditor(test).document);
 
   return results;

@@ -2,7 +2,7 @@ import { Block } from "@blocknote/core";
 import {
   blockTypeSelectItems,
   useBlockNoteEditor,
-  useEditorContentOrSelectionChange,
+  useEditorState,
 } from "@blocknote/react";
 import {
   Done,
@@ -109,16 +109,10 @@ function MUIBlockTypeSelect() {
   const editor = useBlockNoteEditor<TextBlockSchema>();
 
   // The block currently containing the text cursor.
-  const [block, setBlock] = useState<Block>(
-    editor.getTextCursorPosition().block,
-  );
-
-  // Updates the block currently containing the text cursor whenever the editor
-  // content or selection changes.
-  useEditorContentOrSelectionChange(
-    () => setBlock(editor.getTextCursorPosition().block),
+  const block = useEditorState({
     editor,
-  );
+    selector: ({ editor }) => editor.getTextCursorPosition().block,
+  });
 
   // Gets the default items for the select.
   const defaultBlockTypeSelectItems = useMemo(
@@ -129,9 +123,16 @@ function MUIBlockTypeSelect() {
   // Gets the selected item.
   const selectedItem = useMemo(
     () =>
-      defaultBlockTypeSelectItems.find((item) =>
-        item.isSelected(block as any),
-      )!,
+      defaultBlockTypeSelectItems.find((item) => {
+        const typesMatch = item.type === block.type;
+        const propsMatch =
+          Object.entries(item.props || {}).filter(
+            ([propName, propValue]) =>
+              propValue !== (block as any).props[propName],
+          ).length === 0;
+
+        return typesMatch && propsMatch;
+      })!,
     [defaultBlockTypeSelectItems, block],
   );
 
@@ -147,8 +148,6 @@ function MUIBlockTypeSelect() {
         props: newSelectedItem.props,
       });
       editor.focus();
-
-      setBlock(editor.getTextCursorPosition().block);
     },
     [block, defaultBlockTypeSelectItems, editor],
   );
@@ -213,16 +212,10 @@ function MUIBasicTextStyleButton(props: {
   const editor = useBlockNoteEditor<TextBlockSchema>();
 
   // Whether the text style is currently active.
-  const [textStyleActive, setTextStyleActive] = useState(
-    !!editor.getActiveStyles()[props.textStyle],
-  );
-
-  // Updates whether the text style is active when the editor content or
-  // selection changes.
-  useEditorContentOrSelectionChange(
-    () => setTextStyleActive(props.textStyle in editor.getActiveStyles()),
+  const textStyleActive = useEditorState({
     editor,
-  );
+    selector: ({ editor }) => props.textStyle in editor.getActiveStyles(),
+  });
 
   // Tooltip for the button.
   const tooltip = useMemo(
@@ -266,24 +259,16 @@ function MUITextAlignButton(props: {
   const editor = useBlockNoteEditor<TextBlockSchema>();
 
   // The text alignment of the block currently containing the text cursor.
-  const [activeTextAlignment, setActiveTextAlignment] = useState(() => {
-    const props = editor.getTextCursorPosition().block.props;
-    if ("textAlignment" in props) {
-      return props.textAlignment;
-    }
-    return undefined;
-  });
-
-  // Updates the text alignment when the editor content or selection changes.
-  useEditorContentOrSelectionChange(() => {
-    setActiveTextAlignment(() => {
+  const activeTextAlignment = useEditorState({
+    editor,
+    selector: ({ editor }) => {
       const props = editor.getTextCursorPosition().block.props;
       if ("textAlignment" in props) {
         return props.textAlignment;
       }
       return undefined;
-    });
-  }, editor);
+    },
+  });
 
   // Tooltip for the button.
   const tooltip = useMemo(
@@ -339,21 +324,15 @@ function MUIColorStyleButton() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   // The active text and background colors.
-  const [activeTextColor, setActiveTextColor] = useState(
-    () => editor.getActiveStyles().textColor || "default",
-  );
-  const [activeBackgroundColor, setActiveBackgroundColor] = useState(
-    () => editor.getActiveStyles().backgroundColor || "default",
-  );
-
-  // Updates the active text and background colors when the editor content or
-  // selection changes.
-  useEditorContentOrSelectionChange(() => {
-    const activeStyles = editor.getActiveStyles();
-
-    setActiveTextColor(activeStyles.textColor || "default");
-    setActiveBackgroundColor(activeStyles.backgroundColor || "default");
-  }, editor);
+  const activeTextColor = useEditorState({
+    editor,
+    selector: ({ editor }) => editor.getActiveStyles().textColor || "default",
+  });
+  const activeBackgroundColor = useEditorState({
+    editor,
+    selector: ({ editor }) =>
+      editor.getActiveStyles().backgroundColor || "default",
+  });
 
   // Handles opening and closing the color menu.
   const onClick = useCallback(
