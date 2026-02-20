@@ -19,8 +19,11 @@ export const getParentBlockInfo = (doc: Node, beforePos: number) => {
 
   // get start pos of parent
   const parentBeforePos = $pos.posAtIndex(
-    $pos.index($pos.depth - 1),
-    $pos.depth - 1,
+    // TODO: This works for blockContainer nodes as we need to traverse 2
+    // nesting levels due to the blockGroup in between. However, that's not the
+    // case for columns.
+    $pos.index($pos.depth - 2),
+    $pos.depth - 2,
   );
 
   const parentBlockInfo = getBlockInfoFromResolvedPos(

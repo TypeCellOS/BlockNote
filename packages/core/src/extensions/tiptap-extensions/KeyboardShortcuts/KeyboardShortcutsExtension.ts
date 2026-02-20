@@ -1,9 +1,11 @@
 import { Extension } from "@tiptap/core";
-
+import { Fragment, Node } from "prosemirror-model";
 import { TextSelection } from "prosemirror-state";
+
 import {
   getBottomNestedBlockInfo,
   getNextBlockInfo,
+  getParentBlockInfo,
   getPrevBlockInfo,
   mergeBlocksCommand,
 } from "../../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
@@ -334,10 +336,11 @@ export const KeyboardShortcutsExtension = Extension.create<{
       this.editor.commands.first(({ chain, commands }) => [
         // Deletes the selection if it's not empty.
         () => commands.deleteSelection(),
-        // Deletes the first child block into the current block, if the
+        // Deletes the first child block and un-nests its children, if the
         // selection is empty and at the end of the current block. If both the
         // parent and child blocks have inline content, the child block's
-        // content is appended to the parent's.
+        // content is appended to the parent's. The child block's own children
+        // are unindented before it's deleted.
         () =>
           commands.command(({ state }) => {
             const blockInfo = getBlockInfoFromSelection(state);
@@ -359,7 +362,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             if (selectionAtBlockEnd && selectionEmpty) {
               const firstChildBlockContent =
-                firstChildBlockInfo.bnBlock.node.firstChild!;
+                firstChildBlockInfo.blockContent.node;
               const firstChildBlockHasInlineContent =
                 firstChildBlockContent.type.spec.content === "inline*";
               const blockHasInlineContent =
@@ -367,6 +370,12 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
               return (
                 chain()
+                  // Un-nests child block's children if necessary.
+                  .insertContentAt(
+                    firstChildBlockInfo.bnBlock.afterPos,
+                    firstChildBlockInfo.childContainer?.node.content ||
+                      Fragment.empty,
+                  )
                   .deleteRange(
                     // Deletes whole child container if there's only one child.
                     childContainer.node.childCount === 1
@@ -522,6 +531,85 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             return true;
+          }),
+        // Deletes the next block at either the same or lower nesting level, if
+        // the selection is empty and at the end of the block. If both the
+        // current and next blocks have inline content, the next block's
+        // content is appended to the current block's. The next block's own 
+        // children are unindented before it's deleted.
+        () =>
+          commands.command(({ state }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+            const { blockContent } = blockInfo;
+
+            const selectionAtBlockEnd =
+              state.selection.from === blockContent.afterPos - 1;
+            const selectionEmpty = state.selection.empty;
+
+            if (selectionAtBlockEnd && selectionEmpty) {
+              const getNextBlockInfoAtAnyLevel = (
+                doc: Node,
+                beforePos: number,
+              ) => {
+                const nextBlockInfo = getNextBlockInfo(doc, beforePos);
+                if (nextBlockInfo) {
+                  return nextBlockInfo;
+                }
+
+                const parentBlockInfo = getParentBlockInfo(doc, beforePos);
+                if (!parentBlockInfo) {
+                  return undefined;
+                }
+
+                return getNextBlockInfoAtAnyLevel(
+                  doc,
+                  parentBlockInfo.bnBlock.beforePos,
+                );
+              };
+
+              const nextBlockInfo = getNextBlockInfoAtAnyLevel(
+                state.doc,
+                blockInfo.bnBlock.beforePos,
+              );
+              if (!nextBlockInfo || !nextBlockInfo.isBlockContainer) {
+                return false;
+              }
+
+              const nextBlockContent = nextBlockInfo.blockContent.node;
+              const nextBlockHasInlineContent =
+                nextBlockContent.type.spec.content === "inline*";
+              const blockHasInlineContent =
+                blockContent.node.type.spec.content === "inline*";
+
+              return (
+                chain()
+                  // Un-nests next block's children if necessary.
+                  .insertContentAt(
+                    nextBlockInfo.bnBlock.afterPos,
+                    nextBlockInfo.childContainer?.node.content ||
+                      Fragment.empty,
+                  )
+                  .deleteRange({
+                    from: nextBlockInfo.bnBlock.beforePos,
+                    to: nextBlockInfo.bnBlock.afterPos,
+                  })
+                  // Appends inline content from child block if possible.
+                  .insertContentAt(
+                    state.selection.from,
+                    nextBlockHasInlineContent && blockHasInlineContent
+                      ? nextBlockContent.content
+                      : null,
+                  )
+                  .setTextSelection(state.selection.from)
+                  .scrollIntoView()
+                  .run()
+              );
+            }
+
+            return false;
           }),
         // Deletes the current block if it's an empty block with inline content,
         // and moves the selection to the next block.
