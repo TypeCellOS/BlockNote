@@ -75,7 +75,7 @@ See [Understanding Changes](#understanding-changes) for more information about t
 The `onBeforeChange` callback is called before any change is applied to the editor, allowing you to cancel the change.
 
 ```typescript
-editor.onBeforeChange((editor, { getChanges, tr }) => {
+editor.onBeforeChange(({ getChanges, tr }) => {
   if (
     // Cancel inserting new blocks
     getChanges().some((change) => change.type === "insert")

@@ -42,15 +42,18 @@ This describes the shape of a table block in BlockNote.
 type TableBlock = {
   id: string;
   type: "table";
-  props: DefaultProps;
+  props: {
+    textColor: string;
+  };
   content: TableContent;
   children: Block[];
 };
 
 type TableContent = {
   type: "tableContent";
-  columnWidths: number[];
-  headerRows: number;
+  columnWidths: (number | undefined)[];
+  headerRows?: number;
+  headerCols?: number;
   rows: {
     cells: TableCell[];
   }[];
@@ -59,12 +62,17 @@ type TableContent = {
 type TableCell = {
   type: "tableCell";
   props: {
+    backgroundColor: string;
+    textColor: string;
+    textAlignment: "left" | "center" | "right" | "justify";
     colspan?: number;
     rowspan?: number;
-  } & DefaultProps;
+  };
   content: InlineContent[];
 };
 ```
+
+`textColor:` The text color of the table block. Defaults to `"default"`.
 
 ## Options
 

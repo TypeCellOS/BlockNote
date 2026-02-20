@@ -16,20 +16,23 @@ type FileBlock = {
   id: string;
   type: "file";
   props: {
-    name: string = "";
-    url: string = "";
-    caption: string = "";
-  } & DefaultProps;
+    backgroundColor: string;
+    name: string;
+    url: string;
+    caption: string;
+  };
   content: undefined;
   children: Block[];
 };
 ```
 
-`name:` The file name.
+`backgroundColor:` The background color of the block. Defaults to `"default"`.
 
-`url:` The file URL.
+`name:` The file name. Defaults to `""`.
 
-`caption:` The file caption.
+`url:` The file URL. Defaults to `""`.
+
+`caption:` The file caption. Defaults to `""`.
 
 ## Image
 
@@ -50,22 +53,32 @@ type ImageBlock = {
   id: string;
   type: "image";
   props: {
-    url: string = "";
-    caption: string = "";
-    previewWidth: number = 512;
-  } & DefaultProps;
+    backgroundColor: string;
+    textAlignment: "left" | "center" | "right" | "justify";
+    name: string;
+    url: string;
+    caption: string;
+    showPreview: boolean;
+    previewWidth: number | undefined;
+  };
   content: undefined;
   children: Block[];
 };
 ```
 
-`name:` The image name.
+`backgroundColor:` The background color of the block. Defaults to `"default"`.
 
-`url:` The image URL.
+`textAlignment:` The alignment of the image. Defaults to `"left"`.
 
-`caption:` The image caption.
+`name:` The image file name. Defaults to `""`.
 
-`previewWidth:` The image previewWidth in pixels.
+`url:` The image URL. Defaults to `""`.
+
+`caption:` The image caption. Defaults to `""`.
+
+`showPreview:` Whether to show the image preview or a link. Defaults to `true`.
+
+`previewWidth:` The image preview width in pixels. Defaults to `undefined` (no fixed width).
 
 ## Video
 
@@ -86,26 +99,32 @@ type VideoBlock = {
   id: string;
   type: "video";
   props: {
-    name: string = "";
-    url: string = "";
-    caption: string = "";
-    showPreview: boolean = true;
+    backgroundColor: string;
+    textAlignment: "left" | "center" | "right" | "justify";
+    name: string;
+    url: string;
+    caption: string;
+    showPreview: boolean;
     previewWidth: number | undefined;
-  } & DefaultProps;
+  };
   content: undefined;
   children: Block[];
 };
 ```
 
-`name:` The video name.
+`backgroundColor:` The background color of the block. Defaults to `"default"`.
 
-`url:` The video URL.
+`textAlignment:` The alignment of the video. Defaults to `"left"`.
 
-`caption:` The video caption.
+`name:` The video file name. Defaults to `""`.
 
-`showPreview:` Whether to show the video preview.
+`url:` The video URL. Defaults to `""`.
 
-`previewWidth:` The video preview width in pixels.
+`caption:` The video caption. Defaults to `""`.
+
+`showPreview:` Whether to show the video player or a link. Defaults to `true`.
+
+`previewWidth:` The video preview width in pixels. Defaults to `undefined` (no fixed width).
 
 ## Audio
 
@@ -126,20 +145,23 @@ type AudioBlock = {
   id: string;
   type: "audio";
   props: {
-    name: string = "";
-    url: string = "";
-    caption: string = "";
-    showPreview: boolean = true;
-  } & DefaultProps;
+    backgroundColor: string;
+    name: string;
+    url: string;
+    caption: string;
+    showPreview: boolean;
+  };
   content: undefined;
   children: Block[];
 };
 ```
 
-`name:` The audio name.
+`backgroundColor:` The background color of the block. Defaults to `"default"`.
 
-`url:` The audio URL.
+`name:` The audio file name. Defaults to `""`.
 
-`caption:` The audio caption.
+`url:` The audio URL. Defaults to `""`.
 
-`showPreview:` Whether to show the audio preview.
+`caption:` The audio caption. Defaults to `""`.
+
+`showPreview:` Whether to show the audio player or a link. Defaults to `true`.

@@ -20,10 +20,10 @@ It's possible to import HTML content into BlockNote blocks, completely client-si
 Use `tryParseHTMLToBlocks` to parse an HTML string to `Block` objects:
 
 ```typescript
-async tryParseHTMLToBlocks(html: string): Promise<Blocks[]>;
+tryParseHTMLToBlocks(html: string): Block[];
 
 // Usage
-const blocksFromHTML = await editor.tryParseHTMLToBlocks(html);
+const blocksFromHTML = editor.tryParseHTMLToBlocks(html);
 ```
 
 `returns:` The blocks parsed from the HTML string.
