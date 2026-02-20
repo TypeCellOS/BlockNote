@@ -238,8 +238,11 @@ export const SuggestionMenu = createExtension(({ editor }) => {
             _oldState,
             newState,
           ): SuggestionPluginState => {
-            // Ignore transactions in code blocks.
-            if (transaction.selection.$from.parent.type.spec.code) {
+            // Ignore transactions in code blocks or table content
+            if (
+              transaction.selection.$from.parent.type.spec.code ||
+              transaction.selection.$from.parent.type.isInGroup("tableContent")
+            ) {
               return prev;
             }
 
