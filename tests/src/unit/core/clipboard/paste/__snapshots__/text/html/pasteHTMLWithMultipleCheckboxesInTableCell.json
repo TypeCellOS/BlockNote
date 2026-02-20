@@ -15,9 +15,9 @@
               "content": [
                 {
                   "styles": {},
-                  "text": "Cell 1Paragraph 1
-Paragraph 2
-Paragraph 3",
+                  "text": "Cell 1ABC
+ Unit tests covering the new feature have been added.
+ All existing tests pass.",
                   "type": "text",
                 },
               ],

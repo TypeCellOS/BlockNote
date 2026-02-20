@@ -4,6 +4,7 @@
     "content": {
       "columnWidths": [
         undefined,
+        undefined,
       ],
       "headerCols": undefined,
       "headerRows": undefined,
@@ -14,7 +15,9 @@
               "content": [
                 {
                   "styles": {},
-                  "text": "Cell 1Line 1",
+                  "text": "Cell 1Line 1
+Line 2
+Line 3",
                   "type": "text",
                 },
               ],
@@ -27,62 +30,6 @@
               },
               "type": "tableCell",
             },
-          ],
-        },
-      ],
-      "type": "tableContent",
-    },
-    "id": "1",
-    "props": {
-      "textColor": "default",
-    },
-    "type": "table",
-  },
-  {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "Line 2",
-        "type": "text",
-      },
-    ],
-    "id": "2",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "Line 3",
-        "type": "text",
-      },
-    ],
-    "id": "3",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": {
-      "columnWidths": [
-        undefined,
-      ],
-      "headerCols": undefined,
-      "headerRows": undefined,
-      "rows": [
-        {
-          "cells": [
             {
               "content": [
                 {
@@ -105,7 +52,7 @@
       ],
       "type": "tableContent",
     },
-    "id": "4",
+    "id": "1",
     "props": {
       "textColor": "default",
     },

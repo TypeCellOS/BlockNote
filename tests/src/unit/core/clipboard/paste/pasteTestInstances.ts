@@ -187,6 +187,33 @@ export const pasteTestInstancesHTML: TestInstance<
     },
     executeTest: testPasteHTML,
   },
+  {
+    testCase: {
+      name: "pasteHTMLWithMultipleCheckboxesInTableCell",
+      content: `<li class="task-list-item enabled hovered">ABC</li>
+<li class="task-list-item enabled"><span class="handle"></span><input type="checkbox" id="" class="task-list-item-checkbox" aria-label="Incomplete task"> Unit tests covering the new feature have been added.</li>
+<li class="task-list-item enabled"><span class="handle"></span><input type="checkbox" id="" class="task-list-item-checkbox" aria-label="Incomplete task"> All existing tests pass.</li>`,
+      document: [
+        {
+          type: "table",
+          content: {
+            type: "tableContent",
+            rows: [
+              {
+                cells: [["Cell 1"], ["Cell 2"]],
+              },
+            ],
+          },
+        },
+      ],
+      getPasteSelection: (doc) => {
+        const startPos = getPosOfTextNode(doc, "Cell 1", true);
+
+        return TextSelection.create(doc, startPos);
+      },
+    },
+    executeTest: testPasteHTML,
+  },
 ];
 
 export const pasteTestInstancesMarkdown: TestInstance<

@@ -25,27 +25,30 @@ function convertBlocksToInlineContent(
   schema: Schema,
 ): Fragment {
   const hardBreak = schema.nodes.hardBreak;
-  let flattenedFragment = Fragment.empty;
+  let result = Fragment.empty;
 
   fragment.forEach((node) => {
-    if (node.isInline) {
-      // This is a paragraph or similar - extract its inline content
-      flattenedFragment = flattenedFragment.append(
+    if (node.isTextblock && node.childCount > 0) {
+      // Extract inline content from paragraphs, headings, etc.
+      result = result.append(node.content);
+      result = result.addToEnd(hardBreak.create());
+    } else if (node.isText) {
+      result = result.addToEnd(node);
+    } else if (node.isBlock && node.childCount > 0) {
+      // Recurse into block containers, blockGroups, etc.
+      result = result.append(
         convertBlocksToInlineContent(node.content, schema),
       );
-      // Add hard break after each block (except we'll remove the last one)
-      flattenedFragment = flattenedFragment.addToEnd(hardBreak.create());
-    } else if (node.isText) {
-      flattenedFragment = flattenedFragment.addToEnd(node);
+      result = result.addToEnd(hardBreak.create());
     }
   });
 
-  // Remove the last hard break if present
-  if (flattenedFragment.lastChild?.type?.name === "hardBreak") {
-    flattenedFragment.cut(0, flattenedFragment.childCount - 1);
+  // Remove trailing hard break
+  if (result.lastChild?.type === hardBreak) {
+    result = result.cut(0, result.size - 1);
   }
 
-  return flattenedFragment;
+  return result;
 }
 
 // helper function to remove a child from a fragment
@@ -111,16 +114,18 @@ export function transformPasted(slice: Slice, view: EditorView) {
   f = wrapTableRows(f, view.state.schema);
 
   if (isInTableCell(view)) {
-    // If the pasted content has block-level elements, convert to inline content
-    let hasBlockContent = false;
+    let hasTableContent = false;
     f.descendants((node) => {
-      if (node.isInline && node.childCount > 0) {
-        // This is a paragraph with content
-        hasBlockContent = true;
+      if (node.type.isInGroup("tableContent")) {
+        hasTableContent = true;
       }
     });
-
-    if (hasBlockContent && f.childCount > 1) {
+    if (
+      !hasTableContent &&
+      // is the content valid for a table paragraph?
+      !view.state.schema.nodes.tableParagraph.validContent(f)
+    ) {
+      // if not, convert the content to inline content
       return new Slice(
         convertBlocksToInlineContent(f, view.state.schema),
         0,
