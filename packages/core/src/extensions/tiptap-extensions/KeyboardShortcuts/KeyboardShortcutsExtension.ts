@@ -11,7 +11,10 @@ import { nestBlock } from "../../../api/blockManipulation/commands/nestBlock/nes
 import { fixColumnList } from "../../../api/blockManipulation/commands/replaceBlocks/util/fixColumnList.js";
 import { splitBlockCommand } from "../../../api/blockManipulation/commands/splitBlock/splitBlock.js";
 import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import { getBlockInfoFromSelection } from "../../../api/getBlockInfoFromPos.js";
+import {
+  getBlockInfoFromResolvedPos,
+  getBlockInfoFromSelection,
+} from "../../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { FormattingToolbarExtension } from "../../FormattingToolbar/FormattingToolbar.js";
 import { FilePanelExtension } from "../../FilePanel/FilePanel.js";
@@ -84,6 +87,18 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
             const { bnBlock: blockContainer, blockContent } = blockInfo;
 
+            const prevBlockInfo = getPrevBlockInfo(
+              state.doc,
+              blockInfo.bnBlock.beforePos,
+            );
+            if (
+              !prevBlockInfo ||
+              !prevBlockInfo.isBlockContainer ||
+              prevBlockInfo.blockContent.node.type.spec.content !== "inline*"
+            ) {
+              return false;
+            }
+
             const selectionAtBlockStart =
               state.selection.from === blockContent.beforePos + 1;
             const selectionEmpty = state.selection.empty;
@@ -99,9 +114,46 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             return false;
           }),
+        // If the previous block is a columnList, moves the current block to
+        // the end of the last column in it.
         () =>
           commands.command(({ state, tr, dispatch }) => {
-            // when at the start of a first block in a column
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+
+            const prevBlockInfo = getPrevBlockInfo(
+              state.doc,
+              blockInfo.bnBlock.beforePos,
+            );
+            if (!prevBlockInfo || prevBlockInfo.isBlockContainer) {
+              return false;
+            }
+
+            if (dispatch) {
+              const columnAfterPos = prevBlockInfo.bnBlock.afterPos - 1;
+              const $blockAfterPos = tr.doc.resolve(columnAfterPos - 1);
+
+              tr.delete(
+                blockInfo.bnBlock.beforePos,
+                blockInfo.bnBlock.afterPos,
+              );
+              tr.insert($blockAfterPos.pos, blockInfo.bnBlock.node);
+              tr.setSelection(
+                TextSelection.near(tr.doc.resolve($blockAfterPos.pos + 1)),
+              );
+
+              return true;
+            }
+
+            return false;
+          }),
+        // If the block is the first in a column, moves it to the end of the
+        // previous column. If there is no previous column, moves it above the
+        // columnList.
+        () =>
+          commands.command(({ state, tr, dispatch }) => {
             const blockInfo = getBlockInfoFromSelection(state);
             if (!blockInfo.isBlockContainer) {
               return false;
@@ -117,7 +169,6 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             const prevBlock = $pos.nodeBefore;
             if (prevBlock) {
-              // should be no previous block
               return false;
             }
 
@@ -131,31 +182,22 @@ export const KeyboardShortcutsExtension = Extension.create<{
             const columnListPos = $columnPos.before();
 
             if (dispatch) {
-              const fragment = tr.doc.slice(
-                blockInfo.bnBlock.beforePos,
-                blockInfo.bnBlock.afterPos,
-              ).content;
-
               tr.delete(
                 blockInfo.bnBlock.beforePos,
                 blockInfo.bnBlock.afterPos,
               );
+              fixColumnList(tr, columnListPos);
 
-              if ($columnPos.index() === 0) {
-                // Fix `columnList` and insert the block before it.
-                fixColumnList(tr, columnListPos);
-                tr.insert(columnListPos, fragment);
+              if ($columnPos.pos === columnListPos + 1) {
+                tr.insert(columnListPos, blockInfo.bnBlock.node);
                 tr.setSelection(
                   TextSelection.near(tr.doc.resolve(columnListPos)),
                 );
               } else {
-                // Insert the block at the end of the first column and fix
-                // `columnList`.
-                tr.insert($columnPos.pos - 1, fragment);
+                tr.insert($columnPos.pos - 1, blockInfo.bnBlock.node);
                 tr.setSelection(
-                  TextSelection.near(tr.doc.resolve($columnPos.pos - 1)),
+                  TextSelection.near(tr.doc.resolve($columnPos.pos)),
                 );
-                fixColumnList(tr, columnListPos);
               }
             }
 
@@ -239,8 +281,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             const blockInfo = getBlockInfoFromSelection(state);
 
             if (!blockInfo.isBlockContainer) {
-              // TODO
-              throw new Error(`todo`);
+              return false;
             }
 
             const selectionAtBlockStart =
@@ -259,8 +300,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
               );
 
               if (!bottomBlock.isBlockContainer) {
-                // TODO
-                throw new Error(`todo`);
+                return false;
               }
 
               const prevBlockNotTableAndNoContent =
@@ -294,6 +334,66 @@ export const KeyboardShortcutsExtension = Extension.create<{
       this.editor.commands.first(({ chain, commands }) => [
         // Deletes the selection if it's not empty.
         () => commands.deleteSelection(),
+        // Deletes the first child block into the current block, if the
+        // selection is empty and at the end of the current block. If both the
+        // parent and child blocks have inline content, the child block's
+        // content is appended to the parent's.
+        () =>
+          commands.command(({ state }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer || !blockInfo.childContainer) {
+              return false;
+            }
+            const { blockContent, childContainer } = blockInfo;
+
+            const selectionAtBlockEnd =
+              state.selection.from === blockContent.afterPos - 1;
+            const selectionEmpty = state.selection.empty;
+
+            const firstChildBlockInfo = getBlockInfoFromResolvedPos(
+              state.doc.resolve(childContainer.beforePos + 1),
+            );
+            if (!firstChildBlockInfo.isBlockContainer) {
+              return false;
+            }
+
+            if (selectionAtBlockEnd && selectionEmpty) {
+              const firstChildBlockContent =
+                firstChildBlockInfo.bnBlock.node.firstChild!;
+              const firstChildBlockHasInlineContent =
+                firstChildBlockContent.type.spec.content === "inline*";
+              const blockHasInlineContent =
+                blockContent.node.type.spec.content === "inline*";
+
+              return (
+                chain()
+                  .deleteRange(
+                    // Deletes whole child container if there's only one child.
+                    childContainer.node.childCount === 1
+                      ? {
+                          from: childContainer.beforePos,
+                          to: childContainer.afterPos,
+                        }
+                      : {
+                          from: firstChildBlockInfo.bnBlock.beforePos,
+                          to: firstChildBlockInfo.bnBlock.afterPos,
+                        },
+                  )
+                  // Appends inline content from child block if possible.
+                  .insertContentAt(
+                    state.selection.from,
+                    firstChildBlockHasInlineContent && blockHasInlineContent
+                      ? firstChildBlockContent.content
+                      : null,
+                  )
+                  .setTextSelection(state.selection.from)
+                  .scrollIntoView()
+                  .run()
+              );
+            }
+
+            return false;
+          }),
         // Merges block with the next one (at the same nesting level or lower),
         // if one exists, the block has no children, and the selection is at the
         // end of the block.
@@ -304,6 +404,14 @@ export const KeyboardShortcutsExtension = Extension.create<{
               return false;
             }
             const { bnBlock: blockContainer, blockContent } = blockInfo;
+
+            const nextBlockInfo = getNextBlockInfo(
+              state.doc,
+              blockInfo.bnBlock.beforePos,
+            );
+            if (!nextBlockInfo || !nextBlockInfo.isBlockContainer) {
+              return false;
+            }
 
             const selectionAtBlockEnd =
               state.selection.from === blockContent.afterPos - 1;
@@ -319,6 +427,101 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             return false;
+          }),
+        // If the previous block is a columnList, moves the current block to
+        // the end of the last column in it.
+        () =>
+          commands.command(({ state, tr, dispatch }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+
+            const nextBlockInfo = getNextBlockInfo(
+              state.doc,
+              blockInfo.bnBlock.beforePos,
+            );
+            if (!nextBlockInfo || nextBlockInfo.isBlockContainer) {
+              return false;
+            }
+
+            if (dispatch) {
+              const columnBeforePos = nextBlockInfo.bnBlock.beforePos + 1;
+              const $blockBeforePos = tr.doc.resolve(columnBeforePos + 1);
+
+              tr.delete(
+                $blockBeforePos.pos,
+                $blockBeforePos.pos + $blockBeforePos.nodeAfter!.nodeSize,
+              );
+              fixColumnList(tr, nextBlockInfo.bnBlock.beforePos);
+              tr.insert(blockInfo.bnBlock.afterPos, $blockBeforePos.nodeAfter!);
+              tr.setSelection(
+                TextSelection.near(tr.doc.resolve($blockBeforePos.pos)),
+              );
+
+              return true;
+            }
+
+            return false;
+          }),
+        // If the block is the last in a column, moves it to the start of the
+        // next column. If there is no next column, moves it below the
+        // columnList.
+        () =>
+          commands.command(({ state, tr, dispatch }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+
+            const selectionAtBlockEnd =
+              tr.selection.from === blockInfo.blockContent.afterPos - 1;
+            if (!selectionAtBlockEnd) {
+              return false;
+            }
+
+            const $pos = tr.doc.resolve(blockInfo.bnBlock.afterPos);
+
+            const nextBlock = $pos.nodeAfter;
+            if (nextBlock) {
+              return false;
+            }
+
+            const parentBlock = $pos.node();
+            if (parentBlock.type.name !== "column") {
+              return false;
+            }
+
+            const $blockEndPos = tr.doc.resolve(blockInfo.bnBlock.afterPos);
+            const $columnEndPos = tr.doc.resolve($blockEndPos.after());
+            const columnListEndPos = $columnEndPos.after();
+
+            if (dispatch) {
+              // Position before first block in next column, or first block
+              // after columnList if there is no next column.
+              const nextBlockBeforePos =
+                $columnEndPos.pos === columnListEndPos - 1
+                  ? columnListEndPos
+                  : $columnEndPos.pos + 1;
+              const nextBlockInfo = getBlockInfoFromResolvedPos(
+                tr.doc.resolve(nextBlockBeforePos),
+              );
+
+              tr.delete(
+                nextBlockInfo.bnBlock.beforePos,
+                nextBlockInfo.bnBlock.afterPos,
+              );
+              fixColumnList(
+                tr,
+                columnListEndPos - $columnEndPos.node().nodeSize,
+              );
+              tr.insert($blockEndPos.pos, nextBlockInfo.bnBlock.node);
+              tr.setSelection(
+                TextSelection.near(tr.doc.resolve(nextBlockBeforePos)),
+              );
+            }
+
+            return true;
           }),
         // Deletes the current block if it's an empty block with inline content,
         // and moves the selection to the next block.
@@ -388,8 +591,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             const blockInfo = getBlockInfoFromSelection(state);
 
             if (!blockInfo.isBlockContainer) {
-              // TODO
-              throw new Error(`todo`);
+              return false;
             }
 
             const selectionAtBlockEnd =
@@ -404,8 +606,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
               return false;
             }
             if (!nextBlockInfo.isBlockContainer) {
-              // TODO
-              throw new Error(`todo`);
+              return false;
             }
 
             if (nextBlockInfo && selectionAtBlockEnd && selectionEmpty) {
