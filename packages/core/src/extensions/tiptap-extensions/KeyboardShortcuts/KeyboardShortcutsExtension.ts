@@ -184,6 +184,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
               let chainedCommands = chain();
 
+              // Moves the children of the current block to the previous one.
               if (blockInfo.childContainer) {
                 chainedCommands.insertContentAt(
                   blockInfo.bnBlock.afterPos,
@@ -437,6 +438,8 @@ export const KeyboardShortcutsExtension = Extension.create<{
               const newBlockContentPos = newBlockInsertionPos + 2;
 
               if (dispatch) {
+                // Creates a new block with the children of the current block,
+                // if it has any.
                 const newBlock = state.schema.nodes[
                   "blockContainer"
                 ].createAndFill(
@@ -448,12 +451,15 @@ export const KeyboardShortcutsExtension = Extension.create<{
                   ].filter((node) => node !== undefined),
                 )!;
 
+                // Inserts the new block and moves the selection to it.
                 tr.insert(newBlockInsertionPos, newBlock)
                   .setSelection(
                     new TextSelection(tr.doc.resolve(newBlockContentPos)),
                   )
                   .scrollIntoView();
 
+                // Deletes old block's children, as they have been moved to
+                // the new one.
                 if (blockInfo.childContainer) {
                   tr.delete(
                     blockInfo.childContainer.beforePos,
