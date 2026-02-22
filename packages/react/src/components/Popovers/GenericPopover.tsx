@@ -176,7 +176,7 @@ export const GenericPopover = (
     );
   }
 
-  if (props.focusManagerProps) {
+  if (!props.focusManagerProps?.disabled) {
     return (
       <FloatingFocusManager {...props.focusManagerProps} context={context}>
         <div ref={mergedRefs} {...mergedProps}>

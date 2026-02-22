@@ -5,6 +5,7 @@ import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { FloatingUIOptions } from "./FloatingUIOptions.js";
 import { GenericPopover } from "./GenericPopover.js";
 
+// TODO: not used!?
 export const TableCellPopover = (
   props: FloatingUIOptions & {
     blockId: string | undefined;

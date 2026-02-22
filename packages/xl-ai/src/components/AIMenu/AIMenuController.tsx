@@ -93,7 +93,10 @@ export const AIMenuController = (props: {
         },
         // we use the focus manager instead of `autoFocus={true}` to prevent "page-scrolls-to-top-when-opening-the-floating-element"
         // see https://floating-ui.com/docs/floatingfocusmanager#page-scrolls-to-top-when-opening-the-floating-element
-        focusManagerProps: {},
+        focusManagerProps: {
+          disabled: false,
+          ...props.floatingUIOptions?.focusManagerProps,
+        },
       }) satisfies FloatingUIOptions,
     [ai, aiMenuState, blockId, props.floatingUIOptions],
   );
