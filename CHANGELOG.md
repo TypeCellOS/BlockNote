@@ -1,3 +1,34 @@
+## 0.47.0 (2026-02-23)
+
+### 🚀 Features
+
+- update suggestion menu component ([#2397](https://github.com/TypeCellOS/BlockNote/pull/2397))
+- **i18n:** add Persian (fa) localization support ([#2447](https://github.com/TypeCellOS/BlockNote/pull/2447))
+- **i18n:** add Uzbek (uz) localization support ([#2506](https://github.com/TypeCellOS/BlockNote/pull/2506))
+
+### 🩹 Fixes
+
+- prevent nested bullet list icon rendering as emoji on iOS 18+ ([#2394](https://github.com/TypeCellOS/BlockNote/pull/2394), [#2399](https://github.com/TypeCellOS/BlockNote/pull/2399))
+- ignore drag & drop from unrelated events #1968 ([#2346](https://github.com/TypeCellOS/BlockNote/pull/2346), [#1968](https://github.com/TypeCellOS/BlockNote/issues/1968))
+- disable checkbox when editor is not editable #2406 ([#2448](https://github.com/TypeCellOS/BlockNote/pull/2448), [#2406](https://github.com/TypeCellOS/BlockNote/issues/2406))
+- Backspace/enter behaviour in empty block with children ([#2451](https://github.com/TypeCellOS/BlockNote/pull/2451))
+- handle pasting into table cells better, by collapsing their content to inline #2410 ([#2449](https://github.com/TypeCellOS/BlockNote/pull/2449), [#2410](https://github.com/TypeCellOS/BlockNote/issues/2410))
+- **accessibility:** ai combobox aria-activedescendant ([#2413](https://github.com/TypeCellOS/BlockNote/pull/2413))
+- **ai:** no more scrolling to top when opening AI menu ([#2503](https://github.com/TypeCellOS/BlockNote/pull/2503))
+- **docs:** unicode char not rendered in bug template ([f13e270be](https://github.com/TypeCellOS/BlockNote/commit/f13e270be))
+
+### ❤️ Thank You
+
+- Cyril G @Ovgodd
+- Dex Devlon @bxff
+- Matthew Lipski @matthewlipski
+- MDSAM05 @MDSAM05
+- Mohammad RAHMANI @Mrahmani71
+- Nick Perez
+- Ogabek @OgabekYuldoshev
+- Wouter Vroege
+- Yousef
+
 ## 0.46.2 (2026-01-27)
 
 ### 🩹 Fixes
