@@ -1,4 +1,5 @@
 import {
+  FloatingFocusManagerProps,
   UseDismissProps,
   UseFloatingOptions,
   UseHoverProps,
@@ -14,4 +15,8 @@ export type FloatingUIOptions = {
   useDismissProps?: UseDismissProps;
   useHoverProps?: UseHoverProps;
   elementProps?: HTMLAttributes<HTMLDivElement>;
+  /**
+   * Props to pass to the `FloatingFocusManager` component.
+   */
+  focusManagerProps?: Omit<FloatingFocusManagerProps, "context" | "children">;
 };

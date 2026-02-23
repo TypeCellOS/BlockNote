@@ -128,6 +128,10 @@ export function SuggestionMenuController<
         ],
         ...props.floatingUIOptions?.useFloatingOptions,
       },
+      focusManagerProps: {
+        disabled: true,
+        ...props.floatingUIOptions?.focusManagerProps,
+      },
       elementProps: {
         // Prevents editor blurring when clicking the scroll bar.
         onMouseDownCapture: (event) => event.preventDefault(),

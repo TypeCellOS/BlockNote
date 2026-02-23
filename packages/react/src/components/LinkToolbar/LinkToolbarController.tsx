@@ -150,6 +150,10 @@ export const LinkToolbarController = (props: {
         handleClose: safePolygon(),
         ...props.floatingUIOptions?.useHoverProps,
       },
+      focusManagerProps: {
+        disabled: true,
+        ...props.floatingUIOptions?.focusManagerProps,
+      },
       elementProps: {
         style: {
           zIndex: 50,

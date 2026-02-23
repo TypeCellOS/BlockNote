@@ -12,6 +12,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -30,7 +31,8 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
   // const dict = useAIDictionary();
   const Components = useComponentsContext()!;
 
-  const { onManualPromptSubmit, promptText, onPromptTextChange } = props;
+  const { onManualPromptSubmit, promptText, onPromptTextChange, disabled } =
+    props;
 
   // Only used internal state when `props.prompText` is undefined (i.e., uncontrolled mode)
   const [internalPromptText, setInternalPromptText] = useState<string>("");
@@ -95,18 +97,31 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
     setSelectedIndex(0);
   }, [promptTextToUse, setSelectedIndex]);
 
+  const inputRef = useRef<HTMLInputElement>(null);
+  const hasBeenDisabled = useRef(disabled);
+
+  useEffect(() => {
+    // This effect is used so that after the input has been disabled (for example, when AI results are loaded),
+    // the input is focused again.
+    if (inputRef.current && hasBeenDisabled.current && !disabled) {
+      inputRef.current.focus();
+    }
+
+    if (disabled) {
+      hasBeenDisabled.current = true;
+    }
+  }, [disabled]);
+
   return (
     <div className={"bn-combobox"}>
       <Components.Generic.Form.Root>
         <Components.Generic.Form.TextInput
-          // Change the key when disabled change, so that autofocus is retriggered
-          key={"input-" + props.disabled}
+          ref={inputRef}
           className={"bn-combobox-input"}
           name={"ai-prompt"}
           variant={"large"}
           icon={props.icon}
           value={promptTextToUse || ""}
-          autoFocus={true}
           placeholder={props.placeholder}
           disabled={props.disabled}
           onKeyDown={handleKeyDown}
