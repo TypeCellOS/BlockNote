@@ -1,0 +1,217 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "blockGroup",
+      "content": [
+        {
+          "type": "blockContainer",
+          "attrs": {
+            "id": "0"
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Welcome to this demo!"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "columnList",
+          "attrs": {
+            "id": "1"
+          },
+          "content": [
+            {
+              "type": "column",
+              "attrs": {
+                "id": "2",
+                "width": 0.8
+              },
+              "content": [
+                {
+                  "type": "blockContainer",
+                  "attrs": {
+                    "id": "3"
+                  },
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "backgroundColor": "default",
+                        "textColor": "default",
+                        "textAlignment": "left"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "This paragraph is in a column!"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "column",
+              "attrs": {
+                "id": "4",
+                "width": 1.4
+              },
+              "content": [
+                {
+                  "type": "blockContainer",
+                  "attrs": {
+                    "id": "5"
+                  },
+                  "content": [
+                    {
+                      "type": "heading",
+                      "attrs": {
+                        "backgroundColor": "default",
+                        "textColor": "default",
+                        "textAlignment": "left",
+                        "level": 1,
+                        "isToggleable": false
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "So is this heading!"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "blockContainer",
+                  "attrs": {
+                    "id": "7"
+                  },
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "backgroundColor": "default",
+                        "textColor": "default",
+                        "textAlignment": "left"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "You can have multiple blocks in a column too"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "column",
+              "attrs": {
+                "id": "6",
+                "width": 0.8
+              },
+              "content": [
+                {
+                  "type": "blockContainer",
+                  "attrs": {
+                    "id": "8"
+                  },
+                  "content": [
+                    {
+                      "type": "bulletListItem",
+                      "attrs": {
+                        "backgroundColor": "default",
+                        "textColor": "default",
+                        "textAlignment": "left"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Block 1"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "blockContainer",
+                  "attrs": {
+                    "id": "9"
+                  },
+                  "content": [
+                    {
+                      "type": "bulletListItem",
+                      "attrs": {
+                        "backgroundColor": "default",
+                        "textColor": "default",
+                        "textAlignment": "left"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Block 2"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "blockContainer",
+                  "attrs": {
+                    "id": "10"
+                  },
+                  "content": [
+                    {
+                      "type": "bulletListItem",
+                      "attrs": {
+                        "backgroundColor": "default",
+                        "textColor": "default",
+                        "textAlignment": "left"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Block 3"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "blockContainer",
+          "attrs": {
+            "id": "11"
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
