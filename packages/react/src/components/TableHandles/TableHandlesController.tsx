@@ -19,9 +19,9 @@ import {
 } from "../Popovers/GenericPopover.js";
 import { ExtendButton } from "./ExtendButton/ExtendButton.js";
 import { ExtendButtonProps } from "./ExtendButton/ExtendButtonProps.js";
-import { TableHandle } from "./TableHandle.js";
 import { TableCellButton } from "./TableCellButton.js";
 import { TableCellButtonProps } from "./TableCellButtonProps.js";
+import { TableHandle } from "./TableHandle.js";
 import { TableHandleProps } from "./TableHandleProps.js";
 
 export const TableHandlesController = <
@@ -159,6 +159,9 @@ export const TableHandlesController = <
                 placement: "left",
                 middleware: [offset(-10)],
               },
+              focusManagerProps: {
+                disabled: true,
+              },
               elementProps: {
                 style: {
                   zIndex: 10,
@@ -175,6 +178,9 @@ export const TableHandlesController = <
                 placement: "top",
                 middleware: [offset(-12)],
               },
+              focusManagerProps: {
+                disabled: true,
+              },
               elementProps: {
                 style: {
                   zIndex: 10,
@@ -190,6 +196,9 @@ export const TableHandlesController = <
                   (!onlyShownElement || onlyShownElement === "tableCellHandle"),
                 placement: "top-end",
                 middleware: [offset({ mainAxis: -15, crossAxis: -1 })],
+              },
+              focusManagerProps: {
+                disabled: true,
               },
               elementProps: {
                 style: {
@@ -215,6 +224,9 @@ export const TableHandlesController = <
                   }),
                 ],
               },
+              focusManagerProps: {
+                disabled: true,
+              },
               elementProps: {
                 style: {
                   zIndex: 10,
@@ -238,6 +250,9 @@ export const TableHandlesController = <
                     },
                   }),
                 ],
+              },
+              focusManagerProps: {
+                disabled: true,
               },
               elementProps: {
                 style: {

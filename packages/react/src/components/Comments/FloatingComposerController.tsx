@@ -62,6 +62,9 @@ export default function FloatingComposerController<
         middleware: [offset(10), shift(), flip()],
         ...props.floatingUIOptions?.useFloatingOptions,
       },
+      focusManagerProps: {
+        disabled: false,
+      },
       elementProps: {
         style: {
           zIndex: 60,
