@@ -80,7 +80,7 @@ To create your own syntax highlighter, you can use the [shiki-codegen](https://s
 For example, to create a syntax highlighter using the optimized javascript engine, javascript, typescript, vue, with light and dark themes, you can run the following command:
 
 ```bash
-npx shiki-codegen --langs javascript,typescript,vue --themes light,dark --engine javascript --precompiled ./shiki.bundle.ts
+npx shiki-codegen --langs javascript,typescript,vue --themes light-plus,dark-plus --engine javascript --precompiled ./shiki.bundle.ts
 ```
 
 This will generate a `shiki.bundle.ts` file that you can use to create a syntax highlighter for your editor.
@@ -93,21 +93,23 @@ import { createHighlighter } from "./shiki.bundle.js";
 export default function App() {
   const editor = useCreateBlockNote({
     schema: BlockNoteSchema.create().extend({
-      codeBlock: createCodeBlockSpec({
-        indentLineWithTab: true,
-        defaultLanguage: "typescript",
-        supportedLanguages: {
-          typescript: {
-            name: "TypeScript",
-            aliases: ["ts"],
+      blockSpecs: {
+        codeBlock: createCodeBlockSpec({
+          indentLineWithTab: true,
+          defaultLanguage: "typescript",
+          supportedLanguages: {
+            typescript: {
+              name: "TypeScript",
+              aliases: ["ts"],
+            },
           },
-        },
-        createHighlighter: () =>
-          createHighlighter({
-            themes: ["light-plus", "dark-plus"],
-            langs: [],
-          }),
-      }),
+          createHighlighter: () =>
+            createHighlighter({
+              themes: ["light-plus", "dark-plus"],
+              langs: [],
+            }),
+        }),
+      },
     }),
   });
 

@@ -3,6 +3,7 @@ import {
   ComponentType,
   createContext,
   CSSProperties,
+  ForwardedRef,
   HTMLInputAutoCompleteAttribute,
   KeyboardEvent,
   MouseEvent,
@@ -274,6 +275,7 @@ export type ComponentProps = {
         onSubmit?: () => void;
         autoComplete?: HTMLInputAutoCompleteAttribute;
         "aria-activedescendant"?: string;
+        ref?: ForwardedRef<HTMLInputElement>;
       };
     };
     Menu: {
