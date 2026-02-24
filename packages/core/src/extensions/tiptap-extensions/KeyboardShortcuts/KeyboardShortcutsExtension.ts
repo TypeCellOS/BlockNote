@@ -705,7 +705,6 @@ export const KeyboardShortcutsExtension = Extension.create<{
                   nextBlockInfo.blockContent.node.childCount === 0);
 
               if (nextBlockNotTableAndNoContent) {
-                if (nextBlockInfo.bnBlock.node.childCount === 2) {
                   const childBlocks =
                     nextBlockInfo.bnBlock.node.lastChild!.content;
                   return chain()
@@ -713,16 +712,8 @@ export const KeyboardShortcutsExtension = Extension.create<{
                       from: nextBlockInfo.bnBlock.beforePos,
                       to: nextBlockInfo.bnBlock.afterPos,
                     })
-                    .insertContentAt(blockInfo.bnBlock.afterPos, childBlocks)
+                    .insertContentAt(blockInfo.bnBlock.afterPos, nextBlockInfo.bnBlock.node.childCount === 2 ? childBlocks : null)
                     .run();
-                }
-
-                return chain()
-                  .deleteRange({
-                    from: nextBlockInfo.bnBlock.beforePos,
-                    to: nextBlockInfo.bnBlock.afterPos,
-                  })
-                  .run();
               }
             }
 

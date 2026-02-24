@@ -10,25 +10,24 @@ import {
  * Returns the block info from the parent block
  * or undefined if we're at the root
  */
-export const getParentBlockInfo = (doc: Node, beforePos: number) => {
+export const getParentBlockInfo = (doc: Node, beforePos: number): BlockInfo | undefined => {
   const $pos = doc.resolve(beforePos);
+  const depth = $pos.depth - 1;
+  const parentBeforePos = $pos.before(depth);
+  const parentNode = doc.resolve(parentBeforePos).nodeAfter;
 
-  if ($pos.depth <= 1) {
+  if (!parentNode) {
     return undefined;
   }
 
-  // get start pos of parent
-  const parentBeforePos = $pos.posAtIndex(
-    // TODO: This works for blockContainer nodes as we need to traverse 2
-    // nesting levels due to the blockGroup in between. However, that's not the
-    // case for columns.
-    $pos.index($pos.depth - 2),
-    $pos.depth - 2,
-  );
+  if (!parentNode.type.spec.group?.includes("bnBlock")) {
+    return getParentBlockInfo(doc, parentBeforePos);
+  }
 
   const parentBlockInfo = getBlockInfoFromResolvedPos(
     doc.resolve(parentBeforePos),
   );
+
   return parentBlockInfo;
 };
 
