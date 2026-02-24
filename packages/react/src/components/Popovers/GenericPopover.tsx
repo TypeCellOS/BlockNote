@@ -1,12 +1,13 @@
 import {
-  useFloating,
-  useTransitionStyles,
+  autoUpdate,
+  FloatingFocusManager,
   useDismiss,
+  useFloating,
+  useHover,
   useInteractions,
   useMergeRefs,
   useTransitionStatus,
-  autoUpdate,
-  useHover,
+  useTransitionStyles,
 } from "@floating-ui/react";
 import { HTMLAttributes, ReactNode, useEffect, useRef } from "react";
 
@@ -172,6 +173,16 @@ export const GenericPopover = (
         {...mergedProps}
         dangerouslySetInnerHTML={{ __html: innerHTML.current }}
       />
+    );
+  }
+
+  if (!props.focusManagerProps?.disabled) {
+    return (
+      <FloatingFocusManager {...props.focusManagerProps} context={context}>
+        <div ref={mergedRefs} {...mergedProps}>
+          {props.children}
+        </div>
+      </FloatingFocusManager>
     );
   }
 

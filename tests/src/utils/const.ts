@@ -11,6 +11,10 @@ export const ARIAKIT_URL = !process.env.RUN_IN_DOCKER
   ? `http://localhost:${PORT}/basic/ariakit?hideMenu`
   : `http://host.docker.internal:${PORT}/basic/ariakit?hideMenu`;
 
+export const AI_URL = !process.env.RUN_IN_DOCKER
+  ? `http://localhost:${PORT}/ai/minimal?hideMenu`
+  : `http://host.docker.internal:${PORT}/ai/minimal?hideMenu`;
+
 export const MULTI_COLUMN_URL = !process.env.RUN_IN_DOCKER
   ? `http://localhost:${PORT}/basic/multi-column?hideMenu`
   : `http://host.docker.internal:${PORT}/basic/multi-column?hideMenu`;

@@ -36,6 +36,10 @@ export const SideMenuController = (props: {
         enabled: false,
         ...props.floatingUIOptions?.useDismissProps,
       },
+      focusManagerProps: {
+        disabled: true,
+        ...props.floatingUIOptions?.focusManagerProps,
+      },
       elementProps: {
         style: {
           zIndex: 20,
