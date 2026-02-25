@@ -27,6 +27,7 @@ export type GenericPopoverReference =
       cacheMountedBoundingClientRect?: boolean;
     }
   | {
+      element: undefined;
       // When no reference element is provided, this can be provided as an
       // alternative "virtual" element to position the popover around.
       getBoundingClientRect: () => DOMRect;
@@ -62,7 +63,7 @@ export function getMountedBoundingClientRectCache(
 
   return () => {
     if (
-      "element" in reference &&
+      reference.element &&
       (reference.cacheMountedBoundingClientRect ?? true)
     ) {
       if (reference.element.isConnected) {
