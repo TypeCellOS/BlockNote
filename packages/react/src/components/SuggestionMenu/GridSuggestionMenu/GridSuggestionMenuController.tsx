@@ -9,7 +9,10 @@ import {
   useExtensionState,
 } from "../../../hooks/useExtension.js";
 import { FloatingUIOptions } from "../../Popovers/FloatingUIOptions.js";
-import { GenericPopover } from "../../Popovers/GenericPopover.js";
+import {
+  GenericPopover,
+  GenericPopoverReference,
+} from "../../Popovers/GenericPopover.js";
 import { getDefaultReactEmojiPickerItems } from "./getDefaultReactEmojiPickerItems.js";
 import { GridSuggestionMenu } from "./GridSuggestionMenu.js";
 import { GridSuggestionMenuWrapper } from "./GridSuggestionMenuWrapper.js";
@@ -95,13 +98,16 @@ export function GridSuggestionMenuController<
 
   const state = useExtensionState(SuggestionMenu);
   const reference = useExtensionState(SuggestionMenu, {
-    selector: (state) => ({
-      // Use first child as the editor DOM element may itself be scrollable.
-      // For FloatingUI to auto-update the position during scrolling, the
-      // `contextElement` must be a descendant of the scroll container.
-      element: editor.domElement?.firstChild || undefined,
-      getBoundingClientRect: () => state?.referencePos || new DOMRect(),
-    }),
+    selector: (state) =>
+      ({
+        // Use first child as the editor DOM element may itself be scrollable.
+        // For FloatingUI to auto-update the position during scrolling, the
+        // `contextElement` must be a descendant of the scroll container.
+        element: (editor.domElement?.firstChild || undefined) as
+          | Element
+          | undefined,
+        getBoundingClientRect: () => state?.referencePos || new DOMRect(),
+      }) satisfies GenericPopoverReference,
   });
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
