@@ -146,6 +146,7 @@ export type LooseBlockSpec<
       | {
           dom: HTMLElement | DocumentFragment;
           contentDOM?: HTMLElement;
+          childrenDOM?: HTMLElement;
         }
       | undefined;
 
@@ -203,6 +204,7 @@ export type BlockSpecs = {
         | {
             dom: HTMLElement | DocumentFragment;
             contentDOM?: HTMLElement;
+            childrenDOM?: HTMLElement;
           }
         | undefined;
     };
@@ -476,6 +478,7 @@ export type BlockImplementation<
     | {
         dom: HTMLElement | DocumentFragment;
         contentDOM?: HTMLElement;
+        childrenDOM?: HTMLElement;
       }
     | undefined;
 

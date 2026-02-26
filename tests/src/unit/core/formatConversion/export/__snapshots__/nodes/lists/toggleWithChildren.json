@@ -1,0 +1,124 @@
+[
+  {
+    "attrs": {
+      "id": "1",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "content": [
+          {
+            "text": "Toggle List Item",
+            "type": "text",
+          },
+        ],
+        "type": "toggleListItem",
+      },
+      {
+        "content": [
+          {
+            "attrs": {
+              "id": "2",
+            },
+            "content": [
+              {
+                "attrs": {
+                  "backgroundColor": "default",
+                  "textAlignment": "left",
+                  "textColor": "default",
+                },
+                "content": [
+                  {
+                    "text": "Toggle Child 1",
+                    "type": "text",
+                  },
+                ],
+                "type": "paragraph",
+              },
+            ],
+            "type": "blockContainer",
+          },
+          {
+            "attrs": {
+              "id": "3",
+            },
+            "content": [
+              {
+                "attrs": {
+                  "backgroundColor": "default",
+                  "textAlignment": "left",
+                  "textColor": "default",
+                },
+                "content": [
+                  {
+                    "text": "Toggle Child 2",
+                    "type": "text",
+                  },
+                ],
+                "type": "paragraph",
+              },
+            ],
+            "type": "blockContainer",
+          },
+        ],
+        "type": "blockGroup",
+      },
+    ],
+    "type": "blockContainer",
+  },
+  {
+    "attrs": {
+      "id": "4",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "isToggleable": true,
+          "level": 2,
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "content": [
+          {
+            "text": "Toggle Heading",
+            "type": "text",
+          },
+        ],
+        "type": "heading",
+      },
+      {
+        "content": [
+          {
+            "attrs": {
+              "id": "5",
+            },
+            "content": [
+              {
+                "attrs": {
+                  "backgroundColor": "default",
+                  "textAlignment": "left",
+                  "textColor": "default",
+                },
+                "content": [
+                  {
+                    "text": "Heading Child 1",
+                    "type": "text",
+                  },
+                ],
+                "type": "paragraph",
+              },
+            ],
+            "type": "blockContainer",
+          },
+        ],
+        "type": "blockGroup",
+      },
+    ],
+    "type": "blockContainer",
+  },
+]
