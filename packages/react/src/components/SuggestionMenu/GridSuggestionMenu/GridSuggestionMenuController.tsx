@@ -1,5 +1,8 @@
 import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
-import { SuggestionMenu } from "@blocknote/core/extensions";
+import {
+  SuggestionMenu,
+  SuggestionMenuOptions,
+} from "@blocknote/core/extensions";
 import { autoPlacement, offset, shift, size } from "@floating-ui/react";
 import { FC, useEffect, useMemo } from "react";
 
@@ -34,6 +37,7 @@ export function GridSuggestionMenuController<
     triggerCharacter: string;
     getItems?: GetItemsType;
     columns: number;
+    shouldOpen?: SuggestionMenuOptions["shouldOpen"];
     minQueryLength?: number;
     floatingUIOptions?: FloatingUIOptions;
   } & (ItemType<GetItemsType> extends DefaultReactGridSuggestionItem
@@ -62,6 +66,7 @@ export function GridSuggestionMenuController<
     triggerCharacter,
     gridSuggestionMenuComponent,
     columns,
+    shouldOpen,
     minQueryLength,
     onItemClick,
     getItems,
@@ -90,8 +95,8 @@ export function GridSuggestionMenuController<
   const suggestionMenu = useExtension(SuggestionMenu);
 
   useEffect(() => {
-    suggestionMenu.addTriggerCharacter(triggerCharacter);
-  }, [suggestionMenu, triggerCharacter]);
+    suggestionMenu.addSuggestionMenu({ triggerCharacter, shouldOpen });
+  }, [suggestionMenu, triggerCharacter, shouldOpen]);
 
   const state = useExtensionState(SuggestionMenu);
   const reference = useExtensionState(SuggestionMenu, {

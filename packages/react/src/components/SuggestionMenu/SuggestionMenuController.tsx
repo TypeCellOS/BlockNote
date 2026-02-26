@@ -1,6 +1,7 @@
 import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 import {
   SuggestionMenu as SuggestionMenuExtension,
+  SuggestionMenuOptions,
   filterSuggestionItems,
 } from "@blocknote/core/extensions";
 import { autoPlacement, offset, shift, size } from "@floating-ui/react";
@@ -30,6 +31,7 @@ export function SuggestionMenuController<
   props: {
     triggerCharacter: string;
     getItems?: GetItemsType;
+    shouldOpen?: SuggestionMenuOptions["shouldOpen"];
     minQueryLength?: number;
     floatingUIOptions?: FloatingUIOptions;
   } & (ItemType<GetItemsType> extends DefaultReactSuggestionItem
@@ -57,6 +59,7 @@ export function SuggestionMenuController<
   const {
     triggerCharacter,
     suggestionMenuComponent,
+    shouldOpen,
     minQueryLength,
     onItemClick,
     getItems,
@@ -85,8 +88,8 @@ export function SuggestionMenuController<
   const suggestionMenu = useExtension(SuggestionMenuExtension);
 
   useEffect(() => {
-    suggestionMenu.addTriggerCharacter(triggerCharacter);
-  }, [suggestionMenu, triggerCharacter]);
+    suggestionMenu.addSuggestionMenu({ triggerCharacter, shouldOpen });
+  }, [suggestionMenu, triggerCharacter, shouldOpen]);
 
   const state = useExtensionState(SuggestionMenuExtension);
   const reference = useExtensionState(SuggestionMenuExtension, {

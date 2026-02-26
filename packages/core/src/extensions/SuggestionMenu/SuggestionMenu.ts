@@ -3,12 +3,12 @@ import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 
 import { trackPosition } from "../../api/positionMapping.js";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   createExtension,
   createStore,
 } from "../../editor/BlockNoteExtension.js";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition.js";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 const findBlock = findParentNode((node) => node.type.name === "blockContainer");
 
@@ -149,6 +149,16 @@ type SuggestionPluginState =
     }
   | undefined;
 
+export type SuggestionMenuOptions = {
+  triggerCharacter: string;
+  /**
+   * Optional callback to determine whether the suggestion menu should be
+   * opened in the current editor state. Return `false` to prevent the
+   * menu from opening (e.g. when the cursor is inside table content).
+   */
+  shouldOpen?: (state: EditorState) => boolean;
+};
+
 const suggestionMenuPluginKey = new PluginKey("SuggestionMenuPlugin");
 
 /**
@@ -162,7 +172,7 @@ const suggestionMenuPluginKey = new PluginKey("SuggestionMenuPlugin");
  * - This version handles key events differently
  */
 export const SuggestionMenu = createExtension(({ editor }) => {
-  const triggerCharacters: string[] = [];
+  const suggestionMenus = new Map<string, SuggestionMenuOptions>();
   let view: SuggestionMenuView | undefined = undefined;
   const store = createStore<
     (SuggestionMenuState & { triggerCharacter: string }) | undefined
@@ -170,11 +180,11 @@ export const SuggestionMenu = createExtension(({ editor }) => {
   return {
     key: "suggestionMenu",
     store,
-    addTriggerCharacter: (triggerCharacter: string) => {
-      triggerCharacters.push(triggerCharacter);
+    addSuggestionMenu: (options: SuggestionMenuOptions) => {
+      suggestionMenus.set(options.triggerCharacter, options);
     },
-    removeTriggerCharacter: (triggerCharacter: string) => {
-      triggerCharacters.splice(triggerCharacters.indexOf(triggerCharacter), 1);
+    removeSuggestionMenu: (triggerCharacter: string) => {
+      suggestionMenus.delete(triggerCharacter);
     },
     closeMenu: () => {
       view?.closeMenu();
@@ -238,11 +248,8 @@ export const SuggestionMenu = createExtension(({ editor }) => {
             _oldState,
             newState,
           ): SuggestionPluginState => {
-            // Ignore transactions in code blocks or table content
-            if (
-              transaction.selection.$from.parent.type.spec.code ||
-              transaction.selection.$from.parent.type.isInGroup("tableContent")
-            ) {
+            // Ignore transactions in code blocks.
+            if (transaction.selection.$from.parent.type.spec.code) {
               return prev;
             }
 
@@ -329,13 +336,20 @@ export const SuggestionMenu = createExtension(({ editor }) => {
             // only on insert
             if (from === to) {
               const doc = view.state.doc;
-              for (const str of triggerCharacters) {
+              for (const [triggerChar, menuOptions] of suggestionMenus) {
                 const snippet =
-                  str.length > 1
-                    ? doc.textBetween(from - str.length, from) + text
+                  triggerChar.length > 1
+                    ? doc.textBetween(from - triggerChar.length, from) + text
                     : text;
 
-                if (str === snippet) {
+                if (triggerChar === snippet) {
+                  // Check the per-suggestion-menu filter before activating.
+                  if (
+                    menuOptions.shouldOpen &&
+                    !menuOptions.shouldOpen(view.state)
+                  ) {
+                    continue;
+                  }
                   view.dispatch(view.state.tr.insertText(text));
                   view.dispatch(
                     view.state.tr

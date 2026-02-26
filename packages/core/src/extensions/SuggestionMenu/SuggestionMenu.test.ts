@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { SuggestionMenu } from "./SuggestionMenu.js";
 
 /**
  * @vitest-environment jsdom
@@ -28,22 +29,20 @@ function getSuggestionPluginState(editor: BlockNoteEditor) {
 }
 
 /**
- * Simulates typing a trigger character and dispatching the suggestion menu
- * meta, mirroring what `handleTextInput` does when the user types "/".
+ * Calls the `handleTextInput` prop of the SuggestionMenu plugin directly,
+ * which mirrors what ProseMirror would do when the user types a character.
+ * This allows us to test the `shouldTrigger` filtering path.
  */
-function triggerSuggestionMenu(editor: BlockNoteEditor, char: string) {
+function simulateTextInput(editor: BlockNoteEditor, char: string): boolean {
   const plugin = findSuggestionPlugin(editor);
   const view = editor._tiptapEditor.view;
-  // First insert the trigger character (like handleTextInput does)
-  view.dispatch(view.state.tr.insertText(char));
-  // Then dispatch the meta to activate the suggestion menu
-  view.dispatch(
-    view.state.tr
-      .setMeta(plugin, {
-        triggerCharacter: char,
-      })
-      .scrollIntoView(),
-  );
+  const from = view.state.selection.from;
+  const to = view.state.selection.to;
+  const handler = plugin.props.handleTextInput;
+  if (!handler) {
+    throw new Error("handleTextInput not found on SuggestionMenu plugin");
+  }
+  return (handler as any)(view, from, to, char) as boolean;
 }
 
 function createEditor() {
@@ -56,6 +55,10 @@ function createEditor() {
 describe("SuggestionMenu", () => {
   it("should open suggestion menu in a paragraph", () => {
     const editor = createEditor();
+    const sm = editor.getExtension(SuggestionMenu)!;
+
+    // Register "/" trigger character (no filter)
+    sm.addSuggestionMenu({ triggerCharacter: "/" });
 
     editor.replaceBlocks(editor.document, [
       {
@@ -70,8 +73,11 @@ describe("SuggestionMenu", () => {
     // Verify we start with no active suggestion menu
     expect(getSuggestionPluginState(editor)).toBeUndefined();
 
-    // Trigger the suggestion menu
-    triggerSuggestionMenu(editor, "/");
+    // Simulate typing "/" — handleTextInput should trigger the menu
+    const handled = simulateTextInput(editor, "/");
+
+    // The input should be handled (menu opened)
+    expect(handled).toBe(true);
 
     // Plugin state should now be defined (menu opened)
     const pluginState = getSuggestionPluginState(editor);
@@ -81,8 +87,17 @@ describe("SuggestionMenu", () => {
     editor._tiptapEditor.destroy();
   });
 
-  it("should not open suggestion menu in table content", () => {
+  it("should not open suggestion menu in table content when shouldTrigger returns false", () => {
     const editor = createEditor();
+    const sm = editor.getExtension(SuggestionMenu)!;
+
+    // Register "/" with a shouldTrigger filter that blocks table content.
+    // This mirrors what BlockNoteDefaultUI does.
+    sm.addSuggestionMenu({
+      triggerCharacter: "/",
+      shouldOpen: (state) =>
+        !state.selection.$from.parent.type.isInGroup("tableContent"),
+    });
 
     editor.replaceBlocks(editor.document, [
       {
@@ -105,20 +120,71 @@ describe("SuggestionMenu", () => {
     // Place cursor inside a table cell
     editor.setTextCursorPosition("table-0", "start");
 
-    // Verify the cursor is inside table content (the parent node is
-    // a tableParagraph which belongs to the "tableContent" group)
+    // Verify the cursor is inside table content
     const $from = editor._tiptapEditor.state.selection.$from;
     expect($from.parent.type.isInGroup("tableContent")).toBe(true);
 
     // Verify we start with no active suggestion menu
     expect(getSuggestionPluginState(editor)).toBeUndefined();
 
-    // Attempt to trigger the suggestion menu
-    triggerSuggestionMenu(editor, "/");
+    // Simulate typing "/" — shouldTrigger should prevent the menu from opening
+    const handled = simulateTextInput(editor, "/");
 
-    // Plugin state should remain undefined because the cursor is inside
-    // table content, and the fix prevents the menu from activating there
+    // handleTextInput should return false (not handled) because
+    // shouldTrigger rejected the context
+    expect(handled).toBe(false);
+
+    // Plugin state should remain undefined
     expect(getSuggestionPluginState(editor)).toBeUndefined();
+
+    editor._tiptapEditor.destroy();
+  });
+
+  it("should still allow suggestion menus without shouldTrigger in table content", () => {
+    const editor = createEditor();
+    const sm = editor.getExtension(SuggestionMenu)!;
+
+    // Register "@" WITHOUT a shouldTrigger filter — should still work in tables
+    sm.addSuggestionMenu({ triggerCharacter: "@" });
+
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "table-0",
+        type: "table",
+        content: {
+          type: "tableContent",
+          rows: [
+            {
+              cells: ["Cell 1", "Cell 2", "Cell 3"],
+            },
+            {
+              cells: ["Cell 4", "Cell 5", "Cell 6"],
+            },
+          ],
+        },
+      },
+    ]);
+
+    // Place cursor inside a table cell
+    editor.setTextCursorPosition("table-0", "start");
+
+    // Verify the cursor is inside table content
+    const $from = editor._tiptapEditor.state.selection.$from;
+    expect($from.parent.type.isInGroup("tableContent")).toBe(true);
+
+    // Verify we start with no active suggestion menu
+    expect(getSuggestionPluginState(editor)).toBeUndefined();
+
+    // Simulate typing "@" — no shouldTrigger filter, so it should still work
+    const handled = simulateTextInput(editor, "@");
+
+    // The input should be handled (menu opened)
+    expect(handled).toBe(true);
+
+    // Plugin state should now be defined
+    const pluginState = getSuggestionPluginState(editor);
+    expect(pluginState).toBeDefined();
+    expect(pluginState.triggerCharacter).toBe("@");
 
     editor._tiptapEditor.destroy();
   });
