@@ -95,6 +95,14 @@ export const AIMenuController = (props: {
         // see https://floating-ui.com/docs/floatingfocusmanager#page-scrolls-to-top-when-opening-the-floating-element
         focusManagerProps: {
           disabled: false,
+          // needed for https://github.com/floating-ui/floating-ui/discussions/3213
+          // (related: https://github.com/mui/base-ui/issues/3950)
+          getInsideElements: () => {
+            if (!editor.domElement) {
+              return [];
+            }
+            return [editor.domElement];
+          },
           ...props.floatingUIOptions?.focusManagerProps,
         },
       }) satisfies FloatingUIOptions,
