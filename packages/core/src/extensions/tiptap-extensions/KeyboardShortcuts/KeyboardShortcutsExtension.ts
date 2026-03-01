@@ -93,6 +93,9 @@ export const KeyboardShortcutsExtension = Extension.create<{
               state.doc,
               blockInfo.bnBlock.beforePos,
             );
+            // If the previous block has no inline content, it can't be merged.
+            // It's instead deleted, which is done later in the chan, so we
+            // return early here.
             if (
               !prevBlockInfo ||
               !prevBlockInfo.isBlockContainer ||
