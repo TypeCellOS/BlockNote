@@ -1,6 +1,7 @@
 import {
   BlockNoteEditor,
   BlockSchema,
+  Dictionary,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -61,7 +62,11 @@ export function getDefaultReactSlashMenuItems<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
->(editor: BlockNoteEditor<BSchema, I, S>): DefaultReactSuggestionItem[] {
+>(
+  editor: BlockNoteEditor<BSchema, I, S>,
+): (DefaultReactSuggestionItem & {
+  key: keyof Omit<Dictionary["slash_menu"], "page_break">;
+})[] {
   return getDefaultSlashMenuItems(editor).map((item) => {
     const Icon = icons[item.key];
     return {
