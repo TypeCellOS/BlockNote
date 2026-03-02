@@ -40,10 +40,6 @@ BASIC STYLES
   overflow: visible;
 }
 
-.bn-inline-content {
-  width: 100%;
-}
-
 /*
 NESTED BLOCKS
 */
@@ -546,15 +542,13 @@ NESTED BLOCKS
 }
 
 /* PLACEHOLDERS*/
-.bn-inline-content:has(> .ProseMirror-trailingBreak:only-child):before {
-  /*float: left; */
-  pointer-events: none;
-  height: 0;
-  /* width: 0; */
-  position: absolute;
+.bn-block-content:has(.ProseMirror-trailingBreak:only-child):after {
   font-style: italic;
+  /* Removes text cursor offset. */
+  margin-inline: -2px;
+  pointer-events: none;
+  max-width: 100%;
 }
-/* TODO: should this be here? */
 
 /* TEXT COLORS */
 [data-style-type="textColor"][data-value="gray"],

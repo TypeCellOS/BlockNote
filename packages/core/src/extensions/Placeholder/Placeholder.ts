@@ -41,7 +41,7 @@ export const PlaceholderExtension = createExtension(
             const styleSheet = styleEl.sheet!;
 
             const getSelector = (additionalSelectors = "") =>
-              `.${uniqueEditorSelector} .bn-block-content${additionalSelectors} .bn-inline-content:has(> .ProseMirror-trailingBreak:only-child):before`;
+              `.${uniqueEditorSelector} .bn-block-content${additionalSelectors}:has(.ProseMirror-trailingBreak:only-child):after`;
 
             try {
               // FIXME: the names "default" and "emptyDocument" are hardcoded
