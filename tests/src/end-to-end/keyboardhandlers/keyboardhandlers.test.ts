@@ -6,6 +6,7 @@ import {
 } from "../../utils/const.js";
 import { insertHeading, insertParagraph } from "../../utils/copypaste.js";
 import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor.js";
+import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 test.describe.configure({ mode: "serial" });
 
@@ -170,6 +171,169 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
       page,
       "backspacePreservesNestedBlocksEmpty.json",
     );
+  });
+  test("Check Delete at the end of a block", async ({ page }) => {
+    await focusOnEditor(page);
+    await insertParagraph(page);
+
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("Delete");
+
+    await compareDocToSnapshot(page, "deleteEndOfBlock.json");
+  });
+  test("Check Delete while selection not empty", async ({ page }) => {
+    await focusOnEditor(page);
+    await insertParagraph(page);
+
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("Shift+ArrowLeft");
+    await page.keyboard.press("Shift+ArrowLeft");
+    await page.keyboard.press("Delete");
+
+    await compareDocToSnapshot(page, "deleteSelection.json");
+  });
+  test("Check Delete before inline content block", async ({ page }) => {
+    await focusOnEditor(page);
+    await insertParagraph(page);
+    await insertParagraph(page);
+
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("Delete");
+
+    await compareDocToSnapshot(page, "deleteInlineContent.json");
+  });
+  test("Check Delete before image block", async ({ page }) => {
+    await focusOnEditor(page);
+    await insertParagraph(page);
+    await executeSlashCommand(page, "image");
+    await page.keyboard.press("Escape"); // Close file panel
+
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("Delete");
+
+    await compareDocToSnapshot(page, "deleteImage.json");
+  });
+  test("Check Delete before table", async ({ page }) => {
+    await focusOnEditor(page);
+    await insertParagraph(page);
+    await executeSlashCommand(page, "table");
+
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("Delete");
+
+    await compareDocToSnapshot(page, "deleteTable.json");
+  });
+  test("Check Delete selected image block", async ({ page }) => {
+    await focusOnEditor(page);
+    await executeSlashCommand(page, "image");
+    await page.keyboard.press("Escape"); // Close file panel
+
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("Delete");
+
+    await compareDocToSnapshot(page, "deleteSelectedImage.json");
+  });
+  test("Check Delete end of block with inline content child", async ({
+    page,
+  }) => {
+    await focusOnEditor(page);
+    await insertParagraph(page);
+    await page.keyboard.press("Tab");
+    await insertParagraph(page);
+
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("Delete");
+
+    await compareDocToSnapshot(page, "deleteInlineContentChild.json");
+  });
+  test("Check Delete end of block with image child", async ({ page }) => {
+    await focusOnEditor(page);
+    await insertParagraph(page);
+    await page.keyboard.press("Tab");
+    await executeSlashCommand(page, "image");
+    await page.keyboard.press("Escape"); // Close file panel
+
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("Delete");
+
+    await compareDocToSnapshot(page, "deleteImageChild.json");
+  });
+  test("Check Delete end of block with table child", async ({ page }) => {
+    await focusOnEditor(page);
+    await insertParagraph(page);
+    await page.keyboard.press("Tab");
+    await executeSlashCommand(page, "table");
+
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("Delete");
+
+    await compareDocToSnapshot(page, "deleteTableChild.json");
+  });
+  test("Check Delete end of block with multiple children", async ({ page }) => {
+    await focusOnEditor(page);
+    await insertParagraph(page);
+    await page.keyboard.press("Tab");
+    await insertParagraph(page);
+    await page.keyboard.press("Tab");
+    await insertParagraph(page);
+
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("Delete");
+
+    await compareDocToSnapshot(page, "deleteMultipleChildren.json");
+  });
+  test("Check Delete end of block with nested children", async ({ page }) => {
+    await focusOnEditor(page);
+    await insertParagraph(page);
+    await page.keyboard.press("Tab");
+    await insertParagraph(page);
+    await page.keyboard.press("Tab");
+    await page.keyboard.press("Tab");
+    await insertParagraph(page);
+
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("Delete");
+
+    await compareDocToSnapshot(page, "deleteNestedChildren.json");
+  });
+  test("Check Delete before shallower block", async ({ page }) => {
+    await focusOnEditor(page);
+    await insertParagraph(page);
+    await page.keyboard.press("Tab");
+    await insertParagraph(page);
+    await insertParagraph(page);
+
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ControlOrMeta+ArrowRight");
+    await page.keyboard.press("Delete");
+
+    await compareDocToSnapshot(page, "deleteShallowerBlock.json");
+  });
+  test("Check Delete before shallower block with children", async ({
+    page,
+  }) => {
+    await focusOnEditor(page);
+    await insertParagraph(page);
+    await page.keyboard.press("Tab");
+    await insertParagraph(page);
+    await insertParagraph(page);
+    await page.keyboard.press("Tab");
+    await insertParagraph(page);
+
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("Delete");
+
+    await compareDocToSnapshot(page, "deleteShallowerBlockWithChildren.json");
   });
   test("Check heading 1 shortcut", async ({ page }) => {
     await focusOnEditor(page);
