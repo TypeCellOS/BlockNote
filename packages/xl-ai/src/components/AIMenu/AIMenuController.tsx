@@ -106,7 +106,7 @@ export const AIMenuController = (props: {
           ...props.floatingUIOptions?.focusManagerProps,
         },
       }) satisfies FloatingUIOptions,
-    [ai, aiMenuState, blockId, props.floatingUIOptions],
+    [ai, aiMenuState, blockId, props.floatingUIOptions, editor.domElement],
   );
 
   const Component = props.aiMenu || AIMenu;
