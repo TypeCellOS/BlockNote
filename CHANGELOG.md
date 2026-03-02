@@ -1,3 +1,19 @@
+## 0.47.1 (2026-03-02)
+
+### 🩹 Fixes
+
+- typeerror cannot read properties of undefined ([#2522](https://github.com/TypeCellOS/BlockNote/pull/2522))
+- handle more delete key cases ([#2126](https://github.com/TypeCellOS/BlockNote/pull/2126))
+- add delay for `data-active` in collab cursors ([#2383](https://github.com/TypeCellOS/BlockNote/pull/2383))
+- disable slash menu in table content #2408 ([#2504](https://github.com/TypeCellOS/BlockNote/pull/2504), [#2408](https://github.com/TypeCellOS/BlockNote/issues/2408))
+- **ai:** selections broken due to floating-ui focus manager ([#2527](https://github.com/TypeCellOS/BlockNote/pull/2527))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- Yousef
+
 ## 0.47.0 (2026-02-23)
 
 ### 🚀 Features
