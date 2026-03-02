@@ -9,9 +9,19 @@ import {
   useTransitionStatus,
   useTransitionStyles,
 } from "@floating-ui/react";
-import { HTMLAttributes, ReactNode, useEffect, useRef } from "react";
+import {
+  createContext,
+  HTMLAttributes,
+  ReactNode,
+  useEffect,
+  useRef,
+} from "react";
 
 import { FloatingUIOptions } from "./FloatingUIOptions.js";
+
+export const GenericPopoverUpdateContext = createContext<
+  (() => void) | undefined
+>(undefined);
 
 export type GenericPopoverReference =
   | {
@@ -83,10 +93,12 @@ export const GenericPopover = (
     children: ReactNode;
   },
 ) => {
-  const { refs, floatingStyles, context } = useFloating<HTMLDivElement>({
-    whileElementsMounted: autoUpdate,
-    ...props.useFloatingOptions,
-  });
+  const { refs, floatingStyles, context, update } = useFloating<HTMLDivElement>(
+    {
+      whileElementsMounted: autoUpdate,
+      ...props.useFloatingOptions,
+    },
+  );
 
   const { isMounted, styles } = useTransitionStyles(
     context,
@@ -169,11 +181,13 @@ export const GenericPopover = (
     // should be open. So without this fix, the popover just won't transition
     // out and will instead appear to hide instantly.
     return (
-      <div
-        ref={mergedRefs}
-        {...mergedProps}
-        dangerouslySetInnerHTML={{ __html: innerHTML.current }}
-      />
+      <GenericPopoverUpdateContext value={update}>
+        <div
+          ref={mergedRefs}
+          {...mergedProps}
+          dangerouslySetInnerHTML={{ __html: innerHTML.current }}
+        />
+      </GenericPopoverUpdateContext>
     );
   }
 
@@ -188,8 +202,10 @@ export const GenericPopover = (
   }
 
   return (
-    <div ref={mergedRefs} {...mergedProps}>
-      {props.children}
-    </div>
+    <GenericPopoverUpdateContext value={update}>
+      <div ref={mergedRefs} {...mergedProps}>
+        {props.children}
+      </div>
+    </GenericPopoverUpdateContext>
   );
 };
