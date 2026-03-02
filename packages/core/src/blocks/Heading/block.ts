@@ -1,6 +1,6 @@
-import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { createExtension } from "../../editor/BlockNoteExtension.js";
+import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
 import {
   addDefaultPropsExternalHTML,
   defaultProps,
@@ -109,6 +109,20 @@ export const createHeadingBlockSpec = createBlockSpec(
     toExternalHTML(block) {
       const dom = document.createElement(`h${block.props.level}`);
       addDefaultPropsExternalHTML(block.props, dom);
+
+      if ("isToggleable" in block.props && block.props.isToggleable) {
+        const details = document.createElement("details");
+        details.setAttribute("open", "");
+        const summary = document.createElement("summary");
+        summary.appendChild(dom);
+        details.appendChild(summary);
+
+        return {
+          dom: details,
+          contentDOM: dom,
+          childrenDOM: details,
+        };
+      }
 
       return {
         dom,

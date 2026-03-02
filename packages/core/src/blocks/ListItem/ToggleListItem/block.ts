@@ -39,13 +39,20 @@ export const createToggleListItemBlockSpec = createBlockSpec(
     },
     toExternalHTML(block) {
       const li = document.createElement("li");
+      const details = document.createElement("details");
+      details.setAttribute("open", "");
+      const summary = document.createElement("summary");
       const p = document.createElement("p");
+      summary.appendChild(p);
+      details.appendChild(summary);
+
       addDefaultPropsExternalHTML(block.props, li);
-      li.appendChild(p);
+      li.appendChild(details);
 
       return {
         dom: li,
         contentDOM: p,
+        childrenDOM: details,
       };
     },
   },
