@@ -95,8 +95,8 @@ describe("SuggestionMenu", () => {
     // This mirrors what BlockNoteDefaultUI does.
     sm.addSuggestionMenu({
       triggerCharacter: "/",
-      shouldOpen: (state) =>
-        !state.selection.$from.parent.type.isInGroup("tableContent"),
+      shouldOpen: (tr) =>
+        !tr.selection.$from.parent.type.isInGroup("tableContent"),
     });
 
     editor.replaceBlocks(editor.document, [

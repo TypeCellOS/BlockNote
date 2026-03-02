@@ -1,5 +1,5 @@
 import { findParentNode } from "@tiptap/core";
-import { EditorState, Plugin, PluginKey } from "prosemirror-state";
+import { EditorState, Plugin, PluginKey, Transaction } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 
 import { trackPosition } from "../../api/positionMapping.js";
@@ -156,7 +156,7 @@ export type SuggestionMenuOptions = {
    * opened in the current editor state. Return `false` to prevent the
    * menu from opening (e.g. when the cursor is inside table content).
    */
-  shouldOpen?: (state: EditorState) => boolean;
+  shouldOpen?: (tr: Transaction) => boolean;
 };
 
 const suggestionMenuPluginKey = new PluginKey("SuggestionMenuPlugin");
@@ -346,7 +346,7 @@ export const SuggestionMenu = createExtension(({ editor }) => {
                   // Check the per-suggestion-menu filter before activating.
                   if (
                     menuOptions.shouldOpen &&
-                    !menuOptions.shouldOpen(view.state)
+                    !menuOptions.shouldOpen(view.state.tr)
                   ) {
                     continue;
                   }
