@@ -8,6 +8,7 @@ import {
   camelToDataKebab,
   CustomBlockImplementation,
   Extension,
+  ExtensionFactoryInstance,
   ExtractBlockConfigFromConfigOrCreator,
   getBlockFromPos,
   mergeCSSClasses,
@@ -148,10 +149,12 @@ export function createReactBlockSpec<
             BlockConfig<TName, TProps, TContent>
           >),
   extensionsOrCreator?:
-    | Extension<any>[]
+    | (ExtensionFactoryInstance | Extension)[]
     | (TOptions extends undefined
-        ? () => Extension<any>[]
-        : (options: Partial<TOptions>) => Extension<any>[]),
+        ? () => (ExtensionFactoryInstance | Extension)[]
+        : (
+            options: Partial<TOptions>,
+          ) => (ExtensionFactoryInstance | Extension)[]),
 ): (options?: Partial<TOptions>) => BlockSpec<TName, TProps, TContent>;
 export function createReactBlockSpec<
   const TName extends string,
@@ -169,10 +172,12 @@ export function createReactBlockSpec<
             options: Partial<TOptions>,
           ) => ReactCustomBlockImplementation<BlockConf>),
   extensionsOrCreator?:
-    | Extension<any>[]
+    | (ExtensionFactoryInstance | Extension)[]
     | (TOptions extends undefined
-        ? () => Extension<any>[]
-        : (options: Partial<TOptions>) => Extension<any>[]),
+        ? () => (ExtensionFactoryInstance | Extension)[]
+        : (
+            options: Partial<TOptions>,
+          ) => (ExtensionFactoryInstance | Extension)[]),
 ): (
   options?: Partial<TOptions>,
 ) => BlockSpec<
@@ -199,10 +204,12 @@ export function createReactBlockSpec<
             BlockConfig<TName, TProps, TContent>
           >),
   extensionsOrCreator?:
-    | Extension<any>[]
+    | (ExtensionFactoryInstance | Extension)[]
     | (TOptions extends undefined
-        ? () => Extension<any>[]
-        : (options: Partial<TOptions>) => Extension<any>[]),
+        ? () => (ExtensionFactoryInstance | Extension)[]
+        : (
+            options: Partial<TOptions>,
+          ) => (ExtensionFactoryInstance | Extension)[]),
 ): (options?: Partial<TOptions>) => BlockSpec<TName, TProps, TContent> {
   return (options = {} as TOptions) => {
     const blockConfig =

@@ -304,10 +304,12 @@ export function createBlockSpec<
     TOptions
   >,
   extensionsOrCreator?:
-    | ExtensionFactoryInstance[]
+    | (ExtensionFactoryInstance | Extension)[]
     | (TOptions extends undefined
-        ? () => ExtensionFactoryInstance[]
-        : (options: Partial<TOptions>) => ExtensionFactoryInstance[]),
+        ? () => (ExtensionFactoryInstance | Extension)[]
+        : (
+            options: Partial<TOptions>,
+          ) => (ExtensionFactoryInstance | Extension)[]),
 ): (options?: Partial<TOptions>) => BlockSpec<TName, TProps, TContent>;
 export function createBlockSpec<
   const TName extends string,
@@ -322,10 +324,12 @@ export function createBlockSpec<
     TOptions
   >,
   extensionsOrCreator?:
-    | ExtensionFactoryInstance[]
+    | (ExtensionFactoryInstance | Extension)[]
     | (TOptions extends undefined
-        ? () => ExtensionFactoryInstance[]
-        : (options: Partial<TOptions>) => ExtensionFactoryInstance[]),
+        ? () => (ExtensionFactoryInstance | Extension)[]
+        : (
+            options: Partial<TOptions>,
+          ) => (ExtensionFactoryInstance | Extension)[]),
 ): (
   options?: Partial<TOptions>,
 ) => BlockSpec<
@@ -345,10 +349,12 @@ export function createBlockSpec<
     TOptions
   >,
   extensionsOrCreator?:
-    | ExtensionFactoryInstance[]
+    | (ExtensionFactoryInstance | Extension)[]
     | (TOptions extends undefined
-        ? () => ExtensionFactoryInstance[]
-        : (options: Partial<TOptions>) => ExtensionFactoryInstance[]),
+        ? () => (ExtensionFactoryInstance | Extension)[]
+        : (
+            options: Partial<TOptions>,
+          ) => (ExtensionFactoryInstance | Extension)[]),
 ): (options?: Partial<TOptions>) => BlockSpec<TName, TProps, TContent> {
   return (options = {} as TOptions) => {
     const blockConfig =
