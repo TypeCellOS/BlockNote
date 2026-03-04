@@ -14,7 +14,9 @@ import {
 } from "./internal.js";
 import {
   BlockConfig,
+  BlockConfigOrCreator,
   BlockImplementation,
+  BlockImplementationOrCreator,
   BlockSpec,
   LooseBlockSpec,
 } from "./types.js";
@@ -297,13 +299,10 @@ export function createBlockSpec<
   const TOptions extends Partial<Record<string, any>> | undefined = undefined,
 >(
   blockConfigOrCreator: BlockConfig<TName, TProps, TContent>,
-  blockImplementationOrCreator:
-    | BlockImplementation<TName, TProps, TContent>
-    | (TOptions extends undefined
-        ? () => BlockImplementation<TName, TProps, TContent>
-        : (
-            options: Partial<TOptions>,
-          ) => BlockImplementation<TName, TProps, TContent>),
+  blockImplementationOrCreator: BlockImplementationOrCreator<
+    BlockConfig<TName, TProps, TContent>,
+    TOptions
+  >,
   extensionsOrCreator?:
     | ExtensionFactoryInstance[]
     | (TOptions extends undefined
@@ -318,25 +317,10 @@ export function createBlockSpec<
   const TOptions extends Partial<Record<string, any>>,
 >(
   blockCreator: (options: Partial<TOptions>) => BlockConf,
-  blockImplementationOrCreator:
-    | BlockImplementation<
-        BlockConf["type"],
-        BlockConf["propSchema"],
-        BlockConf["content"]
-      >
-    | (TOptions extends undefined
-        ? () => BlockImplementation<
-            BlockConf["type"],
-            BlockConf["propSchema"],
-            BlockConf["content"]
-          >
-        : (
-            options: Partial<TOptions>,
-          ) => BlockImplementation<
-            BlockConf["type"],
-            BlockConf["propSchema"],
-            BlockConf["content"]
-          >),
+  blockImplementationOrCreator: BlockImplementationOrCreator<
+    BlockConf,
+    TOptions
+  >,
   extensionsOrCreator?:
     | ExtensionFactoryInstance[]
     | (TOptions extends undefined
@@ -355,18 +339,11 @@ export function createBlockSpec<
   const TContent extends "inline" | "none",
   const TOptions extends Partial<Record<string, any>> | undefined = undefined,
 >(
-  blockConfigOrCreator:
-    | BlockConfig<TName, TProps, TContent>
-    | (TOptions extends undefined
-        ? () => BlockConfig<TName, TProps, TContent>
-        : (options: Partial<TOptions>) => BlockConfig<TName, TProps, TContent>),
-  blockImplementationOrCreator:
-    | BlockImplementation<TName, TProps, TContent>
-    | (TOptions extends undefined
-        ? () => BlockImplementation<TName, TProps, TContent>
-        : (
-            options: Partial<TOptions>,
-          ) => BlockImplementation<TName, TProps, TContent>),
+  blockConfigOrCreator: BlockConfigOrCreator<TName, TProps, TContent, TOptions>,
+  blockImplementationOrCreator: BlockImplementationOrCreator<
+    BlockConfig<TName, TProps, TContent>,
+    TOptions
+  >,
   extensionsOrCreator?:
     | ExtensionFactoryInstance[]
     | (TOptions extends undefined
