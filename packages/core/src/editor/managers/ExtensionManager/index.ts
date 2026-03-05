@@ -7,7 +7,7 @@ import {
   Extension as TiptapExtension,
 } from "@tiptap/core";
 import { keymap } from "@tiptap/pm/keymap";
-import { Plugin } from "prosemirror-state";
+import { Plugin, TextSelection } from "prosemirror-state";
 import { updateBlockTr } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { getBlockInfoFromTransaction } from "../../../api/getBlockInfoFromPos.js";
 import { sortByDependencies } from "../../../util/topo-sort.js";
@@ -428,6 +428,14 @@ export class ExtensionManager {
               const tr = state.tr.deleteRange(start, end);
 
               updateBlockTr(tr, blockInfo.bnBlock.beforePos, replaceWith);
+
+              const mappedPos = tr.mapping.map(blockInfo.bnBlock.beforePos);
+              const $pos = tr.doc.resolve(mappedPos + 1);
+              if ($pos.nodeAfter) {
+                const contentPos = mappedPos + 2;
+                tr.setSelection(TextSelection.create(tr.doc, contentPos));
+              }
+
               return tr;
             }
             return null;
