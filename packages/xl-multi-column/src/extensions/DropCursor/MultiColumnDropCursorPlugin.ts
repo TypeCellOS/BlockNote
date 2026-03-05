@@ -78,11 +78,10 @@ export function multiColumnDropCursor(
           return false;
         }
 
-        const draggedBlock = nodeToBlock(
-          slice.content.child(0),
-          editor.pmSchema,
-          // TODO: cache?
-        );
+        const draggedBlocks: ReturnType<typeof nodeToBlock>[] = [];
+        slice.content.forEach((node) => {
+          draggedBlocks.push(nodeToBlock(node, editor.pmSchema));
+        });
 
         // const block = blockInfo.block(editor);
         if (blockInfo.blockNoteType === "column") {
@@ -126,12 +125,13 @@ export function multiColumnDropCursor(
             (b) => b.id === blockInfo.bnBlock.node.attrs.id,
           );
 
+          const draggedIds = new Set(draggedBlocks.map((b) => b.id));
           const newChildren = columnList.children
-            // If the dragged block is in one of the columns, remove it.
+            // If any dragged blocks are in one of the columns, remove them.
             .map((column) => ({
               ...column,
               children: column.children.filter(
-                (block) => block.id !== draggedBlock.id,
+                (block) => !draggedIds.has(block.id),
               ),
             }))
             // Remove empty columns (can happen when dragged block is removed).
@@ -139,14 +139,17 @@ export function multiColumnDropCursor(
             // Insert the dragged block in the correct position.
             .toSpliced(position === "left" ? index : index + 1, 0, {
               type: "column",
-              children: [draggedBlock],
+              children: draggedBlocks,
               props: {},
               content: undefined,
               id: UniqueID.options.generateID(),
             });
 
-          if (editor.getBlock(draggedBlock.id)) {
-            editor.removeBlocks([draggedBlock]);
+          const blocksToRemove = draggedBlocks.filter(
+            (b) => editor.getBlock(b.id),
+          );
+          if (blocksToRemove.length > 0) {
+            editor.removeBlocks(blocksToRemove);
           }
 
           editor.updateBlock(columnList, {
@@ -156,30 +159,51 @@ export function multiColumnDropCursor(
           // create new columnList with blocks as columns
           const block = nodeToBlock(blockInfo.bnBlock.node, editor.pmSchema);
 
-          // The user is dropping next to the original block being dragged - do
-          // nothing.
-          if (block.id === draggedBlock.id) {
+          // Filter out the target block from the dragged blocks - can't drop
+          // a block next to itself.
+          const filteredDraggedBlocks = draggedBlocks.filter(
+            (b) => b.id !== block.id,
+          );
+          if (filteredDraggedBlocks.length === 0) {
             return;
           }
 
-          const blocks =
-            position === "left" ? [draggedBlock, block] : [block, draggedBlock];
-
-          if (editor.getBlock(draggedBlock.id)) {
-            editor.removeBlocks([draggedBlock]);
+          const blocksToRemove = filteredDraggedBlocks.filter(
+            (b) => editor.getBlock(b.id),
+          );
+          if (blocksToRemove.length > 0) {
+            editor.removeBlocks(blocksToRemove);
           }
+
+          const columnChildren =
+            position === "left"
+              ? [
+                  {
+                    type: "column" as const,
+                    children: filteredDraggedBlocks,
+                  },
+                  {
+                    type: "column" as const,
+                    children: [block],
+                  },
+                ]
+              : [
+                  {
+                    type: "column" as const,
+                    children: [block],
+                  },
+                  {
+                    type: "column" as const,
+                    children: filteredDraggedBlocks,
+                  },
+                ];
 
           editor.replaceBlocks(
             [block],
             [
               {
                 type: "columnList",
-                children: blocks.map((b) => {
-                  return {
-                    type: "column",
-                    children: [b],
-                  };
-                }),
+                children: columnChildren,
               },
             ],
           );
