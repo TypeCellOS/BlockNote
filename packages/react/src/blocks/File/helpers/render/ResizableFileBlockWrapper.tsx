@@ -1,4 +1,4 @@
-import { FileBlockConfig } from "@blocknote/core";
+import { BlockConfig, FileBlockConfig } from "@blocknote/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 
 import { useUploadLoading } from "../../../../hooks/useUploadLoading.js";
@@ -8,13 +8,15 @@ import { FileBlockWrapper } from "./FileBlockWrapper.js";
 export const ResizableFileBlockWrapper = (
   props: Omit<
     ReactCustomBlockRenderProps<
-      FileBlockConfig["type"],
-      FileBlockConfig["propSchema"] & {
-        showPreview?: { default: true };
-        previewWidth?: { default: number };
-        textAlignment?: { default: "left" };
-      },
-      FileBlockConfig["content"]
+      BlockConfig<
+        FileBlockConfig["type"],
+        FileBlockConfig["propSchema"] & {
+          showPreview?: { default: true };
+          previewWidth?: { default: number };
+          textAlignment?: { default: "left" };
+        },
+        FileBlockConfig["content"]
+      >
     >,
     "contentRef"
   > & {

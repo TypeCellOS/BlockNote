@@ -12,11 +12,7 @@ import { LinkWithCaption } from "../File/helpers/toExternalHTML/LinkWithCaption.
 
 export const ImagePreview = (
   props: Omit<
-    ReactCustomBlockRenderProps<
-      ReturnType<typeof createImageBlockConfig>["type"],
-      ReturnType<typeof createImageBlockConfig>["propSchema"],
-      ReturnType<typeof createImageBlockConfig>["content"]
-    >,
+    ReactCustomBlockRenderProps<typeof createImageBlockConfig>,
     "contentRef"
   >,
 ) => {
@@ -39,11 +35,7 @@ export const ImagePreview = (
 
 export const ImageToExternalHTML = (
   props: Omit<
-    ReactCustomBlockRenderProps<
-      ReturnType<typeof createImageBlockConfig>["type"],
-      ReturnType<typeof createImageBlockConfig>["propSchema"],
-      ReturnType<typeof createImageBlockConfig>["content"]
-    >,
+    ReactCustomBlockRenderProps<typeof createImageBlockConfig>,
     "contentRef"
   >,
 ) => {
@@ -81,11 +73,7 @@ export const ImageToExternalHTML = (
 };
 
 export const ImageBlock = (
-  props: ReactCustomBlockRenderProps<
-    ReturnType<typeof createImageBlockConfig>["type"],
-    ReturnType<typeof createImageBlockConfig>["propSchema"],
-    ReturnType<typeof createImageBlockConfig>["content"]
-  >,
+  props: ReactCustomBlockRenderProps<typeof createImageBlockConfig>,
 ) => {
   return (
     <ResizableFileBlockWrapper
