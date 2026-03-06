@@ -143,7 +143,7 @@ export const createHeadingBlockSpec = createBlockSpec(
       const dom = document.createElement(`h${block.props.level}`);
       addDefaultPropsExternalHTML(block.props, dom);
 
-      if ("isToggleable" in block.props && block.props.isToggleable) {
+      if (allowToggleHeadings && block.props.isToggleable) {
         const details = document.createElement("details");
         details.setAttribute("open", "");
         const summary = document.createElement("summary");
