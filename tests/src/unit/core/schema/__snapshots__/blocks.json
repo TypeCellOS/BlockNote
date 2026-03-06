@@ -270,7 +270,11 @@
       },
       "node": null,
       "parse": [Function],
+      "parseContent": [Function],
       "render": [Function],
+      "runsBefore": [
+        "toggleListItem",
+      ],
       "toExternalHTML": [Function],
     },
   },
@@ -413,6 +417,7 @@
       "render": [Function],
       "runsBefore": [
         "default",
+        "heading",
       ],
       "toExternalHTML": [Function],
     },
@@ -564,7 +569,12 @@
         "isolating": false,
       },
       "node": null,
+      "parse": [Function],
+      "parseContent": [Function],
       "render": [Function],
+      "runsBefore": [
+        "bulletListItem",
+      ],
       "toExternalHTML": [Function],
     },
   },
