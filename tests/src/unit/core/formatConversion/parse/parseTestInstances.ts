@@ -937,6 +937,96 @@ console.log("Third Line")</code></pre>`,
   },
   {
     testCase: {
+      name: "toggleListItem",
+      content: `<ul>
+  <li>
+    <details open="">
+      <summary><p>Toggle Item</p></summary>
+    </details>
+  </li>
+  <li>
+    <details open="">
+      <summary><p>Toggle Item 2</p></summary>
+    </details>
+  </li>
+</ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "toggleListItemWithChildren",
+      content: `<ul>
+  <li>
+    <details open="">
+      <summary><p>Toggle Item</p></summary>
+      <p>Child 1</p>
+      <p>Child 2</p>
+    </details>
+  </li>
+</ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "toggleHeading",
+      content: `<details>
+  <summary><h2>Toggle Heading</h2></summary>
+  <p>Heading Child 1</p>
+</details>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "toggleHeadingWithoutChildren",
+      content: `<details>
+  <summary><h3>Toggle Heading No Children</h3></summary>
+</details>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "standaloneDetailsSummary",
+      content: `<details>
+  <summary>Toggle text</summary>
+  <p>Child paragraph 1</p>
+  <p>Child paragraph 2</p>
+</details>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "mixedToggleAndBulletList",
+      content: `<ul>
+  <li>Bullet Item</li>
+  <li>
+    <details open="">
+      <summary><p>Toggle Item</p></summary>
+      <p>Toggle Child</p>
+    </details>
+  </li>
+  <li>Another Bullet</li>
+</ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "toggleListItemWithImage",
+      content: `<details>
+  <summary>Toggle with image</summary>
+  <img src="exampleURL">
+  <p>Text after image</p>
+</details>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
       name: "trailing whitespace",
       content: `<p>hello, </p>`,
     },

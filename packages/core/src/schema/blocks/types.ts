@@ -497,7 +497,10 @@ export type BlockImplementation<
    * Advanced parsing function that controls how content within the block is parsed.
    * This is not recommended to use, and is only useful for advanced use cases.
    */
-  parseContent?: (options: { el: HTMLElement; schema: Schema }) => Fragment;
+  parseContent?: (options: {
+    el: HTMLElement;
+    schema: Schema;
+  }) => Fragment | undefined;
 };
 
 // restrict content to "inline" and "none" only

@@ -6,6 +6,7 @@ import {
   defaultProps,
   parseDefaultProps,
 } from "../defaultProps.js";
+import { getDetailsContent } from "../getDetailsContent.js";
 import { createToggleWrapper } from "../ToggleWrapper/createToggleWrapper.js";
 
 const HEADING_LEVELS = [1, 2, 3, 4, 5, 6] as const;
@@ -64,6 +65,24 @@ export const createHeadingBlockSpec = createBlockSpec(
       isolating: false,
     },
     parse(e) {
+      if (allowToggleHeadings && e.tagName === "DETAILS") {
+        const summary = e.querySelector(":scope > summary");
+        if (!summary) {
+          return undefined;
+        }
+
+        const heading = summary.querySelector("h1, h2, h3, h4, h5, h6");
+        if (!heading) {
+          return undefined;
+        }
+
+        return {
+          ...parseDefaultProps(heading as HTMLElement),
+          level: parseInt(heading.tagName[1]),
+          isToggleable: true,
+        };
+      }
+
       let level: number;
       switch (e.tagName) {
         case "H1":
@@ -93,6 +112,20 @@ export const createHeadingBlockSpec = createBlockSpec(
         level,
       };
     },
+    ...(allowToggleHeadings
+      ? {
+          parseContent: ({ el, schema }: { el: HTMLElement; schema: any }) => {
+            if (el.tagName === "DETAILS") {
+              return getDetailsContent(el, schema, "heading");
+            }
+
+            // Regular heading (H1-H6): return undefined to fall through to
+            // the default inline content parsing in createSpec.
+            return undefined;
+          },
+        }
+      : {}),
+    runsBefore: ["toggleListItem"],
     render(block, editor) {
       const dom = document.createElement(`h${block.props.level}`);
 
