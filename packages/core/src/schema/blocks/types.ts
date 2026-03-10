@@ -86,6 +86,34 @@ export interface BlockConfig<
   // e.g. tables, alerts (with title & content)
 }
 
+/**
+ * BlockConfigOrCreator is a union type of BlockConfig and a function that returns a BlockConfig.
+ * This is used to create block configs that can be passed to the createBlockSpec function.
+ */
+export type BlockConfigOrCreator<
+  TName extends string = string,
+  TProps extends PropSchema = PropSchema,
+  TContent extends "inline" | "none" = "inline" | "none",
+  TOptions extends Record<string, any> | undefined =
+    | Record<string, any>
+    | undefined,
+> =
+  | BlockConfig<TName, TProps, TContent>
+  | (TOptions extends undefined
+      ? () => BlockConfig<TName, TProps, TContent>
+      : (options: Partial<TOptions>) => BlockConfig<TName, TProps, TContent>);
+
+/**
+ * ExtractBlockConfigFromConfigOrCreator is a helper type that extracts the BlockConfig type from a BlockConfigOrCreator.
+ */
+export type ExtractBlockConfigFromConfigOrCreator<
+  ConfigOrCreator extends
+    | BlockConfig<string, PropSchema, "inline" | "none">
+    | ((...args: any[]) => BlockConfig<string, PropSchema, "inline" | "none">),
+> = ConfigOrCreator extends (...args: any[]) => infer Config
+  ? Config
+  : ConfigOrCreator;
+
 // restrict content to "inline" and "none" only
 export type CustomBlockConfig<
   T extends string = string,
@@ -103,6 +131,32 @@ export type BlockSpec<
   implementation: BlockImplementation<T, PS, C>;
   extensions?: (Extension | ExtensionFactoryInstance)[];
 };
+
+/**
+ * BlockSpecOrCreator is a union type of BlockSpec and a function that returns a BlockSpec.
+ * This is used to create block specs that can be passed to the createBlockSpec function.
+ */
+export type BlockSpecOrCreator<
+  T extends string = string,
+  PS extends PropSchema = PropSchema,
+  C extends "inline" | "none" | "table" = "inline" | "none" | "table",
+  TOptions extends Record<string, any> | undefined =
+    | Record<string, any>
+    | undefined,
+> =
+  | BlockSpec<T, PS, C>
+  | (TOptions extends undefined
+      ? () => BlockSpec<T, PS, C>
+      : (options: Partial<TOptions>) => BlockSpec<T, PS, C>);
+
+/**
+ * ExtractBlockSpecFromSpecOrCreator is a helper type that extracts the BlockSpec type from a BlockSpecOrCreator.
+ */
+export type ExtractBlockSpecFromSpecOrCreator<
+  SpecOrCreator extends
+    | BlockSpec<string, PropSchema, "inline" | "none">
+    | ((...args: any[]) => BlockSpec<string, PropSchema, "inline" | "none">),
+> = SpecOrCreator extends (...args: any[]) => infer Spec ? Spec : SpecOrCreator;
 
 /**
  * This allows de-coupling the types that we display to users versus the types we expose internally.
@@ -496,6 +550,46 @@ export type BlockImplementation<
    */
   parseContent?: (options: { el: HTMLElement; schema: Schema }) => Fragment;
 };
+
+/**
+ * BlockImplementationOrCreator is a union type of BlockImplementation and a function that returns a BlockImplementation.
+ * This is used to create block implementations that can be passed to the createBlockSpec function.
+ */
+export type BlockImplementationOrCreator<
+  ConfigOrCreator extends BlockConfigOrCreator = BlockConfigOrCreator,
+  TOptions extends Record<string, any> | undefined =
+    | Record<string, any>
+    | undefined,
+  Config extends
+    ExtractBlockConfigFromConfigOrCreator<ConfigOrCreator> = ExtractBlockConfigFromConfigOrCreator<ConfigOrCreator>,
+> =
+  | BlockImplementation<Config["type"], Config["propSchema"], Config["content"]>
+  | (TOptions extends undefined
+      ? () => BlockImplementation<
+          Config["type"],
+          Config["propSchema"],
+          Config["content"]
+        >
+      : (
+          options: Partial<TOptions>,
+        ) => BlockImplementation<
+          Config["type"],
+          Config["propSchema"],
+          Config["content"]
+        >);
+
+/**
+ * ExtractBlockImplementationFromImplementationOrCreator is a helper type that extracts the BlockImplementation type from a BlockImplementationOrCreator.
+ */
+export type ExtractBlockImplementationFromImplementationOrCreator<
+  ImplementationOrCreator extends
+    | BlockImplementation<string, PropSchema, "inline" | "none">
+    | ((
+        ...args: any[]
+      ) => BlockImplementation<string, PropSchema, "inline" | "none">),
+> = ImplementationOrCreator extends (...args: any[]) => infer Implementation
+  ? Implementation
+  : ImplementationOrCreator;
 
 // restrict content to "inline" and "none" only
 export type CustomBlockImplementation<

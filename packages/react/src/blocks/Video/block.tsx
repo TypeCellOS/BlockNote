@@ -12,11 +12,7 @@ import { LinkWithCaption } from "../File/helpers/toExternalHTML/LinkWithCaption.
 
 export const VideoPreview = (
   props: Omit<
-    ReactCustomBlockRenderProps<
-      ReturnType<typeof createVideoBlockConfig>["type"],
-      ReturnType<typeof createVideoBlockConfig>["propSchema"],
-      ReturnType<typeof createVideoBlockConfig>["content"]
-    >,
+    ReactCustomBlockRenderProps<typeof createVideoBlockConfig>,
     "contentRef"
   >,
 ) => {
@@ -39,11 +35,7 @@ export const VideoPreview = (
 
 export const VideoToExternalHTML = (
   props: Omit<
-    ReactCustomBlockRenderProps<
-      ReturnType<typeof createVideoBlockConfig>["type"],
-      ReturnType<typeof createVideoBlockConfig>["propSchema"],
-      ReturnType<typeof createVideoBlockConfig>["content"]
-    >,
+    ReactCustomBlockRenderProps<typeof createVideoBlockConfig>,
     "contentRef"
   >,
 ) => {
@@ -75,11 +67,7 @@ export const VideoToExternalHTML = (
 };
 
 export const VideoBlock = (
-  props: ReactCustomBlockRenderProps<
-    ReturnType<typeof createVideoBlockConfig>["type"],
-    ReturnType<typeof createVideoBlockConfig>["propSchema"],
-    ReturnType<typeof createVideoBlockConfig>["content"]
-  >,
+  props: ReactCustomBlockRenderProps<typeof createVideoBlockConfig>,
 ) => {
   return (
     <ResizableFileBlockWrapper

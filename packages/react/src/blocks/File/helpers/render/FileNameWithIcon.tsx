@@ -5,11 +5,7 @@ import { ReactCustomBlockRenderProps } from "../../../../schema/ReactBlockSpec.j
 
 export const FileNameWithIcon = (
   props: Omit<
-    ReactCustomBlockRenderProps<
-      FileBlockConfig["type"],
-      FileBlockConfig["propSchema"],
-      FileBlockConfig["content"]
-    >,
+    ReactCustomBlockRenderProps<FileBlockConfig>,
     "editor" | "contentRef"
   >,
 ) => (
