@@ -43,5 +43,5 @@ import { DRAG_EXCLUSION_CLASSNAME } from "@blocknote/core";
 
 **Relevant Docs:**
 
-- [Drag & Drop](/docs/features/drag-drop)
+- [Side Menu (Drag Handle)](/docs/react/components/side-menu)
 - [Editor Setup](/docs/getting-started/editor-setup)
