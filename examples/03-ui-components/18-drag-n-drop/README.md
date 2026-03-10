@@ -26,7 +26,7 @@ import { DRAG_EXCLUSION_CLASSNAME } from "@blocknote/core";
 ### Apply it to your custom drag area:
 
 ```tsx
-<div className={`drag-demo-section ${DRAG_EXCLUSION_CLASSNAME}`}>
+<div className={"drag-demo-section " + DRAG_EXCLUSION_CLASSNAME}>
   {/* Your custom drag & drop UI */}
   <div draggable onDragStart={handleDragStart} onDrop={handleDrop}>
     Custom draggable items

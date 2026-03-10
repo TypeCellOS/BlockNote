@@ -255,6 +255,7 @@ export const DropCursorExtension = createExtension<
 
       // Clean up on unmount
       signal.addEventListener("abort", () => {
+        clearTimeout(timeout);
         setCursor(null);
       });
     },

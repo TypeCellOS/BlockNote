@@ -13,19 +13,20 @@ export interface EdgeDropPosition {
 /**
  * Detects if the drop event is near the left or right edge of a block.
  * Shared utility used by both the drop cursor visualization and the drop handler.
+ * Returns null when the event position cannot be resolved (e.g. drop outside editor bounds).
  */
 export function detectEdgePosition(
   event: DragEvent,
   view: EditorView,
   state: EditorState,
-): EdgeDropPosition {
+): EdgeDropPosition | null {
   const eventPos = view.posAtCoords({
     left: event.clientX,
     top: event.clientY,
   });
 
   if (!eventPos) {
-    throw new Error("Could not get event position");
+    return null;
   }
 
   const blockPos = getNearestBlockPos(state.doc, eventPos.pos);
@@ -43,6 +44,13 @@ export function detectEdgePosition(
   };
 
   const blockElement = view.nodeDOM(posInfo.posBeforeNode);
+  if (blockElement === null) {
+    return {
+      position: "regular",
+      posBeforeNode: posInfo.posBeforeNode,
+      node: posInfo.node,
+    };
+  }
   const blockRect = (blockElement as HTMLElement).getBoundingClientRect();
 
   let position: "regular" | "left" | "right" = "regular";
@@ -80,6 +88,11 @@ export const multiColumnDropCursor: { hooks: DropCursorHooks } = {
         context.view,
         context.view.state,
       );
+
+      // Fall back to default when position cannot be resolved
+      if (edgePos === null) {
+        return context.defaultPosition;
+      }
 
       // If it's a regular (non-edge) drop, use the default position
       if (edgePos.position === "regular") {

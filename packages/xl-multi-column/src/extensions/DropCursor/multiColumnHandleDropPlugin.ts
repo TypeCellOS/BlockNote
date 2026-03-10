@@ -21,11 +21,19 @@ export function createMultiColumnHandleDropPlugin(
     props: {
       handleDrop(view: EditorView, event: DragEvent, slice, _moved) {
         const edgePos = detectEdgePosition(event, view, view.state);
+        if (edgePos === null) {
+          return false; // Let ProseMirror handle the drop (e.g. outside editor bounds)
+        }
+
         const blockInfo = getBlockInfo(edgePos);
 
         // Only handle edge drops (left/right)
         if (edgePos.position === "regular") {
           return false; // Let ProseMirror handle regular drops
+        }
+
+        if (slice.content.childCount === 0) {
+          return false; // Let ProseMirror handle empty slice drops
         }
 
         const draggedBlock = nodeToBlock(
