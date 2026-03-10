@@ -1,17 +1,49 @@
 import { dropPoint } from "prosemirror-transform";
+import type { EditorView } from "prosemirror-view";
+import {
+  applyOrientationClasses,
+  getBlockDropRect,
+  getInlineDropRect,
+  getParentOffsets,
+  hasExclusionClassname,
+  type DropCursorPosition,
+} from "./utils.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { createExtension } from "../../editor/BlockNoteExtension.js";
 
 export const DRAG_EXCLUSION_CLASSNAME = "bn-drag-exclude";
 
 /**
- * Checks if the element or any of its ancestors has the exclusion classname.
- * Elements with this classname and their descendants won't trigger the drop cursor.
+ * Context passed to the computeDropPosition hook.
  */
-function hasExclusionClassname(element: Element | null): boolean {
-  if (!element) {
-    return false;
-  }
-  return !!element.closest(`.${DRAG_EXCLUSION_CLASSNAME}`);
+export interface ComputeDropPositionContext {
+  editor: BlockNoteEditor<any, any, any>;
+  event: DragEvent;
+  view: EditorView;
+  defaultPosition: DropCursorPosition | null;
+}
+
+/**
+ * Hooks for customizing drop cursor behavior.
+ */
+export interface DropCursorHooks {
+  /**
+   * Compute cursor position and orientation.
+   * Return null to prevent dropping (no cursor shown).
+   */
+  computeDropPosition?: (
+    context: ComputeDropPositionContext,
+  ) => DropCursorPosition | null;
+}
+
+/**
+ * Options for the DropCursor extension.
+ */
+export interface DropCursorOptions {
+  width?: number; // Cursor width in pixels (default: 5)
+  color?: string | false; // Cursor color (default: "#ddeeff")
+  exclude?: string; // CSS class for exclusion (default: "bn-drag-exclude")
+  hooks?: DropCursorHooks; // Optional behavior hooks
 }
 
 /**
@@ -21,21 +53,31 @@ function hasExclusionClassname(element: Element | null): boolean {
  * Refactored to use BlockNote extension pattern with mount callback and AbortSignal
  * for lifecycle management instead of ProseMirror PluginView.
  */
-export const DropCursorExtension = createExtension(({ editor }) => {
+export const DropCursorExtension = createExtension<
+  any,
+  {
+    dropCursor?: DropCursorOptions;
+  }
+>(({ editor, options }) => {
   // State
-  let cursorPos: number | null = null;
+  let cursorPos: DropCursorPosition | null = null;
   let element: HTMLElement | null = null;
   let timeout = -1;
   let dragSourceElement: Element | null = null;
 
-  const options = {
-    width: 5,
-    color: "#ddeeff",
-  };
+  const config = {
+    width: options.dropCursor?.width ?? 5,
+    color: options.dropCursor?.color ?? "#ddeeff",
+    exclude: options.dropCursor?.exclude ?? DRAG_EXCLUSION_CLASSNAME,
+    hooks: options.dropCursor?.hooks,
+  } as const;
 
   // Helper functions
-  const setCursor = (pos: number | null) => {
-    if (pos === cursorPos) {
+  const setCursor = (pos: DropCursorPosition | null) => {
+    if (
+      pos?.pos === cursorPos?.pos &&
+      pos?.orientation === cursorPos?.orientation
+    ) {
       return;
     }
     cursorPos = pos;
@@ -51,83 +93,39 @@ export const DropCursorExtension = createExtension(({ editor }) => {
   };
 
   const updateOverlay = () => {
-    const view = editor.prosemirrorView;
-    const $pos = view.state.doc.resolve(cursorPos!);
-    const isBlock = !$pos.parent.inlineContent;
-    let rect: { left: number; right: number; top: number; bottom: number };
+    if (!cursorPos) {
+      return;
+    }
 
+    const view = editor.prosemirrorView;
     const editorDOM = view.dom;
     const editorRect = editorDOM.getBoundingClientRect();
     const scaleX = editorRect.width / editorDOM.offsetWidth;
     const scaleY = editorRect.height / editorDOM.offsetHeight;
 
-    if (isBlock) {
-      const before = $pos.nodeBefore;
-      const after = $pos.nodeAfter;
-      if (before || after) {
-        const node = view.nodeDOM(
-          cursorPos! - (before ? before.nodeSize : 0),
-        ) as HTMLElement | null;
-        if (node) {
-          const nodeRect = node.getBoundingClientRect();
-          let top = before ? nodeRect.bottom : nodeRect.top;
-          if (before && after) {
-            top =
-              (top +
-                (
-                  view.nodeDOM(cursorPos!) as HTMLElement
-                ).getBoundingClientRect().top) /
-              2;
-          }
-          const halfWidth = (options.width / 2) * scaleY;
-          rect = {
-            left: nodeRect.left,
-            right: nodeRect.right,
-            top: top - halfWidth,
-            bottom: top + halfWidth,
-          };
-        }
-      }
-    }
-
-    if (!rect!) {
-      const coords = view.coordsAtPos(cursorPos!);
-      const halfWidth = (options.width / 2) * scaleX;
-      rect = {
-        left: coords.left - halfWidth,
-        right: coords.left + halfWidth,
-        top: coords.top,
-        bottom: coords.bottom,
-      };
-    }
+    const blockRect = getBlockDropRect(
+      view,
+      cursorPos,
+      config.width,
+      scaleX,
+      scaleY,
+    );
+    const rect =
+      blockRect ?? getInlineDropRect(view, cursorPos, config.width, scaleX);
 
     const parent = view.dom.offsetParent as HTMLElement;
     if (!element) {
       element = parent.appendChild(document.createElement("div"));
       element.style.cssText =
         "position: absolute; z-index: 50; pointer-events: none;";
-      if (options.color) {
-        element.style.backgroundColor = options.color;
+      if (config.color) {
+        element.style.backgroundColor = config.color;
       }
     }
-    element.classList.toggle("prosemirror-dropcursor-block", isBlock);
-    element.classList.toggle("prosemirror-dropcursor-inline", !isBlock);
 
-    let parentLeft: number, parentTop: number;
-    if (
-      !parent ||
-      (parent === document.body &&
-        getComputedStyle(parent).position === "static")
-    ) {
-      parentLeft = -window.pageXOffset;
-      parentTop = -window.pageYOffset;
-    } else {
-      const parentRect = parent.getBoundingClientRect();
-      const parentScaleX = parentRect.width / parent.offsetWidth;
-      const parentScaleY = parentRect.height / parent.offsetHeight;
-      parentLeft = parentRect.left - parent.scrollLeft * parentScaleX;
-      parentTop = parentRect.top - parent.scrollTop * parentScaleY;
-    }
+    applyOrientationClasses(element, cursorPos.orientation);
+
+    const { parentLeft, parentTop } = getParentOffsets(parent);
 
     element.style.left = (rect.left - parentLeft) / scaleX + "px";
     element.style.top = (rect.top - parentTop) / scaleY + "px";
@@ -150,12 +148,18 @@ export const DropCursorExtension = createExtension(({ editor }) => {
     const e = event as DragEvent;
 
     // Check if drag source has exclusion classname
-    if (dragSourceElement && hasExclusionClassname(dragSourceElement)) {
+    if (
+      dragSourceElement &&
+      hasExclusionClassname(dragSourceElement, config.exclude)
+    ) {
       return;
     }
 
     // Check if drop target has exclusion classname
-    if (e.target instanceof Element && hasExclusionClassname(e.target)) {
+    if (
+      e.target instanceof Element &&
+      hasExclusionClassname(e.target, config.exclude)
+    ) {
       return;
     }
 
@@ -184,7 +188,33 @@ export const DropCursorExtension = createExtension(({ editor }) => {
           target = point;
         }
       }
-      setCursor(target);
+
+      // Compute default position
+      const $pos = view.state.doc.resolve(target);
+      const isBlock = !$pos.parent.inlineContent;
+      const defaultPosition: DropCursorPosition = {
+        pos: target,
+        orientation: isBlock ? "block-horizontal" : "inline",
+      };
+
+      // Allow hook to override position
+      let finalPosition = defaultPosition;
+      if (config.hooks?.computeDropPosition) {
+        const hookResult = config.hooks.computeDropPosition({
+          editor,
+          event: e,
+          view,
+          defaultPosition,
+        });
+        if (hookResult === null) {
+          // Hook returned null - don't show cursor
+          setCursor(null);
+          return;
+        }
+        finalPosition = hookResult;
+      }
+
+      setCursor(finalPosition);
       scheduleRemoval(5000);
     }
   };
