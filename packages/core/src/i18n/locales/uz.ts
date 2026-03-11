@@ -23,19 +23,37 @@ export const uz: Dictionary = {
     heading_4: {
       title: "4-darajali sarlavha",
       subtext: "Yana kichik bo‘limlar uchun ishlatiladi",
-      aliases: ["h4", "heading4", "subheading4", "sarlavha4", "kichik_sarlavha4"],
+      aliases: [
+        "h4",
+        "heading4",
+        "subheading4",
+        "sarlavha4",
+        "kichik_sarlavha4",
+      ],
       group: "Kichik sarlavhalar",
     },
     heading_5: {
       title: "5-darajali sarlavha",
       subtext: "Kichik bo‘lim sarlavhalari uchun",
-      aliases: ["h5", "heading5", "subheading5", "sarlavha5", "kichik_sarlavha5"],
+      aliases: [
+        "h5",
+        "heading5",
+        "subheading5",
+        "sarlavha5",
+        "kichik_sarlavha5",
+      ],
       group: "Kichik sarlavhalar",
     },
     heading_6: {
       title: "6-darajali sarlavha",
       subtext: "Eng past darajadagi sarlavha",
-      aliases: ["h6", "heading6", "subheading6", "sarlavha6", "kichik_sarlavha6"],
+      aliases: [
+        "h6",
+        "heading6",
+        "subheading6",
+        "sarlavha6",
+        "kichik_sarlavha6",
+      ],
       group: "Kichik sarlavhalar",
     },
     toggle_heading: {

@@ -4,8 +4,6 @@ import { defineConfig } from "vitest/config";
 import pkg from "./package.json";
 // import eslintPlugin from "vite-plugin-eslint";
 
-
-
 // https://vitejs.dev/config/
 export default defineConfig({
   test: {

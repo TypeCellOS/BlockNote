@@ -372,7 +372,7 @@
                     <wp:inline distT="0" distB="0" distL="0" distR="0">
                         <wp:extent cx="3162300" cy="3162300"/>
                         <wp:effectExtent t="0" r="0" b="0" l="0"/>
-                        <wp:docPr id="1" name="From https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg" descr="From https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg" title="From https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg"/>
+                        <wp:docPr id="1" name="From https://placehold.co/332x322.jpg" descr="From https://placehold.co/332x322.jpg" title="From https://placehold.co/332x322.jpg"/>
                         <wp:cNvGraphicFramePr>
                             <a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/>
                         </wp:cNvGraphicFramePr>
@@ -413,7 +413,7 @@
                 <w:pStyle w:val="Caption"/>
             </w:pPr>
             <w:r>
-                <w:t xml:space="preserve">From https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg</w:t>
+                <w:t xml:space="preserve">From https://placehold.co/332x322.jpg</w:t>
             </w:r>
         </w:p>
         <w:p>

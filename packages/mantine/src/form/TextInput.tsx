@@ -34,7 +34,7 @@ export const TextInput = forwardRef<
       size={"xs"}
       className={mergeCSSClasses(
         className || "",
-        variant === "large" ? "bn-mt-input-large" : ""
+        variant === "large" ? "bn-mt-input-large" : "",
       )}
       ref={ref}
       name={name}

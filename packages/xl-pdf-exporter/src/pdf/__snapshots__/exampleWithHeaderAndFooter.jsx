@@ -667,7 +667,7 @@
               width: undefined
             }}
           >
-            From https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg
+            From https://placehold.co/332x322.jpg
           </TEXT>
         </VIEW>
       </VIEW>

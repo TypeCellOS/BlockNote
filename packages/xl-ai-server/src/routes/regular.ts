@@ -29,7 +29,9 @@ regularRoute.post("/streamText", async (c) => {
   const result = streamText({
     model,
     system: aiDocumentFormats.html.systemPrompt,
-    messages: await convertToModelMessages(injectDocumentStateMessages(messages)),
+    messages: await convertToModelMessages(
+      injectDocumentStateMessages(messages),
+    ),
     tools: toolDefinitionsToToolSet(toolDefinitions),
     toolChoice: "required",
   });
