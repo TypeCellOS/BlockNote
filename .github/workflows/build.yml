@@ -113,10 +113,56 @@ jobs:
         run: |
           HOME=/root PLAYWRIGHT_CONFIG="--project ${{ matrix.browser }}" pnpm run e2e
 
-      - uses: actions/upload-artifact@v7
-        if: always()
+      - name: Upload blob report
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: blob-report-${{ matrix.browser }}
+          path: tests/blob-report/
+          retention-days: 1
+
+      - name: Upload HTML report
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
         with:
           name: playwright-report-${{ matrix.browser }}
           path: tests/playwright-report/
           retention-days: 30
-          archive: false
+
+  merge-reports:
+    name: "Merge Playwright Reports"
+    if: ${{ !cancelled() }}
+    needs: playwright
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          cache: "pnpm"
+          cache-dependency-path: "**/pnpm-lock.yaml"
+          node-version-file: ".nvmrc"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Download blob reports
+        uses: actions/download-artifact@v4
+        with:
+          path: all-blob-reports
+          pattern: blob-report-*
+          merge-multiple: true
+
+      - name: Merge reports
+        run: npx playwright merge-reports --reporter html ./all-blob-reports
+        working-directory: tests
+
+      - name: Upload merged HTML report
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-merged
+          path: tests/playwright-report/
+          retention-days: 30
