@@ -115,8 +115,7 @@ const simpleImageBlock = createBlockSpec(
     type: "simpleImage",
     propSchema: {
       src: {
-        default:
-          "https://www.pulsecarshalton.co.uk/wp-content/uploads/2016/08/jk-placeholder-image.jpg",
+        default: "https://placehold.co/800x540.png",
       },
     },
     content: "none",
@@ -201,7 +200,7 @@ export default function App() {
       {
         type: "simpleImage",
         props: {
-          src: "https://t3.ftcdn.net/jpg/02/48/42/64/360_F_248426448_NVKLywWqArG2ADUxDq6QprtIzsF82dMF.jpg",
+          src: "https://placehold.co/800x540.png",
         },
       },
       {

@@ -4,7 +4,7 @@ import { afterEach, beforeEach } from "vitest";
 setGlobalDispatcher(
   new Agent({
     allowH2: true,
-  })
+  }),
 );
 
 // https.globalAgent.options.ca = fs.readFileSync(

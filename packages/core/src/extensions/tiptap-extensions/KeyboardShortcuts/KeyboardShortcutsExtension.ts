@@ -538,7 +538,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // Deletes the next block at either the same or lower nesting level, if
         // the selection is empty and at the end of the block. If both the
         // current and next blocks have inline content, the next block's
-        // content is appended to the current block's. The next block's own 
+        // content is appended to the current block's. The next block's own
         // children are unindented before it's deleted.
         () =>
           commands.command(({ state }) => {
@@ -708,15 +708,20 @@ export const KeyboardShortcutsExtension = Extension.create<{
                   nextBlockInfo.blockContent.node.childCount === 0);
 
               if (nextBlockNotTableAndNoContent) {
-                  const childBlocks =
-                    nextBlockInfo.bnBlock.node.lastChild!.content;
-                  return chain()
-                    .deleteRange({
-                      from: nextBlockInfo.bnBlock.beforePos,
-                      to: nextBlockInfo.bnBlock.afterPos,
-                    })
-                    .insertContentAt(blockInfo.bnBlock.afterPos, nextBlockInfo.bnBlock.node.childCount === 2 ? childBlocks : null)
-                    .run();
+                const childBlocks =
+                  nextBlockInfo.bnBlock.node.lastChild!.content;
+                return chain()
+                  .deleteRange({
+                    from: nextBlockInfo.bnBlock.beforePos,
+                    to: nextBlockInfo.bnBlock.afterPos,
+                  })
+                  .insertContentAt(
+                    blockInfo.bnBlock.afterPos,
+                    nextBlockInfo.bnBlock.node.childCount === 2
+                      ? childBlocks
+                      : null,
+                  )
+                  .run();
               }
             }
 

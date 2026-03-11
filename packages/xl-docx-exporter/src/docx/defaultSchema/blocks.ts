@@ -84,7 +84,7 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
   paragraph: (block, exporter) => {
     return new Paragraph({
       ...blockPropsToStyles(block.props, exporter.options.colors),
-      children: exporter.transformInlineContent(block.content)
+      children: exporter.transformInlineContent(block.content),
     });
   },
   toggleListItem: (block, exporter) => {
