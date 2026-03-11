@@ -2,7 +2,7 @@ import { expect } from "@playwright/test";
 import { test } from "../../setup/setupScript.js";
 import { SLASH_MENU_SELECTOR } from "../../utils/const.js";
 
-const PORT = 5173;
+const PORT = 3000;
 const ALERT_BLOCK_URL = !process.env.RUN_IN_DOCKER
   ? `http://localhost:${PORT}/custom-schema/alert-block?hideMenu`
   : `http://host.docker.internal:${PORT}/custom-schema/alert-block?hideMenu`;
