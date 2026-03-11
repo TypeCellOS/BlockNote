@@ -78,10 +78,15 @@ export function getParseRules<
         config.content === "inline" || config.content === "none"
           ? (node, schema) => {
               if (implementation.parseContent) {
-                return implementation.parseContent({
+                const result = implementation.parseContent({
                   el: node as HTMLElement,
                   schema,
                 });
+                // parseContent may return undefined to fall through to
+                // the default inline content parsing below.
+                if (result !== undefined) {
+                  return result;
+                }
               }
 
               if (config.content === "inline") {

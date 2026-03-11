@@ -205,6 +205,62 @@ export const exportParseEqualityTestInstancesHTML: TestInstance<
   },
   {
     testCase: {
+      name: "lists/toggleListItem",
+      content: [
+        {
+          type: "toggleListItem",
+          content: "Toggle List Item",
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityHTML,
+  },
+  {
+    testCase: {
+      name: "lists/toggleListItemWithChildren",
+      content: [
+        {
+          type: "toggleListItem",
+          content: "Toggle List Item",
+          children: [
+            {
+              type: "paragraph",
+              content: "Child 1",
+            },
+            {
+              type: "paragraph",
+              content: "Child 2",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityHTML,
+  },
+  {
+    testCase: {
+      name: "lists/toggleHeading",
+      content: [
+        {
+          type: "heading",
+          props: {
+            level: 2,
+            isToggleable: true,
+          },
+          content: "Toggle Heading",
+          children: [
+            {
+              type: "paragraph",
+              content: "Heading Child 1",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityHTML,
+  },
+  {
+    testCase: {
       name: "tables/advanced",
       content: [
         {
