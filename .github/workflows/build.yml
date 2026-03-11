@@ -55,6 +55,9 @@ jobs:
       - name: Run unit tests
         run: pnpm run test
 
+      - name: Run Next.js integration test (production build)
+        run: NEXTJS_TEST_MODE=build npx vitest run tests/src/unit/nextjs/serverUtil.test.ts
+
       - name: Upload webpack stats artifact (editor)
         uses: relative-ci/agent-upload-artifact-action@v2
         with:
