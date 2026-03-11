@@ -34,7 +34,11 @@ test.describe("Check static rendering", () => {
         ],
         scale: "css",
       }),
-    ).toMatchSnapshot("static-rendering-equality.png");
+    ).toMatchSnapshot("static-rendering-equality.png", {
+      // Allowance for variations in the image caption text. The placehold.co
+      // URL renders differently (e.g., '×' vs 'x' character) between runs.
+      maxDiffPixels: 200,
+    });
 
     await page.goto(BASIC_BLOCKS_STATIC_URL);
     await page.waitForLoadState("networkidle");
