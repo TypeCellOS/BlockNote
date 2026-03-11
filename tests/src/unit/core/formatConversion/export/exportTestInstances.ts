@@ -161,6 +161,42 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
   },
   {
     testCase: {
+      name: "lists/toggleWithChildren",
+      content: [
+        {
+          type: "toggleListItem",
+          content: "Toggle List Item",
+          children: [
+            {
+              type: "paragraph",
+              content: "Toggle Child 1",
+            },
+            {
+              type: "paragraph",
+              content: "Toggle Child 2",
+            },
+          ],
+        },
+        {
+          type: "heading",
+          props: {
+            level: 2,
+            isToggleable: true,
+          },
+          content: "Toggle Heading",
+          children: [
+            {
+              type: "paragraph",
+              content: "Heading Child 1",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
       name: "lists/nested",
       content: [
         {

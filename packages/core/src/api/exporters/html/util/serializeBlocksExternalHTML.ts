@@ -319,7 +319,13 @@ function serializeBlock<
       }
     }
 
-    if (editor.pmSchema.nodes[block.type as any].isInGroup("blockContent")) {
+    if ("childrenDOM" in ret && ret.childrenDOM) {
+      // block specifies where children should go (e.g. toggle blocks
+      // place children inside <details>)
+      ret.childrenDOM.append(childFragment);
+    } else if (
+      editor.pmSchema.nodes[block.type as any].isInGroup("blockContent")
+    ) {
       // default "blockContainer" style blocks are flattened (no "nested block" support) for externalHTML, so append the child fragment to the outer fragment
       fragment.append(childFragment);
     } else {
