@@ -155,7 +155,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
-          name: blob-report-${{ matrix.browser }}
+          name: blob-report-${{ matrix.browser }}-${{ matrix.shardIndex }}
           path: tests/blob-report/
           retention-days: 1
 
