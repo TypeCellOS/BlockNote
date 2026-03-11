@@ -1,11 +1,6 @@
 import { expect } from "@playwright/test";
 import { test } from "../../setup/setupScript.js";
-import { SLASH_MENU_SELECTOR } from "../../utils/const.js";
-
-const PORT = 3000;
-const ALERT_BLOCK_URL = !process.env.RUN_IN_DOCKER
-  ? `http://localhost:${PORT}/custom-schema/alert-block?hideMenu`
-  : `http://host.docker.internal:${PORT}/custom-schema/alert-block?hideMenu`;
+import { ALERT_BLOCK_URL, SLASH_MENU_SELECTOR } from "../../utils/const.js";
 
 // Regression test for https://github.com/TypeCellOS/BlockNote/issues/2531
 // The slash menu should open when "/" is typed after a space inside a custom
