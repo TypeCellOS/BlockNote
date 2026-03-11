@@ -7,9 +7,9 @@ test.beforeEach(async ({ page }) => {
   await page.goto(BASIC_BLOCKS_URL);
 });
 
+// Skip due to flaky timeout on locator.click
 test.describe.skip("Check basic text block appearance", () => {
-  // Skip due to flaky timeout on locator.click
-  test("Check basic text block appearance", async ({ page }) => {
+  test("renders correctly", async ({ page }) => {
     focusOnEditor(page);
     await page.waitForTimeout(500);
 
