@@ -114,15 +114,18 @@ describe(`server-util in Next.js App Router (#942) [${MODE}]`, () => {
         try {
           errorMessage =
             JSON.parse(nextDataMatch[1])?.err?.message || errorMessage;
-        } catch {}
+        } catch {
+          // ignore invalid JSON
+        }
       }
       throw new Error(errorMessage);
     }
-    expect(res.status, `Response: ${JSON.stringify(body)}`).toBe(200);
-    expect(
-      body.allPassed,
-      `Failed results: ${JSON.stringify(body.results, null, 2)}`,
-    ).toBe(true);
+    expect(res.status).toBe(200);
+    if (!body.allPassed) {
+      throw new Error(
+        `Failed results: ${JSON.stringify(body.results, null, 2)}`,
+      );
+    }
 
     // Verify individual results match ReactServer.test.tsx scenarios
     expect(body.results.simpleReactBlock).toMatch(/^PASS:/);
@@ -144,7 +147,9 @@ describe(`server-util in Next.js App Router (#942) [${MODE}]`, () => {
       if (nextDataMatch) {
         try {
           errorDetail = JSON.parse(nextDataMatch[1])?.err?.message;
-        } catch {}
+        } catch {
+          // ignore invalid JSON
+        }
       }
       if (!errorDetail && digestMatch) {
         errorDetail = `digest: ${digestMatch[1]}`;

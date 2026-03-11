@@ -7,13 +7,13 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 TARBALLS_DIR="$SCRIPT_DIR/.tarballs"
-# Resolve the main repo root (works from git worktrees too).
-REPO_ROOT="$(cd "$(git -C "$SCRIPT_DIR" rev-parse --git-common-dir)/.." && pwd)"
+# Resolve the repo root (works from git worktrees too).
+REPO_ROOT="$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel)"
 PACKAGES_DIR="$REPO_ROOT/packages"
 
-# Compute a hash of all package dist directories to detect changes.
+# Compute a hash of package dist directories + package.json manifests.
 HASH_FILE="$TARBALLS_DIR/.packages-hash"
-CURRENT_HASH=$(find "$PACKAGES_DIR/core/dist" "$PACKAGES_DIR/react/dist" "$PACKAGES_DIR/server-util/dist" "$PACKAGES_DIR/mantine/dist" -type f 2>/dev/null | sort | xargs cat 2>/dev/null | shasum -a 256 | cut -d' ' -f1)
+CURRENT_HASH=$( (find "$PACKAGES_DIR/core/dist" "$PACKAGES_DIR/react/dist" "$PACKAGES_DIR/server-util/dist" "$PACKAGES_DIR/mantine/dist" -type f 2>/dev/null | sort | xargs cat 2>/dev/null; cat "$PACKAGES_DIR/core/package.json" "$PACKAGES_DIR/react/package.json" "$PACKAGES_DIR/server-util/package.json" "$PACKAGES_DIR/mantine/package.json" 2>/dev/null) | shasum -a 256 | cut -d' ' -f1)
 
 if [ -f "$HASH_FILE" ] && [ -d "$SCRIPT_DIR/node_modules/@blocknote/core" ] && [ "$(cat "$HASH_FILE")" = "$CURRENT_HASH" ]; then
   echo "Tarballs up to date, skipping pack+install"
