@@ -22,7 +22,6 @@ export const GridSuggestionMenuItem = forwardRef<
       itemRef.current.closest(".bn-grid-suggestion-menu")!,
     );
 
-    
     if (overflow !== "none") {
       itemRef.current.scrollIntoView({ block: "nearest" });
     }

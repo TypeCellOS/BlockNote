@@ -4,11 +4,10 @@
   "release": {
     "projects": ["packages/*"],
     "version": {
-      "generatorOptions": {
-        "fallbackCurrentVersionResolver": "disk"
-      },
       "preVersionCommand": "pnpm exec nx run-many -t build",
-      "conventionalCommits": true
+      "conventionalCommits": true,
+      "fallbackCurrentVersionResolver": "disk",
+      "preserveLocalDependencyProtocols": false
     },
     "changelog": {
       "workspaceChangelog": {

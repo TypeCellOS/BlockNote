@@ -25,9 +25,10 @@ export const SuggestionMenuItem = forwardRef<
       return;
     }
 
-    const overflow = elementOverflow(itemRef.current, itemRef.current.closest(
-      ".bn-suggestion-menu, #ai-suggestion-menu"
-    )!);
+    const overflow = elementOverflow(
+      itemRef.current,
+      itemRef.current.closest(".bn-suggestion-menu, #ai-suggestion-menu")!,
+    );
 
     if (overflow !== "none") {
       itemRef.current.scrollIntoView({ block: "nearest" });
