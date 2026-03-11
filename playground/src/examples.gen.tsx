@@ -817,8 +817,8 @@
         "pathFromRoot": "examples/03-ui-components/18-drag-n-drop",
         "config": {
           "playground": true,
-          "docs": true,
-          "author": "must",
+          "docs": false,
+          "author": "nperez0111",
           "tags": [
             "Intermediate",
             "UI Components",
