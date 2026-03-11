@@ -65,16 +65,10 @@ jobs:
         id: soft-release
         run: pnpx pkg-pr-new publish './packages/*' # TODO disabled only for AI branch--compact
 
-  playwright:
-    name: "Playwright Tests - ${{ matrix.browser }}"
+  playwright-build:
+    name: "Playwright Build"
     runs-on: ubuntu-latest
-    timeout-minutes: 60
-    container:
-      image: mcr.microsoft.com/playwright:v1.51.1-noble
-    strategy:
-      fail-fast: false
-      matrix:
-        browser: [chromium, firefox, webkit]
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
@@ -95,13 +89,13 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .nx/cache
-          key: nx-${{ matrix.browser }}-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-${{ github.sha }}
+          key: nx-playwright-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-${{ github.sha }}
           restore-keys: |
-            nx-${{ matrix.browser }}-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-
-            nx-${{ matrix.browser }}-${{ env.NX_BRANCH }}-
+            nx-playwright-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-
+            nx-playwright-${{ env.NX_BRANCH }}-
             nx-
 
-      - run: apt-get update && apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev pkg-config
+      - run: sudo apt-get update && sudo apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev pkg-config
 
       - name: Install dependencies
         run: pnpm install
@@ -109,13 +103,104 @@ jobs:
       - name: Build packages
         run: pnpm run build
 
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-build
+          path: |
+            packages/*/dist
+            playground/dist
+          retention-days: 1
+
+  playwright:
+    name: "Playwright Tests - ${{ matrix.browser }} (${{ matrix.shardIndex }}/${{ matrix.shardTotal }})"
+    runs-on: ubuntu-latest
+    needs: playwright-build
+    timeout-minutes: 30
+    container:
+      image: mcr.microsoft.com/playwright:v1.51.1-noble
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+        shardIndex: [1, 2]
+        shardTotal: [2]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          cache: "pnpm"
+          cache-dependency-path: "**/pnpm-lock.yaml"
+          node-version-file: ".nvmrc"
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: playwright-build
+
+      - name: Install dependencies
+        run: pnpm install
+
       - name: Run server and Playwright tests
         run: |
-          HOME=/root PLAYWRIGHT_CONFIG="--project ${{ matrix.browser }}" pnpm run e2e
+          HOME=/root PLAYWRIGHT_CONFIG="--project ${{ matrix.browser }} --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}" pnpm run e2e
 
-      - uses: actions/upload-artifact@v4
-        if: always()
+      - name: Upload blob report
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
         with:
-          name: playwright-report-${{ matrix.browser }}
+          name: blob-report-${{ matrix.browser }}-${{ matrix.shardIndex }}
+          path: tests/blob-report/
+          retention-days: 1
+
+      - name: Upload HTML report
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report-${{ matrix.browser }}-${{ matrix.shardIndex }}
+          path: tests/playwright-report/
+          retention-days: 30
+
+  merge-reports:
+    name: "Merge Playwright Reports"
+    if: ${{ !cancelled() }}
+    needs: playwright
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          cache: "pnpm"
+          cache-dependency-path: "**/pnpm-lock.yaml"
+          node-version-file: ".nvmrc"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Download blob reports
+        uses: actions/download-artifact@v4
+        with:
+          path: tests/all-blob-reports
+          pattern: blob-report-*
+          merge-multiple: true
+
+      - name: Merge reports
+        run: npx playwright merge-reports --reporter html ./all-blob-reports
+        working-directory: tests
+
+      - name: Upload merged HTML report
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-merged
           path: tests/playwright-report/
           retention-days: 30

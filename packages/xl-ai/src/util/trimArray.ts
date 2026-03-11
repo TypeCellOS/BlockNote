@@ -2,7 +2,7 @@ export function trimArray<T>(
   arr: T[],
   matchFn: (element: T) => boolean,
   trimStart = true,
-  trimEnd = true
+  trimEnd = true,
 ): T[] {
   let start = 0;
   let end = arr.length;

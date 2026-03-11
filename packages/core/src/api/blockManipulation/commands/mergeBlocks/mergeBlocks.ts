@@ -10,7 +10,10 @@ import {
  * Returns the block info from the parent block
  * or undefined if we're at the root
  */
-export const getParentBlockInfo = (doc: Node, beforePos: number): BlockInfo | undefined => {
+export const getParentBlockInfo = (
+  doc: Node,
+  beforePos: number,
+): BlockInfo | undefined => {
   const $pos = doc.resolve(beforePos);
   const depth = $pos.depth - 1;
   const parentBeforePos = $pos.before(depth);

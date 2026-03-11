@@ -51,8 +51,8 @@ export async function createHTMLRebaseTool(
     throw new Error("html diff", {
       cause: {
         html,
-        htmlBlock
-      }
+        htmlBlock,
+      },
     });
   }
 

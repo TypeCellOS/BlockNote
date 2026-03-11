@@ -5,17 +5,17 @@
       {
         "styles": {},
         "text": "Heading 1",
-        "type": "text",
-      },
+        "type": "text"
+      }
     ],
     "id": "1",
     "props": {
       "backgroundColor": "default",
       "level": 1,
       "textAlignment": "left",
-      "textColor": "default",
+      "textColor": "default"
     },
-    "type": "heading",
+    "type": "heading"
   },
   {
     "children": [],
@@ -23,17 +23,17 @@
       {
         "styles": {},
         "text": "Heading 2",
-        "type": "text",
-      },
+        "type": "text"
+      }
     ],
     "id": "2",
     "props": {
       "backgroundColor": "default",
       "level": 2,
       "textAlignment": "left",
-      "textColor": "default",
+      "textColor": "default"
     },
-    "type": "heading",
+    "type": "heading"
   },
   {
     "children": [],
@@ -41,17 +41,17 @@
       {
         "styles": {},
         "text": "Heading 3",
-        "type": "text",
-      },
+        "type": "text"
+      }
     ],
     "id": "3",
     "props": {
       "backgroundColor": "default",
       "level": 3,
       "textAlignment": "left",
-      "textColor": "default",
+      "textColor": "default"
     },
-    "type": "heading",
+    "type": "heading"
   },
   {
     "children": [],
@@ -59,16 +59,16 @@
       {
         "styles": {},
         "text": "Paragraph 1",
-        "type": "text",
-      },
+        "type": "text"
+      }
     ],
     "id": "4",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
-      "textColor": "default",
+      "textColor": "default"
     },
-    "type": "paragraph",
+    "type": "paragraph"
   },
   {
     "children": [],
@@ -76,16 +76,16 @@
       {
         "styles": {},
         "text": "Nested Paragraph 1",
-        "type": "text",
-      },
+        "type": "text"
+      }
     ],
     "id": "5",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
-      "textColor": "default",
+      "textColor": "default"
     },
-    "type": "paragraph",
+    "type": "paragraph"
   },
   {
     "children": [],
@@ -93,16 +93,16 @@
       {
         "styles": {},
         "text": "Nested Paragraph 2",
-        "type": "text",
-      },
+        "type": "text"
+      }
     ],
     "id": "6",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
-      "textColor": "default",
+      "textColor": "default"
     },
-    "type": "paragraph",
+    "type": "paragraph"
   },
   {
     "children": [],
@@ -110,73 +110,73 @@
       {
         "styles": {},
         "text": "Paragraph With Hard Break",
-        "type": "text",
-      },
+        "type": "text"
+      }
     ],
     "id": "7",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
-      "textColor": "default",
+      "textColor": "default"
     },
-    "type": "paragraph",
+    "type": "paragraph"
   },
   {
     "children": [],
     "content": [
       {
         "styles": {
-          "bold": true,
+          "bold": true
         },
         "text": "Bold",
-        "type": "text",
+        "type": "text"
       },
       {
         "styles": {},
         "text": " ",
-        "type": "text",
+        "type": "text"
       },
       {
         "styles": {
-          "italic": true,
+          "italic": true
         },
         "text": "Italic",
-        "type": "text",
+        "type": "text"
       },
       {
         "styles": {},
         "text": " Underline ",
-        "type": "text",
+        "type": "text"
       },
       {
         "styles": {
-          "strike": true,
+          "strike": true
         },
         "text": "Strikethrough",
-        "type": "text",
+        "type": "text"
       },
       {
         "styles": {},
         "text": " ",
-        "type": "text",
+        "type": "text"
       },
       {
         "styles": {
           "bold": true,
           "italic": true,
-          "strike": true,
+          "strike": true
         },
         "text": "All",
-        "type": "text",
-      },
+        "type": "text"
+      }
     ],
     "id": "8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
-      "textColor": "default",
+      "textColor": "default"
     },
-    "type": "paragraph",
+    "type": "paragraph"
   },
   {
     "children": [
@@ -188,16 +188,16 @@
               {
                 "styles": {},
                 "text": "Nested Numbered List Item 1",
-                "type": "text",
-              },
+                "type": "text"
+              }
             ],
             "id": "11",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
-              "textColor": "default",
+              "textColor": "default"
             },
-            "type": "numberedListItem",
+            "type": "numberedListItem"
           },
           {
             "children": [],
@@ -205,32 +205,32 @@
               {
                 "styles": {},
                 "text": "Nested Numbered List Item 2",
-                "type": "text",
-              },
+                "type": "text"
+              }
             ],
             "id": "12",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
-              "textColor": "default",
+              "textColor": "default"
             },
-            "type": "numberedListItem",
-          },
+            "type": "numberedListItem"
+          }
         ],
         "content": [
           {
             "styles": {},
             "text": "Nested Bullet List Item 1",
-            "type": "text",
-          },
+            "type": "text"
+          }
         ],
         "id": "10",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
-          "textColor": "default",
+          "textColor": "default"
         },
-        "type": "bulletListItem",
+        "type": "bulletListItem"
       },
       {
         "children": [],
@@ -238,32 +238,32 @@
           {
             "styles": {},
             "text": "Nested Bullet List Item 2",
-            "type": "text",
-          },
+            "type": "text"
+          }
         ],
         "id": "13",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
-          "textColor": "default",
+          "textColor": "default"
         },
-        "type": "bulletListItem",
-      },
+        "type": "bulletListItem"
+      }
     ],
     "content": [
       {
         "styles": {},
         "text": "Bullet List Item 1",
-        "type": "text",
-      },
+        "type": "text"
+      }
     ],
     "id": "9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
-      "textColor": "default",
+      "textColor": "default"
     },
-    "type": "bulletListItem",
+    "type": "bulletListItem"
   },
   {
     "children": [],
@@ -271,16 +271,16 @@
       {
         "styles": {},
         "text": "Bullet List Item 2",
-        "type": "text",
-      },
+        "type": "text"
+      }
     ],
     "id": "14",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
-      "textColor": "default",
+      "textColor": "default"
     },
-    "type": "bulletListItem",
+    "type": "bulletListItem"
   },
   {
     "children": [],
@@ -288,16 +288,16 @@
       {
         "styles": {},
         "text": "Numbered List Item 1",
-        "type": "text",
-      },
+        "type": "text"
+      }
     ],
     "id": "15",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
-      "textColor": "default",
+      "textColor": "default"
     },
-    "type": "numberedListItem",
+    "type": "numberedListItem"
   },
   {
     "children": [],
@@ -305,16 +305,16 @@
       {
         "styles": {},
         "text": "Numbered List Item 2",
-        "type": "text",
-      },
+        "type": "text"
+      }
     ],
     "id": "16",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
-      "textColor": "default",
+      "textColor": "default"
     },
-    "type": "numberedListItem",
+    "type": "numberedListItem"
   },
   {
     "children": [],
@@ -322,16 +322,16 @@
       {
         "styles": {},
         "text": "Background Color Paragraph",
-        "type": "text",
-      },
+        "type": "text"
+      }
     ],
     "id": "17",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
-      "textColor": "default",
+      "textColor": "default"
     },
-    "type": "paragraph",
+    "type": "paragraph"
   },
   {
     "children": [],
@@ -339,36 +339,32 @@
       {
         "styles": {},
         "text": "!",
-        "type": "text",
+        "type": "text"
       },
       {
         "content": [
           {
             "styles": {},
-            "text": "https://www.pulsecarshalton.co.uk/wp-content/uploads/2016/08/jk-placeholder-image.jpg",
-            "type": "text",
-          },
+            "text": "https://placehold.co/800x540.png",
+            "type": "text"
+          }
         ],
-        "href": "https://www.pulsecarshalton.co.uk/wp-content/uploads/2016/08/jk-placeholder-image.jpg",
-        "type": "link",
-      },
+        "href": "https://placehold.co/800x540.png",
+        "type": "link"
+      }
     ],
     "id": "18",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
-      "textColor": "default",
+      "textColor": "default"
     },
-    "type": "paragraph",
+    "type": "paragraph"
   },
   {
     "children": [],
     "content": {
-      "columnWidths": [
-        undefined,
-        undefined,
-        undefined,
-      ],
+      "columnWidths": [undefined, undefined, undefined],
       "headerCols": undefined,
       "headerRows": 1,
       "rows": [
@@ -379,53 +375,53 @@
                 {
                   "styles": {},
                   "text": "Cell 1",
-                  "type": "text",
-                },
+                  "type": "text"
+                }
               ],
               "props": {
                 "backgroundColor": "default",
                 "colspan": 1,
                 "rowspan": 1,
                 "textAlignment": "left",
-                "textColor": "default",
+                "textColor": "default"
               },
-              "type": "tableCell",
+              "type": "tableCell"
             },
             {
               "content": [
                 {
                   "styles": {},
                   "text": "Cell 2",
-                  "type": "text",
-                },
+                  "type": "text"
+                }
               ],
               "props": {
                 "backgroundColor": "default",
                 "colspan": 1,
                 "rowspan": 1,
                 "textAlignment": "left",
-                "textColor": "default",
+                "textColor": "default"
               },
-              "type": "tableCell",
+              "type": "tableCell"
             },
             {
               "content": [
                 {
                   "styles": {},
                   "text": "Cell 3",
-                  "type": "text",
-                },
+                  "type": "text"
+                }
               ],
               "props": {
                 "backgroundColor": "default",
                 "colspan": 1,
                 "rowspan": 1,
                 "textAlignment": "left",
-                "textColor": "default",
+                "textColor": "default"
               },
-              "type": "tableCell",
-            },
-          ],
+              "type": "tableCell"
+            }
+          ]
         },
         {
           "cells": [
@@ -434,53 +430,53 @@
                 {
                   "styles": {},
                   "text": "Cell 4",
-                  "type": "text",
-                },
+                  "type": "text"
+                }
               ],
               "props": {
                 "backgroundColor": "default",
                 "colspan": 1,
                 "rowspan": 1,
                 "textAlignment": "left",
-                "textColor": "default",
+                "textColor": "default"
               },
-              "type": "tableCell",
+              "type": "tableCell"
             },
             {
               "content": [
                 {
                   "styles": {},
                   "text": "Cell 5",
-                  "type": "text",
-                },
+                  "type": "text"
+                }
               ],
               "props": {
                 "backgroundColor": "default",
                 "colspan": 1,
                 "rowspan": 1,
                 "textAlignment": "left",
-                "textColor": "default",
+                "textColor": "default"
               },
-              "type": "tableCell",
+              "type": "tableCell"
             },
             {
               "content": [
                 {
                   "styles": {},
                   "text": "Cell 6",
-                  "type": "text",
-                },
+                  "type": "text"
+                }
               ],
               "props": {
                 "backgroundColor": "default",
                 "colspan": 1,
                 "rowspan": 1,
                 "textAlignment": "left",
-                "textColor": "default",
+                "textColor": "default"
               },
-              "type": "tableCell",
-            },
-          ],
+              "type": "tableCell"
+            }
+          ]
         },
         {
           "cells": [
@@ -489,62 +485,62 @@
                 {
                   "styles": {},
                   "text": "Cell 7",
-                  "type": "text",
-                },
+                  "type": "text"
+                }
               ],
               "props": {
                 "backgroundColor": "default",
                 "colspan": 1,
                 "rowspan": 1,
                 "textAlignment": "left",
-                "textColor": "default",
+                "textColor": "default"
               },
-              "type": "tableCell",
+              "type": "tableCell"
             },
             {
               "content": [
                 {
                   "styles": {},
                   "text": "Cell 8",
-                  "type": "text",
-                },
+                  "type": "text"
+                }
               ],
               "props": {
                 "backgroundColor": "default",
                 "colspan": 1,
                 "rowspan": 1,
                 "textAlignment": "left",
-                "textColor": "default",
+                "textColor": "default"
               },
-              "type": "tableCell",
+              "type": "tableCell"
             },
             {
               "content": [
                 {
                   "styles": {},
                   "text": "Cell 9",
-                  "type": "text",
-                },
+                  "type": "text"
+                }
               ],
               "props": {
                 "backgroundColor": "default",
                 "colspan": 1,
                 "rowspan": 1,
                 "textAlignment": "left",
-                "textColor": "default",
+                "textColor": "default"
               },
-              "type": "tableCell",
-            },
-          ],
-        },
+              "type": "tableCell"
+            }
+          ]
+        }
       ],
-      "type": "tableContent",
+      "type": "tableContent"
     },
     "id": "19",
     "props": {
-      "textColor": "default",
+      "textColor": "default"
     },
-    "type": "table",
+    "type": "table"
   },
   {
     "children": [],
@@ -552,15 +548,15 @@
       {
         "styles": {},
         "text": "Paragraph",
-        "type": "text",
-      },
+        "type": "text"
+      }
     ],
     "id": "20",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
-      "textColor": "default",
+      "textColor": "default"
     },
-    "type": "paragraph",
-  },
+    "type": "paragraph"
+  }
 ]

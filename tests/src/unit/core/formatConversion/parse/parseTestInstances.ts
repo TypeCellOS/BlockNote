@@ -676,7 +676,7 @@ With Hard Break</p>
 <li>Numbered List Item 2</li>
 </ol>
 <p>Background Color Paragraph</p>
-<p>!<a href="https://www.pulsecarshalton.co.uk/wp-content/uploads/2016/08/jk-placeholder-image.jpg">https://www.pulsecarshalton.co.uk/wp-content/uploads/2016/08/jk-placeholder-image.jpg</a></p>
+<p>!<a href="https://placehold.co/800x540.png">https://placehold.co/800x540.png</a></p>
 <table>
 <thead>
 <tr>

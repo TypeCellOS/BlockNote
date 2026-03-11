@@ -170,16 +170,15 @@ export const testDocument = partialBlocksToBlocksForTesting(
     {
       type: "image",
       props: {
-        url: "https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg",
-        caption:
-          "From https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg",
+        url: "https://placehold.co/332x322.jpg",
+        caption: "From https://placehold.co/332x322.jpg",
       },
     },
     {
       type: "image",
       props: {
         previewWidth: 200,
-        url: "https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg",
+        url: "https://placehold.co/332x322.jpg",
         textAlignment: "right",
       },
     },
@@ -288,19 +287,19 @@ export const testDocument = partialBlocksToBlocksForTesting(
         {
           type: "text",
           text: "Some inline code: ",
-          styles: { bold: true }
+          styles: { bold: true },
         },
         {
           type: "text",
           text: "var foo = 'bar';",
           styles: { code: true },
         },
-      ]
+      ],
     },
     { type: "divider" },
     {
       type: "quote",
-      content: "All those moments will be lost in time, like tears in rain."
-    }
+      content: "All those moments will be lost in time, like tears in rain.",
+    },
   ],
 );

@@ -48,7 +48,9 @@ export class SelectionManager<
    * only the part of the block that is included in the selection.
    */
   public getSelectionCutBlocks(expandToWords = false) {
-    return this.editor.transact((tr) => getSelectionCutBlocks(tr, expandToWords));
+    return this.editor.transact((tr) =>
+      getSelectionCutBlocks(tr, expandToWords),
+    );
   }
 
   /**
