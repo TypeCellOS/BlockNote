@@ -103,15 +103,14 @@ jobs:
       - name: Build packages
         run: pnpm run build
 
-      - name: Cache build artifacts
-        uses: actions/cache/save@v4
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
         with:
+          name: playwright-build
           path: |
             packages/*/dist
             playground/dist
-            node_modules
-            packages/*/node_modules
-          key: playwright-build-${{ github.event.pull_request.head.sha || github.sha }}
+          retention-days: 1
 
   playwright:
     name: "Playwright Tests - ${{ matrix.browser }} (${{ matrix.shardIndex }}/${{ matrix.shardTotal }})"
@@ -140,16 +139,13 @@ jobs:
           cache-dependency-path: "**/pnpm-lock.yaml"
           node-version-file: ".nvmrc"
 
-      - name: Restore build artifacts
-        uses: actions/cache/restore@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
         with:
-          path: |
-            packages/*/dist
-            playground/dist
-            node_modules
-            packages/*/node_modules
-          key: playwright-build-${{ github.event.pull_request.head.sha || github.sha }}
-          fail-on-cache-miss: true
+          name: playwright-build
+
+      - name: Install dependencies
+        run: pnpm install
 
       - name: Run server and Playwright tests
         run: |
