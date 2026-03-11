@@ -47,11 +47,11 @@ const config: PlaywrightTestConfig = {
     baseURL: "http://localhost:3000",
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: "retain-on-failure",
+    trace: "on-first-retry",
     /* Capture screenshot on failure for better debugging */
     screenshot: "only-on-failure",
-    /* Record video on failure for better debugging */
-    video: "retain-on-failure",
+    /* Disable video recording to reduce overhead */
+    video: "off",
   },
 
   /* Configure projects for major browsers */
