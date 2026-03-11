@@ -111,7 +111,7 @@ jobs:
             playground/dist
             node_modules
             packages/*/node_modules
-          key: playwright-build-${{ github.sha }}
+          key: playwright-build-${{ github.event.pull_request.head.sha || github.sha }}
 
   playwright:
     name: "Playwright Tests - ${{ matrix.browser }} (${{ matrix.shardIndex }}/${{ matrix.shardTotal }})"
@@ -148,7 +148,7 @@ jobs:
             playground/dist
             node_modules
             packages/*/node_modules
-          key: playwright-build-${{ github.sha }}
+          key: playwright-build-${{ github.event.pull_request.head.sha || github.sha }}
           fail-on-cache-miss: true
 
       - name: Run server and Playwright tests
