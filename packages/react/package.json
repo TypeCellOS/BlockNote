@@ -59,7 +59,6 @@
   },
   "dependencies": {
     "@blocknote/core": "0.47.1",
-    "@emoji-mart/data": "^1.2.1",
     "@floating-ui/react": "^0.27.18",
     "@floating-ui/utils": "^0.2.10",
     "@tanstack/react-store": "0.7.7",
@@ -67,14 +66,13 @@
     "@tiptap/pm": "^3.13.0",
     "@tiptap/react": "^3.13.0",
     "@types/use-sync-external-store": "1.5.0",
-    "emoji-mart": "^5.6.0",
     "fast-deep-equal": "^3.1.3",
+    "frimousse": "^0.3.0",
     "lodash.merge": "^4.6.2",
     "react-icons": "^5.5.0",
     "use-sync-external-store": "1.6.0"
   },
   "devDependencies": {
-    "@types/emoji-mart": "^3.0.14",
     "@types/lodash.foreach": "^4.5.9",
     "@types/lodash.groupby": "^4.6.9",
     "@types/lodash.merge": "^4.6.9",

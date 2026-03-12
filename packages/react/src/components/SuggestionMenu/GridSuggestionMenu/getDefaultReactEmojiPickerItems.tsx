@@ -4,7 +4,10 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { getDefaultEmojiPickerItems } from "@blocknote/core/extensions";
+import {
+  EmojiLocale,
+  getDefaultEmojiPickerItems,
+} from "@blocknote/core/extensions";
 import { DefaultReactGridSuggestionItem } from "./types.js";
 
 export async function getDefaultReactEmojiPickerItems<
@@ -14,8 +17,9 @@ export async function getDefaultReactEmojiPickerItems<
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
   query: string,
+  locale?: EmojiLocale,
 ): Promise<DefaultReactGridSuggestionItem[]> {
-  return (await getDefaultEmojiPickerItems(editor, query)).map(
+  return (await getDefaultEmojiPickerItems(editor, query, locale)).map(
     ({ id, onItemClick }) => ({
       id,
       onItemClick,

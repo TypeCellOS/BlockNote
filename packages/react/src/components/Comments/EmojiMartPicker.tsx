@@ -1,64 +1,60 @@
-// From https://github.com/missive/emoji-mart/blob/main/packages/emoji-mart-react/react.tsx
-import type { EmojiMartData } from "@emoji-mart/data";
-import React, { useEffect, useRef } from "react";
+import { EmojiPicker } from "frimousse";
+import { useEffect, useRef } from "react";
 
-// Temporary fix for https://github.com/missive/emoji-mart/pull/929
-let emojiLoadingPromise:
-  | Promise<{
-      emojiMart: typeof import("emoji-mart");
-      emojiData: EmojiMartData;
-    }>
-  | undefined;
+export default function FrimoussePicker(props: {
+  onEmojiSelect?: (emoji: { native: string }) => void;
+  onClickOutside?: () => void;
+  theme?: "light" | "dark";
+  perLine?: number;
+  /**
+   * Override the base URL for emojibase data.
+   * By default, frimousse fetches from cdn.jsdelivr.net.
+   * Set this to a self-hosted URL for privacy or offline use.
+   */
+  emojibaseUrl?: string;
+}) {
+  const rootRef = useRef<HTMLDivElement>(null);
 
-async function loadEmojiMart() {
-  if (emojiLoadingPromise) {
-    return emojiLoadingPromise;
-  }
-
-  emojiLoadingPromise = (async () => {
-    // load dynamically because emoji-mart doesn't specify type: module and breaks in nodejs
-    const [emojiMartModule, emojiDataModule] = await Promise.all([
-      import("emoji-mart"),
-      // use a dynamic import to encourage bundle-splitting
-      // and a smaller initial client bundle size
-      import("@emoji-mart/data"),
-    ]);
-
-    const emojiMart =
-      "default" in emojiMartModule ? emojiMartModule.default : emojiMartModule;
-    const emojiData =
-      "default" in emojiDataModule
-        ? (emojiDataModule.default as EmojiMartData)
-        : (emojiDataModule as EmojiMartData);
-
-    await emojiMart.init({ data: emojiData });
-
-    return { emojiMart, emojiData };
-  })();
-
-  return emojiLoadingPromise;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function EmojiPicker(props: any) {
-  const ref = useRef(null);
-  const instance = useRef(null) as any;
-
-  if (instance.current) {
-    instance.current.update(props);
-  }
-
+  // Handle click outside
   useEffect(() => {
-    (async () => {
-      const { emojiMart } = await loadEmojiMart();
+    if (!props.onClickOutside) {
+      return;
+    }
 
-      instance.current = new emojiMart.Picker({ ...props, ref });
-    })();
-
-    return () => {
-      instance.current = null;
+    const handler = (e: MouseEvent) => {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
+        props.onClickOutside?.();
+      }
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return React.createElement("div", { ref });
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [props.onClickOutside]);
+
+  return (
+    <div ref={rootRef}>
+      <EmojiPicker.Root
+        className="bn-frimousse-picker"
+        onEmojiSelect={(emoji) => {
+          props.onEmojiSelect?.({ native: emoji.emoji });
+        }}
+        columns={props.perLine ?? 7}
+        emojibaseUrl={props.emojibaseUrl}
+      >
+        <EmojiPicker.Search
+          className="bn-frimousse-search"
+          autoFocus={true}
+        />
+        <EmojiPicker.Viewport className="bn-frimousse-viewport">
+          <EmojiPicker.Loading className="bn-frimousse-loading">
+            Loading…
+          </EmojiPicker.Loading>
+          <EmojiPicker.Empty className="bn-frimousse-empty">
+            No emoji found.
+          </EmojiPicker.Empty>
+          <EmojiPicker.List />
+        </EmojiPicker.Viewport>
+      </EmojiPicker.Root>
+    </div>
+  );
 }

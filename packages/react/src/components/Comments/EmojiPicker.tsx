@@ -9,6 +9,12 @@ import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 export const EmojiPicker = (props: {
   onEmojiSelect: (emoji: { native: string }) => void;
   onOpenChange?: (open: boolean) => void;
+  /**
+   * Override the base URL for emojibase data fetching.
+   * By default, data is fetched from cdn.jsdelivr.net.
+   * Set this to a self-hosted URL for privacy or offline use.
+   */
+  emojibaseUrl?: string;
   children: ReactNode;
 }) => {
   const [open, setOpen] = useState(false);
@@ -57,6 +63,7 @@ export const EmojiPicker = (props: {
                 props.onOpenChange?.(false);
               }}
               theme={blockNoteContext?.colorSchemePreference}
+              emojibaseUrl={props.emojibaseUrl}
             />
           </Components.Generic.Popover.Content>,
           editor.domElement.parentElement,

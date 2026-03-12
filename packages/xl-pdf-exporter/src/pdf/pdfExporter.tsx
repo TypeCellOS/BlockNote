@@ -32,10 +32,60 @@ const PIXELS_PER_POINT = 0.75;
 type Options = ExporterOptions & {
   /**
    *
-   * @default uses the remote emoji source hosted on cloudflare (https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/)
+   * @default uses the jdecked/twemoji fork CDN which supports Unicode 15.1 emojis
    */
   emojiSource: false | ReturnType<typeof Font.getEmojiSource>;
 };
+
+/**
+ * Default emoji CDN using jdecked/twemoji fork which supports Unicode 15.1
+ * (the original twitter/twemoji v14.0.2 is missing many modern emojis like 🙋 and 🚶‍♀️)
+ */
+export const DEFAULT_EMOJI_CDN =
+  "https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/72x72/";
+
+/**
+ * Creates an emoji source that renders emojis natively via Canvas,
+ * producing PNG data URLs. Works offline without any CDN dependency.
+ *
+ * Requires a Canvas-capable environment (browser, or node with `canvas` package).
+ *
+ * @param size - The size in pixels for the rendered emoji image (default: 72)
+ * @returns An emoji source compatible with `@react-pdf/renderer`'s `Font.registerEmojiSource()`
+ */
+export function createNativeEmojiSource(size = 72): {
+  format: "png";
+  builder: (code: string) => string;
+} {
+  const cache = new Map<string, string>();
+
+  return {
+    format: "png",
+    builder: (code: string) => {
+      const cached = cache.get(code);
+      if (cached) {
+        return cached;
+      }
+
+      const emoji = String.fromCodePoint(
+        ...code.split("-").map((hex) => parseInt(hex, 16)),
+      );
+
+      const canvas = document.createElement("canvas");
+      canvas.width = size;
+      canvas.height = size;
+
+      const ctx = canvas.getContext("2d")!;
+      ctx.font = `${size}px serif`;
+      ctx.textBaseline = "top";
+      ctx.fillText(emoji, 0, 0);
+
+      const dataUrl = canvas.toDataURL("image/png");
+      cache.set(code, dataUrl);
+      return dataUrl;
+    },
+  };
+}
 
 /**
  * Exports a BlockNote document to a .pdf file using the react-pdf library.
@@ -98,7 +148,7 @@ export class PDFExporter<
     const defaults = {
       emojiSource: {
         format: "png",
-        url: "https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/",
+        url: DEFAULT_EMOJI_CDN,
       },
       resolveFileUrl: corsProxyResolveFileUrl,
       colors: COLORS_DEFAULT,

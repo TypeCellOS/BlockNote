@@ -12,6 +12,16 @@ overrides:
 importers:
 
   .:
+    dependencies:
+      emojibase:
+        specifier: ^17.0.0
+        version: 17.0.0
+      emojibase-data:
+        specifier: ^17.0.0
+        version: 17.0.0(emojibase@17.0.0)
+      frimousse:
+        specifier: ^0.3.0
+        version: 0.3.0(react@19.2.3)(typescript@5.9.3)
     devDependencies:
       '@nx/js':
         specifier: ^21.6.5
@@ -4567,9 +4577,6 @@ importers:
 
   packages/core:
     dependencies:
-      '@emoji-mart/data':
-        specifier: ^1.2.1
-        version: 1.2.1
       '@handlewithcare/prosemirror-inputrules':
         specifier: ^0.1.4
         version: 0.1.4(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)
@@ -4618,9 +4625,12 @@ importers:
       '@tiptap/pm':
         specifier: ^3.0.0
         version: 3.15.3
-      emoji-mart:
-        specifier: ^5.6.0
-        version: 5.6.0
+      emojibase:
+        specifier: ^17.0.0
+        version: 17.0.0
+      emojibase-data:
+        specifier: ^17.0.0
+        version: 17.0.0(emojibase@17.0.0)
       fast-deep-equal:
         specifier: ^3.1.3
         version: 3.1.3
@@ -4691,9 +4701,6 @@ importers:
         specifier: ^13.6.27
         version: 13.6.29
     devDependencies:
-      '@types/emoji-mart':
-        specifier: ^3.0.14
-        version: 3.0.14
       '@types/hast':
         specifier: ^3.0.4
         version: 3.0.4
@@ -4822,9 +4829,6 @@ importers:
       '@blocknote/core':
         specifier: 0.47.1
         version: link:../core
-      '@emoji-mart/data':
-        specifier: ^1.2.1
-        version: 1.2.1
       '@floating-ui/react':
         specifier: ^0.27.18
         version: 0.27.18(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -4846,12 +4850,12 @@ importers:
       '@types/use-sync-external-store':
         specifier: 1.5.0
         version: 1.5.0
-      emoji-mart:
-        specifier: ^5.6.0
-        version: 5.6.0
       fast-deep-equal:
         specifier: ^3.1.3
         version: 3.1.3
+      frimousse:
+        specifier: ^0.3.0
+        version: 0.3.0(react@19.2.3)(typescript@5.9.3)
       lodash.merge:
         specifier: ^4.6.2
         version: 4.6.2
@@ -4862,9 +4866,6 @@ importers:
         specifier: 1.6.0
         version: 1.6.0(react@19.2.3)
     devDependencies:
-      '@types/emoji-mart':
-        specifier: ^3.0.14
-        version: 3.0.14
       '@types/lodash.foreach':
         specifier: ^4.5.9
         version: 4.5.9
@@ -7015,9 +7016,6 @@ packages:
 
   '@emnapi/wasi-threads@1.1.0':
     resolution: {integrity: sha512-WI0DdZ8xFSbgMjR1sFsKABJ/C5OnRrjT06JXbZKexJGrDuPTzZdDYfFlsgcCXCyf+suG5QU2e/y1Wo2V/OapLQ==}
-
-  '@emoji-mart/data@1.2.1':
-    resolution: {integrity: sha512-no2pQMWiBy6gpBEiqGeU77/bFejDqUTRY7KX+0+iur13op3bqUsXdnwoZs6Xb1zbv0gAj5VvS1PWoUUckSr5Dw==}
 
   '@emotion/babel-plugin@11.13.5':
     resolution: {integrity: sha512-pxHCpT2ex+0q+HH91/zsdHkw/lXd468DIN2zvfvLtPKLLMo6gQj7oLObq8PhkrxOZb/gGCq03S3Z7PDhS8pduQ==}
@@ -10403,9 +10401,6 @@ packages:
   '@types/diff@6.0.0':
     resolution: {integrity: sha512-dhVCYGv3ZSbzmQaBSagrv1WJ6rXCdkyTcDyoNu1MD8JohI7pR7k8wdZEm+mvdxRKXyHVwckFzWU1vJc+Z29MlA==}
 
-  '@types/emoji-mart@3.0.14':
-    resolution: {integrity: sha512-/vMkVnet466bK37ugf2jry9ldCZklFPXYMB2m+qNo3vkP2I7L0cvtNFPKAjfcHgPg9Z8pbYqVqZn7AgsC0qf+g==}
-
   '@types/eslint-scope@3.7.7':
     resolution: {integrity: sha512-MzMFlSLBqNF2gcHWO0G1vP/YQyfvrxZ0bF+u7mzUdZ1/xK4A4sru+nraZz5i3iEIk1l1uyicaDVTB4QbbEkAYg==}
 
@@ -12092,9 +12087,6 @@ packages:
   electron-to-chromium@1.5.307:
     resolution: {integrity: sha512-5z3uFKBWjiNR44nFcYdkcXjKMbg5KXNdciu7mhTPo9tB7NbqSNP2sSnGR+fqknZSCwKkBN+oxiiajWs4dT6ORg==}
 
-  emoji-mart@5.6.0:
-    resolution: {integrity: sha512-eJp3QRe79pjwa+duv+n7+5YsNhRcMl812EcFVwrnRvYKoNPoQb5qxU8DG6Bgwji0akHdp6D4Ln6tYLG58MFSow==}
-
   emoji-regex-xs@1.0.0:
     resolution: {integrity: sha512-LRlerrMYoIDrT6jgpeZ2YYl/L8EulRTt5hQcYjy5AInh7HWXKimpqx68aknBFpGL2+/IcogTcaydJEgaTmOpDg==}
 
@@ -12106,6 +12098,15 @@ packages:
 
   emoji-regex@9.2.2:
     resolution: {integrity: sha512-L18DaJsXSUk2+42pv8mLs5jJT2hqFkFE4j21wOmgbUqsZ2hL72NsUU785g9RXgo3s0ZNgVl42TiHp3ZtOv/Vyg==}
+
+  emojibase-data@17.0.0:
+    resolution: {integrity: sha512-Yvgb5AWoHViHV/gq1qr5ZAarcBip+B27/ZLRsUJkbgAEaLlZ/fof9g882LTpmEpyhBNEC0m2SEmItljHsTygjA==}
+    peerDependencies:
+      emojibase: '*'
+
+  emojibase@17.0.0:
+    resolution: {integrity: sha512-bXdpf4HPY3p41zK5swVKZdC/VynsMZ4LoLxdYDE+GucqkFwzcM1GVc4ODfYAlwoKaf2U2oNNUoOO78N96ovpBA==}
+    engines: {node: '>=18.12.0'}
 
   encoding@0.1.13:
     resolution: {integrity: sha512-ETBauow1T35Y/WZMkio9jiM0Z5xjHHmJ4XmjZOq1l/dXz3lr2sRn87nJy20RupqSh1F2m3HHPSp8ShIPQJrJ3A==}
@@ -12649,6 +12650,15 @@ packages:
     resolution: {integrity: sha512-viSrsVQWKR4Q7xzC0lkx3Wu9i1+IHrth0QXn0nlIIJXpltwUnjkGXSTuoW7WHI5aJ4z49WR8E/pyQizFjlNtTA==}
     peerDependencies:
       react: ^18 || ^19
+
+  frimousse@0.3.0:
+    resolution: {integrity: sha512-kO6LMoKY/cLAYEhXXtqLRaLIE6L/DagpFPrUZaLv3LsUa1/8Iza3HhwZcgN8eZ+weXnhv69eoclNUPohcCa/IQ==}
+    peerDependencies:
+      react: ^18 || ^19
+      typescript: '>=5.1.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   front-matter@4.0.2:
     resolution: {integrity: sha512-I8ZuJ/qG92NWX8i5x1Y8qyj3vizhXS31OxjKDu3LKP+7/qBgfIKValiZIEwoVoJKUHlhWtYrktkxV1XsX+pPlg==}
@@ -15715,12 +15725,12 @@ packages:
   tar@6.2.1:
     resolution: {integrity: sha512-DZ4yORTwrbTj/7MZYq2w+/ZFdI6OZ/f9SFHR+71gIVUZhOQPHzVCLpvRnPgyaMpfWxxk/4ONva3GQSyNIKRv6A==}
     engines: {node: '>=10'}
-    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exhorbitant rates) by contacting i@izs.me
 
   tar@7.5.1:
     resolution: {integrity: sha512-nlGpxf+hv0v7GkWBK2V9spgactGOp0qvfWRxUMjqHyzrt3SgwE48DIv/FhqPHJYLHpgW1opq3nERbz5Anq7n1g==}
     engines: {node: '>=18'}
-    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exhorbitant rates) by contacting i@izs.me
 
   terser-webpack-plugin@5.3.17:
     resolution: {integrity: sha512-YR7PtUp6GMU91BgSJmlaX/rS2lGDbAF7D+Wtq7hRO+MiljNmodYvqslzCFiYVAgW+Qoaaia/QUIP4lGXufjdZw==}
@@ -18510,8 +18520,6 @@ snapshots:
   '@emnapi/wasi-threads@1.1.0':
     dependencies:
       tslib: 2.8.1
-
-  '@emoji-mart/data@1.2.1': {}
 
   '@emotion/babel-plugin@11.13.5':
     dependencies:
@@ -22289,10 +22297,6 @@ snapshots:
 
   '@types/diff@6.0.0': {}
 
-  '@types/emoji-mart@3.0.14':
-    dependencies:
-      '@types/react': 19.2.8
-
   '@types/eslint-scope@3.7.7':
     dependencies:
       '@types/eslint': 9.6.1
@@ -22965,9 +22969,9 @@ snapshots:
       flatted: 3.3.4
       pathe: 1.1.2
       sirv: 3.0.2
-      tinyglobby: 0.2.15
+      tinyglobby: 0.2.12
       tinyrainbow: 1.2.0
-      vitest: 2.1.9(@types/node@25.0.7)(@vitest/ui@2.1.9)(jsdom@25.0.1(canvas@2.11.2(encoding@0.1.13)))(lightningcss@1.30.2)(msw@2.11.5(@types/node@25.0.7)(typescript@5.9.3))(terser@5.46.0)
+      vitest: 2.1.9(@types/node@25.3.3)(@vitest/ui@2.1.9)(jsdom@25.0.1(canvas@2.11.2(encoding@0.1.13)))(lightningcss@1.30.2)(msw@2.11.5(@types/node@25.3.3)(typescript@5.9.3))(terser@5.46.0)
     optional: true
 
   '@vitest/utils@2.1.9':
@@ -24116,8 +24120,6 @@ snapshots:
 
   electron-to-chromium@1.5.307: {}
 
-  emoji-mart@5.6.0: {}
-
   emoji-regex-xs@1.0.0: {}
 
   emoji-regex@10.6.0: {}
@@ -24125,6 +24127,12 @@ snapshots:
   emoji-regex@8.0.0: {}
 
   emoji-regex@9.2.2: {}
+
+  emojibase-data@17.0.0(emojibase@17.0.0):
+    dependencies:
+      emojibase: 17.0.0
+
+  emojibase@17.0.0: {}
 
   encoding@0.1.13:
     dependencies:
@@ -25035,6 +25043,12 @@ snapshots:
   frimousse@0.2.0(react@19.2.3):
     dependencies:
       react: 19.2.3
+
+  frimousse@0.3.0(react@19.2.3)(typescript@5.9.3):
+    dependencies:
+      react: 19.2.3
+    optionalDependencies:
+      typescript: 5.9.3
 
   front-matter@4.0.2:
     dependencies:

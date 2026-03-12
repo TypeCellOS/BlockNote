@@ -42,6 +42,11 @@ export function GridSuggestionMenuController<
     columns: number;
     shouldOpen?: SuggestionMenuOptions["shouldOpen"];
     minQueryLength?: number;
+    /**
+     * Optional max height (in px) for the floating menu.
+     * When set, the menu will not exceed this height (or the available viewport space, whichever is smaller).
+     */
+    maxHeight?: number;
     floatingUIOptions?: FloatingUIOptions;
   } & (ItemType<GetItemsType> extends DefaultReactGridSuggestionItem
     ? {
@@ -71,6 +76,7 @@ export function GridSuggestionMenuController<
     columns,
     shouldOpen,
     minQueryLength,
+    maxHeight,
     onItemClick,
     getItems,
   } = props;
@@ -137,7 +143,10 @@ export function GridSuggestionMenuController<
           shift(),
           size({
             apply({ elements, availableHeight }) {
-              elements.floating.style.maxHeight = `${Math.max(0, availableHeight)}px`;
+              const effectiveMax = maxHeight
+                ? Math.min(Math.max(0, availableHeight), maxHeight)
+                : Math.max(0, availableHeight);
+              elements.floating.style.maxHeight = `${effectiveMax}px`;
             },
             padding: 10,
           }),
@@ -163,6 +172,7 @@ export function GridSuggestionMenuController<
       state?.triggerCharacter,
       suggestionMenu,
       triggerCharacter,
+      maxHeight,
     ],
   );
 

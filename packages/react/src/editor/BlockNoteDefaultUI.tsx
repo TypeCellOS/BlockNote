@@ -1,5 +1,6 @@
 import { CommentsExtension } from "@blocknote/core/comments";
 import {
+  EmojiLocale,
   FilePanelExtension,
   FormattingToolbarExtension,
   LinkToolbarExtension,
@@ -7,13 +8,14 @@ import {
   SuggestionMenu,
   TableHandlesExtension,
 } from "@blocknote/core/extensions";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useCallback } from "react";
 
 import { FilePanelController } from "../components/FilePanel/FilePanelController.js";
 import { FormattingToolbarController } from "../components/FormattingToolbar/FormattingToolbarController.js";
 import { LinkToolbarController } from "../components/LinkToolbar/LinkToolbarController.js";
 import { SideMenuController } from "../components/SideMenu/SideMenuController.js";
 import { GridSuggestionMenuController } from "../components/SuggestionMenu/GridSuggestionMenu/GridSuggestionMenuController.js";
+import { getDefaultReactEmojiPickerItems } from "../components/SuggestionMenu/GridSuggestionMenu/getDefaultReactEmojiPickerItems.js";
 import { SuggestionMenuController } from "../components/SuggestionMenu/SuggestionMenuController.js";
 import { TableHandlesController } from "../components/TableHandles/TableHandlesController.js";
 import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor.js";
@@ -70,6 +72,15 @@ export type BlockNoteDefaultUIProps = {
   emojiPicker?: boolean;
 
   /**
+   * The locale used for emoji search. Allows searching emojis in non-English languages.
+   * Supported locales: 'bn', 'da', 'de', 'en', 'en-gb', 'es', 'es-mx', 'et', 'fi', 'fr',
+   * 'hi', 'hu', 'it', 'ja', 'ko', 'lt', 'ms', 'nb', 'nl', 'pl', 'pt', 'ru', 'sv', 'th',
+   * 'uk', 'vi', 'zh', 'zh-hant'.
+   * @default "en"
+   */
+  emojiLocale?: EmojiLocale;
+
+  /**
    * Whether the default comments UI feature should be enabled.
    * @see {@link https://blocknotejs.org/docs/react/components/comments}
    */
@@ -84,6 +95,14 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
       "BlockNoteDefaultUI must be used within a BlockNoteContext.Provider",
     );
   }
+
+  const emojiLocale = props.emojiLocale;
+
+  const getEmojiItems = useCallback(
+    (query: string) =>
+      getDefaultReactEmojiPickerItems(editor, query, emojiLocale),
+    [editor, emojiLocale],
+  );
 
   return (
     <>
@@ -104,6 +123,8 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
           triggerCharacter=":"
           columns={10}
           minQueryLength={2}
+          getItems={getEmojiItems}
+          maxHeight={304}
         />
       )}
       {editor.getExtension(SideMenuExtension) && props.sideMenu !== false && (

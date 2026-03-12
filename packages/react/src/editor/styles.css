@@ -294,8 +294,71 @@ inline styles, it is added to the base z-index. */
   border: 2px solid #23405b;
 }
 
-/* Emoji Picker styling */
-em-emoji-picker {
-  max-height: 100%;
+/* Frimousse Emoji Picker styling (comments reactions) */
+.bn-frimousse-picker {
+  display: flex;
+  flex-direction: column;
+  width: 352px;
+  height: 368px;
+  background: var(--bn-colors-menu-background, #fff);
+  border-radius: var(--bn-border-radius-large, 8px);
+  box-shadow: var(--bn-shadow-medium);
   z-index: 11000;
+  isolation: isolate;
+}
+
+.bn-frimousse-search {
+  margin: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--bn-colors-border, #e0e0e0);
+  border-radius: var(--bn-border-radius-medium, 6px);
+  background: var(--bn-colors-editor-background, #fff);
+  color: var(--bn-colors-editor-text, #000);
+  font-size: 14px;
+  outline: none;
+}
+
+.bn-frimousse-search:focus {
+  border-color: var(--bn-colors-highlights-background, #3b82f6);
+}
+
+.bn-frimousse-viewport {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+}
+
+.bn-frimousse-loading,
+.bn-frimousse-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--bn-colors-side-menu, #999);
+  font-size: 14px;
+}
+
+/* Style the emoji grid items */
+[frimousse-emoji] {
+  all: unset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  border-radius: var(--bn-border-radius-medium, 6px);
+  cursor: pointer;
+  aspect-ratio: 1;
+}
+
+[frimousse-emoji]:hover,
+[frimousse-emoji][data-active] {
+  background-color: var(--bn-colors-hovered-background, #f0f0f0);
+}
+
+[frimousse-category-header] {
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--bn-colors-side-menu, #999);
+  text-transform: uppercase;
 }
