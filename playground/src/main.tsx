@@ -1,5 +1,10 @@
 import { usePrefersColorScheme } from "@blocknote/react";
-import { AppShell, MantineProvider, ScrollArea } from "@mantine/core";
+import {
+  AppShell,
+  MantineProvider,
+  ScrollArea,
+  TextInput,
+} from "@mantine/core";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import {
@@ -33,6 +38,7 @@ function Root() {
   //   // "root:hover": { background: "blue" },
   // });
 
+  const [searchQuery, setSearchQuery] = React.useState("");
   const themePreference = usePrefersColorScheme();
 
   return (
@@ -59,9 +65,20 @@ function Root() {
       >
         {window.location.search.includes("hideMenu") ? undefined : (
           <AppShell.Navbar p="xs">
+            <TextInput
+              placeholder="Search examples..."
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.currentTarget.value)}
+              mb="md"
+            />
             <AppShell.Section grow component={ScrollArea} mx="-xs" px="xs">
               {Object.values(editors)
                 .flatMap((g) => g.projects)
+                .filter((editor) =>
+                  editor.title
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase()),
+                )
                 .map((editor, i) => (
                   <div key={i}>
                     <Link to={editor.fullSlug}>{editor.title}</Link>

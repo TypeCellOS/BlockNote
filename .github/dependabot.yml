@@ -28,7 +28,6 @@ updates:
       - dependency-name: "@tiptap/extension-underline"
       # prosemirror packages
       - dependency-name: "prosemirror-changeset"
-      - dependency-name: "prosemirror-dropcursor"
       - dependency-name: "prosemirror-highlight"
       - dependency-name: "prosemirror-model"
       - dependency-name: "prosemirror-state"

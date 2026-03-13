@@ -14,6 +14,7 @@ export * from "./editor/BlockNoteExtension.js";
 export * from "./editor/defaultColors.js";
 export * from "./editor/selectionTypes.js";
 export * from "./exporter/index.js";
+export * from "./extensions/index.js";
 export * from "./extensions-shared/UiElementPosition.js";
 export * from "./i18n/dictionary.js";
 export * from "./schema/index.js";

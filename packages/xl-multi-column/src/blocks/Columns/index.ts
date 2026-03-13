@@ -1,3 +1,4 @@
+import { MultiColumnDropHandlerExtension } from "../../extensions/DropCursor/multiColumnHandleDropPlugin.js";
 import { Column } from "../../pm-nodes/Column.js";
 import { ColumnList } from "../../pm-nodes/ColumnList.js";
 
@@ -14,6 +15,7 @@ export const ColumnBlock = createBlockSpecFromTiptapNode(
       default: 1,
     },
   },
+  [MultiColumnDropHandlerExtension()],
 );
 
 export const ColumnListBlock = createBlockSpecFromTiptapNode(

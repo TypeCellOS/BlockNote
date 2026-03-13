@@ -5,7 +5,7 @@ import {
   getSchema,
   Editor as TiptapEditor,
 } from "@tiptap/core";
-import { type Command, type Plugin, type Transaction } from "@tiptap/pm/state";
+import { type Command, type Transaction } from "@tiptap/pm/state";
 import { Node, Schema } from "prosemirror-model";
 import type { BlocksChanged } from "../api/getBlocksChangedByTransaction.js";
 import { blockToNode } from "../api/nodeConversions/blockToNode.js";
@@ -18,7 +18,10 @@ import {
   PartialBlock,
 } from "../blocks/index.js";
 import type { CollaborationOptions } from "../extensions/Collaboration/Collaboration.js";
-import { BlockChangeExtension } from "../extensions/index.js";
+import {
+  BlockChangeExtension,
+  DropCursorOptions,
+} from "../extensions/index.js";
 import { UniqueID } from "../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 import type { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
@@ -118,19 +121,11 @@ export interface BlockNoteEditorOptions<
   domAttributes?: Partial<BlockNoteDOMAttributes>;
 
   /**
-   * A replacement indicator to use when dragging and dropping blocks. Uses the [ProseMirror drop cursor](https://github.com/ProseMirror/prosemirror-dropcursor), or a modified version when [Column Blocks](https://www.blocknotejs.org/docs/document-structure#column-blocks) are enabled.
-   * @remarks `() => Plugin`
+   * Options for configuring the drop cursor behavior when dragging and dropping blocks.
+   * Allows customization of cursor appearance and drop position computation through hooks.
+   * @remarks `DropCursorOptions`
    */
-  dropCursor?: (opts: {
-    editor: BlockNoteEditor<
-      NoInfer<BSchema>,
-      NoInfer<ISchema>,
-      NoInfer<SSchema>
-    >;
-    color?: string | false;
-    width?: number;
-    class?: string;
-  }) => Plugin;
+  dropCursor?: DropCursorOptions;
 
   /**
    * The content that should be in the editor when it's created, represented as an array of {@link PartialBlock} objects.
