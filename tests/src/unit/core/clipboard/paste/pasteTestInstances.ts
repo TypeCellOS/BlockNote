@@ -1,10 +1,5 @@
 import { TextSelection } from "@tiptap/pm/state";
 
-import {
-  TestBlockSchema,
-  TestInlineContentSchema,
-  TestStyleSchema,
-} from "../../testSchema.js";
 import { PasteTestCase } from "../../../shared/clipboard/paste/pasteTestCase.js";
 import {
   testPasteHTML,
@@ -12,6 +7,11 @@ import {
 } from "../../../shared/clipboard/paste/pasteTestExecutors.js";
 import { getPosOfTextNode } from "../../../shared/testUtil.js";
 import { TestInstance } from "../../../types.js";
+import {
+  TestBlockSchema,
+  TestInlineContentSchema,
+  TestStyleSchema,
+} from "../../testSchema.js";
 
 export const pasteTestInstancesHTML: TestInstance<
   PasteTestCase<TestBlockSchema, TestInlineContentSchema, TestStyleSchema>,
