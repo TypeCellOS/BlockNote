@@ -52,3 +52,21 @@ const html = await editor.withReactContext(
   async () => editor.blocksToFullHTML(blocks),
 );
 ```
+
+## Next.js App Router
+
+If you're using `@blocknote/server-util` in a Next.js App Router API route (Route Handler), you need to add the BlockNote packages to `serverExternalPackages` in your `next.config.ts`:
+
+```typescript
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  serverExternalPackages: [
+    "@blocknote/core",
+    "@blocknote/react",
+    "@blocknote/server-util",
+  ],
+};
+
+export default nextConfig;
+```
