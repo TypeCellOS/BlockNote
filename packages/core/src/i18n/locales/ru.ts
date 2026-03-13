@@ -272,7 +272,7 @@ export const ru: Dictionary = {
     text_title: "Текст",
     background_title: "Задний фон",
     colors: {
-      default: "По умолчинию",
+      default: "По умолчанию",
       gray: "Серый",
       brown: "Коричневый",
       red: "Красный",
