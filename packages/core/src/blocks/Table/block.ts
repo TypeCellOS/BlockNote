@@ -9,6 +9,8 @@ import {
   createBlockSpecFromTiptapNode,
   TableContent,
 } from "../../schema/index.js";
+import { propsToAttributes } from "../../schema/blocks/internal.js";
+import { PropSchema } from "../../schema/propTypes.js";
 import { mergeCSSClasses } from "../../util/browser.js";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
 import { defaultProps } from "../defaultProps.js";
@@ -381,10 +383,23 @@ export type TableBlockConfig = BlockConfig<
   "table"
 >;
 
-export const createTableBlockSpec = () =>
-  createBlockSpecFromTiptapNode(
-    { node: TiptapTableNode, type: "table", content: "table" },
-    tablePropSchema,
+export const createTableBlockSpec = (additionalPropSchema?: PropSchema) => {
+  // Merge the base table prop schema with any additional props
+  const mergedPropSchema = {
+    ...tablePropSchema,
+    ...(additionalPropSchema || {}),
+  };
+
+  // Extend the TiptapTableNode to add attributes based on the merged prop schema
+  const extendedTableNode = TiptapTableNode.extend({
+    addAttributes() {
+      return propsToAttributes(mergedPropSchema);
+    },
+  });
+
+  return createBlockSpecFromTiptapNode(
+    { node: extendedTableNode, type: "table", content: "table" },
+    mergedPropSchema,
     [
       createExtension({
         key: "table-extensions",
@@ -452,6 +467,7 @@ export const createTableBlockSpec = () =>
       }),
     ],
   );
+};
 
 // We need to declare this here because we aren't using the table extensions from tiptap, so the types are not automatically inferred.
 declare module "@tiptap/core" {
