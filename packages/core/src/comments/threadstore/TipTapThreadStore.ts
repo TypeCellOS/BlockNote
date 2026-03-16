@@ -1,8 +1,3 @@
-import type {
-  TCollabComment,
-  TCollabThread,
-  TiptapCollabProvider,
-} from "@hocuspocus/provider";
 import {
   CommentBody,
   CommentData,
@@ -11,6 +6,11 @@ import {
 } from "../types.js";
 import { ThreadStore } from "./ThreadStore.js";
 import { ThreadStoreAuth } from "./ThreadStoreAuth.js";
+import type {
+  TCollabComment,
+  TCollabThread,
+  TiptapCollabProvider,
+} from "./tiptap/types.js";
 
 type ReactionAsTiptapData = {
   emoji: string;
