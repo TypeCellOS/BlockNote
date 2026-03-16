@@ -120,7 +120,7 @@
 }
 
 /* Placeholder styling */
-.bn-inline-content:has(> .ProseMirror-trailingBreak):before {
+.bn-block-content:has(.ProseMirror-trailingBreak):after {
   color: var(--bn-colors-side-menu);
 }
 
