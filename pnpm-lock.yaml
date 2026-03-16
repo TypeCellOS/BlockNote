@@ -4573,9 +4573,6 @@ importers:
       '@handlewithcare/prosemirror-inputrules':
         specifier: ^0.1.4
         version: 0.1.4(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)
-      '@hocuspocus/provider':
-        specifier: ^2.15.2 || ^3.0.0
-        version: 2.15.3(y-protocols@1.0.6(yjs@13.6.29))(yjs@13.6.29)
       '@shikijs/types':
         specifier: ^3
         version: 3.19.0
@@ -7679,15 +7676,6 @@ packages:
   '@hapi/topo@5.1.0':
     resolution: {integrity: sha512-foQZKJig7Ob0BMAYBfcJk8d77QtOe7Wo4ox7ff1lQYoNNAb6jwcY1ncdoy2e9wQZzvNy7ODZCYJkK8kzmcAnAg==}
 
-  '@hocuspocus/common@2.15.3':
-    resolution: {integrity: sha512-Rzh1HF0a2o/tf90A3w2XNdXd9Ym3aQzMDfD3lAUONCX9B9QOdqdyiORrj6M25QEaJrEIbXFy8LtAFcL0wRdWzA==}
-
-  '@hocuspocus/provider@2.15.3':
-    resolution: {integrity: sha512-oadN05m+KL4ylNKVo5YspNG4MXkT2Y+FUFzrgigpQeTjQibkPUwCNmUnkUxMgrGRgxb+O0lJCfirFIJMxedctA==}
-    peerDependencies:
-      y-protocols: ^1.0.6
-      yjs: ^13.6.8
-
   '@hono/node-server@1.19.11':
     resolution: {integrity: sha512-dr8/3zEaB+p0D2n/IUrlPF1HZm586qgJNXK1a9fhg/PzdtkK7Ksd5l312tJX2yBuALqDYBlG20QEbayqPyxn+g==}
     engines: {node: '>=18.14.1'}
@@ -7941,9 +7929,6 @@ packages:
 
   '@juggle/resize-observer@3.4.0':
     resolution: {integrity: sha512-dfLbk+PwWvFzSxwk3n5ySL0hfBog779o8h68wK/7/APo/7cgyWp5jcXockbxdk5kFRkbeXWm4Fbi9FrdN381sA==}
-
-  '@lifeomic/attempt@3.1.0':
-    resolution: {integrity: sha512-QZqem4QuAnAyzfz+Gj5/+SLxqwCAw2qmt7732ZXodr6VDWGeYLG6w1i/vYLa55JQM9wRuBKLmXmiZ2P0LtE5rw==}
 
   '@liveblocks/client@3.7.1-tiptap3':
     resolution: {integrity: sha512-GgolT/FLHicy7CD00yF40odYZT8KO3DC81YNek8lvfXnx2+CEijNWiKYic5JIUnqbGI6kLNGM0AfAnQxxHXkbQ==}
@@ -18991,22 +18976,6 @@ snapshots:
     dependencies:
       '@hapi/hoek': 9.3.0
 
-  '@hocuspocus/common@2.15.3':
-    dependencies:
-      lib0: 0.2.114
-
-  '@hocuspocus/provider@2.15.3(y-protocols@1.0.6(yjs@13.6.29))(yjs@13.6.29)':
-    dependencies:
-      '@hocuspocus/common': 2.15.3
-      '@lifeomic/attempt': 3.1.0
-      lib0: 0.2.114
-      ws: 8.18.3
-      y-protocols: 1.0.6(yjs@13.6.29)
-      yjs: 13.6.29
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-
   '@hono/node-server@1.19.11(hono@4.12.2)':
     dependencies:
       hono: 4.12.2
@@ -19274,8 +19243,6 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.5.5
 
   '@juggle/resize-observer@3.4.0': {}
-
-  '@lifeomic/attempt@3.1.0': {}
 
   '@liveblocks/client@3.7.1-tiptap3(@types/json-schema@7.0.15)':
     dependencies:
