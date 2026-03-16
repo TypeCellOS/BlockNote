@@ -39,6 +39,10 @@ export const CUSTOM_BLOCKS_REACT_URL = !process.env.RUN_IN_DOCKER
   ? `http://localhost:${PORT}/custom-schema/react-custom-blocks?hideMenu`
   : `http://host.docker.internal:${PORT}/custom-schema/react-custom-blocks?hideMenu`;
 
+export const ALERT_BLOCK_URL = !process.env.RUN_IN_DOCKER
+  ? `http://localhost:${PORT}/custom-schema/alert-block?hideMenu`
+  : `http://host.docker.internal:${PORT}/custom-schema/alert-block?hideMenu`;
+
 export const PASTE_ZONE_SELECTOR = "#pasteZone";
 
 export const EDITOR_SELECTOR = `.bn-editor`;
