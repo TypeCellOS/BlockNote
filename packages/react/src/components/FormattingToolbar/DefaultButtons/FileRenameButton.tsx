@@ -9,7 +9,6 @@ import {
   ChangeEvent,
   KeyboardEvent,
   useCallback,
-  useEffect,
   useState,
 } from "react";
 import { RiFontFamily } from "react-icons/ri";
@@ -59,49 +58,42 @@ export const FileRenameButton = () => {
     },
   });
 
-  const [currentEditingName, setCurrentEditingName] = useState<string>();
-
-  useEffect(() => {
-    if (block === undefined) {
-      return;
-    }
-
-    setCurrentEditingName(block.props.name);
-  }, [block]);
+  const [popoverOpen, setPopoverOpen] = useState(false);
 
   const handleChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) =>
-      setCurrentEditingName(event.currentTarget.value),
-    [],
-  );
-
-  const handleEnter = useCallback(
-    (event: KeyboardEvent) => {
+    (event: ChangeEvent<HTMLInputElement>) => {
       if (
         block !== undefined &&
         editorHasBlockWithType(editor, block.type, {
           name: "string",
-        }) &&
-        event.key === "Enter" &&
-        !event.nativeEvent.isComposing
+        })
       ) {
-        event.preventDefault();
         editor.updateBlock(block.id, {
           props: {
-            name: currentEditingName,
+            name: event.currentTarget.value,
           },
         });
       }
     },
-    [block, currentEditingName, editor],
+    [block, editor],
   );
+
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    if (event.key === "Enter" && !event.nativeEvent.isComposing) {
+      event.preventDefault();
+      setPopoverOpen(false);
+    }
+  }, []);
 
   if (block === undefined) {
     return null;
   }
 
   return (
-    <Components.Generic.Popover.Root>
+    <Components.Generic.Popover.Root
+      open={popoverOpen}
+      onOpenChange={setPopoverOpen}
+    >
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button
           className={"bn-button"}
@@ -114,6 +106,7 @@ export const FileRenameButton = () => {
             dict.formatting_toolbar.file_rename.tooltip["file"]
           }
           icon={<RiFontFamily />}
+          onClick={() => setPopoverOpen((open) => !open)}
         />
       </Components.Generic.Popover.Trigger>
       <Components.Generic.Popover.Content
@@ -124,14 +117,14 @@ export const FileRenameButton = () => {
           <Components.Generic.Form.TextInput
             name={"file-name"}
             icon={<RiFontFamily />}
-            value={currentEditingName || ""}
+            value={block.props.name}
             autoFocus={true}
             placeholder={
               dict.formatting_toolbar.file_rename.input_placeholder[
                 block.type
               ] || dict.formatting_toolbar.file_rename.input_placeholder["file"]
             }
-            onKeyDown={handleEnter}
+            onKeyDown={handleKeyDown}
             onChange={handleChange}
           />
         </Components.Generic.Form.Root>
