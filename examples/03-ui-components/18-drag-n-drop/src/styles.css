@@ -1,0 +1,154 @@
+.app-container {
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  height: 100vh;
+}
+
+.editor-section {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-section h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.drag-demo-section {
+  flex: 0 0 400px;
+  display: flex;
+  flex-direction: column;
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.drag-demo-section h2 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.info-text {
+  font-size: 0.875rem;
+  color: #666;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.info-text code {
+  background: #e9ecef;
+  padding: 0.125rem 0.375rem;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 0.85em;
+  color: #c7254e;
+}
+
+.drag-columns {
+  display: flex;
+  gap: 1rem;
+  flex: 1;
+  min-height: 0;
+}
+
+.drag-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.drag-column h3 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+  color: #495057;
+  font-weight: 600;
+}
+
+.items-container {
+  flex: 1;
+  background: white;
+  border: 2px dashed #dee2e6;
+  border-radius: 6px;
+  padding: 0.75rem;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.drop-zone .items-container {
+  border-color: #4ecdc4;
+  background: #f0fffe;
+}
+
+.draggable-item {
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  color: white;
+  font-weight: 500;
+  cursor: move;
+  user-select: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.draggable-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.draggable-item:active {
+  cursor: grabbing;
+  transform: scale(0.95);
+}
+
+.placeholder {
+  color: #adb5bd;
+  text-align: center;
+  margin: auto;
+  font-style: italic;
+}
+
+.reset-button {
+  margin-top: 1rem;
+  padding: 0.625rem 1.25rem;
+  background: #495057;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.reset-button:hover {
+  background: #343a40;
+}
+
+.reset-button:active {
+  transform: scale(0.98);
+}
+
+@media (max-width: 1024px) {
+  .app-container {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .drag-demo-section {
+    flex: 0 0 auto;
+  }
+}
