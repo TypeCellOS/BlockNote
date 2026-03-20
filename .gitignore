@@ -38,3 +38,5 @@ release
 .env
 *.pem
 .nx/
+# Nightshift plan artifacts (keep out of version control)
+.nightshift-plan
