@@ -1,3 +1,18 @@
+## 0.47.2 (2026-03-20)
+
+### 🩹 Fixes
+
+- use <details>/<summary> for toggle block HTML export ([#2524](https://github.com/TypeCellOS/BlockNote/pull/2524))
+- remove @hocuspocus/provider peer dependency by inlining tiptap comment types BLO-1064 ([#2564](https://github.com/TypeCellOS/BlockNote/pull/2564))
+- **core:** slash menu fails in custom blocks after space BLO-1036 ([#2553](https://github.com/TypeCellOS/BlockNote/pull/2553))
+- **i18n:** fix typo in russian translation ([#2560](https://github.com/TypeCellOS/BlockNote/pull/2560))
+
+### ❤️ Thank You
+
+- Claude Opus 4.6
+- Drone
+- Yousef
+
 ## 0.47.1 (2026-03-02)
 
 ### 🩹 Fixes
