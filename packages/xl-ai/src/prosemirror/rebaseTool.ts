@@ -12,7 +12,7 @@ export function getApplySuggestionsTr(editor: BlockNoteEditor<any, any, any>) {
     applySuggestionsTr = tr;
   });
 
-  // @ts-ignore
+  // @ts-expect-error - applySuggestionsTr is assigned inside the callback above
   if (!applySuggestionsTr) {
     throw new Error("applySuggestionsTr is not set");
   }
