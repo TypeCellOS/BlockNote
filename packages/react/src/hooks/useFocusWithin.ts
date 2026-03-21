@@ -17,6 +17,18 @@ function containsRelatedTarget(event: FocusEvent) {
   return false;
 }
 
+/**
+ * Tracks whether focus is within a referenced DOM element. Returns a ref to
+ * attach to the target element and a `focused` boolean that is `true` whenever
+ * the element or any of its descendants has focus.
+ *
+ * Adapted from Mantine's `useFocusWithin` hook.
+ *
+ * @param options - Optional `onFocus` and `onBlur` callbacks fired when focus
+ * enters or leaves the element.
+ * @returns An object with a `ref` to attach to the target element and a
+ * `focused` boolean indicating current focus-within state.
+ */
 export function useFocusWithin<T extends HTMLElement = any>({
   onBlur,
   onFocus,
