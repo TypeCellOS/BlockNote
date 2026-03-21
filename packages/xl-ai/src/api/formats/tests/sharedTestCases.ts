@@ -20,7 +20,7 @@ import { buildAIRequest } from "../../aiRequest/builder.js";
 
 const BASE_FILE_PATH = path.resolve(__dirname, "__snapshots__");
 
-// @ts-ignore
+// @ts-expect-error - unused helper kept for debugging snapshots
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function matchFileSnapshot(data: any, postFix = "") {
   const t = getCurrentTest()!;
