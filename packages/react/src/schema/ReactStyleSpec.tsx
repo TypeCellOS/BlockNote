@@ -26,8 +26,17 @@ export type ReactCustomStyleImplementation<T extends StyleConfig> = {
   runsBefore?: string[];
 };
 
-// A function to create custom block for API consumers
-// we want to hide the tiptap node from API consumers and provide a simpler API surface instead
+/**
+ * Creates a custom style specification for use with React. This is the React
+ * counterpart to the vanilla `createStyleSpec` and lets you define custom text
+ * styles (e.g., font color, highlight) using React components for rendering.
+ *
+ * @param styleConfig - The style configuration, including its `type` name and
+ * `propSchema` (`"boolean"` or `"string"`).
+ * @param styleImplementation - The React implementation, including a `render`
+ * component that receives the style value, a `contentRef`, and the editor.
+ * @returns A style spec that can be passed to the editor's schema.
+ */
 export function createReactStyleSpec<T extends StyleConfig>(
   styleConfig: T,
   styleImplementation: ReactCustomStyleImplementation<T>,

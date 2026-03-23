@@ -4,6 +4,15 @@
 // issues when used in a NextJS project.
 import { useEffect, useMemo, useState } from "react";
 
+/**
+ * Returns the user's preferred color scheme (`"dark"`, `"light"`, or
+ * `"no-preference"`) based on the `prefers-color-scheme` media query.
+ * Automatically updates when the system preference changes.
+ *
+ * Adapted from the `use-prefers-color-scheme` package.
+ *
+ * @returns `"dark"`, `"light"`, or `"no-preference"`.
+ */
 export const usePrefersColorScheme = () => {
   const darkQuery = useMemo(
     () => window.matchMedia?.("(prefers-color-scheme: dark)"),
