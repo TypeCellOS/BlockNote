@@ -79,23 +79,38 @@ export const LinkToolbarExtension = createExtension(({ editor }) => {
     ) {
       editor.transact((tr) => {
         const pmSchema = getPmSchema(tr);
-        const { range } = getMarkAtPos(position + 1, "link") || {
+
+        const linkInfo = getMarkAtPos(position + 1, "link") || {
           range: {
             from: tr.selection.from,
             to: tr.selection.to,
           },
         };
+
+        const { range } = linkInfo;
+
         if (!range) {
           return;
         }
+        const existingMarks =
+          tr.doc.nodeAt(Math.max(range.from, range.to - 1))?.marks ?? [];
+
         tr.insertText(text, range.from, range.to);
+
+        for (const existingMark of existingMarks) {
+          if (existingMark.type.name !== "link") {
+            tr.addMark(range.from, range.from + text.length, existingMark);
+          }
+        }
+
         tr.addMark(
           range.from,
           range.from + text.length,
           pmSchema.mark("link", { href: url }),
         );
-      });
-      editor.prosemirrorView.focus();
+    });
+
+    editor.prosemirrorView.focus();
     },
     deleteLink(position = editor.transact((tr) => tr.selection.anchor)) {
       editor.transact((tr) => {
