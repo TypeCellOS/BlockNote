@@ -1,6 +1,7 @@
 import {
   autoUpdate,
   FloatingFocusManager,
+  FloatingPortal,
   useDismiss,
   useFloating,
   useHover,
@@ -11,6 +12,7 @@ import {
 } from "@floating-ui/react";
 import { HTMLAttributes, ReactNode, useEffect, useRef } from "react";
 
+import { useBlockNoteContext } from "../../editor/BlockNoteContext.js";
 import { FloatingUIOptions } from "./FloatingUIOptions.js";
 
 export type GenericPopoverReference =
@@ -83,6 +85,9 @@ export const GenericPopover = (
     children: ReactNode;
   },
 ) => {
+  const blockNoteContext = useBlockNoteContext();
+  const portalRoot = blockNoteContext?.portalRoot ?? undefined;
+
   const { refs, floatingStyles, context } = useFloating<HTMLDivElement>({
     whileElementsMounted: autoUpdate,
     ...props.useFloatingOptions,
@@ -152,7 +157,7 @@ export const GenericPopover = (
     style: {
       display: "flex",
       ...props.elementProps?.style,
-      zIndex: `calc(var(--bn-ui-base-z-index) + ${props.elementProps?.style?.zIndex || 0})`,
+      zIndex: `calc(var(--bn-ui-base-z-index, 0) + ${props.elementProps?.style?.zIndex || 0})`,
       ...floatingStyles,
       ...styles,
     },
@@ -169,27 +174,33 @@ export const GenericPopover = (
     // should be open. So without this fix, the popover just won't transition
     // out and will instead appear to hide instantly.
     return (
-      <div
-        ref={mergedRefs}
-        {...mergedProps}
-        dangerouslySetInnerHTML={{ __html: innerHTML.current }}
-      />
+      <FloatingPortal root={portalRoot}>
+        <div
+          ref={mergedRefs}
+          {...mergedProps}
+          dangerouslySetInnerHTML={{ __html: innerHTML.current }}
+        />
+      </FloatingPortal>
     );
   }
 
   if (!props.focusManagerProps?.disabled) {
     return (
-      <FloatingFocusManager {...props.focusManagerProps} context={context}>
-        <div ref={mergedRefs} {...mergedProps}>
-          {props.children}
-        </div>
-      </FloatingFocusManager>
+      <FloatingPortal root={portalRoot}>
+        <FloatingFocusManager {...props.focusManagerProps} context={context}>
+          <div ref={mergedRefs} {...mergedProps}>
+            {props.children}
+          </div>
+        </FloatingFocusManager>
+      </FloatingPortal>
     );
   }
 
   return (
-    <div ref={mergedRefs} {...mergedProps}>
-      {props.children}
-    </div>
+    <FloatingPortal root={portalRoot}>
+      <div ref={mergedRefs} {...mergedProps}>
+        {props.children}
+      </div>
+    </FloatingPortal>
   );
 };

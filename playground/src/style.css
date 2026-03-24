@@ -37,6 +37,9 @@ body {
   padding-top: 8px;
   margin: 0 auto;
   max-width: 731px;
+}
+
+.bn-root {
   --bn-ui-base-z-index: 100;
 }
 

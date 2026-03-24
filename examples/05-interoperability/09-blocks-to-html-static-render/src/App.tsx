@@ -191,7 +191,7 @@ export default function App() {
           etc. It's easiest to just copy the class names and HTML attributes 
           from an actual BlockNote editor. */}
           <div
-            className="bn-container bn-mantine"
+            className="bn-root bn-container bn-mantine"
             data-color-scheme={theme}
             data-mantine-color-scheme={theme}
           >

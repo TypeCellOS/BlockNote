@@ -5,14 +5,19 @@ import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
 
 // Component that creates & renders a BlockNote editor.
-function Editor(props: { initialContent?: PartialBlock[] }) {
+function Editor(props: {
+  initialContent?: PartialBlock[];
+  theme: "dark" | "light";
+}) {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
     initialContent: props.initialContent,
   });
 
   // Renders the editor instance using a React component.
-  return <BlockNoteView editor={editor} style={{ flex: 1 }} />;
+  return (
+    <BlockNoteView theme={props.theme} editor={editor} style={{ flex: 1 }} />
+  );
 }
 
 export default function App() {
@@ -20,6 +25,7 @@ export default function App() {
   return (
     <div style={{ display: "flex" }}>
       <Editor
+        theme="dark"
         initialContent={[
           {
             type: "paragraph",
@@ -35,6 +41,7 @@ export default function App() {
         ]}
       />
       <Editor
+        theme="light"
         initialContent={[
           {
             type: "paragraph",

@@ -13,6 +13,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
+import { createPortal } from "react-dom";
 import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor.js";
 import { useEditorChange } from "../hooks/useEditorChange.js";
 import { useEditorSelectionChange } from "../hooks/useEditorSelectionChange.js";
@@ -147,6 +148,12 @@ function BlockNoteViewComponent<
     [editor],
   );
 
+  // Portal container at document.body level for floating UI elements (menus,
+  // toolbars) to render into, escaping any overflow:hidden ancestors. Gets the
+  // same theming classes as the editor container (bn-root + color scheme), but
+  // not bn-container (which is for layout targeting only).
+  const [portalRoot, setPortalRoot] = useState<HTMLDivElement | null>(null);
+
   // The BlockNoteContext makes sure the editor and some helper methods
   // are always available to nesteed compoenents
   const blockNoteContext: BlockNoteContextValue<any, any, any> = useMemo(() => {
@@ -155,8 +162,9 @@ function BlockNoteViewComponent<
       editor,
       setContentEditableProps,
       colorSchemePreference: editorColorScheme,
+      portalRoot,
     };
-  }, [existingContext, editor, editorColorScheme]);
+  }, [existingContext, editor, editorColorScheme, portalRoot]);
 
   // We set defaultUIProps and editorProps on a different context, the BlockNoteViewContext.
   // This BlockNoteViewContext is used to render the editor and the default UI.
@@ -205,6 +213,18 @@ function BlockNoteViewComponent<
         >
           {children}
         </BlockNoteViewContainer>
+        {createPortal(
+          <div
+            ref={setPortalRoot}
+            className={mergeCSSClasses(
+              "bn-root",
+              editorColorScheme,
+              className,
+            )}
+            data-color-scheme={editorColorScheme}
+          />,
+          document.body,
+        )}
       </BlockNoteViewContext.Provider>
     </BlockNoteContext.Provider>
   );
@@ -226,7 +246,7 @@ const BlockNoteViewContainer = React.forwardRef<
   >
 >(({ className, renderEditor, editorColorScheme, children, ...rest }, ref) => (
   <div
-    className={mergeCSSClasses("bn-container", editorColorScheme, className)}
+    className={mergeCSSClasses("bn-root", "bn-container", editorColorScheme, className)}
     data-color-scheme={editorColorScheme}
     {...rest}
     ref={ref}

@@ -58,7 +58,7 @@ export const Comment = forwardRef<
     actions,
     children,
     edited,
-    emojiPickerOpen, // Unused
+    emojiPickerOpen,
     ...rest
   } = props;
 
@@ -72,7 +72,8 @@ export const Comment = forwardRef<
     (showActions === true ||
       showActions === undefined ||
       (showActions === "hover" && hovered) ||
-      focused);
+      focused ||
+      emojiPickerOpen);
 
   return (
     <AriakitGroup

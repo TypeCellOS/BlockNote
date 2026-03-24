@@ -57,7 +57,7 @@ export default function App() {
     // additional class names/attributes depend on the UI library you're using,
     // whether you want to show light or dark more, etc. It's easiest to just
     // check the rendered editor HTML to see what you need to add.
-    <div className="bn-container bn-mantine">
+    <div className="bn-root bn-container bn-mantine">
       <div
         className="ProseMirror bn-editor bn-default-styles"
         dangerouslySetInnerHTML={{ __html: html }}

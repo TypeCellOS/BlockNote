@@ -6,7 +6,11 @@ import {
 
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
-import { forwardRef } from "react";
+import { createContext, forwardRef, useContext } from "react";
+
+const PortalRootContext = createContext<HTMLElement | null | undefined>(
+  undefined,
+);
 
 export const PopoverTrigger = forwardRef<
   HTMLButtonElement,
@@ -27,6 +31,8 @@ export const PopoverContent = forwardRef<
 
   assertEmpty(rest);
 
+  const portalRoot = useContext(PortalRootContext);
+
   return (
     <AriakitPopover
       className={mergeCSSClasses(
@@ -34,6 +40,7 @@ export const PopoverContent = forwardRef<
         className || "",
         variant === "panel-popover" ? "bn-ak-panel-popover" : "",
       )}
+      portalElement={portalRoot ?? undefined}
       ref={ref}
     >
       {children}
@@ -44,7 +51,7 @@ export const PopoverContent = forwardRef<
 export const Popover = (
   props: ComponentProps["Generic"]["Popover"]["Root"],
 ) => {
-  const { children, open, onOpenChange, position, ...rest } = props;
+  const { children, open, onOpenChange, position, portalRoot, ...rest } = props;
 
   assertEmpty(rest);
 
@@ -54,7 +61,9 @@ export const Popover = (
       setOpen={onOpenChange}
       placement={position}
     >
-      {children}
+      <PortalRootContext.Provider value={portalRoot}>
+        {children}
+      </PortalRootContext.Provider>
     </AriakitPopoverProvider>
   );
 };
