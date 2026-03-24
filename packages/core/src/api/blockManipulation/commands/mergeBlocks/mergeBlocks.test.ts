@@ -82,6 +82,10 @@ describe("Test mergeBlocks", () => {
 
     const beforePos = getPosBeforeSelectedBlock();
     const doc = getEditor()._tiptapEditor.state.doc;
+    const $pos = doc.resolve(beforePos);
+
+    expect($pos.depth - 1).toBeLessThan(1);
+
     const result = getParentBlockInfo(doc, beforePos);
 
     expect(result).toBeUndefined();
