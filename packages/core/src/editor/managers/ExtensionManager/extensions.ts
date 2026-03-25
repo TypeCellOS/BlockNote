@@ -71,6 +71,7 @@ export function getDefaultTiptapExtensions(
       // everything from bnBlock group (nodes that represent a BlockNote block should have an id)
       types: ["blockContainer", "columnList", "column"],
       setIdAttribute: options.setIdAttribute,
+      isWithinEditor: editor.isWithinEditor,
     }),
     HardBreak,
     Text,

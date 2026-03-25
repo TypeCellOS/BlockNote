@@ -10,6 +10,7 @@ import React, {
   ReactNode,
   Ref,
   useCallback,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -154,6 +155,16 @@ function BlockNoteViewComponent<
   // not bn-container (which is for layout targeting only).
   const [portalRoot, setPortalRoot] = useState<HTMLDivElement | null>(null);
 
+  // Register the portal element on the editor so core extensions (SideMenu,
+  // UniqueID) can identify portaled elements as belonging to this editor.
+  // (through editor.isWithinEditor)
+  useEffect(() => {
+    editor.portalElement = portalRoot ?? undefined;
+    return () => {
+      editor.portalElement = undefined;
+    };
+  }, [portalRoot, editor]);
+
   // The BlockNoteContext makes sure the editor and some helper methods
   // are always available to nesteed compoenents
   const blockNoteContext: BlockNoteContextValue<any, any, any> = useMemo(() => {
@@ -216,11 +227,7 @@ function BlockNoteViewComponent<
         {createPortal(
           <div
             ref={setPortalRoot}
-            className={mergeCSSClasses(
-              "bn-root",
-              editorColorScheme,
-              className,
-            )}
+            className={mergeCSSClasses("bn-root", editorColorScheme, className)}
             data-color-scheme={editorColorScheme}
           />,
           document.body,
@@ -246,7 +253,12 @@ const BlockNoteViewContainer = React.forwardRef<
   >
 >(({ className, renderEditor, editorColorScheme, children, ...rest }, ref) => (
   <div
-    className={mergeCSSClasses("bn-root", "bn-container", editorColorScheme, className)}
+    className={mergeCSSClasses(
+      "bn-root",
+      "bn-container",
+      editorColorScheme,
+      className,
+    )}
     data-color-scheme={editorColorScheme}
     {...rest}
     ref={ref}

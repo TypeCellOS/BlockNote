@@ -714,6 +714,25 @@ export class BlockNoteEditor<
     return this.prosemirrorView?.dom as HTMLDivElement | undefined;
   }
 
+  /**
+   * The portal container element at `document.body` used by floating UI
+   * elements (menus, toolbars) to escape overflow:hidden ancestors.
+   * Set by BlockNoteView; undefined in headless mode.
+   */
+  public portalElement: HTMLElement | undefined;
+
+  /**
+   * Checks whether a DOM element belongs to this editor — either inside the
+   * editor's DOM tree or inside its portal container (used for floating UI
+   * elements like menus and toolbars).
+   */
+  public isWithinEditor = (element: Element): boolean => {
+    return !!(
+      this.domElement?.parentElement?.contains(element) ||
+      this.portalElement?.contains(element)
+    );
+  };
+
   public isFocused() {
     if (this.headless) {
       return false;
