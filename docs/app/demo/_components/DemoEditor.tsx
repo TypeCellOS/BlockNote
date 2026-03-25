@@ -119,7 +119,7 @@ export function DemoEditor() {
       : "";
 
   const content = !roomId ? (
-    <div className="flex h-[700px] w-full max-w-5xl flex-col overflow-hidden rounded-xl border border-stone-200 bg-white shadow-xl">
+    <div className="flex h-[500px] w-full max-w-5xl flex-col overflow-hidden rounded-xl border border-stone-200 bg-white shadow-xl sm:h-[700px]">
       <EditorMenu
         onExport={() => {}}
         user={HARDCODED_USERS[0]}
@@ -138,15 +138,15 @@ export function DemoEditor() {
 
   return (
     <div className="flex w-full max-w-5xl flex-col gap-4">
-      <div className="flex w-full items-center justify-between rounded-lg border border-stone-200 bg-white p-3 shadow-sm">
+      <div className="flex w-full flex-col gap-2 rounded-lg border border-stone-200 bg-white p-3 shadow-sm sm:flex-row sm:items-center sm:justify-between">
         <span className="text-sm font-medium text-stone-600">
           ⚡️ Collaborate live! Share this URL:
         </span>
-        <div className="flex flex-1 items-center gap-2 px-4">
+        <div className="flex flex-1 items-center gap-2 sm:px-4">
           <input
             readOnly
             value={url}
-            className="w-full rounded-md border border-stone-200 bg-stone-50 px-3 py-1.5 text-sm text-stone-600 outline-none focus:border-stone-400"
+            className="min-w-0 flex-1 rounded-md border border-stone-200 bg-stone-50 px-3 py-1.5 text-sm text-stone-600 outline-none focus:border-stone-400"
             onClick={(e) => e.currentTarget.select()}
           />
           <button
@@ -187,7 +187,10 @@ function DemoEditorInner({
   const { resolvedTheme } = useTheme();
   // const [mounted, setMounted] = useState(false);
   const [activeUser, setActiveUser] = useState(HARDCODED_USERS[0]);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return window.innerWidth >= 768;
+  });
 
   const { doc, provider } = useMemo(() => {
     const doc = new Y.Doc();
@@ -359,7 +362,7 @@ function DemoEditorInner({
   }
 
   return (
-    <div className="flex h-[700px] w-full max-w-5xl flex-col overflow-hidden rounded-xl border border-stone-200 bg-white shadow-xl">
+    <div className="flex h-[500px] w-full max-w-5xl flex-col overflow-hidden rounded-xl border border-stone-200 bg-white shadow-xl sm:h-[700px]">
       <div className="relative z-30">
         <EditorMenu
           onExport={handleExport}
