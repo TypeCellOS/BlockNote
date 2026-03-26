@@ -94,8 +94,19 @@ export function InlineContentWrapper<
   );
 }
 
-// A function to create custom block for API consumers
-// we want to hide the tiptap node from API consumers and provide a simpler API surface instead
+/**
+ * Creates a custom inline content specification for use with React. This is the
+ * React counterpart to the vanilla `createInlineContentSpec` and lets you define
+ * custom inline content types (e.g., mentions, tags) using React components for
+ * rendering.
+ *
+ * @param inlineContentConfig - The inline content type configuration, including
+ * its `type` name, `propSchema`, and `content` mode (`"styled"` or `"none"`).
+ * @param inlineContentImplementation - The React implementation, including a
+ * `render` component and optionally a `toExternalHTML` component and `parse`
+ * rules.
+ * @returns An `InlineContentSpec` that can be passed to the editor's schema.
+ */
 export function createReactInlineContentSpec<
   const T extends CustomInlineContentConfig,
   // I extends InlineContentSchema,
