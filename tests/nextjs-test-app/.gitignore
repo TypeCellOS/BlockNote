@@ -1,0 +1,5 @@
+node_modules
+.next
+.tarballs
+package-lock.json
+next-env.d.ts
