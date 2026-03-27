@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { getBlockInfoFromTransaction } from "../../../getBlockInfoFromPos.js";
 import { setupTestEnv } from "../../setupTestEnv.js";
-import { mergeBlocksCommand } from "./mergeBlocks.js";
+import { getParentBlockInfo, mergeBlocksCommand } from "./mergeBlocks.js";
 
 const getEditor = setupTestEnv();
 
@@ -75,6 +75,20 @@ describe("Test mergeBlocks", () => {
       firstBlockEndOffset;
 
     expect(anchorIsAtOldFirstBlockEndPos).toBeTruthy();
+  });
+
+  it("getParentBlockInfo returns undefined for top-level block", () => {
+    getEditor().setTextCursorPosition("paragraph-0");
+
+    const beforePos = getPosBeforeSelectedBlock();
+    const doc = getEditor()._tiptapEditor.state.doc;
+    const $pos = doc.resolve(beforePos);
+
+    expect($pos.depth - 1).toBeLessThan(1);
+
+    const result = getParentBlockInfo(doc, beforePos);
+
+    expect(result).toBeUndefined();
   });
 
   // We expect a no-op for each of the remaining tests as merging should only

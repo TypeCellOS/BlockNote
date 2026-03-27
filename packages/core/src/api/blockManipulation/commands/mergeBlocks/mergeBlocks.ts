@@ -16,6 +16,11 @@ export const getParentBlockInfo = (
 ): BlockInfo | undefined => {
   const $pos = doc.resolve(beforePos);
   const depth = $pos.depth - 1;
+
+  if (depth < 1) {
+    return undefined;
+  }
+
   const parentBeforePos = $pos.before(depth);
   const parentNode = doc.resolve(parentBeforePos).nodeAfter;
 
