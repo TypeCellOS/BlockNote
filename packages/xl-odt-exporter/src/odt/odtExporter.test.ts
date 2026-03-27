@@ -13,7 +13,7 @@ import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { partialBlocksToBlocksForTesting } from "@shared/formatConversionTestUtil.js";
 
 beforeAll(async () => {
-  // @ts-ignore
+  // @ts-expect-error - Blob polyfill for Node test environment
   globalThis.Blob = (await import("node:buffer")).Blob;
 });
 
