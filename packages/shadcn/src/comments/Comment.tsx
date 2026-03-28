@@ -70,7 +70,7 @@ export const Comment = forwardRef<
     timeString,
     actions,
     edited,
-    emojiPickerOpen, // Unused
+    emojiPickerOpen,
     children,
     ...rest
   } = props;
@@ -85,7 +85,8 @@ export const Comment = forwardRef<
     (showActions === true ||
       showActions === undefined ||
       (showActions === "hover" && hovered) ||
-      focused);
+      focused ||
+      emojiPickerOpen);
 
   return (
     <div

@@ -1,7 +1,6 @@
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote, usePrefersColorScheme } from "@blocknote/react";
-import { useRef, useEffect } from "react";
 
 export default function App() {
   // Creates a new editor instance.
@@ -158,7 +157,7 @@ export default function App() {
   // Renders the exported static HTML from the editor.
   return (
     <div
-      className="bn-container bn-mantine"
+      className="bn-root bn-container bn-mantine"
       data-color-scheme={theme}
       data-mantine-color-scheme={theme}
     >

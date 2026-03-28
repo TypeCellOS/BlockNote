@@ -1,7 +1,7 @@
 @import url("@blocknote/core/style.css");
 
 /* Default theme params */
-.bn-container {
+.bn-root {
   --bn-colors-editor-text: #3f3f3f;
   --bn-colors-editor-background: #ffffff;
   --bn-colors-menu-text: #3f3f3f;
@@ -53,7 +53,7 @@
   --bn-border-radius-large: max(var(--bn-border-radius) + 2px, 1px);
 }
 
-.bn-container[data-color-scheme="dark"] {
+.bn-root[data-color-scheme="dark"] {
   --bn-colors-editor-text: #cfcfcf;
   --bn-colors-editor-background: #1f1f1f;
   --bn-colors-menu-text: #cfcfcf;
@@ -91,7 +91,7 @@
   --bn-colors-highlights-pink-background: #ad1a72;
 }
 
-.bn-container {
+.bn-root {
   font-family: var(--bn-font-family);
 }
 
@@ -125,7 +125,7 @@
 }
 
 /* Color Icon styling */
-.bn-container .bn-color-icon {
+.bn-root .bn-color-icon {
   align-items: center;
   border: var(--bn-border);
   border-radius: var(--bn-border-radius-small);
@@ -233,7 +233,7 @@
 /* Sets base Z-index on UI elements, i.e. elements which use the 
 `GenericPopover` component. If a z-index is passed to the `GenericPopover` via 
 inline styles, it is added to the base z-index. */
-.bn-container {
+.bn-root {
   --bn-ui-base-z-index: 0;
 }
 
@@ -295,7 +295,6 @@ inline styles, it is added to the base z-index. */
 }
 
 /* Emoji Picker styling */
-em-emoji-picker {
+.bn-root em-emoji-picker {
   max-height: 100%;
-  z-index: 11000;
 }

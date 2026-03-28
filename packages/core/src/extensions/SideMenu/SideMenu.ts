@@ -612,9 +612,6 @@ export class SideMenuView<
       this.mousePos.y > editorOuterBoundingBox.top &&
       this.mousePos.y < editorOuterBoundingBox.bottom;
 
-    // TODO: remove parentElement, but then we need to remove padding from boundingbox or find a different solution
-    const editorWrapper = this.pmView.dom!.parentElement!;
-
     // Doesn't update if the mouse hovers an element that's over the editor but
     // isn't a part of it or the side menu.
     if (
@@ -623,11 +620,8 @@ export class SideMenuView<
       // An element is hovered
       event &&
       event.target &&
-      // Element is outside the editor
-      !(
-        editorWrapper === event.target ||
-        editorWrapper.contains(event.target as HTMLElement)
-      )
+      // Element is outside this editor and its portaled UI
+      !this.editor.isWithinEditor(event.target as HTMLElement)
     ) {
       if (this.state?.show) {
         this.state.show = false;
