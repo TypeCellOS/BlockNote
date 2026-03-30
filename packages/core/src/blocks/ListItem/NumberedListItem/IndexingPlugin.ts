@@ -108,6 +108,8 @@ function calculateListItemIndex(
     map.set(entry.node, index);
   }
 
+  // isFirst is true only for the very first item in a new list:
+  // chain.length > 1 means we found predecessor list items, so not first.
   return {
     index,
     isFirst: chain.length === 1 ? isFirst || predecessorIndex === undefined : false,

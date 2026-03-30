@@ -1,3 +1,4 @@
+import { Selection } from "prosemirror-state";
 import { describe, expect, it } from "vitest";
 
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
@@ -322,7 +323,7 @@ describe("IndexingPlugin: decoration specs", () => {
 });
 
 describe("IndexingPlugin: selection-only transactions", () => {
-  it("does not recompute decorations on selection change", async () => {
+  it("does not recompute decorations on selection change", () => {
     const editor = createEditor();
     setBlocks(editor, [
       { type: "numberedListItem", content: "a" },
@@ -333,7 +334,6 @@ describe("IndexingPlugin: selection-only transactions", () => {
 
     // Move selection without changing content
     const view = editor._tiptapEditor.view;
-    const { Selection } = await import("prosemirror-state");
     const tr = view.state.tr.setSelection(
       Selection.near(view.state.doc.resolve(4)),
     );
