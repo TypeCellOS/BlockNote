@@ -84,7 +84,7 @@
     "prosemirror-model": "^1.25.4",
     "prosemirror-state": "^1.4.4",
     "prosemirror-tables": "^1.8.3",
-    "prosemirror-transform": "^1.10.5",
+    "prosemirror-transform": "^1.11.0",
     "prosemirror-view": "^1.41.4",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
