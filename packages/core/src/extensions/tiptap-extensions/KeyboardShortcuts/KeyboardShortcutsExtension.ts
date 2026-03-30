@@ -9,7 +9,11 @@ import {
   getPrevBlockInfo,
   mergeBlocksCommand,
 } from "../../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
-import { nestBlock } from "../../../api/blockManipulation/commands/nestBlock/nestBlock.js";
+import {
+  liftItem,
+  nestBlock,
+  unnestBlock,
+} from "../../../api/blockManipulation/commands/nestBlock/nestBlock.js";
 import { fixColumnList } from "../../../api/blockManipulation/commands/replaceBlocks/util/fixColumnList.js";
 import { splitBlockCommand } from "../../../api/blockManipulation/commands/splitBlock/splitBlock.js";
 import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
@@ -63,7 +67,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
           }),
         // Removes a level of nesting if the block is indented if the selection is at the start of the block.
         () =>
-          commands.command(({ state }) => {
+          commands.command(({ state, tr }) => {
             const blockInfo = getBlockInfoFromSelection(state);
             if (!blockInfo.isBlockContainer) {
               return false;
@@ -74,7 +78,11 @@ export const KeyboardShortcutsExtension = Extension.create<{
               state.selection.from === blockContent.beforePos + 1;
 
             if (selectionAtBlockStart) {
-              return commands.liftListItem("blockContainer");
+              return liftItem(
+                tr,
+                tr.doc.type.schema.nodes["blockContainer"],
+                tr.doc.type.schema.nodes["blockGroup"],
+              );
             }
 
             return false;
@@ -734,7 +742,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // Removes a level of nesting if the block is empty & indented, while the selection is also empty & at the start
         // of the block.
         () =>
-          commands.command(({ state }) => {
+          commands.command(({ state, tr }) => {
             const blockInfo = getBlockInfoFromSelection(state);
             if (!blockInfo.isBlockContainer) {
               return false;
@@ -756,7 +764,11 @@ export const KeyboardShortcutsExtension = Extension.create<{
               blockEmpty &&
               blockIndented
             ) {
-              return commands.liftListItem("blockContainer");
+              return liftItem(
+                tr,
+                tr.doc.type.schema.nodes["blockContainer"],
+                tr.doc.type.schema.nodes["blockGroup"],
+              );
             }
 
             return false;
@@ -926,7 +938,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
           // don't handle tabs if a toolbar is shown, so we can tab into / out of it
           return false;
         }
-        return this.editor.commands.liftListItem("blockContainer");
+        return unnestBlock(this.options.editor);
       },
       "Shift-Mod-ArrowUp": () => {
         this.options.editor.moveBlocksUp();
