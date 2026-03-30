@@ -1,4 +1,4 @@
-import { findChildren } from "@tiptap/core";
+import { findChildrenInRange } from "@tiptap/core";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import { createExtension } from "../../editor/BlockNoteExtension.js";
@@ -67,45 +67,40 @@ export const PreviousBlockTypeExtension = createExtension(() => {
             prev.currentTransactionOldBlockAttrs = {};
             prev.updatedBlocks.clear();
 
-            if (!transaction.docChanged || oldState.doc.eq(newState.doc)) {
+            if (!transaction.docChanged) {
               return prev;
             }
 
-            // TODO: Instead of iterating through the entire document, only check nodes affected by the transactions. Will
-            //  also probably require checking nodes affected by the previous transaction too.
-            // We didn't get this to work yet:
-            // const transform = combineTransactionSteps(oldState.doc, [transaction]);
-            // // const { mapping } = transform;
-            // const changes = getChangedRanges(transform);
-            //
-            // changes.forEach(({ oldRange, newRange }) => {
-            // const oldNodes = findChildrenInRange(
-            //   oldState.doc,
-            //   oldRange,
-            //   (node) => node.attrs.id
-            // );
-            //
-            // const newNodes = findChildrenInRange(
-            //   newState.doc,
-            //   newRange,
-            //   (node) => node.attrs.id
-            // );
+            // Only check nodes affected by the transaction, not the entire document.
+            // changedRange() is O(steps) unlike tiptap's getChangedRanges which is O(steps²).
+            const newRange = transaction.changedRange();
+            if (!newRange) {
+              return prev;
+            }
+
+            // Map the new-doc range back to old-doc coordinates
+            const invertedMapping = transaction.mapping.invert();
+            const oldRange = {
+              from: invertedMapping.map(newRange.from, -1),
+              to: invertedMapping.map(newRange.to, 1),
+            };
 
             const currentTransactionOriginalOldBlockAttrs = {} as any;
 
-            const oldNodes = findChildren(
+            const oldNodes = findChildrenInRange(
               oldState.doc,
+              oldRange,
               (node) => node.attrs.id,
             );
             const oldNodesById = new Map(
               oldNodes.map((node) => [node.node.attrs.id, node]),
             );
-            const newNodes = findChildren(
+            const newNodes = findChildrenInRange(
               newState.doc,
+              newRange,
               (node) => node.attrs.id,
             );
 
-            // Traverses all block containers in the new editor state.
             for (const node of newNodes) {
               const oldNode = oldNodesById.get(node.node.attrs.id);
 
@@ -127,26 +122,21 @@ export const PreviousBlockTypeExtension = createExtension(() => {
                   depth: oldState.doc.resolve(oldNode.pos).depth,
                 };
 
-                currentTransactionOriginalOldBlockAttrs[node.node.attrs.id] =
-                  oldAttrs;
+                currentTransactionOriginalOldBlockAttrs[
+                  node.node.attrs.id
+                ] = oldAttrs;
 
                 prev.currentTransactionOldBlockAttrs[node.node.attrs.id] =
                   oldAttrs;
 
-                // TODO: faster deep equal?
-                if (JSON.stringify(oldAttrs) !== JSON.stringify(newAttrs)) {
+                if (
+                  oldAttrs.index !== newAttrs.index ||
+                  oldAttrs.level !== newAttrs.level ||
+                  oldAttrs.type !== newAttrs.type ||
+                  oldAttrs.depth !== newAttrs.depth
+                ) {
                   (oldAttrs as any)["depth-change"] =
                     oldAttrs.depth - newAttrs.depth;
-
-                  // for debugging:
-                  // console.log(
-                  //   "id:",
-                  //   node.node.attrs.id,
-                  //   "previousBlockTypePlugin changes detected, oldAttrs",
-                  //   oldAttrs,
-                  //   "new",
-                  //   newAttrs
-                  // );
 
                   prev.updatedBlocks.add(node.node.attrs.id);
                 }
@@ -186,17 +176,11 @@ export const PreviousBlockTypeExtension = createExtension(() => {
                   val || "none";
               }
 
-              // for debugging:
-              // console.log(
-              //   "previousBlockTypePlugin committing decorations",
-              //   decorationAttrs
-              // );
-
-              const decoration = Decoration.node(pos, pos + node.nodeSize, {
-                ...decorationAttrs,
-              });
-
-              decorations.push(decoration);
+              decorations.push(
+                Decoration.node(pos, pos + node.nodeSize, {
+                  ...decorationAttrs,
+                }),
+              );
             });
 
             return DecorationSet.create(state.doc, decorations);
