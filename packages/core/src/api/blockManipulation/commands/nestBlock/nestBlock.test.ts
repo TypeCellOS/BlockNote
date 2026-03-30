@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
-import { afterAll, beforeAll, beforeEach } from "vitest";
+import { afterAll, beforeAll } from "vitest";
 
 /**
  * Custom test setup with a document designed to reproduce nesting/unnesting bugs.

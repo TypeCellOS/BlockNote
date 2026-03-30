@@ -95,7 +95,7 @@ function liftToOuterList(
   groupType: NodeType, // change 3
   range: NodeRange,
 ) {
-  let end = range.end;
+  const end = range.end;
   const endOfList = range.$to.end(range.depth);
 
   if (end < endOfList) {
