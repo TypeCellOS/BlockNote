@@ -322,7 +322,7 @@ describe("IndexingPlugin: decoration specs", () => {
 });
 
 describe("IndexingPlugin: selection-only transactions", () => {
-  it("does not recompute decorations on selection change", () => {
+  it("does not recompute decorations on selection change", async () => {
     const editor = createEditor();
     setBlocks(editor, [
       { type: "numberedListItem", content: "a" },
@@ -333,7 +333,7 @@ describe("IndexingPlugin: selection-only transactions", () => {
 
     // Move selection without changing content
     const view = editor._tiptapEditor.view;
-    const { Selection } = require("prosemirror-state");
+    const { Selection } = await import("prosemirror-state");
     const tr = view.state.tr.setSelection(
       Selection.near(view.state.doc.resolve(4)),
     );
