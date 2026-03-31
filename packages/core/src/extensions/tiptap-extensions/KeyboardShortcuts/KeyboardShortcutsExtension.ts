@@ -260,11 +260,18 @@ export const KeyboardShortcutsExtension = Extension.create<{
                   prevBlockInfo.blockContent.beforePos,
                 );
               } else {
-                const blockContentStartPos =
-                  prevBlockInfo.blockContent.afterPos - 1;
+                const bottomNestedPrevBlockInfo = getBottomNestedBlockInfo(
+                  state.doc,
+                  prevBlockInfo,
+                );
+                if (!bottomNestedPrevBlockInfo.isBlockContainer) {
+                  return false;
+                }
+                const blockContentEndPos =
+                  bottomNestedPrevBlockInfo.blockContent.afterPos - 1;
 
                 chainedCommands =
-                  chainedCommands.setTextSelection(blockContentStartPos);
+                  chainedCommands.setTextSelection(blockContentEndPos);
               }
 
               return chainedCommands
