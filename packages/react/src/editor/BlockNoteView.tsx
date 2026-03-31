@@ -31,6 +31,7 @@ import {
   BlockNoteViewContext,
   useBlockNoteViewContext,
 } from "./BlockNoteViewContext.js";
+import { useComponentsContext } from "./ComponentsContext.js";
 import { Portals, getContentComponent } from "./EditorContent.js";
 import { ElementRenderer } from "./ElementRenderer.js";
 
@@ -138,6 +139,33 @@ function BlockNoteViewComponent<
   const editorColorScheme =
     theme || (defaultColorScheme === "dark" ? "dark" : "light");
 
+  // Disable default UI components if no components context is found.
+  const componentsContext = useComponentsContext();
+  const defaultUIProps: BlockNoteDefaultUIProps = useMemo(
+    () => ({
+      formattingToolbar:
+        formattingToolbar ?? (componentsContext ? undefined : false),
+      linkToolbar: linkToolbar ?? (componentsContext ? undefined : false),
+      sideMenu: sideMenu ?? (componentsContext ? undefined : false),
+      slashMenu: slashMenu ?? (componentsContext ? undefined : false),
+      filePanel: filePanel ?? (componentsContext ? undefined : false),
+      tableHandles: tableHandles ?? (componentsContext ? undefined : false),
+      emojiPicker: emojiPicker ?? (componentsContext ? undefined : false),
+      comments: comments ?? (componentsContext ? undefined : false),
+    }),
+    [
+      comments,
+      componentsContext,
+      emojiPicker,
+      filePanel,
+      formattingToolbar,
+      linkToolbar,
+      sideMenu,
+      slashMenu,
+      tableHandles,
+    ],
+  );
+
   useEditorChange(onChange || emptyFn, editor);
   useEditorSelectionChange(onSelectionChange || emptyFn, editor);
 
@@ -180,30 +208,9 @@ function BlockNoteViewComponent<
         contentEditableProps,
         editable,
       },
-      defaultUIProps: {
-        formattingToolbar,
-        linkToolbar,
-        slashMenu,
-        emojiPicker,
-        sideMenu,
-        filePanel,
-        tableHandles,
-        comments,
-      },
+      defaultUIProps,
     };
-  }, [
-    autoFocus,
-    contentEditableProps,
-    editable,
-    formattingToolbar,
-    linkToolbar,
-    slashMenu,
-    emojiPicker,
-    sideMenu,
-    filePanel,
-    tableHandles,
-    comments,
-  ]);
+  }, [autoFocus, contentEditableProps, editable, defaultUIProps]);
 
   return (
     <BlockNoteContext.Provider value={blockNoteContext}>
