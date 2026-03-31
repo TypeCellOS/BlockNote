@@ -7,6 +7,14 @@ export const PRODUCTS = {
     name: "Business",
     slug: "business",
   } as const,
+  "business-yearly": {
+    id:
+      process.env.NODE_ENV === "production"
+        ? "ba3965dc-e1ca-494e-b36a-62e2e41615d4"
+        : "NOT-CREATED",
+    name: "Business Yearly",
+    slug: "business-yearly",
+  } as const,
   starter: {
     id:
       process.env.NODE_ENV === "production"

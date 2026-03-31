@@ -23,7 +23,13 @@ export type Tier = {
   cta?: "get-started" | "buy" | "contact";
 };
 
-function TierCTAButton({ tier }: { tier: Tier }) {
+const BUSINESS_PLAN_TYPES = new Set(["business", "business-yearly"]);
+
+function isBusinessPlan(planType: string) {
+  return BUSINESS_PLAN_TYPES.has(planType);
+}
+
+function TierCTAButton({ tier, frequency }: { tier: Tier; frequency: Frequency }) {
   const { data: session } = useSession();
   let text =
     tier.cta === "get-started"
@@ -38,10 +44,11 @@ function TierCTAButton({ tier }: { tier: Tier }) {
     if (session.planType === "free") {
       text = "Buy now";
     } else {
-      text =
-        session.planType === tier.id
-          ? "Manage subscription"
-          : "Update subscription";
+      const isCurrentPlan =
+        tier.id === "business"
+          ? isBusinessPlan(session.planType ?? "")
+          : session.planType === tier.id;
+      text = isCurrentPlan ? "Manage subscription" : "Update subscription";
     }
   }
 
@@ -68,9 +75,6 @@ function TierCTAButton({ tier }: { tier: Tier }) {
         }
 
         track("Signup", { tier: tier.id });
-        // ... rest of analytic logic kept simple for brevity in replacement,
-        // in real implementation we keep the existing logic.
-        // Re-injecting existing analytics logic below to ensure no regression.
         if (!session) {
           Sentry.captureEvent({
             message: "click-pricing-signup",
@@ -90,9 +94,16 @@ function TierCTAButton({ tier }: { tier: Tier }) {
           track("click-pricing-buy-now", { tier: tier.id });
           e.preventDefault();
           e.stopPropagation();
-          await authClient.checkout({ slug: tier.id });
+          const checkoutSlug = frequency === "year" && tier.id === "business"
+            ? "business-yearly"
+            : tier.id;
+          await authClient.checkout({ slug: checkoutSlug });
         } else {
-          if (session.planType === tier.id) {
+          const isCurrentPlan =
+            tier.id === "business"
+              ? isBusinessPlan(session.planType ?? "")
+              : session.planType === tier.id;
+          if (isCurrentPlan) {
             Sentry.captureEvent({
               message: "click-pricing-manage-subscription",
               level: "info",
@@ -208,6 +219,28 @@ export function Tiers({
                 <span className="text-3xl font-bold text-stone-900">
                   {tier.price}
                 </span>
+              ) : frequency === "year" ? (
+                <div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-4xl font-bold text-stone-900">
+                      ${Math.round(tier.price.year / 12)}
+                    </span>
+                    <span className="text-sm font-medium text-stone-400">
+                      /month
+                    </span>
+                  </div>
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <span className="text-sm text-stone-400 line-through decoration-stone-400">
+                      ${tier.price.month}/mo
+                    </span>
+                    <span className="rounded-md bg-green-100 px-1.5 py-0.5 text-xs font-semibold text-green-700">
+                      now -50%
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs text-stone-400">
+                    ${tier.price.year.toLocaleString()} billed yearly
+                  </p>
+                </div>
               ) : (
                 <div className="flex items-baseline gap-1">
                   <span className="text-4xl font-bold text-stone-900">
@@ -227,7 +260,7 @@ export function Tiers({
 
             {/* CTA */}
             <div className="mb-6">
-              <TierCTAButton tier={tier} />
+              <TierCTAButton tier={tier} frequency={frequency} />
             </div>
 
             {/* Features */}
