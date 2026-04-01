@@ -47,9 +47,13 @@ export const createResizableFileBlockWrapper = (
   const leftResizeHandle = document.createElement("div");
   leftResizeHandle.className = "bn-resize-handle";
   leftResizeHandle.style.left = "4px";
+  leftResizeHandle.style.display = "none";
+  resizeHandlesContainerElement.appendChild(leftResizeHandle);
   const rightResizeHandle = document.createElement("div");
   rightResizeHandle.className = "bn-resize-handle";
   rightResizeHandle.style.right = "4px";
+  rightResizeHandle.style.display = "none";
+  resizeHandlesContainerElement.appendChild(rightResizeHandle);
 
   // This element ensures `mousemove` and `mouseup` events are captured while
   // resizing when the cursor is over the wrapper content. This is because
@@ -75,13 +79,9 @@ export const createResizableFileBlockWrapper = (
   // offset from when the resize began, and which resize handle is being used.
   const windowMouseMoveHandler = (event: MouseEvent | TouchEvent) => {
     if (!resizeParams) {
-      if (
-        !editor.isEditable &&
-        resizeHandlesContainerElement.contains(leftResizeHandle) &&
-        resizeHandlesContainerElement.contains(rightResizeHandle)
-      ) {
-        resizeHandlesContainerElement.removeChild(leftResizeHandle);
-        resizeHandlesContainerElement.removeChild(rightResizeHandle);
+      if (!editor.isEditable) {
+        leftResizeHandle.style.display = "none";
+        rightResizeHandle.style.display = "none";
       }
 
       return;
@@ -128,14 +128,12 @@ export const createResizableFileBlockWrapper = (
   const windowMouseUpHandler = (event: MouseEvent | TouchEvent) => {
     // Hides the drag handles if the cursor is no longer over the element.
     if (
-      (!event.target ||
-        !wrapper.contains(event.target as Node) ||
-        !editor.isEditable) &&
-      resizeHandlesContainerElement.contains(leftResizeHandle) &&
-      resizeHandlesContainerElement.contains(rightResizeHandle)
+      !event.target ||
+      !wrapper.contains(event.target as Node) ||
+      !editor.isEditable
     ) {
-      resizeHandlesContainerElement.removeChild(leftResizeHandle);
-      resizeHandlesContainerElement.removeChild(rightResizeHandle);
+      leftResizeHandle.style.display = "none";
+      rightResizeHandle.style.display = "none";
     }
 
     if (!resizeParams) {
@@ -158,8 +156,8 @@ export const createResizableFileBlockWrapper = (
   // Shows the resize handles when hovering over the wrapper with the cursor.
   const wrapperMouseEnterHandler = () => {
     if (editor.isEditable) {
-      resizeHandlesContainerElement.appendChild(leftResizeHandle);
-      resizeHandlesContainerElement.appendChild(rightResizeHandle);
+      leftResizeHandle.style.display = "";
+      rightResizeHandle.style.display = "";
     }
   };
   // Hides the resize handles when the cursor leaves the wrapper, unless the
@@ -176,13 +174,9 @@ export const createResizableFileBlockWrapper = (
       return;
     }
 
-    if (
-      editor.isEditable &&
-      resizeHandlesContainerElement.contains(leftResizeHandle) &&
-      resizeHandlesContainerElement.contains(rightResizeHandle)
-    ) {
-      resizeHandlesContainerElement.removeChild(leftResizeHandle);
-      resizeHandlesContainerElement.removeChild(rightResizeHandle);
+    if (editor.isEditable) {
+      leftResizeHandle.style.display = "none";
+      rightResizeHandle.style.display = "none";
     }
   };
 
