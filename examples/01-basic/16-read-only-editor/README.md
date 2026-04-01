@@ -1,6 +1,6 @@
 # Read-only Editor
 
-This example makes the editor read-only while showing the same content as the [Default Schema Showcase](/examples/01-basic/04-default-blocks/) example.
+This example makes the editor read-only while showing the same content as the [Default Schema Showcase](/examples/basic/default-blocks) example.
 
 **Relevant Docs:**
 
