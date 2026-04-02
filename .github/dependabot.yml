@@ -21,7 +21,7 @@ updates:
       - dependency-name: "@tiptap/extension-code"
       - dependency-name: "@tiptap/extension-horizontal-rule"
       - dependency-name: "@tiptap/extension-italic"
-      - dependency-name: "@tiptap/extension-link"
+
       - dependency-name: "@tiptap/extension-paragraph"
       - dependency-name: "@tiptap/extension-strike"
       - dependency-name: "@tiptap/extension-text"
