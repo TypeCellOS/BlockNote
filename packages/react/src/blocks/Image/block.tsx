@@ -88,8 +88,12 @@ export const ImageBlock = (
 export const ReactImageBlock = createReactBlockSpec(
   createImageBlockConfig,
   (config) => ({
+    meta: {
+      fileBlockAccept: ["image/*"],
+    },
     render: ImageBlock,
     parse: imageParse(config),
     toExternalHTML: ImageToExternalHTML,
+    runsBefore: ["file"],
   }),
 );

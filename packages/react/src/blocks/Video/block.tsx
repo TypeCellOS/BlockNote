@@ -82,8 +82,12 @@ export const VideoBlock = (
 export const ReactVideoBlock = createReactBlockSpec(
   createVideoBlockConfig,
   (config) => ({
+    meta: {
+      fileBlockAccept: ["video/*"],
+    },
     render: VideoBlock,
     parse: videoParse(config),
     toExternalHTML: VideoToExternalHTML,
+    runsBefore: ["file"],
   }),
 );
