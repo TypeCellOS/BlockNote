@@ -169,7 +169,12 @@ export class StyleManager<
       const { from, to } = tr.selection;
 
       if (text) {
-        tr.insertText(text, from, to).addMark(from, from + text.length, mark);
+        const existingText = tr.doc.textBetween(from, to);
+        if (text !== existingText) {
+          tr.insertText(text, from, to);
+        }
+
+        tr.addMark(from, from + text.length, mark);
       } else {
         tr.setSelection(TextSelection.create(tr.doc, to)).addMark(
           from,

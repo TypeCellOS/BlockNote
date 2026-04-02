@@ -88,7 +88,12 @@ export const LinkToolbarExtension = createExtension(({ editor }) => {
         if (!range) {
           return;
         }
-        tr.insertText(text, range.from, range.to);
+
+        const existingText = tr.doc.textBetween(range.from, range.to);
+        if (text !== existingText) {
+          tr.insertText(text, range.from, range.to);
+        }
+
         tr.addMark(
           range.from,
           range.from + text.length,
