@@ -321,7 +321,7 @@
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"
         },
-        "readme": "This example makes the editor read-only while showing the same content as the [Default Schema Showcase](/examples/01-basic/04-default-blocks/) example.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Document Structure](/docs/foundations/document-structure)\n- [Default Schema](/docs/foundations/schemas)"
+        "readme": "This example makes the editor read-only while showing the same content as the [Default Schema Showcase](/examples/basic/default-blocks) example.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Document Structure](/docs/foundations/document-structure)\n- [Default Schema](/docs/foundations/schemas)"
       },
       {
         "projectSlug": "testing",
