@@ -27,6 +27,8 @@
     "@blocknote/xl-multi-column": "workspace:^",
     "@blocknote/xl-odt-exporter": "workspace:^",
     "@blocknote/xl-pdf-exporter": "workspace:^",
+    "@emotion/react": "11.14.0",
+    "@emotion/styled": "11.14.1",
     "@liveblocks/core": "3.7.1-tiptap3",
     "@liveblocks/react": "3.7.1-tiptap3",
     "@liveblocks/react-blocknote": "3.7.1-tiptap3",
