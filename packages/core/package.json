@@ -98,7 +98,7 @@
     "@tiptap/extension-code": "^3.13.0",
     "@tiptap/extension-horizontal-rule": "^3.13.0",
     "@tiptap/extension-italic": "^3.13.0",
-    "@tiptap/extension-link": "^3.13.0",
+    "@tiptap/extension-link": "^3.22.1",
     "@tiptap/extension-paragraph": "^3.13.0",
     "@tiptap/extension-strike": "^3.13.0",
     "@tiptap/extension-text": "^3.13.0",

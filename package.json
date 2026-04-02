@@ -35,7 +35,6 @@
       "unrs-resolver"
     ],
     "overrides": {
-      "@tiptap/extension-link": "3.15.3",
       "msw": "2.11.5",
       "ai": "6.0.5",
       "@ai-sdk/anthropic": "3.0.2",
