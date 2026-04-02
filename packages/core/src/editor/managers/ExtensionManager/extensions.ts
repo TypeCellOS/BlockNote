@@ -5,7 +5,7 @@ import {
   Extension as TiptapExtension,
 } from "@tiptap/core";
 import { Gapcursor } from "@tiptap/extensions/gap-cursor";
-import { Link } from "@tiptap/extension-link";
+import { Link } from "../../../extensions/tiptap-extensions/Link/link.js";
 import { Text } from "@tiptap/extension-text";
 import { createDropFileExtension } from "../../../api/clipboard/fromClipboard/fileDropExtension.js";
 import { createPasteFromClipboardExtension } from "../../../api/clipboard/fromClipboard/pasteExtension.js";
@@ -49,7 +49,6 @@ import {
 import { ExtensionFactoryInstance } from "../../BlockNoteExtension.js";
 import { CollaborationExtension } from "../../../extensions/Collaboration/Collaboration.js";
 
-// TODO remove linkify completely by vendoring the link extension & dropping linkifyjs as a dependency
 let LINKIFY_INITIALIZED = false;
 
 /**
@@ -84,8 +83,7 @@ export function getDefaultTiptapExtensions(
       inclusive: false,
     })
       .extend({
-        // Remove the title attribute added in newer versions of @tiptap/extension-link
-        // to avoid unnecessary null attributes in serialized output
+        // Remove the title attribute to avoid unnecessary null attributes in serialized output
         addAttributes() {
           const attrs = this.parent?.() || {};
           delete (attrs as Record<string, unknown>).title;
