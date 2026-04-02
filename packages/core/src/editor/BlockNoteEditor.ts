@@ -1259,7 +1259,7 @@ export class BlockNoteEditor<
       editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
     }) => void,
   ) {
-    this._eventManager.onMount(callback);
+    return this._eventManager.onMount(callback);
   }
 
   /**
@@ -1275,7 +1275,7 @@ export class BlockNoteEditor<
       editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
     }) => void,
   ) {
-    this._eventManager.onUnmount(callback);
+    return this._eventManager.onUnmount(callback);
   }
 
   /**
