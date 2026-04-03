@@ -1,0 +1,106 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Title",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "isToggleable": false,
+      "level": 1,
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "heading",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph with ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "bold": true,
+        },
+        "text": "bold",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " text.",
+        "type": "text",
+      },
+    ],
+    "id": "2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Bullet 1",
+        "type": "text",
+      },
+    ],
+    "id": "3",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "bulletListItem",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Bullet 2",
+        "type": "text",
+      },
+    ],
+    "id": "4",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "bulletListItem",
+  },
+  {
+    "children": [],
+    "content": undefined,
+    "id": "5",
+    "props": {},
+    "type": "divider",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "print('hello')",
+        "type": "text",
+      },
+    ],
+    "id": "6",
+    "props": {
+      "language": "python",
+    },
+    "type": "codeBlock",
+  },
+]

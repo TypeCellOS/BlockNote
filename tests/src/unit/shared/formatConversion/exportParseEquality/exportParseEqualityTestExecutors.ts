@@ -63,6 +63,34 @@ export const testExportParseEqualityHTML = async <
   );
 };
 
+export const testExportParseEqualityMarkdown = async <
+  B extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema,
+>(
+  editor: BlockNoteEditor<B, I, S>,
+  testCase: ExportParseEqualityTestCase<B, I, S>,
+) => {
+  (window as any).__TEST_OPTIONS.mockID = 0;
+
+  addIdsToBlocks(testCase.content);
+
+  const exported = await editor.blocksToMarkdownLossy(testCase.content);
+
+  // Reset mock ID as we don't expect block IDs to be preserved in this
+  // conversion.
+  (window as any).__TEST_OPTIONS.mockID = 0;
+
+  // Markdown is lossy (colors, underline, alignment are dropped), so we use
+  // snapshot matching to capture the expected round-trip result rather than
+  // strict equality with the input.
+  await expect(
+    await editor.tryParseMarkdownToBlocks(exported),
+  ).toMatchFileSnapshot(
+    `./__snapshots__/markdown/${testCase.name}.json`,
+  );
+};
+
 export const testExportParseEqualityNodes = async <
   B extends BlockSchema,
   I extends InlineContentSchema,

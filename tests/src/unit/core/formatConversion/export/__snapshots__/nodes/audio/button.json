@@ -1,0 +1,20 @@
+[
+  {
+    "attrs": {
+      "id": "1",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "caption": "",
+          "name": "",
+          "showPreview": true,
+          "url": "",
+        },
+        "type": "audio",
+      },
+    ],
+    "type": "blockContainer",
+  },
+]

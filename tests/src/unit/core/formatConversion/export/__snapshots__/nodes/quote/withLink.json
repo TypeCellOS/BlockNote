@@ -1,0 +1,38 @@
+[
+  {
+    "attrs": {
+      "id": "1",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "textColor": "default",
+        },
+        "content": [
+          {
+            "text": "Quote with ",
+            "type": "text",
+          },
+          {
+            "marks": [
+              {
+                "attrs": {
+                  "class": null,
+                  "href": "https://www.example.com",
+                  "rel": "noopener noreferrer nofollow",
+                  "target": "_blank",
+                },
+                "type": "link",
+              },
+            ],
+            "text": "a link",
+            "type": "text",
+          },
+        ],
+        "type": "quote",
+      },
+    ],
+    "type": "blockContainer",
+  },
+]

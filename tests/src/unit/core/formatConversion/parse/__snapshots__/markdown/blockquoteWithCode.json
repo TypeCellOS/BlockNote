@@ -1,0 +1,30 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Quote with ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "code": true,
+        },
+        "text": "inline code",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " inside",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+    },
+    "type": "quote",
+  },
+]

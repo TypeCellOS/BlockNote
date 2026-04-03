@@ -1279,4 +1279,595 @@ Regular paragraph`,
     },
     executeTest: testParseMarkdown,
   },
+  // Individual heading levels
+  {
+    testCase: {
+      name: "headingH1",
+      content: `# Heading 1`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "headingH2",
+      content: `## Heading 2`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "headingH3",
+      content: `### Heading 3`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "headingH4",
+      content: `#### Heading 4`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "headingH5",
+      content: `##### Heading 5`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "headingH6",
+      content: `###### Heading 6`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "headingWithInlineStyles",
+      content: `# **Bold** *Italic* ~~Strike~~ Heading`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Setext headings
+  {
+    testCase: {
+      name: "setextH1",
+      content: `Heading 1
+===`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "setextH2",
+      content: `Heading 2
+---`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Code blocks
+  {
+    testCase: {
+      name: "codeBlockBasic",
+      content: `\`\`\`
+console.log('Hello');
+\`\`\``,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "codeBlockWithLanguage",
+      content: `\`\`\`javascript
+const x = 42;
+console.log(x);
+\`\`\``,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "codeBlockPython",
+      content: `\`\`\`python
+def hello():
+    print("Hello, world!")
+\`\`\``,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "codeBlockWithSpecialChars",
+      content: `\`\`\`html
+<div class="test">
+  <p>Hello **not bold**</p>
+</div>
+\`\`\``,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "codeBlockTildes",
+      content: `~~~
+code with tildes
+~~~`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Horizontal rules
+  {
+    testCase: {
+      name: "horizontalRuleDashes",
+      content: `Paragraph above
+
+---
+
+Paragraph below`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "horizontalRuleAsterisks",
+      content: `Paragraph above
+
+***
+
+Paragraph below`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "horizontalRuleUnderscores",
+      content: `Paragraph above
+
+___
+
+Paragraph below`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Inline code
+  {
+    testCase: {
+      name: "inlineCode",
+      content: `This has \`inline code\` in it`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "inlineCodeWithSpecialChars",
+      content: `Use \`const x = 42;\` to declare`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Links
+  {
+    testCase: {
+      name: "linkBasic",
+      content: `[Example](https://example.com)`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "linkInParagraph",
+      content: `Check out [this link](https://example.com) for more info.`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "linkWithStyledContent",
+      content: `[**Bold link**](https://example.com)`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "adjacentLinks",
+      content: `[Link1](https://example1.com)[Link2](https://example2.com)`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "linkAndText",
+      content: `Before [Link](https://example.com) after`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Tables
+  {
+    testCase: {
+      name: "tableBasic",
+      content: `| Header 1 | Header 2 |
+| -------- | -------- |
+| Cell 1   | Cell 2   |
+| Cell 3   | Cell 4   |`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "tableThreeColumns",
+      content: `| A | B | C |
+| - | - | - |
+| 1 | 2 | 3 |`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "tableWithInlineFormatting",
+      content: `| Header | Styled |
+| ------ | ------ |
+| Normal | **Bold** |
+| *Italic* | ~~Strike~~ |`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "tableWithLinks",
+      content: `| Name | Link |
+| ---- | ---- |
+| Example | [Click](https://example.com) |`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "tableAlignment",
+      content: `| Left | Center | Right |
+| :--- | :----: | ----: |
+| L    | C      | R     |`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Task lists / check lists
+  {
+    testCase: {
+      name: "checkListBasic",
+      content: `- [ ] Unchecked item
+- [x] Checked item
+- [ ] Another unchecked`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "checkListMixed",
+      content: `- Regular bullet
+- [ ] Check item
+- [x] Checked item`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "checkListNested",
+      content: `- [ ] Parent item
+  - [x] Child checked
+  - [ ] Child unchecked`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Ordered list with start number
+  {
+    testCase: {
+      name: "orderedListStart",
+      content: `3. Third item
+4. Fourth item
+5. Fifth item`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Hard breaks
+  {
+    testCase: {
+      name: "hardBreakBackslash",
+      content: `Line one\\
+Line two`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "hardBreakMultiple",
+      content: `Line one\\
+Line two\\
+Line three`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Backslash escapes
+  {
+    testCase: {
+      name: "backslashEscapes",
+      content: `\\*not bold\\* \\[not a link\\] \\~not strike\\~`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Nested emphasis
+  {
+    testCase: {
+      name: "nestedEmphasis",
+      content: `***bold and italic***`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "nestedEmphasisComplex",
+      content: `**bold *bold and italic* bold**`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Individual styles
+  {
+    testCase: {
+      name: "boldOnly",
+      content: `**Bold text**`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "italicOnly",
+      content: `*Italic text*`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "strikethroughOnly",
+      content: `~~Strikethrough text~~`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "boldUnderscore",
+      content: `__Bold with underscores__`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "italicUnderscore",
+      content: `_Italic with underscores_`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Mixed inline content
+  {
+    testCase: {
+      name: "mixedInlineContent",
+      content: `Normal **bold** *italic* ~~strike~~ \`code\` [link](https://example.com)`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Multiple paragraphs
+  {
+    testCase: {
+      name: "multipleParagraphs",
+      content: `First paragraph
+
+Second paragraph
+
+Third paragraph`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Empty content
+  {
+    testCase: {
+      name: "emptyString",
+      content: ``,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "onlyWhitespace",
+      content: `
+
+   `,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Paragraph continuation (lines without blank line)
+  {
+    testCase: {
+      name: "paragraphContinuation",
+      content: `Line one
+still same paragraph`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Nested lists - complex
+  {
+    testCase: {
+      name: "nestedBulletLists",
+      content: `- Item 1
+  - Nested 1
+    - Deep nested
+  - Nested 2
+- Item 2`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "nestedOrderedLists",
+      content: `1. First
+   1. Sub first
+   2. Sub second
+2. Second`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "mixedListTypes",
+      content: `- Bullet item
+  1. Numbered child
+  2. Another numbered
+- Another bullet
+  - [ ] Check child`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Blockquote with multiple blocks
+  {
+    testCase: {
+      name: "blockquoteMultiline",
+      content: `> Line one
+> Line two
+> Line three`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "blockquoteWithCode",
+      content: `> Quote with \`inline code\` inside`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
+      name: "blockquoteWithLink",
+      content: `> Quote with [a link](https://example.com) inside`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Complex document
+  {
+    testCase: {
+      name: "complexDocument",
+      content: `# Main Title
+
+An introduction paragraph with **bold** and *italic* text.
+
+## Section 1
+
+- First bullet point
+- Second bullet point
+  - Nested point
+
+> A notable quote
+
+### Code Example
+
+\`\`\`javascript
+function hello() {
+  return "world";
+}
+\`\`\`
+
+---
+
+## Section 2
+
+1. Step one
+2. Step two
+3. Step three
+
+| Feature | Status |
+| ------- | ------ |
+| Bold    | Done   |
+| Italic  | Done   |
+
+![Image](https://example.com/image.png)
+
+Final paragraph with [a link](https://example.com).`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Image with alt text
+  {
+    testCase: {
+      name: "imageWithAlt",
+      content: `![Alt text for image](https://example.com/photo.jpg)`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Multiple images
+  {
+    testCase: {
+      name: "multipleImages",
+      content: `![First](https://example.com/first.png)
+
+![Second](https://example.com/second.png)`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Inline image within text (should be handled)
+  {
+    testCase: {
+      name: "inlineImage",
+      content: `Text before ![inline](https://example.com/img.png) text after`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Code block immediately after heading
+  {
+    testCase: {
+      name: "headingThenCode",
+      content: `## Code Section
+
+\`\`\`python
+x = 42
+\`\`\``,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // List with styled items
+  {
+    testCase: {
+      name: "listWithStyledItems",
+      content: `- **Bold item**
+- *Italic item*
+- ~~Strikethrough item~~
+- Item with \`code\``,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Deeply nested lists
+  {
+    testCase: {
+      name: "deeplyNestedLists",
+      content: `- Level 1
+  - Level 2
+    - Level 3
+      - Level 4`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Table followed by paragraph
+  {
+    testCase: {
+      name: "tableFollowedByParagraph",
+      content: `| Col 1 | Col 2 |
+| ----- | ----- |
+| A     | B     |
+
+Paragraph after table`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Paragraphs with various inline formatting
+  {
+    testCase: {
+      name: "adjacentFormattedRuns",
+      content: `**bold***italic*~~strike~~`,
+    },
+    executeTest: testParseMarkdown,
+  },
 ];

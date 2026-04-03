@@ -1,0 +1,83 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {
+          "bold": true,
+        },
+        "text": "Bold item",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "bulletListItem",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {
+          "italic": true,
+        },
+        "text": "Italic item",
+        "type": "text",
+      },
+    ],
+    "id": "2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "bulletListItem",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {
+          "strike": true,
+        },
+        "text": "Strikethrough item",
+        "type": "text",
+      },
+    ],
+    "id": "3",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "bulletListItem",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Item with ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "code": true,
+        },
+        "text": "code",
+        "type": "text",
+      },
+    ],
+    "id": "4",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "bulletListItem",
+  },
+]

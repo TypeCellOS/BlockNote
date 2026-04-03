@@ -1,0 +1,35 @@
+[
+  {
+    "attrs": {
+      "id": "1",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "content": [
+          {
+            "marks": [
+              {
+                "type": "bold",
+              },
+              {
+                "type": "italic",
+              },
+              {
+                "type": "strike",
+              },
+            ],
+            "text": "All styles",
+            "type": "text",
+          },
+        ],
+        "type": "paragraph",
+      },
+    ],
+    "type": "blockContainer",
+  },
+]

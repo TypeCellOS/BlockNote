@@ -1,20 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { nestedListsToBlockNoteStructure } from "./nestedLists.js";
-import { unified } from "unified";
-import rehypeParse from "rehype-parse";
-import rehypeFormat from "rehype-format";
-import rehypeStringify from "rehype-stringify";
 
 async function testHTML(html: string) {
   const htmlNode = nestedListsToBlockNoteStructure(html);
-
-  const pretty = await unified()
-    .use(rehypeParse, { fragment: true })
-    .use(rehypeFormat)
-    .use(rehypeStringify)
-    .process(htmlNode.innerHTML);
-
-  expect(pretty.value).toMatchSnapshot();
+  expect(htmlNode.innerHTML).toMatchSnapshot();
 }
 
 describe("Lift nested lists", () => {

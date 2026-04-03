@@ -1,0 +1,132 @@
+[
+  {
+    "children": [],
+    "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
+      "headerCols": undefined,
+      "headerRows": 1,
+      "rows": [
+        {
+          "cells": [
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Left",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Center",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Right",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "tableCell",
+            },
+          ],
+        },
+        {
+          "cells": [
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "L",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "C",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "R",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "tableCell",
+            },
+          ],
+        },
+      ],
+      "type": "tableContent",
+    },
+    "id": "1",
+    "props": {
+      "textColor": "default",
+    },
+    "type": "table",
+  },
+]

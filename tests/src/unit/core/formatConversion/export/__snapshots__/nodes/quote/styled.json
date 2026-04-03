@@ -1,0 +1,45 @@
+[
+  {
+    "attrs": {
+      "id": "1",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "textColor": "default",
+        },
+        "content": [
+          {
+            "marks": [
+              {
+                "type": "bold",
+              },
+            ],
+            "text": "Bold ",
+            "type": "text",
+          },
+          {
+            "text": "and ",
+            "type": "text",
+          },
+          {
+            "marks": [
+              {
+                "type": "italic",
+              },
+            ],
+            "text": "italic",
+            "type": "text",
+          },
+          {
+            "text": " quote",
+            "type": "text",
+          },
+        ],
+        "type": "quote",
+      },
+    ],
+    "type": "blockContainer",
+  },
+]
