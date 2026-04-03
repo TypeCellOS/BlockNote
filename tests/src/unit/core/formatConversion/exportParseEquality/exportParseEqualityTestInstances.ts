@@ -921,6 +921,7 @@ export const exportParseEqualityTestInstancesMarkdown: TestInstance<
         {
           type: "codeBlock",
           props: { language: "" },
+          // eslint-disable-next-line no-template-curly-in-string
           content: "const x = `template ${literal}`;\nconst y = '```triple backticks```';",
         },
       ],
