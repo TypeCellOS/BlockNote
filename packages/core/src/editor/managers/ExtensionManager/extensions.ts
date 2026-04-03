@@ -27,10 +27,6 @@ import {
   TrailingNodeExtension,
 } from "../../../extensions/index.js";
 import {
-  DEFAULT_LINK_PROTOCOL,
-  VALID_LINK_PROTOCOLS,
-} from "../../../extensions/LinkToolbar/protocols.js";
-import {
   BackgroundColorExtension,
   HardBreak,
   KeyboardShortcutsExtension,
@@ -48,8 +44,6 @@ import {
 } from "../../BlockNoteEditor.js";
 import { ExtensionFactoryInstance } from "../../BlockNoteExtension.js";
 import { CollaborationExtension } from "../../../extensions/Collaboration/Collaboration.js";
-
-let LINKIFY_INITIALIZED = false;
 
 /**
  * Get all the Tiptap extensions BlockNote is configured with by default
@@ -79,22 +73,7 @@ export function getDefaultTiptapExtensions(
     SuggestionAddMark,
     SuggestionDeleteMark,
     SuggestionModificationMark,
-    Link.extend({
-      inclusive: false,
-    })
-      .extend({
-        // Remove the title attribute to avoid unnecessary null attributes in serialized output
-        addAttributes() {
-          const attrs = this.parent?.() || {};
-          delete (attrs as Record<string, unknown>).title;
-          return attrs;
-        },
-      })
-      .configure({
-      defaultProtocol: DEFAULT_LINK_PROTOCOL,
-      // only call this once if we have multiple editors installed. Or fix https://github.com/ueberdosis/tiptap/issues/5450
-      protocols: LINKIFY_INITIALIZED ? [] : VALID_LINK_PROTOCOLS,
-    }),
+    Link,
     ...(Object.values(editor.schema.styleSpecs).map((styleSpec) => {
       return styleSpec.implementation.mark.configure({
         editor: editor,
@@ -170,8 +149,6 @@ export function getDefaultTiptapExtensions(
     ),
     createDropFileExtension(editor),
   ];
-
-  LINKIFY_INITIALIZED = true;
 
   return tiptapExtensions;
 }
