@@ -49,12 +49,12 @@ const MAILTO_RE = /mailto:[^\s]+/g;
 
 // Bare email addresses: user@domain.tld
 const EMAIL_RE =
-  /[a-zA-Z0-9._%+\-]+@(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}/g;
+  /[a-zA-Z0-9._%+-]+@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}/g;
 
 // Schemeless URLs: domain.tld with optional port and path
 // Hostname: one or more labels separated by dots, TLD is alpha-only 2+ chars
 const SCHEMELESS_RE =
-  /(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}(?::\d{1,5})?(?:\/[^\s]*)?/g;
+  /(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}(?::\d{1,5})?(?:\/[^\s]*)?/g;
 
 // ---------------------------------------------------------------------------
 // Post-processing helpers
@@ -74,7 +74,9 @@ function trimTrailing(value: string): string {
     // Trim trailing punctuation chars
     const before = v;
     v = v.replace(TRAILING_PUNCT, "");
-    if (v !== before) changed = true;
+    if (v !== before) {
+      changed = true;
+    }
 
     // Trim unbalanced closing brackets from the end
     for (const [open, close] of [
@@ -100,7 +102,9 @@ function trimTrailing(value: string): string {
 function countChar(str: string, ch: string): number {
   let count = 0;
   for (let i = 0; i < str.length; i++) {
-    if (str[i] === ch) count++;
+    if (str[i] === ch) {
+      count++;
+    }
   }
   return count;
 }
@@ -155,7 +159,7 @@ function buildHref(
   if (type === "email") {
     return "mailto:" + value;
   }
-  if (/^[a-zA-Z][a-zA-Z0-9+.\-]*:\/\//.test(value) || /^mailto:/i.test(value)) {
+  if (/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(value) || /^mailto:/i.test(value)) {
     // Already has a protocol
     return value;
   }
@@ -185,7 +189,9 @@ export function findLinks(
   text: string,
   options?: FindOptions
 ): LinkMatch[] {
-  if (!text) return [];
+  if (!text) {
+    return [];
+  }
 
   const defaultProtocol = options?.defaultProtocol || "http";
   const rawMatches: RawMatch[] = [];
@@ -246,22 +252,28 @@ export function findLinks(
   // Post-process each match
   const results: LinkMatch[] = [];
   for (const raw of deduped) {
-    let value = trimTrailing(raw.value);
-    if (!value) continue;
+    const value = trimTrailing(raw.value);
+    if (!value) {
+      continue;
+    }
 
     const start = raw.start;
     const end = start + value.length;
 
     // For schemeless URLs, validate TLD
-    if (raw.type === "url" && !/^[a-zA-Z][a-zA-Z0-9+.\-]*:/.test(value)) {
+    if (raw.type === "url" && !/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(value)) {
       const hostname = extractHostname(value);
-      if (!isValidTld(hostname)) continue;
+      if (!isValidTld(hostname)) {
+        continue;
+      }
     }
 
     // For emails, validate TLD
     if (raw.type === "email") {
       const hostname = value.split("@")[1];
-      if (!isValidTld(hostname)) continue;
+      if (!isValidTld(hostname)) {
+        continue;
+      }
     }
 
     const href = buildHref(value, raw.type, defaultProtocol);
@@ -359,7 +371,7 @@ function isSingleUrl(text: string): boolean {
 
   // Schemeless URLs: hostname.tld with optional port and path
   const schemelessFull =
-    /^(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-]*[a-zA-Z0-9])?\.)+([a-zA-Z]{2,})(?::\d{1,5})?(?:\/[^\s]*)?$/;
+    /^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+([a-zA-Z]{2,})(?::\d{1,5})?(?:\/[^\s]*)?$/;
   const match = text.match(schemelessFull);
   if (match) {
     const tld = match[1].toLowerCase();
