@@ -7,8 +7,6 @@ import { useExtensionState } from "../../hooks/useExtension.js";
 import { FormattingToolbar } from "./FormattingToolbar.js";
 import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
 
-const TOOLBAR_HEIGHT = 44;
-
 /**
  * Flicker-free mobile formatting toolbar controller.
  *
@@ -56,7 +54,8 @@ export const ExperimentalMobileFormattingToolbarController = (props: {
       const rect = sel.getRangeAt(0).getBoundingClientRect();
       const vp = window.visualViewport;
       if (!vp) return;
-      const visibleBottom = vp.offsetTop + vp.height - TOOLBAR_HEIGHT;
+      const toolbarHeight = el.getBoundingClientRect().height || 44;
+      const visibleBottom = vp.offsetTop + vp.height - toolbarHeight;
       if (rect.bottom > visibleBottom) {
         window.scrollBy({
           top: rect.bottom - visibleBottom + 16,
