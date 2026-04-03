@@ -21,7 +21,9 @@ const ALLOWED_URI_REGEX =
   /^(?:(?:http|https|ftp|ftps|mailto|tel|callto|sms|cid|xmpp):|[^a-z]|[a-z0-9+.\-]+(?:[^a-z+.\-:]|$))/i;
 
 export function isAllowedUri(uri: string | undefined): boolean {
-  if (!uri) return true;
+  if (!uri) {
+    return true;
+  }
   const cleaned = uri.replace(UNICODE_WHITESPACE_REGEX_GLOBAL, "");
   return ALLOWED_URI_REGEX.test(cleaned);
 }

@@ -1,4 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
+import { TextSelection } from "@tiptap/pm/state";
+import { Slice, Fragment } from "@tiptap/pm/model";
 
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { findLinks, tokenizeLink } from "./helpers/linkDetector.js";
@@ -733,37 +735,26 @@ describe("Link extension paste handler behavior", () => {
     });
 
     // Create selection over the text
-    const { TextSelection } = require("@tiptap/pm/state");
     const tr = view.state.tr.setSelection(
       TextSelection.create(view.state.doc, textStart, textEnd)
     );
     view.dispatch(tr);
 
-    // Simulate paste via the paste handler plugin
-    const pastePlugin = view.state.plugins.find(
-      (p) => (p as any).key === "handlePasteLink$"
+    // Create a minimal slice that looks like pasted URL text
+    const textNode = view.state.schema.text("https://example.com");
+    const slice = new Slice(Fragment.from(textNode), 0, 0);
+
+    // Dispatch paste through the editor view
+    const handled = view.someProp("handlePaste", (f) =>
+      f(view, new ClipboardEvent("paste"), slice)
     );
 
-    if (pastePlugin && pastePlugin.props.handlePaste) {
-      // Create a minimal slice that looks like pasted URL text
-      const { Slice, Fragment } = require("@tiptap/pm/model");
-      const textNode = view.state.schema.text("https://example.com");
-      const slice = new Slice(Fragment.from(textNode), 0, 0);
-
-      const result = (pastePlugin.props.handlePaste as any)(
-        view,
-        new ClipboardEvent("paste"),
-        slice
-      );
-
-      if (result) {
-        // Check that link mark was applied
-        const links = getLinksInDocument(editor);
-        expect(links).toHaveLength(1);
-        expect(links[0].href).toBe("https://example.com");
-        expect(links[0].text).toBe("click here");
-      }
-    }
+    expect(handled).toBeTruthy();
+    // Check that link mark was applied
+    const links = getLinksInDocument(editor);
+    expect(links).toHaveLength(1);
+    expect(links[0].href).toBe("https://example.com");
+    expect(links[0].text).toBe("click here");
   });
 
   it("does not apply link when pasting non-URL text over selection", () => {
@@ -789,34 +780,24 @@ describe("Link extension paste handler behavior", () => {
       }
     });
 
-    const { TextSelection } = require("@tiptap/pm/state");
     const tr = view.state.tr.setSelection(
       TextSelection.create(view.state.doc, textStart, textEnd)
     );
     view.dispatch(tr);
 
-    const pastePlugin = view.state.plugins.find(
-      (p) => (p as any).key === "handlePasteLink$"
+    const textNode = view.state.schema.text("not a url");
+    const slice = new Slice(Fragment.from(textNode), 0, 0);
+
+    const handled = view.someProp("handlePaste", (f) =>
+      f(view, new ClipboardEvent("paste"), slice)
     );
 
-    if (pastePlugin && pastePlugin.props.handlePaste) {
-      const { Slice, Fragment } = require("@tiptap/pm/model");
-      const textNode = view.state.schema.text("not a url");
-      const slice = new Slice(Fragment.from(textNode), 0, 0);
+    // Should not be handled (not a URL)
+    expect(handled).toBeFalsy();
 
-      const result = (pastePlugin.props.handlePaste as any)(
-        view,
-        new ClipboardEvent("paste"),
-        slice
-      );
-
-      // Should return false (not handled)
-      expect(result).toBe(false);
-
-      // No links should exist
-      const links = getLinksInDocument(editor);
-      expect(links).toHaveLength(0);
-    }
+    // No links should exist
+    const links = getLinksInDocument(editor);
+    expect(links).toHaveLength(0);
   });
 
   it("does not apply link when pasting URL with empty selection", () => {
@@ -833,23 +814,14 @@ describe("Link extension paste handler behavior", () => {
     editor.setTextCursorPosition("test-block", "end");
     const view = editor._tiptapEditor.view;
 
-    const pastePlugin = view.state.plugins.find(
-      (p) => (p as any).key === "handlePasteLink$"
+    const textNode = view.state.schema.text("https://example.com");
+    const slice = new Slice(Fragment.from(textNode), 0, 0);
+
+    const handled = view.someProp("handlePaste", (f) =>
+      f(view, new ClipboardEvent("paste"), slice)
     );
 
-    if (pastePlugin && pastePlugin.props.handlePaste) {
-      const { Slice, Fragment } = require("@tiptap/pm/model");
-      const textNode = view.state.schema.text("https://example.com");
-      const slice = new Slice(Fragment.from(textNode), 0, 0);
-
-      const result = (pastePlugin.props.handlePaste as any)(
-        view,
-        new ClipboardEvent("paste"),
-        slice
-      );
-
-      // Should return false because selection is empty
-      expect(result).toBe(false);
-    }
+    // Should not be handled because selection is empty
+    expect(handled).toBeFalsy();
   });
 });
