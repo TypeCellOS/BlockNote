@@ -143,7 +143,7 @@ function serializeBlockquote(el: HTMLElement, ctx: SerializeContext): string {
 
 function serializeCodeBlock(el: HTMLElement, ctx: SerializeContext): string {
   const codeEl = el.querySelector("code");
-  if (!codeEl) return "";
+  if (!codeEl) {return "";}
 
   const language =
     codeEl.getAttribute("data-language") ||
@@ -283,7 +283,7 @@ function serializeListItem(
   if (details) {
     const summary = details.querySelector("summary");
     for (const child of Array.from(details.children)) {
-      if (child === summary) continue;
+      if (child === summary) {continue;}
       const childTag = child.tagName.toLowerCase();
       if (childTag === "p") {
         const content = serializeInlineContent(child as HTMLElement);
@@ -299,8 +299,8 @@ function serializeListItem(
     const childTag = child.tagName.toLowerCase();
 
     // Skip the first content element and checkbox
-    if (child === firstContentEl || (child as HTMLElement) === checkbox) continue;
-    if (childTag === "input") continue;
+    if (child === firstContentEl || (child as HTMLElement) === checkbox) {continue;}
+    if (childTag === "input") {continue;}
 
     // Nested lists and other block content
     if (childTag === "ul" || childTag === "ol") {
@@ -322,10 +322,10 @@ function getFirstContentElement(
   checkbox: HTMLInputElement | null
 ): HTMLElement | null {
   for (const child of Array.from(li.children)) {
-    if (child === checkbox) continue;
-    if (child.tagName.toLowerCase() === "input") continue;
+    if (child === checkbox) {continue;}
+    if (child.tagName.toLowerCase() === "input") {continue;}
     const tag = child.tagName.toLowerCase();
-    if (tag === "p" || tag === "span") return child as HTMLElement;
+    if (tag === "p" || tag === "span") {return child as HTMLElement;}
   }
   return null;
 }
@@ -350,13 +350,13 @@ function serializeTable(el: HTMLElement, ctx: SerializeContext): string {
   const grid: (string | null)[][] = [];
 
   trElements.forEach((tr, rowIdx) => {
-    if (!grid[rowIdx]) grid[rowIdx] = [];
+    if (!grid[rowIdx]) {grid[rowIdx] = [];}
     const cellElements = tr.querySelectorAll("th, td");
     let gridCol = 0;
 
     cellElements.forEach((cell) => {
       // Find next empty column in this row
-      while (grid[rowIdx][gridCol] !== undefined) gridCol++;
+      while (grid[rowIdx][gridCol] !== undefined) {gridCol++;}
 
       if (rowIdx === 0 && cell.tagName.toLowerCase() === "th") {
         hasHeader = true;
@@ -370,7 +370,7 @@ function serializeTable(el: HTMLElement, ctx: SerializeContext): string {
       for (let r = 0; r < rowspan; r++) {
         for (let c = 0; c < colspan; c++) {
           const ri = rowIdx + r;
-          if (!grid[ri]) grid[ri] = [];
+          if (!grid[ri]) {grid[ri] = [];}
           grid[ri][gridCol + c] = r === 0 && c === 0 ? content : "";
         }
       }
@@ -393,7 +393,7 @@ function serializeTable(el: HTMLElement, ctx: SerializeContext): string {
     rows.push(row);
   }
 
-  if (rows.length === 0) return "";
+  if (rows.length === 0) {return "";}
 
   // Determine column widths
   const colWidths: number[] = [];
@@ -475,7 +475,7 @@ function serializeVideo(el: HTMLElement, ctx: SerializeContext): string {
 
 function serializeAudio(el: HTMLElement, ctx: SerializeContext): string {
   const src = el.getAttribute("src") || "";
-  if (!src) return "";
+  if (!src) {return "";}
   // Audio has no visible representation in markdown; output as link with empty text
   return ctx.indent + `[](${src})\n\n`;
 }
@@ -521,14 +521,14 @@ function serializeFigure(el: HTMLElement, ctx: SerializeContext): string {
 function serializeBlockLink(el: HTMLElement, ctx: SerializeContext): string {
   const href = el.getAttribute("href") || "";
   const text = el.textContent?.trim() || "";
-  if (!href) return ctx.indent + text + "\n\n";
+  if (!href) {return ctx.indent + text + "\n\n";}
   return ctx.indent + `[${text}](${href})\n\n`;
 }
 
 function serializeDetails(el: HTMLElement, ctx: SerializeContext): string {
   // Toggle heading or toggle list item
   const summary = el.querySelector("summary");
-  if (!summary) return serializeChildren(el, ctx);
+  if (!summary) {return serializeChildren(el, ctx);}
 
   // Check if summary contains a heading
   const heading = summary.querySelector("h1, h2, h3, h4, h5, h6");

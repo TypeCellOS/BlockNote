@@ -208,13 +208,13 @@ function parseImage(
   // ![alt](url) or ![alt](url "title")
   const altStart = start + 2; // after ![
   const altEnd = text.indexOf("]", altStart);
-  if (altEnd === -1) return null;
+  if (altEnd === -1) {return null;}
 
-  if (text[altEnd + 1] !== "(") return null;
+  if (text[altEnd + 1] !== "(") {return null;}
 
   const urlStart = altEnd + 2;
   const parenEnd = findClosingParen(text, urlStart - 1);
-  if (parenEnd === -1) return null;
+  if (parenEnd === -1) {return null;}
 
   const alt = text.substring(altStart, altEnd);
   let urlContent = text.substring(urlStart, parenEnd).trim();
@@ -250,13 +250,13 @@ function parseLink(
   // [text](url)
   const textStart = start + 1;
   const textEnd = findClosingBracket(text, start);
-  if (textEnd === -1) return null;
+  if (textEnd === -1) {return null;}
 
-  if (text[textEnd + 1] !== "(") return null;
+  if (text[textEnd + 1] !== "(") {return null;}
 
   const urlStart = textEnd + 2;
   const parenEnd = findClosingParen(text, textEnd + 1);
-  if (parenEnd === -1) return null;
+  if (parenEnd === -1) {return null;}
 
   const linkText = text.substring(textStart, textEnd);
   const url = text.substring(urlStart, parenEnd).trim();
@@ -274,10 +274,10 @@ function findClosingBracket(text: string, openPos: number): number {
       i++; // skip escaped
       continue;
     }
-    if (text[i] === "[") depth++;
+    if (text[i] === "[") {depth++;}
     if (text[i] === "]") {
       depth--;
-      if (depth === 0) return i;
+      if (depth === 0) {return i;}
     }
   }
   return -1;
@@ -290,10 +290,10 @@ function findClosingParen(text: string, openPos: number): number {
       i++;
       continue;
     }
-    if (text[i] === "(") depth++;
+    if (text[i] === "(") {depth++;}
     if (text[i] === ")") {
       depth--;
-      if (depth === 0) return i;
+      if (depth === 0) {return i;}
     }
   }
   return -1;
@@ -309,10 +309,10 @@ function parseDelimited(
   const len = delimiter.length;
   const afterOpen = start + len;
 
-  if (afterOpen >= text.length) return null;
+  if (afterOpen >= text.length) {return null;}
 
   // Opening delimiter must not be followed by whitespace
-  if (text[afterOpen] === " " || text[afterOpen] === "\t") return null;
+  if (text[afterOpen] === " " || text[afterOpen] === "\t") {return null;}
 
   // Find closing delimiter
   let j = afterOpen;
@@ -580,11 +580,11 @@ function tokenize(markdown: string): Token[] {
       const minChildIndent = indent + 1;
 
       // Helper to check if a line belongs to this list item
-      function belongsToItem(lineStr: string): boolean {
-        if (lineStr.trim() === "") return true; // blank lines checked separately
+      const belongsToItem = (lineStr: string): boolean => {
+        if (lineStr.trim() === "") {return true;} // blank lines checked separately
         const lineInd = lineStr.match(/^\s*/)![0].length;
         // Lines at contentIndent are continuation text
-        if (lineInd >= contentIndent) return true;
+        if (lineInd >= contentIndent) {return true;}
         // Lines between marker and content column that start a sub-list
         if (
           lineInd >= minChildIndent &&
@@ -615,7 +615,7 @@ function tokenize(markdown: string): Token[] {
           break;
         }
 
-        if (!belongsToItem(cur)) break;
+        if (!belongsToItem(cur)) {break;}
 
         // Strip indent: for lines at contentIndent+, strip contentIndent chars;
         // for sub-list lines between minChildIndent and contentIndent, strip minChildIndent
@@ -652,14 +652,14 @@ function tokenize(markdown: string): Token[] {
     while (i < lines.length) {
       const nextLine = lines[i];
       // Stop paragraph on blank line
-      if (nextLine.trim() === "") break;
+      if (nextLine.trim() === "") {break;}
       // Stop on block-level element
-      if (/^(#{1,6})\s/.test(nextLine)) break;
-      if (/^(`{3,}|~{3,})/.test(nextLine)) break;
-      if (/^\s{0,3}>/.test(nextLine)) break;
-      if (/^(\s{0,3})([-*_])\s*(\2\s*){2,}$/.test(nextLine)) break;
-      if (/^\s*([-*+]|\d+[.)])\s+/.test(nextLine)) break;
-      if (/^\s*\|(.+\|)+\s*$/.test(nextLine)) break;
+      if (/^(#{1,6})\s/.test(nextLine)) {break;}
+      if (/^(`{3,}|~{3,})/.test(nextLine)) {break;}
+      if (/^\s{0,3}>/.test(nextLine)) {break;}
+      if (/^(\s{0,3})([-*_])\s*(\2\s*){2,}$/.test(nextLine)) {break;}
+      if (/^\s*([-*+]|\d+[.)])\s+/.test(nextLine)) {break;}
+      if (/^\s*\|(.+\|)+\s*$/.test(nextLine)) {break;}
       // Check if next-next line is setext marker
       if (
         i + 1 < lines.length &&
@@ -686,16 +686,16 @@ function tryParseTable(
   start: number
 ): { token: TableToken; nextLine: number } | null {
   // A table needs at least a header row and a separator row
-  if (start + 1 >= lines.length) return null;
+  if (start + 1 >= lines.length) {return null;}
 
   const headerLine = lines[start];
   const separatorLine = lines[start + 1];
 
   // Check separator line format: | --- | --- | or | :--- | ---: |
-  if (!/^\s*\|(\s*:?-+:?\s*\|)+\s*$/.test(separatorLine)) return null;
+  if (!/^\s*\|(\s*:?-+:?\s*\|)+\s*$/.test(separatorLine)) {return null;}
 
   // Check header line format: | ... | ... |
-  if (!/^\s*\|(.+\|)+\s*$/.test(headerLine)) return null;
+  if (!/^\s*\|(.+\|)+\s*$/.test(headerLine)) {return null;}
 
   const headers = parsePipeCells(headerLine);
   const alignments = parseAlignments(separatorLine);
@@ -704,7 +704,7 @@ function tryParseTable(
   let i = start + 2;
   while (i < lines.length) {
     const line = lines[i];
-    if (!/^\s*\|(.+\|)+\s*$/.test(line)) break;
+    if (!/^\s*\|(.+\|)+\s*$/.test(line)) {break;}
     rows.push(parsePipeCells(line));
     i++;
   }
@@ -757,9 +757,9 @@ function parseAlignments(
     const trimmed = cell.trim();
     const left = trimmed.startsWith(":");
     const right = trimmed.endsWith(":");
-    if (left && right) return "center";
-    if (right) return "right";
-    if (left) return "left";
+    if (left && right) {return "center";}
+    if (right) {return "right";}
+    if (left) {return "left";}
     return null;
   });
 }
