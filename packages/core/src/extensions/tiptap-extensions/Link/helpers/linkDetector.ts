@@ -54,7 +54,7 @@ const EMAIL_RE =
 // Schemeless URLs: domain.tld with optional port and path
 // Hostname: one or more labels separated by dots, TLD is alpha-only 2+ chars
 const SCHEMELESS_RE =
-  /(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}(?::\d{1,5})?(?:\/[^\s]*)?/g;
+  /(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}(?::\d{1,5})?(?:[/?#][^\s]*)?/g;
 
 // ---------------------------------------------------------------------------
 // Post-processing helpers
@@ -371,7 +371,7 @@ function isSingleUrl(text: string): boolean {
 
   // Schemeless URLs: hostname.tld with optional port and path
   const schemelessFull =
-    /^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+([a-zA-Z]{2,})(?::\d{1,5})?(?:\/[^\s]*)?$/;
+    /^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+([a-zA-Z]{2,})(?::\d{1,5})?(?:[/?#][^\s]*)?$/;
   const match = text.match(schemelessFull);
   if (match) {
     const tld = match[1].toLowerCase();
@@ -390,7 +390,10 @@ function linkToken(
   end: number,
   defaultProtocol: string
 ): LinkMatch {
-  const type = value.includes("@") && !value.includes("://") ? "email" : "url";
+  const type =
+    value.includes("@") && !value.includes("://") && !value.startsWith("mailto:")
+      ? "email"
+      : "url";
   return {
     type,
     value,
