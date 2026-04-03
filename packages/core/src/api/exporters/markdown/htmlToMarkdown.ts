@@ -10,9 +10,12 @@
  * Convert an HTML string (from BlockNote's external HTML exporter) to markdown.
  */
 export function htmlToMarkdown(html: string): string {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, "text/html");
-  const result = serializeChildren(doc.body, { indent: "", inList: false });
+  // Use a temporary element to parse HTML. This works in both browser and
+  // server (JSDOM) environments, unlike `new DOMParser()` which may not be
+  // globally available in Node.js.
+  const container = document.createElement("div");
+  container.innerHTML = html;
+  const result = serializeChildren(container, { indent: "", inList: false });
   return result.trim() + "\n";
 }
 
@@ -36,11 +39,11 @@ function serializeChildren(node: Node, ctx: SerializeContext): string {
 }
 
 function serializeNode(node: Node, ctx: SerializeContext): string {
-  if (node.nodeType === Node.TEXT_NODE) {
+  if (node.nodeType === 3 /* Node.TEXT_NODE */) {
     return node.textContent || "";
   }
 
-  if (node.nodeType !== Node.ELEMENT_NODE) {
+  if (node.nodeType !== 1 /* Node.ELEMENT_NODE */) {
     return "";
   }
 
@@ -172,9 +175,9 @@ function serializeCodeBlock(el: HTMLElement, ctx: SerializeContext): string {
 function extractCodeContent(el: Element): string {
   let result = "";
   for (const child of Array.from(el.childNodes)) {
-    if (child.nodeType === Node.TEXT_NODE) {
+    if (child.nodeType === 3 /* Node.TEXT_NODE */) {
       result += child.textContent || "";
-    } else if (child.nodeType === Node.ELEMENT_NODE) {
+    } else if (child.nodeType === 1 /* Node.ELEMENT_NODE */) {
       const tag = (child as HTMLElement).tagName.toLowerCase();
       if (tag === "br") {
         result += "\n";
@@ -553,9 +556,9 @@ function serializeInlineContent(el: Element): string {
   let result = "";
 
   for (const child of Array.from(el.childNodes)) {
-    if (child.nodeType === Node.TEXT_NODE) {
+    if (child.nodeType === 3 /* Node.TEXT_NODE */) {
       result += child.textContent || "";
-    } else if (child.nodeType === Node.ELEMENT_NODE) {
+    } else if (child.nodeType === 1 /* Node.ELEMENT_NODE */) {
       const childEl = child as HTMLElement;
       const tag = childEl.tagName.toLowerCase();
 

@@ -16,6 +16,27 @@ function escapeHtml(str: string): string {
     .replace(/"/g, "&quot;");
 }
 
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function isAlphanumeric(char: string | undefined): boolean {
+  if (!char) {
+    return false;
+  }
+  return /\w/.test(char);
+}
+
+/**
+ * Returns true when an underscore delimiter at position `i` is "intraword",
+ * meaning the characters on both sides are alphanumeric (e.g. `snake_case`).
+ * In that case the underscore should NOT be treated as emphasis per CommonMark.
+ */
+function isIntraword(text: string, i: number, delimLen: number): boolean {
+  const before = i > 0 ? text[i - 1] : undefined;
+  const after =
+    i + delimLen < text.length ? text[i + delimLen] : undefined;
+  return isAlphanumeric(before) && isAlphanumeric(after);
+}
+
 // ─── Inline Parser ───────────────────────────────────────────────────────────
 
 /**
@@ -88,7 +109,10 @@ function parseInline(text: string): string {
     // Bold+Italic ***text*** or ___text___
     if (
       (text[i] === "*" && text[i + 1] === "*" && text[i + 2] === "*") ||
-      (text[i] === "_" && text[i + 1] === "_" && text[i + 2] === "_")
+      (text[i] === "_" &&
+        text[i + 1] === "_" &&
+        text[i + 2] === "_" &&
+        !isIntraword(text, i, 3))
     ) {
       const delimiter = text.substring(i, i + 3);
       const tripleResult = parseDelimited(
@@ -108,7 +132,7 @@ function parseInline(text: string): string {
     // Bold **text** or __text__
     if (
       (text[i] === "*" && text[i + 1] === "*") ||
-      (text[i] === "_" && text[i + 1] === "_")
+      (text[i] === "_" && text[i + 1] === "_" && !isIntraword(text, i, 2))
     ) {
       const delimiter = text.substring(i, i + 2);
       const boldResult = parseDelimited(
@@ -126,7 +150,7 @@ function parseInline(text: string): string {
     }
 
     // Italic *text* or _text_
-    if (text[i] === "*" || text[i] === "_") {
+    if (text[i] === "*" || (text[i] === "_" && !isIntraword(text, i, 1))) {
       const delimiter = text[i];
       const italicResult = parseDelimited(
         text,

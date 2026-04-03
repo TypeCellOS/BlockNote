@@ -824,4 +824,107 @@ export const exportParseEqualityTestInstancesMarkdown: TestInstance<
     },
     executeTest: testExportParseEqualityMarkdown,
   },
+  {
+    testCase: {
+      name: "markdown/deeplyNestedLists",
+      content: [
+        {
+          type: "bulletListItem",
+          content: "Level 1 bullet",
+          children: [
+            {
+              type: "numberedListItem",
+              content: "Level 2 numbered",
+              children: [
+                {
+                  type: "bulletListItem",
+                  content: "Level 3 bullet",
+                  children: [
+                    {
+                      type: "numberedListItem",
+                      content: "Level 4 numbered",
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              type: "numberedListItem",
+              content: "Level 2 sibling",
+            },
+          ],
+        },
+        {
+          type: "bulletListItem",
+          content: "Another top-level bullet",
+          children: [
+            {
+              type: "bulletListItem",
+              content: "Child of second bullet",
+              children: [
+                {
+                  type: "checkListItem",
+                  content: "Deep checklist item",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityMarkdown,
+  },
+  {
+    testCase: {
+      name: "markdown/specialCharEscaping",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Literal *asterisks* and **double asterisks**",
+              styles: {},
+            },
+          ],
+        },
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Backticks ` in plain text and `` double ``",
+              styles: {},
+            },
+          ],
+        },
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Underscores _here_ and ~tildes~ and [brackets]",
+              styles: {},
+            },
+          ],
+        },
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Pipes | and backslash \\ and #hash at start",
+              styles: {},
+            },
+          ],
+        },
+        {
+          type: "codeBlock",
+          props: { language: "" },
+          content: "const x = `template ${literal}`;\nconst y = '```triple backticks```';",
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityMarkdown,
+  },
 ];
