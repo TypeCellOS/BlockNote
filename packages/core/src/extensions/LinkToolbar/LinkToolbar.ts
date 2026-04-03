@@ -1,5 +1,4 @@
-import { getMarkRange, posToDOMRect } from "@tiptap/core";
-import { getPmSchema } from "../../api/pmUtil.js";
+import { posToDOMRect } from "@tiptap/core";
 import { createExtension } from "../../editor/BlockNoteExtension.js";
 
 export const LinkToolbarExtension = createExtension(({ editor }) => {
@@ -14,47 +13,35 @@ export const LinkToolbarExtension = createExtension(({ editor }) => {
     return null;
   }
 
-  function getMarkAtPos(pos: number, markType: string) {
-    return editor.transact((tr) => {
-      const resolvedPos = tr.doc.resolve(pos);
-      const mark = resolvedPos
-        .marks()
-        .find((mark) => mark.type.name === markType);
+  function getLinkAtPos(pos: number) {
+    const linkData = editor.getLinkMarkAtPos(pos);
+    if (!linkData) {
+      return undefined;
+    }
 
-      if (!mark) {
-        return;
-      }
-
-      const markRange = getMarkRange(resolvedPos, mark.type);
-      if (!markRange) {
-        return;
-      }
-
-      return {
-        range: markRange,
-        mark,
-        get text() {
-          return tr.doc.textBetween(markRange.from, markRange.to);
-        },
-        get position() {
-          // to minimize re-renders, we convert to JSON, which is the same shape anyway
-          return posToDOMRect(
-            editor.prosemirrorView,
-            markRange.from,
-            markRange.to,
-          ).toJSON() as DOMRect;
-        },
-      };
-    });
+    return {
+      range: { from: linkData.from, to: linkData.to },
+      // Expose mark-like attrs for backward compat with React LinkToolbarController
+      mark: { attrs: { href: linkData.href } },
+      get text() {
+        return linkData.text;
+      },
+      get position() {
+        return posToDOMRect(
+          editor.prosemirrorView,
+          linkData.from,
+          linkData.to,
+        ).toJSON() as DOMRect;
+      },
+    };
   }
 
   function getLinkAtSelection() {
     return editor.transact((tr) => {
-      const selection = tr.selection;
-      if (!selection.empty) {
+      if (!tr.selection.empty) {
         return undefined;
       }
-      return getMarkAtPos(selection.anchor, "link");
+      return getLinkAtPos(tr.selection.anchor);
     });
   }
 
@@ -63,12 +50,14 @@ export const LinkToolbarExtension = createExtension(({ editor }) => {
 
     getLinkAtSelection,
     getLinkElementAtPos,
-    getMarkAtPos,
+    getMarkAtPos(pos: number, _markType: string) {
+      return getLinkAtPos(pos);
+    },
 
     getLinkAtElement(element: HTMLElement) {
       return editor.transact(() => {
         const posAtElement = editor.prosemirrorView.posAtDOM(element, 0) + 1;
-        return getMarkAtPos(posAtElement, "link");
+        return getLinkAtPos(posAtElement);
       });
     },
 
@@ -77,50 +66,11 @@ export const LinkToolbarExtension = createExtension(({ editor }) => {
       text: string,
       position = editor.transact((tr) => tr.selection.anchor),
     ) {
-      editor.transact((tr) => {
-        const pmSchema = getPmSchema(tr);
-        const { range } = getMarkAtPos(position + 1, "link") || {
-          range: {
-            from: tr.selection.from,
-            to: tr.selection.to,
-          },
-        };
-        if (!range) {
-          return;
-        }
-
-        const existingText = tr.doc.textBetween(range.from, range.to);
-        if (text !== existingText) {
-          tr.insertText(text, range.from, range.to);
-        }
-
-        tr.addMark(
-          range.from,
-          range.from + text.length,
-          pmSchema.mark("link", { href: url }),
-        );
-      });
-      editor.prosemirrorView.focus();
+      editor.editLink(url, text, position);
     },
-    deleteLink(position = editor.transact((tr) => tr.selection.anchor)) {
-      editor.transact((tr) => {
-        const pmSchema = getPmSchema(tr);
-        const { range } = getMarkAtPos(position + 1, "link") || {
-          range: {
-            from: tr.selection.from,
-            to: tr.selection.to,
-          },
-        };
-        if (!range) {
-          return;
-        }
 
-        tr.removeMark(range.from, range.to, pmSchema.marks["link"]).setMeta(
-          "preventAutolink",
-          true,
-        );
-      });
-      editor.prosemirrorView.focus();
+    deleteLink(position = editor.transact((tr) => tr.selection.anchor)) {
+      editor.deleteLink(position);
     },
   } as const;
 });

@@ -1,3 +1,4 @@
+import { getMarkRange } from "@tiptap/core";
 import { insertContentAt } from "../../api/blockManipulation/insertContentAt.js";
 import { inlineContentToNodes } from "../../api/nodeConversions/blockToNode.js";
 import {
@@ -12,7 +13,6 @@ import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
 } from "../../blocks/defaultBlocks.js";
-import { TextSelection } from "@tiptap/pm/state";
 import { UnreachableCaseError } from "../../util/typescript.js";
 import { BlockNoteEditor } from "../BlockNoteEditor.js";
 
@@ -147,12 +147,41 @@ export class StyleManager<
   }
 
   /**
+   * Find the link mark and its range at the given position.
+   * Returns undefined if there is no link at that position.
+   */
+  public getLinkMarkAtPos(pos: number) {
+    return this.editor.transact((tr) => {
+      const resolvedPos = tr.doc.resolve(pos);
+      const linkMark = resolvedPos
+        .marks()
+        .find((mark) => mark.type.name === "link");
+
+      if (!linkMark) {
+        return undefined;
+      }
+
+      const range = getMarkRange(resolvedPos, linkMark.type);
+      if (!range) {
+        return undefined;
+      }
+
+      return {
+        href: linkMark.attrs.href as string,
+        from: range.from,
+        to: range.to,
+        text: tr.doc.textBetween(range.from, range.to),
+      };
+    });
+  }
+
+  /**
    * Gets the URL of the last link in the current selection, or `undefined` if there are no links in the selection.
    */
   public getSelectedLinkUrl() {
-    return this.editor._tiptapEditor.getAttributes("link").href as
-      | string
-      | undefined;
+    return this.editor.transact((tr) => {
+      return this.getLinkMarkAtPos(tr.selection.from)?.href;
+    });
   }
 
   /**
@@ -164,24 +193,66 @@ export class StyleManager<
     if (url === "") {
       return;
     }
-    const mark = this.editor.pmSchema.mark("link", { href: url });
+
     this.editor.transact((tr) => {
       const { from, to } = tr.selection;
+      const linkMark = this.editor.pmSchema.mark("link", { href: url });
 
       if (text) {
-        const existingText = tr.doc.textBetween(from, to);
-        if (text !== existingText) {
-          tr.insertText(text, from, to);
-        }
-
-        tr.addMark(from, from + text.length, mark);
-      } else {
-        tr.setSelection(TextSelection.create(tr.doc, to)).addMark(
+        tr.insertText(text, from, to).addMark(
           from,
-          to,
-          mark,
+          from + text.length,
+          linkMark,
         );
+      } else {
+        tr.addMark(from, to, linkMark);
       }
     });
+  }
+
+  /**
+   * Updates the link at the given position with a new URL and text.
+   * @param url The new link URL.
+   * @param text The new text to display.
+   * @param position The position inside the link to edit. Defaults to the current selection anchor.
+   */
+  public editLink(
+    url: string,
+    text: string,
+    position = this.editor.transact((tr) => tr.selection.anchor),
+  ) {
+    this.editor.transact((tr) => {
+      const linkData = this.getLinkMarkAtPos(position + 1);
+      const { from, to } = linkData || {
+        from: tr.selection.from,
+        to: tr.selection.to,
+      };
+
+      const linkMark = this.editor.pmSchema.mark("link", { href: url });
+      tr.insertText(text, from, to).addMark(from, from + text.length, linkMark);
+    });
+    this.editor.prosemirrorView.focus();
+  }
+
+  /**
+   * Removes the link at the given position, keeping the text.
+   * @param position The position inside the link to remove. Defaults to the current selection anchor.
+   */
+  public deleteLink(
+    position = this.editor.transact((tr) => tr.selection.anchor),
+  ) {
+    this.editor.transact((tr) => {
+      const linkData = this.getLinkMarkAtPos(position + 1);
+      const { from, to } = linkData || {
+        from: tr.selection.from,
+        to: tr.selection.to,
+      };
+
+      tr.removeMark(from, to, this.editor.pmSchema.marks["link"]).setMeta(
+        "preventAutolink",
+        true,
+      );
+    });
+    this.editor.prosemirrorView.focus();
   }
 }

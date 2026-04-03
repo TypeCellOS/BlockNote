@@ -1136,6 +1136,32 @@ export class BlockNoteEditor<
   }
 
   /**
+   * Find the link mark and its range at the given position.
+   * Returns undefined if there is no link at that position.
+   */
+  public getLinkMarkAtPos(pos: number) {
+    return this._styleManager.getLinkMarkAtPos(pos);
+  }
+
+  /**
+   * Updates the link at the given position with a new URL and text.
+   * @param url The new link URL.
+   * @param text The new text to display.
+   * @param position The position inside the link to edit. Defaults to the current selection anchor.
+   */
+  public editLink(url: string, text: string, position?: number) {
+    this._styleManager.editLink(url, text, position);
+  }
+
+  /**
+   * Removes the link at the given position, keeping the text.
+   * @param position The position inside the link to remove. Defaults to the current selection anchor.
+   */
+  public deleteLink(position?: number) {
+    this._styleManager.deleteLink(position);
+  }
+
+  /**
    * Checks if the block containing the text cursor can be nested.
    */
   public canNestBlock() {

@@ -1,4 +1,4 @@
-import { Mark, Node, Schema, Slice } from "@tiptap/pm/model";
+import { Node, Schema, Slice } from "@tiptap/pm/model";
 import type { Block } from "../../blocks/defaultBlocks.js";
 import UniqueID from "../../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 import type {
@@ -136,205 +136,146 @@ export function contentNodeToTableContent<
 }
 
 /**
+ * Extract styles from a PM node's marks, separating link href from style marks.
+ */
+function extractMarks<S extends StyleSchema>(
+  node: Node,
+  styleSchema: S,
+): { styles: Styles<S>; href: string | undefined } {
+  const styles: Styles<S> = {};
+  let href: string | undefined;
+
+  for (const mark of node.marks) {
+    if (mark.type.name === "link") {
+      href = mark.attrs.href;
+    } else {
+      const config = styleSchema[mark.type.name];
+      if (!config) {
+        if (mark.type.spec.blocknoteIgnore) {
+          continue;
+        }
+        throw new Error(`style ${mark.type.name} not found in styleSchema`);
+      }
+      if (config.propSchema === "boolean") {
+        (styles as any)[config.type] = true;
+      } else if (config.propSchema === "string") {
+        (styles as any)[config.type] = mark.attrs.stringValue;
+      } else {
+        throw new UnreachableCaseError(config.propSchema);
+      }
+    }
+  }
+
+  return { styles, href };
+}
+
+// A flattened record representing one PM text node's contribution.
+type FlatTextRecord<S extends StyleSchema> = {
+  kind: "text";
+  text: string;
+  styles: Styles<S>;
+  href: string | undefined;
+};
+
+type FlatRecord<S extends StyleSchema> =
+  | FlatTextRecord<S>
+  | { kind: "custom"; node: Node };
+
+/**
  * Converts an internal (prosemirror) content node to a BlockNote InlineContent array.
+ *
+ * Two-pass approach:
+ *  1. Flatten each PM child node into a simple record (text + styles + optional href, or custom node)
+ *  2. Merge consecutive records with the same href/styles into StyledText or Link objects
  */
 export function contentNodeToInlineContent<
   I extends InlineContentSchema,
   S extends StyleSchema,
 >(contentNode: Node, inlineContentSchema: I, styleSchema: S) {
-  const content: InlineContent<any, S>[] = [];
-  let currentContent: InlineContent<any, S> | undefined = undefined;
+  // Pass 1: Flatten PM nodes into records
+  const records: FlatRecord<S>[] = [];
 
-  // Most of the logic below is for handling links because in ProseMirror links are marks
-  // while in BlockNote links are a type of inline content
   contentNode.content.forEach((node) => {
-    // hardBreak nodes do not have an InlineContent equivalent, instead we
-    // add a newline to the previous node.
     if (node.type.name === "hardBreak") {
-      if (currentContent) {
-        // Current content exists.
-        if (isStyledTextInlineContent(currentContent)) {
-          // Current content is text.
-          currentContent.text += "\n";
-        } else if (isLinkInlineContent(currentContent)) {
-          // Current content is a link.
-          currentContent.content[currentContent.content.length - 1].text +=
-            "\n";
-        } else {
-          throw new Error("unexpected");
-        }
+      // Append newline to the previous text record, or create one
+      const last = records[records.length - 1];
+      if (last && last.kind === "text") {
+        last.text += "\n";
       } else {
-        // Current content does not exist.
-        currentContent = {
-          type: "text",
+        records.push({
+          kind: "text",
           text: "\n",
-          styles: {},
-        };
+          styles: {} as Styles<S>,
+          href: undefined,
+        });
       }
-
       return;
     }
 
-    if (node.type.name !== "link" && node.type.name !== "text") {
-      if (!inlineContentSchema[node.type.name]) {
-        // eslint-disable-next-line no-console
-        console.warn("unrecognized inline content type", node.type.name);
-        return;
-      }
-      if (currentContent) {
-        content.push(currentContent);
-        currentContent = undefined;
-      }
-
-      content.push(
-        nodeToCustomInlineContent(node, inlineContentSchema, styleSchema),
-      );
-
+    if (node.type.name === "text") {
+      const { styles, href } = extractMarks(node, styleSchema);
+      records.push({ kind: "text", text: node.textContent, styles, href });
       return;
     }
 
-    const styles: Styles<S> = {};
-    let linkMark: Mark | undefined;
-
-    for (const mark of node.marks) {
-      if (mark.type.name === "link") {
-        linkMark = mark;
-      } else {
-        const config = styleSchema[mark.type.name];
-        if (!config) {
-          if (mark.type.spec.blocknoteIgnore) {
-            // at this point, we don't want to show certain marks (such as comments)
-            // in the BlockNote JSON output. These marks should be tagged with "blocknoteIgnore" in the spec
-            continue;
-          }
-          throw new Error(`style ${mark.type.name} not found in styleSchema`);
-        }
-        if (config.propSchema === "boolean") {
-          (styles as any)[config.type] = true;
-        } else if (config.propSchema === "string") {
-          (styles as any)[config.type] = mark.attrs.stringValue;
-        } else {
-          throw new UnreachableCaseError(config.propSchema);
-        }
-      }
+    // Custom inline content node
+    if (!inlineContentSchema[node.type.name]) {
+      // eslint-disable-next-line no-console
+      console.warn("unrecognized inline content type", node.type.name);
+      return;
     }
-
-    // Parsing links and text.
-    // Current content exists.
-    if (currentContent) {
-      // Current content is text.
-      if (isStyledTextInlineContent(currentContent)) {
-        if (!linkMark) {
-          // Node is text (same type as current content).
-          if (
-            JSON.stringify(currentContent.styles) === JSON.stringify(styles)
-          ) {
-            // Styles are the same.
-            currentContent.text += node.textContent;
-          } else {
-            // Styles are different.
-            content.push(currentContent);
-            currentContent = {
-              type: "text",
-              text: node.textContent,
-              styles,
-            };
-          }
-        } else {
-          // Node is a link (different type to current content).
-          content.push(currentContent);
-          currentContent = {
-            type: "link",
-            href: linkMark.attrs.href,
-            content: [
-              {
-                type: "text",
-                text: node.textContent,
-                styles,
-              },
-            ],
-          };
-        }
-      } else if (isLinkInlineContent(currentContent)) {
-        // Current content is a link.
-        if (linkMark) {
-          // Node is a link (same type as current content).
-          // Link URLs are the same.
-          if (currentContent.href === linkMark.attrs.href) {
-            // Styles are the same.
-            if (
-              JSON.stringify(
-                currentContent.content[currentContent.content.length - 1]
-                  .styles,
-              ) === JSON.stringify(styles)
-            ) {
-              currentContent.content[currentContent.content.length - 1].text +=
-                node.textContent;
-            } else {
-              // Styles are different.
-              currentContent.content.push({
-                type: "text",
-                text: node.textContent,
-                styles,
-              });
-            }
-          } else {
-            // Link URLs are different.
-            content.push(currentContent);
-            currentContent = {
-              type: "link",
-              href: linkMark.attrs.href,
-              content: [
-                {
-                  type: "text",
-                  text: node.textContent,
-                  styles,
-                },
-              ],
-            };
-          }
-        } else {
-          // Node is text (different type to current content).
-          content.push(currentContent);
-          currentContent = {
-            type: "text",
-            text: node.textContent,
-            styles,
-          };
-        }
-      } else {
-        // TODO
-      }
-    }
-    // Current content does not exist.
-    else {
-      // Node is text.
-      if (!linkMark) {
-        currentContent = {
-          type: "text",
-          text: node.textContent,
-          styles,
-        };
-      }
-      // Node is a link.
-      else {
-        currentContent = {
-          type: "link",
-          href: linkMark.attrs.href,
-          content: [
-            {
-              type: "text",
-              text: node.textContent,
-              styles,
-            },
-          ],
-        };
-      }
-    }
+    records.push({ kind: "custom", node });
   });
 
-  if (currentContent) {
-    content.push(currentContent);
+  // Pass 2: Merge consecutive text records into StyledText / Link
+  const content: InlineContent<any, S>[] = [];
+
+  for (const record of records) {
+    if (record.kind === "custom") {
+      content.push(
+        nodeToCustomInlineContent(record.node, inlineContentSchema, styleSchema),
+      );
+      continue;
+    }
+
+    const { text, styles, href } = record;
+    const stylesKey = JSON.stringify(styles);
+    const last = content[content.length - 1];
+
+    if (href !== undefined) {
+      // This text belongs to a link
+      if (
+        last &&
+        isLinkInlineContent(last) &&
+        last.href === href
+      ) {
+        // Same link — try to merge with the last StyledText inside it
+        const lastChild = last.content[last.content.length - 1];
+        if (JSON.stringify(lastChild.styles) === stylesKey) {
+          lastChild.text += text;
+        } else {
+          last.content.push({ type: "text", text, styles });
+        }
+      } else {
+        // New link
+        content.push({
+          type: "link",
+          href,
+          content: [{ type: "text", text, styles }],
+        });
+      }
+    } else {
+      // Plain text
+      if (
+        last &&
+        isStyledTextInlineContent(last) &&
+        JSON.stringify(last.styles) === stylesKey
+      ) {
+        last.text += text;
+      } else {
+        content.push({ type: "text", text, styles });
+      }
+    }
   }
 
   return content as InlineContent<I, S>[];

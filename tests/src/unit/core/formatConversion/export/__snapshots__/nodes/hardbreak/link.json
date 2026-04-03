@@ -15,7 +15,6 @@
             "marks": [
               {
                 "attrs": {
-                  "class": null,
                   "href": "https://www.website.com",
                   "rel": "noopener noreferrer nofollow",
                   "target": "_blank",
@@ -33,7 +32,6 @@
             "marks": [
               {
                 "attrs": {
-                  "class": null,
                   "href": "https://www.website.com",
                   "rel": "noopener noreferrer nofollow",
                   "target": "_blank",

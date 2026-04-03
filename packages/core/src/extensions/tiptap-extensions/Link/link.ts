@@ -14,16 +14,6 @@ const HTML_ATTRIBUTES = {
   rel: "noopener noreferrer nofollow",
 };
 
-declare module "@tiptap/core" {
-  interface Commands<ReturnType> {
-    link: {
-      setLink: (attributes: { href: string }) => ReturnType;
-      toggleLink: (attributes?: { href: string }) => ReturnType;
-      unsetLink: () => ReturnType;
-    };
-  }
-}
-
 // Pre-compiled regex for URI protocol validation.
 // Allows: http, https, ftp, ftps, mailto, tel, callto, sms, cid, xmpp
 const ALLOWED_URI_REGEX =
@@ -119,45 +109,6 @@ export const Link = Mark.create({
     }
 
     return ["a", mergeAttributes(HTML_ATTRIBUTES, HTMLAttributes), 0];
-  },
-
-  addCommands() {
-    return {
-      setLink:
-        (attributes) =>
-        ({ chain }) => {
-          if (!isAllowedUri(attributes.href)) {
-            return false;
-          }
-
-          return chain()
-            .setMark(this.name, attributes)
-            .setMeta("preventAutolink", true)
-            .run();
-        },
-
-      toggleLink:
-        (attributes) =>
-        ({ chain }) => {
-          if (attributes?.href && !isAllowedUri(attributes.href)) {
-            return false;
-          }
-
-          return chain()
-            .toggleMark(this.name, attributes, { extendEmptyMarkRange: true })
-            .setMeta("preventAutolink", true)
-            .run();
-        },
-
-      unsetLink:
-        () =>
-        ({ chain }) => {
-          return chain()
-            .unsetMark(this.name, { extendEmptyMarkRange: true })
-            .setMeta("preventAutolink", true)
-            .run();
-        },
-    };
   },
 
   addPasteRules() {
