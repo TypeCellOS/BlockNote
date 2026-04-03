@@ -37,8 +37,6 @@ const SPECIAL_HOSTS = new Set(["localhost"]);
 // Regex building blocks
 // ---------------------------------------------------------------------------
 
-// URL-safe characters in path/query/fragment (everything except whitespace)
-const URL_BODY = "[^\\s]";
 // Characters that are unlikely to be part of a URL when they appear at the end
 const TRAILING_PUNCT = /[.,;:!?"']+$/;
 

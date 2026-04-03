@@ -18,12 +18,6 @@ import {
 /**
  * Check if the provided tokens form a valid link structure, which can either be a single link token
  * or a link token surrounded by parentheses or square brackets.
- *
- * This ensures that only complete and valid text is hyperlinked, preventing cases where a valid
- * top-level domain (TLD) is immediately followed by an invalid character, like a number. For
- * example, with the `find` method from Linkify, entering `example.com1` would result in
- * `example.com` being linked and the trailing `1` left as plain text. By using the `tokenize`
- * method, we can perform more comprehensive validation on the input text.
  */
 function isValidLinkStructure(tokens: LinkMatch[]) {
   if (tokens.length === 1) {
@@ -42,36 +36,23 @@ type AutolinkOptions = {
   defaultProtocol: string;
   validate: (url: string) => boolean;
   shouldAutoLink: (url: string) => boolean;
-  protocols: Array<{ scheme: string; optionalSlashes?: boolean } | string>;
 };
 
 /**
- * This plugin allows you to automatically add links to your editor.
- * @param options The plugin options
- * @returns The plugin instance
+ * Plugin that automatically adds link marks when typing URLs.
  */
 export function autolink(options: AutolinkOptions): Plugin {
   return new Plugin({
     key: new PluginKey("autolink"),
     appendTransaction: (transactions, oldState, newState) => {
-      /**
-       * Does the transaction change the document?
-       */
       const docChanges =
         transactions.some((transaction) => transaction.docChanged) &&
         !oldState.doc.eq(newState.doc);
 
-      /**
-       * Prevent autolink if the transaction is not a document change or if the transaction has the meta `preventAutolink`.
-       */
       const preventAutolink = transactions.some((transaction) =>
         transaction.getMeta("preventAutolink")
       );
 
-      /**
-       * Prevent autolink if the transaction is not a document change
-       * or if the transaction has the meta `preventAutolink`.
-       */
       if (!docChanges || preventAutolink) {
         return;
       }
@@ -83,7 +64,6 @@ export function autolink(options: AutolinkOptions): Plugin {
       const changes = getChangedRanges(transform);
 
       changes.forEach(({ newRange }) => {
-        // Now let's see if we can add new links.
         const nodesInChangedRanges = findChildrenInRange(
           newState.doc,
           newRange,
@@ -94,7 +74,6 @@ export function autolink(options: AutolinkOptions): Plugin {
         let textBeforeWhitespace: string | undefined;
 
         if (nodesInChangedRanges.length > 1) {
-          // Grab the first node within the changed ranges (ex. the first of two paragraphs when hitting enter).
           textBlock = nodesInChangedRanges[0];
           textBeforeWhitespace = newState.doc.textBetween(
             textBlock.pos,
@@ -151,7 +130,6 @@ export function autolink(options: AutolinkOptions): Plugin {
 
           linksBeforeSpace
             .filter((link) => link.isLink)
-            // Calculate link position.
             .map((link) => ({
               ...link,
               from: lastWordAndBlockOffset + link.start + 1,
@@ -169,11 +147,8 @@ export function autolink(options: AutolinkOptions): Plugin {
                 newState.schema.marks.code
               );
             })
-            // validate link
             .filter((link) => options.validate(link.value))
-            // check whether should autolink
             .filter((link) => options.shouldAutoLink(link.value))
-            // Add link mark.
             .forEach((link) => {
               if (
                 getMarksBetween(link.from, link.to, newState.doc).some(

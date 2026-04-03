@@ -6,8 +6,6 @@ import { Plugin, PluginKey } from "@tiptap/pm/state";
 type ClickHandlerOptions = {
   type: MarkType;
   editor: Editor;
-  openOnClick?: boolean;
-  enableClickSelection?: boolean;
 };
 
 export function clickHandler(options: ClickHandlerOptions): Plugin {
@@ -48,27 +46,16 @@ export function clickHandler(options: ClickHandlerOptions): Plugin {
           return false;
         }
 
-        let handled = false;
+        const attrs = getAttributes(view.state, options.type.name);
+        const href = link.href ?? attrs.href;
+        const target = link.target ?? attrs.target;
 
-        if (options.enableClickSelection) {
-          const commandResult = options.editor.commands.extendMarkRange(
-            options.type.name
-          );
-          handled = commandResult;
+        if (href) {
+          window.open(href, target);
+          return true;
         }
 
-        if (options.openOnClick) {
-          const attrs = getAttributes(view.state, options.type.name);
-          const href = link.href ?? attrs.href;
-          const target = link.target ?? attrs.target;
-
-          if (href) {
-            window.open(href, target);
-            handled = true;
-          }
-        }
-
-        return handled;
+        return false;
       },
     },
   });

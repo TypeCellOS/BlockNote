@@ -1,14 +1,13 @@
 import type { Editor } from "@tiptap/core";
 import type { MarkType } from "@tiptap/pm/model";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
-import type { LinkOptions } from "../link.js";
 import { findLinks } from "./linkDetector.js";
 
 type PasteHandlerOptions = {
   editor: Editor;
   defaultProtocol: string;
   type: MarkType;
-  shouldAutoLink?: LinkOptions["shouldAutoLink"];
+  shouldAutoLink?: (url: string) => boolean;
 };
 
 export function pasteHandler(options: PasteHandlerOptions): Plugin {
