@@ -226,13 +226,26 @@ export const KeyboardShortcutsExtension = Extension.create<{
                 state.doc,
                 blockInfo.bnBlock.beforePos,
               );
-              if (!prevBlockInfo || !prevBlockInfo.isBlockContainer) {
+              if (!prevBlockInfo) {
+                return false;
+              }
+              const bottomNestedPrevBlockInfo = getBottomNestedBlockInfo(
+                state.doc,
+                prevBlockInfo,
+              );
+              if (!bottomNestedPrevBlockInfo.isBlockContainer) {
+                return false;
+              }
+              if (
+                !bottomNestedPrevBlockInfo ||
+                !bottomNestedPrevBlockInfo.isBlockContainer
+              ) {
                 return false;
               }
 
               let chainedCommands = chain();
 
-              // Moves the children of the current block to the previous one.
+              // Moves the children the current block.
               if (blockInfo.childContainer) {
                 chainedCommands.insertContentAt(
                   blockInfo.bnBlock.afterPos,
@@ -241,8 +254,8 @@ export const KeyboardShortcutsExtension = Extension.create<{
               }
 
               if (
-                prevBlockInfo.blockContent.node.type.spec.content ===
-                "tableRow+"
+                bottomNestedPrevBlockInfo.blockContent.node.type.spec
+                  .content === "tableRow+"
               ) {
                 const tableBlockEndPos = blockInfo.bnBlock.beforePos - 1;
                 const tableBlockContentEndPos = tableBlockEndPos - 1;
@@ -254,17 +267,18 @@ export const KeyboardShortcutsExtension = Extension.create<{
                   lastCellParagraphEndPos,
                 );
               } else if (
-                prevBlockInfo.blockContent.node.type.spec.content === ""
+                bottomNestedPrevBlockInfo.blockContent.node.type.spec
+                  .content === ""
               ) {
                 chainedCommands = chainedCommands.setNodeSelection(
-                  prevBlockInfo.blockContent.beforePos,
+                  bottomNestedPrevBlockInfo.blockContent.beforePos,
                 );
               } else {
-                const blockContentStartPos =
-                  prevBlockInfo.blockContent.afterPos - 1;
+                const blockContentEndPos =
+                  bottomNestedPrevBlockInfo.blockContent.afterPos - 1;
 
                 chainedCommands =
-                  chainedCommands.setTextSelection(blockContentStartPos);
+                  chainedCommands.setTextSelection(blockContentEndPos);
               }
 
               return chainedCommands

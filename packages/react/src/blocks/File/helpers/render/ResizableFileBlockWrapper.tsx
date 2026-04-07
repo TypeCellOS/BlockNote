@@ -178,22 +178,24 @@ export const ResizableFileBlockWrapper = (
         ref={ref}
       >
         {props.children}
-        {(hovered || resizeParams) && (
-          <>
-            <div
-              className={"bn-resize-handle"}
-              style={{ left: "4px" }}
-              onMouseDown={leftResizeHandleMouseDownHandler}
-              onTouchStart={leftResizeHandleMouseDownHandler}
-            />
-            <div
-              className={"bn-resize-handle"}
-              style={{ right: "4px" }}
-              onMouseDown={rightResizeHandleMouseDownHandler}
-              onTouchStart={rightResizeHandleMouseDownHandler}
-            />
-          </>
-        )}
+        <div
+          className={"bn-resize-handle"}
+          style={{
+            left: "4px",
+            display: hovered || resizeParams ? "initial" : "none",
+          }}
+          onMouseDown={leftResizeHandleMouseDownHandler}
+          onTouchStart={leftResizeHandleMouseDownHandler}
+        />
+        <div
+          className={"bn-resize-handle"}
+          style={{
+            right: "4px",
+            display: hovered || resizeParams ? "initial" : "none",
+          }}
+          onMouseDown={rightResizeHandleMouseDownHandler}
+          onTouchStart={rightResizeHandleMouseDownHandler}
+        />
         {/* This element ensures `mousemove` and `mouseup` events are captured
         while resizing when the cursor is over the wrapper content. This is
         because embeds are treated as separate HTML documents, so if the 

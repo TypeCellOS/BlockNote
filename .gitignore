@@ -40,3 +40,4 @@ release
 .nx/
 # Nightshift plan artifacts (keep out of version control)
 .nightshift-plan
+.claude

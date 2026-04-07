@@ -1,3 +1,13 @@
+## 0.47.3 (2026-03-25)
+
+### 🩹 Fixes
+
+- **core:** preserve whitespace edge cases but collapse html formatting newlines (BLO-1065) ([#2551](https://github.com/TypeCellOS/BlockNote/pull/2551), [#2230](https://github.com/TypeCellOS/BlockNote/issues/2230))
+
+### ❤️ Thank You
+
+- Yousef
+
 ## 0.47.2 (2026-03-20)
 
 ### 🩹 Fixes

@@ -1039,6 +1039,70 @@ console.log("Third Line")</code></pre>`,
     },
     executeTest: testParseHTML,
   },
+  {
+    testCase: {
+      name: "msWordPaste",
+      content: `<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns:m="http://schemas.microsoft.com/office/2004/12/omml"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 15">
+<meta name=Originator content="Microsoft Word 15">
+<style>
+<!--
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+\t{margin-top:0cm;
+\tmargin-right:0cm;
+\tmargin-bottom:8.0pt;
+\tmargin-left:0cm;
+\tline-height:107%;
+\tfont-size:11.0pt;
+\tfont-family:"Calibri",sans-serif;}
+-->
+</style>
+</head>
+
+<body lang=en-NL style='tab-interval:36.0pt;word-wrap:break-word'>
+<!--StartFragment-->
+
+<p class=MsoNormal><b><u><span lang=FR>Que se passe-t-il si je réponds tard à
+un message chat et que l'utilisateur n'est plus en ligne&nbsp;:<o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal><span lang=FR>Lorsque vous envoyez un message à un
+utilisateur dans une conversation chat, et qu'il est encore en ligne, il
+recevra le message sur sa bulle chatbot.<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-bottom:0cm;line-height:normal'><span lang=FR>Cependant
+S'il n'est plus en ligne, votre message sera envoyé par email si :<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-bottom:0cm;line-height:normal'><span lang=FR>.
+l'utilisateur n'a pas lu votre réponse après 2 minutes<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-bottom:0cm;line-height:normal'><span lang=FR>.
+l'utilisateur n'est plus présent sur votre site web<o:p></o:p></span></p>
+
+<p class=MsoNormal><span lang=FR><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span lang=FR>Cela se fait automatiquement donc, lorsque
+nous répondons par chat, si l'utilisateur n'est plus là, Crisp renvoie le
+message alors par email et le canal de discussion se transforme en canal de
+discussion email.<br>
+<br>
+Il est possible aussi de créer une conversation email directement le profil de
+l'utilisateur (bouton bleu en haut à droite de la conversation)<o:p></o:p></span></p>
+
+<!--EndFragment-->
+</body>
+
+</html>`,
+    },
+    executeTest: testParseHTML,
+  },
 ];
 
 export const parseTestInstancesMarkdown: TestInstance<
