@@ -23,7 +23,7 @@ export type BlockNoteContextValue<
    * floating UI elements (menus, toolbars) to escape `overflow: hidden`
    * ancestors. Has the same theming classes as the editor container.
    */
-  portalRoot?: HTMLDivElement | null;
+  portalRoot?: HTMLElement | null;
 };
 
 export const BlockNoteContext = createContext<

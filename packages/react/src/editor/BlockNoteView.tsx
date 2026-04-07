@@ -10,10 +10,10 @@ import React, {
   ReactNode,
   Ref,
   useCallback,
+  useEffect,
   useMemo,
   useState,
 } from "react";
-import { createPortal } from "react-dom";
 import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor.js";
 import { useEditorChange } from "../hooks/useEditorChange.js";
 import { useEditorSelectionChange } from "../hooks/useEditorSelectionChange.js";
@@ -92,7 +92,19 @@ export type BlockNoteViewProps<
 
   ref?: Ref<HTMLDivElement> | undefined; // only here to get types working with the generics. Regular form doesn't work
 
-  portalRef?: Ref<HTMLDivElement | undefined>;
+  /**
+   * An element to portal floating UI elements (menus, toolbars) into,
+   * escaping any `overflow: hidden` ancestors. The caller is responsible
+   * for theming the element (adding `bn-root`, color scheme classes, etc.).
+   *
+   * When omitted, a default portal container is created at `document.body` or the shadowRoot of the editor.
+   */
+  portalRoot?: HTMLElement;
+
+  /**
+   * A ref to the portal root element.
+   */
+  portalRootRef?: Ref<HTMLElement>;
 } & BlockNoteDefaultUIProps;
 
 function BlockNoteViewComponent<
@@ -125,10 +137,12 @@ function BlockNoteViewComponent<
     comments,
     autoFocus,
     renderEditor = true,
-    portalRef,
+    portalRoot,
+    portalRootRef,
     ...rest
   } = props;
 
+  console.log("render");
   // Used so other components (suggestion menu) can set
   // aria related props to the contenteditable div
   const [contentEditableProps, setContentEditableProps] =
@@ -152,25 +166,57 @@ function BlockNoteViewComponent<
     [editor],
   );
 
-  // Portal container at document.body level for floating UI elements (menus,
-  // toolbars) to render into, escaping any overflow:hidden ancestors. Gets the
-  // same theming classes as the editor container (bn-root + color scheme), but
-  // not bn-container (which is for layout targeting only).
-  const [portalRoot, setPortalRoot] = useState<HTMLDivElement | null>(null);
-
-  // Ref callback that both updates state (for context consumers) and syncs
-  // the portal element to the editor (for core extensions like SideMenu/UniqueID).
-  const internalPortalRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      editor.portalElement = node ?? undefined;
-      setPortalRoot(node);
-    },
-    [editor],
+  // Portal container for floating UI elements (menus, toolbars) to render
+  // into, escaping any overflow:hidden ancestors.
+  // When portalContainer is provided externally, use it directly.
+  // Otherwise, create an internal element eagerly (no state, no rerender).
+  const internalPortalRoot = useMemo(
+    () => portalRoot ?? document.createElement("div"),
+    [portalRoot],
   );
 
-  const mergedPortalRef = useMemo(
-    () => mergeRefs([internalPortalRef, portalRef]),
-    [internalPortalRef, portalRef],
+  useEffect(() => {
+    if (typeof portalRootRef === "function") {
+      portalRootRef(internalPortalRoot);
+    } else if (portalRootRef) {
+      portalRootRef.current = internalPortalRoot;
+    }
+  }, [portalRootRef, internalPortalRoot]);
+
+  // const portalRoot = portalContainer ?? internalPortalEl;
+
+  useEffect(() => {
+    editor.portalElement = internalPortalRoot;
+    internalPortalRoot.className = mergeCSSClasses(
+      "bn-root",
+      editorColorScheme,
+      className || "",
+    );
+    internalPortalRoot.setAttribute("data-color-scheme", editorColorScheme);
+  }, [internalPortalRoot, editorColorScheme, className]);
+
+  const internalRef = useCallback(
+    (element: HTMLDivElement | null) => {
+      if (portalRoot) {
+        // container was passed externally,
+        // we're not responsible for attaching it to a parent
+        return;
+      }
+      // container was created internally, attach it to the rootNode of the editor
+      const root = element?.getRootNode();
+      const container = root instanceof ShadowRoot ? root : document.body;
+      if (container) {
+        container.appendChild(internalPortalRoot);
+      } else {
+        internalPortalRoot.remove();
+      }
+    },
+    [portalRoot, internalPortalRoot],
+  );
+
+  const mergedRef = useMemo(
+    () => mergeRefs([ref, internalRef]),
+    [ref, internalRef],
   );
 
   // The BlockNoteContext makes sure the editor and some helper methods
@@ -181,9 +227,9 @@ function BlockNoteViewComponent<
       editor,
       setContentEditableProps,
       colorSchemePreference: editorColorScheme,
-      portalRoot,
+      portalRoot: internalPortalRoot,
     };
-  }, [existingContext, editor, editorColorScheme, portalRoot]);
+  }, [existingContext, editor, editorColorScheme, internalPortalRoot]);
 
   // We set defaultUIProps and editorProps on a different context, the BlockNoteViewContext.
   // This BlockNoteViewContext is used to render the editor and the default UI.
@@ -227,19 +273,11 @@ function BlockNoteViewComponent<
           className={className}
           renderEditor={renderEditor}
           editorColorScheme={editorColorScheme}
-          ref={ref}
+          ref={mergedRef}
           {...rest}
         >
           {children}
         </BlockNoteViewContainer>
-        {createPortal(
-          <div
-            ref={mergedPortalRef}
-            className={mergeCSSClasses("bn-root", editorColorScheme, className)}
-            data-color-scheme={editorColorScheme}
-          />,
-          document.body,
-        )}
       </BlockNoteViewContext.Provider>
     </BlockNoteContext.Provider>
   );

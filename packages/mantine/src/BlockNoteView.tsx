@@ -97,7 +97,7 @@ export const BlockNoteView = <
         theme={typeof theme === "object" ? undefined : theme}
         {...rest}
         ref={applyThemeVariables}
-        portalRef={portalRef}
+        portalRootRef={portalRef}
       />
     </ComponentsContext.Provider>
   );
