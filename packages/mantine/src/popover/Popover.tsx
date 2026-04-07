@@ -23,7 +23,6 @@ export const Popover = (
       opened={open}
       onChange={onOpenChange}
       position={position}
-      zIndex={portalRoot ? undefined : 10000}
     >
       {children}
     </MantinePopover>
