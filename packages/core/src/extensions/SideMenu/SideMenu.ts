@@ -778,5 +778,17 @@ export const SideMenuExtension = createExtension(({ editor }) => {
       view!.state!.show = false;
       view!.emitUpdate(view!.state!);
     },
+
+    /**
+     * Hides the side menu unless it is currently frozen (e.g. the drag
+     * handle menu is open). Used to dismiss the menu on scroll without
+     * interfering with open submenus.
+     */
+    hideMenuIfNotFrozen() {
+      if (!view!.menuFrozen && view!.state!.show) {
+        view!.state!.show = false;
+        view!.emitUpdate(view!.state!);
+      }
+    },
   } as const;
 });

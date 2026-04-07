@@ -908,6 +908,20 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
       view!.menuFrozen = false;
     },
 
+    /**
+     * Hides the table handles unless they are currently frozen (e.g. a
+     * handle menu is open). Used to dismiss the handles on scroll without
+     * interfering with open submenus.
+     */
+    hideHandlesIfNotFrozen() {
+      if (!view!.menuFrozen && view!.state?.show) {
+        view!.state.show = false;
+        view!.state.showAddOrRemoveRowsButton = false;
+        view!.state.showAddOrRemoveColumnsButton = false;
+        view!.emitUpdate();
+      }
+    },
+
     getCellsAtRowHandle(
       block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
       relativeRowIndex: RelativeCellIndices["row"],

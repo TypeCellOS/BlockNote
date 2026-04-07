@@ -4,6 +4,7 @@ import {
   FloatingPortal,
   useDismiss,
   useFloating,
+  UseFloatingOptions,
   useHover,
   useInteractions,
   useMergeRefs,
@@ -79,6 +80,31 @@ export function getMountedBoundingClientRectCache(
   };
 }
 
+/**
+ * Merges two `whileElementsMounted` handlers into one. Both run when elements
+ * mount, and both cleanup functions are called on unmount.
+ */
+function mergeWhileElementsMounted(
+  a: UseFloatingOptions["whileElementsMounted"],
+  b: UseFloatingOptions["whileElementsMounted"],
+): UseFloatingOptions["whileElementsMounted"] {
+  if (!a) {
+    return b;
+  }
+  if (!b) {
+    return a;
+  }
+
+  return (reference, floating, update) => {
+    const cleanupA = a(reference, floating, update);
+    const cleanupB = b(reference, floating, update);
+    return () => {
+      cleanupA?.();
+      cleanupB?.();
+    };
+  };
+}
+
 export const GenericPopover = (
   props: FloatingUIOptions & {
     reference?: GenericPopoverReference;
@@ -87,10 +113,17 @@ export const GenericPopover = (
 ) => {
   const blockNoteContext = useBlockNoteContext();
   const portalRoot = blockNoteContext?.portalRoot ?? undefined;
+  const {
+    whileElementsMounted: _whileElementsMounted,
+    ...restFloatingOptions
+  } = props.useFloatingOptions ?? {};
 
   const { refs, floatingStyles, context } = useFloating<HTMLDivElement>({
-    whileElementsMounted: autoUpdate,
-    ...props.useFloatingOptions,
+    whileElementsMounted: mergeWhileElementsMounted(
+      autoUpdate,
+      props.useFloatingOptions?.whileElementsMounted,
+    ),
+    ...restFloatingOptions,
   });
 
   const { isMounted, styles } = useTransitionStyles(
