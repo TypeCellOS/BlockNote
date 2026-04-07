@@ -791,7 +791,7 @@ export const SideMenuExtension = createExtension(({ editor }) => {
      * interfering with open submenus.
      */
     hideMenuIfNotFrozen() {
-      if (!view!.menuFrozen) {
+      if (!view!.menuFrozen && view!.state!.show) {
         view!.state!.show = false;
         view!.emitUpdate(view!.state!);
       }

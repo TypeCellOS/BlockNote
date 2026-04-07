@@ -41,6 +41,8 @@ export const SideMenuController = (props: {
         floating,
         () => {
           if (!initialized) {
+            // autoUpdate calls this function once when the floating element is mounted
+            // we don't want to hide the menu in that case
             initialized = true;
             return;
           }
