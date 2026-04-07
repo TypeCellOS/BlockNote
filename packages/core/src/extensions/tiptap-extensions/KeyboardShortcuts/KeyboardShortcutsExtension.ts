@@ -128,6 +128,13 @@ export const KeyboardShortcutsExtension = Extension.create<{
               return false;
             }
 
+            const selectionAtBlockStart =
+              state.selection.from ===
+              blockInfo.blockContent.beforePos + 1;
+            if (!selectionAtBlockStart) {
+              return false;
+            }
+
             const prevBlockInfo = getPrevBlockInfo(
               state.doc,
               blockInfo.bnBlock.beforePos,
