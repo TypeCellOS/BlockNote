@@ -10,7 +10,6 @@ import React, {
   ReactNode,
   Ref,
   useCallback,
-  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -35,6 +34,7 @@ import {
 import { Portals, getContentComponent } from "./EditorContent.js";
 import { ElementRenderer } from "./ElementRenderer.js";
 
+import { mergeRefs } from "../util/mergeRefs.js";
 import "./styles.css";
 
 const emptyFn = () => {
@@ -91,6 +91,8 @@ export type BlockNoteViewProps<
   children?: ReactNode;
 
   ref?: Ref<HTMLDivElement> | undefined; // only here to get types working with the generics. Regular form doesn't work
+
+  portalRef?: Ref<HTMLDivElement | undefined>;
 } & BlockNoteDefaultUIProps;
 
 function BlockNoteViewComponent<
@@ -123,6 +125,7 @@ function BlockNoteViewComponent<
     comments,
     autoFocus,
     renderEditor = true,
+    portalRef,
     ...rest
   } = props;
 
@@ -155,15 +158,20 @@ function BlockNoteViewComponent<
   // not bn-container (which is for layout targeting only).
   const [portalRoot, setPortalRoot] = useState<HTMLDivElement | null>(null);
 
-  // Register the portal element on the editor so core extensions (SideMenu,
-  // UniqueID) can identify portaled elements as belonging to this editor.
-  // (through editor.isWithinEditor)
-  useEffect(() => {
-    editor.portalElement = portalRoot ?? undefined;
-    return () => {
-      editor.portalElement = undefined;
-    };
-  }, [portalRoot, editor]);
+  // Ref callback that both updates state (for context consumers) and syncs
+  // the portal element to the editor (for core extensions like SideMenu/UniqueID).
+  const internalPortalRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      editor.portalElement = node ?? undefined;
+      setPortalRoot(node);
+    },
+    [editor],
+  );
+
+  const mergedPortalRef = useMemo(
+    () => mergeRefs([internalPortalRef, portalRef]),
+    [internalPortalRef, portalRef],
+  );
 
   // The BlockNoteContext makes sure the editor and some helper methods
   // are always available to nesteed compoenents
@@ -226,7 +234,7 @@ function BlockNoteViewComponent<
         </BlockNoteViewContainer>
         {createPortal(
           <div
-            ref={setPortalRoot}
+            ref={mergedPortalRef}
             className={mergeCSSClasses("bn-root", editorColorScheme, className)}
             data-color-scheme={editorColorScheme}
           />,

@@ -45,10 +45,16 @@ export const BlockNoteView = <
   const defaultColorScheme =
     existingContext?.colorSchemePreference || systemColorScheme;
 
-  const ref = useCallback(
+  const finalTheme =
+    typeof theme === "string"
+      ? theme
+      : defaultColorScheme !== "no-preference"
+        ? defaultColorScheme
+        : "light";
+
+  const applyThemeVariables = useCallback(
     (node: HTMLDivElement | null) => {
       if (!node) {
-        // todo: clean variables?
         return;
       }
 
@@ -70,14 +76,18 @@ export const BlockNoteView = <
     [defaultColorScheme, theme],
   );
 
-  const mantineContext = useContext(MantineContext);
+  const portalRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (!node) {
+        return;
+      }
+      node.setAttribute("data-mantine-color-scheme", finalTheme);
+      applyThemeVariables(node);
+    },
+    [applyThemeVariables, finalTheme],
+  );
 
-  const finalTheme =
-    typeof theme === "string"
-      ? theme
-      : defaultColorScheme !== "no-preference"
-        ? defaultColorScheme
-        : "light";
+  const mantineContext = useContext(MantineContext);
 
   const view = (
     <ComponentsContext.Provider value={components}>
@@ -86,7 +96,8 @@ export const BlockNoteView = <
         className={mergeCSSClasses("bn-mantine", className || "")}
         theme={typeof theme === "object" ? undefined : theme}
         {...rest}
-        ref={ref}
+        ref={applyThemeVariables}
+        portalRef={portalRef}
       />
     </ComponentsContext.Provider>
   );
