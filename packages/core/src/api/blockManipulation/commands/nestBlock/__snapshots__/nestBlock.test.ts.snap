@@ -1025,3 +1025,71 @@ exports[`unnestBlock / liftListItem > nestBlock > should nest a block under its 
   },
 ]
 `;
+
+exports[`unnestBlock / liftListItem > nestBlock > should nest into a sibling that already has children (nestedBefore) 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Child 1",
+            "type": "text",
+          },
+        ],
+        "id": "child1",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Block 2",
+            "type": "text",
+          },
+        ],
+        "id": "block2",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {},
+        "text": "Block 1",
+        "type": "text",
+      },
+    ],
+    "id": "block1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;

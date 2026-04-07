@@ -591,6 +591,33 @@ describe("unnestBlock / liftListItem", () => {
       expect(canNest).toBe(false);
     });
 
+    it("should nest into a sibling that already has children (nestedBefore)", () => {
+      const editor = withEditor([
+        {
+          id: "block1",
+          type: "paragraph",
+          content: "Block 1",
+          children: [
+            {
+              id: "child1",
+              type: "paragraph",
+              content: "Child 1",
+            },
+          ],
+        },
+        {
+          id: "block2",
+          type: "paragraph",
+          content: "Block 2",
+        },
+      ]);
+
+      editor.setTextCursorPosition("block2", "start");
+      editor.nestBlock();
+
+      expect(editor.document).toMatchSnapshot();
+    });
+
     it("nest then unnest should be a round trip", () => {
       const editor = withEditor([
         {
