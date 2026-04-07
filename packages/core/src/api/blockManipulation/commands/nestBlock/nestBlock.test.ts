@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
-import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import { afterAll, beforeAll } from "vitest";
+import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
+import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 
 /**
  * Custom test setup with a document designed to reproduce nesting/unnesting bugs.
@@ -650,8 +650,12 @@ describe("unnestBlock / liftListItem", () => {
 function flattenBlockIds(blocks: any[]): string[] {
   const ids: string[] = [];
   for (const block of blocks) {
-    if (block.id) ids.push(block.id);
-    if (block.children) ids.push(...flattenBlockIds(block.children));
+    if (block.id) {
+      ids.push(block.id);
+    }
+    if (block.children) {
+      ids.push(...flattenBlockIds(block.children));
+    }
   }
   return ids;
 }
