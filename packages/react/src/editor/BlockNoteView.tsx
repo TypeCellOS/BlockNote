@@ -142,7 +142,6 @@ function BlockNoteViewComponent<
     ...rest
   } = props;
 
-  console.log("render");
   // Used so other components (suggestion menu) can set
   // aria related props to the contenteditable div
   const [contentEditableProps, setContentEditableProps] =
