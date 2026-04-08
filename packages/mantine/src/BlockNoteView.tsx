@@ -11,7 +11,7 @@ import {
   usePrefersColorScheme,
 } from "@blocknote/react";
 import { MantineContext, MantineProvider } from "@mantine/core";
-import React, { useCallback, useContext } from "react";
+import React, { useCallback, useContext, useEffect } from "react";
 import {
   applyBlockNoteCSSVariablesFromTheme,
   removeBlockNoteCSSVariables,
@@ -38,7 +38,7 @@ export const BlockNoteView = <
         };
   },
 ) => {
-  const { className, theme, ...rest } = props;
+  const { className, theme, editor, ...rest } = props;
 
   const existingContext = useBlockNoteContext();
   const systemColorScheme = usePrefersColorScheme();
@@ -53,7 +53,7 @@ export const BlockNoteView = <
         : "light";
 
   const applyThemeVariables = useCallback(
-    (node: HTMLDivElement | null) => {
+    (node: HTMLElement | null) => {
       if (!node) {
         return;
       }
@@ -76,16 +76,13 @@ export const BlockNoteView = <
     [defaultColorScheme, theme],
   );
 
-  const portalRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      if (!node) {
-        return;
-      }
-      node.setAttribute("data-mantine-color-scheme", finalTheme);
-      applyThemeVariables(node);
-    },
-    [applyThemeVariables, finalTheme],
-  );
+  useEffect(() => {
+    if (!editor.portalElement) {
+      throw new Error("Portal element not found");
+    }
+    editor.portalElement.setAttribute("data-mantine-color-scheme", finalTheme);
+    applyThemeVariables(editor.portalElement);
+  }, [editor, applyThemeVariables, finalTheme]);
 
   const mantineContext = useContext(MantineContext);
 
@@ -95,9 +92,9 @@ export const BlockNoteView = <
         data-mantine-color-scheme={finalTheme}
         className={mergeCSSClasses("bn-mantine", className || "")}
         theme={typeof theme === "object" ? undefined : theme}
+        editor={editor}
         {...rest}
         ref={applyThemeVariables}
-        portalRootRef={portalRef}
       />
     </ComponentsContext.Provider>
   );

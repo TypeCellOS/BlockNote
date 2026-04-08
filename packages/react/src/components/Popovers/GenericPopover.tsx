@@ -13,7 +13,7 @@ import {
 } from "@floating-ui/react";
 import { HTMLAttributes, ReactNode, useEffect, useRef } from "react";
 
-import { useBlockNoteContext } from "../../editor/BlockNoteContext.js";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { FloatingUIOptions } from "./FloatingUIOptions.js";
 
 export type GenericPopoverReference =
@@ -111,8 +111,11 @@ export const GenericPopover = (
     children: ReactNode;
   },
 ) => {
-  const blockNoteContext = useBlockNoteContext();
-  const portalRoot = blockNoteContext?.portalRoot ?? undefined;
+  const editor = useBlockNoteEditor();
+  const portalRoot = editor?.portalElement;
+  if (!portalRoot) {
+    throw new Error("Portal element not found");
+  }
   const {
     whileElementsMounted: _whileElementsMounted,
     ...restFloatingOptions

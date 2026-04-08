@@ -18,12 +18,6 @@ export type BlockNoteContextValue<
   setContentEditableProps?: ReturnType<typeof useState<Record<string, any>>>[1]; // copy type of setXXX from useState
   editor?: BlockNoteEditor<BSchema, ISchema, SSchema>;
   colorSchemePreference?: "light" | "dark";
-  /**
-   * A portal container element rendered at `document.body` level, used by
-   * floating UI elements (menus, toolbars) to escape `overflow: hidden`
-   * ancestors. Has the same theming classes as the editor container.
-   */
-  portalRoot?: HTMLElement | null;
 };
 
 export const BlockNoteContext = createContext<

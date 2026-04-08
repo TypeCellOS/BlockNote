@@ -34,7 +34,6 @@ import {
 import { Portals, getContentComponent } from "./EditorContent.js";
 import { ElementRenderer } from "./ElementRenderer.js";
 
-import { mergeRefs } from "../util/mergeRefs.js";
 import "./styles.css";
 
 const emptyFn = () => {
@@ -91,20 +90,6 @@ export type BlockNoteViewProps<
   children?: ReactNode;
 
   ref?: Ref<HTMLDivElement> | undefined; // only here to get types working with the generics. Regular form doesn't work
-
-  /**
-   * An element to portal floating UI elements (menus, toolbars) into,
-   * escaping any `overflow: hidden` ancestors. The caller is responsible
-   * for theming the element (adding `bn-root`, color scheme classes, etc.).
-   *
-   * When omitted, a default portal container is created at `document.body` or the shadowRoot of the editor.
-   */
-  portalRoot?: HTMLElement;
-
-  /**
-   * A ref to the portal root element.
-   */
-  portalRootRef?: Ref<HTMLElement>;
 } & BlockNoteDefaultUIProps;
 
 function BlockNoteViewComponent<
@@ -137,8 +122,6 @@ function BlockNoteViewComponent<
     comments,
     autoFocus,
     renderEditor = true,
-    portalRoot,
-    portalRootRef,
     ...rest
   } = props;
 
@@ -165,58 +148,17 @@ function BlockNoteViewComponent<
     [editor],
   );
 
-  // Portal container for floating UI elements (menus, toolbars) to render
-  // into, escaping any overflow:hidden ancestors.
-  // When portalContainer is provided externally, use it directly.
-  // Otherwise, create an internal element eagerly (no state, no rerender).
-  const internalPortalRoot = useMemo(
-    () => portalRoot ?? document.createElement("div"),
-    [portalRoot],
-  );
-
   useEffect(() => {
-    if (typeof portalRootRef === "function") {
-      portalRootRef(internalPortalRoot);
-    } else if (portalRootRef) {
-      portalRootRef.current = internalPortalRoot;
+    if (!editor.portalElement) {
+      throw new Error("Portal element not found");
     }
-  }, [portalRootRef, internalPortalRoot]);
-
-  // const portalRoot = portalContainer ?? internalPortalEl;
-
-  useEffect(() => {
-    editor.portalElement = internalPortalRoot;
-    internalPortalRoot.className = mergeCSSClasses(
+    editor.portalElement.className = mergeCSSClasses(
       "bn-root",
       editorColorScheme,
       className || "",
     );
-    internalPortalRoot.setAttribute("data-color-scheme", editorColorScheme);
-  }, [internalPortalRoot, editorColorScheme, className]);
-
-  const internalRef = useCallback(
-    (element: HTMLDivElement | null) => {
-      if (portalRoot) {
-        // container was passed externally,
-        // we're not responsible for attaching it to a parent
-        return;
-      }
-      // container was created internally, attach it to the rootNode of the editor
-      const root = element?.getRootNode();
-      const container = root instanceof ShadowRoot ? root : document.body;
-      if (container) {
-        container.appendChild(internalPortalRoot);
-      } else {
-        internalPortalRoot.remove();
-      }
-    },
-    [portalRoot, internalPortalRoot],
-  );
-
-  const mergedRef = useMemo(
-    () => mergeRefs([ref, internalRef]),
-    [ref, internalRef],
-  );
+    editor.portalElement.setAttribute("data-color-scheme", editorColorScheme);
+  }, [editor, editorColorScheme, className]);
 
   // The BlockNoteContext makes sure the editor and some helper methods
   // are always available to nesteed compoenents
@@ -226,9 +168,8 @@ function BlockNoteViewComponent<
       editor,
       setContentEditableProps,
       colorSchemePreference: editorColorScheme,
-      portalRoot: internalPortalRoot,
     };
-  }, [existingContext, editor, editorColorScheme, internalPortalRoot]);
+  }, [existingContext, editor, editorColorScheme]);
 
   // We set defaultUIProps and editorProps on a different context, the BlockNoteViewContext.
   // This BlockNoteViewContext is used to render the editor and the default UI.
@@ -272,7 +213,7 @@ function BlockNoteViewComponent<
           className={className}
           renderEditor={renderEditor}
           editorColorScheme={editorColorScheme}
-          ref={mergedRef}
+          ref={ref}
           {...rest}
         >
           {children}
