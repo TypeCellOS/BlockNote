@@ -681,7 +681,7 @@ export class BlockNoteEditor<
    */
   public mount = (element: HTMLElement) => {
     const root = element.getRootNode();
-    if (root instanceof ShadowRoot) {
+    if (typeof ShadowRoot !== "undefined" && root instanceof ShadowRoot) {
       root.appendChild(this.portalElement);
     } else {
       document.body.appendChild(this.portalElement);
