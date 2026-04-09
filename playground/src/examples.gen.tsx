@@ -1527,11 +1527,11 @@
             "Collaboration"
           ],
           "dependencies": {
-            "@liveblocks/client": "3.7.1-tiptap3",
-            "@liveblocks/react": "3.7.1-tiptap3",
-            "@liveblocks/react-blocknote": "3.7.1-tiptap3",
-            "@liveblocks/react-tiptap": "3.7.1-tiptap3",
-            "@liveblocks/react-ui": "3.7.1-tiptap3",
+            "@liveblocks/client": "^3.17.0",
+            "@liveblocks/react": "^3.17.0",
+            "@liveblocks/react-blocknote": "^3.17.0",
+            "@liveblocks/react-tiptap": "^3.17.0",
+            "@liveblocks/react-ui": "^3.17.0",
             "yjs": "^13.6.27"
           } as any
         },
