@@ -24,10 +24,17 @@
     "build:site": {
       "cache": true,
       "dependsOn": ["^build"],
-      "inputs": ["{workspaceRoot}/examples/**/*", "{projectRoot}/**/*"],
+      "inputs": [
+        "{workspaceRoot}/examples/**/*",
+        "{projectRoot}/**/*",
+        "!{projectRoot}/sqlite.db",
+        "!{projectRoot}/.env*",
+        "!{projectRoot}/validate-links.mjs",
+        "!{projectRoot}/coverage/**/*"
+      ],
       "outputs": [
-        "{projectRoot}/dist",
         "{projectRoot}/.next",
+        "!{projectRoot}/.next/cache",
         "{projectRoot}/.source",
         "{projectRoot}/content/examples",
         "{projectRoot}/components/example/generated"
@@ -35,7 +42,7 @@
     },
     "test": {
       "cache": true,
-      "dependsOn": ["^test"]
+      "dependsOn": ["build", "^build"]
     },
     "lint": {
       "cache": true,
@@ -43,7 +50,8 @@
     },
     "e2e": {
       "cache": true,
-      "dependsOn": ["^e2e"]
+      "dependsOn": ["build", "^build"]
     }
-  }
+  },
+  "analytics": false
 }
