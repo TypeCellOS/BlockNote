@@ -16,7 +16,13 @@ export default defineConfig((conf) => ({
   resolve: {
     alias:
       conf.command === "build"
-        ? ({} as Record<string, string>)
+        ? ({
+            // Vite 8's postcss-import can't resolve bare package specifiers in CSS @import
+            "@blocknote/core/style.css": path.resolve(
+              __dirname,
+              "../core/dist/style.css"
+            ),
+          } as Record<string, string>)
         : ({
             // load live from sources with live reload working
             "@blocknote/core": path.resolve(__dirname, "../core/src/"),
@@ -29,6 +35,7 @@ export default defineConfig((conf) => ({
         "blocknote-react": path.resolve(__dirname, "src/index.ts"),
       },
       name: "blocknote-react",
+      cssFileName: "style",
       formats: ["es", "cjs"],
       fileName: (format, entryName) =>
         format === "es" ? `${entryName}.js` : `${entryName}.cjs`,
@@ -42,7 +49,7 @@ export default defineConfig((conf) => ({
             ...pkg.dependencies,
             ...((pkg as any).peerDependencies || {}),
             ...pkg.devDependencies,
-          }).includes(source)
+          }).some((dep) => source === dep || source.startsWith(dep + "/"))
         ) {
           return true;
         }
@@ -63,7 +70,6 @@ export default defineConfig((conf) => ({
           react: "React",
           "react-dom": "ReactDOM",
         },
-        interop: "compat", // https://rollupjs.org/migration/#changed-defaults
       },
     },
   },

@@ -52,7 +52,7 @@ export default defineConfig((conf) => ({
             ...pkg.dependencies,
             ...((pkg as any).peerDependencies || {}),
             ...pkg.devDependencies,
-          }).includes(source)
+          }).some((dep) => source === dep || source.startsWith(dep + "/"))
         ) {
           return true;
         }
@@ -70,7 +70,6 @@ export default defineConfig((conf) => ({
         // Provide global variables to use in the UMD build
         // for externalized deps
         globals: {},
-        interop: "compat", // https://rollupjs.org/migration/#changed-defaults
       },
     },
   },

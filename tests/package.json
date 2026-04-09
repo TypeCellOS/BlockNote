@@ -30,9 +30,9 @@
     "react-dom": "^19.2.3",
     "react-icons": "^5.5.0",
     "rimraf": "^5.0.10",
-    "vite": "^5.4.20",
+    "vite": "^8.0.3",
     "vite-plugin-eslint": "^1.8.1",
-    "vitest": "^2.1.9"
+    "vitest": "^4.1.2"
   },
   "eslintConfig": {
     "extends": [
