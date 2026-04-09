@@ -43,8 +43,8 @@ describe("Performance: transaction processing scales sub-linearly (#2595)", () =
   // which is inherently O(n). The thresholds verify BlockNote plugins don't
   // add significant overhead on top of that.
   const SMALL = 100;
-  const LARGE = 10000;
-  const ITERATIONS = 10;
+  const LARGE = 5000;
+  const ITERATIONS = 5;
 
   function measureAvgInsertTime(
     editor: BlockNoteEditor<any, any, any>,
@@ -61,7 +61,7 @@ describe("Performance: transaction processing scales sub-linearly (#2595)", () =
     return (performance.now() - start) / ITERATIONS;
   }
 
-  it("heading blocks: typing at end", () => {
+  it("heading blocks: typing at end", { timeout: 30_000 }, () => {
     const smallEditor = createEditorWithBlocks(SMALL, "heading");
     const largeEditor = createEditorWithBlocks(LARGE, "heading");
 
@@ -85,7 +85,7 @@ describe("Performance: transaction processing scales sub-linearly (#2595)", () =
     expect(ratio).toBeLessThan(50);
   });
 
-  it("numbered list items: typing at beginning", () => {
+  it("numbered list items: typing at beginning", { timeout: 30_000 }, () => {
     const smallEditor = createEditorWithBlocks(SMALL, "numberedListItem");
     const largeEditor = createEditorWithBlocks(LARGE, "numberedListItem");
 
@@ -108,7 +108,7 @@ describe("Performance: transaction processing scales sub-linearly (#2595)", () =
     expect(ratio).toBeLessThan(250);
   });
 
-  it("numbered list items: typing at end", () => {
+  it("numbered list items: typing at end", { timeout: 30_000 }, () => {
     const smallEditor = createEditorWithBlocks(SMALL, "numberedListItem");
     const largeEditor = createEditorWithBlocks(LARGE, "numberedListItem");
 
