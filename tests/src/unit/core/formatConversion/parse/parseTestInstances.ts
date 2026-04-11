@@ -1747,6 +1747,16 @@ still same paragraph`,
     },
     executeTest: testParseMarkdown,
   },
+  // Blockquote with lazy continuation (no > on continuation lines)
+  {
+    testCase: {
+      name: "blockquoteLazyContinuation",
+      content: `> This is a quote
+that continues here
+and here too`,
+    },
+    executeTest: testParseMarkdown,
+  },
   // Complex document
   {
     testCase: {

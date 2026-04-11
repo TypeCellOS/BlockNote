@@ -39,6 +39,130 @@ function isIntraword(text: string, i: number, delimLen: number): boolean {
 
 // ─── Inline Parser ───────────────────────────────────────────────────────────
 
+type InlineTokenizer = (
+  text: string,
+  i: number
+) => { html: string; end: number } | null;
+
+function tryBackslashEscape(
+  text: string,
+  i: number
+): { html: string; end: number } | null {
+  if (text[i] !== "\\" || i + 1 >= text.length) {return null;}
+  const next = text[i + 1];
+  // Hard line break: backslash at end of line
+  if (next === "\n") {
+    return { html: "<br>\n", end: i + 2 };
+  }
+  // Escapable characters
+  if ("\\`*_{}[]()#+-.!~|>".includes(next)) {
+    return { html: escapeHtml(next), end: i + 2 };
+  }
+  return null;
+}
+
+function tryInlineCode(
+  text: string,
+  i: number
+): { html: string; end: number } | null {
+  if (text[i] !== "`") {return null;}
+  return parseInlineCode(text, i);
+}
+
+function tryImage(
+  text: string,
+  i: number
+): { html: string; end: number } | null {
+  if (text[i] !== "!" || text[i + 1] !== "[") {return null;}
+  return parseImage(text, i);
+}
+
+function tryLink(
+  text: string,
+  i: number
+): { html: string; end: number } | null {
+  if (text[i] !== "[") {return null;}
+  return parseLink(text, i);
+}
+
+function tryStrikethrough(
+  text: string,
+  i: number
+): { html: string; end: number } | null {
+  if (text[i] !== "~" || text[i + 1] !== "~") {return null;}
+  return parseDelimited(text, i, "~~", "<del>", "</del>");
+}
+
+function tryBoldItalic(
+  text: string,
+  i: number
+): { html: string; end: number } | null {
+  if (
+    (text[i] === "*" && text[i + 1] === "*" && text[i + 2] === "*") ||
+    (text[i] === "_" &&
+      text[i + 1] === "_" &&
+      text[i + 2] === "_" &&
+      !isIntraword(text, i, 3))
+  ) {
+    const delimiter = text.substring(i, i + 3);
+    return parseDelimited(text, i, delimiter, "<strong><em>", "</em></strong>");
+  }
+  return null;
+}
+
+function tryBold(
+  text: string,
+  i: number
+): { html: string; end: number } | null {
+  if (
+    (text[i] === "*" && text[i + 1] === "*") ||
+    (text[i] === "_" && text[i + 1] === "_" && !isIntraword(text, i, 2))
+  ) {
+    const delimiter = text.substring(i, i + 2);
+    return parseDelimited(text, i, delimiter, "<strong>", "</strong>");
+  }
+  return null;
+}
+
+function tryItalic(
+  text: string,
+  i: number
+): { html: string; end: number } | null {
+  if (text[i] === "*" || (text[i] === "_" && !isIntraword(text, i, 1))) {
+    return parseDelimited(text, i, text[i], "<em>", "</em>");
+  }
+  return null;
+}
+
+function trySoftBreak(
+  text: string,
+  i: number
+): { html: string; end: number } | null {
+  if (text[i] === "\n") {
+    return { html: "\n", end: i + 1 };
+  }
+  return null;
+}
+
+/** Characters that can start an inline syntax token. */
+const SPECIAL_CHARS = new Set("\\`![~*_\n");
+
+/**
+ * Ordered array of inline tokenizers, tried in priority order.
+ * The first match wins.
+ */
+const inlineTokenizers: InlineTokenizer[] = [
+  tryBackslashEscape,
+  tryInlineCode,
+  tryImage,
+  tryLink,
+  tryStrikethrough,
+  tryBoldItalic, // *** / ___
+  tryBold, // ** / __
+  tryItalic, // * / _
+  trySoftBreak,
+];
+
 /**
  * Parse inline markdown syntax and return HTML.
  * Handles: bold, italic, bold+italic, strikethrough, inline code,
@@ -49,133 +173,29 @@ function parseInline(text: string): string {
   let i = 0;
 
   while (i < text.length) {
-    // Backslash escape
-    if (text[i] === "\\" && i + 1 < text.length) {
-      const next = text[i + 1];
-      // Hard line break: backslash at end of line
-      if (next === "\n") {
-        result += "<br>\n";
-        i += 2;
-        continue;
-      }
-      // Escapable characters
-      if ("\\`*_{}[]()#+-.!~|>".includes(next)) {
-        result += escapeHtml(next);
-        i += 2;
-        continue;
+    // Try each tokenizer in priority order
+    let matched = false;
+    if (SPECIAL_CHARS.has(text[i])) {
+      for (const tokenizer of inlineTokenizers) {
+        const r = tokenizer(text, i);
+        if (r) {
+          result += r.html;
+          i = r.end;
+          matched = true;
+          break;
+        }
       }
     }
 
-    // Inline code (highest priority for inline)
-    if (text[i] === "`") {
-      const codeResult = parseInlineCode(text, i);
-      if (codeResult) {
-        result += codeResult.html;
-        i = codeResult.end;
-        continue;
-      }
-    }
-
-    // Images ![alt](url)
-    if (text[i] === "!" && text[i + 1] === "[") {
-      const imgResult = parseImage(text, i);
-      if (imgResult) {
-        result += imgResult.html;
-        i = imgResult.end;
-        continue;
-      }
-    }
-
-    // Links [text](url)
-    if (text[i] === "[") {
-      const linkResult = parseLink(text, i);
-      if (linkResult) {
-        result += linkResult.html;
-        i = linkResult.end;
-        continue;
-      }
-    }
-
-    // Strikethrough ~~text~~
-    if (text[i] === "~" && text[i + 1] === "~") {
-      const strikeResult = parseDelimited(text, i, "~~", "<del>", "</del>");
-      if (strikeResult) {
-        result += strikeResult.html;
-        i = strikeResult.end;
-        continue;
-      }
-    }
-
-    // Bold+Italic ***text*** or ___text___
-    if (
-      (text[i] === "*" && text[i + 1] === "*" && text[i + 2] === "*") ||
-      (text[i] === "_" &&
-        text[i + 1] === "_" &&
-        text[i + 2] === "_" &&
-        !isIntraword(text, i, 3))
-    ) {
-      const delimiter = text.substring(i, i + 3);
-      const tripleResult = parseDelimited(
-        text,
-        i,
-        delimiter,
-        "<strong><em>",
-        "</em></strong>"
-      );
-      if (tripleResult) {
-        result += tripleResult.html;
-        i = tripleResult.end;
-        continue;
-      }
-    }
-
-    // Bold **text** or __text__
-    if (
-      (text[i] === "*" && text[i + 1] === "*") ||
-      (text[i] === "_" && text[i + 1] === "_" && !isIntraword(text, i, 2))
-    ) {
-      const delimiter = text.substring(i, i + 2);
-      const boldResult = parseDelimited(
-        text,
-        i,
-        delimiter,
-        "<strong>",
-        "</strong>"
-      );
-      if (boldResult) {
-        result += boldResult.html;
-        i = boldResult.end;
-        continue;
-      }
-    }
-
-    // Italic *text* or _text_
-    if (text[i] === "*" || (text[i] === "_" && !isIntraword(text, i, 1))) {
-      const delimiter = text[i];
-      const italicResult = parseDelimited(
-        text,
-        i,
-        delimiter,
-        "<em>",
-        "</em>"
-      );
-      if (italicResult) {
-        result += italicResult.html;
-        i = italicResult.end;
-        continue;
-      }
-    }
-
-    // Newline within paragraph (soft break)
-    if (text[i] === "\n") {
-      result += "\n";
+    if (!matched) {
+      // Batch consecutive plain-text characters and escape once
+      const runStart = i;
       i++;
-      continue;
+      while (i < text.length && !SPECIAL_CHARS.has(text[i])) {
+        i++;
+      }
+      result += escapeHtml(text.substring(runStart, i));
     }
-
-    // Regular character
-    result += escapeHtml(text[i]);
-    i++;
   }
 
   return result;
@@ -355,11 +375,11 @@ function parseDelimited(
       }
 
       // For single-char delimiters, don't accept closer if it's part of a
-      // multi-char run (e.g., don't treat second * in ** as italic closer)
+      // multi-char run (e.g., don't treat the * in ** as italic closer)
       if (
         len === 1 &&
-        j > 0 &&
-        text[j - 1] === delimiter[0]
+        ((j > 0 && text[j - 1] === delimiter[0]) ||
+          (j + len < text.length && text[j + len] === delimiter[0]))
       ) {
         j++;
         continue;
@@ -557,6 +577,21 @@ function tokenize(markdown: string): Token[] {
       while (i < lines.length && /^\s{0,3}>/.test(lines[i])) {
         // Remove the > prefix
         quoteLines.push(lines[i].replace(/^\s{0,3}>\s?/, ""));
+        i++;
+      }
+      // Lazy continuation: collect non-blank lines that don't start a new
+      // block-level element (per CommonMark spec)
+      while (i < lines.length) {
+        const cur = lines[i];
+        if (cur.trim() === "") {break;}
+        // Stop on block-level markers
+        if (/^\s{0,3}>/.test(cur)) {break;} // new blockquote
+        if (/^(#{1,6})\s/.test(cur)) {break;} // heading
+        if (/^(`{3,}|~{3,})/.test(cur)) {break;} // code fence
+        if (/^(\s{0,3})([-*_])\s*(\2\s*){2,}$/.test(cur)) {break;} // hr
+        if (/^\s*([-*+]|\d+[.)])\s+/.test(cur)) {break;} // list item
+        if (/^\s*\|(.+\|)+\s*$/.test(cur)) {break;} // table
+        quoteLines.push(cur);
         i++;
       }
       tokens.push({
