@@ -250,9 +250,10 @@ function parseImage(
   start: number
 ): { html: string; end: number } | null {
   // ![alt](url) or ![alt](url "title")
-  const altStart = start + 2; // after ![
-  const altEnd = text.indexOf("]", altStart);
+  // Use balanced bracket matching to handle nested/escaped brackets in alt text
+  const altEnd = findClosingBracket(text, start + 1);
   if (altEnd === -1) {return null;}
+  const altStart = start + 2; // after ![
 
   if (text[altEnd + 1] !== "(") {return null;}
 
@@ -303,7 +304,7 @@ function parseLink(
   if (parenEnd === -1) {return null;}
 
   const linkText = text.substring(textStart, textEnd);
-  const url = text.substring(urlStart, parenEnd).trim();
+  const url = extractDestination(text.substring(urlStart, parenEnd).trim());
 
   return {
     html: `<a href="${escapeHtml(url)}">${parseInline(linkText)}</a>`,
@@ -341,6 +342,35 @@ function findClosingParen(text: string, openPos: number): number {
     }
   }
   return -1;
+}
+
+/**
+ * Extract the destination URL from a link/image URL+title string.
+ * Handles angle-bracket destinations and strips optional titles.
+ * E.g., `<url>` → `url`, `url "title"` → `url`
+ */
+function extractDestination(raw: string): string {
+  // Angle-bracket destination: <url>
+  if (raw.startsWith("<") && raw.endsWith(">")) {
+    return raw.substring(1, raw.length - 1);
+  }
+  if (raw.startsWith("<")) {
+    const close = raw.indexOf(">");
+    if (close !== -1) {
+      return raw.substring(1, close);
+    }
+  }
+  // Split at first unescaped whitespace to separate destination from title
+  for (let i = 0; i < raw.length; i++) {
+    if (raw[i] === "\\" && i + 1 < raw.length) {
+      i++; // skip escaped char
+      continue;
+    }
+    if (raw[i] === " " || raw[i] === "\t" || raw[i] === "\n") {
+      return raw.substring(0, i);
+    }
+  }
+  return raw;
 }
 
 function parseDelimited(
@@ -478,8 +508,8 @@ function tokenize(markdown: string): Token[] {
       continue;
     }
 
-    // Fenced code block
-    const fenceMatch = line.match(/^(`{3,}|~{3,})(.*)$/);
+    // Fenced code block (0-3 leading spaces allowed per CommonMark)
+    const fenceMatch = line.match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
     if (fenceMatch) {
       const fence = fenceMatch[1];
       const fenceChar = fence[0];
@@ -489,7 +519,7 @@ function tokenize(markdown: string): Token[] {
       i++;
       while (i < lines.length) {
         const closingMatch = lines[i].match(
-          new RegExp(`^${fenceChar}{${fenceLen},}\\s*$`)
+          new RegExp(`^ {0,3}${fenceChar}{${fenceLen},}\\s*$`)
         );
         if (closingMatch) {
           i++;
@@ -750,11 +780,15 @@ function tryParseTable(
   const headerLine = lines[start];
   const separatorLine = lines[start + 1];
 
-  // Check separator line format: | --- | --- | or | :--- | ---: |
-  if (!/^\s*\|(\s*:?-+:?\s*\|)+\s*$/.test(separatorLine)) {return null;}
+  // Check separator line format: | --- | --- | or --- | --- (outer pipes optional)
+  // Must contain at least one pipe and only dashes, colons, pipes, and whitespace
+  if (
+    !separatorLine.includes("|") ||
+    !/^\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)*\|?\s*$/.test(separatorLine)
+  ) {return null;}
 
-  // Check header line format: | ... | ... |
-  if (!/^\s*\|(.+\|)+\s*$/.test(headerLine)) {return null;}
+  // Check header line has at least one pipe (required to distinguish from plain text)
+  if (!headerLine.includes("|")) {return null;}
 
   const headers = parsePipeCells(headerLine);
   const alignments = parseAlignments(separatorLine);
@@ -763,7 +797,7 @@ function tryParseTable(
   let i = start + 2;
   while (i < lines.length) {
     const line = lines[i];
-    if (!/^\s*\|(.+\|)+\s*$/.test(line)) {break;}
+    if (!line.includes("|")) {break;}
     rows.push(parsePipeCells(line));
     i++;
   }

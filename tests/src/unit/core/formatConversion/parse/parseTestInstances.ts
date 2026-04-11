@@ -1880,4 +1880,40 @@ Paragraph after table`,
     },
     executeTest: testParseMarkdown,
   },
+  // Table without outer pipes (GFM allows optional outer pipes)
+  {
+    testCase: {
+      name: "tablePipeless",
+      content: `Col 1 | Col 2
+----- | -----
+A     | B`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Indented fenced code block (up to 3 leading spaces per CommonMark)
+  {
+    testCase: {
+      name: "codeBlockIndented",
+      content: `   \`\`\`ts
+const x = 1;
+   \`\`\``,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Link with title (title should not appear in href)
+  {
+    testCase: {
+      name: "linkWithTitle",
+      content: `[example](https://example.com "Example Site")`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Image with nested brackets in alt text
+  {
+    testCase: {
+      name: "imageNestedBracketsAlt",
+      content: `![alt [with] brackets](https://example.com/image.png)`,
+    },
+    executeTest: testParseMarkdown,
+  },
 ];
