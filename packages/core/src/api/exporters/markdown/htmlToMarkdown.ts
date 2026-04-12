@@ -156,19 +156,27 @@ function serializeCodeBlock(el: HTMLElement, ctx: SerializeContext): string {
   // Extract code content, handling <br> elements as newlines
   const code = extractCodeContent(codeEl);
 
+  // Use a fence longer than the longest backtick run in the code
+  const longestRun = Math.max(
+    0,
+    ...((code.match(/`+/g) ?? []).map((run) => run.length))
+  );
+  const fence = "`".repeat(Math.max(3, longestRun + 1));
+
   // For empty code blocks, don't add a newline between the fences
   if (!code) {
-    return ctx.indent + "```" + language + "\n```\n\n";
+    return ctx.indent + fence + language + "\n" + fence + "\n\n";
   }
 
   return (
     ctx.indent +
-    "```" +
+    fence +
     language +
     "\n" +
     code +
     (code.endsWith("\n") ? "" : "\n") +
-    "```\n\n"
+    fence +
+    "\n\n"
   );
 }
 
@@ -365,7 +373,9 @@ function serializeTable(el: HTMLElement, ctx: SerializeContext): string {
         hasHeader = true;
       }
 
-      const content = serializeInlineContent(cell as HTMLElement).trim();
+      const content = escapeTableCell(
+        serializeInlineContent(cell as HTMLElement).trim()
+      );
       const colspan = parseInt(cell.getAttribute("colspan") || "1", 10);
       const rowspan = parseInt(cell.getAttribute("rowspan") || "1", 10);
 
@@ -432,6 +442,10 @@ function serializeTable(el: HTMLElement, ctx: SerializeContext): string {
 
   result += "\n";
   return result;
+}
+
+function escapeTableCell(text: string): string {
+  return text.replace(/\|/g, "\\|").replace(/\r?\n/g, "<br>");
 }
 
 function formatTableRow(
@@ -590,9 +604,18 @@ function serializeInlineContent(el: Element): string {
         case "del":
           result += `~~${serializeInlineContent(childEl)}~~`;
           break;
-        case "code":
-          result += "`" + (childEl.textContent || "") + "`";
+        case "code": {
+          const text = childEl.textContent || "";
+          const longestRun = Math.max(
+            0,
+            ...((text.match(/`+/g) ?? []).map((run) => run.length))
+          );
+          const fence = "`".repeat(longestRun + 1);
+          const needsPadding =
+            text.startsWith("`") || text.endsWith("`");
+          result += fence + (needsPadding ? ` ${text} ` : text) + fence;
           break;
+        }
         case "u":
           // No markdown equivalent — strip the tag, keep content
           result += serializeInlineContent(childEl);
@@ -674,8 +697,7 @@ function extractTrailingWhitespace(text: string): {
 function trimHardBreaks(content: string): string {
   // Remove leading hard breaks
   let result = content.replace(/^(\\\n)+/, "");
-  // Remove trailing hard breaks (including trailing backslash)
+  // Remove trailing hard breaks produced by `<br>`
   result = result.replace(/(\\\n)+$/, "");
-  result = result.replace(/\\$/, "");
   return result;
 }
