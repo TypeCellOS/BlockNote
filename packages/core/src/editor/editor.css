@@ -3,6 +3,7 @@
 .bn-editor {
   outline: none;
   padding-inline: 54px;
+  font-synthesis: style weight;
 
   /* Define a set of colors to be used throughout the app for consistency
   see https://atlassian.design/foundations/color for more info */
@@ -17,26 +18,6 @@
 
 .bn-comment-editor .bn-editor {
   padding: 0;
-}
-
-/*
-bn-root should be applied to all top-level elements
-
-This includes the Prosemirror editor, but also <div> element such as 
-Tippy popups that are appended to document.body directly
-*/
-.bn-root {
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-}
-
-.bn-root *,
-.bn-root *::before,
-.bn-root *::after {
-  -webkit-box-sizing: inherit;
-  -moz-box-sizing: inherit;
-  box-sizing: inherit;
 }
 
 /* reset styles, they will be set on blockContent */

@@ -1,6 +1,6 @@
-"use client";
 import { Accordion, Accordions } from "fumadocs-ui/components/accordion";
 import { Heading } from "fumadocs-ui/components/heading";
+import Link from "next/link";
 
 const faqs = [
   {
@@ -8,22 +8,22 @@ const faqs = [
       "What license is BlockNote using? Do I need a subscription to use BlockNote?",
     answer: (
       <>
-        We're proud to say that BlockNote is 100% open source software. The core
-        library is licensed under the{" "}
+        We&apos;re proud to say that BlockNote is 100% open source software. The
+        core library is licensed under the{" "}
         <a href="https://www.mozilla.org/en-US/MPL/2.0/">MPL 2.0 license</a>,
         which allows you to use BlockNote in commercial and closed-source
         applications - even without a subscription. If you make changes to the
-        BlockNote source files, you're expected to publish these changes so the
-        wider community can benefit as well.
+        BlockNote source files, you&apos;re expected to publish these changes so
+        the wider community can benefit as well.
         <br />
         The XL packages (like AI integration, multi-column layouts, and
         exporters) are dual-licensed and available under{" "}
         <a href="https://www.gnu.org/licenses/gpl-3.0.html">GPL-3.0</a>, or -
         for closed-source projects - a commercial license as part of the
         BlockNote Business subscription or above. See the{" "}
-        <a href="/legal/blocknote-xl-commercial-license">
+        <Link href="/legal/blocknote-xl-commercial-license">
           commercial license terms
-        </a>{" "}
+        </Link>{" "}
         for the exact details.
       </>
     ),
@@ -34,9 +34,11 @@ const faqs = [
       <>
         Only when you use any of the XL packages (like AI integration,
         multi-column layouts, and exporters) and you cannot comply with the
-        GPL-3.0 license you'll need a{" "}
-        <a href="/legal/blocknote-xl-commercial-license">commercial license</a>.
-        This is likely to be the case when you're building closed-source
+        GPL-3.0 license you&apos;ll need a{" "}
+        <Link href="/legal/blocknote-xl-commercial-license">
+          commercial license
+        </Link>
+        . This is likely to be the case when you&apos;re building closed-source
         applications. The BlockNote Business subscription and above includes a
         commercial license.
       </>
@@ -71,8 +73,10 @@ const faqs = [
       <>
         We have you covered! All BlockNote subscriptions come with prioritized
         support. See the{" "}
-        <a href="/legal/service-level-agreement">Service Level Agreement</a> for
-        the exact details.
+        <Link href="/legal/service-level-agreement">
+          Service Level Agreement
+        </Link>{" "}
+        for the exact details.
       </>
     ),
   },
@@ -88,13 +92,14 @@ const faqs = [
       <>
         The BlockNote Commercial license (included in the Business tier and
         above) for XL packages covers one application per license. See the{" "}
-        <a href="/legal/blocknote-xl-commercial-license">
+        <Link href="/legal/blocknote-xl-commercial-license">
           commercial license terms
-        </a>{" "}
+        </Link>{" "}
         for the exact details.
         <br />
         If you want to use XL packages in more than one app, contact us at
-        team@blocknotejs.org; we're happy to work with you on a custom license.
+        team@blocknotejs.org; we&apos;re happy to work with you on a custom
+        license.
       </>
     ),
   },
@@ -104,9 +109,9 @@ const faqs = [
       <>
         Yes! We offer a discount for startups with less than 5 employees. See
         the{" "}
-        <a href="/legal/blocknote-xl-commercial-license">
+        <Link href="/legal/blocknote-xl-commercial-license">
           commercial license terms
-        </a>{" "}
+        </Link>{" "}
         for the exact details.
       </>
     ),
@@ -119,10 +124,10 @@ const faqs = [
 
 export function FAQ() {
   return (
-    <div className="w-full max-w-screen-lg px-6 py-24 sm:py-32 lg:px-8 lg:py-40">
+    <div className="w-full max-w-screen-lg px-6 pt-24 sm:pt-32 lg:px-8 lg:pt-40">
       <div className="prose">
         <Heading as="h2">Frequently asked questions</Heading>
-        <Accordions type="multiple">
+        <Accordions multiple>
           {faqs.map((faq) => (
             <Accordion key={faq.question} title={faq.question}>
               {faq.answer}

@@ -226,16 +226,15 @@ export default function App() {
       {
         type: "image",
         props: {
-          url: "https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg",
-          caption:
-            "From https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg",
+          url: "https://placehold.co/332x322.jpg",
+          caption: "From https://placehold.co/332x322.jpg",
         },
       },
       {
         type: "image",
         props: {
           previewWidth: 200,
-          url: "https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg",
+          url: "https://placehold.co/332x322.jpg",
           textAlignment: "right",
         },
       },

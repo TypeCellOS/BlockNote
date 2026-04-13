@@ -1,7 +1,6 @@
 "use client";
 
-import { baseOptions } from "@/app/layout.config";
-import { Footer } from "@/components/Footer";
+import { baseOptions } from "@/lib/layout.shared";
 import { HomeLayout } from "fumadocs-ui/layouts/home";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -24,16 +23,16 @@ const fallbackPages: SearchResult[] = [
     url: "/docs/getting-started",
   },
   {
-    id: "/docs/install",
+    id: "/docs",
     type: "page",
-    content: "Installation",
-    url: "/docs/install",
+    content: "Introduction",
+    url: "/docs",
   },
   {
-    id: "/examples/01-basic/01-minimal",
+    id: "/examples/basic/minimal",
     type: "page",
     content: "Basic Example",
-    url: "/examples/01-basic/01-minimal",
+    url: "/examples/basic/minimal",
   },
   {
     id: "/docs/react/components",
@@ -96,7 +95,7 @@ export default function NotFound() {
 
   return (
     <>
-      <HomeLayout {...baseOptions}>
+      <HomeLayout {...baseOptions()}>
         <div className="mx-auto max-w-4xl pt-8">
           {/* 404 Header */}
           <div className="mb-12 text-center">
@@ -107,8 +106,8 @@ export default function NotFound() {
               Page Not Found
             </h1>
             <p className="mx-auto max-w-2xl text-xl text-gray-600 dark:text-gray-300">
-              We couldn't find the page you're looking for, but here are some
-              pages that might help:
+              We couldn&apos;t find the page you&apos;re looking for, but here
+              are some pages that might help:
             </p>
           </div>
 
@@ -165,7 +164,6 @@ export default function NotFound() {
           </div>
         </div>
       </HomeLayout>
-      <Footer />
     </>
   );
 }

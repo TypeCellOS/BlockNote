@@ -1,7 +1,6 @@
 ---
 title: Inline Content
 description: How to use inline content in BlockNote.
-imageTitle: Inline Content
 ---
 
 # Inline Content
@@ -23,6 +22,7 @@ type Styles = {
   italic: boolean;
   underline: boolean;
   strike: boolean;
+  code: boolean;
   textColor: string;
   backgroundColor: string;
 };
@@ -51,6 +51,7 @@ type Styles = {
   italic: boolean;
   underline: boolean;
   strike: boolean;
+  code: boolean;
   textColor: string;
   backgroundColor: string;
 };
@@ -105,9 +106,19 @@ type Styles = {
    */
   strike: boolean;
   /**
+   * Whether the text is rendered as inline code.
+   * @default false
+   */
+  code: boolean;
+  /**
    * The text color.
    * @default "default"
    */
   textColor: string;
+  /**
+   * The background color of the text.
+   * @default "default"
+   */
+  backgroundColor: string;
 };
 ```

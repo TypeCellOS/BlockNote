@@ -279,6 +279,34 @@ exports[`drop mark and link and change text within mark 1`] = `
 ]
 `;
 
+exports[`fix spelling mid-word selection 1`] = `
+[
+  {
+    "replaced": {
+      "content": [
+        {
+          "text": "D",
+          "type": "text",
+        },
+      ],
+    },
+    "step": {
+      "from": 17,
+      "slice": {
+        "content": [
+          {
+            "text": "H",
+            "type": "text",
+          },
+        ],
+      },
+      "stepType": "replace",
+      "to": 18,
+    },
+  },
+]
+`;
+
 exports[`modify nested content 1`] = `
 [
   {

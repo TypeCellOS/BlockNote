@@ -143,11 +143,13 @@ export function createUpdateBlockTool<T>(config: {
         const block = editor.getBlock(id);
 
         if (!block) {
-          // eslint-disable-next-line no-console
-          console.error("BLOCK NOT FOUND", id);
           return {
             ok: false,
-            error: "block not found",
+            error: new Error("Block not found (update)", {
+              cause: {
+                blockId: id,
+              },
+            }),
           };
         }
 

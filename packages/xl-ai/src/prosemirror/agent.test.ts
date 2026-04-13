@@ -1,4 +1,9 @@
-import { BlockNoteEditor, getBlockInfo, getNodeById } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  expandPMRangeToWords,
+  getBlockInfo,
+  getNodeById,
+} from "@blocknote/core";
 import { Fragment, Slice } from "prosemirror-model";
 import { ReplaceStep, Transform } from "prosemirror-transform";
 import { describe, expect, it } from "vitest";
@@ -213,7 +218,14 @@ async function executeTestCase(
     const blockId = updateOp.id;
     const update = updateOp.block;
 
-    const selection = test.getTestSelection?.(editor);
+    let selection = test.getTestSelection?.(editor);
+
+    if (selection) {
+      selection = expandPMRangeToWords(editor.prosemirrorState.doc, {
+        $from: editor.prosemirrorState.doc.resolve(selection.from),
+        $to: editor.prosemirrorState.doc.resolve(selection.to),
+      });
+    }
 
     const steps = updateToReplaceSteps(
       {

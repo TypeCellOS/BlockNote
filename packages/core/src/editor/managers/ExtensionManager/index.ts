@@ -203,6 +203,12 @@ export class ExtensionManager {
 
     this.extensions.push(instance);
 
+    if (instance.blockNoteExtensions) {
+      for (const extension of instance.blockNoteExtensions) {
+        this.addExtension(extension);
+      }
+    }
+
     return instance as any;
   }
 
@@ -317,8 +323,7 @@ export class ExtensionManager {
     const tiptapExtensions = getDefaultTiptapExtensions(
       this.editor,
       this.options,
-    );
-    // TODO filter out the default extensions via the disabledExtensions set?
+    ).filter((extension) => !this.disabledExtensions.has(extension.name));
 
     const getPriority = sortByDependencies(this.extensions);
 

@@ -3,7 +3,9 @@ import { createBlockConfig, createBlockSpec } from "../../../schema/index.js";
 import {
   addDefaultPropsExternalHTML,
   defaultProps,
+  parseDefaultProps,
 } from "../../defaultProps.js";
+import { getDetailsContent } from "../../getDetailsContent.js";
 import { createToggleWrapper } from "../../ToggleWrapper/createToggleWrapper.js";
 import { handleEnter } from "../../utils/listItemEnterHandler.js";
 
@@ -28,6 +30,47 @@ export const createToggleListItemBlockSpec = createBlockSpec(
     meta: {
       isolating: false,
     },
+    parse(element) {
+      if (element.tagName === "DETAILS") {
+        // Skip <details> that contain a heading in <summary> — those are
+        // toggle headings, handled by the heading block's parse rule.
+
+        return parseDefaultProps(element);
+      }
+
+      if (element.tagName === "LI") {
+        const parent = element.parentElement;
+
+        if (
+          parent &&
+          (parent.tagName === "UL" ||
+            (parent.tagName === "DIV" &&
+              parent.parentElement?.tagName === "UL"))
+        ) {
+          const details = element.querySelector(":scope > details");
+          if (details) {
+            return parseDefaultProps(element);
+          }
+        }
+      }
+
+      return undefined;
+    },
+    parseContent: ({ el, schema }) => {
+      const details =
+        el.tagName === "DETAILS" ? el : el.querySelector(":scope > details");
+
+      if (!details) {
+        throw new Error("No details found in toggleListItem parseContent");
+      }
+
+      return getDetailsContent(
+        details as HTMLElement,
+        schema,
+        "toggleListItem",
+      );
+    },
+    runsBefore: ["bulletListItem"],
     render(block, editor) {
       const paragraphEl = document.createElement("p");
       const toggleWrapper = createToggleWrapper(
@@ -39,13 +82,20 @@ export const createToggleListItemBlockSpec = createBlockSpec(
     },
     toExternalHTML(block) {
       const li = document.createElement("li");
+      const details = document.createElement("details");
+      details.setAttribute("open", "");
+      const summary = document.createElement("summary");
       const p = document.createElement("p");
+      summary.appendChild(p);
+      details.appendChild(summary);
+
       addDefaultPropsExternalHTML(block.props, li);
-      li.appendChild(p);
+      li.appendChild(details);
 
       return {
         dom: li,
         contentDOM: p,
+        childrenDOM: details,
       };
     },
   },

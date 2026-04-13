@@ -1,0 +1,56 @@
+name: Fresh Install Tests
+
+# Periodically tests BlockNote with the latest versions of its dependencies
+# (within declared ranges), without a lockfile. This catches breakage when a
+# new release of a dep like @tiptap/* or prosemirror-* ships and conflicts
+# with BlockNote's declared ranges — the kind of failure a user would hit when
+# running `npm install @blocknote/react` in a fresh project.
+#
+# DevDependencies (vitest, vite, typescript, etc.) are still bounded by their
+# declared ranges in package.json; only prod/peer deps get freshly resolved.
+
+on:
+  schedule:
+    - cron: "0 2 * * *" # Daily at 02:00 UTC
+  workflow_dispatch: # Allow manual runs
+
+jobs:
+  fresh-install-unit-tests:
+    name: Unit Tests (Fresh Dep Resolution)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          # Intentionally no pnpm cache — we want a genuinely fresh install
+
+      # Required for the `canvas` native dependency
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev pkg-config
+
+      - name: Remove lockfile to force fresh dep resolution
+        # Removing pnpm-lock.yaml causes pnpm to resolve all dependencies to
+        # the latest versions that satisfy the ranges declared in package.json
+        # (including pnpm-workspace.yaml overrides). This is equivalent to what
+        # a new user experiences when installing BlockNote in a blank project.
+        run: rm pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Build packages
+        run: pnpm run build
+        env:
+          NX_SKIP_NX_CACHE: "true"
+
+      - name: Run unit tests
+        run: pnpm run test
+        env:
+          NX_SKIP_NX_CACHE: "true"

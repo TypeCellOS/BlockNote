@@ -1,21 +1,19 @@
 import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 import {
   SuggestionMenu as SuggestionMenuExtension,
+  SuggestionMenuOptions,
   filterSuggestionItems,
 } from "@blocknote/core/extensions";
-import {
-  UseFloatingOptions,
-  autoPlacement,
-  offset,
-  shift,
-  size,
-} from "@floating-ui/react";
+import { autoPlacement, offset, shift, size } from "@floating-ui/react";
 import { FC, useEffect, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
-import { GenericPopover } from "../Popovers/GenericPopover.js";
+import {
+  GenericPopover,
+  GenericPopoverReference,
+} from "../Popovers/GenericPopover.js";
 import { SuggestionMenu } from "./SuggestionMenu.js";
 import { SuggestionMenuWrapper } from "./SuggestionMenuWrapper.js";
 import { getDefaultReactSlashMenuItems } from "./getDefaultReactSlashMenuItems.js";
@@ -36,8 +34,9 @@ export function SuggestionMenuController<
   props: {
     triggerCharacter: string;
     getItems?: GetItemsType;
+    shouldOpen?: SuggestionMenuOptions["shouldOpen"];
     minQueryLength?: number;
-    floatingUIOptions?: UseFloatingOptions;
+    floatingUIOptions?: FloatingUIOptions;
   } & (ItemType<GetItemsType> extends DefaultReactSuggestionItem
     ? {
         // can be undefined
@@ -63,6 +62,7 @@ export function SuggestionMenuController<
   const {
     triggerCharacter,
     suggestionMenuComponent,
+    shouldOpen,
     minQueryLength,
     onItemClick,
     getItems,
@@ -91,22 +91,26 @@ export function SuggestionMenuController<
   const suggestionMenu = useExtension(SuggestionMenuExtension);
 
   useEffect(() => {
-    suggestionMenu.addTriggerCharacter(triggerCharacter);
-  }, [suggestionMenu, triggerCharacter]);
+    suggestionMenu.addSuggestionMenu({ triggerCharacter, shouldOpen });
+  }, [suggestionMenu, triggerCharacter, shouldOpen]);
 
   const state = useExtensionState(SuggestionMenuExtension);
   const reference = useExtensionState(SuggestionMenuExtension, {
-    selector: (state) => ({
-      // Use first child as the editor DOM element may itself be scrollable.
-      // For FloatingUI to auto-update the position during scrolling, the
-      // `contextElement` must be a descendant of the scroll container.
-      element: editor.domElement?.firstChild || undefined,
-      getBoundingClientRect: () => state?.referencePos || new DOMRect(),
-    }),
+    selector: (state) =>
+      ({
+        // Use first child as the editor DOM element may itself be scrollable.
+        // For FloatingUI to auto-update the position during scrolling, the
+        // `contextElement` must be a descendant of the scroll container.
+        element: (editor.domElement?.firstChild || undefined) as
+          | Element
+          | undefined,
+        getBoundingClientRect: () => state?.referencePos || new DOMRect(),
+      }) satisfies GenericPopoverReference,
   });
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
+      ...props.floatingUIOptions,
       useFloatingOptions: {
         open: state?.show && state?.triggerCharacter === triggerCharacter,
         onOpenChange: (open) => {
@@ -131,6 +135,11 @@ export function SuggestionMenuController<
             padding: 10,
           }),
         ],
+        ...props.floatingUIOptions?.useFloatingOptions,
+      },
+      focusManagerProps: {
+        disabled: true,
+        ...props.floatingUIOptions?.focusManagerProps,
       },
       elementProps: {
         // Prevents editor blurring when clicking the scroll bar.
@@ -138,8 +147,8 @@ export function SuggestionMenuController<
         style: {
           zIndex: 80,
         },
+        ...props.floatingUIOptions?.elementProps,
       },
-      ...props.floatingUIOptions,
     }),
     [
       props.floatingUIOptions,

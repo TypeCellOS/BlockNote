@@ -1,0 +1,59 @@
+[
+  {
+    "children": [],
+    "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+      ],
+      "headerCols": undefined,
+      "headerRows": undefined,
+      "rows": [
+        {
+          "cells": [
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 1<p>Paragraph 1</p><p>Paragraph 2</p><p>Paragraph 3</p>",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 2",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "tableCell",
+            },
+          ],
+        },
+      ],
+      "type": "tableContent",
+    },
+    "id": "1",
+    "props": {
+      "textColor": "default",
+    },
+    "type": "table",
+  },
+]

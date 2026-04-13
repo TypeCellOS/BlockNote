@@ -53,7 +53,7 @@ export async function sendMessageWithAIRequest(
       source: "blocknote-ai",
     },
     body: {
-      toolDefinitions: toolSetToToolDefinitions(
+      toolDefinitions: await toolSetToToolDefinitions(
         streamToolsToToolSet(aiRequest.streamTools),
       ),
     },

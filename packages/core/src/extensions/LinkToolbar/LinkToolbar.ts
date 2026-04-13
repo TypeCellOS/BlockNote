@@ -1,6 +1,6 @@
 import { getMarkRange, posToDOMRect } from "@tiptap/core";
-import { createExtension } from "../../editor/BlockNoteExtension.js";
 import { getPmSchema } from "../../api/pmUtil.js";
+import { createExtension } from "../../editor/BlockNoteExtension.js";
 
 export const LinkToolbarExtension = createExtension(({ editor }) => {
   function getLinkElementAtPos(pos: number) {

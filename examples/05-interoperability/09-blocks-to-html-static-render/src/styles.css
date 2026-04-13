@@ -1,0 +1,53 @@
+.views {
+  container-name: views;
+  container-type: inline-size;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+  height: 100%;
+  padding: 8px;
+}
+
+.view-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: calc(50% - 4px);
+  width: 100%;
+}
+
+@container views (width > 1024px) {
+  .view-wrapper {
+    height: 100%;
+    width: calc(50% - 4px);
+  }
+}
+
+.view-label {
+  color: #0090ff;
+  display: flex;
+  font-size: 12px;
+  font-weight: bold;
+  justify-content: space-between;
+  margin-inline: 16px;
+}
+
+.view {
+  border: solid #0090ff 1px;
+  border-radius: 16px;
+  flex: 1;
+  height: 0;
+  padding: 8px;
+}
+
+.view .bn-container {
+  height: 100%;
+  margin: 0;
+  max-width: none;
+  padding: 0;
+}
+
+.view .bn-editor {
+  height: 100%;
+  overflow: auto;
+}

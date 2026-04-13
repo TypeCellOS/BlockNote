@@ -35,6 +35,13 @@ exports[`agentStepToTr > Update > drop mark and link and change text within mark
 ]
 `;
 
+exports[`agentStepToTr > Update > fix spelling mid-word selection 1`] = `
+[
+  "S	{"type":"doc","content":[{"type":"blockGroup","content":[{"type":"blockContainer","attrs":{"id":"ref1"},"content":[{"type":"paragraph","attrs":{"backgroundColor":"default","textColor":"default","textAlignment":"left"},"content":[{"type":"text","text":"Hello, world! Dow are you?"}]}]}]}]}",
+  "R	{"type":"doc","content":[{"type":"blockGroup","content":[{"type":"blockContainer","attrs":{"id":"ref1"},"content":[{"type":"paragraph","attrs":{"backgroundColor":"default","textColor":"default","textAlignment":"left"},"content":[{"type":"text","text":"Hello, world! "},{"type":"text","marks":[{"type":"deletion","attrs":{"id":null}}],"text":"D"},{"type":"text","marks":[{"type":"insertion","attrs":{"id":null}}],"text":"H"},{"type":"text","text":"ow are you?"}]}]}]}]}",
+]
+`;
+
 exports[`agentStepToTr > Update > modify nested content 1`] = `
 [
   "S	{"type":"doc","content":[{"type":"blockGroup","content":[{"type":"blockContainer","attrs":{"id":"ref1"},"content":[{"type":"paragraph","attrs":{"backgroundColor":"default","textColor":"default","textAlignment":"left"},"content":[{"type":"text","text":"I need to buy:"}]},{"type":"blockGroup","content":[{"type":"blockContainer","attrs":{"id":"ref2"},"content":[{"type":"paragraph","attrs":{"backgroundColor":"default","textColor":"default","textAlignment":"left"},"content":[{"type":"text","text":"Apples"}]}]}]}]}]}]}",

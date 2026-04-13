@@ -1,7 +1,7 @@
-import cn from "classnames";
-import gradients from "./gradients.module.css";
 import { FadeIn } from "@/components/FadeIn";
+import { cn } from "@/lib/fumadocs/cn";
 import { ReactNode } from "react";
+import gradients from "./gradients.module.css";
 
 export function HeroText({
   children,

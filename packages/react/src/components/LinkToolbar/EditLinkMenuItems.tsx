@@ -51,7 +51,7 @@ export const EditLinkMenuItems = (
 
   const handleEnter = useCallback(
     (event: KeyboardEvent) => {
-      if (event.key === "Enter") {
+      if (event.key === "Enter" && !event.nativeEvent.isComposing) {
         event.preventDefault();
         editLink(validateUrl(currentUrl), currentText, props.range.from);
         props.setToolbarOpen?.(false);

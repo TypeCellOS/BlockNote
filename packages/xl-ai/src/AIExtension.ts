@@ -143,7 +143,9 @@ export const AIExtension = createExtension(
        * Open the AI menu at a specific block
        */
       openAIMenuAtBlock(blockID: string) {
-        editor.getExtension(ShowSelectionExtension)?.showSelection(true);
+        editor
+          .getExtension(ShowSelectionExtension)
+          ?.showSelection(true, "aiMenu");
         editor.isEditable = false;
         store.setState({
           aiMenuState: {
@@ -167,7 +169,9 @@ export const AIExtension = createExtension(
           aiMenuState: "closed",
         });
         chatSession = undefined;
-        editor.getExtension(ShowSelectionExtension)?.showSelection(false);
+        editor
+          .getExtension(ShowSelectionExtension)
+          ?.showSelection(false, "aiMenu");
         editor.isEditable = true;
         editor.focus();
       },
@@ -337,7 +341,9 @@ export const AIExtension = createExtension(
         }
 
         if (status === "ai-writing") {
-          editor.getExtension(ShowSelectionExtension)?.showSelection(false);
+          editor
+            .getExtension(ShowSelectionExtension)
+            ?.showSelection(false, "aiMenu");
         }
 
         if (typeof status === "object") {

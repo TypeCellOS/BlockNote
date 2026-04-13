@@ -9,14 +9,7 @@ import { useDictionary } from "../../../../i18n/dictionary.js";
 import { ReactCustomBlockRenderProps } from "../../../../schema/ReactBlockSpec.js";
 
 export const AddFileButton = (
-  props: Omit<
-    ReactCustomBlockRenderProps<
-      FileBlockConfig["type"],
-      FileBlockConfig["propSchema"],
-      FileBlockConfig["content"]
-    >,
-    "contentRef"
-  > & {
+  props: Omit<ReactCustomBlockRenderProps<FileBlockConfig>, "contentRef"> & {
     buttonIcon?: ReactNode;
   },
 ) => {

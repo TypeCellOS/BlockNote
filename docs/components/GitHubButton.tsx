@@ -1,5 +1,4 @@
 "use client";
-
 import GHB from "react-github-btn";
 
 export default function GitHubButton() {

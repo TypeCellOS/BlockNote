@@ -71,7 +71,7 @@ export const docxStyleMappingForDefaultSchema: StyleMapping<
       return {};
     }
     return {
-      style: "VerbatimChar"
+      style: "VerbatimChar",
     };
   },
 };

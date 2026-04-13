@@ -1,5 +1,8 @@
 import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
-import { SuggestionMenu } from "@blocknote/core/extensions";
+import {
+  SuggestionMenu,
+  SuggestionMenuOptions,
+} from "@blocknote/core/extensions";
 import { autoPlacement, offset, shift, size } from "@floating-ui/react";
 import { FC, useEffect, useMemo } from "react";
 
@@ -9,7 +12,10 @@ import {
   useExtensionState,
 } from "../../../hooks/useExtension.js";
 import { FloatingUIOptions } from "../../Popovers/FloatingUIOptions.js";
-import { GenericPopover } from "../../Popovers/GenericPopover.js";
+import {
+  GenericPopover,
+  GenericPopoverReference,
+} from "../../Popovers/GenericPopover.js";
 import { getDefaultReactEmojiPickerItems } from "./getDefaultReactEmojiPickerItems.js";
 import { GridSuggestionMenu } from "./GridSuggestionMenu.js";
 import { GridSuggestionMenuWrapper } from "./GridSuggestionMenuWrapper.js";
@@ -34,6 +40,7 @@ export function GridSuggestionMenuController<
     triggerCharacter: string;
     getItems?: GetItemsType;
     columns: number;
+    shouldOpen?: SuggestionMenuOptions["shouldOpen"];
     minQueryLength?: number;
     floatingUIOptions?: FloatingUIOptions;
   } & (ItemType<GetItemsType> extends DefaultReactGridSuggestionItem
@@ -62,6 +69,7 @@ export function GridSuggestionMenuController<
     triggerCharacter,
     gridSuggestionMenuComponent,
     columns,
+    shouldOpen,
     minQueryLength,
     onItemClick,
     getItems,
@@ -90,22 +98,26 @@ export function GridSuggestionMenuController<
   const suggestionMenu = useExtension(SuggestionMenu);
 
   useEffect(() => {
-    suggestionMenu.addTriggerCharacter(triggerCharacter);
-  }, [suggestionMenu, triggerCharacter]);
+    suggestionMenu.addSuggestionMenu({ triggerCharacter, shouldOpen });
+  }, [suggestionMenu, triggerCharacter, shouldOpen]);
 
   const state = useExtensionState(SuggestionMenu);
   const reference = useExtensionState(SuggestionMenu, {
-    selector: (state) => ({
-      // Use first child as the editor DOM element may itself be scrollable.
-      // For FloatingUI to auto-update the position during scrolling, the
-      // `contextElement` must be a descendant of the scroll container.
-      element: editor.domElement?.firstChild || undefined,
-      getBoundingClientRect: () => state?.referencePos || new DOMRect(),
-    }),
+    selector: (state) =>
+      ({
+        // Use first child as the editor DOM element may itself be scrollable.
+        // For FloatingUI to auto-update the position during scrolling, the
+        // `contextElement` must be a descendant of the scroll container.
+        element: (editor.domElement?.firstChild || undefined) as
+          | Element
+          | undefined,
+        getBoundingClientRect: () => state?.referencePos || new DOMRect(),
+      }) satisfies GenericPopoverReference,
   });
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
+      ...props.floatingUIOptions,
       useFloatingOptions: {
         open: state?.show && state?.triggerCharacter === triggerCharacter,
         onOpenChange: (open) => {
@@ -130,6 +142,11 @@ export function GridSuggestionMenuController<
             padding: 10,
           }),
         ],
+        ...props.floatingUIOptions?.useFloatingOptions,
+      },
+      focusManagerProps: {
+        disabled: true,
+        ...props.floatingUIOptions?.focusManagerProps,
       },
       elementProps: {
         // Prevents editor blurring when clicking the scroll bar.
@@ -137,8 +154,8 @@ export function GridSuggestionMenuController<
         style: {
           zIndex: 70,
         },
+        ...props.floatingUIOptions?.elementProps,
       },
-      ...props.floatingUIOptions,
     }),
     [
       props.floatingUIOptions,

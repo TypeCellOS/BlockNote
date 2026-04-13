@@ -1,12 +1,15 @@
 import {
   BlockConfig,
+  BlockConfigOrCreator,
   BlockImplementation,
   BlockNoDefaults,
   BlockNoteEditor,
-  Extension,
   BlockSpec,
   camelToDataKebab,
   CustomBlockImplementation,
+  Extension,
+  ExtensionFactoryInstance,
+  ExtractBlockConfigFromConfigOrCreator,
   getBlockFromPos,
   mergeCSSClasses,
   Props,
@@ -24,43 +27,50 @@ import { renderToDOMSpec } from "./@util/ReactRenderUtil.js";
 // this file is mostly analogoues to `customBlocks.ts`, but for React blocks
 
 export type ReactCustomBlockRenderProps<
-  TName extends string = string,
-  TProps extends PropSchema = PropSchema,
-  TContent extends "inline" | "none" = "inline" | "none",
+  B extends BlockConfigOrCreator,
+  Config extends
+    ExtractBlockConfigFromConfigOrCreator<B> = ExtractBlockConfigFromConfigOrCreator<B>,
 > = {
-  block: BlockNoDefaults<
-    Record<TName, BlockConfig<TName, TProps, TContent>>,
-    any,
-    any
-  >;
-  editor: BlockNoteEditor<
-    Record<TName, BlockConfig<TName, TProps, TContent>>,
-    any,
-    any
-  >;
-  contentRef: (node: HTMLElement | null) => void;
-};
+  block: BlockNoDefaults<Record<Config["type"], Config>, any, any>;
+  editor: BlockNoteEditor<Record<Config["type"], Config>, any, any>;
+} & (Config["content"] extends "inline"
+  ? {
+      contentRef: (node: HTMLElement | null) => void;
+    }
+  : object);
 
 // extend BlockConfig but use a React render function
 export type ReactCustomBlockImplementation<
-  TName extends string = string,
-  TProps extends PropSchema = PropSchema,
-  TContent extends "inline" | "none" = "inline" | "none",
+  B extends BlockConfigOrCreator = BlockConfigOrCreator,
+  Config extends
+    ExtractBlockConfigFromConfigOrCreator<B> = ExtractBlockConfigFromConfigOrCreator<B>,
 > = Omit<
-  CustomBlockImplementation<TName, TProps, TContent>,
+  CustomBlockImplementation<
+    Config["type"],
+    Config["propSchema"],
+    Config["content"]
+  >,
   "render" | "toExternalHTML"
 > & {
-  render: FC<ReactCustomBlockRenderProps<TName, TProps, TContent>>;
-  toExternalHTML?: FC<ReactCustomBlockRenderProps<TName, TProps, TContent>>;
+  render: FC<ReactCustomBlockRenderProps<B>>;
+  toExternalHTML?: FC<
+    ReactCustomBlockRenderProps<B> & {
+      context: {
+        nestingLevel: number;
+      };
+    }
+  >;
 };
 
 export type ReactCustomBlockSpec<
-  T extends string = string,
-  PS extends PropSchema = PropSchema,
-  C extends "inline" | "none" = "inline" | "none",
+  B extends BlockConfig<string, PropSchema, "inline" | "none"> = BlockConfig<
+    string,
+    PropSchema,
+    "inline" | "none"
+  >,
 > = {
-  config: BlockConfig<T, PS, C>;
-  implementation: ReactCustomBlockImplementation<T, PS, C>;
+  config: B;
+  implementation: ReactCustomBlockImplementation<B>;
   extensions?: Extension<any>[];
 };
 
@@ -128,17 +138,23 @@ export function createReactBlockSpec<
 >(
   blockConfigOrCreator: BlockConfig<TName, TProps, TContent>,
   blockImplementationOrCreator:
-    | ReactCustomBlockImplementation<TName, TProps, TContent>
+    | ReactCustomBlockImplementation<BlockConfig<TName, TProps, TContent>>
     | (TOptions extends undefined
-        ? () => ReactCustomBlockImplementation<TName, TProps, TContent>
+        ? () => ReactCustomBlockImplementation<
+            BlockConfig<TName, TProps, TContent>
+          >
         : (
             options: Partial<TOptions>,
-          ) => ReactCustomBlockImplementation<TName, TProps, TContent>),
+          ) => ReactCustomBlockImplementation<
+            BlockConfig<TName, TProps, TContent>
+          >),
   extensionsOrCreator?:
-    | Extension<any>[]
+    | (ExtensionFactoryInstance | Extension)[]
     | (TOptions extends undefined
-        ? () => Extension<any>[]
-        : (options: Partial<TOptions>) => Extension<any>[]),
+        ? () => (ExtensionFactoryInstance | Extension)[]
+        : (
+            options: Partial<TOptions>,
+          ) => (ExtensionFactoryInstance | Extension)[]),
 ): (options?: Partial<TOptions>) => BlockSpec<TName, TProps, TContent>;
 export function createReactBlockSpec<
   const TName extends string,
@@ -149,29 +165,19 @@ export function createReactBlockSpec<
 >(
   blockCreator: (options: Partial<TOptions>) => BlockConf,
   blockImplementationOrCreator:
-    | ReactCustomBlockImplementation<
-        BlockConf["type"],
-        BlockConf["propSchema"],
-        BlockConf["content"]
-      >
+    | ReactCustomBlockImplementation<BlockConf>
     | (TOptions extends undefined
-        ? () => ReactCustomBlockImplementation<
-            BlockConf["type"],
-            BlockConf["propSchema"],
-            BlockConf["content"]
-          >
+        ? () => ReactCustomBlockImplementation<BlockConf>
         : (
             options: Partial<TOptions>,
-          ) => ReactCustomBlockImplementation<
-            BlockConf["type"],
-            BlockConf["propSchema"],
-            BlockConf["content"]
-          >),
+          ) => ReactCustomBlockImplementation<BlockConf>),
   extensionsOrCreator?:
-    | Extension<any>[]
+    | (ExtensionFactoryInstance | Extension)[]
     | (TOptions extends undefined
-        ? () => Extension<any>[]
-        : (options: Partial<TOptions>) => Extension<any>[]),
+        ? () => (ExtensionFactoryInstance | Extension)[]
+        : (
+            options: Partial<TOptions>,
+          ) => (ExtensionFactoryInstance | Extension)[]),
 ): (
   options?: Partial<TOptions>,
 ) => BlockSpec<
@@ -185,23 +191,25 @@ export function createReactBlockSpec<
   const TContent extends "inline" | "none",
   const TOptions extends Record<string, any> | undefined = undefined,
 >(
-  blockConfigOrCreator:
-    | BlockConfig<TName, TProps, TContent>
-    | (TOptions extends undefined
-        ? () => BlockConfig<TName, TProps, TContent>
-        : (options: Partial<TOptions>) => BlockConfig<TName, TProps, TContent>),
+  blockConfigOrCreator: BlockConfigOrCreator<TName, TProps, TContent, TOptions>,
   blockImplementationOrCreator:
-    | ReactCustomBlockImplementation<TName, TProps, TContent>
+    | ReactCustomBlockImplementation<BlockConfig<TName, TProps, TContent>>
     | (TOptions extends undefined
-        ? () => ReactCustomBlockImplementation<TName, TProps, TContent>
+        ? () => ReactCustomBlockImplementation<
+            BlockConfig<TName, TProps, TContent>
+          >
         : (
             options: Partial<TOptions>,
-          ) => ReactCustomBlockImplementation<TName, TProps, TContent>),
+          ) => ReactCustomBlockImplementation<
+            BlockConfig<TName, TProps, TContent>
+          >),
   extensionsOrCreator?:
-    | Extension<any>[]
+    | (ExtensionFactoryInstance | Extension)[]
     | (TOptions extends undefined
-        ? () => Extension<any>[]
-        : (options: Partial<TOptions>) => Extension<any>[]),
+        ? () => (ExtensionFactoryInstance | Extension)[]
+        : (
+            options: Partial<TOptions>,
+          ) => (ExtensionFactoryInstance | Extension)[]),
 ): (options?: Partial<TOptions>) => BlockSpec<TName, TProps, TContent> {
   return (options = {} as TOptions) => {
     const blockConfig =
@@ -224,7 +232,7 @@ export function createReactBlockSpec<
       config: blockConfig,
       implementation: {
         ...blockImplementation,
-        toExternalHTML(block, editor) {
+        toExternalHTML(block, editor, context) {
           const BlockContent =
             blockImplementation.toExternalHTML || blockImplementation.render;
           const output = renderToDOMSpec((refCB) => {
@@ -234,6 +242,9 @@ export function createReactBlockSpec<
                 blockProps={block.props}
                 propSchema={blockConfig.propSchema}
                 domAttributes={this.blockContentDOMAttributes}
+                isFileBlock={
+                  blockImplementation.meta?.fileBlockAccept !== undefined
+                }
               >
                 <BlockContent
                   block={block as any}
@@ -247,6 +258,7 @@ export function createReactBlockSpec<
                       );
                     }
                   }}
+                  context={context}
                 />
               </BlockContentWrapper>
             );

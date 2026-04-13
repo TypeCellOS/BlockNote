@@ -52,7 +52,7 @@ export const createParagraphBlockSpec = createBlockSpec(
         contentDOM: dom,
       };
     },
-    runsBefore: ["default"],
+    runsBefore: ["default", "heading"],
   },
   [
     createExtension({

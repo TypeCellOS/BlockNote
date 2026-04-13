@@ -1,10 +1,5 @@
 import { TextSelection } from "@tiptap/pm/state";
 
-import {
-  TestBlockSchema,
-  TestInlineContentSchema,
-  TestStyleSchema,
-} from "../../testSchema.js";
 import { PasteTestCase } from "../../../shared/clipboard/paste/pasteTestCase.js";
 import {
   testPasteHTML,
@@ -12,6 +7,11 @@ import {
 } from "../../../shared/clipboard/paste/pasteTestExecutors.js";
 import { getPosOfTextNode } from "../../../shared/testUtil.js";
 import { TestInstance } from "../../../types.js";
+import {
+  TestBlockSchema,
+  TestInlineContentSchema,
+  TestStyleSchema,
+} from "../../testSchema.js";
 
 export const pasteTestInstancesHTML: TestInstance<
   PasteTestCase<TestBlockSchema, TestInlineContentSchema, TestStyleSchema>,
@@ -131,6 +131,83 @@ export const pasteTestInstancesHTML: TestInstance<
       ],
       getPasteSelection: (doc) => {
         const startPos = getPosOfTextNode(doc, "Custom Paragraph 1", true);
+
+        return TextSelection.create(doc, startPos);
+      },
+    },
+    executeTest: testPasteHTML,
+  },
+  {
+    testCase: {
+      name: "pasteMultilineTextInTableCell",
+      content: `Line 1\nLine 2\nLine 3`,
+      document: [
+        {
+          type: "table",
+          content: {
+            type: "tableContent",
+            rows: [
+              {
+                cells: [["Cell 1"], ["Cell 2"]],
+              },
+            ],
+          },
+        },
+      ],
+      getPasteSelection: (doc) => {
+        const startPos = getPosOfTextNode(doc, "Cell 1", true);
+
+        return TextSelection.create(doc, startPos);
+      },
+    },
+    executeTest: testPasteMarkdown,
+  },
+  {
+    testCase: {
+      name: "pasteHTMLWithParagraphsInTableCell",
+      content: `<p>Paragraph 1</p><p>Paragraph 2</p><p>Paragraph 3</p>`,
+      document: [
+        {
+          type: "table",
+          content: {
+            type: "tableContent",
+            rows: [
+              {
+                cells: [["Cell 1"], ["Cell 2"]],
+              },
+            ],
+          },
+        },
+      ],
+      getPasteSelection: (doc) => {
+        const startPos = getPosOfTextNode(doc, "Cell 1", true);
+
+        return TextSelection.create(doc, startPos);
+      },
+    },
+    executeTest: testPasteHTML,
+  },
+  {
+    testCase: {
+      name: "pasteHTMLWithMultipleCheckboxesInTableCell",
+      content: `<li class="task-list-item enabled hovered">ABC</li>
+<li class="task-list-item enabled"><span class="handle"></span><input type="checkbox" id="" class="task-list-item-checkbox" aria-label="Incomplete task"> Unit tests covering the new feature have been added.</li>
+<li class="task-list-item enabled"><span class="handle"></span><input type="checkbox" id="" class="task-list-item-checkbox" aria-label="Incomplete task"> All existing tests pass.</li>`,
+      document: [
+        {
+          type: "table",
+          content: {
+            type: "tableContent",
+            rows: [
+              {
+                cells: [["Cell 1"], ["Cell 2"]],
+              },
+            ],
+          },
+        },
+      ],
+      getPasteSelection: (doc) => {
+        const startPos = getPosOfTextNode(doc, "Cell 1", true);
 
         return TextSelection.create(doc, startPos);
       },

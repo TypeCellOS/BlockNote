@@ -5,6 +5,7 @@ export type BlockNoteViewContextValue = {
   editorProps: {
     autoFocus?: boolean;
     contentEditableProps?: Record<string, any>;
+    editable?: boolean;
   };
   defaultUIProps: BlockNoteDefaultUIProps;
 };

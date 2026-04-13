@@ -1,0 +1,126 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {
+          "bold": true,
+          "underline": true,
+        },
+        "text": "Que se passe-t-il si je réponds tard à un message chat et que l'utilisateur n'est plus en ligne :",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Lorsque vous envoyez un message à un utilisateur dans une conversation chat, et qu'il est encore en ligne, il recevra le message sur sa bulle chatbot.",
+        "type": "text",
+      },
+    ],
+    "id": "2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Cependant S'il n'est plus en ligne, votre message sera envoyé par email si :",
+        "type": "text",
+      },
+    ],
+    "id": "3",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": ". l'utilisateur n'a pas lu votre réponse après 2 minutes",
+        "type": "text",
+      },
+    ],
+    "id": "4",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": ". l'utilisateur n'est plus présent sur votre site web",
+        "type": "text",
+      },
+    ],
+    "id": "5",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": " ",
+        "type": "text",
+      },
+    ],
+    "id": "6",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Cela se fait automatiquement donc, lorsque nous répondons par chat, si l'utilisateur n'est plus là, Crisp renvoie le message alors par email et le canal de discussion se transforme en canal de discussion email.
+ 
+ Il est possible aussi de créer une conversation email directement le profil de l'utilisateur (bouton bleu en haut à droite de la conversation)",
+        "type": "text",
+      },
+    ],
+    "id": "7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]

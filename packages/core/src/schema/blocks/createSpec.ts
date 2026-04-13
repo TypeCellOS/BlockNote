@@ -14,7 +14,9 @@ import {
 } from "./internal.js";
 import {
   BlockConfig,
+  BlockConfigOrCreator,
   BlockImplementation,
+  BlockImplementationOrCreator,
   BlockSpec,
   LooseBlockSpec,
 } from "./types.js";
@@ -70,14 +72,21 @@ export function getParseRules<
 
         return props;
       },
+      // Because we do the parsing ourselves, we want to preserve whitespace for content we've parsed
+      preserveWhitespace: true,
       getContent:
         config.content === "inline" || config.content === "none"
           ? (node, schema) => {
               if (implementation.parseContent) {
-                return implementation.parseContent({
+                const result = implementation.parseContent({
                   el: node as HTMLElement,
                   schema,
                 });
+                // parseContent may return undefined to fall through to
+                // the default inline content parsing below.
+                if (result !== undefined) {
+                  return result;
+                }
               }
 
               if (config.content === "inline") {
@@ -97,6 +106,7 @@ export function getParseRules<
                 const parser = DOMParser.fromSchema(schema);
                 const parsed = parser.parse(clone, {
                   topNode: schema.nodes.paragraph.create(),
+                  preserveWhitespace: true,
                 });
 
                 return parsed.content;
@@ -201,13 +211,19 @@ export function addNodeAndExtensionsToSpec<
             editor as any,
           );
 
+          // Cast needed because render returns `dom: HTMLElement | DocumentFragment`
+          // but tiptap's NodeView expects `dom: HTMLElement`
+          const typedNodeView = nodeView as unknown as NodeView;
+
           if (blockImplementation.meta?.selectable === false) {
-            applyNonSelectableBlockFix(nodeView, this.editor);
+            applyNonSelectableBlockFix(typedNodeView, this.editor);
           }
 
           // See explanation for why `update` is not implemented for NodeViews
           // https://github.com/TypeCellOS/BlockNote/pull/1904#discussion_r2313461464
-          return nodeView;
+          // TODO: in a future version, we might want to implement updates so that
+          // vanilla blocks don't always re-render entirely (https://github.com/TypeCellOS/BlockNote/issues/220)
+          return typedNodeView;
         };
       },
     });
@@ -239,7 +255,7 @@ export function addNodeAndExtensionsToSpec<
       },
       // TODO: this should not have wrapInBlockStructure and generally be a lot simpler
       // post-processing in externalHTMLExporter should not be necessary
-      toExternalHTML: (block, editor) => {
+      toExternalHTML: (block, editor, context) => {
         const blockContentDOMAttributes =
           node.options.domAttributes?.blockContent || {};
 
@@ -248,6 +264,7 @@ export function addNodeAndExtensionsToSpec<
             { blockContentDOMAttributes },
             block as any,
             editor as any,
+            context,
           ) ??
           blockImplementation.render.call(
             { blockContentDOMAttributes, renderType: "dom", props: undefined },
@@ -291,18 +308,17 @@ export function createBlockSpec<
   const TOptions extends Partial<Record<string, any>> | undefined = undefined,
 >(
   blockConfigOrCreator: BlockConfig<TName, TProps, TContent>,
-  blockImplementationOrCreator:
-    | BlockImplementation<TName, TProps, TContent>
+  blockImplementationOrCreator: BlockImplementationOrCreator<
+    BlockConfig<TName, TProps, TContent>,
+    TOptions
+  >,
+  extensionsOrCreator?:
+    | (ExtensionFactoryInstance | Extension)[]
     | (TOptions extends undefined
-        ? () => BlockImplementation<TName, TProps, TContent>
+        ? () => (ExtensionFactoryInstance | Extension)[]
         : (
             options: Partial<TOptions>,
-          ) => BlockImplementation<TName, TProps, TContent>),
-  extensionsOrCreator?:
-    | ExtensionFactoryInstance[]
-    | (TOptions extends undefined
-        ? () => ExtensionFactoryInstance[]
-        : (options: Partial<TOptions>) => ExtensionFactoryInstance[]),
+          ) => (ExtensionFactoryInstance | Extension)[]),
 ): (options?: Partial<TOptions>) => BlockSpec<TName, TProps, TContent>;
 export function createBlockSpec<
   const TName extends string,
@@ -312,30 +328,17 @@ export function createBlockSpec<
   const TOptions extends Partial<Record<string, any>>,
 >(
   blockCreator: (options: Partial<TOptions>) => BlockConf,
-  blockImplementationOrCreator:
-    | BlockImplementation<
-        BlockConf["type"],
-        BlockConf["propSchema"],
-        BlockConf["content"]
-      >
+  blockImplementationOrCreator: BlockImplementationOrCreator<
+    BlockConf,
+    TOptions
+  >,
+  extensionsOrCreator?:
+    | (ExtensionFactoryInstance | Extension)[]
     | (TOptions extends undefined
-        ? () => BlockImplementation<
-            BlockConf["type"],
-            BlockConf["propSchema"],
-            BlockConf["content"]
-          >
+        ? () => (ExtensionFactoryInstance | Extension)[]
         : (
             options: Partial<TOptions>,
-          ) => BlockImplementation<
-            BlockConf["type"],
-            BlockConf["propSchema"],
-            BlockConf["content"]
-          >),
-  extensionsOrCreator?:
-    | ExtensionFactoryInstance[]
-    | (TOptions extends undefined
-        ? () => ExtensionFactoryInstance[]
-        : (options: Partial<TOptions>) => ExtensionFactoryInstance[]),
+          ) => (ExtensionFactoryInstance | Extension)[]),
 ): (
   options?: Partial<TOptions>,
 ) => BlockSpec<
@@ -349,23 +352,18 @@ export function createBlockSpec<
   const TContent extends "inline" | "none",
   const TOptions extends Partial<Record<string, any>> | undefined = undefined,
 >(
-  blockConfigOrCreator:
-    | BlockConfig<TName, TProps, TContent>
+  blockConfigOrCreator: BlockConfigOrCreator<TName, TProps, TContent, TOptions>,
+  blockImplementationOrCreator: BlockImplementationOrCreator<
+    BlockConfig<TName, TProps, TContent>,
+    TOptions
+  >,
+  extensionsOrCreator?:
+    | (ExtensionFactoryInstance | Extension)[]
     | (TOptions extends undefined
-        ? () => BlockConfig<TName, TProps, TContent>
-        : (options: Partial<TOptions>) => BlockConfig<TName, TProps, TContent>),
-  blockImplementationOrCreator:
-    | BlockImplementation<TName, TProps, TContent>
-    | (TOptions extends undefined
-        ? () => BlockImplementation<TName, TProps, TContent>
+        ? () => (ExtensionFactoryInstance | Extension)[]
         : (
             options: Partial<TOptions>,
-          ) => BlockImplementation<TName, TProps, TContent>),
-  extensionsOrCreator?:
-    | ExtensionFactoryInstance[]
-    | (TOptions extends undefined
-        ? () => ExtensionFactoryInstance[]
-        : (options: Partial<TOptions>) => ExtensionFactoryInstance[]),
+          ) => (ExtensionFactoryInstance | Extension)[]),
 ): (options?: Partial<TOptions>) => BlockSpec<TName, TProps, TContent> {
   return (options = {} as TOptions) => {
     const blockConfig =
@@ -390,11 +388,12 @@ export function createBlockSpec<
         ...blockImplementation,
         // TODO: this should not have wrapInBlockStructure and generally be a lot simpler
         // post-processing in externalHTMLExporter should not be necessary
-        toExternalHTML(block, editor) {
+        toExternalHTML(block, editor, context) {
           const output = blockImplementation.toExternalHTML?.call(
             { blockContentDOMAttributes: this.blockContentDOMAttributes },
             block as any,
             editor as any,
+            context,
           );
 
           if (output === undefined) {

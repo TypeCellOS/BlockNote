@@ -1,7 +1,6 @@
 ---
 title: Custom Inline Content
 description: Learn how to create custom inline content for your BlockNote editor
-imageTitle: Custom Inline Content
 ---
 
 # Custom Inline Content Types
@@ -61,7 +60,8 @@ type CustomInlineContentConfig = {
 `content:` `styled` if your custom inline content should contain [`StyledText`](/docs/foundations/document-structure#inline-content-objects), `none` if not.
 
 <Callout type="info">
-  _In the mentions demo, we want each mention to be a single, non-editable element, so we set `content` to `"none"`._
+  _In the mentions demo, we want each mention to be a single, non-editable
+  element, so we set `content` to `"none"`._
 </Callout>
 
 `propSchema:` The `PropSchema` specifies the props that the inline content supports. Inline content props (properties) are data stored with your inline content in the document, and can be used to customize its appearance or behavior.
@@ -96,7 +96,8 @@ If you do not want the prop to have a default value, you can define it as an obj
 - `values?:` Specifies an array of values that the prop can take, for example, to limit the value to a list of pre-defined strings. If `values` is not defined, BlockNote assumes the prop can be any value of `PrimitiveType`.
 
 <Callout type="info">
-  _In the mentions demo, we add a `user` prop for the user that's being mentioned._
+  _In the mentions demo, we add a `user` prop for the user that's being
+  mentioned._
 </Callout>
 
 ### Inline Content Implementation (`ReactCustomInlineContentImplementation`)
@@ -136,7 +137,9 @@ type ReactCustomInlineContentImplementation = {
 `toExternalHTML?:` This component is used whenever the inline content is being exported to HTML for use outside BlockNote, for example when copying it to the clipboard. If it's not defined, BlockNote will just use `render` for the HTML conversion. Takes the same props as `render`.
 
 <Callout type="info">
-  _Note that your component passed to `toExternalHTML` is rendered and serialized in a separate React root, which means you can't use hooks that rely on React Contexts._
+  _Note that your component passed to `toExternalHTML` is rendered and
+  serialized in a separate React root, which means you can't use hooks that rely
+  on React Contexts._
 </Callout>
 
 `parse?:` The `parse` function defines how to parse HTML content into your inline content, for example when pasting contents from the clipboard. If the element should be parsed into your custom inline content, you return the props that the block should be given. Otherwise, return `undefined`. Takes a single argument:
@@ -146,7 +149,8 @@ type ReactCustomInlineContentImplementation = {
 `meta?.draggable?:` Whether the inline content should be draggable.
 
 <Callout type="info">
-  _Note that since inline content is, by definition, inline, your component should also return an HTML inline element._
+  _Note that since inline content is, by definition, inline, your component
+  should also return an HTML inline element._
 </Callout>
 
 ## Adding Custom Inline Content to the Editor

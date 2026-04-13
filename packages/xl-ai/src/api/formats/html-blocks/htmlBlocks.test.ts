@@ -84,11 +84,6 @@ describe("Models", () => {
     {
       model: testAIModels.openai,
       stream: true,
-      generateObject: true,
-    },
-    {
-      model: testAIModels.openai,
-      stream: true,
     },
     // {
     //   model: testAIModels.openai,
@@ -127,8 +122,7 @@ describe("Models", () => {
 
   for (const params of testMatrix) {
     describe(`${params.model.provider}/${params.model.modelId} (${
-      (params.stream ? "streaming" : "non-streaming") +
-      (params.generateObject ? " + generateObject" : "")
+      params.stream ? "streaming" : "non-streaming"
     })`, () => {
       generateSharedTestCases({
         streamToolsProvider: htmlBlockLLMFormat.getStreamToolsProvider({
@@ -138,7 +132,6 @@ describe("Models", () => {
           systemPrompt: htmlBlockLLMFormat.systemPrompt,
           model: params.model,
           stream: params.stream,
-          objectGeneration: params.generateObject,
           _additionalOptions: {
             maxRetries: 0,
           },

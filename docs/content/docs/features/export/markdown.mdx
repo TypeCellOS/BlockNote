@@ -1,7 +1,7 @@
 ---
 title: Markdown
 description: It's possible to export Blocks to Markdown, completely client-side.
-imageTitle: BlockNote Markdown Export
+imageTitle: Markdown Export
 path: /docs/converting-blocks
 ---
 
@@ -21,10 +21,10 @@ BlockNote can export Blocks to Markdown. Note that this is also considered "loss
 `blocksToMarkdownLossy` converts `Block` objects to a Markdown string:
 
 ```typescript
-async blocksToMarkdownLossy(blocks?: Block[]): Promise<string>;
+blocksToMarkdownLossy(blocks?: Block[]): string;
 
 // Usage
-const markdownFromBlocks = await editor.blocksToMarkdownLossy(blocks);
+const markdownFromBlocks = editor.blocksToMarkdownLossy(blocks);
 ```
 
 `blocks:` The blocks to convert. If not provided, the entire document (all top-level blocks) is used.

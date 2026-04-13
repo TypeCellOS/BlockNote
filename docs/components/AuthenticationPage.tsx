@@ -1,5 +1,9 @@
 "use client";
 
+import { authClient, signIn, signUp } from "@/lib/auth-client";
+import { Turnstile } from "@marsidev/react-turnstile";
+import * as Sentry from "@sentry/nextjs";
+import { track } from "@vercel/analytics";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   ChangeEvent,
@@ -9,13 +13,6 @@ import {
   useEffect,
   useState,
 } from "react";
-import { track } from "@vercel/analytics";
-import * as Sentry from "@sentry/nextjs";
-
-import ThemedImage from "@/components/ThemedImage";
-import blockNoteLogo from "@/public/img/logos/banner.svg";
-import blockNoteLogoDark from "@/public/img/logos/banner.dark.svg";
-import { authClient, signIn, signUp } from "@/util/auth-client";
 
 function AuthenticationInput(props: {
   type: HTMLInputTypeAttribute;
@@ -57,6 +54,7 @@ function AuthenticationBox(props: {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
 
   const [signingInState, setSigningInState] = useState<
     | { state: "init" }
@@ -134,7 +132,7 @@ function AuthenticationBox(props: {
           },
         },
       );
-    } else {
+    } else if (props.variant === "register") {
       track("click-sign-up", { type: "email" });
       Sentry.captureEvent({
         message: "click-sign-up",
@@ -151,6 +149,9 @@ function AuthenticationBox(props: {
           callbackURL: "/pricing",
         },
         {
+          headers: {
+            "x-captcha-response": turnstileToken,
+          },
           onSuccess() {
             setSigningInState({
               state: "done",
@@ -176,6 +177,9 @@ function AuthenticationBox(props: {
           },
         },
       );
+    } else {
+      const variant = props.variant satisfies never;
+      throw new Error("Invalid authentication variant " + variant);
     }
   };
 
@@ -215,6 +219,13 @@ function AuthenticationBox(props: {
             type="password"
             name="Password"
             onChange={(e) => setPassword(e.target.value)}
+          />
+        )}
+        {props.variant === "register" && (
+          <Turnstile
+            // siteKey="1x00000000000000000000AA" testing key
+            siteKey="0x4AAAAAACYDIU6NEdlm_V7J"
+            onSuccess={setTurnstileToken}
           />
         )}
         <button
@@ -409,14 +420,8 @@ export default function AuthenticationPage(props: {
   }, [session.data, router, callbackURL]);
 
   return (
-    <div className="flex h-0 flex-1 flex-col justify-center">
+    <div className="">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <ThemedImage
-          className="mx-auto h-10 w-auto cursor-pointer"
-          src={{ light: blockNoteLogo, dark: blockNoteLogoDark }}
-          alt={"BlockNote Logo"}
-          onClick={() => router.push("/")}
-        />
         <h2 className="mt-6 text-center font-sans text-2xl/9 font-semibold tracking-tight text-gray-900 dark:text-gray-100">
           {props.variant === "password"
             ? "Login to your BlockNote account"
@@ -426,7 +431,7 @@ export default function AuthenticationPage(props: {
         </h2>
       </div>
 
-      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
+      <div className="mb-10 mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
         <div className="bg-fd-accent px-6 py-12 shadow sm:rounded-lg sm:px-12">
           <AuthenticationBox variant={props.variant} />
         </div>

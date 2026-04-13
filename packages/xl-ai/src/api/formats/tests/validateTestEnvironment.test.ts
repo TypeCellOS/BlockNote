@@ -41,6 +41,7 @@ describe("MSW Snapshots", () => {
         files: files,
       }));
 
+    // const rmSync = await import("fs").then((m) => m.rmSync);
     // for (const duplicate of duplicates) {
     //   for (const file of duplicate.files) {
     //     rmSync(file);

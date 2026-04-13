@@ -16,19 +16,17 @@
     "@blocknote/mantine": "latest",
     "@blocknote/react": "latest",
     "@blocknote/shadcn": "latest",
-    "@mantine/core": "^8.3.4",
-    "@mantine/hooks": "^8.3.4",
+    "@mantine/core": "^8.3.11",
+    "@mantine/hooks": "^8.3.11",
     "@mantine/utils": "^6.0.22",
-    "react": "^19.2.1",
-    "react-dom": "^19.2.1",
-    "@emotion/react": "^11.11.4",
-    "@emotion/styled": "^11.11.5",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
     "@mui/icons-material": "^5.16.1",
     "@mui/material": "^5.16.1"
   },
   "devDependencies": {
-    "@types/react": "^19.2.2",
-    "@types/react-dom": "^19.2.2",
+    "@types/react": "^19.2.3",
+    "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^4.7.0",
     "vite": "^5.4.20"
   }

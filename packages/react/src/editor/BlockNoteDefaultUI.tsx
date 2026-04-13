@@ -92,7 +92,12 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
       {editor.getExtension(LinkToolbarExtension) &&
         props.linkToolbar !== false && <LinkToolbarController />}
       {editor.getExtension(SuggestionMenu) && props.slashMenu !== false && (
-        <SuggestionMenuController triggerCharacter="/" />
+        <SuggestionMenuController
+          triggerCharacter="/"
+          shouldOpen={(state) =>
+            !state.selection.$from.parent.type.isInGroup("tableContent")
+          }
+        />
       )}
       {editor.getExtension(SuggestionMenu) && props.emojiPicker !== false && (
         <GridSuggestionMenuController

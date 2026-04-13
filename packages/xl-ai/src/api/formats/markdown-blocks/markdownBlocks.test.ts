@@ -121,7 +121,7 @@ describe("Models", () => {
             systemPrompt: aiDocumentFormats._experimental_markdown.systemPrompt,
             model: params.model,
             stream: params.stream,
-            objectGeneration: true,
+
             _additionalOptions: {
               maxRetries: 0,
             },

@@ -49,8 +49,8 @@ export const CreateLinkButton = () => {
 
   const [showPopover, setShowPopover] = useState(false);
   useEffect(() => {
-    showSelection(showPopover);
-    return () => showSelection(false);
+    showSelection(showPopover, "createLinkButton");
+    return () => showSelection(false, "createLinkButton");
   }, [showPopover, showSelection]);
 
   const state = useEditorState({
@@ -84,6 +84,9 @@ export const CreateLinkButton = () => {
       };
     },
   });
+  useEffect(() => {
+    setShowPopover(false);
+  }, [state]);
 
   // Makes Ctrl+K/Meta+K open link creation popover.
   useEffect(() => {
@@ -94,10 +97,11 @@ export const CreateLinkButton = () => {
       }
     };
 
-    editor.domElement?.addEventListener("keydown", callback);
+    const domElement = editor.domElement;
+    domElement?.addEventListener("keydown", callback);
 
     return () => {
-      editor.domElement?.removeEventListener("keydown", callback);
+      domElement?.removeEventListener("keydown", callback);
     };
   }, [editor.domElement]);
 
@@ -106,7 +110,10 @@ export const CreateLinkButton = () => {
   }
 
   return (
-    <Components.Generic.Popover.Root open={showPopover}>
+    <Components.Generic.Popover.Root
+      open={showPopover}
+      onOpenChange={setShowPopover}
+    >
       <Components.Generic.Popover.Trigger>
         {/* TODO: hide tooltip on click */}
         <Components.FormattingToolbar.Button
@@ -119,7 +126,7 @@ export const CreateLinkButton = () => {
             dict.generic.ctrl_shortcut,
           )}
           icon={<RiLink />}
-          onClick={() => setShowPopover(true)}
+          onClick={() => setShowPopover((open) => !open)}
         />
       </Components.Generic.Popover.Trigger>
       <Components.Generic.Popover.Content

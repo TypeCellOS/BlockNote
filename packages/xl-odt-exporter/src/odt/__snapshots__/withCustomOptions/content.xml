@@ -340,22 +340,22 @@
                 Open file
             </text:p>
             <text:p text:style-name="Standard">
-                <draw:frame draw:style-name="Frame" style:rel-height="scale" style:rel-width="332px" svg:width="332px" svg:height="352px" text:anchor-type="as-char">
+                <draw:frame draw:style-name="Frame" style:rel-height="scale" style:rel-width="332px" svg:width="332px" svg:height="342px" text:anchor-type="as-char">
                     <draw:text-box>
                         <text:p text:style-name="Caption">
-                            <draw:frame draw:style-name="Frame" style:rel-height="scale" svg:width="332px" svg:height="332px" style:rel-width="100%">
+                            <draw:frame draw:style-name="Frame" style:rel-height="scale" svg:width="332px" svg:height="322px" style:rel-width="100%">
                                 <draw:image xlink:type="simple" xlink:show="embed" xlink:actuate="onLoad" xlink:href="Pictures/picture-0.jpg" draw:mime-type="image/jpeg"></draw:image>
                             </draw:frame>
                             <text:line-break></text:line-break>
                             <text:span text:style-name="Caption">
-                                From https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg
+                                From https://placehold.co/332x322.jpg
                             </text:span>
                         </text:p>
                     </draw:text-box>
                 </draw:frame>
             </text:p>
             <text:p text:style-name="BN_S17">
-                <draw:frame draw:style-name="Frame" style:rel-height="scale" svg:width="200px" svg:height="200px" style:rel-width="200px" text:anchor-type="as-char">
+                <draw:frame draw:style-name="Frame" style:rel-height="scale" svg:width="200px" svg:height="193.97590361445782px" style:rel-width="200px" text:anchor-type="as-char">
                     <draw:image xlink:type="simple" xlink:show="embed" xlink:actuate="onLoad" xlink:href="Pictures/picture-0.jpg" draw:mime-type="image/jpeg"></draw:image>
                 </draw:frame>
                 <text:line-break></text:line-break>

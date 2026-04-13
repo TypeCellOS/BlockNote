@@ -1,8 +1,0 @@
-.thumbnail:before {
-  content: "";
-  width: 100%;
-  aspect-ratio: 16/9;
-  display: block;
-  position: absolute;
-  background: linear-gradient(transparent 50%, var(--bg-color));
-}

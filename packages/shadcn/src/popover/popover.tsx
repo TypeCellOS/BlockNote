@@ -1,9 +1,14 @@
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
-import { forwardRef } from "react";
+import { createContext, forwardRef, useContext } from "react";
+import { createPortal } from "react-dom";
 
 import { cn } from "../lib/utils.js";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
+
+const PortalRootContext = createContext<HTMLElement | null | undefined>(
+  undefined,
+);
 
 export const Popover = (
   props: ComponentProps["Generic"]["Popover"]["Root"],
@@ -13,6 +18,7 @@ export const Popover = (
     open,
     onOpenChange,
     position, // unused
+    portalRoot,
     ...rest
   } = props;
 
@@ -22,7 +28,9 @@ export const Popover = (
 
   return (
     <ShadCNComponents.Popover.Popover open={open} onOpenChange={onOpenChange}>
-      {children}
+      <PortalRootContext.Provider value={portalRoot}>
+        {children}
+      </PortalRootContext.Provider>
     </ShadCNComponents.Popover.Popover>
   );
 };
@@ -52,13 +60,14 @@ export const PopoverContent = forwardRef<
   assertEmpty(rest);
 
   const ShadCNComponents = useShadCNComponentsContext()!;
+  const portalRoot = useContext(PortalRootContext);
 
-  return (
+  const content = (
     <ShadCNComponents.Popover.PopoverContent
       sideOffset={8}
       className={cn(
         className,
-        "z-[10000] flex flex-col gap-2",
+        "flex flex-col gap-2",
         variant === "panel-popover"
           ? "w-fit max-w-none border-none p-0 shadow-none"
           : "",
@@ -68,4 +77,10 @@ export const PopoverContent = forwardRef<
       {children}
     </ShadCNComponents.Popover.PopoverContent>
   );
+
+  if (portalRoot) {
+    return createPortal(content, portalRoot);
+  }
+
+  return content;
 });

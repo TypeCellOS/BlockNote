@@ -1,5 +1,6 @@
 import {
   Block,
+  BlockConfig,
   blockHasType,
   defaultToggledState,
   UnreachableCaseError,
@@ -38,7 +39,10 @@ const showChildrenReducer = (
 };
 
 export const ToggleWrapper = (
-  props: Omit<ReactCustomBlockRenderProps<any, any, any>, "contentRef"> & {
+  props: Omit<
+    ReactCustomBlockRenderProps<BlockConfig<any, any, any>>,
+    "contentRef"
+  > & {
     children: ReactNode;
     toggledState?: {
       set: (block: Block<any, any, any>, isToggled: boolean) => void;

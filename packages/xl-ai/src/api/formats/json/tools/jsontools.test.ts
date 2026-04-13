@@ -1,5 +1,5 @@
 /* eslint-disable jest/valid-title */
-import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor, expandPMRangeToWords } from "@blocknote/core";
 import { describe, expect, it } from "vitest";
 import { addOperationTestCases } from "../../../../testUtil/cases/addOperationTestCases.js";
 import { combinedOperationsTestCases } from "../../../../testUtil/cases/combinedOperationsTestCases.js";
@@ -44,12 +44,22 @@ async function executeTestCase(
   testCase: DocumentOperationTestCase,
 ) {
   const originalDoc = editor.prosemirrorState.doc;
+  let selection: { from: number; to: number } | undefined =
+    testCase.getTestSelection?.(editor);
+
+  if (selection) {
+    selection = expandPMRangeToWords(editor.prosemirrorState.doc, {
+      $from: editor.prosemirrorState.doc.resolve(selection.from),
+      $to: editor.prosemirrorState.doc.resolve(selection.to),
+    });
+  }
+
   const streamTools = [
     tools.add(editor, { idsSuffixed: true, withDelays: false }),
     tools.update(editor, {
       idsSuffixed: true,
       withDelays: false,
-      updateSelection: testCase.getTestSelection?.(editor),
+      updateSelection: selection,
     }),
     tools.delete(editor, { idsSuffixed: true, withDelays: false }),
   ];

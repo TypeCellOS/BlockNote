@@ -2,12 +2,12 @@ import { FilePanelExtension } from "@blocknote/core/extensions";
 import { flip, offset } from "@floating-ui/react";
 import { FC, useMemo } from "react";
 
-import { FilePanel } from "./FilePanel.js";
-import { FilePanelProps } from "./FilePanelProps.js";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
+import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
 import { BlockPopover } from "../Popovers/BlockPopover.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
-import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
-import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
+import { FilePanel } from "./FilePanel.js";
+import { FilePanelProps } from "./FilePanelProps.js";
 
 export const FilePanelController = (props: {
   filePanel?: FC<FilePanelProps>;
@@ -20,6 +20,7 @@ export const FilePanelController = (props: {
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({
+      ...props.floatingUIOptions,
       useFloatingOptions: {
         open: !!blockId,
         // Needed as hooks like `useDismiss` call `onOpenChange` to change the
@@ -34,13 +35,18 @@ export const FilePanelController = (props: {
           }
         },
         middleware: [offset(10), flip()],
+        ...props.floatingUIOptions?.useFloatingOptions,
+      },
+      focusManagerProps: {
+        disabled: true,
+        ...props.floatingUIOptions?.focusManagerProps,
       },
       elementProps: {
         style: {
           zIndex: 90,
         },
+        ...props.floatingUIOptions?.elementProps,
       },
-      ...props.floatingUIOptions,
     }),
     [blockId, editor, filePanel, props.floatingUIOptions],
   );

@@ -25,10 +25,20 @@ const config: PlaywrightTestConfig = {
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   retries: 2,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  /* Run tests in parallel on CI (sharding handles distribution across runners) */
+  workers: process.env.CI ? "50%" : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: [["line"], ["html"], ["github"]],
+  reporter: process.env.CI
+    ? [
+        ["dot"],
+        ["github"],
+        ["blob", { outputDir: "blob-report" }],
+        ["html", { open: "never" }],
+      ]
+    : [
+        ["list", { printSteps: true }],
+        ["html", { open: "on-failure" }],
+      ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
@@ -38,6 +48,10 @@ const config: PlaywrightTestConfig = {
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
+    /* Capture screenshot on failure for better debugging */
+    screenshot: "only-on-failure",
+    /* Disable video recording to reduce overhead */
+    video: "off",
   },
 
   /* Configure projects for major browsers */

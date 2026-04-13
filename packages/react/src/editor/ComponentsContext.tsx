@@ -3,6 +3,7 @@ import {
   ComponentType,
   createContext,
   CSSProperties,
+  ForwardedRef,
   HTMLInputAutoCompleteAttribute,
   KeyboardEvent,
   MouseEvent,
@@ -273,6 +274,8 @@ export type ComponentProps = {
         onChange: (event: ChangeEvent<HTMLInputElement>) => void;
         onSubmit?: () => void;
         autoComplete?: HTMLInputAutoCompleteAttribute;
+        "aria-activedescendant"?: string;
+        ref?: ForwardedRef<HTMLInputElement>;
       };
     };
     Menu: {
@@ -324,6 +327,7 @@ export type ComponentProps = {
           | "bottom"
           | "left"
           | `${"top" | "right" | "bottom" | "left"}-${"start" | "end"}`;
+        portalRoot?: HTMLElement | null;
         children?: ReactNode;
       };
       Content: {

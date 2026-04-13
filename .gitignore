@@ -29,10 +29,15 @@ yarn-error.log*
 .vercel
 test-results/
 playwright-report/
+blob-report/
 release
 /test-results/
 /playwright-report/
+/blob-report/
 /playwright/.cache/
 .env
 *.pem
 .nx/
+# Nightshift plan artifacts (keep out of version control)
+.nightshift-plan
+.claude

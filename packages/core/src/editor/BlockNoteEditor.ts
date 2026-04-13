@@ -5,10 +5,8 @@ import {
   getSchema,
   Editor as TiptapEditor,
 } from "@tiptap/core";
-import { type Command, type Plugin, type Transaction } from "@tiptap/pm/state";
+import { type Command, type Transaction } from "@tiptap/pm/state";
 import { Node, Schema } from "prosemirror-model";
-import * as Y from "yjs";
-
 import type { BlocksChanged } from "../api/getBlocksChangedByTransaction.js";
 import { blockToNode } from "../api/nodeConversions/blockToNode.js";
 import {
@@ -19,6 +17,11 @@ import {
   DefaultStyleSchema,
   PartialBlock,
 } from "../blocks/index.js";
+import type { CollaborationOptions } from "../extensions/Collaboration/Collaboration.js";
+import {
+  BlockChangeExtension,
+  DropCursorOptions,
+} from "../extensions/index.js";
 import { UniqueID } from "../extensions/tiptap-extensions/UniqueID/UniqueID.js";
 import type { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
@@ -52,7 +55,6 @@ import {
 } from "./managers/index.js";
 import type { Selection } from "./selectionTypes.js";
 import { transformPasted } from "./transformPasted.js";
-import { BlockChangeExtension } from "../extensions/index.js";
 
 export type BlockCache<
   BSchema extends BlockSchema = any,
@@ -82,37 +84,8 @@ export interface BlockNoteEditorOptions<
   /**
    * When enabled, allows for collaboration between multiple users.
    * See [Real-time Collaboration](https://www.blocknotejs.org/docs/advanced/real-time-collaboration) for more info.
-   *
-   * @remarks `CollaborationOptions`
    */
-  collaboration?: {
-    /**
-     * The Yjs XML fragment that's used for collaboration.
-     */
-    fragment: Y.XmlFragment;
-    /**
-     * The user info for the current user that's shown to other collaborators.
-     */
-    user: {
-      name: string;
-      color: string;
-    };
-    /**
-     * A Yjs provider (used for awareness / cursor information)
-     */
-    provider: any;
-    /**
-     * Optional function to customize how cursors of users are rendered
-     */
-    renderCursor?: (user: any) => HTMLElement;
-    /**
-     * Optional flag to set when the user label should be shown with the default
-     * collaboration cursor. Setting to "always" will always show the label,
-     * while "activity" will only show the label when the user moves the cursor
-     * or types. Defaults to "activity".
-     */
-    showCursorLabels?: "always" | "activity";
-  };
+  collaboration?: CollaborationOptions;
 
   /**
    * Use default BlockNote font and reset the styles of <p> <li> <h1> elements etc., that are used in BlockNote.
@@ -148,19 +121,11 @@ export interface BlockNoteEditorOptions<
   domAttributes?: Partial<BlockNoteDOMAttributes>;
 
   /**
-   * A replacement indicator to use when dragging and dropping blocks. Uses the [ProseMirror drop cursor](https://github.com/ProseMirror/prosemirror-dropcursor), or a modified version when [Column Blocks](https://www.blocknotejs.org/docs/document-structure#column-blocks) are enabled.
-   * @remarks `() => Plugin`
+   * Options for configuring the drop cursor behavior when dragging and dropping blocks.
+   * Allows customization of cursor appearance and drop position computation through hooks.
+   * @remarks `DropCursorOptions`
    */
-  dropCursor?: (opts: {
-    editor: BlockNoteEditor<
-      NoInfer<BSchema>,
-      NoInfer<ISchema>,
-      NoInfer<SSchema>
-    >;
-    color?: string | false;
-    width?: number;
-    class?: string;
-  }) => Plugin;
+  dropCursor?: DropCursorOptions;
 
   /**
    * The content that should be in the editor when it's created, represented as an array of {@link PartialBlock} objects.
@@ -715,6 +680,12 @@ export class BlockNoteEditor<
    * @warning Not needed to call manually when using React, use BlockNoteView to take care of mounting
    */
   public mount = (element: HTMLElement) => {
+    const root = element.getRootNode();
+    if (typeof ShadowRoot !== "undefined" && root instanceof ShadowRoot) {
+      root.appendChild(this.portalElement);
+    } else {
+      document.body.appendChild(this.portalElement);
+    }
     this._tiptapEditor.mount({ mount: element });
   };
 
@@ -722,6 +693,7 @@ export class BlockNoteEditor<
    * Unmount the editor from the DOM element it is bound to
    */
   public unmount = () => {
+    this.portalElement?.remove();
     this._tiptapEditor.unmount();
   };
 
@@ -748,6 +720,37 @@ export class BlockNoteEditor<
     }
     return this.prosemirrorView?.dom as HTMLDivElement | undefined;
   }
+
+  private _portalElement: HTMLElement | undefined;
+
+  /**
+   * The portal container element at `document.body` used by floating UI
+   * elements (menus, toolbars) to escape overflow:hidden ancestors.
+   * Set by BlockNoteView; undefined in headless mode.
+   */
+  public get portalElement() {
+    if (typeof document === "undefined") {
+      throw new Error(
+        "Portal element accessed, but not available in headless mode",
+      );
+    }
+    if (!this._portalElement) {
+      this._portalElement = document.createElement("div");
+    }
+    return this._portalElement;
+  }
+
+  /**
+   * Checks whether a DOM element belongs to this editor — either inside the
+   * editor's DOM tree or inside its portal container (used for floating UI
+   * elements like menus and toolbars).
+   */
+  public isWithinEditor = (element: Element): boolean => {
+    return !!(
+      this.domElement?.parentElement?.contains(element) ||
+      this.portalElement?.contains(element)
+    );
+  };
 
   public isFocused() {
     if (this.headless) {
@@ -912,13 +915,13 @@ export class BlockNoteEditor<
    */
   public onBeforeChange(
     callback: (context: {
-      getChanges: () => BlocksChanged<any, any, any>;
+      getChanges: () => BlocksChanged<BSchema, ISchema, SSchema>;
       tr: Transaction;
     }) => boolean | void,
-  ) {
+  ): () => void {
     return this._extensionManager
-      .getExtension(BlockChangeExtension)
-      ?.subscribe(callback);
+      .getExtension(BlockChangeExtension)!
+      .subscribe(callback);
   }
 
   /**
@@ -963,8 +966,8 @@ export class BlockNoteEditor<
    * If the selection starts / ends halfway through a block, the returned block will be
    * only the part of the block that is included in the selection.
    */
-  public getSelectionCutBlocks() {
-    return this._selectionManager.getSelectionCutBlocks();
+  public getSelectionCutBlocks(expandToWords = false) {
+    return this._selectionManager.getSelectionCutBlocks(expandToWords);
   }
 
   /**

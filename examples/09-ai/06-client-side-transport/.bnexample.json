@@ -4,9 +4,9 @@
   "author": "yousefed",
   "tags": ["AI", "llm"],
   "dependencies": {
-    "@ai-sdk/groq": "^2.0.16",
+    "@ai-sdk/groq": "^3.0.2",
     "@blocknote/xl-ai": "latest",
-    "@mantine/core": "^8.3.4",
-    "ai": "^5.0.102"
+    "@mantine/core": "^8.3.11",
+    "ai": "^6.0.5"
   }
 }

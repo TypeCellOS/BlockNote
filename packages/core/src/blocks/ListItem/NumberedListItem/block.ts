@@ -51,9 +51,13 @@ export const createNumberedListItemBlockSpec = createBlockSpec(
 
         const defaultProps = parseDefaultProps(element);
 
+        if (element.previousElementSibling || startIndex === 1) {
+          return defaultProps;
+        }
+
         return {
           ...defaultProps,
-          start: element.previousElementSibling || startIndex === 1 ? undefined : startIndex,
+          start: startIndex,
         };
       }
 
@@ -91,7 +95,7 @@ export const createNumberedListItemBlockSpec = createBlockSpec(
       key: "numbered-list-item-shortcuts",
       inputRules: [
         {
-          find: new RegExp(`^(\\d+)\\.\\s$`),
+          find: /^\s?(\d+)\.\s$/,
           replace({ match, editor }) {
             const blockInfo = getBlockInfoFromSelection(
               editor.prosemirrorState,

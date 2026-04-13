@@ -89,7 +89,7 @@ export class EventManager<
       }
       callback(this.editor, {
         getChanges() {
-          return getBlocksChangedByTransaction(
+          return getBlocksChangedByTransaction<BSchema, I, S>(
             transaction,
             appendedTransactions,
           );

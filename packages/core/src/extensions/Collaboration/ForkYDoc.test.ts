@@ -20,38 +20,42 @@ it("can fork a document", async () => {
     },
   });
 
-  const div = document.createElement("div");
-  editor.mount(div);
+  try {
+    const div = document.createElement("div");
+    editor.mount(div);
 
-  editor.replaceBlocks(editor.document, [
-    {
-      type: "paragraph",
-      content: [{ text: "Hello", styles: {}, type: "text" }],
-    },
-  ]);
+    editor.replaceBlocks(editor.document, [
+      {
+        type: "paragraph",
+        content: [{ text: "Hello", styles: {}, type: "text" }],
+      },
+    ]);
 
-  await expect(fragment.toJSON()).toMatchFileSnapshot(
-    "__snapshots__/fork-yjs-snap.html",
-  );
-  await expect(editor.document).toMatchFileSnapshot(
-    "__snapshots__/fork-yjs-snap-editor.json",
-  );
+    await expect(fragment.toJSON()).toMatchFileSnapshot(
+      "__snapshots__/fork-yjs-snap.html",
+    );
+    await expect(editor.document).toMatchFileSnapshot(
+      "__snapshots__/fork-yjs-snap-editor.json",
+    );
 
-  editor.getExtension(ForkYDocExtension)!.fork();
+    editor.getExtension(ForkYDocExtension)!.fork();
 
-  editor.replaceBlocks(editor.document, [
-    {
-      type: "paragraph",
-      content: [{ text: "Hello World", styles: {}, type: "text" }],
-    },
-  ]);
+    editor.replaceBlocks(editor.document, [
+      {
+        type: "paragraph",
+        content: [{ text: "Hello World", styles: {}, type: "text" }],
+      },
+    ]);
 
-  await expect(fragment.toJSON()).toMatchFileSnapshot(
-    "__snapshots__/fork-yjs-snap.html",
-  );
-  await expect(editor.document).toMatchFileSnapshot(
-    "__snapshots__/fork-yjs-snap-editor-forked.json",
-  );
+    await expect(fragment.toJSON()).toMatchFileSnapshot(
+      "__snapshots__/fork-yjs-snap.html",
+    );
+    await expect(editor.document).toMatchFileSnapshot(
+      "__snapshots__/fork-yjs-snap-editor-forked.json",
+    );
+  } finally {
+    editor.unmount();
+  }
 });
 
 it("can merge a document", async () => {
@@ -67,47 +71,51 @@ it("can merge a document", async () => {
     },
   });
 
-  const div = document.createElement("div");
-  editor.mount(div);
+  try {
+    const div = document.createElement("div");
+    editor.mount(div);
 
-  editor.replaceBlocks(editor.document, [
-    {
-      type: "paragraph",
-      content: [{ text: "Hello", styles: {}, type: "text" }],
-    },
-  ]);
+    editor.replaceBlocks(editor.document, [
+      {
+        type: "paragraph",
+        content: [{ text: "Hello", styles: {}, type: "text" }],
+      },
+    ]);
 
-  await expect(fragment.toJSON()).toMatchFileSnapshot(
-    "__snapshots__/fork-yjs-snap.html",
-  );
-  await expect(editor.document).toMatchFileSnapshot(
-    "__snapshots__/fork-yjs-snap-editor.json",
-  );
+    await expect(fragment.toJSON()).toMatchFileSnapshot(
+      "__snapshots__/fork-yjs-snap.html",
+    );
+    await expect(editor.document).toMatchFileSnapshot(
+      "__snapshots__/fork-yjs-snap-editor.json",
+    );
 
-  editor.getExtension(ForkYDocExtension)!.fork();
+    editor.getExtension(ForkYDocExtension)!.fork();
 
-  editor.replaceBlocks(editor.document, [
-    {
-      type: "paragraph",
-      content: [{ text: "Hello World", styles: {}, type: "text" }],
-    },
-  ]);
+    editor.replaceBlocks(editor.document, [
+      {
+        type: "paragraph",
+        content: [{ text: "Hello World", styles: {}, type: "text" }],
+      },
+    ]);
 
-  await expect(fragment.toJSON()).toMatchFileSnapshot(
-    "__snapshots__/fork-yjs-snap.html",
-  );
-  await expect(editor.document).toMatchFileSnapshot(
-    "__snapshots__/fork-yjs-snap-editor-forked.json",
-  );
+    await expect(fragment.toJSON()).toMatchFileSnapshot(
+      "__snapshots__/fork-yjs-snap.html",
+    );
+    await expect(editor.document).toMatchFileSnapshot(
+      "__snapshots__/fork-yjs-snap-editor-forked.json",
+    );
 
-  editor.getExtension(ForkYDocExtension)!.merge({ keepChanges: false });
+    editor.getExtension(ForkYDocExtension)!.merge({ keepChanges: false });
 
-  await expect(fragment.toJSON()).toMatchFileSnapshot(
-    "__snapshots__/fork-yjs-snap.html",
-  );
-  await expect(editor.document).toMatchFileSnapshot(
-    "__snapshots__/fork-yjs-snap-editor.json",
-  );
+    await expect(fragment.toJSON()).toMatchFileSnapshot(
+      "__snapshots__/fork-yjs-snap.html",
+    );
+    await expect(editor.document).toMatchFileSnapshot(
+      "__snapshots__/fork-yjs-snap-editor.json",
+    );
+  } finally {
+    editor.unmount();
+  }
 });
 
 it("can fork an keep the changes to the original document", async () => {
@@ -123,45 +131,49 @@ it("can fork an keep the changes to the original document", async () => {
     },
   });
 
-  const div = document.createElement("div");
-  editor.mount(div);
+  try {
+    const div = document.createElement("div");
+    editor.mount(div);
 
-  editor.replaceBlocks(editor.document, [
-    {
-      type: "paragraph",
-      content: [{ text: "Hello", styles: {}, type: "text" }],
-    },
-  ]);
+    editor.replaceBlocks(editor.document, [
+      {
+        type: "paragraph",
+        content: [{ text: "Hello", styles: {}, type: "text" }],
+      },
+    ]);
 
-  await expect(fragment.toJSON()).toMatchFileSnapshot(
-    "__snapshots__/fork-yjs-snap.html",
-  );
-  await expect(editor.document).toMatchFileSnapshot(
-    "__snapshots__/fork-yjs-snap-editor.json",
-  );
+    await expect(fragment.toJSON()).toMatchFileSnapshot(
+      "__snapshots__/fork-yjs-snap.html",
+    );
+    await expect(editor.document).toMatchFileSnapshot(
+      "__snapshots__/fork-yjs-snap-editor.json",
+    );
 
-  editor.getExtension(ForkYDocExtension)!.fork();
+    editor.getExtension(ForkYDocExtension)!.fork();
 
-  editor.replaceBlocks(editor.document, [
-    {
-      type: "paragraph",
-      content: [{ text: "Hello World", styles: {}, type: "text" }],
-    },
-  ]);
+    editor.replaceBlocks(editor.document, [
+      {
+        type: "paragraph",
+        content: [{ text: "Hello World", styles: {}, type: "text" }],
+      },
+    ]);
 
-  await expect(fragment.toJSON()).toMatchFileSnapshot(
-    "__snapshots__/fork-yjs-snap.html",
-  );
-  await expect(editor.document).toMatchFileSnapshot(
-    "__snapshots__/fork-yjs-snap-editor-forked.json",
-  );
+    await expect(fragment.toJSON()).toMatchFileSnapshot(
+      "__snapshots__/fork-yjs-snap.html",
+    );
+    await expect(editor.document).toMatchFileSnapshot(
+      "__snapshots__/fork-yjs-snap-editor-forked.json",
+    );
 
-  editor.getExtension(ForkYDocExtension)!.merge({ keepChanges: true });
+    editor.getExtension(ForkYDocExtension)!.merge({ keepChanges: true });
 
-  await expect(fragment.toJSON()).toMatchFileSnapshot(
-    "__snapshots__/fork-yjs-snap-forked.html",
-  );
-  await expect(editor.document).toMatchFileSnapshot(
-    "__snapshots__/fork-yjs-snap-editor-forked.json",
-  );
+    await expect(fragment.toJSON()).toMatchFileSnapshot(
+      "__snapshots__/fork-yjs-snap-forked.html",
+    );
+    await expect(editor.document).toMatchFileSnapshot(
+      "__snapshots__/fork-yjs-snap-editor-forked.json",
+    );
+  } finally {
+    editor.unmount();
+  }
 });

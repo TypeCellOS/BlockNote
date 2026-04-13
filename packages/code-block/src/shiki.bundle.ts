@@ -4,7 +4,7 @@ import type {
   DynamicImportThemeRegistration,
   HighlighterGeneric,
 } from "@shikijs/types";
-import { createdBundledHighlighter } from "@shikijs/core";
+import { createBundledHighlighter } from "@shikijs/core";
 import { createJavaScriptRegexEngine } from "@shikijs/engine-javascript";
 
 type BundledLanguage = "typescript" | "ts" | "javascript" | "js" | "vue";
@@ -77,8 +77,7 @@ const bundledLanguages = {
   rust: () => import("@shikijs/langs-precompiled/rust"),
   rs: () => import("@shikijs/langs-precompiled/rust"),
   scala: () => import("@shikijs/langs-precompiled/scala"),
-  // Swift does not support pre-compilation right now
-  swift: () => import("@shikijs/langs/swift"),
+  swift: () => import("@shikijs/langs-precompiled/swift"),
   kotlin: () => import("@shikijs/langs-precompiled/kotlin"),
   kt: () => import("@shikijs/langs-precompiled/kotlin"),
   kts: () => import("@shikijs/langs-precompiled/kotlin"),
@@ -91,7 +90,7 @@ const bundledThemes = {
   "github-light": () => import("@shikijs/themes/github-light"),
 } as Record<BundledTheme, DynamicImportThemeRegistration>;
 
-const createHighlighter = /* @__PURE__ */ createdBundledHighlighter<
+const createHighlighter = /* @__PURE__ */ createBundledHighlighter<
   BundledLanguage,
   BundledTheme
 >({

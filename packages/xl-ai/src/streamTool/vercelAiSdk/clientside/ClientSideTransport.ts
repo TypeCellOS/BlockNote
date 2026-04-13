@@ -5,16 +5,10 @@ import {
   UIMessage,
   UIMessageChunk,
   convertToModelMessages,
-  generateObject,
   generateText,
-  streamObject,
   streamText,
 } from "ai";
 import { injectDocumentStateMessages } from "../util/injectDocumentStateMessages.js";
-import {
-  objectAsToolCallInUIMessageStream,
-  partialObjectStreamAsToolCallInUIMessageStream,
-} from "../util/partialObjectStreamUtil.js";
 import { toolDefinitionsToToolSet } from "../util/toolDefinitions.js";
 
 export const PROVIDER_OVERRIDES = {
@@ -64,94 +58,21 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
       /**
        * Whether to stream the LLM response or not
        *
-       * When streaming, we use the AI SDK stream functions `streamObject` / `streamText,
-       * otherwise, we use the AI SDK `generateObject` / `generateText` functions.
+       * When streaming, we use the AI SDK stream function `streamText`,
+       * otherwise, we use the AI SDK `generateText` function.
        *
        * @default true
        */
       stream?: boolean;
 
       /**
-       * Use object generation instead of tool calling
-       *
-       * @default false
-       */
-      objectGeneration?: boolean;
-
-      /**
-       * Additional options to pass to the AI SDK `generateObject` / `streamObject` / `streamText` / `generateText` functions
+       * Additional options to pass to the AI SDK `streamText` / `generateText` functions
        */
       _additionalOptions?:
-        | Partial<Parameters<typeof generateObject>[0]>
-        | Partial<Parameters<typeof streamObject>[0]>
         | Partial<Parameters<typeof generateText>[0]>
         | Partial<Parameters<typeof streamText>[0]>;
     },
   ) {}
-
-  /**
-   * Calls an LLM with StreamTools, using the `generateObject` of the AI SDK.
-   *
-   * This is the non-streaming version.
-   */
-  protected async generateObject(messages: UIMessage[], tools: ToolSet) {
-    const { model, _additionalOptions } = this.opts;
-
-    if (typeof model === "string") {
-      throw new Error("model must be a LanguageModelV2");
-    }
-
-    // (we assume there is only one tool definition passed and that should be used for object generation)
-    const toolName = Object.keys(tools)[0];
-    const schema = tools[toolName].inputSchema;
-
-    const ret = await generateObject<any, any, { operations: any }>({
-      output: "object" as const,
-      schema,
-      model,
-      mode: "tool",
-      system: this.opts.systemPrompt,
-      messages: convertToModelMessages(injectDocumentStateMessages(messages)),
-      ...getProviderOverrides(model),
-      ...((_additionalOptions ?? {}) as any),
-    });
-
-    return objectAsToolCallInUIMessageStream(ret.object, toolName);
-  }
-
-  /**
-   * Calls an LLM with StreamTools, using the `streamObject` of the AI SDK.
-   *
-   * This is the streaming version.
-   */
-  protected async streamObject(messages: UIMessage[], tools: ToolSet) {
-    const { model, _additionalOptions } = this.opts;
-
-    if (typeof model === "string") {
-      throw new Error("model must be a LanguageModelV2");
-    }
-
-    // (we assume there is only one tool definition passed and that should be used for object generation)
-    const toolName = Object.keys(tools)[0];
-    const schema = tools[toolName].inputSchema;
-
-    const ret = streamObject({
-      output: "object" as const,
-      schema,
-      model,
-      mode: "tool",
-      system: this.opts.systemPrompt,
-      messages: convertToModelMessages(injectDocumentStateMessages(messages)),
-      ...getProviderOverrides(model),
-      ...((_additionalOptions ?? {}) as any),
-    });
-
-    // Transform the partial object stream to a data stream format
-    return partialObjectStreamAsToolCallInUIMessageStream(
-      ret.fullStream,
-      toolName,
-    );
-  }
 
   /**
    * Calls an LLM with StreamTools, using the `streamText` of the AI SDK.
@@ -164,7 +85,9 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
     const ret = streamText({
       model,
       system: this.opts.systemPrompt,
-      messages: convertToModelMessages(injectDocumentStateMessages(messages)),
+      messages: await convertToModelMessages(
+        injectDocumentStateMessages(messages),
+      ),
       tools,
       toolChoice: "required",
       // extra options for streamObject
@@ -184,15 +107,7 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
   > {
     const stream = this.opts.stream ?? true;
     const toolDefinitions = (body as any).toolDefinitions;
-    const tools = toolDefinitionsToToolSet(toolDefinitions);
-
-    if (this.opts.objectGeneration) {
-      if (stream) {
-        return this.streamObject(messages, tools);
-      } else {
-        return this.generateObject(messages, tools);
-      }
-    }
+    const tools = await toolDefinitionsToToolSet(toolDefinitions);
 
     if (stream) {
       // this can be used to simulate initial network errors

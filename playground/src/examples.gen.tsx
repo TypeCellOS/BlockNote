@@ -288,7 +288,7 @@
       {
         "projectSlug": "shadowdom",
         "fullSlug": "basic/shadowdom",
-        "pathFromRoot": "examples/01-basic/14-shadowdom",
+        "pathFromRoot": "examples/01-basic/15-shadowdom",
         "config": {
           "playground": true,
           "docs": false,
@@ -303,6 +303,25 @@
           "slug": "basic"
         },
         "readme": "This example shows how to render the BlockNote editor inside a Shadow DOM.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)"
+      },
+      {
+        "projectSlug": "read-only-editor",
+        "fullSlug": "basic/read-only-editor",
+        "pathFromRoot": "examples/01-basic/16-read-only-editor",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Read-only Editor",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        },
+        "readme": "This example makes the editor read-only while showing the same content as the [Default Schema Showcase](/examples/basic/default-blocks) example.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Document Structure](/docs/foundations/document-structure)\n- [Default Schema](/docs/foundations/schemas)"
       },
       {
         "projectSlug": "testing",
@@ -457,8 +476,8 @@
             "Custom Schemas"
           ],
           "dependencies": {
-            "@mantine/core": "^8.3.4",
-            "react-icons": "^5.2.1"
+            "@mantine/core": "^8.3.11",
+            "react-icons": "^5.5.0"
           } as any
         },
         "title": "Adding Block Type Select Items",
@@ -483,7 +502,7 @@
             "Block Side Menu"
           ],
           "dependencies": {
-            "react-icons": "^5.2.1"
+            "react-icons": "^5.5.0"
           } as any
         },
         "title": "Adding Block Side Menu Buttons",
@@ -508,7 +527,7 @@
             "Block Side Menu"
           ],
           "dependencies": {
-            "react-icons": "^5.2.1"
+            "react-icons": "^5.5.0"
           } as any
         },
         "title": "Adding Drag Handle Menu Items",
@@ -534,7 +553,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "react-icons": "^5.2.1"
+            "react-icons": "^5.5.0"
           } as any
         },
         "title": "Adding Slash Menu Items",
@@ -659,7 +678,7 @@
             "@uppy/status-bar": "^3.1.1",
             "@uppy/webcam": "^3.4.2",
             "@uppy/xhr-upload": "^3.4.0",
-            "react-icons": "^5.2.1"
+            "react-icons": "^5.5.0"
           } as any,
           "pro": true
         },
@@ -711,8 +730,6 @@
             "Appearance & Styling"
           ],
           "dependencies": {
-            "@emotion/react": "^11.11.4",
-            "@emotion/styled": "^11.11.5",
             "@mui/icons-material": "^5.16.1",
             "@mui/material": "^5.16.1"
           } as any,
@@ -812,6 +829,28 @@
           "slug": "ui-components"
         },
         "readme": "This example demonstrates advanced table features including automatic calculations. It shows how to create a table with calculated columns that automatically update when values change.\n\n## Features\n\n- **Automatic Calculations**: Quantity × Price = Total for each row\n- **Grand Total**: Automatically calculated sum of all totals\n- **Real-time Updates**: Calculations update immediately when you change quantity or price values\n- **Split cells**: Merge and split table cells\n- **Cell background color**: Color individual cells\n- **Cell text color**: Change text color in cells\n- **Table row and column headers**: Use headers for better organization\n\n## How It Works\n\nThe example uses the `onChange` event listener to detect when table content changes. When a table is updated, it automatically:\n\n1. Extracts quantity and price values from each data row\n2. Calculates the total (quantity × price) for each row\n3. Updates the total column with the calculated values\n4. Calculates and updates the grand total\n\n## Code Highlights\n\n```tsx\n<BlockNoteView\n  editor={editor}\n  onChange={(editor, { getChanges }) => {\n    const changes = getChanges();\n\n    changes.forEach((change) => {\n      if (change.type === \"update\" && change.block.type === \"table\") {\n        const updatedRows = calculateTableTotals(change.block);\n        if (updatedRows) {\n          editor.updateBlock(change.block, {\n            type: \"table\",\n            content: {\n              ...change.block.content,\n              rows: updatedRows as any,\n            } as any,\n          });\n        }\n      }\n    });\n  }}\n></BlockNoteView>\n```\n\n**Relevant Docs:**\n\n- [Tables](/docs/features/blocks/tables)\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Events](/docs/reference/editor/events)"
+      },
+      {
+        "projectSlug": "drag-n-drop",
+        "fullSlug": "ui-components/drag-n-drop",
+        "pathFromRoot": "examples/03-ui-components/18-drag-n-drop",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "nperez0111",
+          "tags": [
+            "Intermediate",
+            "UI Components",
+            "Drag & Drop",
+            "Customization"
+          ]
+        },
+        "title": "Drag & Drop Exclusion",
+        "group": {
+          "pathFromRoot": "examples/03-ui-components",
+          "slug": "ui-components"
+        },
+        "readme": "This example demonstrates how to use the `DRAG_EXCLUSION_CLASSNAME` to create separate drag & drop areas that don't interfere with BlockNote's built-in block drag & drop functionality.\n\n## Features\n\n- **Drag Exclusion**: Elements with the `bn-drag-exclude` classname are treated as separate drag & drop operations\n- **Independent Drag Areas**: Create custom drag & drop functionality alongside BlockNote's editor\n- **No Interference**: Custom drag operations won't trigger BlockNote's block reordering\n- **Side-by-side Demo**: Shows the editor and custom drag area working independently\n\n## How It Works\n\nBy adding the `DRAG_EXCLUSION_CLASSNAME` (`bn-drag-exclude`) to an element, you tell BlockNote's drag & drop handlers to ignore all drag events within that element and its children. This allows you to implement your own custom drag & drop logic without conflicts.\n\nThe exclusion check works by traversing up the DOM tree from the drag event target, checking if any ancestor has the exclusion classname. If found, BlockNote's handlers return early, leaving your custom handlers in full control.\n\n## Code Highlights\n\n### Import the constant:\n\n```tsx\nimport { DRAG_EXCLUSION_CLASSNAME } from \"@blocknote/core\";\n```\n\n### Apply it to your custom drag area:\n\n```tsx\n<div className={\"drag-demo-section \" + DRAG_EXCLUSION_CLASSNAME}>\n  {/* Your custom drag & drop UI */}\n  <div draggable onDragStart={handleDragStart} onDrop={handleDrop}>\n    Custom draggable items\n  </div>\n</div>\n```\n\n## Use Cases\n\n- **Custom UI elements**: Add draggable components within or near the editor\n- **File upload areas**: Create drag-and-drop file upload zones\n- **Sortable lists**: Implement custom sortable lists alongside the editor\n- **External integrations**: Integrate with third-party drag & drop libraries\n\n**Relevant Docs:**\n\n- [Side Menu (Drag Handle)](/docs/react/components/side-menu)\n- [Editor Setup](/docs/getting-started/editor-setup)"
       }
     ]
   },
@@ -1100,8 +1139,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-docx-exporter": "latest",
-            "@blocknote/xl-multi-column": "latest",
-            "docx": "^9.5.1"
+            "@blocknote/xl-multi-column": "latest"
           } as any,
           "pro": true
         },
@@ -1149,7 +1187,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-email-exporter": "latest",
-            "@react-email/render": "^1.1.2"
+            "@react-email/render": "^2.0.4"
           } as any,
           "pro": true
         },
@@ -1159,6 +1197,48 @@
           "slug": "interoperability"
         },
         "readme": "This example exports the current document (all blocks) as an HTML file for use in emails, and downloads it to your computer.\n\n**Try it out:** Edit the document and click \"Download email .html\" at the top to download the HTML file."
+      },
+      {
+        "projectSlug": "blocks-to-html-static-render",
+        "fullSlug": "interoperability/blocks-to-html-static-render",
+        "pathFromRoot": "examples/05-interoperability/09-blocks-to-html-static-render",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic",
+            "Blocks",
+            "Import/Export"
+          ]
+        },
+        "title": "Rendering HTML Converted From Blocks (Side by Side)",
+        "group": {
+          "pathFromRoot": "examples/05-interoperability",
+          "slug": "interoperability"
+        },
+        "readme": "This example exports the current document (all blocks) as HTML and renders it below the editor.\n\n**Try it out:** Edit the document to see the rendered static HTML!\n\n**Relevant Docs:**\n\n- [Converting Blocks to HTML](/docs/features/export/html)"
+      },
+      {
+        "projectSlug": "static-html-render",
+        "fullSlug": "interoperability/static-html-render",
+        "pathFromRoot": "examples/05-interoperability/10-static-html-render",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic",
+            "Blocks",
+            "Inline Content"
+          ]
+        },
+        "title": "Rendering HTML Converted From Blocks",
+        "group": {
+          "pathFromRoot": "examples/05-interoperability",
+          "slug": "interoperability"
+        },
+        "readme": "This example exports the current document (all blocks) as HTML and renders it.\n\n**Relevant Docs:**\n\n- [Converting Blocks to HTML](/docs/features/export/html)"
       }
     ]
   },
@@ -1182,8 +1262,8 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^8.3.4",
-            "react-icons": "^5.2.1"
+            "@mantine/core": "^8.3.11",
+            "react-icons": "^5.5.0"
           } as any
         },
         "title": "Alert Block",
@@ -1230,7 +1310,7 @@
             "Formatting Toolbar"
           ],
           "dependencies": {
-            "react-icons": "^5.2.1"
+            "react-icons": "^5.5.0"
           } as any
         },
         "title": "Font Style",
@@ -1256,8 +1336,8 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^8.3.4",
-            "react-icons": "^5.2.1"
+            "@mantine/core": "^8.3.11",
+            "react-icons": "^5.5.0"
           } as any,
           "pro": true
         },
@@ -1285,8 +1365,8 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^8.3.4",
-            "react-icons": "^5.2.1"
+            "@mantine/core": "^8.3.11",
+            "react-icons": "^5.5.0"
           } as any
         },
         "title": "Alert Block with Full UX",
@@ -1447,11 +1527,11 @@
             "Collaboration"
           ],
           "dependencies": {
-            "@liveblocks/client": "3.7.1-tiptap3",
-            "@liveblocks/react": "3.7.1-tiptap3",
-            "@liveblocks/react-blocknote": "3.7.1-tiptap3",
-            "@liveblocks/react-tiptap": "3.7.1-tiptap3",
-            "@liveblocks/react-ui": "3.7.1-tiptap3",
+            "@liveblocks/client": "^3.17.0",
+            "@liveblocks/react": "^3.17.0",
+            "@liveblocks/react-blocknote": "^3.17.0",
+            "@liveblocks/react-tiptap": "^3.17.0",
+            "@liveblocks/react-ui": "^3.17.0",
             "yjs": "^13.6.27"
           } as any
         },
@@ -1522,7 +1602,7 @@
           ],
           "dependencies": {
             "@y-sweet/react": "^0.6.3",
-            "@mantine/core": "^8.3.4"
+            "@mantine/core": "^8.3.11"
           } as any
         },
         "title": "Comments & Threads",
@@ -1548,7 +1628,7 @@
           "dependencies": {
             "y-partykit": "^0.0.25",
             "yjs": "^13.6.27",
-            "@mantine/core": "^8.3.4"
+            "@mantine/core": "^8.3.11"
           } as any
         },
         "title": "Threads Sidebar",
@@ -1657,8 +1737,8 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.4",
-            "ai": "^5.0.102"
+            "@mantine/core": "^8.3.11",
+            "ai": "^6.0.5"
           } as any
         },
         "title": "Rich Text editor AI integration",
@@ -1682,8 +1762,8 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.4",
-            "ai": "^5.0.102"
+            "@mantine/core": "^8.3.11",
+            "ai": "^6.0.5"
           } as any
         },
         "title": "AI Playground",
@@ -1707,9 +1787,9 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.4",
-            "ai": "^5.0.102",
-            "react-icons": "^5.2.1"
+            "@mantine/core": "^8.3.11",
+            "ai": "^6.0.5",
+            "react-icons": "^5.5.0"
           } as any
         },
         "title": "Adding AI Menu Items",
@@ -1733,8 +1813,8 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.4",
-            "ai": "^5.0.102",
+            "@mantine/core": "^8.3.11",
+            "ai": "^6.0.5",
             "y-partykit": "^0.0.25",
             "yjs": "^13.6.27"
           } as any
@@ -1760,8 +1840,8 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.4",
-            "ai": "^5.0.102",
+            "@mantine/core": "^8.3.11",
+            "ai": "^6.0.5",
             "y-partykit": "^0.0.25",
             "yjs": "^13.6.27"
           } as any
@@ -1786,10 +1866,10 @@
             "llm"
           ],
           "dependencies": {
-            "@ai-sdk/groq": "^2.0.16",
+            "@ai-sdk/groq": "^3.0.2",
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.4",
-            "ai": "^5.0.102"
+            "@mantine/core": "^8.3.11",
+            "ai": "^6.0.5"
           } as any
         },
         "title": "AI Integration with ClientSideTransport",
@@ -1813,8 +1893,8 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.4",
-            "ai": "^5.0.102"
+            "@mantine/core": "^8.3.11",
+            "ai": "^6.0.5"
           } as any
         },
         "title": "AI Integration with server LLM message persistence",

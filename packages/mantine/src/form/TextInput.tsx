@@ -22,6 +22,7 @@ export const TextInput = forwardRef<
     onChange,
     onSubmit,
     autoComplete,
+    "aria-activedescendant": ariaActivedescendant,
     rightSection,
     ...rest
   } = props;
@@ -33,7 +34,7 @@ export const TextInput = forwardRef<
       size={"xs"}
       className={mergeCSSClasses(
         className || "",
-        variant === "large" ? "bn-mt-input-large" : ""
+        variant === "large" ? "bn-mt-input-large" : "",
       )}
       ref={ref}
       name={name}
@@ -49,6 +50,7 @@ export const TextInput = forwardRef<
       onChange={onChange}
       onSubmit={onSubmit}
       autoComplete={autoComplete}
+      aria-activedescendant={ariaActivedescendant}
     />
   );
 });

@@ -11,8 +11,7 @@ import { dragAndDropBlock } from "../../utils/mouse.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 const IMAGE_UPLOAD_PATH = "src/end-to-end/images/placeholder.png";
-const IMAGE_EMBED_URL =
-  "https://www.pulsecarshalton.co.uk/wp-content/uploads/2016/08/jk-placeholder-image.jpg";
+const IMAGE_EMBED_URL = "https://placehold.co/800x540.png";
 
 test.beforeEach(async ({ page }) => {
   await page.goto(BASE_URL);

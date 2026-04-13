@@ -13,11 +13,7 @@ import { LinkWithCaption } from "../File/helpers/toExternalHTML/LinkWithCaption.
 
 export const AudioPreview = (
   props: Omit<
-    ReactCustomBlockRenderProps<
-      ReturnType<typeof createAudioBlockConfig>["type"],
-      ReturnType<typeof createAudioBlockConfig>["propSchema"],
-      ReturnType<typeof createAudioBlockConfig>["content"]
-    >,
+    ReactCustomBlockRenderProps<typeof createAudioBlockConfig>,
     "contentRef"
   >,
 ) => {
@@ -40,11 +36,7 @@ export const AudioPreview = (
 
 export const AudioToExternalHTML = (
   props: Omit<
-    ReactCustomBlockRenderProps<
-      ReturnType<typeof createAudioBlockConfig>["type"],
-      ReturnType<typeof createAudioBlockConfig>["propSchema"],
-      ReturnType<typeof createAudioBlockConfig>["content"]
-    >,
+    ReactCustomBlockRenderProps<typeof createAudioBlockConfig>,
     "contentRef"
   >,
 ) => {
@@ -76,11 +68,7 @@ export const AudioToExternalHTML = (
 };
 
 export const AudioBlock = (
-  props: ReactCustomBlockRenderProps<
-    ReturnType<typeof createAudioBlockConfig>["type"],
-    ReturnType<typeof createAudioBlockConfig>["propSchema"],
-    ReturnType<typeof createAudioBlockConfig>["content"]
-  >,
+  props: ReactCustomBlockRenderProps<typeof createAudioBlockConfig>,
 ) => {
   return (
     <FileBlockWrapper
@@ -95,6 +83,9 @@ export const AudioBlock = (
 export const ReactAudioBlock = createReactBlockSpec(
   createAudioBlockConfig,
   (config) => ({
+    meta: {
+      fileBlockAccept: ["audio/*"],
+    },
     render: AudioBlock,
     parse: audioParse(config),
     toExternalHTML: AudioToExternalHTML,

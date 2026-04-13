@@ -51,7 +51,6 @@ export * from "./components/Popovers/BlockPopover.js";
 export * from "./components/Popovers/FloatingUIOptions.js";
 export * from "./components/Popovers/GenericPopover.js";
 export * from "./components/Popovers/PositionPopover.js";
-export * from "./components/Popovers/TableCellPopover.js";
 
 export * from "./components/SideMenu/DefaultButtons/AddBlockButton.js";
 export * from "./components/SideMenu/DefaultButtons/DragHandleButton.js";

@@ -148,8 +148,7 @@ test.describe("Check Copy/Paste Functionality", () => {
     await focusOnEditor(page);
     await page.keyboard.type("paragraph");
 
-    const IMAGE_EMBED_URL =
-      "https://www.pulsecarshalton.co.uk/wp-content/uploads/2016/08/jk-placeholder-image.jpg";
+    const IMAGE_EMBED_URL = "https://placehold.co/800x540.png";
     await executeSlashCommand(page, "image");
 
     await page.click(`[data-test="embed-tab"]`);

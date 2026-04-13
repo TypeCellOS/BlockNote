@@ -1,3 +1,157 @@
+## 0.47.3 (2026-03-25)
+
+### 🩹 Fixes
+
+- **core:** preserve whitespace edge cases but collapse html formatting newlines (BLO-1065) ([#2551](https://github.com/TypeCellOS/BlockNote/pull/2551), [#2230](https://github.com/TypeCellOS/BlockNote/issues/2230))
+
+### ❤️ Thank You
+
+- Yousef
+
+## 0.47.2 (2026-03-20)
+
+### 🩹 Fixes
+
+- use <details>/<summary> for toggle block HTML export ([#2524](https://github.com/TypeCellOS/BlockNote/pull/2524))
+- remove @hocuspocus/provider peer dependency by inlining tiptap comment types BLO-1064 ([#2564](https://github.com/TypeCellOS/BlockNote/pull/2564))
+- **core:** slash menu fails in custom blocks after space BLO-1036 ([#2553](https://github.com/TypeCellOS/BlockNote/pull/2553))
+- **i18n:** fix typo in russian translation ([#2560](https://github.com/TypeCellOS/BlockNote/pull/2560))
+
+### ❤️ Thank You
+
+- Claude Opus 4.6
+- Drone
+- Yousef
+
+## 0.47.1 (2026-03-02)
+
+### 🩹 Fixes
+
+- typeerror cannot read properties of undefined ([#2522](https://github.com/TypeCellOS/BlockNote/pull/2522))
+- handle more delete key cases ([#2126](https://github.com/TypeCellOS/BlockNote/pull/2126))
+- add delay for `data-active` in collab cursors ([#2383](https://github.com/TypeCellOS/BlockNote/pull/2383))
+- disable slash menu in table content #2408 ([#2504](https://github.com/TypeCellOS/BlockNote/pull/2504), [#2408](https://github.com/TypeCellOS/BlockNote/issues/2408))
+- **ai:** selections broken due to floating-ui focus manager ([#2527](https://github.com/TypeCellOS/BlockNote/pull/2527))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- Yousef
+
+## 0.47.0 (2026-02-23)
+
+### 🚀 Features
+
+- update suggestion menu component ([#2397](https://github.com/TypeCellOS/BlockNote/pull/2397))
+- **i18n:** add Persian (fa) localization support ([#2447](https://github.com/TypeCellOS/BlockNote/pull/2447))
+- **i18n:** add Uzbek (uz) localization support ([#2506](https://github.com/TypeCellOS/BlockNote/pull/2506))
+
+### 🩹 Fixes
+
+- prevent nested bullet list icon rendering as emoji on iOS 18+ ([#2394](https://github.com/TypeCellOS/BlockNote/pull/2394), [#2399](https://github.com/TypeCellOS/BlockNote/pull/2399))
+- ignore drag & drop from unrelated events #1968 ([#2346](https://github.com/TypeCellOS/BlockNote/pull/2346), [#1968](https://github.com/TypeCellOS/BlockNote/issues/1968))
+- disable checkbox when editor is not editable #2406 ([#2448](https://github.com/TypeCellOS/BlockNote/pull/2448), [#2406](https://github.com/TypeCellOS/BlockNote/issues/2406))
+- Backspace/enter behaviour in empty block with children ([#2451](https://github.com/TypeCellOS/BlockNote/pull/2451))
+- handle pasting into table cells better, by collapsing their content to inline #2410 ([#2449](https://github.com/TypeCellOS/BlockNote/pull/2449), [#2410](https://github.com/TypeCellOS/BlockNote/issues/2410))
+- **accessibility:** ai combobox aria-activedescendant ([#2413](https://github.com/TypeCellOS/BlockNote/pull/2413))
+- **ai:** no more scrolling to top when opening AI menu ([#2503](https://github.com/TypeCellOS/BlockNote/pull/2503))
+- **docs:** unicode char not rendered in bug template ([f13e270be](https://github.com/TypeCellOS/BlockNote/commit/f13e270be))
+
+### ❤️ Thank You
+
+- Cyril G @Ovgodd
+- Dex Devlon @bxff
+- Matthew Lipski @matthewlipski
+- MDSAM05 @MDSAM05
+- Mohammad RAHMANI @Mrahmani71
+- Nick Perez
+- Ogabek @OgabekYuldoshev
+- Wouter Vroege
+- Yousef
+
+## 0.46.2 (2026-01-27)
+
+### 🩹 Fixes
+
+- deep merge floatingUIOptions using nested spread operators ([#2310](https://github.com/TypeCellOS/BlockNote/pull/2310))
+- Visual differences between live editor and rendered exported HTML ([#2348](https://github.com/TypeCellOS/BlockNote/pull/2348))
+- `BlockNoteViewEditor` mismatched editable value ([#2357](https://github.com/TypeCellOS/BlockNote/pull/2357))
+- add `font-synthesis` for italic & bold in fonts that don't have them specified #2325 ([#2354](https://github.com/TypeCellOS/BlockNote/pull/2354), [#2325](https://github.com/TypeCellOS/BlockNote/issues/2325))
+- disable code block language selector when editor is not editable ([#2351](https://github.com/TypeCellOS/BlockNote/pull/2351))
+- table handles would crash ([#2384](https://github.com/TypeCellOS/BlockNote/pull/2384))
+- update CreateLinkButton to be able to toggle popover visibility ([#2316](https://github.com/TypeCellOS/BlockNote/pull/2316), [#2313](https://github.com/TypeCellOS/BlockNote/issues/2313))
+- add context,nestingLevel to toExternalHTML ([#2373](https://github.com/TypeCellOS/BlockNote/pull/2373))
+- **ai:** re-enable flipping the AIMenu when there is not enough space #2245 ([#2247](https://github.com/TypeCellOS/BlockNote/pull/2247), [#2245](https://github.com/TypeCellOS/BlockNote/issues/2245))
+- **link-toolbar:** prevent Enter from submitting during IME composition ([#2361](https://github.com/TypeCellOS/BlockNote/pull/2361))
+
+### ❤️ Thank You
+
+- hanios123
+- Jean-Baptiste PENRATH
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- Shohei Yoshida @ysds
+- Yousef
+
+## 0.46.1 (2026-01-10)
+
+This was a version bump only, there were no code changes.
+
+## 0.46.0 (2026-01-08)
+
+### 🚀 Features
+
+- add data-nesting-level to HTML export ([#2329](https://github.com/TypeCellOS/BlockNote/pull/2329))
+- migrate to ai sdk 6 ([#2328](https://github.com/TypeCellOS/BlockNote/pull/2328))
+
+### 🩹 Fixes
+
+- emojipicker can sometimes fail to mount ([575b81cec](https://github.com/TypeCellOS/BlockNote/commit/575b81cec))
+- LinkToolbar Event Listener leak ([#2335](https://github.com/TypeCellOS/BlockNote/pull/2335))
+- when you convert a block into checkListItem via inputRule, it should transfer its content into checkListItem content ([#2331](https://github.com/TypeCellOS/BlockNote/pull/2331))
+- do not return focus back to menu ([484d7da36](https://github.com/TypeCellOS/BlockNote/commit/484d7da36))
+- arrow up on a checklist item should move to the element above BLO-362 ([#2306](https://github.com/TypeCellOS/BlockNote/pull/2306))
+- getPos race condition in React StrictMode ([#2311](https://github.com/TypeCellOS/BlockNote/pull/2311))
+- adjust input rules to be more tolerant to starting whitespace ([#2341](https://github.com/TypeCellOS/BlockNote/pull/2341))
+- **ai:** make sure ShowSelection works ([#2297](https://github.com/TypeCellOS/BlockNote/pull/2297))
+- **xl-email-exporter:** remove redundant sections in email export ([#2323](https://github.com/TypeCellOS/BlockNote/pull/2323))
+
+### ❤️ Thank You
+
+- Nick Perez
+- Nick the Sick @nperez0111
+- supernova @tmpluto
+- Yousef
+
+## 0.45.0 (2025-12-17)
+
+### 🚀 Features
+
+- **ai:** expand selections to contain words ([#2304](https://github.com/TypeCellOS/BlockNote/pull/2304))
+- **extensions:** extensions can now include other extensions for grouping into one extension ([#2284](https://github.com/TypeCellOS/BlockNote/pull/2284))
+
+### 🩹 Fixes
+
+- an invalidly specified table should not crash the editor ([#2255](https://github.com/TypeCellOS/BlockNote/pull/2255))
+- filter out invalid heading items based on the current block schema in the slash menu #2253 ([#2259](https://github.com/TypeCellOS/BlockNote/pull/2259), [#2253](https://github.com/TypeCellOS/BlockNote/issues/2253))
+- relax shiki package requirements #2279 ([#2280](https://github.com/TypeCellOS/BlockNote/pull/2280), [#2279](https://github.com/TypeCellOS/BlockNote/issues/2279))
+- filter the default tiptap extensions #2282 ([#2283](https://github.com/TypeCellOS/BlockNote/pull/2283), [#2282](https://github.com/TypeCellOS/BlockNote/issues/2282))
+- always include the cursor extension #2244 ([#2260](https://github.com/TypeCellOS/BlockNote/pull/2260), [#2244](https://github.com/TypeCellOS/BlockNote/issues/2244))
+- make `onBeforeChange` return the correct type again ([9009369b1](https://github.com/TypeCellOS/BlockNote/commit/9009369b1))
+- if there is no table block, there is no table handles to show #1055 ([#2281](https://github.com/TypeCellOS/BlockNote/pull/2281), [#1055](https://github.com/TypeCellOS/BlockNote/issues/1055))
+- pass dragHandleMenu prop to DragHandleButton ([#2254](https://github.com/TypeCellOS/BlockNote/pull/2254))
+- html diff error with whitespace ([#2230](https://github.com/TypeCellOS/BlockNote/pull/2230))
+- update regex for checklist items #2288 ([#2305](https://github.com/TypeCellOS/BlockNote/pull/2305), [#2288](https://github.com/TypeCellOS/BlockNote/issues/2288))
+- **email-exporter:** ReadableByteStreamController for safari react-email ([#2295](https://github.com/TypeCellOS/BlockNote/pull/2295))
+
+### ❤️ Thank You
+
+- Max @maqen
+- Nick Perez
+- Nick the Sick @nperez0111
+- Yousef
+
 ## 0.44.2 (2025-12-09)
 
 ### 🩹 Fixes

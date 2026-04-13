@@ -10,22 +10,32 @@ import {
  * Returns the block info from the parent block
  * or undefined if we're at the root
  */
-export const getParentBlockInfo = (doc: Node, beforePos: number) => {
+export const getParentBlockInfo = (
+  doc: Node,
+  beforePos: number,
+): BlockInfo | undefined => {
   const $pos = doc.resolve(beforePos);
+  const depth = $pos.depth - 1;
 
-  if ($pos.depth <= 1) {
+  if (depth < 1) {
     return undefined;
   }
 
-  // get start pos of parent
-  const parentBeforePos = $pos.posAtIndex(
-    $pos.index($pos.depth - 1),
-    $pos.depth - 1,
-  );
+  const parentBeforePos = $pos.before(depth);
+  const parentNode = doc.resolve(parentBeforePos).nodeAfter;
+
+  if (!parentNode) {
+    return undefined;
+  }
+
+  if (!parentNode.type.spec.group?.includes("bnBlock")) {
+    return getParentBlockInfo(doc, parentBeforePos);
+  }
 
   const parentBlockInfo = getBlockInfoFromResolvedPos(
     doc.resolve(parentBeforePos),
   );
+
   return parentBlockInfo;
 };
 
@@ -48,6 +58,27 @@ export const getPrevBlockInfo = (doc: Node, beforePos: number) => {
     doc.resolve(prevBlockBeforePos),
   );
   return prevBlockInfo;
+};
+
+/**
+ * Returns the block info from the sibling block after (below) the given block,
+ * or undefined if the given block is the last sibling.
+ */
+export const getNextBlockInfo = (doc: Node, beforePos: number) => {
+  const $pos = doc.resolve(beforePos);
+
+  const indexInParent = $pos.index();
+
+  if (indexInParent === $pos.node().childCount - 1) {
+    return undefined;
+  }
+
+  const nextBlockBeforePos = $pos.posAtIndex(indexInParent + 1);
+
+  const nextBlockInfo = getBlockInfoFromResolvedPos(
+    doc.resolve(nextBlockBeforePos),
+  );
+  return nextBlockInfo;
 };
 
 /**

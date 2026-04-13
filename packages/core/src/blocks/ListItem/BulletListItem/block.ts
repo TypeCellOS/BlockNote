@@ -103,7 +103,7 @@ export const createBulletListItemBlockSpec = createBlockSpec(
       },
       inputRules: [
         {
-          find: new RegExp(`^[-+*]\\s$`),
+          find: /^\s?[-+*]\s$/,
           replace({ editor }) {
             const blockInfo = getBlockInfoFromSelection(
               editor.prosemirrorState,

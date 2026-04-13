@@ -51,6 +51,9 @@ const UniqueID = Extension.create({
       attributeName: "id",
       types: [],
       setIdAttribute: false,
+      isWithinEditor: undefined as
+        | ((element: Element) => boolean)
+        | undefined,
       generateID: () => {
         // Use mock ID if tests are running.
         if (typeof window !== "undefined" && (window as any).__TEST_OPTIONS) {
@@ -128,6 +131,7 @@ const UniqueID = Extension.create({
   //   view.dispatch(tr);
   // },
   addProseMirrorPlugins() {
+    const { isWithinEditor } = this.options;
     let dragSourceElement: any = null;
     let transformPasted = false;
     return [
@@ -228,14 +232,11 @@ const UniqueID = Extension.create({
         // we register a global drag handler to track the current drag source element
         view(view) {
           const handleDragstart = (event: any) => {
-            let _a;
-            dragSourceElement = (
-              (_a = view.dom.parentElement) === null || _a === void 0
-                ? void 0
-                : _a.contains(event.target)
-            )
-              ? view.dom.parentElement
-              : null;
+            const editorParent = view.dom.parentElement;
+            const isFromEditor =
+              editorParent?.contains(event.target) ||
+              isWithinEditor?.(event.target);
+            dragSourceElement = isFromEditor ? editorParent : null;
           };
           window.addEventListener("dragstart", handleDragstart);
           return {

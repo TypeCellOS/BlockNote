@@ -20,7 +20,7 @@ export const BlockChangeExtension = createExtension(() => {
         key: new PluginKey("blockChange"),
         filterTransaction: (tr) => {
           let changes:
-            | ReturnType<typeof getBlocksChangedByTransaction>
+            | ReturnType<typeof getBlocksChangedByTransaction<any, any, any>>
             | undefined = undefined;
 
           return beforeChangeCallbacks.reduce((acc, cb) => {
@@ -34,7 +34,7 @@ export const BlockChangeExtension = createExtension(() => {
                   if (changes) {
                     return changes;
                   }
-                  changes = getBlocksChangedByTransaction(tr);
+                  changes = getBlocksChangedByTransaction<any, any, any>(tr);
                   return changes;
                 },
                 tr,

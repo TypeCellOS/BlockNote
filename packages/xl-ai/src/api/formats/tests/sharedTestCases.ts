@@ -1,6 +1,6 @@
 import { Chat, UIMessage } from "@ai-sdk/react";
 import { BlockNoteEditor } from "@blocknote/core";
-import { getCurrentTest, TaskContext } from "@vitest/runner";
+import { getCurrentTest, TestContext } from "@vitest/runner";
 import path from "path";
 import { TextSelection } from "prosemirror-state";
 import { describe, expect, it } from "vitest";
@@ -44,7 +44,7 @@ export function generateSharedTestCases(
 ) {
   function skipIfUnsupported(
     test: DocumentOperationTestCase,
-    context: TaskContext,
+    context: TestContext,
   ) {
     if (
       skipTestsRequiringCapabilities &&

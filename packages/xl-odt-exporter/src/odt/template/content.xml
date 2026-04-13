@@ -326,7 +326,7 @@
             </text:p>
             <text:p text:style-name="Standard">
                 <draw:frame draw:style-name="fr1"
-                    draw:name="From https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg"
+                    draw:name="From https://placehold.co/332x322.jpg"
                     text:anchor-type="as-char" svg:width="5.3335in" svg:height="5.3335in"
                     draw:z-index="0">
                     <draw:image xlink:href="Pictures/100000000000014C0000014CDD284996.jpg"
@@ -334,15 +334,15 @@
                         draw:mime-type="image/jpeg" />
                     <svg:title>
                         From
-                        https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg</svg:title>
+                        https://placehold.co/332x322.jpg</svg:title>
                     <svg:desc>
                         From
-                        https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg</svg:desc>
+                        https://placehold.co/332x322.jpg</svg:desc>
                 </draw:frame>
             </text:p>
             <text:p text:style-name="Caption">
                 From
-                https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg</text:p>
+                https://placehold.co/332x322.jpg</text:p>
             <text:p text:style-name="P10">
                 <text:soft-page-break />
                 <draw:frame draw:style-name="fr1" draw:name="Image1" text:anchor-type="as-char"

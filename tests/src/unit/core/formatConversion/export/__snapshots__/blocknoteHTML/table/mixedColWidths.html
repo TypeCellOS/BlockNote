@@ -2,46 +2,53 @@
   <div class="bn-block-outer" data-node-type="blockOuter" data-id="1">
     <div class="bn-block" data-node-type="blockContainer" data-id="1">
       <div class="bn-block-content" data-content-type="table">
-        <table class="bn-inline-content">
-          <colgroup>
-            <col style="width: 100px;" />
-            <col />
-            <col style="width: 300px;" />
-          </colgroup>
-          <tr>
-            <td colspan="1" rowspan="1" colwidth="100">
-              <p>Table Cell</p>
-            </td>
-            <td colspan="1" rowspan="1">
-              <p>Table Cell</p>
-            </td>
-            <td colspan="1" rowspan="1" colwidth="300">
-              <p>Table Cell</p>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="1" rowspan="1" colwidth="100">
-              <p>Table Cell</p>
-            </td>
-            <td colspan="1" rowspan="1">
-              <p>Table Cell</p>
-            </td>
-            <td colspan="1" rowspan="1" colwidth="300">
-              <p>Table Cell</p>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="1" rowspan="1" colwidth="100">
-              <p>Table Cell</p>
-            </td>
-            <td colspan="1" rowspan="1">
-              <p>Table Cell</p>
-            </td>
-            <td colspan="1" rowspan="1" colwidth="300">
-              <p>Table Cell</p>
-            </td>
-          </tr>
-        </table>
+        <div class="tableWrapper">
+          <div class="tableWrapper-inner"></div>
+          <table
+            class="bn-inline-content"
+            style="--default-cell-min-width: 120px;"
+            data-show-children="true"
+          >
+            <colgroup>
+              <col style="width: 100px;" />
+              <col />
+              <col style="width: 300px;" />
+            </colgroup>
+            <tr>
+              <td colspan="1" rowspan="1" colwidth="100">
+                <p>Table Cell</p>
+              </td>
+              <td colspan="1" rowspan="1">
+                <p>Table Cell</p>
+              </td>
+              <td colspan="1" rowspan="1" colwidth="300">
+                <p>Table Cell</p>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="1" rowspan="1" colwidth="100">
+                <p>Table Cell</p>
+              </td>
+              <td colspan="1" rowspan="1">
+                <p>Table Cell</p>
+              </td>
+              <td colspan="1" rowspan="1" colwidth="300">
+                <p>Table Cell</p>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="1" rowspan="1" colwidth="100">
+                <p>Table Cell</p>
+              </td>
+              <td colspan="1" rowspan="1">
+                <p>Table Cell</p>
+              </td>
+              <td colspan="1" rowspan="1" colwidth="300">
+                <p>Table Cell</p>
+              </td>
+            </tr>
+          </table>
+        </div>
       </div>
     </div>
   </div>

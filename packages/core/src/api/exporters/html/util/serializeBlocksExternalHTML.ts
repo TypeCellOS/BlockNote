@@ -170,6 +170,7 @@ function serializeBlock<
   serializer: DOMSerializer,
   orderedListItemBlockTypes: Set<string>,
   unorderedListItemBlockTypes: Set<string>,
+  nestingLevel: number,
   options?: { document?: Document },
 ) {
   const doc = options?.document ?? document;
@@ -206,6 +207,9 @@ function serializeBlock<
       {},
       { ...block, props } as any,
       editor as any,
+      {
+        nestingLevel,
+      },
     ) ||
     blockImplementation.render.call(
       {},
@@ -236,9 +240,21 @@ function serializeBlock<
     }
 
     addAttributesAndRemoveClasses(ret.dom.firstChild! as HTMLElement);
+    if (nestingLevel > 0) {
+      (ret.dom.firstChild! as HTMLElement).setAttribute(
+        "data-nesting-level",
+        nestingLevel.toString(),
+      );
+    }
     elementFragment.append(...Array.from(ret.dom.childNodes));
   } else {
     elementFragment.append(ret.dom);
+    if (nestingLevel > 0) {
+      (ret.dom as HTMLElement).setAttribute(
+        "data-nesting-level",
+        nestingLevel.toString(),
+      );
+    }
   }
 
   if (ret.contentDOM && block.content) {
@@ -287,6 +303,7 @@ function serializeBlock<
       serializer,
       orderedListItemBlockTypes,
       unorderedListItemBlockTypes,
+      nestingLevel + 1,
       options,
     );
     if (
@@ -302,7 +319,13 @@ function serializeBlock<
       }
     }
 
-    if (editor.pmSchema.nodes[block.type as any].isInGroup("blockContent")) {
+    if ("childrenDOM" in ret && ret.childrenDOM) {
+      // block specifies where children should go (e.g. toggle blocks
+      // place children inside <details>)
+      ret.childrenDOM.append(childFragment);
+    } else if (
+      editor.pmSchema.nodes[block.type as any].isInGroup("blockContent")
+    ) {
       // default "blockContainer" style blocks are flattened (no "nested block" support) for externalHTML, so append the child fragment to the outer fragment
       fragment.append(childFragment);
     } else {
@@ -323,6 +346,7 @@ const serializeBlocksToFragment = <
   serializer: DOMSerializer,
   orderedListItemBlockTypes: Set<string>,
   unorderedListItemBlockTypes: Set<string>,
+  nestingLevel = 0,
   options?: { document?: Document },
 ) => {
   for (const block of blocks) {
@@ -333,6 +357,7 @@ const serializeBlocksToFragment = <
       serializer,
       orderedListItemBlockTypes,
       unorderedListItemBlockTypes,
+      nestingLevel,
       options,
     );
   }
@@ -360,6 +385,7 @@ export const serializeBlocksExternalHTML = <
     serializer,
     orderedListItemBlockTypes,
     unorderedListItemBlockTypes,
+    0,
     options,
   );
   return fragment;

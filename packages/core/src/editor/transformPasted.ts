@@ -2,6 +2,54 @@ import { Fragment, Schema, Slice } from "@tiptap/pm/model";
 import { EditorView } from "@tiptap/pm/view";
 
 import { getBlockInfoFromSelection } from "../api/getBlockInfoFromPos.js";
+import { findParentNodeClosestToPos } from "@tiptap/core";
+
+/**
+ * Checks if the current selection is inside a table cell.
+ * Returns the depth of the tableCell/tableHeader node if found, -1 otherwise.
+ */
+function isInTableCell(view: EditorView): boolean {
+  return (
+    findParentNodeClosestToPos(view.state.selection.$from, (n) => {
+      return n.type.name === "tableCell" || n.type.name === "tableHeader";
+    }) !== undefined
+  );
+}
+
+/**
+ * Converts block content to inline content with hard breaks.
+ * This is used when pasting into table cells which can only contain inline content.
+ */
+function convertBlocksToInlineContent(
+  fragment: Fragment,
+  schema: Schema,
+): Fragment {
+  const hardBreak = schema.nodes.hardBreak;
+  let result = Fragment.empty;
+
+  fragment.forEach((node) => {
+    if (node.isTextblock && node.childCount > 0) {
+      // Extract inline content from paragraphs, headings, etc.
+      result = result.append(node.content);
+      result = result.addToEnd(hardBreak.create());
+    } else if (node.isText) {
+      result = result.addToEnd(node);
+    } else if (node.isBlock && node.childCount > 0) {
+      // Recurse into block containers, blockGroups, etc.
+      result = result.append(
+        convertBlocksToInlineContent(node.content, schema),
+      );
+      result = result.addToEnd(hardBreak.create());
+    }
+  });
+
+  // Remove trailing hard break
+  if (result.lastChild?.type === hardBreak) {
+    result = result.cut(0, result.size - 1);
+  }
+
+  return result;
+}
 
 // helper function to remove a child from a fragment
 function removeChild(node: Fragment, n: number) {
@@ -64,6 +112,27 @@ export function wrapTableRows(f: Fragment, schema: Schema) {
 export function transformPasted(slice: Slice, view: EditorView) {
   let f = Fragment.from(slice.content);
   f = wrapTableRows(f, view.state.schema);
+
+  if (isInTableCell(view)) {
+    let hasTableContent = false;
+    f.descendants((node) => {
+      if (node.type.isInGroup("tableContent")) {
+        hasTableContent = true;
+      }
+    });
+    if (
+      !hasTableContent &&
+      // is the content valid for a table paragraph?
+      !view.state.schema.nodes.tableParagraph.validContent(f)
+    ) {
+      // if not, convert the content to inline content
+      return new Slice(
+        convertBlocksToInlineContent(f, view.state.schema),
+        0,
+        0,
+      );
+    }
+  }
 
   if (!shouldApplyFix(f, view)) {
     // Don't apply the fix.

@@ -10,14 +10,7 @@ import { RiFilePdfFill } from "react-icons/ri";
 import "./styles.css";
 
 export const PDFPreview = (
-  props: Omit<
-    ReactCustomBlockRenderProps<
-      FileBlockConfig["type"],
-      FileBlockConfig["propSchema"],
-      FileBlockConfig["content"]
-    >,
-    "contentRef"
-  >,
+  props: Omit<ReactCustomBlockRenderProps<FileBlockConfig>, "contentRef">,
 ) => {
   return (
     <embed

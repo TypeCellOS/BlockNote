@@ -1,3 +1,7 @@
+/* TODO: 
+- review this vs global.css  
+- does everything here needs to be in a global css file, or can we use props / tw classnames / css modules for consistency?
+*/
 html {
   -webkit-font-smoothing: antialiased;
 }
@@ -45,20 +49,8 @@ body {
   color: var(--color-fd-primary);
 }
 
-#nd-nav {
-  z-index: 10000;
-}
-
 :focus-visible {
   box-shadow: unset !important;
-}
-
-.demo {
-  overflow: none;
-}
-
-.demo .bn-container {
-  position: relative;
 }
 
 .demo .bn-container:not(.bn-comment-editor),

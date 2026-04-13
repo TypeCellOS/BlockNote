@@ -15,14 +15,22 @@
   </div>
   <div class="bn-block-outer" data-node-type="blockOuter" data-id="3">
     <div class="bn-block" data-node-type="blockContainer" data-id="3">
-      <div class="bn-block-content" data-content-type="numberedListItem">
+      <div
+        class="bn-block-content"
+        data-content-type="numberedListItem"
+        data-index="1"
+      >
         <p class="bn-inline-content">Numbered List Item 1</p>
       </div>
     </div>
   </div>
   <div class="bn-block-outer" data-node-type="blockOuter" data-id="4">
     <div class="bn-block" data-node-type="blockContainer" data-id="4">
-      <div class="bn-block-content" data-content-type="numberedListItem">
+      <div
+        class="bn-block-content"
+        data-content-type="numberedListItem"
+        data-index="2"
+      >
         <p class="bn-inline-content">Numbered List Item 2</p>
       </div>
     </div>
@@ -30,7 +38,9 @@
   <div class="bn-block-outer" data-node-type="blockOuter" data-id="5">
     <div class="bn-block" data-node-type="blockContainer" data-id="5">
       <div class="bn-block-content" data-content-type="checkListItem">
-        <input type="checkbox" />
+        <div>
+          <input type="checkbox" disabled="" />
+        </div>
         <p class="bn-inline-content">Check List Item 1</p>
       </div>
     </div>
@@ -42,7 +52,9 @@
         data-content-type="checkListItem"
         data-checked="true"
       >
-        <input type="checkbox" checked="" />
+        <div>
+          <input type="checkbox" checked="" disabled="" />
+        </div>
         <p class="bn-inline-content">Check List Item 2</p>
       </div>
     </div>
@@ -51,7 +63,7 @@
     <div class="bn-block" data-node-type="blockContainer" data-id="7">
       <div class="bn-block-content" data-content-type="toggleListItem">
         <div>
-          <div class="bn-toggle-wrapper" data-show-children="false">
+          <div class="bn-toggle-wrapper" data-show-children="true">
             <button class="bn-toggle-button" type="button">
               <svg
                 xmlns="http://www.w3.org/2000/svg"

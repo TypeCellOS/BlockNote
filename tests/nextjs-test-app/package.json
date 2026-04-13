@@ -1,0 +1,16 @@
+{
+  "name": "@blocknote/nextjs-test-app",
+  "private": true,
+  "version": "0.0.0",
+  "dependencies": {
+    "@blocknote/core": "file:.tarballs/blocknote-core-0.47.1.tgz",
+    "@blocknote/mantine": "file:.tarballs/blocknote-mantine-0.47.1.tgz",
+    "@blocknote/react": "file:.tarballs/blocknote-react-0.47.1.tgz",
+    "@blocknote/server-util": "file:.tarballs/blocknote-server-util-0.47.1.tgz",
+    "@mantine/core": "^8.3.11",
+    "@mantine/hooks": "^8.3.11",
+    "next": "^16.0.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
+  }
+}

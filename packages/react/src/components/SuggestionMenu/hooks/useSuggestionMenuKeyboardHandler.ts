@@ -4,7 +4,7 @@ import React, { useState } from "react";
 // & down arrow keys are used to select an item, enter is used to execute it.
 export function useSuggestionMenuKeyboardHandler<Item>(
   items: Item[],
-  onItemClick?: (item: Item) => void
+  onItemClick?: (item: Item) => void,
 ) {
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
@@ -23,11 +23,30 @@ export function useSuggestionMenuKeyboardHandler<Item>(
       }
 
       if (event.key === "ArrowDown") {
-        // debugger;
         event.preventDefault();
 
         if (items.length) {
           setSelectedIndex((selectedIndex + 1) % items!.length);
+        }
+
+        return true;
+      }
+
+      if (event.key === "PageUp") {
+        event.preventDefault();
+
+        if (items.length) {
+          setSelectedIndex(0);
+        }
+
+        return true;
+      }
+
+      if (event.key === "PageDown") {
+        event.preventDefault();
+
+        if (items.length) {
+          setSelectedIndex(items.length - 1);
         }
 
         return true;
@@ -53,7 +72,7 @@ export function useSuggestionMenuKeyboardHandler<Item>(
 }
 
 function isReactEvent(
-  event: KeyboardEvent | React.KeyboardEvent
+  event: KeyboardEvent | React.KeyboardEvent,
 ): event is React.KeyboardEvent {
   return (event as React.KeyboardEvent).nativeEvent !== undefined;
 }

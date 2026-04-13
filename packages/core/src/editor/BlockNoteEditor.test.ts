@@ -136,7 +136,6 @@ it("sets an initial block id when using Y.js", async () => {
     collaboration: {
       fragment,
       user: { name: "Hello", color: "#FFFFFF" },
-      provider: null,
     },
     _tiptapOptions: {
       onTransaction: () => {

@@ -1,4 +1,3 @@
-import { expect } from "vitest";
 import {
   BlockNoteEditor,
   BlockSchema,
@@ -6,7 +5,7 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import { TextSelection } from "@tiptap/pm/state";
-
+import { expect } from "vitest";
 import { IncrementSelectionTestCase } from "./incrementSelectionTestCase.js";
 
 export const testIncrementSelectionStart = async <
@@ -30,7 +29,9 @@ export const testIncrementSelectionStart = async <
       ),
     );
 
-    const blockNoteSelection = editor.getSelectionCutBlocks();
+    const blockNoteSelection = editor.getSelectionCutBlocks(
+      testCase.expandToWord,
+    );
     const JSONString = JSON.stringify(blockNoteSelection);
 
     ret += JSONString + "\n";
@@ -62,7 +63,9 @@ export const testIncrementSelectionEnd = async <
       ),
     );
 
-    const blockNoteSelection = editor.getSelectionCutBlocks();
+    const blockNoteSelection = editor.getSelectionCutBlocks(
+      testCase.expandToWord,
+    );
     const JSONString = JSON.stringify(blockNoteSelection);
 
     ret += JSONString + "\n";

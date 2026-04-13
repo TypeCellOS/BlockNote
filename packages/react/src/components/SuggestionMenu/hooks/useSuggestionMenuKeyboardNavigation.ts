@@ -15,14 +15,11 @@ export function useSuggestionMenuKeyboardNavigation<Item>(
     useSuggestionMenuKeyboardHandler(items, onItemClick);
 
   useEffect(() => {
-    (element || editor.domElement)?.addEventListener("keydown", handler, true);
+    const el = element || editor.domElement;
+    el?.addEventListener("keydown", handler, true);
 
     return () => {
-      (element || editor.domElement)?.removeEventListener(
-        "keydown",
-        handler,
-        true,
-      );
+      el?.removeEventListener("keydown", handler, true);
     };
   }, [editor.domElement, items, selectedIndex, onItemClick, element, handler]);
 

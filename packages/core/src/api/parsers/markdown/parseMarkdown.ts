@@ -93,6 +93,17 @@ export function markdownToHTML(markdown: string): string {
           }
         },
         code,
+        blockquote: (state: any, node: any) => {
+          const result = {
+            type: "element",
+            tagName: "blockquote",
+            properties: {},
+            // The only difference from the original is that we don't wrap the children with line endings
+            children: state.wrap(state.all(node), false),
+          };
+          state.patch(node, result);
+          return state.applyData(node, result);
+        },
       },
     })
     .use(rehypeStringify)

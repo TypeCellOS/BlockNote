@@ -296,9 +296,13 @@ export class TableHandlesView implements PluginView {
         event.clientX >= tableRect.right - 1 &&
         event.clientX < tableRect.right + 20;
 
-      // without this check, we'd also hide draghandles when hovering over them
       const hideHandles =
-        event.clientX > tableRect.right || event.clientY > tableRect.bottom;
+        // always hide handles when the actively hovered table changed
+        this.state?.block.id !== tableBlock.id ||
+        // make sure we don't hide existing handles (keep col / row index) when
+        // we're hovering just above or to the right of a table
+        event.clientX > tableRect.right ||
+        event.clientY > tableRect.bottom;
 
       this.state = {
         ...this.state!,
@@ -621,12 +625,16 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
         key: tableHandlesPluginKey,
         view: (editorView) => {
           view = new TableHandlesView(editor as any, editorView, (state) => {
-            store.setState({
-              ...state,
-              draggingState: state.draggingState
-                ? { ...state.draggingState }
+            store.setState(
+              state.block
+                ? {
+                    ...state,
+                    draggingState: state.draggingState
+                      ? { ...state.draggingState }
+                      : undefined,
+                  }
                 : undefined,
-            });
+            );
           });
           return view;
         },
@@ -898,6 +906,20 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
      */
     unfreezeHandles() {
       view!.menuFrozen = false;
+    },
+
+    /**
+     * Hides the table handles unless they are currently frozen (e.g. a
+     * handle menu is open). Used to dismiss the handles on scroll without
+     * interfering with open submenus.
+     */
+    hideHandlesIfNotFrozen() {
+      if (!view!.menuFrozen && view!.state?.show) {
+        view!.state.show = false;
+        view!.state.showAddOrRemoveRowsButton = false;
+        view!.state.showAddOrRemoveColumnsButton = false;
+        view!.emitUpdate();
+      }
     },
 
     getCellsAtRowHandle(
