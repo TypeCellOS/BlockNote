@@ -1,5 +1,5 @@
 import type { BlockNoteEditor } from "@blocknote/core";
-import deepEqual from "fast-deep-equal/es6/react";
+import deepEqual from "fast-deep-equal/es6/react.js";
 import { useDebugValue, useEffect, useLayoutEffect, useState } from "react";
 import { useSyncExternalStoreWithSelector } from "use-sync-external-store/shim/with-selector";
 import { useBlockNoteContext } from "../editor/BlockNoteContext.js";
