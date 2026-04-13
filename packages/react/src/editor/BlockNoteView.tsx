@@ -143,15 +143,14 @@ function BlockNoteViewComponent<
   const componentsContext = useComponentsContext();
   const defaultUIProps: BlockNoteDefaultUIProps = useMemo(
     () => ({
-      formattingToolbar:
-        formattingToolbar ?? (componentsContext ? undefined : false),
-      linkToolbar: linkToolbar ?? (componentsContext ? undefined : false),
-      sideMenu: sideMenu ?? (componentsContext ? undefined : false),
-      slashMenu: slashMenu ?? (componentsContext ? undefined : false),
-      filePanel: filePanel ?? (componentsContext ? undefined : false),
-      tableHandles: tableHandles ?? (componentsContext ? undefined : false),
-      emojiPicker: emojiPicker ?? (componentsContext ? undefined : false),
-      comments: comments ?? (componentsContext ? undefined : false),
+      formattingToolbar: componentsContext ? formattingToolbar : false,
+      linkToolbar: componentsContext ? linkToolbar : false,
+      sideMenu: componentsContext ? sideMenu : false,
+      slashMenu: componentsContext ? slashMenu : false,
+      filePanel: componentsContext ? filePanel : false,
+      tableHandles: componentsContext ? tableHandles : false,
+      emojiPicker: componentsContext ? emojiPicker : false,
+      comments: componentsContext ? comments : false,
     }),
     [
       comments,
