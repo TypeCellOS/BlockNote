@@ -58,7 +58,7 @@ EOF
 
 # Install with npm (not pnpm — avoid workspace resolution)
 rm -rf node_modules .next package-lock.json
-npm install
+npm install --ignore-scripts
 
 # Save hash for next run
 echo "$CURRENT_HASH" > "$HASH_FILE"

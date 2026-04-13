@@ -7,6 +7,7 @@ on:
     types: [opened, synchronize, reopened, edited]
 
 env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN }}
   NX_SELF_HOSTED_REMOTE_CACHE_SERVER: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_SERVER }}
 
@@ -16,23 +17,23 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 100
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
 
-      - uses: nrwl/nx-set-shas@v3
+      - uses: nrwl/nx-set-shas@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           cache: "pnpm"
           cache-dependency-path: "**/pnpm-lock.yaml"
           node-version-file: ".nvmrc"
 
       - name: Cache NX
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .nx/cache
           key: nx-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-${{ github.sha }}
@@ -41,8 +42,6 @@ jobs:
             nx-${{ env.NX_BRANCH }}-
             nx-
 
-        # This is needed for the canvas dep, Tiptap V3 should remove the need for this
-      - run: sudo apt-get update && sudo apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev pkg-config
       - name: Install Dependencies
         run: pnpm install
 
@@ -73,23 +72,23 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 100
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
 
-      - uses: nrwl/nx-set-shas@v3
+      - uses: nrwl/nx-set-shas@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           cache: "pnpm"
           cache-dependency-path: "**/pnpm-lock.yaml"
           node-version-file: ".nvmrc"
 
       - name: Cache NX
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .nx/cache
           key: nx-playwright-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-${{ github.sha }}
@@ -98,8 +97,6 @@ jobs:
             nx-playwright-${{ env.NX_BRANCH }}-
             nx-
 
-      - run: sudo apt-get update && sudo apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev pkg-config
-
       - name: Install dependencies
         run: pnpm install
 
@@ -107,7 +104,7 @@ jobs:
         run: pnpm run build
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-build
           path: |
@@ -129,21 +126,21 @@ jobs:
         shardIndex: [1, 2]
         shardTotal: [2]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 100
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           cache: "pnpm"
           cache-dependency-path: "**/pnpm-lock.yaml"
           node-version-file: ".nvmrc"
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: playwright-build
 
@@ -155,7 +152,7 @@ jobs:
           HOME=/root PLAYWRIGHT_CONFIG="--project ${{ matrix.browser }} --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}" pnpm run e2e
 
       - name: Upload blob report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: ${{ !cancelled() }}
         with:
           name: blob-report-${{ matrix.browser }}-${{ matrix.shardIndex }}
@@ -163,7 +160,7 @@ jobs:
           retention-days: 1
 
       - name: Upload HTML report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: ${{ !cancelled() }}
         with:
           name: playwright-report-${{ matrix.browser }}-${{ matrix.shardIndex }}
@@ -176,12 +173,12 @@ jobs:
     needs: playwright
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           cache: "pnpm"
           cache-dependency-path: "**/pnpm-lock.yaml"
@@ -191,7 +188,7 @@ jobs:
         run: pnpm install
 
       - name: Download blob reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: tests/all-blob-reports
           pattern: blob-report-*
@@ -202,7 +199,7 @@ jobs:
         working-directory: tests
 
       - name: Upload merged HTML report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-report-merged
           path: tests/playwright-report/

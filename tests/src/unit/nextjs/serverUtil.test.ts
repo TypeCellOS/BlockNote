@@ -24,7 +24,7 @@ describe(`server-util in Next.js App Router (#942) [${MODE}]`, () => {
     execSync("bash setup.sh", {
       cwd: TEST_APP_DIR,
       stdio: "pipe",
-      timeout: 120_000,
+      timeout: 240_000,
     });
 
     if (MODE === "build") {

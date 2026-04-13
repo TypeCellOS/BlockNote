@@ -20,6 +20,7 @@
   },
   "pnpm": {
     "ignoredBuiltDependencies": [
+      "canvas",
       "sharp",
       "workerd"
     ],
@@ -28,7 +29,6 @@
       "@sentry/cli",
       "@tailwindcss/oxide",
       "better-sqlite3",
-      "canvas",
       "esbuild",
       "msw",
       "nx",
