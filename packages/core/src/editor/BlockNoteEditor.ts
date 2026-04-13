@@ -423,7 +423,6 @@ export class BlockNoteEditor<
       },
     };
 
-    // @ts-expect-error - schema type mismatch due to conditional default
     this.schema = newOptions.schema;
     this.blockImplementations = newOptions.schema.blockSpecs;
     this.inlineContentImplementations = newOptions.schema.inlineContentSpecs;
