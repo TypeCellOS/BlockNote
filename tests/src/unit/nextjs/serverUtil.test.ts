@@ -100,7 +100,9 @@ describe(`server-util in Next.js App Router (#942) [${MODE}]`, () => {
   }, 180_000);
 
   afterAll(async () => {
-    if (nextProcess?.pid == null) return;
+    if (nextProcess?.pid == null) {
+      return;
+    }
 
     await new Promise<void>((resolve) => {
       nextProcess.once("exit", () => resolve());
