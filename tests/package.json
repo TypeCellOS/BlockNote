@@ -38,5 +38,8 @@
     "extends": [
       "../.eslintrc.json"
     ]
+  },
+  "dependencies": {
+    "get-port-please": "3.2.0"
   }
 }

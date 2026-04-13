@@ -1,10 +1,11 @@
 import { execSync, spawn, ChildProcess } from "child_process";
+import { getPort } from "get-port-please";
 import path from "path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 const TEST_APP_DIR = path.resolve(__dirname, "../../../nextjs-test-app");
-const PORT = 3951; // Unusual port to avoid conflicts
-const BASE_URL = `http://localhost:${PORT}`;
+let PORT: number;
+let BASE_URL: string;
 const MODE = (process.env.NEXTJS_TEST_MODE || "dev") as "dev" | "build";
 
 let nextProcess: ChildProcess;
@@ -20,6 +21,9 @@ let serverErrors = "";
  */
 describe(`server-util in Next.js App Router (#942) [${MODE}]`, () => {
   beforeAll(async () => {
+    PORT = await getPort({ portRange: [3900, 4100] });
+    BASE_URL = `http://localhost:${PORT}`;
+
     // Pack and install @blocknote packages as tarballs
     execSync("bash setup.sh", {
       cwd: TEST_APP_DIR,
@@ -42,6 +46,7 @@ describe(`server-util in Next.js App Router (#942) [${MODE}]`, () => {
         {
           cwd: TEST_APP_DIR,
           stdio: ["ignore", "pipe", "pipe"],
+          detached: true,
         },
       );
     } else {
@@ -53,6 +58,7 @@ describe(`server-util in Next.js App Router (#942) [${MODE}]`, () => {
           cwd: TEST_APP_DIR,
           stdio: ["ignore", "pipe", "pipe"],
           env: { ...process.env, NODE_ENV: "development" },
+          detached: true,
         },
       );
     }
@@ -93,10 +99,30 @@ describe(`server-util in Next.js App Router (#942) [${MODE}]`, () => {
     });
   }, 180_000);
 
-  afterAll(() => {
-    if (nextProcess) {
-      nextProcess.kill("SIGTERM");
-    }
+  afterAll(async () => {
+    if (nextProcess?.pid == null) return;
+
+    await new Promise<void>((resolve) => {
+      nextProcess.once("exit", () => resolve());
+
+      try {
+        // Kill the entire process group so Next.js children don't linger
+        process.kill(-nextProcess.pid!, "SIGTERM");
+      } catch {
+        // Process may have already exited
+        resolve();
+        return;
+      }
+
+      // Escalate to SIGKILL if still alive after 5s
+      setTimeout(() => {
+        try {
+          process.kill(-nextProcess.pid!, "SIGKILL");
+        } catch {
+          // already gone
+        }
+      }, 5_000);
+    });
   });
 
   it("ServerBlockNoteEditor works in API route (mirrors ReactServer.test.tsx)", async () => {
