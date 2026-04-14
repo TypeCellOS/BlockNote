@@ -408,7 +408,7 @@ function parseDelimited(
       // multi-char run (e.g., don't treat the * in ** as italic closer)
       if (
         len === 1 &&
-        ((j > 0 && text[j - 1] === delimiter[0]) ||
+        ((j > 0 && text[j - 1] === delimiter[0] && !(j >= 2 && text[j - 2] === "\\")) ||
           (j + len < text.length && text[j + len] === delimiter[0]))
       ) {
         j++;

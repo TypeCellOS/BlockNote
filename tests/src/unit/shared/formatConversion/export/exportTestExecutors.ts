@@ -5,7 +5,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { addIdsToBlocks } from "@shared/formatConversionTestUtil.js";
+import { addIdsToBlocks } from "../../../../../../shared/formatConversionTestUtil.js";
 import { prettify } from "htmlfy";
 import { expect } from "vitest";
 

@@ -1593,6 +1593,14 @@ Line three`,
     },
     executeTest: testParseMarkdown,
   },
+  // Escaped delimiter inside emphasis
+  {
+    testCase: {
+      name: "escapedDelimiterInEmphasis",
+      content: `*\\**`,
+    },
+    executeTest: testParseMarkdown,
+  },
   // Nested emphasis
   {
     testCase: {
