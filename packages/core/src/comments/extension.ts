@@ -306,6 +306,7 @@ export const CommentsExtension = createExtension(
           selectedThreadId: undefined,
           pendingComment: true,
         }));
+        editor.focus();
         editor
           .getExtension(ShowSelectionExtension)
           ?.showSelection(true, "comments");
