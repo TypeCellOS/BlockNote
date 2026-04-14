@@ -33,7 +33,6 @@ test.describe("Check Comments functionality", () => {
     // Add a link via the formatting toolbar
     await page.waitForSelector(LINK_BUTTON_SELECTOR);
     await page.click(LINK_BUTTON_SELECTOR);
-    await page.waitForSelector("input");
 
     await page.keyboard.type("https://example.com");
     await page.keyboard.press("Enter");
