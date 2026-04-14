@@ -9,7 +9,7 @@ import {
 import {
   addIdsToBlocks,
   partialBlocksToBlocksForTesting,
-} from "../../../../../../shared/formatConversionTestUtil.js";
+} from "@shared/formatConversionTestUtil.js";
 import { expect } from "vitest";
 
 import { ExportParseEqualityTestCase } from "./exportParseEqualityTestCase.js";
