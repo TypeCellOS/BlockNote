@@ -211,26 +211,6 @@ function BlockNoteViewComponent<
     };
   }, [autoFocus, contentEditableProps, editable, defaultUIProps]);
 
-  // editor.domElement is gated behind TipTap's isInitialized flag, which is
-  // set in a setTimeout(0) after mount. Force a re-render once it becomes
-  // available so that all child components (toolbars, menus, etc.) that
-  // depend on editor.domElement see the real element.
-  const [, setMounted] = useState(false);
-  useEffect(() => {
-    if (editor.domElement) {
-      return;
-    }
-    // We listen to TipTap's "create" event directly because
-    // editor.onMount() is registered inside the "create" handler in
-    // EventManager, so it misses the first mount. The "create" event
-    // fires after isInitialized is set, so editor.domElement is ready.
-    const handler = () => setMounted(true);
-    editor._tiptapEditor.on("create", handler);
-    return () => {
-      editor._tiptapEditor.off("create", handler);
-    };
-  }, [editor]);
-
   return (
     <BlockNoteContext.Provider value={blockNoteContext}>
       <BlockNoteViewContext.Provider value={blockNoteViewContextValue}>
