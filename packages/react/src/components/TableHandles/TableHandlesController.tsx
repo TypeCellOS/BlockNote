@@ -7,9 +7,9 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import { TableHandlesExtension } from "@blocknote/core/extensions";
-import { FC, useMemo, useState } from "react";
+import { FC, useCallback, useMemo, useState } from "react";
 
-import { offset, size } from "@floating-ui/react";
+import { autoUpdate, offset, ReferenceElement, size } from "@floating-ui/react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useExtensionState } from "../../hooks/useExtension.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
@@ -137,6 +137,36 @@ export const TableHandlesController = <
     return references;
   }, [editor, state]);
 
+  // Hides the table handles on ancestor scroll so they don't overflow
+  // outside the editor's scroll container.
+  const whileElementsMounted = useCallback(
+    (
+      reference: ReferenceElement,
+      floating: HTMLElement,
+      _update: () => void,
+    ) => {
+      let initialized = false;
+      return autoUpdate(
+        reference,
+        floating,
+        () => {
+          if (!initialized) {
+            initialized = true;
+            return;
+          }
+          editor.getExtension(TableHandlesExtension)?.hideHandlesIfNotFrozen();
+        },
+        {
+          ancestorScroll: true,
+          ancestorResize: false,
+          elementResize: false,
+          layoutShift: false,
+        },
+      );
+    },
+    [editor],
+  );
+
   const floatingUIOptions = useMemo<
     | {
         rowTableHandle: FloatingUIOptions;
@@ -158,6 +188,7 @@ export const TableHandlesController = <
                   (!onlyShownElement || onlyShownElement === "rowTableHandle"),
                 placement: "left",
                 middleware: [offset(-10)],
+                whileElementsMounted,
               },
               focusManagerProps: {
                 disabled: true,
@@ -177,6 +208,7 @@ export const TableHandlesController = <
                     onlyShownElement === "columnTableHandle"),
                 placement: "top",
                 middleware: [offset(-12)],
+                whileElementsMounted,
               },
               focusManagerProps: {
                 disabled: true,
@@ -196,6 +228,7 @@ export const TableHandlesController = <
                   (!onlyShownElement || onlyShownElement === "tableCellHandle"),
                 placement: "top-end",
                 middleware: [offset({ mainAxis: -15, crossAxis: -1 })],
+                whileElementsMounted,
               },
               focusManagerProps: {
                 disabled: true,
@@ -214,6 +247,7 @@ export const TableHandlesController = <
                   (!onlyShownElement ||
                     onlyShownElement === "extendRowsButton"),
                 placement: "bottom",
+                whileElementsMounted,
                 middleware: [
                   size({
                     apply({ rects, elements }) {
@@ -241,6 +275,7 @@ export const TableHandlesController = <
                   (!onlyShownElement ||
                     onlyShownElement === "extendColumnsButton"),
                 placement: "right",
+                whileElementsMounted,
                 middleware: [
                   size({
                     apply({ rects, elements }) {
@@ -262,7 +297,7 @@ export const TableHandlesController = <
             },
           }
         : undefined,
-    [onlyShownElement, state],
+    [onlyShownElement, state, whileElementsMounted],
   );
 
   if (!state) {

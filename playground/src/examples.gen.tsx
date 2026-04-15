@@ -288,7 +288,7 @@
       {
         "projectSlug": "shadowdom",
         "fullSlug": "basic/shadowdom",
-        "pathFromRoot": "examples/01-basic/14-shadowdom",
+        "pathFromRoot": "examples/01-basic/15-shadowdom",
         "config": {
           "playground": true,
           "docs": false,
@@ -303,6 +303,25 @@
           "slug": "basic"
         },
         "readme": "This example shows how to render the BlockNote editor inside a Shadow DOM.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)"
+      },
+      {
+        "projectSlug": "read-only-editor",
+        "fullSlug": "basic/read-only-editor",
+        "pathFromRoot": "examples/01-basic/16-read-only-editor",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Read-only Editor",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        },
+        "readme": "This example makes the editor read-only while showing the same content as the [Default Schema Showcase](/examples/basic/default-blocks) example.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Document Structure](/docs/foundations/document-structure)\n- [Default Schema](/docs/foundations/schemas)"
       },
       {
         "projectSlug": "testing",
@@ -1508,11 +1527,11 @@
             "Collaboration"
           ],
           "dependencies": {
-            "@liveblocks/client": "3.7.1-tiptap3",
-            "@liveblocks/react": "3.7.1-tiptap3",
-            "@liveblocks/react-blocknote": "3.7.1-tiptap3",
-            "@liveblocks/react-tiptap": "3.7.1-tiptap3",
-            "@liveblocks/react-ui": "3.7.1-tiptap3",
+            "@liveblocks/client": "^3.17.0",
+            "@liveblocks/react": "^3.17.0",
+            "@liveblocks/react-blocknote": "^3.17.0",
+            "@liveblocks/react-tiptap": "^3.17.0",
+            "@liveblocks/react-ui": "^3.17.0",
             "yjs": "^13.6.27"
           } as any
         },

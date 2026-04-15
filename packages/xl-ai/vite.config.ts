@@ -38,6 +38,7 @@ export default defineConfig((conf) => ({
         server: path.resolve(__dirname, "src/server.ts"),
       },
       name: "blocknote-xl-ai",
+      cssFileName: "style",
       formats: ["es", "cjs"],
       fileName: (format, entryName) =>
         format === "es" ? `${entryName}.js` : `${entryName}.cjs`,
@@ -51,7 +52,7 @@ export default defineConfig((conf) => ({
             ...pkg.dependencies,
             ...((pkg as any).peerDependencies || {}),
             ...pkg.devDependencies,
-          }).includes(source)
+          }).some((dep) => source === dep || source.startsWith(dep + "/"))
         ) {
           return true;
         }
@@ -72,7 +73,6 @@ export default defineConfig((conf) => ({
           react: "React",
           "react-dom": "ReactDOM",
         },
-        interop: "compat", // https://rollupjs.org/migration/#changed-defaults
       },
     },
   },

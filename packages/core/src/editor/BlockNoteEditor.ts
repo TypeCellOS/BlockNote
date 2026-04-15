@@ -423,7 +423,6 @@ export class BlockNoteEditor<
       },
     };
 
-    // @ts-ignore
     this.schema = newOptions.schema;
     this.blockImplementations = newOptions.schema.blockSpecs;
     this.inlineContentImplementations = newOptions.schema.inlineContentSpecs;
@@ -680,6 +679,12 @@ export class BlockNoteEditor<
    * @warning Not needed to call manually when using React, use BlockNoteView to take care of mounting
    */
   public mount = (element: HTMLElement) => {
+    const root = element.getRootNode();
+    if (typeof ShadowRoot !== "undefined" && root instanceof ShadowRoot) {
+      root.appendChild(this.portalElement);
+    } else {
+      document.body.appendChild(this.portalElement);
+    }
     this._tiptapEditor.mount({ mount: element });
   };
 
@@ -687,6 +692,7 @@ export class BlockNoteEditor<
    * Unmount the editor from the DOM element it is bound to
    */
   public unmount = () => {
+    this.portalElement?.remove();
     this._tiptapEditor.unmount();
   };
 
@@ -713,6 +719,37 @@ export class BlockNoteEditor<
     }
     return this.prosemirrorView?.dom as HTMLDivElement | undefined;
   }
+
+  private _portalElement: HTMLElement | undefined;
+
+  /**
+   * The portal container element at `document.body` used by floating UI
+   * elements (menus, toolbars) to escape overflow:hidden ancestors.
+   * Set by BlockNoteView; undefined in headless mode.
+   */
+  public get portalElement() {
+    if (typeof document === "undefined") {
+      throw new Error(
+        "Portal element accessed, but not available in headless mode",
+      );
+    }
+    if (!this._portalElement) {
+      this._portalElement = document.createElement("div");
+    }
+    return this._portalElement;
+  }
+
+  /**
+   * Checks whether a DOM element belongs to this editor — either inside the
+   * editor's DOM tree or inside its portal container (used for floating UI
+   * elements like menus and toolbars).
+   */
+  public isWithinEditor = (element: Element): boolean => {
+    return !!(
+      this.domElement?.parentElement?.contains(element) ||
+      this.portalElement?.contains(element)
+    );
+  };
 
   public isFocused() {
     if (this.headless) {

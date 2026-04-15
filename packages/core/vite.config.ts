@@ -23,6 +23,7 @@ export default defineConfig({
         yjs: path.resolve(__dirname, "src/yjs/index.ts"),
       },
       name: "blocknote",
+      cssFileName: "style",
       formats: ["es", "cjs"],
       fileName: (format, entryName) =>
         format === "es" ? `${entryName}.js` : `${entryName}.cjs`,
@@ -36,7 +37,7 @@ export default defineConfig({
             ...pkg.dependencies,
             ...((pkg as any).peerDependencies || {}),
             ...pkg.devDependencies,
-          }).includes(source)
+          }).some((dep) => source === dep || source.startsWith(dep + "/"))
         ) {
           return true;
         }
@@ -54,7 +55,6 @@ export default defineConfig({
         // Provide global variables to use in the UMD build
         // for externalized deps
         globals: {},
-        interop: "compat", // https://rollupjs.org/migration/#changed-defaults
       },
     },
   },

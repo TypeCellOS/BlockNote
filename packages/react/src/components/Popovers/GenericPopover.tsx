@@ -1,8 +1,10 @@
 import {
   autoUpdate,
   FloatingFocusManager,
+  FloatingPortal,
   useDismiss,
   useFloating,
+  UseFloatingOptions,
   useHover,
   useInteractions,
   useMergeRefs,
@@ -11,6 +13,7 @@ import {
 } from "@floating-ui/react";
 import { HTMLAttributes, ReactNode, useEffect, useRef } from "react";
 
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { FloatingUIOptions } from "./FloatingUIOptions.js";
 
 export type GenericPopoverReference =
@@ -77,15 +80,53 @@ export function getMountedBoundingClientRectCache(
   };
 }
 
+/**
+ * Merges two `whileElementsMounted` handlers into one. Both run when elements
+ * mount, and both cleanup functions are called on unmount.
+ */
+function mergeWhileElementsMounted(
+  a: UseFloatingOptions["whileElementsMounted"],
+  b: UseFloatingOptions["whileElementsMounted"],
+): UseFloatingOptions["whileElementsMounted"] {
+  if (!a) {
+    return b;
+  }
+  if (!b) {
+    return a;
+  }
+
+  return (reference, floating, update) => {
+    const cleanupA = a(reference, floating, update);
+    const cleanupB = b(reference, floating, update);
+    return () => {
+      cleanupA?.();
+      cleanupB?.();
+    };
+  };
+}
+
 export const GenericPopover = (
   props: FloatingUIOptions & {
     reference?: GenericPopoverReference;
     children: ReactNode;
   },
 ) => {
+  const editor = useBlockNoteEditor();
+  const portalRoot = editor?.portalElement;
+  if (!portalRoot) {
+    throw new Error("Portal element not found");
+  }
+  const {
+    whileElementsMounted: _whileElementsMounted,
+    ...restFloatingOptions
+  } = props.useFloatingOptions ?? {};
+
   const { refs, floatingStyles, context } = useFloating<HTMLDivElement>({
-    whileElementsMounted: autoUpdate,
-    ...props.useFloatingOptions,
+    whileElementsMounted: mergeWhileElementsMounted(
+      autoUpdate,
+      props.useFloatingOptions?.whileElementsMounted,
+    ),
+    ...restFloatingOptions,
   });
 
   const { isMounted, styles } = useTransitionStyles(
@@ -152,7 +193,7 @@ export const GenericPopover = (
     style: {
       display: "flex",
       ...props.elementProps?.style,
-      zIndex: `calc(var(--bn-ui-base-z-index) + ${props.elementProps?.style?.zIndex || 0})`,
+      zIndex: `calc(var(--bn-ui-base-z-index, 0) + ${props.elementProps?.style?.zIndex || 0})`,
       ...floatingStyles,
       ...styles,
     },
@@ -169,27 +210,33 @@ export const GenericPopover = (
     // should be open. So without this fix, the popover just won't transition
     // out and will instead appear to hide instantly.
     return (
-      <div
-        ref={mergedRefs}
-        {...mergedProps}
-        dangerouslySetInnerHTML={{ __html: innerHTML.current }}
-      />
+      <FloatingPortal root={portalRoot}>
+        <div
+          ref={mergedRefs}
+          {...mergedProps}
+          dangerouslySetInnerHTML={{ __html: innerHTML.current }}
+        />
+      </FloatingPortal>
     );
   }
 
   if (!props.focusManagerProps?.disabled) {
     return (
-      <FloatingFocusManager {...props.focusManagerProps} context={context}>
-        <div ref={mergedRefs} {...mergedProps}>
-          {props.children}
-        </div>
-      </FloatingFocusManager>
+      <FloatingPortal root={portalRoot}>
+        <FloatingFocusManager {...props.focusManagerProps} context={context}>
+          <div ref={mergedRefs} {...mergedProps}>
+            {props.children}
+          </div>
+        </FloatingFocusManager>
+      </FloatingPortal>
     );
   }
 
   return (
-    <div ref={mergedRefs} {...mergedProps}>
-      {props.children}
-    </div>
+    <FloatingPortal root={portalRoot}>
+      <div ref={mergedRefs} {...mergedProps}>
+        {props.children}
+      </div>
+    </FloatingPortal>
   );
 };

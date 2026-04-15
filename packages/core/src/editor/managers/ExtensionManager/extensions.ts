@@ -71,6 +71,7 @@ export function getDefaultTiptapExtensions(
       // everything from bnBlock group (nodes that represent a BlockNote block should have an id)
       types: ["blockContainer", "columnList", "column"],
       setIdAttribute: options.setIdAttribute,
+      isWithinEditor: editor.isWithinEditor,
     }),
     HardBreak,
     Text,
@@ -81,7 +82,17 @@ export function getDefaultTiptapExtensions(
     SuggestionModificationMark,
     Link.extend({
       inclusive: false,
-    }).configure({
+    })
+      .extend({
+        // Remove the title attribute added in newer versions of @tiptap/extension-link
+        // to avoid unnecessary null attributes in serialized output
+        addAttributes() {
+          const attrs = this.parent?.() || {};
+          delete (attrs as Record<string, unknown>).title;
+          return attrs;
+        },
+      })
+      .configure({
       defaultProtocol: DEFAULT_LINK_PROTOCOL,
       // only call this once if we have multiple editors installed. Or fix https://github.com/ueberdosis/tiptap/issues/5450
       protocols: LINKIFY_INITIALIZED ? [] : VALID_LINK_PROTOCOLS,

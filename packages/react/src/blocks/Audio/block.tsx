@@ -83,6 +83,9 @@ export const AudioBlock = (
 export const ReactAudioBlock = createReactBlockSpec(
   createAudioBlockConfig,
   (config) => ({
+    meta: {
+      fileBlockAccept: ["audio/*"],
+    },
     render: AudioBlock,
     parse: audioParse(config),
     toExternalHTML: AudioToExternalHTML,

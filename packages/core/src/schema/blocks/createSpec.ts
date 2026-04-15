@@ -211,15 +211,19 @@ export function addNodeAndExtensionsToSpec<
             editor as any,
           );
 
+          // Cast needed because render returns `dom: HTMLElement | DocumentFragment`
+          // but tiptap's NodeView expects `dom: HTMLElement`
+          const typedNodeView = nodeView as unknown as NodeView;
+
           if (blockImplementation.meta?.selectable === false) {
-            applyNonSelectableBlockFix(nodeView, this.editor);
+            applyNonSelectableBlockFix(typedNodeView, this.editor);
           }
 
           // See explanation for why `update` is not implemented for NodeViews
           // https://github.com/TypeCellOS/BlockNote/pull/1904#discussion_r2313461464
           // TODO: in a future version, we might want to implement updates so that
           // vanilla blocks don't always re-render entirely (https://github.com/TypeCellOS/BlockNote/issues/220)
-          return nodeView;
+          return typedNodeView;
         };
       },
     });

@@ -21,11 +21,11 @@
     "@mantine/utils": "^6.0.22",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "@liveblocks/client": "3.7.1-tiptap3",
-    "@liveblocks/react": "3.7.1-tiptap3",
-    "@liveblocks/react-blocknote": "3.7.1-tiptap3",
-    "@liveblocks/react-tiptap": "3.7.1-tiptap3",
-    "@liveblocks/react-ui": "3.7.1-tiptap3",
+    "@liveblocks/client": "^3.17.0",
+    "@liveblocks/react": "^3.17.0",
+    "@liveblocks/react-blocknote": "^3.17.0",
+    "@liveblocks/react-tiptap": "^3.17.0",
+    "@liveblocks/react-ui": "^3.17.0",
     "yjs": "^13.6.27"
   },
   "devDependencies": {

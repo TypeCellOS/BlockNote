@@ -21,8 +21,9 @@ BlockNote uses classes with the `bn-` prefix to style editor elements. Here are 
 
 #### Editor Structure
 
-- `.bn-container`: Container for editor and all menus/toolbars.
-- `.bn-editor`: Main editor element.
+- `.bn-root`: Container class both the floating menus / toolbars and the editor
+- `.bn-container`: Container around `.bn-editor`
+- `.bn-editor`: Main editor element (the "contenteditable").
 - `.bn-block`: Individual block element (including nested).
 - `.bn-block-group`: Container for nested blocks.
 - `.bn-block-content`: Block content wrapper.

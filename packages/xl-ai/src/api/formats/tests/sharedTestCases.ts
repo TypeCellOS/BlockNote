@@ -1,6 +1,6 @@
 import { Chat, UIMessage } from "@ai-sdk/react";
 import { BlockNoteEditor } from "@blocknote/core";
-import { getCurrentTest, TaskContext } from "@vitest/runner";
+import { getCurrentTest, TestContext } from "@vitest/runner";
 import path from "path";
 import { TextSelection } from "prosemirror-state";
 import { describe, expect, it } from "vitest";
@@ -20,7 +20,7 @@ import { buildAIRequest } from "../../aiRequest/builder.js";
 
 const BASE_FILE_PATH = path.resolve(__dirname, "__snapshots__");
 
-// @ts-ignore
+// @ts-expect-error - unused helper kept for debugging snapshots
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function matchFileSnapshot(data: any, postFix = "") {
   const t = getCurrentTest()!;
@@ -44,7 +44,7 @@ export function generateSharedTestCases(
 ) {
   function skipIfUnsupported(
     test: DocumentOperationTestCase,
-    context: TaskContext,
+    context: TestContext,
   ) {
     if (
       skipTestsRequiringCapabilities &&

@@ -9,7 +9,11 @@ import {
   getPrevBlockInfo,
   mergeBlocksCommand,
 } from "../../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
-import { nestBlock } from "../../../api/blockManipulation/commands/nestBlock/nestBlock.js";
+import {
+  liftItem,
+  nestBlock,
+  unnestBlock,
+} from "../../../api/blockManipulation/commands/nestBlock/nestBlock.js";
 import { fixColumnList } from "../../../api/blockManipulation/commands/replaceBlocks/util/fixColumnList.js";
 import { splitBlockCommand } from "../../../api/blockManipulation/commands/splitBlock/splitBlock.js";
 import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
@@ -63,7 +67,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
           }),
         // Removes a level of nesting if the block is indented if the selection is at the start of the block.
         () =>
-          commands.command(({ state }) => {
+          commands.command(({ state, tr }) => {
             const blockInfo = getBlockInfoFromSelection(state);
             if (!blockInfo.isBlockContainer) {
               return false;
@@ -74,7 +78,11 @@ export const KeyboardShortcutsExtension = Extension.create<{
               state.selection.from === blockContent.beforePos + 1;
 
             if (selectionAtBlockStart) {
-              return commands.liftListItem("blockContainer");
+              return liftItem(
+                tr,
+                tr.doc.type.schema.nodes["blockContainer"],
+                tr.doc.type.schema.nodes["blockGroup"],
+              );
             }
 
             return false;
@@ -125,6 +133,13 @@ export const KeyboardShortcutsExtension = Extension.create<{
           commands.command(({ state, tr, dispatch }) => {
             const blockInfo = getBlockInfoFromSelection(state);
             if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+
+            const selectionAtBlockStart =
+              state.selection.from ===
+              blockInfo.blockContent.beforePos + 1;
+            if (!selectionAtBlockStart) {
               return false;
             }
 
@@ -226,13 +241,26 @@ export const KeyboardShortcutsExtension = Extension.create<{
                 state.doc,
                 blockInfo.bnBlock.beforePos,
               );
-              if (!prevBlockInfo || !prevBlockInfo.isBlockContainer) {
+              if (!prevBlockInfo) {
+                return false;
+              }
+              const bottomNestedPrevBlockInfo = getBottomNestedBlockInfo(
+                state.doc,
+                prevBlockInfo,
+              );
+              if (!bottomNestedPrevBlockInfo.isBlockContainer) {
+                return false;
+              }
+              if (
+                !bottomNestedPrevBlockInfo ||
+                !bottomNestedPrevBlockInfo.isBlockContainer
+              ) {
                 return false;
               }
 
               let chainedCommands = chain();
 
-              // Moves the children of the current block to the previous one.
+              // Moves the children the current block.
               if (blockInfo.childContainer) {
                 chainedCommands.insertContentAt(
                   blockInfo.bnBlock.afterPos,
@@ -241,8 +269,8 @@ export const KeyboardShortcutsExtension = Extension.create<{
               }
 
               if (
-                prevBlockInfo.blockContent.node.type.spec.content ===
-                "tableRow+"
+                bottomNestedPrevBlockInfo.blockContent.node.type.spec
+                  .content === "tableRow+"
               ) {
                 const tableBlockEndPos = blockInfo.bnBlock.beforePos - 1;
                 const tableBlockContentEndPos = tableBlockEndPos - 1;
@@ -254,17 +282,18 @@ export const KeyboardShortcutsExtension = Extension.create<{
                   lastCellParagraphEndPos,
                 );
               } else if (
-                prevBlockInfo.blockContent.node.type.spec.content === ""
+                bottomNestedPrevBlockInfo.blockContent.node.type.spec
+                  .content === ""
               ) {
                 chainedCommands = chainedCommands.setNodeSelection(
-                  prevBlockInfo.blockContent.beforePos,
+                  bottomNestedPrevBlockInfo.blockContent.beforePos,
                 );
               } else {
-                const blockContentStartPos =
-                  prevBlockInfo.blockContent.afterPos - 1;
+                const blockContentEndPos =
+                  bottomNestedPrevBlockInfo.blockContent.afterPos - 1;
 
                 chainedCommands =
-                  chainedCommands.setTextSelection(blockContentStartPos);
+                  chainedCommands.setTextSelection(blockContentEndPos);
               }
 
               return chainedCommands
@@ -440,12 +469,19 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             return false;
           }),
-        // If the previous block is a columnList, moves the current block to
-        // the end of the last column in it.
+        // If the next block is a columnList, moves the first block from its
+        // first column to after the current block.
         () =>
           commands.command(({ state, tr, dispatch }) => {
             const blockInfo = getBlockInfoFromSelection(state);
             if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+
+            const selectionAtBlockEnd =
+              state.selection.from ===
+              blockInfo.blockContent.afterPos - 1;
+            if (!selectionAtBlockEnd) {
               return false;
             }
 
@@ -734,7 +770,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // Removes a level of nesting if the block is empty & indented, while the selection is also empty & at the start
         // of the block.
         () =>
-          commands.command(({ state }) => {
+          commands.command(({ state, tr }) => {
             const blockInfo = getBlockInfoFromSelection(state);
             if (!blockInfo.isBlockContainer) {
               return false;
@@ -756,7 +792,11 @@ export const KeyboardShortcutsExtension = Extension.create<{
               blockEmpty &&
               blockIndented
             ) {
-              return commands.liftListItem("blockContainer");
+              return liftItem(
+                tr,
+                tr.doc.type.schema.nodes["blockContainer"],
+                tr.doc.type.schema.nodes["blockGroup"],
+              );
             }
 
             return false;
@@ -926,7 +966,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
           // don't handle tabs if a toolbar is shown, so we can tab into / out of it
           return false;
         }
-        return this.editor.commands.liftListItem("blockContainer");
+        return unnestBlock(this.options.editor);
       },
       "Shift-Mod-ArrowUp": () => {
         this.options.editor.moveBlocksUp();

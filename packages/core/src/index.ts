@@ -29,7 +29,7 @@ export type { CodeBlockOptions } from "./blocks/Code/block.js";
 export { assertEmpty, UnreachableCaseError } from "./util/typescript.js";
 
 export * from "./util/EventEmitter.js";
-// for testing from react (TODO: move):
+// for testing from react (TODO: move)
 // Unit testing
 export { selectedFragmentToHTML } from "./api/clipboard/toClipboard/copyExtension.js";
 

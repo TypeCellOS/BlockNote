@@ -14,6 +14,9 @@ on:
     - cron: "0 2 * * *" # Daily at 02:00 UTC
   workflow_dispatch: # Allow manual runs
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   fresh-install-unit-tests:
     name: Unit Tests (Fresh Dep Resolution)
@@ -21,19 +24,15 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version-file: ".nvmrc"
           # Intentionally no pnpm cache — we want a genuinely fresh install
-
-      # Required for the `canvas` native dependency
-      - name: Install system dependencies
-        run: sudo apt-get update && sudo apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev pkg-config
 
       - name: Remove lockfile to force fresh dep resolution
         # Removing pnpm-lock.yaml causes pnpm to resolve all dependencies to
