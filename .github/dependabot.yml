@@ -40,6 +40,12 @@ updates:
       # yjs packages
       - dependency-name: "yjs"
       - dependency-name: "y-prosemirror"
+    ignore:
+      # Hono packages are used only in the demo AI server and are not part of
+      # the main editor/runtime surface area.
+      - dependency-name: "hono"
+      - dependency-name: "@hono/node-server"
+      - dependency-name: "@hono/*"
     groups:
       editor-dependencies:
         patterns:
