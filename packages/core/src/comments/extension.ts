@@ -306,7 +306,11 @@ export const CommentsExtension = createExtension(
           selectedThreadId: undefined,
           pendingComment: true,
         }));
-        editor.focus();
+        // Use `editor.domElement` as `editor.focus()` doesn't do anything if
+        // the editor is non-editable. Editor needs to be focused as
+        // `showSelection` will otherwise trigger a selection update which
+        // triggers `stopPendingComment`.
+        editor.domElement?.focus();
         editor
           .getExtension(ShowSelectionExtension)
           ?.showSelection(true, "comments");
