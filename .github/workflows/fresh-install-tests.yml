@@ -95,14 +95,20 @@ jobs:
           fi
 
           run_url="https://github.com/${REPOSITORY}/actions/runs/${RUN_ID}"
-          payload=$(cat <<EOF
-          {
-            "text": ":warning: Fresh Install Tests failed in *${REPOSITORY}* on branch *${BRANCH}*.\n*Workflow:* ${WORKFLOW}\n*Run:* <${run_url}|#${RUN_NUMBER} (attempt ${RUN_ATTEMPT})>\n*Failed step:* ${failed_step}"
-          }
-          EOF
-          )
+          message=$(printf '%s\n%s\n%s\n%s' \
+            ":warning: Fresh Install Tests failed in *${REPOSITORY}* on branch *${BRANCH}*." \
+            "*Workflow:* ${WORKFLOW}" \
+            "*Run:* <${run_url}|#${RUN_NUMBER} (attempt ${RUN_ATTEMPT})>" \
+            "*Failed step:* ${failed_step}")
+          payload=$(jq --compact-output --null-input --arg text "$message" '{text: $text}')
 
           curl -sS -X POST \
+            --fail \
+            --retry 4 \
+            --retry-all-errors \
+            --retry-max-time 60 \
+            --connect-timeout 10 \
+            --max-time 30 \
             -H "Content-type: application/json" \
             --data "$payload" \
             "$SLACK_WEBHOOK_URL"
