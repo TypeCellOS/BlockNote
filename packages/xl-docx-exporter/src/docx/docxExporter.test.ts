@@ -217,6 +217,53 @@ describe("exporter", () => {
       ).toMatchFileSnapshot("__snapshots__/withMultiColumn/styles.xml");
     },
   );
+
+  async function exportAndGetStylesEntries(
+    locale?: string,
+  ) {
+    const exporter = new DOCXExporter(
+      BlockNoteSchema.create({
+        blockSpecs: {
+          ...defaultBlockSpecs,
+          pageBreak: createPageBreakBlockSpec(),
+        },
+      }),
+      docxDefaultSchemaMappings,
+    );
+    const doc = await exporter.toDocxJsDocument(testDocument, {
+      sectionOptions: {},
+      documentOptions: {},
+      ...(locale && { locale }),
+    });
+
+    const blob = await Packer.toBlob(doc);
+    const zip = new ZipReader(new BlobReader(blob));
+    return zip.getEntries();
+  }
+
+  it(
+    "should export a document without w:lang when no locale is provided",
+    { timeout: 10000 },
+    async () => {
+      const entries = await exportAndGetStylesEntries();
+
+      await expect(
+        prettify(await getZIPEntryContent(entries, "word/styles.xml")),
+      ).toMatchFileSnapshot("__snapshots__/noLocale/styles.xml");
+    },
+  );
+
+  it(
+    "should export a document with w:lang when locale is provided",
+    { timeout: 10000 },
+    async () => {
+      const entries = await exportAndGetStylesEntries("fr-FR");
+
+      await expect(
+        prettify(await getZIPEntryContent(entries, "word/styles.xml")),
+      ).toMatchFileSnapshot("__snapshots__/withLocale/styles.xml");
+    },
+  );
 });
 
 function prettify(sourceXml: string) {
