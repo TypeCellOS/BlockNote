@@ -5,19 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  vitest: 4.1.2
-  '@vitest/runner': 4.1.2
-  msw: 2.11.5
-  ai: 6.0.5
-  '@ai-sdk/anthropic': 3.0.2
-  '@ai-sdk/openai': 3.0.2
-  '@ai-sdk/groq': 3.0.2
-  '@ai-sdk/google': 3.0.2
-  '@ai-sdk/mistral': 3.0.2
-  '@ai-sdk/openai-compatible': 2.0.2
-  '@ai-sdk/provider-utils': 4.0.2
-  '@ai-sdk/react': 3.0.5
-  '@ai-sdk/gateway': 3.0.4
+  '@headlessui/react': ^2.2.4
+  '@tiptap/core': ^3.0.0
+  '@tiptap/pm': ^3.0.0
 
 importers:
 
@@ -63,7 +53,7 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
       vitest:
-        specifier: 4.1.2
+        specifier: ^4.1.2
         version: 4.1.2(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(msw@2.11.5(@types/node@25.6.0)(typescript@5.9.3))(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
       wait-on:
         specifier: 9.0.5
@@ -72,7 +62,7 @@ importers:
   docs:
     dependencies:
       '@ai-sdk/groq':
-        specifier: 3.0.2
+        specifier: ^3.0.2
         version: 3.0.2(zod@4.3.6)
       '@aws-sdk/client-s3':
         specifier: ^3.609.0
@@ -195,7 +185,7 @@ importers:
         specifier: ^4
         version: 4.0.2
       '@tiptap/core':
-        specifier: ^3.13.0
+        specifier: ^3.0.0
         version: 3.22.1(@tiptap/pm@3.22.1)
       '@uppy/core':
         specifier: ^3.13.1
@@ -237,7 +227,7 @@ importers:
         specifier: ^0.6.3
         version: 0.6.4(react@19.2.5)(yjs@13.6.30)
       ai:
-        specifier: 6.0.5
+        specifier: ^6.0.5
         version: 6.0.5(zod@4.3.6)
       better-auth:
         specifier: ~1.4.15
@@ -4033,7 +4023,7 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.4)
       '@tiptap/core':
-        specifier: ^3.13.0
+        specifier: ^3.0.0
         version: 3.22.1(@tiptap/pm@3.22.1)
       react:
         specifier: ^19.2.3
@@ -4085,7 +4075,7 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.4)
       ai:
-        specifier: 6.0.5
+        specifier: ^6.0.5
         version: 6.0.5(zod@4.3.6)
       react:
         specifier: ^19.2.3
@@ -4137,7 +4127,7 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.4)
       ai:
-        specifier: 6.0.5
+        specifier: ^6.0.5
         version: 6.0.5(zod@4.3.6)
       react:
         specifier: ^19.2.3
@@ -4189,7 +4179,7 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.4)
       ai:
-        specifier: 6.0.5
+        specifier: ^6.0.5
         version: 6.0.5(zod@4.3.6)
       react:
         specifier: ^19.2.3
@@ -4244,7 +4234,7 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.4)
       ai:
-        specifier: 6.0.5
+        specifier: ^6.0.5
         version: 6.0.5(zod@4.3.6)
       react:
         specifier: ^19.2.3
@@ -4302,7 +4292,7 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.4)
       ai:
-        specifier: 6.0.5
+        specifier: ^6.0.5
         version: 6.0.5(zod@4.3.6)
       react:
         specifier: ^19.2.3
@@ -4333,7 +4323,7 @@ importers:
   examples/09-ai/06-client-side-transport:
     dependencies:
       '@ai-sdk/groq':
-        specifier: 3.0.2
+        specifier: ^3.0.2
         version: 3.0.2(zod@4.3.6)
       '@blocknote/ariakit':
         specifier: latest
@@ -4363,7 +4353,7 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.4)
       ai:
-        specifier: 6.0.5
+        specifier: ^6.0.5
         version: 6.0.5(zod@4.3.6)
       react:
         specifier: ^19.2.3
@@ -4415,7 +4405,7 @@ importers:
         specifier: ^6.0.22
         version: 6.0.22(react@19.2.4)
       ai:
-        specifier: 6.0.5
+        specifier: ^6.0.5
         version: 6.0.5(zod@4.3.6)
       react:
         specifier: ^19.2.3
@@ -4661,7 +4651,7 @@ importers:
         specifier: ^1.8.1
         version: 1.8.1(eslint@8.57.1)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
       vitest:
-        specifier: 4.1.2
+        specifier: ^4.1.2
         version: 4.1.2(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(msw@2.11.5(@types/node@25.6.0)(typescript@5.9.3))(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/core:
@@ -4679,7 +4669,7 @@ importers:
         specifier: ^0.7.7
         version: 0.7.7
       '@tiptap/core':
-        specifier: ^3.13.0
+        specifier: ^3.0.0
         version: 3.22.1(@tiptap/pm@3.22.1)
       '@tiptap/extension-bold':
         specifier: ^3.13.0
@@ -4709,7 +4699,7 @@ importers:
         specifier: ^3.13.0
         version: 3.15.3(@tiptap/core@3.22.1(@tiptap/pm@3.22.1))(@tiptap/pm@3.22.1)
       '@tiptap/pm':
-        specifier: ^3.13.0
+        specifier: ^3.0.0
         version: 3.22.1
       emoji-mart:
         specifier: ^5.6.0
@@ -4806,7 +4796,7 @@ importers:
         specifier: ^1.8.1
         version: 1.8.1(eslint@8.57.1)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
       vitest:
-        specifier: 4.1.2
+        specifier: ^4.1.2
         version: 4.1.2(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(msw@2.11.5(@types/node@25.6.0)(typescript@5.9.3))(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/dev-scripts:
@@ -4919,10 +4909,10 @@ importers:
         specifier: 0.7.7
         version: 0.7.7(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@tiptap/core':
-        specifier: ^3.13.0
+        specifier: ^3.0.0
         version: 3.22.1(@tiptap/pm@3.22.1)
       '@tiptap/pm':
-        specifier: ^3.13.0
+        specifier: ^3.0.0
         version: 3.22.1
       '@tiptap/react':
         specifier: ^3.13.0
@@ -4992,7 +4982,7 @@ importers:
         specifier: ^0.10.0
         version: 0.10.0(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
       vitest:
-        specifier: 4.1.2
+        specifier: ^4.1.2
         version: 4.1.2(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(msw@2.11.5(@types/node@25.6.0)(typescript@5.9.3))(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/server-util:
@@ -5004,10 +4994,10 @@ importers:
         specifier: 0.48.1
         version: link:../react
       '@tiptap/core':
-        specifier: ^3.13.0
+        specifier: ^3.0.0
         version: 3.22.1(@tiptap/pm@3.22.1)
       '@tiptap/pm':
-        specifier: ^3.13.0
+        specifier: ^3.0.0
         version: 3.22.1
       jsdom:
         specifier: ^25.0.1
@@ -5053,7 +5043,7 @@ importers:
         specifier: ^1.8.1
         version: 1.8.1(eslint@8.57.1)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
       vitest:
-        specifier: 4.1.2
+        specifier: ^4.1.2
         version: 4.1.2(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(jsdom@25.0.1(canvas@2.11.2))(msw@2.11.5(@types/node@25.6.0)(typescript@5.9.3))(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/shadcn:
@@ -5159,10 +5149,10 @@ importers:
   packages/xl-ai:
     dependencies:
       '@ai-sdk/provider-utils':
-        specifier: 4.0.2
+        specifier: ^4.0.2
         version: 4.0.2(zod@4.3.6)
       '@ai-sdk/react':
-        specifier: 3.0.5
+        specifier: ^3.0.5
         version: 3.0.5(react@19.2.5)(zod@4.3.6)
       '@blocknote/core':
         specifier: 0.48.1
@@ -5180,10 +5170,10 @@ importers:
         specifier: ^0.1.8
         version: 0.1.8(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.0)(prosemirror-view@1.41.8)
       '@tiptap/core':
-        specifier: ^3.13.0
+        specifier: ^3.0.0
         version: 3.22.1(@tiptap/pm@3.22.1)
       ai:
-        specifier: 6.0.5
+        specifier: ^6.0.5
         version: 6.0.5(zod@4.3.6)
       lodash.isequal:
         specifier: ^4.5.0
@@ -5232,22 +5222,22 @@ importers:
         version: 1.3.7(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30)
     devDependencies:
       '@ai-sdk/anthropic':
-        specifier: 3.0.2
+        specifier: ^3.0.2
         version: 3.0.2(zod@4.3.6)
       '@ai-sdk/google':
-        specifier: 3.0.2
+        specifier: ^3.0.2
         version: 3.0.2(zod@4.3.6)
       '@ai-sdk/groq':
-        specifier: 3.0.2
+        specifier: ^3.0.2
         version: 3.0.2(zod@4.3.6)
       '@ai-sdk/mistral':
-        specifier: 3.0.2
+        specifier: ^3.0.2
         version: 3.0.2(zod@4.3.6)
       '@ai-sdk/openai':
-        specifier: 3.0.2
+        specifier: ^3.0.2
         version: 3.0.2(zod@4.3.6)
       '@ai-sdk/openai-compatible':
-        specifier: 2.0.2
+        specifier: ^2.0.2
         version: 2.0.2(zod@4.3.6)
       '@mswjs/interceptors':
         specifier: ^0.37.6
@@ -5277,7 +5267,7 @@ importers:
         specifier: ^6.0.1
         version: 6.0.1(babel-plugin-react-compiler@1.0.0)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
       '@vitest/runner':
-        specifier: 4.1.2
+        specifier: ^4.1.2
         version: 4.1.2
       eslint:
         specifier: ^8.57.1
@@ -5289,7 +5279,7 @@ importers:
         specifier: ^4.0.3
         version: 4.0.3
       msw:
-        specifier: 2.11.5
+        specifier: ^2.11.5
         version: 2.11.5(@types/node@25.6.0)(typescript@5.9.3)
       msw-snapshot:
         specifier: ^5.3.0
@@ -5316,28 +5306,28 @@ importers:
         specifier: ^0.10.0
         version: 0.10.0(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
       vitest:
-        specifier: 4.1.2
+        specifier: ^4.1.2
         version: 4.1.2(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(msw@2.11.5(@types/node@25.6.0)(typescript@5.9.3))(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/xl-ai-server:
     dependencies:
       '@ai-sdk/anthropic':
-        specifier: 3.0.2
+        specifier: ^3.0.2
         version: 3.0.2(zod@4.3.6)
       '@ai-sdk/google':
-        specifier: 3.0.2
+        specifier: ^3.0.2
         version: 3.0.2(zod@4.3.6)
       '@ai-sdk/groq':
-        specifier: 3.0.2
+        specifier: ^3.0.2
         version: 3.0.2(zod@4.3.6)
       '@ai-sdk/mistral':
-        specifier: 3.0.2
+        specifier: ^3.0.2
         version: 3.0.2(zod@4.3.6)
       '@ai-sdk/openai':
-        specifier: 3.0.2
+        specifier: ^3.0.2
         version: 3.0.2(zod@4.3.6)
       '@ai-sdk/openai-compatible':
-        specifier: 2.0.2
+        specifier: ^2.0.2
         version: 2.0.2(zod@4.3.6)
       '@blocknote/xl-ai':
         specifier: 0.48.1
@@ -5346,7 +5336,7 @@ importers:
         specifier: ^1.19.5
         version: 1.19.14(hono@4.12.10)
       ai:
-        specifier: 6.0.5
+        specifier: ^6.0.5
         version: 6.0.5(zod@4.3.6)
       hono:
         specifier: ^4.10.3
@@ -5380,7 +5370,7 @@ importers:
         specifier: ^0.10.0
         version: 0.10.0(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
       vitest:
-        specifier: 4.1.2
+        specifier: ^4.1.2
         version: 4.1.2(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(msw@2.11.5(@types/node@25.6.0)(typescript@5.9.3))(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/xl-docx-exporter:
@@ -5432,7 +5422,7 @@ importers:
         specifier: ^1.8.1
         version: 1.8.1(eslint@8.57.1)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
       vitest:
-        specifier: 4.1.2
+        specifier: ^4.1.2
         version: 4.1.2(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(msw@2.11.5(@types/node@25.6.0)(typescript@5.9.3))(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
       xml-formatter:
         specifier: ^3.6.7
@@ -5493,7 +5483,7 @@ importers:
         specifier: ^1.8.1
         version: 1.8.1(eslint@8.57.1)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
       vitest:
-        specifier: 4.1.2
+        specifier: ^4.1.2
         version: 4.1.2(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(msw@2.11.5(@types/node@25.6.0)(typescript@5.9.3))(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/xl-multi-column:
@@ -5505,7 +5495,7 @@ importers:
         specifier: 0.48.1
         version: link:../react
       '@tiptap/core':
-        specifier: ^3.13.0
+        specifier: ^3.0.0
         version: 3.22.1(@tiptap/pm@3.22.1)
       prosemirror-model:
         specifier: ^1.25.4
@@ -5560,7 +5550,7 @@ importers:
         specifier: ^1.8.1
         version: 1.8.1(eslint@8.57.1)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
       vitest:
-        specifier: 4.1.2
+        specifier: ^4.1.2
         version: 4.1.2(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(jsdom@25.0.1(canvas@2.11.2))(msw@2.11.5(@types/node@25.6.0)(typescript@5.9.3))(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/xl-odt-exporter:
@@ -5612,7 +5602,7 @@ importers:
         specifier: ^1.8.1
         version: 1.8.1(eslint@8.57.1)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
       vitest:
-        specifier: 4.1.2
+        specifier: ^4.1.2
         version: 4.1.2(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(msw@2.11.5(@types/node@25.6.0)(typescript@5.9.3))(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
       xml-formatter:
         specifier: ^3.6.7
@@ -5685,13 +5675,13 @@ importers:
         specifier: ^1.8.1
         version: 1.8.1(eslint@8.57.1)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
       vitest:
-        specifier: 4.1.2
+        specifier: ^4.1.2
         version: 4.1.2(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(msw@2.11.5(@types/node@25.6.0)(typescript@5.9.3))(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
 
   playground:
     dependencies:
       '@ai-sdk/groq':
-        specifier: 3.0.2
+        specifier: ^3.0.2
         version: 3.0.2(zod@4.3.6)
       '@aws-sdk/client-s3':
         specifier: ^3.911.0
@@ -5811,7 +5801,7 @@ importers:
         specifier: ^0.6.4
         version: 0.6.4(react@19.2.5)(yjs@13.6.30)
       ai:
-        specifier: 6.0.5
+        specifier: ^6.0.5
         version: 6.0.5(zod@4.3.6)
       autoprefixer:
         specifier: 10.4.21
@@ -5919,7 +5909,7 @@ importers:
         specifier: 1.51.1
         version: 1.51.1
       '@tiptap/pm':
-        specifier: ^3.13.0
+        specifier: ^3.0.0
         version: 3.22.1
       '@types/node':
         specifier: ^20.19.22
@@ -5955,7 +5945,7 @@ importers:
         specifier: ^1.8.1
         version: 1.8.1(eslint@8.57.1)(vite@8.0.8(@types/node@20.19.37)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
       vitest:
-        specifier: 4.1.2
+        specifier: ^4.1.2
         version: 4.1.2(@opentelemetry/api@1.9.1)(@types/node@20.19.37)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(msw@2.11.5(@types/node@20.19.37)(typescript@5.9.3))(vite@8.0.8(@types/node@20.19.37)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
 
 packages:
@@ -7952,7 +7942,7 @@ packages:
     peerDependencies:
       '@blocknote/core': 0.43.0 - 1.0.0
       '@blocknote/react': 0.43.0 - 1.0.0
-      '@tiptap/core': ^3.19.0
+      '@tiptap/core': ^3.0.0
       '@types/react': '*'
       '@types/react-dom': '*'
       react: ^18 || ^19 || ^19.0.0-rc
@@ -7966,7 +7956,7 @@ packages:
   '@liveblocks/react-tiptap@3.17.0':
     resolution: {integrity: sha512-IVAN5sZCOTtGy8alKw4EpArikBLu/dwjvbNya5IaH3ZiO6eoYmPFbHxinVN08BKPe208YjhZWefwrFr7bKAVNw==}
     peerDependencies:
-      '@tiptap/pm': ^3.19.0
+      '@tiptap/pm': ^3.0.0
       '@tiptap/react': ^3.19.0
       '@tiptap/suggestion': ^3.19.0
       '@types/react': '*'
@@ -10410,67 +10400,67 @@ packages:
   '@tiptap/core@3.22.1':
     resolution: {integrity: sha512-6wPNhkdLIGYiKAGqepDCRtR0TYGJxV40SwOEN2vlPhsXqAgzmyG37UyREj5pGH5xTekugqMCgCnyRg7m5nYoYQ==}
     peerDependencies:
-      '@tiptap/pm': ^3.22.1
+      '@tiptap/pm': ^3.0.0
 
   '@tiptap/extension-bold@3.15.3':
     resolution: {integrity: sha512-I8JYbkkUTNUXbHd/wCse2bR0QhQtJD7+0/lgrKOmGfv5ioLxcki079Nzuqqay3PjgYoJLIJQvm3RAGxT+4X91w==}
     peerDependencies:
-      '@tiptap/core': ^3.15.3
+      '@tiptap/core': ^3.0.0
 
   '@tiptap/extension-bubble-menu@3.22.1':
     resolution: {integrity: sha512-JJI63N55hLPjfqHgBnbG1ORZTXJiswnfBkfNd8YKytCC8D++g5qX3UMObxmJKLMBRGyqjEi6krzOyYtOix5ALA==}
     peerDependencies:
-      '@tiptap/core': ^3.22.1
-      '@tiptap/pm': ^3.22.1
+      '@tiptap/core': ^3.0.0
+      '@tiptap/pm': ^3.0.0
 
   '@tiptap/extension-code@3.15.3':
     resolution: {integrity: sha512-x6LFt3Og6MFINYpsMzrJnz7vaT9Yk1t4oXkbJsJRSavdIWBEBcoRudKZ4sSe/AnsYlRJs8FY2uR76mt9e+7xAQ==}
     peerDependencies:
-      '@tiptap/core': ^3.15.3
+      '@tiptap/core': ^3.0.0
 
   '@tiptap/extension-floating-menu@3.22.1':
     resolution: {integrity: sha512-TaZqmaoKv36FzbKTrBkkv74o0t8dYTftNZ7NotBqfSki0BB2PupTCJHafdu1YI0zmJ3xEzjB/XKcKPz2+10sDA==}
     peerDependencies:
       '@floating-ui/dom': ^1.0.0
-      '@tiptap/core': ^3.22.1
-      '@tiptap/pm': ^3.22.1
+      '@tiptap/core': ^3.0.0
+      '@tiptap/pm': ^3.0.0
 
   '@tiptap/extension-horizontal-rule@3.15.3':
     resolution: {integrity: sha512-FYkN7L6JsfwwNEntmLklCVKvgL0B0N47OXMacRk6kYKQmVQ4Nvc7q/VJLpD9sk4wh4KT1aiCBfhKEBTu5pv1fg==}
     peerDependencies:
-      '@tiptap/core': ^3.15.3
-      '@tiptap/pm': ^3.15.3
+      '@tiptap/core': ^3.0.0
+      '@tiptap/pm': ^3.0.0
 
   '@tiptap/extension-italic@3.15.3':
     resolution: {integrity: sha512-6XeuPjcWy7OBxpkgOV7bD6PATO5jhIxc8SEK4m8xn8nelGTBIbHGqK37evRv+QkC7E0MUryLtzwnmmiaxcKL0Q==}
     peerDependencies:
-      '@tiptap/core': ^3.15.3
+      '@tiptap/core': ^3.0.0
 
   '@tiptap/extension-paragraph@3.15.3':
     resolution: {integrity: sha512-lc0Qu/1AgzcEfS67NJMj5tSHHhH6NtA6uUpvppEKGsvJwgE2wKG1onE4isrVXmcGRdxSMiCtyTDemPNMu6/ozQ==}
     peerDependencies:
-      '@tiptap/core': ^3.15.3
+      '@tiptap/core': ^3.0.0
 
   '@tiptap/extension-strike@3.15.3':
     resolution: {integrity: sha512-Y1P3eGNY7RxQs2BcR6NfLo9VfEOplXXHAqkOM88oowWWOE7dMNeFFZM9H8HNxoQgXJ7H0aWW9B7ZTWM9hWli2Q==}
     peerDependencies:
-      '@tiptap/core': ^3.15.3
+      '@tiptap/core': ^3.0.0
 
   '@tiptap/extension-text@3.15.3':
     resolution: {integrity: sha512-MhkBz8ZvrqOKtKNp+ZWISKkLUlTrDR7tbKZc2OnNcUTttL9dz0HwT+cg91GGz19fuo7ttDcfsPV6eVmflvGToA==}
     peerDependencies:
-      '@tiptap/core': ^3.15.3
+      '@tiptap/core': ^3.0.0
 
   '@tiptap/extension-underline@3.15.3':
     resolution: {integrity: sha512-r/IwcNN0W366jGu4Y0n2MiFq9jGa4aopOwtfWO4d+J0DyeS2m7Go3+KwoUqi0wQTiVU74yfi4DF6eRsMQ9/iHQ==}
     peerDependencies:
-      '@tiptap/core': ^3.15.3
+      '@tiptap/core': ^3.0.0
 
   '@tiptap/extensions@3.15.3':
     resolution: {integrity: sha512-ycx/BgxR4rc9tf3ZyTdI98Z19yKLFfqM3UN+v42ChuIwkzyr9zyp7kG8dB9xN2lNqrD+5y/HyJobz/VJ7T90gA==}
     peerDependencies:
-      '@tiptap/core': ^3.15.3
-      '@tiptap/pm': ^3.15.3
+      '@tiptap/core': ^3.0.0
+      '@tiptap/pm': ^3.0.0
 
   '@tiptap/pm@3.22.1':
     resolution: {integrity: sha512-OSqSg2974eLJT5PNKFLM7156lBXCUf/dsKTQXWSzsLTf6HOP4dYP6c0YbAk6lgbNI+BdszsHNClmLVLA8H/L9A==}
@@ -10478,8 +10468,8 @@ packages:
   '@tiptap/react@3.22.1':
     resolution: {integrity: sha512-1pIRfgK9wape4nDXVJRfgUcYVZdPPkuECbGtz8bo0rgtdsVN7B8PBVCDyuitZ7acdLbMuuX5+TxeUOvME8np7Q==}
     peerDependencies:
-      '@tiptap/core': ^3.22.1
-      '@tiptap/pm': ^3.22.1
+      '@tiptap/core': ^3.0.0
+      '@tiptap/pm': ^3.0.0
       '@types/react': ^17.0.0 || ^18.0.0 || ^19.0.0
       '@types/react-dom': ^17.0.0 || ^18.0.0 || ^19.0.0
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -10488,8 +10478,8 @@ packages:
   '@tiptap/suggestion@2.27.2':
     resolution: {integrity: sha512-dQyvCIg0hcAVeh4fCIVCxogvbp+bF+GpbUb8sNlgnGrmHXnapGxzkvrlHnvneXZxLk/j7CxmBPKJNnm4Pbx4zw==}
     peerDependencies:
-      '@tiptap/core': ^2.7.0
-      '@tiptap/pm': ^2.7.0
+      '@tiptap/core': ^3.0.0
+      '@tiptap/pm': ^3.0.0
 
   '@transloadit/prettier-bytes@0.3.5':
     resolution: {integrity: sha512-xF4A3d/ZyX2LJWeQZREZQw+qFX4TGQ8bGVP97OLRt6sPO6T0TNHBFTuRHOJh7RNmYOBmQ9MHxpolD9bXihpuVA==}
@@ -11125,7 +11115,7 @@ packages:
   '@vitest/mocker@4.1.2':
     resolution: {integrity: sha512-Ize4iQtEALHDttPRCmN+FKqOl2vxTiNUhzobQFFt/BM1lRUTG7zRCLOykG/6Vo4E4hnUdfVLo5/eqKPukcWW7Q==}
     peerDependencies:
-      msw: 2.11.5
+      msw: ^2.4.9
       vite: ^6.0.0 || ^7.0.0 || ^8.0.0
     peerDependenciesMeta:
       msw:
@@ -11547,7 +11537,7 @@ packages:
       react-dom: ^18.0.0 || ^19.0.0
       solid-js: ^1.0.0
       svelte: ^4.0.0 || ^5.0.0
-      vitest: 4.1.2
+      vitest: ^2.0.0 || ^3.0.0 || ^4.0.0
       vue: ^3.0.0
     peerDependenciesMeta:
       '@lynx-js/react':
@@ -14187,7 +14177,7 @@ packages:
   msw-snapshot@5.3.0:
     resolution: {integrity: sha512-UdHPR67Qg0VAoQamu4AFevp0c3XG4oiOTmPGd98CezIwR9Il9jm9WFd2HebeYnjJ+Y5tVLPdwYiA72VWbnMX4Q==}
     peerDependencies:
-      msw: 2.11.5
+      msw: ^2.0.0
 
   msw@2.11.5:
     resolution: {integrity: sha512-atFI4GjKSJComxcigz273honh8h4j5zzpk5kwG4tGm0TPcYne6bqmVrufeRll6auBeouIkXqZYXxVbWSWxM3RA==}
