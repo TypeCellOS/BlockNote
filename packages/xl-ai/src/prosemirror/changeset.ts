@@ -1,14 +1,20 @@
 import { getNodeById, PartialBlock, updateBlockTr } from "@blocknote/core";
 import {
-  Change,
   ChangeSet,
+  Span,
   simplifyChanges,
   TokenEncoder,
 } from "prosemirror-changeset";
 import { Node } from "prosemirror-model";
 import { ReplaceStep, Transform } from "prosemirror-transform";
 
-type CustomChange = Change & {
+type CustomChange = {
+  fromA: number;
+  toA: number;
+  fromB: number;
+  toB: number;
+  deleted: readonly Span[];
+  inserted: readonly Span[];
   type?: "mark-update" | "node-type-or-attr-update";
 };
 
