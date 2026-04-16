@@ -1,6 +1,6 @@
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
-import { v4 } from "uuid";
+import { uuidv4 } from "lib0/random";
 import {
   createExtension,
   ExtensionOptions,
@@ -23,7 +23,7 @@ export const PlaceholderExtension = createExtension(
         new Plugin({
           key: PLUGIN_KEY,
           view: (view) => {
-            const uniqueEditorSelector = `placeholder-selector-${v4()}`;
+            const uniqueEditorSelector = `placeholder-selector-${uuidv4()}`;
             view.dom.classList.add(uniqueEditorSelector);
             const styleEl = document.createElement("style");
 
