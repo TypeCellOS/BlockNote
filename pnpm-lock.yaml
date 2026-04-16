@@ -283,10 +283,10 @@ importers:
         specifier: ^8.17.1
         version: 8.20.0
       react:
-        specifier: ^19.2.3
+        specifier: ^19.2.5
         version: 19.2.5
       react-dom:
-        specifier: ^19.2.3
+        specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)
       react-email:
         specifier: ^5.2.5
@@ -4598,10 +4598,10 @@ importers:
         specifier: ^8.57.1
         version: 8.57.1
       react:
-        specifier: ^19.2.3
+        specifier: ^19.2.5
         version: 19.2.5
       react-dom:
-        specifier: ^19.2.3
+        specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)
       rimraf:
         specifier: ^5.0.10
@@ -4835,10 +4835,10 @@ importers:
         specifier: ^10.5.0
         version: 10.5.0
       react:
-        specifier: ^19.2.3
+        specifier: ^19.2.5
         version: 19.2.5
       react-dom:
-        specifier: ^19.2.3
+        specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)
       tinyglobby:
         specifier: 0.2.12
@@ -4860,13 +4860,13 @@ importers:
         version: link:../react
       '@mantine/core':
         specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
         specifier: ^8.3.11
-        version: 8.3.18(react@19.2.4)
+        version: 8.3.18(react@19.2.5)
       '@mantine/utils':
         specifier: ^6.0.22
-        version: 6.0.22(react@19.2.4)
+        version: 6.0.22(react@19.2.5)
       react-icons:
         specifier: ^5.5.0
         version: 5.6.0(react@19.2.5)
@@ -4884,10 +4884,10 @@ importers:
         specifier: ^8.57.1
         version: 8.57.1
       react:
-        specifier: ^19.2.3
+        specifier: ^19.2.5
         version: 19.2.5
       react-dom:
-        specifier: ^19.2.3
+        specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)
       rimraf:
         specifier: ^5.0.10
@@ -4978,10 +4978,10 @@ importers:
         specifier: ^8.57.1
         version: 8.57.1
       react:
-        specifier: ^19.2.3
+        specifier: ^19.2.5
         version: 19.2.5
       react-dom:
-        specifier: ^19.2.3
+        specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)
       rimraf:
         specifier: ^5.0.10
@@ -5045,10 +5045,10 @@ importers:
         specifier: ^8.57.1
         version: 8.57.1
       react:
-        specifier: ^19.2.3
+        specifier: ^19.2.5
         version: 19.2.5
       react-dom:
-        specifier: ^19.2.3
+        specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)
       rollup-plugin-webpack-stats:
         specifier: ^0.2.6
@@ -5142,10 +5142,10 @@ importers:
         specifier: ^8.57.1
         version: 8.57.1
       react:
-        specifier: ^19.2.3
+        specifier: ^19.2.5
         version: 19.2.5
       react-dom:
-        specifier: ^19.2.3
+        specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)
       rimraf:
         specifier: ^5.0.10
@@ -5220,10 +5220,10 @@ importers:
         specifier: ^1.41.4
         version: 1.41.8
       react:
-        specifier: ^19.2.3
+        specifier: ^19.2.5
         version: 19.2.5
       react-dom:
-        specifier: ^19.2.3
+        specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)
       react-icons:
         specifier: ^5.5.0
@@ -5424,10 +5424,10 @@ importers:
         specifier: ^8.57.1
         version: 8.57.1
       react:
-        specifier: ^19.2.3
+        specifier: ^19.2.5
         version: 19.2.5
       react-dom:
-        specifier: ^19.2.3
+        specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)
       rollup-plugin-webpack-stats:
         specifier: ^0.2.6
@@ -5466,10 +5466,10 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
       react:
-        specifier: ^19.2.3
+        specifier: ^19.2.5
         version: 19.2.5
       react-dom:
-        specifier: ^19.2.3
+        specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)
       react-email:
         specifier: ^5.2.5
@@ -5549,10 +5549,10 @@ importers:
         specifier: ^25.0.1
         version: 25.0.1(canvas@2.11.2)
       react:
-        specifier: ^19.2.3
+        specifier: ^19.2.5
         version: 19.2.5
       react-dom:
-        specifier: ^19.2.3
+        specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)
       rimraf:
         specifier: ^5.0.10
@@ -5604,10 +5604,10 @@ importers:
         specifier: ^8.57.1
         version: 8.57.1
       react:
-        specifier: ^19.2.3
+        specifier: ^19.2.5
         version: 19.2.5
       react-dom:
-        specifier: ^19.2.3
+        specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)
       rollup-plugin-webpack-stats:
         specifier: ^0.2.6
@@ -5674,10 +5674,10 @@ importers:
         specifier: ^4.5.0
         version: 4.5.0
       react:
-        specifier: ^19.2.3
+        specifier: ^19.2.5
         version: 19.2.5
       react-dom:
-        specifier: ^19.2.3
+        specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)
       react-element-to-jsx-string:
         specifier: ^17.0.1
@@ -5830,10 +5830,10 @@ importers:
         specifier: ^9.5.1
         version: 9.5.1
       react:
-        specifier: ^19.2.3
+        specifier: ^19.2.5
         version: 19.2.5
       react-dom:
-        specifier: ^19.2.3
+        specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)
       react-icons:
         specifier: ^5.5.0
@@ -5947,10 +5947,10 @@ importers:
         specifier: ^0.6.7
         version: 0.6.7
       react:
-        specifier: ^19.2.3
+        specifier: ^19.2.5
         version: 19.2.5
       react-dom:
-        specifier: ^19.2.3
+        specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)
       react-icons:
         specifier: ^5.5.0
@@ -14902,11 +14902,6 @@ packages:
     peerDependencies:
       react: '>=16.8.0'
 
-  react-dom@19.2.4:
-    resolution: {integrity: sha512-AXJdLo8kgMbimY95O2aKQqsz2iWi9jMgKJhRBAxECE4IFxfcazB2LmzloIoibJI3C12IlY20+KFaLv+71bUJeQ==}
-    peerDependencies:
-      react: ^19.2.4
-
   react-dom@19.2.5:
     resolution: {integrity: sha512-J5bAZz+DXMMwW/wV3xzKke59Af6CHY7G4uYLN1OvBcKEsWOs4pQExj86BBKamxl/Ik5bx9whOrvBlSDfWzgSag==}
     peerDependencies:
@@ -15057,10 +15052,6 @@ packages:
 
   react@18.3.1:
     resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
-    engines: {node: '>=0.10.0'}
-
-  react@19.2.4:
-    resolution: {integrity: sha512-9nfp2hYpCwOjAN+8TZFGhtWEwgvWHXqESH8qT89AT/lWklpLON22Lc8pEtnpsZz7VmawabSU0gCjnj8aC0euHQ==}
     engines: {node: '>=0.10.0'}
 
   react@19.2.5:
@@ -18450,25 +18441,11 @@ snapshots:
       '@floating-ui/core': 1.7.5
       '@floating-ui/utils': 0.2.11
 
-  '@floating-ui/react-dom@2.1.8(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
-    dependencies:
-      '@floating-ui/dom': 1.7.6
-      react: 19.2.4
-      react-dom: 19.2.4(react@19.2.4)
-
   '@floating-ui/react-dom@2.1.8(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
     dependencies:
       '@floating-ui/dom': 1.7.6
       react: 19.2.5
       react-dom: 19.2.5(react@19.2.5)
-
-  '@floating-ui/react@0.27.19(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
-    dependencies:
-      '@floating-ui/react-dom': 2.1.8(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      '@floating-ui/utils': 0.2.11
-      react: 19.2.4
-      react-dom: 19.2.4(react@19.2.4)
-      tabbable: 6.4.0
 
   '@floating-ui/react@0.27.19(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
     dependencies:
@@ -18915,20 +18892,6 @@ snapshots:
 
   '@ltd/j-toml@1.38.0': {}
 
-  '@mantine/core@8.3.18(@mantine/hooks@8.3.18(react@19.2.4))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
-    dependencies:
-      '@floating-ui/react': 0.27.19(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      '@mantine/hooks': 8.3.18(react@19.2.4)
-      clsx: 2.1.1
-      react: 19.2.4
-      react-dom: 19.2.4(react@19.2.4)
-      react-number-format: 5.4.5(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      react-remove-scroll: 2.7.2(@types/react@19.2.14)(react@19.2.4)
-      react-textarea-autosize: 8.5.9(@types/react@19.2.14)(react@19.2.4)
-      type-fest: 4.41.0
-    transitivePeerDependencies:
-      - '@types/react'
-
   '@mantine/core@8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
     dependencies:
       '@floating-ui/react': 0.27.19(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -18943,17 +18906,9 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
-  '@mantine/hooks@8.3.18(react@19.2.4)':
-    dependencies:
-      react: 19.2.4
-
   '@mantine/hooks@8.3.18(react@19.2.5)':
     dependencies:
       react: 19.2.5
-
-  '@mantine/utils@6.0.22(react@19.2.4)':
-    dependencies:
-      react: 19.2.4
 
   '@mantine/utils@6.0.22(react@19.2.5)':
     dependencies:
@@ -23941,8 +23896,8 @@ snapshots:
       '@next/eslint-plugin-next': 16.2.2
       eslint: 9.39.4(jiti@2.6.1)
       eslint-import-resolver-node: 0.3.10
-      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.6.1))
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1)))(eslint@9.39.4(jiti@2.6.1))
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.6.1))
       eslint-plugin-jsx-a11y: 6.10.2(eslint@9.39.4(jiti@2.6.1))
       eslint-plugin-react: 7.37.5(eslint@9.39.4(jiti@2.6.1))
       eslint-plugin-react-hooks: 7.0.1(eslint@9.39.4(jiti@2.6.1))
@@ -23991,7 +23946,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.6.1)):
+  eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1)))(eslint@9.39.4(jiti@2.6.1)):
     dependencies:
       '@nolyfill/is-core-module': 1.0.39
       debug: 4.4.3
@@ -24002,7 +23957,7 @@ snapshots:
       tinyglobby: 0.2.15
       unrs-resolver: 1.11.1
     optionalDependencies:
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.6.1))
     transitivePeerDependencies:
       - supports-color
 
@@ -24016,14 +23971,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.12.1(@typescript-eslint/parser@8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.10)(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.6.1)):
+  eslint-module-utils@2.12.1(@typescript-eslint/parser@8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.10)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1)))(eslint@9.39.4(jiti@2.6.1)))(eslint@9.39.4(jiti@2.6.1)):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
       '@typescript-eslint/parser': 8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)
       eslint: 9.39.4(jiti@2.6.1)
       eslint-import-resolver-node: 0.3.10
-      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.6.1))
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1)))(eslint@9.39.4(jiti@2.6.1))
     transitivePeerDependencies:
       - supports-color
 
@@ -24064,7 +24019,7 @@ snapshots:
       - eslint-import-resolver-webpack
       - supports-color
 
-  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1)):
+  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.6.1)):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.9
@@ -24075,7 +24030,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 9.39.4(jiti@2.6.1)
       eslint-import-resolver-node: 0.3.10
-      eslint-module-utils: 2.12.1(@typescript-eslint/parser@8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.10)(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.6.1))
+      eslint-module-utils: 2.12.1(@typescript-eslint/parser@8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.10)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1)))(eslint@9.39.4(jiti@2.6.1)))(eslint@9.39.4(jiti@2.6.1))
       hasown: 2.0.2
       is-core-module: 2.16.1
       is-glob: 4.0.3
@@ -27170,11 +27125,6 @@ snapshots:
       date-fns-jalali: 4.1.0-0
       react: 19.2.5
 
-  react-dom@19.2.4(react@19.2.4):
-    dependencies:
-      react: 19.2.4
-      scheduler: 0.27.0
-
   react-dom@19.2.5(react@19.2.5):
     dependencies:
       react: 19.2.5
@@ -27242,11 +27192,6 @@ snapshots:
       react: 19.2.5
       react-dom: 19.2.5(react@19.2.5)
 
-  react-number-format@5.4.5(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
-    dependencies:
-      react: 19.2.4
-      react-dom: 19.2.4(react@19.2.4)
-
   react-number-format@5.4.5(react-dom@19.2.5(react@19.2.5))(react@19.2.5):
     dependencies:
       react: 19.2.5
@@ -27263,30 +27208,11 @@ snapshots:
 
   react-refresh@0.17.0: {}
 
-  react-remove-scroll-bar@2.3.8(@types/react@19.2.14)(react@19.2.4):
-    dependencies:
-      react: 19.2.4
-      react-style-singleton: 2.2.3(@types/react@19.2.14)(react@19.2.4)
-      tslib: 2.8.1
-    optionalDependencies:
-      '@types/react': 19.2.14
-
   react-remove-scroll-bar@2.3.8(@types/react@19.2.14)(react@19.2.5):
     dependencies:
       react: 19.2.5
       react-style-singleton: 2.2.3(@types/react@19.2.14)(react@19.2.5)
       tslib: 2.8.1
-    optionalDependencies:
-      '@types/react': 19.2.14
-
-  react-remove-scroll@2.7.2(@types/react@19.2.14)(react@19.2.4):
-    dependencies:
-      react: 19.2.4
-      react-remove-scroll-bar: 2.3.8(@types/react@19.2.14)(react@19.2.4)
-      react-style-singleton: 2.2.3(@types/react@19.2.14)(react@19.2.4)
-      tslib: 2.8.1
-      use-callback-ref: 1.3.3(@types/react@19.2.14)(react@19.2.4)
-      use-sidecar: 1.1.3(@types/react@19.2.14)(react@19.2.4)
     optionalDependencies:
       '@types/react': 19.2.14
 
@@ -27313,14 +27239,6 @@ snapshots:
       '@remix-run/router': 1.23.2
       react: 19.2.5
 
-  react-style-singleton@2.2.3(@types/react@19.2.14)(react@19.2.4):
-    dependencies:
-      get-nonce: 1.0.1
-      react: 19.2.4
-      tslib: 2.8.1
-    optionalDependencies:
-      '@types/react': 19.2.14
-
   react-style-singleton@2.2.3(@types/react@19.2.14)(react@19.2.5):
     dependencies:
       get-nonce: 1.0.1
@@ -27328,15 +27246,6 @@ snapshots:
       tslib: 2.8.1
     optionalDependencies:
       '@types/react': 19.2.14
-
-  react-textarea-autosize@8.5.9(@types/react@19.2.14)(react@19.2.4):
-    dependencies:
-      '@babel/runtime': 7.29.2
-      react: 19.2.4
-      use-composed-ref: 1.4.0(@types/react@19.2.14)(react@19.2.4)
-      use-latest: 1.3.0(@types/react@19.2.14)(react@19.2.4)
-    transitivePeerDependencies:
-      - '@types/react'
 
   react-textarea-autosize@8.5.9(@types/react@19.2.14)(react@19.2.5):
     dependencies:
@@ -27369,8 +27278,6 @@ snapshots:
   react@18.3.1:
     dependencies:
       loose-envify: 1.4.0
-
-  react@19.2.4: {}
 
   react@19.2.5: {}
 
@@ -28647,23 +28554,10 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
-  use-callback-ref@1.3.3(@types/react@19.2.14)(react@19.2.4):
-    dependencies:
-      react: 19.2.4
-      tslib: 2.8.1
-    optionalDependencies:
-      '@types/react': 19.2.14
-
   use-callback-ref@1.3.3(@types/react@19.2.14)(react@19.2.5):
     dependencies:
       react: 19.2.5
       tslib: 2.8.1
-    optionalDependencies:
-      '@types/react': 19.2.14
-
-  use-composed-ref@1.4.0(@types/react@19.2.14)(react@19.2.4):
-    dependencies:
-      react: 19.2.4
     optionalDependencies:
       '@types/react': 19.2.14
 
@@ -28673,22 +28567,9 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.14
 
-  use-isomorphic-layout-effect@1.2.1(@types/react@19.2.14)(react@19.2.4):
-    dependencies:
-      react: 19.2.4
-    optionalDependencies:
-      '@types/react': 19.2.14
-
   use-isomorphic-layout-effect@1.2.1(@types/react@19.2.14)(react@19.2.5):
     dependencies:
       react: 19.2.5
-    optionalDependencies:
-      '@types/react': 19.2.14
-
-  use-latest@1.3.0(@types/react@19.2.14)(react@19.2.4):
-    dependencies:
-      react: 19.2.4
-      use-isomorphic-layout-effect: 1.2.1(@types/react@19.2.14)(react@19.2.4)
     optionalDependencies:
       '@types/react': 19.2.14
 
@@ -28696,14 +28577,6 @@ snapshots:
     dependencies:
       react: 19.2.5
       use-isomorphic-layout-effect: 1.2.1(@types/react@19.2.14)(react@19.2.5)
-    optionalDependencies:
-      '@types/react': 19.2.14
-
-  use-sidecar@1.1.3(@types/react@19.2.14)(react@19.2.4):
-    dependencies:
-      detect-node-es: 1.1.0
-      react: 19.2.4
-      tslib: 2.8.1
     optionalDependencies:
       '@types/react': 19.2.14
 

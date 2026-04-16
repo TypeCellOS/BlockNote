@@ -54,15 +54,15 @@
     "email": "email dev"
   },
   "dependencies": {
-    "web-streams-polyfill": "^4.2.0",
     "@blocknote/core": "0.48.0",
     "@blocknote/react": "0.48.0",
     "@react-email/components": "^1.0.5",
     "@react-email/render": "^2.0.4",
     "buffer": "^6.0.3",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3",
-    "react-email": "^5.2.5"
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "react-email": "^5.2.5",
+    "web-streams-polyfill": "^4.2.0"
   },
   "devDependencies": {
     "@types/jsdom": "^21.1.7",

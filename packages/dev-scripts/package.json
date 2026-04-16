@@ -23,8 +23,8 @@
     "@types/react-dom": "^19.2.3",
     "eslint": "^8.57.1",
     "glob": "^10.5.0",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
     "tinyglobby": "0.2.12",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"
