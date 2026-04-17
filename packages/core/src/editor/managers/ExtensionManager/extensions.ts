@@ -1,12 +1,14 @@
 import {
   AnyExtension as AnyTiptapExtension,
   extensions,
+  getAttributes,
   Node,
   Extension as TiptapExtension,
 } from "@tiptap/core";
 import { Gapcursor } from "@tiptap/extensions/gap-cursor";
 import { Link } from "@tiptap/extension-link";
 import { Text } from "@tiptap/extension-text";
+import { Plugin, PluginKey } from "prosemirror-state";
 import { createDropFileExtension } from "../../../api/clipboard/fromClipboard/fileDropExtension.js";
 import { createPasteFromClipboardExtension } from "../../../api/clipboard/fromClipboard/pasteExtension.js";
 import { createCopyToClipboardExtension } from "../../../api/clipboard/toClipboard/copyExtension.js";
@@ -91,12 +93,94 @@ export function getDefaultTiptapExtensions(
           delete (attrs as Record<string, unknown>).title;
           return attrs;
         },
+        addProseMirrorPlugins() {
+          const plugins = this.parent?.() || [];
+
+          const markType = this.type;
+          const tiptapEditor = this.editor;
+          // Copied from @tiptap/extension-link's `clickHandler` helper, but
+          // calls `onClick` if the editor option is defined. Otherwise, uses
+          // default behaviour.
+          // https://github.com/ueberdosis/tiptap/blob/main/packages/extension-link/src/helpers/clickHandler.ts
+          plugins.push(
+            new Plugin({
+              key: new PluginKey("linkClickHandler"),
+              props: {
+                handleClick: (view, _pos, event) => {
+                  if (event.button !== 0) {
+                    return false;
+                  }
+
+                  if (!view.editable) {
+                    return false;
+                  }
+
+                  let link: HTMLAnchorElement | null = null;
+
+                  if (event.target instanceof HTMLAnchorElement) {
+                    link = event.target;
+                  } else {
+                    const target = event.target as HTMLElement | null;
+                    if (!target) {
+                      return false;
+                    }
+
+                    const root = tiptapEditor.view.dom;
+
+                    // Tntentionally limit the lookup to the editor root.
+                    // Using tag names like DIV as boundaries breaks with custom NodeViews,
+                    link = target.closest<HTMLAnchorElement>("a");
+
+                    if (link && !root.contains(link)) {
+                      link = null;
+                    }
+                  }
+
+                  if (!link) {
+                    return false;
+                  }
+
+                  let handled = false;
+
+                  // `enableClickSelection` is always disabled.
+                  // if (options.enableClickSelection) {
+                  //   const commandResult =
+                  //     tiptapEditor.commands.extendMarkRange(
+                  //       markType.name,
+                  //     );
+                  //   handled = commandResult;
+                  // }
+
+                  if (options.links?.onClick) {
+                    options.links.onClick(event);
+                  } else {
+                    const attrs = getAttributes(view.state, markType.name);
+                    const href = link.href ?? attrs.href;
+                    const target = link.target ?? attrs.target;
+
+                    if (href) {
+                      window.open(href, target);
+                      handled = true;
+                    }
+                  }
+
+                  return handled;
+                },
+              },
+            }),
+          );
+
+          return plugins;
+        },
       })
       .configure({
-      defaultProtocol: DEFAULT_LINK_PROTOCOL,
-      // only call this once if we have multiple editors installed. Or fix https://github.com/ueberdosis/tiptap/issues/5450
-      protocols: LINKIFY_INITIALIZED ? [] : VALID_LINK_PROTOCOLS,
-    }),
+        defaultProtocol: DEFAULT_LINK_PROTOCOL,
+        // only call this once if we have multiple editors installed. Or fix https://github.com/ueberdosis/tiptap/issues/5450
+        protocols: LINKIFY_INITIALIZED ? [] : VALID_LINK_PROTOCOLS,
+        HTMLAttributes: options.links?.HTMLAttributes ?? {},
+        // Always false as we handle clicks ourselves above.
+        openOnClick: false,
+      }),
     ...(Object.values(editor.schema.styleSpecs).map((styleSpec) => {
       return styleSpec.implementation.mark.configure({
         editor: editor,
