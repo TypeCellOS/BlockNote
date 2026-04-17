@@ -60,7 +60,7 @@
     "eslint": "^8.57.1",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^5.9.3",
-    "vite": "^8.0.3",
+    "vite": "^8.0.8",
     "vite-plugin-eslint": "^1.8.1",
     "vitest": "^4.1.2"
   },

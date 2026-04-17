@@ -19,8 +19,6 @@
     "@mantine/core": "^8.3.11",
     "@mantine/hooks": "^8.3.11",
     "@mantine/utils": "^6.0.22",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3",
     "@uppy/core": "^3.13.1",
     "@uppy/dashboard": "^3.9.1",
     "@uppy/drag-drop": "^3.1.1",
@@ -32,12 +30,14 @@
     "@uppy/status-bar": "^3.1.1",
     "@uppy/webcam": "^3.4.2",
     "@uppy/xhr-upload": "^3.4.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
     "react-icons": "^5.5.0"
   },
   "devDependencies": {
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
-    "vite": "^8.0.3"
+    "vite": "^8.0.8"
   }
 }

@@ -130,14 +130,13 @@
     "yjs": "^13.6.27"
   },
   "devDependencies": {
-    "@types/emoji-mart": "^3.0.14",
     "@types/hast": "^3.0.4",
     "eslint": "^8.57.1",
     "jsdom": "^29.0.2",
     "rimraf": "^5.0.10",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^5.9.3",
-    "vite": "^8.0.3",
+    "vite": "^8.0.8",
     "vite-plugin-eslint": "^1.8.1",
     "vitest": "^4.1.2"
   },
