@@ -6,6 +6,7 @@ settings:
 
 overrides:
   vitest: 4.1.2
+  '@vitest/runner': 4.1.2
   msw: 2.11.5
   ai: 6.0.5
   '@ai-sdk/anthropic': 3.0.2
@@ -5285,7 +5286,7 @@ importers:
         specifier: ^6.0.1
         version: 6.0.1(babel-plugin-react-compiler@1.0.0)(vite@8.0.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
       '@vitest/runner':
-        specifier: ^4.1.2
+        specifier: 4.1.2
         version: 4.1.2
       eslint:
         specifier: ^8.57.1
