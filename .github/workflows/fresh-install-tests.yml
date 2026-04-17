@@ -16,6 +16,7 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  pnpm_config_store_dir: ./node_modules/.pnpm-store
 
 jobs:
   fresh-install-unit-tests:
