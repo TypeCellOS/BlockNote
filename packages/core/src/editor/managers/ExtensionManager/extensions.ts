@@ -2,6 +2,7 @@ import {
   AnyExtension as AnyTiptapExtension,
   extensions,
   getAttributes,
+  mergeAttributes,
   Node,
   Extension as TiptapExtension,
 } from "@tiptap/core";
@@ -117,7 +118,13 @@ export function getDefaultTiptapExtensions(
 
                   let link: HTMLAnchorElement | null = null;
 
-                  if (event.target instanceof HTMLAnchorElement) {
+                  if (
+                    event.target instanceof HTMLAnchorElement &&
+                    // Differentiate between link inline content and read-only links.
+                    event.target.hasAttribute("data-inline-content-type") &&
+                    event.target.getAttribute("data-inline-content-type") ===
+                      "link"
+                  ) {
                     link = event.target;
                   } else {
                     const target = event.target as HTMLElement | null;
@@ -127,9 +134,11 @@ export function getDefaultTiptapExtensions(
 
                     const root = tiptapEditor.view.dom;
 
-                    // Tntentionally limit the lookup to the editor root.
+                    // Intentionally limit the lookup to the editor root.
                     // Using tag names like DIV as boundaries breaks with custom NodeViews,
-                    link = target.closest<HTMLAnchorElement>("a");
+                    link = target.closest<HTMLAnchorElement>(
+                      'a[data-inline-content-type="link"]',
+                    );
 
                     if (link && !root.contains(link)) {
                       link = null;
@@ -177,7 +186,13 @@ export function getDefaultTiptapExtensions(
         defaultProtocol: DEFAULT_LINK_PROTOCOL,
         // only call this once if we have multiple editors installed. Or fix https://github.com/ueberdosis/tiptap/issues/5450
         protocols: LINKIFY_INITIALIZED ? [] : VALID_LINK_PROTOCOLS,
-        HTMLAttributes: options.links?.HTMLAttributes ?? {},
+        HTMLAttributes: mergeAttributes(
+          {
+            className: "bn-inline-content-section",
+            "data-inline-content-type": "link",
+          },
+          options.links?.HTMLAttributes ?? {},
+        ),
         // Always false as we handle clicks ourselves above.
         openOnClick: false,
       }),
