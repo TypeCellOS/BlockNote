@@ -1,6 +1,7 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { getDefaultSlashMenuItems } from "./getDefaultSlashMenuItems.js";
 import { SuggestionMenu } from "./SuggestionMenu.js";
 
 /**
@@ -136,6 +137,25 @@ describe("SuggestionMenu", () => {
 
     // Plugin state should remain undefined
     expect(getSuggestionPluginState(editor)).toBeUndefined();
+
+    editor._tiptapEditor.destroy();
+  });
+
+  it("should expose an emoji slash menu item that opens the emoji picker", () => {
+    const editor = createEditor();
+    const sm = editor.getExtension(SuggestionMenu)!;
+    const openSuggestionMenuSpy = vi.spyOn(sm, "openSuggestionMenu");
+
+    const items = getDefaultSlashMenuItems(editor);
+    const emojiItem = items.find((item) => item.key === "emoji");
+
+    expect(emojiItem).toBeDefined();
+    emojiItem!.onItemClick();
+
+    expect(openSuggestionMenuSpy).toHaveBeenCalledWith(":", {
+      deleteTriggerCharacter: true,
+      ignoreQueryLength: true,
+    });
 
     editor._tiptapEditor.destroy();
   });
