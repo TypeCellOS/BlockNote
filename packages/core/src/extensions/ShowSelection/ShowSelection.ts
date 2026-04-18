@@ -13,14 +13,7 @@ const PLUGIN_KEY = new PluginKey(`blocknote-show-selection`);
  * text editor is not focused.
  */
 export const ShowSelectionExtension = createExtension(({ editor }) => {
-  const store = createStore(
-    { enabledSet: new Set<string>() },
-    {
-      onUpdate() {
-        editor.transact((tr) => tr.setMeta(PLUGIN_KEY, {}));
-      },
-    },
-  );
+  const store = createStore({ enabledSet: new Set<string>() });
   return {
     key: "showSelection",
     store,
@@ -41,6 +34,14 @@ export const ShowSelectionExtension = createExtension(({ editor }) => {
         },
       }),
     ],
+    mount() {
+      const subscription = store.subscribe(() => {
+        editor.transact((tr) => tr.setMeta(PLUGIN_KEY, {}));
+      });
+      return () => {
+        subscription.unsubscribe();
+      };
+    },
     /**
      * Show or hide the selection decoration
      *
@@ -51,11 +52,11 @@ export const ShowSelectionExtension = createExtension(({ editor }) => {
      * (e.g.: CreateLinkButton and AIExtension)
      */
     showSelection(shouldShow: boolean, key: string) {
-      store.setState({
+      store.setState((prev) => ({
         enabledSet: shouldShow
-          ? new Set([...store.state.enabledSet, key])
-          : new Set([...store.state.enabledSet].filter((k) => k !== key)),
-      });
+          ? new Set([...prev.enabledSet, key])
+          : new Set([...prev.enabledSet].filter((k) => k !== key)),
+      }));
     },
   } as const;
 });

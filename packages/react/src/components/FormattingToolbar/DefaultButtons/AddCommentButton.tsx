@@ -20,7 +20,7 @@ export const AddCommentButtonInner = () => {
 
   const onClick = useCallback(() => {
     comments.startPendingComment();
-    store.setState(false);
+    store.setState(() => false);
   }, [comments, store]);
 
   return (

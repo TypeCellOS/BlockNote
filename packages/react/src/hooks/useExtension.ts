@@ -59,5 +59,8 @@ export function useExtensionState<
   if (!store) {
     throw new Error("Store not found on plugin", { cause: { plugin } });
   }
-  return useStore<ExtractStore<TStore>, TSelected>(store, ctx?.selector as any);
+  return useStore(
+    store as any,
+    (ctx?.selector ?? ((s: any) => s)) as any,
+  ) as TSelected;
 }

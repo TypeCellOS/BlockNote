@@ -85,7 +85,7 @@ export const FormattingToolbarController = (props: {
         // Needed as hooks like `useDismiss` call `onOpenChange` to change the
         // open state.
         onOpenChange: (open, _event, reason) => {
-          formattingToolbar.store.setState(open);
+          formattingToolbar.store.setState(() => open);
 
           if (reason === "escape-key") {
             editor.focus();

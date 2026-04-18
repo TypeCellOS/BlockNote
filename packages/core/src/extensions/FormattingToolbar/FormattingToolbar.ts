@@ -67,14 +67,14 @@ export const FormattingToolbarExtension = createExtension(({ editor }) => {
           return;
         }
         // re-evaluate whether the toolbar should be shown
-        store.setState(shouldShow());
+        store.setState(() => shouldShow());
       });
       const unsubscribeOnSelectionChange = editor.onSelectionChange(() => {
         if (preventShowWhileMouseDown) {
           return;
         }
         // re-evaluate whether the toolbar should be shown
-        store.setState(shouldShow());
+        store.setState(() => shouldShow());
       });
 
       // To mimic Notion's behavior, we listen to the mouse down event to set the `preventShowWhileMouseDown` flag
@@ -82,7 +82,7 @@ export const FormattingToolbarExtension = createExtension(({ editor }) => {
         "pointerdown",
         () => {
           preventShowWhileMouseDown = true;
-          store.setState(false);
+          store.setState(() => false);
         },
         { signal },
       );
@@ -93,7 +93,7 @@ export const FormattingToolbarExtension = createExtension(({ editor }) => {
           preventShowWhileMouseDown = false;
           // We only want to re-show the toolbar if the mouse made the selection
           if (editor.isFocused()) {
-            store.setState(shouldShow());
+            store.setState(() => shouldShow());
           }
         },
         { signal, capture: true },

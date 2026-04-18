@@ -7,7 +7,7 @@ export const FilePanelExtension = createExtension(({ editor }) => {
   const store = createStore<string | undefined>(undefined);
 
   function closeMenu() {
-    store.setState(undefined);
+    store.setState(() => undefined);
   }
 
   return {
@@ -35,7 +35,7 @@ export const FilePanelExtension = createExtension(({ editor }) => {
     },
     closeMenu,
     showMenu(blockId: string) {
-      store.setState(blockId);
+      store.setState(() => blockId);
     },
   } as const;
 });

@@ -106,7 +106,7 @@ export const ForkYDocExtension = createExtension(
         ]);
 
         // Tell the store that the editor is now forked
-        store.setState({ isForked: true });
+        store.setState(() => ({ isForked: true }));
       },
 
       /**
@@ -146,7 +146,7 @@ export const ForkYDocExtension = createExtension(
         // Reset the forked state
         forkedState = undefined;
         // Tell the store that the editor is no longer forked
-        store.setState({ isForked: false });
+        store.setState(() => ({ isForked: false }));
       },
     } as const;
   },

@@ -228,7 +228,7 @@ export const SuggestionMenu = createExtension(({ editor }) => {
           view = new SuggestionMenuView(
             editor,
             (triggerCharacter, state) => {
-              store.setState({ ...state, triggerCharacter });
+              store.setState(() => ({ ...state, triggerCharacter }));
             },
             v,
           );
