@@ -127,8 +127,8 @@ export function getDefaultTiptapExtensions(
 
                     const root = tiptapEditor.view.dom;
 
-                    // Tntentionally limit the lookup to the editor root.
-                    // Using tag names like DIV as boundaries breaks with custom NodeViews,
+                    // Intentionally limit the lookup to the editor root.
+                    // Using tag names like DIV as boundaries breaks with custom NodeViews.
                     link = target.closest<HTMLAnchorElement>("a");
 
                     if (link && !root.contains(link)) {
@@ -153,6 +153,7 @@ export function getDefaultTiptapExtensions(
 
                   if (options.links?.onClick) {
                     options.links.onClick(event);
+                    handled = true;
                   } else {
                     const attrs = getAttributes(view.state, markType.name);
                     const href = link.href ?? attrs.href;
