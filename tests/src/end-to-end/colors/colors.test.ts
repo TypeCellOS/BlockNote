@@ -7,10 +7,12 @@ import {
   DRAG_HANDLE_MENU_SELECTOR,
   DRAG_HANDLE_SELECTOR,
   H_TWO_BLOCK_SELECTOR,
+  TABLE_SELECTOR,
   TEXT_COLOR_SELECTOR,
 } from "../../utils/const.js";
 import { insertHeading, insertParagraph } from "../../utils/copypaste.js";
 import { focusOnEditor } from "../../utils/editor.js";
+import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 test.beforeEach(async ({ page }) => {
   await page.goto(BASE_URL, { waitUntil: "networkidle" });
@@ -108,5 +110,27 @@ test.describe("Check Background & Text Color Functionality", () => {
     await page.waitForTimeout(500);
 
     expect(await page.screenshot()).toMatchSnapshot("blockBackgroundColor.png");
+  });
+  // Regression test: prosemirror-tables' TableView.update() preserves the
+  // NodeView's DOM without re-applying node attrs, so prop changes (e.g.
+  // textColor) wouldn't propagate to the blockContent wrapper. BlockNoteTableView
+  // overrides update() to sync prop-derived data-* attributes.
+  test("Should be able to set block text color on a table", async ({
+    page,
+  }) => {
+    await focusOnEditor(page);
+    await executeSlashCommand(page, "table");
+    await page.keyboard.type("Table Cell");
+
+    await page.hover(TABLE_SELECTOR);
+    await page.click(DRAG_HANDLE_SELECTOR);
+    await page.waitForSelector(DRAG_HANDLE_MENU_SELECTOR);
+    await page.hover("text=Colors");
+
+    const element = page.locator(TEXT_COLOR_SELECTOR("red"));
+    const boundingBox = (await element.boundingBox())!;
+    await page.mouse.click(boundingBox.x + 10, boundingBox.y + 10);
+
+    expect(await page.screenshot()).toMatchSnapshot("blockTextColorTable.png");
   });
 });
