@@ -13,8 +13,7 @@ name: Fresh Install Tests
 on:
   push:
     branches:
-      - package-upgrades
-      - feat/fresh-install-debug
+      - main
   schedule:
     - cron: "0 2 * * *" # Daily at 02:00 UTC
   workflow_dispatch: # Allow manual runs
