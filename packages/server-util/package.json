@@ -11,7 +11,7 @@
     "directory": "packages/server-util"
   },
   "license": "MPL-2.0",
-  "version": "0.47.3",
+  "version": "0.48.1",
   "files": [
     "dist",
     "types",
@@ -56,8 +56,8 @@
     "test-watch": "vitest watch"
   },
   "dependencies": {
-    "@blocknote/core": "0.47.3",
-    "@blocknote/react": "0.47.3",
+    "@blocknote/core": "0.48.1",
+    "@blocknote/react": "0.48.1",
     "@tiptap/core": "^3.13.0",
     "@tiptap/pm": "^3.13.0",
     "jsdom": "^25.0.1",
@@ -70,11 +70,11 @@
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
     "eslint": "^8.57.1",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^5.9.3",
-    "vite": "^8.0.3",
+    "vite": "^8.0.8",
     "vite-plugin-eslint": "^1.8.1",
     "vitest": "^4.1.2"
   },

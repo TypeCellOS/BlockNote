@@ -1,18 +1,23 @@
 name: Fresh Install Tests
 
-# Periodically tests BlockNote with the latest versions of its dependencies
-# (within declared ranges), without a lockfile. This catches breakage when a
+# Periodically tests BlockNote with the latest versions of its production
+# dependencies (within declared semver ranges). This catches breakage when a
 # new release of a dep like @tiptap/* or prosemirror-* ships and conflicts
 # with BlockNote's declared ranges — the kind of failure a user would hit when
 # running `npm install @blocknote/react` in a fresh project.
 #
-# DevDependencies (vitest, vite, typescript, etc.) are still bounded by their
-# declared ranges in package.json; only prod/peer deps get freshly resolved.
+# Only production dependencies of published (non-private) packages are updated.
+# DevDependencies (vitest, vite, typescript, etc.) stay pinned to the lockfile,
+# so test tooling churn doesn't cause false positives.
 
 on:
   schedule:
     - cron: "0 2 * * *" # Daily at 02:00 UTC
   workflow_dispatch: # Allow manual runs
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  pnpm_config_store_dir: ./node_modules/.pnpm-store
 
 jobs:
   fresh-install-unit-tests:
@@ -21,36 +26,119 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - uses: actions/checkout@v4
+      - id: checkout
+        uses: actions/checkout@v6
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
+      - id: install_pnpm
+        name: Install pnpm
+        uses: pnpm/action-setup@v5
 
-      - uses: actions/setup-node@v4
+      - id: setup_node
+        uses: actions/setup-node@v6
         with:
           node-version-file: ".nvmrc"
-          # Intentionally no pnpm cache — we want a genuinely fresh install
+          # Intentionally no pnpm cache — we want fresh prod dep resolution
 
-      # Required for the `canvas` native dependency
-      - name: Install system dependencies
-        run: sudo apt-get update && sudo apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev pkg-config
+      - id: install_dependencies
+        name: Install dependencies
+        run: pnpm install
 
-      - name: Remove lockfile to force fresh dep resolution
-        # Removing pnpm-lock.yaml causes pnpm to resolve all dependencies to
-        # the latest versions that satisfy the ranges declared in package.json
-        # (including pnpm-workspace.yaml overrides). This is equivalent to what
-        # a new user experiences when installing BlockNote in a blank project.
-        run: rm pnpm-lock.yaml
+      - id: update_prod_deps
+        name: Update prod deps of published packages
+        # Resolves production dependencies of every published (non-private)
+        # workspace package to the latest version within their declared semver
+        # ranges. This simulates what a user gets when running
+        # `npm install @blocknote/react` in a fresh project.
+        # DevDependencies are left at their lockfile versions.
+        run: |
+          FILTERS=$(node -e "
+            const fs = require('fs');
+            const path = require('path');
+            fs.readdirSync('packages').forEach(dir => {
+              try {
+                const pkg = JSON.parse(fs.readFileSync(path.join('packages', dir, 'package.json'), 'utf8'));
+                if (!pkg.private && pkg.name) process.stdout.write('--filter ' + pkg.name + ' ');
+              } catch {}
+            });
+          ")
+          echo "Updating prod deps for: $FILTERS"
+          eval pnpm update --prod $FILTERS
 
-      - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+      - id: dedupe_deps
+        name: Dedupe transitive dependencies
+        # After bumping the publishable packages' prod deps, collapse any
+        # duplicate transitive resolutions (e.g. @tiptap/core + @tiptap/pm)
+        # that would otherwise differ between the updated publishable packages
+        # and the un-updated examples/playground. Without this, TypeScript
+        # treats the two copies' exports as unrelated types and example-editor
+        # fails to build (TS2322 on Extension<any, any> vs AnyExtension).
+        # Dedupe only rewrites the lockfile — it does NOT modify package.json,
+        # so the examples' "@blocknote/*": "latest" specs (which is what
+        # CodeSandbox users see) stay intact.
+        run: pnpm dedupe
 
-      - name: Build packages
+      - id: build_packages
+        name: Build packages
         run: pnpm run build
         env:
           NX_SKIP_NX_CACHE: "true"
 
-      - name: Run unit tests
+      - id: run_unit_tests
+        name: Run unit tests
         run: pnpm run test
         env:
           NX_SKIP_NX_CACHE: "true"
+
+      - name: Notify Slack on workflow failure
+        if: ${{ failure() }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          REPOSITORY: ${{ github.repository }}
+          WORKFLOW: ${{ github.workflow }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_NUMBER: ${{ github.run_number }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          if [ -z "$SLACK_WEBHOOK_URL" ]; then
+            echo "SLACK_WEBHOOK_URL is not configured; skipping Slack notification."
+            exit 0
+          fi
+
+          failed_step="Unknown step"
+          if [ "${{ steps.checkout.outcome }}" = "failure" ]; then
+            failed_step="Checkout repository"
+          elif [ "${{ steps.install_pnpm.outcome }}" = "failure" ]; then
+            failed_step="Install pnpm"
+          elif [ "${{ steps.setup_node.outcome }}" = "failure" ]; then
+            failed_step="Setup Node.js"
+          elif [ "${{ steps.install_dependencies.outcome }}" = "failure" ]; then
+            failed_step="Install dependencies"
+          elif [ "${{ steps.update_prod_deps.outcome }}" = "failure" ]; then
+            failed_step="Update prod deps of published packages"
+          elif [ "${{ steps.dedupe_deps.outcome }}" = "failure" ]; then
+            failed_step="Dedupe transitive dependencies"
+          elif [ "${{ steps.build_packages.outcome }}" = "failure" ]; then
+            failed_step="Build packages"
+          elif [ "${{ steps.run_unit_tests.outcome }}" = "failure" ]; then
+            failed_step="Run unit tests"
+          fi
+
+          run_url="https://github.com/${REPOSITORY}/actions/runs/${RUN_ID}"
+          message=$(printf '%s\n%s\n%s\n%s' \
+            ":warning: Fresh Install Tests failed in *${REPOSITORY}* on branch *${BRANCH}*." \
+            "*Workflow:* ${WORKFLOW}" \
+            "*Run:* <${run_url}|#${RUN_NUMBER} (attempt ${RUN_ATTEMPT})>" \
+            "*Failed step:* ${failed_step}")
+          payload=$(jq --compact-output --null-input --arg text "$message" '{text: $text}')
+
+          curl -sS -X POST \
+            --fail \
+            --retry 4 \
+            --retry-all-errors \
+            --retry-max-time 60 \
+            --connect-timeout 10 \
+            --max-time 30 \
+            -H "Content-type: application/json" \
+            --data "$payload" \
+            "$SLACK_WEBHOOK_URL"

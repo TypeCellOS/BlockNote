@@ -423,7 +423,6 @@ export class BlockNoteEditor<
       },
     };
 
-    // @ts-ignore
     this.schema = newOptions.schema;
     this.blockImplementations = newOptions.schema.blockSpecs;
     this.inlineContentImplementations = newOptions.schema.inlineContentSpecs;

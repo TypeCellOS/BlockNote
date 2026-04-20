@@ -9,7 +9,7 @@
     "directory": "packages/xl-email-exporter"
   },
   "license": "GPL-3.0 OR PROPRIETARY",
-  "version": "0.47.3",
+  "version": "0.48.1",
   "files": [
     "dist",
     "types",
@@ -54,15 +54,15 @@
     "email": "email dev"
   },
   "dependencies": {
-    "web-streams-polyfill": "^4.2.0",
-    "@blocknote/core": "0.47.3",
-    "@blocknote/react": "0.47.3",
+    "@blocknote/core": "0.48.1",
+    "@blocknote/react": "0.48.1",
     "@react-email/components": "^1.0.5",
     "@react-email/render": "^2.0.4",
     "buffer": "^6.0.3",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3",
-    "react-email": "^5.2.5"
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "react-email": "^5.2.5",
+    "web-streams-polyfill": "^4.2.0"
   },
   "devDependencies": {
     "@types/jsdom": "^21.1.7",
@@ -71,7 +71,7 @@
     "eslint": "^8.57.1",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^5.9.3",
-    "vite": "^8.0.3",
+    "vite": "^8.0.8",
     "vite-plugin-eslint": "^1.8.1",
     "vitest": "^4.1.2"
   },

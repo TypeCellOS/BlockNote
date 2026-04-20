@@ -9,7 +9,7 @@
     "directory": "packages/xl-multi-column"
   },
   "license": "GPL-3.0 OR PROPRIETARY",
-  "version": "0.47.3",
+  "version": "0.48.1",
   "files": [
     "dist",
     "types",
@@ -51,8 +51,8 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "0.47.3",
-    "@blocknote/react": "0.47.3",
+    "@blocknote/core": "0.48.1",
+    "@blocknote/react": "0.48.1",
     "@tiptap/core": "^3.13.0",
     "prosemirror-model": "^1.25.4",
     "prosemirror-state": "^1.4.4",
@@ -66,12 +66,12 @@
     "@types/react-dom": "^19.2.3",
     "eslint": "^8.57.1",
     "jsdom": "^25.0.1",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
     "rimraf": "^5.0.10",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^5.9.3",
-    "vite": "^8.0.3",
+    "vite": "^8.0.8",
     "vite-plugin-eslint": "^1.8.1",
     "vitest": "^4.1.2"
   },

@@ -11,7 +11,7 @@
     "directory": "packages/xl-ai"
   },
   "license": "GPL-3.0 OR PROPRIETARY",
-  "version": "0.47.3",
+  "version": "0.48.1",
   "files": [
     "dist",
     "types",
@@ -71,9 +71,9 @@
   "dependencies": {
     "@ai-sdk/provider-utils": "^4.0.2",
     "@ai-sdk/react": "^3.0.5",
-    "@blocknote/core": "0.47.3",
-    "@blocknote/mantine": "0.47.3",
-    "@blocknote/react": "0.47.3",
+    "@blocknote/core": "0.48.1",
+    "@blocknote/mantine": "0.48.1",
+    "@blocknote/react": "0.48.1",
     "@floating-ui/react": "^0.27.18",
     "@handlewithcare/prosemirror-suggest-changes": "^0.1.8",
     "@tiptap/core": "^3.13.0",
@@ -86,8 +86,8 @@
     "prosemirror-tables": "^1.8.3",
     "prosemirror-transform": "^1.11.0",
     "prosemirror-view": "^1.41.4",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
     "react-icons": "^5.5.0",
     "remark-parse": "^11.0.0",
     "remark-stringify": "^11.0.0",
@@ -120,7 +120,7 @@
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^5.9.3",
     "undici": "^6.22.0",
-    "vite": "^8.0.3",
+    "vite": "^8.0.8",
     "vite-plugin-eslint": "^1.8.1",
     "vite-plugin-externalize-deps": "^0.10.0",
     "vitest": "^4.1.2"
