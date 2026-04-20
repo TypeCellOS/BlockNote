@@ -13,9 +13,8 @@ test.describe("Check Comments functionality", () => {
   }) => {
     await focusOnEditor(page);
 
-    // Type text and select it
     await page.keyboard.type("hello");
-    await page.keyboard.press("Shift+Home");
+    await page.locator("text=hello").dblclick();
 
     await page.click('[data-test="addcomment"]');
     await page.waitForSelector(".bn-thread");
@@ -23,15 +22,9 @@ test.describe("Check Comments functionality", () => {
     await page.keyboard.type("test comment");
     await page.click('button[data-test="save"]');
 
-    // Wait for the comment mark to appear on the text
-    await page.click("span.bn-thread-mark", { position: { x: 1, y: 1 } });
+    await page.locator("span.bn-thread-mark").first().dblclick();
 
-    // Re-select the commented text by clicking at the start and shift-clicking
-    // at the end, staying within the editor
-    await page.keyboard.press("Shift+End");
-
-    // Add a link via the formatting toolbar
-    await page.waitForSelector(LINK_BUTTON_SELECTOR);
+    await expect(page.locator(LINK_BUTTON_SELECTOR)).toBeVisible();
     await page.click(LINK_BUTTON_SELECTOR);
 
     await page.keyboard.type("https://example.com");
