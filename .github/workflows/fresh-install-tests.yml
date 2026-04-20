@@ -48,26 +48,38 @@ jobs:
         run: pnpm install
 
       - id: update_prod_deps
-        name: Update prod deps of packages, examples, and playground
-        # Resolves production dependencies to the latest versions within declared
-        # semver ranges for:
-        #   - packages/*    – the published @blocknote/* packages
-        #   - examples/*/*  – the individual example apps
-        #   - playground    – the example-editor app that bundles the examples
-        # Examples and playground are included so shared peer-dep'd libs
-        # (e.g. @tiptap/core + @tiptap/pm) resolve to the same version across
-        # publishable packages and the apps consuming them; otherwise pnpm ends
-        # up with two virtual-store copies keyed on different peer versions and
-        # TypeScript treats their exports as unrelated types.
-        # docs/, shared/, tests/, fumadocs/ are deliberately excluded — they're
-        # not part of the "fresh npm install @blocknote/react" user experience
-        # this workflow simulates.
+        name: Update prod deps of published packages
+        # Resolves production dependencies of every published (non-private)
+        # workspace package to the latest version within their declared semver
+        # ranges. This simulates what a user gets when running
+        # `npm install @blocknote/react` in a fresh project.
         # DevDependencies are left at their lockfile versions.
-        run: >-
-          pnpm update --prod
-          --filter "./packages/*"
-          --filter "./examples/*/*"
-          --filter "./playground"
+        run: |
+          FILTERS=$(node -e "
+            const fs = require('fs');
+            const path = require('path');
+            fs.readdirSync('packages').forEach(dir => {
+              try {
+                const pkg = JSON.parse(fs.readFileSync(path.join('packages', dir, 'package.json'), 'utf8'));
+                if (!pkg.private && pkg.name) process.stdout.write('--filter ' + pkg.name + ' ');
+              } catch {}
+            });
+          ")
+          echo "Updating prod deps for: $FILTERS"
+          eval pnpm update --prod $FILTERS
+
+      - id: dedupe_deps
+        name: Dedupe transitive dependencies
+        # After bumping the publishable packages' prod deps, collapse any
+        # duplicate transitive resolutions (e.g. @tiptap/core + @tiptap/pm)
+        # that would otherwise differ between the updated publishable packages
+        # and the un-updated examples/playground. Without this, TypeScript
+        # treats the two copies' exports as unrelated types and example-editor
+        # fails to build (TS2322 on Extension<any, any> vs AnyExtension).
+        # Dedupe only rewrites the lockfile — it does NOT modify package.json,
+        # so the examples' "@blocknote/*": "latest" specs (which is what
+        # CodeSandbox users see) stay intact.
+        run: pnpm dedupe
 
       - id: build_packages
         name: Build packages
@@ -108,6 +120,8 @@ jobs:
             failed_step="Install dependencies"
           elif [ "${{ steps.update_prod_deps.outcome }}" = "failure" ]; then
             failed_step="Update prod deps of published packages"
+          elif [ "${{ steps.dedupe_deps.outcome }}" = "failure" ]; then
+            failed_step="Dedupe transitive dependencies"
           elif [ "${{ steps.build_packages.outcome }}" = "failure" ]; then
             failed_step="Build packages"
           elif [ "${{ steps.run_unit_tests.outcome }}" = "failure" ]; then
