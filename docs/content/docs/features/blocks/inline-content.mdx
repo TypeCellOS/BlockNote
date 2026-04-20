@@ -84,7 +84,7 @@ type Link = {
 You can customize how links are rendered and how they respond to clicks with the `links` editor option.
 
 ```ts
-const editor = new BlockNoteEditor({
+const editor = BlockNoteEditor.create({
   links: {
     HTMLAttributes: {
       class: "my-link-class",
@@ -102,7 +102,7 @@ const editor = new BlockNoteEditor({
 Additional HTML attributes that should be added to rendered link elements.
 
 ```ts
-const editor = new BlockNoteEditor({
+const editor = BlockNoteEditor.create({
   links: {
     HTMLAttributes: {
       class: "my-link-class",
@@ -117,7 +117,7 @@ const editor = new BlockNoteEditor({
 Custom handler invoked when a link is clicked. If left `undefined`, links are opened in a new window on click (the default behavior). If provided, that default behavior is disabled and this function is called instead.
 
 ```ts
-const editor = new BlockNoteEditor({
+const editor = BlockNoteEditor.create({
   links: {
     onClick: (event) => {
       // Do something when a link is clicked.

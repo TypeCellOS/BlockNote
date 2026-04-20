@@ -162,6 +162,7 @@ export function getDefaultTiptapExtensions(
 
                   if (options.links?.onClick) {
                     options.links.onClick(event);
+                    handled = true;
                   } else {
                     const attrs = getAttributes(view.state, markType.name);
                     const href = link.href ?? attrs.href;
