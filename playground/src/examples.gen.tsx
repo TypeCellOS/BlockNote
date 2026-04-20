@@ -997,11 +997,11 @@
           ],
           "dependencies": {
             "@blocknote/code-block": "latest",
-            "@shikijs/core": "^3.19.0",
-            "@shikijs/engine-javascript": "^3.19.0",
-            "@shikijs/langs-precompiled": "^3.19.0",
-            "@shikijs/themes": "^3.19.0",
-            "@shikijs/types": "^3.19.0"
+            "@shikijs/core": "^4",
+            "@shikijs/engine-javascript": "^4",
+            "@shikijs/langs-precompiled": "^4",
+            "@shikijs/themes": "^4",
+            "@shikijs/types": "^4"
           } as any
         },
         "title": "Custom Code Block Theme & Language",
