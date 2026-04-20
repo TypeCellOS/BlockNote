@@ -35,18 +35,18 @@ export function cleanHTMLToMarkdown(cleanHTMLString: string) {
     .use(deps.remarkStringify.default, {
       handlers: {
         text: (node) => node.value,
-        // Prevent autolink format <url> output plain URL instead
-        link: (node, _parent, state) => {
+        // Prevent autolink format <url>, output plain URL instead
+        link: (node, _parent, state, info) => {
           const children = state.containerPhrasing(node, {
+            ...info,
             before: "[",
             after: "]",
-            lineShift: 0,
-            now: { line: 1, column: 1, offset: 0 },
           });
           if (!children || children === node.url) {
             return node.url;
           }
-          return `[${children}](${node.url})`;
+          const url = state.safe(node.url, { before: "(", after: ")" });
+          return `[${children}](${url})`;
         },
       },
     })
