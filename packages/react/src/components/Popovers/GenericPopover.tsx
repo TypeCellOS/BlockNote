@@ -157,7 +157,7 @@ export const GenericPopover = (
 
       if (
         element !== undefined &&
-        (props.focusManagerProps?.disabled !== false ||
+        (props.focusManagerProps?.disabled ||
           !editor.isWithinEditor(element))
       ) {
         // Only set domReference when FloatingFocusManager is disabled.
