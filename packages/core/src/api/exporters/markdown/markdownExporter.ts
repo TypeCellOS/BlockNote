@@ -33,7 +33,22 @@ export function cleanHTMLToMarkdown(cleanHTMLString: string) {
     .use(deps.rehypeRemark.default)
     .use(deps.remarkGfm.default)
     .use(deps.remarkStringify.default, {
-      handlers: { text: (node) => node.value },
+      handlers: {
+        text: (node) => node.value,
+        // Prevent autolink format <url> output plain URL instead
+        link: (node, _parent, state) => {
+          const children = state.containerPhrasing(node, {
+            before: "[",
+            after: "]",
+            lineShift: 0,
+            now: { line: 1, column: 1, offset: 0 },
+          });
+          if (!children || children === node.url) {
+            return node.url;
+          }
+          return `[${children}](${node.url})`;
+        },
+      },
     })
     .processSync(cleanHTMLString);
 
