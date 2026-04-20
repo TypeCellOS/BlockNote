@@ -40,9 +40,10 @@ test.describe("AI toolbar button should preserve selection (issue #2525)", () =>
       .waitFor({ state: "visible", timeout: 3000 });
 
     // The PM selection must match what we had before clicking.
-    // Without the preventDefault fix on toolbar buttons, the browser
-    // moves focus to the portaled button on mousedown, which blurs the
-    // editor and clears the selection.
+    // Without skipping refs.setReference for in-editor references while
+    // FloatingFocusManager is active, floating-ui inserts a focus-return
+    // element into the PM contenteditable, triggering its MutationObserver
+    // and resetting the selection.
     const selAfter = await page.evaluate(() => {
       const pm = (window as any).ProseMirror;
       return { from: pm.state.selection.from, to: pm.state.selection.to };
