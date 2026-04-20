@@ -14,6 +14,7 @@ on:
   push:
     branches:
       - package-upgrades
+      - feat/fresh-install-debug
   schedule:
     - cron: "0 2 * * *" # Daily at 02:00 UTC
   workflow_dispatch: # Allow manual runs
@@ -47,25 +48,26 @@ jobs:
         run: pnpm install
 
       - id: update_prod_deps
-        name: Update prod deps of published packages
-        # Resolves production dependencies of every published (non-private)
-        # workspace package to the latest version within their declared semver
-        # ranges. This simulates what a user gets when running
-        # `npm install @blocknote/react` in a fresh project.
+        name: Update prod deps of packages, examples, and playground
+        # Resolves production dependencies to the latest versions within declared
+        # semver ranges for:
+        #   - packages/*    – the published @blocknote/* packages
+        #   - examples/*/*  – the individual example apps
+        #   - playground    – the example-editor app that bundles the examples
+        # Examples and playground are included so shared peer-dep'd libs
+        # (e.g. @tiptap/core + @tiptap/pm) resolve to the same version across
+        # publishable packages and the apps consuming them; otherwise pnpm ends
+        # up with two virtual-store copies keyed on different peer versions and
+        # TypeScript treats their exports as unrelated types.
+        # docs/, shared/, tests/, fumadocs/ are deliberately excluded — they're
+        # not part of the "fresh npm install @blocknote/react" user experience
+        # this workflow simulates.
         # DevDependencies are left at their lockfile versions.
-        run: |
-          FILTERS=$(node -e "
-            const fs = require('fs');
-            const path = require('path');
-            fs.readdirSync('packages').forEach(dir => {
-              try {
-                const pkg = JSON.parse(fs.readFileSync(path.join('packages', dir, 'package.json'), 'utf8'));
-                if (!pkg.private && pkg.name) process.stdout.write('--filter ' + pkg.name + ' ');
-              } catch {}
-            });
-          ")
-          echo "Updating prod deps for: $FILTERS"
-          eval pnpm update --prod $FILTERS
+        run: >-
+          pnpm update --prod
+          --filter "./packages/*"
+          --filter "./examples/*/*"
+          --filter "./playground"
 
       - id: build_packages
         name: Build packages
