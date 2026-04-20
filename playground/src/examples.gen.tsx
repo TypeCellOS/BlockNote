@@ -1691,7 +1691,7 @@
       {
         "projectSlug": "comments-testing",
         "fullSlug": "collaboration/comments-testing",
-        "pathFromRoot": "examples/07-collaboration/10-comments-testing",
+        "pathFromRoot": "examples/07-collaboration/09-comments-testing",
         "config": {
           "playground": true,
           "docs": false,
