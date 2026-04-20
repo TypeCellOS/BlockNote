@@ -11,9 +11,6 @@ name: Fresh Install Tests
 # so test tooling churn doesn't cause false positives.
 
 on:
-  push:
-    branches:
-      - main
   schedule:
     - cron: "0 2 * * *" # Daily at 02:00 UTC
   workflow_dispatch: # Allow manual runs
