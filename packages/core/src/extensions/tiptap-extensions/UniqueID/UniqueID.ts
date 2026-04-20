@@ -6,7 +6,7 @@ import {
 } from "@tiptap/core";
 import { Fragment, Slice } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
-import { v4 } from "uuid";
+import { uuidv4 } from "lib0/random";
 
 /**
  * Code from Tiptap UniqueID extension (https://tiptap.dev/api/extensions/unique-id)
@@ -51,9 +51,7 @@ const UniqueID = Extension.create({
       attributeName: "id",
       types: [],
       setIdAttribute: false,
-      isWithinEditor: undefined as
-        | ((element: Element) => boolean)
-        | undefined,
+      isWithinEditor: undefined as ((element: Element) => boolean) | undefined,
       generateID: () => {
         // Use mock ID if tests are running.
         if (typeof window !== "undefined" && (window as any).__TEST_OPTIONS) {
@@ -67,7 +65,7 @@ const UniqueID = Extension.create({
           return testOptions.mockID.toString() as string;
         }
 
-        return v4();
+        return uuidv4();
       },
       filterTransaction: null,
     };

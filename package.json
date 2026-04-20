@@ -35,6 +35,8 @@
       "unrs-resolver"
     ],
     "overrides": {
+      "vitest": "4.1.2",
+      "@vitest/runner": "4.1.2",
       "msw": "2.11.5",
       "ai": "6.0.5",
       "@ai-sdk/anthropic": "3.0.2",

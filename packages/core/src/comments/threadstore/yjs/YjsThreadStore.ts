@@ -1,4 +1,4 @@
-import { v4 } from "uuid";
+import { uuidv4 } from "lib0/random";
 import * as Y from "yjs";
 import { CommentBody, CommentData, ThreadData } from "../../types.js";
 import { ThreadStoreAuth } from "../ThreadStoreAuth.js";
@@ -57,7 +57,7 @@ export class YjsThreadStore extends YjsThreadStoreBase {
 
       const comment: CommentData = {
         type: "comment",
-        id: v4(),
+        id: uuidv4(),
         userId: this.userId,
         createdAt: date,
         updatedAt: date,
@@ -68,7 +68,7 @@ export class YjsThreadStore extends YjsThreadStoreBase {
 
       const thread: ThreadData = {
         type: "thread",
-        id: v4(),
+        id: uuidv4(),
         createdAt: date,
         updatedAt: date,
         comments: [comment],
@@ -105,7 +105,7 @@ export class YjsThreadStore extends YjsThreadStoreBase {
       const date = new Date();
       const comment: CommentData = {
         type: "comment",
-        id: v4(),
+        id: uuidv4(),
         userId: this.userId,
         createdAt: date,
         updatedAt: date,

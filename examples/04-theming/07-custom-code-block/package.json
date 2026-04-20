@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@blocknote/ariakit": "latest",
+    "@blocknote/code-block": "latest",
     "@blocknote/core": "latest",
     "@blocknote/mantine": "latest",
     "@blocknote/react": "latest",
@@ -19,19 +20,18 @@
     "@mantine/core": "^8.3.11",
     "@mantine/hooks": "^8.3.11",
     "@mantine/utils": "^6.0.22",
+    "@shikijs/core": "^4",
+    "@shikijs/engine-javascript": "^4",
+    "@shikijs/langs-precompiled": "^4",
+    "@shikijs/themes": "^4",
+    "@shikijs/types": "^4",
     "react": "^19.2.3",
-    "react-dom": "^19.2.3",
-    "@blocknote/code-block": "latest",
-    "@shikijs/core": "^3.19.0",
-    "@shikijs/engine-javascript": "^3.19.0",
-    "@shikijs/langs-precompiled": "^3.19.0",
-    "@shikijs/themes": "^3.19.0",
-    "@shikijs/types": "^3.19.0"
+    "react-dom": "^19.2.3"
   },
   "devDependencies": {
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
-    "vite": "^8.0.3"
+    "vite": "^8.0.8"
   }
 }

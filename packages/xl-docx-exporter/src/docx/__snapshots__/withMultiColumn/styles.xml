@@ -1,6 +1,181 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:styles xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:w15="http://schemas.microsoft.com/office/word/2012/wordml" xmlns:w16cex="http://schemas.microsoft.com/office/word/2018/wordml/cex" xmlns:w16cid="http://schemas.microsoft.com/office/word/2016/wordml/cid" xmlns:w16="http://schemas.microsoft.com/office/word/2018/wordml" xmlns:w16du="http://schemas.microsoft.com/office/word/2023/wordml/word16du" xmlns:w16sdtdh="http://schemas.microsoft.com/office/word/2020/wordml/sdtdatahash" xmlns:w16se="http://schemas.microsoft.com/office/word/2015/wordml/symex" mc:Ignorable="w14 w15 w16se w16cid w16 w16cex w16sdtdh w16du">
     <w:docDefaults>
+        <w:rPrDefault/>
+        <w:pPrDefault/>
+    </w:docDefaults>
+    <w:style w:type="paragraph" w:styleId="Title">
+        <w:name w:val="Title"/>
+        <w:basedOn w:val="Normal"/>
+        <w:next w:val="Normal"/>
+        <w:qFormat/>
+        <w:rPr>
+            <w:sz w:val="56"/>
+            <w:szCs w:val="56"/>
+        </w:rPr>
+    </w:style>
+    <w:style w:type="paragraph" w:styleId="Heading1">
+        <w:name w:val="Heading 1"/>
+        <w:basedOn w:val="Normal"/>
+        <w:next w:val="Normal"/>
+        <w:qFormat/>
+        <w:rPr>
+            <w:color w:val="2E74B5"/>
+            <w:sz w:val="32"/>
+            <w:szCs w:val="32"/>
+        </w:rPr>
+    </w:style>
+    <w:style w:type="paragraph" w:styleId="Heading2">
+        <w:name w:val="Heading 2"/>
+        <w:basedOn w:val="Normal"/>
+        <w:next w:val="Normal"/>
+        <w:qFormat/>
+        <w:rPr>
+            <w:color w:val="2E74B5"/>
+            <w:sz w:val="26"/>
+            <w:szCs w:val="26"/>
+        </w:rPr>
+    </w:style>
+    <w:style w:type="paragraph" w:styleId="Heading3">
+        <w:name w:val="Heading 3"/>
+        <w:basedOn w:val="Normal"/>
+        <w:next w:val="Normal"/>
+        <w:qFormat/>
+        <w:rPr>
+            <w:color w:val="1F4D78"/>
+            <w:sz w:val="24"/>
+            <w:szCs w:val="24"/>
+        </w:rPr>
+    </w:style>
+    <w:style w:type="paragraph" w:styleId="Heading4">
+        <w:name w:val="Heading 4"/>
+        <w:basedOn w:val="Normal"/>
+        <w:next w:val="Normal"/>
+        <w:qFormat/>
+        <w:rPr>
+            <w:i/>
+            <w:iCs/>
+            <w:color w:val="2E74B5"/>
+        </w:rPr>
+    </w:style>
+    <w:style w:type="paragraph" w:styleId="Heading5">
+        <w:name w:val="Heading 5"/>
+        <w:basedOn w:val="Normal"/>
+        <w:next w:val="Normal"/>
+        <w:qFormat/>
+        <w:rPr>
+            <w:color w:val="2E74B5"/>
+        </w:rPr>
+    </w:style>
+    <w:style w:type="paragraph" w:styleId="Heading6">
+        <w:name w:val="Heading 6"/>
+        <w:basedOn w:val="Normal"/>
+        <w:next w:val="Normal"/>
+        <w:qFormat/>
+        <w:rPr>
+            <w:color w:val="1F4D78"/>
+        </w:rPr>
+    </w:style>
+    <w:style w:type="paragraph" w:styleId="Strong">
+        <w:name w:val="Strong"/>
+        <w:basedOn w:val="Normal"/>
+        <w:next w:val="Normal"/>
+        <w:qFormat/>
+        <w:rPr>
+            <w:b/>
+            <w:bCs/>
+        </w:rPr>
+    </w:style>
+    <w:style w:type="paragraph" w:styleId="ListParagraph">
+        <w:name w:val="List Paragraph"/>
+        <w:basedOn w:val="Normal"/>
+        <w:qFormat/>
+    </w:style>
+    <w:style w:type="character" w:styleId="Hyperlink">
+        <w:name w:val="Hyperlink"/>
+        <w:basedOn w:val="DefaultParagraphFont"/>
+        <w:uiPriority w:val="99"/>
+        <w:unhideWhenUsed/>
+        <w:rPr>
+            <w:color w:val="0563C1"/>
+            <w:u w:val="single"/>
+        </w:rPr>
+    </w:style>
+    <w:style w:type="character" w:styleId="FootnoteReference">
+        <w:name w:val="footnote reference"/>
+        <w:basedOn w:val="DefaultParagraphFont"/>
+        <w:uiPriority w:val="99"/>
+        <w:semiHidden/>
+        <w:unhideWhenUsed/>
+        <w:rPr>
+            <w:vertAlign w:val="superscript"/>
+        </w:rPr>
+    </w:style>
+    <w:style w:type="paragraph" w:styleId="FootnoteText">
+        <w:name w:val="footnote text"/>
+        <w:basedOn w:val="Normal"/>
+        <w:link w:val="FootnoteTextChar"/>
+        <w:uiPriority w:val="99"/>
+        <w:semiHidden/>
+        <w:unhideWhenUsed/>
+        <w:pPr>
+            <w:spacing w:after="0" w:line="240" w:lineRule="auto"/>
+        </w:pPr>
+        <w:rPr>
+            <w:sz w:val="20"/>
+            <w:szCs w:val="20"/>
+        </w:rPr>
+    </w:style>
+    <w:style w:type="character" w:styleId="FootnoteTextChar">
+        <w:name w:val="Footnote Text Char"/>
+        <w:basedOn w:val="DefaultParagraphFont"/>
+        <w:link w:val="FootnoteText"/>
+        <w:uiPriority w:val="99"/>
+        <w:semiHidden/>
+        <w:unhideWhenUsed/>
+        <w:rPr>
+            <w:sz w:val="20"/>
+            <w:szCs w:val="20"/>
+        </w:rPr>
+    </w:style>
+    <w:style w:type="character" w:styleId="EndnoteReference">
+        <w:name w:val="endnote reference"/>
+        <w:basedOn w:val="DefaultParagraphFont"/>
+        <w:uiPriority w:val="99"/>
+        <w:semiHidden/>
+        <w:unhideWhenUsed/>
+        <w:rPr>
+            <w:vertAlign w:val="superscript"/>
+        </w:rPr>
+    </w:style>
+    <w:style w:type="paragraph" w:styleId="EndnoteText">
+        <w:name w:val="endnote text"/>
+        <w:basedOn w:val="Normal"/>
+        <w:link w:val="EndnoteTextChar"/>
+        <w:uiPriority w:val="99"/>
+        <w:semiHidden/>
+        <w:unhideWhenUsed/>
+        <w:pPr>
+            <w:spacing w:after="0" w:line="240" w:lineRule="auto"/>
+        </w:pPr>
+        <w:rPr>
+            <w:sz w:val="20"/>
+            <w:szCs w:val="20"/>
+        </w:rPr>
+    </w:style>
+    <w:style w:type="character" w:styleId="EndnoteTextChar">
+        <w:name w:val="Endnote Text Char"/>
+        <w:basedOn w:val="DefaultParagraphFont"/>
+        <w:link w:val="EndnoteText"/>
+        <w:uiPriority w:val="99"/>
+        <w:semiHidden/>
+        <w:unhideWhenUsed/>
+        <w:rPr>
+            <w:sz w:val="20"/>
+            <w:szCs w:val="20"/>
+        </w:rPr>
+    </w:style>
+    <w:docDefaults>
         <w:rPrDefault>
             <w:rPr>
                 <w:rFonts w:asciiTheme="minorHAnsi" w:eastAsiaTheme="minorHAnsi" w:hAnsiTheme="minorHAnsi" w:cstheme="minorBidi"/>

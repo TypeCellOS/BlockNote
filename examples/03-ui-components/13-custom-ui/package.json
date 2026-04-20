@@ -19,15 +19,15 @@
     "@mantine/core": "^8.3.11",
     "@mantine/hooks": "^8.3.11",
     "@mantine/utils": "^6.0.22",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3",
     "@mui/icons-material": "^5.16.1",
-    "@mui/material": "^5.16.1"
+    "@mui/material": "^5.16.1",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
   },
   "devDependencies": {
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
-    "vite": "^8.0.3"
+    "vite": "^8.0.8"
   }
 }

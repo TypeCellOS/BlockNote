@@ -1,5 +1,5 @@
 import { Selection } from "prosemirror-state";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 
@@ -9,9 +9,22 @@ import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 
 const PLUGIN_KEY = "numbered-list-indexing-decorations$";
 
+// Track editors created in each test so we can unmount them in afterEach —
+// otherwise prosemirror-view's DOMObserver leaves a setTimeout alive that
+// fires after vitest tears down jsdom, throwing
+// `ReferenceError: document is not defined` and failing the run.
+const activeEditors: BlockNoteEditor<any, any, any>[] = [];
+
+afterEach(() => {
+  while (activeEditors.length) {
+    activeEditors.pop()!.unmount();
+  }
+});
+
 function createEditor() {
   const editor = BlockNoteEditor.create();
   editor.mount(document.createElement("div"));
+  activeEditors.push(editor);
   return editor;
 }
 

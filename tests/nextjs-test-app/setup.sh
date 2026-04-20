@@ -23,10 +23,10 @@ fi
 rm -rf "$TARBALLS_DIR"
 mkdir -p "$TARBALLS_DIR"
 
-# Pack each package
+# Pack each package (use pnpm pack so workspace:* refs are resolved to versions)
 for pkg in core react server-util mantine; do
   cd "$PACKAGES_DIR/$pkg"
-  npm pack --pack-destination "$TARBALLS_DIR" 2>/dev/null
+  pnpm pack --pack-destination "$TARBALLS_DIR" 2>/dev/null
 done
 
 # Update package.json to point to tarballs
