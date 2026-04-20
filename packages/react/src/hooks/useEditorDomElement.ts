@@ -1,6 +1,7 @@
+import { BlockNoteEditor } from "@blocknote/core";
 import { useEffect, useState } from "react";
 
-import { useBlockNoteEditor } from "./useBlockNoteEditor.js";
+import { useBlockNoteContext } from "../editor/BlockNoteContext.js";
 import { useEditorState } from "./useEditorState.js";
 
 /**
@@ -15,21 +16,24 @@ import { useEditorState } from "./useEditorState.js";
  * transactions (e.g. remounts), and supplements it with a TipTap `create`
  * event listener to handle the initial mount timing.
  */
-export function useEditorDOMElement() {
-  const editor = useBlockNoteEditor<any, any, any>();
+export function useEditorDOMElement(editor?: BlockNoteEditor<any, any, any>) {
+  const editorContext = useBlockNoteContext();
+  if (!editor) {
+    editor = editorContext?.editor;
+  }
 
   // Handle initial mount timing. TipTap sets isInitialized synchronously
   // right after emitting the "create" event, so by the time React processes
   // this state update, editor.domElement is available.
-  const [, setInitialized] = useState(!editor.headless);
+  const [, bumpMountVersion] = useState(0);
   useEffect(() => {
-    if (!editor.headless) {
+    if (!editor?.headless) {
       return;
     }
-    const handler = () => setInitialized(true);
-    editor._tiptapEditor.on("create", handler);
+    const handler = () => bumpMountVersion((v) => v + 1);
+    editor?._tiptapEditor.on("create", handler);
     return () => {
-      editor._tiptapEditor.off("create", handler);
+      editor?._tiptapEditor.off("create", handler);
     };
   }, [editor]);
 

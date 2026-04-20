@@ -5,13 +5,13 @@ import { useEditorDOMElement } from "../../../../hooks/useEditorDomElement.js";
 // Hook which handles keyboard navigation of a grid suggestion menu. Arrow keys
 // are used to select a menu item, enter is used to execute it.
 export function useGridSuggestionMenuKeyboardNavigation<Item>(
-  _editor: BlockNoteEditor<any, any, any>,
+  editor: BlockNoteEditor<any, any, any>,
   query: string,
   items: Item[],
   columns: number,
   onItemClick?: (item: Item) => void,
 ) {
-  const editorDOMElement = useEditorDOMElement();
+  const editorDOMElement = useEditorDOMElement(editor);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
   const isGrid = columns !== undefined && columns > 1;
@@ -68,7 +68,11 @@ export function useGridSuggestionMenuKeyboardNavigation<Item>(
       return false;
     };
 
-    editorDOMElement?.addEventListener("keydown", handleMenuNavigationKeys, true);
+    editorDOMElement?.addEventListener(
+      "keydown",
+      handleMenuNavigationKeys,
+      true,
+    );
 
     return () => {
       editorDOMElement?.removeEventListener(
