@@ -16,13 +16,13 @@
     "@blocknote/mantine": "latest",
     "@blocknote/react": "latest",
     "@blocknote/shadcn": "latest",
-    "@blocknote/xl-email-exporter": "latest",
     "@mantine/core": "^8.3.11",
     "@mantine/hooks": "^8.3.11",
     "@mantine/utils": "^6.0.22",
-    "@react-email/render": "^2.0.4",
     "react": "^19.2.3",
-    "react-dom": "^19.2.3"
+    "react-dom": "^19.2.3",
+    "@blocknote/xl-email-exporter": "latest",
+    "@react-email/render": "^2.0.4"
   },
   "devDependencies": {
     "@types/react": "^19.2.3",

@@ -1,14 +1,13 @@
 name: Fresh Install Tests
 
-# Periodically tests BlockNote with the latest versions of its production
-# dependencies (within declared semver ranges). This catches breakage when a
+# Periodically tests BlockNote with the latest versions of its dependencies
+# (within declared ranges), without a lockfile. This catches breakage when a
 # new release of a dep like @tiptap/* or prosemirror-* ships and conflicts
 # with BlockNote's declared ranges — the kind of failure a user would hit when
 # running `npm install @blocknote/react` in a fresh project.
 #
-# Only production dependencies of published (non-private) packages are updated.
-# DevDependencies (vitest, vite, typescript, etc.) stay pinned to the lockfile,
-# so test tooling churn doesn't cause false positives.
+# DevDependencies (vitest, vite, typescript, etc.) are still bounded by their
+# declared ranges in package.json; only prod/peer deps get freshly resolved.
 
 on:
   schedule:
@@ -17,7 +16,6 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  pnpm_config_store_dir: ./node_modules/.pnpm-store
 
 jobs:
   fresh-install-unit-tests:
@@ -37,45 +35,19 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version-file: ".nvmrc"
-          # Intentionally no pnpm cache — we want fresh prod dep resolution
+          # Intentionally no pnpm cache — we want a genuinely fresh install
+
+      - id: remove_lockfile
+        name: Remove lockfile to force fresh dep resolution
+        # Removing pnpm-lock.yaml causes pnpm to resolve all dependencies to
+        # the latest versions that satisfy the ranges declared in package.json
+        # (including pnpm-workspace.yaml overrides). This is equivalent to what
+        # a new user experiences when installing BlockNote in a blank project.
+        run: rm pnpm-lock.yaml
 
       - id: install_dependencies
         name: Install dependencies
-        run: pnpm install
-
-      - id: update_prod_deps
-        name: Update prod deps of published packages
-        # Resolves production dependencies of every published (non-private)
-        # workspace package to the latest version within their declared semver
-        # ranges. This simulates what a user gets when running
-        # `npm install @blocknote/react` in a fresh project.
-        # DevDependencies are left at their lockfile versions.
-        run: |
-          FILTERS=$(node -e "
-            const fs = require('fs');
-            const path = require('path');
-            fs.readdirSync('packages').forEach(dir => {
-              try {
-                const pkg = JSON.parse(fs.readFileSync(path.join('packages', dir, 'package.json'), 'utf8'));
-                if (!pkg.private && pkg.name) process.stdout.write('--filter ' + pkg.name + ' ');
-              } catch {}
-            });
-          ")
-          echo "Updating prod deps for: $FILTERS"
-          eval pnpm update --prod $FILTERS
-
-      - id: dedupe_deps
-        name: Dedupe transitive dependencies
-        # After bumping the publishable packages' prod deps, collapse any
-        # duplicate transitive resolutions (e.g. @tiptap/core + @tiptap/pm)
-        # that would otherwise differ between the updated publishable packages
-        # and the un-updated examples/playground. Without this, TypeScript
-        # treats the two copies' exports as unrelated types and example-editor
-        # fails to build (TS2322 on Extension<any, any> vs AnyExtension).
-        # Dedupe only rewrites the lockfile — it does NOT modify package.json,
-        # so the examples' "@blocknote/*": "latest" specs (which is what
-        # CodeSandbox users see) stay intact.
-        run: pnpm dedupe
+        run: pnpm install --no-frozen-lockfile
 
       - id: build_packages
         name: Build packages
@@ -112,12 +84,10 @@ jobs:
             failed_step="Install pnpm"
           elif [ "${{ steps.setup_node.outcome }}" = "failure" ]; then
             failed_step="Setup Node.js"
+          elif [ "${{ steps.remove_lockfile.outcome }}" = "failure" ]; then
+            failed_step="Remove lockfile to force fresh dep resolution"
           elif [ "${{ steps.install_dependencies.outcome }}" = "failure" ]; then
             failed_step="Install dependencies"
-          elif [ "${{ steps.update_prod_deps.outcome }}" = "failure" ]; then
-            failed_step="Update prod deps of published packages"
-          elif [ "${{ steps.dedupe_deps.outcome }}" = "failure" ]; then
-            failed_step="Dedupe transitive dependencies"
           elif [ "${{ steps.build_packages.outcome }}" = "failure" ]; then
             failed_step="Build packages"
           elif [ "${{ steps.run_unit_tests.outcome }}" = "failure" ]; then

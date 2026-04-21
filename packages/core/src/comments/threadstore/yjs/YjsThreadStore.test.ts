@@ -6,9 +6,8 @@ import { YjsThreadStore } from "./YjsThreadStore.js";
 
 // Mock UUID to generate sequential IDs
 let mockUuidCounter = 0;
-vi.mock("lib0/random", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("lib0/random")>()),
-  uuidv4: () => `mocked-uuid-${++mockUuidCounter}`,
+vi.mock("uuid", () => ({
+  v4: () => `mocked-uuid-${++mockUuidCounter}`,
 }));
 
 describe("YjsThreadStore", () => {
