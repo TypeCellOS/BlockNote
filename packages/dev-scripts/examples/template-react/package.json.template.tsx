@@ -40,7 +40,7 @@ const template = (project: Project) => ({
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
-    vite: "^8.0.8",
+    vite: "^8.0.3",
     ...(project.config?.devDependencies || {}),
   },
 });
