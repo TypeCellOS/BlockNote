@@ -23,7 +23,11 @@ export function clickHandler(options: ClickHandlerOptions): Plugin {
 
         let link: HTMLAnchorElement | null = null;
 
-        if (event.target instanceof HTMLAnchorElement) {
+        if (
+          event.target instanceof HTMLAnchorElement &&
+          // Differentiate between link inline content and read-only links.
+          event.target.getAttribute("data-inline-content-type") === "link"
+        ) {
           link = event.target;
         } else {
           const target = event.target as HTMLElement | null;
@@ -35,7 +39,9 @@ export function clickHandler(options: ClickHandlerOptions): Plugin {
 
           // Intentionally limit the lookup to the editor root.
           // Using tag names like DIV as boundaries breaks with custom NodeViews,
-          link = target.closest<HTMLAnchorElement>("a");
+          link = target.closest<HTMLAnchorElement>(
+            'a[data-inline-content-type="link"]',
+          );
 
           if (link && !root.contains(link)) {
             link = null;
