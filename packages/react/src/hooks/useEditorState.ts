@@ -136,6 +136,7 @@ class EditorStateManager<
 
       const EVENT_TYPES = {
         all: ["transaction", "create", "mount", "unmount"],
+        // Listen for "create" as "mount" may fire before the hook is run.
         mount: ["create", "mount", "unmount"],
         selection: ["selectionUpdate"],
         change: ["update"],
