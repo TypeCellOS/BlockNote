@@ -2705,6 +2705,44 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
   },
   {
     testCase: {
+      name: "link/plainUrl",
+      content: [
+        {
+          // id: UniqueID.options.generateID(),
+          type: "paragraph",
+          content: [
+            {
+              type: "link",
+              href: "https://www.website.com",
+              content: "https://www.website.com",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "link/urlWithParens",
+      content: [
+        {
+          // id: UniqueID.options.generateID(),
+          type: "paragraph",
+          content: [
+            {
+              type: "link",
+              href: "https://en.wikipedia.org/wiki/Example_(disambiguation)",
+              content: "Example",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
       name: "hardbreak/basic",
       content: [
         {

@@ -539,7 +539,26 @@ function serializeBlockLink(el: HTMLElement, ctx: SerializeContext): string {
   const href = el.getAttribute("href") || "";
   const text = el.textContent?.trim() || "";
   if (!href) {return ctx.indent + text + "\n\n";}
-  return ctx.indent + `[${text}](${href})\n\n`;
+  return ctx.indent + formatLink(text, href) + "\n\n";
+}
+
+/**
+ * Render a link, mirroring the remark-stringify behavior from
+ * TypeCellOS/BlockNote#2661: when the link label equals the URL (or is
+ * empty), emit the bare URL so that pasting the link into another input
+ * produces a valid href instead of `<url>`-autolink brackets or redundant
+ * `[url](url)` markup. Otherwise emit `[text](url)` with the URL escaped so
+ * a `)` inside the URL does not prematurely close the destination.
+ */
+function formatLink(text: string, href: string): string {
+  if (!text || text === href) {
+    return href;
+  }
+  return `[${text}](${escapeLinkDestination(href)})`;
+}
+
+function escapeLinkDestination(url: string): string {
+  return url.replace(/[\\()]/g, "\\$&");
 }
 
 function serializeDetails(el: HTMLElement, ctx: SerializeContext): string {
@@ -623,7 +642,7 @@ function serializeInlineContent(el: Element): string {
         case "a": {
           const href = childEl.getAttribute("href") || "";
           const text = serializeInlineContent(childEl);
-          result += `[${text}](${href})`;
+          result += formatLink(text, href);
           break;
         }
         case "br":
