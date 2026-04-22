@@ -84,7 +84,11 @@ test.describe("Check Block Dragging Functionality", () => {
     await compareDocToSnapshot(page, "dragdropnested");
   });
 
-  test("Should be able to drag image", async ({ page }) => {
+  test("Should be able to drag image", async ({ page, browserName }) => {
+    test.skip(
+      browserName === "firefox",
+      "Playwright doesn't correctly simulate drag events in Firefox.",
+    );
     await focusOnEditor(page);
     await executeSlashCommand(page, "image");
 
@@ -100,7 +104,12 @@ test.describe("Check Block Dragging Functionality", () => {
 
   test("Formatting toolbar should not appear when dragging image block", async ({
     page,
+    browserName,
   }) => {
+    test.skip(
+      browserName === "firefox",
+      "Playwright doesn't correctly simulate drag events in Firefox.",
+    );
     await focusOnEditor(page);
     await executeSlashCommand(page, "image");
     await insertHeading(page, 1);
