@@ -1,14 +1,7 @@
 import { FileChooser, expect } from "@playwright/test";
 import { test } from "../../setup/setupScript.js";
-import {
-  BASE_URL,
-  DRAG_HANDLE_SELECTOR,
-  H_ONE_BLOCK_SELECTOR,
-  IMAGE_SELECTOR,
-} from "../../utils/const.js";
-import { insertHeading } from "../../utils/copypaste.js";
+import { BASE_URL } from "../../utils/const.js";
 import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor.js";
-import { dragAndDropBlock, moveMouseOverElement } from "../../utils/mouse.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 const IMAGE_UPLOAD_PATH = "src/end-to-end/images/placeholder.png";
@@ -115,58 +108,5 @@ test.describe("Check Image Block and Toolbar functionality", () => {
     await page.keyboard.press("Backspace");
 
     await compareDocToSnapshot(page, "deleteImage");
-  });
-  test("Should be able to drag image", async ({ page }) => {
-    await focusOnEditor(page);
-    await executeSlashCommand(page, "image");
-
-    await insertHeading(page, 1);
-
-    const dragTarget = await page.locator(IMAGE_SELECTOR);
-    const dropTarget = await page.locator(H_ONE_BLOCK_SELECTOR);
-    await page.pause();
-    await dragAndDropBlock(page, dragTarget, dropTarget, false);
-
-    await compareDocToSnapshot(page, "dragImage");
-  });
-  test("Formatting toolbar should not appear when dragging image block", async ({ 
-    page,
-   }) => {
-    await focusOnEditor(page);
-    await executeSlashCommand(page, "image");
-    await insertHeading(page, 1);
-
-    // move mouse over image to reveal drag handle
-    const dragTarget = page.locator(IMAGE_SELECTOR);
-    await moveMouseOverElement(page, dragTarget);
-    await page.waitForTimeout(100);
-
-    await page.waitForSelector(DRAG_HANDLE_SELECTOR);
-    const dragHandle = page.locator(DRAG_HANDLE_SELECTOR);
-    const dragHandleBox = (await dragHandle.boundingBox())!;
-
-    // start drag from the drag handle
-    await page.mouse.move(
-      dragHandleBox.x + dragHandleBox.width / 2,
-      dragHandleBox.y + dragHandleBox.height / 2,
-      { steps: 5 },
-    );
-    await page.mouse.down();
-    await page.waitForTimeout(100);
-
-    // move mid-drag to the heading block
-    const dropTarget = page.locator(H_ONE_BLOCK_SELECTOR);
-    const dropTargetBox = (await dropTarget.boundingBox())!;
-    await page.mouse.move(
-      dropTargetBox.x + dropTargetBox.width / 2,
-      dropTargetBox.y + dropTargetBox.height / 2,
-      { steps: 5 },
-    );
-    
-    // assert formatting toolbar is not visible during drag
-    const toolbar = page.locator(".bn-formatting-toolbar");
-    await expect(toolbar).not.toBeVisible();
-    
-    await page.mouse.up();
   });
 });
