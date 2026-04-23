@@ -6,7 +6,7 @@ import { Plugin, PluginKey } from "@tiptap/pm/state";
 type ClickHandlerOptions = {
   type: MarkType;
   editor: Editor;
-  onClick?: (event: MouseEvent) => void;
+  onClick?: (event: MouseEvent) => boolean | void;
 };
 
 export function clickHandler(options: ClickHandlerOptions): Plugin {
@@ -48,8 +48,8 @@ export function clickHandler(options: ClickHandlerOptions): Plugin {
         }
 
         if (options.onClick) {
-          options.onClick(event);
-          return true;
+          const result = options.onClick(event);
+          return result ?? true;
         }
 
         const attrs = getAttributes(view.state, options.type.name);

@@ -155,8 +155,11 @@ export interface BlockNoteEditorOptions<
      * Custom handler invoked when a link is clicked. If left `undefined`,
      * links are opened in a new window on click. If provided, the default
      * open-on-click behavior is disabled and this function is called instead.
+     *
+     * Return `false` to let ProseMirror continue handling the click event.
+     * Returning `true` or nothing (the default) marks the event as handled.
      */
-    onClick?: (event: MouseEvent) => void;
+    onClick?: (event: MouseEvent) => boolean | void;
   };
 
   /**

@@ -57,7 +57,7 @@ function shouldAutoLink(url: string): boolean {
 
 export type LinkOptions = {
   HTMLAttributes: Record<string, any>;
-  onClick?: (event: MouseEvent) => void;
+  onClick?: (event: MouseEvent) => boolean | void;
 };
 
 /**

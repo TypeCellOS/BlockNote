@@ -116,6 +116,8 @@ const editor = BlockNoteEditor.create({
 
 Custom handler invoked when a link is clicked. If left `undefined`, links are opened in a new window on click (the default behavior). If provided, that default behavior is disabled and this function is called instead.
 
+Returning `false` will let BlockNote run other click handlers after this one. Returning `true` or nothing (the default) marks the event as handled.
+
 ```ts
 const editor = BlockNoteEditor.create({
   links: {
