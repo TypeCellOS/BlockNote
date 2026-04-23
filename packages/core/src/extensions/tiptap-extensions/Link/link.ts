@@ -12,6 +12,8 @@ const DEFAULT_PROTOCOL = "https";
 const HTML_ATTRIBUTES = {
   target: "_blank",
   rel: "noopener noreferrer nofollow",
+  className: "bn-inline-content-section",
+  "data-inline-content-type": "link",
 };
 
 // Pre-compiled regex for URI protocol validation.
