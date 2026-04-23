@@ -79,6 +79,55 @@ type Link = {
 };
 ```
 
+### Customizing Links
+
+You can customize how links are rendered and how they respond to clicks with the `links` editor option.
+
+```ts
+const editor = BlockNoteEditor.create({
+  links: {
+    HTMLAttributes: {
+      class: "my-link-class",
+      target: "_blank",
+    },
+    onClick: (event) => {
+      // Custom click logic, e.g. routing without a page reload.
+    },
+  },
+});
+```
+
+#### `HTMLAttributes`
+
+Additional HTML attributes that should be added to rendered link elements.
+
+```ts
+const editor = BlockNoteEditor.create({
+  links: {
+    HTMLAttributes: {
+      class: "my-link-class",
+      target: "_blank",
+    },
+  },
+});
+```
+
+#### `onClick`
+
+Custom handler invoked when a link is clicked. If left `undefined`, links are opened in a new window on click (the default behavior). If provided, that default behavior is disabled and this function is called instead.
+
+Returning `false` will let BlockNote run other click handlers after this one. Returning `true` or nothing (the default) marks the event as handled.
+
+```ts
+const editor = BlockNoteEditor.create({
+  links: {
+    onClick: (event) => {
+      // Do something when a link is clicked.
+    },
+  },
+});
+```
+
 ## Default Styles
 
 The default text formatting options in BlockNote are represented by the `Styles` in the default schema:

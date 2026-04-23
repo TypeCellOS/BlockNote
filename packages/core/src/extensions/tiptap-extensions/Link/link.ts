@@ -57,10 +57,15 @@ function shouldAutoLink(url: string): boolean {
   return true;
 }
 
+export type LinkOptions = {
+  HTMLAttributes: Record<string, any>;
+  onClick?: (event: MouseEvent) => boolean | void;
+};
+
 /**
  * BlockNote Link mark extension.
  */
-export const Link = Mark.create({
+export const Link = Mark.create<LinkOptions>({
   name: "link",
 
   priority: 1000,
@@ -70,6 +75,13 @@ export const Link = Mark.create({
   exitable: true,
 
   inclusive: false,
+
+  addOptions() {
+    return {
+      HTMLAttributes: {},
+      onClick: undefined,
+    };
+  },
 
   addAttributes() {
     return {
@@ -158,14 +170,14 @@ export const Link = Mark.create({
         defaultProtocol: DEFAULT_PROTOCOL,
         validate: isAllowedUri,
         shouldAutoLink,
-      })
+      }),
     );
 
     plugins.push(
       clickHandler({
         type: this.type,
         editor: this.editor,
-      })
+      }),
     );
 
     plugins.push(
@@ -174,7 +186,7 @@ export const Link = Mark.create({
         defaultProtocol: DEFAULT_PROTOCOL,
         type: this.type,
         shouldAutoLink,
-      })
+      }),
     );
 
     return plugins;

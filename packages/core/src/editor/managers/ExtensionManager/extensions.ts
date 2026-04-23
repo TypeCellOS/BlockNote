@@ -73,7 +73,10 @@ export function getDefaultTiptapExtensions(
     SuggestionAddMark,
     SuggestionDeleteMark,
     SuggestionModificationMark,
-    Link,
+    Link.configure({
+      HTMLAttributes: options.links?.HTMLAttributes ?? {},
+      onClick: options.links?.onClick,
+    }),
     ...(Object.values(editor.schema.styleSpecs).map((styleSpec) => {
       return styleSpec.implementation.mark.configure({
         editor: editor,
