@@ -127,7 +127,12 @@ export function selectedFragmentToHTML<
     );
   }
 
-  let selectedFragment = view.state.selection.content().content;
+  const originalSlice = view.state.selection.content();
+
+  // When AllSelection is used, ProseMirror wraps contents in blockGroup node.
+  // Unwrap it to avoid nested blocks when pasting.
+
+  let selectedFragment = originalSlice.content;
 
   if (selectedFragment.childCount === 1 && 
     selectedFragment.firstChild?.type.name === "blockGroup") {
@@ -136,7 +141,7 @@ export function selectedFragmentToHTML<
 
   // Uses default ProseMirror clipboard serialization.
   const clipboardHTML: string = view.serializeForClipboard(
-    new Slice(selectedFragment, 0, 0)
+    new Slice(selectedFragment, originalSlice.openStart, originalSlice.openEnd)
   ).dom.innerHTML;
 
   const externalHTML = fragmentToExternalHTML<BSchema, I, S>(
