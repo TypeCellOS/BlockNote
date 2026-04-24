@@ -163,6 +163,29 @@ export interface BlockNoteEditorOptions<
       event: MouseEvent,
       editor: BlockNoteEditor<any, any, any>,
     ) => boolean | void;
+    /**
+     * Callback that decides whether a given `href` is a valid link. Applied at
+     * every gate where a link enters the document: HTML import, HTML export,
+     * paste, and autolink. Useful for supporting additional URI schemes (e.g.
+     * `vscode:`, `myapp:`) or tightening the default allowlist.
+     *
+     * Defaults to `isAllowedUri`, which allows
+     * `http|https|ftp|ftps|mailto|tel|callto|sms|cid|xmpp`. Import
+     * `isAllowedUri` from `@blocknote/core` to layer on top of the default.
+     *
+     * @example
+     * ```ts
+     * import { isAllowedUri } from "@blocknote/core";
+     *
+     * BlockNoteEditor.create({
+     *   links: {
+     *     isValidLink: (href) =>
+     *       isAllowedUri(href) || href.startsWith("myapp:"),
+     *   },
+     * });
+     * ```
+     */
+    isValidLink?: (href: string) => boolean;
   };
 
   /**

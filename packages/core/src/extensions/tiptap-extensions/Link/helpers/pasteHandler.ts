@@ -8,6 +8,7 @@ type PasteHandlerOptions = {
   defaultProtocol: string;
   type: MarkType;
   shouldAutoLink?: (url: string) => boolean;
+  isValidLink: (href: string) => boolean;
 };
 
 export function pasteHandler(options: PasteHandlerOptions): Plugin {
@@ -15,7 +16,7 @@ export function pasteHandler(options: PasteHandlerOptions): Plugin {
     key: new PluginKey("handlePasteLink"),
     props: {
       handlePaste: (view, _event, slice) => {
-        const { shouldAutoLink } = options;
+        const { shouldAutoLink, isValidLink } = options;
         const { state } = view;
         const { selection } = state;
         const { empty } = selection;
@@ -37,6 +38,7 @@ export function pasteHandler(options: PasteHandlerOptions): Plugin {
         if (
           !textContent ||
           !link ||
+          !isValidLink(link.value) ||
           (shouldAutoLink !== undefined && !shouldAutoLink(link.value))
         ) {
           return false;

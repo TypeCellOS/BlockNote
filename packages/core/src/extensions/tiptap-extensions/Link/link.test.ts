@@ -4,6 +4,7 @@ import { Slice, Fragment } from "@tiptap/pm/model";
 
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { findLinks, tokenizeLink } from "./helpers/linkDetector.js";
+import { isAllowedUri } from "./link.js";
 
 /**
  * @vitest-environment jsdom
@@ -36,8 +37,8 @@ function isValidLinkStructure(
   return false;
 }
 
-function createEditor() {
-  const editor = BlockNoteEditor.create();
+function createEditor(links?: { isValidLink?: (href: string) => boolean }) {
+  const editor = BlockNoteEditor.create(links ? { links } : undefined);
   const div = document.createElement("div");
   editor.mount(div);
   return editor;
@@ -823,5 +824,118 @@ describe("Link extension paste handler behavior", () => {
 
     // Should not be handled because selection is empty
     expect(handled).toBeFalsy();
+  });
+});
+
+describe("Link extension isValidLink option", () => {
+  let editor: BlockNoteEditor<any, any, any>;
+
+  afterEach(() => {
+    if (editor) {
+      editor._tiptapEditor.destroy();
+    }
+  });
+
+  it("autolink: restrictive override blocks normally-valid URLs on typing", () => {
+    editor = createEditor({ isValidLink: () => false });
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "test-block",
+        type: "paragraph",
+        content: "",
+      },
+    ]);
+
+    const links = typeTextThenSpace(
+      editor,
+      "test-block",
+      "https://example.com"
+    );
+    expect(links).toHaveLength(0);
+  });
+
+  it("paste-rule: restrictive override blocks pasted URL text", () => {
+    editor = createEditor({ isValidLink: () => false });
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "test-block",
+        type: "paragraph",
+        content: "some text here",
+      },
+    ]);
+
+    editor._tiptapEditor.commands.insertContent("https://example.com ");
+
+    const links = getLinksInDocument(editor);
+    expect(links).toHaveLength(0);
+  });
+
+  it("paste-handler: restrictive override blocks URL pasted over selection", () => {
+    editor = createEditor({ isValidLink: () => false });
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "test-block",
+        type: "paragraph",
+        content: "click here",
+      },
+    ]);
+
+    editor.setTextCursorPosition("test-block", "start");
+    const view = editor._tiptapEditor.view;
+    const doc = view.state.doc;
+
+    let textStart = 0;
+    let textEnd = 0;
+    doc.descendants((node, pos) => {
+      if (node.isText && node.text === "click here") {
+        textStart = pos;
+        textEnd = pos + node.nodeSize;
+      }
+    });
+
+    const tr = view.state.tr.setSelection(
+      TextSelection.create(view.state.doc, textStart, textEnd)
+    );
+    view.dispatch(tr);
+
+    const textNode = view.state.schema.text("https://example.com");
+    const slice = new Slice(Fragment.from(textNode), 0, 0);
+
+    const handled = view.someProp("handlePaste", (f) =>
+      f(view, new ClipboardEvent("paste"), slice)
+    );
+
+    expect(handled).toBeFalsy();
+    const links = getLinksInDocument(editor);
+    expect(links).toHaveLength(0);
+  });
+
+  it("parseHTML: permissive override accepts custom-scheme links", () => {
+    editor = createEditor({
+      isValidLink: (href) => isAllowedUri(href) || href.startsWith("myapp:"),
+    });
+    editor.pasteHTML(`<p><a href="myapp://foo">click</a></p>`);
+
+    const links = getLinksInDocument(editor);
+    expect(links).toHaveLength(1);
+    expect(links[0].href).toBe("myapp://foo");
+  });
+
+  it("parseHTML: default rejects unknown-scheme links", () => {
+    editor = createEditor();
+    editor.pasteHTML(`<p><a href="myapp://foo">click</a></p>`);
+
+    const links = getLinksInDocument(editor);
+    expect(links).toHaveLength(0);
+  });
+
+  it("renderHTML: permissive override preserves custom-scheme href on export", () => {
+    editor = createEditor({
+      isValidLink: (href) => isAllowedUri(href) || href.startsWith("myapp:"),
+    });
+    editor.pasteHTML(`<p><a href="myapp://foo">click</a></p>`);
+
+    const html = editor.blocksToFullHTML(editor.document);
+    expect(html).toContain('href="myapp://foo"');
   });
 });

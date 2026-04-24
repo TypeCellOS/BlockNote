@@ -77,6 +77,9 @@ export function getDefaultTiptapExtensions(
       HTMLAttributes: options.links?.HTMLAttributes ?? {},
       editor,
       onClick: options.links?.onClick,
+      ...(options.links?.isValidLink
+        ? { isValidLink: options.links.isValidLink }
+        : {}),
     }),
     ...(Object.values(editor.schema.styleSpecs).map((styleSpec) => {
       return styleSpec.implementation.mark.configure({

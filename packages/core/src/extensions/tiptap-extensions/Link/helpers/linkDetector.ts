@@ -6,6 +6,8 @@
  * - tokenizeLink(): tokenize a single word for autolink validation (replaces linkifyjs tokenize())
  */
 
+import { ENCODED_TLDS } from "./tlds.js";
+
 export interface LinkMatch {
   type: string;
   value: string;
@@ -18,17 +20,38 @@ export interface LinkMatch {
 // ---------------------------------------------------------------------------
 // TLD set – used only for schemeless URL validation.
 // Protocol URLs (http://, https://, etc.) skip TLD checks.
+// Decoded once at module load from the trie-encoded IANA list in tlds.ts.
 // ---------------------------------------------------------------------------
 
-// prettier-ignore
-const CC_TLDS =
-  "ac ad ae af ag ai al am ao aq ar as at au aw ax az ba bb bd be bf bg bh bi bj bm bn bo br bs bt bv bw by bz ca cc cd cf cg ch ci ck cl cm cn co cr cu cv cw cx cy cz de dj dk dm do dz ec ee eg er es et eu fi fj fk fm fo fr ga gb gd ge gf gg gh gi gl gm gn gp gq gr gs gt gu gw gy hk hm hn hr ht hu id ie il im in io iq ir is it je jm jo jp ke kg kh ki km kn kp kr kw ky kz la lb lc li lk lr ls lt lu lv ly ma mc md me mg mh mk ml mm mn mo mp mq mr ms mt mu mv mw mx my mz na nc ne nf ng ni nl no np nr nu nz om pa pe pf pg ph pk pl pm pn pr ps pt pw py qa re ro rs ru rw sa sb sc sd se sg sh si sj sk sl sm sn so sr ss st su sv sx sy sz tc td tf tg th tj tk tl tm tn to tr tt tv tw tz ua ug uk us uy uz va vc ve vg vi vn vu wf ws ye yt za zm zw";
+function decodeTlds(encoded: string): string[] {
+  const words: string[] = [];
+  const stack: string[] = [];
+  let i = 0;
+  while (i < encoded.length) {
+    let popDigitCount = 0;
+    while (
+      i + popDigitCount < encoded.length &&
+      encoded.charCodeAt(i + popDigitCount) >= 48 &&
+      encoded.charCodeAt(i + popDigitCount) <= 57
+    ) {
+      popDigitCount++;
+    }
+    if (popDigitCount > 0) {
+      words.push(stack.join(""));
+      let popCount = parseInt(encoded.substring(i, i + popDigitCount), 10);
+      while (popCount-- > 0) {
+        stack.pop();
+      }
+      i += popDigitCount;
+    } else {
+      stack.push(encoded[i]);
+      i++;
+    }
+  }
+  return words;
+}
 
-// prettier-ignore
-const G_TLDS =
-  "com org net edu gov mil int aero asia biz cat coop info jobs mobi museum name post pro tel travel xxx academy accountant accountants actor adult agency airforce apartments app army associates attorney auction auto band bank bar bargains beer best bet bid bike bingo bio black blog blue boutique broker build builders business buzz cab cafe cam camera camp capital car cards care career careers casa cash casino catering center ceo chat cheap church city claims cleaning click clinic clothing cloud club coach codes coffee college community company computer condos construction consulting contractors cooking cool country coupons courses credit creditcard cruise dad dance date dating day dealer deals degree delivery democrat dental dentist design dev diamonds diet digital direct directory discount doctor dog domains download earth eat education email energy engineer engineering enterprises equipment estate events exchange expert exposed express fail faith family fan fans farm fashion film final finance financial fish fishing fit fitness flights florist flowers fly foo football forex forsale forum foundation fun fund furniture futbol fyi gallery game games garden gift gifts gives glass global gmbh gold golf graphics gratis green gripe group guide guru hair haus health healthcare help hiphop hockey holdings holiday homes horse hospital host hosting hot house how inc industries ink institute insurance insure international investments irish jewelry jetzt jot joy kim kitchen land law lawyer lease legal life lighting limited limo link live llc loan loans lol love ltd luxury maison management map market marketing mba media memorial men menu miami moda mom money monster mortgage movie music navy network new news ninja now observer one online ooo organic page partners parts party pay pet pharmacy photo photography photos pink pizza place plumbing plus poker porn press productions promo properties property pub quest racing radio realestate realty recipes red rehab rent rentals repair report republican rest restaurant review reviews rich rip rocks rodeo run sale salon sarl save school science search security select services sex sexy shoes shop shopping show singles site ski skin social software solar solutions space sport spot srl storage store stream studio style sucks supplies supply support surf surgery systems tax taxi team tech technology tennis theater theatre tips tires today tools top tours town toys trade trading training tube university uno vacations vegas ventures vet video villas vin vip vision vodka vote voyage wang watch webcam website wedding whoswho wiki win wine work works world wtf xyz yoga you zone";
-
-const TLD_SET = new Set([...CC_TLDS.split(" "), ...G_TLDS.split(" ")]);
+const TLD_SET = new Set(decodeTlds(ENCODED_TLDS));
 
 // Special hostnames recognized without a TLD
 const SPECIAL_HOSTS = new Set(["localhost"]);
@@ -116,31 +139,6 @@ function countChar(str: string, ch: string): number {
 function extractTld(hostname: string): string {
   const parts = hostname.split(".");
   return parts[parts.length - 1].toLowerCase();
-}
-
-/**
- * Extract hostname from a URL value (no protocol).
- */
-function extractHostname(value: string): string {
-  // Remove protocol if present
-  let s = value;
-  const protoIdx = s.indexOf("://");
-  if (protoIdx !== -1) {
-    s = s.slice(protoIdx + 3);
-  } else if (s.startsWith("mailto:")) {
-    s = s.slice(7);
-  }
-
-  // Remove path, query, fragment
-  s = s.split(/[/?#]/)[0];
-  // Remove port
-  s = s.split(":")[0];
-  // Remove userinfo
-  if (s.includes("@")) {
-    s = s.split("@").pop()!;
-  }
-
-  return s;
 }
 
 function isValidTld(hostname: string): boolean {
@@ -262,7 +260,7 @@ export function findLinks(
 
     // For schemeless URLs, validate TLD
     if (raw.type === "url" && !/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(value)) {
-      const hostname = extractHostname(value);
+      const hostname = new URL("http://" + value).hostname;
       if (!isValidTld(hostname)) {
         continue;
       }

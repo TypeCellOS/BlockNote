@@ -65,6 +65,7 @@ export type LinkOptions = {
     event: MouseEvent,
     editor: BlockNoteEditor<any, any, any>,
   ) => boolean | void;
+  isValidLink: (href: string) => boolean;
 };
 
 /**
@@ -86,6 +87,7 @@ export const Link = Mark.create<LinkOptions>({
       HTMLAttributes: {},
       editor: undefined,
       onClick: undefined,
+      isValidLink: isAllowedUri,
     };
   },
 
@@ -107,12 +109,13 @@ export const Link = Mark.create<LinkOptions>({
   },
 
   parseHTML() {
+    const isValidLink = this.options.isValidLink;
     return [
       {
         tag: "a[href]",
         getAttrs: (dom) => {
           const href = (dom as HTMLElement).getAttribute("href");
-          if (!href || !isAllowedUri(href)) {
+          if (!href || !isValidLink(href)) {
             return false;
           }
           return null;
@@ -122,7 +125,7 @@ export const Link = Mark.create<LinkOptions>({
   },
 
   renderHTML({ HTMLAttributes }) {
-    if (!isAllowedUri(HTMLAttributes.href)) {
+    if (!this.options.isValidLink(HTMLAttributes.href)) {
       return [
         "a",
         mergeAttributes(HTML_ATTRIBUTES, { ...HTMLAttributes, href: "" }),
@@ -134,6 +137,7 @@ export const Link = Mark.create<LinkOptions>({
   },
 
   addPasteRules() {
+    const isValidLink = this.options.isValidLink;
     return [
       markPasteRule({
         find: (text) => {
@@ -142,7 +146,7 @@ export const Link = Mark.create<LinkOptions>({
           if (text) {
             const links = findLinks(text, {
               defaultProtocol: DEFAULT_PROTOCOL,
-            }).filter((item) => item.isLink && isAllowedUri(item.value));
+            }).filter((item) => item.isLink && isValidLink(item.value));
 
             for (const link of links) {
               if (!shouldAutoLink(link.value)) {
@@ -174,7 +178,7 @@ export const Link = Mark.create<LinkOptions>({
       autolink({
         type: this.type,
         defaultProtocol: DEFAULT_PROTOCOL,
-        validate: isAllowedUri,
+        validate: this.options.isValidLink,
         shouldAutoLink,
       }),
     );
@@ -194,6 +198,7 @@ export const Link = Mark.create<LinkOptions>({
         defaultProtocol: DEFAULT_PROTOCOL,
         type: this.type,
         shouldAutoLink,
+        isValidLink: this.options.isValidLink,
       }),
     );
 
