@@ -75,6 +75,7 @@ export function getDefaultTiptapExtensions(
     SuggestionModificationMark,
     Link.configure({
       HTMLAttributes: options.links?.HTMLAttributes ?? {},
+      editor,
       onClick: options.links?.onClick,
     }),
     ...(Object.values(editor.schema.styleSpecs).map((styleSpec) => {

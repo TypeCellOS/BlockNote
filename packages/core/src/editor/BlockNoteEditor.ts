@@ -159,7 +159,10 @@ export interface BlockNoteEditorOptions<
      * Return `false` to let ProseMirror continue handling the click event.
      * Returning `true` or nothing (the default) marks the event as handled.
      */
-    onClick?: (event: MouseEvent) => boolean | void;
+    onClick?: (
+      event: MouseEvent,
+      editor: BlockNoteEditor<any, any, any>,
+    ) => boolean | void;
   };
 
   /**

@@ -1,6 +1,7 @@
 import type { PasteRuleMatch } from "@tiptap/core";
 import { Mark, markPasteRule, mergeAttributes } from "@tiptap/core";
 import type { Plugin } from "@tiptap/pm/state";
+import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { autolink } from "./helpers/autolink.js";
 import { findLinks } from "./helpers/linkDetector.js";
 import { clickHandler } from "./helpers/clickHandler.js";
@@ -59,7 +60,11 @@ function shouldAutoLink(url: string): boolean {
 
 export type LinkOptions = {
   HTMLAttributes: Record<string, any>;
-  onClick?: (event: MouseEvent) => boolean | void;
+  editor?: BlockNoteEditor<any, any, any>;
+  onClick?: (
+    event: MouseEvent,
+    editor: BlockNoteEditor<any, any, any>,
+  ) => boolean | void;
 };
 
 /**
@@ -79,6 +84,7 @@ export const Link = Mark.create<LinkOptions>({
   addOptions() {
     return {
       HTMLAttributes: {},
+      editor: undefined,
       onClick: undefined,
     };
   },
@@ -176,7 +182,9 @@ export const Link = Mark.create<LinkOptions>({
     plugins.push(
       clickHandler({
         type: this.type,
-        editor: this.editor,
+        tiptapEditor: this.editor,
+        editor: this.options.editor,
+        onClick: this.options.onClick,
       }),
     );
 

@@ -2,11 +2,16 @@ import type { Editor } from "@tiptap/core";
 import { getAttributes } from "@tiptap/core";
 import type { MarkType } from "@tiptap/pm/model";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
+import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 
 type ClickHandlerOptions = {
   type: MarkType;
-  editor: Editor;
-  onClick?: (event: MouseEvent) => boolean | void;
+  tiptapEditor: Editor;
+  editor?: BlockNoteEditor<any, any, any>;
+  onClick?: (
+    event: MouseEvent,
+    editor: BlockNoteEditor<any, any, any>,
+  ) => boolean | void;
 };
 
 export function clickHandler(options: ClickHandlerOptions): Plugin {
@@ -36,7 +41,7 @@ export function clickHandler(options: ClickHandlerOptions): Plugin {
             return false;
           }
 
-          const root = options.editor.view.dom;
+          const root = options.tiptapEditor.view.dom;
 
           // Intentionally limit the lookup to the editor root.
           // Using tag names like DIV as boundaries breaks with custom NodeViews,
@@ -54,7 +59,10 @@ export function clickHandler(options: ClickHandlerOptions): Plugin {
         }
 
         if (options.onClick) {
-          const result = options.onClick(event);
+          if (!options.editor) {
+            throw new Error("BlockNoteEditor not found in Link click handler");
+          }
+          const result = options.onClick(event, options.editor);
           return result ?? true;
         }
 
