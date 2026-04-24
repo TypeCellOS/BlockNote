@@ -229,7 +229,11 @@ export class StyleManager<
       };
 
       const linkMark = this.editor.pmSchema.mark("link", { href: url });
-      tr.insertText(text, from, to).addMark(from, from + text.length, linkMark);
+      const existingText = tr.doc.textBetween(from, to);
+      if (text !== existingText) {
+        tr.insertText(text, from, to);
+      }
+      tr.addMark(from, from + text.length, linkMark);
     });
     this.editor.prosemirrorView.focus();
   }
