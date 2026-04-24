@@ -80,20 +80,28 @@ function styledTextToNodes<T extends StyleSchema>(
 
 /**
  * Converts a Link inline content element to
- * prosemirror text nodes with the link mark applied.
+ * prosemirror text nodes with the appropriate marks
  */
 function linkToNodes(
   link: PartialLink<StyleSchema>,
   schema: Schema,
   styleSchema: StyleSchema,
 ): Node[] {
-  const linkMark = schema.marks.link.create({ href: link.href });
+  const linkMark = schema.marks.link.create({
+    href: link.href,
+  });
 
   return styledTextArrayToNodes(link.content, schema, styleSchema).map(
-    (node) =>
-      node.type.name === "text"
-        ? node.mark([...node.marks, linkMark])
-        : node,
+    (node) => {
+      if (node.type.name === "text") {
+        return node.mark([...node.marks, linkMark]);
+      }
+
+      if (node.type.name === "hardBreak") {
+        return node;
+      }
+      throw new Error("unexpected node type");
+    },
   );
 }
 
