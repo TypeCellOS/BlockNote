@@ -142,11 +142,20 @@ export class SideMenuView<
 
   public isDragOrigin = false;
 
+  /**
+   * Optional CSS class name that constrains side menu and drag behavior.
+   * When set, the side menu only activates when the mouse is within the
+   * bounds of the closest ancestor element matching this class.
+   */
+  private readonly sideMenuScopeClassName?: string;
+
   constructor(
     private readonly editor: BlockNoteEditor<BSchema, I, S>,
     private readonly pmView: EditorView,
     emitUpdate: (state: SideMenuState<BSchema, I, S>) => void,
+    sideMenuScopeClassName?: string,
   ) {
+    this.sideMenuScopeClassName = sideMenuScopeClassName;
     this.emitUpdate = () => {
       if (!this.state) {
         throw new Error("Attempting to update uninitialized side menu");
@@ -194,8 +203,53 @@ export class SideMenuView<
     this.emitUpdate(this.state);
   };
 
+  /**
+   * Checks if the given coordinates are within the bounds of the scoping
+   * element (an ancestor of the editor with the configured class name).
+   * Returns `true` if no scoping class is configured (i.e. no restriction).
+   */
+  private isWithinScope = (coords: {
+    clientX: number;
+    clientY: number;
+  }): boolean => {
+    if (!this.sideMenuScopeClassName) {
+      return true;
+    }
+
+    const scopeElement = this.pmView.dom.closest(
+      `.${this.sideMenuScopeClassName}`,
+    );
+    if (!scopeElement) {
+      // If the editor isn't inside an element with the scoping class,
+      // fall back to unrestricted behavior.
+      return true;
+    }
+
+    const rect = scopeElement.getBoundingClientRect();
+    return (
+      coords.clientX >= rect.left &&
+      coords.clientX <= rect.right &&
+      coords.clientY >= rect.top &&
+      coords.clientY <= rect.bottom
+    );
+  };
+
   updateStateFromMousePos = () => {
     if (this.menuFrozen || !this.mousePos) {
+      return;
+    }
+
+    // If the mouse is outside the scoping element, hide the side menu.
+    if (
+      !this.isWithinScope({
+        clientX: this.mousePos.x,
+        clientY: this.mousePos.y,
+      })
+    ) {
+      if (this.state?.show) {
+        this.state.show = false;
+        this.updateState(this.state);
+      }
       return;
     }
 
@@ -380,6 +434,14 @@ export class SideMenuView<
       return;
     }
 
+    // If the drag is outside the scoping element, ignore it.
+    if (
+      !this.isWithinScope({ clientX: event.clientX, clientY: event.clientY })
+    ) {
+      this.closeDropCursor();
+      return;
+    }
+
     // Relevance gate: Only handle drags that belong to BlockNote
     // This prevents interference with external drag-and-drop libraries
     // by avoiding calls to closeDropCursor() for non-BlockNote drags
@@ -505,6 +567,14 @@ export class SideMenuView<
    */
   onDrop = (event: DragEvent) => {
     if ((event as any).synthetic) {
+      return;
+    }
+
+    // If the drop is outside the scoping element, ignore it.
+    if (
+      !this.isWithinScope({ clientX: event.clientX, clientY: event.clientY })
+    ) {
+      this.closeDropCursor();
       return;
     }
 

@@ -216,6 +216,17 @@ export interface BlockNoteEditorOptions<
   setIdAttribute?: boolean;
 
   /**
+   * A CSS class name that constrains the side menu and drag-and-drop behavior.
+   * When set, the side menu will only appear and drag events will only be
+   * processed when the mouse is within the bounds of the closest ancestor
+   * element matching this class name. If the mouse is outside the scoping
+   * element, the side menu hides and drag events are ignored for this editor.
+   *
+   * @example "my-editor-container"
+   */
+  sideMenuScopeClassName?: string;
+
+  /**
    * Determines behavior when pressing Tab (or Shift-Tab) while multiple blocks are selected and a toolbar is open.
    * - `"prefer-navigate-ui"`: Changes focus to the toolbar. User must press Escape to close toolbar before indenting blocks. Better for keyboard accessibility.
    * - `"prefer-indent"`: Always indents selected blocks, regardless of toolbar state. Keyboard navigation of toolbars not possible.
