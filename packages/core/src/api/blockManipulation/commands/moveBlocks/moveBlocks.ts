@@ -1,3 +1,4 @@
+import { Fragment, Slice } from "prosemirror-model";
 import {
   NodeSelection,
   Selection,
@@ -5,12 +6,15 @@ import {
   Transaction,
 } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
+import { ReplaceStep } from "prosemirror-transform";
 
 import { Block } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
 import { BlockIdentifier } from "../../../../schema/index.js";
 import { getNearestBlockPos } from "../../../getBlockInfoFromPos.js";
+import { blockToNode } from "../../../nodeConversions/blockToNode.js";
 import { getNodeById } from "../../../nodeUtil.js";
+import { getPmSchema } from "../../../pmUtil.js";
 
 type BlockSelectionData = (
   | {
@@ -170,8 +174,39 @@ export function moveSelectedBlocksAndSelection(
     ];
     const selectionData = getBlockSelectionData(editor);
 
+    // Resolve the destination to a position upfront. `removeBlocks` can
+    // collapse a `columnList` (via `fixColumnList`) and destroy
+    // `referenceBlock`, so a later ID lookup would fail.
+    const referenceId =
+      typeof referenceBlock === "string" ? referenceBlock : referenceBlock.id;
+    const referenceInfo = getNodeById(referenceId, tr.doc);
+    if (!referenceInfo) {
+      throw new Error(`Block with ID ${referenceId} not found`);
+    }
+    const targetPos =
+      placement === "before"
+        ? referenceInfo.posBeforeNode
+        : referenceInfo.posBeforeNode + referenceInfo.node.nodeSize;
+    const stepsBeforeRemove = tr.steps.length;
+
     editor.removeBlocks(blocks);
-    editor.insertBlocks(flattenColumns(blocks), referenceBlock, placement);
+
+    let mappedTargetPos = targetPos;
+    for (let i = stepsBeforeRemove; i < tr.steps.length; i++) {
+      mappedTargetPos = tr.steps[i].getMap().map(mappedTargetPos);
+    }
+
+    const pmSchema = getPmSchema(tr);
+    const nodesToInsert = flattenColumns(blocks).map((block) =>
+      blockToNode(block, pmSchema),
+    );
+    tr.step(
+      new ReplaceStep(
+        mappedTargetPos,
+        mappedTargetPos,
+        new Slice(Fragment.from(nodesToInsert), 0, 0),
+      ),
+    );
 
     updateBlockSelectionFromData(tr, selectionData);
   });
