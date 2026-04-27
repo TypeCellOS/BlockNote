@@ -10,6 +10,7 @@ import {
   H_TWO_BLOCK_SELECTOR,
   PARAGRAPH_SELECTOR,
   SLASH_MENU_SELECTOR,
+  TABLE_SELECTOR,
 } from "../../utils/const.js";
 import { insertHeading } from "../../utils/copypaste.js";
 import {
@@ -43,6 +44,20 @@ test.describe("Check Draghandle functionality", () => {
     await moveMouseOverElement(page, heading);
 
     await page.waitForSelector(DRAG_HANDLE_SELECTOR);
+  });
+
+  test("Draghandle should align vertically with the top of a table block", async () => {
+    await executeSlashCommand(page, "table");
+    await page.waitForSelector(TABLE_SELECTOR);
+
+    const handleY = await getDragHandleYCoord(page, TABLE_SELECTOR);
+    const tableY = (await page.locator(`${TABLE_SELECTOR} table`).boundingBox())!.y;
+
+    // Regression test for #2604: prior to the fix the drag handle floated
+    // ~8px above the visible top of the table because it anchored to the
+    // bn-block-content wrapper, ignoring the tableWrapper's top padding (the
+    // space reserved for in-block row/column handles).
+    expect(Math.abs(handleY - tableY)).toBeLessThanOrEqual(5);
   });
 
   test("Draghandle should display next to correct block", async () => {
