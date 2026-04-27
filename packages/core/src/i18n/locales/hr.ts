@@ -397,9 +397,11 @@ export const hr: Dictionary = {
     edited: "uredio",
     save_button_text: "Spremi",
     cancel_button_text: "Odustani",
+    deleted_reference_text: "Originalni sadržaj je obrisan",
     actions: {
       add_reaction: "Dodaj reakciju",
       resolve: "Riješi",
+      reopen: "Ponovno otvori",
       edit_comment: "Uredi komentar",
       delete_comment: "Obriši komentar",
       more_actions: "Više radnji",

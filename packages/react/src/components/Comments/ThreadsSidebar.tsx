@@ -135,7 +135,7 @@ export function getReferenceText(
 ) {
   return editor.transact((tr) => {
     if (!threadPosition) {
-      return "Original content deleted";
+      return editor.dictionary.comments.deleted_reference_text;
     }
 
     // TODO: Handles an edge case where the editor is re-rendered and the document

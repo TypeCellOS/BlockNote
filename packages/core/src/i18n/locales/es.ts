@@ -382,9 +382,11 @@ export const es: Dictionary = {
     edited: "editado",
     save_button_text: "Guardar",
     cancel_button_text: "Cancelar",
+    deleted_reference_text: "Contenido original eliminado",
     actions: {
       add_reaction: "Agregar reacción",
       resolve: "Resolver",
+      reopen: "Reabrir",
       edit_comment: "Editar comentario",
       delete_comment: "Eliminar comentario",
       more_actions: "Más acciones",

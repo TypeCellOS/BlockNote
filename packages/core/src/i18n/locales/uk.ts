@@ -408,9 +408,11 @@ export const uk: Dictionary = {
     edited: "відредаговано",
     save_button_text: "Зберегти",
     cancel_button_text: "Скасувати",
+    deleted_reference_text: "Оригінальний вміст видалено",
     actions: {
       add_reaction: "Додати реакцію",
       resolve: "Вирішити",
+      reopen: "Відкрити знову",
       edit_comment: "Редагувати коментар",
       delete_comment: "Видалити коментар",
       more_actions: "Більше дій",

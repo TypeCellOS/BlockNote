@@ -382,9 +382,11 @@ export const sk = {
     edited: "upravený",
     save_button_text: "Uložiť",
     cancel_button_text: "Zrušiť",
+    deleted_reference_text: "Pôvodný obsah odstránený",
     actions: {
       add_reaction: "Pridať reakciu",
       resolve: "Vyriešiť",
+      reopen: "Znovu otvoriť",
       edit_comment: "Upraviť komentár",
       delete_comment: "Vymazať komentár",
       more_actions: "Ďalšie akcie",

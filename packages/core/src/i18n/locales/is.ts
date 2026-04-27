@@ -397,9 +397,11 @@ export const is: Dictionary = {
     edited: "breytt",
     save_button_text: "Vista",
     cancel_button_text: "Hætta",
+    deleted_reference_text: "Upprunalegu efni eytt",
     actions: {
       add_reaction: "Bæta við viðbrögðum",
       resolve: "Leysa",
+      reopen: "Opna aftur",
       edit_comment: "Breyta athugasemd",
       delete_comment: "Eyða athugasemd",
       more_actions: "Fleiri aðgerðir",

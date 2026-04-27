@@ -369,9 +369,11 @@ export const ar: Dictionary = {
     edited: "تم التحرير",
     save_button_text: "حفظ",
     cancel_button_text: "إلغاء",
+    deleted_reference_text: "تم حذف المحتوى الأصلي",
     actions: {
       add_reaction: "أضف تفاعلًا",
       resolve: "حل",
+      reopen: "إعادة فتح",
       edit_comment: "تحرير التعليق",
       delete_comment: "حذف التعليق",
       more_actions: "المزيد من الإجراءات",

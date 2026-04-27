@@ -384,9 +384,11 @@ export const he: Dictionary = {
     edited: "נערך",
     save_button_text: "שמור",
     cancel_button_text: "בטל",
+    deleted_reference_text: "התוכן המקורי נמחק",
     actions: {
       add_reaction: "הוסף תגובה",
       resolve: "סמן כפתור",
+      reopen: "פתח מחדש",
       edit_comment: "ערוך תגובה",
       delete_comment: "מחק תגובה",
       more_actions: "פעולות נוספות",

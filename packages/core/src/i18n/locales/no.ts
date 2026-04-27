@@ -401,9 +401,11 @@ export const no: Dictionary = {
     edited: "redigert",
     save_button_text: "Lagre",
     cancel_button_text: "Avbryt",
+    deleted_reference_text: "Originalt innhold slettet",
     actions: {
       add_reaction: "Legg til reaksjon",
       resolve: "Løs",
+      reopen: "Gjenåpne",
       edit_comment: "Rediger kommentar",
       delete_comment: "Slett kommentar",
       more_actions: "Flere handlinger",

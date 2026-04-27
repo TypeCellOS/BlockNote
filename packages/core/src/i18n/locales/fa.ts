@@ -352,9 +352,11 @@ export const fa = {
     edited: "ویرایش شده",
     save_button_text: "ذخیره",
     cancel_button_text: "لغو",
+    deleted_reference_text: "محتوای اصلی حذف شد",
     actions: {
       add_reaction: "افزودن واکنش",
       resolve: "حل کردن",
+      reopen: "باز کردن مجدد",
       edit_comment: "ویرایش دیدگاه",
       delete_comment: "حذف دیدگاه",
       more_actions: "اقدامات بیشتر",

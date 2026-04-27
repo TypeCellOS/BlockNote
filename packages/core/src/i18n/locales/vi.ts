@@ -383,9 +383,11 @@ export const vi: Dictionary = {
     edited: "đã chỉnh sửa",
     save_button_text: "Lưu",
     cancel_button_text: "Hủy",
+    deleted_reference_text: "Nội dung gốc đã bị xóa",
     actions: {
       add_reaction: "Thêm phản ứng",
       resolve: "Giải quyết",
+      reopen: "Mở lại",
       edit_comment: "Chỉnh sửa bình luận",
       delete_comment: "Xóa bình luận",
       more_actions: "Thêm hành động",

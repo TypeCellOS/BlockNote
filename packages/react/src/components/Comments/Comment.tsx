@@ -171,7 +171,7 @@ export const Comment = ({
           (thread.resolved ? (
             <Components.Generic.Toolbar.Button
               key={"reopen"}
-              mainTooltip="Re-open"
+              mainTooltip={dict.comments.actions.reopen}
               variant="compact"
               onClick={onReopen}
             >

@@ -403,9 +403,11 @@ export const de: Dictionary = {
     edited: "bearbeitet",
     save_button_text: "Speichern",
     cancel_button_text: "Abbrechen",
+    deleted_reference_text: "Originalinhalt gelöscht",
     actions: {
       add_reaction: "Reaktion hinzufügen",
       resolve: "Lösen",
+      reopen: "Wieder öffnen",
       edit_comment: "Kommentar bearbeiten",
       delete_comment: "Kommentar löschen",
       more_actions: "Weitere Aktionen",

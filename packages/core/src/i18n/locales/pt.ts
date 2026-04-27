@@ -376,9 +376,11 @@ export const pt: Dictionary = {
     edited: "editado",
     save_button_text: "Salvar",
     cancel_button_text: "Cancelar",
+    deleted_reference_text: "Conteúdo original excluído",
     actions: {
       add_reaction: "Adicionar reação",
       resolve: "Resolver",
+      reopen: "Reabrir",
       edit_comment: "Editar comentário",
       delete_comment: "Excluir comentário",
       more_actions: "Mais ações",

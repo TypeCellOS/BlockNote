@@ -424,9 +424,11 @@ export const ja: Dictionary = {
     edited: "編集済み",
     save_button_text: "保存",
     cancel_button_text: "キャンセル",
+    deleted_reference_text: "元のコンテンツが削除されました",
     actions: {
       add_reaction: "リアクションを追加",
       resolve: "解決",
+      reopen: "再開",
       edit_comment: "コメントを編集",
       delete_comment: "コメントを削除",
       more_actions: "その他の操作",
