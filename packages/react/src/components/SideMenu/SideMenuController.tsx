@@ -101,8 +101,11 @@ export const SideMenuController = (props: {
         open: show,
         placement: "left-start",
         whileElementsMounted,
-        middleware: [offset(tableWrapperOffset)],
         ...props.floatingUIOptions?.useFloatingOptions,
+        middleware: [
+          offset(tableWrapperOffset),
+          ...(props.floatingUIOptions?.useFloatingOptions?.middleware ?? []),
+        ],
       },
       useDismissProps: {
         enabled: false,

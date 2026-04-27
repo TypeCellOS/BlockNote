@@ -57,7 +57,7 @@ test.describe("Check Draghandle functionality", () => {
     // ~8px above the visible top of the table because it anchored to the
     // bn-block-content wrapper, ignoring the tableWrapper's top padding (the
     // space reserved for in-block row/column handles).
-    expect(Math.abs(handleY - tableY)).toBeLessThanOrEqual(5);
+    expect(Math.abs(handleY - tableY)).toBeLessThanOrEqual(2);
   });
 
   test("Draghandle should display next to correct block", async () => {
