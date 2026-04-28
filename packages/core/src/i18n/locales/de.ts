@@ -249,7 +249,7 @@ export const de: Dictionary = {
     text_title: "Text",
     background_title: "Hintergrund",
     colors: {
-      default: "Standard",
+      default: "Automatisch",
       gray: "Grau",
       brown: "Braun",
       red: "Rot",

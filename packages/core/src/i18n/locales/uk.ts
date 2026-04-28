@@ -254,7 +254,7 @@ export const uk: Dictionary = {
     text_title: "Текст",
     background_title: "Фон",
     colors: {
-      default: "За замовчуванням",
+      default: "Авто",
       gray: "Сірий",
       brown: "Коричневий",
       red: "Червоний",

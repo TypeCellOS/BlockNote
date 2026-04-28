@@ -197,7 +197,7 @@ export const fa = {
     text_title: "متن",
     background_title: "پس‌زمینه",
     colors: {
-      default: "پیش‌فرض",
+      default: "خودکار",
       gray: "خاکستری",
       brown: "قهوه‌ای",
       red: "قرمز",

@@ -221,7 +221,7 @@ export const pt: Dictionary = {
     text_title: "Texto",
     background_title: "Fundo",
     colors: {
-      default: "Padrão",
+      default: "Automático",
       gray: "Cinza",
       brown: "Marrom",
       red: "Vermelho",

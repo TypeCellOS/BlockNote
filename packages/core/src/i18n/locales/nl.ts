@@ -230,7 +230,7 @@ export const nl: Dictionary = {
     text_title: "Tekst",
     background_title: "Achtergrond",
     colors: {
-      default: "Standaard",
+      default: "Automatisch",
       gray: "Grijs",
       brown: "Bruin",
       red: "Rood",

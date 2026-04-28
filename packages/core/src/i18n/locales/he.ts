@@ -230,7 +230,7 @@ export const he: Dictionary = {
     text_title: "טקסט",
     background_title: "רקע",
     colors: {
-      default: "ברירת מחדל",
+      default: "אוטומטי",
       gray: "אפור",
       brown: "חום",
       red: "אדום",

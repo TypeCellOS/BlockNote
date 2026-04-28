@@ -214,7 +214,7 @@ export const ar: Dictionary = {
     text_title: "نص",
     background_title: "خلفية",
     colors: {
-      default: "افتراضي",
+      default: "تلقائي",
       gray: "رمادي",
       brown: "بني",
       red: "أحمر",

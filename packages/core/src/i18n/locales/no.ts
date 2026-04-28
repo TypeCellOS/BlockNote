@@ -247,7 +247,7 @@ export const no: Dictionary = {
     text_title: "Tekst",
     background_title: "Bakgrunn",
     colors: {
-      default: "Standard",
+      default: "Automatisk",
       gray: "Grå",
       brown: "Brun",
       red: "Rød",

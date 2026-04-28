@@ -270,7 +270,7 @@ export const zh: Dictionary = {
     text_title: "文本",
     background_title: "背景色",
     colors: {
-      default: "默认",
+      default: "自动",
       gray: "灰色",
       brown: "棕色",
       red: "红色",

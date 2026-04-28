@@ -269,7 +269,7 @@ export const ja: Dictionary = {
     text_title: "文字色",
     background_title: "背景色",
     colors: {
-      default: "デフォルト",
+      default: "自動",
       gray: "グレー",
       brown: "茶色",
       red: "赤",

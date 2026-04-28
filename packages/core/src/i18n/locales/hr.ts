@@ -242,7 +242,7 @@ export const hr: Dictionary = {
     text_title: "Tekst",
     background_title: "Pozadina",
     colors: {
-      default: "Zadano",
+      default: "Automatski",
       gray: "Siva",
       brown: "Smeđa",
       red: "Crvena",

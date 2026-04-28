@@ -242,7 +242,7 @@ export const ko: Dictionary = {
     text_title: "텍스트",
     background_title: "배경",
     colors: {
-      default: "기본",
+      default: "자동",
       gray: "회색",
       brown: "갈색",
       red: "빨간색",

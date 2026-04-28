@@ -228,7 +228,7 @@ export const sk = {
     text_title: "Text",
     background_title: "Pozadie",
     colors: {
-      default: "Predvolená",
+      default: "Automaticky",
       gray: "Sivá",
       brown: "Hnedá",
       red: "Červená",

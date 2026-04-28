@@ -242,7 +242,7 @@ export const is: Dictionary = {
     text_title: "Texti",
     background_title: "Bakgrunnur",
     colors: {
-      default: "Sjálfgefið",
+      default: "Sjálfvirkt",
       gray: "Grár",
       brown: "Brúnn",
       red: "Rauður",

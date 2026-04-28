@@ -220,7 +220,7 @@ export const pl: Dictionary = {
     text_title: "Tekst",
     background_title: "Tło",
     colors: {
-      default: "Domyślny",
+      default: "Automatyczny",
       gray: "Szary",
       brown: "Brązowy",
       red: "Czerwony",

@@ -229,7 +229,7 @@ export const en = {
     text_title: "Text",
     background_title: "Background",
     colors: {
-      default: "Default",
+      default: "Auto",
       gray: "Gray",
       brown: "Brown",
       red: "Red",

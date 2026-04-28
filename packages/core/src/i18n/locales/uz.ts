@@ -294,7 +294,7 @@ export const uz: Dictionary = {
     text_title: "Matn",
     background_title: "Fon",
     colors: {
-      default: "Standart",
+      default: "Avtomatik",
       gray: "Kulrang",
       brown: "Jigarrang",
       red: "Qizil",

@@ -228,7 +228,7 @@ export const vi: Dictionary = {
     text_title: "Văn bản",
     background_title: "Nền",
     colors: {
-      default: "Mặc định",
+      default: "Tự động",
       gray: "Xám",
       brown: "Nâu",
       red: "Đỏ",

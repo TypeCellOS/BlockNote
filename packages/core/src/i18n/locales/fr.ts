@@ -275,7 +275,7 @@ export const fr: Dictionary = {
     text_title: "Texte",
     background_title: "Fond",
     colors: {
-      default: "Défaut",
+      default: "Auto",
       gray: "Gris",
       brown: "Marron",
       red: "Rouge",
