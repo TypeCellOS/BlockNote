@@ -50,7 +50,11 @@ export const TableExtension = Extension.create({
           const $cell = selectionCell(state);
           const $nextCell = nextCell($cell, "vert", 1);
 
-          if ($nextCell && dispatch) {
+          if (!$nextCell) {
+            return false;
+          }
+
+          if (dispatch) {
             dispatch(
               state.tr
                 .setSelection(
