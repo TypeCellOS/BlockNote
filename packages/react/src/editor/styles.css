@@ -156,7 +156,7 @@
 }
 
 [data-style-type="textColor"][data-value="orange"],
-.bn-block:has(> .bn-block-content[data-text-color="broorangewn"]) {
+.bn-block:has(> .bn-block-content[data-text-color="orange"]) {
   color: var(--bn-colors-highlights-orange-text);
 }
 
@@ -201,7 +201,7 @@
 }
 
 [data-style-type="backgroundColor"][data-value="orange"],
-.bn-block:has(> .bn-block-content[data-background-color="broorangewn"]) {
+.bn-block:has(> .bn-block-content[data-background-color="orange"]) {
   background-color: var(--bn-colors-highlights-orange-background);
 }
 
