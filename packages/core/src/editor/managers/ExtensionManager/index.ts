@@ -385,6 +385,17 @@ export class ExtensionManager {
                 if (event.key !== "Enter") {
                   return false;
                 }
+                // Only trigger on plain Enter — modifier combos like
+                // Shift/Cmd/Ctrl/Alt+Enter are reserved for other handlers
+                // (e.g. soft-break, submit) and should fall through.
+                if (
+                  event.shiftKey ||
+                  event.ctrlKey ||
+                  event.metaKey ||
+                  event.altKey
+                ) {
+                  return false;
+                }
                 const { $cursor } = view.state.selection as TextSelection;
                 if (!$cursor) {
                   return false;
