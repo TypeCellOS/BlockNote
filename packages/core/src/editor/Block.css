@@ -127,6 +127,7 @@ NESTED BLOCKS
 
 /* HEADINGS*/
 [data-content-type="heading"] {
+  padding-top: 18px;
   --level: 3em;
 }
 [data-content-type="heading"][data-level="2"] {
