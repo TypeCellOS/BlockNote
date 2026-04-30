@@ -23,10 +23,21 @@ import { SideMenuProps } from "./SideMenuProps.js";
  * that reserves space for row/column handles) — without this, the side menu
  * floats above the visible top of the table.
  *
- * Assumes `placement: "left-start"`. Other placements map `crossAxis` to a
- * different visual axis.
+ * Only active for left/right placements (where `crossAxis` maps to vertical).
+ * Returns 0 for top/bottom placements to avoid horizontal misalignment if the
+ * export is reused outside its intended placement context.
+ *
+ * Note on composition: this is added unconditionally by `SideMenuController`.
+ * Consumer-supplied middleware is appended after, so any additional `offset(...)`
+ * from a consumer stacks with this one (Floating UI's offset middlewares are
+ * additive). For non-table blocks `tableWrapperOffset` returns 0, so the stack
+ * is a no-op there; for table blocks the compensation always applies.
  */
 export const tableWrapperOffset: OffsetOptions = (state) => {
+  const side = state.placement.split("-")[0];
+  if (side !== "left" && side !== "right") {
+    return 0;
+  }
   const { reference } = state.elements;
   const refEl =
     reference instanceof Element ? reference : reference.contextElement;
