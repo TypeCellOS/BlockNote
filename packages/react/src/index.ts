@@ -133,6 +133,11 @@ export * from "./schema/ReactBlockSpec.js";
 export * from "./schema/ReactInlineContentSpec.js";
 export * from "./schema/ReactStyleSpec.js";
 
+// TODO figure out the right API for this, but let's just stick with it for now
+// Re-exported so container-block authors can return `<NodeViewWrapper>` from
+// their `render` (the framework no longer auto-wraps containers).
+export { NodeViewWrapper } from "@tiptap/react";
+
 export * from "./util/elementOverflow.js";
 export * from "./util/mergeRefs.js";
 

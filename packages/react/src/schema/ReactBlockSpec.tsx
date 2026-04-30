@@ -33,11 +33,14 @@ export type ReactCustomBlockRenderProps<
 > = {
   block: BlockNoDefaults<Record<Config["type"], Config>, any, any>;
   editor: BlockNoteEditor<Record<Config["type"], Config>, any, any>;
-} & (Config["content"] extends "inline"
-  ? {
+} & (Config["content"] extends "table"
+  ? object
+  : {
+      // For inline-content blocks, points to where the inline text mounts.
+      // For container blocks, points to where child blocks mount. For other
+      // `content: "none"` blocks, this can be ignored.
       contentRef: (node: HTMLElement | null) => void;
-    }
-  : object);
+    });
 
 // extend BlockConfig but use a React render function
 export type ReactCustomBlockImplementation<
@@ -233,9 +236,31 @@ export function createReactBlockSpec<
       implementation: {
         ...blockImplementation,
         toExternalHTML(block, editor, context) {
+          const isContainer = !!editor.pmSchema.nodes[block.type]?.isInGroup(
+            "bnBlock",
+          );
           const BlockContent =
             blockImplementation.toExternalHTML || blockImplementation.render;
           const output = renderToDOMSpec((refCB) => {
+            const content = (
+              <BlockContent
+                block={block as any}
+                editor={editor as any}
+                contentRef={(element) => {
+                  refCB(element);
+                  if (element && !isContainer) {
+                    element.className = mergeCSSClasses(
+                      "bn-inline-content",
+                      element.className,
+                    );
+                  }
+                }}
+                context={context}
+              />
+            );
+            if (isContainer) {
+              return content;
+            }
             return (
               <BlockContentWrapper
                 blockType={block.type}
@@ -246,20 +271,7 @@ export function createReactBlockSpec<
                   blockImplementation.meta?.fileBlockAccept !== undefined
                 }
               >
-                <BlockContent
-                  block={block as any}
-                  editor={editor as any}
-                  contentRef={(element) => {
-                    refCB(element);
-                    if (element) {
-                      element.className = mergeCSSClasses(
-                        "bn-inline-content",
-                        element.className,
-                      );
-                    }
-                  }}
-                  context={context}
-                />
+                {content}
               </BlockContentWrapper>
             );
           }, editor);
@@ -274,12 +286,33 @@ export function createReactBlockSpec<
                 // only created once, so the block we get in the node view will
                 // be outdated. Therefore, we have to get the block in the
                 // `ReactNodeViewRenderer` instead.
-                const block = getBlockFromPos(
-                  props.getPos,
-                  editor,
-                  props.editor,
-                  blockConfig.type,
-                );
+                const isContainer = props.node.type.isInGroup("bnBlock");
+                let block;
+                if (isContainer) {
+                  // Container blocks are bnBlock-group nodes (no blockContainer
+                  // wrapper), so the id lives on `props.node.attrs.id`. The
+                  // standard getBlockFromPos walks up to a parent, which would
+                  // return the wrong node here.
+                  const id = (props.node.attrs as Record<string, any>).id;
+                  if (!id) {
+                    throw new Error(
+                      `Container block "${blockConfig.type}" is missing an id attribute.`,
+                    );
+                  }
+                  block = editor.getBlock(id);
+                  if (!block) {
+                    throw new Error(
+                      `Container block with id "${id}" not found.`,
+                    );
+                  }
+                } else {
+                  block = getBlockFromPos(
+                    props.getPos,
+                    editor,
+                    props.editor,
+                    blockConfig.type,
+                  );
+                }
 
                 const ref = useReactNodeView().nodeViewContentRef;
 
@@ -288,6 +321,32 @@ export function createReactBlockSpec<
                 }
 
                 const BlockContent = blockImplementation.render;
+                const content = (
+                  <BlockContent
+                    block={block as any}
+                    editor={editor as any}
+                    contentRef={(element) => {
+                      ref(element);
+                      if (element) {
+                        if (!isContainer) {
+                          element.className = mergeCSSClasses(
+                            "bn-inline-content",
+                            element.className,
+                          );
+                        }
+                        element.dataset.nodeViewContent = "";
+                      }
+                    }}
+                  />
+                );
+                if (isContainer) {
+                  // Container blocks own their entire DOM: the user's render
+                  // is responsible for returning a `<NodeViewWrapper>` (with
+                  // any `data-*` attrs they want exposed). The framework
+                  // doesn't insert any wrapping element — letting authors
+                  // build tag-pure structures (e.g. `<table>`/`<tr>`/`<td>`).
+                  return content;
+                }
                 return (
                   <BlockContentWrapper
                     blockType={block.type}
@@ -296,20 +355,7 @@ export function createReactBlockSpec<
                     isFileBlock={!!blockImplementation.meta?.fileBlockAccept}
                     domAttributes={this.blockContentDOMAttributes}
                   >
-                    <BlockContent
-                      block={block as any}
-                      editor={editor as any}
-                      contentRef={(element) => {
-                        ref(element);
-                        if (element) {
-                          element.className = mergeCSSClasses(
-                            "bn-inline-content",
-                            element.className,
-                          );
-                          element.dataset.nodeViewContent = "";
-                        }
-                      }}
-                    />
+                    {content}
                   </BlockContentWrapper>
                 );
               },
@@ -318,8 +364,29 @@ export function createReactBlockSpec<
               },
             )(this.props!) as ReturnType<BlockImplementation["render"]>;
           } else {
+            const isContainer = !!editor.pmSchema.nodes[block.type]?.isInGroup(
+              "bnBlock",
+            );
             const BlockContent = blockImplementation.render;
             const output = renderToDOMSpec((refCB) => {
+              const content = (
+                <BlockContent
+                  block={block as any}
+                  editor={editor as any}
+                  contentRef={(element) => {
+                    refCB(element);
+                    if (element && !isContainer) {
+                      element.className = mergeCSSClasses(
+                        "bn-inline-content",
+                        element.className,
+                      );
+                    }
+                  }}
+                />
+              );
+              if (isContainer) {
+                return content;
+              }
               return (
                 <BlockContentWrapper
                   blockType={block.type}
@@ -327,19 +394,7 @@ export function createReactBlockSpec<
                   propSchema={blockConfig.propSchema}
                   domAttributes={this.blockContentDOMAttributes}
                 >
-                  <BlockContent
-                    block={block as any}
-                    editor={editor as any}
-                    contentRef={(element) => {
-                      refCB(element);
-                      if (element) {
-                        element.className = mergeCSSClasses(
-                          "bn-inline-content",
-                          element.className,
-                        );
-                      }
-                    }}
-                  />
+                  {content}
                 </BlockContentWrapper>
               );
             }, editor);

@@ -1,7 +1,7 @@
 /** Define the main block types **/
 // import { Extension, Node } from "@tiptap/core";
 import type { Node, NodeViewRendererProps } from "@tiptap/core";
-import type { Fragment, Schema } from "prosemirror-model";
+import type { Fragment, Node as PMNode, Schema } from "prosemirror-model";
 import type { ViewMutationRecord } from "prosemirror-view";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type {
@@ -61,6 +61,34 @@ export interface BlockConfigMeta {
 }
 
 /**
+ * Configuration for a block that hosts other blocks as its body (a "container").
+ * When set, the block's ProseMirror node is emitted in the `bnBlock` /
+ * `childContainer` groups with `blockContainer{min,max}` content — the same
+ * shape that columns use today. Child blocks live on `block.children` at
+ * runtime (matching the column model). Requires `content: "none"`.
+ */
+export type ContainerConfig = {
+  /** Minimum number of child blocks. Defaults to 1. */
+  min?: number;
+  /** Maximum number of child blocks. Defaults to unbounded. */
+  max?: number;
+  /**
+   * Block types to seed the container with on first insert. Each entry
+   * produces one empty block of that type. Ignored when the inserted partial
+   * block already provides explicit `children`.
+   */
+  defaultBlocks?: string[];
+  /**
+   * Whether the block can be inserted at any position where a regular block
+   * goes — i.e. directly inside a `blockGroup` (the document root, or as a
+   * child of any other block). Defaults to `true`. Set to `false` for blocks
+   * that should only appear inside a specific schema-restricted parent (e.g.
+   * a `column` only ever lives inside a `columnList`).
+   */
+  topLevel?: boolean;
+};
+
+/**
  * BlockConfig contains the "schema" info about a Block type
  * i.e. what props it supports, what content it supports, etc.
  */
@@ -82,8 +110,14 @@ export interface BlockConfig<
    * The content that the block supports
    */
   content: C;
-  // TODO: how do you represent things that have nested content?
-  // e.g. tables, alerts (with title & content)
+  /**
+   * Marks this block as a container of other blocks. The block's PM node is
+   * emitted in the `bnBlock` / `childContainer` groups with `blockContainer+`
+   * content; child blocks are exposed on `block.children`. Requires
+   * `content: "none"`. Pass `true` for defaults or an object to constrain
+   * cardinality and seed the initial children.
+   */
+  container?: true | ContainerConfig;
 }
 
 /**
@@ -189,6 +223,7 @@ export type LooseBlockSpec<
       contentDOM?: HTMLElement;
       ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
       destroy?: () => void;
+      update?: (node: PMNode) => boolean | void;
     };
     toExternalHTML?: (
       block: any,
@@ -247,6 +282,7 @@ export type BlockSpecs = {
         contentDOM?: HTMLElement;
         ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
         destroy?: () => void;
+        update?: (node: PMNode) => boolean | void;
       };
       toExternalHTML?: (
         block: any,
@@ -511,6 +547,18 @@ export type BlockImplementation<
     contentDOM?: HTMLElement;
     ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
     destroy?: () => void;
+    // TODO this may not be the right API for this, but let's just stick with it for now
+    /**
+     * Optional NodeView update hook. Called when the underlying ProseMirror
+     * node's attributes change (or its decorations change). Return `false` to
+     * tell ProseMirror to destroy and recreate the NodeView (i.e. re-run
+     * `render` from scratch). Return `true` (or `undefined`) when you have
+     * patched `dom` in-place and PM should keep the existing view.
+     *
+     * Only honored for container blocks today; non-container blocks always
+     * recreate on attr changes.
+     */
+    update?: (node: PMNode) => boolean | void;
   };
 
   /**
