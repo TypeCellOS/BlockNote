@@ -1,3 +1,4 @@
+import { Extension } from "@tiptap/core";
 import { Node } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
@@ -158,101 +159,121 @@ export const CommentsExtension = createExtension(
     return {
       key: "comments",
       store,
-      prosemirrorPlugins: [
-        new Plugin<CommentsPluginState>({
-          key: PLUGIN_KEY,
-          state: {
-            init() {
-              return {
-                decorations: DecorationSet.empty,
-              };
-            },
-            apply(tr, state) {
-              const action = tr.getMeta(PLUGIN_KEY);
+      tiptapExtensions: [
+        CommentMark,
+        Extension.create({
+          name: "comments",
 
-              if (!tr.docChanged && !action) {
-                return state;
-              }
+          priority: 1500,
 
-              // only update threadPositions if the doc changed
-              const newThreadPositions = tr.docChanged
-                ? getUpdatedThreadPositions(tr.doc, markType)
-                : store.state.threadPositions;
+          addProseMirrorPlugins() {
+            return [
+              new Plugin<CommentsPluginState>({
+                key: PLUGIN_KEY,
+                state: {
+                  init() {
+                    return {
+                      decorations: DecorationSet.empty,
+                    };
+                  },
+                  apply(tr, state) {
+                    const action = tr.getMeta(PLUGIN_KEY);
 
-              if (
-                newThreadPositions.size > 0 ||
-                store.state.threadPositions.size > 0
-              ) {
-                // small optimization; don't emit event if threadPositions before / after were both empty
-                store.setState((prev) => ({
-                  ...prev,
-                  threadPositions: newThreadPositions,
-                }));
-              }
+                    if (!tr.docChanged && !action) {
+                      return state;
+                    }
 
-              // update decorations if doc or selected thread changed
-              const decorations = [] as any[];
+                    // only update threadPositions if the doc changed
+                    const newThreadPositions = tr.docChanged
+                      ? getUpdatedThreadPositions(tr.doc, markType)
+                      : store.state.threadPositions;
 
-              if (store.state.selectedThreadId) {
-                const selectedThreadPosition = newThreadPositions.get(
-                  store.state.selectedThreadId,
-                );
+                    if (
+                      newThreadPositions.size > 0 ||
+                      store.state.threadPositions.size > 0
+                    ) {
+                      // small optimization; don't emit event if threadPositions before / after were both empty
+                      store.setState((prev) => ({
+                        ...prev,
+                        threadPositions: newThreadPositions,
+                      }));
+                    }
 
-                if (selectedThreadPosition) {
-                  decorations.push(
-                    Decoration.inline(
-                      selectedThreadPosition.from,
-                      selectedThreadPosition.to,
-                      {
-                        class: "bn-thread-mark-selected",
-                      },
-                    ),
-                  );
-                }
-              }
+                    // update decorations if doc or selected thread changed
+                    const decorations = [] as any[];
 
-              return {
-                decorations: DecorationSet.create(tr.doc, decorations),
-              };
-            },
-          },
-          props: {
-            decorations(state) {
-              return (
-                PLUGIN_KEY.getState(state)?.decorations ?? DecorationSet.empty
-              );
-            },
-            handleClick: (view, pos, event) => {
-              if (event.button !== 0) {
-                return;
-              }
+                    if (store.state.selectedThreadId) {
+                      const selectedThreadPosition = newThreadPositions.get(
+                        store.state.selectedThreadId,
+                      );
 
-              const node = view.state.doc.nodeAt(pos);
+                      if (selectedThreadPosition) {
+                        decorations.push(
+                          Decoration.inline(
+                            selectedThreadPosition.from,
+                            selectedThreadPosition.to,
+                            {
+                              class: "bn-thread-mark-selected",
+                            },
+                          ),
+                        );
+                      }
+                    }
 
-              if (!node) {
-                // unselect
-                store.setState((prev) => ({
-                  ...prev,
-                  selectedThreadId: undefined,
-                }));
-                return;
-              }
+                    return {
+                      decorations: DecorationSet.create(tr.doc, decorations),
+                    };
+                  },
+                },
+                props: {
+                  decorations(state) {
+                    return (
+                      PLUGIN_KEY.getState(state)?.decorations ??
+                      DecorationSet.empty
+                    );
+                  },
+                  handleClick: (view, pos, event) => {
+                    if (event.button !== 0) {
+                      return false;
+                    }
 
-              const commentMark = node.marks.find(
-                (mark) =>
-                  mark.type.name === markType && mark.attrs.orphan !== true,
-              );
+                    const node = view.state.doc.nodeAt(pos);
 
-              const threadId = commentMark?.attrs.threadId as
-                | string
-                | undefined;
-              if (threadId !== store.state.selectedThreadId) {
-                store.setState((prev) => ({
-                  ...prev,
-                  selectedThreadId: threadId,
-                }));
-              }
-            },
+                    if (!node) {
+                      // unselect
+                      store.setState((prev) => ({
+                        ...prev,
+                        selectedThreadId: undefined,
+                      }));
+                      return false;
+                    }
+
+                    const commentMark = node.marks.find(
+                      (mark) =>
+                        mark.type.name === markType &&
+                        mark.attrs.orphan !== true,
+                    );
+
+                    const threadId = commentMark?.attrs.threadId as
+                      | string
+                      | undefined;
+
+                    // If the clicked thread is already selected, do nothing and let
+                    // other handlers process the event (e.g. navigating a link).
+                    if (threadId === store.state.selectedThreadId) {
+                      return false;
+                    }
+
+                    store.setState((prev) => ({
+                      ...prev,
+                      selectedThreadId: threadId,
+                    }));
+
+                    return true;
+                  },
+                },
+              }),
+            ];
           },
         }),
       ],
@@ -356,7 +377,6 @@ export const CommentsExtension = createExtension(
       },
       userStore,
       commentEditorSchema,
-      tiptapExtensions: [CommentMark],
     } as const;
   },
 );
