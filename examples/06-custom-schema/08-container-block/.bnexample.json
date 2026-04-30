@@ -1,0 +1,15 @@
+{
+  "playground": true,
+  "docs": true,
+  "author": "nickthesick",
+  "tags": [
+    "Intermediate",
+    "Blocks",
+    "Custom Schemas",
+    "Suggestion Menus",
+    "Slash Menu"
+  ],
+  "dependencies": {
+    "react-icons": "^5.5.0"
+  }
+}
