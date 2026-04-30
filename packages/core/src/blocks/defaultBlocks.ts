@@ -1,3 +1,4 @@
+import { InputRule } from "@tiptap/core";
 import Bold from "@tiptap/extension-bold";
 import Code from "@tiptap/extension-code";
 import Italic from "@tiptap/extension-italic";
@@ -136,7 +137,32 @@ export const defaultStyleSpecs = {
   italic: createStyleSpecFromTipTapMark(Italic, "boolean"),
   underline: createStyleSpecFromTipTapMark(Underline, "boolean"),
   strike: createStyleSpecFromTipTapMark(Strike, "boolean"),
-  code: createStyleSpecFromTipTapMark(Code, "boolean"),
+  code: createStyleSpecFromTipTapMark(
+    Code.extend({
+      // Extends the Code mark with an extra input rule that fires when a space is
+      // typed after the closing backtick. The default rule only fires when typing
+      // the closing backtick itself, so it misses the case where the user opens
+      // both backticks first, then writes content between them.
+      addInputRules() {
+        return [
+          ...(this.parent?.() ?? []),
+          new InputRule({
+            find: /(^|[^`])`([^`]+)`(?!`) $/,
+            handler: ({ state, range, match }) => {
+              const { tr, schema } = state;
+              const leadingChar = match[1];
+              const content = match[2];
+              tr.replaceWith(range.from + leadingChar.length, range.to, [
+                schema.text(content, [this.type.create()]),
+                schema.text(" "),
+              ]);
+            },
+          }),
+        ];
+      },
+    }),
+    "boolean",
+  ),
   textColor: TextColor,
   backgroundColor: BackgroundColor,
 } satisfies StyleSpecs;
