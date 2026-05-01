@@ -18,12 +18,8 @@ export const GridSuggestionMenuLoader = forwardRef<
   assertEmpty(rest);
 
   return (
-    <div
-      className={className}
-      style={{ gridColumn: `1 / ${columns + 1}` }}
-      ref={ref}
-    >
-      <MantineLoader type="dots" />
+    <div style={{ gridColumn: `1 / ${columns + 1}` }} ref={ref}>
+      <MantineLoader className={className} type="dots" />
     </div>
   );
 });
