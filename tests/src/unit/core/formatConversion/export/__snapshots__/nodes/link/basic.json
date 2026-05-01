@@ -16,8 +16,6 @@
               {
                 "attrs": {
                   "href": "https://www.website.com",
-                  "rel": "noopener noreferrer nofollow",
-                  "target": "_blank",
                 },
                 "type": "link",
               },

@@ -1,3 +1,4 @@
+import { InputRule, markInputRule } from "@tiptap/core";
 import Bold from "@tiptap/extension-bold";
 import Code from "@tiptap/extension-code";
 import Italic from "@tiptap/extension-italic";
@@ -136,7 +137,39 @@ export const defaultStyleSpecs = {
   italic: createStyleSpecFromTipTapMark(Italic, "boolean"),
   underline: createStyleSpecFromTipTapMark(Underline, "boolean"),
   strike: createStyleSpecFromTipTapMark(Strike, "boolean"),
-  code: createStyleSpecFromTipTapMark(Code, "boolean"),
+  code: createStyleSpecFromTipTapMark(
+    Code.extend({
+      addInputRules() {
+        return [
+          // Matches any string that starts with a backtick, ends with a
+          // backtick, and has any non-backtick characters in between. Copied
+          // from original input rule:
+          // https://github.com/ueberdosis/tiptap/blob/c27661c148cdbea9e1c80107e10d0a9d1775c4ec/packages/extension-code/src/code.ts#L116
+          markInputRule({
+            find: /(^|[^`])`([^`]+)`(?!`)$/,
+            type: this.type,
+          }),
+          // Extends the Code mark with an extra input rule that fires when a space is
+          // typed after the closing backtick. The default rule only fires when typing
+          // the closing backtick itself, so it misses the case where the user adds
+          // both backticks first, then writes content between them.
+          new InputRule({
+            find: /(^|[^`])`([^`]+)`(?!`) $/,
+            handler: ({ state, range, match }) => {
+              const { tr, schema } = state;
+              const leadingChar = match[1];
+              const content = match[2];
+              tr.replaceWith(range.from + leadingChar.length, range.to, [
+                schema.text(content, [this.type.create()]),
+                schema.text(" "),
+              ]);
+            },
+          }),
+        ];
+      },
+    }),
+    "boolean",
+  ),
   textColor: TextColor,
   backgroundColor: BackgroundColor,
 } satisfies StyleSpecs;

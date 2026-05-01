@@ -11,13 +11,6 @@ import { UNICODE_WHITESPACE_REGEX_GLOBAL } from "./helpers/whitespace.js";
 
 const DEFAULT_PROTOCOL = "https";
 
-const HTML_ATTRIBUTES = {
-  target: "_blank",
-  rel: "noopener noreferrer nofollow",
-  className: "bn-inline-content-section",
-  "data-inline-content-type": "link",
-};
-
 // Pre-compiled regex for URI protocol validation.
 // Allows: http, https, ftp, ftps, mailto, tel, callto, sms, cid, xmpp
 const ALLOWED_URI_REGEX =
@@ -83,7 +76,12 @@ export const Link = Mark.create<LinkOptions>({
 
   addOptions() {
     return {
-      HTMLAttributes: {},
+      HTMLAttributes: {
+        target: "_blank",
+        rel: "noopener noreferrer nofollow",
+        className: "bn-inline-content-section",
+        "data-inline-content-type": "link",
+      },
       editor: undefined,
       onClick: undefined,
       isValidLink: isAllowedUri,
@@ -97,12 +95,6 @@ export const Link = Mark.create<LinkOptions>({
         parseHTML(element) {
           return element.getAttribute("href");
         },
-      },
-      target: {
-        default: HTML_ATTRIBUTES.target,
-      },
-      rel: {
-        default: HTML_ATTRIBUTES.rel,
       },
     };
   },
@@ -127,12 +119,22 @@ export const Link = Mark.create<LinkOptions>({
     if (!this.options.isValidLink(HTMLAttributes.href)) {
       return [
         "a",
-        mergeAttributes(HTML_ATTRIBUTES, { ...HTMLAttributes, href: "" }),
+        mergeAttributes(
+          {
+            ...HTMLAttributes,
+            href: "",
+          },
+          this.options.HTMLAttributes,
+        ),
         0,
       ];
     }
 
-    return ["a", mergeAttributes(HTML_ATTRIBUTES, HTMLAttributes), 0];
+    return [
+      "a",
+      mergeAttributes(HTMLAttributes, this.options.HTMLAttributes),
+      0,
+    ];
   },
 
   addPasteRules() {

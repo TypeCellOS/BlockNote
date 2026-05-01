@@ -1,9 +1,5 @@
 import { test } from "../../setup/setupScript.js";
-import {
-  BULLET_LIST_SELECTOR,
-  H_ONE_BLOCK_SELECTOR,
-  MULTI_COLUMN_URL,
-} from "../../utils/const.js";
+import { BULLET_LIST_SELECTOR, MULTI_COLUMN_URL } from "../../utils/const.js";
 import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor.js";
 
 test.describe.configure({ mode: "serial" });
@@ -16,10 +12,11 @@ test.describe("Check Multi-Column Behaviour", () => {
   test("Check Delete before column", async ({ page }) => {
     await focusOnEditor(page);
 
-    await page.click(H_ONE_BLOCK_SELECTOR);
-    await page.keyboard.press("ArrowRight");
-    await page.keyboard.press("ArrowRight");
-    await page.keyboard.press("ArrowRight");
+    await page
+      // eslint-disable-next-line testing-library/prefer-screen-queries
+      .getByText("You can have multiple blocks in a column too")
+      .click({ position: { x: 1, y: 1 } });
+    await page.keyboard.press("ArrowLeft");
 
     await page.keyboard.press("Delete");
 
