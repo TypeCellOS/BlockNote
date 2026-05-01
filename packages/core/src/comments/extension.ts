@@ -225,7 +225,6 @@ export const CommentsExtension = createExtension(
               );
             },
             handleClick: (view, pos, event) => {
-              console.log("comments");
               if (event.button !== 0) {
                 return false;
               }
