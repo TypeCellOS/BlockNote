@@ -245,9 +245,20 @@ export const CommentsExtension = createExtension(
                   mark.type.name === markType && mark.attrs.orphan !== true,
               );
 
-              const threadId = commentMark?.attrs.threadId as
-                | string
-                | undefined;
+              if (!commentMark) {
+                // Clicked outside any comment thread. Deselect if needed but
+                // don't consume the event so other handlers (e.g. link
+                // navigation) can process it.
+                if (store.state.selectedThreadId !== undefined) {
+                  store.setState((prev) => ({
+                    ...prev,
+                    selectedThreadId: undefined,
+                  }));
+                }
+                return false;
+              }
+
+              const threadId = commentMark.attrs.threadId as string;
 
               // If the clicked thread is already selected, do nothing and let
               // other handlers process the event (e.g. navigating a link).
