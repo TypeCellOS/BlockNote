@@ -8,7 +8,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test.describe("Check Comments functionality", () => {
-  test.skip("Should preserve existing comments when adding a link", async ({
+  test("Should preserve existing comments when adding a link", async ({
     page,
   }) => {
     await focusOnEditor(page);

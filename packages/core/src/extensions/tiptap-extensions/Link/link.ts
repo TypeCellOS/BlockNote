@@ -2,6 +2,7 @@ import type { PasteRuleMatch } from "@tiptap/core";
 import { Mark, markPasteRule, mergeAttributes } from "@tiptap/core";
 import type { Plugin } from "@tiptap/pm/state";
 import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import { createExtension } from "../../../editor/BlockNoteExtension.js";
 import { autolink } from "./helpers/autolink.js";
 import { findLinks } from "./helpers/linkDetector.js";
 import { clickHandler } from "./helpers/clickHandler.js";
@@ -73,8 +74,6 @@ export type LinkOptions = {
  */
 export const Link = Mark.create<LinkOptions>({
   name: "link",
-
-  priority: 1000,
 
   keepOnSplit: false,
 
@@ -205,3 +204,33 @@ export const Link = Mark.create<LinkOptions>({
     return plugins;
   },
 });
+
+type LinkExtensionOptions = {
+  HTMLAttributes?: Record<string, any>;
+  onClick?: (
+    event: MouseEvent,
+    editor: BlockNoteEditor<any, any, any>,
+  ) => boolean | void;
+  isValidLink?: (href: string) => boolean;
+};
+
+/**
+ * BlockNote extension wrapping the {@link Link} TipTap mark. Wrapping the mark
+ * lets other extensions order their click handlers relative to the link click
+ * handler via `runsBefore: ["link"]`.
+ */
+export const LinkExtension = createExtension<any, LinkExtensionOptions>(
+  ({ editor, options }) => {
+    return {
+      key: "link",
+      tiptapExtensions: [
+        Link.configure({
+          HTMLAttributes: options.HTMLAttributes ?? {},
+          editor,
+          onClick: options.onClick,
+          ...(options.isValidLink ? { isValidLink: options.isValidLink } : {}),
+        }),
+      ],
+    } as const;
+  },
+);

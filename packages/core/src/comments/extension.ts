@@ -1,4 +1,3 @@
-import { Extension } from "@tiptap/core";
 import { Node } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
@@ -159,121 +158,111 @@ export const CommentsExtension = createExtension(
     return {
       key: "comments",
       store,
-      tiptapExtensions: [
-        CommentMark,
-        Extension.create({
-          name: "comments",
+      runsBefore: ["link"],
+      tiptapExtensions: [CommentMark],
+      prosemirrorPlugins: [
+        new Plugin<CommentsPluginState>({
+          key: PLUGIN_KEY,
+          state: {
+            init() {
+              return {
+                decorations: DecorationSet.empty,
+              };
+            },
+            apply(tr, state) {
+              const action = tr.getMeta(PLUGIN_KEY);
 
-          priority: 1500,
+              if (!tr.docChanged && !action) {
+                return state;
+              }
 
-          addProseMirrorPlugins() {
-            return [
-              new Plugin<CommentsPluginState>({
-                key: PLUGIN_KEY,
-                state: {
-                  init() {
-                    return {
-                      decorations: DecorationSet.empty,
-                    };
-                  },
-                  apply(tr, state) {
-                    const action = tr.getMeta(PLUGIN_KEY);
+              // only update threadPositions if the doc changed
+              const newThreadPositions = tr.docChanged
+                ? getUpdatedThreadPositions(tr.doc, markType)
+                : store.state.threadPositions;
 
-                    if (!tr.docChanged && !action) {
-                      return state;
-                    }
+              if (
+                newThreadPositions.size > 0 ||
+                store.state.threadPositions.size > 0
+              ) {
+                // small optimization; don't emit event if threadPositions before / after were both empty
+                store.setState((prev) => ({
+                  ...prev,
+                  threadPositions: newThreadPositions,
+                }));
+              }
 
-                    // only update threadPositions if the doc changed
-                    const newThreadPositions = tr.docChanged
-                      ? getUpdatedThreadPositions(tr.doc, markType)
-                      : store.state.threadPositions;
+              // update decorations if doc or selected thread changed
+              const decorations = [] as any[];
 
-                    if (
-                      newThreadPositions.size > 0 ||
-                      store.state.threadPositions.size > 0
-                    ) {
-                      // small optimization; don't emit event if threadPositions before / after were both empty
-                      store.setState((prev) => ({
-                        ...prev,
-                        threadPositions: newThreadPositions,
-                      }));
-                    }
+              if (store.state.selectedThreadId) {
+                const selectedThreadPosition = newThreadPositions.get(
+                  store.state.selectedThreadId,
+                );
 
-                    // update decorations if doc or selected thread changed
-                    const decorations = [] as any[];
+                if (selectedThreadPosition) {
+                  decorations.push(
+                    Decoration.inline(
+                      selectedThreadPosition.from,
+                      selectedThreadPosition.to,
+                      {
+                        class: "bn-thread-mark-selected",
+                      },
+                    ),
+                  );
+                }
+              }
 
-                    if (store.state.selectedThreadId) {
-                      const selectedThreadPosition = newThreadPositions.get(
-                        store.state.selectedThreadId,
-                      );
+              return {
+                decorations: DecorationSet.create(tr.doc, decorations),
+              };
+            },
+          },
+          props: {
+            decorations(state) {
+              return (
+                PLUGIN_KEY.getState(state)?.decorations ?? DecorationSet.empty
+              );
+            },
+            handleClick: (view, pos, event) => {
+              console.log("comments");
+              if (event.button !== 0) {
+                return false;
+              }
 
-                      if (selectedThreadPosition) {
-                        decorations.push(
-                          Decoration.inline(
-                            selectedThreadPosition.from,
-                            selectedThreadPosition.to,
-                            {
-                              class: "bn-thread-mark-selected",
-                            },
-                          ),
-                        );
-                      }
-                    }
+              const node = view.state.doc.nodeAt(pos);
 
-                    return {
-                      decorations: DecorationSet.create(tr.doc, decorations),
-                    };
-                  },
-                },
-                props: {
-                  decorations(state) {
-                    return (
-                      PLUGIN_KEY.getState(state)?.decorations ??
-                      DecorationSet.empty
-                    );
-                  },
-                  handleClick: (view, pos, event) => {
-                    if (event.button !== 0) {
-                      return false;
-                    }
+              if (!node) {
+                // unselect
+                store.setState((prev) => ({
+                  ...prev,
+                  selectedThreadId: undefined,
+                }));
+                return false;
+              }
 
-                    const node = view.state.doc.nodeAt(pos);
+              const commentMark = node.marks.find(
+                (mark) =>
+                  mark.type.name === markType && mark.attrs.orphan !== true,
+              );
 
-                    if (!node) {
-                      // unselect
-                      store.setState((prev) => ({
-                        ...prev,
-                        selectedThreadId: undefined,
-                      }));
-                      return false;
-                    }
+              const threadId = commentMark?.attrs.threadId as
+                | string
+                | undefined;
 
-                    const commentMark = node.marks.find(
-                      (mark) =>
-                        mark.type.name === markType &&
-                        mark.attrs.orphan !== true,
-                    );
+              // If the clicked thread is already selected, do nothing and let
+              // other handlers process the event (e.g. navigating a link).
+              if (threadId === store.state.selectedThreadId) {
+                return false;
+              }
 
-                    const threadId = commentMark?.attrs.threadId as
-                      | string
-                      | undefined;
+              store.setState((prev) => ({
+                ...prev,
+                selectedThreadId: threadId,
+              }));
 
-                    // If the clicked thread is already selected, do nothing and let
-                    // other handlers process the event (e.g. navigating a link).
-                    if (threadId === store.state.selectedThreadId) {
-                      return false;
-                    }
-
-                    store.setState((prev) => ({
-                      ...prev,
-                      selectedThreadId: threadId,
-                    }));
-
-                    return true;
-                  },
-                },
-              }),
-            ];
+              return true;
+            },
           },
         }),
       ],
