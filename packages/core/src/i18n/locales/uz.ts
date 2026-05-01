@@ -294,7 +294,7 @@ export const uz: Dictionary = {
     text_title: "Matn",
     background_title: "Fon",
     colors: {
-      default: "Standart",
+      default: "Avtomatik",
       gray: "Kulrang",
       brown: "Jigarrang",
       red: "Qizil",
@@ -417,9 +417,11 @@ export const uz: Dictionary = {
     edited: "tahrirlangan",
     save_button_text: "Saqlash",
     cancel_button_text: "Bekor qilish",
+    deleted_reference_text: "Asl tarkib o‘chirildi",
     actions: {
       add_reaction: "Reaksiya qo‘shish",
       resolve: "Hal qilish",
+      reopen: "Qayta ochish",
       edit_comment: "Izohni tahrirlash",
       delete_comment: "Izohni o‘chirish",
       more_actions: "Boshqa amallar",

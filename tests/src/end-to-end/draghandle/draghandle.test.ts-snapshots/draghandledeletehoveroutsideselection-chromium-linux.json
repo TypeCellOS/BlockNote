@@ -1,0 +1,96 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "blockGroup",
+      "content": [
+        {
+          "type": "blockContainer",
+          "attrs": {
+            "id": "2"
+          },
+          "content": [
+            {
+              "type": "heading",
+              "attrs": {
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left",
+                "level": 2,
+                "isToggleable": false
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Heading 2"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "blockContainer",
+          "attrs": {
+            "id": "3"
+          },
+          "content": [
+            {
+              "type": "heading",
+              "attrs": {
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left",
+                "level": 3,
+                "isToggleable": false
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Heading 3"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "blockContainer",
+          "attrs": {
+            "id": "4"
+          },
+          "content": [
+            {
+              "type": "bulletListItem",
+              "attrs": {
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Bullet List"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "blockContainer",
+          "attrs": {
+            "id": "1"
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

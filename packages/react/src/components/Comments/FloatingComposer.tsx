@@ -62,7 +62,7 @@ export function FloatingComposer<
           >
             <Components.Generic.Toolbar.Button
               className={"bn-button"}
-              mainTooltip="Save"
+              mainTooltip={dict.comments.save_button_text}
               variant="compact"
               isDisabled={isEmpty}
               onClick={async () => {
@@ -81,7 +81,7 @@ export function FloatingComposer<
                 editor.focus();
               }}
             >
-              Save
+              {dict.comments.save_button_text}
             </Components.Generic.Toolbar.Button>
           </Components.Generic.Toolbar.Root>
         )}

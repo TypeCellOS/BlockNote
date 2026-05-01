@@ -5,7 +5,7 @@ import {
   Extension as TiptapExtension,
 } from "@tiptap/core";
 import { Gapcursor } from "@tiptap/extensions/gap-cursor";
-import { Link } from "../../../extensions/tiptap-extensions/Link/link.js";
+import { LinkExtension } from "../../../extensions/tiptap-extensions/Link/link.js";
 import { Text } from "@tiptap/extension-text";
 import { createDropFileExtension } from "../../../api/clipboard/fromClipboard/fileDropExtension.js";
 import { createPasteFromClipboardExtension } from "../../../api/clipboard/fromClipboard/pasteExtension.js";
@@ -73,14 +73,6 @@ export function getDefaultTiptapExtensions(
     SuggestionAddMark,
     SuggestionDeleteMark,
     SuggestionModificationMark,
-    Link.configure({
-      HTMLAttributes: options.links?.HTMLAttributes ?? {},
-      editor,
-      onClick: options.links?.onClick,
-      ...(options.links?.isValidLink
-        ? { isValidLink: options.links.isValidLink }
-        : {}),
-    }),
     ...(Object.values(editor.schema.styleSpecs).map((styleSpec) => {
       return styleSpec.implementation.mark.configure({
         editor: editor,
@@ -169,6 +161,13 @@ export function getDefaultExtensions(
     DropCursorExtension(options),
     FilePanelExtension(options),
     FormattingToolbarExtension(options),
+    LinkExtension({
+      HTMLAttributes: options.links?.HTMLAttributes ?? {},
+      onClick: options.links?.onClick,
+      ...(options.links?.isValidLink
+        ? { isValidLink: options.links.isValidLink }
+        : {}),
+    }),
     LinkToolbarExtension(options),
     NodeSelectionKeyboardExtension(),
     PlaceholderExtension(options),

@@ -43,6 +43,10 @@ export const ALERT_BLOCK_URL = !process.env.RUN_IN_DOCKER
   ? `http://localhost:${PORT}/custom-schema/alert-block?hideMenu`
   : `http://host.docker.internal:${PORT}/custom-schema/alert-block?hideMenu`;
 
+export const NON_EDITABLE_BLOCK_URL = !process.env.RUN_IN_DOCKER
+  ? `http://localhost:${PORT}/custom-schema/non-editable-block?hideMenu`
+  : `http://host.docker.internal:${PORT}/custom-schema/non-editable-block?hideMenu`;
+
 export const COMMENTS_URL = !process.env.RUN_IN_DOCKER
   ? `http://localhost:${PORT}/collaboration/comments-testing?hideMenu`
   : `http://host.docker.internal:${PORT}/collaboration/comments-testing?hideMenu`;

@@ -270,7 +270,7 @@ export const zh: Dictionary = {
     text_title: "文本",
     background_title: "背景色",
     colors: {
-      default: "默认",
+      default: "自动",
       gray: "灰色",
       brown: "棕色",
       red: "红色",
@@ -425,9 +425,11 @@ export const zh: Dictionary = {
     edited: "已编辑",
     save_button_text: "保存",
     cancel_button_text: "取消",
+    deleted_reference_text: "原始内容已删除",
     actions: {
       add_reaction: "添加反应",
       resolve: "解决",
+      reopen: "重新打开",
       edit_comment: "编辑评论",
       delete_comment: "删除评论",
       more_actions: "更多操作",

@@ -66,6 +66,7 @@
     "lint": "eslint src --max-warnings 0",
     "test": "NODE_EXTRA_CA_CERTS=\"$(mkcert -CAROOT)/rootCA.pem\" vitest --run",
     "test-watch": "NODE_EXTRA_CA_CERTS=\"$(mkcert -CAROOT)/rootCA.pem\" vitest watch",
+    "rename-msw-snapshots": "node scripts/rename-msw-snapshots.mjs",
     "email": "email dev"
   },
   "dependencies": {

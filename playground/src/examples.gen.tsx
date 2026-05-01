@@ -1415,6 +1415,27 @@
         "readme": "This example shows how you can configure the editor's default blocks. Specifically, heading blocks are made to only support levels 1-3, and cannot be toggleable.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Default Schema](/docs/foundations/schemas)\n- [Custom Schemas](/docs/features/custom-schemas)"
       },
       {
+        "projectSlug": "non-editable-block",
+        "fullSlug": "custom-schema/non-editable-block",
+        "pathFromRoot": "examples/06-custom-schema/08-non-editable-block",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "matthewlipski",
+          "tags": [
+            "Intermediate",
+            "Blocks",
+            "Custom Schemas"
+          ]
+        },
+        "title": "Non-Editable Block",
+        "group": {
+          "pathFromRoot": "examples/06-custom-schema",
+          "slug": "custom-schema"
+        },
+        "readme": "In this example, we create a custom block which renders a simple HTML paragraph with placeholder text. The block has no editable content.\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)"
+      },
+      {
         "projectSlug": "draggable-inline-content",
         "fullSlug": "custom-schema/draggable-inline-content",
         "pathFromRoot": "examples/06-custom-schema/draggable-inline-content",

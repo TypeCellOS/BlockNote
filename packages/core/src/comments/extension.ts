@@ -158,6 +158,8 @@ export const CommentsExtension = createExtension(
     return {
       key: "comments",
       store,
+      runsBefore: ["link"],
+      tiptapExtensions: [CommentMark],
       prosemirrorPlugins: [
         new Plugin<CommentsPluginState>({
           key: PLUGIN_KEY,
@@ -224,7 +226,7 @@ export const CommentsExtension = createExtension(
             },
             handleClick: (view, pos, event) => {
               if (event.button !== 0) {
-                return;
+                return false;
               }
 
               const node = view.state.doc.nodeAt(pos);
@@ -235,7 +237,7 @@ export const CommentsExtension = createExtension(
                   ...prev,
                   selectedThreadId: undefined,
                 }));
-                return;
+                return false;
               }
 
               const commentMark = node.marks.find(
@@ -243,15 +245,33 @@ export const CommentsExtension = createExtension(
                   mark.type.name === markType && mark.attrs.orphan !== true,
               );
 
-              const threadId = commentMark?.attrs.threadId as
-                | string
-                | undefined;
-              if (threadId !== store.state.selectedThreadId) {
-                store.setState((prev) => ({
-                  ...prev,
-                  selectedThreadId: threadId,
-                }));
+              if (!commentMark) {
+                // Clicked outside any comment thread. Deselect if needed but
+                // don't consume the event so other handlers (e.g. link
+                // navigation) can process it.
+                if (store.state.selectedThreadId !== undefined) {
+                  store.setState((prev) => ({
+                    ...prev,
+                    selectedThreadId: undefined,
+                  }));
+                }
+                return false;
               }
+
+              const threadId = commentMark.attrs.threadId as string;
+
+              // If the clicked thread is already selected, do nothing and let
+              // other handlers process the event (e.g. navigating a link).
+              if (threadId === store.state.selectedThreadId) {
+                return false;
+              }
+
+              store.setState((prev) => ({
+                ...prev,
+                selectedThreadId: threadId,
+              }));
+
+              return true;
             },
           },
         }),
@@ -356,7 +376,6 @@ export const CommentsExtension = createExtension(
       },
       userStore,
       commentEditorSchema,
-      tiptapExtensions: [CommentMark],
     } as const;
   },
 );

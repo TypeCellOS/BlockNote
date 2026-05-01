@@ -49,4 +49,22 @@ test.describe("Check Table interactions", () => {
 
     await compareDocToSnapshot(page, "arrowKeyCells.json");
   });
+  test("Enter should move to cell below", async ({ page }) => {
+    await focusOnEditor(page);
+    await executeSlashCommand(page, "table");
+    await page.keyboard.type("Top");
+    await page.keyboard.press("Enter");
+    await page.keyboard.type("Bottom");
+
+    await compareDocToSnapshot(page, "enterMovesToCellBelow.json");
+  });
+  test("Shift+Enter should create a new line within cell", async ({ page }) => {
+    await focusOnEditor(page);
+    await executeSlashCommand(page, "table");
+    await page.keyboard.type("Line 1");
+    await page.keyboard.press("Shift+Enter");
+    await page.keyboard.type("Line 2");
+
+    await compareDocToSnapshot(page, "shiftEnterNewLineInCell.json");
+  });
 });

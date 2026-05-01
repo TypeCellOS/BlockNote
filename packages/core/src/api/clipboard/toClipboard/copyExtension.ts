@@ -145,11 +145,13 @@ export function selectedFragmentToHTML<
   return { clipboardHTML, externalHTML, markdown };
 }
 
-const checkIfSelectionInNonEditableBlock = () => {
-  // Let browser handle event if selection is empty (nothing
-  // happens).
-  const selection = window.getSelection();
-  if (!selection || selection.isCollapsed) {
+const checkIfSelectionInNonEditableBlock = (view: EditorView) => {
+  // Use ProseMirror's internal selection state to check for empty selection.
+  // window.getSelection() returns null or a collapsed selection inside Shadow
+  // DOM (Firefox, Safari, and Chromium edge cases), causing this guard to
+  // misfire and silently skip clipboard writes. view.state.selection is always
+  // accurate regardless of DOM mode.
+  if (view.state.selection.empty) {
     return true;
   }
 
@@ -158,16 +160,19 @@ const checkIfSelectionInNonEditableBlock = () => {
   // non-editable block. We only need to check one node as it's
   // not possible for the browser selection to start in an
   // editable block and end in a non-editable one.
-  let node = selection.focusNode;
-  while (node) {
-    if (
-      node instanceof HTMLElement &&
-      node.getAttribute("contenteditable") === "false"
-    ) {
-      return true;
-    }
+  const selection = window.getSelection();
+  if (selection && !selection.isCollapsed) {
+    let node = selection.focusNode;
+    while (node) {
+      if (
+        node instanceof HTMLElement &&
+        node.getAttribute("contenteditable") === "false"
+      ) {
+        return true;
+      }
 
-    node = node.parentElement;
+      node = node.parentElement;
+    }
   }
 
   return false;
@@ -213,7 +218,7 @@ export const createCopyToClipboardExtension = <
           props: {
             handleDOMEvents: {
               copy(view, event) {
-                if (checkIfSelectionInNonEditableBlock()) {
+                if (checkIfSelectionInNonEditableBlock(view)) {
                   return true;
                 }
 
@@ -222,7 +227,7 @@ export const createCopyToClipboardExtension = <
                 return true;
               },
               cut(view, event) {
-                if (checkIfSelectionInNonEditableBlock()) {
+                if (checkIfSelectionInNonEditableBlock(view)) {
                   return true;
                 }
 
