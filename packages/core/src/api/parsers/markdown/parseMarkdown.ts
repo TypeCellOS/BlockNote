@@ -1,6 +1,7 @@
 import { Schema } from "prosemirror-model";
 import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
+import remarkBreaks from "remark-breaks";
 import remarkRehype, {
   defaultHandlers as remarkRehypeDefaultHandlers,
 } from "remark-rehype";
@@ -80,6 +81,7 @@ export function markdownToHTML(markdown: string): string {
   const htmlString = unified()
     .use(remarkParse)
     .use(remarkGfm)
+    .use(remarkBreaks)
     .use(remarkRehype, {
       handlers: {
         ...(remarkRehypeDefaultHandlers as any),
