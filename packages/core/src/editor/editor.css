@@ -20,26 +20,6 @@
   padding: 0;
 }
 
-/*
-bn-root should be applied to all top-level elements
-
-This includes the Prosemirror editor, but also <div> element such as 
-Tippy popups that are appended to document.body directly
-*/
-.bn-root {
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-}
-
-.bn-root *,
-.bn-root *::before,
-.bn-root *::after {
-  -webkit-box-sizing: inherit;
-  -moz-box-sizing: inherit;
-  box-sizing: inherit;
-}
-
 /* reset styles, they will be set on blockContent */
 .bn-default-styles p,
 .bn-default-styles h1,
@@ -100,6 +80,11 @@ Tippy popups that are appended to document.body directly
    hidden. So setting it to an extremely low value instead makes the element
    functionally invisible while not affecting the drag preview itself. */
   opacity: 0.001;
+  /* The element is kept in the DOM after setDragImage captures its snapshot,
+   so it can overlap the editor and block drops in that area. Disabling
+   pointer-events lets drag/drop events pass through to the editor while
+   leaving the captured preview unaffected. */
+  pointer-events: none;
 }
 
 .bn-editor .bn-collaboration-cursor__base {

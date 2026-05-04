@@ -15,7 +15,6 @@ export type InlineContentConfig = CustomInlineContentConfig | "text" | "link";
 
 // InlineContentImplementation contains the "implementation" info about an InlineContent element
 // such as the functions / Nodes required to render and / or serialize it
-// @ts-ignore
 export type InlineContentImplementation<T extends InlineContentConfig> =
   T extends "link" | "text"
     ? undefined
@@ -146,7 +145,7 @@ export type InlineContent<
   T extends StyleSchema,
 > = InlineContentFromConfig<I[keyof I], T>;
 
-type PartialInlineContentElement<
+export type PartialInlineContentElement<
   I extends InlineContentSchema,
   T extends StyleSchema,
 > = PartialInlineContentFromConfig<I[keyof I], T>;

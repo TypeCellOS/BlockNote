@@ -466,6 +466,8 @@ export class TableHandlesView implements PluginView {
     event.preventDefault();
 
     const { draggingState, colIndex, rowIndex } = this.state;
+    // Clear so a re-dispatched drop short-circuits above (issue #2691).
+    this.state.draggingState = undefined;
 
     const columnWidths = this.state.block.content.columnWidths;
 
@@ -906,6 +908,20 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
      */
     unfreezeHandles() {
       view!.menuFrozen = false;
+    },
+
+    /**
+     * Hides the table handles unless they are currently frozen (e.g. a
+     * handle menu is open). Used to dismiss the handles on scroll without
+     * interfering with open submenus.
+     */
+    hideHandlesIfNotFrozen() {
+      if (!view!.menuFrozen && view!.state?.show) {
+        view!.state.show = false;
+        view!.state.showAddOrRemoveRowsButton = false;
+        view!.state.showAddOrRemoveColumnsButton = false;
+        view!.emitUpdate();
+      }
     },
 
     getCellsAtRowHandle(

@@ -41,7 +41,7 @@ export default defineConfig((conf) => ({
             ...pkg.dependencies,
             ...((pkg as any).peerDependencies || {}),
             ...pkg.devDependencies,
-          }).includes(source)
+          }).some((dep) => source === dep || source.startsWith(dep + "/"))
         ) {
           return true;
         }
@@ -62,7 +62,6 @@ export default defineConfig((conf) => ({
           react: "React",
           "react-dom": "ReactDOM",
         },
-        interop: "compat", // https://rollupjs.org/migration/#changed-defaults
       },
     },
   },

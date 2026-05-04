@@ -230,7 +230,7 @@ export const nl: Dictionary = {
     text_title: "Tekst",
     background_title: "Achtergrond",
     colors: {
-      default: "Standaard",
+      default: "Automatisch",
       gray: "Grijs",
       brown: "Bruin",
       red: "Rood",
@@ -384,9 +384,11 @@ export const nl: Dictionary = {
     edited: "bewerkt",
     save_button_text: "Opslaan",
     cancel_button_text: "Annuleren",
+    deleted_reference_text: "Originele inhoud verwijderd",
     actions: {
       add_reaction: "Reactie toevoegen",
       resolve: "Oplossen",
+      reopen: "Heropenen",
       edit_comment: "Reactie bewerken",
       delete_comment: "Reactie verwijderen",
       more_actions: "Meer acties",

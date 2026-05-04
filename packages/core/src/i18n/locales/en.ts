@@ -229,7 +229,7 @@ export const en = {
     text_title: "Text",
     background_title: "Background",
     colors: {
-      default: "Default",
+      default: "Auto",
       gray: "Gray",
       brown: "Brown",
       red: "Red",
@@ -384,9 +384,11 @@ export const en = {
     edited: "edited",
     save_button_text: "Save",
     cancel_button_text: "Cancel",
+    deleted_reference_text: "Original content deleted",
     actions: {
       add_reaction: "Add reaction",
       resolve: "Resolve",
+      reopen: "Re-open",
       edit_comment: "Edit comment",
       delete_comment: "Delete comment",
       more_actions: "More actions",

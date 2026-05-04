@@ -275,7 +275,7 @@ export const fr: Dictionary = {
     text_title: "Texte",
     background_title: "Fond",
     colors: {
-      default: "Défaut",
+      default: "Auto",
       gray: "Gris",
       brown: "Marron",
       red: "Rouge",
@@ -430,9 +430,11 @@ export const fr: Dictionary = {
     edited: "modifié",
     save_button_text: "Enregistrer",
     cancel_button_text: "Annuler",
+    deleted_reference_text: "Contenu d'origine supprimé",
     actions: {
       add_reaction: "Ajouter une réaction",
       resolve: "Résoudre",
+      reopen: "Rouvrir",
       edit_comment: "Modifier le commentaire",
       delete_comment: "Supprimer le commentaire",
       more_actions: "Plus d'actions",

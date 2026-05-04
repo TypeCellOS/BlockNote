@@ -10,6 +10,7 @@ import React, {
   ReactNode,
   Ref,
   useCallback,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -30,6 +31,7 @@ import {
   BlockNoteViewContext,
   useBlockNoteViewContext,
 } from "./BlockNoteViewContext.js";
+import { useComponentsContext } from "./ComponentsContext.js";
 import { Portals, getContentComponent } from "./EditorContent.js";
 import { ElementRenderer } from "./ElementRenderer.js";
 
@@ -137,6 +139,32 @@ function BlockNoteViewComponent<
   const editorColorScheme =
     theme || (defaultColorScheme === "dark" ? "dark" : "light");
 
+  // Disable default UI components if no components context is found.
+  const componentsContext = useComponentsContext();
+  const defaultUIProps: BlockNoteDefaultUIProps = useMemo(
+    () => ({
+      formattingToolbar: componentsContext ? formattingToolbar : false,
+      linkToolbar: componentsContext ? linkToolbar : false,
+      sideMenu: componentsContext ? sideMenu : false,
+      slashMenu: componentsContext ? slashMenu : false,
+      filePanel: componentsContext ? filePanel : false,
+      tableHandles: componentsContext ? tableHandles : false,
+      emojiPicker: componentsContext ? emojiPicker : false,
+      comments: componentsContext ? comments : false,
+    }),
+    [
+      comments,
+      componentsContext,
+      emojiPicker,
+      filePanel,
+      formattingToolbar,
+      linkToolbar,
+      sideMenu,
+      slashMenu,
+      tableHandles,
+    ],
+  );
+
   useEditorChange(onChange || emptyFn, editor);
   useEditorSelectionChange(onSelectionChange || emptyFn, editor);
 
@@ -146,6 +174,18 @@ function BlockNoteViewComponent<
     },
     [editor],
   );
+
+  useEffect(() => {
+    if (!editor.portalElement) {
+      throw new Error("Portal element not found");
+    }
+    editor.portalElement.className = mergeCSSClasses(
+      "bn-root",
+      editorColorScheme,
+      className || "",
+    );
+    editor.portalElement.setAttribute("data-color-scheme", editorColorScheme);
+  }, [editor, editorColorScheme, className]);
 
   // The BlockNoteContext makes sure the editor and some helper methods
   // are always available to nesteed compoenents
@@ -167,30 +207,9 @@ function BlockNoteViewComponent<
         contentEditableProps,
         editable,
       },
-      defaultUIProps: {
-        formattingToolbar,
-        linkToolbar,
-        slashMenu,
-        emojiPicker,
-        sideMenu,
-        filePanel,
-        tableHandles,
-        comments,
-      },
+      defaultUIProps,
     };
-  }, [
-    autoFocus,
-    contentEditableProps,
-    editable,
-    formattingToolbar,
-    linkToolbar,
-    slashMenu,
-    emojiPicker,
-    sideMenu,
-    filePanel,
-    tableHandles,
-    comments,
-  ]);
+  }, [autoFocus, contentEditableProps, editable, defaultUIProps]);
 
   return (
     <BlockNoteContext.Provider value={blockNoteContext}>
@@ -226,7 +245,12 @@ const BlockNoteViewContainer = React.forwardRef<
   >
 >(({ className, renderEditor, editorColorScheme, children, ...rest }, ref) => (
   <div
-    className={mergeCSSClasses("bn-container", editorColorScheme, className)}
+    className={mergeCSSClasses(
+      "bn-root",
+      "bn-container",
+      editorColorScheme,
+      className,
+    )}
     data-color-scheme={editorColorScheme}
     {...rest}
     ref={ref}

@@ -9,7 +9,6 @@ import {
   ChangeEvent,
   KeyboardEvent,
   useCallback,
-  useEffect,
   useState,
 } from "react";
 import { RiInputField } from "react-icons/ri";
@@ -59,54 +58,49 @@ export const FileCaptionButton = () => {
     },
   });
 
-  const [currentEditingCaption, setCurrentEditingCaption] = useState<string>();
-
-  useEffect(() => {
-    if (block === undefined) {
-      return;
-    }
-    setCurrentEditingCaption(block.props.caption);
-  }, [block]);
+  const [popoverOpen, setPopoverOpen] = useState(false);
 
   const handleChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) =>
-      setCurrentEditingCaption(event.currentTarget.value),
-    [],
-  );
-
-  const handleEnter = useCallback(
-    (event: KeyboardEvent) => {
+    (event: ChangeEvent<HTMLInputElement>) => {
       if (
         block !== undefined &&
         editorHasBlockWithType(editor, block.type, {
           caption: "string",
-        }) &&
-        event.key === "Enter" &&
-        !event.nativeEvent.isComposing
+        })
       ) {
-        event.preventDefault();
         editor.updateBlock(block.id, {
           props: {
-            caption: currentEditingCaption,
+            caption: event.currentTarget.value,
           },
         });
       }
     },
-    [block, currentEditingCaption, editor],
+    [block, editor],
   );
+
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    if (event.key === "Enter" && !event.nativeEvent.isComposing) {
+      event.preventDefault();
+      setPopoverOpen(false);
+    }
+  }, []);
 
   if (block === undefined) {
     return null;
   }
 
   return (
-    <Components.Generic.Popover.Root>
+    <Components.Generic.Popover.Root
+      open={popoverOpen}
+      onOpenChange={setPopoverOpen}
+    >
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button
           className={"bn-button"}
           label={dict.formatting_toolbar.file_caption.tooltip}
           mainTooltip={dict.formatting_toolbar.file_caption.tooltip}
           icon={<RiInputField />}
+          onClick={() => setPopoverOpen((open) => !open)}
         />
       </Components.Generic.Popover.Trigger>
       <Components.Generic.Popover.Content
@@ -117,10 +111,10 @@ export const FileCaptionButton = () => {
           <Components.Generic.Form.TextInput
             name={"file-caption"}
             icon={<RiInputField />}
-            value={currentEditingCaption || ""}
+            value={block.props.caption}
             autoFocus={true}
             placeholder={dict.formatting_toolbar.file_caption.input_placeholder}
-            onKeyDown={handleEnter}
+            onKeyDown={handleKeyDown}
             onChange={handleChange}
           />
         </Components.Generic.Form.Root>

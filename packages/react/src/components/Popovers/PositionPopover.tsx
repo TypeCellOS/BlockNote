@@ -2,6 +2,7 @@ import { posToDOMRect } from "@tiptap/core";
 import { ReactNode, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
+import { useEditorDOMElement } from "../../hooks/useEditorDomElement.js";
 import { FloatingUIOptions } from "./FloatingUIOptions.js";
 import { GenericPopover, GenericPopoverReference } from "./GenericPopover.js";
 
@@ -15,6 +16,7 @@ export const PositionPopover = (
   const { from, to } = position || {};
 
   const editor = useBlockNoteEditor<any, any, any>();
+  const editorDOMElement = useEditorDOMElement();
 
   const reference = useMemo<GenericPopoverReference | undefined>(() => {
     if (from === undefined || to === undefined) {
@@ -25,11 +27,11 @@ export const PositionPopover = (
       // Use first child as the editor DOM element may itself be scrollable.
       // For FloatingUI to auto-update the position during scrolling, the
       // `contextElement` must be a descendant of the scroll container.
-      element: editor.domElement?.firstElementChild || undefined,
+      element: editorDOMElement?.firstElementChild || undefined,
       getBoundingClientRect: () =>
         posToDOMRect(editor.prosemirrorView, from, to ?? from),
     };
-  }, [editor, from, to]);
+  }, [editor, editorDOMElement, from, to]);
 
   return (
     <GenericPopover reference={reference} {...floatingUIOptions}>

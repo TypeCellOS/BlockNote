@@ -18,6 +18,11 @@ export default defineConfig((conf) => ({
       conf.command === "build"
         ? ({
             "@": path.resolve(__dirname, "./src"),
+            // Vite 8's postcss-import can't resolve bare package specifiers in CSS @import
+            "@blocknote/react/style.css": path.resolve(
+              __dirname,
+              "../react/dist/style.css"
+            ),
           } as Record<string, string>)
         : ({
             "@": path.resolve(__dirname, "./src"),
@@ -33,6 +38,7 @@ export default defineConfig((conf) => ({
         "blocknote-shadcn": path.resolve(__dirname, "src/index.tsx"),
       },
       name: "blocknote-shadcn",
+      cssFileName: "style",
       formats: ["es", "cjs"],
       fileName: (format, entryName) =>
         format === "es" ? `${entryName}.js` : `${entryName}.cjs`,
@@ -46,7 +52,7 @@ export default defineConfig((conf) => ({
             ...pkg.dependencies,
             ...((pkg as any).peerDependencies || {}),
             ...pkg.devDependencies,
-          }).includes(source)
+          }).some((dep) => source === dep || source.startsWith(dep + "/"))
         ) {
           return true;
         }
@@ -67,7 +73,6 @@ export default defineConfig((conf) => ({
           react: "React",
           "react-dom": "ReactDOM",
         },
-        interop: "compat", // https://rollupjs.org/migration/#changed-defaults
       },
     },
   },

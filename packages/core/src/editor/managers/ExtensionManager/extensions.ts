@@ -5,7 +5,7 @@ import {
   Extension as TiptapExtension,
 } from "@tiptap/core";
 import { Gapcursor } from "@tiptap/extensions/gap-cursor";
-import { Link } from "@tiptap/extension-link";
+import { LinkExtension } from "../../../extensions/tiptap-extensions/Link/link.js";
 import { Text } from "@tiptap/extension-text";
 import { createDropFileExtension } from "../../../api/clipboard/fromClipboard/fileDropExtension.js";
 import { createPasteFromClipboardExtension } from "../../../api/clipboard/fromClipboard/pasteExtension.js";
@@ -27,10 +27,6 @@ import {
   TrailingNodeExtension,
 } from "../../../extensions/index.js";
 import {
-  DEFAULT_LINK_PROTOCOL,
-  VALID_LINK_PROTOCOLS,
-} from "../../../extensions/LinkToolbar/protocols.js";
-import {
   BackgroundColorExtension,
   HardBreak,
   KeyboardShortcutsExtension,
@@ -48,9 +44,6 @@ import {
 } from "../../BlockNoteEditor.js";
 import { ExtensionFactoryInstance } from "../../BlockNoteExtension.js";
 import { CollaborationExtension } from "../../../extensions/Collaboration/Collaboration.js";
-
-// TODO remove linkify completely by vendoring the link extension & dropping linkifyjs as a dependency
-let LINKIFY_INITIALIZED = false;
 
 /**
  * Get all the Tiptap extensions BlockNote is configured with by default
@@ -71,6 +64,7 @@ export function getDefaultTiptapExtensions(
       // everything from bnBlock group (nodes that represent a BlockNote block should have an id)
       types: ["blockContainer", "columnList", "column"],
       setIdAttribute: options.setIdAttribute,
+      isWithinEditor: editor.isWithinEditor,
     }),
     HardBreak,
     Text,
@@ -79,13 +73,6 @@ export function getDefaultTiptapExtensions(
     SuggestionAddMark,
     SuggestionDeleteMark,
     SuggestionModificationMark,
-    Link.extend({
-      inclusive: false,
-    }).configure({
-      defaultProtocol: DEFAULT_LINK_PROTOCOL,
-      // only call this once if we have multiple editors installed. Or fix https://github.com/ueberdosis/tiptap/issues/5450
-      protocols: LINKIFY_INITIALIZED ? [] : VALID_LINK_PROTOCOLS,
-    }),
     ...(Object.values(editor.schema.styleSpecs).map((styleSpec) => {
       return styleSpec.implementation.mark.configure({
         editor: editor,
@@ -162,8 +149,6 @@ export function getDefaultTiptapExtensions(
     createDropFileExtension(editor),
   ];
 
-  LINKIFY_INITIALIZED = true;
-
   return tiptapExtensions;
 }
 
@@ -176,6 +161,13 @@ export function getDefaultExtensions(
     DropCursorExtension(options),
     FilePanelExtension(options),
     FormattingToolbarExtension(options),
+    LinkExtension({
+      HTMLAttributes: options.links?.HTMLAttributes ?? {},
+      onClick: options.links?.onClick,
+      ...(options.links?.isValidLink
+        ? { isValidLink: options.links.isValidLink }
+        : {}),
+    }),
     LinkToolbarExtension(options),
     NodeSelectionKeyboardExtension(),
     PlaceholderExtension(options),

@@ -1,3 +1,79 @@
+## 0.49.0 (2026-04-24)
+
+### 🚀 Features
+
+- simplify links by inlining it to BlockNote ([#2623](https://github.com/TypeCellOS/BlockNote/pull/2623))
+- add Unicode quotation mark input rule for quote blocks ([#2673](https://github.com/TypeCellOS/BlockNote/pull/2673))
+
+### 🩹 Fixes
+
+- Inserting link removes comment & add comment button click buggy ([#2620](https://github.com/TypeCellOS/BlockNote/pull/2620), [#2573](https://github.com/TypeCellOS/BlockNote/issues/2573))
+- `useEditorDOMElement` hook ([#2619](https://github.com/TypeCellOS/BlockNote/pull/2619))
+- text color was not applying to table block ([#2663](https://github.com/TypeCellOS/BlockNote/pull/2663))
+- Drag preview blocking drops when overlapping the editor (BLO-996) ([#2670](https://github.com/TypeCellOS/BlockNote/pull/2670))
+- Drag & drop of blocks without inline content opens formatting toolbar (BLO-1116) ([#2628](https://github.com/TypeCellOS/BlockNote/pull/2628), [#2603](https://github.com/TypeCellOS/BlockNote/issues/2603))
+- save file caption/name on every keystroke instead of on close ([#2575](https://github.com/TypeCellOS/BlockNote/pull/2575))
+- prevent FloatingFocusManager from resetting editor selection ([#2525](https://github.com/TypeCellOS/BlockNote/pull/2525), [#2664](https://github.com/TypeCellOS/BlockNote/pull/2664))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+- miadnguyen @miadnguyen
+- mianguyen
+- Nick Perez
+- Yousef
+
+## 0.48.1 (2026-04-16)
+
+### 🩹 Fixes
+
+- make CustomChange compatible with prosemirror-changeset 2.4.1 ([#2647](https://github.com/TypeCellOS/BlockNote/pull/2647))
+- **deps:** upgrade nx to 22.6.5 to resolve axios security vulnerability (CVE-2025-62718) ([c1ef3018a](https://github.com/TypeCellOS/BlockNote/commit/c1ef3018a))
+- **deps:** upgrade nx to 22.6.5 to resolve axios security vulnerability ([#2653](https://github.com/TypeCellOS/BlockNote/pull/2653))
+- **docx-exporter:** omit w:lang when no locale provided instead of defaulting to en-US ([#2651](https://github.com/TypeCellOS/BlockNote/pull/2651))
+
+### ❤️ Thank You
+
+- Claude Opus 4.6 (1M context)
+- Nick Perez
+- Nick the Sick
+- Stephan Meijer @StephanMeijer
+
+## 0.48.0 (2026-04-13)
+
+### 🚀 Features
+
+- upgrade shiki to v4 and prosemirror-highlight to v0.15.1 ([#2625](https://github.com/TypeCellOS/BlockNote/pull/2625))
+- upgrade nx to 22.6.4 and liveblocks to 3.17.0 ([#2627](https://github.com/TypeCellOS/BlockNote/pull/2627))
+
+### 🩹 Fixes
+
+- Image block selection clears on mouse leave in Safari ([#2613](https://github.com/TypeCellOS/BlockNote/pull/2613))
+- Backspace bug when current block is empty and previous block's last child is empty ([#2610](https://github.com/TypeCellOS/BlockNote/pull/2610))
+- allow using latest @tiptap/extension-link version ([1ae8de713](https://github.com/TypeCellOS/BlockNote/commit/1ae8de713))
+- restore depth guard in getParentBlockInfo to prevent RangeError (blo-1103) ([#2585](https://github.com/TypeCellOS/BlockNote/pull/2585))
+- pin better-auth to ~1.4.x to fix docs build ([bda30458a](https://github.com/TypeCellOS/BlockNote/commit/bda30458a))
+- hide side menu on scroll instead of overflow hacks ([#2630](https://github.com/TypeCellOS/BlockNote/pull/2630), [#2043](https://github.com/TypeCellOS/BlockNote/issues/2043))
+- disable default UI when no components context is found ([#2611](https://github.com/TypeCellOS/BlockNote/pull/2611))
+- add .js extension to fast-deep-equal ESM import ([#2641](https://github.com/TypeCellOS/BlockNote/pull/2641))
+- placeholder when overflowing now wraps ([#2291](https://github.com/TypeCellOS/BlockNote/pull/2291))
+- **core:** fix unnesting blocks with siblings (BLO-1017) ([#2601](https://github.com/TypeCellOS/BlockNote/pull/2601))
+- **core:** backspace mid-text next to columnList moves block BLO-1126 ([#2629](https://github.com/TypeCellOS/BlockNote/pull/2629))
+
+### 🔥 Performance
+
+- optimize plugin traversals for large documents BLO-1111 ([#2600](https://github.com/TypeCellOS/BlockNote/pull/2600))
+
+### ❤️ Thank You
+
+- Claude Opus 4.6
+- Claude Opus 4.6 (1M context)
+- hedi-ghodhbane @hedi-ghodhbane
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- Nick the Sick @nperez0111
+- Yousef
+
 ## 0.47.3 (2026-03-25)
 
 ### 🩹 Fixes

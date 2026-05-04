@@ -1,0 +1,9 @@
+{
+  "playground": true,
+  "docs": false,
+  "author": "matthewlipski",
+  "tags": ["Advanced", "Comments", "Testing"],
+  "dependencies": {
+    "yjs": "^13.6.27"
+  }
+}

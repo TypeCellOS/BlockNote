@@ -221,7 +221,7 @@ export const pt: Dictionary = {
     text_title: "Texto",
     background_title: "Fundo",
     colors: {
-      default: "Padrão",
+      default: "Automático",
       gray: "Cinza",
       brown: "Marrom",
       red: "Vermelho",
@@ -376,9 +376,11 @@ export const pt: Dictionary = {
     edited: "editado",
     save_button_text: "Salvar",
     cancel_button_text: "Cancelar",
+    deleted_reference_text: "Conteúdo original excluído",
     actions: {
       add_reaction: "Adicionar reação",
       resolve: "Resolver",
+      reopen: "Reabrir",
       edit_comment: "Editar comentário",
       delete_comment: "Excluir comentário",
       more_actions: "Mais ações",

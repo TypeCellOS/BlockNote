@@ -15,6 +15,7 @@ import {
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
+import { useEditorDOMElement } from "../../../hooks/useEditorDomElement.js";
 import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useExtension } from "../../../hooks/useExtension.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
@@ -41,6 +42,7 @@ function checkLinkInSchema(
 
 export const CreateLinkButton = () => {
   const editor = useBlockNoteEditor<any, any, any>();
+  const editorDOMElement = useEditorDOMElement();
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
@@ -97,13 +99,12 @@ export const CreateLinkButton = () => {
       }
     };
 
-    const domElement = editor.domElement;
-    domElement?.addEventListener("keydown", callback);
+    editorDOMElement?.addEventListener("keydown", callback);
 
     return () => {
-      domElement?.removeEventListener("keydown", callback);
+      editorDOMElement?.removeEventListener("keydown", callback);
     };
-  }, [editor.domElement]);
+  }, [editorDOMElement]);
 
   if (state === undefined) {
     return null;

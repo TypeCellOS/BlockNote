@@ -141,6 +141,54 @@ export interface BlockNoteEditorOptions<
   >[];
 
   /**
+   * Options for configuring how links behave in the editor.
+   */
+  links?: {
+    /**
+     * HTML attributes to add to rendered link elements.
+     *
+     * @default {}
+     * @example { class: "my-link-class", target: "_blank" }
+     */
+    HTMLAttributes?: Record<string, any>;
+    /**
+     * Custom handler invoked when a link is clicked. If left `undefined`,
+     * links are opened in a new window on click. If provided, the default
+     * open-on-click behavior is disabled and this function is called instead.
+     *
+     * Return `false` to let ProseMirror continue handling the click event.
+     * Returning `true` or nothing (the default) marks the event as handled.
+     */
+    onClick?: (
+      event: MouseEvent,
+      editor: BlockNoteEditor<any, any, any>,
+    ) => boolean | void;
+    /**
+     * Callback that decides whether a given `href` is a valid link. Applied at
+     * every gate where a link enters the document: HTML import, HTML export,
+     * paste, and autolink. Useful for supporting additional URI schemes (e.g.
+     * `vscode:`, `myapp:`) or tightening the default allowlist.
+     *
+     * Defaults to `isAllowedUri`, which allows
+     * `http|https|ftp|ftps|mailto|tel|callto|sms|cid|xmpp`. Import
+     * `isAllowedUri` from `@blocknote/core` to layer on top of the default.
+     *
+     * @example
+     * ```ts
+     * import { isAllowedUri } from "@blocknote/core";
+     *
+     * BlockNoteEditor.create({
+     *   links: {
+     *     isValidLink: (href) =>
+     *       isAllowedUri(href) || href.startsWith("myapp:"),
+     *   },
+     * });
+     * ```
+     */
+    isValidLink?: (href: string) => boolean;
+  };
+
+  /**
    * @deprecated, provide placeholders via dictionary instead
    * @internal
    */
@@ -423,7 +471,6 @@ export class BlockNoteEditor<
       },
     };
 
-    // @ts-ignore
     this.schema = newOptions.schema;
     this.blockImplementations = newOptions.schema.blockSpecs;
     this.inlineContentImplementations = newOptions.schema.inlineContentSpecs;
@@ -563,6 +610,13 @@ export class BlockNoteEditor<
     };
     this.pmSchema.cached.blockNoteEditor = this;
 
+    this._tiptapEditor.on("mount", () => {
+      this.headless = false;
+    });
+    this._tiptapEditor.on("unmount", () => {
+      this.headless = true;
+    });
+
     // Initialize managers
     this._blockManager = new BlockManager(this as any);
 
@@ -680,6 +734,12 @@ export class BlockNoteEditor<
    * @warning Not needed to call manually when using React, use BlockNoteView to take care of mounting
    */
   public mount = (element: HTMLElement) => {
+    const root = element.getRootNode();
+    if (typeof ShadowRoot !== "undefined" && root instanceof ShadowRoot) {
+      root.appendChild(this.portalElement);
+    } else {
+      document.body.appendChild(this.portalElement);
+    }
     this._tiptapEditor.mount({ mount: element });
   };
 
@@ -687,6 +747,7 @@ export class BlockNoteEditor<
    * Unmount the editor from the DOM element it is bound to
    */
   public unmount = () => {
+    this.portalElement?.remove();
     this._tiptapEditor.unmount();
   };
 
@@ -714,6 +775,37 @@ export class BlockNoteEditor<
     return this.prosemirrorView?.dom as HTMLDivElement | undefined;
   }
 
+  private _portalElement: HTMLElement | undefined;
+
+  /**
+   * The portal container element at `document.body` used by floating UI
+   * elements (menus, toolbars) to escape overflow:hidden ancestors.
+   * Set by BlockNoteView; undefined in headless mode.
+   */
+  public get portalElement() {
+    if (typeof document === "undefined") {
+      throw new Error(
+        "Portal element accessed, but not available in headless mode",
+      );
+    }
+    if (!this._portalElement) {
+      this._portalElement = document.createElement("div");
+    }
+    return this._portalElement;
+  }
+
+  /**
+   * Checks whether a DOM element belongs to this editor — either inside the
+   * editor's DOM tree or inside its portal container (used for floating UI
+   * elements like menus and toolbars).
+   */
+  public isWithinEditor = (element: Element): boolean => {
+    return !!(
+      this.domElement?.parentElement?.contains(element) ||
+      this.portalElement?.contains(element)
+    );
+  };
+
   public isFocused() {
     if (this.headless) {
       return false;
@@ -721,9 +813,7 @@ export class BlockNoteEditor<
     return this.prosemirrorView?.hasFocus() || false;
   }
 
-  public get headless() {
-    return !this._tiptapEditor.isInitialized;
-  }
+  public headless = true;
 
   /**
    * Focus on the editor
@@ -1094,6 +1184,32 @@ export class BlockNoteEditor<
   }
 
   /**
+   * Find the link mark and its range at the given position.
+   * Returns undefined if there is no link at that position.
+   */
+  public getLinkMarkAtPos(pos: number) {
+    return this._styleManager.getLinkMarkAtPos(pos);
+  }
+
+  /**
+   * Updates the link at the given position with a new URL and text.
+   * @param url The new link URL.
+   * @param text The new text to display.
+   * @param position The position inside the link to edit. Defaults to the current selection anchor.
+   */
+  public editLink(url: string, text: string, position?: number) {
+    this._styleManager.editLink(url, text, position);
+  }
+
+  /**
+   * Removes the link at the given position, keeping the text.
+   * @param position The position inside the link to remove. Defaults to the current selection anchor.
+   */
+  public deleteLink(position?: number) {
+    this._styleManager.deleteLink(position);
+  }
+
+  /**
    * Checks if the block containing the text cursor can be nested.
    */
   public canNestBlock() {
@@ -1259,7 +1375,7 @@ export class BlockNoteEditor<
       editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
     }) => void,
   ) {
-    this._eventManager.onMount(callback);
+    return this._eventManager.onMount(callback);
   }
 
   /**
@@ -1275,7 +1391,7 @@ export class BlockNoteEditor<
       editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
     }) => void,
   ) {
-    this._eventManager.onUnmount(callback);
+    return this._eventManager.onUnmount(callback);
   }
 
   /**

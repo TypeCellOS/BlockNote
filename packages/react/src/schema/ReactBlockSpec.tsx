@@ -242,6 +242,9 @@ export function createReactBlockSpec<
                 blockProps={block.props}
                 propSchema={blockConfig.propSchema}
                 domAttributes={this.blockContentDOMAttributes}
+                isFileBlock={
+                  blockImplementation.meta?.fileBlockAccept !== undefined
+                }
               >
                 <BlockContent
                   block={block as any}

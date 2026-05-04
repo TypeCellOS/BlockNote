@@ -193,14 +193,19 @@ export class DOCXExporter<
     let externalStyles = (await import("./template/word/styles.xml?raw"))
       .default;
 
-    // Replace the default language in styles.xml with the provided locale.
-    // If not provided, default to en-US.
-    const resolvedLocale = (locale && locale.trim()) || "en-US";
-
-    externalStyles = externalStyles.replace(
-      /(<w:lang\b[^>]*\bw:val=")([^"]+)("[^>]*\/>)/g,
-      `$1${resolvedLocale}$3`,
-    );
+    // Replace the language in styles.xml with the provided locale, or remove
+    // the w:lang element entirely if no locale is provided (per ECMA-376
+    // §17.3.2.20: omitting w:lang lets the application auto-detect language).
+    const trimmedLocale = locale?.trim();
+    if (trimmedLocale) {
+      externalStyles = externalStyles.replace(
+        /(<w:lang\b[^>]*\bw:val=")([^"]+)("[^>]*\/>)/g,
+        (_match, prefix, _oldVal, suffix) =>
+          `${prefix}${trimmedLocale}${suffix}`,
+      );
+    } else {
+      externalStyles = externalStyles.replace(/\s*<w:lang\b[^>]*\/>/g, "");
+    }
 
     const bullets = ["•"]; //, "◦", "▪"]; (these don't look great, just use solid bullet for now)
     return {
@@ -251,7 +256,7 @@ export class DOCXExporter<
   }
 
   /**
-   * Convert a document (array of Blocks to a Blob representing a .docx file)
+   * Converts blocks to a .docx Blob with optional locale support.
    */
   public async toBlob(
     blocks: Block<B, I, S>[],
@@ -260,7 +265,7 @@ export class DOCXExporter<
       documentOptions: DocumentOptions;
       /**
        * The document locale in OOXML format (e.g. en-US, fr-FR, de-DE).
-       * If omitted, defaults to en-US.
+       * If omitted, no language is set and the consuming application will use its own default.
        */
       locale?: string;
     } = {
@@ -285,7 +290,7 @@ export class DOCXExporter<
   }
 
   /**
-   * Convert a document (array of Blocks to a docxjs Document)
+   * Converts blocks to a docxjs Document with optional locale support.
    */
   public async toDocxJsDocument(
     blocks: Block<B, I, S>[],
@@ -294,7 +299,7 @@ export class DOCXExporter<
       documentOptions: DocumentOptions;
       /**
        * The document locale in OOXML format (e.g. en-US, fr-FR, de-DE).
-       * If omitted, defaults to en-US.
+       * If omitted, no language is set and the consuming application will use its own default.
        */
       locale?: string;
     } = {

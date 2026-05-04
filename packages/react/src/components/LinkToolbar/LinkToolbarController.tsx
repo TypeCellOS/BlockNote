@@ -4,6 +4,7 @@ import { Range } from "@tiptap/core";
 import { FC, useEffect, useMemo, useState } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
+import { useEditorDOMElement } from "../../hooks/useEditorDomElement.js";
 import { useExtension } from "../../hooks/useExtension.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import {
@@ -21,6 +22,8 @@ export const LinkToolbarController = (props: {
 
   const [toolbarOpen, setToolbarOpen] = useState(false);
   const [toolbarPositionFrozen, setToolbarPositionFrozen] = useState(false);
+
+  const editorDOMElement = useEditorDOMElement();
 
   const linkToolbar = useExtension(LinkToolbarExtension);
 
@@ -98,16 +101,14 @@ export const LinkToolbarController = (props: {
     const destroyOnSelectionChangeHandler =
       editor.onSelectionChange(textCursorCallback);
 
-    const domElement = editor.domElement;
-
-    domElement?.addEventListener("mouseover", mouseCursorCallback);
+    editorDOMElement?.addEventListener("mouseover", mouseCursorCallback);
 
     return () => {
       destroyOnChangeHandler();
       destroyOnSelectionChangeHandler();
-      domElement?.removeEventListener("mouseover", mouseCursorCallback);
+      editorDOMElement?.removeEventListener("mouseover", mouseCursorCallback);
     };
-  }, [editor, editor.domElement, linkToolbar, link, toolbarPositionFrozen]);
+  }, [editor, editorDOMElement, linkToolbar, link, toolbarPositionFrozen]);
 
   const floatingUIOptions = useMemo<FloatingUIOptions>(
     () => ({

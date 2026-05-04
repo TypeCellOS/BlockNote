@@ -1,5 +1,14 @@
 import { callOrReturn, Extension, getExtensionField } from "@tiptap/core";
-import { columnResizing, goToNextCell, tableEditing } from "prosemirror-tables";
+import { TextSelection } from "prosemirror-state";
+import {
+  columnResizing,
+  goToNextCell,
+  isInTable,
+  moveCellForward,
+  nextCell,
+  selectionCell,
+  tableEditing,
+} from "prosemirror-tables";
 
 export const RESIZE_MIN_WIDTH = 35;
 export const EMPTY_CELL_WIDTH = 120;
@@ -24,19 +33,39 @@ export const TableExtension = Extension.create({
 
   addKeyboardShortcuts() {
     return {
-      // Makes enter create a new line within the cell.
+      // Moves the selection to the cell below.
       Enter: () => {
         if (
-          this.editor.state.selection.empty &&
-          this.editor.state.selection.$head.parent.type.name ===
-            "tableParagraph"
+          this.editor.state.selection.$head.parent.type.name !==
+          "tableParagraph"
         ) {
-          this.editor.commands.insertContent({ type: "hardBreak" });
-
-          return true;
+          return false;
         }
 
-        return false;
+        return this.editor.commands.command(({ state, dispatch }) => {
+          if (!isInTable(state)) {
+            return false;
+          }
+
+          const $cell = selectionCell(state);
+          const $nextCell = nextCell($cell, "vert", 1);
+
+          if (!$nextCell) {
+            return false;
+          }
+
+          if (dispatch) {
+            dispatch(
+              state.tr
+                .setSelection(
+                  TextSelection.between($nextCell, moveCellForward($nextCell)),
+                )
+                .scrollIntoView(),
+            );
+          }
+
+          return true;
+        });
       },
       // Ensures that backspace won't delete the table if the text cursor is at
       // the start of a cell and the selection is empty.

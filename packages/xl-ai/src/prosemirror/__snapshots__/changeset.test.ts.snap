@@ -115,10 +115,7 @@ exports[`drop mark and link 1`] = `
           "marks": [
             {
               "attrs": {
-                "class": null,
                 "href": "https://www.google.com",
-                "rel": "noopener noreferrer nofollow",
-                "target": "_blank",
               },
               "type": "link",
             },
@@ -249,10 +246,7 @@ exports[`drop mark and link and change text within mark 1`] = `
           "marks": [
             {
               "attrs": {
-                "class": null,
                 "href": "https://www.google.com",
-                "rel": "noopener noreferrer nofollow",
-                "target": "_blank",
               },
               "type": "link",
             },

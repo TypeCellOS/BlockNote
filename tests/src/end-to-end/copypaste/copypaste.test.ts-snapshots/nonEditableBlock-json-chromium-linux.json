@@ -1,0 +1,95 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "blockGroup",
+      "content": [
+        {
+          "type": "blockContainer",
+          "attrs": {
+            "id": "0"
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Welcome to this demo!"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "blockContainer",
+          "attrs": {
+            "id": "1"
+          },
+          "content": [
+            {
+              "type": "nonEditable"
+            }
+          ]
+        },
+        {
+          "type": "blockContainer",
+          "attrs": {
+            "id": "2"
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "textColor",
+                      "attrs": {
+                        "stringValue": "rgb(63, 63, 63)"
+                      }
+                    },
+                    {
+                      "type": "backgroundColor",
+                      "attrs": {
+                        "stringValue": "rgb(255, 255, 255)"
+                      }
+                    }
+                  ],
+                  "text": "This is "
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "blockContainer",
+          "attrs": {
+            "id": "4"
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

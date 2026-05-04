@@ -1,4 +1,4 @@
-import { NodeSelection, TextSelection } from "prosemirror-state";
+import { TextSelection } from "prosemirror-state";
 
 import {
   createExtension,
@@ -13,15 +13,6 @@ export const FormattingToolbarExtension = createExtension(({ editor }) => {
       // Don't show if the selection is empty, or is a text selection with no
       // text.
       if (tr.selection.empty) {
-        return false;
-      }
-
-      // Don't show if a block with inline content is selected.
-      if (
-        tr.selection instanceof NodeSelection &&
-        (tr.selection.node.type.spec.content === "inline*" ||
-          tr.selection.node.firstChild?.type.spec.content === "inline*")
-      ) {
         return false;
       }
 
@@ -61,16 +52,17 @@ export const FormattingToolbarExtension = createExtension(({ editor }) => {
        * We want to mimic the Notion behavior of not showing the toolbar while the user is holding down the mouse button (to create a selection)
        */
       let preventShowWhileMouseDown = false;
+      let preventShowWhileDragging = false;
 
       const unsubscribeOnChange = editor.onChange(() => {
-        if (preventShowWhileMouseDown) {
+        if (preventShowWhileMouseDown || preventShowWhileDragging) {
           return;
         }
         // re-evaluate whether the toolbar should be shown
         store.setState(shouldShow());
       });
       const unsubscribeOnSelectionChange = editor.onSelectionChange(() => {
-        if (preventShowWhileMouseDown) {
+        if (preventShowWhileMouseDown || preventShowWhileDragging) {
           return;
         }
         // re-evaluate whether the toolbar should be shown
@@ -91,6 +83,7 @@ export const FormattingToolbarExtension = createExtension(({ editor }) => {
         "pointerup",
         () => {
           preventShowWhileMouseDown = false;
+
           // We only want to re-show the toolbar if the mouse made the selection
           if (editor.isFocused()) {
             store.setState(shouldShow());
@@ -102,12 +95,26 @@ export const FormattingToolbarExtension = createExtension(({ editor }) => {
       dom.addEventListener(
         "pointercancel",
         () => {
-          preventShowWhileMouseDown = false;
+          preventShowWhileMouseDown = true;
         },
-        {
-          signal,
-          capture: true,
+        { signal, capture: true },
+      );
+
+      editor.prosemirrorView.root.addEventListener(
+        "dragstart",
+        () => {
+          preventShowWhileDragging = true;
+          store.setState(false);
         },
+        { signal },
+      );
+
+      editor.prosemirrorView.root.addEventListener(
+        "dragend",
+        () => {
+          preventShowWhileDragging = false;
+        },
+        { signal },
       );
 
       signal.addEventListener("abort", () => {

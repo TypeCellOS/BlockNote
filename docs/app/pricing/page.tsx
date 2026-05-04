@@ -1,5 +1,5 @@
 import { FAQ } from "@/app/pricing/faq";
-import { Tier, Tiers } from "@/app/pricing/tiers";
+import { Tier } from "@/app/pricing/tiers";
 import { InfiniteSlider } from "@/components/InfiniteSlider";
 import {
   Tooltip,
@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/tooltip";
 import { getFullMetadata } from "@/lib/getFullMetadata";
 import Link from "next/link";
+import { PricingTiers } from "./PricingTiers";
 
 export const metadata = getFullMetadata({
   title: "Pricing",
@@ -80,7 +81,7 @@ const tiers: Tier[] = [
     badge: "Recommended",
     description:
       "Commercial license for access to advanced features and technical support.",
-    price: { month: 390, year: 48 },
+    price: { month: 390, year: 2340 },
     features: [
       <span key="commercial" className="font-semibold text-stone-900">
         Commercial license for XL packages:
@@ -162,8 +163,8 @@ export default function Pricing() {
           </p>
         </div>
 
-        {/* Pricing Tiers */}
-        <Tiers tiers={tiers} frequency="month" />
+        {/* Pricing Tiers with Toggle */}
+        <PricingTiers tiers={tiers} />
 
         {/* Social proof */}
         <div className="mt-24 w-full border-t border-stone-200 pt-16">

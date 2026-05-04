@@ -11,18 +11,18 @@ import { forwardRef } from "react";
 export const Popover = (
   props: ComponentProps["Generic"]["Popover"]["Root"],
 ) => {
-  const { open, onOpenChange, position, children, ...rest } = props;
+  const { open, onOpenChange, position, portalRoot, children, ...rest } = props;
 
   assertEmpty(rest);
 
   return (
     <MantinePopover
       middlewares={{ size: { padding: 20 } }}
-      withinPortal={false}
+      withinPortal={!!portalRoot}
+      portalProps={portalRoot ? { target: portalRoot } : undefined}
       opened={open}
       onChange={onOpenChange}
       position={position}
-      zIndex={10000}
     >
       {children}
     </MantinePopover>

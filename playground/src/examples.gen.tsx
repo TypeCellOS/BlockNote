@@ -288,7 +288,7 @@
       {
         "projectSlug": "shadowdom",
         "fullSlug": "basic/shadowdom",
-        "pathFromRoot": "examples/01-basic/14-shadowdom",
+        "pathFromRoot": "examples/01-basic/15-shadowdom",
         "config": {
           "playground": true,
           "docs": false,
@@ -303,6 +303,25 @@
           "slug": "basic"
         },
         "readme": "This example shows how to render the BlockNote editor inside a Shadow DOM.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)"
+      },
+      {
+        "projectSlug": "read-only-editor",
+        "fullSlug": "basic/read-only-editor",
+        "pathFromRoot": "examples/01-basic/16-read-only-editor",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Read-only Editor",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        },
+        "readme": "This example makes the editor read-only while showing the same content as the [Default Schema Showcase](/examples/basic/default-blocks) example.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Document Structure](/docs/foundations/document-structure)\n- [Default Schema](/docs/foundations/schemas)"
       },
       {
         "projectSlug": "testing",
@@ -978,11 +997,11 @@
           ],
           "dependencies": {
             "@blocknote/code-block": "latest",
-            "@shikijs/core": "^3.19.0",
-            "@shikijs/engine-javascript": "^3.19.0",
-            "@shikijs/langs-precompiled": "^3.19.0",
-            "@shikijs/themes": "^3.19.0",
-            "@shikijs/types": "^3.19.0"
+            "@shikijs/core": "^4",
+            "@shikijs/engine-javascript": "^4",
+            "@shikijs/langs-precompiled": "^4",
+            "@shikijs/themes": "^4",
+            "@shikijs/types": "^4"
           } as any
         },
         "title": "Custom Code Block Theme & Language",
@@ -1396,6 +1415,27 @@
         "readme": "This example shows how you can configure the editor's default blocks. Specifically, heading blocks are made to only support levels 1-3, and cannot be toggleable.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Default Schema](/docs/foundations/schemas)\n- [Custom Schemas](/docs/features/custom-schemas)"
       },
       {
+        "projectSlug": "non-editable-block",
+        "fullSlug": "custom-schema/non-editable-block",
+        "pathFromRoot": "examples/06-custom-schema/08-non-editable-block",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "matthewlipski",
+          "tags": [
+            "Intermediate",
+            "Blocks",
+            "Custom Schemas"
+          ]
+        },
+        "title": "Non-Editable Block",
+        "group": {
+          "pathFromRoot": "examples/06-custom-schema",
+          "slug": "custom-schema"
+        },
+        "readme": "In this example, we create a custom block which renders a simple HTML paragraph with placeholder text. The block has no editable content.\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)"
+      },
+      {
         "projectSlug": "draggable-inline-content",
         "fullSlug": "custom-schema/draggable-inline-content",
         "pathFromRoot": "examples/06-custom-schema/draggable-inline-content",
@@ -1508,11 +1548,11 @@
             "Collaboration"
           ],
           "dependencies": {
-            "@liveblocks/client": "3.7.1-tiptap3",
-            "@liveblocks/react": "3.7.1-tiptap3",
-            "@liveblocks/react-blocknote": "3.7.1-tiptap3",
-            "@liveblocks/react-tiptap": "3.7.1-tiptap3",
-            "@liveblocks/react-ui": "3.7.1-tiptap3",
+            "@liveblocks/client": "^3.17.0",
+            "@liveblocks/react": "^3.17.0",
+            "@liveblocks/react-blocknote": "^3.17.0",
+            "@liveblocks/react-tiptap": "^3.17.0",
+            "@liveblocks/react-ui": "^3.17.0",
             "yjs": "^13.6.27"
           } as any
         },
@@ -1668,6 +1708,30 @@
           "slug": "collaboration"
         },
         "readme": "In this example, we can fork a document and edit it independently of other collaborators. Then, we can choose to merge the changes back into the original document, or discard the changes.\n\n**Try it out:** Open this page in a new browser tab or window to see it in action!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)"
+      },
+      {
+        "projectSlug": "comments-testing",
+        "fullSlug": "collaboration/comments-testing",
+        "pathFromRoot": "examples/07-collaboration/09-comments-testing",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "matthewlipski",
+          "tags": [
+            "Advanced",
+            "Comments",
+            "Testing"
+          ],
+          "dependencies": {
+            "yjs": "^13.6.27"
+          } as any
+        },
+        "title": "Comments Testing",
+        "group": {
+          "pathFromRoot": "examples/07-collaboration",
+          "slug": "collaboration"
+        },
+        "readme": "A minimal comments example used for end-to-end testing. Uses a local Y.Doc (no collaboration provider) with a single hardcoded editor user."
       }
     ]
   },
