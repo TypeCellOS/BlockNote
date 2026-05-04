@@ -7,6 +7,7 @@ import {
   RemoveBlockItem,
   SideMenu,
   SideMenuController,
+  SideMenuProps,
   useCreateBlockNote,
 } from "@blocknote/react";
 
@@ -22,6 +23,10 @@ const CustomDragHandleMenu = () => (
     {/* Item which resets the hovered block's type. */}
     <ResetBlockTypeItem>Reset Type</ResetBlockTypeItem>
   </DragHandleMenu>
+);
+
+const CustomSideMenu = (props: SideMenuProps) => (
+  <SideMenu {...props} dragHandleMenu={CustomDragHandleMenu} />
 );
 
 export default function App() {
@@ -50,11 +55,7 @@ export default function App() {
   // Renders the editor instance.
   return (
     <BlockNoteView editor={editor} sideMenu={false}>
-      <SideMenuController
-        sideMenu={(props) => (
-          <SideMenu {...props} dragHandleMenu={CustomDragHandleMenu} />
-        )}
-      />
+      <SideMenuController sideMenu={CustomSideMenu} />
     </BlockNoteView>
   );
 }

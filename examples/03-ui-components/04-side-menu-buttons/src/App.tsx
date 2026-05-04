@@ -5,10 +5,19 @@ import {
   DragHandleButton,
   SideMenu,
   SideMenuController,
+  SideMenuProps,
   useCreateBlockNote,
 } from "@blocknote/react";
 
 import { RemoveBlockButton } from "./RemoveBlockButton";
+
+const CustomSideMenu = (props: SideMenuProps) => (
+  <SideMenu {...props}>
+    {/* Button which removes the hovered block. */}
+    <RemoveBlockButton />
+    <DragHandleButton {...props} />
+  </SideMenu>
+);
 
 export default function App() {
   // Creates a new editor instance.
@@ -35,15 +44,7 @@ export default function App() {
   // Renders the editor instance.
   return (
     <BlockNoteView editor={editor} sideMenu={false}>
-      <SideMenuController
-        sideMenu={(props) => (
-          <SideMenu {...props}>
-            {/* Button which removes the hovered block. */}
-            <RemoveBlockButton />
-            <DragHandleButton {...props} />
-          </SideMenu>
-        )}
-      />
+      <SideMenuController sideMenu={CustomSideMenu} />
     </BlockNoteView>
   );
 }
