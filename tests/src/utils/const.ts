@@ -51,6 +51,10 @@ export const COMMENTS_URL = !process.env.RUN_IN_DOCKER
   ? `http://localhost:${PORT}/collaboration/comments-testing?hideMenu`
   : `http://host.docker.internal:${PORT}/collaboration/comments-testing?hideMenu`;
 
+export const NO_TRAILING_BLOCK_URL = !process.env.RUN_IN_DOCKER
+  ? `http://localhost:${PORT}/basic/no-trailing-block?hideMenu`
+  : `http://host.docker.internal:${PORT}/basic/no-trailing-block?hideMenu`;
+
 export const PASTE_ZONE_SELECTOR = "#pasteZone";
 
 export const EDITOR_SELECTOR = `.bn-editor`;
