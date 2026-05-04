@@ -1415,6 +1415,32 @@
         "readme": "This example shows how you can configure the editor's default blocks. Specifically, heading blocks are made to only support levels 1-3, and cannot be toggleable.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Default Schema](/docs/foundations/schemas)\n- [Custom Schemas](/docs/features/custom-schemas)"
       },
       {
+        "projectSlug": "container-block",
+        "fullSlug": "custom-schema/container-block",
+        "pathFromRoot": "examples/06-custom-schema/08-container-block",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "nickthesick",
+          "tags": [
+            "Intermediate",
+            "Blocks",
+            "Custom Schemas",
+            "Suggestion Menus",
+            "Slash Menu"
+          ],
+          "dependencies": {
+            "react-icons": "^5.5.0"
+          } as any
+        },
+        "title": "Container Block",
+        "group": {
+          "pathFromRoot": "examples/06-custom-schema",
+          "slug": "custom-schema"
+        },
+        "readme": "In this example, we create a custom `Callout` block that holds **other blocks** as its body — like a Notion-style callout that can wrap a paragraph followed by a code block, or any combination of nested blocks.\n\nThe block uses the new `container` config on `BlockConfig`. Setting `container: { defaultBlocks: [\"paragraph\"] }` (with `content: \"none\"`) tells BlockNote to emit a ProseMirror node that holds nested `blockContainer+` children — the same shape that columns use under the hood. The contained blocks live on `block.children` at runtime.\n\nWe also wire up a Slash Menu item to insert the callout, and render the document JSON next to the editor so you can inspect the structure of the nested blocks.\n\n**Try it out:**\n\n- Press the \"/\" key inside the callout's body and add a code block, heading, or list — anything goes.\n- Watch the JSON panel on the right update as you edit; the callout's children appear in `block.children`.\n- Insert a new callout via the Slash Menu (search \"callout\").\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)"
+      },
+      {
         "projectSlug": "non-editable-block",
         "fullSlug": "custom-schema/non-editable-block",
         "pathFromRoot": "examples/06-custom-schema/08-non-editable-block",

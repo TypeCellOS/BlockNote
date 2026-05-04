@@ -22,7 +22,7 @@ export const TrailingNodeExtension = createExtension(() => {
         appendTransaction: (_, __, state) => {
           const { doc, tr, schema } = state;
           const shouldInsertNodeAtEnd = plugin.getState(state);
-          const endPosition = doc.content.size - 2;
+          const endPosition = doc.content.size - 1;
           const type = schema.nodes["blockContainer"];
           const contentType = schema.nodes["paragraph"];
           if (!shouldInsertNodeAtEnd) {

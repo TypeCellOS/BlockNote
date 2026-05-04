@@ -1,6 +1,9 @@
-import { BlockNoteEditor, getNodeById } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  createExtension,
+  getNodeById,
+} from "@blocknote/core";
 import { SideMenuExtension } from "@blocknote/core/extensions";
-import { Extension } from "@tiptap/core";
 import { Node } from "prosemirror-model";
 import { Plugin, PluginKey, PluginView } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
@@ -356,12 +359,7 @@ const createColumnResizePlugin = (editor: BlockNoteEditor<any, any, any>) =>
     view: (view) => new ColumnResizePluginView(editor, view),
   });
 
-export const createColumnResizeExtension = (
-  editor: BlockNoteEditor<any, any, any>,
-) =>
-  Extension.create({
-    name: "columnResize",
-    addProseMirrorPlugins() {
-      return [createColumnResizePlugin(editor)];
-    },
-  });
+export const ColumnResizeExtension = createExtension(({ editor }) => ({
+  key: "columnResize",
+  prosemirrorPlugins: [createColumnResizePlugin(editor)],
+}));

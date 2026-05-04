@@ -1,0 +1,36 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`React updateBlock → container with defaultBlocks (document-level) > converts an empty paragraph to a callout via editor.updateBlock 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [],
+        "id": "1",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": undefined,
+    "id": "0",
+    "props": {},
+    "type": "callout",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "trailing",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;

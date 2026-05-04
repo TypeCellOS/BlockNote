@@ -16,10 +16,11 @@ import {
   isPartialLinkInlineContent,
   isStyledTextInlineContent,
 } from "../../schema/inlineContent/types.js";
+import type { ContainerConfig } from "../../schema/blocks/types.js";
 import { getColspan, isPartialTableCell } from "../../util/table.js";
 import { UnreachableCaseError } from "../../util/typescript.js";
 import { getAbsoluteTableCells } from "../blockManipulation/tables/tables.js";
-import { getStyleSchema } from "../pmUtil.js";
+import { getBlockSchema, getStyleSchema } from "../pmUtil.js";
 
 /**
  * Convert a StyledText inline element to a
@@ -367,12 +368,31 @@ export function blockToNode(
     );
   } else if (schema.nodes[block.type].isInGroup("bnBlock")) {
     // this is a bnBlock node like Column or ColumnList that directly translates to a prosemirror node
+    let effectiveChildren = children;
+
+    // Seed `defaultBlocks` for container blocks when no children would
+    // otherwise be present — covers both `block.children === undefined` and
+    // `block.children === []` (e.g. converting a leaf block whose
+    // `nodeToBlock` produced empty children into a container).
+    if (children.length === 0) {
+      // `container` is normalized to `ContainerConfig | undefined` at spec
+      // registration time (see addNodeAndExtensionsToSpec).
+      const containerConfig = getBlockSchema(schema)[block.type]
+        ?.container as ContainerConfig | undefined;
+      const defaultBlocks = containerConfig?.defaultBlocks;
+      if (defaultBlocks && defaultBlocks.length > 0) {
+        effectiveChildren = defaultBlocks.map((type) =>
+          blockToNode({ type } as PartialBlock<any, any, any>, schema, styleSchema),
+        );
+      }
+    }
+
     return schema.nodes[block.type].createChecked(
       {
         id: id,
         ...block.props,
       },
-      children,
+      effectiveChildren,
     );
   } else {
     throw new Error(

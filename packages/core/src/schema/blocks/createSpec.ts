@@ -8,6 +8,7 @@ import {
 } from "../../editor/BlockNoteExtension.js";
 import { PropSchema } from "../propTypes.js";
 import {
+  containerContentExpression,
   getBlockFromPos,
   propsToAttributes,
   wrapInBlockStructure,
@@ -18,6 +19,7 @@ import {
   BlockImplementation,
   BlockImplementationOrCreator,
   BlockSpec,
+  ContainerConfig,
   LooseBlockSpec,
 } from "./types.js";
 
@@ -135,6 +137,132 @@ export function getParseRules<
   return rules;
 }
 
+function buildContainerNode<
+  TName extends string,
+  TProps extends PropSchema,
+>(
+  blockConfig: BlockConfig<TName, TProps, "none">,
+  blockImplementation: BlockImplementation<TName, TProps, "none">,
+  containerConfig: ContainerConfig,
+  // priority is hardcoded inside the node spec below; the param is kept so the
+  // caller signature mirrors the non-container path but is intentionally unused.
+  _priority?: number,
+) {
+  return Node.create({
+    name: blockConfig.type,
+    content: containerContentExpression(containerConfig),
+    group:
+      containerConfig.topLevel === false
+        ? "bnBlock childContainer"
+        : "bnBlock childContainer blockGroupChild",
+    // All bnBlock-group structural nodes carry these collab annotation marks
+    // (see Doc, BlockGroup, BlockContainer, Table, Column/ColumnList).
+    marks: "deletion insertion modification",
+    selectable: blockImplementation.meta?.selectable ?? true,
+    isolating: blockImplementation.meta?.isolating ?? true,
+    defining: true,
+    // Hardcoded priority 40 (matches the historical Column/ColumnList shape).
+    // Why hardcoded and ignoring the caller-supplied priority? Because PM's
+    // `fillBefore` picks the FIRST type in an or-expression / group when
+    // auto-filling a non-optional node. With `blockGroupChild+` content
+    // (which includes containers themselves), if a container appeared first
+    // in the schema's `nodes` map, PM would try to auto-fill empty
+    // containers with another container and stack-overflow. We need
+    // `blockContainer` (priority 50, registered later) to come BEFORE
+    // container blocks in the schema map. Tiptap registers higher-priority
+    // extensions earlier, so we want our priority to be LOWER than 50.
+    // The schema layer passes its own per-block priority (~101) but we
+    // override it here for cycle-safety.
+    priority: 40,
+    addAttributes() {
+      return propsToAttributes(blockConfig.propSchema);
+    },
+
+    parseHTML() {
+      const rules: TagParseRule[] = [
+        {
+          tag: "*",
+          getAttrs: (element) => {
+            if (typeof element === "string") {
+              return false;
+            }
+            if (element.getAttribute("data-node-type") === blockConfig.type) {
+              return {};
+            }
+            return false;
+          },
+        },
+      ];
+
+      if (blockImplementation.parse) {
+        rules.push({
+          tag: "*",
+          getAttrs(node) {
+            if (typeof node === "string") {
+              return false;
+            }
+            const props = blockImplementation.parse?.(node);
+            if (props === undefined) {
+              return false;
+            }
+            return props;
+          },
+          preserveWhitespace: true,
+        });
+      }
+
+      return rules;
+    },
+
+    renderHTML({ HTMLAttributes }) {
+      const div = document.createElement("div");
+      div.setAttribute("data-node-type", blockConfig.type);
+      for (const [attribute, value] of Object.entries(HTMLAttributes)) {
+        div.setAttribute(attribute, value as any);
+      }
+      return {
+        dom: div,
+        contentDOM: div,
+      };
+    },
+
+    addNodeView() {
+      return (props) => {
+        const editor = this.options.editor;
+        // For container blocks the PM node IS the bnBlock (no blockContainer
+        // wrapper), so the id lives on `props.node.attrs.id` directly. We
+        // can't use getBlockFromPos here because it walks up to the parent.
+        const blockIdentifier = (props.node.attrs as Record<string, any>).id;
+        if (!blockIdentifier) {
+          throw new Error(
+            `Container block "${blockConfig.type}" is missing an id attribute. Make sure it is registered with UniqueID.`,
+          );
+        }
+        const block = editor.getBlock(blockIdentifier);
+        if (!block) {
+          throw new Error(
+            `Container block with id "${blockIdentifier}" not found.`,
+          );
+        }
+        const blockContentDOMAttributes =
+          this.options.domAttributes?.blockContent || {};
+
+        const nodeView = blockImplementation.render.call(
+          { blockContentDOMAttributes, props, renderType: "nodeView" },
+          block as any,
+          editor as any,
+        ) as unknown as NodeView;
+
+        if (blockImplementation.meta?.selectable === false) {
+          applyNonSelectableBlockFix(nodeView, this.editor);
+        }
+
+        return nodeView;
+      };
+    },
+  });
+}
+
 // A function to create custom block for API consumers
 // we want to hide the tiptap node from API consumers and provide a simpler API surface instead
 export function addNodeAndExtensionsToSpec<
@@ -147,9 +275,32 @@ export function addNodeAndExtensionsToSpec<
   extensions?: (ExtensionFactoryInstance | Extension)[],
   priority?: number,
 ): LooseBlockSpec<TName, TProps, TContent> {
+  // Normalize the `container: true` shorthand once, here. Downstream code
+  // sees `ContainerConfig | undefined` only.
+  const containerConfig: ContainerConfig | undefined =
+    blockConfig.container === true ? {} : blockConfig.container;
+  blockConfig = { ...blockConfig, container: containerConfig };
+
+  if (containerConfig && blockConfig.content !== "none") {
+    throw new Error(
+      `Block "${blockConfig.type}" sets \`container\` but its \`content\` is "${blockConfig.content}". Container blocks must declare \`content: "none"\`.`,
+    );
+  }
+
   const node =
     ((blockImplementation as any).node as Node) ||
-    Node.create({
+    (containerConfig
+      ? buildContainerNode(
+          blockConfig as unknown as BlockConfig<TName, TProps, "none">,
+          blockImplementation as unknown as BlockImplementation<
+            TName,
+            TProps,
+            "none"
+          >,
+          containerConfig,
+          priority,
+        )
+      : Node.create({
       name: blockConfig.type,
       content: (blockConfig.content === "inline"
         ? "inline*"
@@ -226,7 +377,7 @@ export function addNodeAndExtensionsToSpec<
           return typedNodeView;
         };
       },
-    });
+    }));
 
   if (node.name !== blockConfig.type) {
     throw new Error(
@@ -400,6 +551,12 @@ export function createBlockSpec<
             return undefined;
           }
 
+          // Container blocks own their outer DOM entirely (the PM node IS
+          // the bnBlock — no `blockContent` wrapper) — pass through.
+          if (editor.pmSchema.nodes[block.type]?.isInGroup("bnBlock")) {
+            return output;
+          }
+
           return wrapInBlockStructure(
             output,
             block.type,
@@ -418,6 +575,10 @@ export function createBlockSpec<
             block as any,
             editor as any,
           );
+
+          if (editor.pmSchema.nodes[block.type]?.isInGroup("bnBlock")) {
+            return output;
+          }
 
           const nodeView = wrapInBlockStructure(
             output,

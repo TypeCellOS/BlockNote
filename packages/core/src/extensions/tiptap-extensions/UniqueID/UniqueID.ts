@@ -5,7 +5,7 @@ import {
   getChangedRanges,
 } from "@tiptap/core";
 import { Fragment, Slice } from "prosemirror-model";
-import { Plugin, PluginKey } from "prosemirror-state";
+import { Plugin, PluginKey, Transaction } from "prosemirror-state";
 import { uuidv4 } from "lib0/random";
 
 /**
@@ -49,7 +49,7 @@ const UniqueID = Extension.create({
   addOptions() {
     return {
       attributeName: "id",
-      types: [],
+      types: [] as string[],
       setIdAttribute: false,
       isWithinEditor: undefined as ((element: Element) => boolean) | undefined,
       generateID: () => {
@@ -67,7 +67,7 @@ const UniqueID = Extension.create({
 
         return uuidv4();
       },
-      filterTransaction: null,
+      filterTransaction: null as ((tr: Transaction) => boolean) | null,
     };
   },
   addGlobalAttributes() {
