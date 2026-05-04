@@ -466,6 +466,8 @@ export class TableHandlesView implements PluginView {
     event.preventDefault();
 
     const { draggingState, colIndex, rowIndex } = this.state;
+    // Clear so a re-dispatched drop short-circuits above (issue #2691).
+    this.state.draggingState = undefined;
 
     const columnWidths = this.state.block.content.columnWidths;
 
