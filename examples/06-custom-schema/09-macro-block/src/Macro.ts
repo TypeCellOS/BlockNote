@@ -1,6 +1,6 @@
 import { createBlockSpec, defaultProps } from "@blocknote/core";
 
-import { macroRegistry } from "./macroRegistry.js";
+import { macroRegistry } from "./macroRegistry";
 
 // The Macro block — built with the vanilla `createBlockSpec` API.
 //
