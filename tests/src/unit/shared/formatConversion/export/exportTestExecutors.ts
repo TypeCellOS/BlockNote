@@ -13,7 +13,7 @@ import { ExportTestCase } from "./exportTestCase.js";
 
 // Preserve `<code>` whitespace so code-block snapshots show actual newlines
 // instead of having them collapsed by the prettifier.
-const PRETTIFY_OPTIONS = { tag_wrap: true, ignore: ["code"] } as const;
+const PRETTIFY_OPTIONS = { tag_wrap: true, ignore: ["code"] };
 
 export const testExportBlockNoteHTML = async <
   B extends BlockSchema,
