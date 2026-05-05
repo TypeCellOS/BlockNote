@@ -1127,6 +1127,17 @@ Paragraph
   },
   {
     testCase: {
+      name: "singleNewLines",
+      content: `Line 1
+Line 2
+Line 3
+Line 4
+`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  {
+    testCase: {
       name: "nested",
       content: `# Heading
   
