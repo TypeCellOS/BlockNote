@@ -1,0 +1,107 @@
+/* App layout */
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: 100%;
+}
+
+.item {
+  border-radius: 0.5rem;
+  flex: 1;
+  overflow: hidden;
+}
+
+.item.bordered {
+  border: 1px solid gray;
+}
+
+.item pre {
+  border-radius: 0.5rem;
+  height: 100%;
+  overflow: auto;
+  padding-block: 1rem;
+  padding-inline: 54px;
+  width: 100%;
+  white-space: pre-wrap;
+}
+
+/* Callout chrome */
+.callout {
+  display: flex;
+  align-items: stretch;
+  flex-grow: 1;
+  border-radius: 8px;
+  padding: 12px 16px;
+  gap: 12px;
+  border-left: 4px solid;
+}
+
+.callout[data-callout-tone="info"] {
+  background-color: #eef4ff;
+  border-left-color: #4a90e2;
+}
+
+.callout[data-callout-tone="tip"] {
+  background-color: #fffbe6;
+  border-left-color: #d8a823;
+}
+
+.callout[data-callout-tone="success"] {
+  background-color: #ecfdf3;
+  border-left-color: #18a957;
+}
+
+.callout[data-callout-tone="warning"] {
+  background-color: #fff4ed;
+  border-left-color: #e07a3a;
+}
+
+[data-color-scheme="dark"] .callout[data-callout-tone="info"] {
+  background-color: #1f2a3d;
+  border-left-color: #4a90e2;
+}
+
+[data-color-scheme="dark"] .callout[data-callout-tone="tip"] {
+  background-color: #2d2614;
+  border-left-color: #d8a823;
+}
+
+[data-color-scheme="dark"] .callout[data-callout-tone="success"] {
+  background-color: #14302a;
+  border-left-color: #18a957;
+}
+
+[data-color-scheme="dark"] .callout[data-callout-tone="warning"] {
+  background-color: #2d1d10;
+  border-left-color: #e07a3a;
+}
+
+.callout-icon-wrapper {
+  display: flex;
+  align-items: flex-start;
+  flex-shrink: 0;
+  cursor: pointer;
+  user-select: none;
+  padding-top: 4px;
+}
+
+.callout-icon[data-callout-icon-tone="info"] {
+  color: #4a90e2;
+}
+.callout-icon[data-callout-icon-tone="tip"] {
+  color: #d8a823;
+}
+.callout-icon[data-callout-icon-tone="success"] {
+  color: #18a957;
+}
+.callout-icon[data-callout-icon-tone="warning"] {
+  color: #e07a3a;
+}
+
+/* The callout body holds the child blockContainers as siblings — the same
+   layout pattern the top-level document uses. */
+.callout-body {
+  flex-grow: 1;
+  min-width: 0;
+}

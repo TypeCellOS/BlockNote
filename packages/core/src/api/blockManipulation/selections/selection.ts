@@ -1,6 +1,7 @@
 import { TextSelection, type Transaction } from "prosemirror-state";
 import { TableMap } from "prosemirror-tables";
 import { Block } from "../../../blocks/defaultBlocks.js";
+import { tableContentType } from "../../../blocks/Table/block.js";
 import { Selection } from "../../../editor/selectionTypes.js";
 import {
   BlockIdentifier,
@@ -186,7 +187,7 @@ export function setSelection(
   let startPos: number;
   let endPos: number;
 
-  if (anchorBlockConfig.content === "table") {
+  if (anchorBlockConfig.content === tableContentType) {
     const tableMap = TableMap.get(anchorBlockInfo.blockContent.node);
     const firstCellPos =
       anchorBlockInfo.blockContent.beforePos +
@@ -197,7 +198,7 @@ export function setSelection(
     startPos = anchorBlockInfo.blockContent.beforePos + 1;
   }
 
-  if (headBlockConfig.content === "table") {
+  if (headBlockConfig.content === tableContentType) {
     const tableMap = TableMap.get(headBlockInfo.blockContent.node);
     const lastCellPos =
       headBlockInfo.blockContent.beforePos +

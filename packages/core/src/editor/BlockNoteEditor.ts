@@ -560,6 +560,11 @@ export class BlockNoteEditor<
         );
       }
       const schema = getSchema(tiptapOptions.extensions!);
+      // `blockContentToNodes` (called from `blockToNode`) looks up the block
+      // schema via `schema.cached.blockNoteEditor`, but the back-pointer below
+      // on `this.pmSchema` isn't set until after the TiptapEditor is created.
+      // For initial-content conversion we wire it up on the temp schema here.
+      schema.cached.blockNoteEditor = this;
       const pmNodes = initialContent.map((b) =>
         blockToNode(b, schema, this.schema.styleSchema).toJSON(),
       );

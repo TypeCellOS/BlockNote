@@ -1,0 +1,164 @@
+/* App layout */
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: 100%;
+}
+
+.item {
+  border-radius: 0.5rem;
+  flex: 1;
+  overflow: hidden;
+}
+
+.item.bordered {
+  border: 1px solid gray;
+}
+
+.item pre {
+  border-radius: 0.5rem;
+  height: 100%;
+  overflow: auto;
+  padding-block: 1rem;
+  padding-inline: 54px;
+  width: 100%;
+  white-space: pre-wrap;
+}
+
+/* Tab group chrome */
+.tabs {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  border: 1px solid #d8e0ea;
+  background-color: #fafbfd;
+  overflow: hidden;
+}
+
+[data-color-scheme="dark"] .tabs {
+  border-color: #2c3441;
+  background-color: #1a1f29;
+}
+
+/* Tab bar — non-editable; sits above the bodies. */
+.tabs-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 6px 8px 0;
+  border-bottom: 1px solid #d8e0ea;
+  background-color: #eef2f7;
+  user-select: none;
+}
+
+[data-color-scheme="dark"] .tabs-bar {
+  background-color: #232a36;
+  border-bottom-color: #2c3441;
+}
+
+.tab-button-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.tab-button {
+  font: inherit;
+  font-size: 0.9em;
+  font-weight: 500;
+  color: #4a5568;
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-bottom: none;
+  padding: 6px 28px 6px 12px;
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+  margin-bottom: -1px;
+  transition: background-color 0.1s;
+}
+
+[data-color-scheme="dark"] .tab-button {
+  color: #cbd5e1;
+}
+
+.tab-button:hover {
+  background-color: #dde4ee;
+}
+
+[data-color-scheme="dark"] .tab-button:hover {
+  background-color: #2c3441;
+}
+
+.tab-button-active,
+.tab-button-active:hover {
+  background-color: #fafbfd;
+  border-color: #d8e0ea;
+  color: #1a202c;
+  cursor: default;
+}
+
+[data-color-scheme="dark"] .tab-button-active,
+[data-color-scheme="dark"] .tab-button-active:hover {
+  background-color: #1a1f29;
+  border-color: #2c3441;
+  color: #f0f4fa;
+}
+
+.tab-close {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  font: inherit;
+  font-size: 0.9em;
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  color: #94a3b8;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.tab-close:hover {
+  background-color: #cbd5e1;
+  color: #1a202c;
+}
+
+[data-color-scheme="dark"] .tab-close:hover {
+  background-color: #475569;
+  color: #f0f4fa;
+}
+
+.tab-add,
+.tab-add:hover {
+  margin-right: 4px;
+  padding-right: 12px;
+  background-color: transparent;
+  border: 1px dashed transparent;
+  color: #4a5568;
+}
+
+.tab-add:hover {
+  border-color: #94a3b8;
+  background-color: #dde4ee;
+}
+
+[data-color-scheme="dark"] .tab-add:hover {
+  border-color: #475569;
+  background-color: #2c3441;
+}
+
+/* Tab bodies. Every tab's body lives in the DOM; the React component toggles
+   `display` inline on each item via a layout effect (see Tabs.tsx). */
+.tabs-bodies {
+  flex-grow: 1;
+  padding: 12px 16px;
+  min-height: 60px;
+}

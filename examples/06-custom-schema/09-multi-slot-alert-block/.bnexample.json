@@ -1,0 +1,15 @@
+{
+  "playground": true,
+  "docs": true,
+  "author": "yousefed",
+  "tags": [
+    "Intermediate",
+    "Blocks",
+    "Custom Schemas",
+    "Combinator Content"
+  ],
+  "dependencies": {
+    "@mantine/core": "^8.3.11",
+    "react-icons": "^5.5.0"
+  }
+}

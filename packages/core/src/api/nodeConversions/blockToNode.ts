@@ -19,7 +19,12 @@ import {
 import { getColspan, isPartialTableCell } from "../../util/table.js";
 import { UnreachableCaseError } from "../../util/typescript.js";
 import { getAbsoluteTableCells } from "../blockManipulation/tables/tables.js";
-import { getStyleSchema } from "../pmUtil.js";
+import {
+  getBlockSchema,
+  getInlineContentSchema,
+  getStyleSchema,
+} from "../pmUtil.js";
+import { contentNodeToInlineContent, nodeToBlock } from "./nodeToBlock.js";
 
 /**
  * Convert a StyledText inline element to a
@@ -272,6 +277,83 @@ export function tableContentToNodes<
   return rowNodes;
 }
 
+/**
+ * Convert any BlockNote block content (inline-content array, string, or a
+ * content-type structured value like a table) to ProseMirror child nodes.
+ *
+ * Dispatches based on the JSON shape and the block schema's registered
+ * {@link ContentType}. This is the canonical conversion entry-point used by
+ * `blockOrInlineContentToContentNode` (which wraps the result in a parent
+ * node), and is also called directly by callers that need the raw nodes
+ * (e.g. `updateBlock`, the HTML serializers).
+ *
+ * `blockType` is the block-schema lookup key for content-type dispatch.
+ *
+ * `options.inlineBlockType` controls hard-break parsing inside inline-content
+ * regions: for code blocks the editor preserves literal `\n` characters (no
+ * hard-break nodes), but external HTML export deliberately *does* want hard
+ * breaks even inside code. The option is set via an options bag rather than a
+ * defaulted positional parameter because JS default parameters fire when
+ * `undefined` is passed explicitly, making it impossible to distinguish
+ * "omitted" from "deliberately undefined". Defaults to `blockType` when the
+ * option is not present.
+ */
+export function blockContentToNodes(
+  content: PartialBlock<any, any, any>["content"],
+  schema: Schema,
+  blockType: string,
+  styleSchema: StyleSchema = getStyleSchema(schema),
+  options: { inlineBlockType?: string | undefined } = {},
+): Node[] {
+  const inlineBlockType =
+    "inlineBlockType" in options ? options.inlineBlockType : blockType;
+  if (content === undefined) {
+    return [];
+  }
+  // ContentType dispatch comes before the array shortcut: a `c.list()`-backed
+  // block also has an array-shaped JSON content (e.g. tabs are an array of
+  // tab items), but those arrays must route through the content type's
+  // `jsonToNodes` rather than being treated as inline content.
+  const blockSchema = getBlockSchema(schema);
+  const blockConfig = blockSchema?.[blockType];
+  const contentType = blockConfig?.content;
+  if (
+    contentType &&
+    typeof contentType === "object" &&
+    "jsonToNodes" in contentType
+  ) {
+    const inlineContentSchema = getInlineContentSchema(schema);
+    return [
+      ...contentType.jsonToNodes(content, {
+        schema,
+        inlineContentSchema,
+        styleSchema,
+        contentNodeToInlineContent: (n) =>
+          contentNodeToInlineContent(n, inlineContentSchema, styleSchema),
+        inlineContentToNodes: (c, bt) =>
+          inlineContentToNodes(c, schema, bt, styleSchema),
+        nodeToBlock: (n) => nodeToBlock(n as Node, schema),
+        blockToNode: (b) =>
+          blockToNode(b as PartialBlock<any, any, any>, schema, styleSchema),
+      }),
+    ];
+  }
+  if (typeof content === "string") {
+    return inlineContentToNodes(
+      [content],
+      schema,
+      inlineBlockType,
+      styleSchema,
+    );
+  }
+  if (Array.isArray(content)) {
+    return inlineContentToNodes(content, schema, inlineBlockType, styleSchema);
+  }
+  throw new Error(
+    `Block type "${blockType}" has unknown content shape; cannot convert.`,
+  );
+}
+
 function blockOrInlineContentToContentNode(
   block:
     | PartialBlock<any, any, any>
@@ -279,7 +361,6 @@ function blockOrInlineContentToContentNode(
   schema: Schema,
   styleSchema: StyleSchema,
 ) {
-  let contentNode: Node;
   let type = block.type;
 
   // TODO: needed? came from previous code
@@ -292,30 +373,15 @@ function blockOrInlineContentToContentNode(
   }
 
   if (!block.content) {
-    contentNode = schema.nodes[type].createChecked(block.props);
-  } else if (typeof block.content === "string") {
-    const nodes = inlineContentToNodes(
-      [block.content],
-      schema,
-      type,
-      styleSchema,
-    );
-    contentNode = schema.nodes[type].createChecked(block.props, nodes);
-  } else if (Array.isArray(block.content)) {
-    const nodes = inlineContentToNodes(
-      block.content,
-      schema,
-      type,
-      styleSchema,
-    );
-    contentNode = schema.nodes[type].createChecked(block.props, nodes);
-  } else if (block.content.type === "tableContent") {
-    const nodes = tableContentToNodes(block.content, schema, styleSchema);
-    contentNode = schema.nodes[type].createChecked(block.props, nodes);
-  } else {
-    throw new UnreachableCaseError(block.content.type);
+    return schema.nodes[type].createChecked(block.props);
   }
-  return contentNode;
+  const nodes = blockContentToNodes(
+    block.content as PartialBlock<any, any, any>["content"],
+    schema,
+    type,
+    styleSchema,
+  );
+  return schema.nodes[type].createChecked(block.props, nodes);
 }
 
 /**

@@ -1,4 +1,4 @@
-import { DOMSerializer, Fragment, Node } from "prosemirror-model";
+import { DOMSerializer, Fragment } from "prosemirror-model";
 
 import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
@@ -7,11 +7,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../../schema/index.js";
-import { UnreachableCaseError } from "../../../../util/typescript.js";
-import {
-  inlineContentToNodes,
-  tableContentToNodes,
-} from "../../../nodeConversions/blockToNode.js";
+import { blockContentToNodes } from "../../../nodeConversions/blockToNode.js";
 
 import { nodeToCustomInlineContent } from "../../../nodeConversions/nodeToBlock.js";
 export function serializeInlineContentInternalHTML<
@@ -25,20 +21,14 @@ export function serializeInlineContentInternalHTML<
   blockType?: string,
   options?: { document?: Document },
 ) {
-  let nodes: Node[];
-
-  // TODO: reuse function from nodeconversions?
   if (!blockContent) {
     throw new Error("blockContent is required");
-  } else if (typeof blockContent === "string") {
-    nodes = inlineContentToNodes([blockContent], editor.pmSchema, blockType);
-  } else if (Array.isArray(blockContent)) {
-    nodes = inlineContentToNodes(blockContent, editor.pmSchema, blockType);
-  } else if (blockContent.type === "tableContent") {
-    nodes = tableContentToNodes(blockContent, editor.pmSchema);
-  } else {
-    throw new UnreachableCaseError(blockContent.type);
   }
+  const nodes = blockContentToNodes(
+    blockContent as PartialBlock<BSchema, I, S>["content"],
+    editor.pmSchema,
+    blockType ?? "paragraph",
+  );
 
   // Check if any of the nodes are custom inline content with toExternalHTML
   const doc = options?.document ?? document;

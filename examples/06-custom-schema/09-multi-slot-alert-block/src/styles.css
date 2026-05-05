@@ -1,0 +1,122 @@
+/* App layout: editor on top, JSON panel below. */
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: 100%;
+}
+
+.item {
+  border-radius: 0.5rem;
+  flex: 1;
+  overflow: hidden;
+}
+
+.item.bordered {
+  border: 1px solid gray;
+}
+
+.item pre {
+  border-radius: 0.5rem;
+  height: 100%;
+  overflow: auto;
+  padding-block: 1rem;
+  padding-inline: 54px;
+  width: 100%;
+  white-space: pre-wrap;
+}
+
+/* Alert chrome: icon on the left, content slots on the right. */
+.alert {
+  display: flex;
+  align-items: stretch;
+  flex-grow: 1;
+  border-radius: 6px;
+  min-height: 64px;
+  padding: 8px 12px;
+  gap: 12px;
+}
+
+.alert[data-alert-variant="warning"] {
+  background-color: #fff6e6;
+}
+.alert[data-alert-variant="error"] {
+  background-color: #ffe6e6;
+}
+.alert[data-alert-variant="info"] {
+  background-color: #e6ebff;
+}
+.alert[data-alert-variant="success"] {
+  background-color: #e6ffe6;
+}
+
+[data-color-scheme="dark"] .alert[data-alert-variant="warning"] {
+  background-color: #805d20;
+}
+[data-color-scheme="dark"] .alert[data-alert-variant="error"] {
+  background-color: #802020;
+}
+[data-color-scheme="dark"] .alert[data-alert-variant="info"] {
+  background-color: #203380;
+}
+[data-color-scheme="dark"] .alert[data-alert-variant="success"] {
+  background-color: #208020;
+}
+
+.alert-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  user-select: none;
+  padding-top: 4px;
+}
+
+.alert-icon[data-alert-icon-variant="warning"] {
+  color: #e69819;
+}
+.alert-icon[data-alert-icon-variant="error"] {
+  color: #d80d0d;
+}
+.alert-icon[data-alert-icon-variant="info"] {
+  color: #507aff;
+}
+.alert-icon[data-alert-icon-variant="success"] {
+  color: #0bc10b;
+}
+
+/* Slots container: holds the title and body as stacked editable regions. */
+.alert-slots {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Per-slot styling, targeted by the deterministic data-content-name that the
+   combinator factory emits for each record field. */
+.alert-slots [data-content-name="alert__title"] {
+  font-weight: 600;
+  font-size: 1.05em;
+  line-height: 1.4;
+}
+
+.alert-slots [data-content-name="alert__body"] {
+  line-height: 1.5;
+}
+
+/* Empty-slot affordance: a hint of placeholder behavior for each slot.
+   (BlockNote's Placeholder extension targets the block-level content; for the
+   sub-slots we use CSS :empty for a minimal visual cue.) */
+.alert-slots [data-content-name="alert__title"]:empty::before {
+  content: "Title…";
+  color: rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+
+.alert-slots [data-content-name="alert__body"]:empty::before {
+  content: "Body…";
+  color: rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}

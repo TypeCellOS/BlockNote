@@ -30,10 +30,7 @@ function setSelectionToNextContentEditableBlock<
     if (block === undefined) {
       return;
     }
-    contentType = editor.schema.blockSchema[block.type].content as
-      | "inline"
-      | "table"
-      | "none";
+    contentType = editor.schema.blockSchema[block.type].content;
     editor.setTextCursorPosition(block, "end");
   }
 }

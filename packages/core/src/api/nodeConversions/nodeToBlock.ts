@@ -13,6 +13,7 @@ import type {
   TableCell,
   TableContent,
 } from "../../schema/index.js";
+import { blockToNode, inlineContentToNodes } from "./blockToNode.js";
 import {
   isLinkInlineContent,
   isStyledTextInlineContent,
@@ -467,19 +468,29 @@ export function nodeToBlock<
       inlineContentSchema,
       styleSchema,
     );
-  } else if (blockConfig.content === "table") {
+  } else if (blockConfig.content === "none") {
+    content = undefined;
+  } else if (
+    typeof blockConfig.content === "object" &&
+    blockConfig.content !== null &&
+    "nodeToJSON" in blockConfig.content
+  ) {
     if (!blockInfo.isBlockContainer) {
       throw new Error("impossible");
     }
-    content = contentNodeToTableContent(
-      blockInfo.blockContent.node,
+    content = blockConfig.content.nodeToJSON(blockInfo.blockContent.node, {
+      schema,
       inlineContentSchema,
       styleSchema,
-    );
-  } else if (blockConfig.content === "none") {
-    content = undefined;
+      contentNodeToInlineContent: (n) =>
+        contentNodeToInlineContent(n, inlineContentSchema, styleSchema),
+      inlineContentToNodes: (c, blockType) =>
+        inlineContentToNodes(c, schema, blockType, styleSchema),
+      nodeToBlock: (n) => nodeToBlock(n as Node, schema),
+      blockToNode: (b) => blockToNode(b as any, schema, styleSchema),
+    });
   } else {
-    throw new UnreachableCaseError(blockConfig.content);
+    throw new UnreachableCaseError(blockConfig.content as never);
   }
 
   const block = {

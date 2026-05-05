@@ -1,7 +1,10 @@
 import { Attribute, Attributes, Editor, Node } from "@tiptap/core";
 import { defaultBlockToHTML } from "../../blocks/defaultBlockHelpers.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import type { ExtensionFactoryInstance } from "../../editor/BlockNoteExtension.js";
+import {
+  createExtension,
+  type ExtensionFactoryInstance,
+} from "../../editor/BlockNoteExtension.js";
 import { mergeCSSClasses } from "../../util/browser.js";
 import { camelToDataKebab } from "../../util/string.js";
 import { InlineContentSchema } from "../inlineContent/types.js";
@@ -9,6 +12,7 @@ import { PropSchema, Props } from "../propTypes.js";
 import { StyleSchema } from "../styles/types.js";
 import {
   BlockConfig,
+  BlockContent,
   BlockSchemaWithBlock,
   LooseBlockSpec,
   SpecificBlock,
@@ -197,7 +201,7 @@ export function createBlockSpecFromTiptapNode<
   const T extends {
     node: Node;
     type: string;
-    content: "inline" | "table" | "none";
+    content: BlockContent;
   },
   P extends PropSchema,
 >(
@@ -205,6 +209,29 @@ export function createBlockSpecFromTiptapNode<
   propSchema: P,
   extensions?: ExtensionFactoryInstance[],
 ): LooseBlockSpec<T["type"], P, T["content"]> {
+  // If the block uses a `ContentType` whose container references additional
+  // Tiptap nodes (e.g. table cells, combinator-derived slot nodes), register
+  // them automatically so the block author doesn't have to wire them up by
+  // hand. The content type may also expose explicit BlockNote `extensions`
+  // (e.g. table column resizing) — those are appended too.
+  const mergedExtensions: ExtensionFactoryInstance[] = [];
+  if (
+    typeof config.content === "object" &&
+    config.content !== null &&
+    "innerNodes" in config.content &&
+    config.content.innerNodes.length > 0
+  ) {
+    mergedExtensions.push(
+      createExtension({
+        key: `${config.content.name}-content-type-nodes`,
+        tiptapExtensions: [...config.content.innerNodes],
+      }),
+    );
+  }
+  if (extensions) {
+    mergedExtensions.push(...extensions);
+  }
+
   return {
     config: {
       type: config.type as T["type"],
@@ -216,6 +243,6 @@ export function createBlockSpecFromTiptapNode<
       render: defaultBlockToHTML,
       toExternalHTML: defaultBlockToHTML,
     },
-    extensions,
+    extensions: mergedExtensions,
   };
 }

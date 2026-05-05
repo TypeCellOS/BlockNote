@@ -83,6 +83,7 @@ function fragmentToExternalHTML<
     externalHTML = `<table>${externalHTMLExporter.exportInlineContent(
       ic as any,
       {},
+      "table",
     )}</table>`;
   } else if (isWithinBlockContent) {
     // first convert selection to blocknote-style inline content, and then

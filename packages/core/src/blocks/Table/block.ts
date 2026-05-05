@@ -3,12 +3,16 @@ import { DOMParser, Fragment, Node as PMNode, Schema } from "prosemirror-model";
 import { CellSelection, TableView } from "prosemirror-tables";
 import { NodeView } from "prosemirror-view";
 
+import { contentNodeToTableContent } from "../../api/nodeConversions/nodeToBlock.js";
+import { tableContentToNodes } from "../../api/nodeConversions/blockToNode.js";
 import { createExtension } from "../../editor/BlockNoteExtension.js";
 import {
   BlockConfig,
   createBlockSpecFromTiptapNode,
+  PartialTableContent,
   TableContent,
 } from "../../schema/index.js";
+import type { ContentType } from "../../schema/contentTypes/types.js";
 import { mergeCSSClasses } from "../../util/browser.js";
 import { camelToDataKebab } from "../../util/string.js";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
@@ -404,23 +408,66 @@ export type TableBlockConfig = BlockConfig<
       default: "default";
     };
   },
-  "table"
+  typeof tableContentType
 >;
+
+/**
+ * The table content type, packaged as a {@link ContentType} instance.
+ *
+ * This bundles the Tiptap nodes (`table` / `tableRow` / `tableCell` /
+ * `tableHeader` / `tableParagraph`), the column-resizing/cell-editing
+ * extension, and the existing PM <-> JSON conversion routines into a single
+ * value that satisfies the `ContentType` interface.
+ *
+ * It is currently *not yet wired into dispatch* — the conversion layer in
+ * `nodeToBlock` / `blockToNode` still hard-codes the `"table"` branch. This
+ * value exists as the abstraction landing pad: the next slice flips dispatch
+ * to read from a registered content type instead of switching on a string
+ * literal, and at that point this becomes the canonical definition of the
+ * table content shape.
+ */
+export const tableContentType: ContentType<
+  PartialTableContent<any, any>,
+  TableContent<any, any>
+> = {
+  name: "table",
+  containerNode: TiptapTableNode,
+  innerNodes: [
+    TiptapTableRow,
+    TiptapTableCell,
+    TiptapTableHeader,
+    TiptapTableParagraph,
+  ],
+  nodeToJSON(node, ctx) {
+    return contentNodeToTableContent(
+      node,
+      ctx.inlineContentSchema,
+      ctx.styleSchema,
+    );
+  },
+  jsonToNodes(json, ctx) {
+    return tableContentToNodes(json, ctx.schema, ctx.styleSchema);
+  },
+  // Used by JSON.stringify and pretty-format (snapshot tests). Produces a
+  // concise tag rather than dumping the Tiptap node hierarchy. Distinct from
+  // `nodeToJSON` which performs the runtime PM-to-BlockNote-JSON conversion.
+  toJSON() {
+    return { __contentType: "table" };
+  },
+};
 
 export const createTableBlockSpec = () =>
   createBlockSpecFromTiptapNode(
-    { node: TiptapTableNode, type: "table", content: "table" },
+    { node: TiptapTableNode, type: "table", content: tableContentType },
     tablePropSchema,
     [
+      // The table inner nodes (row/cell/header/paragraph) are registered
+      // automatically from `tableContentType.innerNodes`. Only the upstream
+      // `TableExtension` (column resizing, cell selection plugins) needs to be
+      // wired up explicitly here.
       createExtension({
         key: "table-extensions",
-        tiptapExtensions: [
-          TableExtension,
-          TiptapTableParagraph,
-          TiptapTableHeader,
-          TiptapTableCell,
-          TiptapTableRow,
-        ],
+        tiptapExtensions: [TableExtension],
       }),
       // Extension for keyboard shortcut which deletes the table if it's empty
       // and all cells are selected. Uses a separate extension as it needs

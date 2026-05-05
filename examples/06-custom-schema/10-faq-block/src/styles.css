@@ -1,0 +1,132 @@
+/* App layout */
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: 100%;
+}
+
+.item {
+  border-radius: 0.5rem;
+  flex: 1;
+  overflow: hidden;
+}
+
+.item.bordered {
+  border: 1px solid gray;
+}
+
+.item pre {
+  border-radius: 0.5rem;
+  height: 100%;
+  overflow: auto;
+  padding-block: 1rem;
+  padding-inline: 54px;
+  width: 100%;
+  white-space: pre-wrap;
+}
+
+/* FAQ chrome */
+.faq {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background-color: #f6f8fb;
+  border: 1px solid #d8e0ea;
+  flex-grow: 1;
+}
+
+[data-color-scheme="dark"] .faq {
+  background-color: #1f2530;
+  border-color: #2c3441;
+}
+
+.faq-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 1.1em;
+  letter-spacing: 0.02em;
+  color: #4a5568;
+  user-select: none;
+}
+
+[data-color-scheme="dark"] .faq-title {
+  color: #cbd5e1;
+}
+
+.faq-add {
+  font: inherit;
+  font-size: 0.85em;
+  font-weight: 500;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.faq-add:hover {
+  background-color: #357abd;
+}
+
+.faq-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Each list item is a record container, addressable via the deterministic
+   data-content-name attribute the combinator factory emits. */
+.faq-items [data-content-name="faq__item"] {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background-color: white;
+  border: 1px solid #e8eef5;
+}
+
+[data-color-scheme="dark"] .faq-items [data-content-name="faq__item"] {
+  background-color: #2a313e;
+  border-color: #353c4a;
+}
+
+/* Per-record-field slots, addressable by their inferred names. */
+.faq-items [data-content-name="faq__item__question"] {
+  font-weight: 600;
+  font-size: 1.02em;
+  line-height: 1.4;
+  color: #2d3748;
+}
+
+[data-color-scheme="dark"] .faq-items [data-content-name="faq__item__question"] {
+  color: #f0f4fa;
+}
+
+.faq-items [data-content-name="faq__item__answer"] {
+  margin-top: 4px;
+  line-height: 1.5;
+  color: #4a5568;
+}
+
+[data-color-scheme="dark"] .faq-items [data-content-name="faq__item__answer"] {
+  color: #cbd5e1;
+}
+
+/* Empty-slot affordance for both fields. */
+.faq-items [data-content-name="faq__item__question"]:empty::before {
+  content: "Question…";
+  color: rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+
+.faq-items [data-content-name="faq__item__answer"]:empty::before {
+  content: "Answer…";
+  color: rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
