@@ -1924,4 +1924,66 @@ const x = 1;
     },
     executeTest: testParseMarkdown,
   },
+  // Inline raw HTML tag inside a paragraph passes through verbatim
+  {
+    testCase: {
+      name: "inlineHtmlTag",
+      content: `Hello <em>world</em>!`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Multiple inline HTML tags with attributes
+  {
+    testCase: {
+      name: "inlineHtmlWithAttributes",
+      content: `Text with <strong>bold</strong> and <a href="https://example.com">link</a>.`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // A self-closing-style void HTML tag inside a paragraph
+  {
+    testCase: {
+      name: "inlineHtmlVoidTag",
+      content: `Line one<br>line two.`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Block-level raw HTML is emitted verbatim — not wrapped in <p>
+  {
+    testCase: {
+      name: "blockHtmlDiv",
+      content: `<div class="warn">
+A warning block.
+</div>`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Block-level HTML comment
+  {
+    testCase: {
+      name: "blockHtmlComment",
+      content: `<!-- a comment -->
+
+Next paragraph.`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Bare angle brackets that don't form a valid tag must still be escaped
+  {
+    testCase: {
+      name: "bareAngleBrackets",
+      content: `1 < 2 and 3 > 0`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Block HTML interrupting a paragraph above it
+  {
+    testCase: {
+      name: "blockHtmlInterruptsParagraph",
+      content: `Some text before.
+<div>raw block</div>
+Some text after.`,
+    },
+    executeTest: testParseMarkdown,
+  },
 ];

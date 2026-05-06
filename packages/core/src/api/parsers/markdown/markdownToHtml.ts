@@ -144,8 +144,40 @@ function trySoftBreak(
   return null;
 }
 
+// Inline raw HTML: pass through tags, comments, CDATA, processing
+// instructions, and declarations verbatim so authors can mix HTML into
+// markdown (e.g. `text <em>foo</em> more`). Anything that doesn't match
+// these shapes falls through and gets HTML-escaped as plain text.
+const INLINE_HTML_TAG_RE =
+  /^<\/?[a-zA-Z][a-zA-Z0-9-]*(?:\s+[a-zA-Z_:][a-zA-Z0-9_.:-]*(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'=<>`]+))?)*\s*\/?>/;
+const HTML_COMMENT_RE = /^<!--[\s\S]*?-->/;
+const HTML_CDATA_RE = /^<!\[CDATA\[[\s\S]*?\]\]>/;
+const HTML_PI_RE = /^<\?[\s\S]*?\?>/;
+const HTML_DECL_RE = /^<![A-Za-z][\s\S]*?>/;
+
+function tryInlineHtml(
+  text: string,
+  i: number
+): { html: string; end: number } | null {
+  if (text[i] !== "<") {return null;}
+  const rest = text.substring(i);
+  for (const re of [
+    HTML_COMMENT_RE,
+    HTML_CDATA_RE,
+    HTML_PI_RE,
+    HTML_DECL_RE,
+    INLINE_HTML_TAG_RE,
+  ]) {
+    const m = rest.match(re);
+    if (m) {
+      return { html: m[0], end: i + m[0].length };
+    }
+  }
+  return null;
+}
+
 /** Characters that can start an inline syntax token. */
-const SPECIAL_CHARS = new Set("\\`![~*_\n");
+const SPECIAL_CHARS = new Set("\\`![~*_\n<");
 
 /**
  * Ordered array of inline tokenizers, tried in priority order.
@@ -160,6 +192,7 @@ const inlineTokenizers: InlineTokenizer[] = [
   tryBoldItalic, // *** / ___
   tryBold, // ** / __
   tryItalic, // * / _
+  tryInlineHtml,
   trySoftBreak,
 ];
 
@@ -481,6 +514,11 @@ interface TableToken extends BlockToken {
   alignments: ("left" | "center" | "right" | null)[];
 }
 
+interface RawHtmlToken extends BlockToken {
+  type: "rawHtml";
+  content: string;
+}
+
 type Token =
   | HeadingToken
   | ParagraphToken
@@ -488,7 +526,34 @@ type Token =
   | BlockquoteToken
   | HorizontalRuleToken
   | ListItemToken
-  | TableToken;
+  | TableToken
+  | RawHtmlToken;
+
+/**
+ * HTML block-level tag names (from the CommonMark type-6 list). When a line
+ * starts with `<` followed by one of these tag names, the run of non-blank
+ * lines is emitted verbatim as raw HTML rather than wrapped in a paragraph.
+ */
+const HTML_BLOCK_TAGS = new Set([
+  "address", "article", "aside", "base", "basefont", "blockquote", "body",
+  "caption", "center", "col", "colgroup", "dd", "details", "dialog", "dir",
+  "div", "dl", "dt", "fieldset", "figcaption", "figure", "footer", "form",
+  "frame", "frameset", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header",
+  "hr", "html", "iframe", "legend", "li", "link", "main", "menu", "menuitem",
+  "nav", "noframes", "ol", "optgroup", "option", "p", "param", "section",
+  "source", "summary", "table", "tbody", "td", "tfoot", "th", "thead",
+  "title", "tr", "track", "ul",
+]);
+
+function isHtmlBlockStart(line: string): boolean {
+  // <!-- ..., <?..., <![CDATA[..., <!DOCTYPE, etc.
+  if (/^ {0,3}<(!--|\?|![A-Za-z]|!\[CDATA\[)/.test(line)) {
+    return true;
+  }
+  const m = line.match(/^ {0,3}<\/?([a-zA-Z][a-zA-Z0-9-]*)(?:\s|\/?>|$)/);
+  if (!m) {return false;}
+  return HTML_BLOCK_TAGS.has(m[1].toLowerCase());
+}
 
 // ─── Block-Level Tokenizer ──────────────────────────────────────────────────
 
@@ -735,6 +800,23 @@ function tokenize(markdown: string): Token[] {
       continue;
     }
 
+    // Block-level raw HTML: a line starting with `<tag>` (block-level tag),
+    // `<!-- ... -->`, `<?...?>`, `<!DOCTYPE ...>`, or `<![CDATA[...]]>`.
+    // Lines are emitted verbatim until the next blank line.
+    if (isHtmlBlockStart(line)) {
+      const htmlLines: string[] = [];
+      while (i < lines.length && lines[i].trim() !== "") {
+        htmlLines.push(lines[i]);
+        i++;
+      }
+      tokens.push({
+        type: "rawHtml",
+        content: htmlLines.join("\n"),
+      });
+      prevLineWasBlank = false;
+      continue;
+    }
+
     // Paragraph (default)
     const paraLines: string[] = [line];
     i++;
@@ -749,6 +831,7 @@ function tokenize(markdown: string): Token[] {
       if (/^(\s{0,3})([-*_])\s*(\2\s*){2,}$/.test(nextLine)) {break;}
       if (/^\s*([-*+]|\d+[.)])\s+/.test(nextLine)) {break;}
       if (/^\s*\|(.+\|)+\s*$/.test(nextLine)) {break;}
+      if (isHtmlBlockStart(nextLine)) {break;}
       // Check if next-next line is setext marker
       if (
         i + 1 < lines.length &&
@@ -917,6 +1000,13 @@ function tokensToHtml(tokens: Token[]): string {
       case "table": {
         const t = token as TableToken;
         html += emitTable(t);
+        i++;
+        break;
+      }
+
+      case "rawHtml": {
+        const t = token as RawHtmlToken;
+        html += t.content;
         i++;
         break;
       }
