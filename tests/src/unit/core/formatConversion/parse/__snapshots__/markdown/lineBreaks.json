@@ -4,17 +4,18 @@
     "content": [
       {
         "styles": {},
-        "text": "This is a quote
- that continues here
- and here too",
+        "text": "Line one
+ Line two
+ Line three",
         "type": "text",
       },
     ],
     "id": "1",
     "props": {
       "backgroundColor": "default",
+      "textAlignment": "left",
       "textColor": "default",
     },
-    "type": "quote",
+    "type": "paragraph",
   },
 ]

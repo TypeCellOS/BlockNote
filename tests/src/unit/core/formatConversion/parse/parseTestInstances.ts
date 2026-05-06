@@ -1127,17 +1127,6 @@ Paragraph
   },
   {
     testCase: {
-      name: "singleNewLines",
-      content: `Line 1
-Line 2
-Line 3
-Line 4
-`,
-    },
-    executeTest: testParseMarkdown,
-  },
-  {
-    testCase: {
       name: "nested",
       content: `# Heading
   
@@ -1700,12 +1689,13 @@ Third paragraph`,
     },
     executeTest: testParseMarkdown,
   },
-  // Paragraph continuation (lines without blank line)
+  // Line breaks
   {
     testCase: {
-      name: "paragraphContinuation",
+      name: "lineBreaks",
       content: `Line one
-still same paragraph`,
+Line two
+Line three`,
     },
     executeTest: testParseMarkdown,
   },

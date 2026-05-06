@@ -139,7 +139,7 @@ function trySoftBreak(
   i: number
 ): { html: string; end: number } | null {
   if (text[i] === "\n") {
-    return { html: "\n", end: i + 1 };
+    return { html: "<br>\n", end: i + 1 };
   }
   return null;
 }
