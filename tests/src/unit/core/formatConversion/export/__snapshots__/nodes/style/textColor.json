@@ -1,0 +1,32 @@
+[
+  {
+    "attrs": {
+      "id": "1",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "content": [
+          {
+            "marks": [
+              {
+                "attrs": {
+                  "stringValue": "red",
+                },
+                "type": "textColor",
+              },
+            ],
+            "text": "Colored text",
+            "type": "text",
+          },
+        ],
+        "type": "paragraph",
+      },
+    ],
+    "type": "blockContainer",
+  },
+]

@@ -6,11 +6,31 @@ import {
   EditLinkButton,
   LinkToolbar,
   LinkToolbarController,
+  LinkToolbarProps,
   OpenLinkButton,
   useCreateBlockNote,
 } from "@blocknote/react";
 
 import { AlertButton } from "./AlertButton";
+
+const CustomLinkToolbar = (props: LinkToolbarProps) => (
+  <LinkToolbar {...props}>
+    <EditLinkButton
+      url={props.url}
+      text={props.text}
+      range={props.range}
+      setToolbarOpen={props.setToolbarOpen}
+      setToolbarPositionFrozen={props.setToolbarPositionFrozen}
+    />
+    <OpenLinkButton url={props.url} />
+    <DeleteLinkButton
+      range={props.range}
+      setToolbarOpen={props.setToolbarOpen}
+    />
+    {/* Extra button to open alert. */}
+    <AlertButton {...props} />
+  </LinkToolbar>
+);
 
 export default function App() {
   // Creates a new editor instance.
@@ -49,26 +69,7 @@ export default function App() {
   // Renders the editor instance.
   return (
     <BlockNoteView editor={editor} linkToolbar={false}>
-      <LinkToolbarController
-        linkToolbar={(props) => (
-          <LinkToolbar {...props}>
-            <EditLinkButton
-              url={props.url}
-              text={props.text}
-              range={props.range}
-              setToolbarOpen={props.setToolbarOpen}
-              setToolbarPositionFrozen={props.setToolbarPositionFrozen}
-            />
-            <OpenLinkButton url={props.url} />
-            <DeleteLinkButton
-              range={props.range}
-              setToolbarOpen={props.setToolbarOpen}
-            />
-            {/* Extra button to open alert. */}
-            <AlertButton {...props} />
-          </LinkToolbar>
-        )}
-      />
+      <LinkToolbarController linkToolbar={CustomLinkToolbar} />
     </BlockNoteView>
   );
 }

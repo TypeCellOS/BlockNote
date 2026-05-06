@@ -47,6 +47,10 @@ export const NON_EDITABLE_BLOCK_URL = !process.env.RUN_IN_DOCKER
   ? `http://localhost:${PORT}/custom-schema/non-editable-block?hideMenu`
   : `http://host.docker.internal:${PORT}/custom-schema/non-editable-block?hideMenu`;
 
+export const PDF_FILE_BLOCK_URL = !process.env.RUN_IN_DOCKER
+  ? `http://localhost:${PORT}/custom-schema/pdf-file-block?hideMenu`
+  : `http://host.docker.internal:${PORT}/custom-schema/pdf-file-block?hideMenu`;
+
 export const COMMENTS_URL = !process.env.RUN_IN_DOCKER
   ? `http://localhost:${PORT}/collaboration/comments-testing?hideMenu`
   : `http://host.docker.internal:${PORT}/collaboration/comments-testing?hideMenu`;
@@ -64,6 +68,7 @@ export const NUMBERED_LIST_SELECTOR = `[data-content-type="numberedListItem"]`;
 export const BULLET_LIST_SELECTOR = `[data-content-type="bulletListItem"]`;
 export const PARAGRAPH_SELECTOR = `[data-content-type="paragraph"]`;
 export const IMAGE_SELECTOR = `[data-content-type="image"]`;
+export const PDF_SELECTOR = `[data-content-type="pdf"]`;
 export const TABLE_SELECTOR = `[data-content-type="table"]`;
 
 export const DRAG_HANDLE_SELECTOR = `[data-test="dragHandle"]`;

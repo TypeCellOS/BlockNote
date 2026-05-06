@@ -1,0 +1,22 @@
+[
+  {
+    "attrs": {
+      "id": "1",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "caption": "Video caption",
+          "name": "Example Video",
+          "previewWidth": undefined,
+          "showPreview": true,
+          "textAlignment": "left",
+          "url": "https://example.com/video.mp4",
+        },
+        "type": "video",
+      },
+    ],
+    "type": "blockContainer",
+  },
+]

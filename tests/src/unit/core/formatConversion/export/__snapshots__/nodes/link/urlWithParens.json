@@ -1,0 +1,32 @@
+[
+  {
+    "attrs": {
+      "id": "1",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "content": [
+          {
+            "marks": [
+              {
+                "attrs": {
+                  "href": "https://en.wikipedia.org/wiki/Example_(disambiguation)",
+                },
+                "type": "link",
+              },
+            ],
+            "text": "Example",
+            "type": "text",
+          },
+        ],
+        "type": "paragraph",
+      },
+    ],
+    "type": "blockContainer",
+  },
+]

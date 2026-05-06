@@ -58,6 +58,22 @@ if (isGhostWriting) {
 const ghostContent =
   "This demo shows a two-way sync of documents. It allows you to test collaboration features, and see how stable the editor is. ";
 
+// Formatting toolbar with the `AIToolbarButton` added
+const FormattingToolbarWithAI = () => (
+  <FormattingToolbar>
+    {...getFormattingToolbarItems()}
+    {/* Add the AI button */}
+    <AIToolbarButton />
+  </FormattingToolbar>
+);
+
+// Slash menu items with the AI option added
+const getSlashMenuItemsWithAI = (editor: BlockNoteEditor<any, any, any>) => [
+  ...getDefaultReactSlashMenuItems(editor),
+  // add the default AI slash menu items, or define your own
+  ...getAISlashMenuItems(editor),
+];
+
 export default function App() {
   const [numGhostWriters, setNumGhostWriters] = useState(1);
   const [isPaused, setIsPaused] = useState(false);
@@ -176,17 +192,22 @@ export default function App() {
         {/* Add the AI Command menu to the editor */}
         <AIMenuController />
 
-        {/* We disabled the default formatting toolbar with `formattingToolbar=false` 
-        and replace it for one with an "AI button" (defined below). 
+        {/* We disabled the default formatting toolbar with `formattingToolbar=false`
+        and replace it for one with an "AI button" (defined below).
         (See "Formatting Toolbar" in docs)
         */}
-        <FormattingToolbarWithAI />
+        <FormattingToolbarController formattingToolbar={FormattingToolbarWithAI} />
 
         {/* We disabled the default SlashMenu with `slashMenu=false` 
         and replace it for one with an AI option (defined below). 
         (See "Suggestion Menus" in docs)
         */}
-        <SuggestionMenuWithAI editor={editor} />
+        <SuggestionMenuController
+          triggerCharacter="/"
+          getItems={async (query) =>
+            filterSuggestionItems(getSlashMenuItemsWithAI(editor), query)
+          }
+        />
       </BlockNoteView>
 
       {!isGhostWriting && (
@@ -203,41 +224,5 @@ export default function App() {
         </div>
       )}
     </>
-  );
-}
-
-// Formatting toolbar with the `AIToolbarButton` added
-function FormattingToolbarWithAI() {
-  return (
-    <FormattingToolbarController
-      formattingToolbar={() => (
-        <FormattingToolbar>
-          {...getFormattingToolbarItems()}
-          {/* Add the AI button */}
-          <AIToolbarButton />
-        </FormattingToolbar>
-      )}
-    />
-  );
-}
-
-// Slash menu with the AI option added
-function SuggestionMenuWithAI(props: {
-  editor: BlockNoteEditor<any, any, any>;
-}) {
-  return (
-    <SuggestionMenuController
-      triggerCharacter="/"
-      getItems={async (query) =>
-        filterSuggestionItems(
-          [
-            ...getDefaultReactSlashMenuItems(props.editor),
-            // add the default AI slash menu items, or define your own
-            ...getAISlashMenuItems(props.editor),
-          ],
-          query,
-        )
-      }
-    />
   );
 }

@@ -1,0 +1,89 @@
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Deep nested",
+                "type": "text",
+              },
+            ],
+            "id": "3",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "bulletListItem",
+          },
+        ],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested 1",
+            "type": "text",
+          },
+        ],
+        "id": "2",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "bulletListItem",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested 2",
+            "type": "text",
+          },
+        ],
+        "id": "4",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "bulletListItem",
+      },
+    ],
+    "content": [
+      {
+        "styles": {},
+        "text": "Item 1",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "bulletListItem",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Item 2",
+        "type": "text",
+      },
+    ],
+    "id": "5",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "bulletListItem",
+  },
+]

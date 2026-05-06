@@ -1,0 +1,160 @@
+[
+  {
+    "attrs": {
+      "id": "1",
+    },
+    "content": [
+      {
+        "attrs": {
+          "textColor": "default",
+        },
+        "content": [
+          {
+            "content": [
+              {
+                "attrs": {
+                  "backgroundColor": "default",
+                  "colspan": 1,
+                  "colwidth": null,
+                  "rowspan": 1,
+                  "textAlignment": "left",
+                  "textColor": "default",
+                },
+                "content": [
+                  {
+                    "content": [
+                      {
+                        "text": "Corner",
+                        "type": "text",
+                      },
+                    ],
+                    "type": "tableParagraph",
+                  },
+                ],
+                "type": "tableHeader",
+              },
+              {
+                "attrs": {
+                  "backgroundColor": "default",
+                  "colspan": 1,
+                  "colwidth": null,
+                  "rowspan": 1,
+                  "textAlignment": "left",
+                  "textColor": "default",
+                },
+                "content": [
+                  {
+                    "content": [
+                      {
+                        "text": "Column Header 1",
+                        "type": "text",
+                      },
+                    ],
+                    "type": "tableParagraph",
+                  },
+                ],
+                "type": "tableHeader",
+              },
+              {
+                "attrs": {
+                  "backgroundColor": "default",
+                  "colspan": 1,
+                  "colwidth": null,
+                  "rowspan": 1,
+                  "textAlignment": "left",
+                  "textColor": "default",
+                },
+                "content": [
+                  {
+                    "content": [
+                      {
+                        "text": "Column Header 2",
+                        "type": "text",
+                      },
+                    ],
+                    "type": "tableParagraph",
+                  },
+                ],
+                "type": "tableHeader",
+              },
+            ],
+            "type": "tableRow",
+          },
+          {
+            "content": [
+              {
+                "attrs": {
+                  "backgroundColor": "default",
+                  "colspan": 1,
+                  "colwidth": null,
+                  "rowspan": 1,
+                  "textAlignment": "left",
+                  "textColor": "default",
+                },
+                "content": [
+                  {
+                    "content": [
+                      {
+                        "text": "Row Header 1",
+                        "type": "text",
+                      },
+                    ],
+                    "type": "tableParagraph",
+                  },
+                ],
+                "type": "tableHeader",
+              },
+              {
+                "attrs": {
+                  "backgroundColor": "default",
+                  "colspan": 1,
+                  "colwidth": null,
+                  "rowspan": 1,
+                  "textAlignment": "left",
+                  "textColor": "default",
+                },
+                "content": [
+                  {
+                    "content": [
+                      {
+                        "text": "Data 1",
+                        "type": "text",
+                      },
+                    ],
+                    "type": "tableParagraph",
+                  },
+                ],
+                "type": "tableCell",
+              },
+              {
+                "attrs": {
+                  "backgroundColor": "default",
+                  "colspan": 1,
+                  "colwidth": null,
+                  "rowspan": 1,
+                  "textAlignment": "left",
+                  "textColor": "default",
+                },
+                "content": [
+                  {
+                    "content": [
+                      {
+                        "text": "Data 2",
+                        "type": "text",
+                      },
+                    ],
+                    "type": "tableParagraph",
+                  },
+                ],
+                "type": "tableCell",
+              },
+            ],
+            "type": "tableRow",
+          },
+        ],
+        "type": "table",
+      },
+    ],
+    "type": "blockContainer",
+  },
+]

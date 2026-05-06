@@ -289,6 +289,653 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
     },
     executeTest: testExportBlockNoteHTML,
   },
+  // Heading levels
+  {
+    testCase: {
+      name: "heading/h1",
+      content: [
+        {
+          type: "heading",
+          props: { level: 1 },
+          content: "Heading 1",
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "heading/h2",
+      content: [
+        {
+          type: "heading",
+          props: { level: 2 },
+          content: "Heading 2",
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "heading/h3",
+      content: [
+        {
+          type: "heading",
+          props: { level: 3 },
+          content: "Heading 3",
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "heading/h4",
+      content: [
+        {
+          type: "heading",
+          props: { level: 4 },
+          content: "Heading 4",
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "heading/h5",
+      content: [
+        {
+          type: "heading",
+          props: { level: 5 },
+          content: "Heading 5",
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "heading/h6",
+      content: [
+        {
+          type: "heading",
+          props: { level: 6 },
+          content: "Heading 6",
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "heading/styled",
+      content: [
+        {
+          type: "heading",
+          props: { level: 1 },
+          content: [
+            {
+              type: "text",
+              text: "Bold ",
+              styles: { bold: true },
+            },
+            {
+              type: "text",
+              text: "Heading",
+              styles: {},
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "heading/toggleable",
+      content: [
+        {
+          type: "heading",
+          props: { level: 2, isToggleable: true },
+          content: "Toggle Heading",
+          children: [
+            {
+              type: "paragraph",
+              content: "Child content",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  // Quote / Blockquote
+  {
+    testCase: {
+      name: "quote/basic",
+      content: [
+        {
+          type: "quote",
+          content: "This is a quote",
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "quote/styled",
+      content: [
+        {
+          type: "quote",
+          content: [
+            {
+              type: "text",
+              text: "Bold ",
+              styles: { bold: true },
+            },
+            {
+              type: "text",
+              text: "and ",
+              styles: {},
+            },
+            {
+              type: "text",
+              text: "italic",
+              styles: { italic: true },
+            },
+            {
+              type: "text",
+              text: " quote",
+              styles: {},
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "quote/withLink",
+      content: [
+        {
+          type: "quote",
+          content: [
+            {
+              type: "text",
+              text: "Quote with ",
+              styles: {},
+            },
+            {
+              type: "link",
+              href: "https://www.example.com",
+              content: "a link",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "quote/nested",
+      content: [
+        {
+          type: "quote",
+          content: "Parent quote",
+          children: [
+            {
+              type: "paragraph",
+              content: "Nested paragraph",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "quote/multiple",
+      content: [
+        {
+          type: "quote",
+          content: "First quote",
+        },
+        {
+          type: "quote",
+          content: "Second quote",
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  // Audio
+  {
+    testCase: {
+      name: "audio/basic",
+      content: [
+        {
+          type: "audio",
+          props: {
+            url: "https://example.com/audio.mp3",
+            name: "example",
+          },
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "audio/button",
+      content: [
+        {
+          type: "audio",
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "audio/noName",
+      content: [
+        {
+          type: "audio",
+          props: {
+            url: "https://example.com/audio.mp3",
+          },
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  // Individual styles
+  {
+    testCase: {
+      name: "style/bold",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Bold text",
+              styles: { bold: true },
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "style/italic",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Italic text",
+              styles: { italic: true },
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "style/underline",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Underline text",
+              styles: { underline: true },
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "style/strike",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Strikethrough text",
+              styles: { strike: true },
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "style/code",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Inline code",
+              styles: { code: true },
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "style/textColor",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Colored text",
+              styles: { textColor: "red" },
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "style/backgroundColor",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Highlighted text",
+              styles: { backgroundColor: "blue" },
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "style/combined",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Bold and italic",
+              styles: { bold: true, italic: true },
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "style/boldItalicStrike",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "All styles",
+              styles: { bold: true, italic: true, strike: true },
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "style/mixedInParagraph",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Normal ",
+              styles: {},
+            },
+            {
+              type: "text",
+              text: "bold ",
+              styles: { bold: true },
+            },
+            {
+              type: "text",
+              text: "italic ",
+              styles: { italic: true },
+            },
+            {
+              type: "text",
+              text: "code ",
+              styles: { code: true },
+            },
+            {
+              type: "text",
+              text: "strike",
+              styles: { strike: true },
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  // Numbered list with custom start
+  {
+    testCase: {
+      name: "lists/numberedListStart",
+      content: [
+        {
+          type: "numberedListItem",
+          props: { start: 5 },
+          content: "Item 5",
+        },
+        {
+          type: "numberedListItem",
+          content: "Item 6",
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  // Multiple paragraphs
+  {
+    testCase: {
+      name: "paragraph/multiple",
+      content: [
+        {
+          type: "paragraph",
+          content: "First paragraph",
+        },
+        {
+          type: "paragraph",
+          content: "Second paragraph",
+        },
+        {
+          type: "paragraph",
+          content: "Third paragraph",
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  // Mixed block types document
+  {
+    testCase: {
+      name: "complex/document",
+      content: [
+        {
+          type: "heading",
+          props: { level: 1 },
+          content: "Document Title",
+        },
+        {
+          type: "paragraph",
+          content: "Introduction paragraph.",
+        },
+        {
+          type: "heading",
+          props: { level: 2 },
+          content: "Section 1",
+        },
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Text with ",
+              styles: {},
+            },
+            {
+              type: "text",
+              text: "bold",
+              styles: { bold: true },
+            },
+            {
+              type: "text",
+              text: " and ",
+              styles: {},
+            },
+            {
+              type: "link",
+              href: "https://example.com",
+              content: "a link",
+            },
+            {
+              type: "text",
+              text: ".",
+              styles: {},
+            },
+          ],
+        },
+        {
+          type: "bulletListItem",
+          content: "First point",
+        },
+        {
+          type: "bulletListItem",
+          content: "Second point",
+        },
+        {
+          type: "divider",
+        },
+        {
+          type: "quote",
+          content: "A notable quote",
+        },
+        {
+          type: "codeBlock",
+          props: { language: "javascript" },
+          content: "const x = 42;",
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  // Link with inline code
+  {
+    testCase: {
+      name: "link/withCode",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "See the ",
+              styles: {},
+            },
+            {
+              type: "link",
+              href: "https://example.com",
+              content: "docs",
+            },
+            {
+              type: "text",
+              text: " for ",
+              styles: {},
+            },
+            {
+              type: "text",
+              text: "config",
+              styles: { code: true },
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  // Image with caption
+  {
+    testCase: {
+      name: "image/withCaption",
+      content: [
+        {
+          type: "image",
+          props: {
+            url: "https://example.com/image.png",
+            name: "Example Image",
+            caption: "This is a caption",
+          },
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  // Video with caption
+  {
+    testCase: {
+      name: "video/withCaption",
+      content: [
+        {
+          type: "video",
+          props: {
+            url: "https://example.com/video.mp4",
+            name: "Example Video",
+            caption: "Video caption",
+          },
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
   {
     testCase: {
       name: "divider/basic",
@@ -1360,6 +2007,627 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
     },
     executeTest: testExportBlockNoteHTML,
   },
+  // Advanced table: header rows + header cols together
+  {
+    testCase: {
+      name: "table/headerRowsAndCols",
+      content: [
+        {
+          type: "table",
+          content: {
+            type: "tableContent",
+            headerRows: 1,
+            headerCols: 1,
+            rows: [
+              {
+                cells: [
+                  {
+                    type: "tableCell",
+                    content: ["Corner"],
+                    props: {
+                      backgroundColor: "default",
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: "left",
+                      textColor: "default",
+                    },
+                  },
+                  {
+                    type: "tableCell",
+                    content: ["Column Header 1"],
+                    props: {
+                      backgroundColor: "default",
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: "left",
+                      textColor: "default",
+                    },
+                  },
+                  {
+                    type: "tableCell",
+                    content: ["Column Header 2"],
+                    props: {
+                      backgroundColor: "default",
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: "left",
+                      textColor: "default",
+                    },
+                  },
+                ],
+              },
+              {
+                cells: [
+                  {
+                    type: "tableCell",
+                    content: ["Row Header 1"],
+                    props: {
+                      backgroundColor: "default",
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: "left",
+                      textColor: "default",
+                    },
+                  },
+                  {
+                    type: "tableCell",
+                    content: ["Data 1"],
+                    props: {
+                      backgroundColor: "default",
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: "left",
+                      textColor: "default",
+                    },
+                  },
+                  {
+                    type: "tableCell",
+                    content: ["Data 2"],
+                    props: {
+                      backgroundColor: "default",
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: "left",
+                      textColor: "default",
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  // Advanced table: styled content in cells
+  {
+    testCase: {
+      name: "table/styledCellContent",
+      content: [
+        {
+          type: "table",
+          content: {
+            type: "tableContent",
+            rows: [
+              {
+                cells: [
+                  {
+                    type: "tableCell",
+                    content: [
+                      {
+                        type: "text",
+                        text: "Bold",
+                        styles: { bold: true },
+                      },
+                    ],
+                    props: {
+                      backgroundColor: "default",
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: "left",
+                      textColor: "default",
+                    },
+                  },
+                  {
+                    type: "tableCell",
+                    content: [
+                      {
+                        type: "text",
+                        text: "Italic",
+                        styles: { italic: true },
+                      },
+                    ],
+                    props: {
+                      backgroundColor: "default",
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: "left",
+                      textColor: "default",
+                    },
+                  },
+                ],
+              },
+              {
+                cells: [
+                  {
+                    type: "tableCell",
+                    content: [
+                      {
+                        type: "text",
+                        text: "Strike",
+                        styles: { strike: true },
+                      },
+                    ],
+                    props: {
+                      backgroundColor: "default",
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: "left",
+                      textColor: "default",
+                    },
+                  },
+                  {
+                    type: "tableCell",
+                    content: [
+                      {
+                        type: "text",
+                        text: "Code",
+                        styles: { code: true },
+                      },
+                    ],
+                    props: {
+                      backgroundColor: "default",
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: "left",
+                      textColor: "default",
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  // Advanced table: links in cells
+  {
+    testCase: {
+      name: "table/linksInCells",
+      content: [
+        {
+          type: "table",
+          content: {
+            type: "tableContent",
+            rows: [
+              {
+                cells: [
+                  {
+                    type: "tableCell",
+                    content: [
+                      {
+                        type: "text",
+                        text: "Visit ",
+                        styles: {},
+                      },
+                      {
+                        type: "link",
+                        href: "https://example.com",
+                        content: "Example",
+                      },
+                    ],
+                    props: {
+                      backgroundColor: "default",
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: "left",
+                      textColor: "default",
+                    },
+                  },
+                  {
+                    type: "tableCell",
+                    content: ["Plain cell"],
+                    props: {
+                      backgroundColor: "default",
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: "left",
+                      textColor: "default",
+                    },
+                  },
+                ],
+              },
+              {
+                cells: [
+                  {
+                    type: "tableCell",
+                    content: ["Data"],
+                    props: {
+                      backgroundColor: "default",
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: "left",
+                      textColor: "default",
+                    },
+                  },
+                  {
+                    type: "tableCell",
+                    content: [
+                      {
+                        type: "link",
+                        href: "https://example2.com",
+                        content: "Link",
+                      },
+                    ],
+                    props: {
+                      backgroundColor: "default",
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: "left",
+                      textColor: "default",
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  // Advanced table: empty cells
+  {
+    testCase: {
+      name: "table/emptyCells",
+      content: [
+        {
+          type: "table",
+          content: {
+            type: "tableContent",
+            rows: [
+              {
+                cells: [
+                  {
+                    type: "tableCell",
+                    content: ["Has content"],
+                    props: {
+                      backgroundColor: "default",
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: "left",
+                      textColor: "default",
+                    },
+                  },
+                  {
+                    type: "tableCell",
+                    content: [],
+                    props: {
+                      backgroundColor: "default",
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: "left",
+                      textColor: "default",
+                    },
+                  },
+                ],
+              },
+              {
+                cells: [
+                  {
+                    type: "tableCell",
+                    content: [],
+                    props: {
+                      backgroundColor: "default",
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: "left",
+                      textColor: "default",
+                    },
+                  },
+                  {
+                    type: "tableCell",
+                    content: ["Also has content"],
+                    props: {
+                      backgroundColor: "default",
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: "left",
+                      textColor: "default",
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  // Advanced table: single cell
+  {
+    testCase: {
+      name: "table/singleCell",
+      content: [
+        {
+          type: "table",
+          content: {
+            type: "tableContent",
+            rows: [
+              {
+                cells: [
+                  {
+                    type: "tableCell",
+                    content: ["Only cell"],
+                    props: {
+                      backgroundColor: "default",
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: "left",
+                      textColor: "default",
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  // Advanced table: from the advanced-tables example (large merged cells)
+  {
+    testCase: {
+      name: "table/advancedExample",
+      content: [
+        {
+          type: "table",
+          content: {
+            type: "tableContent",
+            columnWidths: [199, 148, 201],
+            headerRows: 1,
+            rows: [
+              {
+                cells: [
+                  {
+                    type: "tableCell",
+                    content: ["This row has headers"],
+                    props: {
+                      colspan: 1,
+                      rowspan: 1,
+                      backgroundColor: "default",
+                      textColor: "default",
+                      textAlignment: "center",
+                    },
+                  },
+                  {
+                    type: "tableCell",
+                    content: [
+                      {
+                        type: "text",
+                        text: "This is ",
+                        styles: {},
+                      },
+                      {
+                        type: "text",
+                        text: "RED",
+                        styles: { bold: true },
+                      },
+                    ],
+                    props: {
+                      colspan: 1,
+                      rowspan: 1,
+                      backgroundColor: "red",
+                      textColor: "default",
+                      textAlignment: "center",
+                    },
+                  },
+                  {
+                    type: "tableCell",
+                    content: ["Text is Blue"],
+                    props: {
+                      colspan: 1,
+                      rowspan: 1,
+                      backgroundColor: "default",
+                      textColor: "blue",
+                      textAlignment: "center",
+                    },
+                  },
+                ],
+              },
+              {
+                cells: [
+                  {
+                    type: "tableCell",
+                    content: ["This spans 2 columns\nand 2 rows"],
+                    props: {
+                      colspan: 2,
+                      rowspan: 2,
+                      backgroundColor: "yellow",
+                      textColor: "default",
+                      textAlignment: "left",
+                    },
+                  },
+                  {
+                    type: "tableCell",
+                    content: ["Sooo many features"],
+                    props: {
+                      colspan: 1,
+                      rowspan: 1,
+                      backgroundColor: "gray",
+                      textColor: "default",
+                      textAlignment: "left",
+                    },
+                  },
+                ],
+              },
+              {
+                cells: [
+                  {
+                    type: "tableCell",
+                    content: [],
+                    props: {
+                      colspan: 1,
+                      rowspan: 1,
+                      backgroundColor: "gray",
+                      textColor: "purple",
+                      textAlignment: "left",
+                    },
+                  },
+                ],
+              },
+              {
+                cells: [
+                  {
+                    type: "tableCell",
+                    content: ["A cell"],
+                    props: {
+                      colspan: 1,
+                      rowspan: 1,
+                      backgroundColor: "default",
+                      textColor: "default",
+                      textAlignment: "left",
+                    },
+                  },
+                  {
+                    type: "tableCell",
+                    content: ["Another Cell"],
+                    props: {
+                      colspan: 1,
+                      rowspan: 1,
+                      backgroundColor: "default",
+                      textColor: "default",
+                      textAlignment: "right",
+                    },
+                  },
+                  {
+                    type: "tableCell",
+                    content: ["Aligned center"],
+                    props: {
+                      colspan: 1,
+                      rowspan: 1,
+                      backgroundColor: "default",
+                      textColor: "default",
+                      textAlignment: "center",
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  // Advanced table: hard breaks in cells
+  {
+    testCase: {
+      name: "table/hardBreakInCell",
+      content: [
+        {
+          type: "table",
+          content: {
+            type: "tableContent",
+            rows: [
+              {
+                cells: [
+                  {
+                    type: "tableCell",
+                    content: [
+                      {
+                        type: "text",
+                        text: "Line 1\nLine 2",
+                        styles: {},
+                      },
+                    ],
+                    props: {
+                      backgroundColor: "default",
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: "left",
+                      textColor: "default",
+                    },
+                  },
+                  {
+                    type: "tableCell",
+                    content: ["Normal cell"],
+                    props: {
+                      backgroundColor: "default",
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: "left",
+                      textColor: "default",
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  // Advanced table: mixed text alignment per cell
+  {
+    testCase: {
+      name: "table/cellTextAlignment",
+      content: [
+        {
+          type: "table",
+          content: {
+            type: "tableContent",
+            rows: [
+              {
+                cells: [
+                  {
+                    type: "tableCell",
+                    content: ["Left"],
+                    props: {
+                      backgroundColor: "default",
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: "left",
+                      textColor: "default",
+                    },
+                  },
+                  {
+                    type: "tableCell",
+                    content: ["Center"],
+                    props: {
+                      backgroundColor: "default",
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: "center",
+                      textColor: "default",
+                    },
+                  },
+                  {
+                    type: "tableCell",
+                    content: ["Right"],
+                    props: {
+                      backgroundColor: "default",
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: "right",
+                      textColor: "default",
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
   {
     testCase: {
       name: "link/basic",
@@ -1428,6 +2696,44 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
               type: "link",
               href: "https://www.website2.com",
               content: "Website2",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "link/plainUrl",
+      content: [
+        {
+          // id: UniqueID.options.generateID(),
+          type: "paragraph",
+          content: [
+            {
+              type: "link",
+              href: "https://www.website.com",
+              content: "https://www.website.com",
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
+    testCase: {
+      name: "link/urlWithParens",
+      content: [
+        {
+          // id: UniqueID.options.generateID(),
+          type: "paragraph",
+          content: [
+            {
+              type: "link",
+              href: "https://en.wikipedia.org/wiki/Example_(disambiguation)",
+              content: "Example",
             },
           ],
         },

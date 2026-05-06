@@ -5,6 +5,7 @@ import { testSchema } from "../../testSchema.js";
 import {
   exportParseEqualityTestInstancesBlockNoteHTML,
   exportParseEqualityTestInstancesHTML,
+  exportParseEqualityTestInstancesMarkdown,
 } from "./exportParseEqualityTestInstances.js";
 
 // Tests for verifying that exporting blocks to another format, then importing
@@ -31,6 +32,19 @@ describe("Export/parse equality tests (HTML)", () => {
     testCase,
     executeTest,
   } of exportParseEqualityTestInstancesHTML) {
+    it(`${testCase.name}`, async () => {
+      await executeTest(getEditor(), testCase);
+    });
+  }
+});
+
+describe("Export/parse equality tests (Markdown)", () => {
+  const getEditor = createTestEditor(testSchema);
+
+  for (const {
+    testCase,
+    executeTest,
+  } of exportParseEqualityTestInstancesMarkdown) {
     it(`${testCase.name}`, async () => {
       await executeTest(getEditor(), testCase);
     });

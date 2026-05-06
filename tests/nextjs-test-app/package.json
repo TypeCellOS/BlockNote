@@ -7,8 +7,8 @@
     "@blocknote/mantine": "file:.tarballs/blocknote-mantine-0.49.0.tgz",
     "@blocknote/react": "file:.tarballs/blocknote-react-0.49.0.tgz",
     "@blocknote/server-util": "file:.tarballs/blocknote-server-util-0.49.0.tgz",
-    "@mantine/core": "^8.3.11",
-    "@mantine/hooks": "^8.3.11",
+    "@mantine/core": "^9.0.2",
+    "@mantine/hooks": "^9.0.2",
     "next": "^16.0.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3"

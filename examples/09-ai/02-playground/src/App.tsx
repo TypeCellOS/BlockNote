@@ -33,6 +33,20 @@ import { getEnv } from "./getEnv";
 const BASE_URL =
   getEnv("BLOCKNOTE_AI_SERVER_BASE_URL") || "https://localhost:3000/ai";
 
+// Formatting toolbar with the `AIToolbarButton` added
+const FormattingToolbarWithAI = () => (
+  <FormattingToolbar>
+    {...getFormattingToolbarItems()}
+    <AIToolbarButton />
+  </FormattingToolbar>
+);
+
+// Slash menu items with the AI option added
+const getSlashMenuItemsWithAI = (editor: BlockNoteEditor<any, any, any>) => [
+  ...getDefaultReactSlashMenuItems(editor),
+  ...getAISlashMenuItems(editor),
+];
+
 export default function App() {
   const [model, setModel] = useState<string>(
     "groq.chat/llama-3.3-70b-versatile",
@@ -129,52 +143,23 @@ export default function App() {
         {/* Add the AI Command menu to the editor */}
         <AIMenuController />
 
-        {/* We disabled the default formatting toolbar with `formattingToolbar=false` 
-        and replace it for one with an "AI button" (defined below). 
+        {/* We disabled the default formatting toolbar with `formattingToolbar=false`
+        and replace it for one with an "AI button" (defined below).
         (See "Formatting Toolbar" in docs)
         */}
-        <FormattingToolbarWithAI />
+        <FormattingToolbarController formattingToolbar={FormattingToolbarWithAI} />
 
         {/* We disabled the default SlashMenu with `slashMenu=false` 
         and replace it for one with an AI option (defined below). 
         (See "Suggestion Menus" in docs)
         */}
-        <SuggestionMenuWithAI editor={editor} />
+        <SuggestionMenuController
+          triggerCharacter="/"
+          getItems={async (query) =>
+            filterSuggestionItems(getSlashMenuItemsWithAI(editor), query)
+          }
+        />
       </BlockNoteView>
     </div>
-  );
-}
-
-// Formatting toolbar with the `AIToolbarButton` added
-function FormattingToolbarWithAI() {
-  return (
-    <FormattingToolbarController
-      formattingToolbar={() => (
-        <FormattingToolbar>
-          {...getFormattingToolbarItems()}
-          <AIToolbarButton />
-        </FormattingToolbar>
-      )}
-    />
-  );
-}
-
-// Slash menu with the AI option added
-function SuggestionMenuWithAI(props: {
-  editor: BlockNoteEditor<any, any, any>;
-}) {
-  return (
-    <SuggestionMenuController
-      triggerCharacter="/"
-      getItems={async (query) =>
-        filterSuggestionItems(
-          [
-            ...getDefaultReactSlashMenuItems(props.editor),
-            ...getAISlashMenuItems(props.editor),
-          ],
-          query,
-        )
-      }
-    />
   );
 }

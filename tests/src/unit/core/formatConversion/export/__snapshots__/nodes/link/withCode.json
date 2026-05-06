@@ -1,0 +1,49 @@
+[
+  {
+    "attrs": {
+      "id": "1",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "content": [
+          {
+            "text": "See the ",
+            "type": "text",
+          },
+          {
+            "marks": [
+              {
+                "attrs": {
+                  "href": "https://example.com",
+                },
+                "type": "link",
+              },
+            ],
+            "text": "docs",
+            "type": "text",
+          },
+          {
+            "text": " for ",
+            "type": "text",
+          },
+          {
+            "marks": [
+              {
+                "type": "code",
+              },
+            ],
+            "text": "config",
+            "type": "text",
+          },
+        ],
+        "type": "paragraph",
+      },
+    ],
+    "type": "blockContainer",
+  },
+]

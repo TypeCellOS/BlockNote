@@ -129,7 +129,7 @@ exports[`Test ServerBlockNoteEditor > converts to and from HTML (blocksToHTMLLos
 `;
 
 exports[`Test ServerBlockNoteEditor > converts to and from markdown (blocksToMarkdownLossy) 1`] = `
-"## **Heading&#x20;***~~2~~*
+"## **Heading** *~~2~~*
 
 Paragraph
 
@@ -154,7 +154,12 @@ exports[`Test ServerBlockNoteEditor > converts to and from markdown (blocksToMar
         "styles": {
           "bold": true,
         },
-        "text": "Heading ",
+        "text": "Heading",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " ",
         "type": "text",
       },
       {
