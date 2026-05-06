@@ -129,11 +129,8 @@ export const audioToExternalHTML =
     >,
   ) => {
     if (!block.props.url) {
-      const div = document.createElement("p");
-      div.textContent = "Add audio";
-
       return {
-        dom: div,
+        dom: document.createElement("audio"),
       };
     }
 

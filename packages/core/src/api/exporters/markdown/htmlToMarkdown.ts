@@ -84,6 +84,8 @@ function serializeNode(node: Node, ctx: SerializeContext): string {
       return serializeVideo(el, ctx);
     case "audio":
       return serializeAudio(el, ctx);
+    case "embed":
+      return serializeEmbed(el, ctx);
     case "figure":
       return serializeFigure(el, ctx);
     case "a":
@@ -501,9 +503,9 @@ function formatSeparatorRow(colWidths: number[], colCount: number): string {
 function serializeImage(el: HTMLElement, ctx: SerializeContext): string {
   const src = el.getAttribute("src") || "";
   const alt = el.getAttribute("alt") || "";
-  if (!src) {
-    return ctx.indent + "Add image\n\n";
-  }
+  // Empty placeholder — preserve the block-level break, matching how
+  // serializeParagraph/serializeHeading emit `\n\n` for empty content.
+  if (!src) {return "\n\n";}
   return ctx.indent + `![${alt}](${src})\n\n`;
 }
 
@@ -511,16 +513,20 @@ function serializeVideo(el: HTMLElement, ctx: SerializeContext): string {
   const src =
     el.getAttribute("src") || el.getAttribute("data-url") || "";
   const name = el.getAttribute("data-name") || el.getAttribute("title") || "";
-  if (!src) {
-    return ctx.indent + "Add video\n\n";
-  }
+  if (!src) {return "\n\n";}
   return ctx.indent + `![${name}](${src})\n\n`;
 }
 
 function serializeAudio(el: HTMLElement, ctx: SerializeContext): string {
   const src = el.getAttribute("src") || "";
-  if (!src) {return "";}
+  if (!src) {return "\n\n";}
   // Audio has no visible representation in markdown; output as link with empty text
+  return ctx.indent + `[](${src})\n\n`;
+}
+
+function serializeEmbed(el: HTMLElement, ctx: SerializeContext): string {
+  const src = el.getAttribute("src") || "";
+  if (!src) {return "\n\n";}
   return ctx.indent + `[](${src})\n\n`;
 }
 

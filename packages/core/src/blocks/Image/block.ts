@@ -141,11 +141,8 @@ export const imageToExternalHTML =
     >,
   ) => {
     if (!block.props.url) {
-      const div = document.createElement("p");
-      div.textContent = "Add image";
-
       return {
-        dom: div,
+        dom: document.createElement("img"),
       };
     }
 
