@@ -26,6 +26,10 @@ export default defineConfig((conf) => ({
             "@blocknote/core": path.resolve(__dirname, "../core/src/"),
             "@blocknote/mantine": path.resolve(__dirname, "../mantine/src/"),
             "@blocknote/react": path.resolve(__dirname, "../react/src/"),
+            "@blocknote/xl-multi-column": path.resolve(
+              __dirname,
+              "../xl-multi-column/src/",
+            ),
             "@shared": path.resolve(__dirname, "../../shared/"),
           } as Record<string, string>),
   },
