@@ -111,9 +111,6 @@ export function markdownToHTML(markdown: string): string {
     .use(rehypeStringify)
     .processSync(markdown);
 
-  console.log(markdown);
-  console.log(htmlString.value);
-
   return htmlString.value as string;
 }
 
