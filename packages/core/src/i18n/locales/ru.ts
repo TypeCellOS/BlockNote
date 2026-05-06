@@ -272,7 +272,7 @@ export const ru: Dictionary = {
     text_title: "Текст",
     background_title: "Задний фон",
     colors: {
-      default: "По умолчанию",
+      default: "Авто",
       gray: "Серый",
       brown: "Коричневый",
       red: "Красный",
@@ -427,9 +427,11 @@ export const ru: Dictionary = {
     edited: "изменен",
     save_button_text: "Сохранить",
     cancel_button_text: "Отменить",
+    deleted_reference_text: "Исходный контент удалён",
     actions: {
       add_reaction: "Добавить реакцию",
       resolve: "Решить",
+      reopen: "Возобновить",
       edit_comment: "Редактировать комментарий",
       delete_comment: "Удалить комментарий",
       more_actions: "Другие действия",

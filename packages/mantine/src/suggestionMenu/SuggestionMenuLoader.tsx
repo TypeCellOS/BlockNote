@@ -13,6 +13,8 @@ export const SuggestionMenuLoader = forwardRef<
   assertEmpty(rest);
 
   return (
-    <MantineLoader className={className} type="dots" size={16} ref={ref} />
+    <div ref={ref}>
+      <MantineLoader className={className} type="dots" size={16} />
+    </div>
   );
 });

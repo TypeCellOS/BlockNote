@@ -18,9 +18,8 @@ const template = (project: Project) => ({
     "@blocknote/mantine": "latest",
     "@blocknote/react": "latest",
     "@blocknote/shadcn": "latest",
-    "@mantine/core": "^8.3.11",
-    "@mantine/hooks": "^8.3.11",
-    "@mantine/utils": "^6.0.22",
+    "@mantine/core": "^9.0.2",
+    "@mantine/hooks": "^9.0.2",
     react: "^19.2.3",
     "react-dom": "^19.2.3",
     ...(project.config.tailwind
@@ -39,8 +38,8 @@ const template = (project: Project) => ({
       : {}),
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^4.7.0",
-    vite: "^5.4.20",
+    "@vitejs/plugin-react": "^6.0.1",
+    vite: "^8.0.8",
     ...(project.config?.devDependencies || {}),
   },
 });

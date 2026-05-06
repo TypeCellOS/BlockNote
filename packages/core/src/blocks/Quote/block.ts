@@ -84,6 +84,15 @@ export const createQuoteBlockSpec = createBlockSpec(
             };
           },
         },
+        {
+          find: new RegExp(`^\\p{Quotation_Mark}\\s$`, "u"),
+          replace() {
+            return {
+              type: "quote",
+              props: {},
+            };
+          },
+        },
       ],
     }),
   ],

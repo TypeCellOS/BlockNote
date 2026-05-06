@@ -39,6 +39,12 @@ export const createTestEditor = <
           }),
         },
       }),
+      links: {
+        HTMLAttributes: {
+          rel: "external",
+          "data-custom-attribute": true,
+        },
+      },
       tables: {
         splitCells: true,
         cellBackgroundColor: true,

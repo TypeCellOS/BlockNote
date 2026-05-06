@@ -2,6 +2,7 @@ import { expect, Page } from "@playwright/test";
 import { test } from "../../setup/setupScript.js";
 import {
   BASE_URL,
+  BULLET_LIST_SELECTOR,
   DRAG_HANDLE_ADD_SELECTOR,
   DRAG_HANDLE_MENU_SELECTOR,
   DRAG_HANDLE_SELECTOR,
@@ -156,6 +157,64 @@ test.describe("Check Draghandle functionality", () => {
     await page.waitForSelector(H_THREE_BLOCK_SELECTOR);
 
     await compareDocToSnapshot(page, "dragHandleDocStructure");
+  });
+
+  test("Delete button should delete all blocks in multi-block selection when hovered block is in selection", async () => {
+    await executeSlashCommand(page, "h1");
+    await page.keyboard.type("Heading 1");
+    await page.keyboard.press("Enter", { delay: 10 });
+    await executeSlashCommand(page, "h2");
+    await page.keyboard.type("Heading 2");
+    await page.keyboard.press("Enter", { delay: 10 });
+    await executeSlashCommand(page, "h3");
+    await page.keyboard.type("Heading 3");
+    await page.keyboard.press("Enter", { delay: 10 });
+    await executeSlashCommand(page, "bullet");
+    await page.keyboard.type("Bullet List");
+
+    await page.keyboard.down("Shift");
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ControlOrMeta+ArrowLeft");
+    await page.keyboard.up("Shift");
+
+    await page.hover(H_THREE_BLOCK_SELECTOR);
+    await page.click(DRAG_HANDLE_SELECTOR);
+    await page.click("text=Delete");
+    await page.waitForSelector(H_ONE_BLOCK_SELECTOR);
+    await page.waitForSelector(H_TWO_BLOCK_SELECTOR);
+    await page.waitForSelector(H_THREE_BLOCK_SELECTOR, { state: "detached" });
+    await page.waitForSelector(BULLET_LIST_SELECTOR, { state: "detached" });
+
+    await compareDocToSnapshot(page, "draghandledeletemultiselection");
+  });
+
+  test("Delete button should delete only hovered block when it is outside multi-block selection", async () => {
+    await executeSlashCommand(page, "h1");
+    await page.keyboard.type("Heading 1");
+    await page.keyboard.press("Enter", { delay: 10 });
+    await executeSlashCommand(page, "h2");
+    await page.keyboard.type("Heading 2");
+    await page.keyboard.press("Enter", { delay: 10 });
+    await executeSlashCommand(page, "h3");
+    await page.keyboard.type("Heading 3");
+    await page.keyboard.press("Enter", { delay: 10 });
+    await executeSlashCommand(page, "bullet");
+    await page.keyboard.type("Bullet List");
+
+    await page.keyboard.down("Shift");
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ControlOrMeta+ArrowLeft");
+    await page.keyboard.up("Shift");
+
+    await page.hover(H_ONE_BLOCK_SELECTOR);
+    await page.click(DRAG_HANDLE_SELECTOR);
+    await page.click("text=Delete");
+    await page.waitForSelector(H_ONE_BLOCK_SELECTOR, { state: "detached" });
+    await page.waitForSelector(H_TWO_BLOCK_SELECTOR);
+    await page.waitForSelector(H_THREE_BLOCK_SELECTOR);
+    await page.waitForSelector(BULLET_LIST_SELECTOR);
+
+    await compareDocToSnapshot(page, "draghandledeletehoveroutsideselection");
   });
 
   test("Deleting block with children should delete all children", async () => {

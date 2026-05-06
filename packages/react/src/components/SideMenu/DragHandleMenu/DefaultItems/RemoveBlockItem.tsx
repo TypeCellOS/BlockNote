@@ -22,7 +22,14 @@ export const RemoveBlockItem = (props: { children: ReactNode }) => {
   return (
     <Components.Generic.Menu.Item
       className={"bn-menu-item"}
-      onClick={() => editor.removeBlocks([block])}
+      onClick={() => {
+        const selectedBlocks = editor.getSelection()?.blocks;
+        const blocksToRemove =
+          selectedBlocks && selectedBlocks.some((b) => b.id === block.id)
+            ? selectedBlocks
+            : [block];
+        editor.removeBlocks(blocksToRemove);
+      }}
     >
       {props.children}
     </Components.Generic.Menu.Item>

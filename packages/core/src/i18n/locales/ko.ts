@@ -242,7 +242,7 @@ export const ko: Dictionary = {
     text_title: "텍스트",
     background_title: "배경",
     colors: {
-      default: "기본",
+      default: "자동",
       gray: "회색",
       brown: "갈색",
       red: "빨간색",
@@ -397,9 +397,11 @@ export const ko: Dictionary = {
     edited: "수정됨",
     save_button_text: "저장",
     cancel_button_text: "취소",
+    deleted_reference_text: "원본 콘텐츠 삭제됨",
     actions: {
       add_reaction: "반응 추가",
       resolve: "해결",
+      reopen: "다시 열기",
       edit_comment: "댓글 수정",
       delete_comment: "댓글 삭제",
       more_actions: "더 많은 작업",

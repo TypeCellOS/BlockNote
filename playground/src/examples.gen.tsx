@@ -476,7 +476,7 @@
             "Custom Schemas"
           ],
           "dependencies": {
-            "@mantine/core": "^8.3.11",
+            "@mantine/core": "^9.0.2",
             "react-icons": "^5.5.0"
           } as any
         },
@@ -851,6 +851,29 @@
           "slug": "ui-components"
         },
         "readme": "This example demonstrates how to use the `DRAG_EXCLUSION_CLASSNAME` to create separate drag & drop areas that don't interfere with BlockNote's built-in block drag & drop functionality.\n\n## Features\n\n- **Drag Exclusion**: Elements with the `bn-drag-exclude` classname are treated as separate drag & drop operations\n- **Independent Drag Areas**: Create custom drag & drop functionality alongside BlockNote's editor\n- **No Interference**: Custom drag operations won't trigger BlockNote's block reordering\n- **Side-by-side Demo**: Shows the editor and custom drag area working independently\n\n## How It Works\n\nBy adding the `DRAG_EXCLUSION_CLASSNAME` (`bn-drag-exclude`) to an element, you tell BlockNote's drag & drop handlers to ignore all drag events within that element and its children. This allows you to implement your own custom drag & drop logic without conflicts.\n\nThe exclusion check works by traversing up the DOM tree from the drag event target, checking if any ancestor has the exclusion classname. If found, BlockNote's handlers return early, leaving your custom handlers in full control.\n\n## Code Highlights\n\n### Import the constant:\n\n```tsx\nimport { DRAG_EXCLUSION_CLASSNAME } from \"@blocknote/core\";\n```\n\n### Apply it to your custom drag area:\n\n```tsx\n<div className={\"drag-demo-section \" + DRAG_EXCLUSION_CLASSNAME}>\n  {/* Your custom drag & drop UI */}\n  <div draggable onDragStart={handleDragStart} onDrop={handleDrop}>\n    Custom draggable items\n  </div>\n</div>\n```\n\n## Use Cases\n\n- **Custom UI elements**: Add draggable components within or near the editor\n- **File upload areas**: Create drag-and-drop file upload zones\n- **Sortable lists**: Implement custom sortable lists alongside the editor\n- **External integrations**: Integrate with third-party drag & drop libraries\n\n**Relevant Docs:**\n\n- [Side Menu (Drag Handle)](/docs/react/components/side-menu)\n- [Editor Setup](/docs/getting-started/editor-setup)"
+      },
+      {
+        "projectSlug": "suggestion-menus-grouping-ordering",
+        "fullSlug": "ui-components/suggestion-menus-grouping-ordering",
+        "pathFromRoot": "examples/03-ui-components/19-suggestion-menus-grouping-ordering",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Intermediate",
+            "Blocks",
+            "UI Components",
+            "Suggestion Menus",
+            "Slash Menu"
+          ]
+        },
+        "title": "Slash Menu Grouping & Ordering",
+        "group": {
+          "pathFromRoot": "examples/03-ui-components",
+          "slug": "ui-components"
+        },
+        "readme": "In this example, we filter and reorder the default Slash Menu items so that only the \"Basic blocks\" and \"Headings\" groups are shown, with \"Basic blocks\" appearing first.\n\n**Try it out:** Press the \"/\" key to open the Slash Menu and see the reordered groups!\n\n**Relevant Docs:**\n\n- [Item Grouping & Ordering](/docs/react/components/suggestion-menus)\n- [Changing Slash Menu Items](/docs/react/components/suggestion-menus)\n- [Editor Setup](/docs/getting-started/editor-setup)"
       }
     ]
   },
@@ -997,11 +1020,11 @@
           ],
           "dependencies": {
             "@blocknote/code-block": "latest",
-            "@shikijs/core": "^3.19.0",
-            "@shikijs/engine-javascript": "^3.19.0",
-            "@shikijs/langs-precompiled": "^3.19.0",
-            "@shikijs/themes": "^3.19.0",
-            "@shikijs/types": "^3.19.0"
+            "@shikijs/core": "^4",
+            "@shikijs/engine-javascript": "^4",
+            "@shikijs/langs-precompiled": "^4",
+            "@shikijs/themes": "^4",
+            "@shikijs/types": "^4"
           } as any
         },
         "title": "Custom Code Block Theme & Language",
@@ -1262,7 +1285,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^8.3.11",
+            "@mantine/core": "^9.0.2",
             "react-icons": "^5.5.0"
           } as any
         },
@@ -1336,7 +1359,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^8.3.11",
+            "@mantine/core": "^9.0.2",
             "react-icons": "^5.5.0"
           } as any,
           "pro": true
@@ -1365,7 +1388,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^8.3.11",
+            "@mantine/core": "^9.0.2",
             "react-icons": "^5.5.0"
           } as any
         },
@@ -1413,6 +1436,27 @@
           "slug": "custom-schema"
         },
         "readme": "This example shows how you can configure the editor's default blocks. Specifically, heading blocks are made to only support levels 1-3, and cannot be toggleable.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Default Schema](/docs/foundations/schemas)\n- [Custom Schemas](/docs/features/custom-schemas)"
+      },
+      {
+        "projectSlug": "non-editable-block",
+        "fullSlug": "custom-schema/non-editable-block",
+        "pathFromRoot": "examples/06-custom-schema/08-non-editable-block",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "matthewlipski",
+          "tags": [
+            "Intermediate",
+            "Blocks",
+            "Custom Schemas"
+          ]
+        },
+        "title": "Non-Editable Block",
+        "group": {
+          "pathFromRoot": "examples/06-custom-schema",
+          "slug": "custom-schema"
+        },
+        "readme": "In this example, we create a custom block which renders a simple HTML paragraph with placeholder text. The block has no editable content.\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
         "projectSlug": "draggable-inline-content",
@@ -1602,7 +1646,7 @@
           ],
           "dependencies": {
             "@y-sweet/react": "^0.6.3",
-            "@mantine/core": "^8.3.11"
+            "@mantine/core": "^9.0.2"
           } as any
         },
         "title": "Comments & Threads",
@@ -1628,7 +1672,7 @@
           "dependencies": {
             "y-partykit": "^0.0.25",
             "yjs": "^13.6.27",
-            "@mantine/core": "^8.3.11"
+            "@mantine/core": "^9.0.2"
           } as any
         },
         "title": "Threads Sidebar",
@@ -1687,6 +1731,30 @@
           "slug": "collaboration"
         },
         "readme": "In this example, we can fork a document and edit it independently of other collaborators. Then, we can choose to merge the changes back into the original document, or discard the changes.\n\n**Try it out:** Open this page in a new browser tab or window to see it in action!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)"
+      },
+      {
+        "projectSlug": "comments-testing",
+        "fullSlug": "collaboration/comments-testing",
+        "pathFromRoot": "examples/07-collaboration/09-comments-testing",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "matthewlipski",
+          "tags": [
+            "Advanced",
+            "Comments",
+            "Testing"
+          ],
+          "dependencies": {
+            "yjs": "^13.6.27"
+          } as any
+        },
+        "title": "Comments Testing",
+        "group": {
+          "pathFromRoot": "examples/07-collaboration",
+          "slug": "collaboration"
+        },
+        "readme": "A minimal comments example used for end-to-end testing. Uses a local Y.Doc (no collaboration provider) with a single hardcoded editor user."
       }
     ]
   },
@@ -1737,7 +1805,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.11",
+            "@mantine/core": "^9.0.2",
             "ai": "^6.0.5"
           } as any
         },
@@ -1762,7 +1830,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.11",
+            "@mantine/core": "^9.0.2",
             "ai": "^6.0.5"
           } as any
         },
@@ -1787,7 +1855,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.11",
+            "@mantine/core": "^9.0.2",
             "ai": "^6.0.5",
             "react-icons": "^5.5.0"
           } as any
@@ -1813,7 +1881,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.11",
+            "@mantine/core": "^9.0.2",
             "ai": "^6.0.5",
             "y-partykit": "^0.0.25",
             "yjs": "^13.6.27"
@@ -1840,7 +1908,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.11",
+            "@mantine/core": "^9.0.2",
             "ai": "^6.0.5",
             "y-partykit": "^0.0.25",
             "yjs": "^13.6.27"
@@ -1868,7 +1936,7 @@
           "dependencies": {
             "@ai-sdk/groq": "^3.0.2",
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.11",
+            "@mantine/core": "^9.0.2",
             "ai": "^6.0.5"
           } as any
         },
@@ -1893,7 +1961,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^8.3.11",
+            "@mantine/core": "^9.0.2",
             "ai": "^6.0.5"
           } as any
         },

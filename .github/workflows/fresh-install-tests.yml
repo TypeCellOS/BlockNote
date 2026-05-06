@@ -11,9 +11,6 @@ name: Fresh Install Tests
 # so test tooling churn doesn't cause false positives.
 
 on:
-  push:
-    branches:
-      - package-upgrades
   schedule:
     - cron: "0 2 * * *" # Daily at 02:00 UTC
   workflow_dispatch: # Allow manual runs
@@ -67,6 +64,19 @@ jobs:
           echo "Updating prod deps for: $FILTERS"
           eval pnpm update --prod $FILTERS
 
+      - id: dedupe_deps
+        name: Dedupe transitive dependencies
+        # After bumping the publishable packages' prod deps, collapse any
+        # duplicate transitive resolutions (e.g. @tiptap/core + @tiptap/pm)
+        # that would otherwise differ between the updated publishable packages
+        # and the un-updated examples/playground. Without this, TypeScript
+        # treats the two copies' exports as unrelated types and example-editor
+        # fails to build (TS2322 on Extension<any, any> vs AnyExtension).
+        # Dedupe only rewrites the lockfile — it does NOT modify package.json,
+        # so the examples' "@blocknote/*": "latest" specs (which is what
+        # CodeSandbox users see) stay intact.
+        run: pnpm dedupe
+
       - id: build_packages
         name: Build packages
         run: pnpm run build
@@ -106,6 +116,8 @@ jobs:
             failed_step="Install dependencies"
           elif [ "${{ steps.update_prod_deps.outcome }}" = "failure" ]; then
             failed_step="Update prod deps of published packages"
+          elif [ "${{ steps.dedupe_deps.outcome }}" = "failure" ]; then
+            failed_step="Dedupe transitive dependencies"
           elif [ "${{ steps.build_packages.outcome }}" = "failure" ]; then
             failed_step="Build packages"
           elif [ "${{ steps.run_unit_tests.outcome }}" = "failure" ]; then

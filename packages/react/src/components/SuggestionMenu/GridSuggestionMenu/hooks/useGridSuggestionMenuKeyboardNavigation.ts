@@ -1,5 +1,6 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { useEffect, useState } from "react";
+import { useEditorDOMElement } from "../../../../hooks/useEditorDomElement.js";
 
 // Hook which handles keyboard navigation of a grid suggestion menu. Arrow keys
 // are used to select a menu item, enter is used to execute it.
@@ -10,6 +11,7 @@ export function useGridSuggestionMenuKeyboardNavigation<Item>(
   columns: number,
   onItemClick?: (item: Item) => void,
 ) {
+  const editorDOMElement = useEditorDOMElement(editor);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
   const isGrid = columns !== undefined && columns > 1;
@@ -66,17 +68,20 @@ export function useGridSuggestionMenuKeyboardNavigation<Item>(
       return false;
     };
 
-    const domElement = editor.domElement;
-    domElement?.addEventListener("keydown", handleMenuNavigationKeys, true);
+    editorDOMElement?.addEventListener(
+      "keydown",
+      handleMenuNavigationKeys,
+      true,
+    );
 
     return () => {
-      domElement?.removeEventListener(
+      editorDOMElement?.removeEventListener(
         "keydown",
         handleMenuNavigationKeys,
         true,
       );
     };
-  }, [editor.domElement, items, selectedIndex, onItemClick, columns, isGrid]);
+  }, [editorDOMElement, items, selectedIndex, onItemClick, columns, isGrid]);
 
   // Resets index when items change
   useEffect(() => {

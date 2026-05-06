@@ -11,7 +11,7 @@
     "directory": "packages/xl-ai"
   },
   "license": "GPL-3.0 OR PROPRIETARY",
-  "version": "0.48.1",
+  "version": "0.50.0",
   "files": [
     "dist",
     "types",
@@ -66,14 +66,15 @@
     "lint": "eslint src --max-warnings 0",
     "test": "NODE_EXTRA_CA_CERTS=\"$(mkcert -CAROOT)/rootCA.pem\" vitest --run",
     "test-watch": "NODE_EXTRA_CA_CERTS=\"$(mkcert -CAROOT)/rootCA.pem\" vitest watch",
+    "rename-msw-snapshots": "node scripts/rename-msw-snapshots.mjs",
     "email": "email dev"
   },
   "dependencies": {
     "@ai-sdk/provider-utils": "^4.0.2",
     "@ai-sdk/react": "^3.0.5",
-    "@blocknote/core": "0.48.1",
-    "@blocknote/mantine": "0.48.1",
-    "@blocknote/react": "0.48.1",
+    "@blocknote/core": "0.50.0",
+    "@blocknote/mantine": "0.50.0",
+    "@blocknote/react": "0.50.0",
     "@floating-ui/react": "^0.27.18",
     "@handlewithcare/prosemirror-suggest-changes": "^0.1.8",
     "@tiptap/core": "^3.13.0",

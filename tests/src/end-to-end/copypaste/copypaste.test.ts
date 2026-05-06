@@ -1,6 +1,10 @@
 /* eslint-disable jest/valid-title */
 import { test } from "../../setup/setupScript.js";
-import { BASE_URL } from "../../utils/const.js";
+import {
+  BASE_URL,
+  NON_EDITABLE_BLOCK_URL,
+  PARAGRAPH_SELECTOR,
+} from "../../utils/const.js";
 import {
   copyPaste,
   copyPasteAll,
@@ -15,11 +19,11 @@ import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 test.describe.configure({ mode: "serial" });
 
-test.beforeEach(async ({ page }) => {
-  await page.goto(BASE_URL);
-});
-
 test.describe("Check Copy/Paste Functionality", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto(BASE_URL);
+  });
+
   test("Paragraphs should stay separate", async ({ page, browserName }) => {
     test.skip(
       browserName === "firefox" || browserName === "webkit",
@@ -186,5 +190,42 @@ test.describe("Check Copy/Paste Functionality", () => {
     await copyPaste(page);
 
     await compareDocToSnapshot(page, "images.json");
+  });
+});
+
+test.describe("Check Copy/Paste From Non-Editable Block", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto(NON_EDITABLE_BLOCK_URL);
+  });
+
+  test("Should be able to copy/paste text from a non-editable block", async ({
+    page,
+    browserName,
+  }) => {
+    test.skip(
+      browserName === "firefox" || browserName === "webkit",
+      "Firefox doesn't yet support the async clipboard API. Webkit copy/paste stopped working after updating to Playwright 1.33.",
+    );
+
+    // Click and drag across the non-editable block's text to select part of it.
+    const p = page.locator('[data-content-type="nonEditable"] p');
+    const box = (await p.boundingBox())!;
+    await page.mouse.move(box.x + 2, box.y + box.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(
+      box.x + box.width * 0.25,
+      box.y + box.height / 2,
+      { steps: 5 },
+    );
+    await page.mouse.up();
+
+    await page.keyboard.press("ControlOrMeta+C");
+
+    // Click the last (empty) paragraph block to focus the editor.
+    await page.locator(PARAGRAPH_SELECTOR).last().click();
+
+    await page.keyboard.press("ControlOrMeta+V");
+
+    await compareDocToSnapshot(page, "nonEditableBlock.json");
   });
 });

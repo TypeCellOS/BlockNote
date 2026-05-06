@@ -47,8 +47,8 @@ cat > package.json << EOF
     "@blocknote/mantine": "file:.tarballs/$MANTINE_TGZ",
     "@blocknote/react": "file:.tarballs/$REACT_TGZ",
     "@blocknote/server-util": "file:.tarballs/$SERVER_TGZ",
-    "@mantine/core": "^8.3.11",
-    "@mantine/hooks": "^8.3.11",
+    "@mantine/core": "^9.0.2",
+    "@mantine/hooks": "^9.0.2",
     "next": "^16.0.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3"

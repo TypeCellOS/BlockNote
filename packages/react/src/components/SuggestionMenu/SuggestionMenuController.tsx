@@ -8,6 +8,7 @@ import { autoPlacement, offset, shift, size } from "@floating-ui/react";
 import { FC, useEffect, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
+import { useEditorDOMElement } from "../../hooks/useEditorDomElement.js";
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import {
@@ -58,6 +59,7 @@ export function SuggestionMenuController<
     InlineContentSchema,
     StyleSchema
   >();
+  const editorDOMElement = useEditorDOMElement();
 
   const {
     triggerCharacter,
@@ -101,7 +103,7 @@ export function SuggestionMenuController<
         // Use first child as the editor DOM element may itself be scrollable.
         // For FloatingUI to auto-update the position during scrolling, the
         // `contextElement` must be a descendant of the scroll container.
-        element: (editor.domElement?.firstChild || undefined) as
+        element: (editorDOMElement?.firstChild || undefined) as
           | Element
           | undefined,
         getBoundingClientRect: () => state?.referencePos || new DOMRect(),

@@ -1,3 +1,57 @@
+## 0.50.0 (2026-05-04)
+
+### 🚀 Features
+
+- Dark mode styling for file block wrapper component (BLO-866) ([#2680](https://github.com/TypeCellOS/BlockNote/pull/2680))
+- Drag hendle menu delete button removes all other blocks in selection (BLO-1007) ([#2683](https://github.com/TypeCellOS/BlockNote/pull/2683))
+- Enter moves selection to cell below in tables (BLO-1006) ([#2685](https://github.com/TypeCellOS/BlockNote/pull/2685))
+- additional heading top padding (BLO-1008) ([#2690](https://github.com/TypeCellOS/BlockNote/pull/2690))
+- Code mark input rule edge case (BLO-938) ([#2698](https://github.com/TypeCellOS/BlockNote/pull/2698))
+- **mantine:** upgrade @mantine/core and @mantine/hooks to v9.0.2 ([#2655](https://github.com/TypeCellOS/BlockNote/pull/2655))
+
+### 🩹 Fixes
+
+- Hardcoded strings in comment components (BLO-1033) ([#2681](https://github.com/TypeCellOS/BlockNote/pull/2681))
+- Color naming & CSS (BLO-946) ([#2684](https://github.com/TypeCellOS/BlockNote/pull/2684))
+- link HTML attributes (BLO-915) ([#2687](https://github.com/TypeCellOS/BlockNote/pull/2687))
+- guard hideMenuIfNotFrozen against undefined view state ([#2694](https://github.com/TypeCellOS/BlockNote/pull/2694), [#2699](https://github.com/TypeCellOS/BlockNote/pull/2699))
+- Clicking comment overlapping link opens link (BLO-1091) ([#2696](https://github.com/TypeCellOS/BlockNote/pull/2696))
+- prevent table row drag from moving an extra adjacent row ([#2703](https://github.com/TypeCellOS/BlockNote/pull/2703))
+- **clipboard:** use ProseMirror selection state for Shadow DOM compatibility ([#2677](https://github.com/TypeCellOS/BlockNote/pull/2677))
+
+### ❤️ Thank You
+
+- jt_fox @LimChaeJune
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- Wieland Lindenthal
+- Yousef
+
+## 0.49.0 (2026-04-24)
+
+### 🚀 Features
+
+- simplify links by inlining it to BlockNote ([#2623](https://github.com/TypeCellOS/BlockNote/pull/2623))
+- add Unicode quotation mark input rule for quote blocks ([#2673](https://github.com/TypeCellOS/BlockNote/pull/2673))
+
+### 🩹 Fixes
+
+- Inserting link removes comment & add comment button click buggy ([#2620](https://github.com/TypeCellOS/BlockNote/pull/2620), [#2573](https://github.com/TypeCellOS/BlockNote/issues/2573))
+- `useEditorDOMElement` hook ([#2619](https://github.com/TypeCellOS/BlockNote/pull/2619))
+- text color was not applying to table block ([#2663](https://github.com/TypeCellOS/BlockNote/pull/2663))
+- Drag preview blocking drops when overlapping the editor (BLO-996) ([#2670](https://github.com/TypeCellOS/BlockNote/pull/2670))
+- Drag & drop of blocks without inline content opens formatting toolbar (BLO-1116) ([#2628](https://github.com/TypeCellOS/BlockNote/pull/2628), [#2603](https://github.com/TypeCellOS/BlockNote/issues/2603))
+- save file caption/name on every keystroke instead of on close ([#2575](https://github.com/TypeCellOS/BlockNote/pull/2575))
+- prevent FloatingFocusManager from resetting editor selection ([#2525](https://github.com/TypeCellOS/BlockNote/pull/2525), [#2664](https://github.com/TypeCellOS/BlockNote/pull/2664))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+- miadnguyen @miadnguyen
+- mianguyen
+- Nick Perez
+- Yousef
+
 ## 0.48.1 (2026-04-16)
 
 ### 🩹 Fixes

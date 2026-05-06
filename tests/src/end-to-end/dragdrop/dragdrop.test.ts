@@ -1,14 +1,17 @@
+import { expect } from "@playwright/test";
 import { test } from "../../setup/setupScript.js";
 import {
   BASE_URL,
   H_ONE_BLOCK_SELECTOR,
   H_THREE_BLOCK_SELECTOR,
   H_TWO_BLOCK_SELECTOR,
+  IMAGE_SELECTOR,
   PARAGRAPH_SELECTOR,
 } from "../../utils/const.js";
 import { insertHeading, insertParagraph } from "../../utils/copypaste.js";
 import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor.js";
 import { dragAndDropBlock } from "../../utils/mouse.js";
+import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 test.describe.configure({ mode: "serial" });
 
@@ -79,5 +82,43 @@ test.describe("Check Block Dragging Functionality", () => {
     await dragAndDropBlock(page, dragTarget, dropTarget, true);
 
     await compareDocToSnapshot(page, "dragdropnested");
+  });
+
+  test("Should be able to drag image", async ({ page, browserName }) => {
+    test.skip(
+      browserName === "firefox",
+      "Playwright doesn't correctly simulate drag events in Firefox.",
+    );
+    await focusOnEditor(page);
+    await executeSlashCommand(page, "image");
+
+    await insertHeading(page, 1);
+
+    const dragTarget = await page.locator(IMAGE_SELECTOR);
+    const dropTarget = await page.locator(H_ONE_BLOCK_SELECTOR);
+    await page.pause();
+    await dragAndDropBlock(page, dragTarget, dropTarget, false);
+
+    await compareDocToSnapshot(page, "dragImage");
+  });
+
+  test("Formatting toolbar should not appear when dragging image block", async ({
+    page,
+    browserName,
+  }) => {
+    test.skip(
+      browserName === "firefox",
+      "Playwright doesn't correctly simulate drag events in Firefox.",
+    );
+    await focusOnEditor(page);
+    await executeSlashCommand(page, "image");
+    await insertHeading(page, 1);
+
+    const dragTarget = page.locator(IMAGE_SELECTOR);
+    const dropTarget = page.locator(H_ONE_BLOCK_SELECTOR);
+    await dragAndDropBlock(page, dragTarget, dropTarget, false);
+
+    const toolbar = page.locator(".bn-formatting-toolbar");
+    await expect(toolbar).not.toBeVisible();
   });
 });

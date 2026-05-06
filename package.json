@@ -36,18 +36,7 @@
     ],
     "overrides": {
       "vitest": "4.1.2",
-      "@vitest/runner": "4.1.2",
-      "msw": "2.11.5",
-      "ai": "6.0.5",
-      "@ai-sdk/anthropic": "3.0.2",
-      "@ai-sdk/openai": "3.0.2",
-      "@ai-sdk/groq": "3.0.2",
-      "@ai-sdk/google": "3.0.2",
-      "@ai-sdk/mistral": "3.0.2",
-      "@ai-sdk/openai-compatible": "2.0.2",
-      "@ai-sdk/provider-utils": "4.0.2",
-      "@ai-sdk/react": "3.0.5",
-      "@ai-sdk/gateway": "3.0.4"
+      "@vitest/runner": "4.1.2"
     }
   },
   "packageManager": "pnpm@10.23.0+sha512.21c4e5698002ade97e4efe8b8b4a89a8de3c85a37919f957e7a0f30f38fbc5bbdd05980ffe29179b2fb6e6e691242e098d945d1601772cad0fef5fb6411e2a4b",
@@ -71,5 +60,30 @@
     "start": "serve playground/dist -c ../serve.json",
     "test": "nx run-many --target=test",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,scss,md}\""
-  }
+  },
+  "overrides": {
+    "msw": "2.11.5",
+    "ai": "6.0.5",
+    "@ai-sdk/anthropic": "3.0.2",
+    "@ai-sdk/openai": "3.0.2",
+    "@ai-sdk/groq": "3.0.2",
+    "@ai-sdk/google": "3.0.2",
+    "@ai-sdk/mistral": "3.0.2",
+    "@ai-sdk/openai-compatible": "2.0.2",
+    "@ai-sdk/provider-utils": "4.0.2",
+    "@ai-sdk/react": "3.0.5",
+    "@ai-sdk/gateway": "3.0.4",
+    "@headlessui/react": "^2.2.4",
+    "@tiptap/core": "^3.0.0",
+    "@tiptap/pm": "^3.0.0"
+  },
+  "workspaces": [
+    "packages/*",
+    "examples/*/*",
+    "playground",
+    "fumadocs",
+    "docs",
+    "shared",
+    "tests"
+  ]
 }

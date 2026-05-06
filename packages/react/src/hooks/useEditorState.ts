@@ -46,7 +46,7 @@ export type UseEditorStateOptions<
    * The event to subscribe to.
    * @default "all"
    */
-  on?: "all" | "selection" | "change";
+  on?: "all" | "mount" | "selection" | "change";
 };
 
 /**
@@ -117,7 +117,7 @@ class EditorStateManager<
    */
   watch(
     nextEditor: BlockNoteEditor<any, any, any> | null,
-    on: "all" | "selection" | "change",
+    on: "all" | "mount" | "selection" | "change",
   ): undefined | (() => void) {
     this.editor = nextEditor as TEditor;
 
@@ -135,14 +135,21 @@ class EditorStateManager<
       const currentTiptapEditor = this.editor._tiptapEditor;
 
       const EVENT_TYPES = {
-        all: "transaction",
-        selection: "selectionUpdate",
-        change: "update",
+        all: ["transaction", "create", "mount", "unmount"],
+        // Listen for "create" as "mount" may fire before the hook is run.
+        mount: ["create", "mount", "unmount"],
+        selection: ["selectionUpdate"],
+        change: ["update"],
       } as const;
 
-      currentTiptapEditor.on(EVENT_TYPES[on], fn);
+      for (const eventType of EVENT_TYPES[on]) {
+        currentTiptapEditor.on(eventType, fn);
+      }
+
       return () => {
-        currentTiptapEditor.off(EVENT_TYPES[on], fn);
+        for (const eventType of EVENT_TYPES[on]) {
+          currentTiptapEditor.off(eventType, fn);
+        }
       };
     }
 

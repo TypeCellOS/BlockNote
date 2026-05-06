@@ -220,7 +220,7 @@ export const pl: Dictionary = {
     text_title: "Tekst",
     background_title: "Tło",
     colors: {
-      default: "Domyślny",
+      default: "Automatyczny",
       gray: "Szary",
       brown: "Brązowy",
       red: "Czerwony",
@@ -375,9 +375,11 @@ export const pl: Dictionary = {
     edited: "edytowany",
     save_button_text: "Zapisz",
     cancel_button_text: "Anuluj",
+    deleted_reference_text: "Oryginalna treść usunięta",
     actions: {
       add_reaction: "Dodaj reakcję",
       resolve: "Rozwiąż",
+      reopen: "Otwórz ponownie",
       edit_comment: "Edytuj komentarz",
       delete_comment: "Usuń komentarz",
       more_actions: "Więcej akcji",

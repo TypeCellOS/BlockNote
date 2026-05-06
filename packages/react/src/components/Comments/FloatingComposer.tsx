@@ -1,4 +1,12 @@
-import { mergeCSSClasses } from "@blocknote/core";
+import {
+  BlockSchema,
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
+  InlineContentSchema,
+  mergeCSSClasses,
+  StyleSchema,
+} from "@blocknote/core";
 import { CommentsExtension } from "@blocknote/core/comments";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
@@ -7,13 +15,21 @@ import { useExtension } from "../../hooks/useExtension.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { CommentEditor } from "./CommentEditor.js";
 import { defaultCommentEditorSchema } from "./defaultCommentEditorSchema.js";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
+import { TextSelection } from "@tiptap/pm/state";
 
 /**
  * The FloatingComposer component displays a comment editor "floating" card.
  *
  * It's used when the user highlights a parts of the document to create a new comment / thread.
  */
-export function FloatingComposer() {
+export function FloatingComposer<
+  B extends BlockSchema = DefaultBlockSchema,
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema,
+>() {
+  const editor = useBlockNoteEditor<B, I, S>();
+
   const comments = useExtension(CommentsExtension);
 
   const Components = useComponentsContext()!;
@@ -46,7 +62,7 @@ export function FloatingComposer() {
           >
             <Components.Generic.Toolbar.Button
               className={"bn-button"}
-              mainTooltip="Save"
+              mainTooltip={dict.comments.save_button_text}
               variant="compact"
               isDisabled={isEmpty}
               onClick={async () => {
@@ -57,9 +73,15 @@ export function FloatingComposer() {
                   },
                 });
                 comments.stopPendingComment();
+                editor.transact((tr) => {
+                  tr.setSelection(
+                    TextSelection.create(tr.doc, tr.selection.to),
+                  );
+                });
+                editor.focus();
               }}
             >
-              Save
+              {dict.comments.save_button_text}
             </Components.Generic.Toolbar.Button>
           </Components.Generic.Toolbar.Root>
         )}

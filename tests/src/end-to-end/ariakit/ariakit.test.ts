@@ -35,7 +35,9 @@ test.describe("Check Ariakit UI", () => {
 
     await page.keyboard.type("link");
     await page.keyboard.press("Enter");
+    await page.waitForTimeout(500);
     await page.keyboard.press("ArrowLeft");
+    await page.keyboard.press("ArrowRight");
 
     await page.waitForTimeout(500);
     expect(await page.screenshot()).toMatchSnapshot("ariakit-link-toolbar.png");

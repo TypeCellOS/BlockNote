@@ -11,7 +11,7 @@
     "directory": "packages/core"
   },
   "license": "MPL-2.0",
-  "version": "0.48.1",
+  "version": "0.50.0",
   "files": [
     "dist",
     "types",
@@ -86,7 +86,8 @@
     "lint": "eslint src --max-warnings 0",
     "test": "vitest --run",
     "test-watch": "vitest watch",
-    "clean": "rimraf dist && rimraf types"
+    "clean": "rimraf dist && rimraf types",
+    "update-tlds": "node scripts/update-tlds.mjs"
   },
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",
@@ -98,7 +99,6 @@
     "@tiptap/extension-code": "^3.13.0",
     "@tiptap/extension-horizontal-rule": "^3.13.0",
     "@tiptap/extension-italic": "^3.13.0",
-    "@tiptap/extension-link": "^3.22.1",
     "@tiptap/extension-paragraph": "^3.13.0",
     "@tiptap/extension-strike": "^3.13.0",
     "@tiptap/extension-text": "^3.13.0",

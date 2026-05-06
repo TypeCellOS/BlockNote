@@ -155,7 +155,18 @@ export const GenericPopover = (
       const element =
         "element" in props.reference ? props.reference.element : undefined;
 
-      if (element !== undefined) {
+      if (
+        element !== undefined &&
+        (props.focusManagerProps?.disabled ||
+          !editor.isWithinEditor(element))
+      ) {
+        // Only set domReference when FloatingFocusManager is disabled.
+        // When FloatingFocusManager is active (disabled !== false) and the
+        // reference is inside the ProseMirror editor, setting domReference
+        // causes floating-ui to call insertAdjacentElement on the reference,
+        // inserting a focus-return <span> into the PM contenteditable. This
+        // triggers PM's MutationObserver and resets the editor selection.
+        // (issue #2525)
         refs.setReference(element);
       }
 
@@ -166,7 +177,7 @@ export const GenericPopover = (
         contextElement: element,
       });
     }
-  }, [props.reference, refs]);
+  }, [props.reference, refs, props.focusManagerProps?.disabled, editor]);
 
   // Stores the last rendered `innerHTML` of the popover while it was open. The
   // `innerHTML` is used while the popover is closing, as the React children
