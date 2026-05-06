@@ -15,10 +15,7 @@
             "marks": [
               {
                 "attrs": {
-                  "class": null,
                   "href": "https://en.wikipedia.org/wiki/Example_(disambiguation)",
-                  "rel": "noopener noreferrer nofollow",
-                  "target": "_blank",
                 },
                 "type": "link",
               },

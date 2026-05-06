@@ -18,10 +18,7 @@
             "marks": [
               {
                 "attrs": {
-                  "class": null,
                   "href": "https://www.example.com",
-                  "rel": "noopener noreferrer nofollow",
-                  "target": "_blank",
                 },
                 "type": "link",
               },

@@ -31,10 +31,7 @@
                         "marks": [
                           {
                             "attrs": {
-                              "class": null,
                               "href": "https://example.com",
-                              "rel": "noopener noreferrer nofollow",
-                              "target": "_blank",
                             },
                             "type": "link",
                           },
@@ -113,10 +110,7 @@
                         "marks": [
                           {
                             "attrs": {
-                              "class": null,
                               "href": "https://example2.com",
-                              "rel": "noopener noreferrer nofollow",
-                              "target": "_blank",
                             },
                             "type": "link",
                           },
