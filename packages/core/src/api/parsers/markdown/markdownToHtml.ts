@@ -206,6 +206,22 @@ function parseInline(text: string): string {
   let i = 0;
 
   while (i < text.length) {
+    // Hard line break: 2+ trailing spaces immediately before a newline.
+    // (The other hard-break form, backslash + newline, is handled by
+    // tryBackslashEscape.) Strip the trailing spaces from the accumulated
+    // result before emitting the <br>.
+    if (
+      text[i] === "\n" &&
+      i >= 2 &&
+      text[i - 1] === " " &&
+      text[i - 2] === " "
+    ) {
+      result = result.replace(/ +$/, "");
+      result += "<br>\n";
+      i++;
+      continue;
+    }
+
     // Try each tokenizer in priority order
     let matched = false;
     if (SPECIAL_CHARS.has(text[i])) {
@@ -258,11 +274,16 @@ function parseInlineCode(
       }
       if (closeCount === openCount) {
         let code = text.substring(i, closeStart);
-        // Strip one leading and one trailing space if both exist
+        // Per CommonMark: line endings inside a code span are converted to
+        // single spaces, then if the result starts AND ends with a space and
+        // is not all-spaces, one leading + trailing space is stripped (so
+        // `` ` `foo` ` `` is `<code>`foo`</code>`).
+        code = code.replace(/\n/g, " ");
         if (
           code.length >= 2 &&
           code[0] === " " &&
-          code[code.length - 1] === " "
+          code[code.length - 1] === " " &&
+          /[^ ]/.test(code)
         ) {
           code = code.substring(1, code.length - 1);
         }
@@ -295,17 +316,9 @@ function parseImage(
   if (parenEnd === -1) {return null;}
 
   const alt = text.substring(altStart, altEnd);
-  let urlContent = text.substring(urlStart, parenEnd).trim();
-  let title: string | undefined;
-
-  // Check for title in quotes
-  const titleMatch = urlContent.match(/^(\S+)\s+"([^"]*)"$/);
-  if (titleMatch) {
-    urlContent = titleMatch[1];
-    title = titleMatch[2];
-  }
-
-  const url = urlContent;
+  const { url, title } = parseDestinationAndTitle(
+    text.substring(urlStart, parenEnd),
+  );
 
   if (isVideoUrl(url)) {
     // Match remark-rehype behavior: data-name comes from the title, not alt
@@ -315,8 +328,10 @@ function parseImage(
     };
   }
 
+  const titleAttr =
+    title !== undefined ? ` title="${escapeHtml(title)}"` : "";
   return {
-    html: `<img src="${escapeHtml(url)}" alt="${escapeHtml(alt)}">`,
+    html: `<img src="${escapeHtml(url)}" alt="${escapeHtml(alt)}"${titleAttr}>`,
     end: parenEnd + 1,
   };
 }
@@ -337,10 +352,14 @@ function parseLink(
   if (parenEnd === -1) {return null;}
 
   const linkText = text.substring(textStart, textEnd);
-  const url = extractDestination(text.substring(urlStart, parenEnd).trim());
+  const { url, title } = parseDestinationAndTitle(
+    text.substring(urlStart, parenEnd),
+  );
 
+  const titleAttr =
+    title !== undefined ? ` title="${escapeHtml(title)}"` : "";
   return {
-    html: `<a href="${escapeHtml(url)}">${parseInline(linkText)}</a>`,
+    html: `<a href="${escapeHtml(url)}"${titleAttr}>${parseInline(linkText)}</a>`,
     end: parenEnd + 1,
   };
 }
@@ -378,32 +397,56 @@ function findClosingParen(text: string, openPos: number): number {
 }
 
 /**
- * Extract the destination URL from a link/image URL+title string.
- * Handles angle-bracket destinations and strips optional titles.
- * E.g., `<url>` → `url`, `url "title"` → `url`
+ * Parse the inside of `(...)` from a link/image (the URL and optional title).
+ * Handles three URL forms:
+ *   - bare:           `/uri` or `/uri "title"`
+ *   - angle-bracket:  `<url>` or `<url> "title"` (brackets are stripped)
+ * And three title-quote forms:  `"..."`, `'...'`, `(...)`.
  */
-function extractDestination(raw: string): string {
-  // Angle-bracket destination: <url>
-  if (raw.startsWith("<") && raw.endsWith(">")) {
-    return raw.substring(1, raw.length - 1);
-  }
+function parseDestinationAndTitle(raw: string): {
+  url: string;
+  title?: string;
+} {
+  raw = raw.trim();
+  let url: string;
+  let rest: string;
+
   if (raw.startsWith("<")) {
     const close = raw.indexOf(">");
-    if (close !== -1) {
-      return raw.substring(1, close);
+    if (close === -1) {
+      // Unmatched `<` — treat the whole thing as the URL minus the `<`.
+      url = raw.substring(1);
+      rest = "";
+    } else {
+      url = raw.substring(1, close);
+      rest = raw.substring(close + 1).trim();
+    }
+  } else {
+    // Split at first unescaped whitespace.
+    let split = raw.length;
+    for (let i = 0; i < raw.length; i++) {
+      if (raw[i] === "\\" && i + 1 < raw.length) {
+        i++;
+        continue;
+      }
+      if (raw[i] === " " || raw[i] === "\t" || raw[i] === "\n") {
+        split = i;
+        break;
+      }
+    }
+    url = raw.substring(0, split);
+    rest = raw.substring(split).trim();
+  }
+
+  let title: string | undefined;
+  if (rest.length > 0) {
+    const titleMatch = rest.match(/^"([^"]*)"$|^'([^']*)'$|^\(([^)]*)\)$/);
+    if (titleMatch) {
+      title = titleMatch[1] ?? titleMatch[2] ?? titleMatch[3];
     }
   }
-  // Split at first unescaped whitespace to separate destination from title
-  for (let i = 0; i < raw.length; i++) {
-    if (raw[i] === "\\" && i + 1 < raw.length) {
-      i++; // skip escaped char
-      continue;
-    }
-    if (raw[i] === " " || raw[i] === "\t" || raw[i] === "\n") {
-      return raw.substring(0, i);
-    }
-  }
-  return raw;
+
+  return { url, title };
 }
 
 function parseDelimited(
@@ -602,8 +645,11 @@ function tokenize(markdown: string): Token[] {
       continue;
     }
 
-    // ATX Heading
-    const headingMatch = line.match(/^(#{1,6})\s+(.+?)(?:\s+#+)?$/);
+    // ATX Heading.
+    // - Closing `#` sequence requires a preceding space (so `### foo###`
+    //   keeps the trailing #s as text, while `### foo ###` strips them).
+    // - Trailing whitespace is always stripped from the heading content.
+    const headingMatch = line.match(/^(#{1,6})\s+(.+?)(?:\s+#+\s*|\s*)$/);
     if (headingMatch) {
       tokens.push({
         type: "heading",
@@ -843,9 +889,16 @@ function tokenize(markdown: string): Token[] {
       paraLines.push(nextLine);
       i++;
     }
+    // CommonMark allows up to 3 leading spaces of indent on paragraph lines.
+    // Also strip trailing whitespace from the final line so a trailing
+    // hard-break sequence (`  \n` at end of paragraph) doesn't leak as
+    // literal trailing spaces in the rendered output.
     tokens.push({
       type: "paragraph",
-      content: paraLines.join("\n"),
+      content: paraLines
+        .map((l) => l.replace(/^ {1,3}/, ""))
+        .join("\n")
+        .replace(/[ \t]+$/, ""),
     });
     prevLineWasBlank = false;
   }

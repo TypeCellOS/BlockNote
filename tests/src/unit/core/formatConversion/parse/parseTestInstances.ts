@@ -1986,4 +1986,63 @@ Some text after.`,
     },
     executeTest: testParseMarkdown,
   },
+  // Hard line break via two trailing spaces (CommonMark ex. 633)
+  {
+    testCase: {
+      name: "hardBreakTwoSpaces",
+      content: `Line one  \nLine two`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // ATX heading: closing #'s and trailing whitespace are stripped (ex. 73)
+  {
+    testCase: {
+      name: "headingTrailingWhitespace",
+      content: `### foo ###     `,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // ATX heading: lots of internal padding still produces a clean heading (ex. 67)
+  {
+    testCase: {
+      name: "headingInternalPadding",
+      content: `#                  foo                     `,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Code span with internal newline collapses to space (CommonMark ex. 337)
+  {
+    testCase: {
+      name: "codeSpanWithNewline",
+      content: "`foo   bar \nbaz`",
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Image with title attribute (CommonMark ex. 572). The title is parsed
+  // even if the BlockNote image block doesn't surface it as a prop —
+  // the point is to not leak `"title"` into the alt or src.
+  {
+    testCase: {
+      name: "imageWithTitle",
+      content: `![alt text](https://example.com/image.png "An image title")`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Angle-bracket-wrapped image URL — brackets are stripped (ex. 580)
+  {
+    testCase: {
+      name: "imageAngleBracketUrl",
+      content: `![alt](<https://example.com/image.png>)`,
+    },
+    executeTest: testParseMarkdown,
+  },
+  // Paragraph lines with up to 3 leading spaces of indent are still a
+  // paragraph; the indent is stripped (CommonMark ex. 222)
+  {
+    testCase: {
+      name: "paragraphLeadingIndent",
+      content: `  aaa\n bbb`,
+    },
+    executeTest: testParseMarkdown,
+  },
 ];
