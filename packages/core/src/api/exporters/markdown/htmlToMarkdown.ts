@@ -15,13 +15,19 @@ export function htmlToMarkdown(html: string): string {
   // globally available in Node.js.
   const container = document.createElement("div");
   container.innerHTML = html;
-  const result = serializeChildren(container, { indent: "", inList: false });
+  const result = serializeChildren(container, {
+    indent: "",
+    inListItem: false,
+  });
   return result.trim() + "\n";
 }
 
 interface SerializeContext {
   indent: string; // current indentation prefix for list nesting
-  inList: boolean; // whether we're inside a list
+  // True when the current node is being serialized as continuation content
+  // of a parent list item. Used to suppress trailing blank lines that would
+  // otherwise turn the parent list into a "loose" list.
+  inListItem: boolean;
 }
 
 // ─── Main Serializer ─────────────────────────────────────────────────────────
@@ -101,7 +107,7 @@ function serializeParagraph(el: HTMLElement, ctx: SerializeContext): string {
   const content = serializeInlineContent(el);
   // Trim leading/trailing hard breaks (matching remark behavior)
   const trimmed = trimHardBreaks(content);
-  if (ctx.inList) {
+  if (ctx.inListItem) {
     return trimmed;
   }
   return ctx.indent + trimmed + "\n\n";
@@ -130,7 +136,7 @@ function serializeBlockquote(el: HTMLElement, ctx: SerializeContext): string {
       if (tag === "p") {
         parts.push(serializeInlineContent(child as HTMLElement));
       } else {
-        const innerCtx: SerializeContext = { indent: "", inList: false };
+        const innerCtx: SerializeContext = { indent: "", inListItem: false };
         parts.push(serializeNode(child, innerCtx).trim());
       }
     }
@@ -215,6 +221,12 @@ function serializeUnorderedList(
     result += serializeListItem(item as HTMLElement, "bullet", ctx);
   }
 
+  // Trailing blank line separates the list from the next block. Skip when
+  // this list is nested inside another list item — adding it would convert
+  // the parent list into a "loose" list (or break tightness).
+  if (!ctx.inListItem) {
+    result += "\n";
+  }
   return result;
 }
 
@@ -230,6 +242,9 @@ function serializeOrderedList(el: HTMLElement, ctx: SerializeContext): string {
     result += serializeListItem(items[i] as HTMLElement, "ordered", ctx, num);
   }
 
+  if (!ctx.inListItem) {
+    result += "\n";
+  }
   return result;
 }
 
@@ -284,11 +299,15 @@ function serializeListItem(
     inlineContent = firstContentEl ? serializeInlineContent(firstContentEl) : "";
   }
 
-  let result = ctx.indent + marker + inlineContent + "\n\n";
+  // The marker line ends with a single `\n` so that consecutive list items
+  // produce a "tight" list (no blank line between markers). Continuation
+  // content within the item (nested lists, continuation paragraphs, other
+  // blocks) injects its own spacing as needed.
+  let result = ctx.indent + marker + inlineContent + "\n";
 
   // Serialize child content (nested lists, continuation paragraphs, etc.)
   const childIndent = ctx.indent + " ".repeat(markerWidth);
-  const childCtx: SerializeContext = { indent: childIndent, inList: true };
+  const childCtx: SerializeContext = { indent: childIndent, inListItem: true };
 
   // For toggle items, also serialize children inside the details element
   if (details) {
@@ -298,7 +317,10 @@ function serializeListItem(
       const childTag = child.tagName.toLowerCase();
       if (childTag === "p") {
         const content = serializeInlineContent(child as HTMLElement);
-        result += childIndent + content + "\n\n";
+        // Continuation paragraph needs a blank line to separate it from the
+        // previous content; CommonMark would otherwise treat it as a soft
+        // wrap of that content.
+        result += "\n" + childIndent + content + "\n";
       } else {
         result += serializeNode(child, childCtx);
       }
@@ -315,13 +337,18 @@ function serializeListItem(
 
     // Nested lists and other block content
     if (childTag === "ul" || childTag === "ol") {
+      // Nested list flows directly under the parent marker — no blank line.
       result += serializeNode(child, childCtx);
     } else if (childTag === "p") {
-      // Continuation paragraph within list item
+      // Continuation paragraph within list item — requires blank line before
+      // so it isn't read as part of the marker line's text.
       const content = serializeInlineContent(child as HTMLElement);
-      result += childIndent + content + "\n\n";
+      result += "\n" + childIndent + content + "\n";
     } else {
-      result += serializeNode(child, childCtx);
+      // Other block-level children (code blocks, blockquotes, etc.) already
+      // emit their own separating newlines; prefix with a blank line so they
+      // are recognized as separate blocks.
+      result += "\n" + serializeNode(child, childCtx);
     }
   }
 

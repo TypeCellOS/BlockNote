@@ -7,7 +7,6 @@ Introduction paragraph.
 Text with **bold** and [a link](https://example.com).
 
 * First point
-
 * Second point
 
 ***
