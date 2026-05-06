@@ -1,0 +1,48 @@
+[
+  {
+    "attrs": {
+      "id": "1",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "start": 5,
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "content": [
+          {
+            "text": "Item 5",
+            "type": "text",
+          },
+        ],
+        "type": "numberedListItem",
+      },
+    ],
+    "type": "blockContainer",
+  },
+  {
+    "attrs": {
+      "id": "2",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "start": undefined,
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "content": [
+          {
+            "text": "Item 6",
+            "type": "text",
+          },
+        ],
+        "type": "numberedListItem",
+      },
+    ],
+    "type": "blockContainer",
+  },
+]

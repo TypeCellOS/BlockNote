@@ -1,0 +1,44 @@
+[
+  {
+    "attrs": {
+      "id": "1",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "textColor": "default",
+        },
+        "content": [
+          {
+            "text": "First quote",
+            "type": "text",
+          },
+        ],
+        "type": "quote",
+      },
+    ],
+    "type": "blockContainer",
+  },
+  {
+    "attrs": {
+      "id": "2",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "textColor": "default",
+        },
+        "content": [
+          {
+            "text": "Second quote",
+            "type": "text",
+          },
+        ],
+        "type": "quote",
+      },
+    ],
+    "type": "blockContainer",
+  },
+]

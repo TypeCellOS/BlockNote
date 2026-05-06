@@ -1,0 +1,34 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Quote with ",
+        "type": "text",
+      },
+      {
+        "content": [
+          {
+            "styles": {},
+            "text": "a link",
+            "type": "text",
+          },
+        ],
+        "href": "https://example.com",
+        "type": "link",
+      },
+      {
+        "styles": {},
+        "text": " inside",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textColor": "default",
+    },
+    "type": "quote",
+  },
+]

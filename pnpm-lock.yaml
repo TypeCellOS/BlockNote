@@ -130,14 +130,11 @@ importers:
         specifier: ^3.17.0
         version: 3.17.0(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       '@marsidev/react-turnstile':
         specifier: ^1.4.2
         version: 1.5.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -348,7 +345,7 @@ importers:
         version: 1.6.4
       postcss:
         specifier: ^8.5.6
-        version: 8.5.12
+        version: 8.5.14
       serve:
         specifier: ^14.2.6
         version: 14.2.6
@@ -380,14 +377,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -426,14 +420,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -475,14 +466,11 @@ importers:
         specifier: latest
         version: link:../../../packages/xl-multi-column
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -521,14 +509,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -567,14 +552,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -613,14 +595,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -659,14 +638,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -705,14 +681,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -751,14 +724,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -806,14 +776,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -852,14 +819,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -898,14 +862,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -944,14 +905,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -990,14 +948,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -1036,14 +991,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -1082,14 +1034,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -1128,14 +1077,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -1174,14 +1120,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -1220,14 +1163,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -1272,14 +1212,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -1321,14 +1258,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -1367,14 +1301,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -1413,14 +1344,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -1459,14 +1387,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -1508,14 +1433,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -1557,14 +1479,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -1606,14 +1525,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -1655,14 +1571,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -1701,14 +1614,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -1747,14 +1657,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -1793,14 +1700,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -1839,14 +1743,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       '@uppy/core':
         specifier: ^3.13.1
         version: 3.13.1
@@ -1921,14 +1822,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -1967,14 +1865,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       '@mui/icons-material':
         specifier: ^5.16.1
         version: 5.18.0(@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.5))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.5))(@types/react@19.2.14)(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@types/react@19.2.14)(react@19.2.5)
@@ -2019,14 +1914,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -2065,14 +1957,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -2111,14 +2000,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -2157,14 +2043,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -2203,14 +2086,54 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
+      react:
+        specifier: ^19.2.3
+        version: 19.2.5
+      react-dom:
+        specifier: ^19.2.3
+        version: 19.2.5(react@19.2.5)
+    devDependencies:
+      '@types/react':
+        specifier: ^19.2.3
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.14)
+      '@vitejs/plugin-react':
+        specifier: ^6.0.1
+        version: 6.0.1(babel-plugin-react-compiler@1.0.0)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))
+      vite:
+        specifier: ^8.0.8
+        version: 8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3)
+
+  examples/03-ui-components/19-suggestion-menus-grouping-ordering:
+    dependencies:
+      '@blocknote/ariakit':
+        specifier: latest
+        version: link:../../../packages/ariakit
+      '@blocknote/core':
+        specifier: latest
+        version: link:../../../packages/core
+      '@blocknote/mantine':
+        specifier: latest
+        version: link:../../../packages/mantine
+      '@blocknote/react':
+        specifier: latest
+        version: link:../../../packages/react
+      '@blocknote/shadcn':
+        specifier: latest
+        version: link:../../../packages/shadcn
+      '@mantine/core':
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@mantine/hooks':
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -2249,14 +2172,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -2295,14 +2215,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -2341,14 +2258,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -2387,14 +2301,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -2433,14 +2344,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -2482,14 +2390,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -2531,14 +2436,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       '@shikijs/core':
         specifier: ^4
         version: 4.0.2
@@ -2592,14 +2494,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -2638,14 +2537,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -2684,14 +2580,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -2730,14 +2623,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -2782,14 +2672,11 @@ importers:
         specifier: latest
         version: link:../../../packages/xl-pdf-exporter
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       '@react-pdf/renderer':
         specifier: ^4.3.0
         version: 4.3.2(react@19.2.5)
@@ -2837,14 +2724,11 @@ importers:
         specifier: latest
         version: link:../../../packages/xl-multi-column
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -2889,14 +2773,11 @@ importers:
         specifier: latest
         version: link:../../../packages/xl-odt-exporter
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -2938,14 +2819,11 @@ importers:
         specifier: latest
         version: link:../../../packages/xl-email-exporter
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       '@react-email/render':
         specifier: ^2.0.4
         version: 2.0.5(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -2987,14 +2865,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -3033,14 +2908,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -3079,14 +2951,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -3128,14 +2997,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -3174,14 +3040,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -3223,14 +3086,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -3272,14 +3132,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -3321,14 +3178,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -3367,14 +3221,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -3413,14 +3264,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -3459,14 +3307,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -3505,14 +3350,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -3551,14 +3393,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -3597,14 +3436,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -3643,14 +3479,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -3710,14 +3543,11 @@ importers:
         specifier: ^3.17.0
         version: 3.17.0(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -3759,14 +3589,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       '@y-sweet/react':
         specifier: ^0.6.3
         version: 0.6.4(react@19.2.5)(yjs@13.6.30)
@@ -3808,14 +3635,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -3854,14 +3678,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       '@y-sweet/react':
         specifier: ^0.6.3
         version: 0.6.4(react@19.2.5)(yjs@13.6.30)
@@ -3903,14 +3724,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -3955,14 +3773,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -4007,14 +3822,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -4059,14 +3871,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -4108,14 +3917,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       '@tiptap/core':
         specifier: ^3.13.0
         version: 3.22.4(@tiptap/pm@3.22.4)
@@ -4160,14 +3966,11 @@ importers:
         specifier: latest
         version: link:../../../packages/xl-ai
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       ai:
         specifier: ^6.0.5
         version: 6.0.5(zod@4.3.6)
@@ -4212,14 +4015,11 @@ importers:
         specifier: latest
         version: link:../../../packages/xl-ai
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       ai:
         specifier: ^6.0.5
         version: 6.0.5(zod@4.3.6)
@@ -4264,14 +4064,11 @@ importers:
         specifier: latest
         version: link:../../../packages/xl-ai
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       ai:
         specifier: ^6.0.5
         version: 6.0.5(zod@4.3.6)
@@ -4319,14 +4116,11 @@ importers:
         specifier: latest
         version: link:../../../packages/xl-ai
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       ai:
         specifier: ^6.0.5
         version: 6.0.5(zod@4.3.6)
@@ -4377,14 +4171,11 @@ importers:
         specifier: latest
         version: link:../../../packages/xl-ai
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       ai:
         specifier: ^6.0.5
         version: 6.0.5(zod@4.3.6)
@@ -4438,14 +4229,11 @@ importers:
         specifier: latest
         version: link:../../../packages/xl-ai
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       ai:
         specifier: ^6.0.5
         version: 6.0.5(zod@4.3.6)
@@ -4490,14 +4278,11 @@ importers:
         specifier: latest
         version: link:../../../packages/xl-ai
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       ai:
         specifier: ^6.0.5
         version: 6.0.5(zod@4.3.6)
@@ -4539,14 +4324,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -4585,14 +4367,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -4631,14 +4410,11 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -4665,10 +4441,10 @@ importers:
         specifier: ^0.4.19
         version: 0.4.24(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@blocknote/core':
-        specifier: 0.49.0
+        specifier: 0.50.0
         version: link:../core
       '@blocknote/react':
-        specifier: 0.49.0
+        specifier: 0.50.0
         version: link:../react
     devDependencies:
       '@types/react':
@@ -4711,7 +4487,7 @@ importers:
   packages/code-block:
     dependencies:
       '@blocknote/core':
-        specifier: 0.49.0
+        specifier: 0.50.0
         version: link:../core
       '@shikijs/core':
         specifier: ^4
@@ -4801,9 +4577,6 @@ importers:
       fast-deep-equal:
         specifier: ^3.1.3
         version: 3.1.3
-      hast-util-from-dom:
-        specifier: ^5.0.1
-        version: 5.0.1
       lib0:
         specifier: ^0.2.99
         version: 0.2.117
@@ -4825,39 +4598,6 @@ importers:
       prosemirror-view:
         specifier: ^1.41.4
         version: 1.41.8
-      rehype-format:
-        specifier: ^5.0.1
-        version: 5.0.1
-      rehype-parse:
-        specifier: ^9.0.1
-        version: 9.0.1
-      rehype-remark:
-        specifier: ^10.0.1
-        version: 10.0.1
-      rehype-stringify:
-        specifier: ^10.0.1
-        version: 10.0.1
-      remark-breaks:
-        specifier: ^4.0.0
-        version: 4.0.0
-      remark-gfm:
-        specifier: ^4.0.1
-        version: 4.0.1
-      remark-parse:
-        specifier: ^11.0.0
-        version: 11.0.0
-      remark-rehype:
-        specifier: ^11.1.2
-        version: 11.1.2
-      remark-stringify:
-        specifier: ^11.0.0
-        version: 11.0.0
-      unified:
-        specifier: ^11.0.5
-        version: 11.0.5
-      unist-util-visit:
-        specifier: ^5.0.0
-        version: 5.1.0
       y-prosemirror:
         specifier: ^1.3.7
         version: 1.3.7(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30)
@@ -4868,9 +4608,6 @@ importers:
         specifier: ^13.6.27
         version: 13.6.30
     devDependencies:
-      '@types/hast':
-        specifier: ^3.0.4
-        version: 3.0.4
       eslint:
         specifier: ^8.57.1
         version: 8.57.1
@@ -4933,20 +4670,17 @@ importers:
   packages/mantine:
     dependencies:
       '@blocknote/core':
-        specifier: 0.49.0
+        specifier: 0.50.0
         version: link:../core
       '@blocknote/react':
-        specifier: 0.49.0
+        specifier: 0.50.0
         version: link:../react
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^8.3.11 || ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^8.3.11 || ^9.0.2
+        version: 9.1.1(react@19.2.5)
       react-icons:
         specifier: ^5.5.0
         version: 5.6.0(react@19.2.5)
@@ -4991,7 +4725,7 @@ importers:
   packages/react:
     dependencies:
       '@blocknote/core':
-        specifier: 0.49.0
+        specifier: 0.50.0
         version: link:../core
       '@emoji-mart/data':
         specifier: ^1.2.1
@@ -5085,10 +4819,10 @@ importers:
   packages/server-util:
     dependencies:
       '@blocknote/core':
-        specifier: 0.49.0
+        specifier: 0.50.0
         version: link:../core
       '@blocknote/react':
-        specifier: 0.49.0
+        specifier: 0.50.0
         version: link:../react
       '@tiptap/core':
         specifier: ^3.13.0
@@ -5146,10 +4880,10 @@ importers:
   packages/shadcn:
     dependencies:
       '@blocknote/core':
-        specifier: 0.49.0
+        specifier: 0.50.0
         version: link:../core
       '@blocknote/react':
-        specifier: 0.49.0
+        specifier: 0.50.0
         version: link:../react
       '@radix-ui/react-avatar':
         specifier: ^1.1.10
@@ -5180,7 +4914,7 @@ importers:
         version: 1.2.8(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       autoprefixer:
         specifier: ^10.4.21
-        version: 10.4.21(postcss@8.5.12)
+        version: 10.4.21(postcss@8.5.14)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -5252,13 +4986,13 @@ importers:
         specifier: ^3.0.5
         version: 3.0.5(react@19.2.5)(zod@4.3.6)
       '@blocknote/core':
-        specifier: 0.49.0
+        specifier: 0.50.0
         version: link:../core
       '@blocknote/mantine':
-        specifier: 0.49.0
+        specifier: 0.50.0
         version: link:../mantine
       '@blocknote/react':
-        specifier: 0.49.0
+        specifier: 0.50.0
         version: link:../react
       '@floating-ui/react':
         specifier: ^0.27.18
@@ -5305,15 +5039,6 @@ importers:
       react-icons:
         specifier: ^5.5.0
         version: 5.6.0(react@19.2.5)
-      remark-parse:
-        specifier: ^11.0.0
-        version: 11.0.0
-      remark-stringify:
-        specifier: ^11.0.0
-        version: 11.0.0
-      unified:
-        specifier: ^11.0.5
-        version: 11.0.5
       y-prosemirror:
         specifier: ^1.3.7
         version: 1.3.7(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30)
@@ -5427,7 +5152,7 @@ importers:
         specifier: ^2.0.2
         version: 2.0.2(zod@4.3.6)
       '@blocknote/xl-ai':
-        specifier: 0.49.0
+        specifier: 0.50.0
         version: link:../xl-ai
       '@hono/node-server':
         specifier: ^1.19.5
@@ -5473,10 +5198,10 @@ importers:
   packages/xl-docx-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.49.0
+        specifier: 0.50.0
         version: link:../core
       '@blocknote/xl-multi-column':
-        specifier: 0.49.0
+        specifier: 0.50.0
         version: link:../xl-multi-column
       buffer:
         specifier: ^6.0.3
@@ -5528,10 +5253,10 @@ importers:
   packages/xl-email-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.49.0
+        specifier: 0.50.0
         version: link:../core
       '@blocknote/react':
-        specifier: 0.49.0
+        specifier: 0.50.0
         version: link:../react
       '@react-email/components':
         specifier: ^1.0.5
@@ -5586,10 +5311,10 @@ importers:
   packages/xl-multi-column:
     dependencies:
       '@blocknote/core':
-        specifier: 0.49.0
+        specifier: 0.50.0
         version: link:../core
       '@blocknote/react':
-        specifier: 0.49.0
+        specifier: 0.50.0
         version: link:../react
       '@tiptap/core':
         specifier: ^3.13.0
@@ -5653,10 +5378,10 @@ importers:
   packages/xl-odt-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.49.0
+        specifier: 0.50.0
         version: link:../core
       '@blocknote/xl-multi-column':
-        specifier: 0.49.0
+        specifier: 0.50.0
         version: link:../xl-multi-column
       '@zip.js/zip.js':
         specifier: ^2.8.8
@@ -5708,13 +5433,13 @@ importers:
   packages/xl-pdf-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.49.0
+        specifier: 0.50.0
         version: link:../core
       '@blocknote/react':
-        specifier: 0.49.0
+        specifier: 0.50.0
         version: link:../react
       '@blocknote/xl-multi-column':
-        specifier: 0.49.0
+        specifier: 0.50.0
         version: link:../xl-multi-column
       '@react-pdf/renderer':
         specifier: ^4.3.0
@@ -5847,14 +5572,11 @@ importers:
         specifier: ^3.17.0
         version: 3.17.0(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/core':
-        specifier: ^8.3.11
-        version: 8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/hooks':
-        specifier: ^8.3.11
-        version: 8.3.18(react@19.2.5)
-      '@mantine/utils':
-        specifier: ^6.0.22
-        version: 6.0.22(react@19.2.5)
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
       '@mui/icons-material':
         specifier: ^5.18.0
         version: 5.18.0(@mui/material@5.18.0(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.5))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.14)(react@19.2.5))(@types/react@19.2.14)(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@types/react@19.2.14)(react@19.2.5)
@@ -5902,7 +5624,7 @@ importers:
         version: 6.0.5(zod@4.3.6)
       autoprefixer:
         specifier: 10.4.21
-        version: 10.4.21(postcss@8.5.12)
+        version: 10.4.21(postcss@8.5.14)
       docx:
         specifier: ^9.5.1
         version: 9.5.1
@@ -8102,22 +7824,17 @@ packages:
     peerDependencies:
       yjs: ^13.6.1
 
-  '@mantine/core@8.3.18':
-    resolution: {integrity: sha512-9tph1lTVogKPjTx02eUxDUOdXacPzK62UuSqb4TdGliI54/Xgxftq0Dfqu6XuhCxn9J5MDJaNiLDvL/1KRkYqA==}
+  '@mantine/core@9.1.1':
+    resolution: {integrity: sha512-vClOZdCeZ4oLYuA/3jAOgKGQ6dXbF6ZkzpYz09Gied9nZpB7HcQeb3dcMh8UPBE4f+EM7KlYWk6dch7GoASeaA==}
     peerDependencies:
-      '@mantine/hooks': 8.3.18
-      react: ^18.x || ^19.x
-      react-dom: ^18.x || ^19.x
+      '@mantine/hooks': 9.1.1
+      react: ^19.2.0
+      react-dom: ^19.2.0
 
-  '@mantine/hooks@8.3.18':
-    resolution: {integrity: sha512-QoWr9+S8gg5050TQ06aTSxtlpGjYOpIllRbjYYXlRvZeTsUqiTbVfvQROLexu4rEaK+yy9Wwriwl9PMRgbLqPw==}
+  '@mantine/hooks@9.1.1':
+    resolution: {integrity: sha512-tTJK73nGFyy1v214TLdvBq0be7QCoc6osfbXVuJgOH3YG85lWk9Mvvor6k+w6hC6HXSqKMqLKePyiGm83xGcMg==}
     peerDependencies:
-      react: ^18.x || ^19.x
-
-  '@mantine/utils@6.0.22':
-    resolution: {integrity: sha512-RSKlNZvxhMCkOFZ6slbYvZYbWjHUM+PxDQnupIOxIdsTZQQjx/BFfrfJ7kQFOP+g7MtpOds8weAetEs5obwMOQ==}
-    peerDependencies:
-      react: '>=16.8.0'
+      react: ^19.2.0
 
   '@mapbox/node-pre-gyp@1.0.11':
     resolution: {integrity: sha512-Yhlar6v9WQgUp/He7BdgzOz8lqMQ8sU+jkCq7Wx8Myc5YFJLbEe7lgui/V7G1qB1DJykHSGwreceSaD60Y0PUQ==}
@@ -12772,6 +12489,9 @@ packages:
   fast-uri@3.1.0:
     resolution: {integrity: sha512-iPeeDKJSWf4IEOasVVrknXpaBV0IApz/gp7S2bb7Z4Lljbl2MGJRqInZiUrQwV16cpzw/D3S5j5Julj/gT52AA==}
 
+  fast-uri@3.1.2:
+    resolution: {integrity: sha512-rVjf7ArG3LTk+FS6Yw81V1DLuZl1bRbNrev6Tmd/9RaroeeRRJhAt7jg/6YFxbvAQXUCavSoZhPPj6oOx+5KjQ==}
+
   fast-xml-builder@1.1.4:
     resolution: {integrity: sha512-f2jhpN4Eccy0/Uz9csxh3Nu6q4ErKxf0XIsasomfOihuSUa3/xw6w8dnOtCDgEItQFJG8KyXPzQXzcODDrrbOg==}
 
@@ -13193,39 +12913,6 @@ packages:
     resolution: {integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==}
     engines: {node: '>= 0.4'}
 
-  hast-util-embedded@3.0.0:
-    resolution: {integrity: sha512-naH8sld4Pe2ep03qqULEtvYr7EjrLK2QHY8KJR6RJkTUjPGObe1vnx585uzem2hGra+s1q08DZZpfgDVYRbaXA==}
-
-  hast-util-format@1.1.0:
-    resolution: {integrity: sha512-yY1UDz6bC9rDvCWHpx12aIBGRG7krurX0p0Fm6pT547LwDIZZiNr8a+IHDogorAdreULSEzP82Nlv5SZkHZcjA==}
-
-  hast-util-from-dom@5.0.1:
-    resolution: {integrity: sha512-N+LqofjR2zuzTjCPzyDUdSshy4Ma6li7p/c3pA78uTwzFgENbgbUrm2ugwsOdcjI1muO+o6Dgzp9p8WHtn/39Q==}
-
-  hast-util-from-html@2.0.3:
-    resolution: {integrity: sha512-CUSRHXyKjzHov8yKsQjGOElXy/3EKpyX56ELnkHH34vDVw1N1XSQ1ZcAvTyAPtGqLTuKP/uxM+aLkSPqF/EtMw==}
-
-  hast-util-from-parse5@8.0.3:
-    resolution: {integrity: sha512-3kxEVkEKt0zvcZ3hCRYI8rqrgwtlIOFMWkbclACvjlDw8Li9S2hk/d51OI0nr/gIpdMHNepwgOKqZ/sy0Clpyg==}
-
-  hast-util-has-property@3.0.0:
-    resolution: {integrity: sha512-MNilsvEKLFpV604hwfhVStK0usFY/QmM5zX16bo7EjnAEGofr5YyI37kzopBlZJkHD4t887i+q/C8/tr5Q94cA==}
-
-  hast-util-is-body-ok-link@3.0.1:
-    resolution: {integrity: sha512-0qpnzOBLztXHbHQenVB8uNuxTnm/QBFUOmdOSsEn7GnBtyY07+ENTWVFBAnXd/zEgd9/SUG3lRY7hSIBWRgGpQ==}
-
-  hast-util-is-element@3.0.0:
-    resolution: {integrity: sha512-Val9mnv2IWpLbNPqc/pUem+a7Ipj2aHacCwgNfTiK0vJKl0LF+4Ba4+v1oPHFpf3bLYmreq0/l3Gud9S5OH42g==}
-
-  hast-util-minify-whitespace@1.0.1:
-    resolution: {integrity: sha512-L96fPOVpnclQE0xzdWb/D12VT5FabA7SnZOUMtL1DbXmYiHJMXZvFkIZfiMmTCNJHUeO2K9UYNXoVyfz+QHuOw==}
-
-  hast-util-parse-selector@4.0.0:
-    resolution: {integrity: sha512-wkQCkSYoOGCRKERFWcxMVMOcYE2K1AaNLU8DXS9arxnLOUEWbOXKXiJUNzEpqZ3JOKpnha3jkFrumEjVliDe7A==}
-
-  hast-util-phrasing@3.0.1:
-    resolution: {integrity: sha512-6h60VfI3uBQUxHqTyMymMZnEbNl1XmEGtOxxKYL7stY2o601COo62AWAYBQR9lZbYXYSBoxag8UpPRXK+9fqSQ==}
-
   hast-util-to-estree@3.1.3:
     resolution: {integrity: sha512-48+B/rJWAp0jamNbAAf9M7Uf//UVqAoMmgXhBdxTDJLGKY+LRnZ99qcG+Qjl5HfMpYNzS5v4EAwVEF34LeAj7w==}
 
@@ -13235,20 +12922,11 @@ packages:
   hast-util-to-jsx-runtime@2.3.6:
     resolution: {integrity: sha512-zl6s8LwNyo1P9uw+XJGvZtdFF1GdAkOg8ujOw+4Pyb76874fLps4ueHXDhXWdk6YHQ6OgUtinliG7RsYvCbbBg==}
 
-  hast-util-to-mdast@10.1.2:
-    resolution: {integrity: sha512-FiCRI7NmOvM4y+f5w32jPRzcxDIz+PUqDwEqn1A+1q2cdp3B8Gx7aVrXORdOKjMNDQsD1ogOr896+0jJHW1EFQ==}
-
   hast-util-to-string@3.0.1:
     resolution: {integrity: sha512-XelQVTDWvqcl3axRfI0xSeoVKzyIFPwsAGSLIsKdJKQMXDYJS4WYrBNF/8J7RdhIcFI2BOHgAifggsvsxp/3+A==}
 
-  hast-util-to-text@4.0.2:
-    resolution: {integrity: sha512-KK6y/BN8lbaq654j7JgBydev7wuNMcID54lkRav1P0CaE1e47P72AWWPiGKXTJU271ooYzcvTAn/Zt0REnvc7A==}
-
   hast-util-whitespace@3.0.0:
     resolution: {integrity: sha512-88JUN06ipLwsnv+dVn+OIYOvAuvBMy/Qoi6O7mQHxdPXpjy+Cd6xRkWwux7DKO+4sYILtLBRIKgsdpS2gQc7qw==}
-
-  hastscript@9.0.1:
-    resolution: {integrity: sha512-g7df9rMFX/SPi34tyGCyUBREQoKkapwdY/T04Qn9TDWfHhAYt4/I0gMVirzK5wEzeUqIjEB+LXC/ypb7Aqno5w==}
 
   headers-polyfill@4.0.3:
     resolution: {integrity: sha512-IScLbePpkvO846sIwOtOTDjutRMWdXdJmXdMvk6gCBHxFO8d+QKOQedyZSxFTTFYRSmlgSTDtXqqq4pcenBXLQ==}
@@ -13286,9 +12964,6 @@ packages:
 
   html-void-elements@3.0.0:
     resolution: {integrity: sha512-bEqo66MRXsUGxWHV5IP0PUiAWwoEjba4VCzg0LjFJBpchPaTfyfCKTG6bc5F8ucKec3q5y6qOdGyYTSBEvhCrg==}
-
-  html-whitespace-sensitive-tag-names@3.0.1:
-    resolution: {integrity: sha512-q+310vW8zmymYHALr1da4HyXUQ0zgiIwIicEfotYPWGN0OJVEN/58IJ3A4GBYcEq3LGAZqKb+ugvP0GNB9CEAA==}
 
   htmlfy@0.6.7:
     resolution: {integrity: sha512-r8hRd+oIM10lufovN+zr3VKPTYEIvIwqXGucidh2XQufmiw6sbUXFUFjWlfjo3AnefIDTyzykVzQ8IUVuT1peQ==}
@@ -14309,8 +13984,8 @@ packages:
   nan@2.26.2:
     resolution: {integrity: sha512-0tTvBTYkt3tdGw22nrAy50x7gpbGCCFH3AFcyS5WiUu7Eu4vWlri1woE6qHBSfy11vksDqkiwjOnlR7WV8G1Hw==}
 
-  nanoid@3.3.11:
-    resolution: {integrity: sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==}
+  nanoid@3.3.12:
+    resolution: {integrity: sha512-ZB9RH/39qpq5Vu6Y+NmUaFhQR6pp+M2Xt76XBnEwDaGcVAqhlvxrl3B2bKS5D3NH3QR76v3aSrKaF/Kiy7lEtQ==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
@@ -14770,8 +14445,8 @@ packages:
     resolution: {integrity: sha512-PS08Iboia9mts/2ygV3eLpY5ghnUcfLV/EXTOW1E2qYxJKGGBUtNjN76FYHnMs36RmARn41bC0AZmn+rR0OVpQ==}
     engines: {node: ^10 || ^12 || >=14}
 
-  postcss@8.5.12:
-    resolution: {integrity: sha512-W62t/Se6rA0Az3DfCL0AqJwXuKwBeYg6nOaIgzP+xZ7N5BFCI7DYi1qs6ygUYT6rvfi6t9k65UMLJC+PHZpDAA==}
+  postcss@8.5.14:
+    resolution: {integrity: sha512-SoSL4+OSEtR99LHFZQiJLkT59C5B1amGO1NzTwj7TT1qCUgUO6hxOvzkOYxD+vMrXBM3XJIKzokoERdqQq/Zmg==}
     engines: {node: ^10 || ^12 || >=14}
 
   postgres-array@2.0.0:
@@ -15153,12 +14828,6 @@ packages:
       '@types/react':
         optional: true
 
-  react-textarea-autosize@8.5.9:
-    resolution: {integrity: sha512-U1DGlIQN5AwgjTyOEnI1oCcMuEr1pv1qOtklB2l4nyMGbHzWrI0eFsYK0zos2YWqAolJyG0IWJaqWmWj5ETh0A==}
-    engines: {node: '>=10'}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-
   react-timeago@8.3.0:
     resolution: {integrity: sha512-BeR0hj/5qqTc2+zxzBSQZMky6MmqwOtKseU3CSmcjKR5uXerej2QY34v2d+cdz11PoeVfAdWLX+qjM/UdZkUUg==}
     peerDependencies:
@@ -15277,26 +14946,8 @@ packages:
     resolution: {integrity: sha512-dLsljMd9sqwRkby8zhO1gSg3PnJIBFid8f4CQj/sXx+7cKx+E7u0PKhZ+U4wmhx7EfmtvnA318oVaIkAB1lRJw==}
     hasBin: true
 
-  rehype-format@5.0.1:
-    resolution: {integrity: sha512-zvmVru9uB0josBVpr946OR8ui7nJEdzZobwLOOqHb/OOD88W0Vk2SqLwoVOj0fM6IPCCO6TaV9CvQvJMWwukFQ==}
-
-  rehype-minify-whitespace@6.0.2:
-    resolution: {integrity: sha512-Zk0pyQ06A3Lyxhe9vGtOtzz3Z0+qZ5+7icZ/PL/2x1SHPbKao5oB/g/rlc6BCTajqBb33JcOe71Ye1oFsuYbnw==}
-
-  rehype-parse@9.0.1:
-    resolution: {integrity: sha512-ksCzCD0Fgfh7trPDxr2rSylbwq9iYDkSn8TCDmEJ49ljEUBxDVCzCHv7QNzZOfODanX4+bWQ4WZqLCRWYLfhag==}
-
   rehype-recma@1.0.0:
     resolution: {integrity: sha512-lqA4rGUf1JmacCNWWZx0Wv1dHqMwxzsDWYMTowuplHF3xH0N/MmrZ/G3BDZnzAkRmxDadujCjaKM2hqYdCBOGw==}
-
-  rehype-remark@10.0.1:
-    resolution: {integrity: sha512-EmDndlb5NVwXGfUa4c9GPK+lXeItTilLhE6ADSaQuHr4JUlKw9MidzGzx4HpqZrNCt6vnHmEifXQiiA+CEnjYQ==}
-
-  rehype-stringify@10.0.1:
-    resolution: {integrity: sha512-k9ecfXHmIPuFVI61B9DeLPN0qFHfawM6RsuX48hoqlaKSF61RskNjSm1lI8PhBEM0MRdLxVVm4WmTqJQccH9mA==}
-
-  remark-breaks@4.0.0:
-    resolution: {integrity: sha512-IjEjJOkH4FuJvHZVIW0QCDWxcG96kCq7An/KVH2NfJe6rKZU2AsHeB3OEjPNRxi4QC34Xdx7I2KGYn6IpT7gxQ==}
 
   remark-gfm@4.0.1:
     resolution: {integrity: sha512-1quofZ2RQ9EWdeN34S79+KExV1764+wCUGop5CPL1WGdD0ocPpu91lzPGbwWMECpEpd42kJGQwzRfyov9j4yNg==}
@@ -15985,9 +15636,6 @@ packages:
   trim-lines@3.0.1:
     resolution: {integrity: sha512-kRj8B+YHZCc9kQYdWfJB2/oUl9rA99qbowYYBtr4ui4mZyAQ2JpvVBd/6U2YloATfqBhBTSMhTpgBHtU0Mf3Rg==}
 
-  trim-trailing-lines@2.1.0:
-    resolution: {integrity: sha512-5UR5Biq4VlVOtzqkm2AZlgvSlDJtME46uV0br0gENbwN4l5+mMKT4b9gJKqWtuL2zAIqajGJGuvbCbcAJUZqBg==}
-
   trough@2.2.0:
     resolution: {integrity: sha512-tmMpK00BjZiUyVyvrBK7knerNgmgvcV/KLVyuma/SC+TQN167GrMRciANTz09+k3zW8L8t60jWO1GpfkZdjTaw==}
 
@@ -16061,8 +15709,8 @@ packages:
     resolution: {integrity: sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA==}
     engines: {node: '>=16'}
 
-  type-fest@5.5.0:
-    resolution: {integrity: sha512-PlBfpQwiUvGViBNX84Yxwjsdhd1TUlXr6zjX7eoirtCPIr08NAmxwa+fcYBTeRQxHo9YC9wwF3m9i700sHma8g==}
+  type-fest@5.6.0:
+    resolution: {integrity: sha512-8ZiHFm91orbSAe2PSAiSVBVko18pbhbiB3U9GglSzF/zCGkR+rxpHx6sEMCUm4kxY4LjDIUGgCfUMtwfZfjfUA==}
     engines: {node: '>=20'}
 
   typed-array-buffer@1.0.3:
@@ -16152,9 +15800,6 @@ packages:
   unified@11.0.5:
     resolution: {integrity: sha512-xKvGhPWw3k84Qjh8bI3ZeJjqnyadK+GEFtazSfZv/rKeTkTjOJho6mFqh2SM96iIcZokxiOpg78GazTSg8+KHA==}
 
-  unist-util-find-after@5.0.0:
-    resolution: {integrity: sha512-amQa0Ep2m6hE2g72AugUItjbuM8X8cGQnFoHk0pGfrFeT9GZhzN5SW8nRsiGKK7Aif4CrACPENkA6P/Lw6fHGQ==}
-
   unist-util-is@6.0.1:
     resolution: {integrity: sha512-LsiILbtBETkDz8I9p1dQ0uyRUWuaQzd/cuEeS1hoRSyW5E5XGmTzlwY1OrNzzakGowI9Dr/I8HVaw4hTtnxy8g==}
 
@@ -16208,33 +15853,6 @@ packages:
       '@types/react':
         optional: true
 
-  use-composed-ref@1.4.0:
-    resolution: {integrity: sha512-djviaxuOOh7wkj0paeO1Q/4wMZ8Zrnag5H6yBvzN7AKKe8beOaED9SF5/ByLqsku8NP4zQqsvM2u3ew/tJK8/w==}
-    peerDependencies:
-      '@types/react': '*'
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-
-  use-isomorphic-layout-effect@1.2.1:
-    resolution: {integrity: sha512-tpZZ+EX0gaghDAiFR37hj5MgY6ZN55kLiPkJsKxBMZ6GZdOSPJXiOzPM984oPYZ5AnehYx5WQp1+ME8I/P/pRA==}
-    peerDependencies:
-      '@types/react': '*'
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-
-  use-latest@1.3.0:
-    resolution: {integrity: sha512-mhg3xdm9NaM8q+gLT8KryJPnRFOz1/5XPBhmDEVZK1webPzDjrPk7f/mbpeLqTgB9msytYWANxgALOCJKnLvcQ==}
-    peerDependencies:
-      '@types/react': '*'
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-
   use-sidecar@1.1.3:
     resolution: {integrity: sha512-Fedw0aZvkhynoPYlA5WXrMCAMm+nSWdZt6lzJQ7Ok8S6Q+VsHmHpRWndVRJ8Be0ZbkfPc5LRYH+5XrzXcEeLRQ==}
     engines: {node: '>=10'}
@@ -16255,6 +15873,7 @@ packages:
 
   uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   valibot@1.3.1:
@@ -16268,9 +15887,6 @@ packages:
   vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
-
-  vfile-location@5.0.3:
-    resolution: {integrity: sha512-5yXvWDEgqeiYiBe1lbxYF7UMAIm/IcopxMHrMQDq3nvKcjPKIhZklUKL+AE7J7uApI4kwe2snsK+eI6UTj9EHg==}
 
   vfile-message@4.0.3:
     resolution: {integrity: sha512-QTHzsGd1EhbZs4AsQ20JX1rC3cOlt/IWJruk893DfLRr57lcnOeMaWG4K0JrRta4mIJZKth2Au3mM3u03/JWKw==}
@@ -16441,9 +16057,6 @@ packages:
 
   wcwidth@1.0.1:
     resolution: {integrity: sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==}
-
-  web-namespaces@2.0.1:
-    resolution: {integrity: sha512-bKr1DkiNa2krS7qxNtdrtHAmzuYGFQLiQ13TsorsdT6ULTkPLKuu5+GsFpDlg6JFjUTwX2DyhMPG2be8uPrqsQ==}
 
   web-streams-polyfill@4.2.0:
     resolution: {integrity: sha512-0rYDzGOh9EZpig92umN5g5D/9A1Kff7k0/mzPSSCY8jEQeYkgRMoY7LhbXtUCWzLCMX0TUE9aoHkjFNB7D9pfA==}
@@ -19120,25 +18733,20 @@ snapshots:
     transitivePeerDependencies:
       - '@types/json-schema'
 
-  '@mantine/core@8.3.18(@mantine/hooks@8.3.18(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+  '@mantine/core@9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
     dependencies:
       '@floating-ui/react': 0.27.19(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      '@mantine/hooks': 8.3.18(react@19.2.5)
+      '@mantine/hooks': 9.1.1(react@19.2.5)
       clsx: 2.1.1
       react: 19.2.5
       react-dom: 19.2.5(react@19.2.5)
       react-number-format: 5.4.5(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       react-remove-scroll: 2.7.2(@types/react@19.2.14)(react@19.2.5)
-      react-textarea-autosize: 8.5.9(@types/react@19.2.14)(react@19.2.5)
-      type-fest: 4.41.0
+      type-fest: 5.6.0
     transitivePeerDependencies:
       - '@types/react'
 
-  '@mantine/hooks@8.3.18(react@19.2.5)':
-    dependencies:
-      react: 19.2.5
-
-  '@mantine/utils@6.0.22(react@19.2.5)':
+  '@mantine/hooks@9.1.1(react@19.2.5)':
     dependencies:
       react: 19.2.5
 
@@ -21797,7 +21405,7 @@ snapshots:
       '@alloc/quick-lru': 5.2.0
       '@tailwindcss/node': 4.2.2
       '@tailwindcss/oxide': 4.2.2
-      postcss: 8.5.12
+      postcss: 8.5.14
       tailwindcss: 4.2.2
 
   '@tailwindcss/vite@4.2.2(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))':
@@ -22890,7 +22498,7 @@ snapshots:
   ajv@8.20.0:
     dependencies:
       fast-deep-equal: 3.1.3
-      fast-uri: 3.1.0
+      fast-uri: 3.1.2
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
 
@@ -23029,14 +22637,14 @@ snapshots:
       stubborn-fs: 2.0.0
       when-exit: 2.1.5
 
-  autoprefixer@10.4.21(postcss@8.5.12):
+  autoprefixer@10.4.21(postcss@8.5.14):
     dependencies:
       browserslist: 4.28.2
       caniuse-lite: 1.0.30001784
       fraction.js: 4.3.7
       normalize-range: 0.1.2
       picocolors: 1.1.1
-      postcss: 8.5.12
+      postcss: 8.5.14
       postcss-value-parser: 4.2.0
 
   available-typed-arrays@1.0.7:
@@ -23785,7 +23393,7 @@ snapshots:
 
   dot-prop@10.1.0:
     dependencies:
-      type-fest: 5.5.0
+      type-fest: 5.6.0
 
   dotenv-expand@11.0.7:
     dependencies:
@@ -24601,6 +24209,8 @@ snapshots:
 
   fast-uri@3.1.0: {}
 
+  fast-uri@3.1.2: {}
+
   fast-xml-builder@1.1.4:
     dependencies:
       path-expression-matcher: 1.2.0
@@ -25016,79 +24626,6 @@ snapshots:
     dependencies:
       function-bind: 1.1.2
 
-  hast-util-embedded@3.0.0:
-    dependencies:
-      '@types/hast': 3.0.4
-      hast-util-is-element: 3.0.0
-
-  hast-util-format@1.1.0:
-    dependencies:
-      '@types/hast': 3.0.4
-      hast-util-embedded: 3.0.0
-      hast-util-minify-whitespace: 1.0.1
-      hast-util-phrasing: 3.0.1
-      hast-util-whitespace: 3.0.0
-      html-whitespace-sensitive-tag-names: 3.0.1
-      unist-util-visit-parents: 6.0.2
-
-  hast-util-from-dom@5.0.1:
-    dependencies:
-      '@types/hast': 3.0.4
-      hastscript: 9.0.1
-      web-namespaces: 2.0.1
-
-  hast-util-from-html@2.0.3:
-    dependencies:
-      '@types/hast': 3.0.4
-      devlop: 1.1.0
-      hast-util-from-parse5: 8.0.3
-      parse5: 7.3.0
-      vfile: 6.0.3
-      vfile-message: 4.0.3
-
-  hast-util-from-parse5@8.0.3:
-    dependencies:
-      '@types/hast': 3.0.4
-      '@types/unist': 3.0.3
-      devlop: 1.1.0
-      hastscript: 9.0.1
-      property-information: 7.1.0
-      vfile: 6.0.3
-      vfile-location: 5.0.3
-      web-namespaces: 2.0.1
-
-  hast-util-has-property@3.0.0:
-    dependencies:
-      '@types/hast': 3.0.4
-
-  hast-util-is-body-ok-link@3.0.1:
-    dependencies:
-      '@types/hast': 3.0.4
-
-  hast-util-is-element@3.0.0:
-    dependencies:
-      '@types/hast': 3.0.4
-
-  hast-util-minify-whitespace@1.0.1:
-    dependencies:
-      '@types/hast': 3.0.4
-      hast-util-embedded: 3.0.0
-      hast-util-is-element: 3.0.0
-      hast-util-whitespace: 3.0.0
-      unist-util-is: 6.0.1
-
-  hast-util-parse-selector@4.0.0:
-    dependencies:
-      '@types/hast': 3.0.4
-
-  hast-util-phrasing@3.0.1:
-    dependencies:
-      '@types/hast': 3.0.4
-      hast-util-embedded: 3.0.0
-      hast-util-has-property: 3.0.0
-      hast-util-is-body-ok-link: 3.0.1
-      hast-util-is-element: 3.0.0
-
   hast-util-to-estree@3.1.3:
     dependencies:
       '@types/estree': 1.0.8
@@ -25144,45 +24681,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  hast-util-to-mdast@10.1.2:
-    dependencies:
-      '@types/hast': 3.0.4
-      '@types/mdast': 4.0.4
-      '@ungap/structured-clone': 1.3.0
-      hast-util-phrasing: 3.0.1
-      hast-util-to-html: 9.0.5
-      hast-util-to-text: 4.0.2
-      hast-util-whitespace: 3.0.0
-      mdast-util-phrasing: 4.1.0
-      mdast-util-to-hast: 13.2.1
-      mdast-util-to-string: 4.0.0
-      rehype-minify-whitespace: 6.0.2
-      trim-trailing-lines: 2.1.0
-      unist-util-position: 5.0.0
-      unist-util-visit: 5.1.0
-
   hast-util-to-string@3.0.1:
     dependencies:
       '@types/hast': 3.0.4
 
-  hast-util-to-text@4.0.2:
-    dependencies:
-      '@types/hast': 3.0.4
-      '@types/unist': 3.0.3
-      hast-util-is-element: 3.0.0
-      unist-util-find-after: 5.0.0
-
   hast-util-whitespace@3.0.0:
     dependencies:
       '@types/hast': 3.0.4
-
-  hastscript@9.0.1:
-    dependencies:
-      '@types/hast': 3.0.4
-      comma-separated-tokens: 2.0.3
-      hast-util-parse-selector: 4.0.0
-      property-information: 7.1.0
-      space-separated-tokens: 2.0.2
 
   headers-polyfill@4.0.3: {}
 
@@ -25223,8 +24728,6 @@ snapshots:
       selderee: 0.11.0
 
   html-void-elements@3.0.0: {}
-
-  html-whitespace-sensitive-tag-names@3.0.1: {}
 
   htmlfy@0.6.7: {}
 
@@ -26530,7 +26033,7 @@ snapshots:
   nan@2.26.2:
     optional: true
 
-  nanoid@3.3.11: {}
+  nanoid@3.3.12: {}
 
   nanoid@4.0.2: {}
 
@@ -27041,13 +26544,13 @@ snapshots:
 
   postcss@8.4.31:
     dependencies:
-      nanoid: 3.3.11
+      nanoid: 3.3.12
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
-  postcss@8.5.12:
+  postcss@8.5.14:
     dependencies:
-      nanoid: 3.3.11
+      nanoid: 3.3.12
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
@@ -27418,15 +26921,6 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.14
 
-  react-textarea-autosize@8.5.9(@types/react@19.2.14)(react@19.2.5):
-    dependencies:
-      '@babel/runtime': 7.29.2
-      react: 19.2.5
-      use-composed-ref: 1.4.0(@types/react@19.2.14)(react@19.2.5)
-      use-latest: 1.3.0(@types/react@19.2.14)(react@19.2.5)
-    transitivePeerDependencies:
-      - '@types/react'
-
   react-timeago@8.3.0(react@19.2.5):
     dependencies:
       react: 19.2.5
@@ -27595,22 +27089,6 @@ snapshots:
     dependencies:
       jsesc: 3.1.0
 
-  rehype-format@5.0.1:
-    dependencies:
-      '@types/hast': 3.0.4
-      hast-util-format: 1.1.0
-
-  rehype-minify-whitespace@6.0.2:
-    dependencies:
-      '@types/hast': 3.0.4
-      hast-util-minify-whitespace: 1.0.1
-
-  rehype-parse@9.0.1:
-    dependencies:
-      '@types/hast': 3.0.4
-      hast-util-from-html: 2.0.3
-      unified: 11.0.5
-
   rehype-recma@1.0.0:
     dependencies:
       '@types/estree': 1.0.8
@@ -27619,25 +27097,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  rehype-remark@10.0.1:
-    dependencies:
-      '@types/hast': 3.0.4
-      '@types/mdast': 4.0.4
-      hast-util-to-mdast: 10.1.2
-      unified: 11.0.5
-      vfile: 6.0.3
-
-  rehype-stringify@10.0.1:
-    dependencies:
-      '@types/hast': 3.0.4
-      hast-util-to-html: 9.0.5
-      unified: 11.0.5
-
-  remark-breaks@4.0.0:
-    dependencies:
-      '@types/mdast': 4.0.4
-      mdast-util-newline-to-break: 2.0.0
-      unified: 11.0.5
 
   remark-gfm@4.0.1:
     dependencies:
@@ -28481,8 +27940,6 @@ snapshots:
 
   trim-lines@3.0.1: {}
 
-  trim-trailing-lines@2.1.0: {}
-
   trough@2.2.0: {}
 
   ts-api-utils@2.5.0(typescript@5.9.3):
@@ -28553,7 +28010,7 @@ snapshots:
 
   type-fest@4.41.0: {}
 
-  type-fest@5.5.0:
+  type-fest@5.6.0:
     dependencies:
       tagged-tag: 1.0.0
 
@@ -28659,11 +28116,6 @@ snapshots:
       trough: 2.2.0
       vfile: 6.0.3
 
-  unist-util-find-after@5.0.0:
-    dependencies:
-      '@types/unist': 3.0.3
-      unist-util-is: 6.0.1
-
   unist-util-is@6.0.1:
     dependencies:
       '@types/unist': 3.0.3
@@ -28749,25 +28201,6 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.14
 
-  use-composed-ref@1.4.0(@types/react@19.2.14)(react@19.2.5):
-    dependencies:
-      react: 19.2.5
-    optionalDependencies:
-      '@types/react': 19.2.14
-
-  use-isomorphic-layout-effect@1.2.1(@types/react@19.2.14)(react@19.2.5):
-    dependencies:
-      react: 19.2.5
-    optionalDependencies:
-      '@types/react': 19.2.14
-
-  use-latest@1.3.0(@types/react@19.2.14)(react@19.2.5):
-    dependencies:
-      react: 19.2.5
-      use-isomorphic-layout-effect: 1.2.1(@types/react@19.2.14)(react@19.2.5)
-    optionalDependencies:
-      '@types/react': 19.2.14
-
   use-sidecar@1.1.3(@types/react@19.2.14)(react@19.2.5):
     dependencies:
       detect-node-es: 1.1.0
@@ -28789,11 +28222,6 @@ snapshots:
       typescript: 5.9.3
 
   vary@1.1.2: {}
-
-  vfile-location@5.0.3:
-    dependencies:
-      '@types/unist': 3.0.3
-      vfile: 6.0.3
 
   vfile-message@4.0.3:
     dependencies:
@@ -28892,7 +28320,7 @@ snapshots:
   vite@5.4.21(@types/node@20.19.37)(lightningcss@1.32.0)(terser@5.46.2):
     dependencies:
       esbuild: 0.21.5
-      postcss: 8.5.12
+      postcss: 8.5.14
       rollup: 4.60.1
     optionalDependencies:
       '@types/node': 20.19.37
@@ -28904,7 +28332,7 @@ snapshots:
     dependencies:
       lightningcss: 1.32.0
       picomatch: 4.0.4
-      postcss: 8.5.12
+      postcss: 8.5.14
       rolldown: 1.0.0-rc.15
       tinyglobby: 0.2.16
     optionalDependencies:
@@ -28920,7 +28348,7 @@ snapshots:
     dependencies:
       lightningcss: 1.32.0
       picomatch: 4.0.4
-      postcss: 8.5.12
+      postcss: 8.5.14
       rolldown: 1.0.0-rc.15
       tinyglobby: 0.2.16
     optionalDependencies:
@@ -28937,7 +28365,7 @@ snapshots:
     dependencies:
       lightningcss: 1.32.0
       picomatch: 4.0.4
-      postcss: 8.5.12
+      postcss: 8.5.14
       rolldown: 1.0.0-rc.15
       tinyglobby: 0.2.16
     optionalDependencies:
@@ -29099,8 +28527,6 @@ snapshots:
   wcwidth@1.0.1:
     dependencies:
       defaults: 1.0.4
-
-  web-namespaces@2.0.1: {}
 
   web-streams-polyfill@4.2.0: {}
 

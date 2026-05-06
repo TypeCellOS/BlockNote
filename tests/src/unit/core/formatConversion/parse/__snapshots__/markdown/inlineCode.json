@@ -1,0 +1,31 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "This has ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "code": true,
+        },
+        "text": "inline code",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " in it",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]

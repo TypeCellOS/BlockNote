@@ -1,0 +1,136 @@
+[
+  {
+    "attrs": {
+      "id": "1",
+    },
+    "content": [
+      {
+        "attrs": {
+          "textColor": "default",
+        },
+        "content": [
+          {
+            "content": [
+              {
+                "attrs": {
+                  "backgroundColor": "default",
+                  "colspan": 1,
+                  "colwidth": null,
+                  "rowspan": 1,
+                  "textAlignment": "left",
+                  "textColor": "default",
+                },
+                "content": [
+                  {
+                    "content": [
+                      {
+                        "text": "Visit ",
+                        "type": "text",
+                      },
+                      {
+                        "marks": [
+                          {
+                            "attrs": {
+                              "href": "https://example.com",
+                            },
+                            "type": "link",
+                          },
+                        ],
+                        "text": "Example",
+                        "type": "text",
+                      },
+                    ],
+                    "type": "tableParagraph",
+                  },
+                ],
+                "type": "tableCell",
+              },
+              {
+                "attrs": {
+                  "backgroundColor": "default",
+                  "colspan": 1,
+                  "colwidth": null,
+                  "rowspan": 1,
+                  "textAlignment": "left",
+                  "textColor": "default",
+                },
+                "content": [
+                  {
+                    "content": [
+                      {
+                        "text": "Plain cell",
+                        "type": "text",
+                      },
+                    ],
+                    "type": "tableParagraph",
+                  },
+                ],
+                "type": "tableCell",
+              },
+            ],
+            "type": "tableRow",
+          },
+          {
+            "content": [
+              {
+                "attrs": {
+                  "backgroundColor": "default",
+                  "colspan": 1,
+                  "colwidth": null,
+                  "rowspan": 1,
+                  "textAlignment": "left",
+                  "textColor": "default",
+                },
+                "content": [
+                  {
+                    "content": [
+                      {
+                        "text": "Data",
+                        "type": "text",
+                      },
+                    ],
+                    "type": "tableParagraph",
+                  },
+                ],
+                "type": "tableCell",
+              },
+              {
+                "attrs": {
+                  "backgroundColor": "default",
+                  "colspan": 1,
+                  "colwidth": null,
+                  "rowspan": 1,
+                  "textAlignment": "left",
+                  "textColor": "default",
+                },
+                "content": [
+                  {
+                    "content": [
+                      {
+                        "marks": [
+                          {
+                            "attrs": {
+                              "href": "https://example2.com",
+                            },
+                            "type": "link",
+                          },
+                        ],
+                        "text": "Link",
+                        "type": "text",
+                      },
+                    ],
+                    "type": "tableParagraph",
+                  },
+                ],
+                "type": "tableCell",
+              },
+            ],
+            "type": "tableRow",
+          },
+        ],
+        "type": "table",
+      },
+    ],
+    "type": "blockContainer",
+  },
+]

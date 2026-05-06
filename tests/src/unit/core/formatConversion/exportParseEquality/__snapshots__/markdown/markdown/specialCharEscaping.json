@@ -1,0 +1,124 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Literal ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "italic": true,
+        },
+        "text": "asterisks",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " and ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "bold": true,
+        },
+        "text": "double asterisks",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Backticks ` in plain text and ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "code": true,
+        },
+        "text": "double",
+        "type": "text",
+      },
+    ],
+    "id": "2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Underscores ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "italic": true,
+        },
+        "text": "here",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " and ~tildes~ and [brackets]",
+        "type": "text",
+      },
+    ],
+    "id": "3",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Pipes | and backslash \ and #hash at start",
+        "type": "text",
+      },
+    ],
+    "id": "4",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "const x = `template ${literal}`;
+const y = '```triple backticks```';",
+        "type": "text",
+      },
+    ],
+    "id": "5",
+    "props": {
+      "language": "text",
+    },
+    "type": "codeBlock",
+  },
+]

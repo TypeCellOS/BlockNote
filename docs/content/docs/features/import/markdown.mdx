@@ -15,6 +15,12 @@ imageTitle: Markdown Import
 
 BlockNote can import Markdown content into Block objects. Note that this is considered "lossy", as not all Markdown structures can be entirely represented as BlockNote blocks.
 
+<Callout type={"warning"}>
+    **BlockNote ships a minimal Markdown parser.** It covers the common subset used by most users (CommonMark + GFM basics: headings, paragraphs, lists, task lists, tables, code, blockquotes, links, images, emphasis, strikethrough, hard breaks).
+
+    There are many Markdown specifications (CommonMark, GFM, MDX, Pandoc, and various dialect-specific extensions) and supporting all of them inside a rich text editor is not a goal of BlockNote. **If you need to handle Markdown beyond this minimal subset, parse it to HTML yourself with a parser of your choice (e.g. [`marked`](https://github.com/markedjs/marked), [`markdown-it`](https://github.com/markdown-it/markdown-it), or [`remark`](https://github.com/remarkjs/remark)) and pass the resulting HTML to [`tryParseHTMLToBlocks`](/docs/features/import) instead.** BlockNote's HTML interoperability is much broader, since HTML is the format the editor uses internally for arbitrary pastes.
+</Callout>
+
 ## Markdown to Blocks
 
 Use `tryParseMarkdownToBlocks` to try parsing a Markdown string into `Block` objects:

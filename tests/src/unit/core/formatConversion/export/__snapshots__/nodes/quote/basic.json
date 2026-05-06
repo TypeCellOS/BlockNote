@@ -1,0 +1,23 @@
+[
+  {
+    "attrs": {
+      "id": "1",
+    },
+    "content": [
+      {
+        "attrs": {
+          "backgroundColor": "default",
+          "textColor": "default",
+        },
+        "content": [
+          {
+            "text": "This is a quote",
+            "type": "text",
+          },
+        ],
+        "type": "quote",
+      },
+    ],
+    "type": "blockContainer",
+  },
+]

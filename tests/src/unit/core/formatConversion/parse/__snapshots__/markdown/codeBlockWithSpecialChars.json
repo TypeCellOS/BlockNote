@@ -1,0 +1,19 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "<div class="test">
+  <p>Hello **not bold**</p>
+</div>",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "language": "html",
+    },
+    "type": "codeBlock",
+  },
+]

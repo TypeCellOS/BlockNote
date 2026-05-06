@@ -1,0 +1,78 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Normal ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "bold": true,
+        },
+        "text": "bold",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "italic": true,
+        },
+        "text": "italic",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "strike": true,
+        },
+        "text": "strike",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "code": true,
+        },
+        "text": "code",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " ",
+        "type": "text",
+      },
+      {
+        "content": [
+          {
+            "styles": {},
+            "text": "link",
+            "type": "text",
+          },
+        ],
+        "href": "https://example.com",
+        "type": "link",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
