@@ -18,9 +18,10 @@ export const ImagePreview = (
 ) => {
   const resolved = useResolveUrl(props.block.props.url!);
 
-  // When a caption is set, FileBlockWrapper renders a <figcaption> that serves
-  // as the image's accessible name; an empty alt avoids double-announcement.
-  const alt = props.block.props.caption ? "" : props.block.props.name || "";
+  // alt describes image content (per WCAG H86); figcaption (when present)
+  // is the contextual caption. Fall back to "" so unlabelled images are
+  // marked decorative rather than getting a noisy generic fallback.
+  const alt = props.block.props.name || "";
 
   return (
     <img
@@ -47,9 +48,7 @@ export const ImageToExternalHTML = (
     return <p>Add image</p>;
   }
 
-  // When a caption is set, the image is wrapped in <figure>/<figcaption>
-  // below; an empty alt avoids double-announcement of the caption text.
-  const alt = props.block.props.caption ? "" : props.block.props.name || "";
+  const alt = props.block.props.name || "";
   const image = props.block.props.showPreview ? (
     <img
       src={props.block.props.url}

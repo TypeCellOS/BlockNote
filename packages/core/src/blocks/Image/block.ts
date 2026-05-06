@@ -116,11 +116,10 @@ export const imageRender =
       image.src = block.props.url;
     }
 
-    // When a caption is set, the wrapper renders a <figcaption> that serves as
-    // the image's accessible name, so an empty alt avoids double-announcement.
-    // Otherwise prefer the file name; fall back to "" (decorative) when neither
-    // is provided.
-    image.alt = block.props.caption ? "" : block.props.name || "";
+    // alt describes image content (per WCAG H86); figcaption (when present)
+    // is the contextual caption. Fall back to "" so unlabelled images are
+    // marked decorative rather than getting a noisy generic fallback.
+    image.alt = block.props.name || "";
     image.contentEditable = "false";
     image.draggable = false;
     imageWrapper.appendChild(image);
@@ -154,10 +153,7 @@ export const imageToExternalHTML =
     if (block.props.showPreview) {
       image = document.createElement("img");
       image.src = block.props.url;
-      // When a caption is set, createFigureWithCaption wraps the image in a
-      // <figure>/<figcaption> below, which serves as the accessible name.
-      // An empty alt avoids screen readers announcing the caption twice.
-      image.alt = block.props.caption ? "" : block.props.name || "";
+      image.alt = block.props.name || "";
       if (block.props.previewWidth) {
         image.width = block.props.previewWidth;
       }

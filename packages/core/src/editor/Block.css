@@ -468,6 +468,9 @@ NESTED BLOCKS
   cursor: pointer;
   display: flex;
   flex-direction: column;
+  /* Reset default <figure> browser margins (the wrapper becomes a <figure>
+     when the block has a caption). */
+  margin: 0;
   user-select: none;
 }
 

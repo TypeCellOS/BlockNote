@@ -1,1 +1,1 @@
-![BlockNote image](exampleURL)
+![](exampleURL)
