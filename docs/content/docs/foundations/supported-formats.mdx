@@ -165,6 +165,20 @@ export default function App() {
 
 BlockNote also supports converting to and from Markdown. However, converting to and from Markdown is a **lossy** conversion.
 
+<Callout type="warning">
+  BlockNote ships a **minimal** Markdown parser/serializer that targets the
+  common CommonMark + GFM subset (headings, paragraphs, lists, task lists,
+  tables, code, blockquotes, links, images, emphasis, strikethrough, hard
+  breaks). Supporting every Markdown dialect (CommonMark, GFM, MDX, Pandoc,
+  and various extensions) is not a goal for the editor. If your use case
+  requires Markdown features beyond this subset, **parse the Markdown to
+  HTML yourself** (with a library like [`marked`](https://github.com/markedjs/marked),
+  [`markdown-it`](https://github.com/markdown-it/markdown-it), or
+  [`remark`](https://github.com/remarkjs/remark)) and feed the resulting
+  HTML to `editor.tryParseHTMLToBlocks` — HTML is the format BlockNote uses
+  for arbitrary pastes and has much broader interoperability.
+</Callout>
+
 ### Saving as Markdown
 
 To convert the document to a Markdown string, you can use `editor.blocksToMarkdownLossy()`:
