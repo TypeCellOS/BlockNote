@@ -18,6 +18,10 @@ export const ImagePreview = (
 ) => {
   const resolved = useResolveUrl(props.block.props.url!);
 
+  // When a caption is set, FileBlockWrapper renders a <figcaption> that serves
+  // as the image's accessible name; an empty alt avoids double-announcement.
+  const alt = props.block.props.caption ? "" : props.block.props.name || "";
+
   return (
     <img
       className={"bn-visual-media"}
@@ -26,7 +30,7 @@ export const ImagePreview = (
           ? props.block.props.url
           : resolved.downloadUrl
       }
-      alt={props.block.props.caption || "BlockNote image"}
+      alt={alt}
       contentEditable={false}
       draggable={false}
     />
@@ -43,12 +47,13 @@ export const ImageToExternalHTML = (
     return <p>Add image</p>;
   }
 
+  // When a caption is set, the image is wrapped in <figure>/<figcaption>
+  // below; an empty alt avoids double-announcement of the caption text.
+  const alt = props.block.props.caption ? "" : props.block.props.name || "";
   const image = props.block.props.showPreview ? (
     <img
       src={props.block.props.url}
-      alt={
-        props.block.props.name || props.block.props.caption || "BlockNote image"
-      }
+      alt={alt}
       width={props.block.props.previewWidth}
     />
   ) : (
