@@ -1,4 +1,5 @@
 import { Plugin, PluginKey } from "prosemirror-state";
+import { Decoration, DecorationSet } from "prosemirror-view";
 import { createExtension } from "../../editor/BlockNoteExtension.js";
 
 // based on https://github.com/ueberdosis/tiptap/blob/40a9404c94c7fef7900610c195536384781ae101/demos/src/Experiments/TrailingNode/Vue/trailing-node.ts
@@ -19,6 +20,41 @@ export const TrailingNodeExtension = createExtension(() => {
     prosemirrorPlugins: [
       new Plugin({
         key: plugin,
+        props: {
+          decorations: (state) => {
+            const { doc } = state;
+
+            const lastBlockGroup = doc.lastChild;
+            if (!lastBlockGroup || lastBlockGroup.type.name !== "blockGroup") {
+              return;
+            }
+
+            const lastBlockContainer = lastBlockGroup.lastChild;
+            if (
+              !lastBlockContainer ||
+              lastBlockContainer.type.name !== "blockContainer"
+            ) {
+              return;
+            }
+
+            const lastBlockContent = lastBlockContainer.firstChild;
+            if (
+              !lastBlockContent ||
+              lastBlockContent.type.spec.content !== "inline*" ||
+              lastBlockContent.content.size > 0
+            ) {
+              return;
+            }
+
+            const from = doc.content.size - 1 - lastBlockContainer.nodeSize;
+
+            return DecorationSet.create(doc, [
+              Decoration.node(from, from + lastBlockContainer.nodeSize, {
+                class: "bn-trailing-block",
+              }),
+            ]);
+          },
+        },
         appendTransaction: (_, __, state) => {
           const { doc, tr, schema } = state;
           const shouldInsertNodeAtEnd = plugin.getState(state);
