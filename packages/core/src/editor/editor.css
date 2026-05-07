@@ -195,8 +195,3 @@ For the ShowSelectionPlugin
   background-color: highlight;
   padding: 2px 0;
 }
-
-/* Hide trailing block when editor is not editable. */
-.bn-editor[contenteditable="false"] .bn-trailing-block {
-  display: none;
-}
