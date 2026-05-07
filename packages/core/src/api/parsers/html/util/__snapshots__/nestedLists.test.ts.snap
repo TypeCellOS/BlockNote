@@ -1,5 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`Lift nested lists > Does not merge <li> nodes separated by non-whitespace text 1`] = `"<ul><li>a</li></ul>text<ul><li>b</li></ul>"`;
+
 exports[`Lift nested lists > Leaves <li>s already inside a <ul> alone 1`] = `"<ul><li>existing</li></ul><ul><li>orphan</li></ul>"`;
 
 exports[`Lift nested lists > Lifts multiple bullet lists 1`] = `

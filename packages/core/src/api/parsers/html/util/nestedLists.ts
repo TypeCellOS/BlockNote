@@ -31,11 +31,26 @@ function wrapOrphanListItems(element: HTMLElement) {
     const group: Element[] = [orphan];
     handled.add(orphan);
 
-    let next = orphan.nextElementSibling;
-    while (next && next.tagName === "LI" && orphanSet.has(next)) {
-      group.push(next);
-      handled.add(next);
-      next = next.nextElementSibling;
+    // Walk siblings via nextSibling (not nextElementSibling) so we can stop
+    // at meaningful text between orphans — only whitespace text is allowed
+    // to bridge two orphan <li>s into the same <ul>.
+    let next: Node | null = orphan.nextSibling;
+    while (next) {
+      if (isWhitespaceNode(next)) {
+        next = next.nextSibling;
+        continue;
+      }
+      if (
+        next.nodeType === 1 &&
+        (next as Element).tagName === "LI" &&
+        orphanSet.has(next as Element)
+      ) {
+        group.push(next as Element);
+        handled.add(next as Element);
+        next = next.nextSibling;
+        continue;
+      }
+      break;
     }
 
     const ul = orphan.ownerDocument.createElement("ul");

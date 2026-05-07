@@ -204,6 +204,14 @@ function retypeLeadingParagraphForEmptyTarget(
     return null;
   }
 
+  // `transformPasted` is also called for drop events, where the slice will be
+  // inserted at the drop position rather than the current selection. In that
+  // case the selection-derived target is wrong, so bail out and let the
+  // default behavior handle drops.
+  if (view.dragging) {
+    return null;
+  }
+
   const blockInfo = getBlockInfoFromSelection(view.state);
   const target = blockInfo.isBlockContainer
     ? blockInfo.blockContent.node

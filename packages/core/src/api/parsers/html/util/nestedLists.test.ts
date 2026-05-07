@@ -163,6 +163,11 @@ describe("Lift nested lists", () => {
     await testHTML(html);
   });
 
+  it("Does not merge <li> nodes separated by non-whitespace text", async () => {
+    const html = `<li>a</li>text<li>b</li>`;
+    await testHTML(html);
+  });
+
   it("Wraps nested orphan <li>s as inner lists", async () => {
     const html = `<li>outer<li>inner</li></li>`;
     await testHTML(html);
