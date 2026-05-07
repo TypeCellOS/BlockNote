@@ -20,7 +20,7 @@ function wrapOrphanListItems(element: HTMLElement) {
   const orphans = Array.from(element.querySelectorAll("li")).filter(
     (li) => li.closest("ul, ol") === null,
   );
-  const orphanSet = new Set(orphans);
+  const orphanSet: Set<Element> = new Set(orphans);
   const handled = new Set<Element>();
 
   for (const orphan of orphans) {
@@ -32,7 +32,7 @@ function wrapOrphanListItems(element: HTMLElement) {
     handled.add(orphan);
 
     let next = orphan.nextElementSibling;
-    while (next && next.tagName === "LI" && orphanSet.has(next as HTMLElement)) {
+    while (next && next.tagName === "LI" && orphanSet.has(next)) {
       group.push(next);
       handled.add(next);
       next = next.nextElementSibling;
