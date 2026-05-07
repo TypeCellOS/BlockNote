@@ -135,9 +135,7 @@ Paragraph
 
 * list item
 
-![Example](exampleURL)
-
-Caption
+<figure><img alt="Example" src="exampleURL"><figcaption>Caption</figcaption></figure>
 
 [Example](exampleURL)
 
@@ -221,30 +219,13 @@ exports[`Test ServerBlockNoteEditor > converts to and from markdown (blocksToMar
     "id": "3",
     "props": {
       "backgroundColor": "default",
-      "caption": "",
+      "caption": "Caption",
       "name": "Example",
       "showPreview": true,
       "textAlignment": "left",
       "url": "exampleURL",
     },
     "type": "image",
-  },
-  {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "Caption",
-        "type": "text",
-      },
-    ],
-    "id": "4",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
   },
   {
     "children": [],
@@ -261,7 +242,7 @@ exports[`Test ServerBlockNoteEditor > converts to and from markdown (blocksToMar
         "type": "link",
       },
     ],
-    "id": "5",
+    "id": "4",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -278,7 +259,7 @@ exports[`Test ServerBlockNoteEditor > converts to and from markdown (blocksToMar
         "type": "text",
       },
     ],
-    "id": "6",
+    "id": "5",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
