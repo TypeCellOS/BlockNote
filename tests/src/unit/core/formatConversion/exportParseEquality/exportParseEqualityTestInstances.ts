@@ -957,8 +957,9 @@ export const exportParseEqualityTestInstancesMarkdown: TestInstance<
   {
     // Mirrors the default-blocks demo (examples/01-basic/04-default-blocks)
     // so we get a single round-trip snapshot covering every default block
-    // type. Markdown is lossy (colors/alignment/captions/file blocks/toggle
+    // type. Markdown is lossy (colors/alignment/file blocks/toggle
     // affordances are dropped), so the snapshot documents what survives.
+    // Image/video/audio captions are preserved via raw `<figure>` HTML.
     testCase: {
       name: "markdown/defaultBlocks",
       content: [
