@@ -7,6 +7,46 @@ function isWhitespaceNode(node: Node) {
 }
 
 /**
+ * Step 0, wraps any `<li>` element that is not inside a `<ul>`/`<ol>` in a
+ * fresh `<ul>` so the existing parse rules (which require an `<ul>`/`<ol>`
+ * parent) match. Consecutive orphan `<li>` siblings are grouped under a
+ * single `<ul>`.
+ *
+ * Without this, pasting bare `<li>a</li><li>b</li>` HTML would parse as two
+ * paragraphs because the BulletListItem parse rule only matches `<li>`
+ * whose parent is `<ul>`.
+ */
+function wrapOrphanListItems(element: HTMLElement) {
+  const orphans = Array.from(element.querySelectorAll("li")).filter(
+    (li) => li.closest("ul, ol") === null,
+  );
+  const orphanSet = new Set(orphans);
+  const handled = new Set<Element>();
+
+  for (const orphan of orphans) {
+    if (handled.has(orphan)) {
+      continue;
+    }
+
+    const group: Element[] = [orphan];
+    handled.add(orphan);
+
+    let next = orphan.nextElementSibling;
+    while (next && next.tagName === "LI" && orphanSet.has(next as HTMLElement)) {
+      group.push(next);
+      handled.add(next);
+      next = next.nextElementSibling;
+    }
+
+    const ul = orphan.ownerDocument.createElement("ul");
+    orphan.parentNode!.insertBefore(ul, orphan);
+    for (const li of group) {
+      ul.appendChild(li);
+    }
+  }
+}
+
+/**
  * Step 1, Turns:
  *
  * <ul>
@@ -117,6 +157,7 @@ export function nestedListsToBlockNoteStructure(
     element.innerHTML = elementOrHTML;
     elementOrHTML = element;
   }
+  wrapOrphanListItems(elementOrHTML);
   liftNestedListsToParent(elementOrHTML);
   createGroups(elementOrHTML);
   return elementOrHTML;

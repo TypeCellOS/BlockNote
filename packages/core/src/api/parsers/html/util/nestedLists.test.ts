@@ -143,6 +143,31 @@ describe("Lift nested lists", () => {
     await testHTML(html);
   });
 
+  it("Wraps consecutive bare <li> elements in a <ul>", async () => {
+    const html = `<li>a</li><li>b</li>`;
+    await testHTML(html);
+  });
+
+  it("Wraps a single bare <li> in a <ul>", async () => {
+    const html = `<li>only</li>`;
+    await testHTML(html);
+  });
+
+  it("Wraps bare <li>s mixed with other top-level content", async () => {
+    const html = `<p>before</p><li>x</li><li>y</li><p>after</p>`;
+    await testHTML(html);
+  });
+
+  it("Leaves <li>s already inside a <ul> alone", async () => {
+    const html = `<ul><li>existing</li></ul><li>orphan</li>`;
+    await testHTML(html);
+  });
+
+  it("Wraps nested orphan <li>s as inner lists", async () => {
+    const html = `<li>outer<li>inner</li></li>`;
+    await testHTML(html);
+  });
+
   it("Lifts nested mixed lists", async () => {
     const html = `<ol>
     <li>
