@@ -713,9 +713,9 @@ export const exportParseEqualityTestInstancesMarkdown: TestInstance<
     executeTest: testExportParseEqualityMarkdown,
   },
   {
-    // Regression test for https://github.com/TypeCellOS/BlockNote/issues/739:
-    // a table with no header row must round-trip without acquiring an extra
-    // empty row + header on each export → import cycle.
+    // Complementary check for https://github.com/TypeCellOS/BlockNote/issues/739:
+    // a table WITH a real header row must round-trip with the header preserved
+    // (i.e. non-empty headers must not be treated as the empty-header case).
     testCase: {
       name: "markdown/tableWithHeaderRow",
       content: [
