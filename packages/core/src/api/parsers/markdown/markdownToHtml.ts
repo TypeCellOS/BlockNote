@@ -321,9 +321,13 @@ function parseImage(
   );
 
   if (isVideoUrl(url)) {
-    // Match remark-rehype behavior: data-name comes from the title, not alt
+    // Use the alt text as the video's display name (falling back to the
+    // title) so a video link written with the standard `![name](url)` form
+    // round-trips into BlockNote's video block. Captioned videos go through
+    // raw `<figure>` HTML instead, see htmlToMarkdown.serializeMediaFigure.
+    const name = alt || title;
     return {
-      html: `<video src="${escapeHtml(url)}"${title !== undefined ? ` data-name="${escapeHtml(title)}"` : ""} data-url="${escapeHtml(url)}" controls></video>`,
+      html: `<video src="${escapeHtml(url)}"${name ? ` data-name="${escapeHtml(name)}"` : ""} data-url="${escapeHtml(url)}" controls></video>`,
       end: parenEnd + 1,
     };
   }
@@ -573,19 +577,21 @@ type Token =
   | RawHtmlToken;
 
 /**
- * HTML block-level tag names (from the CommonMark type-6 list). When a line
- * starts with `<` followed by one of these tag names, the run of non-blank
- * lines is emitted verbatim as raw HTML rather than wrapped in a paragraph.
+ * HTML block-level tag names (from the CommonMark type-6 list, plus `audio`
+ * which BlockNote serializes as raw HTML since markdown has no shorthand
+ * for it). When a line starts with `<` followed by one of these tag names,
+ * the run of non-blank lines is emitted verbatim as raw HTML rather than
+ * wrapped in a paragraph.
  */
 const HTML_BLOCK_TAGS = new Set([
-  "address", "article", "aside", "base", "basefont", "blockquote", "body",
-  "caption", "center", "col", "colgroup", "dd", "details", "dialog", "dir",
-  "div", "dl", "dt", "fieldset", "figcaption", "figure", "footer", "form",
-  "frame", "frameset", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header",
-  "hr", "html", "iframe", "legend", "li", "link", "main", "menu", "menuitem",
-  "nav", "noframes", "ol", "optgroup", "option", "p", "param", "section",
-  "source", "summary", "table", "tbody", "td", "tfoot", "th", "thead",
-  "title", "tr", "track", "ul",
+  "address", "article", "aside", "audio", "base", "basefont", "blockquote",
+  "body", "caption", "center", "col", "colgroup", "dd", "details", "dialog",
+  "dir", "div", "dl", "dt", "fieldset", "figcaption", "figure", "footer",
+  "form", "frame", "frameset", "h1", "h2", "h3", "h4", "h5", "h6", "head",
+  "header", "hr", "html", "iframe", "legend", "li", "link", "main", "menu",
+  "menuitem", "nav", "noframes", "ol", "optgroup", "option", "p", "param",
+  "section", "source", "summary", "table", "tbody", "td", "tfoot", "th",
+  "thead", "title", "tr", "track", "ul",
 ]);
 
 function isHtmlBlockStart(line: string): boolean {
@@ -1140,21 +1146,28 @@ function getEffectiveListType(
 function emitTable(table: TableToken): string {
   let html = "<table>";
 
-  // Header row
-  html += "<thead><tr>";
-  for (let c = 0; c < table.headers.length; c++) {
-    const align = table.alignments[c];
-    const alignAttr = align ? ` align="${align}"` : "";
-    html += `<th${alignAttr}>${parseInline(table.headers[c])}</th>`;
-  }
-  html += "</tr></thead>";
+  // BlockNote tables have no required header row, but the markdown table
+  // syntax does. When we serialize a headerless BlockNote table to markdown
+  // we emit an empty header row; on re-parse, treat that empty header as
+  // "no header" so the round-trip is stable (issue #739).
+  const headerIsEmpty = table.headers.every((h) => h.trim() === "");
+  const colCount = table.headers.length;
 
-  // Body rows
+  if (!headerIsEmpty) {
+    html += "<thead><tr>";
+    for (let c = 0; c < colCount; c++) {
+      const align = table.alignments[c];
+      const alignAttr = align ? ` align="${align}"` : "";
+      html += `<th${alignAttr}>${parseInline(table.headers[c])}</th>`;
+    }
+    html += "</tr></thead>";
+  }
+
   if (table.rows.length > 0) {
     html += "<tbody>";
     for (const row of table.rows) {
       html += "<tr>";
-      for (let c = 0; c < table.headers.length; c++) {
+      for (let c = 0; c < colCount; c++) {
         const cell = c < row.length ? row[c] : "";
         const align = table.alignments[c];
         const alignAttr = align ? ` align="${align}"` : "";

@@ -520,8 +520,10 @@ function serializeVideo(el: HTMLElement, ctx: SerializeContext): string {
 function serializeAudio(el: HTMLElement, ctx: SerializeContext): string {
   const src = el.getAttribute("src") || "";
   if (!src) {return "\n\n";}
-  // Audio has no visible representation in markdown; output as link with empty text
-  return ctx.indent + `[](${src})\n\n`;
+  // Audio has no markdown syntax, so emit raw HTML. The markdown parser
+  // passes <audio> blocks through verbatim and BlockNote's audio block parser
+  // recognizes them, giving a clean round-trip.
+  return ctx.indent + `<audio src="${escapeHtmlAttr(src)}" controls></audio>\n\n`;
 }
 
 function serializeEmbed(el: HTMLElement, ctx: SerializeContext): string {
@@ -531,41 +533,97 @@ function serializeEmbed(el: HTMLElement, ctx: SerializeContext): string {
 }
 
 function serializeFigure(el: HTMLElement, ctx: SerializeContext): string {
-  let result = "";
-
-  // Find the media element
   const img = el.querySelector("img");
   const video = el.querySelector("video");
   const audio = el.querySelector("audio");
   const link = el.querySelector("a");
 
+  const figcaption = el.querySelector("figcaption");
+  const captionText = figcaption?.textContent?.trim() || "";
+
   if (img) {
-    const src = img.getAttribute("src") || "";
-    const alt = img.getAttribute("alt") || "";
-    result += ctx.indent + `![${alt}](${src})\n\n`;
-  } else if (video) {
+    return serializeMediaFigure(
+      "img",
+      img.getAttribute("src") || "",
+      img.getAttribute("alt") || "",
+      captionText,
+      ctx,
+    );
+  }
+  if (video) {
     const src =
       video.getAttribute("src") || video.getAttribute("data-url") || "";
     const name =
       video.getAttribute("data-name") || video.getAttribute("title") || "";
-    result += ctx.indent + `![${name}](${src})\n\n`;
-  } else if (audio) {
-    const src = audio.getAttribute("src") || "";
-    result += ctx.indent + `[](${src})\n\n`;
-  } else if (link) {
-    result += serializeBlockLink(link as HTMLElement, ctx);
+    return serializeMediaFigure("video", src, name, captionText, ctx);
+  }
+  if (audio) {
+    return serializeMediaFigure(
+      "audio",
+      audio.getAttribute("src") || "",
+      "",
+      captionText,
+      ctx,
+    );
+  }
+  if (link) {
+    return serializeBlockLink(link as HTMLElement, ctx);
+  }
+  return "";
+}
+
+function serializeMediaFigure(
+  kind: "img" | "video" | "audio",
+  src: string,
+  descriptor: string,
+  captionText: string,
+  ctx: SerializeContext,
+): string {
+  if (!src) {return "";}
+
+  // No caption + has a markdown shorthand → use it.
+  if (!captionText && kind !== "audio") {
+    return ctx.indent + `![${descriptor}](${src})\n\n`;
   }
 
-  // Caption
-  const figcaption = el.querySelector("figcaption");
-  if (figcaption) {
-    const caption = figcaption.textContent?.trim() || "";
-    if (caption) {
-      result += ctx.indent + caption + "\n\n";
-    }
-  }
+  // The descriptor (alt / data-name) is dropped when it duplicates the
+  // caption text; otherwise on round-trip both `name` and `caption` would
+  // get set to the same string (BlockNote's HTML exporter writes alt =
+  // name || caption, so a caption-only image has alt === figcaption text).
+  const showDescriptor = descriptor && descriptor !== captionText;
+  const descAttr =
+    !showDescriptor
+      ? ""
+      : kind === "img"
+        ? ` alt="${escapeHtmlAttr(descriptor)}"`
+        : kind === "video"
+          ? ` data-name="${escapeHtmlAttr(descriptor)}"`
+          : "";
 
-  return result;
+  const tag =
+    kind === "img"
+      ? `<img${descAttr} src="${escapeHtmlAttr(src)}">`
+      : `<${kind} src="${escapeHtmlAttr(src)}"${descAttr} controls></${kind}>`;
+
+  const captionPart = captionText
+    ? `<figcaption>${escapeHtmlText(captionText)}</figcaption>`
+    : "";
+  return ctx.indent + `<figure>${tag}${captionPart}</figure>\n\n`;
+}
+
+function escapeHtmlAttr(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function escapeHtmlText(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 }
 
 function serializeBlockLink(el: HTMLElement, ctx: SerializeContext): string {

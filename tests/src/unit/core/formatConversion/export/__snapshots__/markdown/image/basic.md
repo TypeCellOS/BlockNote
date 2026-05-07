@@ -1,3 +1,1 @@
-![example](exampleURL)
-
-Caption
+<figure><img alt="example" src="exampleURL"><figcaption>Caption</figcaption></figure>

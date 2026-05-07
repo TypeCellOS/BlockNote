@@ -7,7 +7,7 @@
         undefined,
       ],
       "headerCols": undefined,
-      "headerRows": undefined,
+      "headerRows": 1,
       "rows": [
         {
           "cells": [
