@@ -149,6 +149,27 @@ function flattenColumns(
 }
 
 /**
+ * Removes the given blocks from the editor, then inserts them before/after a
+ * reference block.
+ * @param editor The BlockNote editor instance to move the blocks in.
+ * @param blocks The blocks to move.
+ * @param referenceBlock The reference block to insert the blocks before/after.
+ * @param placement Whether to insert the blocks before or after the reference
+ * block.
+ */
+export function moveBlocks(
+  editor: BlockNoteEditor<any, any, any>,
+  blocks: Block<any, any, any>[],
+  referenceBlock: BlockIdentifier,
+  placement: "before" | "after",
+) {
+  editor.transact(() => {
+    editor.removeBlocks(blocks);
+    editor.insertBlocks(flattenColumns(blocks), referenceBlock, placement);
+  });
+}
+
+/**
  * Removes the selected blocks from the editor, then inserts them before/after a
  * reference block. Also updates the selection to match the original selection
  * using `getBlockSelectionData` and `updateBlockSelectionFromData`.
@@ -170,8 +191,7 @@ export function moveSelectedBlocksAndSelection(
     ];
     const selectionData = getBlockSelectionData(editor);
 
-    editor.removeBlocks(blocks);
-    editor.insertBlocks(flattenColumns(blocks), referenceBlock, placement);
+    moveBlocks(editor, blocks, referenceBlock, placement);
 
     updateBlockSelectionFromData(tr, selectionData);
   });
@@ -289,50 +309,91 @@ function getMoveDownPlacement(
   return { referenceBlock, placement };
 }
 
-export function moveBlocksUp(editor: BlockNoteEditor<any, any, any>) {
+export function moveBlocksUp(
+  editor: BlockNoteEditor<any, any, any>,
+  blockIdentifier?: BlockIdentifier,
+) {
   editor.transact(() => {
-    const selection = editor.getSelection();
-    const block = selection?.blocks[0] || editor.getTextCursorPosition().block;
+    let sourceBlock: Block<any, any, any> | undefined;
+    if (blockIdentifier) {
+      sourceBlock = editor.getBlock(blockIdentifier);
+      if (!sourceBlock) {
+        return;
+      }
+    } else {
+      const selection = editor.getSelection();
+      sourceBlock =
+        selection?.blocks[0] || editor.getTextCursorPosition().block;
+    }
 
     const moveUpPlacement = getMoveUpPlacement(
       editor,
-      editor.getPrevBlock(block),
-      editor.getParentBlock(block),
+      editor.getPrevBlock(sourceBlock),
+      editor.getParentBlock(sourceBlock),
     );
 
     if (!moveUpPlacement) {
       return;
     }
 
-    moveSelectedBlocksAndSelection(
-      editor,
-      moveUpPlacement.referenceBlock,
-      moveUpPlacement.placement,
-    );
+    if (blockIdentifier) {
+      moveBlocks(
+        editor,
+        [sourceBlock],
+        moveUpPlacement.referenceBlock,
+        moveUpPlacement.placement,
+      );
+    } else {
+      moveSelectedBlocksAndSelection(
+        editor,
+        moveUpPlacement.referenceBlock,
+        moveUpPlacement.placement,
+      );
+    }
   });
 }
 
-export function moveBlocksDown(editor: BlockNoteEditor<any, any, any>) {
+export function moveBlocksDown(
+  editor: BlockNoteEditor<any, any, any>,
+  blockIdentifier?: BlockIdentifier,
+) {
   editor.transact(() => {
-    const selection = editor.getSelection();
-    const block =
-      selection?.blocks[selection?.blocks.length - 1] ||
-      editor.getTextCursorPosition().block;
+    let sourceBlock: Block<any, any, any> | undefined;
+    if (blockIdentifier) {
+      sourceBlock = editor.getBlock(blockIdentifier);
+      if (!sourceBlock) {
+        return;
+      }
+    } else {
+      const selection = editor.getSelection();
+      sourceBlock =
+        selection?.blocks[selection?.blocks.length - 1] ||
+        editor.getTextCursorPosition().block;
+    }
 
     const moveDownPlacement = getMoveDownPlacement(
       editor,
-      editor.getNextBlock(block),
-      editor.getParentBlock(block),
+      editor.getNextBlock(sourceBlock),
+      editor.getParentBlock(sourceBlock),
     );
 
     if (!moveDownPlacement) {
       return;
     }
 
-    moveSelectedBlocksAndSelection(
-      editor,
-      moveDownPlacement.referenceBlock,
-      moveDownPlacement.placement,
-    );
+    if (blockIdentifier) {
+      moveBlocks(
+        editor,
+        [sourceBlock],
+        moveDownPlacement.referenceBlock,
+        moveDownPlacement.placement,
+      );
+    } else {
+      moveSelectedBlocksAndSelection(
+        editor,
+        moveDownPlacement.referenceBlock,
+        moveDownPlacement.placement,
+      );
+    }
   });
 }
