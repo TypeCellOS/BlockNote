@@ -43,9 +43,6 @@ export default function App() {
         content:
           "Or select text in this alert - the Block Type Select also appears",
       },
-      {
-        type: "paragraph",
-      },
     ],
   });
 

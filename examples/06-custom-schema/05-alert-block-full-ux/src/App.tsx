@@ -75,9 +75,6 @@ export default function App() {
         content:
           "Or select some text to see the alert in the Formatting Toolbar's Block Type Select",
       },
-      {
-        type: "paragraph",
-      },
     ],
   });
 

@@ -42,9 +42,6 @@ export default function App() {
         content:
           "Notice that only 'Basic blocks' and 'Headings' are shown, in that order",
       },
-      {
-        type: "paragraph",
-      },
     ],
   });
 

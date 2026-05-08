@@ -40,7 +40,6 @@ export function removeMetaFromHTML(html: string) {
 
 export async function insertParagraph(page: Page) {
   await page.keyboard.type("Paragraph");
-  await page.keyboard.press("ArrowDown", { delay: TYPE_DELAY });
 }
 
 export async function insertHeading(page: Page, headingLevel: number) {
@@ -50,7 +49,6 @@ export async function insertHeading(page: Page, headingLevel: number) {
 
   await page.keyboard.press(" ");
   await page.keyboard.type("Heading");
-  await page.keyboard.press("ArrowDown", { delay: TYPE_DELAY });
 }
 
 export async function startList(page: Page, ordered: boolean) {
@@ -70,7 +68,6 @@ export async function insertListItems(page: Page) {
   await page.keyboard.type("List Item 2");
   await page.keyboard.press("Enter");
   await page.keyboard.type("List Item 3");
-  await page.keyboard.press("ArrowDown", { delay: TYPE_DELAY });
 }
 
 export async function insertNestedListItems(page: Page) {
@@ -81,5 +78,4 @@ export async function insertNestedListItems(page: Page) {
   await page.keyboard.press("Enter");
   await page.keyboard.press("Tab");
   await page.keyboard.type("List Item 3");
-  await page.keyboard.press("ArrowDown", { delay: TYPE_DELAY });
 }

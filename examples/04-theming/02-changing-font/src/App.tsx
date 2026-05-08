@@ -17,9 +17,6 @@ export default function App() {
         type: "paragraph",
         content: "You'll see that the font has been changed to Comic Sans MS",
       },
-      {
-        type: "paragraph",
-      },
     ],
   });
 

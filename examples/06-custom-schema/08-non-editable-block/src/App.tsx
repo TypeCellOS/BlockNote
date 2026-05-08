@@ -27,9 +27,6 @@ export default function App() {
       {
         type: "nonEditable",
       },
-      {
-        type: "paragraph",
-      },
     ],
   });
 

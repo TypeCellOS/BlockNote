@@ -187,7 +187,7 @@ it("sets an initial block id when using Y.js", async () => {
   expect(transactionCount).toBe(2);
   // Only after a real modification is made, will the fragment be updated
   expect(fragment.toJSON()).toMatchInlineSnapshot(
-    `"<blockgroup><blockcontainer id="0"><paragraph backgroundColor="default" textAlignment="left" textColor="default">Hello</paragraph></blockcontainer><blockcontainer id="1"><paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph></blockcontainer></blockgroup>"`,
+    `"<blockgroup><blockcontainer id="0"><paragraph backgroundColor="default" textAlignment="left" textColor="default">Hello</paragraph></blockcontainer></blockgroup>"`,
   );
 });
 
@@ -213,8 +213,14 @@ it("onBeforeChange", () => {
       {
         "block": {
           "children": [],
-          "content": [],
-          "id": "3",
+          "content": [
+            {
+              "styles": {},
+              "text": "Hello",
+              "type": "text",
+            },
+          ],
+          "id": "1",
           "props": {
             "backgroundColor": "default",
             "textAlignment": "left",
@@ -232,7 +238,7 @@ it("onBeforeChange", () => {
         "block": {
           "children": [],
           "content": [],
-          "id": "2",
+          "id": "0",
           "props": {
             "backgroundColor": "default",
             "textAlignment": "left",

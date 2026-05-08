@@ -41,9 +41,6 @@ export default function App() {
         content:
           "Try resetting this block's type using the new Drag Handle Menu item",
       },
-      {
-        type: "paragraph",
-      },
     ],
   });
 

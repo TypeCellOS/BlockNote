@@ -150,17 +150,6 @@ exports[`Test replaceBlocks > Replace all blocks in column with single block 1`]
     },
     "type": "paragraph",
   },
-  {
-    "children": [],
-    "content": [],
-    "id": "trailing-paragraph",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
 ]
 `;
 
@@ -245,17 +234,6 @@ exports[`Test replaceBlocks > Replace all blocks in columns with single block 1`
       },
     ],
     "id": "paragraph-2",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "trailing-paragraph",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -471,17 +449,6 @@ exports[`Test replaceBlocks > Replace paragraph with column list above column li
       },
     ],
     "id": "paragraph-2",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "trailing-paragraph",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",

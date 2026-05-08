@@ -232,7 +232,7 @@ describe("Test moveBlocksDown", () => {
   });
 
   it("Last block", () => {
-    getEditor().setTextCursorPosition("trailing-paragraph");
+    getEditor().setTextCursorPosition("paragraph-9");
 
     moveBlocksDown(getEditor());
 

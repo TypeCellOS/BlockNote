@@ -32,9 +32,6 @@ export default function App() {
         type: "paragraph",
         content: "Click the '!' icon to change the alert type",
       },
-      {
-        type: "paragraph",
-      },
     ],
   });
 

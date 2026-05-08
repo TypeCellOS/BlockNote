@@ -27,9 +27,6 @@ export default function App() {
         type: "paragraph",
         content: "Welcome to this demo!",
       },
-      {
-        type: "paragraph",
-      },
     ],
   });
 

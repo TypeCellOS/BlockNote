@@ -49,6 +49,11 @@ BASIC STYLES
   white-space: pre-wrap;
 }
 
+.bn-trailing-block {
+  cursor: text;
+  height: 30px;
+}
+
 /*
 NESTED BLOCKS
 */

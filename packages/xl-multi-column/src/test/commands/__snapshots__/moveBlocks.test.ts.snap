@@ -167,17 +167,6 @@ exports[`Test moveBlocksDown > Move into column list 1`] = `
     },
     "type": "paragraph",
   },
-  {
-    "children": [],
-    "content": [],
-    "id": "trailing-paragraph",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
 ]
 `;
 
@@ -341,17 +330,6 @@ exports[`Test moveBlocksDown > Move into next column 1`] = `
       },
     ],
     "id": "paragraph-2",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "trailing-paragraph",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -529,17 +507,6 @@ exports[`Test moveBlocksDown > Move out of column list 1`] = `
     },
     "type": "paragraph",
   },
-  {
-    "children": [],
-    "content": [],
-    "id": "trailing-paragraph",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
 ]
 `;
 
@@ -709,17 +676,6 @@ exports[`Test moveBlocksUp > Move into column list 1`] = `
     "id": "column-list-0",
     "props": {},
     "type": "columnList",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "trailing-paragraph",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
   },
 ]
 `;
@@ -891,17 +847,6 @@ exports[`Test moveBlocksUp > Move into previous column 1`] = `
     },
     "type": "paragraph",
   },
-  {
-    "children": [],
-    "content": [],
-    "id": "trailing-paragraph",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
 ]
 `;
 
@@ -1065,17 +1010,6 @@ exports[`Test moveBlocksUp > Move out of column list 1`] = `
       },
     ],
     "id": "paragraph-2",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "trailing-paragraph",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
