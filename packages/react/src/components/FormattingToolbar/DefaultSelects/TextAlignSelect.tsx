@@ -138,6 +138,7 @@ export const TextAlignSelect = () => {
           );
 
           cellSelection.cells.forEach(({ row, col }) => {
+            if (!newTable[row]?.cells[col]) { return; }
             newTable[row].cells[col] = {
               ...newTable[row].cells[col],
               props: {
