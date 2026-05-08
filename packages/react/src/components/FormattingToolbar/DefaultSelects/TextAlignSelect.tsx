@@ -80,14 +80,20 @@ export const TextAlignSelect = () => {
           .getExtension(TableHandlesExtension)
           ?.getCellSelection();
 
-        if (!cellSelection) {
+        if (!cellSelection || cellSelection.cells.length === 0) {
+          return undefined;
+        }
+
+        const { row, col } = cellSelection.cells[0];
+        const tableContent = firstBlock.content as TableContent<any, any>;
+        const selectedCell = tableContent.rows[row]?.cells[col];
+
+        if (!selectedCell) {
           return undefined;
         }
 
         return {
-          textAlignment: mapTableCell(
-            (firstBlock.content as TableContent<any, any>).rows[0].cells[0],
-          ).props.textAlignment,
+          textAlignment: mapTableCell(selectedCell).props.textAlignment,
           blocks: [firstBlock],
         };
       }
@@ -132,7 +138,13 @@ export const TextAlignSelect = () => {
           );
 
           cellSelection.cells.forEach(({ row, col }) => {
-            newTable[row].cells[col].props.textAlignment = textAlignment;
+            newTable[row].cells[col] = {
+              ...newTable[row].cells[col],
+              props: {
+                ...newTable[row].cells[col].props,
+                textAlignment,
+              },
+            };
           });
 
           editor.updateBlock(block, {
