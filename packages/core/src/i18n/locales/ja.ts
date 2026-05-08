@@ -365,15 +365,19 @@ export const ja: Dictionary = {
     },
     align_left: {
       tooltip: "左揃え",
+      label: "左",
     },
     align_center: {
       tooltip: "中央揃え",
+      label: "中央",
     },
     align_right: {
       tooltip: "右揃え",
+      label: "右",
     },
     align_justify: {
       tooltip: "両端揃え",
+      label: "両端",
     },
     table_cell_merge: {
       tooltip: "セルを結合",

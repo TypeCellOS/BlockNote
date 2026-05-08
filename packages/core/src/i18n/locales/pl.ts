@@ -316,15 +316,19 @@ export const pl: Dictionary = {
     },
     align_left: {
       tooltip: "Wyrównaj tekst do lewej",
+      label: "Lewo",
     },
     align_center: {
       tooltip: "Wyśrodkuj tekst",
+      label: "Środek",
     },
     align_right: {
       tooltip: "Wyrównaj tekst do prawej",
+      label: "Prawo",
     },
     align_justify: {
       tooltip: "Wyjustuj tekst",
+      label: "Wyjustuj",
     },
     table_cell_merge: {
       tooltip: "Połącz komórki",
