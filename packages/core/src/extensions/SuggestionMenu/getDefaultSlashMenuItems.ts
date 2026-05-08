@@ -9,6 +9,7 @@ import {
 } from "../../schema/index.js";
 import { formatKeyboardShortcut } from "../../util/browser.js";
 import { FilePanelExtension } from "../FilePanel/FilePanel.js";
+import { FormattingToolbarExtension } from "../FormattingToolbar/FormattingToolbar.js";
 import { DefaultSuggestionItem } from "./DefaultSuggestionItem.js";
 import { SuggestionMenu } from "./SuggestionMenu.js";
 
@@ -242,6 +243,11 @@ export function getDefaultSlashMenuItems<
 
         // Immediately open the file toolbar
         editor.getExtension(FilePanelExtension)?.showMenu(insertedBlock.id);
+        // Immediately hide the formatting toolbar. This is only necessary for
+        // when the `trailingBlock` editor option is set to `false` and the
+        // inserted block is at the end of the document. Otherwise, the
+        // selection moves to the next block with inline content.
+        editor.getExtension(FormattingToolbarExtension)?.store.setState(false);
       },
       key: "image",
       ...editor.dictionary.slash_menu.image,
@@ -257,6 +263,11 @@ export function getDefaultSlashMenuItems<
 
         // Immediately open the file toolbar
         editor.getExtension(FilePanelExtension)?.showMenu(insertedBlock.id);
+        // Immediately hide the formatting toolbar. This is only necessary for
+        // when the `trailingBlock` editor option is set to `false` and the
+        // inserted block is at the end of the document. Otherwise, the
+        // selection moves to the next block with inline content.
+        editor.getExtension(FormattingToolbarExtension)?.store.setState(false);
       },
       key: "video",
       ...editor.dictionary.slash_menu.video,
@@ -272,6 +283,11 @@ export function getDefaultSlashMenuItems<
 
         // Immediately open the file toolbar
         editor.getExtension(FilePanelExtension)?.showMenu(insertedBlock.id);
+        // Immediately hide the formatting toolbar. This is only necessary for
+        // when the `trailingBlock` editor option is set to `false` and the
+        // inserted block is at the end of the document. Otherwise, the
+        // selection moves to the next block with inline content.
+        editor.getExtension(FormattingToolbarExtension)?.store.setState(false);
       },
       key: "audio",
       ...editor.dictionary.slash_menu.audio,
@@ -287,6 +303,11 @@ export function getDefaultSlashMenuItems<
 
         // Immediately open the file toolbar
         editor.getExtension(FilePanelExtension)?.showMenu(insertedBlock.id);
+        // Immediately hide the formatting toolbar. This is only necessary for
+        // when the `trailingBlock` editor option is set to `false` and the
+        // inserted block is at the end of the document. Otherwise, the
+        // selection moves to the next block with inline content.
+        editor.getExtension(FormattingToolbarExtension)?.store.setState(false);
       },
       key: "file",
       ...editor.dictionary.slash_menu.file,

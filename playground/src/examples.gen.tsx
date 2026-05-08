@@ -324,6 +324,25 @@
         "readme": "This example makes the editor read-only while showing the same content as the [Default Schema Showcase](/examples/basic/default-blocks) example.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Document Structure](/docs/foundations/document-structure)\n- [Default Schema](/docs/foundations/schemas)"
       },
       {
+        "projectSlug": "no-trailing-block",
+        "fullSlug": "basic/no-trailing-block",
+        "pathFromRoot": "examples/01-basic/17-no-trailing-block",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "No Trailing Block",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        },
+        "readme": "This example shows how to disable the automatic creation of a trailing block at the end of the editor by setting the `trailingBlock` option to `false`.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)"
+      },
+      {
         "projectSlug": "testing",
         "fullSlug": "basic/testing",
         "pathFromRoot": "examples/01-basic/testing",
