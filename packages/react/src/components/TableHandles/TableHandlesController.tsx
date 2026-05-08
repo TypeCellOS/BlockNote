@@ -31,6 +31,12 @@ export const TableHandlesController = <
   tableCellHandle?: FC<TableCellButtonProps>;
   tableHandle?: FC<TableHandleProps>;
   extendButton?: FC<ExtendButtonProps>;
+  /**
+   * Override the DOM node this floating element portals into. Falls back to
+   * `editor.portalElement` (which by default is mounted inside `bn-container`)
+   * when omitted.
+   */
+  portalElement?: HTMLElement | null;
 }) => {
   const editor = useBlockNoteEditor<BlockSchema, I, S>();
 
@@ -312,6 +318,7 @@ export const TableHandlesController = <
     <>
       <GenericPopover
         reference={references?.rowReference}
+        portalElement={props.portalElement}
         {...floatingUIOptions?.rowTableHandle}
       >
         {state.show &&
@@ -327,6 +334,7 @@ export const TableHandlesController = <
       </GenericPopover>
       <GenericPopover
         reference={references?.columnReference}
+        portalElement={props.portalElement}
         {...floatingUIOptions?.columnTableHandle}
       >
         {state.show &&
@@ -342,6 +350,7 @@ export const TableHandlesController = <
       </GenericPopover>
       <GenericPopover
         reference={references?.cellReference}
+        portalElement={props.portalElement}
         {...floatingUIOptions?.tableCellHandle}
       >
         {state.show &&
@@ -357,6 +366,7 @@ export const TableHandlesController = <
       </GenericPopover>
       <GenericPopover
         reference={references?.tableReference}
+        portalElement={props.portalElement}
         {...floatingUIOptions?.extendRowsButton}
       >
         {state.show &&
@@ -372,6 +382,7 @@ export const TableHandlesController = <
       </GenericPopover>
       <GenericPopover
         reference={references?.tableReference}
+        portalElement={props.portalElement}
         {...floatingUIOptions?.extendColumnsButton}
       >
         {state.show &&

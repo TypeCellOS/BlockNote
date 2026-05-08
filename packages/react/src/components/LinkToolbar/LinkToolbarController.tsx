@@ -17,6 +17,12 @@ import { LinkToolbarProps } from "./LinkToolbarProps.js";
 export const LinkToolbarController = (props: {
   linkToolbar?: FC<LinkToolbarProps>;
   floatingUIOptions?: FloatingUIOptions;
+  /**
+   * Override the DOM node this floating element portals into. Falls back to
+   * `editor.portalElement` (which by default is mounted inside `bn-container`)
+   * when omitted.
+   */
+  portalElement?: HTMLElement | null;
 }) => {
   const editor = useBlockNoteEditor<any, any, any>();
 
@@ -178,7 +184,11 @@ export const LinkToolbarController = (props: {
   const Component = props.linkToolbar || LinkToolbar;
 
   return (
-    <GenericPopover reference={reference} {...floatingUIOptions}>
+    <GenericPopover
+      reference={reference}
+      portalElement={props.portalElement}
+      {...floatingUIOptions}
+    >
       {link && (
         <Component
           url={link.url}
