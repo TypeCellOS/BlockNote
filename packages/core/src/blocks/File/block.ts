@@ -75,11 +75,8 @@ export const createFileBlockSpec = createBlockSpec(createFileBlockConfig, {
   },
   toExternalHTML(block) {
     if (!block.props.url) {
-      const div = document.createElement("p");
-      div.textContent = "Add file";
-
       return {
-        dom: div,
+        dom: document.createElement("embed"),
       };
     }
 

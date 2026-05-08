@@ -713,6 +713,32 @@ export const exportParseEqualityTestInstancesMarkdown: TestInstance<
     executeTest: testExportParseEqualityMarkdown,
   },
   {
+    // Complementary check for https://github.com/TypeCellOS/BlockNote/issues/739:
+    // a table WITH a real header row must round-trip with the header preserved
+    // (i.e. non-empty headers must not be treated as the empty-header case).
+    testCase: {
+      name: "markdown/tableWithHeaderRow",
+      content: [
+        {
+          type: "table",
+          content: {
+            type: "tableContent",
+            headerRows: 1,
+            rows: [
+              {
+                cells: ["Header 1", "Header 2"],
+              },
+              {
+                cells: ["Cell 1", "Cell 2"],
+              },
+            ],
+          },
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityMarkdown,
+  },
+  {
     testCase: {
       name: "markdown/quote",
       content: [
@@ -923,6 +949,143 @@ export const exportParseEqualityTestInstancesMarkdown: TestInstance<
           props: { language: "" },
           // eslint-disable-next-line no-template-curly-in-string
           content: "const x = `template ${literal}`;\nconst y = '```triple backticks```';",
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityMarkdown,
+  },
+  {
+    // Mirrors the default-blocks demo (examples/01-basic/04-default-blocks)
+    // so we get a single round-trip snapshot covering every default block
+    // type. Markdown is lossy (colors/alignment/file blocks/toggle
+    // affordances are dropped), so the snapshot documents what survives.
+    // Image/video/audio captions are preserved via raw `<figure>` HTML.
+    testCase: {
+      name: "markdown/defaultBlocks",
+      content: [
+        {
+          type: "paragraph",
+          content: "Welcome to this demo!",
+        },
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Blocks:",
+              styles: { bold: true },
+            },
+          ],
+        },
+        {
+          type: "paragraph",
+          content: "Paragraph",
+        },
+        {
+          type: "heading",
+          content: "Heading",
+        },
+        {
+          type: "heading",
+          props: { isToggleable: true },
+          content: "Toggle Heading",
+        },
+        {
+          type: "quote",
+          content: "Quote",
+        },
+        {
+          type: "bulletListItem",
+          content: "Bullet List Item",
+        },
+        {
+          type: "numberedListItem",
+          content: "Numbered List Item",
+        },
+        {
+          type: "checkListItem",
+          content: "Check List Item",
+        },
+        {
+          type: "toggleListItem",
+          content: "Toggle List Item",
+        },
+        {
+          type: "codeBlock",
+          props: { language: "javascript" },
+          content: "console.log('Hello, world!');",
+        },
+        {
+          type: "table",
+          content: {
+            type: "tableContent",
+            rows: [
+              { cells: ["Table Cell", "Table Cell", "Table Cell"] },
+              { cells: ["Table Cell", "Table Cell", "Table Cell"] },
+              { cells: ["Table Cell", "Table Cell", "Table Cell"] },
+            ],
+          },
+        },
+        {
+          type: "file",
+        },
+        {
+          type: "image",
+          props: {
+            url: "https://placehold.co/332x322.jpg",
+            caption: "From https://placehold.co/332x322.jpg",
+          },
+        },
+        {
+          type: "video",
+          props: {
+            url: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm",
+            caption:
+              "From https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm",
+          },
+        },
+        {
+          type: "audio",
+          props: {
+            url: "https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3",
+            caption:
+              "From https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3",
+          },
+        },
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Inline Content:",
+              styles: { bold: true },
+            },
+          ],
+        },
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Styled Text",
+              styles: {
+                bold: true,
+                italic: true,
+                textColor: "red",
+                backgroundColor: "blue",
+              },
+            },
+            {
+              type: "text",
+              text: " ",
+              styles: {},
+            },
+            {
+              type: "link",
+              content: "Link",
+              href: "https://www.blocknotejs.org",
+            },
+          ],
         },
       ],
     },

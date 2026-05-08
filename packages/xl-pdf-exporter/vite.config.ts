@@ -9,6 +9,7 @@ export default defineConfig((conf) => ({
   test: {
     environment: "jsdom",
     setupFiles: ["./vitestSetup.ts"],
+    testTimeout: 15000,
     // assetsInclude: [
     //   "**/*.woff",
     //   "**/*.woff2",

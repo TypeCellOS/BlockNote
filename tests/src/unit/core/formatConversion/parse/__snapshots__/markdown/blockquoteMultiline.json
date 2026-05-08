@@ -4,7 +4,9 @@
     "content": [
       {
         "styles": {},
-        "text": "Line one Line two Line three",
+        "text": "Line one
+ Line two
+ Line three",
         "type": "text",
       },
     ],

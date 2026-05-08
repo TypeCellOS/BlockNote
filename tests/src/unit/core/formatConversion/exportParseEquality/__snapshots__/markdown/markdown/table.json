@@ -7,34 +7,8 @@
         undefined,
       ],
       "headerCols": undefined,
-      "headerRows": 1,
+      "headerRows": undefined,
       "rows": [
-        {
-          "cells": [
-            {
-              "content": [],
-              "props": {
-                "backgroundColor": "default",
-                "colspan": 1,
-                "rowspan": 1,
-                "textAlignment": "left",
-                "textColor": "default",
-              },
-              "type": "tableCell",
-            },
-            {
-              "content": [],
-              "props": {
-                "backgroundColor": "default",
-                "colspan": 1,
-                "rowspan": 1,
-                "textAlignment": "left",
-                "textColor": "default",
-              },
-              "type": "tableCell",
-            },
-          ],
-        },
         {
           "cells": [
             {

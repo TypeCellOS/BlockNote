@@ -366,8 +366,9 @@ export function blockToNode(
       groupNode ? [contentNode, groupNode] : contentNode,
     );
   } else if (schema.nodes[block.type].isInGroup("bnBlock")) {
-    // this is a bnBlock node like Column or ColumnList that directly translates to a prosemirror node
-    return schema.nodes[block.type].createChecked(
+    // `create` (not `createChecked`) so partial container blocks pass through;
+    // callers that mutate the doc validate via `node.check()` before inserting.
+    return schema.nodes[block.type].create(
       {
         id: id,
         ...block.props,

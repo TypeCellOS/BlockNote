@@ -7,6 +7,8 @@ import {
   H_TWO_BLOCK_SELECTOR,
   IMAGE_SELECTOR,
   PARAGRAPH_SELECTOR,
+  PDF_FILE_BLOCK_URL,
+  PDF_SELECTOR,
 } from "../../utils/const.js";
 import { insertHeading, insertParagraph } from "../../utils/copypaste.js";
 import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor.js";
@@ -14,10 +16,6 @@ import { dragAndDropBlock } from "../../utils/mouse.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 test.describe.configure({ mode: "serial" });
-
-test.beforeEach(async ({ page }) => {
-  await page.goto(BASE_URL, { waitUntil: "networkidle" });
-});
 
 test.describe("Check Block Dragging Functionality", () => {
   test("Should be able to drag & drop non-nested blocks", async ({
@@ -28,6 +26,7 @@ test.describe("Check Block Dragging Functionality", () => {
       browserName === "firefox",
       "Playwright doesn't correctly simulate drag events in Firefox.",
     );
+    await page.goto(BASE_URL, { waitUntil: "networkidle" });
     await focusOnEditor(page);
 
     await insertHeading(page, 1);
@@ -52,6 +51,7 @@ test.describe("Check Block Dragging Functionality", () => {
       browserName === "firefox",
       "Playwright doesn't correctly simulate drag events in Firefox.",
     );
+    await page.goto(BASE_URL, { waitUntil: "networkidle" });
     await focusOnEditor(page);
 
     await insertHeading(page, 1);
@@ -89,6 +89,7 @@ test.describe("Check Block Dragging Functionality", () => {
       browserName === "firefox",
       "Playwright doesn't correctly simulate drag events in Firefox.",
     );
+    await page.goto(BASE_URL, { waitUntil: "networkidle" });
     await focusOnEditor(page);
     await executeSlashCommand(page, "image");
 
@@ -110,6 +111,7 @@ test.describe("Check Block Dragging Functionality", () => {
       browserName === "firefox",
       "Playwright doesn't correctly simulate drag events in Firefox.",
     );
+    await page.goto(BASE_URL, { waitUntil: "networkidle" });
     await focusOnEditor(page);
     await executeSlashCommand(page, "image");
     await insertHeading(page, 1);
@@ -120,5 +122,21 @@ test.describe("Check Block Dragging Functionality", () => {
 
     const toolbar = page.locator(".bn-formatting-toolbar");
     await expect(toolbar).not.toBeVisible();
+  });
+
+  test("Should be able to drag PDF block", async ({ page, browserName }) => {
+    test.skip(
+      browserName === "firefox",
+      "Playwright doesn't correctly simulate drag events in Firefox.",
+    );
+    await page.goto(PDF_FILE_BLOCK_URL, { waitUntil: "networkidle" });
+    await focusOnEditor(page);
+    await page.waitForSelector(PDF_SELECTOR);
+
+    const dragTarget = page.locator(PDF_SELECTOR);
+    const dropTarget = page.locator(PARAGRAPH_SELECTOR).first();
+    await dragAndDropBlock(page, dragTarget, dropTarget, false);
+
+    await compareDocToSnapshot(page, "dragPdf");
   });
 });

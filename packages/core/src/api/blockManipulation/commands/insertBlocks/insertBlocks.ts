@@ -26,9 +26,11 @@ export function insertBlocks<
   const id =
     typeof referenceBlock === "string" ? referenceBlock : referenceBlock.id;
   const pmSchema = getPmSchema(tr);
-  const nodesToInsert = blocksToInsert.map((block) =>
-    blockToNode(block, pmSchema),
-  );
+  const nodesToInsert = blocksToInsert.map((block) => {
+    const node = blockToNode(block, pmSchema);
+    node.check(); // `blockToNode` is lenient; validate before mutating the doc
+    return node;
+  });
 
   const posInfo = getNodeById(id, tr.doc);
   if (!posInfo) {

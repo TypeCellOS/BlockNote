@@ -128,16 +128,18 @@ export function updateBlockTr<
     // for this, we do a nodeToBlock on the existing block to get the children.
     // it would be cleaner to use a ReplaceAroundStep, but this is a bit simpler and it's quite an edge case
     const existingBlock = nodeToBlock(blockInfo.bnBlock.node, pmSchema);
+    const replacementNode = blockToNode(
+      {
+        children: existingBlock.children, // if no children are passed in, use existing children
+        ...block,
+      },
+      pmSchema,
+    );
+    replacementNode.check(); // `blockToNode` is lenient; validate before mutating the doc
     tr.replaceWith(
       blockInfo.bnBlock.beforePos,
       blockInfo.bnBlock.afterPos,
-      blockToNode(
-        {
-          children: existingBlock.children, // if no children are passed in, use existing children
-          ...block,
-        },
-        pmSchema,
-      ),
+      replacementNode,
     );
 
     return;
@@ -278,7 +280,9 @@ function updateChildren<
   const pmSchema = getPmSchema(tr);
   if (block.children !== undefined && block.children.length > 0) {
     const childNodes = block.children.map((child) => {
-      return blockToNode(child, pmSchema);
+      const node = blockToNode(child, pmSchema);
+      node.check(); // `blockToNode` is lenient; validate before mutating the doc
+      return node;
     });
 
     // Checks if a blockGroup node already exists.

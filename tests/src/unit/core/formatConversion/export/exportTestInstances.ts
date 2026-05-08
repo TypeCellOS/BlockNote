@@ -1102,6 +1102,23 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
     executeTest: testExportBlockNoteHTML,
   },
   {
+    // Image with only a URL — no name, no caption. Confirms markdown export
+    // stays as plain `![](url)` without wrapping in a `<figure>` (the figure
+    // form is only used to carry caption text through the round-trip).
+    testCase: {
+      name: "image/urlOnly",
+      content: [
+        {
+          type: "image",
+          props: {
+            url: "exampleURL",
+          },
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
+  {
     testCase: {
       name: "image/noPreview",
       content: [

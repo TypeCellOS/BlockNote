@@ -1,18 +1,15 @@
 import { FileChooser, expect } from "@playwright/test";
 import { test } from "../../setup/setupScript.js";
-import { BASE_URL } from "../../utils/const.js";
+import { BASE_URL, NO_TRAILING_BLOCK_URL } from "../../utils/const.js";
 import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 const IMAGE_UPLOAD_PATH = "src/end-to-end/images/placeholder.png";
 const IMAGE_EMBED_URL = "https://placehold.co/800x540.png";
 
-test.beforeEach(async ({ page }) => {
-  await page.goto(BASE_URL);
-});
-
 test.describe("Check Image Block and Toolbar functionality", () => {
   test("Should be able to create image block", async ({ page }) => {
+    await page.goto(BASE_URL);
     await focusOnEditor(page);
     await executeSlashCommand(page, "image");
 
@@ -21,6 +18,7 @@ test.describe("Check Image Block and Toolbar functionality", () => {
     expect(await page.screenshot()).toMatchSnapshot("create-image.png");
   });
   test.skip("Should be able to upload image", async ({ page }) => {
+    await page.goto(BASE_URL);
     await focusOnEditor(page);
     await executeSlashCommand(page, "image");
 
@@ -37,6 +35,7 @@ test.describe("Check Image Block and Toolbar functionality", () => {
     expect(await page.screenshot()).toMatchSnapshot("upload-image.png");
   });
   test("Should be able to embed image", async ({ page }) => {
+    await page.goto(BASE_URL);
     await focusOnEditor(page);
     await executeSlashCommand(page, "image");
 
@@ -54,6 +53,7 @@ test.describe("Check Image Block and Toolbar functionality", () => {
     expect(await page.screenshot()).toMatchSnapshot("embed-image.png");
   });
   test("Should be able to resize image", async ({ page }) => {
+    await page.goto(BASE_URL);
     await focusOnEditor(page);
     await executeSlashCommand(page, "image");
 
@@ -95,6 +95,7 @@ test.describe("Check Image Block and Toolbar functionality", () => {
     expect(await page.screenshot()).toMatchSnapshot("resize-image.png");
   });
   test("Should be able to delete image with backspace", async ({ page }) => {
+    await page.goto(BASE_URL);
     await focusOnEditor(page);
     await executeSlashCommand(page, "image");
 
@@ -108,5 +109,18 @@ test.describe("Check Image Block and Toolbar functionality", () => {
     await page.keyboard.press("Backspace");
 
     await compareDocToSnapshot(page, "deleteImage");
+  });
+  test("Should open file panel but not formatting toolbar when inserting image with no trailing block", async ({
+    page,
+  }) => {
+    await page.goto(NO_TRAILING_BLOCK_URL);
+    await focusOnEditor(page);
+    await executeSlashCommand(page, "image");
+
+    const filePanel = page.locator(".bn-panel");
+    await expect(filePanel).toBeVisible();
+
+    const formattingToolbar = page.locator(".bn-formatting-toolbar");
+    await expect(formattingToolbar).not.toBeVisible();
   });
 });

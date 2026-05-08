@@ -1,9 +1,6 @@
 import { EditorView } from "prosemirror-view";
 
-export async function handleVSCodePaste(
-  event: ClipboardEvent,
-  view: EditorView,
-) {
+export function handleVSCodePaste(event: ClipboardEvent, view: EditorView) {
   const { schema } = view.state;
 
   if (!event.clipboardData) {
@@ -17,8 +14,7 @@ export async function handleVSCodePaste(
   }
 
   if (!schema.nodes.codeBlock) {
-    view.pasteText(text);
-    return true;
+    return false;
   }
 
   const vscode = event.clipboardData!.getData("vscode-editor-data");

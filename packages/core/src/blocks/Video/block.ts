@@ -105,11 +105,8 @@ export const createVideoBlockSpec = createBlockSpec(
     },
     toExternalHTML(block) {
       if (!block.props.url) {
-        const div = document.createElement("p");
-        div.textContent = "Add video";
-
         return {
-          dom: div,
+          dom: document.createElement("video"),
         };
       }
 

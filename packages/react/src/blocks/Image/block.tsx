@@ -18,6 +18,11 @@ export const ImagePreview = (
 ) => {
   const resolved = useResolveUrl(props.block.props.url!);
 
+  // alt describes image content (per WCAG H86); figcaption (when present)
+  // is the contextual caption. Fall back to "" so unlabelled images are
+  // marked decorative rather than getting a noisy generic fallback.
+  const alt = props.block.props.name || "";
+
   return (
     <img
       className={"bn-visual-media"}
@@ -26,7 +31,7 @@ export const ImagePreview = (
           ? props.block.props.url
           : resolved.downloadUrl
       }
-      alt={props.block.props.caption || "BlockNote image"}
+      alt={alt}
       contentEditable={false}
       draggable={false}
     />
@@ -43,12 +48,11 @@ export const ImageToExternalHTML = (
     return <p>Add image</p>;
   }
 
+  const alt = props.block.props.name || "";
   const image = props.block.props.showPreview ? (
     <img
       src={props.block.props.url}
-      alt={
-        props.block.props.name || props.block.props.caption || "BlockNote image"
-      }
+      alt={alt}
       width={props.block.props.previewWidth}
     />
   ) : (
