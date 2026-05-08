@@ -20,11 +20,12 @@ test.describe("Check Block Indentation Functionality", () => {
     await focusOnEditor(page);
 
     await insertParagraph(page);
+    await page.keyboard.press("Enter");
     await page.keyboard.press("Tab");
     await insertHeading(page, 1);
-    await page.keyboard.press("Tab");
+    await page.keyboard.press("Enter");
     await insertHeading(page, 2);
-    await page.keyboard.press("Tab");
+    await page.keyboard.press("Enter");
     await insertHeading(page, 3);
 
     const element = await page.locator(H_TWO_BLOCK_SELECTOR);
@@ -49,11 +50,12 @@ test.describe("Check Block Indentation Functionality", () => {
     await focusOnEditor(page);
 
     await insertParagraph(page);
+    await page.keyboard.press("Enter");
     await page.keyboard.press("Tab");
     await insertHeading(page, 1);
-    await page.keyboard.press("Tab");
+    await page.keyboard.press("Enter");
     await insertHeading(page, 2);
-    await page.keyboard.press("Tab");
+    await page.keyboard.press("Enter");
     await insertHeading(page, 3);
 
     const element = await page.locator(H_TWO_BLOCK_SELECTOR);
@@ -78,11 +80,12 @@ test.describe("Check Block Indentation Functionality", () => {
     await focusOnEditor(page);
 
     await insertParagraph(page);
+    await page.keyboard.press("Enter");
     await page.keyboard.press("Tab");
     await insertHeading(page, 1);
-    await page.keyboard.press("Tab");
+    await page.keyboard.press("Enter");
     await insertHeading(page, 2);
-    await page.keyboard.press("Tab");
+    await page.keyboard.press("Enter");
     await insertHeading(page, 3);
 
     const firstElement = await page.locator(H_TWO_BLOCK_SELECTOR);
@@ -120,11 +123,12 @@ test.describe("Check Block Indentation Functionality", () => {
     await focusOnEditor(page);
 
     await insertParagraph(page);
+    await page.keyboard.press("Enter");
     await page.keyboard.press("Tab");
     await insertHeading(page, 1);
-    await page.keyboard.press("Tab");
+    await page.keyboard.press("Enter");
     await insertHeading(page, 2);
-    await page.keyboard.press("Tab");
+    await page.keyboard.press("Enter");
     await insertHeading(page, 3);
 
     const firstElement = await page.locator(H_TWO_BLOCK_SELECTOR);
