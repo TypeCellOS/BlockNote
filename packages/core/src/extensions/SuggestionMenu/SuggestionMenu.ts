@@ -15,6 +15,7 @@ const findBlock = findParentNode((node) => node.type.name === "blockContainer");
 export type SuggestionMenuState = UiElementPosition & {
   query: string;
   ignoreQueryLength?: boolean;
+  composing?: boolean;
 };
 
 class SuggestionMenuView {
@@ -38,6 +39,7 @@ class SuggestionMenuView {
       emitUpdate(menuName, {
         ...this.state,
         ignoreQueryLength: this.pluginState?.ignoreQueryLength,
+        composing: this.pluginState?.composing,
       });
     };
 
@@ -146,6 +148,7 @@ type SuggestionPluginState =
       query: string;
       decorationId: string;
       ignoreQueryLength?: boolean;
+      composing?: boolean;
     }
   | undefined;
 
@@ -260,6 +263,7 @@ export const SuggestionMenu = createExtension(({ editor }) => {
               deleteTriggerCharacter?: boolean;
               ignoreQueryLength?: boolean;
             } | null = transaction.getMeta(suggestionMenuPluginKey);
+            const composing = editor._tiptapEditor.view.composing;
 
             if (
               typeof suggestionPluginTransactionMeta === "object" &&
@@ -289,6 +293,7 @@ export const SuggestionMenu = createExtension(({ editor }) => {
                 decorationId: `id_${Math.floor(Math.random() * 0xffffffff)}`,
                 ignoreQueryLength:
                   suggestionPluginTransactionMeta?.ignoreQueryLength,
+                composing,
               };
             }
 
@@ -300,7 +305,9 @@ export const SuggestionMenu = createExtension(({ editor }) => {
             // Checks if the menu should be hidden.
             if (
               // Highlighting text should hide the menu.
-              newState.selection.from !== newState.selection.to ||
+              (!composing &&
+                !prev.composing &&
+                newState.selection.from !== newState.selection.to) ||
               // Transactions with plugin metadata should hide the menu.
               suggestionPluginTransactionMeta === null ||
               // Certain mouse events should hide the menu.
@@ -319,7 +326,15 @@ export const SuggestionMenu = createExtension(({ editor }) => {
               return undefined;
             }
 
+            if (composing) {
+              return {
+                ...prev,
+                composing,
+              };
+            }
+
             const next = { ...prev };
+            next.composing = composing;
 
             // Updates the current query.
             next.query = newState.doc.textBetween(

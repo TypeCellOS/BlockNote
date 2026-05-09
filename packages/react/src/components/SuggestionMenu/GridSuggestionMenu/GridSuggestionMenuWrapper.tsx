@@ -12,6 +12,7 @@ export function GridSuggestionMenuWrapper<Item>(props: {
   query: string;
   closeMenu: () => void;
   clearQuery: () => void;
+  composing?: boolean;
   getItems: (query: string) => Promise<Item[]>;
   columns: number;
   onItemClick?: (item: Item) => void;
@@ -31,6 +32,7 @@ export function GridSuggestionMenuWrapper<Item>(props: {
     query,
     clearQuery,
     closeMenu,
+    composing,
     onItemClick,
     columns,
   } = props;
@@ -49,7 +51,7 @@ export function GridSuggestionMenuWrapper<Item>(props: {
     getItems,
   );
 
-  useCloseSuggestionMenuNoItems(items, usedQuery, closeMenu);
+  useCloseSuggestionMenuNoItems(items, usedQuery, closeMenu, 3, composing);
 
   const { selectedIndex } = useGridSuggestionMenuKeyboardNavigation(
     editor,
