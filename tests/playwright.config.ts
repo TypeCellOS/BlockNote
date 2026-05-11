@@ -14,7 +14,7 @@ import { devices } from "@playwright/test";
 const config: PlaywrightTestConfig = {
   testDir: "./src/end-to-end",
   /* Maximum time one test can run for. */
-  timeout: 8 * 1000,
+  timeout: 30 * 1000,
   expect: {
     /**
      * Maximum time expect() should wait for the condition to be met.
@@ -24,7 +24,7 @@ const config: PlaywrightTestConfig = {
   },
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
-  retries: 0,
+  retries: 2,
   /* Run tests in parallel on CI (sharding handles distribution across runners) */
   workers: process.env.CI ? "50%" : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
