@@ -92,22 +92,6 @@
                 "backgroundColor": "default",
                 "textColor": "default",
                 "textAlignment": "left"
-              }
-            }
-          ]
-        },
-        {
-          "type": "blockContainer",
-          "attrs": {
-            "id": "4"
-          },
-          "content": [
-            {
-              "type": "paragraph",
-              "attrs": {
-                "backgroundColor": "default",
-                "textColor": "default",
-                "textAlignment": "left"
               },
               "content": [
                 {
@@ -122,7 +106,7 @@
                 {
                   "type": "blockContainer",
                   "attrs": {
-                    "id": "5"
+                    "id": "4"
                   },
                   "content": [
                     {
@@ -145,7 +129,7 @@
                         {
                           "type": "blockContainer",
                           "attrs": {
-                            "id": "6"
+                            "id": "5"
                           },
                           "content": [
                             {
@@ -169,22 +153,6 @@
                   ]
                 }
               ]
-            }
-          ]
-        },
-        {
-          "type": "blockContainer",
-          "attrs": {
-            "id": "7"
-          },
-          "content": [
-            {
-              "type": "paragraph",
-              "attrs": {
-                "backgroundColor": "default",
-                "textColor": "default",
-                "textAlignment": "left"
-              }
             }
           ]
         }

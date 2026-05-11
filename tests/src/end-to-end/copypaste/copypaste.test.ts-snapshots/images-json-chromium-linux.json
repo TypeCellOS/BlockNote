@@ -29,46 +29,10 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": "2"
-          },
-          "content": [
-            {
-              "type": "image",
-              "attrs": {
-                "textAlignment": "left",
-                "backgroundColor": "default",
-                "name": "800x540.png",
-                "url": "https://placehold.co/800x540.png",
-                "caption": "",
-                "showPreview": true,
-                "previewWidth": 573
-              }
-            }
-          ]
-        },
-        {
-          "type": "blockContainer",
-          "attrs": {
             "id": "1"
           },
           "content": [
             {
-              "type": "paragraph",
-              "attrs": {
-                "backgroundColor": "default",
-                "textColor": "default",
-                "textAlignment": "left"
-              }
-            }
-          ]
-        },
-        {
-          "type": "blockContainer",
-          "attrs": {
-            "id": "4"
-          },
-          "content": [
-            {
               "type": "image",
               "attrs": {
                 "textAlignment": "left",
@@ -85,15 +49,19 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": "5"
+            "id": "3"
           },
           "content": [
             {
-              "type": "paragraph",
+              "type": "image",
               "attrs": {
+                "textAlignment": "left",
                 "backgroundColor": "default",
-                "textColor": "default",
-                "textAlignment": "left"
+                "name": "800x540.png",
+                "url": "https://placehold.co/800x540.png",
+                "caption": "",
+                "showPreview": true,
+                "previewWidth": 573
               }
             }
           ]

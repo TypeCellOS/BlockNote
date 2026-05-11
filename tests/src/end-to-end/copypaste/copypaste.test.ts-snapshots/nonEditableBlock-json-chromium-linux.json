@@ -72,22 +72,6 @@
               ]
             }
           ]
-        },
-        {
-          "type": "blockContainer",
-          "attrs": {
-            "id": "4"
-          },
-          "content": [
-            {
-              "type": "paragraph",
-              "attrs": {
-                "backgroundColor": "default",
-                "textColor": "default",
-                "textAlignment": "left"
-              }
-            }
-          ]
         }
       ]
     }

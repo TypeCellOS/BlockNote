@@ -30,7 +30,9 @@ test.describe("Check Block Dragging Functionality", () => {
     await focusOnEditor(page);
 
     await insertHeading(page, 1);
+    await page.keyboard.press("Enter");
     await insertHeading(page, 2);
+    await page.keyboard.press("Enter");
     await insertHeading(page, 3);
 
     const dragTarget = await page.locator(H_ONE_BLOCK_SELECTOR);
@@ -52,16 +54,19 @@ test.describe("Check Block Dragging Functionality", () => {
     await focusOnEditor(page);
 
     await insertHeading(page, 1);
+    await page.keyboard.press("Enter");
     await insertParagraph(page);
-
+    await page.keyboard.press("Enter");
     await page.keyboard.press("Tab");
     await insertHeading(page, 2);
-    await page.keyboard.press("Tab");
+    await page.keyboard.press("Enter");
     await insertParagraph(page);
-
-    await page.keyboard.press("Tab");
+    await page.keyboard.press("Enter");
     await page.keyboard.press("Tab");
     await insertHeading(page, 3);
+    await page.keyboard.press("Enter");
+    await page.keyboard.press("Shift+Tab");
+    await page.keyboard.press("Shift+Tab");
 
     // Dragging first heading into next nested element.
     let dragTarget = await page.locator(H_ONE_BLOCK_SELECTOR);
@@ -73,7 +78,6 @@ test.describe("Check Block Dragging Functionality", () => {
     dropTarget = await page.locator(H_THREE_BLOCK_SELECTOR);
     await dragAndDropBlock(page, dragTarget, dropTarget, true);
 
-    // Dragging third heading into outside nesting.
     dragTarget = await page.locator(H_THREE_BLOCK_SELECTOR);
     dropTarget = await page.locator(PARAGRAPH_SELECTOR).last();
     await dragAndDropBlock(page, dragTarget, dropTarget, true);
@@ -89,7 +93,8 @@ test.describe("Check Block Dragging Functionality", () => {
     await page.goto(BASE_URL, { waitUntil: "networkidle" });
     await focusOnEditor(page);
     await executeSlashCommand(page, "image");
-
+    await page.keyboard.press("Escape");
+    await page.locator(".bn-trailing-block").click();
     await insertHeading(page, 1);
 
     const dragTarget = await page.locator(IMAGE_SELECTOR);
@@ -110,6 +115,8 @@ test.describe("Check Block Dragging Functionality", () => {
     await page.goto(BASE_URL, { waitUntil: "networkidle" });
     await focusOnEditor(page);
     await executeSlashCommand(page, "image");
+    await page.keyboard.press("Escape");
+    await page.locator(".bn-trailing-block").click();
     await insertHeading(page, 1);
 
     const dragTarget = page.locator(IMAGE_SELECTOR);

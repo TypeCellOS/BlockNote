@@ -1,11 +1,12 @@
 import { Page } from "@playwright/test";
-import { PASTE_ZONE_SELECTOR, TYPE_DELAY } from "./const.js";
+import { PASTE_ZONE_SELECTOR } from "./const.js";
 import { focusOnEditor } from "./editor.js";
 
 export async function copyPaste(page: Page) {
   await page.keyboard.press(`ControlOrMeta+C`);
-  await page.keyboard.press("ArrowDown", { delay: TYPE_DELAY });
-  await page.keyboard.press("Enter");
+  // Exit out of any menus/toolbars which may block the trailing block.
+  await page.keyboard.press(`Escape`);
+  await page.locator(".bn-trailing-block").click();
   await page.keyboard.press(`ControlOrMeta+V`);
 }
 
