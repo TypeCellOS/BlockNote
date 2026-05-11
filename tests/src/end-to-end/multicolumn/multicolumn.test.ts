@@ -1,5 +1,5 @@
 import { test } from "../../setup/setupScript.js";
-import { BULLET_LIST_SELECTOR, MULTI_COLUMN_URL } from "../../utils/const.js";
+import { MULTI_COLUMN_URL } from "../../utils/const.js";
 import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor.js";
 
 test.describe.configure({ mode: "serial" });
