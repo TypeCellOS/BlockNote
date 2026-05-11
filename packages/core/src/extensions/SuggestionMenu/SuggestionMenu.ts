@@ -263,7 +263,7 @@ export const SuggestionMenu = createExtension(({ editor }) => {
               deleteTriggerCharacter?: boolean;
               ignoreQueryLength?: boolean;
             } | null = transaction.getMeta(suggestionMenuPluginKey);
-            const composing = editor._tiptapEditor.view.composing;
+            const composing = editor.prosemirrorView.composing;
 
             if (
               typeof suggestionPluginTransactionMeta === "object" &&
