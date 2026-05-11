@@ -61,7 +61,6 @@ test.describe("Check Text Alignment Functionality", () => {
     // Waits for formatting toolbar animation to finish.
     await page.waitForTimeout(500);
     await page.keyboard.press("ArrowLeft");
-    await page.pause();
 
     expect(await page.screenshot()).toMatchSnapshot(
       "alignTextMultipleBlocks.png",

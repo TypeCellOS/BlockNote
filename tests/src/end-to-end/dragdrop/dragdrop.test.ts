@@ -35,10 +35,7 @@ test.describe("Check Block Dragging Functionality", () => {
 
     const dragTarget = await page.locator(H_ONE_BLOCK_SELECTOR);
     const dropTarget = await page.locator(H_TWO_BLOCK_SELECTOR);
-    await page.pause();
     await dragAndDropBlock(page, dragTarget, dropTarget, false);
-
-    await page.pause();
 
     await compareDocToSnapshot(page, "dragdropsingle");
   });
@@ -97,7 +94,6 @@ test.describe("Check Block Dragging Functionality", () => {
 
     const dragTarget = await page.locator(IMAGE_SELECTOR);
     const dropTarget = await page.locator(H_ONE_BLOCK_SELECTOR);
-    await page.pause();
     await dragAndDropBlock(page, dragTarget, dropTarget, false);
 
     await compareDocToSnapshot(page, "dragImage");

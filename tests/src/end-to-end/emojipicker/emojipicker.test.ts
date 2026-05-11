@@ -29,7 +29,6 @@ test.describe("Check Emoji Picker Functionality", () => {
   test("Should be able to insert emoji", async ({ page }) => {
     await focusOnEditor(page);
     await executeEmojiCommand(page, "sm");
-    await page.pause();
     await waitForTextInEditor(page, "🛩️ ");
   });
   test("Should be able to open emoji picker from slash menu", async ({

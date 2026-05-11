@@ -53,7 +53,6 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
     await page.keyboard.press("ArrowRight");
     await page.keyboard.press("Enter");
 
-    await page.pause();
     await compareDocToSnapshot(page, "enterPreservesMarks.json");
   });
   test("Check Enter preserves nested blocks", async ({ page }) => {
