@@ -32,9 +32,6 @@ export default function App() {
         content:
           "Notice how only heading levels 1-3 are available, and toggle headings are not shown.",
       },
-      {
-        type: "paragraph",
-      },
     ],
   });
 

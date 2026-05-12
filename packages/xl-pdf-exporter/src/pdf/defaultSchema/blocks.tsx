@@ -114,7 +114,12 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
     );
   },
   codeBlock: (block) => {
-    const textContent = (block.content as StyledText<any>[])[0]?.text || "";
+    // Code blocks should always contain a single `StyledText` inline content.
+    // However, if this is not the case for whatever reason, we can merge the
+    // text content of all `StyledText` content in them.
+    const textContent = (block.content as StyledText<any>[])
+      .map((item) => item.text)
+      .join("");
     const lines = textContent.split("\n").map((line, index) => {
       const indent = line.match(/^\s*/)?.[0].length || 0;
 
@@ -135,8 +140,7 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
         wrap={false}
         style={{
           padding: 24 * PIXELS_PER_POINT,
-          backgroundColor: "#161616",
-          color: "#ffffff",
+          border: "1px solid #000000",
           lineHeight: 1.25,
           fontSize: FONT_SIZE * PIXELS_PER_POINT,
           fontFamily: "GeistMono",

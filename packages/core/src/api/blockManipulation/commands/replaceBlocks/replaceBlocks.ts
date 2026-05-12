@@ -27,9 +27,11 @@ export function removeAndInsertBlocks<
   const pmSchema = getPmSchema(tr);
   // Converts the `PartialBlock`s to ProseMirror nodes to insert them into the
   // document.
-  const nodesToInsert: Node[] = blocksToInsert.map((block) =>
-    blockToNode(block, pmSchema),
-  );
+  const nodesToInsert: Node[] = blocksToInsert.map((block) => {
+    const node = blockToNode(block, pmSchema);
+    node.check(); // `blockToNode` is lenient; validate before mutating the doc
+    return node;
+  });
 
   const idsOfBlocksToRemove = new Set<string>(
     blocksToRemove.map((block) =>

@@ -244,7 +244,7 @@ export const fr: Dictionary = {
     } as Record<string, string>,
   },
   toggle_blocks: {
-    add_block_button: "Toggle vide. Cliquez pour ajouter un bloc.",
+    add_block_button: "Liste repliable vide. Cliquez pour ajouter un bloc.",
   },
   // from react package:
   side_menu: {

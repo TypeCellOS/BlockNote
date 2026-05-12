@@ -5,6 +5,7 @@ import "@blocknote/mantine/style.css";
 import {
   FormattingToolbarController,
   blockTypeSelectItems,
+  useBlockNoteEditor,
   useCreateBlockNote,
   BlockTypeSelectItem,
   FormattingToolbar,
@@ -23,6 +24,31 @@ const schema = BlockNoteSchema.create({
     alert: Alert(),
   },
 });
+
+const CustomFormattingToolbar = () => {
+  const editor = useBlockNoteEditor<
+    typeof schema.blockSchema,
+    typeof schema.inlineContentSchema,
+    typeof schema.styleSchema
+  >();
+
+  return (
+    // Uses the default Formatting Toolbar.
+    <FormattingToolbar
+      // Sets the items in the Block Type Select.
+      blockTypeSelectItems={[
+        // Gets the default Block Type Select items.
+        ...blockTypeSelectItems(editor.dictionary),
+        // Adds an item for the Alert block.
+        {
+          name: "Alert",
+          type: "alert",
+          icon: RiAlertFill,
+        } satisfies BlockTypeSelectItem,
+      ]}
+    />
+  );
+};
 
 export default function App() {
   // Creates a new editor instance.
@@ -43,9 +69,6 @@ export default function App() {
         content:
           "Or select text in this alert - the Block Type Select also appears",
       },
-      {
-        type: "paragraph",
-      },
     ],
   });
 
@@ -53,24 +76,7 @@ export default function App() {
   return (
     <BlockNoteView editor={editor} formattingToolbar={false}>
       {/* Replaces the default Formatting Toolbar */}
-      <FormattingToolbarController
-        formattingToolbar={() => (
-          // Uses the default Formatting Toolbar.
-          <FormattingToolbar
-            // Sets the items in the Block Type Select.
-            blockTypeSelectItems={[
-              // Gets the default Block Type Select items.
-              ...blockTypeSelectItems(editor.dictionary),
-              // Adds an item for the Alert block.
-              {
-                name: "Alert",
-                type: "alert",
-                icon: RiAlertFill,
-              } satisfies BlockTypeSelectItem,
-            ]}
-          />
-        )}
-      />
+      <FormattingToolbarController formattingToolbar={CustomFormattingToolbar} />
     </BlockNoteView>
   );
 }

@@ -48,7 +48,9 @@ test.describe("Check Draghandle functionality", () => {
 
   test("Draghandle should display next to correct block", async () => {
     await insertHeading(page, 1);
+    await page.keyboard.press("Enter");
     await insertHeading(page, 2);
+    await page.keyboard.press("Enter");
     await insertHeading(page, 3);
 
     const h1y = await getDragHandleYCoord(page, H_ONE_BLOCK_SELECTOR);
@@ -61,9 +63,10 @@ test.describe("Check Draghandle functionality", () => {
 
   test("Draghandle should display next to correct nested block", async () => {
     await insertHeading(page, 1);
+    await page.keyboard.press("Enter");
     await page.keyboard.press("Tab");
     await insertHeading(page, 2);
-    await page.keyboard.press("Tab");
+    await page.keyboard.press("Enter");
     await page.keyboard.press("Tab");
     await insertHeading(page, 3);
 
@@ -123,6 +126,7 @@ test.describe("Check Draghandle functionality", () => {
     await page.keyboard.type("Heading 1");
     // Wait for animation to finish
     await page.waitForTimeout(350);
+    await page.keyboard.press("Enter");
     await hoverAndAddBlockFromDragHandle(page, PARAGRAPH_SELECTOR, "h1");
 
     await compareDocToSnapshot(page, "addnonselectedemptyblock");

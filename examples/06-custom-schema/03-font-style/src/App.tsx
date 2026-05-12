@@ -60,6 +60,36 @@ const SetFontStyleButton = () => {
   );
 };
 
+const CustomFormattingToolbar = () => (
+  <FormattingToolbar>
+    <BlockTypeSelect key={"blockTypeSelect"} />
+
+    <FileCaptionButton key={"fileCaptionButton"} />
+    <FileReplaceButton key={"replaceFileButton"} />
+
+    <BasicTextStyleButton basicTextStyle={"bold"} key={"boldStyleButton"} />
+    <BasicTextStyleButton basicTextStyle={"italic"} key={"italicStyleButton"} />
+    <BasicTextStyleButton
+      basicTextStyle={"underline"}
+      key={"underlineStyleButton"}
+    />
+    <BasicTextStyleButton basicTextStyle={"strike"} key={"strikeStyleButton"} />
+    {/* Adds SetFontStyleButton */}
+    <SetFontStyleButton />
+
+    <TextAlignButton textAlignment={"left"} key={"textAlignLeftButton"} />
+    <TextAlignButton textAlignment={"center"} key={"textAlignCenterButton"} />
+    <TextAlignButton textAlignment={"right"} key={"textAlignRightButton"} />
+
+    <ColorStyleButton key={"colorStyleButton"} />
+
+    <NestBlockButton key={"nestBlockButton"} />
+    <UnnestBlockButton key={"unnestBlockButton"} />
+
+    <CreateLinkButton key={"createLinkButton"} />
+  </FormattingToolbar>
+);
+
 export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
@@ -91,64 +121,13 @@ export default function App() {
         content:
           "Highlight some text to open the Formatting Toolbar and change the font elsewhere",
       },
-      {
-        type: "paragraph",
-      },
     ],
   });
 
   return (
     <BlockNoteView editor={editor} formattingToolbar={false}>
       {/* Replaces the default Formatting Toolbar. */}
-      <FormattingToolbarController
-        formattingToolbar={() => (
-          <FormattingToolbar>
-            <BlockTypeSelect key={"blockTypeSelect"} />
-
-            <FileCaptionButton key={"fileCaptionButton"} />
-            <FileReplaceButton key={"replaceFileButton"} />
-
-            <BasicTextStyleButton
-              basicTextStyle={"bold"}
-              key={"boldStyleButton"}
-            />
-            <BasicTextStyleButton
-              basicTextStyle={"italic"}
-              key={"italicStyleButton"}
-            />
-            <BasicTextStyleButton
-              basicTextStyle={"underline"}
-              key={"underlineStyleButton"}
-            />
-            <BasicTextStyleButton
-              basicTextStyle={"strike"}
-              key={"strikeStyleButton"}
-            />
-            {/* Adds SetFontStyleButton */}
-            <SetFontStyleButton />
-
-            <TextAlignButton
-              textAlignment={"left"}
-              key={"textAlignLeftButton"}
-            />
-            <TextAlignButton
-              textAlignment={"center"}
-              key={"textAlignCenterButton"}
-            />
-            <TextAlignButton
-              textAlignment={"right"}
-              key={"textAlignRightButton"}
-            />
-
-            <ColorStyleButton key={"colorStyleButton"} />
-
-            <NestBlockButton key={"nestBlockButton"} />
-            <UnnestBlockButton key={"unnestBlockButton"} />
-
-            <CreateLinkButton key={"createLinkButton"} />
-          </FormattingToolbar>
-        )}
-      />
+      <FormattingToolbarController formattingToolbar={CustomFormattingToolbar} />
     </BlockNoteView>
   );
 }

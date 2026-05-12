@@ -71,17 +71,6 @@ exports[`unnestBlock / liftListItem > BLO-835: unnest block with siblings after 
     },
     "type": "paragraph",
   },
-  {
-    "children": [],
-    "content": [],
-    "id": "0",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
 ]
 `;
 
@@ -132,17 +121,6 @@ exports[`unnestBlock / liftListItem > BLO-835: unnest block with siblings after 
       },
     ],
     "id": "block2",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "0",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -241,17 +219,6 @@ exports[`unnestBlock / liftListItem > BLO-835: unnest block with siblings after 
     },
     "type": "paragraph",
   },
-  {
-    "children": [],
-    "content": [],
-    "id": "0",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
 ]
 `;
 
@@ -326,17 +293,6 @@ exports[`unnestBlock / liftListItem > BLO-844/847: unnest with complex nesting a
     },
     "type": "paragraph",
   },
-  {
-    "children": [],
-    "content": [],
-    "id": "0",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
 ]
 `;
 
@@ -369,17 +325,6 @@ exports[`unnestBlock / liftListItem > BLO-844/847: unnest with complex nesting a
       },
     ],
     "id": "child",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "0",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -514,17 +459,6 @@ exports[`unnestBlock / liftListItem > BLO-899: Shift-Tab on second-level nested 
     },
     "type": "paragraph",
   },
-  {
-    "children": [],
-    "content": [],
-    "id": "0",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
 ]
 `;
 
@@ -593,17 +527,6 @@ exports[`unnestBlock / liftListItem > BLO-899: Shift-Tab on second-level nested 
       },
     ],
     "id": "parent",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "0",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -703,17 +626,6 @@ exports[`unnestBlock / liftListItem > BLO-953: unnest block with multi-level nes
     },
     "type": "paragraph",
   },
-  {
-    "children": [],
-    "content": [],
-    "id": "0",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
 ]
 `;
 
@@ -782,17 +694,6 @@ exports[`unnestBlock / liftListItem > BLO-953: unnest block with multi-level nes
       },
     ],
     "id": "blockA",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "0",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -891,17 +792,6 @@ exports[`unnestBlock / liftListItem > Edge cases > should handle unnesting block
     },
     "type": "paragraph",
   },
-  {
-    "children": [],
-    "content": [],
-    "id": "0",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
 ]
 `;
 
@@ -961,17 +851,6 @@ exports[`unnestBlock / liftListItem > Edge cases > should handle unnesting with 
     },
     "type": "heading",
   },
-  {
-    "children": [],
-    "content": [],
-    "id": "0",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
 ]
 `;
 
@@ -1005,17 +884,6 @@ exports[`unnestBlock / liftListItem > nestBlock > should nest a block under its 
       },
     ],
     "id": "block1",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "0",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -1073,17 +941,6 @@ exports[`unnestBlock / liftListItem > nestBlock > should nest into a sibling tha
       },
     ],
     "id": "block1",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "0",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",

@@ -1093,8 +1093,7 @@
       >
         <VIEW
           style={{
-            backgroundColor: '#161616',
-            color: '#ffffff',
+            border: '1px solid #000000',
             fontFamily: 'GeistMono',
             fontSize: 12,
             lineHeight: 1.25,

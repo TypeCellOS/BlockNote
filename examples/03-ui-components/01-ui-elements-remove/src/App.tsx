@@ -21,9 +21,6 @@ export default function App() {
         content:
           "Try making text bold with Ctrl+B/Cmd+B or undo with Ctrl+Z/Cmd+Z.",
       },
-      {
-        type: "paragraph",
-      },
     ],
   });
 

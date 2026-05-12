@@ -1,11 +1,12 @@
 import { Page } from "@playwright/test";
-import { PASTE_ZONE_SELECTOR, TYPE_DELAY } from "./const.js";
+import { PASTE_ZONE_SELECTOR } from "./const.js";
 import { focusOnEditor } from "./editor.js";
 
 export async function copyPaste(page: Page) {
   await page.keyboard.press(`ControlOrMeta+C`);
-  await page.keyboard.press("ArrowDown", { delay: TYPE_DELAY });
-  await page.keyboard.press("Enter");
+  // Exit out of any menus/toolbars which may block the trailing block.
+  await page.keyboard.press(`Escape`);
+  await page.locator(".bn-trailing-block").click();
   await page.keyboard.press(`ControlOrMeta+V`);
 }
 
@@ -40,7 +41,6 @@ export function removeMetaFromHTML(html: string) {
 
 export async function insertParagraph(page: Page) {
   await page.keyboard.type("Paragraph");
-  await page.keyboard.press("ArrowDown", { delay: TYPE_DELAY });
 }
 
 export async function insertHeading(page: Page, headingLevel: number) {
@@ -50,7 +50,6 @@ export async function insertHeading(page: Page, headingLevel: number) {
 
   await page.keyboard.press(" ");
   await page.keyboard.type("Heading");
-  await page.keyboard.press("ArrowDown", { delay: TYPE_DELAY });
 }
 
 export async function startList(page: Page, ordered: boolean) {
@@ -70,7 +69,6 @@ export async function insertListItems(page: Page) {
   await page.keyboard.type("List Item 2");
   await page.keyboard.press("Enter");
   await page.keyboard.type("List Item 3");
-  await page.keyboard.press("ArrowDown", { delay: TYPE_DELAY });
 }
 
 export async function insertNestedListItems(page: Page) {
@@ -81,5 +79,4 @@ export async function insertNestedListItems(page: Page) {
   await page.keyboard.press("Enter");
   await page.keyboard.press("Tab");
   await page.keyboard.type("List Item 3");
-  await page.keyboard.press("ArrowDown", { delay: TYPE_DELAY });
 }

@@ -18,11 +18,11 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
   test("Check Enter when selection is not empty", async ({ page }) => {
     await focusOnEditor(page);
     await insertHeading(page, 1);
+    await page.keyboard.press("Enter");
     await insertHeading(page, 2);
 
     await page.waitForTimeout(500);
 
-    await page.keyboard.press("ArrowUp");
     await page.keyboard.press("ArrowUp");
     await page.keyboard.press("ControlOrMeta+ArrowLeft");
     await page.keyboard.press("ArrowRight");
@@ -53,19 +53,18 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
     await page.keyboard.press("ArrowRight");
     await page.keyboard.press("Enter");
 
-    await page.pause();
     await compareDocToSnapshot(page, "enterPreservesMarks.json");
   });
   test("Check Enter preserves nested blocks", async ({ page }) => {
     await focusOnEditor(page);
     await insertHeading(page, 1);
+    await page.keyboard.press("Enter");
     await page.keyboard.press("Tab");
     await insertHeading(page, 2);
-    await page.keyboard.press("Tab");
+    await page.keyboard.press("Enter");
     await insertHeading(page, 3);
 
     await page.waitForTimeout(500);
-    await page.keyboard.press("ArrowUp");
     await page.keyboard.press("ArrowUp");
     await page.keyboard.press("ArrowUp");
     await page.keyboard.press("Control+ArrowLeft");
@@ -80,14 +79,13 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
     await focusOnEditor(page);
     await page.keyboard.press("#");
     await page.keyboard.press(" ");
-    await page.keyboard.press("ArrowDown", { delay: 10 });
+    await page.keyboard.press("Enter", { delay: 10 });
     await page.keyboard.press("Tab");
     await insertHeading(page, 2);
-    await page.keyboard.press("Tab");
+    await page.keyboard.press("Enter");
     await insertHeading(page, 3);
 
     await page.waitForTimeout(500);
-    await page.keyboard.press("ArrowUp");
     await page.keyboard.press("ArrowUp");
     await page.keyboard.press("ArrowUp");
     await page.keyboard.press("Enter");
@@ -98,7 +96,6 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
     await focusOnEditor(page);
     await insertHeading(page, 1);
 
-    await page.keyboard.press("ArrowUp");
     await page.keyboard.press("Control+ArrowLeft");
     await page.keyboard.press("Backspace");
 
@@ -107,9 +104,9 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
   test("Check Backspace preserves marks", async ({ page }) => {
     await focusOnEditor(page);
     await insertParagraph(page);
+    await page.keyboard.press("Enter");
     await insertParagraph(page);
 
-    await page.keyboard.press("ArrowUp");
     await page.keyboard.press("Control+ArrowLeft");
 
     for (let i = 0; i < 2; i++) {
@@ -133,14 +130,16 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
   test("Check Backspace preserves nested blocks", async ({ page }) => {
     await focusOnEditor(page);
     await insertParagraph(page);
+    await page.keyboard.press("Enter");
     await insertParagraph(page);
+    await page.keyboard.press("Enter");
     await page.keyboard.press("Tab");
     await insertParagraph(page);
-    await page.keyboard.press("Tab");
+    await page.keyboard.press("Enter");
     await page.keyboard.press("Tab");
     await insertParagraph(page);
 
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 2; i++) {
       await page.keyboard.press("ArrowUp");
     }
 
@@ -155,13 +154,14 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
     await focusOnEditor(page);
     await insertParagraph(page);
     await page.keyboard.press("Enter", { delay: 10 });
+    await page.keyboard.press("Enter");
     await page.keyboard.press("Tab");
     await insertParagraph(page);
-    await page.keyboard.press("Tab");
+    await page.keyboard.press("Enter");
     await page.keyboard.press("Tab");
     await insertParagraph(page);
 
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 2; i++) {
       await page.keyboard.press("ArrowUp");
     }
 
@@ -176,7 +176,6 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
     await focusOnEditor(page);
     await insertParagraph(page);
 
-    await page.keyboard.press("ArrowUp");
     await page.keyboard.press("Delete");
 
     await compareDocToSnapshot(page, "deleteEndOfBlock.json");
@@ -185,7 +184,6 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
     await focusOnEditor(page);
     await insertParagraph(page);
 
-    await page.keyboard.press("ArrowUp");
     await page.keyboard.press("Shift+ArrowLeft");
     await page.keyboard.press("Shift+ArrowLeft");
     await page.keyboard.press("Delete");
@@ -195,9 +193,9 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
   test("Check Delete before inline content block", async ({ page }) => {
     await focusOnEditor(page);
     await insertParagraph(page);
+    await page.keyboard.press("Enter");
     await insertParagraph(page);
 
-    await page.keyboard.press("ArrowUp");
     await page.keyboard.press("ArrowUp");
     await page.keyboard.press("Delete");
 
@@ -206,10 +204,10 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
   test("Check Delete before image block", async ({ page }) => {
     await focusOnEditor(page);
     await insertParagraph(page);
+    await page.keyboard.press("Enter");
     await executeSlashCommand(page, "image");
     await page.keyboard.press("Escape"); // Close file panel
 
-    await page.keyboard.press("ArrowUp");
     await page.keyboard.press("ArrowUp");
     await page.keyboard.press("Delete");
 
@@ -218,6 +216,7 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
   test("Check Delete before table", async ({ page }) => {
     await focusOnEditor(page);
     await insertParagraph(page);
+    await page.keyboard.press("Enter");
     await executeSlashCommand(page, "table");
 
     await page.keyboard.press("ArrowUp");
@@ -230,7 +229,6 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
     await executeSlashCommand(page, "image");
     await page.keyboard.press("Escape"); // Close file panel
 
-    await page.keyboard.press("ArrowUp");
     await page.keyboard.press("Delete");
 
     await compareDocToSnapshot(page, "deleteSelectedImage.json");
@@ -240,10 +238,10 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
   }) => {
     await focusOnEditor(page);
     await insertParagraph(page);
+    await page.keyboard.press("Enter");
     await page.keyboard.press("Tab");
     await insertParagraph(page);
 
-    await page.keyboard.press("ArrowUp");
     await page.keyboard.press("ArrowUp");
     await page.keyboard.press("Delete");
 
@@ -252,6 +250,7 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
   test("Check Delete end of block with image child", async ({ page }) => {
     await focusOnEditor(page);
     await insertParagraph(page);
+    await page.keyboard.press("Enter");
     await page.keyboard.press("Tab");
     await executeSlashCommand(page, "image");
     await page.keyboard.press("Escape"); // Close file panel
@@ -264,6 +263,7 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
   test("Check Delete end of block with table child", async ({ page }) => {
     await focusOnEditor(page);
     await insertParagraph(page);
+    await page.keyboard.press("Enter");
     await page.keyboard.press("Tab");
     await executeSlashCommand(page, "table");
 
@@ -275,12 +275,12 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
   test("Check Delete end of block with multiple children", async ({ page }) => {
     await focusOnEditor(page);
     await insertParagraph(page);
+    await page.keyboard.press("Enter");
     await page.keyboard.press("Tab");
     await insertParagraph(page);
-    await page.keyboard.press("Tab");
+    await page.keyboard.press("Enter");
     await insertParagraph(page);
 
-    await page.keyboard.press("ArrowUp");
     await page.keyboard.press("ArrowUp");
     await page.keyboard.press("ArrowUp");
     await page.keyboard.press("Delete");
@@ -290,13 +290,13 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
   test("Check Delete end of block with nested children", async ({ page }) => {
     await focusOnEditor(page);
     await insertParagraph(page);
+    await page.keyboard.press("Enter");
     await page.keyboard.press("Tab");
     await insertParagraph(page);
-    await page.keyboard.press("Tab");
+    await page.keyboard.press("Enter");
     await page.keyboard.press("Tab");
     await insertParagraph(page);
 
-    await page.keyboard.press("ArrowUp");
     await page.keyboard.press("ArrowUp");
     await page.keyboard.press("ArrowUp");
     await page.keyboard.press("Delete");
@@ -306,13 +306,14 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
   test("Check Delete before shallower block", async ({ page }) => {
     await focusOnEditor(page);
     await insertParagraph(page);
+    await page.keyboard.press("Enter");
     await page.keyboard.press("Tab");
     await insertParagraph(page);
+    await page.keyboard.press("Enter");
+    await page.keyboard.press("Shift+Tab");
     await insertParagraph(page);
 
     await page.keyboard.press("ArrowUp");
-    await page.keyboard.press("ArrowUp");
-    await page.keyboard.press("ControlOrMeta+ArrowRight");
     await page.keyboard.press("Delete");
 
     await compareDocToSnapshot(page, "deleteShallowerBlock.json");
@@ -322,15 +323,20 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
   }) => {
     await focusOnEditor(page);
     await insertParagraph(page);
+    await page.keyboard.press("Enter");
     await page.keyboard.press("Tab");
     await insertParagraph(page);
+    await page.keyboard.press("Enter");
+    await page.keyboard.press("Shift+Tab");
     await insertParagraph(page);
+    await page.keyboard.press("Enter");
     await page.keyboard.press("Tab");
     await insertParagraph(page);
 
     await page.keyboard.press("ArrowUp");
     await page.keyboard.press("ArrowUp");
-    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ControlOrMeta+ArrowLeft");
+    await page.keyboard.press("ControlOrMeta+ArrowRight");
     await page.keyboard.press("Delete");
 
     await compareDocToSnapshot(page, "deleteShallowerBlockWithChildren.json");
@@ -382,6 +388,7 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
   }) => {
     await focusOnEditor(page);
     await insertParagraph(page);
+    await page.keyboard.press("Enter");
     await page.keyboard.press("ControlOrMeta+Shift+9");
     await page.keyboard.type("Checklist item");
 

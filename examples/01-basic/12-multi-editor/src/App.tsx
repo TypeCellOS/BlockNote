@@ -35,9 +35,6 @@ export default function App() {
             type: "paragraph",
             content: "This is a block in the first editor",
           },
-          {
-            type: "paragraph",
-          },
         ]}
       />
       <Editor
@@ -50,9 +47,6 @@ export default function App() {
           {
             type: "paragraph",
             content: "Try dragging blocks from one editor to the other",
-          },
-          {
-            type: "paragraph",
           },
         ]}
       />

@@ -106,8 +106,4 @@ const testDocument: PartialBlock<
     type: "paragraph",
     content: "Paragraph 2",
   },
-  {
-    id: "trailing-paragraph",
-    type: "paragraph",
-  },
 ];

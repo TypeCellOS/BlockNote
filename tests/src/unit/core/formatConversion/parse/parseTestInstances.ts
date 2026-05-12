@@ -1689,12 +1689,13 @@ Third paragraph`,
     },
     executeTest: testParseMarkdown,
   },
-  // Paragraph continuation (lines without blank line)
+  // Line breaks
   {
     testCase: {
-      name: "paragraphContinuation",
+      name: "lineBreaks",
       content: `Line one
-still same paragraph`,
+Line two
+Line three`,
     },
     executeTest: testParseMarkdown,
   },

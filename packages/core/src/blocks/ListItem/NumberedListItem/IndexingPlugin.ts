@@ -135,10 +135,9 @@ function getDecorations(
   // Find the start of the first change to limit traversal scope.
   // We only need to check from the change point forward, since earlier
   // blocks are unaffected and their mapped decorations remain correct.
-  const range = tr.changedRange();
-  if (!range) {
-    return { decorations: nextDecorationSet };
-  }
+  // On init (no steps), changedRange() returns null — fall back to a
+  // full scan so initial content gets indexed.
+  const range = tr.changedRange() ?? { from: 0, to: tr.doc.nodeSize - 2 };
   const decorationsToAdd = [] as Deco[];
 
   // Track blockGroups where we've verified a decoration match past the

@@ -1,10 +1,6 @@
 /* eslint-disable jest/valid-title */
 import { test } from "../../setup/setupScript.js";
-import {
-  BASE_URL,
-  NON_EDITABLE_BLOCK_URL,
-  PARAGRAPH_SELECTOR,
-} from "../../utils/const.js";
+import { BASE_URL, NON_EDITABLE_BLOCK_URL } from "../../utils/const.js";
 import {
   copyPaste,
   copyPasteAll,
@@ -32,7 +28,9 @@ test.describe("Check Copy/Paste Functionality", () => {
 
     await focusOnEditor(page);
     await insertParagraph(page);
+    await page.keyboard.press("Enter");
     await insertParagraph(page);
+    await page.keyboard.press("Enter");
     await insertParagraph(page);
     await copyPasteAll(page);
 
@@ -47,7 +45,9 @@ test.describe("Check Copy/Paste Functionality", () => {
 
     await focusOnEditor(page);
     await insertHeading(page, 1);
+    await page.keyboard.press("Enter");
     await insertHeading(page, 2);
+    await page.keyboard.press("Enter");
     await insertHeading(page, 3);
     await copyPasteAll(page);
 
@@ -99,9 +99,10 @@ test.describe("Check Copy/Paste Functionality", () => {
 
     await focusOnEditor(page);
     await insertParagraph(page);
+    await page.keyboard.press("Enter");
     await page.keyboard.press("Tab");
     await insertParagraph(page);
-    await page.keyboard.press("Tab");
+    await page.keyboard.press("Enter");
     await page.keyboard.press("Tab");
     await insertParagraph(page);
     await copyPasteAll(page);
@@ -212,17 +213,16 @@ test.describe("Check Copy/Paste From Non-Editable Block", () => {
     const box = (await p.boundingBox())!;
     await page.mouse.move(box.x + 2, box.y + box.height / 2);
     await page.mouse.down();
-    await page.mouse.move(
-      box.x + box.width * 0.25,
-      box.y + box.height / 2,
-      { steps: 5 },
-    );
+    await page.mouse.move(box.x + box.width * 0.25, box.y + box.height / 2, {
+      steps: 5,
+    });
     await page.mouse.up();
 
     await page.keyboard.press("ControlOrMeta+C");
 
-    // Click the last (empty) paragraph block to focus the editor.
-    await page.locator(PARAGRAPH_SELECTOR).last().click();
+    // Click the trailing block to create a new empty paragraph and focus
+    // the editor there.
+    await page.locator(".bn-trailing-block").click();
 
     await page.keyboard.press("ControlOrMeta+V");
 

@@ -1,5 +1,5 @@
 import { test } from "../../setup/setupScript.js";
-import { BULLET_LIST_SELECTOR, MULTI_COLUMN_URL } from "../../utils/const.js";
+import { MULTI_COLUMN_URL } from "../../utils/const.js";
 import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor.js";
 
 test.describe.configure({ mode: "serial" });
@@ -43,8 +43,7 @@ test.describe("Check Multi-Column Behaviour", () => {
   test("Check Delete end of column list", async ({ page }) => {
     await focusOnEditor(page);
 
-    await page.locator(BULLET_LIST_SELECTOR).last().click();
-    await page.keyboard.press("ArrowDown");
+    await page.locator(".bn-trailing-block").click();
     await page.keyboard.type("Paragraph");
     await page.keyboard.press("ControlOrMeta+ArrowLeft");
     await page.keyboard.press("ArrowLeft");

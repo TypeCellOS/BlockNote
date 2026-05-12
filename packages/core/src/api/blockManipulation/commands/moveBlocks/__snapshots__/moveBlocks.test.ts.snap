@@ -557,7 +557,7 @@ exports[`Test moveBlocksDown > Basic 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -2260,7 +2260,7 @@ exports[`Test moveBlocksDown > Into children 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -2828,7 +2828,7 @@ exports[`Test moveBlocksDown > Last block 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -3396,7 +3396,7 @@ exports[`Test moveBlocksDown > Multiple blocks 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -3964,7 +3964,7 @@ exports[`Test moveBlocksDown > Multiple blocks ending in block with children 1`]
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -4532,7 +4532,7 @@ exports[`Test moveBlocksDown > Multiple blocks ending in nested block 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -4599,7 +4599,7 @@ exports[`Test moveBlocksDown > Multiple blocks starting and ending in nested blo
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -5106,17 +5106,6 @@ exports[`Test moveBlocksDown > Multiple blocks starting and ending in nested blo
       "textColor": "red",
     },
     "type": "heading",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "0",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
   },
 ]
 `;
@@ -5678,7 +5667,7 @@ exports[`Test moveBlocksDown > Multiple blocks starting in block with children 1
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -6245,7 +6234,7 @@ exports[`Test moveBlocksDown > Multiple blocks starting in nested block 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -6812,7 +6801,7 @@ exports[`Test moveBlocksDown > Out of children 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -7380,7 +7369,7 @@ exports[`Test moveBlocksUp > Basic 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -9083,7 +9072,7 @@ exports[`Test moveBlocksUp > First block 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -9651,7 +9640,7 @@ exports[`Test moveBlocksUp > Into children 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -10219,7 +10208,7 @@ exports[`Test moveBlocksUp > Multiple blocks 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -10787,7 +10776,7 @@ exports[`Test moveBlocksUp > Multiple blocks ending in block with children 1`] =
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -11355,7 +11344,7 @@ exports[`Test moveBlocksUp > Multiple blocks ending in nested block 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -11922,7 +11911,7 @@ exports[`Test moveBlocksUp > Multiple blocks starting and ending in nested block
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -12490,7 +12479,7 @@ exports[`Test moveBlocksUp > Multiple blocks starting in block with children 1`]
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -13057,7 +13046,7 @@ exports[`Test moveBlocksUp > Multiple blocks starting in nested block 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -13624,7 +13613,7 @@ exports[`Test moveBlocksUp > Out of children 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",

@@ -76,9 +76,6 @@ export function App() {
         type: "paragraph",
         content: "Press the '@' key to open the mentions menu and add another",
       },
-      {
-        type: "paragraph",
-      },
     ],
   });
 

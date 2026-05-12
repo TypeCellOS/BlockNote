@@ -99,6 +99,7 @@
     "@ai-sdk/mistral": "^3.0.2",
     "@ai-sdk/openai": "^3.0.2",
     "@ai-sdk/openai-compatible": "^2.0.2",
+    "@blocknote/xl-multi-column": "0.50.0",
     "@mswjs/interceptors": "^0.37.6",
     "@types/diff": "^6.0.0",
     "@types/json-diff": "^1.0.3",

@@ -470,7 +470,7 @@ exports[`Test replaceBlocks > Remove multiple consecutive blocks 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -767,7 +767,7 @@ exports[`Test replaceBlocks > Remove multiple non-consecutive blocks 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -1318,7 +1318,7 @@ exports[`Test replaceBlocks > Remove single block 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -1850,7 +1850,7 @@ exports[`Test replaceBlocks > Replace multiple consecutive blocks with multiple 
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -2342,7 +2342,7 @@ exports[`Test replaceBlocks > Replace multiple consecutive blocks with single ba
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -2892,7 +2892,7 @@ exports[`Test replaceBlocks > Replace multiple consecutive blocks with single co
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -3240,7 +3240,7 @@ exports[`Test replaceBlocks > Replace multiple non-consecutive blocks with multi
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -3548,7 +3548,7 @@ exports[`Test replaceBlocks > Replace multiple non-consecutive blocks with singl
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -3914,7 +3914,7 @@ exports[`Test replaceBlocks > Replace multiple non-consecutive blocks with singl
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -4516,7 +4516,7 @@ exports[`Test replaceBlocks > Replace single block with multiple 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -5078,7 +5078,7 @@ exports[`Test replaceBlocks > Replace single block with single basic 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -5698,7 +5698,7 @@ exports[`Test replaceBlocks > Replace single block with single complex 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",

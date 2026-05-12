@@ -7,8 +7,9 @@ import {
   Extension as TiptapExtension,
 } from "@tiptap/core";
 import { keymap } from "@tiptap/pm/keymap";
-import { Plugin } from "prosemirror-state";
+import { Plugin, TextSelection } from "prosemirror-state";
 import { updateBlockTr } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
+import { setTextCursorPosition } from "../../../api/blockManipulation/selections/textCursorPosition.js";
 import { getBlockInfoFromTransaction } from "../../../api/getBlockInfoFromPos.js";
 import { sortByDependencies } from "../../../util/topo-sort.js";
 import type {
@@ -369,7 +370,49 @@ export class ExtensionManager {
               // Append in reverse priority order
               rules.push(...inputRulesByPriority.get(priority)!);
             });
-          return [inputRulesPlugin({ rules })];
+          const inputRules = inputRulesPlugin({ rules });
+          // Sidecar plugin: triggers the same input rules on Enter by
+          // delegating to the inputRules plugin's handleTextInput with a
+          // synthetic "\n" insertion. The handlewithcare regex `\s$` already
+          // matches `\n`, so any rule that fires on space fires on Enter too.
+          // We call its handleTextInput directly (rather than via
+          // view.someProp) so other plugins don't observe the synthetic input,
+          // and so the rule's undo metadata is keyed to the same plugin
+          // instance that Tiptap's `commands.undoInputRule` reads from.
+          const inputRulesEnter = new Plugin({
+            props: {
+              handleKeyDown(view, event) {
+                if (event.key !== "Enter") {
+                  return false;
+                }
+                // Only trigger on plain Enter — modifier combos like
+                // Shift/Cmd/Ctrl/Alt+Enter are reserved for other handlers
+                // (e.g. soft-break, submit) and should fall through.
+                if (
+                  event.shiftKey ||
+                  event.ctrlKey ||
+                  event.metaKey ||
+                  event.altKey
+                ) {
+                  return false;
+                }
+                const { $cursor } = view.state.selection as TextSelection;
+                if (!$cursor) {
+                  return false;
+                }
+                return !!inputRules.props.handleTextInput?.call(
+                  inputRules,
+                  view,
+                  $cursor.pos,
+                  $cursor.pos,
+                  "\n",
+                  () =>
+                    view.state.tr.insertText("\n", $cursor.pos, $cursor.pos),
+                );
+              },
+            },
+          });
+          return [inputRules, inputRulesEnter];
         },
       }),
     );
@@ -408,30 +451,42 @@ export class ExtensionManager {
     if (extension.inputRules?.length) {
       inputRules.push(
         ...extension.inputRules.map((inputRule) => {
-          return new InputRule(inputRule.find, (state, match, start, end) => {
-            const replaceWith = inputRule.replace({
-              match,
-              range: { from: start, to: end },
-              editor: this.editor,
-            });
-            if (replaceWith) {
-              const cursorPosition = this.editor.getTextCursorPosition();
+          return new InputRule(
+            inputRule.find,
+            (state, match, start, end) => {
+              const replaceWith = inputRule.replace({
+                match,
+                range: { from: start, to: end },
+                editor: this.editor,
+              });
+              if (replaceWith) {
+                const tr = state.tr;
+                const blockInfo = getBlockInfoFromTransaction(tr);
 
-              if (
-                this.editor.schema.blockSchema[cursorPosition.block.type]
-                  .content !== "inline"
-              ) {
-                return null;
+                if (
+                  !blockInfo.isBlockContainer ||
+                  this.editor.schema.blockSchema[blockInfo.blockNoteType]
+                    ?.content !== "inline"
+                ) {
+                  return null;
+                }
+
+                tr.deleteRange(start, end);
+                updateBlockTr(tr, blockInfo.bnBlock.beforePos, replaceWith);
+                // updateBlockTr's replaceWith path leaves the selection after
+                // the new block when the content is replaced wholesale (e.g.
+                // when the rule returns content: []). Move the cursor back
+                // inside the new block so the user can keep typing.
+                const blockId = blockInfo.bnBlock.node.attrs.id;
+                if (blockId) {
+                  setTextCursorPosition(tr, blockId, "start");
+                }
+                return tr;
               }
-
-              const blockInfo = getBlockInfoFromTransaction(state.tr);
-              const tr = state.tr.deleteRange(start, end);
-
-              updateBlockTr(tr, blockInfo.bnBlock.beforePos, replaceWith);
-              return tr;
-            }
-            return null;
-          });
+              return null;
+            },
+            { undoable: true },
+          );
         }),
       );
     }

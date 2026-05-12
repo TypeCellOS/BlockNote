@@ -18,6 +18,11 @@ test.describe("Check static rendering", () => {
   }) => {
     await page.goto(BASIC_BLOCKS_URL);
     await page.waitForLoadState("networkidle");
+    // Hide the trailing block widget so the live editor's page height matches
+    // the static export, which doesn't render it.
+    await page.addStyleTag({
+      content: ".bn-trailing-block { display: none !important; }",
+    });
     expect(
       await page.screenshot({
         fullPage: true,

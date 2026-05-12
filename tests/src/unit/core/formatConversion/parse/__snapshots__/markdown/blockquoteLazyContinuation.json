@@ -4,7 +4,9 @@
     "content": [
       {
         "styles": {},
-        "text": "This is a quote that continues here and here too",
+        "text": "This is a quote
+ that continues here
+ and here too",
         "type": "text",
       },
     ],

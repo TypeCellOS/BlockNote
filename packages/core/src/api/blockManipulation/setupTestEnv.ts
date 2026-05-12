@@ -185,7 +185,7 @@ const testDocument: PartialBlock[] = [
     ],
   },
   {
-    id: "trailing-paragraph",
+    id: "paragraph-9",
     type: "paragraph",
   },
 ];

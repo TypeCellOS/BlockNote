@@ -31,7 +31,7 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": "3"
+            "id": "2"
           },
           "content": [
             {
@@ -49,22 +49,6 @@
                   "text": "This is h3"
                 }
               ]
-            }
-          ]
-        },
-        {
-          "type": "blockContainer",
-          "attrs": {
-            "id": "1"
-          },
-          "content": [
-            {
-              "type": "paragraph",
-              "attrs": {
-                "backgroundColor": "default",
-                "textColor": "default",
-                "textAlignment": "left"
-              }
             }
           ]
         }
