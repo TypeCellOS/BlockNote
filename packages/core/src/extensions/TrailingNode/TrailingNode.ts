@@ -8,12 +8,17 @@ import {
 
 const PLUGIN_KEY = new PluginKey<DecorationSet>("trailingNode");
 
-// Skip the widget when the document already ends with an empty paragraph
-// block, since the user can just type into it.
-function shouldShowTrailingWidget(doc: PMNode): boolean {
+// Skip the widget when the editor isn't editable, or when the document already
+// ends with an empty paragraph block (since the user can just type into it).
+function shouldShowTrailingWidget(doc: PMNode, isEditable: boolean): boolean {
+  if (!isEditable) {
+    return false;
+  }
+
   const rootGroup = doc.lastChild;
   const lastBlock = rootGroup?.lastChild;
   const lastContent = lastBlock?.firstChild;
+
   return !(
     lastBlock?.type.name === "blockContainer" &&
     lastContent?.type.name === "paragraph" &&
@@ -51,7 +56,7 @@ export const TrailingNodeExtension = createExtension(
               editor.setTextCursorPosition(insertedBlock, "start");
               tr.scrollIntoView();
             });
-            
+
             editor.prosemirrorView?.focus();
           });
           return el;
@@ -67,11 +72,12 @@ export const TrailingNodeExtension = createExtension(
     function nextDecorationSet(
       tr: Transaction,
       oldSet: DecorationSet,
+      isEditable: boolean,
     ): DecorationSet {
       const mapped = oldSet.map(tr.mapping, tr.doc);
       const existing = mapped.find();
       const wasShowing = existing.length > 0;
-      const shouldShow = shouldShowTrailingWidget(tr.doc);
+      const shouldShow = shouldShowTrailingWidget(tr.doc, isEditable);
 
       if (wasShowing === shouldShow) {
         return mapped;
@@ -91,21 +97,36 @@ export const TrailingNodeExtension = createExtension(
           key: PLUGIN_KEY,
           state: {
             init: (_, state) =>
-              nextDecorationSet(state.tr, DecorationSet.empty),
+              nextDecorationSet(
+                state.tr,
+                DecorationSet.empty,
+                editor.isEditable,
+              ),
             apply: (tr, oldSet) => {
-              if (!tr.docChanged) {
+              if (!tr.docChanged && !tr.getMeta(PLUGIN_KEY)) {
                 return oldSet;
               }
-              return nextDecorationSet(tr, oldSet);
+              return nextDecorationSet(tr, oldSet, editor.isEditable);
             },
           },
+          // Editable changes don't dispatch a transaction on their own, so the
+          // plugin state can't re-evaluate on its own. Watch for the change
+          // and dispatch a no-op transaction tagged with this plugin's key so
+          // `apply` re-runs and adds or removes the widget.
+          view(view) {
+            let lastEditable = view.editable;
+            return {
+              update(view) {
+                if (view.editable === lastEditable) {
+                  return;
+                }
+                lastEditable = view.editable;
+                view.dispatch(view.state.tr.setMeta(PLUGIN_KEY, true));
+              },
+            };
+          },
           props: {
-            decorations: (state) => {
-              if (!editor.isEditable) {
-                return null;
-              }
-              return PLUGIN_KEY.getState(state);
-            },
+            decorations: (state) => PLUGIN_KEY.getState(state),
           },
         }),
       ],
