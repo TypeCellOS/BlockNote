@@ -306,7 +306,8 @@ export interface BlockNoteEditorOptions<
   };
 
   /**
-   * An option which user can pass with `false` value to disable the automatic creation of a trailing new block on the next line when the user types or edits any block.
+   * When the editor document doesn't end in an empty paragraph block, this option causes the editor to render an element simulating one.
+   * When clicked by the user, it gets turned into an actual block at the end of the document. This element is not shown when the option is `false`.
    *
    * @default true
    */
