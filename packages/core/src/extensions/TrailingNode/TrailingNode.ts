@@ -1,10 +1,5 @@
 import type { Node as PMNode } from "prosemirror-model";
-import {
-  Plugin,
-  PluginKey,
-  TextSelection,
-  type Transaction,
-} from "prosemirror-state";
+import { Plugin, PluginKey, type Transaction } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import {
   createExtension,
@@ -47,24 +42,17 @@ export const TrailingNodeExtension = createExtension(
             // based on this click.
             event.preventDefault();
 
-            const view = editor.prosemirrorView;
-            if (!view) {
-              return;
-            }
-
-            const blockContainerType =
-              view.state.schema.nodes["blockContainer"];
-            const paragraphType = view.state.schema.nodes["paragraph"];
-            const node = blockContainerType.create(
-              undefined,
-              paragraphType.create(),
-            );
-            const insertPos = view.state.doc.content.size - 1;
-            const tr = view.state.tr.insert(insertPos, node);
-            tr.setSelection(TextSelection.create(tr.doc, insertPos + 2));
-            tr.scrollIntoView();
-            view.dispatch(tr);
-            view.focus();
+            editor.transact((tr) => {
+              const [insertedBlock] = editor.insertBlocks(
+                [{ type: "paragraph" }],
+                editor.document[editor.document.length - 1],
+                "after",
+              );
+              editor.setTextCursorPosition(insertedBlock, "start");
+              tr.scrollIntoView();
+            });
+            
+            editor.prosemirrorView?.focus();
           });
           return el;
         },
