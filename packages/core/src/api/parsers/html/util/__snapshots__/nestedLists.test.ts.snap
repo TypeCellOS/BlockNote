@@ -1,9 +1,5 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Lift nested lists > Does not merge <li> nodes separated by non-whitespace text 1`] = `"<ul><li>a</li></ul>text<ul><li>b</li></ul>"`;
-
-exports[`Lift nested lists > Leaves <li>s already inside a <ul> alone 1`] = `"<ul><li>existing</li></ul><ul><li>orphan</li></ul>"`;
-
 exports[`Lift nested lists > Lifts multiple bullet lists 1`] = `
 "<ul>
     <div><li>
@@ -146,11 +142,3 @@ exports[`Lift nested lists > Lifts nested numbered lists 1`] = `
     </li>
  </ol>"
 `;
-
-exports[`Lift nested lists > Wraps a single bare <li> in a <ul> 1`] = `"<ul><li>only</li></ul>"`;
-
-exports[`Lift nested lists > Wraps bare <li>s mixed with other top-level content 1`] = `"<p>before</p><ul><li>x</li><li>y</li></ul><p>after</p>"`;
-
-exports[`Lift nested lists > Wraps consecutive bare <li> elements in a <ul> 1`] = `"<ul><li>a</li><li>b</li></ul>"`;
-
-exports[`Lift nested lists > Wraps nested orphan <li>s as inner lists 1`] = `"<ul><li>outer</li><li>inner</li></ul>"`;

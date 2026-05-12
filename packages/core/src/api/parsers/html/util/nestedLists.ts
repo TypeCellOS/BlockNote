@@ -7,61 +7,6 @@ function isWhitespaceNode(node: Node) {
 }
 
 /**
- * Step 0, wraps any `<li>` element that is not inside a `<ul>`/`<ol>` in a
- * fresh `<ul>` so the existing parse rules (which require an `<ul>`/`<ol>`
- * parent) match. Consecutive orphan `<li>` siblings are grouped under a
- * single `<ul>`.
- *
- * Without this, pasting bare `<li>a</li><li>b</li>` HTML would parse as two
- * paragraphs because the BulletListItem parse rule only matches `<li>`
- * whose parent is `<ul>`.
- */
-function wrapOrphanListItems(element: HTMLElement) {
-  const orphans = Array.from(element.querySelectorAll("li")).filter(
-    (li) => li.closest("ul, ol") === null,
-  );
-  const orphanSet: Set<Element> = new Set(orphans);
-  const handled = new Set<Element>();
-
-  for (const orphan of orphans) {
-    if (handled.has(orphan)) {
-      continue;
-    }
-
-    const group: Element[] = [orphan];
-    handled.add(orphan);
-
-    // Walk siblings via nextSibling (not nextElementSibling) so we can stop
-    // at meaningful text between orphans — only whitespace text is allowed
-    // to bridge two orphan <li>s into the same <ul>.
-    let next: Node | null = orphan.nextSibling;
-    while (next) {
-      if (isWhitespaceNode(next)) {
-        next = next.nextSibling;
-        continue;
-      }
-      if (
-        next.nodeType === 1 &&
-        (next as Element).tagName === "LI" &&
-        orphanSet.has(next as Element)
-      ) {
-        group.push(next as Element);
-        handled.add(next as Element);
-        next = next.nextSibling;
-        continue;
-      }
-      break;
-    }
-
-    const ul = orphan.ownerDocument.createElement("ul");
-    orphan.parentNode!.insertBefore(ul, orphan);
-    for (const li of group) {
-      ul.appendChild(li);
-    }
-  }
-}
-
-/**
  * Step 1, Turns:
  *
  * <ul>
@@ -172,7 +117,6 @@ export function nestedListsToBlockNoteStructure(
     element.innerHTML = elementOrHTML;
     elementOrHTML = element;
   }
-  wrapOrphanListItems(elementOrHTML);
   liftNestedListsToParent(elementOrHTML);
   createGroups(elementOrHTML);
   return elementOrHTML;
