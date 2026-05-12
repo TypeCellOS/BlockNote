@@ -55,3 +55,85 @@ describe("Test moveBlocksDown", () => {
     expect(getEditor().document).toMatchSnapshot();
   });
 });
+
+// Regression tests for https://github.com/TypeCellOS/BlockNote/issues/2594:
+// when a column contains only a single block, moving that block out of the
+// column triggers `fixColumnList` to collapse the columnList, which used to
+// invalidate the destination `referenceBlock`.
+describe("Test moveBlocks with single-block columns", () => {
+  it("Move out of a single-block column does not throw", () => {
+    const editor = getEditor();
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "column-list-single",
+        type: "columnList",
+        children: [
+          {
+            id: "column-a",
+            type: "column",
+            children: [
+              {
+                id: "only-paragraph-a",
+                type: "paragraph",
+                content: "A",
+              },
+            ],
+          },
+          {
+            id: "column-b",
+            type: "column",
+            children: [
+              {
+                id: "only-paragraph-b",
+                type: "paragraph",
+                content: "B",
+              },
+            ],
+          },
+        ],
+      },
+      { id: "below", type: "paragraph", content: "below" },
+    ]);
+    editor.setTextCursorPosition("only-paragraph-a");
+
+    expect(() => editor.moveBlocksUp()).not.toThrow();
+  });
+
+  it("Move out of a single-block column when columnList is preceded by a sibling", () => {
+    const editor = getEditor();
+    editor.replaceBlocks(editor.document, [
+      { id: "above", type: "paragraph", content: "above" },
+      {
+        id: "column-list-single-2",
+        type: "columnList",
+        children: [
+          {
+            id: "column-c",
+            type: "column",
+            children: [
+              {
+                id: "only-paragraph-c",
+                type: "paragraph",
+                content: "C",
+              },
+            ],
+          },
+          {
+            id: "column-d",
+            type: "column",
+            children: [
+              {
+                id: "only-paragraph-d",
+                type: "paragraph",
+                content: "D",
+              },
+            ],
+          },
+        ],
+      },
+    ]);
+    editor.setTextCursorPosition("only-paragraph-c");
+
+    expect(() => editor.moveBlocksUp()).not.toThrow();
+  });
+});
