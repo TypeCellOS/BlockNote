@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { TextSelection } from "prosemirror-state";
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { SuggestionMenu } from "./SuggestionMenu.js";
@@ -186,6 +187,62 @@ describe("SuggestionMenu", () => {
     expect(pluginState).toBeDefined();
     expect(pluginState.triggerCharacter).toBe("@");
 
+    editor._tiptapEditor.destroy();
+  });
+
+  it("should keep suggestion menu open during IME composition", () => {
+    const editor = createEditor();
+    const sm = editor.getExtension(SuggestionMenu)!;
+
+    sm.addSuggestionMenu({ triggerCharacter: "@" });
+
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "paragraph-0",
+        type: "paragraph",
+        content: "Hello world",
+      },
+    ]);
+
+    editor.setTextCursorPosition("paragraph-0", "end");
+    expect(simulateTextInput(editor, "@")).toBe(true);
+
+    const view = editor.prosemirrorView;
+    let composing = true;
+    Object.defineProperty(view, "composing", {
+      configurable: true,
+      get: () => composing,
+    });
+
+    view.dispatch(view.state.tr.insertText("shi"));
+
+    let pluginState = getSuggestionPluginState(editor);
+    expect(pluginState).toBeDefined();
+    expect(pluginState.query).toBe("shi");
+    expect(pluginState.composing).toBe(true);
+
+    const cursor = view.state.selection.from;
+    view.dispatch(
+      view.state.tr.setSelection(
+        TextSelection.create(view.state.doc, cursor - 1, cursor),
+      ),
+    );
+
+    pluginState = getSuggestionPluginState(editor);
+    expect(pluginState).toBeDefined();
+    expect(pluginState.query).toBe("shi");
+
+    composing = false;
+    view.dispatch(
+      view.state.tr.setSelection(TextSelection.create(view.state.doc, cursor)),
+    );
+
+    pluginState = getSuggestionPluginState(editor);
+    expect(pluginState).toBeDefined();
+    expect(pluginState.query).toBe("shi");
+    expect(pluginState.composing).toBe(false);
+
+    delete (view as any).composing;
     editor._tiptapEditor.destroy();
   });
 });
