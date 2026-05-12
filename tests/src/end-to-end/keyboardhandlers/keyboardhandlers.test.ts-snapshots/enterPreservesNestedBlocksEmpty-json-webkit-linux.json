@@ -25,7 +25,7 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": "4"
+            "id": "3"
           },
           "content": [
             {
@@ -88,22 +88,6 @@
                   ]
                 }
               ]
-            }
-          ]
-        },
-        {
-          "type": "blockContainer",
-          "attrs": {
-            "id": "3"
-          },
-          "content": [
-            {
-              "type": "paragraph",
-              "attrs": {
-                "backgroundColor": "default",
-                "textColor": "default",
-                "textAlignment": "left"
-              }
             }
           ]
         }

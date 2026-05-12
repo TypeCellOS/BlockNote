@@ -121,9 +121,6 @@ export default function App() {
         content:
           "Highlight some text to open the Formatting Toolbar and change the font elsewhere",
       },
-      {
-        type: "paragraph",
-      },
     ],
   });
 

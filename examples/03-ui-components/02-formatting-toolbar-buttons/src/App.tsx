@@ -104,9 +104,6 @@ export default function App() {
         content:
           "Notice that the buttons don't appear when the image block above is selected, as it has no inline content.",
       },
-      {
-        type: "paragraph",
-      },
     ],
   });
 

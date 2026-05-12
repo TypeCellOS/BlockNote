@@ -35,9 +35,6 @@ export default function App() {
         type: "paragraph",
         content: "Click it to remove the hovered block",
       },
-      {
-        type: "paragraph",
-      },
     ],
   });
 

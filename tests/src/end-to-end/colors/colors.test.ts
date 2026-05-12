@@ -23,13 +23,16 @@ test.describe("Check Background & Text Color Functionality", () => {
     await focusOnEditor(page);
 
     await insertHeading(page, 1);
+    await page.keyboard.press("Enter");
     await insertHeading(page, 2);
+    await page.keyboard.press("Enter");
     await insertHeading(page, 3);
 
+    await page.waitForTimeout(500);
+
     await page.keyboard.press("ArrowUp");
-    await page.keyboard.press("ArrowUp");
-    await page.keyboard.press("Control+ArrowLeft");
-    await page.keyboard.press("Control+Shift+ArrowRight");
+    await page.keyboard.press("ControlOrMeta+ArrowLeft");
+    await page.keyboard.press("ControlOrMeta+Shift+ArrowRight");
 
     await page.locator(COLORS_BUTTON_SELECTOR).click();
     await page.locator(TEXT_COLOR_SELECTOR("red")).click();
@@ -45,12 +48,13 @@ test.describe("Check Background & Text Color Functionality", () => {
     await focusOnEditor(page);
 
     await insertHeading(page, 1);
+    await page.keyboard.press("Enter");
     await insertHeading(page, 2);
+    await page.keyboard.press("Enter");
     await insertHeading(page, 3);
 
     await page.keyboard.press("ArrowUp");
-    await page.keyboard.press("ArrowUp");
-    await page.keyboard.press("Control+ArrowLeft");
+    await page.keyboard.press("ControlOrMeta+ArrowLeft");
     await page.keyboard.press("Control+Shift+ArrowRight");
 
     await page.locator(COLORS_BUTTON_SELECTOR).click();
@@ -67,10 +71,14 @@ test.describe("Check Background & Text Color Functionality", () => {
     await focusOnEditor(page);
 
     await insertHeading(page, 1);
+    await page.keyboard.press("Enter");
     await insertHeading(page, 2);
-    await page.keyboard.press("Tab");
+    await page.keyboard.press("Enter");
     await insertParagraph(page);
+    await page.keyboard.press("Tab");
+    await page.keyboard.press("Enter");
     await insertHeading(page, 3);
+    await page.keyboard.press("Shift+Tab");
 
     await page.hover(H_TWO_BLOCK_SELECTOR);
     await page.click(DRAG_HANDLE_SELECTOR);
@@ -91,10 +99,14 @@ test.describe("Check Background & Text Color Functionality", () => {
     await focusOnEditor(page);
 
     await insertHeading(page, 1);
+    await page.keyboard.press("Enter");
     await insertHeading(page, 2);
-    await page.keyboard.press("Tab");
+    await page.keyboard.press("Enter");
     await insertParagraph(page);
+    await page.keyboard.press("Tab");
+    await page.keyboard.press("Enter");
     await insertHeading(page, 3);
+    await page.keyboard.press("Shift+Tab");
 
     await page.hover(H_TWO_BLOCK_SELECTOR);
     await page.click(DRAG_HANDLE_SELECTOR);

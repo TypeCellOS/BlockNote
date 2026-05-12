@@ -16,15 +16,4 @@
     },
     "type": "paragraph",
   },
-  {
-    "children": [],
-    "content": [],
-    "id": "1",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
 ]

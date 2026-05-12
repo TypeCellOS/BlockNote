@@ -18,10 +18,11 @@ test.describe("Check Text Alignment Functionality", () => {
     await focusOnEditor(page);
 
     await insertHeading(page, 1);
+    await page.keyboard.press("Enter");
     await insertHeading(page, 2);
+    await page.keyboard.press("Enter");
     await insertHeading(page, 3);
 
-    await page.keyboard.press("ArrowUp");
     await page.keyboard.press("ArrowUp");
     await page.keyboard.press("Control+ArrowLeft");
     await page.keyboard.press("Shift+ArrowRight");
@@ -42,10 +43,11 @@ test.describe("Check Text Alignment Functionality", () => {
     await focusOnEditor(page);
 
     await insertHeading(page, 1);
+    await page.keyboard.press("Enter");
     await insertHeading(page, 2);
+    await page.keyboard.press("Enter");
     await insertHeading(page, 3);
 
-    await page.keyboard.press("ArrowUp");
     await page.keyboard.press("ArrowUp");
     await page.keyboard.press("ArrowUp");
     await page.keyboard.press("Control+ArrowLeft");
@@ -59,7 +61,6 @@ test.describe("Check Text Alignment Functionality", () => {
     // Waits for formatting toolbar animation to finish.
     await page.waitForTimeout(500);
     await page.keyboard.press("ArrowLeft");
-    await page.pause();
 
     expect(await page.screenshot()).toMatchSnapshot(
       "alignTextMultipleBlocks.png",

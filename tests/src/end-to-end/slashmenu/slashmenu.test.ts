@@ -107,12 +107,12 @@ test.describe("Check SlashMenu Functionality", () => {
     await executeSlashCommand(page, "h1");
     await page.waitForSelector(H_ONE_BLOCK_SELECTOR);
     // If done correctly there should be a total on 2 block groups
-    // a total of 4 blocks and the 3rd block should have no blockgroup
+    // a total of 3 blocks and the 3rd block should have no blockgroup
     // and BLOCK_A should have one child
     const blockGroupCount = await page.locator(BLOCK_GROUP_SELECTOR).count();
     expect(blockGroupCount).toBe(2);
     const blockCount = await page.locator(BLOCK_CONTAINER_SELECTOR).count();
-    expect(blockCount).toBe(4);
+    expect(blockCount).toBe(3);
     const thirdBlock = page.locator(BLOCK_CONTAINER_SELECTOR).nth(2);
     await thirdBlock
       .locator(BLOCK_GROUP_SELECTOR)

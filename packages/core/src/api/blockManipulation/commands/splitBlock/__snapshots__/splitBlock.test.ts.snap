@@ -574,7 +574,7 @@ exports[`Test splitBlocks > Basic 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -1159,7 +1159,7 @@ exports[`Test splitBlocks > Block has children 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -1744,7 +1744,7 @@ exports[`Test splitBlocks > Don't keep props 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -2329,7 +2329,7 @@ exports[`Test splitBlocks > Don't keep type 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -2908,7 +2908,7 @@ exports[`Test splitBlocks > End of content 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -3495,7 +3495,7 @@ exports[`Test splitBlocks > Keep type 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",

@@ -22,9 +22,6 @@ export default function App() {
         content:
           "Press the '/' key - the hovered Slash Menu items are also blue",
       },
-      {
-        type: "paragraph",
-      },
     ],
   });
 

@@ -46,22 +46,6 @@
               }
             }
           ]
-        },
-        {
-          "type": "blockContainer",
-          "attrs": {
-            "id": "2"
-          },
-          "content": [
-            {
-              "type": "paragraph",
-              "attrs": {
-                "backgroundColor": "default",
-                "textColor": "default",
-                "textAlignment": "left"
-              }
-            }
-          ]
         }
       ]
     }

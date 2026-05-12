@@ -26,9 +26,6 @@ export default function App() {
         type: "paragraph",
         content: "This is a paragraph block",
       },
-      {
-        type: "paragraph",
-      },
     ],
   });
 

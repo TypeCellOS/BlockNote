@@ -53,9 +53,6 @@ export default function App() {
         type: "paragraph",
         content: "It's been replaced with a custom component",
       },
-      {
-        type: "paragraph",
-      },
     ],
   });
 

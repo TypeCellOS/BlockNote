@@ -540,7 +540,7 @@ exports[`Test mergeBlocks > Basic 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -1091,7 +1091,7 @@ exports[`Test mergeBlocks > Blocks have different types 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -1642,7 +1642,7 @@ exports[`Test mergeBlocks > First block has children 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -2192,7 +2192,7 @@ exports[`Test mergeBlocks > Second block has children 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -2749,7 +2749,7 @@ exports[`Test mergeBlocks > Second block is empty 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",

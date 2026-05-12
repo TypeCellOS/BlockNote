@@ -31,7 +31,7 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": "2"
+            "id": "1"
           },
           "content": [
             {
@@ -56,7 +56,7 @@
                 {
                   "type": "blockContainer",
                   "attrs": {
-                    "id": "3"
+                    "id": "2"
                   },
                   "content": [
                     {
@@ -81,7 +81,7 @@
                         {
                           "type": "blockContainer",
                           "attrs": {
-                            "id": "4"
+                            "id": "3"
                           },
                           "content": [
                             {
@@ -107,7 +107,7 @@
                 {
                   "type": "blockContainer",
                   "attrs": {
-                    "id": "5"
+                    "id": "4"
                   },
                   "content": [
                     {
@@ -129,7 +129,7 @@
                 {
                   "type": "blockContainer",
                   "attrs": {
-                    "id": "6"
+                    "id": "5"
                   },
                   "content": [
                     {
@@ -151,7 +151,7 @@
                 {
                   "type": "blockContainer",
                   "attrs": {
-                    "id": "7"
+                    "id": "6"
                   },
                   "content": [
                     {
@@ -171,22 +171,6 @@
                   ]
                 }
               ]
-            }
-          ]
-        },
-        {
-          "type": "blockContainer",
-          "attrs": {
-            "id": "1"
-          },
-          "content": [
-            {
-              "type": "paragraph",
-              "attrs": {
-                "backgroundColor": "default",
-                "textColor": "default",
-                "textAlignment": "left"
-              }
             }
           ]
         }
