@@ -123,29 +123,14 @@ function updateBlockSelectionFromData(
   tr.setSelection(selection);
 }
 
-/**
- * Replaces any `columnList` blocks with the children of their columns. This is
- * done here instead of in `getSelection` as we still need to remove the entire
- * `columnList` node but only insert the `blockContainer` nodes inside it.
- * @param blocks The blocks to flatten.
- */
+// Replaces top-level `column` blocks with their children, as a `column` is not
+// a valid block outside a `columnList`. Other blocks are returned as-is.
 function flattenColumns(
   blocks: Block<any, any, any>[],
 ): Block<any, any, any>[] {
-  return blocks
-    .map((block) => {
-      if (block.type === "columnList") {
-        return block.children
-          .map((column) => flattenColumns(column.children))
-          .flat();
-      }
-
-      return {
-        ...block,
-        children: flattenColumns(block.children),
-      };
-    })
-    .flat();
+  return blocks.flatMap((block) =>
+    block.type === "column" ? block.children : [block],
+  );
 }
 
 /**
@@ -164,6 +149,21 @@ export function moveBlocks(
   placement: "before" | "after",
 ) {
   editor.transact(() => {
+    // A `columnList` reference can be dissolved by `fixColumnList` when its
+    // `column`s are removed, leaving its ID invalid for re-insertion. Anchor
+    // to an adjacent block instead, which is unaffected by the removal.
+    const refBlock = editor.getBlock(referenceBlock);
+    if (refBlock?.type === "columnList") {
+      const adjacent =
+        placement === "after"
+          ? editor.getNextBlock(refBlock)
+          : editor.getPrevBlock(refBlock);
+      if (adjacent) {
+        referenceBlock = adjacent;
+        placement = placement === "after" ? "before" : "after";
+      }
+    }
+
     editor.removeBlocks(blocks);
     editor.insertBlocks(flattenColumns(blocks), referenceBlock, placement);
   });
