@@ -1,5 +1,5 @@
 import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
-import { FC, useCallback, useEffect } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 
 import { useBlockNoteContext } from "../../editor/BlockNoteContext.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
@@ -32,6 +32,7 @@ export function SuggestionMenuWrapper<Item>(props: {
     closeMenu,
     onItemClick,
   } = props;
+  const [isComposing, setIsComposing] = useState(false);
 
   const onItemClickCloseMenu = useCallback(
     (item: Item) => {
@@ -47,7 +48,7 @@ export function SuggestionMenuWrapper<Item>(props: {
     getItems,
   );
 
-  useCloseSuggestionMenuNoItems(items, usedQuery, closeMenu);
+  useCloseSuggestionMenuNoItems(items, usedQuery, closeMenu, 3, isComposing);
 
   const { selectedIndex } = useSuggestionMenuKeyboardNavigation(
     editor,
@@ -69,6 +70,57 @@ export function SuggestionMenuWrapper<Item>(props: {
         "aria-expanded": false,
         "aria-controls": undefined,
       }));
+    };
+  }, [setContentEditableProps]);
+
+  useEffect(() => {
+    let previousCompositionStart:
+      | ((event: CompositionEvent) => void)
+      | undefined;
+    let previousCompositionEnd: ((event: CompositionEvent) => void) | undefined;
+
+    const handleCompositionStart = (event: CompositionEvent) => {
+      previousCompositionStart?.(event);
+      setIsComposing(true);
+    };
+    const handleCompositionEnd = (event: CompositionEvent) => {
+      previousCompositionEnd?.(event);
+      setIsComposing(false);
+    };
+
+    setContentEditableProps((p = {}) => {
+      previousCompositionStart = p.onCompositionStart;
+      previousCompositionEnd = p.onCompositionEnd;
+
+      return {
+        ...p,
+        onCompositionStart: handleCompositionStart,
+        onCompositionEnd: handleCompositionEnd,
+      };
+    });
+
+    return () => {
+      setContentEditableProps((p = {}) => {
+        const next = { ...p };
+
+        if (next.onCompositionStart === handleCompositionStart) {
+          if (previousCompositionStart) {
+            next.onCompositionStart = previousCompositionStart;
+          } else {
+            delete next.onCompositionStart;
+          }
+        }
+
+        if (next.onCompositionEnd === handleCompositionEnd) {
+          if (previousCompositionEnd) {
+            next.onCompositionEnd = previousCompositionEnd;
+          } else {
+            delete next.onCompositionEnd;
+          }
+        }
+
+        return next;
+      });
     };
   }, [setContentEditableProps]);
 
