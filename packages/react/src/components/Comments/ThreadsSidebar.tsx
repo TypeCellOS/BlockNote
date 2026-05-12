@@ -13,6 +13,7 @@ type ThreadItemProps = {
   editor: BlockNoteEditor<any, any, any>;
   maxCommentsBeforeCollapse?: number;
   referenceText: string;
+  orphaned?: boolean;
 };
 
 /**
@@ -25,6 +26,7 @@ const ThreadItem = React.memo(
     selectedThreadId,
     maxCommentsBeforeCollapse,
     referenceText,
+    orphaned,
   }: ThreadItemProps) => {
     const comments = useExtension(CommentsExtension);
 
@@ -76,6 +78,7 @@ const ThreadItem = React.memo(
       <Thread
         thread={thread}
         selected={thread.id === selectedThreadId}
+        orphaned={orphaned}
         referenceText={referenceText}
         maxCommentsBeforeCollapse={maxCommentsBeforeCollapse}
         onFocus={onFocus}
@@ -206,27 +209,30 @@ export function ThreadsSidebar(props: {
       threadPositions,
     );
 
-    const ret: Array<{ thread: ThreadData; referenceText: string }> = [];
+    const ret: Array<{
+      thread: ThreadData;
+      referenceText: string;
+      orphaned: boolean;
+    }> = [];
 
     for (const thread of sortedThreads) {
+      const threadPosition = threadPositions.get(thread.id);
+      const orphaned = threadPosition === undefined;
+
       if (!thread.resolved) {
         if (props.filter === "open" || props.filter === "all") {
           ret.push({
             thread,
-            referenceText: getReferenceText(
-              editor,
-              threadPositions.get(thread.id),
-            ),
+            referenceText: getReferenceText(editor, threadPosition),
+            orphaned,
           });
         }
       } else {
         if (props.filter === "resolved" || props.filter === "all") {
           ret.push({
             thread,
-            referenceText: getReferenceText(
-              editor,
-              threadPositions.get(thread.id),
-            ),
+            referenceText: getReferenceText(editor, threadPosition),
+            orphaned,
           });
         }
       }
@@ -244,6 +250,7 @@ export function ThreadsSidebar(props: {
           selectedThreadId={selectedThreadId}
           editor={editor}
           referenceText={thread.referenceText}
+          orphaned={thread.orphaned}
           maxCommentsBeforeCollapse={props.maxCommentsBeforeCollapse}
         />
       ))}
