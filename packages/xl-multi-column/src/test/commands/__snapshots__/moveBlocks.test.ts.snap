@@ -649,17 +649,6 @@ exports[`Test moveBlocksDown > Selection across columns 1`] = `
     },
     "type": "paragraph",
   },
-  {
-    "children": [],
-    "content": [],
-    "id": "trailing-paragraph",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
 ]
 `;
 
@@ -693,17 +682,6 @@ exports[`Test moveBlocksDown > Selection spans column list 1`] = `
       },
     ],
     "id": "paragraph-0",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "trailing-paragraph",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -841,17 +819,6 @@ exports[`Test moveBlocksDown > Selection spans column list 1`] = `
     },
     "type": "paragraph",
   },
-  {
-    "children": [],
-    "content": [],
-    "id": "0",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
 ]
 `;
 
@@ -910,83 +877,100 @@ exports[`Test moveBlocksDown > Selection starts in column, ends outside 1`] = `
     "type": "paragraph",
   },
   {
-    "children": [],
-    "content": [
+    "children": [
       {
-        "styles": {},
-        "text": "Column Paragraph 0",
-        "type": "text",
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 0",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-0",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 1",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-1",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "column-0",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 2",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-2",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 3",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-3",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "column-1",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
       },
     ],
-    "id": "column-paragraph-0",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "Column Paragraph 1",
-        "type": "text",
-      },
-    ],
-    "id": "column-paragraph-1",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "trailing-paragraph",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "Column Paragraph 2",
-        "type": "text",
-      },
-    ],
-    "id": "column-paragraph-2",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "Column Paragraph 3",
-        "type": "text",
-      },
-    ],
-    "id": "column-paragraph-3",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
+    "content": undefined,
+    "id": "column-list-0",
+    "props": {},
+    "type": "columnList",
   },
   {
     "children": [],
@@ -998,17 +982,6 @@ exports[`Test moveBlocksDown > Selection starts in column, ends outside 1`] = `
       },
     ],
     "id": "paragraph-2",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "0",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -1074,83 +1047,100 @@ exports[`Test moveBlocksDown > Selection starts in first column, ends outside 1`
     "type": "paragraph",
   },
   {
-    "children": [],
-    "content": [
+    "children": [
       {
-        "styles": {},
-        "text": "Column Paragraph 0",
-        "type": "text",
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 0",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-0",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 1",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-1",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "column-0",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 2",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-2",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 3",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-3",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "column-1",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
       },
     ],
-    "id": "column-paragraph-0",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "trailing-paragraph",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "Column Paragraph 1",
-        "type": "text",
-      },
-    ],
-    "id": "column-paragraph-1",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "Column Paragraph 2",
-        "type": "text",
-      },
-    ],
-    "id": "column-paragraph-2",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "Column Paragraph 3",
-        "type": "text",
-      },
-    ],
-    "id": "column-paragraph-3",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
+    "content": undefined,
+    "id": "column-list-0",
+    "props": {},
+    "type": "columnList",
   },
   {
     "children": [],
@@ -1162,17 +1152,6 @@ exports[`Test moveBlocksDown > Selection starts in first column, ends outside 1`
       },
     ],
     "id": "paragraph-2",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "0",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -1350,17 +1329,6 @@ exports[`Test moveBlocksDown > Selection starts outside, ends in column 1`] = `
     "props": {},
     "type": "columnList",
   },
-  {
-    "children": [],
-    "content": [],
-    "id": "trailing-paragraph",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
 ]
 `;
 
@@ -1530,17 +1498,6 @@ exports[`Test moveBlocksDown > Selection starts outside, ends in second column 1
     "id": "column-list-0",
     "props": {},
     "type": "columnList",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "trailing-paragraph",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
   },
 ]
 `;
@@ -2194,17 +2151,6 @@ exports[`Test moveBlocksUp > Selection across columns 1`] = `
     },
     "type": "paragraph",
   },
-  {
-    "children": [],
-    "content": [],
-    "id": "trailing-paragraph",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
 ]
 `;
 
@@ -2375,17 +2321,6 @@ exports[`Test moveBlocksUp > Selection spans column list 1`] = `
     },
     "type": "paragraph",
   },
-  {
-    "children": [],
-    "content": [],
-    "id": "trailing-paragraph",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
 ]
 `;
 
@@ -2528,17 +2463,6 @@ exports[`Test moveBlocksUp > Selection starts in column, ends outside 1`] = `
     },
     "type": "paragraph",
   },
-  {
-    "children": [],
-    "content": [],
-    "id": "trailing-paragraph",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
 ]
 `;
 
@@ -2674,17 +2598,6 @@ exports[`Test moveBlocksUp > Selection starts in first column, ends outside 1`] 
       },
     ],
     "id": "column-paragraph-0",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "trailing-paragraph",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -2862,17 +2775,6 @@ exports[`Test moveBlocksUp > Selection starts outside, ends in column 1`] = `
     },
     "type": "paragraph",
   },
-  {
-    "children": [],
-    "content": [],
-    "id": "trailing-paragraph",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
 ]
 `;
 
@@ -3036,17 +2938,6 @@ exports[`Test moveBlocksUp > Selection starts outside, ends in second column 1`]
       },
     ],
     "id": "paragraph-2",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "trailing-paragraph",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",

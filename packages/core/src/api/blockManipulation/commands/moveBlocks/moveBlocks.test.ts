@@ -330,7 +330,7 @@ describe("Test moveBlocksDown", () => {
   });
 
   it("Explicit block argument moves the given block", () => {
-    getEditor().setTextCursorPosition("trailing-paragraph");
+    getEditor().setTextCursorPosition("paragraph-9");
 
     moveBlocksDown(getEditor(), "paragraph-0");
 

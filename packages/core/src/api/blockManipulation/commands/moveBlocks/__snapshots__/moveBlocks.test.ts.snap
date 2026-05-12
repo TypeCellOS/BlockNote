@@ -1125,7 +1125,7 @@ exports[`Test moveBlocksDown > Explicit block argument moves the given block 1`]
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -1692,7 +1692,7 @@ exports[`Test moveBlocksDown > Explicit block argument with nested block 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -7937,7 +7937,7 @@ exports[`Test moveBlocksUp > Explicit block argument moves the given block 1`] =
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -8504,7 +8504,7 @@ exports[`Test moveBlocksUp > Explicit block argument with nested block 1`] = `
   {
     "children": [],
     "content": [],
-    "id": "trailing-paragraph",
+    "id": "paragraph-9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
