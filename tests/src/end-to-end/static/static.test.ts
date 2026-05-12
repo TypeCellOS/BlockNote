@@ -18,6 +18,11 @@ test.describe("Check static rendering", () => {
   }) => {
     await page.goto(BASIC_BLOCKS_URL);
     await page.waitForLoadState("networkidle");
+    // Hide the trailing block widget so the live editor's page height matches
+    // the static export, which doesn't render it.
+    await page.addStyleTag({
+      content: ".bn-trailing-block { display: none !important; }",
+    });
     expect(
       await page.screenshot({
         fullPage: true,
@@ -27,10 +32,6 @@ test.describe("Check static rendering", () => {
           // across test runs.
           await page.locator("video"),
           await page.locator("audio"),
-          // Mask fil block captions as despite running in a container, there
-          // have been mismatches in plain string rendering when running tests
-          // locally vs on CI.
-          await page.locator(".bn-file-caption"),
           // Mask elements which we expect to be different between the live
           // editor and static screenshots.
           await page.locator('input[type="checkbox"]'),
@@ -52,7 +53,6 @@ test.describe("Check static rendering", () => {
         mask: [
           await page.locator("video"),
           await page.locator("audio"),
-          await page.locator(".bn-file-caption"),
           await page.locator('input[type="checkbox"]'),
           await page.locator(".bn-toggle-button"),
         ],
