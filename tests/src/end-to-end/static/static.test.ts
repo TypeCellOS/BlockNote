@@ -27,6 +27,10 @@ test.describe("Check static rendering", () => {
           // across test runs.
           await page.locator("video"),
           await page.locator("audio"),
+          // Mask fil block captions as despite running in a container, there
+          // have been mismatches in plain string rendering when running tests
+          // locally vs on CI.
+          await page.locator(".bn-file-caption"),
           // Mask elements which we expect to be different between the live
           // editor and static screenshots.
           await page.locator('input[type="checkbox"]'),
@@ -48,6 +52,7 @@ test.describe("Check static rendering", () => {
         mask: [
           await page.locator("video"),
           await page.locator("audio"),
+          await page.locator(".bn-file-caption"),
           await page.locator('input[type="checkbox"]'),
           await page.locator(".bn-toggle-button"),
         ],
