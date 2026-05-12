@@ -1,5 +1,7 @@
 import {
+  Block,
   blockHasType,
+  BlockNoteEditor,
   BlockSchema,
   defaultProps,
   DefaultProps,
@@ -10,6 +12,8 @@ import {
   TableContent,
 } from "@blocknote/core";
 import { TableHandlesExtension } from "@blocknote/core/extensions";
+import { TextSelection } from "@tiptap/pm/state";
+import { TableMap } from "@tiptap/pm/tables";
 import { useCallback, useMemo } from "react";
 import { IconType } from "react-icons";
 import {
@@ -28,6 +32,79 @@ import { useEditorState } from "../../../hooks/useEditorState.js";
 import { useDictionary } from "../../../i18n/dictionary.js";
 
 type TextAlignment = DefaultProps["textAlignment"];
+
+function getCellCursorOffset(tiptapEditor: { state: { selection: { $from: any } } }): number {
+  const { $from } = tiptapEditor.state.selection;
+  for (let d = $from.depth; d >= 0; d--) {
+    const role = $from.node(d).type.spec.tableRole as string | undefined;
+    if (role === "cell" || role === "header_cell") {
+      return $from.pos - $from.start(d);
+    }
+  }
+  return 0;
+}
+
+function restoreTableCellCursor(
+  tiptapEditor: { state: any; view: any },
+  targetRow: number,
+  targetCol: number,
+  cellOffset: number,
+): void {
+  const { state, view } = tiptapEditor;
+  const { $from } = state.selection;
+  for (let d = $from.depth; d >= 0; d--) {
+    if ($from.node(d).type.name === "table") {
+      const tableMap = TableMap.get($from.node(d));
+      if (targetRow < tableMap.height && targetCol < tableMap.width) {
+        const cellPos = $from.start(d) + tableMap.map[targetRow * tableMap.width + targetCol];
+        view.dispatch(state.tr.setSelection(TextSelection.create(state.doc, cellPos + 1 + cellOffset)));
+      }
+      break;
+    }
+  }
+}
+
+function applyTextAlignmentToTableBlock(
+  editor: BlockNoteEditor<BlockSchema, InlineContentSchema, StyleSchema>,
+  block: Block<any, any, any>,
+  textAlignment: TextAlignment,
+): void {
+  const cellSelection = editor
+    .getExtension(TableHandlesExtension)
+    ?.getCellSelection();
+  if (!cellSelection) return;
+
+  const { row: targetRow, col: targetCol } = cellSelection.cells[0];
+  const savedCellOffset = getCellCursorOffset(editor._tiptapEditor);
+
+  const newTable = (block.content as TableContent<any, any>).rows.map(
+    (row) => ({
+      ...row,
+      cells: row.cells.map((cell) => mapTableCell(cell)),
+    }),
+  );
+
+  cellSelection.cells.forEach(({ row, col }) => {
+    if (!newTable[row]?.cells[col]) return;
+    newTable[row].cells[col] = {
+      ...newTable[row].cells[col],
+      props: { ...newTable[row].cells[col].props, textAlignment },
+    };
+  });
+
+  editor.updateBlock(block, {
+    type: "table",
+    content: {
+      ...(block.content as TableContent<any, any>),
+      type: "tableContent",
+      rows: newTable,
+    } as any,
+  });
+
+  editor.setTextCursorPosition(block);
+  restoreTableCellCursor(editor._tiptapEditor, targetRow, targetCol, savedCellOffset);
+  editor.focus();
+}
 
 const icons: Record<TextAlignment, IconType> = {
   left: RiAlignLeft,
@@ -123,41 +200,7 @@ export const TextAlignSelect = () => {
             props: { textAlignment },
           });
         } else if (block.type === "table") {
-          const cellSelection = editor
-            .getExtension(TableHandlesExtension)
-            ?.getCellSelection();
-          if (!cellSelection) {
-            continue;
-          }
-
-          const newTable = (block.content as TableContent<any, any>).rows.map(
-            (row) => ({
-              ...row,
-              cells: row.cells.map((cell) => mapTableCell(cell)),
-            }),
-          );
-
-          cellSelection.cells.forEach(({ row, col }) => {
-            if (!newTable[row]?.cells[col]) { return; }
-            newTable[row].cells[col] = {
-              ...newTable[row].cells[col],
-              props: {
-                ...newTable[row].cells[col].props,
-                textAlignment,
-              },
-            };
-          });
-
-          editor.updateBlock(block, {
-            type: "table",
-            content: {
-              ...(block.content as TableContent<any, any>),
-              type: "tableContent",
-              rows: newTable,
-            } as any,
-          });
-
-          editor.setTextCursorPosition(block);
+          applyTextAlignmentToTableBlock(editor, block, textAlignment);
         }
       }
     },
