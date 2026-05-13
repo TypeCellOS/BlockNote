@@ -122,6 +122,9 @@ export const imageRender =
     image.alt = block.props.name || "";
     image.contentEditable = "false";
     image.draggable = false;
+    if (block.props.previewWidth) {
+      image.width = block.props.previewWidth;
+    }
     imageWrapper.appendChild(image);
 
     return createResizableFileBlockWrapper(
