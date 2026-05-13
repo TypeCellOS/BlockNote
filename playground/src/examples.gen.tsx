@@ -893,6 +893,26 @@
           "slug": "ui-components"
         },
         "readme": "In this example, we filter and reorder the default Slash Menu items so that only the \"Basic blocks\" and \"Headings\" groups are shown, with \"Basic blocks\" appearing first.\n\n**Try it out:** Press the \"/\" key to open the Slash Menu and see the reordered groups!\n\n**Relevant Docs:**\n\n- [Item Grouping & Ordering](/docs/react/components/suggestion-menus)\n- [Changing Slash Menu Items](/docs/react/components/suggestion-menus)\n- [Editor Setup](/docs/getting-started/editor-setup)"
+      },
+      {
+        "projectSlug": "portal-elements",
+        "fullSlug": "ui-components/portal-elements",
+        "pathFromRoot": "examples/03-ui-components/20-portal-elements",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "nperez0111",
+          "tags": [
+            "UI Components",
+            "Advanced"
+          ]
+        },
+        "title": "Configuring Portal Targets per Element",
+        "group": {
+          "pathFromRoot": "examples/03-ui-components",
+          "slug": "ui-components"
+        },
+        "readme": "By default, BlockNote's floating UI elements (formatting toolbar, slash menu, table handles, etc.) mount inside the editor's `bn-container` element. The `portalElements` prop lets you change that — globally via `default`, or per element by key.\n\nIn this example we deliberately wrap the editor in a small parent with `overflow: hidden` so the global default of `bn-container` would clip the slash menu and the formatting toolbar. We escape only those two to `document.body`, while keeping `tableHandles` inside `.bn-container` so the table handles can never escape the editor's visual boundary.\n\n```tsx\n<BlockNoteView\n  editor={editor}\n  portalElements={{\n    slashMenu: document.body,\n    formattingToolbar: document.body,\n    tableHandles: \".bn-container\",\n  }}\n/>\n```\n\n**Relevant Docs:**\n\n- [UI Components](/docs/react/components)"
       }
     ]
   },

@@ -732,15 +732,27 @@ export class BlockNoteEditor<
   /**
    * Mount the editor to a DOM element.
    *
+   * @param element The DOM element to mount the editor's contenteditable into.
+   * @param options.portalTarget Where to mount `editor.portalElement` — the
+   *   container that floating UI (toolbars, menus, etc) portals into. When
+   *   omitted, defaults to `element.parentElement` (which is the editor's
+   *   `bn-container` in typical React usage), or to `document.body` /
+   *   the surrounding shadow root when no parent is available.
+   *
    * @warning Not needed to call manually when using React, use BlockNoteView to take care of mounting
    */
-  public mount = (element: HTMLElement) => {
+  public mount = (
+    element: HTMLElement,
+    options?: { portalTarget?: HTMLElement | null },
+  ) => {
     const root = element.getRootNode();
-    if (typeof ShadowRoot !== "undefined" && root instanceof ShadowRoot) {
-      root.appendChild(this.portalElement);
-    } else {
-      document.body.appendChild(this.portalElement);
-    }
+    const isInShadowRoot =
+      typeof ShadowRoot !== "undefined" && root instanceof ShadowRoot;
+    const target =
+      options?.portalTarget ??
+      element.parentElement ??
+      (isInShadowRoot ? (root as ShadowRoot) : document.body);
+    target.appendChild(this.portalElement);
     this._tiptapEditor.mount({ mount: element });
   };
 
