@@ -1,17 +1,13 @@
-# Configuring Portal Targets per Element
+# Configuring Portal Targets
 
-By default, BlockNote's floating UI elements (formatting toolbar, slash menu, table handles, etc.) mount inside the editor's `bn-container` element. The `portalElements` prop lets you change that — globally via `default`, or per element by key.
+By default, BlockNote's floating UI elements (formatting toolbar, slash menu, table handles, etc.) mount inside the editor's `bn-container`. The `portalElements` prop on `BlockNoteView` lets you change that — globally via `default`, or per element by key.
 
-In this example we deliberately wrap the editor in a small parent with `overflow: hidden` so the global default of `bn-container` would clip the slash menu and the formatting toolbar. We escape only those two to `document.body`, while keeping `tableHandles` inside `.bn-container` so the table handles can never escape the editor's visual boundary.
+This example renders two editors side-by-side, both wrapped in a small `overflow: hidden` container. The left editor uses the default — the slash menu is clipped by the editor's bounds. The right editor passes `portalElements={{ default: document.body }}` so floating UI escapes the wrapper and renders fully.
 
 ```tsx
 <BlockNoteView
   editor={editor}
-  portalElements={{
-    slashMenu: document.body,
-    formattingToolbar: document.body,
-    tableHandles: ".bn-container",
-  }}
+  portalElements={{ default: document.body }}
 />
 ```
 
