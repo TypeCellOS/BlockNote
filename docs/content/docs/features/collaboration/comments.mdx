@@ -16,24 +16,28 @@ To enable comments in your editor, you need to:
 - Optionally provide a schema for comments and comment editors to use. If left undefined, they will use the [default comment editor schema](https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/components/Comments/defaultCommentEditorSchema.ts). See [here](/docs/features/custom-schemas) to find out more about custom schemas.
 
 ```tsx
-const editor = useCreateBlockNote({
-  extensions: [
-    CommentsExtension({
-      // See below.
-      threadStore: ...,
-      // Return user information for the given userIds (see below).
-      resolveUsers: async (userIds: string[]) => { ... },
-      // Optional, can be left undefined
-      schema: BlockNoteSchema.create(...)
-    }),
+import { withCollaboration } from "@blocknote/core/yjs";
+
+const editor = useCreateBlockNote(
+  withCollaboration({
+    extensions: [
+      CommentsExtension({
+        // See below.
+        threadStore: ...,
+        // Return user information for the given userIds (see below).
+        resolveUsers: async (userIds: string[]) => { ... },
+        // Optional, can be left undefined
+        schema: BlockNoteSchema.create(...)
+      }),
+      ...
+    ],
+    collaboration: {
+      // See real-time collaboration docs
+      ...
+    },
     ...
-  ],
-  collaboration: {
-    // See real-time collaboration docs
-    ...
-  },
-  ...
-});
+  }),
+);
 ```
 
 **Demo**
@@ -50,7 +54,7 @@ BlockNote comes with several built-in ThreadStore implementations:
 The `YjsThreadStore` provides direct Yjs-based storage for comments, storing thread data directly in the Yjs document. This implementation is ideal for simple collaborative setups where all users have write access to the document.
 
 ```tsx
-import { YjsThreadStore } from "@blocknote/core/comments";
+import { YjsThreadStore } from "@blocknote/core/yjs";
 
 const threadStore = new YjsThreadStore(
   userId, // The active user's ID
@@ -68,10 +72,8 @@ The `RESTYjsThreadStore` combines Yjs storage with a REST API backend, providing
 In this implementation, data is written to the Yjs document via a REST API which can handle access control. Data is still retrieved from the Yjs document directly (after it's been updated by the REST API), this way all comment information automatically syncs between clients using the existing collaboration provider.
 
 ```tsx
-import {
-  RESTYjsThreadStore,
-  DefaultThreadStoreAuth,
-} from "@blocknote/core/comments";
+import { DefaultThreadStoreAuth } from "@blocknote/core/comments";
+import { RESTYjsThreadStore } from "@blocknote/core/yjs";
 
 const threadStore = new RESTYjsThreadStore(
   "https://api.example.com/comments", // Base URL for the REST API

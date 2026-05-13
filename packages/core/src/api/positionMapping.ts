@@ -1,40 +1,5 @@
-import { Mapping } from "prosemirror-transform";
-import {
-  absolutePositionToRelativePosition,
-  relativePositionToAbsolutePosition,
-  ySyncPluginKey,
-} from "y-prosemirror";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
-import * as Y from "yjs";
-import type { ProsemirrorBinding } from "y-prosemirror";
-
-/**
- * This is used to track a mapping for each editor. The mapping stores the mappings for each transaction since the first transaction that was tracked.
- */
-const editorToMapping = new Map<BlockNoteEditor<any, any, any>, Mapping>();
-
-/**
- * This initializes a single mapping for an editor instance.
- */
-function getMapping(editor: BlockNoteEditor<any, any, any>) {
-  if (editorToMapping.has(editor)) {
-    // Mapping already initialized, so we don't need to do anything
-    return editorToMapping.get(editor)!;
-  }
-  const mapping = new Mapping();
-  editor._tiptapEditor.on("transaction", ({ transaction }) => {
-    mapping.appendMapping(transaction.mapping);
-  });
-  editor._tiptapEditor.on("destroy", () => {
-    // Cleanup the mapping when the editor is destroyed
-    editorToMapping.delete(editor);
-  });
-
-  // There only is one mapping per editor, so we can just set it
-  editorToMapping.set(editor, mapping);
-
-  return mapping;
-}
+import type { PositionMappingExtension } from "../extensions/PositionMapping/PositionMapping.js";
 
 /**
  * This is used to keep track of positions of elements in the editor.
@@ -61,52 +26,17 @@ export function trackPosition(
    */
   side: "left" | "right" = "left",
 ): () => number {
-  const ySyncPluginState = ySyncPluginKey.getState(editor.prosemirrorState) as {
-    doc: Y.Doc;
-    binding: ProsemirrorBinding;
-  };
-
-  if (!ySyncPluginState) {
-    // No y-prosemirror sync plugin, so we need to track the mapping manually
-    // This will initialize the mapping for this editor, if needed
-    const mapping = getMapping(editor);
-
-    // This is the start point of tracking the mapping
-    const trackedMapLength = mapping.maps.length;
-
-    return () => {
-      const pos = mapping
-        // Only read the history of the mapping that we care about
-        .slice(trackedMapLength)
-        .map(position, side === "left" ? -1 : 1);
-
-      return pos;
-    };
+  // Try to use the Yjs Relative Position Mapping Extension
+  const yPositionMappingExtension =
+    editor.getExtension<typeof PositionMappingExtension>("yPositionMapping");
+  if (yPositionMappingExtension) {
+    return yPositionMappingExtension.mapPosition(position, side);
   }
-
-  const relativePosition = absolutePositionToRelativePosition(
-    // Track the position after the position if we are on the right side
-    position + (side === "right" ? 1 : -1),
-    ySyncPluginState.binding.type,
-    ySyncPluginState.binding.mapping,
-  );
-
-  return () => {
-    const curYSyncPluginState = ySyncPluginKey.getState(
-      editor.prosemirrorState,
-    ) as typeof ySyncPluginState;
-    const pos = relativePositionToAbsolutePosition(
-      curYSyncPluginState.doc,
-      curYSyncPluginState.binding.type,
-      relativePosition,
-      curYSyncPluginState.binding.mapping,
-    );
-
-    // This can happen if the element is garbage collected
-    if (pos === null) {
-      throw new Error("Position not found, cannot track positions");
-    }
-
-    return pos + (side === "right" ? -1 : 1);
-  };
+  // Fallback to the Prosemirror Position Mapping Extension
+  const positionMappingExtension =
+    editor.getExtension<typeof PositionMappingExtension>("positionMapping");
+  if (positionMappingExtension) {
+    return positionMappingExtension.mapPosition(position, side);
+  }
+  throw new Error("No position mapping extension found");
 }

@@ -23,14 +23,8 @@ export abstract class ThreadStore {
   abstract addThreadToDocument?(options: {
     threadId: string;
     selection: {
-      prosemirror: {
-        head: number;
-        anchor: number;
-      };
-      yjs?: {
-        head: any;
-        anchor: any;
-      };
+      head: number;
+      anchor: number;
     };
   }): Promise<void>;
 

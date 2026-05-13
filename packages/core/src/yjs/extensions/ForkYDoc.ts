@@ -5,7 +5,7 @@ import {
   createStore,
   ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
-import { CollaborationOptions } from "./Collaboration.js";
+import type { CollaborationOptions } from "./index.js";
 import { YCursorExtension } from "./YCursorPlugin.js";
 import { YSyncExtension } from "./YSync.js";
 import { YUndoExtension } from "./YUndo.js";

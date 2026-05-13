@@ -3,8 +3,9 @@
 import {
   CommentsExtension,
   DefaultThreadStoreAuth,
-  YjsThreadStore,
 } from "@blocknote/core/comments";
+import { withCollaboration, YjsThreadStore } from "@blocknote/core/yjs";
+
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
@@ -74,14 +75,14 @@ function Document() {
 
   // setup the editor with comments and collaboration
   const editor = useCreateBlockNote(
-    {
+    withCollaboration({
       collaboration: {
         provider,
         fragment: doc.getXmlFragment("blocknote"),
         user: { color: getRandomColor(), name: activeUser.username },
       },
       extensions: [CommentsExtension({ threadStore, resolveUsers })],
-    },
+    }),
     [activeUser, threadStore],
   );
 

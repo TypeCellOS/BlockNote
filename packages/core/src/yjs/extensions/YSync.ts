@@ -3,7 +3,7 @@ import {
   ExtensionOptions,
   createExtension,
 } from "../../editor/BlockNoteExtension.js";
-import { CollaborationOptions } from "./Collaboration.js";
+import type { CollaborationOptions } from "./index.js";
 
 export const YSyncExtension = createExtension(
   ({ options }: ExtensionOptions<Pick<CollaborationOptions, "fragment">>) => {

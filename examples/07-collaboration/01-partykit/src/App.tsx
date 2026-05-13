@@ -4,6 +4,7 @@ import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import YPartyKitProvider from "y-partykit/provider";
 import * as Y from "yjs";
+import { withCollaboration } from "@blocknote/core/yjs";
 
 // Sets up Yjs document and PartyKit Yjs provider.
 const doc = new Y.Doc();
@@ -15,19 +16,21 @@ const provider = new YPartyKitProvider(
 );
 
 export default function App() {
-  const editor = useCreateBlockNote({
-    collaboration: {
-      // The Yjs Provider responsible for transporting updates:
-      provider,
-      // Where to store BlockNote data in the Y.Doc:
-      fragment: doc.getXmlFragment("document-store"),
-      // Information (name and color) for this user:
-      user: {
-        name: "My Username",
-        color: "#ff0000",
+  const editor = useCreateBlockNote(
+    withCollaboration({
+      collaboration: {
+        // The Yjs Provider responsible for transporting updates:
+        provider,
+        // Where to store BlockNote data in the Y.Doc:
+        fragment: doc.getXmlFragment("document-store"),
+        // Information (name and color) for this user:
+        user: {
+          name: "My Username",
+          color: "#ff0000",
+        },
       },
-    },
-  });
+    }),
+  );
 
   // Renders the editor instance.
   return <BlockNoteView editor={editor} />;
