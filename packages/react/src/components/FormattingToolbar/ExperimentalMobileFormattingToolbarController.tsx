@@ -1,6 +1,6 @@
 import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 import { FormattingToolbarExtension } from "@blocknote/core/extensions";
-import { FC, CSSProperties, useMemo, useRef, useState, useEffect } from "react";
+import { FC, useRef, useEffect } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useExtensionState } from "../../hooks/useExtension.js";
@@ -8,15 +8,22 @@ import { FormattingToolbar } from "./FormattingToolbar.js";
 import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
 
 /**
- * Experimental formatting toolbar controller for mobile devices.
- * Uses Visual Viewport API to position the toolbar above the virtual keyboard.
+ * Flicker-free mobile formatting toolbar controller.
  *
- * Currently marked experimental due to the flickering issue with positioning cause by the use of the API (and likely a delay in its updates).
+ * Uses a CSS custom property (`--bn-mobile-keyboard-offset`) instead of React
+ * state to position the toolbar above the virtual keyboard.  This avoids the
+ * re-render storm that caused visible flickering in the previous implementation.
+ *
+ * Two-tier keyboard detection:
+ *  1. **VirtualKeyboard API** (Chrome / Edge 94+, Samsung Internet) — provides
+ *     exact keyboard geometry before the animation starts.
+ *  2. **Visual Viewport API fallback** (Safari iOS 13+, Firefox Android 68+) —
+ *     computes keyboard height from the difference between layout and visual
+ *     viewport, with focus-based prediction for instant initial positioning.
  */
 export const ExperimentalMobileFormattingToolbarController = (props: {
   formattingToolbar?: FC<FormattingToolbarProps>;
 }) => {
-  const [transform, setTransform] = useState<string>("none");
   const divRef = useRef<HTMLDivElement>(null);
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -28,60 +35,122 @@ export const ExperimentalMobileFormattingToolbarController = (props: {
     editor,
   });
 
-  const style = useMemo<CSSProperties>(() => {
-    return {
-      display: "flex",
-      position: "fixed",
-      bottom: 0,
-      zIndex: `calc(var(--bn-ui-base-z-index) + 40)`,
-      transform,
-    };
-  }, [transform]);
-
   useEffect(() => {
-    const viewport = window.visualViewport!;
-    function viewportHandler() {
-      // Calculate the offset necessary to set the toolbar above the virtual keyboard (using the offset info from the visualViewport)
-      const layoutViewport = document.body;
-      const offsetLeft = viewport.offsetLeft;
-      const offsetTop =
-        viewport.height -
-        layoutViewport.getBoundingClientRect().height +
-        viewport.offsetTop;
+    const el = divRef.current;
+    if (!el) return;
 
-      setTransform(
-        `translate(${offsetLeft}px, ${offsetTop}px) scale(${
-          1 / viewport.scale
-        })`,
+    const setOffset = (px: number) => {
+      el.style.setProperty(
+        "--bn-mobile-keyboard-offset",
+        px > 0 ? `${px}px` : "0px",
       );
-    }
-    window.visualViewport!.addEventListener("scroll", viewportHandler);
-    window.visualViewport!.addEventListener("resize", viewportHandler);
-    viewportHandler();
+    };
 
+    let scrollTimer: ReturnType<typeof setTimeout>;
+
+    const scrollSelectionIntoView = () => {
+      const sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return;
+      const rect = sel.getRangeAt(0).getBoundingClientRect();
+      const vp = window.visualViewport;
+      if (!vp) return;
+      const toolbarHeight = el.getBoundingClientRect().height || 44;
+      const visibleBottom = vp.offsetTop + vp.height - toolbarHeight;
+      if (rect.bottom > visibleBottom) {
+        window.scrollBy({
+          top: rect.bottom - visibleBottom + 16,
+          behavior: "smooth",
+        });
+      } else if (rect.top < vp.offsetTop) {
+        window.scrollBy({
+          top: rect.top - vp.offsetTop - 16,
+          behavior: "smooth",
+        });
+      }
+    };
+
+    // Tier 1: VirtualKeyboard API (Chrome/Edge 94+) — exact geometry, no delay
+    const vk = (navigator as any).virtualKeyboard;
+    if (vk) {
+      vk.overlaysContent = true;
+      const onGeometryChange = () => {
+        setOffset(vk.boundingRect.height);
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(scrollSelectionIntoView, 100);
+      };
+      vk.addEventListener("geometrychange", onGeometryChange);
+      const onSelectionChange = () => scrollSelectionIntoView();
+      document.addEventListener("selectionchange", onSelectionChange);
+      return () => {
+        vk.removeEventListener("geometrychange", onGeometryChange);
+        document.removeEventListener("selectionchange", onSelectionChange);
+        clearTimeout(scrollTimer);
+      };
+    }
+
+    // Tier 2: Visual Viewport API fallback (Safari iOS, Firefox Android)
+    const vp = window.visualViewport;
+    if (!vp) return;
+
+    let lastKnownKeyboardHeight = 0;
+
+    const update = () => {
+      const layoutHeight = document.documentElement.clientHeight;
+      const keyboardHeight = layoutHeight - vp.height - vp.offsetTop;
+      if (keyboardHeight > 50) lastKnownKeyboardHeight = keyboardHeight;
+      setOffset(keyboardHeight);
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(scrollSelectionIntoView, 100);
+    };
+
+    const onFocusIn = (e: FocusEvent) => {
+      const target = e.target as HTMLElement;
+      if (
+        target.isContentEditable ||
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA"
+      ) {
+        if (lastKnownKeyboardHeight > 0) {
+          setOffset(lastKnownKeyboardHeight);
+        }
+      }
+    };
+
+    const onFocusOut = () => {
+      setOffset(0);
+    };
+
+    const onSelectionChange = () => scrollSelectionIntoView();
+
+    vp.addEventListener("resize", update);
+    vp.addEventListener("scroll", update);
+    document.addEventListener("focusin", onFocusIn);
+    document.addEventListener("focusout", onFocusOut);
+    document.addEventListener("selectionchange", onSelectionChange);
     return () => {
-      window.visualViewport!.removeEventListener("scroll", viewportHandler);
-      window.visualViewport!.removeEventListener("resize", viewportHandler);
+      vp.removeEventListener("resize", update);
+      vp.removeEventListener("scroll", update);
+      document.removeEventListener("focusin", onFocusIn);
+      document.removeEventListener("focusout", onFocusOut);
+      document.removeEventListener("selectionchange", onSelectionChange);
+      clearTimeout(scrollTimer);
     };
   }, []);
 
   if (!show && divRef.current) {
-    // The component is fading out. Use the previous state to render the toolbar with innerHTML,
-    // because otherwise the toolbar will quickly flickr (i.e.: show a different state) while fading out,
-    // which looks weird
     return (
       <div
         ref={divRef}
-        style={style}
+        className="bn-mobile-formatting-toolbar"
         dangerouslySetInnerHTML={{ __html: divRef.current.innerHTML }}
-      ></div>
+      />
     );
   }
 
   const Component = props.formattingToolbar || FormattingToolbar;
 
   return (
-    <div ref={divRef} style={style}>
+    <div ref={divRef} className="bn-mobile-formatting-toolbar">
       <Component />
     </div>
   );

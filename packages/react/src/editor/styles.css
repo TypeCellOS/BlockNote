@@ -294,6 +294,21 @@ inline styles, it is added to the base z-index. */
   border: 2px solid #23405b;
 }
 
+/* Mobile formatting toolbar positioning */
+.bn-mobile-formatting-toolbar {
+  display: flex;
+  position: fixed;
+  bottom: var(--bn-mobile-keyboard-offset, 0px);
+  left: 0;
+  right: 0;
+  z-index: calc(var(--bn-ui-base-z-index) + 40);
+  transition: bottom 0.15s ease-out;
+  touch-action: pan-x;
+  -webkit-overflow-scrolling: touch;
+  overflow-x: auto;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
 /* Emoji Picker styling */
 .bn-root em-emoji-picker {
   max-height: 100%;
