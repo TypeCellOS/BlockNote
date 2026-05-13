@@ -45,11 +45,6 @@ export function serializeInlineContentExternalHTML<
   if (!blockContent) {
     throw new Error("blockContent is required");
   } else if (typeof blockContent === "string") {
-    // Pass `blockType` so `inlineContentToNodes` keeps `\n` as text for
-    // code-content blocks instead of splitting into `hardBreak` nodes —
-    // otherwise the exported HTML for a code block contains `<br>` separators
-    // inside `<pre><code>` instead of literal newlines. Mirrors the internal
-    // HTML serializer, which already plumbs this through.
     nodes = inlineContentToNodes(
       [blockContent],
       editor.pmSchema,

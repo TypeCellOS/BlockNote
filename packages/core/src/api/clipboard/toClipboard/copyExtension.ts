@@ -27,16 +27,13 @@ function fragmentToExternalHTML<
   selectedFragment: Fragment,
   editor: BlockNoteEditor<BSchema, I, S>,
 ) {
+  let isWithinBlockContent = false;
   const isWithinTable = view.state.selection instanceof CellSelection;
 
-  // Whether the selection is inline-only inside a single block whose content
-  // can be cleanly represented as standalone HTML (i.e. not a code block).
-  // For such "transparent" parents we strip the wrapper so pasting plain text
-  // into another app doesn't get a `<p>` around it. For code blocks we keep
-  // the wrapper so the block's own `toExternalHTML` runs.
-  let isWithinBlockContent = false;
-
   if (!isWithinTable) {
+    // Checks whether block ancestry should be included when creating external
+    // HTML. If the selection is within a block content node, the block ancestry
+    // is excluded as we only care about the inline content.
     const fragmentWithoutParents = view.state.doc.slice(
       view.state.selection.from,
       view.state.selection.to,
@@ -48,22 +45,13 @@ function fragmentToExternalHTML<
       children.push(fragmentWithoutParents.child(i));
     }
 
-    const isFullyInline =
+    isWithinBlockContent =
       children.find(
         (child) =>
           child.type.isInGroup("bnBlock") ||
           child.type.name === "blockGroup" ||
           child.type.spec.group === "blockContent",
       ) === undefined;
-
-    // Only use the inline-only path when the parent block isn't a code-content
-    // block. Code blocks need their `<pre><code>` wrapper to keep `\n` as
-    // literal newlines (instead of `<br>`) and to make the markdown converter
-    // emit a fenced block instead of escaping each newline as `\`.
-    const parentIsCode =
-      view.state.selection.$from.parent.type.spec.code === true;
-
-    isWithinBlockContent = isFullyInline && !parentIsCode;
     if (isWithinBlockContent) {
       selectedFragment = fragmentWithoutParents;
     }
@@ -152,7 +140,18 @@ export function selectedFragmentToHTML<
     editor,
   );
 
-  const markdown = cleanHTMLToMarkdown(externalHTML);
+  // Code blocks are treated differently for copying: text/plain is the raw
+  // selected text instead of markdown.
+  const { $from, $to } = view.state.selection;
+  const parentBlockType = $from.parent.type.name;
+  const parentBlockSpec = editor.blockImplementations[parentBlockType as any];
+  const isPurelyInsideCodeBlock =
+    $from.sameParent($to) &&
+    parentBlockSpec?.implementation.meta?.code === true;
+
+  const markdown = isPurelyInsideCodeBlock
+    ? view.state.doc.textBetween($from.pos, $to.pos)
+    : cleanHTMLToMarkdown(externalHTML);
 
   return { clipboardHTML, externalHTML, markdown };
 }
