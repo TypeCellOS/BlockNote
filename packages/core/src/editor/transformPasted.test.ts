@@ -1,5 +1,5 @@
 import { TextSelection } from "@tiptap/pm/state";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import { BlockNoteEditor } from "./BlockNoteEditor.js";
 
@@ -7,7 +7,17 @@ import { BlockNoteEditor } from "./BlockNoteEditor.js";
  * @vitest-environment jsdom
  */
 
+const editorsToCleanup: BlockNoteEditor<any, any, any>[] = [];
+
+afterEach(() => {
+  for (const editor of editorsToCleanup) {
+    editor.unmount();
+  }
+  editorsToCleanup.length = 0;
+});
+
 function mountEditor(editor: BlockNoteEditor<any, any, any>) {
+  editorsToCleanup.push(editor);
   editor.mount(document.createElement("div"));
 }
 
