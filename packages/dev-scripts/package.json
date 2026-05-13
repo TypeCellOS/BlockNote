@@ -16,25 +16,18 @@
     "gen:examples": "tsx examples/gen.ts",
     "gen:docs": "tsx examples/genDocs.ts",
     "build": "tsc",
-    "lint": "eslint examples --max-warnings 0"
+    "lint": "vp lint examples"
   },
   "devDependencies": {
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
-    "eslint": "^8.57.1",
     "glob": "^10.5.0",
+    "prettier": "3.6.2",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "tinyglobby": "0.2.12",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   },
-  "eslintConfig": {
-    "extends": [
-      "../../.eslintrc.json"
-    ]
-  },
-  "dependencies": {
-    "prettier": "3.5.3"
-  }
+  "dependencies": {}
 }

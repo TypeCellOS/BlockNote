@@ -84,6 +84,18 @@ async function generateExamplesData(projects: Project[]) {
   // add as any after deps, otherwise const type inference will be too complex for TS
   code = code.replace(/("dependencies":\s*{[^}]*})/g, "$1 as any");
 
+  code = await prettier.format(code, {
+    parser: "typescript",
+    semi: true,
+    singleQuote: false,
+    tabWidth: 2,
+    printWidth: 80,
+    trailingComma: "all",
+    bracketSpacing: true,
+    arrowParens: "always",
+    endOfLine: "lf",
+  });
+
   fs.writeFileSync(target, code);
 }
 

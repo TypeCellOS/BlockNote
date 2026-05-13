@@ -7,7 +7,7 @@ import {
 } from "@blocknote/core";
 import { addIdsToBlocks } from "@shared/formatConversionTestUtil.js";
 import { prettify } from "htmlfy";
-import { expect } from "vitest";
+import { expect } from "vite-plus/test";
 
 import { ExportTestCase } from "./exportTestCase.js";
 

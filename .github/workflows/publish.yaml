@@ -51,7 +51,7 @@ jobs:
         with:
           cache: "pnpm"
           cache-dependency-path: "**/pnpm-lock.yaml"
-          node-version-file: ".nvmrc"
+          node-version-file: ".node-version"
 
       - name: Cache NX
         uses: actions/cache@v5

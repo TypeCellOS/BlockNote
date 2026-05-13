@@ -256,9 +256,9 @@ const TiptapTableNode = Node.create({
 
         // `TableView` implements its own `update` method, as the view needs to
         // be persisted across updates for column resizing to work properly.
-        // However, it doesn't do anything else, so we have to re-apply the 
-        // HTML attributes from props manually. This isn't an issue for node 
-        // views created e.g. by custom blocks, as those aren't persisted 
+        // However, it doesn't do anything else, so we have to re-apply the
+        // HTML attributes from props manually. This isn't an issue for node
+        // views created e.g. by custom blocks, as those aren't persisted
         // across updates (they are reinstantiated each time), and so
         // `HTMLAttributes` is always up-to-date for those.
         update(updatedNode: PMNode): boolean {

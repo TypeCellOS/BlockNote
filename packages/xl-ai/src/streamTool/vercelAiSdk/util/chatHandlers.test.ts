@@ -6,7 +6,7 @@ import {
   UIMessage,
   UIMessageChunk,
 } from "ai";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { aiDocumentFormats } from "../../../server.js";
 import { ChunkExecutionError } from "../../ChunkExecutionError.js";
 import { setupToolCallStreaming } from "./chatHandlers.js";

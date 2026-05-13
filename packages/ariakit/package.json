@@ -49,10 +49,10 @@
     }
   },
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "lint": "eslint src --max-warnings 0",
+    "dev": "vp dev",
+    "build": "tsc && vp build",
+    "preview": "vp preview",
+    "lint": "vp lint src",
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
@@ -64,23 +64,16 @@
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
-    "eslint": "^8.57.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "rimraf": "^5.0.10",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^5.9.3",
-    "vite": "^8.0.8",
-    "vite-plugin-eslint": "^1.8.1",
-    "vite-plugin-externalize-deps": "^0.10.0"
+    "vite-plugin-externalize-deps": "^0.10.0",
+    "vite-plus": "catalog:"
   },
   "peerDependencies": {
     "react": "^18.0 || ^19.0 || >= 19.0.0-rc",
     "react-dom": "^18.0 || ^19.0 || >= 19.0.0-rc"
-  },
-  "eslintConfig": {
-    "extends": [
-      "../../.eslintrc.json"
-    ]
   }
 }

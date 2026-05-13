@@ -52,7 +52,9 @@ export function EditorMenu({
             value={user.id}
             onChange={(e) => {
               const u = HARDCODED_USERS.find((u) => u.id === e.target.value);
-              if (u) setUser(u);
+              if (u) {
+                setUser(u);
+              }
             }}
             disabled={disabled}
           >
@@ -89,7 +91,7 @@ export function EditorMenu({
               <span className="hidden sm:inline">Export</span>
             </button>
             {exportOpen && (
-              <div className="absolute right-0 top-full z-10 flex w-20 flex-col rounded-md border border-stone-200 bg-white py-1 shadow-md">
+              <div className="absolute top-full right-0 z-10 flex w-20 flex-col rounded-md border border-stone-200 bg-white py-1 shadow-md">
                 <button
                   className="px-3 py-1 text-left text-xs hover:bg-stone-50"
                   onClick={() => {
@@ -122,7 +124,7 @@ export function EditorMenu({
           </div>
         </div>
 
-        <div className="mx-1 hidden h-4 w-px bg-stone-300 sm:block sm:mx-2" />
+        <div className="mx-1 hidden h-4 w-px bg-stone-300 sm:mx-2 sm:block" />
 
         <button
           className={`hidden items-center gap-1 rounded-md border border-stone-200 px-2 py-1 text-xs hover:bg-stone-50 sm:flex ${

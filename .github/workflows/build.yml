@@ -31,7 +31,7 @@ jobs:
         with:
           cache: "pnpm"
           cache-dependency-path: "**/pnpm-lock.yaml"
-          node-version-file: ".nvmrc"
+          node-version-file: ".node-version"
 
       - name: Cache NX
         uses: actions/cache@v5
@@ -86,7 +86,7 @@ jobs:
         with:
           cache: "pnpm"
           cache-dependency-path: "**/pnpm-lock.yaml"
-          node-version-file: ".nvmrc"
+          node-version-file: ".node-version"
 
       - name: Cache NX
         uses: actions/cache@v5
@@ -138,7 +138,7 @@ jobs:
         with:
           cache: "pnpm"
           cache-dependency-path: "**/pnpm-lock.yaml"
-          node-version-file: ".nvmrc"
+          node-version-file: ".node-version"
 
       - name: Download build artifacts
         uses: actions/download-artifact@v8
@@ -183,7 +183,7 @@ jobs:
         with:
           cache: "pnpm"
           cache-dependency-path: "**/pnpm-lock.yaml"
-          node-version-file: ".nvmrc"
+          node-version-file: ".node-version"
 
       - name: Install dependencies
         run: pnpm install

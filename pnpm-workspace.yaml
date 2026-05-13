@@ -17,8 +17,9 @@ overrides:
   "@headlessui/react": "^2.2.4"
   "@tiptap/core": "^3.0.0"
   "@tiptap/pm": "^3.0.0"
-  "vitest": "4.1.2"
+  "vitest": "catalog:"
   "@vitest/runner": "4.1.2"
+  vite: "catalog:"
 allowBuilds:
   "@parcel/watcher": true
   "@sentry/cli": true
@@ -31,3 +32,23 @@ allowBuilds:
   canvas: false
   sharp: false
   workerd: false
+catalog:
+  vite: npm:@voidzero-dev/vite-plus-core@latest
+  vitest: npm:@voidzero-dev/vite-plus-test@latest
+  vite-plus: latest
+peerDependencyRules:
+  allowAny:
+    - vite
+    - vitest
+  allowedVersions:
+    vite: "*"
+    vitest: "*"
+minimumReleaseAgeExclude:
+  - vite-plus
+  - "@voidzero-dev/*"
+  - oxlint
+  - "@oxlint/*"
+  - oxlint-tsgolint
+  - "@oxlint-tsgolint/*"
+  - oxfmt
+  - "@oxfmt/*"

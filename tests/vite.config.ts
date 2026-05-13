@@ -1,5 +1,5 @@
 import * as path from "path";
-import { defineConfig } from "vite";
+import { defineConfig } from "vite-plus";
 
 // https://vitejs.dev/config/
 export default defineConfig((conf) => ({

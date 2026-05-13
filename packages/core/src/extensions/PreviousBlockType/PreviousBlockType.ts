@@ -122,9 +122,8 @@ export const PreviousBlockTypeExtension = createExtension(() => {
                   depth: oldState.doc.resolve(oldNode.pos).depth,
                 };
 
-                currentTransactionOriginalOldBlockAttrs[
-                  node.node.attrs.id
-                ] = oldAttrs;
+                currentTransactionOriginalOldBlockAttrs[node.node.attrs.id] =
+                  oldAttrs;
 
                 prev.currentTransactionOldBlockAttrs[node.node.attrs.id] =
                   oldAttrs;

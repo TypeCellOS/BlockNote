@@ -4,10 +4,10 @@
   "version": "0.30.0",
   "scripts": {
     "build": "tsc",
-    "lint": "eslint src --max-warnings 0",
+    "lint": "vp lint src",
     "playwright": "playwright test",
-    "test": "vitest --run",
-    "test:updateSnaps": "docker run --rm -e RUN_IN_DOCKER=true --network host -v $(pwd)/..:/work/ -w /work/tests -it mcr.microsoft.com/playwright:v1.51.1-noble npx playwright test -u",
+    "test": "vp test --run",
+    "test:updateSnaps": "docker run --rm -e RUN_IN_DOCKER=true --network host -v $(pwd)/..:/work/ -w /work/tests -it mcr.microsoft.com/playwright:v1.51.1-noble npx playwright test",
     "test-ct": "playwright test -c playwright-ct.config.ts --headed",
     "test-ct:updateSnaps": "docker run --rm  -e RUN_IN_DOCKER=true --network host -v $(pwd)/..:/work/ -w /work/tests -it mcr.microsoft.com/playwright:v1.51.1-noble npx playwright test -c playwright-ct.config.ts -u",
     "clean": "rimraf dist"
@@ -24,20 +24,12 @@
     "@types/node": "^20.19.22",
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
-    "eslint": "^8.57.1",
     "htmlfy": "^0.6.7",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-icons": "^5.5.0",
     "rimraf": "^5.0.10",
-    "vite": "^8.0.8",
-    "vite-plugin-eslint": "^1.8.1",
-    "vitest": "^4.1.2"
-  },
-  "eslintConfig": {
-    "extends": [
-      "../.eslintrc.json"
-    ]
+    "vite-plus": "catalog:"
   },
   "dependencies": {
     "get-port-please": "3.2.0"

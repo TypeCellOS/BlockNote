@@ -1,5 +1,5 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { expect, it } from "vitest";
+import { expect, it } from "vite-plus/test";
 import { blockNoteSchemaToJSONSchema } from "./schemaToJSONSchema.js";
 
 it("creates json schema", async () => {

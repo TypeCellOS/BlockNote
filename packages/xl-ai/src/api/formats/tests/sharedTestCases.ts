@@ -3,7 +3,7 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { getCurrentTest, TestContext } from "@vitest/runner";
 import path from "path";
 import { TextSelection } from "prosemirror-state";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { AIExtension } from "../../../AIExtension.js";
 import { sendMessageWithAIRequest } from "../../../index.js";
 import { addOperationTestCases } from "../../../testUtil/cases/addOperationTestCases.js";

@@ -101,7 +101,8 @@ export default function App() {
                 `${window.location.origin}${window.location.pathname}?room=${roomName}&index=-1`,
                 "_blank",
               );
-            }}>
+            }}
+          >
             Ghost Writer in a new window
           </button>
         </>

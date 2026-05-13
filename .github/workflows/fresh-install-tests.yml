@@ -36,7 +36,7 @@ jobs:
       - id: setup_node
         uses: actions/setup-node@v6
         with:
-          node-version-file: ".nvmrc"
+          node-version-file: ".node-version"
           # Intentionally no pnpm cache — we want fresh prod dep resolution
 
       - id: install_dependencies

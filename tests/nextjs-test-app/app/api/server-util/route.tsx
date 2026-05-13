@@ -66,7 +66,8 @@ export async function GET() {
 
   // Mirrors ReactServer.test.tsx: "works for blocks with context"
   // SKIPPED — React's server bundle forbids createContext at runtime.
-  results["reactContextBlock"] = `PASS: skipped (createContext not available in React server bundle)`;
+  results["reactContextBlock"] =
+    `PASS: skipped (createContext not available in React server bundle)`;
   //
   // try {
   //   const editor = ServerBlockNoteEditor.create({ schema: schemaWithContext });
@@ -103,9 +104,7 @@ export async function GET() {
       },
     ] as any);
     if (!html.includes("Hello World")) {
-      throw new Error(
-        `Expected html to contain "Hello World", got: ${html}`,
-      );
+      throw new Error(`Expected html to contain "Hello World", got: ${html}`);
     }
     results["blocksToHTMLLossy"] = `PASS: ${html}`;
   } catch (e: any) {

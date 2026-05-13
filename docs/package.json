@@ -6,12 +6,12 @@
   "scripts": {
     "dev": "next dev",
     "dev:email": "next dev",
-    "prebuild:site": "nx run @blocknote/dev-scripts:gen",
+    "prebuild:site": "vp run --filter @blocknote/dev-scripts gen",
     "build:site": "fumadocs-mdx && next build",
     "start": "next start",
     "types:check": "fumadocs-mdx && next typegen && tsc --noEmit",
     "postinstall": "fumadocs-mdx",
-    "lint": "eslint",
+    "lint": "vp lint",
     "init-db": "pnpx @better-auth/cli migrate",
     "test": "pnpm -w run gen && node validate-links.mjs"
   },
@@ -121,8 +121,6 @@
     "@types/react": "^19.2.8",
     "@types/react-dom": "^19.2.3",
     "babel-plugin-react-compiler": "^1.0.0",
-    "eslint": "^9.39.2",
-    "eslint-config-next": "^16.2.6",
     "next-validate-link": "^1.6.4",
     "postcss": "^8.5.6",
     "serve": "^14.2.6",

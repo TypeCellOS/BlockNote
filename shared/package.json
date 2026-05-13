@@ -26,10 +26,5 @@
     "image-meta": {
       "optional": true
     }
-  },
-  "eslintConfig": {
-    "extends": [
-      "../.eslintrc.json"
-    ]
   }
 }
