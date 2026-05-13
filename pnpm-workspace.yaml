@@ -9,6 +9,7 @@ packages:
 preferWorkspacePackages: true
 linkWorkspacePackages: true
 gitChecks: false
+minimumReleaseAge: 1440
 publicHoistPattern:
   # We have been preferring to use `prosemirror-*` packages instead of `@tiptap/pm` packages
   - "prosemirror-*"
@@ -16,3 +17,17 @@ overrides:
   "@headlessui/react": "^2.2.4"
   "@tiptap/core": "^3.0.0"
   "@tiptap/pm": "^3.0.0"
+  "vitest": "4.1.2"
+  "@vitest/runner": "4.1.2"
+allowBuilds:
+  "@parcel/watcher": true
+  "@sentry/cli": true
+  "@tailwindcss/oxide": true
+  better-sqlite3: true
+  esbuild: true
+  msw: true
+  nx: true
+  unrs-resolver: true
+  canvas: false
+  sharp: false
+  workerd: false
