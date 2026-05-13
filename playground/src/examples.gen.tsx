@@ -907,12 +907,12 @@
             "Advanced"
           ]
         },
-        "title": "Configuring Portal Targets per Element",
+        "title": "Configuring Portal Targets",
         "group": {
           "pathFromRoot": "examples/03-ui-components",
           "slug": "ui-components"
         },
-        "readme": "By default, BlockNote's floating UI elements (formatting toolbar, slash menu, table handles, etc.) mount inside the editor's `bn-container` element. The `portalElements` prop lets you change that — globally via `default`, or per element by key.\n\nIn this example we deliberately wrap the editor in a small parent with `overflow: hidden` so the global default of `bn-container` would clip the slash menu and the formatting toolbar. We escape only those two to `document.body`, while keeping `tableHandles` inside `.bn-container` so the table handles can never escape the editor's visual boundary.\n\n```tsx\n<BlockNoteView\n  editor={editor}\n  portalElements={{\n    slashMenu: document.body,\n    formattingToolbar: document.body,\n    tableHandles: \".bn-container\",\n  }}\n/>\n```\n\n**Relevant Docs:**\n\n- [UI Components](/docs/react/components)"
+        "readme": "By default, BlockNote's floating UI elements (formatting toolbar, slash menu, table handles, etc.) mount inside the editor's `bn-container`. The `portalElements` prop on `BlockNoteView` lets you change that — globally via `default`, or per element by key.\n\nThis example renders two editors side-by-side, both wrapped in a small `overflow: hidden` container. The left editor uses the default — the slash menu is clipped by the editor's bounds. The right editor passes `portalElements={{ default: document.body }}` so floating UI escapes the wrapper and renders fully.\n\n```tsx\n<BlockNoteView\n  editor={editor}\n  portalElements={{ default: document.body }}\n/>\n```\n\n**Relevant Docs:**\n\n- [UI Components](/docs/react/components)"
       }
     ]
   },
