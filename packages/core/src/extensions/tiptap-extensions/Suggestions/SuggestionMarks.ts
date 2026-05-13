@@ -13,6 +13,7 @@ export const SuggestionAddMark = Mark.create({
   addAttributes() {
     return {
       id: { default: null, validate: "number" }, // note: validate is supported in prosemirror but not in tiptap, so this doesn't actually work (considered not critical)
+      "user-color": { default: null, validate: "string" },
     };
   },
   extendMarkSchema(extension) {
@@ -28,8 +29,13 @@ export const SuggestionAddMark = Mark.create({
           "ins",
           {
             "data-id": String(mark.attrs["id"]),
+            "data-user-color": String(mark.attrs["user-color"]),
             "data-inline": String(inline),
-            ...(!inline && { style: "display: contents" }), // changed to "contents" to make this work for table rows
+            style:
+              (inline ? "" : "display: contents") +
+              ("user-color" in mark.attrs
+                ? `; --user-color: ${mark.attrs["user-color"]}`
+                : ""), // changed to "contents" to make this work for table rows
           },
           0,
         ];
@@ -43,6 +49,7 @@ export const SuggestionAddMark = Mark.create({
             }
             return {
               id: parseInt(node.dataset["id"], 10),
+              userColor: node.dataset["userColor"],
             };
           },
         },
@@ -58,6 +65,7 @@ export const SuggestionDeleteMark = Mark.create({
   addAttributes() {
     return {
       id: { default: null, validate: "number" }, // note: validate is supported in prosemirror but not in tiptap
+      "user-color": { default: null, validate: "string" },
     };
   },
   extendMarkSchema(extension) {
@@ -76,8 +84,13 @@ export const SuggestionDeleteMark = Mark.create({
           "del",
           {
             "data-id": String(mark.attrs["id"]),
+            "data-user-color": String(mark.attrs["user-color"]),
             "data-inline": String(inline),
-            ...(!inline && { style: "display: contents" }), // changed to "contents" to make this work for table rows
+            style:
+              (inline ? "" : "display: contents") +
+              ("user-color" in mark.attrs
+                ? `; --user-color: ${mark.attrs["user-color"]}`
+                : ""), // changed to "contents" to make this work for table rows
           },
           0,
         ];
@@ -91,6 +104,7 @@ export const SuggestionDeleteMark = Mark.create({
             }
             return {
               id: parseInt(node.dataset["id"], 10),
+              userColor: node.dataset["userColor"],
             };
           },
         },
@@ -107,6 +121,7 @@ export const SuggestionModificationMark = Mark.create({
     // note: validate is supported in prosemirror but not in tiptap
     return {
       id: { default: null, validate: "number" },
+      "user-color": { default: null, validate: "string" },
       type: { validate: "string" },
       attrName: { default: null, validate: "string|null" },
       previousValue: { default: null },
@@ -133,10 +148,15 @@ export const SuggestionModificationMark = Mark.create({
           {
             "data-type": "modification",
             "data-id": String(mark.attrs["id"]),
+            "data-user-color": String(mark.attrs["user-color"]),
             "data-mod-type": mark.attrs["type"] as string,
             "data-mod-prev-val": JSON.stringify(mark.attrs["previousValue"]),
             // TODO: Try to serialize marks with toJSON?
             "data-mod-new-val": JSON.stringify(mark.attrs["newValue"]),
+            style:
+              "user-color" in mark.attrs
+                ? ` --user-color: ${mark.attrs["user-color"]}`
+                : "", // changed to "contents" to make this work for table rows
           },
           0,
         ];
@@ -150,6 +170,7 @@ export const SuggestionModificationMark = Mark.create({
             }
             return {
               id: parseInt(node.dataset["id"], 10),
+              userColor: node.dataset["userColor"],
               type: node.dataset["modType"],
               previousValue: node.dataset["modPrevVal"],
               newValue: node.dataset["modNewVal"],
