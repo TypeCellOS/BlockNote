@@ -57,8 +57,8 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "0.50.0",
-    "@blocknote/xl-multi-column": "0.50.0",
+    "@blocknote/core": "workspace:^",
+    "@blocknote/xl-multi-column": "workspace:^",
     "@zip.js/zip.js": "^2.8.8",
     "buffer": "^6.0.3",
     "image-meta": "^0.2.2"

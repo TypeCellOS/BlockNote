@@ -29,7 +29,7 @@
     "postpublish": "rm -rf packages/core/README.md && rm -rf packages/react/README.md",
     "prebuild": "cp README.md packages/core/README.md && cp README.md packages/react/README.md",
     "prestart": "pnpm run build",
-    "start": "serve playground/dist -c ../serve.json",
+    "start": "vp preview --filter playground",
     "test": "vp run -r test",
     "format": "vp fmt",
     "prepare": "vp config"

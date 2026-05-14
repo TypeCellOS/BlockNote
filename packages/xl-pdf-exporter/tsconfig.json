@@ -33,6 +33,9 @@
       "path": "../react"
     },
     {
+      "path": "../xl-multi-column"
+    },
+    {
       "path": "../../shared"
     }
   ]

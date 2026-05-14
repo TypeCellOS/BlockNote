@@ -49,7 +49,7 @@
     "@ai-sdk/mistral": "^3.0.2",
     "@ai-sdk/openai": "^3.0.2",
     "@ai-sdk/openai-compatible": "^2.0.2",
-    "@blocknote/xl-ai": "0.50.0",
+    "@blocknote/xl-ai": "workspace:^",
     "@hono/node-server": "^1.19.5",
     "ai": "^6.0.5",
     "hono": "^4.10.3"

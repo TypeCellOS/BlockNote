@@ -58,7 +58,7 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "0.50.0",
+    "@blocknote/core": "workspace:^",
     "@emoji-mart/data": "^1.2.1",
     "@floating-ui/react": "^0.27.18",
     "@floating-ui/utils": "^0.2.10",

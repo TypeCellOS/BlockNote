@@ -56,8 +56,8 @@
     "test-watch": "vp test watch"
   },
   "dependencies": {
-    "@blocknote/core": "0.50.0",
-    "@blocknote/react": "0.50.0",
+    "@blocknote/core": "workspace:^",
+    "@blocknote/react": "workspace:^",
     "@tiptap/core": "^3.13.0",
     "@tiptap/pm": "^3.13.0",
     "jsdom": "^25.0.1",
