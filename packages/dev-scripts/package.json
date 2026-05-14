@@ -12,7 +12,7 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "gen": "pnpm run gen:examples && pnpm run gen:docs",
+    "gen": "vp run gen:examples && vp run gen:docs",
     "gen:examples": "tsx examples/gen.ts",
     "gen:docs": "tsx examples/genDocs.ts",
     "build": "tsc",
