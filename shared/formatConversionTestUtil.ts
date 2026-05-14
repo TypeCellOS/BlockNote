@@ -130,8 +130,12 @@ export function partialBlockToBlockForTesting<
   schema: BSchema,
   partialBlock: PartialBlock<BSchema, I, S>,
 ): Block<BSchema, I, S> {
-  const contentType: "inline" | "table" | "none" =
-    schema[partialBlock.type!].content;
+  const contentType = schema[partialBlock.type!].content;
+  // Until we have multiple `ContentType` instances in the system, any non-string
+  // content discriminator is the table content type. When more arrive, this
+  // utility will need a per-content-type default-value hook.
+  const isTableContent =
+    typeof contentType === "object" && contentType !== null;
 
   const withDefaults: Block<BSchema, I, S> = {
     id: "",
@@ -140,7 +144,7 @@ export function partialBlockToBlockForTesting<
     content:
       contentType === "inline"
         ? []
-        : contentType === "table"
+        : isTableContent
           ? {
               type: "tableContent",
               columnWidths: undefined,
@@ -167,7 +171,7 @@ export function partialBlockToBlockForTesting<
   if (contentType === "inline") {
     const content = withDefaults.content as InlineContent<I, S>[] | undefined;
     withDefaults.content = partialContentToInlineContent(content) as any;
-  } else if (contentType === "table") {
+  } else if (isTableContent) {
     const content = withDefaults.content as TableContent<I, S> | undefined;
     withDefaults.content = {
       type: "tableContent",

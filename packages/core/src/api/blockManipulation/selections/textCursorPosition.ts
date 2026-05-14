@@ -4,6 +4,7 @@ import {
   TextSelection,
   type Transaction,
 } from "prosemirror-state";
+import { tableContentType } from "../../../blocks/Table/block.js";
 import type { TextCursorPosition } from "../../../editor/cursorPositionTypes.js";
 import type {
   BlockIdentifier,
@@ -35,14 +36,18 @@ export function getTextCursorPosition<
   // Gets next blockContainer node at the same nesting level, if the current node isn't the last child.
   const nextNode = tr.doc.resolve(bnBlock.afterPos).nodeAfter;
 
-  // Gets parent blockContainer node, if the current node is nested.
+  // Gets the nearest enclosing bnBlock ancestor, if the current block is
+  // nested. With the original block schema there's at most one non-bnBlock
+  // wrapper between blocks (a `blockGroup`), but combinator content types
+  // (e.g. `c.list` of records, or `c.list(c.props(c.blocks()))`) can nest
+  // additional slot nodes between an inner `blockContainer` and the outer
+  // one — so we walk up until we find a bnBlock or run out of depth.
   let parentNode: Node | undefined = undefined;
-  if (resolvedPos.depth > 1) {
-    // for nodes nested in bnBlocks
-    parentNode = resolvedPos.node();
-    if (!parentNode.type.isInGroup("bnBlock")) {
-      // for blockGroups, we need to go one level up
-      parentNode = resolvedPos.node(resolvedPos.depth - 1);
+  for (let d = resolvedPos.depth; d > 0; d--) {
+    const candidate = resolvedPos.node(d);
+    if (candidate.type.isInGroup("bnBlock")) {
+      parentNode = candidate;
+      break;
     }
   }
 
@@ -71,8 +76,7 @@ export function setTextCursorPosition(
 
   const info = getBlockInfo(posInfo);
 
-  const contentType: "none" | "inline" | "table" =
-    schema.blockSchema[info.blockNoteType]!.content;
+  const contentType = schema.blockSchema[info.blockNoteType]!.content;
 
   if (info.isBlockContainer) {
     const blockContent = info.blockContent;
@@ -91,7 +95,7 @@ export function setTextCursorPosition(
           TextSelection.create(tr.doc, blockContent.afterPos - 1),
         );
       }
-    } else if (contentType === "table") {
+    } else if (contentType === tableContentType) {
       if (placement === "start") {
         // Need to offset the position as we have to get through the `tableRow`
         // and `tableCell` nodes to get to the `tableParagraph` node we want to
@@ -105,7 +109,7 @@ export function setTextCursorPosition(
         );
       }
     } else {
-      throw new UnreachableCaseError(contentType);
+      throw new UnreachableCaseError(contentType as never);
     }
   } else {
     const child =

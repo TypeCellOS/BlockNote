@@ -1498,6 +1498,112 @@
         "readme": "In this example, we create a custom block which renders a simple HTML paragraph with placeholder text. The block has no editable content.\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
+        "projectSlug": "multi-slot-alert-block",
+        "fullSlug": "custom-schema/multi-slot-alert-block",
+        "pathFromRoot": "examples/06-custom-schema/09-multi-slot-alert-block",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            "Intermediate",
+            "Blocks",
+            "Custom Schemas",
+            "Combinator Content"
+          ],
+          "dependencies": {
+            "@mantine/core": "^8.3.11",
+            "react-icons": "^5.5.0"
+          } as any
+        },
+        "title": "Multi-Slot Alert Block",
+        "group": {
+          "pathFromRoot": "examples/06-custom-schema",
+          "slug": "custom-schema"
+        },
+        "readme": "In this example, we create a custom `Alert` block whose content is a\n**combinator content schema** — a record of two inline regions, `title` and\n`body`. The block JSON exposes both slots as named keys, and the editor\ndisplays the document's JSON live so you can see the resulting shape.\n\nThis is the same alert idea as `01-alert-block`, but with a richer content\nshape: where the simple alert has a single inline region, this one has two\nindependently editable regions stored as named slots in the JSON.\n\n```ts\nconst alertContentType = combinatorContentType(\n  \"alert\",\n  c.record({\n    title: c.inline(),\n    body: c.inline(),\n  }),\n);\n```\n\nThe block's content JSON is automatically derived from the schema:\n\n```json\n{\n  \"type\": \"alert\",\n  \"props\": { \"variant\": \"warning\" },\n  \"content\": {\n    \"title\": [{ \"type\": \"text\", \"text\": \"Heads up\", \"styles\": {} }],\n    \"body\":  [{ \"type\": \"text\", \"text\": \"Be careful.\", \"styles\": {} }]\n  }\n}\n```\n\n**Try it out:** click the icon to change the alert variant, and edit the title\nand body inline. Watch the JSON panel below update in real time.\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)"
+      },
+      {
+        "projectSlug": "faq-block",
+        "fullSlug": "custom-schema/faq-block",
+        "pathFromRoot": "examples/06-custom-schema/10-faq-block",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            "Intermediate",
+            "Blocks",
+            "Custom Schemas",
+            "Combinator Content",
+            "List Combinator"
+          ],
+          "dependencies": {
+            "@mantine/core": "^8.3.11",
+            "react-icons": "^5.5.0"
+          } as any
+        },
+        "title": "FAQ Block",
+        "group": {
+          "pathFromRoot": "examples/06-custom-schema",
+          "slug": "custom-schema"
+        },
+        "readme": "A custom block whose content is a **variable-length list** of question/answer\npairs, built with the `c.list` and `c.record` combinators:\n\n```ts\nconst faqContentType = combinatorContentType(\n  \"faq\",\n  c.list(\n    c.record({\n      question: c.inline(),\n      answer: c.inline(),\n    }),\n  ),\n);\n```\n\nThe block's JSON `content` is automatically derived as an array:\n\n```json\n[\n  { \"question\": [...], \"answer\": [...] },\n  { \"question\": [...], \"answer\": [...] }\n]\n```\n\nThe example renders all FAQ items in the block's chrome and has an\n**Add question** button that calls `editor.updateBlock` to append a new item\nto the list — demonstrating how arbitrary list mutations work today through\nthe existing block-update API.\n\n**Try it:** edit any question or answer and watch the JSON update; click\n\"Add question\" to see the array grow.\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)"
+      },
+      {
+        "projectSlug": "callout-block",
+        "fullSlug": "custom-schema/callout-block",
+        "pathFromRoot": "examples/06-custom-schema/11-callout-block",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            "Intermediate",
+            "Blocks",
+            "Custom Schemas",
+            "Combinator Content",
+            "Blocks Combinator"
+          ],
+          "dependencies": {
+            "@mantine/core": "^8.3.11",
+            "react-icons": "^5.5.0"
+          } as any
+        },
+        "title": "Callout Block",
+        "group": {
+          "pathFromRoot": "examples/06-custom-schema",
+          "slug": "custom-schema"
+        },
+        "readme": "A callout block whose content is a **sequence of editor blocks** rather than a\nsingle rich-text region. Built with the `c.blocks` combinator:\n\n```ts\nconst calloutContentType = combinatorContentType(\n  \"callout\",\n  c.blocks(),\n);\n```\n\nThe block's JSON `content` is automatically derived as `Block[]`:\n\n```json\n{\n  \"type\": \"callout\",\n  \"props\": { \"tone\": \"info\" },\n  \"content\": [\n    { \"type\": \"heading\", \"props\": { \"level\": 3 }, \"content\": [...] },\n    { \"type\": \"paragraph\", \"content\": [...] },\n    { \"type\": \"bulletListItem\", \"content\": [...] }\n  ]\n}\n```\n\nInside the callout's body you can drop any block the editor knows about —\nheadings, paragraphs, lists, even other callouts. Try the slash menu (`/`)\nor hit Enter to add new blocks.\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)"
+      },
+      {
+        "projectSlug": "tab-group-block",
+        "fullSlug": "custom-schema/tab-group-block",
+        "pathFromRoot": "examples/06-custom-schema/12-tab-group-block",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            "Advanced",
+            "Blocks",
+            "Custom Schemas",
+            "Combinator Content"
+          ],
+          "dependencies": {
+            "@mantine/core": "^8.3.11",
+            "react-icons": "^5.5.0"
+          } as any
+        },
+        "title": "Tab Group Block",
+        "group": {
+          "pathFromRoot": "examples/06-custom-schema",
+          "slug": "custom-schema"
+        },
+        "readme": "The motivating example for the combinator content schema design — a tab\ngroup that combines all three variable-shape combinators:\n\n```ts\nconst tabsContentType = combinatorContentType(\n  \"tabs\",\n  c.list(\n    c.props(\n      { label: { default: \"Tab\" } },\n      c.blocks(),\n    ),\n  ),\n);\n```\n\n- `c.list` — variable-arity sequence of items\n- `c.props` — each item carries its own typed `label` attribute\n- `c.blocks` — each tab body is a stretch of full editor blocks\n\nThe block's JSON `content` shape is automatically derived from the schema:\n\n```json\n[\n  {\n    \"props\": { \"label\": \"Overview\" },\n    \"content\": [\n      { \"type\": \"heading\", \"props\": { \"level\": 3 }, \"content\": [...] },\n      { \"type\": \"paragraph\", \"content\": [...] }\n    ]\n  },\n  {\n    \"props\": { \"label\": \"Details\" },\n    \"content\": [...]\n  }\n]\n```\n\n**Try it:**\n\n- Click a tab label to switch tabs (React state controls visibility; the\n  underlying ProseMirror document holds all tabs).\n- Click \"+ Add tab\" to grow the list.\n- Edit the label by clicking it; press Enter to commit.\n- Inside a tab body, hit `/` for the slash menu, or just type — any block the\n  editor knows about can live inside a tab body.\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)"
+      },
+      {
         "projectSlug": "draggable-inline-content",
         "fullSlug": "custom-schema/draggable-inline-content",
         "pathFromRoot": "examples/06-custom-schema/draggable-inline-content",

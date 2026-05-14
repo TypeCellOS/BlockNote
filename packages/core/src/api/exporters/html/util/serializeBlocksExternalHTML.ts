@@ -1,4 +1,4 @@
-import { DOMSerializer, Fragment, Node } from "prosemirror-model";
+import { DOMSerializer, Fragment } from "prosemirror-model";
 
 import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
@@ -8,11 +8,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../../schema/index.js";
-import { UnreachableCaseError } from "../../../../util/typescript.js";
-import {
-  inlineContentToNodes,
-  tableContentToNodes,
-} from "../../../nodeConversions/blockToNode.js";
+import { blockContentToNodes } from "../../../nodeConversions/blockToNode.js";
 import { nodeToCustomInlineContent } from "../../../nodeConversions/nodeToBlock.js";
 
 function addAttributesAndRemoveClasses(element: HTMLElement) {
@@ -38,21 +34,23 @@ export function serializeInlineContentExternalHTML<
   blockContent: PartialBlock<BSchema, I, S>["content"],
   serializer: DOMSerializer,
   options?: { document?: Document },
+  blockType: string = "paragraph",
 ) {
-  let nodes: Node[];
-
-  // TODO: reuse function from nodeconversions?
   if (!blockContent) {
     throw new Error("blockContent is required");
-  } else if (typeof blockContent === "string") {
-    nodes = inlineContentToNodes([blockContent], editor.pmSchema);
-  } else if (Array.isArray(blockContent)) {
-    nodes = inlineContentToNodes(blockContent, editor.pmSchema);
-  } else if (blockContent.type === "tableContent") {
-    nodes = tableContentToNodes(blockContent, editor.pmSchema);
-  } else {
-    throw new UnreachableCaseError(blockContent.type);
   }
+  // External HTML export historically parses `\n` inside text as hard breaks
+  // even for code blocks (so HTML output uses `<br />`). Pass
+  // `inlineBlockType: undefined` to preserve that behavior; `blockType` itself
+  // is still threaded through for content-type lookup of structured content
+  // (e.g. tables).
+  const nodes = blockContentToNodes(
+    blockContent as PartialBlock<BSchema, I, S>["content"],
+    editor.pmSchema,
+    blockType,
+    undefined,
+    { inlineBlockType: undefined },
+  );
 
   // Check if any of the nodes are custom inline content with toExternalHTML
   const doc = options?.document ?? document;
@@ -263,6 +261,7 @@ function serializeBlock<
       block.content as any, // TODO
       serializer,
       options,
+      block.type,
     );
 
     ret.contentDOM.appendChild(ic);

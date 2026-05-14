@@ -217,8 +217,8 @@ function blockSchemaToJSONSchema(schema: BlockSchema) {
             content:
               val.content === "inline"
                 ? { $ref: "#/$defs/inlinecontent" }
-                : val.content === "table"
-                  ? { type: "object", properties: {} } // TODO
+                : typeof val.content === "object" && val.content !== null
+                  ? { type: "object", properties: {} } // TODO: per content-type JSON schema
                   : undefined,
             // filter out default props (TODO: make option)
             props: propSchemaToJSONSchema(val.propSchema),

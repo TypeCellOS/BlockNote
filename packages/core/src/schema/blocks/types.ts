@@ -8,6 +8,7 @@ import type {
   Extension,
   ExtensionFactoryInstance,
 } from "../../editor/BlockNoteExtension.js";
+import type { ContentType } from "../contentTypes/types.js";
 import type {
   InlineContent,
   InlineContentSchema,
@@ -15,6 +16,16 @@ import type {
 } from "../inlineContent/types.js";
 import type { PropSchema, Props } from "../propTypes.js";
 import type { StyleSchema } from "../styles/types.js";
+
+/**
+ * The full set of values that can appear in {@link BlockConfig#content}.
+ *
+ * - `"inline"` — a single rich-text region (the most common case).
+ * - `"none"` — the block has no editable content.
+ * - A {@link ContentType} instance — a custom content shape (the table block
+ *   uses this; other blocks can register their own).
+ */
+export type BlockContent = "inline" | "none" | ContentType<any, any>;
 
 export type BlockNoteDOMElement =
   | "editor"
@@ -67,7 +78,7 @@ export interface BlockConfigMeta {
 export interface BlockConfig<
   T extends string = string,
   PS extends PropSchema = PropSchema,
-  C extends "inline" | "none" | "table" = "inline" | "none" | "table",
+  C extends BlockContent = BlockContent,
 > {
   /**
    * The type of the block (unique identifier within a schema)
@@ -79,11 +90,10 @@ export interface BlockConfig<
    */
   readonly propSchema: PS;
   /**
-   * The content that the block supports
+   * The content that the block supports. Either `"inline"`, `"none"`, or a
+   * {@link ContentType} instance describing a custom content shape.
    */
   content: C;
-  // TODO: how do you represent things that have nested content?
-  // e.g. tables, alerts (with title & content)
 }
 
 /**
@@ -93,7 +103,7 @@ export interface BlockConfig<
 export type BlockConfigOrCreator<
   TName extends string = string,
   TProps extends PropSchema = PropSchema,
-  TContent extends "inline" | "none" = "inline" | "none",
+  TContent extends BlockContent = BlockContent,
   TOptions extends Record<string, any> | undefined =
     | Record<string, any>
     | undefined,
@@ -108,8 +118,8 @@ export type BlockConfigOrCreator<
  */
 export type ExtractBlockConfigFromConfigOrCreator<
   ConfigOrCreator extends
-    | BlockConfig<string, PropSchema, "inline" | "none">
-    | ((...args: any[]) => BlockConfig<string, PropSchema, "inline" | "none">),
+    | BlockConfig<string, PropSchema, BlockContent>
+    | ((...args: any[]) => BlockConfig<string, PropSchema, BlockContent>),
 > = ConfigOrCreator extends (...args: any[]) => infer Config
   ? Config
   : ConfigOrCreator;
@@ -125,7 +135,7 @@ export type CustomBlockConfig<
 export type BlockSpec<
   T extends string = string,
   PS extends PropSchema = PropSchema,
-  C extends "inline" | "none" | "table" = "inline" | "none" | "table",
+  C extends BlockContent = BlockContent,
 > = {
   config: BlockConfig<T, PS, C>;
   implementation: BlockImplementation<T, PS, C>;
@@ -139,7 +149,7 @@ export type BlockSpec<
 export type BlockSpecOrCreator<
   T extends string = string,
   PS extends PropSchema = PropSchema,
-  C extends "inline" | "none" | "table" = "inline" | "none" | "table",
+  C extends BlockContent = BlockContent,
   TOptions extends Record<string, any> | undefined =
     | Record<string, any>
     | undefined,
@@ -167,7 +177,7 @@ export type ExtractBlockSpecFromSpecOrCreator<
 export type LooseBlockSpec<
   T extends string = string,
   PS extends PropSchema = PropSchema,
-  C extends "inline" | "none" | "table" = "inline" | "none" | "table",
+  C extends BlockContent = BlockContent,
 > = {
   config: BlockConfig<T, PS, C>;
   implementation: Omit<
@@ -334,10 +344,10 @@ export type BlockFromConfigNoChildren<
   props: Props<B["propSchema"]>;
   content: B["content"] extends "inline"
     ? InlineContent<I, S>[]
-    : B["content"] extends "table"
-      ? TableContent<I, S>
-      : B["content"] extends "none"
-        ? undefined
+    : B["content"] extends "none"
+      ? undefined
+      : B["content"] extends ContentType<any, infer TJSONOut>
+        ? TJSONOut
         : never;
 };
 
@@ -418,10 +428,10 @@ type PartialBlockFromConfigNoChildren<
   props?: Partial<Props<B["propSchema"]>>;
   content?: B["content"] extends "inline"
     ? PartialInlineContent<I, S>
-    : B["content"] extends "table"
-      ? PartialTableContent<I, S>
-      : B["content"] extends "none"
-        ? undefined
+    : B["content"] extends "none"
+      ? undefined
+      : B["content"] extends ContentType<infer TJSONIn, any>
+        ? TJSONIn
         : never;
 };
 
@@ -472,7 +482,7 @@ export type BlockIdentifier = { id: string } | string;
 export type BlockImplementation<
   TName extends string = string,
   TProps extends PropSchema = PropSchema,
-  TContent extends "inline" | "none" | "table" = "inline" | "none" | "table",
+  TContent extends BlockContent = BlockContent,
 > = {
   /**
    * Metadata

@@ -59,12 +59,14 @@ export const createExternalHTMLExporter = <
     exportInlineContent: (
       inlineContent: InlineContent<I, S>[],
       options: { document?: Document },
+      blockType?: string,
     ) => {
       const domFragment = serializeInlineContentExternalHTML(
         editor,
         inlineContent as any,
         serializer,
         options,
+        blockType,
       );
 
       const parent = document.createElement("div");

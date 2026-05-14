@@ -15,6 +15,7 @@ import {
 import {
   BlockConfig,
   BlockConfigOrCreator,
+  BlockContent,
   BlockImplementation,
   BlockImplementationOrCreator,
   BlockSpec,
@@ -44,7 +45,7 @@ export function applyNonSelectableBlockFix(nodeView: NodeView, editor: Editor) {
 export function getParseRules<
   TName extends string,
   TProps extends PropSchema,
-  TContent extends "inline" | "none" | "table",
+  TContent extends BlockContent,
 >(
   config: BlockConfig<TName, TProps, TContent>,
   implementation: BlockImplementation<TName, TProps, TContent>,
@@ -140,13 +141,18 @@ export function getParseRules<
 export function addNodeAndExtensionsToSpec<
   TName extends string,
   TProps extends PropSchema,
-  TContent extends "inline" | "none" | "table",
+  TContent extends BlockContent,
 >(
   blockConfig: BlockConfig<TName, TProps, TContent>,
   blockImplementation: BlockImplementation<TName, TProps, TContent>,
   extensions?: (ExtensionFactoryInstance | Extension)[],
   priority?: number,
 ): LooseBlockSpec<TName, TProps, TContent> {
+  // For string-discriminator content modes, we auto-generate a Tiptap node
+  // here. For ContentType-based content, the spec is required to provide a
+  // pre-built node via `blockImplementation.node` (this is what
+  // `createBlockSpecFromTiptapNode` does for the table block); the
+  // construction branch below is unreachable in that case.
   const node =
     ((blockImplementation as any).node as Node) ||
     Node.create({
@@ -155,7 +161,7 @@ export function addNodeAndExtensionsToSpec<
         ? "inline*"
         : blockConfig.content === "none"
           ? ""
-          : blockConfig.content) as TContent extends "inline" ? "inline*" : "",
+          : "") as TContent extends "inline" ? "inline*" : "",
       group: "blockContent",
       selectable: blockImplementation.meta?.selectable ?? true,
       isolating: blockImplementation.meta?.isolating ?? true,

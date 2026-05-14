@@ -6,7 +6,8 @@ import {
   BlockNoteEditor,
   BlockSpec,
   camelToDataKebab,
-  CustomBlockImplementation,
+  ContentType,
+  createExtension,
   Extension,
   ExtensionFactoryInstance,
   ExtractBlockConfigFromConfigOrCreator,
@@ -14,6 +15,7 @@ import {
   mergeCSSClasses,
   Props,
   PropSchema,
+  propsToAttributes,
 } from "@blocknote/core";
 import {
   NodeViewProps,
@@ -33,11 +35,16 @@ export type ReactCustomBlockRenderProps<
 > = {
   block: BlockNoDefaults<Record<Config["type"], Config>, any, any>;
   editor: BlockNoteEditor<Record<Config["type"], Config>, any, any>;
-} & (Config["content"] extends "inline"
-  ? {
+} & (Config["content"] extends "none"
+  ? object
+  : {
+      // Single content ref. For "inline" content this is the only editable
+      // region. For ContentType content (e.g. a combinator-built record) this
+      // is the parent container's contentDOM — the content type's child nodes
+      // mount as siblings inside it; the user's render typically positions
+      // them via CSS using each child's `data-content-name` attribute.
       contentRef: (node: HTMLElement | null) => void;
-    }
-  : object);
+    });
 
 // extend BlockConfig but use a React render function
 export type ReactCustomBlockImplementation<
@@ -45,11 +52,7 @@ export type ReactCustomBlockImplementation<
   Config extends
     ExtractBlockConfigFromConfigOrCreator<B> = ExtractBlockConfigFromConfigOrCreator<B>,
 > = Omit<
-  CustomBlockImplementation<
-    Config["type"],
-    Config["propSchema"],
-    Config["content"]
-  >,
+  BlockImplementation<Config["type"], Config["propSchema"], Config["content"]>,
   "render" | "toExternalHTML"
 > & {
   render: FC<ReactCustomBlockRenderProps<B>>;
@@ -63,10 +66,15 @@ export type ReactCustomBlockImplementation<
 };
 
 export type ReactCustomBlockSpec<
-  B extends BlockConfig<string, PropSchema, "inline" | "none"> = BlockConfig<
+  B extends
+    BlockConfig<
+      string,
+      PropSchema,
+      "inline" | "none" | ContentType<any, any>
+    > = BlockConfig<
     string,
     PropSchema,
-    "inline" | "none"
+    "inline" | "none" | ContentType<any, any>
   >,
 > = {
   config: B;
@@ -133,7 +141,7 @@ export function BlockContentWrapper<
 export function createReactBlockSpec<
   const TName extends string,
   const TProps extends PropSchema,
-  const TContent extends "inline" | "none",
+  const TContent extends "inline" | "none" | ContentType<any, any>,
   const TOptions extends Record<string, any> | undefined = undefined,
 >(
   blockConfigOrCreator: BlockConfig<TName, TProps, TContent>,
@@ -159,7 +167,7 @@ export function createReactBlockSpec<
 export function createReactBlockSpec<
   const TName extends string,
   const TProps extends PropSchema,
-  const TContent extends "inline" | "none",
+  const TContent extends "inline" | "none" | ContentType<any, any>,
   const BlockConf extends BlockConfig<TName, TProps, TContent>,
   const TOptions extends Partial<Record<string, any>>,
 >(
@@ -188,10 +196,12 @@ export function createReactBlockSpec<
 export function createReactBlockSpec<
   const TName extends string,
   const TProps extends PropSchema,
-  const TContent extends "inline" | "none",
+  const TContent extends "inline" | "none" | ContentType<any, any>,
   const TOptions extends Record<string, any> | undefined = undefined,
 >(
-  blockConfigOrCreator: BlockConfigOrCreator<TName, TProps, TContent, TOptions>,
+  blockConfigOrCreator:
+    | BlockConfig<TName, TProps, TContent>
+    | ((options: Partial<TOptions>) => BlockConfig<TName, TProps, TContent>),
   blockImplementationOrCreator:
     | ReactCustomBlockImplementation<BlockConfig<TName, TProps, TContent>>
     | (TOptions extends undefined
@@ -228,11 +238,74 @@ export function createReactBlockSpec<
         : extensionsOrCreator
       : undefined;
 
-    return {
-      config: blockConfig,
-      implementation: {
-        ...blockImplementation,
-        toExternalHTML(block, editor, context) {
+    // When `content` is a ContentType (e.g. a combinator-built record), the
+    // Tiptap node for the block is the content type's pre-built `containerNode`,
+    // extended with the block's own propSchema and a Tiptap node-view that
+    // delegates to the React render. The content type's `innerNodes` are
+    // automatically registered as Tiptap extensions so the block author doesn't
+    // have to wire them up by hand.
+    const content = blockConfig.content as
+      | "inline"
+      | "none"
+      | ContentType<any, any>;
+    const isContentType = typeof content === "object" && content !== null;
+    const extraExtensions: (ExtensionFactoryInstance | Extension)[] = [];
+    let providedNode: ReturnType<
+      ContentType<any, any>["containerNode"]["extend"]
+    > | undefined;
+    if (isContentType) {
+      const contentType = content as ContentType<any, any>;
+      providedNode = contentType.containerNode.extend({
+        addAttributes() {
+          return propsToAttributes(blockConfig.propSchema);
+        },
+        addNodeView() {
+          return (props) => {
+            const editor = (this as any).options.editor;
+            const block = getBlockFromPos(
+              props.getPos,
+              editor,
+              (this as any).editor,
+              blockConfig.type,
+            );
+            const blockContentDOMAttributes =
+              (this as any).options.domAttributes?.blockContent || {};
+            const nodeView = (
+              wrappedImplementation as unknown as {
+                render: (...a: any[]) => any;
+              }
+            ).render.call(
+              { blockContentDOMAttributes, props, renderType: "nodeView" },
+              block as any,
+              editor as any,
+            );
+            return nodeView;
+          };
+        },
+      });
+      if (contentType.innerNodes.length > 0) {
+        extraExtensions.push(
+          createExtension({
+            key: `${contentType.name}-content-type-nodes`,
+            tiptapExtensions: [...contentType.innerNodes],
+          }),
+        );
+      }
+      if (contentType.extensions) {
+        extraExtensions.push(...contentType.extensions);
+      }
+    }
+
+    const wrappedImplementation: BlockImplementation<
+      TName,
+      TProps,
+      TContent
+    > & {
+      node?: ReturnType<ContentType<any, any>["containerNode"]["extend"]>;
+    } = {
+      ...blockImplementation,
+      ...(providedNode ? { node: providedNode } : {}),
+      toExternalHTML(block, editor, context) {
           const BlockContent =
             blockImplementation.toExternalHTML || blockImplementation.render;
           const output = renderToDOMSpec((refCB) => {
@@ -346,8 +419,12 @@ export function createReactBlockSpec<
             return output;
           }
         },
-      },
-      extensions: extensions,
+    };
+
+    return {
+      config: blockConfig,
+      implementation: wrappedImplementation,
+      extensions: [...(extensions ?? []), ...extraExtensions],
     };
   };
 }

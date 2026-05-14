@@ -521,7 +521,9 @@
   },
   "table": {
     "config": {
-      "content": "table",
+      "content": {
+        "__contentType": "table",
+      },
       "propSchema": {
         "textColor": {
           "default": "default",
@@ -530,6 +532,7 @@
       "type": "table",
     },
     "extensions": [
+      [Function],
       [Function],
       [Function],
     ],

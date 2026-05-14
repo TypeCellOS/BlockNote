@@ -15,15 +15,13 @@ import type {
 } from "../../../../schema/blocks/types.js";
 import type { InlineContentSchema } from "../../../../schema/inlineContent/types.js";
 import type { StyleSchema } from "../../../../schema/styles/types.js";
-import { UnreachableCaseError } from "../../../../util/typescript.js";
 import {
   type BlockInfo,
   getBlockInfoFromResolvedPos,
 } from "../../../getBlockInfoFromPos.js";
 import {
+  blockContentToNodes,
   blockToNode,
-  inlineContentToNodes,
-  tableContentToNodes,
 } from "../../../nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../../nodeUtil.js";
@@ -180,22 +178,11 @@ function updateBlockContentNode<
 
   // Has there been any custom content provided?
   if (block.content) {
-    if (typeof block.content === "string") {
-      // Adds a single text node with no marks to the content.
-      content = inlineContentToNodes(
-        [block.content],
-        pmSchema,
-        newNodeType.name,
-      );
-    } else if (Array.isArray(block.content)) {
-      // Adds a text node with the provided styles converted into marks to the content,
-      // for each InlineContent object.
-      content = inlineContentToNodes(block.content, pmSchema, newNodeType.name);
-    } else if (block.content.type === "tableContent") {
-      content = tableContentToNodes(block.content, pmSchema);
-    } else {
-      throw new UnreachableCaseError(block.content.type);
-    }
+    content = blockContentToNodes(
+      block.content as PartialBlock<BSchema, I, S>["content"],
+      pmSchema,
+      newNodeType.name,
+    );
   } else {
     // no custom content has been provided, use existing content IF possible
     // Since some block types contain inline content and others don't,
