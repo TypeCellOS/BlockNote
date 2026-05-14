@@ -27,7 +27,7 @@ export const VideoPreview = (
           : resolved.downloadUrl
       }
       controls={true}
-      width={props.block.props.previewWidth}
+      width={props.block.props.previewWidth || undefined}
       contentEditable={false}
       draggable={false}
     />
@@ -45,7 +45,7 @@ export const VideoToExternalHTML = (
   }
 
   const video = props.block.props.showPreview ? (
-    <video src={props.block.props.url} width={props.block.props.previewWidth} />
+    <video src={props.block.props.url} width={props.block.props.previewWidth || undefined} />
   ) : (
     <a href={props.block.props.url}>
       {props.block.props.name || props.block.props.url}
