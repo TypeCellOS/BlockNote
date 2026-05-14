@@ -1,9 +1,8 @@
 import { Chat, UIMessage } from "@ai-sdk/react";
 import { BlockNoteEditor } from "@blocknote/core";
-import { getCurrentTest, TestContext } from "@vitest/runner";
 import path from "path";
 import { TextSelection } from "prosemirror-state";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect, it, TestContext, TestRunner } from "vite-plus/test";
 import { AIExtension } from "../../../AIExtension.js";
 import { sendMessageWithAIRequest } from "../../../index.js";
 import { addOperationTestCases } from "../../../testUtil/cases/addOperationTestCases.js";
@@ -23,7 +22,7 @@ const BASE_FILE_PATH = path.resolve(__dirname, "__snapshots__");
 // @ts-expect-error - unused helper kept for debugging snapshots
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function matchFileSnapshot(data: any, postFix = "") {
-  const t = getCurrentTest()!;
+  const t = TestRunner.getCurrentTest()!;
   // this uses the same snapshot path, regardless of the model / streaming params
   await expect(data).toMatchFileSnapshot(
     path.resolve(
