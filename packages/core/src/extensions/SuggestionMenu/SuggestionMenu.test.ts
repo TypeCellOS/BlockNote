@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { SuggestionMenu } from "./SuggestionMenu.js";
@@ -45,6 +45,32 @@ function simulateTextInput(editor: BlockNoteEditor, char: string): boolean {
   return (handler as any)(view, from, to, char) as boolean;
 }
 
+function simulateCompositionStart(editor: BlockNoteEditor): boolean {
+  const plugin = findSuggestionPlugin(editor);
+  const handler = plugin.props.handleDOMEvents?.compositionstart;
+  if (!handler) {
+    throw new Error("compositionstart not found on SuggestionMenu plugin");
+  }
+  return (handler as any)(editor._tiptapEditor.view, {
+    type: "compositionstart",
+  }) as boolean;
+}
+
+function simulateCompositionEnd(
+  editor: BlockNoteEditor,
+  data: string,
+): boolean {
+  const plugin = findSuggestionPlugin(editor);
+  const handler = plugin.props.handleDOMEvents?.compositionend;
+  if (!handler) {
+    throw new Error("compositionend not found on SuggestionMenu plugin");
+  }
+  return (handler as any)(editor._tiptapEditor.view, {
+    data,
+    type: "compositionend",
+  }) as boolean;
+}
+
 function createEditor() {
   const editor = BlockNoteEditor.create();
   const div = document.createElement("div");
@@ -85,6 +111,44 @@ describe("SuggestionMenu", () => {
     expect(pluginState.triggerCharacter).toBe("/");
 
     editor._tiptapEditor.destroy();
+  });
+
+  it("should use the final composition text for the active query", () => {
+    vi.useFakeTimers();
+
+    const editor = createEditor();
+    try {
+      const sm = editor.getExtension(SuggestionMenu)!;
+
+      sm.addSuggestionMenu({ triggerCharacter: "@" });
+
+      editor.replaceBlocks(editor.document, [
+        {
+          id: "paragraph-0",
+          type: "paragraph",
+          content: "Hello world",
+        },
+      ]);
+
+      editor.setTextCursorPosition("paragraph-0", "end");
+
+      expect(simulateTextInput(editor, "@")).toBe(true);
+      expect(getSuggestionPluginState(editor).query).toBe("");
+
+      expect(simulateCompositionStart(editor)).toBe(false);
+
+      editor._tiptapEditor.view.dispatch(
+        editor._tiptapEditor.state.tr.insertText("zhang"),
+      );
+      expect(getSuggestionPluginState(editor).query).toBe("zhang");
+
+      expect(simulateCompositionEnd(editor, "张")).toBe(false);
+      expect(getSuggestionPluginState(editor).query).toBe("张");
+    } finally {
+      vi.clearAllTimers();
+      vi.useRealTimers();
+      editor._tiptapEditor.destroy();
+    }
   });
 
   it("should not open suggestion menu in table content when shouldTrigger returns false", () => {

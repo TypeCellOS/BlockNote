@@ -149,6 +149,17 @@ type SuggestionPluginState =
     }
   | undefined;
 
+type SuggestionPluginTransactionMeta =
+  | {
+      triggerCharacter: string;
+      deleteTriggerCharacter?: boolean;
+      ignoreQueryLength?: boolean;
+    }
+  | {
+      compositionQuery: string;
+    }
+  | null;
+
 export type SuggestionMenuOptions = {
   triggerCharacter: string;
   /**
@@ -174,6 +185,7 @@ const suggestionMenuPluginKey = new PluginKey("SuggestionMenuPlugin");
 export const SuggestionMenu = createExtension(({ editor }) => {
   const suggestionMenus = new Map<string, SuggestionMenuOptions>();
   let view: SuggestionMenuView | undefined = undefined;
+  let queryBeforeComposition: string | undefined = undefined;
   const store = createStore<
     (SuggestionMenuState & { triggerCharacter: string }) | undefined
   >(undefined);
@@ -255,15 +267,29 @@ export const SuggestionMenu = createExtension(({ editor }) => {
 
             // Either contains the trigger character if the menu should be shown,
             // or null if it should be hidden.
-            const suggestionPluginTransactionMeta: {
-              triggerCharacter: string;
-              deleteTriggerCharacter?: boolean;
-              ignoreQueryLength?: boolean;
-            } | null = transaction.getMeta(suggestionMenuPluginKey);
+            const suggestionPluginTransactionMeta:
+              | SuggestionPluginTransactionMeta
+              | undefined = transaction.getMeta(suggestionMenuPluginKey);
 
             if (
               typeof suggestionPluginTransactionMeta === "object" &&
-              suggestionPluginTransactionMeta !== null
+              suggestionPluginTransactionMeta !== null &&
+              "compositionQuery" in suggestionPluginTransactionMeta
+            ) {
+              if (prev === undefined) {
+                return prev;
+              }
+
+              return {
+                ...prev,
+                query: suggestionPluginTransactionMeta.compositionQuery,
+              };
+            }
+
+            if (
+              typeof suggestionPluginTransactionMeta === "object" &&
+              suggestionPluginTransactionMeta !== null &&
+              "triggerCharacter" in suggestionPluginTransactionMeta
             ) {
               if (prev) {
                 // Close the previous menu if it exists
@@ -332,6 +358,71 @@ export const SuggestionMenu = createExtension(({ editor }) => {
         },
 
         props: {
+          handleDOMEvents: {
+            compositionstart(view) {
+              const suggestionPluginState: SuggestionPluginState =
+                suggestionMenuPluginKey.getState(view.state);
+
+              if (suggestionPluginState === undefined) {
+                queryBeforeComposition = undefined;
+                return false;
+              }
+
+              queryBeforeComposition = view.state.doc.textBetween(
+                suggestionPluginState.queryStartPos(),
+                view.state.selection.from,
+              );
+              return false;
+            },
+
+            compositionend(view, event) {
+              const suggestionPluginState: SuggestionPluginState =
+                suggestionMenuPluginKey.getState(view.state);
+
+              if (
+                suggestionPluginState === undefined ||
+                queryBeforeComposition === undefined
+              ) {
+                queryBeforeComposition = undefined;
+                return false;
+              }
+
+              const compositionText = (event as CompositionEvent).data || "";
+              const compositionQuery =
+                queryBeforeComposition + compositionText;
+
+              view.dispatch(
+                view.state.tr.setMeta(suggestionMenuPluginKey, {
+                  compositionQuery,
+                }),
+              );
+
+              setTimeout(() => {
+                const currentPluginState: SuggestionPluginState =
+                  suggestionMenuPluginKey.getState(view.state);
+
+                if (currentPluginState === undefined) {
+                  return;
+                }
+
+                const docQuery = view.state.doc.textBetween(
+                  currentPluginState.queryStartPos(),
+                  view.state.selection.from,
+                );
+
+                if (
+                  docQuery !== currentPluginState.query &&
+                  (!compositionText || docQuery.includes(compositionText))
+                ) {
+                  view.dispatch(view.state.tr);
+                }
+              }, 0);
+
+              queryBeforeComposition = undefined;
+              return false;
+            },
+          },
+
           handleTextInput(view, from, to, text) {
             // only on insert
             if (from === to) {
