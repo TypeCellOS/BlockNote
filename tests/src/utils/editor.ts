@@ -46,3 +46,32 @@ export async function compareDocToSnapshot(page: Page, name: string) {
   const doc = JSON.stringify(await getDoc(page), null, 2);
   expect(doc).toMatchSnapshot(`${name}.json`);
 }
+
+/**
+ * Programmatically move cursor to end of the current block content.
+ * This avoids relying on keyboard navigation (ArrowUp/End) which can
+ * position the cursor incorrectly in WebKit when crossing blocks with
+ * different indentation levels.
+ */
+export async function moveCursorToBlockEnd(page: Page) {
+  await page.evaluate(() => {
+    const tiptap = (window as any).ProseMirror;
+    const bnEditor = tiptap.schema.cached.blockNoteEditor;
+    const block = bnEditor.getTextCursorPosition().block;
+    bnEditor.setTextCursorPosition(block, "end");
+  });
+}
+
+/**
+ * Programmatically move cursor to start of the current block content.
+ * This avoids relying on keyboard navigation which can be unreliable
+ * in WebKit.
+ */
+export async function moveCursorToBlockStart(page: Page) {
+  await page.evaluate(() => {
+    const tiptap = (window as any).ProseMirror;
+    const bnEditor = tiptap.schema.cached.blockNoteEditor;
+    const block = bnEditor.getTextCursorPosition().block;
+    bnEditor.setTextCursorPosition(block, "start");
+  });
+}
