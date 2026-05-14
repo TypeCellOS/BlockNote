@@ -65,6 +65,15 @@ export default defineConfig(((conf: { command: string }) => ({
   build: {
     sourcemap: true,
   },
+  preview: {
+    port: 3000,
+    // Bind on all interfaces so the dockerized `test:updateSnaps` flow
+    // can reach the host preview server via `host.docker.internal`.
+    host: true,
+    // Vite 5.1+ blocks unknown Host headers as a DNS-rebinding mitigation;
+    // whitelist the Docker gateway hostname used by the e2e tests.
+    allowedHosts: ["host.docker.internal"],
+  },
   resolve: {
     alias: conf.command === "build" ? undefined : devAliases,
   },
