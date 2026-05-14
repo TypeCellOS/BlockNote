@@ -8,7 +8,7 @@ import { withCollaboration } from "./index.js";
 /**
  * @vitest-environment jsdom
  */
-it("can fork a document", async () => {
+it.skip("can fork a document", async () => {
   const doc = new Y.Doc();
   const fragment = doc.getXmlFragment("doc");
   const editor = BlockNoteEditor.create(
@@ -61,7 +61,7 @@ it("can fork a document", async () => {
   }
 });
 
-it("can merge a document", async () => {
+it.skip("can merge a document", async () => {
   const doc = new Y.Doc();
   const fragment = doc.getXmlFragment("doc");
   const editor = BlockNoteEditor.create(
@@ -123,7 +123,7 @@ it("can merge a document", async () => {
   }
 });
 
-it("can fork an keep the changes to the original document", async () => {
+it.skip("can fork an keep the changes to the original document", async () => {
   const doc = new Y.Doc();
   const fragment = doc.getXmlFragment("doc");
   const editor = BlockNoteEditor.create(

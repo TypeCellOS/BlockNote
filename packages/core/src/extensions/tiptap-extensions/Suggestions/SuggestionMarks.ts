@@ -7,16 +7,16 @@ import { MarkSpec } from "prosemirror-model";
 // The ideal solution would be to not depend on tiptap nodes / marks, but be able to use prosemirror nodes / marks directly
 // this way we could directly use the exported marks from @handlewithcare/prosemirror-suggest-changes
 export const SuggestionAddMark = Mark.create({
-  name: "insertion",
+  name: "y-attributed-insert",
   inclusive: false,
-  excludes: "deletion modification insertion",
+  excludes: "y-attributed-delete y-attributed-format y-attributed-insert",
   addAttributes() {
     return {
       id: { default: null, validate: "number" }, // note: validate is supported in prosemirror but not in tiptap, so this doesn't actually work (considered not critical)
     };
   },
   extendMarkSchema(extension) {
-    if (extension.name !== "insertion") {
+    if (extension.name !== "y-attributed-insert") {
       return {};
     }
     return {
@@ -52,16 +52,16 @@ export const SuggestionAddMark = Mark.create({
 });
 
 export const SuggestionDeleteMark = Mark.create({
-  name: "deletion",
+  name: "y-attributed-delete",
   inclusive: false,
-  excludes: "insertion modification deletion",
+  excludes: "y-attributed-delete y-attributed-format y-attributed-insert",
   addAttributes() {
     return {
       id: { default: null, validate: "number" }, // note: validate is supported in prosemirror but not in tiptap
     };
   },
   extendMarkSchema(extension) {
-    if (extension.name !== "deletion") {
+    if (extension.name !== "y-attributed-delete") {
       return {};
     }
     return {
@@ -100,9 +100,9 @@ export const SuggestionDeleteMark = Mark.create({
 });
 
 export const SuggestionModificationMark = Mark.create({
-  name: "modification",
+  name: "y-attributed-format",
   inclusive: false,
-  excludes: "deletion insertion",
+  excludes: "y-attributed-delete y-attributed-format y-attributed-insert",
   addAttributes() {
     // note: validate is supported in prosemirror but not in tiptap
     return {
@@ -114,7 +114,7 @@ export const SuggestionModificationMark = Mark.create({
     };
   },
   extendMarkSchema(extension) {
-    if (extension.name !== "modification") {
+    if (extension.name !== "y-attributed-format") {
       return {};
     }
     return {

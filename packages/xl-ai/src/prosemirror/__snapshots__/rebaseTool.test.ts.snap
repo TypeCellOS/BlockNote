@@ -1,99 +1,5 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`should be able to apply changes to a clean doc (use invertMap) 1`] = `
-{
-  "content": [
-    {
-      "content": [
-        {
-          "attrs": {
-            "id": "1",
-          },
-          "content": [
-            {
-              "attrs": {
-                "backgroundColor": "default",
-                "textAlignment": "left",
-                "textColor": "default",
-              },
-              "content": [
-                {
-                  "marks": [
-                    {
-                      "attrs": {
-                        "id": null,
-                      },
-                      "type": "deletion",
-                    },
-                  ],
-                  "text": "Hello",
-                  "type": "text",
-                },
-                {
-                  "text": "What's up, world!",
-                  "type": "text",
-                },
-              ],
-              "type": "paragraph",
-            },
-          ],
-          "type": "blockContainer",
-        },
-      ],
-      "type": "blockGroup",
-    },
-  ],
-  "type": "doc",
-}
-`;
-
-exports[`should be able to apply changes to a clean doc (use rebaseTr) 1`] = `
-{
-  "content": [
-    {
-      "content": [
-        {
-          "attrs": {
-            "id": "1",
-          },
-          "content": [
-            {
-              "attrs": {
-                "backgroundColor": "default",
-                "textAlignment": "left",
-                "textColor": "default",
-              },
-              "content": [
-                {
-                  "marks": [
-                    {
-                      "attrs": {
-                        "id": null,
-                      },
-                      "type": "deletion",
-                    },
-                  ],
-                  "text": "Hello",
-                  "type": "text",
-                },
-                {
-                  "text": "What's up, world!",
-                  "type": "text",
-                },
-              ],
-              "type": "paragraph",
-            },
-          ],
-          "type": "blockContainer",
-        },
-      ],
-      "type": "blockGroup",
-    },
-  ],
-  "type": "doc",
-}
-`;
-
 exports[`should create some example suggestions 1`] = `
 {
   "content": [
@@ -117,7 +23,7 @@ exports[`should create some example suggestions 1`] = `
                       "attrs": {
                         "id": null,
                       },
-                      "type": "deletion",
+                      "type": "y-attributed-delete",
                     },
                   ],
                   "text": "Hello",
@@ -129,7 +35,7 @@ exports[`should create some example suggestions 1`] = `
                       "attrs": {
                         "id": null,
                       },
-                      "type": "insertion",
+                      "type": "y-attributed-insert",
                     },
                   ],
                   "text": "Hi",
