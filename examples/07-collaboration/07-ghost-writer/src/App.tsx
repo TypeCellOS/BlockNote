@@ -7,7 +7,7 @@ import YPartyKitProvider from "y-partykit/provider";
 import * as Y from "yjs";
 import "./styles.css";
 import { useEffect, useState } from "react";
-// eslint-disable-next-line import/no-extraneous-dependencies
+// eslint-disable-next-line import-eslint/no-extraneous-dependencies
 import { EditorView } from "prosemirror-view";
 
 const params = new URLSearchParams(window.location.search);

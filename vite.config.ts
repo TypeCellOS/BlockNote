@@ -13,7 +13,9 @@ export default defineConfig({
     cache: { scripts: true },
   },
   lint: {
-    plugins: ["typescript", "react"],
+    plugins: ["typescript", "react", "import"],
+    // Adds pre-migration ESLint rules with no oxlint equivalents.
+    jsPlugins: [{ name: "import-eslint", specifier: "eslint-plugin-import" }],
     options: {
       typeAware: false,
       typeCheck: false,
@@ -24,6 +26,22 @@ export default defineConfig({
       "@typescript-eslint/no-non-null-assertion": "off",
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/ban-ts-comment": "off",
+      "import-eslint/no-extraneous-dependencies": [
+        "error",
+        {
+          devDependencies: true,
+          peerDependencies: true,
+          optionalDependencies: false,
+          bundledDependencies: false,
+        },
+      ],
+      "import-eslint/extensions": ["error", "always", { ignorePackages: true }],
+      // Native oxlint dependency cycle rule to replace previous ESLint rule.
+      // More strict, catches issues which were not caught with ESLint, hence
+      // why it only triggers warnings and not errors.
+      // TODO: Either set to trigger errors & fix them or revert to ESLint
+      // plugin.
+      "import/no-cycle": "warn",
     },
     overrides: [
       {
@@ -37,6 +55,20 @@ export default defineConfig({
         ],
         rules: {
           "no-console": "off",
+        },
+      },
+      {
+        // Mirrors the old `examples/.eslintrc.js` + `docs/eslint.config.mjs`
+        // (Next.js preset) which had `import/extensions` off. The TS-ESM
+        // `.js`-suffix rule only applies to the published library packages.
+        files: [
+          "examples/**",
+          "docs/**",
+          "tests/nextjs-test-app/**",
+          "fumadocs/**",
+        ],
+        rules: {
+          "import-eslint/extensions": "off",
         },
       },
     ],

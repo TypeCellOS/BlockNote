@@ -3,11 +3,12 @@
   "type": "module",
   "devDependencies": {
     "concurrently": "9.1.2",
+    "eslint-plugin-import": "^2.32.0",
     "glob": "^10.5.0",
     "serve": "14.2.6",
     "typescript": "^5.9.3",
-    "wait-on": "9.0.5",
-    "vite-plus": "catalog:"
+    "vite-plus": "catalog:",
+    "wait-on": "9.0.5"
   },
   "packageManager": "pnpm@11.1.1+sha512.d1fdf5f73c617b64fa1a56a81c3c8dfe0e966e33a6010aa256b517ae77be21d93e05affc0de1a83b0e4f29d569f68b446ae8f068cd7247c0bb3df0fb4d7bdf9a",
   "private": true,

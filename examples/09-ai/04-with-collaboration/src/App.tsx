@@ -23,7 +23,7 @@ import "@blocknote/xl-ai/style.css";
 import { useEffect, useState } from "react";
 import YPartyKitProvider from "y-partykit/provider";
 import * as Y from "yjs";
-// eslint-disable-next-line import/no-extraneous-dependencies
+// eslint-disable-next-line import-eslint/no-extraneous-dependencies
 import { EditorView } from "prosemirror-view";
 
 import { DefaultChatTransport } from "ai";
