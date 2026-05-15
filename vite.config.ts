@@ -4,6 +4,14 @@ export default defineConfig({
   staged: {
     "*": "vp check --fix",
   },
+  run: {
+    // Cache package.json scripts by default (off by default in vp).
+    // Vite Task automatically fingerprints each command's read file set,
+    // so cache invalidation already follows the workspace dependency graph:
+    // when `core`'s dist changes, `react`'s build cache misses because
+    // its tsc step reads `core`'s `.d.ts` files.
+    cache: { scripts: true },
+  },
   lint: {
     plugins: ["typescript", "react"],
     options: {

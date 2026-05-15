@@ -19,7 +19,7 @@
     "build": "vp run -r build",
     "build:clean": "vp run clean && vp run gen && vp run clean && vp run build",
     "build:site": "vp run -r build:site",
-    "clean": "vp run -r clean",
+    "clean": "vp run -r clean && vp cache clean",
     "deploy": "nx release --skip-publish",
     "gen": "vp run --filter @blocknote/dev-scripts gen",
     "install-playwright": "cd tests && vp exec playwright install --with-deps",

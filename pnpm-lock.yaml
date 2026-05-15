@@ -5175,6 +5175,9 @@ importers:
       react-dom:
         specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)
+      rimraf:
+        specifier: ^5.0.10
+        version: 5.0.10
       rollup-plugin-webpack-stats:
         specifier: ^0.2.6
         version: 0.2.6(rollup@4.60.1)
