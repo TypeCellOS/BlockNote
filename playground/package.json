@@ -57,8 +57,7 @@
     "react-dom": "^19.2.5",
     "react-icons": "^5.5.0",
     "react-router-dom": "^6.30.1",
-    "y-partykit": "^0.0.25",
-    "yjs": "^13.6.27"
+    "y-partykit": "^0.0.25"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.14",

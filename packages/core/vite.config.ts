@@ -21,6 +21,7 @@ export default defineConfig({
         locales: path.resolve(__dirname, "src/i18n/index.ts"),
         extensions: path.resolve(__dirname, "src/extensions/index.ts"),
         yjs: path.resolve(__dirname, "src/yjs/index.ts"),
+        y: path.resolve(__dirname, "src/y/index.ts"),
       },
       name: "blocknote",
       cssFileName: "style",

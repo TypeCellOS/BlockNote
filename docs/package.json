@@ -97,7 +97,12 @@
     "tailwind-merge": "^3.4.0",
     "y-partykit": "^0.0.25",
     "yjs": "^13.6.27",
-    "zod": "^4.3.5"
+    "zod": "^4.3.5",
+    "@y/protocols": "^1.0.6-rc.1",
+    "@y/websocket": "^4.0.0-rc.2",
+    "@y/y": "^14.0.0-rc.16",
+    "@y/prosemirror": "^2.0.0-2",
+    "@floating-ui/react": "^0.27.18"
   },
   "devDependencies": {
     "@blocknote/code-block": "workspace:*",

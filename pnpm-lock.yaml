@@ -10,6 +10,12 @@ overrides:
   '@tiptap/pm': ^3.0.0
   vitest: 4.1.2
   '@vitest/runner': 4.1.2
+  '@y/prosemirror>lib0': 1.0.0-rc.13
+
+patchedDependencies:
+  '@y/prosemirror@2.0.0-2':
+    hash: 3d3cf85192437e3e18e50ff28017eb00feb7260e980ab9c5a8f2decbe49d4f6a
+    path: patches/@y__prosemirror@2.0.0-2.patch
 
 importers:
 
@@ -114,6 +120,9 @@ importers:
       '@blocknote/xl-pdf-exporter':
         specifier: workspace:*
         version: link:../packages/xl-pdf-exporter
+      '@floating-ui/react':
+        specifier: ^0.27.18
+        version: 0.27.19(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@fumadocs/base-ui':
         specifier: 16.5.0
         version: 16.5.0(@types/react@19.2.14)(fumadocs-core@16.5.0(@types/react@19.2.14)(lucide-react@0.562.0(react@19.2.5))(next@16.2.6(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.51.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(zod@4.3.6))(next@16.2.6(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.51.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(tailwindcss@4.2.2)
@@ -225,6 +234,18 @@ importers:
       '@y-sweet/react':
         specifier: ^0.6.3
         version: 0.6.4(react@19.2.5)(yjs@13.6.30)
+      '@y/prosemirror':
+        specifier: ^2.0.0-2
+        version: 2.0.0-2(patch_hash=3d3cf85192437e3e18e50ff28017eb00feb7260e980ab9c5a8f2decbe49d4f6a)(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.16))(@y/y@14.0.0-rc.16)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)
+      '@y/protocols':
+        specifier: ^1.0.6-rc.1
+        version: 1.0.6-rc.1(@y/y@14.0.0-rc.16)
+      '@y/websocket':
+        specifier: ^4.0.0-rc.2
+        version: 4.0.0-rc.2(@y/y@14.0.0-rc.16)
+      '@y/y':
+        specifier: ^14.0.0-rc.16
+        version: 14.0.0-rc.16
       ai:
         specifier: ^6.0.5
         version: 6.0.5(zod@4.3.6)
@@ -3988,6 +4009,119 @@ importers:
         specifier: ^8.0.8
         version: 8.0.8(@types/node@25.9.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.47.1)(tsx@4.21.0)(yaml@2.8.3)
 
+  examples/07-collaboration/10-versioning:
+    dependencies:
+      '@blocknote/ariakit':
+        specifier: latest
+        version: link:../../../packages/ariakit
+      '@blocknote/core':
+        specifier: latest
+        version: link:../../../packages/core
+      '@blocknote/mantine':
+        specifier: latest
+        version: link:../../../packages/mantine
+      '@blocknote/react':
+        specifier: latest
+        version: link:../../../packages/react
+      '@blocknote/shadcn':
+        specifier: latest
+        version: link:../../../packages/shadcn
+      '@floating-ui/react':
+        specifier: ^0.27.18
+        version: 0.27.19(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@mantine/core':
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@mantine/hooks':
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
+      '@y/protocols':
+        specifier: ^1.0.6-rc.1
+        version: 1.0.6-rc.1(@y/y@14.0.0-rc.16)
+      '@y/websocket':
+        specifier: ^4.0.0-3
+        version: 4.0.0-rc.2(@y/y@14.0.0-rc.16)
+      '@y/y':
+        specifier: ^14.0.0-rc.16
+        version: 14.0.0-rc.16
+      react:
+        specifier: ^19.2.3
+        version: 19.2.5
+      react-dom:
+        specifier: ^19.2.3
+        version: 19.2.5(react@19.2.5)
+      react-icons:
+        specifier: 5.6.0
+        version: 5.6.0(react@19.2.5)
+    devDependencies:
+      '@types/react':
+        specifier: ^19.2.3
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.14)
+      '@vitejs/plugin-react':
+        specifier: ^6.0.1
+        version: 6.0.1(babel-plugin-react-compiler@1.0.0)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))
+      vite:
+        specifier: ^8.0.8
+        version: 8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3)
+
+  examples/07-collaboration/11-yhub:
+    dependencies:
+      '@blocknote/ariakit':
+        specifier: latest
+        version: link:../../../packages/ariakit
+      '@blocknote/core':
+        specifier: latest
+        version: link:../../../packages/core
+      '@blocknote/mantine':
+        specifier: latest
+        version: link:../../../packages/mantine
+      '@blocknote/react':
+        specifier: latest
+        version: link:../../../packages/react
+      '@blocknote/shadcn':
+        specifier: latest
+        version: link:../../../packages/shadcn
+      '@mantine/core':
+        specifier: ^9.0.2
+        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@mantine/hooks':
+        specifier: ^9.0.2
+        version: 9.1.1(react@19.2.5)
+      '@y/prosemirror':
+        specifier: ^2.0.0-2
+        version: 2.0.0-2(patch_hash=3d3cf85192437e3e18e50ff28017eb00feb7260e980ab9c5a8f2decbe49d4f6a)(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.16))(@y/y@14.0.0-rc.16)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)
+      '@y/protocols':
+        specifier: ^1.0.6-rc.1
+        version: 1.0.6-rc.1(@y/y@14.0.0-rc.16)
+      '@y/websocket':
+        specifier: ^4.0.0-rc.2
+        version: 4.0.0-rc.2(@y/y@14.0.0-rc.16)
+      '@y/y':
+        specifier: ^14.0.0-rc.16
+        version: 14.0.0-rc.16
+      react:
+        specifier: ^19.2.3
+        version: 19.2.5
+      react-dom:
+        specifier: ^19.2.3
+        version: 19.2.5(react@19.2.5)
+    devDependencies:
+      '@types/react':
+        specifier: ^19.2.3
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.14)
+      '@vitejs/plugin-react':
+        specifier: ^6.0.1
+        version: 6.0.1(babel-plugin-react-compiler@1.0.0)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))
+      vite:
+        specifier: ^8.0.8
+        version: 8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3)
+
   examples/08-extensions/01-tiptap-arrow-conversion:
     dependencies:
       '@blocknote/ariakit':
@@ -4660,6 +4794,15 @@ importers:
       '@tiptap/pm':
         specifier: ^3.0.0
         version: 3.22.4
+      '@y/prosemirror':
+        specifier: ^2.0.0-2
+        version: 2.0.0-2(patch_hash=3d3cf85192437e3e18e50ff28017eb00feb7260e980ab9c5a8f2decbe49d4f6a)(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.16))(@y/y@14.0.0-rc.16)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)
+      '@y/protocols':
+        specifier: ^1.0.6-rc.1
+        version: 1.0.6-rc.1(@y/y@14.0.0-rc.16)
+      '@y/y':
+        specifier: ^14.0.0-rc.16
+        version: 14.0.0-rc.16
       emoji-mart:
         specifier: ^5.6.0
         version: 5.6.0
@@ -4667,8 +4810,8 @@ importers:
         specifier: ^3.1.3
         version: 3.1.3
       lib0:
-        specifier: ^0.2.99
-        version: 0.2.117
+        specifier: 1.0.0-rc.13
+        version: 1.0.0-rc.13
       prosemirror-highlight:
         specifier: ^0.15.1
         version: 0.15.1(@shikijs/types@4.0.2)(@types/hast@3.0.4)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.0)(prosemirror-view@1.41.8)
@@ -5732,9 +5875,6 @@ importers:
       y-partykit:
         specifier: ^0.0.25
         version: 0.0.25
-      yjs:
-        specifier: ^13.6.27
-        version: 13.6.30
     devDependencies:
       '@tailwindcss/vite':
         specifier: ^4.1.14
@@ -11185,6 +11325,32 @@ packages:
   '@y-sweet/sdk@0.6.4':
     resolution: {integrity: sha512-px51qSbckGrucN83BM9jJyaBLLdYFT+zhvsootK+WW9t/9rQSQHQX54gdtF6M1kUktA4jOGfSiAXDzuTY0zYVg==}
 
+  '@y/prosemirror@2.0.0-2':
+    resolution: {integrity: sha512-QGd7H+O47mqzsfQx80RgTt64OMH+mMcqTadjC/lUk+d+DNiDhY1KCBfdJzjprPb5A66ZWtAQ3Ixmc5+Ivk5JQw==}
+    engines: {node: '>=16.0.0', npm: '>=8.0.0'}
+    peerDependencies:
+      '@y/protocols': ^1.0.6-3
+      '@y/y': ^14.0.0-16
+      prosemirror-model: ^1.7.1
+      prosemirror-state: ^1.2.3
+      prosemirror-view: ^1.9.10
+
+  '@y/protocols@1.0.6-rc.1':
+    resolution: {integrity: sha512-e/qs7hXcLk/SeNitxMXv2ymozyWFTULwbJEi7cAf/K/iXw9nGwGXHrR5TNluQ/bMwOX1cwuUT0hjEojkfH0gsA==}
+    engines: {node: '>=16.0.0', npm: '>=8.0.0'}
+    peerDependencies:
+      '@y/y': '*'
+
+  '@y/websocket@4.0.0-rc.2':
+    resolution: {integrity: sha512-QhF3ehjAvrlTMwR16dKVLdFrq+8+rhfndvqHjx+83BpxRvgTuseg0ckq4hQ6tuEFA31VRos2x+cm9fyxlix7Nw==}
+    engines: {node: '>=16.0.0', npm: '>=8.0.0'}
+    peerDependencies:
+      '@y/y': '*'
+
+  '@y/y@14.0.0-rc.16':
+    resolution: {integrity: sha512-OjPE92lb19rOK6Dnjxg5VUTsVa/XfBUiIylazNndGiePebIyrvLRoPgKHibPEPYT215Jd20fsuyfBdzk4iT5cA==}
+    engines: {node: '>=22.0.0', npm: '>=8.0.0'}
+
   '@yarnpkg/lockfile@1.1.0':
     resolution: {integrity: sha512-GpSwvyXOcOOlV70vbnzjj4fW5xW/FdUF6nQEt1ENy7m4ZCczi1+/buVUPAqmGfqznsORNFzUMjctTIp8a9tuCQ==}
 
@@ -13619,6 +13785,11 @@ packages:
   lib0@0.2.117:
     resolution: {integrity: sha512-DeXj9X5xDCjgKLU/7RR+/HQEVzuuEUiwldwOGsHK/sfAfELGWEyTcf0x+uOvCvK3O2zPmZePXWL85vtia6GyZw==}
     engines: {node: '>=16'}
+    hasBin: true
+
+  lib0@1.0.0-rc.13:
+    resolution: {integrity: sha512-4y73dAr8BHgIwQlBxJe2+QX4bFmPxS/t9SJQfJgH9sn/Zv/TisvWqNfYgqDIVVFevZ6yTW1ShuT08Ox8nTEmxg==}
+    engines: {node: '>=22'}
     hasBin: true
 
   lie@3.3.0:
@@ -22599,6 +22770,30 @@ snapshots:
     dependencies:
       '@types/node': 20.19.39
 
+  '@y/prosemirror@2.0.0-2(patch_hash=3d3cf85192437e3e18e50ff28017eb00feb7260e980ab9c5a8f2decbe49d4f6a)(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.16))(@y/y@14.0.0-rc.16)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)':
+    dependencies:
+      '@y/protocols': 1.0.6-rc.1(@y/y@14.0.0-rc.16)
+      '@y/y': 14.0.0-rc.16
+      lib0: 1.0.0-rc.13
+      prosemirror-model: 1.25.4
+      prosemirror-state: 1.4.4
+      prosemirror-view: 1.41.8
+
+  '@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.16)':
+    dependencies:
+      '@y/y': 14.0.0-rc.16
+      lib0: 1.0.0-rc.13
+
+  '@y/websocket@4.0.0-rc.2(@y/y@14.0.0-rc.16)':
+    dependencies:
+      '@y/protocols': 1.0.6-rc.1(@y/y@14.0.0-rc.16)
+      '@y/y': 14.0.0-rc.16
+      lib0: 1.0.0-rc.13
+
+  '@y/y@14.0.0-rc.16':
+    dependencies:
+      lib0: 1.0.0-rc.13
+
   '@yarnpkg/lockfile@1.1.0': {}
 
   '@yarnpkg/parsers@3.0.2':
@@ -25448,6 +25643,8 @@ snapshots:
   lib0@0.2.117:
     dependencies:
       isomorphic.js: 0.2.5
+
+  lib0@1.0.0-rc.13: {}
 
   lie@3.3.0:
     dependencies:

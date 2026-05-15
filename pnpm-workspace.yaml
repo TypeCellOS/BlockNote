@@ -19,6 +19,7 @@ overrides:
   "@tiptap/pm": "^3.0.0"
   "vitest": "4.1.2"
   "@vitest/runner": "4.1.2"
+  "@y/prosemirror>lib0": "1.0.0-rc.13"
 allowBuilds:
   "@parcel/watcher": true
   "@sentry/cli": true
@@ -31,3 +32,5 @@ allowBuilds:
   canvas: false
   sharp: false
   workerd: false
+patchedDependencies:
+  "@y/prosemirror@2.0.0-2": "patches/@y__prosemirror@2.0.0-2.patch"
