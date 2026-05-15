@@ -24,7 +24,6 @@ allowBuilds:
   better-sqlite3: true
   esbuild: true
   msw: true
-  nx: true
   unrs-resolver: true
   canvas: false
   sharp: false

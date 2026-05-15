@@ -17,7 +17,6 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  pnpm_config_store_dir: ./node_modules/.pnpm-store
 
 jobs:
   fresh-install-unit-tests:
@@ -29,19 +28,16 @@ jobs:
       - id: checkout
         uses: actions/checkout@v6
 
-      - id: install_pnpm
-        name: Install pnpm
-        uses: pnpm/action-setup@v5
-
-      - id: setup_node
-        uses: actions/setup-node@v6
+      - id: setup_vp
+        uses: voidzero-dev/setup-vp@v1
         with:
           node-version-file: ".node-version"
-          # Intentionally no pnpm cache — we want fresh prod dep resolution
+          # Intentionally no install cache — we want fresh prod dep resolution.
+          cache: false
 
       - id: install_dependencies
         name: Install dependencies
-        run: pnpm install
+        run: vp install
 
       - id: update_prod_deps
         name: Update prod deps of published packages
@@ -50,6 +46,8 @@ jobs:
         # ranges. This simulates what a user gets when running
         # `npm install @blocknote/react` in a fresh project.
         # DevDependencies are left at their lockfile versions.
+        # NB: this uses pnpm directly because vp doesn't expose a `--prod`-only
+        # update flow; setup-vp installs pnpm on PATH so this still works.
         run: |
           FILTERS=$(node -e "
             const fs = require('fs');
@@ -79,15 +77,11 @@ jobs:
 
       - id: build_packages
         name: Build packages
-        run: pnpm run build
-        env:
-          NX_SKIP_NX_CACHE: "true"
+        run: vp run -r build
 
       - id: run_unit_tests
         name: Run unit tests
-        run: pnpm run test
-        env:
-          NX_SKIP_NX_CACHE: "true"
+        run: vp run -r test
 
       - name: Notify Slack on workflow failure
         if: ${{ failure() }}
@@ -108,10 +102,8 @@ jobs:
           failed_step="Unknown step"
           if [ "${{ steps.checkout.outcome }}" = "failure" ]; then
             failed_step="Checkout repository"
-          elif [ "${{ steps.install_pnpm.outcome }}" = "failure" ]; then
-            failed_step="Install pnpm"
-          elif [ "${{ steps.setup_node.outcome }}" = "failure" ]; then
-            failed_step="Setup Node.js"
+          elif [ "${{ steps.setup_vp.outcome }}" = "failure" ]; then
+            failed_step="Setup Vite+"
           elif [ "${{ steps.install_dependencies.outcome }}" = "failure" ]; then
             failed_step="Install dependencies"
           elif [ "${{ steps.update_prod_deps.outcome }}" = "failure" ]; then

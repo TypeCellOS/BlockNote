@@ -8,9 +8,6 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN }}
-  NX_SELF_HOSTED_REMOTE_CACHE_SERVER: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_SERVER }}
-  pnpm_config_store_dir: ./node_modules/.pnpm-store
 
 jobs:
   build:
@@ -22,41 +19,25 @@ jobs:
         with:
           fetch-depth: 100
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v5
-
-      - uses: nrwl/nx-set-shas@v5
-
-      - uses: actions/setup-node@v6
+      - uses: voidzero-dev/setup-vp@v1
         with:
-          cache: "pnpm"
-          cache-dependency-path: "**/pnpm-lock.yaml"
           node-version-file: ".node-version"
-
-      - name: Cache NX
-        uses: actions/cache@v5
-        with:
-          path: .nx/cache
-          key: nx-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-${{ github.sha }}
-          restore-keys: |
-            nx-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-
-            nx-${{ env.NX_BRANCH }}-
-            nx-
+          cache: true
 
       - name: Install Dependencies
-        run: pnpm install
+        run: vp install
 
       - name: Lint packages
-        run: pnpm run lint
+        run: vp lint
 
       - name: Build packages
-        run: pnpm run build
+        run: vp run -r build
 
       - name: Run unit tests
-        run: pnpm run test
+        run: vp run -r test
 
       - name: Run Next.js integration test (production build)
-        run: NEXTJS_TEST_MODE=build pnpm exec vp test run src/unit/nextjs/serverUtil.test.ts
+        run: NEXTJS_TEST_MODE=build vp test run src/unit/nextjs/serverUtil.test.ts
         working-directory: tests
 
       - name: Upload webpack stats artifact (editor)
@@ -78,32 +59,16 @@ jobs:
         with:
           fetch-depth: 100
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v5
-
-      - uses: nrwl/nx-set-shas@v5
-
-      - uses: actions/setup-node@v6
+      - uses: voidzero-dev/setup-vp@v1
         with:
-          cache: "pnpm"
-          cache-dependency-path: "**/pnpm-lock.yaml"
           node-version-file: ".node-version"
-
-      - name: Cache NX
-        uses: actions/cache@v5
-        with:
-          path: .nx/cache
-          key: nx-playwright-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-${{ github.sha }}
-          restore-keys: |
-            nx-playwright-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-
-            nx-playwright-${{ env.NX_BRANCH }}-
-            nx-
+          cache: true
 
       - name: Install dependencies
-        run: pnpm install
+        run: vp install
 
       - name: Build packages
-        run: pnpm run build
+        run: vp run -r build
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v7
@@ -132,14 +97,10 @@ jobs:
         with:
           fetch-depth: 100
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v5
-
-      - uses: actions/setup-node@v6
+      - uses: voidzero-dev/setup-vp@v1
         with:
-          cache: "pnpm"
-          cache-dependency-path: "**/pnpm-lock.yaml"
           node-version-file: ".node-version"
+          cache: true
 
       - name: Download build artifacts
         uses: actions/download-artifact@v8
@@ -147,11 +108,11 @@ jobs:
           name: playwright-build
 
       - name: Install dependencies
-        run: pnpm install
+        run: vp install
 
       - name: Run server and Playwright tests
         run: |
-          HOME=/root PLAYWRIGHT_CONFIG="--project ${{ matrix.browser }} --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}" pnpm run e2e
+          HOME=/root PLAYWRIGHT_CONFIG="--project ${{ matrix.browser }} --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}" vp run e2e
 
       - name: Upload blob report
         uses: actions/upload-artifact@v7
@@ -177,17 +138,13 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v5
-
-      - uses: actions/setup-node@v6
+      - uses: voidzero-dev/setup-vp@v1
         with:
-          cache: "pnpm"
-          cache-dependency-path: "**/pnpm-lock.yaml"
           node-version-file: ".node-version"
+          cache: true
 
       - name: Install dependencies
-        run: pnpm install
+        run: vp install
 
       - name: Download blob reports
         uses: actions/download-artifact@v8
@@ -197,7 +154,7 @@ jobs:
           merge-multiple: true
 
       - name: Merge reports
-        run: npx playwright merge-reports --reporter html ./all-blob-reports
+        run: vp exec playwright merge-reports --reporter html ./all-blob-reports
         working-directory: tests
 
       - name: Upload merged HTML report
