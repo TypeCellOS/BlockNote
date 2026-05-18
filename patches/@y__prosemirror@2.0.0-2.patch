@@ -77,10 +77,10 @@ index 0000000000000000000000000000000000000000..04ab0db3352cdf138ad9c3c15831f35b
 +{"version":3,"file":"cursor-plugin.d.ts","sourceRoot":"","sources":["../../src/cursor-plugin.js"],"names":[],"mappings":"AAgCO,2CAHI,IAAI,GACH,WAAW,CAmBtB;AAQM,8CAHI,IAAI,GACH,OAAO,kBAAkB,EAAE,eAAe,CAOrD;AAYM,yCATI,OAAO,mBAAmB,EAAE,WAAW,aACvC,OAAO,wBAAwB,EAAE,SAAS,mBAC1C,eAAe,gBACf,CAAC,IAAI,EAAE,IAAI,EAAE,QAAQ,EAAE,MAAM,KAAK,OAAO,mBACzC,CAAC,IAAI,EAAE,IAAI,EAAE,QAAQ,EAAE,MAAM,KAAK,OAAO,kBAAkB,EAAE,eAAe,oBAC5E,MAAM,sBACN,GAAG,GACF,aAAa,CAgFxB;AAgBM,yCATI,OAAO,wBAAwB,EAAE,SAAS,4EAElD;IAA+B,oBAAoB;IACU,aAAa,WAA3D,IAAI,YAAY,MAAM,KAAK,WAAW;IACuC,gBAAgB,WAA7F,IAAI,YAAY,MAAM,KAAK,OAAO,kBAAkB,EAAE,eAAe;IACkF,YAAY,YAAlK,OAAO,mBAAmB,EAAE,WAAW,KAAK;QAAC,OAAO,EAAE,OAAO,mBAAmB,EAAE,WAAW,CAAC;QAAC,KAAK,EAAE,OAAO,mBAAmB,EAAE,WAAW,CAAA;KAAC;CAC9J,qBAAQ,MAAM,GACL,GAAG,CAiJX;;;;;;;;;;;gDAnSO,MAAM,gBACN,MAAM,kBACN,MAAM,CAAC,MAAM,EAAE,GAAG,CAAC,KACjB,OAAO;8BAtBsB,kBAAkB"}
 \ No newline at end of file
 diff --git a/dist/src/index.d.ts b/dist/src/index.d.ts
-index fec5f1c23d3f28e250fecd7045fcebe7fc60993f..182599e3ad5407cf3b416ed702bbef91544aeb1e 100644
+index fec5f1c23d3f28e250fecd7045fcebe7fc60993f..ebf62e224dcb8a4becb6dcc0e59799e732a4ce1c 100644
 --- a/dist/src/index.d.ts
 +++ b/dist/src/index.d.ts
-@@ -1,84 +1,7 @@
+@@ -1,84 +1,8 @@
 -/**
 - * @param {Y.XmlFragment} ytype
 - * @param {object} opts
@@ -167,6 +167,7 @@ index fec5f1c23d3f28e250fecd7045fcebe7fc60993f..182599e3ad5407cf3b416ed702bbef91
 -import * as s from 'lib0/schema';
 +export * from "./sync-plugin.js";
 +export * from "./keys.js";
++export * from "./positions.js";
 +export * from "./commands.js";
 +export * from "./undo-plugin.js";
 +export * from "./cursor-plugin.js";
@@ -967,10 +968,10 @@ index 0000000000000000000000000000000000000000..fa87ae88c4bbc7c8ced7648e2a092fd6
 +    }
 +  })
 diff --git a/src/index.js b/src/index.js
-index ac407e0c363309c970f3dbcbd66db00f9cd1656a..2cff57d61c665d9f66ce4fb700f5d438dc5063cc 100644
+index ac407e0c363309c970f3dbcbd66db00f9cd1656a..0c20333ce9f66f1a1e3e8e44da1ac4017bbba4cc 100644
 --- a/src/index.js
 +++ b/src/index.js
-@@ -1,627 +1,6 @@
+@@ -1,627 +1,7 @@
 -import * as delta from 'lib0/delta'
 -import * as math from 'lib0/math'
 -import * as mux from 'lib0/mutex'
@@ -1600,6 +1601,7 @@ index ac407e0c363309c970f3dbcbd66db00f9cd1656a..2cff57d61c665d9f66ce4fb700f5d438
 -}
 +export * from './sync-plugin.js'
 +export * from './keys.js'
++export * from './positions.js'
 +export { docToDelta, $prosemirrorDelta, defaultMapAttributionToMark } from './sync-utils.js'
 +export * from './commands.js'
 +export * from './undo-plugin.js'

@@ -5,6 +5,7 @@ import {
   ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
 // import { ForkYDocExtension } from "./ForkYDoc.js";
+import { RelativePositionMappingExtension } from "./RelativePositionMapping.js";
 // import { SchemaMigration } from "./schemaMigration/SchemaMigration.js";
 import { CollaborationUser, YCursorExtension } from "./YCursorPlugin.js";
 import { YSyncExtension } from "./YSync.js";
@@ -55,6 +56,7 @@ export const CollaborationExtension = createExtension(
       blockNoteExtensions: [
         // DO we need a ForkYDocExtension?
         // ForkYDocExtension(options),
+        RelativePositionMappingExtension(),
         YSyncExtension(options),
         YCursorExtension(options),
       ],
@@ -87,6 +89,7 @@ export function withCollaboration<
 }
 
 export * from "./ForkYDoc.js";
+export * from "./RelativePositionMapping.js";
 export * from "./YCursorPlugin.js";
 export * from "./YSync.js";
 export * from "./Versioning/index.js";

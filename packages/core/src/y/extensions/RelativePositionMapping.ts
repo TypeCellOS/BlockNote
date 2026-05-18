@@ -1,0 +1,44 @@
+import { relativePositionStore, ySyncPluginKey } from "@y/prosemirror";
+import { createExtension } from "../../editor/BlockNoteExtension.js";
+
+export const RelativePositionMappingExtension = createExtension(
+  ({ editor }) => {
+    return {
+      key: "yPositionMapping",
+      mapPosition: (position: number, side: "left" | "right" = "left") => {
+        const ySyncPluginState = ySyncPluginKey.getState(
+          editor.prosemirrorState,
+        );
+        if (!ySyncPluginState?.ytype) {
+          throw new Error("YSync plugin state not found");
+        }
+
+        const posStore = relativePositionStore(
+          editor.prosemirrorState.doc.resolve(
+            position + (side === "right" ? 1 : -1),
+          ),
+          ySyncPluginState.ytype,
+          ySyncPluginState.attributionManager,
+        );
+
+        return () => {
+          const curYSyncPluginState = ySyncPluginKey.getState(
+            editor.prosemirrorState,
+          ) as typeof ySyncPluginState;
+          const pos = posStore(
+            editor.prosemirrorState.doc,
+            curYSyncPluginState.ytype,
+            curYSyncPluginState.attributionManager,
+          );
+
+          // This can happen if the element is garbage collected
+          if (pos === null) {
+            throw new Error("Position not found, cannot track positions");
+          }
+
+          return pos + (side === "right" ? -1 : 1);
+        };
+      },
+    } as const;
+  },
+);
