@@ -1,4 +1,3 @@
-// import { yUndoPluginKey } from "@y/prosemirror";
 import * as Y from "@y/y";
 import {
   createExtension,
@@ -6,9 +5,8 @@ import {
   ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
 import { CollaborationOptions } from "./index.js";
-// import { YCursorExtension } from "./YCursorPlugin.js";
+import { YCursorExtension } from "./YCursorPlugin.js";
 import { YSyncExtension } from "./YSync.js";
-// import { YUndoExtension } from "./YUndo.js";
 
 // TODO rewrite
 
@@ -59,7 +57,6 @@ export const ForkYDocExtension = createExtension(
     let forkedState:
       | {
           originalFragment: Y.Type;
-          // undoStack: Y.UndoManager["undoStack"];
           forkedFragment: Y.Type;
         }
       | undefined = undefined;
@@ -103,28 +100,18 @@ export const ForkYDocExtension = createExtension(
         const forkedFragment = findTypeInOtherYdoc(originalFragment, doc);
 
         forkedState = {
-          // undoStack: yUndoPluginKey.getState(editor.prosemirrorState)!
-          //   .undoManager.undoStack,
           originalFragment,
           forkedFragment,
         };
 
         // Need to reset all the yjs plugins
-        editor.unregisterExtension([
-          // YUndoExtension,
-          // YCursorExtension,
-          YSyncExtension,
-        ]);
+        editor.unregisterExtension([YCursorExtension, YSyncExtension]);
         const newOptions = {
           ...options,
           fragment: forkedFragment,
         };
         // Register them again, based on the new forked fragment
-        editor.registerExtension([
-          YSyncExtension(newOptions),
-          // No need to register the cursor plugin again, it's a local fork
-          // YUndoExtension(),
-        ]);
+        editor.registerExtension([YSyncExtension(newOptions)]);
 
         // Tell the store that the editor is now forked
         store.setState({ isForked: true });
@@ -140,24 +127,14 @@ export const ForkYDocExtension = createExtension(
           return;
         }
         // Remove the forked fragment's plugins
-        editor.unregisterExtension(["ySync", "yCursor", "yUndo"]);
+        editor.unregisterExtension(["ySync", "yCursor"]);
 
-        const {
-          originalFragment,
-          forkedFragment,
-          //, undoStack
-        } = forkedState;
+        const { originalFragment, forkedFragment } = forkedState;
         // Register the plugins again, based on the original fragment (which is still in the original options)
         editor.registerExtension([
           YSyncExtension(options),
-          // YCursorExtension(options),
-          // YUndoExtension(),
+          YCursorExtension(options),
         ]);
-
-        // Reset the undo stack to the original undo stack
-        // yUndoPluginKey.getState(
-        //   editor.prosemirrorState,
-        // )!.undoManager.undoStack = undoStack;
 
         if (keepChanges) {
           // Apply any changes that have been made to the fork, onto the original doc
