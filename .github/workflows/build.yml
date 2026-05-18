@@ -112,7 +112,9 @@ jobs:
 
       - name: Run server and Playwright tests
         run: |
-          HOME=/root PLAYWRIGHT_CONFIG="--project ${{ matrix.browser }} --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}" vp run e2e
+          HOME=/root vp exec concurrently --success=first -r --kill-others \
+            "vp run --filter @blocknote/example-editor preview" \
+            "wait-on http://localhost:3000 && cd tests && vp exec playwright test --project ${{ matrix.browser }} --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}"
 
       - name: Upload blob report
         uses: actions/upload-artifact@v7
