@@ -12,6 +12,30 @@ export default defineConfig({
     // its tsc step reads `core`'s `.d.ts` files.
     cache: { scripts: true },
   },
+  // Workspace-level project list for tooling that discovers tests across the
+  // monorepo (e.g. the Vitest VSCode extension). Replaces the old
+  // `vitest.workspace.ts` — Vitest 4 dropped `defineWorkspace` in favour of
+  // declaring projects here. Each entry points at the package's
+  // `vite.config.ts`, which carries that package's own `test` block.
+  test: {
+    projects: [
+      "./packages/ariakit/vite.config.ts",
+      "./packages/code-block/vite.config.ts",
+      "./packages/core/vite.config.ts",
+      "./packages/mantine/vite.config.ts",
+      "./packages/react/vite.config.ts",
+      "./packages/server-util/vite.config.ts",
+      "./packages/shadcn/vite.config.ts",
+      "./packages/xl-ai/vite.config.ts",
+      "./packages/xl-ai-server/vite.config.ts",
+      "./packages/xl-docx-exporter/vite.config.ts",
+      "./packages/xl-email-exporter/vite.config.ts",
+      "./packages/xl-multi-column/vite.config.ts",
+      "./packages/xl-odt-exporter/vite.config.ts",
+      "./packages/xl-pdf-exporter/vite.config.ts",
+      "./tests/vite.config.ts",
+    ],
+  },
   lint: {
     plugins: ["typescript", "react", "import"],
     // Adds pre-migration ESLint rules with no oxlint equivalents.
