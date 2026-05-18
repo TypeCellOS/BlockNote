@@ -4527,10 +4527,10 @@ importers:
         specifier: ^0.4.19
         version: 0.4.24(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@blocknote/core':
-        specifier: 0.51.0
+        specifier: 0.51.1
         version: link:../core
       '@blocknote/react':
-        specifier: 0.51.0
+        specifier: 0.51.1
         version: link:../react
     devDependencies:
       '@types/react':
@@ -4573,7 +4573,7 @@ importers:
   packages/code-block:
     dependencies:
       '@blocknote/core':
-        specifier: 0.51.0
+        specifier: 0.51.1
         version: link:../core
       '@shikijs/core':
         specifier: ^4
@@ -4756,10 +4756,10 @@ importers:
   packages/mantine:
     dependencies:
       '@blocknote/core':
-        specifier: 0.51.0
+        specifier: 0.51.1
         version: link:../core
       '@blocknote/react':
-        specifier: 0.51.0
+        specifier: 0.51.1
         version: link:../react
       '@mantine/core':
         specifier: ^8.3.11 || ^9.0.2
@@ -4811,7 +4811,7 @@ importers:
   packages/react:
     dependencies:
       '@blocknote/core':
-        specifier: 0.51.0
+        specifier: 0.51.1
         version: link:../core
       '@emoji-mart/data':
         specifier: ^1.2.1
@@ -4905,10 +4905,10 @@ importers:
   packages/server-util:
     dependencies:
       '@blocknote/core':
-        specifier: 0.51.0
+        specifier: 0.51.1
         version: link:../core
       '@blocknote/react':
-        specifier: 0.51.0
+        specifier: 0.51.1
         version: link:../react
       '@tiptap/core':
         specifier: ^3.13.0
@@ -4966,10 +4966,10 @@ importers:
   packages/shadcn:
     dependencies:
       '@blocknote/core':
-        specifier: 0.51.0
+        specifier: 0.51.1
         version: link:../core
       '@blocknote/react':
-        specifier: 0.51.0
+        specifier: 0.51.1
         version: link:../react
       '@radix-ui/react-avatar':
         specifier: ^1.1.10
@@ -5072,13 +5072,13 @@ importers:
         specifier: ^3.0.5
         version: 3.0.5(react@19.2.5)(zod@4.3.6)
       '@blocknote/core':
-        specifier: 0.51.0
+        specifier: 0.51.1
         version: link:../core
       '@blocknote/mantine':
-        specifier: 0.51.0
+        specifier: 0.51.1
         version: link:../mantine
       '@blocknote/react':
-        specifier: 0.51.0
+        specifier: 0.51.1
         version: link:../react
       '@floating-ui/react':
         specifier: ^0.27.18
@@ -5148,7 +5148,7 @@ importers:
         specifier: ^2.0.2
         version: 2.0.2(zod@4.3.6)
       '@blocknote/xl-multi-column':
-        specifier: 0.51.0
+        specifier: 0.51.1
         version: link:../xl-multi-column
       '@mswjs/interceptors':
         specifier: ^0.37.6
@@ -5241,7 +5241,7 @@ importers:
         specifier: ^2.0.2
         version: 2.0.2(zod@4.3.6)
       '@blocknote/xl-ai':
-        specifier: 0.51.0
+        specifier: 0.51.1
         version: link:../xl-ai
       '@hono/node-server':
         specifier: ^1.19.5
@@ -5287,10 +5287,10 @@ importers:
   packages/xl-docx-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.51.0
+        specifier: 0.51.1
         version: link:../core
       '@blocknote/xl-multi-column':
-        specifier: 0.51.0
+        specifier: 0.51.1
         version: link:../xl-multi-column
       buffer:
         specifier: ^6.0.3
@@ -5342,10 +5342,10 @@ importers:
   packages/xl-email-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.51.0
+        specifier: 0.51.1
         version: link:../core
       '@blocknote/react':
-        specifier: 0.51.0
+        specifier: 0.51.1
         version: link:../react
       '@react-email/components':
         specifier: ^1.0.5
@@ -5400,10 +5400,10 @@ importers:
   packages/xl-multi-column:
     dependencies:
       '@blocknote/core':
-        specifier: 0.51.0
+        specifier: 0.51.1
         version: link:../core
       '@blocknote/react':
-        specifier: 0.51.0
+        specifier: 0.51.1
         version: link:../react
       '@tiptap/core':
         specifier: ^3.13.0
@@ -5467,10 +5467,10 @@ importers:
   packages/xl-odt-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.51.0
+        specifier: 0.51.1
         version: link:../core
       '@blocknote/xl-multi-column':
-        specifier: 0.51.0
+        specifier: 0.51.1
         version: link:../xl-multi-column
       '@zip.js/zip.js':
         specifier: ^2.8.8
@@ -5522,13 +5522,13 @@ importers:
   packages/xl-pdf-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.51.0
+        specifier: 0.51.1
         version: link:../core
       '@blocknote/react':
-        specifier: 0.51.0
+        specifier: 0.51.1
         version: link:../react
       '@blocknote/xl-multi-column':
-        specifier: 0.51.0
+        specifier: 0.51.1
         version: link:../xl-multi-column
       '@react-pdf/renderer':
         specifier: ^4.3.0
@@ -23834,8 +23834,8 @@ snapshots:
       '@next/eslint-plugin-next': 16.2.6
       eslint: 9.39.4(jiti@2.6.1)
       eslint-import-resolver-node: 0.3.10
-      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.6.1))
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1)))(eslint@9.39.4(jiti@2.6.1))
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.6.1))
       eslint-plugin-jsx-a11y: 6.10.2(eslint@9.39.4(jiti@2.6.1))
       eslint-plugin-react: 7.37.5(eslint@9.39.4(jiti@2.6.1))
       eslint-plugin-react-hooks: 7.0.1(eslint@9.39.4(jiti@2.6.1))
@@ -23884,7 +23884,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.6.1)):
+  eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1)))(eslint@9.39.4(jiti@2.6.1)):
     dependencies:
       '@nolyfill/is-core-module': 1.0.39
       debug: 4.4.3
@@ -23895,7 +23895,7 @@ snapshots:
       tinyglobby: 0.2.16
       unrs-resolver: 1.11.1
     optionalDependencies:
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.6.1))
     transitivePeerDependencies:
       - supports-color
 
@@ -23909,14 +23909,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.12.1(@typescript-eslint/parser@8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.10)(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.6.1)):
+  eslint-module-utils@2.12.1(@typescript-eslint/parser@8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.10)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1)))(eslint@9.39.4(jiti@2.6.1)))(eslint@9.39.4(jiti@2.6.1)):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
       '@typescript-eslint/parser': 8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)
       eslint: 9.39.4(jiti@2.6.1)
       eslint-import-resolver-node: 0.3.10
-      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.6.1))
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1)))(eslint@9.39.4(jiti@2.6.1))
     transitivePeerDependencies:
       - supports-color
 
@@ -23957,7 +23957,7 @@ snapshots:
       - eslint-import-resolver-webpack
       - supports-color
 
-  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1)):
+  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.6.1)):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.9
@@ -23968,7 +23968,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 9.39.4(jiti@2.6.1)
       eslint-import-resolver-node: 0.3.10
-      eslint-module-utils: 2.12.1(@typescript-eslint/parser@8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.10)(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.4(jiti@2.6.1))
+      eslint-module-utils: 2.12.1(@typescript-eslint/parser@8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.10)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.58.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1)))(eslint@9.39.4(jiti@2.6.1)))(eslint@9.39.4(jiti@2.6.1))
       hasown: 2.0.2
       is-core-module: 2.16.1
       is-glob: 4.0.3

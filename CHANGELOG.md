@@ -1,3 +1,14 @@
+## 0.51.1 (2026-05-18)
+
+### 🩹 Fixes
+
+- backslash newlines when copying from a code block ([#2709](https://github.com/TypeCellOS/BlockNote/pull/2709))
+
+### ❤️ Thank You
+
+- Claude Opus 4.7 (1M context)
+- Nick Perez
+
 ## 0.51.0 (2026-05-14)
 
 ### 🚀 Features
