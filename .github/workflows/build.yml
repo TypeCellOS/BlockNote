@@ -48,7 +48,7 @@ jobs:
 
       - name: Soft release
         id: soft-release
-        run: pnpx pkg-pr-new publish './packages/*' # TODO disabled only for AI branch--compact
+        run: vp dlx pkg-pr-new publish './packages/*' # TODO disabled only for AI branch--compact
 
   playwright-build:
     name: "Playwright Build"
