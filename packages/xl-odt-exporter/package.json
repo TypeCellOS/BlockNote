@@ -50,7 +50,6 @@
   },
   "scripts": {
     "dev": "vp dev",
-    "build": "tsc && vp build",
     "lint": "vp lint src",
     "test": "vp test --run",
     "test-watch": "vp test watch",
@@ -69,6 +68,7 @@
     "@types/react-dom": "^19.2.3",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
+    "rimraf": "^5.0.10",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^5.9.3",
     "xml-formatter": "^3.6.7",

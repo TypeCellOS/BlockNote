@@ -37,7 +37,6 @@
   },
   "scripts": {
     "dev": "vite-node src/index.ts",
-    "build": "tsc && vp build",
     "start": "node dist/blocknote-xl-ai-server.js",
     "lint": "vp lint src",
     "clean": "rimraf dist && rimraf types"

@@ -1,27 +1,44 @@
 import * as path from "path";
-import { defineConfig } from "vite-plus";
+import { defineConfig, type UserConfig } from "vite-plus";
 
 // https://vitejs.dev/config/
-export default defineConfig((conf) => ({
-  test: {
-    environment: "jsdom",
-    setupFiles: ["./vitestSetup.ts"],
-    include: ["./src/unit/**/*.test.ts", "./src/unit/**/*.test.tsx"],
-  },
-  resolve: {
-    alias:
-      conf.command === "build"
-        ? ({
-            "@shared": path.resolve(__dirname, "../shared/"),
-          } as Record<string, string>)
-        : ({
-            "@shared": path.resolve(__dirname, "../shared/"),
-            // load live from sources with live reload working
-            "@blocknote/core": path.resolve(__dirname, "../packages/core/src/"),
-            "@blocknote/react": path.resolve(
-              __dirname,
-              "../packages/react/src/",
-            ),
-          } as Record<string, string>),
-  },
-}));
+export default defineConfig(
+  (conf) =>
+    ({
+      run: {
+        tasks: {
+          build: {
+            command: "tsc",
+            input: [
+              { auto: true },
+              { pattern: "!**/*.tsbuildinfo", base: "workspace" },
+            ],
+          },
+        },
+      },
+      test: {
+        environment: "jsdom",
+        setupFiles: ["./vitestSetup.ts"],
+        include: ["./src/unit/**/*.test.ts", "./src/unit/**/*.test.tsx"],
+      },
+      resolve: {
+        alias:
+          conf.command === "build"
+            ? ({
+                "@shared": path.resolve(__dirname, "../shared/"),
+              } as Record<string, string>)
+            : ({
+                "@shared": path.resolve(__dirname, "../shared/"),
+                // load live from sources with live reload working
+                "@blocknote/core": path.resolve(
+                  __dirname,
+                  "../packages/core/src/",
+                ),
+                "@blocknote/react": path.resolve(
+                  __dirname,
+                  "../packages/react/src/",
+                ),
+              } as Record<string, string>),
+      },
+    }) as UserConfig,
+);

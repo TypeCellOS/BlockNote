@@ -80,7 +80,6 @@
   },
   "scripts": {
     "dev": "vp dev",
-    "build": "tsc && vp build",
     "build-bundled": "tsc && vp build --config vite.config.bundled.ts && git checkout tmp-releases && rm -rf ../../release && mv ../../release-tmp ../../release",
     "preview": "vp preview",
     "lint": "vp lint src",

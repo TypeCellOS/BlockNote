@@ -50,7 +50,6 @@
   },
   "scripts": {
     "dev": "vp dev",
-    "build": "tsc && vp build",
     "preview": "vp preview",
     "lint": "vp lint src",
     "clean": "rimraf dist && rimraf types"

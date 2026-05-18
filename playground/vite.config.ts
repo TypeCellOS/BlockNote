@@ -58,6 +58,17 @@ const devAliases: Record<string, string> = {
 
 // https://vitejs.dev/config/
 export default defineConfig(((conf: { command: string }) => ({
+  run: {
+    tasks: {
+      build: {
+        command: "tsc && vp build",
+        input: [
+          { auto: true },
+          { pattern: "!**/*.tsbuildinfo", base: "workspace" },
+        ],
+      },
+    },
+  },
   plugins: [react(), webpackStats(), Inspect(), tailwindcss()],
   optimizeDeps: {
     // link: ['vite-react-ts-components'],

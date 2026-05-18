@@ -50,7 +50,9 @@ function* walk(dir) {
 
 const filesByDir = new Map();
 for (const file of walk(SEARCH_ROOT)) {
-  if (!file.includes(`${path.sep}__msw_snapshots__${path.sep}`)) continue;
+  if (!file.includes(`${path.sep}__msw_snapshots__${path.sep}`)) {
+    continue;
+  }
   const dir = path.dirname(file);
   const list = filesByDir.get(dir) ?? [];
   list.push(path.basename(file));
@@ -65,7 +67,9 @@ for (const [dir, files] of filesByDir) {
   const groups = new Map();
   for (const file of files) {
     const match = FILE_RE.exec(file);
-    if (!match) continue;
+    if (!match) {
+      continue;
+    }
     const slot = `${match[1]}_${match[2]}`;
     const list = groups.get(slot) ?? [];
     list.push(file);
@@ -73,7 +77,9 @@ for (const [dir, files] of filesByDir) {
   }
 
   for (const [slot, group] of groups) {
-    if (group.length < 2) continue;
+    if (group.length < 2) {
+      continue;
+    }
 
     const entries = group.map((file) => {
       const fp = path.join(dir, file);
@@ -106,7 +112,9 @@ for (const [dir, files] of filesByDir) {
     target.data.response = good[0].data.response;
     writeFileSync(target.path, JSON.stringify(target.data, null, 2));
     unlinkSync(good[0].path);
-    for (const extra of bad.slice(1)) unlinkSync(extra.path);
+    for (const extra of bad.slice(1)) {
+      unlinkSync(extra.path);
+    }
 
     migrated++;
     console.log(
@@ -118,7 +126,9 @@ for (const [dir, files] of filesByDir) {
 console.log(`\nDone. ${migrated} migrated, ${skipped} skipped.`);
 if (skipped > 0) {
   console.log("\nSkipped slots (need manual attention):");
-  for (const note of skipNotes) console.log(note);
+  for (const note of skipNotes) {
+    console.log(note);
+  }
 }
 if (migrated === 0 && skipped === 0) {
   console.log(

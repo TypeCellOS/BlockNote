@@ -5,7 +5,6 @@
   "version": "0.26.0",
   "scripts": {
     "dev": "vp dev --host",
-    "build": "tsc && vp build",
     "preview": "vp preview",
     "lint": "vp lint src",
     "clean": "rimraf dist"

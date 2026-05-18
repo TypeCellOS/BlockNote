@@ -3,7 +3,6 @@
   "private": true,
   "version": "0.30.0",
   "scripts": {
-    "build": "tsc",
     "lint": "vp lint src",
     "playwright": "playwright test",
     "test": "vp test --run",
