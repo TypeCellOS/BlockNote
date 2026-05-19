@@ -4519,6 +4519,9 @@ importers:
         specifier: ^4
         version: 4.0.2
     devDependencies:
+      rimraf:
+        specifier: ^5.0.10
+        version: 5.0.10
       rollup-plugin-webpack-stats:
         specifier: ^0.2.6
         version: 0.2.6(rollup@4.60.1)
@@ -4649,6 +4652,9 @@ importers:
       react-dom:
         specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)
+      rimraf:
+        specifier: ^5.0.10
+        version: 5.0.10
       tinyglobby:
         specifier: 0.2.12
         version: 0.2.12
@@ -4838,6 +4844,9 @@ importers:
       react-dom:
         specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)
+      rimraf:
+        specifier: ^5.0.10
+        version: 5.0.10
       rollup-plugin-webpack-stats:
         specifier: ^0.2.6
         version: 0.2.6(rollup@4.60.1)
@@ -5230,6 +5239,9 @@ importers:
       '@types/react-dom':
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.14)
+      rimraf:
+        specifier: ^5.0.10
+        version: 5.0.10
       rollup-plugin-webpack-stats:
         specifier: ^0.2.6
         version: 0.2.6(rollup@4.60.1)
@@ -5398,6 +5410,9 @@ importers:
       react-element-to-jsx-string:
         specifier: ^17.0.1
         version: 17.0.1(react-dom@19.2.5(react@19.2.5))(react-is@19.2.4)(react@19.2.5)
+      rimraf:
+        specifier: ^5.0.10
+        version: 5.0.10
       rollup-plugin-webpack-stats:
         specifier: ^0.2.6
         version: 0.2.6(rollup@4.60.1)

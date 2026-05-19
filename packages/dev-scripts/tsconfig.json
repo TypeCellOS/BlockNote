@@ -17,13 +17,9 @@
     "outDir": "dist",
     "declaration": true,
     "declarationDir": "types",
+    "emitDeclarationOnly": true,
     "composite": true,
     "skipLibCheck": true
   },
-  "include": ["src"],
-  "references": [
-    {
-      "path": "../core"
-    }
-  ]
+  "include": ["examples"]
 }

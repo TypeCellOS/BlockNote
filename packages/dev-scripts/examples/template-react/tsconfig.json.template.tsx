@@ -1,6 +1,4 @@
-import type { Project } from "../util";
-
-const template = (project: Project) => ({
+const template = () => ({
   __comment: "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
   compilerOptions: {
     target: "ESNext",

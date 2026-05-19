@@ -53,6 +53,7 @@
     "lint": "vp lint src",
     "test": "vp test --run",
     "test-watch": "vp test watch",
+    "clean": "rimraf dist && rimraf types",
     "email": "email dev"
   },
   "dependencies": {
