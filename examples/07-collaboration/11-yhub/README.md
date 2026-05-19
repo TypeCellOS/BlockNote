@@ -7,4 +7,4 @@ In this example, we use YHub to let multiple users collaborate on a single Block
 **Relevant Docs:**
 
 - [Editor Setup](/docs/getting-started/editor-setup)
-- [YHub](/docs/features/collaboration#yhub)
+- [Real-time Collaboration](/docs/features/collaboration)

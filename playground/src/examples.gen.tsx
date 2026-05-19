@@ -1848,7 +1848,7 @@
           "pathFromRoot": "examples/07-collaboration",
           "slug": "collaboration"
         },
-        "readme": "In this example, we use YHub to let multiple users collaborate on a single BlockNote document in real-time.\n\n**Try it out:** Open this page in a new browser tab or window to see it in action!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [YHub](/docs/features/collaboration#yhub)"
+        "readme": "In this example, we use YHub to let multiple users collaborate on a single BlockNote document in real-time.\n\n**Try it out:** Open this page in a new browser tab or window to see it in action!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time Collaboration](/docs/features/collaboration)"
       }
     ]
   },

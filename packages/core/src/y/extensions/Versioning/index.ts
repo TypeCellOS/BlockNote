@@ -1,4 +1,4 @@
-import { ySyncPluginKey } from "@y/prosemirror";
+import { configureYProsemirror, ySyncPluginKey } from "@y/prosemirror";
 import * as Y from "@y/y";
 
 import {
@@ -186,13 +186,17 @@ export const VersioningExtension = createExtension(
       const snapshotContent = await endpoints.fetchSnapshotContent(id);
       const doc = new Y.Doc();
       Y.applyUpdateV2(doc, snapshotContent);
-      ySyncPluginKey
-        .getState(editor.prosemirrorState)
-        ?.renderSnapshot(
-          { fragment: findTypeInOtherYdoc(fragment, doc) },
-          prevSnapshot,
-          [],
-        );
+      editor.exec(
+        configureYProsemirror({
+          ytype: findTypeInOtherYdoc(fragment, doc),
+          attributionManager: prevSnapshot
+            ? Y.createAttributionManagerFromDiff(
+                prevSnapshot.fragment.doc!,
+                doc,
+              )
+            : undefined,
+        }),
+      );
     };
 
     const exitPreview = () => {
