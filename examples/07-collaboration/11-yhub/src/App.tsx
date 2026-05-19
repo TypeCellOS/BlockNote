@@ -38,7 +38,7 @@ suggestingProvider.awareness.setLocalStateField("user", {
 const suggestingAttributionManager = Y.createAttributionManagerFromDiff(
   doc,
   suggestingDoc,
-  // { attrs },
+  { attrs },
 );
 suggestingAttributionManager.suggestionMode = false;
 
@@ -53,7 +53,7 @@ suggestionModeProvider.awareness.setLocalStateField("user", {
 const suggestionModeAttributionManager = Y.createAttributionManagerFromDiff(
   doc,
   suggestionModeDoc,
-  // { attrs },
+  { attrs },
 );
 suggestionModeAttributionManager.suggestionMode = true;
 
