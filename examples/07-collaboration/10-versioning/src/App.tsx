@@ -1,5 +1,10 @@
 import "@blocknote/core/fonts/inter.css";
-import { SuggestionsExtension, VersioningExtension } from "@blocknote/core/y";
+import {
+  withCollaboration,
+  localStorageEndpoints,
+  SuggestionsExtension,
+  VersioningExtension,
+} from "@blocknote/core/y";
 import {
   BlockNoteViewEditor,
   FloatingComposerController,
@@ -82,23 +87,18 @@ export default function App() {
     );
   }, [doc, activeUser]);
 
-  const editor = useCreateBlockNote({
-    collaboration: {
-      provider,
-      suggestionDoc: suggestionModeDoc,
-      attributionManager: suggestionModeAttributionManager,
-      fragment: doc.get(),
-      user: { color: getRandomColor(), name: activeUser.username },
-    },
-    extensions: [
-      CommentsExtension({ threadStore, resolveUsers }),
-      SuggestionsExtension(),
-      VersioningExtension({
-        endpoints: {} as any,
+  const editor = useCreateBlockNote(
+    withCollaboration({
+      collaboration: {
+        provider,
+        suggestionDoc: suggestionModeDoc,
+        attributionManager: suggestionModeAttributionManager,
         fragment: doc.get(),
-      }),
-    ],
-  });
+        user: { color: getRandomColor(), name: activeUser.username },
+        versioningEndpoints: localStorageEndpoints,
+      },
+    }),
+  );
 
   const {
     enableSuggestions,
@@ -111,8 +111,8 @@ export default function App() {
     editor,
   });
 
-  const { selectSnapshot } = useExtension(VersioningExtension, { editor });
-  const { selectedSnapshotId } = useExtensionState(VersioningExtension, {
+  const { exitPreview } = useExtension(VersioningExtension, { editor });
+  const { previewedSnapshotId } = useExtensionState(VersioningExtension, {
     editor,
   });
 
@@ -124,7 +124,7 @@ export default function App() {
       disableSuggestions();
       setEditingMode("editing");
     }
-  }, [selectedSnapshotId]);
+  }, [previewedSnapshotId]);
   const [sidebar, setSidebar] = useState<
     "comments" | "versionHistory" | "none"
   >("none");
@@ -134,7 +134,7 @@ export default function App() {
       className={"full-collaboration"}
       editor={editor}
       editable={
-        (sidebar !== "versionHistory" || selectedSnapshotId === undefined) &&
+        (sidebar !== "versionHistory" || previewedSnapshotId === undefined) &&
         activeUser.role === "editor"
       }
       // In other examples, `BlockNoteView` renders both editor element itself,
@@ -160,7 +160,7 @@ export default function App() {
                 setSidebar((sidebar) =>
                   sidebar !== "versionHistory" ? "versionHistory" : "none",
                 );
-                selectSnapshot(undefined);
+                exitPreview();
               }}
             >
               <RiHistoryLine />
@@ -180,7 +180,7 @@ export default function App() {
           </div>
           <div className={"editor-section"}>
             {/* <h1>Editor</h1> */}
-            {selectedSnapshotId === undefined && (
+            {previewedSnapshotId === undefined && (
               <div className={"settings"}>
                 <SettingsSelect
                   label={"User"}

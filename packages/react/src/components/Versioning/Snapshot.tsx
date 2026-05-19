@@ -16,10 +16,10 @@ export const Snapshot = ({
     restoreSnapshot,
     canUpdateSnapshotName,
     updateSnapshotName,
-    selectSnapshot,
+    previewSnapshot,
   } = useExtension(VersioningExtension);
   const selected = useExtensionState(VersioningExtension, {
-    selector: (state) => state.selectedSnapshotId === snapshot.id,
+    selector: (state) => state.previewedSnapshotId === snapshot.id,
   });
   const revertedSnapshot = useExtensionState(VersioningExtension, {
     selector: (state) =>
@@ -42,7 +42,11 @@ export const Snapshot = ({
   return (
     <div
       className={`bn-snapshot ${selected ? "selected" : ""}`}
-      onClick={() => selectSnapshot(snapshot.id, previousSnapshot?.id)}
+      onClick={() =>
+        previewSnapshot(snapshot.id, {
+          compareTo: previousSnapshot?.id,
+        })
+      }
     >
       <div className="bn-snapshot-body">
         <input
@@ -74,7 +78,7 @@ export const Snapshot = ({
         <button
           className="bn-snapshot-button"
           onClick={(event) => {
-            // Prevent event bubbling to avoid calling `selectSnapshot`.
+            // Prevent event bubbling to avoid calling `previewSnapshot`.
             event.preventDefault();
             event.stopPropagation();
 

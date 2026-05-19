@@ -4,9 +4,9 @@ import { useState } from "react";
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
 
 export const CurrentSnapshot = () => {
-  const { createSnapshot, selectSnapshot } = useExtension(VersioningExtension);
+  const { createSnapshot, exitPreview } = useExtension(VersioningExtension);
   const selected = useExtensionState(VersioningExtension, {
-    selector: (state) => state.selectedSnapshotId === undefined,
+    selector: (state) => state.previewedSnapshotId === undefined,
   });
 
   const [snapshotName, setSnapshotName] = useState("Current Version");
@@ -14,7 +14,7 @@ export const CurrentSnapshot = () => {
   return (
     <div
       className={`bn-snapshot ${selected ? "selected" : ""}`}
-      onClick={() => selectSnapshot(undefined)}
+      onClick={() => exitPreview()}
     >
       <div className="bn-snapshot-body">
         <input
@@ -30,13 +30,14 @@ export const CurrentSnapshot = () => {
       <button
         className="bn-snapshot-button"
         onClick={(event) => {
-          // Prevent event bubbling to avoid calling `selectSnapshot`.
+          // Prevent event bubbling to avoid calling `exitPreview`.
           event.preventDefault();
           event.stopPropagation();
 
-          createSnapshot(
-            snapshotName !== "Current Version" ? snapshotName : undefined,
-          );
+          createSnapshot({
+            name:
+              snapshotName !== "Current Version" ? snapshotName : undefined,
+          });
           setSnapshotName("Current Version");
         }}
       >

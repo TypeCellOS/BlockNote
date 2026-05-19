@@ -10,6 +10,11 @@ import { RelativePositionMappingExtension } from "./RelativePositionMapping.js";
 import { CollaborationUser, YCursorExtension } from "./YCursorPlugin.js";
 import { YSyncExtension } from "./YSync.js";
 import { BlockNoteEditorOptions } from "../../editor/BlockNoteEditor.js";
+import { SuggestionsExtension } from "./Suggestions.js";
+import {
+  VersioningEndpoints,
+  VersioningExtension,
+} from "./Versioning/index.js";
 // import { YUndoExtension } from "./YUndo.js";
 
 export type CollaborationOptions = {
@@ -47,6 +52,11 @@ export type CollaborationOptions = {
    * The suggestion doc for the collaboration. If using suggestion mode
    */
   suggestionDoc?: Y.Doc;
+
+  /**
+   * The endpoints for the versioning functionality.
+   */
+  versioningEndpoints?: VersioningEndpoints;
 };
 
 export const CollaborationExtension = createExtension(
@@ -56,10 +66,18 @@ export const CollaborationExtension = createExtension(
       blockNoteExtensions: [
         // DO we need a ForkYDocExtension?
         // ForkYDocExtension(options),
+        options.suggestionDoc ? SuggestionsExtension(options) : null,
         RelativePositionMappingExtension(),
         YSyncExtension(options),
         YCursorExtension(options),
-      ],
+        // TODO decide on this? Does it need to be coupled to Y.js?
+        options.versioningEndpoints
+          ? VersioningExtension({
+              endpoints: options.versioningEndpoints,
+              fragment: options.fragment,
+            })
+          : null,
+      ].filter((a) => a !== null),
     } as const;
   },
 );
@@ -93,4 +111,5 @@ export * from "./RelativePositionMapping.js";
 export * from "./YCursorPlugin.js";
 export * from "./YSync.js";
 export * from "./Versioning/index.js";
+export * from "./Versioning/localStorageEndpoints.js";
 export * from "./Suggestions.js";

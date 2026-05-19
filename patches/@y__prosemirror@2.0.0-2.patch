@@ -1,9 +1,9 @@
 diff --git a/dist/src/commands.d.ts b/dist/src/commands.d.ts
 new file mode 100644
-index 0000000000000000000000000000000000000000..c7f6e46eb5bb470a6761ded86921761901578a36
+index 0000000000000000000000000000000000000000..a12f7150273c27fef6621b685a608c0c13f0eefa
 --- /dev/null
 +++ b/dist/src/commands.d.ts
-@@ -0,0 +1,23 @@
+@@ -0,0 +1,27 @@
 +/**
 + * Switch to pause mode (stop synchronization between prosemirror and ytype)
 + * @param {import('prosemirror-state').EditorState} state
@@ -14,7 +14,7 @@ index 0000000000000000000000000000000000000000..c7f6e46eb5bb470a6761ded869217619
 +export function configureYProsemirror(opts?: {
 +    ytype?: Y.Type<any> | null | undefined;
 +    attributionManager?: Y.AbstractAttributionManager | null | undefined;
-+}): (state: import("prosemirror-state").EditorState, dispatch?: CommandDispatch | null) => boolean;
++}): import("prosemirror-state").Command;
 +export function undo(state: import("prosemirror-state").EditorState): boolean;
 +export function redo(state: import("prosemirror-state").EditorState): boolean;
 +/**
@@ -25,35 +25,40 @@ index 0000000000000000000000000000000000000000..c7f6e46eb5bb470a6761ded869217619
 + * @type {import('prosemirror-state').Command}
 + */
 +export const redoCommand: import("prosemirror-state").Command;
++export function rejectChanges(start: number, end?: number): import("prosemirror-state").Command;
++export function acceptChanges(start: number, end?: number): import("prosemirror-state").Command;
++export function acceptAllChanges(): import("prosemirror-state").Command;
++export function rejectAllChanges(): import("prosemirror-state").Command;
 +import * as Y from '@y/y';
 +//# sourceMappingURL=commands.d.ts.map
 \ No newline at end of file
 diff --git a/dist/src/commands.d.ts.map b/dist/src/commands.d.ts.map
 new file mode 100644
-index 0000000000000000000000000000000000000000..4b3b1fa70d42254ed4a71de60b89809d10cd805b
+index 0000000000000000000000000000000000000000..817e319bd77f9d07a25146614a47636171902b1f
 --- /dev/null
 +++ b/dist/src/commands.d.ts.map
 @@ -0,0 +1 @@
-+{"version":3,"file":"commands.d.ts","sourceRoot":"","sources":["../../src/commands.js"],"names":[],"mappings":"AAKA;;;;;GAKG;AACH,iCAJW,OAAO,mBAAmB,EAAE,WAAW,YACvC,eAAe,OAAC,GACd,OAAO,CAanB;AAeM,6CAJJ;IAAsB,KAAK;IACQ,kBAAkB;CACrD,GAAU,CAAC,KAAK,EAAC,OAAO,mBAAmB,EAAE,WAAW,EAAE,QAAQ,CAAC,EAAE,eAAe,GAAG,IAAI,KAAM,OAAO,CA8B1G;AAQM,4BAHI,OAAO,mBAAmB,EAAE,WAAW,GACtC,OAAO,CAEqE;AAQjF,4BAHI,OAAO,mBAAmB,EAAE,WAAW,GACtC,OAAO,CAEqE;AAExF;;GAEG;AACH,0BAFU,OAAO,mBAAmB,EAAE,OAAO,CAEqG;AAElJ;;GAEG;AACH,0BAFU,OAAO,mBAAmB,EAAE,OAAO,CAEqG;mBAxF/H,MAAM"}
++{"version":3,"file":"commands.d.ts","sourceRoot":"","sources":["../../src/commands.js"],"names":[],"mappings":"AAMA;;;;;GAKG;AACH,iCAJW,OAAO,mBAAmB,EAAE,WAAW,YACvC,eAAe,OAAC,GACd,OAAO,CAanB;AAeM,6CAJJ;IAAsB,KAAK;IACQ,kBAAkB;CACrD,GAAU,OAAO,mBAAmB,EAAE,OAAO,CA8B/C;AAQM,4BAHI,OAAO,mBAAmB,EAAE,WAAW,GACtC,OAAO,CAEqE;AAQjF,4BAHI,OAAO,mBAAmB,EAAE,WAAW,GACtC,OAAO,CAEqE;AAExF;;GAEG;AACH,0BAFU,OAAO,mBAAmB,EAAE,OAAO,CAEqG;AAElJ;;GAEG;AACH,0BAFU,OAAO,mBAAmB,EAAE,OAAO,CAEqG;AAQ3I,qCAJI,MAAM,QACN,MAAM,GACJ,OAAO,mBAAmB,EAAE,OAAO,CAc/C;AAQM,qCAJI,MAAM,QACN,MAAM,GACJ,OAAO,mBAAmB,EAAE,OAAO,CAc/C;AAMM,oCAFM,OAAO,mBAAmB,EAAE,OAAO,CAW/C;AAMM,oCAFM,OAAO,mBAAmB,EAAE,OAAO,CAW/C;mBA/JkB,MAAM"}
 \ No newline at end of file
 diff --git a/dist/src/cursor-plugin.d.ts b/dist/src/cursor-plugin.d.ts
 new file mode 100644
-index 0000000000000000000000000000000000000000..84171dec9704fbcff103cbf11c5cf189078fbdac
+index 0000000000000000000000000000000000000000..7180ffe0877be0a67fb5c6090173f9c294625e82
 --- /dev/null
 +++ b/dist/src/cursor-plugin.d.ts
-@@ -0,0 +1,25 @@
+@@ -0,0 +1,44 @@
 +export function defaultCursorBuilder(user: User): HTMLElement;
 +export function defaultSelectionBuilder(user: User): import("prosemirror-view").DecorationAttrs;
-+export function createDecorations(state: import("prosemirror-state").EditorState, awareness: import("@y/protocols/awareness").Awareness, awarenessFilter: AwarenessFilter, createCursor: (user: User, clientId: number) => Element, createSelection: (user: User, clientId: number) => import("prosemirror-view").DecorationAttrs, cursorStateField: string, syncStateOverride?: any): DecorationSet;
-+export function yCursorPlugin(awareness: import("@y/protocols/awareness").Awareness, { awarenessStateFilter, cursorBuilder, selectionBuilder, getSelection }?: {
++export function createDecorations(state: import("prosemirror-state").EditorState, awareness: import("@y/protocols/awareness").Awareness, awarenessFilter: AwarenessFilter, createCursor: (user: User, clientId: number) => Element, createSelection: (user: User, clientId: number) => import("prosemirror-view").DecorationAttrs, cursorStateField: string, ystate: {
++    ytype: Y.Type | null;
++    attributionManager: Y.AbstractAttributionManager | null;
++} | undefined): DecorationSet;
++export function yCursorPlugin(awareness: import("@y/protocols/awareness").Awareness, { awarenessStateFilter, cursorBuilder, selectionBuilder, cursorStateField, resolveLocalCursorState }?: {
 +    awarenessStateFilter?: AwarenessFilter | undefined;
 +    cursorBuilder?: ((user: User, clientId: number) => HTMLElement) | undefined;
 +    selectionBuilder?: ((user: User, clientId: number) => import("prosemirror-view").DecorationAttrs) | undefined;
-+    getSelection?: ((state: import("prosemirror-state").EditorState) => {
-+        $anchor: import("prosemirror-model").ResolvedPos;
-+        $head: import("prosemirror-model").ResolvedPos;
-+    }) | undefined;
-+}, cursorStateField?: string): any;
++    resolveLocalCursorState?: ResolveLocalCursorStateCallback | undefined;
++    cursorStateField?: string | undefined;
++}): Plugin<DecorationSet>;
 +export type User = {
 +    /**
 +     * The label to display for the user
@@ -65,16 +70,34 @@ index 0000000000000000000000000000000000000000..84171dec9704fbcff103cbf11c5cf189
 +    color?: string | undefined;
 +};
 +export type AwarenessFilter = (currentClientId: number, userClientId: number, awarenessState: Record<string, any>) => boolean;
++export type ResolveLocalCursorStateCallback = (ctx: {
++    view: import("prosemirror-view").EditorView;
++    prevState: {
++        anchor: Y.RelativePosition;
++        head: Y.RelativePosition;
++    } | null;
++    nextState: {
++        anchor: Y.RelativePosition;
++        head: Y.RelativePosition;
++    } | null;
++    isOwnState: boolean;
++    reason: "update" | "focus" | "blur";
++}) => {
++    anchor: Y.RelativePosition;
++    head: Y.RelativePosition;
++} | null;
++import * as Y from '@y/y';
 +import { DecorationSet } from 'prosemirror-view';
++import { Plugin } from 'prosemirror-state';
 +//# sourceMappingURL=cursor-plugin.d.ts.map
 \ No newline at end of file
 diff --git a/dist/src/cursor-plugin.d.ts.map b/dist/src/cursor-plugin.d.ts.map
 new file mode 100644
-index 0000000000000000000000000000000000000000..04ab0db3352cdf138ad9c3c15831f35bcf3bbe2c
+index 0000000000000000000000000000000000000000..f09b4e94cfb42585d13b700cef3f4fb00cf9c60f
 --- /dev/null
 +++ b/dist/src/cursor-plugin.d.ts.map
 @@ -0,0 +1 @@
-+{"version":3,"file":"cursor-plugin.d.ts","sourceRoot":"","sources":["../../src/cursor-plugin.js"],"names":[],"mappings":"AAgCO,2CAHI,IAAI,GACH,WAAW,CAmBtB;AAQM,8CAHI,IAAI,GACH,OAAO,kBAAkB,EAAE,eAAe,CAOrD;AAYM,yCATI,OAAO,mBAAmB,EAAE,WAAW,aACvC,OAAO,wBAAwB,EAAE,SAAS,mBAC1C,eAAe,gBACf,CAAC,IAAI,EAAE,IAAI,EAAE,QAAQ,EAAE,MAAM,KAAK,OAAO,mBACzC,CAAC,IAAI,EAAE,IAAI,EAAE,QAAQ,EAAE,MAAM,KAAK,OAAO,kBAAkB,EAAE,eAAe,oBAC5E,MAAM,sBACN,GAAG,GACF,aAAa,CAgFxB;AAgBM,yCATI,OAAO,wBAAwB,EAAE,SAAS,4EAElD;IAA+B,oBAAoB;IACU,aAAa,WAA3D,IAAI,YAAY,MAAM,KAAK,WAAW;IACuC,gBAAgB,WAA7F,IAAI,YAAY,MAAM,KAAK,OAAO,kBAAkB,EAAE,eAAe;IACkF,YAAY,YAAlK,OAAO,mBAAmB,EAAE,WAAW,KAAK;QAAC,OAAO,EAAE,OAAO,mBAAmB,EAAE,WAAW,CAAC;QAAC,KAAK,EAAE,OAAO,mBAAmB,EAAE,WAAW,CAAA;KAAC;CAC9J,qBAAQ,MAAM,GACL,GAAG,CAiJX;;;;;;;;;;;gDAnSO,MAAM,gBACN,MAAM,kBACN,MAAM,CAAC,MAAM,EAAE,GAAG,CAAC,KACjB,OAAO;8BAtBsB,kBAAkB"}
++{"version":3,"file":"cursor-plugin.d.ts","sourceRoot":"","sources":["../../src/cursor-plugin.js"],"names":[],"mappings":"AAgCO,2CAHI,IAAI,GACH,WAAW,CAmBtB;AAQM,8CAHI,IAAI,GACH,OAAO,kBAAkB,EAAE,eAAe,CAOrD;AAYM,yCATI,OAAO,mBAAmB,EAAE,WAAW,aACvC,OAAO,wBAAwB,EAAE,SAAS,mBAC1C,eAAe,gBACf,CAAC,IAAI,EAAE,IAAI,EAAE,QAAQ,EAAE,MAAM,KAAK,OAAO,mBACzC,CAAC,IAAI,EAAE,IAAI,EAAE,QAAQ,EAAE,MAAM,KAAK,OAAO,kBAAkB,EAAE,eAAe,oBAC5E,MAAM,UACN;IAAC,KAAK,EAAE,CAAC,CAAC,IAAI,GAAG,IAAI,CAAC;IAAC,kBAAkB,EAAE,CAAC,CAAC,0BAA0B,GAAG,IAAI,CAAA;CAAC,GAAG,SAAS,GAC1F,aAAa,CAkExB;AA2BM,yCATI,OAAO,wBAAwB,EAAE,SAAS,yGAElD;IAA+B,oBAAoB;IACU,aAAa,WAA3D,IAAI,YAAY,MAAM,KAAK,WAAW;IACuC,gBAAgB,WAA7F,IAAI,YAAY,MAAM,KAAK,OAAO,kBAAkB,EAAE,eAAe;IACrC,uBAAuB;IAChD,gBAAgB;CACtC,GAAS,MAAM,CAAC,aAAa,CAAC,CAmL7B;;;;;;;;;;;gDAlUO,MAAM,gBACN,MAAM,kBACN,MAAM,CAAC,MAAM,EAAE,GAAG,CAAC,KACjB,OAAO;oDAwHjB;IAAmD,IAAI,EAA/C,OAAO,kBAAkB,EAAE,UAAU;IAC8B,SAAS,EAA5E;QAAC,MAAM,EAAE,CAAC,CAAC,gBAAgB,CAAC;QAAC,IAAI,EAAE,CAAC,CAAC,gBAAgB,CAAA;KAAC,GAAG,IAAI;IACM,SAAS,EAA5E;QAAC,MAAM,EAAE,CAAC,CAAC,gBAAgB,CAAC;QAAC,IAAI,EAAE,CAAC,CAAC,gBAAgB,CAAA;KAAC,GAAG,IAAI;IAChD,UAAU,EAAvB,OAAO;IAC0B,MAAM,EAAvC,QAAQ,GAAG,OAAO,GAAG,MAAM;CACnC,KAAU;IAAC,MAAM,EAAE,CAAC,CAAC,gBAAgB,CAAC;IAAC,IAAI,EAAE,CAAC,CAAC,gBAAgB,CAAA;CAAC,GAAG,IAAI;mBApJvD,MAAM;8BACiB,kBAAkB;uBACrC,mBAAmB"}
 \ No newline at end of file
 diff --git a/dist/src/index.d.ts b/dist/src/index.d.ts
 index fec5f1c23d3f28e250fecd7045fcebe7fc60993f..ebf62e224dcb8a4becb6dcc0e59799e732a4ce1c 100644
@@ -255,11 +278,11 @@ index 0000000000000000000000000000000000000000..2c008bfa4dbf0fe49a4148d6346c5388
 \ No newline at end of file
 diff --git a/dist/src/positions.d.ts.map b/dist/src/positions.d.ts.map
 new file mode 100644
-index 0000000000000000000000000000000000000000..f5a88bd1ed453d44d421428e46e36e7526547ec0
+index 0000000000000000000000000000000000000000..27c3de6071c3c8701acad9516390c219483b37e8
 --- /dev/null
 +++ b/dist/src/positions.d.ts.map
 @@ -0,0 +1 @@
-+{"version":3,"file":"positions.d.ts","sourceRoot":"","sources":["../../src/positions.js"],"names":[],"mappings":"AAWO,gEALI,OAAO,mBAAmB,EAAE,WAAW,QACvC,CAAC,CAAC,IAAI,OACN,CAAC,CAAC,0BAA0B,GAAG,IAAI,GAClC,CAAC,CAAC,gBAAgB,CA4C7B;AAUM,2DANI,CAAC,CAAC,gBAAgB,gBAClB,CAAC,CAAC,IAAI,SACN,OAAO,mBAAmB,EAAE,IAAI,OAChC,CAAC,CAAC,0BAA0B,GAAG,IAAI,GAClC,IAAI,GAAC,MAAM,CA6CtB;AASM,mDALI,OAAO,mBAAmB,EAAE,WAAW,QACvC,CAAC,CAAC,IAAI,OACN,CAAC,CAAC,0BAA0B,GAC1B,CAAC,GAAG,EAAE,OAAO,mBAAmB,EAAE,IAAI,EAAE,YAAY,CAAC,EAAE,CAAC,CAAC,IAAI,EAAE,kBAAkB,CAAC,EAAE,CAAC,CAAC,0BAA0B,KAAK,MAAM,CAWvI;AAyBM,mDAHI,CAAC,CAAC,IAAI,GACJ;IAAC,cAAc,EAAE,cAAc,CAAC;IAAC,cAAc,EAAE,cAAc,CAAA;CAAC,CAyD5E;mCA5EU,OAAO,mBAAmB,EAAE,IAAI,wFAG9B,OAAO,uBAAuB,EAAE,QAAQ;oCAK1C,CAAC,CAAC,IAAI,SACN,OAAO,mBAAmB,EAAE,IAAI,2DAE9B,OAAO,uBAAuB,EAAE,QAAQ;mBA3IlC,MAAM"}
++{"version":3,"file":"positions.d.ts","sourceRoot":"","sources":["../../src/positions.js"],"names":[],"mappings":"AAWO,gEALI,OAAO,mBAAmB,EAAE,WAAW,QACvC,CAAC,CAAC,IAAI,OACN,CAAC,CAAC,0BAA0B,GAAG,IAAI,GAClC,CAAC,CAAC,gBAAgB,CA4C7B;AAUM,2DANI,CAAC,CAAC,gBAAgB,gBAClB,CAAC,CAAC,IAAI,SACN,OAAO,mBAAmB,EAAE,IAAI,OAChC,CAAC,CAAC,0BAA0B,GAAG,IAAI,GAClC,IAAI,GAAC,MAAM,CAmDtB;AASM,mDALI,OAAO,mBAAmB,EAAE,WAAW,QACvC,CAAC,CAAC,IAAI,OACN,CAAC,CAAC,0BAA0B,GAC1B,CAAC,GAAG,EAAE,OAAO,mBAAmB,EAAE,IAAI,EAAE,YAAY,CAAC,EAAE,CAAC,CAAC,IAAI,EAAE,kBAAkB,CAAC,EAAE,CAAC,CAAC,0BAA0B,KAAK,MAAM,CAWvI;AAyBM,mDAHI,CAAC,CAAC,IAAI,GACJ;IAAC,cAAc,EAAE,cAAc,CAAC;IAAC,cAAc,EAAE,cAAc,CAAA;CAAC,CAyD5E;mCA5EU,OAAO,mBAAmB,EAAE,IAAI,wFAG9B,OAAO,uBAAuB,EAAE,QAAQ;oCAK1C,CAAC,CAAC,IAAI,SACN,OAAO,mBAAmB,EAAE,IAAI,2DAE9B,OAAO,uBAAuB,EAAE,QAAQ;mBAjJlC,MAAM"}
 \ No newline at end of file
 diff --git a/dist/src/sync-plugin.d.ts b/dist/src/sync-plugin.d.ts
 new file mode 100644
@@ -553,14 +576,15 @@ index 8eaef6bf2b216933047f528e3c3b0aa469df45e7..99ea779e7487cdc459ca93c65a8e84fe
      "@rollup/plugin-commonjs": "^28.0.8",
 diff --git a/src/commands.js b/src/commands.js
 new file mode 100644
-index 0000000000000000000000000000000000000000..8ec81b00fb92ef4021009bb1f8d1cb724f19df23
+index 0000000000000000000000000000000000000000..bbf5a241f8c1eb91a80f4a15c8f4d3696f42c5c4
 --- /dev/null
 +++ b/src/commands.js
-@@ -0,0 +1,92 @@
+@@ -0,0 +1,163 @@
 +import * as d from 'lib0/delta'
 +import { ySyncPluginKey, yUndoPluginKey } from './keys.js'
 +import { deltaToPSteps, deltaAttributionToFormat, nodeToDelta, deltaToPNode } from './sync-utils.js'
 +import * as Y from '@y/y'
++import { absolutePositionToRelativePosition } from './positions.js'
 +
 +/**
 + * Switch to pause mode (stop synchronization between prosemirror and ytype)
@@ -592,7 +616,7 @@ index 0000000000000000000000000000000000000000..8ec81b00fb92ef4021009bb1f8d1cb72
 + * @param {object} [opts]
 + * @param {YType?} [opts.ytype] Sync different ytype. Set to null to pause sync
 + * @param {AttributionManager?} [opts.attributionManager] Optional attribution manager to switch to
-+ * @returns {(state:import('prosemirror-state').EditorState, dispatch?: CommandDispatch | null ) => boolean}
++ * @returns {import('prosemirror-state').Command}
 + */
 +export const configureYProsemirror = (opts = {}) => (state, dispatch) => {
 +  const pluginState = ySyncPluginKey.getState(state)
@@ -649,12 +673,82 @@ index 0000000000000000000000000000000000000000..8ec81b00fb92ef4021009bb1f8d1cb72
 + * @type {import('prosemirror-state').Command}
 + */
 +export const redoCommand = (state, dispatch) => dispatch == null ? (yUndoPluginKey.getState(state)?.undoManager?.canRedo() || false) : redo(state)
++
++/**
++ * Reject changes between start and end
++ * @param {number} start
++ * @param {number} [end]
++ * @returns {import('prosemirror-state').Command}
++ */
++export const rejectChanges = (start, end = start) => (state, dispatch) => {
++  const pluginState = ySyncPluginKey.getState(state)
++  if (!pluginState?.ytype || !(pluginState?.attributionManager instanceof Y.DiffAttributionManager)) {
++    return false
++  }
++  if (dispatch) {
++    const relStart = absolutePositionToRelativePosition(state.doc.resolve(start), pluginState.ytype, pluginState.attributionManager)
++    const relEnd = absolutePositionToRelativePosition(state.doc.resolve(end), pluginState.ytype, pluginState.attributionManager)
++
++    pluginState.attributionManager.rejectChanges(relStart.item, relEnd.item)
++  }
++  return true
++}
++
++/**
++ * Accept changes between start and end
++ * @param {number} start
++ * @param {number} [end]
++ * @returns {import('prosemirror-state').Command}
++ */
++export const acceptChanges = (start, end = start) => (state, dispatch) => {
++  const pluginState = ySyncPluginKey.getState(state)
++  if (!pluginState?.ytype || !(pluginState?.attributionManager instanceof Y.DiffAttributionManager)) {
++    return false
++  }
++  if (dispatch) {
++    const relStart = absolutePositionToRelativePosition(state.doc.resolve(start), pluginState.ytype, pluginState.attributionManager)
++    const relEnd = absolutePositionToRelativePosition(state.doc.resolve(end), pluginState.ytype, pluginState.attributionManager)
++
++    pluginState.attributionManager.acceptChanges(relStart.item, relEnd.item)
++  }
++  return true
++}
++
++/**
++ * Accept all changes
++ * @returns {import('prosemirror-state').Command}
++ */
++export const acceptAllChanges = () => (state, dispatch) => {
++  const pluginState = ySyncPluginKey.getState(state)
++  if (!pluginState?.ytype || !(pluginState?.attributionManager instanceof Y.DiffAttributionManager)) {
++    return false
++  }
++  if (dispatch) {
++    pluginState.attributionManager.acceptAllChanges()
++  }
++  return true
++}
++
++/**
++ * Reject all changes
++ * @returns {import('prosemirror-state').Command}
++ */
++export const rejectAllChanges = () => (state, dispatch) => {
++  const pluginState = ySyncPluginKey.getState(state)
++  if (!pluginState?.ytype || !(pluginState?.attributionManager instanceof Y.DiffAttributionManager)) {
++    return false
++  }
++  if (dispatch) {
++    pluginState.attributionManager.rejectAllChanges()
++  }
++  return true
++}
 diff --git a/src/cursor-plugin.js b/src/cursor-plugin.js
 new file mode 100644
-index 0000000000000000000000000000000000000000..fa87ae88c4bbc7c8ced7648e2a092fd6a9927d07
+index 0000000000000000000000000000000000000000..79fa8f273361c11282e2c2df76c3889547986606
 --- /dev/null
 +++ b/src/cursor-plugin.js
-@@ -0,0 +1,312 @@
+@@ -0,0 +1,343 @@
 +import * as Y from '@y/y'
 +import { Decoration, DecorationSet } from 'prosemirror-view'
 +import { Plugin } from 'prosemirror-state'
@@ -678,7 +772,7 @@ index 0000000000000000000000000000000000000000..fa87ae88c4bbc7c8ced7648e2a092fd6
 + * @param {number} currentClientId
 + * @param {number} userClientId
 + * @param {Record<string, any>} awarenessState
-+ * @returns {boolean}
++ * @returns {boolean} true if the cursor should be rendered for the given client
 + */
 +
 +/**
@@ -726,7 +820,7 @@ index 0000000000000000000000000000000000000000..fa87ae88c4bbc7c8ced7648e2a092fd6
 + * @param {(user: User, clientId: number) => Element} createCursor
 + * @param {(user: User, clientId: number) => import('prosemirror-view').DecorationAttrs} createSelection
 + * @param {string} cursorStateField
-+ * @param {any} [syncStateOverride] Pre-resolved sync plugin state. When provided, used in place of looking it up from `state`. Used by `apply` so we can read the sync state from `oldState` (which is fully populated) instead of from `newState` (which may not have the sync field yet if this plugin runs before the sync plugin in the field order).
++ * @param {{ytype: Y.Type | null, attributionManager: Y.AbstractAttributionManager | null} | undefined} ystate
 + * @return {DecorationSet}
 + */
 +export const createDecorations = (
@@ -736,78 +830,75 @@ index 0000000000000000000000000000000000000000..fa87ae88c4bbc7c8ced7648e2a092fd6
 +  createCursor,
 +  createSelection,
 +  cursorStateField,
-+  syncStateOverride
++  ystate
 +) => {
-+  const ystate = syncStateOverride != null ? syncStateOverride : ySyncPluginKey.getState(state)
 +  const type = ystate?.ytype
 +  const doc = type?.doc
 +  if (!type || !doc) {
 +    // do not render cursors while snapshot is active
 +    return DecorationSet.empty
 +  }
++  const maxsize = math.max(state.doc.content.size - 1, 0)
 +  /**
 +   * @type {Decoration[]}
 +   */
 +  const decorations = []
-+  // Use `awareness.doc.clientID` (or its `clientID` field, which mirrors it)
-+  // rather than `type.doc.clientID` for the local-client identity. They're the
-+  // same in normal collaboration, but diverge when the bound `ytype` lives in a
-+  // *different* Y.Doc than the awareness — e.g., a suggestion-tracking Y.Doc
-+  // whose clientID is deliberately swapped to attribute edits to a "suggester"
-+  // identity. Awareness peer keys are always the awareness doc's clientIDs, so
-+  // filtering against the bound type's doc would fail to recognize the local
-+  // user and we'd render our own cursor as if it were a remote one.
-+  const localClientId = awareness.doc ? awareness.doc.clientID : awareness.clientID
 +  awareness.getStates().forEach((aw, clientId) => {
-+    if (!awarenessFilter(localClientId, clientId, aw)) {
++    const cursor = aw[cursorStateField]
++
++    if (cursor == null || !awarenessFilter(awareness.clientID, clientId, aw)) {
 +      return
 +    }
 +
-+    const cursor = aw[cursorStateField]
-+
-+    if (cursor != null) {
-+      const user = aw.user || {}
-+      if (user.color == null) {
-+        user.color = '#ffa500'
-+      }
-+      if (user.name == null) {
-+        user.name = `User: ${clientId}`
-+      }
-+      let anchor = relativePositionToAbsolutePosition(
-+        Y.createRelativePositionFromJSON(cursor.anchor),
-+        type,
-+        state.doc,
-+        ystate.attributionManager
++    const user = aw.user || {}
++    if (user.color == null) {
++      user.color = '#ffa500'
++    }
++    if (user.name == null) {
++      user.name = `User: ${clientId}`
++    }
++    let anchor = relativePositionToAbsolutePosition(
++      Y.createRelativePositionFromJSON(cursor.anchor),
++      type,
++      state.doc,
++      ystate.attributionManager
++    )
++    let head = relativePositionToAbsolutePosition(
++      Y.createRelativePositionFromJSON(cursor.head),
++      type,
++      state.doc,
++      ystate.attributionManager
++    )
++    if (anchor !== null && head !== null) {
++      anchor = math.min(anchor, maxsize)
++      head = math.min(head, maxsize)
++      decorations.push(
++        Decoration.widget(head, () => createCursor(user, clientId), {
++          key: clientId + '',
++          side: 10
++        })
 +      )
-+      let head = relativePositionToAbsolutePosition(
-+        Y.createRelativePositionFromJSON(cursor.head),
-+        type,
-+        state.doc,
-+        ystate.attributionManager
++      decorations.push(
++        Decoration.inline(math.min(anchor, head), math.max(anchor, head), createSelection(user, clientId), {
++          inclusiveEnd: true,
++          inclusiveStart: false
++        })
 +      )
-+      if (anchor !== null && head !== null) {
-+        const maxsize = math.max(state.doc.content.size - 1, 0)
-+        anchor = math.min(anchor, maxsize)
-+        head = math.min(head, maxsize)
-+        decorations.push(
-+          Decoration.widget(head, () => createCursor(user, clientId), {
-+            key: clientId + '',
-+            side: 10
-+          })
-+        )
-+        const from = math.min(anchor, head)
-+        const to = math.max(anchor, head)
-+        decorations.push(
-+          Decoration.inline(from, to, createSelection(user, clientId), {
-+            inclusiveEnd: true,
-+            inclusiveStart: false
-+          })
-+        )
-+      }
 +    }
 +  })
 +  return DecorationSet.create(state.doc, decorations)
 +}
++
++/**
++ * @callback ResolveLocalCursorStateCallback
++ * @param {object} ctx - The context object
++ * @param {import('prosemirror-view').EditorView} ctx.view - The editor view
++ * @param {{anchor: Y.RelativePosition, head: Y.RelativePosition} | null} ctx.prevState - The previous local cursor state currently published in awareness for this client (decoded to Y.RelativePosition), or null if not set
++ * @param {{anchor: Y.RelativePosition, head: Y.RelativePosition} | null} ctx.nextState - The candidate next cursor state, freshly derived from the editor's current selection (not yet published to awareness), or null if no Y type is bound
++ * @param {boolean} ctx.isOwnState - Whether `prevState` resolves inside this editor binding's bound type (i.e. this binding is the source of truth for the published cursor state)
++ * @param {'update' | 'focus' | 'blur'} ctx.reason - What triggered this invocation: 'update' (PM view.update tick), 'focus' (focusin on view.dom; only fires when no `setSelection` transaction is pending — see `selectionUpdateIsPending` in cursor-plugin.js), or 'blur' (focusout on view.dom)
++ * @returns {{anchor: Y.RelativePosition, head: Y.RelativePosition} | null} The next local cursor state to publish under `cursorStateField` in awareness, or null to clear it
++ */
 +
 +/**
 + * A prosemirror plugin that listens to awareness information on Yjs.
@@ -819,9 +910,9 @@ index 0000000000000000000000000000000000000000..fa87ae88c4bbc7c8ced7648e2a092fd6
 + * @param {AwarenessFilter} [opts.awarenessStateFilter] A function that filters the awareness states to be rendered
 + * @param {(user: User, clientId: number) => HTMLElement} [opts.cursorBuilder] A function that creates a cursor element
 + * @param {(user: User, clientId: number) => import('prosemirror-view').DecorationAttrs} [opts.selectionBuilder] A function that creates a selection decoration
-+ * @param {(state: import('prosemirror-state').EditorState) => {$anchor: import('prosemirror-model').ResolvedPos, $head: import('prosemirror-model').ResolvedPos}} [opts.getSelection] A function that gets the selection from the editor state
-+ * @param {string} [cursorStateField] By default all editor bindings use the awareness 'cursor' field to propagate cursor information, this allows you to use a different field name
-+ * @return {any}
++ * @param {ResolveLocalCursorStateCallback} [opts.resolveLocalCursorState] A policy that decides which cursor state to publish to awareness given the previously-published state, the state derived from the current selection, and what triggered the update
++ * @param {string} [opts.cursorStateField = 'cursor'] By default all editor bindings use the awareness 'cursor' field to propagate cursor information, this allows you to use a different field name
++ * @return {Plugin<DecorationSet>}
 + */
 +export const yCursorPlugin = (
 +  awareness,
@@ -829,9 +920,16 @@ index 0000000000000000000000000000000000000000..fa87ae88c4bbc7c8ced7648e2a092fd6
 +    awarenessStateFilter = (currentClientId, userClientId) => currentClientId !== userClientId,
 +    cursorBuilder = defaultCursorBuilder,
 +    selectionBuilder = defaultSelectionBuilder,
-+    getSelection = (state) => state.selection
-+  } = {},
-+  cursorStateField = 'cursor'
++    cursorStateField = 'cursor',
++    resolveLocalCursorState = (ctx) => {
++      if (ctx.view.hasFocus()) {
++        return ctx.nextState
++      }
++      // clear the published cursor state if this binding owns it,
++      // otherwise leave the previously-published state in place
++      return ctx.isOwnState ? null : ctx.prevState
++    }
++  } = {}
 +) =>
 +  new Plugin({
 +    key: yCursorPluginKey,
@@ -843,16 +941,16 @@ index 0000000000000000000000000000000000000000..fa87ae88c4bbc7c8ced7648e2a092fd6
 +          awarenessStateFilter,
 +          cursorBuilder,
 +          selectionBuilder,
-+          cursorStateField
++          cursorStateField,
++          undefined
 +        )
 +      },
 +      apply (tr, prevState, oldState, newState) {
 +        const ySyncMeta = $syncPluginStateUpdate.nullable.expect(tr.getMeta(ySyncPluginKey) || null)
-+        const yCursorState = tr.getMeta(yCursorPluginKey)
-+        if (
-+          (ySyncMeta) ||
-+          (yCursorState && yCursorState.awarenessUpdated)
-+        ) {
++        const ySyncTransaction = tr.getMeta('y-sync-transaction')
++        const yCursorMeta = tr.getMeta(yCursorPluginKey)
++
++        if (ySyncMeta || ySyncTransaction || yCursorMeta?.awarenessUpdated) {
 +          // PM fills `newState` plugin fields in field order during apply, so
 +          // `ySyncPluginKey.getState(newState)` may return null if this plugin
 +          // runs before the sync plugin (which can happen when the host
@@ -873,96 +971,123 @@ index 0000000000000000000000000000000000000000..fa87ae88c4bbc7c8ced7648e2a092fd6
 +            syncState
 +          )
 +        }
++        // remap decorations
 +        return prevState.map(tr.mapping, tr.doc)
 +      }
 +    },
 +    props: {
-+      decorations: (state) => {
-+        return yCursorPluginKey.getState(state)
-+      }
++      decorations: (state) => yCursorPluginKey.getState(state)
 +    },
 +    view: (view) => {
 +      const awarenessListener = () => {
-+        // @ts-ignore
-+        if (view.docView) { // TODO why is this using docView? Ask Kevin about this.
-+          view.dispatch(view.state.tr.setMeta(yCursorPluginKey, { awarenessUpdated: true }))
++        if (view.isDestroyed) {
++          return
 +        }
++        view.dispatch(view.state.tr.setMeta(yCursorPluginKey, { awarenessUpdated: true }))
 +      }
-+      const updateCursorInfo = () => {
++
++      /**
++       * @param {'update' | 'focus' | 'blur'} reason
++       */
++      const updateCursorInfo = (reason) => {
++        if (view.isDestroyed) {
++          return
++        }
 +        const ystate = ySyncPluginKey.getState(view.state)
-+        // @note We make implicit checks when checking for the cursor property
-+        const current = awareness.getLocalState() || {}
++        const rawCursor = (awareness.getLocalState() || {})[cursorStateField]
 +        /**
-+         * @type {{anchor: any, head: any}}
++         * @type {{anchor: Y.RelativePosition, head: Y.RelativePosition} | null}
 +         */
-+        const cursor = current[cursorStateField]
-+        if (view.hasFocus() && ystate?.ytype) {
-+          const selection = getSelection(view.state)
-+          // Belt-and-braces around the PM->Y position encoding. positions.js
-+          // already falls back to a doc-root relative position on traversal
-+          // failure, but anything else throwing here (DOM-change-time selection
-+          // resolution, AM internals) would bubble up through dispatch and
-+          // tear the editor down on every keystroke - just skip the awareness
-+          // update in that case.
-+          /** @type {Y.RelativePosition} */
-+          let anchor
-+          /** @type {Y.RelativePosition} */
-+          let head
++        const prevState = rawCursor != null
++          ? {
++              anchor: Y.createRelativePositionFromJSON(rawCursor.anchor),
++              head: Y.createRelativePositionFromJSON(rawCursor.head)
++            }
++          : null
++
++        // Belt-and-braces around the PM->Y position encoding. positions.js
++        // already falls back to a doc-root relative position on traversal
++        // failure, but anything else throwing here (DOM-change-time selection
++        // resolution, AM internals) would bubble up through dispatch and
++        // tear the editor down on every keystroke - just skip the awareness
++        // update in that case.
++        /** @type {{anchor: Y.RelativePosition, head: Y.RelativePosition} | null} */
++        let nextState = null
++        if (ystate?.ytype) {
 +          try {
-+            anchor = absolutePositionToRelativePosition(
-+              selection.$anchor,
-+              ystate.ytype,
-+              ystate.attributionManager
-+            )
-+            head = absolutePositionToRelativePosition(
-+              selection.$head,
-+              ystate.ytype,
-+              ystate.attributionManager
-+            )
++            nextState = {
++              anchor: absolutePositionToRelativePosition(
++                view.state.selection.$anchor,
++                ystate.ytype,
++                ystate.attributionManager
++              ),
++              head: absolutePositionToRelativePosition(
++                view.state.selection.$head,
++                ystate.ytype,
++                ystate.attributionManager
++              )
++            }
 +          } catch (err) {
 +            console.warn('y-prosemirror cursor-plugin: failed to encode selection, skipping awareness update', err)
 +            return
 +          }
-+          if (
-+            cursor == null ||
-+            !Y.compareRelativePositions(
-+              Y.createRelativePositionFromJSON(cursor.anchor),
-+              anchor
-+            ) ||
-+            !Y.compareRelativePositions(
-+              Y.createRelativePositionFromJSON(cursor.head),
-+              head
-+            )
-+          ) {
-+            awareness.setLocalStateField(cursorStateField, {
-+              anchor,
-+              head
-+            })
++        }
++        const resolvedState = resolveLocalCursorState({
++          view,
++          prevState,
++          nextState,
++          reason,
++          get isOwnState () {
++            return prevState != null && ystate?.ytype != null && relativePositionToAbsolutePosition(
++              prevState.anchor,
++              ystate.ytype,
++              view.state.doc,
++              ystate.attributionManager
++            ) !== null
 +          }
-+        } else if (
-+          cursor != null &&
-+          ystate?.ytype &&
-+          relativePositionToAbsolutePosition(
-+            Y.createRelativePositionFromJSON(cursor.anchor),
-+            ystate.ytype,
-+            view.state.doc,
-+            ystate.attributionManager
-+          ) !== null
-+        ) {
-+          // delete cursor information if current cursor information is owned by this editor binding
-+          awareness.setLocalStateField(cursorStateField, null)
++        })
++
++        // compute whether the published cursor state has changed
++        const cursorChanged = (prevState == null) !== (resolvedState == null) || (
++          prevState != null && resolvedState != null && (
++            !Y.compareRelativePositions(prevState.anchor, resolvedState.anchor) ||
++            !Y.compareRelativePositions(prevState.head, resolvedState.head)
++          )
++        )
++
++        if (cursorChanged) {
++          awareness.setLocalStateField(cursorStateField, resolvedState)
 +        }
 +      }
++
++      const onFocusIn = () => {
++        if (view.isDestroyed) return
++        // This fixes an issue where focusin is called before the selection is updated
++        // This allows us to bail out if the selection will change immediately after focusin
++        // This allows us to skip a flicker of setting the cursor, just to change it to the correct position
++        /** @type {Selection | null} */
++        const sel = (/** @type {any} */ (view.root)).getSelection()
++        if (sel && sel.rangeCount > 0 && sel.anchorNode) {
++          try {
++            if (view.posAtDOM(sel.anchorNode, sel.anchorOffset, -1) !== view.state.selection.anchor) {
++              return
++            }
++          } catch { /* posAtDOM failed; re-evaluate the cursor */ }
++        }
++        updateCursorInfo('focus')
++      }
++      const onFocusOut = () => updateCursorInfo('blur')
++
 +      awareness.on('change', awarenessListener)
-+      view.dom.addEventListener('focusin', updateCursorInfo)
-+      view.dom.addEventListener('focusout', updateCursorInfo)
++      view.dom.addEventListener('focusin', onFocusIn)
++      view.dom.addEventListener('focusout', onFocusOut)
++
 +      return {
-+        update: updateCursorInfo,
++        update: () => updateCursorInfo('update'),
 +        destroy: () => {
-+          view.dom.removeEventListener('focusin', updateCursorInfo)
-+          view.dom.removeEventListener('focusout', updateCursorInfo)
++          view.dom.removeEventListener('focusin', onFocusIn)
++          view.dom.removeEventListener('focusout', onFocusOut)
 +          awareness.off('change', awarenessListener)
-+          awareness.setLocalStateField(cursorStateField, null)
 +        }
 +      }
 +    }
@@ -1654,10 +1779,10 @@ deleted file mode 100644
 index 9f8acb14f5af98e19ab6551ef0136523bb45767b..0000000000000000000000000000000000000000
 diff --git a/src/positions.js b/src/positions.js
 new file mode 100644
-index 0000000000000000000000000000000000000000..b0de600e5bba2d3605cf8f5ec8527d6faf85beec
+index 0000000000000000000000000000000000000000..9d310b3a8ced22e3574f94f932243f70bc1e7649
 --- /dev/null
 +++ b/src/positions.js
-@@ -0,0 +1,205 @@
+@@ -0,0 +1,211 @@
 +import * as Y from '@y/y'
 +import * as s from 'lib0/schema'
 +
@@ -1745,6 +1870,9 @@ index 0000000000000000000000000000000000000000..b0de600e5bba2d3605cf8f5ec8527d6f
 +  for (let i = 0; i < path.length; i++) {
 +    const childIndex = path[i]
 +    // Add sizes of all previous siblings
++    if (childIndex >= currentNode.childCount) {
++      return null
++    }
 +    for (let j = 0; j < childIndex; j++) {
 +      pos += currentNode.child(j).nodeSize
 +    }
@@ -1758,6 +1886,9 @@ index 0000000000000000000000000000000000000000..b0de600e5bba2d3605cf8f5ec8527d6f
 +  // child count, so we convert it to a PM offset by summing preceding children's node sizes.
 +  if (currentNode.inlineContent) {
 +    return pos + decodedPos.index
++  }
++  if (decodedPos.index > currentNode.childCount) {
++    return null
 +  }
 +  let blockOffset = 0
 +  for (let j = 0; j < decodedPos.index; j++) {

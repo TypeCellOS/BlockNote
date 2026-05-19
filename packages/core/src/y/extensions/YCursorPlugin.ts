@@ -171,7 +171,7 @@ export const YCursorExtension = createExtension(
               },
             })
           : undefined,
-      ].filter(Boolean),
+      ].filter((a) => a !== undefined),
       dependsOn: ["ySync"],
       updateUser(user: CollaborationUser) {
         awareness?.setLocalStateField("user", user);

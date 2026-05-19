@@ -1,101 +1,126 @@
 import * as Y from "@y/y";
 import { toBase64, fromBase64 } from "lib0/buffer";
 
-import { VersioningEndpoints, VersionSnapshot } from "./index.js";
+import {
+  CreateSnapshotOptions,
+  sortSnapshotsNewestFirst,
+  VersioningEndpoints,
+  VersionSnapshot,
+} from "./index.js";
 
-const listSnapshots: VersioningEndpoints["listSnapshots"] = async () =>
-  JSON.parse(localStorage.getItem("snapshots") ?? "[]") as VersionSnapshot[];
+const DEFAULT_STORAGE_KEY = "blocknote-versioning-snapshots";
 
-const createSnapshot = async (
-  fragment: Y.Type,
-  name?: string,
-  restoredFromSnapshotId?: string,
-): Promise<VersionSnapshot> => {
-  const snapshot = {
-    id: crypto.randomUUID(),
-    name,
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-    meta: {
-      restoredFromSnapshotId,
-      userIds: ["User1"],
-      contents: toBase64(Y.encodeStateAsUpdateV2(fragment.doc!)),
-    },
-  } satisfies VersionSnapshot;
+function getContentsKey(storageKey: string) {
+  return `${storageKey}-contents`;
+}
 
-  localStorage.setItem(
-    "snapshots",
-    JSON.stringify([snapshot, ...(await listSnapshots())]),
+function readSnapshots(storageKey: string): VersionSnapshot[] {
+  return sortSnapshotsNewestFirst(
+    JSON.parse(localStorage.getItem(storageKey) ?? "[]") as VersionSnapshot[],
   );
+}
 
-  return Promise.resolve(snapshot);
-};
+function writeSnapshots(storageKey: string, snapshots: VersionSnapshot[]) {
+  localStorage.setItem(
+    storageKey,
+    JSON.stringify(sortSnapshotsNewestFirst(snapshots)),
+  );
+}
 
-const fetchSnapshotContent: VersioningEndpoints["fetchSnapshotContent"] =
-  async (id) => {
-    const snapshots = await listSnapshots();
+function readContents(storageKey: string): Record<string, string> {
+  return JSON.parse(
+    localStorage.getItem(getContentsKey(storageKey)) ?? "{}",
+  ) as Record<string, string>;
+}
 
-    const snapshot = snapshots.find(
-      (snapshot: VersionSnapshot) => snapshot.id === id,
-    );
+function writeContents(storageKey: string, contents: Record<string, string>) {
+  localStorage.setItem(getContentsKey(storageKey), JSON.stringify(contents));
+}
+
+/**
+ * Reference {@link VersioningEndpoints} implementation backed by
+ * `localStorage`. Snapshot metadata and binary content are stored separately.
+ */
+export function createLocalStorageVersioningEndpoints(
+  storageKey = DEFAULT_STORAGE_KEY,
+): VersioningEndpoints {
+  const listSnapshots: VersioningEndpoints["listSnapshots"] = async () =>
+    readSnapshots(storageKey);
+
+  const createSnapshot = async (
+    fragment: Y.Type,
+    options?: CreateSnapshotOptions,
+  ): Promise<VersionSnapshot> => {
+    const snapshot = {
+      id: crypto.randomUUID(),
+      name: options?.name,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      meta: {
+        restoredFromSnapshotId: options?.restoredFromSnapshotId,
+        userIds: ["User1"],
+      },
+    } satisfies VersionSnapshot;
+
+    const contents = readContents(storageKey);
+    contents[snapshot.id] = toBase64(Y.encodeStateAsUpdateV2(fragment.doc!));
+    writeContents(storageKey, contents);
+
+    writeSnapshots(storageKey, [snapshot, ...readSnapshots(storageKey)]);
+
+    return snapshot;
+  };
+
+  const fetchSnapshotContent: VersioningEndpoints["fetchSnapshotContent"] =
+    async (id) => {
+      const encoded = readContents(storageKey)[id];
+      if (encoded === undefined) {
+        throw new Error(`Document snapshot ${id} could not be found.`);
+      }
+      return fromBase64(encoded);
+    };
+
+  const restoreSnapshot: VersioningEndpoints["restoreSnapshot"] = async (
+    fragment,
+    id,
+  ) => {
+    await createSnapshot(fragment, { name: "Backup" });
+
+    const snapshotContent = await fetchSnapshotContent(id);
+    const yDoc = new Y.Doc();
+    Y.applyUpdateV2(yDoc, snapshotContent);
+
+    await createSnapshot(yDoc.get(), {
+      name: "Restored Snapshot",
+      restoredFromSnapshotId: id,
+    });
+
+    return snapshotContent;
+  };
+
+  const updateSnapshotName: VersioningEndpoints["updateSnapshotName"] = async (
+    id,
+    name,
+  ) => {
+    const snapshots = readSnapshots(storageKey);
+    const snapshot = snapshots.find((s) => s.id === id);
     if (snapshot === undefined) {
       throw new Error(`Document snapshot ${id} could not be found.`);
     }
-    if (!("contents" in snapshot.meta)) {
-      throw new Error(`Document snapshot ${id} doesn't contain content.`);
-    }
-    if (typeof snapshot.meta.contents !== "string") {
-      throw new Error(`Document snapshot ${id} contains invalid content.`);
-    }
 
-    return Promise.resolve(fromBase64(snapshot.meta.contents));
+    snapshot.name = name;
+    snapshot.updatedAt = Date.now();
+    writeSnapshots(storageKey, snapshots);
   };
 
-const restoreSnapshot: VersioningEndpoints["restoreSnapshot"] = async (
-  fragment,
-  id,
-) => {
-  // take a snapshot of the current document
-  await createSnapshot(fragment, "Backup");
+  return {
+    listSnapshots,
+    createSnapshot,
+    fetchSnapshotContent,
+    restoreSnapshot,
+    updateSnapshotName,
+  };
+}
 
-  // hydrates the version document from it's contents, into a new Y.Doc
-  const snapshotContent = await fetchSnapshotContent(id);
-  const yDoc = new Y.Doc();
-  Y.applyUpdateV2(yDoc, snapshotContent);
-
-  // create a new snapshot from that, to store it back in the list
-  // Don't mind that the xmlFragment is not the right one, we just snapshot the whole doc anyway
-  await createSnapshot(yDoc.get(), "Restored Snapshot", id);
-
-  // return what the new state should be
-  return snapshotContent;
-};
-
-const updateSnapshotName: VersioningEndpoints["updateSnapshotName"] = async (
-  id,
-  name,
-) => {
-  const snapshots = await listSnapshots();
-
-  const snapshot = snapshots.find(
-    (snapshot: VersionSnapshot) => snapshot.id === id,
-  );
-  if (snapshot === undefined) {
-    throw new Error(`Document snapshot ${id} could not be found.`);
-  }
-
-  snapshot.name = name;
-  snapshot.updatedAt = Date.now();
-
-  localStorage.setItem("snapshots", JSON.stringify(snapshots));
-
-  return Promise.resolve();
-};
-
-export const localStorageEndpoints: VersioningEndpoints = {
-  listSnapshots,
-  createSnapshot,
-  fetchSnapshotContent,
-  restoreSnapshot,
-  updateSnapshotName,
-};
+/** Default localStorage-backed endpoints using {@link DEFAULT_STORAGE_KEY}. */
+export const localStorageEndpoints = createLocalStorageVersioningEndpoints();

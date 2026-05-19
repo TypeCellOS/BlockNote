@@ -1,3 +1,4 @@
+import "./style.css";
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
 import { BlockNoteView } from "@blocknote/mantine";
@@ -5,7 +6,6 @@ import { useCreateBlockNote } from "@blocknote/react";
 import { Awareness } from "@y/protocols/awareness";
 import { withCollaboration } from "@blocknote/core/y";
 import * as Y from "@y/y";
-import { useEffect } from "react";
 
 const doc = new Y.Doc();
 const provider = {
@@ -38,7 +38,7 @@ suggestingProvider.awareness.setLocalStateField("user", {
 const suggestingAttributionManager = Y.createAttributionManagerFromDiff(
   doc,
   suggestingDoc,
-  { attrs },
+  // { attrs },
 );
 suggestingAttributionManager.suggestionMode = false;
 
@@ -53,7 +53,7 @@ suggestionModeProvider.awareness.setLocalStateField("user", {
 const suggestionModeAttributionManager = Y.createAttributionManagerFromDiff(
   doc,
   suggestionModeDoc,
-  { attrs },
+  // { attrs },
 );
 suggestionModeAttributionManager.suggestionMode = true;
 

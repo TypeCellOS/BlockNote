@@ -8,8 +8,6 @@ import {
 } from "../../../editor/BlockNoteExtension.js";
 import { findTypeInOtherYdoc } from "../ForkYDoc.js";
 
-// TODO rewrite
-
 export interface VersionSnapshot {
   /**
    * The unique identifier for the snapshot.
@@ -40,15 +38,36 @@ export interface VersionSnapshot {
      */
     restoredFromSnapshotId?: string;
     /**
-     * Additional metadata about the snapshot.
+     * Additional custom metadata. Snapshot content is not stored here — use
+     * {@link VersioningEndpoints.fetchSnapshotContent} instead.
      */
     [key: string]: unknown;
   };
 }
 
+export type CreateSnapshotOptions = {
+  /**
+   * The optional name for this snapshot.
+   */
+  name?: string;
+  /**
+   * The ID of the snapshot this one was restored from, if applicable.
+   */
+  restoredFromSnapshotId?: string;
+};
+
+export type PreviewSnapshotOptions = {
+  /**
+   * When set, the preview shows a diff against this snapshot (typically the
+   * chronologically previous version in the history list).
+   */
+  compareTo?: string;
+};
+
 export interface VersioningEndpoints {
   /**
-   * List all created snapshots for this document.
+   * List all snapshots for this document, sorted newest-first by
+   * {@link VersionSnapshot.createdAt}.
    */
   listSnapshots: () => Promise<VersionSnapshot[]>;
   /**
@@ -56,109 +75,111 @@ export interface VersioningEndpoints {
    */
   createSnapshot: (
     fragment: Y.Type,
-    /**
-     * The optional name for this snapshot.
-     */
-    name?: string,
-    /**
-     * The ID of the previous snapshot that this snapshot was restored from.
-     */
-    restoredFromSnapshotId?: string,
+    options?: CreateSnapshotOptions,
   ) => Promise<VersionSnapshot>;
   /**
-   * Restore the current document to the provided snapshot ID. This should also
-   * append a new snapshot to the list with the reverted changes, and may
-   * include additional actions like appending a backup snapshot with the
-   * document content, just before reverting.
+   * Restore the current document to the provided snapshot. Implementations
+   * should create any backup / audit snapshots they need before returning.
    *
    * @note if not provided, the UI will not allow the user to restore a
    * snapshot.
-   * @returns the binary contents of the `Y.Doc` of the snapshot.
+   * @returns the binary contents of the `Y.Doc` to apply to the live document.
    */
   restoreSnapshot?: (fragment: Y.Type, id: string) => Promise<Uint8Array>;
   /**
-   * Fetch the contents of a snapshot. This is useful for previewing a
-   * snapshot before choosing to revert it.
+   * Fetch the contents of a snapshot. Used for previewing before restore.
    *
    * @returns the binary contents of the `Y.Doc` of the snapshot.
    */
-  fetchSnapshotContent: (
-    /**
-     * The id of the snapshot to fetch the contents of.
-     */
-    id: string,
-  ) => Promise<Uint8Array>;
+  fetchSnapshotContent: (id: string) => Promise<Uint8Array>;
   /**
    * Update the name of a snapshot.
    *
-   * @note if not provided, the UI will not allow the user to update the name
+   * @note if not provided, the UI will not allow the user to update the name.
    */
   updateSnapshotName?: (id: string, name?: string) => Promise<void>;
+}
+
+export type VersioningExtensionOptions = {
+  /**
+   * Backend storage for snapshots.
+   */
+  endpoints: VersioningEndpoints;
+  /**
+   * The Yjs type to version. When omitted, the fragment from the active
+   * `ySync` plugin is used (requires collaboration / `YSyncExtension`).
+   */
+  fragment?: Y.Type;
+};
+
+/** Sort snapshots newest-first by creation time. */
+export function sortSnapshotsNewestFirst(
+  snapshots: VersionSnapshot[],
+): VersionSnapshot[] {
+  return [...snapshots].sort((a, b) => b.createdAt - a.createdAt);
 }
 
 export const VersioningExtension = createExtension(
   ({
     editor,
-    options: { endpoints, fragment },
-  }: ExtensionOptions<{
-    /**
-     * There are different endpoints that need to be provided to implement the versioning API.
-     */
-    endpoints: VersioningEndpoints;
-    fragment: Y.Type;
-  }>) => {
+    options: { endpoints, fragment: fragmentOption },
+  }: ExtensionOptions<VersioningExtensionOptions>) => {
+    const getFragment = (): Y.Type => {
+      if (fragmentOption) {
+        return fragmentOption;
+      }
+      const ytype = ySyncPluginKey.getState(editor.prosemirrorState)?.ytype;
+      if (!ytype) {
+        throw new Error(
+          "VersioningExtension requires a `fragment` option, or an editor with YSync configured.",
+        );
+      }
+      return ytype;
+    };
+
     const store = createStore<{
       snapshots: VersionSnapshot[];
-      selectedSnapshotId?: string;
+      previewedSnapshotId?: string;
     }>({
       snapshots: [],
-      selectedSnapshotId: undefined,
+      previewedSnapshotId: undefined,
     });
 
     const updateSnapshots = async () => {
-      const snapshots = await endpoints.listSnapshots();
+      const snapshots = sortSnapshotsNewestFirst(
+        await endpoints.listSnapshots(),
+      );
       store.setState((state) => ({
         ...state,
         snapshots,
       }));
     };
 
-    const initSnapshots = async () => {
-      await updateSnapshots();
-
-      if (store.state.snapshots.length > 0) {
-        const snapshotContent = await endpoints.fetchSnapshotContent(
-          store.state.snapshots[0].id,
-        );
-
-        Y.applyUpdateV2(fragment.doc!, snapshotContent);
-      }
+    const applySnapshotToLiveDoc = (snapshotContent: Uint8Array) => {
+      const fragment = getFragment();
+      Y.applyUpdateV2(fragment.doc!, snapshotContent);
     };
 
-    const selectSnapshot = async (
-      id: string | undefined,
-      compareToSnapshotId?: string,
+    const previewSnapshot = async (
+      id: string,
+      previewOptions?: PreviewSnapshotOptions,
     ) => {
+      const fragment = getFragment();
+
       store.setState((state) => ({
         ...state,
-        selectedSnapshotId: id,
+        previewedSnapshotId: id,
       }));
 
-      if (id === undefined) {
-        // when we go back to the original document, just revert changes
-        ySyncPluginKey.getState(editor.prosemirrorState)?.resumeSync();
-        return;
-      }
-
-      let prevSnapshot: any | undefined = undefined;
-      if (compareToSnapshotId) {
-        const compareToSnapshotContent =
-          await endpoints.fetchSnapshotContent(compareToSnapshotId);
+      let prevSnapshot: { fragment: Y.Type } | undefined;
+      if (previewOptions?.compareTo) {
+        const compareToSnapshotContent = await endpoints.fetchSnapshotContent(
+          previewOptions.compareTo,
+        );
         const compareToDoc = new Y.Doc({ isSuggestionDoc: true });
         Y.applyUpdateV2(compareToDoc, compareToSnapshotContent);
-        const compareToFragment = findTypeInOtherYdoc(fragment, compareToDoc);
         prevSnapshot = {
-          fragment: compareToFragment,
+          fragment: findTypeInOtherYdoc(fragment, compareToDoc),
         };
       }
 
@@ -170,44 +191,46 @@ export const VersioningExtension = createExtension(
         ?.renderSnapshot(
           { fragment: findTypeInOtherYdoc(fragment, doc) },
           prevSnapshot,
-          [
-            // Y.createAttributionItem("insert", ["John Doe"]),
-            // Y.createAttributionItem("delete", ["John Doe"]),
-          ],
+          [],
         );
+    };
+
+    const exitPreview = () => {
+      store.setState((state) => ({
+        ...state,
+        previewedSnapshotId: undefined,
+      }));
+      ySyncPluginKey.getState(editor.prosemirrorState)?.resumeSync();
     };
 
     return {
       key: "versioning",
       store,
       mount: () => {
-        initSnapshots();
+        void updateSnapshots();
       },
       listSnapshots: async (): Promise<VersionSnapshot[]> => {
         await updateSnapshots();
-
         return store.state.snapshots;
       },
-      createSnapshot: async (name?: string): Promise<VersionSnapshot> => {
-        await endpoints.createSnapshot(fragment, name);
+      createSnapshot: async (
+        options?: CreateSnapshotOptions,
+      ): Promise<VersionSnapshot> => {
+        const snapshot = await endpoints.createSnapshot(getFragment(), options);
         await updateSnapshots();
-
-        return store.state.snapshots[0];
+        return snapshot;
       },
       canRestoreSnapshot: endpoints.restoreSnapshot !== undefined,
       restoreSnapshot: endpoints.restoreSnapshot
-        ? async (_id: string): Promise<Uint8Array> => {
-            selectSnapshot(undefined);
-
-            // const snapshotContent = await endpoints.restoreSnapshot!(
-            //   fragment,
-            //   id,
-            // );
-            throw new Error("Not implemented");
-            // applySnapshot(snapshotContent);
-            // await updateSnapshots();
-
-            // return snapshotContent;
+        ? async (id: string): Promise<Uint8Array> => {
+            exitPreview();
+            const snapshotContent = await endpoints.restoreSnapshot!(
+              getFragment(),
+              id,
+            );
+            applySnapshotToLiveDoc(snapshotContent);
+            await updateSnapshots();
+            return snapshotContent;
           }
         : undefined,
       canUpdateSnapshotName: endpoints.updateSnapshotName !== undefined,
@@ -217,13 +240,8 @@ export const VersioningExtension = createExtension(
             await updateSnapshots();
           }
         : undefined,
-
-      selectSnapshot: async (
-        id: string | undefined,
-        compareToSnapshotId?: string,
-      ) => {
-        await selectSnapshot(id, compareToSnapshotId);
-      },
+      previewSnapshot,
+      exitPreview,
     } as const;
   },
 );

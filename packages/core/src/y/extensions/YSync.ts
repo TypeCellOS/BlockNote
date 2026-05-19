@@ -1,6 +1,6 @@
 import { configureYProsemirror, syncPlugin } from "@y/prosemirror";
 import {
-  ExtensionOptions,
+  type ExtensionOptions,
   createExtension,
 } from "../../editor/BlockNoteExtension.js";
 import { CollaborationOptions } from "./index.js";
@@ -19,10 +19,12 @@ export const YSyncExtension = createExtension(
       key: "ySync",
       mount: () => {
         // I hate this so much
-        configureYProsemirror({
-          ytype: options.fragment,
-          attributionManager: null,
-        })(editor.prosemirrorState, editor.prosemirrorView.dispatch);
+        editor.exec(
+          configureYProsemirror({
+            ytype: options.fragment,
+            attributionManager: options.attributionManager,
+          }),
+        );
       },
       prosemirrorPlugins: [
         syncPlugin({
