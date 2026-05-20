@@ -20,23 +20,13 @@ The Playwright CLI should be used for the browser environment. It can be used to
 
 # Selecting an example
 
-# Keyboard navigation
+After navigating to `localhost:5173`, an example must be selected. These are listed in the navbar (`mantine-AppShell-navbar` CSS class). The "Default Schema Showcase" should be selected, unless stated otherwise by the user.
 
-Assume you are on a machine running macOS. You can use the following key combinations to navigate through the editor and create selections:
-
-- Left/Right Arrow: Moves the text cursor back/forward one character.
-- Up/Down Arrow: Moves the text cursor to the previous/next block.
-- Option + Left/Right Arrow: Moves the text cursor to the start/end of the current word. If already at the start/end of a word, moves it to the start/end of the previous/next one instead.
-- Cmd + Left/Right Arrow: Moves the text cursor to the start/end of the line.
-- Cmd + Up/Down Arrow: Moves the text cursor to the start/end of the document.
-
-Each of these can also be used with Shift to create/extend a selection instead of just moving the cursor.
-
-It is extremely important to note that these key combinations are only relevant for debugging and NOT for writing end-to-end tests. While Playwright is used for both, tests run in a Linux environment which has different bindings for keyboard navigation.
+Each example will contain a BlockNote editor, and possibly additional elements like text fields or static toolbars.
 
 # Editor HTML structure
 
-Below is a list of elements that make up a BlockNote editor. This is helpful for mapping BlockNote concepts to what's actually visible in the editor. The nesting of the list items is representative of how the corresponding elements are nested in the rendered HTML. The elements are referenced by their main CSS class.
+Below is a list of elements that make up a BlockNote editor. This is helpful for mapping BlockNote concepts to what's actually visible in the browser. The nesting of the list items is representative of how the corresponding elements are nested in the rendered HTML. The elements are referenced by their main CSS class.
 
 - `bn-container`: Wrapper element for the editor.
   - `bn-editor`: Root element for the BlockNote editor.
@@ -54,6 +44,20 @@ Each element only appears once in its parent, except `bn-block-outer` and `bn-bl
 Each `bn-block-group` and `bn-block-column` also contain `bn-block-outer` elements. These are not listed as they can be nested to an arbitrary depth.
 
 Note that additional UI elements like menus and toolbars are mounted in a portal attached to the `body`.
+
+# Keyboard navigation
+
+Assume you are on a machine running macOS. You can use the following key combinations to navigate through the editor and create selections:
+
+- Left/Right Arrow: Moves the text cursor back/forward one character.
+- Up/Down Arrow: Moves the text cursor to the previous/next block.
+- Option + Left/Right Arrow: Moves the text cursor to the start/end of the current word. If already at the start/end of a word, moves it to the start/end of the previous/next one instead.
+- Cmd + Left/Right Arrow: Moves the text cursor to the start/end of the line.
+- Cmd + Up/Down Arrow: Moves the text cursor to the start/end of the document.
+
+Each of these can also be used with Shift to create/extend a selection instead of just moving the cursor.
+
+It is extremely important to note that these key combinations are only relevant for debugging and NOT for writing end-to-end tests. While Playwright is used for both, tests run in a Linux environment which has different bindings for keyboard navigation.
 
 # Opening menus & toolbars
 
