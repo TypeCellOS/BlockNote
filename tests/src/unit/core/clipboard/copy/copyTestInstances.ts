@@ -7,7 +7,10 @@ import {
   TestStyleSchema,
 } from "../../testSchema.js";
 import { CopyTestCase } from "../../../shared/clipboard/copy/copyTestCase.js";
-import { testCopyHTML } from "../../../shared/clipboard/copy/copyTestExecutors.js";
+import {
+  testCopyHTML,
+  testCopyMarkdown,
+} from "../../../shared/clipboard/copy/copyTestExecutors.js";
 import {
   getPosOfTableCellNode,
   getPosOfTextNode,
@@ -676,4 +679,61 @@ export const copyTestInstancesHTML: TestInstance<
     },
     executeTest: testCopyHTML,
   },
+  {
+    testCase: {
+      name: "codeBlockFullContent",
+      document: [
+        {
+          type: "codeBlock",
+          props: { language: "javascript" },
+          content: "const a = 1;\nconst b = 2;",
+        },
+      ],
+      getCopySelection: (doc) => {
+        const text = "const a = 1;\nconst b = 2;";
+        const startPos = getPosOfTextNode(doc, text);
+        const endPos = getPosOfTextNode(doc, text, true);
+
+        return TextSelection.create(doc, startPos, endPos);
+      },
+    },
+    executeTest: testCopyHTML,
+  },
+  {
+    testCase: {
+      name: "codeBlockPartialSelection",
+      document: [
+        {
+          type: "codeBlock",
+          props: { language: "javascript" },
+          content: "const a = 1;\nconst b = 2;",
+        },
+      ],
+      getCopySelection: (doc) => {
+        const text = "const a = 1;\nconst b = 2;";
+        const startPos = getPosOfTextNode(doc, text);
+        // Select `onst a = 1;\nconst b = 2` — partial, spans a newline.
+        return TextSelection.create(
+          doc,
+          startPos + "c".length,
+          startPos + text.length - ";".length,
+        );
+      },
+    },
+    executeTest: testCopyHTML,
+  },
 ];
+
+// text/plain payloads — exercises the same selections as above but snapshots
+// the markdown output. Code-block selections should emit raw text (no markdown
+// fences or `\` line-break escaping) so the clipboard round-trips back into a
+// code block without leaving leftover syntax.
+export const copyTestInstancesMarkdown: TestInstance<
+  CopyTestCase<TestBlockSchema, TestInlineContentSchema, TestStyleSchema>,
+  TestBlockSchema,
+  TestInlineContentSchema,
+  TestStyleSchema
+>[] = copyTestInstancesHTML.map(({ testCase }) => ({
+  testCase,
+  executeTest: testCopyMarkdown,
+}));

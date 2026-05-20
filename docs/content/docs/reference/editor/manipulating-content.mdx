@@ -252,11 +252,13 @@ editor.replaceBlocks(
 #### Reordering Blocks
 
 ```typescript
-moveBlocksUp(): void
-moveBlocksDown(): void
+moveBlocksUp(blockIdentifier?: BlockIdentifier): void
+moveBlocksDown(blockIdentifier?: BlockIdentifier): void
 ```
 
-Moves the currently selected blocks up or down in the document.
+Moves the currently selected blocks up or down in the document. If a
+`blockIdentifier` is provided, that block is moved instead of the selection,
+and the selection is left unchanged.
 
 ```typescript
 // Move selected blocks up
@@ -264,6 +266,12 @@ editor.moveBlocksUp();
 
 // Move selected blocks down
 editor.moveBlocksDown();
+
+// Move a specific block up, without changing the selection
+editor.moveBlocksUp("block-123");
+
+// Move a specific block down, without changing the selection
+editor.moveBlocksDown("block-123");
 ```
 
 ### Nesting Blocks

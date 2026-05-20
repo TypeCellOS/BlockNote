@@ -109,10 +109,20 @@ export const GenericPopover = (
   props: FloatingUIOptions & {
     reference?: GenericPopoverReference;
     children: ReactNode;
+    /**
+     * Override the DOM node this popover portals into. If omitted, falls back
+     * to `editor.portalElement`.
+     */
+    portalElement?: HTMLElement | null;
   },
 ) => {
   const editor = useBlockNoteEditor();
-  const portalRoot = editor?.portalElement;
+  const portalRoot =
+    props.portalElement === null
+      ? typeof document !== "undefined"
+        ? document.body
+        : undefined
+      : (props.portalElement ?? editor?.portalElement);
   if (!portalRoot) {
     throw new Error("Portal element not found");
   }

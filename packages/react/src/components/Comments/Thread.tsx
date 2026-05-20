@@ -23,6 +23,12 @@ export type ThreadProps = {
    */
   selected?: boolean;
   /**
+   * A boolean flag for whether the thread is orphaned (i.e. the referenced text
+   * has been deleted from the document). Adds a `bn-thread-orphaned` CSS class
+   * to the thread.
+   */
+  orphaned?: boolean;
+  /**
    * The text in the editor that the thread refers to. See the
    * [`ThreadsSidebar`](https://github.com/TypeCellOS/BlockNote/tree/main/packages/react/src/components/Comments/ThreadsSidebar.tsx#L137)
    * component to find out how to get this.
@@ -55,6 +61,7 @@ export type ThreadProps = {
 export const Thread = ({
   thread,
   selected,
+  orphaned,
   referenceText,
   maxCommentsBeforeCollapse,
   onFocus,
@@ -94,7 +101,7 @@ export const Thread = ({
 
   return (
     <Components.Comments.Card
-      className={"bn-thread"}
+      className={mergeCSSClasses("bn-thread", orphaned && "bn-thread-orphaned")}
       headerText={referenceText}
       onFocus={onFocus}
       onBlur={onBlur}

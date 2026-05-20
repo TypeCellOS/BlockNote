@@ -234,18 +234,22 @@ export class BlockManager<
   /**
    * Moves the selected blocks up. If the previous block has children, moves
    * them to the end of its children. If there is no previous block, but the
-   * current blocks share a common parent, moves them out of & before it.
+   * current blocks share a common parent, moves them out of & before it. If a
+   * `blockIdentifier` is provided, that block is moved instead of the
+   * selection, and the selection is left unchanged.
    */
-  public moveBlocksUp() {
-    return moveBlocksUp(this.editor);
+  public moveBlocksUp(blockIdentifier?: BlockIdentifier) {
+    return moveBlocksUp(this.editor, blockIdentifier);
   }
 
   /**
    * Moves the selected blocks down. If the next block has children, moves
    * them to the start of its children. If there is no next block, but the
-   * current blocks share a common parent, moves them out of & after it.
+   * current blocks share a common parent, moves them out of & after it. If a
+   * `blockIdentifier` is provided, that block is moved instead of the
+   * selection, and the selection is left unchanged.
    */
-  public moveBlocksDown() {
-    return moveBlocksDown(this.editor);
+  public moveBlocksDown(blockIdentifier?: BlockIdentifier) {
+    return moveBlocksDown(this.editor, blockIdentifier);
   }
 }

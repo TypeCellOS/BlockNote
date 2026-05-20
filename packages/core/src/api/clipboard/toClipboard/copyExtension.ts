@@ -140,7 +140,18 @@ export function selectedFragmentToHTML<
     editor,
   );
 
-  const markdown = cleanHTMLToMarkdown(externalHTML);
+  // Code blocks are treated differently for copying: text/plain is the raw
+  // selected text instead of markdown.
+  const { $from, $to } = view.state.selection;
+  const parentBlockType = $from.parent.type.name;
+  const parentBlockSpec = editor.blockImplementations[parentBlockType as any];
+  const isPurelyInsideCodeBlock =
+    $from.sameParent($to) &&
+    parentBlockSpec?.implementation.meta?.code === true;
+
+  const markdown = isPurelyInsideCodeBlock
+    ? view.state.doc.textBetween($from.pos, $to.pos)
+    : cleanHTMLToMarkdown(externalHTML);
 
   return { clipboardHTML, externalHTML, markdown };
 }

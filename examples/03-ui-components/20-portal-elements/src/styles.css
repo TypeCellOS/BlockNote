@@ -1,0 +1,68 @@
+.views {
+  container-name: views;
+  container-type: inline-size;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px;
+}
+
+/*
+ * Each view is intentionally shorter than the slash menu so the clipping
+ * vs escaping behaviour is visible at a glance.
+ */
+.view-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 260px;
+  width: 100%;
+}
+
+@container views (width > 1024px) {
+  .view-wrapper {
+    width: calc(50% - 4px);
+  }
+}
+
+.view-label {
+  color: #0090ff;
+  display: flex;
+  font-size: 12px;
+  font-weight: bold;
+  justify-content: space-between;
+  margin-inline: 16px;
+}
+
+.view-description {
+  color: #0090ff;
+  font-size: 12px;
+  margin: 2px 16px 0;
+}
+
+/*
+ * `position: relative` is what actually makes `overflow: hidden` clip the
+ * absolutely-positioned floating UI. Without it the popover's containing
+ * block is the viewport and the clip is bypassed.
+ */
+.view {
+  border: solid #0090ff 1px;
+  border-radius: 16px;
+  flex: 1;
+  height: 0;
+  padding: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.view .bn-container {
+  height: 100%;
+  margin: 0;
+  max-width: none;
+  padding: 0;
+}
+
+.view .bn-editor {
+  height: 100%;
+  overflow: auto;
+}

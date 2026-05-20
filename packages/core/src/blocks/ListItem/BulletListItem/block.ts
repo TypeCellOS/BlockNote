@@ -37,14 +37,17 @@ export const createBulletListItemBlockSpec = createBlockSpec(
 
       const parent = element.parentElement;
 
-      if (parent === null) {
-        return undefined;
-      }
-
       if (
+        parent === null ||
         parent.tagName === "UL" ||
         (parent.tagName === "DIV" && parent.parentElement?.tagName === "UL")
       ) {
+        return parseDefaultProps(element);
+      }
+
+      // Orphan `<li>` (no <ul>/<ol> ancestor) — match as bulletListItem so
+      // pasting bare `<li>` HTML doesn't fall back to a paragraph.
+      if (!element.closest("ul, ol")) {
         return parseDefaultProps(element);
       }
 
