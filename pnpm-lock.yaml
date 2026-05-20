@@ -13,9 +13,7 @@ overrides:
   '@y/prosemirror>lib0': 1.0.0-rc.13
 
 patchedDependencies:
-  '@y/prosemirror@2.0.0-2':
-    hash: c1a7503891cfaf68b5f1df60cdb41b604b90a6074b910373846e353611a97b2d
-    path: patches/@y__prosemirror@2.0.0-2.patch
+  '@y/prosemirror@2.0.0-2': c1a7503891cfaf68b5f1df60cdb41b604b90a6074b910373846e353611a97b2d
 
 importers:
 
@@ -4062,10 +4060,10 @@ importers:
         version: 19.2.3(@types/react@19.2.14)
       '@vitejs/plugin-react':
         specifier: ^6.0.1
-        version: 6.0.1(babel-plugin-react-compiler@1.0.0)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))
+        version: 6.0.1(babel-plugin-react-compiler@1.0.0)(vite@8.0.8(@types/node@25.9.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.47.1)(tsx@4.21.0)(yaml@2.8.3))
       vite:
         specifier: ^8.0.8
-        version: 8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3)
+        version: 8.0.8(@types/node@25.9.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.47.1)(tsx@4.21.0)(yaml@2.8.3)
 
   examples/07-collaboration/11-yhub:
     dependencies:
@@ -4117,10 +4115,10 @@ importers:
         version: 19.2.3(@types/react@19.2.14)
       '@vitejs/plugin-react':
         specifier: ^6.0.1
-        version: 6.0.1(babel-plugin-react-compiler@1.0.0)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))
+        version: 6.0.1(babel-plugin-react-compiler@1.0.0)(vite@8.0.8(@types/node@25.9.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.47.1)(tsx@4.21.0)(yaml@2.8.3))
       vite:
         specifier: ^8.0.8
-        version: 8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3)
+        version: 8.0.8(@types/node@25.9.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.47.1)(tsx@4.21.0)(yaml@2.8.3)
 
   examples/08-extensions/01-tiptap-arrow-conversion:
     dependencies:
