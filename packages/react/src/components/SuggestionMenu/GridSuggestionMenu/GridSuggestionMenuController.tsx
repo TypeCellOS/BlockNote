@@ -44,6 +44,12 @@ export function GridSuggestionMenuController<
     shouldOpen?: SuggestionMenuOptions["shouldOpen"];
     minQueryLength?: number;
     floatingUIOptions?: FloatingUIOptions;
+    /**
+     * Override the DOM node this floating element portals into. Falls back to
+     * `editor.portalElement` (which by default is mounted inside `bn-container`)
+     * when omitted.
+     */
+    portalElement?: HTMLElement | null;
   } & (ItemType<GetItemsType> extends DefaultReactGridSuggestionItem
     ? {
         // can be undefined
@@ -178,7 +184,11 @@ export function GridSuggestionMenuController<
   }
 
   return (
-    <GenericPopover reference={reference} {...floatingUIOptions}>
+    <GenericPopover
+      reference={reference}
+      portalElement={props.portalElement}
+      {...floatingUIOptions}
+    >
       {triggerCharacter && (
         <GridSuggestionMenuWrapper
           query={state.query}

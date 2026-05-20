@@ -21,7 +21,7 @@ export const testCopyPasteEquality = async <
 ) => {
   initTestEditor(editor, testCase.document, testCase.getCopyAndPasteSelection);
 
-  const { clipboardHTML } = selectedFragmentToHTML(
+  const { clipboardHTML, markdown } = selectedFragmentToHTML(
     editor.prosemirrorView,
     editor,
   );
@@ -29,7 +29,7 @@ export const testCopyPasteEquality = async <
   const originalDocument = editor.document;
   doPaste(
     editor.prosemirrorView,
-    "text",
+    markdown,
     clipboardHTML,
     false,
     new ClipboardEvent("paste"),

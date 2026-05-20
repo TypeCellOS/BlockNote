@@ -24,6 +24,12 @@ export default function FloatingComposerController<
 >(props: {
   floatingComposer?: FC<ComponentProps<typeof FloatingComposer>>;
   floatingUIOptions?: FloatingUIOptions;
+  /**
+   * Override the DOM node this floating element portals into. Falls back to
+   * `editor.portalElement` (which by default is mounted inside `bn-container`)
+   * when omitted.
+   */
+  portalElement?: HTMLElement | null;
 }) {
   const editor = useBlockNoteEditor<B, I, S>();
 
@@ -82,7 +88,11 @@ export default function FloatingComposerController<
   const Component = props.floatingComposer || FloatingComposer;
 
   return (
-    <PositionPopover position={position} {...floatingUIOptions}>
+    <PositionPopover
+      position={position}
+      portalElement={props.portalElement}
+      {...floatingUIOptions}
+    >
       <Component />
     </PositionPopover>
   );
