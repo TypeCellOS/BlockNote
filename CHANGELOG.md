@@ -1,3 +1,13 @@
+## 0.51.2 (2026-05-20)
+
+### 🩹 Fixes
+
+- color picker icons (BLO-1189) ([#2762](https://github.com/TypeCellOS/BlockNote/pull/2762))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+
 ## 0.51.1 (2026-05-18)
 
 ### 🩹 Fixes
