@@ -4,11 +4,12 @@
   "version": "0.30.0",
   "scripts": {
     "lint": "vp lint src",
-    "playwright": "playwright test",
     "test": "vp test --run",
-    "test:updateSnaps": "docker run --rm -e RUN_IN_DOCKER=true --network host -v $(pwd)/..:/work/ -w /work/tests -it mcr.microsoft.com/playwright:v1.51.1-noble npx playwright test",
-    "test-ct": "playwright test -c playwright-ct.config.ts --headed",
-    "test-ct:updateSnaps": "docker run --rm  -e RUN_IN_DOCKER=true --network host -v $(pwd)/..:/work/ -w /work/tests -it mcr.microsoft.com/playwright:v1.51.1-noble npx playwright test -c playwright-ct.config.ts -u",
+    "e2e": "docker run --rm -e RUN_IN_DOCKER=true --network host -v $(pwd)/..:/work/ -w /work/tests -it mcr.microsoft.com/playwright:v1.51.1-noble npx playwright test",
+    "e2e:updateSnaps": "docker run --rm -e RUN_IN_DOCKER=true --network host -v $(pwd)/..:/work/ -w /work/tests -it mcr.microsoft.com/playwright:v1.51.1-noble npx playwright test -u",
+    "e2e-local": "playwright test",
+    "e2e-ct": "playwright test -c playwright-ct.config.ts --headed",
+    "e2e-ct:updateSnaps": "docker run --rm  -e RUN_IN_DOCKER=true --network host -v $(pwd)/..:/work/ -w /work/tests -it mcr.microsoft.com/playwright:v1.51.1-noble npx playwright test -c playwright-ct.config.ts -u",
     "clean": "rimraf dist"
   },
   "devDependencies": {
