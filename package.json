@@ -18,28 +18,7 @@
     "vitest": "^4.1.2",
     "wait-on": "9.0.5"
   },
-  "pnpm": {
-    "ignoredBuiltDependencies": [
-      "canvas",
-      "sharp",
-      "workerd"
-    ],
-    "onlyBuiltDependencies": [
-      "@parcel/watcher",
-      "@sentry/cli",
-      "@tailwindcss/oxide",
-      "better-sqlite3",
-      "esbuild",
-      "msw",
-      "nx",
-      "unrs-resolver"
-    ],
-    "overrides": {
-      "vitest": "4.1.2",
-      "@vitest/runner": "4.1.2"
-    }
-  },
-  "packageManager": "pnpm@10.23.0+sha512.21c4e5698002ade97e4efe8b8b4a89a8de3c85a37919f957e7a0f30f38fbc5bbdd05980ffe29179b2fb6e6e691242e098d945d1601772cad0fef5fb6411e2a4b",
+  "packageManager": "pnpm@11.1.1+sha512.d1fdf5f73c617b64fa1a56a81c3c8dfe0e966e33a6010aa256b517ae77be21d93e05affc0de1a83b0e4f29d569f68b446ae8f068cd7247c0bb3df0fb4d7bdf9a",
   "private": true,
   "scripts": {
     "dev": "nx run @blocknote/example-editor:dev",
