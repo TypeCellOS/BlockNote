@@ -28,6 +28,60 @@ function setupTwoWaySync(doc1: Y.Doc, doc2: Y.Doc) {
 }
 
 describe("RelativePositionMapping (@y/y)", () => {
+  it("should return the same position when no changes are made", () => {
+    const ydoc = new Y.Doc();
+    const remoteYdoc = new Y.Doc();
+
+    const localEditor = BlockNoteEditor.create(
+      withCollaboration({
+        collaboration: {
+          fragment: ydoc.get("doc"),
+          user: { color: "#ff0000", name: "Local User" },
+          provider: undefined,
+        },
+      }),
+    );
+    const div = document.createElement("div");
+    localEditor.mount(div);
+
+    const remoteEditor = BlockNoteEditor.create(
+      withCollaboration({
+        collaboration: {
+          fragment: remoteYdoc.get("doc"),
+          user: { color: "#ff0000", name: "Remote User" },
+          provider: undefined,
+        },
+      }),
+    );
+
+    const remoteDiv = document.createElement("div");
+    remoteEditor.mount(remoteDiv);
+    setupTwoWaySync(ydoc, remoteYdoc);
+
+    const nodeSize = localEditor.prosemirrorState.doc.nodeSize;
+    const positions: number[] = [];
+    for (let i = 0; i < nodeSize; i++) {
+      positions.push(trackPosition(localEditor, i)());
+    }
+
+    expect(positions).toMatchInlineSnapshot(`
+      [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+      ]
+    `);
+
+    ydoc.destroy();
+    remoteYdoc.destroy();
+    localEditor.unmount();
+    remoteEditor.unmount();
+  });
   it("should update the local position when collaborating", () => {
     const ydoc = new Y.Doc();
     const remoteYdoc = new Y.Doc();
@@ -86,6 +140,80 @@ describe("RelativePositionMapping (@y/y)", () => {
     expect(getPosAfterPos()).toBe(9); // 4 + 5 ("Test " length)
     expect(getPosAfterRightPos()).toBe(9); // 4 + 5 ("Test " length)
 
+    ydoc.destroy();
+    remoteYdoc.destroy();
+    localEditor.unmount();
+    remoteEditor.unmount();
+  });
+
+  it("should match the same positions", () => {
+    const ydoc = new Y.Doc();
+    const remoteYdoc = new Y.Doc();
+
+    const localEditor = BlockNoteEditor.create(
+      withCollaboration({
+        collaboration: {
+          fragment: ydoc.get("doc"),
+          user: { color: "#ff0000", name: "Local User" },
+          provider: undefined,
+        },
+      }),
+    );
+    const div = document.createElement("div");
+    localEditor.mount(div);
+
+    const remoteEditor = BlockNoteEditor.create(
+      withCollaboration({
+        collaboration: {
+          fragment: remoteYdoc.get("doc"),
+          user: { color: "#ff0000", name: "Remote User" },
+          provider: undefined,
+        },
+      }),
+    );
+
+    const remoteDiv = document.createElement("div");
+    remoteEditor.mount(remoteDiv);
+    setupTwoWaySync(ydoc, remoteYdoc);
+
+    localEditor.replaceBlocks(localEditor.document, [
+      {
+        type: "paragraph",
+        content: "Hello World",
+      },
+    ]);
+
+    const nodeSize = localEditor.prosemirrorState.doc.nodeSize;
+    const positions: (() => number)[] = [];
+    for (let i = 0; i < nodeSize; i++) {
+      positions.push(trackPosition(localEditor, i));
+    }
+
+    localEditor._tiptapEditor.commands.insertContentAt(3, "Test ");
+
+    expect(positions.map((getPos) => getPos())).toMatchInlineSnapshot(`
+      [
+        0,
+        1,
+        2,
+        3,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+      ]
+    `);
     ydoc.destroy();
     remoteYdoc.destroy();
     localEditor.unmount();

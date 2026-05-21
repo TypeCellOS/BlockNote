@@ -13,6 +13,11 @@ export const RelativePositionMappingExtension = createExtension(
           throw new Error("YSync plugin state not found");
         }
 
+        // 0 is a special case & always should map to itself
+        if (position === 0) {
+          return () => 0;
+        }
+
         const posStore = relativePositionStore(
           editor.prosemirrorState.doc.resolve(
             position + (side === "right" ? 1 : -1),
