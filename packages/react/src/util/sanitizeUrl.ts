@@ -8,8 +8,8 @@ export function sanitizeUrl(inputUrl: string, baseUrl: string): string {
   try {
     const url = new URL(inputUrl, baseUrl);
 
-    // eslint-disable-next-line no-script-url -- false positive, we are explicitly checking if the protocol is safe to prevent XSS
     if (
+      // eslint-disable-next-line no-script-url -- false positive, we are explicitly checking if the protocol is safe to prevent XSS
       url.protocol !== "javascript:" &&
       url.protocol !== "data:" &&
       url.protocol !== "vbscript:"
