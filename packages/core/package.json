@@ -150,6 +150,15 @@
     },
     "yjs": {
       "optional": true
+    },
+    "@y/y": {
+      "optional": true
+    },
+    "@y/prosemirror": {
+      "optional": true
+    },
+    "@y/protocols": {
+      "optional": true
     }
   },
   "eslintConfig": {
