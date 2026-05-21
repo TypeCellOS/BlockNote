@@ -42,3 +42,5 @@ release
 .nightshift-plan
 .claude/*
 !.claude/skills
+.playwright-cli
+.claude/skills/playwright-cli/screenshots

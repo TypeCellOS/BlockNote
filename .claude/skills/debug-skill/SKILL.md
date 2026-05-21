@@ -1,6 +1,6 @@
 ---
 name: debug-skill
-description: Instructions for navigating and debugging BlockNote in a browser. Shows how to open specific menus & toolbars, as well select content. Should be used when prompted to fix a bug.
+description: Instructions for navigating and debugging BlockNote in a browser. Shows how to open specific menus & toolbars, as well select content. Should be used when prompted to fix a bug that requires inspecting the editor's appearance or rendered HTML.
 ---
 
 # General loop
@@ -14,7 +14,7 @@ When fixing a bug, the following feedback loop should be used.
 
 # Browser environment
 
-Before starting up a browser environment, you need to ensure the dev server is running. This can be done by checking if port 5173 is in use. If it isn't, running `vp dev` at the project root will start the server.
+Before starting up a browser environment, you need to ensure the dev server is running. This can be done by checking if port 5173 is in use. If it isn't, running `vp run dev` at the project root will start the server.
 
 The Playwright CLI should be used for the browser environment. It can be used to navigate to the dev server and programmatically issue mouse clicks/keyboard inputs. If not installed, stop what you're doing and notify the user to install it.
 

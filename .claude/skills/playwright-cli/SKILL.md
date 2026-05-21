@@ -89,6 +89,10 @@ playwright-cli mousewheel 0 100
 
 ### Save as
 
+Also resize large screenshots with sips (native macOS tool) if possible.
+
+Screenshots should be saved to `.claude/skills/playwright-cli/screenshots/` in the workspace root.
+
 ```bash
 playwright-cli screenshot
 playwright-cli screenshot e5
