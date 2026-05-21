@@ -15,6 +15,9 @@ on:
     - cron: "0 2 * * *" # Daily at 02:00 UTC
   workflow_dispatch: # Allow manual runs
 
+permissions:
+  contents: read
+
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   pnpm_config_store_dir: ./node_modules/.pnpm-store
@@ -27,14 +30,16 @@ jobs:
 
     steps:
       - id: checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
 
       - id: install_pnpm
         name: Install pnpm
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
 
       - id: setup_node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
           node-version-file: ".nvmrc"
           # Intentionally no pnpm cache — we want fresh prod dep resolution
@@ -99,6 +104,14 @@ jobs:
           RUN_NUMBER: ${{ github.run_number }}
           RUN_ATTEMPT: ${{ github.run_attempt }}
           BRANCH: ${{ github.ref_name }}
+          STEPS_CHECKOUT_OUTCOME: ${{ steps.checkout.outcome }}
+          STEPS_INSTALL_PNPM_OUTCOME: ${{ steps.install_pnpm.outcome }}
+          STEPS_SETUP_NODE_OUTCOME: ${{ steps.setup_node.outcome }}
+          STEPS_INSTALL_DEPENDENCIES_OUTCOME: ${{ steps.install_dependencies.outcome }}
+          STEPS_UPDATE_PROD_DEPS_OUTCOME: ${{ steps.update_prod_deps.outcome }}
+          STEPS_DEDUPE_DEPS_OUTCOME: ${{ steps.dedupe_deps.outcome }}
+          STEPS_BUILD_PACKAGES_OUTCOME: ${{ steps.build_packages.outcome }}
+          STEPS_RUN_UNIT_TESTS_OUTCOME: ${{ steps.run_unit_tests.outcome }}
         run: |
           if [ -z "$SLACK_WEBHOOK_URL" ]; then
             echo "SLACK_WEBHOOK_URL is not configured; skipping Slack notification."
@@ -106,21 +119,21 @@ jobs:
           fi
 
           failed_step="Unknown step"
-          if [ "${{ steps.checkout.outcome }}" = "failure" ]; then
+          if [ "${STEPS_CHECKOUT_OUTCOME}" = "failure" ]; then
             failed_step="Checkout repository"
-          elif [ "${{ steps.install_pnpm.outcome }}" = "failure" ]; then
+          elif [ "${STEPS_INSTALL_PNPM_OUTCOME}" = "failure" ]; then
             failed_step="Install pnpm"
-          elif [ "${{ steps.setup_node.outcome }}" = "failure" ]; then
+          elif [ "${STEPS_SETUP_NODE_OUTCOME}" = "failure" ]; then
             failed_step="Setup Node.js"
-          elif [ "${{ steps.install_dependencies.outcome }}" = "failure" ]; then
+          elif [ "${STEPS_INSTALL_DEPENDENCIES_OUTCOME}" = "failure" ]; then
             failed_step="Install dependencies"
-          elif [ "${{ steps.update_prod_deps.outcome }}" = "failure" ]; then
+          elif [ "${STEPS_UPDATE_PROD_DEPS_OUTCOME}" = "failure" ]; then
             failed_step="Update prod deps of published packages"
-          elif [ "${{ steps.dedupe_deps.outcome }}" = "failure" ]; then
+          elif [ "${STEPS_DEDUPE_DEPS_OUTCOME}" = "failure" ]; then
             failed_step="Dedupe transitive dependencies"
-          elif [ "${{ steps.build_packages.outcome }}" = "failure" ]; then
+          elif [ "${STEPS_BUILD_PACKAGES_OUTCOME}" = "failure" ]; then
             failed_step="Build packages"
-          elif [ "${{ steps.run_unit_tests.outcome }}" = "failure" ]; then
+          elif [ "${STEPS_RUN_UNIT_TESTS_OUTCOME}" = "failure" ]; then
             failed_step="Run unit tests"
           fi
 
