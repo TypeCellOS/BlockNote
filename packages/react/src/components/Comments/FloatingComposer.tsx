@@ -8,6 +8,7 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import { CommentsExtension } from "@blocknote/core/comments";
+import { useCallback } from "react";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
@@ -46,45 +47,45 @@ export function FloatingComposer<
     schema: comments.commentEditorSchema || defaultCommentEditorSchema,
   });
 
+  const Actions = useCallback(
+    ({ isEmpty }: { isFocused: boolean; isEmpty: boolean }) => (
+      <Components.Generic.Toolbar.Root
+        className={mergeCSSClasses("bn-action-toolbar", "bn-comment-actions")}
+        variant="action-toolbar"
+      >
+        <Components.Generic.Toolbar.Button
+          className={"bn-button"}
+          mainTooltip={dict.comments.save_button_text}
+          variant="compact"
+          isDisabled={isEmpty}
+          onClick={async () => {
+            // (later) For REST API, we should implement a loading state and error state
+            await comments.createThread({
+              initialComment: {
+                body: newCommentEditor.document,
+              },
+            });
+            comments.stopPendingComment();
+            editor.transact((tr) => {
+              tr.setSelection(TextSelection.create(tr.doc, tr.selection.to));
+            });
+            editor.focus();
+          }}
+        >
+          {dict.comments.save_button_text}
+        </Components.Generic.Toolbar.Button>
+      </Components.Generic.Toolbar.Root>
+    ),
+    [Components, dict, comments, newCommentEditor, editor],
+  );
+
   return (
     <Components.Comments.Card className={"bn-thread"}>
       <CommentEditor
         autoFocus={true}
         editable={true}
         editor={newCommentEditor}
-        actions={({ isEmpty }) => (
-          <Components.Generic.Toolbar.Root
-            className={mergeCSSClasses(
-              "bn-action-toolbar",
-              "bn-comment-actions",
-            )}
-            variant="action-toolbar"
-          >
-            <Components.Generic.Toolbar.Button
-              className={"bn-button"}
-              mainTooltip={dict.comments.save_button_text}
-              variant="compact"
-              isDisabled={isEmpty}
-              onClick={async () => {
-                // (later) For REST API, we should implement a loading state and error state
-                await comments.createThread({
-                  initialComment: {
-                    body: newCommentEditor.document,
-                  },
-                });
-                comments.stopPendingComment();
-                editor.transact((tr) => {
-                  tr.setSelection(
-                    TextSelection.create(tr.doc, tr.selection.to),
-                  );
-                });
-                editor.focus();
-              }}
-            >
-              {dict.comments.save_button_text}
-            </Components.Generic.Toolbar.Button>
-          </Components.Generic.Toolbar.Root>
-        )}
+        actions={Actions}
       />
     </Components.Comments.Card>
   );

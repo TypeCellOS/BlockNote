@@ -92,6 +92,31 @@ export const Thread = ({
     newCommentEditor.removeBlocks(newCommentEditor.document);
   }, [comments, newCommentEditor, thread.id]);
 
+  const ReplyActions = useCallback(
+    ({ isEmpty }: { isFocused: boolean; isEmpty: boolean }) => {
+      if (isEmpty) {
+        return null;
+      }
+
+      return (
+        <Components.Generic.Toolbar.Root
+          variant="action-toolbar"
+          className={mergeCSSClasses("bn-action-toolbar", "bn-comment-actions")}
+        >
+          <Components.Generic.Toolbar.Button
+            mainTooltip={dict.comments.save_button_text}
+            variant="compact"
+            isDisabled={isEmpty}
+            onClick={onNewCommentSave}
+          >
+            {dict.comments.save_button_text}
+          </Components.Generic.Toolbar.Button>
+        </Components.Generic.Toolbar.Root>
+      );
+    },
+    [Components, dict, onNewCommentSave],
+  );
+
   return (
     <Components.Comments.Card
       className={"bn-thread"}
@@ -115,30 +140,7 @@ export const Thread = ({
             autoFocus={false}
             editable={true}
             editor={newCommentEditor}
-            actions={({ isEmpty }) => {
-              if (isEmpty) {
-                return null;
-              }
-
-              return (
-                <Components.Generic.Toolbar.Root
-                  variant="action-toolbar"
-                  className={mergeCSSClasses(
-                    "bn-action-toolbar",
-                    "bn-comment-actions",
-                  )}
-                >
-                  <Components.Generic.Toolbar.Button
-                    mainTooltip={dict.comments.save_button_text}
-                    variant="compact"
-                    isDisabled={isEmpty}
-                    onClick={onNewCommentSave}
-                  >
-                    {dict.comments.save_button_text}
-                  </Components.Generic.Toolbar.Button>
-                </Components.Generic.Toolbar.Root>
-              );
-            }}
+            actions={ReplyActions}
           />
         </Components.Comments.CardSection>
       )}
