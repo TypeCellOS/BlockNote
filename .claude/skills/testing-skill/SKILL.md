@@ -53,4 +53,10 @@ A specific test file may be targeted by appending its name, i.e. `... npx playwr
 
 Updating tests can be done by adding the `-u` argument, i.e. `... npx playwright test -u`. All of the other things you can do to scope which tests to target still apply.
 
+Note that running this command may result in errors or other issues, listed below along with what to do when encountered:
+
+- **Tests failing to navigating to preview**: project should be built and the preview started, after which the command should be run again.
+- **Docker not running**: the user should be notified to launch Docker.
+- **Incorrect Playwright image version**: update Playwright images and re-run the command.
+
 When testing a visual change, prefer writing screenshots to verify that the change is working as expected.
