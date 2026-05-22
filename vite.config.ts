@@ -34,6 +34,7 @@ export default defineConfig({
       "./packages/xl-odt-exporter/vite.config.ts",
       "./packages/xl-pdf-exporter/vite.config.ts",
       "./tests/vite.config.ts",
+      "./tests/vite.config.browser.ts",
     ],
   },
   lint: {

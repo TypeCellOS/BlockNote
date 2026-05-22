@@ -4,11 +4,9 @@
   "version": "0.30.0",
   "scripts": {
     "lint": "vp lint src",
-    "playwright": "playwright test",
     "test": "vp test --run",
-    "test:updateSnaps": "docker run --rm -e RUN_IN_DOCKER=true --network host -v $(pwd)/..:/work/ -w /work/tests -it mcr.microsoft.com/playwright:v1.51.1-noble npx playwright test",
-    "test-ct": "playwright test -c playwright-ct.config.ts --headed",
-    "test-ct:updateSnaps": "docker run --rm  -e RUN_IN_DOCKER=true --network host -v $(pwd)/..:/work/ -w /work/tests -it mcr.microsoft.com/playwright:v1.51.1-noble npx playwright test -c playwright-ct.config.ts -u",
+    "test:e2e": "vp test -c vite.config.browser.ts --run",
+    "test:e2e:updateSnaps": "vp test -c vite.config.browser.ts --run -u",
     "clean": "rimraf dist"
   },
   "devDependencies": {
@@ -17,18 +15,19 @@
     "@blocknote/mantine": "workspace:^",
     "@blocknote/react": "workspace:^",
     "@blocknote/shadcn": "workspace:^",
-    "@playwright/experimental-ct-react": "1.51.1",
     "@playwright/test": "1.51.1",
     "@tiptap/pm": "^3.13.0",
     "@types/node": "^20.19.22",
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
     "htmlfy": "^0.6.7",
+    "playwright": "1.51.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-icons": "^5.5.0",
     "rimraf": "^5.0.10",
-    "vite-plus": "catalog:"
+    "vite-plus": "catalog:",
+    "vitest-browser-react": "^2.2.0"
   },
   "dependencies": {
     "get-port-please": "3.2.0"

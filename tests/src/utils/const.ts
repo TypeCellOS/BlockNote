@@ -1,69 +1,6 @@
-const PORT = 3000;
-export const BASE_URL = !process.env.RUN_IN_DOCKER
-  ? `http://localhost:${PORT}/basic/testing?hideMenu`
-  : `http://host.docker.internal:${PORT}/basic/testing?hideMenu`;
-
-export const SHADCN_URL = !process.env.RUN_IN_DOCKER
-  ? `http://localhost:${PORT}/basic/shadcn?hideMenu`
-  : `http://host.docker.internal:${PORT}/basic/shadcn?hideMenu`;
-
-export const ARIAKIT_URL = !process.env.RUN_IN_DOCKER
-  ? `http://localhost:${PORT}/basic/ariakit?hideMenu`
-  : `http://host.docker.internal:${PORT}/basic/ariakit?hideMenu`;
-
-export const AI_URL = !process.env.RUN_IN_DOCKER
-  ? `http://localhost:${PORT}/ai/minimal?hideMenu`
-  : `http://host.docker.internal:${PORT}/ai/minimal?hideMenu`;
-
-export const MULTI_COLUMN_URL = !process.env.RUN_IN_DOCKER
-  ? `http://localhost:${PORT}/basic/multi-column?hideMenu`
-  : `http://host.docker.internal:${PORT}/basic/multi-column?hideMenu`;
-
-export const STATIC_URL = !process.env.RUN_IN_DOCKER
-  ? `http://localhost:${PORT}/backend/rendering-static-documents?hideMenu`
-  : `http://host.docker.internal:${PORT}/backend/rendering-static-documents?hideMenu`;
-
-export const BASIC_BLOCKS_URL = !process.env.RUN_IN_DOCKER
-  ? `http://localhost:${PORT}/basic/default-blocks?hideMenu`
-  : `http://host.docker.internal:${PORT}/basic/default-blocks?hideMenu`;
-
-export const BASIC_BLOCKS_STATIC_URL = !process.env.RUN_IN_DOCKER
-  ? `http://localhost:${PORT}/interoperability/static-html-render?hideMenu`
-  : `http://host.docker.internal:${PORT}/interoperability/static-html-render?hideMenu`;
-
-export const CUSTOM_BLOCKS_VANILLA_URL = !process.env.RUN_IN_DOCKER
-  ? `http://localhost:${PORT}/vanilla-js/react-vanilla-custom-blocks?hideMenu`
-  : `http://host.docker.internal:${PORT}/vanilla-js/react-vanilla-custom-blocks?hideMenu`;
-
-export const CUSTOM_BLOCKS_REACT_URL = !process.env.RUN_IN_DOCKER
-  ? `http://localhost:${PORT}/custom-schema/react-custom-blocks?hideMenu`
-  : `http://host.docker.internal:${PORT}/custom-schema/react-custom-blocks?hideMenu`;
-
-export const ALERT_BLOCK_URL = !process.env.RUN_IN_DOCKER
-  ? `http://localhost:${PORT}/custom-schema/alert-block?hideMenu`
-  : `http://host.docker.internal:${PORT}/custom-schema/alert-block?hideMenu`;
-
-export const NON_EDITABLE_BLOCK_URL = !process.env.RUN_IN_DOCKER
-  ? `http://localhost:${PORT}/custom-schema/non-editable-block?hideMenu`
-  : `http://host.docker.internal:${PORT}/custom-schema/non-editable-block?hideMenu`;
-
-export const PDF_FILE_BLOCK_URL = !process.env.RUN_IN_DOCKER
-  ? `http://localhost:${PORT}/custom-schema/pdf-file-block?hideMenu`
-  : `http://host.docker.internal:${PORT}/custom-schema/pdf-file-block?hideMenu`;
-
-export const COMMENTS_URL = !process.env.RUN_IN_DOCKER
-  ? `http://localhost:${PORT}/collaboration/comments-testing?hideMenu`
-  : `http://host.docker.internal:${PORT}/collaboration/comments-testing?hideMenu`;
-
-export const NO_TRAILING_BLOCK_URL = !process.env.RUN_IN_DOCKER
-  ? `http://localhost:${PORT}/basic/no-trailing-block?hideMenu`
-  : `http://host.docker.internal:${PORT}/basic/no-trailing-block?hideMenu`;
-
-export const ADVANCED_TABLES_URL = !process.env.RUN_IN_DOCKER
-  ? `http://localhost:${PORT}/ui-components/advanced-tables?hideMenu`
-  : `http://host.docker.internal:${PORT}/ui-components/advanced-tables?hideMenu`;
-
-export const PASTE_ZONE_SELECTOR = "#pasteZone";
+// Example apps are now imported and mounted directly (Vitest Browser Mode),
+// so the old `http://localhost:3000/<slug>` URL constants are gone — tests
+// import the relevant `@examples/<group>/<name>/src/App` instead.
 
 export const EDITOR_SELECTOR = `.bn-editor`;
 export const BLOCK_CONTAINER_SELECTOR = `[data-node-type="blockContainer"]`;
@@ -96,5 +33,3 @@ export const ALIGN_TEXT_RIGHT_BUTTON_SELECTOR = `[data-test="alignTextRight"]`;
 export const NEST_BLOCK_BUTTON_SELECTOR = `[data-test="nestBlock"]`;
 export const UNNEST_BLOCK_BUTTON_SELECTOR = `[data-test="unnestBlock"]`;
 export const LINK_BUTTON_SELECTOR = `[data-test="createLink"]`;
-
-export const TYPE_DELAY = 10;
