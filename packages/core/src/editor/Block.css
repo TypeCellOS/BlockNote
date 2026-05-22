@@ -582,8 +582,6 @@ NESTED BLOCKS
 }
 
 /* TEXT COLORS */
-/* Table cells include `th`/`td` selectors as they set their color attributes on
-the cell element, rather than on a `.bn-block-content` element. */
 [data-style-type="textColor"][data-value="gray"],
 [data-text-color="gray"],
 .bn-block:has(> .bn-block-content[data-text-color="gray"]) {
