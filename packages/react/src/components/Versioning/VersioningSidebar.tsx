@@ -1,4 +1,4 @@
-import { VersioningExtension } from "@blocknote/core/y";
+import { VersioningExtension } from "@blocknote/core/extensions";
 
 import { useExtensionState } from "../../hooks/useExtension.js";
 import { CurrentSnapshot } from "./CurrentSnapshot.js";

@@ -1,4 +1,7 @@
-import { VersioningExtension, VersionSnapshot } from "@blocknote/core/y";
+import {
+  VersioningExtension,
+  VersionSnapshot,
+} from "@blocknote/core/extensions";
 
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
 import { dateToString } from "./dateToString.js";
@@ -23,9 +26,9 @@ export const Snapshot = ({
   });
   const revertedSnapshot = useExtensionState(VersioningExtension, {
     selector: (state) =>
-      snapshot?.meta.restoredFromSnapshotId !== undefined
+      snapshot?.restoredFromSnapshotId !== undefined
         ? state.snapshots.find(
-            (snap) => snap.id === snapshot.meta.restoredFromSnapshotId,
+            (snap) => snap.id === snapshot.restoredFromSnapshotId,
           )
         : undefined,
   });
@@ -68,11 +71,11 @@ export const Snapshot = ({
         {revertedSnapshot && (
           <div className="bn-snapshot-original-date">{`Restored from ${dateToString(new Date(revertedSnapshot.createdAt))}`}</div>
         )}
-        {/* TODO: Fetch user name */}
-        {snapshot.meta.userIds !== undefined &&
-          snapshot.meta.userIds.length > 0 && (
-            <div className="bn-snapshot-user">{`Edited by ${snapshot.meta.userIds.join(", ")}`}</div>
-          )}
+        {snapshot.secondaryLabel !== undefined && (
+          <div className="bn-snapshot-secondary-label">
+            {snapshot.secondaryLabel}
+          </div>
+        )}
       </div>
       {canRestoreSnapshot && (
         <button

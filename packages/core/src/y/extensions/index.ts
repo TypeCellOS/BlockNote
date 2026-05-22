@@ -4,18 +4,16 @@ import {
   createExtension,
   ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
-// import { ForkYDocExtension } from "./ForkYDoc.js";
 import { RelativePositionMappingExtension } from "./RelativePositionMapping.js";
-// import { SchemaMigration } from "./schemaMigration/SchemaMigration.js";
 import { CollaborationUser, YCursorExtension } from "./YCursorPlugin.js";
 import { YSyncExtension } from "./YSync.js";
 import { BlockNoteEditorOptions } from "../../editor/BlockNoteEditor.js";
 import { SuggestionsExtension } from "./Suggestions.js";
+import { createYjsVersioningAdapter } from "./Versioning.js";
 import {
-  VersioningEndpoints,
   VersioningExtension,
-} from "./Versioning/index.js";
-// import { YUndoExtension } from "./YUndo.js";
+  VersioningEndpoints,
+} from "../../extensions/Versioning/index.js";
 
 export type CollaborationOptions = {
   /**
@@ -56,25 +54,22 @@ export type CollaborationOptions = {
   /**
    * The endpoints for the versioning functionality.
    */
-  versioningEndpoints?: VersioningEndpoints;
+  versioningEndpoints?: VersioningEndpoints<Y.Type, Uint8Array>;
 };
 
 export const CollaborationExtension = createExtension(
-  ({ options }: ExtensionOptions<CollaborationOptions>) => {
+  ({ editor, options }: ExtensionOptions<CollaborationOptions>) => {
     return {
       key: "collaboration",
       blockNoteExtensions: [
-        // DO we need a ForkYDocExtension?
-        // ForkYDocExtension(options),
         options.suggestionDoc ? SuggestionsExtension(options) : null,
         RelativePositionMappingExtension(),
         YSyncExtension(options),
         YCursorExtension(options),
-        // TODO decide on this? Does it need to be coupled to Y.js?
         options.versioningEndpoints
           ? VersioningExtension({
+              ...createYjsVersioningAdapter(editor, options.fragment),
               endpoints: options.versioningEndpoints,
-              fragment: options.fragment,
             })
           : null,
       ].filter((a) => a !== null),
@@ -106,10 +101,8 @@ export function withCollaboration<
   };
 }
 
-export * from "./ForkYDoc.js";
 export * from "./RelativePositionMapping.js";
 export * from "./YCursorPlugin.js";
 export * from "./YSync.js";
-export * from "./Versioning/index.js";
-export * from "./Versioning/localStorageEndpoints.js";
+export * from "./Versioning.js";
 export * from "./Suggestions.js";

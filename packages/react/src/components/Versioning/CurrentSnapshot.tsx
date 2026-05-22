@@ -1,4 +1,4 @@
-import { VersioningExtension } from "@blocknote/core/y";
+import { VersioningExtension } from "@blocknote/core/extensions";
 import { useState } from "react";
 
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";

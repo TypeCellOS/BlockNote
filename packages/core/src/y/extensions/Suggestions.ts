@@ -11,7 +11,8 @@ import {
   configureYProsemirror,
   acceptAllChanges,
 } from "@y/prosemirror";
-import { CollaborationOptions, findTypeInOtherYdoc } from "./index.js";
+import { CollaborationOptions } from "./index.js";
+import { findTypeInOtherYdoc } from "../utils.js";
 
 export const SuggestionsExtension = createExtension(
   ({ editor, options }: ExtensionOptions<CollaborationOptions>) => {

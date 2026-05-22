@@ -32,5 +32,6 @@ allowBuilds:
   canvas: false
   sharp: false
   workerd: false
+  leveldown: false
 patchedDependencies:
   "@y/prosemirror@2.0.0-2": "patches/@y__prosemirror@2.0.0-2.patch"

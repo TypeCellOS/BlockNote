@@ -2,11 +2,11 @@ import * as Y from "@y/y";
 import { toBase64, fromBase64 } from "lib0/buffer";
 
 import {
-  CreateSnapshotOptions,
+  type CreateSnapshotOptions,
   sortSnapshotsNewestFirst,
-  VersioningEndpoints,
-  VersionSnapshot,
-} from "./index.js";
+  type VersioningEndpoints,
+  type VersionSnapshot,
+} from "@blocknote/core/extensions";
 
 const DEFAULT_STORAGE_KEY = "blocknote-versioning-snapshots";
 
@@ -44,7 +44,7 @@ function writeContents(storageKey: string, contents: Record<string, string>) {
 export function createLocalStorageVersioningEndpoints(
   storageKey = DEFAULT_STORAGE_KEY,
 ): VersioningEndpoints {
-  const listSnapshots: VersioningEndpoints["listSnapshots"] = async () =>
+  const listSnapshots: VersioningEndpoints["list"] = async () =>
     readSnapshots(storageKey);
 
   const createSnapshot = async (
@@ -56,10 +56,7 @@ export function createLocalStorageVersioningEndpoints(
       name: options?.name,
       createdAt: Date.now(),
       updatedAt: Date.now(),
-      meta: {
-        restoredFromSnapshotId: options?.restoredFromSnapshotId,
-        userIds: ["User1"],
-      },
+      restoredFromSnapshotId: options?.restoredFromSnapshotId,
     } satisfies VersionSnapshot;
 
     const contents = readContents(storageKey);
@@ -71,16 +68,17 @@ export function createLocalStorageVersioningEndpoints(
     return snapshot;
   };
 
-  const fetchSnapshotContent: VersioningEndpoints["fetchSnapshotContent"] =
-    async (id) => {
-      const encoded = readContents(storageKey)[id];
-      if (encoded === undefined) {
-        throw new Error(`Document snapshot ${id} could not be found.`);
-      }
-      return fromBase64(encoded);
-    };
+  const fetchSnapshotContent: VersioningEndpoints["getContent"] = async (
+    id,
+  ) => {
+    const encoded = readContents(storageKey)[id];
+    if (encoded === undefined) {
+      throw new Error(`Document snapshot ${id} could not be found.`);
+    }
+    return fromBase64(encoded);
+  };
 
-  const restoreSnapshot: VersioningEndpoints["restoreSnapshot"] = async (
+  const restoreSnapshot: VersioningEndpoints["restore"] = async (
     fragment,
     id,
   ) => {
@@ -114,10 +112,10 @@ export function createLocalStorageVersioningEndpoints(
   };
 
   return {
-    listSnapshots,
-    createSnapshot,
-    fetchSnapshotContent,
-    restoreSnapshot,
+    list: listSnapshots,
+    create: createSnapshot,
+    getContent: fetchSnapshotContent,
+    restore: restoreSnapshot,
     updateSnapshotName,
   };
 }

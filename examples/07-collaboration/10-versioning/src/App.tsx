@@ -1,10 +1,10 @@
 import "@blocknote/core/fonts/inter.css";
 import {
   withCollaboration,
-  localStorageEndpoints,
   SuggestionsExtension,
-  VersioningExtension,
 } from "@blocknote/core/y";
+import { localStorageEndpoints } from "./localStorageEndpoints.js";
+import { VersioningExtension } from "@blocknote/core/extensions";
 import {
   BlockNoteViewEditor,
   FloatingComposerController,
@@ -16,7 +16,6 @@ import {
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useEffect, useMemo, useState } from "react";
-import { RiChat3Line, RiHistoryLine } from "react-icons/ri";
 import * as Y from "@y/y";
 import { WebsocketProvider } from "@y/websocket";
 
@@ -27,7 +26,7 @@ import {
   DefaultThreadStoreAuth,
   CommentsExtension,
 } from "@blocknote/core/comments";
-import { YjsThreadStore } from "@blocknote/core/yjs";
+import { YjsThreadStore } from "@blocknote/core/y";
 
 import { CommentsSidebar } from "./CommentsSidebar";
 import { VersionHistorySidebar } from "./VersionHistorySidebar";
@@ -82,7 +81,7 @@ export default function App() {
   const threadStore = useMemo(() => {
     return new YjsThreadStore(
       activeUser.id,
-      doc.get("threads") as any,
+      doc.get("threads"),
       new DefaultThreadStoreAuth(activeUser.id, activeUser.role),
     );
   }, [doc, activeUser]);
@@ -97,6 +96,7 @@ export default function App() {
         user: { color: getRandomColor(), name: activeUser.username },
         versioningEndpoints: localStorageEndpoints,
       },
+      extensions: [CommentsExtension({ threadStore, resolveUsers })],
     }),
   );
 
@@ -111,7 +111,6 @@ export default function App() {
     editor,
   });
 
-  const { exitPreview } = useExtension(VersioningExtension, { editor });
   const { previewedSnapshotId } = useExtensionState(VersioningExtension, {
     editor,
   });
@@ -125,61 +124,23 @@ export default function App() {
       setEditingMode("editing");
     }
   }, [previewedSnapshotId]);
-  const [sidebar, setSidebar] = useState<
-    "comments" | "versionHistory" | "none"
-  >("none");
+  const [sidebar, setSidebar] = useState<"comments" | "versionHistory">(
+    "versionHistory",
+  );
 
   return (
-    <BlockNoteView
-      className={"full-collaboration"}
-      editor={editor}
-      editable={
-        (sidebar !== "versionHistory" || previewedSnapshotId === undefined) &&
-        activeUser.role === "editor"
-      }
-      // In other examples, `BlockNoteView` renders both editor element itself,
-      // and the container element which contains the necessary context for
-      // BlockNote UI components. However, in this example, we want more control
-      // over the rendering of the editor, so we set `renderEditor` to `false`.
-      // Now, `BlockNoteView` will only render the container element, and we can
-      // render the editor element anywhere we want using `BlockNoteEditorView`.
-      renderEditor={false}
-      // We also disable the default rendering of comments in the editor, as we
-      // want to render them in the `ThreadsSidebar` component instead.
-      comments={sidebar !== "comments"}
-    >
-      <div className="full-collaboration-main-container">
-        {/* We place the editor, the sidebar, and any settings selects within
-        `BlockNoteView` as they use BlockNote UI components and need the context
-        for them. */}
-        <div className={"editor-layout-wrapper"}>
-          <div className="sidebar-selectors">
-            <div
-              className={`sidebar-selector ${sidebar === "versionHistory" ? "selected" : ""}`}
-              onClick={() => {
-                setSidebar((sidebar) =>
-                  sidebar !== "versionHistory" ? "versionHistory" : "none",
-                );
-                exitPreview();
-              }}
-            >
-              <RiHistoryLine />
-              <span>Version History</span>
-            </div>
-            <div
-              className={`sidebar-selector ${sidebar === "comments" ? "selected" : ""}`}
-              onClick={() =>
-                setSidebar((sidebar) =>
-                  sidebar !== "comments" ? "comments" : "none",
-                )
-              }
-            >
-              <RiChat3Line />
-              <span>Comments</span>
-            </div>
-          </div>
-          <div className={"editor-section"}>
-            {/* <h1>Editor</h1> */}
+    <div className="wrapper">
+      <BlockNoteView
+        className={"full-collaboration"}
+        editor={editor}
+        editable={
+          previewedSnapshotId === undefined && activeUser.role === "editor"
+        }
+        renderEditor={false}
+        comments={sidebar !== "comments"}
+      >
+        <div className="layout">
+          <div className="editor-panel">
             {previewedSnapshotId === undefined && (
               <div className={"settings"}>
                 <SettingsSelect
@@ -229,25 +190,36 @@ export default function App() {
                     ]}
                   />
                 )}
+                <SettingsSelect
+                  label={"Sidebar"}
+                  items={[
+                    {
+                      text: "Version History",
+                      icon: null,
+                      onClick: () => setSidebar("versionHistory"),
+                      isSelected: sidebar === "versionHistory",
+                    },
+                    {
+                      text: "Comments",
+                      icon: null,
+                      onClick: () => setSidebar("comments"),
+                      isSelected: sidebar === "comments",
+                    },
+                  ]}
+                />
                 {activeUser.role === "editor" &&
                   editingMode === "suggestions" &&
                   hasUnresolvedSuggestions && <SuggestionActions />}
               </div>
             )}
-            {/* Because we set `renderEditor` to false, we can now manually place
-            `BlockNoteViewEditor` (the actual editor component) in its own
-            section below the user settings select. */}
             <BlockNoteViewEditor />
             <SuggestionActionsPopup />
-            {/* Since we disabled rendering of comments with `comments={false}`,
-            we need to re-add the floating composer, which is the UI element that
-            appears when creating new threads. */}
             {sidebar === "comments" && <FloatingComposerController />}
           </div>
+          {sidebar === "comments" && <CommentsSidebar />}
+          {sidebar === "versionHistory" && <VersionHistorySidebar />}
         </div>
-        {sidebar === "comments" && <CommentsSidebar />}
-        {sidebar === "versionHistory" && <VersionHistorySidebar />}
-      </div>
-    </BlockNoteView>
+      </BlockNoteView>
+    </div>
   );
 }
