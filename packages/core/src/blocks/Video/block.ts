@@ -92,7 +92,9 @@ export const createVideoBlockSpec = createBlockSpec(
       video.controls = true;
       video.contentEditable = "false";
       video.draggable = false;
-      video.width = block.props.previewWidth;
+      if (block.props.previewWidth) {
+        video.width = block.props.previewWidth;
+      }
       videoWrapper.appendChild(video);
 
       return createResizableFileBlockWrapper(

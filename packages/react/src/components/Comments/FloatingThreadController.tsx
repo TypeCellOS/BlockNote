@@ -16,6 +16,12 @@ import { useThreads } from "./useThreads.js";
 export default function FloatingThreadController(props: {
   floatingThread?: FC<ComponentProps<typeof Thread>>;
   floatingUIOptions?: FloatingUIOptions;
+  /**
+   * Override the DOM node this floating element portals into. Falls back to
+   * `editor.portalElement` (which by default is mounted inside `bn-container`)
+   * when omitted.
+   */
+  portalElement?: HTMLElement | null;
 }) {
   const editor = useBlockNoteEditor<any, any, any>();
 
@@ -78,7 +84,11 @@ export default function FloatingThreadController(props: {
   const Component = props.floatingThread || Thread;
 
   return (
-    <PositionPopover position={selectedThread?.position} {...floatingUIOptions}>
+    <PositionPopover
+      position={selectedThread?.position}
+      portalElement={props.portalElement}
+      {...floatingUIOptions}
+    >
       {thread && <Component thread={thread} selected={true} />}
     </PositionPopover>
   );

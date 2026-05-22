@@ -37,7 +37,7 @@ export function serializeInlineContentExternalHTML<
   editor: BlockNoteEditor<any, I, S>,
   blockContent: PartialBlock<BSchema, I, S>["content"],
   serializer: DOMSerializer,
-  options?: { document?: Document },
+  options?: { document?: Document; blockType?: string },
 ) {
   let nodes: Node[];
 
@@ -45,9 +45,17 @@ export function serializeInlineContentExternalHTML<
   if (!blockContent) {
     throw new Error("blockContent is required");
   } else if (typeof blockContent === "string") {
-    nodes = inlineContentToNodes([blockContent], editor.pmSchema);
+    nodes = inlineContentToNodes(
+      [blockContent],
+      editor.pmSchema,
+      options?.blockType,
+    );
   } else if (Array.isArray(blockContent)) {
-    nodes = inlineContentToNodes(blockContent, editor.pmSchema);
+    nodes = inlineContentToNodes(
+      blockContent,
+      editor.pmSchema,
+      options?.blockType,
+    );
   } else if (blockContent.type === "tableContent") {
     nodes = tableContentToNodes(blockContent, editor.pmSchema);
   } else {
@@ -262,7 +270,7 @@ function serializeBlock<
       editor,
       block.content as any, // TODO
       serializer,
-      options,
+      { ...options, blockType: block.type },
     );
 
     ret.contentDOM.appendChild(ic);

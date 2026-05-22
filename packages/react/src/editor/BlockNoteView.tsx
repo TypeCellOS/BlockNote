@@ -27,6 +27,7 @@ import {
   BlockNoteDefaultUI,
   BlockNoteDefaultUIProps,
 } from "./BlockNoteDefaultUI.js";
+import { resolvePortalTarget } from "./portalElements.js";
 import {
   BlockNoteViewContext,
   useBlockNoteViewContext,
@@ -93,6 +94,10 @@ export type BlockNoteViewProps<
   ref?: Ref<HTMLDivElement> | undefined; // only here to get types working with the generics. Regular form doesn't work
 } & BlockNoteDefaultUIProps;
 
+// `portalElements` is part of `BlockNoteDefaultUIProps`, but we re-export the
+// types here for convenience so consumers can import them from `@blocknote/react`.
+export type { PortalElementsMap, PortalTarget } from "./portalElements.js";
+
 function BlockNoteViewComponent<
   BSchema extends BlockSchema,
   ISchema extends InlineContentSchema,
@@ -121,10 +126,19 @@ function BlockNoteViewComponent<
     filePanel,
     tableHandles,
     comments,
+    portalElements,
     autoFocus,
     renderEditor = true,
     ...rest
   } = props;
+
+  // Resolved once and handed to `editor.mount()` via context. When omitted,
+  // `mount()` falls back to `element.parentElement` (i.e. `bn-container`).
+  // Changing this prop requires remounting the editor (use a `key`).
+  const portalTarget = useMemo(
+    () => resolvePortalTarget(portalElements?.default) ?? null,
+    [portalElements?.default],
+  );
 
   // Used so other components (suggestion menu) can set
   // aria related props to the contenteditable div
@@ -151,6 +165,7 @@ function BlockNoteViewComponent<
       tableHandles: componentsContext ? tableHandles : false,
       emojiPicker: componentsContext ? emojiPicker : false,
       comments: componentsContext ? comments : false,
+      portalElements,
     }),
     [
       comments,
@@ -162,6 +177,7 @@ function BlockNoteViewComponent<
       sideMenu,
       slashMenu,
       tableHandles,
+      portalElements,
     ],
   );
 
@@ -206,10 +222,11 @@ function BlockNoteViewComponent<
         autoFocus,
         contentEditableProps,
         editable,
+        portalTarget,
       },
       defaultUIProps,
     };
-  }, [autoFocus, contentEditableProps, editable, defaultUIProps]);
+  }, [autoFocus, contentEditableProps, editable, defaultUIProps, portalTarget]);
 
   return (
     <BlockNoteContext.Provider value={blockNoteContext}>
@@ -289,6 +306,8 @@ export const BlockNoteViewEditor = (props: { children?: ReactNode }) => {
     return getContentComponent();
   }, []);
 
+  const portalTarget = ctx.editorProps.portalTarget;
+
   const mount = useCallback(
     (element: HTMLElement | null) => {
       // Set editable state of the actual editor.
@@ -301,12 +320,12 @@ export const BlockNoteViewEditor = (props: { children?: ReactNode }) => {
       // This is a simple replacement for the state management that Tiptap does internally
       editor._tiptapEditor.contentComponent = portalManager;
       if (element) {
-        editor.mount(element);
+        editor.mount(element, { portalTarget });
       } else {
         editor.unmount();
       }
     },
-    [ctx.editorProps.editable, editor, portalManager],
+    [ctx.editorProps.editable, editor, portalManager, portalTarget],
   );
 
   return (
@@ -328,6 +347,7 @@ const ContentEditableElement = (props: {
   autoFocus?: boolean;
   mount: (element: HTMLElement | null) => void;
   contentEditableProps?: Record<string, any>;
+  portalTarget?: HTMLElement | null;
 }) => {
   const { autoFocus, mount, contentEditableProps } = props;
   return (
