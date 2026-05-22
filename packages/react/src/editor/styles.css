@@ -143,145 +143,109 @@
 /* Table cells include `th`/`td` selectors as they set their color attributes on
 the cell element, rather than on a `.bn-block-content` element. */
 [data-style-type="textColor"][data-value="gray"],
-.bn-block-content th[data-text-color="gray"],
-.bn-block-content td[data-text-color="gray"],
-.bn-color-icon[data-text-color="gray"],
+[data-text-color="gray"],
 .bn-block:has(> .bn-block-content[data-text-color="gray"]) {
   color: var(--bn-colors-highlights-gray-text);
 }
 
 [data-style-type="textColor"][data-value="brown"],
-.bn-block-content th[data-text-color="brown"],
-.bn-block-content td[data-text-color="brown"],
-.bn-color-icon[data-text-color="brown"],
+[data-text-color="brown"],
 .bn-block:has(> .bn-block-content[data-text-color="brown"]) {
   color: var(--bn-colors-highlights-brown-text);
 }
 
 [data-style-type="textColor"][data-value="red"],
-.bn-block-content th[data-text-color="red"],
-.bn-block-content td[data-text-color="red"],
-.bn-color-icon[data-text-color="red"],
+[data-text-color="red"],
 .bn-block:has(> .bn-block-content[data-text-color="red"]) {
   color: var(--bn-colors-highlights-red-text);
 }
 
 [data-style-type="textColor"][data-value="orange"],
-.bn-block-content th[data-text-color="orange"],
-.bn-block-content td[data-text-color="orange"],
-.bn-color-icon[data-text-color="orange"],
+[data-text-color="orange"],
 .bn-block:has(> .bn-block-content[data-text-color="orange"]) {
   color: var(--bn-colors-highlights-orange-text);
 }
 
 [data-style-type="textColor"][data-value="yellow"],
-.bn-block-content th[data-text-color="yellow"],
-.bn-block-content td[data-text-color="yellow"],
-.bn-color-icon[data-text-color="yellow"],
+[data-text-color="yellow"],
 .bn-block:has(> .bn-block-content[data-text-color="yellow"]) {
   color: var(--bn-colors-highlights-yellow-text);
 }
 
 [data-style-type="textColor"][data-value="green"],
-.bn-block-content th[data-text-color="green"],
-.bn-block-content td[data-text-color="green"],
-.bn-color-icon[data-text-color="green"],
+[data-text-color="green"],
 .bn-block:has(> .bn-block-content[data-text-color="green"]) {
   color: var(--bn-colors-highlights-green-text);
 }
 
 [data-style-type="textColor"][data-value="blue"],
-.bn-block-content th[data-text-color="blue"],
-.bn-block-content td[data-text-color="blue"],
-.bn-color-icon[data-text-color="blue"],
+[data-text-color="blue"],
 .bn-block:has(> .bn-block-content[data-text-color="blue"]) {
   color: var(--bn-colors-highlights-blue-text);
 }
 
 [data-style-type="textColor"][data-value="purple"],
-.bn-block-content th[data-text-color="purple"],
-.bn-block-content td[data-text-color="purple"],
-.bn-color-icon[data-text-color="purple"],
+[data-text-color="purple"],
 .bn-block:has(> .bn-block-content[data-text-color="purple"]) {
   color: var(--bn-colors-highlights-purple-text);
 }
 
 [data-style-type="textColor"][data-value="pink"],
-.bn-block-content th[data-text-color="pink"],
-.bn-block-content td[data-text-color="pink"],
-.bn-color-icon[data-text-color="pink"],
+[data-text-color="pink"],
 .bn-block:has(> .bn-block-content[data-text-color="pink"]) {
   color: var(--bn-colors-highlights-pink-text);
 }
 
 [data-style-type="backgroundColor"][data-value="gray"],
-.bn-block-content th[data-background-color="gray"],
-.bn-block-content td[data-background-color="gray"],
-.bn-color-icon[data-background-color="gray"],
+[data-background-color="gray"],
 .bn-block:has(> .bn-block-content[data-background-color="gray"]) {
   background-color: var(--bn-colors-highlights-gray-background);
 }
 
 [data-style-type="backgroundColor"][data-value="brown"],
-.bn-block-content th[data-background-color="brown"],
-.bn-block-content td[data-background-color="brown"],
-.bn-color-icon[data-background-color="brown"],
+[data-background-color="brown"],
 .bn-block:has(> .bn-block-content[data-background-color="brown"]) {
   background-color: var(--bn-colors-highlights-brown-background);
 }
 
 [data-style-type="backgroundColor"][data-value="red"],
-.bn-block-content th[data-background-color="red"],
-.bn-block-content td[data-background-color="red"],
-.bn-color-icon[data-background-color="red"],
+[data-background-color="red"],
 .bn-block:has(> .bn-block-content[data-background-color="red"]) {
   background-color: var(--bn-colors-highlights-red-background);
 }
 
 [data-style-type="backgroundColor"][data-value="orange"],
-.bn-block-content th[data-background-color="orange"],
-.bn-block-content td[data-background-color="orange"],
-.bn-color-icon[data-background-color="orange"],
+[data-background-color="orange"],
 .bn-block:has(> .bn-block-content[data-background-color="orange"]) {
   background-color: var(--bn-colors-highlights-orange-background);
 }
 
 [data-style-type="backgroundColor"][data-value="yellow"],
-.bn-block-content th[data-background-color="yellow"],
-.bn-block-content td[data-background-color="yellow"],
-.bn-color-icon[data-background-color="yellow"],
+[data-background-color="yellow"],
 .bn-block:has(> .bn-block-content[data-background-color="yellow"]) {
   background-color: var(--bn-colors-highlights-yellow-background);
 }
 
 [data-style-type="backgroundColor"][data-value="green"],
-.bn-block-content th[data-background-color="green"],
-.bn-block-content td[data-background-color="green"],
-.bn-color-icon[data-background-color="green"],
+[data-background-color="green"],
 .bn-block:has(> .bn-block-content[data-background-color="green"]) {
   background-color: var(--bn-colors-highlights-green-background);
 }
 
 [data-style-type="backgroundColor"][data-value="blue"],
-.bn-block-content th[data-background-color="blue"],
-.bn-block-content td[data-background-color="blue"],
-.bn-color-icon[data-background-color="blue"],
+[data-background-color="blue"],
 .bn-block:has(> .bn-block-content[data-background-color="blue"]) {
   background-color: var(--bn-colors-highlights-blue-background);
 }
 
 [data-style-type="backgroundColor"][data-value="purple"],
-.bn-block-content th[data-background-color="purple"],
-.bn-block-content td[data-background-color="purple"],
-.bn-color-icon[data-background-color="purple"],
+[data-background-color="purple"],
 .bn-block:has(> .bn-block-content[data-background-color="purple"]) {
   background-color: var(--bn-colors-highlights-purple-background);
 }
 
 [data-style-type="backgroundColor"][data-value="pink"],
-.bn-block-content th[data-background-color="pink"],
-.bn-block-content td[data-background-color="pink"],
-.bn-color-icon[data-background-color="pink"],
+[data-background-color="pink"],
 .bn-block:has(> .bn-block-content[data-background-color="pink"]) {
   background-color: var(--bn-colors-highlights-pink-background);
 }
