@@ -242,6 +242,11 @@ export class SideMenuView<
     if (this.editor.isEditable) {
       const blockContentBoundingBox = block.node.getBoundingClientRect();
       const column = block.node.closest("[data-node-type=column]");
+      const blockNodeElement = block.node;
+      const tableElement = blockNodeElement.querySelector("[data-node-type=tableContent]");      
+      const yPos = tableElement
+        ? blockContentBoundingBox.y + (tableElement.getBoundingClientRect().top - blockContentBoundingBox.top) / 2
+        : blockContentBoundingBox.y;
       this.state = {
         show: true,
         referencePos: new DOMRect(
@@ -254,7 +259,7 @@ export class SideMenuView<
             : (
                 this.pmView.dom.firstChild as HTMLElement
               ).getBoundingClientRect().x,
-          blockContentBoundingBox.y,
+          yPos,
           blockContentBoundingBox.width,
           blockContentBoundingBox.height,
         ),
