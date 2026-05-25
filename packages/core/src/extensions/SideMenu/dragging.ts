@@ -121,6 +121,14 @@ function setDragImage(view: EditorView, from: number, to = from) {
     )
     .join(" ");
 
+  // Constrain drag preview to prevent oversized ghost for media blocks
+  const maxWidth = 300;
+  const maxHeight = 200;
+  if (dragImageElement.scrollWidth > maxWidth || dragImageElement.scrollHeight > maxHeight) {
+    dragImageElement.style.maxWidth = maxWidth + "px";
+    dragImageElement.style.maxHeight = maxHeight + "px";
+    dragImageElement.style.overflow = "hidden";
+  }
   dragImageElement.className =
     dragImageElement.className + " bn-drag-preview " + inheritedClasses;
 
