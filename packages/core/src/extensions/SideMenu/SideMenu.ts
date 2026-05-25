@@ -761,9 +761,20 @@ export const SideMenuExtension = createExtension(({ editor }) => {
      * Handles drag & drop events for blocks.
      */
     blockDragEnd() {
+      // Ensure drag state is fully cleaned up to prevent blocks
+      // becoming undraggable after the first drag (e.g. image blocks).
       unsetDragImage(editor.prosemirrorView.root);
       if (view) {
         view.isDragOrigin = false;
+        view.menuFrozen = false;
+        // Clear any stale drag references
+        if (view.hoveredBlock) {
+          view.hoveredBlock = undefined;
+        }
+      }
+      // Clear PM dragging state
+      if (editor.prosemirrorView.dragging !== null) {
+        editor.prosemirrorView.dragging = null;
       }
 
       editor.blur();
