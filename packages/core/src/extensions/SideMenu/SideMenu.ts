@@ -112,10 +112,22 @@ function getBlockFromMousePos(
    */
   const referenceBlocksBoundingBox =
     referenceBlock.node.getBoundingClientRect();
+  
+  // For blocks near the right edge of the editor (e.g. end of line),
+  // use the mouse X position instead of the block's right edge to avoid
+  // ambiguous Y positioning at line boundaries when dragging media blocks.
+  const editorBoundingBox = (
+    view.dom.firstChild as HTMLElement
+  ).getBoundingClientRect();
+  const nearRightEdge = 
+    referenceBlocksBoundingBox.right >= editorBoundingBox.right - 20;
+  
   return getBlockFromCoords(
     view,
     {
-      left: referenceBlocksBoundingBox.right - 10,
+      left: nearRightEdge 
+        ? mousePos.x 
+        : referenceBlocksBoundingBox.right - 10,
       top: mousePos.y,
     },
     false,
