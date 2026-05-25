@@ -270,6 +270,17 @@ export interface BlockNoteEditorOptions<
    * @default "prefer-navigate-ui"
    */
   tabBehavior?: "prefer-navigate-ui" | "prefer-indent";
+  
+  /**
+   * @deprecated Use tabBehavior instead.
+   * Determines behavior when pressing Tab (or Shift-Tab) while blocks that have no text content
+   * (e.g. image, video, file blocks) are selected. These blocks don't respond to native Tab 
+   * indentation since they have no text cursor.
+   * - : Indents the block. 
+   * - : (default) Focuses the toolbar if open, otherwise does nothing.
+   * @default "prefer-navigate-ui"
+   */
+  tabForEmptyBlocks?: "prefer-navigate-ui" | "prefer-indent";
 
   /**
    * Allows enabling / disabling features of tables.
