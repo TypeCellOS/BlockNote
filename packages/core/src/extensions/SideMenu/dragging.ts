@@ -121,6 +121,14 @@ function setDragImage(view: EditorView, from: number, to = from) {
     )
     .join(" ");
 
+  // Limit image preview sizes to avoid oversized drag ghosts
+  const imgElements = parentClone.querySelectorAll('img');
+  imgElements.forEach((img) => {
+    (img as HTMLElement).style.maxWidth = '200px';
+    (img as HTMLElement).style.maxHeight = '150px';
+    (img as HTMLElement).style.objectFit = 'contain';
+  });
+
   dragImageElement.className =
     dragImageElement.className + " bn-drag-preview " + inheritedClasses;
 
