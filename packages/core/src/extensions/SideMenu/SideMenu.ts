@@ -813,5 +813,22 @@ export const SideMenuExtension = createExtension(({ editor }) => {
         view!.emitUpdate(view!.state!);
       }
     },
+
+    keyboardShortcuts: {
+      Tab: ({ editor }) => {
+        const sel = editor.prosemirrorView.state.selection;
+        const node = sel..node();
+        // If the selected block has no content (image, video, file, divider),
+        // trigger indentation via the block API
+        if (node && node.type.spec.content === "none" && editor.isEditable) {
+          const blockInfo = editor.getBlock(sel..before());
+          if (blockInfo) {
+            editor.focus();
+            return true;
+          }
+        }
+        return false;
+      },
+    },
   } as const;
 });
