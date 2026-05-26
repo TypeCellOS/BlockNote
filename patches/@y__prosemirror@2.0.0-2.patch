@@ -1779,10 +1779,10 @@ deleted file mode 100644
 index 9f8acb14f5af98e19ab6551ef0136523bb45767b..0000000000000000000000000000000000000000
 diff --git a/src/positions.js b/src/positions.js
 new file mode 100644
-index 0000000000000000000000000000000000000000..9d310b3a8ced22e3574f94f932243f70bc1e7649
+index 0000000000000000000000000000000000000000..963ea708dbe0e92b2d43fc031243c2e718926c55
 --- /dev/null
 +++ b/src/positions.js
-@@ -0,0 +1,211 @@
+@@ -0,0 +1,212 @@
 +import * as Y from '@y/y'
 +import * as s from 'lib0/schema'
 +
@@ -1802,11 +1802,12 @@ index 0000000000000000000000000000000000000000..9d310b3a8ced22e3574f94f932243f70
 +  const depth = resolvedPos.depth
 +  // Navigate through the Y.js structure using the path from ResolvedPos.
 +  // The PM resolved-pos can transiently disagree with the Y type when this
-+  // runs mid-dispatch (cursor-plugin's view.update fires before the next
-+  // sync-plugin appendTransaction has applied; AM-filtered subtrees can also
-+  // shift child indices). If traversal can't follow the PM path all the way,
-+  // fall back to a relative position at the start of the bound type rather
-+  // than throwing - the contract here is non-nullable.
++  // runs mid-dispatch (the cursor-plugin's view.update may observe the PM
++  // doc before sync-plugin's view.update has flushed the PM->Y commit and
++  // reconcile; AM-filtered subtrees can also shift child indices). If
++  // traversal can't follow the PM path all the way, fall back to a
++  // relative position at the start of the bound type rather than throwing
++  // - the contract here is non-nullable.
 +  let currentYType = type
 +  let traversedDepth = 0
 +  for (let d = 0; d < depth; d++) {
@@ -1996,10 +1997,10 @@ index 0000000000000000000000000000000000000000..9d310b3a8ced22e3574f94f932243f70
 +}
 diff --git a/src/sync-plugin.js b/src/sync-plugin.js
 new file mode 100644
-index 0000000000000000000000000000000000000000..a885bcee139696d304798517fa53982bcfb01761
+index 0000000000000000000000000000000000000000..e9444af4c344c486bb7ba7255bcd26f43c8145cf
 --- /dev/null
 +++ b/src/sync-plugin.js
-@@ -0,0 +1,293 @@
+@@ -0,0 +1,289 @@
 +import * as Y from '@y/y'
 +import { Plugin } from 'prosemirror-state'
 +import {
@@ -2092,9 +2093,11 @@ index 0000000000000000000000000000000000000000..a885bcee139696d304798517fa53982b
 +/**
 + * This Prosemirror {@link Plugin} is responsible for synchronizing the prosemirror {@link EditorState} with a {@link Y.XmlFragment}
 + *
-+ * NOTE: register this plugin LAST in your editor's plugin list. Its
-+ * `appendTransaction` runs the PM->Y diff/apply pipeline and must
-+ * observe the post-keymap, post-other-plugin state.
++ * The PM->Y diff/apply pipeline runs in the plugin's `view().update`
++ * hook (i.e. after the dispatch has been committed to the view), not
++ * in `appendTransaction`. Running it in `appendTransaction` would
++ * cause speculative `state.apply` callers to write to Y as a side
++ * effect.
 + *
 + * @param {object} opts
 + * @param {Y.Doc} [opts.suggestionDoc] A {@link Y.Doc} to use for suggestion tracking
@@ -2119,53 +2122,6 @@ index 0000000000000000000000000000000000000000..a885bcee139696d304798517fa53982b
 +        }
 +        return object.assign({}, prevPluginState, stateUpdate, stateUpdate.attributionManager == null ? { attributionManager: Y.noAttributionsManager } : {})
 +      }
-+    },
-+    /**
-+     * Mirror PM doc changes into the Y type, then re-render the Y
-+     * type through the AttributionManager and append any difference
-+     * back to PM in the same dispatch. Idempotent: if PM already
-+     * matches the AM-rendered ytype, returns null.
-+     *
-+     * @param {readonly import('prosemirror-state').Transaction[]} trs
-+     * @param {import('prosemirror-state').EditorState} _oldState
-+     * @param {import('prosemirror-state').EditorState} newState
-+     */
-+    appendTransaction (trs, _oldState, newState) {
-+      const pluginState = $syncPluginState.cast(ySyncPluginKey.getState(newState))
-+      const ytype = pluginState.ytype
-+      if (ytype == null) return null
-+      if (!trs.some(tr => tr.docChanged)) return null
-+      if (trs.every(tr => tr.getMeta('y-sync-transaction') != null)) return null
-+      const attributionManager = pluginState.attributionManager
-+      const am = attributionManager || Y.noAttributionsManager
-+      const mapper = pluginState.attributionMapper
-+      const ycontent = deltaAttributionToFormat(
-+        ytype.toDeltaDeep(am),
-+        mapper
-+      ).done()
-+      const pcontent = nodeToDelta(newState.doc).done()
-+      const pmToYDiff = stripAttributionFormattingFromDelta(d.diff(ycontent, pcontent))
-+      if (!pmToYDiff.isEmpty()) {
-+        /** @type {Y.Doc} */ (ytype.doc).transact(() => {
-+          ytype.applyDelta(pmToYDiff, am)
-+        }, ySyncPluginKey.get(newState))
-+      }
-+      const desiredPM = deltaAttributionToFormat(
-+        ytype.toDeltaDeep(am),
-+        mapper
-+      ).done()
-+      const pmReconcileDiff = d.diff(pcontent, desiredPM)
-+      if (pmReconcileDiff.isEmpty()) return null
-+      const tr = newState.tr
-+      deltaToPSteps(tr, pmReconcileDiff)
-+      tr.setMeta('addToHistory', false)
-+      tr.setMeta('y-sync-transaction', $syncPluginStateUpdate.expect({
-+        change: null,
-+        attributionManager,
-+        attributionMapper: mapper,
-+        ytype
-+      }))
-+      return tr
 +    },
 +    view () {
 +      /** @type {(() => void) | null} */
@@ -2198,11 +2154,11 @@ index 0000000000000000000000000000000000000000..a885bcee139696d304798517fa53982b
 +            if (!view || view.isDestroyed) {
 +              return unsubscribeFn?.()
 +            }
-+            // Skip changes we wrote ourselves from `appendTransaction`
-+            // - PM is already at the post-apply state, the reconcile
-+            // tr was already appended in the same dispatch.
++            // Skip changes we wrote ourselves from `view().update`
++            // - the PM->Y commit there already handled the reconcile
++            // dispatch in the same call.
 +            if (/** @type {any} */ (tr).origin === ySyncPluginKey.get(view.state)) return
-+            // Same pipeline as `appendTransaction` and `onAttrsChanged`:
++            // Same pipeline as the PM->Y sync in `view().update`:
 +            // render ytype through the AM, diff against the current PM doc,
 +            // apply only the difference. Using `change.getDelta` here
 +            // produced wrong/asymmetric output for some interleavings
@@ -2234,12 +2190,12 @@ index 0000000000000000000000000000000000000000..a885bcee139696d304798517fa53982b
 +            if (!view || view.isDestroyed) {
 +              return unsubscribeFn?.()
 +            }
-+            // Same pipeline as `appendTransaction`: render ytype through
-+            // the AM, diff against the current PM doc, apply only the
-+            // difference. We give up the `itemsToRender` targeted-rerender
-+            // optimization in exchange for going through the same path
-+            // that the rest of the plugin uses, which keeps the deltas
-+            // shallow (only what actually changed).
++            // Same pipeline as the PM->Y sync in `view().update`:
++            // render ytype through the AM, diff against the current PM doc,
++            // apply only the difference. We give up the `itemsToRender`
++            // targeted-rerender optimization in exchange for going through
++            // the same path that the rest of the plugin uses, which keeps
++            // the deltas shallow (only what actually changed).
 +            const desiredPM = deltaAttributionToFormat(
 +              ytype.toDeltaDeep(attributionManager || Y.noAttributionsManager),
 +              attributionMapper
@@ -2285,6 +2241,47 @@ index 0000000000000000000000000000000000000000..a885bcee139696d304798517fa53982b
 +              attributionMapper: pluginState.attributionMapper
 +            })
 +          }
++          if (ytype == null) return
++          if (view.state.doc === prevState.doc) return
++          // PM->Y diff/apply pipeline. Runs after the dispatch is
++          // committed to the view, so speculative `state.apply` calls
++          // do not write to Y. The Y `afterTransaction` observer
++          // skips the write we make here via the origin check. The
++          // AM `change` handler may, however, dispatch its own
++          // reconcile synchronously during `transact` - so we
++          // re-read `pcontent` from `view.state.doc` after the write
++          // before computing our own reconcile, otherwise we'd
++          // apply the same insert twice.
++          const am = attributionManager || Y.noAttributionsManager
++          const mapper = pluginState.attributionMapper
++          const ycontent = deltaAttributionToFormat(
++            ytype.toDeltaDeep(am),
++            mapper
++          ).done()
++          const pcontent = nodeToDelta(view.state.doc).done()
++          const pmToYDiff = stripAttributionFormattingFromDelta(d.diff(ycontent, pcontent))
++          if (!pmToYDiff.isEmpty()) {
++            /** @type {Y.Doc} */ (ytype.doc).transact(() => {
++              ytype.applyDelta(pmToYDiff, am)
++            }, ySyncPluginKey.get(view.state))
++          }
++          const desiredPM = deltaAttributionToFormat(
++            ytype.toDeltaDeep(am),
++            mapper
++          ).done()
++          const pcontentAfter = nodeToDelta(view.state.doc).done()
++          const pmReconcileDiff = d.diff(pcontentAfter, desiredPM)
++          if (pmReconcileDiff.isEmpty()) return
++          const tr = view.state.tr
++          deltaToPSteps(tr, pmReconcileDiff)
++          tr.setMeta('addToHistory', false)
++          tr.setMeta('y-sync-transaction', $syncPluginStateUpdate.expect({
++            change: null,
++            attributionManager,
++            attributionMapper: mapper,
++            ytype
++          }))
++          view.dispatch(tr)
 +        },
 +        destroy () {
 +          unsubscribeFn?.()
@@ -2874,10 +2871,10 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 +}
 diff --git a/src/undo-plugin.js b/src/undo-plugin.js
 new file mode 100644
-index 0000000000000000000000000000000000000000..835655ae46547064e64ca1f0f59df403703415a4
+index 0000000000000000000000000000000000000000..70a7ae423be9bfd7a061984ce4ca74f42c4c0fdc
 --- /dev/null
 +++ b/src/undo-plugin.js
-@@ -0,0 +1,241 @@
+@@ -0,0 +1,240 @@
 +import { Plugin } from 'prosemirror-state'
 +import { relativePositionStoreMapping } from './positions.js'
 +import { yUndoPluginKey, ySyncPluginKey } from './keys.js'
@@ -2973,11 +2970,10 @@ index 0000000000000000000000000000000000000000..835655ae46547064e64ca1f0f59df403
 + * on undo stack items.
 + *
 + * `getLatestPrevSel` returns the most recently apply()-computed prevSel.
-+ * sync-plugin's `appendTransaction` writes to ytype synchronously inside
-+ * dispatch, which fires `stack-item-added` before `view.state` has been
-+ * updated. Reading `view.state.prevSel` at that moment yields the
-+ * previous tr's value; the closure ref maintained by apply() gives us
-+ * the in-flight one.
++ * sync-plugin writes to ytype from `view().update`, which can re-enter
++ * dispatch and fire `stack-item-added` during the recursive call. The
++ * closure ref maintained by apply() gives us the in-flight prevSel
++ * regardless of where in the dispatch nesting we are.
 + *
 + * @param {import('prosemirror-view').EditorView} view
 + * @param {() => UndoPluginState['prevSel']} getLatestPrevSel

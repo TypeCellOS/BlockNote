@@ -9,7 +9,7 @@ import { MarkSpec } from "prosemirror-model";
 export const SuggestionAddMark = Mark.create({
   name: "y-attributed-insert",
   inclusive: false,
-  excludes: "y-attributed-delete y-attributed-format y-attributed-insert",
+  excludes: "",
   addAttributes() {
     return {
       id: { default: null, validate: "number" }, // note: validate is supported in prosemirror but not in tiptap, so this doesn't actually work (considered not critical)
@@ -61,7 +61,7 @@ export const SuggestionAddMark = Mark.create({
 export const SuggestionDeleteMark = Mark.create({
   name: "y-attributed-delete",
   inclusive: false,
-  excludes: "y-attributed-delete y-attributed-format y-attributed-insert",
+  excludes: "",
   addAttributes() {
     return {
       id: { default: null, validate: "number" }, // note: validate is supported in prosemirror but not in tiptap
@@ -116,16 +116,11 @@ export const SuggestionDeleteMark = Mark.create({
 export const SuggestionModificationMark = Mark.create({
   name: "y-attributed-format",
   inclusive: false,
-  excludes: "y-attributed-delete y-attributed-format y-attributed-insert",
+  excludes: "",
   addAttributes() {
-    // note: validate is supported in prosemirror but not in tiptap
     return {
-      id: { default: null, validate: "number" },
+      id: { default: null, validate: "number" }, // note: validate is supported in prosemirror but not in tiptap
       "user-color": { default: null, validate: "string" },
-      type: { validate: "string" },
-      attrName: { default: null, validate: "string|null" },
-      previousValue: { default: null },
-      newValue: { default: null },
     };
   },
   extendMarkSchema(extension) {
@@ -135,13 +130,6 @@ export const SuggestionModificationMark = Mark.create({
     return {
       blocknoteIgnore: true,
       inclusive: false,
-      // attrs: {
-      //   id: { validate: "number" },
-      //   type: { validate: "string" },
-      //   attrName: { default: null, validate: "string|null" },
-      //   previousValue: { default: null },
-      //   newValue: { default: null },
-      // },
       toDOM(mark, inline) {
         return [
           inline ? "span" : "div",
@@ -149,14 +137,11 @@ export const SuggestionModificationMark = Mark.create({
             "data-type": "modification",
             "data-id": String(mark.attrs["id"]),
             "data-user-color": String(mark.attrs["user-color"]),
-            "data-mod-type": mark.attrs["type"] as string,
-            "data-mod-prev-val": JSON.stringify(mark.attrs["previousValue"]),
-            // TODO: Try to serialize marks with toJSON?
-            "data-mod-new-val": JSON.stringify(mark.attrs["newValue"]),
             style:
-              "user-color" in mark.attrs
-                ? ` --user-color: ${mark.attrs["user-color"]}`
-                : "", // changed to "contents" to make this work for table rows
+              (inline ? "" : "display: contents") +
+              ("user-color" in mark.attrs
+                ? `; --user-color: ${mark.attrs["user-color"]}`
+                : ""),
           },
           0,
         ];
@@ -170,10 +155,7 @@ export const SuggestionModificationMark = Mark.create({
             }
             return {
               id: parseInt(node.dataset["id"], 10),
-              userColor: node.dataset["userColor"],
-              type: node.dataset["modType"],
-              previousValue: node.dataset["modPrevVal"],
-              newValue: node.dataset["modNewVal"],
+              "user-color": node.dataset["userColor"],
             };
           },
         },
@@ -185,8 +167,7 @@ export const SuggestionModificationMark = Mark.create({
             }
             return {
               id: parseInt(node.dataset["id"], 10),
-              type: node.dataset["modType"],
-              previousValue: node.dataset["modPrevVal"],
+              "user-color": node.dataset["userColor"],
             };
           },
         },
