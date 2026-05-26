@@ -1,3 +1,13 @@
+## 0.51.3 (2026-05-26)
+
+### 🩹 Fixes
+
+- table cell colors (BLO-1198) ([#2770](https://github.com/TypeCellOS/BlockNote/pull/2770))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+
 ## 0.51.2 (2026-05-20)
 
 ### 🩹 Fixes
