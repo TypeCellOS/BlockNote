@@ -72,6 +72,7 @@ export const Column = Node.create({
     const column = document.createElement("div");
     column.className = "bn-block-column";
     column.setAttribute("data-node-type", this.name);
+    column.style.overflow = "visible";
     for (const [attribute, value] of Object.entries(HTMLAttributes)) {
       column.setAttribute(attribute, value as any); // TODO as any
     }
