@@ -791,3 +791,10 @@ we just don't display it in CSS instead. */
 .bn-mantine .bn-badge .mantine-Chip-iconWrapper {
   display: none;
 }
+
+/* PDF export: prevent table overflow */
+@media print {
+  .bn-block-content table { overflow: visible !important; page-break-inside: auto; }
+  .bn-block-content tr { page-break-inside: avoid; }
+  .bn-block-content td, .bn-block-content th { overflow: visible !important; word-wrap: break-word; }
+}
