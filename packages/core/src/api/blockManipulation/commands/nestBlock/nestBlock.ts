@@ -25,7 +25,7 @@ function sinkItem(
     $to,
     (node) =>
       node.childCount > 0 &&
-      (node.type.name === "blockGroup" || node.type.name === "column"), // change 1
+      (node.type.name === "blockGroup" || node.type.name === "column" || node.type.name === "listItem"), // change 1
   );
   if (!range) {
     return false;
@@ -169,7 +169,7 @@ export function liftItem(
     $to,
     (node) =>
       node.childCount > 0 &&
-      (node.type.name === "blockGroup" || node.type.name === "column"), // change 1
+      (node.type.name === "blockGroup" || node.type.name === "column" || node.type.name === "listItem"), // change 1
   );
   if (!range) {
     return false;
