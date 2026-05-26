@@ -545,11 +545,17 @@ export class SideMenuView<
       // Because the editor selection is unrelated to the dragged content, we
       // don't want PM to delete its content. Therefore, we collapse the
       // selection.
+      // For image drops at line boundaries, bias to end of block to ensure
+      // consistent placement below the line rather than above the next block.
+      const anchor = this.pmView.state.tr.selection.anchor;
+      const resolved = this.pmView.state.tr.doc.resolve(anchor);
+      const isAtEndOfBlock = resolved.parentOffset >= resolved.parent.content.size - 1;
+      const adjustedAnchor = isAtEndOfBlock ? anchor + 1 : anchor;
       this.pmView.dispatch(
         this.pmView.state.tr.setSelection(
           TextSelection.create(
             this.pmView.state.tr.doc,
-            this.pmView.state.tr.selection.anchor,
+            adjustedAnchor,
           ),
         ),
       );
