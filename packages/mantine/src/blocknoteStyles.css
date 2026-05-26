@@ -1,3 +1,4 @@
+.bn-editor { overflow-x: clip; overflow-y: visible; }
 @import url("@blocknote/react/style.css");
 
 /* Mantine base styles*/
