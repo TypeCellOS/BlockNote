@@ -142,13 +142,22 @@ function flattenColumns(
  * @param placement Whether to insert the blocks before or after the reference
  * block.
  */
+/** Find and fix broken columnLists after block operations */
+function ensureColumnLists(doc: any, tr: any) {
+  doc.nodesBetween(0, doc.content.size, (node: any, pos: number) => {
+    if (node.type.name === "columnList") {
+      try { fixColumnList(tr, pos); } catch {}
+    }
+  });
+}
+
 export function moveBlocks(
   editor: BlockNoteEditor<any, any, any>,
   blocks: Block<any, any, any>[],
   referenceBlock: BlockIdentifier,
   placement: "before" | "after",
 ) {
-  editor.transact(() => {
+  editor.transact((tr) => {
     // A `columnList` reference can be dissolved by `fixColumnList` when its
     // `column`s are removed, leaving its ID invalid for re-insertion. Anchor
     // to an adjacent block instead, which is unaffected by the removal.
@@ -166,6 +175,8 @@ export function moveBlocks(
 
     editor.removeBlocks(blocks);
     editor.insertBlocks(flattenColumns(blocks), referenceBlock, placement);
+
+    ensureColumnLists(tr.doc, tr);
   });
 }
 
@@ -313,7 +324,7 @@ export function moveBlocksUp(
   editor: BlockNoteEditor<any, any, any>,
   blockIdentifier?: BlockIdentifier,
 ) {
-  editor.transact(() => {
+  editor.transact((tr) => {
     let sourceBlock: Block<any, any, any> | undefined;
     if (blockIdentifier) {
       sourceBlock = editor.getBlock(blockIdentifier);
@@ -357,7 +368,7 @@ export function moveBlocksDown(
   editor: BlockNoteEditor<any, any, any>,
   blockIdentifier?: BlockIdentifier,
 ) {
-  editor.transact(() => {
+  editor.transact((tr) => {
     let sourceBlock: Block<any, any, any> | undefined;
     if (blockIdentifier) {
       sourceBlock = editor.getBlock(blockIdentifier);
