@@ -291,7 +291,7 @@ export function createReactBlockSpec<
                 return (
                   <BlockContentWrapper
                     blockType={block.type}
-                    blockProps={block.props}
+                    blockProps={block.props as any}
                     propSchema={blockConfig.propSchema}
                     isFileBlock={!!blockImplementation.meta?.fileBlockAccept}
                     domAttributes={this.blockContentDOMAttributes}

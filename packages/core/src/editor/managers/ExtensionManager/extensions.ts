@@ -38,7 +38,12 @@ import {
   TextColorExtension,
   UniqueID,
 } from "../../../extensions/tiptap-extensions/index.js";
-import { BlockContainer, BlockGroup, Doc } from "../../../pm-nodes/index.js";
+import {
+  BlockContainer,
+  BlockGroup,
+  Doc,
+  SpecialNode,
+} from "../../../pm-nodes/index.js";
 import type {
   BlockNoteEditor,
   BlockNoteEditorOptions,
@@ -112,6 +117,10 @@ export function getDefaultTiptapExtensions(
       tabBehavior: options.tabBehavior,
     }),
     BlockGroup.configure({
+      domAttributes: options.domAttributes,
+    }),
+    SpecialNode.configure({
+      editor: editor,
       domAttributes: options.domAttributes,
     }),
     ...Object.values(editor.schema.inlineContentSpecs)

@@ -101,6 +101,16 @@ export function getBlockFromPos<
   }
   // Gets parent blockContainer node
   const blockContainer = tipTapEditor.state.doc.resolve(pos!).node();
+  if (blockContainer.type.name === "specialNode") {
+    // The blockContent is inside a specialNode, which is inside a blockContainer.
+    // Go up one more level to get the blockContainer.
+    return { type: "paragraph", id: "abc", props: {} } as SpecificBlock<
+      BSchema,
+      BType,
+      I,
+      S
+    >;
+  }
   // Gets block identifier
   const blockIdentifier = blockContainer.attrs.id;
 

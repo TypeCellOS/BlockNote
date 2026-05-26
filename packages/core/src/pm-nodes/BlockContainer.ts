@@ -16,6 +16,88 @@ const BlockAttributes: Record<string, string> = {
 /**
  * The main "Block node" documents consist of
  */
+export const SpecialNode = Node.create<{
+  domAttributes?: BlockNoteDOMAttributes;
+  editor: BlockNoteEditor<any, any, any>;
+}>({
+  name: "specialNode",
+  group: "blockGroupChild bnBlock bnSpecialNode",
+  // A block always contains content, and optionally a blockGroup which contains nested blocks
+  content: "blockContent blockGroup?",
+  // Ensures content-specific keyboard handlers trigger first.
+  priority: 50,
+  defining: true,
+  marks: "y-attributed-insert y-attributed-format y-attributed-delete",
+  addAttributes() {
+    return {
+      XYZ: {
+        isRequired: true,
+        type: "string",
+      },
+    };
+  },
+  parseHTML() {
+    return [
+      // TODO not sure whether this rule is needed or not
+      // {
+      //   tag: "div[data-node-type=" + this.name + "]",
+      //   getAttrs: (element) => {
+      //     if (typeof element === "string") {
+      //       return false;
+      //     }
+
+      //     const attrs: Record<string, string> = {};
+      //     for (const [nodeAttr, HTMLAttr] of Object.entries(BlockAttributes)) {
+      //       if (element.getAttribute(HTMLAttr)) {
+      //         attrs[nodeAttr] = element.getAttribute(HTMLAttr)!;
+      //       }
+      //     }
+
+      //     return attrs;
+      //   },
+      // },
+      // Ignore `blockOuter` divs, but parse the `blockContainer` divs inside them.
+      {
+        tag: `div[data-node-type="specialNodeOuter"]`,
+        skip: true,
+      },
+    ];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    const specialNodeOuter = document.createElement("div");
+    specialNodeOuter.className = "bn-block-outer";
+    specialNodeOuter.setAttribute("data-node-type", "specialNodeOuter");
+    for (const [attribute, value] of Object.entries(HTMLAttributes)) {
+      if (attribute !== "class") {
+        specialNodeOuter.setAttribute(attribute, value);
+      }
+    }
+
+    const blockHTMLAttributes = {
+      ...(this.options.domAttributes?.block || {}),
+      ...HTMLAttributes,
+    };
+    const block = document.createElement("div");
+    block.className = mergeCSSClasses("bn-block", blockHTMLAttributes.class);
+    block.setAttribute("data-node-type", this.name);
+    for (const [attribute, value] of Object.entries(blockHTMLAttributes)) {
+      if (attribute !== "class") {
+        block.setAttribute(attribute, value);
+      }
+    }
+
+    specialNodeOuter.appendChild(block);
+
+    return {
+      dom: specialNodeOuter,
+      contentDOM: block,
+    };
+  },
+});
+/**
+ * The main "Block node" documents consist of
+ */
 export const BlockContainer = Node.create<{
   domAttributes?: BlockNoteDOMAttributes;
   editor: BlockNoteEditor<any, any, any>;
@@ -23,7 +105,7 @@ export const BlockContainer = Node.create<{
   name: "blockContainer",
   group: "blockGroupChild bnBlock",
   // A block always contains content, and optionally a blockGroup which contains nested blocks
-  content: "blockContent blockGroup?",
+  content: "bnSpecialNode? blockContent bnSpecialNode? blockGroup?",
   // Ensures content-specific keyboard handlers trigger first.
   priority: 50,
   defining: true,
