@@ -63,7 +63,6 @@ export const createToggleWrapper = (
 
       if (
         editor.isEditable &&
-        editor.getBlock(block)?.children.length === 0 &&
         !dom.contains(toggleAddBlockButton)
       ) {
         dom.appendChild(toggleAddBlockButton);
