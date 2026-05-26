@@ -18,11 +18,12 @@ function getBoundingClientRectRow(
     );
   }
 
+  // Center the handle vertically on the cell
   return new DOMRect(
     referencePosTable!.x,
-    referencePosCell!.y,
+    referencePosCell!.y + referencePosCell!.height / 2,
     referencePosTable!.width,
-    referencePosCell!.height,
+    0,
   );
 }
 
@@ -43,10 +44,11 @@ function getBoundingClientRectCol(
     );
   }
 
+  // Center the handle horizontally on the cell
   return new DOMRect(
-    referencePosCell!.x,
+    referencePosCell!.x + referencePosCell!.width / 2,
     referencePosTable!.y,
-    referencePosCell!.width,
+    0,
     referencePosTable!.height,
   );
 }
