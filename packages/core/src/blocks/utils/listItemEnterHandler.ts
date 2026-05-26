@@ -23,6 +23,21 @@ export const handleEnter = (
     return false;
   }
 
+  // Check if the toggle block has child blocks (e.g., folded toggle with children).
+  // The blockContainer's last child is either a blockGroup (has children) or nothing.
+  const hasChildBlocks = blockContainer.node.lastChild?.type.name === "blockGroup"
+    && blockContainer.node.lastChild!.childCount > 0;
+  if (hasChildBlocks) {
+    // Don't split the toggle when it has children - just create a new paragraph
+    return editor.transact((tr) => {
+      tr.deleteSelection();
+      const pos = tr.selection.from;
+      const paraType = tr.doc.schema.nodes["paragraph"];
+      tr.split(pos, 2, [{type: tr.doc.schema.nodes["blockContainer"], attrs: {}}, {type: paraType}]);
+      return true;
+    });
+  }
+
   if (blockContent.node.childCount === 0) {
     editor.transact((tr) => {
       updateBlockTr(tr, blockContainer.beforePos, {
