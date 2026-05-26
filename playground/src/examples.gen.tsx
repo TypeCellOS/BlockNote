@@ -343,6 +343,24 @@
         "readme": "This example shows how to disable the automatic creation of a trailing block at the end of the editor by setting the `trailingBlock` option to `false`.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
+        "projectSlug": "rtl-direction",
+        "fullSlug": "basic/rtl-direction",
+        "pathFromRoot": "examples/01-basic/10-rtl-direction",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "zaaakher",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "RTL Direction",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
+      },
+      {
         "projectSlug": "testing",
         "fullSlug": "basic/testing",
         "pathFromRoot": "examples/01-basic/testing",
