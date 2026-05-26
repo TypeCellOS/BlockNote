@@ -59,6 +59,10 @@ export const NO_TRAILING_BLOCK_URL = !process.env.RUN_IN_DOCKER
   ? `http://localhost:${PORT}/basic/no-trailing-block?hideMenu`
   : `http://host.docker.internal:${PORT}/basic/no-trailing-block?hideMenu`;
 
+export const ADVANCED_TABLES_URL = !process.env.RUN_IN_DOCKER
+  ? `http://localhost:${PORT}/ui-components/advanced-tables?hideMenu`
+  : `http://host.docker.internal:${PORT}/ui-components/advanced-tables?hideMenu`;
+
 export const PASTE_ZONE_SELECTOR = "#pasteZone";
 
 export const EDITOR_SELECTOR = `.bn-editor`;
