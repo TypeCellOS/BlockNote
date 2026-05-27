@@ -9,10 +9,6 @@ import type { PartialBlock } from "../defaultBlocks.js";
  * @vitest-environment jsdom
  */
 
-/**
- * Simulate a keyboard shortcut by invoking the view's handleKeyDown prop,
- * which is how ProseMirror routes keymap-based handlers like Enter.
- */
 function pressEnter(editor: BlockNoteEditor) {
   const view = editor.prosemirrorView;
   const event = new KeyboardEvent("keydown", { key: "Enter" });
@@ -52,9 +48,6 @@ describe("Table Enter keyboard shortcut", () => {
     editor.replaceBlocks(editor.document, testDocument);
   });
 
-  /**
-   * Returns the document position just inside the cell containing `cellText`.
-   */
   function posInCell(cellText: string): number {
     const view = editor.prosemirrorView;
     let pos = -1;
@@ -92,7 +85,6 @@ describe("Table Enter keyboard shortcut", () => {
 
     const before = editor.document;
     expect(() => pressEnter(editor)).not.toThrow();
-    // The table structure must be left intact (Enter is a no-op here).
     expect(editor.document).toStrictEqual(before);
   });
 

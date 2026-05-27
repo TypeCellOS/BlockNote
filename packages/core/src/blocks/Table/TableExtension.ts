@@ -35,9 +35,6 @@ export const TableExtension = Extension.create({
     return {
       // Moves the selection to the cell below.
       Enter: () => {
-        // We use `isInTable` rather than checking whether the cursor's parent
-        // is a `tableParagraph`, since for cell selections that span multiple
-        // cells the selection head resolves to a `tableRow` instead.
         if (!isInTable(this.editor.state)) {
           return false;
         }
@@ -46,7 +43,6 @@ export const TableExtension = Extension.create({
           const $cell = selectionCell(state);
           const $nextCell = $cell ? nextCell($cell, "vert", 1) : null;
 
-          // Moves the selection to the cell below, if there is one.
           if ($nextCell && dispatch) {
             dispatch(
               state.tr
@@ -57,12 +53,6 @@ export const TableExtension = Extension.create({
             );
           }
 
-          // Always consume the Enter key while inside a table, even when there
-          // is no cell below (e.g. the last row) or the selection spans
-          // multiple cells. Otherwise it falls through to the default
-          // `splitBlock` handler, which tries to split the table cell and
-          // throws `Cannot join tableCell onto blockContainer`, crashing the
-          // editor. On the last row, Enter simply becomes a no-op.
           return true;
         });
       },
