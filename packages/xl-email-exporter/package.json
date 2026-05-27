@@ -55,17 +55,15 @@
   },
   "dependencies": {
     "@blocknote/core": "0.51.3",
-    "@blocknote/react": "0.51.3",
     "@react-email/components": "^1.0.5",
     "@react-email/render": "^2.0.4",
-    "buffer": "^6.0.3",
-    "react": "^19.2.5",
-    "react-dom": "^19.2.5",
-    "react-email": "^5.2.5",
     "web-streams-polyfill": "^4.2.0"
   },
   "devDependencies": {
     "@types/jsdom": "^21.1.7",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "react-email": "^5.2.5",
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
     "eslint": "^8.57.1",

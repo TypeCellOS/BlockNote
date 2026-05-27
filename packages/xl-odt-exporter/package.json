@@ -60,7 +60,6 @@
     "@blocknote/core": "0.51.3",
     "@blocknote/xl-multi-column": "0.51.3",
     "@zip.js/zip.js": "^2.8.8",
-    "buffer": "^6.0.3",
     "image-meta": "^0.2.2"
   },
   "devDependencies": {

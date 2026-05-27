@@ -62,10 +62,10 @@
   },
   "dependencies": {
     "@blocknote/core": "0.51.3",
-    "@blocknote/react": "0.51.3",
-    "react-icons": "^5.5.0"
+    "@blocknote/react": "0.51.3"
   },
   "devDependencies": {
+    "react-icons": "^5.5.0",
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",

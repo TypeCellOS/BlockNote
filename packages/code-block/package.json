@@ -49,14 +49,14 @@
     "test-watch": "vitest watch"
   },
   "dependencies": {
-    "@blocknote/core": "0.51.3",
     "@shikijs/core": "^4",
     "@shikijs/engine-javascript": "^4",
     "@shikijs/langs-precompiled": "^4",
-    "@shikijs/themes": "^4",
-    "@shikijs/types": "^4"
+    "@shikijs/themes": "^4"
   },
   "devDependencies": {
+    "@blocknote/core": "0.51.3",
+    "@shikijs/types": "^4",
     "eslint": "^8.57.1",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^5.9.3",
