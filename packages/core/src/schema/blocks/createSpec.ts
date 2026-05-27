@@ -6,6 +6,7 @@ import {
   Extension,
   ExtensionFactoryInstance,
 } from "../../editor/BlockNoteExtension.js";
+import { camelToDataKebab } from "../../util/string.js";
 import { PropSchema } from "../propTypes.js";
 import {
   getBlockFromPos,
@@ -237,8 +238,8 @@ export function addNodeAndExtensionsToSpec<
   // Create a "suggestion" shadow node for this block type.
   // It has the same content/attributes/rendering as the original, but:
   // - belongs to group "suggestionBlockContent" (not "blockContent")
-  // - has NO parseHTML rules (never created from HTML)
-  // - has NO custom nodeView (uses vanilla renderHTML only for POC)
+  // - has distinctive HTML with data-suggestion="true" for round-trip parsing
+  // - has NO custom nodeView (uses vanilla renderHTML only)
   const suggestionNode = Node.create({
     name: `suggestion-${blockConfig.type}`,
     content: (blockConfig.content === "inline"
@@ -258,24 +259,39 @@ export function addNodeAndExtensionsToSpec<
       for (const [key, value] of Object.entries(attrs)) {
         stripped[key] = {
           ...value,
-          parseHTML: undefined,
+          // Parse prop values from data attributes on the bn-block-content div
+          parseHTML: (element: HTMLElement) => {
+            return element.getAttribute(camelToDataKebab(key));
+          },
         };
       }
-      // Required attribute with no default prevents ProseMirror's
-      // DOMParser from auto-creating suggestion nodes during parsing.
-      // TipTap's `isRequired: true` causes the `default` key to be
-      // omitted from the ProseMirror attr spec, making the node
-      // impossible to auto-create.
+      // The __suggestionData attribute serves two purposes:
+      // 1. isRequired: true prevents ProseMirror's DOMParser from auto-creating
+      //    suggestion nodes to satisfy optional content expressions
+      // 2. Rendered as data-suggestion="true" on the wrapper div for HTML parsing
       stripped["__suggestionData"] = {
         isRequired: true,
-        parseHTML: () => null,
-        renderHTML: () => ({}),
+        parseHTML: (element: HTMLElement) => {
+          return element.getAttribute("data-suggestion");
+        },
+        renderHTML: (attributes: Record<string, any>) => {
+          return { "data-suggestion": attributes.__suggestionData || "true" };
+        },
       };
       return stripped;
     },
     parseHTML() {
-      // Suggestion nodes should NEVER be created from HTML parsing
-      return [];
+      // Only parse HTML elements that have both data-suggestion and
+      // data-content-type matching this block type. This ensures suggestion
+      // nodes are only recreated from BlockNote's own HTML serialization,
+      // never from arbitrary external HTML.
+      return [
+        {
+          tag: `[data-suggestion="true"][data-content-type="${blockConfig.type}"]`,
+          contentElement: ".bn-inline-content",
+          priority: 60, // Higher priority than normal blockContent parse rules
+        },
+      ];
     },
     renderHTML({ HTMLAttributes }) {
       const div = document.createElement("div");

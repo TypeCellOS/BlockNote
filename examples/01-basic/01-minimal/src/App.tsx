@@ -45,12 +45,53 @@ export default function App() {
       //          └─ blockContainer
       //               ├─ suggestion-paragraph("Hello from suggestion-paragraph!")
       //               └─ paragraph("Hello from blockContainer!")
-      const blockContainer = nodes.blockContainer.create(
+      const blockContainer1 = nodes.blockContainer.create(
         { id: "block-1" },
         [suggestionParagraph, mainParagraph],
       );
 
-      const blockGroup = nodes.blockGroup.create(null, [blockContainer]);
+      // Second block: paragraph with trailing suggestion
+      const mainParagraph2 = nodes.paragraph.create(
+        {
+          backgroundColor: "default",
+          textAlignment: "left",
+          textColor: "default",
+        },
+        [editor.pmSchema.text("Second block main content")],
+      );
+      const trailingSuggestion = nodes["suggestion-paragraph"].create(
+        {
+          backgroundColor: "default",
+          textAlignment: "left",
+          textColor: "default",
+          __suggestionData: "true",
+        },
+        [editor.pmSchema.text("Trailing suggestion text")],
+      );
+      const blockContainer2 = nodes.blockContainer.create(
+        { id: "block-2" },
+        [mainParagraph2, trailingSuggestion],
+      );
+
+      // Third block: plain paragraph (no suggestions)
+      const mainParagraph3 = nodes.paragraph.create(
+        {
+          backgroundColor: "default",
+          textAlignment: "left",
+          textColor: "default",
+        },
+        [editor.pmSchema.text("Third block, no suggestions")],
+      );
+      const blockContainer3 = nodes.blockContainer.create(
+        { id: "block-3" },
+        [mainParagraph3],
+      );
+
+      const blockGroup = nodes.blockGroup.create(null, [
+        blockContainer1,
+        blockContainer2,
+        blockContainer3,
+      ]);
       const newDoc = nodes.doc.create(null, [blockGroup]);
 
       tr.replaceWith(0, tr.doc.content.size, newDoc.content);

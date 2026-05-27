@@ -1,9 +1,11 @@
+import { Fragment, type Node, Slice } from "prosemirror-model";
 import {
   NodeSelection,
   Selection,
   TextSelection,
   Transaction,
 } from "prosemirror-state";
+import { ReplaceStep } from "prosemirror-transform";
 import { CellSelection } from "prosemirror-tables";
 
 import { Block } from "../../../../blocks/defaultBlocks.js";
@@ -135,7 +137,14 @@ function flattenColumns(
 
 /**
  * Removes the given blocks from the editor, then inserts them before/after a
- * reference block.
+ * reference block. Operates at the ProseMirror level to preserve internal node
+ * structure (including suggestion nodes) that would be lost in a Block API
+ * round-trip.
+ *
+ * When column blocks are involved, falls back to the Block API round-trip
+ * because columns require structural flattening that is not compatible with
+ * raw PM node copying.
+ *
  * @param editor The BlockNote editor instance to move the blocks in.
  * @param blocks The blocks to move.
  * @param referenceBlock The reference block to insert the blocks before/after.
@@ -148,7 +157,7 @@ export function moveBlocks(
   referenceBlock: BlockIdentifier,
   placement: "before" | "after",
 ) {
-  editor.transact(() => {
+  editor.transact((tr) => {
     // A `columnList` reference can be dissolved by `fixColumnList` when its
     // `column`s are removed, leaving its ID invalid for re-insertion. Anchor
     // to an adjacent block instead, which is unaffected by the removal.
@@ -164,8 +173,106 @@ export function moveBlocks(
       }
     }
 
-    editor.removeBlocks(blocks);
-    editor.insertBlocks(flattenColumns(blocks), referenceBlock, placement);
+    // PM-level move: preserves suggestion nodes and other internal structure.
+    const blockIds = blocks.map((b) =>
+      typeof b === "string" ? b : b.id,
+    );
+
+    // Check if any blocks involve columns — if so, fall back to Block API
+    // round-trip since column flattening requires structural changes that
+    // are not compatible with raw PM node preservation.
+    const hasColumns = blocks.some(
+      (b) => b.type === "column" || b.type === "columnList",
+    ) || blockIds.some((id) => {
+      const posInfo = getNodeById(id, tr.doc);
+      if (!posInfo) {
+        return false;
+      }
+      // Check if any ancestor is a column or columnList
+      const $pos = tr.doc.resolve(posInfo.posBeforeNode);
+      for (let d = $pos.depth; d >= 0; d--) {
+        const nodeName = $pos.node(d).type.name;
+        if (nodeName === "column" || nodeName === "columnList") {
+          return true;
+        }
+      }
+      return false;
+    });
+
+    if (hasColumns) {
+      // Fallback: use Block API round-trip (does not preserve suggestion
+      // nodes, but columns shouldn't contain suggestion nodes anyway)
+      editor.removeBlocks(blocks);
+      editor.insertBlocks(flattenColumns(blocks), referenceBlock, placement);
+      return;
+    }
+
+    // Save copies of the raw PM nodes before any mutations.
+    const pmNodeCopies: Node[] = [];
+    for (const id of blockIds) {
+      const posInfo = getNodeById(id, tr.doc);
+      if (!posInfo) {
+        throw new Error(`Block with ID ${id} not found`);
+      }
+      pmNodeCopies.push(posInfo.node.copy(posInfo.node.content));
+    }
+
+    // Remove the blocks from the document. Iterate in reverse document order
+    // so that earlier deletions don't shift the positions of later ones.
+    const deletePositions: { from: number; to: number }[] = [];
+    for (const id of blockIds) {
+      const posInfo = getNodeById(id, tr.doc);
+      if (!posInfo) {
+        continue;
+      }
+
+      // Check if this is the only child of a non-root blockGroup. If so,
+      // delete the blockGroup wrapper instead of just the blockContainer.
+      const $pos = tr.doc.resolve(posInfo.posBeforeNode);
+      if (
+        $pos.parent.type.name === "blockGroup" &&
+        $pos.node($pos.depth - 1).type.name !== "doc" &&
+        $pos.parent.childCount === 1
+      ) {
+        deletePositions.push({
+          from: $pos.before(),
+          to: $pos.after(),
+        });
+      } else {
+        deletePositions.push({
+          from: posInfo.posBeforeNode,
+          to: posInfo.posBeforeNode + posInfo.node.nodeSize,
+        });
+      }
+    }
+
+    // Sort by position descending so we delete from end to start
+    deletePositions.sort((a, b) => b.from - a.from);
+    for (const { from, to } of deletePositions) {
+      tr.delete(from, to);
+    }
+
+    // Find the reference block position in the updated document
+    const refId =
+      typeof referenceBlock === "string" ? referenceBlock : referenceBlock.id;
+    const refPosInfo = getNodeById(refId, tr.doc);
+    if (!refPosInfo) {
+      throw new Error(`Reference block with ID ${refId} not found after delete`);
+    }
+
+    let insertPos = refPosInfo.posBeforeNode;
+    if (placement === "after") {
+      insertPos += refPosInfo.node.nodeSize;
+    }
+
+    // Insert the saved PM nodes at the target position
+    tr.step(
+      new ReplaceStep(
+        insertPos,
+        insertPos,
+        new Slice(Fragment.from(pmNodeCopies), 0, 0),
+      ),
+    );
   });
 }
 

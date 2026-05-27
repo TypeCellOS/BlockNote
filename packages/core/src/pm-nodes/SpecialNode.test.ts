@@ -1,7 +1,11 @@
 /**
  * @vitest-environment jsdom
  */
-import { DOMParser as PMDOMParser } from "@tiptap/pm/model";
+import {
+  DOMParser as PMDOMParser,
+  DOMSerializer,
+} from "@tiptap/pm/model";
+import { NodeSelection } from "@tiptap/pm/state";
 import { describe, expect, it } from "vitest";
 import { getBlockInfoWithManualOffset } from "../api/getBlockInfoFromPos.js";
 import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
@@ -145,6 +149,17 @@ describe("SuggestionNode - structural", () => {
       '[data-node-type="blockContainer"]',
     );
     expect(blockContainer).not.toBeNull();
+
+    // The suggestion node should have data-suggestion="true" on its wrapper
+    const suggestionEl = div.querySelector('[data-suggestion="true"]');
+    expect(suggestionEl).not.toBeNull();
+    expect(suggestionEl!.getAttribute("data-content-type")).toBe("paragraph");
+
+    // The normal paragraph should NOT have data-suggestion
+    const normalParagraphs = div.querySelectorAll(
+      '[data-content-type="paragraph"]:not([data-suggestion])',
+    );
+    expect(normalParagraphs.length).toBeGreaterThanOrEqual(1);
 
     destroy();
   });
@@ -608,7 +623,107 @@ describe("SuggestionNode - schema transparency comparison", () => {
 });
 
 // =============================================================================
-// 9. prosemirrorSliceToSlicedBlocks: verify it handles suggestion nodes correctly
+// 9. PM-level HTML round-trip: suggestion nodes survive serialization + parsing
+// =============================================================================
+describe("SuggestionNode - PM-level HTML round-trip", () => {
+  it("ProseMirror DOMParser should recreate suggestion nodes from suggestion HTML", () => {
+    const { editor, destroy } = createMountedEditor();
+    injectSuggestionBefore(editor, "Suggestion text", "Main text");
+
+    // Serialize the blockContainer to HTML using ProseMirror's serializer
+    const serializer =
+      DOMSerializer.fromSchema(editor.pmSchema);
+    const blockContainer =
+      editor.prosemirrorState.doc.firstChild!.firstChild!;
+    const fragment = serializer.serializeFragment(
+      blockContainer.content,
+    );
+
+    // Create a temporary DOM container and serialize into it
+    const tempDiv = document.createElement("div");
+    tempDiv.appendChild(fragment);
+
+    // Verify the serialized HTML contains data-suggestion="true"
+    const suggestionEl = tempDiv.querySelector('[data-suggestion="true"]');
+    expect(suggestionEl).not.toBeNull();
+    expect(suggestionEl!.getAttribute("data-content-type")).toBe("paragraph");
+
+    // Now parse this HTML back using ProseMirror's DOMParser
+    const parser = PMDOMParser.fromSchema(editor.pmSchema);
+    const parsed = parser.parse(tempDiv, {
+      topNode: editor.pmSchema.nodes.blockContainer.create({ id: "test-1" }),
+    });
+
+    // The parsed node should contain a suggestion node
+    let foundSuggestion = false;
+    let foundBlockContent = false;
+    parsed.forEach((child) => {
+      if (child.type.name === "suggestion-paragraph") {
+        foundSuggestion = true;
+        expect(child.textContent).toBe("Suggestion text");
+        expect(child.attrs.__suggestionData).toBe("true");
+      }
+      if (child.type.spec.group === "blockContent") {
+        foundBlockContent = true;
+        expect(child.textContent).toBe("Main text");
+      }
+    });
+    expect(foundSuggestion).toBe(true);
+    expect(foundBlockContent).toBe(true);
+
+    destroy();
+  });
+
+  it("ProseMirror serializeForClipboard should preserve suggestion nodes in clipboard HTML", () => {
+    const { editor, destroy } = createMountedEditor();
+    injectSuggestionBefore(editor, "Suggestion text", "Main text");
+
+    // Select the entire block (NodeSelection on the blockContainer)
+    const view = editor._tiptapEditor.view;
+    const blockContainerPos = 1; // position of blockContainer in doc > blockGroup
+    const nodeSelection = NodeSelection.create(view.state.doc, blockContainerPos);
+    view.dispatch(view.state.tr.setSelection(nodeSelection));
+
+    // Serialize using ProseMirror's clipboard serializer
+    const slice = view.state.selection.content();
+    const { dom } = view.serializeForClipboard(slice);
+    const html = (dom as HTMLElement).innerHTML;
+
+    // The clipboard HTML should contain data-suggestion="true"
+    expect(html).toContain('data-suggestion="true"');
+    expect(html).toContain('data-content-type="paragraph"');
+
+    destroy();
+  });
+
+  it("plain HTML without data-suggestion should NOT create suggestion nodes", () => {
+    const { editor, destroy } = createMountedEditor();
+
+    // Parse HTML that has data-content-type but NOT data-suggestion
+    const html = '<div class="bn-block-content" data-content-type="paragraph"><div class="bn-inline-content">Regular text</div></div>';
+
+    const parser = PMDOMParser.fromSchema(editor.pmSchema);
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = html;
+    const parsed = parser.parse(tempDiv, {
+      topNode: editor.pmSchema.nodes.blockContainer.create({ id: "test-2" }),
+    });
+
+    // Should NOT create a suggestion node
+    let foundSuggestion = false;
+    parsed.forEach((child) => {
+      if (child.type.name.startsWith("suggestion-")) {
+        foundSuggestion = true;
+      }
+    });
+    expect(foundSuggestion).toBe(false);
+
+    destroy();
+  });
+});
+
+// =============================================================================
+// 10. prosemirrorSliceToSlicedBlocks: verify it handles suggestion nodes correctly
 //    NOTE: This function has a childCount > 2 guard that may fail.
 //    This test documents the current behavior.
 // =============================================================================
