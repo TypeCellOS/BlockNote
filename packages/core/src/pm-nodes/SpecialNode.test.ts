@@ -18,6 +18,12 @@ const PARA_ATTRS = {
   textColor: "default",
 };
 
+/** Attrs for suggestion nodes — includes the required __suggestionData sentinel */
+const SUGGESTION_PARA_ATTRS = {
+  ...PARA_ATTRS,
+  __suggestionData: "true",
+};
+
 /**
  * Creates a mounted editor and returns it along with a cleanup function.
  */
@@ -29,28 +35,28 @@ function createMountedEditor() {
 }
 
 /**
- * Injects a specialNode before the paragraph inside the first blockContainer.
+ * Injects a suggestion-paragraph before the paragraph inside the first blockContainer.
  * Returns the editor in the modified state.
  */
-function injectSpecialNodeBefore(
+function injectSuggestionBefore(
   editor: BlockNoteEditor<any, any, any>,
-  specialText: string,
+  suggestionText: string,
   mainText: string,
 ) {
   editor.transact((tr) => {
     const { nodes } = editor.pmSchema;
 
-    const specialParagraph = nodes.paragraph.create(PARA_ATTRS, [
-      editor.pmSchema.text(specialText),
-    ]);
-    const specialNode = nodes.specialNode.create(null, [specialParagraph]);
+    const suggestionParagraph = nodes["suggestion-paragraph"].create(
+      SUGGESTION_PARA_ATTRS,
+      [editor.pmSchema.text(suggestionText)],
+    );
 
     const mainParagraph = nodes.paragraph.create(PARA_ATTRS, [
       editor.pmSchema.text(mainText),
     ]);
 
     const blockContainer = nodes.blockContainer.create({ id: "block-1" }, [
-      specialNode,
+      suggestionParagraph,
       mainParagraph,
     ]);
 
@@ -63,20 +69,47 @@ function injectSpecialNodeBefore(
 // =============================================================================
 // 1. Basic structural tests
 // =============================================================================
-describe("SpecialNode - structural", () => {
-  it("should have specialNode type registered in the PM schema", () => {
+describe("SuggestionNode - structural", () => {
+  it("should have suggestion-paragraph type registered in the PM schema", () => {
     const editor = BlockNoteEditor.create();
     const nodeTypes = Object.keys(editor.pmSchema.nodes);
-    expect(nodeTypes).toContain("specialNode");
+    expect(nodeTypes).toContain("suggestion-paragraph");
     expect(nodeTypes).toContain("blockContainer");
     expect(nodeTypes).toContain("blockGroup");
   });
 
-  it("should create a doc with a specialNode inside a blockContainer", () => {
+  it("should have suggestion nodes for all default block types", () => {
+    const editor = BlockNoteEditor.create();
+    const nodeTypes = Object.keys(editor.pmSchema.nodes);
+
+    // Every block type should have a corresponding suggestion- node
+    const expectedSuggestionTypes = [
+      "suggestion-paragraph",
+      "suggestion-heading",
+      "suggestion-bulletListItem",
+      "suggestion-numberedListItem",
+      "suggestion-checkListItem",
+      "suggestion-toggleListItem",
+      "suggestion-quote",
+      "suggestion-codeBlock",
+      "suggestion-divider",
+      "suggestion-image",
+      "suggestion-video",
+      "suggestion-audio",
+      "suggestion-file",
+      "suggestion-table",
+    ];
+
+    for (const type of expectedSuggestionTypes) {
+      expect(nodeTypes, `Expected node type "${type}" to be registered`).toContain(type);
+    }
+  });
+
+  it("should create a doc with a suggestion-paragraph inside a blockContainer", () => {
     const { editor, destroy } = createMountedEditor();
-    injectSpecialNodeBefore(
+    injectSuggestionBefore(
       editor,
-      "Hello from specialNode!",
+      "Hello from suggestion!",
       "Hello from blockContainer!",
     );
 
@@ -84,10 +117,10 @@ describe("SpecialNode - structural", () => {
     const blockContainer = docJSON.content[0].content[0];
 
     expect(blockContainer.content).toHaveLength(2);
-    expect(blockContainer.content[0].type).toBe("specialNode");
+    expect(blockContainer.content[0].type).toBe("suggestion-paragraph");
     expect(blockContainer.content[1].type).toBe("paragraph");
-    expect(blockContainer.content[0].content[0].content[0].text).toBe(
-      "Hello from specialNode!",
+    expect(blockContainer.content[0].content[0].text).toBe(
+      "Hello from suggestion!",
     );
     expect(blockContainer.content[1].content[0].text).toBe(
       "Hello from blockContainer!",
@@ -96,25 +129,17 @@ describe("SpecialNode - structural", () => {
     destroy();
   });
 
-  it("should render the specialNode in the DOM", () => {
+  it("should render the suggestion-paragraph in the DOM", () => {
     const { editor, div, destroy } = createMountedEditor();
-    injectSpecialNodeBefore(editor, "Special content", "Main content");
+    injectSuggestionBefore(editor, "Suggestion content", "Main content");
 
-    const specialNodeOuter = div.querySelector(
-      '[data-node-type="specialNodeOuter"]',
-    );
-    expect(specialNodeOuter).not.toBeNull();
-
-    const specialNodeInner = div.querySelector(
-      '[data-node-type="specialNode"]',
-    );
-    expect(specialNodeInner).not.toBeNull();
-
-    const specialContent = specialNodeInner?.querySelector(
+    // The suggestion-paragraph renders with data-content-type="paragraph"
+    // (same renderHTML as the original paragraph block)
+    const allBlockContents = div.querySelectorAll(
       '[data-content-type="paragraph"]',
     );
-    expect(specialContent).not.toBeNull();
-    expect(specialContent?.textContent).toBe("Special content");
+    // Should have 2 paragraph-content elements: one from suggestion, one from main
+    expect(allBlockContents.length).toBeGreaterThanOrEqual(2);
 
     const blockContainer = div.querySelector(
       '[data-node-type="blockContainer"]',
@@ -124,26 +149,28 @@ describe("SpecialNode - structural", () => {
     destroy();
   });
 
-  it("should support specialNode both before and after blockContent", () => {
+  it("should support suggestion-paragraph both before and after blockContent", () => {
     const { editor, destroy } = createMountedEditor();
 
     editor.transact((tr) => {
       const { nodes } = editor.pmSchema;
 
-      const beforeSpecial = nodes.specialNode.create(null, [
-        nodes.paragraph.create(PARA_ATTRS, [editor.pmSchema.text("Before")]),
-      ]);
+      const beforeSuggestion = nodes["suggestion-paragraph"].create(
+        SUGGESTION_PARA_ATTRS,
+        [editor.pmSchema.text("Before")],
+      );
       const mainParagraph = nodes.paragraph.create(PARA_ATTRS, [
         editor.pmSchema.text("Main"),
       ]);
-      const afterSpecial = nodes.specialNode.create(null, [
-        nodes.paragraph.create(PARA_ATTRS, [editor.pmSchema.text("After")]),
-      ]);
+      const afterSuggestion = nodes["suggestion-paragraph"].create(
+        SUGGESTION_PARA_ATTRS,
+        [editor.pmSchema.text("After")],
+      );
 
       const blockContainer = nodes.blockContainer.create({ id: "block-1" }, [
-        beforeSpecial,
+        beforeSuggestion,
         mainParagraph,
-        afterSpecial,
+        afterSuggestion,
       ]);
 
       const blockGroup = nodes.blockGroup.create(null, [blockContainer]);
@@ -155,24 +182,24 @@ describe("SpecialNode - structural", () => {
     const blockContainer = docJSON.content[0].content[0];
 
     expect(blockContainer.content).toHaveLength(3);
-    expect(blockContainer.content[0].type).toBe("specialNode");
+    expect(blockContainer.content[0].type).toBe("suggestion-paragraph");
     expect(blockContainer.content[1].type).toBe("paragraph");
-    expect(blockContainer.content[2].type).toBe("specialNode");
+    expect(blockContainer.content[2].type).toBe("suggestion-paragraph");
 
     destroy();
   });
 });
 
 // =============================================================================
-// 2. HTML parsing: specialNode should NOT appear from parsed external HTML
+// 2. HTML parsing: suggestion nodes should NOT appear from parsed external HTML
 // =============================================================================
-describe("SpecialNode - HTML parsing transparency", () => {
-  it("tryParseHTMLToBlocks should never produce specialNode blocks for common HTML", () => {
+describe("SuggestionNode - HTML parsing transparency", () => {
+  it("tryParseHTMLToBlocks should never produce suggestion blocks for common HTML", () => {
     const editor = BlockNoteEditor.create();
     const div = document.createElement("div");
     editor.mount(div);
 
-    // Parse various common HTML patterns - specialNode should never appear
+    // Parse various common HTML patterns - suggestion nodes should never appear
     const testCases = [
       "<p>Hello world</p>",
       "<h1>Heading</h1><p>Paragraph</p>",
@@ -186,47 +213,46 @@ describe("SpecialNode - HTML parsing transparency", () => {
     for (const html of testCases) {
       const blocks = editor.tryParseHTMLToBlocks(html);
 
-      // Verify no block has type "specialNode"
-      const hasSpecialNode = JSON.stringify(blocks).includes('"specialNode"');
+      // Verify no block has a type starting with "suggestion-"
+      const hasSuggestion = JSON.stringify(blocks).includes('"suggestion-');
       expect(
-        hasSpecialNode,
-        `Parsing "${html}" should not produce specialNode in block JSON`,
+        hasSuggestion,
+        `Parsing "${html}" should not produce suggestion blocks in block JSON`,
       ).toBe(false);
 
       // Verify all blocks have expected types
       for (const block of blocks) {
-        expect(block.type).not.toBe("specialNode");
+        expect(block.type).not.toMatch(/^suggestion-/);
       }
     }
 
     editor._tiptapEditor.destroy();
   });
 
-  it("tryParseHTMLToBlocks should not create specialNode from divs that look like specialNode markup", () => {
+  it("tryParseHTMLToBlocks should not create suggestion blocks from divs that look like suggestion markup", () => {
     const editor = BlockNoteEditor.create();
     const div = document.createElement("div");
     editor.mount(div);
 
-    // Try HTML that superficially resembles specialNode DOM structure
+    // Try HTML that superficially resembles suggestion node DOM structure
     const trickyCases = [
       '<div class="bn-block-outer"><div class="bn-block"><p>Content</p></div></div>',
-      '<div data-node-type="specialNodeOuter"><div data-node-type="specialNode"><p>Content</p></div></div>',
-      '<div data-node-type="specialNode"><p>Content</p></div>',
+      '<div data-content-type="suggestion-paragraph"><p>Content</p></div>',
     ];
 
     for (const html of trickyCases) {
       const blocks = editor.tryParseHTMLToBlocks(html);
 
-      // Should produce paragraph blocks, never specialNode blocks
+      // Should produce paragraph blocks, never suggestion blocks
       for (const block of blocks) {
-        expect(block.type).not.toBe("specialNode");
+        expect(block.type).not.toMatch(/^suggestion-/);
       }
     }
 
     editor._tiptapEditor.destroy();
   });
 
-  it("parsing complex HTML should not be affected by the presence of specialNode in the schema", () => {
+  it("parsing complex HTML should not be affected by the presence of suggestion nodes in the schema", () => {
     const editor = BlockNoteEditor.create();
     const div = document.createElement("div");
     editor.mount(div);
@@ -241,20 +267,22 @@ describe("SpecialNode - HTML parsing transparency", () => {
     // Bullet list items should exist somewhere in the parsed output
     const allTypes = blocks.map((b) => b.type);
     expect(allTypes).toContain("bulletListItem");
-    // No specialNode in the output
-    expect(allTypes).not.toContain("specialNode");
+    // No suggestion nodes in the output
+    for (const type of allTypes) {
+      expect(type).not.toMatch(/^suggestion-/);
+    }
 
     editor._tiptapEditor.destroy();
   });
 });
 
 // =============================================================================
-// 3. nodeToBlock conversion: specialNode should be transparent
+// 3. nodeToBlock conversion: suggestion nodes should be transparent
 // =============================================================================
-describe("SpecialNode - nodeToBlock conversion", () => {
-  it("nodeToBlock should convert a blockContainer with specialNode to a normal block (specialNode invisible)", () => {
+describe("SuggestionNode - nodeToBlock conversion", () => {
+  it("nodeToBlock should convert a blockContainer with suggestion-paragraph to a normal block (suggestion invisible)", () => {
     const { editor, destroy } = createMountedEditor();
-    injectSpecialNodeBefore(editor, "Special text", "Main text");
+    injectSuggestionBefore(editor, "Suggestion text", "Main text");
 
     // Get the blockContainer PM node
     const doc = editor.prosemirrorState.doc;
@@ -263,14 +291,14 @@ describe("SpecialNode - nodeToBlock conversion", () => {
 
     expect(blockContainerNode.type.name).toBe("blockContainer");
 
-    // Convert to block - this should work and ignore the specialNode
+    // Convert to block - this should work and ignore the suggestion node
     const block = nodeToBlock(blockContainerNode, editor.pmSchema);
 
-    // The block should represent the paragraph (the blockContent), not the specialNode
+    // The block should represent the paragraph (the blockContent), not the suggestion
     expect(block.type).toBe("paragraph");
     expect(block.id).toBe("block-1");
 
-    // The content should be from the main paragraph, not the specialNode
+    // The content should be from the main paragraph, not the suggestion
     expect(block.content).toEqual([
       { type: "text", text: "Main text", styles: {} },
     ]);
@@ -278,67 +306,9 @@ describe("SpecialNode - nodeToBlock conversion", () => {
     destroy();
   });
 
-  it("nodeToBlock should work when specialNode has nested children (blockGroup)", () => {
+  it("editor.document should not contain suggestion blocks", () => {
     const { editor, destroy } = createMountedEditor();
-
-    editor.transact((tr) => {
-      const { nodes } = editor.pmSchema;
-
-      // specialNode with its own blockGroup
-      const specialParagraph = nodes.paragraph.create(PARA_ATTRS, [
-        editor.pmSchema.text("Special text"),
-      ]);
-      const nestedParagraph = nodes.paragraph.create(PARA_ATTRS, [
-        editor.pmSchema.text("Nested inside special"),
-      ]);
-      const nestedContainer = nodes.blockContainer.create(
-        { id: "nested-1" },
-        [nestedParagraph],
-      );
-      const specialBlockGroup = nodes.blockGroup.create(null, [
-        nestedContainer,
-      ]);
-      const specialNode = nodes.specialNode.create(null, [
-        specialParagraph,
-        specialBlockGroup,
-      ]);
-
-      const mainParagraph = nodes.paragraph.create(PARA_ATTRS, [
-        editor.pmSchema.text("Main text"),
-      ]);
-
-      const blockContainer = nodes.blockContainer.create({ id: "block-1" }, [
-        specialNode,
-        mainParagraph,
-      ]);
-
-      const blockGroup = nodes.blockGroup.create(null, [blockContainer]);
-      const newDoc = nodes.doc.create(null, [blockGroup]);
-      tr.replaceWith(0, tr.doc.content.size, newDoc.content);
-    });
-
-    const doc = editor.prosemirrorState.doc;
-    const blockContainerNode = doc.firstChild!.firstChild!;
-
-    const block = nodeToBlock(blockContainerNode, editor.pmSchema);
-
-    // Should still be a paragraph block
-    expect(block.type).toBe("paragraph");
-    expect(block.id).toBe("block-1");
-    expect(block.content).toEqual([
-      { type: "text", text: "Main text", styles: {} },
-    ]);
-
-    // The specialNode's children should NOT appear as the block's children
-    // (only the blockContainer's own blockGroup children should)
-    expect(block.children).toEqual([]);
-
-    destroy();
-  });
-
-  it("editor.document should not contain specialNode blocks", () => {
-    const { editor, destroy } = createMountedEditor();
-    injectSpecialNodeBefore(editor, "Special", "Main");
+    injectSuggestionBefore(editor, "Suggestion", "Main");
 
     // editor.document is the high-level Block[] representation
     const document = editor.document;
@@ -348,20 +318,20 @@ describe("SpecialNode - nodeToBlock conversion", () => {
     expect(document[0].type).toBe("paragraph");
     expect(document[0].id).toBe("block-1");
 
-    // Verify no mention of specialNode in the serialized document
+    // Verify no mention of suggestion nodes in the serialized document
     const docStr = JSON.stringify(document);
-    expect(docStr).not.toContain("specialNode");
+    expect(docStr).not.toMatch(/suggestion-/);
 
     destroy();
   });
 });
 
 // =============================================================================
-// 4. HTML export: specialNode should be transparent
+// 4. HTML export: suggestion nodes should be transparent
 // =============================================================================
-describe("SpecialNode - HTML export transparency", () => {
-  it("blocksToHTMLLossy should produce the same output whether specialNode exists in PM doc or not", () => {
-    // Editor A: normal document, no specialNode
+describe("SuggestionNode - HTML export transparency", () => {
+  it("blocksToHTMLLossy should produce the same output whether suggestion exists in PM doc or not", () => {
+    // Editor A: normal document, no suggestion
     const editorA = BlockNoteEditor.create({
       initialContent: [
         { id: "block-1", type: "paragraph", content: "Hello world" },
@@ -370,7 +340,7 @@ describe("SpecialNode - HTML export transparency", () => {
     const divA = document.createElement("div");
     editorA.mount(divA);
 
-    // Editor B: document with specialNode injected
+    // Editor B: document with suggestion injected
     const editorB = BlockNoteEditor.create({
       initialContent: [
         { id: "block-1", type: "paragraph", content: "Hello world" },
@@ -379,13 +349,13 @@ describe("SpecialNode - HTML export transparency", () => {
     const divB = document.createElement("div");
     editorB.mount(divB);
 
-    injectSpecialNodeBefore(editorB, "Special text", "Hello world");
+    injectSuggestionBefore(editorB, "Suggestion text", "Hello world");
 
     // Export blocks from both editors
     const htmlA = editorA.blocksToHTMLLossy(editorA.document);
     const htmlB = editorB.blocksToHTMLLossy(editorB.document);
 
-    // Since specialNode is invisible to the Block API, editor.document should
+    // Since suggestion is invisible to the Block API, editor.document should
     // be the same and therefore the HTML output should be the same
     expect(htmlB).toBe(htmlA);
 
@@ -393,7 +363,7 @@ describe("SpecialNode - HTML export transparency", () => {
     editorB._tiptapEditor.destroy();
   });
 
-  it("blocksToFullHTML should produce the same output whether specialNode exists in PM doc or not", () => {
+  it("blocksToFullHTML should produce the same output whether suggestion exists in PM doc or not", () => {
     const editorA = BlockNoteEditor.create({
       initialContent: [
         { id: "block-1", type: "paragraph", content: "Hello world" },
@@ -410,7 +380,7 @@ describe("SpecialNode - HTML export transparency", () => {
     const divB = document.createElement("div");
     editorB.mount(divB);
 
-    injectSpecialNodeBefore(editorB, "Special text", "Hello world");
+    injectSuggestionBefore(editorB, "Suggestion text", "Hello world");
 
     const htmlA = editorA.blocksToFullHTML(editorA.document);
     const htmlB = editorB.blocksToFullHTML(editorB.document);
@@ -425,12 +395,12 @@ describe("SpecialNode - HTML export transparency", () => {
 // =============================================================================
 // 5. Round-trip: export -> parse should be stable
 // =============================================================================
-describe("SpecialNode - round-trip stability", () => {
-  it("blocksToFullHTML -> tryParseHTMLToBlocks round-trip should be stable with specialNode in doc", () => {
+describe("SuggestionNode - round-trip stability", () => {
+  it("blocksToFullHTML -> tryParseHTMLToBlocks round-trip should be stable with suggestion in doc", () => {
     const { editor, destroy } = createMountedEditor();
-    injectSpecialNodeBefore(editor, "Special", "Main content");
+    injectSuggestionBefore(editor, "Suggestion", "Main content");
 
-    // Get blocks (specialNode invisible)
+    // Get blocks (suggestion invisible)
     const blocks = editor.document;
     expect(blocks).toHaveLength(1);
     expect(blocks[0].type).toBe("paragraph");
@@ -445,16 +415,16 @@ describe("SpecialNode - round-trip stability", () => {
     expect(parsedBlocks).toHaveLength(1);
     expect(parsedBlocks[0].type).toBe("paragraph");
 
-    // Verify no specialNode leaked into the round-trip
+    // Verify no suggestion nodes leaked into the round-trip
     const parsedStr = JSON.stringify(parsedBlocks);
-    expect(parsedStr).not.toContain("specialNode");
+    expect(parsedStr).not.toMatch(/suggestion-/);
 
     destroy();
   });
 
-  it("blocksToHTMLLossy -> tryParseHTMLToBlocks round-trip should be stable with specialNode in doc", () => {
+  it("blocksToHTMLLossy -> tryParseHTMLToBlocks round-trip should be stable with suggestion in doc", () => {
     const { editor, destroy } = createMountedEditor();
-    injectSpecialNodeBefore(editor, "Special", "Main content");
+    injectSuggestionBefore(editor, "Suggestion", "Main content");
 
     const blocks = editor.document;
     const html = editor.blocksToHTMLLossy(blocks);
@@ -464,17 +434,17 @@ describe("SpecialNode - round-trip stability", () => {
     expect(parsedBlocks[0].type).toBe("paragraph");
 
     const parsedStr = JSON.stringify(parsedBlocks);
-    expect(parsedStr).not.toContain("specialNode");
+    expect(parsedStr).not.toMatch(/suggestion-/);
 
     destroy();
   });
 });
 
 // =============================================================================
-// 6. ProseMirror-level: DOMParser should not create specialNode from HTML
+// 6. ProseMirror-level: DOMParser should not create suggestion nodes from HTML
 // =============================================================================
-describe("SpecialNode - ProseMirror DOMParser behavior", () => {
-  it("ProseMirror DOMParser should not create specialNode from plain HTML", () => {
+describe("SuggestionNode - ProseMirror DOMParser behavior", () => {
+  it("ProseMirror DOMParser should not create suggestion nodes from plain HTML", () => {
     const { editor, destroy } = createMountedEditor();
 
     const parser = PMDOMParser.fromSchema(editor.pmSchema);
@@ -486,49 +456,15 @@ describe("SpecialNode - ProseMirror DOMParser behavior", () => {
       topNode: editor.pmSchema.nodes.blockGroup.create(),
     });
 
-    // Walk the resulting PM tree and verify no specialNode exists
-    let foundSpecialNode = false;
+    // Walk the resulting PM tree and verify no suggestion node exists
+    let foundSuggestion = false;
     result.descendants((node) => {
-      if (node.type.name === "specialNode") {
-        foundSpecialNode = true;
+      if (node.type.name.startsWith("suggestion-")) {
+        foundSuggestion = true;
       }
     });
 
-    expect(foundSpecialNode).toBe(false);
-
-    destroy();
-  });
-
-  it("ProseMirror DOMParser should not create specialNode from specialNodeOuter HTML", () => {
-    const { editor, destroy } = createMountedEditor();
-
-    const parser = PMDOMParser.fromSchema(editor.pmSchema);
-
-    // Standalone specialNodeOuter markup without a blockContainer parent
-    const domNode = document.createElement("div");
-    domNode.innerHTML = `
-      <div data-node-type="specialNodeOuter">
-        <div data-node-type="specialNode">
-          <p>Some content inside special node markup</p>
-        </div>
-      </div>
-    `;
-
-    const result = parser.parse(domNode, {
-      topNode: editor.pmSchema.nodes.blockGroup.create(),
-    });
-
-    // The skip rule means the parser skips the specialNodeOuter wrapper
-    // and tries to parse children as regular content
-    let specialNodeCount = 0;
-    result.descendants((node) => {
-      if (node.type.name === "specialNode") {
-        specialNodeCount++;
-      }
-    });
-
-    // No specialNode should be created from external HTML
-    expect(specialNodeCount).toBe(0);
+    expect(foundSuggestion).toBe(false);
 
     destroy();
   });
@@ -537,10 +473,10 @@ describe("SpecialNode - ProseMirror DOMParser behavior", () => {
 // =============================================================================
 // 7. getBlockInfoWithManualOffset interaction
 // =============================================================================
-describe("SpecialNode - getBlockInfo interaction", () => {
-  it("getBlockInfoWithManualOffset should find blockContent in a blockContainer with specialNode", () => {
+describe("SuggestionNode - getBlockInfo interaction", () => {
+  it("getBlockInfoWithManualOffset should find blockContent in a blockContainer with suggestion node", () => {
     const { editor, destroy } = createMountedEditor();
-    injectSpecialNodeBefore(editor, "Special", "Main");
+    injectSuggestionBefore(editor, "Suggestion", "Main");
 
     const doc = editor.prosemirrorState.doc;
     const blockContainerNode = doc.firstChild!.firstChild!;
@@ -550,23 +486,24 @@ describe("SpecialNode - getBlockInfo interaction", () => {
     expect(blockInfo.isBlockContainer).toBe(true);
     if (blockInfo.isBlockContainer) {
       expect(blockInfo.blockContent.node.type.name).toBe("paragraph");
-      // The blockNoteType should be derived from the blockContent, not the specialNode
+      // The blockNoteType should be derived from the blockContent, not the suggestion
       expect(blockInfo.blockNoteType).toBe("paragraph");
     }
 
     destroy();
   });
 
-  it("getBlockInfoWithManualOffset should find blockGroup even when specialNode is present", () => {
+  it("getBlockInfoWithManualOffset should find blockGroup even when suggestion node is present", () => {
     const { editor, destroy } = createMountedEditor();
 
-    // Create blockContainer with specialNode, paragraph, and blockGroup (children)
+    // Create blockContainer with suggestion-paragraph, paragraph, and blockGroup (children)
     editor.transact((tr) => {
       const { nodes } = editor.pmSchema;
 
-      const specialNode = nodes.specialNode.create(null, [
-        nodes.paragraph.create(PARA_ATTRS, [editor.pmSchema.text("Special")]),
-      ]);
+      const suggestionParagraph = nodes["suggestion-paragraph"].create(
+        SUGGESTION_PARA_ATTRS,
+        [editor.pmSchema.text("Suggestion")],
+      );
       const mainParagraph = nodes.paragraph.create(PARA_ATTRS, [
         editor.pmSchema.text("Main"),
       ]);
@@ -578,7 +515,7 @@ describe("SpecialNode - getBlockInfo interaction", () => {
       ]);
       const blockGroup = nodes.blockGroup.create(null, [childContainer]);
       const blockContainer = nodes.blockContainer.create({ id: "block-1" }, [
-        specialNode,
+        suggestionParagraph,
         mainParagraph,
         blockGroup,
       ]);
@@ -607,9 +544,9 @@ describe("SpecialNode - getBlockInfo interaction", () => {
 });
 
 // =============================================================================
-// 8. Comparison test: same parse results with specialNode in schema
+// 8. Comparison test: same parse results with suggestion nodes in schema
 // =============================================================================
-describe("SpecialNode - schema transparency comparison", () => {
+describe("SuggestionNode - schema transparency comparison", () => {
   it("tryParseHTMLToBlocks should produce expected block types for common HTML patterns", () => {
     const editor = BlockNoteEditor.create();
     const div = document.createElement("div");
@@ -657,12 +594,12 @@ describe("SpecialNode - schema transparency comparison", () => {
       expect(blocks.length).toBeGreaterThan(0);
       expect(blocks[0].type).toBe(expectedFirstType);
 
-      // No block should ever be "specialNode"
+      // No block should ever be a suggestion node
       for (const block of blocks) {
         expect(
           block.type,
-          `${description}: block should not be specialNode`,
-        ).not.toBe("specialNode");
+          `${description}: block should not be a suggestion node`,
+        ).not.toMatch(/^suggestion-/);
       }
     }
 
@@ -671,30 +608,30 @@ describe("SpecialNode - schema transparency comparison", () => {
 });
 
 // =============================================================================
-// 9. prosemirrorSliceToSlicedBlocks: verify it handles specialNode correctly
+// 9. prosemirrorSliceToSlicedBlocks: verify it handles suggestion nodes correctly
 //    NOTE: This function has a childCount > 2 guard that may fail.
 //    This test documents the current behavior.
 // =============================================================================
-describe("SpecialNode - prosemirrorSliceToSlicedBlocks interaction", () => {
-  it("should be documented: prosemirrorSliceToSlicedBlocks may not handle blockContainer with specialNode", () => {
+describe("SuggestionNode - prosemirrorSliceToSlicedBlocks interaction", () => {
+  it("should be documented: prosemirrorSliceToSlicedBlocks may not handle blockContainer with suggestion node", () => {
     // This test documents a known limitation:
     // prosemirrorSliceToSlicedBlocks (in nodeToBlock.ts) has a guard:
     //   if (blockContainer.childCount === 0 || blockContainer.childCount > 2)
     //     throw new Error(...)
     //
-    // A blockContainer with [specialNode, paragraph] has childCount 2 (OK),
-    // but [specialNode, paragraph, blockGroup] has childCount 3 (would throw).
+    // A blockContainer with [suggestion-paragraph, paragraph] has childCount 2 (OK),
+    // but [suggestion-paragraph, paragraph, blockGroup] has childCount 3 (would throw).
     //
     // However, this function is only called on Slices from copy/paste operations,
-    // and specialNodes are never included in copy slices (since they're injected
+    // and suggestion nodes are never included in copy slices (since they're injected
     // programmatically and the copy handler serializes based on editor.document
-    // which doesn't include specialNodes).
+    // which doesn't include suggestion nodes).
     //
-    // This test verifies that copying from a document with specialNode
-    // still produces a valid slice without specialNodes.
+    // This test verifies that copying from a document with suggestion node
+    // still produces a valid slice without suggestion nodes.
 
     const { editor, destroy } = createMountedEditor();
-    injectSpecialNodeBefore(editor, "Special", "Main text here");
+    injectSuggestionBefore(editor, "Suggestion", "Main text here");
 
     // Verify the document is valid and accessible
     const doc = editor.document;
@@ -703,6 +640,121 @@ describe("SpecialNode - prosemirrorSliceToSlicedBlocks interaction", () => {
     expect(doc[0].content).toEqual([
       { type: "text", text: "Main text here", styles: {} },
     ]);
+
+    destroy();
+  });
+});
+
+// =============================================================================
+// 10. Suggestion nodes have same content type as original blocks
+// =============================================================================
+describe("SuggestionNode - content type matching", () => {
+  it("suggestion-paragraph should accept inline content like the original paragraph", () => {
+    const { editor, destroy } = createMountedEditor();
+
+    editor.transact((tr) => {
+      const { nodes } = editor.pmSchema;
+
+      // Create a suggestion-paragraph with inline content (bold text, etc.)
+      const suggestionParagraph = nodes["suggestion-paragraph"].create(
+        SUGGESTION_PARA_ATTRS,
+        [editor.pmSchema.text("Hello world")],
+      );
+
+      const mainParagraph = nodes.paragraph.create(PARA_ATTRS, [
+        editor.pmSchema.text("Main"),
+      ]);
+
+      const blockContainer = nodes.blockContainer.create({ id: "block-1" }, [
+        suggestionParagraph,
+        mainParagraph,
+      ]);
+
+      const blockGroup = nodes.blockGroup.create(null, [blockContainer]);
+      const newDoc = nodes.doc.create(null, [blockGroup]);
+      tr.replaceWith(0, tr.doc.content.size, newDoc.content);
+    });
+
+    // Verify the structure is valid
+    const docJSON = editor.prosemirrorState.doc.toJSON();
+    const blockContainer = docJSON.content[0].content[0];
+    expect(blockContainer.content[0].type).toBe("suggestion-paragraph");
+    expect(blockContainer.content[0].content[0].text).toBe("Hello world");
+
+    destroy();
+  });
+
+  it("suggestion-heading should accept same attributes as heading", () => {
+    const { editor, destroy } = createMountedEditor();
+
+    editor.transact((tr) => {
+      const { nodes } = editor.pmSchema;
+
+      const suggestionHeading = nodes["suggestion-heading"].create(
+        {
+          backgroundColor: "default",
+          textAlignment: "left",
+          textColor: "default",
+          level: 2,
+          __suggestionData: "true",
+        },
+        [editor.pmSchema.text("Suggestion heading")],
+      );
+
+      const mainParagraph = nodes.paragraph.create(PARA_ATTRS, [
+        editor.pmSchema.text("Main"),
+      ]);
+
+      const blockContainer = nodes.blockContainer.create({ id: "block-1" }, [
+        suggestionHeading,
+        mainParagraph,
+      ]);
+
+      const blockGroup = nodes.blockGroup.create(null, [blockContainer]);
+      const newDoc = nodes.doc.create(null, [blockGroup]);
+      tr.replaceWith(0, tr.doc.content.size, newDoc.content);
+    });
+
+    const docJSON = editor.prosemirrorState.doc.toJSON();
+    const blockContainer = docJSON.content[0].content[0];
+    expect(blockContainer.content[0].type).toBe("suggestion-heading");
+    expect(blockContainer.content[0].attrs.level).toBe(2);
+    expect(blockContainer.content[0].content[0].text).toBe(
+      "Suggestion heading",
+    );
+
+    destroy();
+  });
+
+  it("suggestion-divider should accept no content like the original divider", () => {
+    const { editor, destroy } = createMountedEditor();
+
+    editor.transact((tr) => {
+      const { nodes } = editor.pmSchema;
+
+      const suggestionDivider = nodes["suggestion-divider"].create({
+        __suggestionData: "true",
+      });
+
+      const mainParagraph = nodes.paragraph.create(PARA_ATTRS, [
+        editor.pmSchema.text("Main"),
+      ]);
+
+      const blockContainer = nodes.blockContainer.create({ id: "block-1" }, [
+        suggestionDivider,
+        mainParagraph,
+      ]);
+
+      const blockGroup = nodes.blockGroup.create(null, [blockContainer]);
+      const newDoc = nodes.doc.create(null, [blockGroup]);
+      tr.replaceWith(0, tr.doc.content.size, newDoc.content);
+    });
+
+    const docJSON = editor.prosemirrorState.doc.toJSON();
+    const blockContainer = docJSON.content[0].content[0];
+    expect(blockContainer.content[0].type).toBe("suggestion-divider");
+    // Divider has no content
+    expect(blockContainer.content[0].content).toBeUndefined();
 
     destroy();
   });

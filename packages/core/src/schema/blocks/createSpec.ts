@@ -234,11 +234,71 @@ export function addNodeAndExtensionsToSpec<
     );
   }
 
+  // Create a "suggestion" shadow node for this block type.
+  // It has the same content/attributes/rendering as the original, but:
+  // - belongs to group "suggestionBlockContent" (not "blockContent")
+  // - has NO parseHTML rules (never created from HTML)
+  // - has NO custom nodeView (uses vanilla renderHTML only for POC)
+  const suggestionNode = Node.create({
+    name: `suggestion-${blockConfig.type}`,
+    content: (blockConfig.content === "inline"
+      ? "inline*"
+      : blockConfig.content === "none"
+        ? ""
+        : blockConfig.content) as TContent extends "inline" ? "inline*" : "",
+    group: "suggestionBlockContent",
+    selectable: false,
+    isolating: blockImplementation.meta?.isolating ?? true,
+    code: blockImplementation.meta?.code ?? false,
+    defining: blockImplementation.meta?.defining ?? true,
+    priority,
+    addAttributes() {
+      const attrs = propsToAttributes(blockConfig.propSchema);
+      const stripped: Record<string, any> = {};
+      for (const [key, value] of Object.entries(attrs)) {
+        stripped[key] = {
+          ...value,
+          parseHTML: undefined,
+        };
+      }
+      // Required attribute with no default prevents ProseMirror's
+      // DOMParser from auto-creating suggestion nodes during parsing.
+      // TipTap's `isRequired: true` causes the `default` key to be
+      // omitted from the ProseMirror attr spec, making the node
+      // impossible to auto-create.
+      stripped["__suggestionData"] = {
+        isRequired: true,
+        parseHTML: () => null,
+        renderHTML: () => ({}),
+      };
+      return stripped;
+    },
+    parseHTML() {
+      // Suggestion nodes should NEVER be created from HTML parsing
+      return [];
+    },
+    renderHTML({ HTMLAttributes }) {
+      const div = document.createElement("div");
+      return wrapInBlockStructure(
+        {
+          dom: div,
+          contentDOM: blockConfig.content === "inline" ? div : undefined,
+        },
+        blockConfig.type,
+        {},
+        blockConfig.propSchema,
+        blockImplementation.meta?.fileBlockAccept !== undefined,
+        HTMLAttributes,
+      );
+    },
+  });
+
   return {
     config: blockConfig,
     implementation: {
       ...blockImplementation,
       node,
+      suggestionNode,
       render(block, editor) {
         const blockContentDOMAttributes =
           node.options.domAttributes?.blockContent || {};

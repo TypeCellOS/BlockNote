@@ -42,7 +42,6 @@ import {
   BlockContainer,
   BlockGroup,
   Doc,
-  SpecialNode,
 } from "../../../pm-nodes/index.js";
 import type {
   BlockNoteEditor,
@@ -119,10 +118,6 @@ export function getDefaultTiptapExtensions(
     BlockGroup.configure({
       domAttributes: options.domAttributes,
     }),
-    SpecialNode.configure({
-      editor: editor,
-      domAttributes: options.domAttributes,
-    }),
     ...Object.values(editor.schema.inlineContentSpecs)
       .filter((a) => a.config !== "link" && a.config !== "text")
       .map((inlineContentSpec) => {
@@ -137,6 +132,16 @@ export function getDefaultTiptapExtensions(
         ...("node" in blockSpec.implementation
           ? [
               (blockSpec.implementation.node as Node).configure({
+                editor: editor,
+                domAttributes: options.domAttributes,
+              }),
+            ]
+          : []),
+        // suggestion shadow node (same block, no parseHTML, different group)
+        ...("suggestionNode" in blockSpec.implementation &&
+        blockSpec.implementation.suggestionNode
+          ? [
+              (blockSpec.implementation.suggestionNode as Node).configure({
                 editor: editor,
                 domAttributes: options.domAttributes,
               }),

@@ -205,6 +205,7 @@ export type LooseBlockSpec<
       | undefined;
 
     node: Node;
+    suggestionNode?: Node;
   };
   extensions?: (Extension | ExtensionFactoryInstance)[];
 };

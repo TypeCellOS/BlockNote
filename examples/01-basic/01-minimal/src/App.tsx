@@ -9,23 +9,23 @@ export default function App() {
   const editor = useCreateBlockNote();
 
   // After the editor is created, replace its document with a ProseMirror
-  // structure that includes a specialNode before the blockContainer's paragraph.
+  // structure that includes a suggestion-paragraph before the blockContainer's paragraph.
   useEffect(() => {
     // Use editor.transact to dispatch a ProseMirror transaction that replaces
     // the entire document content.
     editor.transact((tr) => {
       const { nodes } = editor.pmSchema;
 
-      // Build the specialNode containing a paragraph
-      const specialParagraph = nodes.paragraph.create(
+      // Build the suggestion-paragraph (shadow node for suggestions)
+      const suggestionParagraph = nodes["suggestion-paragraph"].create(
         {
           backgroundColor: "default",
           textAlignment: "left",
           textColor: "default",
+          __suggestionData: "true",
         },
-        [editor.pmSchema.text("Hello from specialNode!")],
+        [editor.pmSchema.text("Hello from suggestion-paragraph!")],
       );
-      const specialNode = nodes.specialNode.create(null, [specialParagraph]);
 
       // Build the main blockContent paragraph
       const mainParagraph = nodes.paragraph.create(
@@ -37,18 +37,17 @@ export default function App() {
         [editor.pmSchema.text("Hello from blockContainer!")],
       );
 
-      // Build the blockContainer with specialNode before blockContent
+      // Build the blockContainer with suggestion-paragraph before blockContent
       //
       // Target structure:
       //   doc
       //     └─ blockGroup
       //          └─ blockContainer
-      //               ├─ specialNode
-      //               │   └─ paragraph("Hello from specialNode!")
+      //               ├─ suggestion-paragraph("Hello from suggestion-paragraph!")
       //               └─ paragraph("Hello from blockContainer!")
       const blockContainer = nodes.blockContainer.create(
         { id: "block-1" },
-        [specialNode, mainParagraph],
+        [suggestionParagraph, mainParagraph],
       );
 
       const blockGroup = nodes.blockGroup.create(null, [blockContainer]);
