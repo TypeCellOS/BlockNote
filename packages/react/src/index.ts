@@ -133,6 +133,8 @@ export * from "./schema/ReactBlockSpec.js";
 export * from "./schema/ReactInlineContentSpec.js";
 export * from "./schema/ReactStyleSpec.js";
 
+export * from "./icons.js";
+
 export * from "./util/elementOverflow.js";
 export * from "./util/mergeRefs.js";
 

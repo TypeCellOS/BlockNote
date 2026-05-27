@@ -4,12 +4,12 @@ import { CommentBody } from "../../types.js";
 import { DefaultThreadStoreAuth } from "../DefaultThreadStoreAuth.js";
 import { YjsThreadStore } from "./YjsThreadStore.js";
 
-// Mock UUID to generate sequential IDs
+// Mock crypto.randomUUID to generate sequential IDs
 let mockUuidCounter = 0;
-vi.mock("lib0/random", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("lib0/random")>()),
-  uuidv4: () => `mocked-uuid-${++mockUuidCounter}`,
-}));
+const originalRandomUUID = crypto.randomUUID.bind(crypto);
+vi.spyOn(crypto, "randomUUID").mockImplementation(
+  () => `mocked-uuid-${++mockUuidCounter}` as ReturnType<typeof originalRandomUUID>,
+);
 
 describe("YjsThreadStore", () => {
   let store: YjsThreadStore;
