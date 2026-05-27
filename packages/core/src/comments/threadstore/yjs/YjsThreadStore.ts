@@ -1,4 +1,3 @@
-
 import * as Y from "yjs";
 import { CommentBody, CommentData, ThreadData } from "../../types.js";
 import { ThreadStoreAuth } from "../ThreadStoreAuth.js";

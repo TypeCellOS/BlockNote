@@ -4575,6 +4575,9 @@ importers:
 
   packages/code-block:
     dependencies:
+      '@blocknote/core':
+        specifier: 0.51.3
+        version: link:../core
       '@shikijs/core':
         specifier: ^4
         version: 4.0.2
@@ -4588,12 +4591,6 @@ importers:
         specifier: ^4
         version: 4.0.2
     devDependencies:
-      '@blocknote/core':
-        specifier: 0.51.3
-        version: link:../core
-      '@shikijs/types':
-        specifier: ^4
-        version: 4.0.2
       eslint:
         specifier: ^8.57.1
         version: 8.57.1
@@ -4612,6 +4609,10 @@ importers:
       vitest:
         specifier: 4.1.2
         version: 4.1.2(@opentelemetry/api@1.9.1)(@types/node@25.9.0)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(msw@2.11.5(@types/node@25.9.0)(typescript@5.9.3))(vite@8.0.8(@types/node@25.9.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.47.1)(tsx@4.21.0)(yaml@2.8.3))
+    optionalDependencies:
+      '@shikijs/types':
+        specifier: ^4
+        version: 4.0.2
 
   packages/core:
     dependencies:
@@ -4902,6 +4903,9 @@ importers:
       jsdom:
         specifier: ^25.0.1
         version: 25.0.1(canvas@2.11.2)
+      yjs:
+        specifier: ^13.6.27
+        version: 13.6.30
     devDependencies:
       '@types/jsdom':
         specifier: ^21.1.7
@@ -4942,9 +4946,6 @@ importers:
       y-protocols:
         specifier: ^1.0.6
         version: 1.0.7(yjs@13.6.30)
-      yjs:
-        specifier: ^13.6.27
-        version: 13.6.30
 
   packages/shadcn:
     dependencies:
