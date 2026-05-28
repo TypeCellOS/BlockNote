@@ -519,7 +519,7 @@ index 0000000000000000000000000000000000000000..8939eeae75b5f0fab4cf12fe43bdb03f
 +declare type SyncPluginStateUpdate = import('lib0/schema').Unwrap<typeof import('@y/prosemirror').$syncPluginStateUpdate>
 +declare type ProsemirrorDelta = import('lib0/schema').Unwrap<typeof import('@y/prosemirror').$prosemirrorDelta>
 diff --git a/package.json b/package.json
-index 8eaef6bf2b216933047f528e3c3b0aa469df45e7..99ea779e7487cdc459ca93c65a8e84febb679091 100644
+index 8eaef6bf2b216933047f528e3c3b0aa469df45e7..258a3b18cc50c11181b70a716953fdb1708bf840 100644
 --- a/package.json
 +++ b/package.json
 @@ -2,10 +2,7 @@
@@ -565,7 +565,7 @@ index 8eaef6bf2b216933047f528e3c3b0aa469df45e7..99ea779e7487cdc459ca93c65a8e84fe
    "peerDependencies": {
 -    "@y/protocols": "^1.0.6-3",
 +    "@y/protocols": "^1.0.6-rc.1",
-+    "@y/y": "^14.0.0-rc.16",
++    "@y/y": "^14.0.0-rc.17",
      "prosemirror-model": "^1.7.1",
      "prosemirror-state": "^1.2.3",
 -    "prosemirror-view": "^1.9.10",
@@ -2292,7 +2292,7 @@ index 0000000000000000000000000000000000000000..e9444af4c344c486bb7ba7255bcd26f4
 +}
 diff --git a/src/sync-utils.js b/src/sync-utils.js
 new file mode 100644
-index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f848301a1b8307
+index 0000000000000000000000000000000000000000..582bf01bb5ccd524f4c56d2edcf3a49f1f144433
 --- /dev/null
 +++ b/src/sync-utils.js
 @@ -0,0 +1,573 @@
@@ -2303,7 +2303,7 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 +import * as math from 'lib0/math'
 +import * as object from 'lib0/object'
 +import * as s from 'lib0/schema'
-+import { Node } from 'prosemirror-model'
++import { Node, Slice, Fragment } from 'prosemirror-model'
 +import {
 +  AddMarkStep,
 +  AddNodeMarkStep,
@@ -2608,10 +2608,10 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 +      currPos.i = childStart + child.nodeSize + netChange
 +    } else if (delta.$insertOp.check(op)) {
 +      const newPChildren = op.insert.map(ins => deltaToPNode(ins, schema, op.format))
-+      tr.insert(currPos.i, newPChildren)
++      tr.step(new ReplaceStep(currPos.i, currPos.i, new Slice(Fragment.from(newPChildren), 0, 0)))
 +      currPos.i += newPChildren.reduce((s, c) => c.nodeSize + s, 0)
 +    } else if (delta.$textOp.check(op)) {
-+      tr.insert(currPos.i, schema.text(op.insert, formattingAttributesToMarks(op.format, schema)))
++      tr.step(new ReplaceStep(currPos.i, currPos.i, new Slice(Fragment.from(schema.text(op.insert, formattingAttributesToMarks(op.format, schema))), 0, 0)))
 +      currPos.i += op.length
 +    } else if (delta.$deleteOp.check(op)) {
 +      for (let remainingDelLen = op.delete; remainingDelLen > 0;) {
@@ -2621,7 +2621,7 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 +        }
 +        if (pc.isText) {
 +          const delLen = math.min(pc.nodeSize - nOffset, remainingDelLen)
-+          tr.delete(currPos.i, currPos.i + delLen)
++          tr.step(new ReplaceStep(currPos.i, currPos.i + delLen, Slice.empty))
 +          nOffset += delLen
 +          if (nOffset === pc.nodeSize) {
 +            // TODO this can't actually "jump out" of the current node
@@ -2631,7 +2631,7 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 +          }
 +          remainingDelLen -= delLen
 +        } else {
-+          tr.delete(currPos.i, currPos.i + pc.nodeSize)
++          tr.step(new ReplaceStep(currPos.i, currPos.i + pc.nodeSize, Slice.empty))
 +          currParentIndex++
 +          remainingDelLen--
 +        }
