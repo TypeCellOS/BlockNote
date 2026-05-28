@@ -2,8 +2,18 @@
 /**
  * Shared fixture for browser-mode suggestion tests.
  *
- * Mounts a single BlockNote editor bound to an in-memory `baseDoc`,
- * with a second in-memory `suggestionDoc` set up as the diff target.
+ * Layout:
+ *   ┌──────────┬──────────────────────┐
+ *   │ Base     │ User A: <userAction> │
+ *   └──────────┴──────────────────────┘
+ *
+ * - `Base` is a read-only editor bound to `baseDoc` – it shows the
+ *   pre-suggestion state and is visible in the screenshot so the
+ *   reviewer can see the "before" without leaving the file.
+ * - `User A` is the suggesting editor. Its column heading includes a
+ *   short caller-supplied action description so the screenshot is
+ *   self-explanatory.
+ *
  * The provider/yhub round-trip is replaced by a manual `sync()`.
  */
 import "@blocknote/core/fonts/inter.css";
@@ -18,9 +28,11 @@ import { Awareness } from "@y/protocols/awareness";
 import * as Y from "@y/y";
 import { prettify } from "htmlfy";
 import { expect } from "vitest";
+import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
 
 export interface SuggestionFixture {
+  /** User A's editor – this is the one the test makes suggestions through. */
   editor: BlockNoteEditor;
   screen: Awaited<ReturnType<typeof render>>;
   baseDoc: Y.Doc;
@@ -29,11 +41,22 @@ export interface SuggestionFixture {
   sync: () => void;
 }
 
-export async function setupSuggestionTest(): Promise<SuggestionFixture> {
+export interface SuggestionFixtureOptions {
+  /**
+   * 1-5 word description of what User A does (e.g. "fix typo",
+   * "bold world"). Rendered in the User A column heading so the
+   * screenshot is self-explanatory.
+   */
+  userAction: string;
+}
+
+export async function setupSuggestionTest({
+  userAction,
+}: SuggestionFixtureOptions): Promise<SuggestionFixture> {
   const baseDoc = new Y.Doc();
   const baseAwareness = new Awareness(baseDoc);
   baseAwareness.setLocalStateField("user", {
-    name: "Author",
+    name: "User A",
     color: "#30bced",
   });
 
@@ -45,30 +68,58 @@ export async function setupSuggestionTest(): Promise<SuggestionFixture> {
   );
   attributionManager.suggestionMode = true;
 
-  let editor!: BlockNoteEditor;
-  function Editor() {
-    editor = useCreateBlockNote(
+  let editorA!: BlockNoteEditor;
+  let editorBase!: BlockNoteEditor;
+
+  function Editors() {
+    editorA = useCreateBlockNote(
       withCollaboration({
         collaboration: {
           fragment: baseDoc.get("doc"),
           provider: { awareness: baseAwareness },
           suggestionDoc,
           attributionManager,
-          user: { name: "Author", color: "#30bced" },
+          user: { name: "User A", color: "#30bced" },
+        },
+      }),
+    );
+    editorBase = useCreateBlockNote(
+      withCollaboration({
+        collaboration: {
+          fragment: baseDoc.get("doc"),
+          provider: { awareness: new Awareness(baseDoc) },
+          user: { name: "Base", color: "#888888" },
         },
       }),
     );
     return (
-      <div data-testid="editor-root" style={{ padding: 16 }}>
-        <BlockNoteView editor={editor} />
+      <div
+        data-testid="editor-root"
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: 12,
+          padding: 16,
+        }}
+      >
+        <div data-testid="editor-base">
+          <strong>Base</strong>
+          <BlockNoteView editor={editorBase} editable={false} />
+        </div>
+        <div data-testid="editor-A">
+          <strong>User A: {userAction}</strong>
+          <BlockNoteView editor={editorA} />
+        </div>
       </div>
     );
   }
 
-  const screen = await render(<Editor />);
+  await page.viewport(1200, 800);
+
+  const screen = await render(<Editors />);
 
   return {
-    editor,
+    editor: editorA,
     screen,
     baseDoc,
     suggestionDoc,

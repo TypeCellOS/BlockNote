@@ -21,7 +21,7 @@ import {
 // is rendered as inline <ins>/<del> spans around the changed letters.
 test("suggestion mode: 'hello world' -> 'hello universe'", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
-    await setupSuggestionTest();
+    await setupSuggestionTest({ userAction: "rename last word" });
 
   // 1. Set the base doc to "hello world". The block id is pinned so the
   //    snapshots stay deterministic.
@@ -33,7 +33,9 @@ test("suggestion mode: 'hello world' -> 'hello universe'", async () => {
   //    from the same state.
   sync();
 
-  await expect.element(screen.getByText("hello world")).toBeVisible();
+  await expect
+    .element(screen.getByTestId("editor-A").getByText("hello world"))
+    .toBeVisible();
 
   // 3. Subsequent edits are recorded as suggestions instead of mutating
   //    the doc directly.
@@ -47,7 +49,9 @@ test("suggestion mode: 'hello world' -> 'hello universe'", async () => {
   // re-render on the next frame; without this the screenshot can race
   // the update). "unive" only exists once "world" -> "universe" has
   // been split into <ins>/<del> spans, so this is a precise sentinel.
-  await expect.element(screen.getByText("unive")).toBeVisible();
+  await expect
+    .element(screen.getByTestId("editor-A").getByText("unive"))
+    .toBeVisible();
 
   // 5a. Visual snapshot of the rendered editor.
   await expect(screen.getByTestId("editor-root")).toMatchScreenshot(
@@ -103,14 +107,16 @@ test("suggestion mode: 'hello world' -> 'hello universe'", async () => {
 // changes (currently `y-attributed-format`, with no visual marker).
 test("suggestion mode: add bold to 'world'", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
-    await setupSuggestionTest();
+    await setupSuggestionTest({ userAction: "bold 'world'" });
 
   // Base: plain "hello world".
   editor.replaceBlocks(editor.document, [
     { id: "block-hello", type: "paragraph", content: "hello world" },
   ]);
   sync();
-  await expect.element(screen.getByText("hello world")).toBeVisible();
+  await expect
+    .element(screen.getByTestId("editor-A").getByText("hello world"))
+    .toBeVisible();
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
@@ -173,7 +179,7 @@ test("suggestion mode: add bold to 'world'", async () => {
 // removal is handled symmetrically.
 test("suggestion mode: remove bold from 'world'", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
-    await setupSuggestionTest();
+    await setupSuggestionTest({ userAction: "unbold 'world'" });
 
   // Base: "hello " + bold "world".
   editor.replaceBlocks(editor.document, [
@@ -187,7 +193,11 @@ test("suggestion mode: remove bold from 'world'", async () => {
     },
   ]);
   sync();
-  await expect.element(screen.getByText("world")).toBeVisible();
+  // Use the full paragraph text – the User A column heading also
+  // contains the word "world", which would clash with getByText.
+  await expect
+    .element(screen.getByTestId("editor-A").getByText("hello world"))
+    .toBeVisible();
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
@@ -245,7 +255,7 @@ test("suggestion mode: remove bold from 'world'", async () => {
 // is recorded only for the new mark, not the pre-existing one.
 test("suggestion mode: add italic to already-bold 'world'", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
-    await setupSuggestionTest();
+    await setupSuggestionTest({ userAction: "italic on top of bold" });
 
   // Base: "hello " + bold "world".
   editor.replaceBlocks(editor.document, [
@@ -259,7 +269,9 @@ test("suggestion mode: add italic to already-bold 'world'", async () => {
     },
   ]);
   sync();
-  await expect.element(screen.getByText("world")).toBeVisible();
+  await expect
+    .element(screen.getByTestId("editor-A").getByText("hello world"))
+    .toBeVisible();
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
