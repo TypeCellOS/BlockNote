@@ -147,7 +147,18 @@ export async function waitForSuggestion(
 
 /** Pretty-print a Y.Doc's `doc` XmlFragment for an inline snapshot. */
 export function ydocXml(doc: Y.Doc): string {
-  return prettify(doc.get("doc").toString(), { tag_wrap: true });
+  // `Y.XmlFragment.toString()` emits HTML5-style unquoted attributes
+  // for non-string values (e.g. `level=1`, `isToggleable=false`).
+  // htmlfy mangles those, so we wrap each unquoted value in quotes
+  // before pretty-printing.
+  const raw = doc
+    .get("doc")
+    .toString()
+    .replace(
+      /(\w[\w-]*)=([^"'\s>]+)/g,
+      (_, name, value) => `${name}="${value}"`,
+    );
+  return prettify(raw, { tag_wrap: true });
 }
 
 /**

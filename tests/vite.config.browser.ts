@@ -9,6 +9,7 @@ export default defineConfig((conf) => ({
   plugins: [react()],
   test: {
     include: ["./src/browser/**/*.test.ts", "./src/browser/**/*.test.tsx"],
+    setupFiles: ["./src/browser/vitestSetup.ts"],
     browser: {
       enabled: true,
       provider: playwright(),
