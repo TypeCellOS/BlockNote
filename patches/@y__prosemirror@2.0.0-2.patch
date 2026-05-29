@@ -499,10 +499,10 @@ deleted file mode 100644
 index 61b864629455150ac073bf6a9e5b7f6f7e9e5037..0000000000000000000000000000000000000000
 diff --git a/global.d.ts b/global.d.ts
 new file mode 100644
-index 0000000000000000000000000000000000000000..8939eeae75b5f0fab4cf12fe43bdb03f12e891c8
+index 0000000000000000000000000000000000000000..f94ae8cdc4fe7400e1e7f5ad7f5cb7a1170519f5
 --- /dev/null
 +++ b/global.d.ts
-@@ -0,0 +1,15 @@
+@@ -0,0 +1,21 @@
 +
 +declare type YType = import('@y/y').Type
 +declare type AttributionManager = import('@y/y').AbstractAttributionManager
@@ -515,11 +515,17 @@ index 0000000000000000000000000000000000000000..8939eeae75b5f0fab4cf12fe43bdb03f
 + * Maps attributions to prosemirror marks
 + */
 +declare type AttributionMapper = (format: Record<string,unknown> | null, attribution: import('lib0/delta').Attribution) => Record<string, unknown> | null
++/**
++ * Decides whether an attributed node renders under its `{nodeName}--attributed`
++ * variant node type. `kinds` reflects which attribution kinds are present on the
++ * node. Must be deterministic in `(nodeName, kinds)`.
++ */
++declare type AttributedNodesPredicate = (nodeName: string, kinds: { insert?: boolean, delete?: boolean, format?: boolean }) => boolean
 +declare type SyncPluginState = import('lib0/schema').Unwrap<typeof import('@y/prosemirror').$syncPluginState>
 +declare type SyncPluginStateUpdate = import('lib0/schema').Unwrap<typeof import('@y/prosemirror').$syncPluginStateUpdate>
 +declare type ProsemirrorDelta = import('lib0/schema').Unwrap<typeof import('@y/prosemirror').$prosemirrorDelta>
 diff --git a/package.json b/package.json
-index 8eaef6bf2b216933047f528e3c3b0aa469df45e7..99ea779e7487cdc459ca93c65a8e84febb679091 100644
+index 8eaef6bf2b216933047f528e3c3b0aa469df45e7..258a3b18cc50c11181b70a716953fdb1708bf840 100644
 --- a/package.json
 +++ b/package.json
 @@ -2,10 +2,7 @@
@@ -565,7 +571,7 @@ index 8eaef6bf2b216933047f528e3c3b0aa469df45e7..99ea779e7487cdc459ca93c65a8e84fe
    "peerDependencies": {
 -    "@y/protocols": "^1.0.6-3",
 +    "@y/protocols": "^1.0.6-rc.1",
-+    "@y/y": "^14.0.0-rc.16",
++    "@y/y": "^14.0.0-rc.17",
      "prosemirror-model": "^1.7.1",
      "prosemirror-state": "^1.2.3",
 -    "prosemirror-view": "^1.9.10",
@@ -576,7 +582,7 @@ index 8eaef6bf2b216933047f528e3c3b0aa469df45e7..99ea779e7487cdc459ca93c65a8e84fe
      "@rollup/plugin-commonjs": "^28.0.8",
 diff --git a/src/commands.js b/src/commands.js
 new file mode 100644
-index 0000000000000000000000000000000000000000..bbf5a241f8c1eb91a80f4a15c8f4d3696f42c5c4
+index 0000000000000000000000000000000000000000..504167d4a50fbbb1198a3f9108edba262738504a
 --- /dev/null
 +++ b/src/commands.js
 @@ -0,0 +1,163 @@
@@ -636,11 +642,11 @@ index 0000000000000000000000000000000000000000..bbf5a241f8c1eb91a80f4a15c8f4d369
 +      // @todo it is preferred to apply the minimal diff - at least for debugging purposes. the
 +      // document replacal is more reliable though
 +      if (debugging) {
-+        const pcontent = nodeToDelta(tr.doc)
++        const pcontent = nodeToDelta(tr.doc, undefined, true)
 +        const diff = d.diff(pcontent.done(), ycontent.done())
-+        deltaToPSteps(tr, diff)
++        deltaToPSteps(tr, diff, undefined, undefined, pluginState.attributedNodes)
 +      } else {
-+        tr.replaceWith(0, tr.doc.content.size, deltaToPNode(ycontent, tr.doc.type.schema, null))
++        tr.replaceWith(0, tr.doc.content.size, deltaToPNode(ycontent, tr.doc.type.schema, null, pluginState.attributedNodes))
 +      }
 +    }
 +    dispatch(tr)
@@ -1997,14 +2003,15 @@ index 0000000000000000000000000000000000000000..963ea708dbe0e92b2d43fc031243c2e7
 +}
 diff --git a/src/sync-plugin.js b/src/sync-plugin.js
 new file mode 100644
-index 0000000000000000000000000000000000000000..e9444af4c344c486bb7ba7255bcd26f43c8145cf
+index 0000000000000000000000000000000000000000..079bc7e465f98612907d36adc9854054814dda91
 --- /dev/null
 +++ b/src/sync-plugin.js
-@@ -0,0 +1,289 @@
+@@ -0,0 +1,301 @@
 +import * as Y from '@y/y'
 +import { Plugin } from 'prosemirror-state'
 +import {
 +  $prosemirrorDelta,
++  defaultAttributedNodes,
 +  defaultMapAttributionToMark,
 +  deltaAttributionToFormat,
 +  deltaToPSteps,
@@ -2025,13 +2032,19 @@ index 0000000000000000000000000000000000000000..e9444af4c344c486bb7ba7255bcd26f4
 +   * If provided, will switch to the given attribution manager instead of the current attribution manager
 +   */
 +  attributionManager: Y.$attributionManager.nullable,
-+  attributionMapper: /** @type {s.Schema<AttributionMapper>} */ (s.$function)
++  attributionMapper: /** @type {s.Schema<AttributionMapper>} */ (s.$function),
++  /**
++   * Predicate deciding which attributed nodes render under their
++   * `{nodeName}--attributed` variant. See {@link syncPlugin}.
++   */
++  attributedNodes: /** @type {s.Schema<AttributedNodesPredicate>} */ (s.$function)
 +})
 +
 +export const $syncPluginStateUpdate = s.$object({
 +  ytype: Y.$ytypeAny.nullable.optional,
 +  attributionManager: Y.$attributionManager.nullable.optional,
 +  attributionMapper: /** @type {s.Schema<AttributionMapper>} */ (s.$function).nullable.optional,
++  attributedNodes: /** @type {s.Schema<AttributedNodesPredicate>} */ (s.$function).nullable.optional,
 +  change: /** @type {s.Schema<Y.YEvent<any>>} */ (s.$any).nullable.optional
 +})
 +const $maybeSyncPluginStateUpdate = $syncPluginStateUpdate.nullable
@@ -2102,6 +2115,7 @@ index 0000000000000000000000000000000000000000..e9444af4c344c486bb7ba7255bcd26f4
 + * @param {object} opts
 + * @param {Y.Doc} [opts.suggestionDoc] A {@link Y.Doc} to use for suggestion tracking
 + * @param {AttributionMapper} [opts.mapAttributionToMark] A function to map the {@link Y.Attribution} to a {@link import('prosemirror-model').Mark} - the mark names *must* be one of: `y-attributed-insert`, `y-attributed-delete`, `y-attributed-format`. No other mark names are permitted
++ * @param {AttributedNodesPredicate} [opts.attributedNodes] Optional predicate `(nodeName, kinds) => boolean`. When it returns `true` for an attributed node *and* a `{nodeName}--attributed` type exists in the schema, that node is rendered under the variant type (the `y-attributed-*` marks are still applied). `kinds` is `{ insert?, delete?, format? }`. The variant is a pure rendering concern - the canonical name is what is stored in the Y document. The predicate must be deterministic in `(nodeName, kinds)`.
 + * @returns {Plugin}
 + */
 +export function syncPlugin (opts = {}) {
@@ -2112,7 +2126,8 @@ index 0000000000000000000000000000000000000000..e9444af4c344c486bb7ba7255bcd26f4
 +        return $syncPluginState.expect({
 +          ytype: null,
 +          attributionManager: null,
-+          attributionMapper: opts.mapAttributionToMark || defaultMapAttributionToMark
++          attributionMapper: opts.mapAttributionToMark || defaultMapAttributionToMark,
++          attributedNodes: opts.attributedNodes || defaultAttributedNodes
 +        })
 +      },
 +      apply: (tr, prevPluginState) => {
@@ -2133,8 +2148,9 @@ index 0000000000000000000000000000000000000000..e9444af4c344c486bb7ba7255bcd26f4
 +       * @param {Y.Type?} opts.ytype
 +       * @param {Y.AbstractAttributionManager?} opts.attributionManager
 +       * @param {AttributionMapper} opts.attributionMapper
++       * @param {AttributedNodesPredicate} opts.attributedNodes
 +       */
-+      function subscribeToYType ({ view, ytype, attributionManager, attributionMapper }) {
++      function subscribeToYType ({ view, ytype, attributionManager, attributionMapper, attributedNodes }) {
 +        unsubscribeFn?.()
 +        if (ytype != null) {
 +          // Listen on the doc's `afterTransaction` event rather than
@@ -2172,10 +2188,10 @@ index 0000000000000000000000000000000000000000..e9444af4c344c486bb7ba7255bcd26f4
 +              ytype.toDeltaDeep(am),
 +              attributionMapper
 +            ).done()
-+            const pcontent = nodeToDelta(view.state.doc).done()
++            const pcontent = nodeToDelta(view.state.doc, undefined, true).done()
 +            const diff = d.diff(pcontent, desiredPM)
 +            if (diff.isEmpty()) return
-+            const ptr = deltaToPSteps(view.state.tr, diff)
++            const ptr = deltaToPSteps(view.state.tr, diff, undefined, undefined, attributedNodes)
 +            ptr.setMeta('addToHistory', false)
 +            ptr.setMeta('y-sync-transaction', $syncPluginStateUpdate.expect({
 +              change: null,
@@ -2200,10 +2216,10 @@ index 0000000000000000000000000000000000000000..e9444af4c344c486bb7ba7255bcd26f4
 +              ytype.toDeltaDeep(attributionManager || Y.noAttributionsManager),
 +              attributionMapper
 +            ).done()
-+            const pcontent = nodeToDelta(view.state.doc).done()
++            const pcontent = nodeToDelta(view.state.doc, undefined, true).done()
 +            const diff = d.diff(pcontent, desiredPM)
 +            if (diff.isEmpty()) return
-+            const ptr = deltaToPSteps(view.state.tr, diff)
++            const ptr = deltaToPSteps(view.state.tr, diff, undefined, undefined, attributedNodes)
 +            ptr.setMeta('addToHistory', false)
 +            // @todo stop updating meta on every transaction
 +            ptr.setMeta('y-sync-transaction', $syncPluginStateUpdate.expect({
@@ -2238,7 +2254,8 @@ index 0000000000000000000000000000000000000000..e9444af4c344c486bb7ba7255bcd26f4
 +              view,
 +              ytype,
 +              attributionManager,
-+              attributionMapper: pluginState.attributionMapper
++              attributionMapper: pluginState.attributionMapper,
++              attributedNodes: pluginState.attributedNodes
 +            })
 +          }
 +          if (ytype == null) return
@@ -2254,11 +2271,12 @@ index 0000000000000000000000000000000000000000..e9444af4c344c486bb7ba7255bcd26f4
 +          // apply the same insert twice.
 +          const am = attributionManager || Y.noAttributionsManager
 +          const mapper = pluginState.attributionMapper
++          const attributedNodes = pluginState.attributedNodes
 +          const ycontent = deltaAttributionToFormat(
 +            ytype.toDeltaDeep(am),
 +            mapper
 +          ).done()
-+          const pcontent = nodeToDelta(view.state.doc).done()
++          const pcontent = nodeToDelta(view.state.doc, undefined, true).done()
 +          const pmToYDiff = stripAttributionFormattingFromDelta(d.diff(ycontent, pcontent))
 +          if (!pmToYDiff.isEmpty()) {
 +            /** @type {Y.Doc} */ (ytype.doc).transact(() => {
@@ -2269,11 +2287,11 @@ index 0000000000000000000000000000000000000000..e9444af4c344c486bb7ba7255bcd26f4
 +            ytype.toDeltaDeep(am),
 +            mapper
 +          ).done()
-+          const pcontentAfter = nodeToDelta(view.state.doc).done()
++          const pcontentAfter = nodeToDelta(view.state.doc, undefined, true).done()
 +          const pmReconcileDiff = d.diff(pcontentAfter, desiredPM)
 +          if (pmReconcileDiff.isEmpty()) return
 +          const tr = view.state.tr
-+          deltaToPSteps(tr, pmReconcileDiff)
++          deltaToPSteps(tr, pmReconcileDiff, undefined, undefined, attributedNodes)
 +          tr.setMeta('addToHistory', false)
 +          tr.setMeta('y-sync-transaction', $syncPluginStateUpdate.expect({
 +            change: null,
@@ -2292,10 +2310,10 @@ index 0000000000000000000000000000000000000000..e9444af4c344c486bb7ba7255bcd26f4
 +}
 diff --git a/src/sync-utils.js b/src/sync-utils.js
 new file mode 100644
-index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f848301a1b8307
+index 0000000000000000000000000000000000000000..28426627d278e5a3f9ae01fb81bcbf9bcff413d3
 --- /dev/null
 +++ b/src/sync-utils.js
-@@ -0,0 +1,573 @@
+@@ -0,0 +1,667 @@
 +import * as Y from '@y/y'
 +import * as array from 'lib0/array'
 +import * as delta from 'lib0/delta'
@@ -2303,7 +2321,7 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 +import * as math from 'lib0/math'
 +import * as object from 'lib0/object'
 +import * as s from 'lib0/schema'
-+import { Node } from 'prosemirror-model'
++import { Node, Slice, Fragment } from 'prosemirror-model'
 +import {
 +  AddMarkStep,
 +  AddNodeMarkStep,
@@ -2316,6 +2334,61 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 +} from 'prosemirror-transform'
 +
 +export const $prosemirrorDelta = delta.$delta({ name: s.$string, attrs: s.$record(s.$string, s.$any), text: true, recursiveChildren: true })
++
++/**
++ * Suffix appended to a node name when it is rendered as its "attributed
++ * variant" (see `attributedNodes` on {@link syncPlugin}). The suffix is fixed
++ * so that canonicalizing back (PM -> Y) is a pure string operation and can
++ * never drift from the forward mapping. `--attributed` is a *reserved* suffix:
++ * a real node type literally ending in it would be canonicalized away on the
++ * way to Y.
++ */
++export const ATTRIBUTED_SUFFIX = '--attributed'
++
++/**
++ * Default `attributedNodes` predicate - the feature is off, so every node keeps
++ * its canonical name.
++ *
++ * @type {AttributedNodesPredicate}
++ */
++export const defaultAttributedNodes = () => false
++
++/**
++ * Strip the {@link ATTRIBUTED_SUFFIX} so a PM node name maps back to the
++ * canonical name stored in the Y document. Identity for canonical names.
++ *
++ * @param {string} name
++ * @return {string}
++ */
++export const canonicalNodeName = (name) =>
++  name.endsWith(ATTRIBUTED_SUFFIX)
++    ? name.slice(0, -ATTRIBUTED_SUFFIX.length)
++    : name
++
++/**
++ * Resolve the PM node name to render for `canonicalName` given the attribution
++ * carried in `format`. Returns `canonicalName + ATTRIBUTED_SUFFIX` when the
++ * `attributedNodes` predicate opts in *and* the variant exists in the schema;
++ * otherwise returns `canonicalName` unchanged.
++ *
++ * @param {string} canonicalName
++ * @param {Record<string, unknown> | null | undefined} format
++ * @param {AttributedNodesPredicate} attributedNodes
++ * @param {import('prosemirror-model').Schema} schema
++ * @return {string}
++ */
++export const attributedVariant = (canonicalName, format, attributedNodes, schema) => {
++  const kinds = {
++    insert: format?.['y-attributed-insert'] != null,
++    delete: format?.['y-attributed-delete'] != null,
++    format: format?.['y-attributed-format'] != null
++  }
++  if ((kinds.insert || kinds.delete || kinds.format) && attributedNodes(canonicalName, kinds)) {
++    const variant = canonicalName + ATTRIBUTED_SUFFIX
++    if (schema.nodes[variant] != null) return variant
++  }
++  return canonicalName
++}
 +
 +/**
 + * Default attribution-to-mark mapper.
@@ -2399,7 +2472,7 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 +      if (delta.$insertOp.check(child)) {
 +        r.insert(child.insert.map(c => delta.$deltaAny.check(c) ? deltaAttributionToFormat(c, attributionsToFormat) : c), format)
 +      } else if (delta.$textOp.check(child)) {
-+        r.insert(child.insert.slice(), format)
++        r.insert(child.insert, format)
 +      } else if (delta.$retainOp.check(child)) {
 +        r.retain(child.retain, format)
 +      } else if (delta.$modifyOp.check(child)) {
@@ -2464,7 +2537,9 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 + * @returns {Y.Type}
 + */
 +export function pmToFragment (node, fragment, { attributionManager = Y.noAttributionsManager } = {}) {
-+  const initialPDelta = nodeToDelta(node).done()
++  // Canonicalize so the Y document never stores an attributed-variant name
++  // (`--attributed` is a reserved suffix - identity when no variant is present).
++  const initialPDelta = nodeToDelta(node, undefined, true).done()
 +  fragment.applyDelta(initialPDelta, attributionManager)
 +
 +  return fragment
@@ -2477,20 +2552,22 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 + * @param {object} ctx
 + * @param {Y.AbstractAttributionManager} [ctx.attributionManager]
 + * @param {typeof defaultMapAttributionToMark} [ctx.mapAttributionToMark]
++ * @param {AttributedNodesPredicate} [ctx.attributedNodes]
 + * @returns {import('prosemirror-state').Transaction}
 + */
 +export function fragmentToTr (fragment, tr, {
 +  attributionManager = Y.noAttributionsManager,
-+  mapAttributionToMark = defaultMapAttributionToMark
++  mapAttributionToMark = defaultMapAttributionToMark,
++  attributedNodes = defaultAttributedNodes
 +} = {}) {
 +  const fragmentContent = deltaAttributionToFormat(
 +    fragment.toDelta(attributionManager, { deep: true }),
 +    mapAttributionToMark
 +  )
-+  const initialPDelta = nodeToDelta(tr.doc).done()
++  const initialPDelta = nodeToDelta(tr.doc, undefined, true).done()
 +  const deltaBetweenPmAndFragment = delta.diff(initialPDelta, fragmentContent).done()
 +
-+  return deltaToPSteps(tr, deltaBetweenPmAndFragment).setMeta('y-sync-hydration', {
++  return deltaToPSteps(tr, deltaBetweenPmAndFragment, undefined, undefined, attributedNodes).setMeta('y-sync-hydration', {
 +    delta: deltaBetweenPmAndFragment
 +  })
 +}
@@ -2508,13 +2585,16 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 +/**
 + * @param {Node} n
 + * @param {string?} nodeName
++ * @param {boolean} [canonicalize] When `true`, the emitted name has the
++ *   {@link ATTRIBUTED_SUFFIX} stripped (PM -> Y direction). The flag propagates
++ *   through the child recursion.
 + * @return {ProsemirrorDelta}
 + */
-+export const nodeToDelta = (n, nodeName = n.type.name) => {
-+  const d = delta.create(nodeName, $prosemirrorDelta)
++export const nodeToDelta = (n, nodeName = n.type.name, canonicalize = false) => {
++  const d = delta.create(canonicalize && nodeName != null ? canonicalNodeName(nodeName) : nodeName, $prosemirrorDelta)
 +  d.setAttrs(n.attrs)
 +  n.content.content.forEach(c => {
-+    d.insert(c.isText ? (c.text ?? []) : [nodeToDelta(c)], marksToFormattingAttributes(c.marks))
++    d.insert(c.isText ? (c.text ?? []) : [nodeToDelta(c, undefined, canonicalize)], marksToFormattingAttributes(c.marks))
 +  })
 +  return d.done(false)
 +}
@@ -2525,13 +2605,55 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 +export const docToDelta = doc => nodeToDelta(doc, null)
 +
 +/**
++ * Apply node-level format (node marks) at `pos`. When the resulting attribution
++ * marks change the node's {@link attributedVariant}, flip the node type with a
++ * single size-preserving `setNodeMarkup` (which also sets the resulting mark
++ * set atomically - this avoids an intermediate state where the canonical type
++ * would carry a mark it does not declare). Otherwise this is byte-identical to
++ * the previous per-key `addNodeMark`/`removeNodeMark` loop.
++ *
++ * @param {import('prosemirror-state').Transaction} tr
++ * @param {number} pos
++ * @param {Record<string, any> | null | undefined} format
++ * @param {AttributedNodesPredicate} attributedNodes
++ */
++const applyNodeFormat = (tr, pos, format, attributedNodes) => {
++  const schema = tr.doc.type.schema
++  const node = tr.doc.nodeAt(pos)
++  if (node == null) return
++  let resultingMarks = node.marks
++  object.forEach(format ?? {}, (v, k) => {
++    const markType = schema.marks[k]
++    if (markType == null) return
++    resultingMarks = v == null
++      ? markType.removeFromSet(resultingMarks)
++      : schema.mark(k, v).addToSet(resultingMarks)
++  })
++  const targetType = schema.nodes[
++    attributedVariant(canonicalNodeName(node.type.name), marksToFormattingAttributes(resultingMarks), attributedNodes, schema)
++  ]
++  if (targetType !== node.type) {
++    tr.setNodeMarkup(pos, targetType, node.attrs, resultingMarks)
++  } else {
++    object.forEach(format ?? {}, (v, k) => {
++      if (v == null) {
++        tr.removeNodeMark(pos, schema.marks[k])
++      } else {
++        tr.addNodeMark(pos, schema.mark(k, v))
++      }
++    })
++  }
++}
++
++/**
 + * @param {import('prosemirror-state').Transaction} tr
 + * @param {ProsemirrorDelta} d
 + * @param {Node} [pnode]
 + * @param {{ i: number }} [currPos]
++ * @param {AttributedNodesPredicate} [attributedNodes]
 + * @return {import('prosemirror-state').Transaction}
 + */
-+export const deltaToPSteps = (tr, d, pnode = tr.doc, currPos = { i: 0 }) => {
++export const deltaToPSteps = (tr, d, pnode = tr.doc, currPos = { i: 0 }, attributedNodes = defaultAttributedNodes) => {
 +  const schema = tr.doc.type.schema
 +  let currParentIndex = 0
 +  let nOffset = 0
@@ -2571,34 +2693,22 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 +            nOffset = 0
 +          }
 +        } else {
-+          object.forEach(op.format ?? {}, (v, k) => {
-+            if (v == null) {
-+              tr.removeNodeMark(currPos.i, schema.marks[k])
-+            } else {
-+              // TODO see schema.js for more info on marking nodes
-+              tr.addNodeMark(currPos.i, schema.mark(k, v))
-+            }
-+          })
++          // TODO see schema.js for more info on marking nodes
++          applyNodeFormat(tr, currPos.i, op.format, attributedNodes)
 +          currParentIndex++
 +          currPos.i += pc.nodeSize
 +          i--
 +        }
 +      }
 +    } else if (delta.$modifyOp.check(op)) {
-+      object.forEach(op.format ?? {}, (v, k) => {
-+        if (v == null) {
-+          tr.removeNodeMark(currPos.i, schema.marks[k])
-+        } else {
-+          tr.addNodeMark(currPos.i, schema.mark(k, v))
-+        }
-+      })
++      applyNodeFormat(tr, currPos.i, op.format, attributedNodes)
 +      const child = pchildren[currParentIndex++]
 +      const childStart = currPos.i
 +      // Snapshot `tr.doc.content.size` so we can detect inserts/deletes
 +      // appended inside the recursion below.
 +      const sizeBefore = tr.doc.content.size
 +      currPos.i = childStart + 1
-+      deltaToPSteps(tr, op.value, child, currPos)
++      deltaToPSteps(tr, op.value, child, currPos, attributedNodes)
 +      // `lib0/delta.diff` produces short deltas that omit trailing
 +      // retains, so the recursive call may exit before `currPos.i`
 +      // reaches the child's close tag. Snap forward to the position right
@@ -2607,11 +2717,11 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 +      const netChange = tr.doc.content.size - sizeBefore
 +      currPos.i = childStart + child.nodeSize + netChange
 +    } else if (delta.$insertOp.check(op)) {
-+      const newPChildren = op.insert.map(ins => deltaToPNode(ins, schema, op.format))
-+      tr.insert(currPos.i, newPChildren)
++      const newPChildren = op.insert.map(ins => deltaToPNode(ins, schema, op.format, attributedNodes))
++      tr.step(new ReplaceStep(currPos.i, currPos.i, new Slice(Fragment.from(newPChildren), 0, 0)))
 +      currPos.i += newPChildren.reduce((s, c) => c.nodeSize + s, 0)
 +    } else if (delta.$textOp.check(op)) {
-+      tr.insert(currPos.i, schema.text(op.insert, formattingAttributesToMarks(op.format, schema)))
++      tr.step(new ReplaceStep(currPos.i, currPos.i, new Slice(Fragment.from(schema.text(op.insert, formattingAttributesToMarks(op.format, schema))), 0, 0)))
 +      currPos.i += op.length
 +    } else if (delta.$deleteOp.check(op)) {
 +      for (let remainingDelLen = op.delete; remainingDelLen > 0;) {
@@ -2621,7 +2731,7 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 +        }
 +        if (pc.isText) {
 +          const delLen = math.min(pc.nodeSize - nOffset, remainingDelLen)
-+          tr.delete(currPos.i, currPos.i + delLen)
++          tr.step(new ReplaceStep(currPos.i, currPos.i + delLen, Slice.empty))
 +          nOffset += delLen
 +          if (nOffset === pc.nodeSize) {
 +            // TODO this can't actually "jump out" of the current node
@@ -2631,7 +2741,7 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 +          }
 +          remainingDelLen -= delLen
 +        } else {
-+          tr.delete(currPos.i, currPos.i + pc.nodeSize)
++          tr.step(new ReplaceStep(currPos.i, currPos.i + pc.nodeSize, Slice.empty))
 +          currParentIndex++
 +          remainingDelLen--
 +        }
@@ -2645,9 +2755,10 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 + * @param {ProsemirrorDelta} d
 + * @param {import('prosemirror-model').Schema} schema
 + * @param {delta.FormattingAttributes|null} dformat
++ * @param {AttributedNodesPredicate} [attributedNodes]
 + * @return {Node}
 + */
-+export const deltaToPNode = (d, schema, dformat) => {
++export const deltaToPNode = (d, schema, dformat, attributedNodes = defaultAttributedNodes) => {
 +  /**
 +   * @type {Object<string,any>}
 +   */
@@ -2655,8 +2766,9 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 +  for (const attr of d.attrs) {
 +    attrs[attr.key] = attr.value
 +  }
-+  const dc = d.children.map(c => delta.$insertOp.check(c) ? c.insert.map(cn => deltaToPNode(cn, schema, c.format)) : (delta.$textOp.check(c) ? [schema.text(c.insert, formattingAttributesToMarks(c.format, schema))] : []))
-+  const nodeType = schema.nodes[d.name ?? 'doc']
++  const dc = d.children.map(c => delta.$insertOp.check(c) ? c.insert.map(cn => deltaToPNode(cn, schema, c.format, attributedNodes)) : (delta.$textOp.check(c) ? [schema.text(c.insert, formattingAttributesToMarks(c.format, schema))] : []))
++  const canonical = d.name == null ? 'doc' : canonicalNodeName(d.name)
++  const nodeType = schema.nodes[attributedVariant(canonical, dformat, attributedNodes, schema)]
 +  if (!nodeType) {
 +    throw new Error(
 +      '[y/prosemirror]: node type does not exist in the schema: ' + d.name
