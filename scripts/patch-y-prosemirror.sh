@@ -22,6 +22,10 @@ fi
 echo "==> Using local y-prosemirror at: $LOCAL_YPM"
 echo "==> BlockNote root: $BLOCKNOTE_ROOT"
 
+# 0. Build y-prosemirror so dist/ is up to date
+echo "==> Building y-prosemirror (npm run dist) ..."
+(cd "$LOCAL_YPM" && npm run dist)
+
 PATCH_DIR="$BLOCKNOTE_ROOT/node_modules/.pnpm_patches/@y/prosemirror@2.0.0-2"
 
 # 1. Clean up any leftover patch dir, then start fresh

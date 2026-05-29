@@ -278,33 +278,37 @@ index 0000000000000000000000000000000000000000..2c008bfa4dbf0fe49a4148d6346c5388
 \ No newline at end of file
 diff --git a/dist/src/positions.d.ts.map b/dist/src/positions.d.ts.map
 new file mode 100644
-index 0000000000000000000000000000000000000000..27c3de6071c3c8701acad9516390c219483b37e8
+index 0000000000000000000000000000000000000000..e4f768c579f11b08055a31cc166e8c34278815a6
 --- /dev/null
 +++ b/dist/src/positions.d.ts.map
 @@ -0,0 +1 @@
-+{"version":3,"file":"positions.d.ts","sourceRoot":"","sources":["../../src/positions.js"],"names":[],"mappings":"AAWO,gEALI,OAAO,mBAAmB,EAAE,WAAW,QACvC,CAAC,CAAC,IAAI,OACN,CAAC,CAAC,0BAA0B,GAAG,IAAI,GAClC,CAAC,CAAC,gBAAgB,CA4C7B;AAUM,2DANI,CAAC,CAAC,gBAAgB,gBAClB,CAAC,CAAC,IAAI,SACN,OAAO,mBAAmB,EAAE,IAAI,OAChC,CAAC,CAAC,0BAA0B,GAAG,IAAI,GAClC,IAAI,GAAC,MAAM,CAmDtB;AASM,mDALI,OAAO,mBAAmB,EAAE,WAAW,QACvC,CAAC,CAAC,IAAI,OACN,CAAC,CAAC,0BAA0B,GAC1B,CAAC,GAAG,EAAE,OAAO,mBAAmB,EAAE,IAAI,EAAE,YAAY,CAAC,EAAE,CAAC,CAAC,IAAI,EAAE,kBAAkB,CAAC,EAAE,CAAC,CAAC,0BAA0B,KAAK,MAAM,CAWvI;AAyBM,mDAHI,CAAC,CAAC,IAAI,GACJ;IAAC,cAAc,EAAE,cAAc,CAAC;IAAC,cAAc,EAAE,cAAc,CAAA;CAAC,CAyD5E;mCA5EU,OAAO,mBAAmB,EAAE,IAAI,wFAG9B,OAAO,uBAAuB,EAAE,QAAQ;oCAK1C,CAAC,CAAC,IAAI,SACN,OAAO,mBAAmB,EAAE,IAAI,2DAE9B,OAAO,uBAAuB,EAAE,QAAQ;mBAjJlC,MAAM"}
++{"version":3,"file":"positions.d.ts","sourceRoot":"","sources":["../../src/positions.js"],"names":[],"mappings":"AAWO,gEALI,OAAO,mBAAmB,EAAE,WAAW,QACvC,CAAC,CAAC,IAAI,OACN,CAAC,CAAC,0BAA0B,GAAG,IAAI,GAClC,CAAC,CAAC,gBAAgB,CA6C7B;AAUM,2DANI,CAAC,CAAC,gBAAgB,gBAClB,CAAC,CAAC,IAAI,SACN,OAAO,mBAAmB,EAAE,IAAI,OAChC,CAAC,CAAC,0BAA0B,GAAG,IAAI,GAClC,IAAI,GAAC,MAAM,CAmDtB;AASM,mDALI,OAAO,mBAAmB,EAAE,WAAW,QACvC,CAAC,CAAC,IAAI,OACN,CAAC,CAAC,0BAA0B,GAC1B,CAAC,GAAG,EAAE,OAAO,mBAAmB,EAAE,IAAI,EAAE,YAAY,CAAC,EAAE,CAAC,CAAC,IAAI,EAAE,kBAAkB,CAAC,EAAE,CAAC,CAAC,0BAA0B,KAAK,MAAM,CAWvI;AAyBM,mDAHI,CAAC,CAAC,IAAI,GACJ;IAAC,cAAc,EAAE,cAAc,CAAC;IAAC,cAAc,EAAE,cAAc,CAAA;CAAC,CAyD5E;mCA5EU,OAAO,mBAAmB,EAAE,IAAI,wFAG9B,OAAO,uBAAuB,EAAE,QAAQ;oCAK1C,CAAC,CAAC,IAAI,SACN,OAAO,mBAAmB,EAAE,IAAI,2DAE9B,OAAO,uBAAuB,EAAE,QAAQ;mBAlJlC,MAAM"}
 \ No newline at end of file
 diff --git a/dist/src/sync-plugin.d.ts b/dist/src/sync-plugin.d.ts
 new file mode 100644
-index 0000000000000000000000000000000000000000..60f401cf8386f80b2959e804a33329fefb704a1d
+index 0000000000000000000000000000000000000000..c1da2aa33b86511936e9b1ba4d2d3c848e0c70da
 --- /dev/null
 +++ b/dist/src/sync-plugin.d.ts
-@@ -0,0 +1,35 @@
+@@ -0,0 +1,41 @@
 +/**
 + * This Prosemirror {@link Plugin} is responsible for synchronizing the prosemirror {@link EditorState} with a {@link Y.XmlFragment}
 + *
-+ * NOTE: register this plugin LAST in your editor's plugin list. Its
-+ * `appendTransaction` runs the PM->Y diff/apply pipeline and must
-+ * observe the post-keymap, post-other-plugin state.
++ * The PM->Y diff/apply pipeline runs in the plugin's `view().update`
++ * hook (i.e. after the dispatch has been committed to the view), not
++ * in `appendTransaction`. Running it in `appendTransaction` would
++ * cause speculative `state.apply` callers to write to Y as a side
++ * effect.
 + *
 + * @param {object} opts
 + * @param {Y.Doc} [opts.suggestionDoc] A {@link Y.Doc} to use for suggestion tracking
 + * @param {AttributionMapper} [opts.mapAttributionToMark] A function to map the {@link Y.Attribution} to a {@link import('prosemirror-model').Mark} - the mark names *must* be one of: `y-attributed-insert`, `y-attributed-delete`, `y-attributed-format`. No other mark names are permitted
++ * @param {AttributedNodesPredicate} [opts.attributedNodes] Optional predicate `(nodeName, kinds) => boolean`. When it returns `true` for an attributed node *and* a `{nodeName}--attributed` type exists in the schema, that node is rendered under the variant type (the `y-attributed-*` marks are still applied). `kinds` is `{ insert?, delete?, format? }`. The variant is a pure rendering concern - the canonical name is what is stored in the Y document. The predicate must be deterministic in `(nodeName, kinds)`.
 + * @returns {Plugin}
 + */
 +export function syncPlugin(opts?: {
 +    suggestionDoc?: Y.Doc | undefined;
 +    mapAttributionToMark?: AttributionMapper | undefined;
++    attributedNodes?: AttributedNodesPredicate | undefined;
 +}): Plugin;
 +/**
 + * The y-prosemirror binding is a bi-directional synchronization with the provided Y.Type and the EditorView
@@ -314,11 +318,13 @@ index 0000000000000000000000000000000000000000..60f401cf8386f80b2959e804a33329fe
 +    ytype: Y.Type<any> | null;
 +    attributionManager: Y.AbstractAttributionManager | null;
 +    attributionMapper: AttributionMapper;
++    attributedNodes: AttributedNodesPredicate;
 +}>;
 +export const $syncPluginStateUpdate: s.Schema<{
 +    ytype?: Y.Type<any> | null | undefined;
 +    attributionManager?: Y.AbstractAttributionManager | null | undefined;
 +    attributionMapper?: AttributionMapper | null | undefined;
++    attributedNodes?: AttributedNodesPredicate | null | undefined;
 +    change?: Y.YEvent<any> | null | undefined;
 +}>;
 +import * as Y from '@y/y';
@@ -328,18 +334,18 @@ index 0000000000000000000000000000000000000000..60f401cf8386f80b2959e804a33329fe
 \ No newline at end of file
 diff --git a/dist/src/sync-plugin.d.ts.map b/dist/src/sync-plugin.d.ts.map
 new file mode 100644
-index 0000000000000000000000000000000000000000..1a0e6e62ff6b63a90527fd163641a7c4c49bbb9e
+index 0000000000000000000000000000000000000000..df8c9df944fe1c64c46c648d913a0f8b52694bd7
 --- /dev/null
 +++ b/dist/src/sync-plugin.d.ts.map
 @@ -0,0 +1 @@
-+{"version":3,"file":"sync-plugin.d.ts","sourceRoot":"","sources":["../../src/sync-plugin.js"],"names":[],"mappings":"AAyFA;;;;;;;;;;;GAWG;AACH,kCAJG;IAAqB,aAAa;IACD,oBAAoB;CACrD,GAAU,MAAM,CAiMlB;AAtRD;;;GAGG;AACH;;;;GAOE;AAEF;;;;;GAKE;mBAhCiB,MAAM;uBACF,mBAAmB;mBAUvB,aAAa"}
++{"version":3,"file":"sync-plugin.d.ts","sourceRoot":"","sources":["../../src/sync-plugin.js"],"names":[],"mappings":"AAgGA;;;;;;;;;;;;;;GAcG;AACH,kCALG;IAAqB,aAAa;IACD,oBAAoB;IACb,eAAe;CACvD,GAAU,MAAM,CA+LlB;AA7RD;;;GAGG;AACH;;;;;GAYE;AAEF;;;;;;GAME;mBAvCiB,MAAM;uBACF,mBAAmB;mBAWvB,aAAa"}
 \ No newline at end of file
 diff --git a/dist/src/sync-utils.d.ts b/dist/src/sync-utils.d.ts
 new file mode 100644
-index 0000000000000000000000000000000000000000..91664ef55028d7246da148b789e4c03ab3c795fa
+index 0000000000000000000000000000000000000000..83d38f1a99ecb675beff65f50a2082b659d2c36a
 --- /dev/null
 +++ b/dist/src/sync-utils.d.ts
-@@ -0,0 +1,107 @@
+@@ -0,0 +1,127 @@
 +/**
 + * Transforms a {@link Node} into a {@link Y.XmlFragment}
 + * @param {Node} node
@@ -358,11 +364,13 @@ index 0000000000000000000000000000000000000000..91664ef55028d7246da148b789e4c03a
 + * @param {object} ctx
 + * @param {Y.AbstractAttributionManager} [ctx.attributionManager]
 + * @param {typeof defaultMapAttributionToMark} [ctx.mapAttributionToMark]
++ * @param {AttributedNodesPredicate} [ctx.attributedNodes]
 + * @returns {import('prosemirror-state').Transaction}
 + */
-+export function fragmentToTr(fragment: Y.Type, tr: import("prosemirror-state").Transaction, { attributionManager, mapAttributionToMark }?: {
++export function fragmentToTr(fragment: Y.Type, tr: import("prosemirror-state").Transaction, { attributionManager, mapAttributionToMark, attributedNodes }?: {
 +    attributionManager?: Y.AbstractAttributionManager | undefined;
 +    mapAttributionToMark?: (<T extends import("lib0/delta").Attribution>(format: Record<string, unknown> | null, attribution: T) => Record<string, unknown> | null) | undefined;
++    attributedNodes?: AttributedNodesPredicate | undefined;
 +}): import("prosemirror-state").Transaction;
 +/**
 + * Transforms a {@link Y.XmlFragment} into a {@link Node}
@@ -405,13 +413,31 @@ index 0000000000000000000000000000000000000000..91664ef55028d7246da148b789e4c03a
 +    text: true;
 +    recursiveChildren: true;
 +}>>;
++/**
++ * Suffix appended to a node name when it is rendered as its "attributed
++ * variant" (see `attributedNodes` on {@link syncPlugin}). The suffix is fixed
++ * so that canonicalizing back (PM -> Y) is a pure string operation and can
++ * never drift from the forward mapping. `--attributed` is a *reserved* suffix:
++ * a real node type literally ending in it would be canonicalized away on the
++ * way to Y.
++ */
++export const ATTRIBUTED_SUFFIX: "--attributed";
++/**
++ * Default `attributedNodes` predicate - the feature is off, so every node keeps
++ * its canonical name.
++ *
++ * @type {AttributedNodesPredicate}
++ */
++export const defaultAttributedNodes: AttributedNodesPredicate;
++export function canonicalNodeName(name: string): string;
++export function attributedVariant(canonicalName: string, format: Record<string, unknown> | null | undefined, attributedNodes: AttributedNodesPredicate, schema: import("prosemirror-model").Schema): string;
 +export function defaultMapAttributionToMark<T extends import("lib0/delta").Attribution>(format: Record<string, unknown> | null, attribution: T): Record<string, unknown> | null;
 +export function deltaAttributionToFormat(d: delta.DeltaAny, attributionsToFormat: Function): ProsemirrorDelta;
 +export function formattingAttributesToMarks(formatting: {
 +    [key: string]: any;
 +} | null, schema: import("prosemirror-model").Schema): import("prosemirror-model").Mark[];
 +export function nodesToDelta(ns: Array<Node>): ProsemirrorDelta;
-+export function nodeToDelta(n: Node, nodeName?: string | null): ProsemirrorDelta;
++export function nodeToDelta(n: Node, nodeName?: string | null, canonicalize?: boolean): ProsemirrorDelta;
 +export function docToDelta(doc: Node): delta.Delta<{
 +    name: string;
 +    attrs: {
@@ -422,8 +448,8 @@ index 0000000000000000000000000000000000000000..91664ef55028d7246da148b789e4c03a
 +}>;
 +export function deltaToPSteps(tr: import("prosemirror-state").Transaction, d: ProsemirrorDelta, pnode?: Node, currPos?: {
 +    i: number;
-+}): import("prosemirror-state").Transaction;
-+export function deltaToPNode(d: ProsemirrorDelta, schema: import("prosemirror-model").Schema, dformat: delta.FormattingAttributes | null): Node;
++}, attributedNodes?: AttributedNodesPredicate): import("prosemirror-state").Transaction;
++export function deltaToPNode(d: ProsemirrorDelta, schema: import("prosemirror-model").Schema, dformat: delta.FormattingAttributes | null, attributedNodes?: AttributedNodesPredicate): Node;
 +export function docDiffToDelta(beforeDoc: Node, afterDoc: Node): delta.Delta<{
 +    name: string;
 +    attrs: {
@@ -450,11 +476,11 @@ index 0000000000000000000000000000000000000000..91664ef55028d7246da148b789e4c03a
 \ No newline at end of file
 diff --git a/dist/src/sync-utils.d.ts.map b/dist/src/sync-utils.d.ts.map
 new file mode 100644
-index 0000000000000000000000000000000000000000..f9bbcc89fecc95ec4b426aae483f33a1d475063b
+index 0000000000000000000000000000000000000000..5634baccb112adaaf0c61b7879ef71c52d9d41db
 --- /dev/null
 +++ b/dist/src/sync-utils.d.ts.map
 @@ -0,0 +1 @@
-+{"version":3,"file":"sync-utils.d.ts","sourceRoot":"","sources":["../../src/sync-utils.js"],"names":[],"mappings":"AA+JA;;;;;;;GAOG;AACH,mCANW,IAAI,YACJ,CAAC,CAAC,IAAI,2BAEd;IAA4C,kBAAkB;CAC9D,GAAU,CAAC,CAAC,IAAI,CAOlB;AAED;;;;;;;;GAQG;AACH,uCAPW,CAAC,CAAC,IAAI,MACN,OAAO,mBAAmB,EAAE,WAAW,iDAE/C;IAA2C,kBAAkB;IACZ,oBAAoB,KAtIxB,CAAC,SAApC,OAAQ,YAAY,EAAE,WAAY,UACpC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,eAC9B,CAAC,KACC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI;CAoIxC,GAAU,OAAO,mBAAmB,EAAE,WAAW,CAgBnD;AAED;;;;;GAKG;AACH,uCAJW,CAAC,CAAC,IAAI,MACN,OAAO,mBAAmB,EAAE,WAAW,GACtC,IAAI,CAIf;AA4QD;;;;;;;;;;;;;;;;;GAiBG;AACH,oCAJW,IAAI,mBACJ,MAAM,GACL,MAAM,EAAE,CAwBnB;AAED;;;;;GAKG;AACH,yCAJW,MAAM,EAAE,QACR,IAAI,GACH,MAAM,CAgCjB;AAthBD;;;;;;;IAA4I;AAgCrI,4CALyC,CAAC,SAApC,OAAQ,YAAY,EAAE,WAAY,UACpC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,eAC9B,CAAC,GACC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,CAiC1C;AAOM,4CAHI,KAAK,CAAC,QAAQ,mCA4BL,gBAAgB,CACnC;AA0BM,wDAHI;IAAC,CAAC,GAAG,EAAC,MAAM,GAAE,GAAG,CAAA;CAAC,GAAC,IAAI,UACvB,OAAO,mBAAmB,EAAE,MAAM,sCAGwD;AAM9F,iCAHI,KAAK,CAAC,IAAI,CAAC,GACV,gBAAgB,CAW3B;AAyDM,+BAJI,IAAI,aACJ,MAAM,OAAC,GACN,gBAAgB,CAS3B;AAKM,gCAFI,IAAI;;;;;;;GAEwC;AAShD,kCANI,OAAO,mBAAmB,EAAE,WAAW,KACvC,gBAAgB,UAChB,IAAI,YACJ;IAAE,CAAC,EAAE,MAAM,CAAA;CAAE,GACZ,OAAO,mBAAmB,EAAE,WAAW,CA8GlD;AAQM,gCALI,gBAAgB,UAChB,OAAO,mBAAmB,EAAE,MAAM,WAClC,KAAK,CAAC,oBAAoB,GAAC,IAAI,GAC9B,IAAI,CA4Bf;AAMM,0CAHI,IAAI,YACJ,IAAI;;;;;;;GAMd;AAKM,8BAFI,WAAW;;;;;;;GAkBrB;AA+CM,kCAJI,OAAO,uBAAuB,EAAE,IAAI,aACpC,OAAO,mBAAmB,EAAE,IAAI,GAC/B,gBAAgB,CAQ3B;AAoGM,wCALI,IAAI,YACJ,MAAM,OACN,CAAC,CAAC,EAAC,KAAK,CAAC,eAAe,KAAG,GAAG,GAC7B,gBAAgB,CAa3B;qBArjBoB,mBAAmB;mBAPrB,MAAM;uBAEF,YAAY;mBAIhB,aAAa"}
++{"version":3,"file":"sync-utils.d.ts","sourceRoot":"","sources":["../../src/sync-utils.js"],"names":[],"mappings":"AAsNA;;;;;;;GAOG;AACH,mCANW,IAAI,YACJ,CAAC,CAAC,IAAI,2BAEd;IAA4C,kBAAkB;CAC9D,GAAU,CAAC,CAAC,IAAI,CASlB;AAED;;;;;;;;;GASG;AACH,uCARW,CAAC,CAAC,IAAI,MACN,OAAO,mBAAmB,EAAE,WAAW,kEAE/C;IAA2C,kBAAkB;IACZ,oBAAoB,KAxIxB,CAAC,SAApC,OAAQ,YAAY,EAAE,WAAY,UACpC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,eAC9B,CAAC,KACC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI;IAsID,eAAe;CACtD,GAAU,OAAO,mBAAmB,EAAE,WAAW,CAiBnD;AAED;;;;;GAKG;AACH,uCAJW,CAAC,CAAC,IAAI,MACN,OAAO,mBAAmB,EAAE,WAAW,GACtC,IAAI,CAIf;AA+SD;;;;;;;;;;;;;;;;;GAiBG;AACH,oCAJW,IAAI,mBACJ,MAAM,GACL,MAAM,EAAE,CAwBnB;AAED;;;;;GAKG;AACH,yCAJW,MAAM,EAAE,QACR,IAAI,GACH,MAAM,CAgCjB;AApnBD;;;;;;;IAA4I;AAE5I;;;;;;;GAOG;AACH,gCAAiC,cAAc,CAAA;AAE/C;;;;;GAKG;AACH,qCAFU,wBAAwB,CAEe;AAS1C,wCAHI,MAAM,GACL,MAAM,CAKR;AAcH,iDANI,MAAM,UACN,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,GAAG,SAAS,mBAC1C,wBAAwB,UACxB,OAAO,mBAAmB,EAAE,MAAM,GACjC,MAAM,CAajB;AAgCM,4CALyC,CAAC,SAApC,OAAQ,YAAY,EAAE,WAAY,UACpC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,eAC9B,CAAC,GACC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,CAiC1C;AAOM,4CAHI,KAAK,CAAC,QAAQ,mCA4BL,gBAAgB,CACnC;AA0BM,wDAHI;IAAC,CAAC,GAAG,EAAC,MAAM,GAAE,GAAG,CAAA;CAAC,GAAC,IAAI,UACvB,OAAO,mBAAmB,EAAE,MAAM,sCAGwD;AAM9F,iCAHI,KAAK,CAAC,IAAI,CAAC,GACV,gBAAgB,CAW3B;AAgEM,+BAPI,IAAI,aACJ,MAAM,OAAC,iBACP,OAAO,GAGN,gBAAgB,CAS3B;AAKM,gCAFI,IAAI;;;;;;;GAEwC;AAmDhD,kCAPI,OAAO,mBAAmB,EAAE,WAAW,KACvC,gBAAgB,UAChB,IAAI,YACJ;IAAE,CAAC,EAAE,MAAM,CAAA;CAAE,oBACb,wBAAwB,GACvB,OAAO,mBAAmB,EAAE,WAAW,CAkGlD;AASM,gCANI,gBAAgB,UAChB,OAAO,mBAAmB,EAAE,MAAM,WAClC,KAAK,CAAC,oBAAoB,GAAC,IAAI,oBAC/B,wBAAwB,GACvB,IAAI,CA6Bf;AAMM,0CAHI,IAAI,YACJ,IAAI;;;;;;;GAMd;AAKM,8BAFI,WAAW;;;;;;;GAkBrB;AA+CM,kCAJI,OAAO,uBAAuB,EAAE,IAAI,aACpC,OAAO,mBAAmB,EAAE,IAAI,GAC/B,gBAAgB,CAQ3B;AAoGM,wCALI,IAAI,YACJ,MAAM,OACN,CAAC,CAAC,EAAC,KAAK,CAAC,eAAe,KAAG,GAAG,GAC7B,gBAAgB,CAa3B;qBAnpBqC,mBAAmB;mBAPtC,MAAM;uBAEF,YAAY;mBAIhB,aAAa"}
 \ No newline at end of file
 diff --git a/dist/src/undo-plugin.d.ts b/dist/src/undo-plugin.d.ts
 new file mode 100644
@@ -479,11 +505,11 @@ index 0000000000000000000000000000000000000000..86f43ae4291c5baf85948350df8d7d46
 \ No newline at end of file
 diff --git a/dist/src/undo-plugin.d.ts.map b/dist/src/undo-plugin.d.ts.map
 new file mode 100644
-index 0000000000000000000000000000000000000000..11c58c0f3f94d2e560408aaccf2b1b418142a0d4
+index 0000000000000000000000000000000000000000..665bb84203a88b35e2961e7221a31896485bdcc7
 --- /dev/null
 +++ b/dist/src/undo-plugin.d.ts.map
 @@ -0,0 +1 @@
-+{"version":3,"file":"undo-plugin.d.ts","sourceRoot":"","sources":["../../src/undo-plugin.js"],"names":[],"mappings":"AA+JO,yCAFI,OAAO,MAAM,EAAE,WAAW,2BAmFpC;;iBA1Oa,OAAO,MAAM,EAAE,WAAW;aAC1B;QAAE,QAAQ,EAAE,OAAO,mBAAmB,EAAE,iBAAiB,CAAC;QAAC,cAAc,EAAE,UAAU,CAAC,OAAO,4BAA4B,CAAC,CAAC,gBAAgB,CAAC,CAAA;KAAE,GAAG,IAAI;gBACrJ,OAAO;gBACP,OAAO;kBACP,OAAO;;uBAVE,mBAAmB;6CACG,gBAAgB"}
++{"version":3,"file":"undo-plugin.d.ts","sourceRoot":"","sources":["../../src/undo-plugin.js"],"names":[],"mappings":"AA8JO,yCAFI,OAAO,MAAM,EAAE,WAAW,2BAmFpC;;iBAzOa,OAAO,MAAM,EAAE,WAAW;aAC1B;QAAE,QAAQ,EAAE,OAAO,mBAAmB,EAAE,iBAAiB,CAAC;QAAC,cAAc,EAAE,UAAU,CAAC,OAAO,4BAA4B,CAAC,CAAC,gBAAgB,CAAC,CAAA;KAAE,GAAG,IAAI;gBACrJ,OAAO;gBACP,OAAO;kBACP,OAAO;;uBAVE,mBAAmB;6CACG,gBAAgB"}
 \ No newline at end of file
 diff --git a/dist/src/utils.d.ts b/dist/src/utils.d.ts
 deleted file mode 100644
