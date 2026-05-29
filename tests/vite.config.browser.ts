@@ -101,6 +101,13 @@ export default defineConfig(
             contextOptions: { viewport: VIEWPORT },
           }),
           headless: true,
+          // On failure Vitest otherwise captures a page screenshot into
+          // __screenshots__/<testfile>/<test name>-<n>.png — same dir as the
+          // `toMatchScreenshot` baselines, but named after the test title, so
+          // they masquerade as stray baselines and pollute git. The failures
+          // still show in the HTML report (errors + stack traces don't depend
+          // on these shots), so disable them. See `e2e:report` to view.
+          screenshotFailures: false,
           commands: { positionalMouse },
           instances: [
             {
