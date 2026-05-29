@@ -1,13 +1,15 @@
 import App from "@examples/09-ai/01-minimal/src/App";
 import { beforeEach, describe, expect, test } from "vite-plus/test";
+import { render } from "vitest-browser-react";
 import { page, userEvent } from "../../utils/context.js";
+import { EDITOR_SELECTOR } from "../../utils/const.js";
 import { expectElement, sleep, waitForSelector } from "../../utils/editor.js";
-import { renderEditor } from "../../utils/render.js";
 
 beforeEach(async () => {
   // Use a small viewport so the editor content requires scrolling.
   await page.viewport(800, 400);
-  await renderEditor(<App />);
+  render(<App />);
+  await waitForSelector(EDITOR_SELECTOR);
 });
 
 describe("AI Menu Scroll Regression", () => {

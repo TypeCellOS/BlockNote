@@ -1,33 +1,25 @@
 import NoTrailingBlockApp from "@examples/01-basic/17-no-trailing-block/src/App";
 import TestingApp from "@examples/01-basic/testing/src/App";
-import { describe, expect, test } from "vite-plus/test";
+import { describe, test } from "vite-plus/test";
+import { render } from "vitest-browser-react";
 import { userEvent } from "../../utils/context.js";
+import { EDITOR_SELECTOR } from "../../utils/const.js";
 import {
   compareDocToSnapshot,
-  focusOnEditor,
   expectElement,
+  focusOnEditor,
   sleep,
   waitForSelector,
 } from "../../utils/editor.js";
 import { getRect, mouseSequence } from "../../utils/mouse.js";
-import { renderEditor } from "../../utils/render.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
-
-// `expect.element` is augmented against the bare `vitest` module, but vite-plus
-// types `expect` from an internal module, so the augmentation doesn't attach.
-// Type the accessor locally.
-type ElementMatchers = {
-  toBeVisible(): Promise<void>;
-  not: { toBeVisible(): Promise<void> };
-};
-type ElementExpect = (element: Element | null) => ElementMatchers;
-const expectElement = (expect as unknown as { element: ElementExpect }).element;
 
 const IMAGE_EMBED_URL = "https://placehold.co/800x540.png";
 
 describe("Check Image Block and Toolbar functionality", () => {
   test("Should be able to create image block", async () => {
-    await renderEditor(<TestingApp />);
+    render(<TestingApp />);
+    await waitForSelector(EDITOR_SELECTOR);
     await focusOnEditor();
     await executeSlashCommand("image");
 
@@ -36,7 +28,8 @@ describe("Check Image Block and Toolbar functionality", () => {
     await expectElement(document.body).toMatchScreenshot("create-image");
   });
   test.skip("Should be able to upload image", async () => {
-    await renderEditor(<TestingApp />);
+    render(<TestingApp />);
+    await waitForSelector(EDITOR_SELECTOR);
     await focusOnEditor();
     await executeSlashCommand("image");
 
@@ -56,7 +49,8 @@ describe("Check Image Block and Toolbar functionality", () => {
     await expectElement(document.body).toMatchScreenshot("upload-image");
   });
   test("Should be able to embed image", async () => {
-    await renderEditor(<TestingApp />);
+    render(<TestingApp />);
+    await waitForSelector(EDITOR_SELECTOR);
     await focusOnEditor();
     await executeSlashCommand("image");
 
@@ -76,7 +70,8 @@ describe("Check Image Block and Toolbar functionality", () => {
     await expectElement(document.body).toMatchScreenshot("embed-image");
   });
   test("Should be able to resize image", async () => {
-    await renderEditor(<TestingApp />);
+    render(<TestingApp />);
+    await waitForSelector(EDITOR_SELECTOR);
     await focusOnEditor();
     await executeSlashCommand("image");
 
@@ -117,7 +112,8 @@ describe("Check Image Block and Toolbar functionality", () => {
     await expectElement(document.body).toMatchScreenshot("resize-image");
   });
   test("Should be able to delete image with backspace", async () => {
-    await renderEditor(<TestingApp />);
+    render(<TestingApp />);
+    await waitForSelector(EDITOR_SELECTOR);
     await focusOnEditor();
     await executeSlashCommand("image");
 
@@ -135,7 +131,8 @@ describe("Check Image Block and Toolbar functionality", () => {
     await compareDocToSnapshot("deleteImage");
   });
   test("Should open file panel but not formatting toolbar when inserting image with no trailing block", async () => {
-    await renderEditor(<NoTrailingBlockApp />);
+    render(<NoTrailingBlockApp />);
+    await waitForSelector(EDITOR_SELECTOR);
     await focusOnEditor();
     await executeSlashCommand("image");
 

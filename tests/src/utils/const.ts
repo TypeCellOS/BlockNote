@@ -1,7 +1,3 @@
-// Example apps are now imported and mounted directly (Vitest Browser Mode),
-// so the old `http://localhost:3000/<slug>` URL constants are gone — tests
-// import the relevant `@examples/<group>/<name>/src/App` instead.
-
 export const EDITOR_SELECTOR = `.bn-editor`;
 export const BLOCK_CONTAINER_SELECTOR = `[data-node-type="blockContainer"]`;
 export const BLOCK_GROUP_SELECTOR = `[data-node-type="blockGroup"]`;

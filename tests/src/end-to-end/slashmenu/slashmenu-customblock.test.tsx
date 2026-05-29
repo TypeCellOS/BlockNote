@@ -1,9 +1,9 @@
 import App from "@examples/06-custom-schema/01-alert-block/src/App";
 import { beforeEach, describe, expect, test } from "vite-plus/test";
+import { render } from "vitest-browser-react";
 import { userEvent } from "../../utils/context.js";
-import { SLASH_MENU_SELECTOR } from "../../utils/const.js";
+import { EDITOR_SELECTOR, SLASH_MENU_SELECTOR } from "../../utils/const.js";
 import { waitForSelector } from "../../utils/editor.js";
-import { renderEditor } from "../../utils/render.js";
 
 // `expect.element` is augmented against the bare `vitest` module, but vite-plus
 // types `expect` from an internal module, so the augmentation doesn't attach.
@@ -21,7 +21,8 @@ const expectElement = (expect as unknown as { element: ElementExpect }).element;
 // open in this scenario.
 describe("Slash menu in custom (alert) block – issue #2531", () => {
   beforeEach(async () => {
-    await renderEditor(<App />);
+    render(<App />);
+    await waitForSelector(EDITOR_SELECTOR);
   });
 
   test("opens slash menu when / is typed at end of alert block content (no preceding space)", async () => {

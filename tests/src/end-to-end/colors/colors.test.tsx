@@ -1,11 +1,13 @@
 import App from "@examples/01-basic/testing/src/App";
 import { beforeEach, describe, test } from "vite-plus/test";
+import { render } from "vitest-browser-react";
 import { MOD, page, userEvent } from "../../utils/context.js";
 import {
   BACKGROUND_COLOR_SELECTOR,
   COLORS_BUTTON_SELECTOR,
   DRAG_HANDLE_MENU_SELECTOR,
   DRAG_HANDLE_SELECTOR,
+  EDITOR_SELECTOR,
   H_TWO_BLOCK_SELECTOR,
   TABLE_SELECTOR,
   TEXT_COLOR_SELECTOR,
@@ -18,11 +20,11 @@ import {
   waitForSelector,
 } from "../../utils/editor.js";
 import { clickAt, getRect, moveMouseOverElement } from "../../utils/mouse.js";
-import { renderEditor } from "../../utils/render.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 beforeEach(async () => {
-  await renderEditor(<App />);
+  render(<App />);
+  await waitForSelector(EDITOR_SELECTOR);
 });
 
 describe("Check Background & Text Color Functionality", () => {

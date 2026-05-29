@@ -13,7 +13,7 @@ export { page };
 
 /**
  * Triggers a custom browser command registered in `vite.config.browser.ts`
- * (e.g. `playwrightMouse`). The public `server.commands` API isn't exported in
+ * (e.g. `positionalMouse`). The public `server.commands` API isn't exported in
  * this build, so we go through the browser runner directly.
  */
 export function triggerCommand<T = unknown>(

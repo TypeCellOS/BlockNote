@@ -1,7 +1,11 @@
 import App from "@examples/01-basic/testing/src/App";
 import { beforeEach, describe, test } from "vite-plus/test";
+import { render } from "vitest-browser-react";
 import { userEvent } from "../../utils/context.js";
-import { ALIGN_TEXT_RIGHT_BUTTON_SELECTOR } from "../../utils/const.js";
+import {
+  ALIGN_TEXT_RIGHT_BUTTON_SELECTOR,
+  EDITOR_SELECTOR,
+} from "../../utils/const.js";
 import { insertHeading } from "../../utils/copypaste.js";
 import {
   focusOnEditor,
@@ -9,10 +13,10 @@ import {
   sleep,
   waitForSelector,
 } from "../../utils/editor.js";
-import { renderEditor } from "../../utils/render.js";
 
 beforeEach(async () => {
-  await renderEditor(<App />);
+  render(<App />);
+  await waitForSelector(EDITOR_SELECTOR);
 });
 
 describe("Check Text Alignment Functionality", () => {

@@ -1,12 +1,13 @@
 import App from "@examples/01-basic/testing/src/App";
 import { beforeEach, describe, test } from "vite-plus/test";
+import { render } from "vitest-browser-react";
 import { EDITOR_SELECTOR } from "../../utils/const.js";
-import { expectElement, sleep } from "../../utils/editor.js";
+import { expectElement, sleep, waitForSelector } from "../../utils/editor.js";
 import { moveMouseOverElement } from "../../utils/mouse.js";
-import { renderEditor } from "../../utils/render.js";
 
 beforeEach(async () => {
-  await renderEditor(<App />);
+  render(<App />);
+  await waitForSelector(EDITOR_SELECTOR);
 });
 
 describe("Basic placeholder functionality", () => {

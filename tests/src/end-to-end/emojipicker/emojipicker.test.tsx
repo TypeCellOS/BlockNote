@@ -1,7 +1,8 @@
 import App from "@examples/01-basic/testing/src/App";
 import { beforeEach, describe, expect, test } from "vite-plus/test";
+import { render } from "vitest-browser-react";
 import { userEvent } from "../../utils/context.js";
-import { EMOJI_PICKER_SELECTOR } from "../../utils/const.js";
+import { EDITOR_SELECTOR, EMOJI_PICKER_SELECTOR } from "../../utils/const.js";
 import {
   focusOnEditor,
   sleep,
@@ -12,11 +13,11 @@ import {
   executeEmojiCommand,
   openEmojiPicker,
 } from "../../utils/emojipicker.js";
-import { renderEditor } from "../../utils/render.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 beforeEach(async () => {
-  await renderEditor(<App />);
+  render(<App />);
+  await waitForSelector(EDITOR_SELECTOR);
 });
 
 describe("Check Emoji Picker Functionality", () => {

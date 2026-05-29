@@ -1,16 +1,18 @@
 import App from "@examples/01-basic/03-multi-column/src/App";
 import { beforeEach, describe, test } from "vite-plus/test";
+import { render } from "vitest-browser-react";
 import { MOD, page, userEvent } from "../../utils/context.js";
+import { EDITOR_SELECTOR } from "../../utils/const.js";
 import {
   compareDocToSnapshot,
   focusOnEditor,
   waitForSelector,
 } from "../../utils/editor.js";
 import { clickAt, getRect } from "../../utils/mouse.js";
-import { renderEditor } from "../../utils/render.js";
 
 beforeEach(async () => {
-  await renderEditor(<App />);
+  render(<App />);
+  await waitForSelector(EDITOR_SELECTOR);
 });
 
 describe("Check Multi-Column Behaviour", () => {

@@ -1,8 +1,10 @@
 import App from "@examples/01-basic/08-ariakit/src/App";
 import { beforeEach, describe, test } from "vite-plus/test";
+import { render } from "vitest-browser-react";
 import { userEvent } from "../../utils/context.js";
 import {
   DRAG_HANDLE_SELECTOR,
+  EDITOR_SELECTOR,
   LINK_BUTTON_SELECTOR,
   PARAGRAPH_SELECTOR,
 } from "../../utils/const.js";
@@ -13,11 +15,11 @@ import {
   waitForSelector,
 } from "../../utils/editor.js";
 import { mouseSequence, moveMouseOverElement } from "../../utils/mouse.js";
-import { renderEditor } from "../../utils/render.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 beforeEach(async () => {
-  await renderEditor(<App />);
+  render(<App />);
+  await waitForSelector(EDITOR_SELECTOR);
 });
 
 describe("Check Ariakit UI", () => {

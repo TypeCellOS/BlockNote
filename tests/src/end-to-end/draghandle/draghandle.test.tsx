@@ -1,11 +1,13 @@
 import App from "@examples/01-basic/testing/src/App";
 import { beforeEach, describe, expect, test } from "vite-plus/test";
-import { page, userEvent } from "../../utils/context.js";
+import { render } from "vitest-browser-react";
+import { MOD, page, userEvent } from "../../utils/context.js";
 import {
   BULLET_LIST_SELECTOR,
   DRAG_HANDLE_ADD_SELECTOR,
   DRAG_HANDLE_MENU_SELECTOR,
   DRAG_HANDLE_SELECTOR,
+  EDITOR_SELECTOR,
   H_ONE_BLOCK_SELECTOR,
   H_THREE_BLOCK_SELECTOR,
   H_TWO_BLOCK_SELECTOR,
@@ -25,14 +27,13 @@ import {
   waitForSelector,
   waitForSelectorDetached,
 } from "../../utils/editor.js";
-import { MOD } from "../../utils/keyboard.js";
 import { moveMouseOverElement } from "../../utils/mouse.js";
-import { renderEditor } from "../../utils/render.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 describe("Check Draghandle functionality", () => {
   beforeEach(async () => {
-    await renderEditor(<App />);
+    render(<App />);
+    await waitForSelector(EDITOR_SELECTOR);
     await focusOnEditor();
   });
 

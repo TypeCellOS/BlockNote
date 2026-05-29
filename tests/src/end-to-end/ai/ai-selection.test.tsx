@@ -1,14 +1,16 @@
 import App from "@examples/09-ai/01-minimal/src/App";
 import { beforeEach, describe, expect, test } from "vite-plus/test";
+import { render } from "vitest-browser-react";
 import { userEvent } from "../../utils/context.js";
+import { EDITOR_SELECTOR } from "../../utils/const.js";
 import { focusOnEditor, sleep, waitForSelector } from "../../utils/editor.js";
 import { clickAt, getRect } from "../../utils/mouse.js";
-import { renderEditor } from "../../utils/render.js";
 
 const AI_BUTTON_SELECTOR = `[data-test="editwithAI"]`;
 
 beforeEach(async () => {
-  await renderEditor(<App />);
+  render(<App />);
+  await waitForSelector(EDITOR_SELECTOR);
 });
 
 describe("AI toolbar button should preserve selection (issue #2525)", () => {

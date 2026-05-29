@@ -1,10 +1,9 @@
 import * as fs from "fs";
 import * as path from "path";
-import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig, type UserConfig } from "vite-plus";
 import { playwright } from "vite-plus/test/browser/providers/playwright";
-import { playwrightMouse } from "./src/end-to-end/commands/playwrightMouse.js";
+import { positionalMouse } from "./src/utils/positionalMouse.js";
 
 // 1280x720 matches the old Playwright defaults so visual baselines have room.
 // Used as the playwright context viewport for every browser instance.
@@ -59,7 +58,7 @@ export default defineConfig(
       // `tailwind.css` (and `@apply` directives in package sources) only work
       // when Tailwind v4 processes the CSS. Without it, ShadCN UI components
       // render unstyled because their utility classes don't exist.
-      plugins: [react(), tailwindcss()],
+      plugins: [tailwindcss()],
       resolve: {
         // Mount example apps via `@examples/<group>/<name>/src/App`. The examples
         // live outside the tests root, but vite-plus already allows serving the
@@ -102,7 +101,7 @@ export default defineConfig(
             contextOptions: { viewport: VIEWPORT },
           }),
           headless: true,
-          commands: { playwrightMouse },
+          commands: { positionalMouse },
           instances: [
             {
               browser: "chromium",

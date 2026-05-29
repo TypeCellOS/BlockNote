@@ -1,8 +1,10 @@
 import PdfFileApp from "@examples/06-custom-schema/04-pdf-file-block/src/App";
 import TestingApp from "@examples/01-basic/testing/src/App";
 import { describe, expect, test } from "vite-plus/test";
+import { render } from "vitest-browser-react";
 import { browserName, userEvent } from "../../utils/context.js";
 import {
+  EDITOR_SELECTOR,
   H_ONE_BLOCK_SELECTOR,
   H_THREE_BLOCK_SELECTOR,
   H_TWO_BLOCK_SELECTOR,
@@ -17,7 +19,6 @@ import {
   waitForSelector,
 } from "../../utils/editor.js";
 import { dragAndDropBlock } from "../../utils/mouse.js";
-import { renderEditor } from "../../utils/render.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 // `expect.element` is augmented against the bare `vitest` module, but vite-plus
@@ -34,7 +35,8 @@ describe("Check Block Dragging Functionality", () => {
   test.skipIf(browserName === "firefox")(
     "Should be able to drag & drop non-nested blocks",
     async () => {
-      await renderEditor(<TestingApp />);
+      render(<TestingApp />);
+      await waitForSelector(EDITOR_SELECTOR);
       await focusOnEditor();
 
       await insertHeading(1);
@@ -52,7 +54,8 @@ describe("Check Block Dragging Functionality", () => {
   test.skipIf(browserName === "firefox")(
     "Should be able to drag & drop nested blocks",
     async () => {
-      await renderEditor(<TestingApp />);
+      render(<TestingApp />);
+      await waitForSelector(EDITOR_SELECTOR);
       await focusOnEditor();
 
       await insertHeading(1);
@@ -94,7 +97,8 @@ describe("Check Block Dragging Functionality", () => {
   test.skipIf(browserName === "firefox")(
     "Should be able to drag image",
     async () => {
-      await renderEditor(<TestingApp />);
+      render(<TestingApp />);
+      await waitForSelector(EDITOR_SELECTOR);
       await focusOnEditor();
       await executeSlashCommand("image");
       await userEvent.keyboard("{Escape}");
@@ -110,7 +114,8 @@ describe("Check Block Dragging Functionality", () => {
   test.skipIf(browserName === "firefox")(
     "Formatting toolbar should not appear when dragging image block",
     async () => {
-      await renderEditor(<TestingApp />);
+      render(<TestingApp />);
+      await waitForSelector(EDITOR_SELECTOR);
       await focusOnEditor();
       await executeSlashCommand("image");
       await userEvent.keyboard("{Escape}");
@@ -128,7 +133,8 @@ describe("Check Block Dragging Functionality", () => {
   test.skipIf(browserName === "firefox")(
     "Should be able to drag PDF block",
     async () => {
-      await renderEditor(<PdfFileApp />);
+      render(<PdfFileApp />);
+      await waitForSelector(EDITOR_SELECTOR);
       await focusOnEditor();
       await waitForSelector(PDF_SELECTOR);
 

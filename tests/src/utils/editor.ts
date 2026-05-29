@@ -94,12 +94,15 @@ export async function compareDocToSnapshot(name: string) {
 // Vite Plus ships the browser matchers' `expect.element` augmentation against
 // the bare `vitest` module, but its own `expect` is typed from an internal
 // module, so the augmentation doesn't attach. Type the accessor locally.
+type ElementMatchers = {
+  toMatchScreenshot(name?: string): Promise<void>;
+  toBeVisible(): Promise<void>;
+  not: { toBeVisible(): Promise<void> };
+};
 type ElementExpect = (
   element: Element | null,
   options?: { timeout?: number },
-) => {
-  toMatchScreenshot(name?: string): Promise<void>;
-};
+) => ElementMatchers;
 
 export const expectElement = (expect as unknown as { element: ElementExpect })
   .element;

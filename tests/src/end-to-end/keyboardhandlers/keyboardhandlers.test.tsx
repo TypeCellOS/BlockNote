@@ -1,7 +1,9 @@
 import App from "@examples/01-basic/testing/src/App";
 import { beforeEach, describe, test } from "vite-plus/test";
+import { render } from "vitest-browser-react";
 import { MOD, userEvent } from "../../utils/context.js";
 import {
+  EDITOR_SELECTOR,
   H_ONE_BLOCK_SELECTOR,
   ITALIC_BUTTON_SELECTOR,
 } from "../../utils/const.js";
@@ -13,11 +15,11 @@ import {
   waitForSelector,
 } from "../../utils/editor.js";
 import { clickAt, getRect } from "../../utils/mouse.js";
-import { renderEditor } from "../../utils/render.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 beforeEach(async () => {
-  await renderEditor(<App />);
+  render(<App />);
+  await waitForSelector(EDITOR_SELECTOR);
 });
 
 describe("Check Keyboard Handlers' Behaviour", () => {

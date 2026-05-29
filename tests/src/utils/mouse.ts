@@ -1,12 +1,12 @@
-import type { MouseAction } from "../end-to-end/commands/playwrightMouse.js";
 import { triggerCommand } from "./context.js";
 import { DRAG_HANDLE_SELECTOR } from "./const.js";
 import { sleep, waitForSelector } from "./editor.js";
+import type { MouseAction } from "./positionalMouse.js";
 
-// `playwrightMouse` is registered as a browser command in vite.config.browser.ts.
+// `positionalMouse` is registered as a browser command in vite.config.browser.ts.
 // `import type` above keeps the (Node-only) command module out of the browser bundle.
 function runMouse(actions: MouseAction[]): Promise<void> {
-  return triggerCommand("playwrightMouse", [actions]);
+  return triggerCommand("positionalMouse", [actions]);
 }
 
 /** Bounding rect of an element, resolved from a selector or the element itself. */

@@ -2,12 +2,14 @@ import BasicBlocksApp from "@examples/01-basic/04-default-blocks/src/App";
 import BasicBlocksStaticApp from "@examples/05-interoperability/10-static-html-render/src/App";
 import StaticApp from "@examples/02-backend/04-rendering-static-documents/src/App";
 import { describe, test } from "vite-plus/test";
-import { expectElement, sleep } from "../../utils/editor.js";
-import { renderEditor } from "../../utils/render.js";
+import { render } from "vitest-browser-react";
+import { EDITOR_SELECTOR } from "../../utils/const.js";
+import { expectElement, sleep, waitForSelector } from "../../utils/editor.js";
 
 describe("Check static rendering", () => {
   test("Check static rendering", async () => {
-    await renderEditor(<StaticApp />);
+    render(<StaticApp />);
+    await waitForSelector(EDITOR_SELECTOR);
     await sleep(500);
     await expectElement(document.body).toMatchScreenshot("static-rendering");
   });
@@ -19,7 +21,8 @@ describe("Check static rendering", () => {
     "Check static rendering visually matches live editor",
     { timeout: 60000 },
     async () => {
-      const liveEditor = await renderEditor(<BasicBlocksApp />);
+      const liveEditor = await render(<BasicBlocksApp />);
+      await waitForSelector(EDITOR_SELECTOR);
       // Hide the trailing block widget so the live editor's page height matches
       // the static export, which doesn't render it.
       const style = document.createElement("style");
@@ -34,7 +37,8 @@ describe("Check static rendering", () => {
       liveEditor.unmount();
       style.remove();
 
-      await renderEditor(<BasicBlocksStaticApp />);
+      render(<BasicBlocksStaticApp />);
+      await waitForSelector(EDITOR_SELECTOR);
       await sleep(500);
       await expectElement(document.body).toMatchScreenshot(
         "static-rendering-equality",

@@ -2,7 +2,9 @@
 import TestingApp from "@examples/01-basic/testing/src/App";
 import NonEditableApp from "@examples/06-custom-schema/08-non-editable-block/src/App";
 import { beforeEach, describe, test } from "vite-plus/test";
+import { render } from "vitest-browser-react";
 import { browserName, MOD, userEvent } from "../../utils/context.js";
+import { EDITOR_SELECTOR } from "../../utils/const.js";
 import {
   copyPaste,
   copyPasteAll,
@@ -18,12 +20,12 @@ import {
   waitForSelector,
 } from "../../utils/editor.js";
 import { getRect, mouseSequence } from "../../utils/mouse.js";
-import { renderEditor } from "../../utils/render.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 describe("Check Copy/Paste Functionality", () => {
   beforeEach(async () => {
-    await renderEditor(<TestingApp />);
+    render(<TestingApp />);
+    await waitForSelector(EDITOR_SELECTOR);
   });
 
   // Firefox doesn't yet support the async clipboard API. Webkit copy/paste
@@ -172,7 +174,8 @@ describe("Check Copy/Paste Functionality", () => {
 
 describe("Check Copy/Paste From Non-Editable Block", () => {
   beforeEach(async () => {
-    await renderEditor(<NonEditableApp />);
+    render(<NonEditableApp />);
+    await waitForSelector(EDITOR_SELECTOR);
   });
 
   // Firefox doesn't yet support the async clipboard API. Webkit copy/paste

@@ -1,14 +1,19 @@
 import App from "@examples/01-basic/testing/src/App";
 import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
+import { render } from "vitest-browser-react";
 import { browserName, userEvent } from "../../utils/context.js";
-import { TABLE_SELECTOR } from "../../utils/const.js";
-import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor.js";
+import { EDITOR_SELECTOR, TABLE_SELECTOR } from "../../utils/const.js";
+import {
+  compareDocToSnapshot,
+  focusOnEditor,
+  waitForSelector,
+} from "../../utils/editor.js";
 import { mouseSequence, moveMouseOverElement } from "../../utils/mouse.js";
-import { renderEditor } from "../../utils/render.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 beforeEach(async () => {
-  await renderEditor(<App />);
+  render(<App />);
+  await waitForSelector(EDITOR_SELECTOR);
 });
 
 describe("Check Table interactions", () => {

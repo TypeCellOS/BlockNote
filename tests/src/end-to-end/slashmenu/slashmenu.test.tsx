@@ -1,10 +1,12 @@
 import App from "@examples/01-basic/testing/src/App";
 import { beforeEach, describe, expect, test } from "vite-plus/test";
+import { render } from "vitest-browser-react";
 import { userEvent } from "../../utils/context.js";
 import {
   BLOCK_CONTAINER_SELECTOR,
   BLOCK_GROUP_SELECTOR,
   BULLET_LIST_SELECTOR,
+  EDITOR_SELECTOR,
   H_ONE_BLOCK_SELECTOR,
   H_THREE_BLOCK_SELECTOR,
   H_TWO_BLOCK_SELECTOR,
@@ -18,11 +20,11 @@ import {
   waitForSelector,
   waitForSelectorInEditor,
 } from "../../utils/editor.js";
-import { renderEditor } from "../../utils/render.js";
 import { executeSlashCommand, openSlashMenu } from "../../utils/slashmenu.js";
 
 beforeEach(async () => {
-  await renderEditor(<App />);
+  render(<App />);
+  await waitForSelector(EDITOR_SELECTOR);
 });
 
 describe("Check SlashMenu Functionality", () => {

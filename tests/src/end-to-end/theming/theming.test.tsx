@@ -1,8 +1,10 @@
 import App from "@examples/01-basic/testing/src/App";
 import { afterEach, beforeEach, describe, test } from "vite-plus/test";
+import { render } from "vitest-browser-react";
 import { userEvent } from "../../utils/context.js";
 import {
   DRAG_HANDLE_SELECTOR,
+  EDITOR_SELECTOR,
   LINK_BUTTON_SELECTOR,
   PARAGRAPH_SELECTOR,
 } from "../../utils/const.js";
@@ -13,7 +15,6 @@ import {
   waitForSelector,
 } from "../../utils/editor.js";
 import { moveMouseOverElement, mouseSequence } from "../../utils/mouse.js";
-import { renderEditor } from "../../utils/render.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 // Vitest browser mode has no per-test `colorScheme` knob (the playwright
@@ -36,7 +37,8 @@ beforeEach(async () => {
     removeEventListener: () => {},
     dispatchEvent: () => false,
   })) as typeof window.matchMedia;
-  await renderEditor(<App />);
+  render(<App />);
+  await waitForSelector(EDITOR_SELECTOR);
 });
 
 afterEach(() => {

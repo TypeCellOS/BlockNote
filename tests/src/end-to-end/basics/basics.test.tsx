@@ -1,12 +1,13 @@
 import App from "@examples/01-basic/testing/src/App";
 import { beforeEach, describe, expect, test } from "vite-plus/test";
+import { render } from "vitest-browser-react";
 import { userEvent } from "../../utils/context.js";
 import { EDITOR_SELECTOR } from "../../utils/const.js";
 import { waitForSelector } from "../../utils/editor.js";
-import { renderEditor } from "../../utils/render.js";
 
 beforeEach(async () => {
-  await renderEditor(<App />);
+  render(<App />);
+  await waitForSelector(EDITOR_SELECTOR);
 });
 
 describe("Basic typing functionality", () => {

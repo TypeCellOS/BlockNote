@@ -1,20 +1,15 @@
 import App from "@examples/07-collaboration/09-comments-testing/src/App";
 import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
+import { render } from "vitest-browser-react";
 import { browserName, page, userEvent } from "../../utils/context.js";
-import { LINK_BUTTON_SELECTOR } from "../../utils/const.js";
-import { focusOnEditor, sleep, waitForSelector } from "../../utils/editor.js";
+import { EDITOR_SELECTOR, LINK_BUTTON_SELECTOR } from "../../utils/const.js";
+import {
+  expectElement,
+  focusOnEditor,
+  sleep,
+  waitForSelector,
+} from "../../utils/editor.js";
 import { clickAt, getRect } from "../../utils/mouse.js";
-import { renderEditor } from "../../utils/render.js";
-
-// `expect.element` is augmented against the bare `vitest` module, but vite-plus
-// types `expect` from an internal module, so the augmentation doesn't attach.
-// Type the accessor locally.
-type ElementMatchers = {
-  toBeVisible(): Promise<void>;
-  not: { toBeVisible(): Promise<void> };
-};
-type ElementExpect = (element: Element | null) => ElementMatchers;
-const expectElement = (expect as unknown as { element: ElementExpect }).element;
 
 /** Double-clicks the centre of an element via the real Playwright mouse. */
 async function doubleClickElement(element: Element) {
@@ -23,7 +18,8 @@ async function doubleClickElement(element: Element) {
 }
 
 beforeEach(async () => {
-  await renderEditor(<App />);
+  render(<App />);
+  await waitForSelector(EDITOR_SELECTOR);
 });
 
 describe("Check Comments functionality", () => {
