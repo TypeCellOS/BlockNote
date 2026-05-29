@@ -5,7 +5,7 @@ import { userEvent } from "../../utils/context.js";
 import {
   compareDocToSnapshot,
   focusOnEditor,
-  matchPageScreenshot,
+  expectElement,
   sleep,
   waitForSelector,
 } from "../../utils/editor.js";
@@ -33,7 +33,7 @@ describe("Check Image Block and Toolbar functionality", () => {
 
     await sleep(500);
     await compareDocToSnapshot("createImage");
-    await matchPageScreenshot("create-image");
+    await expectElement(document.body).toMatchScreenshot("create-image");
   });
   test.skip("Should be able to upload image", async () => {
     await renderEditor(<TestingApp />);
@@ -53,7 +53,7 @@ describe("Check Image Block and Toolbar functionality", () => {
     await userEvent.click(await waitForSelector(`img`));
 
     await sleep(500);
-    await matchPageScreenshot("upload-image");
+    await expectElement(document.body).toMatchScreenshot("upload-image");
   });
   test("Should be able to embed image", async () => {
     await renderEditor(<TestingApp />);
@@ -73,7 +73,7 @@ describe("Check Image Block and Toolbar functionality", () => {
 
     await sleep(500);
     await compareDocToSnapshot("embedImage");
-    await matchPageScreenshot("embed-image");
+    await expectElement(document.body).toMatchScreenshot("embed-image");
   });
   test("Should be able to resize image", async () => {
     await renderEditor(<TestingApp />);
@@ -114,7 +114,7 @@ describe("Check Image Block and Toolbar functionality", () => {
 
     await sleep(500);
     await compareDocToSnapshot("resizeImage");
-    await matchPageScreenshot("resize-image");
+    await expectElement(document.body).toMatchScreenshot("resize-image");
   });
   test("Should be able to delete image with backspace", async () => {
     await renderEditor(<TestingApp />);
@@ -142,8 +142,11 @@ describe("Check Image Block and Toolbar functionality", () => {
     const filePanel = await waitForSelector(".bn-panel");
     await expectElement(filePanel).toBeVisible();
 
-    await expectElement(
-      document.querySelector(".bn-formatting-toolbar"),
-    ).not.toBeVisible();
+    // The toolbar may either be absent from the DOM or present-but-hidden;
+    // expectElement().not.toBeVisible() errors on null, so handle both.
+    const toolbar = document.querySelector(".bn-formatting-toolbar");
+    if (toolbar) {
+      await expectElement(toolbar).not.toBeVisible();
+    }
   });
 });

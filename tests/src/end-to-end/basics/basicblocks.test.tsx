@@ -3,7 +3,7 @@ import { beforeEach, describe, test } from "vite-plus/test";
 import { page, userEvent } from "../../utils/context.js";
 import {
   focusOnEditor,
-  matchPageScreenshot,
+  expectElement,
   sleep,
   waitForSelector,
 } from "../../utils/editor.js";
@@ -34,6 +34,6 @@ describe.skip("Check basic text block appearance", () => {
     await page.getByText("Welcome to this demo!").click();
 
     await sleep(100);
-    await matchPageScreenshot("basicblocks");
+    await expectElement(document.body).toMatchScreenshot("basicblocks");
   });
 });

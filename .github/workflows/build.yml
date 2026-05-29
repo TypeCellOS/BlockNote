@@ -6,9 +6,6 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, edited]
 
-permissions:
-  contents: read
-
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -18,12 +15,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 100
-          persist-credentials: false
 
-      - uses: voidzero-dev/setup-vp@2dec1e33f4ab2c6d5bce1b0c4607961bb1a3f7a1 # v1
+      - uses: voidzero-dev/setup-vp@v1
         with:
           node-version-file: ".node-version"
           cache: true
@@ -45,7 +41,7 @@ jobs:
         working-directory: tests
 
       - name: Upload webpack stats artifact (editor)
-        uses: relative-ci/agent-upload-artifact-action@a2b5741b4f7e6a989c84ec1a3059696b23c152e5 # v2
+        uses: relative-ci/agent-upload-artifact-action@v2
         with:
           webpackStatsFile: ./playground/dist/webpack-stats.json
           artifactName: relative-ci-artifacts-editor
@@ -54,17 +50,16 @@ jobs:
         id: soft-release
         run: vp dlx pkg-pr-new publish './packages/*' # TODO disabled only for AI branch--compact
 
-  playwright-build:
-    name: "Playwright Build"
+  e2e-build:
+    name: "E2E Build"
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 100
-          persist-credentials: false
 
-      - uses: voidzero-dev/setup-vp@2dec1e33f4ab2c6d5bce1b0c4607961bb1a3f7a1 # v1
+      - uses: voidzero-dev/setup-vp@v1
         with:
           node-version-file: ".node-version"
           cache: true
@@ -72,22 +67,24 @@ jobs:
       - name: Install dependencies
         run: vp install
 
+      # Example apps mounted by the e2e tests import the @blocknote/* packages'
+      # built dist.
       - name: Build packages
-        run: vp run -r build
+        run: vp run --filter ./packages build
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+      - name: Upload package dist
+        uses: actions/upload-artifact@v7
         with:
-          name: playwright-build
-          path: |
-            packages/*/dist
-            playground/dist
+          name: e2e-package-dist
+          path: packages/*/dist
           retention-days: 1
 
-  playwright:
-    name: "Playwright Tests - ${{ matrix.browser }} (${{ matrix.shardIndex }}/${{ matrix.shardTotal }})"
+  e2e:
+    # Vitest Browser Mode runs in the Playwright Linux container — the same
+    # environment as the local Docker run — so behaviour matches local dev.
+    name: "E2E - ${{ matrix.browser }}"
     runs-on: ubuntu-latest
-    needs: playwright-build
+    needs: e2e-build
     timeout-minutes: 30
     container:
       image: mcr.microsoft.com/playwright:v1.51.1-noble
@@ -95,60 +92,12 @@ jobs:
       fail-fast: false
       matrix:
         browser: [chromium, firefox, webkit]
-        shardIndex: [1, 2]
-        shardTotal: [2]
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 100
-          persist-credentials: false
 
-      - uses: voidzero-dev/setup-vp@2dec1e33f4ab2c6d5bce1b0c4607961bb1a3f7a1 # v1
-        with:
-          node-version-file: ".node-version"
-          cache: true
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
-        with:
-          name: playwright-build
-
-      - name: Install dependencies
-        run: vp install
-
-      - name: Run server and Playwright tests
-        run: |
-          HOME=/root vp exec concurrently --success=first -r --kill-others \
-            "vp run --filter @blocknote/example-editor preview" \
-            "wait-on http://localhost:3000 && cd tests && vp exec playwright test --project ${{ matrix.browser }} --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}"
-
-      - name: Upload blob report
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: ${{ !cancelled() }}
-        with:
-          name: blob-report-${{ matrix.browser }}-${{ matrix.shardIndex }}
-          path: tests/blob-report/
-          retention-days: 1
-
-      - name: Upload HTML report
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: ${{ !cancelled() }}
-        with:
-          name: playwright-report-${{ matrix.browser }}-${{ matrix.shardIndex }}
-          path: tests/playwright-report/
-          retention-days: 30
-
-  merge-reports:
-    name: "Merge Playwright Reports"
-    if: ${{ !cancelled() }}
-    needs: playwright
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-        with:
-          persist-credentials: false
-
-      - uses: voidzero-dev/setup-vp@2dec1e33f4ab2c6d5bce1b0c4607961bb1a3f7a1 # v1
+      - uses: voidzero-dev/setup-vp@v1
         with:
           node-version-file: ".node-version"
           cache: true
@@ -156,20 +105,22 @@ jobs:
       - name: Install dependencies
         run: vp install
 
-      - name: Download blob reports
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+      - name: Download package dist
+        uses: actions/download-artifact@v8
         with:
-          path: tests/all-blob-reports
-          pattern: blob-report-*
-          merge-multiple: true
+          name: e2e-package-dist
+          path: packages
 
-      - name: Merge reports
-        run: vp exec playwright merge-reports --reporter html ./all-blob-reports
+      # No preview server: Vitest Browser Mode serves the tests + mounted example
+      # apps itself. `--browser` selects this matrix shard's browser.
+      - name: Run e2e tests (${{ matrix.browser }})
+        run: HOME=/root vp test -c vite.config.browser.ts --run --browser ${{ matrix.browser }}
         working-directory: tests
 
-      - name: Upload merged HTML report
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+      - name: Upload failure artifacts
+        uses: actions/upload-artifact@v7
+        if: ${{ failure() }}
         with:
-          name: playwright-report-merged
-          path: tests/playwright-report/
-          retention-days: 30
+          name: e2e-attachments-${{ matrix.browser }}
+          path: tests/.vitest-attachments/
+          retention-days: 7

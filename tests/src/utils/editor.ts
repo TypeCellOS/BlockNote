@@ -97,9 +97,12 @@ export async function compareDocToSnapshot(name: string) {
 type ElementExpect = (
   element: Element | null,
   options?: { timeout?: number },
-) => { toMatchScreenshot(name?: string): Promise<void> };
+) => {
+  toMatchScreenshot(name?: string): Promise<void>;
+};
 
-const expectElement = (expect as unknown as { element: ElementExpect }).element;
+export const expectElement = (expect as unknown as { element: ElementExpect })
+  .element;
 
 /**
  * Visual regression snapshot of the whole page (captures the editor plus any

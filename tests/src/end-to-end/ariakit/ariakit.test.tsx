@@ -8,7 +8,7 @@ import {
 } from "../../utils/const.js";
 import {
   focusOnEditor,
-  matchPageScreenshot,
+  expectElement,
   sleep,
   waitForSelector,
 } from "../../utils/editor.js";
@@ -27,7 +27,9 @@ describe("Check Ariakit UI", () => {
     await userEvent.keyboard("{Shift>}{Home}{/Shift}");
 
     await sleep(500);
-    await matchPageScreenshot("ariakit-formatting-toolbar");
+    await expectElement(document.body).toMatchScreenshot(
+      "ariakit-formatting-toolbar",
+    );
   });
   test("Check link toolbar", async () => {
     await focusOnEditor();
@@ -43,14 +45,16 @@ describe("Check Ariakit UI", () => {
     await userEvent.keyboard("{ArrowRight}");
 
     await sleep(500);
-    await matchPageScreenshot("ariakit-link-toolbar");
+    await expectElement(document.body).toMatchScreenshot(
+      "ariakit-link-toolbar",
+    );
   });
   test("Check slash menu", async () => {
     await focusOnEditor();
     await userEvent.keyboard("/");
 
     await sleep(500);
-    await matchPageScreenshot("ariakit-slash-menu");
+    await expectElement(document.body).toMatchScreenshot("ariakit-slash-menu");
   });
   test("Check emoji picker", async () => {
     await focusOnEditor();
@@ -58,7 +62,9 @@ describe("Check Ariakit UI", () => {
     await userEvent.keyboard("sm");
 
     await sleep(500);
-    await matchPageScreenshot("ariakit-emoji-picker");
+    await expectElement(document.body).toMatchScreenshot(
+      "ariakit-emoji-picker",
+    );
   });
   test("Check side menu", async () => {
     await focusOnEditor();
@@ -66,7 +72,7 @@ describe("Check Ariakit UI", () => {
     await moveMouseOverElement(PARAGRAPH_SELECTOR);
 
     await sleep(500);
-    await matchPageScreenshot("ariakit-side-menu");
+    await expectElement(document.body).toMatchScreenshot("ariakit-side-menu");
   });
   test("Check drag handle menu", async () => {
     await focusOnEditor();
@@ -79,13 +85,17 @@ describe("Check Ariakit UI", () => {
     await mouseSequence([{ type: "down" }, { type: "up" }]);
 
     await sleep(500);
-    await matchPageScreenshot("ariakit-drag-handle-menu");
+    await expectElement(document.body).toMatchScreenshot(
+      "ariakit-drag-handle-menu",
+    );
   });
   test("Check image toolbar", async () => {
     await focusOnEditor();
     await executeSlashCommand("image");
 
     await sleep(500);
-    await matchPageScreenshot("ariakit-image-toolbar");
+    await expectElement(document.body).toMatchScreenshot(
+      "ariakit-image-toolbar",
+    );
   });
 });

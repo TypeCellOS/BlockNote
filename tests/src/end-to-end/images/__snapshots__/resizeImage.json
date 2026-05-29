@@ -1,0 +1,30 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "blockGroup",
+      "content": [
+        {
+          "type": "blockContainer",
+          "attrs": {
+            "id": "0"
+          },
+          "content": [
+            {
+              "type": "image",
+              "attrs": {
+                "textAlignment": "left",
+                "backgroundColor": "default",
+                "name": "800x540.png",
+                "url": "https://placehold.co/800x540.png",
+                "caption": "",
+                "showPreview": true,
+                "previewWidth": 573
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

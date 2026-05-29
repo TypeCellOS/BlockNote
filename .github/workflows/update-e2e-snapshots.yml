@@ -1,0 +1,45 @@
+name: Update e2e snapshots
+
+# Manually triggered: regenerates the Linux-rendered visual-regression baselines
+# (and any JSON doc snapshots) for the Vitest Browser Mode e2e suite and commits
+# them. Visual baselines are intentionally Linux-only (see matchPageScreenshot),
+# so they must be produced here rather than from a developer's macOS machine.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-snapshots:
+    name: "Update e2e snapshots"
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    container:
+      image: mcr.microsoft.com/playwright:v1.51.1-noble
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: voidzero-dev/setup-vp@v1
+        with:
+          node-version-file: ".node-version"
+          cache: true
+
+      - name: Install dependencies
+        run: vp install
+
+      - name: Build packages
+        run: vp run -r build
+
+      - name: Regenerate snapshots (all browsers)
+        run: HOME=/root E2E_ALL_BROWSERS=1 vp test -c vite.config.browser.ts --run -u
+        working-directory: tests
+
+      - name: Commit updated snapshots
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add 'tests/src/end-to-end/**/__screenshots__' 'tests/src/end-to-end/**/__snapshots__'
+          git commit -m "chore(tests): update e2e Linux snapshots" || echo "No snapshot changes."
+          git push

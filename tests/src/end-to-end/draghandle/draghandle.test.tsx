@@ -20,7 +20,7 @@ import {
 import {
   compareDocToSnapshot,
   focusOnEditor,
-  matchPageScreenshot,
+  expectElement,
   sleep,
   waitForSelector,
   waitForSelectorDetached,
@@ -85,7 +85,7 @@ describe("Check Draghandle functionality", () => {
     // Compare editor screenshot
 
     await sleep(1000);
-    await matchPageScreenshot("draghandlemenu");
+    await expectElement(document.body).toMatchScreenshot("draghandlemenu");
   });
 
   test("Clicking add button should create new block", async () => {

@@ -1,7 +1,7 @@
 import App from "@examples/01-basic/testing/src/App";
 import { beforeEach, describe, test } from "vite-plus/test";
 import { EDITOR_SELECTOR } from "../../utils/const.js";
-import { matchPageScreenshot, sleep } from "../../utils/editor.js";
+import { expectElement, sleep } from "../../utils/editor.js";
 import { moveMouseOverElement } from "../../utils/mouse.js";
 import { renderEditor } from "../../utils/render.js";
 
@@ -20,6 +20,6 @@ describe("Basic placeholder functionality", () => {
     //   "Enter text or type '/' for commands"
     // );
     await sleep(1000);
-    await matchPageScreenshot("initial-placeholder");
+    await expectElement(document.body).toMatchScreenshot("initial-placeholder");
   });
 });

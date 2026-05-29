@@ -1,11 +1,7 @@
 import App from "@examples/09-ai/01-minimal/src/App";
 import { beforeEach, describe, expect, test } from "vite-plus/test";
 import { page, userEvent } from "../../utils/context.js";
-import {
-  matchPageScreenshot,
-  sleep,
-  waitForSelector,
-} from "../../utils/editor.js";
+import { expectElement, sleep, waitForSelector } from "../../utils/editor.js";
 import { renderEditor } from "../../utils/render.js";
 
 beforeEach(async () => {
@@ -61,7 +57,9 @@ describe("AI Menu Scroll Regression", () => {
     await sleep(300);
 
     // Screenshot after opening AI menu
-    await matchPageScreenshot("ai_menu_scroll_position");
+    await expectElement(document.body).toMatchScreenshot(
+      "ai_menu_scroll_position",
+    );
 
     // Check that the scroll position has not jumped to the top
     const scrollYAfter = window.scrollY;

@@ -1,4 +1,8 @@
 import App from "@examples/01-basic/09-shadcn/src/App";
+// The shadcn example's `main.tsx` (which we don't load in tests) imports this
+// to bootstrap Tailwind v4 + the ShadCN theme variables. Without it the
+// ShadCN UI components render unstyled (no popovers, no borders, no theme).
+import "@examples/01-basic/09-shadcn/tailwind.css";
 import { beforeEach, describe, test } from "vite-plus/test";
 import { userEvent } from "../../utils/context.js";
 import {
@@ -8,7 +12,7 @@ import {
 } from "../../utils/const.js";
 import {
   focusOnEditor,
-  matchPageScreenshot,
+  expectElement,
   sleep,
   waitForSelector,
 } from "../../utils/editor.js";
@@ -32,7 +36,9 @@ describe("Check ShadCN UI", () => {
     await userEvent.keyboard("{Shift>}{Home}{/Shift}");
 
     await sleep(500);
-    await matchPageScreenshot("shadcn-formatting-toolbar");
+    await expectElement(document.body).toMatchScreenshot(
+      "shadcn-formatting-toolbar",
+    );
   });
   test("Check link toolbar", async () => {
     await focusOnEditor();
@@ -50,14 +56,14 @@ describe("Check ShadCN UI", () => {
     await userEvent.keyboard("{ArrowRight}");
 
     await sleep(700);
-    await matchPageScreenshot("shadcn-link-toolbar");
+    await expectElement(document.body).toMatchScreenshot("shadcn-link-toolbar");
   });
   test("Check slash menu", async () => {
     await focusOnEditor();
     await userEvent.keyboard("/");
 
     await sleep(500);
-    await matchPageScreenshot("shadcn-slash-menu");
+    await expectElement(document.body).toMatchScreenshot("shadcn-slash-menu");
   });
   test("Check emoji picker", async () => {
     await focusOnEditor();
@@ -65,7 +71,7 @@ describe("Check ShadCN UI", () => {
     await userEvent.keyboard("sm");
 
     await sleep(500);
-    await matchPageScreenshot("shadcn-emoji-picker");
+    await expectElement(document.body).toMatchScreenshot("shadcn-emoji-picker");
   });
   test("Check side menu", async () => {
     await focusOnEditor();
@@ -73,7 +79,7 @@ describe("Check ShadCN UI", () => {
     await moveMouseOverElement(PARAGRAPH_SELECTOR);
 
     await sleep(500);
-    await matchPageScreenshot("shadcn-side-menu");
+    await expectElement(document.body).toMatchScreenshot("shadcn-side-menu");
   });
   test("Check drag handle menu", async () => {
     await focusOnEditor();
@@ -86,13 +92,17 @@ describe("Check ShadCN UI", () => {
     await mouseSequence([{ type: "down" }, { type: "up" }]);
 
     await sleep(500);
-    await matchPageScreenshot("shadcn-drag-handle-menu");
+    await expectElement(document.body).toMatchScreenshot(
+      "shadcn-drag-handle-menu",
+    );
   });
   test("Check image toolbar", async () => {
     await focusOnEditor();
     await executeSlashCommand("image");
 
     await sleep(500);
-    await matchPageScreenshot("shadcn-image-toolbar");
+    await expectElement(document.body).toMatchScreenshot(
+      "shadcn-image-toolbar",
+    );
   });
 });

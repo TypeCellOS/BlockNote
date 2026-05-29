@@ -179,8 +179,11 @@ describe("Check Keyboard Handlers' Behaviour", () => {
     await focusOnEditor();
     await insertParagraph();
 
-    await userEvent.keyboard("{Shift>}{ArrowLeft}{/Shift}");
-    await userEvent.keyboard("{Shift>}{ArrowLeft}{/Shift}");
+    // Hold Shift across BOTH ArrowLefts in a single keyboard call so the
+    // selection actually extends to 2 characters. Splitting into two calls
+    // releases Shift between them, leaving a 1-char selection and producing
+    // the wrong doc.
+    await userEvent.keyboard("{Shift>}{ArrowLeft}{ArrowLeft}{/Shift}");
     await userEvent.keyboard("{Delete}");
 
     await compareDocToSnapshot("deleteSelection");

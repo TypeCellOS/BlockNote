@@ -4,7 +4,7 @@ import { describe, test } from "vite-plus/test";
 import { userEvent } from "../../utils/context.js";
 import {
   compareDocToSnapshot,
-  matchPageScreenshot,
+  expectElement,
   sleep,
   waitForSelector,
 } from "../../utils/editor.js";
@@ -18,7 +18,9 @@ describe("Check custom block functionality", () => {
     await sleep(500);
 
     await compareDocToSnapshot("vanillaInteractivity");
-    await matchPageScreenshot("vanilla-interactivity");
+    await expectElement(document.body).toMatchScreenshot(
+      "vanilla-interactivity",
+    );
   });
 
   test("Should be able to interactively update React custom blocks", async () => {
@@ -28,6 +30,6 @@ describe("Check custom block functionality", () => {
     await sleep(500);
 
     await compareDocToSnapshot("reactInteractivity");
-    await matchPageScreenshot("react-interactivity");
+    await expectElement(document.body).toMatchScreenshot("react-interactivity");
   });
 });

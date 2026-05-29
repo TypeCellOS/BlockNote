@@ -5,7 +5,7 @@ import { ALIGN_TEXT_RIGHT_BUTTON_SELECTOR } from "../../utils/const.js";
 import { insertHeading } from "../../utils/copypaste.js";
 import {
   focusOnEditor,
-  matchPageScreenshot,
+  expectElement,
   sleep,
   waitForSelector,
 } from "../../utils/editor.js";
@@ -39,7 +39,9 @@ describe("Check Text Alignment Functionality", () => {
     await sleep(500);
     await userEvent.keyboard("{ArrowLeft}");
 
-    await matchPageScreenshot("alignTextSingleBlock");
+    await expectElement(document.body).toMatchScreenshot(
+      "alignTextSingleBlock",
+    );
   });
   test("Should be able to set text alignment on multiple blocks", async () => {
     await focusOnEditor();
@@ -66,6 +68,8 @@ describe("Check Text Alignment Functionality", () => {
     await sleep(500);
     await userEvent.keyboard("{ArrowLeft}");
 
-    await matchPageScreenshot("alignTextMultipleBlocks");
+    await expectElement(document.body).toMatchScreenshot(
+      "alignTextMultipleBlocks",
+    );
   });
 });

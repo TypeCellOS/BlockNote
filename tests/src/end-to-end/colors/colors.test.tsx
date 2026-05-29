@@ -13,7 +13,7 @@ import {
 import { insertHeading, insertParagraph } from "../../utils/copypaste.js";
 import {
   focusOnEditor,
-  matchPageScreenshot,
+  expectElement,
   sleep,
   waitForSelector,
 } from "../../utils/editor.js";
@@ -49,7 +49,7 @@ describe("Check Background & Text Color Functionality", () => {
     // Waits for formatting toolbar animation to finish.
     await sleep(500);
 
-    await matchPageScreenshot("textColorMark");
+    await expectElement(document.body).toMatchScreenshot("textColorMark");
   });
   test("Should be able to apply a background color mark", async () => {
     await focusOnEditor();
@@ -76,7 +76,7 @@ describe("Check Background & Text Color Functionality", () => {
     // Waits for formatting toolbar animation to finish.
     await sleep(500);
 
-    await matchPageScreenshot("backgroundColorMark");
+    await expectElement(document.body).toMatchScreenshot("backgroundColorMark");
   });
   test("Should be able to set block text color", async () => {
     await focusOnEditor();
@@ -95,6 +95,11 @@ describe("Check Background & Text Color Functionality", () => {
     await userEvent.click(await waitForSelector(DRAG_HANDLE_SELECTOR));
     await waitForSelector(DRAG_HANDLE_MENU_SELECTOR);
     await moveMouseOverElement(page.getByText("Colors").element());
+    // WebKit needs the submenu's open animation to settle before its
+    // children have non-zero bounding boxes — otherwise getRect() returns
+    // (0,0,0,0) and clickAt(10,10) hits empty viewport space.
+    await waitForSelector(TEXT_COLOR_SELECTOR("red"));
+    await sleep(200);
 
     const { x, y } = getRect(TEXT_COLOR_SELECTOR("red"));
     await clickAt(x + 10, y + 10);
@@ -102,7 +107,7 @@ describe("Check Background & Text Color Functionality", () => {
     // Waits for block side menu animation to finish.
     await sleep(500);
 
-    await matchPageScreenshot("blockTextColor");
+    await expectElement(document.body).toMatchScreenshot("blockTextColor");
   });
   test("Should be able to set block background color", async () => {
     await focusOnEditor();
@@ -121,6 +126,9 @@ describe("Check Background & Text Color Functionality", () => {
     await userEvent.click(await waitForSelector(DRAG_HANDLE_SELECTOR));
     await waitForSelector(DRAG_HANDLE_MENU_SELECTOR);
     await moveMouseOverElement(page.getByText("Colors").element());
+    // See blockTextColor for why this sleep is needed (WebKit submenu open).
+    await waitForSelector(BACKGROUND_COLOR_SELECTOR("red"));
+    await sleep(200);
 
     const { x, y } = getRect(BACKGROUND_COLOR_SELECTOR("red"));
     await clickAt(x + 10, y + 10);
@@ -128,7 +136,9 @@ describe("Check Background & Text Color Functionality", () => {
     // Waits for block side menu animation to finish.
     await sleep(500);
 
-    await matchPageScreenshot("blockBackgroundColor");
+    await expectElement(document.body).toMatchScreenshot(
+      "blockBackgroundColor",
+    );
   });
   // Regression test: prosemirror-tables' TableView.update() preserves the
   // NodeView's DOM without re-applying node attrs, so prop changes (e.g.
@@ -143,10 +153,13 @@ describe("Check Background & Text Color Functionality", () => {
     await userEvent.click(await waitForSelector(DRAG_HANDLE_SELECTOR));
     await waitForSelector(DRAG_HANDLE_MENU_SELECTOR);
     await moveMouseOverElement(page.getByText("Colors").element());
+    // See blockTextColor for why this sleep is needed (WebKit submenu open).
+    await waitForSelector(TEXT_COLOR_SELECTOR("red"));
+    await sleep(200);
 
     const { x, y } = getRect(TEXT_COLOR_SELECTOR("red"));
     await clickAt(x + 10, y + 10);
 
-    await matchPageScreenshot("blockTextColorTable");
+    await expectElement(document.body).toMatchScreenshot("blockTextColorTable");
   });
 });

@@ -1,5 +1,5 @@
 import App from "@examples/01-basic/testing/src/App";
-import { beforeEach, describe, test } from "vite-plus/test";
+import { afterEach, beforeEach, describe, test } from "vite-plus/test";
 import { userEvent } from "../../utils/context.js";
 import {
   DRAG_HANDLE_SELECTOR,
@@ -8,7 +8,7 @@ import {
 } from "../../utils/const.js";
 import {
   focusOnEditor,
-  matchPageScreenshot,
+  expectElement,
   sleep,
   waitForSelector,
 } from "../../utils/editor.js";
@@ -16,14 +16,31 @@ import { moveMouseOverElement, mouseSequence } from "../../utils/mouse.js";
 import { renderEditor } from "../../utils/render.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
 
-// TODO(migration): the Playwright version used `test.use({ colorScheme: "dark" })`
-// to emulate `prefers-color-scheme: dark` so the editor renders its dark theme.
-// Vitest browser mode has no direct equivalent, so the dark-theme baselines
-// captured here will not be in dark mode until a dark-scheme emulation is wired
-// up. Needs equivalent in Vitest browser mode.
+// Vitest browser mode has no per-test `colorScheme` knob (the playwright
+// provider only takes it on the instance level via contextOptions). The editor
+// detects scheme by querying `window.matchMedia('(prefers-color-scheme: dark)')`
+// at mount (see packages/react/src/hooks/usePrefersColorScheme.ts), so we stub
+// matchMedia before rendering. Restored in afterEach so other files aren't
+// affected.
+let originalMatchMedia: typeof window.matchMedia;
 
 beforeEach(async () => {
+  originalMatchMedia = window.matchMedia;
+  window.matchMedia = ((query: string) => ({
+    matches: query.includes("prefers-color-scheme: dark"),
+    media: query,
+    onchange: null,
+    addListener: () => {},
+    removeListener: () => {},
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => false,
+  })) as typeof window.matchMedia;
   await renderEditor(<App />);
+});
+
+afterEach(() => {
+  window.matchMedia = originalMatchMedia;
 });
 
 describe("Check Dark Theme is Automatically Applied", () => {
@@ -31,7 +48,7 @@ describe("Check Dark Theme is Automatically Applied", () => {
     await focusOnEditor();
     await userEvent.keyboard("Paragraph");
 
-    await matchPageScreenshot("dark-editor");
+    await expectElement(document.body).toMatchScreenshot("dark-editor");
   });
   test("Should show dark formatting toolbar", async () => {
     await focusOnEditor();
@@ -39,7 +56,9 @@ describe("Check Dark Theme is Automatically Applied", () => {
     await userEvent.keyboard("{Shift>}{Home}{/Shift}");
 
     await sleep(500);
-    await matchPageScreenshot("dark-formatting-toolbar");
+    await expectElement(document.body).toMatchScreenshot(
+      "dark-formatting-toolbar",
+    );
   });
   test("Should show dark link toolbar", async () => {
     await focusOnEditor();
@@ -56,14 +75,14 @@ describe("Check Dark Theme is Automatically Applied", () => {
     await userEvent.keyboard("{ArrowRight}");
 
     await sleep(500);
-    await matchPageScreenshot("dark-link-toolbar");
+    await expectElement(document.body).toMatchScreenshot("dark-link-toolbar");
   });
   test("Should show dark slash menu", async () => {
     await focusOnEditor();
     await userEvent.keyboard("/");
 
     await sleep(500);
-    await matchPageScreenshot("dark-slash-menu");
+    await expectElement(document.body).toMatchScreenshot("dark-slash-menu");
   });
   test("Should show dark emoji picker", async () => {
     await focusOnEditor();
@@ -71,7 +90,7 @@ describe("Check Dark Theme is Automatically Applied", () => {
     await userEvent.keyboard("sm");
 
     await sleep(500);
-    await matchPageScreenshot("dark-emoji-picker");
+    await expectElement(document.body).toMatchScreenshot("dark-emoji-picker");
   });
   test("Should show dark side menu", async () => {
     await focusOnEditor();
@@ -79,7 +98,7 @@ describe("Check Dark Theme is Automatically Applied", () => {
     await moveMouseOverElement(PARAGRAPH_SELECTOR);
 
     await sleep(500);
-    await matchPageScreenshot("dark-side-menu");
+    await expectElement(document.body).toMatchScreenshot("dark-side-menu");
   });
   test("Should show drag handle menu", async () => {
     await focusOnEditor();
@@ -92,13 +111,15 @@ describe("Check Dark Theme is Automatically Applied", () => {
     await mouseSequence([{ type: "down" }, { type: "up" }]);
 
     await sleep(500);
-    await matchPageScreenshot("dark-drag-handle-menu");
+    await expectElement(document.body).toMatchScreenshot(
+      "dark-drag-handle-menu",
+    );
   });
   test("Should show dark image toolbar", async () => {
     await focusOnEditor();
     await executeSlashCommand("image");
 
     await sleep(500);
-    await matchPageScreenshot("dark-image-toolbar");
+    await expectElement(document.body).toMatchScreenshot("dark-image-toolbar");
   });
 });

@@ -8,7 +8,7 @@ import { waitForSelector } from "./editor.js";
  * `page.goto(<example URL>)` flow — in Vitest Browser Mode the example component
  * is rendered directly, no preview server needed.
  *
- * Usage:
+ * Usage (import the example App via the `@examples` alias):
  *   import App from "@examples/01-basic/testing/src/App";
  *   beforeEach(() => renderEditor(<App />));
  */

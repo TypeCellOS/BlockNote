@@ -13,7 +13,7 @@ import {
 import {
   compareDocToSnapshot,
   focusOnEditor,
-  matchPageScreenshot,
+  expectElement,
   sleep,
   waitForSelector,
   waitForSelectorInEditor,
@@ -35,9 +35,11 @@ describe("Check SlashMenu Functionality", () => {
     await openSlashMenu();
     await sleep(500);
     await userEvent.keyboard("{PageDown}");
-    await matchPageScreenshot("slash_menu_page_down");
+    await expectElement(document.body).toMatchScreenshot(
+      "slash_menu_page_down",
+    );
     await userEvent.keyboard("{PageUp}");
-    await matchPageScreenshot("slash_menu_page_up");
+    await expectElement(document.body).toMatchScreenshot("slash_menu_page_up");
   });
   test("Should be able to create h1", async () => {
     await focusOnEditor();
@@ -148,6 +150,8 @@ describe("Check SlashMenu Functionality", () => {
     // Compare doc object snapshot
     await compareDocToSnapshot("docStructureSnapshot");
     // Compare editor screenshot
-    await matchPageScreenshot("slash_menu_end_product");
+    await expectElement(document.body).toMatchScreenshot(
+      "slash_menu_end_product",
+    );
   });
 });
