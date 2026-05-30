@@ -34,7 +34,9 @@ export const handleEnter = (
   } else if (blockContent.node.childCount > 0) {
     return editor.transact((tr) => {
       tr.deleteSelection();
-      return splitBlockTr(tr, tr.selection.from, true);
+      const result = splitBlockTr(tr, tr.selection.from, true);
+      tr.scrollIntoView();
+      return result;
     });
   }
 
