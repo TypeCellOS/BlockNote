@@ -14,7 +14,7 @@ overrides:
 
 patchedDependencies:
   '@y/prosemirror@2.0.0-2': 3bc881d37e43a5277077cf1edbb7541d5e13789deec29aaab0df45d8c68b1bdd
-  lib0@1.0.0-rc.13: 4eaf1501449c2a3fcf523c120189b38da84baa60803d66e2554e36121ee90147
+  lib0@1.0.0-rc.13: 328c50b547222f0e54a7a9f4f70926c0532c006dec4f24d6954635b8c3adb69e
 
 importers:
 
@@ -277,7 +277,7 @@ importers:
         version: '@fumadocs/base-ui@16.5.0(@types/react@19.2.14)(fumadocs-core@16.5.0(@types/react@19.2.14)(lucide-react@0.562.0(react@19.2.5))(next@16.2.6(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.51.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(zod@4.3.6))(next@16.2.6(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.51.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(tailwindcss@4.2.2)'
       lib0:
         specifier: 1.0.0-rc.13
-        version: 1.0.0-rc.13(patch_hash=4eaf1501449c2a3fcf523c120189b38da84baa60803d66e2554e36121ee90147)
+        version: 1.0.0-rc.13(patch_hash=328c50b547222f0e54a7a9f4f70926c0532c006dec4f24d6954635b8c3adb69e)
       lucide-react:
         specifier: ^0.562.0
         version: 0.562.0(react@19.2.5)
@@ -4051,7 +4051,7 @@ importers:
         version: 14.0.0-rc.16
       lib0:
         specifier: 1.0.0-rc.13
-        version: 1.0.0-rc.13(patch_hash=4eaf1501449c2a3fcf523c120189b38da84baa60803d66e2554e36121ee90147)
+        version: 1.0.0-rc.13(patch_hash=328c50b547222f0e54a7a9f4f70926c0532c006dec4f24d6954635b8c3adb69e)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -4216,7 +4216,7 @@ importers:
         version: 14.0.0-rc.16
       lib0:
         specifier: 1.0.0-rc.13
-        version: 1.0.0-rc.13(patch_hash=4eaf1501449c2a3fcf523c120189b38da84baa60803d66e2554e36121ee90147)
+        version: 1.0.0-rc.13(patch_hash=328c50b547222f0e54a7a9f4f70926c0532c006dec4f24d6954635b8c3adb69e)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -4972,7 +4972,7 @@ importers:
         version: 3.1.3
       lib0:
         specifier: 1.0.0-rc.13
-        version: 1.0.0-rc.13(patch_hash=4eaf1501449c2a3fcf523c120189b38da84baa60803d66e2554e36121ee90147)
+        version: 1.0.0-rc.13(patch_hash=328c50b547222f0e54a7a9f4f70926c0532c006dec4f24d6954635b8c3adb69e)
       prosemirror-highlight:
         specifier: ^0.15.1
         version: 0.15.1(@shikijs/types@4.0.2)(@types/hast@3.0.4)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.0)(prosemirror-view@1.41.8)
@@ -23047,7 +23047,7 @@ snapshots:
     dependencies:
       '@y/protocols': 1.0.6-rc.1(@y/y@14.0.0-rc.16)
       '@y/y': 14.0.0-rc.16
-      lib0: 1.0.0-rc.13(patch_hash=4eaf1501449c2a3fcf523c120189b38da84baa60803d66e2554e36121ee90147)
+      lib0: 1.0.0-rc.13(patch_hash=328c50b547222f0e54a7a9f4f70926c0532c006dec4f24d6954635b8c3adb69e)
       prosemirror-model: 1.25.4
       prosemirror-state: 1.4.4
       prosemirror-view: 1.41.8
@@ -23055,17 +23055,17 @@ snapshots:
   '@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.16)':
     dependencies:
       '@y/y': 14.0.0-rc.16
-      lib0: 1.0.0-rc.13(patch_hash=4eaf1501449c2a3fcf523c120189b38da84baa60803d66e2554e36121ee90147)
+      lib0: 1.0.0-rc.13(patch_hash=328c50b547222f0e54a7a9f4f70926c0532c006dec4f24d6954635b8c3adb69e)
 
   '@y/websocket@4.0.0-rc.2(@y/y@14.0.0-rc.16)':
     dependencies:
       '@y/protocols': 1.0.6-rc.1(@y/y@14.0.0-rc.16)
       '@y/y': 14.0.0-rc.16
-      lib0: 1.0.0-rc.13(patch_hash=4eaf1501449c2a3fcf523c120189b38da84baa60803d66e2554e36121ee90147)
+      lib0: 1.0.0-rc.13(patch_hash=328c50b547222f0e54a7a9f4f70926c0532c006dec4f24d6954635b8c3adb69e)
 
   '@y/y@14.0.0-rc.16':
     dependencies:
-      lib0: 1.0.0-rc.13(patch_hash=4eaf1501449c2a3fcf523c120189b38da84baa60803d66e2554e36121ee90147)
+      lib0: 1.0.0-rc.13(patch_hash=328c50b547222f0e54a7a9f4f70926c0532c006dec4f24d6954635b8c3adb69e)
 
   '@yarnpkg/lockfile@1.1.0': {}
 
@@ -26022,7 +26022,7 @@ snapshots:
     dependencies:
       isomorphic.js: 0.2.5
 
-  lib0@1.0.0-rc.13(patch_hash=4eaf1501449c2a3fcf523c120189b38da84baa60803d66e2554e36121ee90147): {}
+  lib0@1.0.0-rc.13(patch_hash=328c50b547222f0e54a7a9f4f70926c0532c006dec4f24d6954635b8c3adb69e): {}
 
   lie@3.3.0:
     dependencies:

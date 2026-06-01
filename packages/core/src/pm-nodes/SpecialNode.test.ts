@@ -2,6 +2,7 @@
  * @vitest-environment jsdom
  */
 import {
+  Node,
   DOMParser as PMDOMParser,
   DOMSerializer,
 } from "@tiptap/pm/model";
@@ -105,7 +106,7 @@ describe("SuggestionNode - structural", () => {
     ];
 
     for (const type of expectedSuggestionTypes) {
-      expect(nodeTypes, `Expected node type "${type}" to be registered`).toContain(type);
+      expect(nodeTypes).toContain(type);
     }
   });
 
@@ -230,10 +231,7 @@ describe("SuggestionNode - HTML parsing transparency", () => {
 
       // Verify no block has a type starting with "suggestion-"
       const hasSuggestion = JSON.stringify(blocks).includes('"suggestion-');
-      expect(
-        hasSuggestion,
-        `Parsing "${html}" should not produce suggestion blocks in block JSON`,
-      ).toBe(false);
+      expect(hasSuggestion).toBe(false);
 
       // Verify all blocks have expected types
       for (const block of blocks) {
@@ -499,11 +497,12 @@ describe("SuggestionNode - getBlockInfo interaction", () => {
     const blockInfo = getBlockInfoWithManualOffset(blockContainerNode, 0);
 
     expect(blockInfo.isBlockContainer).toBe(true);
-    if (blockInfo.isBlockContainer) {
-      expect(blockInfo.blockContent.node.type.name).toBe("paragraph");
-      // The blockNoteType should be derived from the blockContent, not the suggestion
-      expect(blockInfo.blockNoteType).toBe("paragraph");
+    if (!blockInfo.isBlockContainer) {
+      throw new Error("Expected blockInfo to be a blockContainer");
     }
+    expect(blockInfo.blockContent.node.type.name).toBe("paragraph");
+    // The blockNoteType should be derived from the blockContent, not the suggestion
+    expect(blockInfo.blockNoteType).toBe("paragraph");
 
     destroy();
   });
@@ -546,13 +545,14 @@ describe("SuggestionNode - getBlockInfo interaction", () => {
     const blockInfo = getBlockInfoWithManualOffset(blockContainerNode, 0);
 
     expect(blockInfo.isBlockContainer).toBe(true);
-    if (blockInfo.isBlockContainer) {
-      expect(blockInfo.blockContent.node.type.name).toBe("paragraph");
-      expect(blockInfo.blockNoteType).toBe("paragraph");
-      // childContainer should be found (the blockGroup with children)
-      expect(blockInfo.childContainer).toBeDefined();
-      expect(blockInfo.childContainer!.node.type.name).toBe("blockGroup");
+    if (!blockInfo.isBlockContainer) {
+      throw new Error("Expected blockInfo to be a blockContainer");
     }
+    expect(blockInfo.blockContent.node.type.name).toBe("paragraph");
+    expect(blockInfo.blockNoteType).toBe("paragraph");
+    // childContainer should be found (the blockGroup with children)
+    expect(blockInfo.childContainer).toBeDefined();
+    expect(blockInfo.childContainer!.node.type.name).toBe("blockGroup");
 
     destroy();
   });
@@ -604,17 +604,14 @@ describe("SuggestionNode - schema transparency comparison", () => {
       },
     ];
 
-    for (const { html, expectedFirstType, description } of testCases) {
+    for (const { html, expectedFirstType } of testCases) {
       const blocks = editor.tryParseHTMLToBlocks(html);
       expect(blocks.length).toBeGreaterThan(0);
       expect(blocks[0].type).toBe(expectedFirstType);
 
       // No block should ever be a suggestion node
       for (const block of blocks) {
-        expect(
-          block.type,
-          `${description}: block should not be a suggestion node`,
-        ).not.toMatch(/^suggestion-/);
+        expect(block.type).not.toMatch(/^suggestion-/);
       }
     }
 
@@ -655,21 +652,21 @@ describe("SuggestionNode - PM-level HTML round-trip", () => {
     });
 
     // The parsed node should contain a suggestion node
-    let foundSuggestion = false;
-    let foundBlockContent = false;
+    let suggestionChild: Node | undefined;
+    let blockContentChild: Node | undefined;
     parsed.forEach((child) => {
       if (child.type.name === "suggestion-paragraph") {
-        foundSuggestion = true;
-        expect(child.textContent).toBe("Suggestion text");
-        expect(child.attrs.__suggestionData).toBe("true");
+        suggestionChild = child;
       }
       if (child.type.spec.group === "blockContent") {
-        foundBlockContent = true;
-        expect(child.textContent).toBe("Main text");
+        blockContentChild = child;
       }
     });
-    expect(foundSuggestion).toBe(true);
-    expect(foundBlockContent).toBe(true);
+    expect(suggestionChild).toBeDefined();
+    expect(suggestionChild!.textContent).toBe("Suggestion text");
+    expect(suggestionChild!.attrs.__suggestionData).toBe("true");
+    expect(blockContentChild).toBeDefined();
+    expect(blockContentChild!.textContent).toBe("Main text");
 
     destroy();
   });

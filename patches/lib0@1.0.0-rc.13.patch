@@ -90,7 +90,7 @@ index a69d09ba2effab926c2b0b24a147ad744064fe78..16cb9427c6ef666000b4463aa8734505
    }
  })
 diff --git a/src/delta/delta.js b/src/delta/delta.js
-index e063729e4515dd76aecd488655b26fec82a22ca9..99a88a39782b64ce8cd037155ec848480c6bae7b 100644
+index e063729e4515dd76aecd488655b26fec82a22ca9..d4be86c6af7aef2f0c51c32f2023c24152770c22 100644
 --- a/src/delta/delta.js
 +++ b/src/delta/delta.js
 @@ -101,6 +101,22 @@ const _cloneAttrs = attrs => attrs == null ? attrs : { ...attrs }
@@ -458,8 +458,7 @@ index e063729e4515dd76aecd488655b26fec82a22ca9..99a88a39782b64ce8cd037155ec84848
 +        /* c8 ignore start */
          } else {
 -          /* c8 ignore next 2 */
--          error.unexpectedCase()
-+          throw error.create('[lib0/delta] diffing deletes unsupported')
+           error.unexpectedCase()
          }
 +        /* c8 ignore stop */
        }

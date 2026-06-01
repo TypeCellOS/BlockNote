@@ -431,19 +431,20 @@ describe("Tier 2A-B - getBlockInfoWithManualOffset suggestion awareness", () => 
     const blockInfo = getBlockInfoWithManualOffset(blockContainerNode, 0);
 
     expect(blockInfo.isBlockContainer).toBe(true);
-    if (blockInfo.isBlockContainer) {
-      expect(blockInfo.blockContent.node.type.name).toBe("paragraph");
-      expect(blockInfo.blockNoteType).toBe("paragraph");
-
-      // NEW: should have suggestionBefore
-      expect((blockInfo as any).suggestionBefore).toBeDefined();
-      expect(
-        (blockInfo as any).suggestionBefore.node.type.name,
-      ).toBe("suggestion-paragraph");
-      expect(
-        (blockInfo as any).suggestionBefore.node.textContent,
-      ).toBe("Deleted");
+    if (!blockInfo.isBlockContainer) {
+      throw new Error("Expected blockInfo to be a blockContainer");
     }
+    expect(blockInfo.blockContent.node.type.name).toBe("paragraph");
+    expect(blockInfo.blockNoteType).toBe("paragraph");
+
+    // NEW: should have suggestionBefore
+    expect((blockInfo as any).suggestionBefore).toBeDefined();
+    expect((blockInfo as any).suggestionBefore.node.type.name).toBe(
+      "suggestion-paragraph",
+    );
+    expect((blockInfo as any).suggestionBefore.node.textContent).toBe(
+      "Deleted",
+    );
 
     destroy();
   });
@@ -458,21 +459,20 @@ describe("Tier 2A-B - getBlockInfoWithManualOffset suggestion awareness", () => 
     const blockInfo = getBlockInfoWithManualOffset(blockContainerNode, 0);
 
     expect(blockInfo.isBlockContainer).toBe(true);
-    if (blockInfo.isBlockContainer) {
-      expect(blockInfo.blockContent.node.type.name).toBe("paragraph");
-
-      // NEW: should have suggestionAfter
-      expect((blockInfo as any).suggestionAfter).toBeDefined();
-      expect(
-        (blockInfo as any).suggestionAfter.node.type.name,
-      ).toBe("suggestion-paragraph");
-      expect(
-        (blockInfo as any).suggestionAfter.node.textContent,
-      ).toBe("Added");
-
-      // Should NOT have suggestionBefore
-      expect((blockInfo as any).suggestionBefore).toBeUndefined();
+    if (!blockInfo.isBlockContainer) {
+      throw new Error("Expected blockInfo to be a blockContainer");
     }
+    expect(blockInfo.blockContent.node.type.name).toBe("paragraph");
+
+    // NEW: should have suggestionAfter
+    expect((blockInfo as any).suggestionAfter).toBeDefined();
+    expect((blockInfo as any).suggestionAfter.node.type.name).toBe(
+      "suggestion-paragraph",
+    );
+    expect((blockInfo as any).suggestionAfter.node.textContent).toBe("Added");
+
+    // Should NOT have suggestionBefore
+    expect((blockInfo as any).suggestionBefore).toBeUndefined();
 
     destroy();
   });
@@ -487,16 +487,13 @@ describe("Tier 2A-B - getBlockInfoWithManualOffset suggestion awareness", () => 
     const blockInfo = getBlockInfoWithManualOffset(blockContainerNode, 0);
 
     expect(blockInfo.isBlockContainer).toBe(true);
-    if (blockInfo.isBlockContainer) {
-      expect((blockInfo as any).suggestionBefore).toBeDefined();
-      expect((blockInfo as any).suggestionAfter).toBeDefined();
-      expect(
-        (blockInfo as any).suggestionBefore.node.textContent,
-      ).toBe("Before");
-      expect(
-        (blockInfo as any).suggestionAfter.node.textContent,
-      ).toBe("After");
+    if (!blockInfo.isBlockContainer) {
+      throw new Error("Expected blockInfo to be a blockContainer");
     }
+    expect((blockInfo as any).suggestionBefore).toBeDefined();
+    expect((blockInfo as any).suggestionAfter).toBeDefined();
+    expect((blockInfo as any).suggestionBefore.node.textContent).toBe("Before");
+    expect((blockInfo as any).suggestionAfter.node.textContent).toBe("After");
 
     destroy();
   });
@@ -516,19 +513,20 @@ describe("Tier 2A-B - getBlockInfoWithManualOffset suggestion awareness", () => 
     );
 
     expect(blockInfo.isBlockContainer).toBe(true);
-    if (blockInfo.isBlockContainer) {
-      const suggBefore = (blockInfo as any).suggestionBefore;
-      expect(suggBefore).toBeDefined();
-
-      // The suggestion node should start right after blockContainer opens
-      expect(suggBefore.beforePos).toBe(bnBlockBeforePos + 1);
-      expect(suggBefore.afterPos).toBe(
-        suggBefore.beforePos + suggBefore.node.nodeSize,
-      );
-
-      // blockContent should start right after the suggestion node
-      expect(blockInfo.blockContent.beforePos).toBe(suggBefore.afterPos);
+    if (!blockInfo.isBlockContainer) {
+      throw new Error("Expected blockInfo to be a blockContainer");
     }
+    const suggBefore = (blockInfo as any).suggestionBefore;
+    expect(suggBefore).toBeDefined();
+
+    // The suggestion node should start right after blockContainer opens
+    expect(suggBefore.beforePos).toBe(bnBlockBeforePos + 1);
+    expect(suggBefore.afterPos).toBe(
+      suggBefore.beforePos + suggBefore.node.nodeSize,
+    );
+
+    // blockContent should start right after the suggestion node
+    expect(blockInfo.blockContent.beforePos).toBe(suggBefore.afterPos);
 
     destroy();
   });
@@ -548,12 +546,13 @@ describe("Tier 2A-B - getBlockInfoWithManualOffset suggestion awareness", () => 
     const blockInfo = getBlockInfoWithManualOffset(blockContainerNode, 0);
 
     expect(blockInfo.isBlockContainer).toBe(true);
-    if (blockInfo.isBlockContainer) {
-      expect(blockInfo.childContainer).toBeDefined();
-      expect(blockInfo.childContainer!.node.type.name).toBe("blockGroup");
-      expect((blockInfo as any).suggestionBefore).toBeDefined();
-      expect((blockInfo as any).suggestionAfter).toBeDefined();
+    if (!blockInfo.isBlockContainer) {
+      throw new Error("Expected blockInfo to be a blockContainer");
     }
+    expect(blockInfo.childContainer).toBeDefined();
+    expect(blockInfo.childContainer!.node.type.name).toBe("blockGroup");
+    expect((blockInfo as any).suggestionBefore).toBeDefined();
+    expect((blockInfo as any).suggestionAfter).toBeDefined();
 
     destroy();
   });
@@ -1122,19 +1121,19 @@ describe("Tier 5A - getBlockFromPos stub block", () => {
     // we should be able to find the parent blockContainer's ID.
     const suggBeforePos = 2; // position of suggestion node (after doc + blockGroup + blockContainer opens)
     const resolvedNode = doc.resolve(suggBeforePos).node();
-    if (resolvedNode.type.name.startsWith("suggestion-")) {
-      // Walk up to find the blockContainer
-      const depth = doc.resolve(suggBeforePos).depth;
-      let parentId: string | undefined;
-      for (let d = depth; d >= 0; d--) {
-        const ancestor = doc.resolve(suggBeforePos).node(d);
-        if (ancestor.type.name === "blockContainer") {
-          parentId = ancestor.attrs.id;
-          break;
-        }
+    expect(resolvedNode.type.name.startsWith("suggestion-")).toBe(true);
+
+    // Walk up to find the blockContainer
+    const depth = doc.resolve(suggBeforePos).depth;
+    let parentId: string | undefined;
+    for (let d = depth; d >= 0; d--) {
+      const ancestor = doc.resolve(suggBeforePos).node(d);
+      if (ancestor.type.name === "blockContainer") {
+        parentId = ancestor.attrs.id;
+        break;
       }
-      expect(parentId).toBe("block-1");
     }
+    expect(parentId).toBe("block-1");
 
     destroy();
   });
@@ -1307,14 +1306,13 @@ describe("Integration - Multi-block scenarios with suggestion nodes", () => {
     // Trailing suggestion from block-2 should be preserved at PM level
     const newDoc = editor.prosemirrorState.doc;
     const mergedBlock = newDoc.firstChild!.child(1);
-    let hasTrailingSuggestion = false;
+    let trailingSuggestionText: string | undefined;
     mergedBlock.forEach((child) => {
       if (child.type.name.startsWith("suggestion-")) {
-        expect(child.textContent).toBe("Trailing suggestion");
-        hasTrailingSuggestion = true;
+        trailingSuggestionText = child.textContent;
       }
     });
-    expect(hasTrailingSuggestion).toBe(true);
+    expect(trailingSuggestionText).toBe("Trailing suggestion");
 
     destroy();
   });
@@ -1355,14 +1353,13 @@ describe("Integration - Multi-block scenarios with suggestion nodes", () => {
     // Leading suggestion should stay with first block at PM level
     const newDoc = editor.prosemirrorState.doc;
     const firstBc = newDoc.firstChild!.firstChild!;
-    let hasSuggestion = false;
+    let suggestionText: string | undefined;
     firstBc.forEach((child) => {
       if (child.type.name.startsWith("suggestion-")) {
-        hasSuggestion = true;
-        expect(child.textContent).toBe("Hello from suggestion!");
+        suggestionText = child.textContent;
       }
     });
-    expect(hasSuggestion).toBe(true);
+    expect(suggestionText).toBe("Hello from suggestion!");
 
     destroy();
   });
@@ -1564,14 +1561,13 @@ describe("Integration - Multi-block scenarios with suggestion nodes", () => {
     // The suggestion node should be restored on block-2
     const restoredDoc = editor.prosemirrorState.doc;
     const restoredBlock2 = restoredDoc.firstChild!.child(1);
-    let hasSuggestion = false;
+    let restoredSuggestionText: string | undefined;
     restoredBlock2.forEach((child) => {
       if (child.type.name.startsWith("suggestion-")) {
-        hasSuggestion = true;
-        expect(child.textContent).toBe("Deleted");
+        restoredSuggestionText = child.textContent;
       }
     });
-    expect(hasSuggestion).toBe(true);
+    expect(restoredSuggestionText).toBe("Deleted");
 
     destroy();
   });
@@ -1646,14 +1642,13 @@ describe("Integration - Multi-block scenarios with suggestion nodes", () => {
     // Trailing suggestion should stay with the second part (position 2 at PM level)
     const newDoc = editor.prosemirrorState.doc;
     const splitSecondHalf = newDoc.firstChild!.child(2);
-    let hasTrailingSuggestion = false;
+    let splitTrailingSuggestionText: string | undefined;
     splitSecondHalf.forEach((child) => {
       if (child.type.name.startsWith("suggestion-")) {
-        hasTrailingSuggestion = true;
-        expect(child.textContent).toBe("Trailing suggestion");
+        splitTrailingSuggestionText = child.textContent;
       }
     });
-    expect(hasTrailingSuggestion).toBe(true);
+    expect(splitTrailingSuggestionText).toBe("Trailing suggestion");
 
     destroy();
   });
@@ -1675,7 +1670,7 @@ describe("moveBlocks with suggestion nodes", () => {
     });
 
     // Verify setup: block-2 has suggestion node
-    let block2 = editor.prosemirrorState.doc.firstChild!.child(1);
+    const block2 = editor.prosemirrorState.doc.firstChild!.child(1);
     let hasSuggestion = false;
     block2.forEach((child) => {
       if (child.type.name.startsWith("suggestion-")) {
@@ -1692,14 +1687,13 @@ describe("moveBlocks with suggestion nodes", () => {
     const firstBlock = doc.firstChild!.child(0);
     expect(firstBlock.attrs.id).toBe("block-2");
 
-    let suggestionPreserved = false;
+    let preservedSuggestionText: string | undefined;
     firstBlock.forEach((child) => {
       if (child.type.name.startsWith("suggestion-")) {
-        suggestionPreserved = true;
-        expect(child.textContent).toBe("Deleted");
+        preservedSuggestionText = child.textContent;
       }
     });
-    expect(suggestionPreserved).toBe(true);
+    expect(preservedSuggestionText).toBe("Deleted");
 
     // Block API should still show clean blocks
     const blocks = editor.document;
@@ -1744,7 +1738,7 @@ describe("moveBlocks with suggestion nodes", () => {
     });
 
     // Verify setup
-    let block1 = editor.prosemirrorState.doc.firstChild!.child(0);
+    const block1 = editor.prosemirrorState.doc.firstChild!.child(0);
     let hasTrailingSuggestion = false;
     block1.forEach((child) => {
       if (child.type.name.startsWith("suggestion-")) {
@@ -1761,14 +1755,13 @@ describe("moveBlocks with suggestion nodes", () => {
     const secondBlock = doc.firstChild!.child(1);
     expect(secondBlock.attrs.id).toBe("block-1");
 
-    let suggestionPreserved = false;
+    let preservedSuggestionText: string | undefined;
     secondBlock.forEach((child) => {
       if (child.type.name.startsWith("suggestion-")) {
-        suggestionPreserved = true;
-        expect(child.textContent).toBe("Added");
+        preservedSuggestionText = child.textContent;
       }
     });
-    expect(suggestionPreserved).toBe(true);
+    expect(preservedSuggestionText).toBe("Added");
 
     destroy();
   });
@@ -1818,26 +1811,26 @@ describe("moveBlocks with suggestion nodes", () => {
     const movedBlock = doc.firstChild!.child(1);
     expect(movedBlock.attrs.id).toBe("block-1");
 
-    let suggBefore = false;
-    let suggAfter = false;
+    let suggBeforeText: string | undefined;
+    let suggAfterText: string | undefined;
+    let contentText: string | undefined;
     let foundContent = false;
     movedBlock.forEach((child) => {
       if (child.type.name.startsWith("suggestion-")) {
         if (!foundContent) {
-          suggBefore = true;
-          expect(child.textContent).toBe("Before");
+          suggBeforeText = child.textContent;
         } else {
-          suggAfter = true;
-          expect(child.textContent).toBe("After");
+          suggAfterText = child.textContent;
         }
       }
       if (child.type.spec.group === "blockContent") {
         foundContent = true;
-        expect(child.textContent).toBe("Main");
+        contentText = child.textContent;
       }
     });
-    expect(suggBefore).toBe(true);
-    expect(suggAfter).toBe(true);
+    expect(suggBeforeText).toBe("Before");
+    expect(suggAfterText).toBe("After");
+    expect(contentText).toBe("Main");
 
     destroy();
   });

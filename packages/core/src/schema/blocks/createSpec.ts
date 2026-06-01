@@ -6,7 +6,6 @@ import {
   Extension,
   ExtensionFactoryInstance,
 } from "../../editor/BlockNoteExtension.js";
-import { camelToDataKebab } from "../../util/string.js";
 import { PropSchema } from "../propTypes.js";
 import {
   getBlockFromPos,
