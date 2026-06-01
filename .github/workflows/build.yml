@@ -85,6 +85,17 @@ jobs:
         run: HOME=/root vp test -c vite.config.browser.ts --run --browser ${{ matrix.browser }}
         working-directory: tests
 
+      # Navigable HTML report (the `html` reporter writes it here — same as the
+      # local `e2e:report` script serves). Uploaded whether the tests pass or
+      # fail so the run is always inspectable.
+      - name: Upload e2e report (${{ matrix.browser }})
+        uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: e2e-report-${{ matrix.browser }}
+          path: tests/playwright-report/
+          retention-days: 7
+
       - name: Upload failure artifacts
         uses: actions/upload-artifact@v7
         if: ${{ failure() }}
