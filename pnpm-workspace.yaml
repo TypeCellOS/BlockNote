@@ -35,4 +35,5 @@ allowBuilds:
   leveldown: false
 patchedDependencies:
   "@y/prosemirror@2.0.0-2": "patches/@y__prosemirror@2.0.0-2.patch"
+  '@y/y@14.0.0-rc.16': patches/@y__y@14.0.0-rc.16.patch
   lib0@1.0.0-rc.13: patches/lib0@1.0.0-rc.13.patch

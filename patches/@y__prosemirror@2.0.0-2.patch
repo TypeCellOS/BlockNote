@@ -334,11 +334,11 @@ index 0000000000000000000000000000000000000000..c1da2aa33b86511936e9b1ba4d2d3c84
 \ No newline at end of file
 diff --git a/dist/src/sync-plugin.d.ts.map b/dist/src/sync-plugin.d.ts.map
 new file mode 100644
-index 0000000000000000000000000000000000000000..3c310984197c0c0b1fc51c9a48743126f5a02882
+index 0000000000000000000000000000000000000000..e3b4177ff0b4e03ded140f2c57bef207457ee6bb
 --- /dev/null
 +++ b/dist/src/sync-plugin.d.ts.map
 @@ -0,0 +1 @@
-+{"version":3,"file":"sync-plugin.d.ts","sourceRoot":"","sources":["../../src/sync-plugin.js"],"names":[],"mappings":"AAgGA;;;;;;;;;;;;;;GAcG;AACH,kCALG;IAAqB,aAAa;IACD,oBAAoB;IACb,eAAe;CACvD,GAAU,MAAM,CAoMlB;AAlSD;;;GAGG;AACH;;;;;GAYE;AAEF;;;;;;GAME;mBAvCiB,MAAM;uBACF,mBAAmB;mBAWvB,aAAa"}
++{"version":3,"file":"sync-plugin.d.ts","sourceRoot":"","sources":["../../src/sync-plugin.js"],"names":[],"mappings":"AAgGA;;;;;;;;;;;;;;GAcG;AACH,kCALG;IAAqB,aAAa;IACD,oBAAoB;IACb,eAAe;CACvD,GAAU,MAAM,CAgMlB;AA9RD;;;GAGG;AACH;;;;;GAYE;AAEF;;;;;;GAME;mBAvCiB,MAAM;uBACF,mBAAmB;mBAWvB,aAAa"}
 \ No newline at end of file
 diff --git a/dist/src/sync-utils.d.ts b/dist/src/sync-utils.d.ts
 new file mode 100644
@@ -476,11 +476,11 @@ index 0000000000000000000000000000000000000000..83d38f1a99ecb675beff65f50a2082b6
 \ No newline at end of file
 diff --git a/dist/src/sync-utils.d.ts.map b/dist/src/sync-utils.d.ts.map
 new file mode 100644
-index 0000000000000000000000000000000000000000..c244b8f7802b5109faeedca1dd74085d274c6798
+index 0000000000000000000000000000000000000000..581cf41306e01e70ddf4c26de7c369275aa04a9b
 --- /dev/null
 +++ b/dist/src/sync-utils.d.ts.map
 @@ -0,0 +1 @@
-+{"version":3,"file":"sync-utils.d.ts","sourceRoot":"","sources":["../../src/sync-utils.js"],"names":[],"mappings":"AAsNA;;;;;;;GAOG;AACH,mCANW,IAAI,YACJ,CAAC,CAAC,IAAI,2BAEd;IAA4C,kBAAkB;CAC9D,GAAU,CAAC,CAAC,IAAI,CASlB;AAED;;;;;;;;;GASG;AACH,uCARW,CAAC,CAAC,IAAI,MACN,OAAO,mBAAmB,EAAE,WAAW,kEAE/C;IAA2C,kBAAkB;IACZ,oBAAoB,KAxIxB,CAAC,SAApC,OAAQ,YAAY,EAAE,WAAY,UACpC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,eAC9B,CAAC,KACC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI;IAsID,eAAe;CACtD,GAAU,OAAO,mBAAmB,EAAE,WAAW,CAiBnD;AAED;;;;;GAKG;AACH,uCAJW,CAAC,CAAC,IAAI,MACN,OAAO,mBAAmB,EAAE,WAAW,GACtC,IAAI,CAIf;AAyTD;;;;;;;;;;;;;;;;;GAiBG;AACH,oCAJW,IAAI,mBACJ,MAAM,GACL,MAAM,EAAE,CAwBnB;AAED;;;;;GAKG;AACH,yCAJW,MAAM,EAAE,QACR,IAAI,GACH,MAAM,CAgCjB;AA9nBD;;;;;;;IAA4I;AAE5I;;;;;;;GAOG;AACH,gCAAiC,cAAc,CAAA;AAE/C;;;;;GAKG;AACH,qCAFU,wBAAwB,CAEe;AAS1C,wCAHI,MAAM,GACL,MAAM,CAKR;AAcH,iDANI,MAAM,UACN,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,GAAG,SAAS,mBAC1C,wBAAwB,UACxB,OAAO,mBAAmB,EAAE,MAAM,GACjC,MAAM,CAajB;AAgCM,4CALyC,CAAC,SAApC,OAAQ,YAAY,EAAE,WAAY,UACpC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,eAC9B,CAAC,GACC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,CAiC1C;AAOM,4CAHI,KAAK,CAAC,QAAQ,mCA4BL,gBAAgB,CACnC;AA0BM,wDAHI;IAAC,CAAC,GAAG,EAAC,MAAM,GAAE,GAAG,CAAA;CAAC,GAAC,IAAI,UACvB,OAAO,mBAAmB,EAAE,MAAM,sCAGwD;AAM9F,iCAHI,KAAK,CAAC,IAAI,CAAC,GACV,gBAAgB,CAW3B;AAgEM,+BAPI,IAAI,aACJ,MAAM,OAAC,iBACP,OAAO,GAGN,gBAAgB,CAS3B;AAKM,gCAFI,IAAI;;;;;;;GAEwC;AAqDhD,kCAPI,OAAO,mBAAmB,EAAE,WAAW,KACvC,gBAAgB,UAChB,IAAI,YACJ;IAAE,CAAC,EAAE,MAAM,CAAA;CAAE,oBACb,wBAAwB,GACvB,OAAO,mBAAmB,EAAE,WAAW,CAmGlD;AASM,gCANI,gBAAgB,UAChB,OAAO,mBAAmB,EAAE,MAAM,WAClC,KAAK,CAAC,oBAAoB,GAAC,IAAI,oBAC/B,wBAAwB,GACvB,IAAI,CAoCf;AAMM,0CAHI,IAAI,YACJ,IAAI;;;;;;;GAMd;AAKM,8BAFI,WAAW;;;;;;;GAkBrB;AA+CM,kCAJI,OAAO,uBAAuB,EAAE,IAAI,aACpC,OAAO,mBAAmB,EAAE,IAAI,GAC/B,gBAAgB,CAQ3B;AAoGM,wCALI,IAAI,YACJ,MAAM,OACN,CAAC,CAAC,EAAC,KAAK,CAAC,eAAe,KAAG,GAAG,GAC7B,gBAAgB,CAa3B;qBA7pBqC,mBAAmB;mBAPtC,MAAM;uBAEF,YAAY;mBAIhB,aAAa"}
++{"version":3,"file":"sync-utils.d.ts","sourceRoot":"","sources":["../../src/sync-utils.js"],"names":[],"mappings":"AAsNA;;;;;;;GAOG;AACH,mCANW,IAAI,YACJ,CAAC,CAAC,IAAI,2BAEd;IAA4C,kBAAkB;CAC9D,GAAU,CAAC,CAAC,IAAI,CASlB;AAED;;;;;;;;;GASG;AACH,uCARW,CAAC,CAAC,IAAI,MACN,OAAO,mBAAmB,EAAE,WAAW,kEAE/C;IAA2C,kBAAkB;IACZ,oBAAoB,KAxIxB,CAAC,SAApC,OAAQ,YAAY,EAAE,WAAY,UACpC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,eAC9B,CAAC,KACC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI;IAsID,eAAe;CACtD,GAAU,OAAO,mBAAmB,EAAE,WAAW,CAiBnD;AAED;;;;;GAKG;AACH,uCAJW,CAAC,CAAC,IAAI,MACN,OAAO,mBAAmB,EAAE,WAAW,GACtC,IAAI,CAIf;AA+TD;;;;;;;;;;;;;;;;;GAiBG;AACH,oCAJW,IAAI,mBACJ,MAAM,GACL,MAAM,EAAE,CAwBnB;AAED;;;;;GAKG;AACH,yCAJW,MAAM,EAAE,QACR,IAAI,GACH,MAAM,CAgCjB;AApoBD;;;;;;;IAA4I;AAE5I;;;;;;;GAOG;AACH,gCAAiC,cAAc,CAAA;AAE/C;;;;;GAKG;AACH,qCAFU,wBAAwB,CAEe;AAS1C,wCAHI,MAAM,GACL,MAAM,CAKR;AAcH,iDANI,MAAM,UACN,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,GAAG,SAAS,mBAC1C,wBAAwB,UACxB,OAAO,mBAAmB,EAAE,MAAM,GACjC,MAAM,CAajB;AAgCM,4CALyC,CAAC,SAApC,OAAQ,YAAY,EAAE,WAAY,UACpC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,eAC9B,CAAC,GACC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,CAiC1C;AAOM,4CAHI,KAAK,CAAC,QAAQ,mCA4BL,gBAAgB,CACnC;AA0BM,wDAHI;IAAC,CAAC,GAAG,EAAC,MAAM,GAAE,GAAG,CAAA;CAAC,GAAC,IAAI,UACvB,OAAO,mBAAmB,EAAE,MAAM,sCAGwD;AAM9F,iCAHI,KAAK,CAAC,IAAI,CAAC,GACV,gBAAgB,CAW3B;AAgEM,+BAPI,IAAI,aACJ,MAAM,OAAC,iBACP,OAAO,GAGN,gBAAgB,CAS3B;AAKM,gCAFI,IAAI;;;;;;;GAEwC;AAqDhD,kCAPI,OAAO,mBAAmB,EAAE,WAAW,KACvC,gBAAgB,UAChB,IAAI,YACJ;IAAE,CAAC,EAAE,MAAM,CAAA;CAAE,oBACb,wBAAwB,GACvB,OAAO,mBAAmB,EAAE,WAAW,CAsGlD;AASM,gCANI,gBAAgB,UAChB,OAAO,mBAAmB,EAAE,MAAM,WAClC,KAAK,CAAC,oBAAoB,GAAC,IAAI,oBAC/B,wBAAwB,GACvB,IAAI,CAuCf;AAMM,0CAHI,IAAI,YACJ,IAAI;;;;;;;GAMd;AAKM,8BAFI,WAAW;;;;;;;GAkBrB;AA+CM,kCAJI,OAAO,uBAAuB,EAAE,IAAI,aACpC,OAAO,mBAAmB,EAAE,IAAI,GAC/B,gBAAgB,CAQ3B;AAoGM,wCALI,IAAI,YACJ,MAAM,OACN,CAAC,CAAC,EAAC,KAAK,CAAC,eAAe,KAAG,GAAG,GAC7B,gBAAgB,CAa3B;qBAnqBqC,mBAAmB;mBAPtC,MAAM;uBAEF,YAAY;mBAIhB,aAAa"}
 \ No newline at end of file
 diff --git a/dist/src/undo-plugin.d.ts b/dist/src/undo-plugin.d.ts
 new file mode 100644
@@ -1124,140 +1124,6 @@ index 0000000000000000000000000000000000000000..79fa8f273361c11282e2c2df76c38895
 +      }
 +    }
 +  })
-diff --git a/src/desired.json b/src/desired.json
-new file mode 100644
-index 0000000000000000000000000000000000000000..09e1374c0ba830bfe7c327976de20399cd7e0184
---- /dev/null
-+++ b/src/desired.json
-@@ -0,0 +1,128 @@
-+{
-+  "type": "delta",
-+  "children": [
-+    {
-+      "type": "insert",
-+      "insert": [
-+        {
-+          "type": "delta",
-+          "name": "blockGroup",
-+          "children": [
-+            {
-+              "type": "insert",
-+              "insert": [
-+                {
-+                  "type": "delta",
-+                  "name": "blockContainer",
-+                  "attrs": {
-+                    "id": {
-+                      "type": "insert",
-+                      "value": "ab8ea668-e843-4c96-a093-2761bc4e689d"
-+                    }
-+                  },
-+                  "children": [
-+                    {
-+                      "type": "insert",
-+                      "insert": [
-+                        {
-+                          "type": "delta",
-+                          "name": "paragraph",
-+                          "attrs": {
-+                            "backgroundColor": {
-+                              "type": "delete",
-+                              "attribution": { "delete": [] }
-+                            },
-+                            "textColor": {
-+                              "type": "delete",
-+                              "attribution": { "delete": [] }
-+                            },
-+                            "textAlignment": {
-+                              "type": "delete",
-+                              "attribution": { "delete": [] }
-+                            }
-+                          },
-+                          "children": [
-+                            {
-+                              "type": "insert",
-+                              "insert": "dfdsf",
-+                              "format": {
-+                                "y-attributed-delete": {
-+                                  "id": null,
-+                                  "user-color": "#30bced"
-+                                }
-+                              }
-+                            }
-+                          ]
-+                        }
-+                      ],
-+                      "format": {
-+                        "y-attributed-delete": {
-+                          "id": null,
-+                          "user-color": "#30bced"
-+                        }
-+                      }
-+                    },
-+                    {
-+                      "type": "insert",
-+                      "insert": [
-+                        {
-+                          "type": "delta",
-+                          "name": "heading",
-+                          "attrs": {
-+                            "backgroundColor": {
-+                              "type": "insert",
-+                              "value": "default",
-+                              "attribution": { "insert": [] }
-+                            },
-+                            "textColor": {
-+                              "type": "insert",
-+                              "value": "default",
-+                              "attribution": { "insert": [] }
-+                            },
-+                            "textAlignment": {
-+                              "type": "insert",
-+                              "value": "left",
-+                              "attribution": { "insert": [] }
-+                            },
-+                            "level": {
-+                              "type": "insert",
-+                              "value": 1,
-+                              "attribution": { "insert": [] }
-+                            },
-+                            "isToggleable": {
-+                              "type": "insert",
-+                              "value": false,
-+                              "attribution": { "insert": [] }
-+                            }
-+                          },
-+                          "children": [
-+                            {
-+                              "type": "insert",
-+                              "insert": "dfdsf",
-+                              "format": {
-+                                "y-attributed-insert": {
-+                                  "id": null,
-+                                  "user-color": "#30bced"
-+                                }
-+                              }
-+                            }
-+                          ]
-+                        }
-+                      ],
-+                      "format": {
-+                        "y-attributed-insert": {
-+                          "id": null,
-+                          "user-color": "#30bced"
-+                        }
-+                      }
-+                    }
-+                  ]
-+                }
-+              ]
-+            }
-+          ]
-+        }
-+      ]
-+    }
-+  ]
-+}
 diff --git a/src/index.js b/src/index.js
 index ac407e0c363309c970f3dbcbd66db00f9cd1656a..0c20333ce9f66f1a1e3e8e44da1ac4017bbba4cc 100644
 --- a/src/index.js
@@ -1931,70 +1797,6 @@ index 0000000000000000000000000000000000000000..7490849525d1ff00da44aa34b7588531
 diff --git a/src/lib.js b/src/lib.js
 deleted file mode 100644
 index 698f0c8c42ffed9804a2c13f48bd4c51f27794dc..0000000000000000000000000000000000000000
-diff --git a/src/pcontent.json b/src/pcontent.json
-new file mode 100644
-index 0000000000000000000000000000000000000000..2e0ef8a1f7946e89e171b40436bd06d772b828f9
---- /dev/null
-+++ b/src/pcontent.json
-@@ -0,0 +1,58 @@
-+{
-+  "type": "delta",
-+  "name": "doc",
-+  "children": [
-+    {
-+      "type": "insert",
-+      "insert": [
-+        {
-+          "type": "delta",
-+          "name": "blockGroup",
-+          "children": [
-+            {
-+              "type": "insert",
-+              "insert": [
-+                {
-+                  "type": "delta",
-+                  "name": "blockContainer",
-+                  "attrs": {
-+                    "id": {
-+                      "type": "insert",
-+                      "value": "ab8ea668-e843-4c96-a093-2761bc4e689d"
-+                    }
-+                  },
-+                  "children": [
-+                    {
-+                      "type": "insert",
-+                      "insert": [
-+                        {
-+                          "type": "delta",
-+                          "name": "paragraph",
-+                          "attrs": {
-+                            "backgroundColor": {
-+                              "type": "insert",
-+                              "value": "default"
-+                            },
-+                            "textColor": {
-+                              "type": "insert",
-+                              "value": "default"
-+                            },
-+                            "textAlignment": {
-+                              "type": "insert",
-+                              "value": "left"
-+                            }
-+                          },
-+                          "children": [{ "type": "insert", "insert": "dfdsf" }]
-+                        }
-+                      ]
-+                    }
-+                  ]
-+                }
-+              ]
-+            }
-+          ]
-+        }
-+      ]
-+    }
-+  ]
-+}
 diff --git a/src/plugins/cursor-plugin.js b/src/plugins/cursor-plugin.js
 deleted file mode 100644
 index 45f37f0b8eb1c67c3c45711c739b61dbba2656d8..0000000000000000000000000000000000000000
@@ -2227,10 +2029,10 @@ index 0000000000000000000000000000000000000000..963ea708dbe0e92b2d43fc031243c2e7
 +}
 diff --git a/src/sync-plugin.js b/src/sync-plugin.js
 new file mode 100644
-index 0000000000000000000000000000000000000000..0cc4ac18bb84231d7a2ca86b3b884b58c1831e6c
+index 0000000000000000000000000000000000000000..d7615ad4d8fa7feb4b9fde835e2029e7a7b85e03
 --- /dev/null
 +++ b/src/sync-plugin.js
-@@ -0,0 +1,306 @@
+@@ -0,0 +1,302 @@
 +import * as Y from '@y/y'
 +import { Plugin } from 'prosemirror-state'
 +import {
@@ -2413,11 +2215,8 @@ index 0000000000000000000000000000000000000000..0cc4ac18bb84231d7a2ca86b3b884b58
 +              attributionMapper
 +            ).done()
 +            const pcontent = nodeToDelta(view.state.doc, undefined, true).done()
-+            console.log('desiredPM', JSON.stringify(desiredPM.toJSON()))
-+            console.log('pcontent', JSON.stringify(pcontent.toJSON()))
 +            const diff = d.diff(pcontent, desiredPM)
 +            if (diff.isEmpty()) return
-+            console.log('diff:', diff.toJSON())
 +            const ptr = deltaToPSteps(view.state.tr, diff, undefined, undefined, attributedNodes)
 +            ptr.setMeta('addToHistory', false)
 +            ptr.setMeta('y-sync-transaction', $syncPluginStateUpdate.expect({
@@ -2446,7 +2245,6 @@ index 0000000000000000000000000000000000000000..0cc4ac18bb84231d7a2ca86b3b884b58
 +            const pcontent = nodeToDelta(view.state.doc, undefined, true).done()
 +            const diff = d.diff(pcontent, desiredPM)
 +            if (diff.isEmpty()) return
-+            console.log('diff:', diff.toJSON())
 +            const ptr = deltaToPSteps(view.state.tr, diff, undefined, undefined, attributedNodes)
 +            ptr.setMeta('addToHistory', false)
 +            // @todo stop updating meta on every transaction
@@ -2539,10 +2337,10 @@ index 0000000000000000000000000000000000000000..0cc4ac18bb84231d7a2ca86b3b884b58
 +}
 diff --git a/src/sync-utils.js b/src/sync-utils.js
 new file mode 100644
-index 0000000000000000000000000000000000000000..c029913036d08a9e422ca340e6ebaff9719fdd41
+index 0000000000000000000000000000000000000000..7e344a953f33724e28ec8783ea7c0b3fa11aeadd
 --- /dev/null
 +++ b/src/sync-utils.js
-@@ -0,0 +1,677 @@
+@@ -0,0 +1,683 @@
 +import * as Y from '@y/y'
 +import * as array from 'lib0/array'
 +import * as delta from 'lib0/delta'
@@ -2885,7 +2683,7 @@ index 0000000000000000000000000000000000000000..c029913036d08a9e422ca340e6ebaff9
 + * @return {import('prosemirror-state').Transaction}
 + */
 +export const deltaToPSteps = (tr, d, pnode = tr.doc, currPos = { i: 0 }, attributedNodes = defaultAttributedNodes) => {
-+  console.log('attributedNodes:', attributedNodes)
++  console.log('deltaToPSteps:', d)
 +  const schema = tr.doc.type.schema
 +  let currParentIndex = 0
 +  let nOffset = 0
@@ -2925,6 +2723,7 @@ index 0000000000000000000000000000000000000000..c029913036d08a9e422ca340e6ebaff9
 +            nOffset = 0
 +          }
 +        } else {
++          console.log('on a retain')
 +          // TODO see schema.js for more info on marking nodes
 +          applyNodeFormat(tr, currPos.i, op.format, attributedNodes)
 +          currParentIndex++
@@ -2933,6 +2732,7 @@ index 0000000000000000000000000000000000000000..c029913036d08a9e422ca340e6ebaff9
 +        }
 +      }
 +    } else if (delta.$modifyOp.check(op)) {
++      console.log('on a modify')
 +      applyNodeFormat(tr, currPos.i, op.format, attributedNodes)
 +      const child = pchildren[currParentIndex++]
 +      const childStart = currPos.i
@@ -2980,6 +2780,7 @@ index 0000000000000000000000000000000000000000..c029913036d08a9e422ca340e6ebaff9
 +      }
 +    }
 +  })
++  console.log(tr, tr.steps.map(a => a.toJSON()))
 +  return tr
 +}
 +
@@ -3001,7 +2802,10 @@ index 0000000000000000000000000000000000000000..c029913036d08a9e422ca340e6ebaff9
 +  }
 +  const dc = d.children.map(c => delta.$insertOp.check(c) ? c.insert.map(cn => deltaToPNode(cn, schema, c.format, attributedNodes)) : (delta.$textOp.check(c) ? [schema.text(c.insert, formattingAttributesToMarks(c.format, schema))] : []))
 +  const canonical = d.name == null ? 'doc' : canonicalNodeName(d.name)
-+  const nodeType = schema.nodes[attributedVariant(canonical, dformat, attributedNodes, schema)]
++  const finalNodeName = attributedVariant(canonical, dformat, attributedNodes, schema)
++  console.log('final node name', finalNodeName)
++  const nodeType = schema.nodes[finalNodeName]
++
 +  if (!nodeType) {
 +    throw new Error(
 +      '[y/prosemirror]: node type does not exist in the schema: ' + d.name

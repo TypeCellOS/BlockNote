@@ -120,11 +120,13 @@ export const YSyncExtension = createExtension(
           mapAttributionToMark,
           attributedNodes: (
             nodeName: string,
-            kinds: { deleted: boolean; inserted: boolean; formatted: boolean },
+            kinds: { delete: boolean; insert: boolean; format: boolean },
           ) => {
-            // eslint-disable-next-line no-console
-            console.log(nodeName, kinds);
-            return Boolean(editor.schema.blockSpecs[nodeName] && kinds.deleted);
+            const result = Boolean(
+              editor.schema.blockSpecs[nodeName] && kinds.delete,
+            );
+
+            return result;
           },
         }),
       ],
