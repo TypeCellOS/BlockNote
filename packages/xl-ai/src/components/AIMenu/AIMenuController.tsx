@@ -70,7 +70,7 @@ export const AIMenuController = (props: {
           // We should just be able to set `referencePress: true` instead of
           // using this listener, but this doesn't seem to trigger.
           // (probably because we don't assign the referenceProps to the reference element)
-          outsidePress: (event) => {
+          outsidePress: (event: MouseEvent) => {
             if (event.target instanceof Element) {
               const blockElement = event.target.closest(".bn-block");
               if (
