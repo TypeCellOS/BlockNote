@@ -50,41 +50,15 @@ jobs:
         id: soft-release
         run: vp dlx pkg-pr-new publish './packages/*' # TODO disabled only for AI branch--compact
 
-  e2e-build:
-    name: "E2E Build"
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 100
-
-      - uses: voidzero-dev/setup-vp@v1
-        with:
-          node-version-file: ".node-version"
-          cache: true
-
-      - name: Install dependencies
-        run: vp install
-
-      # Example apps mounted by the e2e tests import the @blocknote/* packages'
-      # built dist.
-      - name: Build packages
-        run: vp run --filter ./packages build
-
-      - name: Upload package dist
-        uses: actions/upload-artifact@v7
-        with:
-          name: e2e-package-dist
-          path: packages/*/dist
-          retention-days: 1
-
   e2e:
     # Vitest Browser Mode runs in the Playwright Linux container — the same
     # environment as the local Docker run — so behaviour matches local dev.
+    # The suite resolves every `@blocknote/*` import to its `src/` via the
+    # aliases in `tests/vite.config.browser.ts` (vite transpiles the package
+    # sources on the fly), so the packages do NOT need to be built to `dist`
+    # first — `vp install` + the checked-out sources are enough.
     name: "E2E - ${{ matrix.browser }}"
     runs-on: ubuntu-latest
-    needs: e2e-build
     timeout-minutes: 30
     container:
       image: mcr.microsoft.com/playwright:v1.51.1-noble
@@ -104,12 +78,6 @@ jobs:
 
       - name: Install dependencies
         run: vp install
-
-      - name: Download package dist
-        uses: actions/download-artifact@v8
-        with:
-          name: e2e-package-dist
-          path: packages
 
       # No preview server: Vitest Browser Mode serves the tests + mounted example
       # apps itself. `--browser` selects this matrix shard's browser.
