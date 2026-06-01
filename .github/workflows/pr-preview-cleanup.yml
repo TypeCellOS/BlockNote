@@ -1,0 +1,28 @@
+name: pr-preview-cleanup
+
+# Removes the GitHub Pages e2e-report preview that `build.yml`'s `deploy-report`
+# job published for a PR, once that PR is closed/merged. Kept separate from
+# `build.yml` so closing a PR doesn't re-run the whole build + e2e suite.
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  remove-preview:
+    name: "Remove E2E Report Preview"
+    runs-on: ubuntu-latest
+    # Fork PRs never got a preview (read-only token), so nothing to remove.
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Remove PR preview
+        uses: rossjrw/pr-preview-action@v1
+        with:
+          preview-branch: gh-pages
+          umbrella-dir: pr-preview
+          action: remove

@@ -80,21 +80,20 @@ jobs:
         run: vp install
 
       # No preview server: Vitest Browser Mode serves the tests + mounted example
-      # apps itself. `--browser` selects this matrix shard's browser.
+      # apps itself. `--browser` selects this matrix shard's browser. Each shard
+      # records a machine-readable `blob` report; the `merge-reports` job stitches
+      # all three browsers' blobs into one HTML report afterwards.
       - name: Run e2e tests (${{ matrix.browser }})
-        run: HOME=/root vp test -c vite.config.browser.ts --run --browser ${{ matrix.browser }}
+        run: HOME=/root vp test -c vite.config.browser.ts --run --browser ${{ matrix.browser }} --reporter=default --reporter=blob --outputFile.blob=blob-report/blob-${{ matrix.browser }}.json
         working-directory: tests
 
-      # Navigable HTML report (the `html` reporter writes it here — same as the
-      # local `e2e:report` script serves). Uploaded whether the tests pass or
-      # fail so the run is always inspectable.
-      - name: Upload e2e report (${{ matrix.browser }})
+      - name: Upload blob report (${{ matrix.browser }})
         uses: actions/upload-artifact@v7
         if: ${{ !cancelled() }}
         with:
-          name: e2e-report-${{ matrix.browser }}
-          path: tests/playwright-report/
-          retention-days: 7
+          name: blob-report-${{ matrix.browser }}
+          path: tests/blob-report/
+          retention-days: 1
 
       - name: Upload failure artifacts
         uses: actions/upload-artifact@v7
@@ -103,3 +102,88 @@ jobs:
           name: e2e-attachments-${{ matrix.browser }}
           path: tests/.vitest-attachments/
           retention-days: 7
+
+  merge-reports:
+    # Stitch the three per-browser blob reports into a single navigable HTML
+    # report (the Vitest equivalent of `playwright merge-reports`). Runs even
+    # when a browser shard failed, so the report always covers every browser.
+    name: "E2E Report"
+    runs-on: ubuntu-latest
+    needs: e2e
+    if: ${{ !cancelled() }}
+    timeout-minutes: 15
+    # Same container as the e2e shards: `--mergeReports` doesn't run tests or
+    # launch browsers, but the HTML reporter still resolves the test files'
+    # browser environment, so the browser config must stay enabled (and present).
+    container:
+      image: mcr.microsoft.com/playwright:v1.51.1-noble
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 100
+
+      - uses: voidzero-dev/setup-vp@v1
+        with:
+          node-version-file: ".node-version"
+          cache: true
+
+      - name: Install dependencies
+        run: vp install
+
+      # Gather every shard's blob into one directory (blob-report-chromium, …).
+      - name: Download blob reports
+        uses: actions/download-artifact@v8
+        with:
+          path: tests/blob-report
+          pattern: blob-report-*
+          merge-multiple: true
+
+      # Re-emit a single HTML report from the merged blobs (no tests are run).
+      - name: Merge into HTML report
+        run: HOME=/root vp test -c vite.config.browser.ts --mergeReports=blob-report --reporter=html
+        working-directory: tests
+
+      - name: Upload merged HTML report
+        uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: e2e-report
+          path: tests/playwright-report/
+          retention-days: 7
+
+  deploy-report:
+    # Publish the merged report to a GitHub Pages PR preview and comment the
+    # link on the PR (Vercel-style). Pages serves it over HTTP, so the report's
+    # data loads correctly — unlike opening the downloaded artifact over file://
+    # (the @vitest/ui report fetches its data and is blocked by CORS there).
+    #
+    # Default `needs` semantics: this runs only when `merge-reports` succeeded
+    # (i.e. a report exists) — but regardless of whether the tests passed, so a
+    # red run still gets a navigable preview. Skipped for fork PRs, whose
+    # read-only token can't push to gh-pages or comment (they keep the artifact).
+    name: "E2E Report Preview"
+    runs-on: ubuntu-latest
+    needs: merge-reports
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Download merged report
+        uses: actions/download-artifact@v8
+        with:
+          name: e2e-report
+          path: e2e-report
+
+      # Deploys to the `gh-pages` branch under `pr-preview/pr-<N>/` and posts a
+      # sticky comment with the URL. The companion `pr-preview-cleanup` workflow
+      # removes it when the PR closes.
+      - name: Deploy report to PR preview
+        uses: rossjrw/pr-preview-action@v1
+        with:
+          source-dir: e2e-report
+          preview-branch: gh-pages
+          umbrella-dir: pr-preview
+          action: deploy
