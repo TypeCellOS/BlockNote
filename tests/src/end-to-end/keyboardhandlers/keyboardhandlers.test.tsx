@@ -18,7 +18,7 @@ import { clickAt, getRect } from "../../utils/mouse.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 beforeEach(async () => {
-  render(<App />);
+  await render(<App />);
   await waitForSelector(EDITOR_SELECTOR);
 });
 

@@ -8,7 +8,7 @@ import { expectElement, sleep, waitForSelector } from "../../utils/editor.js";
 beforeEach(async () => {
   // Use a small viewport so the editor content requires scrolling.
   await page.viewport(800, 400);
-  render(<App />);
+  await render(<App />);
   await waitForSelector(EDITOR_SELECTOR);
 });
 

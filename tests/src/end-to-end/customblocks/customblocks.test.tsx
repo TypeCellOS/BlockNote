@@ -13,7 +13,7 @@ import {
 
 describe("Check custom block functionality", () => {
   test("Should be able to interactively update vanilla custom blocks", async () => {
-    render(<VanillaCustomBlocksApp />);
+    await render(<VanillaCustomBlocksApp />);
     await waitForSelector(EDITOR_SELECTOR);
 
     await userEvent.selectOptions(await waitForSelector("select"), "info");
@@ -26,7 +26,7 @@ describe("Check custom block functionality", () => {
   });
 
   test("Should be able to interactively update React custom blocks", async () => {
-    render(<ReactCustomBlocksApp />);
+    await render(<ReactCustomBlocksApp />);
     await waitForSelector(EDITOR_SELECTOR);
 
     await userEvent.selectOptions(await waitForSelector("select"), "info");

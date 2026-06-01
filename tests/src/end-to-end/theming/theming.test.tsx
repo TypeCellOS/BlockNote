@@ -37,7 +37,7 @@ beforeEach(async () => {
     removeEventListener: () => {},
     dispatchEvent: () => false,
   })) as typeof window.matchMedia;
-  render(<App />);
+  await render(<App />);
   await waitForSelector(EDITOR_SELECTOR);
 });
 

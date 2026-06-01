@@ -24,7 +24,7 @@ import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 describe("Check Copy/Paste Functionality", () => {
   beforeEach(async () => {
-    render(<TestingApp />);
+    await render(<TestingApp />);
     await waitForSelector(EDITOR_SELECTOR);
   });
 
@@ -174,7 +174,7 @@ describe("Check Copy/Paste Functionality", () => {
 
 describe("Check Copy/Paste From Non-Editable Block", () => {
   beforeEach(async () => {
-    render(<NonEditableApp />);
+    await render(<NonEditableApp />);
     await waitForSelector(EDITOR_SELECTOR);
   });
 

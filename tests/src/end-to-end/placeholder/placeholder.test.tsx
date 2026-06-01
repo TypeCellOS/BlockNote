@@ -6,7 +6,7 @@ import { expectElement, sleep, waitForSelector } from "../../utils/editor.js";
 import { moveMouseOverElement } from "../../utils/mouse.js";
 
 beforeEach(async () => {
-  render(<App />);
+  await render(<App />);
   await waitForSelector(EDITOR_SELECTOR);
 });
 

@@ -6,7 +6,7 @@ import { EDITOR_SELECTOR } from "../../utils/const.js";
 import { waitForSelector } from "../../utils/editor.js";
 
 beforeEach(async () => {
-  render(<App />);
+  await render(<App />);
   await waitForSelector(EDITOR_SELECTOR);
 });
 

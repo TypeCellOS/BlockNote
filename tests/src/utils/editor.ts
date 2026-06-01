@@ -95,7 +95,22 @@ export async function compareDocToSnapshot(name: string) {
 // the bare `vitest` module, but its own `expect` is typed from an internal
 // module, so the augmentation doesn't attach. Type the accessor locally.
 type ElementMatchers = {
-  toMatchScreenshot(name?: string): Promise<void>;
+  toMatchScreenshot(
+    name?: string,
+    options?: {
+      timeout?: number;
+      screenshotOptions?: {
+        mask?: ReadonlyArray<Element>;
+        maskColor?: string;
+        scale?: "css" | "device";
+      };
+      comparatorOptions?: {
+        threshold?: number;
+        allowedMismatchedPixels?: number;
+        allowedMismatchedPixelRatio?: number;
+      };
+    },
+  ): Promise<void>;
   toBeVisible(): Promise<void>;
   not: { toBeVisible(): Promise<void> };
 };

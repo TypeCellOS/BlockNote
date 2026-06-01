@@ -18,7 +18,7 @@ async function doubleClickElement(element: Element) {
 }
 
 beforeEach(async () => {
-  render(<App />);
+  await render(<App />);
   await waitForSelector(EDITOR_SELECTOR);
 });
 

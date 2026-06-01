@@ -15,7 +15,7 @@ import {
 } from "../../utils/editor.js";
 
 beforeEach(async () => {
-  render(<App />);
+  await render(<App />);
   await waitForSelector(EDITOR_SELECTOR);
 });
 

@@ -9,7 +9,7 @@ import { clickAt, getRect } from "../../utils/mouse.js";
 const AI_BUTTON_SELECTOR = `[data-test="editwithAI"]`;
 
 beforeEach(async () => {
-  render(<App />);
+  await render(<App />);
   await waitForSelector(EDITOR_SELECTOR);
 });
 

@@ -21,7 +21,7 @@ const expectElement = (expect as unknown as { element: ElementExpect }).element;
 // open in this scenario.
 describe("Slash menu in custom (alert) block – issue #2531", () => {
   beforeEach(async () => {
-    render(<App />);
+    await render(<App />);
     await waitForSelector(EDITOR_SELECTOR);
   });
 

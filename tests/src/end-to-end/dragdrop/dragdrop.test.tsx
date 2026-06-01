@@ -35,7 +35,7 @@ describe("Check Block Dragging Functionality", () => {
   test.skipIf(browserName === "firefox")(
     "Should be able to drag & drop non-nested blocks",
     async () => {
-      render(<TestingApp />);
+      await render(<TestingApp />);
       await waitForSelector(EDITOR_SELECTOR);
       await focusOnEditor();
 
@@ -54,7 +54,7 @@ describe("Check Block Dragging Functionality", () => {
   test.skipIf(browserName === "firefox")(
     "Should be able to drag & drop nested blocks",
     async () => {
-      render(<TestingApp />);
+      await render(<TestingApp />);
       await waitForSelector(EDITOR_SELECTOR);
       await focusOnEditor();
 
@@ -97,7 +97,7 @@ describe("Check Block Dragging Functionality", () => {
   test.skipIf(browserName === "firefox")(
     "Should be able to drag image",
     async () => {
-      render(<TestingApp />);
+      await render(<TestingApp />);
       await waitForSelector(EDITOR_SELECTOR);
       await focusOnEditor();
       await executeSlashCommand("image");
@@ -114,7 +114,7 @@ describe("Check Block Dragging Functionality", () => {
   test.skipIf(browserName === "firefox")(
     "Formatting toolbar should not appear when dragging image block",
     async () => {
-      render(<TestingApp />);
+      await render(<TestingApp />);
       await waitForSelector(EDITOR_SELECTOR);
       await focusOnEditor();
       await executeSlashCommand("image");
@@ -133,7 +133,7 @@ describe("Check Block Dragging Functionality", () => {
   test.skipIf(browserName === "firefox")(
     "Should be able to drag PDF block",
     async () => {
-      render(<PdfFileApp />);
+      await render(<PdfFileApp />);
       await waitForSelector(EDITOR_SELECTOR);
       await focusOnEditor();
       await waitForSelector(PDF_SELECTOR);

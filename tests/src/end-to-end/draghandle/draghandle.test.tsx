@@ -32,7 +32,7 @@ import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 describe("Check Draghandle functionality", () => {
   beforeEach(async () => {
-    render(<App />);
+    await render(<App />);
     await waitForSelector(EDITOR_SELECTOR);
     await focusOnEditor();
   });
