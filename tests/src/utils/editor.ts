@@ -1,4 +1,5 @@
 import { expect, vi } from "vite-plus/test";
+import type { Locator } from "vite-plus/test/browser/context";
 import { userEvent } from "./context.js";
 import { EDITOR_SELECTOR } from "./const.js";
 
@@ -100,7 +101,7 @@ type ElementMatchers = {
     options?: {
       timeout?: number;
       screenshotOptions?: {
-        mask?: ReadonlyArray<Element>;
+        mask?: ReadonlyArray<Element | Locator>;
         maskColor?: string;
         scale?: "css" | "device";
       };
