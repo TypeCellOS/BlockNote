@@ -8,7 +8,7 @@ import {
 
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
-import { forwardRef } from "react";
+import { type MouseEvent, forwardRef } from "react";
 
 export const Badge = forwardRef<
   HTMLButtonElement,
@@ -36,7 +36,7 @@ export const Badge = forwardRef<
         isSelected && "bn-ak-primary",
       )}
       aria-selected={isSelected === true}
-      onClick={(event) => onClick?.(event)}
+      onClick={(event: MouseEvent<HTMLButtonElement>) => onClick?.(event)}
       onMouseEnter={onMouseEnter}
       ref={ref}
     >
