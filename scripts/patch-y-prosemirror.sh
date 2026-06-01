@@ -92,10 +92,5 @@ echo ""
 echo "==> Running pnpm patch-commit ..."
 pnpm patch-commit "$PATCH_DIR"
 
-# 7. Prune stale patch copies from the store
-echo ""
-echo "==> Pruning stale store entries ..."
-pnpm store prune
-
 echo ""
 echo "==> Done! Patch regenerated at patches/@y__prosemirror@2.0.0-2.patch"

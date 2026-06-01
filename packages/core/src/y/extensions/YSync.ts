@@ -1,4 +1,8 @@
-import { configureYProsemirror, syncPlugin } from "@y/prosemirror";
+import {
+  configureYProsemirror,
+  syncPlugin,
+  ySyncPluginKey,
+} from "@y/prosemirror";
 import {
   type ExtensionOptions,
   createExtension,
@@ -118,6 +122,13 @@ export const YSyncExtension = createExtension(
         syncPlugin({
           suggestionDoc: options.suggestionDoc,
           mapAttributionToMark,
+          attributedNodes: (
+            nodeName: string,
+            kinds: { deleted: boolean; inserted: boolean; formatted: boolean },
+          ) => {
+            console.log(nodeName, kinds);
+            return Boolean(editor.schema.blockSpecs[nodeName] && kinds.deleted);
+          },
         }),
       ],
       runsBefore: ["default"],

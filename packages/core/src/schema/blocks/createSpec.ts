@@ -241,7 +241,7 @@ export function addNodeAndExtensionsToSpec<
   // - has distinctive HTML with data-suggestion="true" for round-trip parsing
   // - has NO custom nodeView (uses vanilla renderHTML only)
   const suggestionNode = Node.create({
-    name: `suggestion-${blockConfig.type}`,
+    name: `${blockConfig.type}--attributed`,
     content: (blockConfig.content === "inline"
       ? "inline*"
       : blockConfig.content === "none"
@@ -255,30 +255,22 @@ export function addNodeAndExtensionsToSpec<
     priority,
     addAttributes() {
       const attrs = propsToAttributes(blockConfig.propSchema);
-      const stripped: Record<string, any> = {};
-      for (const [key, value] of Object.entries(attrs)) {
-        stripped[key] = {
-          ...value,
-          // Parse prop values from data attributes on the bn-block-content div
-          parseHTML: (element: HTMLElement) => {
-            return element.getAttribute(camelToDataKebab(key));
-          },
-        };
-      }
       // The __suggestionData attribute serves two purposes:
       // 1. isRequired: true prevents ProseMirror's DOMParser from auto-creating
       //    suggestion nodes to satisfy optional content expressions
       // 2. Rendered as data-suggestion="true" on the wrapper div for HTML parsing
-      stripped["__suggestionData"] = {
+      attrs["yjs-suggestion-node"] = {
         isRequired: true,
         parseHTML: (element: HTMLElement) => {
           return element.getAttribute("data-suggestion");
         },
         renderHTML: (attributes: Record<string, any>) => {
-          return { "data-suggestion": attributes.__suggestionData || "true" };
+          return {
+            "data-suggestion": attributes["yjs-suggestion-node"] || "true",
+          };
         },
       };
-      return stripped;
+      return attrs;
     },
     parseHTML() {
       // Only parse HTML elements that have both data-suggestion and
