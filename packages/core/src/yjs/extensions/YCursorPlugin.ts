@@ -3,7 +3,7 @@ import {
   createExtension,
   ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
-import { CollaborationOptions } from "./Collaboration.js";
+import type { CollaborationOptions } from "./index.js";
 
 export type CollaborationUser = {
   name: string;

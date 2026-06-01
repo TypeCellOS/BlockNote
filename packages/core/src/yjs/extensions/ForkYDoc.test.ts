@@ -3,6 +3,7 @@ import * as Y from "yjs";
 import { Awareness } from "y-protocols/awareness";
 import { BlockNoteEditor } from "../../index.js";
 import { ForkYDocExtension } from "./ForkYDoc.js";
+import { withCollaboration } from "./index.js";
 
 /**
  * @vitest-environment jsdom
@@ -10,15 +11,17 @@ import { ForkYDocExtension } from "./ForkYDoc.js";
 it("can fork a document", async () => {
   const doc = new Y.Doc();
   const fragment = doc.getXmlFragment("doc");
-  const editor = BlockNoteEditor.create({
-    collaboration: {
-      fragment,
-      user: { name: "Hello", color: "#FFFFFF" },
-      provider: {
-        awareness: new Awareness(doc),
+  const editor = BlockNoteEditor.create(
+    withCollaboration({
+      collaboration: {
+        fragment,
+        user: { name: "Hello", color: "#FFFFFF" },
+        provider: {
+          awareness: new Awareness(doc),
+        },
       },
-    },
-  });
+    }),
+  );
 
   try {
     const div = document.createElement("div");
@@ -61,15 +64,17 @@ it("can fork a document", async () => {
 it("can merge a document", async () => {
   const doc = new Y.Doc();
   const fragment = doc.getXmlFragment("doc");
-  const editor = BlockNoteEditor.create({
-    collaboration: {
-      fragment,
-      user: { name: "Hello", color: "#FFFFFF" },
-      provider: {
-        awareness: new Awareness(doc),
+  const editor = BlockNoteEditor.create(
+    withCollaboration({
+      collaboration: {
+        fragment,
+        user: { name: "Hello", color: "#FFFFFF" },
+        provider: {
+          awareness: new Awareness(doc),
+        },
       },
-    },
-  });
+    }),
+  );
 
   try {
     const div = document.createElement("div");
@@ -121,15 +126,17 @@ it("can merge a document", async () => {
 it("can fork an keep the changes to the original document", async () => {
   const doc = new Y.Doc();
   const fragment = doc.getXmlFragment("doc");
-  const editor = BlockNoteEditor.create({
-    collaboration: {
-      fragment,
-      user: { name: "Hello", color: "#FFFFFF" },
-      provider: {
-        awareness: new Awareness(doc),
+  const editor = BlockNoteEditor.create(
+    withCollaboration({
+      collaboration: {
+        fragment,
+        user: { name: "Hello", color: "#FFFFFF" },
+        provider: {
+          awareness: new Awareness(doc),
+        },
       },
-    },
-  });
+    }),
+  );
 
   try {
     const div = document.createElement("div");

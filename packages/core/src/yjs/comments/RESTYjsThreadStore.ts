@@ -1,6 +1,6 @@
 import * as Y from "yjs";
-import { CommentBody } from "../../types.js";
-import { ThreadStoreAuth } from "../ThreadStoreAuth.js";
+import type { CommentBody } from "../../comments/types.js";
+import type { ThreadStoreAuth } from "../../comments/threadstore/ThreadStoreAuth.js";
 import { YjsThreadStoreBase } from "./YjsThreadStoreBase.js";
 
 /**
@@ -47,14 +47,8 @@ export class RESTYjsThreadStore extends YjsThreadStoreBase {
   public addThreadToDocument = async (options: {
     threadId: string;
     selection: {
-      prosemirror: {
-        head: number;
-        anchor: number;
-      };
-      yjs: {
-        head: any;
-        anchor: any;
-      };
+      head: number;
+      anchor: number;
     };
   }) => {
     const { threadId, ...rest } = options;

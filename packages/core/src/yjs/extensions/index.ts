@@ -1,10 +1,13 @@
-import type * as Y from "yjs";
 import type { Awareness } from "y-protocols/awareness";
+import type * as Y from "yjs";
+import type { BlockNoteEditorOptions } from "../../editor/BlockNoteEditor";
 import {
   createExtension,
-  ExtensionOptions,
+  type ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
+import { FixupCreateAndFillExtension } from "./FixupCreateAndFill.js";
 import { ForkYDocExtension } from "./ForkYDoc.js";
+import { RelativePositionMappingExtension } from "./RelativePositionMapping.js";
 import { SchemaMigration } from "./schemaMigration/SchemaMigration.js";
 import { YCursorExtension } from "./YCursorPlugin.js";
 import { YSyncExtension } from "./YSync.js";
@@ -44,12 +47,45 @@ export const CollaborationExtension = createExtension(
     return {
       key: "collaboration",
       blockNoteExtensions: [
+        FixupCreateAndFillExtension(),
         ForkYDocExtension(options),
+        RelativePositionMappingExtension(),
+        SchemaMigration(options),
         YCursorExtension(options),
         YSyncExtension(options),
         YUndoExtension(),
-        SchemaMigration(options),
       ],
     } as const;
   },
 );
+
+export function withCollaboration<
+  Options extends Partial<BlockNoteEditorOptions<any, any, any>>,
+>(
+  options: Options & {
+    /**
+     * Options for configuring the collaboration functionality.
+     */
+    collaboration: CollaborationOptions;
+  },
+): Options {
+  return {
+    ...options,
+    extensions: [
+      ...(options.extensions ?? []),
+      CollaborationExtension(options.collaboration),
+    ],
+    // We disable the default prosemirror history plugin, since it's not compatible with yjs
+    disableExtensions: ["history", ...(options.disableExtensions ?? [])],
+    // We don't want the default initial content, since it will generate a random id for the initial block on each client,
+    // leading to conflicts when syncing happens afterwards.
+    initialContent: [{ type: "paragraph", id: "initialBlockId" }],
+  };
+}
+
+export * from "./ForkYDoc.js";
+export * from "./RelativePositionMapping.js";
+export * from "./schemaMigration/SchemaMigration.js";
+export * from "./YCursorPlugin.js";
+export * from "./YSync.js";
+export * from "./YUndo.js";
