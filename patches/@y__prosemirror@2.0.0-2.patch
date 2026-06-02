@@ -278,33 +278,37 @@ index 0000000000000000000000000000000000000000..2c008bfa4dbf0fe49a4148d6346c5388
 \ No newline at end of file
 diff --git a/dist/src/positions.d.ts.map b/dist/src/positions.d.ts.map
 new file mode 100644
-index 0000000000000000000000000000000000000000..27c3de6071c3c8701acad9516390c219483b37e8
+index 0000000000000000000000000000000000000000..e4f768c579f11b08055a31cc166e8c34278815a6
 --- /dev/null
 +++ b/dist/src/positions.d.ts.map
 @@ -0,0 +1 @@
-+{"version":3,"file":"positions.d.ts","sourceRoot":"","sources":["../../src/positions.js"],"names":[],"mappings":"AAWO,gEALI,OAAO,mBAAmB,EAAE,WAAW,QACvC,CAAC,CAAC,IAAI,OACN,CAAC,CAAC,0BAA0B,GAAG,IAAI,GAClC,CAAC,CAAC,gBAAgB,CA4C7B;AAUM,2DANI,CAAC,CAAC,gBAAgB,gBAClB,CAAC,CAAC,IAAI,SACN,OAAO,mBAAmB,EAAE,IAAI,OAChC,CAAC,CAAC,0BAA0B,GAAG,IAAI,GAClC,IAAI,GAAC,MAAM,CAmDtB;AASM,mDALI,OAAO,mBAAmB,EAAE,WAAW,QACvC,CAAC,CAAC,IAAI,OACN,CAAC,CAAC,0BAA0B,GAC1B,CAAC,GAAG,EAAE,OAAO,mBAAmB,EAAE,IAAI,EAAE,YAAY,CAAC,EAAE,CAAC,CAAC,IAAI,EAAE,kBAAkB,CAAC,EAAE,CAAC,CAAC,0BAA0B,KAAK,MAAM,CAWvI;AAyBM,mDAHI,CAAC,CAAC,IAAI,GACJ;IAAC,cAAc,EAAE,cAAc,CAAC;IAAC,cAAc,EAAE,cAAc,CAAA;CAAC,CAyD5E;mCA5EU,OAAO,mBAAmB,EAAE,IAAI,wFAG9B,OAAO,uBAAuB,EAAE,QAAQ;oCAK1C,CAAC,CAAC,IAAI,SACN,OAAO,mBAAmB,EAAE,IAAI,2DAE9B,OAAO,uBAAuB,EAAE,QAAQ;mBAjJlC,MAAM"}
++{"version":3,"file":"positions.d.ts","sourceRoot":"","sources":["../../src/positions.js"],"names":[],"mappings":"AAWO,gEALI,OAAO,mBAAmB,EAAE,WAAW,QACvC,CAAC,CAAC,IAAI,OACN,CAAC,CAAC,0BAA0B,GAAG,IAAI,GAClC,CAAC,CAAC,gBAAgB,CA6C7B;AAUM,2DANI,CAAC,CAAC,gBAAgB,gBAClB,CAAC,CAAC,IAAI,SACN,OAAO,mBAAmB,EAAE,IAAI,OAChC,CAAC,CAAC,0BAA0B,GAAG,IAAI,GAClC,IAAI,GAAC,MAAM,CAmDtB;AASM,mDALI,OAAO,mBAAmB,EAAE,WAAW,QACvC,CAAC,CAAC,IAAI,OACN,CAAC,CAAC,0BAA0B,GAC1B,CAAC,GAAG,EAAE,OAAO,mBAAmB,EAAE,IAAI,EAAE,YAAY,CAAC,EAAE,CAAC,CAAC,IAAI,EAAE,kBAAkB,CAAC,EAAE,CAAC,CAAC,0BAA0B,KAAK,MAAM,CAWvI;AAyBM,mDAHI,CAAC,CAAC,IAAI,GACJ;IAAC,cAAc,EAAE,cAAc,CAAC;IAAC,cAAc,EAAE,cAAc,CAAA;CAAC,CAyD5E;mCA5EU,OAAO,mBAAmB,EAAE,IAAI,wFAG9B,OAAO,uBAAuB,EAAE,QAAQ;oCAK1C,CAAC,CAAC,IAAI,SACN,OAAO,mBAAmB,EAAE,IAAI,2DAE9B,OAAO,uBAAuB,EAAE,QAAQ;mBAlJlC,MAAM"}
 \ No newline at end of file
 diff --git a/dist/src/sync-plugin.d.ts b/dist/src/sync-plugin.d.ts
 new file mode 100644
-index 0000000000000000000000000000000000000000..60f401cf8386f80b2959e804a33329fefb704a1d
+index 0000000000000000000000000000000000000000..c1da2aa33b86511936e9b1ba4d2d3c848e0c70da
 --- /dev/null
 +++ b/dist/src/sync-plugin.d.ts
-@@ -0,0 +1,35 @@
+@@ -0,0 +1,41 @@
 +/**
 + * This Prosemirror {@link Plugin} is responsible for synchronizing the prosemirror {@link EditorState} with a {@link Y.XmlFragment}
 + *
-+ * NOTE: register this plugin LAST in your editor's plugin list. Its
-+ * `appendTransaction` runs the PM->Y diff/apply pipeline and must
-+ * observe the post-keymap, post-other-plugin state.
++ * The PM->Y diff/apply pipeline runs in the plugin's `view().update`
++ * hook (i.e. after the dispatch has been committed to the view), not
++ * in `appendTransaction`. Running it in `appendTransaction` would
++ * cause speculative `state.apply` callers to write to Y as a side
++ * effect.
 + *
 + * @param {object} opts
 + * @param {Y.Doc} [opts.suggestionDoc] A {@link Y.Doc} to use for suggestion tracking
 + * @param {AttributionMapper} [opts.mapAttributionToMark] A function to map the {@link Y.Attribution} to a {@link import('prosemirror-model').Mark} - the mark names *must* be one of: `y-attributed-insert`, `y-attributed-delete`, `y-attributed-format`. No other mark names are permitted
++ * @param {AttributedNodesPredicate} [opts.attributedNodes] Optional predicate `(nodeName, kinds) => boolean`. When it returns `true` for an attributed node *and* a `{nodeName}--attributed` type exists in the schema, that node is rendered under the variant type (the `y-attributed-*` marks are still applied). `kinds` is `{ insert?, delete?, format? }`. The variant is a pure rendering concern - the canonical name is what is stored in the Y document. The predicate must be deterministic in `(nodeName, kinds)`.
 + * @returns {Plugin}
 + */
 +export function syncPlugin(opts?: {
 +    suggestionDoc?: Y.Doc | undefined;
 +    mapAttributionToMark?: AttributionMapper | undefined;
++    attributedNodes?: AttributedNodesPredicate | undefined;
 +}): Plugin;
 +/**
 + * The y-prosemirror binding is a bi-directional synchronization with the provided Y.Type and the EditorView
@@ -314,11 +318,13 @@ index 0000000000000000000000000000000000000000..60f401cf8386f80b2959e804a33329fe
 +    ytype: Y.Type<any> | null;
 +    attributionManager: Y.AbstractAttributionManager | null;
 +    attributionMapper: AttributionMapper;
++    attributedNodes: AttributedNodesPredicate;
 +}>;
 +export const $syncPluginStateUpdate: s.Schema<{
 +    ytype?: Y.Type<any> | null | undefined;
 +    attributionManager?: Y.AbstractAttributionManager | null | undefined;
 +    attributionMapper?: AttributionMapper | null | undefined;
++    attributedNodes?: AttributedNodesPredicate | null | undefined;
 +    change?: Y.YEvent<any> | null | undefined;
 +}>;
 +import * as Y from '@y/y';
@@ -328,18 +334,18 @@ index 0000000000000000000000000000000000000000..60f401cf8386f80b2959e804a33329fe
 \ No newline at end of file
 diff --git a/dist/src/sync-plugin.d.ts.map b/dist/src/sync-plugin.d.ts.map
 new file mode 100644
-index 0000000000000000000000000000000000000000..1a0e6e62ff6b63a90527fd163641a7c4c49bbb9e
+index 0000000000000000000000000000000000000000..df8c9df944fe1c64c46c648d913a0f8b52694bd7
 --- /dev/null
 +++ b/dist/src/sync-plugin.d.ts.map
 @@ -0,0 +1 @@
-+{"version":3,"file":"sync-plugin.d.ts","sourceRoot":"","sources":["../../src/sync-plugin.js"],"names":[],"mappings":"AAyFA;;;;;;;;;;;GAWG;AACH,kCAJG;IAAqB,aAAa;IACD,oBAAoB;CACrD,GAAU,MAAM,CAiMlB;AAtRD;;;GAGG;AACH;;;;GAOE;AAEF;;;;;GAKE;mBAhCiB,MAAM;uBACF,mBAAmB;mBAUvB,aAAa"}
++{"version":3,"file":"sync-plugin.d.ts","sourceRoot":"","sources":["../../src/sync-plugin.js"],"names":[],"mappings":"AAgGA;;;;;;;;;;;;;;GAcG;AACH,kCALG;IAAqB,aAAa;IACD,oBAAoB;IACb,eAAe;CACvD,GAAU,MAAM,CA+LlB;AA7RD;;;GAGG;AACH;;;;;GAYE;AAEF;;;;;;GAME;mBAvCiB,MAAM;uBACF,mBAAmB;mBAWvB,aAAa"}
 \ No newline at end of file
 diff --git a/dist/src/sync-utils.d.ts b/dist/src/sync-utils.d.ts
 new file mode 100644
-index 0000000000000000000000000000000000000000..91664ef55028d7246da148b789e4c03ab3c795fa
+index 0000000000000000000000000000000000000000..83d38f1a99ecb675beff65f50a2082b659d2c36a
 --- /dev/null
 +++ b/dist/src/sync-utils.d.ts
-@@ -0,0 +1,107 @@
+@@ -0,0 +1,127 @@
 +/**
 + * Transforms a {@link Node} into a {@link Y.XmlFragment}
 + * @param {Node} node
@@ -358,11 +364,13 @@ index 0000000000000000000000000000000000000000..91664ef55028d7246da148b789e4c03a
 + * @param {object} ctx
 + * @param {Y.AbstractAttributionManager} [ctx.attributionManager]
 + * @param {typeof defaultMapAttributionToMark} [ctx.mapAttributionToMark]
++ * @param {AttributedNodesPredicate} [ctx.attributedNodes]
 + * @returns {import('prosemirror-state').Transaction}
 + */
-+export function fragmentToTr(fragment: Y.Type, tr: import("prosemirror-state").Transaction, { attributionManager, mapAttributionToMark }?: {
++export function fragmentToTr(fragment: Y.Type, tr: import("prosemirror-state").Transaction, { attributionManager, mapAttributionToMark, attributedNodes }?: {
 +    attributionManager?: Y.AbstractAttributionManager | undefined;
 +    mapAttributionToMark?: (<T extends import("lib0/delta").Attribution>(format: Record<string, unknown> | null, attribution: T) => Record<string, unknown> | null) | undefined;
++    attributedNodes?: AttributedNodesPredicate | undefined;
 +}): import("prosemirror-state").Transaction;
 +/**
 + * Transforms a {@link Y.XmlFragment} into a {@link Node}
@@ -405,13 +413,31 @@ index 0000000000000000000000000000000000000000..91664ef55028d7246da148b789e4c03a
 +    text: true;
 +    recursiveChildren: true;
 +}>>;
++/**
++ * Suffix appended to a node name when it is rendered as its "attributed
++ * variant" (see `attributedNodes` on {@link syncPlugin}). The suffix is fixed
++ * so that canonicalizing back (PM -> Y) is a pure string operation and can
++ * never drift from the forward mapping. `--attributed` is a *reserved* suffix:
++ * a real node type literally ending in it would be canonicalized away on the
++ * way to Y.
++ */
++export const ATTRIBUTED_SUFFIX: "--attributed";
++/**
++ * Default `attributedNodes` predicate - the feature is off, so every node keeps
++ * its canonical name.
++ *
++ * @type {AttributedNodesPredicate}
++ */
++export const defaultAttributedNodes: AttributedNodesPredicate;
++export function canonicalNodeName(name: string): string;
++export function attributedVariant(canonicalName: string, format: Record<string, unknown> | null | undefined, attributedNodes: AttributedNodesPredicate, schema: import("prosemirror-model").Schema): string;
 +export function defaultMapAttributionToMark<T extends import("lib0/delta").Attribution>(format: Record<string, unknown> | null, attribution: T): Record<string, unknown> | null;
 +export function deltaAttributionToFormat(d: delta.DeltaAny, attributionsToFormat: Function): ProsemirrorDelta;
 +export function formattingAttributesToMarks(formatting: {
 +    [key: string]: any;
 +} | null, schema: import("prosemirror-model").Schema): import("prosemirror-model").Mark[];
 +export function nodesToDelta(ns: Array<Node>): ProsemirrorDelta;
-+export function nodeToDelta(n: Node, nodeName?: string | null): ProsemirrorDelta;
++export function nodeToDelta(n: Node, nodeName?: string | null, canonicalize?: boolean): ProsemirrorDelta;
 +export function docToDelta(doc: Node): delta.Delta<{
 +    name: string;
 +    attrs: {
@@ -422,8 +448,8 @@ index 0000000000000000000000000000000000000000..91664ef55028d7246da148b789e4c03a
 +}>;
 +export function deltaToPSteps(tr: import("prosemirror-state").Transaction, d: ProsemirrorDelta, pnode?: Node, currPos?: {
 +    i: number;
-+}): import("prosemirror-state").Transaction;
-+export function deltaToPNode(d: ProsemirrorDelta, schema: import("prosemirror-model").Schema, dformat: delta.FormattingAttributes | null): Node;
++}, attributedNodes?: AttributedNodesPredicate): import("prosemirror-state").Transaction;
++export function deltaToPNode(d: ProsemirrorDelta, schema: import("prosemirror-model").Schema, dformat: delta.FormattingAttributes | null, attributedNodes?: AttributedNodesPredicate): Node;
 +export function docDiffToDelta(beforeDoc: Node, afterDoc: Node): delta.Delta<{
 +    name: string;
 +    attrs: {
@@ -450,11 +476,11 @@ index 0000000000000000000000000000000000000000..91664ef55028d7246da148b789e4c03a
 \ No newline at end of file
 diff --git a/dist/src/sync-utils.d.ts.map b/dist/src/sync-utils.d.ts.map
 new file mode 100644
-index 0000000000000000000000000000000000000000..f9bbcc89fecc95ec4b426aae483f33a1d475063b
+index 0000000000000000000000000000000000000000..5634baccb112adaaf0c61b7879ef71c52d9d41db
 --- /dev/null
 +++ b/dist/src/sync-utils.d.ts.map
 @@ -0,0 +1 @@
-+{"version":3,"file":"sync-utils.d.ts","sourceRoot":"","sources":["../../src/sync-utils.js"],"names":[],"mappings":"AA+JA;;;;;;;GAOG;AACH,mCANW,IAAI,YACJ,CAAC,CAAC,IAAI,2BAEd;IAA4C,kBAAkB;CAC9D,GAAU,CAAC,CAAC,IAAI,CAOlB;AAED;;;;;;;;GAQG;AACH,uCAPW,CAAC,CAAC,IAAI,MACN,OAAO,mBAAmB,EAAE,WAAW,iDAE/C;IAA2C,kBAAkB;IACZ,oBAAoB,KAtIxB,CAAC,SAApC,OAAQ,YAAY,EAAE,WAAY,UACpC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,eAC9B,CAAC,KACC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI;CAoIxC,GAAU,OAAO,mBAAmB,EAAE,WAAW,CAgBnD;AAED;;;;;GAKG;AACH,uCAJW,CAAC,CAAC,IAAI,MACN,OAAO,mBAAmB,EAAE,WAAW,GACtC,IAAI,CAIf;AA4QD;;;;;;;;;;;;;;;;;GAiBG;AACH,oCAJW,IAAI,mBACJ,MAAM,GACL,MAAM,EAAE,CAwBnB;AAED;;;;;GAKG;AACH,yCAJW,MAAM,EAAE,QACR,IAAI,GACH,MAAM,CAgCjB;AAthBD;;;;;;;IAA4I;AAgCrI,4CALyC,CAAC,SAApC,OAAQ,YAAY,EAAE,WAAY,UACpC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,eAC9B,CAAC,GACC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,CAiC1C;AAOM,4CAHI,KAAK,CAAC,QAAQ,mCA4BL,gBAAgB,CACnC;AA0BM,wDAHI;IAAC,CAAC,GAAG,EAAC,MAAM,GAAE,GAAG,CAAA;CAAC,GAAC,IAAI,UACvB,OAAO,mBAAmB,EAAE,MAAM,sCAGwD;AAM9F,iCAHI,KAAK,CAAC,IAAI,CAAC,GACV,gBAAgB,CAW3B;AAyDM,+BAJI,IAAI,aACJ,MAAM,OAAC,GACN,gBAAgB,CAS3B;AAKM,gCAFI,IAAI;;;;;;;GAEwC;AAShD,kCANI,OAAO,mBAAmB,EAAE,WAAW,KACvC,gBAAgB,UAChB,IAAI,YACJ;IAAE,CAAC,EAAE,MAAM,CAAA;CAAE,GACZ,OAAO,mBAAmB,EAAE,WAAW,CA8GlD;AAQM,gCALI,gBAAgB,UAChB,OAAO,mBAAmB,EAAE,MAAM,WAClC,KAAK,CAAC,oBAAoB,GAAC,IAAI,GAC9B,IAAI,CA4Bf;AAMM,0CAHI,IAAI,YACJ,IAAI;;;;;;;GAMd;AAKM,8BAFI,WAAW;;;;;;;GAkBrB;AA+CM,kCAJI,OAAO,uBAAuB,EAAE,IAAI,aACpC,OAAO,mBAAmB,EAAE,IAAI,GAC/B,gBAAgB,CAQ3B;AAoGM,wCALI,IAAI,YACJ,MAAM,OACN,CAAC,CAAC,EAAC,KAAK,CAAC,eAAe,KAAG,GAAG,GAC7B,gBAAgB,CAa3B;qBArjBoB,mBAAmB;mBAPrB,MAAM;uBAEF,YAAY;mBAIhB,aAAa"}
++{"version":3,"file":"sync-utils.d.ts","sourceRoot":"","sources":["../../src/sync-utils.js"],"names":[],"mappings":"AAsNA;;;;;;;GAOG;AACH,mCANW,IAAI,YACJ,CAAC,CAAC,IAAI,2BAEd;IAA4C,kBAAkB;CAC9D,GAAU,CAAC,CAAC,IAAI,CASlB;AAED;;;;;;;;;GASG;AACH,uCARW,CAAC,CAAC,IAAI,MACN,OAAO,mBAAmB,EAAE,WAAW,kEAE/C;IAA2C,kBAAkB;IACZ,oBAAoB,KAxIxB,CAAC,SAApC,OAAQ,YAAY,EAAE,WAAY,UACpC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,eAC9B,CAAC,KACC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI;IAsID,eAAe;CACtD,GAAU,OAAO,mBAAmB,EAAE,WAAW,CAiBnD;AAED;;;;;GAKG;AACH,uCAJW,CAAC,CAAC,IAAI,MACN,OAAO,mBAAmB,EAAE,WAAW,GACtC,IAAI,CAIf;AA+SD;;;;;;;;;;;;;;;;;GAiBG;AACH,oCAJW,IAAI,mBACJ,MAAM,GACL,MAAM,EAAE,CAwBnB;AAED;;;;;GAKG;AACH,yCAJW,MAAM,EAAE,QACR,IAAI,GACH,MAAM,CAgCjB;AApnBD;;;;;;;IAA4I;AAE5I;;;;;;;GAOG;AACH,gCAAiC,cAAc,CAAA;AAE/C;;;;;GAKG;AACH,qCAFU,wBAAwB,CAEe;AAS1C,wCAHI,MAAM,GACL,MAAM,CAKR;AAcH,iDANI,MAAM,UACN,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,GAAG,SAAS,mBAC1C,wBAAwB,UACxB,OAAO,mBAAmB,EAAE,MAAM,GACjC,MAAM,CAajB;AAgCM,4CALyC,CAAC,SAApC,OAAQ,YAAY,EAAE,WAAY,UACpC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,eAC9B,CAAC,GACC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,CAiC1C;AAOM,4CAHI,KAAK,CAAC,QAAQ,mCA4BL,gBAAgB,CACnC;AA0BM,wDAHI;IAAC,CAAC,GAAG,EAAC,MAAM,GAAE,GAAG,CAAA;CAAC,GAAC,IAAI,UACvB,OAAO,mBAAmB,EAAE,MAAM,sCAGwD;AAM9F,iCAHI,KAAK,CAAC,IAAI,CAAC,GACV,gBAAgB,CAW3B;AAgEM,+BAPI,IAAI,aACJ,MAAM,OAAC,iBACP,OAAO,GAGN,gBAAgB,CAS3B;AAKM,gCAFI,IAAI;;;;;;;GAEwC;AAmDhD,kCAPI,OAAO,mBAAmB,EAAE,WAAW,KACvC,gBAAgB,UAChB,IAAI,YACJ;IAAE,CAAC,EAAE,MAAM,CAAA;CAAE,oBACb,wBAAwB,GACvB,OAAO,mBAAmB,EAAE,WAAW,CAkGlD;AASM,gCANI,gBAAgB,UAChB,OAAO,mBAAmB,EAAE,MAAM,WAClC,KAAK,CAAC,oBAAoB,GAAC,IAAI,oBAC/B,wBAAwB,GACvB,IAAI,CA6Bf;AAMM,0CAHI,IAAI,YACJ,IAAI;;;;;;;GAMd;AAKM,8BAFI,WAAW;;;;;;;GAkBrB;AA+CM,kCAJI,OAAO,uBAAuB,EAAE,IAAI,aACpC,OAAO,mBAAmB,EAAE,IAAI,GAC/B,gBAAgB,CAQ3B;AAoGM,wCALI,IAAI,YACJ,MAAM,OACN,CAAC,CAAC,EAAC,KAAK,CAAC,eAAe,KAAG,GAAG,GAC7B,gBAAgB,CAa3B;qBAnpBqC,mBAAmB;mBAPtC,MAAM;uBAEF,YAAY;mBAIhB,aAAa"}
 \ No newline at end of file
 diff --git a/dist/src/undo-plugin.d.ts b/dist/src/undo-plugin.d.ts
 new file mode 100644
@@ -479,11 +505,11 @@ index 0000000000000000000000000000000000000000..86f43ae4291c5baf85948350df8d7d46
 \ No newline at end of file
 diff --git a/dist/src/undo-plugin.d.ts.map b/dist/src/undo-plugin.d.ts.map
 new file mode 100644
-index 0000000000000000000000000000000000000000..11c58c0f3f94d2e560408aaccf2b1b418142a0d4
+index 0000000000000000000000000000000000000000..665bb84203a88b35e2961e7221a31896485bdcc7
 --- /dev/null
 +++ b/dist/src/undo-plugin.d.ts.map
 @@ -0,0 +1 @@
-+{"version":3,"file":"undo-plugin.d.ts","sourceRoot":"","sources":["../../src/undo-plugin.js"],"names":[],"mappings":"AA+JO,yCAFI,OAAO,MAAM,EAAE,WAAW,2BAmFpC;;iBA1Oa,OAAO,MAAM,EAAE,WAAW;aAC1B;QAAE,QAAQ,EAAE,OAAO,mBAAmB,EAAE,iBAAiB,CAAC;QAAC,cAAc,EAAE,UAAU,CAAC,OAAO,4BAA4B,CAAC,CAAC,gBAAgB,CAAC,CAAA;KAAE,GAAG,IAAI;gBACrJ,OAAO;gBACP,OAAO;kBACP,OAAO;;uBAVE,mBAAmB;6CACG,gBAAgB"}
++{"version":3,"file":"undo-plugin.d.ts","sourceRoot":"","sources":["../../src/undo-plugin.js"],"names":[],"mappings":"AA8JO,yCAFI,OAAO,MAAM,EAAE,WAAW,2BAmFpC;;iBAzOa,OAAO,MAAM,EAAE,WAAW;aAC1B;QAAE,QAAQ,EAAE,OAAO,mBAAmB,EAAE,iBAAiB,CAAC;QAAC,cAAc,EAAE,UAAU,CAAC,OAAO,4BAA4B,CAAC,CAAC,gBAAgB,CAAC,CAAA;KAAE,GAAG,IAAI;gBACrJ,OAAO;gBACP,OAAO;kBACP,OAAO;;uBAVE,mBAAmB;6CACG,gBAAgB"}
 \ No newline at end of file
 diff --git a/dist/src/utils.d.ts b/dist/src/utils.d.ts
 deleted file mode 100644
@@ -499,10 +525,10 @@ deleted file mode 100644
 index 61b864629455150ac073bf6a9e5b7f6f7e9e5037..0000000000000000000000000000000000000000
 diff --git a/global.d.ts b/global.d.ts
 new file mode 100644
-index 0000000000000000000000000000000000000000..8939eeae75b5f0fab4cf12fe43bdb03f12e891c8
+index 0000000000000000000000000000000000000000..f94ae8cdc4fe7400e1e7f5ad7f5cb7a1170519f5
 --- /dev/null
 +++ b/global.d.ts
-@@ -0,0 +1,15 @@
+@@ -0,0 +1,21 @@
 +
 +declare type YType = import('@y/y').Type
 +declare type AttributionManager = import('@y/y').AbstractAttributionManager
@@ -515,11 +541,17 @@ index 0000000000000000000000000000000000000000..8939eeae75b5f0fab4cf12fe43bdb03f
 + * Maps attributions to prosemirror marks
 + */
 +declare type AttributionMapper = (format: Record<string,unknown> | null, attribution: import('lib0/delta').Attribution) => Record<string, unknown> | null
++/**
++ * Decides whether an attributed node renders under its `{nodeName}--attributed`
++ * variant node type. `kinds` reflects which attribution kinds are present on the
++ * node. Must be deterministic in `(nodeName, kinds)`.
++ */
++declare type AttributedNodesPredicate = (nodeName: string, kinds: { insert?: boolean, delete?: boolean, format?: boolean }) => boolean
 +declare type SyncPluginState = import('lib0/schema').Unwrap<typeof import('@y/prosemirror').$syncPluginState>
 +declare type SyncPluginStateUpdate = import('lib0/schema').Unwrap<typeof import('@y/prosemirror').$syncPluginStateUpdate>
 +declare type ProsemirrorDelta = import('lib0/schema').Unwrap<typeof import('@y/prosemirror').$prosemirrorDelta>
 diff --git a/package.json b/package.json
-index 8eaef6bf2b216933047f528e3c3b0aa469df45e7..99ea779e7487cdc459ca93c65a8e84febb679091 100644
+index 8eaef6bf2b216933047f528e3c3b0aa469df45e7..258a3b18cc50c11181b70a716953fdb1708bf840 100644
 --- a/package.json
 +++ b/package.json
 @@ -2,10 +2,7 @@
@@ -565,7 +597,7 @@ index 8eaef6bf2b216933047f528e3c3b0aa469df45e7..99ea779e7487cdc459ca93c65a8e84fe
    "peerDependencies": {
 -    "@y/protocols": "^1.0.6-3",
 +    "@y/protocols": "^1.0.6-rc.1",
-+    "@y/y": "^14.0.0-rc.16",
++    "@y/y": "^14.0.0-rc.17",
      "prosemirror-model": "^1.7.1",
      "prosemirror-state": "^1.2.3",
 -    "prosemirror-view": "^1.9.10",
@@ -576,7 +608,7 @@ index 8eaef6bf2b216933047f528e3c3b0aa469df45e7..99ea779e7487cdc459ca93c65a8e84fe
      "@rollup/plugin-commonjs": "^28.0.8",
 diff --git a/src/commands.js b/src/commands.js
 new file mode 100644
-index 0000000000000000000000000000000000000000..bbf5a241f8c1eb91a80f4a15c8f4d3696f42c5c4
+index 0000000000000000000000000000000000000000..504167d4a50fbbb1198a3f9108edba262738504a
 --- /dev/null
 +++ b/src/commands.js
 @@ -0,0 +1,163 @@
@@ -636,11 +668,11 @@ index 0000000000000000000000000000000000000000..bbf5a241f8c1eb91a80f4a15c8f4d369
 +      // @todo it is preferred to apply the minimal diff - at least for debugging purposes. the
 +      // document replacal is more reliable though
 +      if (debugging) {
-+        const pcontent = nodeToDelta(tr.doc)
++        const pcontent = nodeToDelta(tr.doc, undefined, true)
 +        const diff = d.diff(pcontent.done(), ycontent.done())
-+        deltaToPSteps(tr, diff)
++        deltaToPSteps(tr, diff, undefined, undefined, pluginState.attributedNodes)
 +      } else {
-+        tr.replaceWith(0, tr.doc.content.size, deltaToPNode(ycontent, tr.doc.type.schema, null))
++        tr.replaceWith(0, tr.doc.content.size, deltaToPNode(ycontent, tr.doc.type.schema, null, pluginState.attributedNodes))
 +      }
 +    }
 +    dispatch(tr)
@@ -1997,14 +2029,15 @@ index 0000000000000000000000000000000000000000..963ea708dbe0e92b2d43fc031243c2e7
 +}
 diff --git a/src/sync-plugin.js b/src/sync-plugin.js
 new file mode 100644
-index 0000000000000000000000000000000000000000..e9444af4c344c486bb7ba7255bcd26f43c8145cf
+index 0000000000000000000000000000000000000000..079bc7e465f98612907d36adc9854054814dda91
 --- /dev/null
 +++ b/src/sync-plugin.js
-@@ -0,0 +1,289 @@
+@@ -0,0 +1,301 @@
 +import * as Y from '@y/y'
 +import { Plugin } from 'prosemirror-state'
 +import {
 +  $prosemirrorDelta,
++  defaultAttributedNodes,
 +  defaultMapAttributionToMark,
 +  deltaAttributionToFormat,
 +  deltaToPSteps,
@@ -2025,13 +2058,19 @@ index 0000000000000000000000000000000000000000..e9444af4c344c486bb7ba7255bcd26f4
 +   * If provided, will switch to the given attribution manager instead of the current attribution manager
 +   */
 +  attributionManager: Y.$attributionManager.nullable,
-+  attributionMapper: /** @type {s.Schema<AttributionMapper>} */ (s.$function)
++  attributionMapper: /** @type {s.Schema<AttributionMapper>} */ (s.$function),
++  /**
++   * Predicate deciding which attributed nodes render under their
++   * `{nodeName}--attributed` variant. See {@link syncPlugin}.
++   */
++  attributedNodes: /** @type {s.Schema<AttributedNodesPredicate>} */ (s.$function)
 +})
 +
 +export const $syncPluginStateUpdate = s.$object({
 +  ytype: Y.$ytypeAny.nullable.optional,
 +  attributionManager: Y.$attributionManager.nullable.optional,
 +  attributionMapper: /** @type {s.Schema<AttributionMapper>} */ (s.$function).nullable.optional,
++  attributedNodes: /** @type {s.Schema<AttributedNodesPredicate>} */ (s.$function).nullable.optional,
 +  change: /** @type {s.Schema<Y.YEvent<any>>} */ (s.$any).nullable.optional
 +})
 +const $maybeSyncPluginStateUpdate = $syncPluginStateUpdate.nullable
@@ -2102,6 +2141,7 @@ index 0000000000000000000000000000000000000000..e9444af4c344c486bb7ba7255bcd26f4
 + * @param {object} opts
 + * @param {Y.Doc} [opts.suggestionDoc] A {@link Y.Doc} to use for suggestion tracking
 + * @param {AttributionMapper} [opts.mapAttributionToMark] A function to map the {@link Y.Attribution} to a {@link import('prosemirror-model').Mark} - the mark names *must* be one of: `y-attributed-insert`, `y-attributed-delete`, `y-attributed-format`. No other mark names are permitted
++ * @param {AttributedNodesPredicate} [opts.attributedNodes] Optional predicate `(nodeName, kinds) => boolean`. When it returns `true` for an attributed node *and* a `{nodeName}--attributed` type exists in the schema, that node is rendered under the variant type (the `y-attributed-*` marks are still applied). `kinds` is `{ insert?, delete?, format? }`. The variant is a pure rendering concern - the canonical name is what is stored in the Y document. The predicate must be deterministic in `(nodeName, kinds)`.
 + * @returns {Plugin}
 + */
 +export function syncPlugin (opts = {}) {
@@ -2112,7 +2152,8 @@ index 0000000000000000000000000000000000000000..e9444af4c344c486bb7ba7255bcd26f4
 +        return $syncPluginState.expect({
 +          ytype: null,
 +          attributionManager: null,
-+          attributionMapper: opts.mapAttributionToMark || defaultMapAttributionToMark
++          attributionMapper: opts.mapAttributionToMark || defaultMapAttributionToMark,
++          attributedNodes: opts.attributedNodes || defaultAttributedNodes
 +        })
 +      },
 +      apply: (tr, prevPluginState) => {
@@ -2133,8 +2174,9 @@ index 0000000000000000000000000000000000000000..e9444af4c344c486bb7ba7255bcd26f4
 +       * @param {Y.Type?} opts.ytype
 +       * @param {Y.AbstractAttributionManager?} opts.attributionManager
 +       * @param {AttributionMapper} opts.attributionMapper
++       * @param {AttributedNodesPredicate} opts.attributedNodes
 +       */
-+      function subscribeToYType ({ view, ytype, attributionManager, attributionMapper }) {
++      function subscribeToYType ({ view, ytype, attributionManager, attributionMapper, attributedNodes }) {
 +        unsubscribeFn?.()
 +        if (ytype != null) {
 +          // Listen on the doc's `afterTransaction` event rather than
@@ -2172,10 +2214,10 @@ index 0000000000000000000000000000000000000000..e9444af4c344c486bb7ba7255bcd26f4
 +              ytype.toDeltaDeep(am),
 +              attributionMapper
 +            ).done()
-+            const pcontent = nodeToDelta(view.state.doc).done()
++            const pcontent = nodeToDelta(view.state.doc, undefined, true).done()
 +            const diff = d.diff(pcontent, desiredPM)
 +            if (diff.isEmpty()) return
-+            const ptr = deltaToPSteps(view.state.tr, diff)
++            const ptr = deltaToPSteps(view.state.tr, diff, undefined, undefined, attributedNodes)
 +            ptr.setMeta('addToHistory', false)
 +            ptr.setMeta('y-sync-transaction', $syncPluginStateUpdate.expect({
 +              change: null,
@@ -2200,10 +2242,10 @@ index 0000000000000000000000000000000000000000..e9444af4c344c486bb7ba7255bcd26f4
 +              ytype.toDeltaDeep(attributionManager || Y.noAttributionsManager),
 +              attributionMapper
 +            ).done()
-+            const pcontent = nodeToDelta(view.state.doc).done()
++            const pcontent = nodeToDelta(view.state.doc, undefined, true).done()
 +            const diff = d.diff(pcontent, desiredPM)
 +            if (diff.isEmpty()) return
-+            const ptr = deltaToPSteps(view.state.tr, diff)
++            const ptr = deltaToPSteps(view.state.tr, diff, undefined, undefined, attributedNodes)
 +            ptr.setMeta('addToHistory', false)
 +            // @todo stop updating meta on every transaction
 +            ptr.setMeta('y-sync-transaction', $syncPluginStateUpdate.expect({
@@ -2238,7 +2280,8 @@ index 0000000000000000000000000000000000000000..e9444af4c344c486bb7ba7255bcd26f4
 +              view,
 +              ytype,
 +              attributionManager,
-+              attributionMapper: pluginState.attributionMapper
++              attributionMapper: pluginState.attributionMapper,
++              attributedNodes: pluginState.attributedNodes
 +            })
 +          }
 +          if (ytype == null) return
@@ -2254,11 +2297,12 @@ index 0000000000000000000000000000000000000000..e9444af4c344c486bb7ba7255bcd26f4
 +          // apply the same insert twice.
 +          const am = attributionManager || Y.noAttributionsManager
 +          const mapper = pluginState.attributionMapper
++          const attributedNodes = pluginState.attributedNodes
 +          const ycontent = deltaAttributionToFormat(
 +            ytype.toDeltaDeep(am),
 +            mapper
 +          ).done()
-+          const pcontent = nodeToDelta(view.state.doc).done()
++          const pcontent = nodeToDelta(view.state.doc, undefined, true).done()
 +          const pmToYDiff = stripAttributionFormattingFromDelta(d.diff(ycontent, pcontent))
 +          if (!pmToYDiff.isEmpty()) {
 +            /** @type {Y.Doc} */ (ytype.doc).transact(() => {
@@ -2269,11 +2313,11 @@ index 0000000000000000000000000000000000000000..e9444af4c344c486bb7ba7255bcd26f4
 +            ytype.toDeltaDeep(am),
 +            mapper
 +          ).done()
-+          const pcontentAfter = nodeToDelta(view.state.doc).done()
++          const pcontentAfter = nodeToDelta(view.state.doc, undefined, true).done()
 +          const pmReconcileDiff = d.diff(pcontentAfter, desiredPM)
 +          if (pmReconcileDiff.isEmpty()) return
 +          const tr = view.state.tr
-+          deltaToPSteps(tr, pmReconcileDiff)
++          deltaToPSteps(tr, pmReconcileDiff, undefined, undefined, attributedNodes)
 +          tr.setMeta('addToHistory', false)
 +          tr.setMeta('y-sync-transaction', $syncPluginStateUpdate.expect({
 +            change: null,
@@ -2292,10 +2336,10 @@ index 0000000000000000000000000000000000000000..e9444af4c344c486bb7ba7255bcd26f4
 +}
 diff --git a/src/sync-utils.js b/src/sync-utils.js
 new file mode 100644
-index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f848301a1b8307
+index 0000000000000000000000000000000000000000..28426627d278e5a3f9ae01fb81bcbf9bcff413d3
 --- /dev/null
 +++ b/src/sync-utils.js
-@@ -0,0 +1,573 @@
+@@ -0,0 +1,667 @@
 +import * as Y from '@y/y'
 +import * as array from 'lib0/array'
 +import * as delta from 'lib0/delta'
@@ -2303,7 +2347,7 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 +import * as math from 'lib0/math'
 +import * as object from 'lib0/object'
 +import * as s from 'lib0/schema'
-+import { Node } from 'prosemirror-model'
++import { Node, Slice, Fragment } from 'prosemirror-model'
 +import {
 +  AddMarkStep,
 +  AddNodeMarkStep,
@@ -2316,6 +2360,61 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 +} from 'prosemirror-transform'
 +
 +export const $prosemirrorDelta = delta.$delta({ name: s.$string, attrs: s.$record(s.$string, s.$any), text: true, recursiveChildren: true })
++
++/**
++ * Suffix appended to a node name when it is rendered as its "attributed
++ * variant" (see `attributedNodes` on {@link syncPlugin}). The suffix is fixed
++ * so that canonicalizing back (PM -> Y) is a pure string operation and can
++ * never drift from the forward mapping. `--attributed` is a *reserved* suffix:
++ * a real node type literally ending in it would be canonicalized away on the
++ * way to Y.
++ */
++export const ATTRIBUTED_SUFFIX = '--attributed'
++
++/**
++ * Default `attributedNodes` predicate - the feature is off, so every node keeps
++ * its canonical name.
++ *
++ * @type {AttributedNodesPredicate}
++ */
++export const defaultAttributedNodes = () => false
++
++/**
++ * Strip the {@link ATTRIBUTED_SUFFIX} so a PM node name maps back to the
++ * canonical name stored in the Y document. Identity for canonical names.
++ *
++ * @param {string} name
++ * @return {string}
++ */
++export const canonicalNodeName = (name) =>
++  name.endsWith(ATTRIBUTED_SUFFIX)
++    ? name.slice(0, -ATTRIBUTED_SUFFIX.length)
++    : name
++
++/**
++ * Resolve the PM node name to render for `canonicalName` given the attribution
++ * carried in `format`. Returns `canonicalName + ATTRIBUTED_SUFFIX` when the
++ * `attributedNodes` predicate opts in *and* the variant exists in the schema;
++ * otherwise returns `canonicalName` unchanged.
++ *
++ * @param {string} canonicalName
++ * @param {Record<string, unknown> | null | undefined} format
++ * @param {AttributedNodesPredicate} attributedNodes
++ * @param {import('prosemirror-model').Schema} schema
++ * @return {string}
++ */
++export const attributedVariant = (canonicalName, format, attributedNodes, schema) => {
++  const kinds = {
++    insert: format?.['y-attributed-insert'] != null,
++    delete: format?.['y-attributed-delete'] != null,
++    format: format?.['y-attributed-format'] != null
++  }
++  if ((kinds.insert || kinds.delete || kinds.format) && attributedNodes(canonicalName, kinds)) {
++    const variant = canonicalName + ATTRIBUTED_SUFFIX
++    if (schema.nodes[variant] != null) return variant
++  }
++  return canonicalName
++}
 +
 +/**
 + * Default attribution-to-mark mapper.
@@ -2399,7 +2498,7 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 +      if (delta.$insertOp.check(child)) {
 +        r.insert(child.insert.map(c => delta.$deltaAny.check(c) ? deltaAttributionToFormat(c, attributionsToFormat) : c), format)
 +      } else if (delta.$textOp.check(child)) {
-+        r.insert(child.insert.slice(), format)
++        r.insert(child.insert, format)
 +      } else if (delta.$retainOp.check(child)) {
 +        r.retain(child.retain, format)
 +      } else if (delta.$modifyOp.check(child)) {
@@ -2464,7 +2563,9 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 + * @returns {Y.Type}
 + */
 +export function pmToFragment (node, fragment, { attributionManager = Y.noAttributionsManager } = {}) {
-+  const initialPDelta = nodeToDelta(node).done()
++  // Canonicalize so the Y document never stores an attributed-variant name
++  // (`--attributed` is a reserved suffix - identity when no variant is present).
++  const initialPDelta = nodeToDelta(node, undefined, true).done()
 +  fragment.applyDelta(initialPDelta, attributionManager)
 +
 +  return fragment
@@ -2477,20 +2578,22 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 + * @param {object} ctx
 + * @param {Y.AbstractAttributionManager} [ctx.attributionManager]
 + * @param {typeof defaultMapAttributionToMark} [ctx.mapAttributionToMark]
++ * @param {AttributedNodesPredicate} [ctx.attributedNodes]
 + * @returns {import('prosemirror-state').Transaction}
 + */
 +export function fragmentToTr (fragment, tr, {
 +  attributionManager = Y.noAttributionsManager,
-+  mapAttributionToMark = defaultMapAttributionToMark
++  mapAttributionToMark = defaultMapAttributionToMark,
++  attributedNodes = defaultAttributedNodes
 +} = {}) {
 +  const fragmentContent = deltaAttributionToFormat(
 +    fragment.toDelta(attributionManager, { deep: true }),
 +    mapAttributionToMark
 +  )
-+  const initialPDelta = nodeToDelta(tr.doc).done()
++  const initialPDelta = nodeToDelta(tr.doc, undefined, true).done()
 +  const deltaBetweenPmAndFragment = delta.diff(initialPDelta, fragmentContent).done()
 +
-+  return deltaToPSteps(tr, deltaBetweenPmAndFragment).setMeta('y-sync-hydration', {
++  return deltaToPSteps(tr, deltaBetweenPmAndFragment, undefined, undefined, attributedNodes).setMeta('y-sync-hydration', {
 +    delta: deltaBetweenPmAndFragment
 +  })
 +}
@@ -2508,13 +2611,16 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 +/**
 + * @param {Node} n
 + * @param {string?} nodeName
++ * @param {boolean} [canonicalize] When `true`, the emitted name has the
++ *   {@link ATTRIBUTED_SUFFIX} stripped (PM -> Y direction). The flag propagates
++ *   through the child recursion.
 + * @return {ProsemirrorDelta}
 + */
-+export const nodeToDelta = (n, nodeName = n.type.name) => {
-+  const d = delta.create(nodeName, $prosemirrorDelta)
++export const nodeToDelta = (n, nodeName = n.type.name, canonicalize = false) => {
++  const d = delta.create(canonicalize && nodeName != null ? canonicalNodeName(nodeName) : nodeName, $prosemirrorDelta)
 +  d.setAttrs(n.attrs)
 +  n.content.content.forEach(c => {
-+    d.insert(c.isText ? (c.text ?? []) : [nodeToDelta(c)], marksToFormattingAttributes(c.marks))
++    d.insert(c.isText ? (c.text ?? []) : [nodeToDelta(c, undefined, canonicalize)], marksToFormattingAttributes(c.marks))
 +  })
 +  return d.done(false)
 +}
@@ -2525,13 +2631,55 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 +export const docToDelta = doc => nodeToDelta(doc, null)
 +
 +/**
++ * Apply node-level format (node marks) at `pos`. When the resulting attribution
++ * marks change the node's {@link attributedVariant}, flip the node type with a
++ * single size-preserving `setNodeMarkup` (which also sets the resulting mark
++ * set atomically - this avoids an intermediate state where the canonical type
++ * would carry a mark it does not declare). Otherwise this is byte-identical to
++ * the previous per-key `addNodeMark`/`removeNodeMark` loop.
++ *
++ * @param {import('prosemirror-state').Transaction} tr
++ * @param {number} pos
++ * @param {Record<string, any> | null | undefined} format
++ * @param {AttributedNodesPredicate} attributedNodes
++ */
++const applyNodeFormat = (tr, pos, format, attributedNodes) => {
++  const schema = tr.doc.type.schema
++  const node = tr.doc.nodeAt(pos)
++  if (node == null) return
++  let resultingMarks = node.marks
++  object.forEach(format ?? {}, (v, k) => {
++    const markType = schema.marks[k]
++    if (markType == null) return
++    resultingMarks = v == null
++      ? markType.removeFromSet(resultingMarks)
++      : schema.mark(k, v).addToSet(resultingMarks)
++  })
++  const targetType = schema.nodes[
++    attributedVariant(canonicalNodeName(node.type.name), marksToFormattingAttributes(resultingMarks), attributedNodes, schema)
++  ]
++  if (targetType !== node.type) {
++    tr.setNodeMarkup(pos, targetType, node.attrs, resultingMarks)
++  } else {
++    object.forEach(format ?? {}, (v, k) => {
++      if (v == null) {
++        tr.removeNodeMark(pos, schema.marks[k])
++      } else {
++        tr.addNodeMark(pos, schema.mark(k, v))
++      }
++    })
++  }
++}
++
++/**
 + * @param {import('prosemirror-state').Transaction} tr
 + * @param {ProsemirrorDelta} d
 + * @param {Node} [pnode]
 + * @param {{ i: number }} [currPos]
++ * @param {AttributedNodesPredicate} [attributedNodes]
 + * @return {import('prosemirror-state').Transaction}
 + */
-+export const deltaToPSteps = (tr, d, pnode = tr.doc, currPos = { i: 0 }) => {
++export const deltaToPSteps = (tr, d, pnode = tr.doc, currPos = { i: 0 }, attributedNodes = defaultAttributedNodes) => {
 +  const schema = tr.doc.type.schema
 +  let currParentIndex = 0
 +  let nOffset = 0
@@ -2571,34 +2719,22 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 +            nOffset = 0
 +          }
 +        } else {
-+          object.forEach(op.format ?? {}, (v, k) => {
-+            if (v == null) {
-+              tr.removeNodeMark(currPos.i, schema.marks[k])
-+            } else {
-+              // TODO see schema.js for more info on marking nodes
-+              tr.addNodeMark(currPos.i, schema.mark(k, v))
-+            }
-+          })
++          // TODO see schema.js for more info on marking nodes
++          applyNodeFormat(tr, currPos.i, op.format, attributedNodes)
 +          currParentIndex++
 +          currPos.i += pc.nodeSize
 +          i--
 +        }
 +      }
 +    } else if (delta.$modifyOp.check(op)) {
-+      object.forEach(op.format ?? {}, (v, k) => {
-+        if (v == null) {
-+          tr.removeNodeMark(currPos.i, schema.marks[k])
-+        } else {
-+          tr.addNodeMark(currPos.i, schema.mark(k, v))
-+        }
-+      })
++      applyNodeFormat(tr, currPos.i, op.format, attributedNodes)
 +      const child = pchildren[currParentIndex++]
 +      const childStart = currPos.i
 +      // Snapshot `tr.doc.content.size` so we can detect inserts/deletes
 +      // appended inside the recursion below.
 +      const sizeBefore = tr.doc.content.size
 +      currPos.i = childStart + 1
-+      deltaToPSteps(tr, op.value, child, currPos)
++      deltaToPSteps(tr, op.value, child, currPos, attributedNodes)
 +      // `lib0/delta.diff` produces short deltas that omit trailing
 +      // retains, so the recursive call may exit before `currPos.i`
 +      // reaches the child's close tag. Snap forward to the position right
@@ -2607,11 +2743,11 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 +      const netChange = tr.doc.content.size - sizeBefore
 +      currPos.i = childStart + child.nodeSize + netChange
 +    } else if (delta.$insertOp.check(op)) {
-+      const newPChildren = op.insert.map(ins => deltaToPNode(ins, schema, op.format))
-+      tr.insert(currPos.i, newPChildren)
++      const newPChildren = op.insert.map(ins => deltaToPNode(ins, schema, op.format, attributedNodes))
++      tr.step(new ReplaceStep(currPos.i, currPos.i, new Slice(Fragment.from(newPChildren), 0, 0)))
 +      currPos.i += newPChildren.reduce((s, c) => c.nodeSize + s, 0)
 +    } else if (delta.$textOp.check(op)) {
-+      tr.insert(currPos.i, schema.text(op.insert, formattingAttributesToMarks(op.format, schema)))
++      tr.step(new ReplaceStep(currPos.i, currPos.i, new Slice(Fragment.from(schema.text(op.insert, formattingAttributesToMarks(op.format, schema))), 0, 0)))
 +      currPos.i += op.length
 +    } else if (delta.$deleteOp.check(op)) {
 +      for (let remainingDelLen = op.delete; remainingDelLen > 0;) {
@@ -2621,7 +2757,7 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 +        }
 +        if (pc.isText) {
 +          const delLen = math.min(pc.nodeSize - nOffset, remainingDelLen)
-+          tr.delete(currPos.i, currPos.i + delLen)
++          tr.step(new ReplaceStep(currPos.i, currPos.i + delLen, Slice.empty))
 +          nOffset += delLen
 +          if (nOffset === pc.nodeSize) {
 +            // TODO this can't actually "jump out" of the current node
@@ -2631,7 +2767,7 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 +          }
 +          remainingDelLen -= delLen
 +        } else {
-+          tr.delete(currPos.i, currPos.i + pc.nodeSize)
++          tr.step(new ReplaceStep(currPos.i, currPos.i + pc.nodeSize, Slice.empty))
 +          currParentIndex++
 +          remainingDelLen--
 +        }
@@ -2645,9 +2781,10 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 + * @param {ProsemirrorDelta} d
 + * @param {import('prosemirror-model').Schema} schema
 + * @param {delta.FormattingAttributes|null} dformat
++ * @param {AttributedNodesPredicate} [attributedNodes]
 + * @return {Node}
 + */
-+export const deltaToPNode = (d, schema, dformat) => {
++export const deltaToPNode = (d, schema, dformat, attributedNodes = defaultAttributedNodes) => {
 +  /**
 +   * @type {Object<string,any>}
 +   */
@@ -2655,8 +2792,9 @@ index 0000000000000000000000000000000000000000..bb1ef1b4b4cfdb808410929cb8f84830
 +  for (const attr of d.attrs) {
 +    attrs[attr.key] = attr.value
 +  }
-+  const dc = d.children.map(c => delta.$insertOp.check(c) ? c.insert.map(cn => deltaToPNode(cn, schema, c.format)) : (delta.$textOp.check(c) ? [schema.text(c.insert, formattingAttributesToMarks(c.format, schema))] : []))
-+  const nodeType = schema.nodes[d.name ?? 'doc']
++  const dc = d.children.map(c => delta.$insertOp.check(c) ? c.insert.map(cn => deltaToPNode(cn, schema, c.format, attributedNodes)) : (delta.$textOp.check(c) ? [schema.text(c.insert, formattingAttributesToMarks(c.format, schema))] : []))
++  const canonical = d.name == null ? 'doc' : canonicalNodeName(d.name)
++  const nodeType = schema.nodes[attributedVariant(canonical, dformat, attributedNodes, schema)]
 +  if (!nodeType) {
 +    throw new Error(
 +      '[y/prosemirror]: node type does not exist in the schema: ' + d.name
