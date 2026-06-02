@@ -60,6 +60,11 @@ export const createAlert = createReactBlockSpec(
         default: "warning",
         values: ["warning", "error", "info", "success"],
       },
+      title: {
+        default: undefined,
+        type: "string",
+        optional: true,
+      } as const,
     },
     content: "inline",
   },
@@ -69,6 +74,19 @@ export const createAlert = createReactBlockSpec(
         (a) => a.value === props.block.props.type,
       )!;
       const Icon = alertType.icon;
+      const savedTitle = props.block.props.title ?? "";
+
+      const saveTitle = (value: string) => {
+        const next = value.trim();
+        if (next === savedTitle) {
+          return;
+        }
+        props.editor.updateBlock(props.block, {
+          type: "alert",
+          props: { title: next || undefined },
+        });
+      };
+
       return (
         <div className={"alert"} data-alert-type={props.block.props.type}>
           {/*Icon which opens a menu to choose the Alert type*/}
@@ -111,8 +129,25 @@ export const createAlert = createReactBlockSpec(
               })}
             </Menu.Dropdown>
           </Menu>
-          {/*Rich text field for user to type in*/}
-          <div className={"inline-content"} ref={props.contentRef} />
+          <div className={"alert-body"}>
+            <div className={"alert-title-wrapper"} contentEditable={false}>
+              {/* This input can live within the block, and control the title property of the block */}
+              <input
+                key={savedTitle}
+                className={"alert-title-input"}
+                defaultValue={savedTitle}
+                placeholder="Add title"
+                onBlur={(e) => saveTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.currentTarget.blur();
+                  }
+                }}
+              />
+            </div>
+            {/*Rich text field for user to type in*/}
+            <div className={"inline-content"} ref={props.contentRef} />
+          </div>
         </div>
       );
     },

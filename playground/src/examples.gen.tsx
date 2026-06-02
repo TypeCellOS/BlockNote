@@ -1498,6 +1498,28 @@
         "readme": "In this example, we create a custom block which renders a simple HTML paragraph with placeholder text. The block has no editable content.\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)"
       },
       {
+        "projectSlug": "macro-block",
+        "fullSlug": "custom-schema/macro-block",
+        "pathFromRoot": "examples/06-custom-schema/09-macro-block",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Intermediate",
+            "Blocks",
+            "Custom Schemas"
+          ],
+          "dependencies": {} as any
+        },
+        "title": "Macro Block",
+        "group": {
+          "pathFromRoot": "examples/06-custom-schema",
+          "slug": "custom-schema"
+        },
+        "readme": "In this example, we create a custom `Macro` block using the vanilla `createBlockSpec` API from `@blocknote/core`. Each macro block stores an `id` prop, and the `id` is used to look up \"before\" and \"after\" HTML strings in a global map. Those strings are injected as html on either side of the editable inline content.\n\nThis pattern is useful when you want a block whose decoration is driven by a runtime registry — for example, server-driven labels, citations, or templated wrappers.\n\n**Try it out:** Edit the inline text inside each macro block. Notice that the \"before\" and \"after\" decorations stay non-editable, and that swapping the `id` in `App.tsx` would change the surrounding HTML without touching the block's content.\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/features/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/getting-started/editor-setup)"
+      },
+      {
         "projectSlug": "draggable-inline-content",
         "fullSlug": "custom-schema/draggable-inline-content",
         "pathFromRoot": "examples/06-custom-schema/draggable-inline-content",

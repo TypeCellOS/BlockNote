@@ -1,0 +1,11 @@
+{
+  "playground": true,
+  "docs": true,
+  "author": "matthewlipski",
+  "tags": [
+    "Intermediate",
+    "Blocks",
+    "Custom Schemas"
+  ],
+  "dependencies": {}
+}

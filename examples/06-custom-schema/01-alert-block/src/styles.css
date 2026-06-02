@@ -72,3 +72,47 @@
 .inline-content {
   flex-grow: 1;
 }
+
+.alert-body {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.alert-title-wrapper {
+  display: flex;
+  align-items: center;
+  min-height: 24px;
+}
+
+.alert-title-input {
+  background: transparent;
+  border: none;
+  border-radius: 3px;
+  color: inherit;
+  cursor: text;
+  font-family: inherit;
+  font-size: 0.9em;
+  font-weight: 600;
+  outline: none;
+  padding: 2px 4px;
+  width: 100%;
+}
+
+.alert-title-input::placeholder {
+  color: rgba(0, 0, 0, 0.35);
+  font-weight: 500;
+}
+
+[data-color-scheme="dark"] .alert-title-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.alert-title-input:hover:not(:focus) {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+[data-color-scheme="dark"] .alert-title-input:hover:not(:focus) {
+  background-color: rgba(255, 255, 255, 0.06);
+}
