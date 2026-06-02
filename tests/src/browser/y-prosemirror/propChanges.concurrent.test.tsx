@@ -63,20 +63,25 @@ test("concurrent: A changes textColor, B changes backgroundColor", async () => {
 
   // Prop changes don't generate y-attributed marks, so we poll on the
   // individual editor doc states instead.
+  type ColorProps = { textColor?: string; backgroundColor?: string };
   await expect
-    .poll(() => userA.editor.document[0]?.props?.textColor)
+    .poll(() => (userA.editor.document[0]?.props as ColorProps)?.textColor)
     .toBe("red");
   await expect
-    .poll(() => userB.editor.document[0]?.props?.backgroundColor)
+    .poll(
+      () => (userB.editor.document[0]?.props as ColorProps)?.backgroundColor,
+    )
     .toBe("yellow");
 
   sync();
 
   await expect
-    .poll(() => merged.editor.document[0]?.props?.textColor)
+    .poll(() => (merged.editor.document[0]?.props as ColorProps)?.textColor)
     .toBe("red");
   await expect
-    .poll(() => merged.editor.document[0]?.props?.backgroundColor)
+    .poll(
+      () => (merged.editor.document[0]?.props as ColorProps)?.backgroundColor,
+    )
     .toBe("yellow");
 
   await expect(screen.getByTestId("editor-root")).toMatchScreenshot(

@@ -57,7 +57,7 @@ test("suggestion mode: change text alignment to center", async () => {
   // `waitForSuggestion` helper used elsewhere is too narrow here.
   // Poll on the editor's view of the prop instead.
   await expect
-    .poll(() => editor.document[0]?.props?.textAlignment)
+    .poll(() => (editor.document[0]?.props as { textAlignment?: string })?.textAlignment)
     .toBe("center");
 
   await expect(screen.getByTestId("editor-root")).toMatchScreenshot(
@@ -116,7 +116,9 @@ test("suggestion mode: change heading level from 1 to 2", async () => {
     props: { level: 2 },
   });
 
-  await expect.poll(() => editor.document[0]?.props?.level).toBe(2);
+  await expect
+    .poll(() => (editor.document[0]?.props as { level?: number })?.level)
+    .toBe(2);
 
   await expect(screen.getByTestId("editor-root")).toMatchScreenshot(
     "prop-change-heading-level",
@@ -195,7 +197,7 @@ test("suggestion mode: resize image (previewWidth)", async () => {
   // `getByRole("img")` doesn't see it. Poll on the prop having
   // landed in the editor instead.
   await expect
-    .poll(() => editor.document[0]?.props?.url)
+    .poll(() => (editor.document[0]?.props as { url?: string })?.url)
     .toBe(IMG_SRC_BASE);
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
@@ -207,7 +209,10 @@ test("suggestion mode: resize image (previewWidth)", async () => {
   });
 
   await expect
-    .poll(() => editor.document[0]?.props?.previewWidth)
+    .poll(
+      () =>
+        (editor.document[0]?.props as { previewWidth?: number })?.previewWidth,
+    )
     .toBe(400);
 
   await expect(screen.getByTestId("editor-root")).toMatchScreenshot(
@@ -303,7 +308,9 @@ test("suggestion mode: change image source", async () => {
   // Default `alt=""` on the image makes it decorative, so
   // `getByRole("img")` doesn't see it. Poll on the prop having
   // landed in the editor instead.
-  await expect.poll(() => editor.document[0]?.props?.url).toBe(IMG_SRC_BASE);
+  await expect
+    .poll(() => (editor.document[0]?.props as { url?: string })?.url)
+    .toBe(IMG_SRC_BASE);
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
@@ -313,7 +320,9 @@ test("suggestion mode: change image source", async () => {
     props: { url: IMG_SRC_NEW },
   });
 
-  await expect.poll(() => editor.document[0]?.props?.url).toBe(IMG_SRC_NEW);
+  await expect
+    .poll(() => (editor.document[0]?.props as { url?: string })?.url)
+    .toBe(IMG_SRC_NEW);
 
   await expect(screen.getByTestId("editor-root")).toMatchScreenshot(
     "prop-change-image-source",

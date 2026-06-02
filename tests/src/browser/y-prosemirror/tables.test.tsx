@@ -1092,7 +1092,7 @@ test("suggestion mode: change column background color", async () => {
               props: { backgroundColor: "yellow" },
               content: ["A1"],
             },
-            "B1",
+            { type: "tableCell", content: ["B1"] },
           ],
         },
         {
@@ -1102,7 +1102,7 @@ test("suggestion mode: change column background color", async () => {
               props: { backgroundColor: "yellow" },
               content: ["A2"],
             },
-            "B2",
+            { type: "tableCell", content: ["B2"] },
           ],
         },
       ],
