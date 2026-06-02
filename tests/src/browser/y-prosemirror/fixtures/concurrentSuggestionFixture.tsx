@@ -93,6 +93,14 @@ export async function setupConcurrentSuggestionTest({
   const suggestionDocB = new Y.Doc({ isSuggestionDoc: true });
   const suggestionDocMerged = new Y.Doc({ isSuggestionDoc: true });
 
+  // `Y.Doc.clientID` is randomly generated and CRDT tiebreaks on it,
+  // so concurrent edits that touch the same logical position can
+  // converge to different shapes between runs. We deliberately do
+  // NOT pin clientIDs here – any test whose merge result depends on
+  // tiebreaking is therefore flaky on purpose, so the underlying
+  // non-determinism stays visible. Skip or `.fails`-mark those tests
+  // explicitly rather than papering over them.
+
   const managerA = Y.createAttributionManagerFromDiff(
     baseDoc,
     suggestionDocA,

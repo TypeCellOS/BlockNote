@@ -176,19 +176,23 @@ export function editorHtml(editor: BlockNoteEditor): string {
 }
 
 function pmNodeToXml(node: PMNode): string {
+  let out: string;
   if (node.isText) {
-    let out = escapeXml(node.text ?? "");
-    // PM stores marks outermost-first; wrap innermost-first to preserve order.
-    for (const mark of node.marks) {
-      out = `<${mark.type.name}${formatAttrs(mark.attrs)}>${out}</${mark.type.name}>`;
-    }
-    return out;
+    out = escapeXml(node.text ?? "");
+  } else {
+    let inner = "";
+    node.content.forEach((child) => {
+      inner += pmNodeToXml(child);
+    });
+    out = `<${node.type.name}${formatAttrs(node.attrs)}>${inner}</${node.type.name}>`;
   }
-  let inner = "";
-  node.content.forEach((child) => {
-    inner += pmNodeToXml(child);
-  });
-  return `<${node.type.name}${formatAttrs(node.attrs)}>${inner}</${node.type.name}>`;
+  // PM stores marks outermost-first; wrap innermost-first to preserve order.
+  // Non-text nodes can also carry marks (used by y-prosemirror for
+  // block-level attributions), so this applies to both branches.
+  for (const mark of node.marks) {
+    out = `<${mark.type.name}${formatAttrs(mark.attrs)}>${out}</${mark.type.name}>`;
+  }
+  return out;
 }
 
 function formatAttrs(attrs: Record<string, unknown>): string {
