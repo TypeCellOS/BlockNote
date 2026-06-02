@@ -57,11 +57,8 @@
   },
   "dependencies": {
     "@blocknote/core": "0.51.4",
-    "@blocknote/react": "0.51.4",
     "@blocknote/xl-multi-column": "0.51.4",
-    "@react-pdf/renderer": "^4.3.0",
-    "buffer": "^6.0.3",
-    "docx": "^9.5.1"
+    "@react-pdf/renderer": "^4.3.0"
   },
   "devDependencies": {
     "@testing-library/react": "^16.3.0",

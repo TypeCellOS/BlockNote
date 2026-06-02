@@ -4590,9 +4590,6 @@ importers:
       '@shikijs/themes':
         specifier: ^4
         version: 4.0.2
-      '@shikijs/types':
-        specifier: ^4
-        version: 4.0.2
     devDependencies:
       eslint:
         specifier: ^8.57.1
@@ -4612,6 +4609,10 @@ importers:
       vitest:
         specifier: 4.1.2
         version: 4.1.2(@opentelemetry/api@1.9.1)(@types/node@25.9.0)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(msw@2.11.5(@types/node@25.9.0)(typescript@5.9.3))(vite@8.0.8(@types/node@25.9.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.47.1)(tsx@4.21.0)(yaml@2.8.3))
+    optionalDependencies:
+      '@shikijs/types':
+        specifier: ^4
+        version: 4.0.2
 
   packages/core:
     dependencies:
@@ -4636,13 +4637,7 @@ importers:
       '@tiptap/extension-code':
         specifier: ^3.13.0
         version: 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))
-      '@tiptap/extension-horizontal-rule':
-        specifier: ^3.13.0
-        version: 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)
       '@tiptap/extension-italic':
-        specifier: ^3.13.0
-        version: 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))
-      '@tiptap/extension-paragraph':
         specifier: ^3.13.0
         version: 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))
       '@tiptap/extension-strike':
@@ -4666,9 +4661,6 @@ importers:
       fast-deep-equal:
         specifier: ^3.1.3
         version: 3.1.3
-      lib0:
-        specifier: ^0.2.99
-        version: 0.2.117
       prosemirror-highlight:
         specifier: ^0.15.1
         version: 0.15.1(@shikijs/types@4.0.2)(@types/hast@3.0.4)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.0)(prosemirror-view@1.41.8)
@@ -4770,9 +4762,6 @@ importers:
       '@mantine/hooks':
         specifier: ^8.3.11 || ^9.0.2
         version: 9.1.1(react@19.2.5)
-      react-icons:
-        specifier: ^5.5.0
-        version: 5.6.0(react@19.2.5)
     devDependencies:
       '@types/react':
         specifier: ^19.2.3
@@ -4792,6 +4781,9 @@ importers:
       react-dom:
         specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)
+      react-icons:
+        specifier: ^5.5.0
+        version: 5.6.0(react@19.2.5)
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10
@@ -4822,9 +4814,6 @@ importers:
       '@floating-ui/react':
         specifier: ^0.27.18
         version: 0.27.19(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      '@floating-ui/utils':
-        specifier: ^0.2.10
-        version: 0.2.11
       '@tanstack/react-store':
         specifier: 0.7.7
         version: 0.7.7(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -4837,21 +4826,12 @@ importers:
       '@tiptap/react':
         specifier: ^3.13.0
         version: 3.22.4(@floating-ui/dom@1.7.6)(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      '@types/use-sync-external-store':
-        specifier: 1.5.0
-        version: 1.5.0
       emoji-mart:
         specifier: ^5.6.0
         version: 5.6.0
       fast-deep-equal:
         specifier: ^3.1.3
         version: 3.1.3
-      lodash.merge:
-        specifier: ^4.6.2
-        version: 4.6.2
-      react-icons:
-        specifier: ^5.5.0
-        version: 5.6.0(react@19.2.5)
       use-sync-external-store:
         specifier: 1.6.0
         version: 1.6.0(react@19.2.5)
@@ -4860,9 +4840,6 @@ importers:
         specifier: ^4.5.9
         version: 4.5.9
       '@types/lodash.groupby':
-        specifier: ^4.6.9
-        version: 4.6.9
-      '@types/lodash.merge':
         specifier: ^4.6.9
         version: 4.6.9
       '@types/react':
@@ -4883,6 +4860,9 @@ importers:
       react-dom:
         specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)
+      react-icons:
+        specifier: ^5.5.0
+        version: 5.6.0(react@19.2.5)
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10
@@ -4904,6 +4884,10 @@ importers:
       vitest:
         specifier: 4.1.2
         version: 4.1.2(@opentelemetry/api@1.9.1)(@types/node@25.9.0)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(msw@2.11.5(@types/node@25.9.0)(typescript@5.9.3))(vite@8.0.8(@types/node@25.9.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.47.1)(tsx@4.21.0)(yaml@2.8.3))
+    optionalDependencies:
+      '@types/use-sync-external-store':
+        specifier: 1.5.0
+        version: 1.5.0
 
   packages/server-util:
     dependencies:
@@ -4913,21 +4897,12 @@ importers:
       '@blocknote/react':
         specifier: 0.51.4
         version: link:../react
-      '@tiptap/core':
-        specifier: ^3.0.0
-        version: 3.22.4(@tiptap/pm@3.22.4)
       '@tiptap/pm':
         specifier: ^3.0.0
         version: 3.22.4
       jsdom:
         specifier: ^25.0.1
         version: 25.0.1(canvas@2.11.2)
-      y-prosemirror:
-        specifier: ^1.3.7
-        version: 1.3.7(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30)
-      y-protocols:
-        specifier: ^1.0.6
-        version: 1.0.7(yjs@13.6.30)
       yjs:
         specifier: ^13.6.27
         version: 13.6.30
@@ -4965,6 +4940,12 @@ importers:
       vitest:
         specifier: 4.1.2
         version: 4.1.2(@opentelemetry/api@1.9.1)(@types/node@25.9.0)(jsdom@25.0.1(canvas@2.11.2))(msw@2.11.5(@types/node@25.9.0)(typescript@5.9.3))(vite@8.0.8(@types/node@25.9.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.47.1)(tsx@4.21.0)(yaml@2.8.3))
+      y-prosemirror:
+        specifier: ^1.3.7
+        version: 1.3.7(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30)
+      y-protocols:
+        specifier: ^1.0.6
+        version: 1.0.7(yjs@13.6.30)
 
   packages/shadcn:
     dependencies:
@@ -5001,9 +4982,6 @@ importers:
       '@radix-ui/react-tooltip':
         specifier: ^1.2.8
         version: 1.2.8(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      autoprefixer:
-        specifier: ^10.4.21
-        version: 10.4.21(postcss@8.5.14)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -5077,9 +5055,6 @@ importers:
       '@blocknote/core':
         specifier: 0.51.4
         version: link:../core
-      '@blocknote/mantine':
-        specifier: 0.51.4
-        version: link:../mantine
       '@blocknote/react':
         specifier: 0.51.4
         version: link:../react
@@ -5089,9 +5064,6 @@ importers:
       '@handlewithcare/prosemirror-suggest-changes':
         specifier: ^0.1.8
         version: 0.1.8(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.0)(prosemirror-view@1.41.8)
-      '@tiptap/core':
-        specifier: ^3.0.0
-        version: 3.22.4(@tiptap/pm@3.22.4)
       ai:
         specifier: ^6.0.5
         version: 6.0.5(zod@4.3.6)
@@ -5120,14 +5092,11 @@ importers:
         specifier: ^1.41.4
         version: 1.41.8
       react:
-        specifier: ^19.2.5
+        specifier: ^18.0 || ^19.0 || >= 19.0.0-rc
         version: 19.2.5
       react-dom:
-        specifier: ^19.2.5
+        specifier: ^18.0 || ^19.0 || >= 19.0.0-rc
         version: 19.2.5(react@19.2.5)
-      react-icons:
-        specifier: ^5.5.0
-        version: 5.6.0(react@19.2.5)
       y-prosemirror:
         specifier: ^1.3.7
         version: 1.3.7(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30)
@@ -5198,6 +5167,9 @@ importers:
       msw-snapshot:
         specifier: ^5.3.0
         version: 5.3.0(msw@2.11.5(@types/node@25.9.0)(typescript@5.9.3))
+      react-icons:
+        specifier: ^5.5.0
+        version: 5.6.0(react@19.2.5)
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10
@@ -5347,27 +5319,12 @@ importers:
       '@blocknote/core':
         specifier: 0.51.4
         version: link:../core
-      '@blocknote/react':
-        specifier: 0.51.4
-        version: link:../react
       '@react-email/components':
         specifier: ^1.0.5
         version: 1.0.11(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@react-email/render':
         specifier: ^2.0.4
         version: 2.0.5(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      buffer:
-        specifier: ^6.0.3
-        version: 6.0.3
-      react:
-        specifier: ^19.2.5
-        version: 19.2.5
-      react-dom:
-        specifier: ^19.2.5
-        version: 19.2.5(react@19.2.5)
-      react-email:
-        specifier: ^5.2.5
-        version: 5.2.10
       web-streams-polyfill:
         specifier: ^4.2.0
         version: 4.2.0
@@ -5384,6 +5341,15 @@ importers:
       eslint:
         specifier: ^8.57.1
         version: 8.57.1
+      react:
+        specifier: ^19.2.5
+        version: 19.2.5
+      react-dom:
+        specifier: ^19.2.5
+        version: 19.2.5(react@19.2.5)
+      react-email:
+        specifier: ^5.2.5
+        version: 5.2.10
       rollup-plugin-webpack-stats:
         specifier: ^0.2.6
         version: 0.2.6(rollup@4.60.1)
@@ -5417,18 +5383,9 @@ importers:
       prosemirror-state:
         specifier: ^1.4.4
         version: 1.4.4
-      prosemirror-tables:
-        specifier: ^1.8.3
-        version: 1.8.5
-      prosemirror-transform:
-        specifier: ^1.11.0
-        version: 1.12.0
       prosemirror-view:
         specifier: ^1.41.4
         version: 1.41.8
-      react-icons:
-        specifier: ^5.5.0
-        version: 5.6.0(react@19.2.5)
     devDependencies:
       '@types/react':
         specifier: ^19.2.3
@@ -5448,6 +5405,9 @@ importers:
       react-dom:
         specifier: ^19.2.5
         version: 19.2.5(react@19.2.5)
+      react-icons:
+        specifier: ^5.5.0
+        version: 5.6.0(react@19.2.5)
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10
@@ -5478,9 +5438,6 @@ importers:
       '@zip.js/zip.js':
         specifier: ^2.8.8
         version: 2.8.26
-      buffer:
-        specifier: ^6.0.3
-        version: 6.0.3
       image-meta:
         specifier: ^0.2.2
         version: 0.2.2
@@ -5527,21 +5484,12 @@ importers:
       '@blocknote/core':
         specifier: 0.51.4
         version: link:../core
-      '@blocknote/react':
-        specifier: 0.51.4
-        version: link:../react
       '@blocknote/xl-multi-column':
         specifier: 0.51.4
         version: link:../xl-multi-column
       '@react-pdf/renderer':
         specifier: ^4.3.0
         version: 4.3.2(react@19.2.5)
-      buffer:
-        specifier: ^6.0.3
-        version: 6.0.3
-      docx:
-        specifier: ^9.5.1
-        version: 9.5.1
     devDependencies:
       '@testing-library/react':
         specifier: ^16.3.0
@@ -10401,19 +10349,8 @@ packages:
       '@tiptap/core': ^3.0.0
       '@tiptap/pm': ^3.0.0
 
-  '@tiptap/extension-horizontal-rule@3.22.4':
-    resolution: {integrity: sha512-cCI1HekGQwhY/MbgaKQ0R/7HcH5ZM1oFAyI/J72QGLC0XnF403S/OXoHMuBWr1mCu8hNiQWCzeNRJUty0iytNw==}
-    peerDependencies:
-      '@tiptap/core': ^3.0.0
-      '@tiptap/pm': ^3.0.0
-
   '@tiptap/extension-italic@3.22.4':
     resolution: {integrity: sha512-fVSDx5AYXgDI3v2zZIqb7V8EewthwM2NJ/ZCX+XaxRsqNEpnjVhgHs7UlvDqK1wj2OJ6zmUNjPtVlAFRxwT+HQ==}
-    peerDependencies:
-      '@tiptap/core': ^3.0.0
-
-  '@tiptap/extension-paragraph@3.22.4':
-    resolution: {integrity: sha512-de6dFkIhigiENESY6rNJ3yTVS/337ybfP30dNPudTwGe9oAu9ZCS+04j6QCvXSjhlI3ULiv7wiSHqrP26Gd+Hw==}
     peerDependencies:
       '@tiptap/core': ^3.0.0
 
@@ -21664,16 +21601,7 @@ snapshots:
       '@tiptap/pm': 3.22.4
     optional: true
 
-  '@tiptap/extension-horizontal-rule@3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)':
-    dependencies:
-      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
-      '@tiptap/pm': 3.22.4
-
   '@tiptap/extension-italic@3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))':
-    dependencies:
-      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
-
-  '@tiptap/extension-paragraph@3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))':
     dependencies:
       '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
 
@@ -21998,7 +21926,8 @@ snapshots:
 
   '@types/use-sync-external-store@0.0.6': {}
 
-  '@types/use-sync-external-store@1.5.0': {}
+  '@types/use-sync-external-store@1.5.0':
+    optional: true
 
   '@types/ws@8.18.1':
     dependencies:
