@@ -7,7 +7,7 @@ import {
 
 import { assertEmpty, isSafari, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
-import { forwardRef } from "react";
+import { forwardRef, type MouseEvent } from "react";
 
 type ToolbarButtonProps = ComponentProps["Generic"]["Toolbar"]["Button"];
 
@@ -46,7 +46,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
               )}
               // Needed as Safari doesn't focus button elements on mouse down
               // unlike other browsers.
-              onMouseDown={(e) => {
+              onMouseDown={(e: MouseEvent<HTMLButtonElement>) => {
                 if (isSafari()) {
                   (e.currentTarget as HTMLButtonElement).focus();
                 }

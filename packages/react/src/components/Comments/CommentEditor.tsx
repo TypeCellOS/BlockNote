@@ -1,5 +1,5 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { FC, useCallback, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useState } from "react";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useEditorState } from "../../hooks/useEditorState.js";
 
@@ -16,10 +16,7 @@ import { useEditorState } from "../../hooks/useEditorState.js";
 export const CommentEditor = (props: {
   autoFocus?: boolean;
   editable: boolean;
-  actions?: FC<{
-    isFocused: boolean;
-    isEmpty: boolean;
-  }>;
+  actions?: (args: { isFocused: boolean; isEmpty: boolean }) => ReactNode;
   editor: BlockNoteEditor<any, any, any>;
 }) => {
   const [isFocused, setIsFocused] = useState(false);
@@ -58,7 +55,7 @@ export const CommentEditor = (props: {
       />
       {props.actions && (
         <div className={"bn-comment-actions-wrapper"}>
-          <props.actions isFocused={isFocused} isEmpty={isEmpty} />
+          {props.actions({ isFocused, isEmpty })}
         </div>
       )}
     </>

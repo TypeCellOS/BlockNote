@@ -4530,10 +4530,10 @@ importers:
         specifier: ^0.4.19
         version: 0.4.24(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@blocknote/core':
-        specifier: 0.51.3
+        specifier: 0.51.4
         version: link:../core
       '@blocknote/react':
-        specifier: 0.51.3
+        specifier: 0.51.4
         version: link:../react
     devDependencies:
       '@types/react':
@@ -4576,7 +4576,7 @@ importers:
   packages/code-block:
     dependencies:
       '@blocknote/core':
-        specifier: 0.51.3
+        specifier: 0.51.4
         version: link:../core
       '@shikijs/core':
         specifier: ^4
@@ -4751,10 +4751,10 @@ importers:
   packages/mantine:
     dependencies:
       '@blocknote/core':
-        specifier: 0.51.3
+        specifier: 0.51.4
         version: link:../core
       '@blocknote/react':
-        specifier: 0.51.3
+        specifier: 0.51.4
         version: link:../react
       '@mantine/core':
         specifier: ^8.3.11 || ^9.0.2
@@ -4806,7 +4806,7 @@ importers:
   packages/react:
     dependencies:
       '@blocknote/core':
-        specifier: 0.51.3
+        specifier: 0.51.4
         version: link:../core
       '@emoji-mart/data':
         specifier: ^1.2.1
@@ -4892,10 +4892,10 @@ importers:
   packages/server-util:
     dependencies:
       '@blocknote/core':
-        specifier: 0.51.3
+        specifier: 0.51.4
         version: link:../core
       '@blocknote/react':
-        specifier: 0.51.3
+        specifier: 0.51.4
         version: link:../react
       '@tiptap/pm':
         specifier: ^3.0.0
@@ -4950,10 +4950,10 @@ importers:
   packages/shadcn:
     dependencies:
       '@blocknote/core':
-        specifier: 0.51.3
+        specifier: 0.51.4
         version: link:../core
       '@blocknote/react':
-        specifier: 0.51.3
+        specifier: 0.51.4
         version: link:../react
       '@radix-ui/react-avatar':
         specifier: ^1.1.10
@@ -5053,10 +5053,10 @@ importers:
         specifier: ^3.0.5
         version: 3.0.5(react@19.2.5)(zod@4.3.6)
       '@blocknote/core':
-        specifier: 0.51.3
+        specifier: 0.51.4
         version: link:../core
       '@blocknote/react':
-        specifier: 0.51.3
+        specifier: 0.51.4
         version: link:../react
       '@floating-ui/react':
         specifier: ^0.27.18
@@ -5120,7 +5120,7 @@ importers:
         specifier: ^2.0.2
         version: 2.0.2(zod@4.3.6)
       '@blocknote/xl-multi-column':
-        specifier: 0.51.3
+        specifier: 0.51.4
         version: link:../xl-multi-column
       '@mswjs/interceptors':
         specifier: ^0.37.6
@@ -5216,7 +5216,7 @@ importers:
         specifier: ^2.0.2
         version: 2.0.2(zod@4.3.6)
       '@blocknote/xl-ai':
-        specifier: 0.51.3
+        specifier: 0.51.4
         version: link:../xl-ai
       '@hono/node-server':
         specifier: ^1.19.5
@@ -5262,10 +5262,10 @@ importers:
   packages/xl-docx-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.51.3
+        specifier: 0.51.4
         version: link:../core
       '@blocknote/xl-multi-column':
-        specifier: 0.51.3
+        specifier: 0.51.4
         version: link:../xl-multi-column
       buffer:
         specifier: ^6.0.3
@@ -5317,7 +5317,7 @@ importers:
   packages/xl-email-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.51.3
+        specifier: 0.51.4
         version: link:../core
       '@react-email/components':
         specifier: ^1.0.5
@@ -5327,7 +5327,7 @@ importers:
         version: 2.0.5(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       web-streams-polyfill:
         specifier: ^4.2.0
-        version: 4.3.0
+        version: 4.2.0
     devDependencies:
       '@types/jsdom':
         specifier: ^21.1.7
@@ -5369,10 +5369,10 @@ importers:
   packages/xl-multi-column:
     dependencies:
       '@blocknote/core':
-        specifier: 0.51.3
+        specifier: 0.51.4
         version: link:../core
       '@blocknote/react':
-        specifier: 0.51.3
+        specifier: 0.51.4
         version: link:../react
       '@tiptap/core':
         specifier: ^3.0.0
@@ -5430,10 +5430,10 @@ importers:
   packages/xl-odt-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.51.3
+        specifier: 0.51.4
         version: link:../core
       '@blocknote/xl-multi-column':
-        specifier: 0.51.3
+        specifier: 0.51.4
         version: link:../xl-multi-column
       '@zip.js/zip.js':
         specifier: ^2.8.8
@@ -5482,10 +5482,10 @@ importers:
   packages/xl-pdf-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.51.3
+        specifier: 0.51.4
         version: link:../core
       '@blocknote/xl-multi-column':
-        specifier: 0.51.3
+        specifier: 0.51.4
         version: link:../xl-multi-column
       '@react-pdf/renderer':
         specifier: ^4.3.0
@@ -16180,8 +16180,8 @@ packages:
   wcwidth@1.0.1:
     resolution: {integrity: sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==}
 
-  web-streams-polyfill@4.3.0:
-    resolution: {integrity: sha512-/Gnggvj9oSrEvJbDyyPtAnxBt5fGQM2iWOKQNu7ie1OxDgK40iZpyV3TKaRiEzVj1oA1UxKnEy9XPXh6PW3eVw==}
+  web-streams-polyfill@4.2.0:
+    resolution: {integrity: sha512-0rYDzGOh9EZpig92umN5g5D/9A1Kff7k0/mzPSSCY8jEQeYkgRMoY7LhbXtUCWzLCMX0TUE9aoHkjFNB7D9pfA==}
     engines: {node: '>= 8'}
 
   webidl-conversions@3.0.1:
@@ -28654,7 +28654,7 @@ snapshots:
     dependencies:
       defaults: 1.0.4
 
-  web-streams-polyfill@4.3.0: {}
+  web-streams-polyfill@4.2.0: {}
 
   webidl-conversions@3.0.1: {}
 

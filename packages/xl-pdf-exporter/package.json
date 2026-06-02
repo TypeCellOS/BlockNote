@@ -9,7 +9,7 @@
     "directory": "packages/xl-pdf-exporter"
   },
   "license": "GPL-3.0 OR PROPRIETARY",
-  "version": "0.51.3",
+  "version": "0.51.4",
   "files": [
     "dist",
     "types",
@@ -56,8 +56,8 @@
     "email": "email dev"
   },
   "dependencies": {
-    "@blocknote/core": "0.51.3",
-    "@blocknote/xl-multi-column": "0.51.3",
+    "@blocknote/core": "0.51.4",
+    "@blocknote/xl-multi-column": "0.51.4",
     "@react-pdf/renderer": "^4.3.0"
   },
   "devDependencies": {
