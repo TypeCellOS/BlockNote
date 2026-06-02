@@ -14,6 +14,10 @@ import {
   ydocXml,
 } from "./fixtures/suggestionFixture.js";
 
+// Inline SVG data URL – avoids a network fetch for the image src.
+const IMG_SRC =
+  "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' fill='%23ff6b6b'/></svg>";
+
 // Empty doc gets a heading inserted at the top.
 // KNOWN BUG: starting from a truly empty doc and using `replaceBlocks`
 // to add a heading hits the same y-prosemirror `deltaToPSteps:
@@ -448,6 +452,90 @@ test("suggestion mode: delete parent block (with children)", async () => {
               </blockContainer>
             </blockGroup>
           </y-attributed-delete>
+        </blockContainer>
+      </blockGroup>
+    </doc>"
+  `);
+});
+
+// Delete an image block. Non-text content (no inline child) – worth
+// snapshotting in case node-level attribution behaves differently when
+// the deleted block has no text children.
+test("suggestion mode: delete image block", async () => {
+  const { editor, screen, baseDoc, suggestionDoc, sync } =
+    await setupSuggestionTest({ userAction: "delete image" });
+
+  editor.replaceBlocks(editor.document, [
+    {
+      id: "img",
+      type: "image",
+      props: { url: IMG_SRC, previewWidth: 150 },
+    },
+  ]);
+  sync();
+  await expect
+    .poll(() => (editor.document[0]?.props as { url?: string })?.url)
+    .toBe(IMG_SRC);
+
+  editor.getExtension(SuggestionsExtension)!.enableSuggestions();
+
+  editor.removeBlocks(["img"]);
+
+  await waitForSuggestion(editor);
+
+  await expect(screen.getByTestId("editor-root")).toMatchScreenshot(
+    "add-remove-delete-image",
+  );
+
+  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="img">
+        <image
+          backgroundColor="default"
+          caption=""
+          name=""
+          previewWidth="150"
+          showPreview="true"
+          textAlignment="left"
+          url
+          xmlns
+          width
+          height
+        ="data:image/svg+xml;utf8,<svg
+          <rect width='100' height='100' fill='%23ff6b6b'></rect>
+        </svg>
+        " />
+    </blockContainer>
+    <blockContainer id="1">
+      <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+    </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="1">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(editorHtml(editor)).toMatchInlineSnapshot(`
+    "<doc>
+      <blockGroup>
+        <y-attributed-delete user-color="#30bced">
+          <blockContainer id="img">
+            <image
+              textAlignment="left"
+              backgroundColor="default"
+              name=""
+              url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
+              caption=""
+              showPreview="true"
+              previewWidth="150"
+            ></image>
+          </blockContainer>
+        </y-attributed-delete>
+        <blockContainer id="1">
+          <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
         </blockContainer>
       </blockGroup>
     </doc>"
