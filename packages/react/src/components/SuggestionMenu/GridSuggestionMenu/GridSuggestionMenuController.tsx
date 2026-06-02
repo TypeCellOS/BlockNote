@@ -194,6 +194,7 @@ export function GridSuggestionMenuController<
           query={state.query}
           closeMenu={suggestionMenu.closeMenu}
           clearQuery={suggestionMenu.clearQuery}
+          composing={state.composing}
           getItems={getItemsOrDefault}
           columns={columns}
           gridSuggestionMenuComponent={

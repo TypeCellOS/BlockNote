@@ -12,6 +12,7 @@ export function SuggestionMenuWrapper<Item>(props: {
   query: string;
   closeMenu: () => void;
   clearQuery: () => void;
+  composing?: boolean;
   getItems: (query: string) => Promise<Item[]>;
   onItemClick?: (item: Item) => void;
   suggestionMenuComponent: FC<SuggestionMenuProps<Item>>;
@@ -30,6 +31,7 @@ export function SuggestionMenuWrapper<Item>(props: {
     query,
     clearQuery,
     closeMenu,
+    composing,
     onItemClick,
   } = props;
 
@@ -47,7 +49,7 @@ export function SuggestionMenuWrapper<Item>(props: {
     getItems,
   );
 
-  useCloseSuggestionMenuNoItems(items, usedQuery, closeMenu);
+  useCloseSuggestionMenuNoItems(items, usedQuery, closeMenu, 3, composing);
 
   const { selectedIndex } = useSuggestionMenuKeyboardNavigation(
     editor,

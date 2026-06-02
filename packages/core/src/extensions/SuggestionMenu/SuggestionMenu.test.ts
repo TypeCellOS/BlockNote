@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { TextSelection } from "prosemirror-state";
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { SuggestionMenu } from "./SuggestionMenu.js";
@@ -46,8 +47,27 @@ function simulateTextInput(editor: BlockNoteEditor, char: string): boolean {
 }
 
 function createEditor() {
+  Object.defineProperty(Element.prototype, "getBoundingClientRect", {
+    configurable: true,
+    value: () => ({
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      toJSON() {
+        return this;
+      },
+    }),
+  });
+
   const editor = BlockNoteEditor.create();
   const div = document.createElement("div");
+  document.body.replaceChildren();
+  document.body.appendChild(div);
   editor.mount(div);
   return editor;
 }
@@ -186,6 +206,78 @@ describe("SuggestionMenu", () => {
     expect(pluginState).toBeDefined();
     expect(pluginState.triggerCharacter).toBe("@");
 
+    editor._tiptapEditor.destroy();
+  });
+
+  it("should keep suggestion menu open during IME composition selection updates", () => {
+    const editor = createEditor();
+    const sm = editor.getExtension(SuggestionMenu)!;
+
+    sm.addSuggestionMenu({ triggerCharacter: "@" });
+
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "paragraph-0",
+        type: "paragraph",
+        content: "Hello world",
+      },
+    ]);
+
+    editor.setTextCursorPosition("paragraph-0", "end");
+
+    expect(simulateTextInput(editor, "@")).toBe(true);
+
+    const view = editor._tiptapEditor.view;
+    view.dispatch(view.state.tr.insertText("shi"));
+
+    expect(getSuggestionPluginState(editor)?.query).toBe("shi");
+
+    const cursor = view.state.selection.from;
+    Object.defineProperty(view, "composing", {
+      configurable: true,
+      get: () => true,
+    });
+    view.dispatch(
+      view.state.tr.setSelection(
+        TextSelection.create(view.state.doc, cursor - 1, cursor),
+      ),
+    );
+
+    expect(getSuggestionPluginState(editor)).toBeDefined();
+    expect(getSuggestionPluginState(editor)?.composing).toBe(true);
+
+    delete (view as any).composing;
+    editor._tiptapEditor.destroy();
+  });
+
+  it("should still close suggestion menu explicitly during IME composition", () => {
+    const editor = createEditor();
+    const sm = editor.getExtension(SuggestionMenu)!;
+
+    sm.addSuggestionMenu({ triggerCharacter: "@" });
+
+    editor.replaceBlocks(editor.document, [
+      {
+        id: "paragraph-0",
+        type: "paragraph",
+        content: "Hello world",
+      },
+    ]);
+
+    editor.setTextCursorPosition("paragraph-0", "end");
+    expect(simulateTextInput(editor, "@")).toBe(true);
+
+    const view = editor._tiptapEditor.view;
+    Object.defineProperty(view, "composing", {
+      configurable: true,
+      get: () => true,
+    });
+
+    sm.closeMenu();
+
+    expect(getSuggestionPluginState(editor)).toBeUndefined();
+
+    delete (view as any).composing;
     editor._tiptapEditor.destroy();
   });
 });

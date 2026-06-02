@@ -187,6 +187,7 @@ export function SuggestionMenuController<
           query={state.query}
           closeMenu={suggestionMenu.closeMenu}
           clearQuery={suggestionMenu.clearQuery}
+          composing={state.composing}
           getItems={getItemsOrDefault}
           suggestionMenuComponent={
             suggestionMenuComponent || SuggestionMenu<ItemType<GetItemsType>>
