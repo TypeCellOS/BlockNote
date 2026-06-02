@@ -31,7 +31,7 @@ export const AIToolbarButton = () => {
     const position = selection.blocks[selection.blocks.length - 1].id;
 
     ai.openAIMenuAtBlock(position);
-    formattingToolbar.store.setState(false);
+    formattingToolbar.store.setState(() => false);
   };
 
   if (!editor.isEditable) {

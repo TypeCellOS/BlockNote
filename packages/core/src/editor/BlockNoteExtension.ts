@@ -1,4 +1,4 @@
-import { Store, StoreOptions } from "@tanstack/store";
+import { Store } from "@tanstack/store";
 import { type AnyExtension } from "@tiptap/core";
 import type { Plugin as ProsemirrorPlugin } from "prosemirror-state";
 import type { PartialBlockNoDefaults } from "../schema/index.js";
@@ -233,9 +233,6 @@ export function createExtension<
   } as any;
 }
 
-export function createStore<T = any>(
-  initialState: T,
-  options?: StoreOptions<T>,
-): Store<T> {
-  return new Store(initialState, options);
+export function createStore<T = any>(initialState: T): Store<T> {
+  return new Store(initialState);
 }

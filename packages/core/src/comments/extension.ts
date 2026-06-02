@@ -91,24 +91,11 @@ export const CommentsExtension = createExtension(
     const markType = CommentMark.name;
 
     const userStore = new UserStore<User>(resolveUsers);
-    const store = createStore(
-      {
-        pendingComment: false,
-        selectedThreadId: undefined as string | undefined,
-        threadPositions: new Map<string, { from: number; to: number }>(),
-      },
-      {
-        onUpdate() {
-          // If the selected thread id changed, we need to update the decorations
-          if (
-            store.state.selectedThreadId !== store.prevState.selectedThreadId
-          ) {
-            // So, we issue a transaction to update the decorations
-            editor.transact((tr) => tr.setMeta(PLUGIN_KEY, true));
-          }
-        },
-      },
-    );
+    const store = createStore({
+      pendingComment: false,
+      selectedThreadId: undefined as string | undefined,
+      threadPositions: new Map<string, { from: number; to: number }>(),
+    });
 
     const updateMarksFromThreads = (threads: Map<string, ThreadData>) => {
       editor.transact((tr) => {
@@ -281,6 +268,16 @@ export const CommentsExtension = createExtension(
         const unsubscribe = threadStore.subscribe(updateMarksFromThreads);
         updateMarksFromThreads(threadStore.getThreads());
 
+        let prevSelectedThreadId = store.state.selectedThreadId;
+        const storeSubscription = store.subscribe(() => {
+          // If the selected thread id changed, we need to update the decorations
+          if (store.state.selectedThreadId !== prevSelectedThreadId) {
+            prevSelectedThreadId = store.state.selectedThreadId;
+            // So, we issue a transaction to update the decorations
+            editor.transact((tr) => tr.setMeta(PLUGIN_KEY, true));
+          }
+        });
+
         const unsubscribeOnSelectionChange = editor.onSelectionChange(() => {
           if (store.state.pendingComment) {
             store.setState((prev) => ({
@@ -292,6 +289,7 @@ export const CommentsExtension = createExtension(
 
         return () => {
           unsubscribe();
+          storeSubscription.unsubscribe();
           unsubscribeOnSelectionChange();
         };
       },

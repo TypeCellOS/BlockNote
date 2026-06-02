@@ -147,12 +147,12 @@ export const AIExtension = createExtension(
           .getExtension(ShowSelectionExtension)
           ?.showSelection(true, "aiMenu");
         editor.isEditable = false;
-        store.setState({
+        store.setState(() => ({
           aiMenuState: {
             blockId: blockID,
             status: "user-input",
           },
-        });
+        }));
 
         // Scrolls to the block when the menu opens.
         const blockElement = editor.domElement?.querySelector(
@@ -165,9 +165,9 @@ export const AIExtension = createExtension(
        * Close the AI menu
        */
       closeAIMenu() {
-        store.setState({
+        store.setState(() => ({
           aiMenuState: "closed",
-        });
+        }));
         chatSession = undefined;
         editor
           .getExtension(ShowSelectionExtension)
@@ -350,20 +350,20 @@ export const AIExtension = createExtension(
           if (status.status !== "error") {
             throw new UnreachableCaseError(status.status);
           }
-          this.store.setState({
+          this.store.setState(() => ({
             aiMenuState: {
               status: status.status,
               error: status.error,
               blockId: aiMenuState.blockId,
             },
-          });
+          }));
         } else {
-          this.store.setState({
+          this.store.setState(() => ({
             aiMenuState: {
               status: status,
               blockId: aiMenuState.blockId,
             },
-          });
+          }));
         }
       },
 
@@ -441,12 +441,12 @@ export const AIExtension = createExtension(
               }
 
               // NOTE: does this setState with an anon object trigger unnecessary re-renders?
-              store.setState({
+              store.setState(() => ({
                 aiMenuState: {
                   blockId,
                   status: "ai-writing",
                 },
-              });
+              }));
 
               if (autoScroll) {
                 const blockElement = editor.prosemirrorView.domAtPos(

@@ -139,7 +139,9 @@ export const CreateLinkButton = () => {
           text={state.text}
           range={state.range}
           showTextField={false}
-          setToolbarOpen={(open) => formattingToolbar.store.setState(open)}
+          setToolbarOpen={(open) =>
+            formattingToolbar.store.setState(() => open)
+          }
         />
       </Components.Generic.Popover.Content>
     </Components.Generic.Popover.Root>

@@ -627,7 +627,7 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
         key: tableHandlesPluginKey,
         view: (editorView) => {
           view = new TableHandlesView(editor as any, editorView, (state) => {
-            store.setState(
+            store.setState(() =>
               state.block
                 ? {
                     ...state,

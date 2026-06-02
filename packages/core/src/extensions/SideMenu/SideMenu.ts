@@ -129,8 +129,7 @@ export class SideMenuView<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
-> implements PluginView
-{
+> implements PluginView {
   public state?: SideMenuState<BSchema, I, S>;
   public readonly emitUpdate: (state: SideMenuState<BSchema, I, S>) => void;
 
@@ -725,7 +724,7 @@ export const SideMenuExtension = createExtension(({ editor }) => {
           view = new SideMenuView(editor, editorView, (state) => {
             // TODO: Without spreading the state, in some cases like toggling
             // `show`, this doesn't trigger an update.
-            store.setState({ ...state });
+            store.setState(() => ({ ...state }));
           });
           return view;
         },
