@@ -63,7 +63,6 @@
   "scripts": {
     "dev": "vp dev",
     "lint": "vp lint src",
-    "test": "NODE_EXTRA_CA_CERTS=\"$(mkcert -CAROOT)/rootCA.pem\" vp test --run",
     "test-watch": "NODE_EXTRA_CA_CERTS=\"$(mkcert -CAROOT)/rootCA.pem\" vp test watch",
     "rename-msw-snapshots": "node scripts/rename-msw-snapshots.mjs",
     "clean": "rimraf dist && rimraf types",
