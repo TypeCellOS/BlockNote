@@ -1,15 +1,50 @@
-import { mergeCSSClasses } from "@blocknote/core";
+import { Dictionary, mergeCSSClasses } from "@blocknote/core";
 import { CommentsExtension } from "@blocknote/core/comments";
 import { ThreadData } from "@blocknote/core/comments";
-import { FocusEvent, useCallback } from "react";
+import { FocusEvent, memo, useCallback } from "react";
 
-import { useComponentsContext } from "../../editor/ComponentsContext.js";
+import {
+  Components,
+  useComponentsContext,
+} from "../../editor/ComponentsContext.js";
 import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
 import { useExtension } from "../../hooks/useExtension.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { CommentEditor } from "./CommentEditor.js";
 import { Comments } from "./Comments.js";
 import { defaultCommentEditorSchema } from "./defaultCommentEditorSchema.js";
+
+type ReplyActionsProps = {
+  isFocused: boolean;
+  isEmpty: boolean;
+  onNewCommentSave: () => Promise<void>;
+  Components: Components;
+  dict: Dictionary;
+};
+
+const ReplyActionsComponent = memo(
+  ({ isEmpty, onNewCommentSave, Components, dict }: ReplyActionsProps) => {
+    if (isEmpty) {
+      return null;
+    }
+
+    return (
+      <Components.Generic.Toolbar.Root
+        variant="action-toolbar"
+        className={mergeCSSClasses("bn-action-toolbar", "bn-comment-actions")}
+      >
+        <Components.Generic.Toolbar.Button
+          mainTooltip={dict.comments.save_button_text}
+          variant="compact"
+          isDisabled={isEmpty}
+          onClick={onNewCommentSave}
+        >
+          {dict.comments.save_button_text}
+        </Components.Generic.Toolbar.Button>
+      </Components.Generic.Toolbar.Root>
+    );
+  },
+);
 
 export type ThreadProps = {
   /**
@@ -22,6 +57,12 @@ export type ThreadProps = {
    * editor for replies, and add a `selected` CSS class to the thread.
    */
   selected?: boolean;
+  /**
+   * A boolean flag for whether the thread is orphaned (i.e. the referenced text
+   * has been deleted from the document). Adds a `bn-thread-orphaned` CSS class
+   * to the thread.
+   */
+  orphaned?: boolean;
   /**
    * The text in the editor that the thread refers to. See the
    * [`ThreadsSidebar`](https://github.com/TypeCellOS/BlockNote/tree/main/packages/react/src/components/Comments/ThreadsSidebar.tsx#L137)
@@ -55,6 +96,7 @@ export type ThreadProps = {
 export const Thread = ({
   thread,
   selected,
+  orphaned,
   referenceText,
   maxCommentsBeforeCollapse,
   onFocus,
@@ -94,7 +136,7 @@ export const Thread = ({
 
   return (
     <Components.Comments.Card
-      className={"bn-thread"}
+      className={mergeCSSClasses("bn-thread", orphaned && "bn-thread-orphaned")}
       headerText={referenceText}
       onFocus={onFocus}
       onBlur={onBlur}
@@ -115,30 +157,15 @@ export const Thread = ({
             autoFocus={false}
             editable={true}
             editor={newCommentEditor}
-            actions={({ isEmpty }) => {
-              if (isEmpty) {
-                return null;
-              }
-
-              return (
-                <Components.Generic.Toolbar.Root
-                  variant="action-toolbar"
-                  className={mergeCSSClasses(
-                    "bn-action-toolbar",
-                    "bn-comment-actions",
-                  )}
-                >
-                  <Components.Generic.Toolbar.Button
-                    mainTooltip={dict.comments.save_button_text}
-                    variant="compact"
-                    isDisabled={isEmpty}
-                    onClick={onNewCommentSave}
-                  >
-                    {dict.comments.save_button_text}
-                  </Components.Generic.Toolbar.Button>
-                </Components.Generic.Toolbar.Root>
-              );
-            }}
+            actions={({ isFocused, isEmpty }) => (
+              <ReplyActionsComponent
+                isFocused={isFocused}
+                isEmpty={isEmpty}
+                onNewCommentSave={onNewCommentSave}
+                Components={Components}
+                dict={dict}
+              />
+            )}
           />
         </Components.Comments.CardSection>
       )}

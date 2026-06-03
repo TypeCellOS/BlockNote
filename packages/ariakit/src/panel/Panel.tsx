@@ -32,7 +32,7 @@ export const Panel = forwardRef<
       <AriakitTabProvider
         defaultSelectedId={defaultOpenTab}
         selectedId={openTab}
-        setActiveId={(activeId) => {
+        setActiveId={(activeId: string | null | undefined) => {
           if (activeId) {
             setOpenTab(activeId);
           }

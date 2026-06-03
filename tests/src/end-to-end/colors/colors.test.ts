@@ -6,6 +6,7 @@ import {
   COLORS_BUTTON_SELECTOR,
   DRAG_HANDLE_MENU_SELECTOR,
   DRAG_HANDLE_SELECTOR,
+  H_ONE_BLOCK_SELECTOR,
   H_TWO_BLOCK_SELECTOR,
   TABLE_SELECTOR,
   TEXT_COLOR_SELECTOR,
@@ -19,6 +20,42 @@ test.beforeEach(async ({ page }) => {
 });
 
 test.describe("Check Background & Text Color Functionality", () => {
+  test("Should be able to open the color picker from the formatting toolbar", async ({
+    page,
+  }) => {
+    await focusOnEditor(page);
+
+    await insertHeading(page, 1);
+    await page.keyboard.press("Shift+ArrowLeft");
+
+    await page.locator(COLORS_BUTTON_SELECTOR).click();
+
+    // Waits for the color picker dropdown to open & its animation to finish.
+    await page.waitForSelector(TEXT_COLOR_SELECTOR("red"));
+    await page.waitForTimeout(500);
+
+    expect(await page.screenshot()).toMatchSnapshot(
+      "colorPickerFormattingToolbar.png",
+    );
+  });
+  test("Should be able to open the color picker from the side menu", async ({
+    page,
+  }) => {
+    await focusOnEditor(page);
+
+    await insertHeading(page, 1);
+
+    await page.hover(H_ONE_BLOCK_SELECTOR);
+    await page.click(DRAG_HANDLE_SELECTOR);
+    await page.waitForSelector(DRAG_HANDLE_MENU_SELECTOR);
+    await page.hover("text=Colors");
+
+    // Waits for the color picker submenu to open & its animation to finish.
+    await page.waitForSelector(TEXT_COLOR_SELECTOR("red"));
+    await page.waitForTimeout(500);
+
+    expect(await page.screenshot()).toMatchSnapshot("colorPickerSideMenu.png");
+  });
   test("Should be able to apply a text color mark", async ({ page }) => {
     await focusOnEditor(page);
 

@@ -114,11 +114,11 @@ describe("Performance: transaction processing scales sub-linearly (#2595)", () =
 
     const smallAvg = measureAvgInsertTime(
       smallEditor,
-      smallEditor._tiptapEditor.view.state.doc.content.size - 4,
+      smallEditor._tiptapEditor.view.state.doc.content.size - 2,
     );
     const largeAvg = measureAvgInsertTime(
       largeEditor,
-      largeEditor._tiptapEditor.view.state.doc.content.size - 4,
+      largeEditor._tiptapEditor.view.state.doc.content.size - 2,
     );
     const ratio = largeAvg / smallAvg;
 

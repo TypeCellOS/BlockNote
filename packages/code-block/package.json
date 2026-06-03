@@ -9,7 +9,7 @@
     "directory": "packages/code-block"
   },
   "license": "MPL-2.0",
-  "version": "0.50.0",
+  "version": "0.51.4",
   "files": [
     "dist",
     "types",
@@ -49,11 +49,12 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "workspace:^",
     "@shikijs/core": "^4",
     "@shikijs/engine-javascript": "^4",
     "@shikijs/langs-precompiled": "^4",
-    "@shikijs/themes": "^4",
+    "@shikijs/themes": "^4"
+  },
+  "optionalDependencies": {
     "@shikijs/types": "^4"
   },
   "devDependencies": {

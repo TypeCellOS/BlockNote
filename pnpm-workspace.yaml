@@ -29,7 +29,7 @@ allowBuilds:
   sharp: false
   workerd: false
 catalog:
-  vite-plus: latest
+  vite-plus: ^0.1.24
 minimumReleaseAgeExclude:
   - vite-plus
   - "@voidzero-dev/*"

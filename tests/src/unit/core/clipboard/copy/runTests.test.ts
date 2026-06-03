@@ -2,7 +2,10 @@ import { describe, it } from "vite-plus/test";
 
 import { createTestEditor } from "../../createTestEditor.js";
 import { testSchema } from "../../testSchema.js";
-import { copyTestInstancesHTML } from "./copyTestInstances.js";
+import {
+  copyTestInstancesHTML,
+  copyTestInstancesMarkdown,
+} from "./copyTestInstances.js";
 
 // Tests for verifying content that gets put on the clipboard when copying
 // within the editor. Used for as many cases as possible to ensure each block or
@@ -11,6 +14,16 @@ describe("Copy tests (HTML)", () => {
   const getEditor = createTestEditor(testSchema);
 
   for (const { testCase, executeTest } of copyTestInstancesHTML) {
+    it(`${testCase.name}`, async () => {
+      await executeTest(getEditor(), testCase);
+    });
+  }
+});
+
+describe("Copy tests (Markdown)", () => {
+  const getEditor = createTestEditor(testSchema);
+
+  for (const { testCase, executeTest } of copyTestInstancesMarkdown) {
     it(`${testCase.name}`, async () => {
       await executeTest(getEditor(), testCase);
     });

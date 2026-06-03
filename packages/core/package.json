@@ -11,7 +11,7 @@
     "directory": "packages/core"
   },
   "license": "MPL-2.0",
-  "version": "0.50.0",
+  "version": "0.51.4",
   "files": [
     "dist",
     "types",
@@ -96,9 +96,7 @@
     "@tiptap/core": "^3.13.0",
     "@tiptap/extension-bold": "^3.13.0",
     "@tiptap/extension-code": "^3.13.0",
-    "@tiptap/extension-horizontal-rule": "^3.13.0",
     "@tiptap/extension-italic": "^3.13.0",
-    "@tiptap/extension-paragraph": "^3.13.0",
     "@tiptap/extension-strike": "^3.13.0",
     "@tiptap/extension-text": "^3.13.0",
     "@tiptap/extension-underline": "^3.13.0",

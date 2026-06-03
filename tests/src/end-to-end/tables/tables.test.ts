@@ -1,15 +1,16 @@
 import { expect } from "@playwright/test";
 import { test } from "../../setup/setupScript.js";
-import { BASE_URL, TABLE_SELECTOR } from "../../utils/const.js";
+import {
+  ADVANCED_TABLES_URL,
+  BASE_URL,
+  TABLE_SELECTOR,
+} from "../../utils/const.js";
 import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
 
-test.beforeEach(async ({ page }) => {
-  await page.goto(BASE_URL);
-});
-
 test.describe("Check Table interactions", () => {
   test("Should be able to type in cell", async ({ page }) => {
+    await page.goto(BASE_URL);
     await focusOnEditor(page);
     await executeSlashCommand(page, "table");
     await page.keyboard.type("Table Cell");
@@ -17,6 +18,7 @@ test.describe("Check Table interactions", () => {
     await compareDocToSnapshot(page, "cellTyping.json");
   });
   test("Tab should cycle cells", async ({ page }) => {
+    await page.goto(BASE_URL);
     await focusOnEditor(page);
     await executeSlashCommand(page, "table");
     // Cycle to sixth (last) cell.
@@ -33,6 +35,7 @@ test.describe("Check Table interactions", () => {
     await compareDocToSnapshot(page, "tabCells.json");
   });
   test("Arrow keys should move cells", async ({ page }) => {
+    await page.goto(BASE_URL);
     await focusOnEditor(page);
     await executeSlashCommand(page, "table");
     // Move down to second (last) cell in column and third (last) cell in row.
@@ -51,6 +54,7 @@ test.describe("Check Table interactions", () => {
     await compareDocToSnapshot(page, "arrowKeyCells.json");
   });
   test("Enter should move to cell below", async ({ page }) => {
+    await page.goto(BASE_URL);
     await focusOnEditor(page);
     await executeSlashCommand(page, "table");
     await page.keyboard.type("Top");
@@ -60,6 +64,7 @@ test.describe("Check Table interactions", () => {
     await compareDocToSnapshot(page, "enterMovesToCellBelow.json");
   });
   test("Shift+Enter should create a new line within cell", async ({ page }) => {
+    await page.goto(BASE_URL);
     await focusOnEditor(page);
     await executeSlashCommand(page, "table");
     await page.keyboard.type("Line 1");
@@ -83,6 +88,7 @@ test.describe("Check Table interactions", () => {
       "Playwright doesn't correctly simulate drag events in Firefox.",
     );
 
+    await page.goto(BASE_URL);
     await focusOnEditor(page);
     await executeSlashCommand(page, "table");
 
@@ -183,5 +189,12 @@ test.describe("Check Table interactions", () => {
     ).map((t) => t.trim());
     // Expected: only R2 moved. Buggy (#2691): R3 follows along.
     expect(order).toEqual(["R1", "R3", "R4", "R5", "R2"]);
+  });
+  // Regression test for table cell colors.
+  test("Should render table cell colors", async ({ page }) => {
+    await page.goto(ADVANCED_TABLES_URL, { waitUntil: "networkidle" });
+    await page.waitForSelector(TABLE_SELECTOR);
+
+    expect(await page.screenshot()).toMatchSnapshot("tableCellColors.png");
   });
 });

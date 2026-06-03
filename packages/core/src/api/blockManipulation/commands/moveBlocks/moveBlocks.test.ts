@@ -2,7 +2,10 @@ import { NodeSelection, TextSelection } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
 import { describe, expect, it } from "vite-plus/test";
 
-import { getBlockInfoFromTransaction } from "../../../getBlockInfoFromPos.js";
+import {
+  getBlockInfoFromTransaction,
+  getNearestBlockPos,
+} from "../../../getBlockInfoFromPos.js";
 import { setupTestEnv } from "../../setupTestEnv.js";
 import {
   moveBlocksDown,
@@ -204,6 +207,45 @@ describe("Test moveBlocksUp", () => {
 
     expect(getEditor().document).toMatchSnapshot();
   });
+
+  it("Explicit block argument moves the given block", () => {
+    getEditor().setTextCursorPosition("paragraph-0");
+
+    moveBlocksUp(getEditor(), "paragraph-2");
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
+  it("Explicit block argument does not change the selection", () => {
+    getEditor().setTextCursorPosition("paragraph-1");
+    makeSelectionSpanContent("text");
+
+    moveBlocksUp(getEditor(), "paragraph-2");
+
+    const { anchor, head } = getEditor().transact((tr) => tr.selection);
+    const anchorBlockId = getEditor().transact(
+      (tr) => getNearestBlockPos(tr.doc, anchor).node.attrs.id,
+    );
+    const headBlockId = getEditor().transact(
+      (tr) => getNearestBlockPos(tr.doc, head).node.attrs.id,
+    );
+    expect(anchorBlockId).toBe("paragraph-1");
+    expect(headBlockId).toBe("paragraph-1");
+  });
+
+  it("Explicit block argument with first block is a no-op", () => {
+    const documentBefore = getEditor().document;
+
+    moveBlocksUp(getEditor(), "paragraph-0");
+
+    expect(getEditor().document).toEqual(documentBefore);
+  });
+
+  it("Explicit block argument with nested block", () => {
+    moveBlocksUp(getEditor(), "nested-paragraph-1");
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
 });
 
 describe("Test moveBlocksDown", () => {
@@ -283,6 +325,45 @@ describe("Test moveBlocksDown", () => {
     getEditor().setSelection("nested-paragraph-0", "nested-paragraph-1");
 
     moveBlocksDown(getEditor());
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
+  it("Explicit block argument moves the given block", () => {
+    getEditor().setTextCursorPosition("paragraph-9");
+
+    moveBlocksDown(getEditor(), "paragraph-0");
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
+  it("Explicit block argument does not change the selection", () => {
+    getEditor().setTextCursorPosition("paragraph-1");
+    makeSelectionSpanContent("text");
+
+    moveBlocksDown(getEditor(), "paragraph-0");
+
+    const { anchor, head } = getEditor().transact((tr) => tr.selection);
+    const anchorBlockId = getEditor().transact(
+      (tr) => getNearestBlockPos(tr.doc, anchor).node.attrs.id,
+    );
+    const headBlockId = getEditor().transact(
+      (tr) => getNearestBlockPos(tr.doc, head).node.attrs.id,
+    );
+    expect(anchorBlockId).toBe("paragraph-1");
+    expect(headBlockId).toBe("paragraph-1");
+  });
+
+  it("Explicit block argument with last block is a no-op", () => {
+    const documentBefore = getEditor().document;
+
+    moveBlocksDown(getEditor(), "trailing-paragraph");
+
+    expect(getEditor().document).toEqual(documentBefore);
+  });
+
+  it("Explicit block argument with nested block", () => {
+    moveBlocksDown(getEditor(), "nested-paragraph-0");
 
     expect(getEditor().document).toMatchSnapshot();
   });

@@ -9,7 +9,7 @@
     "directory": "packages/xl-multi-column"
   },
   "license": "GPL-3.0 OR PROPRIETARY",
-  "version": "0.50.0",
+  "version": "0.51.4",
   "files": [
     "dist",
     "types",
@@ -55,12 +55,10 @@
     "@tiptap/core": "^3.13.0",
     "prosemirror-model": "^1.25.4",
     "prosemirror-state": "^1.4.4",
-    "prosemirror-tables": "^1.8.3",
-    "prosemirror-transform": "^1.11.0",
-    "prosemirror-view": "^1.41.4",
-    "react-icons": "^5.5.0"
+    "prosemirror-view": "^1.41.4"
   },
   "devDependencies": {
+    "react-icons": "^5.5.0",
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
     "jsdom": "^25.0.1",

@@ -32,6 +32,7 @@ export const ImagePreview = (
           : resolved.downloadUrl
       }
       alt={alt}
+      width={props.block.props.previewWidth}
       contentEditable={false}
       draggable={false}
     />

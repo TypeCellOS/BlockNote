@@ -1,3 +1,89 @@
+## 0.51.4 (2026-06-02)
+
+### 🩹 Fixes
+
+- add explicit type annotations for callback params losing contextual typing ([#2815](https://github.com/TypeCellOS/BlockNote/pull/2815))
+- Comments emoji picker button issues (BLO-1199) ([#2769](https://github.com/TypeCellOS/BlockNote/pull/2769))
+- **core:** add editor cleanup in BlockNoteEditor.test.ts to prevent unhandled DOMObserver errors ([#2816](https://github.com/TypeCellOS/BlockNote/pull/2816))
+- **table:** prevent crash when pressing Enter in a table cell ([#2793](https://github.com/TypeCellOS/BlockNote/pull/2793))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- Nick the Sick @nperez0111
+- Yuki Terashima @y-temp4
+
+## 0.51.3 (2026-05-26)
+
+### 🩹 Fixes
+
+- table cell colors (BLO-1198) ([#2770](https://github.com/TypeCellOS/BlockNote/pull/2770))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+
+## 0.51.2 (2026-05-20)
+
+### 🩹 Fixes
+
+- color picker icons (BLO-1189) ([#2762](https://github.com/TypeCellOS/BlockNote/pull/2762))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+
+## 0.51.1 (2026-05-18)
+
+### 🩹 Fixes
+
+- backslash newlines when copying from a code block ([#2709](https://github.com/TypeCellOS/BlockNote/pull/2709))
+
+### ❤️ Thank You
+
+- Claude Opus 4.7 (1M context)
+- Nick Perez
+
+## 0.51.0 (2026-05-14)
+
+### 🚀 Features
+
+- Trailing block extension rewrite ([#2733](https://github.com/TypeCellOS/BlockNote/pull/2733))
+- **markdown:** replace unified.js with custom markdown parser/serializer ([#2624](https://github.com/TypeCellOS/BlockNote/pull/2624))
+- **react:** configurable portal targets for floating UI ([#2729](https://github.com/TypeCellOS/BlockNote/pull/2729), [#2692](https://github.com/TypeCellOS/BlockNote/issues/2692))
+
+### 🩹 Fixes
+
+- Pasting plain text from VSCode (BLO-366) ([#2713](https://github.com/TypeCellOS/BlockNote/pull/2713))
+- Parse new lines in `text/plain` as line breaks (BLO-1170) ([#2712](https://github.com/TypeCellOS/BlockNote/pull/2712))
+- Code block PDF export (BLO-987) ([#2725](https://github.com/TypeCellOS/BlockNote/pull/2725))
+- Formatting toolbar opening when inserting file block with `trailingBlock: false` (BLO-860) ([#2704](https://github.com/TypeCellOS/BlockNote/pull/2704))
+- numbered list item decorations missed on initial render ([#2734](https://github.com/TypeCellOS/BlockNote/pull/2734))
+- flicker-free mobile formatting toolbar via CSS custom properties ([#2617](https://github.com/TypeCellOS/BlockNote/pull/2617), [#2616](https://github.com/TypeCellOS/BlockNote/issues/2616))
+- add `bn-thread-orphaned` CSS class to distinguish orphaned threads ([#2737](https://github.com/TypeCellOS/BlockNote/pull/2737), [#2735](https://github.com/TypeCellOS/BlockNote/issues/2735))
+- set width attribute on image and video elements in editor render ([#2740](https://github.com/TypeCellOS/BlockNote/pull/2740), [#2726](https://github.com/TypeCellOS/BlockNote/issues/2726))
+- **a11y:** use figure/figcaption for media block captions ([#2717](https://github.com/TypeCellOS/BlockNote/pull/2717))
+- **ai:** loosen serialization of blocks in columns ([#2716](https://github.com/TypeCellOS/BlockNote/pull/2716), [#2718](https://github.com/TypeCellOS/BlockNote/pull/2718))
+- **core:** trigger codeblock input rule on Enter and place cursor inside ([#2686](https://github.com/TypeCellOS/BlockNote/pull/2686))
+- **core:** preserve list item type when pasting into empty list items ([#2722](https://github.com/TypeCellOS/BlockNote/pull/2722), [#2330](https://github.com/TypeCellOS/BlockNote/issues/2330))
+- **core:** unmount editors in transformPasted tests to prevent unhandled error ([e62880b21](https://github.com/TypeCellOS/BlockNote/commit/e62880b21))
+- **drag-n-drop:** support PDF block drag & drop (BLO-893) ([#2714](https://github.com/TypeCellOS/BlockNote/pull/2714))
+- **i18:** improve french translation for empty toggle list ([#2721](https://github.com/TypeCellOS/BlockNote/pull/2721))
+- **markdown:** emit tight lists when serializing blocks to markdown ([#2715](https://github.com/TypeCellOS/BlockNote/pull/2715))
+- **markdown:** skip placeholder text for empty files ([#434](https://github.com/TypeCellOS/BlockNote/pull/434), [#2719](https://github.com/TypeCellOS/BlockNote/pull/2719))
+- **markdown:** stable round-trip for tables, captions, and audio ([#2720](https://github.com/TypeCellOS/BlockNote/pull/2720))
+- **tests:** stabilize webkit keyboard handler tests with programmatic cursor positioning ([#2746](https://github.com/TypeCellOS/BlockNote/pull/2746))
+
+### ❤️ Thank You
+
+- Cyril G
+- Manuel Raynaud @lunika
+- Matthew Lipski @matthewlipski
+- Movm
+- Nick Perez
+- Nick the Sick @nperez0111
+
 ## 0.50.0 (2026-05-04)
 
 ### 🚀 Features

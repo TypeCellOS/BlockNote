@@ -11,7 +11,7 @@
     "directory": "packages/shadcn"
   },
   "license": "MPL-2.0",
-  "version": "0.50.0",
+  "version": "0.51.4",
   "files": [
     "dist",
     "types",
@@ -66,7 +66,6 @@
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-toggle": "^1.1.10",
     "@radix-ui/react-tooltip": "^1.2.8",
-    "autoprefixer": "^10.4.21",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.525.0",

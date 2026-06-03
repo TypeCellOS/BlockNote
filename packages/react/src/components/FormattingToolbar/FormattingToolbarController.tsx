@@ -36,6 +36,12 @@ const textAlignmentToPlacement = (
 export const FormattingToolbarController = (props: {
   formattingToolbar?: FC<FormattingToolbarProps>;
   floatingUIOptions?: FloatingUIOptions;
+  /**
+   * Override the DOM node this floating element portals into. Falls back to
+   * `editor.portalElement` (which by default is mounted inside `bn-container`)
+   * when omitted.
+   */
+  portalElement?: HTMLElement | null;
 }) => {
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -112,7 +118,11 @@ export const FormattingToolbarController = (props: {
   const Component = props.formattingToolbar || FormattingToolbar;
 
   return (
-    <PositionPopover position={position} {...floatingUIOptions}>
+    <PositionPopover
+      position={position}
+      portalElement={props.portalElement}
+      {...floatingUIOptions}
+    >
       {show && <Component />}
     </PositionPopover>
   );

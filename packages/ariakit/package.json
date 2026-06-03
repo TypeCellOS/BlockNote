@@ -11,7 +11,7 @@
     "directory": "packages/ariakit"
   },
   "license": "MPL-2.0",
-  "version": "0.50.0",
+  "version": "0.51.4",
   "files": [
     "dist",
     "types",

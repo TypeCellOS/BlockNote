@@ -6,6 +6,9 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, edited]
 
+permissions:
+  contents: read
+
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -15,9 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 100
+          persist-credentials: false
 
       - uses: voidzero-dev/setup-vp@v1
         with:
@@ -41,7 +45,7 @@ jobs:
         working-directory: tests
 
       - name: Upload webpack stats artifact (editor)
-        uses: relative-ci/agent-upload-artifact-action@v2
+        uses: relative-ci/agent-upload-artifact-action@a2b5741b4f7e6a989c84ec1a3059696b23c152e5 # v2
         with:
           webpackStatsFile: ./playground/dist/webpack-stats.json
           artifactName: relative-ci-artifacts-editor
@@ -55,9 +59,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 100
+          persist-credentials: false
 
       - uses: voidzero-dev/setup-vp@v1
         with:
@@ -71,7 +76,7 @@ jobs:
         run: vp run -r build
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: playwright-build
           path: |
@@ -93,9 +98,10 @@ jobs:
         shardIndex: [1, 2]
         shardTotal: [2]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 100
+          persist-credentials: false
 
       - uses: voidzero-dev/setup-vp@v1
         with:
@@ -103,7 +109,7 @@ jobs:
           cache: true
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: playwright-build
 
@@ -117,7 +123,7 @@ jobs:
             "wait-on http://localhost:3000 && cd tests && vp exec playwright test --project ${{ matrix.browser }} --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}"
 
       - name: Upload blob report
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ !cancelled() }}
         with:
           name: blob-report-${{ matrix.browser }}-${{ matrix.shardIndex }}
@@ -125,7 +131,7 @@ jobs:
           retention-days: 1
 
       - name: Upload HTML report
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ !cancelled() }}
         with:
           name: playwright-report-${{ matrix.browser }}-${{ matrix.shardIndex }}
@@ -138,7 +144,9 @@ jobs:
     needs: playwright
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
 
       - uses: voidzero-dev/setup-vp@v1
         with:
@@ -149,7 +157,7 @@ jobs:
         run: vp install
 
       - name: Download blob reports
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           path: tests/all-blob-reports
           pattern: blob-report-*
@@ -160,7 +168,7 @@ jobs:
         working-directory: tests
 
       - name: Upload merged HTML report
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: playwright-report-merged
           path: tests/playwright-report/

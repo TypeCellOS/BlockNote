@@ -9,7 +9,7 @@
     "directory": "packages/xl-odt-exporter"
   },
   "license": "GPL-3.0 OR PROPRIETARY",
-  "version": "0.50.0",
+  "version": "0.51.4",
   "files": [
     "dist",
     "types",
@@ -59,7 +59,6 @@
     "@blocknote/core": "workspace:^",
     "@blocknote/xl-multi-column": "workspace:^",
     "@zip.js/zip.js": "^2.8.8",
-    "buffer": "^6.0.3",
     "image-meta": "^0.2.2"
   },
   "devDependencies": {

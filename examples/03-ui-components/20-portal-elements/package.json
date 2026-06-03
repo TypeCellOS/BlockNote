@@ -1,0 +1,30 @@
+{
+  "name": "@blocknote/example-ui-components-portal-elements",
+  "description": "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
+  "type": "module",
+  "private": true,
+  "version": "0.12.4",
+  "scripts": {
+    "start": "vp dev",
+    "dev": "vp dev",
+    "build:prod": "tsc && vp build",
+    "preview": "vp preview"
+  },
+  "dependencies": {
+    "@blocknote/ariakit": "latest",
+    "@blocknote/core": "latest",
+    "@blocknote/mantine": "latest",
+    "@blocknote/react": "latest",
+    "@blocknote/shadcn": "latest",
+    "@mantine/core": "^9.0.2",
+    "@mantine/hooks": "^9.0.2",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.3",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "vite-plus": "catalog:"
+  }
+}

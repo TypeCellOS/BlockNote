@@ -58,6 +58,16 @@ export default defineConfig(
           // make sure to externalize deps that shouldn't be bundled
           // into your library
           external: (source) => {
+            // Bundle react-icons into the output (tree-shaken) so consumers
+            // don't need to install it as a peer/runtime dependency.
+            const bundledDeps = ["react-icons"];
+            if (
+              bundledDeps.some(
+                (dep) => source === dep || source.startsWith(dep + "/"),
+              )
+            ) {
+              return false;
+            }
             if (
               Object.keys({
                 ...pkg.dependencies,

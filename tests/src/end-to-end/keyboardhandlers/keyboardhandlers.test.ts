@@ -5,7 +5,12 @@ import {
   ITALIC_BUTTON_SELECTOR,
 } from "../../utils/const.js";
 import { insertHeading, insertParagraph } from "../../utils/copypaste.js";
-import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor.js";
+import {
+  compareDocToSnapshot,
+  focusOnEditor,
+  moveCursorToBlockEnd,
+  moveCursorToBlockStart,
+} from "../../utils/editor.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 test.describe.configure({ mode: "serial" });
@@ -96,7 +101,7 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
     await focusOnEditor(page);
     await insertHeading(page, 1);
 
-    await page.keyboard.press("Control+ArrowLeft");
+    await moveCursorToBlockStart(page);
     await page.keyboard.press("Backspace");
 
     await compareDocToSnapshot(page, "backspaceStartOfBlock.json");
@@ -143,7 +148,7 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
       await page.keyboard.press("ArrowUp");
     }
 
-    await page.keyboard.press("Control+ArrowLeft");
+    await moveCursorToBlockStart(page);
     await page.keyboard.press("Backspace");
 
     await compareDocToSnapshot(page, "backspacePreservesNestedBlocks.json");
@@ -283,6 +288,7 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
 
     await page.keyboard.press("ArrowUp");
     await page.keyboard.press("ArrowUp");
+    await moveCursorToBlockEnd(page);
     await page.keyboard.press("Delete");
 
     await compareDocToSnapshot(page, "deleteMultipleChildren.json");
@@ -299,6 +305,7 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
 
     await page.keyboard.press("ArrowUp");
     await page.keyboard.press("ArrowUp");
+    await moveCursorToBlockEnd(page);
     await page.keyboard.press("Delete");
 
     await compareDocToSnapshot(page, "deleteNestedChildren.json");
@@ -314,6 +321,7 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
     await insertParagraph(page);
 
     await page.keyboard.press("ArrowUp");
+    await moveCursorToBlockEnd(page);
     await page.keyboard.press("Delete");
 
     await compareDocToSnapshot(page, "deleteShallowerBlock.json");
@@ -335,8 +343,7 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
 
     await page.keyboard.press("ArrowUp");
     await page.keyboard.press("ArrowUp");
-    await page.keyboard.press("ControlOrMeta+ArrowLeft");
-    await page.keyboard.press("ControlOrMeta+ArrowRight");
+    await moveCursorToBlockEnd(page);
     await page.keyboard.press("Delete");
 
     await compareDocToSnapshot(page, "deleteShallowerBlockWithChildren.json");

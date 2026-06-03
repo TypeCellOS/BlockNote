@@ -11,6 +11,10 @@ import { expect } from "vite-plus/test";
 
 import { ExportTestCase } from "./exportTestCase.js";
 
+// Preserve `<code>` whitespace so code-block snapshots show actual newlines
+// instead of having them collapsed by the prettifier.
+const PRETTIFY_OPTIONS = { tag_wrap: true, ignore: ["code"] };
+
 export const testExportBlockNoteHTML = async <
   B extends BlockSchema,
   I extends InlineContentSchema,
@@ -24,9 +28,7 @@ export const testExportBlockNoteHTML = async <
   addIdsToBlocks(testCase.content);
 
   await expect(
-    prettify(await editor.blocksToFullHTML(testCase.content), {
-      tag_wrap: true,
-    }),
+    prettify(await editor.blocksToFullHTML(testCase.content), PRETTIFY_OPTIONS),
   ).toMatchFileSnapshot(`./__snapshots__/blocknoteHTML/${testCase.name}.html`);
 };
 
@@ -43,9 +45,10 @@ export const testExportHTML = async <
   addIdsToBlocks(testCase.content);
 
   await expect(
-    prettify(await editor.blocksToHTMLLossy(testCase.content), {
-      tag_wrap: true,
-    }),
+    prettify(
+      await editor.blocksToHTMLLossy(testCase.content),
+      PRETTIFY_OPTIONS,
+    ),
   ).toMatchFileSnapshot(`./__snapshots__/html/${testCase.name}.html`);
 };
 
