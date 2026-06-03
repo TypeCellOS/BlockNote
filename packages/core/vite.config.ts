@@ -1,11 +1,22 @@
 import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
-import { defineConfig } from "vitest/config";
+import { defineConfig } from "vite-plus";
 import pkg from "./package.json";
 // import eslintPlugin from "vite-plugin-eslint";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  run: {
+    tasks: {
+      build: {
+        command: "tsc && vp build",
+        input: [
+          { auto: true },
+          { pattern: "!**/*.tsbuildinfo", base: "workspace" },
+        ],
+      },
+    },
+  },
   test: {
     environment: "jsdom",
     setupFiles: ["./vitestSetup.ts"],

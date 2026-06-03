@@ -55,10 +55,10 @@ This diagram illustrates the release workflow for the BlockNote monorepo.
 
 Essentially, when the maintainers have decided to release a new version of BlockNote, they will:
 
- 1. Check that the `main` branch is in a releasable state:
+1.  Check that the `main` branch is in a releasable state:
     - CI status of main branch is green
     - Builds are passing
- 2. Bump the package versions using the `pnpm run deploy` command. This command will:
+2.  Bump the package versions using the `pnpm run deploy` command. This command will:
     1. Based on semantic versioning, determine the next version number.
     2. Apply the new version number to all publishable packages within the monorepo.
     3. Generate a changelog for the new version.
@@ -80,8 +80,8 @@ The release workflow will:
 
 From time to time, you may need to publish a new package to npm. To do this, you cannot just deploy the package to npm, you need to:
 
- 1. Run `nx release version --dry-run` and check that the version number is correct for the package.
+1.  Run `nx release version --dry-run` and check that the version number is correct for the package.
     - Once this is done, you can run `nx release version` to actually apply the version bump locally (staged to your local git repo).
- 2. Run `nx release changelog --from <prev-version> <new-version> --dry-run` and check that the changelog is correct for the package.
+2.  Run `nx release changelog --from <prev-version> <new-version> --dry-run` and check that the changelog is correct for the package.
     - Once this is done, you can run the same command without the `--dry-run` flag to actually apply the changelog, commit & push the changes to the `main` branch.
- 3. The release workflow will automatically publish the package to npm.
+3.  The release workflow will automatically publish the package to npm.

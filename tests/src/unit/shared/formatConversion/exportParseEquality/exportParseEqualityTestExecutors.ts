@@ -10,7 +10,7 @@ import {
   addIdsToBlocks,
   partialBlocksToBlocksForTesting,
 } from "@shared/formatConversionTestUtil.js";
-import { expect } from "vitest";
+import { expect } from "vite-plus/test";
 
 import { ExportParseEqualityTestCase } from "./exportParseEqualityTestCase.js";
 
@@ -86,9 +86,7 @@ export const testExportParseEqualityMarkdown = async <
   // strict equality with the input.
   await expect(
     await editor.tryParseMarkdownToBlocks(exported),
-  ).toMatchFileSnapshot(
-    `./__snapshots__/markdown/${testCase.name}.json`,
-  );
+  ).toMatchFileSnapshot(`./__snapshots__/markdown/${testCase.name}.json`);
 };
 
 export const testExportParseEqualityNodes = async <

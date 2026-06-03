@@ -5,7 +5,7 @@ import {
 } from "@blocknote/core";
 import { testDocument } from "@shared/testDocument.js";
 import { BlobReader, FileEntry, TextWriter, ZipReader } from "@zip.js/zip.js";
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vite-plus/test";
 import xmlFormat from "xml-formatter";
 import { odtDefaultSchemaMappings } from "./defaultSchema/index.js";
 import { ODTExporter } from "./odtExporter.js";

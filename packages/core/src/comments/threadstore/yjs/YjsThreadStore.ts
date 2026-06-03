@@ -1,5 +1,5 @@
-import { uuidv4 } from "lib0/random";
 import * as Y from "yjs";
+import { uuidv4 } from "lib0/random";
 import { CommentBody, CommentData, ThreadData } from "../../types.js";
 import { ThreadStoreAuth } from "../ThreadStoreAuth.js";
 import { YjsThreadStoreBase } from "./YjsThreadStoreBase.js";

@@ -138,7 +138,7 @@ export default function App() {
         slashMenu={false}
         style={{ paddingBottom: "300px" }}
       >
-        {/* Creates a new AIMenu with the default items, 
+        {/* Creates a new AIMenu with the default items,
         as well as our custom ones. */}
         <AIMenuController aiMenu={CustomAIMenu} />
 
@@ -146,9 +146,11 @@ export default function App() {
         and replace it for one with an "AI button" (defined below).
         (See "Formatting Toolbar" in docs)
         */}
-        <FormattingToolbarController formattingToolbar={FormattingToolbarWithAI} />
+        <FormattingToolbarController
+          formattingToolbar={FormattingToolbarWithAI}
+        />
 
-        {/* We disabled the default SlashMenu with `slashMenu=false` 
+        {/* We disabled the default SlashMenu with `slashMenu=false`
         and replace it for one with an AI option (defined below). 
         (See "Suggestion Menus" in docs)
         */}

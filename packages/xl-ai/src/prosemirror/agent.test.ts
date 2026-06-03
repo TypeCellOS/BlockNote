@@ -6,7 +6,7 @@ import {
 } from "@blocknote/core";
 import { Fragment, Slice } from "prosemirror-model";
 import { ReplaceStep, Transform } from "prosemirror-transform";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { AIExtension } from "../AIExtension.js";
 import {
   DocumentOperationTestCase,

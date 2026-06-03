@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import * as Y from "yjs";
 import { CommentBody } from "../../types.js";
 import { DefaultThreadStoreAuth } from "../DefaultThreadStoreAuth.js";

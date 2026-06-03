@@ -2,10 +2,5 @@
   "playground": true,
   "docs": true,
   "author": "must",
-  "tags": [
-    "Intermediate",
-    "UI Components",
-    "Tables",
-    "Appearance & Styling"
-  ]
+  "tags": ["Intermediate", "UI Components", "Tables", "Appearance & Styling"]
 }

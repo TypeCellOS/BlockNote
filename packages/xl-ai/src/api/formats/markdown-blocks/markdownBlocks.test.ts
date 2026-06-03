@@ -1,4 +1,4 @@
-import { afterAll, afterEach, beforeAll, describe } from "vitest";
+import { afterAll, afterEach, beforeAll, describe } from "vite-plus/test";
 
 import { snapshot } from "msw-snapshot";
 import { setupServer } from "msw/node";

@@ -6,7 +6,7 @@ import {
   formatKeyboardShortcut,
 } from "@blocknote/core";
 import { useCallback } from "react";
-import { IconType } from "react-icons";
+import type { IconType } from "../../../icons.js";
 import {
   RiBold,
   RiCodeFill,

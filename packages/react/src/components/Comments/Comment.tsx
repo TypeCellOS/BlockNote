@@ -1,9 +1,10 @@
 "use client";
 
-import { mergeCSSClasses } from "@blocknote/core";
+import { Dictionary, mergeCSSClasses } from "@blocknote/core";
 import { CommentsExtension } from "@blocknote/core/comments";
 import type { CommentData, ThreadData } from "@blocknote/core/comments";
-import { MouseEvent, ReactNode, useCallback, useState } from "react";
+import { ThreadStore } from "@blocknote/core/comments";
+import { MouseEvent, ReactNode, memo, useCallback, useState } from "react";
 import {
   RiArrowGoBackFill,
   RiCheckFill,
@@ -13,7 +14,10 @@ import {
   RiMoreFill,
 } from "react-icons/ri";
 
-import { useComponentsContext } from "../../editor/ComponentsContext.js";
+import {
+  Components,
+  useComponentsContext,
+} from "../../editor/ComponentsContext.js";
 import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
 import { useExtension } from "../../hooks/useExtension.js";
 import { useDictionary } from "../../i18n/dictionary.js";
@@ -22,6 +26,103 @@ import { EmojiPicker } from "./EmojiPicker.js";
 import { ReactionBadge } from "./ReactionBadge.js";
 import { defaultCommentEditorSchema } from "./defaultCommentEditorSchema.js";
 import { useUser } from "./useUsers.js";
+
+type CommentEditorActionsProps = {
+  isFocused: boolean;
+  isEmpty: boolean;
+  comment: CommentData;
+  isEditing: boolean;
+  threadStore: ThreadStore;
+  onReactionSelect: (emoji: string) => Promise<void>;
+  onEditSubmit: (event: MouseEvent) => Promise<void>;
+  onEditCancel: () => void;
+  onEmojiPickerOpenChange: (open: boolean) => void;
+  Components: Components;
+  dict: Dictionary;
+};
+
+const CommentEditorActionsComponent = memo(
+  ({
+    isEmpty: _isEmpty,
+    comment,
+    isEditing,
+    threadStore,
+    onReactionSelect,
+    onEditSubmit,
+    onEditCancel,
+    onEmojiPickerOpenChange,
+    Components,
+    dict,
+  }: CommentEditorActionsProps) => {
+    const canAddReaction = threadStore.auth.canAddReaction(comment);
+
+    return (
+      <>
+        {comment.reactions.length > 0 && !isEditing && (
+          <Components.Generic.Badge.Group
+            className={mergeCSSClasses(
+              "bn-badge-group",
+              "bn-comment-reactions",
+            )}
+          >
+            {comment.reactions.map((reaction) => (
+              <ReactionBadge
+                key={reaction.emoji}
+                comment={comment}
+                emoji={reaction.emoji}
+                onReactionSelect={onReactionSelect}
+              />
+            ))}
+            {canAddReaction && (
+              <EmojiPicker
+                onEmojiSelect={(emoji: { native: string }) =>
+                  onReactionSelect(emoji.native)
+                }
+                onOpenChange={onEmojiPickerOpenChange}
+              >
+                <Components.Generic.Badge.Root
+                  className={mergeCSSClasses(
+                    "bn-badge",
+                    "bn-comment-add-reaction",
+                  )}
+                  text={"+"}
+                  icon={<RiEmotionLine size={16} />}
+                  mainTooltip={dict.comments.actions.add_reaction}
+                />
+              </EmojiPicker>
+            )}
+          </Components.Generic.Badge.Group>
+        )}
+        {isEditing && (
+          <Components.Generic.Toolbar.Root
+            variant="action-toolbar"
+            className={mergeCSSClasses(
+              "bn-action-toolbar",
+              "bn-comment-actions",
+            )}
+          >
+            <Components.Generic.Toolbar.Button
+              mainTooltip={dict.comments.save_button_text}
+              variant="compact"
+              onClick={onEditSubmit}
+              isDisabled={_isEmpty}
+            >
+              {dict.comments.save_button_text}
+            </Components.Generic.Toolbar.Button>
+            <Components.Generic.Toolbar.Button
+              className={"bn-button"}
+              mainTooltip={dict.comments.cancel_button_text}
+              variant="compact"
+              onClick={onEditCancel}
+            >
+              {dict.comments.cancel_button_text}
+            </Components.Generic.Toolbar.Button>
+          </Components.Generic.Toolbar.Root>
+        )}
+      </>
+    );
+  },
+);
 
 export type CommentProps = {
   comment: CommentData;
@@ -249,70 +350,20 @@ export const Comment = ({
         editable={isEditing}
         actions={
           comment.reactions.length > 0 || isEditing
-            ? ({ isEmpty }) => (
-                <>
-                  {comment.reactions.length > 0 && !isEditing && (
-                    <Components.Generic.Badge.Group
-                      className={mergeCSSClasses(
-                        "bn-badge-group",
-                        "bn-comment-reactions",
-                      )}
-                    >
-                      {comment.reactions.map((reaction) => (
-                        <ReactionBadge
-                          key={reaction.emoji}
-                          comment={comment}
-                          emoji={reaction.emoji}
-                          onReactionSelect={onReactionSelect}
-                        />
-                      ))}
-                      {canAddReaction && (
-                        <EmojiPicker
-                          onEmojiSelect={(emoji: { native: string }) =>
-                            onReactionSelect(emoji.native)
-                          }
-                          onOpenChange={setEmojiPickerOpen}
-                        >
-                          <Components.Generic.Badge.Root
-                            className={mergeCSSClasses(
-                              "bn-badge",
-                              "bn-comment-add-reaction",
-                            )}
-                            text={"+"}
-                            icon={<RiEmotionLine size={16} />}
-                            mainTooltip={dict.comments.actions.add_reaction}
-                          />
-                        </EmojiPicker>
-                      )}
-                    </Components.Generic.Badge.Group>
-                  )}
-                  {isEditing && (
-                    <Components.Generic.Toolbar.Root
-                      variant="action-toolbar"
-                      className={mergeCSSClasses(
-                        "bn-action-toolbar",
-                        "bn-comment-actions",
-                      )}
-                    >
-                      <Components.Generic.Toolbar.Button
-                        mainTooltip={dict.comments.save_button_text}
-                        variant="compact"
-                        onClick={onEditSubmit}
-                        isDisabled={isEmpty}
-                      >
-                        {dict.comments.save_button_text}
-                      </Components.Generic.Toolbar.Button>
-                      <Components.Generic.Toolbar.Button
-                        className={"bn-button"}
-                        mainTooltip={dict.comments.cancel_button_text}
-                        variant="compact"
-                        onClick={onEditCancel}
-                      >
-                        {dict.comments.cancel_button_text}
-                      </Components.Generic.Toolbar.Button>
-                    </Components.Generic.Toolbar.Root>
-                  )}
-                </>
+            ? ({ isFocused, isEmpty }) => (
+                <CommentEditorActionsComponent
+                  isFocused={isFocused}
+                  isEmpty={isEmpty}
+                  comment={comment}
+                  isEditing={isEditing}
+                  threadStore={threadStore}
+                  onReactionSelect={onReactionSelect}
+                  onEditSubmit={onEditSubmit}
+                  onEditCancel={onEditCancel}
+                  onEmojiPickerOpenChange={setEmojiPickerOpen}
+                  Components={Components}
+                  dict={dict}
+                />
               )
             : undefined
         }

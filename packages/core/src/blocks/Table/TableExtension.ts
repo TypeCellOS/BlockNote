@@ -35,26 +35,15 @@ export const TableExtension = Extension.create({
     return {
       // Moves the selection to the cell below.
       Enter: () => {
-        if (
-          this.editor.state.selection.$head.parent.type.name !==
-          "tableParagraph"
-        ) {
+        if (!isInTable(this.editor.state)) {
           return false;
         }
 
         return this.editor.commands.command(({ state, dispatch }) => {
-          if (!isInTable(state)) {
-            return false;
-          }
-
           const $cell = selectionCell(state);
-          const $nextCell = nextCell($cell, "vert", 1);
+          const $nextCell = $cell ? nextCell($cell, "vert", 1) : null;
 
-          if (!$nextCell) {
-            return false;
-          }
-
-          if (dispatch) {
+          if ($nextCell && dispatch) {
             dispatch(
               state.tr
                 .setSelection(

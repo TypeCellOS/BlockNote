@@ -108,7 +108,9 @@ export default function App() {
   return (
     <BlockNoteView editor={editor} formattingToolbar={false} slashMenu={false}>
       {/* Replaces the default Formatting Toolbar */}
-      <FormattingToolbarController formattingToolbar={CustomFormattingToolbar} />
+      <FormattingToolbarController
+        formattingToolbar={CustomFormattingToolbar}
+      />
       {/* Replaces the default Slash Menu. */}
       <SuggestionMenuController
         triggerCharacter={"/"}

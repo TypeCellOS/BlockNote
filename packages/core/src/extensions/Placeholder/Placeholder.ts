@@ -1,6 +1,7 @@
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import { uuidv4 } from "lib0/random";
+
 import {
   createExtension,
   ExtensionOptions,

@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vite-plus/test";
 import * as Y from "yjs";
 import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import { trackPosition } from "./positionMapping.js";

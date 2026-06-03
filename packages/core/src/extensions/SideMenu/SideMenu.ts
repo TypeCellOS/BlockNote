@@ -129,8 +129,7 @@ export class SideMenuView<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
-> implements PluginView
-{
+> implements PluginView {
   public state?: SideMenuState<BSchema, I, S>;
   public readonly emitUpdate: (state: SideMenuState<BSchema, I, S>) => void;
 
