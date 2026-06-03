@@ -23,18 +23,24 @@ beforeEach(async () => {
   await waitForSelector(EDITOR_SELECTOR);
 });
 
+// Inserts a paragraph followed by three nested headings (H1, H2, H3), which is
+// the shared starting document for all indentation tests below.
+async function setupIndentationTestContent() {
+  await focusOnEditor();
+
+  await insertParagraph();
+  await userEvent.keyboard("{Enter}");
+  await userEvent.keyboard("{Tab}");
+  await insertHeading(1);
+  await userEvent.keyboard("{Enter}");
+  await insertHeading(2);
+  await userEvent.keyboard("{Enter}");
+  await insertHeading(3);
+}
+
 describe("Check Block Indentation Functionality", () => {
   test("Should be able to increase indentation for single block", async () => {
-    await focusOnEditor();
-
-    await insertParagraph();
-    await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("{Tab}");
-    await insertHeading(1);
-    await userEvent.keyboard("{Enter}");
-    await insertHeading(2);
-    await userEvent.keyboard("{Enter}");
-    await insertHeading(3);
+    await setupIndentationTestContent();
 
     const { x, y, height } = getRect(H_TWO_BLOCK_SELECTOR);
 
@@ -51,16 +57,7 @@ describe("Check Block Indentation Functionality", () => {
     await compareDocToSnapshot("increaseIndentSingleBlock");
   });
   test("Should be able to decrease indentation for single block", async () => {
-    await focusOnEditor();
-
-    await insertParagraph();
-    await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("{Tab}");
-    await insertHeading(1);
-    await userEvent.keyboard("{Enter}");
-    await insertHeading(2);
-    await userEvent.keyboard("{Enter}");
-    await insertHeading(3);
+    await setupIndentationTestContent();
 
     const { x, y, height } = getRect(H_TWO_BLOCK_SELECTOR);
 
@@ -77,16 +74,7 @@ describe("Check Block Indentation Functionality", () => {
     await compareDocToSnapshot("decreaseIndentSingleBlock");
   });
   test("Should be able to increase indentation for multiple blocks", async () => {
-    await focusOnEditor();
-
-    await insertParagraph();
-    await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("{Tab}");
-    await insertHeading(1);
-    await userEvent.keyboard("{Enter}");
-    await insertHeading(2);
-    await userEvent.keyboard("{Enter}");
-    await insertHeading(3);
+    await setupIndentationTestContent();
 
     const firstElementBoundingBox = getRect(H_TWO_BLOCK_SELECTOR);
     await clickAt(
@@ -116,16 +104,7 @@ describe("Check Block Indentation Functionality", () => {
     await compareDocToSnapshot("increaseIndentMultipleBlocks");
   });
   test("Should be able to decrease indentation for multiple blocks", async () => {
-    await focusOnEditor();
-
-    await insertParagraph();
-    await userEvent.keyboard("{Enter}");
-    await userEvent.keyboard("{Tab}");
-    await insertHeading(1);
-    await userEvent.keyboard("{Enter}");
-    await insertHeading(2);
-    await userEvent.keyboard("{Enter}");
-    await insertHeading(3);
+    await setupIndentationTestContent();
 
     const firstElementBoundingBox = getRect(H_TWO_BLOCK_SELECTOR);
     await clickAt(
