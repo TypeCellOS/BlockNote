@@ -84,14 +84,28 @@ export const TableExtension = Extension.create({
       },
       // Enables navigating cells using the tab key.
       Tab: () => {
-        return this.editor.commands.command(({ state, dispatch, view }) =>
-          goToNextCell(1)(state, dispatch, view),
-        );
+        return this.editor.commands.command(({ state, dispatch, view }) => {
+          if (!isInTable(state)) {
+            return false;
+          }
+
+          goToNextCell(1)(state, dispatch, view);
+
+          // Always return true to avoid accidental indents.
+          return true;
+        });
       },
       "Shift-Tab": () => {
-        return this.editor.commands.command(({ state, dispatch, view }) =>
-          goToNextCell(-1)(state, dispatch, view),
-        );
+        return this.editor.commands.command(({ state, dispatch, view }) => {
+          if (!isInTable(state)) {
+            return false;
+          }
+
+          // Always return true to avoid accidental un-indents.
+          goToNextCell(-1)(state, dispatch, view);
+
+          return true;
+        });
       },
     };
   },

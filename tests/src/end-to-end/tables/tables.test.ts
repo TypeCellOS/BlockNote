@@ -3,6 +3,7 @@ import { test } from "../../setup/setupScript.js";
 import { BASE_URL, TABLE_SELECTOR } from "../../utils/const.js";
 import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
+import { insertParagraph } from "../../utils/copypaste.js";
 
 test.beforeEach(async ({ page }) => {
   await page.goto(BASE_URL);
@@ -31,6 +32,32 @@ test.describe("Check Table interactions", () => {
     await page.keyboard.type("Table Cell");
 
     await compareDocToSnapshot(page, "tabCells.json");
+  });
+  test("Tab in last cell should be a no-op", async ({ page }) => {
+    await focusOnEditor(page);
+
+    await insertParagraph(page);
+    await executeSlashCommand(page, "table");
+
+    for (let i = 0; i < 6; i++) {
+      await page.keyboard.press("Tab");
+    }
+
+    // Only top level block group should exist.
+    await expect(page.locator(".bn-block-group")).toHaveCount(1);
+  });
+  test("Shift+Tab in first should be a no-op", async ({ page }) => {
+    await focusOnEditor(page);
+
+    await insertParagraph(page);
+    await page.keyboard.press("Enter");
+    await page.keyboard.press("Tab");
+    await executeSlashCommand(page, "table");
+
+    await page.keyboard.press("Shift+Tab");
+
+    // Block group containing table should exist as well as top level group.
+    await expect(page.locator(".bn-block-group")).toHaveCount(2);
   });
   test("Arrow keys should move cells", async ({ page }) => {
     await focusOnEditor(page);
