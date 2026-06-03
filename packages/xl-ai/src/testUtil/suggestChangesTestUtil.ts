@@ -1,7 +1,7 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { revertSuggestions } from "@handlewithcare/prosemirror-suggest-changes";
 import { Node } from "prosemirror-model";
-import { expect } from "vitest";
+import { expect } from "vite-plus/test";
 
 export function validateRejectingResultsInOriginalDoc(
   editor: BlockNoteEditor<any, any, any>,

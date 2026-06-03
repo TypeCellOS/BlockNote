@@ -1,7 +1,7 @@
 import { execSync, spawn, ChildProcess } from "child_process";
 import { getPort } from "get-port-please";
 import path from "path";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vite-plus/test";
 
 const TEST_APP_DIR = path.resolve(__dirname, "../../../nextjs-test-app");
 let PORT: number;
@@ -40,15 +40,11 @@ describe(`server-util in Next.js App Router (#942) [${MODE}]`, () => {
       });
 
       // Start production server
-      nextProcess = spawn(
-        "npx",
-        ["next", "start", "--port", String(PORT)],
-        {
-          cwd: TEST_APP_DIR,
-          stdio: ["ignore", "pipe", "pipe"],
-          detached: true,
-        },
-      );
+      nextProcess = spawn("npx", ["next", "start", "--port", String(PORT)], {
+        cwd: TEST_APP_DIR,
+        stdio: ["ignore", "pipe", "pipe"],
+        detached: true,
+      });
     } else {
       // Start dev server with Turbopack
       nextProcess = spawn(

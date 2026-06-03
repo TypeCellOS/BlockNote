@@ -11,7 +11,7 @@
     "directory": "packages/shadcn"
   },
   "license": "MPL-2.0",
-  "version": "0.51.2",
+  "version": "0.51.4",
   "files": [
     "dist",
     "types",
@@ -49,15 +49,14 @@
     }
   },
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "lint": "eslint src --max-warnings 0",
+    "dev": "vp dev",
+    "preview": "vp preview",
+    "lint": "vp lint src",
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "0.51.2",
-    "@blocknote/react": "0.51.2",
+    "@blocknote/core": "workspace:^",
+    "@blocknote/react": "workspace:^",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-label": "^2.1.7",
@@ -67,7 +66,6 @@
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-toggle": "^1.1.10",
     "@radix-ui/react-tooltip": "^1.2.8",
-    "autoprefixer": "^10.4.21",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.525.0",
@@ -80,24 +78,17 @@
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
-    "eslint": "^8.57.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "rimraf": "^5.0.10",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^5.9.3",
-    "vite": "^8.0.8",
-    "vite-plugin-eslint": "^1.8.1",
-    "vite-plugin-externalize-deps": "^0.10.0"
+    "vite-plugin-externalize-deps": "^0.10.0",
+    "vite-plus": "catalog:"
   },
   "peerDependencies": {
     "react": "^18.0 || ^19.0 || >= 19.0.0-rc",
     "react-dom": "^18.0 || ^19.0 || >= 19.0.0-rc",
     "tailwindcss": "^4.1.12"
-  },
-  "eslintConfig": {
-    "extends": [
-      "../../.eslintrc.json"
-    ]
   }
 }

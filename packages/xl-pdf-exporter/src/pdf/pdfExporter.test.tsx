@@ -12,7 +12,7 @@ import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { Text } from "@react-pdf/renderer";
 import { testDocument } from "@shared/testDocument.js";
 import reactElementToJSXString from "react-element-to-jsx-string";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { pdfDefaultSchemaMappings } from "./defaultSchema/index.js";
 import { PDFExporter } from "./pdfExporter.js";
 import { partialBlocksToBlocksForTesting } from "@shared/formatConversionTestUtil.js";

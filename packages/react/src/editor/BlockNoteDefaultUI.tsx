@@ -17,10 +17,7 @@ import { GridSuggestionMenuController } from "../components/SuggestionMenu/GridS
 import { SuggestionMenuController } from "../components/SuggestionMenu/SuggestionMenuController.js";
 import { TableHandlesController } from "../components/TableHandles/TableHandlesController.js";
 import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor.js";
-import {
-  PortalElementsMap,
-  resolvePortalTarget,
-} from "./portalElements.js";
+import { PortalElementsMap, resolvePortalTarget } from "./portalElements.js";
 
 // Lazily load the comments components to avoid pulling in the comments extensions into the main bundle
 const FloatingComposerController = lazy(
@@ -115,7 +112,9 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
     <>
       {editor.getExtension(FormattingToolbarExtension) &&
         props.formattingToolbar !== false && (
-          <FormattingToolbarController portalElement={formattingToolbarPortal} />
+          <FormattingToolbarController
+            portalElement={formattingToolbarPortal}
+          />
         )}
       {editor.getExtension(LinkToolbarExtension) &&
         props.linkToolbar !== false && (

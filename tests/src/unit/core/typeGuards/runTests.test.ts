@@ -1,5 +1,5 @@
 import { BlockNoteEditor, editorHasBlockWithType } from "@blocknote/core";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
 import { createTestEditor } from "../createTestEditor.js";
 import { testSchema } from "../testSchema.js";

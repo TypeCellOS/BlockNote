@@ -1,6 +1,6 @@
-import { getCurrentTest } from "@vitest/runner";
 import { getSortedEntries, toHashString } from "msw-snapshot";
 import path from "node:path";
+import { TestRunner } from "vite-plus/test";
 
 async function createRequestHash(req: Request): Promise<string> {
   const url = new URL(req.url);
@@ -18,7 +18,7 @@ export function createSnapshotPathFn(_basePath: string) {
   const fetchCountMap: Record<string, number> = {};
 
   return async (info: { request: Request }): Promise<string> => {
-    const t = getCurrentTest()!;
+    const t = TestRunner.getCurrentTest()!;
     const mswPath = path.join(
       t.suite!.name,
       "__msw_snapshots__",

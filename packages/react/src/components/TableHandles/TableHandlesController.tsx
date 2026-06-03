@@ -114,7 +114,7 @@ export const TableHandlesController = <
         return new DOMRect(
           tableBoundingRect.x,
           state.draggingState &&
-          state.draggingState.draggedCellOrientation === "row"
+            state.draggingState.draggedCellOrientation === "row"
             ? state.draggingState.mousePos - cellBoundingRect.height / 2
             : cellBoundingRect.y,
           tableBoundingRect.width,
@@ -130,7 +130,7 @@ export const TableHandlesController = <
 
         return new DOMRect(
           state.draggingState &&
-          state.draggingState.draggedCellOrientation === "col"
+            state.draggingState.draggedCellOrientation === "col"
             ? state.draggingState.mousePos - cellBoundingRect.width / 2
             : cellBoundingRect.x,
           tableBoundingRect.y,

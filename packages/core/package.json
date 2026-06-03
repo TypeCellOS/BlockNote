@@ -11,7 +11,7 @@
     "directory": "packages/core"
   },
   "license": "MPL-2.0",
-  "version": "0.51.2",
+  "version": "0.51.4",
   "files": [
     "dist",
     "types",
@@ -79,13 +79,12 @@
     }
   },
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "build-bundled": "tsc && vite build --config vite.config.bundled.ts && git checkout tmp-releases && rm -rf ../../release && mv ../../release-tmp ../../release",
-    "preview": "vite preview",
-    "lint": "eslint src --max-warnings 0",
-    "test": "vitest --run",
-    "test-watch": "vitest watch",
+    "dev": "vp dev",
+    "build-bundled": "tsc && vp build --config vite.config.bundled.ts && git checkout tmp-releases && rm -rf ../../release && mv ../../release-tmp ../../release",
+    "preview": "vp preview",
+    "lint": "vp lint src",
+    "test": "vp test --run",
+    "test-watch": "vp test watch",
     "clean": "rimraf dist && rimraf types",
     "update-tlds": "node scripts/update-tlds.mjs"
   },
@@ -97,9 +96,7 @@
     "@tiptap/core": "^3.13.0",
     "@tiptap/extension-bold": "^3.13.0",
     "@tiptap/extension-code": "^3.13.0",
-    "@tiptap/extension-horizontal-rule": "^3.13.0",
     "@tiptap/extension-italic": "^3.13.0",
-    "@tiptap/extension-paragraph": "^3.13.0",
     "@tiptap/extension-strike": "^3.13.0",
     "@tiptap/extension-text": "^3.13.0",
     "@tiptap/extension-underline": "^3.13.0",
@@ -119,19 +116,11 @@
     "yjs": "^13.6.27"
   },
   "devDependencies": {
-    "eslint": "^8.57.1",
     "jsdom": "^29.0.2",
     "rimraf": "^5.0.10",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^5.9.3",
-    "vite": "^8.0.8",
-    "vite-plugin-eslint": "^1.8.1",
-    "vitest": "^4.1.2"
-  },
-  "eslintConfig": {
-    "extends": [
-      "../../.eslintrc.json"
-    ]
+    "vite-plus": "catalog:"
   },
   "gitHead": "37614ab348dcc7faa830a9a88437b37197a2162d"
 }

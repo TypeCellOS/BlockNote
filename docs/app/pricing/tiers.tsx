@@ -29,7 +29,13 @@ function isBusinessPlan(planType: string) {
   return BUSINESS_PLAN_TYPES.has(planType);
 }
 
-function TierCTAButton({ tier, frequency }: { tier: Tier; frequency: Frequency }) {
+function TierCTAButton({
+  tier,
+  frequency,
+}: {
+  tier: Tier;
+  frequency: Frequency;
+}) {
   const { data: session } = useSession();
   let text =
     tier.cta === "get-started"
@@ -94,9 +100,10 @@ function TierCTAButton({ tier, frequency }: { tier: Tier; frequency: Frequency }
           track("click-pricing-buy-now", { tier: tier.id });
           e.preventDefault();
           e.stopPropagation();
-          const checkoutSlug = frequency === "year" && tier.id === "business"
-            ? "business-yearly"
-            : tier.id;
+          const checkoutSlug =
+            frequency === "year" && tier.id === "business"
+              ? "business-yearly"
+              : tier.id;
           await authClient.checkout({ slug: checkoutSlug });
         } else {
           const isCurrentPlan =
@@ -194,7 +201,7 @@ export function Tiers({
             {/* Popular badge */}
             {tier.mostPopular && (
               <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <span className="rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
+                <span className="rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-1 text-[10px] font-bold tracking-wider text-white uppercase shadow-sm">
                   {tier.badge ?? "Most Popular"}
                 </span>
               </div>
@@ -207,7 +214,7 @@ export function Tiers({
                 {tier.title}
               </h3>
               {tier.tagline && (
-                <p className="mt-1 text-xs font-medium uppercase tracking-wide text-purple-600">
+                <p className="mt-1 text-xs font-medium tracking-wide text-purple-600 uppercase">
                   {tier.tagline}
                 </p>
               )}

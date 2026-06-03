@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { toposort as batchingToposort, toposortReverse } from "./topo-sort.js";
 
 describe("toposort", () => {

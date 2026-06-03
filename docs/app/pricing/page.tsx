@@ -145,7 +145,7 @@ export default function Pricing() {
       <div className="mx-auto flex max-w-7xl flex-col items-center px-6 py-24 lg:px-8">
         {/* Header */}
         <div className="mb-12 text-center">
-          <p className="mb-4 text-xs font-bold uppercase tracking-widest text-purple-600">
+          <p className="mb-4 text-xs font-bold tracking-widest text-purple-600 uppercase">
             Pricing
           </p>
           <h1 className="mb-6 font-serif text-5xl text-stone-900 md:text-7xl">

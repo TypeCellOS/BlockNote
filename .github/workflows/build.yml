@@ -11,9 +11,6 @@ permissions:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN }}
-  NX_SELF_HOSTED_REMOTE_CACHE_SERVER: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_SERVER }}
-  pnpm_config_store_dir: ./node_modules/.pnpm-store
 
 jobs:
   build:
@@ -21,46 +18,31 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           fetch-depth: 100
           persist-credentials: false
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
-
-      - uses: nrwl/nx-set-shas@afb73a62d26e41464e9254689e1fd6122ee683c1 # v5
-
-      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+      - uses: voidzero-dev/setup-vp@2dec1e33f4ab2c6d5bce1b0c4607961bb1a3f7a1 # v1
         with:
-          cache: "pnpm"
-          cache-dependency-path: "**/pnpm-lock.yaml"
-          node-version-file: ".nvmrc"
-
-      - name: Cache NX
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
-        with:
-          path: .nx/cache
-          key: nx-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-${{ github.sha }}
-          restore-keys: |
-            nx-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-
-            nx-${{ env.NX_BRANCH }}-
-            nx-
+          node-version-file: ".node-version"
+          cache: true
 
       - name: Install Dependencies
-        run: pnpm install
+        run: vp install
 
       - name: Lint packages
-        run: pnpm run lint
+        run: vp lint
 
       - name: Build packages
-        run: pnpm run build
+        run: vp run -r build
 
       - name: Run unit tests
-        run: pnpm run test
+        run: vp run -r test
 
       - name: Run Next.js integration test (production build)
-        run: NEXTJS_TEST_MODE=build npx vitest run tests/src/unit/nextjs/serverUtil.test.ts
+        run: NEXTJS_TEST_MODE=build vp test run src/unit/nextjs/serverUtil.test.ts
+        working-directory: tests
 
       - name: Upload webpack stats artifact (editor)
         uses: relative-ci/agent-upload-artifact-action@a2b5741b4f7e6a989c84ec1a3059696b23c152e5 # v2
@@ -70,61 +52,20 @@ jobs:
 
       - name: Soft release
         id: soft-release
-        run: pnpx pkg-pr-new publish './packages/*' # TODO disabled only for AI branch--compact
+        run: vp dlx pkg-pr-new publish './packages/*' # TODO disabled only for AI branch--compact
 
-  playwright-build:
-    name: "Playwright Build"
+  e2e:
+    # Vitest Browser Mode runs in the Playwright Linux container — the same
+    # environment as the local Docker run — so behaviour matches local dev.
+    # The suite resolves every `@blocknote/*` import to its `src/` via the
+    # aliases in `tests/vite.config.browser.ts` (vite transpiles the package
+    # sources on the fly), so the packages do NOT need to be built to `dist`
+    # first — `vp install` + the checked-out sources are enough.
+    name: "E2E - ${{ matrix.browser }} (${{ matrix.shardIndex }}/${{ matrix.shardTotal }})"
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-        with:
-          fetch-depth: 100
-          persist-credentials: false
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
-
-      - uses: nrwl/nx-set-shas@afb73a62d26e41464e9254689e1fd6122ee683c1 # v5
-
-      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
-        with:
-          cache: "pnpm"
-          cache-dependency-path: "**/pnpm-lock.yaml"
-          node-version-file: ".nvmrc"
-
-      - name: Cache NX
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
-        with:
-          path: .nx/cache
-          key: nx-playwright-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-${{ github.sha }}
-          restore-keys: |
-            nx-playwright-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-
-            nx-playwright-${{ env.NX_BRANCH }}-
-            nx-
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Build packages
-        run: pnpm run build
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: playwright-build
-          path: |
-            packages/*/dist
-            playground/dist
-          retention-days: 1
-
-  playwright:
-    name: "Playwright Tests - ${{ matrix.browser }} (${{ matrix.shardIndex }}/${{ matrix.shardTotal }})"
-    runs-on: ubuntu-latest
-    needs: playwright-build
     timeout-minutes: 30
     container:
-      image: mcr.microsoft.com/playwright:v1.51.1-noble
+      image: mcr.microsoft.com/playwright:v1.60.0-noble
     strategy:
       fail-fast: false
       matrix:
@@ -132,33 +73,30 @@ jobs:
         shardIndex: [1, 2]
         shardTotal: [2]
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           fetch-depth: 100
           persist-credentials: false
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
-
-      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+      - uses: voidzero-dev/setup-vp@2dec1e33f4ab2c6d5bce1b0c4607961bb1a3f7a1 # v1
         with:
-          cache: "pnpm"
-          cache-dependency-path: "**/pnpm-lock.yaml"
-          node-version-file: ".nvmrc"
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
-        with:
-          name: playwright-build
+          node-version-file: ".node-version"
+          cache: true
 
       - name: Install dependencies
-        run: pnpm install
+        run: vp install
 
-      - name: Run server and Playwright tests
-        run: |
-          HOME=/root PLAYWRIGHT_CONFIG="--project ${{ matrix.browser }} --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}" pnpm run e2e
+      # No preview server: Vitest Browser Mode serves the tests + mounted example
+      # apps itself. `--browser` selects this matrix job's browser and
+      # `--shard=<index>/<total>` splits that browser's test files across two
+      # parallel machines. Each shard records a machine-readable `blob` report
+      # (named per browser+shard so they don't collide); the `merge-reports` job
+      # stitches every browser's shards into one HTML report afterwards.
+      - name: Run e2e tests (${{ matrix.browser }} ${{ matrix.shardIndex }}/${{ matrix.shardTotal }})
+        run: HOME=/root vp test -c vite.config.browser.ts --run --browser ${{ matrix.browser }} --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} --reporter=default --reporter=blob --outputFile.blob=blob-report/blob-${{ matrix.browser }}-${{ matrix.shardIndex }}.json
+        working-directory: tests
 
-      - name: Upload blob report
+      - name: Upload blob report (${{ matrix.browser }} ${{ matrix.shardIndex }}/${{ matrix.shardTotal }})
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ !cancelled() }}
         with:
@@ -166,50 +104,98 @@ jobs:
           path: tests/blob-report/
           retention-days: 1
 
-      - name: Upload HTML report
+      - name: Upload failure artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: ${{ !cancelled() }}
+        if: ${{ failure() }}
         with:
-          name: playwright-report-${{ matrix.browser }}-${{ matrix.shardIndex }}
-          path: tests/playwright-report/
-          retention-days: 30
+          name: e2e-attachments-${{ matrix.browser }}-${{ matrix.shardIndex }}
+          path: tests/.vitest-attachments/
+          retention-days: 7
 
   merge-reports:
-    name: "Merge Playwright Reports"
-    if: ${{ !cancelled() }}
-    needs: playwright
+    # Stitch every browser+shard blob report into a single navigable HTML
+    # report (the Vitest equivalent of `playwright merge-reports`). Runs even
+    # when a shard failed, so the report always covers every browser.
+    name: "E2E Report"
     runs-on: ubuntu-latest
+    needs: e2e
+    if: ${{ !cancelled() }}
+    timeout-minutes: 15
+    # Same container as the e2e shards: `--mergeReports` doesn't run tests or
+    # launch browsers, but the HTML reporter still resolves the test files'
+    # browser environment, so the browser config must stay enabled (and present).
+    container:
+      image: mcr.microsoft.com/playwright:v1.60.0-noble
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
+          fetch-depth: 100
           persist-credentials: false
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
-
-      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+      - uses: voidzero-dev/setup-vp@2dec1e33f4ab2c6d5bce1b0c4607961bb1a3f7a1 # v1
         with:
-          cache: "pnpm"
-          cache-dependency-path: "**/pnpm-lock.yaml"
-          node-version-file: ".nvmrc"
+          node-version-file: ".node-version"
+          cache: true
 
       - name: Install dependencies
-        run: pnpm install
+        run: vp install
 
+      # Gather every shard's blob into one directory (blob-report-chromium-1, …).
       - name: Download blob reports
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
-          path: tests/all-blob-reports
+          path: tests/blob-report
           pattern: blob-report-*
           merge-multiple: true
 
-      - name: Merge reports
-        run: npx playwright merge-reports --reporter html ./all-blob-reports
+      # Re-emit a single HTML report from the merged blobs (no tests are run).
+      - name: Merge into HTML report
+        run: HOME=/root vp test -c vite.config.browser.ts --mergeReports=blob-report --reporter=html
         working-directory: tests
 
       - name: Upload merged HTML report
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: ${{ !cancelled() }}
         with:
-          name: playwright-report-merged
+          name: e2e-report
           path: tests/playwright-report/
-          retention-days: 30
+          retention-days: 7
+
+  deploy-report:
+    # Publish the merged report to a GitHub Pages PR preview and comment the
+    # link on the PR (Vercel-style). Pages serves it over HTTP, so the report's
+    # data loads correctly — unlike opening the downloaded artifact over file://
+    # (the @vitest/ui report fetches its data and is blocked by CORS there).
+    #
+    # Default `needs` semantics: this runs only when `merge-reports` succeeded
+    # (i.e. a report exists) — but regardless of whether the tests passed, so a
+    # red run still gets a navigable preview. Skipped for fork PRs, whose
+    # read-only token can't push to gh-pages or comment (they keep the artifact).
+    name: "E2E Report Preview"
+    runs-on: ubuntu-latest
+    needs: merge-reports
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
+
+      - name: Download merged report
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: e2e-report
+          path: e2e-report
+
+      # Deploys to the `gh-pages` branch under `pr-preview/pr-<N>/` and posts a
+      # sticky comment with the URL. The companion `pr-preview-cleanup` workflow
+      # removes it when the PR closes.
+      - name: Deploy report to PR preview
+        uses: rossjrw/pr-preview-action@ffa7509e91a3ec8dfc2e5536c4d5c1acdf7a6de9 # v1
+        with:
+          source-dir: e2e-report
+          preview-branch: gh-pages
+          umbrella-dir: pr-preview
+          action: deploy
