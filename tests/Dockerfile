@@ -24,7 +24,7 @@ FROM mcr.microsoft.com/playwright:v1.51.1-noble
 WORKDIR /work
 
 # pnpm matching the repo's packageManager.
-RUN corepack enable && corepack prepare pnpm@11.1.1 --activate
+RUN corepack enable && corepack prepare pnpm@11.5.1 --activate
 
 # Copy ONLY the dependency manifests — every workspace member's package.json plus
 # the lockfile/workspace file — preserving their paths with --parents. These are

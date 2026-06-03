@@ -24,6 +24,9 @@ describe("Check Emoji Picker Functionality", () => {
   test("should not show emoji picker when : is typed", async () => {
     await focusOnEditor();
     await openEmojiPicker();
+    // Give the editor a chance to (incorrectly) open the picker before
+    // asserting its absence, so the negative check isn't won by a race.
+    await sleep(500);
     expect(document.querySelectorAll(EMOJI_PICKER_SELECTOR).length).toBe(0);
   });
   test("should show emoji picker when : and query is typed", async () => {

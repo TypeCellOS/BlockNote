@@ -70,6 +70,8 @@ describe("Check Background & Text Color Functionality", () => {
     await userEvent.keyboard("{Enter}");
     await insertHeading(3);
 
+    // Wait for the headings to finish rendering before navigating the caret,
+    // otherwise the subsequent ArrowUp/selection can land in a stale layout.
     await sleep(500);
 
     await userEvent.keyboard("{ArrowUp}");
@@ -97,9 +99,7 @@ describe("Check Background & Text Color Functionality", () => {
 
     await userEvent.keyboard("{ArrowUp}");
     await userEvent.keyboard(`{${MOD}>}{ArrowLeft}{/${MOD}}`);
-    await userEvent.keyboard(
-      "{Control>}{Shift>}{ArrowRight}{/Shift}{/Control}",
-    );
+    await userEvent.keyboard(`{${MOD}>}{Shift>}{ArrowRight}{/Shift}{/${MOD}}`);
 
     await userEvent.click(await waitForSelector(COLORS_BUTTON_SELECTOR));
     await userEvent.click(
