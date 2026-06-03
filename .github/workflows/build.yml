@@ -61,7 +61,7 @@ jobs:
     # aliases in `tests/vite.config.browser.ts` (vite transpiles the package
     # sources on the fly), so the packages do NOT need to be built to `dist`
     # first — `vp install` + the checked-out sources are enough.
-    name: "E2E - ${{ matrix.browser }}"
+    name: "E2E - ${{ matrix.browser }} (${{ matrix.shardIndex }}/${{ matrix.shardTotal }})"
     runs-on: ubuntu-latest
     timeout-minutes: 30
     container:
@@ -70,6 +70,8 @@ jobs:
       fail-fast: false
       matrix:
         browser: [chromium, firefox, webkit]
+        shardIndex: [1, 2]
+        shardTotal: [2]
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
@@ -85,18 +87,20 @@ jobs:
         run: vp install
 
       # No preview server: Vitest Browser Mode serves the tests + mounted example
-      # apps itself. `--browser` selects this matrix shard's browser. Each shard
-      # records a machine-readable `blob` report; the `merge-reports` job stitches
-      # all three browsers' blobs into one HTML report afterwards.
-      - name: Run e2e tests (${{ matrix.browser }})
-        run: HOME=/root vp test -c vite.config.browser.ts --run --browser ${{ matrix.browser }} --reporter=default --reporter=blob --outputFile.blob=blob-report/blob-${{ matrix.browser }}.json
+      # apps itself. `--browser` selects this matrix job's browser and
+      # `--shard=<index>/<total>` splits that browser's test files across two
+      # parallel machines. Each shard records a machine-readable `blob` report
+      # (named per browser+shard so they don't collide); the `merge-reports` job
+      # stitches every browser's shards into one HTML report afterwards.
+      - name: Run e2e tests (${{ matrix.browser }} ${{ matrix.shardIndex }}/${{ matrix.shardTotal }})
+        run: HOME=/root vp test -c vite.config.browser.ts --run --browser ${{ matrix.browser }} --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} --reporter=default --reporter=blob --outputFile.blob=blob-report/blob-${{ matrix.browser }}-${{ matrix.shardIndex }}.json
         working-directory: tests
 
-      - name: Upload blob report (${{ matrix.browser }})
+      - name: Upload blob report (${{ matrix.browser }} ${{ matrix.shardIndex }}/${{ matrix.shardTotal }})
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ !cancelled() }}
         with:
-          name: blob-report-${{ matrix.browser }}
+          name: blob-report-${{ matrix.browser }}-${{ matrix.shardIndex }}
           path: tests/blob-report/
           retention-days: 1
 
@@ -104,14 +108,14 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: ${{ failure() }}
         with:
-          name: e2e-attachments-${{ matrix.browser }}
+          name: e2e-attachments-${{ matrix.browser }}-${{ matrix.shardIndex }}
           path: tests/.vitest-attachments/
           retention-days: 7
 
   merge-reports:
-    # Stitch the three per-browser blob reports into a single navigable HTML
+    # Stitch every browser+shard blob report into a single navigable HTML
     # report (the Vitest equivalent of `playwright merge-reports`). Runs even
-    # when a browser shard failed, so the report always covers every browser.
+    # when a shard failed, so the report always covers every browser.
     name: "E2E Report"
     runs-on: ubuntu-latest
     needs: e2e
@@ -136,7 +140,7 @@ jobs:
       - name: Install dependencies
         run: vp install
 
-      # Gather every shard's blob into one directory (blob-report-chromium, …).
+      # Gather every shard's blob into one directory (blob-report-chromium-1, …).
       - name: Download blob reports
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
