@@ -2,10 +2,9 @@
 import react from "@vitejs/plugin-react";
 import * as fs from "fs";
 import * as path from "path";
-import { defineConfig } from "vite";
-// import eslintPlugin from "vite-plugin-eslint";
+import { defineConfig } from "vite-plus";
 // https://vitejs.dev/config/
-export default defineConfig((conf) => ({
+export default defineConfig(((conf: { command: string }) => ({
   plugins: [react()],
   optimizeDeps: {},
   build: {
@@ -21,12 +20,12 @@ export default defineConfig((conf) => ({
             // or, keep as is to load live from sources with live reload working
             "@blocknote/core": path.resolve(
               __dirname,
-              "../../packages/core/src/"
+              "../../packages/core/src/",
             ),
             "@blocknote/react": path.resolve(
               __dirname,
-              "../../packages/react/src/"
+              "../../packages/react/src/",
             ),
           } as any),
   },
-}));
+})) as Parameters<typeof defineConfig>[0]);

@@ -24,7 +24,9 @@ export const PanelFileInput = forwardRef<
         type={"file"}
         accept={accept}
         value={value ? value.name : undefined}
-        onChange={async (e: ChangeEvent<HTMLInputElement>) => onChange?.(e.target.files![0])}
+        onChange={async (e: ChangeEvent<HTMLInputElement>) =>
+          onChange?.(e.target.files![0])
+        }
         placeholder={placeholder}
       />
     </AriakitFormProvider>

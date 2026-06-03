@@ -150,7 +150,7 @@ export function DemoEditor() {
             onClick={(e) => e.currentTarget.select()}
           />
           <button
-            className="whitespace-nowrap rounded-md bg-purple-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-purple-700"
+            className="rounded-md bg-purple-600 px-3 py-1.5 text-sm font-medium whitespace-nowrap text-white transition-colors hover:bg-purple-700"
             onClick={() => {
               navigator.clipboard.writeText(url);
               alert("URL copied to clipboard!");
@@ -188,7 +188,9 @@ function DemoEditorInner({
   // const [mounted, setMounted] = useState(false);
   const [activeUser, setActiveUser] = useState(HARDCODED_USERS[0]);
   const [sidebarOpen, setSidebarOpen] = useState(() => {
-    if (typeof window === "undefined") return true;
+    if (typeof window === "undefined") {
+      return true;
+    }
     return window.innerWidth >= 768;
   });
 
@@ -391,7 +393,7 @@ function DemoEditorInner({
           />
 
           <div className="flex h-full w-full">
-            <div className="relative flex-1 overflow-y-auto pb-12 pl-4 pr-4 transition-all duration-300 ease-in-out">
+            <div className="relative flex-1 overflow-y-auto pr-4 pb-12 pl-4 transition-all duration-300 ease-in-out">
               <div className="mx-auto min-h-full max-w-[800px] py-4">
                 <BlockNoteViewEditor />
               </div>
@@ -406,7 +408,7 @@ function DemoEditorInner({
                   : "w-0 translate-x-full overflow-hidden opacity-0"
               }`}
             >
-              <div className="sticky top-0 z-20 border-b border-stone-100 bg-white/50 p-4 text-xs font-bold uppercase tracking-wider text-stone-400 backdrop-blur-sm">
+              <div className="sticky top-0 z-20 border-b border-stone-100 bg-white/50 p-4 text-xs font-bold tracking-wider text-stone-400 uppercase backdrop-blur-sm">
                 Comments
               </div>
               <div className="p-2">

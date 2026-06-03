@@ -5,7 +5,7 @@ import { createReactBlockSpec } from "@blocknote/react";
 import { StrictMode } from "react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
-import { afterEach, beforeEach, describe, it } from "vitest";
+import { afterEach, beforeEach, describe, it } from "vite-plus/test";
 
 describe("BlockNoteView Rapid Remount", () => {
   let div: HTMLDivElement;

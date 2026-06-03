@@ -7,7 +7,7 @@ import {
 } from "@blocknote/core";
 import { addIdsToBlocks } from "@shared/formatConversionTestUtil.js";
 import { prettify } from "htmlfy";
-import { expect } from "vitest";
+import { expect } from "vite-plus/test";
 
 import { ExportTestCase } from "./exportTestCase.js";
 
@@ -45,7 +45,10 @@ export const testExportHTML = async <
   addIdsToBlocks(testCase.content);
 
   await expect(
-    prettify(await editor.blocksToHTMLLossy(testCase.content), PRETTIFY_OPTIONS),
+    prettify(
+      await editor.blocksToHTMLLossy(testCase.content),
+      PRETTIFY_OPTIONS,
+    ),
   ).toMatchFileSnapshot(`./__snapshots__/html/${testCase.name}.html`);
 };
 

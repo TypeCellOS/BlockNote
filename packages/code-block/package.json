@@ -42,11 +42,11 @@
     }
   },
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "lint": "eslint src --max-warnings 0",
-    "test": "vitest --run",
-    "test-watch": "vitest watch"
+    "dev": "vp dev",
+    "lint": "vp lint src",
+    "test": "vp test --run",
+    "test-watch": "vp test watch",
+    "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
     "@shikijs/core": "^4",
@@ -58,20 +58,13 @@
     "@shikijs/types": "^4"
   },
   "devDependencies": {
-    "eslint": "^8.57.1",
+    "rimraf": "^5.0.10",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^5.9.3",
-    "vite": "^8.0.8",
-    "vite-plugin-eslint": "^1.8.1",
-    "vitest": "^4.1.2"
+    "vite-plus": "catalog:"
   },
   "peerDependencies": {
-    "@blocknote/core": "0.51.4"
-  },
-  "eslintConfig": {
-    "extends": [
-      "../../.eslintrc.json"
-    ]
+    "@blocknote/core": "workspace:^"
   },
   "gitHead": "37614ab348dcc7faa830a9a88437b37197a2162d"
 }

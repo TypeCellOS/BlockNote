@@ -1,6 +1,6 @@
 import { NodeSelection, TextSelection } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
 import {
   getBlockInfoFromTransaction,

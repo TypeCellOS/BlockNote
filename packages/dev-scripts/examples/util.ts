@@ -95,12 +95,14 @@ export function addTitleToGroups(grouped: ReturnType<typeof groupProjects>) {
 
   const groupsWithTitles = Object.fromEntries(
     Object.entries(grouped).map(([key, group]) => {
-      const title = meta[key];
-      if (!title) {
+      if (!(key in meta)) {
         throw new Error(
           `Missing group title for ${key}, add to docs/content/examples/meta.json?`,
         );
       }
+
+      const title = meta[key as keyof typeof meta];
+
       return [
         key,
         {

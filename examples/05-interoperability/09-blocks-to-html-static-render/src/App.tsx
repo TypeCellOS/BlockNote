@@ -179,7 +179,7 @@ export default function App() {
       <div className="view-wrapper">
         <div className="view-label">Rendered Static HTML Output</div>
         <div className="view">
-          {/* To make the static HTML look identical to the editor, we need to 
+          {/* To make the static HTML look identical to the editor, we need to
           add these two wrapping divs to the exported blocks. These mock the 
           wrapping elements of a BlockNote editor, and are needed as the 
           exported HTML only holds the contents of the editor. You need will 

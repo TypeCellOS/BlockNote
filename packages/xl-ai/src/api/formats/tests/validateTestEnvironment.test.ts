@@ -1,6 +1,6 @@
 import * as glob from "glob";
 import path from "path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
 /**
  * We should only have one snapshot file per test, this test ensures that

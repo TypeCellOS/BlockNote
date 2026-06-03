@@ -13,7 +13,8 @@ function ShadowWrapper(props: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (host.current && !shadowRoot) {
-      const root = host.current.shadowRoot || host.current.attachShadow({ mode: "open" });
+      const root =
+        host.current.shadowRoot || host.current.attachShadow({ mode: "open" });
       setShadowRoot(root);
     }
   }, [shadowRoot]);
@@ -27,7 +28,7 @@ function ShadowWrapper(props: { children: React.ReactNode }) {
             <style>{mantineCss}</style>
             {props.children}
           </>,
-          shadowRoot as any
+          shadowRoot as any,
         )}
     </div>
   );

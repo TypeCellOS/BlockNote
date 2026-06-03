@@ -110,7 +110,9 @@ export default function App() {
   // Renders the editor instance.
   return (
     <BlockNoteView editor={editor} formattingToolbar={false}>
-      <FormattingToolbarController formattingToolbar={CustomFormattingToolbar} />
+      <FormattingToolbarController
+        formattingToolbar={CustomFormattingToolbar}
+      />
     </BlockNoteView>
   );
 }

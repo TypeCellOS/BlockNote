@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { createAppendableStream } from "./appendableStream.js";
 
 async function collectStream<T>(stream: ReadableStream<T>): Promise<T[]> {

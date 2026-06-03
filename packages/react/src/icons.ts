@@ -8,5 +8,5 @@ export type IconType = (
     size?: string | number;
     color?: string;
     title?: string;
-  }
+  },
 ) => React.ReactNode;

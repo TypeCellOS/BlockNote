@@ -11,7 +11,10 @@ import {
 import { CommentsExtension } from "@blocknote/core/comments";
 import { memo, useCallback } from "react";
 
-import { Components, useComponentsContext } from "../../editor/ComponentsContext.js";
+import {
+  Components,
+  useComponentsContext,
+} from "../../editor/ComponentsContext.js";
 import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
 import { useExtension } from "../../hooks/useExtension.js";
 import { useDictionary } from "../../i18n/dictionary.js";

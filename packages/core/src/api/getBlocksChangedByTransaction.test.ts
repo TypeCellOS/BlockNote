@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach } from "vitest";
+import { describe, expect, it, beforeEach } from "vite-plus/test";
 
 import { setupTestEnv } from "./blockManipulation/setupTestEnv.js";
 import { getBlocksChangedByTransaction } from "./getBlocksChangedByTransaction.js";

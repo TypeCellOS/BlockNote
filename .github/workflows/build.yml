@@ -11,9 +11,6 @@ permissions:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN }}
-  NX_SELF_HOSTED_REMOTE_CACHE_SERVER: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_SERVER }}
-  pnpm_config_store_dir: ./node_modules/.pnpm-store
 
 jobs:
   build:
@@ -21,46 +18,31 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           fetch-depth: 100
           persist-credentials: false
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
-
-      - uses: nrwl/nx-set-shas@afb73a62d26e41464e9254689e1fd6122ee683c1 # v5
-
-      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+      - uses: voidzero-dev/setup-vp@2dec1e33f4ab2c6d5bce1b0c4607961bb1a3f7a1 # v1
         with:
-          cache: "pnpm"
-          cache-dependency-path: "**/pnpm-lock.yaml"
-          node-version-file: ".nvmrc"
-
-      - name: Cache NX
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
-        with:
-          path: .nx/cache
-          key: nx-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-${{ github.sha }}
-          restore-keys: |
-            nx-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-
-            nx-${{ env.NX_BRANCH }}-
-            nx-
+          node-version-file: ".node-version"
+          cache: true
 
       - name: Install Dependencies
-        run: pnpm install
+        run: vp install
 
       - name: Lint packages
-        run: pnpm run lint
+        run: vp lint
 
       - name: Build packages
-        run: pnpm run build
+        run: vp run -r build
 
       - name: Run unit tests
-        run: pnpm run test
+        run: vp run -r test
 
       - name: Run Next.js integration test (production build)
-        run: NEXTJS_TEST_MODE=build npx vitest run tests/src/unit/nextjs/serverUtil.test.ts
+        run: NEXTJS_TEST_MODE=build vp test run src/unit/nextjs/serverUtil.test.ts
+        working-directory: tests
 
       - name: Upload webpack stats artifact (editor)
         uses: relative-ci/agent-upload-artifact-action@a2b5741b4f7e6a989c84ec1a3059696b23c152e5 # v2
@@ -70,44 +52,28 @@ jobs:
 
       - name: Soft release
         id: soft-release
-        run: pnpx pkg-pr-new publish './packages/*' # TODO disabled only for AI branch--compact
+        run: vp dlx pkg-pr-new publish './packages/*' # TODO disabled only for AI branch--compact
 
   playwright-build:
     name: "Playwright Build"
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           fetch-depth: 100
           persist-credentials: false
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
-
-      - uses: nrwl/nx-set-shas@afb73a62d26e41464e9254689e1fd6122ee683c1 # v5
-
-      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+      - uses: voidzero-dev/setup-vp@2dec1e33f4ab2c6d5bce1b0c4607961bb1a3f7a1 # v1
         with:
-          cache: "pnpm"
-          cache-dependency-path: "**/pnpm-lock.yaml"
-          node-version-file: ".nvmrc"
-
-      - name: Cache NX
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
-        with:
-          path: .nx/cache
-          key: nx-playwright-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-${{ github.sha }}
-          restore-keys: |
-            nx-playwright-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-
-            nx-playwright-${{ env.NX_BRANCH }}-
-            nx-
+          node-version-file: ".node-version"
+          cache: true
 
       - name: Install dependencies
-        run: pnpm install
+        run: vp install
 
       - name: Build packages
-        run: pnpm run build
+        run: vp run -r build
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -132,19 +98,15 @@ jobs:
         shardIndex: [1, 2]
         shardTotal: [2]
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           fetch-depth: 100
           persist-credentials: false
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
-
-      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+      - uses: voidzero-dev/setup-vp@2dec1e33f4ab2c6d5bce1b0c4607961bb1a3f7a1 # v1
         with:
-          cache: "pnpm"
-          cache-dependency-path: "**/pnpm-lock.yaml"
-          node-version-file: ".nvmrc"
+          node-version-file: ".node-version"
+          cache: true
 
       - name: Download build artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
@@ -152,11 +114,13 @@ jobs:
           name: playwright-build
 
       - name: Install dependencies
-        run: pnpm install
+        run: vp install
 
       - name: Run server and Playwright tests
         run: |
-          HOME=/root PLAYWRIGHT_CONFIG="--project ${{ matrix.browser }} --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}" pnpm run e2e
+          HOME=/root vp exec concurrently --success=first -r --kill-others \
+            "vp run --filter @blocknote/example-editor preview" \
+            "wait-on http://localhost:3000 && cd tests && vp exec playwright test --project ${{ matrix.browser }} --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}"
 
       - name: Upload blob report
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -180,21 +144,17 @@ jobs:
     needs: playwright
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
-
-      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+      - uses: voidzero-dev/setup-vp@2dec1e33f4ab2c6d5bce1b0c4607961bb1a3f7a1 # v1
         with:
-          cache: "pnpm"
-          cache-dependency-path: "**/pnpm-lock.yaml"
-          node-version-file: ".nvmrc"
+          node-version-file: ".node-version"
+          cache: true
 
       - name: Install dependencies
-        run: pnpm install
+        run: vp install
 
       - name: Download blob reports
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
@@ -204,7 +164,7 @@ jobs:
           merge-multiple: true
 
       - name: Merge reports
-        run: npx playwright merge-reports --reporter html ./all-blob-reports
+        run: vp exec playwright merge-reports --reporter html ./all-blob-reports
         working-directory: tests
 
       - name: Upload merged HTML report

@@ -12,7 +12,7 @@ import {
   ZipReader,
 } from "@zip.js/zip.js";
 import { Packer, Paragraph, TextRun } from "docx";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import xmlFormat from "xml-formatter";
 import { docxDefaultSchemaMappings } from "./defaultSchema/index.js";
 import { DOCXExporter } from "./docxExporter.js";
@@ -218,9 +218,7 @@ describe("exporter", () => {
     },
   );
 
-  async function exportAndGetStylesEntries(
-    locale?: string,
-  ) {
+  async function exportAndGetStylesEntries(locale?: string) {
     const exporter = new DOCXExporter(
       BlockNoteSchema.create({
         blockSpecs: {

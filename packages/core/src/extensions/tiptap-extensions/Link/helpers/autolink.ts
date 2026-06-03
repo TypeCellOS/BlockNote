@@ -50,7 +50,7 @@ export function autolink(options: AutolinkOptions): Plugin {
         !oldState.doc.eq(newState.doc);
 
       const preventAutolink = transactions.some((transaction) =>
-        transaction.getMeta("preventAutolink")
+        transaction.getMeta("preventAutolink"),
       );
 
       if (!docChanges || preventAutolink) {
@@ -67,7 +67,7 @@ export function autolink(options: AutolinkOptions): Plugin {
         const nodesInChangedRanges = findChildrenInRange(
           newState.doc,
           newRange,
-          (node) => node.isTextblock
+          (node) => node.isTextblock,
         );
 
         let textBlock: NodeWithPos | undefined;
@@ -79,14 +79,14 @@ export function autolink(options: AutolinkOptions): Plugin {
             textBlock.pos,
             textBlock.pos + textBlock.node.nodeSize,
             undefined,
-            " "
+            " ",
           );
         } else if (nodesInChangedRanges.length) {
           const endText = newState.doc.textBetween(
             newRange.from,
             newRange.to,
             " ",
-            " "
+            " ",
           );
           if (!UNICODE_WHITESPACE_REGEX_END.test(endText)) {
             return;
@@ -96,7 +96,7 @@ export function autolink(options: AutolinkOptions): Plugin {
             textBlock.pos,
             newRange.to,
             undefined,
-            " "
+            " ",
           );
         }
 
@@ -121,7 +121,7 @@ export function autolink(options: AutolinkOptions): Plugin {
 
           const linksBeforeSpace = tokenizeLink(
             lastWordBeforeSpace,
-            options.defaultProtocol
+            options.defaultProtocol,
           );
 
           if (!isValidLinkStructure(linksBeforeSpace)) {
@@ -144,7 +144,7 @@ export function autolink(options: AutolinkOptions): Plugin {
               return !newState.doc.rangeHasMark(
                 link.from,
                 link.to,
-                newState.schema.marks.code
+                newState.schema.marks.code,
               );
             })
             .filter((link) => options.validate(link.value))
@@ -152,7 +152,7 @@ export function autolink(options: AutolinkOptions): Plugin {
             .forEach((link) => {
               if (
                 getMarksBetween(link.from, link.to, newState.doc).some(
-                  (item) => item.mark.type === options.type
+                  (item) => item.mark.type === options.type,
                 )
               ) {
                 return;
@@ -163,7 +163,7 @@ export function autolink(options: AutolinkOptions): Plugin {
                 link.to,
                 options.type.create({
                   href: link.href,
-                })
+                }),
               );
             });
         }

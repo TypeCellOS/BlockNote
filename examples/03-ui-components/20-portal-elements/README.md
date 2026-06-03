@@ -5,10 +5,7 @@ By default, BlockNote's floating UI elements (formatting toolbar, slash menu, ta
 This example renders two editors side-by-side, both wrapped in a small `overflow: hidden` container. The left editor uses the default — the slash menu is clipped by the editor's bounds. The right editor passes `portalElements={{ default: document.body }}` so floating UI escapes the wrapper and renders fully.
 
 ```tsx
-<BlockNoteView
-  editor={editor}
-  portalElements={{ default: document.body }}
-/>
+<BlockNoteView editor={editor} portalElements={{ default: document.body }} />
 ```
 
 **Relevant Docs:**

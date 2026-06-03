@@ -566,8 +566,8 @@ export type BlockImplementationOrCreator<
   TOptions extends Record<string, any> | undefined =
     | Record<string, any>
     | undefined,
-  Config extends
-    ExtractBlockConfigFromConfigOrCreator<ConfigOrCreator> = ExtractBlockConfigFromConfigOrCreator<ConfigOrCreator>,
+  Config extends ExtractBlockConfigFromConfigOrCreator<ConfigOrCreator> =
+    ExtractBlockConfigFromConfigOrCreator<ConfigOrCreator>,
 > =
   | BlockImplementation<Config["type"], Config["propSchema"], Config["content"]>
   | (TOptions extends undefined

@@ -1,18 +1,15 @@
-import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import * as Y from "yjs";
 import { CommentBody } from "../../types.js";
 import { DefaultThreadStoreAuth } from "../DefaultThreadStoreAuth.js";
 import { YjsThreadStore } from "./YjsThreadStore.js";
 
-// Mock crypto.randomUUID to generate sequential IDs
+// Mock UUID to generate sequential IDs
 let mockUuidCounter = 0;
-const randomUUIDSpy = vi.spyOn(crypto, "randomUUID").mockImplementation(
-  () => `mocked-uuid-${++mockUuidCounter}` as `${string}-${string}-${string}-${string}-${string}`,
-);
-
-afterAll(() => {
-  randomUUIDSpy.mockRestore();
-});
+vi.mock("lib0/random", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("lib0/random")>()),
+  uuidv4: () => `mocked-uuid-${++mockUuidCounter}`,
+}));
 
 describe("YjsThreadStore", () => {
   let store: YjsThreadStore;

@@ -1,4 +1,5 @@
 import * as Y from "yjs";
+import { uuidv4 } from "lib0/random";
 import { CommentBody, CommentData, ThreadData } from "../../types.js";
 import { ThreadStoreAuth } from "../ThreadStoreAuth.js";
 import { YjsThreadStoreBase } from "./YjsThreadStoreBase.js";
@@ -56,7 +57,7 @@ export class YjsThreadStore extends YjsThreadStoreBase {
 
       const comment: CommentData = {
         type: "comment",
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         userId: this.userId,
         createdAt: date,
         updatedAt: date,
@@ -67,7 +68,7 @@ export class YjsThreadStore extends YjsThreadStoreBase {
 
       const thread: ThreadData = {
         type: "thread",
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         createdAt: date,
         updatedAt: date,
         comments: [comment],
@@ -104,7 +105,7 @@ export class YjsThreadStore extends YjsThreadStoreBase {
       const date = new Date();
       const comment: CommentData = {
         type: "comment",
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         userId: this.userId,
         createdAt: date,
         updatedAt: date,

@@ -73,7 +73,7 @@ export default function App() {
       doc.getMap("threads"),
       new DefaultThreadStoreAuth(activeUser.id, activeUser.role),
     );
-  }, [doc, activeUser]);
+  }, [activeUser]);
 
   // setup the editor with comments and collaboration
   const editor = useCreateBlockNote(

@@ -43,7 +43,7 @@ test.describe("Check Comments functionality", () => {
     await page.locator(".bn-thread-comment").first().hover();
     await page.click(".bn-comment-add-reaction");
     await expect(page.locator(EMOJI_BUTTON_SELECTOR).first()).toBeVisible();
-    
+
     // Pick a different emoji so it's added as a new reaction rather than
     // toggling the first one off.
     await page.locator(EMOJI_BUTTON_SELECTOR).nth(5).click();

@@ -3,7 +3,7 @@ import {
   BlockNoteSchema,
   PartialBlock,
 } from "@blocknote/core";
-import { afterAll, beforeAll, beforeEach } from "vitest";
+import { afterAll, beforeAll, beforeEach } from "vite-plus/test";
 
 import { ColumnBlock, ColumnListBlock } from "../blocks/Columns/index.js";
 

@@ -46,41 +46,35 @@
     }
   },
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "lint": "eslint src --max-warnings 0",
-    "test": "vitest --run",
-    "test-watch": "vitest watch",
+    "dev": "vp dev",
+    "lint": "vp lint src",
+    "test": "vp test --run",
+    "test-watch": "vp test watch",
+    "clean": "rimraf dist && rimraf types",
     "email": "email dev"
   },
   "dependencies": {
-    "@blocknote/core": "0.51.4",
+    "@blocknote/core": "workspace:^",
     "@react-email/components": "^1.0.5",
     "@react-email/render": "^2.0.4",
     "web-streams-polyfill": "^4.2.0"
   },
   "devDependencies": {
+    "@blocknote/shared": "workspace:^",
     "@types/jsdom": "^21.1.7",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-email": "^5.2.5",
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
-    "eslint": "^8.57.1",
+    "rimraf": "^5.0.10",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^5.9.3",
-    "vite": "^8.0.8",
-    "vite-plugin-eslint": "^1.8.1",
-    "vitest": "^4.1.2"
+    "vite-plus": "catalog:"
   },
   "peerDependencies": {
     "react": "^18.0 || ^19.0 || >= 19.0.0-rc",
     "react-dom": "^18.0 || ^19.0 || >= 19.0.0-rc"
-  },
-  "eslintConfig": {
-    "extends": [
-      "../../.eslintrc.json"
-    ]
   },
   "gitHead": "37614ab348dcc7faa830a9a88437b37197a2162d"
 }
