@@ -18,6 +18,16 @@ export default defineConfig(
               { pattern: "!**/*.tsbuildinfo", base: "workspace" },
             ],
           },
+          test: {
+            command:
+              'NODE_EXTRA_CA_CERTS="$(mkcert -CAROOT)/rootCA.pem" vp test --run',
+            input: [
+              { auto: true },
+              { pattern: "!**/.vite-temp/**", base: "workspace" },
+              { pattern: "!**/node_modules/.vite/**", base: "workspace" },
+              { pattern: "!**/*.tsbuildinfo", base: "workspace" },
+            ],
+          },
         },
       },
       test: {

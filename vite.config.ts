@@ -136,7 +136,6 @@ export default defineConfig({
       "**/playwright-report/**",
       "**/blob-report/**",
       "**/*.mdx",
-      "playground/src/examples.gen.tsx",
       "pnpm-lock.yaml",
     ],
   },
