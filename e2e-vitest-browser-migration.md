@@ -54,7 +54,7 @@ beforeEach(() => {
 ## New dependencies (`tests/package.json`)
 
 - **`vitest-browser-react`** — provides `render` (+ auto-cleanup between tests). Required; Vite Plus bundles the runner + Playwright provider but not a framework render helper. Use a Vitest-4-compatible version (add via the workspace `catalog:` like `vite-plus`).
-- **`playwright`** — add explicitly. The provider runs `await import('playwright')` and bare `playwright` is **not** currently resolvable (only `@playwright/test` is). Pin to the existing `1.51.1`.
+- **`playwright`** — add explicitly. The provider runs `await import('playwright')` and bare `playwright` is **not** currently resolvable (only `@playwright/test` is). Pin to the existing `1.60.0`.
 - **Remove** `@playwright/experimental-ct-react`. `@playwright/test` can also be removed once nothing imports from it (keep `playwright` only).
 
 ---

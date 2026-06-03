@@ -4,7 +4,6 @@
   "version": "0.30.0",
   "scripts": {
     "lint": "vp lint src",
-    "test": "vp test --run",
     "test:e2e": "vp test -c vite.config.browser.ts --run",
     "test:e2e:updateSnaps": "vp test -c vite.config.browser.ts --run -u",
     "clean": "rimraf dist"
@@ -15,7 +14,7 @@
     "@blocknote/mantine": "workspace:^",
     "@blocknote/react": "workspace:^",
     "@blocknote/shadcn": "workspace:^",
-    "@playwright/test": "1.51.1",
+    "@playwright/test": "1.60.0",
     "@tailwindcss/vite": "^4.1.14",
     "@tiptap/pm": "^3.13.0",
     "@types/node": "^20.19.22",

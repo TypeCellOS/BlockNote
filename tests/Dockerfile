@@ -19,7 +19,7 @@
 #
 #   Build:  pnpm e2e:image           (rebuild only after dependency changes)
 #   Run:    pnpm e2e / e2e:ui / e2e:updateSnaps   (bind-mount live source)
-FROM mcr.microsoft.com/playwright:v1.51.1-noble
+FROM mcr.microsoft.com/playwright:v1.60.0-noble
 
 WORKDIR /work
 

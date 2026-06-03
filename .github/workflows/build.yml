@@ -65,7 +65,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     container:
-      image: mcr.microsoft.com/playwright:v1.51.1-noble
+      image: mcr.microsoft.com/playwright:v1.60.0-noble
     strategy:
       fail-fast: false
       matrix:
@@ -121,7 +121,7 @@ jobs:
     # launch browsers, but the HTML reporter still resolves the test files'
     # browser environment, so the browser config must stay enabled (and present).
     container:
-      image: mcr.microsoft.com/playwright:v1.51.1-noble
+      image: mcr.microsoft.com/playwright:v1.60.0-noble
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
