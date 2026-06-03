@@ -192,6 +192,32 @@ test.describe("Check Copy/Paste Functionality", () => {
 
     await compareDocToSnapshot(page, "images.json");
   });
+
+  test("Image as first block should be able to be copied using Ctrl+A", async ({
+    page,
+    browserName,
+  }) => {
+    test.skip(
+      browserName === "firefox" || browserName === "webkit",
+      "Firefox doesn't yet support the async clipboard API. Webkit copy/paste stopped working after updating to Playwright 1.33.",
+    );
+  
+    await focusOnEditor(page);
+  
+    const IMAGE_EMBED_URL = "https://placehold.co/800x540.png";
+    await executeSlashCommand(page, "image");
+  
+    await page.click(`[data-test="embed-tab"]`);
+    await page.click(`[data-test="embed-input"]`);
+    await page.keyboard.type(IMAGE_EMBED_URL);
+    await page.click(`[data-test="embed-input-button"]`);
+    await page.waitForSelector(`img[src="${IMAGE_EMBED_URL}"]`);
+  
+    await copyPasteAll(page);
+  
+    await compareDocToSnapshot(page, "imageAsFirstBlock.json");
+  });
+
 });
 
 test.describe("Check Copy/Paste From Non-Editable Block", () => {

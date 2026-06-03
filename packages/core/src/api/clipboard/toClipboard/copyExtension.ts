@@ -1,5 +1,5 @@
 import { Extension } from "@tiptap/core";
-import { Fragment, Node } from "prosemirror-model";
+import { Fragment, Node, Slice } from "prosemirror-model";
 import { NodeSelection, Plugin } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
 import type { EditorView } from "prosemirror-view";
@@ -127,12 +127,22 @@ export function selectedFragmentToHTML<
     );
   }
 
+  const originalSlice = view.state.selection.content();
+
+  // When AllSelection is used, ProseMirror wraps contents in blockGroup node.
+  // Unwrap it to avoid nested blocks when pasting.
+
+  let selectedFragment = originalSlice.content;
+
+  if (selectedFragment.childCount === 1 && 
+    selectedFragment.firstChild?.type.name === "blockGroup") {
+      selectedFragment = selectedFragment.firstChild.content;
+    }
+
   // Uses default ProseMirror clipboard serialization.
   const clipboardHTML: string = view.serializeForClipboard(
-    view.state.selection.content(),
+    new Slice(selectedFragment, originalSlice.openStart, originalSlice.openEnd)
   ).dom.innerHTML;
-
-  const selectedFragment = view.state.selection.content().content;
 
   const externalHTML = fragmentToExternalHTML<BSchema, I, S>(
     view,
