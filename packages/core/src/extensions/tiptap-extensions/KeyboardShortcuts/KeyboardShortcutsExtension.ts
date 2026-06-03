@@ -1,6 +1,6 @@
 import { Extension } from "@tiptap/core";
 import { Fragment, Node } from "prosemirror-model";
-import { TextSelection } from "prosemirror-state";
+import { AllSelection, TextSelection } from "prosemirror-state";
 
 import {
   getBottomNestedBlockInfo,
@@ -977,6 +977,17 @@ export const KeyboardShortcutsExtension = Extension.create<{
       "Mod-z": () => this.options.editor.undo(),
       "Mod-y": () => this.options.editor.redo(),
       "Shift-Mod-z": () => this.options.editor.redo(),
+      // Forces AllSelection from pos 0 to include non-editable blocks (e.g. images) that
+      // TextSelection would skip.
+      "Mod-a": () => {
+        const { doc } = this.options.editor.prosemirrorState;
+        this.options.editor.prosemirrorView?.dispatch(
+          this.options.editor.prosemirrorState.tr.setSelection(
+            new AllSelection(doc)
+          )
+        );
+        return true;
+      },
     };
   },
 });

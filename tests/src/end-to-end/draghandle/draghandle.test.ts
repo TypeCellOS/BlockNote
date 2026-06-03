@@ -244,4 +244,18 @@ test.describe("Check Draghandle functionality", () => {
 
     await compareDocToSnapshot(page, "draghandlenesteddelete");
   });
+
+  test("Hovering over column nested in toggle block should show draghandle", async () => {
+    await executeSlashCommand(page, "togglelist");
+    await page.keyboard.type("Toggle heading");
+    await page.keyboard.press("Enter");
+    await executeSlashCommand(page, "two");
+    await page.keyboard.type("Left column content");
+    const leftColumn = await page.locator(".bn-block-column").first();
+    await moveMouseOverElement(page, leftColumn);
+    await page.waitForSelector(DRAG_HANDLE_SELECTOR);
+    await page.click(DRAG_HANDLE_SELECTOR);
+    await page.waitForSelector(DRAG_HANDLE_MENU_SELECTOR);
+  });
+
 });

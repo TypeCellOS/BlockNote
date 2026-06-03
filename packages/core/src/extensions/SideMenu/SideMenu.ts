@@ -47,13 +47,18 @@ function getBlockFromCoords(
       continue;
     }
     if (adjustForColumns) {
-      const column = element.closest("[data-node-type=columnList]");
+      const column = element.closest("[data-node-type=column]");
       if (column) {
+
+        const columnRect = column.getBoundingClientRect();
+
         return getBlockFromCoords(
           view,
           {
-            // TODO can we do better than this?
-            left: coords.left + 50, // bit hacky, but if we're inside a column, offset x position to right to account for the width of sidemenu itself
+            left: Math.min(
+              Math.max(columnRect.left + 10, coords.left + 20),
+              columnRect.right - 10,
+            ),
             top: coords.top,
           },
           false,
@@ -99,6 +104,21 @@ function getBlockFromMousePos(
   if (!referenceBlock) {
     // could not find the reference block
     return undefined;
+  }
+
+  const column = referenceBlock.node.closest("[data-node-type=column]");
+
+  if (column) {
+    const columnRect = column.getBoundingClientRect();
+
+    return getBlockFromCoords(
+      view,
+      {
+        left: Math.min(columnRect.left + 20, columnRect.right - 10),
+        top: mousePos.y,
+      },
+      false,
+    );
   }
 
   /**
@@ -249,7 +269,7 @@ export class SideMenuView<
               // padding. This is a little weird since this child element will
               // be the first block, but since it's always non-nested and we
               // only take the x coordinate, it's ok.
-              column.firstElementChild!.getBoundingClientRect().x
+              column.getBoundingClientRect().x
             : (
                 this.pmView.dom.firstChild as HTMLElement
               ).getBoundingClientRect().x,
@@ -601,6 +621,12 @@ export class SideMenuView<
     }
 
     this.mousePos = { x: event.clientX, y: event.clientY };
+
+    const target = event.target as HTMLElement | null;
+
+    if (target?.closest(".bn-side-menu")) {
+        return;
+    }
 
     // We want the full area of the editor to check if the cursor is hovering
     // above it though.
