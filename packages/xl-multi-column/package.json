@@ -58,6 +58,7 @@
     "prosemirror-view": "^1.41.4"
   },
   "devDependencies": {
+    "@blocknote/shared": "workspace:^",
     "react-icons": "^5.5.0",
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",

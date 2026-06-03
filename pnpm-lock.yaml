@@ -5050,6 +5050,9 @@ importers:
       '@ai-sdk/openai-compatible':
         specifier: ^2.0.2
         version: 2.0.2(zod@4.3.6)
+      '@blocknote/shared':
+        specifier: workspace:^
+        version: link:../../shared
       '@blocknote/xl-multi-column':
         specifier: workspace:^
         version: link:../xl-multi-column
@@ -5187,6 +5190,9 @@ importers:
         specifier: ^0.2.2
         version: 0.2.2
     devDependencies:
+      '@blocknote/shared':
+        specifier: workspace:^
+        version: link:../../shared
       '@types/react':
         specifier: ^19.2.3
         version: 19.2.14
@@ -5233,6 +5239,9 @@ importers:
         specifier: ^4.2.0
         version: 4.2.0
     devDependencies:
+      '@blocknote/shared':
+        specifier: workspace:^
+        version: link:../../shared
       '@types/jsdom':
         specifier: ^21.1.7
         version: 21.1.7
@@ -5285,6 +5294,9 @@ importers:
         specifier: ^1.41.4
         version: 1.41.8
     devDependencies:
+      '@blocknote/shared':
+        specifier: workspace:^
+        version: link:../../shared
       '@types/react':
         specifier: ^19.2.3
         version: 19.2.14
@@ -5331,6 +5343,9 @@ importers:
         specifier: ^0.2.2
         version: 0.2.2
     devDependencies:
+      '@blocknote/shared':
+        specifier: workspace:^
+        version: link:../../shared
       '@testing-library/react':
         specifier: ^16.3.0
         version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -5374,6 +5389,9 @@ importers:
         specifier: ^4.3.0
         version: 4.3.2(react@19.2.5)
     devDependencies:
+      '@blocknote/shared':
+        specifier: workspace:^
+        version: link:../../shared
       '@testing-library/react':
         specifier: ^16.3.0
         version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
