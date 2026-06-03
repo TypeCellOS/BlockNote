@@ -33,6 +33,34 @@ test.describe("Check Comments functionality", () => {
     await expect(await page.locator("span.bn-thread-mark")).toBeVisible();
   });
 
+  test("Should preserve existing comments when adding a code mark", async ({
+    page,
+  }) => {
+    await focusOnEditor(page);
+
+    await page.keyboard.type("hello");
+    await page.locator("text=hello").dblclick();
+
+    await page.click('[data-test="addcomment"]');
+    await page.waitForSelector(".bn-thread");
+
+    await page.keyboard.type("test comment");
+    await page.click('button[data-test="save"]');
+
+    // Re-select the commented text and toggle inline code on it (Cmd/Ctrl+E).
+    await page.locator("span.bn-thread-mark").first().dblclick();
+    await page.keyboard.press("ControlOrMeta+e");
+
+    // The comment must be preserved, and the text must now also be inline code,
+    // i.e. the comment and code marks coexist on the same text.
+    await expect(page.locator("span.bn-thread-mark")).toBeVisible();
+    await expect(
+      page
+        .locator("span.bn-thread-mark code, code span.bn-thread-mark")
+        .first(),
+    ).toBeVisible();
+  });
+
   test("Should select thread on first click and open link on second click", async ({
     browserName,
     page,
