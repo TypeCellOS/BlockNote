@@ -284,6 +284,10 @@ inline styles, it is added to the base z-index. */
   height: 54px;
 }
 
+.bn-side-menu[data-block-type="table"] {
+  height: 60px;
+}
+
 /* Thread sidebar styling */
 .bn-threads-sidebar {
   border-radius: var(--bn-border-radius-medium);
