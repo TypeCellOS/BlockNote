@@ -12,7 +12,10 @@ import { Fragment, Slice } from "@tiptap/pm/model";
 import { undo } from "@tiptap/pm/history";
 import { describe, expect, it } from "vitest";
 import { getBlockInfoWithManualOffset } from "../api/getBlockInfoFromPos.js";
-import { moveBlocksDown, moveBlocksUp } from "../api/blockManipulation/commands/moveBlocks/moveBlocks.js";
+import {
+  moveBlocksDown,
+  moveBlocksUp,
+} from "../api/blockManipulation/commands/moveBlocks/moveBlocks.js";
 import { prosemirrorSliceToSlicedBlocks } from "../api/nodeConversions/nodeToBlock.js";
 import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 
@@ -44,8 +47,8 @@ function createMountedEditor() {
 }
 
 /**
- * Injects a suggestion-paragraph BEFORE the paragraph inside the first blockContainer.
- * Result: blockContainer[suggestion-paragraph, paragraph]
+ * Injects a paragraph--attributed BEFORE the paragraph inside the first blockContainer.
+ * Result: blockContainer[paragraph--attributed, paragraph]
  */
 function injectSuggestionBefore(
   editor: BlockNoteEditor<any, any, any>,
@@ -56,7 +59,7 @@ function injectSuggestionBefore(
   editor.transact((tr) => {
     const { nodes } = editor.pmSchema;
 
-    const suggestionParagraph = nodes["suggestion-paragraph"].create(
+    const suggestionParagraph = nodes["paragraph--attributed"].create(
       SUGGESTION_PARA_ATTRS,
       suggestionText ? [editor.pmSchema.text(suggestionText)] : [],
     );
@@ -78,8 +81,8 @@ function injectSuggestionBefore(
 }
 
 /**
- * Injects a suggestion-paragraph AFTER the paragraph inside the first blockContainer.
- * Result: blockContainer[paragraph, suggestion-paragraph]
+ * Injects a paragraph--attributed AFTER the paragraph inside the first blockContainer.
+ * Result: blockContainer[paragraph, paragraph--attributed]
  */
 function injectSuggestionAfter(
   editor: BlockNoteEditor<any, any, any>,
@@ -95,7 +98,7 @@ function injectSuggestionAfter(
       mainText ? [editor.pmSchema.text(mainText)] : [],
     );
 
-    const suggestionParagraph = nodes["suggestion-paragraph"].create(
+    const suggestionParagraph = nodes["paragraph--attributed"].create(
       SUGGESTION_PARA_ATTRS,
       suggestionText ? [editor.pmSchema.text(suggestionText)] : [],
     );
@@ -112,8 +115,8 @@ function injectSuggestionAfter(
 }
 
 /**
- * Injects suggestion-paragraphs on BOTH sides of the paragraph.
- * Result: blockContainer[suggestion-paragraph, paragraph, suggestion-paragraph]
+ * Injects paragraph--attributeds on BOTH sides of the paragraph.
+ * Result: blockContainer[paragraph--attributed, paragraph, paragraph--attributed]
  */
 function injectSuggestionBoth(
   editor: BlockNoteEditor<any, any, any>,
@@ -125,7 +128,7 @@ function injectSuggestionBoth(
   editor.transact((tr) => {
     const { nodes } = editor.pmSchema;
 
-    const beforeSuggestion = nodes["suggestion-paragraph"].create(
+    const beforeSuggestion = nodes["paragraph--attributed"].create(
       SUGGESTION_PARA_ATTRS,
       beforeText ? [editor.pmSchema.text(beforeText)] : [],
     );
@@ -135,7 +138,7 @@ function injectSuggestionBoth(
       mainText ? [editor.pmSchema.text(mainText)] : [],
     );
 
-    const afterSuggestion = nodes["suggestion-paragraph"].create(
+    const afterSuggestion = nodes["paragraph--attributed"].create(
       SUGGESTION_PARA_ATTRS,
       afterText ? [editor.pmSchema.text(afterText)] : [],
     );
@@ -183,7 +186,7 @@ function injectTwoBlocks(
 
       if (suggBefore !== undefined) {
         children.push(
-          nodes["suggestion-paragraph"].create(
+          nodes["paragraph--attributed"].create(
             SUGGESTION_PARA_ATTRS,
             suggBefore ? [editor.pmSchema.text(suggBefore)] : [],
           ),
@@ -199,7 +202,7 @@ function injectTwoBlocks(
 
       if (suggAfter !== undefined) {
         children.push(
-          nodes["suggestion-paragraph"].create(
+          nodes["paragraph--attributed"].create(
             SUGGESTION_PARA_ATTRS,
             suggAfter ? [editor.pmSchema.text(suggAfter)] : [],
           ),
@@ -248,7 +251,7 @@ function injectBlockWithChildren(
 
     if (opts.suggestionBefore !== undefined) {
       children.push(
-        nodes["suggestion-paragraph"].create(
+        nodes["paragraph--attributed"].create(
           SUGGESTION_PARA_ATTRS,
           opts.suggestionBefore
             ? [editor.pmSchema.text(opts.suggestionBefore)]
@@ -266,7 +269,7 @@ function injectBlockWithChildren(
 
     if (opts.suggestionAfter !== undefined) {
       children.push(
-        nodes["suggestion-paragraph"].create(
+        nodes["paragraph--attributed"].create(
           SUGGESTION_PARA_ATTRS,
           opts.suggestionAfter
             ? [editor.pmSchema.text(opts.suggestionAfter)]
@@ -366,7 +369,7 @@ describe("Tier 1 - prosemirrorSliceToSlicedBlocks with suggestion nodes", () => 
   it("should correctly identify blockGroup when suggestion node is between blockContent and blockGroup", () => {
     const { editor, destroy } = createMountedEditor();
 
-    // suggestion-paragraph + paragraph + blockGroup
+    // paragraph--attributed + paragraph + blockGroup
     injectBlockWithChildren(editor, {
       mainText: "Main",
       childText: "Child block",
@@ -392,7 +395,7 @@ describe("Tier 1 - prosemirrorSliceToSlicedBlocks with suggestion nodes", () => 
   it("should handle suggestion-before + blockContent without blockGroup (childCount=2) without mistaking suggestion for blockGroup", () => {
     const { editor, destroy } = createMountedEditor();
 
-    // Create blockContainer with [suggestion-paragraph, paragraph] — no blockGroup
+    // Create blockContainer with [paragraph--attributed, paragraph] — no blockGroup
     injectSuggestionBefore(editor, "Deleted", "Main");
 
     const doc = editor.prosemirrorState.doc;
@@ -440,7 +443,7 @@ describe("Tier 2A-B - getBlockInfoWithManualOffset suggestion awareness", () => 
     // NEW: should have suggestionBefore
     expect((blockInfo as any).suggestionBefore).toBeDefined();
     expect((blockInfo as any).suggestionBefore.node.type.name).toBe(
-      "suggestion-paragraph",
+      "paragraph--attributed",
     );
     expect((blockInfo as any).suggestionBefore.node.textContent).toBe(
       "Deleted",
@@ -467,7 +470,7 @@ describe("Tier 2A-B - getBlockInfoWithManualOffset suggestion awareness", () => 
     // NEW: should have suggestionAfter
     expect((blockInfo as any).suggestionAfter).toBeDefined();
     expect((blockInfo as any).suggestionAfter.node.type.name).toBe(
-      "suggestion-paragraph",
+      "paragraph--attributed",
     );
     expect((blockInfo as any).suggestionAfter.node.textContent).toBe("Added");
 
@@ -773,7 +776,7 @@ describe("Tier 2E - Delete handler childCount assumption with suggestions", () =
 
     // Create a doc with:
     // Block 1: paragraph("First") — cursor at end
-    // Block 2: suggestion-paragraph("Deleted") + paragraph("") + blockGroup([child])
+    // Block 2: paragraph--attributed("Deleted") + paragraph("") + blockGroup([child])
     editor.transact((tr) => {
       const { nodes } = editor.pmSchema;
 
@@ -790,7 +793,7 @@ describe("Tier 2E - Delete handler childCount assumption with suggestions", () =
       const blockGroup = nodes.blockGroup.create(null, [childContainer]);
 
       const bc2 = nodes.blockContainer.create({ id: "block-2" }, [
-        nodes["suggestion-paragraph"].create(SUGGESTION_PARA_ATTRS, [
+        nodes["paragraph--attributed"].create(SUGGESTION_PARA_ATTRS, [
           editor.pmSchema.text("Deleted"),
         ]),
         nodes.paragraph.create(PARA_ATTRS), // empty paragraph
@@ -957,7 +960,7 @@ describe("Tier 3A - splitBlock with suggestion nodes", () => {
 
     // The suggestion should be preserved intact (not split)
     const suggNode = firstBc.firstChild!;
-    expect(suggNode.type.name).toBe("suggestion-paragraph");
+    expect(suggNode.type.name).toBe("paragraph--attributed");
     expect(suggNode.textContent).toBe("Hello suggestion");
 
     // First block's blockContent should be empty (split at start of blockContent)
@@ -988,8 +991,7 @@ describe("Tier 3B - mergeBlocks with suggestion nodes", () => {
     // Position cursor at start of block-2's leading suggestion (= effective block start)
     const doc = editor.prosemirrorState.doc;
     const block2 = doc.firstChild!.child(1);
-    const block2Offset =
-      1 + doc.firstChild!.firstChild!.nodeSize; // after blockGroup open + block1
+    const block2Offset = 1 + doc.firstChild!.firstChild!.nodeSize; // after blockGroup open + block1
     const block2Info = getBlockInfoWithManualOffset(block2, block2Offset);
     if (block2Info.isBlockContainer && (block2Info as any).suggestionBefore) {
       const pos = (block2Info as any).suggestionBefore.beforePos + 1;
@@ -1114,7 +1116,7 @@ describe("Tier 5A - getBlockFromPos stub block", () => {
 
     // The suggestion node is the first child
     const suggNode = bc.firstChild!;
-    expect(suggNode.type.name).toBe("suggestion-paragraph");
+    expect(suggNode.type.name).toBe("paragraph--attributed");
 
     // Note: We can't easily call getBlockFromPos directly without a NodeView context.
     // But we can verify the mechanism: when resolving the suggestion node's position,
@@ -1175,8 +1177,8 @@ describe("Tier 5C - Placeholder with suggestion nodes", () => {
 describe("Integration - Multi-block scenarios with suggestion nodes", () => {
   /**
    * Helper: creates the 3-block document from App.tsx:
-   * Block 1: [suggestion-paragraph("Hello from suggestion!"), paragraph("Hello from main!")]
-   * Block 2: [paragraph("Second block main"), suggestion-paragraph("Trailing suggestion")]
+   * Block 1: [paragraph--attributed("Hello from suggestion!"), paragraph("Hello from main!")]
+   * Block 2: [paragraph("Second block main"), paragraph--attributed("Trailing suggestion")]
    * Block 3: [paragraph("Third block, no suggestions")]
    */
   function injectThreeBlocks(editor: BlockNoteEditor<any, any, any>) {
@@ -1184,7 +1186,7 @@ describe("Integration - Multi-block scenarios with suggestion nodes", () => {
       const { nodes } = editor.pmSchema;
 
       const bc1 = nodes.blockContainer.create({ id: "block-1" }, [
-        nodes["suggestion-paragraph"].create(SUGGESTION_PARA_ATTRS, [
+        nodes["paragraph--attributed"].create(SUGGESTION_PARA_ATTRS, [
           editor.pmSchema.text("Hello from suggestion!"),
         ]),
         nodes.paragraph.create(PARA_ATTRS, [
@@ -1196,7 +1198,7 @@ describe("Integration - Multi-block scenarios with suggestion nodes", () => {
         nodes.paragraph.create(PARA_ATTRS, [
           editor.pmSchema.text("Second block main"),
         ]),
-        nodes["suggestion-paragraph"].create(SUGGESTION_PARA_ATTRS, [
+        nodes["paragraph--attributed"].create(SUGGESTION_PARA_ATTRS, [
           editor.pmSchema.text("Trailing suggestion"),
         ]),
       ]);
@@ -1375,8 +1377,7 @@ describe("Integration - Multi-block scenarios with suggestion nodes", () => {
     const block1 = doc.firstChild!.firstChild!;
     const block1Info = getBlockInfoWithManualOffset(block1, 1);
     if (block1Info.isBlockContainer && (block1Info as any).suggestionBefore) {
-      const suggPos =
-        (block1Info as any).suggestionBefore.beforePos + 1 + 5;
+      const suggPos = (block1Info as any).suggestionBefore.beforePos + 1 + 5;
       editor._tiptapEditor.commands.setTextSelection(suggPos);
     }
 
@@ -1456,7 +1457,7 @@ describe("Integration - Multi-block scenarios with suggestion nodes", () => {
     const view = editor._tiptapEditor.view;
     editor.transact((tr) => {
       const { nodes } = editor.pmSchema;
-      const suggestionParagraph = nodes["suggestion-paragraph"].create(
+      const suggestionParagraph = nodes["paragraph--attributed"].create(
         SUGGESTION_PARA_ATTRS,
         [editor.pmSchema.text("Original suggestion")],
       );
@@ -1521,7 +1522,7 @@ describe("Integration - Multi-block scenarios with suggestion nodes", () => {
         nodes.paragraph.create(PARA_ATTRS, [editor.pmSchema.text("First")]),
       ]);
       const bc2 = nodes.blockContainer.create({ id: "block-2" }, [
-        nodes["suggestion-paragraph"].create(SUGGESTION_PARA_ATTRS, [
+        nodes["paragraph--attributed"].create(SUGGESTION_PARA_ATTRS, [
           editor.pmSchema.text("Deleted"),
         ]),
         nodes.paragraph.create(PARA_ATTRS, [editor.pmSchema.text("Second")]),
@@ -1539,9 +1540,7 @@ describe("Integration - Multi-block scenarios with suggestion nodes", () => {
     const block2Info = getBlockInfoWithManualOffset(block2, block2Offset);
     if (block2Info.isBlockContainer && (block2Info as any).suggestionBefore) {
       const suggBefore = (block2Info as any).suggestionBefore;
-      editor._tiptapEditor.commands.setTextSelection(
-        suggBefore.beforePos + 1,
-      );
+      editor._tiptapEditor.commands.setTextSelection(suggBefore.beforePos + 1);
     }
 
     editor._tiptapEditor.commands.keyboardShortcut("Backspace");
@@ -1597,7 +1596,7 @@ describe("Integration - Multi-block scenarios with suggestion nodes", () => {
     // Verify the mark was applied
     const newDoc = editor.prosemirrorState.doc;
     const suggestion = newDoc.firstChild!.firstChild!.firstChild!;
-    expect(suggestion.type.name).toBe("suggestion-paragraph");
+    expect(suggestion.type.name).toBe("paragraph--attributed");
     // First child should be text with bold mark
     const firstChild = suggestion.firstChild!;
     expect(firstChild.text).toBe("Hello");
@@ -1663,7 +1662,7 @@ describe("moveBlocks with suggestion nodes", () => {
 
     // Create 2 blocks:
     // block-1: plain paragraph "First"
-    // block-2: [suggestion-paragraph("Deleted"), paragraph("Second")]
+    // block-2: [paragraph--attributed("Deleted"), paragraph("Second")]
     injectTwoBlocks(editor, {
       block1: { mainText: "First" },
       block2: { mainText: "Second", suggestionBefore: "Deleted" },
@@ -1709,7 +1708,7 @@ describe("moveBlocks with suggestion nodes", () => {
     const { editor, destroy } = createMountedEditor();
 
     // Create 2 blocks:
-    // block-1: [paragraph("First"), suggestion-paragraph("Added")]
+    // block-1: [paragraph("First"), paragraph--attributed("Added")]
     // block-2: plain paragraph "Second"
     editor.transact((tr) => {
       const { nodes } = editor.pmSchema;
@@ -1717,7 +1716,7 @@ describe("moveBlocks with suggestion nodes", () => {
       const para1 = nodes.paragraph.create(PARA_ATTRS, [
         editor.pmSchema.text("First"),
       ]);
-      const suggestion = nodes["suggestion-paragraph"].create(
+      const suggestion = nodes["paragraph--attributed"].create(
         SUGGESTION_PARA_ATTRS,
         [editor.pmSchema.text("Added")],
       );
@@ -1775,14 +1774,14 @@ describe("moveBlocks with suggestion nodes", () => {
     editor.transact((tr) => {
       const { nodes } = editor.pmSchema;
 
-      const suggBefore = nodes["suggestion-paragraph"].create(
+      const suggBefore = nodes["paragraph--attributed"].create(
         SUGGESTION_PARA_ATTRS,
         [editor.pmSchema.text("Before")],
       );
       const para1 = nodes.paragraph.create(PARA_ATTRS, [
         editor.pmSchema.text("Main"),
       ]);
-      const suggAfter = nodes["suggestion-paragraph"].create(
+      const suggAfter = nodes["paragraph--attributed"].create(
         SUGGESTION_PARA_ATTRS,
         [editor.pmSchema.text("After")],
       );
