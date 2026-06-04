@@ -236,6 +236,7 @@ export function getSelectionCutBlocks(tr: Transaction, expandToWords = false) {
   // the correct information about whether content is cut at the start or end of a block
 
   // if the end is at the end of a node (|</span></p>) move it forward so we include all closing tags (</span></p>|)
+  // end.parent may be a suggestion shadow node when crossing a block boundary
   while (end.parentOffset >= end.parent.nodeSize - 2 && end.depth > 0) {
     end = tr.doc.resolve(end.pos + 1);
   }
@@ -251,6 +252,7 @@ export function getSelectionCutBlocks(tr: Transaction, expandToWords = false) {
   }
 
   // if the start is at the end of a node (|</p><p><span>|) move it forwards so we drop all closing tags (|<p><span>)
+  // start.parent may be a suggestion shadow node when crossing a block boundary
   while (start.parentOffset >= start.parent.nodeSize - 2 && start.depth > 0) {
     start = tr.doc.resolve(start.pos + 1);
   }

@@ -58,8 +58,10 @@ export function getBlockDropRect(
     return null;
   }
 
+  // nodeBefore may be a suggestion node, not blockContent
   const before = $pos.nodeBefore;
 
+  // nodeAfter may be a suggestion node, not blockContent
   const after = $pos.nodeAfter;
 
   if (!before && !after) {

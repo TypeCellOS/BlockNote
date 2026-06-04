@@ -482,7 +482,7 @@ export function nodeToBlock<
     throw new UnreachableCaseError(blockConfig.content);
   }
 
-  // (Affects ~9) strips suggestion state, Block API is suggestion-blind
+  // (Affects ~23 callsites) strips suggestion state, Block API is suggestion-blind
   const block = {
     id,
     type: blockConfig.type,

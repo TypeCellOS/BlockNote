@@ -47,6 +47,7 @@ export function insertContentAt(
   // replace an empty paragraph by an inserted image
   // instead of inserting the image below the paragraph
   if (from === to && isOnlyBlockContent) {
+    // parent may be an empty suggestion shadow node, not blockContent
     const { parent } = tr.doc.resolve(from);
     const isEmptyTextBlock =
       parent.isTextblock && !parent.type.spec.code && !parent.childCount;

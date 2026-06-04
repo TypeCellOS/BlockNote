@@ -41,6 +41,7 @@ export type BlockInfo = {
        * Whether bnBlock is a blockContainer node
        */
       isBlockContainer: true;
+      // (Affects ~58 callsites) consumers use blockContent/bnBlock but never branch on suggestionBefore/After
       /**
        * A suggestion node that appears before the blockContent, if present.
        * Suggestion nodes have group "suggestionBlockContent" and are used for

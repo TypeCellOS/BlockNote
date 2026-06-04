@@ -127,7 +127,6 @@ export function updateBlockTr<
     // currently, we calculate the new node and replace the entire node with the desired new node.
     // for this, we do a nodeToBlock on the existing block to get the children.
     // it would be cleaner to use a ReplaceAroundStep, but this is a bit simpler and it's quite an edge case
-    // nodeToBlock→blockToNode round-trip drops suggestion nodes
     const existingBlock = nodeToBlock(blockInfo.bnBlock.node, pmSchema);
     const replacementNode = blockToNode(
       {

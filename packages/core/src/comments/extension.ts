@@ -229,6 +229,7 @@ export const CommentsExtension = createExtension(
                 return false;
               }
 
+              // click may land in a suggestion shadow node, resolving its comment marks
               const node = view.state.doc.nodeAt(pos);
 
               if (!node) {

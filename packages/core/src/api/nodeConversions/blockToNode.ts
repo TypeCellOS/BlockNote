@@ -321,7 +321,7 @@ function blockOrInlineContentToContentNode(
 /**
  * Converts a BlockNote block to a Prosemirror node.
  */
-// (Affects ~4) emits no suggestion nodes, round-trips drop suggestions
+// (Affects ~7 callsites) emits no suggestion nodes, round-trips drop suggestions
 export function blockToNode(
   block: PartialBlock<any, any, any>,
   schema: Schema,
