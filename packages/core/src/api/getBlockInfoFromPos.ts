@@ -158,7 +158,7 @@ export function getBlockInfoWithManualOffset(
     let foundBlockContent = false;
 
     bnBlockNode.forEach((node, offset) => {
-      if (node.type.spec.group === "blockContent") {
+      if (node.type.isInGroup("blockContent")) {
         // console.log(beforePos, offset);
         const blockContentNode = node;
         const blockContentBeforePos = bnBlockBeforePos + offset + 1;
@@ -170,7 +170,7 @@ export function getBlockInfoWithManualOffset(
           afterPos: blockContentAfterPos,
         };
         foundBlockContent = true;
-      } else if (node.type.name === "blockGroup") {
+      } else if (node.type.isInGroup("blockGroupChild")) {
         const blockGroupNode = node;
         const blockGroupBeforePos = bnBlockBeforePos + offset + 1;
         const blockGroupAfterPos = blockGroupBeforePos + node.nodeSize;
@@ -180,7 +180,7 @@ export function getBlockInfoWithManualOffset(
           beforePos: blockGroupBeforePos,
           afterPos: blockGroupAfterPos,
         };
-      } else if (node.type.spec.group === "suggestionBlockContent") {
+      } else if (node.type.isInGroup("suggestionBlockContent")) {
         const suggestionNode = node;
         const suggestionBeforePos = bnBlockBeforePos + offset + 1;
         const suggestionAfterPos = suggestionBeforePos + node.nodeSize;
@@ -200,6 +200,9 @@ export function getBlockInfoWithManualOffset(
     });
 
     if (!blockContent) {
+      blockContent = suggestionBefore || suggestionAfter;
+    }
+    if (!blockContent) {
       throw new Error(
         `blockContainer node does not contain a blockContent node in its children: ${bnBlockNode}`,
       );
@@ -210,7 +213,7 @@ export function getBlockInfoWithManualOffset(
       bnBlock,
       blockContent,
       childContainer: blockGroup,
-      blockNoteType: blockContent.node.type.name,
+      blockNoteType: blockContent.node.type.name.replace("--attributed", ""),
       suggestionBefore,
       suggestionAfter,
     };
