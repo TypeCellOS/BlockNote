@@ -229,6 +229,7 @@ describe("Check Keyboard Handlers' Behaviour", () => {
     await executeSlashCommand("image");
     await userEvent.keyboard("{Escape}"); // Close file panel
 
+    await userEvent.keyboard("{ArrowUp}");
     await userEvent.keyboard("{Delete}");
 
     await compareDocToSnapshot("deleteSelectedImage");

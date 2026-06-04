@@ -102,7 +102,8 @@ describe("Check Block Dragging Functionality", () => {
       await focusOnEditor();
       await executeSlashCommand("image");
       await userEvent.keyboard("{Escape}");
-      await userEvent.click(await waitForSelector(".bn-trailing-block"));
+      const paragraphs = document.querySelectorAll(PARAGRAPH_SELECTOR);
+      await userEvent.click(paragraphs[paragraphs.length - 1]);
       await insertHeading(1);
 
       await dragAndDropBlock(IMAGE_SELECTOR, H_ONE_BLOCK_SELECTOR, false);
@@ -119,7 +120,8 @@ describe("Check Block Dragging Functionality", () => {
       await focusOnEditor();
       await executeSlashCommand("image");
       await userEvent.keyboard("{Escape}");
-      await userEvent.click(await waitForSelector(".bn-trailing-block"));
+      const paragraphs = document.querySelectorAll(PARAGRAPH_SELECTOR);
+      await userEvent.click(paragraphs[paragraphs.length - 1]);
       await insertHeading(1);
 
       await dragAndDropBlock(IMAGE_SELECTOR, H_ONE_BLOCK_SELECTOR, false);
