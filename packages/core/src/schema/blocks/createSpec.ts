@@ -258,14 +258,14 @@ export function addNodeAndExtensionsToSpec<
       // 1. isRequired: true prevents ProseMirror's DOMParser from auto-creating
       //    suggestion nodes to satisfy optional content expressions
       // 2. Rendered as data-suggestion="true" on the wrapper div for HTML parsing
-      attrs["yjs-suggestion-node"] = {
+      attrs["y-attributed"] = {
         isRequired: true,
         parseHTML: (element: HTMLElement) => {
           return element.getAttribute("data-suggestion");
         },
         renderHTML: (attributes: Record<string, any>) => {
           return {
-            "data-suggestion": attributes["yjs-suggestion-node"] || "true",
+            "data-suggestion": attributes["y-attributed"] || "true",
           };
         },
       };
