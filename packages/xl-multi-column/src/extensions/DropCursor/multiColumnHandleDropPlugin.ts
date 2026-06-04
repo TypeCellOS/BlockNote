@@ -36,6 +36,7 @@ export function createMultiColumnHandleDropPlugin(
           return false; // Let ProseMirror handle empty slice drops
         }
 
+        // nodeToBlock strips suggestion nodes
         const draggedBlock = nodeToBlock(
           slice.content.child(0),
           editor.pmSchema,
@@ -47,6 +48,7 @@ export function createMultiColumnHandleDropPlugin(
             .resolve(blockInfo.bnBlock.beforePos)
             .node();
 
+          // nodeToBlock strips suggestion nodes
           const columnList = nodeToBlock<any, any, any>(
             parentBlock,
             editor.pmSchema,
@@ -111,6 +113,7 @@ export function createMultiColumnHandleDropPlugin(
           });
         } else {
           // Create new columnList with blocks as columns
+          // nodeToBlock strips suggestion nodes
           const block = nodeToBlock(blockInfo.bnBlock.node, editor.pmSchema);
 
           // The user is dropping next to the original block being dragged - do

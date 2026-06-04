@@ -54,6 +54,7 @@ export const FileDeleteButton = () => {
   const onClick = useCallback(() => {
     if (block !== undefined) {
       editor.focus();
+      // untracked delete on a possibly suggested file block
       editor.removeBlocks([block.id]);
     }
   }, [block, editor]);

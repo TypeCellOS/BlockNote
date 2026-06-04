@@ -271,6 +271,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
                 bottomNestedPrevBlockInfo.blockContent.node.type.spec
                   .content === "tableRow+"
               ) {
+                // cascading -1 arithmetic; off if a leading suggestion node precedes blockContent
                 const tableBlockEndPos = blockInfo.bnBlock.beforePos - 1;
                 const tableBlockContentEndPos = tableBlockEndPos - 1;
                 const lastRowEndPos = tableBlockContentEndPos - 1;
@@ -674,6 +675,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
                 nextBlockInfo.blockContent.node.type.spec.content ===
                 "tableRow+"
               ) {
+                // hardcoded +1 arithmetic; off if next block has a leading suggestion node
                 const tableBlockStartPos = blockInfo.bnBlock.afterPos + 1;
                 const tableBlockContentStartPos = tableBlockStartPos + 1;
                 const firstRowStartPos = tableBlockContentStartPos + 1;

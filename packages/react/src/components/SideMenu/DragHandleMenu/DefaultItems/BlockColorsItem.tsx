@@ -55,6 +55,7 @@ export const BlockColorsItem = (props: { children: ReactNode }) => {
             })
               ? {
                   color: block.props.textColor,
+                  // untracked prop edit; block may be suggested-deleted/modified
                   setColor: (color) =>
                     editor.updateBlock(block, {
                       type: block.type,

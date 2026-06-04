@@ -28,6 +28,7 @@ function calculateListItemIndex(
   tr: Transaction,
   map: Map<Node, number>,
 ): { index: number; isFirst: boolean; hasStart: boolean } {
+  // firstChild may be a suggestion node, not blockContent
   const hasStart = !!node.firstChild!.attrs["start"];
 
   // Fast path: previous sibling already in cache

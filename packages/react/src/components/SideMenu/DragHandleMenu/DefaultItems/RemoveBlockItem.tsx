@@ -28,6 +28,7 @@ export const RemoveBlockItem = (props: { children: ReactNode }) => {
           selectedBlocks && selectedBlocks.some((b) => b.id === block.id)
             ? selectedBlocks
             : [block];
+        // untracked delete; bypasses suggestion system on a possibly suggested block
         editor.removeBlocks(blocksToRemove);
       }}
     >

@@ -83,6 +83,7 @@ export function _blocksToProsemirrorNode<
   editor: BlockNoteEditor<BSchema, ISchema, SSchema>,
   blocks: PartialBlock<BSchema, ISchema, SSchema>[],
 ) {
+  // blockToNode round-trip drops suggestion nodes
   const pmNodes = blocks.map((b) => blockToNode(b, editor.pmSchema));
 
   const doc = editor.pmSchema.topNodeType.create(

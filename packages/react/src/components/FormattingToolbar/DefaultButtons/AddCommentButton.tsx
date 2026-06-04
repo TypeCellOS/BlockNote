@@ -19,6 +19,7 @@ export const AddCommentButtonInner = () => {
   const { store } = useExtension(FormattingToolbarExtension);
 
   const onClick = useCallback(() => {
+    // comment can anchor to a suggested-deleted range
     comments.startPendingComment();
     store.setState(false);
   }, [comments, store]);

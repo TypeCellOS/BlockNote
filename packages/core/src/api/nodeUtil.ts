@@ -17,6 +17,7 @@ export function getNodeById(
     }
 
     // Keeps traversing nodes if block with target ID has not been found.
+    // suggested-deleted blocks resolve as live, no deletion flag
     if (!isNodeBlock(node) || node.attrs.id !== id) {
       return true;
     }

@@ -734,6 +734,7 @@ div[data-type="modification"] {
   text-decoration: none;
 }
 
+/* no block-level suggestion-state styling (deletion rule disabled) */
 .bn-root del,
 [DISABLED-data-node-deletion] {
   color: rgba(100, 90, 75, 0.3);

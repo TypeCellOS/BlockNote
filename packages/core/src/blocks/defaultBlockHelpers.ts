@@ -71,6 +71,7 @@ export const defaultBlockToHTML = <
 
   if (node.type.name === "blockContainer") {
     // for regular blocks, get the toDOM spec from the blockContent node
+    // firstChild safe here; node built by suggestion-blind blockToNode
     node = node.firstChild!;
   }
 

@@ -62,6 +62,7 @@ export const UploadTab = <
                 },
               };
             }
+            // untracked prop edit on a possibly suggested file block
             editor.updateBlock(props.blockId, updateData);
           } catch (e) {
             setUploadFailed(true);

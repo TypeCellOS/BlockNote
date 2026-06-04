@@ -177,6 +177,7 @@ const mergeBlocks = (
     }
 
     // Save suggestion node content before reconstruction
+    // drops prev suggestionBefore and next suggestionAfter on merge
     const savedPrevSuggAfter = currentPrevInfo.suggestionAfter
       ? currentPrevInfo.suggestionAfter.node.copy(
           currentPrevInfo.suggestionAfter.node.content,
@@ -236,6 +237,7 @@ const mergeBlocks = (
     }
 
     // Create the new blockContainer with the prev block's ID and attributes
+    // create() skips validation; bad child order ships silently
     const newBlockContainer = currentPrevInfo.bnBlock.node.type.create(
       currentPrevInfo.bnBlock.node.attrs,
       newChildren,

@@ -191,6 +191,7 @@ export function getBlockInfoWithManualOffset(
           afterPos: suggestionAfterPos,
         };
 
+        // singular suggestionBefore/After, schema allows suggestionBlockContent*
         if (!foundBlockContent) {
           suggestionBefore = info;
         } else {

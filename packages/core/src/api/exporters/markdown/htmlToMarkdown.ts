@@ -45,6 +45,7 @@ function serializeChildren(node: Node, ctx: SerializeContext): string {
 }
 
 function serializeNode(node: Node, ctx: SerializeContext): string {
+  // no data-suggestion handling; shadow text duplicated to markdown
   if (node.nodeType === 3 /* Node.TEXT_NODE */) {
     return node.textContent || "";
   }

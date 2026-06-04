@@ -60,6 +60,7 @@ export const FilePreviewButton = () => {
         showPreview: "boolean",
       })
     ) {
+      // untracked prop edit on a possibly suggested file block
       editor.updateBlock(block.id, {
         props: {
           showPreview: !block.props.showPreview,

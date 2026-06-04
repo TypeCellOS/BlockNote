@@ -68,6 +68,7 @@ export const FileRenameButton = () => {
           name: "string",
         })
       ) {
+        // untracked prop edit on a possibly suggested file block
         editor.updateBlock(block.id, {
           props: {
             name: event.currentTarget.value,

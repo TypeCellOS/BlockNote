@@ -44,6 +44,7 @@ export const TableRowHeaderItem = (props: { children: ReactNode }) => {
       className={"bn-menu-item"}
       checked={isHeaderRow}
       onClick={() => {
+        // untracked prop edit on a possibly suggested table block
         editor.updateBlock(block, {
           content: {
             ...block.content,
@@ -95,6 +96,7 @@ export const TableColumnHeaderItem = (props: { children: ReactNode }) => {
       className={"bn-menu-item"}
       checked={isHeaderColumn}
       onClick={() => {
+        // untracked prop edit on a possibly suggested table block
         editor.updateBlock(block, {
           content: {
             ...block.content,

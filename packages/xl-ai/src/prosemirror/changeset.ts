@@ -128,6 +128,7 @@ function addMissingChanges(
 }
 
 const createEncoder = (doc: Node, updatedDoc: Node) => {
+  // encoder ignores --attributed shadow nodes, diffs suggestion content
   // this encoder makes sure unchanged table cells stay intact,
   // without this, prosemirror-changeset would too eagerly
   // return changes across table cells (this is covered in test cases).

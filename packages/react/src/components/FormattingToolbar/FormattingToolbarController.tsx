@@ -69,6 +69,7 @@ export const FormattingToolbarController = (props: {
   const placement = useEditorState({
     editor,
     selector: ({ editor }) => {
+      // resolves active block with no concept of suggestion state
       const block = editor.getTextCursorPosition().block;
 
       if (

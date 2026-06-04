@@ -106,6 +106,7 @@ function updateBlockSelectionFromData(
       anchorBlockPos + data.headCellOffset,
     );
   } else if (data.type === "node") {
+    // +1 assumes blockContent is first child; may be a leading suggestion node
     selection = NodeSelection.create(tr.doc, anchorBlockPos + 1);
   } else {
     const headBlockPos = getNodeById(data.headBlockId, tr.doc)?.posBeforeNode;

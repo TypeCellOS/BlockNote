@@ -104,6 +104,7 @@ export const PreviousBlockTypeExtension = createExtension(() => {
             for (const node of newNodes) {
               const oldNode = oldNodesById.get(node.node.attrs.id);
 
+              // firstChild may be a suggestion node, not blockContent
               const oldContentNode = oldNode?.node.firstChild;
               const newContentNode = node.node.firstChild;
 

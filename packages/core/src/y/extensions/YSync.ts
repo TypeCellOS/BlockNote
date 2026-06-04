@@ -122,6 +122,7 @@ export const YSyncExtension = createExtension(
             nodeName: string,
             kinds: { delete: boolean; insert: boolean; format: boolean },
           ) => {
+            // attributedNodes gates shadows on blockSpecs and delete only
             const result = Boolean(
               editor.schema.blockSpecs[nodeName] && kinds.delete,
             );

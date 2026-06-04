@@ -41,6 +41,7 @@ export const EmbedTab = <
     (event: KeyboardEvent) => {
       if (event.key === "Enter" && !event.nativeEvent.isComposing) {
         event.preventDefault();
+        // untracked prop edit on a possibly suggested file block
         editor.updateBlock(block.id, {
           props: {
             name: filenameFromURL(currentURL),
@@ -53,6 +54,7 @@ export const EmbedTab = <
   );
 
   const handleURLClick = useCallback(() => {
+    // untracked prop edit on a possibly suggested file block
     editor.updateBlock(block.id, {
       props: {
         name: filenameFromURL(currentURL),
