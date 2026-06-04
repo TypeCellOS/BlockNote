@@ -23,6 +23,7 @@ export function HTMLToBlocks<
   // const doc = pmSchema.nodes["doc"].createAndFill()!;
   // and context: doc.resolve(3),
 
+  // parse may auto-create *--attributed shadow nodes from BlockNote HTML
   const parentNode = parser.parse(htmlNode, {
     topNode: pmSchema.nodes["blockGroup"].create(),
   });

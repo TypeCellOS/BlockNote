@@ -17,6 +17,7 @@ function shouldShowTrailingWidget(doc: PMNode, isEditable: boolean): boolean {
 
   const rootGroup = doc.lastChild;
   const lastBlock = rootGroup?.lastChild;
+  // firstChild may be a suggestion node, not blockContent
   const lastContent = lastBlock?.firstChild;
 
   return !(

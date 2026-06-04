@@ -22,6 +22,7 @@ export function fragmentToBlocks<
   fragment.descendants((node) => {
     const pmSchema = getPmSchema(node);
     if (node.type.name === "blockContainer") {
+      // firstChild may be a suggestion node, not blockContent or blockGroup
       if (node.firstChild?.type.name === "blockGroup") {
         // selection started within a block group
         // in this case the fragment starts with:

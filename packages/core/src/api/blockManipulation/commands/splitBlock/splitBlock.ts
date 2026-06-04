@@ -47,6 +47,7 @@ export const splitBlockTr = (
   // with the first block and the split happens at the blockContent boundary.
   let effectivePos = posInBlock;
   const $pos = tr.doc.resolve(posInBlock);
+  // dead guard — group is compound "suggestionBlockContent blockContent", never ===
   if ($pos.parent.type.spec.group === "suggestionBlockContent") {
     effectivePos = info.blockContent.beforePos + 1;
   }

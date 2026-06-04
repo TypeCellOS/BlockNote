@@ -99,6 +99,7 @@ export const ExtendButton = (
       return;
     }
 
+    // untracked content edit on a possibly suggested table block
     editor.updateBlock(block, {
       type: "table",
       content: {
@@ -159,6 +160,7 @@ export const ExtendButton = (
         newNumCells > 0 &&
         newNumCells !== currentNumCells
       ) {
+        // untracked content edit on a possibly suggested table block
         editor.updateBlock(block, {
           type: "table",
           content: {

@@ -30,6 +30,7 @@ function getUpdatedThreadPositions(doc: Node, markType: string) {
   const threadPositions = new Map<string, { from: number; to: number }>();
 
   // find all thread marks and store their position + create decoration for selected thread
+  // comment marks inside shadow nodes anchor threads to suggestion content
   doc.descendants((node, pos) => {
     node.marks.forEach((mark) => {
       if (mark.type.name === markType) {
@@ -228,6 +229,7 @@ export const CommentsExtension = createExtension(
                 return false;
               }
 
+              // click may land in a suggestion shadow node, resolving its comment marks
               const node = view.state.doc.nodeAt(pos);
 
               if (!node) {

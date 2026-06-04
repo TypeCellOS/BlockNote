@@ -28,6 +28,7 @@ function calculateListItemIndex(
   tr: Transaction,
   map: Map<Node, number>,
 ): { index: number; isFirst: boolean; hasStart: boolean } {
+  // firstChild may be a suggestion node, not blockContent
   const hasStart = !!node.firstChild!.attrs["start"];
 
   // Fast path: previous sibling already in cache
@@ -93,6 +94,7 @@ function calculateListItemIndex(
     isFirst = false;
   } else {
     // Start of a new list
+    // firstChild may be a suggestion node, not blockContent
     index = (lastInChain.node.firstChild!.attrs["start"] || 1) - 1;
     isFirst = true;
   }
@@ -156,6 +158,7 @@ function getDecorations(
 
       if (
         node.type.name === "blockContainer" &&
+        // firstChild may be a suggestion node, not blockContent
         node.firstChild!.type.name === "numberedListItem"
       ) {
         const { index, isFirst, hasStart } = calculateListItemIndex(
@@ -168,6 +171,7 @@ function getDecorations(
         // Search only the numberedListItem node range, not the full
         // blockContainer (which includes nested blockGroups whose
         // decorations could falsely match).
+        // pos + 1 assumes blockContent is first child, not a suggestion node
         const blockNode = tr.doc.nodeAt(pos + 1)!;
         const existingDecorations = nextDecorationSet.find(
           pos + 1,

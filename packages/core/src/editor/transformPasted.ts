@@ -145,6 +145,7 @@ export function transformPasted(slice: Slice, view: EditorView) {
   }
 
   for (let i = 0; i < f.childCount; i++) {
+    // === "blockContent" misclassifies suggestion nodes (compound group)
     if (f.child(i).type.spec.group === "blockContent") {
       const content = [f.child(i)];
 
@@ -154,6 +155,7 @@ export function transformPasted(slice: Slice, view: EditorView) {
         i + 1 < f.childCount &&
         f.child(i + 1).type.name === "blockGroup" // TODO
       ) {
+        // .child(0).child(0) assumes blockContent is first child of blockContainer
         const nestedChild = f
           .child(i + 1)
           .child(0)
@@ -227,6 +229,7 @@ function retypeLeadingParagraphForEmptyTarget(
 
   const blockGroup = fragment.firstChild;
   const blockContainer = blockGroup?.firstChild;
+  // firstChild may be a suggestion node, not blockContent
   const leading = blockContainer?.firstChild;
   if (
     blockGroup?.type.name !== "blockGroup" ||
@@ -238,6 +241,7 @@ function retypeLeadingParagraphForEmptyTarget(
 
   const retyped = target.type.create(target.attrs, leading.content);
   const newBlockContainer = blockContainer.copy(
+    // replaceChild(0,...) assumes index 0 is blockContent, not a suggestion node
     blockContainer.content.replaceChild(0, retyped),
   );
   const newBlockGroup = blockGroup.copy(

@@ -266,6 +266,7 @@ export function createReactBlockSpec<
           return output;
         },
         render(block, editor) {
+          // nodeView wires real node only, shadow stays vanilla editable
           if (this.renderType === "nodeView") {
             return ReactNodeViewRenderer(
               (props: NodeViewProps) => {

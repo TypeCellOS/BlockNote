@@ -50,6 +50,7 @@ function fragmentToExternalHTML<
         (child) =>
           child.type.isInGroup("bnBlock") ||
           child.type.name === "blockGroup" ||
+          // === "blockContent" misclassifies suggestion nodes (compound group)
           child.type.spec.group === "blockContent",
       ) === undefined;
     if (isWithinBlockContent) {
@@ -118,9 +119,11 @@ export function selectedFragmentToHTML<
   // selected, e.g. an image block.
   if (
     "node" in view.state.selection &&
+    // === "blockContent" misclassifies suggestion nodes (compound group)
     (view.state.selection.node as Node).type.spec.group === "blockContent"
   ) {
     editor.transact((tr) =>
+      // from-1 block expansion assumes blockContent adjacency; off with leading suggestion node
       tr.setSelection(
         new NodeSelection(tr.doc.resolve(view.state.selection.from - 1)),
       ),
@@ -128,6 +131,7 @@ export function selectedFragmentToHTML<
   }
 
   // Uses default ProseMirror clipboard serialization.
+  // serializeForClipboard emits shadow nodes; paste re-creates them
   const clipboardHTML: string = view.serializeForClipboard(
     view.state.selection.content(),
   ).dom.innerHTML;
@@ -268,6 +272,7 @@ export const createCopyToClipboardExtension = <
 
                 // Expands the selection to the parent `blockContainer` node.
                 editor.transact((tr) =>
+                  // from-1 block expansion assumes blockContent adjacency; off with leading suggestion node
                   tr.setSelection(
                     new NodeSelection(
                       tr.doc.resolve(view.state.selection.from - 1),

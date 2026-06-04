@@ -482,6 +482,7 @@ export function nodeToBlock<
     throw new UnreachableCaseError(blockConfig.content);
   }
 
+  // (Affects ~23 callsites) strips suggestion state, Block API is suggestion-blind
   const block = {
     id,
     type: blockConfig.type,
@@ -604,6 +605,7 @@ export function prosemirrorSliceToSlicedBlocks<
       let firstNonSuggestionChild: Node | undefined;
       let blockGroupChild: Node | undefined;
       blockContainer.forEach((child) => {
+        // dead guard — group is compound "suggestionBlockContent blockContent", never ===
         if (child.type.spec.group === "suggestionBlockContent") {
           return; // skip suggestion nodes
         }

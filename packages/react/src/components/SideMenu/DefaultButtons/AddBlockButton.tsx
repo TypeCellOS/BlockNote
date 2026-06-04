@@ -27,6 +27,7 @@ export const AddBlockButton = () => {
       return;
     }
 
+    // untracked insert on a possibly suggested-deleted block
     const blockContent = block.content;
     const isBlockEmpty =
       blockContent !== undefined &&

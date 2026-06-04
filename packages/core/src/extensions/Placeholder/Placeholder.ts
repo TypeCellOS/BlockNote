@@ -117,6 +117,7 @@ export const PlaceholderExtension = createExtension(
 
               // decoration for when there's only one empty block
               // positions are hardcoded for now
+              // hardcoded size===6 and positions 2,4 assume no suggestion nodes in empty doc
               if (state.doc.content.size === 6) {
                 decs.push(
                   Decoration.node(2, 4, {

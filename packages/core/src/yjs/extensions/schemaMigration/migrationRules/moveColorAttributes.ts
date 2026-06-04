@@ -73,11 +73,13 @@ export const moveColorAttributes: MigrationRule = (fragment, tr) => {
       node.type.name === "blockContainer" &&
       targetBlockContainers.has(node.attrs.id)
     ) {
+      // nodeAt(pos+1) assumes blockContent is first child (legacy input has no suggestions)
       const el = tr.doc.nodeAt(pos + 1);
       if (!el) {
         throw new Error("No element found");
       }
 
+      // setNodeMarkup(pos+1) assumes blockContent is first child (legacy input has no suggestions)
       tr.setNodeMarkup(pos + 1, undefined, {
         // preserve existing attributes
         ...el.attrs,

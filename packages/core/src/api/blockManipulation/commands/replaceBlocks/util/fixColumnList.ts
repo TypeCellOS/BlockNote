@@ -18,6 +18,7 @@ export function isEmptyColumn(column: Node) {
     throw new Error("Invalid column: does not have child node.");
   }
 
+  // firstChild may be a suggestion node; childCount===1 below assumes no suggestions
   const blockContent = blockContainer.firstChild;
   if (!blockContent) {
     throw new Error("Invalid blockContainer: does not have child node.");

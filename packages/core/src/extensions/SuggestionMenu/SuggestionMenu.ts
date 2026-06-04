@@ -309,6 +309,7 @@ export const SuggestionMenu = createExtension(({ editor }) => {
               transaction.getMeta("blur") ||
               transaction.getMeta("pointer") ||
               // Moving the caret before the character which triggered the menu should hide it.
+              // no cursor-in-suggestion-node guard (same-parent check is suggestion-blind)
               (prev.triggerCharacter !== undefined &&
                 newState.selection.from < prev.queryStartPos()) ||
               // Moving the caret to a new block should hide the menu.
@@ -381,6 +382,7 @@ export const SuggestionMenu = createExtension(({ editor }) => {
               const blockNode = findBlock(state.selection);
               if (blockNode) {
                 return DecorationSet.create(state.doc, [
+                  // decoration spans whole container incl suggestion shadow nodes
                   Decoration.node(
                     blockNode.pos,
                     blockNode.pos + blockNode.node.nodeSize,

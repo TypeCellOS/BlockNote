@@ -258,6 +258,7 @@ export class SideMenuView<
           blockContentBoundingBox.width,
           blockContentBoundingBox.height,
         ),
+        // resolves suggested-deleted/modified blocks as if live (no suggestion state)
         block: this.editor.getBlock(
           this.hoveredBlock!.getAttribute("data-id")!,
         )!,

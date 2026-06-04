@@ -273,6 +273,7 @@ export class TableHandlesView implements PluginView {
     );
 
     if (editorHasBlockWithType(this.editor, "table")) {
+      // posBeforeNode+1 assumes blockContent is first child; off with leading suggestion node
       this.tablePos = pmNodeInfo.posBeforeNode + 1;
       tableBlock = block;
     }

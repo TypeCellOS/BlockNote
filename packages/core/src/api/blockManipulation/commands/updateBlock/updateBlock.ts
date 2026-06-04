@@ -302,6 +302,7 @@ function updateChildren<
         throw new Error("impossible");
       }
       // Inserts a new blockGroup containing the child nodes created earlier.
+      // inserts blockGroup before trailing suggestion, invalid content order
       tr.insert(
         blockInfo.blockContent.afterPos,
         pmSchema.nodes["blockGroup"].createChecked({}, childNodes),

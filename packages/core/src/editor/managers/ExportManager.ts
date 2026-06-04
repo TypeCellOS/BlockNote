@@ -34,6 +34,7 @@ export class ExportManager<
    * @param blocks An array of blocks that should be serialized into HTML.
    * @returns The blocks, serialized as an HTML string.
    */
+  // (Affects ~3) exports suggestion-blind Block JSON, drops shadow content
   public blocksToHTMLLossy(
     blocks: PartialBlock<BSchema, ISchema, SSchema>[] = this.editor.document,
   ): string {

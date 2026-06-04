@@ -63,6 +63,7 @@ export const ColorPickerButton = <
       return;
     }
 
+    // reads only new content; suggested-modify old content is invisible
     const newTable = block.content.rows.map((row) => {
       return {
         ...row,
@@ -78,6 +79,7 @@ export const ColorPickerButton = <
       }
     });
 
+    // untracked content edit on a possibly suggested table block
     editor.updateBlock(block, {
       type: "table",
       content: {

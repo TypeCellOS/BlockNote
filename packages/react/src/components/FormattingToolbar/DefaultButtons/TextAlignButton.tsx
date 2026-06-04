@@ -108,6 +108,7 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
             textAlignment: defaultProps.textAlignment,
           })
         ) {
+          // untracked prop edit; block may be suggested-deleted/modified
           editor.updateBlock(block, {
             props: { textAlignment: textAlignment },
           });
@@ -135,6 +136,7 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
             newTable[row].cells[col].props.textAlignment = textAlignment;
           });
 
+          // untracked content edit on a possibly suggested table block
           editor.updateBlock(block, {
             type: "table",
             content: {

@@ -205,6 +205,7 @@ const UniqueID = Extension.create({
                 });
                 return;
               }
+              // dedupe may regenerate the wrong id when a suggestion creates a duplicate id
               // check if the node doesn’t exist in the old state
               const { deleted } = mapping.invert().mapResult(pos);
               const newNode = deleted && duplicatedNewIds.includes(id);

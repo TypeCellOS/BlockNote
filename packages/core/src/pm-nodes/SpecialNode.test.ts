@@ -78,6 +78,7 @@ describe("SuggestionNode - structural", () => {
   it("should have suggestion-paragraph type registered in the PM schema", () => {
     const editor = BlockNoteEditor.create();
     const nodeTypes = Object.keys(editor.pmSchema.nodes);
+    // asserts suggestion-* names, real nodes are *--attributed
     expect(nodeTypes).toContain("suggestion-paragraph");
     expect(nodeTypes).toContain("blockContainer");
     expect(nodeTypes).toContain("blockGroup");

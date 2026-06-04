@@ -55,6 +55,7 @@ export const TableHeaderRowButton = <
       className={"bn-menu-item"}
       checked={isHeaderRow}
       onClick={() => {
+        // untracked prop edit on a possibly suggested table block
         editor.updateBlock(block, {
           ...block,
           content: {
@@ -110,6 +111,7 @@ export const TableHeaderColumnButton = <
       className={"bn-menu-item"}
       checked={isHeaderColumn}
       onClick={() => {
+        // untracked prop edit on a possibly suggested table block
         editor.updateBlock(block, {
           ...block,
           content: {

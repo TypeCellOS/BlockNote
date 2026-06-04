@@ -258,6 +258,7 @@ export function addNodeAndExtensionsToSpec<
       // 1. isRequired: true prevents ProseMirror's DOMParser from auto-creating
       //    suggestion nodes to satisfy optional content expressions
       // 2. Rendered as data-suggestion="true" on the wrapper div for HTML parsing
+      // isRequired sentinel hack blocks DOMParser auto-creating shadow nodes
       attrs["y-attributed"] = {
         isRequired: true,
         parseHTML: (element: HTMLElement) => {
@@ -285,6 +286,7 @@ export function addNodeAndExtensionsToSpec<
       ];
     },
     renderHTML({ HTMLAttributes }) {
+      // shadow node gets editable contentDOM, no nodeView selectable fix
       const div = document.createElement("div");
       return wrapInBlockStructure(
         {

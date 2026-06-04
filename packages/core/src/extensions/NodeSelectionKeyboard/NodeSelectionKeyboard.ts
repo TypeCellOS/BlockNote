@@ -49,6 +49,7 @@ export const NodeSelectionKeyboardExtension = createExtension(
                   const tr = view.state.tr;
                   view.dispatch(
                     tr
+                      // $to.after() may land before a trailing suggestion node
                       .insert(
                         view.state.tr.selection.$to.after(),
                         view.state.schema.nodes["paragraph"].createChecked(),
@@ -56,6 +57,7 @@ export const NodeSelectionKeyboardExtension = createExtension(
                       .setSelection(
                         new TextSelection(
                           tr.doc.resolve(
+                            // +1 may resolve inside a trailing suggestion node
                             view.state.tr.selection.$to.after() + 1,
                           ),
                         ),

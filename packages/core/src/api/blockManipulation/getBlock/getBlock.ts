@@ -22,6 +22,7 @@ export function getBlock<
     typeof blockIdentifier === "string" ? blockIdentifier : blockIdentifier.id;
   const pmSchema = getPmSchema(doc);
 
+  // suggested-deleted blocks resolve as live, no deletion flag
   const posInfo = getNodeById(id, doc);
   if (!posInfo) {
     return undefined;

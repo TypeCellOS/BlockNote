@@ -68,6 +68,7 @@ export const FileCaptionButton = () => {
           caption: "string",
         })
       ) {
+        // untracked prop edit on a possibly suggested file block
         editor.updateBlock(block.id, {
           props: {
             caption: event.currentTarget.value,

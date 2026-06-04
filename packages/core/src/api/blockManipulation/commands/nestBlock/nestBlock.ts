@@ -39,6 +39,7 @@ function sinkItem(
   if (nodeBefore.type !== itemType) {
     return false;
   }
+  // lastChild may be a trailing suggestion node, not blockGroup
   const nestedBefore =
     nodeBefore.lastChild && nodeBefore.lastChild.type === groupType; // change 2
   const inner = Fragment.from(nestedBefore ? itemType.create() : null);
@@ -102,6 +103,7 @@ function liftToOuterList(
     // There are siblings after the lifted items, which must become
     // children of the last item
     const blockBeingLifted = range.parent.child(range.endIndex - 1);
+    // lastChild may be a trailing suggestion node, not blockGroup
     const nestedAfter =
       blockBeingLifted.lastChild &&
       blockBeingLifted.lastChild.type === groupType; // change 2

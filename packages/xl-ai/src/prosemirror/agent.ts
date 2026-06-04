@@ -186,6 +186,7 @@ export function getStepsAsAgent(inputTr: Transform) {
       const stepIndex = tr.steps.length;
       if (isReplacing) {
         const $pos = tr.doc.resolve(tr.mapping.map(from));
+        // isBlock true for shadow nodes, may mark suggestion content
         if ($pos.nodeAfter?.isBlock) {
           // mark the entire node as deleted. This can be needed for inline nodes or table cells
           tr.addNodeMark($pos.pos, pmSchema.mark("y-attributed-delete", {}));
@@ -216,6 +217,7 @@ export function getStepsAsAgent(inputTr: Transform) {
           ) {
             return true;
           }
+          // isBlock true for shadow nodes, may mark suggestion content
           if (node.isBlock) {
             tr.addNodeMark(pos, pmSchema.mark("y-attributed-insert", {}));
           }

@@ -167,6 +167,7 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
       return filteredItems.map((item) => {
         const Icon = item.icon;
 
+        // reads suggestion-stripped type; wrong current type for suggested-modify
         const typesMatch = item.type === firstSelectedBlock.type;
         const propsMatch =
           Object.entries(item.props || {}).filter(
@@ -181,6 +182,7 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
             editor.focus();
             editor.transact(() => {
               for (const block of selectedBlocks) {
+                // untracked type change; block may be suggested-deleted/modified
                 editor.updateBlock(block, {
                   type: item.type as any,
                   props: item.props as any,

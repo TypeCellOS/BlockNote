@@ -39,6 +39,7 @@ function blockPositionsFromSelection(selection: Selection, doc: Node) {
   // the same blocks again. If this happens, the anchor & head move out of the block content node they were originally
   // in. If the anchor should update but the head shouldn't and vice versa, it means the user selection is outside a
   // block content node, which should never happen.
+  // === "blockContent" misclassifies suggestion nodes (compound group)
   const selectionStartInBlockContent =
     doc.resolve(selection.from).node().type.spec.group === "blockContent";
   const selectionEndInBlockContent =
