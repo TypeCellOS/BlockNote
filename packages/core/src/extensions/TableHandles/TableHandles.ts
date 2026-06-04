@@ -163,13 +163,9 @@ export class TableHandlesView implements PluginView {
       any
     >,
     private readonly pmView: EditorView,
-    emitUpdate: (state: TableHandlesState) => void,
+    emitUpdate: (state: TableHandlesState | undefined) => void,
   ) {
     this.emitUpdate = () => {
-      if (!this.state) {
-        throw new Error("Attempting to update uninitialized image toolbar");
-      }
-
       emitUpdate(this.state);
     };
 
@@ -298,7 +294,7 @@ export class TableHandlesView implements PluginView {
 
       const hideHandles =
         // always hide handles when the actively hovered table changed
-        this.state?.block.id !== tableBlock.id ||
+        this.state?.block?.id !== tableBlock.id ||
         // make sure we don't hide existing handles (keep col / row index) when
         // we're hovering just above or to the right of a table
         event.clientX > tableRect.right ||
@@ -543,9 +539,9 @@ export class TableHandlesView implements PluginView {
       // because yjs replaces the element when for example you change the color via the side menu
       !this.tableElement?.isConnected
     ) {
-      this.state.show = false;
-      this.state.showAddOrRemoveRowsButton = false;
-      this.state.showAddOrRemoveColumnsButton = false;
+      this.state = undefined;
+      this.tableId = undefined;
+      this.tableElement = undefined;
       this.emitUpdate();
 
       return;
@@ -628,7 +624,7 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
         view: (editorView) => {
           view = new TableHandlesView(editor as any, editorView, (state) => {
             store.setState(
-              state.block
+              state?.block
                 ? {
                     ...state,
                     draggingState: state.draggingState
