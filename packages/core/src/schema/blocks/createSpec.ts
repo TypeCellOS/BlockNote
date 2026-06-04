@@ -246,7 +246,7 @@ export function addNodeAndExtensionsToSpec<
       : blockConfig.content === "none"
         ? ""
         : blockConfig.content) as TContent extends "inline" ? "inline*" : "",
-    group: "suggestionBlockContent",
+    group: "suggestionBlockContent blockContent",
     selectable: false,
     isolating: blockImplementation.meta?.isolating ?? true,
     code: blockImplementation.meta?.code ?? false,
