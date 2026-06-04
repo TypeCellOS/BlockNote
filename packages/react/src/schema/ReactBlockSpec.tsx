@@ -315,6 +315,39 @@ export function createReactBlockSpec<
               },
               {
                 className: "bn-react-node-view-renderer",
+                // Any change to a block's content causes ProseMirror to
+                // re-render the block. On desktop, this change is detected
+                // using key presses. On mobile, it's instead detected using
+                // DOM mutations as touchscreen keyboards don't use typical key
+                // events. However, React's own rendering causes DOM mutations,
+                // triggering ProseMirror to re-render the block even if the
+                // mutation is outside the block's editable content. Therefore,
+                // we need to explicitly ignore mutations outside the block's
+                // editable content.
+                ignoreMutation: ({ mutation }) => {
+                  if (mutation.type === "selection") {
+                    return false;
+                  }
+
+                  const target =
+                    mutation.target.nodeType === Node.ELEMENT_NODE
+                      ? (mutation.target as HTMLElement)
+                      : mutation.target.parentElement;
+                  const content = target?.closest("[data-node-view-content]");
+
+                  // Ignore mutations outside a block's editable content.
+                  if (!content) {
+                    return true;
+                  }
+
+                  // Also ignore mutations for the editable content wrapper
+                  // element.
+                  if (mutation.target === content) {
+                    return true;
+                  }
+
+                  return false;
+                },
               },
             )(this.props!) as ReturnType<BlockImplementation["render"]>;
           } else {
