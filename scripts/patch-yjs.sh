@@ -36,17 +36,29 @@ echo "==> BlockNote root: $BLOCKNOTE_ROOT"
 echo "==> Building yjs (npm run dist) ..."
 (cd "$LOCAL_YJS" && npm run dist)
 
-PATCH_DIR="$BLOCKNOTE_ROOT/node_modules/.pnpm_patches/$YJS_PATCH_DIR_NAME"
+# Best-effort cleanup of any leftover patch dir (case-insensitive FS resolves this fine).
+STALE_PATCH_DIR="$BLOCKNOTE_ROOT/node_modules/.pnpm_patches/$YJS_PATCH_DIR_NAME"
 
 # 1. Clean up any leftover patch dir, then start fresh
-if [[ -d "$PATCH_DIR" ]]; then
+if [[ -d "$STALE_PATCH_DIR" ]]; then
   echo "==> Cleaning up old patch dir ..."
-  rm -rf "$PATCH_DIR"
+  rm -rf "$STALE_PATCH_DIR"
 fi
 
 echo "==> Running pnpm patch $YJS_PKG@$YJS_VERSION ..."
 cd "$BLOCKNOTE_ROOT"
-pnpm patch "$YJS_PKG@$YJS_VERSION"
+# Capture pnpm's reported patch dir so we use the canonical on-disk path casing.
+# Constructing PATCH_DIR manually breaks on macOS when the repo is entered via a
+# differently-cased path (e.g. blockNote vs BlockNote): pnpm patch-commit matches
+# the path against state.json case-sensitively and fails with ERR_PNPM_INVALID_PATCH_DIR.
+PATCH_OUTPUT="$(pnpm patch "$YJS_PKG@$YJS_VERSION")"
+echo "$PATCH_OUTPUT"
+PATCH_DIR="$(printf '%s\n' "$PATCH_OUTPUT" | grep -Eo "/.*/\.pnpm_patches/$YJS_PATCH_DIR_NAME" | head -n1)"
+
+if [[ -z "$PATCH_DIR" || ! -d "$PATCH_DIR" ]]; then
+  echo "ERROR: Could not determine patch dir from 'pnpm patch' output"
+  exit 1
+fi
 
 echo "==> Patch temp dir: $PATCH_DIR"
 
