@@ -37,6 +37,12 @@ export default defineConfig((conf) => ({
         : ({
             "@shared": path.resolve(__dirname, "../shared/"),
             // load live from sources with live reload working
+            // CSS alias must precede the bare "@blocknote/core" one, else
+            // /style.css resolves to the (stale) prebuilt dist/style.css.
+            "@blocknote/core/style.css": path.resolve(
+              __dirname,
+              "../packages/core/src/style.css",
+            ),
             "@blocknote/core": path.resolve(__dirname, "../packages/core/src/"),
             "@blocknote/react": path.resolve(
               __dirname,
