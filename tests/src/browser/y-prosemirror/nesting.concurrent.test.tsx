@@ -15,12 +15,9 @@ import {
 // Two cascading indents from a flat list of three siblings:
 //   A nests N1 under N0;
 //   B nests N2 under N1.
-// KNOWN BUG: y-prosemirror's diff/applyChangesetToDelta throws
-// `Unexpected case` during the merged editor's afterTransaction when
-// these two suggestions sync. Marked `test.fails` until upstream
-// supports this interleaving; flip it red when fixed and capture
-// snapshots.
-test.fails("concurrent: A indents N1, B indents N2 below N1", async () => {
+// The merge converges with A's nesting winning (N1 under N0) and
+// B's nesting of N2 dropped, captured in the snapshots below.
+test("concurrent: A indents N1, B indents N2 below N1", async () => {
   const {
     userA,
     userB,
@@ -72,11 +69,97 @@ test.fails("concurrent: A indents N1, B indents N2 below N1", async () => {
     "concurrent-indent-cascade",
   );
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot();
-  expect(ydocXml(suggestionDocA)).toMatchInlineSnapshot();
-  expect(ydocXml(suggestionDocB)).toMatchInlineSnapshot();
-  expect(ydocXml(suggestionDocMerged)).toMatchInlineSnapshot();
-  expect(editorHtml(merged.editor)).toMatchInlineSnapshot();
+  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="n0">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">N0</paragraph>
+      </blockContainer>
+      <blockContainer id="n1">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">N1</paragraph>
+      </blockContainer>
+      <blockContainer id="n2">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">N2</paragraph>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDocA)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="n0">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">N0</paragraph>
+        <blockGroup>
+          <blockContainer id="n1">
+            <paragraph backgroundColor="default" textAlignment="left" textColor="default">N1</paragraph>
+          </blockContainer>
+        </blockGroup>
+      </blockContainer>
+      <blockContainer id="n2">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">N2</paragraph>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDocB)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="n0">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">N0</paragraph>
+      </blockContainer>
+      <blockContainer id="n1">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">N1</paragraph>
+        <blockGroup>
+          <blockContainer id="n2">
+            <paragraph backgroundColor="default" textAlignment="left" textColor="default">N2</paragraph>
+          </blockContainer>
+        </blockGroup>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDocMerged)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="n0">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">N0</paragraph>
+        <blockGroup>
+          <blockContainer id="n1">
+            <paragraph backgroundColor="default" textAlignment="left" textColor="default">N1</paragraph>
+          </blockContainer>
+        </blockGroup>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(editorHtml(merged.editor)).toMatchInlineSnapshot(`
+    "<doc>
+      <blockGroup>
+        <blockContainer id="n0">
+          <paragraph backgroundColor="default" textColor="default" textAlignment="left">N0</paragraph>
+          <y-attributed-insert user-color="#30bced">
+            <blockGroup>
+              <y-attributed-insert user-color="#30bced">
+                <blockContainer id="n1">
+                  <y-attributed-insert user-color="#30bced">
+                    <paragraph backgroundColor="default" textColor="default" textAlignment="left">
+                      <y-attributed-insert user-color="#30bced">N1</y-attributed-insert>
+                    </paragraph>
+                  </y-attributed-insert>
+                </blockContainer>
+              </y-attributed-insert>
+            </blockGroup>
+          </y-attributed-insert>
+        </blockContainer>
+        <y-attributed-delete user-color="#30bced">
+          <blockContainer id="n1">
+            <paragraph backgroundColor="default" textColor="default" textAlignment="left">N1</paragraph>
+          </blockContainer>
+        </y-attributed-delete>
+        <y-attributed-delete user-color="#30bced">
+          <blockContainer id="n2">
+            <y-attributed-delete user-color="#30bced">
+              <paragraph backgroundColor="default" textColor="default" textAlignment="left">
+                <y-attributed-delete user-color="#30bced">N2</y-attributed-delete>
+              </paragraph>
+            </y-attributed-delete>
+          </blockContainer>
+        </y-attributed-delete>
+      </blockGroup>
+    </doc>"
+  `);
 });
 
 // Two non-overlapping child inserts under the same parent:

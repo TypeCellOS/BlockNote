@@ -111,9 +111,6 @@ test("suggestion mode: add row", async () => {
           </tableRow>
         </table>
       </blockContainer>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
     </blockGroup>"
   `);
   expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
@@ -187,9 +184,6 @@ test("suggestion mode: add row", async () => {
             </tableCell>
           </tableRow>
         </table>
-      </blockContainer>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
       </blockContainer>
     </blockGroup>"
   `);
@@ -273,9 +267,6 @@ test("suggestion mode: add row", async () => {
               </tableRow>
             </y-attributed-insert>
           </table>
-        </blockContainer>
-        <blockContainer id="1">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
         </blockContainer>
       </blockGroup>
     </doc>"
@@ -361,9 +352,6 @@ test("suggestion mode: add column", async () => {
           </tableRow>
         </table>
       </blockContainer>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
     </blockGroup>"
   `);
   expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
@@ -435,9 +423,6 @@ test("suggestion mode: add column", async () => {
             </tableCell>
           </tableRow>
         </table>
-      </blockContainer>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
       </blockContainer>
     </blockGroup>"
   `);
@@ -517,9 +502,6 @@ test("suggestion mode: add column", async () => {
               </y-attributed-insert>
             </tableRow>
           </table>
-        </blockContainer>
-        <blockContainer id="1">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
         </blockContainer>
       </blockGroup>
     </doc>"
@@ -601,9 +583,6 @@ test("suggestion mode: remove row", async () => {
           </tableRow>
         </table>
       </blockContainer>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
     </blockGroup>"
   `);
   expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
@@ -633,9 +612,6 @@ test("suggestion mode: remove row", async () => {
             </tableCell>
           </tableRow>
         </table>
-      </blockContainer>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
       </blockContainer>
     </blockGroup>"
   `);
@@ -687,9 +663,6 @@ test("suggestion mode: remove row", async () => {
               </tableRow>
             </y-attributed-delete>
           </table>
-        </blockContainer>
-        <blockContainer id="1">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
         </blockContainer>
       </blockGroup>
     </doc>"
@@ -771,9 +744,6 @@ test("suggestion mode: remove column", async () => {
           </tableRow>
         </table>
       </blockContainer>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
     </blockGroup>"
   `);
   expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
@@ -805,9 +775,6 @@ test("suggestion mode: remove column", async () => {
             </tableCell>
           </tableRow>
         </table>
-      </blockContainer>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
       </blockContainer>
     </blockGroup>"
   `);
@@ -861,9 +828,6 @@ test("suggestion mode: remove column", async () => {
               </y-attributed-delete>
             </tableRow>
           </table>
-        </blockContainer>
-        <blockContainer id="1">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
         </blockContainer>
       </blockGroup>
     </doc>"
@@ -949,9 +913,6 @@ test("suggestion mode: update text in cell", async () => {
           </tableRow>
         </table>
       </blockContainer>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
     </blockGroup>"
   `);
   expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
@@ -1004,9 +965,6 @@ test("suggestion mode: update text in cell", async () => {
           </tableRow>
         </table>
       </blockContainer>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
     </blockGroup>"
   `);
   expect(editorHtml(editor)).toMatchInlineSnapshot(`
@@ -1058,9 +1016,6 @@ test("suggestion mode: update text in cell", async () => {
               </tableCell>
             </tableRow>
           </table>
-        </blockContainer>
-        <blockContainer id="1">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
         </blockContainer>
       </blockGroup>
     </doc>"
@@ -1163,9 +1118,6 @@ test("suggestion mode: change column background color", async () => {
           </tableRow>
         </table>
       </blockContainer>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
     </blockGroup>"
   `);
   expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
@@ -1218,9 +1170,6 @@ test("suggestion mode: change column background color", async () => {
           </tableRow>
         </table>
       </blockContainer>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
     </blockGroup>"
   `);
   expect(editorHtml(editor)).toMatchInlineSnapshot(`
@@ -1269,9 +1218,6 @@ test("suggestion mode: change column background color", async () => {
               </tableCell>
             </tableRow>
           </table>
-        </blockContainer>
-        <blockContainer id="1">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
         </blockContainer>
       </blockGroup>
     </doc>"
@@ -1367,9 +1313,6 @@ test("suggestion mode: merge two cells", async () => {
           </tableRow>
         </table>
       </blockContainer>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
     </blockGroup>"
   `);
   expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
@@ -1421,9 +1364,6 @@ test("suggestion mode: merge two cells", async () => {
             </tableCell>
           </tableRow>
         </table>
-      </blockContainer>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
       </blockContainer>
     </blockGroup>"
   `);
@@ -1492,9 +1432,6 @@ test("suggestion mode: merge two cells", async () => {
               </y-attributed-insert>
             </tableRow>
           </table>
-        </blockContainer>
-        <blockContainer id="1">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
         </blockContainer>
       </blockGroup>
     </doc>"
@@ -1587,9 +1524,6 @@ test("suggestion mode: split a merged cell", async () => {
           </tableRow>
         </table>
       </blockContainer>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
     </blockGroup>"
   `);
   expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
@@ -1641,9 +1575,6 @@ test("suggestion mode: split a merged cell", async () => {
             </tableCell>
           </tableRow>
         </table>
-      </blockContainer>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
       </blockContainer>
     </blockGroup>"
   `);
@@ -1702,9 +1633,6 @@ test("suggestion mode: split a merged cell", async () => {
               </tableCell>
             </tableRow>
           </table>
-        </blockContainer>
-        <blockContainer id="1">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
         </blockContainer>
       </blockGroup>
     </doc>"

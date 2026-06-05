@@ -24,11 +24,10 @@ const TABLE_2X2 = {
 
 // A deletes the last row, B adds a third column. Two disjoint
 // structural edits to the same table.
-// TODO: hits the same y-prosemirror
-// `applyChangesetToDelta: Unexpected case` we already document for
-// the cascading-indents test in `nesting.concurrent.test.tsx` – the
-// merged editor's afterTransaction throws when these two suggestions
-// sync. Marked `test.fails` until upstream.
+// The merged editor's afterTransaction throws
+// `applyChangesetToDelta: Unexpected case` in y-prosemirror when
+// these two suggestions sync, so this is marked `test.fails` until
+// upstream supports this interleaving.
 test.fails("concurrent: A deletes a row, B adds a column", async () => {
   const {
     userA,
@@ -200,15 +199,6 @@ test("concurrent: A adds a row, B adds a column", async () => {
           </tableRow>
         </table>
       </blockContainer>
-      <blockContainer id="3">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-      <blockContainer id="2">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
     </blockGroup>"
   `);
   expect(ydocXml(suggestionDocA)).toMatchInlineSnapshot(`
@@ -283,15 +273,6 @@ test("concurrent: A adds a row, B adds a column", async () => {
           </tableRow>
         </table>
       </blockContainer>
-      <blockContainer id="3">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-      <blockContainer id="2">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
     </blockGroup>"
   `);
   expect(ydocXml(suggestionDocB)).toMatchInlineSnapshot(`
@@ -363,15 +344,6 @@ test("concurrent: A adds a row, B adds a column", async () => {
             </tableCell>
           </tableRow>
         </table>
-      </blockContainer>
-      <blockContainer id="3">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-      <blockContainer id="2">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
       </blockContainer>
     </blockGroup>"
   `);
@@ -476,15 +448,6 @@ test("concurrent: A adds a row, B adds a column", async () => {
             </tableCell>
           </tableRow>
         </table>
-      </blockContainer>
-      <blockContainer id="3">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-      <blockContainer id="2">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
       </blockContainer>
     </blockGroup>"
   `);
@@ -612,15 +575,6 @@ test("concurrent: A adds a row, B adds a column", async () => {
             </y-attributed-insert>
           </table>
         </blockContainer>
-        <blockContainer id="3">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
-        </blockContainer>
-        <blockContainer id="2">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
-        </blockContainer>
-        <blockContainer id="1">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
-        </blockContainer>
       </blockGroup>
     </doc>"
   `);
@@ -628,11 +582,9 @@ test("concurrent: A adds a row, B adds a column", async () => {
 
 // A deletes the last column, B adds a third row. Mirrors the
 // `delete-row vs add-column` case along the other axis.
-// TODO: hits the same y-prosemirror
-// `applyChangesetToDelta: Unexpected case` we already document for
-// the `delete-row vs add-column` test above. Marked `test.fails`
-// until upstream.
-test.fails("concurrent: A deletes a column, B adds a row", async () => {
+// The merge converges with B's column deleted and the new row
+// inserted, captured in the snapshots below.
+test("concurrent: A deletes a column, B adds a row", async () => {
   const {
     userA,
     userB,
@@ -690,11 +642,306 @@ test.fails("concurrent: A deletes a column, B adds a row", async () => {
     "table-concurrent-delete-column-vs-add-row",
   );
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot();
-  expect(ydocXml(suggestionDocA)).toMatchInlineSnapshot();
-  expect(ydocXml(suggestionDocB)).toMatchInlineSnapshot();
-  expect(ydocXml(suggestionDocMerged)).toMatchInlineSnapshot();
-  expect(editorHtml(merged.editor)).toMatchInlineSnapshot();
+  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="table">
+        <table textColor="default">
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A1</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B1</tableParagraph>
+            </tableCell>
+          </tableRow>
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A2</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B2</tableParagraph>
+            </tableCell>
+          </tableRow>
+        </table>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDocA)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="table">
+        <table textColor="default">
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A1</tableParagraph>
+            </tableCell>
+          </tableRow>
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A2</tableParagraph>
+            </tableCell>
+          </tableRow>
+        </table>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDocB)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="table">
+        <table textColor="default">
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A1</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B1</tableParagraph>
+            </tableCell>
+          </tableRow>
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A2</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B2</tableParagraph>
+            </tableCell>
+          </tableRow>
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A3</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B3</tableParagraph>
+            </tableCell>
+          </tableRow>
+        </table>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDocMerged)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="table">
+        <table textColor="default">
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A1</tableParagraph>
+            </tableCell>
+          </tableRow>
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A2</tableParagraph>
+            </tableCell>
+          </tableRow>
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A3</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B3</tableParagraph>
+            </tableCell>
+          </tableRow>
+        </table>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(editorHtml(merged.editor)).toMatchInlineSnapshot(`
+    "<doc>
+      <blockGroup>
+        <blockContainer id="table">
+          <table textColor="default">
+            <tableRow>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph>A1</tableParagraph>
+              </tableCell>
+              <y-attributed-delete user-color="#30bced">
+                <tableCell
+                  textColor="default"
+                  backgroundColor="default"
+                  textAlignment="left"
+                  colspan="1"
+                  rowspan="1"
+                >
+                  <tableParagraph>B1</tableParagraph>
+                </tableCell>
+              </y-attributed-delete>
+            </tableRow>
+            <tableRow>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph>A2</tableParagraph>
+              </tableCell>
+              <y-attributed-delete user-color="#30bced">
+                <tableCell
+                  textColor="default"
+                  backgroundColor="default"
+                  textAlignment="left"
+                  colspan="1"
+                  rowspan="1"
+                >
+                  <tableParagraph>B2</tableParagraph>
+                </tableCell>
+              </y-attributed-delete>
+            </tableRow>
+            <y-attributed-insert user-color="#30bced">
+              <tableRow>
+                <y-attributed-insert user-color="#30bced">
+                  <tableCell
+                    textColor="default"
+                    backgroundColor="default"
+                    textAlignment="left"
+                    colspan="1"
+                    rowspan="1"
+                  >
+                    <y-attributed-insert user-color="#30bced">
+                      <tableParagraph>
+                        <y-attributed-insert user-color="#30bced">A3</y-attributed-insert>
+                      </tableParagraph>
+                    </y-attributed-insert>
+                  </tableCell>
+                </y-attributed-insert>
+                <y-attributed-insert user-color="#30bced">
+                  <tableCell
+                    textColor="default"
+                    backgroundColor="default"
+                    textAlignment="left"
+                    colspan="1"
+                    rowspan="1"
+                  >
+                    <y-attributed-insert user-color="#30bced">
+                      <tableParagraph>
+                        <y-attributed-insert user-color="#30bced">B3</y-attributed-insert>
+                      </tableParagraph>
+                    </y-attributed-insert>
+                  </tableCell>
+                </y-attributed-insert>
+              </tableRow>
+            </y-attributed-insert>
+          </table>
+        </blockContainer>
+      </blockGroup>
+    </doc>"
+  `);
 });
 
 // A adds a column, B adds a row. Mirror of `add-row + add-column`,
@@ -807,15 +1054,6 @@ test("concurrent: A adds a column, B adds a row", async () => {
           </tableRow>
         </table>
       </blockContainer>
-      <blockContainer id="3">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-      <blockContainer id="2">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
     </blockGroup>"
   `);
   expect(ydocXml(suggestionDocA)).toMatchInlineSnapshot(`
@@ -887,15 +1125,6 @@ test("concurrent: A adds a column, B adds a row", async () => {
             </tableCell>
           </tableRow>
         </table>
-      </blockContainer>
-      <blockContainer id="3">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-      <blockContainer id="2">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
       </blockContainer>
     </blockGroup>"
   `);
@@ -970,15 +1199,6 @@ test("concurrent: A adds a column, B adds a row", async () => {
             </tableCell>
           </tableRow>
         </table>
-      </blockContainer>
-      <blockContainer id="3">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-      <blockContainer id="2">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
       </blockContainer>
     </blockGroup>"
   `);
@@ -1083,15 +1303,6 @@ test("concurrent: A adds a column, B adds a row", async () => {
             </tableCell>
           </tableRow>
         </table>
-      </blockContainer>
-      <blockContainer id="3">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-      <blockContainer id="2">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
       </blockContainer>
     </blockGroup>"
   `);
@@ -1218,15 +1429,6 @@ test("concurrent: A adds a column, B adds a row", async () => {
               </tableRow>
             </y-attributed-insert>
           </table>
-        </blockContainer>
-        <blockContainer id="3">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
-        </blockContainer>
-        <blockContainer id="2">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
-        </blockContainer>
-        <blockContainer id="1">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
         </blockContainer>
       </blockGroup>
     </doc>"

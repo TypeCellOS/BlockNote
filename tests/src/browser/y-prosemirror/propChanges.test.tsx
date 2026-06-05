@@ -135,9 +135,6 @@ test("suggestion mode: change heading level from 1 to 2", async () => {
           textColor="default"
         >hello world</heading>
       </blockContainer>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
     </blockGroup>"
   `);
   expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
@@ -150,9 +147,6 @@ test("suggestion mode: change heading level from 1 to 2", async () => {
           textAlignment="left"
           textColor="default"
         >hello world</heading>
-      </blockContainer>
-      <blockContainer id="1">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
       </blockContainer>
     </blockGroup>"
   `);
@@ -167,9 +161,6 @@ test("suggestion mode: change heading level from 1 to 2", async () => {
             level="2"
             isToggleable="false"
           >hello world</heading>
-        </blockContainer>
-        <blockContainer id="1">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
         </blockContainer>
       </blockGroup>
     </doc>"
@@ -238,9 +229,6 @@ test("suggestion mode: resize image (previewWidth)", async () => {
         </svg>
         " />
     </blockContainer>
-    <blockContainer id="1">
-      <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-    </blockContainer>
     </blockGroup>"
   `);
   expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
@@ -262,9 +250,6 @@ test("suggestion mode: resize image (previewWidth)", async () => {
         </svg>
         " />
     </blockContainer>
-    <blockContainer id="1">
-      <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-    </blockContainer>
     </blockGroup>"
   `);
   expect(editorHtml(editor)).toMatchInlineSnapshot(`
@@ -280,9 +265,6 @@ test("suggestion mode: resize image (previewWidth)", async () => {
             showPreview="true"
             previewWidth="400"
           ></image>
-        </blockContainer>
-        <blockContainer id="1">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
         </blockContainer>
       </blockGroup>
     </doc>"
@@ -347,9 +329,6 @@ test("suggestion mode: change image source", async () => {
         </svg>
         " />
     </blockContainer>
-    <blockContainer id="1">
-      <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-    </blockContainer>
     </blockGroup>"
   `);
   expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
@@ -371,9 +350,6 @@ test("suggestion mode: change image source", async () => {
         </svg>
         " />
     </blockContainer>
-    <blockContainer id="1">
-      <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-    </blockContainer>
     </blockGroup>"
   `);
   expect(editorHtml(editor)).toMatchInlineSnapshot(`
@@ -389,9 +365,6 @@ test("suggestion mode: change image source", async () => {
             showPreview="true"
             previewWidth="200"
           ></image>
-        </blockContainer>
-        <blockContainer id="1">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
         </blockContainer>
       </blockGroup>
     </doc>"
