@@ -1,82 +1,57 @@
-import { Page } from "@playwright/test";
-import { PASTE_ZONE_SELECTOR } from "./const.js";
-import { focusOnEditor } from "./editor.js";
+import { MOD, userEvent } from "./context.js";
+import { waitForSelector } from "./editor.js";
 
-export async function copyPaste(page: Page) {
-  await page.keyboard.press(`ControlOrMeta+C`);
+export function selectAll() {
+  return userEvent.keyboard(`{${MOD}>}a{/${MOD}}`);
+}
+
+export async function copyPaste() {
+  await userEvent.keyboard(`{${MOD}>}c{/${MOD}}`);
   // Exit out of any menus/toolbars which may block the trailing block.
-  await page.keyboard.press(`Escape`);
-  await page.locator(".bn-trailing-block").click();
-  await page.keyboard.press(`ControlOrMeta+V`);
+  await userEvent.keyboard("{Escape}");
+  await userEvent.click(await waitForSelector(".bn-trailing-block"));
+  await userEvent.keyboard(`{${MOD}>}v{/${MOD}}`);
 }
 
-export async function copyPasteAll(page: Page) {
-  await page.keyboard.press(`ControlOrMeta+A`);
-  await copyPaste(page);
+export async function copyPasteAll() {
+  await selectAll();
+  await copyPaste();
 }
 
-export async function copyPasteAllExternal(
-  page: Page,
-  os: "mac" | "linux" = "linux",
-) {
-  const modifierKey = os === "mac" ? "Meta" : "Control";
-  await page.keyboard.press(`${modifierKey}+A`);
-  await page.keyboard.press(`${modifierKey}+C`);
-  await focusOnEditor(page);
-
-  const pasteZone = page.locator(PASTE_ZONE_SELECTOR);
-  await pasteZone.click();
-  await page.keyboard.press(`${modifierKey}+V`);
-
-  return await pasteZone.inputValue();
+export async function insertParagraph() {
+  await userEvent.keyboard("Paragraph");
 }
 
-export function removeClassesFromHTML(html: string) {
-  return html.replace(/class="\S*"\s/g, "");
-}
-
-export function removeMetaFromHTML(html: string) {
-  return html.replace(/<meta charset='utf-8'>/g, "");
-}
-
-export async function insertParagraph(page: Page) {
-  await page.keyboard.type("Paragraph");
-}
-
-export async function insertHeading(page: Page, headingLevel: number) {
+export async function insertHeading(headingLevel: number) {
   for (let i = 0; i < headingLevel; i++) {
-    await page.keyboard.press("#");
+    await userEvent.keyboard("#");
   }
-
-  await page.keyboard.press(" ");
-  await page.keyboard.type("Heading");
+  await userEvent.keyboard(" ");
+  await userEvent.keyboard("Heading");
 }
 
-export async function startList(page: Page, ordered: boolean) {
+export async function startList(ordered: boolean) {
   if (ordered) {
-    await page.keyboard.press("1");
-    await page.keyboard.press(".");
-    await page.keyboard.press(" ");
+    await userEvent.keyboard("1. ");
   } else {
-    await page.keyboard.press("-");
-    await page.keyboard.press(" ");
+    await userEvent.keyboard("- ");
   }
 }
 
-export async function insertListItems(page: Page) {
-  await page.keyboard.type("List Item 1");
-  await page.keyboard.press("Enter");
-  await page.keyboard.type("List Item 2");
-  await page.keyboard.press("Enter");
-  await page.keyboard.type("List Item 3");
+export async function insertListItems() {
+  await userEvent.keyboard("List Item 1");
+  await userEvent.keyboard("{Enter}");
+  await userEvent.keyboard("List Item 2");
+  await userEvent.keyboard("{Enter}");
+  await userEvent.keyboard("List Item 3");
 }
 
-export async function insertNestedListItems(page: Page) {
-  await page.keyboard.type("List Item 1");
-  await page.keyboard.press("Enter");
-  await page.keyboard.press("Tab");
-  await page.keyboard.type("List Item 2");
-  await page.keyboard.press("Enter");
-  await page.keyboard.press("Tab");
-  await page.keyboard.type("List Item 3");
+export async function insertNestedListItems() {
+  await userEvent.keyboard("List Item 1");
+  await userEvent.keyboard("{Enter}");
+  await userEvent.keyboard("{Tab}");
+  await userEvent.keyboard("List Item 2");
+  await userEvent.keyboard("{Enter}");
+  await userEvent.keyboard("{Tab}");
+  await userEvent.keyboard("List Item 3");
 }

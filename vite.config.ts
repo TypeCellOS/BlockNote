@@ -34,6 +34,7 @@ export default defineConfig({
       "./packages/xl-odt-exporter/vite.config.ts",
       "./packages/xl-pdf-exporter/vite.config.ts",
       "./tests/vite.config.ts",
+      "./tests/vite.config.browser.ts",
     ],
   },
   lint: {
@@ -135,7 +136,6 @@ export default defineConfig({
       "**/playwright-report/**",
       "**/blob-report/**",
       "**/*.mdx",
-      "playground/src/examples.gen.tsx",
       "pnpm-lock.yaml",
     ],
   },
