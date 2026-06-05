@@ -1,33 +1,33 @@
 #!/usr/bin/env bash
 #
-# Regenerates the pnpm patch for @y/prosemirror from a local build.
+# Regenerates the pnpm patch for lib0 from a local build.
 #
 # Usage:
-#   ./scripts/patch-y-prosemirror.sh [path-to-y-prosemirror]
+#   ./scripts/patch-lib0.sh [path-to-lib0]
 #
-# Defaults to ../y-prosemirror relative to this repo root.
+# Defaults to ../lib0 relative to this repo root.
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 BLOCKNOTE_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-LOCAL_YPM="${1:-$(cd "$BLOCKNOTE_ROOT/../y-prosemirror" && pwd)}"
+LOCAL_LIB0="${1:-$(cd "$BLOCKNOTE_ROOT/../lib0" && pwd)}"
 
-if [[ ! -d "$LOCAL_YPM/src" ]]; then
-  echo "ERROR: Cannot find y-prosemirror at $LOCAL_YPM"
-  echo "Pass the path as an argument: $0 /path/to/y-prosemirror"
+if [[ ! -d "$LOCAL_LIB0/src" ]]; then
+  echo "ERROR: Cannot find lib0 at $LOCAL_LIB0"
+  echo "Pass the path as an argument: $0 /path/to/lib0"
   exit 1
 fi
 
-echo "==> Using local y-prosemirror at: $LOCAL_YPM"
+echo "==> Using local lib0 at: $LOCAL_LIB0"
 echo "==> BlockNote root: $BLOCKNOTE_ROOT"
 
-# 0. Build y-prosemirror so dist/ is up to date
-echo "==> Building y-prosemirror (npm run dist) ..."
-(cd "$LOCAL_YPM" && npm run dist)
+# 0. Build lib0 so dist/ is up to date
+echo "==> Building lib0 (npm run dist) ..."
+(cd "$LOCAL_LIB0" && npm run dist)
 
 # Best-effort cleanup of any leftover patch dir (case-insensitive FS resolves this fine).
-STALE_PATCH_DIR="$BLOCKNOTE_ROOT/node_modules/.pnpm_patches/@y/prosemirror@2.0.0-2"
+STALE_PATCH_DIR="$BLOCKNOTE_ROOT/node_modules/.pnpm_patches/lib0@1.0.0-rc.13"
 
 # 1. Clean up any leftover patch dir, then start fresh
 if [[ -d "$STALE_PATCH_DIR" ]]; then
@@ -35,15 +35,15 @@ if [[ -d "$STALE_PATCH_DIR" ]]; then
   rm -rf "$STALE_PATCH_DIR"
 fi
 
-echo "==> Running pnpm patch @y/prosemirror@2.0.0-2 ..."
+echo "==> Running pnpm patch lib0@1.0.0-rc.13 ..."
 cd "$BLOCKNOTE_ROOT"
 # Capture pnpm's reported patch dir so we use the canonical on-disk path casing.
 # Constructing PATCH_DIR manually breaks on macOS when the repo is entered via a
 # differently-cased path (e.g. blockNote vs BlockNote): pnpm patch-commit matches
 # the path against state.json case-sensitively and fails with ERR_PNPM_INVALID_PATCH_DIR.
-PATCH_OUTPUT="$(pnpm patch @y/prosemirror@2.0.0-2)"
+PATCH_OUTPUT="$(pnpm patch lib0@1.0.0-rc.13)"
 echo "$PATCH_OUTPUT"
-PATCH_DIR="$(printf '%s\n' "$PATCH_OUTPUT" | grep -Eo '/.*/\.pnpm_patches/@y/prosemirror@2\.0\.0-2' | head -n1)"
+PATCH_DIR="$(printf '%s\n' "$PATCH_OUTPUT" | grep -Eo '/.*/\.pnpm_patches/lib0@1\.0\.0-rc\.13' | head -n1)"
 
 if [[ -z "$PATCH_DIR" || ! -d "$PATCH_DIR" ]]; then
   echo "ERROR: Could not determine patch dir from 'pnpm patch' output"
@@ -55,38 +55,25 @@ echo "==> Patch temp dir: $PATCH_DIR"
 # 2. Replace src/ with local build
 echo "==> Replacing src/ ..."
 rm -rf "$PATCH_DIR/src"
-cp -R "$LOCAL_YPM/src" "$PATCH_DIR/src"
+cp -R "$LOCAL_LIB0/src" "$PATCH_DIR/src"
 
-# 3. Replace dist/ with local build (only dist/src/ with .d.ts files)
+# 3. Replace dist/ with local build (.d.ts files)
 echo "==> Replacing dist/ ..."
 rm -rf "$PATCH_DIR/dist"
-mkdir -p "$PATCH_DIR/dist/src"
-cp -R "$LOCAL_YPM/dist/src/" "$PATCH_DIR/dist/src/"
+cp -R "$LOCAL_LIB0/dist" "$PATCH_DIR/dist"
 
-# 4. Copy global.d.ts if it exists
-if [[ -f "$LOCAL_YPM/global.d.ts" ]]; then
-  echo "==> Copying global.d.ts ..."
-  cp "$LOCAL_YPM/global.d.ts" "$PATCH_DIR/global.d.ts"
-fi
-
-# 5. Update package.json in the patch dir
+# 4. Update package.json in the patch dir
 echo "==> Updating package.json ..."
 node -e "
 const fs = require('fs');
 const orig = JSON.parse(fs.readFileSync('$PATCH_DIR/package.json', 'utf8'));
-const local = JSON.parse(fs.readFileSync('$LOCAL_YPM/package.json', 'utf8'));
+const local = JSON.parse(fs.readFileSync('$LOCAL_LIB0/package.json', 'utf8'));
 
-// Keep the original version so pnpm doesn't try to fetch 2.0.0-3 from registry
-orig.version = '2.0.0-2';
+// Keep the original version so pnpm doesn't try to fetch a different version from registry
+orig.version = '1.0.0-rc.13';
 
 // Update exports
 orig.exports = local.exports;
-
-// Update dependencies
-orig.dependencies = local.dependencies;
-
-// Update peerDependencies
-orig.peerDependencies = local.peerDependencies;
 
 // Update files list
 orig.files = local.files;
@@ -95,14 +82,17 @@ orig.files = local.files;
 if (local.type) orig.type = local.type;
 if ('sideEffects' in local) orig.sideEffects = local.sideEffects;
 
+// Update bin if present
+if (local.bin) orig.bin = local.bin;
+
 fs.writeFileSync('$PATCH_DIR/package.json', JSON.stringify(orig, null, 2) + '\n');
 console.log('   package.json updated');
 "
 
-# 6. Commit the patch
+# 5. Commit the patch
 echo ""
 echo "==> Running pnpm patch-commit ..."
 pnpm patch-commit "$PATCH_DIR"
 
 echo ""
-echo "==> Done! Patch regenerated at patches/@y__prosemirror@2.0.0-2.patch"
+echo "==> Done! Patch regenerated at patches/lib0@1.0.0-rc.13.patch"

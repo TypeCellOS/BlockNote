@@ -342,10 +342,10 @@ index 0000000000000000000000000000000000000000..df8c9df944fe1c64c46c648d913a0f8b
 \ No newline at end of file
 diff --git a/dist/src/sync-utils.d.ts b/dist/src/sync-utils.d.ts
 new file mode 100644
-index 0000000000000000000000000000000000000000..83d38f1a99ecb675beff65f50a2082b659d2c36a
+index 0000000000000000000000000000000000000000..dfb00a847adcc5a1db01d557a8b0b056eefd1c9a
 --- /dev/null
 +++ b/dist/src/sync-utils.d.ts
-@@ -0,0 +1,127 @@
+@@ -0,0 +1,146 @@
 +/**
 + * Transforms a {@link Node} into a {@link Y.XmlFragment}
 + * @param {Node} node
@@ -468,6 +468,25 @@ index 0000000000000000000000000000000000000000..83d38f1a99ecb675beff65f50a2082b6
 +}>;
 +export function stepToDelta(step: import("prosemirror-transform").Step, beforeDoc: import("prosemirror-model").Node): ProsemirrorDelta;
 +export function deltaModifyNodeAt(node: Node, pmOffset: number, mod: (d: delta.DeltaBuilderAny) => any): ProsemirrorDelta;
++/**
++ * A single child op of a {@link ProsemirrorDelta} (retain / modify / insert /
++ * text / delete).
++ */
++export type ProsemirrorDeltaOp = delta.ChildrenOpAny;
++/**
++ * A grouped run of insert/text and/or delete ops sharing one anchor position,
++ * applied as a single atomic replace step (see {@link deltaToPSteps}).
++ */
++export type ReplaceBundle = {
++    /**
++     * insert/text ops, in delta order
++     */
++    inserts: Array<delta.InsertOp<any> | delta.TextOp>;
++    /**
++     * delete ops, in delta order
++     */
++    deletes: Array<delta.DeleteOp>;
++};
 +import { Node } from 'prosemirror-model';
 +import * as Y from '@y/y';
 +import * as delta from 'lib0/delta';
@@ -476,11 +495,11 @@ index 0000000000000000000000000000000000000000..83d38f1a99ecb675beff65f50a2082b6
 \ No newline at end of file
 diff --git a/dist/src/sync-utils.d.ts.map b/dist/src/sync-utils.d.ts.map
 new file mode 100644
-index 0000000000000000000000000000000000000000..5634baccb112adaaf0c61b7879ef71c52d9d41db
+index 0000000000000000000000000000000000000000..8d7883745029eee21f25288286021206007fd3ff
 --- /dev/null
 +++ b/dist/src/sync-utils.d.ts.map
 @@ -0,0 +1 @@
-+{"version":3,"file":"sync-utils.d.ts","sourceRoot":"","sources":["../../src/sync-utils.js"],"names":[],"mappings":"AAsNA;;;;;;;GAOG;AACH,mCANW,IAAI,YACJ,CAAC,CAAC,IAAI,2BAEd;IAA4C,kBAAkB;CAC9D,GAAU,CAAC,CAAC,IAAI,CASlB;AAED;;;;;;;;;GASG;AACH,uCARW,CAAC,CAAC,IAAI,MACN,OAAO,mBAAmB,EAAE,WAAW,kEAE/C;IAA2C,kBAAkB;IACZ,oBAAoB,KAxIxB,CAAC,SAApC,OAAQ,YAAY,EAAE,WAAY,UACpC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,eAC9B,CAAC,KACC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI;IAsID,eAAe;CACtD,GAAU,OAAO,mBAAmB,EAAE,WAAW,CAiBnD;AAED;;;;;GAKG;AACH,uCAJW,CAAC,CAAC,IAAI,MACN,OAAO,mBAAmB,EAAE,WAAW,GACtC,IAAI,CAIf;AA+SD;;;;;;;;;;;;;;;;;GAiBG;AACH,oCAJW,IAAI,mBACJ,MAAM,GACL,MAAM,EAAE,CAwBnB;AAED;;;;;GAKG;AACH,yCAJW,MAAM,EAAE,QACR,IAAI,GACH,MAAM,CAgCjB;AApnBD;;;;;;;IAA4I;AAE5I;;;;;;;GAOG;AACH,gCAAiC,cAAc,CAAA;AAE/C;;;;;GAKG;AACH,qCAFU,wBAAwB,CAEe;AAS1C,wCAHI,MAAM,GACL,MAAM,CAKR;AAcH,iDANI,MAAM,UACN,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,GAAG,SAAS,mBAC1C,wBAAwB,UACxB,OAAO,mBAAmB,EAAE,MAAM,GACjC,MAAM,CAajB;AAgCM,4CALyC,CAAC,SAApC,OAAQ,YAAY,EAAE,WAAY,UACpC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,eAC9B,CAAC,GACC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,CAiC1C;AAOM,4CAHI,KAAK,CAAC,QAAQ,mCA4BL,gBAAgB,CACnC;AA0BM,wDAHI;IAAC,CAAC,GAAG,EAAC,MAAM,GAAE,GAAG,CAAA;CAAC,GAAC,IAAI,UACvB,OAAO,mBAAmB,EAAE,MAAM,sCAGwD;AAM9F,iCAHI,KAAK,CAAC,IAAI,CAAC,GACV,gBAAgB,CAW3B;AAgEM,+BAPI,IAAI,aACJ,MAAM,OAAC,iBACP,OAAO,GAGN,gBAAgB,CAS3B;AAKM,gCAFI,IAAI;;;;;;;GAEwC;AAmDhD,kCAPI,OAAO,mBAAmB,EAAE,WAAW,KACvC,gBAAgB,UAChB,IAAI,YACJ;IAAE,CAAC,EAAE,MAAM,CAAA;CAAE,oBACb,wBAAwB,GACvB,OAAO,mBAAmB,EAAE,WAAW,CAkGlD;AASM,gCANI,gBAAgB,UAChB,OAAO,mBAAmB,EAAE,MAAM,WAClC,KAAK,CAAC,oBAAoB,GAAC,IAAI,oBAC/B,wBAAwB,GACvB,IAAI,CA6Bf;AAMM,0CAHI,IAAI,YACJ,IAAI;;;;;;;GAMd;AAKM,8BAFI,WAAW;;;;;;;GAkBrB;AA+CM,kCAJI,OAAO,uBAAuB,EAAE,IAAI,aACpC,OAAO,mBAAmB,EAAE,IAAI,GAC/B,gBAAgB,CAQ3B;AAoGM,wCALI,IAAI,YACJ,MAAM,OACN,CAAC,CAAC,EAAC,KAAK,CAAC,eAAe,KAAG,GAAG,GAC7B,gBAAgB,CAa3B;qBAnpBqC,mBAAmB;mBAPtC,MAAM;uBAEF,YAAY;mBAIhB,aAAa"}
++{"version":3,"file":"sync-utils.d.ts","sourceRoot":"","sources":["../../src/sync-utils.js"],"names":[],"mappings":"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"}
 \ No newline at end of file
 diff --git a/dist/src/undo-plugin.d.ts b/dist/src/undo-plugin.d.ts
 new file mode 100644
@@ -2336,10 +2355,10 @@ index 0000000000000000000000000000000000000000..079bc7e465f98612907d36adc9854054
 +}
 diff --git a/src/sync-utils.js b/src/sync-utils.js
 new file mode 100644
-index 0000000000000000000000000000000000000000..28426627d278e5a3f9ae01fb81bcbf9bcff413d3
+index 0000000000000000000000000000000000000000..2234e5506a5341f39c80f389288823d887b38d28
 --- /dev/null
 +++ b/src/sync-utils.js
-@@ -0,0 +1,667 @@
+@@ -0,0 +1,752 @@
 +import * as Y from '@y/y'
 +import * as array from 'lib0/array'
 +import * as delta from 'lib0/delta'
@@ -2618,7 +2637,18 @@ index 0000000000000000000000000000000000000000..28426627d278e5a3f9ae01fb81bcbf9b
 + */
 +export const nodeToDelta = (n, nodeName = n.type.name, canonicalize = false) => {
 +  const d = delta.create(canonicalize && nodeName != null ? canonicalNodeName(nodeName) : nodeName, $prosemirrorDelta)
-+  d.setAttrs(n.attrs)
++  // `y-attributed` is a render-only marker injected when a node is rendered
++  // under its `--attributed` variant (see the injections in `applyNodeFormat`
++  // and `deltaToPNode`). It must never persist in Y - strip it on the PM->Y
++  // (canonicalize) path, symmetric to the variant-name canonicalization above.
++  // Otherwise Y stores a canonical node carrying `y-attributed`, which the
++  // canonical PM type cannot round-trip, and the reconcile loop never converges.
++  if (canonicalize && n.attrs['y-attributed'] !== undefined) {
++    const { 'y-attributed': _omit, ...rest } = n.attrs
++    d.setAttrs(rest)
++  } else {
++    d.setAttrs(n.attrs)
++  }
 +  n.content.content.forEach(c => {
 +    d.insert(c.isText ? (c.text ?? []) : [nodeToDelta(c, undefined, canonicalize)], marksToFormattingAttributes(c.marks))
 +  })
@@ -2659,7 +2689,7 @@ index 0000000000000000000000000000000000000000..28426627d278e5a3f9ae01fb81bcbf9b
 +    attributedVariant(canonicalNodeName(node.type.name), marksToFormattingAttributes(resultingMarks), attributedNodes, schema)
 +  ]
 +  if (targetType !== node.type) {
-+    tr.setNodeMarkup(pos, targetType, node.attrs, resultingMarks)
++    tr.setNodeMarkup(pos, targetType, object.assign({ 'y-attributed': true }, node.attrs), resultingMarks)
 +  } else {
 +    object.forEach(format ?? {}, (v, k) => {
 +      if (v == null) {
@@ -2670,6 +2700,22 @@ index 0000000000000000000000000000000000000000..28426627d278e5a3f9ae01fb81bcbf9b
 +    })
 +  }
 +}
++
++/**
++ * A single child op of a {@link ProsemirrorDelta} (retain / modify / insert /
++ * text / delete).
++ *
++ * @typedef {delta.ChildrenOpAny} ProsemirrorDeltaOp
++ */
++
++/**
++ * A grouped run of insert/text and/or delete ops sharing one anchor position,
++ * applied as a single atomic replace step (see {@link deltaToPSteps}).
++ *
++ * @typedef {object} ReplaceBundle
++ * @property {Array<delta.InsertOp<any>|delta.TextOp>} inserts insert/text ops, in delta order
++ * @property {Array<delta.DeleteOp>} deletes delete ops, in delta order
++ */
 +
 +/**
 + * @param {import('prosemirror-state').Transaction} tr
@@ -2685,9 +2731,48 @@ index 0000000000000000000000000000000000000000..28426627d278e5a3f9ae01fb81bcbf9b
 +  let nOffset = 0
 +  const pchildren = pnode.children
 +  for (const attr of d.attrs) {
-+    tr.setNodeAttribute(currPos.i - 1, attr.key, attr.value)
++    if (delta.$setAttrOp.check(attr)) {
++      // can be a delete attr op iff attribution node is transformed back to a normal node
++      tr.setNodeAttribute(currPos.i - 1, attr.key, attr.value)
++    }
 +  }
-+  d.children.forEach(op => {
++  // Group ops into maximal runs bounded by retain/modify ops (the only ops that
++  // re-anchor position relative to `pchildren`; `delta.diff` never emits a retain
++  // inside a replace run, so every op within a run shares the same anchor). Each
++  // run of inserts/deletes is applied as a single atomic replace `bundle`
++  // (`{ inserts, deletes }`), so ProseMirror validates only the final state - a
++  // pure insert is a replace with no deletes, a pure delete a replace with no
++  // inserts. Applying delete and insert as separate steps would expose an
++  // intermediate that some content expressions reject - e.g. `attributed*
++  // (block|attributed) attributed*` (one non-attributed block flanked by
++  // attributed nodes) rejects both the delete-first (empty) and insert-first
++  // (two-block) intermediates.
++  /** @type {Array<ProsemirrorDeltaOp | ReplaceBundle>} */
++  const ordered = []
++  /** @type {Array<delta.InsertOp<any>|delta.TextOp>} */
++  let runInserts = []
++  /** @type {Array<delta.DeleteOp>} */
++  let runDeletes = []
++  const flushRun = () => {
++    if (runInserts.length > 0 || runDeletes.length > 0) {
++      ordered.push({ inserts: runInserts, deletes: runDeletes })
++    }
++    runInserts = []
++    runDeletes = []
++  }
++  for (const op of d.children) {
++    if (delta.$retainOp.check(op) || delta.$modifyOp.check(op)) {
++      flushRun()
++      ordered.push(op)
++    } else if (delta.$deleteOp.check(op)) {
++      runDeletes.push(op)
++    } else { // insert / text
++      runInserts.push(/** @type {any} */ (op))
++    }
++  }
++  flushRun()
++
++  ordered.forEach(op => {
 +    if (delta.$retainOp.check(op)) {
 +      // skip over i children
 +      let i = op.retain
@@ -2742,36 +2827,50 @@ index 0000000000000000000000000000000000000000..28426627d278e5a3f9ae01fb81bcbf9b
 +      // any size delta from inserts/deletes inside the recursion.
 +      const netChange = tr.doc.content.size - sizeBefore
 +      currPos.i = childStart + child.nodeSize + netChange
-+    } else if (delta.$insertOp.check(op)) {
-+      const newPChildren = op.insert.map(ins => deltaToPNode(ins, schema, op.format, attributedNodes))
-+      tr.step(new ReplaceStep(currPos.i, currPos.i, new Slice(Fragment.from(newPChildren), 0, 0)))
-+      currPos.i += newPChildren.reduce((s, c) => c.nodeSize + s, 0)
-+    } else if (delta.$textOp.check(op)) {
-+      tr.step(new ReplaceStep(currPos.i, currPos.i, new Slice(Fragment.from(schema.text(op.insert, formattingAttributesToMarks(op.format, schema))), 0, 0)))
-+      currPos.i += op.length
-+    } else if (delta.$deleteOp.check(op)) {
-+      for (let remainingDelLen = op.delete; remainingDelLen > 0;) {
-+        const pc = pchildren[currParentIndex]
-+        if (pc === undefined) {
-+          throw new Error('[y/prosemirror]: delete operation is out of bounds')
-+        }
-+        if (pc.isText) {
-+          const delLen = math.min(pc.nodeSize - nOffset, remainingDelLen)
-+          tr.step(new ReplaceStep(currPos.i, currPos.i + delLen, Slice.empty))
-+          nOffset += delLen
-+          if (nOffset === pc.nodeSize) {
-+            // TODO this can't actually "jump out" of the current node
-+            // jump to next node
-+            nOffset = 0
-+            currParentIndex++
++    } else {
++      // Atomic replace bundle: build the inserted content, measure the deleted
++      // range (advancing currParentIndex/nOffset exactly like a delete would),
++      // and replace in one step. currPos.i ends past the inserted content,
++      // matching delete-then-insert (delete leaves currPos.i, insert advances
++      // it). Delete sizing reads the frozen `pchildren` snapshot, which is what
++      // makes the single combined range correct.
++      const bundle = /** @type {ReplaceBundle} */ (op)
++      const newPChildren = []
++      for (const ins of bundle.inserts) {
++        if (delta.$insertOp.check(ins)) {
++          for (const n of ins.insert) {
++            newPChildren.push(deltaToPNode(n, schema, ins.format, attributedNodes))
 +          }
-+          remainingDelLen -= delLen
-+        } else {
-+          tr.step(new ReplaceStep(currPos.i, currPos.i + pc.nodeSize, Slice.empty))
-+          currParentIndex++
-+          remainingDelLen--
++        } else { // text op
++          newPChildren.push(schema.text(ins.insert, formattingAttributesToMarks(ins.format, schema)))
 +        }
 +      }
++      const insertedFrag = Fragment.from(newPChildren)
++      let deletedSize = 0
++      for (const del of bundle.deletes) {
++        for (let remainingDelLen = del.delete; remainingDelLen > 0;) {
++          const pc = pchildren[currParentIndex]
++          if (pc === undefined) {
++            throw new Error('[y/prosemirror]: delete operation is out of bounds')
++          }
++          if (pc.isText) {
++            const delLen = math.min(pc.nodeSize - nOffset, remainingDelLen)
++            deletedSize += delLen
++            nOffset += delLen
++            if (nOffset === pc.nodeSize) {
++              nOffset = 0
++              currParentIndex++
++            }
++            remainingDelLen -= delLen
++          } else {
++            deletedSize += pc.nodeSize
++            currParentIndex++
++            remainingDelLen--
++          }
++        }
++      }
++      tr.step(new ReplaceStep(currPos.i, currPos.i + deletedSize, new Slice(insertedFrag, 0, 0)))
++      currPos.i += insertedFrag.size
 +    }
 +  })
 +  return tr
@@ -2802,8 +2901,13 @@ index 0000000000000000000000000000000000000000..28426627d278e5a3f9ae01fb81bcbf9b
 +  }
 +  const inputChildren = dc.flat(1)
 +  const inputMarks = formattingAttributesToMarks(dformat, schema)
++  const finalAttrs = canonical !== nodeType.name
++    ? object.assign({
++      'y-attributed': true
++    }, attrs)
++    : attrs
 +  const pNode = nodeType.createAndFill(
-+    attrs,
++    finalAttrs,
 +    inputChildren,
 +    inputMarks
 +  )

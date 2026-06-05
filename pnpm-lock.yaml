@@ -13,7 +13,9 @@ overrides:
   '@y/prosemirror>lib0': 1.0.0-rc.13
 
 patchedDependencies:
-  '@y/prosemirror@2.0.0-2': 6d18e9340ac9dddf315d155e6f37a101c4a51c6ad4aef3dfb6485f6903a12cc8
+  '@y/prosemirror@2.0.0-2': 802334aa5d2410b9fc999d5fb5ffef01650a04e58b59fca24e142c55b3379728
+  '@y/y@14.0.0-rc.16': 4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9
+  lib0@1.0.0-rc.13: 328c50b547222f0e54a7a9f4f70926c0532c006dec4f24d6954635b8c3adb69e
 
 importers:
 
@@ -234,16 +236,16 @@ importers:
         version: 0.6.4(react@19.2.5)(yjs@13.6.30)
       '@y/prosemirror':
         specifier: ^2.0.0-2
-        version: 2.0.0-2(patch_hash=6d18e9340ac9dddf315d155e6f37a101c4a51c6ad4aef3dfb6485f6903a12cc8)(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.16))(@y/y@14.0.0-rc.16)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)
+        version: 2.0.0-2(patch_hash=802334aa5d2410b9fc999d5fb5ffef01650a04e58b59fca24e142c55b3379728)(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9)))(@y/y@14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9))(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)
       '@y/protocols':
         specifier: ^1.0.6-rc.1
-        version: 1.0.6-rc.1(@y/y@14.0.0-rc.16)
+        version: 1.0.6-rc.1(@y/y@14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9))
       '@y/websocket':
         specifier: ^4.0.0-3
-        version: 4.0.0-rc.2(@y/y@14.0.0-rc.16)
+        version: 4.0.0-rc.2(@y/y@14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9))
       '@y/y':
         specifier: ^14.0.0-rc.16
-        version: 14.0.0-rc.16
+        version: 14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9)
       ai:
         specifier: ^6.0.5
         version: 6.0.5(zod@4.3.6)
@@ -276,7 +278,7 @@ importers:
         version: '@fumadocs/base-ui@16.5.0(@types/react@19.2.14)(fumadocs-core@16.5.0(@types/react@19.2.14)(lucide-react@0.562.0(react@19.2.5))(next@16.2.6(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.51.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(zod@4.3.6))(next@16.2.6(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.51.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(tailwindcss@4.2.2)'
       lib0:
         specifier: 1.0.0-rc.13
-        version: 1.0.0-rc.13
+        version: 1.0.0-rc.13(patch_hash=328c50b547222f0e54a7a9f4f70926c0532c006dec4f24d6954635b8c3adb69e)
       lucide-react:
         specifier: ^0.562.0
         version: 0.562.0(react@19.2.5)
@@ -4041,16 +4043,16 @@ importers:
         version: 9.1.1(react@19.2.5)
       '@y/protocols':
         specifier: ^1.0.6-rc.1
-        version: 1.0.6-rc.1(@y/y@14.0.0-rc.16)
+        version: 1.0.6-rc.1(@y/y@14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9))
       '@y/websocket':
         specifier: ^4.0.0-3
-        version: 4.0.0-rc.2(@y/y@14.0.0-rc.16)
+        version: 4.0.0-rc.2(@y/y@14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9))
       '@y/y':
         specifier: ^14.0.0-rc.16
-        version: 14.0.0-rc.16
+        version: 14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9)
       lib0:
         specifier: 1.0.0-rc.13
-        version: 1.0.0-rc.13
+        version: 1.0.0-rc.13(patch_hash=328c50b547222f0e54a7a9f4f70926c0532c006dec4f24d6954635b8c3adb69e)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -4099,16 +4101,16 @@ importers:
         version: 9.1.1(react@19.2.5)
       '@y/prosemirror':
         specifier: ^2.0.0-2
-        version: 2.0.0-2(patch_hash=6d18e9340ac9dddf315d155e6f37a101c4a51c6ad4aef3dfb6485f6903a12cc8)(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.16))(@y/y@14.0.0-rc.16)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)
+        version: 2.0.0-2(patch_hash=802334aa5d2410b9fc999d5fb5ffef01650a04e58b59fca24e142c55b3379728)(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9)))(@y/y@14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9))(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)
       '@y/protocols':
         specifier: ^1.0.6-rc.1
-        version: 1.0.6-rc.1(@y/y@14.0.0-rc.16)
+        version: 1.0.6-rc.1(@y/y@14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9))
       '@y/websocket':
         specifier: ^4.0.0-rc.2
-        version: 4.0.0-rc.2(@y/y@14.0.0-rc.16)
+        version: 4.0.0-rc.2(@y/y@14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9))
       '@y/y':
         specifier: ^14.0.0-rc.16
-        version: 14.0.0-rc.16
+        version: 14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -4206,16 +4208,16 @@ importers:
         version: 9.1.1(react@19.2.5)
       '@y/protocols':
         specifier: ^1.0.6-rc.1
-        version: 1.0.6-rc.1(@y/y@14.0.0-rc.16)
+        version: 1.0.6-rc.1(@y/y@14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9))
       '@y/websocket':
         specifier: ^4.0.0-3
-        version: 4.0.0-rc.2(@y/y@14.0.0-rc.16)
+        version: 4.0.0-rc.2(@y/y@14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9))
       '@y/y':
         specifier: ^14.0.0-rc.16
-        version: 14.0.0-rc.16
+        version: 14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9)
       lib0:
         specifier: 1.0.0-rc.13
-        version: 1.0.0-rc.13
+        version: 1.0.0-rc.13(patch_hash=328c50b547222f0e54a7a9f4f70926c0532c006dec4f24d6954635b8c3adb69e)
       react:
         specifier: ^19.2.3
         version: 19.2.5
@@ -4956,13 +4958,13 @@ importers:
         version: 3.22.4
       '@y/prosemirror':
         specifier: ^2.0.0-2
-        version: 2.0.0-2(patch_hash=6d18e9340ac9dddf315d155e6f37a101c4a51c6ad4aef3dfb6485f6903a12cc8)(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.16))(@y/y@14.0.0-rc.16)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)
+        version: 2.0.0-2(patch_hash=802334aa5d2410b9fc999d5fb5ffef01650a04e58b59fca24e142c55b3379728)(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9)))(@y/y@14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9))(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)
       '@y/protocols':
         specifier: ^1.0.6-rc.1
-        version: 1.0.6-rc.1(@y/y@14.0.0-rc.16)
+        version: 1.0.6-rc.1(@y/y@14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9))
       '@y/y':
         specifier: ^14.0.0-rc.16
-        version: 14.0.0-rc.16
+        version: 14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9)
       emoji-mart:
         specifier: ^5.6.0
         version: 5.6.0
@@ -4971,7 +4973,7 @@ importers:
         version: 3.1.3
       lib0:
         specifier: 1.0.0-rc.13
-        version: 1.0.0-rc.13
+        version: 1.0.0-rc.13(patch_hash=328c50b547222f0e54a7a9f4f70926c0532c006dec4f24d6954635b8c3adb69e)
       prosemirror-highlight:
         specifier: ^0.15.1
         version: 0.15.1(@shikijs/types@4.0.2)(@types/hast@3.0.4)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-transform@1.12.0)(prosemirror-view@1.41.8)
@@ -23042,29 +23044,29 @@ snapshots:
     dependencies:
       '@types/node': 20.19.39
 
-  '@y/prosemirror@2.0.0-2(patch_hash=6d18e9340ac9dddf315d155e6f37a101c4a51c6ad4aef3dfb6485f6903a12cc8)(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.16))(@y/y@14.0.0-rc.16)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)':
+  '@y/prosemirror@2.0.0-2(patch_hash=802334aa5d2410b9fc999d5fb5ffef01650a04e58b59fca24e142c55b3379728)(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9)))(@y/y@14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9))(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)':
     dependencies:
-      '@y/protocols': 1.0.6-rc.1(@y/y@14.0.0-rc.16)
-      '@y/y': 14.0.0-rc.16
-      lib0: 1.0.0-rc.13
+      '@y/protocols': 1.0.6-rc.1(@y/y@14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9))
+      '@y/y': 14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9)
+      lib0: 1.0.0-rc.13(patch_hash=328c50b547222f0e54a7a9f4f70926c0532c006dec4f24d6954635b8c3adb69e)
       prosemirror-model: 1.25.4
       prosemirror-state: 1.4.4
       prosemirror-view: 1.41.8
 
-  '@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.16)':
+  '@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9))':
     dependencies:
-      '@y/y': 14.0.0-rc.16
-      lib0: 1.0.0-rc.13
+      '@y/y': 14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9)
+      lib0: 1.0.0-rc.13(patch_hash=328c50b547222f0e54a7a9f4f70926c0532c006dec4f24d6954635b8c3adb69e)
 
-  '@y/websocket@4.0.0-rc.2(@y/y@14.0.0-rc.16)':
+  '@y/websocket@4.0.0-rc.2(@y/y@14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9))':
     dependencies:
-      '@y/protocols': 1.0.6-rc.1(@y/y@14.0.0-rc.16)
-      '@y/y': 14.0.0-rc.16
-      lib0: 1.0.0-rc.13
+      '@y/protocols': 1.0.6-rc.1(@y/y@14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9))
+      '@y/y': 14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9)
+      lib0: 1.0.0-rc.13(patch_hash=328c50b547222f0e54a7a9f4f70926c0532c006dec4f24d6954635b8c3adb69e)
 
-  '@y/y@14.0.0-rc.16':
+  '@y/y@14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9)':
     dependencies:
-      lib0: 1.0.0-rc.13
+      lib0: 1.0.0-rc.13(patch_hash=328c50b547222f0e54a7a9f4f70926c0532c006dec4f24d6954635b8c3adb69e)
 
   '@yarnpkg/lockfile@1.1.0': {}
 
@@ -26021,7 +26023,7 @@ snapshots:
     dependencies:
       isomorphic.js: 0.2.5
 
-  lib0@1.0.0-rc.13: {}
+  lib0@1.0.0-rc.13(patch_hash=328c50b547222f0e54a7a9f4f70926c0532c006dec4f24d6954635b8c3adb69e): {}
 
   lie@3.3.0:
     dependencies:
