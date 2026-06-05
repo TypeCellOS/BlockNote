@@ -95,16 +95,13 @@ test("suggestion mode: 'hello world' -> 'hello universe'", async () => {
   `);
 });
 
-// TODO: format-only suggestions have no visual marker in the rendered
-// editor – the screenshot for this test shows "hello **world**" with
-// no indication that the bold is a *pending* suggestion. Only
-// `y-attributed-insert` / `y-attributed-delete` have a `toDOM` in
-// SuggestionMarks.ts; `y-attributed-format` does not. Decide whether
-// this is intentional (formats considered "trivial") or a UX gap.
-//
 // Format-only addition: text content stays the same but a style mark
 // (bold) is added on top. Surfaces how suggestions track pure format
-// changes (currently `y-attributed-format`, with no visual marker).
+// changes via the `y-attributed-format` mark. All three suggestion
+// marks (`y-attributed-insert` / `-delete` / `-format`) have a `toDOM`
+// in SuggestionMarks.ts; the format mark renders a
+// `<span data-type="modification">` which the editor CSS highlights, so
+// the screenshot shows bold "world" with the blue suggestion marker.
 test("suggestion mode: add bold to 'world'", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "bold 'world'" });
