@@ -213,21 +213,32 @@ test("concurrent: A bolds the word, B italicises the word", async () => {
   expect(ydocXml(suggestionDocA)).toMatchInlineSnapshot(`
     "<blockGroup>
       <blockContainer id="block-hello">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+          hello
+          <bold>world</bold>
+        </paragraph>
       </blockContainer>
     </blockGroup>"
   `);
   expect(ydocXml(suggestionDocB)).toMatchInlineSnapshot(`
     "<blockGroup>
       <blockContainer id="block-hello">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+          hello
+          <italic>world</italic>
+        </paragraph>
       </blockContainer>
     </blockGroup>"
   `);
   expect(ydocXml(suggestionDocMerged)).toMatchInlineSnapshot(`
     "<blockGroup>
       <blockContainer id="block-hello">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+          hello
+          <italic>
+            <bold>world</bold>
+          </italic>
+        </paragraph>
       </blockContainer>
     </blockGroup>"
   `);

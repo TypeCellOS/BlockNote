@@ -220,15 +220,9 @@ test("suggestion mode: resize image (previewWidth)", async () => {
           previewWidth="200"
           showPreview="true"
           textAlignment="left"
-          url
-          xmlns
-          width
-          height
-        ="data:image/svg+xml;utf8,<svg
-          <rect width='100' height='100' fill='%23ff6b6b'></rect>
-        </svg>
-        " />
-    </blockContainer>
+          url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
+        ></image>
+      </blockContainer>
     </blockGroup>"
   `);
   expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
@@ -241,15 +235,9 @@ test("suggestion mode: resize image (previewWidth)", async () => {
           previewWidth="400"
           showPreview="true"
           textAlignment="left"
-          url
-          xmlns
-          width
-          height
-        ="data:image/svg+xml;utf8,<svg
-          <rect width='100' height='100' fill='%23ff6b6b'></rect>
-        </svg>
-        " />
-    </blockContainer>
+          url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
+        ></image>
+      </blockContainer>
     </blockGroup>"
   `);
   expect(editorHtml(editor)).toMatchInlineSnapshot(`
@@ -320,15 +308,9 @@ test("suggestion mode: change image source", async () => {
           previewWidth="200"
           showPreview="true"
           textAlignment="left"
-          url
-          xmlns
-          width
-          height
-        ="data:image/svg+xml;utf8,<svg
-          <rect width='100' height='100' fill='%23ff6b6b'></rect>
-        </svg>
-        " />
-    </blockContainer>
+          url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
+        ></image>
+      </blockContainer>
     </blockGroup>"
   `);
   expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
@@ -341,15 +323,9 @@ test("suggestion mode: change image source", async () => {
           previewWidth="200"
           showPreview="true"
           textAlignment="left"
-          url
-          xmlns
-          width
-          height
-        ="data:image/svg+xml;utf8,<svg
-          <rect width='100' height='100' fill='%234ecdc4'></rect>
-        </svg>
-        " />
-    </blockContainer>
+          url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%234ecdc4'/&gt;&lt;/svg&gt;"
+        ></image>
+      </blockContainer>
     </blockGroup>"
   `);
   expect(editorHtml(editor)).toMatchInlineSnapshot(`

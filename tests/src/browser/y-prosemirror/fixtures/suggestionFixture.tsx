@@ -146,20 +146,127 @@ export async function waitForSuggestion(
     .toBe(true);
 }
 
-/** Pretty-print a Y.Doc's `doc` XmlFragment for an inline snapshot. */
+/**
+ * Pretty-print a Y.Doc's `doc` XmlFragment for an inline snapshot.
+ *
+ * `Y.XmlFragment.toString()` (and `toJSON()`, which collapses text
+ * runs into a bare string) only serialise the element/text structure –
+ * inline formatting marks and attribution metadata don't surface, so
+ * "hello world" and "hello **world**" produce identical snapshots.
+ *
+ * Instead we walk the *deep delta* (`toDeltaDeep`), which carries both
+ * the per-run `format` (marks like `bold`/`italic`) and `attribution`
+ * (suggestion metadata) on every insert op. Those marks are rendered as
+ * nested tags (`<bold>world</bold>`) and attribution as an
+ * `attribution="..."` attribute so the snapshots actually differ.
+ */
 export function ydocXml(doc: Y.Doc): string {
-  // `Y.XmlFragment.toString()` emits HTML5-style unquoted attributes
-  // for non-string values (e.g. `level=1`, `isToggleable=false`).
-  // htmlfy mangles those, so we wrap each unquoted value in quotes
-  // before pretty-printing.
-  const raw = doc
-    .get("doc")
-    .toString()
-    .replace(
-      /(\w[\w-]*)=([^"'\s>]+)/g,
-      (_, name, value) => `${name}="${value}"`,
-    );
-  return prettify(raw, { tag_wrap: true });
+  const delta = (doc.get("doc") as any).toDeltaDeep().toJSON();
+  return prettify(deltaToXml(delta), { tag_wrap: true });
+}
+
+/**
+ * A single op from a deep-delta JSON tree. For a final document render
+ * only `insert` ops appear (retain/delete are diff artefacts); the
+ * insert payload is either a text run (`string`) or an array of nested
+ * element deltas. `format` holds inline marks, `attribution` holds
+ * suggestion metadata.
+ */
+interface DeltaJson {
+  type?: string;
+  name?: string;
+  attrs?: Record<string, { type?: string; value?: unknown } | unknown>;
+  children?: DeltaInsertOp[];
+}
+
+interface DeltaInsertOp {
+  type?: string;
+  insert?: string | DeltaJson[];
+  format?: Record<string, unknown>;
+  attribution?: Record<string, unknown>;
+}
+
+/** Render a deep-delta JSON node (a `{ type: 'delta', ... }` object). */
+function deltaToXml(node: DeltaJson): string {
+  let inner = "";
+  for (const op of node.children ?? []) {
+    inner += opToXml(op);
+  }
+
+  if (node.name == null) {
+    // The root XmlFragment has no tag of its own – emit its children.
+    return inner;
+  }
+  return `<${node.name}${deltaAttrsToString(node.attrs)}>${inner}</${node.name}>`;
+}
+
+/** Render one insert op, applying its `format` marks and `attribution`. */
+function opToXml(op: DeltaInsertOp): string {
+  let out: string;
+  if (typeof op.insert === "string") {
+    out = escapeXml(op.insert);
+  } else if (Array.isArray(op.insert)) {
+    out = op.insert.map(deltaToXml).join("");
+  } else {
+    out = "";
+  }
+
+  // Wrap with inline marks (bold/italic/…). A "trivial" value (`true`
+  // or an empty `{}`) renders as a bare tag (`<bold>`); richer values
+  // surface as a `value="…"` attribute. Object values (e.g. suggestion
+  // format metadata) are JSON-encoded since `String(obj)` throws
+  // "Cannot convert object to primitive value".
+  //
+  // Marks are sorted by name so nesting order is deterministic: YJS
+  // delta `format` key order isn't stable (especially after a
+  // concurrent merge of two marks), which would otherwise make these
+  // snapshots flaky. Sorted ascending => the alphabetically-first mark
+  // ends up innermost (e.g. `<italic><bold>world</bold></italic>`).
+  for (const [name, value] of Object.entries(op.format ?? {}).sort(
+    ([a], [b]) => (a < b ? -1 : a > b ? 1 : 0),
+  )) {
+    const isObject = value !== null && typeof value === "object";
+    const isTrivial =
+      value === true || (isObject && Object.keys(value).length === 0);
+    if (isTrivial) {
+      out = `<${name}>${out}</${name}>`;
+    } else {
+      const rendered = isObject ? JSON.stringify(value) : String(value);
+      out = `<${name} value="${escapeXml(rendered)}">${out}</${name}>`;
+    }
+  }
+
+  // Surface suggestion attribution as a wrapping element so it's visible
+  // in the snapshot (and distinct from a plain formatting mark).
+  if (op.attribution != null && Object.keys(op.attribution).length > 0) {
+    out = `<attribution data="${escapeXml(JSON.stringify(op.attribution))}">${out}</attribution>`;
+  }
+
+  return out;
+}
+
+/** Format a delta node's `attrs` map (e.g. block-level paragraph props). */
+function deltaAttrsToString(
+  attrs: DeltaJson["attrs"] | undefined,
+): string {
+  if (attrs == null) {
+    return "";
+  }
+  return Object.entries(attrs)
+    .map(([key, raw]) => {
+      // attrs are `SetAttrOp` JSON: `{ type: 'insert', value }`.
+      const value =
+        raw != null && typeof raw === "object" && "value" in raw
+          ? (raw as { value: unknown }).value
+          : raw;
+      const rendered =
+        value !== null && typeof value === "object"
+          ? JSON.stringify(value)
+          : String(value);
+      return ` ${key}="${escapeXml(rendered)}"`;
+    })
+    .sort()
+    .join("");
 }
 
 /**

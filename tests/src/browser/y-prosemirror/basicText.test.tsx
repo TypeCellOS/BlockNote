@@ -137,13 +137,10 @@ test("suggestion mode: add bold to 'world'", async () => {
     "suggestion-mode-add-bold",
   );
 
-  // TODO: the base and suggestion YDoc XML snapshots below are
-  // identical even though one represents the "before bold" state and
-  // the other the "after bold" state. `Y.XmlFragment.toString()` only
-  // serialises element/text structure – marks and attribution data
-  // live elsewhere and don't surface here. Consider a richer YDoc
-  // serializer that includes formatting + attribution metadata so
-  // these snapshots actually differ.
+  // The base ("hello world") and suggestion ("hello <bold>world</bold>")
+  // YDoc snapshots differ here because `ydocXml` walks the deep delta
+  // (`toDeltaDeep`), which surfaces per-run formatting marks that
+  // `Y.XmlFragment.toString()` would otherwise drop.
   expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
     "<blockGroup>
       <blockContainer id="block-hello">
@@ -154,7 +151,10 @@ test("suggestion mode: add bold to 'world'", async () => {
   expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
     "<blockGroup>
       <blockContainer id="block-hello">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+          hello
+          <bold>world</bold>
+        </paragraph>
       </blockContainer>
     </blockGroup>"
   `);
@@ -217,7 +217,10 @@ test("suggestion mode: remove bold from 'world'", async () => {
   expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
     "<blockGroup>
       <blockContainer id="block-hello">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+          hello
+          <bold>world</bold>
+        </paragraph>
       </blockContainer>
     </blockGroup>"
   `);
@@ -294,14 +297,22 @@ test("suggestion mode: add italic to already-bold 'world'", async () => {
   expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
     "<blockGroup>
       <blockContainer id="block-hello">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+          hello
+          <bold>world</bold>
+        </paragraph>
       </blockContainer>
     </blockGroup>"
   `);
   expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
     "<blockGroup>
       <blockContainer id="block-hello">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">
+          hello
+          <italic>
+            <bold>world</bold>
+          </italic>
+        </paragraph>
       </blockContainer>
     </blockGroup>"
   `);
