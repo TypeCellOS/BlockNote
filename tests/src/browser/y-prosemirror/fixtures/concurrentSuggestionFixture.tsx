@@ -32,6 +32,7 @@
  */
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
+import "@blocknote/core/style.css";
 
 import { BlockNoteEditor } from "@blocknote/core";
 import { SuggestionsExtension, withCollaboration } from "@blocknote/core/y";
@@ -101,18 +102,14 @@ export async function setupConcurrentSuggestionTest({
   // non-determinism stays visible. Skip or `.fails`-mark those tests
   // explicitly rather than papering over them.
 
-  const managerA = Y.createAttributionManagerFromDiff(
-    baseDoc,
-    suggestionDocA,
-    { attrs: new Y.Attributions() },
-  );
+  const managerA = Y.createAttributionManagerFromDiff(baseDoc, suggestionDocA, {
+    attrs: new Y.Attributions(),
+  });
   managerA.suggestionMode = true;
 
-  const managerB = Y.createAttributionManagerFromDiff(
-    baseDoc,
-    suggestionDocB,
-    { attrs: new Y.Attributions() },
-  );
+  const managerB = Y.createAttributionManagerFromDiff(baseDoc, suggestionDocB, {
+    attrs: new Y.Attributions(),
+  });
   managerB.suggestionMode = true;
 
   // Merged is a viewer – it shows both users' suggestions but doesn't

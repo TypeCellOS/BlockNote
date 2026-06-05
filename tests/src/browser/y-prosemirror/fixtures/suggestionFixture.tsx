@@ -18,6 +18,7 @@
  */
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
+import "@blocknote/core/style.css";
 
 import { BlockNoteEditor } from "@blocknote/core";
 import { withCollaboration } from "@blocknote/core/y";
