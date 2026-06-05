@@ -24,6 +24,10 @@ export default defineConfig((conf) => ({
             threshold: 0.2,
             allowedMismatchedPixelRatio: 0.02,
           },
+          // Heavier renders (tables, nested blocks, concurrent merges)
+          // can take >5s to settle; bump the stable-capture timeout to
+          // avoid "Could not capture a stable screenshot" flakes.
+          timeout: 15000,
         },
       },
     },
