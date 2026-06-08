@@ -768,7 +768,6 @@ div[data-type="modification"] {
   border-radius: 2px;
 }
 [data-diff-type="block-delete"] {
-  display: block;
   padding: 2px 4px;
   margin: 2px 0;
 }

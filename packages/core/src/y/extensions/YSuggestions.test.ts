@@ -487,11 +487,38 @@ describe("defaultMapDiffToDecorations", () => {
 
 
 
-  // ── block-delete with table cells (column delete) ─────────────────
-  it("renders block-delete with table cells (simulating column delete)", () => {
+  // ── block-delete with a single table cell (real-world column delete) ──
+  it("renders block-delete with a single tableCell without extra wrapper", () => {
     const { editor, schema, doc } = setup();
 
-    // A column delete in a table produces tableCell fragments
+    // Each cell in a column delete is a separate diff with one tableCell
+    const cell = schema.nodes.tableCell.create(null, [
+      schema.nodes.tableParagraph.create(null, [schema.text("cell A")]),
+    ]);
+    const fragment = Fragment.from(cell);
+
+    const diff: Diff = {
+      type: "block-delete",
+      from: 0,
+      to: 0,
+      content: fragment,
+      attribution: baseAttribution,
+    };
+
+    const mapper = defaultMapDiffToDecorations(editor);
+    const result = mapper({ diff, doc, schema, index: 0 });
+    const el = (result as any).type.toDOM() as HTMLElement;
+
+    // Attributes applied directly to the <td>, no wrapper div
+    expect(el.tagName).toBe("TD");
+    expect(el.className).toContain("pm-suggest--delete");
+    expect(el.textContent).toContain("cell A");
+  });
+
+  // ── block-delete with multiple table cells ───────────────────────────
+  it("renders block-delete with multiple tableCells in a wrapper", () => {
+    const { editor, schema, doc } = setup();
+
     const cell1 = schema.nodes.tableCell.create(null, [
       schema.nodes.tableParagraph.create(null, [schema.text("cell A")]),
     ]);
@@ -512,7 +539,7 @@ describe("defaultMapDiffToDecorations", () => {
     const result = mapper({ diff, doc, schema, index: 0 });
     const el = (result as any).type.toDOM() as HTMLElement;
 
-    console.log("Table column delete HTML:", el.outerHTML);
+    // Multiple cells need a wrapper
     expect(el.tagName).toBe("DIV");
     expect(el.textContent).toContain("cell A");
     expect(el.textContent).toContain("cell B");

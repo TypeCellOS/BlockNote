@@ -255,6 +255,10 @@ const fragmentHasNodeView = (
  * using BlockNote's `blocksToFullHTML` pipeline when possible, falling back
  * to `DOMSerializer`.
  *
+ * Diff attributes (class, data-diff-type, author info, etc.) are applied
+ * directly to the rendered root element rather than wrapping in an extra
+ * container, keeping the DOM flat.
+ *
  * For inline fragments the content is first wrapped in a paragraph node so
  * it can be converted to blocks; the rendered inline content is then extracted
  * from the `.bn-inline-content` wrapper so it stays inline in the document.
@@ -273,20 +277,24 @@ const renderDeletedFragment = (
   const tag = opts.isInline ? "span" : "div";
   const diffType = opts.isInline ? "inline-delete" : "block-delete";
 
-  const container = document.createElement(tag);
-  container.className = "pm-suggest pm-suggest--delete";
-  container.setAttribute("data-diff-type", diffType);
-  if (opts.authorIds.length) {
-    container.setAttribute("data-diff-user-id", opts.authorIds.join(","));
-  }
-  if (opts.color) {
-    container.style.setProperty("--author-color", opts.color);
-  }
-  container.setAttribute("title", opts.title);
-  container.contentEditable = "false";
+  /** Apply diff attributes to an element in-place. */
+  const applyDiffAttrs = (el: HTMLElement) => {
+    el.classList.add("pm-suggest", "pm-suggest--delete");
+    el.setAttribute("data-diff-type", diffType);
+    if (opts.authorIds.length) {
+      el.setAttribute("data-diff-user-id", opts.authorIds.join(","));
+    }
+    if (opts.color) {
+      el.style.setProperty("--author-color", opts.color);
+    }
+    el.setAttribute("title", opts.title);
+    el.contentEditable = "false";
+  };
 
   if (fragment.size === 0) {
-    return container;
+    const empty = document.createElement(tag);
+    applyDiffAttrs(empty);
+    return empty;
   }
 
   // For inline content, wrap in a paragraph so it forms a valid block tree.
@@ -298,6 +306,8 @@ const renderDeletedFragment = (
       blockFragment = Fragment.from(paragraphNode);
     } else {
       // Can't wrap in paragraph — fall back to DOMSerializer
+      const container = document.createElement(tag);
+      applyDiffAttrs(container);
       const serializer = DOMSerializer.fromSchema(schema);
       container.appendChild(
         serializer.serializeFragment(fragment, { document }),
@@ -316,7 +326,7 @@ const renderDeletedFragment = (
     : null;
   const isSubBlockContent = wrappingPath && wrappingPath.length > 3;
 
-  let rendered = false;
+  let rendered: HTMLElement | null = null;
 
   if (!isSubBlockContent) {
     const ghostDoc = wrapFragmentInDoc(blockFragment, schema);
@@ -328,23 +338,31 @@ const renderDeletedFragment = (
           editor.pmSchema,
         );
         const html = editor.blocksToFullHTML(slicedBlocks.blocks);
+        const temp = document.createElement("div");
+        temp.innerHTML = html;
 
         if (opts.isInline) {
           // Extract just the inline content from the block wrapper.
-          const temp = document.createElement("div");
-          temp.innerHTML = html;
           const inlineContentEl = temp.querySelector(".bn-inline-content");
           if (inlineContentEl) {
+            const span = document.createElement("span");
             while (inlineContentEl.firstChild) {
-              container.appendChild(inlineContentEl.firstChild);
+              span.appendChild(inlineContentEl.firstChild);
             }
+            rendered = span;
           } else {
-            container.innerHTML = html;
+            // No .bn-inline-content found — use the root element
+            rendered = temp.firstElementChild as HTMLElement | null;
           }
         } else {
-          container.innerHTML = html;
+          // Extract the .bn-block-outer element so we don't add an extra
+          // bn-block-group wrapper — the widget is already inserted inside
+          // an existing block-group in the document.
+          const blockOuter = temp.querySelector(
+            ".bn-block-outer",
+          ) as HTMLElement | null;
+          rendered = blockOuter ?? (temp.firstElementChild as HTMLElement | null);
         }
-        rendered = true;
       } catch (e) {
         // prosemirrorSliceToSlicedBlocks doesn't support all node structures.
         // Fall through to DOMSerializer fallback.
@@ -360,12 +378,24 @@ const renderDeletedFragment = (
     // Fallback: use DOMSerializer for sub-block nodes (tableCell, etc.)
     // or when wrapping/conversion failed.
     const serializer = DOMSerializer.fromSchema(schema);
-    container.appendChild(
-      serializer.serializeFragment(fragment, { document }),
+    const serialized = serializer.serializeFragment(fragment, { document });
+
+    // If the fragment serializes to a single element, use it directly
+    // to avoid an extra wrapper (e.g. <td> stays as <td>, not <div><td>).
+    const children = Array.from(serialized.childNodes).filter(
+      (n): n is HTMLElement => n.nodeType === 1, // ELEMENT_NODE
     );
+    if (children.length === 1 && serialized.childNodes.length === 1) {
+      rendered = children[0];
+    } else {
+      const container = document.createElement(tag);
+      container.appendChild(serialized);
+      rendered = container;
+    }
   }
 
-  return container;
+  applyDiffAttrs(rendered);
+  return rendered;
 };
 
 /**
