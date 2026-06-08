@@ -554,11 +554,11 @@ index 0000000000000000000000000000000000000000..d57c7fe0a258d821eb58d615bd93fa3a
 \ No newline at end of file
 diff --git a/dist/src/sync-utils.d.ts.map b/dist/src/sync-utils.d.ts.map
 new file mode 100644
-index 0000000000000000000000000000000000000000..f5b016e30248aa8b3d25153344d28b1acbc52386
+index 0000000000000000000000000000000000000000..b0b2547bc3ccb9951702eb80e8ea52b43b2f2a93
 --- /dev/null
 +++ b/dist/src/sync-utils.d.ts.map
 @@ -0,0 +1 @@
-+{"version":3,"file":"sync-utils.d.ts","sourceRoot":"","sources":["../../src/sync-utils.js"],"names":[],"mappings":"AA+DA;;;;;;;GAOG;AACH,mCANW,IAAI,YACJ,CAAC,CAAC,IAAI,2BAEd;IAA4C,kBAAkB;CAC9D,GAAU,CAAC,CAAC,IAAI,CAOlB;AA+XD;;;;;;;;;;;;;;;;;GAiBG;AACH,oCAJW,IAAI,mBACJ,MAAM,GACL,MAAM,EAAE,CA2BnB;AAED;;;;;GAKG;AACH,yCAJW,MAAM,EAAE,QACR,IAAI,GACH,MAAM,CAsCjB;AAjhBD;;;;;;;IAA4I;AA4BrI,wDAHI;IAAC,CAAC,GAAG,EAAC,MAAM,GAAE,GAAG,CAAA;CAAC,GAAC,IAAI,UACvB,OAAO,mBAAmB,EAAE,MAAM,sCAGwD;AAM9F,iCAHI,KAAK,CAAC,IAAI,CAAC,GACV,gBAAgB,CAW3B;AAsBM,+BAJI,IAAI,aACJ,MAAM,OAAC,GACN,gBAAgB,CAS3B;AAKM,gCAFI,IAAI;;;;;;;GAEwC;AA2ChD,kCANI,OAAO,mBAAmB,EAAE,WAAW,KACvC,gBAAgB,UAChB,IAAI,YACJ;IAAE,CAAC,EAAE,MAAM,CAAA;CAAE,GACZ,OAAO,mBAAmB,EAAE,WAAW,CA0JlD;AAQM,gCALI,gBAAgB,UAChB,OAAO,mBAAmB,EAAE,MAAM,WAClC,KAAK,CAAC,oBAAoB,GAAC,IAAI,GAC9B,IAAI,CA6Bf;AAMM,0CAHI,IAAI,YACJ,IAAI;;;;;;;GAMd;AAKM,8BAFI,OAAO,mBAAmB,EAAE,WAAW;;;;;;;GAkBjD;AAmFM,kCAJI,OAAO,uBAAuB,EAAE,IAAI,aACpC,OAAO,mBAAmB,EAAE,IAAI,GAC/B,gBAAgB,CAQ3B;AA6GM,wCALI,IAAI,YACJ,MAAM,OACN,CAAC,CAAC,EAAC,KAAK,CAAC,eAAe,KAAG,GAAG,GAC7B,gBAAgB,CAa3B;+BAliBa,OAAO,aAAa,EAAE,MAAM,CAAC,OAAO,iBAAiB,CAAC;;;;;iCAoGvD,KAAK,CAAC,aAAa;;;;;;;;;aAQlB,KAAK,CAAC,KAAK,CAAC,QAAQ,CAAC,GAAG,CAAC,GAAC,KAAK,CAAC,MAAM,CAAC;;;;aACvC,KAAK,CAAC,KAAK,CAAC,QAAQ,CAAC;;qBA3HG,mBAAmB;mBALtC,MAAM;uBACF,YAAY;mBAGhB,aAAa"}
++{"version":3,"file":"sync-utils.d.ts","sourceRoot":"","sources":["../../src/sync-utils.js"],"names":[],"mappings":"AA+DA;;;;;;;GAOG;AACH,mCANW,IAAI,YACJ,CAAC,CAAC,IAAI,2BAEd;IAA4C,kBAAkB;CAC9D,GAAU,CAAC,CAAC,IAAI,CAOlB;AA6YD;;;;;;;;;;;;;;;;;GAiBG;AACH,oCAJW,IAAI,mBACJ,MAAM,GACL,MAAM,EAAE,CA2BnB;AAED;;;;;GAKG;AACH,yCAJW,MAAM,EAAE,QACR,IAAI,GACH,MAAM,CAsCjB;AA/hBD;;;;;;;IAA4I;AA4BrI,wDAHI;IAAC,CAAC,GAAG,EAAC,MAAM,GAAE,GAAG,CAAA;CAAC,GAAC,IAAI,UACvB,OAAO,mBAAmB,EAAE,MAAM,sCAGwD;AAM9F,iCAHI,KAAK,CAAC,IAAI,CAAC,GACV,gBAAgB,CAW3B;AAsBM,+BAJI,IAAI,aACJ,MAAM,OAAC,GACN,gBAAgB,CAS3B;AAKM,gCAFI,IAAI;;;;;;;GAEwC;AA2ChD,kCANI,OAAO,mBAAmB,EAAE,WAAW,KACvC,gBAAgB,UAChB,IAAI,YACJ;IAAE,CAAC,EAAE,MAAM,CAAA;CAAE,GACZ,OAAO,mBAAmB,EAAE,WAAW,CA0JlD;AAQM,gCALI,gBAAgB,UAChB,OAAO,mBAAmB,EAAE,MAAM,WAClC,KAAK,CAAC,oBAAoB,GAAC,IAAI,GAC9B,IAAI,CA6Bf;AAMM,0CAHI,IAAI,YACJ,IAAI;;;;;;;GAMd;AAKM,8BAFI,OAAO,mBAAmB,EAAE,WAAW;;;;;;;GAkBjD;AAiGM,kCAJI,OAAO,uBAAuB,EAAE,IAAI,aACpC,OAAO,mBAAmB,EAAE,IAAI,GAC/B,gBAAgB,CAQ3B;AA6GM,wCALI,IAAI,YACJ,MAAM,OACN,CAAC,CAAC,EAAC,KAAK,CAAC,eAAe,KAAG,GAAG,GAC7B,gBAAgB,CAa3B;+BAhjBa,OAAO,aAAa,EAAE,MAAM,CAAC,OAAO,iBAAiB,CAAC;;;;;iCAoGvD,KAAK,CAAC,aAAa;;;;;;;;;aAQlB,KAAK,CAAC,KAAK,CAAC,QAAQ,CAAC,GAAG,CAAC,GAAC,KAAK,CAAC,MAAM,CAAC;;;;aACvC,KAAK,CAAC,KAAK,CAAC,QAAQ,CAAC;;qBA3Hc,mBAAmB;mBALjD,MAAM;uBACF,YAAY;mBAGhB,aAAa"}
 \ No newline at end of file
 diff --git a/dist/src/undo-plugin.d.ts b/dist/src/undo-plugin.d.ts
 new file mode 100644
@@ -2741,16 +2741,16 @@ index 0000000000000000000000000000000000000000..e18bf04380f182a7cf9e14b74d2d39c9
 +}
 diff --git a/src/sync-utils.js b/src/sync-utils.js
 new file mode 100644
-index 0000000000000000000000000000000000000000..a09e1d95e0f4b4092fbf2559ab60889c58dbd215
+index 0000000000000000000000000000000000000000..bf96bea9f7382248ba10906e1da92a88d04908e7
 --- /dev/null
 +++ b/src/sync-utils.js
-@@ -0,0 +1,566 @@
+@@ -0,0 +1,580 @@
 +import * as Y from '@y/y'
 +import * as delta from 'lib0/delta'
 +import * as math from 'lib0/math'
 +import * as object from 'lib0/object'
 +import * as s from 'lib0/schema'
-+import { Node, Slice, Fragment } from 'prosemirror-model'
++import { Node, NodeRange, Slice, Fragment } from 'prosemirror-model'
 +import {
 +  AddMarkStep,
 +  AddNodeMarkStep,
@@ -3111,8 +3111,17 @@ index 0000000000000000000000000000000000000000..a09e1d95e0f4b4092fbf2559ab60889c
 +
 +    const newEnd = afterDoc.resolve(step instanceof ReplaceAroundStep ? step.getMap().map(step.to) : step.from + step.slice.size)
 +
-+    const oldBlockRange = oldStart.blockRange(oldEnd)
-+    const newBlockRange = newStart.blockRange(newEnd)
++    let oldBlockRange = oldStart.blockRange(oldEnd)
++    let newBlockRange = newStart.blockRange(newEnd)
++    // A block split (from === to) makes the old positions share a leaf block,
++    // so blockRange returns a deeper range than the new positions which span
++    // across the split. Normalize to the shallower depth so the diff compares
++    // children of the same parent type.
++    if (oldBlockRange && newBlockRange && oldBlockRange.depth !== newBlockRange.depth) {
++      const minDepth = Math.min(oldBlockRange.depth, newBlockRange.depth)
++      oldBlockRange = new NodeRange(oldStart, oldEnd, minDepth)
++      newBlockRange = new NodeRange(newStart, newEnd, minDepth)
++    }
 +    const oldDelta = deltaForBlockRange(oldBlockRange)
 +    const newDelta = deltaForBlockRange(newBlockRange)
 +    const diffD = delta.diff(oldDelta, newDelta)
@@ -3170,8 +3179,13 @@ index 0000000000000000000000000000000000000000..a09e1d95e0f4b4092fbf2559ab60889c
 +    const oldEnd = beforeDoc.resolve(oldTo)
 +    const newStart = afterDoc.resolve(oldFrom)
 +    const newEnd = afterDoc.resolve(mappedTo)
-+    const oldBlockRange = oldStart.blockRange(oldEnd)
-+    const newBlockRange = newStart.blockRange(newEnd)
++    let oldBlockRange = oldStart.blockRange(oldEnd)
++    let newBlockRange = newStart.blockRange(newEnd)
++    if (oldBlockRange && newBlockRange && oldBlockRange.depth !== newBlockRange.depth) {
++      const minDepth = Math.min(oldBlockRange.depth, newBlockRange.depth)
++      oldBlockRange = new NodeRange(oldStart, oldEnd, minDepth)
++      newBlockRange = new NodeRange(newStart, newEnd, minDepth)
++    }
 +    const oldDelta = deltaForBlockRange(oldBlockRange)
 +    const newDelta = deltaForBlockRange(newBlockRange)
 +    const diffD = delta.diff(oldDelta, newDelta)

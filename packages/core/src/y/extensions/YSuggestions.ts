@@ -1,15 +1,13 @@
 import { Diff, MapDiffArgs, ySuggestionDecorationPlugin } from "@y/prosemirror";
 import { createExtension } from "../../editor/BlockNoteExtension.js";
-import { Decoration, DecorationAttrs, EditorView } from "prosemirror-view";
+import { Decoration, DecorationAttrs } from "prosemirror-view";
 import {
   DOMSerializer,
   Fragment,
   Node,
   NodeType,
   Schema,
-  Slice,
 } from "prosemirror-model";
-import { EditorState } from "prosemirror-state";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { prosemirrorSliceToSlicedBlocks } from "../../api/nodeConversions/nodeToBlock.js";
 
@@ -224,7 +222,9 @@ export const wrapFragmentInDoc = (
     currentNodes = wrapped;
   }
 
-  return currentNodes as Node;
+  const doc = currentNodes as Node;
+
+  return doc;
 };
 
 /**
@@ -248,6 +248,124 @@ const fragmentHasNodeView = (
     }
   });
   return found;
+};
+
+/**
+ * Render a deleted fragment (inline or block) as a non-editable DOM element
+ * using BlockNote's `blocksToFullHTML` pipeline when possible, falling back
+ * to `DOMSerializer`.
+ *
+ * For inline fragments the content is first wrapped in a paragraph node so
+ * it can be converted to blocks; the rendered inline content is then extracted
+ * from the `.bn-inline-content` wrapper so it stays inline in the document.
+ */
+const renderDeletedFragment = (
+  fragment: Fragment,
+  schema: Schema,
+  editor: BlockNoteEditor<any, any, any>,
+  opts: {
+    isInline: boolean;
+    authorIds: string[];
+    color?: string;
+    title: string;
+  },
+): HTMLElement => {
+  const tag = opts.isInline ? "span" : "div";
+  const diffType = opts.isInline ? "inline-delete" : "block-delete";
+
+  const container = document.createElement(tag);
+  container.className = "pm-suggest pm-suggest--delete";
+  container.setAttribute("data-diff-type", diffType);
+  if (opts.authorIds.length) {
+    container.setAttribute("data-diff-user-id", opts.authorIds.join(","));
+  }
+  if (opts.color) {
+    container.style.setProperty("--author-color", opts.color);
+  }
+  container.setAttribute("title", opts.title);
+  container.contentEditable = "false";
+
+  if (fragment.size === 0) {
+    return container;
+  }
+
+  // For inline content, wrap in a paragraph so it forms a valid block tree.
+  let blockFragment = fragment;
+  if (opts.isInline) {
+    const paragraphType = schema.nodes["paragraph"];
+    const paragraphNode = paragraphType?.createAndFill(null, fragment);
+    if (paragraphNode) {
+      blockFragment = Fragment.from(paragraphNode);
+    } else {
+      // Can't wrap in paragraph — fall back to DOMSerializer
+      const serializer = DOMSerializer.fromSchema(schema);
+      container.appendChild(
+        serializer.serializeFragment(fragment, { document }),
+      );
+      return container;
+    }
+  }
+
+  // Check if the fragment nodes are "inner" nodes that live deeper than
+  // block content types (e.g. tableCell, tableRow). For these, the
+  // blocksToFullHTML pipeline would wrap them in unnecessary nesting
+  // (full table + block wrappers), so we use DOMSerializer directly.
+  const firstChild = blockFragment.firstChild;
+  const wrappingPath = firstChild
+    ? findWrappingPath(schema, firstChild)
+    : null;
+  const isSubBlockContent = wrappingPath && wrappingPath.length > 3;
+
+  let rendered = false;
+
+  if (!isSubBlockContent) {
+    const ghostDoc = wrapFragmentInDoc(blockFragment, schema);
+
+    if (ghostDoc) {
+      try {
+        const slicedBlocks = prosemirrorSliceToSlicedBlocks(
+          ghostDoc.slice(0, ghostDoc.nodeSize - 2),
+          editor.pmSchema,
+        );
+        const html = editor.blocksToFullHTML(slicedBlocks.blocks);
+
+        if (opts.isInline) {
+          // Extract just the inline content from the block wrapper.
+          const temp = document.createElement("div");
+          temp.innerHTML = html;
+          const inlineContentEl = temp.querySelector(".bn-inline-content");
+          if (inlineContentEl) {
+            while (inlineContentEl.firstChild) {
+              container.appendChild(inlineContentEl.firstChild);
+            }
+          } else {
+            container.innerHTML = html;
+          }
+        } else {
+          container.innerHTML = html;
+        }
+        rendered = true;
+      } catch (e) {
+        // prosemirrorSliceToSlicedBlocks doesn't support all node structures.
+        // Fall through to DOMSerializer fallback.
+        console.warn(
+          "[BlockNote] renderDeletedFragment: blocksToFullHTML pipeline failed, falling back to DOMSerializer",
+          e,
+        );
+      }
+    }
+  }
+
+  if (!rendered) {
+    // Fallback: use DOMSerializer for sub-block nodes (tableCell, etc.)
+    // or when wrapping/conversion failed.
+    const serializer = DOMSerializer.fromSchema(schema);
+    container.appendChild(
+      serializer.serializeFragment(fragment, { document }),
+    );
+  }
+
+  return container;
 };
 
 /**
@@ -308,79 +426,40 @@ export const defaultMapDiffToDecorations =
         return decos;
       }
 
-      case "inline-delete":
+      case "inline-delete": {
+        const inlineFragment = diff.content ?? Fragment.empty;
         return Decoration.widget(
           diff.from,
           () =>
-            renderDeletedContent(diff.content ?? Fragment.empty, schema, {
+            renderDeletedFragment(inlineFragment, schema, editor, {
+              isInline: true,
               authorIds,
               color,
               title: hoverTitle(diff),
             }),
           {
             side: 1,
-            key: `diff-del-${index}-${diff.content?.size ?? 0}`,
+            key: `diff-del-${index}-${inlineFragment.size}`,
             diff,
           },
         );
+      }
 
       case "block-delete": {
         const fragment = diff.content ?? Fragment.empty;
-
-        let ghostView: EditorView | null = null;
         return Decoration.widget(
           diff.from,
-          (view) => {
-            const container = document.createElement("div");
-            container.className = "pm-suggest pm-suggest--delete";
-            container.setAttribute("data-diff-type", "block-delete");
-            if (authorIds.length) {
-              container.setAttribute("data-diff-user-id", authorIds.join(","));
-            }
-            if (color) {
-              container.style.setProperty("--author-color", color);
-            }
-            container.setAttribute("title", hoverTitle(diff));
-            container.contentEditable = "false";
-            if (
-              fragment.size > 0 &&
-              view.props.nodeViews &&
-              fragmentHasNodeView(fragment, view.props.nodeViews)
-            ) {
-              const ghostDoc = wrapFragmentInDoc(fragment, schema);
-
-              if (ghostDoc) {
-                const slicedBlocks = prosemirrorSliceToSlicedBlocks(
-                  ghostDoc.slice(0, ghostDoc.nodeSize - 2),
-                  editor.pmSchema,
-                );
-                const htmlRepresentation = editor.blocksToFullHTML(
-                  slicedBlocks.blocks,
-                );
-                container.innerHTML = htmlRepresentation;
-              } else {
-                // Fallback: use DOMSerializer if wrapping failed
-                const serializer = DOMSerializer.fromSchema(schema);
-                container.appendChild(
-                  serializer.serializeFragment(fragment, { document }),
-                );
-              }
-            } else if (fragment.size > 0) {
-              const serializer = DOMSerializer.fromSchema(schema);
-              container.appendChild(
-                serializer.serializeFragment(fragment, { document }),
-              );
-            }
-            return container;
-          },
+          () =>
+            renderDeletedFragment(fragment, schema, editor, {
+              isInline: false,
+              authorIds,
+              color,
+              title: hoverTitle(diff),
+            }),
           {
             side: 1,
             key: `diff-del-${index}-${fragment.size}`,
             diff,
-            destroy: () => {
-              ghostView?.destroy();
-              ghostView = null;
-            },
           },
         );
       }
