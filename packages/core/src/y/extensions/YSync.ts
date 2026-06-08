@@ -118,6 +118,16 @@ export const YSyncExtension = createExtension(
         syncPlugin({
           suggestionDoc: options.suggestionDoc,
           mapAttributionToMark,
+          attributedNodes: (
+            nodeName: string,
+            kinds: { delete: boolean; insert: boolean; format: boolean },
+          ) => {
+            const result = Boolean(
+              editor.schema.blockSpecs[nodeName] && kinds.delete,
+            );
+
+            return result;
+          },
         }),
       ],
       runsBefore: ["default"],

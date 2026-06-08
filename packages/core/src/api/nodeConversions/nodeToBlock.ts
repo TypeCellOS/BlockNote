@@ -597,16 +597,32 @@ export function prosemirrorSliceToSlicedBlocks<
       if (blockContainer.childCount === 0) {
         return;
       }
-      if (blockContainer.childCount === 0 || blockContainer.childCount > 2) {
-        throw new Error(
-          "unexpected, blockContainer.childCount: " + blockContainer.childCount,
-        );
+
+      // Find the first non-suggestion child to determine structure.
+      // Suggestion nodes (group "suggestionBlockContent") may appear before/after
+      // blockContent and should be skipped when looking for structural children.
+      let firstNonSuggestionChild: Node | undefined;
+      let blockGroupChild: Node | undefined;
+      blockContainer.forEach((child) => {
+        if (child.type.spec.group === "suggestionBlockContent") {
+          return; // skip suggestion nodes
+        }
+        if (!firstNonSuggestionChild) {
+          firstNonSuggestionChild = child;
+        }
+        if (child.type.name === "blockGroup") {
+          blockGroupChild = child;
+        }
+      });
+
+      if (!firstNonSuggestionChild) {
+        return; // blockContainer has only suggestion nodes, skip
       }
 
       const isFirstBlock = index === 0;
       const isLastBlock = index === node.childCount - 1;
 
-      if (blockContainer.firstChild!.type.name === "blockGroup") {
+      if (firstNonSuggestionChild.type.name === "blockGroup") {
         // this is the parent where a selection starts within one of its children,
         // e.g.:
         // A
@@ -617,7 +633,7 @@ export function prosemirrorSliceToSlicedBlocks<
           throw new Error("unexpected");
         }
         const ret = processNode(
-          blockContainer.firstChild!,
+          firstNonSuggestionChild,
           Math.max(0, openStart - 1),
           isLastBlock ? Math.max(0, openEnd - 1) : 0,
         );
@@ -637,8 +653,7 @@ export function prosemirrorSliceToSlicedBlocks<
         styleSchema,
         blockCache,
       );
-      const childGroup =
-        blockContainer.childCount > 1 ? blockContainer.child(1) : undefined;
+      const childGroup = blockGroupChild;
 
       let childBlocks: Block<BSchema, I, S>[] = [];
       if (childGroup) {

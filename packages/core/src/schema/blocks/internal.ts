@@ -101,6 +101,16 @@ export function getBlockFromPos<
   }
   // Gets parent blockContainer node
   const blockContainer = tipTapEditor.state.doc.resolve(pos!).node();
+  if (blockContainer.type.name.startsWith("suggestion-")) {
+    // The blockContent is inside a suggestion node, which is inside a blockContainer.
+    // Return a stub block since suggestion nodes are transparent to the Block API.
+    return { type: "paragraph", id: "abc", props: {} } as SpecificBlock<
+      BSchema,
+      BType,
+      I,
+      S
+    >;
+  }
   // Gets block identifier
   const blockIdentifier = blockContainer.attrs.id;
 

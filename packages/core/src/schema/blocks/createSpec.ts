@@ -234,11 +234,78 @@ export function addNodeAndExtensionsToSpec<
     );
   }
 
+  // Create a "suggestion" shadow node for this block type.
+  // It has the same content/attributes/rendering as the original, but:
+  // - belongs to group "suggestionBlockContent" (not "blockContent")
+  // - has distinctive HTML with data-suggestion="true" for round-trip parsing
+  // - has NO custom nodeView (uses vanilla renderHTML only)
+  const suggestionNode = Node.create({
+    name: `${blockConfig.type}--attributed`,
+    content: (blockConfig.content === "inline"
+      ? "inline*"
+      : blockConfig.content === "none"
+        ? ""
+        : blockConfig.content) as TContent extends "inline" ? "inline*" : "",
+    group: "suggestionBlockContent blockContent",
+    selectable: false,
+    isolating: blockImplementation.meta?.isolating ?? true,
+    code: blockImplementation.meta?.code ?? false,
+    defining: blockImplementation.meta?.defining ?? true,
+    priority,
+    addAttributes() {
+      const attrs = propsToAttributes(blockConfig.propSchema);
+      // The __suggestionData attribute serves two purposes:
+      // 1. isRequired: true prevents ProseMirror's DOMParser from auto-creating
+      //    suggestion nodes to satisfy optional content expressions
+      // 2. Rendered as data-suggestion="true" on the wrapper div for HTML parsing
+      attrs["y-attributed"] = {
+        isRequired: true,
+        parseHTML: (element: HTMLElement) => {
+          return element.getAttribute("data-suggestion");
+        },
+        renderHTML: (attributes: Record<string, any>) => {
+          return {
+            "data-suggestion": attributes["y-attributed"] || "true",
+          };
+        },
+      };
+      return attrs;
+    },
+    parseHTML() {
+      // Only parse HTML elements that have both data-suggestion and
+      // data-content-type matching this block type. This ensures suggestion
+      // nodes are only recreated from BlockNote's own HTML serialization,
+      // never from arbitrary external HTML.
+      return [
+        {
+          tag: `[data-suggestion="true"][data-content-type="${blockConfig.type}"]`,
+          contentElement: ".bn-inline-content",
+          priority: 60, // Higher priority than normal blockContent parse rules
+        },
+      ];
+    },
+    renderHTML({ HTMLAttributes }) {
+      const div = document.createElement("div");
+      return wrapInBlockStructure(
+        {
+          dom: div,
+          contentDOM: blockConfig.content === "inline" ? div : undefined,
+        },
+        blockConfig.type,
+        {},
+        blockConfig.propSchema,
+        blockImplementation.meta?.fileBlockAccept !== undefined,
+        HTMLAttributes,
+      );
+    },
+  });
+
   return {
     config: blockConfig,
     implementation: {
       ...blockImplementation,
       node,
+      suggestionNode,
       render(block, editor) {
         const blockContentDOMAttributes =
           node.options.domAttributes?.blockContent || {};

@@ -39,6 +39,18 @@ export const splitBlockTr = (
   if (!info.isBlockContainer) {
     return false;
   }
+
+  // If the cursor is inside a suggestion node, redirect the split position
+  // to the start of the blockContent. Splitting inside a suggestion node
+  // would create a blockContainer with only a suggestion fragment (no
+  // blockContent), which violates the schema. Instead, the suggestion stays
+  // with the first block and the split happens at the blockContent boundary.
+  let effectivePos = posInBlock;
+  const $pos = tr.doc.resolve(posInBlock);
+  if ($pos.parent.type.spec.group === "suggestionBlockContent") {
+    effectivePos = info.blockContent.beforePos + 1;
+  }
+
   const schema = getPmSchema(tr);
 
   const types = [
@@ -52,7 +64,7 @@ export const splitBlockTr = (
     },
   ];
 
-  tr.split(posInBlock, 2, types);
+  tr.split(effectivePos, 2, types);
 
   return true;
 };

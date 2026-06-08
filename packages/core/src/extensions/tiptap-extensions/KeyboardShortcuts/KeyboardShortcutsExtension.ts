@@ -20,6 +20,8 @@ import { updateBlockCommand } from "../../../api/blockManipulation/commands/upda
 import {
   getBlockInfoFromResolvedPos,
   getBlockInfoFromSelection,
+  isSelectionAtBlockEnd,
+  isSelectionAtBlockStart,
 } from "../../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { FormattingToolbarExtension } from "../../FormattingToolbar/FormattingToolbar.js";
@@ -50,7 +52,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const selectionAtBlockStart =
-              state.selection.from === blockInfo.blockContent.beforePos + 1;
+              isSelectionAtBlockStart(blockInfo, state.selection.from);
             const isParagraph =
               blockInfo.blockContent.node.type.name === "paragraph";
 
@@ -72,10 +74,8 @@ export const KeyboardShortcutsExtension = Extension.create<{
             if (!blockInfo.isBlockContainer) {
               return false;
             }
-            const { blockContent } = blockInfo;
-
             const selectionAtBlockStart =
-              state.selection.from === blockContent.beforePos + 1;
+              isSelectionAtBlockStart(blockInfo, state.selection.from);
 
             if (selectionAtBlockStart) {
               return liftItem(
@@ -95,7 +95,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             if (!blockInfo.isBlockContainer) {
               return false;
             }
-            const { bnBlock: blockContainer, blockContent } = blockInfo;
+            const { bnBlock: blockContainer } = blockInfo;
 
             const prevBlockInfo = getPrevBlockInfo(
               state.doc,
@@ -113,7 +113,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const selectionAtBlockStart =
-              state.selection.from === blockContent.beforePos + 1;
+              isSelectionAtBlockStart(blockInfo, state.selection.from);
             const selectionEmpty = state.selection.empty;
 
             const posBetweenBlocks = blockContainer.beforePos;
@@ -137,8 +137,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const selectionAtBlockStart =
-              state.selection.from ===
-              blockInfo.blockContent.beforePos + 1;
+              isSelectionAtBlockStart(blockInfo, state.selection.from);
             if (!selectionAtBlockStart) {
               return false;
             }
@@ -180,7 +179,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const selectionAtBlockStart =
-              tr.selection.from === blockInfo.blockContent.beforePos + 1;
+              isSelectionAtBlockStart(blockInfo, tr.selection.from);
             if (!selectionAtBlockStart) {
               return false;
             }
@@ -319,7 +318,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const selectionAtBlockStart =
-              state.selection.from === blockInfo.blockContent.beforePos + 1;
+              isSelectionAtBlockStart(blockInfo, state.selection.from);
             const selectionEmpty = state.selection.empty;
 
             const prevBlockInfo = getPrevBlockInfo(
@@ -379,10 +378,10 @@ export const KeyboardShortcutsExtension = Extension.create<{
             if (!blockInfo.isBlockContainer || !blockInfo.childContainer) {
               return false;
             }
-            const { blockContent, childContainer } = blockInfo;
+            const { childContainer } = blockInfo;
 
             const selectionAtBlockEnd =
-              state.selection.from === blockContent.afterPos - 1;
+              isSelectionAtBlockEnd(blockInfo, state.selection.from);
             const selectionEmpty = state.selection.empty;
 
             const firstChildBlockInfo = getBlockInfoFromResolvedPos(
@@ -398,7 +397,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
               const firstChildBlockHasInlineContent =
                 firstChildBlockContent.type.spec.content === "inline*";
               const blockHasInlineContent =
-                blockContent.node.type.spec.content === "inline*";
+                blockInfo.blockContent.node.type.spec.content === "inline*";
 
               return (
                 chain()
@@ -444,7 +443,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             if (!blockInfo.isBlockContainer) {
               return false;
             }
-            const { bnBlock: blockContainer, blockContent } = blockInfo;
+            const { bnBlock: blockContainer } = blockInfo;
 
             const nextBlockInfo = getNextBlockInfo(
               state.doc,
@@ -455,7 +454,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const selectionAtBlockEnd =
-              state.selection.from === blockContent.afterPos - 1;
+              isSelectionAtBlockEnd(blockInfo, state.selection.from);
             const selectionEmpty = state.selection.empty;
 
             const posBetweenBlocks = blockContainer.afterPos;
@@ -479,8 +478,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const selectionAtBlockEnd =
-              state.selection.from ===
-              blockInfo.blockContent.afterPos - 1;
+              isSelectionAtBlockEnd(blockInfo, state.selection.from);
             if (!selectionAtBlockEnd) {
               return false;
             }
@@ -523,7 +521,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const selectionAtBlockEnd =
-              tr.selection.from === blockInfo.blockContent.afterPos - 1;
+              isSelectionAtBlockEnd(blockInfo, tr.selection.from);
             if (!selectionAtBlockEnd) {
               return false;
             }
@@ -582,10 +580,8 @@ export const KeyboardShortcutsExtension = Extension.create<{
             if (!blockInfo.isBlockContainer) {
               return false;
             }
-            const { blockContent } = blockInfo;
-
             const selectionAtBlockEnd =
-              state.selection.from === blockContent.afterPos - 1;
+              isSelectionAtBlockEnd(blockInfo, state.selection.from);
             const selectionEmpty = state.selection.empty;
 
             if (selectionAtBlockEnd && selectionEmpty) {
@@ -621,7 +617,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
               const nextBlockHasInlineContent =
                 nextBlockContent.type.spec.content === "inline*";
               const blockHasInlineContent =
-                blockContent.node.type.spec.content === "inline*";
+                blockInfo.blockContent.node.type.spec.content === "inline*";
 
               return (
                 chain()
@@ -722,7 +718,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const selectionAtBlockEnd =
-              state.selection.from === blockInfo.blockContent.afterPos - 1;
+              isSelectionAtBlockEnd(blockInfo, state.selection.from);
             const selectionEmpty = state.selection.empty;
 
             const nextBlockInfo = getNextBlockInfo(
@@ -744,8 +740,13 @@ export const KeyboardShortcutsExtension = Extension.create<{
                   nextBlockInfo.blockContent.node.childCount === 0);
 
               if (nextBlockNotTableAndNoContent) {
-                const childBlocks =
-                  nextBlockInfo.bnBlock.node.lastChild!.content;
+                // Find the blockGroup child, skipping suggestion nodes
+                let blockGroupContent = null;
+                nextBlockInfo.bnBlock.node.forEach((child) => {
+                  if (child.type.name === "blockGroup") {
+                    blockGroupContent = child.content;
+                  }
+                });
                 return chain()
                   .deleteRange({
                     from: nextBlockInfo.bnBlock.beforePos,
@@ -753,9 +754,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
                   })
                   .insertContentAt(
                     blockInfo.bnBlock.afterPos,
-                    nextBlockInfo.bnBlock.node.childCount === 2
-                      ? childBlocks
-                      : null,
+                    blockGroupContent,
                   )
                   .run();
               }

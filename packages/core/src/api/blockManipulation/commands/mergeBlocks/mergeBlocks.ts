@@ -153,13 +153,102 @@ const mergeBlocks = (
       );
     }
 
-    // TODO: test merging between a columnList and paragraph, between two columnLists, and v.v.
-    dispatch(
-      state.tr.delete(
-        prevBlockInfo.blockContent.afterPos - 1,
-        nextBlockInfo.blockContent.beforePos + 1,
-      ),
+    const tr = state.tr;
+
+    // After a potential lift, positions may have changed. Re-resolve block
+    // info from the transaction's current doc.
+    const mappedPrevPos = tr.mapping.map(prevBlockInfo.bnBlock.beforePos);
+    const mappedNextPos = tr.mapping.map(nextBlockInfo.bnBlock.beforePos);
+    const currentPrevInfo = getBlockInfoFromResolvedPos(
+      tr.doc.resolve(mappedPrevPos),
     );
+    const currentNextInfo = getBlockInfoFromResolvedPos(
+      tr.doc.resolve(mappedNextPos),
+    );
+
+    if (!currentPrevInfo.isBlockContainer || !currentNextInfo.isBlockContainer) {
+      // Fallback to original behavior if blocks are no longer containers
+      tr.delete(
+        tr.mapping.map(prevBlockInfo.blockContent.afterPos - 1),
+        tr.mapping.map(nextBlockInfo.blockContent.beforePos + 1),
+      );
+      dispatch(tr);
+      return true;
+    }
+
+    // Save suggestion node content before reconstruction
+    const savedPrevSuggAfter = currentPrevInfo.suggestionAfter
+      ? currentPrevInfo.suggestionAfter.node.copy(
+          currentPrevInfo.suggestionAfter.node.content,
+        )
+      : null;
+    const savedNextSuggBefore = currentNextInfo.suggestionBefore
+      ? currentNextInfo.suggestionBefore.node.copy(
+          currentNextInfo.suggestionBefore.node.content,
+        )
+      : null;
+
+    // If no suggestion nodes are involved, use the original simple delete
+    if (!savedPrevSuggAfter && !savedNextSuggBefore) {
+      // TODO: test merging between a columnList and paragraph, between two columnLists, and v.v.
+      tr.delete(
+        currentPrevInfo.blockContent.afterPos - 1,
+        currentNextInfo.blockContent.beforePos + 1,
+      );
+      dispatch(tr);
+      return true;
+    }
+
+    // Reconstruct the merged blockContainer preserving suggestion nodes.
+    //
+    // Strategy: Replace the range from prev block start to next block end
+    // with a single reconstructed blockContainer containing:
+    //   [suggestionBefore?] [mergedBlockContent] [suggestionAfter?] [blockGroup?]
+
+    // Get the merged inline content by combining both paragraphs' content
+    const mergedContent = currentPrevInfo.blockContent.node.content.append(
+      currentNextInfo.blockContent.node.content,
+    );
+
+    // Create the merged blockContent node (use prev block's type/attrs)
+    const mergedBlockContent =
+      currentPrevInfo.blockContent.node.copy(mergedContent);
+
+    // Build the children array for the reconstructed blockContainer
+    const newChildren: Node[] = [];
+
+    // Leading suggestion from next block
+    if (savedNextSuggBefore) {
+      newChildren.push(savedNextSuggBefore);
+    }
+
+    // Merged block content
+    newChildren.push(mergedBlockContent);
+
+    // Trailing suggestion from prev block
+    if (savedPrevSuggAfter) {
+      newChildren.push(savedPrevSuggAfter);
+    }
+
+    // blockGroup from prev block (next block's children were already lifted)
+    if (currentPrevInfo.childContainer) {
+      newChildren.push(currentPrevInfo.childContainer.node);
+    }
+
+    // Create the new blockContainer with the prev block's ID and attributes
+    const newBlockContainer = currentPrevInfo.bnBlock.node.type.create(
+      currentPrevInfo.bnBlock.node.attrs,
+      newChildren,
+    );
+
+    // Replace the entire range from prev block to next block
+    tr.replaceWith(
+      currentPrevInfo.bnBlock.beforePos,
+      currentNextInfo.bnBlock.afterPos,
+      newBlockContainer,
+    );
+
+    dispatch(tr);
   }
 
   return true;

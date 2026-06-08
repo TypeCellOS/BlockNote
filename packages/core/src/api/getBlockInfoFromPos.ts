@@ -41,6 +41,16 @@ export type BlockInfo = {
        * Whether bnBlock is a blockContainer node
        */
       isBlockContainer: true;
+      /**
+       * A suggestion node that appears before the blockContent, if present.
+       * Suggestion nodes have group "suggestionBlockContent" and are used for
+       * diff/suggestion tracking.
+       */
+      suggestionBefore?: SingleBlockInfo;
+      /**
+       * A suggestion node that appears after the blockContent, if present.
+       */
+      suggestionAfter?: SingleBlockInfo;
     }
 );
 
@@ -143,6 +153,9 @@ export function getBlockInfoWithManualOffset(
   if (bnBlockNode.type.name === "blockContainer") {
     let blockContent: SingleBlockInfo | undefined;
     let blockGroup: SingleBlockInfo | undefined;
+    let suggestionBefore: SingleBlockInfo | undefined;
+    let suggestionAfter: SingleBlockInfo | undefined;
+    let foundBlockContent = false;
 
     bnBlockNode.forEach((node, offset) => {
       if (node.type.spec.group === "blockContent") {
@@ -156,6 +169,7 @@ export function getBlockInfoWithManualOffset(
           beforePos: blockContentBeforePos,
           afterPos: blockContentAfterPos,
         };
+        foundBlockContent = true;
       } else if (node.type.name === "blockGroup") {
         const blockGroupNode = node;
         const blockGroupBeforePos = bnBlockBeforePos + offset + 1;
@@ -166,6 +180,22 @@ export function getBlockInfoWithManualOffset(
           beforePos: blockGroupBeforePos,
           afterPos: blockGroupAfterPos,
         };
+      } else if (node.type.spec.group === "suggestionBlockContent") {
+        const suggestionNode = node;
+        const suggestionBeforePos = bnBlockBeforePos + offset + 1;
+        const suggestionAfterPos = suggestionBeforePos + node.nodeSize;
+
+        const info: SingleBlockInfo = {
+          node: suggestionNode,
+          beforePos: suggestionBeforePos,
+          afterPos: suggestionAfterPos,
+        };
+
+        if (!foundBlockContent) {
+          suggestionBefore = info;
+        } else {
+          suggestionAfter = info;
+        }
       }
     });
 
@@ -181,6 +211,8 @@ export function getBlockInfoWithManualOffset(
       blockContent,
       childContainer: blockGroup,
       blockNoteType: blockContent.node.type.name,
+      suggestionBefore,
+      suggestionAfter,
     };
   } else {
     if (!bnBlock.node.type.isInGroup("childContainer")) {
@@ -250,4 +282,34 @@ export function getBlockInfoFromTransaction(tr: Transaction) {
   const posInfo = getNearestBlockPos(tr.doc, tr.selection.anchor);
 
   return getBlockInfo(posInfo);
+}
+
+/**
+ * Checks whether a selection position is at the effective start of a block,
+ * accounting for suggestion nodes. The "effective start" is position 0 inside
+ * the leading suggestion node (if present) or the start of blockContent.
+ */
+export function isSelectionAtBlockStart(
+  blockInfo: BlockInfo & { isBlockContainer: true },
+  selectionFrom: number,
+): boolean {
+  if (blockInfo.suggestionBefore) {
+    return selectionFrom === blockInfo.suggestionBefore.beforePos + 1;
+  }
+  return selectionFrom === blockInfo.blockContent.beforePos + 1;
+}
+
+/**
+ * Checks whether a selection position is at the effective end of a block,
+ * accounting for suggestion nodes. The "effective end" is the last position
+ * inside the trailing suggestion node (if present) or the end of blockContent.
+ */
+export function isSelectionAtBlockEnd(
+  blockInfo: BlockInfo & { isBlockContainer: true },
+  selectionFrom: number,
+): boolean {
+  if (blockInfo.suggestionAfter) {
+    return selectionFrom === blockInfo.suggestionAfter.afterPos - 1;
+  }
+  return selectionFrom === blockInfo.blockContent.afterPos - 1;
 }

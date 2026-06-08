@@ -38,7 +38,11 @@ import {
   TextColorExtension,
   UniqueID,
 } from "../../../extensions/tiptap-extensions/index.js";
-import { BlockContainer, BlockGroup, Doc } from "../../../pm-nodes/index.js";
+import {
+  BlockContainer,
+  BlockGroup,
+  Doc,
+} from "../../../pm-nodes/index.js";
 import type {
   BlockNoteEditor,
   BlockNoteEditorOptions,
@@ -128,6 +132,16 @@ export function getDefaultTiptapExtensions(
         ...("node" in blockSpec.implementation
           ? [
               (blockSpec.implementation.node as Node).configure({
+                editor: editor,
+                domAttributes: options.domAttributes,
+              }),
+            ]
+          : []),
+        // suggestion shadow node (same block, no parseHTML, different group)
+        ...("suggestionNode" in blockSpec.implementation &&
+        blockSpec.implementation.suggestionNode
+          ? [
+              (blockSpec.implementation.suggestionNode as Node).configure({
                 editor: editor,
                 domAttributes: options.domAttributes,
               }),
