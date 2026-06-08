@@ -150,6 +150,17 @@ export function addNodeAndExtensionsToSpec<
           ? ""
           : blockConfig.content) as TContent extends "inline" ? "inline*" : "",
       group: "blockContent",
+      // Atom/leaf blocks (content: "none") disallow marks by default, so a
+      // node-level attribution mark (e.g. a suggestion-deleted image) would
+      // throw `Invalid content`. Explicitly allow the attribution marks on them
+      // so the binding can mark them in place. (Inline-content blocks already
+      // allow all marks by default.)
+      ...(blockConfig.content === "none"
+        ? {
+            marks:
+              "insertion deletion modification y-attributed-insert y-attributed-delete y-attributed-format",
+          }
+        : {}),
       selectable: blockImplementation.meta?.selectable ?? true,
       isolating: blockImplementation.meta?.isolating ?? true,
       code: blockImplementation.meta?.code ?? false,

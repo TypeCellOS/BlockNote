@@ -1,0 +1,127 @@
+/*
+ATTRIBUTION STYLES (suggestion mode / version diffs)
+
+Renders the y-prosemirror attribution marks & their block-level variants:
+  - `y-attributed-insert` -> <ins data-attributed="insert">      (green)
+  - `y-attributed-delete` -> <del data-attributed="delete">      (red, struck through)
+  - `y-attributed-format` -> [data-type="y-attributed-format"]   (amber highlight)
+
+Block-level attribution: the mark wraps a whole block with `display: contents`
+(e.g. <del style="display:contents"><div class="bn-block-content" ...>), and the
+attributed block itself carries a `y-attributed` attribute (rendered on
+`.bn-block-content`). We add a subtle left accent border to those whole blocks so
+inserted / deleted blocks are obvious at a glance.
+
+Colors are exposed as CSS variables so themes can override them, with sensible
+defaults for light and dark color schemes (see Block.css / the react theme for
+the `[data-color-scheme="dark"]` convention on `.bn-container`).
+*/
+
+:root,
+.bn-container {
+  --bn-colors-attribution-insert-text: #0f7b0f;
+  --bn-colors-attribution-insert-background: rgba(15, 123, 15, 0.08);
+  --bn-colors-attribution-insert-accent: rgba(15, 123, 15, 0.5);
+
+  --bn-colors-attribution-delete-text: #c0392b;
+  --bn-colors-attribution-delete-background: rgba(192, 57, 43, 0.08);
+  --bn-colors-attribution-delete-accent: rgba(192, 57, 43, 0.5);
+
+  --bn-colors-attribution-format-background: rgba(241, 196, 15, 0.18);
+  --bn-colors-attribution-format-accent: rgba(241, 196, 15, 0.6);
+}
+
+.bn-container[data-color-scheme="dark"] {
+  --bn-colors-attribution-insert-text: #4ade80;
+  --bn-colors-attribution-insert-background: rgba(74, 222, 128, 0.12);
+  --bn-colors-attribution-insert-accent: rgba(74, 222, 128, 0.55);
+
+  --bn-colors-attribution-delete-text: #f87171;
+  --bn-colors-attribution-delete-background: rgba(248, 113, 113, 0.12);
+  --bn-colors-attribution-delete-accent: rgba(248, 113, 113, 0.55);
+
+  --bn-colors-attribution-format-background: rgba(241, 196, 15, 0.22);
+  --bn-colors-attribution-format-accent: rgba(241, 196, 15, 0.65);
+}
+
+/*
+INLINE ATTRIBUTION
+*/
+
+/* Inserted content */
+[data-attributed="insert"] {
+  color: var(--bn-colors-attribution-insert-text);
+  background: var(--bn-colors-attribution-insert-background);
+  text-decoration: underline;
+  text-decoration-color: var(--bn-colors-attribution-insert-accent);
+  text-decoration-skip-ink: none;
+}
+
+/* Deleted content */
+[data-attributed="delete"] {
+  color: var(--bn-colors-attribution-delete-text);
+  background: var(--bn-colors-attribution-delete-background);
+  text-decoration: line-through;
+  text-decoration-color: var(--bn-colors-attribution-delete-accent);
+  text-decoration-skip-ink: none;
+}
+
+/* Changed formatting */
+[data-type="y-attributed-format"] {
+  background: var(--bn-colors-attribution-format-background);
+  border-radius: var(--bn-border-radius-small, 2px);
+}
+
+/*
+BLOCK-LEVEL ATTRIBUTION
+
+When a whole block is inserted / deleted, the attribution mark wraps it with
+`display: contents` and the block's `.bn-block-content` carries `y-attributed`.
+The wrapper provides the insert/delete color; we use the inline `data-attributed`
+ancestor to pick the accent so we don't need the (color-agnostic) variant
+attribute to know the direction.
+
+Block-level marks render with `display: contents`, so we apply the visual
+treatment to the inner `.bn-block-content` (the actual layout box).
+*/
+
+/* Inserted whole block */
+[data-attributed="insert"] > .bn-block-content,
+[data-attributed="insert"] .bn-block-content[y-attributed],
+.bn-block-content[y-attributed][data-attributed="insert"] {
+  background: var(--bn-colors-attribution-insert-background);
+  box-shadow: inset 3px 0 0 0 var(--bn-colors-attribution-insert-accent);
+  padding-left: 8px;
+  border-radius: var(--bn-border-radius-small, 2px);
+}
+
+/* Deleted whole block */
+[data-attributed="delete"] > .bn-block-content,
+[data-attributed="delete"] .bn-block-content[y-attributed],
+.bn-block-content[y-attributed][data-attributed="delete"] {
+  background: var(--bn-colors-attribution-delete-background);
+  box-shadow: inset 3px 0 0 0 var(--bn-colors-attribution-delete-accent);
+  padding-left: 8px;
+  border-radius: var(--bn-border-radius-small, 2px);
+}
+
+/* Reformatted whole block */
+[data-type="y-attributed-format"] > .bn-block-content,
+[data-type="y-attributed-format"] .bn-block-content[y-attributed] {
+  background: var(--bn-colors-attribution-format-background);
+  box-shadow: inset 3px 0 0 0 var(--bn-colors-attribution-format-accent);
+  padding-left: 8px;
+  border-radius: var(--bn-border-radius-small, 2px);
+}
+
+/*
+Deleted content is not editable (see DeletedContentReadonly extension, which sets
+`contenteditable="false"`). Keep the caret out and make the read-only intent
+clear while still allowing text selection for copy.
+*/
+[data-attributed="delete"][contenteditable="false"],
+[data-attributed="delete"] [contenteditable="false"] {
+  cursor: default;
+  -webkit-user-select: text;
+  user-select: text;
+}

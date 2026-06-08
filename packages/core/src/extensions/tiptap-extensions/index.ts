@@ -2,6 +2,11 @@ import { BackgroundColorExtension } from "./BackgroundColor/BackgroundColorExten
 import { HardBreak } from "./HardBreak/HardBreak.js";
 import { KeyboardShortcutsExtension } from "./KeyboardShortcuts/KeyboardShortcutsExtension.js";
 import {
+  AttributedDeleteMark,
+  AttributedFormatMark,
+  AttributedInsertMark,
+} from "./Suggestions/AttributionMarks.js";
+import {
   SuggestionAddMark,
   SuggestionDeleteMark,
   SuggestionModificationMark,
@@ -13,6 +18,7 @@ import { UniqueID } from "./UniqueID/UniqueID.js";
 export * from "./BackgroundColor/BackgroundColorExtension.js";
 export * from "./HardBreak/HardBreak.js";
 export * from "./KeyboardShortcuts/KeyboardShortcutsExtension.js";
+export * from "./Suggestions/AttributionMarks.js";
 export * from "./Suggestions/SuggestionMarks.js";
 export * from "./TextAlignment/TextAlignmentExtension.js";
 export * from "./TextColor/TextColorExtension.js";
@@ -22,6 +28,9 @@ export const DEFAULT_TIP_TAP_EXTENSIONS = [
   BackgroundColorExtension,
   HardBreak,
   KeyboardShortcutsExtension,
+  AttributedInsertMark,
+  AttributedDeleteMark,
+  AttributedFormatMark,
   SuggestionAddMark,
   SuggestionDeleteMark,
   SuggestionModificationMark,

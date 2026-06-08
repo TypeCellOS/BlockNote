@@ -9,7 +9,10 @@ import {
 import { keymap } from "@tiptap/pm/keymap";
 import { Plugin } from "prosemirror-state";
 import { updateBlockTr } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import { getBlockInfoFromTransaction } from "../../../api/getBlockInfoFromPos.js";
+import {
+  getBlockInfoFromSelection,
+  getBlockInfoFromTransaction,
+} from "../../../api/getBlockInfoFromPos.js";
 import { sortByDependencies } from "../../../util/topo-sort.js";
 import type {
   BlockNoteEditor,
@@ -421,6 +424,49 @@ export class ExtensionManager {
                 this.editor.schema.blockSchema[cursorPosition.block.type]
                   .content !== "inline"
               ) {
+                return null;
+              }
+
+              // In an attributed (suggestion / version-diff) collaborative
+              // editor, the y-prosemirror sync plugin reconciles
+              // SYNCHRONOUSLY after every dispatch, rewriting freshly inserted
+              // content (e.g. wrapping it in `y-attributed-insert`).
+              // @handlewithcare's input-rule runner dispatches the inserted
+              // text and THEN the rule transaction as two separate dispatches;
+              // the reconcile triggered by the first advances the document, so
+              // the rule transaction - built against the pre-reconcile state -
+              // gets applied to a mismatched document and ProseMirror throws
+              // "Applying a mismatched transaction". Mid-input that throw
+              // desyncs the DOM observer and freezes the editor (reported when
+              // turning a paragraph into a heading via the `# ` shortcut in
+              // suggestion mode). Avoid the split dispatch: report no match and
+              // re-apply the block-type change against the live, reconciled
+              // document on the next microtask.
+              if (this.options.collaboration?.attributionManager) {
+                const matchLength = match[0].length;
+                queueMicrotask(() => {
+                  const view = this.editor.prosemirrorView;
+                  if (!view) {
+                    return;
+                  }
+                  try {
+                    const info = getBlockInfoFromSelection(view.state);
+                    if (!info.isBlockContainer) {
+                      return;
+                    }
+                    const tr = view.state.tr;
+                    // The markdown trigger text that PM inserted sits at the
+                    // start of the block's inline content - strip it, then
+                    // change the block type.
+                    const contentStart = info.blockContent.beforePos + 1;
+                    tr.delete(contentStart, contentStart + matchLength);
+                    updateBlockTr(tr, info.bnBlock.beforePos, replaceWith);
+                    view.dispatch(tr);
+                  } catch {
+                    // Positions may have shifted under a concurrent edit;
+                    // skip silently rather than throw mid-reconcile.
+                  }
+                });
                 return null;
               }
 

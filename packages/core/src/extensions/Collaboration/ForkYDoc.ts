@@ -13,7 +13,7 @@ import { YUndoExtension } from "./YUndo.js";
 /**
  * To find a fragment in another ydoc, we need to search for it.
  */
-function findTypeInOtherYdoc<T extends Y.AbstractType<any>>(
+function findTypeInOtherYdoc<T extends Y.Type>(
   ytype: T,
   otherYdoc: Y.Doc,
 ): T {
@@ -29,7 +29,7 @@ function findTypeInOtherYdoc<T extends Y.AbstractType<any>>(
     if (rootKey == null) {
       throw new Error("type does not exist in other ydoc");
     }
-    return otherYdoc.get(rootKey, ytype.constructor as new () => T) as T;
+    return otherYdoc.get(rootKey as string) as unknown as T;
   } else {
     /**
      * If it is a sub type, we use the item id to find the history type.
@@ -47,9 +47,9 @@ export const ForkYDocExtension = createExtension(
   ({ editor, options }: ExtensionOptions<CollaborationOptions>) => {
     let forkedState:
       | {
-          originalFragment: Y.XmlFragment;
+          originalFragment: Y.Type;
           undoStack: Y.UndoManager["undoStack"];
-          forkedFragment: Y.XmlFragment;
+          forkedFragment: Y.Type;
         }
       | undefined = undefined;
 
@@ -102,7 +102,7 @@ export const ForkYDocExtension = createExtension(
         editor.registerExtension([
           YSyncExtension(newOptions),
           // No need to register the cursor plugin again, it's a local fork
-          YUndoExtension(),
+          YUndoExtension(newOptions),
         ]);
 
         // Tell the store that the editor is now forked
@@ -126,7 +126,7 @@ export const ForkYDocExtension = createExtension(
         editor.registerExtension([
           YSyncExtension(options),
           YCursorExtension(options),
-          YUndoExtension(),
+          YUndoExtension(options),
         ]);
 
         // Reset the undo stack to the original undo stack

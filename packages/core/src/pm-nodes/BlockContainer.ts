@@ -22,12 +22,20 @@ export const BlockContainer = Node.create<{
 }>({
   name: "blockContainer",
   group: "blockGroupChild bnBlock",
-  // A block always contains content, and optionally a blockGroup which contains nested blocks
-  content: "blockContent blockGroup?",
+  // A block contains exactly one real block content node, optionally a blockGroup
+  // with nested blocks - and, *only* in suggestion mode / diff rendering, it may
+  // transiently hold `--attributed` content variants flanking the real one. A
+  // node-type change is a delete-old + insert-new at the Y layer (a node's name
+  // is its identity and cannot be mutated in place), so a suggested flip renders
+  // the original as a deleted `*--attributed` next to the inserted `*--attributed`.
+  // The `attributed*` flanks match only binding-produced variants, so canonical
+  // user edits still resolve to the single-blockContent form. Mirrors the
+  // binding's reference expression `attributed* (block|attributed) attributed*`.
+  content: "attributed* (blockContent | attributed) attributed* blockGroup?",
   // Ensures content-specific keyboard handlers trigger first.
   priority: 50,
   defining: true,
-  marks: "insertion modification deletion",
+  marks: "insertion deletion modification y-attributed-insert y-attributed-delete y-attributed-format",
   parseHTML() {
     return [
       {

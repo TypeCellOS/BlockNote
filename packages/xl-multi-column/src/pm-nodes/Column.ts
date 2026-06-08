@@ -9,7 +9,7 @@ export const Column = Node.create({
   content: "blockContainer+",
   priority: 40,
   defining: true,
-  marks: "deletion insertion modification",
+  marks: "insertion deletion modification y-attributed-insert y-attributed-delete y-attributed-format",
   addAttributes() {
     return {
       width: {

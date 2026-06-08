@@ -1,5 +1,9 @@
 import { Node, ResolvedPos } from "prosemirror-model";
 import { EditorState, Transaction } from "prosemirror-state";
+import {
+  canonicalBlockName,
+  isDeletedNode,
+} from "../schema/blocks/attributedNodes.js";
 
 type SingleBlockInfo = {
   node: Node;
@@ -141,21 +145,30 @@ export function getBlockInfoWithManualOffset(
   };
 
   if (bnBlockNode.type.name === "blockContainer") {
+    // A blockContainer historically held exactly one blockContent. Under
+    // attribution it can transiently hold several (a deleted `*--attributed`
+    // variant next to the live one). Pick the block's CURRENT content - the
+    // first non-deleted blockContent - falling back to the first blockContent if
+    // the whole block is a pending deletion. (This is the position-aware twin of
+    // `getBlockNode`.)
     let blockContent: SingleBlockInfo | undefined;
+    let blockContentFallback: SingleBlockInfo | undefined;
     let blockGroup: SingleBlockInfo | undefined;
 
     bnBlockNode.forEach((node, offset) => {
-      if (node.type.spec.group === "blockContent") {
-        // console.log(beforePos, offset);
-        const blockContentNode = node;
+      // `isInGroup` (not `spec.group === "blockContent"`) so attributed variants,
+      // whose group is `"blockContent attributed"`, are recognized too.
+      if (node.type.isInGroup("blockContent")) {
         const blockContentBeforePos = bnBlockBeforePos + offset + 1;
-        const blockContentAfterPos = blockContentBeforePos + node.nodeSize;
-
-        blockContent = {
-          node: blockContentNode,
+        const info: SingleBlockInfo = {
+          node,
           beforePos: blockContentBeforePos,
-          afterPos: blockContentAfterPos,
+          afterPos: blockContentBeforePos + node.nodeSize,
         };
+        blockContentFallback = blockContentFallback ?? info;
+        if (!isDeletedNode(node)) {
+          blockContent = blockContent ?? info;
+        }
       } else if (node.type.name === "blockGroup") {
         const blockGroupNode = node;
         const blockGroupBeforePos = bnBlockBeforePos + offset + 1;
@@ -169,7 +182,8 @@ export function getBlockInfoWithManualOffset(
       }
     });
 
-    if (!blockContent) {
+    const chosenBlockContent = blockContent ?? blockContentFallback;
+    if (!chosenBlockContent) {
       throw new Error(
         `blockContainer node does not contain a blockContent node in its children: ${bnBlockNode}`,
       );
@@ -178,9 +192,11 @@ export function getBlockInfoWithManualOffset(
     return {
       isBlockContainer: true,
       bnBlock,
-      blockContent,
+      blockContent: chosenBlockContent,
       childContainer: blockGroup,
-      blockNoteType: blockContent.node.type.name,
+      // Strip the `--attributed` suffix so the block API reports the canonical
+      // block type even while a suggested variant is rendered in the live doc.
+      blockNoteType: canonicalBlockName(chosenBlockContent.node.type.name),
     };
   } else {
     if (!bnBlock.node.type.isInGroup("childContainer")) {

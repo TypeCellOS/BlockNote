@@ -8,11 +8,9 @@ overrides:
   '@headlessui/react': ^2.2.4
   '@tiptap/core': ^3.0.0
   '@tiptap/pm': ^3.0.0
-
-patchedDependencies:
-  '@y/prosemirror':
-    hash: f9d1f345073554bd5394487b602c1813d6723c77083017611a94bc9580cac896
-    path: patches/@y__prosemirror.patch
+  lib0: file:./vendor/lib0-1.0.0-rc.14.tgz
+  '@y/y': file:./vendor/y-y-14.0.0-rc.17.tgz
+  '@y/prosemirror': file:./vendor/y-prosemirror-2.0.0-4.tgz
 
 importers:
 
@@ -220,8 +218,8 @@ importers:
         specifier: ^0.6.8
         version: 0.6.8
       '@y/y':
-        specifier: 14.0.0-19
-        version: 14.0.0-19
+        specifier: file:../vendor/y-y-14.0.0-rc.17.tgz
+        version: file:vendor/y-y-14.0.0-rc.17.tgz
       ai:
         specifier: ^5.0.102
         version: 5.0.102(zod@3.25.76)
@@ -405,10 +403,10 @@ importers:
         version: 6.0.22(react@19.2.1)
       '@y/protocols':
         specifier: 1.0.6-3
-        version: 1.0.6-3(@y/y@14.0.0-19)
+        version: 1.0.6-3(@y/y@file:vendor/y-y-14.0.0-rc.17.tgz)
       '@y/y':
-        specifier: 14.0.0-19
-        version: 14.0.0-19
+        specifier: file:../../../vendor/y-y-14.0.0-rc.17.tgz
+        version: file:vendor/y-y-14.0.0-rc.17.tgz
       react:
         specifier: ^19.2.1
         version: 19.2.1
@@ -4021,14 +4019,14 @@ importers:
         specifier: ^3.0.0
         version: 3.13.0
       '@y/prosemirror':
-        specifier: 2.0.0-2
-        version: 2.0.0-2(patch_hash=f9d1f345073554bd5394487b602c1813d6723c77083017611a94bc9580cac896)(@y/protocols@1.0.6-3(@y/y@14.0.0-19))(@y/y@14.0.0-19)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)
+        specifier: file:../../vendor/y-prosemirror-2.0.0-4.tgz
+        version: file:vendor/y-prosemirror-2.0.0-4.tgz(@y/protocols@1.0.6-3(@y/y@file:vendor/y-y-14.0.0-rc.17.tgz))(@y/y@file:vendor/y-y-14.0.0-rc.17.tgz)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)
       '@y/protocols':
         specifier: 1.0.6-3
-        version: 1.0.6-3(@y/y@14.0.0-19)
+        version: 1.0.6-3(@y/y@file:vendor/y-y-14.0.0-rc.17.tgz)
       '@y/y':
-        specifier: 14.0.0-19
-        version: 14.0.0-19
+        specifier: file:../../vendor/y-y-14.0.0-rc.17.tgz
+        version: file:vendor/y-y-14.0.0-rc.17.tgz
       emoji-mart:
         specifier: ^5.6.0
         version: 5.6.0
@@ -4039,8 +4037,8 @@ importers:
         specifier: ^5.0.1
         version: 5.0.1
       lib0:
-        specifier: 0.2.116
-        version: 0.2.116
+        specifier: file:../../vendor/lib0-1.0.0-rc.14.tgz
+        version: file:vendor/lib0-1.0.0-rc.14.tgz
       prosemirror-dropcursor:
         specifier: ^1.8.2
         version: 1.8.2
@@ -4334,14 +4332,14 @@ importers:
         specifier: ^3.0.0
         version: 3.13.0
       '@y/prosemirror':
-        specifier: 2.0.0-2
-        version: 2.0.0-2(patch_hash=f9d1f345073554bd5394487b602c1813d6723c77083017611a94bc9580cac896)(@y/protocols@1.0.6-3(@y/y@14.0.0-19))(@y/y@14.0.0-19)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)
+        specifier: file:../../vendor/y-prosemirror-2.0.0-4.tgz
+        version: file:vendor/y-prosemirror-2.0.0-4.tgz(@y/protocols@1.0.6-3(@y/y@file:vendor/y-y-14.0.0-rc.17.tgz))(@y/y@file:vendor/y-y-14.0.0-rc.17.tgz)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)
       '@y/protocols':
         specifier: 1.0.6-3
-        version: 1.0.6-3(@y/y@14.0.0-19)
+        version: 1.0.6-3(@y/y@file:vendor/y-y-14.0.0-rc.17.tgz)
       '@y/y':
-        specifier: 14.0.0-19
-        version: 14.0.0-19
+        specifier: file:../../vendor/y-y-14.0.0-rc.17.tgz
+        version: file:vendor/y-y-14.0.0-rc.17.tgz
       jsdom:
         specifier: ^25.0.1
         version: 25.0.1(canvas@2.11.2(encoding@0.1.13))
@@ -4510,8 +4508,8 @@ importers:
         specifier: ^3.0.0
         version: 3.13.0(@tiptap/pm@3.13.0)
       '@y/prosemirror':
-        specifier: 2.0.0-2
-        version: 2.0.0-2(patch_hash=f9d1f345073554bd5394487b602c1813d6723c77083017611a94bc9580cac896)(@y/protocols@1.0.6-3(@y/y@14.0.0-19))(@y/y@14.0.0-19)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)
+        specifier: file:../../vendor/y-prosemirror-2.0.0-4.tgz
+        version: file:vendor/y-prosemirror-2.0.0-4.tgz(@y/protocols@1.0.6-3(@y/y@14.0.0-rc.17))(@y/y@14.0.0-rc.17)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)
       ai:
         specifier: ^5.0.102
         version: 5.0.102(zod@4.1.12)
@@ -5120,8 +5118,8 @@ importers:
         specifier: ^3.6.8
         version: 3.6.8(@uppy/core@3.13.1)
       '@y/y':
-        specifier: 14.0.0-19
-        version: 14.0.0-19
+        specifier: file:../vendor/y-y-14.0.0-rc.17.tgz
+        version: file:vendor/y-y-14.0.0-rc.17.tgz
       ai:
         specifier: ^5.0.102
         version: 5.0.102(zod@4.1.12)
@@ -9814,25 +9812,32 @@ packages:
   '@xtuc/long@4.2.2':
     resolution: {integrity: sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==}
 
-  '@y/prosemirror@2.0.0-2':
-    resolution: {integrity: sha512-QGd7H+O47mqzsfQx80RgTt64OMH+mMcqTadjC/lUk+d+DNiDhY1KCBfdJzjprPb5A66ZWtAQ3Ixmc5+Ivk5JQw==}
+  '@y/prosemirror@file:vendor/y-prosemirror-2.0.0-4.tgz':
+    resolution: {integrity: sha512-yd2hnoFWzWZM/zj/6t5b5ef2m5BfDDvzM62RaowYjJHFw1M3M3CPZBhcoY2FhgHcDQmC7L7Ju9gi0duhAES1XQ==, tarball: file:vendor/y-prosemirror-2.0.0-4.tgz}
+    version: 2.0.0-4
     engines: {node: '>=16.0.0', npm: '>=8.0.0'}
     peerDependencies:
-      '@y/protocols': ^1.0.6-3
-      '@y/y': ^14.0.0-16
+      '@y/protocols': ^1.0.6-rc.1
+      '@y/y': ^14.0.0-rc.17
       prosemirror-model: ^1.7.1
       prosemirror-state: ^1.2.3
       prosemirror-view: ^1.9.10
 
   '@y/protocols@1.0.6-3':
     resolution: {integrity: sha512-ZVp2am1/rYpvRx040m+5i1nj8KUfjDjdGuK+zqe5dicEUcz/cKEFP/+pA+Ap262qBksJx++HjlOKPhuj6of05Q==}
+    version: 1.0.6-3
     engines: {node: '>=16.0.0', npm: '>=8.0.0'}
     peerDependencies:
       '@y/y': ^14.0.0-16 || ^14
 
-  '@y/y@14.0.0-19':
-    resolution: {integrity: sha512-w+wuYhJTRNjyGHZWEHoFggQdDyW/MlDL2ib9vJWaVqlSj+xxu1O07JABkgVzeWxKWIdTa98haXzCHoa1XaPUgQ==}
-    engines: {node: '>=16.0.0', npm: '>=8.0.0'}
+  '@y/y@14.0.0-rc.17':
+    resolution: {integrity: sha512-qzKOdjFcZBHxnbxc+4TKx/DCk9UwLCgXQjyQn4bbN9aEzDVQtzN7L18VaGrN4HTEDbHNrlevxvdIdz92Vk5TBA==}
+    engines: {node: '>=22.0.0', npm: '>=8.0.0'}
+
+  '@y/y@file:vendor/y-y-14.0.0-rc.17.tgz':
+    resolution: {integrity: sha512-S0u5U6nmQRpD4ESoWcoocBL6QujSpolLVE7NNBP24Do4IPqkarCBVVwVat1p0PmtyyGziElxDO4lkDOZV45PKg==, tarball: file:vendor/y-y-14.0.0-rc.17.tgz}
+    version: 14.0.0-rc.17
+    engines: {node: '>=22.0.0', npm: '>=8.0.0'}
 
   '@yarnpkg/lockfile@1.1.0':
     resolution: {integrity: sha512-GpSwvyXOcOOlV70vbnzjj4fW5xW/FdUF6nQEt1ENy7m4ZCczi1+/buVUPAqmGfqznsORNFzUMjctTIp8a9tuCQ==}
@@ -11922,9 +11927,6 @@ packages:
   isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
 
-  isomorphic.js@0.2.5:
-    resolution: {integrity: sha512-PIeMbHqMt4DnUP3MA/Flc0HElYjMXArsw1qwJZcm9sqR8mq3l8NYizFMty0pWwE/tzIGH3EKK5+jes5mAr85yw==}
-
   iterator.prototype@1.1.5:
     resolution: {integrity: sha512-H0dkQoCa3b2VEeKQBOxFph+JAbcrQdE7KC0UkqwpLmv2EC4P41QXP+rqo9wYodACiG5/WM5s9oDApTU8utwj9g==}
     engines: {node: '>= 0.4'}
@@ -12095,9 +12097,10 @@ packages:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
     engines: {node: '>= 0.8.0'}
 
-  lib0@0.2.116:
-    resolution: {integrity: sha512-4zsosjzmt33rx5XjmFVYUAeLNh+BTeDTiwGdLt4muxiir2btsc60Nal0EvkvDRizg+pnlK1q+BtYi7M+d4eStw==}
-    engines: {node: '>=16'}
+  lib0@file:vendor/lib0-1.0.0-rc.14.tgz:
+    resolution: {integrity: sha512-zXdJpWHTbkKGw7MsjillED5+CTl44I5UeZr2MViWFVhoAsoyNJmQGG5lm9ecnI2ZeV5tGhj47WGN2V+tY42LGg==, tarball: file:vendor/lib0-1.0.0-rc.14.tgz}
+    version: 1.0.0-rc.14
+    engines: {node: '>=22'}
     hasBin: true
 
   lie@3.3.0:
@@ -20533,23 +20536,41 @@ snapshots:
 
   '@xtuc/long@4.2.2': {}
 
-  '@y/prosemirror@2.0.0-2(patch_hash=f9d1f345073554bd5394487b602c1813d6723c77083017611a94bc9580cac896)(@y/protocols@1.0.6-3(@y/y@14.0.0-19))(@y/y@14.0.0-19)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)':
+  '@y/prosemirror@file:vendor/y-prosemirror-2.0.0-4.tgz(@y/protocols@1.0.6-3(@y/y@14.0.0-rc.17))(@y/y@14.0.0-rc.17)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)':
     dependencies:
-      '@y/protocols': 1.0.6-3(@y/y@14.0.0-19)
-      '@y/y': 14.0.0-19
-      lib0: 0.2.116
+      '@y/protocols': 1.0.6-3(@y/y@14.0.0-rc.17)
+      '@y/y': 14.0.0-rc.17
+      lib0: file:vendor/lib0-1.0.0-rc.14.tgz
       prosemirror-model: 1.25.4
       prosemirror-state: 1.4.4
       prosemirror-view: 1.41.4
 
-  '@y/protocols@1.0.6-3(@y/y@14.0.0-19)':
+  '@y/prosemirror@file:vendor/y-prosemirror-2.0.0-4.tgz(@y/protocols@1.0.6-3(@y/y@file:vendor/y-y-14.0.0-rc.17.tgz))(@y/y@file:vendor/y-y-14.0.0-rc.17.tgz)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.4)':
     dependencies:
-      '@y/y': 14.0.0-19
-      lib0: 0.2.116
+      '@y/protocols': 1.0.6-3(@y/y@file:vendor/y-y-14.0.0-rc.17.tgz)
+      '@y/y': file:vendor/y-y-14.0.0-rc.17.tgz
+      lib0: file:vendor/lib0-1.0.0-rc.14.tgz
+      prosemirror-model: 1.25.4
+      prosemirror-state: 1.4.4
+      prosemirror-view: 1.41.4
 
-  '@y/y@14.0.0-19':
+  '@y/protocols@1.0.6-3(@y/y@14.0.0-rc.17)':
     dependencies:
-      lib0: 0.2.116
+      '@y/y': 14.0.0-rc.17
+      lib0: file:vendor/lib0-1.0.0-rc.14.tgz
+
+  '@y/protocols@1.0.6-3(@y/y@file:vendor/y-y-14.0.0-rc.17.tgz)':
+    dependencies:
+      '@y/y': file:vendor/y-y-14.0.0-rc.17.tgz
+      lib0: file:vendor/lib0-1.0.0-rc.14.tgz
+
+  '@y/y@14.0.0-rc.17':
+    dependencies:
+      lib0: file:vendor/lib0-1.0.0-rc.14.tgz
+
+  '@y/y@file:vendor/y-y-14.0.0-rc.17.tgz':
+    dependencies:
+      lib0: file:vendor/lib0-1.0.0-rc.14.tgz
 
   '@yarnpkg/lockfile@1.1.0': {}
 
@@ -23020,8 +23041,6 @@ snapshots:
 
   isexe@2.0.0: {}
 
-  isomorphic.js@0.2.5: {}
-
   iterator.prototype@1.1.5:
     dependencies:
       define-data-property: 1.1.4
@@ -23259,9 +23278,7 @@ snapshots:
       prelude-ls: 1.2.1
       type-check: 0.4.0
 
-  lib0@0.2.116:
-    dependencies:
-      isomorphic.js: 0.2.5
+  lib0@file:vendor/lib0-1.0.0-rc.14.tgz: {}
 
   lie@3.3.0:
     dependencies:

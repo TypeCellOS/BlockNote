@@ -45,3 +45,22 @@ export * from "./api/parsers/markdown/parseMarkdown.js";
 // TODO: for ai, remove?
 export * from "./api/blockManipulation/getBlock/getBlock.js";
 export * from "./api/positionMapping.js";
+
+// Attribution-aware API (suggestion mode / version diffs). Accept/reject
+// commands operate on the editor's ProseMirror view + its DiffAttributionManager;
+// the helpers make block-API consumers attribution-aware (resolve the real,
+// non-deleted block content and canonicalize `--attributed` variant names).
+export {
+  acceptAllChanges,
+  acceptChanges,
+  rejectAllChanges,
+  rejectChanges,
+} from "@y/prosemirror";
+export {
+  ATTRIBUTED_GROUP,
+  ATTRIBUTED_NODE_SUFFIX,
+  canonicalBlockName,
+  getBlockNode,
+  isAttributedNodeName,
+  isDeletedNode,
+} from "./schema/blocks/attributedNodes.js";

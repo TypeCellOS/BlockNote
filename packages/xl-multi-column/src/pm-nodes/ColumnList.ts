@@ -7,7 +7,7 @@ export const ColumnList = Node.create({
   content: "column column+", // min two columns
   priority: 40, // should be below blockContainer
   defining: true,
-  marks: "deletion insertion modification",
+  marks: "insertion deletion modification y-attributed-insert y-attributed-delete y-attributed-format",
   parseHTML() {
     return [
       {

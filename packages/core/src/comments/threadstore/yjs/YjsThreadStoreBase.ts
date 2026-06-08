@@ -10,7 +10,7 @@ import { yMapToThread } from "./yjsHelpers.js";
  */
 export abstract class YjsThreadStoreBase extends ThreadStore {
   constructor(
-    protected readonly threadsYMap: Y.Map<any>,
+    protected readonly threadsYMap: Y.Type,
     auth: ThreadStoreAuth,
   ) {
     super(auth);
@@ -18,7 +18,7 @@ export abstract class YjsThreadStoreBase extends ThreadStore {
 
   // TODO: async / reactive interface?
   public getThread(threadId: string) {
-    const yThread = this.threadsYMap.get(threadId);
+    const yThread = this.threadsYMap.getAttr(threadId) as Y.Type | undefined;
     if (!yThread) {
       throw new Error("Thread not found");
     }
@@ -28,9 +28,9 @@ export abstract class YjsThreadStoreBase extends ThreadStore {
 
   public getThreads(): Map<string, ThreadData> {
     const threadMap = new Map<string, ThreadData>();
-    this.threadsYMap.forEach((yThread, id) => {
-      if (yThread instanceof Y.Map) {
-        threadMap.set(id, yMapToThread(yThread));
+    this.threadsYMap.forEachAttr((yThread, id) => {
+      if (yThread instanceof Y.Type) {
+        threadMap.set(id as string, yMapToThread(yThread));
       }
     });
     return threadMap;

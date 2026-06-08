@@ -4,6 +4,7 @@ import {
   Node,
   Extension as TiptapExtension,
 } from "@tiptap/core";
+import type { Transaction } from "@tiptap/pm/state";
 import { Gapcursor } from "@tiptap/extension-gapcursor";
 import { Link } from "@tiptap/extension-link";
 import { Text } from "@tiptap/extension-text";
@@ -31,6 +32,9 @@ import {
   VALID_LINK_PROTOCOLS,
 } from "../../../extensions/LinkToolbar/protocols.js";
 import {
+  AttributedDeleteMark,
+  AttributedFormatMark,
+  AttributedInsertMark,
   BackgroundColorExtension,
   HardBreak,
   KeyboardShortcutsExtension,
@@ -42,6 +46,10 @@ import {
   UniqueID,
 } from "../../../extensions/tiptap-extensions/index.js";
 import { BlockContainer, BlockGroup, Doc } from "../../../pm-nodes/index.js";
+import {
+  ATTRIBUTED_GROUP,
+  ATTRIBUTED_NODE_SUFFIX,
+} from "../../../schema/blocks/attributedNodes.js";
 import {
   BlockNoteEditor,
   BlockNoteEditorOptions,
@@ -71,14 +79,33 @@ export function getDefaultTiptapExtensions(
       // everything from bnBlock group (nodes that represent a BlockNote block should have an id)
       types: ["blockContainer", "columnList", "column"],
       setIdAttribute: options.setIdAttribute,
+      // Collaboration/attribution: y-prosemirror owns the content it reconciles
+      // out of Yjs - in suggestion mode it renders attributed inserts/deletes
+      // and re-applies them on every sync. BlockNote must NOT inject random
+      // v4() ids into that reconciled output: a random id makes the rendered
+      // document differ from what Yjs holds, so the sync plugin reconciles
+      // again, re-randomises, and never converges (the infinite loop / browser
+      // freeze reported in suggestion mode). Block ids are assigned by *user*
+      // transactions and persisted to Yjs; y-prosemirror's repeated reconcile
+      // transactions must be left untouched. (This matches y-prosemirror's own
+      // "sync origin" check in undo-plugin.js. The one-time `y-sync-hydration`
+      // load is intentionally NOT skipped so initially-loaded content lacking
+      // ids can still be assigned ids once.)
+      filterTransaction: (tr: Transaction) =>
+        !tr.getMeta("y-sync-transaction") && !tr.getMeta("y-sync-append"),
     }),
     HardBreak,
     Text,
 
     // marks:
+    // BlockNote's own suggestion marks (used by @handlewithcare/xl-ai)...
     SuggestionAddMark,
     SuggestionDeleteMark,
     SuggestionModificationMark,
+    // ...and the y-prosemirror binding's canonical attribution marks.
+    AttributedInsertMark,
+    AttributedDeleteMark,
+    AttributedFormatMark,
     Link.extend({
       inclusive: false,
     }).configure({
@@ -136,17 +163,48 @@ export function getDefaultTiptapExtensions(
       }),
 
     ...Object.values(editor.schema.blockSpecs).flatMap((blockSpec) => {
-      return [
-        // the node extension implementations
-        ...("node" in blockSpec.implementation
-          ? [
-              (blockSpec.implementation.node as Node).configure({
-                editor: editor,
-                domAttributes: options.domAttributes,
-              }),
-            ]
-          : []),
+      if (!("node" in blockSpec.implementation)) {
+        return [];
+      }
+      const node = blockSpec.implementation.node as Node;
+      const blockExtensions: AnyTiptapExtension[] = [
+        node.configure({
+          editor: editor,
+          domAttributes: options.domAttributes,
+        }),
       ];
+      // Generate a render-only `{name}--attributed` variant for inline-content
+      // blocks so the y-prosemirror binding can render a suggested block-type
+      // flip (e.g. paragraph <-> heading) as the old + new block side by side.
+      // The variant is a faithful sibling (same content/attrs/marks/nodeView)
+      // that additionally lives in the `attributed` group; it is never
+      // user-creatable (empty parseHTML) and the Y document only ever stores the
+      // canonical node name. See schema/blocks/attributedNodes.ts.
+      if (blockSpec.config.content === "inline") {
+        blockExtensions.push(
+          node
+            .extend({
+              name: `${node.name}${ATTRIBUTED_NODE_SUFFIX}`,
+              group: `blockContent ${ATTRIBUTED_GROUP}`,
+              addAttributes() {
+                return {
+                  ...(this.parent?.() || {}),
+                  // Binding-only marker: the binding sets it `true` when it
+                  // renders the variant and strips it on the PM->Y path.
+                  "y-attributed": { default: undefined },
+                };
+              },
+              parseHTML() {
+                return [];
+              },
+            })
+            .configure({
+              editor: editor,
+              domAttributes: options.domAttributes,
+            }),
+        );
+      }
+      return blockExtensions;
     }),
     createCopyToClipboardExtension(editor),
     createPasteFromClipboardExtension(

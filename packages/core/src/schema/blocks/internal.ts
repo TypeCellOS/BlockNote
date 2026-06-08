@@ -7,6 +7,8 @@ import { camelToDataKebab } from "../../util/string.js";
 import { InlineContentSchema } from "../inlineContent/types.js";
 import { PropSchema, Props } from "../propTypes.js";
 import { StyleSchema } from "../styles/types.js";
+import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
+import { canonicalBlockName } from "./attributedNodes.js";
 import {
   BlockConfig,
   BlockSchemaWithBlock,
@@ -116,6 +118,26 @@ export function getBlockFromPos<
     S
   >;
   if (block.type !== type) {
+    // Attribution: a blockContainer can hold several blockContent variants at
+    // once - e.g. a deleted `heading--attributed` next to an inserted
+    // `paragraph--attributed` when a heading is suggested to become a
+    // paragraph. `editor.getBlock` returns the container's *primary*
+    // (non-deleted) block, but this NodeView is bound to one specific variant
+    // (`blockConfig.type`). When the node at this position is that variant,
+    // build the block from it directly so the deleted/old content still renders.
+    const variantNode = tipTapEditor.state.doc.resolve(pos).nodeAfter;
+    if (variantNode && canonicalBlockName(variantNode.type.name) === type) {
+      const single = blockContainer.type.create(
+        blockContainer.attrs,
+        variantNode,
+      );
+      return nodeToBlock(single, tipTapEditor.schema) as SpecificBlock<
+        BSchema,
+        BType,
+        I,
+        S
+      >;
+    }
     throw new Error("Block type does not match");
   }
 

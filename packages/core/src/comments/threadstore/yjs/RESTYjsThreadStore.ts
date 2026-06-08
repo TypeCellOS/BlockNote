@@ -21,7 +21,7 @@ export class RESTYjsThreadStore extends YjsThreadStoreBase {
   constructor(
     private readonly BASE_URL: string,
     private readonly headers: Record<string, string>,
-    threadsYMap: Y.Map<any>,
+    threadsYMap: Y.Type,
     auth: ThreadStoreAuth,
   ) {
     super(threadsYMap, auth);
