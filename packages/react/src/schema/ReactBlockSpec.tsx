@@ -276,8 +276,7 @@ export function createReactBlockSpec<
                 // `ReactNodeViewRenderer` instead.
                 const block = getBlockFromPos(
                   props.getPos,
-                  editor,
-                  props.editor,
+                  props.view.state.doc,
                   blockConfig.type,
                 );
 

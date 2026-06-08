@@ -197,8 +197,7 @@ export function addNodeAndExtensionsToSpec<
           // Gets the block
           const block = getBlockFromPos(
             props.getPos,
-            editor,
-            this.editor,
+            props.view.state.doc,
             blockConfig.type,
           );
           // Gets the custom HTML attributes for `blockContent` nodes

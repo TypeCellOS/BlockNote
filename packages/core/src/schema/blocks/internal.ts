@@ -1,18 +1,12 @@
-import { Attribute, Attributes, Editor, Node } from "@tiptap/core";
+import { Attribute, Attributes, Node } from "@tiptap/core";
+import type { Node as PMNode } from "prosemirror-model";
+import { getBlock } from "../../api/blockManipulation/getBlock/getBlock.js";
 import { defaultBlockToHTML } from "../../blocks/defaultBlockHelpers.js";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { ExtensionFactoryInstance } from "../../editor/BlockNoteExtension.js";
 import { mergeCSSClasses } from "../../util/browser.js";
 import { camelToDataKebab } from "../../util/string.js";
-import { InlineContentSchema } from "../inlineContent/types.js";
 import { PropSchema, Props } from "../propTypes.js";
-import { StyleSchema } from "../styles/types.js";
-import {
-  BlockConfig,
-  BlockSchemaWithBlock,
-  LooseBlockSpec,
-  SpecificBlock,
-} from "./types.js";
+import { BlockConfig, BlockFromConfig, LooseBlockSpec } from "./types.js";
 
 // Function that uses the 'propSchema' of a blockConfig to create a TipTap
 // node's `addAttributes` property.
@@ -85,22 +79,16 @@ export function propsToAttributes(propSchema: PropSchema): Attributes {
 export function getBlockFromPos<
   BType extends string,
   Config extends BlockConfig,
-  BSchema extends BlockSchemaWithBlock<BType, Config>,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
->(
-  getPos: () => number | undefined,
-  editor: BlockNoteEditor<BSchema, I, S>,
-  tipTapEditor: Editor,
-  type: BType,
-) {
+>(getPos: () => number | undefined, doc: PMNode, type: BType) {
+  // TODO is there a cleaner implementation of this? Probably...
   const pos = getPos();
   // Gets position of the node
   if (pos === undefined) {
     throw new Error("Cannot find node position");
   }
+
   // Gets parent blockContainer node
-  const blockContainer = tipTapEditor.state.doc.resolve(pos!).node();
+  const blockContainer = doc.resolve(pos).node();
   // Gets block identifier
   const blockIdentifier = blockContainer.attrs.id;
 
@@ -109,16 +97,14 @@ export function getBlockFromPos<
   }
 
   // Gets the block
-  const block = editor.getBlock(blockIdentifier)! as SpecificBlock<
-    BSchema,
-    BType,
-    I,
-    S
+  const block = getBlock(doc, blockIdentifier) as BlockFromConfig<
+    Config,
+    any,
+    any
   >;
   if (block.type !== type) {
     throw new Error("Block type does not match");
   }
-
   return block;
 }
 
