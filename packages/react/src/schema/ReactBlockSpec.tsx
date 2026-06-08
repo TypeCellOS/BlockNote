@@ -340,9 +340,14 @@ export function createReactBlockSpec<
                     return true;
                   }
 
-                  // Also ignore mutations for the editable content wrapper
-                  // element.
-                  if (mutation.target === content) {
+                  // Also ignore attribute mutations for the editable content
+                  // wrapper element. These include class names & other
+                  // attributes set via `contentRef`. Other mutations such as
+                  // `childList` are still valid.
+                  if (
+                    mutation.target === content &&
+                    mutation.type === "attributes"
+                  ) {
                     return true;
                   }
 
