@@ -3,7 +3,11 @@ import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import { useCreateBlockNote } from "@blocknote/react";
-import { Awareness } from "@y/protocols/awareness";
+import {
+  Awareness,
+  encodeAwarenessUpdate,
+  applyAwarenessUpdate,
+} from "@y/protocols/awareness";
 import { withCollaboration } from "@blocknote/core/y";
 import * as Y from "@y/y";
 
@@ -79,6 +83,36 @@ function setupTwoWaySync(doc1: Y.Doc, doc2: Y.Doc) {
 
 setupTwoWaySync(doc, doc2);
 setupTwoWaySync(suggestingDoc, suggestionModeDoc);
+
+// Sync awareness states so cursors show up across editors
+function setupAwarenessSync(a1: Awareness, a2: Awareness) {
+  // Initial sync
+  applyAwarenessUpdate(
+    a2,
+    encodeAwarenessUpdate(a1, [a1.clientID]),
+    "sync",
+  );
+  applyAwarenessUpdate(
+    a1,
+    encodeAwarenessUpdate(a2, [a2.clientID]),
+    "sync",
+  );
+
+  a1.on("update", ({ added, updated, removed }: { added: number[]; updated: number[]; removed: number[] }) => {
+    const update = encodeAwarenessUpdate(a1, added.concat(updated).concat(removed));
+    applyAwarenessUpdate(a2, update, "sync");
+  });
+
+  a2.on("update", ({ added, updated, removed }: { added: number[]; updated: number[]; removed: number[] }) => {
+    const update = encodeAwarenessUpdate(a2, added.concat(updated).concat(removed));
+    applyAwarenessUpdate(a1, update, "sync");
+  });
+}
+
+setupAwarenessSync(provider.awareness, provider2.awareness);
+setupAwarenessSync(suggestingProvider.awareness, suggestionModeProvider.awareness);
+setupAwarenessSync(provider.awareness, suggestingProvider.awareness);
+setupAwarenessSync(provider.awareness, suggestionModeProvider.awareness);
 
 function Editor({
   fragment,
