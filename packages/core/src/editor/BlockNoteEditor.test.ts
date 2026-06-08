@@ -130,7 +130,7 @@ it("onMount and onUnmount", async () => {
 
 it("sets an initial block id when using Y.js", async () => {
   const doc = new Y.Doc();
-  const fragment = doc.getXmlFragment("doc");
+  const fragment = doc.get("doc");
   let transactionCount = 0;
   const editor = BlockNoteEditor.create({
     collaboration: {
@@ -175,8 +175,37 @@ it("sets an initial block id when using Y.js", async () => {
     }
   `);
   expect(transactionCount).toBe(1);
-  // The fragment should not be modified yet, since the editor's content is only the initial content
-  expect(fragment.toJSON()).toMatchInlineSnapshot(`""`);
+  // In Yjs v14 the initial document structure (a single blockGroup with the
+  // "initialBlockId" block) is synced to the fragment on mount, and `toJSON()`
+  // returns an object rather than the v13 XML string. The deterministic
+  // "initialBlockId" still avoids extra id churn on the shared document.
+  expect(fragment.toJSON()).toMatchInlineSnapshot(`
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "attrs": {
+                "id": "initialBlockId",
+              },
+              "children": [
+                {
+                  "attrs": {
+                    "backgroundColor": "default",
+                    "textAlignment": "left",
+                    "textColor": "default",
+                  },
+                  "name": "paragraph",
+                },
+              ],
+              "name": "blockContainer",
+            },
+          ],
+          "name": "blockGroup",
+        },
+      ],
+    }
+  `);
 
   editor.replaceBlocks(editor.document, [
     {
@@ -187,7 +216,52 @@ it("sets an initial block id when using Y.js", async () => {
   expect(transactionCount).toBe(2);
   // Only after a real modification is made, will the fragment be updated
   expect(fragment.toJSON()).toMatchInlineSnapshot(
-    `"<blockgroup><blockcontainer id="0"><paragraph backgroundColor="default" textAlignment="left" textColor="default">Hello</paragraph></blockcontainer><blockcontainer id="1"><paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph></blockcontainer></blockgroup>"`,
+    `
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "attrs": {
+                "id": "0",
+              },
+              "children": [
+                {
+                  "attrs": {
+                    "backgroundColor": "default",
+                    "textAlignment": "left",
+                    "textColor": "default",
+                  },
+                  "children": [
+                    "Hello",
+                  ],
+                  "name": "paragraph",
+                },
+              ],
+              "name": "blockContainer",
+            },
+            {
+              "attrs": {
+                "id": "1",
+              },
+              "children": [
+                {
+                  "attrs": {
+                    "backgroundColor": "default",
+                    "textAlignment": "left",
+                    "textColor": "default",
+                  },
+                  "name": "paragraph",
+                },
+              ],
+              "name": "blockContainer",
+            },
+          ],
+          "name": "blockGroup",
+        },
+      ],
+    }
+  `,
   );
 });
 

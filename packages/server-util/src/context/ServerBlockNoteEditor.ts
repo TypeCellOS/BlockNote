@@ -131,7 +131,7 @@ export class ServerBlockNoteEditor<
    * Turn a Y.XmlFragment collaborative doc into a BlockNote document (BlockNote style JSON of all blocks)
    * @returns BlockNote document (BlockNote style JSON of all blocks)
    */
-  public yXmlFragmentToBlocks(xmlFragment: Y.XmlFragment) {
+  public yXmlFragmentToBlocks(xmlFragment: Y.Type) {
     return yXmlFragmentToBlocksUtil(this.editor, xmlFragment);
   }
 
@@ -147,7 +147,7 @@ export class ServerBlockNoteEditor<
    */
   public blocksToYXmlFragment(
     blocks: Block<BSchema, ISchema, SSchema>[],
-    xmlFragment?: Y.XmlFragment,
+    xmlFragment?: Y.Type,
   ) {
     return blocksToYXmlFragmentUtil(this.editor, blocks, xmlFragment);
   }

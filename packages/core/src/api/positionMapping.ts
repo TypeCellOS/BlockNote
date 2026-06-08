@@ -81,11 +81,17 @@ export function trackPosition(
     };
   }
 
+  // Track the position after the position if we are on the right side.
+  // Clamp into the valid resolve range (a left-tracked pos 0 would be -1).
+  const trackedAbs = position + (side === "right" ? 1 : -1);
+  const clamped = Math.max(
+    0,
+    Math.min(trackedAbs, editor.prosemirrorState.doc.content.size),
+  );
   const relativePosition = absolutePositionToRelativePosition(
-    // Track the position after the position if we are on the right side
-    position + (side === "right" ? 1 : -1),
-    ySyncPluginState.binding.type,
-    ySyncPluginState.binding.mapping,
+    editor.prosemirrorState.doc.resolve(clamped),
+    ySyncPluginState.ytype,
+    ySyncPluginState.attributionManager,
   );
 
   return () => {
@@ -93,10 +99,10 @@ export function trackPosition(
       editor.prosemirrorState,
     ) as any;
     const pos = relativePositionToAbsolutePosition(
-      curYSyncPluginState.doc,
-      curYSyncPluginState.binding.type,
       relativePosition,
-      curYSyncPluginState.binding.mapping,
+      curYSyncPluginState.ytype,
+      editor.prosemirrorState.doc,
+      curYSyncPluginState.attributionManager,
     );
 
     // This can happen if the element is garbage collected

@@ -550,10 +550,27 @@ export class BlockNoteEditor<
     // When y-prosemirror creates an empty document, the `blockContainer` node is created with an `id` of `null`.
     // This causes the unique id extension to generate a new id for the initial block, which is not what we want
     // Since it will be randomly generated & cause there to be more updates to the ydoc
-    // This is a hack to make it so that anytime `schema.doc.createAndFill` is called, the initial block id is already set to "initialBlockId"
+    // This is a hack to make it so that anytime `schema.doc.createAndFill` is called to fill a BLANK doc, the
+    // initial block id is already set to "initialBlockId".
+    //
+    // IMPORTANT: this only applies when `createAndFill` is asked to materialize the *default empty* document
+    // (no content provided). When content IS provided - notably y-prosemirror's `deltaToPNode`, which uses
+    // `doc.createAndFill(attrs, realContent)` to render attributed/collaborative content - we must pass through,
+    // otherwise the requested content would be silently dropped (returning the cached empty doc) and the binding
+    // would render base content as deleted. See the attribution tests.
     let cache: Node | undefined = undefined;
     const oldCreateAndFill = this.pmSchema.nodes.doc.createAndFill;
     this.pmSchema.nodes.doc.createAndFill = (...args: any) => {
+      const content = args[1];
+      const isBlankFill =
+        content == null ||
+        (Array.isArray(content) && content.length === 0) ||
+        content.childCount === 0 ||
+        content.size === 0;
+      if (!isBlankFill) {
+        // Real content requested - never substitute the cached empty doc.
+        return oldCreateAndFill.apply(this.pmSchema.nodes.doc, args);
+      }
       if (cache) {
         return cache;
       }

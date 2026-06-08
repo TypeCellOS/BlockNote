@@ -2,7 +2,14 @@ import { Mark } from "@tiptap/core";
 import { MarkSpec } from "prosemirror-model";
 
 // This copies the marks from @handlewithcare/prosemirror-suggest-changes,
-// but uses the Tiptap Mark API instead so we can use them in BlockNote
+// but uses the Tiptap Mark API instead so we can use them in BlockNote.
+//
+// IMPORTANT: the names `insertion` / `deletion` / `modification` are NOT
+// arbitrary - `@handlewithcare/prosemirror-suggest-changes` (used by xl-ai's AI
+// suggestion engine) looks these marks up in the schema by these exact names.
+// They must NOT be renamed. The y-prosemirror binding's three canonical
+// attribution marks (`y-attributed-insert` / `y-attributed-delete` /
+// `y-attributed-format`) live alongside these, in AttributionMarks.ts.
 
 // The ideal solution would be to not depend on tiptap nodes / marks, but be able to use prosemirror nodes / marks directly
 // this way we could directly use the exported marks from @handlewithcare/prosemirror-suggest-changes
@@ -67,10 +74,6 @@ export const SuggestionDeleteMark = Mark.create({
     return {
       blocknoteIgnore: true,
       inclusive: false,
-
-      // attrs: {
-      //   id: { validate: "number" },
-      // },
       toDOM(mark, inline) {
         return [
           "del",
@@ -120,13 +123,6 @@ export const SuggestionModificationMark = Mark.create({
     return {
       blocknoteIgnore: true,
       inclusive: false,
-      // attrs: {
-      //   id: { validate: "number" },
-      //   type: { validate: "string" },
-      //   attrName: { default: null, validate: "string|null" },
-      //   previousValue: { default: null },
-      //   newValue: { default: null },
-      // },
       toDOM(mark, inline) {
         return [
           inline ? "span" : "div",

@@ -17,3 +17,9 @@ overrides:
   "@headlessui/react": "^2.2.4"
   "@tiptap/core": "^3.0.0"
   "@tiptap/pm": "^3.0.0"
+  # Locally-built Yjs v14 rewrite (@y/y, lib0, @y/prosemirror) vendored as
+  # tarballs so all three resolve to a single deduplicated instance each.
+  # Replace with published versions once released. See vendor/.
+  "lib0": "file:./vendor/lib0-1.0.0-rc.14.tgz"
+  "@y/y": "file:./vendor/y-y-14.0.0-rc.17.tgz"
+  "@y/prosemirror": "file:./vendor/y-prosemirror-2.0.0-4.tgz"

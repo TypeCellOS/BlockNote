@@ -68,7 +68,10 @@ function defaultCursorRender(user: CollaborationUser) {
 
 export const YCursorExtension = createExtension(
   ({ options }: ExtensionOptions<CollaborationOptions>) => {
-    const recentlyUpdatedCursors = new Map();
+    const recentlyUpdatedCursors = new Map<
+      number,
+      { element: HTMLElement; hideTimeout: ReturnType<typeof setTimeout> | undefined }
+    >();
     const awareness =
       options.provider &&
       "awareness" in options.provider &&
@@ -123,13 +126,16 @@ export const YCursorExtension = createExtension(
         awareness
           ? yCursorPlugin(awareness as any, {
               selectionBuilder: defaultSelectionBuilder,
-              cursorBuilder(user: CollaborationUser, clientID: number) {
+              cursorBuilder(
+                user: { name?: string; color?: string; [key: string]: any },
+                clientID: number,
+              ) {
                 let cursorData = recentlyUpdatedCursors.get(clientID);
 
                 if (!cursorData) {
                   const cursorElement = (
                     options.renderCursor ?? defaultCursorRender
-                  )(user);
+                  )(user as CollaborationUser);
 
                   if (options.showCursorLabels !== "always") {
                     cursorElement.addEventListener("mouseenter", () => {
@@ -169,7 +175,7 @@ export const YCursorExtension = createExtension(
               },
             })
           : undefined,
-      ].filter(Boolean),
+      ].filter((p): p is NonNullable<typeof p> => p != null),
       dependsOn: ["ySync"],
       updateUser(user: { name: string; color: string; [key: string]: string }) {
         awareness?.setLocalStateField("user", user);

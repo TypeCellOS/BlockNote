@@ -151,7 +151,7 @@ const TiptapTableNode = Node.create({
   group: "blockContent",
   tableRole: "table",
 
-  marks: "deletion insertion modification",
+  marks: "insertion deletion modification y-attributed-insert y-attributed-delete y-attributed-format",
   isolating: true,
 
   parseHTML() {
@@ -321,7 +321,7 @@ const TiptapTableRow = Node.create<{
   content: "(tableCell | tableHeader)+",
 
   tableRole: "row",
-  marks: "deletion insertion modification",
+  marks: "insertion deletion modification y-attributed-insert y-attributed-delete y-attributed-format",
   parseHTML() {
     return [{ tag: "tr" }];
   },

@@ -2,11 +2,11 @@ import { expect, it } from "vitest";
 import * as Y from "@y/y";
 import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import { moveColorAttributes } from "./moveColorAttributes.js";
-import { prosemirrorJSONToYXmlFragment } from "@y/prosemirror";
+import { pmToFragment } from "@y/prosemirror";
 
 it("can move color attributes on older documents", async () => {
   const doc = new Y.Doc();
-  const fragment = doc.getXmlFragment("doc");
+  const fragment = doc.get("doc");
   const editor = BlockNoteEditor.create({
     initialContent: [
       {
@@ -17,21 +17,56 @@ it("can move color attributes on older documents", async () => {
   });
 
   // Because this was a previous schema, we are creating the YFragment manually
-  const blockGroup = new Y.XmlElement("blockGroup");
-  const el = new Y.XmlElement("blockContainer");
-  el.setAttribute("id", "0");
-  el.setAttribute("backgroundColor", "red");
-  el.setAttribute("textColor", "blue");
-  const para = new Y.XmlElement("paragraph");
-  para.setAttribute("textAlignment", "left");
-  para.insert(0, [new Y.XmlText("Welcome to this demo!")]);
+  const blockGroup = new Y.Type("blockGroup");
+  const el = new Y.Type("blockContainer");
+  el.setAttr("id", "0");
+  el.setAttr("backgroundColor", "red");
+  el.setAttr("textColor", "blue");
+  const para = new Y.Type("paragraph");
+  para.setAttr("textAlignment", "left");
+  const text = new Y.Type();
+  text.insert(0, "Welcome to this demo!");
+  para.insert(0, [text]);
   el.insert(0, [para]);
   blockGroup.insert(0, [el]);
   fragment.insert(0, [blockGroup]);
 
   // Note that the blockContainer has the color attributes, but the paragraph does not.
   expect(fragment.toJSON()).toMatchInlineSnapshot(
-    `"<blockgroup><blockcontainer backgroundColor="red" id="0" textColor="blue"><paragraph textAlignment="left">Welcome to this demo!</paragraph></blockcontainer></blockgroup>"`,
+    `
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "attrs": {
+                "backgroundColor": "red",
+                "id": "0",
+                "textColor": "blue",
+              },
+              "children": [
+                {
+                  "attrs": {
+                    "textAlignment": "left",
+                  },
+                  "children": [
+                    {
+                      "children": [
+                        "Welcome to this demo!",
+                      ],
+                    },
+                  ],
+                  "name": "paragraph",
+                },
+              ],
+              "name": "blockContainer",
+            },
+          ],
+          "name": "blockGroup",
+        },
+      ],
+    }
+  `,
   );
 
   const tr = editor.prosemirrorState.tr;
@@ -44,7 +79,7 @@ it("can move color attributes on older documents", async () => {
 
 it("does not move color attributes on newer documents", async () => {
   const doc = new Y.Doc();
-  const fragment = doc.getXmlFragment("doc");
+  const fragment = doc.get("doc");
   const editor = BlockNoteEditor.create({
     initialContent: [
       {
@@ -60,15 +95,40 @@ it("does not move color attributes on newer documents", async () => {
     ],
   });
 
-  prosemirrorJSONToYXmlFragment(
-    editor.pmSchema,
-    JSON.parse(JSON.stringify(editor.prosemirrorState.doc.toJSON())),
-    fragment,
-  );
+  pmToFragment(editor.prosemirrorState.doc, fragment);
 
   expect(fragment.toJSON()).toMatchInlineSnapshot(
     // The color attributes are on the paragraph, not the blockContainer.
-    `"<blockgroup><blockcontainer id="0"><paragraph backgroundColor="red" textAlignment="right" textColor="blue">Welcome to this demo!</paragraph></blockcontainer></blockgroup>"`,
+    `
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "attrs": {
+                "id": "0",
+              },
+              "children": [
+                {
+                  "attrs": {
+                    "backgroundColor": "red",
+                    "textAlignment": "right",
+                    "textColor": "blue",
+                  },
+                  "children": [
+                    "Welcome to this demo!",
+                  ],
+                  "name": "paragraph",
+                },
+              ],
+              "name": "blockContainer",
+            },
+          ],
+          "name": "blockGroup",
+        },
+      ],
+    }
+  `,
   );
 
   const tr = editor.prosemirrorState.tr;
@@ -79,7 +139,7 @@ it("does not move color attributes on newer documents", async () => {
 
 it("can move color attributes on older documents multiple times", async () => {
   const doc = new Y.Doc();
-  const fragment = doc.getXmlFragment("doc");
+  const fragment = doc.get("doc");
   const editor = BlockNoteEditor.create({
     initialContent: [
       {
@@ -90,21 +150,56 @@ it("can move color attributes on older documents multiple times", async () => {
   });
 
   // Because this was a previous schema, we are creating the YFragment manually
-  const blockGroup = new Y.XmlElement("blockGroup");
-  const el = new Y.XmlElement("blockContainer");
-  el.setAttribute("id", "0");
-  el.setAttribute("backgroundColor", "red");
-  el.setAttribute("textColor", "blue");
-  const para = new Y.XmlElement("paragraph");
-  para.setAttribute("textAlignment", "left");
-  para.insert(0, [new Y.XmlText("Welcome to this demo!")]);
+  const blockGroup = new Y.Type("blockGroup");
+  const el = new Y.Type("blockContainer");
+  el.setAttr("id", "0");
+  el.setAttr("backgroundColor", "red");
+  el.setAttr("textColor", "blue");
+  const para = new Y.Type("paragraph");
+  para.setAttr("textAlignment", "left");
+  const text = new Y.Type();
+  text.insert(0, "Welcome to this demo!");
+  para.insert(0, [text]);
   el.insert(0, [para]);
   blockGroup.insert(0, [el]);
   fragment.insert(0, [blockGroup]);
 
   // Note that the blockContainer has the color attributes, but the paragraph does not.
   expect(fragment.toJSON()).toMatchInlineSnapshot(
-    `"<blockgroup><blockcontainer backgroundColor="red" id="0" textColor="blue"><paragraph textAlignment="left">Welcome to this demo!</paragraph></blockcontainer></blockgroup>"`,
+    `
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "attrs": {
+                "backgroundColor": "red",
+                "id": "0",
+                "textColor": "blue",
+              },
+              "children": [
+                {
+                  "attrs": {
+                    "textAlignment": "left",
+                  },
+                  "children": [
+                    {
+                      "children": [
+                        "Welcome to this demo!",
+                      ],
+                    },
+                  ],
+                  "name": "paragraph",
+                },
+              ],
+              "name": "blockContainer",
+            },
+          ],
+          "name": "blockGroup",
+        },
+      ],
+    }
+  `,
   );
 
   const tr = editor.prosemirrorState.tr;
@@ -114,11 +209,44 @@ it("can move color attributes on older documents multiple times", async () => {
     `"{"type":"doc","content":[{"type":"blockGroup","content":[{"type":"blockContainer","attrs":{"id":"0"},"content":[{"type":"paragraph","attrs":{"backgroundColor":"red","textColor":"blue","textAlignment":"left"},"content":[{"type":"text","text":"Welcome to this demo!"}]}]}]}]}"`,
   );
 
-  el.setAttribute("backgroundColor", "green");
-  el.setAttribute("textColor", "yellow");
+  el.setAttr("backgroundColor", "green");
+  el.setAttr("textColor", "yellow");
 
   expect(fragment.toJSON()).toMatchInlineSnapshot(
-    `"<blockgroup><blockcontainer backgroundColor="green" id="0" textColor="yellow"><paragraph textAlignment="left">Welcome to this demo!</paragraph></blockcontainer></blockgroup>"`,
+    `
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "attrs": {
+                "backgroundColor": "green",
+                "id": "0",
+                "textColor": "yellow",
+              },
+              "children": [
+                {
+                  "attrs": {
+                    "textAlignment": "left",
+                  },
+                  "children": [
+                    {
+                      "children": [
+                        "Welcome to this demo!",
+                      ],
+                    },
+                  ],
+                  "name": "paragraph",
+                },
+              ],
+              "name": "blockContainer",
+            },
+          ],
+          "name": "blockGroup",
+        },
+      ],
+    }
+  `,
   );
 
   const nextTr = editor.prosemirrorState.tr;

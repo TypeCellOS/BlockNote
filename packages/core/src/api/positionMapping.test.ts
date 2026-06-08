@@ -290,7 +290,7 @@ describe("PositionStorage with remote editor", () => {
       // Create a mock editor
       const localEditor = BlockNoteEditor.create({
         collaboration: {
-          fragment: ydoc.getXmlFragment("doc"),
+          fragment: ydoc.get("doc"),
           user: { color: "#ff0000", name: "Local User" },
           provider: undefined,
         },
@@ -298,9 +298,17 @@ describe("PositionStorage with remote editor", () => {
       const div = document.createElement("div");
       localEditor.mount(div);
 
+      // Share the initialized document with the remote peer BEFORE it binds, so
+      // the remote renders the existing blockGroup instead of independently
+      // `createAndFill`-ing its own. Two independent fills merge to two
+      // blockGroups, which is invalid for a doc that requires exactly one
+      // blockGroup. This mirrors real collaboration, where peers join an
+      // already-initialized document.
+      setupTwoWaySync(ydoc, remoteYdoc);
+
       const remoteEditor = BlockNoteEditor.create({
         collaboration: {
-          fragment: remoteYdoc.getXmlFragment("doc"),
+          fragment: remoteYdoc.get("doc"),
           user: { color: "#ff0000", name: "Remote User" },
           provider: undefined,
         },
@@ -308,7 +316,6 @@ describe("PositionStorage with remote editor", () => {
 
       const remoteDiv = document.createElement("div");
       remoteEditor.mount(remoteDiv);
-      setupTwoWaySync(ydoc, remoteYdoc);
 
       localEditor.replaceBlocks(localEditor.document, [
         {
@@ -351,7 +358,7 @@ describe("PositionStorage with remote editor", () => {
       // Create a mock editor
       const localEditor = BlockNoteEditor.create({
         collaboration: {
-          fragment: ydoc.getXmlFragment("doc"),
+          fragment: ydoc.get("doc"),
           user: { color: "#ff0000", name: "Local User" },
           provider: undefined,
         },
@@ -359,9 +366,17 @@ describe("PositionStorage with remote editor", () => {
       const div = document.createElement("div");
       localEditor.mount(div);
 
+      // Share the initialized document with the remote peer BEFORE it binds, so
+      // the remote renders the existing blockGroup instead of independently
+      // `createAndFill`-ing its own. Two independent fills merge to two
+      // blockGroups, which is invalid for a doc that requires exactly one
+      // blockGroup. This mirrors real collaboration, where peers join an
+      // already-initialized document.
+      setupTwoWaySync(ydoc, remoteYdoc);
+
       const remoteEditor = BlockNoteEditor.create({
         collaboration: {
-          fragment: remoteYdoc.getXmlFragment("doc"),
+          fragment: remoteYdoc.get("doc"),
           user: { color: "#ff0000", name: "Remote User" },
           provider: undefined,
         },
@@ -369,7 +384,6 @@ describe("PositionStorage with remote editor", () => {
 
       const remoteDiv = document.createElement("div");
       remoteEditor.mount(remoteDiv);
-      setupTwoWaySync(ydoc, remoteYdoc);
 
       localEditor.replaceBlocks(localEditor.document, [
         {
@@ -416,7 +430,7 @@ describe("PositionStorage with remote editor", () => {
       // Create a mock editor
       const localEditor = BlockNoteEditor.create({
         collaboration: {
-          fragment: ydoc.getXmlFragment("doc"),
+          fragment: ydoc.get("doc"),
           user: { color: "#ff0000", name: "Local User" },
           provider: undefined,
         },
@@ -424,9 +438,17 @@ describe("PositionStorage with remote editor", () => {
       const div = document.createElement("div");
       localEditor.mount(div);
 
+      // Share the initialized document with the remote peer BEFORE it binds, so
+      // the remote renders the existing blockGroup instead of independently
+      // `createAndFill`-ing its own. Two independent fills merge to two
+      // blockGroups, which is invalid for a doc that requires exactly one
+      // blockGroup. This mirrors real collaboration, where peers join an
+      // already-initialized document.
+      setupTwoWaySync(ydoc, remoteYdoc);
+
       const remoteEditor = BlockNoteEditor.create({
         collaboration: {
-          fragment: remoteYdoc.getXmlFragment("doc"),
+          fragment: remoteYdoc.get("doc"),
           user: { color: "#ff0000", name: "Remote User" },
           provider: undefined,
         },
@@ -434,7 +456,6 @@ describe("PositionStorage with remote editor", () => {
 
       const remoteDiv = document.createElement("div");
       remoteEditor.mount(remoteDiv);
-      setupTwoWaySync(ydoc, remoteYdoc);
 
       remoteEditor.replaceBlocks(remoteEditor.document, [
         {
@@ -477,7 +498,7 @@ describe("PositionStorage with remote editor", () => {
       // Create a mock editor
       const localEditor = BlockNoteEditor.create({
         collaboration: {
-          fragment: ydoc.getXmlFragment("doc"),
+          fragment: ydoc.get("doc"),
           user: { color: "#ff0000", name: "Local User" },
           provider: undefined,
         },
@@ -485,9 +506,17 @@ describe("PositionStorage with remote editor", () => {
       const div = document.createElement("div");
       localEditor.mount(div);
 
+      // Share the initialized document with the remote peer BEFORE it binds, so
+      // the remote renders the existing blockGroup instead of independently
+      // `createAndFill`-ing its own. Two independent fills merge to two
+      // blockGroups, which is invalid for a doc that requires exactly one
+      // blockGroup. This mirrors real collaboration, where peers join an
+      // already-initialized document.
+      setupTwoWaySync(ydoc, remoteYdoc);
+
       const remoteEditor = BlockNoteEditor.create({
         collaboration: {
-          fragment: remoteYdoc.getXmlFragment("doc"),
+          fragment: remoteYdoc.get("doc"),
           user: { color: "#ff0000", name: "Remote User" },
           provider: undefined,
         },
@@ -495,7 +524,6 @@ describe("PositionStorage with remote editor", () => {
 
       const remoteDiv = document.createElement("div");
       remoteEditor.mount(remoteDiv);
-      setupTwoWaySync(ydoc, remoteYdoc);
 
       remoteEditor.replaceBlocks(remoteEditor.document, [
         {

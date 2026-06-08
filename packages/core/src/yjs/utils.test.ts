@@ -28,7 +28,7 @@ describe("Test yjs utils", () => {
 
     it(`${testName} - converts to and from yjs (fragment)`, () => {
       const doc = new Y.Doc();
-      const fragment = doc.getXmlFragment("test");
+      const fragment = doc.get("test");
       blocksToYXmlFragment(editor, blocks, fragment);
 
       const blockOutput = yXmlFragmentToBlocks(editor, fragment);
@@ -156,7 +156,7 @@ describe("Test yjs utils", () => {
     it("empty document - converts to and from yjs (fragment)", () => {
       const blocks: Block[] = [];
       const doc = new Y.Doc();
-      const fragment = doc.getXmlFragment("test");
+      const fragment = doc.get("test");
       blocksToYXmlFragment(editor, blocks, fragment);
 
       const blockOutput = yXmlFragmentToBlocks(editor, fragment);

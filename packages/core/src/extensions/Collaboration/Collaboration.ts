@@ -4,6 +4,7 @@ import {
   createExtension,
   ExtensionOptions,
 } from "../../editor/BlockNoteExtension.js";
+import { DeletedContentReadonlyExtension } from "./DeletedContentReadonly.js";
 // import { ForkYDocExtension } from "./ForkYDoc.js";
 // import { SchemaMigration } from "./schemaMigration/SchemaMigration.js";
 // import { YCursorExtension } from "./YCursorPlugin.js";
@@ -12,9 +13,11 @@ import { YSyncExtension } from "./YSync.js";
 
 export type CollaborationOptions = {
   /**
-   * The Yjs XML fragment that's used for collaboration.
+   * The Yjs collaborative type (root document fragment) that's used for
+   * collaboration. In Yjs v14 this is the unified `Y.Type` obtained via
+   * `doc.get(name)`.
    */
-  fragment: Y.XmlFragment;
+  fragment: Y.Type;
   /**
    * The user info for the current user that's shown to other collaborators.
    */
@@ -51,6 +54,9 @@ export const CollaborationExtension = createExtension(
         // ForkYDocExtension(options),
         // YCursorExtension(options),
         YSyncExtension(options),
+        // Makes attributed (suggested / diffed) deletions non-editable by the
+        // user while still letting the binding reconcile them.
+        DeletedContentReadonlyExtension(),
         // YUndoExtension(),
         // SchemaMigration(options),
       ],

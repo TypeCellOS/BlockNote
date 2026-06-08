@@ -1,7 +1,10 @@
 import { Node } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
-import { getRelativeSelection, ySyncPluginKey } from "@y/prosemirror";
+import {
+  absolutePositionToRelativePosition,
+  ySyncPluginKey,
+} from "@y/prosemirror";
 import {
   createExtension,
   createStore,
@@ -330,8 +333,21 @@ export const CommentsExtension = createExtension(
               head: pmSelection.head,
               anchor: pmSelection.anchor,
             },
+            // @y/prosemirror v2 removed `getRelativeSelection`; build the
+            // relative anchor/head from the bound ytype + attribution manager.
             yjs: ystate
-              ? getRelativeSelection((ystate as any).binding, view.state)
+              ? {
+                  anchor: absolutePositionToRelativePosition(
+                    pmSelection.$anchor,
+                    (ystate as any).ytype,
+                    (ystate as any).attributionManager,
+                  ),
+                  head: absolutePositionToRelativePosition(
+                    pmSelection.$head,
+                    (ystate as any).ytype,
+                    (ystate as any).attributionManager,
+                  ),
+                }
               : undefined,
           };
           await threadStore.addThreadToDocument({

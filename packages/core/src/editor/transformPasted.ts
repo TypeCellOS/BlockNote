@@ -1,7 +1,126 @@
-import { Fragment, Schema, Slice } from "@tiptap/pm/model";
+import { Fragment, Mark, Node, Schema, Slice } from "@tiptap/pm/model";
 import { EditorView } from "@tiptap/pm/view";
 
 import { getBlockInfoFromSelection } from "../api/getBlockInfoFromPos.js";
+import { canonicalBlockName } from "../schema/blocks/attributedNodes.js";
+
+/**
+ * The y-prosemirror binding's three canonical attribution marks (suggestion
+ * mode / version diffs). Content carrying `y-attributed-delete` is *deleted*
+ * content. These names are part of the binding contract; see
+ * `extensions/tiptap-extensions/Suggestions/AttributionMarks.ts`.
+ */
+const ATTRIBUTED_INSERT_MARK = "y-attributed-insert";
+const ATTRIBUTED_DELETE_MARK = "y-attributed-delete";
+const ATTRIBUTED_FORMAT_MARK = "y-attributed-format";
+
+const ATTRIBUTED_MARK_NAMES: readonly string[] = [
+  ATTRIBUTED_INSERT_MARK,
+  ATTRIBUTED_DELETE_MARK,
+  ATTRIBUTED_FORMAT_MARK,
+];
+
+/**
+ * Whether a node is "deleted" attributed content that must not paste. This is
+ * the case when it (a) carries the `y-attributed-delete` mark, or (b) is a
+ * `*--attributed` block node whose binding-only `y-attributed` attribute marks
+ * it as a deletion (`{ type: "delete" }` / `"delete"`).
+ */
+function isDeletedAttributedNode(node: Node): boolean {
+  if (node.marks.some((mark) => mark.type.name === ATTRIBUTED_DELETE_MARK)) {
+    return true;
+  }
+
+  const attributed = node.attrs?.["y-attributed"];
+  if (attributed) {
+    const type =
+      typeof attributed === "string" ? attributed : attributed.type;
+    if (type === "delete") {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Filter out the three `y-attributed-*` marks from a mark set.
+ */
+function stripAttributedMarks(marks: readonly Mark[]): Mark[] {
+  return marks.filter(
+    (mark) => !ATTRIBUTED_MARK_NAMES.includes(mark.type.name),
+  );
+}
+
+/**
+ * Recursively rebuild `fragment`, producing CLEAN content for pasting from
+ * "attributed" (suggestion-mode / version-diff) sources:
+ *
+ *   1. Drop any node that is *deleted* attributed content (carries
+ *      `y-attributed-delete`, or is a deleted `*--attributed` block) — you
+ *      never paste someone else's deleted text.
+ *   2. Rewrite any surviving `*--attributed` block node to its canonical type
+ *      (e.g. `paragraph--attributed` -> `paragraph`).
+ *   3. Strip the three `y-attributed-*` marks from every remaining node so the
+ *      pasted content is never accidentally re-marked as attributed.
+ */
+function stripAttributionFromFragment(
+  fragment: Fragment,
+  schema: Schema,
+): Fragment {
+  const result: Node[] = [];
+
+  fragment.forEach((node) => {
+    // 1. Drop deleted attributed content entirely.
+    if (isDeletedAttributedNode(node)) {
+      return;
+    }
+
+    const filteredMarks = stripAttributedMarks(node.marks);
+
+    if (node.isText) {
+      // Text/leaf nodes: keep, but with the attribution marks removed.
+      result.push(node.mark(filteredMarks));
+      return;
+    }
+
+    // Recurse into children first.
+    const newContent = stripAttributionFromFragment(node.content, schema);
+
+    // 2. Map a `*--attributed` block node back to its canonical type.
+    const canonicalName = canonicalBlockName(node.type.name);
+    const targetType =
+      canonicalName !== node.type.name && schema.nodes[canonicalName]
+        ? schema.nodes[canonicalName]
+        : node.type;
+
+    if (targetType !== node.type) {
+      // Don't carry the binding-only `y-attributed` attr onto the canonical
+      // node (it doesn't exist there).
+      const { "y-attributed": _yAttributed, ...attrs } = node.attrs ?? {};
+      result.push(targetType.create(attrs, newContent, filteredMarks));
+      return;
+    }
+
+    result.push(node.copy(newContent).mark(filteredMarks));
+  });
+
+  return Fragment.from(result);
+}
+
+/**
+ * Paste filter: produce CLEAN content when pasting "attributed" (suggestion
+ * mode / version diff) content. Removes deleted content, canonicalizes
+ * `*--attributed` blocks, and strips the `y-attributed-*` marks. See
+ * {@link stripAttributionFromFragment}.
+ */
+export function stripAttribution(slice: Slice, view: EditorView): Slice {
+  const content = stripAttributionFromFragment(
+    slice.content,
+    view.state.schema,
+  );
+  return new Slice(content, slice.openStart, slice.openEnd);
+}
 
 // helper function to remove a child from a fragment
 function removeChild(node: Fragment, n: number) {
@@ -62,6 +181,12 @@ export function wrapTableRows(f: Fragment, schema: Schema) {
  * which cases are excluded.
  */
 export function transformPasted(slice: Slice, view: EditorView) {
+  // First, strip any "attributed" (suggestion-mode / version-diff) artifacts so
+  // the rest of the paste pipeline only ever sees clean, canonical content:
+  // deleted content is dropped, `*--attributed` blocks are canonicalized, and
+  // the `y-attributed-*` marks are removed.
+  slice = stripAttribution(slice, view);
+
   let f = Fragment.from(slice.content);
   f = wrapTableRows(f, view.state.schema);
 

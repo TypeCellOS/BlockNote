@@ -3,15 +3,17 @@ import * as Y from "@y/y";
 import { MigrationRule } from "./migrationRule.js";
 import { defaultProps } from "../../../../blocks/defaultProps.js";
 
-// Helper function to recursively traverse a `Y.XMLElement` and its descendant
-// elements.
+// Helper function to recursively traverse an XML-element-like `Y.Type` and its
+// descendant elements. In Yjs v14 both XML elements and XML text nodes are
+// represented by the unified `Y.Type`; element nodes have a tag `name` while
+// text nodes have a `null` name, so we use that to skip text nodes.
 const traverseElement = (
-  rootElement: Y.XmlElement,
-  cb: (element: Y.XmlElement) => void,
+  rootElement: Y.Type,
+  cb: (element: Y.Type) => void,
 ) => {
   cb(rootElement);
   rootElement.forEach((element) => {
-    if (element instanceof Y.XmlElement) {
+    if (element instanceof Y.Type && element.name != null) {
       traverseElement(element, cb);
     }
   });
@@ -33,14 +35,14 @@ export const moveColorAttributes: MigrationRule = (fragment, tr) => {
   // Finds all elements which still have `textColor` or `backgroundColor`
   // attributes in the current Yjs fragment.
   fragment.forEach((element) => {
-    if (element instanceof Y.XmlElement) {
+    if (element instanceof Y.Type && element.name != null) {
       traverseElement(element, (element) => {
         if (
-          element.nodeName === "blockContainer" &&
-          element.hasAttribute("id")
+          element.name === "blockContainer" &&
+          element.hasAttr("id")
         ) {
-          const textColor = element.getAttribute("textColor");
-          const backgroundColor = element.getAttribute("backgroundColor");
+          const textColor = element.getAttr("textColor");
+          const backgroundColor = element.getAttr("backgroundColor");
 
           const colors = {
             textColor:
@@ -54,7 +56,7 @@ export const moveColorAttributes: MigrationRule = (fragment, tr) => {
           };
 
           if (colors.textColor || colors.backgroundColor) {
-            targetBlockContainers.set(element.getAttribute("id")!, colors);
+            targetBlockContainers.set(element.getAttr("id")!, colors);
           }
         }
       });
