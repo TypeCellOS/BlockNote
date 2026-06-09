@@ -1,5 +1,6 @@
 import type { CodeBlockOptions } from "@blocknote/core";
 import { createHighlighter } from "./shiki.bundle.js";
+import { renderLaTeXPreview } from "./renderLaTeXPreview.js";
 
 export const codeBlockOptions = {
   defaultLanguage: "javascript",
@@ -163,6 +164,7 @@ export const codeBlockOptions = {
     latex: {
       name: "LaTeX",
       aliases: ["latex"],
+      renderPreview: renderLaTeXPreview,
     },
     lua: {
       name: "Lua",

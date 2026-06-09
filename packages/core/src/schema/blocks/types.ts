@@ -1,7 +1,11 @@
 /** Define the main block types **/
 // import { Extension, Node } from "@tiptap/core";
 import type { Node, NodeViewRendererProps } from "@tiptap/core";
-import type { Fragment, Schema } from "prosemirror-model";
+import type {
+  Fragment,
+  Node as ProsemirrorNode,
+  Schema,
+} from "prosemirror-model";
 import type { ViewMutationRecord } from "prosemirror-view";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type {
@@ -188,6 +192,7 @@ export type LooseBlockSpec<
       dom: HTMLElement | DocumentFragment;
       contentDOM?: HTMLElement;
       ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
+      update?: (node: ProsemirrorNode) => boolean;
       destroy?: () => void;
     };
     toExternalHTML?: (
@@ -246,6 +251,7 @@ export type BlockSpecs = {
         dom: HTMLElement | DocumentFragment;
         contentDOM?: HTMLElement;
         ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
+        update?: (node: ProsemirrorNode) => boolean;
         destroy?: () => void;
       };
       toExternalHTML?: (
@@ -510,6 +516,17 @@ export type BlockImplementation<
     dom: HTMLElement | DocumentFragment;
     contentDOM?: HTMLElement;
     ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
+    /**
+     * Called by ProseMirror when this block's node is updated (e.g. its content
+     * or props change). Return `true` to handle the update in place - keeping
+     * the existing DOM - or `false` to have the node view recreated via
+     * `render`. When omitted, ProseMirror keeps the node view and reconciles its
+     * `contentDOM` in place as long as the node type stays the same.
+     *
+     * Useful for blocks whose `render` builds custom DOM that needs to stay in
+     * sync with the node (e.g. a code block rendering a preview of its content).
+     */
+    update?: (node: ProsemirrorNode) => boolean;
     destroy?: () => void;
   };
 

@@ -1,8 +1,31 @@
 import type { HighlighterGeneric } from "@shikijs/types";
+import type { ViewMutationRecord } from "prosemirror-view";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { createExtension } from "../../editor/BlockNoteExtension.js";
 import { createBlockConfig, createBlockSpec } from "../../schema/index.js";
+import type { BlockFromConfig } from "../../schema/index.js";
+import { createRenderPreviewWithSourcePopup } from "./renderPreviewWithSourcePopup.js";
+import { createRenderSource } from "./renderSource.js";
 import { lazyShikiPlugin } from "./shiki.js";
 import { DOMParser } from "@tiptap/pm/model";
+
+/**
+ * Renders a preview of a code block's content (e.g. rendered LaTeX). Takes the
+ * same parameters as a block's `render` function and returns the same type,
+ * minus `contentDOM` - as a preview never holds the block's editable content.
+ *
+ * A `renderPreview` function is only responsible for the preview itself. It has
+ * no opinion on when, where, or how the preview is displayed - that's up to the
+ * code block's `render` function.
+ */
+export type CodeBlockRenderPreview = (
+  block: BlockFromConfig<CodeBlockConfig, any, any>,
+  editor: BlockNoteEditor<any>,
+) => {
+  dom: HTMLElement;
+  ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
+  destroy?: () => void;
+};
 
 export type CodeBlockOptions = {
   /**
@@ -43,6 +66,12 @@ export type CodeBlockOptions = {
        * Aliases for this language.
        */
       aliases?: string[];
+      /**
+       * Renders a preview of the result of the code (e.g. rendered LaTeX). When
+       * defined, the code block displays this preview instead of the raw source
+       * by default, and shows the editable source in a popup when selected.
+       */
+      renderPreview?: CodeBlockRenderPreview;
     }
   >;
   /**
@@ -68,109 +97,76 @@ export const createCodeBlockConfig = createBlockConfig(
 
 export const createCodeBlockSpec = createBlockSpec(
   createCodeBlockConfig,
-  (options) => ({
-    meta: {
-      code: true,
-      defining: true,
-      isolating: false,
-    },
-    parse: (e) => {
-      if (e.tagName !== "PRE") {
-        return undefined;
-      }
+  (options) => {
+    const renderSource = createRenderSource(options);
+    const renderPreviewWithSourcePopup =
+      createRenderPreviewWithSourcePopup(options);
 
-      if (
-        e.childElementCount !== 1 ||
-        e.firstElementChild?.tagName !== "CODE"
-      ) {
-        return undefined;
-      }
-
-      const code = e.firstElementChild!;
-      const language =
-        code.getAttribute("data-language") ||
-        code.className
-          .split(" ")
-          .find((name) => name.includes("language-"))
-          ?.replace("language-", "");
-
-      return { language };
-    },
-
-    parseContent: ({ el, schema }) => {
-      const parser = DOMParser.fromSchema(schema);
-      const code = el.firstElementChild!;
-
-      return parser.parse(code, {
-        preserveWhitespace: "full",
-        topNode: schema.nodes["codeBlock"].create(),
-      }).content;
-    },
-
-    render(block, editor) {
-      const wrapper = document.createDocumentFragment();
-      const pre = document.createElement("pre");
-      const code = document.createElement("code");
-      pre.appendChild(code);
-
-      let removeSelectChangeListener = undefined;
-
-      if (options.supportedLanguages) {
-        const select = document.createElement("select");
-
-        Object.entries(options.supportedLanguages ?? {}).forEach(
-          ([id, { name }]) => {
-            const option = document.createElement("option");
-
-            option.value = id;
-            option.text = name;
-            select.appendChild(option);
-          },
-        );
-        select.value =
-          block.props.language || options.defaultLanguage || "text";
-
-        if (editor.isEditable) {
-          const handleLanguageChange = (event: Event) => {
-            const language = (event.target as HTMLSelectElement).value;
-
-            editor.updateBlock(block.id, { props: { language } });
-          };
-          select.addEventListener("change", handleLanguageChange);
-          removeSelectChangeListener = () =>
-            select.removeEventListener("change", handleLanguageChange);
-        } else {
-          select.disabled = true;
+    return {
+      meta: {
+        code: true,
+        defining: true,
+        isolating: false,
+      },
+      parse: (e) => {
+        if (e.tagName !== "PRE") {
+          return undefined;
         }
 
-        const selectWrapper = document.createElement("div");
-        selectWrapper.contentEditable = "false";
+        if (
+          e.childElementCount !== 1 ||
+          e.firstElementChild?.tagName !== "CODE"
+        ) {
+          return undefined;
+        }
 
-        selectWrapper.appendChild(select);
-        wrapper.appendChild(selectWrapper);
-      }
-      wrapper.appendChild(pre);
+        const code = e.firstElementChild!;
+        const language =
+          code.getAttribute("data-language") ||
+          code.className
+            .split(" ")
+            .find((name) => name.includes("language-"))
+            ?.replace("language-", "");
 
-      return {
-        dom: wrapper,
-        contentDOM: code,
-        destroy: () => {
-          removeSelectChangeListener?.();
-        },
-      };
-    },
-    toExternalHTML(block) {
-      const pre = document.createElement("pre");
-      const code = document.createElement("code");
-      code.className = `language-${block.props.language}`;
-      code.dataset.language = block.props.language;
-      pre.appendChild(code);
-      return {
-        dom: pre,
-        contentDOM: code,
-      };
-    },
-  }),
+        return { language };
+      },
+
+      parseContent: ({ el, schema }) => {
+        const parser = DOMParser.fromSchema(schema);
+        const code = el.firstElementChild!;
+
+        return parser.parse(code, {
+          preserveWhitespace: "full",
+          topNode: schema.nodes["codeBlock"].create(),
+        }).content;
+      },
+
+      render(block, editor) {
+        const language =
+          block.props.language || options.defaultLanguage || "text";
+        const renderPreview =
+          options.supportedLanguages?.[language]?.renderPreview;
+
+        // Languages with a preview show the rendered result by default, with the
+        // editable source in a popup when selected. Other languages just show the
+        // source.
+        return renderPreview
+          ? renderPreviewWithSourcePopup(block, editor, renderPreview)
+          : renderSource(block, editor);
+      },
+      toExternalHTML(block) {
+        const pre = document.createElement("pre");
+        const code = document.createElement("code");
+        code.className = `language-${block.props.language}`;
+        code.dataset.language = block.props.language;
+        pre.appendChild(code);
+        return {
+          dom: pre,
+          contentDOM: code,
+        };
+      },
+    };
+  },
   (options) => {
     return [
       createExtension({

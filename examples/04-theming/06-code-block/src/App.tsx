@@ -32,6 +32,22 @@ export default function App() {
         type: "paragraph",
       },
       {
+        type: "codeBlock",
+        props: {
+          language: "latex",
+        },
+        content: [
+          {
+            type: "text",
+            text: "f(x) = \\int_{-\\infty}^\\infty \\hat f(\\xi)\\,e^{2 \\pi i \\xi x} \\,d\\xi",
+            styles: {},
+          },
+        ],
+      },
+      {
+        type: "paragraph",
+      },
+      {
         type: "heading",
         props: {
           textColor: "default",

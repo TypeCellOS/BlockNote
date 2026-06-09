@@ -219,10 +219,14 @@ export function addNodeAndExtensionsToSpec<
             applyNonSelectableBlockFix(typedNodeView, this.editor);
           }
 
-          // See explanation for why `update` is not implemented for NodeViews
+          // We don't add a default `update` method to the node view - when a
+          // block doesn't provide one, ProseMirror keeps the node view and
+          // reconciles its `contentDOM` in place as long as the node type stays
+          // the same. Blocks that build custom DOM which needs to stay in sync
+          // with the node (e.g. the code block's preview) can return an `update`
+          // function from `render` to handle updates in place.
           // https://github.com/TypeCellOS/BlockNote/pull/1904#discussion_r2313461464
-          // TODO: in a future version, we might want to implement updates so that
-          // vanilla blocks don't always re-render entirely (https://github.com/TypeCellOS/BlockNote/issues/220)
+          // https://github.com/TypeCellOS/BlockNote/issues/220
           return typedNodeView;
         };
       },
