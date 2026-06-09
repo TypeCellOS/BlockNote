@@ -1,5 +1,10 @@
 import type { Node as PMNode } from "prosemirror-model";
-import { Plugin, PluginKey, type Transaction } from "prosemirror-state";
+import {
+  Plugin,
+  PluginKey,
+  Selection,
+  type Transaction,
+} from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import {
   createExtension,
@@ -127,6 +132,33 @@ export const TrailingNodeExtension = createExtension(
           },
           props: {
             decorations: (state) => PLUGIN_KEY.getState(state),
+            // Prevents ProseMirror from trying to move the selection into the
+            // trailing block, which causes the text caret to flicker in it
+            // before returning to its previous position.
+            handleKeyDown: (view, event) => {
+              if (event.key !== "ArrowRight" && event.key !== "ArrowDown") {
+                return false;
+              }
+
+              const { selection } = view.state;
+              if (!selection.empty) {
+                return false;
+              }
+
+              const docEnd = Selection.atEnd(view.state.doc);
+              if (selection.$head.pos !== docEnd.$head.pos) {
+                return false;
+              }
+
+              if (
+                !shouldShowTrailingWidget(view.state.doc, editor.isEditable)
+              ) {
+                return false;
+              }
+
+              event.preventDefault();
+              return true;
+            },
           },
         }),
       ],
