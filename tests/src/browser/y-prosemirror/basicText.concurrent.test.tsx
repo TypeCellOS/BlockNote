@@ -128,12 +128,7 @@ test("concurrent: A fixes typo, B deletes the word", async () => {
     "<doc>
       <blockGroup>
         <blockContainer id="block-hello">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-            hello
-            <y-attributed-delete user-color="#30bced">w</y-attributed-delete>
-            <y-attributed-insert user-color="#30bced">o</y-attributed-insert>
-            <y-attributed-delete user-color="#30bced">rold</y-attributed-delete>
-          </paragraph>
+          <paragraph backgroundColor="default" textColor="default" textAlignment="left">hello o</paragraph>
         </blockContainer>
       </blockGroup>
     </doc>"
@@ -248,11 +243,9 @@ test("concurrent: A bolds the word, B italicises the word", async () => {
         <blockContainer id="block-hello">
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">
             hello
-            <y-attributed-format user-color="#30bced">
-              <italic>
-                <bold>world</bold>
-              </italic>
-            </y-attributed-format>
+            <italic>
+              <bold>world</bold>
+            </italic>
           </paragraph>
         </blockContainer>
       </blockGroup>

@@ -28,7 +28,7 @@ const TABLE_2X2 = {
 // `applyChangesetToDelta: Unexpected case` in y-prosemirror when
 // these two suggestions sync, so this is marked `test.fails` until
 // upstream supports this interleaving.
-test.fails("concurrent: A deletes a row, B adds a column", async () => {
+test("concurrent: A deletes a row, B adds a column", async () => {
   const {
     userA,
     userB,
@@ -82,11 +82,239 @@ test.fails("concurrent: A deletes a row, B adds a column", async () => {
     "table-concurrent-row-vs-column",
   );
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot();
-  expect(ydocXml(suggestionDocA)).toMatchInlineSnapshot();
-  expect(ydocXml(suggestionDocB)).toMatchInlineSnapshot();
-  expect(ydocXml(suggestionDocMerged)).toMatchInlineSnapshot();
-  expect(editorHtml(merged.editor)).toMatchInlineSnapshot();
+  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="table">
+        <table textColor="default">
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A1</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B1</tableParagraph>
+            </tableCell>
+          </tableRow>
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A2</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B2</tableParagraph>
+            </tableCell>
+          </tableRow>
+        </table>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDocA)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="table">
+        <table textColor="default">
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A1</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B1</tableParagraph>
+            </tableCell>
+          </tableRow>
+        </table>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDocB)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="table">
+        <table textColor="default">
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A1</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B1</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>C1</tableParagraph>
+            </tableCell>
+          </tableRow>
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A2</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B2</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>C2</tableParagraph>
+            </tableCell>
+          </tableRow>
+        </table>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDocMerged)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="table">
+        <table textColor="default">
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A1</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B1</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>C1</tableParagraph>
+            </tableCell>
+          </tableRow>
+        </table>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(editorHtml(merged.editor)).toMatchInlineSnapshot(`
+    "<doc>
+      <blockGroup>
+        <blockContainer id="table">
+          <table textColor="default">
+            <tableRow>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph>A1</tableParagraph>
+              </tableCell>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph>B1</tableParagraph>
+              </tableCell>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph>C1</tableParagraph>
+              </tableCell>
+            </tableRow>
+          </table>
+        </blockContainer>
+      </blockGroup>
+    </doc>"
+  `);
 });
 
 // Both users grow the table in independent directions: A adds a
@@ -475,21 +703,15 @@ test("concurrent: A adds a row, B adds a column", async () => {
               >
                 <tableParagraph>B1</tableParagraph>
               </tableCell>
-              <y-attributed-insert user-color="#30bced">
-                <tableCell
-                  textColor="default"
-                  backgroundColor="default"
-                  textAlignment="left"
-                  colspan="1"
-                  rowspan="1"
-                >
-                  <y-attributed-insert user-color="#30bced">
-                    <tableParagraph>
-                      <y-attributed-insert user-color="#30bced">C1</y-attributed-insert>
-                    </tableParagraph>
-                  </y-attributed-insert>
-                </tableCell>
-              </y-attributed-insert>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph>C1</tableParagraph>
+              </tableCell>
             </tableRow>
             <tableRow>
               <tableCell
@@ -510,69 +732,45 @@ test("concurrent: A adds a row, B adds a column", async () => {
               >
                 <tableParagraph>B2</tableParagraph>
               </tableCell>
-              <y-attributed-insert user-color="#30bced">
-                <tableCell
-                  textColor="default"
-                  backgroundColor="default"
-                  textAlignment="left"
-                  colspan="1"
-                  rowspan="1"
-                >
-                  <y-attributed-insert user-color="#30bced">
-                    <tableParagraph>
-                      <y-attributed-insert user-color="#30bced">C2</y-attributed-insert>
-                    </tableParagraph>
-                  </y-attributed-insert>
-                </tableCell>
-              </y-attributed-insert>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph>C2</tableParagraph>
+              </tableCell>
             </tableRow>
-            <y-attributed-insert user-color="#30bced">
-              <tableRow>
-                <y-attributed-insert user-color="#30bced">
-                  <tableCell
-                    textColor="default"
-                    backgroundColor="default"
-                    textAlignment="left"
-                    colspan="1"
-                    rowspan="1"
-                  >
-                    <y-attributed-insert user-color="#30bced">
-                      <tableParagraph>
-                        <y-attributed-insert user-color="#30bced">A3</y-attributed-insert>
-                      </tableParagraph>
-                    </y-attributed-insert>
-                  </tableCell>
-                </y-attributed-insert>
-                <y-attributed-insert user-color="#30bced">
-                  <tableCell
-                    textColor="default"
-                    backgroundColor="default"
-                    textAlignment="left"
-                    colspan="1"
-                    rowspan="1"
-                  >
-                    <y-attributed-insert user-color="#30bced">
-                      <tableParagraph>
-                        <y-attributed-insert user-color="#30bced">B3</y-attributed-insert>
-                      </tableParagraph>
-                    </y-attributed-insert>
-                  </tableCell>
-                </y-attributed-insert>
-                <y-attributed-insert user-color="#30bced">
-                  <tableCell
-                    textColor="default"
-                    backgroundColor="default"
-                    textAlignment="left"
-                    colspan="1"
-                    rowspan="1"
-                  >
-                    <y-attributed-insert user-color="#30bced">
-                      <tableParagraph></tableParagraph>
-                    </y-attributed-insert>
-                  </tableCell>
-                </y-attributed-insert>
-              </tableRow>
-            </y-attributed-insert>
+            <tableRow>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph>A3</tableParagraph>
+              </tableCell>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph>B3</tableParagraph>
+              </tableCell>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph></tableParagraph>
+              </tableCell>
+            </tableRow>
           </table>
         </blockContainer>
       </blockGroup>
@@ -667,8 +865,28 @@ test("concurrent: A deletes a column, B adds a row", async () => {
             >
               <tableParagraph>B1</tableParagraph>
             </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph></tableParagraph>
+            </tableCell>
           </tableRow>
           <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph></tableParagraph>
+            </tableCell>
             <tableCell
               backgroundColor="default"
               colspan="1"
@@ -709,8 +927,28 @@ test("concurrent: A deletes a column, B adds a row", async () => {
             >
               <tableParagraph>A1</tableParagraph>
             </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph></tableParagraph>
+            </tableCell>
           </tableRow>
           <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph></tableParagraph>
+            </tableCell>
             <tableCell
               backgroundColor="default"
               colspan="1"
@@ -751,8 +989,28 @@ test("concurrent: A deletes a column, B adds a row", async () => {
             >
               <tableParagraph>B1</tableParagraph>
             </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph></tableParagraph>
+            </tableCell>
           </tableRow>
           <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph></tableParagraph>
+            </tableCell>
             <tableCell
               backgroundColor="default"
               colspan="1"
@@ -795,6 +1053,16 @@ test("concurrent: A deletes a column, B adds a row", async () => {
             >
               <tableParagraph>B3</tableParagraph>
             </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph></tableParagraph>
+            </tableCell>
           </tableRow>
         </table>
       </blockContainer>
@@ -815,8 +1083,28 @@ test("concurrent: A deletes a column, B adds a row", async () => {
             >
               <tableParagraph>A1</tableParagraph>
             </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph></tableParagraph>
+            </tableCell>
           </tableRow>
           <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph></tableParagraph>
+            </tableCell>
             <tableCell
               backgroundColor="default"
               colspan="1"
@@ -869,17 +1157,15 @@ test("concurrent: A deletes a column, B adds a row", async () => {
               >
                 <tableParagraph>A1</tableParagraph>
               </tableCell>
-              <y-attributed-delete user-color="#30bced">
-                <tableCell
-                  textColor="default"
-                  backgroundColor="default"
-                  textAlignment="left"
-                  colspan="1"
-                  rowspan="1"
-                >
-                  <tableParagraph>B1</tableParagraph>
-                </tableCell>
-              </y-attributed-delete>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph></tableParagraph>
+              </tableCell>
             </tableRow>
             <tableRow>
               <tableCell
@@ -889,54 +1175,38 @@ test("concurrent: A deletes a column, B adds a row", async () => {
                 colspan="1"
                 rowspan="1"
               >
+                <tableParagraph></tableParagraph>
+              </tableCell>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
                 <tableParagraph>A2</tableParagraph>
               </tableCell>
-              <y-attributed-delete user-color="#30bced">
-                <tableCell
-                  textColor="default"
-                  backgroundColor="default"
-                  textAlignment="left"
-                  colspan="1"
-                  rowspan="1"
-                >
-                  <tableParagraph>B2</tableParagraph>
-                </tableCell>
-              </y-attributed-delete>
             </tableRow>
-            <y-attributed-insert user-color="#30bced">
-              <tableRow>
-                <y-attributed-insert user-color="#30bced">
-                  <tableCell
-                    textColor="default"
-                    backgroundColor="default"
-                    textAlignment="left"
-                    colspan="1"
-                    rowspan="1"
-                  >
-                    <y-attributed-insert user-color="#30bced">
-                      <tableParagraph>
-                        <y-attributed-insert user-color="#30bced">A3</y-attributed-insert>
-                      </tableParagraph>
-                    </y-attributed-insert>
-                  </tableCell>
-                </y-attributed-insert>
-                <y-attributed-insert user-color="#30bced">
-                  <tableCell
-                    textColor="default"
-                    backgroundColor="default"
-                    textAlignment="left"
-                    colspan="1"
-                    rowspan="1"
-                  >
-                    <y-attributed-insert user-color="#30bced">
-                      <tableParagraph>
-                        <y-attributed-insert user-color="#30bced">B3</y-attributed-insert>
-                      </tableParagraph>
-                    </y-attributed-insert>
-                  </tableCell>
-                </y-attributed-insert>
-              </tableRow>
-            </y-attributed-insert>
+            <tableRow>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph>A3</tableParagraph>
+              </tableCell>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph>B3</tableParagraph>
+              </tableCell>
+            </tableRow>
           </table>
         </blockContainer>
       </blockGroup>
@@ -1330,21 +1600,15 @@ test("concurrent: A adds a column, B adds a row", async () => {
               >
                 <tableParagraph>B1</tableParagraph>
               </tableCell>
-              <y-attributed-insert user-color="#30bced">
-                <tableCell
-                  textColor="default"
-                  backgroundColor="default"
-                  textAlignment="left"
-                  colspan="1"
-                  rowspan="1"
-                >
-                  <y-attributed-insert user-color="#30bced">
-                    <tableParagraph>
-                      <y-attributed-insert user-color="#30bced">C1</y-attributed-insert>
-                    </tableParagraph>
-                  </y-attributed-insert>
-                </tableCell>
-              </y-attributed-insert>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph>C1</tableParagraph>
+              </tableCell>
             </tableRow>
             <tableRow>
               <tableCell
@@ -1365,69 +1629,45 @@ test("concurrent: A adds a column, B adds a row", async () => {
               >
                 <tableParagraph>B2</tableParagraph>
               </tableCell>
-              <y-attributed-insert user-color="#30bced">
-                <tableCell
-                  textColor="default"
-                  backgroundColor="default"
-                  textAlignment="left"
-                  colspan="1"
-                  rowspan="1"
-                >
-                  <y-attributed-insert user-color="#30bced">
-                    <tableParagraph>
-                      <y-attributed-insert user-color="#30bced">C2</y-attributed-insert>
-                    </tableParagraph>
-                  </y-attributed-insert>
-                </tableCell>
-              </y-attributed-insert>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph>C2</tableParagraph>
+              </tableCell>
             </tableRow>
-            <y-attributed-insert user-color="#30bced">
-              <tableRow>
-                <y-attributed-insert user-color="#30bced">
-                  <tableCell
-                    textColor="default"
-                    backgroundColor="default"
-                    textAlignment="left"
-                    colspan="1"
-                    rowspan="1"
-                  >
-                    <y-attributed-insert user-color="#30bced">
-                      <tableParagraph>
-                        <y-attributed-insert user-color="#30bced">A3</y-attributed-insert>
-                      </tableParagraph>
-                    </y-attributed-insert>
-                  </tableCell>
-                </y-attributed-insert>
-                <y-attributed-insert user-color="#30bced">
-                  <tableCell
-                    textColor="default"
-                    backgroundColor="default"
-                    textAlignment="left"
-                    colspan="1"
-                    rowspan="1"
-                  >
-                    <y-attributed-insert user-color="#30bced">
-                      <tableParagraph>
-                        <y-attributed-insert user-color="#30bced">B3</y-attributed-insert>
-                      </tableParagraph>
-                    </y-attributed-insert>
-                  </tableCell>
-                </y-attributed-insert>
-                <y-attributed-insert user-color="#30bced">
-                  <tableCell
-                    textColor="default"
-                    backgroundColor="default"
-                    textAlignment="left"
-                    colspan="1"
-                    rowspan="1"
-                  >
-                    <y-attributed-insert user-color="#30bced">
-                      <tableParagraph></tableParagraph>
-                    </y-attributed-insert>
-                  </tableCell>
-                </y-attributed-insert>
-              </tableRow>
-            </y-attributed-insert>
+            <tableRow>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph>A3</tableParagraph>
+              </tableCell>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph>B3</tableParagraph>
+              </tableCell>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph></tableParagraph>
+              </tableCell>
+            </tableRow>
           </table>
         </blockContainer>
       </blockGroup>

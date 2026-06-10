@@ -31,6 +31,7 @@
     "@vitest/browser-playwright": "4.1.7",
     "@y/protocols": "^1.0.6-rc.1",
     "@y/y": "^14.0.0-rc.16",
+    "@y/prosemirror": "^2.0.0-2",
     "eslint": "^8.57.1",
     "htmlfy": "^0.6.7",
     "react": "^19.2.5",

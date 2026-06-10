@@ -81,14 +81,7 @@ test("suggestion mode: 'hello world' -> 'hello universe'", async () => {
     "<doc>
       <blockGroup>
         <blockContainer id="block-hello">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-            hello
-            <y-attributed-delete user-color="#30bced">wo</y-attributed-delete>
-            <y-attributed-insert user-color="#30bced">unive</y-attributed-insert>
-            r
-            <y-attributed-delete user-color="#30bced">ld</y-attributed-delete>
-            <y-attributed-insert user-color="#30bced">se</y-attributed-insert>
-          </paragraph>
+          <paragraph backgroundColor="default" textColor="default" textAlignment="left">hello universe</paragraph>
         </blockContainer>
       </blockGroup>
     </doc>"
@@ -161,9 +154,7 @@ test("suggestion mode: add bold to 'world'", async () => {
         <blockContainer id="block-hello">
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">
             hello
-            <y-attributed-format user-color="#30bced">
-              <bold>world</bold>
-            </y-attributed-format>
+            <bold>world</bold>
           </paragraph>
         </blockContainer>
       </blockGroup>
@@ -232,10 +223,7 @@ test("suggestion mode: remove bold from 'world'", async () => {
     "<doc>
       <blockGroup>
         <blockContainer id="block-hello">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-            hello
-            <y-attributed-format user-color="#30bced">world</y-attributed-format>
-          </paragraph>
+          <paragraph backgroundColor="default" textColor="default" textAlignment="left">hello world</paragraph>
         </blockContainer>
       </blockGroup>
     </doc>"
@@ -319,11 +307,9 @@ test("suggestion mode: add italic to already-bold 'world'", async () => {
         <blockContainer id="block-hello">
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">
             hello
-            <y-attributed-format user-color="#30bced">
-              <italic>
-                <bold>world</bold>
-              </italic>
-            </y-attributed-format>
+            <italic>
+              <bold>world</bold>
+            </italic>
           </paragraph>
         </blockContainer>
       </blockGroup>

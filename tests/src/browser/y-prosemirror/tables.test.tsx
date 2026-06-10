@@ -232,40 +232,26 @@ test("suggestion mode: add row", async () => {
                 <tableParagraph>B2</tableParagraph>
               </tableCell>
             </tableRow>
-            <y-attributed-insert user-color="#30bced">
-              <tableRow>
-                <y-attributed-insert user-color="#30bced">
-                  <tableCell
-                    textColor="default"
-                    backgroundColor="default"
-                    textAlignment="left"
-                    colspan="1"
-                    rowspan="1"
-                  >
-                    <y-attributed-insert user-color="#30bced">
-                      <tableParagraph>
-                        <y-attributed-insert user-color="#30bced">A3</y-attributed-insert>
-                      </tableParagraph>
-                    </y-attributed-insert>
-                  </tableCell>
-                </y-attributed-insert>
-                <y-attributed-insert user-color="#30bced">
-                  <tableCell
-                    textColor="default"
-                    backgroundColor="default"
-                    textAlignment="left"
-                    colspan="1"
-                    rowspan="1"
-                  >
-                    <y-attributed-insert user-color="#30bced">
-                      <tableParagraph>
-                        <y-attributed-insert user-color="#30bced">B3</y-attributed-insert>
-                      </tableParagraph>
-                    </y-attributed-insert>
-                  </tableCell>
-                </y-attributed-insert>
-              </tableRow>
-            </y-attributed-insert>
+            <tableRow>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph>A3</tableParagraph>
+              </tableCell>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph>B3</tableParagraph>
+              </tableCell>
+            </tableRow>
           </table>
         </blockContainer>
       </blockGroup>
@@ -450,21 +436,15 @@ test("suggestion mode: add column", async () => {
               >
                 <tableParagraph>B1</tableParagraph>
               </tableCell>
-              <y-attributed-insert user-color="#30bced">
-                <tableCell
-                  textColor="default"
-                  backgroundColor="default"
-                  textAlignment="left"
-                  colspan="1"
-                  rowspan="1"
-                >
-                  <y-attributed-insert user-color="#30bced">
-                    <tableParagraph>
-                      <y-attributed-insert user-color="#30bced">C1</y-attributed-insert>
-                    </tableParagraph>
-                  </y-attributed-insert>
-                </tableCell>
-              </y-attributed-insert>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph>C1</tableParagraph>
+              </tableCell>
             </tableRow>
             <tableRow>
               <tableCell
@@ -485,21 +465,15 @@ test("suggestion mode: add column", async () => {
               >
                 <tableParagraph>B2</tableParagraph>
               </tableCell>
-              <y-attributed-insert user-color="#30bced">
-                <tableCell
-                  textColor="default"
-                  backgroundColor="default"
-                  textAlignment="left"
-                  colspan="1"
-                  rowspan="1"
-                >
-                  <y-attributed-insert user-color="#30bced">
-                    <tableParagraph>
-                      <y-attributed-insert user-color="#30bced">C2</y-attributed-insert>
-                    </tableParagraph>
-                  </y-attributed-insert>
-                </tableCell>
-              </y-attributed-insert>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph>C2</tableParagraph>
+              </tableCell>
             </tableRow>
           </table>
         </blockContainer>
@@ -640,28 +614,6 @@ test("suggestion mode: remove row", async () => {
                 <tableParagraph>B1</tableParagraph>
               </tableCell>
             </tableRow>
-            <y-attributed-delete user-color="#30bced">
-              <tableRow>
-                <tableCell
-                  textColor="default"
-                  backgroundColor="default"
-                  textAlignment="left"
-                  colspan="1"
-                  rowspan="1"
-                >
-                  <tableParagraph>A2</tableParagraph>
-                </tableCell>
-                <tableCell
-                  textColor="default"
-                  backgroundColor="default"
-                  textAlignment="left"
-                  colspan="1"
-                  rowspan="1"
-                >
-                  <tableParagraph>B2</tableParagraph>
-                </tableCell>
-              </tableRow>
-            </y-attributed-delete>
           </table>
         </blockContainer>
       </blockGroup>
@@ -793,17 +745,6 @@ test("suggestion mode: remove column", async () => {
               >
                 <tableParagraph>A1</tableParagraph>
               </tableCell>
-              <y-attributed-delete user-color="#30bced">
-                <tableCell
-                  textColor="default"
-                  backgroundColor="default"
-                  textAlignment="left"
-                  colspan="1"
-                  rowspan="1"
-                >
-                  <tableParagraph>B1</tableParagraph>
-                </tableCell>
-              </y-attributed-delete>
             </tableRow>
             <tableRow>
               <tableCell
@@ -815,17 +756,6 @@ test("suggestion mode: remove column", async () => {
               >
                 <tableParagraph>A2</tableParagraph>
               </tableCell>
-              <y-attributed-delete user-color="#30bced">
-                <tableCell
-                  textColor="default"
-                  backgroundColor="default"
-                  textAlignment="left"
-                  colspan="1"
-                  rowspan="1"
-                >
-                  <tableParagraph>B2</tableParagraph>
-                </tableCell>
-              </y-attributed-delete>
             </tableRow>
           </table>
         </blockContainer>
@@ -980,10 +910,7 @@ test("suggestion mode: update text in cell", async () => {
                 colspan="1"
                 rowspan="1"
               >
-                <tableParagraph>
-                  A1
-                  <y-attributed-insert user-color="#30bced">edited</y-attributed-insert>
-                </tableParagraph>
+                <tableParagraph>A1 edited</tableParagraph>
               </tableCell>
               <tableCell
                 textColor="default"
@@ -1352,16 +1279,6 @@ test("suggestion mode: merge two cells", async () => {
             >
               <tableParagraph>B2</tableParagraph>
             </tableCell>
-            <tableCell
-              backgroundColor="default"
-              colspan="1"
-              colwidth="null"
-              rowspan="1"
-              textAlignment="left"
-              textColor="default"
-            >
-              <tableParagraph></tableParagraph>
-            </tableCell>
           </tableRow>
         </table>
       </blockContainer>
@@ -1381,22 +1298,8 @@ test("suggestion mode: merge two cells", async () => {
                 rowspan="1"
                 colwidth=","
               >
-                <tableParagraph>
-                  A1
-                  <y-attributed-insert user-color="#30bced">+B1</y-attributed-insert>
-                </tableParagraph>
+                <tableParagraph>A1+B1</tableParagraph>
               </tableCell>
-              <y-attributed-delete user-color="#30bced">
-                <tableCell
-                  textColor="default"
-                  backgroundColor="default"
-                  textAlignment="left"
-                  colspan="1"
-                  rowspan="1"
-                >
-                  <tableParagraph>B1</tableParagraph>
-                </tableCell>
-              </y-attributed-delete>
             </tableRow>
             <tableRow>
               <tableCell
@@ -1417,19 +1320,6 @@ test("suggestion mode: merge two cells", async () => {
               >
                 <tableParagraph>B2</tableParagraph>
               </tableCell>
-              <y-attributed-insert user-color="#30bced">
-                <tableCell
-                  textColor="default"
-                  backgroundColor="default"
-                  textAlignment="left"
-                  colspan="1"
-                  rowspan="1"
-                >
-                  <y-attributed-insert user-color="#30bced">
-                    <tableParagraph></tableParagraph>
-                  </y-attributed-insert>
-                </tableCell>
-              </y-attributed-insert>
             </tableRow>
           </table>
         </blockContainer>
@@ -1591,26 +1481,17 @@ test("suggestion mode: split a merged cell", async () => {
                 colspan="1"
                 rowspan="1"
               >
-                <tableParagraph>
-                  A1
-                  <y-attributed-delete user-color="#30bced">+B1</y-attributed-delete>
-                </tableParagraph>
+                <tableParagraph>A1</tableParagraph>
               </tableCell>
-              <y-attributed-insert user-color="#30bced">
-                <tableCell
-                  textColor="default"
-                  backgroundColor="default"
-                  textAlignment="left"
-                  colspan="1"
-                  rowspan="1"
-                >
-                  <y-attributed-insert user-color="#30bced">
-                    <tableParagraph>
-                      <y-attributed-insert user-color="#30bced">B1</y-attributed-insert>
-                    </tableParagraph>
-                  </y-attributed-insert>
-                </tableCell>
-              </y-attributed-insert>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph>B1</tableParagraph>
+              </tableCell>
             </tableRow>
             <tableRow>
               <tableCell

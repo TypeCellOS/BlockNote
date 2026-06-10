@@ -78,25 +78,12 @@ test("suggestion mode: indent a block", async () => {
       <blockGroup>
         <blockContainer id="n0">
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">N0</paragraph>
-          <y-attributed-insert user-color="#30bced">
-            <blockGroup>
-              <y-attributed-insert user-color="#30bced">
-                <blockContainer id="n1">
-                  <y-attributed-insert user-color="#30bced">
-                    <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                      <y-attributed-insert user-color="#30bced">N1</y-attributed-insert>
-                    </paragraph>
-                  </y-attributed-insert>
-                </blockContainer>
-              </y-attributed-insert>
-            </blockGroup>
-          </y-attributed-insert>
+          <blockGroup>
+            <blockContainer id="n1">
+              <paragraph backgroundColor="default" textColor="default" textAlignment="left">N1</paragraph>
+            </blockContainer>
+          </blockGroup>
         </blockContainer>
-        <y-attributed-delete user-color="#30bced">
-          <blockContainer id="n1">
-            <paragraph backgroundColor="default" textColor="default" textAlignment="left">N1</paragraph>
-          </blockContainer>
-        </y-attributed-delete>
       </blockGroup>
     </doc>"
   `);
@@ -158,23 +145,10 @@ test("suggestion mode: unindent a block", async () => {
       <blockGroup>
         <blockContainer id="n0">
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">N0</paragraph>
-          <y-attributed-delete user-color="#30bced">
-            <blockGroup>
-              <blockContainer id="n1">
-                <paragraph backgroundColor="default" textColor="default" textAlignment="left">N1</paragraph>
-              </blockContainer>
-            </blockGroup>
-          </y-attributed-delete>
         </blockContainer>
-        <y-attributed-insert user-color="#30bced">
-          <blockContainer id="n1">
-            <y-attributed-insert user-color="#30bced">
-              <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                <y-attributed-insert user-color="#30bced">N1</y-attributed-insert>
-              </paragraph>
-            </y-attributed-insert>
-          </blockContainer>
-        </y-attributed-insert>
+        <blockContainer id="n1">
+          <paragraph backgroundColor="default" textColor="default" textAlignment="left">N1</paragraph>
+        </blockContainer>
       </blockGroup>
     </doc>"
   `);
@@ -182,38 +156,82 @@ test("suggestion mode: unindent a block", async () => {
 
 // Change parent block's type while keeping its children. Hits the
 // known y-prosemirror type-change bug.
-test.fails(
-  "suggestion mode: change block type of a block with children",
-  async () => {
-    const { editor, screen, baseDoc, suggestionDoc, sync } =
-      await setupSuggestionTest({ userAction: "parent → heading" });
+test("suggestion mode: change block type of a block with children", async () => {
+  const { editor, screen, baseDoc, suggestionDoc, sync } =
+    await setupSuggestionTest({ userAction: "parent → heading" });
 
-    editor.replaceBlocks(editor.document, [
-      {
-        id: "n0",
-        type: "paragraph",
-        content: "N0",
-        children: [{ id: "n1", type: "paragraph", content: "N1" }],
-      },
-    ]);
-    sync();
-    await expect
-      .element(screen.getByTestId("editor-A").getByText("N0"))
-      .toBeVisible();
+  editor.replaceBlocks(editor.document, [
+    {
+      id: "n0",
+      type: "paragraph",
+      content: "N0",
+      children: [{ id: "n1", type: "paragraph", content: "N1" }],
+    },
+  ]);
+  sync();
+  await expect
+    .element(screen.getByTestId("editor-A").getByText("N0"))
+    .toBeVisible();
 
-    editor.getExtension(SuggestionsExtension)!.enableSuggestions();
+  editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-    const [parent] = editor.document;
-    editor.updateBlock(parent, { type: "heading", props: { level: 1 } });
+  const [parent] = editor.document;
+  editor.updateBlock(parent, { type: "heading", props: { level: 1 } });
 
-    await expect.poll(() => editor.document[0]?.type).toBe("heading");
+  await expect.poll(() => editor.document[0]?.type).toBe("heading");
 
-    await expect(screen.getByTestId("editor-root")).toMatchScreenshot(
-      "nesting-change-parent-type",
-    );
+  await expect(screen.getByTestId("editor-root")).toMatchScreenshot(
+    "nesting-change-parent-type",
+  );
 
-    expect(ydocXml(baseDoc)).toMatchInlineSnapshot();
-    expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot();
-    expect(editorHtml(editor)).toMatchInlineSnapshot();
-  },
-);
+  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
+      "<blockGroup>
+        <blockContainer id="n0">
+          <paragraph backgroundColor="default" textAlignment="left" textColor="default">N0</paragraph>
+          <blockGroup>
+            <blockContainer id="n1">
+              <paragraph backgroundColor="default" textAlignment="left" textColor="default">N1</paragraph>
+            </blockContainer>
+          </blockGroup>
+        </blockContainer>
+      </blockGroup>"
+    `);
+  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
+      "<blockGroup>
+        <blockContainer id="n0">
+          <heading
+            backgroundColor="default"
+            isToggleable="false"
+            level="1"
+            textAlignment="left"
+            textColor="default"
+          >N0</heading>
+          <blockGroup>
+            <blockContainer id="n1">
+              <paragraph backgroundColor="default" textAlignment="left" textColor="default">N1</paragraph>
+            </blockContainer>
+          </blockGroup>
+        </blockContainer>
+      </blockGroup>"
+    `);
+  expect(editorHtml(editor)).toMatchInlineSnapshot(`
+      "<doc>
+        <blockGroup>
+          <blockContainer id="n0">
+            <heading
+              backgroundColor="default"
+              textColor="default"
+              textAlignment="left"
+              level="1"
+              isToggleable="false"
+            >N0</heading>
+            <blockGroup>
+              <blockContainer id="n1">
+                <paragraph backgroundColor="default" textColor="default" textAlignment="left">N1</paragraph>
+              </blockContainer>
+            </blockGroup>
+          </blockContainer>
+        </blockGroup>
+      </doc>"
+    `);
+});

@@ -23,7 +23,7 @@ import {
 
 // Demote a bullet-list item to a plain paragraph. Inline content
 // "hello world" stays the same; only the wrapping node type changes.
-test.fails("suggestion mode: change list item to paragraph", async () => {
+test("suggestion mode: change list item to paragraph", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "list → paragraph" });
 
@@ -50,13 +50,37 @@ test.fails("suggestion mode: change list item to paragraph", async () => {
     "type-change-list-to-paragraph",
   );
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot();
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot();
-  expect(editorHtml(editor)).toMatchInlineSnapshot();
+  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="block-hello">
+        <bulletListItem
+          backgroundColor="default"
+          textAlignment="left"
+          textColor="default"
+        >hello world</bulletListItem>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="block-hello">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(editorHtml(editor)).toMatchInlineSnapshot(`
+    "<doc>
+      <blockGroup>
+        <blockContainer id="block-hello">
+          <paragraph backgroundColor="default" textColor="default" textAlignment="left">hello world</paragraph>
+        </blockContainer>
+      </blockGroup>
+    </doc>"
+  `);
 });
 
 // Promote a paragraph to a level-1 heading. Same inline content.
-test.fails("suggestion mode: change paragraph to heading", async () => {
+test("suggestion mode: change paragraph to heading", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "paragraph → heading" });
 
@@ -79,7 +103,39 @@ test.fails("suggestion mode: change paragraph to heading", async () => {
     "type-change-paragraph-to-heading",
   );
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot();
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot();
-  expect(editorHtml(editor)).toMatchInlineSnapshot();
+  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="block-hello">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="block-hello">
+        <heading
+          backgroundColor="default"
+          isToggleable="false"
+          level="1"
+          textAlignment="left"
+          textColor="default"
+        >hello world</heading>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(editorHtml(editor)).toMatchInlineSnapshot(`
+    "<doc>
+      <blockGroup>
+        <blockContainer id="block-hello">
+          <heading
+            backgroundColor="default"
+            textColor="default"
+            textAlignment="left"
+            level="1"
+            isToggleable="false"
+          >hello world</heading>
+        </blockContainer>
+      </blockGroup>
+    </doc>"
+  `);
 });
