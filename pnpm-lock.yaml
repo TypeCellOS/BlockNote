@@ -6139,6 +6139,9 @@ importers:
       '@vitest/browser-playwright':
         specifier: 4.1.7
         version: 4.1.7(msw@2.11.5(@types/node@20.19.37)(typescript@5.9.3))(playwright@1.51.1)(vite@8.0.8(@types/node@20.19.37)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.47.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.7)
+      '@y/prosemirror':
+        specifier: ^2.0.0-2
+        version: 2.0.0-2(patch_hash=31a04e3d011e8a286dfca9f0c8cc95119ee07e497420b9b58a2990945d3b842d)(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9)))(@y/y@14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9))(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)
       '@y/protocols':
         specifier: ^1.0.6-rc.1
         version: 1.0.6-rc.1(@y/y@14.0.0-rc.16(patch_hash=4c87657af127f4fcf167b812054b3c34374c63cda90c4db9a831608c23b89df9))

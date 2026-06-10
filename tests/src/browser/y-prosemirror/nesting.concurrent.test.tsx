@@ -129,34 +129,12 @@ test("concurrent: A indents N1, B indents N2 below N1", async () => {
       <blockGroup>
         <blockContainer id="n0">
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">N0</paragraph>
-          <y-attributed-insert user-color="#30bced">
-            <blockGroup>
-              <y-attributed-insert user-color="#30bced">
-                <blockContainer id="n1">
-                  <y-attributed-insert user-color="#30bced">
-                    <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                      <y-attributed-insert user-color="#30bced">N1</y-attributed-insert>
-                    </paragraph>
-                  </y-attributed-insert>
-                </blockContainer>
-              </y-attributed-insert>
-            </blockGroup>
-          </y-attributed-insert>
+          <blockGroup>
+            <blockContainer id="n1">
+              <paragraph backgroundColor="default" textColor="default" textAlignment="left">N1</paragraph>
+            </blockContainer>
+          </blockGroup>
         </blockContainer>
-        <y-attributed-delete user-color="#30bced">
-          <blockContainer id="n1">
-            <paragraph backgroundColor="default" textColor="default" textAlignment="left">N1</paragraph>
-          </blockContainer>
-        </y-attributed-delete>
-        <y-attributed-delete user-color="#30bced">
-          <blockContainer id="n2">
-            <y-attributed-delete user-color="#30bced">
-              <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                <y-attributed-delete user-color="#30bced">N2</y-attributed-delete>
-              </paragraph>
-            </y-attributed-delete>
-          </blockContainer>
-        </y-attributed-delete>
       </blockGroup>
     </doc>"
   `);

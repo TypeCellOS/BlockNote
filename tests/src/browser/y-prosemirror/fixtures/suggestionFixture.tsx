@@ -27,6 +27,7 @@ import { useCreateBlockNote } from "@blocknote/react";
 import { Node as PMNode } from "@tiptap/pm/model";
 import { Awareness } from "@y/protocols/awareness";
 import * as Y from "@y/y";
+import { ySuggestionDecorationPluginKey } from "@y/prosemirror";
 import { prettify } from "htmlfy";
 import { expect } from "vitest";
 import { page } from "vitest/browser";
@@ -142,7 +143,12 @@ export async function waitForSuggestion(
   editor: BlockNoteEditor,
 ): Promise<void> {
   await expect
-    .poll(() => editor.prosemirrorState.doc.toString().includes("y-attributed"))
+    .poll(
+      () =>
+        (ySuggestionDecorationPluginKey
+          .getState(editor.prosemirrorState)
+          ?.find().length || 0) > 0,
+    )
     .toBe(true);
 }
 
@@ -246,9 +252,7 @@ function opToXml(op: DeltaInsertOp): string {
 }
 
 /** Format a delta node's `attrs` map (e.g. block-level paragraph props). */
-function deltaAttrsToString(
-  attrs: DeltaJson["attrs"] | undefined,
-): string {
+function deltaAttrsToString(attrs: DeltaJson["attrs"] | undefined): string {
   if (attrs == null) {
     return "";
   }

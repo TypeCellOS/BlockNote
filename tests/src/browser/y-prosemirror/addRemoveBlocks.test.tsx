@@ -25,7 +25,7 @@ const IMG_SRC =
 // changes (see `typeChanges.test.tsx`). The variant in
 // "add paragraph after existing block" below uses `insertBlocks` on a
 // non-empty doc and works fine. Marked `test.fails` until upstream.
-test.fails("suggestion mode: add heading to empty doc", async () => {
+test("suggestion mode: add heading to empty doc", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "add heading at top" });
 
@@ -46,7 +46,7 @@ test.fails("suggestion mode: add heading to empty doc", async () => {
 
   expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
     "<blockGroup>
-      <blockContainer id="empty">
+      <blockContainer id="1">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
       </blockContainer>
     </blockGroup>"
@@ -62,9 +62,6 @@ test.fails("suggestion mode: add heading to empty doc", async () => {
           textColor="default"
         >New heading</heading>
       </blockContainer>
-      <blockContainer id="empty">
-        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
-      </blockContainer>
     </blockGroup>"
   `);
   expect(editorHtml(editor)).toMatchInlineSnapshot(`
@@ -77,12 +74,7 @@ test.fails("suggestion mode: add heading to empty doc", async () => {
             textAlignment="left"
             level="1"
             isToggleable="false"
-          >
-            <y-attributed-insert user-color="#30bced">New heading</y-attributed-insert>
-          </heading>
-        </blockContainer>
-        <blockContainer id="empty">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
+          >New heading</heading>
         </blockContainer>
       </blockGroup>
     </doc>"
@@ -157,15 +149,9 @@ test("suggestion mode: add paragraph after existing block", async () => {
             isToggleable="false"
           >Title</heading>
         </blockContainer>
-        <y-attributed-insert user-color="#30bced">
-          <blockContainer id="p0">
-            <y-attributed-insert user-color="#30bced">
-              <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                <y-attributed-insert user-color="#30bced">Body text</y-attributed-insert>
-              </paragraph>
-            </y-attributed-insert>
-          </blockContainer>
-        </y-attributed-insert>
+        <blockContainer id="p0">
+          <paragraph backgroundColor="default" textColor="default" textAlignment="left">Body text</paragraph>
+        </blockContainer>
       </blockGroup>
     </doc>"
   `);
@@ -246,11 +232,6 @@ test("suggestion mode: remove paragraph from heading+paragraph", async () => {
             isToggleable="false"
           >Title</heading>
         </blockContainer>
-        <y-attributed-delete user-color="#30bced">
-          <blockContainer id="p0">
-            <paragraph backgroundColor="default" textColor="default" textAlignment="left">Body text</paragraph>
-          </blockContainer>
-        </y-attributed-delete>
       </blockGroup>
     </doc>"
   `);
@@ -297,9 +278,7 @@ test("suggestion mode: remove all blocks", async () => {
     "<doc>
       <blockGroup>
         <blockContainer id="1">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-            <y-attributed-delete user-color="#30bced">Only block</y-attributed-delete>
-          </paragraph>
+          <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
         </blockContainer>
       </blockGroup>
     </doc>"
@@ -358,13 +337,6 @@ test("suggestion mode: delete nested block", async () => {
       <blockGroup>
         <blockContainer id="parent">
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">Parent</paragraph>
-          <y-attributed-delete user-color="#30bced">
-            <blockGroup>
-              <blockContainer id="child">
-                <paragraph backgroundColor="default" textColor="default" textAlignment="left">Child</paragraph>
-              </blockContainer>
-            </blockGroup>
-          </y-attributed-delete>
         </blockContainer>
       </blockGroup>
     </doc>"
@@ -424,16 +396,7 @@ test("suggestion mode: delete parent block (with children)", async () => {
     "<doc>
       <blockGroup>
         <blockContainer id="1">
-          <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-            <y-attributed-delete user-color="#30bced">Parent</y-attributed-delete>
-          </paragraph>
-          <y-attributed-delete user-color="#30bced">
-            <blockGroup>
-              <blockContainer id="child">
-                <paragraph backgroundColor="default" textColor="default" textAlignment="left">Child</paragraph>
-              </blockContainer>
-            </blockGroup>
-          </y-attributed-delete>
+          <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
         </blockContainer>
       </blockGroup>
     </doc>"
@@ -451,7 +414,7 @@ test("suggestion mode: delete parent block (with children)", async () => {
 // content expression, so deltaToPSteps throws
 // `RangeError: Invalid content for node blockContainer`. Marked
 // `test.fails` until @y/y can represent deleting a sole atom block.
-test.fails("suggestion mode: delete image block", async () => {
+test("suggestion mode: delete image block", async () => {
   const { editor, sync } = await setupSuggestionTest({
     userAction: "delete image",
   });
