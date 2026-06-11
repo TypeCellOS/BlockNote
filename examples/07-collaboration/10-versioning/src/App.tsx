@@ -1,8 +1,5 @@
 import "@blocknote/core/fonts/inter.css";
-import {
-  withCollaboration,
-  SuggestionsExtension,
-} from "@blocknote/core/y";
+import { withCollaboration, SuggestionsExtension } from "@blocknote/core/y";
 import { localStorageEndpoints } from "./localStorageEndpoints.js";
 import { VersioningExtension } from "@blocknote/core/extensions";
 import {
@@ -103,7 +100,7 @@ export default function App() {
   const {
     enableSuggestions,
     disableSuggestions,
-    showSuggestions,
+    viewSuggestions,
     checkUnresolvedSuggestions,
   } = useExtension(SuggestionsExtension, { editor });
   const hasUnresolvedSuggestions = useEditorState({
@@ -173,7 +170,7 @@ export default function App() {
                         text: "Editing + Viewing Suggestions",
                         icon: null,
                         onClick: () => {
-                          showSuggestions();
+                          viewSuggestions();
                           setEditingMode("view-suggestions");
                         },
                         isSelected: editingMode === "view-suggestions",
