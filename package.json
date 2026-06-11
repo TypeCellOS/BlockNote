@@ -18,6 +18,7 @@
     "build": "vp run -r build",
     "build:clean": "vp run clean && vp run gen && vp run clean && vp run build",
     "build:site": "vp run -r build:site",
+    "check": "vp run check --fix",
     "clean": "vp run -r clean && vp cache clean",
     "deploy": "echo not working:(",
     "gen": "vp run --filter @blocknote/dev-scripts gen",
