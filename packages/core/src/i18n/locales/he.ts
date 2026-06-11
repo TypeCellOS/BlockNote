@@ -325,15 +325,19 @@ export const he: Dictionary = {
     },
     align_left: {
       tooltip: "ישר טקסט לשמאל",
+      label: "שמאל",
     },
     align_center: {
       tooltip: "מרכז טקסט",
+      label: "מרכז",
     },
     align_right: {
       tooltip: "ישר טקסט לימין",
+      label: "ימין",
     },
     align_justify: {
       tooltip: "ישר טקסט לשני הצדדים",
+      label: "יישור",
     },
     table_cell_merge: {
       tooltip: "מיזוג תאים",

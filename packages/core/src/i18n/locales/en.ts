@@ -325,15 +325,19 @@ export const en = {
     },
     align_left: {
       tooltip: "Align text left",
+      label: "Left"
     },
     align_center: {
       tooltip: "Align text center",
+      label: "Center"
     },
     align_right: {
       tooltip: "Align text right",
+      label: "Right"
     },
     align_justify: {
       tooltip: "Justify text",
+      label: "Justify"
     },
     table_cell_merge: {
       tooltip: "Merge cells",
