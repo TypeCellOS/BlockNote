@@ -4,9 +4,10 @@ import {
   findChildrenInRange,
   getChangedRanges,
 } from "@tiptap/core";
+import { uuidv4 } from "lib0/random";
 import { Fragment, Node, Slice } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
-import { uuidv4 } from "lib0/random";
+import { isSuggestedDeletionNode } from "../../../api/getBlockInfoFromPos.js";
 
 /**
  * Code from Tiptap UniqueID extension (https://tiptap.dev/api/extensions/unique-id)
@@ -62,7 +63,6 @@ const UniqueID = Extension.create({
   priority: 10000,
   addOptions() {
     return {
-      attributeName: "id",
       types: [] as string[],
       setIdAttribute: false,
       isWithinEditor: undefined as ((element: Element) => boolean) | undefined,
@@ -88,19 +88,17 @@ const UniqueID = Extension.create({
       {
         types: this.options.types,
         attributes: {
-          [this.options.attributeName]: {
+          id: {
             default: null,
-            parseHTML: (element) =>
-              element.getAttribute(`data-${this.options.attributeName}`),
+            parseHTML: (element) => element.getAttribute(`data-id`),
             renderHTML: (attributes) => {
               const defaultIdAttributes = {
-                [`data-${this.options.attributeName}`]:
-                  attributes[this.options.attributeName],
+                [`data-id`]: attributes.id,
               };
               if (this.options.setIdAttribute) {
                 return {
                   ...defaultIdAttributes,
-                  id: attributes[this.options.attributeName],
+                  id: attributes.id,
                 };
               } else {
                 return defaultIdAttributes;
@@ -156,7 +154,7 @@ const UniqueID = Extension.create({
             return;
           }
           const { tr } = newState;
-          const { types, attributeName, generateID } = this.options;
+          const { types, generateID } = this.options;
           const transform = combineTransactionSteps(
             oldState.doc,
             transactions as any,
@@ -174,10 +172,7 @@ const UniqueID = Extension.create({
               },
             );
             const newIds = newNodes
-              // ignore ids on blocks marked as deleted: a deletion suggestion
-              // legitimately shares its id with its inserted replacement.
-              .filter(({ node }) => !isMarkedDeleted(node))
-              .map(({ node }) => node.attrs[attributeName])
+              .map(({ node }) => node.attrs.id)
               .filter((id) => id !== null);
             const duplicatedNewIds = findDuplicates(newIds);
 
@@ -190,7 +185,7 @@ const UniqueID = Extension.create({
               // we look at the current state of the node within `tr.doc`.
               // this helps to prevent adding new ids to the same node
               // if the node changed multiple times within one transaction
-              const id = tr.doc.nodeAt(pos)?.attrs[attributeName];
+              const id = tr.doc.nodeAt(pos)?.attrs.id;
 
               if (id === null) {
                 // edge case, when using collaboration, yjs will set the id to null in `_forceRerender`
@@ -214,7 +209,7 @@ const UniqueID = Extension.create({
                     // yes, apply the fix
                     tr.setNodeMarkup(pos, undefined, {
                       ...node.attrs,
-                      [attributeName]: "initialBlockId",
+                      id: "initialBlockId",
                     });
                     return;
                   }
@@ -222,17 +217,18 @@ const UniqueID = Extension.create({
 
                 tr.setNodeMarkup(pos, undefined, {
                   ...node.attrs,
-                  [attributeName]: generateID(),
+                  id: generateID(),
                 });
                 return;
               }
               // check if the node doesn’t exist in the old state
               const { deleted } = mapping.invert().mapResult(pos);
               const newNode = deleted && duplicatedNewIds.includes(id);
-              if (newNode) {
+              // purposefully skip rewriting ids for suggested deletion nodes, to avoid modifying them
+              if (newNode && !isSuggestedDeletionNode(node)) {
                 tr.setNodeMarkup(pos, undefined, {
                   ...node.attrs,
-                  [attributeName]: generateID(),
+                  id: generateID(),
                 });
               }
             });
@@ -296,7 +292,7 @@ const UniqueID = Extension.create({
             if (!transformPasted) {
               return slice;
             }
-            const { types, attributeName } = this.options;
+            const { types } = this.options;
             const removeId = (fragment: any) => {
               const list: any[] = [];
               fragment.forEach((node: any) => {
@@ -314,7 +310,7 @@ const UniqueID = Extension.create({
                 const nodeWithoutId = node.type.create(
                   {
                     ...node.attrs,
-                    [attributeName]: null,
+                    id: null,
                   },
                   removeId(node.content),
                   node.marks,

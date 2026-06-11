@@ -22,7 +22,6 @@ export function getSelection<
   I extends InlineContentSchema,
   S extends StyleSchema,
 >(tr: Transaction): Selection<BSchema, I, S> | undefined {
-  const pmSchema = getPmSchema(tr);
   // Return undefined if the selection is collapsed or a node is selected.
   if (tr.selection.empty || "node" in tr.selection) {
     return undefined;
@@ -51,7 +50,7 @@ export function getSelection<
       );
     }
 
-    return nodeToBlock(node, pmSchema);
+    return nodeToBlock(node, tr.doc);
   };
 
   const blocks: Block<BSchema, I, S>[] = [];
@@ -92,7 +91,7 @@ export function getSelection<
   // [ id-2, id-3, id-4, id-6, id-7, id-8, id-9 ]
   if ($startBlockBeforePos.depth > sharedDepth) {
     // Adds the block that the selection starts in.
-    blocks.push(nodeToBlock($startBlockBeforePos.nodeAfter!, pmSchema));
+    blocks.push(nodeToBlock($startBlockBeforePos.nodeAfter!, tr.doc));
 
     // Traverses all depths from the depth of the block in which the selection
     // starts, up to the shared depth.
@@ -223,8 +222,6 @@ export function setSelection(
 export function getSelectionCutBlocks(tr: Transaction, expandToWords = false) {
   // TODO: fix image node selection
 
-  const pmSchema = getPmSchema(tr);
-
   const range = expandToWords
     ? expandPMRangeToWords(tr.doc, tr.selection)
     : tr.selection;
@@ -257,7 +254,6 @@ export function getSelectionCutBlocks(tr: Transaction, expandToWords = false) {
 
   const selectionInfo = prosemirrorSliceToSlicedBlocks(
     tr.doc.slice(start.pos, end.pos, true),
-    pmSchema,
   );
 
   return {

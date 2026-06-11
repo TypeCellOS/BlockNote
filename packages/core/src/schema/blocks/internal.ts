@@ -1,19 +1,12 @@
-import { Attribute, Attributes, Editor, Node } from "@tiptap/core";
+import { Attribute, Attributes, Node } from "@tiptap/core";
+import type { Node as PMNode } from "prosemirror-model";
 import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
 import { defaultBlockToHTML } from "../../blocks/defaultBlockHelpers.js";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { ExtensionFactoryInstance } from "../../editor/BlockNoteExtension.js";
 import { mergeCSSClasses } from "../../util/browser.js";
 import { camelToDataKebab } from "../../util/string.js";
-import { InlineContentSchema } from "../inlineContent/types.js";
 import { PropSchema, Props } from "../propTypes.js";
-import { StyleSchema } from "../styles/types.js";
-import {
-  BlockConfig,
-  BlockSchemaWithBlock,
-  LooseBlockSpec,
-  SpecificBlock,
-} from "./types.js";
+import { LooseBlockSpec } from "./types.js";
 
 // Function that uses the 'propSchema' of a blockConfig to create a TipTap
 // node's `addAttributes` property.
@@ -83,36 +76,20 @@ export function propsToAttributes(propSchema: PropSchema): Attributes {
 
 // Used to figure out which block should be rendered. This block is then used to
 // create the node view.
-export function getBlockFromPos<
-  BType extends string,
-  Config extends BlockConfig,
-  BSchema extends BlockSchemaWithBlock<BType, Config>,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
->(
-  getPos: () => number | undefined,
-  _editor: BlockNoteEditor<BSchema, I, S>, // only used for type inference
-  tipTapEditor: Editor,
-  type: BType,
-) {
+export function getBlockFromPos(getPos: () => number | undefined, doc: PMNode) {
+  // TODO is there a cleaner implementation of this? Probably...
   const pos = getPos();
   // Gets position of the node
   if (pos === undefined) {
     throw new Error("Cannot find node position");
   }
+
   // Gets parent blockContainer node
-  const blockContainer = tipTapEditor.state.doc.resolve(pos!).node();
-
-  // Converts the blockContainer node to a BlockNote block
-  const block = nodeToBlock(
-    blockContainer,
-    tipTapEditor.schema,
-  ) as SpecificBlock<BSchema, BType, I, S>;
-
-  if (block.type !== type) {
-    throw new Error("Block type does not match");
+  const blockContainer = doc.resolve(pos).node();
+  if (!blockContainer) {
+    throw new Error("Cannot find block container");
   }
-
+  const block = nodeToBlock(blockContainer, doc);
   return block;
 }
 

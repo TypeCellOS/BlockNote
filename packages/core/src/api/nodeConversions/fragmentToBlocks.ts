@@ -5,7 +5,6 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../schema/index.js";
-import { getPmSchema } from "../pmUtil.js";
 import { nodeToBlock } from "./nodeToBlock.js";
 
 /**
@@ -20,7 +19,6 @@ export function fragmentToBlocks<
   // pass these to the exporter
   const blocks: BlockNoDefaults<B, I, S>[] = [];
   fragment.descendants((node) => {
-    const pmSchema = getPmSchema(node);
     if (node.type.name === "blockContainer") {
       if (node.firstChild?.type.name === "blockGroup") {
         // selection started within a block group
@@ -49,13 +47,15 @@ export function fragmentToBlocks<
     if (node.type.name === "columnList" && node.childCount === 1) {
       // column lists with a single column should be flattened (not the entire column list has been selected)
       node.firstChild?.forEach((child) => {
-        blocks.push(nodeToBlock(child, pmSchema));
+        // TODO node is technically not correct here, we just need a doc to pass in
+        blocks.push(nodeToBlock(child, node));
       });
       return false;
     }
 
     if (node.type.isInGroup("bnBlock")) {
-      blocks.push(nodeToBlock(node, pmSchema));
+      // TODO node is technically not correct here, we just need a doc to pass in
+      blocks.push(nodeToBlock(node, node));
       // don't descend into children, as they're already included in the block returned by nodeToBlock
       return false;
     }
