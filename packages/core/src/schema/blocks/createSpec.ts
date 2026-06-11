@@ -195,11 +195,7 @@ export function addNodeAndExtensionsToSpec<
           // Gets the BlockNote editor instance
           const editor = this.options.editor;
           // Gets the block
-          const block = getBlockFromPos(
-            props.getPos,
-            props.view.state.doc,
-            blockConfig.type,
-          );
+          const block = getBlockFromPos(props.getPos, props.view.state.doc);
           // Gets the custom HTML attributes for `blockContent` nodes
           const blockContentDOMAttributes =
             this.options.domAttributes?.blockContent || {};

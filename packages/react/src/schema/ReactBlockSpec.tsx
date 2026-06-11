@@ -277,7 +277,6 @@ export function createReactBlockSpec<
                 const block = getBlockFromPos(
                   props.getPos,
                   props.view.state.doc,
-                  blockConfig.type,
                 );
 
                 const ref = useReactNodeView().nodeViewContentRef;

@@ -11,9 +11,9 @@ import {
 import type { BlockSchema } from "../schema/index.js";
 import type { InlineContentSchema } from "../schema/inlineContent/types.js";
 import type { StyleSchema } from "../schema/styles/types.js";
+import { getNodeId } from "./getBlockInfoFromPos.js";
 import { nodeToBlock } from "./nodeConversions/nodeToBlock.js";
 import { isNodeBlock } from "./nodeUtil.js";
-import { getPmSchema } from "./pmUtil.js";
 
 /**
  * Change detection utilities for BlockNote.
@@ -40,7 +40,7 @@ function getParentBlockId(doc: Node, pos: number): string | undefined {
   for (let i = resolvedPos.depth; i > 0; i--) {
     const parent = resolvedPos.node(i);
     if (isNodeBlock(parent)) {
-      return parent.attrs.id;
+      return getNodeId(parent, doc);
     }
   }
   return undefined;
@@ -161,7 +161,6 @@ function collectSnapshot<
     }
   > = {};
   const childrenByParent: Record<string, string[]> = {};
-  const pmSchema = getPmSchema(doc);
   doc.descendants((node, pos) => {
     if (!isNodeBlock(node)) {
       return true;
@@ -171,9 +170,10 @@ function collectSnapshot<
     if (!childrenByParent[key]) {
       childrenByParent[key] = [];
     }
-    const block = nodeToBlock(node, pmSchema);
-    byId[node.attrs.id] = { block, parentId };
-    childrenByParent[key].push(node.attrs.id);
+    const block = nodeToBlock(node, doc);
+    const nodeId = getNodeId(node, doc);
+    byId[nodeId] = { block, parentId };
+    childrenByParent[key].push(nodeId);
     return true;
   });
   return { byId, childrenByParent };

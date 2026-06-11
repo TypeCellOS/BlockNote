@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getBlockInfoFromTransaction } from "../../../getBlockInfoFromPos.js";
+import { getBlockInfoFromSelection } from "../../../getBlockInfoFromPos.js";
 import { setupTestEnv } from "../../setupTestEnv.js";
 import { getParentBlockInfo, mergeBlocksCommand } from "./mergeBlocks.js";
 
@@ -14,7 +14,7 @@ function mergeBlocks(posBetweenBlocks: number) {
 
 function getPosBeforeSelectedBlock() {
   return getEditor().transact(
-    (tr) => getBlockInfoFromTransaction(tr).bnBlock.beforePos,
+    (tr) => getBlockInfoFromSelection(tr).bnBlock.beforePos,
   );
 }
 

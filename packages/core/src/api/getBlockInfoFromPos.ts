@@ -44,6 +44,47 @@ export type BlockInfo = {
     }
 );
 
+export function isSuggestedDeletionNode(node: Node): boolean {
+  return node.marks.some((m) => ["y-attributed-delete"].includes(m.type.name));
+}
+
+export function getNodeId(node: Node, doc: Node): string {
+  const id = node.attrs.id;
+  if (!id) {
+    throw new Error(`Node ${node} does not have an ID`);
+  }
+  /**
+   * In suggestion mode, yjs will insert nodes which have actually been deleted but are kept in the document with a "y-attributed-delete" mark,
+   * and nodes which have been inserted but are not yet accepted by the user, with a "y-attributed-insert" mark.
+   * Both of these nodes will have the same ID as the original node,
+   * so we need to differentiate them by counting how many nodes with the same ID come before them in the document, and adding that count to the ID.
+   */
+  if (isSuggestedDeletionNode(node)) {
+    // walk the doc to find the node and count it's index if others have the same ID, to differentiate them
+    let index = 0;
+    let found = false;
+    doc.descendants((descNode: Node) => {
+      if (found) {
+        return false; // stop the walk
+      }
+      if (descNode.attrs.id === id) {
+        if (descNode === node) {
+          found = true;
+          return false; // stop the walk
+        }
+        index++;
+      }
+      return true; // continue the walk
+    });
+    if (!found) {
+      throw new Error(`Node ${node} with ID ${id} not found in document`);
+    }
+    return `${id}-${index}`;
+  }
+  // TODO handle deleted nodes
+  return id;
+}
+
 /**
  * Retrieves the position just before the nearest block node in a ProseMirror
  * doc, relative to a position. If the position is within a block node or its
@@ -232,22 +273,12 @@ export function getBlockInfoFromResolvedPos(resolvedPos: ResolvedPos) {
  * Gets information regarding the ProseMirror nodes that make up a block. The
  * block chosen is the one currently containing the current ProseMirror
  * selection.
- * @param state The ProseMirror editor state.
+ * @param source The ProseMirror editor state.
  */
-export function getBlockInfoFromSelection(state: EditorState) {
-  const posInfo = getNearestBlockPos(state.doc, state.selection.anchor);
-
-  return getBlockInfo(posInfo);
+export function getBlockInfoFromSelection(source: EditorState | Transaction) {
+  return getBlockInfoAt(source, source.selection.anchor);
 }
 
-/**
- * Gets information regarding the ProseMirror nodes that make up a block. The
- * block chosen is the one currently containing the current ProseMirror
- * selection.
- * @param tr The ProseMirror transaction.
- */
-export function getBlockInfoFromTransaction(tr: Transaction) {
-  const posInfo = getNearestBlockPos(tr.doc, tr.selection.anchor);
-
-  return getBlockInfo(posInfo);
+export function getBlockInfoAt(source: EditorState | Transaction, pos: number) {
+  return getBlockInfo(getNearestBlockPos(source.doc, pos));
 }

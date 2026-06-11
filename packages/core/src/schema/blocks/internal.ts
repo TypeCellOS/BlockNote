@@ -1,12 +1,12 @@
 import { Attribute, Attributes, Node } from "@tiptap/core";
 import type { Node as PMNode } from "prosemirror-model";
-import { getBlock } from "../../api/blockManipulation/getBlock/getBlock.js";
+import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
 import { defaultBlockToHTML } from "../../blocks/defaultBlockHelpers.js";
 import type { ExtensionFactoryInstance } from "../../editor/BlockNoteExtension.js";
 import { mergeCSSClasses } from "../../util/browser.js";
 import { camelToDataKebab } from "../../util/string.js";
 import { PropSchema, Props } from "../propTypes.js";
-import { BlockConfig, BlockFromConfig, LooseBlockSpec } from "./types.js";
+import { LooseBlockSpec } from "./types.js";
 
 // Function that uses the 'propSchema' of a blockConfig to create a TipTap
 // node's `addAttributes` property.
@@ -76,10 +76,7 @@ export function propsToAttributes(propSchema: PropSchema): Attributes {
 
 // Used to figure out which block should be rendered. This block is then used to
 // create the node view.
-export function getBlockFromPos<
-  BType extends string,
-  Config extends BlockConfig,
->(getPos: () => number | undefined, doc: PMNode, type: BType) {
+export function getBlockFromPos(getPos: () => number | undefined, doc: PMNode) {
   // TODO is there a cleaner implementation of this? Probably...
   const pos = getPos();
   // Gets position of the node
@@ -89,22 +86,10 @@ export function getBlockFromPos<
 
   // Gets parent blockContainer node
   const blockContainer = doc.resolve(pos).node();
-  // Gets block identifier
-  const blockIdentifier = blockContainer.attrs.id;
-
-  if (!blockIdentifier) {
-    throw new Error("Block doesn't have id");
+  if (!blockContainer) {
+    throw new Error("Cannot find block container");
   }
-
-  // Gets the block
-  const block = getBlock(doc, blockIdentifier) as BlockFromConfig<
-    Config,
-    any,
-    any
-  >;
-  if (block.type !== type) {
-    throw new Error("Block type does not match");
-  }
+  const block = nodeToBlock(blockContainer, doc);
   return block;
 }
 

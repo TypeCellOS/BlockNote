@@ -3,7 +3,7 @@ import { Transaction } from "prosemirror-state";
 import { canJoin, liftTarget, ReplaceAroundStep } from "prosemirror-transform";
 
 import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
-import { getBlockInfoFromTransaction } from "../../../getBlockInfoFromPos.js";
+import { getBlockInfoFromSelection } from "../../../getBlockInfoFromPos.js";
 
 /**
  * Modified version of prosemirror-schema-list's sinkItem.
@@ -15,11 +15,7 @@ import { getBlockInfoFromTransaction } from "../../../getBlockInfoFromPos.js";
  * 3. Slice creates groupType instead of parent.type
  * 4. Operates on Transaction directly instead of state+dispatch
  */
-function sinkItem(
-  tr: Transaction,
-  itemType: NodeType,
-  groupType: NodeType,
-) {
+function sinkItem(tr: Transaction, itemType: NodeType, groupType: NodeType) {
   const { $from, $to } = tr.selection;
   const range = $from.blockRange(
     $to,
@@ -197,7 +193,7 @@ export function unnestBlock(editor: BlockNoteEditor<any, any, any>) {
 
 export function canNestBlock(editor: BlockNoteEditor<any, any, any>) {
   return editor.transact((tr) => {
-    const { bnBlock: blockContainer } = getBlockInfoFromTransaction(tr);
+    const { bnBlock: blockContainer } = getBlockInfoFromSelection(tr);
 
     return tr.doc.resolve(blockContainer.beforePos).nodeBefore !== null;
   });
@@ -205,7 +201,7 @@ export function canNestBlock(editor: BlockNoteEditor<any, any, any>) {
 
 export function canUnnestBlock(editor: BlockNoteEditor<any, any, any>) {
   return editor.transact((tr) => {
-    const { bnBlock: blockContainer } = getBlockInfoFromTransaction(tr);
+    const { bnBlock: blockContainer } = getBlockInfoFromSelection(tr);
 
     return tr.doc.resolve(blockContainer.beforePos).depth > 1;
   });
