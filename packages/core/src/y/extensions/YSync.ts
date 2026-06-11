@@ -3,6 +3,7 @@ import {
   type ExtensionOptions,
   createExtension,
 } from "../../editor/BlockNoteExtension.js";
+import { blockMatchNodes } from "./blockMatchNodes.js";
 import { CollaborationOptions } from "./index.js";
 
 /**
@@ -118,6 +119,14 @@ export const YSyncExtension = createExtension(
         syncPlugin({
           suggestionDoc: options.suggestionDoc,
           mapAttributionToMark,
+          // Node-pairing policy for the PM->Y diff: a `blockContainer` whose
+          // block-content type changes is treated as a *different* node, so the
+          // diff replaces the whole container (deleted + inserted siblings in
+          // the blockGroup) instead of producing two block-contents in one
+          // container => schema-invalid. No schema change / storage transform
+          // needed; `blockContainer` already whitelists the `y-attributed-*`
+          // marks. See blockMatchNodes.ts.
+          matchNodes: blockMatchNodes,
         }),
       ],
       runsBefore: ["default"],

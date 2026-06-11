@@ -1,0 +1,79 @@
+diff --git a/dist/delta/delta.d.ts b/dist/delta/delta.d.ts
+index 1f97a3d..b6f9db5 100644
+--- a/dist/delta/delta.d.ts
++++ b/dist/delta/delta.d.ts
+@@ -905,7 +905,7 @@ export function from<NodeName extends string | null, Attrs extends {
+     children: Extract<Children, Array<any>> extends Array<infer Ac> ? (unknown extends Ac ? never : Ac) : never;
+     text: Extract<Children, string> extends never ? false : true;
+ }>;
+-export function diff<Conf_1 extends DeltaConf>(d1: Delta<Conf_1>, d2: NoInfer<Delta<Conf_1>>): Delta<Conf_1>;
++export function diff<Conf_1 extends DeltaConf>(d1: Delta<Conf_1>, d2: NoInfer<Delta<Conf_1>>, matchNodes?: (a: any, b: any) => boolean): Delta<Conf_1>;
+ export function diffChangesetWithSeparator(changeset: Array<{
+     index: number;
+     remove: Array<any>;
+diff --git a/src/delta/delta.js b/src/delta/delta.js
+index d4be86c..89ddc86 100644
+--- a/src/delta/delta.js
++++ b/src/delta/delta.js
+@@ -2443,9 +2443,14 @@ class _DiffStringWrapper {
+  * @template {DeltaConf} Conf
+  * @param {Delta<Conf>} d1
+  * @param {NoInfer<Delta<Conf>>} d2
++ * @param {(a: DeltaAny, b: DeltaAny) => boolean} [matchNodes] decides whether a
++ * removed node and an inserted node are the *same* node (→ diffed/modified in
++ * place) or different (→ replaced). Defaults to name-equality. Override to force
++ * a *replace* for nodes that should be treated as atomic - e.g. raising a diff
++ * boundary when a node's identifying child changes type.
+  * @return {Delta<Conf>}
+  */
+-export const diff = (d1, d2) => {
++export const diff = (d1, d2, matchNodes = (a, b) => a.name === b.name) => {
+   const d = create(d1.name === d2.name ? d1.name : null, $deltaAny)
+   if (d1.fingerprint !== d2.fingerprint) {
+     /**
+@@ -2533,7 +2538,7 @@ export const diff = (d1, d2) => {
+     const changeset3 = diffChangesetWithSeparator(changeset2, patience.smartSplitRegex)
+     // split all
+     const changeset4 = diffChangesetWithSeparator(changeset3, /./g)
+-    applyChangesetToDelta(d, changeset4)
++    applyChangesetToDelta(d, changeset4, matchNodes)
+     if (formattingNeedsDiff) {
+       const formattingDiff = create()
+       // update opsIs with content diff. then we can figure out the formatting diff.
+@@ -2602,7 +2607,7 @@ export const diff = (d1, d2) => {
+           const prevVal = attr1?.value
+           const nextVal = attr2.value
+           if ($deltaAny.check(prevVal) && $deltaAny.check(nextVal) && prevVal.name === nextVal.name) {
+-            d.modifyAttr(key, diff(prevVal, nextVal))
++            d.modifyAttr(key, diff(prevVal, nextVal, matchNodes))
+           } else {
+             d.setAttr(key, nextVal)
+           }
+@@ -2648,8 +2653,9 @@ const applyInserts = (d, cins, len) => { len > 0 && cins.splice(0, len).forEach(
+ /**
+  * @param {DeltaBuilderAny} d
+  * @param {Array<{ index: number, remove: Array<any>, insert: Array<any> }>} changeset
++ * @param {(a: DeltaAny, b: DeltaAny) => boolean} [matchNodes] see {@link diff}
+  */
+-const applyChangesetToDelta = (d, changeset) => {
++const applyChangesetToDelta = (d, changeset, matchNodes = (a, b) => a.name === b.name) => {
+   for (let ci = 0, lastIndex = 0; ci < changeset.length; ci++) {
+     const c = changeset[ci]
+     d.retain(c.index - lastIndex)
+@@ -2660,14 +2666,14 @@ const applyChangesetToDelta = (d, changeset) => {
+       const cremoveDeltaIndex = c.remove.findIndex(cc => $deltaAny.check(cc))
+       if (cremoveDeltaIndex < 0) break
+       const cremoveDelta = c.remove[cremoveDeltaIndex]
+-      const cinsertDeltaIndex = c.insert.findIndex(cc => $deltaAny.check(cc) && cc.name === cremoveDelta.name)
++      const cinsertDeltaIndex = c.insert.findIndex(cc => $deltaAny.check(cc) && matchNodes(cremoveDelta, cc))
+       if (cinsertDeltaIndex < 0) {
+         applyRemoves(d, c.remove, cremoveDeltaIndex + 1)
+         continue
+       }
+       applyRemoves(d, c.remove, cremoveDeltaIndex)
+       applyInserts(d, c.insert, cinsertDeltaIndex)
+-      d.modify(diff(c.remove[0], c.insert[0]))
++      d.modify(diff(c.remove[0], c.insert[0], matchNodes))
+       c.remove.splice(0, 1)
+       c.insert.splice(0, 1)
+     }

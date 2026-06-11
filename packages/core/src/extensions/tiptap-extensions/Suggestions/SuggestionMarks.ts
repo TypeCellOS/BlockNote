@@ -9,7 +9,7 @@ import { MarkSpec } from "prosemirror-model";
 export const SuggestionAddMark = Mark.create({
   name: "y-attributed-insert",
   inclusive: false,
-  excludes: "",
+  // excludes: "", TODO: what's desired?
   addAttributes() {
     return {
       id: { default: null, validate: "number" }, // note: validate is supported in prosemirror but not in tiptap, so this doesn't actually work (considered not critical)
@@ -61,7 +61,7 @@ export const SuggestionAddMark = Mark.create({
 export const SuggestionDeleteMark = Mark.create({
   name: "y-attributed-delete",
   inclusive: false,
-  excludes: "",
+  // excludes: "", TODO: what's desired?
   addAttributes() {
     return {
       id: { default: null, validate: "number" }, // note: validate is supported in prosemirror but not in tiptap
@@ -116,7 +116,7 @@ export const SuggestionDeleteMark = Mark.create({
 export const SuggestionModificationMark = Mark.create({
   name: "y-attributed-format",
   inclusive: false,
-  excludes: "",
+  // excludes: "", TODO: what's desired?
   addAttributes() {
     return {
       id: { default: null, validate: "number" }, // note: validate is supported in prosemirror but not in tiptap

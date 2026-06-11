@@ -1,4 +1,5 @@
 import { Attribute, Attributes, Editor, Node } from "@tiptap/core";
+import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
 import { defaultBlockToHTML } from "../../blocks/defaultBlockHelpers.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { ExtensionFactoryInstance } from "../../editor/BlockNoteExtension.js";
@@ -90,7 +91,7 @@ export function getBlockFromPos<
   S extends StyleSchema,
 >(
   getPos: () => number | undefined,
-  editor: BlockNoteEditor<BSchema, I, S>,
+  _editor: BlockNoteEditor<BSchema, I, S>, // only used for type inference
   tipTapEditor: Editor,
   type: BType,
 ) {
@@ -101,20 +102,13 @@ export function getBlockFromPos<
   }
   // Gets parent blockContainer node
   const blockContainer = tipTapEditor.state.doc.resolve(pos!).node();
-  // Gets block identifier
-  const blockIdentifier = blockContainer.attrs.id;
 
-  if (!blockIdentifier) {
-    throw new Error("Block doesn't have id");
-  }
+  // Converts the blockContainer node to a BlockNote block
+  const block = nodeToBlock(
+    blockContainer,
+    tipTapEditor.schema,
+  ) as SpecificBlock<BSchema, BType, I, S>;
 
-  // Gets the block
-  const block = editor.getBlock(blockIdentifier)! as SpecificBlock<
-    BSchema,
-    BType,
-    I,
-    S
-  >;
   if (block.type !== type) {
     throw new Error("Block type does not match");
   }

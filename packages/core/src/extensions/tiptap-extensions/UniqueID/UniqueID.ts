@@ -4,7 +4,7 @@ import {
   findChildrenInRange,
   getChangedRanges,
 } from "@tiptap/core";
-import { Fragment, Slice } from "prosemirror-model";
+import { Fragment, Node, Slice } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { uuidv4 } from "lib0/random";
 
@@ -39,6 +39,20 @@ function findDuplicates(items: any) {
   );
   const duplicates = removeDuplicates(filtered);
   return duplicates;
+}
+
+/**
+ * Whether a node is marked as deleted by a suggestion (carries the
+ * `y-attributed-delete` node mark).
+ *
+ * Under the suggestion/matchNodes binding, changing a block's content type
+ * renders the block as a deleted copy (this mark) next to its inserted
+ * replacement - and both copies share the same `id`. The deleted copy must be
+ * ignored by the uniqueness logic, otherwise its `id` looks like a duplicate
+ * and we'd regenerate the `id` on the surviving block.
+ */
+function isMarkedDeleted(node: Node) {
+  return node.marks.some((mark) => mark.type.name === "y-attributed-delete");
 }
 
 const UniqueID = Extension.create({
@@ -160,11 +174,18 @@ const UniqueID = Extension.create({
               },
             );
             const newIds = newNodes
+              // ignore ids on blocks marked as deleted: a deletion suggestion
+              // legitimately shares its id with its inserted replacement.
+              .filter(({ node }) => !isMarkedDeleted(node))
               .map(({ node }) => node.attrs[attributeName])
               .filter((id) => id !== null);
             const duplicatedNewIds = findDuplicates(newIds);
 
             newNodes.forEach(({ node, pos }) => {
+              // ignore ids on blocks marked as deleted (see above).
+              if (isMarkedDeleted(node)) {
+                return;
+              }
               // instead of checking `node.attrs[attributeName]` directly
               // we look at the current state of the node within `tr.doc`.
               // this helps to prevent adding new ids to the same node
