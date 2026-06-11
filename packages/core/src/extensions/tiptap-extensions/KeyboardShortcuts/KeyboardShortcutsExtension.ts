@@ -920,6 +920,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
                     selectionAtBlockStart,
                   ),
                 )
+                .scrollIntoView()
                 .run();
 
               return true;
