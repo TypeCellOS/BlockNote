@@ -10,7 +10,7 @@ import { keymap } from "@tiptap/pm/keymap";
 import { Plugin, TextSelection } from "prosemirror-state";
 import { updateBlockTr } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { setTextCursorPosition } from "../../../api/blockManipulation/selections/textCursorPosition.js";
-import { getBlockInfoFromTransaction } from "../../../api/getBlockInfoFromPos.js";
+import { getBlockInfoFromSelection, getNodeId } from "../../../api/getBlockInfoFromPos.js";
 import { sortByDependencies } from "../../../util/topo-sort.js";
 import type {
   BlockNoteEditor,
@@ -266,8 +266,7 @@ export class ExtensionManager {
       plugins?.forEach((plugin) => {
         pluginRefsToRemove.add(plugin);
         const key = (plugin as any).spec?.key;
-        const keyStr =
-          typeof key === "object" && key ? key.key : key;
+        const keyStr = typeof key === "object" && key ? key.key : key;
         if (typeof keyStr === "string") {
           pluginKeysToRemove.add(keyStr);
         }
@@ -338,8 +337,7 @@ export class ExtensionManager {
         // in the state differ from the ones we tracked)
         if (pluginKeysToRemove.size) {
           const key = (plugin as any).spec?.key;
-          const keyStr =
-            typeof key === "object" && key ? key.key : key;
+          const keyStr = typeof key === "object" && key ? key.key : key;
           if (typeof keyStr === "string" && pluginKeysToRemove.has(keyStr)) {
             return false;
           }
@@ -510,7 +508,7 @@ export class ExtensionManager {
               });
               if (replaceWith) {
                 const tr = state.tr;
-                const blockInfo = getBlockInfoFromTransaction(tr);
+                const blockInfo = getBlockInfoFromSelection(tr);
 
                 if (
                   !blockInfo.isBlockContainer ||
@@ -526,10 +524,7 @@ export class ExtensionManager {
                 // the new block when the content is replaced wholesale (e.g.
                 // when the rule returns content: []). Move the cursor back
                 // inside the new block so the user can keep typing.
-                const blockId = blockInfo.bnBlock.node.attrs.id;
-                if (blockId) {
-                  setTextCursorPosition(tr, blockId, "start");
-                }
+                setTextCursorPosition(tr, getNodeId(blockInfo.bnBlock.node, tr.doc), "start");
                 return tr;
               }
               return null;

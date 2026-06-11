@@ -86,9 +86,7 @@ export const testExportParseEqualityMarkdown = async <
   // strict equality with the input.
   await expect(
     await editor.tryParseMarkdownToBlocks(exported),
-  ).toMatchFileSnapshot(
-    `./__snapshots__/markdown/${testCase.name}.json`,
-  );
+  ).toMatchFileSnapshot(`./__snapshots__/markdown/${testCase.name}.json`);
 };
 
 export const testExportParseEqualityNodes = async <
@@ -108,7 +106,7 @@ export const testExportParseEqualityNodes = async <
   );
 
   expect(
-    exported.map((node) => nodeToBlock(node, editor.pmSchema)),
+    exported.map((node) => nodeToBlock(node, editor.prosemirrorState.doc)),
   ).toStrictEqual(
     partialBlocksToBlocksForTesting(editor.schema, testCase.content),
   );

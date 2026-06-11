@@ -27,7 +27,7 @@ echo "==> Building lib0 (npm run dist) ..."
 (cd "$LOCAL_LIB0" && npm run dist)
 
 # Best-effort cleanup of any leftover patch dir (case-insensitive FS resolves this fine).
-STALE_PATCH_DIR="$BLOCKNOTE_ROOT/node_modules/.pnpm_patches/lib0@1.0.0-rc.13"
+STALE_PATCH_DIR="$BLOCKNOTE_ROOT/node_modules/.pnpm_patches/lib0@1.0.0-rc.14"
 
 # 1. Clean up any leftover patch dir, then start fresh
 if [[ -d "$STALE_PATCH_DIR" ]]; then
@@ -35,15 +35,15 @@ if [[ -d "$STALE_PATCH_DIR" ]]; then
   rm -rf "$STALE_PATCH_DIR"
 fi
 
-echo "==> Running pnpm patch lib0@1.0.0-rc.13 ..."
+echo "==> Running pnpm patch lib0@1.0.0-rc.14 ..."
 cd "$BLOCKNOTE_ROOT"
 # Capture pnpm's reported patch dir so we use the canonical on-disk path casing.
 # Constructing PATCH_DIR manually breaks on macOS when the repo is entered via a
 # differently-cased path (e.g. blockNote vs BlockNote): pnpm patch-commit matches
 # the path against state.json case-sensitively and fails with ERR_PNPM_INVALID_PATCH_DIR.
-PATCH_OUTPUT="$(pnpm patch lib0@1.0.0-rc.13)"
+PATCH_OUTPUT="$(pnpm patch lib0@1.0.0-rc.14)"
 echo "$PATCH_OUTPUT"
-PATCH_DIR="$(printf '%s\n' "$PATCH_OUTPUT" | grep -Eo '/.*/\.pnpm_patches/lib0@1\.0\.0-rc\.13' | head -n1)"
+PATCH_DIR="$(printf '%s\n' "$PATCH_OUTPUT" | grep -Eo '/.*/\.pnpm_patches/lib0@1\.0\.0-rc\.14' | head -n1)"
 
 if [[ -z "$PATCH_DIR" || ! -d "$PATCH_DIR" ]]; then
   echo "ERROR: Could not determine patch dir from 'pnpm patch' output"
@@ -70,7 +70,7 @@ const orig = JSON.parse(fs.readFileSync('$PATCH_DIR/package.json', 'utf8'));
 const local = JSON.parse(fs.readFileSync('$LOCAL_LIB0/package.json', 'utf8'));
 
 // Keep the original version so pnpm doesn't try to fetch a different version from registry
-orig.version = '1.0.0-rc.13';
+orig.version = '1.0.0-rc.14';
 
 // Update exports
 orig.exports = local.exports;
@@ -95,4 +95,4 @@ echo "==> Running pnpm patch-commit ..."
 pnpm patch-commit "$PATCH_DIR"
 
 echo ""
-echo "==> Done! Patch regenerated at patches/lib0@1.0.0-rc.13.patch"
+echo "==> Done! Patch regenerated at patches/lib0@1.0.0-rc.14.patch"

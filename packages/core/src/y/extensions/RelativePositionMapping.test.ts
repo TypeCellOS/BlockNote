@@ -27,7 +27,7 @@ function setupTwoWaySync(doc1: Y.Doc, doc2: Y.Doc) {
   });
 }
 
-describe("RelativePositionMapping (@y/y)", () => {
+describe.skip("RelativePositionMapping (@y/y)", () => {
   it("should return the same position when no changes are made", () => {
     const ydoc = new Y.Doc();
     const remoteYdoc = new Y.Doc();

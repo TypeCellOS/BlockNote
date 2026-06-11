@@ -1,6 +1,6 @@
 import { splitBlockTr } from "../../api/blockManipulation/commands/splitBlock/splitBlock.js";
 import { updateBlockTr } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import { getBlockInfoFromTransaction } from "../../api/getBlockInfoFromPos.js";
+import { getBlockInfoFromSelection } from "../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 export const handleEnter = (
@@ -9,7 +9,7 @@ export const handleEnter = (
 ) => {
   const { blockInfo, selectionEmpty } = editor.transact((tr) => {
     return {
-      blockInfo: getBlockInfoFromTransaction(tr),
+      blockInfo: getBlockInfoFromSelection(tr),
       selectionEmpty: tr.selection.anchor === tr.selection.head,
     };
   });

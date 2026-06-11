@@ -19,7 +19,10 @@ overrides:
   "@tiptap/pm": "^3.0.0"
   "vitest": "4.1.7"
   "@vitest/runner": "4.1.7"
-  "@y/prosemirror>lib0": "1.0.0-rc.13"
+  # Force the whole @y/* v14 ecosystem (@y/prosemirror, @y/y, @y/protocols,
+  # @y/websocket — all declare lib0 ^1.0.0-rc.13) onto the single patched
+  # lib0 rc.14, so the matchNodes diff patch is the only lib0 delta instance.
+  "lib0": "1.0.0-rc.14"
 allowBuilds:
   "@parcel/watcher": true
   "@sentry/cli": true
@@ -35,5 +38,4 @@ allowBuilds:
   leveldown: false
 patchedDependencies:
   "@y/prosemirror@2.0.0-2": "patches/@y__prosemirror@2.0.0-2.patch"
-  '@y/y@14.0.0-rc.16': patches/@y__y@14.0.0-rc.16.patch
-  lib0@1.0.0-rc.13: patches/lib0@1.0.0-rc.13.patch
+  lib0@1.0.0-rc.14: patches/lib0@1.0.0-rc.14.patch
