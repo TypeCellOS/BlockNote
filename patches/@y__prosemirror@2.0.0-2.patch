@@ -2393,7 +2393,7 @@ index 0000000000000000000000000000000000000000..5fd9fdd677c998301654e344d007af95
 +            mapper
 +          ).done()
 +          const pcontentAfter = nodeToDelta(view.state.doc, undefined, true).done()
-+          const pmReconcileDiff = d.diff(pcontentAfter, desiredPM, matchNodes); console.log("test");
++          const pmReconcileDiff = d.diff(pcontentAfter, desiredPM);
 +          if (pmReconcileDiff.isEmpty()) return
 +          const tr = view.state.tr
 +          deltaToPSteps(tr, pmReconcileDiff, undefined, undefined, attributedNodes)

@@ -13,7 +13,7 @@ overrides:
   lib0: 1.0.0-rc.14
 
 patchedDependencies:
-  '@y/prosemirror@2.0.0-2': 0a1bb1310e44ee62992930d6415c8aeddaa281a9c090de77f55d8785f2d2d985
+  '@y/prosemirror@2.0.0-2': 168146d45476a6e2019bd9b140bf068fd17c12fb6b7d282509552826e74740dc
   lib0@1.0.0-rc.14: e55ee919122bfd99c2418ad2ca66b24bdc0770c01033d31bbec567d195600f20
 
 importers:
@@ -235,7 +235,7 @@ importers:
         version: 0.6.4(react@19.2.5)(yjs@13.6.30)
       '@y/prosemirror':
         specifier: ^2.0.0-2
-        version: 2.0.0-2(patch_hash=0a1bb1310e44ee62992930d6415c8aeddaa281a9c090de77f55d8785f2d2d985)(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.17))(@y/y@14.0.0-rc.17)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)
+        version: 2.0.0-2(patch_hash=168146d45476a6e2019bd9b140bf068fd17c12fb6b7d282509552826e74740dc)(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.17))(@y/y@14.0.0-rc.17)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)
       '@y/protocols':
         specifier: ^1.0.6-rc.1
         version: 1.0.6-rc.1(@y/y@14.0.0-rc.17)
@@ -4100,7 +4100,7 @@ importers:
         version: 9.1.1(react@19.2.5)
       '@y/prosemirror':
         specifier: ^2.0.0-2
-        version: 2.0.0-2(patch_hash=0a1bb1310e44ee62992930d6415c8aeddaa281a9c090de77f55d8785f2d2d985)(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.17))(@y/y@14.0.0-rc.17)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)
+        version: 2.0.0-2(patch_hash=168146d45476a6e2019bd9b140bf068fd17c12fb6b7d282509552826e74740dc)(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.17))(@y/y@14.0.0-rc.17)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)
       '@y/protocols':
         specifier: ^1.0.6-rc.1
         version: 1.0.6-rc.1(@y/y@14.0.0-rc.17)
@@ -4957,7 +4957,7 @@ importers:
         version: 3.22.4
       '@y/prosemirror':
         specifier: ^2.0.0-2
-        version: 2.0.0-2(patch_hash=0a1bb1310e44ee62992930d6415c8aeddaa281a9c090de77f55d8785f2d2d985)(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.17))(@y/y@14.0.0-rc.17)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)
+        version: 2.0.0-2(patch_hash=168146d45476a6e2019bd9b140bf068fd17c12fb6b7d282509552826e74740dc)(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.17))(@y/y@14.0.0-rc.17)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)
       '@y/protocols':
         specifier: ^1.0.6-rc.1
         version: 1.0.6-rc.1(@y/y@14.0.0-rc.17)
@@ -23187,7 +23187,7 @@ snapshots:
     dependencies:
       '@types/node': 20.19.39
 
-  '@y/prosemirror@2.0.0-2(patch_hash=0a1bb1310e44ee62992930d6415c8aeddaa281a9c090de77f55d8785f2d2d985)(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.17))(@y/y@14.0.0-rc.17)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)':
+  '@y/prosemirror@2.0.0-2(patch_hash=168146d45476a6e2019bd9b140bf068fd17c12fb6b7d282509552826e74740dc)(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.17))(@y/y@14.0.0-rc.17)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)':
     dependencies:
       '@y/protocols': 1.0.6-rc.1(@y/y@14.0.0-rc.17)
       '@y/y': 14.0.0-rc.17
