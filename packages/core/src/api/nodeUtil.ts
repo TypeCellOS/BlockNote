@@ -1,4 +1,5 @@
 import type { Node } from "prosemirror-model";
+import { getNodeId } from "./getBlockInfoFromPos.js";
 
 /**
  * Get a TipTap node by id
@@ -17,7 +18,7 @@ export function getNodeById(
     }
 
     // Keeps traversing nodes if block with target ID has not been found.
-    if (!isNodeBlock(node) || node.attrs.id !== id) {
+    if (!isNodeBlock(node) || getNodeId(node, doc) !== id) {
       return true;
     }
 

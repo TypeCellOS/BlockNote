@@ -27,7 +27,7 @@ export const BlockContainer = Node.create<{
   // Ensures content-specific keyboard handlers trigger first.
   priority: 50,
   defining: true,
-  marks: "insertion modification deletion",
+  marks: "y-attributed-insert y-attributed-format y-attributed-delete",
   parseHTML() {
     return [
       {

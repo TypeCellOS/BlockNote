@@ -31,7 +31,7 @@ export type AgentStep = {
 export function getStepsAsAgent(inputTr: Transform) {
   const pmSchema = getPmSchema(inputTr);
 
-  const { modification } = pmSchema.marks;
+  const modification = pmSchema.marks["y-attributed-format"];
 
   const agentSteps: AgentStep[] = [];
 
@@ -188,9 +188,9 @@ export function getStepsAsAgent(inputTr: Transform) {
         const $pos = tr.doc.resolve(tr.mapping.map(from));
         if ($pos.nodeAfter?.isBlock) {
           // mark the entire node as deleted. This can be needed for inline nodes or table cells
-          tr.addNodeMark($pos.pos, pmSchema.mark("deletion", {}));
+          tr.addNodeMark($pos.pos, pmSchema.mark("y-attributed-delete", {}));
         }
-        tr.addMark($pos.pos, replaceEnd, pmSchema.mark("deletion", {}));
+        tr.addMark($pos.pos, replaceEnd, pmSchema.mark("y-attributed-delete", {}));
         replaceEnd = tr.mapping.map(to);
       }
 
@@ -203,7 +203,7 @@ export function getStepsAsAgent(inputTr: Transform) {
       tr.replace(replaceFrom, replaceEnd, replacement).addMark(
         replaceFrom,
         replaceFrom + replacement.content.size,
-        pmSchema.mark("insertion", {}),
+        pmSchema.mark("y-attributed-insert", {}),
       );
 
       tr.doc.nodesBetween(
@@ -217,7 +217,7 @@ export function getStepsAsAgent(inputTr: Transform) {
             return true;
           }
           if (node.isBlock) {
-            tr.addNodeMark(pos, pmSchema.mark("insertion", {}));
+            tr.addNodeMark(pos, pmSchema.mark("y-attributed-insert", {}));
           }
           return false;
         },

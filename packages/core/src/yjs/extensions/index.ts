@@ -86,6 +86,7 @@ export function withCollaboration<
 export * from "./ForkYDoc.js";
 export * from "./RelativePositionMapping.js";
 export * from "./schemaMigration/SchemaMigration.js";
+export * from "./Versioning.js";
 export * from "./YCursorPlugin.js";
 export * from "./YSync.js";
 export * from "./YUndo.js";
