@@ -767,7 +767,10 @@ div[data-type="modification"] {
   color: #555;
   border-radius: 2px;
 }
-[data-diff-type="block-delete"] {
+/* Scoped to div so table-shaped ghosts (tr/td) keep their native
+   table display roles and participate in the table's layout. */
+div[data-diff-type="block-delete"] {
+  display: block;
   padding: 2px 4px;
   margin: 2px 0;
 }
@@ -778,6 +781,18 @@ div[data-type="modification"] {
 }
 [data-diff-type="inline-delete"] {
   padding: 0 1px;
+}
+
+/* Table-shaped deletion ghosts are real <tr>/<td> elements. */
+tr.pm-suggest--editable > td,
+td.pm-suggest--editable {
+  border: 1px solid #e5e7eb;
+  padding: 4px 8px;
+}
+tr.pm-suggest--editable p,
+td.pm-suggest--editable p {
+  margin: 0;
+  display: block;
 }
 
 [data-diff-type="inline-update"],
@@ -794,4 +809,29 @@ div[data-type="modification"] {
 [data-diff-type="block-delete"] em,
 [data-diff-type="inline-delete"] em {
   font-style: normal;
+}
+
+/* Editable deletion sub-editor (footnote-pattern nested EditorView). */
+.pm-suggest--editable {
+  cursor: text;
+}
+.pm-suggest--editable[data-diff-type="inline-delete"] {
+  display: inline-block;
+  vertical-align: baseline;
+}
+.pm-suggest__sub-editor {
+  outline: none;
+  min-width: 4px;
+}
+.pm-suggest__sub-editor.ProseMirror p {
+  margin: 0;
+  display: inline;
+}
+.pm-suggest--editable:focus-within {
+  outline: 1px dashed var(--author-color, #dc3545);
+  outline-offset: 1px;
+  text-decoration: none;
+}
+.pm-suggest--editable:focus-within .pm-suggest__sub-editor {
+  text-decoration: none;
 }

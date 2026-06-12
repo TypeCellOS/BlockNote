@@ -1,4 +1,9 @@
-import { Diff, MapDiffArgs, ySuggestionDecorationPlugin } from "@y/prosemirror";
+import {
+  Diff,
+  MapDiffArgs,
+  ySuggestionDecorationPlugin,
+  editableDeletionWidget,
+} from "@y/prosemirror";
 import { createExtension } from "../../editor/BlockNoteExtension.js";
 import { Decoration, DecorationAttrs } from "prosemirror-view";
 import {
@@ -9,7 +14,7 @@ import {
   Schema,
 } from "prosemirror-model";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { prosemirrorSliceToSlicedBlocks } from "../../api/nodeConversions/nodeToBlock.js";
+
 
 /**
  * Reconstruct removed content as a non-editable DOM node by serializing the
@@ -227,188 +232,18 @@ export const wrapFragmentInDoc = (
   return doc;
 };
 
-/**
- * Check whether any node in a fragment has a registered node view.
- */
-const fragmentHasNodeView = (
-  fragment: Fragment,
-  nodeViews: Record<string, any>,
-): boolean => {
-  let found = false;
-  fragment.forEach((node) => {
-    if (found) {
-      return;
-    }
-    if (nodeViews[node.type.name]) {
-      found = true;
-      return;
-    }
-    if (node.content.size > 0 && fragmentHasNodeView(node.content, nodeViews)) {
-      found = true;
-    }
-  });
-  return found;
-};
-
-/**
- * Render a deleted fragment (inline or block) as a non-editable DOM element
- * using BlockNote's `blocksToFullHTML` pipeline when possible, falling back
- * to `DOMSerializer`.
- *
- * Diff attributes (class, data-diff-type, author info, etc.) are applied
- * directly to the rendered root element rather than wrapping in an extra
- * container, keeping the DOM flat.
- *
- * For inline fragments the content is first wrapped in a paragraph node so
- * it can be converted to blocks; the rendered inline content is then extracted
- * from the `.bn-inline-content` wrapper so it stays inline in the document.
- */
-const renderDeletedFragment = (
-  fragment: Fragment,
-  schema: Schema,
-  editor: BlockNoteEditor<any, any, any>,
-  opts: {
-    isInline: boolean;
-    authorIds: string[];
-    color?: string;
-    title: string;
-  },
-): HTMLElement => {
-  const tag = opts.isInline ? "span" : "div";
-  const diffType = opts.isInline ? "inline-delete" : "block-delete";
-
-  /** Apply diff attributes to an element in-place. */
-  const applyDiffAttrs = (el: HTMLElement) => {
-    el.classList.add("pm-suggest", "pm-suggest--delete");
-    el.setAttribute("data-diff-type", diffType);
-    if (opts.authorIds.length) {
-      el.setAttribute("data-diff-user-id", opts.authorIds.join(","));
-    }
-    if (opts.color) {
-      el.style.setProperty("--author-color", opts.color);
-    }
-    el.setAttribute("title", opts.title);
-    el.contentEditable = "false";
-  };
-
-  if (fragment.size === 0) {
-    const empty = document.createElement(tag);
-    applyDiffAttrs(empty);
-    return empty;
-  }
-
-  // For inline content, wrap in a paragraph so it forms a valid block tree.
-  let blockFragment = fragment;
-  if (opts.isInline) {
-    const paragraphType = schema.nodes["paragraph"];
-    const paragraphNode = paragraphType?.createAndFill(null, fragment);
-    if (paragraphNode) {
-      blockFragment = Fragment.from(paragraphNode);
-    } else {
-      // Can't wrap in paragraph — fall back to DOMSerializer
-      const container = document.createElement(tag);
-      applyDiffAttrs(container);
-      const serializer = DOMSerializer.fromSchema(schema);
-      container.appendChild(
-        serializer.serializeFragment(fragment, { document }),
-      );
-      return container;
-    }
-  }
-
-  // Check if the fragment nodes are "inner" nodes that live deeper than
-  // block content types (e.g. tableCell, tableRow). For these, the
-  // blocksToFullHTML pipeline would wrap them in unnecessary nesting
-  // (full table + block wrappers), so we use DOMSerializer directly.
-  const firstChild = blockFragment.firstChild;
-  const wrappingPath = firstChild
-    ? findWrappingPath(schema, firstChild)
-    : null;
-  const isSubBlockContent = wrappingPath && wrappingPath.length > 3;
-
-  let rendered: HTMLElement | null = null;
-
-  if (!isSubBlockContent) {
-    const ghostDoc = wrapFragmentInDoc(blockFragment, schema);
-
-    if (ghostDoc) {
-      try {
-        const slicedBlocks = prosemirrorSliceToSlicedBlocks(
-          ghostDoc.slice(0, ghostDoc.nodeSize - 2),
-          editor.pmSchema,
-        );
-        const html = editor.blocksToFullHTML(slicedBlocks.blocks);
-        const temp = document.createElement("div");
-        temp.innerHTML = html;
-
-        if (opts.isInline) {
-          // Extract just the inline content from the block wrapper.
-          const inlineContentEl = temp.querySelector(".bn-inline-content");
-          if (inlineContentEl) {
-            const span = document.createElement("span");
-            while (inlineContentEl.firstChild) {
-              span.appendChild(inlineContentEl.firstChild);
-            }
-            rendered = span;
-          } else {
-            // No .bn-inline-content found — use the root element
-            rendered = temp.firstElementChild as HTMLElement | null;
-          }
-        } else {
-          // Extract the .bn-block-outer element so we don't add an extra
-          // bn-block-group wrapper — the widget is already inserted inside
-          // an existing block-group in the document.
-          const blockOuter = temp.querySelector(
-            ".bn-block-outer",
-          ) as HTMLElement | null;
-          rendered = blockOuter ?? (temp.firstElementChild as HTMLElement | null);
-        }
-      } catch (e) {
-        // prosemirrorSliceToSlicedBlocks doesn't support all node structures.
-        // Fall through to DOMSerializer fallback.
-        console.warn(
-          "[BlockNote] renderDeletedFragment: blocksToFullHTML pipeline failed, falling back to DOMSerializer",
-          e,
-        );
-      }
-    }
-  }
-
-  if (!rendered) {
-    // Fallback: use DOMSerializer for sub-block nodes (tableCell, etc.)
-    // or when wrapping/conversion failed.
-    const serializer = DOMSerializer.fromSchema(schema);
-    const serialized = serializer.serializeFragment(fragment, { document });
-
-    // If the fragment serializes to a single element, use it directly
-    // to avoid an extra wrapper (e.g. <td> stays as <td>, not <div><td>).
-    const children = Array.from(serialized.childNodes).filter(
-      (n): n is HTMLElement => n.nodeType === 1, // ELEMENT_NODE
-    );
-    if (children.length === 1 && serialized.childNodes.length === 1) {
-      rendered = children[0];
-    } else {
-      const container = document.createElement(tag);
-      container.appendChild(serialized);
-      rendered = container;
-    }
-  }
-
-  applyDiffAttrs(rendered);
-  return rendered;
-};
 
 /**
  * Default mapping from a single `Diff` to decoration(s). Returns a `Decoration`,
  * an array of them, or `null` to skip.
  */
 export const defaultMapDiffToDecorations =
-  (editor: BlockNoteEditor<any, any, any>) =>
+  (_editor: BlockNoteEditor<any, any, any>) =>
   ({
     diff,
     doc,
     schema,
-    index,
+    index: _index,
     color,
     attributes = {},
   }: MapDiffArgs): Decoration[] | Decoration | null => {
@@ -456,43 +291,12 @@ export const defaultMapDiffToDecorations =
         return decos;
       }
 
-      case "inline-delete": {
-        const inlineFragment = diff.content ?? Fragment.empty;
-        return Decoration.widget(
-          diff.from,
-          () =>
-            renderDeletedFragment(inlineFragment, schema, editor, {
-              isInline: true,
-              authorIds,
-              color,
-              title: hoverTitle(diff),
-            }),
-          {
-            side: 1,
-            key: `diff-del-${index}-${inlineFragment.size}`,
-            diff,
-          },
-        );
-      }
-
-      case "block-delete": {
-        const fragment = diff.content ?? Fragment.empty;
-        return Decoration.widget(
-          diff.from,
-          () =>
-            renderDeletedFragment(fragment, schema, editor, {
-              isInline: false,
-              authorIds,
-              color,
-              title: hoverTitle(diff),
-            }),
-          {
-            side: 1,
-            key: `diff-del-${index}-${fragment.size}`,
-            diff,
-          },
-        );
-      }
+      case "inline-delete":
+      case "block-delete":
+        return editableDeletionWidget(diff, schema, {
+          color,
+          title: hoverTitle(diff),
+        });
 
       default:
         return null;
