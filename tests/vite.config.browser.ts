@@ -1,0 +1,57 @@
+import react from "@vitejs/plugin-react";
+import * as path from "path";
+import { defineConfig } from "vite";
+import { playwright } from "@vitest/browser-playwright";
+
+// Vitest browser mode config – runs tests in real Chromium via Playwright.
+// Run with: pnpm test:browser (from /tests)
+export default defineConfig((conf) => ({
+  plugins: [react()],
+  test: {
+    include: ["./src/browser/**/*.test.ts", "./src/browser/**/*.test.tsx"],
+    setupFiles: ["./src/browser/vitestSetup.ts"],
+    browser: {
+      enabled: true,
+      provider: playwright(),
+      headless: true,
+      instances: [{ browser: "chromium" }],
+      // toMatchScreenshot defaults – be lenient since BlockNote renders
+      // include things like blinking cursors / awareness markers.
+      expect: {
+        toMatchScreenshot: {
+          comparatorName: "pixelmatch",
+          comparatorOptions: {
+            threshold: 0.2,
+            allowedMismatchedPixelRatio: 0.02,
+          },
+          // Heavier renders (tables, nested blocks, concurrent merges)
+          // can take >5s to settle; bump the stable-capture timeout to
+          // avoid "Could not capture a stable screenshot" flakes.
+          timeout: 15000,
+        },
+      },
+    },
+  },
+  resolve: {
+    alias:
+      conf.command === "build"
+        ? ({
+            "@shared": path.resolve(__dirname, "../shared/"),
+          } as Record<string, string>)
+        : ({
+            "@shared": path.resolve(__dirname, "../shared/"),
+            // load live from sources with live reload working
+            // CSS alias must precede the bare "@blocknote/core" one, else
+            // /style.css resolves to the (stale) prebuilt dist/style.css.
+            "@blocknote/core/style.css": path.resolve(
+              __dirname,
+              "../packages/core/src/style.css",
+            ),
+            "@blocknote/core": path.resolve(__dirname, "../packages/core/src/"),
+            "@blocknote/react": path.resolve(
+              __dirname,
+              "../packages/react/src/",
+            ),
+          } as Record<string, string>),
+  },
+}));

@@ -17,8 +17,8 @@ overrides:
   "@headlessui/react": "^2.2.4"
   "@tiptap/core": "^3.0.0"
   "@tiptap/pm": "^3.0.0"
-  "vitest": "4.1.2"
-  "@vitest/runner": "4.1.2"
+  "vitest": "4.1.7"
+  "@vitest/runner": "4.1.7"
   "@y/prosemirror>lib0": "1.0.0-rc.13"
 allowBuilds:
   "@parcel/watcher": true

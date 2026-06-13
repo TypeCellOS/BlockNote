@@ -7,6 +7,8 @@
     "lint": "eslint src --max-warnings 0",
     "playwright": "playwright test",
     "test": "vitest --run",
+    "test:browser": "vitest --run --config ./vite.config.browser.ts",
+    "test:browser:updateSnaps": "vitest --run --config ./vite.config.browser.ts -u",
     "test:updateSnaps": "docker run --rm -e RUN_IN_DOCKER=true --network host -v $(pwd)/..:/work/ -w /work/tests -it mcr.microsoft.com/playwright:v1.51.1-noble npx playwright test -u",
     "test-ct": "playwright test -c playwright-ct.config.ts --headed",
     "test-ct:updateSnaps": "docker run --rm  -e RUN_IN_DOCKER=true --network host -v $(pwd)/..:/work/ -w /work/tests -it mcr.microsoft.com/playwright:v1.51.1-noble npx playwright test -c playwright-ct.config.ts -u",
@@ -24,6 +26,11 @@
     "@types/node": "^20.19.22",
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "@vitest/browser": "4.1.7",
+    "@vitest/browser-playwright": "4.1.7",
+    "@y/protocols": "^1.0.6-rc.1",
+    "@y/y": "^14.0.0-rc.16",
     "eslint": "^8.57.1",
     "htmlfy": "^0.6.7",
     "react": "^19.2.5",
@@ -32,7 +39,8 @@
     "rimraf": "^5.0.10",
     "vite": "^8.0.8",
     "vite-plugin-eslint": "^1.8.1",
-    "vitest": "^4.1.2"
+    "vitest": "4.1.7",
+    "vitest-browser-react": "^2.2.0"
   },
   "eslintConfig": {
     "extends": [
