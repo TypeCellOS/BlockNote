@@ -7,6 +7,7 @@ import {
 import { RelativePositionMappingExtension } from "./RelativePositionMapping.js";
 import { CollaborationUser, YCursorExtension } from "./YCursorPlugin.js";
 import { YSyncExtension } from "./YSync.js";
+import { YSuggestionPlugin } from "./YSuggestions.js";
 import { BlockNoteEditorOptions } from "../../editor/BlockNoteEditor.js";
 import { SuggestionsExtension } from "./Suggestions.js";
 import { createYjsVersioningAdapter } from "./Versioning.js";
@@ -66,6 +67,7 @@ export const CollaborationExtension = createExtension(
         RelativePositionMappingExtension(),
         YSyncExtension(options),
         YCursorExtension(options),
+        YSuggestionPlugin(),
         options.versioningEndpoints
           ? VersioningExtension({
               ...createYjsVersioningAdapter(editor, options.fragment),

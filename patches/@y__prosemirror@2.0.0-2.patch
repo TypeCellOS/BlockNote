@@ -1,16 +1,10 @@
 diff --git a/dist/src/commands.d.ts b/dist/src/commands.d.ts
 new file mode 100644
-index 0000000000000000000000000000000000000000..a12f7150273c27fef6621b685a608c0c13f0eefa
+index 0000000000000000000000000000000000000000..52db229917ea97da2d45900b873ba416d5c58c41
 --- /dev/null
 +++ b/dist/src/commands.d.ts
-@@ -0,0 +1,27 @@
-+/**
-+ * Switch to pause mode (stop synchronization between prosemirror and ytype)
-+ * @param {import('prosemirror-state').EditorState} state
-+ * @param {CommandDispatch?} dispatch
-+ * @returns {boolean}
-+ */
-+export function pauseSync(state: import("prosemirror-state").EditorState, dispatch: CommandDispatch | null): boolean;
+@@ -0,0 +1,21 @@
++export function pauseSync(state: import("prosemirror-state").EditorState, dispatch?: (tr: import("prosemirror-state").Transaction) => void, view?: import("prosemirror-view").EditorView): boolean;
 +export function configureYProsemirror(opts?: {
 +    ytype?: Y.Type<any> | null | undefined;
 +    attributionManager?: Y.AbstractAttributionManager | null | undefined;
@@ -34,11 +28,11 @@ index 0000000000000000000000000000000000000000..a12f7150273c27fef6621b685a608c0c
 \ No newline at end of file
 diff --git a/dist/src/commands.d.ts.map b/dist/src/commands.d.ts.map
 new file mode 100644
-index 0000000000000000000000000000000000000000..817e319bd77f9d07a25146614a47636171902b1f
+index 0000000000000000000000000000000000000000..c20bcd20ca4fc83c03acbb1a846fee773532158f
 --- /dev/null
 +++ b/dist/src/commands.d.ts.map
 @@ -0,0 +1 @@
-+{"version":3,"file":"commands.d.ts","sourceRoot":"","sources":["../../src/commands.js"],"names":[],"mappings":"AAMA;;;;;GAKG;AACH,iCAJW,OAAO,mBAAmB,EAAE,WAAW,YACvC,eAAe,OAAC,GACd,OAAO,CAanB;AAeM,6CAJJ;IAAsB,KAAK;IACQ,kBAAkB;CACrD,GAAU,OAAO,mBAAmB,EAAE,OAAO,CA8B/C;AAQM,4BAHI,OAAO,mBAAmB,EAAE,WAAW,GACtC,OAAO,CAEqE;AAQjF,4BAHI,OAAO,mBAAmB,EAAE,WAAW,GACtC,OAAO,CAEqE;AAExF;;GAEG;AACH,0BAFU,OAAO,mBAAmB,EAAE,OAAO,CAEqG;AAElJ;;GAEG;AACH,0BAFU,OAAO,mBAAmB,EAAE,OAAO,CAEqG;AAQ3I,qCAJI,MAAM,QACN,MAAM,GACJ,OAAO,mBAAmB,EAAE,OAAO,CAc/C;AAQM,qCAJI,MAAM,QACN,MAAM,GACJ,OAAO,mBAAmB,EAAE,OAAO,CAc/C;AAMM,oCAFM,OAAO,mBAAmB,EAAE,OAAO,CAW/C;AAMM,oCAFM,OAAO,mBAAmB,EAAE,OAAO,CAW/C;mBA/JkB,MAAM"}
++{"version":3,"file":"commands.d.ts","sourceRoot":"","sources":["../../src/commands.js"],"names":[],"mappings":";AAkCO,6CAJJ;IAA6B,KAAK;IACiB,kBAAkB;CACrE,GAAU,OAAO,mBAAmB,EAAE,OAAO,CAyB/C;AAQM,4BAHI,OAAO,mBAAmB,EAAE,WAAW,GACtC,OAAO,CAEqE;AAQjF,4BAHI,OAAO,mBAAmB,EAAE,WAAW,GACtC,OAAO,CAEqE;AAExF;;GAEG;AACH,0BAFU,OAAO,mBAAmB,EAAE,OAAO,CAEqG;AAElJ;;GAEG;AACH,0BAFU,OAAO,mBAAmB,EAAE,OAAO,CAEqG;AAQ3I,qCAJI,MAAM,QACN,MAAM,GACJ,OAAO,mBAAmB,EAAE,OAAO,CAc/C;AAQM,qCAJI,MAAM,QACN,MAAM,GACJ,OAAO,mBAAmB,EAAE,OAAO,CAc/C;AAMM,oCAFM,OAAO,mBAAmB,EAAE,OAAO,CAW/C;AAMM,oCAFM,OAAO,mBAAmB,EAAE,OAAO,CAW/C;mBAtJkB,MAAM"}
 \ No newline at end of file
 diff --git a/dist/src/cursor-plugin.d.ts b/dist/src/cursor-plugin.d.ts
 new file mode 100644
@@ -99,11 +93,139 @@ index 0000000000000000000000000000000000000000..f09b4e94cfb42585d13b700cef3f4fb0
 @@ -0,0 +1 @@
 +{"version":3,"file":"cursor-plugin.d.ts","sourceRoot":"","sources":["../../src/cursor-plugin.js"],"names":[],"mappings":"AAgCO,2CAHI,IAAI,GACH,WAAW,CAmBtB;AAQM,8CAHI,IAAI,GACH,OAAO,kBAAkB,EAAE,eAAe,CAOrD;AAYM,yCATI,OAAO,mBAAmB,EAAE,WAAW,aACvC,OAAO,wBAAwB,EAAE,SAAS,mBAC1C,eAAe,gBACf,CAAC,IAAI,EAAE,IAAI,EAAE,QAAQ,EAAE,MAAM,KAAK,OAAO,mBACzC,CAAC,IAAI,EAAE,IAAI,EAAE,QAAQ,EAAE,MAAM,KAAK,OAAO,kBAAkB,EAAE,eAAe,oBAC5E,MAAM,UACN;IAAC,KAAK,EAAE,CAAC,CAAC,IAAI,GAAG,IAAI,CAAC;IAAC,kBAAkB,EAAE,CAAC,CAAC,0BAA0B,GAAG,IAAI,CAAA;CAAC,GAAG,SAAS,GAC1F,aAAa,CAkExB;AA2BM,yCATI,OAAO,wBAAwB,EAAE,SAAS,yGAElD;IAA+B,oBAAoB;IACU,aAAa,WAA3D,IAAI,YAAY,MAAM,KAAK,WAAW;IACuC,gBAAgB,WAA7F,IAAI,YAAY,MAAM,KAAK,OAAO,kBAAkB,EAAE,eAAe;IACrC,uBAAuB;IAChD,gBAAgB;CACtC,GAAS,MAAM,CAAC,aAAa,CAAC,CAmL7B;;;;;;;;;;;gDAlUO,MAAM,gBACN,MAAM,kBACN,MAAM,CAAC,MAAM,EAAE,GAAG,CAAC,KACjB,OAAO;oDAwHjB;IAAmD,IAAI,EAA/C,OAAO,kBAAkB,EAAE,UAAU;IAC8B,SAAS,EAA5E;QAAC,MAAM,EAAE,CAAC,CAAC,gBAAgB,CAAC;QAAC,IAAI,EAAE,CAAC,CAAC,gBAAgB,CAAA;KAAC,GAAG,IAAI;IACM,SAAS,EAA5E;QAAC,MAAM,EAAE,CAAC,CAAC,gBAAgB,CAAC;QAAC,IAAI,EAAE,CAAC,CAAC,gBAAgB,CAAA;KAAC,GAAG,IAAI;IAChD,UAAU,EAAvB,OAAO;IAC0B,MAAM,EAAvC,QAAQ,GAAG,OAAO,GAAG,MAAM;CACnC,KAAU;IAAC,MAAM,EAAE,CAAC,CAAC,gBAAgB,CAAC;IAAC,IAAI,EAAE,CAAC,CAAC,gBAAgB,CAAA;CAAC,GAAG,IAAI;mBApJvD,MAAM;8BACiB,kBAAkB;uBACrC,mBAAmB"}
 \ No newline at end of file
+diff --git a/dist/src/diff-decorations.d.ts b/dist/src/diff-decorations.d.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..66c8346cd99337a1087c50dec735ed0f1f897e3e
+--- /dev/null
++++ b/dist/src/diff-decorations.d.ts
+@@ -0,0 +1,47 @@
++export function renderDeletedContent(fragment: import("prosemirror-model").Fragment, schema: import("prosemirror-model").Schema, opts?: {
++    authorIds?: string[];
++    color?: string;
++    title?: string;
++}): HTMLElement;
++/**
++ * Default mapping from a single `Diff` to decoration(s). Returns a `Decoration`,
++ * an array of them, or `null` to skip.
++ *
++ * @type {MapDiffToDecorations}
++ */
++export const defaultMapDiffToDecorations: MapDiffToDecorations;
++export function buildDiffDecorationSet(doc: import("prosemirror-model").Node, diffs: DiffSet, schema: import("prosemirror-model").Schema, opts?: SuggestionDecorationOptions): DecorationSet;
++export function suggestionDiffPlugin({ diffs, mapDiffToDecorations, colorForAuthors }?: SuggestionDecorationOptions & {
++    diffs?: DiffSet;
++}): Plugin<DecorationSet>;
++export type Diff = import("./y-attribution-to-diffset.js").Diff;
++export type DiffSet = import("./y-attribution-to-diffset.js").DiffSet;
++export type DiffType = import("./y-attribution-to-diffset.js").DiffType;
++export type Attribution = import("./y-attribution-to-diffset.js").Attribution;
++/**
++ * Arguments passed to a `mapDiffToDecorations` callback.
++ */
++export type MapDiffArgs = {
++    diff: Diff;
++    doc: import("prosemirror-model").Node;
++    schema: import("prosemirror-model").Schema;
++    index: number;
++    color?: string;
++    attributes?: import("prosemirror-view").DecorationAttrs;
++    defaultMapDiffToDecorations?: MapDiffToDecorations;
++};
++/**
++ * Callback that converts a single `Diff` to decoration(s).
++ * Return a `Decoration`, an array of them, or `null` to skip.
++ */
++export type MapDiffToDecorations = (args: MapDiffArgs) => import("prosemirror-view").Decoration | import("prosemirror-view").Decoration[] | null;
++/**
++ * Options shared by `buildDiffDecorationSet` and `ySuggestionDecorationPlugin`.
++ */
++export type SuggestionDecorationOptions = {
++    colorForAuthors?: (authorIds: string[]) => (string | undefined);
++    mapDiffToDecorations?: MapDiffToDecorations;
++};
++import { DecorationSet } from 'prosemirror-view';
++import { Plugin } from 'prosemirror-state';
++//# sourceMappingURL=diff-decorations.d.ts.map
+\ No newline at end of file
+diff --git a/dist/src/diff-decorations.d.ts.map b/dist/src/diff-decorations.d.ts.map
+new file mode 100644
+index 0000000000000000000000000000000000000000..fda53e2c6b828544e6abf535b3851a0e755d8d81
+--- /dev/null
++++ b/dist/src/diff-decorations.d.ts.map
+@@ -0,0 +1 @@
++{"version":3,"file":"diff-decorations.d.ts","sourceRoot":"","sources":["../../src/diff-decorations.js"],"names":[],"mappings":"AAkEO,+CALI,OAAO,mBAAmB,EAAE,QAAQ,UACpC,OAAO,mBAAmB,EAAE,MAAM,SAClC;IAAE,SAAS,CAAC,EAAE,MAAM,EAAE,CAAC;IAAC,KAAK,CAAC,EAAE,MAAM,CAAC;IAAC,KAAK,CAAC,EAAE,MAAM,CAAA;CAAE,GACtD,WAAW,CAsBvB;AAoED;;;;;GAKG;AACH,0CAFU,oBAAoB,CA+C7B;AAWM,4CANI,OAAO,mBAAmB,EAAE,IAAI,SAChC,OAAO,UACP,OAAO,mBAAmB,EAAE,MAAM,SAClC,2BAA2B,GACzB,aAAa,CAazB;AAWM,wFAHI,2BAA2B,GAAG;IAAE,KAAK,CAAC,EAAE,OAAO,CAAA;CAAE,GAC/C,MAAM,CAAC,aAAa,CAAC,CAmB9B;mBA5OS,OAAO,+BAA+B,EAAE,IAAI;sBAC5C,OAAO,+BAA+B,EAAE,OAAO;uBAC/C,OAAO,+BAA+B,EAAE,QAAQ;0BAChD,OAAO,+BAA+B,EAAE,WAAW;;;;0BAMnD;IACR,IAAI,EAAE,IAAI,CAAC;IACX,GAAG,EAAE,OAAO,mBAAmB,EAAE,IAAI,CAAC;IACtC,MAAM,EAAE,OAAO,mBAAmB,EAAE,MAAM,CAAC;IAC3C,KAAK,EAAE,MAAM,CAAC;IACd,KAAK,CAAC,EAAE,MAAM,CAAC;IACf,UAAU,CAAC,EAAE,OAAO,kBAAkB,EAAE,eAAe,CAAC;IACxD,2BAA2B,CAAC,EAAE,oBAAoB,CAAA;CACnD;;;;;0CAQO,WAAW,KACT,OAAO,kBAAkB,EAAE,UAAU,GAAG,OAAO,kBAAkB,EAAE,UAAU,EAAE,GAAG,IAAI;;;;0CAMtF;IACR,eAAe,CAAC,EAAE,CAAC,SAAS,EAAE,MAAM,EAAE,KAAK,CAAC,MAAM,GAAG,SAAS,CAAC,CAAC;IAChE,oBAAoB,CAAC,EAAE,oBAAoB,CAAA;CAC5C;8BAzCsC,kBAAkB;uBACrC,mBAAmB"}
+\ No newline at end of file
+diff --git a/dist/src/editable-deletion.d.ts b/dist/src/editable-deletion.d.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..4c875471103b399fc9dc13f44477fe3a24001443
+--- /dev/null
++++ b/dist/src/editable-deletion.d.ts
+@@ -0,0 +1,51 @@
++export function deletionKey(diff: Diff): string;
++/**
++ * Global registry of sub-editor entries keyed by the widget's stable key.
++ * Because ProseMirror reuses the DOM (and old WidgetViewDesc) across decoration
++ * rebuilds when keys match, the NEW decoration's spec.subEditors stays undefined.
++ * This map provides a reliable lookup path for handlers and tests that only have
++ * access to the new (current) decoration objects from the DecorationSet.
++ *
++ * Entries are added by `createDeletionDOM` and removed by the widget's `destroy`.
++ *
++ * @type {Map<string, SubEditorEntry>}
++ */
++export const subEditorsByKey: Map<string, SubEditorEntry>;
++export function editableDeletionWidget(diff: Diff, schema: import("prosemirror-model").Schema, opts?: {
++    color?: string;
++    title?: string;
++}): Decoration;
++export function handleEditableDeletionArrow(view: EditorView, event: KeyboardEvent): boolean;
++/**
++ * A `mapDiffToDecorations` implementation that renders deletions as editable
++ * sub-editors and defers everything else to the default mapping. Pass it to
++ * `ySuggestionDecorationPlugin({ mapDiffToDecorations: editableDeletionMapDiff })`.
++ *
++ * @type {import('./diff-decorations.js').MapDiffToDecorations}
++ */
++export const editableDeletionMapDiff: import("./diff-decorations.js").MapDiffToDecorations;
++export function handleEditableDeletionTextInput(view: EditorView, from: number, to: number, text: string): boolean;
++export function applyGhostAnchorOffsets(ytype: object | null, diffs: Diff[]): Diff[];
++export type Diff = import("./y-attribution-to-diffset.js").Diff;
++export type MapDiffArgs = import("./diff-decorations.js").MapDiffArgs;
++/**
++ * The structural shape of a deletion, deciding which element the sub-editor
++ * mounts on and which minimal inner schema it uses, so the widget DOM stays
++ * *valid* in its surrounding context (a `<tr>` between table rows, a `<td>`
++ * between cells, a true inline `<span>` mid-text).
++ */
++export type DeletionShape = "inline" | "block" | "row" | "cell";
++/**
++ * Sub-editor entry stored on the widget decoration's `spec.subEditors`.
++ * The arrow/text-input handlers read it directly from the spec instead of
++ * using a module-level registry, so external consumers (e.g. BlockNote) can
++ * mount their own sub-editors and have the keyboard navigation work
++ * automatically — just set `spec.subEditors` on the widget decoration.
++ */
++export type SubEditorEntry = {
++    views: EditorView[];
++    container: HTMLElement;
++};
++import { Decoration } from 'prosemirror-view';
++import { EditorView } from 'prosemirror-view';
++//# sourceMappingURL=editable-deletion.d.ts.map
+\ No newline at end of file
+diff --git a/dist/src/editable-deletion.d.ts.map b/dist/src/editable-deletion.d.ts.map
+new file mode 100644
+index 0000000000000000000000000000000000000000..b3c950e072ed60ad62eaafeb05213914afbacf6b
+--- /dev/null
++++ b/dist/src/editable-deletion.d.ts.map
+@@ -0,0 +1 @@
++{"version":3,"file":"editable-deletion.d.ts","sourceRoot":"","sources":["../../src/editable-deletion.js"],"names":[],"mappings":"AA4RO,kCAHI,IAAI,GACF,MAAM,CAGgF;AAEnG;;;;;;;;;;GAUG;AACH,8BAFU,GAAG,CAAC,MAAM,EAAE,cAAc,CAAC,CAEG;AAmPjC,6CALI,IAAI,UACJ,OAAO,mBAAmB,EAAE,MAAM,SAClC;IAAE,KAAK,CAAC,EAAE,MAAM,CAAC;IAAC,KAAK,CAAC,EAAE,MAAM,CAAA;CAAE,GAChC,UAAU,CA8BtB;AAkCM,kDAJI,UAAU,SACV,aAAa,GACX,OAAO,CAuHnB;AAED;;;;;;GAMG;AACH,sCAFU,OAAO,uBAAuB,EAAE,oBAAoB,CAQ7D;AA6BM,sDANI,UAAU,QACV,MAAM,MACN,MAAM,QACN,MAAM,GACJ,OAAO,CAyBnB;AAcM,+CAJI,MAAM,GAAG,IAAI,SACb,IAAI,EAAE,GACJ,IAAI,EAAE,CAkBlB;mBA5uBY,OAAO,+BAA+B,EAAE,IAAI;0BAC5C,OAAO,uBAAuB,EAAE,WAAW;;;;;;;4BAS3C,QAAQ,GAAG,OAAO,GAAG,KAAK,GAAG,MAAM;;;;;;;;6BAoOnC;IAAE,KAAK,EAAE,UAAU,EAAE,CAAC;IAAC,SAAS,EAAE,WAAW,CAAA;CAAE;2BAvPrB,kBAAkB;2BAAlB,kBAAkB"}
+\ No newline at end of file
 diff --git a/dist/src/index.d.ts b/dist/src/index.d.ts
-index fec5f1c23d3f28e250fecd7045fcebe7fc60993f..ebf62e224dcb8a4becb6dcc0e59799e732a4ce1c 100644
+index fec5f1c23d3f28e250fecd7045fcebe7fc60993f..dbb3d924d72714ce6e85b78ff4c8810d85fa5876 100644
 --- a/dist/src/index.d.ts
 +++ b/dist/src/index.d.ts
-@@ -1,84 +1,8 @@
+@@ -1,84 +1,19 @@
 -/**
 - * @param {Y.XmlFragment} ytype
 - * @param {object} opts
@@ -194,23 +316,35 @@ index fec5f1c23d3f28e250fecd7045fcebe7fc60993f..ebf62e224dcb8a4becb6dcc0e59799e7
 +export * from "./commands.js";
 +export * from "./undo-plugin.js";
 +export * from "./cursor-plugin.js";
-+export { docToDelta, $prosemirrorDelta, defaultMapAttributionToMark } from "./sync-utils.js";
++export { ydeltaToDiffSet } from "./y-attribution-to-diffset.js";
++export { ySuggestionDecorationPlugin } from "./suggestion-decoration-plugin.js";
++export type Attribution = import("./y-attribution-to-diffset.js").Attribution;
++export type Diff = import("./y-attribution-to-diffset.js").Diff;
++export type DiffType = import("./y-attribution-to-diffset.js").DiffType;
++export type DiffSet = import("./y-attribution-to-diffset.js").DiffSet;
++export type SuggestionDecorationOptions = import("./diff-decorations.js").SuggestionDecorationOptions;
++export type MapDiffToDecorations = import("./diff-decorations.js").MapDiffToDecorations;
++export type MapDiffArgs = import("./diff-decorations.js").MapDiffArgs;
++export { docToDelta, $prosemirrorDelta } from "./sync-utils.js";
++export { buildDiffDecorationSet, suggestionDiffPlugin, renderDeletedContent, defaultMapDiffToDecorations } from "./diff-decorations.js";
++export { editableDeletionWidget, editableDeletionMapDiff, handleEditableDeletionArrow, handleEditableDeletionTextInput, applyGhostAnchorOffsets, deletionKey, subEditorsByKey } from "./editable-deletion.js";
 +//# sourceMappingURL=index.d.ts.map
 \ No newline at end of file
 diff --git a/dist/src/index.d.ts.map b/dist/src/index.d.ts.map
 new file mode 100644
-index 0000000000000000000000000000000000000000..4b136e26cf4d54488bfbbaf749a89197c074cd91
+index 0000000000000000000000000000000000000000..d131ae17f5d02df2af137cb93c380689b1e5464d
 --- /dev/null
 +++ b/dist/src/index.d.ts.map
 @@ -0,0 +1 @@
-+{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../src/index.js"],"names":[],"mappings":""}
++{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../src/index.js"],"names":[],"mappings":";;;;;;;;0BAQc,OAAO,+BAA+B,EAAE,WAAW;mBACnD,OAAO,+BAA+B,EAAE,IAAI;uBAC5C,OAAO,+BAA+B,EAAE,QAAQ;sBAChD,OAAO,+BAA+B,EAAE,OAAO;0CAE/C,OAAO,uBAAuB,EAAE,2BAA2B;mCAC3D,OAAO,uBAAuB,EAAE,oBAAoB;0BACpD,OAAO,uBAAuB,EAAE,WAAW"}
 \ No newline at end of file
 diff --git a/dist/src/keys.d.ts b/dist/src/keys.d.ts
 new file mode 100644
-index 0000000000000000000000000000000000000000..e60986981f3d3835d7842915790cc6df50f4f1e7
+index 0000000000000000000000000000000000000000..0b8d192e3e3099785c3bda2450b923ee540b4b8d
 --- /dev/null
 +++ b/dist/src/keys.d.ts
-@@ -0,0 +1,23 @@
+@@ -0,0 +1,39 @@
++/** @typedef {import('lib0/schema').Unwrap<typeof import('./sync-plugin.js').$syncPluginState>} SyncPluginState */
 +/**
 + * The unique prosemirror plugin key for {@link import('./sync-plugin.js').syncPlugin}
 + *
@@ -232,16 +366,31 @@ index 0000000000000000000000000000000000000000..e60986981f3d3835d7842915790cc6df
 + * @type {PluginKey<import('prosemirror-view').DecorationSet>}
 + */
 +export const yCursorPluginKey: PluginKey<import("prosemirror-view").DecorationSet>;
++/**
++ * The unique prosemirror plugin key for {@link import('./suggestion-decoration-plugin.js').ySuggestionDecorationPlugin}
++ *
++ * @public
++ * @type {PluginKey<import('prosemirror-view').DecorationSet>}
++ */
++export const ySuggestionDecorationPluginKey: PluginKey<import("prosemirror-view").DecorationSet>;
++/**
++ * The unique prosemirror plugin key for {@link import('./diff-decorations.js').suggestionDiffPlugin}
++ *
++ * @public
++ * @type {PluginKey<import('prosemirror-view').DecorationSet>}
++ */
++export const suggestionDiffPluginKey: PluginKey<import("prosemirror-view").DecorationSet>;
++export type SyncPluginState = import("lib0/schema").Unwrap<typeof import("./sync-plugin.js").$syncPluginState>;
 +import { PluginKey } from 'prosemirror-state';
 +//# sourceMappingURL=keys.d.ts.map
 \ No newline at end of file
 diff --git a/dist/src/keys.d.ts.map b/dist/src/keys.d.ts.map
 new file mode 100644
-index 0000000000000000000000000000000000000000..9f12f341c63e7ae2bd51640eefd3df47015b4398
+index 0000000000000000000000000000000000000000..a2f34d3f21d0b22d2d1f07fd1c1d77841fc14665
 --- /dev/null
 +++ b/dist/src/keys.d.ts.map
 @@ -0,0 +1 @@
-+{"version":3,"file":"keys.d.ts","sourceRoot":"","sources":["../../src/keys.js"],"names":[],"mappings":"AAEA;;;;;GAKG;AACH,6BAFU,SAAS,CAAC,eAAe,CAAC,CAEiB;AAErD;;;;;GAKG;AACH,6BAFU,SAAS,CAAC,OAAO,kBAAkB,EAAE,eAAe,CAAC,CAEV;AAErD;;;;;GAKG;AACH,+BAFU,SAAS,CAAC,OAAO,kBAAkB,EAAE,aAAa,CAAC,CAEJ;0BAxB/B,mBAAmB"}
++{"version":3,"file":"keys.d.ts","sourceRoot":"","sources":["../../src/keys.js"],"names":[],"mappings":"AAEA,kHAAkH;AAElH;;;;;GAKG;AACH,6BAFU,SAAS,CAAC,eAAe,CAAC,CAEiB;AAErD;;;;;GAKG;AACH,6BAFU,SAAS,CAAC,OAAO,kBAAkB,EAAE,eAAe,CAAC,CAEV;AAErD;;;;;GAKG;AACH,+BAFU,SAAS,CAAC,OAAO,kBAAkB,EAAE,aAAa,CAAC,CAEJ;AAEzD;;;;;GAKG;AACH,6CAFU,SAAS,CAAC,OAAO,kBAAkB,EAAE,aAAa,CAAC,CAE0B;AAEvF;;;;;GAKG;AACH,sCAFU,SAAS,CAAC,OAAO,kBAAkB,EAAE,aAAa,CAAC,CAEU;8BAxCzD,OAAO,aAAa,EAAE,MAAM,CAAC,cAAc,kBAAkB,EAAE,gBAAgB,CAAC;0BAFpE,mBAAmB"}
 \ No newline at end of file
 diff --git a/dist/src/lib.d.ts b/dist/src/lib.d.ts
 deleted file mode 100644
@@ -284,14 +433,35 @@ index 0000000000000000000000000000000000000000..e4f768c579f11b08055a31cc166e8c34
 @@ -0,0 +1 @@
 +{"version":3,"file":"positions.d.ts","sourceRoot":"","sources":["../../src/positions.js"],"names":[],"mappings":"AAWO,gEALI,OAAO,mBAAmB,EAAE,WAAW,QACvC,CAAC,CAAC,IAAI,OACN,CAAC,CAAC,0BAA0B,GAAG,IAAI,GAClC,CAAC,CAAC,gBAAgB,CA6C7B;AAUM,2DANI,CAAC,CAAC,gBAAgB,gBAClB,CAAC,CAAC,IAAI,SACN,OAAO,mBAAmB,EAAE,IAAI,OAChC,CAAC,CAAC,0BAA0B,GAAG,IAAI,GAClC,IAAI,GAAC,MAAM,CAmDtB;AASM,mDALI,OAAO,mBAAmB,EAAE,WAAW,QACvC,CAAC,CAAC,IAAI,OACN,CAAC,CAAC,0BAA0B,GAC1B,CAAC,GAAG,EAAE,OAAO,mBAAmB,EAAE,IAAI,EAAE,YAAY,CAAC,EAAE,CAAC,CAAC,IAAI,EAAE,kBAAkB,CAAC,EAAE,CAAC,CAAC,0BAA0B,KAAK,MAAM,CAWvI;AAyBM,mDAHI,CAAC,CAAC,IAAI,GACJ;IAAC,cAAc,EAAE,cAAc,CAAC;IAAC,cAAc,EAAE,cAAc,CAAA;CAAC,CAyD5E;mCA5EU,OAAO,mBAAmB,EAAE,IAAI,wFAG9B,OAAO,uBAAuB,EAAE,QAAQ;oCAK1C,CAAC,CAAC,IAAI,SACN,OAAO,mBAAmB,EAAE,IAAI,2DAE9B,OAAO,uBAAuB,EAAE,QAAQ;mBAlJlC,MAAM"}
 \ No newline at end of file
+diff --git a/dist/src/suggestion-decoration-plugin.d.ts b/dist/src/suggestion-decoration-plugin.d.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..9c8a6d99d690d36a8d01af6b0542b8605ef269d7
+--- /dev/null
++++ b/dist/src/suggestion-decoration-plugin.d.ts
+@@ -0,0 +1,5 @@
++export function ySuggestionDecorationPlugin(opts?: SuggestionDecorationOptions): Plugin<DecorationSet>;
++export type SuggestionDecorationOptions = import("./diff-decorations.js").SuggestionDecorationOptions;
++import { Plugin } from 'prosemirror-state';
++import { DecorationSet } from 'prosemirror-view';
++//# sourceMappingURL=suggestion-decoration-plugin.d.ts.map
+\ No newline at end of file
+diff --git a/dist/src/suggestion-decoration-plugin.d.ts.map b/dist/src/suggestion-decoration-plugin.d.ts.map
+new file mode 100644
+index 0000000000000000000000000000000000000000..b8fc97c77f207b7c92a77a5943a9c531fd33baed
+--- /dev/null
++++ b/dist/src/suggestion-decoration-plugin.d.ts.map
+@@ -0,0 +1 @@
++{"version":3,"file":"suggestion-decoration-plugin.d.ts","sourceRoot":"","sources":["../../src/suggestion-decoration-plugin.js"],"names":[],"mappings":"AAsDO,mDAHI,2BAA2B,GACzB,MAAM,CAAC,aAAa,CAAC,CAoC9B;0CApEU,OAAO,uBAAuB,EAAE,2BAA2B;uBANlD,mBAAmB;8BACZ,kBAAkB"}
+\ No newline at end of file
 diff --git a/dist/src/sync-plugin.d.ts b/dist/src/sync-plugin.d.ts
 new file mode 100644
-index 0000000000000000000000000000000000000000..c1da2aa33b86511936e9b1ba4d2d3c848e0c70da
+index 0000000000000000000000000000000000000000..229de152a175bfe747471b352465b9545e9bbb26
 --- /dev/null
 +++ b/dist/src/sync-plugin.d.ts
-@@ -0,0 +1,41 @@
+@@ -0,0 +1,39 @@
 +/**
-+ * This Prosemirror {@link Plugin} is responsible for synchronizing the prosemirror {@link EditorState} with a {@link Y.XmlFragment}
++ * This Prosemirror {@link Plugin} is responsible for synchronizing the prosemirror
++ * {@link import('prosemirror-state').EditorState} with a {@link Y.XmlFragment}.
 + *
 + * The PM->Y diff/apply pipeline runs in the plugin's `view().update`
 + * hook (i.e. after the dispatch has been committed to the view), not
@@ -299,53 +469,50 @@ index 0000000000000000000000000000000000000000..c1da2aa33b86511936e9b1ba4d2d3c84
 + * cause speculative `state.apply` callers to write to Y as a side
 + * effect.
 + *
-+ * @param {object} opts
-+ * @param {Y.Doc} [opts.suggestionDoc] A {@link Y.Doc} to use for suggestion tracking
-+ * @param {AttributionMapper} [opts.mapAttributionToMark] A function to map the {@link Y.Attribution} to a {@link import('prosemirror-model').Mark} - the mark names *must* be one of: `y-attributed-insert`, `y-attributed-delete`, `y-attributed-format`. No other mark names are permitted
-+ * @param {AttributedNodesPredicate} [opts.attributedNodes] Optional predicate `(nodeName, kinds) => boolean`. When it returns `true` for an attributed node *and* a `{nodeName}--attributed` type exists in the schema, that node is rendered under the variant type (the `y-attributed-*` marks are still applied). `kinds` is `{ insert?, delete?, format? }`. The variant is a pure rendering concern - the canonical name is what is stored in the Y document. The predicate must be deterministic in `(nodeName, kinds)`.
++ * The PM document always mirrors the **clean** Y content (no attribution
++ * marks, no deleted text). The write path applies diffs through the AM
++ * so edits are tagged as suggestions. Attribution rendering is handled
++ * by the separate {@link import('./suggestion-decoration-plugin.js').ySuggestionDecorationPlugin}.
++ *
++ * @param {object} [opts]
 + * @returns {Plugin}
 + */
-+export function syncPlugin(opts?: {
-+    suggestionDoc?: Y.Doc | undefined;
-+    mapAttributionToMark?: AttributionMapper | undefined;
-+    attributedNodes?: AttributedNodesPredicate | undefined;
-+}): Plugin;
++export function syncPlugin(opts?: object): Plugin;
 +/**
-+ * The y-prosemirror binding is a bi-directional synchronization with the provided Y.Type and the EditorView
++ * The y-prosemirror binding is a bi-directional synchronization with the provided Y.Type and the EditorView.
 + * Any change applied to the EditorView will be applied (via deltas) to the Y.Type, and vice versa.
++ *
++ * The PM document always contains **clean** content — no attribution marks,
++ * no deleted text inline. Attribution is rendered as decorations by
++ * {@link import('./suggestion-decoration-plugin.js').ySuggestionDecorationPlugin}.
 + */
 +export const $syncPluginState: s.Schema<{
 +    ytype: Y.Type<any> | null;
 +    attributionManager: Y.AbstractAttributionManager | null;
-+    attributionMapper: AttributionMapper;
-+    attributedNodes: AttributedNodesPredicate;
 +}>;
 +export const $syncPluginStateUpdate: s.Schema<{
 +    ytype?: Y.Type<any> | null | undefined;
 +    attributionManager?: Y.AbstractAttributionManager | null | undefined;
-+    attributionMapper?: AttributionMapper | null | undefined;
-+    attributedNodes?: AttributedNodesPredicate | null | undefined;
-+    change?: Y.YEvent<any> | null | undefined;
 +}>;
-+import * as Y from '@y/y';
 +import { Plugin } from 'prosemirror-state';
++import * as Y from '@y/y';
 +import * as s from 'lib0/schema';
 +//# sourceMappingURL=sync-plugin.d.ts.map
 \ No newline at end of file
 diff --git a/dist/src/sync-plugin.d.ts.map b/dist/src/sync-plugin.d.ts.map
 new file mode 100644
-index 0000000000000000000000000000000000000000..df8c9df944fe1c64c46c648d913a0f8b52694bd7
+index 0000000000000000000000000000000000000000..257913a7524665058045da2e87779eaf0563fc18
 --- /dev/null
 +++ b/dist/src/sync-plugin.d.ts.map
 @@ -0,0 +1 @@
-+{"version":3,"file":"sync-plugin.d.ts","sourceRoot":"","sources":["../../src/sync-plugin.js"],"names":[],"mappings":"AAgGA;;;;;;;;;;;;;;GAcG;AACH,kCALG;IAAqB,aAAa;IACD,oBAAoB;IACb,eAAe;CACvD,GAAU,MAAM,CA+LlB;AA7RD;;;GAGG;AACH;;;;;GAYE;AAEF;;;;;;GAME;mBAvCiB,MAAM;uBACF,mBAAmB;mBAWvB,aAAa"}
++{"version":3,"file":"sync-plugin.d.ts","sourceRoot":"","sources":["../../src/sync-plugin.js"],"names":[],"mappings":"AAgCA;;;;;;;;;;;;;;;;;GAiBG;AACH,kCAHW,MAAM,GACJ,MAAM,CAkKlB;AArMD;;;;;;;GAOG;AACH;;;GAGE;AAEF;;;GAGE;uBA5BqB,mBAAmB;mBADvB,MAAM;mBAUN,aAAa"}
 \ No newline at end of file
 diff --git a/dist/src/sync-utils.d.ts b/dist/src/sync-utils.d.ts
 new file mode 100644
-index 0000000000000000000000000000000000000000..dfb00a847adcc5a1db01d557a8b0b056eefd1c9a
+index 0000000000000000000000000000000000000000..d57c7fe0a258d821eb58d615bd93fa3a1deffcf1
 --- /dev/null
 +++ b/dist/src/sync-utils.d.ts
-@@ -0,0 +1,146 @@
+@@ -0,0 +1,105 @@
 +/**
 + * Transforms a {@link Node} into a {@link Y.XmlFragment}
 + * @param {Node} node
@@ -357,28 +524,6 @@ index 0000000000000000000000000000000000000000..dfb00a847adcc5a1db01d557a8b0b056
 +export function pmToFragment(node: Node, fragment: Y.Type, { attributionManager }?: {
 +    attributionManager?: Y.AbstractAttributionManager | undefined;
 +}): Y.Type;
-+/**
-+ * Applies a {@link Y.XmlFragment}'s content as a ProseMirror {@link Transaction}
-+ * @param {Y.Type} fragment
-+ * @param {import('prosemirror-state').Transaction} tr
-+ * @param {object} ctx
-+ * @param {Y.AbstractAttributionManager} [ctx.attributionManager]
-+ * @param {typeof defaultMapAttributionToMark} [ctx.mapAttributionToMark]
-+ * @param {AttributedNodesPredicate} [ctx.attributedNodes]
-+ * @returns {import('prosemirror-state').Transaction}
-+ */
-+export function fragmentToTr(fragment: Y.Type, tr: import("prosemirror-state").Transaction, { attributionManager, mapAttributionToMark, attributedNodes }?: {
-+    attributionManager?: Y.AbstractAttributionManager | undefined;
-+    mapAttributionToMark?: (<T extends import("lib0/delta").Attribution>(format: Record<string, unknown> | null, attribution: T) => Record<string, unknown> | null) | undefined;
-+    attributedNodes?: AttributedNodesPredicate | undefined;
-+}): import("prosemirror-state").Transaction;
-+/**
-+ * Transforms a {@link Y.XmlFragment} into a {@link Node}
-+ * @param {Y.Type} fragment
-+ * @param {import('prosemirror-state').Transaction} tr
-+ * @return {Node}
-+ */
-+export function fragmentToPm(fragment: Y.Type, tr: import("prosemirror-state").Transaction): Node;
 +/**
 + * This function is used to find the delta offset for a given prosemirror offset in a node.
 + * Given the following document:
@@ -413,31 +558,11 @@ index 0000000000000000000000000000000000000000..dfb00a847adcc5a1db01d557a8b0b056
 +    text: true;
 +    recursiveChildren: true;
 +}>>;
-+/**
-+ * Suffix appended to a node name when it is rendered as its "attributed
-+ * variant" (see `attributedNodes` on {@link syncPlugin}). The suffix is fixed
-+ * so that canonicalizing back (PM -> Y) is a pure string operation and can
-+ * never drift from the forward mapping. `--attributed` is a *reserved* suffix:
-+ * a real node type literally ending in it would be canonicalized away on the
-+ * way to Y.
-+ */
-+export const ATTRIBUTED_SUFFIX: "--attributed";
-+/**
-+ * Default `attributedNodes` predicate - the feature is off, so every node keeps
-+ * its canonical name.
-+ *
-+ * @type {AttributedNodesPredicate}
-+ */
-+export const defaultAttributedNodes: AttributedNodesPredicate;
-+export function canonicalNodeName(name: string): string;
-+export function attributedVariant(canonicalName: string, format: Record<string, unknown> | null | undefined, attributedNodes: AttributedNodesPredicate, schema: import("prosemirror-model").Schema): string;
-+export function defaultMapAttributionToMark<T extends import("lib0/delta").Attribution>(format: Record<string, unknown> | null, attribution: T): Record<string, unknown> | null;
-+export function deltaAttributionToFormat(d: delta.DeltaAny, attributionsToFormat: Function): ProsemirrorDelta;
 +export function formattingAttributesToMarks(formatting: {
 +    [key: string]: any;
 +} | null, schema: import("prosemirror-model").Schema): import("prosemirror-model").Mark[];
 +export function nodesToDelta(ns: Array<Node>): ProsemirrorDelta;
-+export function nodeToDelta(n: Node, nodeName?: string | null, canonicalize?: boolean): ProsemirrorDelta;
++export function nodeToDelta(n: Node, nodeName?: string | null): ProsemirrorDelta;
 +export function docToDelta(doc: Node): delta.Delta<{
 +    name: string;
 +    attrs: {
@@ -448,8 +573,8 @@ index 0000000000000000000000000000000000000000..dfb00a847adcc5a1db01d557a8b0b056
 +}>;
 +export function deltaToPSteps(tr: import("prosemirror-state").Transaction, d: ProsemirrorDelta, pnode?: Node, currPos?: {
 +    i: number;
-+}, attributedNodes?: AttributedNodesPredicate): import("prosemirror-state").Transaction;
-+export function deltaToPNode(d: ProsemirrorDelta, schema: import("prosemirror-model").Schema, dformat: delta.FormattingAttributes | null, attributedNodes?: AttributedNodesPredicate): Node;
++}): import("prosemirror-state").Transaction;
++export function deltaToPNode(d: ProsemirrorDelta, schema: import("prosemirror-model").Schema, dformat: delta.FormattingAttributes | null): Node;
 +export function docDiffToDelta(beforeDoc: Node, afterDoc: Node): delta.Delta<{
 +    name: string;
 +    attrs: {
@@ -458,7 +583,7 @@ index 0000000000000000000000000000000000000000..dfb00a847adcc5a1db01d557a8b0b056
 +    text: true;
 +    recursiveChildren: true;
 +}>;
-+export function trToDelta(tr: Transaction): delta.Delta<{
++export function trToDelta(tr: import("prosemirror-state").Transaction): delta.Delta<{
 +    name: string;
 +    attrs: {
 +        [x: string]: any;
@@ -468,6 +593,7 @@ index 0000000000000000000000000000000000000000..dfb00a847adcc5a1db01d557a8b0b056
 +}>;
 +export function stepToDelta(step: import("prosemirror-transform").Step, beforeDoc: import("prosemirror-model").Node): ProsemirrorDelta;
 +export function deltaModifyNodeAt(node: Node, pmOffset: number, mod: (d: delta.DeltaBuilderAny) => any): ProsemirrorDelta;
++export type ProsemirrorDelta = import("lib0/schema").Unwrap<typeof $prosemirrorDelta>;
 +/**
 + * A single child op of a {@link ProsemirrorDelta} (retain / modify / insert /
 + * text / delete).
@@ -495,11 +621,11 @@ index 0000000000000000000000000000000000000000..dfb00a847adcc5a1db01d557a8b0b056
 \ No newline at end of file
 diff --git a/dist/src/sync-utils.d.ts.map b/dist/src/sync-utils.d.ts.map
 new file mode 100644
-index 0000000000000000000000000000000000000000..8d7883745029eee21f25288286021206007fd3ff
+index 0000000000000000000000000000000000000000..b0b2547bc3ccb9951702eb80e8ea52b43b2f2a93
 --- /dev/null
 +++ b/dist/src/sync-utils.d.ts.map
 @@ -0,0 +1 @@
-+{"version":3,"file":"sync-utils.d.ts","sourceRoot":"","sources":["../../src/sync-utils.js"],"names":[],"mappings":"AAsNA;;;;;;;GAOG;AACH,mCANW,IAAI,YACJ,CAAC,CAAC,IAAI,2BAEd;IAA4C,kBAAkB;CAC9D,GAAU,CAAC,CAAC,IAAI,CASlB;AAED;;;;;;;;;GASG;AACH,uCARW,CAAC,CAAC,IAAI,MACN,OAAO,mBAAmB,EAAE,WAAW,kEAE/C;IAA2C,kBAAkB;IACZ,oBAAoB,KAxIxB,CAAC,SAApC,OAAQ,YAAY,EAAE,WAAY,UACpC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,eAC9B,CAAC,KACC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI;IAsID,eAAe;CACtD,GAAU,OAAO,mBAAmB,EAAE,WAAW,CAiBnD;AAED;;;;;GAKG;AACH,uCAJW,CAAC,CAAC,IAAI,MACN,OAAO,mBAAmB,EAAE,WAAW,GACtC,IAAI,CAIf;AAoYD;;;;;;;;;;;;;;;;;GAiBG;AACH,oCAJW,IAAI,mBACJ,MAAM,GACL,MAAM,EAAE,CAwBnB;AAED;;;;;GAKG;AACH,yCAJW,MAAM,EAAE,QACR,IAAI,GACH,MAAM,CAgCjB;AAzsBD;;;;;;;IAA4I;AAE5I;;;;;;;GAOG;AACH,gCAAiC,cAAc,CAAA;AAE/C;;;;;GAKG;AACH,qCAFU,wBAAwB,CAEe;AAS1C,wCAHI,MAAM,GACL,MAAM,CAKR;AAcH,iDANI,MAAM,UACN,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,GAAG,SAAS,mBAC1C,wBAAwB,UACxB,OAAO,mBAAmB,EAAE,MAAM,GACjC,MAAM,CAajB;AAgCM,4CALyC,CAAC,SAApC,OAAQ,YAAY,EAAE,WAAY,UACpC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,eAC9B,CAAC,GACC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,CAiC1C;AAOM,4CAHI,KAAK,CAAC,QAAQ,mCA4BL,gBAAgB,CACnC;AA0BM,wDAHI;IAAC,CAAC,GAAG,EAAC,MAAM,GAAE,GAAG,CAAA;CAAC,GAAC,IAAI,UACvB,OAAO,mBAAmB,EAAE,MAAM,sCAGwD;AAM9F,iCAHI,KAAK,CAAC,IAAI,CAAC,GACV,gBAAgB,CAW3B;AAgEM,+BAPI,IAAI,aACJ,MAAM,OAAC,iBACP,OAAO,GAGN,gBAAgB,CAoB3B;AAKM,gCAFI,IAAI;;;;;;;GAEwC;AAmEhD,kCAPI,OAAO,mBAAmB,EAAE,WAAW,KACvC,gBAAgB,UAChB,IAAI,YACJ;IAAE,CAAC,EAAE,MAAM,CAAA;CAAE,oBACb,wBAAwB,GACvB,OAAO,mBAAmB,EAAE,WAAW,CAuJlD;AASM,gCANI,gBAAgB,UAChB,OAAO,mBAAmB,EAAE,MAAM,WAClC,KAAK,CAAC,oBAAoB,GAAC,IAAI,oBAC/B,wBAAwB,GACvB,IAAI,CAkCf;AAMM,0CAHI,IAAI,YACJ,IAAI;;;;;;;GAMd;AAKM,8BAFI,WAAW;;;;;;;GAkBrB;AA+CM,kCAJI,OAAO,uBAAuB,EAAE,IAAI,aACpC,OAAO,mBAAmB,EAAE,IAAI,GAC/B,gBAAgB,CAQ3B;AAoGM,wCALI,IAAI,YACJ,MAAM,OACN,CAAC,CAAC,EAAC,KAAK,CAAC,eAAe,KAAG,GAAG,GAC7B,gBAAgB,CAa3B;;;;;iCArZY,KAAK,CAAC,aAAa;;;;;;;;;aAQlB,KAAK,CAAC,KAAK,CAAC,QAAQ,CAAC,GAAG,CAAC,GAAC,KAAK,CAAC,MAAM,CAAC;;;;aACvC,KAAK,CAAC,KAAK,CAAC,QAAQ,CAAC;;qBA5VG,mBAAmB;mBAPtC,MAAM;uBAEF,YAAY;mBAIhB,aAAa"}
++{"version":3,"file":"sync-utils.d.ts","sourceRoot":"","sources":["../../src/sync-utils.js"],"names":[],"mappings":"AA+DA;;;;;;;GAOG;AACH,mCANW,IAAI,YACJ,CAAC,CAAC,IAAI,2BAEd;IAA4C,kBAAkB;CAC9D,GAAU,CAAC,CAAC,IAAI,CAOlB;AA6YD;;;;;;;;;;;;;;;;;GAiBG;AACH,oCAJW,IAAI,mBACJ,MAAM,GACL,MAAM,EAAE,CA2BnB;AAED;;;;;GAKG;AACH,yCAJW,MAAM,EAAE,QACR,IAAI,GACH,MAAM,CAsCjB;AA/hBD;;;;;;;IAA4I;AA4BrI,wDAHI;IAAC,CAAC,GAAG,EAAC,MAAM,GAAE,GAAG,CAAA;CAAC,GAAC,IAAI,UACvB,OAAO,mBAAmB,EAAE,MAAM,sCAGwD;AAM9F,iCAHI,KAAK,CAAC,IAAI,CAAC,GACV,gBAAgB,CAW3B;AAsBM,+BAJI,IAAI,aACJ,MAAM,OAAC,GACN,gBAAgB,CAS3B;AAKM,gCAFI,IAAI;;;;;;;GAEwC;AA2ChD,kCANI,OAAO,mBAAmB,EAAE,WAAW,KACvC,gBAAgB,UAChB,IAAI,YACJ;IAAE,CAAC,EAAE,MAAM,CAAA;CAAE,GACZ,OAAO,mBAAmB,EAAE,WAAW,CA0JlD;AAQM,gCALI,gBAAgB,UAChB,OAAO,mBAAmB,EAAE,MAAM,WAClC,KAAK,CAAC,oBAAoB,GAAC,IAAI,GAC9B,IAAI,CA6Bf;AAMM,0CAHI,IAAI,YACJ,IAAI;;;;;;;GAMd;AAKM,8BAFI,OAAO,mBAAmB,EAAE,WAAW;;;;;;;GAkBjD;AAiGM,kCAJI,OAAO,uBAAuB,EAAE,IAAI,aACpC,OAAO,mBAAmB,EAAE,IAAI,GAC/B,gBAAgB,CAQ3B;AA6GM,wCALI,IAAI,YACJ,MAAM,OACN,CAAC,CAAC,EAAC,KAAK,CAAC,eAAe,KAAG,GAAG,GAC7B,gBAAgB,CAa3B;+BAhjBa,OAAO,aAAa,EAAE,MAAM,CAAC,OAAO,iBAAiB,CAAC;;;;;iCAoGvD,KAAK,CAAC,aAAa;;;;;;;;;aAQlB,KAAK,CAAC,KAAK,CAAC,QAAQ,CAAC,GAAG,CAAC,GAAC,KAAK,CAAC,MAAM,CAAC;;;;aACvC,KAAK,CAAC,KAAK,CAAC,QAAQ,CAAC;;qBA3Hc,mBAAmB;mBALjD,MAAM;uBACF,YAAY;mBAGhB,aAAa"}
 \ No newline at end of file
 diff --git a/dist/src/undo-plugin.d.ts b/dist/src/undo-plugin.d.ts
 new file mode 100644
@@ -533,6 +659,61 @@ index 0000000000000000000000000000000000000000..665bb84203a88b35e2961e7221a31896
 diff --git a/dist/src/utils.d.ts b/dist/src/utils.d.ts
 deleted file mode 100644
 index 9006a87dd42992dfe0aa0f7ab5298983deb3357a..0000000000000000000000000000000000000000
+diff --git a/dist/src/y-attribution-to-diffset.d.ts b/dist/src/y-attribution-to-diffset.d.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..d9a219ef72198224a123e58b31cbd509cb2cfbf5
+--- /dev/null
++++ b/dist/src/y-attribution-to-diffset.d.ts
+@@ -0,0 +1,40 @@
++export function ydeltaToDiffSet(attributedDelta: d.DeltaAny, { displayedDoc, schema }: {
++    displayedDoc: import("prosemirror-model").Node;
++    schema: import("prosemirror-model").Schema;
++}): DiffSet;
++/**
++ * Who made a change and whether it was an insertion or deletion.
++ */
++export type Attribution = {
++    type: "added" | "removed";
++    authorIds: string[];
++    timestamp?: number;
++};
++/**
++ * The six diff types produced by `ydeltaToDiffSet`.
++ */
++export type DiffType = "inline-insert" | "inline-delete" | "block-insert" | "block-delete" | "inline-update" | "block-update";
++/**
++ * A single difference between the base and suggestion documents.
++ *
++ * `from`/`to` are positions in the *displayed* (clean) PM document.
++ * For delete types, `from === to` (zero-width) and `content` holds the
++ * removed fragment for ghost rendering.  For update types, `attributes`
++ * holds the new values and `previousAttributes` (when available) the old.
++ */
++export type Diff = {
++    type: DiffType;
++    from: number;
++    to: number;
++    content?: import("prosemirror-model").Fragment;
++    attribution: Attribution;
++    attributes?: Record<string, any>;
++    previousAttributes?: Record<string, any>;
++};
++/**
++ * An ordered array of `Diff` objects covering all changes between the
++ * base and suggestion documents.
++ */
++export type DiffSet = Diff[];
++import * as d from 'lib0/delta';
++//# sourceMappingURL=y-attribution-to-diffset.d.ts.map
+\ No newline at end of file
+diff --git a/dist/src/y-attribution-to-diffset.d.ts.map b/dist/src/y-attribution-to-diffset.d.ts.map
+new file mode 100644
+index 0000000000000000000000000000000000000000..229fa9e700846567721d8dedaa5721ac7b29eae8
+--- /dev/null
++++ b/dist/src/y-attribution-to-diffset.d.ts.map
+@@ -0,0 +1 @@
++{"version":3,"file":"y-attribution-to-diffset.d.ts","sourceRoot":"","sources":["../../src/y-attribution-to-diffset.js"],"names":[],"mappings":"AAkEO,iDAJI,CAAC,CAAC,QAAQ,4BACV;IAAE,YAAY,EAAE,OAAO,mBAAmB,EAAE,IAAI,CAAC;IAAC,MAAM,EAAE,OAAO,mBAAmB,EAAE,MAAM,CAAA;CAAE,GAC5F,OAAO,CAQnB;;;;0BArDY;IACR,IAAI,EAAE,OAAO,GAAG,SAAS,CAAC;IAC1B,SAAS,EAAE,MAAM,EAAE,CAAC;IACpB,SAAS,CAAC,EAAE,MAAM,CAAA;CACnB;;;;uBAMS,eAAe,GAAG,eAAe,GAAG,cAAc,GAAG,cAAc,GAAG,eAAe,GAAG,cAAc;;;;;;;;;mBAWtG;IACR,IAAI,EAAE,QAAQ,CAAC;IACf,IAAI,EAAE,MAAM,CAAC;IACb,EAAE,EAAE,MAAM,CAAC;IACX,OAAO,CAAC,EAAE,OAAO,mBAAmB,EAAE,QAAQ,CAAC;IAC/C,WAAW,EAAE,WAAW,CAAC;IACzB,UAAU,CAAC,EAAE,MAAM,CAAC,MAAM,EAAE,GAAG,CAAC,CAAC;IACjC,kBAAkB,CAAC,EAAE,MAAM,CAAC,MAAM,EAAE,GAAG,CAAC,CAAA;CACzC;;;;;sBAOS,IAAI,EAAE;mBA3CA,YAAY"}
+\ No newline at end of file
 diff --git a/dist/src/y-prosemirror.d.ts b/dist/src/y-prosemirror.d.ts
 deleted file mode 100644
 index c1f9468c4c77434a1ad9f49227fb1274f5ae1915..0000000000000000000000000000000000000000
@@ -627,21 +808,20 @@ index 8eaef6bf2b216933047f528e3c3b0aa469df45e7..258a3b18cc50c11181b70a716953fdb1
      "@rollup/plugin-commonjs": "^28.0.8",
 diff --git a/src/commands.js b/src/commands.js
 new file mode 100644
-index 0000000000000000000000000000000000000000..504167d4a50fbbb1198a3f9108edba262738504a
+index 0000000000000000000000000000000000000000..6c4ff47a6cbe8a9cacc400af7755791daa8a0af1
 --- /dev/null
 +++ b/src/commands.js
-@@ -0,0 +1,163 @@
-+import * as d from 'lib0/delta'
+@@ -0,0 +1,154 @@
 +import { ySyncPluginKey, yUndoPluginKey } from './keys.js'
-+import { deltaToPSteps, deltaAttributionToFormat, nodeToDelta, deltaToPNode } from './sync-utils.js'
++import { deltaToPSteps, nodeToDelta, deltaToPNode } from './sync-utils.js'
++import * as d from 'lib0/delta'
 +import * as Y from '@y/y'
 +import { absolutePositionToRelativePosition } from './positions.js'
 +
 +/**
-+ * Switch to pause mode (stop synchronization between prosemirror and ytype)
-+ * @param {import('prosemirror-state').EditorState} state
-+ * @param {CommandDispatch?} dispatch
-+ * @returns {boolean}
++ * Switch to pause mode (stop synchronization between prosemirror and ytype).
++ *
++ * @type {import('prosemirror-state').Command}
 + */
 +export function pauseSync (state, dispatch) {
 +  const pluginState = ySyncPluginKey.getState(state)
@@ -656,17 +836,14 @@ index 0000000000000000000000000000000000000000..504167d4a50fbbb1198a3f9108edba26
 +  return true
 +}
 +
-+const debugging = false
-+
 +/**
 + * Reconfigure y-prosemirror.
 + * - enable syncing to (different) ytype
-+ * - render attributions
 + * - pause sync (by setting ytype=null)
 + *
 + * @param {object} [opts]
-+ * @param {YType?} [opts.ytype] Sync different ytype. Set to null to pause sync
-+ * @param {AttributionManager?} [opts.attributionManager] Optional attribution manager to switch to
++ * @param {Y.Type | null} [opts.ytype] Sync different ytype. Set to null to pause sync.
++ * @param {Y.AbstractAttributionManager | null} [opts.attributionManager] Optional attribution manager to switch to.
 + * @returns {import('prosemirror-state').Command}
 + */
 +export const configureYProsemirror = (opts = {}) => (state, dispatch) => {
@@ -680,18 +857,13 @@ index 0000000000000000000000000000000000000000..504167d4a50fbbb1198a3f9108edba26
 +    const tr = state.tr.setMeta(ySyncPluginKey, opts)
 +    tr.setMeta('addToHistory', false)
 +    if (ytype) {
-+      /**
-+       * @type {ProsemirrorDelta}
-+       */
-+      const ycontent = deltaAttributionToFormat(ytype.toDeltaDeep(attributionManager || Y.noAttributionsManager), pluginState.attributionMapper)
-+      // @todo it is preferred to apply the minimal diff - at least for debugging purposes. the
-+      // document replacal is more reliable though
-+      if (debugging) {
-+        const pcontent = nodeToDelta(tr.doc, undefined, true)
++      const ycontent = ytype.toDeltaDeep()
++      try {
++        const pcontent = nodeToDelta(tr.doc)
 +        const diff = d.diff(pcontent.done(), ycontent.done())
-+        deltaToPSteps(tr, diff, undefined, undefined, pluginState.attributedNodes)
-+      } else {
-+        tr.replaceWith(0, tr.doc.content.size, deltaToPNode(ycontent, tr.doc.type.schema, null, pluginState.attributedNodes))
++        deltaToPSteps(tr, diff)
++      } catch {
++        tr.replaceWith(0, tr.doc.content.size, deltaToPNode(ycontent, tr.doc.type.schema, null))
 +      }
 +    }
 +    dispatch(tr)
@@ -1143,11 +1315,1097 @@ index 0000000000000000000000000000000000000000..79fa8f273361c11282e2c2df76c38895
 +      }
 +    }
 +  })
+diff --git a/src/diff-decorations.js b/src/diff-decorations.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..a6e6d6b271242dc7d7dbe9bdc814c10447880db4
+--- /dev/null
++++ b/src/diff-decorations.js
+@@ -0,0 +1,256 @@
++/**
++ * Render a `DiffSet` as ProseMirror decorations over the *displayed* (final)
++ * document. The document is never mutated.
++ *
++ *  - inline-insert / inline-update -> Decoration.inline
++ *  - block-insert  / block-update  -> Decoration.node  (per top-level node)
++ *  - inline-delete / block-delete  -> Decoration.widget showing the removed
++ *      content, reconstructed by serializing the removed Fragment to HTML.
++ *
++ * Each decoration carries its `diff` in the decoration `spec` so future
++ * node-views / attribute-change extraction can read it back. Decorations
++ * also expose `data-diff-type` and `data-diff-user-id` attributes for CSS.
++ */
++import { Decoration, DecorationSet } from 'prosemirror-view'
++import { Plugin } from 'prosemirror-state'
++import { DOMSerializer, Fragment } from 'prosemirror-model'
++import { suggestionDiffPluginKey } from './keys.js'
++
++/**
++ * @typedef {import('./y-attribution-to-diffset.js').Diff} Diff
++ * @typedef {import('./y-attribution-to-diffset.js').DiffSet} DiffSet
++ * @typedef {import('./y-attribution-to-diffset.js').DiffType} DiffType
++ * @typedef {import('./y-attribution-to-diffset.js').Attribution} Attribution
++ */
++
++/**
++ * Arguments passed to a `mapDiffToDecorations` callback.
++ *
++ * @typedef {{
++ *   diff: Diff,
++ *   doc: import('prosemirror-model').Node,
++ *   schema: import('prosemirror-model').Schema,
++ *   index: number,
++ *   color?: string,
++ *   attributes?: import('prosemirror-view').DecorationAttrs,
++ *   defaultMapDiffToDecorations?: MapDiffToDecorations
++ * }} MapDiffArgs
++ */
++
++/**
++ * Callback that converts a single `Diff` to decoration(s).
++ * Return a `Decoration`, an array of them, or `null` to skip.
++ *
++ * @callback MapDiffToDecorations
++ * @param {MapDiffArgs} args
++ * @returns {import('prosemirror-view').Decoration | import('prosemirror-view').Decoration[] | null}
++ */
++
++/**
++ * Options shared by `buildDiffDecorationSet` and `ySuggestionDecorationPlugin`.
++ *
++ * @typedef {{
++ *   colorForAuthors?: (authorIds: string[]) => (string | undefined),
++ *   mapDiffToDecorations?: MapDiffToDecorations
++ * }} SuggestionDecorationOptions
++ */
++
++/**
++ * Reconstruct removed content as a non-editable DOM node by serializing the
++ * Fragment to HTML. Works for inline text and for whole block nodes alike.
++ *
++ * @param {import('prosemirror-model').Fragment} fragment
++ * @param {import('prosemirror-model').Schema} schema
++ * @param {{ authorIds?: string[], color?: string, title?: string }} [opts]
++ * @returns {HTMLElement}
++ */
++export const renderDeletedContent = (fragment, schema, opts = {}) => {
++  const serializer = DOMSerializer.fromSchema(schema)
++  const isBlock = fragment?.firstChild?.isBlock ?? false
++  const container = document.createElement(isBlock ? 'div' : 'span')
++  container.className = 'pm-suggest pm-suggest--delete'
++  container.setAttribute('data-diff-type', isBlock ? 'block-delete' : 'inline-delete')
++  if (opts.authorIds?.length) {
++    container.setAttribute('data-diff-user-id', opts.authorIds.join(','))
++  }
++  if (opts.color) {
++    container.style.setProperty('--author-color', opts.color)
++  }
++  if (opts.title) {
++    container.setAttribute('title', opts.title)
++  }
++  container.contentEditable = 'false'
++  if (fragment) {
++    container.appendChild(serializer.serializeFragment(fragment, { document }))
++  }
++  return container
++}
++
++/**
++ * Build a human-readable hover title from diff attribution.
++ *
++ * @param {Diff} diff
++ * @returns {string}
++ */
++const hoverTitle = (diff) => {
++  const parts = []
++  const authorIds = diff.attribution.authorIds
++  if (authorIds.length) {
++    parts.push(authorIds.join(', '))
++  }
++  if (diff.attribution.timestamp) {
++    parts.push(new Date(diff.attribution.timestamp).toLocaleString())
++  }
++  const typeLabel = diff.type.replace('-', ' ')
++  if (parts.length) return `${typeLabel}: ${parts.join(' — ')}`
++  return typeLabel
++}
++
++/**
++ * Build a summary string for a block-update diff showing what changed
++ * (e.g. "level: 1 → 2").
++ *
++ * @param {Diff} diff
++ * @returns {string}
++ */
++const blockUpdateSummary = (diff) => {
++  if (diff.type !== 'block-update') return ''
++  const attrs = diff.attributes
++  const prev = diff.previousAttributes
++  if (!attrs) return ''
++  const parts = []
++  for (const key of Object.keys(attrs)) {
++    const newVal = attrs[key]
++    const oldVal = prev?.[key]
++    if (oldVal !== undefined && oldVal !== newVal) {
++      parts.push(`${key}: ${oldVal} → ${newVal}`)
++    } else {
++      parts.push(`${key}: ${newVal}`)
++    }
++  }
++  return parts.join(', ')
++}
++
++/**
++ * @param {Diff} diff
++ * @param {{ authorIds: string[], color?: string }} ctx
++ * @returns {import('prosemirror-view').DecorationAttrs}
++ */
++const decorationAttrs = (diff, { authorIds, color }) => {
++  /** @type {import('prosemirror-view').DecorationAttrs} */
++  const attrs = {
++    class: `pm-suggest pm-suggest--${diff.type}`,
++    'data-diff-type': diff.type
++  }
++  if (authorIds.length) attrs['data-diff-user-id'] = authorIds.join(',')
++  if (color) attrs.style = `--author-color: ${color}`
++  // Hover metadata: show author(s), timestamp, and attribute changes
++  let title = hoverTitle(diff)
++  const summary = blockUpdateSummary(diff)
++  if (summary) title += ` (${summary})`
++  attrs.title = title
++  return attrs
++}
++
++/**
++ * Default mapping from a single `Diff` to decoration(s). Returns a `Decoration`,
++ * an array of them, or `null` to skip.
++ *
++ * @type {MapDiffToDecorations}
++ */
++export const defaultMapDiffToDecorations = ({ diff, doc, schema, index, color, attributes = {} }) => {
++  const authorIds = diff.attribution.authorIds
++  const attrs = { ...decorationAttrs(diff, { authorIds, color }), ...attributes }
++  const spec = { diff }
++
++  switch (diff.type) {
++    case 'inline-insert':
++    case 'inline-update':
++      return Decoration.inline(diff.from, diff.to, attrs, { ...spec, inclusiveStart: false, inclusiveEnd: true })
++
++    case 'block-update':
++      return Decoration.node(diff.from, diff.to, attrs, spec)
++
++    case 'block-insert': {
++      const $from = doc.resolve(diff.from)
++      const after = $from.nodeAfter
++      if (after && diff.from + after.nodeSize === diff.to) {
++        return Decoration.node(diff.from, diff.to, attrs, spec)
++      }
++      /** @type {Decoration[]} */
++      const decos = []
++      doc.nodesBetween(diff.from, diff.to, (node, pos) => {
++        if (pos >= diff.from && pos + node.nodeSize <= diff.to && node.isBlock) {
++          decos.push(Decoration.node(pos, pos + node.nodeSize, attrs, spec))
++          return false
++        }
++        return undefined
++      })
++      if (!decos.length) {
++        decos.push(Decoration.inline(diff.from, diff.to, attrs, spec))
++      }
++      return decos
++    }
++
++    case 'inline-delete':
++    case 'block-delete':
++      return Decoration.widget(
++        diff.from,
++        () => renderDeletedContent(diff.content ?? Fragment.empty, schema, { authorIds, color, title: hoverTitle(diff) }),
++        { side: 1, key: `diff-del-${index}-${diff.content?.size ?? 0}`, diff }
++      )
++
++    default:
++      return null
++  }
++}
++
++/**
++ * Build a `DecorationSet` for `diffs` over `doc`. Pure - does not touch the doc.
++ *
++ * @param {import('prosemirror-model').Node} doc
++ * @param {DiffSet} diffs
++ * @param {import('prosemirror-model').Schema} schema
++ * @param {SuggestionDecorationOptions} [opts]
++ * @returns {DecorationSet}
++ */
++export const buildDiffDecorationSet = (doc, diffs, schema, opts = {}) => {
++  const map = opts.mapDiffToDecorations ?? defaultMapDiffToDecorations
++  /** @type {Decoration[]} */
++  const decorations = []
++  diffs.forEach((diff, index) => {
++    const color = opts.colorForAuthors?.(diff.attribution.authorIds)
++    const result = map({ diff, doc, schema, index, color, defaultMapDiffToDecorations })
++    if (Array.isArray(result)) decorations.push(...result.filter(Boolean))
++    else if (result) decorations.push(result)
++  })
++  return DecorationSet.create(doc, decorations)
++}
++
++/**
++ * ProseMirror plugin that overlays a `DiffSet` as decorations.
++ *
++ * Update the diffs at runtime by dispatching
++ * `tr.setMeta(suggestionDiffPluginKey, { diffs })`.
++ *
++ * @param {SuggestionDecorationOptions & { diffs?: DiffSet }} [config]
++ * @returns {Plugin<DecorationSet>}
++ */
++export const suggestionDiffPlugin = ({ diffs = [], mapDiffToDecorations, colorForAuthors } = {}) =>
++  new Plugin({
++    key: suggestionDiffPluginKey,
++    state: {
++      init: (_config, state) =>
++        buildDiffDecorationSet(state.doc, diffs, state.schema, { mapDiffToDecorations, colorForAuthors }),
++      apply: (tr, prev, _old, newState) => {
++        const meta = tr.getMeta(suggestionDiffPluginKey)
++        if (meta?.diffs) {
++          return buildDiffDecorationSet(newState.doc, meta.diffs, newState.schema, { mapDiffToDecorations, colorForAuthors })
++        }
++        return prev.map(tr.mapping, tr.doc)
++      }
++    },
++    props: {
++      decorations: (state) => suggestionDiffPluginKey.getState(state)
++    }
++  })
+diff --git a/src/editable-deletion.js b/src/editable-deletion.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..406531db8e420f34c052e5a21c75fe58a09d525d
+--- /dev/null
++++ b/src/editable-deletion.js
+@@ -0,0 +1,818 @@
++/**
++ * Editable deleted content via nested sub-editors (the ProseMirror footnote
++ * pattern: https://prosemirror.net/examples/footnote/).
++ *
++ * The decoration overlay normally renders deleted content as a *read-only*
++ * ghost (see `renderDeletedContent` in diff-decorations.js). This module
++ * renders it instead as a widget decoration whose DOM hosts its own small
++ * `EditorView` — a self-contained "sub-editor" — so the user can click into a
++ * deletion and edit the removed text directly.
++ *
++ * This is a proof of concept. Scope intentionally excluded:
++ *   - syncing sub-editor edits back into Yjs (the sub-editor is isolated)
++ *   - undo/redo integration with the host editor's history
++ *   - rich block structure inside the sub-editor (everything becomes paragraphs)
++ *
++ * How it works (mirroring the footnote example):
++ *   - A widget decoration's DOM is the mount point for a nested `EditorView`.
++ *   - `stopEvent: () => true` tells the *outer* view to ignore every event that
++ *     originates inside the widget, so the nested view handles its own input.
++ *   - `ignoreSelection: true` keeps the outer view from trying to read or place
++ *     a selection inside the sub-editor.
++ *   - A stable `key` (derived from the deleted content, not the array index)
++ *     lets ProseMirror reuse the existing widget DOM across decoration
++ *     rebuilds, so the nested view — and its focus/selection/edit state —
++ *     survives the periodic `y-sync-transaction` recompute.
++ *   - `destroy` tears the nested view down when the deletion finally goes away
++ *     (e.g. the change is accepted or rejected).
++ *
++ * Arrow-key navigation across the widget boundary:
++ *   - The host editor (via `handleEditableDeletionArrow`, wired into
++ *     `ySuggestionDecorationPlugin`'s `handleKeyDown`) intercepts ArrowRight
++ *     when the caret sits immediately left of a deletion widget and ArrowLeft
++ *     when it sits immediately right of one, and moves focus *into* the
++ *     sub-editor (at its start / end respectively) — so the ghost behaves like
++ *     ordinary text instead of being invisible to cursor motion.
++ *   - The sub-editor's own keymap does the reverse: ArrowLeft at its start /
++ *     ArrowRight at its end exits back into the host editor at the position
++ *     just before / after the widget.
++ *   - Inline ghosts are zero-width: both visual sides map to the same doc
++ *     position. The widget is created with `relaxedSide: true` so a DOM
++ *     selection placed on its right side sticks, and the handlers track the
++ *     caret's *visual* side (live DOM selection, with a placement flag as
++ *     fallback for non-layout environments) to decide whether an arrow press
++ *     enters the ghost or moves past it. Crossing the ghost is one visual
++ *     slot per press, like real text.
++ *
++ * Typing at the widget boundary (cursor-side-aware insertion):
++ *   - The attributed delta orders a deletion *before* an insertion recorded at
++ *     the same position, so by default text typed at a ghost's position
++ *     renders to its right — even when the caret was on its left. Both
++ *     orderings produce the same documents, so the anchor choice belongs to
++ *     the rendering layer.
++ *   - `handleEditableDeletionTextInput` (wired into the suggestion plugin's
++ *     `handleTextInput`) records the caret's visual side when text is typed
++ *     at a ghost's position, accumulating an *anchor offset* per ghost: how
++ *     many characters of the adjacent attributed insert run belong to the
++ *     ghost's left. `applyGhostAnchorOffsets` re-applies that preference on
++ *     every decoration rebuild, so text typed with the caret left of the
++ *     ghost stays on its left and text typed on its right stays on its right.
++ */
++import { Decoration, EditorView } from 'prosemirror-view'
++import { EditorState, Selection } from 'prosemirror-state'
++import { Schema, Fragment } from 'prosemirror-model'
++import { keymap } from 'prosemirror-keymap'
++import { baseKeymap } from 'prosemirror-commands'
++import { defaultMapDiffToDecorations } from './diff-decorations.js'
++import { ySuggestionDecorationPluginKey, ySyncPluginKey, suggestionDiffPluginKey } from './keys.js'
++
++/**
++ * @typedef {import('./y-attribution-to-diffset.js').Diff} Diff
++ * @typedef {import('./diff-decorations.js').MapDiffArgs} MapDiffArgs
++ */
++
++/**
++ * The structural shape of a deletion, deciding which element the sub-editor
++ * mounts on and which minimal inner schema it uses, so the widget DOM stays
++ * *valid* in its surrounding context (a `<tr>` between table rows, a `<td>`
++ * between cells, a true inline `<span>` mid-text).
++ *
++ * @typedef {'inline' | 'block' | 'row' | 'cell'} DeletionShape
++ */
++
++/**
++ * Detect the shape of a deleted fragment. Table detection rides on the
++ * prosemirror-tables `tableRole` node-spec convention (used by BlockNote and
++ * most table schemas), so no schema-specific node names are required.
++ *
++ * @param {Fragment} fragment
++ * @returns {DeletionShape}
++ */
++const detectShape = (fragment) => {
++  const first = fragment.firstChild
++  if (!first || !first.isBlock) return 'inline'
++  const role = first.type.spec.tableRole
++  if (role === 'row') return 'row'
++  if (role === 'cell' || role === 'header_cell') return 'cell'
++  return 'block'
++}
++
++/** @type {Record<DeletionShape, string>} */
++const shapeTag = { inline: 'span', block: 'div', row: 'tr', cell: 'td' }
++
++/**
++ * Cache of derived inner schemas, keyed by host schema. The sub-editor uses
++ * deliberately tiny schemas so it never has to satisfy the host's (possibly
++ * deeply nested) content model — only the host's *marks* are reused, so
++ * bold/italic/etc. in deleted text survive by name.
++ *
++ * Two variants exist per host schema: an inline one (doc holds inline
++ * content directly, mounted on a `<span>`) and a block one (doc >
++ * paragraph+) shared by block ghosts, cell ghosts and the per-cell editors
++ * of row ghosts.
++ *
++ * @type {WeakMap<import('prosemirror-model').Schema, Map<string, import('prosemirror-model').Schema>>}
++ */
++const innerSchemaCache = new WeakMap()
++
++/**
++ * Build (or fetch a cached) minimal schema for the sub-editor.
++ *
++ * @param {import('prosemirror-model').Schema} hostSchema
++ * @param {DeletionShape} shape
++ * @returns {import('prosemirror-model').Schema}
++ */
++const getInnerSchema = (hostSchema, shape) => {
++  let byShape = innerSchemaCache.get(hostSchema)
++  if (!byShape) {
++    byShape = new Map()
++    innerSchemaCache.set(hostSchema, byShape)
++  }
++  const bucket = shape === 'inline' ? 'inline' : 'block'
++  const cached = byShape.get(bucket)
++  if (cached) return cached
++
++  /** @type {Object<string, import('prosemirror-model').NodeSpec>} */
++  const nodes = shape === 'inline'
++    ? {
++        doc: { content: 'inline*' },
++        text: { group: 'inline' }
++      }
++    // 'block', 'cell' and each cell-editor of a 'row' share doc > paragraph+.
++    : {
++        doc: { content: 'block+' },
++        paragraph: {
++          content: 'inline*',
++          group: 'block',
++          parseDOM: [{ tag: 'p' }],
++          toDOM: () => ['p', 0]
++        },
++        text: { group: 'inline' }
++      }
++  let schema
++  try {
++    // Reuse the host marks so deleted text keeps its formatting (the mark
++    // *names* match, which is all the rebuild below relies on).
++    schema = new Schema({ nodes, marks: hostSchema.spec.marks })
++  } catch {
++    // Some host mark specs may not survive being re-homed; fall back to plain
++    // text, which is always editable.
++    schema = new Schema({ nodes })
++  }
++  byShape.set(bucket, schema)
++  return schema
++}
++
++/**
++ * Re-create a fragment's inline content using the inner schema, mapping marks
++ * by name (dropping any the inner schema doesn't define).
++ *
++ * @param {Fragment} fragment - inline content (may contain nested blocks)
++ * @param {import('prosemirror-model').Schema} innerSchema
++ * @returns {import('prosemirror-model').Node[]}
++ */
++const inlineToInner = (fragment, innerSchema) => {
++  /** @type {import('prosemirror-model').Node[]} */
++  const out = []
++  fragment.descendants((node) => {
++    if (node.isText && node.text) {
++      const marks = node.marks
++        .map((m) => innerSchema.marks[m.type.name]?.create(m.attrs))
++        .filter(Boolean)
++      out.push(innerSchema.text(node.text, marks.length ? marks : undefined))
++      return false
++    }
++    return true
++  })
++  return out
++}
++
++/**
++ * Convert a block node's content into inner paragraphs (one per nested
++ * textblock, flattened).
++ *
++ * @param {import('prosemirror-model').Node} block
++ * @param {import('prosemirror-model').Schema} innerSchema
++ * @returns {import('prosemirror-model').Node[]}
++ */
++const blockToParagraphs = (block, innerSchema) => {
++  const paragraph = innerSchema.nodes.paragraph
++  /** @type {import('prosemirror-model').Node[]} */
++  const out = []
++  if (block.isTextblock) {
++    out.push(paragraph.create(null, inlineToInner(block.content, innerSchema)))
++  } else {
++    block.forEach((child) => out.push(...blockToParagraphs(child, innerSchema)))
++  }
++  if (out.length === 0) {
++    out.push(/** @type {import('prosemirror-model').Node} */ (paragraph.createAndFill()))
++  }
++  return out
++}
++
++/**
++ * Convert a deleted fragment into a valid document for a single sub-editor:
++ *   - inline: the doc holds the inline content directly
++ *   - block / cell: every (possibly nested) textblock becomes a paragraph
++ *
++ * @param {Fragment} fragment
++ * @param {import('prosemirror-model').Schema} innerSchema
++ * @param {DeletionShape} shape
++ * @returns {import('prosemirror-model').Node}
++ */
++const fragmentToInnerDoc = (fragment, innerSchema, shape) => {
++  const doc = innerSchema.nodes.doc
++  if (shape === 'inline') {
++    return doc.create(null, inlineToInner(fragment, innerSchema))
++  }
++  /** @type {import('prosemirror-model').Node[]} */
++  const paragraphs = []
++  const first = fragment.firstChild
++  if (first && first.isBlock) {
++    fragment.forEach((block) => paragraphs.push(...blockToParagraphs(block, innerSchema)))
++  } else {
++    const paragraph = innerSchema.nodes.paragraph
++    const inline = inlineToInner(fragment, innerSchema)
++    paragraphs.push(inline.length
++      ? paragraph.create(null, inline)
++      : /** @type {import('prosemirror-model').Node} */ (paragraph.createAndFill()))
++  }
++  if (paragraphs.length === 0) {
++    paragraphs.push(/** @type {import('prosemirror-model').Node} */ (innerSchema.nodes.paragraph.createAndFill()))
++  }
++  return doc.create(null, paragraphs)
++}
++
++/**
++ * One inner document per deleted table cell, in row order. Fragment children
++ * are tableRow nodes (usually one); their cells are flattened into a single
++ * sequence so a deleted row renders as one `<tr>` of per-cell editors.
++ *
++ * @param {Fragment} fragment
++ * @param {import('prosemirror-model').Schema} innerSchema
++ * @returns {import('prosemirror-model').Node[]}
++ */
++const rowCellDocs = (fragment, innerSchema) => {
++  /** @type {import('prosemirror-model').Node[]} */
++  const docs = []
++  fragment.forEach((row) => {
++    row.forEach((cell) => {
++      docs.push(innerSchema.nodes.doc.create(null, blockToParagraphs(cell, innerSchema)))
++    })
++  })
++  if (docs.length === 0) {
++    docs.push(/** @type {import('prosemirror-model').Node} */ (innerSchema.nodes.doc.createAndFill()))
++  }
++  return docs
++}
++
++/**
++ * @param {Fragment | undefined} fragment
++ * @returns {string}
++ */
++const fragmentText = (fragment) =>
++  fragment && fragment.size ? fragment.textBetween(0, fragment.size, '\n') : ''
++
++/**
++ * A stable widget key for a deletion. Tied to the deleted content and author
++ * (not the diff's array index), so the widget DOM — and the nested EditorView
++ * inside it — is reused across decoration rebuilds instead of being torn down
++ * and re-created on every `y-sync-transaction`.
++ *
++ * @param {Diff} diff
++ * @returns {string}
++ */
++export const deletionKey = (diff) =>
++  `editable-del-${diff.type}-${diff.attribution.authorIds.join(',')}-${fragmentText(diff.content)}`
++
++/**
++ * Global registry of sub-editor entries keyed by the widget's stable key.
++ * Because ProseMirror reuses the DOM (and old WidgetViewDesc) across decoration
++ * rebuilds when keys match, the NEW decoration's spec.subEditors stays undefined.
++ * This map provides a reliable lookup path for handlers and tests that only have
++ * access to the new (current) decoration objects from the DecorationSet.
++ *
++ * Entries are added by `createDeletionDOM` and removed by the widget's `destroy`.
++ *
++ * @type {Map<string, SubEditorEntry>}
++ */
++export const subEditorsByKey = new Map()
++
++/**
++ * Sub-editor entry stored on the widget decoration's `spec.subEditors`.
++ * The arrow/text-input handlers read it directly from the spec instead of
++ * using a module-level registry, so external consumers (e.g. BlockNote) can
++ * mount their own sub-editors and have the keyboard navigation work
++ * automatically — just set `spec.subEditors` on the widget decoration.
++ *
++ * @typedef {{ views: EditorView[], container: HTMLElement }} SubEditorEntry
++ */
++
++/**
++ * Which visual side of an inline ghost the caret is on when it sits exactly
++ * at the widget's position. Both sides of a zero-width widget are the same
++ * doc position; the *rendered* side decides whether an arrow key should enter
++ * the ghost or move past it. The DOM selection is the source of truth
++ * (`caretIsAfterWidget`); this flag records the side whenever *we* place the
++ * caret, as a fallback for environments where the DOM selection is not
++ * readable (jsdom tests).
++ *
++ * Maps host view -> widget position whose right side the caret was placed on.
++ *
++ * @type {WeakMap<EditorView, number>}
++ */
++const caretAfterFlags = new WeakMap()
++
++/**
++ * Read which side of the widget the live DOM selection is on. Returns null
++ * when it cannot be determined (no selection API, selection elsewhere, or
++ * inside the widget itself).
++ *
++ * @param {EditorView} view
++ * @param {HTMLElement} container
++ * @returns {boolean | null} true = caret renders after (right of) the widget
++ */
++const caretIsAfterWidget = (view, container) => {
++  try {
++    // Chrome implements getSelection on ShadowRoot too; TS's lib.dom doesn't.
++    const root = /** @type {any} */ (view.root)
++    const sel = /** @type {globalThis.Selection | null} */ (root.getSelection ? root.getSelection() : document.getSelection())
++    const node = sel?.focusNode
++    if (!node || typeof sel.focusOffset !== 'number') return null
++    if (node === container.parentNode) {
++      const idx = Array.prototype.indexOf.call(node.childNodes, container)
++      return sel.focusOffset > idx
++    }
++    const cmp = container.compareDocumentPosition(/** @type {Node} */ (node))
++    if (cmp & 16 /* CONTAINED_BY */) return null
++    if (cmp & 4 /* FOLLOWING */) return true
++    if (cmp & 2 /* PRECEDING */) return false
++    return null
++  } catch {
++    return null
++  }
++}
++
++/**
++ * Move the DOM caret to just after the widget container, so the caret
++ * *renders* on the right side of the ghost. Requires `relaxedSide: true` on
++ * the widget, otherwise ProseMirror snaps the DOM selection back to the side
++ * implied by `side`. Returns false where the selection API is unavailable
++ * (jsdom) — callers fall back to `caretAfterFlags`.
++ *
++ * @param {EditorView} view
++ * @param {HTMLElement} container
++ * @returns {boolean}
++ */
++const placeCaretAfterWidget = (view, container) => {
++  try {
++    // Chrome implements getSelection on ShadowRoot too; TS's lib.dom doesn't.
++    const root = /** @type {any} */ (view.root)
++    const sel = /** @type {globalThis.Selection | null} */ (root.getSelection ? root.getSelection() : document.getSelection())
++    const doc = container.ownerDocument
++    if (!sel || !doc || typeof sel.removeAllRanges !== 'function') return false
++    const range = doc.createRange()
++    range.setStartAfter(container)
++    range.collapse(true)
++    sel.removeAllRanges()
++    sel.addRange(range)
++    return true
++  } catch {
++    return false
++  }
++}
++
++/**
++ * Resolve the caret's visual side relative to an inline ghost, preferring the
++ * live DOM selection and falling back to the placement flag.
++ *
++ * @param {EditorView} view
++ * @param {HTMLElement} container
++ * @param {number} widgetPos
++ * @returns {boolean} true = caret renders after (right of) the widget
++ */
++const caretRendersAfter = (view, container, widgetPos) => {
++  const domSide = caretIsAfterWidget(view, container)
++  if (domSide !== null) return domSide
++  return caretAfterFlags.get(view) === widgetPos
++}
++
++/**
++ * Move the caret into a sub-editor at its start (side > 0) or end (side < 0).
++ *
++ * @param {EditorView} view
++ * @param {number} side
++ * @returns {true}
++ */
++const focusSubEditor = (view, side) => {
++  const sel = side > 0 ? Selection.atStart(view.state.doc) : Selection.atEnd(view.state.doc)
++  view.dispatch(view.state.tr.setSelection(sel).scrollIntoView())
++  view.focus()
++  return true
++}
++
++/**
++ * Build the widget DOM for a deletion. The outermost element is a
++ * *non-editable shell* matching the deletion's structural shape
++ * (`span` / `div` / `tr` / `td`) so the widget stays valid HTML in its
++ * surrounding context — a real `<tr>` of `<td>`s between table rows keeps
++ * the table's layout and CSS intact.
++ *
++ * The sub-editor mounts on an element *inside* the shell: the
++ * `contenteditable=false` shell is what makes the nested editor separately
++ * focusable at all (without that boundary the browser merges it into the
++ * host editor's editing context), and browsers additionally refuse
++ * `contenteditable` roots directly on table elements.
++ *   - inline: an editable `<span>` inside the `<span>` shell
++ *   - block:  an editable `<div>` inside the `<div>` shell
++ *   - cell:   an editable `<div>` inside the `<td>` shell
++ *   - row:    one editable `<div>` inside each `<td>` of the `<tr>` shell,
++ *     with ArrowLeft/Right at a cell's edge hopping to the neighbouring
++ *     cell before exiting the widget at the outer edges.
++ *
++ * @param {Diff} diff
++ * @param {import('prosemirror-model').Schema} innerSchema
++ * @param {DeletionShape} shape
++ * @param {{ color?: string, title?: string }} opts
++ * @param {string} key - the widget's stable decoration key
++ * @param {EditorView} outerView
++ * @param {() => number | undefined} getPos
++ * @param {Record<string, any>} spec - the widget decoration's spec object
++ * @returns {HTMLElement}
++ */
++const createDeletionDOM = (diff, innerSchema, shape, opts, key, outerView, getPos, spec) => {
++  const container = document.createElement(shapeTag[shape])
++  container.className = 'pm-suggest pm-suggest--delete pm-suggest--editable'
++  container.setAttribute('data-diff-type', diff.type)
++  const authorIds = diff.attribution.authorIds
++  if (authorIds.length) container.setAttribute('data-diff-user-id', authorIds.join(','))
++  if (opts.color) container.style.setProperty('--author-color', opts.color)
++  if (opts.title) container.setAttribute('title', opts.title)
++
++  /**
++   * Exit the whole widget into the host editor.
++   *
++   * @param {number} bias - -1 exits before the widget, 1 after it
++   */
++  const exit = (bias) => {
++    const pos = getPos()
++    if (pos == null) return false
++    const sel = Selection.near(outerView.state.doc.resolve(pos), bias)
++    outerView.dispatch(outerView.state.tr.setSelection(sel).scrollIntoView())
++    outerView.focus()
++    if (bias > 0 && shape === 'inline') {
++      // Exiting right from an inline ghost lands on the widget's own position
++      // (there is no separate doc position to its right). Render the caret on
++      // the right side so the exit is visible, and remember the side for the
++      // next arrow press.
++      placeCaretAfterWidget(outerView, container)
++      caretAfterFlags.set(outerView, pos)
++    } else {
++      caretAfterFlags.delete(outerView)
++    }
++    return true
++  }
++
++  /** @type {EditorView[]} */
++  const views = []
++  /**
++   * Arrow commands for the view at `index`: at the doc edge, move to the
++   * neighbouring cell view, or exit the widget at the outer edges.
++   *
++   * @param {number} index
++   */
++  const edgeBindings = (index) => {
++    /** @type {import('prosemirror-state').Command} */
++    const left = (state) =>
++      state.selection.empty && state.selection.head <= Selection.atStart(state.doc).head &&
++      (index > 0 ? focusSubEditor(views[index - 1], -1) : exit(-1))
++    /** @type {import('prosemirror-state').Command} */
++    const right = (state) =>
++      state.selection.empty && state.selection.head >= Selection.atEnd(state.doc).head &&
++      (index < views.length - 1 ? focusSubEditor(views[index + 1], 1) : exit(1))
++    return { ArrowLeft: left, ArrowRight: right, ArrowUp: left, ArrowDown: right }
++  }
++
++  /**
++   * @param {HTMLElement} mount
++   * @param {import('prosemirror-model').Node} innerDoc
++   * @param {number} index
++   */
++  const addView = (mount, innerDoc, index) => {
++    views.push(new EditorView({ mount }, {
++      state: EditorState.create({
++        doc: innerDoc,
++        plugins: [keymap(edgeBindings(index)), keymap(baseKeymap)]
++      }),
++      attributes: { class: 'pm-suggest__sub-editor' }
++    }))
++  }
++
++  // The shell is the non-editable island boundary; the editor(s) inside it
++  // are separately focusable because of it.
++  container.contentEditable = 'false'
++  if (shape === 'row') {
++    rowCellDocs(diff.content ?? Fragment.empty, innerSchema).forEach((cellDoc, i) => {
++      const td = document.createElement('td')
++      container.appendChild(td)
++      const mount = document.createElement('div')
++      td.appendChild(mount)
++      addView(mount, cellDoc, i)
++    })
++  } else {
++    const mount = document.createElement(shape === 'inline' ? 'span' : 'div')
++    container.appendChild(mount)
++    addView(mount, fragmentToInnerDoc(diff.content ?? Fragment.empty, innerSchema, shape), 0)
++  }
++
++  const entry = { views, container }
++  spec.subEditors = entry
++  subEditorsByKey.set(key, entry)
++  return container
++}
++
++/**
++ * Build a widget decoration that renders a deletion as an editable sub-editor.
++ *
++ * @param {Diff} diff
++ * @param {import('prosemirror-model').Schema} schema
++ * @param {{ color?: string, title?: string }} [opts]
++ * @returns {Decoration}
++ */
++export const editableDeletionWidget = (diff, schema, opts = {}) => {
++  const shape = detectShape(diff.content ?? Fragment.empty)
++  const innerSchema = getInnerSchema(schema, shape)
++  const key = deletionKey(diff)
++  /** @type {Record<string, any>} */
++  const spec = {
++    side: 1,
++    key,
++    ignoreSelection: true,
++    // Let a client-set DOM selection stay on the right side of the ghost
++    // (used when exiting right / stepping onto the ghost's right edge).
++    relaxedSide: true,
++    stopEvent: () => true,
++    destroy: () => {
++      spec.subEditors?.views?.forEach((/** @type {EditorView} */ v) => v.destroy())
++      spec.subEditors = undefined
++      subEditorsByKey.delete(key)
++    },
++    diff,
++    // Populated by createDeletionDOM when the widget is first rendered.
++    /** @type {SubEditorEntry | undefined} */
++    subEditors: undefined
++  }
++  return Decoration.widget(
++    diff.from,
++    (view, getPos) => createDeletionDOM(diff, innerSchema, shape, opts, key, view, getPos, spec),
++    spec
++  )
++}
++
++/**
++ * Find an editable-deletion widget decoration sitting exactly at `pos`.
++ *
++ * @param {import('prosemirror-view').DecorationSet} decoSet
++ * @param {number} pos
++ * @returns {import('prosemirror-view').Decoration | undefined}
++ */
++const findDeletionWidgetAt = (decoSet, pos) =>
++  decoSet.find(pos, pos).find((deco) => {
++    const type = deco.spec?.diff?.type
++    return deco.from === pos && deco.to === pos &&
++      (type === 'inline-delete' || type === 'block-delete') &&
++      typeof deco.spec?.key === 'string'
++  })
++
++/**
++ * Host-editor keydown handler that moves the caret *into* a deletion
++ * sub-editor when an arrow key crosses the widget boundary:
++ *
++ *   - ArrowRight with the caret immediately left of a widget (same position
++ *     for inline ghosts; end of the previous textblock for block ghosts)
++ *     enters the sub-editor at its start.
++ *   - ArrowLeft with the caret immediately right of a widget enters the
++ *     sub-editor at its end.
++ *
++ * Wired into `ySuggestionDecorationPlugin` as its `handleKeyDown` prop; it is
++ * a no-op (returns false) unless editable-deletion widgets are mounted.
++ *
++ * @param {EditorView} view
++ * @param {KeyboardEvent} event
++ * @returns {boolean}
++ */
++export const handleEditableDeletionArrow = (view, event) => {
++  if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return false
++  if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return false
++  const sel = view.state.selection
++  if (!sel.empty) return false
++  // Works with either decoration plugin: the live Y-backed overlay or the
++  // static `suggestionDiffPlugin`.
++  const decoSet = ySuggestionDecorationPluginKey.getState(view.state) ||
++    suggestionDiffPluginKey.getState(view.state)
++  if (!decoSet) return false
++
++  /** @param {import('prosemirror-view').Decoration} widget */
++  const entryFor = (widget) => /** @type {SubEditorEntry | undefined} */ (widget.spec.subEditors) ||
++    (typeof widget.spec.key === 'string' ? subEditorsByKey.get(widget.spec.key) : undefined)
++  /**
++   * @param {import('prosemirror-view').Decoration} widget
++   * @param {1 | -1} side - 1 enters at the ghost's start, -1 at its end
++   */
++  const enter = (widget, side) => {
++    const entry = entryFor(widget)
++    if (!entry || entry.views.length === 0) return false
++    caretAfterFlags.delete(view)
++    // Entering from the left lands in the first sub-editor, from the right
++    // in the last (row ghosts hold one editor per deleted cell).
++    const innerView = side > 0 ? entry.views[0] : entry.views[entry.views.length - 1]
++    return focusSubEditor(innerView, side)
++  }
++
++  const $head = sel.$head
++  const head = $head.pos
++
++  if (event.key === 'ArrowRight') {
++    const widget = findDeletionWidgetAt(decoSet, head)
++    if (widget && widget.spec.diff.type === 'inline-delete') {
++      const entry = entryFor(widget)
++      if (!entry) return false
++      if (caretRendersAfter(view, entry.container, widget.from)) {
++        // Caret already renders right of the ghost — let the default motion
++        // continue past it.
++        caretAfterFlags.delete(view)
++        return false
++      }
++      return enter(widget, 1)
++    }
++    if (widget) return enter(widget, 1)
++    // Block ghost past the end of the current textblock. The widget may sit
++    // several closing tokens away when the boundary crosses nested nodes
++    // (e.g. paragraph -> cell -> row in a table), so walk up the depth chain
++    // as long as only closing tokens separate the caret from the boundary...
++    let boundary = -1
++    for (let d = $head.depth; d >= 1; d--) {
++      const after = $head.after(d)
++      if (after !== head + ($head.depth - d + 1)) break
++      const blockWidget = findDeletionWidgetAt(decoSet, after)
++      if (blockWidget) return enter(blockWidget, 1)
++      boundary = after
++    }
++    // ...and then descend into the *following* node's leading edge (e.g. a
++    // deleted first row sits inside the table, just past its opening token).
++    if (boundary >= 0) {
++      let q = boundary
++      let next = view.state.doc.resolve(q).nodeAfter
++      while (next && next.isBlock && !next.isTextblock) {
++        q += 1
++        const blockWidget = findDeletionWidgetAt(decoSet, q)
++        if (blockWidget) return enter(blockWidget, 1)
++        next = view.state.doc.resolve(q).nodeAfter
++      }
++    }
++    return false
++  }
++
++  // ArrowLeft.
++  const widgetHere = findDeletionWidgetAt(decoSet, head)
++  if (widgetHere && widgetHere.spec.diff.type === 'inline-delete') {
++    const entry = entryFor(widgetHere)
++    if (entry && caretRendersAfter(view, entry.container, widgetHere.from)) {
++      // Caret renders right of the ghost — step into it at its end.
++      return enter(widgetHere, -1)
++    }
++    // Caret renders left of the ghost — default motion continues leftwards.
++  }
++  const widget = findDeletionWidgetAt(decoSet, head - 1)
++  if (widget && widget.spec.diff.type === 'inline-delete') {
++    // Step onto the ghost's right edge first (one visual slot per press,
++    // like real text); the next ArrowLeft enters the ghost at its end.
++    const entry = entryFor(widget)
++    if (!entry) return false
++    const target = Selection.near(view.state.doc.resolve(widget.from), -1)
++    view.dispatch(view.state.tr.setSelection(target).scrollIntoView())
++    placeCaretAfterWidget(view, entry.container)
++    caretAfterFlags.set(view, widget.from)
++    return true
++  }
++  // Block ghost at the boundary before this textblock — possibly several
++  // opening tokens back when the boundary crosses nested nodes (tables)...
++  let boundary = -1
++  for (let d = $head.depth; d >= 1; d--) {
++    const before = $head.before(d)
++    if (before !== head - ($head.depth - d + 1)) break
++    const blockWidget = findDeletionWidgetAt(decoSet, before)
++    if (blockWidget) return enter(blockWidget, -1)
++    boundary = before
++  }
++  // ...and then descend into the *preceding* node's trailing edge (e.g. a
++  // deleted last row sits inside the table, just before its closing token).
++  if (boundary >= 0) {
++    let q = boundary
++    let prev = view.state.doc.resolve(q).nodeBefore
++    while (prev && prev.isBlock && !prev.isTextblock) {
++      q -= 1
++      const blockWidget = findDeletionWidgetAt(decoSet, q)
++      if (blockWidget) return enter(blockWidget, -1)
++      prev = view.state.doc.resolve(q).nodeBefore
++    }
++  }
++  return false
++}
++
++/**
++ * A `mapDiffToDecorations` implementation that renders deletions as editable
++ * sub-editors and defers everything else to the default mapping. Pass it to
++ * `ySuggestionDecorationPlugin({ mapDiffToDecorations: editableDeletionMapDiff })`.
++ *
++ * @type {import('./diff-decorations.js').MapDiffToDecorations}
++ */
++export const editableDeletionMapDiff = (args) => {
++  const { diff, schema, color } = args
++  if (diff.type === 'inline-delete' || diff.type === 'block-delete') {
++    return editableDeletionWidget(diff, schema, { color })
++  }
++  return defaultMapDiffToDecorations(args)
++}
++
++/**
++ * Per-ytype anchor offsets for inline ghosts, keyed by the ghost's stable
++ * widget key. The offset counts how many characters of the attributed insert
++ * run adjacent to the ghost belong to the ghost's *left* — i.e. text the user
++ * typed with the caret on the ghost's left side. Default (no entry) is 0:
++ * the ghost renders before the whole insert run.
++ *
++ * @type {WeakMap<object, Map<string, number>>}
++ */
++const ghostAnchorOffsets = new WeakMap()
++
++/**
++ * Host-editor text-input handler that makes typing at a ghost boundary
++ * cursor-side aware. When text is typed exactly at an inline ghost's
++ * position with the caret rendering on the ghost's *left*, the typed length
++ * is added to the ghost's anchor offset so the rebuild keeps the ghost to the
++ * right of that text. Typing on the ghost's right needs no record — the
++ * default delta order already renders the ghost before the insert run.
++ *
++ * Never consumes the event (always returns false); it only records intent.
++ *
++ * @param {EditorView} view
++ * @param {number} from
++ * @param {number} to
++ * @param {string} text
++ * @returns {boolean}
++ */
++export const handleEditableDeletionTextInput = (view, from, to, text) => {
++  if (!text || from !== to) return false
++  // Works with either decoration plugin: the live Y-backed overlay or the
++  // static `suggestionDiffPlugin`.
++  const decoSet = ySuggestionDecorationPluginKey.getState(view.state) ||
++    suggestionDiffPluginKey.getState(view.state)
++  if (!decoSet) return false
++  const widget = findDeletionWidgetAt(decoSet, from)
++  if (!widget || widget.spec.diff.type !== 'inline-delete') return false
++  const entry = /** @type {SubEditorEntry | undefined} */ (widget.spec.subEditors) ||
++    (typeof widget.spec.key === 'string' ? subEditorsByKey.get(widget.spec.key) : undefined)
++  if (!entry) return false
++  if (caretRendersAfter(view, entry.container, widget.from)) return false
++  const ytype = ySyncPluginKey.getState(view.state)?.ytype
++  if (!ytype) return false
++  let offsets = ghostAnchorOffsets.get(ytype)
++  if (!offsets) {
++    offsets = new Map()
++    ghostAnchorOffsets.set(ytype, offsets)
++  }
++  const key = /** @type {string} */ (widget.spec.key)
++  offsets.set(key, (offsets.get(key) ?? 0) + text.length)
++  return false
++}
++
++/**
++ * Re-anchor inline delete diffs according to recorded anchor offsets. Called
++ * by the suggestion decoration plugin after `ydeltaToDiffSet` on every
++ * rebuild. For a delete diff with a recorded offset, the ghost moves that
++ * many characters into the attributed insert run that starts at its position
++ * (clamped to the run's length), so text typed with the caret left of the
++ * ghost renders on its left.
++ *
++ * @param {object | null} ytype
++ * @param {Diff[]} diffs
++ * @returns {Diff[]}
++ */
++export const applyGhostAnchorOffsets = (ytype, diffs) => {
++  const offsets = ytype && ghostAnchorOffsets.get(ytype)
++  if (!offsets || offsets.size === 0) return diffs
++  return diffs.map((diff) => {
++    if (diff.type !== 'inline-delete') return diff
++    const offset = offsets.get(deletionKey(diff))
++    if (!offset) return diff
++    // The adjacent attributed insert run beginning at the ghost's position.
++    const run = diffs.find((d) =>
++      d.type === 'inline-insert' && d.from <= diff.from && diff.from < d.to
++    ) ?? diffs.find((d) => d.type === 'inline-insert' && d.from === diff.from)
++    if (!run) return diff
++    const anchored = Math.min(run.from + offset, run.to)
++    if (anchored === diff.from) return diff
++    return { ...diff, from: anchored, to: anchored }
++  })
++}
 diff --git a/src/index.js b/src/index.js
-index ac407e0c363309c970f3dbcbd66db00f9cd1656a..0c20333ce9f66f1a1e3e8e44da1ac4017bbba4cc 100644
+index ac407e0c363309c970f3dbcbd66db00f9cd1656a..53dc883a1f6224af5d0f48a56ad653f5e281ee1f 100644
 --- a/src/index.js
 +++ b/src/index.js
-@@ -1,627 +1,7 @@
+@@ -1,627 +1,18 @@
 -import * as delta from 'lib0/delta'
 -import * as math from 'lib0/math'
 -import * as mux from 'lib0/mutex'
@@ -1778,17 +3036,30 @@ index ac407e0c363309c970f3dbcbd66db00f9cd1656a..0c20333ce9f66f1a1e3e8e44da1ac401
 +export * from './sync-plugin.js'
 +export * from './keys.js'
 +export * from './positions.js'
-+export { docToDelta, $prosemirrorDelta, defaultMapAttributionToMark } from './sync-utils.js'
++export { docToDelta, $prosemirrorDelta } from './sync-utils.js'
 +export * from './commands.js'
 +export * from './undo-plugin.js'
 +export * from './cursor-plugin.js'
++export { ydeltaToDiffSet } from './y-attribution-to-diffset.js'
++/** @typedef {import('./y-attribution-to-diffset.js').Attribution} Attribution */
++/** @typedef {import('./y-attribution-to-diffset.js').Diff} Diff */
++/** @typedef {import('./y-attribution-to-diffset.js').DiffType} DiffType */
++/** @typedef {import('./y-attribution-to-diffset.js').DiffSet} DiffSet */
++export { buildDiffDecorationSet, suggestionDiffPlugin, renderDeletedContent, defaultMapDiffToDecorations } from './diff-decorations.js'
++/** @typedef {import('./diff-decorations.js').SuggestionDecorationOptions} SuggestionDecorationOptions */
++/** @typedef {import('./diff-decorations.js').MapDiffToDecorations} MapDiffToDecorations */
++/** @typedef {import('./diff-decorations.js').MapDiffArgs} MapDiffArgs */
++export { ySuggestionDecorationPlugin } from './suggestion-decoration-plugin.js'
++export { editableDeletionWidget, editableDeletionMapDiff, handleEditableDeletionArrow, handleEditableDeletionTextInput, applyGhostAnchorOffsets, deletionKey, subEditorsByKey } from './editable-deletion.js'
 diff --git a/src/keys.js b/src/keys.js
 new file mode 100644
-index 0000000000000000000000000000000000000000..7490849525d1ff00da44aa34b7588531d5f5fd7e
+index 0000000000000000000000000000000000000000..5430d28aa03577d34dfdf647eee1096393f30ca0
 --- /dev/null
 +++ b/src/keys.js
-@@ -0,0 +1,25 @@
+@@ -0,0 +1,43 @@
 +import { PluginKey } from 'prosemirror-state' // eslint-disable-line
++
++/** @typedef {import('lib0/schema').Unwrap<typeof import('./sync-plugin.js').$syncPluginState>} SyncPluginState */
 +
 +/**
 + * The unique prosemirror plugin key for {@link import('./sync-plugin.js').syncPlugin}
@@ -1813,6 +3084,22 @@ index 0000000000000000000000000000000000000000..7490849525d1ff00da44aa34b7588531
 + * @type {PluginKey<import('prosemirror-view').DecorationSet>}
 + */
 +export const yCursorPluginKey = new PluginKey('y-cursor')
++
++/**
++ * The unique prosemirror plugin key for {@link import('./suggestion-decoration-plugin.js').ySuggestionDecorationPlugin}
++ *
++ * @public
++ * @type {PluginKey<import('prosemirror-view').DecorationSet>}
++ */
++export const ySuggestionDecorationPluginKey = new PluginKey('y-suggestion-decorations')
++
++/**
++ * The unique prosemirror plugin key for {@link import('./diff-decorations.js').suggestionDiffPlugin}
++ *
++ * @public
++ * @type {PluginKey<import('prosemirror-view').DecorationSet>}
++ */
++export const suggestionDiffPluginKey = new PluginKey('suggestion-diff')
 diff --git a/src/lib.js b/src/lib.js
 deleted file mode 100644
 index 698f0c8c42ffed9804a2c13f48bd4c51f27794dc..0000000000000000000000000000000000000000
@@ -2046,21 +3333,114 @@ index 0000000000000000000000000000000000000000..963ea708dbe0e92b2d43fc031243c2e7
 +    }
 +  }
 +}
+diff --git a/src/suggestion-decoration-plugin.js b/src/suggestion-decoration-plugin.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..004c56109a1dd9f140992c5b232810497d84993d
+--- /dev/null
++++ b/src/suggestion-decoration-plugin.js
+@@ -0,0 +1,89 @@
++/**
++ * ProseMirror plugin that renders Yjs attribution as decorations over a
++ * clean document. Follows the cursor-plugin pattern: a separate plugin
++ * with its own key, state, and decorations prop.
++ *
++ * Use alongside `syncPlugin()` which always syncs clean content (no
++ * attribution marks, no deleted text). This plugin reads the attributed
++ * delta separately and overlays suggestions as decorations.
++ *
++ * The sync plugin dispatches y-sync-transaction meta on remote Y changes
++ * and AM change events. This plugin rebuilds decorations in `apply`
++ * when it sees that meta or a doc change.
++ */
++import * as Y from '@y/y'
++import { Plugin } from 'prosemirror-state'
++import { DecorationSet } from 'prosemirror-view'
++import { ySyncPluginKey, ySuggestionDecorationPluginKey } from './keys.js'
++import { ydeltaToDiffSet } from './y-attribution-to-diffset.js'
++import { buildDiffDecorationSet } from './diff-decorations.js' // eslint-disable-line
++import { handleEditableDeletionArrow, handleEditableDeletionTextInput, applyGhostAnchorOffsets } from './editable-deletion.js'
++/** @typedef {import('./diff-decorations.js').SuggestionDecorationOptions} SuggestionDecorationOptions */
++
++/**
++ * Build decorations from the Yjs attribution delta.
++ *
++ * @param {import('prosemirror-model').Node} doc
++ * @param {import('prosemirror-model').Schema} schema
++ * @param {Y.Type | null} ytype
++ * @param {Y.AbstractAttributionManager | null} am
++ * @param {SuggestionDecorationOptions} opts
++ * @returns {DecorationSet}
++ */
++function computeDecorations (doc, schema, ytype, am, opts) {
++  if (!ytype || !am || am === Y.noAttributionsManager) {
++    return DecorationSet.empty
++  }
++  const attributedDelta = ytype.toDeltaDeep(am)
++  // Re-anchor ghosts whose adjacent text was typed with the caret on their
++  // left (cursor-side-aware insertion at deletion boundaries).
++  const diffs = applyGhostAnchorOffsets(
++    ytype, ydeltaToDiffSet(attributedDelta, { displayedDoc: doc, schema })
++  )
++  try {
++    return buildDiffDecorationSet(doc, diffs, schema, opts)
++  } catch (err) {
++    console.error('[y-prosemirror] decoration build failed:', err)
++    return DecorationSet.empty
++  }
++}
++
++/**
++ * @param {SuggestionDecorationOptions} [opts]
++ * @returns {Plugin<DecorationSet>}
++ */
++export const ySuggestionDecorationPlugin = (opts = {}) =>
++  new Plugin({
++    key: ySuggestionDecorationPluginKey,
++    state: {
++      init: () => DecorationSet.empty,
++      apply: (tr, prev, oldState, newState) => {
++        const ySyncMeta = tr.getMeta('y-sync-transaction')
++        const configMeta = tr.getMeta(ySyncPluginKey)
++        const metaOverride = configMeta || ySyncMeta
++        if (metaOverride) {
++          const baseSync = ySyncPluginKey.getState(oldState) || ySyncPluginKey.getState(newState)
++          const ystate = Object.assign({}, baseSync, metaOverride)
++          if (ystate?.attributionManager && ystate.attributionManager !== Y.noAttributionsManager) {
++            return computeDecorations(
++              newState.doc, newState.schema, ystate.ytype, ystate.attributionManager, opts
++            )
++          }
++          // Attribution turned off (e.g. configureYProsemirror with a null
++          // AM): clear the overlay instead of letting stale ghosts linger.
++          return DecorationSet.empty
++        }
++        if (tr.docChanged) return prev.map(tr.mapping, tr.doc)
++        return prev
++      }
++    },
++    props: {
++      decorations: (state) => ySuggestionDecorationPluginKey.getState(state),
++      // Arrow-key navigation into/out of editable deletion sub-editors.
++      // No-op unless `mapDiffToDecorations` mounted editable widgets.
++      handleKeyDown: handleEditableDeletionArrow,
++      // Cursor-side-aware typing at ghost boundaries (records intent only,
++      // never consumes the event).
++      handleTextInput: handleEditableDeletionTextInput
++    }
++  })
 diff --git a/src/sync-plugin.js b/src/sync-plugin.js
 new file mode 100644
-index 0000000000000000000000000000000000000000..079bc7e465f98612907d36adc9854054814dda91
+index 0000000000000000000000000000000000000000..e18bf04380f182a7cf9e14b74d2d39c9044b7320
 --- /dev/null
 +++ b/src/sync-plugin.js
-@@ -0,0 +1,301 @@
+@@ -0,0 +1,211 @@
 +import * as Y from '@y/y'
 +import { Plugin } from 'prosemirror-state'
 +import {
-+  $prosemirrorDelta,
-+  defaultAttributedNodes,
-+  defaultMapAttributionToMark,
-+  deltaAttributionToFormat,
 +  deltaToPSteps,
-+  nodeToDelta
++  docDiffToDelta,
++  nodeToDelta,
++  stepToDelta
 +} from './sync-utils.js'
 +import * as d from 'lib0/delta'
 +import { ySyncPluginKey } from './keys.js'
@@ -2068,88 +3448,27 @@ index 0000000000000000000000000000000000000000..079bc7e465f98612907d36adc9854054
 +import * as object from 'lib0/object'
 +
 +/**
-+ * The y-prosemirror binding is a bi-directional synchronization with the provided Y.Type and the EditorView
++ * The y-prosemirror binding is a bi-directional synchronization with the provided Y.Type and the EditorView.
 + * Any change applied to the EditorView will be applied (via deltas) to the Y.Type, and vice versa.
++ *
++ * The PM document always contains **clean** content — no attribution marks,
++ * no deleted text inline. Attribution is rendered as decorations by
++ * {@link import('./suggestion-decoration-plugin.js').ySuggestionDecorationPlugin}.
 + */
 +export const $syncPluginState = s.$object({
 +  ytype: Y.$ytypeAny.nullable,
-+  /**
-+   * If provided, will switch to the given attribution manager instead of the current attribution manager
-+   */
-+  attributionManager: Y.$attributionManager.nullable,
-+  attributionMapper: /** @type {s.Schema<AttributionMapper>} */ (s.$function),
-+  /**
-+   * Predicate deciding which attributed nodes render under their
-+   * `{nodeName}--attributed` variant. See {@link syncPlugin}.
-+   */
-+  attributedNodes: /** @type {s.Schema<AttributedNodesPredicate>} */ (s.$function)
++  attributionManager: Y.$attributionManager.nullable
 +})
 +
 +export const $syncPluginStateUpdate = s.$object({
 +  ytype: Y.$ytypeAny.nullable.optional,
-+  attributionManager: Y.$attributionManager.nullable.optional,
-+  attributionMapper: /** @type {s.Schema<AttributionMapper>} */ (s.$function).nullable.optional,
-+  attributedNodes: /** @type {s.Schema<AttributedNodesPredicate>} */ (s.$function).nullable.optional,
-+  change: /** @type {s.Schema<Y.YEvent<any>>} */ (s.$any).nullable.optional
++  attributionManager: Y.$attributionManager.nullable.optional
 +})
 +const $maybeSyncPluginStateUpdate = $syncPluginStateUpdate.nullable
 +
-+const attributedDeleteMark = 'y-attributed-delete'
-+const attributionMarkNames = [
-+  'y-attributed-insert',
-+  'y-attributed-format',
-+  attributedDeleteMark
-+]
-+
 +/**
-+ * Strip attribution-mark formats (`y-attributed-*`). Returns a fresh
-+ * delta - **never mutates** the input. `lib0/delta.diff` reuses op
-+ * references (and nested delta references) from its inputs, so an
-+ * in-place mutation here would also mutate `pcontent`/`desiredPM` and
-+ * corrupt subsequent diff calls. `lib0/delta.clone` only deep-clones
-+ * the top level - nested deltas inside an `InsertOp.insert` array stay
-+ * shared by reference - so cloning then mutating is also unsafe.
-+ *
-+ * @param {d.DeltaAny} input
-+ * @returns {d.DeltaAny}
-+ */
-+const stripAttributionFormattingFromDelta = (input) => {
-+  /** @param {Record<string, unknown> | null | undefined} format */
-+  const stripFormat = (format) => {
-+    if (format == null) return format
-+    /** @type {Record<string, unknown>} */
-+    const out = {}
-+    for (const k in format) {
-+      if (!attributionMarkNames.includes(k)) out[k] = format[k]
-+    }
-+    return out
-+  }
-+  const out = /** @type {any} */ (d.create(input.name, $prosemirrorDelta))
-+  for (const attr of input.attrs) {
-+    // @ts-ignore
-+    out.attrs[attr.key] = attr.clone()
-+  }
-+  for (const child of input.children) {
-+    if (d.$retainOp.check(child)) {
-+      out.retain(child.retain, stripFormat(child.format))
-+    } else if (d.$textOp.check(child)) {
-+      out.insert(child.insert, stripFormat(child.format))
-+    } else if (d.$insertOp.check(child)) {
-+      const newInsert = child.insert.map(ins =>
-+        d.$deltaAny.check(ins) ? stripAttributionFormattingFromDelta(ins) : ins
-+      )
-+      out.insert(newInsert, stripFormat(child.format))
-+    } else if (d.$deleteOp.check(child)) {
-+      out.delete(child.delete)
-+    } else if (d.$modifyOp.check(child)) {
-+      out.modify(stripAttributionFormattingFromDelta(child.value), stripFormat(child.format))
-+    }
-+  }
-+  return out.done(false)
-+}
-+
-+/**
-+ * This Prosemirror {@link Plugin} is responsible for synchronizing the prosemirror {@link EditorState} with a {@link Y.XmlFragment}
++ * This Prosemirror {@link Plugin} is responsible for synchronizing the prosemirror
++ * {@link import('prosemirror-state').EditorState} with a {@link Y.XmlFragment}.
 + *
 + * The PM->Y diff/apply pipeline runs in the plugin's `view().update`
 + * hook (i.e. after the dispatch has been committed to the view), not
@@ -2157,10 +3476,12 @@ index 0000000000000000000000000000000000000000..079bc7e465f98612907d36adc9854054
 + * cause speculative `state.apply` callers to write to Y as a side
 + * effect.
 + *
-+ * @param {object} opts
-+ * @param {Y.Doc} [opts.suggestionDoc] A {@link Y.Doc} to use for suggestion tracking
-+ * @param {AttributionMapper} [opts.mapAttributionToMark] A function to map the {@link Y.Attribution} to a {@link import('prosemirror-model').Mark} - the mark names *must* be one of: `y-attributed-insert`, `y-attributed-delete`, `y-attributed-format`. No other mark names are permitted
-+ * @param {AttributedNodesPredicate} [opts.attributedNodes] Optional predicate `(nodeName, kinds) => boolean`. When it returns `true` for an attributed node *and* a `{nodeName}--attributed` type exists in the schema, that node is rendered under the variant type (the `y-attributed-*` marks are still applied). `kinds` is `{ insert?, delete?, format? }`. The variant is a pure rendering concern - the canonical name is what is stored in the Y document. The predicate must be deterministic in `(nodeName, kinds)`.
++ * The PM document always mirrors the **clean** Y content (no attribution
++ * marks, no deleted text). The write path applies diffs through the AM
++ * so edits are tagged as suggestions. Attribution rendering is handled
++ * by the separate {@link import('./suggestion-decoration-plugin.js').ySuggestionDecorationPlugin}.
++ *
++ * @param {object} [opts]
 + * @returns {Plugin}
 + */
 +export function syncPlugin (opts = {}) {
@@ -2170,78 +3491,47 @@ index 0000000000000000000000000000000000000000..079bc7e465f98612907d36adc9854054
 +      init: () => {
 +        return $syncPluginState.expect({
 +          ytype: null,
-+          attributionManager: null,
-+          attributionMapper: opts.mapAttributionToMark || defaultMapAttributionToMark,
-+          attributedNodes: opts.attributedNodes || defaultAttributedNodes
++          attributionManager: null
 +        })
 +      },
 +      apply: (tr, prevPluginState) => {
 +        const stateUpdate = $maybeSyncPluginStateUpdate.expect(tr.getMeta(ySyncPluginKey) || null)
++        const prev = /** @type {any} */ (prevPluginState)
++        const isSyncTr = tr.getMeta('y-sync-transaction') != null || tr.getMeta(ySyncPluginKey) != null
++        const pendingTrs = isSyncTr ? [] : [...(prev.pendingTrs || []), tr]
 +        if (!stateUpdate) {
-+          return prevPluginState
++          return /** @type {any} */ ({ ...prev, pendingTrs })
 +        }
-+        return object.assign({}, prevPluginState, stateUpdate, stateUpdate.attributionManager == null ? { attributionManager: Y.noAttributionsManager } : {})
++        return /** @type {any} */ (object.assign({}, prev, stateUpdate, stateUpdate.attributionManager == null ? { attributionManager: Y.noAttributionsManager } : {}, { pendingTrs }))
 +      }
 +    },
 +    view () {
 +      /** @type {(() => void) | null} */
 +      let unsubscribeFn = null
 +      /**
-+       * Subscribe to ytype changes and apply remote updates to prosemirror
++       * Subscribe to ytype changes and apply remote updates to prosemirror.
 +       * @param {object} opts
 +       * @param {import('prosemirror-view').EditorView} opts.view
 +       * @param {Y.Type?} opts.ytype
 +       * @param {Y.AbstractAttributionManager?} opts.attributionManager
-+       * @param {AttributionMapper} opts.attributionMapper
-+       * @param {AttributedNodesPredicate} opts.attributedNodes
 +       */
-+      function subscribeToYType ({ view, ytype, attributionManager, attributionMapper, attributedNodes }) {
++      function subscribeToYType ({ view, ytype, attributionManager }) {
 +        unsubscribeFn?.()
 +        if (ytype != null) {
-+          // Listen on the doc's `afterTransaction` event rather than
-+          // `ytype.observeDeep`. `observeDeep` skips firing for any
-+          // changes whose path runs through a *deleted* parent type
-+          // (Y.js `Transaction._callObserver` short-circuits when
-+          // `parent._item.deleted`). That happens in suggestion-mode
-+          // when one peer suggestion-deletes a paragraph and another
-+          // peer then inserts into it - the integrate path leaves the
-+          // root deep observer silent, so the PM view never reconciles
-+          // and goes stale (see `testCohortReplayConvergesAfterInsert
-+          // IntoSuggestionDeletedParagraph`). `afterTransaction` fires
-+          // unconditionally, so the reconcile pass always runs.
 +          /** @type {Y.Doc} */
 +          const ydoc = /** @type {Y.Doc} */ (ytype.doc)
 +          const onAfterTransaction = (/** @type {any} */ tr) => {
 +            if (!view || view.isDestroyed) {
 +              return unsubscribeFn?.()
 +            }
-+            // Skip changes we wrote ourselves from `view().update`
-+            // - the PM->Y commit there already handled the reconcile
-+            // dispatch in the same call.
 +            if (/** @type {any} */ (tr).origin === ySyncPluginKey.get(view.state)) return
-+            // Same pipeline as the PM->Y sync in `view().update`:
-+            // render ytype through the AM, diff against the current PM doc,
-+            // apply only the difference. Using `change.getDelta` here
-+            // produced wrong/asymmetric output for some interleavings
-+            // (notably commits-to-base from one peer that touched suggestion
-+            // overlays from another), causing PM views to diverge from each
-+            // other and from the canonical AM render. The full re-render is
-+            // more expensive per update but is the only diff target all
-+            // peers agree on.
-+            const am = attributionManager || Y.noAttributionsManager
-+            const desiredPM = deltaAttributionToFormat(
-+              ytype.toDeltaDeep(am),
-+              attributionMapper
-+            ).done()
-+            const pcontent = nodeToDelta(view.state.doc, undefined, true).done()
++            const desiredPM = ytype.toDeltaDeep().done()
++            const pcontent = nodeToDelta(view.state.doc).done()
 +            const diff = d.diff(pcontent, desiredPM)
-+            if (diff.isEmpty()) return
-+            const ptr = deltaToPSteps(view.state.tr, diff, undefined, undefined, attributedNodes)
++            const ptr = diff.isEmpty() ? view.state.tr : deltaToPSteps(view.state.tr, diff)
 +            ptr.setMeta('addToHistory', false)
 +            ptr.setMeta('y-sync-transaction', $syncPluginStateUpdate.expect({
-+              change: null,
 +              attributionManager,
-+              attributionMapper,
 +              ytype
 +            }))
 +            view.dispatch(ptr)
@@ -2251,26 +3541,13 @@ index 0000000000000000000000000000000000000000..079bc7e465f98612907d36adc9854054
 +            if (!view || view.isDestroyed) {
 +              return unsubscribeFn?.()
 +            }
-+            // Same pipeline as the PM->Y sync in `view().update`:
-+            // render ytype through the AM, diff against the current PM doc,
-+            // apply only the difference. We give up the `itemsToRender`
-+            // targeted-rerender optimization in exchange for going through
-+            // the same path that the rest of the plugin uses, which keeps
-+            // the deltas shallow (only what actually changed).
-+            const desiredPM = deltaAttributionToFormat(
-+              ytype.toDeltaDeep(attributionManager || Y.noAttributionsManager),
-+              attributionMapper
-+            ).done()
-+            const pcontent = nodeToDelta(view.state.doc, undefined, true).done()
++            const desiredPM = ytype.toDeltaDeep().done()
++            const pcontent = nodeToDelta(view.state.doc).done()
 +            const diff = d.diff(pcontent, desiredPM)
-+            if (diff.isEmpty()) return
-+            const ptr = deltaToPSteps(view.state.tr, diff, undefined, undefined, attributedNodes)
++            const ptr = diff.isEmpty() ? view.state.tr : deltaToPSteps(view.state.tr, diff)
 +            ptr.setMeta('addToHistory', false)
-+            // @todo stop updating meta on every transaction
 +            ptr.setMeta('y-sync-transaction', $syncPluginStateUpdate.expect({
-+              change: null, // @todo - remove this property
 +              attributionManager,
-+              attributionMapper,
 +              ytype
 +            }))
 +            view.dispatch(ptr)
@@ -2293,55 +3570,70 @@ index 0000000000000000000000000000000000000000..079bc7e465f98612907d36adc9854054
 +          const ytypeChanged = prevYtype !== ytype
 +          const attributionManagerChanged = prevAttributionManager !== attributionManager
 +          if (ytypeChanged || attributionManagerChanged) {
-+            // Subscribe to the new ytype/attributionManager
-+            // (subscribeToYType will automatically unsubscribe from previous if needed)
-+            subscribeToYType({
-+              view,
-+              ytype,
-+              attributionManager,
-+              attributionMapper: pluginState.attributionMapper,
-+              attributedNodes: pluginState.attributedNodes
-+            })
++            subscribeToYType({ view, ytype, attributionManager })
 +          }
 +          if (ytype == null) return
 +          if (view.state.doc === prevState.doc) return
-+          // PM->Y diff/apply pipeline. Runs after the dispatch is
-+          // committed to the view, so speculative `state.apply` calls
-+          // do not write to Y. The Y `afterTransaction` observer
-+          // skips the write we make here via the origin check. The
-+          // AM `change` handler may, however, dispatch its own
-+          // reconcile synchronously during `transact` - so we
-+          // re-read `pcontent` from `view.state.doc` after the write
-+          // before computing our own reconcile, otherwise we'd
-+          // apply the same insert twice.
 +          const am = attributionManager || Y.noAttributionsManager
-+          const mapper = pluginState.attributionMapper
-+          const attributedNodes = pluginState.attributedNodes
-+          const ycontent = deltaAttributionToFormat(
-+            ytype.toDeltaDeep(am),
-+            mapper
-+          ).done()
-+          const pcontent = nodeToDelta(view.state.doc, undefined, true).done()
-+          const pmToYDiff = stripAttributionFormattingFromDelta(d.diff(ycontent, pcontent))
-+          if (!pmToYDiff.isEmpty()) {
++          const pendingTrs = /** @type {any} */ (pluginState).pendingTrs || []
++          // The diff is in "clean" coordinates where AM-deleted items are
++          // invisible. But applyDelta navigates Y items via
++          // am.contentLength(), and a DiffAttributionManager counts
++          // AM-deleted items at full length — so retain counts land at
++          // wrong positions. This proxy overrides contentLength and
++          // readContent to use clean counting (deleted items = 0) while
++          // passing everything else through to the real AM.
++          //
++          // The proxy's distinct identity (≠ noAttributionsManager) keeps
++          // applyDelta's attribution-aware code paths active. Attribution
++          // recording is unaffected: the DiffAttributionManager's listener
++          // on the Y.Doc fires based on the transaction, not the AM passed
++          // to applyDelta.
++          const navAM = am === Y.noAttributionsManager
++            ? am
++            : new Proxy(am, {
++              get (target, prop, receiver) {
++                if (prop === 'contentLength') return Y.noAttributionsManager.contentLength
++                if (prop === 'readContent') return Y.noAttributionsManager.readContent
++                return Reflect.get(target, prop, receiver)
++              }
++            })
++          const docChangedTrs = pendingTrs.filter(/** @param {any} ptr */ ptr => ptr.docChanged)
++          if (am === Y.noAttributionsManager &&
++            docChangedTrs.length > 0 &&
++            docChangedTrs[0].before === prevState.doc) {
 +            /** @type {Y.Doc} */ (ytype.doc).transact(() => {
-+              ytype.applyDelta(pmToYDiff, am)
++              for (const ptr of docChangedTrs) {
++                if (ptr.steps.length === 1) {
++                  ytype.applyDelta(stepToDelta(ptr.steps[0], ptr.docs[0]), navAM)
++                } else {
++                  ytype.applyDelta(docDiffToDelta(ptr.before, ptr.doc), navAM)
++                }
++              }
 +            }, ySyncPluginKey.get(view.state))
++          } else {
++            const ycontent = ytype.toDeltaDeep().done()
++            const pcontent = nodeToDelta(view.state.doc).done()
++            const pmToYDiff = d.diff(ycontent, pcontent)
++            if (!pmToYDiff.isEmpty()) {
++              /** @type {Y.Doc} */ (ytype.doc).transact(() => {
++                ytype.applyDelta(pmToYDiff, navAM)
++              }, ySyncPluginKey.get(view.state))
++            }
 +          }
-+          const desiredPM = deltaAttributionToFormat(
-+            ytype.toDeltaDeep(am),
-+            mapper
-+          ).done()
-+          const pcontentAfter = nodeToDelta(view.state.doc, undefined, true).done()
++          // Reconcile: ensure PM matches the clean Y render after the write.
++          // Always dispatch y-sync-transaction meta so the decoration plugin
++          // can rebuild (even if the reconcile diff is empty).
++          const desiredPM = ytype.toDeltaDeep().done()
++          const pcontentAfter = nodeToDelta(view.state.doc).done()
 +          const pmReconcileDiff = d.diff(pcontentAfter, desiredPM)
-+          if (pmReconcileDiff.isEmpty()) return
 +          const tr = view.state.tr
-+          deltaToPSteps(tr, pmReconcileDiff, undefined, undefined, attributedNodes)
++          if (!pmReconcileDiff.isEmpty()) {
++            deltaToPSteps(tr, pmReconcileDiff)
++          }
 +          tr.setMeta('addToHistory', false)
 +          tr.setMeta('y-sync-transaction', $syncPluginStateUpdate.expect({
-+            change: null,
 +            attributionManager,
-+            attributionMapper: mapper,
 +            ytype
 +          }))
 +          view.dispatch(tr)
@@ -2355,18 +3647,16 @@ index 0000000000000000000000000000000000000000..079bc7e465f98612907d36adc9854054
 +}
 diff --git a/src/sync-utils.js b/src/sync-utils.js
 new file mode 100644
-index 0000000000000000000000000000000000000000..2234e5506a5341f39c80f389288823d887b38d28
+index 0000000000000000000000000000000000000000..bf96bea9f7382248ba10906e1da92a88d04908e7
 --- /dev/null
 +++ b/src/sync-utils.js
-@@ -0,0 +1,752 @@
+@@ -0,0 +1,580 @@
 +import * as Y from '@y/y'
-+import * as array from 'lib0/array'
 +import * as delta from 'lib0/delta'
-+import * as error from 'lib0/error'
 +import * as math from 'lib0/math'
 +import * as object from 'lib0/object'
 +import * as s from 'lib0/schema'
-+import { Node, Slice, Fragment } from 'prosemirror-model'
++import { Node, NodeRange, Slice, Fragment } from 'prosemirror-model'
 +import {
 +  AddMarkStep,
 +  AddNodeMarkStep,
@@ -2380,156 +3670,7 @@ index 0000000000000000000000000000000000000000..2234e5506a5341f39c80f389288823d8
 +
 +export const $prosemirrorDelta = delta.$delta({ name: s.$string, attrs: s.$record(s.$string, s.$any), text: true, recursiveChildren: true })
 +
-+/**
-+ * Suffix appended to a node name when it is rendered as its "attributed
-+ * variant" (see `attributedNodes` on {@link syncPlugin}). The suffix is fixed
-+ * so that canonicalizing back (PM -> Y) is a pure string operation and can
-+ * never drift from the forward mapping. `--attributed` is a *reserved* suffix:
-+ * a real node type literally ending in it would be canonicalized away on the
-+ * way to Y.
-+ */
-+export const ATTRIBUTED_SUFFIX = '--attributed'
-+
-+/**
-+ * Default `attributedNodes` predicate - the feature is off, so every node keeps
-+ * its canonical name.
-+ *
-+ * @type {AttributedNodesPredicate}
-+ */
-+export const defaultAttributedNodes = () => false
-+
-+/**
-+ * Strip the {@link ATTRIBUTED_SUFFIX} so a PM node name maps back to the
-+ * canonical name stored in the Y document. Identity for canonical names.
-+ *
-+ * @param {string} name
-+ * @return {string}
-+ */
-+export const canonicalNodeName = (name) =>
-+  name.endsWith(ATTRIBUTED_SUFFIX)
-+    ? name.slice(0, -ATTRIBUTED_SUFFIX.length)
-+    : name
-+
-+/**
-+ * Resolve the PM node name to render for `canonicalName` given the attribution
-+ * carried in `format`. Returns `canonicalName + ATTRIBUTED_SUFFIX` when the
-+ * `attributedNodes` predicate opts in *and* the variant exists in the schema;
-+ * otherwise returns `canonicalName` unchanged.
-+ *
-+ * @param {string} canonicalName
-+ * @param {Record<string, unknown> | null | undefined} format
-+ * @param {AttributedNodesPredicate} attributedNodes
-+ * @param {import('prosemirror-model').Schema} schema
-+ * @return {string}
-+ */
-+export const attributedVariant = (canonicalName, format, attributedNodes, schema) => {
-+  const kinds = {
-+    insert: format?.['y-attributed-insert'] != null,
-+    delete: format?.['y-attributed-delete'] != null,
-+    format: format?.['y-attributed-format'] != null
-+  }
-+  if ((kinds.insert || kinds.delete || kinds.format) && attributedNodes(canonicalName, kinds)) {
-+    const variant = canonicalName + ATTRIBUTED_SUFFIX
-+    if (schema.nodes[variant] != null) return variant
-+  }
-+  return canonicalName
-+}
-+
-+/**
-+ * Default attribution-to-mark mapper.
-+ *
-+ * **The mark names are part of `y-prosemirror`'s public contract and cannot be
-+ * changed.** A custom `mapAttributionToMark` may return a different *value*
-+ * (different attrs, omit some attribution kinds, etc.), but it must use the
-+ * exact mark names below - other internals reference them by name and will not
-+ * find marks named anything else:
-+ *
-+ * - `y-attributed-insert`
-+ * - `y-attributed-delete`
-+ * - `y-attributed-format`
-+ *
-+ * The integrator's ProseMirror schema must (a) define mark types with exactly
-+ * these names and (b) ensure they are allowed on every node where attribution
-+ * marks may land. See `CAVEATS.md` ("Attribution mark names are fixed") for the
-+ * full rationale and the schema gotcha around mark-group resolution.
-+ *
-+ * Note: a single op may carry multiple attribution kinds simultaneously
-+ * (e.g. inserted text whose format was also suggested), so the mapper sets
-+ * each applicable mark independently rather than picking one. Absent kinds
-+ * are not added to the format object - the diff layer naturally produces a
-+ * format-remove when comparing PM content (where a stale mark is present)
-+ * against the freshly-rendered AM delta (where the key is absent).
-+ *
-+ * @template {import('lib0/delta').Attribution} T
-+ * @param {Record<string, unknown> | null} format
-+ * @param {T} attribution
-+ * @returns {Record<string, unknown> | null}
-+ */
-+export const defaultMapAttributionToMark = (format, attribution) => {
-+  const out = /** @type {Record<string, unknown>} */ (object.assign({}, format))
-+  // Set each attribution kind that is present. Do NOT explicitly null out
-+  // the absent kinds: lib0/delta's diff naturally produces a format-remove
-+  // when comparing pcontent (where the mark is present) with desiredPM
-+  // (where the key is absent). Including explicit `null` here would change
-+  // the delta op's fingerprint and prevent the diff from matching ops by
-+  // content, causing spurious text-node splits.
-+  if (attribution.insert) {
-+    out['y-attributed-insert'] = {
-+      userIds: attribution.insert,
-+      timestamp: attribution.insertAt ?? null
-+    }
-+  }
-+  if (attribution.delete) {
-+    out['y-attributed-delete'] = {
-+      userIds: attribution.delete,
-+      timestamp: attribution.deleteAt ?? null
-+    }
-+  }
-+  if (attribution.format) {
-+    // `userIdsByAttr` keeps the per-format-key authorship for callers that
-+    // need it; `userIds` is the deduped union across all format keys for
-+    // callers that just want "who suggested any format on this span".
-+    out['y-attributed-format'] = {
-+      userIds: array.unique(object.map(attribution.format, v => v).flat()),
-+      userIdsByAttr: attribution.format,
-+      timestamp: attribution.formatAt ?? null
-+    }
-+  }
-+  return out
-+}
-+
-+/**
-+ * Transform delta with attributions to delta with formats (marks).
-+ * @param {delta.DeltaAny} d
-+ * @param {function} attributionsToFormat
-+ */
-+export const deltaAttributionToFormat = (d, attributionsToFormat) => {
-+  const r = delta.create(d.name, $prosemirrorDelta)
-+  for (const attr of d.attrs) {
-+    // @ts-ignore
-+    r.attrs[attr.key] = attr.clone()
-+  }
-+  for (const child of d.children) {
-+    if (delta.$deleteOp.check(child)) {
-+      r.delete(child.delete)
-+    } else {
-+      const format = child.attribution ? attributionsToFormat(child.format, child.attribution) : child.format
-+      if (delta.$insertOp.check(child)) {
-+        r.insert(child.insert.map(c => delta.$deltaAny.check(c) ? deltaAttributionToFormat(c, attributionsToFormat) : c), format)
-+      } else if (delta.$textOp.check(child)) {
-+        r.insert(child.insert, format)
-+      } else if (delta.$retainOp.check(child)) {
-+        r.retain(child.retain, format)
-+      } else if (delta.$modifyOp.check(child)) {
-+        // @ts-ignore
-+        r.modify(/** @type {any} */ (deltaAttributionToFormat(child.value, attributionsToFormat)), format)
-+      } else {
-+        error.unexpectedCase()
-+      }
-+    }
-+  }
-+  return /** @type {ProsemirrorDelta} */ (r.done(false))
-+}
++/** @typedef {import('lib0/schema').Unwrap<typeof $prosemirrorDelta>} ProsemirrorDelta */
 +
 +/**
 + * @param {readonly import('prosemirror-model').Mark[]} marks
@@ -2582,75 +3723,22 @@ index 0000000000000000000000000000000000000000..2234e5506a5341f39c80f389288823d8
 + * @returns {Y.Type}
 + */
 +export function pmToFragment (node, fragment, { attributionManager = Y.noAttributionsManager } = {}) {
-+  // Canonicalize so the Y document never stores an attributed-variant name
-+  // (`--attributed` is a reserved suffix - identity when no variant is present).
-+  const initialPDelta = nodeToDelta(node, undefined, true).done()
++  const initialPDelta = nodeToDelta(node).done()
 +  fragment.applyDelta(initialPDelta, attributionManager)
 +
 +  return fragment
 +}
 +
 +/**
-+ * Applies a {@link Y.XmlFragment}'s content as a ProseMirror {@link Transaction}
-+ * @param {Y.Type} fragment
-+ * @param {import('prosemirror-state').Transaction} tr
-+ * @param {object} ctx
-+ * @param {Y.AbstractAttributionManager} [ctx.attributionManager]
-+ * @param {typeof defaultMapAttributionToMark} [ctx.mapAttributionToMark]
-+ * @param {AttributedNodesPredicate} [ctx.attributedNodes]
-+ * @returns {import('prosemirror-state').Transaction}
-+ */
-+export function fragmentToTr (fragment, tr, {
-+  attributionManager = Y.noAttributionsManager,
-+  mapAttributionToMark = defaultMapAttributionToMark,
-+  attributedNodes = defaultAttributedNodes
-+} = {}) {
-+  const fragmentContent = deltaAttributionToFormat(
-+    fragment.toDelta(attributionManager, { deep: true }),
-+    mapAttributionToMark
-+  )
-+  const initialPDelta = nodeToDelta(tr.doc, undefined, true).done()
-+  const deltaBetweenPmAndFragment = delta.diff(initialPDelta, fragmentContent).done()
-+
-+  return deltaToPSteps(tr, deltaBetweenPmAndFragment, undefined, undefined, attributedNodes).setMeta('y-sync-hydration', {
-+    delta: deltaBetweenPmAndFragment
-+  })
-+}
-+
-+/**
-+ * Transforms a {@link Y.XmlFragment} into a {@link Node}
-+ * @param {Y.Type} fragment
-+ * @param {import('prosemirror-state').Transaction} tr
-+ * @return {Node}
-+ */
-+export function fragmentToPm (fragment, tr) {
-+  return fragmentToTr(fragment, tr).doc
-+}
-+
-+/**
 + * @param {Node} n
 + * @param {string?} nodeName
-+ * @param {boolean} [canonicalize] When `true`, the emitted name has the
-+ *   {@link ATTRIBUTED_SUFFIX} stripped (PM -> Y direction). The flag propagates
-+ *   through the child recursion.
 + * @return {ProsemirrorDelta}
 + */
-+export const nodeToDelta = (n, nodeName = n.type.name, canonicalize = false) => {
-+  const d = delta.create(canonicalize && nodeName != null ? canonicalNodeName(nodeName) : nodeName, $prosemirrorDelta)
-+  // `y-attributed` is a render-only marker injected when a node is rendered
-+  // under its `--attributed` variant (see the injections in `applyNodeFormat`
-+  // and `deltaToPNode`). It must never persist in Y - strip it on the PM->Y
-+  // (canonicalize) path, symmetric to the variant-name canonicalization above.
-+  // Otherwise Y stores a canonical node carrying `y-attributed`, which the
-+  // canonical PM type cannot round-trip, and the reconcile loop never converges.
-+  if (canonicalize && n.attrs['y-attributed'] !== undefined) {
-+    const { 'y-attributed': _omit, ...rest } = n.attrs
-+    d.setAttrs(rest)
-+  } else {
-+    d.setAttrs(n.attrs)
-+  }
++export const nodeToDelta = (n, nodeName = n.type.name) => {
++  const d = delta.create(nodeName, $prosemirrorDelta)
++  d.setAttrs(n.attrs)
 +  n.content.content.forEach(c => {
-+    d.insert(c.isText ? (c.text ?? []) : [nodeToDelta(c, undefined, canonicalize)], marksToFormattingAttributes(c.marks))
++    d.insert(c.isText ? (c.text ?? []) : [nodeToDelta(c)], marksToFormattingAttributes(c.marks))
 +  })
 +  return d.done(false)
 +}
@@ -2661,44 +3749,21 @@ index 0000000000000000000000000000000000000000..2234e5506a5341f39c80f389288823d8
 +export const docToDelta = doc => nodeToDelta(doc, null)
 +
 +/**
-+ * Apply node-level format (node marks) at `pos`. When the resulting attribution
-+ * marks change the node's {@link attributedVariant}, flip the node type with a
-+ * single size-preserving `setNodeMarkup` (which also sets the resulting mark
-+ * set atomically - this avoids an intermediate state where the canonical type
-+ * would carry a mark it does not declare). Otherwise this is byte-identical to
-+ * the previous per-key `addNodeMark`/`removeNodeMark` loop.
++ * Apply node-level format (node marks) at `pos`.
 + *
 + * @param {import('prosemirror-state').Transaction} tr
 + * @param {number} pos
 + * @param {Record<string, any> | null | undefined} format
-+ * @param {AttributedNodesPredicate} attributedNodes
 + */
-+const applyNodeFormat = (tr, pos, format, attributedNodes) => {
++const applyNodeFormat = (tr, pos, format) => {
 +  const schema = tr.doc.type.schema
-+  const node = tr.doc.nodeAt(pos)
-+  if (node == null) return
-+  let resultingMarks = node.marks
 +  object.forEach(format ?? {}, (v, k) => {
-+    const markType = schema.marks[k]
-+    if (markType == null) return
-+    resultingMarks = v == null
-+      ? markType.removeFromSet(resultingMarks)
-+      : schema.mark(k, v).addToSet(resultingMarks)
++    if (v == null) {
++      tr.removeNodeMark(pos, schema.marks[k])
++    } else {
++      tr.addNodeMark(pos, schema.mark(k, v))
++    }
 +  })
-+  const targetType = schema.nodes[
-+    attributedVariant(canonicalNodeName(node.type.name), marksToFormattingAttributes(resultingMarks), attributedNodes, schema)
-+  ]
-+  if (targetType !== node.type) {
-+    tr.setNodeMarkup(pos, targetType, object.assign({ 'y-attributed': true }, node.attrs), resultingMarks)
-+  } else {
-+    object.forEach(format ?? {}, (v, k) => {
-+      if (v == null) {
-+        tr.removeNodeMark(pos, schema.marks[k])
-+      } else {
-+        tr.addNodeMark(pos, schema.mark(k, v))
-+      }
-+    })
-+  }
 +}
 +
 +/**
@@ -2722,10 +3787,9 @@ index 0000000000000000000000000000000000000000..2234e5506a5341f39c80f389288823d8
 + * @param {ProsemirrorDelta} d
 + * @param {Node} [pnode]
 + * @param {{ i: number }} [currPos]
-+ * @param {AttributedNodesPredicate} [attributedNodes]
 + * @return {import('prosemirror-state').Transaction}
 + */
-+export const deltaToPSteps = (tr, d, pnode = tr.doc, currPos = { i: 0 }, attributedNodes = defaultAttributedNodes) => {
++export const deltaToPSteps = (tr, d, pnode = tr.doc, currPos = { i: 0 }) => {
 +  const schema = tr.doc.type.schema
 +  let currParentIndex = 0
 +  let nOffset = 0
@@ -2760,6 +3824,9 @@ index 0000000000000000000000000000000000000000..2234e5506a5341f39c80f389288823d8
 +    runInserts = []
 +    runDeletes = []
 +  }
++  // @ts-ignore TS2589: tsc hits "excessively deep" expanding the recursive
++  // `$prosemirrorDelta` op type while iterating; the `delta.$*Op.check` guards
++  // below re-narrow each op precisely.
 +  for (const op of d.children) {
 +    if (delta.$retainOp.check(op) || delta.$modifyOp.check(op)) {
 +      flushRun()
@@ -2805,21 +3872,21 @@ index 0000000000000000000000000000000000000000..2234e5506a5341f39c80f389288823d8
 +          }
 +        } else {
 +          // TODO see schema.js for more info on marking nodes
-+          applyNodeFormat(tr, currPos.i, op.format, attributedNodes)
++          applyNodeFormat(tr, currPos.i, op.format)
 +          currParentIndex++
 +          currPos.i += pc.nodeSize
 +          i--
 +        }
 +      }
 +    } else if (delta.$modifyOp.check(op)) {
-+      applyNodeFormat(tr, currPos.i, op.format, attributedNodes)
++      applyNodeFormat(tr, currPos.i, op.format)
 +      const child = pchildren[currParentIndex++]
 +      const childStart = currPos.i
 +      // Snapshot `tr.doc.content.size` so we can detect inserts/deletes
 +      // appended inside the recursion below.
 +      const sizeBefore = tr.doc.content.size
 +      currPos.i = childStart + 1
-+      deltaToPSteps(tr, op.value, child, currPos, attributedNodes)
++      deltaToPSteps(tr, op.value, child, currPos)
 +      // `lib0/delta.diff` produces short deltas that omit trailing
 +      // retains, so the recursive call may exit before `currPos.i`
 +      // reaches the child's close tag. Snap forward to the position right
@@ -2839,7 +3906,7 @@ index 0000000000000000000000000000000000000000..2234e5506a5341f39c80f389288823d8
 +      for (const ins of bundle.inserts) {
 +        if (delta.$insertOp.check(ins)) {
 +          for (const n of ins.insert) {
-+            newPChildren.push(deltaToPNode(n, schema, ins.format, attributedNodes))
++            newPChildren.push(deltaToPNode(n, schema, ins.format))
 +          }
 +        } else { // text op
 +          newPChildren.push(schema.text(ins.insert, formattingAttributesToMarks(ins.format, schema)))
@@ -2880,10 +3947,9 @@ index 0000000000000000000000000000000000000000..2234e5506a5341f39c80f389288823d8
 + * @param {ProsemirrorDelta} d
 + * @param {import('prosemirror-model').Schema} schema
 + * @param {delta.FormattingAttributes|null} dformat
-+ * @param {AttributedNodesPredicate} [attributedNodes]
 + * @return {Node}
 + */
-+export const deltaToPNode = (d, schema, dformat, attributedNodes = defaultAttributedNodes) => {
++export const deltaToPNode = (d, schema, dformat) => {
 +  /**
 +   * @type {Object<string,any>}
 +   */
@@ -2891,9 +3957,9 @@ index 0000000000000000000000000000000000000000..2234e5506a5341f39c80f389288823d8
 +  for (const attr of d.attrs) {
 +    attrs[attr.key] = attr.value
 +  }
-+  const dc = d.children.map(c => delta.$insertOp.check(c) ? c.insert.map(cn => deltaToPNode(cn, schema, c.format, attributedNodes)) : (delta.$textOp.check(c) ? [schema.text(c.insert, formattingAttributesToMarks(c.format, schema))] : []))
-+  const canonical = d.name == null ? 'doc' : canonicalNodeName(d.name)
-+  const nodeType = schema.nodes[attributedVariant(canonical, dformat, attributedNodes, schema)]
++  const dc = d.children.map(c => delta.$insertOp.check(c) ? c.insert.map(cn => deltaToPNode(cn, schema, c.format)) : (delta.$textOp.check(c) ? [schema.text(c.insert, formattingAttributesToMarks(c.format, schema))] : []))
++  const nodeName = d.name == null ? 'doc' : d.name
++  const nodeType = schema.nodes[nodeName]
 +  if (!nodeType) {
 +    throw new Error(
 +      '[y/prosemirror]: node type does not exist in the schema: ' + d.name
@@ -2901,13 +3967,8 @@ index 0000000000000000000000000000000000000000..2234e5506a5341f39c80f389288823d8
 +  }
 +  const inputChildren = dc.flat(1)
 +  const inputMarks = formattingAttributesToMarks(dformat, schema)
-+  const finalAttrs = canonical !== nodeType.name
-+    ? object.assign({
-+      'y-attributed': true
-+    }, attrs)
-+    : attrs
 +  const pNode = nodeType.createAndFill(
-+    finalAttrs,
++    attrs,
 +    inputChildren,
 +    inputMarks
 +  )
@@ -2928,7 +3989,7 @@ index 0000000000000000000000000000000000000000..2234e5506a5341f39c80f389288823d8
 +}
 +
 +/**
-+ * @param {Transaction} tr
++ * @param {import('prosemirror-state').Transaction} tr
 + */
 +export const trToDelta = (tr) => {
 +  // const d = delta.create($prosemirrorDelta)
@@ -2956,22 +4017,47 @@ index 0000000000000000000000000000000000000000..2234e5506a5341f39c80f389288823d8
 +
 +    const newEnd = afterDoc.resolve(step instanceof ReplaceAroundStep ? step.getMap().map(step.to) : step.from + step.slice.size)
 +
-+    const oldBlockRange = oldStart.blockRange(oldEnd)
-+    const newBlockRange = newStart.blockRange(newEnd)
++    let oldBlockRange = oldStart.blockRange(oldEnd)
++    let newBlockRange = newStart.blockRange(newEnd)
++    // A block split (from === to) makes the old positions share a leaf block,
++    // so blockRange returns a deeper range than the new positions which span
++    // across the split. Normalize to the shallower depth so the diff compares
++    // children of the same parent type.
++    if (oldBlockRange && newBlockRange && oldBlockRange.depth !== newBlockRange.depth) {
++      const minDepth = Math.min(oldBlockRange.depth, newBlockRange.depth)
++      oldBlockRange = new NodeRange(oldStart, oldEnd, minDepth)
++      newBlockRange = new NodeRange(newStart, newEnd, minDepth)
++    }
 +    const oldDelta = deltaForBlockRange(oldBlockRange)
 +    const newDelta = deltaForBlockRange(newBlockRange)
 +    const diffD = delta.diff(oldDelta, newDelta)
 +    const stepDelta = deltaModifyNodeAt(beforeDoc, oldBlockRange?.start || newBlockRange?.start || 0, d => { d.append(diffD) })
 +    return stepDelta
 +  })
-+  .if(AddMarkStep, (step, { beforeDoc }) =>
-+    deltaModifyNodeAt(beforeDoc, step.from, d => { d.retain(step.to - step.from, marksToFormattingAttributes([step.mark])) })
-+  )
++  .if(AddMarkStep, (step, { beforeDoc, afterDoc }) => {
++    const fromResolved = beforeDoc.resolve(step.from)
++    const toResolved = beforeDoc.resolve(step.to)
++    if (fromResolved.sameParent(toResolved)) {
++      return deltaModifyNodeAt(beforeDoc, step.from, d => { d.retain(step.to - step.from, marksToFormattingAttributes([step.mark])) })
++    }
++    const oldBlockRange = fromResolved.blockRange(toResolved)
++    const newBlockRange = afterDoc.resolve(step.from).blockRange(afterDoc.resolve(step.to))
++    const diffD = delta.diff(deltaForBlockRange(oldBlockRange), deltaForBlockRange(newBlockRange))
++    return deltaModifyNodeAt(beforeDoc, oldBlockRange?.start || newBlockRange?.start || 0, d => { d.append(diffD) })
++  })
++  .if(RemoveMarkStep, (step, { beforeDoc, afterDoc }) => {
++    const fromResolved = beforeDoc.resolve(step.from)
++    const toResolved = beforeDoc.resolve(step.to)
++    if (fromResolved.sameParent(toResolved)) {
++      return deltaModifyNodeAt(beforeDoc, step.from, d => { d.retain(step.to - step.from, { [step.mark.type.name]: null }) })
++    }
++    const oldBlockRange = fromResolved.blockRange(toResolved)
++    const newBlockRange = afterDoc.resolve(step.from).blockRange(afterDoc.resolve(step.to))
++    const diffD = delta.diff(deltaForBlockRange(oldBlockRange), deltaForBlockRange(newBlockRange))
++    return deltaModifyNodeAt(beforeDoc, oldBlockRange?.start || newBlockRange?.start || 0, d => { d.append(diffD) })
++  })
 +  .if(AddNodeMarkStep, (step, { beforeDoc }) =>
 +    deltaModifyNodeAt(beforeDoc, step.pos, d => { d.retain(1, marksToFormattingAttributes([step.mark])) })
-+  )
-+  .if(RemoveMarkStep, (step, { beforeDoc }) =>
-+    deltaModifyNodeAt(beforeDoc, step.from, d => { d.retain(step.to - step.from, { [step.mark.type.name]: null }) })
 +  )
 +  .if(RemoveNodeMarkStep, (step, { beforeDoc }) =>
 +    deltaModifyNodeAt(beforeDoc, step.pos, d => { d.retain(1, { [step.mark.type.name]: null }) })
@@ -2982,9 +4068,34 @@ index 0000000000000000000000000000000000000000..2234e5506a5341f39c80f389288823d8
 +  .if(DocAttrStep, step =>
 +    delta.create().setAttr(step.attr, step.value)
 +  )
-+  .else(_step => {
-+    // unknown step kind
-+    error.unexpectedCase()
++  // @ts-ignore TS2589: tsc hits "excessively deep" expanding the recursive matcher
++  .else((step, { beforeDoc, afterDoc }) => {
++    const map = step.getMap()
++    let oldFrom = Infinity
++    let oldTo = 0
++    map.forEach(/** @param {number} from @param {number} to @param {number} _newSize */ (from, to, _newSize) => {
++      oldFrom = math.min(oldFrom, from)
++      oldTo = math.max(oldTo, to)
++    })
++    if (oldFrom === Infinity) {
++      return delta.create($prosemirrorDelta)
++    }
++    const mappedTo = map.map(oldTo)
++    const oldStart = beforeDoc.resolve(oldFrom)
++    const oldEnd = beforeDoc.resolve(oldTo)
++    const newStart = afterDoc.resolve(oldFrom)
++    const newEnd = afterDoc.resolve(mappedTo)
++    let oldBlockRange = oldStart.blockRange(oldEnd)
++    let newBlockRange = newStart.blockRange(newEnd)
++    if (oldBlockRange && newBlockRange && oldBlockRange.depth !== newBlockRange.depth) {
++      const minDepth = Math.min(oldBlockRange.depth, newBlockRange.depth)
++      oldBlockRange = new NodeRange(oldStart, oldEnd, minDepth)
++      newBlockRange = new NodeRange(newStart, newEnd, minDepth)
++    }
++    const oldDelta = deltaForBlockRange(oldBlockRange)
++    const newDelta = deltaForBlockRange(newBlockRange)
++    const diffD = delta.diff(oldDelta, newDelta)
++    return deltaModifyNodeAt(beforeDoc, oldBlockRange?.start || newBlockRange?.start || 0, d => { d.append(diffD) })
 +  })
 +  .done()
 +
@@ -3049,8 +4160,11 @@ index 0000000000000000000000000000000000000000..2234e5506a5341f39c80f389288823d8
 +    path.push(resolvedOffset.index(d))
 +  }
 +
-+  // add any offset into the parent node to the path
-+  path.push(resolvedOffset.parentOffset)
++  if (resolvedOffset.parent.inlineContent) {
++    path.push(resolvedOffset.parentOffset)
++  } else {
++    path.push(resolvedOffset.index(depth))
++  }
 +
 +  return path
 +}
@@ -3087,8 +4201,14 @@ index 0000000000000000000000000000000000000000..2234e5506a5341f39c80f389288823d8
 +    curNode = curNode.children[childIndex]
 +  }
 +
-+  // Last element is an offset within the current node
-+  pmOffset += deltaPath[deltaPath.length - 1]
++  const lastEl = deltaPath[deltaPath.length - 1]
++  if (curNode.inlineContent) {
++    pmOffset += lastEl
++  } else {
++    for (let j = 0; j < lastEl; j++) {
++      pmOffset += curNode.children[j].nodeSize
++    }
++  }
 +
 +  return pmOffset
 +}
@@ -3360,6 +4480,418 @@ index 0000000000000000000000000000000000000000..70a7ae423be9bfd7a061984ce4ca74f4
 diff --git a/src/utils.js b/src/utils.js
 deleted file mode 100644
 index f62b6a1abc732b9c13eb83fd667534173706273d..0000000000000000000000000000000000000000
+diff --git a/src/y-attribution-to-diffset.js b/src/y-attribution-to-diffset.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..e2184c88bbc4fd72e3a1278d8adc726b8ba5c355
+--- /dev/null
++++ b/src/y-attribution-to-diffset.js
+@@ -0,0 +1,406 @@
++/**
++ * Convert a Yjs attributed delta into a DiffSet for decoration rendering.
++ *
++ * The attributed delta (from ytype.toDeltaDeep(am)) includes both current
++ * content and deleted content (retained because gc:false). This function
++ * walks the delta, maps each span onto the clean (displayed) PM document,
++ * and produces a Diff[] in the same contract that diff-decorations.js expects.
++ *
++ * Strategy B: the PM document mirrors the clean suggestion content (synced
++ * without attribution marks). This function reads the attribution separately
++ * and produces decorations without touching the document model.
++ */
++import * as d from 'lib0/delta'
++import { Fragment } from 'prosemirror-model'
++import { formattingAttributesToMarks } from './sync-utils.js'
++
++/**
++ * Who made a change and whether it was an insertion or deletion.
++ *
++ * @typedef {{
++ *   type: 'added' | 'removed',
++ *   authorIds: string[],
++ *   timestamp?: number
++ * }} Attribution
++ */
++
++/**
++ * The six diff types produced by `ydeltaToDiffSet`.
++ *
++ * @typedef {'inline-insert' | 'inline-delete' | 'block-insert' | 'block-delete' | 'inline-update' | 'block-update'} DiffType
++ */
++
++/**
++ * A single difference between the base and suggestion documents.
++ *
++ * `from`/`to` are positions in the *displayed* (clean) PM document.
++ * For delete types, `from === to` (zero-width) and `content` holds the
++ * removed fragment for ghost rendering.  For update types, `attributes`
++ * holds the new values and `previousAttributes` (when available) the old.
++ *
++ * @typedef {{
++ *   type: DiffType,
++ *   from: number,
++ *   to: number,
++ *   content?: import('prosemirror-model').Fragment,
++ *   attribution: Attribution,
++ *   attributes?: Record<string, any>,
++ *   previousAttributes?: Record<string, any>
++ * }} Diff
++ */
++
++/**
++ * An ordered array of `Diff` objects covering all changes between the
++ * base and suggestion documents.
++ *
++ * @typedef {Diff[]} DiffSet
++ */
++
++/**
++ * Convert an attributed delta from `ytype.toDeltaDeep(am)` into a DiffSet
++ * whose positions are expressed in the clean (displayed) PM document.
++ *
++ * @param {d.DeltaAny} attributedDelta
++ * @param {{ displayedDoc: import('prosemirror-model').Node, schema: import('prosemirror-model').Schema }} opts
++ * @returns {DiffSet}
++ */
++export const ydeltaToDiffSet = (attributedDelta, { displayedDoc, schema }) => {
++  /** @type {Diff[]} */
++  const diffs = []
++  const pos = { i: 0 }
++  walkBlockLevel(attributedDelta, pos, diffs, displayedDoc, schema)
++  return suppressSplitDeletes(diffs)
++}
++
++/**
++ * Drop the spurious delete halves produced when a block is *split* in
++ * suggestion mode.
++ *
++ * A CRDT cannot move text: splitting "abc|def" into two blocks is recorded as
++ * "delete `def` from the first block" + "insert a new block whose content is
++ * `def`". `toDeltaDeep(am)` therefore reports `def` twice - once with
++ * `{delete}` at the tail of the original block, once with `{insert}` in the
++ * brand-new block - even though the clean displayed doc only shows it once (in
++ * the new block). Rendering the delete half draws a phantom strikethrough of
++ * text the user can already see (now green) in the inserted block right after
++ * it, and turns a trivial "add a paragraph below" into "delete the tail and
++ * re-insert it merged with the new text".
++ *
++ * Detection is structural: a delete diff (`inline-delete`/`block-delete`)
++ * immediately followed by a `block-insert` whose inserted content *contains*
++ * the deleted text as a contiguous substring is the source half of a split.
++ * The inserted block genuinely is new content (typed text plus the moved text),
++ * so we keep it as-is and only drop the redundant delete ghost.
++ *
++ * @param {Diff[]} diffs
++ * @returns {Diff[]}
++ */
++function suppressSplitDeletes (diffs) {
++  /** @type {Set<number>} */
++  const drop = new Set()
++  for (let i = 0; i < diffs.length - 1; i++) {
++    const cur = diffs[i]
++    const next = diffs[i + 1]
++    if (cur.type !== 'inline-delete' && cur.type !== 'block-delete') continue
++    if (next.type !== 'block-insert') continue
++    // The moved-out block must sit right after the split point: only the
++    // source block's close token and the new block's open token (<= 2 PM
++    // positions) separate the delete anchor from the inserted block's start.
++    // This keeps the heuristic to genuine splits and avoids suppressing an
++    // unrelated delete that merely happens to share text with a later insert.
++    if (next.from - cur.from > 2) continue
++    const deletedText = fragmentText(cur.content)
++    if (deletedText.length === 0) continue
++    const insertedText = fragmentText(next.content)
++    if (insertedText.includes(deletedText)) {
++      drop.add(i)
++    }
++  }
++  if (drop.size === 0) return diffs
++  return diffs.filter((_, i) => !drop.has(i))
++}
++
++/**
++ * @param {import('prosemirror-model').Fragment | undefined} fragment
++ * @returns {string}
++ */
++function fragmentText (fragment) {
++  if (!fragment || fragment.size === 0) return ''
++  return fragment.textBetween(0, fragment.size)
++}
++
++/**
++ * Walk the children of a block-level delta (the doc delta or a container like
++ * blockquote). Each child is an insert op containing a sub-delta (block node).
++ *
++ * @param {d.DeltaAny} parentDelta
++ * @param {{ i: number }} pos - mutable PM position cursor
++ * @param {Diff[]} diffs
++ * @param {import('prosemirror-model').Node} displayedDoc
++ * @param {import('prosemirror-model').Schema} schema
++ */
++function walkBlockLevel (parentDelta, pos, diffs, displayedDoc, schema) {
++  for (const op of parentDelta.children) {
++    if (d.$insertOp.check(op)) {
++      for (const child of op.insert) {
++        if (d.$deltaAny.check(child)) {
++          processBlockNode(child, op, pos, diffs, displayedDoc, schema)
++        }
++      }
++    } else if (d.$textOp.check(op)) {
++      processTextOp(op, pos, diffs, schema)
++    }
++  }
++}
++
++/**
++ * Process a single block node from the attributed delta.
++ *
++ * @param {d.DeltaAny} nodeDelta - the block node's delta (paragraph, heading, etc.)
++ * @param {d.InsertOp<any>} parentOp - the insert op that contains this node
++ * @param {{ i: number }} pos
++ * @param {Diff[]} diffs
++ * @param {import('prosemirror-model').Node} displayedDoc
++ * @param {import('prosemirror-model').Schema} schema
++ */
++function processBlockNode (nodeDelta, parentOp, pos, diffs, displayedDoc, schema) {
++  const attr = parentOp.attribution
++
++  if (attr?.delete) {
++    const content = reconstructNodeFragment(nodeDelta, schema)
++    diffs.push({
++      type: 'block-delete',
++      from: pos.i,
++      to: pos.i,
++      content,
++      attribution: { type: 'removed', authorIds: attr.delete }
++    })
++    return
++  }
++
++  if (attr?.insert) {
++    const node = displayedDoc.nodeAt(pos.i)
++    if (node) {
++      diffs.push({
++        type: 'block-insert',
++        from: pos.i,
++        to: pos.i + node.nodeSize,
++        content: Fragment.from(node),
++        attribution: { type: 'added', authorIds: attr.insert }
++      })
++      pos.i += node.nodeSize
++    }
++    return
++  }
++
++  if (attr?.format) {
++    const node = displayedDoc.nodeAt(pos.i)
++    if (node) {
++      const authorIds = uniqueAuthors(attr.format)
++      const formattedKeys = Object.keys(attr.format)
++      const allAttrs = extractDeltaAttrs(nodeDelta)
++      /** @type {Record<string, any>} */
++      const attributes = {}
++      for (const key of formattedKeys) {
++        attributes[key] = allAttrs[key]
++      }
++      diffs.push({
++        type: 'block-update',
++        from: pos.i,
++        to: pos.i + node.nodeSize,
++        attribution: { type: 'added', authorIds },
++        attributes,
++        previousAttributes: undefined
++      })
++    }
++  }
++
++  // Leaf block nodes (e.g. horizontal_rule) have no content and a fixed
++  // nodeSize of 1 - there is no separate close token to skip, so advancing
++  // by the open/close pair below would over-count by 1 and drift every
++  // subsequent position. Detect via the schema (not the document, which may
++  // transiently disagree with the attributed delta mid-edit) and advance by 1.
++  const nodeType = nodeDelta.name ? schema.nodes[nodeDelta.name] : null
++  if (nodeType?.isLeaf) {
++    pos.i += 1
++    return
++  }
++  pos.i += 1
++  walkInlineLevel(nodeDelta, pos, diffs, displayedDoc, schema)
++  pos.i += 1
++}
++
++/**
++ * Walk inline children of a block node delta.
++ *
++ * @param {d.DeltaAny} blockDelta
++ * @param {{ i: number }} pos
++ * @param {Diff[]} diffs
++ * @param {import('prosemirror-model').Node} displayedDoc
++ * @param {import('prosemirror-model').Schema} schema
++ */
++function walkInlineLevel (blockDelta, pos, diffs, displayedDoc, schema) {
++  for (const op of blockDelta.children) {
++    if (d.$textOp.check(op)) {
++      processTextOp(op, pos, diffs, schema)
++    } else if (d.$insertOp.check(op)) {
++      for (const child of op.insert) {
++        if (d.$deltaAny.check(child)) {
++          processBlockNode(child, op, pos, diffs, displayedDoc, schema)
++        }
++      }
++    }
++  }
++}
++
++/**
++ * Process a text op from the attributed delta.
++ *
++ * @param {d.TextOp} op
++ * @param {{ i: number }} pos
++ * @param {Diff[]} diffs
++ * @param {import('prosemirror-model').Schema} schema
++ */
++function processTextOp (op, pos, diffs, schema) {
++  const text = op.insert
++  const len = text.length
++  const attr = op.attribution
++
++  if (attr?.delete) {
++    const marks = safeMarks(op.format, schema)
++    diffs.push({
++      type: 'inline-delete',
++      from: pos.i,
++      to: pos.i,
++      content: Fragment.from(schema.text(text, marks.length ? marks : undefined)),
++      attribution: { type: 'removed', authorIds: attr.delete }
++    })
++    return
++  }
++
++  if (attr?.insert) {
++    diffs.push({
++      type: 'inline-insert',
++      from: pos.i,
++      to: pos.i + len,
++      attribution: { type: 'added', authorIds: attr.insert }
++    })
++    pos.i += len
++    return
++  }
++
++  if (attr?.format) {
++    const authorIds = uniqueAuthors(attr.format)
++    diffs.push({
++      type: 'inline-update',
++      from: pos.i,
++      to: pos.i + len,
++      attribution: { type: 'added', authorIds },
++      attributes: formatToDiffAttributes(op.format)
++    })
++    pos.i += len
++    return
++  }
++
++  pos.i += len
++}
++
++/**
++ * Reconstruct a PM Fragment from a delta for ghost rendering.
++ *
++ * @param {d.DeltaAny} nodeDelta
++ * @param {import('prosemirror-model').Schema} schema
++ * @returns {Fragment}
++ */
++function reconstructNodeFragment (nodeDelta, schema) {
++  const node = reconstructNode(nodeDelta, schema)
++  return node ? Fragment.from(node) : Fragment.empty
++}
++
++/**
++ * @param {d.DeltaAny} nodeDelta
++ * @param {import('prosemirror-model').Schema} schema
++ * @returns {import('prosemirror-model').Node | null}
++ */
++function reconstructNode (nodeDelta, schema) {
++  const nodeName = nodeDelta.name || 'paragraph'
++  const nodeType = schema.nodes[nodeName]
++  if (!nodeType) return null
++
++  /** @type {Record<string, any>} */
++  const attrs = {}
++  for (const attr of nodeDelta.attrs) {
++    attrs[attr.key] = attr.value
++  }
++
++  /** @type {import('prosemirror-model').Node[]} */
++  const children = []
++  for (const op of nodeDelta.children) {
++    if (d.$textOp.check(op)) {
++      const marks = safeMarks(op.format, schema)
++      children.push(schema.text(op.insert, marks.length ? marks : undefined))
++    } else if (d.$insertOp.check(op)) {
++      for (const sub of op.insert) {
++        if (d.$deltaAny.check(sub)) {
++          const subNode = reconstructNode(sub, schema)
++          if (subNode) children.push(subNode)
++        }
++      }
++    }
++  }
++
++  return nodeType.createAndFill(attrs, children)
++}
++
++/**
++ * @param {Record<string, unknown> | null | undefined} format
++ * @param {import('prosemirror-model').Schema} schema
++ * @returns {import('prosemirror-model').Mark[]}
++ */
++function safeMarks (format, schema) {
++  if (!format) return []
++  try {
++    return formattingAttributesToMarks(format, schema)
++  } catch {
++    return []
++  }
++}
++
++/**
++ * @param {Record<string, string[]>} formatAttribution
++ * @returns {string[]}
++ */
++function uniqueAuthors (formatAttribution) {
++  return [...new Set(Object.values(formatAttribution).flat())]
++}
++
++/**
++ * @param {d.DeltaAny} nodeDelta
++ * @returns {Record<string, any>}
++ */
++function extractDeltaAttrs (nodeDelta) {
++  /** @type {Record<string, any>} */
++  const attrs = {}
++  for (const attr of nodeDelta.attrs) {
++    attrs[attr.key] = attr.value
++  }
++  return attrs
++}
++
++/**
++ * Convert a delta format object to the Diff.attributes shape.
++ * The result captures which formatting keys changed (e.g. `{strong: {}, em: {}}`),
++ * stored under `format` so downstream code can display what changed.
++ *
++ * @param {Record<string, unknown> | null | undefined} fmt
++ * @returns {{ format: Record<string, any> } | undefined}
++ */
++function formatToDiffAttributes (fmt) {
++  if (!fmt) return undefined
++  /** @type {Record<string, any>} */
++  const format = {}
++  for (const [k, v] of Object.entries(fmt)) {
++    format[k] = v
++  }
++  return { format }
++}
 diff --git a/src/y-prosemirror.js b/src/y-prosemirror.js
 deleted file mode 100644
 index bb072b6e31a0184a56d7873dcae647f0d5711559..0000000000000000000000000000000000000000

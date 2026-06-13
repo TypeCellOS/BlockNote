@@ -33,8 +33,8 @@ BASIC STYLES
   transition: all 0.2s;
   /* Workaround for selection issue on Chrome, see #1588 and also here:
   https://discuss.prosemirror.net/t/mouse-down-selection-behaviour-different-on-chrome/8426
-  The :before element causes the selection to be set in the wrong place vs 
-  other browsers. Setting no height fixes this, while list item indicators are 
+  The :before element causes the selection to be set in the wrong place vs
+  other browsers. Setting no height fixes this, while list item indicators are
   still displayed fine as overflow is not hidden. */
   height: 0;
   overflow: visible;
@@ -739,4 +739,99 @@ div[data-type="modification"] {
   color: rgba(100, 90, 75, 0.3);
   text-decoration: line-through;
   text-decoration-thickness: 1px;
+}
+
+/* Suggestion decoration styling (data-diff-type drives everything) */
+[data-diff-type="inline-insert"],
+[data-diff-type="block-insert"] {
+  background-color: color-mix(
+    in srgb,
+    var(--author-color, #28a745) 22%,
+    transparent
+  );
+  text-decoration: underline;
+  text-decoration-color: var(--author-color, #28a745);
+  text-decoration-thickness: 2px;
+  border-radius: 2px;
+}
+
+[data-diff-type="inline-delete"],
+[data-diff-type="block-delete"] {
+  background-color: color-mix(
+    in srgb,
+    var(--author-color, #dc3545) 14%,
+    transparent
+  );
+  text-decoration: line-through;
+  text-decoration-color: var(--author-color, #dc3545);
+  color: #555;
+  border-radius: 2px;
+}
+/* Scoped to div so table-shaped ghosts (tr/td) keep their native
+   table display roles and participate in the table's layout. */
+div[data-diff-type="block-delete"] {
+  display: block;
+  padding: 2px 4px;
+  margin: 2px 0;
+}
+[data-diff-type="block-delete"] * {
+  text-decoration: line-through;
+  text-decoration-color: var(--author-color, #dc3545);
+  color: #555;
+}
+[data-diff-type="inline-delete"] {
+  padding: 0 1px;
+}
+
+/* Table-shaped deletion ghosts are real <tr>/<td> elements. */
+tr.pm-suggest--editable > td,
+td.pm-suggest--editable {
+  border: 1px solid #e5e7eb;
+  padding: 4px 8px;
+}
+tr.pm-suggest--editable p,
+td.pm-suggest--editable p {
+  margin: 0;
+  display: block;
+}
+
+[data-diff-type="inline-update"],
+[data-diff-type="block-update"] {
+  outline: 1.5px dashed var(--author-color, #ffc107);
+  outline-offset: 1px;
+  border-radius: 2px;
+}
+
+[data-diff-type="block-delete"] strong,
+[data-diff-type="inline-delete"] strong {
+  font-weight: normal;
+}
+[data-diff-type="block-delete"] em,
+[data-diff-type="inline-delete"] em {
+  font-style: normal;
+}
+
+/* Editable deletion sub-editor (footnote-pattern nested EditorView). */
+.pm-suggest--editable {
+  cursor: text;
+}
+.pm-suggest--editable[data-diff-type="inline-delete"] {
+  display: inline-block;
+  vertical-align: baseline;
+}
+.pm-suggest__sub-editor {
+  outline: none;
+  min-width: 4px;
+}
+.pm-suggest__sub-editor.ProseMirror p {
+  margin: 0;
+  display: inline;
+}
+.pm-suggest--editable:focus-within {
+  outline: 1px dashed var(--author-color, #dc3545);
+  outline-offset: 1px;
+  text-decoration: none;
+}
+.pm-suggest--editable:focus-within .pm-suggest__sub-editor {
+  text-decoration: none;
 }
