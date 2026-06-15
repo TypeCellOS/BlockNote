@@ -37,10 +37,13 @@ export const AddBlockButton = () => {
       editor.setTextCursorPosition(block);
       suggestionMenu.openSuggestionMenu("/");
     } else {
+      const prevBlock = editor.getPrevBlock(block);
+      const isFirstBlock = prevBlock === undefined;
+      const placement = isFirstBlock ? "before" : "after";
       const insertedBlock = editor.insertBlocks(
         [{ type: "paragraph" }],
         block,
-        "after",
+        placement,
       )[0];
       editor.setTextCursorPosition(insertedBlock);
       suggestionMenu.openSuggestionMenu("/");
