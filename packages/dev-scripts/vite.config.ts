@@ -9,6 +9,7 @@ export default defineConfig({
           { auto: true },
           { pattern: "!**/*.tsbuildinfo", base: "workspace" },
         ],
+        output: ["dist/**"],
       },
       "gen:examples": {
         command: "tsx examples/gen.ts",
