@@ -82,45 +82,57 @@ export const YCursorExtension = createExtension(
       ) {
         awareness.setLocalStateField("user", options.user);
       }
-      if ("on" in awareness && typeof awareness.on === "function") {
-        if (options.showCursorLabels !== "always") {
-          awareness.on(
-            "change",
-            ({
-              updated,
-            }: {
-              added: Array<number>;
-              updated: Array<number>;
-              removed: Array<number>;
-            }) => {
-              for (const clientID of updated) {
-                const cursor = recentlyUpdatedCursors.get(clientID);
+    }
 
-                if (cursor) {
-                  setTimeout(() => {
-                    cursor.element.setAttribute("data-active", "");
-                  }, 10);
+    const handleAwarenessChange = ({
+      updated,
+    }: {
+      added: Array<number>;
+      updated: Array<number>;
+      removed: Array<number>;
+    }) => {
+      for (const clientID of updated) {
+        const cursor = recentlyUpdatedCursors.get(clientID);
 
-                  if (cursor.hideTimeout) {
-                    clearTimeout(cursor.hideTimeout);
-                  }
+        if (cursor) {
+          setTimeout(() => {
+            cursor.element.setAttribute("data-active", "");
+          }, 10);
 
-                  recentlyUpdatedCursors.set(clientID, {
-                    element: cursor.element,
-                    hideTimeout: setTimeout(() => {
-                      cursor.element.removeAttribute("data-active");
-                    }, 2000),
-                  });
-                }
-              }
-            },
-          );
+          if (cursor.hideTimeout) {
+            clearTimeout(cursor.hideTimeout);
+          }
+
+          recentlyUpdatedCursors.set(clientID, {
+            element: cursor.element,
+            hideTimeout: setTimeout(() => {
+              cursor.element.removeAttribute("data-active");
+            }, 2000),
+          });
         }
       }
-    }
+    };
 
     return {
       key: "yCursor",
+      mount() {
+        if (
+          awareness &&
+          options.showCursorLabels !== "always" &&
+          "on" in awareness &&
+          typeof awareness.on === "function"
+        ) {
+          awareness.on("change", handleAwarenessChange);
+
+          return () => {
+            if ("off" in awareness && typeof awareness.off === "function") {
+              awareness.off("change", handleAwarenessChange);
+            }
+          };
+        }
+
+        return undefined;
+      },
       prosemirrorPlugins: [
         awareness
           ? yCursorPlugin(awareness, {
