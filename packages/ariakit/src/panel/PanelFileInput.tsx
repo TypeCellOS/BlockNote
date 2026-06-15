@@ -5,7 +5,7 @@ import {
 
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
-import { forwardRef } from "react";
+import { forwardRef, type ChangeEvent } from "react";
 
 export const PanelFileInput = forwardRef<
   HTMLInputElement,
@@ -24,7 +24,9 @@ export const PanelFileInput = forwardRef<
         type={"file"}
         accept={accept}
         value={value ? value.name : undefined}
-        onChange={async (e) => onChange?.(e.target.files![0])}
+        onChange={async (e: ChangeEvent<HTMLInputElement>) =>
+          onChange?.(e.target.files![0])
+        }
         placeholder={placeholder}
       />
     </AriakitFormProvider>

@@ -1,27 +1,34 @@
-'use client';
-import { cva } from 'class-variance-authority';
-import { Airplay, Moon, Sun } from 'lucide-react';
-import { useTheme } from 'next-themes';
-import { ComponentProps, useEffect, useState } from 'react';
-import { cn } from '../../../lib/fumadocs/cn';
+"use client";
+import { cva } from "class-variance-authority";
+import { Airplay, Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
+import { ComponentProps, useEffect, useState } from "react";
+import { cn } from "../../../lib/fumadocs/cn";
 
-const itemVariants = cva('size-6.5 rounded-full p-1.5 text-fd-muted-foreground', {
-  variants: {
-    active: {
-      true: 'bg-fd-accent text-fd-accent-foreground',
-      false: 'text-fd-muted-foreground',
+const itemVariants = cva(
+  "size-6.5 rounded-full p-1.5 text-fd-muted-foreground",
+  {
+    variants: {
+      active: {
+        true: "bg-fd-accent text-fd-accent-foreground",
+        false: "text-fd-muted-foreground",
+      },
     },
   },
-});
+);
 
-const full = [['light', Sun] as const, ['dark', Moon] as const, ['system', Airplay] as const];
+const full = [
+  ["light", Sun] as const,
+  ["dark", Moon] as const,
+  ["system", Airplay] as const,
+];
 
 export function ThemeToggle({
   className,
-  mode = 'light-dark',
+  mode = "light-dark",
   ...props
-}: ComponentProps<'div'> & {
-  mode?: 'light-dark' | 'light-dark-system';
+}: ComponentProps<"div"> & {
+  mode?: "light-dark" | "light-dark-system";
 }) {
   const { setTheme, theme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -30,20 +37,25 @@ export function ThemeToggle({
     setMounted(true);
   }, []);
 
-  const container = cn('inline-flex items-center rounded-full border p-1', className);
+  const container = cn(
+    "inline-flex items-center rounded-full border p-1",
+    className,
+  );
 
-  if (mode === 'light-dark') {
+  if (mode === "light-dark") {
     const value = mounted ? resolvedTheme : null;
 
     return (
       <button
         className={container}
         aria-label={`Toggle Theme`}
-        onClick={() => setTheme(value === 'light' ? 'dark' : 'light')}
+        onClick={() => setTheme(value === "light" ? "dark" : "light")}
         data-theme-toggle=""
       >
         {full.map(([key, Icon]) => {
-          if (key === 'system') return;
+          if (key === "system") {
+            return;
+          }
 
           return (
             <Icon

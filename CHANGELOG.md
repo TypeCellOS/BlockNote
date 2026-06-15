@@ -1,3 +1,29 @@
+## 0.51.4 (2026-06-02)
+
+### 🩹 Fixes
+
+- add explicit type annotations for callback params losing contextual typing ([#2815](https://github.com/TypeCellOS/BlockNote/pull/2815))
+- Comments emoji picker button issues (BLO-1199) ([#2769](https://github.com/TypeCellOS/BlockNote/pull/2769))
+- **core:** add editor cleanup in BlockNoteEditor.test.ts to prevent unhandled DOMObserver errors ([#2816](https://github.com/TypeCellOS/BlockNote/pull/2816))
+- **table:** prevent crash when pressing Enter in a table cell ([#2793](https://github.com/TypeCellOS/BlockNote/pull/2793))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- Nick the Sick @nperez0111
+- Yuki Terashima @y-temp4
+
+## 0.51.3 (2026-05-26)
+
+### 🩹 Fixes
+
+- table cell colors (BLO-1198) ([#2770](https://github.com/TypeCellOS/BlockNote/pull/2770))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+
 ## 0.51.2 (2026-05-20)
 
 ### 🩹 Fixes

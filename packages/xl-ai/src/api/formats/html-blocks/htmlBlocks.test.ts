@@ -1,7 +1,7 @@
 import { snapshot } from "msw-snapshot";
 import { setupServer } from "msw/node";
 import path from "path";
-import { afterAll, afterEach, beforeAll, describe, it } from "vitest";
+import { afterAll, afterEach, beforeAll, describe, it } from "vite-plus/test";
 import { testAIModels } from "../../../testUtil/testAIModels.js";
 
 import { BlockNoteEditor } from "@blocknote/core";

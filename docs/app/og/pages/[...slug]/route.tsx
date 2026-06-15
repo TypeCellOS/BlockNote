@@ -10,7 +10,9 @@ export async function GET(
 ) {
   const { slug } = await params;
   const page = source.getPage(slug.slice(0, -1));
-  if (!page || slug[slug.length - 1] !== "image.png") notFound();
+  if (!page || slug[slug.length - 1] !== "image.png") {
+    notFound();
+  }
 
   let title = page.data.imageTitle || page.data.title;
 

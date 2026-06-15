@@ -47,7 +47,9 @@ export default function App() {
   // Renders the editor instance using a React component.
   return (
     <BlockNoteView editor={editor} formattingToolbar={false} filePanel={false}>
-      <FormattingToolbarController formattingToolbar={CustomFormattingToolbar} />
+      <FormattingToolbarController
+        formattingToolbar={CustomFormattingToolbar}
+      />
       {/* Replaces default file panel with Uppy one. */}
       <FilePanelController filePanel={UppyFilePanel} />
     </BlockNoteView>

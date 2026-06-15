@@ -1,5 +1,5 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vite-plus/test";
 
 import { tools } from "../api/formats/json/tools/index.js";
 import { StreamTool } from "./streamTool.js";

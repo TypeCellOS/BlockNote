@@ -1,4 +1,4 @@
-import { expect, it } from "vitest";
+import { expect, it } from "vite-plus/test";
 import * as Y from "yjs";
 import { Awareness } from "y-protocols/awareness";
 import { BlockNoteEditor } from "../../index.js";

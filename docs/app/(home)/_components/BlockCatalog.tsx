@@ -38,9 +38,9 @@ export const BlockCatalog: React.FC = () => {
     <section className="relative overflow-hidden bg-gradient-to-b from-stone-50 via-white to-purple-50/30 py-32">
       {/* Subtle decorative elements */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -right-20 -top-20 h-96 w-96 rounded-full bg-purple-100/40 blur-3xl" />
+        <div className="absolute -top-20 -right-20 h-96 w-96 rounded-full bg-purple-100/40 blur-3xl" />
         <div className="absolute -bottom-20 -left-20 h-96 w-96 rounded-full bg-amber-100/40 blur-3xl" />
-        <div className="absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-purple-50/50 to-blue-50/50 blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-purple-50/50 to-blue-50/50 blur-3xl" />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-6">
@@ -51,7 +51,7 @@ export const BlockCatalog: React.FC = () => {
           <h2 className="mb-6 font-serif text-4xl text-stone-900 md:text-6xl">
             Build anything, block by block.
           </h2>
-          <p className="mx-auto max-w-2xl text-xl font-light leading-relaxed text-stone-600">
+          <p className="mx-auto max-w-2xl text-xl leading-relaxed font-light text-stone-600">
             Every BlockNote document is a collection of blocks—headings, lists,
             images, and more. Use the built-in blocks, customize them to fit
             your needs, or create entirely new ones.

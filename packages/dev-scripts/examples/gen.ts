@@ -1,16 +1,16 @@
 import * as glob from "glob";
-import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import prettier from "prettier";
 import React from "react";
 
 import ReactDOM from "react-dom/server";
 import {
   Project,
+  formatFiles,
   getExampleProjects,
   groupProjects,
   replacePathSepToSlash,
+  writeGeneratedFile,
 } from "./util.js";
 
 /**
@@ -26,7 +26,11 @@ import {
  */
 const dir = path.parse(fileURLToPath(import.meta.url)).dir;
 
-async function writeTemplate(project: Project, templateFile: string) {
+async function writeTemplate(
+  project: Project,
+  templateFile: string,
+  written: string[],
+) {
   const template = await import(pathToFileURL(templateFile).toString());
   if (
     project.config.tailwind !== true &&
@@ -45,12 +49,6 @@ async function writeTemplate(project: Project, templateFile: string) {
   let stringOutput: string | undefined = undefined;
   if (React.isValidElement(ret)) {
     stringOutput = ReactDOM.renderToString(ret);
-
-    const prettierConfig = await prettier.resolveConfig(targetFilePath);
-    stringOutput = await prettier.format(stringOutput, {
-      ...prettierConfig,
-      parser: "html",
-    });
   } else if (typeof ret === "string") {
     stringOutput = ret;
   } else if (typeof ret === "object") {
@@ -59,20 +57,20 @@ async function writeTemplate(project: Project, templateFile: string) {
     throw new Error("unsupported template");
   }
 
-  fs.writeFileSync(targetFilePath, stringOutput);
+  writeGeneratedFile(targetFilePath, stringOutput, written);
 }
 
-async function generateCodeForExample(project: Project) {
+async function generateCodeForExample(project: Project, written: string[]) {
   const templates = glob.sync(
     replacePathSepToSlash(path.resolve(dir, "./template-react/*.template.tsx")),
   );
 
   for (const template of templates) {
-    await writeTemplate(project, template);
+    await writeTemplate(project, template, written);
   }
 }
 
-async function generateExamplesData(projects: Project[]) {
+async function generateExamplesData(projects: Project[], written: string[]) {
   // TODO: fix playground?
   const target = path.resolve(dir, "../../../playground/src/examples.gen.tsx");
 
@@ -84,17 +82,21 @@ async function generateExamplesData(projects: Project[]) {
   // add as any after deps, otherwise const type inference will be too complex for TS
   code = code.replace(/("dependencies":\s*{[^}]*})/g, "$1 as any");
 
-  fs.writeFileSync(target, code);
+  writeGeneratedFile(target, code, written);
 }
 
 const projects = getExampleProjects();
+const writtenFiles: string[] = [];
 
 for (const project of projects) {
   // eslint-disable-next-line no-console
   console.log("generating code for example", project.projectSlug);
-  await generateCodeForExample(project);
+  await generateCodeForExample(project, writtenFiles);
 }
 
 await generateExamplesData(
   projects.filter((p) => p.config?.playground === true),
+  writtenFiles,
 );
+
+formatFiles(writtenFiles);

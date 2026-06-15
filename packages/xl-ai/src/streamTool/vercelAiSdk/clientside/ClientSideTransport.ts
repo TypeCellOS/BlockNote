@@ -33,9 +33,9 @@ export function getProviderOverrides(model: Exclude<LanguageModel, string>) {
   );
 }
 
-export class ClientSideTransport<UI_MESSAGE extends UIMessage>
-  implements ChatTransport<UI_MESSAGE>
-{
+export class ClientSideTransport<
+  UI_MESSAGE extends UIMessage,
+> implements ChatTransport<UI_MESSAGE> {
   constructor(
     public readonly opts: {
       /**

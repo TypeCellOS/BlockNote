@@ -1,5 +1,5 @@
 import { Fragment, Schema } from "prosemirror-model";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { getFirstChar } from "./fragmentUtil.js";
 
 describe("fragmentUtil", () => {

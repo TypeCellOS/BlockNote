@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, beforeEach } from "vitest";
+import { afterAll, beforeAll, beforeEach } from "vite-plus/test";
 
 import { PartialBlock } from "../../blocks/defaultBlocks.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";

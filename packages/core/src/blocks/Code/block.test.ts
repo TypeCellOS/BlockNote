@@ -1,4 +1,11 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+} from "vite-plus/test";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { PartialBlock } from "../defaultBlocks.js";
 import { getLanguageId, type CodeBlockOptions } from "./block.js";
@@ -179,9 +186,9 @@ describe("Code block input rule", () => {
     const after = editor.document[0];
     expect(after.type).toBe("codeBlock");
     expect(after.id).toBe(block.id);
-    expect((after.content as Array<{ type: string; text: string }>)[0].text).toBe(
-      "hello",
-    );
+    expect(
+      (after.content as Array<{ type: string; text: string }>)[0].text,
+    ).toBe("hello");
   });
 
   it("places cursor inside the new code block after Enter conversion", () => {
@@ -198,9 +205,9 @@ describe("Code block input rule", () => {
     const after = editor.document[0];
     expect(after.type).toBe("codeBlock");
     expect(after.id).toBe(block.id);
-    expect((after.content as Array<{ type: string; text: string }>)[0].text).toBe(
-      "world",
-    );
+    expect(
+      (after.content as Array<{ type: string; text: string }>)[0].text,
+    ).toBe("world");
   });
 
   it("Enter inside an existing code block does not retrigger conversion", () => {

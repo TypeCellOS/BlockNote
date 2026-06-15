@@ -8,33 +8,25 @@
     "directory": "packages/dev-scripts"
   },
   "license": "MPL-2.0",
-  "version": "0.51.2",
+  "version": "0.51.4",
   "description": "",
   "type": "module",
   "scripts": {
-    "gen": "pnpm run gen:examples && pnpm run gen:docs",
-    "gen:examples": "tsx examples/gen.ts",
-    "gen:docs": "tsx examples/genDocs.ts",
-    "build": "tsc",
-    "lint": "eslint examples --max-warnings 0"
+    "gen": "vp run gen:examples && vp run gen:docs",
+    "lint": "vp lint examples",
+    "clean": "rimraf dist && rimraf types"
   },
   "devDependencies": {
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
-    "eslint": "^8.57.1",
     "glob": "^10.5.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
+    "rimraf": "^5.0.10",
     "tinyglobby": "0.2.12",
     "tsx": "^4.20.6",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vite-plus": "catalog:"
   },
-  "eslintConfig": {
-    "extends": [
-      "../../.eslintrc.json"
-    ]
-  },
-  "dependencies": {
-    "prettier": "3.5.3"
-  }
+  "dependencies": {}
 }

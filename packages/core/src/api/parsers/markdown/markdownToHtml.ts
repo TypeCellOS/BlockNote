@@ -32,8 +32,7 @@ function isAlphanumeric(char: string | undefined): boolean {
  */
 function isIntraword(text: string, i: number, delimLen: number): boolean {
   const before = i > 0 ? text[i - 1] : undefined;
-  const after =
-    i + delimLen < text.length ? text[i + delimLen] : undefined;
+  const after = i + delimLen < text.length ? text[i + delimLen] : undefined;
   return isAlphanumeric(before) && isAlphanumeric(after);
 }
 
@@ -41,14 +40,16 @@ function isIntraword(text: string, i: number, delimLen: number): boolean {
 
 type InlineTokenizer = (
   text: string,
-  i: number
+  i: number,
 ) => { html: string; end: number } | null;
 
 function tryBackslashEscape(
   text: string,
-  i: number
+  i: number,
 ): { html: string; end: number } | null {
-  if (text[i] !== "\\" || i + 1 >= text.length) {return null;}
+  if (text[i] !== "\\" || i + 1 >= text.length) {
+    return null;
+  }
   const next = text[i + 1];
   // Hard line break: backslash at end of line
   if (next === "\n") {
@@ -63,39 +64,47 @@ function tryBackslashEscape(
 
 function tryInlineCode(
   text: string,
-  i: number
+  i: number,
 ): { html: string; end: number } | null {
-  if (text[i] !== "`") {return null;}
+  if (text[i] !== "`") {
+    return null;
+  }
   return parseInlineCode(text, i);
 }
 
 function tryImage(
   text: string,
-  i: number
+  i: number,
 ): { html: string; end: number } | null {
-  if (text[i] !== "!" || text[i + 1] !== "[") {return null;}
+  if (text[i] !== "!" || text[i + 1] !== "[") {
+    return null;
+  }
   return parseImage(text, i);
 }
 
 function tryLink(
   text: string,
-  i: number
+  i: number,
 ): { html: string; end: number } | null {
-  if (text[i] !== "[") {return null;}
+  if (text[i] !== "[") {
+    return null;
+  }
   return parseLink(text, i);
 }
 
 function tryStrikethrough(
   text: string,
-  i: number
+  i: number,
 ): { html: string; end: number } | null {
-  if (text[i] !== "~" || text[i + 1] !== "~") {return null;}
+  if (text[i] !== "~" || text[i + 1] !== "~") {
+    return null;
+  }
   return parseDelimited(text, i, "~~", "<del>", "</del>");
 }
 
 function tryBoldItalic(
   text: string,
-  i: number
+  i: number,
 ): { html: string; end: number } | null {
   if (
     (text[i] === "*" && text[i + 1] === "*" && text[i + 2] === "*") ||
@@ -112,7 +121,7 @@ function tryBoldItalic(
 
 function tryBold(
   text: string,
-  i: number
+  i: number,
 ): { html: string; end: number } | null {
   if (
     (text[i] === "*" && text[i + 1] === "*") ||
@@ -126,7 +135,7 @@ function tryBold(
 
 function tryItalic(
   text: string,
-  i: number
+  i: number,
 ): { html: string; end: number } | null {
   if (text[i] === "*" || (text[i] === "_" && !isIntraword(text, i, 1))) {
     return parseDelimited(text, i, text[i], "<em>", "</em>");
@@ -136,7 +145,7 @@ function tryItalic(
 
 function trySoftBreak(
   text: string,
-  i: number
+  i: number,
 ): { html: string; end: number } | null {
   if (text[i] === "\n") {
     return { html: "<br>\n", end: i + 1 };
@@ -157,9 +166,11 @@ const HTML_DECL_RE = /^<![A-Za-z][\s\S]*?>/;
 
 function tryInlineHtml(
   text: string,
-  i: number
+  i: number,
 ): { html: string; end: number } | null {
-  if (text[i] !== "<") {return null;}
+  if (text[i] !== "<") {
+    return null;
+  }
   const rest = text.substring(i);
   for (const re of [
     HTML_COMMENT_RE,
@@ -252,7 +263,7 @@ function parseInline(text: string): string {
 
 function parseInlineCode(
   text: string,
-  start: number
+  start: number,
 ): { html: string; end: number } | null {
   // Count opening backticks
   let openCount = 0;
@@ -301,19 +312,25 @@ function parseInlineCode(
 
 function parseImage(
   text: string,
-  start: number
+  start: number,
 ): { html: string; end: number } | null {
   // ![alt](url) or ![alt](url "title")
   // Use balanced bracket matching to handle nested/escaped brackets in alt text
   const altEnd = findClosingBracket(text, start + 1);
-  if (altEnd === -1) {return null;}
+  if (altEnd === -1) {
+    return null;
+  }
   const altStart = start + 2; // after ![
 
-  if (text[altEnd + 1] !== "(") {return null;}
+  if (text[altEnd + 1] !== "(") {
+    return null;
+  }
 
   const urlStart = altEnd + 2;
   const parenEnd = findClosingParen(text, urlStart - 1);
-  if (parenEnd === -1) {return null;}
+  if (parenEnd === -1) {
+    return null;
+  }
 
   const alt = text.substring(altStart, altEnd);
   const { url, title } = parseDestinationAndTitle(
@@ -332,8 +349,7 @@ function parseImage(
     };
   }
 
-  const titleAttr =
-    title !== undefined ? ` title="${escapeHtml(title)}"` : "";
+  const titleAttr = title !== undefined ? ` title="${escapeHtml(title)}"` : "";
   return {
     html: `<img src="${escapeHtml(url)}" alt="${escapeHtml(alt)}"${titleAttr}>`,
     end: parenEnd + 1,
@@ -342,26 +358,31 @@ function parseImage(
 
 function parseLink(
   text: string,
-  start: number
+  start: number,
 ): { html: string; end: number } | null {
   // [text](url)
   const textStart = start + 1;
   const textEnd = findClosingBracket(text, start);
-  if (textEnd === -1) {return null;}
+  if (textEnd === -1) {
+    return null;
+  }
 
-  if (text[textEnd + 1] !== "(") {return null;}
+  if (text[textEnd + 1] !== "(") {
+    return null;
+  }
 
   const urlStart = textEnd + 2;
   const parenEnd = findClosingParen(text, textEnd + 1);
-  if (parenEnd === -1) {return null;}
+  if (parenEnd === -1) {
+    return null;
+  }
 
   const linkText = text.substring(textStart, textEnd);
   const { url, title } = parseDestinationAndTitle(
     text.substring(urlStart, parenEnd),
   );
 
-  const titleAttr =
-    title !== undefined ? ` title="${escapeHtml(title)}"` : "";
+  const titleAttr = title !== undefined ? ` title="${escapeHtml(title)}"` : "";
   return {
     html: `<a href="${escapeHtml(url)}"${titleAttr}>${parseInline(linkText)}</a>`,
     end: parenEnd + 1,
@@ -375,10 +396,14 @@ function findClosingBracket(text: string, openPos: number): number {
       i++; // skip escaped
       continue;
     }
-    if (text[i] === "[") {depth++;}
+    if (text[i] === "[") {
+      depth++;
+    }
     if (text[i] === "]") {
       depth--;
-      if (depth === 0) {return i;}
+      if (depth === 0) {
+        return i;
+      }
     }
   }
   return -1;
@@ -391,10 +416,14 @@ function findClosingParen(text: string, openPos: number): number {
       i++;
       continue;
     }
-    if (text[i] === "(") {depth++;}
+    if (text[i] === "(") {
+      depth++;
+    }
     if (text[i] === ")") {
       depth--;
-      if (depth === 0) {return i;}
+      if (depth === 0) {
+        return i;
+      }
     }
   }
   return -1;
@@ -458,15 +487,19 @@ function parseDelimited(
   start: number,
   delimiter: string,
   openTag: string,
-  closeTag: string
+  closeTag: string,
 ): { html: string; end: number } | null {
   const len = delimiter.length;
   const afterOpen = start + len;
 
-  if (afterOpen >= text.length) {return null;}
+  if (afterOpen >= text.length) {
+    return null;
+  }
 
   // Opening delimiter must not be followed by whitespace
-  if (text[afterOpen] === " " || text[afterOpen] === "\t") {return null;}
+  if (text[afterOpen] === " " || text[afterOpen] === "\t") {
+    return null;
+  }
 
   // Find closing delimiter
   let j = afterOpen;
@@ -488,7 +521,9 @@ function parseDelimited(
       // multi-char run (e.g., don't treat the * in ** as italic closer)
       if (
         len === 1 &&
-        ((j > 0 && text[j - 1] === delimiter[0] && !(j >= 2 && text[j - 2] === "\\")) ||
+        ((j > 0 &&
+          text[j - 1] === delimiter[0] &&
+          !(j >= 2 && text[j - 2] === "\\")) ||
           (j + len < text.length && text[j + len] === delimiter[0]))
       ) {
         j++;
@@ -584,14 +619,69 @@ type Token =
  * wrapped in a paragraph.
  */
 const HTML_BLOCK_TAGS = new Set([
-  "address", "article", "aside", "audio", "base", "basefont", "blockquote",
-  "body", "caption", "center", "col", "colgroup", "dd", "details", "dialog",
-  "dir", "div", "dl", "dt", "fieldset", "figcaption", "figure", "footer",
-  "form", "frame", "frameset", "h1", "h2", "h3", "h4", "h5", "h6", "head",
-  "header", "hr", "html", "iframe", "legend", "li", "link", "main", "menu",
-  "menuitem", "nav", "noframes", "ol", "optgroup", "option", "p", "param",
-  "section", "source", "summary", "table", "tbody", "td", "tfoot", "th",
-  "thead", "title", "tr", "track", "ul",
+  "address",
+  "article",
+  "aside",
+  "audio",
+  "base",
+  "basefont",
+  "blockquote",
+  "body",
+  "caption",
+  "center",
+  "col",
+  "colgroup",
+  "dd",
+  "details",
+  "dialog",
+  "dir",
+  "div",
+  "dl",
+  "dt",
+  "fieldset",
+  "figcaption",
+  "figure",
+  "footer",
+  "form",
+  "frame",
+  "frameset",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "head",
+  "header",
+  "hr",
+  "html",
+  "iframe",
+  "legend",
+  "li",
+  "link",
+  "main",
+  "menu",
+  "menuitem",
+  "nav",
+  "noframes",
+  "ol",
+  "optgroup",
+  "option",
+  "p",
+  "param",
+  "section",
+  "source",
+  "summary",
+  "table",
+  "tbody",
+  "td",
+  "tfoot",
+  "th",
+  "thead",
+  "title",
+  "tr",
+  "track",
+  "ul",
 ]);
 
 function isHtmlBlockStart(line: string): boolean {
@@ -600,7 +690,9 @@ function isHtmlBlockStart(line: string): boolean {
     return true;
   }
   const m = line.match(/^ {0,3}<\/?([a-zA-Z][a-zA-Z0-9-]*)(?:\s|\/?>|$)/);
-  if (!m) {return false;}
+  if (!m) {
+    return false;
+  }
   return HTML_BLOCK_TAGS.has(m[1].toLowerCase());
 }
 
@@ -633,7 +725,7 @@ function tokenize(markdown: string): Token[] {
       i++;
       while (i < lines.length) {
         const closingMatch = lines[i].match(
-          new RegExp(`^ {0,3}${fenceChar}{${fenceLen},}\\s*$`)
+          new RegExp(`^ {0,3}${fenceChar}{${fenceLen},}\\s*$`),
         );
         if (closingMatch) {
           i++;
@@ -730,14 +822,28 @@ function tokenize(markdown: string): Token[] {
       // block-level element (per CommonMark spec)
       while (i < lines.length) {
         const cur = lines[i];
-        if (cur.trim() === "") {break;}
+        if (cur.trim() === "") {
+          break;
+        }
         // Stop on block-level markers
-        if (/^\s{0,3}>/.test(cur)) {break;} // new blockquote
-        if (/^(#{1,6})\s/.test(cur)) {break;} // heading
-        if (/^(`{3,}|~{3,})/.test(cur)) {break;} // code fence
-        if (/^(\s{0,3})([-*_])\s*(\2\s*){2,}$/.test(cur)) {break;} // hr
-        if (/^\s*([-*+]|\d+[.)])\s+/.test(cur)) {break;} // list item
-        if (/^\s*\|(.+\|)+\s*$/.test(cur)) {break;} // table
+        if (/^\s{0,3}>/.test(cur)) {
+          break;
+        } // new blockquote
+        if (/^(#{1,6})\s/.test(cur)) {
+          break;
+        } // heading
+        if (/^(`{3,}|~{3,})/.test(cur)) {
+          break;
+        } // code fence
+        if (/^(\s{0,3})([-*_])\s*(\2\s*){2,}$/.test(cur)) {
+          break;
+        } // hr
+        if (/^\s*([-*+]|\d+[.)])\s+/.test(cur)) {
+          break;
+        } // list item
+        if (/^\s*\|(.+\|)+\s*$/.test(cur)) {
+          break;
+        } // table
         quoteLines.push(cur);
         i++;
       }
@@ -751,7 +857,7 @@ function tokenize(markdown: string): Token[] {
 
     // List item (bullet, ordered, or task)
     const listItemMatch = line.match(
-      /^(\s*)([-*+]|\d+[.)])(\s+)(\[[ xX]\] )?(.*)$/
+      /^(\s*)([-*+]|\d+[.)])(\s+)(\[[ xX]\] )?(.*)$/,
     );
     if (listItemMatch) {
       const indent = listItemMatch[1].length;
@@ -787,10 +893,14 @@ function tokenize(markdown: string): Token[] {
 
       // Helper to check if a line belongs to this list item
       const belongsToItem = (lineStr: string): boolean => {
-        if (lineStr.trim() === "") {return true;} // blank lines checked separately
+        if (lineStr.trim() === "") {
+          return true;
+        } // blank lines checked separately
         const lineInd = lineStr.match(/^\s*/)![0].length;
         // Lines at contentIndent are continuation text
-        if (lineInd >= contentIndent) {return true;}
+        if (lineInd >= contentIndent) {
+          return true;
+        }
         // Lines between marker and content column that start a sub-list
         if (
           lineInd >= minChildIndent &&
@@ -799,7 +909,7 @@ function tokenize(markdown: string): Token[] {
           return true;
         }
         return false;
-      }
+      };
 
       // Consume ALL subsequent lines that belong to this list item
       i++;
@@ -821,7 +931,9 @@ function tokenize(markdown: string): Token[] {
           break;
         }
 
-        if (!belongsToItem(cur)) {break;}
+        if (!belongsToItem(cur)) {
+          break;
+        }
 
         // Strip indent: for lines at contentIndent+, strip contentIndent chars;
         // for sub-list lines between minChildIndent and contentIndent, strip minChildIndent
@@ -875,15 +987,31 @@ function tokenize(markdown: string): Token[] {
     while (i < lines.length) {
       const nextLine = lines[i];
       // Stop paragraph on blank line
-      if (nextLine.trim() === "") {break;}
+      if (nextLine.trim() === "") {
+        break;
+      }
       // Stop on block-level element
-      if (/^(#{1,6})\s/.test(nextLine)) {break;}
-      if (/^(`{3,}|~{3,})/.test(nextLine)) {break;}
-      if (/^\s{0,3}>/.test(nextLine)) {break;}
-      if (/^(\s{0,3})([-*_])\s*(\2\s*){2,}$/.test(nextLine)) {break;}
-      if (/^\s*([-*+]|\d+[.)])\s+/.test(nextLine)) {break;}
-      if (/^\s*\|(.+\|)+\s*$/.test(nextLine)) {break;}
-      if (isHtmlBlockStart(nextLine)) {break;}
+      if (/^(#{1,6})\s/.test(nextLine)) {
+        break;
+      }
+      if (/^(`{3,}|~{3,})/.test(nextLine)) {
+        break;
+      }
+      if (/^\s{0,3}>/.test(nextLine)) {
+        break;
+      }
+      if (/^(\s{0,3})([-*_])\s*(\2\s*){2,}$/.test(nextLine)) {
+        break;
+      }
+      if (/^\s*([-*+]|\d+[.)])\s+/.test(nextLine)) {
+        break;
+      }
+      if (/^\s*\|(.+\|)+\s*$/.test(nextLine)) {
+        break;
+      }
+      if (isHtmlBlockStart(nextLine)) {
+        break;
+      }
       // Check if next-next line is setext marker
       if (
         i + 1 < lines.length &&
@@ -914,10 +1042,12 @@ function tokenize(markdown: string): Token[] {
 
 function tryParseTable(
   lines: string[],
-  start: number
+  start: number,
 ): { token: TableToken; nextLine: number } | null {
   // A table needs at least a header row and a separator row
-  if (start + 1 >= lines.length) {return null;}
+  if (start + 1 >= lines.length) {
+    return null;
+  }
 
   const headerLine = lines[start];
   const separatorLine = lines[start + 1];
@@ -927,10 +1057,14 @@ function tryParseTable(
   if (
     !separatorLine.includes("|") ||
     !/^\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)*\|?\s*$/.test(separatorLine)
-  ) {return null;}
+  ) {
+    return null;
+  }
 
   // Check header line has at least one pipe (required to distinguish from plain text)
-  if (!headerLine.includes("|")) {return null;}
+  if (!headerLine.includes("|")) {
+    return null;
+  }
 
   const headers = parsePipeCells(headerLine);
   const alignments = parseAlignments(separatorLine);
@@ -939,7 +1073,9 @@ function tryParseTable(
   let i = start + 2;
   while (i < lines.length) {
     const line = lines[i];
-    if (!line.includes("|")) {break;}
+    if (!line.includes("|")) {
+      break;
+    }
     rows.push(parsePipeCells(line));
     i++;
   }
@@ -969,7 +1105,11 @@ function parsePipeCells(line: string): string[] {
   const cells: string[] = [];
   let current = "";
   for (let i = 0; i < content.length; i++) {
-    if (content[i] === "\\" && i + 1 < content.length && content[i + 1] === "|") {
+    if (
+      content[i] === "\\" &&
+      i + 1 < content.length &&
+      content[i + 1] === "|"
+    ) {
       current += "|";
       i++;
     } else if (content[i] === "|") {
@@ -985,16 +1125,22 @@ function parsePipeCells(line: string): string[] {
 }
 
 function parseAlignments(
-  separatorLine: string
+  separatorLine: string,
 ): ("left" | "center" | "right" | null)[] {
   const cells = parsePipeCells(separatorLine);
   return cells.map((cell) => {
     const trimmed = cell.trim();
     const left = trimmed.startsWith(":");
     const right = trimmed.endsWith(":");
-    if (left && right) {return "center";}
-    if (right) {return "right";}
-    if (left) {return "left";}
+    if (left && right) {
+      return "center";
+    }
+    if (right) {
+      return "right";
+    }
+    if (left) {
+      return "left";
+    }
     return null;
   });
 }
@@ -1080,7 +1226,7 @@ function tokensToHtml(tokens: Token[]): string {
 
 function emitListItems(
   tokens: Token[],
-  startIdx: number
+  startIdx: number,
 ): { html: string; nextIndex: number } {
   let html = "";
   let i = startIdx;
@@ -1138,7 +1284,7 @@ function emitListItems(
 }
 
 function getEffectiveListType(
-  listType: "bullet" | "ordered" | "task"
+  listType: "bullet" | "ordered" | "task",
 ): "bullet" | "ordered" {
   return listType === "ordered" ? "ordered" : "bullet";
 }

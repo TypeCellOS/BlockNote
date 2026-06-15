@@ -1,5 +1,5 @@
-import { uuidv4 } from "lib0/random";
 import * as Y from "yjs";
+import { uuidv4 } from "lib0/random";
 import type {
   CommentBody,
   CommentData,

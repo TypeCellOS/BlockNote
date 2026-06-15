@@ -8,7 +8,7 @@ import {
 import { BlockNoteViewRaw } from "@blocknote/react";
 import { flushSync } from "react-dom";
 import { createRoot, Root } from "react-dom/client";
-import { afterAll, beforeAll } from "vitest";
+import { afterAll, beforeAll } from "vite-plus/test";
 
 import { TestContext } from "./testSchema.js";
 

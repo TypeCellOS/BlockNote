@@ -112,7 +112,8 @@ function calculateListItemIndex(
   // chain.length > 1 means we found predecessor list items, so not first.
   return {
     index,
-    isFirst: chain.length === 1 ? isFirst || predecessorIndex === undefined : false,
+    isFirst:
+      chain.length === 1 ? isFirst || predecessorIndex === undefined : false,
     hasStart,
   };
 }
@@ -146,58 +147,54 @@ function getDecorations(
   // in *other* blockGroups (e.g. nested lists) are independent.
   const completedGroups = new Set<Node>();
 
-  tr.doc.nodesBetween(
-    range.from,
-    tr.doc.nodeSize - 2,
-    (node, pos, parent) => {
-      if (parent && completedGroups.has(parent)) {
+  tr.doc.nodesBetween(range.from, tr.doc.nodeSize - 2, (node, pos, parent) => {
+    if (parent && completedGroups.has(parent)) {
+      return false;
+    }
+
+    if (
+      node.type.name === "blockContainer" &&
+      node.firstChild!.type.name === "numberedListItem"
+    ) {
+      const { index, isFirst, hasStart } = calculateListItemIndex(
+        node,
+        pos,
+        tr,
+        map,
+      );
+
+      // Search only the numberedListItem node range, not the full
+      // blockContainer (which includes nested blockGroups whose
+      // decorations could falsely match).
+      const blockNode = tr.doc.nodeAt(pos + 1)!;
+      const existingDecorations = nextDecorationSet.find(
+        pos + 1,
+        pos + 1 + blockNode.nodeSize,
+        (deco: DecoSpec) =>
+          deco.index === index &&
+          deco.isFirst === isFirst &&
+          deco.hasStart === hasStart,
+      );
+
+      if (existingDecorations.length === 0) {
+        decorationsToAdd.push(
+          Decoration.node(
+            pos + 1,
+            pos + 1 + blockNode.nodeSize,
+            { "data-index": index.toString() },
+            { index, isFirst, hasStart },
+          ) as Deco,
+        );
+      } else if (pos >= range.to && parent) {
+        // Past the changed range and decoration matches in this blockGroup:
+        // all subsequent siblings must also match. Mark group as done and
+        // skip this node's children (nested lists are unaffected too).
+        completedGroups.add(parent);
         return false;
       }
-
-      if (
-        node.type.name === "blockContainer" &&
-        node.firstChild!.type.name === "numberedListItem"
-      ) {
-        const { index, isFirst, hasStart } = calculateListItemIndex(
-          node,
-          pos,
-          tr,
-          map,
-        );
-
-        // Search only the numberedListItem node range, not the full
-        // blockContainer (which includes nested blockGroups whose
-        // decorations could falsely match).
-        const blockNode = tr.doc.nodeAt(pos + 1)!;
-        const existingDecorations = nextDecorationSet.find(
-          pos + 1,
-          pos + 1 + blockNode.nodeSize,
-          (deco: DecoSpec) =>
-            deco.index === index &&
-            deco.isFirst === isFirst &&
-            deco.hasStart === hasStart,
-        );
-
-        if (existingDecorations.length === 0) {
-          decorationsToAdd.push(
-            Decoration.node(
-              pos + 1,
-              pos + 1 + blockNode.nodeSize,
-              { "data-index": index.toString() },
-              { index, isFirst, hasStart },
-            ) as Deco,
-          );
-        } else if (pos >= range.to && parent) {
-          // Past the changed range and decoration matches in this blockGroup:
-          // all subsequent siblings must also match. Mark group as done and
-          // skip this node's children (nested lists are unaffected too).
-          completedGroups.add(parent);
-          return false;
-        }
-      }
-      return undefined;
-    },
-  );
+    }
+    return undefined;
+  });
 
   // Remove any decorations that exist at the same position, they will be replaced by the new decorations
   const decorationsToRemove = decorationsToAdd.flatMap((deco) =>

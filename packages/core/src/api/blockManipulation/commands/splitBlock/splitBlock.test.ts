@@ -1,6 +1,6 @@
 import { Node } from "prosemirror-model";
 import { TextSelection } from "prosemirror-state";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
 import {
   getBlockInfo,

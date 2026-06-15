@@ -1,5 +1,5 @@
 import { TextSelection } from "@tiptap/pm/state";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vite-plus/test";
 
 import { BlockNoteEditor } from "./BlockNoteEditor.js";
 

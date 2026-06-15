@@ -17,8 +17,6 @@ overrides:
   "@headlessui/react": "^2.2.4"
   "@tiptap/core": "^3.0.0"
   "@tiptap/pm": "^3.0.0"
-  "vitest": "4.1.2"
-  "@vitest/runner": "4.1.2"
 allowBuilds:
   "@parcel/watcher": true
   "@sentry/cli": true
@@ -26,8 +24,18 @@ allowBuilds:
   better-sqlite3: true
   esbuild: true
   msw: true
-  nx: true
   unrs-resolver: true
   canvas: false
   sharp: false
   workerd: false
+catalog:
+  vite-plus: ^0.1.24
+minimumReleaseAgeExclude:
+  - vite-plus
+  - "@voidzero-dev/*"
+  - oxlint
+  - "@oxlint/*"
+  - oxlint-tsgolint
+  - "@oxlint-tsgolint/*"
+  - oxfmt
+  - "@oxfmt/*"

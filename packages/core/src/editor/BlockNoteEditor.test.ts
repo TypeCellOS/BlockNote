@@ -1,4 +1,4 @@
-import { expect, it } from "vitest";
+import { afterEach, expect, it } from "vite-plus/test";
 import * as Y from "yjs";
 
 import {
@@ -12,8 +12,19 @@ import { withCollaboration } from "../yjs/index.js";
 /**
  * @vitest-environment jsdom
  */
+
+const editorsToCleanup: BlockNoteEditor<any, any, any>[] = [];
+
+afterEach(() => {
+  for (const editor of editorsToCleanup) {
+    editor.unmount();
+  }
+  editorsToCleanup.length = 0;
+});
+
 it("creates an editor", () => {
   const editor = BlockNoteEditor.create();
+  editorsToCleanup.push(editor);
   const posInfo = editor.transact((tr) => getNearestBlockPos(tr.doc, 2));
   const info = getBlockInfo(posInfo);
   expect(info.blockNoteType).toEqual("paragraph");
@@ -21,6 +32,7 @@ it("creates an editor", () => {
 
 it("immediately replaces doc", async () => {
   const editor = BlockNoteEditor.create();
+  editorsToCleanup.push(editor);
   const blocks = await editor.tryParseMarkdownToBlocks(
     "This is a normal text\n\n# And this is a large heading",
   );
@@ -71,6 +83,7 @@ it("adds id attribute when requested", async () => {
   const editor = BlockNoteEditor.create({
     setIdAttribute: true,
   });
+  editorsToCleanup.push(editor);
   const blocks = await editor.tryParseMarkdownToBlocks(
     "This is a normal text\n\n# And this is a large heading",
   );
@@ -82,6 +95,7 @@ it("adds id attribute when requested", async () => {
 
 it("updates block", () => {
   const editor = BlockNoteEditor.create();
+  editorsToCleanup.push(editor);
   editor.updateBlock(editor.document[0], {
     content: "hello",
   });
@@ -90,6 +104,7 @@ it("updates block", () => {
 it("block prop types", () => {
   // this test checks whether the block props are correctly typed in typescript
   const editor = BlockNoteEditor.create();
+  editorsToCleanup.push(editor);
   const block = editor.document[0];
   if (block.type === "paragraph") {
     // @ts-expect-error
@@ -109,6 +124,7 @@ it("block prop types", () => {
 
 it("onMount and onUnmount", async () => {
   const editor = BlockNoteEditor.create();
+  editorsToCleanup.push(editor);
   let mounted = false;
   let unmounted = false;
   editor.onMount(() => {
@@ -146,6 +162,7 @@ it("sets an initial block id when using Y.js", async () => {
       },
     }),
   );
+  editorsToCleanup.push(editor);
 
   editor.mount(document.createElement("div"));
 
@@ -196,6 +213,7 @@ it("sets an initial block id when using Y.js", async () => {
 
 it("onBeforeChange", () => {
   const editor = BlockNoteEditor.create();
+  editorsToCleanup.push(editor);
   let beforeChangeCalled = false;
   let changes: BlocksChanged<any, any, any> = [];
   editor.onBeforeChange(({ getChanges }) => {

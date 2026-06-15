@@ -28,8 +28,8 @@ import { renderToDOMSpec } from "./@util/ReactRenderUtil.js";
 
 export type ReactCustomBlockRenderProps<
   B extends BlockConfigOrCreator,
-  Config extends
-    ExtractBlockConfigFromConfigOrCreator<B> = ExtractBlockConfigFromConfigOrCreator<B>,
+  Config extends ExtractBlockConfigFromConfigOrCreator<B> =
+    ExtractBlockConfigFromConfigOrCreator<B>,
 > = {
   block: BlockNoDefaults<Record<Config["type"], Config>, any, any>;
   editor: BlockNoteEditor<Record<Config["type"], Config>, any, any>;
@@ -42,8 +42,8 @@ export type ReactCustomBlockRenderProps<
 // extend BlockConfig but use a React render function
 export type ReactCustomBlockImplementation<
   B extends BlockConfigOrCreator = BlockConfigOrCreator,
-  Config extends
-    ExtractBlockConfigFromConfigOrCreator<B> = ExtractBlockConfigFromConfigOrCreator<B>,
+  Config extends ExtractBlockConfigFromConfigOrCreator<B> =
+    ExtractBlockConfigFromConfigOrCreator<B>,
 > = Omit<
   CustomBlockImplementation<
     Config["type"],

@@ -1,7 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import * as Y from "yjs";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { trackPosition } from "../../api/positionMapping.js";

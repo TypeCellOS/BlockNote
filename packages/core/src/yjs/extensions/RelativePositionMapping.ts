@@ -29,9 +29,10 @@ export const RelativePositionMappingExtension = createExtension(
           // If a remote transaction or sync happens in this case. The position map will be invalidated,
           // and the positions will be moved to the end of the document
           // This is acceptable, because the document had not been synced so there are no positions to map properly into
-          const fallback = editor.getExtension<typeof PositionMappingExtension>(
-            "positionMapping",
-          );
+          const fallback =
+            editor.getExtension<typeof PositionMappingExtension>(
+              "positionMapping",
+            );
           if (!fallback) {
             throw new Error(
               "positionMapping extension is not available; cannot map position before sync",
