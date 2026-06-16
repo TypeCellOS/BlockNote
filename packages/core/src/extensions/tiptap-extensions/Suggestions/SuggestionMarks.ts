@@ -6,13 +6,30 @@ import { MarkSpec } from "prosemirror-model";
 
 // The ideal solution would be to not depend on tiptap nodes / marks, but be able to use prosemirror nodes / marks directly
 // this way we could directly use the exported marks from @handlewithcare/prosemirror-suggest-changes
+
+const formatAttributionTitle = (
+  action: string,
+  userIds: readonly string[] | null,
+  timestamp: number | null,
+): string => {
+  const who = userIds && userIds.length > 0 ? userIds.join(", ") : "unknown";
+  const when =
+    timestamp != null
+      ? new Date(timestamp).toLocaleString([], {
+          dateStyle: "medium",
+          timeStyle: "short",
+        })
+      : "unknown time";
+  return `${action} by ${who} on ${when}`;
+};
 export const SuggestionAddMark = Mark.create({
   name: "y-attributed-insert",
   inclusive: false,
-  excludes: "",
+  // excludes: "", TODO: what's desired?
   addAttributes() {
     return {
-      id: { default: null, validate: "number" }, // note: validate is supported in prosemirror but not in tiptap, so this doesn't actually work (considered not critical)
+      userIds: { default: null },
+      timestamp: { default: null },
       "user-color": { default: null, validate: "string" },
     };
   },
@@ -28,7 +45,13 @@ export const SuggestionAddMark = Mark.create({
         return [
           "ins",
           {
-            "data-id": String(mark.attrs["id"]),
+            "data-description": formatAttributionTitle(
+              "Inserted",
+              mark.attrs["userIds"],
+              mark.attrs["timestamp"],
+            ),
+            "data-user-ids": JSON.stringify(mark.attrs["userIds"]),
+            "data-timestamp": String(mark.attrs["timestamp"]),
             "data-user-color": String(mark.attrs["user-color"]),
             "data-inline": String(inline),
             style:
@@ -44,12 +67,15 @@ export const SuggestionAddMark = Mark.create({
         {
           tag: "ins",
           getAttrs(node) {
-            if (!node.dataset["id"]) {
+            if (!node.dataset["userIds"]) {
               return false;
             }
             return {
-              id: parseInt(node.dataset["id"], 10),
-              userColor: node.dataset["userColor"],
+              userIds: JSON.parse(node.dataset["userIds"]),
+              timestamp: node.dataset["timestamp"]
+                ? parseInt(node.dataset["timestamp"], 10)
+                : null,
+              "user-color": node.dataset["userColor"],
             };
           },
         },
@@ -61,10 +87,11 @@ export const SuggestionAddMark = Mark.create({
 export const SuggestionDeleteMark = Mark.create({
   name: "y-attributed-delete",
   inclusive: false,
-  excludes: "",
+  // excludes: "", TODO: what's desired?
   addAttributes() {
     return {
-      id: { default: null, validate: "number" }, // note: validate is supported in prosemirror but not in tiptap
+      userIds: { default: null },
+      timestamp: { default: null },
       "user-color": { default: null, validate: "string" },
     };
   },
@@ -76,14 +103,17 @@ export const SuggestionDeleteMark = Mark.create({
       blocknoteIgnore: true,
       inclusive: false,
 
-      // attrs: {
-      //   id: { validate: "number" },
-      // },
       toDOM(mark, inline) {
         return [
           "del",
           {
-            "data-id": String(mark.attrs["id"]),
+            "data-description": formatAttributionTitle(
+              "Deleted",
+              mark.attrs["userIds"],
+              mark.attrs["timestamp"],
+            ),
+            "data-user-ids": JSON.stringify(mark.attrs["userIds"]),
+            "data-timestamp": String(mark.attrs["timestamp"]),
             "data-user-color": String(mark.attrs["user-color"]),
             "data-inline": String(inline),
             style:
@@ -99,12 +129,15 @@ export const SuggestionDeleteMark = Mark.create({
         {
           tag: "del",
           getAttrs(node) {
-            if (!node.dataset["id"]) {
+            if (!node.dataset["userIds"]) {
               return false;
             }
             return {
-              id: parseInt(node.dataset["id"], 10),
-              userColor: node.dataset["userColor"],
+              userIds: JSON.parse(node.dataset["userIds"]),
+              timestamp: node.dataset["timestamp"]
+                ? parseInt(node.dataset["timestamp"], 10)
+                : null,
+              "user-color": node.dataset["userColor"],
             };
           },
         },
@@ -116,10 +149,12 @@ export const SuggestionDeleteMark = Mark.create({
 export const SuggestionModificationMark = Mark.create({
   name: "y-attributed-format",
   inclusive: false,
-  excludes: "",
+  // excludes: "", TODO: what's desired?
   addAttributes() {
     return {
-      id: { default: null, validate: "number" }, // note: validate is supported in prosemirror but not in tiptap
+      userIds: { default: null },
+      format: { default: null },
+      timestamp: { default: null },
       "user-color": { default: null, validate: "string" },
     };
   },
@@ -134,8 +169,15 @@ export const SuggestionModificationMark = Mark.create({
         return [
           inline ? "span" : "div",
           {
+            "data-description": formatAttributionTitle(
+              "Modified",
+              mark.attrs["userIds"],
+              mark.attrs["timestamp"],
+            ),
             "data-type": "modification",
-            "data-id": String(mark.attrs["id"]),
+            "data-user-ids": JSON.stringify(mark.attrs["userIds"]),
+            "data-format": JSON.stringify(mark.attrs["format"]),
+            "data-timestamp": String(mark.attrs["timestamp"]),
             "data-user-color": String(mark.attrs["user-color"]),
             style:
               (inline ? "" : "display: contents") +
@@ -150,11 +192,17 @@ export const SuggestionModificationMark = Mark.create({
         {
           tag: "span[data-type='modification']",
           getAttrs(node) {
-            if (!node.dataset["id"]) {
+            if (!node.dataset["userIds"]) {
               return false;
             }
             return {
-              id: parseInt(node.dataset["id"], 10),
+              userIds: JSON.parse(node.dataset["userIds"]),
+              format: node.dataset["format"]
+                ? JSON.parse(node.dataset["format"])
+                : null,
+              timestamp: node.dataset["timestamp"]
+                ? parseInt(node.dataset["timestamp"], 10)
+                : null,
               "user-color": node.dataset["userColor"],
             };
           },
@@ -162,11 +210,17 @@ export const SuggestionModificationMark = Mark.create({
         {
           tag: "div[data-type='modification']",
           getAttrs(node) {
-            if (!node.dataset["id"]) {
+            if (!node.dataset["userIds"]) {
               return false;
             }
             return {
-              id: parseInt(node.dataset["id"], 10),
+              userIds: JSON.parse(node.dataset["userIds"]),
+              format: node.dataset["format"]
+                ? JSON.parse(node.dataset["format"])
+                : null,
+              timestamp: node.dataset["timestamp"]
+                ? parseInt(node.dataset["timestamp"], 10)
+                : null,
               "user-color": node.dataset["userColor"],
             };
           },
