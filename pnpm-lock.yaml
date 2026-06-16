@@ -98,20 +98,20 @@ importers:
         specifier: 16.5.0
         version: 16.5.0(@types/react@19.2.14)(fumadocs-core@16.5.0(@types/react@19.2.14)(lucide-react@0.562.0(react@19.2.5))(next@16.2.6(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(zod@4.3.6))(next@16.2.6(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(@playwright/test@1.60.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(tailwindcss@4.2.2)
       '@liveblocks/client':
-        specifier: ^3.17.0
-        version: 3.17.0(@types/json-schema@7.0.15)
+        specifier: ^3.19.5
+        version: 3.19.5(@types/json-schema@7.0.15)
       '@liveblocks/react':
-        specifier: ^3.17.0
-        version: 3.17.0(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react@19.2.5)
+        specifier: ^3.19.5
+        version: 3.19.5(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react@19.2.5)
       '@liveblocks/react-blocknote':
-        specifier: ^3.17.0
-        version: 3.17.0(@blocknote/core@packages+core)(@blocknote/react@packages+react)(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@tiptap/react@3.22.4(@floating-ui/dom@1.7.6)(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@tiptap/suggestion@2.27.2(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4))(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30)
+        specifier: ^3.19.5
+        version: 3.19.5(@blocknote/core@packages+core)(@blocknote/react@packages+react)(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@tiptap/react@3.22.4(@floating-ui/dom@1.7.6)(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@tiptap/suggestion@2.27.2(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4))(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30)
       '@liveblocks/react-tiptap':
-        specifier: ^3.17.0
-        version: 3.17.0(@tiptap/pm@3.22.4)(@tiptap/react@3.22.4(@floating-ui/dom@1.7.6)(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@tiptap/suggestion@2.27.2(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4))(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(y-protocols@1.0.7(yjs@13.6.30))
+        specifier: ^3.19.5
+        version: 3.19.5(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@tiptap/react@3.22.4(@floating-ui/dom@1.7.6)(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@tiptap/suggestion@2.27.2(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4))(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30)
       '@liveblocks/react-ui':
-        specifier: ^3.17.0
-        version: 3.17.0(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^3.19.5
+        version: 3.19.5(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/core':
         specifier: ^9.0.2
         version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
