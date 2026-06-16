@@ -73,9 +73,13 @@ export function getLanguageId(
   options: CodeBlockOptions,
   languageName: string,
 ): string | undefined {
+  const normalizedLanguage = languageName.trim().toLowerCase();
   return Object.entries(options.supportedLanguages ?? {}).find(
     ([id, { aliases }]) => {
-      return aliases?.includes(languageName) || id === languageName;
+      return (
+        id.toLowerCase() === normalizedLanguage ||
+        aliases?.some((alias) => alias.toLowerCase() === normalizedLanguage)
+      );
     },
   )?.[0];
 }

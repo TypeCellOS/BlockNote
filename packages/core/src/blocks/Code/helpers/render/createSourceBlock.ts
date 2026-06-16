@@ -1,11 +1,15 @@
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import type { BlockFromConfig } from "../../../../schema/index.js";
-import type { CodeBlockOptions } from "../../CodeBlockOptions.js";
+import {
+  getLanguageId,
+  type CodeBlockOptions,
+} from "../../CodeBlockOptions.js";
 
 export const createSourceBlock =
   (options: CodeBlockOptions) =>
   (block: BlockFromConfig<any, any, any>, editor: BlockNoteEditor<any>) => {
     const language = block.props.language || options.defaultLanguage || "text";
+    const resolvedLanguage = getLanguageId(options, language) ?? language;
 
     const pre = document.createElement("pre");
     const code = document.createElement("code");
@@ -22,7 +26,7 @@ export const createSourceBlock =
         option.text = name;
         select.appendChild(option);
       });
-      select.value = language;
+      select.value = resolvedLanguage;
 
       if (editor.isEditable) {
         const handleLanguageChange = (event: Event) => {

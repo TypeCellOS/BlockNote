@@ -18,7 +18,7 @@ export const parsePreCode = (el: HTMLElement) => {
       code.getAttribute("data-language") ||
       code.className
         .split(" ")
-        .find((name) => name.includes("language-"))
+        .find((name) => name.startsWith("language-"))
         ?.replace("language-", "");
 
     return { language };
