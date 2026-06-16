@@ -175,9 +175,12 @@ export function getDefaultExtensions(
     ShowSelectionExtension(options),
     SideMenuExtension(options),
     SuggestionMenu(options),
-    SyntaxHighlightingExtension(options.syntaxHighlighting),
     ...(options.trailingBlock !== false ? [TrailingNodeExtension()] : []),
   ] as ExtensionFactoryInstance[];
+
+  if (options.syntaxHighlighting) {
+    extensions.push(SyntaxHighlightingExtension(options.syntaxHighlighting));
+  }
 
   if (options.collaboration) {
     extensions.push(CollaborationExtension(options.collaboration));

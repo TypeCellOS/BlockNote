@@ -36,18 +36,11 @@ export const defaultHighlightBlock = (block: Block<any, any, any>) =>
  * blocks get highlighted (and as which language) is decided by the
  * `highlightBlock` option, so individual blocks don't configure it themselves.
  *
- * Highlighting is opt-in: the plugin is only installed when a `createHighlighter`
- * is configured.
+ * Highlighting is opt-in: this extension is only instantiated when the
+ * `syntaxHighlighting` option is configured (see `getDefaultExtensions`).
  */
 export const SyntaxHighlightingExtension = createExtension(
-  ({
-    editor,
-    options,
-  }: ExtensionOptions<SyntaxHighlightingOptions | undefined>) => {
-    if (!options?.createHighlighter) {
-      return { key: "syntaxHighlighting", prosemirrorPlugins: [] };
-    }
-
+  ({ editor, options }: ExtensionOptions<SyntaxHighlightingOptions>) => {
     const highlightBlock = options.highlightBlock ?? defaultHighlightBlock;
 
     // Every block with inline (text) content is a candidate; `highlightBlock`

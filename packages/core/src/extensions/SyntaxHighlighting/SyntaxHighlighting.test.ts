@@ -23,14 +23,16 @@ describe("SyntaxHighlightingExtension", () => {
     SyntaxHighlightingExtension(options)({ editor: fakeEditor() })
       .prosemirrorPlugins;
 
+  // Whether highlighting is enabled at all is decided by the editor (it only
+  // instantiates this extension when the `syntaxHighlighting` option is set), so
+  // the extension itself always installs the plugin once created.
   it("installs a highlight plugin when a highlighter is configured", () => {
     const plugins = pluginsFor({ createHighlighter: async () => ({}) as any });
 
     expect(plugins).toHaveLength(1);
   });
 
-  it("installs no plugin when no highlighter is configured", () => {
-    expect(pluginsFor(undefined)).toHaveLength(0);
-    expect(pluginsFor({})).toHaveLength(0);
+  it("installs the plugin even without a highlighter (it no-ops at parse time)", () => {
+    expect(pluginsFor({})).toHaveLength(1);
   });
 });
