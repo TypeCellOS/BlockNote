@@ -71,7 +71,7 @@ export const UploadTab = <
         }
       }
 
-      upload(file);
+      void upload(file);
     },
     [props.blockId, editor, setLoading],
   );

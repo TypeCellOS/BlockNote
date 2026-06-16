@@ -59,7 +59,7 @@ export function createUpdateBlockTool<T>(config: {
   rebaseTool: (
     id: string,
     editor: BlockNoteEditor<any, any, any>,
-  ) => Promise<RebaseTool>;
+  ) => RebaseTool;
   /**
    * Converts the operation from `AddBlocksToolCall<T>` to `AddBlocksToolCall<PartialBlock<any, any, any>>`
    *
@@ -73,7 +73,7 @@ export function createUpdateBlockTool<T>(config: {
       isUpdateToPreviousOperation: boolean;
       isPossiblyPartial: boolean;
     },
-  ) => Promise<UpdateBlockToolCall<PartialBlock<any, any, any>> | undefined>;
+  ) => UpdateBlockToolCall<PartialBlock<any, any, any>> | undefined;
 }) {
   return (
     editor: BlockNoteEditor<any, any, any>,
@@ -202,7 +202,7 @@ export function createUpdateBlockTool<T>(config: {
 
             // REC: we could investigate whether we can use a single rebasetool across operations instead of
             // creating a new one every time (possibly expensive)
-            const tool = await config.rebaseTool(operation.id, editor);
+            const tool = config.rebaseTool(operation.id, editor);
 
             const fromPos = selectionPositions
               ? tool.invertMap.invert().map(selectionPositions.from())
@@ -212,7 +212,7 @@ export function createUpdateBlockTool<T>(config: {
               ? tool.invertMap.invert().map(selectionPositions.to())
               : undefined;
 
-            const jsonToolCall = await config.toJSONToolCall(editor, {
+            const jsonToolCall = config.toJSONToolCall(editor, {
               ...chunk,
               operation,
             });

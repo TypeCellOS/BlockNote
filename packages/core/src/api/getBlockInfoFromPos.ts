@@ -171,6 +171,7 @@ export function getBlockInfoWithManualOffset(
 
     if (!blockContent) {
       throw new Error(
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         `blockContainer node does not contain a blockContent node in its children: ${bnBlockNode}`,
       );
     }
@@ -185,6 +186,7 @@ export function getBlockInfoWithManualOffset(
   } else {
     if (!bnBlock.node.type.isInGroup("childContainer")) {
       throw new Error(
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         `bnBlock node is not in the childContainer group: ${bnBlock.node}`,
       );
     }

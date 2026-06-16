@@ -293,7 +293,8 @@ function serializeBlock<
         props.start &&
         props?.start !== 1
       ) {
-        list.setAttribute("start", props.start + "");
+        // eslint-disable-next-line @typescript-eslint/no-base-to-string
+        list.setAttribute("start", String(props.start));
       }
       fragment.append(list);
     }

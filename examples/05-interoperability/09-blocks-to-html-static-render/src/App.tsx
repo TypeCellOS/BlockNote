@@ -165,7 +165,7 @@ export default function App() {
   }, []);
   // Updates rendered static HTML with initial editor content.
   useEffect(() => {
-    updateRenderedHTML();
+    void updateRenderedHTML();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

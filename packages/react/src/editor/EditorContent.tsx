@@ -59,8 +59,11 @@ export const Portals: React.FC<{ contentComponent: ContentComponent }> = ({
 }) => {
   // For performance reasons, we render the node view portals on state changes only
   const renderers = useSyncExternalStore(
+    // eslint-disable-next-line @typescript-eslint/unbound-method -- contentComponent is a plain object, not a class
     contentComponent.subscribe,
+    // eslint-disable-next-line @typescript-eslint/unbound-method -- contentComponent is a plain object, not a class
     contentComponent.getSnapshot,
+    // eslint-disable-next-line @typescript-eslint/unbound-method -- contentComponent is a plain object, not a class
     contentComponent.getServerSnapshot,
   );
 

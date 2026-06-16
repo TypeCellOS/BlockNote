@@ -185,10 +185,7 @@ export interface BlockNoteEditorOptions<
    * @deprecated, provide placeholders via dictionary instead
    * @internal
    */
-  placeholders?: Record<
-    string | "default" | "emptyDocument",
-    string | undefined
-  >;
+  placeholders?: Record<string, string | undefined>;
 
   /**
    * Custom paste handler that can be used to override the default paste behavior.
@@ -507,6 +504,7 @@ export class BlockNoteEditor<
           // editable, so you can't focus it. We want to revert this as we have
           // UI behaviour that relies on it.
           tabIndex: "0",
+          // eslint-disable-next-line @typescript-eslint/no-misused-spread
           ...newOptions._tiptapOptions?.editorProps?.attributes,
           ...newOptions.domAttributes?.editor,
           class: mergeCSSClasses(
@@ -530,7 +528,7 @@ export class BlockNoteEditor<
       if (!Array.isArray(initialContent) || initialContent.length === 0) {
         throw new Error(
           "initialContent must be a non-empty array of blocks, received: " +
-            initialContent,
+            JSON.stringify(initialContent),
         );
       }
       const schema = getSchema(tiptapOptions.extensions!);

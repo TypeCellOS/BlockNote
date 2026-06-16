@@ -8,7 +8,7 @@ export default defineConfig(
       run: {
         tasks: {
           build: {
-            command: "tsc",
+            command: "tsgo",
             input: [
               { auto: true },
               { pattern: "!**/*.tsbuildinfo", base: "workspace" },

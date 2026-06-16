@@ -30,11 +30,11 @@ describe("createAppendableStream", () => {
       },
     });
 
-    append(infiniteStream);
+    void append(infiniteStream);
 
     // Cancel the output stream after a short delay
     setTimeout(() => {
-      output.cancel("cancelled");
+      void output.cancel("cancelled");
     }, 100);
 
     // finalize should resolve (or reject) eventually, not hang forever
@@ -59,7 +59,7 @@ describe("createAppendableStream", () => {
       },
     });
 
-    append(stream);
+    void append(stream);
     await finalize();
 
     const results = await collectStream(output);
@@ -85,8 +85,8 @@ describe("createAppendableStream", () => {
       },
     });
 
-    append(stream1);
-    append(stream2);
+    void append(stream1);
+    void append(stream2);
     await finalize();
 
     const results = await collectStream(output);
@@ -110,7 +110,7 @@ describe("createAppendableStream", () => {
       },
     });
 
-    append(stream);
+    void append(stream);
     await finalize();
 
     const results = await collectStream(output);
@@ -127,7 +127,7 @@ describe("createAppendableStream", () => {
       },
     });
 
-    append(stream);
+    void append(stream);
 
     // finalize resolves even when there's an error
     await finalize();
@@ -141,7 +141,7 @@ describe("createAppendableStream", () => {
   it("should throw when appending to a canceled stream", async () => {
     const { output, append } = createAppendableStream<number>();
 
-    output.cancel("cancelled");
+    void output.cancel("cancelled");
 
     const stream = new ReadableStream<number>({
       start(controller) {
@@ -170,7 +170,7 @@ describe("createAppendableStream", () => {
     const appendPromise = append(slowStream);
 
     // Cancel before the stream finishes
-    output.cancel("cancelled");
+    void output.cancel("cancelled");
 
     // The append promise should resolve (cancellation is handled internally)
     await appendPromise;
@@ -198,8 +198,8 @@ describe("createAppendableStream", () => {
       },
     });
 
-    append(slowStream);
-    append(fastStream);
+    void append(slowStream);
+    void append(fastStream);
     await finalize();
 
     const results = await collectStream(output);
@@ -215,7 +215,7 @@ describe("createAppendableStream", () => {
       },
     });
 
-    append(emptyStream);
+    void append(emptyStream);
     await finalize();
 
     const results = await collectStream(output);
@@ -237,8 +237,8 @@ describe("createAppendableStream", () => {
       },
     });
 
-    append(empty1);
-    append(empty2);
+    void append(empty1);
+    void append(empty2);
     await finalize();
 
     const results = await collectStream(output);

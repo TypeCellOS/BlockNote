@@ -16,7 +16,7 @@ export function useResolveUrl(fetchUrl: string) {
 
   useEffect(() => {
     let mounted = true;
-    (async () => {
+    void (async () => {
       let url = "";
       setLoadingState("loading");
 

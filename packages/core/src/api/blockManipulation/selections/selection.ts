@@ -123,6 +123,7 @@ export function getSelection<
 
   if (blocks.length === 0) {
     throw new Error(
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, @typescript-eslint/no-base-to-string
       `Error getting selection - selection doesn't span any blocks (${tr.selection})`,
     );
   }

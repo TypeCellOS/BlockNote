@@ -67,7 +67,7 @@ function defaultPasteHandler({
   }
 
   if (format === "Files") {
-    handleFileInsertion(event, editor);
+    void handleFileInsertion(event, editor);
     return true;
   }
 

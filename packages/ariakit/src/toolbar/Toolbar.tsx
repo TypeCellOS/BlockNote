@@ -13,7 +13,7 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
       children,
       onMouseEnter,
       onMouseLeave,
-      _variant,
+      variant: _variant,
       ...rest
     } = props;
 

@@ -29,9 +29,9 @@ export default function App() {
     ],
   });
 
-  const onChange = async () => {
+  const onChange = () => {
     // Converts the editor's contents from Block objects to HTML and store to state.
-    const html = await editor.blocksToHTMLLossy(editor.document);
+    const html = editor.blocksToHTMLLossy(editor.document);
     setHTML(html);
   };
 

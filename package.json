@@ -2,9 +2,11 @@
   "name": "root",
   "type": "module",
   "devDependencies": {
+    "@typescript/native-preview": "7.0.0-dev.20260615.1",
     "concurrently": "9.1.2",
     "eslint-plugin-import": "^2.32.0",
     "glob": "^10.5.0",
+    "oxlint-tsgolint": "^0.23.0",
     "serve": "14.2.6",
     "typescript": "^5.9.3",
     "vite-plus": "catalog:",

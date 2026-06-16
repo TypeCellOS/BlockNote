@@ -1,5 +1,6 @@
 export class UnreachableCaseError extends Error {
   constructor(val: never) {
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     super(`Unreachable case: ${val}`);
   }
 }

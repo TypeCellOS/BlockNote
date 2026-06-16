@@ -14,7 +14,7 @@ import { expect } from "vite-plus/test";
 
 import { ExportParseEqualityTestCase } from "./exportParseEqualityTestCase.js";
 
-export const testExportParseEqualityBlockNoteHTML = async <
+export const testExportParseEqualityBlockNoteHTML = <
   B extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
@@ -26,21 +26,21 @@ export const testExportParseEqualityBlockNoteHTML = async <
 
   addIdsToBlocks(testCase.content);
 
-  const exported = await editor.blocksToFullHTML(testCase.content);
+  const exported = editor.blocksToFullHTML(testCase.content);
 
   if (testCase.name.startsWith("malformed/")) {
     // We purposefully are okay with malformed response, we know they won't match
-    expect(await editor.tryParseHTMLToBlocks(exported)).not.toStrictEqual(
+    expect(editor.tryParseHTMLToBlocks(exported)).not.toStrictEqual(
       partialBlocksToBlocksForTesting(editor.schema, testCase.content),
     );
   } else {
-    expect(await editor.tryParseHTMLToBlocks(exported)).toStrictEqual(
+    expect(editor.tryParseHTMLToBlocks(exported)).toStrictEqual(
       partialBlocksToBlocksForTesting(editor.schema, testCase.content),
     );
   }
 };
 
-export const testExportParseEqualityHTML = async <
+export const testExportParseEqualityHTML = <
   B extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
@@ -52,13 +52,13 @@ export const testExportParseEqualityHTML = async <
 
   addIdsToBlocks(testCase.content);
 
-  const exported = await editor.blocksToHTMLLossy(testCase.content);
+  const exported = editor.blocksToHTMLLossy(testCase.content);
 
   // Reset mock ID as we don't expect block IDs to be preserved in this
   // conversion.
   (window as any).__TEST_OPTIONS.mockID = 0;
 
-  expect(await editor.tryParseHTMLToBlocks(exported)).toStrictEqual(
+  expect(editor.tryParseHTMLToBlocks(exported)).toStrictEqual(
     partialBlocksToBlocksForTesting(editor.schema, testCase.content),
   );
 };
@@ -75,7 +75,7 @@ export const testExportParseEqualityMarkdown = async <
 
   addIdsToBlocks(testCase.content);
 
-  const exported = await editor.blocksToMarkdownLossy(testCase.content);
+  const exported = editor.blocksToMarkdownLossy(testCase.content);
 
   // Reset mock ID as we don't expect block IDs to be preserved in this
   // conversion.
@@ -84,12 +84,12 @@ export const testExportParseEqualityMarkdown = async <
   // Markdown is lossy (colors, underline, alignment are dropped), so we use
   // snapshot matching to capture the expected round-trip result rather than
   // strict equality with the input.
-  await expect(
-    await editor.tryParseMarkdownToBlocks(exported),
-  ).toMatchFileSnapshot(`./__snapshots__/markdown/${testCase.name}.json`);
+  await expect(editor.tryParseMarkdownToBlocks(exported)).toMatchFileSnapshot(
+    `./__snapshots__/markdown/${testCase.name}.json`,
+  );
 };
 
-export const testExportParseEqualityNodes = async <
+export const testExportParseEqualityNodes = <
   B extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,

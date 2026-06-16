@@ -18,7 +18,7 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
     children,
     onOpenChange,
     position,
-    _sub, // unused
+    sub: _sub, // unused
     ...rest
   } = props;
 
@@ -42,7 +42,7 @@ export const MenuDropdown = forwardRef<
   const {
     className,
     children,
-    _sub, // unused
+    sub: _sub, // unused
     ...rest
   } = props;
 

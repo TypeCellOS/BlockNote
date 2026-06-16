@@ -118,14 +118,14 @@ describe("streamToolsProvider", () => {
 
     const executor = new StreamToolExecutor(streamTools);
 
-    executor.executeOne({
+    void executor.executeOne({
       type: "add",
       blocks: ["<p>test</p>"],
       referenceId: "1",
       position: "after",
     });
 
-    executor.executeOne({
+    void executor.executeOne({
       // @ts-expect-error
       type: "update",
       blocks: ["<p>test</p>"],
@@ -133,7 +133,7 @@ describe("streamToolsProvider", () => {
       position: "after",
     });
 
-    executor.executeOne({
+    void executor.executeOne({
       type: "add",
       // @ts-expect-error
       blocks: [{ type: "paragraph", content: "test" }],

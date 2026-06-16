@@ -48,7 +48,7 @@ export function useUsers(userIds: string[]) {
         // calling cb() will make sure `useSyncExternalStore` will fetch the latest snapshot (which is ref.current)
         cb();
       });
-      store.loadUsers(userIds);
+      void store.loadUsers(userIds);
       return ret;
     },
     [store, getUpdatedSnapshot, userIds, ref],

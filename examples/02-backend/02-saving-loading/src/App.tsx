@@ -25,7 +25,7 @@ export default function App() {
 
   // Loads the previously stored editor contents.
   useEffect(() => {
-    loadFromStorage().then((content) => {
+    void loadFromStorage().then((content) => {
       setInitialContent(content);
     });
   }, []);
@@ -49,7 +49,7 @@ export default function App() {
     <BlockNoteView
       editor={editor}
       onChange={() => {
-        saveToStorage(editor.document);
+        void saveToStorage(editor.document);
       }}
     />
   );

@@ -297,7 +297,7 @@ export class ODTExporter<
     );
 
     // Add mimetype first, uncompressed
-    zipWriter.add(
+    void zipWriter.add(
       "mimetype",
       new TextReader("application/vnd.oasis.opendocument.text"),
       {
@@ -311,14 +311,14 @@ export class ODTExporter<
     const contentXml = renderToString(content);
     const manifestXml = renderToString(manifestNode);
 
-    zipWriter.add("content.xml", new TextReader(contentXml));
-    zipWriter.add("styles.xml", new TextReader(stylesXml));
-    zipWriter.add("META-INF/manifest.xml", new TextReader(manifestXml));
+    void zipWriter.add("content.xml", new TextReader(contentXml));
+    void zipWriter.add("styles.xml", new TextReader(stylesXml));
+    void zipWriter.add("META-INF/manifest.xml", new TextReader(manifestXml));
     fonts.forEach((font) => {
-      zipWriter.add(`Fonts/${font.fileName}`, new BlobReader(font.data));
+      void zipWriter.add(`Fonts/${font.fileName}`, new BlobReader(font.data));
     });
     pictures.forEach((picture) => {
-      zipWriter.add(
+      void zipWriter.add(
         `Pictures/${picture.fileName}`,
         new BlobReader(picture.file),
       );

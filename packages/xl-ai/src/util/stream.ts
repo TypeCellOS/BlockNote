@@ -39,7 +39,7 @@ export function createAsyncIterableStream<T>(
 
   const stream = source.pipeThrough(new TransformStream<T, T>());
 
-  (stream as AsyncIterableStream<T>)[Symbol.asyncIterator] = () => {
+  (stream as any)[Symbol.asyncIterator] = () => {
     if (stream.locked) {
       throw new Error("Stream is already locked and cannot be iterated again.");
     }
