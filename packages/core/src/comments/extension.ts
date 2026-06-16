@@ -353,6 +353,7 @@ export const CommentsExtension = createExtension(
           await threadStore.addThreadToDocument({
             threadId: thread.id,
             selection: editor.transact((tr) => tr.selection),
+            editor,
           });
         } else {
           (editor as any)._tiptapEditor.commands.setMark(markType, {

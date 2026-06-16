@@ -1,3 +1,4 @@
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { CommentBody, CommentData, ThreadData } from "../types.js";
 import { ThreadStoreAuth } from "./ThreadStoreAuth.js";
 
@@ -26,6 +27,7 @@ export abstract class ThreadStore {
       head: number;
       anchor: number;
     };
+    editor: BlockNoteEditor<any, any, any>;
   }): Promise<void>;
 
   /**
