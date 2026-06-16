@@ -12,7 +12,7 @@ set -euo pipefail
 # Version that is actually installed in this repo (pnpm patches the installed
 # version). The local ../yjs checkout may be a newer rc; we still pin to this.
 YJS_PKG="@y/y"
-YJS_VERSION="14.0.0-rc.16"
+YJS_VERSION="14.0.0-rc.17"
 
 # pnpm keeps the scope path for the temp patch dir (e.g. .pnpm_patches/@y/y@VER)
 # but escapes "/" to "__" for the committed patch file name.

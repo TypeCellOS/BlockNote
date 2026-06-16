@@ -3,6 +3,7 @@ import {
   type ExtensionOptions,
   createExtension,
 } from "../../editor/BlockNoteExtension.js";
+import { blockMatchNodes } from "./blockMatchNodes.js";
 import { CollaborationOptions } from "./index.js";
 
 /**
@@ -70,14 +71,16 @@ const mapAttributionToMark = (
 
   if (attribution.insert) {
     out["y-attributed-insert"] = {
-      id: attribution.insert[0] ?? null,
+      userIds: attribution.insert,
+      timestamp: attribution.insertAt ?? null,
       "user-color": colorForUserIds(attribution.insert),
     };
   }
 
   if (attribution.delete) {
     out["y-attributed-delete"] = {
-      id: attribution.delete[0] ?? null,
+      userIds: attribution.delete,
+      timestamp: attribution.deleteAt ?? null,
       "user-color": colorForUserIds(attribution.delete),
     };
   }
@@ -85,7 +88,9 @@ const mapAttributionToMark = (
   if (attribution.format) {
     const userIds = [...new Set(Object.values(attribution.format).flat())];
     out["y-attributed-format"] = {
-      id: userIds[0] ?? null,
+      userIds,
+      format: attribution.format,
+      timestamp: attribution.formatAt ?? null,
       "user-color": colorForUserIds(userIds),
     };
   }
@@ -118,6 +123,14 @@ export const YSyncExtension = createExtension(
         syncPlugin({
           suggestionDoc: options.suggestionDoc,
           mapAttributionToMark,
+          // Node-pairing policy for the PM->Y diff: a `blockContainer` whose
+          // block-content type changes is treated as a *different* node, so the
+          // diff replaces the whole container (deleted + inserted siblings in
+          // the blockGroup) instead of producing two block-contents in one
+          // container => schema-invalid. No schema change / storage transform
+          // needed; `blockContainer` already whitelists the `y-attributed-*`
+          // marks. See blockMatchNodes.ts.
+          matchNodes: blockMatchNodes,
         }),
       ],
       runsBefore: ["default"],
