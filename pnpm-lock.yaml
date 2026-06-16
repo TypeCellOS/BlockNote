@@ -3591,20 +3591,20 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@liveblocks/client':
-        specifier: ^3.17.0
-        version: 3.17.0(@types/json-schema@7.0.15)
+        specifier: ^3.19.5
+        version: 3.19.5(@types/json-schema@7.0.15)
       '@liveblocks/react':
-        specifier: ^3.17.0
-        version: 3.17.0(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react@19.2.5)
+        specifier: ^3.19.5
+        version: 3.19.5(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react@19.2.5)
       '@liveblocks/react-blocknote':
-        specifier: ^3.17.0
-        version: 3.17.0(@blocknote/core@packages+core)(@blocknote/react@packages+react)(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@tiptap/react@3.22.4(@floating-ui/dom@1.7.6)(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@tiptap/suggestion@2.27.2(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4))(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30)
+        specifier: ^3.19.5
+        version: 3.19.5(@blocknote/core@packages+core)(@blocknote/react@packages+react)(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@tiptap/react@3.22.4(@floating-ui/dom@1.7.6)(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@tiptap/suggestion@2.27.2(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4))(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30)
       '@liveblocks/react-tiptap':
-        specifier: ^3.17.0
-        version: 3.17.0(@tiptap/pm@3.22.4)(@tiptap/react@3.22.4(@floating-ui/dom@1.7.6)(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@tiptap/suggestion@2.27.2(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4))(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(y-protocols@1.0.7(yjs@13.6.30))
+        specifier: ^3.19.5
+        version: 3.19.5(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@tiptap/react@3.22.4(@floating-ui/dom@1.7.6)(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@tiptap/suggestion@2.27.2(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4))(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30)
       '@liveblocks/react-ui':
-        specifier: ^3.17.0
-        version: 3.17.0(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^3.19.5
+        version: 3.19.5(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@mantine/core':
         specifier: ^9.0.2
         version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -6952,8 +6952,16 @@ packages:
   '@liveblocks/client@3.17.0':
     resolution: {integrity: sha512-DHKuYzMn6laLUyo2IB90gmUHOHT4S58DcqXqlide6MLl/XmrSIv9xduU+w7y0ndWhhbVlmEcPku7/Qd5rWBeWw==}
 
+  '@liveblocks/client@3.19.5':
+    resolution: {integrity: sha512-kXffixgJnMtlaCL8iRrRvMekXo8wBhwKAVKlrZ0QKupo8gmkAF0pQR3NhoK7HOCKNly7zQhKKBiHDA0Mk1MtHw==}
+
   '@liveblocks/core@3.17.0':
     resolution: {integrity: sha512-96xqhBDQCBY3hkNuBzbD4n52dS66P+ZqxeXfa1LegA32knIDD86UCSxMlAFQOM69k3r3vuSPBf0yyf2L/k7kxg==}
+    peerDependencies:
+      '@types/json-schema': ^7
+
+  '@liveblocks/core@3.19.5':
+    resolution: {integrity: sha512-mcPxarCWdKFYHWS4xuLNXiCZIyjLALTR6mSGHC0b8dXtZEtNFIC/PqJ7D7Y5ZTtN5cT37uzdUAAmSYnbWGfcjg==}
     peerDependencies:
       '@types/json-schema': ^7
 
@@ -6965,6 +6973,22 @@ packages:
       '@tiptap/core': ^3.0.0
       '@types/react': '*'
       '@types/react-dom': '*'
+      react: ^18 || ^19 || ^19.0.0-rc
+      react-dom: ^18 || ^19 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@liveblocks/react-blocknote@3.19.5':
+    resolution: {integrity: sha512-q+7dh8XPUALOL9QRMO8RqjBh2tknIz/89utEUM2NG04QgEnKi0FWOxJhndHD90yYRQ2XBkxIlGF98PMxFFfHqQ==}
+    peerDependencies:
+      '@blocknote/core': '>=0.43'
+      '@blocknote/react': '>=0.43'
+      '@tiptap/core': ^3.0.0
+      '@types/react': ^18 || ^19
+      '@types/react-dom': ^18 || ^19
       react: ^18 || ^19 || ^19.0.0-rc
       react-dom: ^18 || ^19 || ^19.0.0-rc
     peerDependenciesMeta:
@@ -6989,11 +7013,42 @@ packages:
       '@types/react-dom':
         optional: true
 
+  '@liveblocks/react-tiptap@3.19.5':
+    resolution: {integrity: sha512-XRafUZ/usOpAZNdC0kbvWga+tjGb4CyAi8j5XBKM38KWhh7sMhA0lpk3P8jjS9zBrl+NlApJym0NledF8LBRGw==}
+    peerDependencies:
+      '@tiptap/core': ^3.0.0
+      '@tiptap/pm': ^3.0.0
+      '@tiptap/react': ^3
+      '@tiptap/suggestion': ^3
+      '@types/react': ^18 || ^19
+      '@types/react-dom': ^18 || ^19
+      react: ^18 || ^19 || ^19.0.0-rc
+      react-dom: ^18 || ^19 || ^19.0.0-rc
+      yjs: ^13
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
   '@liveblocks/react-ui@3.17.0':
     resolution: {integrity: sha512-jbdxW1PuEu7jITvBDcBr99IcFuittYQcqDB1MAQ7f71ANdk5UPzQ5DpnHWvbh6CPkuvoXe2JwAcF1l2veaMY8g==}
     peerDependencies:
       '@types/react': '*'
       '@types/react-dom': '*'
+      react: ^18 || ^19 || ^19.0.0-rc
+      react-dom: ^18 || ^19 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@liveblocks/react-ui@3.19.5':
+    resolution: {integrity: sha512-/iyhmecP6P7vHGQ3YqTTliSo6NXDnBMYKPHI+DGWp7G16uQ10TO0nNy6LKeVHZDPHpmsu9+F/c7JBo9JgY10rg==}
+    peerDependencies:
+      '@types/react': ^18 || ^19
+      '@types/react-dom': ^18 || ^19
       react: ^18 || ^19 || ^19.0.0-rc
       react-dom: ^18 || ^19 || ^19.0.0-rc
     peerDependenciesMeta:
@@ -7014,10 +7069,27 @@ packages:
       '@types/react-dom':
         optional: true
 
+  '@liveblocks/react@3.19.5':
+    resolution: {integrity: sha512-rXGx1qwTyZFmFZ1E6OOJm5m00OLfK6NcHI7UtLPaJHYq7AfhoGogYqSRC5rog3dOFL21vBNFyCqh568CrnVIww==}
+    peerDependencies:
+      '@types/react': ^18 || ^19
+      '@types/react-dom': ^18 || ^19
+      react: ^18 || ^19 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
   '@liveblocks/yjs@3.17.0':
     resolution: {integrity: sha512-TMdzjBeGjqSq3gxHkpWi8HffvfZAx/qRsSk0rdhhCngjYXNIpMUcfWoCwyXevWXy0ghgxfRh25jR54MMKWCQ/Q==}
     peerDependencies:
       yjs: ^13.6.1
+
+  '@liveblocks/yjs@3.19.5':
+    resolution: {integrity: sha512-5opOwjhDvzhkcK/kfNCnot5gBecOIc9w1laqblSNEL+pXvVZMd4dSEJCtptBaiXsV6OtR6M1xCHph50Pwt6snQ==}
+    peerDependencies:
+      yjs: ^13
 
   '@mantine/core@9.1.1':
     resolution: {integrity: sha512-vClOZdCeZ4oLYuA/3jAOgKGQ6dXbF6ZkzpYz09Gied9nZpB7HcQeb3dcMh8UPBE4f+EM7KlYWk6dch7GoASeaA==}
@@ -16487,7 +16559,17 @@ snapshots:
     transitivePeerDependencies:
       - '@types/json-schema'
 
+  '@liveblocks/client@3.19.5(@types/json-schema@7.0.15)':
+    dependencies:
+      '@liveblocks/core': 3.19.5(@types/json-schema@7.0.15)
+    transitivePeerDependencies:
+      - '@types/json-schema'
+
   '@liveblocks/core@3.17.0(@types/json-schema@7.0.15)':
+    dependencies:
+      '@types/json-schema': 7.0.15
+
+  '@liveblocks/core@3.19.5(@types/json-schema@7.0.15)':
     dependencies:
       '@types/json-schema': 7.0.15
 
@@ -16520,6 +16602,33 @@ snapshots:
       - y-protocols
       - yjs
 
+  '@liveblocks/react-blocknote@3.19.5(@blocknote/core@packages+core)(@blocknote/react@packages+react)(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@tiptap/react@3.22.4(@floating-ui/dom@1.7.6)(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@tiptap/suggestion@2.27.2(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4))(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30)':
+    dependencies:
+      '@blocknote/core': link:packages/core
+      '@blocknote/react': link:packages/react
+      '@liveblocks/client': 3.19.5(@types/json-schema@7.0.15)
+      '@liveblocks/core': 3.19.5(@types/json-schema@7.0.15)
+      '@liveblocks/react': 3.19.5(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react@19.2.5)
+      '@liveblocks/react-tiptap': 3.19.5(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@tiptap/react@3.22.4(@floating-ui/dom@1.7.6)(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@tiptap/suggestion@2.27.2(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4))(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30)
+      '@liveblocks/react-ui': 3.19.5(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@liveblocks/yjs': 3.19.5(@types/json-schema@7.0.15)(yjs@13.6.30)
+      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
+      react: 19.2.5
+      react-dom: 19.2.5(react@19.2.5)
+    optionalDependencies:
+      '@types/react': 19.2.14
+      '@types/react-dom': 19.2.3(@types/react@19.2.14)
+    transitivePeerDependencies:
+      - '@tiptap/pm'
+      - '@tiptap/react'
+      - '@tiptap/suggestion'
+      - '@types/json-schema'
+      - prosemirror-model
+      - prosemirror-state
+      - prosemirror-view
+      - y-protocols
+      - yjs
+
   '@liveblocks/react-tiptap@3.17.0(@tiptap/pm@3.22.4)(@tiptap/react@3.22.4(@floating-ui/dom@1.7.6)(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@tiptap/suggestion@2.27.2(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4))(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(y-protocols@1.0.7(yjs@13.6.30))':
     dependencies:
       '@floating-ui/react-dom': 2.1.8(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -16528,6 +16637,34 @@ snapshots:
       '@liveblocks/react': 3.17.0(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react@19.2.5)
       '@liveblocks/react-ui': 3.17.0(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@liveblocks/yjs': 3.17.0(@types/json-schema@7.0.15)(yjs@13.6.30)
+      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
+      '@tiptap/pm': 3.22.4
+      '@tiptap/react': 3.22.4(@floating-ui/dom@1.7.6)(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tiptap/suggestion': 2.27.2(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)
+      cmdk: 1.1.1(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      radix-ui: 1.4.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      react: 19.2.5
+      react-dom: 19.2.5(react@19.2.5)
+      y-prosemirror: 1.3.7(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30)
+      yjs: 13.6.30
+    optionalDependencies:
+      '@types/react': 19.2.14
+      '@types/react-dom': 19.2.3(@types/react@19.2.14)
+    transitivePeerDependencies:
+      - '@types/json-schema'
+      - prosemirror-model
+      - prosemirror-state
+      - prosemirror-view
+      - y-protocols
+
+  '@liveblocks/react-tiptap@3.19.5(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@tiptap/react@3.22.4(@floating-ui/dom@1.7.6)(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@tiptap/suggestion@2.27.2(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4))(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(y-protocols@1.0.7(yjs@13.6.30))(yjs@13.6.30)':
+    dependencies:
+      '@floating-ui/react-dom': 2.1.8(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@liveblocks/client': 3.19.5(@types/json-schema@7.0.15)
+      '@liveblocks/core': 3.19.5(@types/json-schema@7.0.15)
+      '@liveblocks/react': 3.19.5(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react@19.2.5)
+      '@liveblocks/react-ui': 3.19.5(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@liveblocks/yjs': 3.19.5(@types/json-schema@7.0.15)(yjs@13.6.30)
       '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
       '@tiptap/pm': 3.22.4
       '@tiptap/react': 3.22.4(@floating-ui/dom@1.7.6)(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -16569,10 +16706,42 @@ snapshots:
     transitivePeerDependencies:
       - '@types/json-schema'
 
+  '@liveblocks/react-ui@3.19.5(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+    dependencies:
+      '@floating-ui/react-dom': 2.1.8(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@liveblocks/client': 3.19.5(@types/json-schema@7.0.15)
+      '@liveblocks/core': 3.19.5(@types/json-schema@7.0.15)
+      '@liveblocks/react': 3.19.5(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react@19.2.5)
+      frimousse: 0.2.0(react@19.2.5)
+      marked: 15.0.12
+      radix-ui: 1.4.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      react: 19.2.5
+      react-dom: 19.2.5(react@19.2.5)
+      slate: 0.110.2
+      slate-history: 0.110.3(slate@0.110.2)
+      slate-hyperscript: 0.100.0(slate@0.110.2)
+      slate-react: 0.110.3(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(slate@0.110.2)
+    optionalDependencies:
+      '@types/react': 19.2.14
+      '@types/react-dom': 19.2.3(@types/react@19.2.14)
+    transitivePeerDependencies:
+      - '@types/json-schema'
+
   '@liveblocks/react@3.17.0(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react@19.2.5)':
     dependencies:
       '@liveblocks/client': 3.17.0(@types/json-schema@7.0.15)
       '@liveblocks/core': 3.17.0(@types/json-schema@7.0.15)
+      react: 19.2.5
+    optionalDependencies:
+      '@types/react': 19.2.14
+      '@types/react-dom': 19.2.3(@types/react@19.2.14)
+    transitivePeerDependencies:
+      - '@types/json-schema'
+
+  '@liveblocks/react@3.19.5(@types/json-schema@7.0.15)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react@19.2.5)':
+    dependencies:
+      '@liveblocks/client': 3.19.5(@types/json-schema@7.0.15)
+      '@liveblocks/core': 3.19.5(@types/json-schema@7.0.15)
       react: 19.2.5
     optionalDependencies:
       '@types/react': 19.2.14
@@ -16586,6 +16755,18 @@ snapshots:
       '@liveblocks/core': 3.17.0(@types/json-schema@7.0.15)
       '@noble/hashes': 1.8.0
       js-base64: 3.7.8
+      y-indexeddb: 9.0.12(yjs@13.6.30)
+      yjs: 13.6.30
+    transitivePeerDependencies:
+      - '@types/json-schema'
+
+  '@liveblocks/yjs@3.19.5(@types/json-schema@7.0.15)(yjs@13.6.30)':
+    dependencies:
+      '@liveblocks/client': 3.19.5(@types/json-schema@7.0.15)
+      '@liveblocks/core': 3.19.5(@types/json-schema@7.0.15)
+      '@noble/hashes': 1.8.0
+      js-base64: 3.7.8
+      lib0: 0.2.117
       y-indexeddb: 9.0.12(yjs@13.6.30)
       yjs: 13.6.30
     transitivePeerDependencies:

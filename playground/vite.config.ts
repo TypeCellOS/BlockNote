@@ -71,7 +71,24 @@ export default defineConfig(((conf: { command: string }) => ({
   },
   plugins: [react(), webpackStats(), Inspect(), tailwindcss()],
   optimizeDeps: {
-    // link: ['vite-react-ts-components'],
+    // Exclude @blocknote/* source-aliased packages from pre-bundling so that
+    // when Vite pre-bundles @liveblocks/react-blocknote, it treats
+    // @blocknote/* imports as external rather than inlining a second copy
+    // (which would duplicate Selection.jsonID registrations like
+    // "multiple-node").
+    exclude: [
+      "@blocknote/core",
+      "@blocknote/react",
+      "@blocknote/ariakit",
+      "@blocknote/mantine",
+      "@blocknote/shadcn",
+      "@blocknote/xl-ai",
+      "@blocknote/xl-multi-column",
+      "@blocknote/xl-docx-exporter",
+      "@blocknote/xl-odt-exporter",
+      "@blocknote/xl-pdf-exporter",
+      "@blocknote/xl-email-exporter",
+    ],
   },
   build: {
     sourcemap: true,
