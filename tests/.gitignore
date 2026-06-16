@@ -1,0 +1,6 @@
+# vitest-browser auto-saved debug screenshots on test failure (separate
+# from `toMatchScreenshot` reference shots, which use `*-chromium-darwin.png`).
+src/browser/**/__screenshots__/**/*-1.png
+
+# vitest-browser attachments (debug artifacts saved during test runs).
+.vitest-attachments
