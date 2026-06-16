@@ -69,6 +69,13 @@ export function withCollaboration<
     collaboration: CollaborationOptions;
   },
 ): Options {
+  if (options.initialContent) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      "When using Collaboration, initialContent might cause conflicts, because changes should come from the collaboration provider",
+    );
+  }
+
   return {
     ...options,
     extensions: [
