@@ -38,7 +38,7 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   const {
     children,
     onOpenChange,
-    position, // Unused
+    _position, // Unused
     sub,
     ...rest
   } = props;

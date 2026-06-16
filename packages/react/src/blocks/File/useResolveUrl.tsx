@@ -24,7 +24,7 @@ export function useResolveUrl(fetchUrl: string) {
         url = editor.resolveFileUrl
           ? await editor.resolveFileUrl(fetchUrl)
           : fetchUrl;
-      } catch (error) {
+      } catch {
         setLoadingState("error");
         return;
       }

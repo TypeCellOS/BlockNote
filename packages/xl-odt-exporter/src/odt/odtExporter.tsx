@@ -205,6 +205,7 @@ export class ODTExporter<
           {fonts.map((font) => {
             return (
               <style:font-face
+                key={font.name}
                 style:name={font.name}
                 svg:font-family={font.name}
                 style:font-pitch="variable"
@@ -274,6 +275,7 @@ export class ODTExporter<
         {pictures.map((picture) => {
           return (
             <manifest:file-entry
+              key={picture.fileName}
               manifest:media-type={picture.file.type}
               manifest:full-path={`Pictures/${picture.fileName}`}
             />
@@ -282,6 +284,7 @@ export class ODTExporter<
         {fonts.map((font) => {
           return (
             <manifest:file-entry
+              key={font.name}
               manifest:media-type="application/x-font-ttf"
               manifest:full-path={`Fonts/${font.fileName}`}
             />

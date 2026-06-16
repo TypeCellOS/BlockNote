@@ -79,7 +79,7 @@ export default function NotFound() {
           .slice(0, 8);
 
         setSearchResults(pageResults.length > 0 ? pageResults : fallbackPages);
-      } catch (error) {
+      } catch {
         setSearchResults(fallbackPages);
       } finally {
         setIsLoading(false);

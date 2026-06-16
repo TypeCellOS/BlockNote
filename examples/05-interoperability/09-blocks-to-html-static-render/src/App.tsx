@@ -153,7 +153,7 @@ export default function App() {
 
   const [html, setHTML] = useState("");
 
-  const ref = useRef<HTMLDivElement>(null);
+  const _ref = useRef<HTMLDivElement>(null);
   const systemColorScheme = usePrefersColorScheme();
   const theme =
     systemColorScheme === "no-preference" ? "light" : systemColorScheme;
@@ -161,10 +161,12 @@ export default function App() {
   // Function to update the rendered static HTML.
   const updateRenderedHTML = useCallback(async () => {
     setHTML(editor.blocksToFullHTML(editor.document));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   // Updates rendered static HTML with initial editor content.
   useEffect(() => {
     updateRenderedHTML();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Renders the editor instance and HTML output.

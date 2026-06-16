@@ -1,4 +1,3 @@
-import { Block } from "@blocknote/core";
 import {
   blockTypeSelectItems,
   useBlockNoteEditor,
@@ -346,9 +345,11 @@ function MUIColorStyleButton() {
   const textColorOnClick = useCallback(
     (textColor: string) => {
       setAnchorEl(null);
-      textColor === "default"
-        ? editor.removeStyles({ textColor })
-        : editor.addStyles({ textColor });
+      if (textColor === "default") {
+        editor.removeStyles({ textColor });
+      } else {
+        editor.addStyles({ textColor });
+      }
       setTimeout(() => editor.focus());
     },
     [editor],
@@ -356,9 +357,11 @@ function MUIColorStyleButton() {
   const backgroundColorOnClick = useCallback(
     (backgroundColor: string) => {
       setAnchorEl(null);
-      backgroundColor === "default"
-        ? editor.removeStyles({ backgroundColor })
-        : editor.addStyles({ backgroundColor });
+      if (backgroundColor === "default") {
+        editor.removeStyles({ backgroundColor });
+      } else {
+        editor.addStyles({ backgroundColor });
+      }
       setTimeout(() => editor.focus());
     },
     [editor],

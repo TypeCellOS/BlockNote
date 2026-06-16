@@ -202,7 +202,8 @@ function DemoEditorInner({
       doc,
     );
     return { doc, provider };
-  }, [roomId, activeUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roomId]);
   // Thread Store
   const threadStore = useMemo(() => {
     return new YjsThreadStore(
