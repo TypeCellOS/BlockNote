@@ -1,7 +1,12 @@
 import * as Y from "yjs";
+import {
+  absolutePositionToRelativePosition,
+  ySyncPluginKey,
+} from "y-prosemirror";
 import type { CommentBody } from "../../comments/types.js";
 import type { ThreadStoreAuth } from "../../comments/threadstore/ThreadStoreAuth.js";
 import { YjsThreadStoreBase } from "./YjsThreadStoreBase.js";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 /**
  * This is a REST-based implementation of the YjsThreadStoreBase.
@@ -50,9 +55,32 @@ export class RESTYjsThreadStore extends YjsThreadStoreBase {
       head: number;
       anchor: number;
     };
+    editor: BlockNoteEditor<any, any, any>;
   }) => {
-    const { threadId, ...rest } = options;
-    return this.doRequest(`/${threadId}/addToDocument`, "POST", rest);
+    const { threadId, selection } = options;
+
+    const binding = ySyncPluginKey.getState(options.editor.prosemirrorState);
+    const yjsSelection = binding
+      ? {
+          head: absolutePositionToRelativePosition(
+            selection.head,
+            binding.type,
+            binding.mapping,
+          ),
+          anchor: absolutePositionToRelativePosition(
+            selection.anchor,
+            binding.type,
+            binding.mapping,
+          ),
+        }
+      : undefined;
+
+    return this.doRequest(`/${threadId}/addToDocument`, "POST", {
+      selection: {
+        prosemirror: selection,
+        yjs: yjsSelection,
+      },
+    });
   };
 
   public createThread = async (options: {
