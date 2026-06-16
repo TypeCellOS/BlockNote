@@ -1,5 +1,9 @@
 import * as Y from "yjs";
-import { CommentData, CommentReactionData, ThreadData } from "../../types.js";
+import type {
+  CommentData,
+  CommentReactionData,
+  ThreadData,
+} from "../../comments/types.js";
 
 export function commentToYMap(comment: CommentData) {
   const yMap = new Y.Map<any>();

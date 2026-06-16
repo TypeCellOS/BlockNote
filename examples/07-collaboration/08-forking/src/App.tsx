@@ -1,6 +1,5 @@
 import "@blocknote/core/fonts/inter.css";
-import {} from "@blocknote/core";
-import { ForkYDocExtension } from "@blocknote/core/extensions";
+import { ForkYDocExtension, withCollaboration } from "@blocknote/core/yjs";
 import {
   useCreateBlockNote,
   useExtension,
@@ -21,19 +20,21 @@ const provider = new YPartyKitProvider(
 );
 
 export default function App() {
-  const editor = useCreateBlockNote({
-    collaboration: {
-      // The Yjs Provider responsible for transporting updates:
-      provider,
-      // Where to store BlockNote data in the Y.Doc:
-      fragment: doc.getXmlFragment("document-store"),
-      // Information (name and color) for this user:
-      user: {
-        name: "My Username",
-        color: "#ff0000",
+  const editor = useCreateBlockNote(
+    withCollaboration({
+      collaboration: {
+        // The Yjs Provider responsible for transporting updates:
+        provider,
+        // Where to store BlockNote data in the Y.Doc:
+        fragment: doc.getXmlFragment("document-store"),
+        // Information (name and color) for this user:
+        user: {
+          name: "My Username",
+          color: "#ff0000",
+        },
       },
-    },
-  });
+    }),
+  );
   const forkYDocPlugin = useExtension(ForkYDocExtension, { editor });
   const isForked = useExtensionState(ForkYDocExtension, {
     editor,

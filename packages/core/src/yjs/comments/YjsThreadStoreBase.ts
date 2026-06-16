@@ -1,7 +1,7 @@
 import * as Y from "yjs";
-import { ThreadData } from "../../types.js";
-import { ThreadStore } from "../ThreadStore.js";
-import { ThreadStoreAuth } from "../ThreadStoreAuth.js";
+import type { ThreadData } from "../../comments/types.js";
+import { ThreadStore } from "../../comments/threadstore/ThreadStore.js";
+import type { ThreadStoreAuth } from "../../comments/threadstore/ThreadStoreAuth.js";
 import { yMapToThread } from "./yjsHelpers.js";
 
 /**

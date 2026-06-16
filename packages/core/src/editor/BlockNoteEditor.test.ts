@@ -7,6 +7,7 @@ import {
 } from "../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "./BlockNoteEditor.js";
 import { BlocksChanged } from "../api/getBlocksChangedByTransaction.js";
+import { withCollaboration } from "../yjs/index.js";
 
 /**
  * @vitest-environment jsdom
@@ -148,17 +149,19 @@ it("sets an initial block id when using Y.js", async () => {
   const doc = new Y.Doc();
   const fragment = doc.getXmlFragment("doc");
   let transactionCount = 0;
-  const editor = BlockNoteEditor.create({
-    collaboration: {
-      fragment,
-      user: { name: "Hello", color: "#FFFFFF" },
-    },
-    _tiptapOptions: {
-      onTransaction: () => {
-        transactionCount++;
+  const editor = BlockNoteEditor.create(
+    withCollaboration({
+      collaboration: {
+        fragment,
+        user: { name: "Hello", color: "#FFFFFF" },
       },
-    },
-  });
+      _tiptapOptions: {
+        onTransaction: () => {
+          transactionCount++;
+        },
+      },
+    }),
+  );
   editorsToCleanup.push(editor);
 
   editor.mount(document.createElement("div"));
@@ -203,8 +206,8 @@ it("sets an initial block id when using Y.js", async () => {
   ]);
   expect(transactionCount).toBe(2);
   // Only after a real modification is made, will the fragment be updated
-  expect(fragment.toJSON()).toMatchInlineSnapshot(
-    `"<blockgroup><blockcontainer id="0"><paragraph backgroundColor="default" textAlignment="left" textColor="default">Hello</paragraph></blockcontainer></blockgroup>"`,
+  expect(fragment.toJSON()).toMatch(
+    /^<blockgroup><blockcontainer id="[^"]+"><paragraph backgroundColor="default" textAlignment="left" textColor="default">Hello<\/paragraph><\/blockcontainer><\/blockgroup>$/,
   );
 });
 

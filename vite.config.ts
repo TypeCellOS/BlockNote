@@ -62,11 +62,14 @@ export default defineConfig({
       ],
       "import-eslint/extensions": ["error", "always", { ignorePackages: true }],
       // Native oxlint dependency cycle rule to replace previous ESLint rule.
-      // More strict, catches issues which were not caught with ESLint, hence
-      // why it only triggers warnings and not errors.
-      // TODO: Either set to trigger errors & fix them or revert to ESLint
-      // plugin.
-      "import/no-cycle": "warn",
+      // Disabled for now: there is a large set of known, pre-existing
+      // dependency cycles in core (hubbed around BlockNoteEditor/schema/api).
+      // Leaving this enabled (even at "warn") dumps a large volume of output
+      // that adds noise and can crash the git pre-commit hook while printing to
+      // stdout ("Resource temporarily unavailable"). All other (error-level)
+      // lint rules still run on staging via `vp check`.
+      // TODO: Refactor to break the cycles, then re-enable as an error.
+      "import/no-cycle": "off",
     },
     overrides: [
       {
