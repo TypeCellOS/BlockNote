@@ -7,7 +7,7 @@
     "dev": "next dev",
     "dev:email": "next dev",
     "prebuild:site": "vp run --filter @blocknote/dev-scripts gen",
-    "build:site": "fumadocs-mdx && next build",
+    "build:site": "fumadocs-mdx && NODE_OPTIONS='--max-old-space-size=6144' next build",
     "start": "next start",
     "types:check": "fumadocs-mdx && next typegen && tsc --noEmit",
     "postinstall": "fumadocs-mdx",
