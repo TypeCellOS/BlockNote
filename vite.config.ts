@@ -2,6 +2,8 @@ import { defineConfig } from "vite-plus";
 
 export default defineConfig({
   staged: {
+    // Format + fast lint (no type-aware) on pre-commit for speed.
+    // Full type-aware check runs in CI via `vp check`.
     "*": "vp check --fix",
   },
   run: {
@@ -42,8 +44,8 @@ export default defineConfig({
     // Adds pre-migration ESLint rules with no oxlint equivalents.
     jsPlugins: [{ name: "import-eslint", specifier: "eslint-plugin-import" }],
     options: {
-      typeAware: false,
-      typeCheck: false,
+      typeAware: true,
+      typeCheck: true,
     },
     rules: {
       "no-console": "error",
@@ -85,20 +87,6 @@ export default defineConfig({
           "no-console": "off",
         },
       },
-      {
-        // Mirrors the old `examples/.eslintrc.js` + `docs/eslint.config.mjs`
-        // (Next.js preset) which had `import/extensions` off. The TS-ESM
-        // `.js`-suffix rule only applies to the published library packages.
-        files: [
-          "examples/**",
-          "docs/**",
-          "tests/nextjs-test-app/**",
-          "fumadocs/**",
-        ],
-        rules: {
-          "import-eslint/extensions": "off",
-        },
-      },
     ],
     ignorePatterns: [
       "**/dist/**",
@@ -111,6 +99,16 @@ export default defineConfig({
       "**/node_modules/**",
       "**/ui/**",
       "**/.source/**",
+      // Non-library directories: skip all linting here.
+      // - docs/ needs Next.js type generation (next-env.d.ts) to typecheck
+      // - examples/, playground/, tests/ have 91+ separate tsconfigs that
+      //   each spin up a tsgolint instance, adding ~20s to the type-aware pass.
+      //   These are consumer/demo code — library packages are what matter.
+      "docs/**",
+      "examples/**",
+      "playground/**",
+      "tests/**",
+      "fumadocs/**",
     ],
   },
   fmt: {

@@ -37,6 +37,7 @@ export const EditLinkMenuItems = (
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
+  // eslint-disable-next-line @typescript-eslint/unbound-method -- editLink is a plain object method, not a class method
   const { editLink } = useExtension(LinkToolbarExtension);
 
   const { url, text, showTextField } = props;

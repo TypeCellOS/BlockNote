@@ -130,5 +130,5 @@ export default defineConfig(
           ],
         },
       },
-    }) as UserConfig,
+    }) as unknown as UserConfig,
 );

@@ -83,7 +83,7 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
           handler(event);
         } else {
           // TODO: check focus?
-          handleEnter(event);
+          void handleEnter(event);
         }
       } else {
         handler(event);

@@ -8,6 +8,7 @@ export const FixupCreateAndFillExtension = createExtension(({ editor }) => {
     // Since it will be randomly generated & cause there to be more updates to the ydoc
     // This is a hack to make it so that anytime `schema.doc.createAndFill` is called, the initial block id is already set to "initialBlockId"
     let cache: Node | undefined = undefined;
+    // eslint-disable-next-line @typescript-eslint/unbound-method -- intentionally saving reference for monkey-patching
     const oldCreateAndFill = editor.pmSchema.nodes.doc.createAndFill;
     editor.pmSchema.nodes.doc.createAndFill = ((...args: any) => {
       if (cache) {

@@ -46,7 +46,7 @@ export const PopoverContent = forwardRef<
   const {
     className,
     children,
-    _variant, // unused
+    variant: _variant, // unused
     ...rest
   } = props;
 

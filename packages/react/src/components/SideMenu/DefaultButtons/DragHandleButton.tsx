@@ -45,6 +45,7 @@ export const DragHandleButton = (
           label={dict.side_menu.drag_handle_label}
           draggable={true}
           onDragStart={(e) => sideMenu.blockDragStart(e, block)}
+          // eslint-disable-next-line @typescript-eslint/unbound-method -- blockDragEnd is a plain object method, not a class method
           onDragEnd={sideMenu.blockDragEnd}
           className={"bn-button"}
           icon={<MdDragIndicator size={24} data-test="dragHandle" />}

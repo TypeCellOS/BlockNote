@@ -163,10 +163,10 @@ async function testODTDocumentAgainstSnapshot(
 
   expect(stylesXML).toBeDefined();
   expect(contentXML).toBeDefined();
-  expect(
+  await expect(
     xmlFormat(await stylesXML.getData(stylesXMLWriter)),
   ).toMatchFileSnapshot(snapshots.styles);
-  expect(
+  await expect(
     xmlFormat(await contentXML.getData(contentXMLWriter)),
   ).toMatchFileSnapshot(snapshots.content);
 }

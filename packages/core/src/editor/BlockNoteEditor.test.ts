@@ -30,10 +30,10 @@ it("creates an editor", () => {
   expect(info.blockNoteType).toEqual("paragraph");
 });
 
-it("immediately replaces doc", async () => {
+it("immediately replaces doc", () => {
   const editor = BlockNoteEditor.create();
   editorsToCleanup.push(editor);
-  const blocks = await editor.tryParseMarkdownToBlocks(
+  const blocks = editor.tryParseMarkdownToBlocks(
     "This is a normal text\n\n# And this is a large heading",
   );
   editor.replaceBlocks(editor.document, blocks);
@@ -79,16 +79,16 @@ it("immediately replaces doc", async () => {
   `);
 });
 
-it("adds id attribute when requested", async () => {
+it("adds id attribute when requested", () => {
   const editor = BlockNoteEditor.create({
     setIdAttribute: true,
   });
   editorsToCleanup.push(editor);
-  const blocks = await editor.tryParseMarkdownToBlocks(
+  const blocks = editor.tryParseMarkdownToBlocks(
     "This is a normal text\n\n# And this is a large heading",
   );
   editor.replaceBlocks(editor.document, blocks);
-  expect(await editor.blocksToFullHTML(editor.document)).toMatchInlineSnapshot(
+  expect(editor.blocksToFullHTML(editor.document)).toMatchInlineSnapshot(
     `"<div class="bn-block-group" data-node-type="blockGroup"><div class="bn-block-outer" data-node-type="blockOuter" data-id="1" id="1"><div class="bn-block" data-node-type="blockContainer" data-id="1" id="1"><div class="bn-block-content" data-content-type="paragraph"><p class="bn-inline-content">This is a normal text</p></div></div></div><div class="bn-block-outer" data-node-type="blockOuter" data-id="2" id="2"><div class="bn-block" data-node-type="blockContainer" data-id="2" id="2"><div class="bn-block-content" data-content-type="heading"><h1 class="bn-inline-content">And this is a large heading</h1></div></div></div></div>"`,
   );
 });

@@ -216,8 +216,11 @@ export function useEditorState<TSelectorResult>(
 
   // Using the `useSyncExternalStore` hook to sync the editor instance with the component state
   const selectedState = useSyncExternalStoreWithSelector(
+    // eslint-disable-next-line @typescript-eslint/unbound-method -- methods are bound in EditorStateManager constructor
     editorStateManager.subscribe,
+    // eslint-disable-next-line @typescript-eslint/unbound-method -- methods are bound in EditorStateManager constructor
     editorStateManager.getSnapshot,
+    // eslint-disable-next-line @typescript-eslint/unbound-method -- methods are bound in EditorStateManager constructor
     editorStateManager.getServerSnapshot,
     options.selector as UseEditorStateOptions<
       TSelectorResult,

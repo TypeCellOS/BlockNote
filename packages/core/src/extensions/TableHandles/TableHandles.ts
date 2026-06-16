@@ -982,7 +982,7 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
      * Adds a row or column to the table using prosemirror-table commands
      */
     addRowOrColumn(
-      index: RelativeCellIndices["row"] | RelativeCellIndices["col"],
+      index: RelativeCellIndices["row"],
       direction:
         | { orientation: "row"; side: "above" | "below" }
         | { orientation: "column"; side: "left" | "right" },
@@ -1015,7 +1015,7 @@ export const TableHandlesExtension = createExtension(({ editor }) => {
      * Removes a row or column from the table using prosemirror-table commands
      */
     removeRowOrColumn(
-      index: RelativeCellIndices["row"] | RelativeCellIndices["col"],
+      index: RelativeCellIndices["row"],
       direction: "row" | "column",
     ) {
       if (direction === "row") {

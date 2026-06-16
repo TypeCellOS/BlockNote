@@ -593,6 +593,7 @@ export default function App() {
       const baseItemText = itemText.replace(" (eligible for discount)", "");
       if (total >= 4000) {
         updatedCells[0] = {
+          // eslint-disable-next-line @typescript-eslint/no-misused-spread
           ...row.cells[0],
           content: [
             {
@@ -604,6 +605,7 @@ export default function App() {
         };
       } else {
         updatedCells[0] = {
+          // eslint-disable-next-line @typescript-eslint/no-misused-spread
           ...row.cells[0],
           content: [
             {
@@ -656,6 +658,7 @@ export default function App() {
   return (
     <BlockNoteView
       editor={editor}
+      // eslint-disable-next-line @typescript-eslint/unbound-method -- getChanges is destructured from callback parameter, not a class
       onChange={(editor, { getChanges }) => {
         const changes = getChanges();
 

@@ -13,7 +13,7 @@ export const TextInput = forwardRef<
     className,
     name,
     label,
-    _variant,
+    variant: _variant,
     icon, // TODO: implement
     value,
     autoFocus,
@@ -22,7 +22,7 @@ export const TextInput = forwardRef<
     onKeyDown,
     onChange,
     onSubmit,
-    _autoComplete,
+    autoComplete: _autoComplete,
     "aria-activedescendant": ariaActivedescendant,
     rightSection, // TODO: add rightSection
     ...rest

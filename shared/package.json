@@ -9,7 +9,7 @@
     "src"
   ],
   "scripts": {
-    "clean": "tsc --build --clean"
+    "clean": "tsgo --build --clean"
   },
   "dependencies": {
     "@blocknote/core": "workspace:^"
