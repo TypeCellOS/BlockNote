@@ -23,6 +23,7 @@ import {
   ShowSelectionExtension,
   SideMenuExtension,
   SuggestionMenu,
+  SyntaxHighlightingExtension,
   TableHandlesExtension,
   TrailingNodeExtension,
 } from "../../../extensions/index.js";
@@ -174,6 +175,7 @@ export function getDefaultExtensions(
     ShowSelectionExtension(options),
     SideMenuExtension(options),
     SuggestionMenu(options),
+    SyntaxHighlightingExtension(options.syntaxHighlighting),
     ...(options.trailingBlock !== false ? [TrailingNodeExtension()] : []),
   ] as ExtensionFactoryInstance[];
 

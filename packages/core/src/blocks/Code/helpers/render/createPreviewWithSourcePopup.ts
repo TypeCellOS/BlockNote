@@ -7,21 +7,16 @@ import {
 } from "@floating-ui/dom";
 import type { Node as ProsemirrorNode } from "prosemirror-model";
 import type { ViewMutationRecord } from "prosemirror-view";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import type { BlockFromConfig } from "../../schema/index.js";
+import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
+import type { BlockFromConfig } from "../../../../schema/index.js";
+import type { CodeBlockConfig } from "../../block.js";
 import type {
-  CodeBlockConfig,
   CodeBlockOptions,
-  CodeBlockRenderPreview,
-} from "./block.js";
-import { createRenderSource } from "./renderSource.js";
+  CodeBlockPreview,
+} from "../../CodeBlockOptions.js";
+import { createSourceBlock } from "./createSourceBlock.js";
 
-/**
- * Gets the plain text content (i.e. the source) of a code block.
- */
-function getCodeBlockText(
-  block: BlockFromConfig<CodeBlockConfig, any, any>,
-): string {
+const getCodeBlockText = (block: BlockFromConfig<any, any, any>): string => {
   const content = block.content;
 
   if (!Array.isArray(content)) {
@@ -29,20 +24,14 @@ function getCodeBlockText(
   }
 
   return content.map((node) => ("text" in node ? node.text : "")).join("");
-}
+};
 
-/**
- * Creates a function that renders a preview of the code, showing the editable
- * source in a popup below the preview (positioned via FloatingUI) while the
- * block is selected. The popup reuses `renderSource` for its content.
- */
-export function createRenderPreviewWithSourcePopup(options: CodeBlockOptions) {
-  const renderSource = createRenderSource(options);
-
-  return (
-    block: BlockFromConfig<CodeBlockConfig, any, any>,
+export const createPreviewWithSourcePopup =
+  (options: CodeBlockOptions) =>
+  (
+    block: BlockFromConfig<any, any, any>,
     editor: BlockNoteEditor<any>,
-    renderPreview: CodeBlockRenderPreview,
+    createPreview: CodeBlockPreview,
   ) => {
     const dom = document.createElement("div");
     dom.className = "bn-code-block-with-preview";
@@ -53,12 +42,12 @@ export function createRenderPreviewWithSourcePopup(options: CodeBlockOptions) {
     previewContainer.contentEditable = "false";
     dom.appendChild(previewContainer);
 
-    let preview = renderPreview(block, editor);
+    let preview = createPreview(block, editor);
     previewContainer.appendChild(preview.dom);
 
     // Holds the editable source, shown in a popup below the preview when the
     // block is selected.
-    const source = renderSource(block, editor);
+    const source = createSourceBlock(options)(block, editor);
     const sourcePopup = document.createElement("div");
     sourcePopup.className = "bn-code-block-source-popup";
     sourcePopup.style.display = "none";
@@ -154,7 +143,7 @@ export function createRenderPreviewWithSourcePopup(options: CodeBlockOptions) {
 
           preview.destroy?.();
           previewContainer.innerHTML = "";
-          preview = renderPreview(
+          preview = createPreview(
             editor.getBlock(block.id) as BlockFromConfig<
               CodeBlockConfig,
               any,
@@ -179,4 +168,3 @@ export function createRenderPreviewWithSourcePopup(options: CodeBlockOptions) {
       },
     };
   };
-}

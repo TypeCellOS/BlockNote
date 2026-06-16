@@ -471,6 +471,13 @@ applied to the source popup instead. */
   min-height: 1.5em;
   cursor: text;
 }
+/* Preview-source blocks (e.g. math) show their source in a popup, so they never
+get a native node selection. While selected they get this class instead, which
+we use to highlight the preview the same way `ProseMirror-selectednode` does. */
+.bn-preview-source-selected .bn-code-block-preview {
+  border-radius: 4px;
+  outline: 4px solid rgb(100, 160, 255);
+}
 .bn-code-block-source-popup {
   position: absolute;
   z-index: 1;

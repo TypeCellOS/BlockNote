@@ -27,8 +27,8 @@ export * from "./util/typescript.js";
 
 export type {
   CodeBlockOptions,
-  CodeBlockRenderPreview,
-} from "./blocks/Code/block.js";
+  CodeBlockPreview,
+} from "./blocks/Code/CodeBlockOptions.js";
 export { assertEmpty, UnreachableCaseError } from "./util/typescript.js";
 
 export * from "./util/EventEmitter.js";

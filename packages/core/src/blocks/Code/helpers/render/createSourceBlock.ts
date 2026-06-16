@@ -1,18 +1,10 @@
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import type { BlockFromConfig } from "../../schema/index.js";
-import type { CodeBlockConfig, CodeBlockOptions } from "./block.js";
+import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
+import type { BlockFromConfig } from "../../../../schema/index.js";
+import type { CodeBlockOptions } from "../../CodeBlockOptions.js";
 
-/**
- * Creates a function that renders the editable source of a code block as a
- * `<pre><code>`, with a language selection dropdown. This is the default
- * rendering for languages that don't support previews, and is reused as the
- * source popup's content for languages that do.
- */
-export function createRenderSource(options: CodeBlockOptions) {
-  return (
-    block: BlockFromConfig<CodeBlockConfig, any, any>,
-    editor: BlockNoteEditor<any>,
-  ) => {
+export const createSourceBlock =
+  (options: CodeBlockOptions) =>
+  (block: BlockFromConfig<any, any, any>, editor: BlockNoteEditor<any>) => {
     const language = block.props.language || options.defaultLanguage || "text";
 
     const pre = document.createElement("pre");
@@ -61,4 +53,3 @@ export function createRenderSource(options: CodeBlockOptions) {
       },
     };
   };
-}

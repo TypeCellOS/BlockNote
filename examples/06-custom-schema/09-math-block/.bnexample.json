@@ -1,0 +1,10 @@
+{
+  "playground": true,
+  "docs": true,
+  "author": "matthewlipski",
+  "tags": ["Intermediate", "Blocks", "Custom Schemas"],
+  "dependencies": {
+    "@blocknote/code-block": "latest",
+    "@blocknote/math-block": "latest"
+  }
+}
