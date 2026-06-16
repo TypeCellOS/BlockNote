@@ -49,6 +49,14 @@ export default defineConfig(
                   __dirname,
                   "../packages/react/src/",
                 ),
+                "@blocknote/mantine": path.resolve(
+                  __dirname,
+                  "../packages/mantine/src/",
+                ),
+                "@blocknote/server-util": path.resolve(
+                  __dirname,
+                  "../packages/server-util/src/",
+                ),
               } as Record<string, string>),
       },
     }) as UserConfig,
