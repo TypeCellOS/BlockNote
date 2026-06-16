@@ -66,6 +66,7 @@ export default defineConfig(((conf: { command: string }) => ({
           { auto: true },
           { pattern: "!**/*.tsbuildinfo", base: "workspace" },
         ],
+        output: ["dist/**"],
       },
     },
   },
