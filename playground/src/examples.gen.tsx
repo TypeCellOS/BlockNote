@@ -1813,6 +1813,30 @@ export const examples = {
         readme:
           'This example shows how to use the `VersioningExtension` with collaborative editing using `@y/y` (v14). Snapshots are stored in localStorage using Yjs v2 state updates.\n\n**Try it out:** Edit the document, then click the "Version History" button to open the sidebar. From there you can save snapshots, preview older versions, rename them, and restore them.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)',
       },
+      {
+        projectSlug: "multi-doc-versioning",
+        fullSlug: "collaboration/multi-doc-versioning",
+        pathFromRoot: "examples/07-collaboration/14-multi-doc-versioning",
+        config: {
+          playground: true,
+          docs: false,
+          author: "nperez0111",
+          tags: ["Advanced", "Collaboration"],
+          dependencies: {
+            "@y/protocols": "^1.0.6-rc.1",
+            "@y/websocket": "^4.0.0-3",
+            "@y/y": "^14.0.0-rc.16",
+            lib0: "1.0.0-rc.13",
+          } as any,
+        },
+        title: "Multi-Document Collaboration with Version History",
+        group: {
+          pathFromRoot: "examples/07-collaboration",
+          slug: "collaboration",
+        },
+        readme:
+          "This example shows a multi-document collaborative editor with per-document version history, using BlockNote's `VersioningExtension` and Y.js v14.\n\n**Features:**\n\n- User picker (per-tab identity via `sessionStorage`)\n- Left sidebar with document list (create, rename, delete)\n- Collaborative editing with Y.js (including suggestion mode)\n- Right sidebar with version history powered by `VersioningSidebar`\n- Per-document versioning backed by `localStorage`\n- Open multiple tabs with different users via the `?as=` URL param\n\n**Relevant Docs:**\n\n- [Versioning](https://www.blocknotejs.org/docs/collaboration/versioning)\n- [Y.js Collaboration](https://www.blocknotejs.org/docs/collaboration)",
+      },
     ],
   },
   extensions: {

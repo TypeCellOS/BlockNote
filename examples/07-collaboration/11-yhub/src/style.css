@@ -5,7 +5,7 @@ ins {
 }
 
 ins:hover::after {
-  content: attr(data-user);
+  content: attr(data-description);
   position: absolute;
   top: 100%;
   left: 50%;
@@ -39,7 +39,7 @@ del {
 }
 
 del:hover::after {
-  content: attr(data-user);
+  content: attr(data-description);
   position: absolute;
   top: 100%;
   left: 50%;

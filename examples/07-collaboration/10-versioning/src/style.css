@@ -1,5 +1,11 @@
+.mantine-AppShell-main {
+  padding-inline-start: 0 !important;
+  padding-inline-end: 0 !important;
+  padding: 0 !important;
+  height: 100%;
+}
 .wrapper {
-  height: calc(100vh - 20px);
+  height: 100%;
 }
 
 .wrapper > .bn-container {
@@ -11,14 +17,14 @@
 .layout {
   display: flex;
   gap: 8px;
-  height: calc(100vh - 20px);
+  height: 100vh;
+  margin-left: 8px;
 }
 
 .editor-panel {
   display: flex;
   flex: 1;
   flex-direction: column;
-  height: calc(100vh - 20px);
   min-width: 0;
   overflow: auto;
 }
@@ -39,7 +45,7 @@
   background-color: var(--bn-colors-disabled-background);
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 20px);
+  height: 100vh;
   overflow: auto;
   width: 350px;
 }
@@ -164,7 +170,7 @@ ins {
 }
 
 ins:hover::after {
-  content: attr(data-user);
+  content: attr(data-description);
   position: absolute;
   top: 100%;
   left: 50%;
@@ -198,7 +204,7 @@ del {
 }
 
 del:hover::after {
-  content: attr(data-user);
+  content: attr(data-description);
   position: absolute;
   top: 100%;
   left: 50%;
