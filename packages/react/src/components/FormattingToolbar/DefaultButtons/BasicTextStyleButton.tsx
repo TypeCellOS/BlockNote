@@ -92,7 +92,7 @@ export const BasicTextStyleButton = <Style extends BasicTextStyle>(props: {
       editor.focus();
       editor.toggleStyles({ [style]: true } as any);
     },
-    [editor, props],
+    [editor],
   );
 
   if (state === undefined) {

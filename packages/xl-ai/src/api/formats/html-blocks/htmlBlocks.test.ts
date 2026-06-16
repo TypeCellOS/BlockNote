@@ -106,7 +106,7 @@ describe("streamToolsProvider", () => {
     // test skipped, this is only to validate type inference
     return;
 
-    // eslint-disable-next-line no-unreachable
+    /* eslint-disable no-unreachable */
     const editor = BlockNoteEditor.create();
     const streamTools = htmlBlockLLMFormat
       .getStreamToolsProvider({
@@ -140,5 +140,6 @@ describe("streamToolsProvider", () => {
       referenceId: "1",
       position: "after",
     });
+    /* eslint-enable no-unreachable */
   });
 });

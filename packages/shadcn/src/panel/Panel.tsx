@@ -15,7 +15,7 @@ export const Panel = forwardRef<
     defaultOpenTab,
     openTab,
     setOpenTab,
-    loading, // TODO: implement loader
+    _loading, // TODO: implement loader
     ...rest
   } = props;
 

@@ -411,6 +411,7 @@ export default function App() {
   // Exports the inital editor document to PDF.
   useEffect(() => {
     onChange();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Downloads the PDF.

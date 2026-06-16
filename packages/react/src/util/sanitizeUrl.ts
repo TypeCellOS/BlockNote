@@ -12,7 +12,7 @@ export function sanitizeUrl(inputUrl: string, baseUrl: string): string {
     if (url.protocol !== "javascript:") {
       return url.href;
     }
-  } catch (error) {
+  } catch {
     // if URL creation fails, it's an invalid URL
   }
 

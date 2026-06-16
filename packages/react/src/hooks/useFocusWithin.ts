@@ -1,5 +1,5 @@
 // Copied from https://github.com/mantinedev/mantine/blob/90900efc7f107933ba027007cf240fea61d9c9f2/packages/%40mantine/hooks/src/use-focus-within/use-focus-within.ts#L16
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export interface UseFocusWithinOptions {
   onFocus?: (event: FocusEvent) => void;
@@ -42,21 +42,25 @@ export function useFocusWithin<T extends HTMLElement = any>({
     focusedRef.current = value;
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const handleFocusIn = (event: FocusEvent) => {
-    if (!focusedRef.current) {
-      _setFocused(true);
-      onFocus?.(event);
-    }
-  };
+  const handleFocusIn = useCallback(
+    (event: FocusEvent) => {
+      if (!focusedRef.current) {
+        _setFocused(true);
+        onFocus?.(event);
+      }
+    },
+    [onFocus],
+  );
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const handleFocusOut = (event: FocusEvent) => {
-    if (focusedRef.current && !containsRelatedTarget(event)) {
-      _setFocused(false);
-      onBlur?.(event);
-    }
-  };
+  const handleFocusOut = useCallback(
+    (event: FocusEvent) => {
+      if (focusedRef.current && !containsRelatedTarget(event)) {
+        _setFocused(false);
+        onBlur?.(event);
+      }
+    },
+    [onBlur],
+  );
 
   useEffect(() => {
     const node = ref.current;

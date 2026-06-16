@@ -66,10 +66,10 @@ export const Comment = forwardRef<
   const {
     className,
     showActions,
-    authorInfo,
-    timeString,
+    _authorInfo,
+    _timeString,
     actions,
-    edited,
+    _edited,
     emojiPickerOpen,
     children,
     ...rest

@@ -19,7 +19,7 @@ export const Panel = forwardRef<
     defaultOpenTab,
     openTab,
     setOpenTab,
-    loading, // TODO: implement loading
+    _loading, // TODO: implement loading
     ...rest
   } = props;
   assertEmpty(rest);

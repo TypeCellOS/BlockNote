@@ -216,6 +216,7 @@ export default function App() {
         <div className="two-way-sync">
           {Array.from({ length: numGhostWriters }).map((_, index) => (
             <iframe
+              key={index}
               src={`${window.location.origin}${
                 window.location.pathname
               }?room=${roomName}&index=${index + 1}&hideMenu=true`}

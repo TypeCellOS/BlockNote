@@ -1,4 +1,4 @@
-import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
+import { BlockNoteSchema } from "@blocknote/core";
 import {
   filterSuggestionItems,
   insertOrUpdateBlockForSlashMenu,

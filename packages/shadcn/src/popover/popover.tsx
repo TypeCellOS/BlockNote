@@ -17,7 +17,7 @@ export const Popover = (
     children,
     open,
     onOpenChange,
-    position, // unused
+    _position, // unused
     portalRoot,
     ...rest
   } = props;
