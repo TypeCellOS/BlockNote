@@ -31,11 +31,11 @@ jobs:
       - name: Install Dependencies
         run: vp install
 
-      - name: Lint packages
-        run: vp lint
-
       - name: Build packages
         run: vp run -r build
+
+      - name: Lint packages
+        run: vp lint
 
       - name: Run unit tests
         run: vp run -r test
