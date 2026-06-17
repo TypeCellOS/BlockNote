@@ -1,4 +1,3 @@
-"use client";
 // exports that are safe to use on server
 // for now, this is everything except
 // React components, hooks and AIExtension (because it uses @ai-sdk/react)
