@@ -1,4 +1,5 @@
 import {
+  BlockNoteEditor,
   BlockSchema,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
@@ -10,11 +11,9 @@ import {
 import { CommentsExtension } from "@blocknote/core/comments";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
-import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
 import { useExtension } from "../../hooks/useExtension.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { CommentEditor } from "./CommentEditor.js";
-import { defaultCommentEditorSchema } from "./defaultCommentEditorSchema.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { TextSelection } from "@tiptap/pm/state";
 
@@ -27,24 +26,21 @@ export function FloatingComposer<
   B extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema,
->() {
+>(props: {
+  /**
+   * The (empty) editor used to compose the new comment. Created and owned by
+   * the `FloatingComposerController`, so it can check for unsaved text before
+   * the composer is dismissed.
+   */
+  newCommentEditor: BlockNoteEditor<any, any, any>;
+}) {
   const editor = useBlockNoteEditor<B, I, S>();
+  const newCommentEditor = props.newCommentEditor;
 
   const comments = useExtension(CommentsExtension);
 
   const Components = useComponentsContext()!;
   const dict = useDictionary();
-
-  const newCommentEditor = useCreateBlockNote({
-    trailingBlock: false,
-    dictionary: {
-      ...dict,
-      placeholders: {
-        emptyDocument: dict.placeholders.new_comment,
-      },
-    },
-    schema: comments.commentEditorSchema || defaultCommentEditorSchema,
-  });
 
   return (
     <Components.Comments.Card className={"bn-thread"}>

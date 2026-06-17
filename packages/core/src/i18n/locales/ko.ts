@@ -398,6 +398,7 @@ export const ko: Dictionary = {
     save_button_text: "저장",
     cancel_button_text: "취소",
     deleted_reference_text: "원본 콘텐츠 삭제됨",
+    discard_pending_comment: "이 댓글을 삭제하시겠습니까?",
     actions: {
       add_reaction: "반응 추가",
       resolve: "해결",

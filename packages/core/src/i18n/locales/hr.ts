@@ -398,6 +398,7 @@ export const hr: Dictionary = {
     save_button_text: "Spremi",
     cancel_button_text: "Odustani",
     deleted_reference_text: "Originalni sadržaj je obrisan",
+    discard_pending_comment: "Jeste li sigurni da želite odbaciti ovaj komentar?",
     actions: {
       add_reaction: "Dodaj reakciju",
       resolve: "Riješi",

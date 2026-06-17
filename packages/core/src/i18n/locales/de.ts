@@ -404,6 +404,7 @@ export const de: Dictionary = {
     save_button_text: "Speichern",
     cancel_button_text: "Abbrechen",
     deleted_reference_text: "Originalinhalt gelöscht",
+    discard_pending_comment: "Möchten Sie diesen Kommentar wirklich verwerfen?",
     actions: {
       add_reaction: "Reaktion hinzufügen",
       resolve: "Lösen",
