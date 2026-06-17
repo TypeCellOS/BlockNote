@@ -1716,6 +1716,103 @@ export const examples = {
         readme:
           "A minimal comments example used for end-to-end testing. Uses a local Y.Doc (no collaboration provider) with a single hardcoded editor user.",
       },
+      {
+        projectSlug: "versioning",
+        fullSlug: "collaboration/versioning",
+        pathFromRoot: "examples/07-collaboration/10-versioning",
+        config: {
+          playground: true,
+          docs: true,
+          author: "matthewlipski",
+          tags: ["Advanced", "Development", "Collaboration"],
+          dependencies: {
+            "@y/protocols": "^1.0.6-rc.1",
+            "@y/websocket": "^4.0.0-3",
+            "@y/y": "^14.0.0-rc.16",
+            "react-icons": "5.6.0",
+            "@floating-ui/react": "^0.27.18",
+            lib0: "1.0.0-rc.13",
+          } as any,
+        },
+        title: "Collaborative Editing Features Showcase",
+        group: {
+          pathFromRoot: "examples/07-collaboration",
+          slug: "collaboration",
+        },
+        readme:
+          "In this example, you can play with all of the collaboration features BlockNote has to offer:\n\n**Comments**: Add comments to parts of the document - other users can then view, reply to, react to, and resolve them.\n\n**Versioning**: Save snapshots of the document - later preview saved snapshots and restore them to ensure work is never lost.\n\n**Suggestions**: Suggest changes directly in the editor - users can choose to then apply or reject those changes.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Comments](/docs/features/collaboration/comments)\n- [Real-time collaboration](/docs/features/collaboration)",
+      },
+      {
+        projectSlug: "yhub",
+        fullSlug: "collaboration/yhub",
+        pathFromRoot: "examples/07-collaboration/11-yhub",
+        config: {
+          playground: true,
+          docs: true,
+          author: "nperez0111",
+          tags: ["Advanced", "Saving/Loading", "Collaboration"],
+          dependencies: {
+            "@y/protocols": "^1.0.6-rc.1",
+            "@y/y": "^14.0.0-rc.16",
+            "@y/prosemirror": "^2.0.0-2",
+            "@y/websocket": "^4.0.0-rc.2",
+          } as any,
+        },
+        title: "Collaborative Editing with YHub",
+        group: {
+          pathFromRoot: "examples/07-collaboration",
+          slug: "collaboration",
+        },
+        readme:
+          "In this example, we use YHub to let multiple users collaborate on a single BlockNote document in real-time.\n\n**Try it out:** Open this page in a new browser tab or window to see it in action!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time Collaboration](/docs/features/collaboration)",
+      },
+      {
+        projectSlug: "versioning-yjs13",
+        fullSlug: "collaboration/versioning-yjs13",
+        pathFromRoot: "examples/07-collaboration/12-versioning-yjs13",
+        config: {
+          playground: true,
+          docs: true,
+          author: "yousefed",
+          tags: ["Advanced", "Development", "Collaboration"],
+          dependencies: {
+            "y-websocket": "^2.1.0",
+            yjs: "^13.6.27",
+            lib0: "^0.2.99",
+          } as any,
+        },
+        title: "Collaborative Versioning (yjs v13)",
+        group: {
+          pathFromRoot: "examples/07-collaboration",
+          slug: "collaboration",
+        },
+        readme:
+          'This example shows how to use the `VersioningExtension` with collaborative editing using `yjs` (v13). Snapshots are stored in localStorage using Yjs state updates.\n\n**Try it out:** Edit the document, then click the "Version History" button to open the sidebar. From there you can save snapshots, preview older versions, rename them, and restore them.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)',
+      },
+      {
+        projectSlug: "versioning-yjs14",
+        fullSlug: "collaboration/versioning-yjs14",
+        pathFromRoot: "examples/07-collaboration/13-versioning-yjs14",
+        config: {
+          playground: true,
+          docs: true,
+          author: "yousefed",
+          tags: ["Advanced", "Development", "Collaboration"],
+          dependencies: {
+            "@y/protocols": "^1.0.6-rc.1",
+            "@y/websocket": "^4.0.0-3",
+            "@y/y": "^14.0.0-rc.16",
+            lib0: "1.0.0-rc.13",
+          } as any,
+        },
+        title: "Collaborative Versioning (@y/y v14)",
+        group: {
+          pathFromRoot: "examples/07-collaboration",
+          slug: "collaboration",
+        },
+        readme:
+          'This example shows how to use the `VersioningExtension` with collaborative editing using `@y/y` (v14). Snapshots are stored in localStorage using Yjs v2 state updates.\n\n**Try it out:** Edit the document, then click the "Version History" button to open the sidebar. From there you can save snapshots, preview older versions, rename them, and restore them.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)',
+      },
     ],
   },
   extensions: {
@@ -1743,6 +1840,27 @@ export const examples = {
         },
         readme:
           "This example shows how to set up a BlockNote editor with a TipTap extension that registers an InputRule to convert `->` into `→`.\n\n**Try it out:** Type `->` anywhere in the editor and see how it's automatically converted to a single arrow unicode character.",
+      },
+      {
+        projectSlug: "versioning",
+        fullSlug: "extensions/versioning",
+        pathFromRoot: "examples/08-extensions/02-versioning",
+        config: {
+          playground: true,
+          docs: true,
+          author: "yousefed",
+          tags: ["Extension"],
+          dependencies: {
+            "react-icons": "5.6.0",
+          } as any,
+        },
+        title: "In-Memory Versioning",
+        group: {
+          pathFromRoot: "examples/08-extensions",
+          slug: "extensions",
+        },
+        readme:
+          'This example shows how to use the `VersioningExtension` without any collaboration layer (no Yjs required). Snapshots are stored in memory using ProseMirror JSON.\n\n**Try it out:** Edit the document, then click the "Version History" button to open the sidebar. From there you can save snapshots, preview older versions, rename them, and restore them.',
       },
     ],
   },
