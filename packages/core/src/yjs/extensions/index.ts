@@ -69,13 +69,6 @@ export function withCollaboration<
     collaboration: CollaborationOptions;
   },
 ): Options {
-  if (options.initialContent) {
-    // eslint-disable-next-line no-console
-    console.warn(
-      "When using Collaboration, initialContent might cause conflicts, because changes should come from the collaboration provider",
-    );
-  }
-
   return {
     ...options,
     extensions: [
@@ -93,6 +86,7 @@ export function withCollaboration<
 export * from "./ForkYDoc.js";
 export * from "./RelativePositionMapping.js";
 export * from "./schemaMigration/SchemaMigration.js";
+export * from "./Versioning.js";
 export * from "./YCursorPlugin.js";
 export * from "./YSync.js";
 export * from "./YUndo.js";
