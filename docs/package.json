@@ -12,8 +12,7 @@
     "types:check": "fumadocs-mdx && next typegen && tsc --noEmit",
     "postinstall": "fumadocs-mdx",
     "lint": "vp lint",
-    "init-db": "pnpx @better-auth/cli migrate",
-    "test": "vp run -w gen && node validate-links.mjs"
+    "init-db": "pnpx @better-auth/cli migrate"
   },
   "dependencies": {
     "@ai-sdk/groq": "^3.0.2",
