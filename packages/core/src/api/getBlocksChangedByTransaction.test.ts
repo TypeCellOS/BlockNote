@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach } from "vitest";
+import { describe, expect, it, beforeEach } from "vite-plus/test";
 
 import { setupTestEnv } from "./blockManipulation/setupTestEnv.js";
 import { getBlocksChangedByTransaction } from "./getBlocksChangedByTransaction.js";
@@ -285,6 +285,7 @@ describe("getBlocksChangedByTransaction", () => {
     // This test is different from the other tests because it uses the onChange hook to get the blocks changed
     // This is because unnesting a block is not allowed within a transaction
     let blocksChanged: any = null;
+    // eslint-disable-next-line @typescript-eslint/unbound-method -- getChanges is destructured from callback parameter, not a class
     const unsubscribe = editor.onChange((_e, { getChanges }) => {
       blocksChanged = getChanges();
     });

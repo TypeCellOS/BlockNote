@@ -205,6 +205,7 @@ export class ODTExporter<
           {fonts.map((font) => {
             return (
               <style:font-face
+                key={font.name}
                 style:name={font.name}
                 svg:font-family={font.name}
                 style:font-pitch="variable"
@@ -274,6 +275,7 @@ export class ODTExporter<
         {pictures.map((picture) => {
           return (
             <manifest:file-entry
+              key={picture.fileName}
               manifest:media-type={picture.file.type}
               manifest:full-path={`Pictures/${picture.fileName}`}
             />
@@ -282,6 +284,7 @@ export class ODTExporter<
         {fonts.map((font) => {
           return (
             <manifest:file-entry
+              key={font.name}
               manifest:media-type="application/x-font-ttf"
               manifest:full-path={`Fonts/${font.fileName}`}
             />
@@ -294,7 +297,7 @@ export class ODTExporter<
     );
 
     // Add mimetype first, uncompressed
-    zipWriter.add(
+    void zipWriter.add(
       "mimetype",
       new TextReader("application/vnd.oasis.opendocument.text"),
       {
@@ -308,14 +311,14 @@ export class ODTExporter<
     const contentXml = renderToString(content);
     const manifestXml = renderToString(manifestNode);
 
-    zipWriter.add("content.xml", new TextReader(contentXml));
-    zipWriter.add("styles.xml", new TextReader(stylesXml));
-    zipWriter.add("META-INF/manifest.xml", new TextReader(manifestXml));
+    void zipWriter.add("content.xml", new TextReader(contentXml));
+    void zipWriter.add("styles.xml", new TextReader(stylesXml));
+    void zipWriter.add("META-INF/manifest.xml", new TextReader(manifestXml));
     fonts.forEach((font) => {
-      zipWriter.add(`Fonts/${font.fileName}`, new BlobReader(font.data));
+      void zipWriter.add(`Fonts/${font.fileName}`, new BlobReader(font.data));
     });
     pictures.forEach((picture) => {
-      zipWriter.add(
+      void zipWriter.add(
         `Pictures/${picture.fileName}`,
         new BlobReader(picture.file),
       );

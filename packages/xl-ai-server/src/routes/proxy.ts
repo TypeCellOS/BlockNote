@@ -35,6 +35,7 @@ export const proxyFetch: typeof fetch = async (request, options) => {
   // });
 
   return new Response(readable, {
+    // eslint-disable-next-line @typescript-eslint/no-misused-spread
     ...res,
     status: res.status,
     statusText: res.statusText,

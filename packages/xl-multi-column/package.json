@@ -9,7 +9,7 @@
     "directory": "packages/xl-multi-column"
   },
   "license": "GPL-3.0 OR PROPRIETARY",
-  "version": "0.51.3",
+  "version": "0.51.4",
   "files": [
     "dist",
     "types",
@@ -42,46 +42,36 @@
     }
   },
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "lint": "eslint src --max-warnings 0",
-    "test": "vitest --run",
-    "test-watch": "vitest watch",
+    "dev": "vp dev",
+    "preview": "vp preview",
+    "lint": "vp lint src",
+    "test": "vp test --run",
+    "test-watch": "vp test watch",
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "0.51.3",
-    "@blocknote/react": "0.51.3",
+    "@blocknote/core": "workspace:^",
+    "@blocknote/react": "workspace:^",
     "@tiptap/core": "^3.13.0",
     "prosemirror-model": "^1.25.4",
     "prosemirror-state": "^1.4.4",
-    "prosemirror-tables": "^1.8.3",
-    "prosemirror-transform": "^1.11.0",
-    "prosemirror-view": "^1.41.4",
-    "react-icons": "^5.5.0"
+    "prosemirror-view": "^1.41.4"
   },
   "devDependencies": {
+    "@blocknote/shared": "workspace:^",
+    "react-icons": "^5.5.0",
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
-    "eslint": "^8.57.1",
     "jsdom": "^25.0.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "rimraf": "^5.0.10",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^5.9.3",
-    "vite": "^8.0.8",
-    "vite-plugin-eslint": "^1.8.1",
-    "vitest": "^4.1.2"
+    "vite-plus": "catalog:"
   },
   "peerDependencies": {
     "react": "^18.0 || ^19.0 || >= 19.0.0-rc",
     "react-dom": "^18.0 || ^19.0 || >= 19.0.0-rc"
-  },
-  "eslintConfig": {
-    "extends": [
-      "../../.eslintrc.json"
-    ]
   }
 }

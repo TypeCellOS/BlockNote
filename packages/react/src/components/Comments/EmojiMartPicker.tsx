@@ -49,7 +49,7 @@ export default function EmojiPicker(props: any) {
   }
 
   useEffect(() => {
-    (async () => {
+    void (async () => {
       const { emojiMart } = await loadEmojiMart();
 
       instance.current = new emojiMart.Picker({ ...props, ref });

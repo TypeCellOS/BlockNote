@@ -188,7 +188,7 @@ export const sk = {
     new_comment: "Napíšte komentár...",
     edit_comment: "Upravte komentár...",
     comment_reply: "Pridať komentár...",
-  } as Record<string | "default" | "emptyDocument", string | undefined>,
+  } as Record<string, string | undefined>,
   file_blocks: {
     add_button_text: {
       image: "Pridať obrázok",

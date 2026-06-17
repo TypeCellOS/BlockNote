@@ -3,8 +3,8 @@
 import {
   CommentsExtension,
   DefaultThreadStoreAuth,
-  YjsThreadStore,
 } from "@blocknote/core/comments";
+import { YjsThreadStore } from "@blocknote/core/yjs";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";

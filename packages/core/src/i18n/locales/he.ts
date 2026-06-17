@@ -190,7 +190,7 @@ export const he: Dictionary = {
     new_comment: "כתוב תגובה...",
     edit_comment: "ערוך תגובה...",
     comment_reply: "הוסף תגובה...",
-  } as Record<string | "default" | "emptyDocument", string | undefined>,
+  } as Record<string, string | undefined>,
   file_blocks: {
     add_button_text: {
       image: "הוסף תמונה",

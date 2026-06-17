@@ -13,8 +13,15 @@ export const Editor = forwardRef<
   HTMLDivElement,
   ComponentProps["Comments"]["Editor"]
 >((props, ref) => {
-  const { className, autoFocus, onFocus, onBlur, editor, editable, ...rest } =
-    props;
+  const {
+    className,
+    autoFocus,
+    onFocus,
+    onBlur,
+    editor: _editor,
+    editable,
+    ...rest
+  } = props;
 
   assertEmpty(rest, false);
 

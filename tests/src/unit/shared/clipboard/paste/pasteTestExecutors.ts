@@ -4,7 +4,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { expect } from "vitest";
+import { expect } from "vite-plus/test";
 
 import { initTestEditor } from "../../testUtil.js";
 import { doPaste } from "../clipboardTestUtil.js";

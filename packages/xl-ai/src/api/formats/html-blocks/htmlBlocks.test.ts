@@ -1,7 +1,7 @@
 import { snapshot } from "msw-snapshot";
 import { setupServer } from "msw/node";
 import path from "path";
-import { afterAll, afterEach, beforeAll, describe, it } from "vitest";
+import { afterAll, afterEach, beforeAll, describe, it } from "vite-plus/test";
 import { testAIModels } from "../../../testUtil/testAIModels.js";
 
 import { BlockNoteEditor } from "@blocknote/core";
@@ -106,7 +106,7 @@ describe("streamToolsProvider", () => {
     // test skipped, this is only to validate type inference
     return;
 
-    // eslint-disable-next-line no-unreachable
+    /* eslint-disable no-unreachable */
     const editor = BlockNoteEditor.create();
     const streamTools = htmlBlockLLMFormat
       .getStreamToolsProvider({
@@ -118,14 +118,14 @@ describe("streamToolsProvider", () => {
 
     const executor = new StreamToolExecutor(streamTools);
 
-    executor.executeOne({
+    void executor.executeOne({
       type: "add",
       blocks: ["<p>test</p>"],
       referenceId: "1",
       position: "after",
     });
 
-    executor.executeOne({
+    void executor.executeOne({
       // @ts-expect-error
       type: "update",
       blocks: ["<p>test</p>"],
@@ -133,12 +133,13 @@ describe("streamToolsProvider", () => {
       position: "after",
     });
 
-    executor.executeOne({
+    void executor.executeOne({
       type: "add",
       // @ts-expect-error
       blocks: [{ type: "paragraph", content: "test" }],
       referenceId: "1",
       position: "after",
     });
+    /* eslint-enable no-unreachable */
   });
 });

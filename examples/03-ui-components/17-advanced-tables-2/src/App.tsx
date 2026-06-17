@@ -530,19 +530,29 @@ export default function App() {
 
   // Function to calculate totals for a table
   const calculateTableTotals = (tableBlock: Block<DefaultBlockSchema>) => {
-    if (tableBlock.type !== "table") return;
+    if (tableBlock.type !== "table") {
+      return;
+    }
 
     const rows = tableBlock.content.rows;
-    if (rows.length < 2) return; // Need at least header + 1 data row
+    if (rows.length < 2) {
+      return;
+    } // Need at least header + 1 data row
 
     let grandTotal = 0;
     const updatedRows = rows.map((row, rowIndex: number) => {
-      if (rowIndex === 0) return row; // Skip header row
-      if (rowIndex === rows.length - 1) return row; // Skip grand total row
+      if (rowIndex === 0) {
+        return row;
+      } // Skip header row
+      if (rowIndex === rows.length - 1) {
+        return row;
+      } // Skip grand total row
 
       // Helper function to extract text from a cell
       const getCellText = (cell: any): string => {
-        if (typeof cell === "string") return cell;
+        if (typeof cell === "string") {
+          return cell;
+        }
         if (cell && typeof cell === "object" && "content" in cell) {
           return cell.content?.[0]?.text || "0";
         }
@@ -583,6 +593,7 @@ export default function App() {
       const baseItemText = itemText.replace(" (eligible for discount)", "");
       if (total >= 4000) {
         updatedCells[0] = {
+          // eslint-disable-next-line @typescript-eslint/no-misused-spread
           ...row.cells[0],
           content: [
             {
@@ -594,6 +605,7 @@ export default function App() {
         };
       } else {
         updatedCells[0] = {
+          // eslint-disable-next-line @typescript-eslint/no-misused-spread
           ...row.cells[0],
           content: [
             {
@@ -646,10 +658,13 @@ export default function App() {
   return (
     <BlockNoteView
       editor={editor}
+      // eslint-disable-next-line @typescript-eslint/unbound-method -- getChanges is destructured from callback parameter, not a class
       onChange={(editor, { getChanges }) => {
         const changes = getChanges();
 
-        if (changes.length === 0 || applying.current) return;
+        if (changes.length === 0 || applying.current) {
+          return;
+        }
 
         // prevents a double onChange because we're updating the block here
         applying.current = true;

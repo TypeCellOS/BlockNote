@@ -61,7 +61,7 @@ export async function setupToolCallStreaming(
           data.toolName,
           data.toolCallId,
         );
-        appendableStream.append(toolCallStreamData.operationsStream);
+        void appendableStream.append(toolCallStreamData.operationsStream);
         toolCallStreams.set(data.toolCallId, toolCallStreamData);
         if (first) {
           first = false;
@@ -93,7 +93,7 @@ export async function setupToolCallStreaming(
         for (const data of toolCallStreams.values()) {
           if (!data.complete) {
             // this can happen in case of a network error for example
-            data.writer.abort(chat.error);
+            void data.writer.abort(chat.error);
           }
         }
         // reject(chat.error);
@@ -157,7 +157,7 @@ export async function setupToolCallStreaming(
     // TODO: it would be better to add these tool outputs "live" as they occur,
     // possibly including a callback to create checkpoints after applying a tool
     if (!errorSeen) {
-      chat.addToolOutput({
+      void chat.addToolOutput({
         state: "output-available",
         tool: toolCalls[index].toolName,
         toolCallId: toolCalls[index].toolCallId,
@@ -165,7 +165,7 @@ export async function setupToolCallStreaming(
         output: { status: "ok" },
       });
     } else {
-      chat.addToolOutput({
+      void chat.addToolOutput({
         tool: toolCalls[index].toolName,
         toolCallId: toolCalls[index].toolCallId,
         state: "output-error",
@@ -271,7 +271,7 @@ function processToolCallPart(part: any, toolCallData: ToolCallStreamData) {
   if (part.state === "input-streaming") {
     const input = part.input;
     if (input !== undefined) {
-      toolCallData.writer.write(input as any);
+      void toolCallData.writer.write(input as any);
     }
   } else if (part.state === "input-available") {
     const input = part.input;
@@ -280,8 +280,8 @@ function processToolCallPart(part: any, toolCallData: ToolCallStreamData) {
     }
     if (!toolCallData.complete) {
       toolCallData.complete = true;
-      toolCallData.writer.write(input as any);
-      toolCallData.writer.close();
+      void toolCallData.writer.write(input as any);
+      void toolCallData.writer.close();
     }
   }
 }

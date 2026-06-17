@@ -15,11 +15,7 @@ import { getBlockInfoFromTransaction } from "../../../getBlockInfoFromPos.js";
  * 3. Slice creates groupType instead of parent.type
  * 4. Operates on Transaction directly instead of state+dispatch
  */
-function sinkItem(
-  tr: Transaction,
-  itemType: NodeType,
-  groupType: NodeType,
-) {
+function sinkItem(tr: Transaction, itemType: NodeType, groupType: NodeType) {
   const { $from, $to } = tr.selection;
   const range = $from.blockRange(
     $to,

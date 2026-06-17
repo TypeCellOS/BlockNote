@@ -6,7 +6,7 @@ import {
   formatKeyboardShortcut,
 } from "@blocknote/core";
 import { useCallback } from "react";
-import { IconType } from "react-icons";
+import type { IconType } from "../../../icons.js";
 import {
   RiBold,
   RiCodeFill,
@@ -92,7 +92,7 @@ export const BasicTextStyleButton = <Style extends BasicTextStyle>(props: {
       editor.focus();
       editor.toggleStyles({ [style]: true } as any);
     },
-    [editor, props],
+    [editor],
   );
 
   if (state === undefined) {

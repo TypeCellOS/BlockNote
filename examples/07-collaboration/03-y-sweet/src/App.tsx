@@ -3,6 +3,7 @@
 import { useYDoc, useYjsProvider, YDocProvider } from "@y-sweet/react";
 import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
+import { withCollaboration } from "@blocknote/core/yjs";
 
 import "@blocknote/mantine/style.css";
 
@@ -23,13 +24,15 @@ function Document() {
   const provider = useYjsProvider();
   const doc = useYDoc();
 
-  const editor = useCreateBlockNote({
-    collaboration: {
-      provider,
-      fragment: doc.getXmlFragment("blocknote"),
-      user: { color: "#ff0000", name: "My Username" },
-    },
-  });
+  const editor = useCreateBlockNote(
+    withCollaboration({
+      collaboration: {
+        provider,
+        fragment: doc.getXmlFragment("blocknote"),
+        user: { color: "#ff0000", name: "My Username" },
+      },
+    }),
+  );
 
   return <BlockNoteView editor={editor} />;
 }

@@ -29,9 +29,9 @@ export default function App() {
     ],
   });
 
-  const onChange = async () => {
+  const onChange = () => {
     // Converts the editor's contents from Block objects to Markdown and store to state.
-    const markdown = await editor.blocksToMarkdownLossy(editor.document);
+    const markdown = editor.blocksToMarkdownLossy(editor.document);
     setMarkdown(markdown);
   };
 

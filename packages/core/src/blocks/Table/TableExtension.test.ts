@@ -1,6 +1,13 @@
 import { TextSelection } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+} from "vite-plus/test";
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { PartialBlock } from "../defaultBlocks.js";
@@ -111,11 +118,7 @@ describe("Table Enter keyboard shortcut", () => {
 
     editor.transact((tr) =>
       tr.setSelection(
-        CellSelection.create(
-          tr.doc,
-          cellPositions[0],
-          cellPositions[1],
-        ) as any,
+        CellSelection.create(tr.doc, cellPositions[0], cellPositions[1]) as any,
       ),
     );
 

@@ -21,7 +21,8 @@ window.React = React;
 
 const modules = import.meta.glob("../../examples/**/*/App.tsx");
 
-const editors = examples;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const editors = examples as any;
 
 function Root() {
   // const linkStyles = (theme) => ({
@@ -73,7 +74,7 @@ function Root() {
             />
             <AppShell.Section grow component={ScrollArea} mx="-xs" px="xs">
               {Object.values(editors)
-                .flatMap((g) => g.projects)
+                .flatMap((g: any) => g.projects)
                 .filter((editor) =>
                   editor.title
                     .toLowerCase()
@@ -114,7 +115,7 @@ const App = (props: { project: (typeof examples.basic)["projects"][0] }) => {
   const [ExampleComponent, setExampleComponent] = React.useState<any>(null);
 
   React.useEffect(() => {
-    (async () => {
+    void (async () => {
       // load app async
       const moduleName = "../../" + props.project.pathFromRoot + "/src/App.tsx";
       const module = modules[moduleName];
@@ -135,7 +136,7 @@ const router = createBrowserRouter([
     path: "/",
     element: <Root />,
     children: Object.values(editors)
-      .flatMap((g) => g.projects)
+      .flatMap((g: any) => g.projects)
       .map((editor) => ({
         path: editor.fullSlug,
         element: <App project={editor} />,

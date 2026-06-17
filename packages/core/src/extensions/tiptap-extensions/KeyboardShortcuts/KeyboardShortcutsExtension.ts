@@ -137,8 +137,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const selectionAtBlockStart =
-              state.selection.from ===
-              blockInfo.blockContent.beforePos + 1;
+              state.selection.from === blockInfo.blockContent.beforePos + 1;
             if (!selectionAtBlockStart) {
               return false;
             }
@@ -479,8 +478,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             }
 
             const selectionAtBlockEnd =
-              state.selection.from ===
-              blockInfo.blockContent.afterPos - 1;
+              state.selection.from === blockInfo.blockContent.afterPos - 1;
             if (!selectionAtBlockEnd) {
               return false;
             }

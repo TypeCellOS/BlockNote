@@ -12,8 +12,7 @@ const initialContent = [
   },
   {
     type: "paragraph" as const,
-    content:
-      "Notice whether the menu fits inside the box or escapes it.",
+    content: "Notice whether the menu fits inside the box or escapes it.",
   },
   {
     type: "paragraph" as const,

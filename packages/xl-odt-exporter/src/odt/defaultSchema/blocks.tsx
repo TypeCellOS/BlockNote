@@ -12,7 +12,7 @@ import { ODTExporter } from "../odtExporter.js";
 import { multiColumnSchema } from "@blocknote/xl-multi-column";
 
 export const getTabs = (nestingLevel: number) => {
-  return Array.from({ length: nestingLevel }, () => <text:tab />);
+  return Array.from({ length: nestingLevel }, (_, i) => <text:tab key={i} />);
 };
 
 const createParagraphStyle = (

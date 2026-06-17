@@ -153,7 +153,7 @@ export default function App() {
 
   const [html, setHTML] = useState("");
 
-  const ref = useRef<HTMLDivElement>(null);
+  const _ref = useRef<HTMLDivElement>(null);
   const systemColorScheme = usePrefersColorScheme();
   const theme =
     systemColorScheme === "no-preference" ? "light" : systemColorScheme;
@@ -161,10 +161,12 @@ export default function App() {
   // Function to update the rendered static HTML.
   const updateRenderedHTML = useCallback(async () => {
     setHTML(editor.blocksToFullHTML(editor.document));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   // Updates rendered static HTML with initial editor content.
   useEffect(() => {
-    updateRenderedHTML();
+    void updateRenderedHTML();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Renders the editor instance and HTML output.
@@ -179,7 +181,7 @@ export default function App() {
       <div className="view-wrapper">
         <div className="view-label">Rendered Static HTML Output</div>
         <div className="view">
-          {/* To make the static HTML look identical to the editor, we need to 
+          {/* To make the static HTML look identical to the editor, we need to
           add these two wrapping divs to the exported blocks. These mock the 
           wrapping elements of a BlockNote editor, and are needed as the 
           exported HTML only holds the contents of the editor. You need will 

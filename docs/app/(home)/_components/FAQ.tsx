@@ -36,7 +36,7 @@ export const FAQ: React.FC = () => {
         <div className="grid gap-x-12 gap-y-16 md:grid-cols-2">
           {faqs.map((faq, index) => (
             <div key={index} className="flex flex-col gap-4">
-              <h3 className="font-sans text-xl font-bold leading-tight text-stone-900">
+              <h3 className="font-sans text-xl leading-tight font-bold text-stone-900">
                 {faq.question}
               </h3>
               <p className="font-sans text-base leading-relaxed text-stone-600">

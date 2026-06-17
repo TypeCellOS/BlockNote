@@ -49,7 +49,7 @@ const UniqueID = Extension.create({
   addOptions() {
     return {
       attributeName: "id",
-      types: [],
+      types: [] as string[],
       setIdAttribute: false,
       isWithinEditor: undefined as ((element: Element) => boolean) | undefined,
       generateID: () => {
@@ -67,7 +67,6 @@ const UniqueID = Extension.create({
 
         return uuidv4();
       },
-      filterTransaction: null,
     };
   },
   addGlobalAttributes() {
@@ -139,10 +138,7 @@ const UniqueID = Extension.create({
           const docChanges =
             transactions.some((transaction) => transaction.docChanged) &&
             !oldState.doc.eq(newState.doc);
-          const filterTransactions =
-            this.options.filterTransaction &&
-            transactions.some((tr) => !this.options.filterTransaction?.(tr));
-          if (!docChanges || filterTransactions) {
+          if (!docChanges) {
             return;
           }
           const { tr } = newState;

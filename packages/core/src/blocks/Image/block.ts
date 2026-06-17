@@ -109,7 +109,7 @@ export const imageRender =
     const image = document.createElement("img");
     image.className = "bn-visual-media";
     if (editor.resolveFileUrl) {
-      editor.resolveFileUrl(block.props.url).then((downloadUrl) => {
+      void editor.resolveFileUrl(block.props.url).then((downloadUrl) => {
         image.src = downloadUrl;
       });
     } else {

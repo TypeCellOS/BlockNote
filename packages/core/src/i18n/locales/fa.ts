@@ -156,7 +156,7 @@ export const fa = {
     new_comment: "یک دیدگاه بنویسید...",
     edit_comment: "ویرایش دیدگاه...",
     comment_reply: "افزودن دیدگاه...",
-  } as Record<string | "default" | "emptyDocument", string | undefined>,
+  } as Record<string, string | undefined>,
   file_blocks: {
     add_button_text: {
       image: "افزودن تصویر",

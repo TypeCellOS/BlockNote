@@ -1,9 +1,58 @@
+import { execFileSync } from "node:child_process";
 import { globSync } from "tinyglobby";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const dir = path.parse(fileURLToPath(import.meta.url)).dir;
+const workspaceRoot = path.resolve(dir, "../../..");
+
+/**
+ * Writes a generated file, creating parent directories as needed, and records
+ * the absolute path in `written` so it can be formatted afterwards.
+ */
+export function writeGeneratedFile(
+  target: string,
+  content: string,
+  written: string[],
+) {
+  const absolute = path.resolve(target);
+  fs.mkdirSync(path.dirname(absolute), { recursive: true });
+  fs.writeFileSync(absolute, content);
+  written.push(absolute);
+}
+
+/**
+ * Formats the given files in-place using `vp fmt`. Files that are excluded by
+ * oxfmt ignore rules (e.g. *.mdx) are tolerated. Runs in chunks to avoid argv
+ * length limits.
+ */
+export function formatFiles(files: string[]) {
+  const unique = [...new Set(files.map((file) => path.resolve(file)))];
+  if (unique.length === 0) {
+    return;
+  }
+
+  const chunkSize = 200;
+  for (let i = 0; i < unique.length; i += chunkSize) {
+    const chunk = unique.slice(i, i + chunkSize);
+    try {
+      execFileSync("vp", ["fmt", ...chunk, "--write"], {
+        encoding: "utf-8",
+        cwd: workspaceRoot,
+      });
+    } catch (err: any) {
+      const output = `${err?.stdout ?? ""}${err?.stderr ?? ""}`;
+      if (output.includes("Expected at least one target file")) {
+        // All files in this chunk were excluded by oxfmt ignore rules.
+        continue;
+      }
+      // eslint-disable-next-line no-console
+      console.error(output);
+      throw err;
+    }
+  }
+}
 
 export type Project = {
   /**
@@ -95,12 +144,14 @@ export function addTitleToGroups(grouped: ReturnType<typeof groupProjects>) {
 
   const groupsWithTitles = Object.fromEntries(
     Object.entries(grouped).map(([key, group]) => {
-      const title = meta[key];
-      if (!title) {
+      if (!(key in meta)) {
         throw new Error(
           `Missing group title for ${key}, add to docs/content/examples/meta.json?`,
         );
       }
+
+      const title = meta[key as keyof typeof meta];
+
       return [
         key,
         {

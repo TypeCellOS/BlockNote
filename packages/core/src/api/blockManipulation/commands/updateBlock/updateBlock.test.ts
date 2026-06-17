@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 
 import { getBlockInfo } from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
@@ -17,7 +17,7 @@ describe("Test updateBlock typing", () => {
           type: "non-existing",
         },
       );
-    } catch (e) {
+    } catch {
       // ID doesn't exist, which is fine - this is a compile-time check
     }
   });
@@ -34,7 +34,7 @@ describe("Test updateBlock typing", () => {
           },
         },
       );
-    } catch (e) {
+    } catch {
       // ID doesn't exist, which is fine - this is a compile-time check
     }
     try {
@@ -47,7 +47,7 @@ describe("Test updateBlock typing", () => {
           },
         },
       );
-    } catch (e) {
+    } catch {
       // ID doesn't exist, which is fine - this is a compile-time check
     }
   });

@@ -155,7 +155,7 @@ export function Header({
                 ))}
               </ul>
             </div>
-            <ul className="-me-1.5 ms-auto flex flex-row items-center lg:hidden">
+            <ul className="ms-auto -me-1.5 flex flex-row items-center lg:hidden">
               {searchToggle.enabled !== false &&
                 (searchToggle.components?.sm ?? (
                   <SearchToggle className="p-2" hideIfDisabled />
@@ -184,7 +184,7 @@ export function Header({
                   className="first:mt-4 sm:hidden"
                 />
               ))}
-            <div className="-ms-1.5 flex flex-row items-center justify-end gap-2 pb-4 pt-2">
+            <div className="-ms-1.5 flex flex-row items-center justify-end gap-2 pt-2 pb-4">
               {menuItems.filter(isSecondary).map((item, i) => (
                 <MobileMenuLinkItem
                   key={i}
@@ -211,14 +211,14 @@ export function Header({
               sideOffset={5}
               align="start" // added
               anchor={listRef} // added
-              className="h-(--positioner-height) w-(--positioner-width) max-w-(--available-width) duration-(--duration) ease-(--easing) z-200 transition-[left,right] data-[instant]:transition-none"
+              className="z-200 h-(--positioner-height) w-(--positioner-width) max-w-(--available-width) transition-[left,right] duration-(--duration) ease-(--easing) data-[instant]:transition-none"
               style={{
                 ["--duration" as string]: "0.35s",
                 ["--easing" as string]: "cubic-bezier(0.22, 1, 0.36, 1)",
               }}
             >
               {/* bg changed from fd-background/80 to white */}
-              <NavigationMenu.Popup className="w-(--popup-width) h-(--popup-height) max-w-(--fd-layout-width,1400px) origin-(--transform-origin) duration-(--duration) ease-(--easing) relative rounded-xl border bg-white shadow-lg backdrop-blur-lg transition-[opacity,transform,width,height,scale,translate] data-[ending-style]:scale-90 data-[starting-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0 data-[ending-style]:duration-150">
+              <NavigationMenu.Popup className="relative h-(--popup-height) w-(--popup-width) max-w-(--fd-layout-width,1400px) origin-(--transform-origin) rounded-xl border bg-white shadow-lg backdrop-blur-lg transition-[opacity,transform,width,height,scale,translate] duration-(--duration) ease-(--easing) data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[starting-style]:scale-90 data-[starting-style]:opacity-0">
                 <NavigationMenu.Viewport className="relative size-full overflow-hidden" />
               </NavigationMenu.Popup>
             </NavigationMenu.Positioner>
@@ -233,9 +233,13 @@ function MobileMenuCollapsible(props: ComponentProps<typeof Collapsible>) {
   const [open, setOpen] = useState(false);
 
   const onClick = useEffectEvent((e: Event) => {
-    if (!open) return;
+    if (!open) {
+      return;
+    }
     const header = document.getElementById("nd-nav");
-    if (header && !header.contains(e.target as HTMLElement)) setOpen(false);
+    if (header && !header.contains(e.target as HTMLElement)) {
+      setOpen(false);
+    }
   });
 
   useEffect(() => {
@@ -262,7 +266,9 @@ function MobileMenuCollapsible(props: ComponentProps<typeof Collapsible>) {
 }
 
 function isSecondary(item: LinkItemType): boolean {
-  if ("secondary" in item && item.secondary != null) return item.secondary;
+  if ("secondary" in item && item.secondary != null) {
+    return item.secondary;
+  }
 
   return item.type === "icon";
 }
@@ -292,7 +298,7 @@ function HeaderRoot({
             )}
             {...props}
           >
-            <div className="max-w-(--fd-layout-width) mx-auto">{children}</div>
+            <div className="mx-auto max-w-(--fd-layout-width)">{children}</div>
           </nav>
         )}
       />
@@ -307,7 +313,9 @@ function NavigationMenuLinkItem({
   item: LinkItemType;
   className?: string;
 }) {
-  if (item.type === "custom") return <div {...props}>{item.children}</div>;
+  if (item.type === "custom") {
+    return <div {...props}>{item.children}</div>;
+  }
 
   if (item.type === "menu") {
     // modified significantly to make groups
@@ -442,8 +450,9 @@ function MobileMenuLinkItem({
   item: LinkItemType;
   className?: string;
 }) {
-  if (item.type === "custom")
+  if (item.type === "custom") {
     return <div className={cn("grid", className)}>{item.children}</div>;
+  }
   const { setOpen } = use(MobileMenuContext)!;
 
   if (item.type === "menu") {

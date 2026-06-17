@@ -23,7 +23,7 @@ import "@blocknote/xl-ai/style.css";
 import { useEffect, useState } from "react";
 import YPartyKitProvider from "y-partykit/provider";
 import * as Y from "yjs";
-// eslint-disable-next-line import/no-extraneous-dependencies
+// eslint-disable-next-line import-eslint/no-extraneous-dependencies
 import { EditorView } from "prosemirror-view";
 
 import { DefaultChatTransport } from "ai";
@@ -196,9 +196,11 @@ export default function App() {
         and replace it for one with an "AI button" (defined below).
         (See "Formatting Toolbar" in docs)
         */}
-        <FormattingToolbarController formattingToolbar={FormattingToolbarWithAI} />
+        <FormattingToolbarController
+          formattingToolbar={FormattingToolbarWithAI}
+        />
 
-        {/* We disabled the default SlashMenu with `slashMenu=false` 
+        {/* We disabled the default SlashMenu with `slashMenu=false`
         and replace it for one with an AI option (defined below). 
         (See "Suggestion Menus" in docs)
         */}
@@ -214,6 +216,7 @@ export default function App() {
         <div className="two-way-sync">
           {Array.from({ length: numGhostWriters }).map((_, index) => (
             <iframe
+              key={index}
               src={`${window.location.origin}${
                 window.location.pathname
               }?room=${roomName}&index=${index + 1}&hideMenu=true`}

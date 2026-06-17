@@ -364,7 +364,7 @@ export class ExtensionManager {
           const rules = [] as InputRule[];
           Array.from(inputRulesByPriority.keys())
             // We sort the rules by their priority (the key)
-            .sort()
+            .sort((a, b) => a - b)
             .reverse()
             .forEach((priority) => {
               // Append in reverse priority order

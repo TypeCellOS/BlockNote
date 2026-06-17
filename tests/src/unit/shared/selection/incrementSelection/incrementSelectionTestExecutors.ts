@@ -5,7 +5,7 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import { TextSelection } from "@tiptap/pm/state";
-import { expect } from "vitest";
+import { expect } from "vite-plus/test";
 import { IncrementSelectionTestCase } from "./incrementSelectionTestCase.js";
 
 export const testIncrementSelectionStart = async <

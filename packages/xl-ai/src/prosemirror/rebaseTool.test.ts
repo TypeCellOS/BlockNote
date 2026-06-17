@@ -1,5 +1,5 @@
 import { BlockNoteEditor, getBlockInfo, getNodeById } from "@blocknote/core";
-import { expect, it } from "vitest";
+import { expect, it } from "vite-plus/test";
 import { getApplySuggestionsTr, rebaseTool } from "./rebaseTool.js";
 
 function getExampleEditorWithSuggestions() {

@@ -37,7 +37,9 @@ export const ExperimentalMobileFormattingToolbarController = (props: {
 
   useEffect(() => {
     const el = divRef.current;
-    if (!el) {return;}
+    if (!el) {
+      return;
+    }
 
     const setOffset = (px: number) => {
       el.style.setProperty(
@@ -50,10 +52,14 @@ export const ExperimentalMobileFormattingToolbarController = (props: {
 
     const scrollSelectionIntoView = () => {
       const sel = window.getSelection();
-      if (!sel || sel.rangeCount === 0) {return;}
+      if (!sel || sel.rangeCount === 0) {
+        return;
+      }
       const rect = sel.getRangeAt(0).getBoundingClientRect();
       const vp = window.visualViewport;
-      if (!vp) {return;}
+      if (!vp) {
+        return;
+      }
       const toolbarHeight = el.getBoundingClientRect().height || 44;
       const visibleBottom = vp.offsetTop + vp.height - toolbarHeight;
       if (rect.bottom > visibleBottom) {
@@ -90,14 +96,18 @@ export const ExperimentalMobileFormattingToolbarController = (props: {
 
     // Tier 2: Visual Viewport API fallback (Safari iOS, Firefox Android)
     const vp = window.visualViewport;
-    if (!vp) {return;}
+    if (!vp) {
+      return;
+    }
 
     let lastKnownKeyboardHeight = 0;
 
     const update = () => {
       const layoutHeight = document.documentElement.clientHeight;
       const keyboardHeight = layoutHeight - vp.height - vp.offsetTop;
-      if (keyboardHeight > 50) {lastKnownKeyboardHeight = keyboardHeight;}
+      if (keyboardHeight > 50) {
+        lastKnownKeyboardHeight = keyboardHeight;
+      }
       setOffset(keyboardHeight);
       clearTimeout(scrollTimer);
       scrollTimer = setTimeout(scrollSelectionIntoView, 100);

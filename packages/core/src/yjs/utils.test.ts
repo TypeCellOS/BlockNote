@@ -1,6 +1,6 @@
 import { Block, docToBlocks } from "../index.js";
 import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import * as Y from "yjs";
 import {
   _blocksToProsemirrorNode,

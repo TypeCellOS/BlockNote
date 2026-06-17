@@ -10,7 +10,7 @@ export const GridSuggestionMenuLoader = forwardRef<
 >((props, ref) => {
   const {
     className,
-    children, // unused, using "dots" instead
+    children: _children, // unused, using "dots" instead
     columns,
     ...rest
   } = props;

@@ -33,9 +33,9 @@ export function getProviderOverrides(model: Exclude<LanguageModel, string>) {
   );
 }
 
-export class ClientSideTransport<UI_MESSAGE extends UIMessage>
-  implements ChatTransport<UI_MESSAGE>
-{
+export class ClientSideTransport<
+  UI_MESSAGE extends UIMessage,
+> implements ChatTransport<UI_MESSAGE> {
   constructor(
     public readonly opts: {
       /**
@@ -107,7 +107,7 @@ export class ClientSideTransport<UI_MESSAGE extends UIMessage>
   > {
     const stream = this.opts.stream ?? true;
     const toolDefinitions = (body as any).toolDefinitions;
-    const tools = await toolDefinitionsToToolSet(toolDefinitions);
+    const tools = toolDefinitionsToToolSet(toolDefinitions);
 
     if (stream) {
       // this can be used to simulate initial network errors

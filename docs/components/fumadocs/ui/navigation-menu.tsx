@@ -1,7 +1,7 @@
-'use client';
-import * as React from 'react';
-import { NavigationMenu as Primitive } from '@base-ui/react/navigation-menu';
-import { cn } from '../../../lib/fumadocs/cn';
+"use client";
+import * as React from "react";
+import { NavigationMenu as Primitive } from "@base-ui/react/navigation-menu";
+import { cn } from "../../../lib/fumadocs/cn";
 
 export type NavigationMenuContentProps = Primitive.Content.Props;
 export type NavigationMenuTriggerProps = Primitive.Trigger.Props;
@@ -16,7 +16,12 @@ const NavigationMenuItem = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <Primitive.Item
     ref={ref}
-    className={(s) => cn('list-none', typeof className === 'function' ? className(s) : className)}
+    className={(s) =>
+      cn(
+        "list-none",
+        typeof className === "function" ? className(s) : className,
+      )
+    }
     {...props}
   >
     {children}
@@ -43,14 +48,14 @@ const NavigationMenuContent = React.forwardRef<
     ref={ref}
     className={(s) =>
       cn(
-        'size-full p-4',
-        'transition-[opacity,transform,translate] duration-(--duration) ease-(--easing)',
-        'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0',
-        'data-[starting-style]:data-[activation-direction=left]:-translate-x-1/2',
-        'data-[starting-style]:data-[activation-direction=right]:translate-x-1/2',
-        'data-[ending-style]:data-[activation-direction=left]:translate-x-1/2',
-        'data-[ending-style]:data-[activation-direction=right]:-translate-x-1/2',
-        typeof className === 'function' ? className(s) : className,
+        "size-full p-4",
+        "transition-[opacity,transform,translate] duration-(--duration) ease-(--easing)",
+        "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
+        "data-[starting-style]:data-[activation-direction=left]:-translate-x-1/2",
+        "data-[starting-style]:data-[activation-direction=right]:translate-x-1/2",
+        "data-[ending-style]:data-[activation-direction=left]:translate-x-1/2",
+        "data-[ending-style]:data-[activation-direction=right]:-translate-x-1/2",
+        typeof className === "function" ? className(s) : className,
       )
     }
     {...props}

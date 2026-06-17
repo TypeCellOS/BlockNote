@@ -4,7 +4,7 @@ import "@blocknote/mantine/style.css";
 import { FormattingToolbar } from "@blocknote/react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 
 describe("FormattingToolbar unmount", () => {
   let div: HTMLDivElement;

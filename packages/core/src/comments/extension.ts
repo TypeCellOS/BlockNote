@@ -1,7 +1,6 @@
 import { Node } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
-import { getRelativeSelection, ySyncPluginKey } from "y-prosemirror";
 import {
   createExtension,
   createStore,
@@ -351,21 +350,10 @@ export const CommentsExtension = createExtension(
       }) {
         const thread = await threadStore.createThread(options);
         if (threadStore.addThreadToDocument) {
-          const view = editor.prosemirrorView!;
-          const pmSelection = view.state.selection;
-          const ystate = ySyncPluginKey.getState(view.state);
-          const selection = {
-            prosemirror: {
-              head: pmSelection.head,
-              anchor: pmSelection.anchor,
-            },
-            yjs: ystate
-              ? getRelativeSelection(ystate.binding, view.state)
-              : undefined,
-          };
           await threadStore.addThreadToDocument({
             threadId: thread.id,
-            selection,
+            selection: editor.transact((tr) => tr.selection),
+            editor,
           });
         } else {
           (editor as any)._tiptapEditor.commands.setMark(markType, {

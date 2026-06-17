@@ -57,7 +57,12 @@ export default function App() {
         transport: new DefaultChatTransport({
           // (see packages/xl-ai-server/src/routes/vercelAiSdkPersistence.ts)
           api: `${BASE_URL}/server-persistence/streamText`,
-          prepareSendMessagesRequest({ id, body, messages, requestMetadata }) {
+          prepareSendMessagesRequest({
+            id,
+            body,
+            messages,
+            requestMetadata: _requestMetadata,
+          }) {
             // we don't send the messages, just the information we need to compose / append messages server-side:
             // - the conversation id
             // - the new (last) message to send
@@ -132,9 +137,11 @@ export default function App() {
         and replace it for one with an "AI button" (defined below).
         (See "Formatting Toolbar" in docs)
         */}
-        <FormattingToolbarController formattingToolbar={FormattingToolbarWithAI} />
+        <FormattingToolbarController
+          formattingToolbar={FormattingToolbarWithAI}
+        />
 
-        {/* We disabled the default SlashMenu with `slashMenu=false` 
+        {/* We disabled the default SlashMenu with `slashMenu=false`
         and replace it for one with an AI option (defined below). 
         (See "Suggestion Menus" in docs)
         */}

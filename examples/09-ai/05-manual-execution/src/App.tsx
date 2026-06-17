@@ -76,7 +76,7 @@ export default function App() {
             });
             // accept the changes after 1 second
             await new Promise((resolve) => setTimeout(resolve, 1000));
-            await editor.getExtension(AIExtension)?.acceptChanges();
+            editor.getExtension(AIExtension)?.acceptChanges();
           }}
         >
           Update first block
@@ -105,7 +105,7 @@ export default function App() {
             const writer = executor.writable.getWriter();
 
             // write a partial update
-            writer.write({
+            void writer.write({
               operation: {
                 type: "update",
                 id: blockToChange,
@@ -119,7 +119,7 @@ export default function App() {
               metadata: {},
             });
             await new Promise((resolve) => setTimeout(resolve, 3000));
-            writer.write({
+            void writer.write({
               operation: {
                 type: "update",
                 id: blockToChange,
@@ -138,7 +138,7 @@ export default function App() {
 
             // accept the changes after 1 second
             await new Promise((resolve) => setTimeout(resolve, 1000));
-            await editor.getExtension(AIExtension)?.acceptChanges();
+            editor.getExtension(AIExtension)?.acceptChanges();
           }}
         >
           Update first block (streaming)
@@ -167,14 +167,14 @@ export default function App() {
             const writer = executor.writable.getWriter();
 
             // write a partial update, notice how the JSON is cut off (simulating a streaming json response)
-            writer.write(
+            void writer.write(
               `{
   "type": "update",
   "id": ${JSON.stringify(blockToChange + "$")},
   "block": "<p>This Open source software like Hello World refers to computer programs, this is a longer update, let's write a first sentence that's quite long long long long here.`,
             );
             await new Promise((resolve) => setTimeout(resolve, 3000));
-            writer.write(`{
+            void writer.write(`{
   "type": "update",
   "id": ${JSON.stringify(blockToChange + "$")},
   "block":
@@ -186,7 +186,7 @@ export default function App() {
 
             // accept the changes after 1 second
             await new Promise((resolve) => setTimeout(resolve, 1000));
-            await editor.getExtension(AIExtension)?.acceptChanges();
+            editor.getExtension(AIExtension)?.acceptChanges();
           }}
         >
           Update first block (streaming strings)

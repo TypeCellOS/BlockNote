@@ -188,7 +188,7 @@ export const en = {
     new_comment: "Write a comment...",
     edit_comment: "Edit comment...",
     comment_reply: "Add comment...",
-  } as Record<string | "default" | "emptyDocument", string | undefined>,
+  } as Record<string, string | undefined>,
   file_blocks: {
     add_button_text: {
       image: "Add image",

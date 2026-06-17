@@ -5,10 +5,10 @@
   "private": true,
   "version": "0.12.4",
   "scripts": {
-    "start": "vite",
-    "dev": "vite",
-    "build:prod": "tsc && vite build",
-    "preview": "vite preview"
+    "start": "vp dev",
+    "dev": "vp dev",
+    "build:prod": "tsc && vp build",
+    "preview": "vp preview"
   },
   "dependencies": {
     "@blocknote/ariakit": "latest",
@@ -20,17 +20,17 @@
     "@mantine/hooks": "^9.0.2",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "@liveblocks/client": "^3.17.0",
-    "@liveblocks/react": "^3.17.0",
-    "@liveblocks/react-blocknote": "^3.17.0",
-    "@liveblocks/react-tiptap": "^3.17.0",
-    "@liveblocks/react-ui": "^3.17.0",
+    "@liveblocks/client": "^3.19.5",
+    "@liveblocks/react": "^3.19.5",
+    "@liveblocks/react-blocknote": "^3.19.5",
+    "@liveblocks/react-tiptap": "^3.19.5",
+    "@liveblocks/react-ui": "^3.19.5",
     "yjs": "^13.6.27"
   },
   "devDependencies": {
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
-    "vite": "^8.0.8"
+    "vite-plus": "catalog:"
   }
 }

@@ -20,7 +20,6 @@ permissions:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  pnpm_config_store_dir: ./node_modules/.pnpm-store
 
 jobs:
   fresh-install-unit-tests:
@@ -30,23 +29,20 @@ jobs:
 
     steps:
       - id: checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
 
-      - id: install_pnpm
-        name: Install pnpm
-        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
-
-      - id: setup_node
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+      - id: setup_vp
+        uses: voidzero-dev/setup-vp@2dec1e33f4ab2c6d5bce1b0c4607961bb1a3f7a1 # v1
         with:
-          node-version-file: ".nvmrc"
-          # Intentionally no pnpm cache — we want fresh prod dep resolution
+          node-version-file: ".node-version"
+          # Intentionally no install cache — we want fresh prod dep resolution.
+          cache: false
 
       - id: install_dependencies
         name: Install dependencies
-        run: pnpm install
+        run: vp install
 
       - id: update_prod_deps
         name: Update prod deps of published packages
@@ -67,7 +63,7 @@ jobs:
             });
           ")
           echo "Updating prod deps for: $FILTERS"
-          eval pnpm update --prod $FILTERS
+          eval vp update --prod $FILTERS
 
       - id: dedupe_deps
         name: Dedupe transitive dependencies
@@ -80,19 +76,15 @@ jobs:
         # Dedupe only rewrites the lockfile — it does NOT modify package.json,
         # so the examples' "@blocknote/*": "latest" specs (which is what
         # CodeSandbox users see) stay intact.
-        run: pnpm dedupe
+        run: vp dedupe
 
       - id: build_packages
         name: Build packages
-        run: pnpm run build
-        env:
-          NX_SKIP_NX_CACHE: "true"
+        run: vp run -r build
 
       - id: run_unit_tests
         name: Run unit tests
-        run: pnpm run test
-        env:
-          NX_SKIP_NX_CACHE: "true"
+        run: vp run -r test
 
       - name: Notify Slack on workflow failure
         if: ${{ failure() }}
@@ -105,8 +97,7 @@ jobs:
           RUN_ATTEMPT: ${{ github.run_attempt }}
           BRANCH: ${{ github.ref_name }}
           STEPS_CHECKOUT_OUTCOME: ${{ steps.checkout.outcome }}
-          STEPS_INSTALL_PNPM_OUTCOME: ${{ steps.install_pnpm.outcome }}
-          STEPS_SETUP_NODE_OUTCOME: ${{ steps.setup_node.outcome }}
+          STEPS_SETUP_VP_OUTCOME: ${{ steps.setup_vp.outcome }}
           STEPS_INSTALL_DEPENDENCIES_OUTCOME: ${{ steps.install_dependencies.outcome }}
           STEPS_UPDATE_PROD_DEPS_OUTCOME: ${{ steps.update_prod_deps.outcome }}
           STEPS_DEDUPE_DEPS_OUTCOME: ${{ steps.dedupe_deps.outcome }}
@@ -121,10 +112,8 @@ jobs:
           failed_step="Unknown step"
           if [ "${STEPS_CHECKOUT_OUTCOME}" = "failure" ]; then
             failed_step="Checkout repository"
-          elif [ "${STEPS_INSTALL_PNPM_OUTCOME}" = "failure" ]; then
-            failed_step="Install pnpm"
-          elif [ "${STEPS_SETUP_NODE_OUTCOME}" = "failure" ]; then
-            failed_step="Setup Node.js"
+          elif [ "${STEPS_SETUP_VP_OUTCOME}" = "failure" ]; then
+            failed_step="Setup Vite+"
           elif [ "${STEPS_INSTALL_DEPENDENCIES_OUTCOME}" = "failure" ]; then
             failed_step="Install dependencies"
           elif [ "${STEPS_UPDATE_PROD_DEPS_OUTCOME}" = "failure" ]; then

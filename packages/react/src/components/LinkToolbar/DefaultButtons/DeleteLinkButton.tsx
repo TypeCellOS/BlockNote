@@ -12,6 +12,7 @@ export const DeleteLinkButton = (
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
+  // eslint-disable-next-line @typescript-eslint/unbound-method -- deleteLink is a plain object method, not a class method
   const { deleteLink } = useExtension(LinkToolbarExtension);
 
   return (

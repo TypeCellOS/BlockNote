@@ -52,6 +52,7 @@ BASIC STYLES
 .bn-trailing-block {
   cursor: text;
   height: 30px;
+  user-select: none;
 }
 
 /*

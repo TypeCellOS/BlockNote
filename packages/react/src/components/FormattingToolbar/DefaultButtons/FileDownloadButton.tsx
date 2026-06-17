@@ -55,7 +55,7 @@ export const FileDownloadButton = () => {
       if (!editor.resolveFileUrl) {
         window.open(sanitizeUrl(block.props.url, window.location.href));
       } else {
-        editor
+        void editor
           .resolveFileUrl(block.props.url)
           .then((downloadUrl) =>
             window.open(sanitizeUrl(downloadUrl, window.location.href)),
