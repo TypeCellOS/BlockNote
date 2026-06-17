@@ -31,6 +31,8 @@ RUN corepack enable && corepack prepare pnpm@11.5.1 --activate
 # the entire input to `pnpm install`, so editing package *source* can't bust this
 # layer (or the install below); only a manifest or the lockfile changing does.
 COPY --parents pnpm-lock.yaml pnpm-workspace.yaml **/package.json ./
+# pnpm patches are referenced by the lockfile and required during install.
+COPY patches ./patches
 
 # Install workspace deps (Linux binaries) + bootstrap the vite-plus toolchain
 # (the root `prepare` script runs `vp config`, which fetches vp's node runtime).

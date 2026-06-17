@@ -26,6 +26,26 @@ done
 [ "$#" -gt 0 ] && shift
 entrypoint_args=("$@")
 
+# Warn if the image may be stale: check whether any file that affects the
+# installed deps (lockfile, patches, or any package.json) is newer than the
+# image. Rebuilding is cheap when layers are cached; run `vp run e2e:image`.
+if image_date=$(docker inspect --format '{{.Metadata.LastTagTime}}' blocknote-e2e 2>/dev/null); then
+  image_epoch=$(date -d "$image_date" +%s 2>/dev/null || date -j -f "%Y-%m-%dT%H:%M:%S" "${image_date%%.*}" +%s 2>/dev/null || echo 0)
+  stale_file=""
+  for f in pnpm-lock.yaml patches/* $(find . -name package.json -not -path '*/node_modules/*' -not -path '*/.git/*'); do
+    [ -f "$f" ] || continue
+    file_epoch=$(date -r "$f" +%s 2>/dev/null || echo 0)
+    if [ "$file_epoch" -gt "$image_epoch" ]; then
+      stale_file="$f"
+      break
+    fi
+  done
+  if [ -n "$stale_file" ]; then
+    echo "⚠️  blocknote-e2e image may be stale (\"$stale_file\" is newer)." >&2
+    echo "   Run \`vp run e2e:image\` to rebuild if you see import resolution errors." >&2
+  fi
+fi
+
 mounts=()
 for src in packages/*/src; do
   mounts+=(-v "$PWD/$src:/work/$src")
