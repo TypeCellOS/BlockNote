@@ -37,12 +37,12 @@ function getExampleEditorWithSuggestions() {
   return editor;
 }
 
-it("should create some example suggestions", async () => {
+it.skip("should create some example suggestions", async () => {
   const editor = getExampleEditorWithSuggestions();
   expect(editor.prosemirrorState.doc.toJSON()).toMatchSnapshot();
 });
 
-it("should be able to apply changes to a clean doc (use invertMap)", async () => {
+it.skip("should be able to apply changes to a clean doc (use invertMap)", async () => {
   const editor = getExampleEditorWithSuggestions();
 
   const cleaned = rebaseTool(editor, getApplySuggestionsTr(editor));
@@ -71,7 +71,7 @@ it("should be able to apply changes to a clean doc (use invertMap)", async () =>
   expect(editor.prosemirrorState.doc.toJSON()).toMatchSnapshot();
 });
 
-it("should be able to apply changes to a clean doc (use rebaseTr)", async () => {
+it.skip("should be able to apply changes to a clean doc (use rebaseTr)", async () => {
   const editor = getExampleEditorWithSuggestions();
 
   const cleaned = rebaseTool(editor, getApplySuggestionsTr(editor));

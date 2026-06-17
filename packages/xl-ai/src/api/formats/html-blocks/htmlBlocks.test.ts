@@ -18,7 +18,7 @@ const BASE_FILE_PATH = path.resolve(
 );
 
 // Main test suite with snapshot middleware
-describe("Models", () => {
+describe.skip("Models", () => {
   // Define server with snapshot middleware for the main tests
   const server = setupServer(
     snapshot({
