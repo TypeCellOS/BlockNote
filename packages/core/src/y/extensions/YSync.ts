@@ -130,7 +130,7 @@ export const YSyncExtension = createExtension(
           // container => schema-invalid. No schema change / storage transform
           // needed; `blockContainer` already whitelists the `y-attributed-*`
           // marks. See blockMatchNodes.ts.
-          matchNodes: blockMatchNodes,
+          customCompare: blockMatchNodes,
         }),
       ],
       runsBefore: ["default"],
