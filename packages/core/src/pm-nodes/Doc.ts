@@ -4,5 +4,5 @@ export const Doc = Node.create({
   name: "doc",
   topNode: true,
   content: "blockGroup",
-  marks: "insertion modification deletion",
+  marks: "y-attributed-insert y-attributed-format y-attributed-delete",
 });
