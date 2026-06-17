@@ -34,7 +34,7 @@ export const CurrentSnapshot = () => {
           event.preventDefault();
           event.stopPropagation();
 
-          createSnapshot({
+          void createSnapshot({
             name: snapshotName !== "Current Version" ? snapshotName : undefined,
           });
           setSnapshotName("Current Version");

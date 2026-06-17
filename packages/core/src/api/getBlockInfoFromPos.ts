@@ -51,7 +51,7 @@ export function isSuggestedDeletionNode(node: Node): boolean {
 export function getNodeId(node: Node, doc: Node): string {
   const id = node.attrs.id;
   if (!id) {
-    throw new Error(`Node ${node} does not have an ID`);
+    throw new Error(`Node ${node.type.name} does not have an ID`);
   }
   /**
    * In suggestion mode, yjs will insert nodes which have actually been deleted but are kept in the document with a "y-attributed-delete" mark,
@@ -77,7 +77,9 @@ export function getNodeId(node: Node, doc: Node): string {
       return true; // continue the walk
     });
     if (!found) {
-      throw new Error(`Node ${node} with ID ${id} not found in document`);
+      throw new Error(
+        `Node ${node.type.name} with ID ${id} not found in document`,
+      );
     }
     return `${id}-${index}`;
   }

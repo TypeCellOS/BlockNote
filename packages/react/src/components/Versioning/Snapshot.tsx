@@ -85,7 +85,7 @@ export const Snapshot = ({
             event.preventDefault();
             event.stopPropagation();
 
-            restoreSnapshot?.(snapshot.id);
+            void restoreSnapshot?.(snapshot.id);
           }}
         >
           Restore

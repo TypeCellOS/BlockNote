@@ -208,7 +208,7 @@ export const VersioningExtension = createExtension(
         previewedSnapshotId: id,
       }));
 
-      let compareToContent: unknown | undefined;
+      let compareToContent: unknown;
       if (previewOptions?.compareTo) {
         compareToContent = await endpoints.getContent(previewOptions.compareTo);
       }

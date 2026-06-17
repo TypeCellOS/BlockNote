@@ -98,7 +98,14 @@ async function yhubFetch(
 ): Promise<ArrayBuffer> {
   const res = await fetch(url, {
     ...init,
-    headers: { ...headers, ...init?.headers },
+    headers: {
+      ...headers,
+      ...(init?.headers instanceof Headers
+        ? Object.fromEntries(init.headers.entries())
+        : Array.isArray(init?.headers)
+          ? Object.fromEntries(init.headers)
+          : init?.headers),
+    },
   });
   if (!res.ok) {
     throw new Error(
