@@ -32,7 +32,7 @@ test("suggestion mode: 'hello world' -> 'hello universe'", async () => {
 
   // 2. Replay base updates into the suggestion doc so both docs start
   //    from the same state.
-  sync();
+  await sync();
 
   await expectVisible(screen.getByTestId("editor-A").getByText("hello world"));
 
@@ -81,11 +81,11 @@ test("suggestion mode: 'hello world' -> 'hello universe'", async () => {
         <blockContainer id="block-hello">
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">
             hello
-            <y-attributed-delete user-color="#30bced">wo</y-attributed-delete>
-            <y-attributed-insert user-color="#30bced">unive</y-attributed-insert>
+            <y-attributed-delete userIds="" user-color="#30bced">wo</y-attributed-delete>
+            <y-attributed-insert userIds="" user-color="#30bced">unive</y-attributed-insert>
             r
-            <y-attributed-delete user-color="#30bced">ld</y-attributed-delete>
-            <y-attributed-insert user-color="#30bced">se</y-attributed-insert>
+            <y-attributed-delete userIds="" user-color="#30bced">ld</y-attributed-delete>
+            <y-attributed-insert userIds="" user-color="#30bced">se</y-attributed-insert>
           </paragraph>
         </blockContainer>
       </blockGroup>
@@ -108,7 +108,7 @@ test("suggestion mode: add bold to 'world'", async () => {
   editor.replaceBlocks(editor.document, [
     { id: "block-hello", type: "paragraph", content: "hello world" },
   ]);
-  sync();
+  await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("hello world"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
@@ -158,7 +158,7 @@ test("suggestion mode: add bold to 'world'", async () => {
         <blockContainer id="block-hello">
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">
             hello
-            <y-attributed-format user-color="#30bced">
+            <y-attributed-format userIds="" format="[object Object]" user-color="#30bced">
               <bold>world</bold>
             </y-attributed-format>
           </paragraph>
@@ -186,7 +186,7 @@ test("suggestion mode: remove bold from 'world'", async () => {
       ],
     },
   ]);
-  sync();
+  await sync();
   // Use the full paragraph text – the User A column heading also
   // contains the word "world", which would clash with getByText.
   await expectVisible(screen.getByTestId("editor-A").getByText("hello world"));
@@ -230,7 +230,7 @@ test("suggestion mode: remove bold from 'world'", async () => {
         <blockContainer id="block-hello">
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">
             hello
-            <y-attributed-format user-color="#30bced">world</y-attributed-format>
+            <y-attributed-format userIds="" format="[object Object]" user-color="#30bced">world</y-attributed-format>
           </paragraph>
         </blockContainer>
       </blockGroup>
@@ -264,7 +264,7 @@ test("suggestion mode: add italic to already-bold 'world'", async () => {
       ],
     },
   ]);
-  sync();
+  await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("hello world"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
@@ -314,7 +314,7 @@ test("suggestion mode: add italic to already-bold 'world'", async () => {
         <blockContainer id="block-hello">
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">
             hello
-            <y-attributed-format user-color="#30bced">
+            <y-attributed-format userIds="" format="[object Object]" user-color="#30bced">
               <italic>
                 <bold>world</bold>
               </italic>

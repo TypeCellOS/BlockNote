@@ -26,7 +26,7 @@ test("suggestion mode: move paragraph up", async () => {
     { id: "middle", type: "paragraph", content: "Middle" },
     { id: "last", type: "paragraph", content: "Last" },
   ]);
-  sync();
+  await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("First"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
@@ -69,11 +69,11 @@ test("suggestion mode: move paragraph up", async () => {
   expect(editorHtml(editor)).toMatchInlineSnapshot(`
     "<doc>
       <blockGroup>
-        <y-attributed-insert user-color="#30bced">
+        <y-attributed-insert userIds="" user-color="#30bced">
           <blockContainer id="middle">
-            <y-attributed-insert user-color="#30bced">
+            <y-attributed-insert userIds="" user-color="#30bced">
               <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                <y-attributed-insert user-color="#30bced">Middle</y-attributed-insert>
+                <y-attributed-insert userIds="" user-color="#30bced">Middle</y-attributed-insert>
               </paragraph>
             </y-attributed-insert>
           </blockContainer>
@@ -81,7 +81,7 @@ test("suggestion mode: move paragraph up", async () => {
         <blockContainer id="first">
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">First</paragraph>
         </blockContainer>
-        <y-attributed-delete user-color="#30bced">
+        <y-attributed-delete userIds="" user-color="#30bced">
           <blockContainer id="middle">
             <paragraph backgroundColor="default" textColor="default" textAlignment="left">Middle</paragraph>
           </blockContainer>
@@ -109,7 +109,7 @@ test("suggestion mode: move paragraph with children", async () => {
       children: [{ id: "child", type: "paragraph", content: "Child" }],
     },
   ]);
-  sync();
+  await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("First"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
@@ -156,20 +156,20 @@ test("suggestion mode: move paragraph with children", async () => {
   expect(editorHtml(editor)).toMatchInlineSnapshot(`
     "<doc>
       <blockGroup>
-        <y-attributed-insert user-color="#30bced">
+        <y-attributed-insert userIds="" user-color="#30bced">
           <blockContainer id="parent">
-            <y-attributed-insert user-color="#30bced">
+            <y-attributed-insert userIds="" user-color="#30bced">
               <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                <y-attributed-insert user-color="#30bced">Parent</y-attributed-insert>
+                <y-attributed-insert userIds="" user-color="#30bced">Parent</y-attributed-insert>
               </paragraph>
             </y-attributed-insert>
-            <y-attributed-insert user-color="#30bced">
+            <y-attributed-insert userIds="" user-color="#30bced">
               <blockGroup>
-                <y-attributed-insert user-color="#30bced">
+                <y-attributed-insert userIds="" user-color="#30bced">
                   <blockContainer id="child">
-                    <y-attributed-insert user-color="#30bced">
+                    <y-attributed-insert userIds="" user-color="#30bced">
                       <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                        <y-attributed-insert user-color="#30bced">Child</y-attributed-insert>
+                        <y-attributed-insert userIds="" user-color="#30bced">Child</y-attributed-insert>
                       </paragraph>
                     </y-attributed-insert>
                   </blockContainer>
@@ -181,7 +181,7 @@ test("suggestion mode: move paragraph with children", async () => {
         <blockContainer id="first">
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">First</paragraph>
         </blockContainer>
-        <y-attributed-delete user-color="#30bced">
+        <y-attributed-delete userIds="" user-color="#30bced">
           <blockContainer id="parent">
             <paragraph backgroundColor="default" textColor="default" textAlignment="left">Parent</paragraph>
             <blockGroup>

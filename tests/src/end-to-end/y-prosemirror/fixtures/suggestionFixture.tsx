@@ -43,8 +43,19 @@ export interface SuggestionFixture {
   screen: typeof page;
   baseDoc: Y.Doc;
   suggestionDoc: Y.Doc;
-  /** Replay updates from `baseDoc` into `suggestionDoc`. */
-  sync: () => void;
+  /**
+   * Replay updates from `baseDoc` into `suggestionDoc`.
+   *
+   * `replaceBlocks`/`insertBlocks` dispatch a ProseMirror transaction
+   * whose changes are flushed into the bound `baseDoc` by the
+   * y-prosemirror `ySyncPlugin` *after* the transaction is applied to
+   * the view – this flush is not guaranteed to have happened by the
+   * time the caller reaches the next synchronous statement. Encoding
+   * `baseDoc`'s state too early would copy the stale (empty) initial
+   * doc into `suggestionDoc`, so `sync` waits for `baseDoc` to reflect
+   * the editor's current document before replaying the update.
+   */
+  sync: () => Promise<void>;
 }
 
 export interface SuggestionFixtureOptions {
@@ -129,8 +140,57 @@ export async function setupSuggestionTest({
     screen: page,
     baseDoc,
     suggestionDoc,
-    sync: () => Y.applyUpdate(suggestionDoc, Y.encodeStateAsUpdate(baseDoc)),
+    sync: async () => {
+      // Wait for the y-prosemirror binding to have flushed the editor's
+      // latest transaction into `baseDoc` before replaying it, otherwise
+      // we copy a stale doc into `suggestionDoc` (see SuggestionFixture
+      // `sync` docs).
+      await waitForYDocSync(editorA, baseDoc);
+      Y.applyUpdate(suggestionDoc, Y.encodeStateAsUpdate(baseDoc));
+    },
   };
+}
+
+/**
+ * Count every block in a (possibly nested) BlockNote document tree.
+ */
+function countBlocks(blocks: { children?: unknown[] }[]): number {
+  let total = 0;
+  for (const block of blocks) {
+    total += 1;
+    const children = block.children as { children?: unknown[] }[] | undefined;
+    if (children && children.length > 0) {
+      total += countBlocks(children);
+    }
+  }
+  return total;
+}
+
+/**
+ * Wait until a `baseDoc` bound to `editor` reflects the editor's current
+ * document. The y-prosemirror `ySyncPlugin` flushes ProseMirror changes
+ * into the Y.Doc asynchronously (after the view applies the
+ * transaction), so reading/encoding `baseDoc` immediately after a
+ * `replaceBlocks`/`insertBlocks` call can observe the stale initial doc.
+ *
+ * We match on the number of `blockContainer`s: the binding flushes a
+ * whole transaction atomically, so once the block count matches the
+ * editor's document the structural content has been written.
+ */
+export async function waitForYDocSync(
+  editor: BlockNoteEditor,
+  baseDoc: Y.Doc,
+): Promise<void> {
+  const expected = countBlocks(editor.document as { children?: unknown[] }[]);
+  await expect
+    .poll(() => {
+      // `XmlFragment` isn't exported from `@y/y` v14's types, so cast to
+      // `any` to reach `.toString()` (matches `ydocXml` below).
+      const xml = (baseDoc.get("doc") as any).toString();
+      const matches = xml.match(/<blockContainer/g);
+      return matches ? matches.length : 0;
+    })
+    .toBe(expected);
 }
 
 /**
@@ -180,7 +240,7 @@ export function ydocXml(doc: Y.Doc): string {
 interface DeltaJson {
   type?: string;
   name?: string;
-  attrs?: Record<string, { type?: string; value?: unknown } | unknown>;
+  attrs?: Record<string, unknown>;
   children?: DeltaInsertOp[];
 }
 
@@ -230,14 +290,20 @@ function opToXml(op: DeltaInsertOp): string {
   for (const [name, value] of Object.entries(op.format ?? {}).sort(([a], [b]) =>
     a < b ? -1 : a > b ? 1 : 0,
   )) {
-    const isObject = value !== null && typeof value === "object";
-    const isTrivial =
-      value === true || (isObject && Object.keys(value).length === 0);
-    if (isTrivial) {
+    if (value !== null && typeof value === "object") {
+      // Object value: trivial empty `{}` renders as a bare tag, richer
+      // objects are JSON-encoded (`String(obj)` would throw / produce
+      // "[object Object]").
+      if (Object.keys(value).length === 0) {
+        out = `<${name}>${out}</${name}>`;
+      } else {
+        out = `<${name} value="${escapeXml(JSON.stringify(value))}">${out}</${name}>`;
+      }
+    } else if (value === true) {
       out = `<${name}>${out}</${name}>`;
     } else {
-      const rendered = isObject ? JSON.stringify(value) : String(value);
-      out = `<${name} value="${escapeXml(rendered)}">${out}</${name}>`;
+      // Primitive (string / number / boolean / null / undefined).
+      out = `<${name} value="${escapeXml(String(value))}">${out}</${name}>`;
     }
   }
 

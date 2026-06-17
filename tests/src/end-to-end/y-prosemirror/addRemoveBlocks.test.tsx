@@ -20,18 +20,16 @@ const IMG_SRC =
   "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' fill='%23ff6b6b'/></svg>";
 
 // Empty doc gets a heading inserted at the top.
-// KNOWN BUG: starting from a truly empty doc and using `replaceBlocks`
-// to add a heading hits the same y-prosemirror `deltaToPSteps:
-// No node at mark step's position` we already document for type
-// changes (see `typeChanges.test.tsx`). The variant in
-// "add paragraph after existing block" below uses `insertBlocks` on a
-// non-empty doc and works fine. Marked `test.fails` until upstream.
-test.fails("suggestion mode: add heading to empty doc", async () => {
+test("suggestion mode: add heading to empty doc", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "add heading at top" });
 
   editor.replaceBlocks(editor.document, []);
-  sync();
+  await sync();
+
+  // See note in "add paragraph after existing block" – snapshot the
+  // clean base before suggestions mutate the bound `baseDoc`.
+  const baseDocXml = ydocXml(baseDoc);
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
@@ -46,7 +44,7 @@ test.fails("suggestion mode: add heading to empty doc", async () => {
     "add-remove-add-heading-to-empty",
   );
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
+  expect(baseDocXml).toMatchInlineSnapshot(`
     "<blockGroup>
       <blockContainer id="1">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
@@ -69,14 +67,14 @@ test.fails("suggestion mode: add heading to empty doc", async () => {
   expect(editorHtml(editor)).toMatchInlineSnapshot(`
     "<doc>
       <blockGroup>
-        <y-attributed-delete user-color="#30bced">
+        <y-attributed-delete userIds="" user-color="#30bced">
           <blockContainer id="1">
             <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
           </blockContainer>
         </y-attributed-delete>
-        <y-attributed-insert user-color="#30bced">
+        <y-attributed-insert userIds="" user-color="#30bced">
           <blockContainer id="h0">
-            <y-attributed-insert user-color="#30bced">
+            <y-attributed-insert userIds="" user-color="#30bced">
               <heading
                 backgroundColor="default"
                 textColor="default"
@@ -84,7 +82,7 @@ test.fails("suggestion mode: add heading to empty doc", async () => {
                 level="1"
                 isToggleable="false"
               >
-                <y-attributed-insert user-color="#30bced">New heading</y-attributed-insert>
+                <y-attributed-insert userIds="" user-color="#30bced">New heading</y-attributed-insert>
               </heading>
             </y-attributed-insert>
           </blockContainer>
@@ -102,8 +100,14 @@ test("suggestion mode: add paragraph after existing block", async () => {
   editor.replaceBlocks(editor.document, [
     { id: "h0", type: "heading", props: { level: 1 }, content: "Title" },
   ]);
-  sync();
+  await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("Title"));
+
+  // Capture the base document *before* enabling suggestions: `baseDoc`
+  // is the live fragment editor A is bound to, so suggestion-mode edits
+  // flush attribution marks back into it. Reading it after the edit is
+  // racy; snapshot the clean pre-suggestion state here instead.
+  const baseDocXml = ydocXml(baseDoc);
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
@@ -120,32 +124,19 @@ test("suggestion mode: add paragraph after existing block", async () => {
     "add-remove-add-paragraph",
   );
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
-          "<doc>
-            <blockGroup>
-              <y-attributed-delete user-color="#30bced">
-                <blockContainer id="1">
-                  <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
-                </blockContainer>
-              </y-attributed-delete>
-              <y-attributed-insert user-color="#30bced">
-                <blockContainer id="h0">
-                  <y-attributed-insert user-color="#30bced">
-                    <heading
-                      backgroundColor="default"
-                      textColor="default"
-                      textAlignment="left"
-                      level="1"
-                      isToggleable="false"
-                    >
-                      <y-attributed-insert user-color="#30bced">New heading</y-attributed-insert>
-                    </heading>
-                  </y-attributed-insert>
-                </blockContainer>
-              </y-attributed-insert>
-            </blockGroup>
-          </doc>"
-        `);
+  expect(baseDocXml).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="h0">
+        <heading
+          backgroundColor="default"
+          isToggleable="false"
+          level="1"
+          textAlignment="left"
+          textColor="default"
+        >Title</heading>
+      </blockContainer>
+    </blockGroup>"
+  `);
   expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
     "<blockGroup>
       <blockContainer id="h0">
@@ -174,11 +165,11 @@ test("suggestion mode: add paragraph after existing block", async () => {
             isToggleable="false"
           >Title</heading>
         </blockContainer>
-        <y-attributed-insert user-color="#30bced">
+        <y-attributed-insert userIds="" user-color="#30bced">
           <blockContainer id="p0">
-            <y-attributed-insert user-color="#30bced">
+            <y-attributed-insert userIds="" user-color="#30bced">
               <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                <y-attributed-insert user-color="#30bced">Body text</y-attributed-insert>
+                <y-attributed-insert userIds="" user-color="#30bced">Body text</y-attributed-insert>
               </paragraph>
             </y-attributed-insert>
           </blockContainer>
@@ -207,8 +198,12 @@ test("suggestion mode: remove paragraph from heading+paragraph", async () => {
     { id: "h0", type: "heading", props: { level: 1 }, content: "Title" },
     { id: "p0", type: "paragraph", content: "Body text" },
   ]);
-  sync();
+  await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("Body text"));
+
+  // See note in "add paragraph after existing block" – snapshot the
+  // clean base before suggestions mutate the bound `baseDoc`.
+  const baseDocXml = ydocXml(baseDoc);
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
@@ -221,7 +216,7 @@ test("suggestion mode: remove paragraph from heading+paragraph", async () => {
     "add-remove-remove-paragraph",
   );
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
+  expect(baseDocXml).toMatchInlineSnapshot(`
     "<blockGroup>
       <blockContainer id="h0">
         <heading
@@ -262,7 +257,7 @@ test("suggestion mode: remove paragraph from heading+paragraph", async () => {
             isToggleable="false"
           >Title</heading>
         </blockContainer>
-        <y-attributed-delete user-color="#30bced">
+        <y-attributed-delete userIds="" user-color="#30bced">
           <blockContainer id="p0">
             <paragraph backgroundColor="default" textColor="default" textAlignment="left">Body text</paragraph>
           </blockContainer>
@@ -280,8 +275,12 @@ test("suggestion mode: remove all blocks", async () => {
   editor.replaceBlocks(editor.document, [
     { id: "p0", type: "paragraph", content: "Only block" },
   ]);
-  sync();
+  await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("Only block"));
+
+  // See note in "add paragraph after existing block" – snapshot the
+  // clean base before suggestions mutate the bound `baseDoc`.
+  const baseDocXml = ydocXml(baseDoc);
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
@@ -294,7 +293,7 @@ test("suggestion mode: remove all blocks", async () => {
     "add-remove-remove-all",
   );
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
+  expect(baseDocXml).toMatchInlineSnapshot(`
     "<blockGroup>
       <blockContainer id="p0">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default">Only block</paragraph>
@@ -313,7 +312,7 @@ test("suggestion mode: remove all blocks", async () => {
       <blockGroup>
         <blockContainer id="1">
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-            <y-attributed-delete user-color="#30bced">Only block</y-attributed-delete>
+            <y-attributed-delete userIds="" user-color="#30bced">Only block</y-attributed-delete>
           </paragraph>
         </blockContainer>
       </blockGroup>
@@ -334,8 +333,12 @@ test("suggestion mode: delete nested block", async () => {
       children: [{ id: "child", type: "paragraph", content: "Child" }],
     },
   ]);
-  sync();
+  await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("Child"));
+
+  // See note in "add paragraph after existing block" – snapshot the
+  // clean base before suggestions mutate the bound `baseDoc`.
+  const baseDocXml = ydocXml(baseDoc);
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
@@ -348,7 +351,7 @@ test("suggestion mode: delete nested block", async () => {
     "add-remove-delete-nested",
   );
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
+  expect(baseDocXml).toMatchInlineSnapshot(`
     "<blockGroup>
       <blockContainer id="parent">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default">Parent</paragraph>
@@ -372,7 +375,7 @@ test("suggestion mode: delete nested block", async () => {
       <blockGroup>
         <blockContainer id="parent">
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">Parent</paragraph>
-          <y-attributed-delete user-color="#30bced">
+          <y-attributed-delete userIds="" user-color="#30bced">
             <blockGroup>
               <blockContainer id="child">
                 <paragraph backgroundColor="default" textColor="default" textAlignment="left">Child</paragraph>
@@ -400,8 +403,12 @@ test("suggestion mode: delete parent block (with children)", async () => {
       children: [{ id: "child", type: "paragraph", content: "Child" }],
     },
   ]);
-  sync();
+  await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("Parent"));
+
+  // See note in "add paragraph after existing block" – snapshot the
+  // clean base before suggestions mutate the bound `baseDoc`.
+  const baseDocXml = ydocXml(baseDoc);
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
@@ -414,7 +421,7 @@ test("suggestion mode: delete parent block (with children)", async () => {
     "add-remove-delete-parent",
   );
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
+  expect(baseDocXml).toMatchInlineSnapshot(`
     "<blockGroup>
       <blockContainer id="parent">
         <paragraph backgroundColor="default" textAlignment="left" textColor="default">Parent</paragraph>
@@ -438,9 +445,9 @@ test("suggestion mode: delete parent block (with children)", async () => {
       <blockGroup>
         <blockContainer id="1">
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-            <y-attributed-delete user-color="#30bced">Parent</y-attributed-delete>
+            <y-attributed-delete userIds="" user-color="#30bced">Parent</y-attributed-delete>
           </paragraph>
-          <y-attributed-delete user-color="#30bced">
+          <y-attributed-delete userIds="" user-color="#30bced">
             <blockGroup>
               <blockContainer id="child">
                 <paragraph backgroundColor="default" textColor="default" textAlignment="left">Child</paragraph>
@@ -456,18 +463,13 @@ test("suggestion mode: delete parent block (with children)", async () => {
 // Delete the sole image block in suggestion mode. An image is an atom
 // blockContent with no inline text and no blockGroup child, so the only
 // schema-valid way to attribute its deletion is to wrap the whole
-// blockContainer at the blockGroup level. The @y/y attribution diff
-// instead aligns the lone base/suggestion blockContainers and diffs their
-// children, emitting an in-place content replace that produces a
-// blockContainer with two blockContent children (the delete-marked image
-// plus the new paragraph). That violates the `blockContent blockGroup?`
-// content expression, so deltaToPSteps throws
-// `RangeError: Invalid content for node blockContainer`. Marked
-// `test.fails` until @y/y can represent deleting a sole atom block.
-test.fails("suggestion mode: delete image block", async () => {
-  const { editor, sync } = await setupSuggestionTest({
-    userAction: "delete image",
-  });
+// Deleting a sole atom image block: the suggestion diff marks the image
+// block as deleted.
+test("suggestion mode: delete image block", async () => {
+  const { editor, screen, baseDoc, suggestionDoc, sync } =
+    await setupSuggestionTest({
+      userAction: "delete image",
+    });
 
   editor.replaceBlocks(editor.document, [
     {
@@ -476,15 +478,72 @@ test.fails("suggestion mode: delete image block", async () => {
       props: { url: IMG_SRC, previewWidth: 150 },
     },
   ]);
-  sync();
+  await sync();
   await expect
     .poll(() => (editor.document[0]?.props as { url?: string })?.url)
     .toBe(IMG_SRC);
 
+  // See note in "add paragraph after existing block" – snapshot the
+  // clean base before suggestions mutate the bound `baseDoc`.
+  const baseDocXml = ydocXml(baseDoc);
+
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
 
-  // Throws synchronously inside the suggestion sync (see comment above).
   editor.removeBlocks(["img"]);
 
   await waitForSuggestion(editor);
+
+  await expectScreenshot(
+    screen.getByTestId("editor-A"),
+    "add-remove-delete-image",
+  );
+
+  expect(baseDocXml).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="img">
+        <image
+          backgroundColor="default"
+          caption=""
+          name=""
+          previewWidth="150"
+          showPreview="true"
+          textAlignment="left"
+          url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
+        ></image>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="1">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default"></paragraph>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(editorHtml(editor)).toMatchInlineSnapshot(`
+    "<doc>
+      <blockGroup>
+        <y-attributed-delete userIds="" user-color="#30bced">
+          <blockContainer id="img">
+            <image
+              textAlignment="left"
+              backgroundColor="default"
+              name=""
+              url="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'&gt;&lt;rect width='100' height='100' fill='%23ff6b6b'/&gt;&lt;/svg&gt;"
+              caption=""
+              showPreview="true"
+              previewWidth="150"
+            ></image>
+          </blockContainer>
+        </y-attributed-delete>
+        <y-attributed-insert userIds="" user-color="#30bced">
+          <blockContainer id="1">
+            <y-attributed-insert userIds="" user-color="#30bced">
+              <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
+            </y-attributed-insert>
+          </blockContainer>
+        </y-attributed-insert>
+      </blockGroup>
+    </doc>"
+  `);
 });

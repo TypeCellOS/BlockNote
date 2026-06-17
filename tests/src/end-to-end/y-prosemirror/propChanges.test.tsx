@@ -41,7 +41,7 @@ test("suggestion mode: change text alignment to center", async () => {
   editor.replaceBlocks(editor.document, [
     { id: "block-hello", type: "paragraph", content: "hello world" },
   ]);
-  sync();
+  await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("hello world"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
@@ -107,7 +107,7 @@ test("suggestion mode: change heading level from 1 to 2", async () => {
       content: "hello world",
     },
   ]);
-  sync();
+  await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("hello world"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
@@ -186,7 +186,7 @@ test("suggestion mode: resize image (previewWidth)", async () => {
       },
     },
   ]);
-  sync();
+  await sync();
   // Default `alt=""` on the image makes it decorative, so
   // `getByRole("img")` doesn't see it. Poll on the prop having
   // landed in the editor instead.
@@ -278,7 +278,7 @@ test("suggestion mode: change image source", async () => {
       },
     },
   ]);
-  sync();
+  await sync();
   // Default `alt=""` on the image makes it decorative, so
   // `getByRole("img")` doesn't see it. Poll on the prop having
   // landed in the editor instead.

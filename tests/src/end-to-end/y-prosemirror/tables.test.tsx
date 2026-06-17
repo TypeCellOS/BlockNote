@@ -34,7 +34,7 @@ test("suggestion mode: add row", async () => {
     await setupSuggestionTest({ userAction: "add row" });
 
   editor.replaceBlocks(editor.document, [TABLE_2X2]);
-  sync();
+  await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("A1"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
@@ -227,9 +227,9 @@ test("suggestion mode: add row", async () => {
                 <tableParagraph>B2</tableParagraph>
               </tableCell>
             </tableRow>
-            <y-attributed-insert user-color="#30bced">
+            <y-attributed-insert userIds="" user-color="#30bced">
               <tableRow>
-                <y-attributed-insert user-color="#30bced">
+                <y-attributed-insert userIds="" user-color="#30bced">
                   <tableCell
                     textColor="default"
                     backgroundColor="default"
@@ -237,14 +237,14 @@ test("suggestion mode: add row", async () => {
                     colspan="1"
                     rowspan="1"
                   >
-                    <y-attributed-insert user-color="#30bced">
+                    <y-attributed-insert userIds="" user-color="#30bced">
                       <tableParagraph>
-                        <y-attributed-insert user-color="#30bced">A3</y-attributed-insert>
+                        <y-attributed-insert userIds="" user-color="#30bced">A3</y-attributed-insert>
                       </tableParagraph>
                     </y-attributed-insert>
                   </tableCell>
                 </y-attributed-insert>
-                <y-attributed-insert user-color="#30bced">
+                <y-attributed-insert userIds="" user-color="#30bced">
                   <tableCell
                     textColor="default"
                     backgroundColor="default"
@@ -252,9 +252,9 @@ test("suggestion mode: add row", async () => {
                     colspan="1"
                     rowspan="1"
                   >
-                    <y-attributed-insert user-color="#30bced">
+                    <y-attributed-insert userIds="" user-color="#30bced">
                       <tableParagraph>
-                        <y-attributed-insert user-color="#30bced">B3</y-attributed-insert>
+                        <y-attributed-insert userIds="" user-color="#30bced">B3</y-attributed-insert>
                       </tableParagraph>
                     </y-attributed-insert>
                   </tableCell>
@@ -274,7 +274,7 @@ test("suggestion mode: add column", async () => {
     await setupSuggestionTest({ userAction: "add column" });
 
   editor.replaceBlocks(editor.document, [TABLE_2X2]);
-  sync();
+  await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("A1"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
@@ -439,7 +439,7 @@ test("suggestion mode: add column", async () => {
               >
                 <tableParagraph>B1</tableParagraph>
               </tableCell>
-              <y-attributed-insert user-color="#30bced">
+              <y-attributed-insert userIds="" user-color="#30bced">
                 <tableCell
                   textColor="default"
                   backgroundColor="default"
@@ -447,9 +447,9 @@ test("suggestion mode: add column", async () => {
                   colspan="1"
                   rowspan="1"
                 >
-                  <y-attributed-insert user-color="#30bced">
+                  <y-attributed-insert userIds="" user-color="#30bced">
                     <tableParagraph>
-                      <y-attributed-insert user-color="#30bced">C1</y-attributed-insert>
+                      <y-attributed-insert userIds="" user-color="#30bced">C1</y-attributed-insert>
                     </tableParagraph>
                   </y-attributed-insert>
                 </tableCell>
@@ -474,7 +474,7 @@ test("suggestion mode: add column", async () => {
               >
                 <tableParagraph>B2</tableParagraph>
               </tableCell>
-              <y-attributed-insert user-color="#30bced">
+              <y-attributed-insert userIds="" user-color="#30bced">
                 <tableCell
                   textColor="default"
                   backgroundColor="default"
@@ -482,9 +482,9 @@ test("suggestion mode: add column", async () => {
                   colspan="1"
                   rowspan="1"
                 >
-                  <y-attributed-insert user-color="#30bced">
+                  <y-attributed-insert userIds="" user-color="#30bced">
                     <tableParagraph>
-                      <y-attributed-insert user-color="#30bced">C2</y-attributed-insert>
+                      <y-attributed-insert userIds="" user-color="#30bced">C2</y-attributed-insert>
                     </tableParagraph>
                   </y-attributed-insert>
                 </tableCell>
@@ -503,7 +503,7 @@ test("suggestion mode: remove row", async () => {
     await setupSuggestionTest({ userAction: "remove last row" });
 
   editor.replaceBlocks(editor.document, [TABLE_2X2]);
-  sync();
+  await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("A2"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
@@ -625,7 +625,7 @@ test("suggestion mode: remove row", async () => {
                 <tableParagraph>B1</tableParagraph>
               </tableCell>
             </tableRow>
-            <y-attributed-delete user-color="#30bced">
+            <y-attributed-delete userIds="" user-color="#30bced">
               <tableRow>
                 <tableCell
                   textColor="default"
@@ -660,7 +660,7 @@ test("suggestion mode: remove column", async () => {
     await setupSuggestionTest({ userAction: "remove last column" });
 
   editor.replaceBlocks(editor.document, [TABLE_2X2]);
-  sync();
+  await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("B1"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
@@ -777,7 +777,7 @@ test("suggestion mode: remove column", async () => {
               >
                 <tableParagraph>A1</tableParagraph>
               </tableCell>
-              <y-attributed-delete user-color="#30bced">
+              <y-attributed-delete userIds="" user-color="#30bced">
                 <tableCell
                   textColor="default"
                   backgroundColor="default"
@@ -799,7 +799,7 @@ test("suggestion mode: remove column", async () => {
               >
                 <tableParagraph>A2</tableParagraph>
               </tableCell>
-              <y-attributed-delete user-color="#30bced">
+              <y-attributed-delete userIds="" user-color="#30bced">
                 <tableCell
                   textColor="default"
                   backgroundColor="default"
@@ -824,7 +824,7 @@ test("suggestion mode: update text in cell", async () => {
     await setupSuggestionTest({ userAction: "edit top-left cell" });
 
   editor.replaceBlocks(editor.document, [TABLE_2X2]);
-  sync();
+  await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("A1"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
@@ -960,7 +960,7 @@ test("suggestion mode: update text in cell", async () => {
               >
                 <tableParagraph>
                   A1
-                  <y-attributed-insert user-color="#30bced">edited</y-attributed-insert>
+                  <y-attributed-insert userIds="" user-color="#30bced">edited</y-attributed-insert>
                 </tableParagraph>
               </tableCell>
               <tableCell
@@ -1006,7 +1006,7 @@ test("suggestion mode: change column background color", async () => {
     await setupSuggestionTest({ userAction: "highlight first column" });
 
   editor.replaceBlocks(editor.document, [TABLE_2X2]);
-  sync();
+  await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("A1"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
@@ -1210,7 +1210,7 @@ test("suggestion mode: merge two cells", async () => {
     await setupSuggestionTest({ userAction: "merge top-row cells" });
 
   editor.replaceBlocks(editor.document, [TABLE_2X2]);
-  sync();
+  await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("A1"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
@@ -1359,10 +1359,10 @@ test("suggestion mode: merge two cells", async () => {
               >
                 <tableParagraph>
                   A1
-                  <y-attributed-insert user-color="#30bced">+B1</y-attributed-insert>
+                  <y-attributed-insert userIds="" user-color="#30bced">+B1</y-attributed-insert>
                 </tableParagraph>
               </tableCell>
-              <y-attributed-delete user-color="#30bced">
+              <y-attributed-delete userIds="" user-color="#30bced">
                 <tableCell
                   textColor="default"
                   backgroundColor="default"
@@ -1393,7 +1393,7 @@ test("suggestion mode: merge two cells", async () => {
               >
                 <tableParagraph>B2</tableParagraph>
               </tableCell>
-              <y-attributed-insert user-color="#30bced">
+              <y-attributed-insert userIds="" user-color="#30bced">
                 <tableCell
                   textColor="default"
                   backgroundColor="default"
@@ -1401,7 +1401,7 @@ test("suggestion mode: merge two cells", async () => {
                   colspan="1"
                   rowspan="1"
                 >
-                  <y-attributed-insert user-color="#30bced">
+                  <y-attributed-insert userIds="" user-color="#30bced">
                     <tableParagraph></tableParagraph>
                   </y-attributed-insert>
                 </tableCell>
@@ -1441,7 +1441,7 @@ test("suggestion mode: split a merged cell", async () => {
       },
     },
   ]);
-  sync();
+  await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("A1+B1"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
@@ -1565,10 +1565,10 @@ test("suggestion mode: split a merged cell", async () => {
               >
                 <tableParagraph>
                   A1
-                  <y-attributed-delete user-color="#30bced">+B1</y-attributed-delete>
+                  <y-attributed-delete userIds="" user-color="#30bced">+B1</y-attributed-delete>
                 </tableParagraph>
               </tableCell>
-              <y-attributed-insert user-color="#30bced">
+              <y-attributed-insert userIds="" user-color="#30bced">
                 <tableCell
                   textColor="default"
                   backgroundColor="default"
@@ -1576,9 +1576,9 @@ test("suggestion mode: split a merged cell", async () => {
                   colspan="1"
                   rowspan="1"
                 >
-                  <y-attributed-insert user-color="#30bced">
+                  <y-attributed-insert userIds="" user-color="#30bced">
                     <tableParagraph>
-                      <y-attributed-insert user-color="#30bced">B1</y-attributed-insert>
+                      <y-attributed-insert userIds="" user-color="#30bced">B1</y-attributed-insert>
                     </tableParagraph>
                   </y-attributed-insert>
                 </tableCell>

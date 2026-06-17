@@ -29,7 +29,7 @@ test("suggestion mode: indent a block", async () => {
     { id: "n0", type: "paragraph", content: "N0" },
     { id: "n1", type: "paragraph", content: "N1" },
   ]);
-  sync();
+  await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("N0"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
@@ -75,13 +75,13 @@ test("suggestion mode: indent a block", async () => {
       <blockGroup>
         <blockContainer id="n0">
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">N0</paragraph>
-          <y-attributed-insert user-color="#30bced">
+          <y-attributed-insert userIds="" user-color="#30bced">
             <blockGroup>
-              <y-attributed-insert user-color="#30bced">
+              <y-attributed-insert userIds="" user-color="#30bced">
                 <blockContainer id="n1">
-                  <y-attributed-insert user-color="#30bced">
+                  <y-attributed-insert userIds="" user-color="#30bced">
                     <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                      <y-attributed-insert user-color="#30bced">N1</y-attributed-insert>
+                      <y-attributed-insert userIds="" user-color="#30bced">N1</y-attributed-insert>
                     </paragraph>
                   </y-attributed-insert>
                 </blockContainer>
@@ -89,7 +89,7 @@ test("suggestion mode: indent a block", async () => {
             </blockGroup>
           </y-attributed-insert>
         </blockContainer>
-        <y-attributed-delete user-color="#30bced">
+        <y-attributed-delete userIds="" user-color="#30bced">
           <blockContainer id="n1">
             <paragraph backgroundColor="default" textColor="default" textAlignment="left">N1</paragraph>
           </blockContainer>
@@ -112,7 +112,7 @@ test("suggestion mode: unindent a block", async () => {
       children: [{ id: "n1", type: "paragraph", content: "N1" }],
     },
   ]);
-  sync();
+  await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("N0"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
@@ -151,7 +151,7 @@ test("suggestion mode: unindent a block", async () => {
       <blockGroup>
         <blockContainer id="n0">
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">N0</paragraph>
-          <y-attributed-delete user-color="#30bced">
+          <y-attributed-delete userIds="" user-color="#30bced">
             <blockGroup>
               <blockContainer id="n1">
                 <paragraph backgroundColor="default" textColor="default" textAlignment="left">N1</paragraph>
@@ -159,11 +159,11 @@ test("suggestion mode: unindent a block", async () => {
             </blockGroup>
           </y-attributed-delete>
         </blockContainer>
-        <y-attributed-insert user-color="#30bced">
+        <y-attributed-insert userIds="" user-color="#30bced">
           <blockContainer id="n1">
-            <y-attributed-insert user-color="#30bced">
+            <y-attributed-insert userIds="" user-color="#30bced">
               <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                <y-attributed-insert user-color="#30bced">N1</y-attributed-insert>
+                <y-attributed-insert userIds="" user-color="#30bced">N1</y-attributed-insert>
               </paragraph>
             </y-attributed-insert>
           </blockContainer>
@@ -187,7 +187,7 @@ test.fails("suggestion mode: change block type of a block with children", async 
       children: [{ id: "n1", type: "paragraph", content: "N1" }],
     },
   ]);
-  sync();
+  await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("N0"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();

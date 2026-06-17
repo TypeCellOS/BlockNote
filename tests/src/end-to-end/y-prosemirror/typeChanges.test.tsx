@@ -35,7 +35,7 @@ test.fails("suggestion mode: change list item to paragraph", async () => {
       content: "hello world",
     },
   ]);
-  sync();
+  await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("hello world"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
@@ -63,7 +63,7 @@ test.fails("suggestion mode: change paragraph to heading", async () => {
   editor.replaceBlocks(editor.document, [
     { id: "block-hello", type: "paragraph", content: "hello world" },
   ]);
-  sync();
+  await sync();
   await expectVisible(screen.getByTestId("editor-A").getByText("hello world"));
 
   editor.getExtension(SuggestionsExtension)!.enableSuggestions();
