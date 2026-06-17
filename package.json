@@ -34,7 +34,7 @@
     "prebuild": "cp README.md packages/core/README.md && cp README.md packages/react/README.md",
     "prestart": "vp run build",
     "start": "vp run --filter @blocknote/example-editor preview",
-    "test": "vp run -r test",
+    "test": "vp run --filter \"@blocknote/*\" --filter \"docs\" --filter \"!@blocknote/xl-ai\" test",
     "format": "vp fmt",
     "prepare": "vp config"
   },

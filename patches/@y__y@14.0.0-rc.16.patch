@@ -1,0 +1,193 @@
+diff --git a/dist/src/utils/UndoManager.d.ts b/dist/src/utils/UndoManager.d.ts
+index 2670b9688224b31267f9e16a21be73ae6b39af84..2f614bb70c302ee0b277f083ee6f1e15a0c73476 100644
+--- a/dist/src/utils/UndoManager.d.ts
++++ b/dist/src/utils/UndoManager.d.ts
+@@ -20,7 +20,7 @@ export class StackItem {
+  * filter returns false, the type/item won't be deleted even it is in the
+  * undo/redo scope.
+  * @property {Set<any>} [UndoManagerOptions.trackedOrigins=new Set([null])]
+- * @property {boolean} [ignoreRemoteMapChanges] Experimental. By default, the UndoManager will never overwrite remote changes. Enable this property to enable overwriting remote changes on key-value changes (Y.Map, properties on Y.Xml, etc..).
++ * @property {boolean} [ignoreRemoteAttributeChanges] By default, the UndoManager will never overwrite remote changes. In some cases this might be the expected behavior. This property enables overwriting remote changes on attribute changes. (previously named `ignoreRemoteMapChanges`)
+  * @property {Doc} [doc] The document that this UndoManager operates on. Only needed if typeScope is empty.
+  */
+ /**
+@@ -52,7 +52,7 @@ export class UndoManager extends ObservableV2<{
+      * @param {Doc|YType|Array<YType>} typeScope Limits the scope of the UndoManager. If this is set to a ydoc instance, all changes on that ydoc will be undone. If set to a specific type, only changes on that type or its children will be undone. Also accepts an array of types.
+      * @param {UndoManagerOptions} options
+      */
+-    constructor(typeScope: Doc | YType | Array<YType>, { captureTimeout, captureTransaction, deleteFilter, trackedOrigins, ignoreRemoteMapChanges, doc }?: UndoManagerOptions);
++    constructor(typeScope: Doc | YType | Array<YType>, { captureTimeout, captureTransaction, deleteFilter, trackedOrigins, ignoreRemoteAttributeChanges, doc }?: UndoManagerOptions);
+     /**
+      * @type {Array<YType | Doc>}
+      */
+@@ -83,7 +83,7 @@ export class UndoManager extends ObservableV2<{
+      */
+     currStackItem: StackItem | null;
+     lastChange: number;
+-    ignoreRemoteMapChanges: boolean;
++    ignoreRemoteAttributeChanges: boolean;
+     captureTimeout: number;
+     /**
+      * @param {Transaction} transaction
+@@ -151,7 +151,7 @@ export class UndoManager extends ObservableV2<{
+     canRedo(): boolean;
+ }
+ export function undoContentIds(ydoc: Doc, contentIds: ContentIds, opts?: UndoManagerOptions): void;
+-export function redoItem(transaction: Transaction, item: Item, redoitems: Set<Item>, itemsToDelete: IdSet, ignoreRemoteMapChanges: boolean, um: import("../utils/UndoManager.js").UndoManager): Item | null;
++export function redoItem(transaction: Transaction, item: Item, redoitems: Set<Item>, itemsToDelete: IdSet, ignoreRemoteAttributeChanges: boolean, um: import("../utils/UndoManager.js").UndoManager): Item | null;
+ export function keepItem(item: Item | null, keep: boolean): void;
+ export type UndoManagerOptions = {
+     captureTimeout?: number | undefined;
+@@ -168,9 +168,9 @@ export type UndoManagerOptions = {
+     deleteFilter?: ((arg0: Item) => boolean) | undefined;
+     trackedOrigins?: Set<any> | undefined;
+     /**
+-     * Experimental. By default, the UndoManager will never overwrite remote changes. Enable this property to enable overwriting remote changes on key-value changes (Y.Map, properties on Y.Xml, etc..).
++     * By default, the UndoManager will never overwrite remote changes. In some cases this might be the expected behavior. This property enables overwriting remote changes on attribute changes. (previously named `ignoreRemoteMapChanges`)
+      */
+-    ignoreRemoteMapChanges?: boolean | undefined;
++    ignoreRemoteAttributeChanges?: boolean | undefined;
+     /**
+      * The document that this UndoManager operates on. Only needed if typeScope is empty.
+      */
+diff --git a/dist/src/utils/UndoManager.d.ts.map b/dist/src/utils/UndoManager.d.ts.map
+index 597c791905316e578275c84f1a9265ffa78e092a..7937771c7c931d9ffd2b2761cc2b33b51cb4bc8c 100644
+--- a/dist/src/utils/UndoManager.d.ts.map
++++ b/dist/src/utils/UndoManager.d.ts.map
+@@ -1 +1 @@
+-{"version":3,"file":"UndoManager.d.ts","sourceRoot":"","sources":["../../../src/utils/UndoManager.js"],"names":[],"mappings":"AAeA;IACE;;;OAGG;IACH,wBAHW,KAAK,aACL,KAAK,EASf;IANC,kCAAyB;IACzB,kCAAwB;IACxB;;OAEG;IACH,oBAAqB;CAExB;AAgGD;;;;;;;;;;;GAWG;AAEH;;;;;;GAMG;AAEH;;;;;;;;GAQG;AACH;wBAF8C,CAAS,IAAc,EAAd,cAAc,EAAE,IAAW,EAAX,WAAW,KAAE,IAAI;yBAAuB,CAAS,IAAc,EAAd,cAAc,EAAE,IAAW,EAAX,WAAW,KAAE,IAAI;qBAAmB,CAAS,IAAwD,EAAxD;QAAE,gBAAgB,EAAE,OAAO,CAAC;QAAC,gBAAgB,EAAE,OAAO,CAAA;KAAE,KAAE,IAAI;0BAAwB,CAAS,IAAc,EAAd,cAAc,EAAE,IAAW,EAAX,WAAW,KAAE,IAAI;;IAGnT;;;OAGG;IACH,uBAHW,GAAG,GAAC,KAAK,GAAC,KAAK,CAAC,KAAK,CAAC,sGACtB,kBAAkB,EAsG5B;IA3FC;;OAEG;IACH,OAFU,KAAK,CAAC,KAAK,GAAG,GAAG,CAAC,CAEb;IACf,SAAc;IAEd,qBA9CmB,IAAI,KAAE,OAAO,CA8CA;IAEhC,yBAAoC;IACpC,2BAlDmB,WAAW,KAAE,OAAO,CAkDK;IAC5C;;OAEG;IACH,WAFU,KAAK,CAAC,SAAS,CAAC,CAEP;IACnB;;OAEG;IACH,WAFU,KAAK,CAAC,SAAS,CAAC,CAEP;IACnB;;;;OAIG;IACH,SAFU,OAAO,CAEG;IACpB,iBAAoB;IACpB;;;;OAIG;IACH,eAFU,SAAS,GAAC,IAAI,CAEC;IACzB,mBAAmB;IACnB,gCAAoD;IACpD,uBAAoC;IACpC;;OAEG;IACH,uCAFW,WAAW,UAmDrB;IAOH;;;;OAIG;IACH,mBAFW,KAAK,CAAC,KAAK,GAAG,GAAG,CAAC,GAAG,KAAK,GAAG,GAAG,QAY1C;IAED;;OAEG;IACH,yBAFW,GAAG,QAIb;IAED;;OAEG;IACH,4BAFW,GAAG,QAIb;IAED,gEAcC;IAED;;;;;;;;;;;;;;;;;;;OAmBG;IACH,sBAEC;IAED;;;;OAIG;IACH,QAFY,SAAS,OAAC,CAWrB;IAED;;;;OAIG;IACH,QAFY,SAAS,OAAC,CAWrB;IAED;;;;OAIG;IACH,WAFY,OAAO,CAIlB;IAED;;;;OAIG;IACH,WAFY,OAAO,CAIlB;CAOF;AAWM,qCAJI,GAAG,cACH,UAAU,SACV,kBAAkB,QAM5B;AAsBM,sCAXI,WAAW,QACX,IAAI,aACJ,GAAG,CAAC,IAAI,CAAC,iBACT,KAAK,0BACL,OAAO,MACP,OAAO,yBAAyB,EAAE,WAAW,GAE5C,IAAI,GAAC,IAAI,CAyGpB;AAWM,+BAHI,IAAI,GAAC,IAAI,QACT,OAAO,QAOjB;;;;;;iCA9ZsB,WAAW,KAAE,OAAO;;;;;;;2BACpB,IAAI,KAAE,OAAO;;;;;;;;;;;;eAWtB,SAAS;YACT,GAAG;UACH,MAAM,GAAC,MAAM;wBACb,GAAG,CAAC,KAAK,EAAC,KAAK,CAAC,MAAM,CAAC,GAAG,CAAC,CAAC,CAAC;;6BA3Id,iBAAiB;sBAUxB,aAAa;oBADf,UAAU;qBANK,oBAAoB"}
+\ No newline at end of file
++{"version":3,"file":"UndoManager.d.ts","sourceRoot":"","sources":["../../../src/utils/UndoManager.js"],"names":[],"mappings":"AAeA;IACE;;;OAGG;IACH,wBAHW,KAAK,aACL,KAAK,EASf;IANC,kCAAyB;IACzB,kCAAwB;IACxB;;OAEG;IACH,oBAAqB;CAExB;AAgGD;;;;;;;;;;;GAWG;AAEH;;;;;;GAMG;AAEH;;;;;;;;GAQG;AACH;wBAF8C,CAAS,IAAc,EAAd,cAAc,EAAE,IAAW,EAAX,WAAW,KAAE,IAAI;yBAAuB,CAAS,IAAc,EAAd,cAAc,EAAE,IAAW,EAAX,WAAW,KAAE,IAAI;qBAAmB,CAAS,IAAwD,EAAxD;QAAE,gBAAgB,EAAE,OAAO,CAAC;QAAC,gBAAgB,EAAE,OAAO,CAAA;KAAE,KAAE,IAAI;0BAAwB,CAAS,IAAc,EAAd,cAAc,EAAE,IAAW,EAAX,WAAW,KAAE,IAAI;;IAGnT;;;OAGG;IACH,uBAHW,GAAG,GAAC,KAAK,GAAC,KAAK,CAAC,KAAK,CAAC,4GACtB,kBAAkB,EAsG5B;IA3FC;;OAEG;IACH,OAFU,KAAK,CAAC,KAAK,GAAG,GAAG,CAAC,CAEb;IACf,SAAc;IAEd,qBA9CmB,IAAI,KAAE,OAAO,CA8CA;IAEhC,yBAAoC;IACpC,2BAlDmB,WAAW,KAAE,OAAO,CAkDK;IAC5C;;OAEG;IACH,WAFU,KAAK,CAAC,SAAS,CAAC,CAEP;IACnB;;OAEG;IACH,WAFU,KAAK,CAAC,SAAS,CAAC,CAEP;IACnB;;;;OAIG;IACH,SAFU,OAAO,CAEG;IACpB,iBAAoB;IACpB;;;;OAIG;IACH,eAFU,SAAS,GAAC,IAAI,CAEC;IACzB,mBAAmB;IACnB,sCAAgE;IAChE,uBAAoC;IACpC;;OAEG;IACH,uCAFW,WAAW,UAmDrB;IAOH;;;;OAIG;IACH,mBAFW,KAAK,CAAC,KAAK,GAAG,GAAG,CAAC,GAAG,KAAK,GAAG,GAAG,QAY1C;IAED;;OAEG;IACH,yBAFW,GAAG,QAIb;IAED;;OAEG;IACH,4BAFW,GAAG,QAIb;IAED,gEAcC;IAED;;;;;;;;;;;;;;;;;;;OAmBG;IACH,sBAEC;IAED;;;;OAIG;IACH,QAFY,SAAS,OAAC,CAWrB;IAED;;;;OAIG;IACH,QAFY,SAAS,OAAC,CAWrB;IAED;;;;OAIG;IACH,WAFY,OAAO,CAIlB;IAED;;;;OAIG;IACH,WAFY,OAAO,CAIlB;CAOF;AAWM,qCAJI,GAAG,cACH,UAAU,SACV,kBAAkB,QAM5B;AAsBM,sCAXI,WAAW,QACX,IAAI,aACJ,GAAG,CAAC,IAAI,CAAC,iBACT,KAAK,gCACL,OAAO,MACP,OAAO,yBAAyB,EAAE,WAAW,GAE5C,IAAI,GAAC,IAAI,CA4GpB;AAWM,+BAHI,IAAI,GAAC,IAAI,QACT,OAAO,QAOjB;;;;;;iCAjasB,WAAW,KAAE,OAAO;;;;;;;2BACpB,IAAI,KAAE,OAAO;;;;;;;;;;;;eAWtB,SAAS;YACT,GAAG;UACH,MAAM,GAAC,MAAM;wBACb,GAAG,CAAC,KAAK,EAAC,KAAK,CAAC,MAAM,CAAC,GAAG,CAAC,CAAC,CAAC;;6BA3Id,iBAAiB;sBAUxB,aAAa;oBADf,UAAU;qBANK,oBAAoB"}
+\ No newline at end of file
+diff --git a/dist/src/ytype.d.ts.map b/dist/src/ytype.d.ts.map
+index 61397c8530690c01be91a97afa4007338ca8060e..608ab7ab770d86eba126fc306594eee2bce5cc72 100644
+--- a/dist/src/ytype.d.ts.map
++++ b/dist/src/ytype.d.ts.map
+@@ -1 +1 @@
+-{"version":3,"file":"ytype.d.ts","sourceRoot":"","sources":["../../src/ytype.js"],"names":[],"mappings":"AA4CO,4CAAiH;AAUjH,6DAJI,KAAK,CAAC,gBAAgB,CAAC,GAAG,CAAC,CAAC,OAAC,WAC7B,OAAO,GACN,WAAW,OAAC,CAgCvB;AAWD;IACE;;;;;;OAMG;IACH,kBANW,IAAI,GAAC,IAAI,SACT,IAAI,GAAC,IAAI,SACT,MAAM,qBACN,GAAG,CAAC,MAAM,EAAC,GAAG,CAAC,MACf,0BAA0B,EAQpC;IALC,kBAAgB;IAChB,mBAAkB;IAClB,cAAkB;IAClB,oCAA0C;IAC1C,gFAAY;IAGd;;OAEG;IACH,gBAgBC;IAED;;;;;;;OAOG;IACH,wBAPW,WAAW,UACX,KAAK,UACL,MAAM;;aA4EhB;CACF;AAqHM,2CATI,WAAW,UACX,KAAK,WACL,oBAAoB,WACpB,OAAO,mBAAmB,EAAE,eAAe;;SA0BrD;AASM,iDANI,WAAW,UACX,KAAK,WACL,oBAAoB,UACpB,KAAK,CAAC,GAAG,CAAC,GAAC,MAAM;;SA0B3B;AAWM,wCARI,WAAW,WACX,oBAAoB,UACpB,MAAM,GACL,oBAAoB,CAkD/B;AAED;IACE;;;OAGG;IACH,eAHW,IAAI,SACJ,MAAM,EAOhB;IAHC,QAAU;IACV,cAAkB;IAClB,kBAA8C;CAEjD;AAqDM,mCAHI,KAAK,SACL,MAAM,4BAgDhB;AAWM,kDAJI,KAAK,CAAC,iBAAiB,CAAC,SACxB,MAAM,OACN,MAAM,QAiChB;AAQM,mCAHI,KAAK,GACJ,KAAK,CAAC,IAAI,CAAC,CAWtB;AAUM,wCAJI,KAAK,eACL,WAAW,SACV,MAAM,CAAC,GAAG,CAAC,QActB;AAED;;;GAGG;AACH,mBAFgC,KAAK,SAAvB,KAAK,CAAC,SAAU;IA2D5B;;;;OAIG;IACH,YAJ+B,EAAE,SAAnB,KAAK,CAAC,SAAU,KACnB,KAAK,CAAC,KAAK,CAAC,EAAE,CAAC,GACd,KAAK,CAAC,EAAE,CAAC,CAMpB;IAjED;;OAEG;IACH,mBAFW,KAAK,CAAC,gBAAgB,CAAC,KAAK,CAAC,OAAC,EAqDxC;IAlDC;;OAEG;IACH,MAFU,KAAK,CAAC,gBAAgB,CAAC,KAAK,CAAC,CAEwB;IAC/D;;OAEG;IACH,OAFU,IAAI,GAAC,IAAI,CAEF;IACjB;;OAEG;IACH,MAFU,GAAG,CAAC,MAAM,EAAC,IAAI,CAAC,CAEL;IACrB;;OAEG;IACH,QAFU,IAAI,GAAC,IAAI,CAED;IAClB;;OAEG;IACH,KAFU,GAAG,GAAC,IAAI,CAEH;IACf,gBAAgB;IAChB;;;OAGG;IACH,KAFU,YAAY,CAAC,MAAM,CAAC,YAAY,CAAC,KAAK,CAAC,CAAC,EAAC,WAAW,CAAC,CAEhC;IAC/B;;;OAGG;IACH,MAFU,YAAY,CAAC,MAAM,CAAC,KAAK,CAAC,EAAC,WAAW,CAAC,CAEjB;IAChC;;OAEG;IACH,eAFU,IAAI,GAAG,KAAK,CAAC,iBAAiB,CAAC,CAEhB;IACzB;;;OAGG;IACH,iBAAqE;IACrE,uBAA8E;IAK9E;;;OAGG;IACH,wBAA2B;IAc7B,qBAGC;IAED;;;OAGG;IACH,cAFU,KAAK,CAAC,YAAY,CAAC,YAAY,CAAC,KAAK,CAAC,CAAC,CAIhD;IAED;;OAEG;IACH,cAFY,KAAK,CAAC,GAAG,CAAC,OAAC,CAItB;IAED;;;;;;;;;OASG;IACH,cAHW,GAAG,QACH,IAAI,GAAC,IAAI,QASnB;IAFG,aAAmB;IAIvB;;OAEG;IACH,SAFY,KAAK,CAAC,KAAK,CAAC,CAMvB;IAED;;;;;;OAMG;IACH,2BAHW,WAAW,cACX,GAAG,CAAC,IAAI,GAAC,MAAM,CAAC,QAY1B;IAED;;;;;;OAMG;IACH,QAJ8E,CAAC,SAAlE,CAAE,MAAM,EAAE,MAAM,CAAC,YAAY,CAAC,KAAK,CAAC,CAAC,EAAE,EAAE,EAAE,WAAW,KAAK,IAAK,KAClE,CAAC,GACA,CAAC,CAKZ;IAED;;;;;;OAMG;IACH,YAJwD,CAAC,SAA5C,CAAU,IAAa,EAAb,MAAM,CAAC,KAAK,CAAC,EAAC,IAAW,EAAX,WAAW,KAAE,IAAK,KAC5C,CAAC,GACA,CAAC,CAKZ;IAED;;;;OAIG;IACH,aAFW,CAAC,IAAI,EAAC,MAAM,CAAC,YAAY,CAAC,KAAK,CAAC,CAAC,EAAC,EAAE,EAAC,WAAW,KAAG,IAAI,QAIjE;IAED;;;;OAIG;IACH,iBAFW,CAAS,IAAa,EAAb,MAAM,CAAC,KAAK,CAAC,EAAC,IAAW,EAAX,WAAW,KAAE,IAAI,QAIlD;IAED;;;;;;;;;;;;;;;;;;;;OAoBG;IACH,eAdwB,IAAI,SAAf,OAAS,eAEX,0BAA0B,SAElC;QAAsB,aAAa;QACZ,aAAa;QACb,aAAa;QACd,YAAY;QACc,QAAQ;QACpC,IAAI;KACxB,GAAS,IAAI,SAAS,IAAI,GAAG,KAAK,CAAC,KAAK,CAAC,KAAK,CAAC,GAAG,KAAK,CAAC,KAAK,CAAC,qBAAqB,CAAC,KAAK,CAAC,CAAC,CAkO7F;IAED;;;;;;OAMG;IACH,iBAHW,0BAA0B,GACzB,KAAK,CAAC,KAAK,CAAC,KAAK,CAAC,CAI7B;IAED;;;;;;;OAOG;IACH,qBALW,KAAK,CAAC,QAAQ,OACd,0BAA0B,QA8CpC;IAED;;;;;;OAMG;IACH,SAFY,KAAK,CAAC,KAAK,CAAC,CAMvB;IAED;;OAEG;IACH,mBAMC;IAED;;;;;;OAMG;IACH,iCAJW,MAAM,QAMhB;IAED;;;;;;;;;;;OAWG;IACH,eAToE,GAAG,SAAzD,OAAO,CAAC,MAAM,KAAK,CAAC,iBAAiB,CAAC,KAAK,CAAC,EAAC,MAAM,CAAE,EAChB,GAAG,SAAxC,KAAK,CAAC,iBAAiB,CAAC,KAAK,CAAC,CAAC,GAAG,CAAE,iBAEvC,GAAG,kBACH,GAAG,GACF,GAAG,CAOd;IAED;;;;;;;OAOG;IACH,eAL2E,GAAG,SAAhE,OAAO,CAAC,MAAM,KAAK,CAAC,iBAAiB,CAAC,KAAK,CAAC,EAAC,MAAM,GAAC,MAAM,CAAE,iBAC/D,GAAG,GACF,KAAK,CAAC,iBAAiB,CAAC,KAAK,CAAC,CAAC,GAAG,CAAC,GAAC,SAAS,CAKxD;IAED;;;;;;;OAOG;IACH,8BALW,MAAM,GACL,OAAO,CAMlB;IAED;;;;;;;OAOG;IACH,2BALW,QAAQ,GACP,GAAG,GAAG,IAAI,OAAO,CAAC,MAAM,KAAK,CAAC,iBAAiB,CAAC,KAAK,CAAC,EAAC,MAAM,CAAC,CAAC,CAAC,EAAE,KAAK,CAAC,iBAAiB,CAAC,KAAK,CAAC,CAAC,GAAG,CAAC,GAAC,CAMjH;IAED;;;;;;;;;;;;;;;;OAgBG;IACH,cAJW,MAAM,WACN,KAAK,CAAC,KAAK,CAAC,oBAAoB,CAAC,KAAK,CAAC,CAAC,GAAC,KAAK,CAAC,gBAAgB,CAAC,KAAK,CAAC,WACtE,KAAK,CAAC,oBAAoB,QAIpC;IAED;;;;;;;;;;;;;;;;;OAiBG;IACH,cALW,MAAM,UACN,MAAM,WACN,KAAK,CAAC,oBAAoB,QAKpC;IAED;;;;;;OAMG;IACH,cAJW,KAAK,CAAC,KAAK,CAAC,oBAAoB,CAAC,KAAK,CAAC,CAAC,GAAC,KAAK,CAAC,gBAAgB,CAAC,KAAK,CAAC,QAMhF;IAED;;;;OAIG;IACH,iBAFW,KAAK,CAAC,gBAAgB,CAAC,KAAK,CAAC,QAIvC;IAED;;;;;OAKG;IACH,cAHW,MAAM,WACN,MAAM,QAIhB;IAED;;;;;OAKG;IACH,WAHW,MAAM,GACL,KAAK,CAAC,oBAAoB,CAAC,KAAK,CAAC,CAI5C;IAED;;;;;;;OAOG;IACH,cAJW,MAAM,QACN,MAAM,GACL,KAAK,CAAC,KAAK,CAAC,oBAAoB,CAAC,KAAK,CAAC,CAAC,CAInD;IAED;;;;;;OAMG;IACH,WAFY,KAAK,CAAC,KAAK,CAAC,oBAAoB,CAAC,KAAK,CAAC,GAAG,KAAK,CAAC,gBAAgB,CAAC,KAAK,CAAC,CAAC,CAkBnF;IAED;;;OAGG;IACH,UAFY;QAAE,IAAI,CAAC,EAAE,MAAM,CAAC;QAAC,KAAK,CAAC,EAAE;YAAE,CAAC,CAAC,EAAC,MAAM,GAAC,MAAM,GAAG,GAAG,CAAA;SAAE,CAAC;QAAC,QAAQ,CAAC,EAAE,KAAK,CAAC,GAAG,CAAC,CAAA;KAAG,CA0BxF;IAED;;;OAGG;IACH,wBAFG;QAAuB,QAAQ;KACjC,UAqBA;IAED;;;;;;;;OAQG;IACH,IALa,CAAC,KACH,CAAC,KAAK,EAAC,KAAK,CAAC,oBAAoB,CAAC,KAAK,CAAC,GAAC,KAAK,CAAC,gBAAgB,CAAC,KAAK,CAAC,EAAC,KAAK,EAAC,MAAM,KAAG,CAAC,GACtF,KAAK,CAAC,CAAC,CAAC,CAKnB;IAED;;;;OAIG;IACH,WAFW,CAAC,KAAK,EAAC,KAAK,CAAC,oBAAoB,CAAC,KAAK,CAAC,GAAC,KAAK,CAAC,gBAAgB,CAAC,KAAK,CAAC,EAAC,KAAK,EAAC,MAAM,KAAG,GAAG,QAInG;IAED;;;;OAIG;IACH,eAFW,CAAC,GAAG,EAAC,KAAK,CAAC,iBAAiB,CAAC,KAAK,CAAC,CAAC,GAAG,CAAC,EAAC,GAAG,EAAC,OAAO,CAAC,MAAM,KAAK,CAAC,iBAAiB,CAAC,KAAK,CAAC,EAAC,MAAM,CAAC,EAAC,KAAK,EAAC,IAAI,KAAG,GAAG,QAQ5H;IAED;;;;OAIG;IACH,YAFY,gBAAgB,CAAC,OAAO,SAAS,EAAE,KAAK,CAAC,KAAK,CAAC,iBAAiB,CAAC,KAAK,CAAC,CAAC,CAAC,CAIpF;IAED;;;;OAIG;IACH,cAFY,gBAAgB,CAAC,KAAK,CAAC,iBAAiB,CAAC,KAAK,CAAC,CAAC,GAAG,CAAC,CAAC,CAIhE;IAED;;;;OAIG;IACH,eAFY,gBAAgB,CAAC,GAAG,CAAC,IAAI,MAAM,KAAK,CAAC,iBAAiB,CAAC,KAAK,CAAC,GAAG,CAAC,CAAC,EAAC,KAAK,CAAC,iBAAiB,CAAC,KAAK,CAAC,CAAC,CAAC,CAAC,CAAC,GAAE,CAAC,GAAG,CAAC,CAAC,CAIxH;IAED;;;;OAIG;IACH,gBAFY,MAAM,CAIjB;IASD;;;;;;;;;OASG;IACH,gBAFW,eAAe,GAAG,eAAe,QAW3C;IA1BD;;OAEG;IACH,oCAFW,IAAI,WAId;CAsBF;AAOM,uBAJ+C,KAAK,SAA9C,OAAQ,YAAY,EAAE,iBAAkB,UAC1C,KAAK,GACJ,CAAC,CAAC,MAAM,CAAC,KAAK,CAAC,OAAO,YAAY,EAAE,aAAa,CAAC,KAAK,CAAC,CAAC,CAAC,CAElB;AACpD,6CAA6C;AAMtC,gDAHI,WAAW,SACX,KAAK,uCAiBf;AAOM,8BAJI,GAAG,KACH,GAAG,GACF,OAAO,CAEgH;AAyB5H,oCARI,KAAK,CAAC,GAAG,CAAC,SACV,MAAM,OACN,MAAM,GACL,KAAK,CAAC,GAAG,CAAC,CAgCrB;AAYM,kCAPI,KAAK,SACL,MAAM,GACL,GAAG,CAqBd;AAaM,yDARI,WAAW,UACX,KAAK,iBACL,IAAI,OAAC,WACL,KAAK,CAAC,MAAM,CAAC,QA4DvB;AAaM,oDARI,WAAW,UACX,KAAK,SACL,MAAM,WACN,KAAK,CAAC;QAAO,MAAM,GAAC,GAAG;CAAC,GAAC,KAAK,CAAC,GAAG,CAAC,GAAC,MAAM,GAAC,IAAI,GAAC,MAAM,GAAC,UAAU,CAAC,QA4C5E;AAaM,kDAPI,WAAW,UACX,KAAK,WACL,KAAK,CAAC;QAAO,MAAM,GAAC,GAAG;CAAC,GAAC,KAAK,CAAC,GAAG,CAAC,GAAC,MAAM,GAAC,IAAI,GAAC,MAAM,GAAC,UAAU,CAAC,QAe5E;AAWM,4CARI,WAAW,UACX,KAAK,SACL,MAAM,UACN,MAAM,QAyChB;AAYM,2CAPI,WAAW,UACX,KAAK,OACL,MAAM,QAUhB;AAWM,wCARI,WAAW,UACX,KAAK,OACL,MAAM,SACN,MAAM,QAqChB;AAUM,mCAPI,KAAK,CAAC,GAAG,CAAC,OACV,MAAM,GACL;QAAO,MAAM,GAAC,GAAG;CAAC,GAAC,MAAM,GAAC,IAAI,GAAC,KAAK,CAAC,GAAG,CAAC,GAAC,MAAM,GAAC,UAAU,GAAC,KAAK,CAAC,GAAG,CAAC,GAAC,SAAS,CAS3F;AASM,sCANI,KAAK,CAAC,GAAG,CAAC;;;;EAkBpB;AA0BM,gCAf8B,SAAS,SAAhC,KAAK,CAAC,eAAgB,KACzB,SAAS,UACT,KAAK,iBACL,GAAG,CAAC,MAAM,GAAC,IAAI,CAAC,OAAC,MACjB,0BAA0B,QAC1B,OAAO,aACP,GAAG,CAAC,KAAK,CAAC,GAAC,GAAG,CAAC,KAAK,EAAC,GAAG,CAAC,GAAC,IAAI,iBAC9B,KAAK,OAAC,kBACN,KAAK,OAAC,SACN,GAAG,YACH,GAAG,QA8Cb;AAUM,mCAPI,KAAK,CAAC,GAAG,CAAC,OACV,MAAM,GACL,OAAO,CASlB;AASM,gCANI,IAAI,YACJ,QAAQ,GAAC,SAAS,WAO+F;AAWrH,2CARI,KAAK,CAAC,GAAG,CAAC,OACV,MAAM,YACN,QAAQ,GACP;QAAO,MAAM,GAAC,GAAG;CAAC,GAAC,MAAM,GAAC,IAAI,GAAC,KAAK,CAAC,GAAG,CAAC,GAAC,MAAM,GAAC,UAAU,GAAC,KAAK,CAAC,GAAG,CAAC,GAAC,SAAS,CAW3F;AAUM,8CAPI,KAAK,CAAC,GAAG,CAAC,YACV,QAAQ;;;;EAwBlB;AASM,wCANI,KAAK,CAAC,GAAG,CAAC,GAAG;IAAE,IAAI,EAAE,GAAG,CAAC,MAAM,EAAE,IAAI,CAAC,CAAA;CAAE,GACvC,gBAAgB,CAAC,KAAK,CAAC,GAAG,CAAC,CAAC,CAQvC;AAQM,yCAHI,eAAe,GAAG,eAAe,GAChC,WAAW,CAEsD;AAQtE,2CAHI,eAAe,GAAG,eAAe,GAChC,aAAa,CAE0D;AAQ5E,yCAHI,eAAe,GAAG,eAAe,GAChC,WAAW,CActB;AAMM,2CAHI,eAAe,GAAG,eAAe,GAChC,aAAa,CAE2E;AAQ7F,0CAHI,eAAe,GAAG,eAAe,GAChC,YAAY,CAEuD;AAQxE,wCAHI,eAAe,GAAG,eAAe,GAChC,UAAU,CAE0E;AAMzF,wCAHI,eAAe,GAAG,eAAe,GAChC,UAAU,CASrB;AAMM,2CAHI,eAAe,GAAG,eAAe,GAChC,aAAa,CAEuD;AAQzE,4CAHI,eAAe,GAAG,eAAe,GAChC,cAAc,CAEwD;AAElF;;;;GAIG;AACH,0BAFU,KAAK,CAAC,CAAS,IAAiC,EAAjC,eAAe,GAAG,eAAe,KAAE,eAAe,CAAC,CAc3E;AAMM,yCAHI,eAAe,GAAG,eAAe,QACjC,MAAM,+CAE0E;AASpF,mCANI,eAAe,GAAG,eAAe,GAChC,KAAK,CAUhB;qBAvkEY;QAAO,MAAM,GAAC,GAAG;CAAC,GAAC,KAAK,CAAC,GAAG,CAAC,GAAC,MAAM,GAAC,IAAI,GAAC,MAAM,GAAC,UAAU,YAAQ,KAAK,CAAC,GAAG,CAAC;kCA48C3D,KAAK,SAAtB,KAAK,CAAC,SAAU,IACjB,KAAK,CAAC,kBAAkB,CAAC,KAAK,EAAE;IACtC,KAAK,EAAE,GAAG,CAAC,IAAI,MAAM,KAAK,CAAC,iBAAiB,CAAC,KAAK,CAAC,GAAG,YAAY,CAAC,KAAK,CAAC,iBAAiB,CAAC,KAAK,CAAC,CAAC,CAAC,CAAC,CAAC,GAAE,CAAC;IACxG,QAAQ,EAAE,YAAY,CAAC,KAAK,CAAC,oBAAoB,CAAC,KAAK,CAAC,CAAC,CAAA;CAC1D,CAAC;yBAKY,IAAI,oBACV,OAAO,CAAC,IAAI,EAAC,KAAK,CAAC,QAAQ,CAAC,GAAG,CAAC,OAAO,CAAC,IAAI,EAAC,KAAK,CAAC,QAAQ,CAAC,SAAS,KAAK,CAAC,KAAK,CAAC,MAAM,KAAK,CAAC,GAAG,CAAC,OAAO,SAAS,KAAK,GAAG,KAAK,CAAC,KAAK,CAAC,GAAG,KAAK,CAAC,GAAG,KAAK,CAAC;qBAj+C7J,mBAAmB;uBAOH,mBAAmB;uBAhCnB,YAAY;wBASX,aAAa;mBADlB,aAAa;4BAiBzB,mBAAmB;8BAAnB,mBAAmB;4BAAnB,mBAAmB;8BAAnB,mBAAmB;6BAAnB,mBAAmB;2BAAnB,mBAAmB;2BAAnB,mBAAmB;8BAAnB,mBAAmB;+BAAnB,mBAAmB"}
+\ No newline at end of file
++{"version":3,"file":"ytype.d.ts","sourceRoot":"","sources":["../../src/ytype.js"],"names":[],"mappings":"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"}
+\ No newline at end of file
+diff --git a/src/structs/Item.js b/src/structs/Item.js
+index d3fb68a6086cab497099f265f95100258224db1b..5c4e621eb5e0341e002688b9e30927a7c2979185 100644
+--- a/src/structs/Item.js
++++ b/src/structs/Item.js
+@@ -259,7 +259,7 @@ export class Item extends AbstractStruct {
+         // set as current parent value if right === null and this is parentSub
+         /** @type {YType} */ (this.parent)._map.set(this.parentSub, this)
+         if (this.left !== null) {
+-          // this is the current attribute value of parent. delete right
++          // this is the current attribute value of parent. delete the previous value
+           this.left.delete(transaction)
+         }
+       }
+diff --git a/src/utils/UndoManager.js b/src/utils/UndoManager.js
+index 5b94f87efb372d97fb8e943f607c585433dfbabb..27af08ca781bcdebc39206df93055e6a759a6c4f 100644
+--- a/src/utils/UndoManager.js
++++ b/src/utils/UndoManager.js
+@@ -92,7 +92,7 @@ const popStackItem = (undoManager, stack, eventType) => {
+         }
+       })
+       itemsToRedo.forEach(struct => {
+-        performedChange = redoItem(transaction, struct, itemsToRedo, stackItem.inserts, undoManager.ignoreRemoteMapChanges, undoManager) !== null || performedChange
++        performedChange = redoItem(transaction, struct, itemsToRedo, stackItem.inserts, undoManager.ignoreRemoteAttributeChanges, undoManager) !== null || performedChange
+       })
+       // We want to delete in reverse order so that children are deleted before
+       // parents, so we have more information available when items are filtered.
+@@ -131,7 +131,7 @@ const popStackItem = (undoManager, stack, eventType) => {
+  * filter returns false, the type/item won't be deleted even it is in the
+  * undo/redo scope.
+  * @property {Set<any>} [UndoManagerOptions.trackedOrigins=new Set([null])]
+- * @property {boolean} [ignoreRemoteMapChanges] Experimental. By default, the UndoManager will never overwrite remote changes. Enable this property to enable overwriting remote changes on key-value changes (Y.Map, properties on Y.Xml, etc..).
++ * @property {boolean} [ignoreRemoteAttributeChanges] By default, the UndoManager will never overwrite remote changes. In some cases this might be the expected behavior. This property enables overwriting remote changes on attribute changes. (previously named `ignoreRemoteMapChanges`)
+  * @property {Doc} [doc] The document that this UndoManager operates on. Only needed if typeScope is empty.
+  */
+ 
+@@ -162,7 +162,7 @@ export class UndoManager extends ObservableV2 {
+     captureTransaction = _tr => true,
+     deleteFilter = () => true,
+     trackedOrigins = new Set([null]),
+-    ignoreRemoteMapChanges = false,
++    ignoreRemoteAttributeChanges = false,
+     doc = /** @type {Doc} */ (array.isArray(typeScope) ? typeScope[0].doc : typeScope instanceof Doc ? typeScope : typeScope.doc)
+   } = {}) {
+     super()
+@@ -198,7 +198,7 @@ export class UndoManager extends ObservableV2 {
+      */
+     this.currStackItem = null
+     this.lastChange = 0
+-    this.ignoreRemoteMapChanges = ignoreRemoteMapChanges
++    this.ignoreRemoteAttributeChanges = ignoreRemoteAttributeChanges
+     this.captureTimeout = captureTimeout
+     /**
+      * @param {Transaction} transaction
+@@ -415,14 +415,14 @@ const isDeletedByUndoStack = (stack, id) => array.some(stack, /** @param {StackI
+  * @param {Item} item
+  * @param {Set<Item>} redoitems
+  * @param {IdSet} itemsToDelete
+- * @param {boolean} ignoreRemoteMapChanges
++ * @param {boolean} ignoreRemoteAttributeChanges
+  * @param {import('../utils/UndoManager.js').UndoManager} um
+  *
+  * @return {Item|null}
+  *
+  * @private
+  */
+-export const redoItem = (transaction, item, redoitems, itemsToDelete, ignoreRemoteMapChanges, um) => {
++export const redoItem = (transaction, item, redoitems, itemsToDelete, ignoreRemoteAttributeChanges, um) => {
+   const doc = transaction.doc
+   const store = doc.store
+   const ownClientID = doc.clientID
+@@ -442,7 +442,7 @@ export const redoItem = (transaction, item, redoitems, itemsToDelete, ignoreRemo
+   // make sure that parent is redone
+   if (parentItem !== null && parentItem.deleted === true) {
+     // try to undo parent if it will be undone anyway
+-    if (parentItem.redone === null && (!redoitems.has(parentItem) || redoItem(transaction, parentItem, redoitems, itemsToDelete, ignoreRemoteMapChanges, um) === null)) {
++    if (parentItem.redone === null && (!redoitems.has(parentItem) || redoItem(transaction, parentItem, redoitems, itemsToDelete, ignoreRemoteAttributeChanges, um) === null)) {
+       return null
+     }
+     while (parentItem.redone !== null) {
+@@ -491,7 +491,7 @@ export const redoItem = (transaction, item, redoitems, itemsToDelete, ignoreRemo
+     }
+   } else {
+     right = null
+-    if (item.right && !ignoreRemoteMapChanges) {
++    if (item.right && !ignoreRemoteAttributeChanges) {
+       left = item
+       // Iterate right while right is in itemsToDelete
+       // If it is intended to delete right while item is redone, we can expect that item should replace right.
+@@ -508,6 +508,9 @@ export const redoItem = (transaction, item, redoitems, itemsToDelete, ignoreRemo
+     } else {
+       left = parentType._map.get(item.parentSub) || null
+     }
++    if (left !== null && /** @type {YType} */ (left.parent)._item !== parentItem) {
++      left = parentType._map.get(item.parentSub) || null
++    }
+   }
+   const nextClock = store.getClock(ownClientID)
+   const nextId = createID(ownClientID, nextClock)
+diff --git a/src/ytype.js b/src/ytype.js
+index ab79c2fe90d8b3c74b1c1ce6d7f62f714605f33c..bad51b3c1b80f8849eede060d412aa7d70bd6d3f 100644
+--- a/src/ytype.js
++++ b/src/ytype.js
+@@ -1926,7 +1926,19 @@ export const typeMapGetDelta = (d, parent, attrsToRender, am, deep, modified, de
+     let c = array.last(content.getContent())
+     if (deleted) {
+       if (itemsToRender == null || itemsToRender.hasId(item.lastId)) {
+-        d.deleteAttr(key, attribution, c)
++        if (attribution != null) {
++          // Item surfaced under attribution (suggestion view / diff AM,
++          // either in snapshot mode or in an event-driven render). The
++          // attribute is still observable in the rendered state, so emit
++          // a positive `SetAttrOp` carrying the attribution metadata -
++          // matching how content children are rendered for the same case
++          // (positive `InsertOp` with attribution, never `DeleteOp`).
++          d.setAttr(key, c, attribution)
++        } else {
++          // Hard-deleted attribute (no AM-surfaced attribution): emit the
++          // change op so event consumers can apply it.
++          d.deleteAttr(key, attribution, c)
++        }
+       }
+     } else if (deep && c instanceof YType && modified?.has(c)) {
+       d.modifyAttr(key, c.toDelta(am, opts))

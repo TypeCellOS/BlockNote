@@ -17,6 +17,9 @@ overrides:
   "@headlessui/react": "^2.2.4"
   "@tiptap/core": "^3.0.0"
   "@tiptap/pm": "^3.0.0"
+  "@y/prosemirror>lib0": "1.0.0-rc.13"
+  "@y/y": "14.0.0-rc.16"
+  "@y/prosemirror": "2.0.0-2"
 allowBuilds:
   "@parcel/watcher": true
   "@sentry/cli": true
@@ -28,6 +31,11 @@ allowBuilds:
   canvas: false
   sharp: false
   workerd: false
+  leveldown: false
+patchedDependencies:
+  "@y/prosemirror@2.0.0-2": "patches/@y__prosemirror@2.0.0-2.patch"
+  "@y/y@14.0.0-rc.16": patches/@y__y@14.0.0-rc.16.patch
+  lib0@1.0.0-rc.13: patches/lib0@1.0.0-rc.13.patch
 catalog:
   vite-plus: ^0.1.24
 minimumReleaseAgeExclude:
