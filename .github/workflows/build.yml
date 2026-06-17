@@ -38,7 +38,7 @@ jobs:
         run: vp lint
 
       - name: Run unit tests
-        run: vp run -r test
+        run: vp run test
 
       - name: Run Next.js integration test (production build)
         run: NEXTJS_TEST_MODE=build vp test run src/unit/nextjs/serverUtil.test.ts

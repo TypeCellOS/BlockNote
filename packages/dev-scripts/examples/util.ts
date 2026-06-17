@@ -23,6 +23,30 @@ export function writeGeneratedFile(
 }
 
 /**
+ * Atomically writes a file by writing to a unique temp file in the same
+ * directory and renaming it into place (rename is atomic on POSIX). This
+ * prevents readers from ever observing a truncated/empty file, which matters
+ * for shared files (e.g. docs/package.json) that may be read and written by
+ * concurrent `gen:docs` processes. Skips the write entirely when the on-disk
+ * content already matches, avoiding an unnecessary truncation window.
+ */
+export function writeFileAtomic(absolute: string, content: string) {
+  try {
+    if (fs.readFileSync(absolute, "utf-8") === content) {
+      return;
+    }
+  } catch {
+    // File does not exist yet (or could not be read) — fall through to write.
+  }
+  fs.mkdirSync(path.dirname(absolute), { recursive: true });
+  const tmp = `${absolute}.${process.pid}.${Date.now()}.${Math.random()
+    .toString(36)
+    .slice(2)}.tmp`;
+  fs.writeFileSync(tmp, content);
+  fs.renameSync(tmp, absolute);
+}
+
+/**
  * Formats the given files in-place using `vp fmt`. Files that are excluded by
  * oxfmt ignore rules (e.g. *.mdx) are tolerated. Runs in chunks to avoid argv
  * length limits.

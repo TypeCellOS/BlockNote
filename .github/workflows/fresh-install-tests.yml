@@ -84,7 +84,7 @@ jobs:
 
       - id: run_unit_tests
         name: Run unit tests
-        run: vp run -r test
+        run: vp run test
 
       - name: Notify Slack on workflow failure
         if: ${{ failure() }}
