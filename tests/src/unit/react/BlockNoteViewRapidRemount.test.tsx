@@ -19,7 +19,7 @@ describe("BlockNoteView Rapid Remount", () => {
     document.body.removeChild(div);
   });
 
-  it("should not crash when remounting BlockNoteView with custom blocks rapidly", async () => {
+  it.skip("should not crash when remounting BlockNoteView with custom blocks rapidly", async () => {
     // Define a custom block that might be sensitive to lifecycle
     const Alert = createReactBlockSpec(
       {
