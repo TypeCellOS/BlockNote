@@ -3,9 +3,21 @@
  */
 
 import { Node } from "prosemirror-model";
-import { beforeAll, describe, expect, it } from "vite-plus/test";
+import { afterEach, beforeAll, describe, expect, it } from "vite-plus/test";
 
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+
+// Track editors created in each test so we can unmount them in afterEach —
+// otherwise prosemirror-view's DOMObserver leaves a setTimeout alive that
+// fires after vitest tears down jsdom, throwing
+// `ReferenceError: document is not defined` and failing the run.
+const activeEditors: BlockNoteEditor<any, any, any>[] = [];
+
+afterEach(() => {
+  while (activeEditors.length) {
+    activeEditors.pop()!.unmount();
+  }
+});
 
 /**
  * The UniqueID extension's `appendTransaction` hook assigns a fresh id to any
@@ -19,6 +31,7 @@ import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 function createEditor() {
   const editor = BlockNoteEditor.create();
   editor.mount(document.createElement("div"));
+  activeEditors.push(editor);
   editor.replaceBlocks(editor.document, [
     { id: "block-a", type: "paragraph", content: "A" },
     { id: "block-b", type: "paragraph", content: "B" },
