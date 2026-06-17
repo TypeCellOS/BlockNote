@@ -14,7 +14,8 @@ import type {
 import { UnreachableCaseError } from "../../../util/typescript.js";
 import {
   getBlockInfo,
-  getBlockInfoFromTransaction,
+  getBlockInfoFromSelection,
+  getNodeId,
 } from "../../getBlockInfoFromPos.js";
 import { nodeToBlock } from "../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../nodeUtil.js";
@@ -25,8 +26,7 @@ export function getTextCursorPosition<
   I extends InlineContentSchema,
   S extends StyleSchema,
 >(tr: Transaction): TextCursorPosition<BSchema, I, S> {
-  const { bnBlock } = getBlockInfoFromTransaction(tr);
-  const pmSchema = getPmSchema(tr.doc);
+  const { bnBlock } = getBlockInfoFromSelection(tr);
 
   const resolvedPos = tr.doc.resolve(bnBlock.beforePos);
   // Gets previous blockContainer node at the same nesting level, if the current node isn't the first child.
@@ -47,11 +47,11 @@ export function getTextCursorPosition<
   }
 
   return {
-    block: nodeToBlock(bnBlock.node, pmSchema),
-    prevBlock: prevNode === null ? undefined : nodeToBlock(prevNode, pmSchema),
-    nextBlock: nextNode === null ? undefined : nodeToBlock(nextNode, pmSchema),
+    block: nodeToBlock(bnBlock.node, tr.doc),
+    prevBlock: prevNode === null ? undefined : nodeToBlock(prevNode, tr.doc),
+    nextBlock: nextNode === null ? undefined : nodeToBlock(nextNode, tr.doc),
     parentBlock:
-      parentNode === undefined ? undefined : nodeToBlock(parentNode, pmSchema),
+      parentNode === undefined ? undefined : nodeToBlock(parentNode, tr.doc),
   };
 }
 
@@ -113,6 +113,6 @@ export function setTextCursorPosition(
         ? info.childContainer.node.firstChild!
         : info.childContainer.node.lastChild!;
 
-    setTextCursorPosition(tr, child.attrs.id, placement);
+    setTextCursorPosition(tr, getNodeId(child, tr.doc), placement);
   }
 }

@@ -7,16 +7,17 @@ import { MarkSpec } from "prosemirror-model";
 // The ideal solution would be to not depend on tiptap nodes / marks, but be able to use prosemirror nodes / marks directly
 // this way we could directly use the exported marks from @handlewithcare/prosemirror-suggest-changes
 export const SuggestionAddMark = Mark.create({
-  name: "insertion",
+  name: "y-attributed-insert",
   inclusive: false,
-  excludes: "deletion modification insertion",
+  excludes: "",
   addAttributes() {
     return {
       id: { default: null, validate: "number" }, // note: validate is supported in prosemirror but not in tiptap, so this doesn't actually work (considered not critical)
+      "user-color": { default: null, validate: "string" },
     };
   },
   extendMarkSchema(extension) {
-    if (extension.name !== "insertion") {
+    if (extension.name !== "y-attributed-insert") {
       return {};
     }
     return {
@@ -28,8 +29,13 @@ export const SuggestionAddMark = Mark.create({
           "ins",
           {
             "data-id": String(mark.attrs["id"]),
+            "data-user-color": String(mark.attrs["user-color"]),
             "data-inline": String(inline),
-            ...(!inline && { style: "display: contents" }), // changed to "contents" to make this work for table rows
+            style:
+              (inline ? "" : "display: contents") +
+              ("user-color" in mark.attrs
+                ? `; --user-color: ${mark.attrs["user-color"]}`
+                : ""), // changed to "contents" to make this work for table rows
           },
           0,
         ];
@@ -43,6 +49,7 @@ export const SuggestionAddMark = Mark.create({
             }
             return {
               id: parseInt(node.dataset["id"], 10),
+              userColor: node.dataset["userColor"],
             };
           },
         },
@@ -52,16 +59,17 @@ export const SuggestionAddMark = Mark.create({
 });
 
 export const SuggestionDeleteMark = Mark.create({
-  name: "deletion",
+  name: "y-attributed-delete",
   inclusive: false,
-  excludes: "insertion modification deletion",
+  excludes: "",
   addAttributes() {
     return {
       id: { default: null, validate: "number" }, // note: validate is supported in prosemirror but not in tiptap
+      "user-color": { default: null, validate: "string" },
     };
   },
   extendMarkSchema(extension) {
-    if (extension.name !== "deletion") {
+    if (extension.name !== "y-attributed-delete") {
       return {};
     }
     return {
@@ -76,8 +84,13 @@ export const SuggestionDeleteMark = Mark.create({
           "del",
           {
             "data-id": String(mark.attrs["id"]),
+            "data-user-color": String(mark.attrs["user-color"]),
             "data-inline": String(inline),
-            ...(!inline && { style: "display: contents" }), // changed to "contents" to make this work for table rows
+            style:
+              (inline ? "" : "display: contents") +
+              ("user-color" in mark.attrs
+                ? `; --user-color: ${mark.attrs["user-color"]}`
+                : ""), // changed to "contents" to make this work for table rows
           },
           0,
         ];
@@ -91,6 +104,7 @@ export const SuggestionDeleteMark = Mark.create({
             }
             return {
               id: parseInt(node.dataset["id"], 10),
+              userColor: node.dataset["userColor"],
             };
           },
         },
@@ -100,43 +114,34 @@ export const SuggestionDeleteMark = Mark.create({
 });
 
 export const SuggestionModificationMark = Mark.create({
-  name: "modification",
+  name: "y-attributed-format",
   inclusive: false,
-  excludes: "deletion insertion",
+  excludes: "",
   addAttributes() {
-    // note: validate is supported in prosemirror but not in tiptap
     return {
-      id: { default: null, validate: "number" },
-      type: { validate: "string" },
-      attrName: { default: null, validate: "string|null" },
-      previousValue: { default: null },
-      newValue: { default: null },
+      id: { default: null, validate: "number" }, // note: validate is supported in prosemirror but not in tiptap
+      "user-color": { default: null, validate: "string" },
     };
   },
   extendMarkSchema(extension) {
-    if (extension.name !== "modification") {
+    if (extension.name !== "y-attributed-format") {
       return {};
     }
     return {
       blocknoteIgnore: true,
       inclusive: false,
-      // attrs: {
-      //   id: { validate: "number" },
-      //   type: { validate: "string" },
-      //   attrName: { default: null, validate: "string|null" },
-      //   previousValue: { default: null },
-      //   newValue: { default: null },
-      // },
       toDOM(mark, inline) {
         return [
           inline ? "span" : "div",
           {
             "data-type": "modification",
             "data-id": String(mark.attrs["id"]),
-            "data-mod-type": mark.attrs["type"] as string,
-            "data-mod-prev-val": JSON.stringify(mark.attrs["previousValue"]),
-            // TODO: Try to serialize marks with toJSON?
-            "data-mod-new-val": JSON.stringify(mark.attrs["newValue"]),
+            "data-user-color": String(mark.attrs["user-color"]),
+            style:
+              (inline ? "" : "display: contents") +
+              ("user-color" in mark.attrs
+                ? `; --user-color: ${mark.attrs["user-color"]}`
+                : ""),
           },
           0,
         ];
@@ -150,9 +155,7 @@ export const SuggestionModificationMark = Mark.create({
             }
             return {
               id: parseInt(node.dataset["id"], 10),
-              type: node.dataset["modType"],
-              previousValue: node.dataset["modPrevVal"],
-              newValue: node.dataset["modNewVal"],
+              "user-color": node.dataset["userColor"],
             };
           },
         },
@@ -164,8 +167,7 @@ export const SuggestionModificationMark = Mark.create({
             }
             return {
               id: parseInt(node.dataset["id"], 10),
-              type: node.dataset["modType"],
-              previousValue: node.dataset["modPrevVal"],
+              "user-color": node.dataset["userColor"],
             };
           },
         },
