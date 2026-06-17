@@ -24,13 +24,13 @@ function getExampleEditorWithSuggestions() {
     tr.addMark(
       block.blockContent.beforePos + 1,
       block.blockContent.beforePos + 6,
-      editor.pmSchema.mark("deletion", {}),
+      editor.pmSchema.mark("y-attributed-delete", {}),
     );
 
     tr.addMark(
       block.blockContent.beforePos + 6,
       block.blockContent.beforePos + 8,
-      editor.pmSchema.mark("insertion", {}),
+      editor.pmSchema.mark("y-attributed-insert", {}),
     );
   });
 
