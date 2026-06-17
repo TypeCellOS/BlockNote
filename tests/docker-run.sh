@@ -26,24 +26,37 @@ done
 [ "$#" -gt 0 ] && shift
 entrypoint_args=("$@")
 
-# Warn if the image may be stale: check whether any file that affects the
-# installed deps (lockfile, patches, or any package.json) is newer than the
-# image. Rebuilding is cheap when layers are cached; run `vp run e2e:image`.
-if image_date=$(docker inspect --format '{{.Metadata.LastTagTime}}' blocknote-e2e 2>/dev/null); then
-  image_epoch=$(date -d "$image_date" +%s 2>/dev/null || date -j -f "%Y-%m-%dT%H:%M:%S" "${image_date%%.*}" +%s 2>/dev/null || echo 0)
-  stale_file=""
-  for f in pnpm-lock.yaml patches/* $(find . -name package.json -not -path '*/node_modules/*' -not -path '*/.git/*'); do
-    [ -f "$f" ] || continue
-    file_epoch=$(date -r "$f" +%s 2>/dev/null || echo 0)
-    if [ "$file_epoch" -gt "$image_epoch" ]; then
-      stale_file="$f"
-      break
-    fi
-  done
-  if [ -n "$stale_file" ]; then
-    echo "⚠️  blocknote-e2e image may be stale (\"$stale_file\" is newer)." >&2
-    echo "   Run \`vp run e2e:image\` to rebuild if you see import resolution errors." >&2
-  fi
+# Auto-rebuild the image if its content hash label doesn't match the current
+# repo state. The hash covers every file that affects the installed deps or the
+# baked-in examples (lockfile, workspace file, all package.json files, patches,
+# and example sources). When the hashes differ the image is rebuilt in place
+# (Docker's layer cache makes this fast when only a leaf changed).
+_dep_files() {
+  # Print the sorted list of files that are baked into the image.
+  {
+    echo pnpm-lock.yaml
+    echo pnpm-workspace.yaml
+    find patches examples \( -name node_modules -prune \) -o -type f -print 2>/dev/null
+    find . -name package.json \
+      -not -path '*/node_modules/*' \
+      -not -path '*/.git/*' \
+      -not -path '*/dist/*'
+  } | sort -u
+}
+_content_hash() {
+  # sha256 of the concatenated sorted file contents; shasum is available on
+  # macOS & Linux (util-linux / coreutils).
+  _dep_files | xargs shasum -a 256 -- 2>/dev/null | shasum -a 256 | cut -d' ' -f1
+}
+
+current_hash=$(_content_hash)
+image_hash=$(docker inspect --format '{{index .Config.Labels "blocknote.deps-hash"}}' blocknote-e2e 2>/dev/null || true)
+
+if [ "$current_hash" != "$image_hash" ]; then
+  echo "blocknote-e2e image is out of date (deps/examples changed) — rebuilding…" >&2
+  docker build -t blocknote-e2e \
+    --label "blocknote.deps-hash=$current_hash" \
+    -f tests/Dockerfile .
 fi
 
 mounts=()

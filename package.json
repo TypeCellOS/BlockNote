@@ -25,7 +25,7 @@
     "deploy": "echo not working:(",
     "gen": "vp run --filter @blocknote/dev-scripts gen",
     "install-playwright": "cd tests && vp exec playwright install --with-deps",
-    "e2e:image": "docker build -t blocknote-e2e -f tests/Dockerfile .",
+    "e2e:image": "bash tests/docker-build.sh",
     "e2e": "bash tests/docker-run.sh -e CI=1 -- --run",
     "e2e:updateSnaps": "bash tests/docker-run.sh -e CI=1 -- --run -u",
     "e2e:report": "serve -l 4173 tests/playwright-report",
