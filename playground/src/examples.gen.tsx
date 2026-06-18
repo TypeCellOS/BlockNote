@@ -1754,7 +1754,7 @@ export const examples = {
           dependencies: {
             "@y/protocols": "^1.0.6-rc.1",
             "@y/y": "^14.0.0-rc.16",
-            "@y/prosemirror": "^2.0.0-2",
+            "@y/prosemirror": "^2.0.0-4",
             "@y/websocket": "^4.0.0-rc.2",
           } as any,
         },

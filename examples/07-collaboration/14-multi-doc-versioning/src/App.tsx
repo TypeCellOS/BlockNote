@@ -9,10 +9,6 @@ import { generateRandomId } from "./utils.js";
 import { LoginScreen } from "./LoginScreen.js";
 import { DocumentList } from "./DocumentList.js";
 import { DocumentEditor } from "./DocumentEditor.js";
-import { preloadDemoDocument } from "./preloadVersions.js";
-
-// Seed a demo document with pre-built version history on first load
-preloadDemoDocument();
 
 export default function App() {
   const user = useCurrentUser();
