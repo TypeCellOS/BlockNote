@@ -95,7 +95,10 @@ export class ClientSideTransport<
       // activeTools: ["applyDocumentOperations"],
     });
 
-    return ret.toUIMessageStream();
+    return ret.toUIMessageStream({
+      onError: (error) =>
+        error instanceof Error ? error.message : String(error),
+    });
   }
 
   async sendMessages({
