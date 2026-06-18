@@ -2,16 +2,6 @@
 
 BlockNote is a block-based rich text editor for the web. It's designed as a batteries-included product that offers a solid user experience with minimal setup. However, it also offers extensibility via plugins and custom block types.
 
-# Issue Context
-
-When prompted to write a new feature, fix a bug, or make some other modification to the code, the project repository on GitHub should be scanned for issues and PRs which are relevant to the task at hand. Before writing any code, a summary of these should be given. If nothing relevant is found, the task can be started immediately. Otherwise, the user should be prompted on next steps.
-
-This should only be done for new conversations. If GitHub was already scanned in the same conversation, it does not need to be scanned again.
-
-Once the task is done and the feature is completed, bug is fixed, etc, the user should be reminded of the relevant issues and PRs found in the initial investigation.
-
-The GitHub CLI should be used to browse issues and PRs.
-
 # Common Commands
 
 All commands below are listed under `package.json` in the project root. See `vite.config.ts` for relevant configuration settings.
