@@ -1,0 +1,554 @@
+diff --git a/dist/demo/prosemirror.d.ts b/dist/demo/prosemirror.d.ts
+deleted file mode 100644
+index c9b8da026e73cfa5b83aeed606cf289c6da79667..0000000000000000000000000000000000000000
+diff --git a/dist/demo/prosemirror.d.ts.map b/dist/demo/prosemirror.d.ts.map
+deleted file mode 100644
+index 60f5203a9f44de836b05155064898b3709836949..0000000000000000000000000000000000000000
+diff --git a/dist/demo/schema.d.ts b/dist/demo/schema.d.ts
+deleted file mode 100644
+index 579716a4a0af3c62efed3fdd6f5d2a24704e617c..0000000000000000000000000000000000000000
+diff --git a/dist/demo/schema.d.ts.map b/dist/demo/schema.d.ts.map
+deleted file mode 100644
+index f7879c19424714d1c0314eadd81aee0d3047f84d..0000000000000000000000000000000000000000
+diff --git a/dist/src/index.d.ts b/dist/src/index.d.ts
+index ebf62e224dcb8a4becb6dcc0e59799e732a4ce1c..c870a6d1eaa70daf2a6c718b179cb7873ae19e94 100644
+--- a/dist/src/index.d.ts
++++ b/dist/src/index.d.ts
+@@ -4,5 +4,5 @@ export * from "./positions.js";
+ export * from "./commands.js";
+ export * from "./undo-plugin.js";
+ export * from "./cursor-plugin.js";
+-export { docToDelta, $prosemirrorDelta, defaultMapAttributionToMark } from "./sync-utils.js";
++export { docToDelta, $prosemirrorDelta, defaultMapAttributionToMark, yattr2markname, pmToFragment, fragmentToPm } from "./sync-utils.js";
+ //# sourceMappingURL=index.d.ts.map
+\ No newline at end of file
+diff --git a/dist/src/sync-plugin.d.ts b/dist/src/sync-plugin.d.ts
+index c1da2aa33b86511936e9b1ba4d2d3c848e0c70da..5d8e201b64463ad99eb77d55f4a8160b97d8adb9 100644
+--- a/dist/src/sync-plugin.d.ts
++++ b/dist/src/sync-plugin.d.ts
+@@ -11,12 +11,14 @@
+  * @param {Y.Doc} [opts.suggestionDoc] A {@link Y.Doc} to use for suggestion tracking
+  * @param {AttributionMapper} [opts.mapAttributionToMark] A function to map the {@link Y.Attribution} to a {@link import('prosemirror-model').Mark} - the mark names *must* be one of: `y-attributed-insert`, `y-attributed-delete`, `y-attributed-format`. No other mark names are permitted
+  * @param {AttributedNodesPredicate} [opts.attributedNodes] Optional predicate `(nodeName, kinds) => boolean`. When it returns `true` for an attributed node *and* a `{nodeName}--attributed` type exists in the schema, that node is rendered under the variant type (the `y-attributed-*` marks are still applied). `kinds` is `{ insert?, delete?, format? }`. The variant is a pure rendering concern - the canonical name is what is stored in the Y document. The predicate must be deterministic in `(nodeName, kinds)`.
++ * @param {NodeCompare} [opts.customCompare] Optional predicate `(a, b) => boolean` that shifts the *diffing boundary*. To sync, y-prosemirror diffs the ProseMirror doc against the Y document as `lib0/delta` trees; lib0's `diff` decides for each candidate node pair whether to pair them (diff *in place* via a `modify` op) or to **replace the old subtree wholesale** (delete + insert). By default a pair is matched purely on node name (`a.name === b.name`). Supply this to move the boundary - e.g. make a `blockContainer` only pair when its first child type also matches (`(a, b) => a.name === b.name && (a.name !== 'blockContainer' || firstChildName(a) === firstChildName(b))`), so changing the first child replaces the whole container instead of editing it in place. Receives the raw `lib0/delta` nodes `(fromNode, toNode)` (each exposing `.name`, `.attrs`, `.children`) and is forwarded to `lib0/delta.diff` as its `compare` option, applied recursively down the tree. Generally keep the `a.name === b.name` check; omit the option to keep lib0's name-only default.
+  * @returns {Plugin}
+  */
+ export function syncPlugin(opts?: {
+     suggestionDoc?: Y.Doc | undefined;
+     mapAttributionToMark?: AttributionMapper | undefined;
+     attributedNodes?: AttributedNodesPredicate | undefined;
++    customCompare?: NodeCompare | undefined;
+ }): Plugin;
+ /**
+  * The y-prosemirror binding is a bi-directional synchronization with the provided Y.Type and the EditorView
+@@ -27,12 +29,14 @@ export const $syncPluginState: s.Schema<{
+     attributionManager: Y.AbstractAttributionManager | null;
+     attributionMapper: AttributionMapper;
+     attributedNodes: AttributedNodesPredicate;
++    customCompare: NodeCompare | null;
+ }>;
+ export const $syncPluginStateUpdate: s.Schema<{
+     ytype?: Y.Type<any> | null | undefined;
+     attributionManager?: Y.AbstractAttributionManager | null | undefined;
+     attributionMapper?: AttributionMapper | null | undefined;
+     attributedNodes?: AttributedNodesPredicate | null | undefined;
++    customCompare?: NodeCompare | null | undefined;
+     change?: Y.YEvent<any> | null | undefined;
+ }>;
+ import * as Y from '@y/y';
+diff --git a/dist/src/sync-plugin.d.ts.map b/dist/src/sync-plugin.d.ts.map
+index df8c9df944fe1c64c46c648d913a0f8b52694bd7..8760b823668b3b890f906282ccc725275a013ea0 100644
+--- a/dist/src/sync-plugin.d.ts.map
++++ b/dist/src/sync-plugin.d.ts.map
+@@ -1 +1 @@
+-{"version":3,"file":"sync-plugin.d.ts","sourceRoot":"","sources":["../../src/sync-plugin.js"],"names":[],"mappings":"AAgGA;;;;;;;;;;;;;;GAcG;AACH,kCALG;IAAqB,aAAa;IACD,oBAAoB;IACb,eAAe;CACvD,GAAU,MAAM,CA+LlB;AA7RD;;;GAGG;AACH;;;;;GAYE;AAEF;;;;;;GAME;mBAvCiB,MAAM;uBACF,mBAAmB;mBAWvB,aAAa"}
+\ No newline at end of file
++{"version":3,"file":"sync-plugin.d.ts","sourceRoot":"","sources":["../../src/sync-plugin.js"],"names":[],"mappings":"AAuGA;;;;;;;;;;;;;;;GAeG;AACH,kCANG;IAAqB,aAAa;IACD,oBAAoB;IACb,eAAe;IAC5B,aAAa;CACxC,GAAU,MAAM,CAmMlB;AAzSD;;;GAGG;AACH;;;;;;GAkBE;AAEF;;;;;;;GAOE;mBA9CiB,MAAM;uBACF,mBAAmB;mBAWvB,aAAa"}
+\ No newline at end of file
+diff --git a/dist/src/sync-utils.d.ts b/dist/src/sync-utils.d.ts
+index dfb00a847adcc5a1db01d557a8b0b056eefd1c9a..11ec494b3607c587f80efde57cb2ac7c05541892 100644
+--- a/dist/src/sync-utils.d.ts
++++ b/dist/src/sync-utils.d.ts
+@@ -85,6 +85,7 @@ export function canonicalNodeName(name: string): string;
+ export function attributedVariant(canonicalName: string, format: Record<string, unknown> | null | undefined, attributedNodes: AttributedNodesPredicate, schema: import("prosemirror-model").Schema): string;
+ export function defaultMapAttributionToMark<T extends import("lib0/delta").Attribution>(format: Record<string, unknown> | null, attribution: T): Record<string, unknown> | null;
+ export function deltaAttributionToFormat(d: delta.DeltaAny, attributionsToFormat: Function): ProsemirrorDelta;
++export function yattr2markname(attrName: string): string;
+ export function formattingAttributesToMarks(formatting: {
+     [key: string]: any;
+ } | null, schema: import("prosemirror-model").Schema): import("prosemirror-model").Mark[];
+diff --git a/dist/src/sync-utils.d.ts.map b/dist/src/sync-utils.d.ts.map
+index 8d7883745029eee21f25288286021206007fd3ff..ae86cebc1e78976a3d377f2826c29a9e84178cbf 100644
+--- a/dist/src/sync-utils.d.ts.map
++++ b/dist/src/sync-utils.d.ts.map
+@@ -1 +1 @@
+-{"version":3,"file":"sync-utils.d.ts","sourceRoot":"","sources":["../../src/sync-utils.js"],"names":[],"mappings":"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"}
+\ No newline at end of file
++{"version":3,"file":"sync-utils.d.ts","sourceRoot":"","sources":["../../src/sync-utils.js"],"names":[],"mappings":"AAqQA;;;;;;;GAOG;AACH,mCANW,IAAI,YACJ,CAAC,CAAC,IAAI,2BAEd;IAA4C,kBAAkB;CAC9D,GAAU,CAAC,CAAC,IAAI,CASlB;AAED;;;;;;;;;GASG;AACH,uCARW,CAAC,CAAC,IAAI,MACN,OAAO,mBAAmB,EAAE,WAAW,kEAE/C;IAA2C,kBAAkB;IACZ,oBAAoB,KAtLxB,CAAC,SAApC,OAAQ,YAAY,EAAE,WAAY,UACpC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,eAC9B,CAAC,KACC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI;IAoLD,eAAe;CACtD,GAAU,OAAO,mBAAmB,EAAE,WAAW,CAiBnD;AAED;;;;;GAKG;AACH,uCAJW,CAAC,CAAC,IAAI,MACN,OAAO,mBAAmB,EAAE,WAAW,GACtC,IAAI,CAIf;AAgZD;;;;;;;;;;;;;;;;;GAiBG;AACH,oCAJW,IAAI,mBACJ,MAAM,GACL,MAAM,EAAE,CAwBnB;AAED;;;;;GAKG;AACH,yCAJW,MAAM,EAAE,QACR,IAAI,GACH,MAAM,CAgCjB;AAnwBD;;;;;;;IAA4I;AAE5I;;;;;;;GAOG;AACH,gCAAiC,cAAc,CAAA;AAE/C;;;;;GAKG;AACH,qCAFU,wBAAwB,CAEe;AAS1C,wCAHI,MAAM,GACL,MAAM,CAKR;AAcH,iDANI,MAAM,UACN,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,GAAG,SAAS,mBAC1C,wBAAwB,UACxB,OAAO,mBAAmB,EAAE,MAAM,GACjC,MAAM,CAajB;AAgCM,4CALyC,CAAC,SAApC,OAAQ,YAAY,EAAE,WAAY,UACpC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,eAC9B,CAAC,GACC,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,CAiC1C;AAOM,4CAHI,KAAK,CAAC,QAAQ,mCA4BL,gBAAgB,CACnC;AAqBM,yCAHI,MAAM,GACL,MAAM,CAE2E;AAmDtF,wDAHI;IAAC,CAAC,GAAG,EAAC,MAAM,GAAE,GAAG,CAAA;CAAC,GAAC,IAAI,UACvB,OAAO,mBAAmB,EAAE,MAAM,sCAGwE;AAM9G,iCAHI,KAAK,CAAC,IAAI,CAAC,GACV,gBAAgB,CAW3B;AAgEM,+BAPI,IAAI,aACJ,MAAM,OAAC,iBACP,OAAO,GAGN,gBAAgB,CAoB3B;AAKM,gCAFI,IAAI;;;;;;;GAEwC;AAyEhD,kCAPI,OAAO,mBAAmB,EAAE,WAAW,KACvC,gBAAgB,UAChB,IAAI,YACJ;IAAE,CAAC,EAAE,MAAM,CAAA;CAAE,oBACb,wBAAwB,GACvB,OAAO,mBAAmB,EAAE,WAAW,CA6JlD;AASM,gCANI,gBAAgB,UAChB,OAAO,mBAAmB,EAAE,MAAM,WAClC,KAAK,CAAC,oBAAoB,GAAC,IAAI,oBAC/B,wBAAwB,GACvB,IAAI,CAkCf;AAMM,0CAHI,IAAI,YACJ,IAAI;;;;;;;GAMd;AAKM,8BAFI,WAAW;;;;;;;GAkBrB;AA+CM,kCAJI,OAAO,uBAAuB,EAAE,IAAI,aACpC,OAAO,mBAAmB,EAAE,IAAI,GAC/B,gBAAgB,CAQ3B;AAoGM,wCALI,IAAI,YACJ,MAAM,OACN,CAAC,CAAC,EAAC,KAAK,CAAC,eAAe,KAAG,GAAG,GAC7B,gBAAgB,CAa3B;;;;;iCA3ZY,KAAK,CAAC,aAAa;;;;;;;;;aAQlB,KAAK,CAAC,KAAK,CAAC,QAAQ,CAAC,GAAG,CAAC,GAAC,KAAK,CAAC,MAAM,CAAC;;;;aACvC,KAAK,CAAC,KAAK,CAAC,QAAQ,CAAC;;qBAjZG,mBAAmB;mBAPtC,MAAM;uBAEF,YAAY;mBAIhB,aAAa"}
+\ No newline at end of file
+diff --git a/dist/src/utils.d.ts b/dist/src/utils.d.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..ff01b0ef7739349d9e4fd67f5197020b9db4210b
+--- /dev/null
++++ b/dist/src/utils.d.ts
+@@ -0,0 +1,2 @@
++export function hashOfJSON(json: any): string;
++//# sourceMappingURL=utils.d.ts.map
+\ No newline at end of file
+diff --git a/dist/src/utils.d.ts.map b/dist/src/utils.d.ts.map
+new file mode 100644
+index 0000000000000000000000000000000000000000..0fd58606be14f84b708e556ed09017a0520da035
+--- /dev/null
++++ b/dist/src/utils.d.ts.map
+@@ -0,0 +1 @@
++{"version":3,"file":"utils.d.ts","sourceRoot":"","sources":["../../src/utils.js"],"names":[],"mappings":"AAmBO,iCAHI,GAAG,GACF,MAAM,CAEmG"}
+\ No newline at end of file
+diff --git a/dist/tests/attributed-nodes.test.d.ts b/dist/tests/attributed-nodes.test.d.ts
+deleted file mode 100644
+index e6935d6a014cf43be563ee160c9f74f47abec7b8..0000000000000000000000000000000000000000
+diff --git a/dist/tests/attributed-nodes.test.d.ts.map b/dist/tests/attributed-nodes.test.d.ts.map
+deleted file mode 100644
+index 6ffb87ae68ef83567536bcae750eb39810a8ac75..0000000000000000000000000000000000000000
+diff --git a/dist/tests/cohort.d.ts b/dist/tests/cohort.d.ts
+deleted file mode 100644
+index 03f6e5bb4a58426f31a10282e04ce3972fdce1af..0000000000000000000000000000000000000000
+diff --git a/dist/tests/cohort.d.ts.map b/dist/tests/cohort.d.ts.map
+deleted file mode 100644
+index cef9a6f62e0b87df42762b5fbd791f2bbe4c9042..0000000000000000000000000000000000000000
+diff --git a/dist/tests/commands.test.d.ts b/dist/tests/commands.test.d.ts
+deleted file mode 100644
+index 0f275e944df2403a1ae4925cf3d30fbda76c2f77..0000000000000000000000000000000000000000
+diff --git a/dist/tests/commands.test.d.ts.map b/dist/tests/commands.test.d.ts.map
+deleted file mode 100644
+index 1c646794e0c2ba73e60bb574598202da80513e67..0000000000000000000000000000000000000000
+diff --git a/dist/tests/complexSchema.d.ts b/dist/tests/complexSchema.d.ts
+deleted file mode 100644
+index d515c309d65bf0cb25eb2f5d0f17ba6c580a9966..0000000000000000000000000000000000000000
+diff --git a/dist/tests/complexSchema.d.ts.map b/dist/tests/complexSchema.d.ts.map
+deleted file mode 100644
+index 6100c0e504b30b3bd55253dfaa8be562a3f95d6c..0000000000000000000000000000000000000000
+diff --git a/dist/tests/cursor.test.d.ts b/dist/tests/cursor.test.d.ts
+deleted file mode 100644
+index 2fcbb1cad1c80056bcd6bbad5836e5fdec5ee3f9..0000000000000000000000000000000000000000
+diff --git a/dist/tests/cursor.test.d.ts.map b/dist/tests/cursor.test.d.ts.map
+deleted file mode 100644
+index 24b239543f8c36e897282c130cc6941924f18a5b..0000000000000000000000000000000000000000
+diff --git a/dist/tests/delta.test.d.ts b/dist/tests/delta.test.d.ts
+deleted file mode 100644
+index ec16d0836b3b5f1b9bc48b6ae1193eba09dd050b..0000000000000000000000000000000000000000
+diff --git a/dist/tests/delta.test.d.ts.map b/dist/tests/delta.test.d.ts.map
+deleted file mode 100644
+index a9b33d6a6fc09f298f7cba094e233930a8980763..0000000000000000000000000000000000000000
+diff --git a/dist/tests/index.d.ts b/dist/tests/index.d.ts
+deleted file mode 100644
+index e26a57a8ca84c682b2b77b57b9d6e340ffd33436..0000000000000000000000000000000000000000
+diff --git a/dist/tests/index.d.ts.map b/dist/tests/index.d.ts.map
+deleted file mode 100644
+index fe3992828209916ff4b2412cee13d0f522d1a1e5..0000000000000000000000000000000000000000
+diff --git a/dist/tests/index.node.d.ts b/dist/tests/index.node.d.ts
+deleted file mode 100644
+index 95867294f443b797ca7f2ae869106fa46ca530ab..0000000000000000000000000000000000000000
+diff --git a/dist/tests/index.node.d.ts.map b/dist/tests/index.node.d.ts.map
+deleted file mode 100644
+index 0b2bb0a8c721e902506511717d4d4f052932ddb5..0000000000000000000000000000000000000000
+diff --git a/dist/tests/positions.test.d.ts b/dist/tests/positions.test.d.ts
+deleted file mode 100644
+index bb857eb74e21b89f3fc69516b051bcd0b545d449..0000000000000000000000000000000000000000
+diff --git a/dist/tests/positions.test.d.ts.map b/dist/tests/positions.test.d.ts.map
+deleted file mode 100644
+index ec25283e531e4a23b448f978695f31e3dd44f1db..0000000000000000000000000000000000000000
+diff --git a/dist/tests/suggestion-simulation.test.d.ts b/dist/tests/suggestion-simulation.test.d.ts
+deleted file mode 100644
+index 540700ae85d4d6e30c29fd26ee4ff6ddba0ade84..0000000000000000000000000000000000000000
+diff --git a/dist/tests/suggestion-simulation.test.d.ts.map b/dist/tests/suggestion-simulation.test.d.ts.map
+deleted file mode 100644
+index 63ada0a43d37ac23827d48c395a53220b2772a14..0000000000000000000000000000000000000000
+diff --git a/dist/tests/suggestions.test.d.ts b/dist/tests/suggestions.test.d.ts
+deleted file mode 100644
+index 6d8f00814d8604e8a30eb07ae3c825fb40188d31..0000000000000000000000000000000000000000
+diff --git a/dist/tests/suggestions.test.d.ts.map b/dist/tests/suggestions.test.d.ts.map
+deleted file mode 100644
+index 437a8e751a2d2fb89cde921c267d23b40e3be834..0000000000000000000000000000000000000000
+diff --git a/dist/tests/tr.test.d.ts b/dist/tests/tr.test.d.ts
+deleted file mode 100644
+index 00781bfbf6cdda67b9a832291fef255c1365396e..0000000000000000000000000000000000000000
+diff --git a/dist/tests/tr.test.d.ts.map b/dist/tests/tr.test.d.ts.map
+deleted file mode 100644
+index 64d56446779ef951b09d0c5dc5a1a1da7c6ccefc..0000000000000000000000000000000000000000
+diff --git a/dist/tests/undo.test.d.ts b/dist/tests/undo.test.d.ts
+deleted file mode 100644
+index 73304221437551cc5e959abe3868f1ebcfe2acad..0000000000000000000000000000000000000000
+diff --git a/dist/tests/undo.test.d.ts.map b/dist/tests/undo.test.d.ts.map
+deleted file mode 100644
+index e275eb3b866b96b6bb2d1c54290466606a2e65e9..0000000000000000000000000000000000000000
+diff --git a/dist/tests/y-prosemirror.test.d.ts b/dist/tests/y-prosemirror.test.d.ts
+deleted file mode 100644
+index a619f8f45b3375c101877bb30fef85676e1ec753..0000000000000000000000000000000000000000
+diff --git a/dist/tests/y-prosemirror.test.d.ts.map b/dist/tests/y-prosemirror.test.d.ts.map
+deleted file mode 100644
+index e589c0a78b58b66c071d3cc3e97d32e81bec6643..0000000000000000000000000000000000000000
+diff --git a/global.d.ts b/global.d.ts
+index f94ae8cdc4fe7400e1e7f5ad7f5cb7a1170519f5..4517827b99af74f96250336c2e0f4bf9f1e472c1 100644
+--- a/global.d.ts
++++ b/global.d.ts
+@@ -16,6 +16,26 @@ declare type AttributionMapper = (format: Record<string,unknown> | null, attribu
+  * node. Must be deterministic in `(nodeName, kinds)`.
+  */
+ declare type AttributedNodesPredicate = (nodeName: string, kinds: { insert?: boolean, delete?: boolean, format?: boolean }) => boolean
++/**
++ * Custom pairing predicate that shifts y-prosemirror's *diffing boundary*.
++ *
++ * To sync, y-prosemirror diffs the ProseMirror doc against the Y document as
++ * `lib0/delta` trees. lib0's `diff` decides, for each pair of candidate nodes,
++ * whether to pair them — diffing them *in place* via a `modify` op — or to treat
++ * them as unrelated and **replace the old subtree wholesale** (delete + insert).
++ * By default a pair is matched purely on node name (`a.name === b.name`).
++ *
++ * `customCompare` overrides that decision so integrators can move the boundary:
++ * make it *stricter* (e.g. a `blockContainer` only pairs when its first child type
++ * also matches, so changing the first child replaces the whole container instead of
++ * editing it in place) or looser. Receives the raw `lib0/delta` nodes
++ * `(fromNode, toNode)` — each exposing `.name`, `.attrs`, and `.children` — and is
++ * forwarded to lib0 `diff` as its `compare` option (applied recursively down the
++ * tree). Return `true` to pair, `false` to replace wholesale. The predicate should
++ * generally still include the `a.name === b.name` check; omit the option entirely to
++ * keep lib0's name-only default.
++ */
++declare type NodeCompare = (a: import('lib0/delta').DeltaAny, b: import('lib0/delta').DeltaAny) => boolean
+ declare type SyncPluginState = import('lib0/schema').Unwrap<typeof import('@y/prosemirror').$syncPluginState>
+ declare type SyncPluginStateUpdate = import('lib0/schema').Unwrap<typeof import('@y/prosemirror').$syncPluginStateUpdate>
+ declare type ProsemirrorDelta = import('lib0/schema').Unwrap<typeof import('@y/prosemirror').$prosemirrorDelta>
+diff --git a/package.json b/package.json
+index c93be0604ceda73bfdbb77a80fdd6a63e016ac65..34abbcbd855fbbf3d1afb1486cde781ceb9393f1 100644
+--- a/package.json
++++ b/package.json
+@@ -53,11 +53,11 @@
+   },
+   "homepage": "https://github.com/yjs/y-prosemirror#readme",
+   "dependencies": {
+-    "lib0": "^1.0.0-rc.13"
++    "lib0": "^1.0.0-rc.15"
+   },
+   "peerDependencies": {
+     "@y/protocols": "^1.0.6-rc.1",
+-    "@y/y": "^14.0.0-rc.17",
++    "@y/y": "^14.0.0-rc.18",
+     "prosemirror-model": "^1.7.1",
+     "prosemirror-state": "^1.2.3",
+     "prosemirror-view": "^1.9.10"
+diff --git a/src/commands.js b/src/commands.js
+index 504167d4a50fbbb1198a3f9108edba262738504a..bd456d8034409e9cc2851a8eb2acbace9f5d5e79 100644
+--- a/src/commands.js
++++ b/src/commands.js
+@@ -55,7 +55,7 @@ export const configureYProsemirror = (opts = {}) => (state, dispatch) => {
+       // document replacal is more reliable though
+       if (debugging) {
+         const pcontent = nodeToDelta(tr.doc, undefined, true)
+-        const diff = d.diff(pcontent.done(), ycontent.done())
++        const diff = d.diff(pcontent.done(), ycontent.done(), { compare: pluginState.customCompare ?? undefined })
+         deltaToPSteps(tr, diff, undefined, undefined, pluginState.attributedNodes)
+       } else {
+         tr.replaceWith(0, tr.doc.content.size, deltaToPNode(ycontent, tr.doc.type.schema, null, pluginState.attributedNodes))
+diff --git a/src/index.js b/src/index.js
+index 0c20333ce9f66f1a1e3e8e44da1ac4017bbba4cc..3ac49220951d180ea85f5a7a3437d70fbae189b2 100644
+--- a/src/index.js
++++ b/src/index.js
+@@ -1,7 +1,7 @@
+ export * from './sync-plugin.js'
+ export * from './keys.js'
+ export * from './positions.js'
+-export { docToDelta, $prosemirrorDelta, defaultMapAttributionToMark } from './sync-utils.js'
++export { docToDelta, $prosemirrorDelta, defaultMapAttributionToMark, yattr2markname, pmToFragment, fragmentToPm } from './sync-utils.js'
+ export * from './commands.js'
+ export * from './undo-plugin.js'
+ export * from './cursor-plugin.js'
+diff --git a/src/sync-plugin.js b/src/sync-plugin.js
+index 079bc7e465f98612907d36adc9854054814dda91..786f6d8e0e9443fb73c79b6f1e46f3b887e9ec80 100644
+--- a/src/sync-plugin.js
++++ b/src/sync-plugin.js
+@@ -28,7 +28,13 @@ export const $syncPluginState = s.$object({
+    * Predicate deciding which attributed nodes render under their
+    * `{nodeName}--attributed` variant. See {@link syncPlugin}.
+    */
+-  attributedNodes: /** @type {s.Schema<AttributedNodesPredicate>} */ (s.$function)
++  attributedNodes: /** @type {s.Schema<AttributedNodesPredicate>} */ (s.$function),
++  /**
++   * Custom pairing predicate that shifts the diffing boundary (forwarded to
++   * `lib0/delta.diff` as its `compare` option). `null` keeps lib0's name-only
++   * default. See {@link NodeCompare} and {@link syncPlugin}.
++   */
++  customCompare: /** @type {s.Schema<NodeCompare>} */ (s.$function).nullable
+ })
+ 
+ export const $syncPluginStateUpdate = s.$object({
+@@ -36,6 +42,7 @@ export const $syncPluginStateUpdate = s.$object({
+   attributionManager: Y.$attributionManager.nullable.optional,
+   attributionMapper: /** @type {s.Schema<AttributionMapper>} */ (s.$function).nullable.optional,
+   attributedNodes: /** @type {s.Schema<AttributedNodesPredicate>} */ (s.$function).nullable.optional,
++  customCompare: /** @type {s.Schema<NodeCompare>} */ (s.$function).nullable.optional,
+   change: /** @type {s.Schema<Y.YEvent<any>>} */ (s.$any).nullable.optional
+ })
+ const $maybeSyncPluginStateUpdate = $syncPluginStateUpdate.nullable
+@@ -107,6 +114,7 @@ const stripAttributionFormattingFromDelta = (input) => {
+  * @param {Y.Doc} [opts.suggestionDoc] A {@link Y.Doc} to use for suggestion tracking
+  * @param {AttributionMapper} [opts.mapAttributionToMark] A function to map the {@link Y.Attribution} to a {@link import('prosemirror-model').Mark} - the mark names *must* be one of: `y-attributed-insert`, `y-attributed-delete`, `y-attributed-format`. No other mark names are permitted
+  * @param {AttributedNodesPredicate} [opts.attributedNodes] Optional predicate `(nodeName, kinds) => boolean`. When it returns `true` for an attributed node *and* a `{nodeName}--attributed` type exists in the schema, that node is rendered under the variant type (the `y-attributed-*` marks are still applied). `kinds` is `{ insert?, delete?, format? }`. The variant is a pure rendering concern - the canonical name is what is stored in the Y document. The predicate must be deterministic in `(nodeName, kinds)`.
++ * @param {NodeCompare} [opts.customCompare] Optional predicate `(a, b) => boolean` that shifts the *diffing boundary*. To sync, y-prosemirror diffs the ProseMirror doc against the Y document as `lib0/delta` trees; lib0's `diff` decides for each candidate node pair whether to pair them (diff *in place* via a `modify` op) or to **replace the old subtree wholesale** (delete + insert). By default a pair is matched purely on node name (`a.name === b.name`). Supply this to move the boundary - e.g. make a `blockContainer` only pair when its first child type also matches (`(a, b) => a.name === b.name && (a.name !== 'blockContainer' || firstChildName(a) === firstChildName(b))`), so changing the first child replaces the whole container instead of editing it in place. Receives the raw `lib0/delta` nodes `(fromNode, toNode)` (each exposing `.name`, `.attrs`, `.children`) and is forwarded to `lib0/delta.diff` as its `compare` option, applied recursively down the tree. Generally keep the `a.name === b.name` check; omit the option to keep lib0's name-only default.
+  * @returns {Plugin}
+  */
+ export function syncPlugin (opts = {}) {
+@@ -118,7 +126,8 @@ export function syncPlugin (opts = {}) {
+           ytype: null,
+           attributionManager: null,
+           attributionMapper: opts.mapAttributionToMark || defaultMapAttributionToMark,
+-          attributedNodes: opts.attributedNodes || defaultAttributedNodes
++          attributedNodes: opts.attributedNodes || defaultAttributedNodes,
++          customCompare: opts.customCompare || null
+         })
+       },
+       apply: (tr, prevPluginState) => {
+@@ -140,8 +149,9 @@ export function syncPlugin (opts = {}) {
+        * @param {Y.AbstractAttributionManager?} opts.attributionManager
+        * @param {AttributionMapper} opts.attributionMapper
+        * @param {AttributedNodesPredicate} opts.attributedNodes
++       * @param {NodeCompare?} opts.customCompare
+        */
+-      function subscribeToYType ({ view, ytype, attributionManager, attributionMapper, attributedNodes }) {
++      function subscribeToYType ({ view, ytype, attributionManager, attributionMapper, attributedNodes, customCompare }) {
+         unsubscribeFn?.()
+         if (ytype != null) {
+           // Listen on the doc's `afterTransaction` event rather than
+@@ -180,7 +190,7 @@ export function syncPlugin (opts = {}) {
+               attributionMapper
+             ).done()
+             const pcontent = nodeToDelta(view.state.doc, undefined, true).done()
+-            const diff = d.diff(pcontent, desiredPM)
++            const diff = d.diff(pcontent, desiredPM, { compare: customCompare ?? undefined })
+             if (diff.isEmpty()) return
+             const ptr = deltaToPSteps(view.state.tr, diff, undefined, undefined, attributedNodes)
+             ptr.setMeta('addToHistory', false)
+@@ -208,7 +218,7 @@ export function syncPlugin (opts = {}) {
+               attributionMapper
+             ).done()
+             const pcontent = nodeToDelta(view.state.doc, undefined, true).done()
+-            const diff = d.diff(pcontent, desiredPM)
++            const diff = d.diff(pcontent, desiredPM, { compare: customCompare ?? undefined })
+             if (diff.isEmpty()) return
+             const ptr = deltaToPSteps(view.state.tr, diff, undefined, undefined, attributedNodes)
+             ptr.setMeta('addToHistory', false)
+@@ -246,7 +256,8 @@ export function syncPlugin (opts = {}) {
+               ytype,
+               attributionManager,
+               attributionMapper: pluginState.attributionMapper,
+-              attributedNodes: pluginState.attributedNodes
++              attributedNodes: pluginState.attributedNodes,
++              customCompare: pluginState.customCompare
+             })
+           }
+           if (ytype == null) return
+@@ -263,12 +274,13 @@ export function syncPlugin (opts = {}) {
+           const am = attributionManager || Y.noAttributionsManager
+           const mapper = pluginState.attributionMapper
+           const attributedNodes = pluginState.attributedNodes
++          const customCompare = pluginState.customCompare
+           const ycontent = deltaAttributionToFormat(
+             ytype.toDeltaDeep(am),
+             mapper
+           ).done()
+           const pcontent = nodeToDelta(view.state.doc, undefined, true).done()
+-          const pmToYDiff = stripAttributionFormattingFromDelta(d.diff(ycontent, pcontent))
++          const pmToYDiff = stripAttributionFormattingFromDelta(d.diff(ycontent, pcontent, { compare: customCompare ?? undefined }))
+           if (!pmToYDiff.isEmpty()) {
+             /** @type {Y.Doc} */ (ytype.doc).transact(() => {
+               ytype.applyDelta(pmToYDiff, am)
+@@ -279,7 +291,7 @@ export function syncPlugin (opts = {}) {
+             mapper
+           ).done()
+           const pcontentAfter = nodeToDelta(view.state.doc, undefined, true).done()
+-          const pmReconcileDiff = d.diff(pcontentAfter, desiredPM)
++          const pmReconcileDiff = d.diff(pcontentAfter, desiredPM, { compare: customCompare ?? undefined })
+           if (pmReconcileDiff.isEmpty()) return
+           const tr = view.state.tr
+           deltaToPSteps(tr, pmReconcileDiff, undefined, undefined, attributedNodes)
+diff --git a/src/sync-utils.js b/src/sync-utils.js
+index 2234e5506a5341f39c80f389288823d887b38d28..63d2396937e1c1c5065f90eeb0a6e73f3e5169b9 100644
+--- a/src/sync-utils.js
++++ b/src/sync-utils.js
+@@ -16,6 +16,7 @@ import {
+   ReplaceAroundStep,
+   ReplaceStep
+ } from 'prosemirror-transform'
++import { hashOfJSON } from './utils.js'
+ 
+ export const $prosemirrorDelta = delta.$delta({ name: s.$string, attrs: s.$record(s.$string, s.$any), text: true, recursiveChildren: true })
+ 
+@@ -170,6 +171,51 @@ export const deltaAttributionToFormat = (d, attributionsToFormat) => {
+   return /** @type {ProsemirrorDelta} */ (r.done(false))
+ }
+ 
++/**
++ * Marks are stored as a flat `format` object keyed by mark name. Marks whose
++ * type does *not* exclude itself (declared with `excludes: ''`, e.g. a comment
++ * mark) may overlap on the same text span - several distinct instances coexist.
++ * Keying them all by the bare mark name would collide, so each overlapping mark
++ * gets a stable content-hash suffix (`name--<hash>`), keeping every instance on
++ * its own key. Self-excluding marks (strong/em/code/attribution marks) keep the
++ * bare name. `--<8 base64 chars>` is therefore a reserved suffix, symmetric to
++ * {@link ATTRIBUTED_SUFFIX} above.
++ */
++const hashedMarkNameRegex = /(.*)(--[a-zA-Z0-9+/=]{8})$/
++
++/**
++ * Strip a hashed overlapping-mark suffix to recover the PM mark name. Identity
++ * for bare (non-hashed) names.
++ *
++ * @param {string} attrName
++ * @return {string}
++ */
++export const yattr2markname = attrName => hashedMarkNameRegex.exec(attrName)?.[1] ?? attrName
++
++/**
++ * The reserved `y-attributed-*` attribution marks are render-only and MUST stay
++ * addressable by their exact name: `stripAttributionFormattingFromDelta`
++ * (sync-plugin.js) strips them on the PM->Y path and `attributedVariant`
++ * branches on the literal names. They must never receive the overlapping-mark
++ * hash suffix - even if an integrator's schema (wrongly) declares them
++ * non-self-excluding - or those name-based filters would miss them and the
++ * attribution formatting would leak into the Y document.
++ *
++ * @param {string} name
++ */
++const isReservedMarkName = name => name.startsWith('y-attributed-')
++
++/**
++ * Inverse of {@link yattr2markname}: the delta format key for a PM mark.
++ *
++ * @param {import('prosemirror-model').Mark} mark
++ * @return {string}
++ */
++const markToYattrName = mark =>
++  (mark.type.excludes(mark.type) || isReservedMarkName(mark.type.name))
++    ? mark.type.name
++    : `${mark.type.name}--${hashOfJSON(mark.toJSON())}`
++
+ /**
+  * @param {readonly import('prosemirror-model').Mark[]} marks
+  */
+@@ -180,7 +226,7 @@ const marksToFormattingAttributes = marks => {
+    */
+   const formatting = {}
+   marks.forEach(mark => {
+-    formatting[mark.type.name] = mark.attrs
++    formatting[markToYattrName(mark)] = mark.attrs
+   })
+   return formatting
+ }
+@@ -189,13 +235,14 @@ const marksToFormattingAttributes = marks => {
+  * Convert a delta `format` object to PM marks. `null` entries (which mean
+  * "this mark is absent / cleared") are filtered out - a custom attribution
+  * mapper may emit `null` for absent attribution kinds, and a fresh insert
+- * should not materialize a mark for them.
++ * should not materialize a mark for them. Hashed overlapping-mark keys are
++ * mapped back to their mark name via {@link yattr2markname}.
+  *
+  * @param {{[key:string]:any}|null} formatting
+  * @param {import('prosemirror-model').Schema} schema
+  */
+ export const formattingAttributesToMarks = (formatting, schema) =>
+-  object.map(formatting ?? {}, (v, k) => v != null ? schema.mark(k, v) : null).filter(m => m != null)
++  object.map(formatting ?? {}, (v, k) => v != null ? schema.mark(yattr2markname(k), v) : null).filter(m => m != null)
+ 
+ /**
+  * @param {Array<Node>} ns
+@@ -318,11 +365,15 @@ const applyNodeFormat = (tr, pos, format, attributedNodes) => {
+   if (node == null) return
+   let resultingMarks = node.marks
+   object.forEach(format ?? {}, (v, k) => {
+-    const markType = schema.marks[k]
++    const markName = yattr2markname(k)
++    const markType = schema.marks[markName]
+     if (markType == null) return
++    // For overlapping marks, remove the specific instance carried by this
++    // (hashed) key rather than every mark of the type.
++    const mark = node.marks.find(m => markToYattrName(m) === k)
+     resultingMarks = v == null
+-      ? markType.removeFromSet(resultingMarks)
+-      : schema.mark(k, v).addToSet(resultingMarks)
++      ? (mark ?? markType).removeFromSet(resultingMarks)
++      : schema.mark(markName, v).addToSet(resultingMarks)
+   })
+   const targetType = schema.nodes[
+     attributedVariant(canonicalNodeName(node.type.name), marksToFormattingAttributes(resultingMarks), attributedNodes, schema)
+@@ -331,10 +382,12 @@ const applyNodeFormat = (tr, pos, format, attributedNodes) => {
+     tr.setNodeMarkup(pos, targetType, object.assign({ 'y-attributed': true }, node.attrs), resultingMarks)
+   } else {
+     object.forEach(format ?? {}, (v, k) => {
++      const markName = yattr2markname(k)
+       if (v == null) {
+-        tr.removeNodeMark(pos, schema.marks[k])
++        const mark = node.marks.find(m => markToYattrName(m) === k)
++        tr.removeNodeMark(pos, mark ?? schema.marks[markName])
+       } else {
+-        tr.addNodeMark(pos, schema.mark(k, v))
++        tr.addNodeMark(pos, schema.mark(markName, v))
+       }
+     })
+   }
+@@ -425,10 +478,16 @@ export const deltaToPSteps = (tr, d, pnode = tr.doc, currPos = { i: 0 }, attribu
+             const from = currPos.i
+             const to = currPos.i + math.min(pc.nodeSize - nOffset, i)
+             object.forEach(op.format, (v, k) => {
++              const markName = yattr2markname(k)
+               if (v == null) {
+-                tr.removeMark(from, to, schema.marks[k])
++                // A format-remove carries no attrs, so match the specific
++                // instance on the current text node - sibling overlaps of the
++                // same type (e.g. another comment) must not be removed with it.
++                // Their relative array order is not significant (see CAVEATS).
++                const mark = pc.marks.find(m => markToYattrName(m) === k)
++                tr.removeMark(from, to, mark ?? schema.marks[markName])
+               } else {
+-                tr.addMark(from, to, schema.mark(k, v))
++                tr.addMark(from, to, schema.mark(markName, v))
+               }
+             })
+           }
+@@ -610,10 +669,10 @@ const _stepToDelta = s.match({ beforeDoc: Node, afterDoc: Node })
+     deltaModifyNodeAt(beforeDoc, step.pos, d => { d.retain(1, marksToFormattingAttributes([step.mark])) })
+   )
+   .if(RemoveMarkStep, (step, { beforeDoc }) =>
+-    deltaModifyNodeAt(beforeDoc, step.from, d => { d.retain(step.to - step.from, { [step.mark.type.name]: null }) })
++    deltaModifyNodeAt(beforeDoc, step.from, d => { d.retain(step.to - step.from, { [markToYattrName(step.mark)]: null }) })
+   )
+   .if(RemoveNodeMarkStep, (step, { beforeDoc }) =>
+-    deltaModifyNodeAt(beforeDoc, step.pos, d => { d.retain(1, { [step.mark.type.name]: null }) })
++    deltaModifyNodeAt(beforeDoc, step.pos, d => { d.retain(1, { [markToYattrName(step.mark)]: null }) })
+   )
+   .if(AttrStep, (step, { beforeDoc }) =>
+     deltaModifyNodeAt(beforeDoc, step.pos, d => { d.modify(delta.create().setAttr(step.attr, step.value)) })
+diff --git a/src/utils.js b/src/utils.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..aa4e28a8060e11871f1548c840444de1e8a08ce9
+--- /dev/null
++++ b/src/utils.js
+@@ -0,0 +1,20 @@
++import * as rabin from 'lib0/hash/rabin'
++import * as buf from 'lib0/buffer'
++
++/**
++ * Compact, stable base64 tag of an arbitrary json-serializable value. It only
++ * needs to disambiguate overlapping marks of the same type (see `markToYattrName`
++ * in sync-utils.js), not resist attacks, so a cheap Rabin fingerprint is plenty.
++ *
++ * We use the *full* 4-byte (degree-32) fingerprint rather than truncating a
++ * wider one: a Rabin fingerprint propagates small input changes into its
++ * low-order bytes, so slicing the leading bytes off a degree-64 fingerprint
++ * collides for near-identical inputs (e.g. `{id:4}` vs `{id:5}`). The 4 bytes
++ * encode to 8 base64 chars - the length `hashedMarkNameRegex` expects - so
++ * documents written by older (sha256-based) versions still parse: the suffix is
++ * only ever stripped on read (by pattern), never recomputed.
++ *
++ * @param {any} json
++ * @return {string}
++ */
++export const hashOfJSON = (json) => buf.toBase64(rabin.fingerprint(rabin.StandardIrreducible32, buf.encodeAny(json)))

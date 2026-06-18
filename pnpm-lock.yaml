@@ -17,11 +17,11 @@ overrides:
   vitest: 4.1.7
   '@vitest/runner': 4.1.7
   '@y/y': 14.0.0-rc.18
-  '@y/prosemirror': 2.0.0-2
+  '@y/prosemirror': 2.0.0-4
   lib0: 1.0.0-rc.15
 
 patchedDependencies:
-  '@y/prosemirror@2.0.0-2': 6aec2124a0f404da6f25ab03349b7fc8d8ded1c03fb3bb02ccd8bd28f821c0e8
+  '@y/prosemirror@2.0.0-4': 237735354fc48a13fdc5191ba67fc00d74c3555e2cddd2e708fbfa7fd8b348a6
 
 importers:
 
@@ -223,8 +223,8 @@ importers:
         specifier: ^0.6.3
         version: 0.6.4(react@19.2.5)(yjs@13.6.30)
       '@y/prosemirror':
-        specifier: 2.0.0-2
-        version: 2.0.0-2(patch_hash=6aec2124a0f404da6f25ab03349b7fc8d8ded1c03fb3bb02ccd8bd28f821c0e8)(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.18))(@y/y@14.0.0-rc.18)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)
+        specifier: 2.0.0-4
+        version: 2.0.0-4(patch_hash=237735354fc48a13fdc5191ba67fc00d74c3555e2cddd2e708fbfa7fd8b348a6)(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.18))(@y/y@14.0.0-rc.18)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)
       '@y/protocols':
         specifier: ^1.0.6-rc.1
         version: 1.0.6-rc.1(@y/y@14.0.0-rc.18)
@@ -4082,8 +4082,8 @@ importers:
         specifier: ^9.0.2
         version: 9.1.1(react@19.2.5)
       '@y/prosemirror':
-        specifier: 2.0.0-2
-        version: 2.0.0-2(patch_hash=6aec2124a0f404da6f25ab03349b7fc8d8ded1c03fb3bb02ccd8bd28f821c0e8)(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.18))(@y/y@14.0.0-rc.18)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)
+        specifier: 2.0.0-4
+        version: 2.0.0-4(patch_hash=237735354fc48a13fdc5191ba67fc00d74c3555e2cddd2e708fbfa7fd8b348a6)(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.18))(@y/y@14.0.0-rc.18)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)
       '@y/protocols':
         specifier: ^1.0.6-rc.1
         version: 1.0.6-rc.1(@y/y@14.0.0-rc.18)
@@ -4977,8 +4977,8 @@ importers:
         specifier: ^3.0.0
         version: 3.22.4
       '@y/prosemirror':
-        specifier: 2.0.0-2
-        version: 2.0.0-2(patch_hash=6aec2124a0f404da6f25ab03349b7fc8d8ded1c03fb3bb02ccd8bd28f821c0e8)(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.18))(@y/y@14.0.0-rc.18)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)
+        specifier: 2.0.0-4
+        version: 2.0.0-4(patch_hash=237735354fc48a13fdc5191ba67fc00d74c3555e2cddd2e708fbfa7fd8b348a6)(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.18))(@y/y@14.0.0-rc.18)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)
       '@y/protocols':
         specifier: ^1.0.6-rc.1
         version: 1.0.6-rc.1(@y/y@14.0.0-rc.18)
@@ -10820,11 +10820,11 @@ packages:
   '@y-sweet/sdk@0.6.4':
     resolution: {integrity: sha512-px51qSbckGrucN83BM9jJyaBLLdYFT+zhvsootK+WW9t/9rQSQHQX54gdtF6M1kUktA4jOGfSiAXDzuTY0zYVg==}
 
-  '@y/prosemirror@2.0.0-2':
-    resolution: {integrity: sha512-QGd7H+O47mqzsfQx80RgTt64OMH+mMcqTadjC/lUk+d+DNiDhY1KCBfdJzjprPb5A66ZWtAQ3Ixmc5+Ivk5JQw==}
+  '@y/prosemirror@2.0.0-4':
+    resolution: {integrity: sha512-jbfpgxslLXILojhxPhcYcNDMxlXP7SggyOfEtCtVal4+UFy/0k/lqKdrbkiSzqZxUm+3kPyJ/k4ROwVeaYJ7LA==}
     engines: {node: '>=16.0.0', npm: '>=8.0.0'}
     peerDependencies:
-      '@y/protocols': ^1.0.6-3
+      '@y/protocols': ^1.0.6-rc.1
       '@y/y': 14.0.0-rc.18
       prosemirror-model: ^1.7.1
       prosemirror-state: ^1.2.3
@@ -21008,7 +21008,7 @@ snapshots:
     dependencies:
       '@types/node': 20.19.39
 
-  '@y/prosemirror@2.0.0-2(patch_hash=6aec2124a0f404da6f25ab03349b7fc8d8ded1c03fb3bb02ccd8bd28f821c0e8)(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.18))(@y/y@14.0.0-rc.18)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)':
+  '@y/prosemirror@2.0.0-4(patch_hash=237735354fc48a13fdc5191ba67fc00d74c3555e2cddd2e708fbfa7fd8b348a6)(@y/protocols@1.0.6-rc.1(@y/y@14.0.0-rc.18))(@y/y@14.0.0-rc.18)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)':
     dependencies:
       '@y/protocols': 1.0.6-rc.1(@y/y@14.0.0-rc.18)
       '@y/y': 14.0.0-rc.18

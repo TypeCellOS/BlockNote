@@ -13,6 +13,10 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 BLOCKNOTE_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 LOCAL_YPM="${1:-$(cd "$BLOCKNOTE_ROOT/../y-prosemirror" && pwd)}"
 
+# Version of @y/prosemirror to patch. Must match the version pinned in
+# pnpm-workspace.yaml (overrides + patchedDependencies) and package.json files.
+YPM_VERSION="2.0.0-4"
+
 if [[ ! -d "$LOCAL_YPM/src" ]]; then
   echo "ERROR: Cannot find y-prosemirror at $LOCAL_YPM"
   echo "Pass the path as an argument: $0 /path/to/y-prosemirror"
@@ -27,7 +31,7 @@ echo "==> Building y-prosemirror (npm run dist) ..."
 (cd "$LOCAL_YPM" && npm run dist)
 
 # Best-effort cleanup of any leftover patch dir (case-insensitive FS resolves this fine).
-STALE_PATCH_DIR="$BLOCKNOTE_ROOT/node_modules/.pnpm_patches/@y/prosemirror@2.0.0-2"
+STALE_PATCH_DIR="$BLOCKNOTE_ROOT/node_modules/.pnpm_patches/@y/prosemirror@$YPM_VERSION"
 
 # 1. Clean up any leftover patch dir, then start fresh
 if [[ -d "$STALE_PATCH_DIR" ]]; then
@@ -35,15 +39,17 @@ if [[ -d "$STALE_PATCH_DIR" ]]; then
   rm -rf "$STALE_PATCH_DIR"
 fi
 
-echo "==> Running pnpm patch @y/prosemirror@2.0.0-2 ..."
+echo "==> Running pnpm patch @y/prosemirror@$YPM_VERSION ..."
 cd "$BLOCKNOTE_ROOT"
 # Capture pnpm's reported patch dir so we use the canonical on-disk path casing.
 # Constructing PATCH_DIR manually breaks on macOS when the repo is entered via a
 # differently-cased path (e.g. blockNote vs BlockNote): pnpm patch-commit matches
 # the path against state.json case-sensitively and fails with ERR_PNPM_INVALID_PATCH_DIR.
-PATCH_OUTPUT="$(pnpm patch @y/prosemirror@2.0.0-2)"
+PATCH_OUTPUT="$(pnpm patch @y/prosemirror@$YPM_VERSION)"
 echo "$PATCH_OUTPUT"
-PATCH_DIR="$(printf '%s\n' "$PATCH_OUTPUT" | grep -Eo '/.*/\.pnpm_patches/@y/prosemirror@2\.0\.0-2' | head -n1)"
+# Escape dots in the version for the regex.
+YPM_VERSION_RE="${YPM_VERSION//./\\.}"
+PATCH_DIR="$(printf '%s\n' "$PATCH_OUTPUT" | grep -Eo "/.*/\.pnpm_patches/@y/prosemirror@$YPM_VERSION_RE" | head -n1)"
 
 if [[ -z "$PATCH_DIR" || ! -d "$PATCH_DIR" ]]; then
   echo "ERROR: Could not determine patch dir from 'pnpm patch' output"
@@ -76,8 +82,9 @@ const fs = require('fs');
 const orig = JSON.parse(fs.readFileSync('$PATCH_DIR/package.json', 'utf8'));
 const local = JSON.parse(fs.readFileSync('$LOCAL_YPM/package.json', 'utf8'));
 
-// Keep the original version so pnpm doesn't try to fetch 2.0.0-3 from registry
-orig.version = '2.0.0-2';
+// Keep the original version so pnpm doesn't try to fetch a different
+// version from the registry.
+orig.version = '$YPM_VERSION';
 
 // Update exports
 orig.exports = local.exports;
@@ -105,4 +112,4 @@ echo "==> Running pnpm patch-commit ..."
 pnpm patch-commit "$PATCH_DIR"
 
 echo ""
-echo "==> Done! Patch regenerated at patches/@y__prosemirror@2.0.0-2.patch"
+echo "==> Done! Patch regenerated at patches/@y__prosemirror@$YPM_VERSION.patch"

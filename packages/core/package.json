@@ -132,7 +132,7 @@
     "y-protocols": "^1.0.6",
     "yjs": "^13.6.27",
     "@y/y": "^14.0.0-rc.17",
-    "@y/prosemirror": "^2.0.0-2",
+    "@y/prosemirror": "^2.0.0-4",
     "@y/protocols": "^1.0.6-rc.1"
   },
   "peerDependenciesMeta": {

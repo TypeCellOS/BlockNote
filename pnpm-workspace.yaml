@@ -20,7 +20,7 @@ overrides:
   "vitest": "4.1.7"
   "@vitest/runner": "4.1.7"
   "@y/y": "14.0.0-rc.18"
-  "@y/prosemirror": "2.0.0-2"
+  "@y/prosemirror": "2.0.0-4"
   "lib0": "1.0.0-rc.15"
 allowBuilds:
   "@parcel/watcher": true
@@ -35,7 +35,7 @@ allowBuilds:
   workerd: false
   leveldown: false
 patchedDependencies:
-  "@y/prosemirror@2.0.0-2": "patches/@y__prosemirror@2.0.0-2.patch"
+  "@y/prosemirror@2.0.0-4": "patches/@y__prosemirror@2.0.0-4.patch"
 catalog:
   vite-plus: ^0.1.24
 minimumReleaseAgeExclude:
