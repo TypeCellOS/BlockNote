@@ -3,7 +3,7 @@ export function suffixIDs<T>(source: Array<T>): Array<T> {
     if (typeof el === "object" && el && "id" in el) {
       return {
         ...el,
-        id: `${el.id}$`,
+        id: `${String(el.id)}$`,
       };
     }
     return el;

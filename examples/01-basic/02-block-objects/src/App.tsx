@@ -30,6 +30,7 @@ export default function App() {
   });
 
   // Sets the initial document JSON
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => setBlocks(editor.document), []);
 
   // Renders the editor instance and its document JSON.

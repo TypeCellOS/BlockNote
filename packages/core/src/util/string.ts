@@ -30,7 +30,7 @@ export function isVideoUrl(url: string) {
     const pathname = new URL(url).pathname;
     const ext = pathname.split(".").pop()?.toLowerCase() || "";
     return videoExtensions.includes(ext);
-  } catch (_) {
+  } catch {
     return false;
   }
 }

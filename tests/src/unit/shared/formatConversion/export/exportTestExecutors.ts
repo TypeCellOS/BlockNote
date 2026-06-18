@@ -28,7 +28,7 @@ export const testExportBlockNoteHTML = async <
   addIdsToBlocks(testCase.content);
 
   await expect(
-    prettify(await editor.blocksToFullHTML(testCase.content), PRETTIFY_OPTIONS),
+    prettify(editor.blocksToFullHTML(testCase.content), PRETTIFY_OPTIONS),
   ).toMatchFileSnapshot(`./__snapshots__/blocknoteHTML/${testCase.name}.html`);
 };
 
@@ -45,10 +45,7 @@ export const testExportHTML = async <
   addIdsToBlocks(testCase.content);
 
   await expect(
-    prettify(
-      await editor.blocksToHTMLLossy(testCase.content),
-      PRETTIFY_OPTIONS,
-    ),
+    prettify(editor.blocksToHTMLLossy(testCase.content), PRETTIFY_OPTIONS),
   ).toMatchFileSnapshot(`./__snapshots__/html/${testCase.name}.html`);
 };
 
@@ -65,7 +62,7 @@ export const testExportMarkdown = async <
   addIdsToBlocks(testCase.content);
 
   await expect(
-    await editor.blocksToMarkdownLossy(testCase.content),
+    editor.blocksToMarkdownLossy(testCase.content),
   ).toMatchFileSnapshot(`./__snapshots__/markdown/${testCase.name}.md`);
 };
 

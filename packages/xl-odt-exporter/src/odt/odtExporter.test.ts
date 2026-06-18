@@ -11,6 +11,7 @@ import { odtDefaultSchemaMappings } from "./defaultSchema/index.js";
 import { ODTExporter } from "./odtExporter.js";
 import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { partialBlocksToBlocksForTesting } from "@shared/formatConversionTestUtil.js";
+import { testResolveFileUrl } from "@shared/util/testFileResolver.js";
 
 beforeAll(async () => {
   // @ts-expect-error - Blob polyfill for Node test environment
@@ -27,6 +28,7 @@ describe("exporter", () => {
         },
       }),
       odtDefaultSchemaMappings,
+      { resolveFileUrl: testResolveFileUrl },
     );
     const odt = await exporter.toODTDocument(testDocument);
     await testODTDocumentAgainstSnapshot(odt, {
@@ -47,6 +49,7 @@ describe("exporter", () => {
           },
         }),
         odtDefaultSchemaMappings,
+        { resolveFileUrl: testResolveFileUrl },
       );
 
       const odt = await exporter.toODTDocument(testDocument, {
@@ -76,7 +79,9 @@ describe("exporter", () => {
           columnList: ColumnListBlock,
         },
       });
-      const exporter = new ODTExporter(schema, odtDefaultSchemaMappings);
+      const exporter = new ODTExporter(schema, odtDefaultSchemaMappings, {
+        resolveFileUrl: testResolveFileUrl,
+      });
       const odt = await exporter.toODTDocument(
         partialBlocksToBlocksForTesting(schema, [
           {
@@ -163,10 +168,10 @@ async function testODTDocumentAgainstSnapshot(
 
   expect(stylesXML).toBeDefined();
   expect(contentXML).toBeDefined();
-  expect(
+  await expect(
     xmlFormat(await stylesXML.getData(stylesXMLWriter)),
   ).toMatchFileSnapshot(snapshots.styles);
-  expect(
+  await expect(
     xmlFormat(await contentXML.getData(contentXMLWriter)),
   ).toMatchFileSnapshot(snapshots.content);
 }

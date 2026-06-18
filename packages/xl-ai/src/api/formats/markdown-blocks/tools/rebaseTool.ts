@@ -6,13 +6,13 @@ import {
   rebaseTool,
 } from "../../../../prosemirror/rebaseTool.js";
 
-export async function createMDRebaseTool(
+export function createMDRebaseTool(
   id: string,
   editor: BlockNoteEditor<any, any, any>,
 ) {
   const tr = getApplySuggestionsTr(editor);
-  const md = await editor.blocksToMarkdownLossy([getBlock(tr.doc, id)!]);
-  const blocks = await editor.tryParseMarkdownToBlocks(md);
+  const md = editor.blocksToMarkdownLossy([getBlock(tr.doc, id)!]);
+  const blocks = editor.tryParseMarkdownToBlocks(md);
 
   const steps = updateToReplaceSteps(
     {

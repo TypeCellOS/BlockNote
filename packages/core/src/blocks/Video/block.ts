@@ -83,7 +83,7 @@ export const createVideoBlockSpec = createBlockSpec(
       const video = document.createElement("video");
       video.className = "bn-visual-media";
       if (editor.resolveFileUrl) {
-        editor.resolveFileUrl(block.props.url).then((downloadUrl) => {
+        void editor.resolveFileUrl(block.props.url).then((downloadUrl) => {
           video.src = downloadUrl;
         });
       } else {

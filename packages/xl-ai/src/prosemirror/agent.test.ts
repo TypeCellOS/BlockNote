@@ -121,7 +121,7 @@ describe("getStepsAsAgent", () => {
     expect(steps).toMatchSnapshot();
   });
 
-  it("node type and content change", async () => {
+  it("node type and content change", () => {
     const editor = createTestEditor();
 
     const doc = editor.prosemirrorState.doc;
@@ -143,12 +143,12 @@ describe("getStepsAsAgent", () => {
     const tr = new Transform(doc);
     tr.step(step);
 
-    await expect(() => getStepsAsAgent(tr)).toThrow(
+    expect(() => getStepsAsAgent(tr)).toThrow(
       "Slice has openStart or openEnd > 0, but structure=false",
     );
   });
 
-  it("multiple steps", async () => {
+  it("multiple steps", () => {
     const editor = createTestEditor();
     const doc = editor.prosemirrorState.doc;
 
@@ -192,16 +192,14 @@ describe("getStepsAsAgent", () => {
     expect(steps).toMatchSnapshot();
   });
 
-  it("throw error for non-ReplaceSteps", async () => {
+  it("throw error for non-ReplaceSteps", () => {
     const editor = createTestEditor();
     const doc = editor.prosemirrorState.doc;
     // Create a non-ReplaceStep (we'll just mock it)
     const tr = new Transform(doc);
     tr.addMark(0, 5, editor.pmSchema.marks.bold.create());
     // Expect the function to throw an error
-    await expect(() => getStepsAsAgent(tr)).toThrow(
-      "Step is not a ReplaceStep",
-    );
+    expect(() => getStepsAsAgent(tr)).toThrow("Step is not a ReplaceStep");
   });
 });
 

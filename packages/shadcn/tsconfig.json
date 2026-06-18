@@ -19,7 +19,6 @@
     "declarationDir": "types",
     "composite": true,
     "skipLibCheck": true,
-    "baseUrl": ".",
     "emitDeclarationOnly": true,
     "paths": {
       "@/*": ["./src/*"]

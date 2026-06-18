@@ -17,7 +17,6 @@ import {
   DefaultStyleSchema,
   PartialBlock,
 } from "../blocks/index.js";
-import type { CollaborationOptions } from "../extensions/Collaboration/Collaboration.js";
 import type { SyntaxHighlightingOptions } from "../extensions/SyntaxHighlighting/SyntaxHighlighting.js";
 import {
   BlockChangeExtension,
@@ -81,12 +80,6 @@ export interface BlockNoteEditorOptions<
    * @default false
    */
   autofocus?: FocusPosition;
-
-  /**
-   * When enabled, allows for collaboration between multiple users.
-   * See [Real-time Collaboration](https://www.blocknotejs.org/docs/advanced/real-time-collaboration) for more info.
-   */
-  collaboration?: CollaborationOptions;
 
   /**
    * Use default BlockNote font and reset the styles of <p> <li> <h1> elements etc., that are used in BlockNote.
@@ -193,10 +186,7 @@ export interface BlockNoteEditorOptions<
    * @deprecated, provide placeholders via dictionary instead
    * @internal
    */
-  placeholders?: Record<
-    string | "default" | "emptyDocument",
-    string | undefined
-  >;
+  placeholders?: Record<string, string | undefined>;
 
   /**
    * Custom paste handler that can be used to override the default paste behavior.
@@ -509,17 +499,6 @@ export class BlockNoteEditor<
 
     const tiptapExtensions = this._extensionManager.getTiptapExtensions();
 
-    const collaborationEnabled =
-      this._extensionManager.hasExtension("ySync") ||
-      this._extensionManager.hasExtension("liveblocksExtension");
-
-    if (collaborationEnabled && newOptions.initialContent) {
-      // eslint-disable-next-line no-console
-      console.warn(
-        "When using Collaboration, initialContent might cause conflicts, because changes should come from the collaboration provider",
-      );
-    }
-
     const tiptapOptions: EditorOptions = {
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
@@ -533,6 +512,7 @@ export class BlockNoteEditor<
           // editable, so you can't focus it. We want to revert this as we have
           // UI behaviour that relies on it.
           tabIndex: "0",
+          // eslint-disable-next-line @typescript-eslint/no-misused-spread
           ...newOptions._tiptapOptions?.editorProps?.attributes,
           ...newOptions.domAttributes?.editor,
           class: mergeCSSClasses(
@@ -546,26 +526,17 @@ export class BlockNoteEditor<
     } as any;
 
     try {
-      const initialContent =
-        newOptions.initialContent ||
-        (collaborationEnabled
-          ? [
-              {
-                type: "paragraph",
-                id: "initialBlockId",
-              },
-            ]
-          : [
-              {
-                type: "paragraph",
-                id: UniqueID.options.generateID(),
-              },
-            ]);
+      const initialContent = newOptions.initialContent || [
+        {
+          type: "paragraph",
+          id: UniqueID.options.generateID(),
+        },
+      ];
 
       if (!Array.isArray(initialContent) || initialContent.length === 0) {
         throw new Error(
           "initialContent must be a non-empty array of blocks, received: " +
-            initialContent,
+            JSON.stringify(initialContent),
         );
       }
       const schema = getSchema(tiptapOptions.extensions!);
@@ -598,25 +569,6 @@ export class BlockNoteEditor<
       );
     }
 
-    // When y-prosemirror creates an empty document, the `blockContainer` node is created with an `id` of `null`.
-    // This causes the unique id extension to generate a new id for the initial block, which is not what we want
-    // Since it will be randomly generated & cause there to be more updates to the ydoc
-    // This is a hack to make it so that anytime `schema.doc.createAndFill` is called, the initial block id is already set to "initialBlockId"
-    let cache: Node | undefined = undefined;
-    const oldCreateAndFill = this.pmSchema.nodes.doc.createAndFill;
-    this.pmSchema.nodes.doc.createAndFill = (...args: any) => {
-      if (cache) {
-        return cache;
-      }
-      const ret = oldCreateAndFill.apply(this.pmSchema.nodes.doc, args)!;
-
-      // create a copy that we can mutate (otherwise, assigning attrs is not safe and corrupts the pm state)
-      const jsonNode = JSON.parse(JSON.stringify(ret.toJSON()));
-      jsonNode.content[0].content[0].attrs.id = "initialBlockId";
-
-      cache = Node.fromJSON(this.pmSchema, jsonNode);
-      return cache;
-    };
     this.pmSchema.cached.blockNoteEditor = this;
 
     this._tiptapEditor.on("mount", () => {

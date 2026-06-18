@@ -24,14 +24,12 @@ export const tools = {
     },
     validateBlock: validateBlockFunction,
     rebaseTool: createMDRebaseTool,
-    toJSONToolCall: async (editor, chunk) => {
-      const blocks = await Promise.all(
-        chunk.operation.blocks.map(async (md) => {
-          const block = (await editor.tryParseMarkdownToBlocks(md.trim()))[0]; // TODO: trim
-          delete (block as any).id;
-          return block;
-        }),
-      );
+    toJSONToolCall: (editor, chunk) => {
+      const blocks = chunk.operation.blocks.map((md) => {
+        const block = editor.tryParseMarkdownToBlocks(md.trim())[0]; // TODO: trim
+        delete (block as any).id;
+        return block;
+      });
 
       // hacky
       if ((window as any).__TEST_OPTIONS) {
@@ -58,9 +56,9 @@ export const tools = {
     },
     validateBlock: validateBlockFunction,
     rebaseTool: createMDRebaseTool,
-    toJSONToolCall: async (editor, chunk) => {
-      const block = (
-        await editor.tryParseMarkdownToBlocks(chunk.operation.block.trim())
+    toJSONToolCall: (editor, chunk) => {
+      const block = editor.tryParseMarkdownToBlocks(
+        chunk.operation.block.trim(),
       )[0];
 
       delete (block as any).id;

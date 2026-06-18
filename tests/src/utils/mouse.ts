@@ -16,7 +16,7 @@ export function getRect(selectorOrElement: string | Element): DOMRect {
       ? document.querySelector(selectorOrElement)
       : selectorOrElement;
   if (!element) {
-    throw new Error(`Element not found: ${String(selectorOrElement)}`);
+    throw new Error(`Element not found: ${JSON.stringify(selectorOrElement)}`);
   }
   return element.getBoundingClientRect();
 }

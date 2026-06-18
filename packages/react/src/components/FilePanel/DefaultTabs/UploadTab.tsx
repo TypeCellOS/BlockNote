@@ -63,7 +63,7 @@ export const UploadTab = <
               };
             }
             editor.updateBlock(props.blockId, updateData);
-          } catch (e) {
+          } catch {
             setUploadFailed(true);
           } finally {
             setLoading(false);
@@ -71,7 +71,7 @@ export const UploadTab = <
         }
       }
 
-      upload(file);
+      void upload(file);
     },
     [props.blockId, editor, setLoading],
   );

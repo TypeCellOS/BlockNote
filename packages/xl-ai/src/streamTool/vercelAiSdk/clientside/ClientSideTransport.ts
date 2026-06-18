@@ -95,7 +95,10 @@ export class ClientSideTransport<
       // activeTools: ["applyDocumentOperations"],
     });
 
-    return ret.toUIMessageStream();
+    return ret.toUIMessageStream({
+      onError: (error) =>
+        error instanceof Error ? error.message : String(error),
+    });
   }
 
   async sendMessages({
@@ -107,7 +110,7 @@ export class ClientSideTransport<
   > {
     const stream = this.opts.stream ?? true;
     const toolDefinitions = (body as any).toolDefinitions;
-    const tools = await toolDefinitionsToToolSet(toolDefinitions);
+    const tools = toolDefinitionsToToolSet(toolDefinitions);
 
     if (stream) {
       // this can be used to simulate initial network errors

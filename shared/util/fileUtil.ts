@@ -10,6 +10,7 @@ export async function loadFileDataUrl(
 ) {
   if (import.meta.env.NODE_ENV === "test") {
     const buffer = await loadFileBuffer(requireUrl);
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string
     const fileBase64 = buffer.toString("base64");
 
     const dataUrl = `data:${mimeType};base64,${fileBase64}`;

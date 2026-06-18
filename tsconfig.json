@@ -1,0 +1,21 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/core" },
+    { "path": "./packages/code-block" },
+    { "path": "./packages/react" },
+    { "path": "./packages/mantine" },
+    { "path": "./packages/ariakit" },
+    { "path": "./packages/shadcn" },
+    { "path": "./packages/xl-ai" },
+    { "path": "./packages/xl-ai-server" },
+    { "path": "./packages/xl-multi-column" },
+    { "path": "./packages/xl-docx-exporter" },
+    { "path": "./packages/xl-email-exporter" },
+    { "path": "./packages/xl-odt-exporter" },
+    { "path": "./packages/xl-pdf-exporter" },
+    { "path": "./packages/server-util" },
+    { "path": "./packages/dev-scripts" },
+    { "path": "./shared" }
+  ]
+}

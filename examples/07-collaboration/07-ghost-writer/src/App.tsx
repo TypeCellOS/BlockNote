@@ -2,6 +2,7 @@ import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import { useCreateBlockNote } from "@blocknote/react";
+import { withCollaboration } from "@blocknote/core/yjs";
 
 import YPartyKitProvider from "y-partykit/provider";
 import * as Y from "yjs";
@@ -38,21 +39,23 @@ const ghostContent =
 export default function App() {
   const [numGhostWriters, setNumGhostWriters] = useState(1);
   const [isPaused, setIsPaused] = useState(false);
-  const editor = useCreateBlockNote({
-    collaboration: {
-      // The Yjs Provider responsible for transporting updates:
-      provider,
-      // Where to store BlockNote data in the Y.Doc:
-      fragment: doc.getXmlFragment("document-store"),
-      // Information (name and color) for this user:
-      user: {
-        name: isGhostWriting
-          ? `Ghost Writer #${ghostWriterIndex}`
-          : "My Username",
-        color: isGhostWriting ? "#CCCCCC" : "#00ff00",
+  const editor = useCreateBlockNote(
+    withCollaboration({
+      collaboration: {
+        // The Yjs Provider responsible for transporting updates:
+        provider,
+        // Where to store BlockNote data in the Y.Doc:
+        fragment: doc.getXmlFragment("document-store"),
+        // Information (name and color) for this user:
+        user: {
+          name: isGhostWriting
+            ? `Ghost Writer #${ghostWriterIndex}`
+            : "My Username",
+          color: isGhostWriting ? "#CCCCCC" : "#00ff00",
+        },
       },
-    },
-  });
+    }),
+  );
 
   useEffect(() => {
     if (!isGhostWriting || isPaused) {
@@ -113,6 +116,7 @@ export default function App() {
         <div className="two-way-sync">
           {Array.from({ length: numGhostWriters }).map((_, index) => (
             <iframe
+              key={index}
               src={`${window.location.origin}${
                 window.location.pathname
               }?room=${roomName}&index=${index + 1}&hideMenu=true`}

@@ -51,8 +51,6 @@ jobs:
         # ranges. This simulates what a user gets when running
         # `npm install @blocknote/react` in a fresh project.
         # DevDependencies are left at their lockfile versions.
-        # NB: this uses pnpm directly because vp doesn't expose a `--prod`-only
-        # update flow; setup-vp installs pnpm on PATH so this still works.
         run: |
           FILTERS=$(node -e "
             const fs = require('fs');
@@ -65,7 +63,7 @@ jobs:
             });
           ")
           echo "Updating prod deps for: $FILTERS"
-          eval pnpm update --prod $FILTERS
+          eval vp update --prod $FILTERS
 
       - id: dedupe_deps
         name: Dedupe transitive dependencies
@@ -78,7 +76,7 @@ jobs:
         # Dedupe only rewrites the lockfile — it does NOT modify package.json,
         # so the examples' "@blocknote/*": "latest" specs (which is what
         # CodeSandbox users see) stay intact.
-        run: pnpm dedupe
+        run: vp dedupe
 
       - id: build_packages
         name: Build packages
@@ -86,7 +84,7 @@ jobs:
 
       - id: run_unit_tests
         name: Run unit tests
-        run: vp run -r test
+        run: vp run test
 
       - name: Notify Slack on workflow failure
         if: ${{ failure() }}

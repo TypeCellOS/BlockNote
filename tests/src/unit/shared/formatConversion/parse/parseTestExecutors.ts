@@ -19,7 +19,7 @@ export const testParseHTML = async <
   (window as any).__TEST_OPTIONS.mockID = 0;
 
   await expect(
-    await editor.tryParseHTMLToBlocks(testCase.content),
+    editor.tryParseHTMLToBlocks(testCase.content),
   ).toMatchFileSnapshot(`./__snapshots__/html/${testCase.name}.json`);
 };
 
@@ -34,6 +34,6 @@ export const testParseMarkdown = async <
   (window as any).__TEST_OPTIONS.mockID = 0;
 
   await expect(
-    await editor.tryParseMarkdownToBlocks(testCase.content),
+    editor.tryParseMarkdownToBlocks(testCase.content),
   ).toMatchFileSnapshot(`./__snapshots__/markdown/${testCase.name}.json`);
 };

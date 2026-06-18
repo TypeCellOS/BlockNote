@@ -1,16 +1,30 @@
-<!--VITE PLUS START-->
+# Project Description
 
-# Using Vite+, the Unified Toolchain for the Web
+BlockNote is a block-based rich text editor for the web. It's designed as a batteries-included product that offers a solid user experience with minimal setup. However, it also offers extensibility via plugins and custom block types.
 
-This project is using Vite+, a unified toolchain built on top of Vite, Rolldown, Vitest, tsdown, Oxlint, Oxfmt, and Vite Task. Vite+ wraps runtime management, package management, and frontend tooling in a single global CLI called `vp`. Vite+ is distinct from Vite, and it invokes Vite through `vp dev` and `vp build`. Run `vp help` to print a list of commands and `vp <command> --help` for information about a specific command.
+# Common Commands
 
-Docs are local at `node_modules/vite-plus/docs` or online at https://viteplus.dev/guide/.
+All commands below are listed under `package.json` in the project root. See `vite.config.ts` for relevant configuration settings.
 
-## Review Checklist
+- `vp install`: Installs dependencies.
+- `vp run dev`: Starts the dev server on port 5173.
+- `vp run check`: Checks for linting and formatting issues across the project and attempt resolve issues automatically.
+- `vp run build`: Builds the project.
+- `vp run preview`: Previews the build on port 3000.
+- `vp run test`: Runs unit tests. Append with `-u` to update snapshots. Append with a file name to target only that file.
+- `vp run e2e`: Runs end-to-end tests. Append with a file name to target only that file.
+- `vp run e2e:updateSnaps`: Runs end-to-end tests & updates snapshots. Append with a file name to target only that file.
+- `vp help`: Prints a list of all availabel commands.
 
-- [ ] Run `vp install` after pulling remote changes and before getting started.
-- [ ] Run `vp check` and `vp test` to format, lint, type check and test changes.
-- [ ] Check if there are `vite.config.ts` tasks or `package.json` scripts necessary for validation, run via `vp run <script>`.
-- [ ] If setup, runtime, or package-manager behavior looks wrong, run `vp env doctor` and include its output when asking for help.
+# Common Entry Points
 
-<!--VITE PLUS END-->
+When writing a new feature, bug fix, or other modification, it may not be immediately clear where the code for it should be. There are a few files which are good to start looking in when this is the case:
+
+- `/packages/core/src/editor/BlockNoteEditor.ts`: Contains the class for the core BlockNote editor. Every editor command & event can be traced from here.
+- `/packages/react/src/editor/BlockNoteView.tsx`: Contains the `BlockNoteViewEditor` component, which is the base for rendering the editor and its UI elements. Whenever the UI functionality (and often styling) needs to be changed, it will be a descendant of `BlockNoteViewEditor`.
+- `/packages/mantine/src/BlockNoteView.tsx`: Contains the Mantine version of `BlockNoteView`. This can be thought of as a skin for `BlockNoteViewEditor` that uses the Mantine component library. Therefore, changes in `BlockNoteViewEditor` may also have to be propagted to it.
+  - The same applies for `BlockNoteView.tsx` in `/packages/ariakit` and `/packages/shadcn`, though Mantine is the defacto default version of `BlockNoteView`.
+
+# Additional Notes
+
+- Do not create git commits.

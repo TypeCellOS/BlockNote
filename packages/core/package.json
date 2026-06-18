@@ -80,7 +80,7 @@
   },
   "scripts": {
     "dev": "vp dev",
-    "build-bundled": "tsc && vp build --config vite.config.bundled.ts && git checkout tmp-releases && rm -rf ../../release && mv ../../release-tmp ../../release",
+    "build-bundled": "tsgo && vp build --config vite.config.bundled.ts && git checkout tmp-releases && rm -rf ../../release && mv ../../release-tmp ../../release",
     "preview": "vp preview",
     "lint": "vp lint src",
     "test": "vp test --run",
@@ -111,17 +111,38 @@
     "prosemirror-state": "^1.4.4",
     "prosemirror-tables": "^1.8.3",
     "prosemirror-transform": "^1.11.0",
-    "prosemirror-view": "^1.41.4",
-    "y-prosemirror": "^1.3.7",
-    "y-protocols": "^1.0.6",
-    "yjs": "^13.6.27"
+    "prosemirror-view": "^1.41.4"
   },
   "devDependencies": {
     "jsdom": "^29.0.2",
     "rimraf": "^5.0.10",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^5.9.3",
-    "vite-plus": "catalog:"
+    "vite-plus": "catalog:",
+    "y-prosemirror": "^1.3.7",
+    "y-protocols": "^1.0.6",
+    "yjs": "^13.6.27"
+  },
+  "peerDependencies": {
+    "y-prosemirror": "^1.3.7",
+    "y-protocols": "^1.0.6",
+    "yjs": "^13.6.27"
+  },
+  "peerDependenciesMeta": {
+    "y-prosemirror": {
+      "optional": true
+    },
+    "y-protocols": {
+      "optional": true
+    },
+    "yjs": {
+      "optional": true
+    }
+  },
+  "eslintConfig": {
+    "extends": [
+      "../../.eslintrc.json"
+    ]
   },
   "gitHead": "37614ab348dcc7faa830a9a88437b37197a2162d"
 }

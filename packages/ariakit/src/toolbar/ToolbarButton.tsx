@@ -26,7 +26,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       isDisabled,
       onClick,
       label,
-      variant,
+      variant: _variant,
       ...rest
     } = props;
 

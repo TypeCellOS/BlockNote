@@ -9,8 +9,8 @@ import {
 import {
   CommentsExtension,
   DefaultThreadStoreAuth,
-  YjsThreadStore,
 } from "@blocknote/core/comments";
+import { YjsThreadStore } from "@blocknote/core/yjs";
 import { filterSuggestionItems } from "@blocknote/core/extensions";
 import "@blocknote/core/fonts/inter.css";
 import * as locales from "@blocknote/core/locales";
@@ -202,7 +202,8 @@ function DemoEditorInner({
       doc,
     );
     return { doc, provider };
-  }, [roomId, activeUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roomId]);
   // Thread Store
   const threadStore = useMemo(() => {
     return new YjsThreadStore(

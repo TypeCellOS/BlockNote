@@ -28,7 +28,6 @@
     "wysiwyg",
     "rich-text-editor",
     "notion",
-    "yjs",
     "block-based",
     "tiptap"
   ],
@@ -83,8 +82,7 @@
     "prosemirror-state": "^1.4.4",
     "prosemirror-tables": "^1.8.3",
     "prosemirror-transform": "^1.11.0",
-    "prosemirror-view": "^1.41.4",
-    "y-prosemirror": "^1.3.7"
+    "prosemirror-view": "^1.41.4"
   },
   "devDependencies": {
     "@blocknote/shared": "workspace:^",

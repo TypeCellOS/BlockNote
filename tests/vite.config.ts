@@ -8,7 +8,7 @@ export default defineConfig(
       run: {
         tasks: {
           build: {
-            command: "tsc",
+            command: "tsgo",
             input: [
               { auto: true },
               { pattern: "!**/*.tsbuildinfo", base: "workspace" },
@@ -48,6 +48,14 @@ export default defineConfig(
                 "@blocknote/react": path.resolve(
                   __dirname,
                   "../packages/react/src/",
+                ),
+                "@blocknote/mantine": path.resolve(
+                  __dirname,
+                  "../packages/mantine/src/",
+                ),
+                "@blocknote/server-util": path.resolve(
+                  __dirname,
+                  "../packages/server-util/src/",
                 ),
               } as Record<string, string>),
       },

@@ -4,9 +4,8 @@ import {
   Node,
   Extension as TiptapExtension,
 } from "@tiptap/core";
-import { Gapcursor } from "@tiptap/extensions/gap-cursor";
-import { LinkExtension } from "../../../extensions/tiptap-extensions/Link/link.js";
 import { Text } from "@tiptap/extension-text";
+import { Gapcursor } from "@tiptap/extensions/gap-cursor";
 import { createDropFileExtension } from "../../../api/clipboard/fromClipboard/fileDropExtension.js";
 import { createPasteFromClipboardExtension } from "../../../api/clipboard/fromClipboard/pasteExtension.js";
 import { createCopyToClipboardExtension } from "../../../api/clipboard/toClipboard/copyExtension.js";
@@ -19,6 +18,7 @@ import {
   LinkToolbarExtension,
   NodeSelectionKeyboardExtension,
   PlaceholderExtension,
+  PositionMappingExtension,
   PreviousBlockTypeExtension,
   ShowSelectionExtension,
   SideMenuExtension,
@@ -31,6 +31,7 @@ import {
   BackgroundColorExtension,
   HardBreak,
   KeyboardShortcutsExtension,
+  LinkExtension,
   SuggestionAddMark,
   SuggestionDeleteMark,
   SuggestionModificationMark,
@@ -39,12 +40,11 @@ import {
   UniqueID,
 } from "../../../extensions/tiptap-extensions/index.js";
 import { BlockContainer, BlockGroup, Doc } from "../../../pm-nodes/index.js";
-import {
+import type {
   BlockNoteEditor,
   BlockNoteEditorOptions,
 } from "../../BlockNoteEditor.js";
-import { ExtensionFactoryInstance } from "../../BlockNoteExtension.js";
-import { CollaborationExtension } from "../../../extensions/Collaboration/Collaboration.js";
+import type { ExtensionFactoryInstance } from "../../BlockNoteExtension.js";
 
 /**
  * Get all the Tiptap extensions BlockNote is configured with by default
@@ -175,18 +175,13 @@ export function getDefaultExtensions(
     ShowSelectionExtension(options),
     SideMenuExtension(options),
     SuggestionMenu(options),
+    HistoryExtension(),
+    PositionMappingExtension(),
     ...(options.trailingBlock !== false ? [TrailingNodeExtension()] : []),
   ] as ExtensionFactoryInstance[];
 
   if (options.syntaxHighlighting) {
     extensions.push(SyntaxHighlightingExtension(options.syntaxHighlighting));
-  }
-
-  if (options.collaboration) {
-    extensions.push(CollaborationExtension(options.collaboration));
-  } else {
-    // YUndo is not compatible with ProseMirror's history plugin
-    extensions.push(HistoryExtension());
   }
 
   if ("table" in editor.schema.blockSpecs) {

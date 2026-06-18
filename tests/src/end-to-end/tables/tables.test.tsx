@@ -10,6 +10,7 @@ import {
 } from "../../utils/editor.js";
 import { mouseSequence, moveMouseOverElement } from "../../utils/mouse.js";
 import { executeSlashCommand } from "../../utils/slashmenu.js";
+import { insertParagraph } from "../../utils/copypaste.js";
 
 beforeEach(async () => {
   await render(<App />);
@@ -39,6 +40,32 @@ describe("Check Table interactions", () => {
     await userEvent.keyboard("Table Cell");
 
     await compareDocToSnapshot("tabCells");
+  });
+  test("Tab in last cell should be a no-op", async () => {
+    await focusOnEditor();
+
+    await insertParagraph();
+    await executeSlashCommand("table");
+
+    for (let i = 0; i < 6; i++) {
+      await userEvent.keyboard("{Tab}");
+    }
+
+    // Only top level block group should exist.
+    expect(document.querySelectorAll(".bn-block-group").length).toBe(1);
+  });
+  test("Shift+Tab in first should be a no-op", async () => {
+    await focusOnEditor();
+
+    await insertParagraph();
+    await userEvent.keyboard("{Enter}");
+    await userEvent.keyboard("{Tab}");
+    await executeSlashCommand("table");
+
+    await userEvent.keyboard("{Shift>}{Tab}{/Shift}");
+
+    // Block group containing table should exist as well as top level group.
+    expect(document.querySelectorAll(".bn-block-group").length).toBe(2);
   });
   test("Arrow keys should move cells", async () => {
     await focusOnEditor();

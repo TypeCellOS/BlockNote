@@ -57,7 +57,12 @@ export default function App() {
         transport: new DefaultChatTransport({
           // (see packages/xl-ai-server/src/routes/vercelAiSdkPersistence.ts)
           api: `${BASE_URL}/server-persistence/streamText`,
-          prepareSendMessagesRequest({ id, body, messages, requestMetadata }) {
+          prepareSendMessagesRequest({
+            id,
+            body,
+            messages,
+            requestMetadata: _requestMetadata,
+          }) {
             // we don't send the messages, just the information we need to compose / append messages server-side:
             // - the conversation id
             // - the new (last) message to send
