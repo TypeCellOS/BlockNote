@@ -54,12 +54,14 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
+    "katex": "^0.16.11",
     "mathml-to-latex": "^1.8.0",
     "prosemirror-model": "^1.25.4",
-    "prosemirror-state": "^1.4.4",
-    "temml": "^0.13.3"
+    "prosemirror-state": "^1.4.4"
   },
   "devDependencies": {
+    "@blocknote/xl-multi-column": "workspace:^",
+    "@types/katex": "^0.16.7",
     "rimraf": "^5.0.10",
     "rollup-plugin-webpack-stats": "^0.2.6",
     "typescript": "^5.9.3",

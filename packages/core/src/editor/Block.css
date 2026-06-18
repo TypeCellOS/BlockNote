@@ -454,39 +454,35 @@ NESTED BLOCKS
 }
 
 /* CODE BLOCK PREVIEW */
-/* Preview-supporting languages render the preview in place of the raw source,
-so the surrounding "code editor" styling is dropped from the block itself and
-applied to the source popup instead. */
 .bn-block-content[data-content-type="codeBlock"]:has(
     .bn-code-block-with-preview
   ) {
   background-color: transparent;
   color: inherit;
 }
+
 .bn-code-block-with-preview {
   position: relative;
+  flex: 1;
+  min-width: 0;
 }
+
 .bn-code-block-preview {
   padding: 12px;
   min-height: 1.5em;
   cursor: text;
 }
-/* Preview-source blocks (e.g. math) show their source in a popup, so they never
-get a native node selection. While selected they get this class instead, which
-we use to highlight the preview the same way `ProseMirror-selectednode` does. */
-.bn-preview-source-selected .bn-code-block-preview {
-  border-radius: 4px;
-  outline: 4px solid rgb(100, 160, 255);
-}
+
 .bn-code-block-source-popup {
   position: absolute;
   z-index: 1;
-  min-width: 240px;
-  background-color: rgb(22 22 22);
-  color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  background-color: var(--bn-colors-menu-background);
+  color: var(--bn-colors-menu-text);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  box-shadow: var(--bn-shadow-medium);
 }
+
 /* The source popup reuses the default source rendering (language select +
 `<pre>`), so it gets the same "code editor" styling as a regular code block. */
 .bn-code-block-source-popup > div > select {
@@ -497,12 +493,14 @@ we use to highlight the preview the same way `ProseMirror-selectednode` does. */
   cursor: pointer;
   background-color: transparent;
   font-size: 0.8em;
-  color: white;
+  color: var(--bn-colors-menu-text);
   padding: 8px 16px 0;
 }
+
 .bn-code-block-source-popup > div > select > option {
   color: black;
 }
+
 .bn-code-block-source-popup > pre {
   white-space: pre;
   overflow-x: auto;
@@ -510,6 +508,14 @@ we use to highlight the preview the same way `ProseMirror-selectednode` does. */
   width: 100%;
   tab-size: 2;
   padding: 16px;
+}
+
+.bn-code-block-source-error {
+  border-top: var(--bn-border);
+  color: var(--bn-colors-highlights-red-text);
+  font-size: 0.8em;
+  padding: 8px 16px;
+  white-space: pre-wrap;
 }
 
 /* PAGE BREAK */

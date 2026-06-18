@@ -18,7 +18,6 @@ export * from "./Video/block.js";
 export { EMPTY_CELL_HEIGHT, EMPTY_CELL_WIDTH } from "./Table/TableExtension.js";
 export * from "./Code/helpers/extensions/createCodeKeyboardShortcutsExtension.js";
 export * from "./Code/helpers/extensions/createPreviewSourceNavigationExtension.js";
-export * from "./Code/helpers/extensions/createPreviewSourceSelectionExtension.js";
 export * from "./Code/helpers/parse/parsePreCode.js";
 export * from "./Code/helpers/render/createCodeBlockWrapper.js";
 export * from "./Code/helpers/render/createPreviewWithSourcePopup.js";

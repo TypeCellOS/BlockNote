@@ -16,6 +16,9 @@ export type CodeBlockPreview = (
   editor: BlockNoteEditor<any>,
 ) => {
   dom: HTMLElement;
+  // TODO: This is for showing any syntax errors found while rendering the preview, not sure if it
+  // should be here.
+  error?: string | null;
   ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
   destroy?: () => void;
 };

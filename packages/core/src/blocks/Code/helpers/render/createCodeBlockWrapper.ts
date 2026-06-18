@@ -15,9 +15,8 @@ export const createCodeBlockWrapper =
     const renderPreview =
       options.supportedLanguages?.[resolvedLanguage]?.createPreview;
 
-    // Languages with a preview show the rendered result by default, with the
-    // editable source in a popup when selected. Other languages just show the
-    // source.
+    // Languages with a preview show said preview by default, with the editable source in a popup.
+    // Other languages just show the source.
     return renderPreview
       ? createPreviewWithSourcePopup(options)(block, editor, renderPreview)
       : createSourceBlock(options)(block, editor);

@@ -2,7 +2,6 @@ import {
   createBlockConfig,
   createBlockSpec,
   createPreviewSourceNavigationExtension,
-  createPreviewSourceSelectionExtension,
   createPreviewWithSourcePopup,
 } from "@blocknote/core";
 import {
@@ -26,14 +25,16 @@ export const createMathBlockConfig = createBlockConfig(
 export const createMathBlockSpec = createBlockSpec(
   createMathBlockConfig,
   {
+    meta: {
+      code: true,
+      defining: true,
+      isolating: false,
+    },
     parse: (el) => parseMathML(el),
     parseContent: ({ el, schema }) => parseMathMLContent({ el, schema }),
     render: (block, editor) =>
       createPreviewWithSourcePopup({})(block, editor, createMathPreview),
     toExternalHTML: (block) => createMathML(block),
   },
-  [
-    createPreviewSourceNavigationExtension("math-block-navigation", "math"),
-    createPreviewSourceSelectionExtension("math-block-selection", "math"),
-  ],
+  [createPreviewSourceNavigationExtension("math-block-navigation", "math")],
 );
