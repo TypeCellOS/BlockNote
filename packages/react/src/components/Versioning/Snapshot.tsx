@@ -52,19 +52,22 @@ export const Snapshot = ({
       }
     >
       <div className="bn-snapshot-body">
-        <input
-          className="bn-snapshot-name"
-          type="text"
-          readOnly={!canUpdateSnapshotName}
-          value={snapshotName}
-          onChange={(e) => setSnapshotName(e.target.value)}
-          onBlur={() =>
-            updateSnapshotName?.(
-              snapshot.id,
-              snapshotName === dateString ? undefined : snapshotName,
-            )
-          }
-        />
+        {canUpdateSnapshotName ? (
+          <input
+            className="bn-snapshot-name"
+            type="text"
+            value={snapshotName}
+            onChange={(e) => setSnapshotName(e.target.value)}
+            onBlur={() =>
+              updateSnapshotName?.(
+                snapshot.id,
+                snapshotName === dateString ? undefined : snapshotName,
+              )
+            }
+          />
+        ) : (
+          <div className="bn-snapshot-name">{snapshotName}</div>
+        )}
         {snapshot.name && snapshot.name !== dateString && (
           <div className="bn-snapshot-date">{dateString}</div>
         )}

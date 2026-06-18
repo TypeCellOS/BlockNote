@@ -68,26 +68,20 @@ interface YHubChangeset {
 // Helpers
 // ---------------------------------------------------------------------------
 
-/** Snapshot-metadata store (names & options that aren't tracked by YHub). */
-interface SnapshotMeta {
-  name?: string;
-  restoredFromSnapshotId?: string;
-}
-
 /**
  * Convert a YHub activity entry into a {@link VersionSnapshot}.
+ *
+ * YHub's activity timeline is the source of truth for versions: each entry is
+ * labelled by the author (`by`) and the time window it covers. YHub has no
+ * concept of a custom/pinned name, so {@link VersionSnapshot.name} is left
+ * undefined.
  */
-function activityToSnapshot(
-  entry: YHubActivityEntry,
-  meta?: SnapshotMeta,
-): VersionSnapshot {
+function activityToSnapshot(entry: YHubActivityEntry): VersionSnapshot {
   return {
     id: String(entry.to),
-    name: meta?.name,
     createdAt: entry.from,
     updatedAt: entry.to,
     secondaryLabel: entry.by,
-    restoredFromSnapshotId: meta?.restoredFromSnapshotId,
   };
 }
 
@@ -157,9 +151,6 @@ export function createYHubVersioningEndpoints(
   const changesetUrl = `${baseUrl}/changeset/${org}/${docId}`;
   const rollbackUrl = `${baseUrl}/rollback/${org}/${docId}`;
 
-  // Client-side metadata (names, restored-from links) keyed by snapshot id.
-  const metaMap = new Map<string, SnapshotMeta>();
-
   // ------------------------------------------------------------------
   // list
   // ------------------------------------------------------------------
@@ -174,9 +165,7 @@ export function createYHubVersioningEndpoints(
     const buf = await yhubFetch(`${activityUrl}?${params}`, headers);
     const entries = decodeAny(new Uint8Array(buf)) as YHubActivityEntry[];
 
-    return sortSnapshotsNewestFirst(
-      entries.map((e) => activityToSnapshot(e, metaMap.get(String(e.to)))),
-    );
+    return sortSnapshotsNewestFirst(entries.map(activityToSnapshot));
   };
 
   // ------------------------------------------------------------------
@@ -184,7 +173,7 @@ export function createYHubVersioningEndpoints(
   // ------------------------------------------------------------------
   const create: VersioningEndpoints<Y.Type, Uint8Array>["create"] = async (
     fragment: Y.Type,
-    opts?: CreateSnapshotOptions,
+    _opts?: CreateSnapshotOptions,
   ) => {
     const doc = fragment.doc;
     if (!doc) {
@@ -193,31 +182,28 @@ export function createYHubVersioningEndpoints(
       );
     }
 
-    // Encode the current document state.
-    const update = Y.encodeStateAsUpdateV2(doc);
+    // Encode the current document state. YHub's `/ydoc` endpoint speaks the v1
+    // update format (its server applies the payload with `Y.applyUpdate`), so
+    // we must encode as v1 here — sending a v2 update corrupts the stored doc.
+    const update = Y.encodeStateAsUpdate(doc);
 
-    // Persist via PATCH /ydoc to make sure the current state is stored.
+    // Persist via PATCH /ydoc to make sure the current state is stored. This
+    // produces a new activity entry on the server which becomes the snapshot.
     await yhubFetch(`${baseUrl}/ydoc/${org}/${docId}`, headers, {
       method: "PATCH",
       body: encodeAny({ update }) as Blob | BufferSource,
     });
 
-    const now = Date.now();
-    const id = String(now);
-
-    const meta: SnapshotMeta = {
-      name: opts?.name,
-      restoredFromSnapshotId: opts?.restoredFromSnapshotId,
-    };
-    metaMap.set(id, meta);
-
-    return {
-      id,
-      name: opts?.name,
-      createdAt: now,
-      updatedAt: now,
-      restoredFromSnapshotId: opts?.restoredFromSnapshotId,
-    };
+    // YHub assigns the snapshot's identity (its activity-window timestamp), so
+    // re-read the timeline and return the newest entry. `CreateSnapshotOptions`
+    // (custom name etc.) is intentionally ignored: YHub has no way to store it.
+    const snapshots = await list();
+    if (snapshots.length === 0) {
+      throw new Error(
+        "YHub did not report any activity after persisting the document.",
+      );
+    }
+    return snapshots[0];
   };
 
   // ------------------------------------------------------------------
@@ -241,7 +227,11 @@ export function createYHubVersioningEndpoints(
       throw new Error(`YHub returned no document state for snapshot ${id}.`);
     }
 
-    return changeset.nextDoc;
+    // YHub returns document states as v1 updates (`nextDoc` is produced via
+    // `Y.intersectUpdateWithContentIds` and consumed with `Y.applyUpdate`).
+    // The versioning preview pipeline decodes snapshot content with
+    // `Y.applyUpdateV2`, so convert v1 -> v2 at this boundary.
+    return Y.convertUpdateFormatV1ToV2(changeset.nextDoc);
   };
 
   // ------------------------------------------------------------------
@@ -251,14 +241,16 @@ export function createYHubVersioningEndpoints(
     fragment: Y.Type,
     id: string,
   ) => {
-    // 1. Create a backup snapshot of the current state.
-    await create(fragment, { name: "Backup" });
+    // 1. Back up the current state by flushing it as a new activity entry.
+    await create(fragment);
 
     // 2. Get the content of the target snapshot.
     const snapshotContent = await getContent(id);
 
     // 3. Issue a rollback via YHub. Rolling back everything after the target
-    //    timestamp effectively restores the document to that point.
+    //    timestamp effectively restores the document to that point. YHub
+    //    publishes the reverting update to the room, so connected editors
+    //    converge to the restored state over the live sync connection.
     const to = Number(id);
     await yhubFetch(`${rollbackUrl}?from=${to}`, headers, {
       method: "POST",
@@ -267,29 +259,7 @@ export function createYHubVersioningEndpoints(
         | BufferSource,
     });
 
-    // 4. Record metadata for the restored snapshot.
-    const restoredSnapshot = await create(fragment, {
-      name: "Restored Snapshot",
-      restoredFromSnapshotId: id,
-    });
-
-    metaMap.set(restoredSnapshot.id, {
-      name: "Restored Snapshot",
-      restoredFromSnapshotId: id,
-    });
-
     return snapshotContent;
-  };
-
-  // ------------------------------------------------------------------
-  // updateSnapshotName
-  // ------------------------------------------------------------------
-  const updateSnapshotName: VersioningEndpoints<
-    Y.Type,
-    Uint8Array
-  >["updateSnapshotName"] = async (id: string, name?: string) => {
-    const existing = metaMap.get(id) ?? {};
-    metaMap.set(id, { ...existing, name });
   };
 
   // ------------------------------------------------------------------
@@ -300,6 +270,5 @@ export function createYHubVersioningEndpoints(
     create,
     getContent,
     restore,
-    updateSnapshotName,
   };
 }

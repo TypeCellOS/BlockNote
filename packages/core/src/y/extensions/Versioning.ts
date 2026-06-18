@@ -55,9 +55,17 @@ export function createYjsVersioningAdapter(
         editor.exec(configureYProsemirror({ ytype: fragment }));
       },
       applyRestore: (_snapshotContent: Uint8Array) => {
-        throw new Error(
-          "Restore is not yet implemented for Yjs versioning adapter.",
-        );
+        // For Yjs-backed versioning, restoration happens on the server (e.g.
+        // YHub's `/rollback` endpoint) which publishes a reverting update to
+        // the document's room. That update propagates back to this client over
+        // the live sync connection and updates `fragment` automatically, so
+        // there is nothing to apply locally — we only need to leave preview
+        // mode. `exitPreview` is already called by the base extension before
+        // this runs, so this is a no-op.
+        //
+        // Note: this assumes `endpoints.restore` performs the server-side
+        // restore. The default in-memory adapter has no server, which is why
+        // this is specific to the Yjs collaboration setup.
       },
     },
   };

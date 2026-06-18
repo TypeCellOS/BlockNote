@@ -1,33 +1,11 @@
 import { VersioningSidebar } from "@blocknote/react";
-import { useState } from "react";
-
-import { SettingsSelect } from "./SettingsSelect";
 
 export const VersionHistorySidebar = () => {
-  const [filter, setFilter] = useState<"named" | "all">("all");
-
+  // YHub's activity timeline is the source of truth for versions, and YHub has
+  // no concept of a custom/pinned name, so every version is shown ("all").
   return (
     <div className={"sidebar-section"}>
-      <div className={"settings"}>
-        <SettingsSelect
-          label={"Filter"}
-          items={[
-            {
-              text: "All",
-              icon: null,
-              onClick: () => setFilter("all"),
-              isSelected: filter === "all",
-            },
-            {
-              text: "Named",
-              icon: null,
-              onClick: () => setFilter("named"),
-              isSelected: filter === "named",
-            },
-          ]}
-        />
-      </div>
-      <VersioningSidebar filter={filter} />
+      <VersioningSidebar filter={"all"} />
     </div>
   );
 };
