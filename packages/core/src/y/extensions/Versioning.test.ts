@@ -236,12 +236,17 @@ describe("createYjsVersioningAdapter", () => {
     expect(getEditorText(ctx.editor)).toContain("Content");
   });
 
-  it("applyRestore throws not-yet-implemented error", () => {
+  it("applyRestore is a no-op (server-side restore propagates via live sync)", () => {
     ctx = createCollabEditor();
+    ctx.editor.replaceBlocks(ctx.editor.document, [
+      { type: "paragraph", content: "Content" },
+    ]);
+
     const adapter = createYjsVersioningAdapter(ctx.editor, ctx.fragment);
-    expect(() => adapter.preview.applyRestore(new Uint8Array())).toThrow(
-      /not yet implemented/i,
-    );
+
+    // Should not throw and should leave the live document untouched.
+    expect(() => adapter.preview.applyRestore(new Uint8Array())).not.toThrow();
+    expect(getEditorText(ctx.editor)).toContain("Content");
   });
 });
 
@@ -333,7 +338,7 @@ describe("Yjs versioning integration (VersioningExtension + in-memory endpoints)
     expect(getEditorText(ctx.editor)).toContain("Current state");
   });
 
-  it("restoreSnapshot rejects because applyRestore is not yet implemented", async () => {
+  it("restoreSnapshot resolves with the restored snapshot content", async () => {
     ctx = createCollabEditor();
     const versioning = ctx.editor.getExtension(VersioningExtension)!;
 
@@ -342,9 +347,11 @@ describe("Yjs versioning integration (VersioningExtension + in-memory endpoints)
     ]);
     const snap = await versioning.createSnapshot({ name: "v1" });
 
-    await expect(versioning.restoreSnapshot!(snap.id)).rejects.toThrow(
-      /not yet implemented/i,
-    );
+    // applyRestore is a no-op for the Yjs adapter (the backend applies the
+    // restore and the change propagates over live sync), so restoreSnapshot
+    // resolves with the snapshot content returned by the endpoint.
+    const content = await versioning.restoreSnapshot!(snap.id);
+    expect(content).toBeInstanceOf(Uint8Array);
   });
 
   it("previewing multiple snapshots and switching between them", async () => {
