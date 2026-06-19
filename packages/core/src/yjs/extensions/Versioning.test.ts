@@ -397,7 +397,7 @@ describe("Yjs v13 versioning integration (VersioningExtension + in-memory endpoi
     const versioning = ctx2.editor.getExtension(VersioningExtension)!;
 
     setEditorText(ctx2.editor, "Snapshot content");
-    const snap = await versioning.createSnapshot({ name: "v1" });
+    const snap = await versioning.createSnapshot!({ name: "v1" });
 
     setEditorText(ctx2.editor, "Current content");
 
@@ -411,7 +411,7 @@ describe("Yjs v13 versioning integration (VersioningExtension + in-memory endpoi
     const versioning = ctx2.editor.getExtension(VersioningExtension)!;
 
     setEditorText(ctx2.editor, "Saved state");
-    const snap = await versioning.createSnapshot({ name: "v1" });
+    const snap = await versioning.createSnapshot!({ name: "v1" });
 
     setEditorText(ctx2.editor, "Live state");
 
@@ -428,10 +428,10 @@ describe("Yjs v13 versioning integration (VersioningExtension + in-memory endpoi
 
     // Create two versions
     setEditorText(ctx2.editor, "Version 1");
-    const v1 = await versioning.createSnapshot({ name: "v1" });
+    const v1 = await versioning.createSnapshot!({ name: "v1" });
 
     setEditorText(ctx2.editor, "Version 2");
-    const v2 = await versioning.createSnapshot({ name: "v2" });
+    const v2 = await versioning.createSnapshot!({ name: "v2" });
 
     setEditorText(ctx2.editor, "Current state");
 
@@ -466,10 +466,10 @@ describe("Yjs v13 versioning integration (VersioningExtension + in-memory endpoi
 
     // Create two versions
     setEditorText(ctx2.editor, "Version 1");
-    const v1 = await versioning.createSnapshot({ name: "v1" });
+    const v1 = await versioning.createSnapshot!({ name: "v1" });
 
     setEditorText(ctx2.editor, "Version 2");
-    const v2 = await versioning.createSnapshot({ name: "v2" });
+    const v2 = await versioning.createSnapshot!({ name: "v2" });
 
     setEditorText(ctx2.editor, "Current state");
 
@@ -512,7 +512,7 @@ describe("Yjs v13 versioning integration (VersioningExtension + in-memory endpoi
 
     // Step 1: Create initial content and snapshot
     setEditorText(ctx2.editor, "Version 1");
-    const v1 = await versioning.createSnapshot({ name: "v1" });
+    const v1 = await versioning.createSnapshot!({ name: "v1" });
 
     setEditorText(ctx2.editor, "Current state");
 
@@ -530,7 +530,7 @@ describe("Yjs v13 versioning integration (VersioningExtension + in-memory endpoi
     setEditorText(ctx2.editor, "Edited after preview");
 
     // Step 5: Create a NEW snapshot of the edited content
-    const v2 = await versioning.createSnapshot({ name: "v2" });
+    const v2 = await versioning.createSnapshot!({ name: "v2" });
 
     // Step 6: Preview the NEW snapshot — this is where the browser crash happened
     // before the replaceExtension fix (y-prosemirror's view hooks would dispatch

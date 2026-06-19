@@ -4,12 +4,30 @@ import { useState } from "react";
 import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
 
 export const CurrentSnapshot = () => {
-  const { createSnapshot, exitPreview } = useExtension(VersioningExtension);
+  const { createSnapshot, canCreateSnapshot, exitPreview } =
+    useExtension(VersioningExtension);
   const selected = useExtensionState(VersioningExtension, {
     selector: (state) => state.previewedSnapshotId === undefined,
   });
 
   const [snapshotName, setSnapshotName] = useState("Current Version");
+
+  // When the backend doesn't support creating snapshots (e.g. YHub, which
+  // records a continuous activity timeline rather than discrete user-saved
+  // snapshots), render a plain, non-editable row that simply selects the live
+  // document. There's no name input or "Save" button to imply otherwise.
+  if (!canCreateSnapshot) {
+    return (
+      <div
+        className={`bn-snapshot ${selected ? "selected" : ""}`}
+        onClick={() => exitPreview()}
+      >
+        <div className="bn-snapshot-body">
+          <div className="bn-snapshot-name">Current Version</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -34,7 +52,7 @@ export const CurrentSnapshot = () => {
           event.preventDefault();
           event.stopPropagation();
 
-          void createSnapshot({
+          void createSnapshot?.({
             name: snapshotName !== "Current Version" ? snapshotName : undefined,
           });
           setSnapshotName("Current Version");

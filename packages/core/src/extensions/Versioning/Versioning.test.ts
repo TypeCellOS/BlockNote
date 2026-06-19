@@ -82,7 +82,7 @@ function setup(opts?: {
     const savedBlocks = editor.document;
     setEditorText(editor, text);
     const blocks = editor.document;
-    const snapshot = await endpoints.create(blocks, { name });
+    const snapshot = await endpoints.create!(blocks, { name });
     // Restore original text.
     editor.replaceBlocks(editor.document, savedBlocks);
     return snapshot;
@@ -123,7 +123,7 @@ describe("VersioningExtension", () => {
       vi.useFakeTimers();
 
       // Seed snapshots with distinct timestamps directly via endpoints.
-      await ctx.endpoints.create([
+      await ctx.endpoints.create!([
         {
           id: "1",
           type: "paragraph" as const,
@@ -133,7 +133,7 @@ describe("VersioningExtension", () => {
         },
       ]);
       vi.advanceTimersByTime(1000);
-      await ctx.endpoints.create([
+      await ctx.endpoints.create!([
         {
           id: "2",
           type: "paragraph" as const,
@@ -143,7 +143,7 @@ describe("VersioningExtension", () => {
         },
       ]);
       vi.advanceTimersByTime(1000);
-      await ctx.endpoints.create([
+      await ctx.endpoints.create!([
         {
           id: "3",
           type: "paragraph" as const,
@@ -167,7 +167,7 @@ describe("VersioningExtension", () => {
     it("reflects backend changes on subsequent calls", async () => {
       expect(await ctx.ext.listSnapshots()).toEqual([]);
 
-      await ctx.endpoints.create([
+      await ctx.endpoints.create!([
         {
           id: "1",
           type: "paragraph" as const,
@@ -190,7 +190,7 @@ describe("VersioningExtension", () => {
     it("captures the current state and adds the snapshot to the store", async () => {
       setEditorText(ctx.editor, "my document content");
 
-      const snapshot = await ctx.ext.createSnapshot({ name: "Draft 1" });
+      const snapshot = await ctx.ext.createSnapshot!({ name: "Draft 1" });
 
       expect(snapshot.name).toBe("Draft 1");
       expect(snapshot.id).toBeDefined();
@@ -211,7 +211,7 @@ describe("VersioningExtension", () => {
       // List so the store knows about the seeded snapshot.
       await ctx.ext.listSnapshots();
 
-      const newer = await ctx.ext.createSnapshot({ name: "Newer" });
+      const newer = await ctx.ext.createSnapshot!({ name: "Newer" });
 
       expect(ctx.ext.store.state.snapshots[0]!.id).toBe(newer.id);
       expect(ctx.ext.store.state.snapshots[1]!.id).toBe(old.id);
@@ -353,13 +353,13 @@ describe("VersioningExtension", () => {
 
       // 1. Create version 1.
       setEditorText(ctx.editor, "doc v1");
-      const v1 = await ctx.ext.createSnapshot({ name: "Version 1" });
+      const v1 = await ctx.ext.createSnapshot!({ name: "Version 1" });
 
       vi.advanceTimersByTime(1000);
 
       // 2. Modify and create version 2.
       setEditorText(ctx.editor, "doc v2");
-      const v2 = await ctx.ext.createSnapshot({ name: "Version 2" });
+      const v2 = await ctx.ext.createSnapshot!({ name: "Version 2" });
       expect(ctx.ext.store.state.snapshots[0]!.id).toBe(v2.id);
 
       // 3. Preview v1 with diff comparison against v2.

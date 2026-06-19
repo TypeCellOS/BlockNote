@@ -270,7 +270,7 @@ describe("Yjs versioning integration (VersioningExtension + in-memory endpoints)
     ctx.editor.replaceBlocks(ctx.editor.document, [
       { type: "paragraph", content: "Snapshot content" },
     ]);
-    const snapshot = await versioning.createSnapshot({ name: "v1" });
+    const snapshot = await versioning.createSnapshot!({ name: "v1" });
 
     ctx.editor.replaceBlocks(ctx.editor.document, [
       { type: "paragraph", content: "Current content" },
@@ -290,7 +290,7 @@ describe("Yjs versioning integration (VersioningExtension + in-memory endpoints)
     ctx.editor.replaceBlocks(ctx.editor.document, [
       { type: "paragraph", content: "Saved state" },
     ]);
-    const snapshot = await versioning.createSnapshot({ name: "v1" });
+    const snapshot = await versioning.createSnapshot!({ name: "v1" });
 
     ctx.editor.replaceBlocks(ctx.editor.document, [
       { type: "paragraph", content: "Live state" },
@@ -310,12 +310,12 @@ describe("Yjs versioning integration (VersioningExtension + in-memory endpoints)
     ctx.editor.replaceBlocks(ctx.editor.document, [
       { type: "paragraph", content: "Version 1" },
     ]);
-    const v1 = await versioning.createSnapshot({ name: "v1" });
+    const v1 = await versioning.createSnapshot!({ name: "v1" });
 
     ctx.editor.replaceBlocks(ctx.editor.document, [
       { type: "paragraph", content: "Version 2" },
     ]);
-    const v2 = await versioning.createSnapshot({ name: "v2" });
+    const v2 = await versioning.createSnapshot!({ name: "v2" });
 
     ctx.editor.replaceBlocks(ctx.editor.document, [
       { type: "paragraph", content: "Current state" },
@@ -345,7 +345,7 @@ describe("Yjs versioning integration (VersioningExtension + in-memory endpoints)
     ctx.editor.replaceBlocks(ctx.editor.document, [
       { type: "paragraph", content: "Content" },
     ]);
-    const snap = await versioning.createSnapshot({ name: "v1" });
+    const snap = await versioning.createSnapshot!({ name: "v1" });
 
     // applyRestore is a no-op for the Yjs adapter (the backend applies the
     // restore and the change propagates over live sync), so restoreSnapshot
@@ -362,17 +362,17 @@ describe("Yjs versioning integration (VersioningExtension + in-memory endpoints)
     ctx.editor.replaceBlocks(ctx.editor.document, [
       { type: "paragraph", content: "Version 1" },
     ]);
-    const v1 = await versioning.createSnapshot({ name: "v1" });
+    const v1 = await versioning.createSnapshot!({ name: "v1" });
 
     ctx.editor.replaceBlocks(ctx.editor.document, [
       { type: "paragraph", content: "Version 2" },
     ]);
-    const v2 = await versioning.createSnapshot({ name: "v2" });
+    const v2 = await versioning.createSnapshot!({ name: "v2" });
 
     ctx.editor.replaceBlocks(ctx.editor.document, [
       { type: "paragraph", content: "Version 3" },
     ]);
-    await versioning.createSnapshot({ name: "v3" });
+    await versioning.createSnapshot!({ name: "v3" });
 
     ctx.editor.replaceBlocks(ctx.editor.document, [
       { type: "paragraph", content: "Current live" },

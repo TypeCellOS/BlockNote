@@ -3,7 +3,6 @@ import { decodeAny, encodeAny } from "lib0/buffer";
 
 import {
   sortSnapshotsNewestFirst,
-  type CreateSnapshotOptions,
   type VersioningEndpoints,
   type VersionSnapshot,
 } from "../../extensions/Versioning/index.js";
@@ -179,17 +178,19 @@ export function createYHubVersioningEndpoints(
   };
 
   // ------------------------------------------------------------------
-  // create
+  // backupCurrentState (internal)
   // ------------------------------------------------------------------
-  const create: VersioningEndpoints<
-    Y.Type,
-    Uint8Array,
-    Y.ContentMap
-  >["create"] = async (fragment: Y.Type, _opts?: CreateSnapshotOptions) => {
+  /**
+   * Flush the current document state to YHub so it's recorded as an activity
+   * entry before a destructive operation (e.g. restore). YHub has no concept of
+   * a user-created snapshot, so this is an internal backup step rather than a
+   * `create` endpoint — the versioning UI does not expose a "save" action.
+   */
+  const backupCurrentState = async (fragment: Y.Type) => {
     const doc = fragment.doc;
     if (!doc) {
       throw new Error(
-        "Cannot create snapshot: the Y.Type is not attached to a Y.Doc.",
+        "Cannot back up document: the Y.Type is not attached to a Y.Doc.",
       );
     }
 
@@ -199,22 +200,12 @@ export function createYHubVersioningEndpoints(
     const update = Y.encodeStateAsUpdate(doc);
 
     // Persist via PATCH /ydoc to make sure the current state is stored. This
-    // produces a new activity entry on the server which becomes the snapshot.
+    // produces a new activity entry on the server, preserving the pre-restore
+    // state in the timeline.
     await yhubFetch(`${baseUrl}/ydoc/${org}/${docId}`, headers, {
       method: "PATCH",
       body: encodeAny({ update }) as Blob | BufferSource,
     });
-
-    // YHub assigns the snapshot's identity (its activity-window timestamp), so
-    // re-read the timeline and return the newest entry. `CreateSnapshotOptions`
-    // (custom name etc.) is intentionally ignored: YHub has no way to store it.
-    const snapshots = await list();
-    if (snapshots.length === 0) {
-      throw new Error(
-        "YHub did not report any activity after persisting the document.",
-      );
-    }
-    return snapshots[0];
   };
 
   // ------------------------------------------------------------------
@@ -285,7 +276,7 @@ export function createYHubVersioningEndpoints(
     Y.ContentMap
   >["restore"] = async (fragment: Y.Type, id: string) => {
     // 1. Back up the current state by flushing it as a new activity entry.
-    await create(fragment);
+    await backupCurrentState(fragment);
 
     // 2. Get the content of the target snapshot.
     const snapshotContent = await getContent(id);
@@ -310,7 +301,6 @@ export function createYHubVersioningEndpoints(
   // ------------------------------------------------------------------
   return {
     list,
-    create,
     getContent,
     getAttributions,
     restore,

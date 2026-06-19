@@ -173,10 +173,17 @@ export function DocumentEditor({
     }),
   );
 
-  // Load existing snapshots on mount so pre-seeded versions show up
+  // The version history is derived entirely from YHub's activity timeline.
+  // Fetch it once on mount so the sidebar reflects the server's history rather
+  // than only changes made during this session.
   const versioning = useExtension(VersioningExtension, { editor });
   useEffect(() => {
-    versioning.listSnapshots();
+    const interval = setInterval(() => {
+      versioning.listSnapshots();
+    }, 10000);
+    return () => {
+      clearInterval(interval);
+    };
   }, [versioning]);
 
   const { previewedSnapshotId } = useExtensionState(VersioningExtension, {

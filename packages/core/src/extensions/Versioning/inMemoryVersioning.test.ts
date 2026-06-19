@@ -54,7 +54,7 @@ describe("createInMemoryVersioningEndpoints", () => {
       },
     ];
 
-    const snap = await endpoints.create(blocks, { name: "v1" });
+    const snap = await endpoints.create!(blocks, { name: "v1" });
     expect(snap.name).toBe("v1");
     expect(snap.id).toBeDefined();
 
@@ -69,7 +69,7 @@ describe("createInMemoryVersioningEndpoints", () => {
     try {
       const endpoints = createInMemoryVersioningEndpoints();
 
-      const s1 = await endpoints.create([
+      const s1 = await endpoints.create!([
         {
           id: "1",
           type: "paragraph" as const,
@@ -79,7 +79,7 @@ describe("createInMemoryVersioningEndpoints", () => {
         },
       ]);
       vi.advanceTimersByTime(1000);
-      const s2 = await endpoints.create([
+      const s2 = await endpoints.create!([
         {
           id: "2",
           type: "paragraph" as const,
@@ -109,7 +109,7 @@ describe("createInMemoryVersioningEndpoints", () => {
         children: [],
       },
     ];
-    const snap = await endpoints.create(original);
+    const snap = await endpoints.create!(original);
 
     const currentDoc = [
       {
@@ -137,7 +137,7 @@ describe("createInMemoryVersioningEndpoints", () => {
 
   it("updates snapshot name", async () => {
     const endpoints = createInMemoryVersioningEndpoints();
-    const snap = await endpoints.create(
+    const snap = await endpoints.create!(
       [
         {
           id: "1",
@@ -266,14 +266,14 @@ describe("VersioningExtension + in-memory adapter", () => {
     const ext = VersioningExtension(adapter)({ editor });
 
     // 1. Create a snapshot of "initial doc"
-    const snap1 = await ext.createSnapshot({ name: "v1" });
+    const snap1 = await ext.createSnapshot!({ name: "v1" });
     expect(snap1.name).toBe("v1");
 
     // 2. Modify the document
     setEditorText(editor, "modified doc");
 
     // 3. Create another snapshot
-    await ext.createSnapshot({ name: "v2" });
+    await ext.createSnapshot!({ name: "v2" });
 
     // 4. List — both present
     const list = await ext.listSnapshots();
@@ -309,9 +309,9 @@ describe("VersioningExtension + in-memory adapter", () => {
     const adapter = createInMemoryVersioningAdapter(editor);
     const ext = VersioningExtension(adapter)({ editor });
 
-    const snap1 = await ext.createSnapshot({ name: "baseline" });
+    const snap1 = await ext.createSnapshot!({ name: "baseline" });
     setEditorText(editor, "changed doc");
-    const snap2 = await ext.createSnapshot({ name: "current" });
+    const snap2 = await ext.createSnapshot!({ name: "current" });
 
     // Preview snap2 compared to snap1. The in-memory preview controller
     // ignores the compareTo content (no diff rendering), but the call should
@@ -327,7 +327,7 @@ describe("VersioningExtension + in-memory adapter", () => {
     const adapter = createInMemoryVersioningAdapter(editor);
     const ext = VersioningExtension(adapter)({ editor });
 
-    const snap = await ext.createSnapshot({ name: "draft" });
+    const snap = await ext.createSnapshot!({ name: "draft" });
     await ext.updateSnapshotName!(snap.id, "final");
 
     // Store was updated optimistically

@@ -83,8 +83,12 @@ export interface VersioningEndpoints<I = any, O = any, A = any> {
   list: () => Promise<VersionSnapshot[]>;
   /**
    * Create a new snapshot for this document with the current content.
+   *
+   * @note if not provided, the UI will not offer a way to save a new snapshot.
+   * This is appropriate for backends that record continuous history rather than
+   * discrete, user-created snapshots (e.g. YHub's activity timeline).
    */
-  create: (
+  create?: (
     fragment: I,
     options?: CreateSnapshotOptions,
   ) => Promise<VersionSnapshot>;
@@ -270,16 +274,23 @@ export const VersioningExtension = createExtension(
         await updateSnapshots();
         return store.state.snapshots;
       },
-      createSnapshot: async (
-        options?: CreateSnapshotOptions,
-      ): Promise<VersionSnapshot> => {
-        const snapshot = await endpoints.create(getCurrentState(), options);
-        store.setState((state) => ({
-          ...state,
-          snapshots: sortSnapshotsNewestFirst([...state.snapshots, snapshot]),
-        }));
-        return snapshot;
-      },
+      canCreateSnapshot: endpoints.create !== undefined,
+      createSnapshot: endpoints.create
+        ? async (options?: CreateSnapshotOptions): Promise<VersionSnapshot> => {
+            const snapshot = await endpoints.create!(
+              getCurrentState(),
+              options,
+            );
+            store.setState((state) => ({
+              ...state,
+              snapshots: sortSnapshotsNewestFirst([
+                ...state.snapshots,
+                snapshot,
+              ]),
+            }));
+            return snapshot;
+          }
+        : undefined,
       canRestoreSnapshot: endpoints.restore !== undefined,
       restoreSnapshot: endpoints.restore
         ? async (id: string) => {
