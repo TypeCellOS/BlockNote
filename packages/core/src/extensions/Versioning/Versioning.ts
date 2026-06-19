@@ -72,8 +72,10 @@ export type PreviewSnapshotOptions = {
  *   `restore` (e.g. `Y.Type` for Yjs-backed implementations).
  * @typeParam O - The type of serialised snapshot content returned by
  *   `getContent` and `restore` (e.g. `Uint8Array`).
+ * @typeParam A - The type of optional attribution data returned by
+ *   `getAttributions` (e.g. `Y.ContentMap` for Yjs-backed implementations).
  */
-export interface VersioningEndpoints<I = any, O = any> {
+export interface VersioningEndpoints<I = any, O = any, A = any> {
   /**
    * List all snapshots for this document, sorted newest-first by
    * {@link VersionSnapshot.createdAt}.
@@ -103,6 +105,21 @@ export interface VersioningEndpoints<I = any, O = any> {
    */
   getContent: (id: string) => Promise<O>;
   /**
+   * Fetch optional attribution data describing *who* authored each change and
+   * *when*, for the diff between a snapshot and the version it is compared
+   * against. This is rendered as additional diff information (e.g. author and
+   * timestamp tooltips on inserted/deleted content) when previewing a version.
+   *
+   * @param id          - The identifier of the snapshot being previewed.
+   * @param compareToId - When previewing a diff, the identifier of the baseline
+   *   snapshot the diff is computed against. Implementations may need both ends
+   *   of the range to resolve attributions.
+   *
+   * @note if not provided, version previews still render the content diff, but
+   * without author/timestamp attribution information.
+   */
+  getAttributions?: (id: string, compareToId?: string) => Promise<A>;
+  /**
    * Update the name of a snapshot.
    *
    * @note if not provided, the UI will not allow the user to update the name.
@@ -119,16 +136,25 @@ export interface VersioningEndpoints<I = any, O = any> {
  *
  * @typeParam O - The type of serialised snapshot content (must match the `O`
  *   type of the corresponding {@link VersioningEndpoints}).
+ * @typeParam A - The type of optional attribution data (must match the `A`
+ *   type of the corresponding {@link VersioningEndpoints}).
  */
-export interface PreviewController<O = any> {
+export interface PreviewController<O = any, A = any> {
   /**
    * Enter preview mode, showing the given snapshot content in the editor.
    *
    * @param snapshotContent     - The content of the snapshot to preview.
    * @param compareToContent    - When provided, the editor should show a diff
    *   between `compareToContent` (the baseline) and `snapshotContent`.
+   * @param attributions        - Optional attribution data for the diff,
+   *   describing who authored each change and when. Only meaningful alongside
+   *   `compareToContent`, and rendered as additional diff information.
    */
-  enterPreview: (snapshotContent: O, compareToContent?: O) => void;
+  enterPreview: (
+    snapshotContent: O,
+    compareToContent?: O,
+    attributions?: A,
+  ) => void;
   /**
    * Exit preview mode and resume normal editing.
    */
@@ -154,16 +180,17 @@ export function sortSnapshotsNewestFirst(
  *
  * @typeParam I - The type of the current document state.
  * @typeParam O - The type of serialised snapshot content.
+ * @typeParam A - The type of optional attribution data.
  */
-export type VersioningExtensionOptions<I = any, O = any> = {
+export type VersioningExtensionOptions<I = any, O = any, A = any> = {
   /**
    * Backend storage for snapshots.
    */
-  endpoints: VersioningEndpoints<I, O>;
+  endpoints: VersioningEndpoints<I, O, A>;
   /**
    * Controls how snapshot previews and restores are rendered in the editor.
    */
-  preview: PreviewController<O>;
+  preview: PreviewController<O, A>;
   /**
    * Returns the current document state. This value is passed to
    * {@link VersioningEndpoints.create} and {@link VersioningEndpoints.restore}.
@@ -209,12 +236,23 @@ export const VersioningExtension = createExtension(
       }));
 
       let compareToContent: unknown;
+      let attributions: unknown;
       if (previewOptions?.compareTo) {
         compareToContent = await endpoints.getContent(previewOptions.compareTo);
+        // Attributions describe the diff between the baseline and this
+        // snapshot, so they're only meaningful when comparing against another
+        // version. Fetching them is optional: previews still render the content
+        // diff without author/timestamp information when unavailable.
+        if (endpoints.getAttributions) {
+          attributions = await endpoints.getAttributions(
+            id,
+            previewOptions.compareTo,
+          );
+        }
       }
 
       const snapshotContent = await endpoints.getContent(id);
-      preview.enterPreview(snapshotContent, compareToContent);
+      preview.enterPreview(snapshotContent, compareToContent, attributions);
     };
 
     const exitPreview = () => {

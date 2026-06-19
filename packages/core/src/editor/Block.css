@@ -33,8 +33,8 @@ BASIC STYLES
   transition: all 0.2s;
   /* Workaround for selection issue on Chrome, see #1588 and also here:
   https://discuss.prosemirror.net/t/mouse-down-selection-behaviour-different-on-chrome/8426
-  The :before element causes the selection to be set in the wrong place vs 
-  other browsers. Setting no height fixes this, while list item indicators are 
+  The :before element causes the selection to be set in the wrong place vs
+  other browsers. Setting no height fixes this, while list item indicators are
   still displayed fine as overflow is not hidden. */
   height: 0;
   overflow: visible;
@@ -745,17 +745,70 @@ div[data-type="modification"] {
   display: inline;
 }
 
-.bn-root ins,
-[data-type="modification"] {
-  background: rgba(24, 122, 220, 0.1);
-  border-bottom: 2px solid rgba(24, 122, 220, 0.1);
-  color: rgb(20, 95, 170);
-  text-decoration: none;
+.bn-root ins {
+  background-color: hsl(120 100 90);
+  color: hsl(120 100 30);
+  position: relative;
 }
 
-.bn-root del,
-[DISABLED-data-node-deletion] {
-  color: rgba(100, 90, 75, 0.3);
-  text-decoration: line-through;
-  text-decoration-thickness: 1px;
+.bn-root ins[data-description]:hover::after {
+  content: attr(data-description);
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 4px;
+  padding: 4px 8px;
+  background-color: rgba(0, 0, 0, 0.9);
+  color: white;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.dark.bn-root ins {
+  background-color: hsl(120 100 10);
+  color: hsl(120 80 70);
+}
+
+.dark.bn-root ins[data-description]:hover::after {
+  background-color: rgba(30, 30, 30, 0.95);
+  color: hsl(120 80 70);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bn-root del {
+  background-color: hsl(0 100 90);
+  color: hsl(0 100 30);
+  position: relative;
+}
+
+.bn-root del[data-description]:hover::after {
+  content: attr(data-description);
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 4px;
+  padding: 4px 8px;
+  background-color: rgba(0, 0, 0, 0.9);
+  color: white;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.dark.bn-root del {
+  background-color: hsl(0 100 10);
+  color: hsl(0 80 70);
+}
+
+.dark.bn-root del[data-description]:hover::after {
+  background-color: rgba(30, 30, 30, 0.95);
+  color: hsl(0 80 70);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }

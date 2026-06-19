@@ -12,7 +12,7 @@ const provider = {
   awareness: new Awareness(doc),
 };
 provider.awareness.setLocalStateField("user", {
-  name: "Client A",
+  name: "Alice",
   color: "#30bced",
 });
 
@@ -21,18 +21,88 @@ const provider2 = {
   awareness: new Awareness(doc2),
 };
 provider2.awareness.setLocalStateField("user", {
-  name: "Client B",
+  name: "Bob",
   color: "#6eeb83",
 });
 
 const attrs = new Y.Attributions();
+
+// Batch timestamps: reuse the same timestamp for edits from the same user
+// within a 10-second window of inactivity.
+const BATCH_INTERVAL_MS = 10_000;
+const batchTimestamps = new Map<string, number>();
+const batchTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+function getBatchedTimestamp(userName: string): number {
+  const existing = batchTimestamps.get(userName);
+  const now = Date.now();
+
+  // Clear any pending reset timer
+  const timer = batchTimers.get(userName);
+  if (timer) clearTimeout(timer);
+
+  // Start a new batch if none exists or the previous one expired
+  if (existing == null) {
+    batchTimestamps.set(userName, now);
+  }
+
+  // Reset the batch after 10s of inactivity
+  batchTimers.set(
+    userName,
+    setTimeout(() => {
+      batchTimestamps.delete(userName);
+      batchTimers.delete(userName);
+    }, BATCH_INTERVAL_MS),
+  );
+
+  return batchTimestamps.get(userName)!;
+}
+
+// Track attributions per user for each doc
+function trackAttributions(
+  trackedDoc: Y.Doc,
+  userName: string,
+  attributions: Y.Attributions,
+) {
+  trackedDoc.on(
+    "update",
+    (
+      update: Uint8Array,
+      _origin: unknown,
+      _ydoc: Y.Doc,
+      tr: { local: boolean },
+    ) => {
+      if (!tr.local) return;
+      const contentIds = Y.createContentIdsFromUpdate(update);
+      const timestamp = getBatchedTimestamp(userName);
+      Y.insertIntoIdMap(
+        attributions.inserts,
+        Y.createIdMapFromIdSet(contentIds.inserts, [
+          Y.createContentAttribute("insert", userName),
+          Y.createContentAttribute("insertAt", timestamp),
+        ]),
+      );
+      Y.insertIntoIdMap(
+        attributions.deletes,
+        Y.createIdMapFromIdSet(contentIds.deletes, [
+          Y.createContentAttribute("delete", userName),
+          Y.createContentAttribute("deleteAt", timestamp),
+        ]),
+      );
+    },
+  );
+}
+
+// Track local changes on each doc with a distinct user name
+trackAttributions(doc, "Alice", attrs);
+trackAttributions(doc2, "Bob", attrs);
 
 const suggestingDoc = new Y.Doc({ isSuggestionDoc: true });
 const suggestingProvider = {
   awareness: new Awareness(suggestingDoc),
 };
 suggestingProvider.awareness.setLocalStateField("user", {
-  name: "View Suggestions",
+  name: "Charlie",
   color: "#ffbc42",
 });
 const suggestingAttributionManager = Y.createAttributionManagerFromDiff(
@@ -47,7 +117,7 @@ const suggestionModeProvider = {
   awareness: new Awareness(suggestionModeDoc),
 };
 suggestionModeProvider.awareness.setLocalStateField("user", {
-  name: "Suggestion Mode",
+  name: "Debbie",
   color: "#ee6352",
 });
 const suggestionModeAttributionManager = Y.createAttributionManagerFromDiff(
@@ -56,6 +126,10 @@ const suggestionModeAttributionManager = Y.createAttributionManagerFromDiff(
   { attrs },
 );
 suggestionModeAttributionManager.suggestionMode = true;
+
+// Track local changes on suggestion docs with distinct user names
+trackAttributions(suggestingDoc, "Charlie", attrs);
+trackAttributions(suggestionModeDoc, "Debbie", attrs);
 
 // Function to sync two documents
 function syncDocs(sourceDoc: Y.Doc, targetDoc: Y.Doc) {
@@ -84,10 +158,14 @@ function Editor({
   fragment,
   provider,
   attributionManager,
+  userName,
+  userColor,
 }: {
   fragment: Y.Type;
   provider: { awareness?: Awareness };
   attributionManager?: Y.DiffAttributionManager;
+  userName: string;
+  userColor: string;
 }) {
   const editor = useCreateBlockNote(
     withCollaboration({
@@ -95,7 +173,7 @@ function Editor({
         fragment,
         provider,
         attributionManager,
-        user: { name: "Client A", color: "#30bced" },
+        user: { name: userName, color: userColor },
       },
     }),
   );
@@ -116,12 +194,22 @@ export default function App() {
         }}
       >
         <div style={{ flex: 1 }}>
-          Client A
-          <Editor fragment={doc.get("doc")} provider={provider} />
+          Client A (Alice)
+          <Editor
+            fragment={doc.get("doc")}
+            provider={provider}
+            userName="Alice"
+            userColor="#30bced"
+          />
         </div>
         <div style={{ flex: 1 }}>
-          Client B
-          <Editor fragment={doc2.get("doc")} provider={provider2} />
+          Client B (Bob)
+          <Editor
+            fragment={doc2.get("doc")}
+            provider={provider2}
+            userName="Bob"
+            userColor="#6eeb83"
+          />
         </div>
       </div>
       <div
@@ -133,19 +221,23 @@ export default function App() {
         }}
       >
         <div style={{ flex: 1 }}>
-          View Suggestions Mode
+          View Suggestions (Charlie)
           <Editor
             fragment={suggestingDoc.get("doc")}
             provider={suggestingProvider}
             attributionManager={suggestingAttributionManager}
+            userName="Charlie"
+            userColor="#ffbc42"
           />
         </div>
         <div style={{ flex: 1 }}>
-          Suggestion Mode
+          Suggestion Mode (Debbie)
           <Editor
             fragment={suggestionModeDoc.get("doc")}
             provider={suggestionModeProvider}
             attributionManager={suggestionModeAttributionManager}
+            userName="Debbie"
+            userColor="#ee6352"
           />
         </div>
       </div>

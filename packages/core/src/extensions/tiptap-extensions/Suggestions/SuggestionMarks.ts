@@ -20,6 +20,9 @@ const formatAttributionTitle = (
           timeStyle: "short",
         })
       : "unknown time";
+  if (who === "unknown" && when === "unknown time") {
+    return "";
+  }
   return `${action} by ${who} on ${when}`;
 };
 export const SuggestionAddMark = Mark.create({
@@ -45,11 +48,12 @@ export const SuggestionAddMark = Mark.create({
         return [
           "ins",
           {
-            "data-description": formatAttributionTitle(
-              "Inserted",
-              mark.attrs["userIds"],
-              mark.attrs["timestamp"],
-            ),
+            "data-description":
+              formatAttributionTitle(
+                "Inserted",
+                mark.attrs["userIds"],
+                mark.attrs["timestamp"],
+              ) || undefined,
             "data-user-ids": JSON.stringify(mark.attrs["userIds"]),
             "data-timestamp": String(mark.attrs["timestamp"]),
             "data-user-color": String(mark.attrs["user-color"]),
@@ -107,11 +111,12 @@ export const SuggestionDeleteMark = Mark.create({
         return [
           "del",
           {
-            "data-description": formatAttributionTitle(
-              "Deleted",
-              mark.attrs["userIds"],
-              mark.attrs["timestamp"],
-            ),
+            "data-description":
+              formatAttributionTitle(
+                "Deleted",
+                mark.attrs["userIds"],
+                mark.attrs["timestamp"],
+              ) || undefined,
             "data-user-ids": JSON.stringify(mark.attrs["userIds"]),
             "data-timestamp": String(mark.attrs["timestamp"]),
             "data-user-color": String(mark.attrs["user-color"]),
@@ -169,11 +174,12 @@ export const SuggestionModificationMark = Mark.create({
         return [
           inline ? "span" : "div",
           {
-            "data-description": formatAttributionTitle(
-              "Modified",
-              mark.attrs["userIds"],
-              mark.attrs["timestamp"],
-            ),
+            "data-description":
+              formatAttributionTitle(
+                "Modified",
+                mark.attrs["userIds"],
+                mark.attrs["timestamp"],
+              ) || undefined,
             "data-type": "modification",
             "data-user-ids": JSON.stringify(mark.attrs["userIds"]),
             "data-format": JSON.stringify(mark.attrs["format"]),

@@ -111,33 +111,29 @@ export const YSyncExtension = createExtension(
     return {
       key: "ySync",
       mount: () => {
-        // TODO this is trash
+        const configure = () => {
+          editor.exec(
+            configureYProsemirror({
+              ytype: options.fragment,
+              attributionManager: options.attributionManager,
+            }),
+          );
+        };
+
         if (
           options.provider &&
           "synced" in options.provider &&
           typeof options.provider.synced === "boolean"
         ) {
           if (options.provider["synced"]) {
-            // I hate this so much
-            editor.exec(
-              configureYProsemirror({
-                ytype: options.fragment,
-                attributionManager: options.attributionManager,
-              }),
-            );
+            configure();
           } else if (
             "on" in options.provider &&
             typeof options.provider.on === "function"
           ) {
             options.provider.on("synced", (synced: boolean) => {
               if (synced) {
-                // I hate this so much
-                editor.exec(
-                  configureYProsemirror({
-                    ytype: options.fragment,
-                    attributionManager: options.attributionManager,
-                  }),
-                );
+                configure();
               }
             });
           } else {
@@ -146,14 +142,7 @@ export const YSyncExtension = createExtension(
             );
           }
         } else {
-          // unsure what to do, so just going to go for it
-          // I hate this so much
-          editor.exec(
-            configureYProsemirror({
-              ytype: options.fragment,
-              attributionManager: options.attributionManager,
-            }),
-          );
+          configure();
         }
       },
       prosemirrorPlugins: [

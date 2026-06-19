@@ -62,6 +62,12 @@ interface YHubChangeset {
   prevDoc?: Uint8Array;
   /** Full Y.Doc state **after** the changeset window. */
   nextDoc?: Uint8Array;
+  /**
+   * Encoded {@link Y.ContentMap} describing who authored each change in the
+   * window and when. Present when the changeset is requested with
+   * `attributions=true`.
+   */
+  attributions?: Uint8Array;
 }
 
 // ---------------------------------------------------------------------------
@@ -144,7 +150,7 @@ async function yhubFetch(
  */
 export function createYHubVersioningEndpoints(
   options: YHubVersioningOptions,
-): VersioningEndpoints<Y.Type, Uint8Array> {
+): VersioningEndpoints<Y.Type, Uint8Array, Y.ContentMap> {
   const { baseUrl, org, docId, headers = {}, activityLimit = 50 } = options;
 
   const activityUrl = `${baseUrl}/activity/${org}/${docId}`;
@@ -154,7 +160,11 @@ export function createYHubVersioningEndpoints(
   // ------------------------------------------------------------------
   // list
   // ------------------------------------------------------------------
-  const list: VersioningEndpoints<Y.Type, Uint8Array>["list"] = async () => {
+  const list: VersioningEndpoints<
+    Y.Type,
+    Uint8Array,
+    Y.ContentMap
+  >["list"] = async () => {
     const params = new URLSearchParams({
       order: "desc",
       limit: String(activityLimit),
@@ -171,10 +181,11 @@ export function createYHubVersioningEndpoints(
   // ------------------------------------------------------------------
   // create
   // ------------------------------------------------------------------
-  const create: VersioningEndpoints<Y.Type, Uint8Array>["create"] = async (
-    fragment: Y.Type,
-    _opts?: CreateSnapshotOptions,
-  ) => {
+  const create: VersioningEndpoints<
+    Y.Type,
+    Uint8Array,
+    Y.ContentMap
+  >["create"] = async (fragment: Y.Type, _opts?: CreateSnapshotOptions) => {
     const doc = fragment.doc;
     if (!doc) {
       throw new Error(
@@ -211,7 +222,8 @@ export function createYHubVersioningEndpoints(
   // ------------------------------------------------------------------
   const getContent: VersioningEndpoints<
     Y.Type,
-    Uint8Array
+    Uint8Array,
+    Y.ContentMap
   >["getContent"] = async (id: string) => {
     const to = Number(id);
     const params = new URLSearchParams({
@@ -235,12 +247,43 @@ export function createYHubVersioningEndpoints(
   };
 
   // ------------------------------------------------------------------
+  // getAttributions
+  // ------------------------------------------------------------------
+  const getAttributions: VersioningEndpoints<
+    Y.Type,
+    Uint8Array,
+    Y.ContentMap
+  >["getAttributions"] = async (id: string, compareToId?: string) => {
+    // Attributions describe the diff between the baseline (`compareToId`) and
+    // the previewed snapshot (`id`). Without a baseline there is no diff to
+    // attribute, so return an empty content map.
+    const to = Number(id);
+    const from = compareToId !== undefined ? Number(compareToId) : 0;
+
+    const params = new URLSearchParams({
+      from: String(from),
+      to: String(to),
+      attributions: "true",
+    });
+
+    const buf = await yhubFetch(`${changesetUrl}?${params}`, headers);
+    const changeset = decodeAny(new Uint8Array(buf)) as YHubChangeset;
+
+    if (!changeset.attributions) {
+      throw new Error(`YHub returned no attributions for snapshot ${id}.`);
+    }
+
+    return Y.decodeContentMap(changeset.attributions);
+  };
+
+  // ------------------------------------------------------------------
   // restore
   // ------------------------------------------------------------------
-  const restore: VersioningEndpoints<Y.Type, Uint8Array>["restore"] = async (
-    fragment: Y.Type,
-    id: string,
-  ) => {
+  const restore: VersioningEndpoints<
+    Y.Type,
+    Uint8Array,
+    Y.ContentMap
+  >["restore"] = async (fragment: Y.Type, id: string) => {
     // 1. Back up the current state by flushing it as a new activity entry.
     await create(fragment);
 
@@ -269,6 +312,7 @@ export function createYHubVersioningEndpoints(
     list,
     create,
     getContent,
+    getAttributions,
     restore,
   };
 }

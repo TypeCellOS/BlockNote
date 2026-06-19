@@ -1,6 +1,13 @@
 import "@blocknote/core/fonts/inter.css";
-import { withCollaboration, SuggestionsExtension } from "@blocknote/core/y";
-import { VersioningExtension } from "@blocknote/core/extensions";
+import {
+  withCollaboration,
+  SuggestionsExtension,
+  createYHubVersioningEndpoints,
+} from "@blocknote/core/y";
+import {
+  VersioningExtension,
+  type VersioningEndpoints,
+} from "@blocknote/core/extensions";
 import {
   BlockNoteViewEditor,
   useCreateBlockNote,
@@ -15,7 +22,7 @@ import { fromBase64 } from "lib0/buffer";
 import { WebsocketProvider } from "@y/websocket";
 
 import type { DemoUser } from "./userdata.js";
-import { createLocalStorageVersioningEndpoints } from "./localStorageEndpoints.js";
+
 import { HistorySidebar } from "./HistorySidebar.js";
 
 /**
@@ -35,7 +42,7 @@ export function DocumentEditor({
   docTitle: string;
   onTouch: () => void;
 }) {
-  const roomName = `bn-multi-doc-${workspaceId}-${docId}`;
+  const roomName = `${workspaceId}/${docId}`;
 
   // Stable refs for Y.js resources that persist for this mount
   const resourcesRef = useRef<{
@@ -44,9 +51,7 @@ export function DocumentEditor({
     provider: WebsocketProvider;
     suggestionProvider: WebsocketProvider;
     attributionManager: ReturnType<typeof Y.createAttributionManagerFromDiff>;
-    versioningEndpoints: ReturnType<
-      typeof createLocalStorageVersioningEndpoints
-    >;
+    versioningEndpoints: VersioningEndpoints;
   } | null>(null);
 
   if (!resourcesRef.current) {
@@ -61,29 +66,28 @@ export function DocumentEditor({
     }
 
     const suggestionDoc = new Y.Doc({ isSuggestionDoc: true });
+    const yhubHost = "yhub-standalone-x9kss.ondigitalocean.app";
+
     const provider = new WebsocketProvider(
-      "wss://demos.yjs.dev/ws",
+      `wss://${yhubHost}/ws`,
       roomName,
       doc,
-      { connect: false },
     );
     const suggestionProvider = new WebsocketProvider(
-      "wss://demos.yjs.dev/ws",
+      `wss://${yhubHost}/ws`,
       roomName + "-suggestions",
       suggestionDoc,
-      { connect: false },
     );
     const attributionManager = Y.createAttributionManagerFromDiff(
       doc,
       suggestionDoc,
     );
 
-    provider.connectBc();
-    suggestionProvider.connectBc();
-
-    const versioningEndpoints = createLocalStorageVersioningEndpoints(
-      `bn-versioning-${docId}`,
-    );
+    const versioningEndpoints = createYHubVersioningEndpoints({
+      baseUrl: `https://${yhubHost}`,
+      org: workspaceId,
+      docId,
+    });
 
     resourcesRef.current = {
       doc,

@@ -18,7 +18,7 @@ export function createYjsVersioningAdapter(
   editor: BlockNoteEditor<any, any, any>,
   fragment: Y.Type,
 ): {
-  preview: PreviewController<Uint8Array>;
+  preview: PreviewController<Uint8Array, Y.ContentMap>;
   getCurrentState: () => Y.Type;
 } {
   return {
@@ -27,6 +27,7 @@ export function createYjsVersioningAdapter(
       enterPreview: (
         snapshotContent: Uint8Array,
         compareToContent?: Uint8Array,
+        attributions?: Y.ContentMap,
       ) => {
         let prevSnapshot: { fragment: Y.Type } | undefined;
         if (compareToContent) {
@@ -42,10 +43,15 @@ export function createYjsVersioningAdapter(
         editor.exec(
           configureYProsemirror({
             ytype: findTypeInOtherYdoc(fragment, doc),
+            // Pass the optional content map as `attrs` so the diff attribution
+            // manager knows who/when authored each change. Without it, the AM
+            // only produces "what changed" (empty userIds, null timestamps) and
+            // downstream mark tooltips show "unknown / unknown time".
             attributionManager: prevSnapshot
               ? Y.createAttributionManagerFromDiff(
                   prevSnapshot.fragment.doc!,
                   doc,
+                  attributions ? { attrs: attributions } : undefined,
                 )
               : undefined,
           }),

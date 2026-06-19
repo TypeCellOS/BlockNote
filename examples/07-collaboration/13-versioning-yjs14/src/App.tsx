@@ -24,7 +24,7 @@ import "./style.css";
 // HTTP) for the same document, so the backend URL, org, and docId are shared.
 const yhubHost = "yhub-standalone-x9kss.ondigitalocean.app";
 const org = "blocknote-versioning-yjs14";
-const docId = "blocknote-versioning-y-example-4";
+const docId = "blocknote-versioning-y-example-5";
 
 const doc = new Y.Doc();
 // YHub expects clients to connect to `/ws/{org}/{docId}`. WebsocketProvider
