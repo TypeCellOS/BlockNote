@@ -14,7 +14,7 @@ import "@blocknote/mantine/style.css";
 import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
 
-import { VersionHistorySidebar } from "./VersionHistorySidebar";
+import { VersionHistorySidebar } from "./VersionHistorySidebar.js";
 import "./style.css";
 
 const roomName = "blocknote-versioning-yjs-example";

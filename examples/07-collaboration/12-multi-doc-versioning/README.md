@@ -1,4 +1,4 @@
-# Multi-Document Collaboration with Version History
+# YHub Multi-Doc
 
 This example shows a multi-document collaborative editor with per-document version history, using BlockNote's `VersioningExtension` and Y.js v14.
 

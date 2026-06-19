@@ -1,4 +1,4 @@
-# Collaborative Versioning (yjs v13)
+# Local Storage Versioning (yjs v13)
 
 This example shows how to use the `VersioningExtension` with collaborative editing using `yjs` (v13). Snapshots are stored in localStorage using Yjs state updates.
 

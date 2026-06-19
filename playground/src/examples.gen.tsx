@@ -1717,9 +1717,9 @@ export const examples = {
           "A minimal comments example used for end-to-end testing. Uses a local Y.Doc (no collaboration provider) with a single hardcoded editor user.",
       },
       {
-        projectSlug: "yhub",
-        fullSlug: "collaboration/yhub",
-        pathFromRoot: "examples/07-collaboration/11-yhub",
+        projectSlug: "suggestion-multi-editor",
+        fullSlug: "collaboration/suggestion-multi-editor",
+        pathFromRoot: "examples/07-collaboration/10-suggestion-multi-editor",
         config: {
           playground: true,
           docs: true,
@@ -1732,18 +1732,18 @@ export const examples = {
             "@y/websocket": "^4.0.0-rc.2",
           } as any,
         },
-        title: "Collaborative Editing with YHub",
+        title: "Suggestions (Experimental)",
         group: {
           pathFromRoot: "examples/07-collaboration",
           slug: "collaboration",
         },
         readme:
-          "In this example, we use YHub to let multiple users collaborate on a single BlockNote document in real-time.\n\n**Try it out:** Open this page in a new browser tab or window to see it in action!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time Collaboration](/docs/features/collaboration)",
+          "In this example, we have 4 editors (2 clients) & 1 in suggestion-view mode & 1 in suggestion-edit mode. To show the experimental support for suggesting content in (@y/y v14)",
       },
       {
         projectSlug: "versioning-yjs13",
         fullSlug: "collaboration/versioning-yjs13",
-        pathFromRoot: "examples/07-collaboration/12-versioning-yjs13",
+        pathFromRoot: "examples/07-collaboration/11-versioning-yjs13",
         config: {
           playground: true,
           docs: true,
@@ -1755,13 +1755,37 @@ export const examples = {
             lib0: "^0.2.99",
           } as any,
         },
-        title: "Collaborative Versioning (yjs v13)",
+        title: "Local Storage Versioning (yjs v13)",
         group: {
           pathFromRoot: "examples/07-collaboration",
           slug: "collaboration",
         },
         readme:
           'This example shows how to use the `VersioningExtension` with collaborative editing using `yjs` (v13). Snapshots are stored in localStorage using Yjs state updates.\n\n**Try it out:** Edit the document, then click the "Version History" button to open the sidebar. From there you can save snapshots, preview older versions, rename them, and restore them.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)',
+      },
+      {
+        projectSlug: "multi-doc-versioning",
+        fullSlug: "collaboration/multi-doc-versioning",
+        pathFromRoot: "examples/07-collaboration/12-multi-doc-versioning",
+        config: {
+          playground: true,
+          docs: false,
+          author: "nperez0111",
+          tags: ["Advanced", "Collaboration"],
+          dependencies: {
+            "@y/protocols": "^1.0.6-rc.1",
+            "@y/websocket": "^4.0.0-3",
+            "@y/y": "^14.0.0-rc.16",
+            lib0: "1.0.0-rc.13",
+          } as any,
+        },
+        title: "YHub Multi-Doc",
+        group: {
+          pathFromRoot: "examples/07-collaboration",
+          slug: "collaboration",
+        },
+        readme:
+          "This example shows a multi-document collaborative editor with per-document version history, using BlockNote's `VersioningExtension` and Y.js v14.\n\n**Features:**\n\n- User picker (per-tab identity via `sessionStorage`)\n- Left sidebar with document list (create, rename, delete)\n- Collaborative editing with Y.js (including suggestion mode)\n- Right sidebar with version history powered by `VersioningSidebar`\n- Per-document versioning backed by `localStorage`\n- Open multiple tabs with different users via the `?as=` URL param\n\n**Relevant Docs:**\n\n- [Versioning](https://www.blocknotejs.org/docs/collaboration/versioning)\n- [Y.js Collaboration](https://www.blocknotejs.org/docs/collaboration)",
       },
       {
         projectSlug: "versioning-yjs14",
@@ -1779,37 +1803,13 @@ export const examples = {
             lib0: "1.0.0-rc.13",
           } as any,
         },
-        title: "Collaborative Versioning (@y/y v14)",
+        title: "YHub Versioning (@y/y v14)",
         group: {
           pathFromRoot: "examples/07-collaboration",
           slug: "collaboration",
         },
         readme:
           'This example shows how to use the `VersioningExtension` with collaborative editing using `@y/y` (v14). Snapshots are stored in localStorage using Yjs v2 state updates.\n\n**Try it out:** Edit the document, then click the "Version History" button to open the sidebar. From there you can save snapshots, preview older versions, rename them, and restore them.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Real-time collaboration](/docs/features/collaboration)',
-      },
-      {
-        projectSlug: "multi-doc-versioning",
-        fullSlug: "collaboration/multi-doc-versioning",
-        pathFromRoot: "examples/07-collaboration/14-multi-doc-versioning",
-        config: {
-          playground: true,
-          docs: false,
-          author: "nperez0111",
-          tags: ["Advanced", "Collaboration"],
-          dependencies: {
-            "@y/protocols": "^1.0.6-rc.1",
-            "@y/websocket": "^4.0.0-3",
-            "@y/y": "^14.0.0-rc.16",
-            lib0: "1.0.0-rc.13",
-          } as any,
-        },
-        title: "Multi-Document Collaboration with Version History",
-        group: {
-          pathFromRoot: "examples/07-collaboration",
-          slug: "collaboration",
-        },
-        readme:
-          "This example shows a multi-document collaborative editor with per-document version history, using BlockNote's `VersioningExtension` and Y.js v14.\n\n**Features:**\n\n- User picker (per-tab identity via `sessionStorage`)\n- Left sidebar with document list (create, rename, delete)\n- Collaborative editing with Y.js (including suggestion mode)\n- Right sidebar with version history powered by `VersioningSidebar`\n- Per-document versioning backed by `localStorage`\n- Open multiple tabs with different users via the `?as=` URL param\n\n**Relevant Docs:**\n\n- [Versioning](https://www.blocknotejs.org/docs/collaboration/versioning)\n- [Y.js Collaboration](https://www.blocknotejs.org/docs/collaboration)",
       },
     ],
   },

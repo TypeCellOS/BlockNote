@@ -1,4 +1,4 @@
-# Collaborative Versioning (@y/y v14)
+# YHub Versioning (@y/y v14)
 
 This example shows how to use the `VersioningExtension` with collaborative editing using `@y/y` (v14). Snapshots are stored in localStorage using Yjs v2 state updates.
 
