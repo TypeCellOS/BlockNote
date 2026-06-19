@@ -1717,32 +1717,6 @@ export const examples = {
           "A minimal comments example used for end-to-end testing. Uses a local Y.Doc (no collaboration provider) with a single hardcoded editor user.",
       },
       {
-        projectSlug: "versioning",
-        fullSlug: "collaboration/versioning",
-        pathFromRoot: "examples/07-collaboration/10-versioning",
-        config: {
-          playground: true,
-          docs: true,
-          author: "matthewlipski",
-          tags: ["Advanced", "Development", "Collaboration"],
-          dependencies: {
-            "@y/protocols": "^1.0.6-rc.1",
-            "@y/websocket": "^4.0.0-3",
-            "@y/y": "^14.0.0-rc.16",
-            "react-icons": "5.6.0",
-            "@floating-ui/react": "^0.27.18",
-            lib0: "1.0.0-rc.13",
-          } as any,
-        },
-        title: "Collaborative Editing Features Showcase",
-        group: {
-          pathFromRoot: "examples/07-collaboration",
-          slug: "collaboration",
-        },
-        readme:
-          "In this example, you can play with all of the collaboration features BlockNote has to offer:\n\n**Comments**: Add comments to parts of the document - other users can then view, reply to, react to, and resolve them.\n\n**Versioning**: Save snapshots of the document - later preview saved snapshots and restore them to ensure work is never lost.\n\n**Suggestions**: Suggest changes directly in the editor - users can choose to then apply or reject those changes.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/getting-started/editor-setup)\n- [Comments](/docs/features/collaboration/comments)\n- [Real-time collaboration](/docs/features/collaboration)",
-      },
-      {
         projectSlug: "yhub",
         fullSlug: "collaboration/yhub",
         pathFromRoot: "examples/07-collaboration/11-yhub",
