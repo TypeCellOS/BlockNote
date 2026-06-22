@@ -67,14 +67,26 @@ test("suggestion mode: add heading to empty doc", async () => {
   expect(editorHtml(editor)).toMatchInlineSnapshot(`
     "<doc>
       <blockGroup>
-        <y-attributed-delete userIds="" user-color="#30bced">
+        <y-attributed-delete
+          userIds=""
+          user-color-light="#fff0c2"
+          user-color-dark="#8a6d1a"
+        >
           <blockContainer id="1">
             <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
           </blockContainer>
         </y-attributed-delete>
-        <y-attributed-insert userIds="" user-color="#30bced">
+        <y-attributed-insert
+          userIds=""
+          user-color-light="#fff0c2"
+          user-color-dark="#8a6d1a"
+        >
           <blockContainer id="h0">
-            <y-attributed-insert userIds="" user-color="#30bced">
+            <y-attributed-insert
+              userIds=""
+              user-color-light="#fff0c2"
+              user-color-dark="#8a6d1a"
+            >
               <heading
                 backgroundColor="default"
                 textColor="default"
@@ -82,7 +94,11 @@ test("suggestion mode: add heading to empty doc", async () => {
                 level="1"
                 isToggleable="false"
               >
-                <y-attributed-insert userIds="" user-color="#30bced">New heading</y-attributed-insert>
+                <y-attributed-insert
+                  userIds=""
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >New heading</y-attributed-insert>
               </heading>
             </y-attributed-insert>
           </blockContainer>
@@ -165,11 +181,23 @@ test("suggestion mode: add paragraph after existing block", async () => {
             isToggleable="false"
           >Title</heading>
         </blockContainer>
-        <y-attributed-insert userIds="" user-color="#30bced">
+        <y-attributed-insert
+          userIds=""
+          user-color-light="#fff0c2"
+          user-color-dark="#8a6d1a"
+        >
           <blockContainer id="p0">
-            <y-attributed-insert userIds="" user-color="#30bced">
+            <y-attributed-insert
+              userIds=""
+              user-color-light="#fff0c2"
+              user-color-dark="#8a6d1a"
+            >
               <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-                <y-attributed-insert userIds="" user-color="#30bced">Body text</y-attributed-insert>
+                <y-attributed-insert
+                  userIds=""
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >Body text</y-attributed-insert>
               </paragraph>
             </y-attributed-insert>
           </blockContainer>
@@ -257,7 +285,11 @@ test("suggestion mode: remove paragraph from heading+paragraph", async () => {
             isToggleable="false"
           >Title</heading>
         </blockContainer>
-        <y-attributed-delete userIds="" user-color="#30bced">
+        <y-attributed-delete
+          userIds=""
+          user-color-light="#fff0c2"
+          user-color-dark="#8a6d1a"
+        >
           <blockContainer id="p0">
             <paragraph backgroundColor="default" textColor="default" textAlignment="left">Body text</paragraph>
           </blockContainer>
@@ -312,7 +344,11 @@ test("suggestion mode: remove all blocks", async () => {
       <blockGroup>
         <blockContainer id="1">
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-            <y-attributed-delete userIds="" user-color="#30bced">Only block</y-attributed-delete>
+            <y-attributed-delete
+              userIds=""
+              user-color-light="#fff0c2"
+              user-color-dark="#8a6d1a"
+            >Only block</y-attributed-delete>
           </paragraph>
         </blockContainer>
       </blockGroup>
@@ -375,7 +411,11 @@ test("suggestion mode: delete nested block", async () => {
       <blockGroup>
         <blockContainer id="parent">
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">Parent</paragraph>
-          <y-attributed-delete userIds="" user-color="#30bced">
+          <y-attributed-delete
+            userIds=""
+            user-color-light="#fff0c2"
+            user-color-dark="#8a6d1a"
+          >
             <blockGroup>
               <blockContainer id="child">
                 <paragraph backgroundColor="default" textColor="default" textAlignment="left">Child</paragraph>
@@ -445,9 +485,17 @@ test("suggestion mode: delete parent block (with children)", async () => {
       <blockGroup>
         <blockContainer id="1">
           <paragraph backgroundColor="default" textColor="default" textAlignment="left">
-            <y-attributed-delete userIds="" user-color="#30bced">Parent</y-attributed-delete>
+            <y-attributed-delete
+              userIds=""
+              user-color-light="#fff0c2"
+              user-color-dark="#8a6d1a"
+            >Parent</y-attributed-delete>
           </paragraph>
-          <y-attributed-delete userIds="" user-color="#30bced">
+          <y-attributed-delete
+            userIds=""
+            user-color-light="#fff0c2"
+            user-color-dark="#8a6d1a"
+          >
             <blockGroup>
               <blockContainer id="child">
                 <paragraph backgroundColor="default" textColor="default" textAlignment="left">Child</paragraph>
@@ -523,7 +571,11 @@ test("suggestion mode: delete image block", async () => {
   expect(editorHtml(editor)).toMatchInlineSnapshot(`
     "<doc>
       <blockGroup>
-        <y-attributed-delete userIds="" user-color="#30bced">
+        <y-attributed-delete
+          userIds=""
+          user-color-light="#fff0c2"
+          user-color-dark="#8a6d1a"
+        >
           <blockContainer id="img">
             <image
               textAlignment="left"
@@ -536,9 +588,17 @@ test("suggestion mode: delete image block", async () => {
             ></image>
           </blockContainer>
         </y-attributed-delete>
-        <y-attributed-insert userIds="" user-color="#30bced">
+        <y-attributed-insert
+          userIds=""
+          user-color-light="#fff0c2"
+          user-color-dark="#8a6d1a"
+        >
           <blockContainer id="1">
-            <y-attributed-insert userIds="" user-color="#30bced">
+            <y-attributed-insert
+              userIds=""
+              user-color-light="#fff0c2"
+              user-color-dark="#8a6d1a"
+            >
               <paragraph backgroundColor="default" textColor="default" textAlignment="left"></paragraph>
             </y-attributed-insert>
           </blockContainer>

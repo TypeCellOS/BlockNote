@@ -474,7 +474,11 @@ test("concurrent: A adds a row, B adds a column", async () => {
               >
                 <tableParagraph>B1</tableParagraph>
               </tableCell>
-              <y-attributed-insert userIds="" user-color="#30bced">
+              <y-attributed-insert
+                userIds=""
+                user-color-light="#fff0c2"
+                user-color-dark="#8a6d1a"
+              >
                 <tableCell
                   textColor="default"
                   backgroundColor="default"
@@ -482,9 +486,17 @@ test("concurrent: A adds a row, B adds a column", async () => {
                   colspan="1"
                   rowspan="1"
                 >
-                  <y-attributed-insert userIds="" user-color="#30bced">
+                  <y-attributed-insert
+                    userIds=""
+                    user-color-light="#fff0c2"
+                    user-color-dark="#8a6d1a"
+                  >
                     <tableParagraph>
-                      <y-attributed-insert userIds="" user-color="#30bced">C1</y-attributed-insert>
+                      <y-attributed-insert
+                        userIds=""
+                        user-color-light="#fff0c2"
+                        user-color-dark="#8a6d1a"
+                      >C1</y-attributed-insert>
                     </tableParagraph>
                   </y-attributed-insert>
                 </tableCell>
@@ -509,7 +521,11 @@ test("concurrent: A adds a row, B adds a column", async () => {
               >
                 <tableParagraph>B2</tableParagraph>
               </tableCell>
-              <y-attributed-insert userIds="" user-color="#30bced">
+              <y-attributed-insert
+                userIds=""
+                user-color-light="#fff0c2"
+                user-color-dark="#8a6d1a"
+              >
                 <tableCell
                   textColor="default"
                   backgroundColor="default"
@@ -517,17 +533,33 @@ test("concurrent: A adds a row, B adds a column", async () => {
                   colspan="1"
                   rowspan="1"
                 >
-                  <y-attributed-insert userIds="" user-color="#30bced">
+                  <y-attributed-insert
+                    userIds=""
+                    user-color-light="#fff0c2"
+                    user-color-dark="#8a6d1a"
+                  >
                     <tableParagraph>
-                      <y-attributed-insert userIds="" user-color="#30bced">C2</y-attributed-insert>
+                      <y-attributed-insert
+                        userIds=""
+                        user-color-light="#fff0c2"
+                        user-color-dark="#8a6d1a"
+                      >C2</y-attributed-insert>
                     </tableParagraph>
                   </y-attributed-insert>
                 </tableCell>
               </y-attributed-insert>
             </tableRow>
-            <y-attributed-insert userIds="" user-color="#30bced">
+            <y-attributed-insert
+              userIds=""
+              user-color-light="#fff0c2"
+              user-color-dark="#8a6d1a"
+            >
               <tableRow>
-                <y-attributed-insert userIds="" user-color="#30bced">
+                <y-attributed-insert
+                  userIds=""
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >
                   <tableCell
                     textColor="default"
                     backgroundColor="default"
@@ -535,14 +567,26 @@ test("concurrent: A adds a row, B adds a column", async () => {
                     colspan="1"
                     rowspan="1"
                   >
-                    <y-attributed-insert userIds="" user-color="#30bced">
+                    <y-attributed-insert
+                      userIds=""
+                      user-color-light="#fff0c2"
+                      user-color-dark="#8a6d1a"
+                    >
                       <tableParagraph>
-                        <y-attributed-insert userIds="" user-color="#30bced">A3</y-attributed-insert>
+                        <y-attributed-insert
+                          userIds=""
+                          user-color-light="#fff0c2"
+                          user-color-dark="#8a6d1a"
+                        >A3</y-attributed-insert>
                       </tableParagraph>
                     </y-attributed-insert>
                   </tableCell>
                 </y-attributed-insert>
-                <y-attributed-insert userIds="" user-color="#30bced">
+                <y-attributed-insert
+                  userIds=""
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >
                   <tableCell
                     textColor="default"
                     backgroundColor="default"
@@ -550,9 +594,17 @@ test("concurrent: A adds a row, B adds a column", async () => {
                     colspan="1"
                     rowspan="1"
                   >
-                    <y-attributed-insert userIds="" user-color="#30bced">
+                    <y-attributed-insert
+                      userIds=""
+                      user-color-light="#fff0c2"
+                      user-color-dark="#8a6d1a"
+                    >
                       <tableParagraph>
-                        <y-attributed-insert userIds="" user-color="#30bced">B3</y-attributed-insert>
+                        <y-attributed-insert
+                          userIds=""
+                          user-color-light="#fff0c2"
+                          user-color-dark="#8a6d1a"
+                        >B3</y-attributed-insert>
                       </tableParagraph>
                     </y-attributed-insert>
                   </tableCell>
@@ -863,7 +915,11 @@ test("concurrent: A deletes a column, B adds a row", async () => {
               >
                 <tableParagraph>A1</tableParagraph>
               </tableCell>
-              <y-attributed-delete userIds="" user-color="#30bced">
+              <y-attributed-delete
+                userIds=""
+                user-color-light="#fff0c2"
+                user-color-dark="#8a6d1a"
+              >
                 <tableCell
                   textColor="default"
                   backgroundColor="default"
@@ -885,7 +941,11 @@ test("concurrent: A deletes a column, B adds a row", async () => {
               >
                 <tableParagraph>A2</tableParagraph>
               </tableCell>
-              <y-attributed-delete userIds="" user-color="#30bced">
+              <y-attributed-delete
+                userIds=""
+                user-color-light="#fff0c2"
+                user-color-dark="#8a6d1a"
+              >
                 <tableCell
                   textColor="default"
                   backgroundColor="default"
@@ -897,9 +957,17 @@ test("concurrent: A deletes a column, B adds a row", async () => {
                 </tableCell>
               </y-attributed-delete>
             </tableRow>
-            <y-attributed-insert userIds="" user-color="#30bced">
+            <y-attributed-insert
+              userIds=""
+              user-color-light="#fff0c2"
+              user-color-dark="#8a6d1a"
+            >
               <tableRow>
-                <y-attributed-insert userIds="" user-color="#30bced">
+                <y-attributed-insert
+                  userIds=""
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >
                   <tableCell
                     textColor="default"
                     backgroundColor="default"
@@ -907,14 +975,26 @@ test("concurrent: A deletes a column, B adds a row", async () => {
                     colspan="1"
                     rowspan="1"
                   >
-                    <y-attributed-insert userIds="" user-color="#30bced">
+                    <y-attributed-insert
+                      userIds=""
+                      user-color-light="#fff0c2"
+                      user-color-dark="#8a6d1a"
+                    >
                       <tableParagraph>
-                        <y-attributed-insert userIds="" user-color="#30bced">A3</y-attributed-insert>
+                        <y-attributed-insert
+                          userIds=""
+                          user-color-light="#fff0c2"
+                          user-color-dark="#8a6d1a"
+                        >A3</y-attributed-insert>
                       </tableParagraph>
                     </y-attributed-insert>
                   </tableCell>
                 </y-attributed-insert>
-                <y-attributed-insert userIds="" user-color="#30bced">
+                <y-attributed-insert
+                  userIds=""
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >
                   <tableCell
                     textColor="default"
                     backgroundColor="default"
@@ -922,9 +1002,1423 @@ test("concurrent: A deletes a column, B adds a row", async () => {
                     colspan="1"
                     rowspan="1"
                   >
-                    <y-attributed-insert userIds="" user-color="#30bced">
+                    <y-attributed-insert
+                      userIds=""
+                      user-color-light="#fff0c2"
+                      user-color-dark="#8a6d1a"
+                    >
                       <tableParagraph>
-                        <y-attributed-insert userIds="" user-color="#30bced">B3</y-attributed-insert>
+                        <y-attributed-insert
+                          userIds=""
+                          user-color-light="#fff0c2"
+                          user-color-dark="#8a6d1a"
+                        >B3</y-attributed-insert>
+                      </tableParagraph>
+                    </y-attributed-insert>
+                  </tableCell>
+                </y-attributed-insert>
+              </tableRow>
+            </y-attributed-insert>
+          </table>
+        </blockContainer>
+      </blockGroup>
+    </doc>"
+  `);
+});
+
+// A makes two sequential structural edits in their own suggestion
+// layer: A adds a third column, then adds a third row. Concurrently,
+// B adds their own column (labelled "D"). Stacks two structural
+// suggestions in A's layer against a separate column-add in B's.
+test("sequential: A adds a column then a row, B adds a column", async () => {
+  const {
+    userA,
+    userB,
+    merged,
+    baseDoc,
+    suggestionDocA,
+    suggestionDocB,
+    suggestionDocMerged,
+    screen,
+    seed,
+    enableSuggestions,
+    sync,
+  } = await setupConcurrentSuggestionTest({
+    userAAction: "add column then row",
+    userBAction: "add column",
+  });
+
+  userA.editor.replaceBlocks(userA.editor.document, [TABLE_2X2]);
+  seed();
+  await expectVisible(screen.getByTestId(userA.testId).getByText("A1"));
+
+  enableSuggestions();
+
+  // A: add a third column.
+  userA.editor.updateBlock("table", {
+    type: "table",
+    content: {
+      type: "tableContent",
+      rows: [{ cells: ["A1", "B1", "C1"] }, { cells: ["A2", "B2", "C2"] }],
+    },
+  });
+
+  await waitForSuggestion(userA.editor);
+
+  // A: then add a third row.
+  userA.editor.updateBlock("table", {
+    type: "table",
+    content: {
+      type: "tableContent",
+      rows: [
+        { cells: ["A1", "B1", "C1"] },
+        { cells: ["A2", "B2", "C2"] },
+        { cells: ["A3", "B3", "C3"] },
+      ],
+    },
+  });
+
+  await waitForSuggestion(userA.editor);
+
+  // B: add their own column.
+  userB.editor.updateBlock("table", {
+    type: "table",
+    content: {
+      type: "tableContent",
+      rows: [{ cells: ["A1", "B1", "D1"] }, { cells: ["A2", "B2", "D2"] }],
+    },
+  });
+
+  await waitForSuggestion(userB.editor);
+
+  sync();
+  await waitForSuggestion(merged.editor);
+
+  await expectScreenshot(
+    screen.getByTestId("editor-root"),
+    "table-sequential-add-column-then-row-b-adds-column",
+  );
+
+  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="table">
+        <table textColor="default">
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A1</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B1</tableParagraph>
+            </tableCell>
+          </tableRow>
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A2</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B2</tableParagraph>
+            </tableCell>
+          </tableRow>
+        </table>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDocA)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="table">
+        <table textColor="default">
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A1</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B1</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>C1</tableParagraph>
+            </tableCell>
+          </tableRow>
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A2</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B2</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>C2</tableParagraph>
+            </tableCell>
+          </tableRow>
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A3</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B3</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>C3</tableParagraph>
+            </tableCell>
+          </tableRow>
+        </table>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDocB)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="table">
+        <table textColor="default">
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A1</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B1</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>D1</tableParagraph>
+            </tableCell>
+          </tableRow>
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A2</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B2</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>D2</tableParagraph>
+            </tableCell>
+          </tableRow>
+        </table>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDocMerged)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="table">
+        <table textColor="default">
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A1</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B1</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>D1</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>C1</tableParagraph>
+            </tableCell>
+          </tableRow>
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A2</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B2</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>D2</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>C2</tableParagraph>
+            </tableCell>
+          </tableRow>
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A3</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B3</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>C3</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph></tableParagraph>
+            </tableCell>
+          </tableRow>
+        </table>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(editorHtml(merged.editor)).toMatchInlineSnapshot(`
+    "<doc>
+      <blockGroup>
+        <blockContainer id="table">
+          <table textColor="default">
+            <tableRow>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph>A1</tableParagraph>
+              </tableCell>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph>B1</tableParagraph>
+              </tableCell>
+              <y-attributed-insert
+                userIds=""
+                user-color-light="#fff0c2"
+                user-color-dark="#8a6d1a"
+              >
+                <tableCell
+                  textColor="default"
+                  backgroundColor="default"
+                  textAlignment="left"
+                  colspan="1"
+                  rowspan="1"
+                >
+                  <y-attributed-insert
+                    userIds=""
+                    user-color-light="#fff0c2"
+                    user-color-dark="#8a6d1a"
+                  >
+                    <tableParagraph>
+                      <y-attributed-insert
+                        userIds=""
+                        user-color-light="#fff0c2"
+                        user-color-dark="#8a6d1a"
+                      >D1</y-attributed-insert>
+                    </tableParagraph>
+                  </y-attributed-insert>
+                </tableCell>
+              </y-attributed-insert>
+              <y-attributed-insert
+                userIds=""
+                user-color-light="#fff0c2"
+                user-color-dark="#8a6d1a"
+              >
+                <tableCell
+                  textColor="default"
+                  backgroundColor="default"
+                  textAlignment="left"
+                  colspan="1"
+                  rowspan="1"
+                >
+                  <y-attributed-insert
+                    userIds=""
+                    user-color-light="#fff0c2"
+                    user-color-dark="#8a6d1a"
+                  >
+                    <tableParagraph>
+                      <y-attributed-insert
+                        userIds=""
+                        user-color-light="#fff0c2"
+                        user-color-dark="#8a6d1a"
+                      >C1</y-attributed-insert>
+                    </tableParagraph>
+                  </y-attributed-insert>
+                </tableCell>
+              </y-attributed-insert>
+            </tableRow>
+            <tableRow>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph>A2</tableParagraph>
+              </tableCell>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph>B2</tableParagraph>
+              </tableCell>
+              <y-attributed-insert
+                userIds=""
+                user-color-light="#fff0c2"
+                user-color-dark="#8a6d1a"
+              >
+                <tableCell
+                  textColor="default"
+                  backgroundColor="default"
+                  textAlignment="left"
+                  colspan="1"
+                  rowspan="1"
+                >
+                  <y-attributed-insert
+                    userIds=""
+                    user-color-light="#fff0c2"
+                    user-color-dark="#8a6d1a"
+                  >
+                    <tableParagraph>
+                      <y-attributed-insert
+                        userIds=""
+                        user-color-light="#fff0c2"
+                        user-color-dark="#8a6d1a"
+                      >D2</y-attributed-insert>
+                    </tableParagraph>
+                  </y-attributed-insert>
+                </tableCell>
+              </y-attributed-insert>
+              <y-attributed-insert
+                userIds=""
+                user-color-light="#fff0c2"
+                user-color-dark="#8a6d1a"
+              >
+                <tableCell
+                  textColor="default"
+                  backgroundColor="default"
+                  textAlignment="left"
+                  colspan="1"
+                  rowspan="1"
+                >
+                  <y-attributed-insert
+                    userIds=""
+                    user-color-light="#fff0c2"
+                    user-color-dark="#8a6d1a"
+                  >
+                    <tableParagraph>
+                      <y-attributed-insert
+                        userIds=""
+                        user-color-light="#fff0c2"
+                        user-color-dark="#8a6d1a"
+                      >C2</y-attributed-insert>
+                    </tableParagraph>
+                  </y-attributed-insert>
+                </tableCell>
+              </y-attributed-insert>
+            </tableRow>
+            <y-attributed-insert
+              userIds=""
+              user-color-light="#fff0c2"
+              user-color-dark="#8a6d1a"
+            >
+              <tableRow>
+                <y-attributed-insert
+                  userIds=""
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >
+                  <tableCell
+                    textColor="default"
+                    backgroundColor="default"
+                    textAlignment="left"
+                    colspan="1"
+                    rowspan="1"
+                  >
+                    <y-attributed-insert
+                      userIds=""
+                      user-color-light="#fff0c2"
+                      user-color-dark="#8a6d1a"
+                    >
+                      <tableParagraph>
+                        <y-attributed-insert
+                          userIds=""
+                          user-color-light="#fff0c2"
+                          user-color-dark="#8a6d1a"
+                        >A3</y-attributed-insert>
+                      </tableParagraph>
+                    </y-attributed-insert>
+                  </tableCell>
+                </y-attributed-insert>
+                <y-attributed-insert
+                  userIds=""
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >
+                  <tableCell
+                    textColor="default"
+                    backgroundColor="default"
+                    textAlignment="left"
+                    colspan="1"
+                    rowspan="1"
+                  >
+                    <y-attributed-insert
+                      userIds=""
+                      user-color-light="#fff0c2"
+                      user-color-dark="#8a6d1a"
+                    >
+                      <tableParagraph>
+                        <y-attributed-insert
+                          userIds=""
+                          user-color-light="#fff0c2"
+                          user-color-dark="#8a6d1a"
+                        >B3</y-attributed-insert>
+                      </tableParagraph>
+                    </y-attributed-insert>
+                  </tableCell>
+                </y-attributed-insert>
+                <y-attributed-insert
+                  userIds=""
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >
+                  <tableCell
+                    textColor="default"
+                    backgroundColor="default"
+                    textAlignment="left"
+                    colspan="1"
+                    rowspan="1"
+                  >
+                    <y-attributed-insert
+                      userIds=""
+                      user-color-light="#fff0c2"
+                      user-color-dark="#8a6d1a"
+                    >
+                      <tableParagraph>
+                        <y-attributed-insert
+                          userIds=""
+                          user-color-light="#fff0c2"
+                          user-color-dark="#8a6d1a"
+                        >C3</y-attributed-insert>
+                      </tableParagraph>
+                    </y-attributed-insert>
+                  </tableCell>
+                </y-attributed-insert>
+                <tableCell
+                  textColor="default"
+                  backgroundColor="default"
+                  textAlignment="left"
+                  colspan="1"
+                  rowspan="1"
+                >
+                  <tableParagraph></tableParagraph>
+                </tableCell>
+              </tableRow>
+            </y-attributed-insert>
+          </table>
+        </blockContainer>
+      </blockGroup>
+    </doc>"
+  `);
+});
+
+// A makes two sequential structural edits in the other order: A adds
+// a third row, then adds a third column. Concurrently, B adds their
+// own row (labelled "D"). Mirror of the case above, with B growing
+// the table along the other axis.
+test("sequential: A adds a row then a column, B adds a row", async () => {
+  const {
+    userA,
+    userB,
+    merged,
+    baseDoc,
+    suggestionDocA,
+    suggestionDocB,
+    suggestionDocMerged,
+    screen,
+    seed,
+    enableSuggestions,
+    sync,
+  } = await setupConcurrentSuggestionTest({
+    userAAction: "add row then column",
+    userBAction: "add row",
+  });
+
+  userA.editor.replaceBlocks(userA.editor.document, [TABLE_2X2]);
+  seed();
+  await expectVisible(screen.getByTestId(userA.testId).getByText("A1"));
+
+  enableSuggestions();
+
+  // A: add a third row.
+  userA.editor.updateBlock("table", {
+    type: "table",
+    content: {
+      type: "tableContent",
+      rows: [
+        { cells: ["A1", "B1"] },
+        { cells: ["A2", "B2"] },
+        { cells: ["A3", "B3"] },
+      ],
+    },
+  });
+
+  await waitForSuggestion(userA.editor);
+
+  // A: then add a third column.
+  userA.editor.updateBlock("table", {
+    type: "table",
+    content: {
+      type: "tableContent",
+      rows: [
+        { cells: ["A1", "B1", "C1"] },
+        { cells: ["A2", "B2", "C2"] },
+        { cells: ["A3", "B3", "C3"] },
+      ],
+    },
+  });
+
+  await waitForSuggestion(userA.editor);
+
+  // B: add their own row.
+  userB.editor.updateBlock("table", {
+    type: "table",
+    content: {
+      type: "tableContent",
+      rows: [
+        { cells: ["A1", "B1"] },
+        { cells: ["A2", "B2"] },
+        { cells: ["D1", "D2"] },
+      ],
+    },
+  });
+
+  await waitForSuggestion(userB.editor);
+
+  sync();
+  await waitForSuggestion(merged.editor);
+
+  await expectScreenshot(
+    screen.getByTestId("editor-root"),
+    "table-sequential-add-row-then-column-b-adds-row",
+  );
+
+  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="table">
+        <table textColor="default">
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A1</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B1</tableParagraph>
+            </tableCell>
+          </tableRow>
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A2</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B2</tableParagraph>
+            </tableCell>
+          </tableRow>
+        </table>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDocA)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="table">
+        <table textColor="default">
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A1</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B1</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>C1</tableParagraph>
+            </tableCell>
+          </tableRow>
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A2</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B2</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>C2</tableParagraph>
+            </tableCell>
+          </tableRow>
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A3</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B3</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>C3</tableParagraph>
+            </tableCell>
+          </tableRow>
+        </table>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDocB)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="table">
+        <table textColor="default">
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A1</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B1</tableParagraph>
+            </tableCell>
+          </tableRow>
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A2</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B2</tableParagraph>
+            </tableCell>
+          </tableRow>
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>D1</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>D2</tableParagraph>
+            </tableCell>
+          </tableRow>
+        </table>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDocMerged)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="table">
+        <table textColor="default">
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A1</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B1</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>C1</tableParagraph>
+            </tableCell>
+          </tableRow>
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A2</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B2</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>C2</tableParagraph>
+            </tableCell>
+          </tableRow>
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>D1</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>D2</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph></tableParagraph>
+            </tableCell>
+          </tableRow>
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>A3</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>B3</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>C3</tableParagraph>
+            </tableCell>
+          </tableRow>
+        </table>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(editorHtml(merged.editor)).toMatchInlineSnapshot(`
+    "<doc>
+      <blockGroup>
+        <blockContainer id="table">
+          <table textColor="default">
+            <tableRow>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph>A1</tableParagraph>
+              </tableCell>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph>B1</tableParagraph>
+              </tableCell>
+              <y-attributed-insert
+                userIds=""
+                user-color-light="#fff0c2"
+                user-color-dark="#8a6d1a"
+              >
+                <tableCell
+                  textColor="default"
+                  backgroundColor="default"
+                  textAlignment="left"
+                  colspan="1"
+                  rowspan="1"
+                >
+                  <y-attributed-insert
+                    userIds=""
+                    user-color-light="#fff0c2"
+                    user-color-dark="#8a6d1a"
+                  >
+                    <tableParagraph>
+                      <y-attributed-insert
+                        userIds=""
+                        user-color-light="#fff0c2"
+                        user-color-dark="#8a6d1a"
+                      >C1</y-attributed-insert>
+                    </tableParagraph>
+                  </y-attributed-insert>
+                </tableCell>
+              </y-attributed-insert>
+            </tableRow>
+            <tableRow>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph>A2</tableParagraph>
+              </tableCell>
+              <tableCell
+                textColor="default"
+                backgroundColor="default"
+                textAlignment="left"
+                colspan="1"
+                rowspan="1"
+              >
+                <tableParagraph>B2</tableParagraph>
+              </tableCell>
+              <y-attributed-insert
+                userIds=""
+                user-color-light="#fff0c2"
+                user-color-dark="#8a6d1a"
+              >
+                <tableCell
+                  textColor="default"
+                  backgroundColor="default"
+                  textAlignment="left"
+                  colspan="1"
+                  rowspan="1"
+                >
+                  <y-attributed-insert
+                    userIds=""
+                    user-color-light="#fff0c2"
+                    user-color-dark="#8a6d1a"
+                  >
+                    <tableParagraph>
+                      <y-attributed-insert
+                        userIds=""
+                        user-color-light="#fff0c2"
+                        user-color-dark="#8a6d1a"
+                      >C2</y-attributed-insert>
+                    </tableParagraph>
+                  </y-attributed-insert>
+                </tableCell>
+              </y-attributed-insert>
+            </tableRow>
+            <y-attributed-insert
+              userIds=""
+              user-color-light="#fff0c2"
+              user-color-dark="#8a6d1a"
+            >
+              <tableRow>
+                <y-attributed-insert
+                  userIds=""
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >
+                  <tableCell
+                    textColor="default"
+                    backgroundColor="default"
+                    textAlignment="left"
+                    colspan="1"
+                    rowspan="1"
+                  >
+                    <y-attributed-insert
+                      userIds=""
+                      user-color-light="#fff0c2"
+                      user-color-dark="#8a6d1a"
+                    >
+                      <tableParagraph>
+                        <y-attributed-insert
+                          userIds=""
+                          user-color-light="#fff0c2"
+                          user-color-dark="#8a6d1a"
+                        >D1</y-attributed-insert>
+                      </tableParagraph>
+                    </y-attributed-insert>
+                  </tableCell>
+                </y-attributed-insert>
+                <y-attributed-insert
+                  userIds=""
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >
+                  <tableCell
+                    textColor="default"
+                    backgroundColor="default"
+                    textAlignment="left"
+                    colspan="1"
+                    rowspan="1"
+                  >
+                    <y-attributed-insert
+                      userIds=""
+                      user-color-light="#fff0c2"
+                      user-color-dark="#8a6d1a"
+                    >
+                      <tableParagraph>
+                        <y-attributed-insert
+                          userIds=""
+                          user-color-light="#fff0c2"
+                          user-color-dark="#8a6d1a"
+                        >D2</y-attributed-insert>
+                      </tableParagraph>
+                    </y-attributed-insert>
+                  </tableCell>
+                </y-attributed-insert>
+                <tableCell
+                  textColor="default"
+                  backgroundColor="default"
+                  textAlignment="left"
+                  colspan="1"
+                  rowspan="1"
+                >
+                  <tableParagraph></tableParagraph>
+                </tableCell>
+              </tableRow>
+            </y-attributed-insert>
+            <y-attributed-insert
+              userIds=""
+              user-color-light="#fff0c2"
+              user-color-dark="#8a6d1a"
+            >
+              <tableRow>
+                <y-attributed-insert
+                  userIds=""
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >
+                  <tableCell
+                    textColor="default"
+                    backgroundColor="default"
+                    textAlignment="left"
+                    colspan="1"
+                    rowspan="1"
+                  >
+                    <y-attributed-insert
+                      userIds=""
+                      user-color-light="#fff0c2"
+                      user-color-dark="#8a6d1a"
+                    >
+                      <tableParagraph>
+                        <y-attributed-insert
+                          userIds=""
+                          user-color-light="#fff0c2"
+                          user-color-dark="#8a6d1a"
+                        >A3</y-attributed-insert>
+                      </tableParagraph>
+                    </y-attributed-insert>
+                  </tableCell>
+                </y-attributed-insert>
+                <y-attributed-insert
+                  userIds=""
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >
+                  <tableCell
+                    textColor="default"
+                    backgroundColor="default"
+                    textAlignment="left"
+                    colspan="1"
+                    rowspan="1"
+                  >
+                    <y-attributed-insert
+                      userIds=""
+                      user-color-light="#fff0c2"
+                      user-color-dark="#8a6d1a"
+                    >
+                      <tableParagraph>
+                        <y-attributed-insert
+                          userIds=""
+                          user-color-light="#fff0c2"
+                          user-color-dark="#8a6d1a"
+                        >B3</y-attributed-insert>
+                      </tableParagraph>
+                    </y-attributed-insert>
+                  </tableCell>
+                </y-attributed-insert>
+                <y-attributed-insert
+                  userIds=""
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >
+                  <tableCell
+                    textColor="default"
+                    backgroundColor="default"
+                    textAlignment="left"
+                    colspan="1"
+                    rowspan="1"
+                  >
+                    <y-attributed-insert
+                      userIds=""
+                      user-color-light="#fff0c2"
+                      user-color-dark="#8a6d1a"
+                    >
+                      <tableParagraph>
+                        <y-attributed-insert
+                          userIds=""
+                          user-color-light="#fff0c2"
+                          user-color-dark="#8a6d1a"
+                        >C3</y-attributed-insert>
                       </tableParagraph>
                     </y-attributed-insert>
                   </tableCell>
@@ -1323,7 +2817,11 @@ test("concurrent: A adds a column, B adds a row", async () => {
               >
                 <tableParagraph>B1</tableParagraph>
               </tableCell>
-              <y-attributed-insert userIds="" user-color="#30bced">
+              <y-attributed-insert
+                userIds=""
+                user-color-light="#fff0c2"
+                user-color-dark="#8a6d1a"
+              >
                 <tableCell
                   textColor="default"
                   backgroundColor="default"
@@ -1331,9 +2829,17 @@ test("concurrent: A adds a column, B adds a row", async () => {
                   colspan="1"
                   rowspan="1"
                 >
-                  <y-attributed-insert userIds="" user-color="#30bced">
+                  <y-attributed-insert
+                    userIds=""
+                    user-color-light="#fff0c2"
+                    user-color-dark="#8a6d1a"
+                  >
                     <tableParagraph>
-                      <y-attributed-insert userIds="" user-color="#30bced">C1</y-attributed-insert>
+                      <y-attributed-insert
+                        userIds=""
+                        user-color-light="#fff0c2"
+                        user-color-dark="#8a6d1a"
+                      >C1</y-attributed-insert>
                     </tableParagraph>
                   </y-attributed-insert>
                 </tableCell>
@@ -1358,7 +2864,11 @@ test("concurrent: A adds a column, B adds a row", async () => {
               >
                 <tableParagraph>B2</tableParagraph>
               </tableCell>
-              <y-attributed-insert userIds="" user-color="#30bced">
+              <y-attributed-insert
+                userIds=""
+                user-color-light="#fff0c2"
+                user-color-dark="#8a6d1a"
+              >
                 <tableCell
                   textColor="default"
                   backgroundColor="default"
@@ -1366,17 +2876,33 @@ test("concurrent: A adds a column, B adds a row", async () => {
                   colspan="1"
                   rowspan="1"
                 >
-                  <y-attributed-insert userIds="" user-color="#30bced">
+                  <y-attributed-insert
+                    userIds=""
+                    user-color-light="#fff0c2"
+                    user-color-dark="#8a6d1a"
+                  >
                     <tableParagraph>
-                      <y-attributed-insert userIds="" user-color="#30bced">C2</y-attributed-insert>
+                      <y-attributed-insert
+                        userIds=""
+                        user-color-light="#fff0c2"
+                        user-color-dark="#8a6d1a"
+                      >C2</y-attributed-insert>
                     </tableParagraph>
                   </y-attributed-insert>
                 </tableCell>
               </y-attributed-insert>
             </tableRow>
-            <y-attributed-insert userIds="" user-color="#30bced">
+            <y-attributed-insert
+              userIds=""
+              user-color-light="#fff0c2"
+              user-color-dark="#8a6d1a"
+            >
               <tableRow>
-                <y-attributed-insert userIds="" user-color="#30bced">
+                <y-attributed-insert
+                  userIds=""
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >
                   <tableCell
                     textColor="default"
                     backgroundColor="default"
@@ -1384,14 +2910,26 @@ test("concurrent: A adds a column, B adds a row", async () => {
                     colspan="1"
                     rowspan="1"
                   >
-                    <y-attributed-insert userIds="" user-color="#30bced">
+                    <y-attributed-insert
+                      userIds=""
+                      user-color-light="#fff0c2"
+                      user-color-dark="#8a6d1a"
+                    >
                       <tableParagraph>
-                        <y-attributed-insert userIds="" user-color="#30bced">A3</y-attributed-insert>
+                        <y-attributed-insert
+                          userIds=""
+                          user-color-light="#fff0c2"
+                          user-color-dark="#8a6d1a"
+                        >A3</y-attributed-insert>
                       </tableParagraph>
                     </y-attributed-insert>
                   </tableCell>
                 </y-attributed-insert>
-                <y-attributed-insert userIds="" user-color="#30bced">
+                <y-attributed-insert
+                  userIds=""
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >
                   <tableCell
                     textColor="default"
                     backgroundColor="default"
@@ -1399,9 +2937,17 @@ test("concurrent: A adds a column, B adds a row", async () => {
                     colspan="1"
                     rowspan="1"
                   >
-                    <y-attributed-insert userIds="" user-color="#30bced">
+                    <y-attributed-insert
+                      userIds=""
+                      user-color-light="#fff0c2"
+                      user-color-dark="#8a6d1a"
+                    >
                       <tableParagraph>
-                        <y-attributed-insert userIds="" user-color="#30bced">B3</y-attributed-insert>
+                        <y-attributed-insert
+                          userIds=""
+                          user-color-light="#fff0c2"
+                          user-color-dark="#8a6d1a"
+                        >B3</y-attributed-insert>
                       </tableParagraph>
                     </y-attributed-insert>
                   </tableCell>

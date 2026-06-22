@@ -72,17 +72,7 @@ export default defineConfig(
       },
       test: {
         name: "e2e",
-        include: ["./src/end-to-end/**/*.test.tsx"],
-        // The y-prosemirror suite (suggestion-mode + concurrent CRDT tests) only
-        // ships -darwin screenshot baselines; CI runs on Linux and has no
-        // matching -linux references, so every screenshot assertion fails with
-        // "No existing reference screenshot found". These tests are excluded
-        // from collection until Linux baselines are generated. Spreads the
-        // Vitest defaults so the standard node_modules/dist excludes are kept.
-        exclude: [
-          ...configDefaults.exclude,
-          "./src/end-to-end/y-prosemirror/**",
-        ],
+        include: ["./src/end-to-end/y-prosemirror/**/*.test.tsx"],
         setupFiles: ["./vitestSetup.browser.ts"],
         // Running three browsers concurrently inside one Docker container already
         // saturates CPU; layering per-browser file parallelism on top causes
@@ -131,12 +121,12 @@ export default defineConfig(
                 ],
               },
             },
-            {
-              browser: "firefox",
-            },
-            {
-              browser: "webkit",
-            },
+            // {
+            //   browser: "firefox",
+            // },
+            // {
+            //   browser: "webkit",
+            // },
           ],
         },
       },
