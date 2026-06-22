@@ -17,7 +17,7 @@ import "@blocknote/mantine/style.css";
 import * as Y from "@y/y";
 import { WebsocketProvider } from "@y/websocket";
 
-import { VersionHistorySidebar } from "./VersionHistorySidebar.js";
+import { VersionHistorySidebar } from "./VersionHistorySidebar";
 import "./style.css";
 
 // YHub serves both real-time sync (over WebSocket) and version history (over

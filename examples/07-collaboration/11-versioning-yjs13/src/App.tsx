@@ -2,7 +2,7 @@ import "@blocknote/core/fonts/inter.css";
 import { withCollaboration } from "@blocknote/core/yjs";
 import { VersioningExtension } from "@blocknote/core/extensions";
 import { createYjsVersioningAdapter } from "@blocknote/core/yjs";
-import { localStorageEndpoints } from "./localStorageEndpoints.js";
+import { localStorageEndpoints } from "./localStorageEndpoints";
 import {
   BlockNoteViewEditor,
   useCreateBlockNote,
@@ -14,7 +14,7 @@ import "@blocknote/mantine/style.css";
 import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
 
-import { VersionHistorySidebar } from "./VersionHistorySidebar.js";
+import { VersionHistorySidebar } from "./VersionHistorySidebar";
 import "./style.css";
 
 const roomName = "blocknote-versioning-yjs-example";
