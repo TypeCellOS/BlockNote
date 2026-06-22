@@ -1,0 +1,67 @@
+{
+  "name": "@blocknote/xl-pdf-renderer-2",
+  "homepage": "https://github.com/TypeCellOS/BlockNote",
+  "private": false,
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TypeCellOS/BlockNote.git",
+    "directory": "packages/xl-pdf-renderer-2"
+  },
+  "license": "GPL-3.0 OR PROPRIETARY",
+  "version": "0.51.4",
+  "files": [
+    "dist",
+    "types",
+    "src"
+  ],
+  "keywords": [
+    "pdf",
+    "pdf-ua",
+    "accessibility",
+    "tagged-pdf",
+    "typst",
+    "javascript",
+    "editor",
+    "typescript",
+    "prosemirror",
+    "block-based"
+  ],
+  "description": "Accessible (PDF/UA-1) PDF export for BlockNote, powered by Typst.",
+  "type": "module",
+  "source": "src/index.ts",
+  "types": "./types/src/index.d.ts",
+  "main": "./dist/blocknote-xl-pdf-renderer-2.cjs",
+  "module": "./dist/blocknote-xl-pdf-renderer-2.js",
+  "exports": {
+    ".": {
+      "types": "./types/src/index.d.ts",
+      "import": "./dist/blocknote-xl-pdf-renderer-2.js",
+      "require": "./dist/blocknote-xl-pdf-renderer-2.cjs"
+    }
+  },
+  "scripts": {
+    "dev": "vp dev",
+    "lint": "vp lint src",
+    "test": "vp test --run",
+    "test-watch": "vp test watch",
+    "clean": "rimraf dist && rimraf types"
+  },
+  "dependencies": {
+    "@blocknote/core": "workspace:^",
+    "@myriaddreamin/typst.ts": "^0.7.0",
+    "@myriaddreamin/typst-ts-web-compiler": "^0.7.0",
+    "pdf-lib": "^1.17.1"
+  },
+  "devDependencies": {
+    "@blocknote/shared": "workspace:^",
+    "@myriaddreamin/typst-ts-node-compiler": "^0.7.0",
+    "@types/jsdom": "^21.1.7",
+    "@types/node": "22.13.13",
+    "rimraf": "^5.0.10",
+    "rollup-plugin-webpack-stats": "^0.2.6",
+    "typescript": "^5.9.3",
+    "vite-plus": "catalog:"
+  },
+  "gitHead": "37614ab348dcc7faa830a9a88437b37197a2162d"
+}

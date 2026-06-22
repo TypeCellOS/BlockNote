@@ -26,6 +26,10 @@ const devAliases: Record<string, string> = {
     __dirname,
     "../packages/xl-pdf-exporter/src",
   ),
+  "@blocknote/xl-pdf-renderer-2": resolve(
+    __dirname,
+    "../packages/xl-pdf-renderer-2/src",
+  ),
   "@shared": resolve(__dirname, "../shared"),
   "@blocknote/xl-multi-column": resolve(
     __dirname,

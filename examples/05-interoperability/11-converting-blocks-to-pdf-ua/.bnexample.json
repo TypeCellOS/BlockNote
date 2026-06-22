@@ -1,0 +1,12 @@
+{
+  "playground": true,
+  "docs": true,
+  "author": "yousefed",
+  "tags": ["Interoperability", "Accessibility"],
+  "dependencies": {
+    "@blocknote/xl-pdf-renderer-2": "latest",
+    "@myriaddreamin/typst.ts": "^0.7.0",
+    "@myriaddreamin/typst-ts-web-compiler": "^0.7.0"
+  },
+  "pro": true
+}

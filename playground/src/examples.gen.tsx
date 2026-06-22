@@ -1250,6 +1250,31 @@ export const examples = {
         readme:
           "This example exports the current document (all blocks) as HTML and renders it.\n\n**Relevant Docs:**\n\n- [Converting Blocks to HTML](/docs/features/export/html)",
       },
+      {
+        projectSlug: "converting-blocks-to-pdf-ua",
+        fullSlug: "interoperability/converting-blocks-to-pdf-ua",
+        pathFromRoot:
+          "examples/05-interoperability/11-converting-blocks-to-pdf-ua",
+        config: {
+          playground: true,
+          docs: true,
+          author: "yousefed",
+          tags: ["Interoperability", "Accessibility"],
+          dependencies: {
+            "@blocknote/xl-pdf-renderer-2": "latest",
+            "@myriaddreamin/typst.ts": "^0.7.0",
+            "@myriaddreamin/typst-ts-web-compiler": "^0.7.0",
+          } as any,
+          pro: true,
+        },
+        title: "Exporting documents to tagged PDF (PDF/UA)",
+        group: {
+          pathFromRoot: "examples/05-interoperability",
+          slug: "interoperability",
+        },
+        readme:
+          'This example exports the current document to an **accessible, tagged PDF/UA-1**\nfile using the Typst-powered `@blocknote/xl-pdf-renderer-2`. Unlike a plain PDF,\na tagged PDF carries a logical structure tree (headings, paragraphs, lists,\ntables, figures with alt text, links) that screen readers can navigate.\n\n**Try it out:** Edit the document — the PDF preview updates live. Click\n"Download" to save it, then verify it with a tool like\n[veraPDF](https://verapdf.org/) (`--flavour ua1`) or the Acrobat Tags panel.\n\n> The first export downloads the Typst compiler (wasm) and fonts, so it may take\n> a moment. Images render as tagged placeholder figures for now.',
+      },
     ],
   },
   "custom-schema": {
