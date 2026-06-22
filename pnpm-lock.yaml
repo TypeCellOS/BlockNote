@@ -3997,68 +3997,7 @@ importers:
         specifier: 'catalog:'
         version: 0.1.24(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(terser@5.46.2)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0))
 
-  examples/07-collaboration/10-versioning:
-    dependencies:
-      '@blocknote/ariakit':
-        specifier: latest
-        version: link:../../../packages/ariakit
-      '@blocknote/core':
-        specifier: latest
-        version: link:../../../packages/core
-      '@blocknote/mantine':
-        specifier: latest
-        version: link:../../../packages/mantine
-      '@blocknote/react':
-        specifier: latest
-        version: link:../../../packages/react
-      '@blocknote/shadcn':
-        specifier: latest
-        version: link:../../../packages/shadcn
-      '@floating-ui/react':
-        specifier: ^0.27.18
-        version: 0.27.19(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      '@mantine/core':
-        specifier: ^9.0.2
-        version: 9.1.1(@mantine/hooks@9.1.1(react@19.2.5))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      '@mantine/hooks':
-        specifier: ^9.0.2
-        version: 9.1.1(react@19.2.5)
-      '@y/protocols':
-        specifier: ^1.0.6-rc.1
-        version: 1.0.6-rc.1(@y/y@14.0.0-rc.18)
-      '@y/websocket':
-        specifier: ^4.0.0-3
-        version: 4.0.0-rc.2(@y/y@14.0.0-rc.18)
-      '@y/y':
-        specifier: 14.0.0-rc.18
-        version: 14.0.0-rc.18
-      lib0:
-        specifier: 1.0.0-rc.15
-        version: 1.0.0-rc.15
-      react:
-        specifier: ^19.2.3
-        version: 19.2.5
-      react-dom:
-        specifier: ^19.2.3
-        version: 19.2.5(react@19.2.5)
-      react-icons:
-        specifier: 5.6.0
-        version: 5.6.0(react@19.2.5)
-    devDependencies:
-      '@types/react':
-        specifier: ^19.2.3
-        version: 19.2.14
-      '@types/react-dom':
-        specifier: ^19.2.3
-        version: 19.2.3(@types/react@19.2.14)
-      '@vitejs/plugin-react':
-        specifier: ^6.0.1
-        version: 6.0.1(babel-plugin-react-compiler@1.0.0)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0))
-      vite-plus:
-        specifier: 'catalog:'
-        version: 0.1.24(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(terser@5.46.2)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0))
-
-  examples/07-collaboration/11-yhub:
+  examples/07-collaboration/10-suggestion-multi-editor:
     dependencies:
       '@blocknote/ariakit':
         specifier: latest
@@ -4113,7 +4052,7 @@ importers:
         specifier: 'catalog:'
         version: 0.1.24(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(terser@5.46.2)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0))
 
-  examples/07-collaboration/12-versioning-yjs13:
+  examples/07-collaboration/11-versioning-yjs13:
     dependencies:
       '@blocknote/ariakit':
         specifier: latest
@@ -4165,7 +4104,7 @@ importers:
         specifier: 'catalog:'
         version: 0.1.24(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(terser@5.46.2)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0))
 
-  examples/07-collaboration/13-versioning-yjs14:
+  examples/07-collaboration/12-multi-doc-versioning:
     dependencies:
       '@blocknote/ariakit':
         specifier: latest
@@ -4220,7 +4159,7 @@ importers:
         specifier: 'catalog:'
         version: 0.1.24(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(terser@5.46.2)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0))
 
-  examples/07-collaboration/14-multi-doc-versioning:
+  examples/07-collaboration/13-versioning-yjs14:
     dependencies:
       '@blocknote/ariakit':
         specifier: latest
