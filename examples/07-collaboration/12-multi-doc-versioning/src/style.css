@@ -756,67 +756,6 @@ button {
   background-color: var(--accent-hover);
 }
 
-/* ===== Suggestion marks ===== */
-
-.doc-main-editor ins {
-  background: var(--ins-bg);
-  border-bottom: 2px solid var(--ins-border);
-  color: inherit;
-  text-decoration: none;
-}
-
-.doc-main-editor del {
-  color: inherit;
-  text-decoration: line-through;
-  text-decoration-color: var(--del-border);
-  text-decoration-thickness: 2px;
-  background: var(--del-bg);
-}
-
-.doc-main-editor [data-type="modification"] {
-  background: var(--mod-bg);
-  border-bottom: 2px solid var(--mod-border);
-  color: inherit;
-  text-decoration: none;
-}
-
-/* ===== Remote cursor ===== */
-
-.ProseMirror-yjs-cursor {
-  position: relative;
-  margin-left: -1px;
-  margin-right: -1px;
-  border-left: 1px solid black;
-  border-right: 1px solid black;
-  border-color: var(--user-color, orange);
-  word-break: normal;
-  pointer-events: none;
-}
-.ProseMirror-yjs-cursor > div {
-  position: absolute;
-  top: -1.25em;
-  left: -1px;
-  font-size: 11.5px;
-  background-color: var(--user-color, rgb(250, 129, 0));
-  font-style: normal;
-  font-weight: 500;
-  line-height: 1.4;
-  user-select: none;
-  color: white;
-  padding: 0 6px;
-  border-radius: 4px;
-  white-space: nowrap;
-  letter-spacing: 0.01em;
-}
-.ProseMirror-yjs-selection {
-  background-color: color-mix(
-    in srgb,
-    var(--user-color, orange) 30%,
-    transparent
-  );
-  border-radius: 2px;
-}
-
 /* ===== Misc ===== */
 
 .page-loading {

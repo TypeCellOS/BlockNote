@@ -745,21 +745,31 @@ div[data-type="modification"] {
   display: inline;
 }
 
-.bn-root ins {
-  background-color: hsl(120 100 90);
-  color: hsl(120 100 30);
+.bn-root ins,
+.bn-root del {
+  background-color: var(--user-color-light);
+  color: var(--user-color-dark);
   position: relative;
+  text-decoration: none;
 }
 
-.bn-root ins[data-description]:hover::after {
+.dark.bn-root ins,
+.dark.bn-root del {
+  background-color: var(--user-color-dark);
+  color: var(--user-color-light);
+}
+
+.bn-root ins[data-description]:hover::after,
+.bn-root del[data-description]:hover::after {
   content: attr(data-description);
   position: absolute;
-  top: 100%;
+  bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
-  margin-top: 4px;
-  padding: 4px 8px;
-  background-color: rgba(0, 0, 0, 0.9);
+  margin-bottom: 4px;
+  padding: 0px 2px;
+  font-weight: bold;
+  background-color: var(--user-color-dark);
   color: white;
   border-radius: 4px;
   font-size: 12px;
@@ -768,47 +778,17 @@ div[data-type="modification"] {
   z-index: 1000;
 }
 
-.dark.bn-root ins {
-  background-color: hsl(120 100 10);
-  color: hsl(120 80 70);
-}
-
-.dark.bn-root ins[data-description]:hover::after {
-  background-color: rgba(30, 30, 30, 0.95);
-  color: hsl(120 80 70);
+.dark.bn-root ins[data-description]:hover::after,
+.dark.bn-root del[data-description]:hover::after {
+  background-color: var(--user-color-dark);
+  color: white;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .bn-root del {
-  background-color: hsl(0 100 90);
-  color: hsl(0 100 30);
-  position: relative;
+  text-decoration: line-through;
 }
 
-.bn-root del[data-description]:hover::after {
-  content: attr(data-description);
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  margin-top: 4px;
-  padding: 4px 8px;
-  background-color: rgba(0, 0, 0, 0.9);
-  color: white;
-  border-radius: 4px;
-  font-size: 12px;
-  white-space: nowrap;
-  pointer-events: none;
-  z-index: 1000;
-}
-
-.dark.bn-root del {
-  background-color: hsl(0 100 10);
-  color: hsl(0 80 70);
-}
-
-.dark.bn-root del[data-description]:hover::after {
-  background-color: rgba(30, 30, 30, 0.95);
-  color: hsl(0 80 70);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.bn-root del:hover {
+  text-decoration-line: overline;
 }

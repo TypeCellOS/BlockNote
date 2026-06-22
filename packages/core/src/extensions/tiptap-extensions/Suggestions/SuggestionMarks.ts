@@ -8,23 +8,14 @@ import { MarkSpec } from "prosemirror-model";
 // this way we could directly use the exported marks from @handlewithcare/prosemirror-suggest-changes
 
 const formatAttributionTitle = (
-  action: string,
   userIds: readonly string[] | null,
-  timestamp: number | null,
-): string => {
-  const who = userIds && userIds.length > 0 ? userIds.join(", ") : "unknown";
-  const when =
-    timestamp != null
-      ? new Date(timestamp).toLocaleString([], {
-          dateStyle: "medium",
-          timeStyle: "short",
-        })
-      : "unknown time";
-  if (who === "unknown" && when === "unknown time") {
-    return "";
+): string | undefined => {
+  if (userIds && userIds.length > 0) {
+    return userIds.join(", ");
   }
-  return `${action} by ${who} on ${when}`;
+  return undefined;
 };
+
 export const SuggestionAddMark = Mark.create({
   name: "y-attributed-insert",
   inclusive: false,
@@ -32,8 +23,8 @@ export const SuggestionAddMark = Mark.create({
   addAttributes() {
     return {
       userIds: { default: null },
-      timestamp: { default: null },
-      "user-color": { default: null, validate: "string" },
+      "user-color-light": { default: null, validate: "string" },
+      "user-color-dark": { default: null, validate: "string" },
     };
   },
   extendMarkSchema(extension) {
@@ -48,21 +39,14 @@ export const SuggestionAddMark = Mark.create({
         return [
           "ins",
           {
-            "data-description":
-              formatAttributionTitle(
-                "Inserted",
-                mark.attrs["userIds"],
-                mark.attrs["timestamp"],
-              ) || undefined,
+            "data-description": formatAttributionTitle(mark.attrs["userIds"]),
             "data-user-ids": JSON.stringify(mark.attrs["userIds"]),
-            "data-timestamp": String(mark.attrs["timestamp"]),
-            "data-user-color": String(mark.attrs["user-color"]),
+            "data-user-color-light": String(mark.attrs["user-color-light"]),
+            "data-user-color-dark": String(mark.attrs["user-color-dark"]),
             "data-inline": String(inline),
             style:
               (inline ? "" : "display: contents") +
-              ("user-color" in mark.attrs
-                ? `; --user-color: ${mark.attrs["user-color"]}`
-                : ""), // changed to "contents" to make this work for table rows
+              `; --user-color-light: ${mark.attrs["user-color-light"]}; --user-color-dark: ${mark.attrs["user-color-dark"]}`,
           },
           0,
         ];
@@ -76,10 +60,8 @@ export const SuggestionAddMark = Mark.create({
             }
             return {
               userIds: JSON.parse(node.dataset["userIds"]),
-              timestamp: node.dataset["timestamp"]
-                ? parseInt(node.dataset["timestamp"], 10)
-                : null,
-              "user-color": node.dataset["userColor"],
+              "user-color-light": node.dataset["userColorLight"],
+              "user-color-dark": node.dataset["userColorDark"],
             };
           },
         },
@@ -95,8 +77,8 @@ export const SuggestionDeleteMark = Mark.create({
   addAttributes() {
     return {
       userIds: { default: null },
-      timestamp: { default: null },
-      "user-color": { default: null, validate: "string" },
+      "user-color-light": { default: null, validate: "string" },
+      "user-color-dark": { default: null, validate: "string" },
     };
   },
   extendMarkSchema(extension) {
@@ -111,21 +93,14 @@ export const SuggestionDeleteMark = Mark.create({
         return [
           "del",
           {
-            "data-description":
-              formatAttributionTitle(
-                "Deleted",
-                mark.attrs["userIds"],
-                mark.attrs["timestamp"],
-              ) || undefined,
+            "data-description": formatAttributionTitle(mark.attrs["userIds"]),
             "data-user-ids": JSON.stringify(mark.attrs["userIds"]),
-            "data-timestamp": String(mark.attrs["timestamp"]),
-            "data-user-color": String(mark.attrs["user-color"]),
+            "data-user-color-light": String(mark.attrs["user-color-light"]),
+            "data-user-color-dark": String(mark.attrs["user-color-dark"]),
             "data-inline": String(inline),
             style:
               (inline ? "" : "display: contents") +
-              ("user-color" in mark.attrs
-                ? `; --user-color: ${mark.attrs["user-color"]}`
-                : ""), // changed to "contents" to make this work for table rows
+              `; --user-color-light: ${mark.attrs["user-color-light"]}; --user-color-dark: ${mark.attrs["user-color-dark"]}`,
           },
           0,
         ];
@@ -139,10 +114,8 @@ export const SuggestionDeleteMark = Mark.create({
             }
             return {
               userIds: JSON.parse(node.dataset["userIds"]),
-              timestamp: node.dataset["timestamp"]
-                ? parseInt(node.dataset["timestamp"], 10)
-                : null,
-              "user-color": node.dataset["userColor"],
+              "user-color-light": node.dataset["userColorLight"],
+              "user-color-dark": node.dataset["userColorDark"],
             };
           },
         },
@@ -159,8 +132,8 @@ export const SuggestionModificationMark = Mark.create({
     return {
       userIds: { default: null },
       format: { default: null },
-      timestamp: { default: null },
-      "user-color": { default: null, validate: "string" },
+      "user-color-light": { default: null, validate: "string" },
+      "user-color-dark": { default: null, validate: "string" },
     };
   },
   extendMarkSchema(extension) {
@@ -174,22 +147,15 @@ export const SuggestionModificationMark = Mark.create({
         return [
           inline ? "span" : "div",
           {
-            "data-description":
-              formatAttributionTitle(
-                "Modified",
-                mark.attrs["userIds"],
-                mark.attrs["timestamp"],
-              ) || undefined,
+            "data-description": formatAttributionTitle(mark.attrs["userIds"]),
             "data-type": "modification",
             "data-user-ids": JSON.stringify(mark.attrs["userIds"]),
             "data-format": JSON.stringify(mark.attrs["format"]),
-            "data-timestamp": String(mark.attrs["timestamp"]),
-            "data-user-color": String(mark.attrs["user-color"]),
+            "data-user-color-light": String(mark.attrs["user-color-light"]),
+            "data-user-color-dark": String(mark.attrs["user-color-dark"]),
             style:
               (inline ? "" : "display: contents") +
-              ("user-color" in mark.attrs
-                ? `; --user-color: ${mark.attrs["user-color"]}`
-                : ""),
+              `; --user-color-light: ${mark.attrs["user-color-light"]}; --user-color-dark: ${mark.attrs["user-color-dark"]}`,
           },
           0,
         ];
@@ -206,10 +172,8 @@ export const SuggestionModificationMark = Mark.create({
               format: node.dataset["format"]
                 ? JSON.parse(node.dataset["format"])
                 : null,
-              timestamp: node.dataset["timestamp"]
-                ? parseInt(node.dataset["timestamp"], 10)
-                : null,
-              "user-color": node.dataset["userColor"],
+              "user-color-light": node.dataset["userColorLight"],
+              "user-color-dark": node.dataset["userColorDark"],
             };
           },
         },
@@ -224,10 +188,8 @@ export const SuggestionModificationMark = Mark.create({
               format: node.dataset["format"]
                 ? JSON.parse(node.dataset["format"])
                 : null,
-              timestamp: node.dataset["timestamp"]
-                ? parseInt(node.dataset["timestamp"], 10)
-                : null,
-              "user-color": node.dataset["userColor"],
+              "user-color-light": node.dataset["userColorLight"],
+              "user-color-dark": node.dataset["userColorDark"],
             };
           },
         },

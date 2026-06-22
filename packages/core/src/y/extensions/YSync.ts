@@ -10,37 +10,32 @@ import { CollaborationOptions } from "./index.js";
  * Deterministic hash of a string to an unsigned 32-bit integer.
  */
 const hashStr = (s: string): number => {
-  let h = 0;
+  let hash = 0;
   for (let i = 0; i < s.length; i++) {
-    h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+    hash = Math.imul(31, hash) + s.charCodeAt(i);
   }
-  return h >>> 0;
+  return Math.abs(hash);
 };
 
 /**
  * Pick a deterministic user-color from a palette based on user ids.
  * Must be deterministic so the sync plugin's readback matches the mapper output.
  */
-const userColorPalette = [
-  "#30bced",
-  "#6eeb83",
-  "#ffbc42",
-  "#ecd444",
-  "#ee6352",
-  "#9ac2c9",
-  "#8acb88",
-  "#1be7ff",
+const userColorPalette: Array<{ light: string; dark: string }> = [
+  { light: "#fff0c2", dark: "#8a6d1a" },
+  { light: "#fcc9c3", dark: "#8a2e24" },
+  { light: "#d4e8eb", dark: "#4a7178" },
+  { light: "#c2eeff", dark: "#1a6e8a" },
+  { light: "#bef3ff", dark: "#0a7a8a" },
 ];
 
-const colorForUserIds = (
+const colorsForUserIds = (
   userIds: readonly string[] | undefined | null,
-): string => {
+): { light: string; dark: string } => {
   if (!userIds || userIds.length === 0) {
     return userColorPalette[0];
   }
-  return userColorPalette[
-    hashStr(String(userIds[0])) % userColorPalette.length
-  ];
+  return userColorPalette[hashStr(userIds[0]) % userColorPalette.length];
 };
 
 /**
@@ -52,9 +47,9 @@ const colorForUserIds = (
  * in a loop. See ATTRIBUTION.md in @y/prosemirror.
  *
  * Declared attrs per mark (all three are the same shape):
- * - y-attributed-insert: { id, "user-color" }
- * - y-attributed-delete: { id, "user-color" }
- * - y-attributed-format: { id, "user-color" }
+ * - y-attributed-insert: { id, "user-color-light", "user-color-dark" }
+ * - y-attributed-delete: { id, "user-color-light", "user-color-dark" }
+ * - y-attributed-format: { id, "user-color-light", "user-color-dark" }
  */
 const mapAttributionToMark = (
   format: Record<string, unknown> | null,
@@ -70,28 +65,31 @@ const mapAttributionToMark = (
   const out: Record<string, unknown> = { ...format };
 
   if (attribution.insert) {
+    const colors = colorsForUserIds(attribution.insert);
     out["y-attributed-insert"] = {
       userIds: attribution.insert,
-      timestamp: attribution.insertAt ?? null,
-      "user-color": colorForUserIds(attribution.insert),
+      "user-color-light": colors.light,
+      "user-color-dark": colors.dark,
     };
   }
 
   if (attribution.delete) {
+    const colors = colorsForUserIds(attribution.delete);
     out["y-attributed-delete"] = {
       userIds: attribution.delete,
-      timestamp: attribution.deleteAt ?? null,
-      "user-color": colorForUserIds(attribution.delete),
+      "user-color-light": colors.light,
+      "user-color-dark": colors.dark,
     };
   }
 
   if (attribution.format) {
     const userIds = [...new Set(Object.values(attribution.format).flat())];
+    const colors = colorsForUserIds(userIds);
     out["y-attributed-format"] = {
       userIds,
       format: attribution.format,
-      timestamp: attribution.formatAt ?? null,
-      "user-color": colorForUserIds(userIds),
+      "user-color-light": colors.light,
+      "user-color-dark": colors.dark,
     };
   }
 
