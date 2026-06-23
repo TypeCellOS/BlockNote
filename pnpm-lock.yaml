@@ -3396,6 +3396,9 @@ importers:
       react-dom:
         specifier: ^19.2.3
         version: 19.2.5(react@19.2.5)
+      react-icons:
+        specifier: ^5.5.0
+        version: 5.6.0(react@19.2.5)
     devDependencies:
       '@types/react':
         specifier: ^19.2.3
@@ -20195,7 +20198,6 @@ snapshots:
     optionalDependencies:
       msw: 2.11.5(@types/node@25.5.0)(typescript@5.9.3)
       vite: 8.0.8(@types/node@25.5.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)
-    optional: true
 
   '@vitest/pretty-format@4.1.5':
     dependencies:
@@ -20224,7 +20226,7 @@ snapshots:
       sirv: 3.0.2
       tinyglobby: 0.2.16
       tinyrainbow: 3.1.0
-      vitest: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@20.19.37)(@vitest/ui@4.1.5)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(msw@2.11.5(@types/node@20.19.37)(typescript@5.9.3))(vite@8.0.8(@types/node@20.19.37)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0))
+      vitest: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.5.0)(@vitest/ui@4.1.5)(jsdom@29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0))(msw@2.11.5(@types/node@25.5.0)(typescript@5.9.3))(vite@8.0.8(@types/node@25.5.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0))
 
   '@vitest/utils@4.1.5':
     dependencies:
@@ -26208,7 +26210,6 @@ snapshots:
       jiti: 2.6.1
       terser: 5.46.2
       tsx: 4.21.0
-    optional: true
 
   vite@8.0.8(@types/node@25.6.0)(esbuild@0.27.5)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0):
     dependencies:
@@ -26302,7 +26303,6 @@ snapshots:
       jsdom: 29.0.2(@noble/hashes@2.0.1)(canvas@3.1.0)
     transitivePeerDependencies:
       - msw
-    optional: true
 
   w3c-keyname@2.2.8: {}
 

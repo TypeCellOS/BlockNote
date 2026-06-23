@@ -213,6 +213,9 @@ export const hr: Dictionary = {
   toggle_blocks: {
     add_block_button: "Prazan sklopivi blok. Klikni da dodaš sadržaj.",
   },
+  code_block: {
+    add_source_button_text: "Dodaj izvorni kôd",
+  },
   // from react package:
   side_menu: {
     add_block_label: "Dodaj blok",

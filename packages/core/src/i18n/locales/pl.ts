@@ -192,6 +192,9 @@ export const pl: Dictionary = {
     add_block_button:
       "Brak bloków do rozwinięcia. Kliknij, aby dodać pierwszego.",
   },
+  code_block: {
+    add_source_button_text: "Dodaj kod źródłowy",
+  },
   side_menu: {
     add_block_label: "Dodaj blok",
     drag_handle_label: "Otwórz menu bloków",

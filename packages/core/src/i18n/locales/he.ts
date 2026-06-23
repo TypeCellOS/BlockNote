@@ -202,6 +202,9 @@ export const he: Dictionary = {
   toggle_blocks: {
     add_block_button: "מתג ריק. לחץ כדי להוסיף בלוק.",
   },
+  code_block: {
+    add_source_button_text: "הוסף קוד מקור",
+  },
   side_menu: {
     add_block_label: "הוסף בלוק",
     drag_handle_label: "פתח תפריט בלוק",

@@ -1,4 +1,4 @@
-import type { ViewMutationRecord } from "prosemirror-view";
+// import type { ViewMutationRecord } from "prosemirror-view";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type { BlockFromConfig } from "../../schema/index.js";
 
@@ -15,12 +15,8 @@ export type CodeBlockPreview = (
   block: BlockFromConfig<any, any, any>,
   editor: BlockNoteEditor<any>,
 ) => {
-  dom: HTMLElement;
-  // TODO: This is for showing any syntax errors found while rendering the preview, not sure if it
-  // should be here.
+  dom: HTMLElement | DocumentFragment;
   error?: string | null;
-  ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
-  destroy?: () => void;
 };
 
 export type CodeBlockOptions = {

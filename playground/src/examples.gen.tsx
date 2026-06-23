@@ -1453,10 +1453,17 @@ export const examples = {
           playground: true,
           docs: true,
           author: "matthewlipski",
-          tags: ["Intermediate", "Blocks", "Custom Schemas"],
+          tags: [
+            "Intermediate",
+            "Blocks",
+            "Custom Schemas",
+            "Suggestion Menus",
+            "Slash Menu",
+          ],
           dependencies: {
             "@blocknote/code-block": "latest",
             "@blocknote/math-block": "latest",
+            "react-icons": "^5.5.0",
           } as any,
         },
         title: "Math Block",

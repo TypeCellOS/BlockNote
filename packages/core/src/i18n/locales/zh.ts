@@ -241,6 +241,9 @@ export const zh: Dictionary = {
   toggle_blocks: {
     add_block_button: "空的切换区。点击添加区块。",
   },
+  code_block: {
+    add_source_button_text: "添加源代码",
+  },
   // from react package:
   side_menu: {
     add_block_label: "添加块",
