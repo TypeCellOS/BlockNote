@@ -266,9 +266,12 @@ export const createSourceBlockWithPreview = (
     options && "selectedLanguage" in options ? options : undefined,
   );
 
-  const sourceCode = (block.content as StyledText<any>[])
-    .map(({ text }) => text)
-    .join("");
+  const sourceCode =
+    typeof block.content === "string"
+      ? block.content
+      : Array.isArray(block.content)
+        ? (block.content as StyledText<any>[]).map(({ text }) => text).join("")
+        : "";
 
   // Tracks the source the preview was last rendered from, so `update` can tell
   // a source-text change (which it handles in place) from any other update.
