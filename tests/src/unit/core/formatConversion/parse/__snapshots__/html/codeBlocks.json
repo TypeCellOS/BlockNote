@@ -10,7 +10,7 @@
     ],
     "id": "1",
     "props": {
-      "language": "text",
+      "language": "javascript",
     },
     "type": "codeBlock",
   },
