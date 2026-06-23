@@ -294,7 +294,6 @@ export const createSourceBlockWithPreview = (
 
   const sourceBlockPopup = document.createElement("div");
   sourceBlockPopup.className = "bn-source-block-popup";
-  sourceBlockPopup.inert = true;
   sourceBlockPopup.appendChild(sourceBlock.dom);
 
   const errorMessage = "error" in preview && preview.error ? preview.error : "";
