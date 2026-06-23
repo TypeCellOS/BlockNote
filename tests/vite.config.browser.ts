@@ -72,7 +72,7 @@ export default defineConfig(
       },
       test: {
         name: "e2e",
-        include: ["./src/end-to-end/y-prosemirror/**/*.test.tsx"],
+        include: ["./src/end-to-end/**/*.test.tsx"],
         setupFiles: ["./vitestSetup.browser.ts"],
         // Running three browsers concurrently inside one Docker container already
         // saturates CPU; layering per-browser file parallelism on top causes

@@ -2107,38 +2107,6 @@ test("sequential: A adds a row then a column, B adds a row", async () => {
               textAlignment="left"
               textColor="default"
             >
-              <tableParagraph>D1</tableParagraph>
-            </tableCell>
-            <tableCell
-              backgroundColor="default"
-              colspan="1"
-              colwidth="null"
-              rowspan="1"
-              textAlignment="left"
-              textColor="default"
-            >
-              <tableParagraph>D2</tableParagraph>
-            </tableCell>
-            <tableCell
-              backgroundColor="default"
-              colspan="1"
-              colwidth="null"
-              rowspan="1"
-              textAlignment="left"
-              textColor="default"
-            >
-              <tableParagraph></tableParagraph>
-            </tableCell>
-          </tableRow>
-          <tableRow>
-            <tableCell
-              backgroundColor="default"
-              colspan="1"
-              colwidth="null"
-              rowspan="1"
-              textAlignment="left"
-              textColor="default"
-            >
               <tableParagraph>A3</tableParagraph>
             </tableCell>
             <tableCell
@@ -2160,6 +2128,38 @@ test("sequential: A adds a row then a column, B adds a row", async () => {
               textColor="default"
             >
               <tableParagraph>C3</tableParagraph>
+            </tableCell>
+          </tableRow>
+          <tableRow>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>D1</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph>D2</tableParagraph>
+            </tableCell>
+            <tableCell
+              backgroundColor="default"
+              colspan="1"
+              colwidth="null"
+              rowspan="1"
+              textAlignment="left"
+              textColor="default"
+            >
+              <tableParagraph></tableParagraph>
             </tableCell>
           </tableRow>
         </table>
@@ -2293,77 +2293,6 @@ test("sequential: A adds a row then a column, B adds a row", async () => {
                           userIds=""
                           user-color-light="#fff0c2"
                           user-color-dark="#8a6d1a"
-                        >D1</y-attributed-insert>
-                      </tableParagraph>
-                    </y-attributed-insert>
-                  </tableCell>
-                </y-attributed-insert>
-                <y-attributed-insert
-                  userIds=""
-                  user-color-light="#fff0c2"
-                  user-color-dark="#8a6d1a"
-                >
-                  <tableCell
-                    textColor="default"
-                    backgroundColor="default"
-                    textAlignment="left"
-                    colspan="1"
-                    rowspan="1"
-                  >
-                    <y-attributed-insert
-                      userIds=""
-                      user-color-light="#fff0c2"
-                      user-color-dark="#8a6d1a"
-                    >
-                      <tableParagraph>
-                        <y-attributed-insert
-                          userIds=""
-                          user-color-light="#fff0c2"
-                          user-color-dark="#8a6d1a"
-                        >D2</y-attributed-insert>
-                      </tableParagraph>
-                    </y-attributed-insert>
-                  </tableCell>
-                </y-attributed-insert>
-                <tableCell
-                  textColor="default"
-                  backgroundColor="default"
-                  textAlignment="left"
-                  colspan="1"
-                  rowspan="1"
-                >
-                  <tableParagraph></tableParagraph>
-                </tableCell>
-              </tableRow>
-            </y-attributed-insert>
-            <y-attributed-insert
-              userIds=""
-              user-color-light="#fff0c2"
-              user-color-dark="#8a6d1a"
-            >
-              <tableRow>
-                <y-attributed-insert
-                  userIds=""
-                  user-color-light="#fff0c2"
-                  user-color-dark="#8a6d1a"
-                >
-                  <tableCell
-                    textColor="default"
-                    backgroundColor="default"
-                    textAlignment="left"
-                    colspan="1"
-                    rowspan="1"
-                  >
-                    <y-attributed-insert
-                      userIds=""
-                      user-color-light="#fff0c2"
-                      user-color-dark="#8a6d1a"
-                    >
-                      <tableParagraph>
-                        <y-attributed-insert
-                          userIds=""
-                          user-color-light="#fff0c2"
-                          user-color-dark="#8a6d1a"
                         >A3</y-attributed-insert>
                       </tableParagraph>
                     </y-attributed-insert>
@@ -2423,6 +2352,77 @@ test("sequential: A adds a row then a column, B adds a row", async () => {
                     </y-attributed-insert>
                   </tableCell>
                 </y-attributed-insert>
+              </tableRow>
+            </y-attributed-insert>
+            <y-attributed-insert
+              userIds=""
+              user-color-light="#fff0c2"
+              user-color-dark="#8a6d1a"
+            >
+              <tableRow>
+                <y-attributed-insert
+                  userIds=""
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >
+                  <tableCell
+                    textColor="default"
+                    backgroundColor="default"
+                    textAlignment="left"
+                    colspan="1"
+                    rowspan="1"
+                  >
+                    <y-attributed-insert
+                      userIds=""
+                      user-color-light="#fff0c2"
+                      user-color-dark="#8a6d1a"
+                    >
+                      <tableParagraph>
+                        <y-attributed-insert
+                          userIds=""
+                          user-color-light="#fff0c2"
+                          user-color-dark="#8a6d1a"
+                        >D1</y-attributed-insert>
+                      </tableParagraph>
+                    </y-attributed-insert>
+                  </tableCell>
+                </y-attributed-insert>
+                <y-attributed-insert
+                  userIds=""
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >
+                  <tableCell
+                    textColor="default"
+                    backgroundColor="default"
+                    textAlignment="left"
+                    colspan="1"
+                    rowspan="1"
+                  >
+                    <y-attributed-insert
+                      userIds=""
+                      user-color-light="#fff0c2"
+                      user-color-dark="#8a6d1a"
+                    >
+                      <tableParagraph>
+                        <y-attributed-insert
+                          userIds=""
+                          user-color-light="#fff0c2"
+                          user-color-dark="#8a6d1a"
+                        >D2</y-attributed-insert>
+                      </tableParagraph>
+                    </y-attributed-insert>
+                  </tableCell>
+                </y-attributed-insert>
+                <tableCell
+                  textColor="default"
+                  backgroundColor="default"
+                  textAlignment="left"
+                  colspan="1"
+                  rowspan="1"
+                >
+                  <tableParagraph></tableParagraph>
+                </tableCell>
               </tableRow>
             </y-attributed-insert>
           </table>
