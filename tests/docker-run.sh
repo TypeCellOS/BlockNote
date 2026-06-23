@@ -78,5 +78,10 @@ mounts+=(-v "$PWD/tests/playwright-report:/work/tests/playwright-report")
 # --init  : avoid PID-1 special treatment / zombie processes
 # --ipc=host : Chromium needs this in Docker to avoid OOM crashes
 # Both flags are Playwright's recommended baseline for running its image.
-exec docker run --rm --init --ipc=host "${docker_flags[@]}" "${mounts[@]}" \
+# SKIP_DOCS_POSTINSTALL : the `vp test` entrypoint runs a deps-status check that
+#   re-runs `pnpm install` inside the container; without this the docs
+#   fumadocs-mdx postinstall runs and fails (see docs/package.json). The e2e
+#   suite never touches docs, so skip it here too — mirroring the image build.
+exec docker run --rm --init --ipc=host -e SKIP_DOCS_POSTINSTALL=1 \
+  "${docker_flags[@]}" "${mounts[@]}" \
   blocknote-e2e "${entrypoint_args[@]}"

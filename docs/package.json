@@ -10,7 +10,7 @@
     "build:site": "fumadocs-mdx && NODE_OPTIONS='--max-old-space-size=6144' next build",
     "start": "next start",
     "types:check": "fumadocs-mdx && next typegen && tsc --noEmit",
-    "postinstall": "fumadocs-mdx",
+    "postinstall": "[ -n \"$SKIP_DOCS_POSTINSTALL\" ] || fumadocs-mdx",
     "lint": "vp lint",
     "init-db": "pnpx @better-auth/cli migrate"
   },
