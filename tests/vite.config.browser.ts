@@ -97,6 +97,22 @@ export default defineConfig(
         outputFile: { html: "./playwright-report/index.html" },
         browser: {
           enabled: true,
+          // Global default tolerance for every `toMatchScreenshot` assertion.
+          // The three browsers run in one contended Docker container and minor
+          // anti-aliasing / sub-pixel font-rendering differences (e.g. a 24px /
+          // 0.01-ratio diff on a table screenshot) are not real regressions but
+          // still fail an exact pixel comparison. Allow up to 2% of pixels to
+          // differ — comfortably above the observed ~0.01 flake while a genuine
+          // layout/content change moves far more than that. Per-test calls can
+          // still tighten or loosen this via comparatorOptions.
+          expect: {
+            toMatchScreenshot: {
+              comparatorName: "pixelmatch",
+              comparatorOptions: {
+                allowedMismatchedPixelRatio: 0.02,
+              },
+            },
+          },
           provider: playwright({
             contextOptions: { viewport: VIEWPORT },
           }),
@@ -121,12 +137,12 @@ export default defineConfig(
                 ],
               },
             },
-            // {
-            //   browser: "firefox",
-            // },
-            // {
-            //   browser: "webkit",
-            // },
+            {
+              browser: "firefox",
+            },
+            {
+              browser: "webkit",
+            },
           ],
         },
       },
