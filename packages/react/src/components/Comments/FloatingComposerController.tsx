@@ -17,6 +17,7 @@ import { useExtension, useExtensionState } from "../../hooks/useExtension.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { FloatingUIOptions } from "../Popovers/FloatingUIOptions.js";
 import { PositionPopover } from "../Popovers/PositionPopover.js";
+import { confirmDiscardUnsavedComment } from "./confirmDiscardUnsavedComment.js";
 import { defaultCommentEditorSchema } from "./defaultCommentEditorSchema.js";
 import { FloatingComposer } from "./FloatingComposer.js";
 
@@ -86,8 +87,11 @@ export default function FloatingComposerController<
             // for confirmation before discarding it (e.g. when clicking
             // outside the composer). Otherwise the unsaved comment is lost.
             if (
-              !newCommentEditor.isEmpty &&
-              !window.confirm(dict.comments.discard_pending_comment)
+              !confirmDiscardUnsavedComment({
+                hasUnsavedContent: !newCommentEditor.isEmpty,
+                confirmBeforeDiscard: comments.confirmBeforeDiscard,
+                message: dict.comments.discard_pending_comment,
+              })
             ) {
               // Keep the composer open so the user can continue editing.
               return;
