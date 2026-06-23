@@ -252,6 +252,14 @@ export const createSourceBlockWithPreview = (
         createPreview: CodeBlockPreview;
       },
 ) => {
+  if (
+    options &&
+    "selectedLanguage" in options &&
+    !(options.selectedLanguage in options.supportedLanguages)
+  ) {
+    throw new Error(`Language ${options.selectedLanguage} is not supported.`);
+  }
+
   const sourceBlock = createSourceBlock(
     block,
     editor,

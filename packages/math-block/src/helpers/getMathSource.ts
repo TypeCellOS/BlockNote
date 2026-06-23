@@ -7,7 +7,9 @@ export const getMathSource = (block: { content: unknown }): string => {
   }
   if (Array.isArray(block.content)) {
     return block.content
-      .map((node) => ("text" in node ? node.text : ""))
+      .map((node) =>
+        node && typeof node === "object" && "text" in node ? node.text : "",
+      )
       .join("");
   }
   return "";

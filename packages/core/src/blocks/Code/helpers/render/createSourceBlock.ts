@@ -27,6 +27,10 @@ export const createLanguageSelect = (
   select.value = selectedLanguage;
 
   const handleLanguageChange = (event: Event) => {
+    if (!editor.isEditable) {
+      return;
+    }
+
     editor.updateBlock(block.id, {
       props: { language: (event.target as HTMLSelectElement).value },
     });

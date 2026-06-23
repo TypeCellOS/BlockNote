@@ -40,8 +40,6 @@ export const createCodeBlockSpec = createBlockSpec(
         options.supportedLanguages && {
           selectedLanguage: block.props.language,
           supportedLanguages: options.supportedLanguages,
-          createPreview:
-            options.supportedLanguages[block.props.language].createPreview,
         },
       ),
     toExternalHTML: (block) => createPreCode(block),
