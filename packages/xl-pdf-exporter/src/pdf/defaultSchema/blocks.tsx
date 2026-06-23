@@ -3,7 +3,6 @@ import {
   DefaultBlockSchema,
   DefaultProps,
   createPageBreakBlockConfig,
-  StyledText,
 } from "@blocknote/core";
 import { multiColumnSchema } from "@blocknote/xl-multi-column";
 import { Image, Link, Path, Svg, Text, View } from "@react-pdf/renderer";
@@ -114,12 +113,8 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
     );
   },
   codeBlock: (block) => {
-    // Code blocks should always contain a single `StyledText` inline content.
-    // However, if this is not the case for whatever reason, we can merge the
-    // text content of all `StyledText` content in them.
-    const textContent = (block.content as StyledText<any>[])
-      .map((item) => item.text)
-      .join("");
+    // Code blocks hold plain (string) content.
+    const textContent = typeof block.content === "string" ? block.content : "";
     const lines = textContent.split("\n").map((line, index) => {
       const indent = line.match(/^\s*/)?.[0].length || 0;
 

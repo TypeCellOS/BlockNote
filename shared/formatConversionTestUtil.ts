@@ -130,7 +130,7 @@ export function partialBlockToBlockForTesting<
   schema: BSchema,
   partialBlock: PartialBlock<BSchema, I, S>,
 ): Block<BSchema, I, S> {
-  const contentType: "inline" | "table" | "none" =
+  const contentType: "inline" | "table" | "none" | "plain" =
     schema[partialBlock.type!].content;
 
   const withDefaults: Block<BSchema, I, S> = {
@@ -140,15 +140,17 @@ export function partialBlockToBlockForTesting<
     content:
       contentType === "inline"
         ? []
-        : contentType === "table"
-          ? {
-              type: "tableContent",
-              columnWidths: undefined,
-              headerRows: undefined,
-              headerCols: undefined,
-              rows: [],
-            }
-          : (undefined as any),
+        : contentType === "plain"
+          ? ""
+          : contentType === "table"
+            ? {
+                type: "tableContent",
+                columnWidths: undefined,
+                headerRows: undefined,
+                headerCols: undefined,
+                rows: [],
+              }
+            : (undefined as any),
     children: [] as any,
     ...partialBlock,
   };
@@ -186,7 +188,12 @@ export function partialBlockToBlockForTesting<
 
   return {
     ...withDefaults,
-    content: partialContentToInlineContent(withDefaults.content),
+    // Plain content is a string and must be kept as-is (not converted into
+    // inline content).
+    content:
+      contentType === "plain"
+        ? (withDefaults.content ?? "")
+        : partialContentToInlineContent(withDefaults.content),
     children: withDefaults.children.map((c) => {
       return partialBlockToBlockForTesting(schema, c);
     }),

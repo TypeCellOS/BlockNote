@@ -3,7 +3,6 @@ import {
   createPageBreakBlockConfig,
   DefaultBlockSchema,
   mapTableCell,
-  StyledText,
 } from "@blocknote/core";
 import {
   CodeBlock,
@@ -260,7 +259,8 @@ export const createReactEmailBlockMappingForDefaultSchema = (
   },
 
   codeBlock: (block) => {
-    const textContent = (block.content as StyledText<any>[])[0]?.text || "";
+    // Code blocks hold plain (string) content.
+    const textContent = typeof block.content === "string" ? block.content : "";
 
     return (
       <CodeBlock

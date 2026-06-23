@@ -476,6 +476,11 @@ export function nodeToBlock<
       inlineContentSchema,
       styleSchema,
     );
+  } else if (blockConfig.content === "plain") {
+    if (!blockInfo.isBlockContainer) {
+      throw new Error("impossible");
+    }
+    content = blockInfo.blockContent.node.textContent;
   } else if (blockConfig.content === "none") {
     content = undefined;
   } else {

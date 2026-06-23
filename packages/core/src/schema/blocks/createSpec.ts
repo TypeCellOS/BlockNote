@@ -44,7 +44,7 @@ export function applyNonSelectableBlockFix(nodeView: NodeView, editor: Editor) {
 export function getParseRules<
   TName extends string,
   TProps extends PropSchema,
-  TContent extends "inline" | "none" | "table",
+  TContent extends "inline" | "none" | "table" | "plain",
 >(
   config: BlockConfig<TName, TProps, TContent>,
   implementation: BlockImplementation<TName, TProps, TContent>,
@@ -75,7 +75,9 @@ export function getParseRules<
       // Because we do the parsing ourselves, we want to preserve whitespace for content we've parsed
       preserveWhitespace: true,
       getContent:
-        config.content === "inline" || config.content === "none"
+        config.content === "inline" ||
+        config.content === "none" ||
+        config.content === "plain"
           ? (node, schema) => {
               if (implementation.parseContent) {
                 const result = implementation.parseContent({
@@ -87,6 +89,13 @@ export function getParseRules<
                 if (result !== undefined) {
                   return result;
                 }
+              }
+
+              if (config.content === "plain") {
+                // Plain blocks hold unstyled text only, so we parse the
+                // element's text content directly into a single text node.
+                const text = (node as HTMLElement).textContent ?? "";
+                return text ? Fragment.from(schema.text(text)) : Fragment.empty;
               }
 
               if (config.content === "inline") {
@@ -140,7 +149,7 @@ export function getParseRules<
 export function addNodeAndExtensionsToSpec<
   TName extends string,
   TProps extends PropSchema,
-  TContent extends "inline" | "none" | "table",
+  TContent extends "inline" | "none" | "table" | "plain",
 >(
   blockConfig: BlockConfig<TName, TProps, TContent>,
   blockImplementation: BlockImplementation<TName, TProps, TContent>,
@@ -153,9 +162,18 @@ export function addNodeAndExtensionsToSpec<
       name: blockConfig.type,
       content: (blockConfig.content === "inline"
         ? "inline*"
-        : blockConfig.content === "none"
-          ? ""
-          : blockConfig.content) as TContent extends "inline" ? "inline*" : "",
+        : blockConfig.content === "plain"
+          ? "text*"
+          : blockConfig.content === "none"
+            ? ""
+            : blockConfig.content) as TContent extends "inline"
+        ? "inline*"
+        : TContent extends "plain"
+          ? "text*"
+          : "",
+      // "plain" blocks hold unstyled text only, so disallow marks on them.
+      // TODO: this might need to allow marks for comments and suggestions / diffs
+      marks: blockConfig.content === "plain" ? "" : undefined,
       group: "blockContent",
       selectable: blockImplementation.meta?.selectable ?? true,
       isolating: blockImplementation.meta?.isolating ?? true,
@@ -180,7 +198,11 @@ export function addNodeAndExtensionsToSpec<
         return wrapInBlockStructure(
           {
             dom: div,
-            contentDOM: blockConfig.content === "inline" ? div : undefined,
+            contentDOM:
+              blockConfig.content === "inline" ||
+              blockConfig.content === "plain"
+                ? div
+                : undefined,
           },
           blockConfig.type,
           {},
@@ -304,7 +326,7 @@ export function createBlockConfig<
 export function createBlockSpec<
   const TName extends string,
   const TProps extends PropSchema,
-  const TContent extends "inline" | "none",
+  const TContent extends "inline" | "none" | "plain",
   const TOptions extends Partial<Record<string, any>> | undefined = undefined,
 >(
   blockConfigOrCreator: BlockConfig<TName, TProps, TContent>,
@@ -323,7 +345,7 @@ export function createBlockSpec<
 export function createBlockSpec<
   const TName extends string,
   const TProps extends PropSchema,
-  const TContent extends "inline" | "none",
+  const TContent extends "inline" | "none" | "plain",
   const BlockConf extends BlockConfig<TName, TProps, TContent>,
   const TOptions extends Partial<Record<string, any>>,
 >(
@@ -349,7 +371,7 @@ export function createBlockSpec<
 export function createBlockSpec<
   const TName extends string,
   const TProps extends PropSchema,
-  const TContent extends "inline" | "none",
+  const TContent extends "inline" | "none" | "plain",
   const TOptions extends Partial<Record<string, any>> | undefined = undefined,
 >(
   blockConfigOrCreator: BlockConfigOrCreator<TName, TProps, TContent, TOptions>,

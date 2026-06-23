@@ -449,13 +449,7 @@ describe("Test yjs utils", () => {
         props: {
           language: "javascript",
         },
-        content: [
-          {
-            type: "text",
-            text: 'console.log("Hello, world!");',
-            styles: {},
-          },
-        ],
+        content: 'console.log("Hello, world!");',
         children: [],
       },
       {
@@ -464,13 +458,7 @@ describe("Test yjs utils", () => {
         props: {
           language: "typescript",
         },
-        content: [
-          {
-            type: "text",
-            text: "const x: number = 42;",
-            styles: {},
-          },
-        ],
+        content: "const x: number = 42;",
         children: [],
       },
     ];
@@ -972,13 +960,7 @@ describe("Test yjs utils", () => {
         props: {
           language: "typescript",
         },
-        content: [
-          {
-            type: "text",
-            text: "const example = () => {\n  return 'code';\n};",
-            styles: {},
-          },
-        ],
+        content: "const example = () => {\n  return 'code';\n};",
         children: [],
       },
       {
