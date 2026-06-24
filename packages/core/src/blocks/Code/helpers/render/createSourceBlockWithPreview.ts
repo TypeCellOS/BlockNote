@@ -1,11 +1,3 @@
-import {
-  autoUpdate,
-  computePosition,
-  flip,
-  offset,
-  shift,
-  size,
-} from "@floating-ui/dom";
 import type { Node as ProsemirrorNode } from "prosemirror-model";
 import type { ViewMutationRecord } from "prosemirror-view";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
@@ -198,39 +190,6 @@ const handleSelectionChange = (
   return { destroy };
 };
 
-// Handles positioning for the popup, including edge cases where it doesn't fit in the viewport.
-// TODO: Would be nice to replace this logic with CSS anchors:
-// https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/anchor
-const positionSourcePopup = (
-  preview: HTMLElement,
-  sourcePopup: HTMLElement,
-) => {
-  const destroy = autoUpdate(preview, sourcePopup, async () => {
-    const { x, y } = await computePosition(preview, sourcePopup, {
-      placement: "bottom-start",
-      middleware: [
-        offset(4),
-        flip(),
-        shift({ padding: 4 }),
-        // Match the popup's width to the block.
-        size({
-          apply({ rects, elements }) {
-            const blockContent = preview.closest(".bn-block-content");
-            const width =
-              blockContent?.getBoundingClientRect().width ??
-              rects.reference.width;
-            elements.floating.style.width = `${width}px`;
-          },
-        }),
-      ],
-    });
-    sourcePopup.style.left = `${x}px`;
-    sourcePopup.style.top = `${y}px`;
-  });
-
-  return { destroy };
-};
-
 // Renders a preview which can be clicked to show the block's inline content as code in a popup,
 // alongside a language picker if multiple languages are supported. If no preview is provided, just
 // renders the same thing as `createSourceBlock`.
@@ -345,11 +304,6 @@ export const createSourceBlockWithPreview = (
     setSourcePopupOpen,
   );
 
-  const sourcePopupPositioner = positionSourcePopup(
-    previewContainer,
-    sourceBlockPopup,
-  );
-
   return {
     dom: previewWithSourcePopup,
     contentDOM: sourceBlock.contentDOM,
@@ -402,7 +356,6 @@ export const createSourceBlockWithPreview = (
       keyboardNavigationHandler.destroy();
       previewMouseDownHandler.destroy();
       selectionMoveOutHandler.destroy();
-      sourcePopupPositioner.destroy();
     },
   };
 };

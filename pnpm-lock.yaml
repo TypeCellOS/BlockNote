@@ -4648,9 +4648,6 @@ importers:
       '@emoji-mart/data':
         specifier: ^1.2.1
         version: 1.2.1
-      '@floating-ui/dom':
-        specifier: ^1.7.6
-        version: 1.7.6
       '@handlewithcare/prosemirror-inputrules':
         specifier: ^0.1.4
         version: 0.1.4(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.8)
