@@ -6,6 +6,7 @@ import {
   Extension,
   ExtensionFactoryInstance,
 } from "../../editor/BlockNoteExtension.js";
+import { NON_FORMATTING_MARK_GROUP } from "../markGroups.js";
 import { PropSchema } from "../propTypes.js";
 import {
   getBlockFromPos,
@@ -171,9 +172,13 @@ export function addNodeAndExtensionsToSpec<
         : TContent extends "plain"
           ? "text*"
           : "",
-      // "plain" blocks hold unstyled text only, so disallow marks on them.
-      // TODO: this might need to allow marks for comments and suggestions / diffs
-      marks: blockConfig.content === "plain" ? "" : undefined,
+      // "plain" blocks hold unstyled text, so they disallow formatting marks.
+      // They still allow the non-formatting marks (comments and
+      // suggestions/diffs) — those annotate content without changing it and are
+      // ignored by the block model. The group's always-present suggestion marks
+      // keep this reference valid even when comments aren't configured.
+      marks:
+        blockConfig.content === "plain" ? NON_FORMATTING_MARK_GROUP : undefined,
       group: "blockContent",
       selectable: blockImplementation.meta?.selectable ?? true,
       isolating: blockImplementation.meta?.isolating ?? true,

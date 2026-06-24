@@ -1,3 +1,4 @@
+import { Schema } from "@tiptap/pm/model";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
 import * as Y from "yjs";
 
@@ -22,48 +23,63 @@ import migrationRules, {
 export const SchemaMigration = createExtension(
   ({ editor, options }: ExtensionOptions<{ fragment: Y.XmlFragment }>) => {
     const { fragment } = options;
-    const blockSchema = editor.schema.blockSchema;
 
     // Runs the pre-sync rules over the whole fragment. Safe to call repeatedly:
     // the rules are no-ops once the fragment is clean, so the transaction they
-    // run in produces no change (and thus doesn't re-trigger the observer).
-    const runPreSyncMigrations = () => {
+    // run in produces no change (and thus doesn't re-trigger the observer). The
+    // rules need the ProseMirror schema, which only exists once the editor has
+    // been constructed — so callers pass it in.
+    const runPreSyncMigrations = (schema: Schema) => {
       fragment.doc?.transact(() => {
         for (const rule of preSyncMigrationRules) {
-          rule(fragment, blockSchema);
+          rule(fragment, schema);
         }
       });
     };
+    // The observer is registered before the editor mounts (so it precedes
+    // y-prosemirror's), but only fires later — by which point `editor.pmSchema`
+    // is available.
+    const preSyncObserver = () => {
+      if (editor.pmSchema) {
+        runPreSyncMigrations(editor.pmSchema);
+      }
+    };
     // `unobserveDeep` is a no-op if the observer isn't (or is no longer)
     // registered, so this is safe to call more than once.
-    const stopPreSyncObserver = () =>
-      fragment.unobserveDeep(runPreSyncMigrations);
+    const stopPreSyncObserver = () => fragment.unobserveDeep(preSyncObserver);
 
-    // 1. Migrate content that's already present before the editor mounts (e.g.
-    //    a document loaded from a database). `observeDeep` only fires on later
-    //    changes, so existing content has to be handled explicitly here.
-    if (fragment.firstChild) {
-      runPreSyncMigrations();
-    }
-    // 2. Migrate content that streams in from a provider after mount. Registered
-    //    here — in the extension factory, before the editor mounts — so it runs
-    //    before y-prosemirror's own observer and can clean the fragment first.
-    //    Removed once migration is done (see `appendTransaction`).
-    fragment.observeDeep(runPreSyncMigrations);
+    // Migrate content that streams in from a provider after mount. Registered
+    // here — in the extension factory, before the editor mounts — so it runs
+    // before y-prosemirror's own observer and can clean the fragment first.
+    // Removed once migration is done (see `appendTransaction`).
+    fragment.observeDeep(preSyncObserver);
 
     let migrationDone = false;
     const pluginKey = new PluginKey("schemaMigration");
 
     return {
       key: "schemaMigration",
+      // Run before y-sync so the pre-sync migration (in this plugin's `view`)
+      // cleans the fragment before y-prosemirror reconstructs the document.
+      runsBefore: ["ySync"],
       prosemirrorPlugins: [
         new Plugin({
           key: pluginKey,
-          view: () => ({
-            // Safety net: stop observing if the editor is destroyed before any
-            // content ever synced in (so `migrationDone` was never reached).
-            destroy: stopPreSyncObserver,
-          }),
+          view: (view) => {
+            // Migrate content already present before mount (e.g. a document
+            // loaded from a database). `observeDeep` only fires on later
+            // changes, so existing content is handled explicitly here — in the
+            // plugin's view init, where the schema is available, and before
+            // y-prosemirror reconstructs the document.
+            if (fragment.firstChild) {
+              runPreSyncMigrations(view.state.schema);
+            }
+            return {
+              // Safety net: stop observing if the editor is destroyed before any
+              // content ever synced in (so `migrationDone` was never reached).
+              destroy: stopPreSyncObserver,
+            };
+          },
           appendTransaction: (transactions, _oldState, newState) => {
             if (migrationDone) {
               return undefined;

@@ -1,6 +1,6 @@
+import { NodeType, Schema } from "@tiptap/pm/model";
 import * as Y from "yjs";
 
-import { BlockSchema } from "../../../../schema/index.js";
 import { PreSyncMigrationRule } from "./migrationRule.js";
 
 // Recursively traverses a `Y.XmlElement` and its descendant elements.
@@ -16,9 +16,13 @@ const traverseElement = (
   });
 };
 
-// Removes all formatting (marks) from a `Y.XmlText`. Returns whether anything
-// was removed.
-const stripFormatting = (text: Y.XmlText) => {
+// Removes the marks that `nodeType` doesn't allow (and any marks that aren't in
+// the schema at all) from a `Y.XmlText`.
+const stripDisallowedFromText = (
+  text: Y.XmlText,
+  nodeType: NodeType,
+  schema: Schema,
+) => {
   const markKeys = new Set<string>();
   for (const op of text.toDelta() as {
     attributes?: Record<string, unknown>;
@@ -30,61 +34,63 @@ const stripFormatting = (text: Y.XmlText) => {
     }
   }
 
-  if (markKeys.size === 0) {
-    return false;
+  const keysToStrip = [...markKeys].filter((key) => {
+    // y-prosemirror encodes "overlapping" marks (those that don't exclude
+    // themselves, e.g. comments) as `${markName}--${hash}` so multiple
+    // instances can coexist on a range. Resolve the base mark name before
+    // looking it up in the schema.
+    const markName = key.split("--")[0];
+    const markType = schema.marks[markName];
+    return !markType || !nodeType.allowsMarkType(markType);
+  });
+
+  if (keysToStrip.length === 0) {
+    return;
   }
 
   // Setting each attribute to `null` removes that mark across the range.
   text.format(
     0,
     text.length,
-    Object.fromEntries([...markKeys].map((key) => [key, null])),
+    Object.fromEntries(keysToStrip.map((key) => [key, null])),
   );
-
-  return true;
 };
 
-// Strips marks from the text of `"plain"` content blocks (e.g. code blocks).
+// Strips marks a node's ProseMirror type doesn't allow from its text.
 //
 // Older documents may contain blocks whose content was previously `"inline"`
-// (and so could hold marks like bold) but is now `"plain"` — whose ProseMirror
-// node disallows marks (`marks: ""`). y-prosemirror does not strip disallowed
+// (and so could hold formatting marks like bold) but is now `"plain"` — whose
+// node only allows the non-formatting marks (comments and suggestions/diffs,
+// via the `NON_FORMATTING_MARK_GROUP`). y-prosemirror does not strip disallowed
 // marks; instead it rejects the whole node (`createChecked` throws) and its
 // error handler DELETES that node from the Yjs document, propagating the
-// deletion to all peers. This rule removes those marks from the fragment so the
-// node stays valid and survives reconstruction (the text itself is preserved;
-// only the formatting — which `"plain"` content cannot represent anyway — is
-// dropped).
+// deletion to all peers. This rule removes the disallowed marks from the
+// fragment so the node stays valid and survives reconstruction — preserving the
+// text as well as any marks the node still allows.
+//
+// Whether a mark is allowed is read straight from the schema
+// (`NodeType.allowsMarkType`), so no list of mark names needs to be maintained.
 //
 // Unlike the post-sync `MigrationRule`s, this must run BEFORE y-prosemirror
 // reconstructs the document, so it mutates the Yjs fragment directly.
 export const stripDisallowedMarks: PreSyncMigrationRule = (
   fragment,
-  blockSchema: BlockSchema,
+  schema,
 ) => {
-  const plainBlockTypes = new Set(
-    Object.entries(blockSchema)
-      .filter(([, config]) => config.content === "plain")
-      .map(([type]) => type),
-  );
-
-  if (plainBlockTypes.size === 0) {
-    return;
-  }
-
   fragment.forEach((element) => {
     if (!(element instanceof Y.XmlElement)) {
       return;
     }
 
     traverseElement(element, (el) => {
-      if (!plainBlockTypes.has(el.nodeName)) {
+      const nodeType = schema.nodes[el.nodeName];
+      if (!nodeType) {
         return;
       }
 
       el.forEach((child) => {
         if (child instanceof Y.XmlText) {
-          stripFormatting(child);
+          stripDisallowedFromText(child, nodeType, schema);
         }
       });
     });
