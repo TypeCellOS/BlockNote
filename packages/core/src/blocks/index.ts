@@ -17,6 +17,7 @@ export * from "./Video/block.js";
 
 export { EMPTY_CELL_HEIGHT, EMPTY_CELL_WIDTH } from "./Table/TableExtension.js";
 export * from "./Code/helpers/extensions/createCodeKeyboardShortcutsExtension.js";
+export * from "./Code/helpers/extensions/SourceBlockPreviewExtension.js";
 export * from "./Code/helpers/parse/parsePreCode.js";
 export * from "./Code/helpers/render/createSourceBlock.js";
 export * from "./Code/helpers/render/createSourceBlockWithPreview.js";

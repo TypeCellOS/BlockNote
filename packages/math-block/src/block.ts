@@ -1,6 +1,7 @@
 import {
   createBlockConfig,
   createBlockSpec,
+  SourceBlockPreviewExtension,
   createSourceBlockWithPreview,
 } from "@blocknote/core";
 import {
@@ -9,6 +10,8 @@ import {
 } from "./helpers/parse/parseMathML.js";
 import { createMathPreview } from "./helpers/render/createMathPreview.js";
 import { createMathML } from "./helpers/toExternalHTML/createMathML.js";
+
+const MATH_BLOCK_PREVIEW_KEY = "math-block-preview";
 
 export type MathBlockConfig = ReturnType<typeof createMathBlockConfig>;
 
@@ -21,17 +24,28 @@ export const createMathBlockConfig = createBlockConfig(
     }) as const,
 );
 
-export const createMathBlockSpec = createBlockSpec(createMathBlockConfig, {
-  meta: {
-    code: true,
-    defining: true,
-    isolating: false,
+export const createMathBlockSpec = createBlockSpec(
+  createMathBlockConfig,
+  {
+    meta: {
+      code: true,
+      defining: true,
+      isolating: false,
+    },
+    parse: (el) => parseMathML(el),
+    parseContent: ({ el, schema }) => parseMathMLContent({ el, schema }),
+    render: (block, editor) =>
+      createSourceBlockWithPreview(block, editor, {
+        createPreview: createMathPreview,
+      }),
+    toExternalHTML: (block) => createMathML(block),
   },
-  parse: (el) => parseMathML(el),
-  parseContent: ({ el, schema }) => parseMathMLContent({ el, schema }),
-  render: (block, editor) =>
-    createSourceBlockWithPreview(block, editor, {
-      createPreview: createMathPreview,
+  [
+    // Math blocks always render a preview.
+    SourceBlockPreviewExtension({
+      key: MATH_BLOCK_PREVIEW_KEY,
+      blockType: "math",
+      hasPreview: () => true,
     }),
-  toExternalHTML: (block) => createMathML(block),
-});
+  ],
+);

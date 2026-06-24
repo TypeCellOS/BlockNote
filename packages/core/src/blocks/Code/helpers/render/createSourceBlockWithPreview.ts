@@ -4,6 +4,7 @@ import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import type { BlockFromConfig, StyledText } from "../../../../schema/index.js";
 import { createSourceBlock } from "./createSourceBlock.js";
 import { CodeBlockPreview } from "../../CodeBlockOptions.js";
+import { SourceBlockPreviewExtension } from "../extensions/SourceBlockPreviewExtension.js";
 
 // Element shown instead of the preview when block has no content.
 const createAddSourceButton = (editor: BlockNoteEditor<any>) => {
@@ -24,170 +25,6 @@ const createAddSourceButton = (editor: BlockNoteEditor<any>) => {
   addSourceButton.appendChild(addSourceButtonText);
 
   return { dom: addSourceButton };
-};
-
-// Handles toggling popup visibility using the keyboard. and keyboard navigation while popup is
-// hidden.
-const handleKeyboardNavigation = (
-  block: BlockFromConfig<any, any, any>,
-  editor: BlockNoteEditor<any>,
-  isSourcePopupOpen: () => boolean,
-  setSourcePopupOpen: (open: boolean) => void,
-) => {
-  const handleKeyDown = (event: KeyboardEvent) => {
-    if (!editor.isEditable) {
-      return;
-    }
-
-    if (editor.getTextCursorPosition().block.id !== block.id) {
-      return;
-    }
-
-    // Toggles popup visibility.
-    if (event.key === "Enter") {
-      editor.setTextCursorPosition(block.id, "end");
-      setSourcePopupOpen(!isSourcePopupOpen());
-
-      event.preventDefault();
-      event.stopImmediatePropagation();
-
-      return;
-    }
-
-    // Hides popup.
-    if (event.key === "Escape") {
-      if (!isSourcePopupOpen()) {
-        return;
-      }
-
-      editor.setTextCursorPosition(block.id, "end");
-      setSourcePopupOpen(false);
-
-      event.preventDefault();
-      event.stopImmediatePropagation();
-
-      return;
-    }
-
-    // While popup is hidden, moves selection straight to previous/next block.
-    if (
-      (event.key === "ArrowUp" ||
-        event.key === "ArrowDown" ||
-        event.key === "ArrowLeft" ||
-        event.key === "ArrowRight") &&
-      !event.ctrlKey &&
-      !event.metaKey
-    ) {
-      if (isSourcePopupOpen()) {
-        return;
-      }
-
-      const direction =
-        event.key === "ArrowUp" || event.key === "ArrowLeft" ? "prev" : "next";
-
-      const { prevBlock, nextBlock } = editor.getTextCursorPosition();
-      const targetBlock = direction === "prev" ? prevBlock : nextBlock;
-      if (!targetBlock) {
-        return;
-      }
-
-      editor.setTextCursorPosition(
-        targetBlock.id,
-        direction === "prev" ? "end" : "start",
-      );
-
-      event.preventDefault();
-      event.stopImmediatePropagation();
-    }
-
-    // While popup is hidden, prevents editing of block content.
-    // TODO: This doesn't account for all cases, e.g. cut/paste with Cmd+X/Cmd+V.
-    if (
-      (event.key.length === 1 && !event.ctrlKey && !event.metaKey) ||
-      event.key === "Backspace" ||
-      event.key === "Delete" ||
-      event.key === "Tab"
-    ) {
-      if (isSourcePopupOpen()) {
-        return;
-      }
-
-      event.preventDefault();
-      event.stopImmediatePropagation();
-    }
-  };
-
-  editor.domElement?.addEventListener("keydown", handleKeyDown, true);
-
-  return {
-    destroy: () =>
-      editor.domElement?.removeEventListener("keydown", handleKeyDown, true),
-  };
-};
-
-// Handles opening the popup when clicking the preview.
-const handlePreviewMouseDown = (
-  block: BlockFromConfig<any, any, any>,
-  editor: BlockNoteEditor<any>,
-  preview: HTMLElement,
-  setSourcePopupOpen: (open: boolean) => void,
-) => {
-  const handleMouseDown = (event: MouseEvent) => {
-    if (!editor.isEditable) {
-      return;
-    }
-
-    setSourcePopupOpen(true);
-
-    event.preventDefault();
-    event.stopPropagation();
-
-    editor.setTextCursorPosition(block.id, "end");
-    editor.focus();
-  };
-
-  preview.addEventListener("mousedown", handleMouseDown);
-
-  return {
-    destroy: () => preview.removeEventListener("mousedown", handleMouseDown),
-  };
-};
-
-// Handles closing the popup when selection moves outside of the block, and makes the block appear
-// selected while the selection is anywhere inside it.
-const handleSelectionChange = (
-  block: BlockFromConfig<any, any, any>,
-  editor: BlockNoteEditor<any>,
-  container: HTMLElement,
-  isSourcePopupOpen: () => boolean,
-  setSourcePopupOpen: (open: boolean) => void,
-) => {
-  const destroy = editor.onSelectionChange((editor) => {
-    const blockContent = container.closest(".bn-block-content");
-
-    if (editor.getTextCursorPosition().block.id !== block.id) {
-      if (isSourcePopupOpen()) {
-        setSourcePopupOpen(false);
-      }
-
-      // Sets selected block styles.
-      if (
-        blockContent &&
-        blockContent.classList.contains("ProseMirror-selectednode")
-      ) {
-        blockContent.classList.remove("ProseMirror-selectednode");
-      }
-    } else {
-      if (
-        blockContent &&
-        !blockContent.classList.contains("ProseMirror-selectednode")
-      ) {
-        blockContent.classList.add("ProseMirror-selectednode");
-      }
-    }
-  });
-
-  return { destroy };
 };
 
 // Renders a preview which can be clicked to show the block's inline content as code in a popup,
@@ -277,32 +114,39 @@ export const createSourceBlockWithPreview = (
 
   previewWithSourcePopup.appendChild(sourceBlockPopup);
 
-  const isSourcePopupOpen = () =>
-    previewWithSourcePopup.dataset.open === "true";
-  const setSourcePopupOpen = (open: boolean) =>
-    (previewWithSourcePopup.dataset.open = open ? "true" : "false");
+  const store = editor.getExtension(SourceBlockPreviewExtension)?.store;
 
-  const keyboardNavigationHandler = handleKeyboardNavigation(
-    block,
-    editor,
-    isSourcePopupOpen,
-    setSourcePopupOpen,
-  );
+  // Sync the popup's initial open state so it survives a re-render (the block's
+  // DOM isn't mounted yet, so the selected class is left to `updateFromStore`).
+  previewWithSourcePopup.dataset.open =
+    store?.state.popupOpen === block.id ? "true" : "false";
 
-  const previewMouseDownHandler = handlePreviewMouseDown(
-    block,
-    editor,
-    previewContainer,
-    setSourcePopupOpen,
-  );
+  const unsubscribeFromStore = store?.subscribe(() => {
+    previewWithSourcePopup.dataset.open =
+      store?.state.popupOpen === block.id ? "true" : "false";
+    previewWithSourcePopup
+      .closest(".bn-block-content")
+      ?.classList.toggle(
+        "ProseMirror-selectednode",
+        store?.state.selected === block.id,
+      );
+  });
 
-  const selectionMoveOutHandler = handleSelectionChange(
-    block,
-    editor,
-    previewWithSourcePopup,
-    isSourcePopupOpen,
-    setSourcePopupOpen,
-  );
+  // Opens the popup when clicking the preview.
+  const handleMouseDown = (event: MouseEvent) => {
+    if (!editor.isEditable) {
+      return;
+    }
+
+    store?.setState((state) => ({ ...state, popupOpen: block.id }));
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    editor.setTextCursorPosition(block.id, "end");
+    editor.focus();
+  };
+  previewContainer.addEventListener("mousedown", handleMouseDown);
 
   return {
     dom: previewWithSourcePopup,
@@ -353,9 +197,8 @@ export const createSourceBlockWithPreview = (
     },
     destroy: () => {
       sourceBlock.destroy();
-      keyboardNavigationHandler.destroy();
-      previewMouseDownHandler.destroy();
-      selectionMoveOutHandler.destroy();
+      unsubscribeFromStore?.();
+      previewContainer.removeEventListener("mousedown", handleMouseDown);
     },
   };
 };
