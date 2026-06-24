@@ -759,30 +759,69 @@ div[data-type="modification"] {
   color: var(--user-color-light);
 }
 
-.bn-root ins[data-description]:hover::after,
-.bn-root del[data-description]:hover::after {
-  content: attr(data-description);
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  margin-bottom: 4px;
-  padding: 0px 2px;
-  font-weight: bold;
-  background-color: var(--user-color-dark);
-  color: white;
-  border-radius: 4px;
-  font-size: 12px;
-  white-space: nowrap;
-  pointer-events: none;
-  z-index: 1000;
+/*
+In the editor the <ins>/<del> mark wrapper is rendered with `display: contents`
+(see SuggestionMarks.ts) so it never affects layout (e.g. table cells). Because a
+`display: contents` element paints nothing, the highlight is applied to the inner
+content span instead, using the `--user-color-*` properties that cascade down
+from the wrapper. The `.bn-root ins, .bn-root del` rules above still style
+serialized/static output, where the wrapper is a real, painted box.
+*/
+.bn-suggestion-mark {
+  background-color: var(--user-color-light);
+  color: var(--user-color-dark);
 }
 
-.dark.bn-root ins[data-description]:hover::after,
-.dark.bn-root del[data-description]:hover::after {
+.dark.bn-root .bn-suggestion-mark {
   background-color: var(--user-color-dark);
+  color: var(--user-color-light);
+}
+
+/*
+Block-level (over a node) suggestion marks. The `.bn-suggestion-node` span is
+`display: contents` so it can't paint a background itself; instead the wrapped
+nodes (its children — e.g. <p>/<td>/<tr>) carry the highlight. These marks get a
+background highlight only (no tooltip), to distinguish them from inline marks.
+*/
+.bn-suggestion-node > * {
+  background-color: var(--user-color-light);
+}
+
+.dark.bn-root .bn-suggestion-node > * {
+  background-color: var(--user-color-dark);
+}
+
+.bn-suggestion-mark--delete {
+  text-decoration: line-through;
+}
+
+.bn-suggestion-mark--delete:hover {
+  text-decoration-line: overline;
+}
+
+/*
+Attribution tooltip for suggestion marks (<ins> / <del>). Positioned manually
+and portaled to <body> (see SuggestionMarks.ts), so it floats above the document
+instead of being clipped by an ancestor's overflow (e.g. a table cell). The
+background color is set inline from the mark's user color; only the static
+styling lives here.
+*/
+.bn-suggestion-tooltip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: max-content;
+  max-width: calc(100vw - 8px);
+  padding: 0 4px;
+  font-weight: bold;
+  font-size: 12px;
   color: white;
+  background-color: rgb(35, 35, 35);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10000;
 }
 
 .bn-root del {
