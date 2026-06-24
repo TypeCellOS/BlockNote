@@ -43,24 +43,10 @@ export interface VersionSnapshot {
   restoredFromSnapshotId?: string;
 }
 
-export type CreateSnapshotOptions = {
-  /**
-   * The optional name for this snapshot.
-   */
-  name?: string;
-  /**
-   * The ID of the snapshot this one was restored from, if applicable.
-   */
-  restoredFromSnapshotId?: string;
-};
-
-export type PreviewSnapshotOptions = {
-  /**
-   * When set, the preview shows a diff against this snapshot (typically the
-   * chronologically previous version in the history list).
-   */
-  compareTo?: string;
-};
+/**
+ * Identifier for a single {@link VersionSnapshot}, either as a single identifier or the whole reference
+ */
+export type VersionSnapshotIdentifier = string | Pick<VersionSnapshot, "id">;
 
 /**
  * Defines the contract for versioning operations, including listing snapshots,
@@ -90,24 +76,33 @@ export interface VersioningEndpoints<I = any, O = any, A = any> {
    */
   create?: (
     fragment: I,
-    options?: CreateSnapshotOptions,
+    options?: {
+      /**
+       * The optional name for this snapshot.
+       */
+      name?: string;
+      /**
+       * The ID of the snapshot this one was restored from, if applicable.
+       */
+      restoredFromSnapshot?: VersionSnapshot;
+    },
   ) => Promise<VersionSnapshot>;
   /**
    * Restore the current document to the provided snapshot. Implementations
    * should create any backup / audit snapshots they need before returning.
    *
-   * @param doc  - The current document state (used by some implementations to
+   * @param doc The current document state (used by some implementations to
    *   create a backup snapshot before restoring).
-   * @param id   - The identifier of the snapshot to restore.
+   * @param snapshot The identifier of the snapshot to restore.
    *
    * @note if not provided, the UI will not allow the user to restore a
    * snapshot.
    */
-  restore?: (doc: I, id: string) => Promise<O>;
+  restore?: (doc: I, snapshot: VersionSnapshot) => Promise<O>;
   /**
    * Fetch the contents of a snapshot. Used for previewing before restore.
    */
-  getContent: (id: string) => Promise<O>;
+  getContent: (snapshot: VersionSnapshot) => Promise<O>;
   /**
    * Fetch optional attribution data describing *who* authored each change and
    * *when*, for the diff between a snapshot and the version it is compared
@@ -115,20 +110,26 @@ export interface VersioningEndpoints<I = any, O = any, A = any> {
    * timestamp tooltips on inserted/deleted content) when previewing a version.
    *
    * @param id          - The identifier of the snapshot being previewed.
-   * @param compareToId - When previewing a diff, the identifier of the baseline
+   * @param compareTo - When previewing a diff, the identifier of the baseline
    *   snapshot the diff is computed against. Implementations may need both ends
    *   of the range to resolve attributions.
    *
    * @note if not provided, version previews still render the content diff, but
    * without author/timestamp attribution information.
    */
-  getAttributions?: (id: string, compareToId?: string) => Promise<A>;
+  getAttributions?: (
+    snapshot: VersionSnapshot,
+    compareTo?: VersionSnapshot,
+  ) => Promise<A>;
   /**
    * Update the name of a snapshot.
    *
    * @note if not provided, the UI will not allow the user to update the name.
    */
-  updateSnapshotName?: (id: string, name?: string) => Promise<void>;
+  updateSnapshotName?: (
+    snapshot: VersionSnapshot,
+    name?: string,
+  ) => Promise<void>;
 }
 
 /**
@@ -202,6 +203,13 @@ export type VersioningExtensionOptions<I = any, O = any, A = any> = {
   getCurrentState: () => I;
 };
 
+function snapshotNotFoundError(
+  id: VersionSnapshotIdentifier | undefined,
+): never {
+  const idResolved = typeof id === "object" ? id.id : id;
+  throw new Error(`Snapshot not found: ${idResolved}`);
+}
+
 export const VersioningExtension = createExtension(
   ({
     options: optionsOrFactory,
@@ -222,40 +230,65 @@ export const VersioningExtension = createExtension(
       previewedSnapshotId: undefined,
     });
 
+    const getSnapshot = (id: VersionSnapshotIdentifier | undefined) => {
+      const idResolved = typeof id === "object" ? id.id : id;
+      return store.state.snapshots.find(
+        (snapshot) => snapshot.id === idResolved,
+      );
+    };
+
     const updateSnapshots = async () => {
       const snapshots = sortSnapshotsNewestFirst(await endpoints.list());
       store.setState((state) => ({
         ...state,
         snapshots,
       }));
+
+      return snapshots;
     };
 
     const previewSnapshot = async (
-      id: string,
-      previewOptions?: PreviewSnapshotOptions,
+      id: VersionSnapshotIdentifier,
+      previewOptions?: {
+        /**
+         * When set, the preview shows a diff against this snapshot (typically the
+         * chronologically previous version in the history list).
+         */
+        compareTo?: VersionSnapshotIdentifier;
+      },
     ) => {
+      const snapshot = getSnapshot(id);
+
+      if (!snapshot) {
+        snapshotNotFoundError(id);
+      }
+
       store.setState((state) => ({
         ...state,
-        previewedSnapshotId: id,
+        previewedSnapshotId: snapshot.id,
       }));
 
       let compareToContent: unknown;
       let attributions: unknown;
       if (previewOptions?.compareTo) {
-        compareToContent = await endpoints.getContent(previewOptions.compareTo);
-        // Attributions describe the diff between the baseline and this
-        // snapshot, so they're only meaningful when comparing against another
-        // version. Fetching them is optional: previews still render the content
-        // diff without author/timestamp information when unavailable.
-        if (endpoints.getAttributions) {
-          attributions = await endpoints.getAttributions(
-            id,
-            previewOptions.compareTo,
-          );
+        const compareToSnapshot = getSnapshot(previewOptions.compareTo);
+
+        if (compareToSnapshot) {
+          compareToContent = await endpoints.getContent(compareToSnapshot);
+          // Attributions describe the diff between the baseline and this
+          // snapshot, so they're only meaningful when comparing against another
+          // version. Fetching them is optional: previews still render the content
+          // diff without author/timestamp information when unavailable.
+          if (endpoints.getAttributions) {
+            attributions = await endpoints.getAttributions(
+              snapshot,
+              compareToSnapshot,
+            );
+          }
         }
       }
 
-      const snapshotContent = await endpoints.getContent(id);
+      const snapshotContent = await endpoints.getContent(snapshot);
       preview.enterPreview(snapshotContent, compareToContent, attributions);
     };
 
@@ -271,16 +304,24 @@ export const VersioningExtension = createExtension(
       key: "versioning",
       store,
       listSnapshots: async (): Promise<VersionSnapshot[]> => {
-        await updateSnapshots();
-        return store.state.snapshots;
+        return await updateSnapshots();
       },
       canCreateSnapshot: endpoints.create !== undefined,
       createSnapshot: endpoints.create
-        ? async (options?: CreateSnapshotOptions): Promise<VersionSnapshot> => {
-            const snapshot = await endpoints.create!(
-              getCurrentState(),
-              options,
-            );
+        ? async (options?: {
+            /**
+             * The optional name for this snapshot.
+             */
+            name?: string;
+            /**
+             * The ID of the snapshot this one was restored from, if applicable.
+             */
+            restoredFromSnapshot?: VersionSnapshotIdentifier;
+          }): Promise<VersionSnapshot> => {
+            const snapshot = await endpoints.create!(getCurrentState(), {
+              name: options?.name,
+              restoredFromSnapshot: getSnapshot(options?.restoredFromSnapshot),
+            });
             store.setState((state) => ({
               ...state,
               snapshots: sortSnapshotsNewestFirst([
@@ -293,11 +334,16 @@ export const VersioningExtension = createExtension(
         : undefined,
       canRestoreSnapshot: endpoints.restore !== undefined,
       restoreSnapshot: endpoints.restore
-        ? async (id: string) => {
+        ? async (id: VersionSnapshotIdentifier) => {
             exitPreview();
+            const snapshot = getSnapshot(id);
+
+            if (!snapshot) {
+              snapshotNotFoundError(id);
+            }
             const snapshotContent = await endpoints.restore!(
               getCurrentState(),
-              id,
+              snapshot,
             );
             preview.applyRestore(snapshotContent);
             await updateSnapshots();
@@ -306,8 +352,15 @@ export const VersioningExtension = createExtension(
         : undefined,
       canUpdateSnapshotName: endpoints.updateSnapshotName !== undefined,
       updateSnapshotName: endpoints.updateSnapshotName
-        ? async (id: string, name?: string): Promise<void> => {
-            await endpoints.updateSnapshotName!(id, name);
+        ? async (
+            id: VersionSnapshotIdentifier,
+            name?: string,
+          ): Promise<void> => {
+            const snapshot = getSnapshot(id);
+            if (!snapshot) {
+              snapshotNotFoundError(id);
+            }
+            await endpoints.updateSnapshotName!(snapshot, name);
             store.setState((state) => ({
               ...state,
               snapshots: state.snapshots.map((s) =>

@@ -178,6 +178,7 @@ export function DocumentEditor({
   // than only changes made during this session.
   const versioning = useExtension(VersioningExtension, { editor });
   useEffect(() => {
+    versioning.listSnapshots();
     const interval = setInterval(() => {
       versioning.listSnapshots();
     }, 10000);

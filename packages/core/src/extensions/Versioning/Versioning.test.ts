@@ -85,6 +85,10 @@ function setup(opts?: {
     const snapshot = await endpoints.create!(blocks, { name });
     // Restore original text.
     editor.replaceBlocks(editor.document, savedBlocks);
+    // Refresh the store so the extension can resolve the seeded snapshot by id
+    // (preview/restore look snapshots up in the store, as the UI would after
+    // listing).
+    await ext.listSnapshots();
     return snapshot;
   };
 

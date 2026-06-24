@@ -94,10 +94,10 @@ export function createInMemoryVersioningEndpoints(): VersioningEndpoints<
       return snapshot;
     },
 
-    async restore(currentDoc, id) {
-      const snapshotContent = contents.get(id);
+    async restore(currentDoc, snapshot) {
+      const snapshotContent = contents.get(snapshot.id);
       if (!snapshotContent) {
-        throw new Error(`Snapshot ${id} not found`);
+        throw new Error(`Snapshot ${snapshot.id} not found`);
       }
 
       // Create a "Restored from …" snapshot of the current state before
@@ -109,7 +109,7 @@ export function createInMemoryVersioningEndpoints(): VersioningEndpoints<
         name: "Before restore",
         createdAt: now,
         updatedAt: now,
-        restoredFromSnapshotId: id,
+        restoredFromSnapshotId: snapshot.id,
       };
       snapshots.push(backup);
       contents.set(backupId, structuredClone(currentDoc));
@@ -117,21 +117,21 @@ export function createInMemoryVersioningEndpoints(): VersioningEndpoints<
       return structuredClone(snapshotContent);
     },
 
-    async getContent(id) {
-      const content = contents.get(id);
+    async getContent(snapshot) {
+      const content = contents.get(snapshot.id);
       if (!content) {
-        throw new Error(`Snapshot ${id} not found`);
+        throw new Error(`Snapshot ${snapshot.id} not found`);
       }
       return structuredClone(content);
     },
 
-    async updateSnapshotName(id, name) {
-      const snapshot = snapshots.find((s) => s.id === id);
-      if (!snapshot) {
-        throw new Error(`Snapshot ${id} not found`);
+    async updateSnapshotName(snapshot, name) {
+      const stored = snapshots.find((s) => s.id === snapshot.id);
+      if (!stored) {
+        throw new Error(`Snapshot ${snapshot.id} not found`);
       }
-      snapshot.name = name;
-      snapshot.updatedAt = Date.now();
+      stored.name = name;
+      stored.updatedAt = Date.now();
     },
   };
 }

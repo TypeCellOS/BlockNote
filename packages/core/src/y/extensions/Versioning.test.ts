@@ -40,20 +40,20 @@ function createInMemoryYjsEndpoints(): VersioningEndpoints<Y.Type, Uint8Array> {
         name: options?.name,
         createdAt: Date.now(),
         updatedAt: Date.now(),
-        restoredFromSnapshotId: options?.restoredFromSnapshotId,
+        restoredFromSnapshotId: options?.restoredFromSnapshot?.id,
       };
       contents.set(snapshot.id, Y.encodeStateAsUpdateV2(fragment.doc!));
       snapshots.set(snapshot.id, snapshot);
       return snapshot;
     },
-    getContent: async (id) => {
-      const data = contents.get(id);
+    getContent: async (snapshot) => {
+      const data = contents.get(snapshot.id);
       if (!data) {
-        throw new Error(`Snapshot ${id} not found`);
+        throw new Error(`Snapshot ${snapshot.id} not found`);
       }
       return data;
     },
-    restore: async (fragment, id) => {
+    restore: async (fragment, snapshot) => {
       // Create backup
       const backup = {
         id: crypto.randomUUID(),
@@ -64,7 +64,7 @@ function createInMemoryYjsEndpoints(): VersioningEndpoints<Y.Type, Uint8Array> {
       contents.set(backup.id, Y.encodeStateAsUpdateV2(fragment.doc!));
       snapshots.set(backup.id, backup);
 
-      const snapshotContent = contents.get(id)!;
+      const snapshotContent = contents.get(snapshot.id)!;
       const tempDoc = new Y.Doc();
       Y.applyUpdateV2(tempDoc, snapshotContent);
 
@@ -73,7 +73,7 @@ function createInMemoryYjsEndpoints(): VersioningEndpoints<Y.Type, Uint8Array> {
         name: "Restored Snapshot",
         createdAt: Date.now(),
         updatedAt: Date.now(),
-        restoredFromSnapshotId: id,
+        restoredFromSnapshotId: snapshot.id,
       };
       contents.set(restored.id, Y.encodeStateAsUpdateV2(tempDoc));
       snapshots.set(restored.id, restored);
@@ -81,10 +81,10 @@ function createInMemoryYjsEndpoints(): VersioningEndpoints<Y.Type, Uint8Array> {
 
       return snapshotContent;
     },
-    updateSnapshotName: async (id, name) => {
-      const s = snapshots.get(id);
+    updateSnapshotName: async (snapshot, name) => {
+      const s = snapshots.get(snapshot.id);
       if (!s) {
-        throw new Error(`Snapshot ${id} not found`);
+        throw new Error(`Snapshot ${snapshot.id} not found`);
       }
       s.name = name;
       s.updatedAt = Date.now();

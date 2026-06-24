@@ -58,7 +58,7 @@ describe("createInMemoryVersioningEndpoints", () => {
     expect(snap.name).toBe("v1");
     expect(snap.id).toBeDefined();
 
-    const content = await endpoints.getContent(snap.id);
+    const content = await endpoints.getContent(snap);
     expect(content).toEqual(blocks);
     // Content is a deep clone, not a reference
     expect(content).not.toBe(blocks);
@@ -120,7 +120,7 @@ describe("createInMemoryVersioningEndpoints", () => {
         children: [],
       },
     ];
-    const restored = await endpoints.restore!(currentDoc, snap.id);
+    const restored = await endpoints.restore!(currentDoc, snap);
 
     expect(restored).toEqual(original);
 
@@ -131,7 +131,7 @@ describe("createInMemoryVersioningEndpoints", () => {
     expect(backup).toBeDefined();
 
     // The backup contains the current (pre-restore) doc
-    const backupContent = await endpoints.getContent(backup!.id);
+    const backupContent = await endpoints.getContent(backup!);
     expect(backupContent).toEqual(currentDoc);
   });
 
@@ -150,7 +150,7 @@ describe("createInMemoryVersioningEndpoints", () => {
       { name: "old" },
     );
 
-    await endpoints.updateSnapshotName!(snap.id, "new");
+    await endpoints.updateSnapshotName!(snap, "new");
 
     const list = await endpoints.list();
     expect(list.find((s) => s.id === snap.id)!.name).toBe("new");
@@ -158,9 +158,10 @@ describe("createInMemoryVersioningEndpoints", () => {
 
   it("throws for unknown snapshot ID", async () => {
     const endpoints = createInMemoryVersioningEndpoints();
-    await expect(endpoints.getContent("nope")).rejects.toThrow(/not found/i);
-    await expect(endpoints.restore!([], "nope")).rejects.toThrow(/not found/i);
-    await expect(endpoints.updateSnapshotName!("nope", "x")).rejects.toThrow(
+    const missing = { id: "nope", createdAt: 0, updatedAt: 0 };
+    await expect(endpoints.getContent(missing)).rejects.toThrow(/not found/i);
+    await expect(endpoints.restore!([], missing)).rejects.toThrow(/not found/i);
+    await expect(endpoints.updateSnapshotName!(missing, "x")).rejects.toThrow(
       /not found/i,
     );
   });

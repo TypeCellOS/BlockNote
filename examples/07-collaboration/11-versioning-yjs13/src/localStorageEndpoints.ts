@@ -2,7 +2,6 @@ import * as Y from "yjs";
 import { toBase64, fromBase64 } from "lib0/buffer";
 
 import {
-  type CreateSnapshotOptions,
   sortSnapshotsNewestFirst,
   type VersioningEndpoints,
   type VersionSnapshot,
@@ -52,16 +51,16 @@ export function createLocalStorageVersioningEndpoints(
     Uint8Array
   >["list"] = async () => readSnapshots(storageKey);
 
-  const createSnapshot = async (
-    fragment: Y.XmlFragment,
-    options?: CreateSnapshotOptions,
-  ): Promise<VersionSnapshot> => {
+  const createSnapshot: VersioningEndpoints<
+    Y.XmlFragment,
+    Uint8Array
+  >["create"] = async (fragment, options) => {
     const snapshot = {
       id: crypto.randomUUID(),
       name: options?.name,
       createdAt: Date.now(),
       updatedAt: Date.now(),
-      restoredFromSnapshotId: options?.restoredFromSnapshotId,
+      restoredFromSnapshotId: options?.restoredFromSnapshot?.id,
     } satisfies VersionSnapshot;
 
     const contents = readContents(storageKey);
@@ -76,10 +75,10 @@ export function createLocalStorageVersioningEndpoints(
   const fetchSnapshotContent: VersioningEndpoints<
     Y.XmlFragment,
     Uint8Array
-  >["getContent"] = async (id) => {
-    const encoded = readContents(storageKey)[id];
+  >["getContent"] = async (snapshot) => {
+    const encoded = readContents(storageKey)[snapshot.id];
     if (encoded === undefined) {
-      throw new Error(`Document snapshot ${id} could not be found.`);
+      throw new Error(`Document snapshot ${snapshot.id} could not be found.`);
     }
     return fromBase64(encoded);
   };
@@ -87,16 +86,16 @@ export function createLocalStorageVersioningEndpoints(
   const restoreSnapshot: VersioningEndpoints<
     Y.XmlFragment,
     Uint8Array
-  >["restore"] = async (fragment, id) => {
+  >["restore"] = async (fragment, snapshot) => {
     await createSnapshot(fragment, { name: "Backup" });
 
-    const snapshotContent = await fetchSnapshotContent(id);
+    const snapshotContent = await fetchSnapshotContent(snapshot);
     const yDoc = new Y.Doc();
     Y.applyUpdate(yDoc, snapshotContent);
 
     await createSnapshot(yDoc.getXmlFragment("document-store"), {
       name: "Restored Snapshot",
-      restoredFromSnapshotId: id,
+      restoredFromSnapshot: snapshot,
     });
 
     return snapshotContent;
@@ -105,15 +104,15 @@ export function createLocalStorageVersioningEndpoints(
   const updateSnapshotName: VersioningEndpoints<
     Y.XmlFragment,
     Uint8Array
-  >["updateSnapshotName"] = async (id, name) => {
+  >["updateSnapshotName"] = async (snapshot, name) => {
     const snapshots = readSnapshots(storageKey);
-    const snapshot = snapshots.find((s) => s.id === id);
-    if (snapshot === undefined) {
-      throw new Error(`Document snapshot ${id} could not be found.`);
+    const stored = snapshots.find((s) => s.id === snapshot.id);
+    if (stored === undefined) {
+      throw new Error(`Document snapshot ${snapshot.id} could not be found.`);
     }
 
-    snapshot.name = name;
-    snapshot.updatedAt = Date.now();
+    stored.name = name;
+    stored.updatedAt = Date.now();
     writeSnapshots(storageKey, snapshots);
   };
 
