@@ -95,17 +95,20 @@ export async function setupConcurrentSuggestionTest({
   userBAction,
 }: ConcurrentSuggestionFixtureOptions): Promise<ConcurrentSuggestionFixture> {
   const baseDoc = new Y.Doc();
+  baseDoc.clientID = 1;
   const suggestionDocA = new Y.Doc({ isSuggestionDoc: true });
+  suggestionDocA.clientID = 2;
   const suggestionDocB = new Y.Doc({ isSuggestionDoc: true });
+  suggestionDocB.clientID = 3;
   const suggestionDocMerged = new Y.Doc({ isSuggestionDoc: true });
+  suggestionDocMerged.clientID = 4;
 
-  // `Y.Doc.clientID` is randomly generated and CRDT tiebreaks on it,
-  // so concurrent edits that touch the same logical position can
-  // converge to different shapes between runs. We deliberately do
-  // NOT pin clientIDs here – any test whose merge result depends on
-  // tiebreaking is therefore flaky on purpose, so the underlying
-  // non-determinism stays visible. Skip or `.fails`-mark those tests
-  // explicitly rather than papering over them.
+  // `Y.Doc.clientID` is normally randomly generated, and CRDT tiebreaks
+  // on it – so concurrent edits that touch the same logical position can
+  // converge to different shapes between runs. We pin stable clientIDs
+  // (base=1, A=2, B=3, merged=4) above so tiebreaking is deterministic
+  // and the merged result is stable across runs, making these tests
+  // reliable to snapshot.
 
   const managerA = Y.createAttributionManagerFromDiff(baseDoc, suggestionDocA, {
     attrs: new Y.Attributions(),

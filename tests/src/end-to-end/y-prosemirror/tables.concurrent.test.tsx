@@ -1360,7 +1360,7 @@ test("sequential: A adds a column then a row, B adds a column", async () => {
               textAlignment="left"
               textColor="default"
             >
-              <tableParagraph>D1</tableParagraph>
+              <tableParagraph>C1</tableParagraph>
             </tableCell>
             <tableCell
               backgroundColor="default"
@@ -1370,7 +1370,7 @@ test("sequential: A adds a column then a row, B adds a column", async () => {
               textAlignment="left"
               textColor="default"
             >
-              <tableParagraph>C1</tableParagraph>
+              <tableParagraph>D1</tableParagraph>
             </tableCell>
           </tableRow>
           <tableRow>
@@ -1402,7 +1402,7 @@ test("sequential: A adds a column then a row, B adds a column", async () => {
               textAlignment="left"
               textColor="default"
             >
-              <tableParagraph>D2</tableParagraph>
+              <tableParagraph>C2</tableParagraph>
             </tableCell>
             <tableCell
               backgroundColor="default"
@@ -1412,7 +1412,7 @@ test("sequential: A adds a column then a row, B adds a column", async () => {
               textAlignment="left"
               textColor="default"
             >
-              <tableParagraph>C2</tableParagraph>
+              <tableParagraph>D2</tableParagraph>
             </tableCell>
           </tableRow>
           <tableRow>
@@ -1507,7 +1507,7 @@ test("sequential: A adds a column then a row, B adds a column", async () => {
                         userIds=""
                         user-color-light="#fff0c2"
                         user-color-dark="#8a6d1a"
-                      >D1</y-attributed-insert>
+                      >C1</y-attributed-insert>
                     </tableParagraph>
                   </y-attributed-insert>
                 </tableCell>
@@ -1534,7 +1534,7 @@ test("sequential: A adds a column then a row, B adds a column", async () => {
                         userIds=""
                         user-color-light="#fff0c2"
                         user-color-dark="#8a6d1a"
-                      >C1</y-attributed-insert>
+                      >D1</y-attributed-insert>
                     </tableParagraph>
                   </y-attributed-insert>
                 </tableCell>
@@ -1581,7 +1581,7 @@ test("sequential: A adds a column then a row, B adds a column", async () => {
                         userIds=""
                         user-color-light="#fff0c2"
                         user-color-dark="#8a6d1a"
-                      >D2</y-attributed-insert>
+                      >C2</y-attributed-insert>
                     </tableParagraph>
                   </y-attributed-insert>
                 </tableCell>
@@ -1608,7 +1608,7 @@ test("sequential: A adds a column then a row, B adds a column", async () => {
                         userIds=""
                         user-color-light="#fff0c2"
                         user-color-dark="#8a6d1a"
-                      >C2</y-attributed-insert>
+                      >D2</y-attributed-insert>
                     </tableParagraph>
                   </y-attributed-insert>
                 </tableCell>
