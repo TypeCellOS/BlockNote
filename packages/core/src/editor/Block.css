@@ -22,7 +22,9 @@ BASIC STYLES
 
 .bn-block-content.ProseMirror-selectednode > *,
 /* Case for node view renderers */
-.ProseMirror-selectednode > .bn-block-content > * {
+.ProseMirror-selectednode > .bn-block-content > *,
+/* Case for inline content (e.g. while the text cursor is within it) */
+.bn-inline-content .ProseMirror-selectednode {
   border-radius: 4px;
   outline: 4px solid rgb(100, 160, 255);
 }
@@ -557,6 +559,31 @@ block's "add file" button styling. */
 .bn-add-source-code-button-text {
   font-size: 0.9rem;
   margin: 0;
+}
+
+/* INLINE SOURCE CONTENT PREVIEW */
+/* Inline-content counterpart of the code block preview above. Reuses
+   `.bn-source-block-popup` and `.bn-code-block-source-error` for the popup. */
+.bn-inline-source-content {
+  /* Positioning context for the absolutely-positioned source popup, while
+     staying inline with the surrounding text. */
+  position: relative;
+  display: inline-block;
+}
+
+.bn-inline-source-preview {
+  cursor: pointer;
+}
+
+.bn-inline-source-content[data-open="true"] .bn-source-block-popup {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Shown in place of the preview when the source is empty. */
+.bn-inline-add-source {
+  cursor: pointer;
+  opacity: 0.5;
 }
 
 /* PAGE BREAK */

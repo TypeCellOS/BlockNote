@@ -1,5 +1,7 @@
 export * from "./block.js";
+export * from "./inlineContent/createInlineMathSpec.js";
 export * from "./helpers/getMathSource.js";
 export * from "./helpers/parse/parseMathML.js";
 export * from "./helpers/render/createMathPreview.js";
+export * from "./helpers/render/renderKatex.js";
 export * from "./helpers/toExternalHTML/createMathML.js";

@@ -2,9 +2,16 @@ import type { BlockFromConfig } from "@blocknote/core";
 import katex from "katex";
 import { getMathSource } from "../getMathSource.js";
 
-export const createMathML = (block: BlockFromConfig<any, any, any>) => {
-  const mathml = katex.renderToString(getMathSource(block), {
-    displayMode: true,
+/**
+ * Renders a LaTeX source string to a bare `<math>` (MathML) element for use
+ * outside the editor.
+ *
+ * @param source The LaTeX source to render.
+ * @param displayMode Whether to render in display (block) or inline mode.
+ */
+export const katexToMathML = (source: string, displayMode: boolean) => {
+  const mathml = katex.renderToString(source, {
+    displayMode,
     output: "mathml",
     throwOnError: false,
   });
@@ -18,3 +25,6 @@ export const createMathML = (block: BlockFromConfig<any, any, any>) => {
 
   return { dom: (math ?? wrapper.firstElementChild) as HTMLElement };
 };
+
+export const createMathML = (block: BlockFromConfig<any, any, any>) =>
+  katexToMathML(getMathSource(block), true);
