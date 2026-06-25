@@ -106,3 +106,4 @@ export * from "./YCursorPlugin.js";
 export * from "./YSync.js";
 export * from "./Versioning.js";
 export * from "./Suggestions.js";
+export * from "./snapshotBuilder.js";
