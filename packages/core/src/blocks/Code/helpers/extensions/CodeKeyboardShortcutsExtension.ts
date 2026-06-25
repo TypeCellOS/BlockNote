@@ -1,7 +1,7 @@
 import { createExtension } from "../../../../editor/BlockNoteExtension.js";
 import { CodeBlockOptions, getLanguageId } from "../../CodeBlockOptions.js";
 
-export const createCodeKeyboardShortcutsExtension =
+export const CodeKeyboardShortcutsExtension =
   (options: CodeBlockOptions) => (key: string, blockType: string) =>
     createExtension({
       key,

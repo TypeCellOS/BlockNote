@@ -4837,12 +4837,24 @@ importers:
         specifier: ^1.4.4
         version: 1.4.4
     devDependencies:
+      '@blocknote/react':
+        specifier: workspace:^
+        version: link:../react
       '@blocknote/xl-multi-column':
         specifier: workspace:^
         version: link:../xl-multi-column
       '@types/katex':
         specifier: ^0.16.7
         version: 0.16.8
+      '@types/react':
+        specifier: ^19.2.3
+        version: 19.2.14
+      react:
+        specifier: ^19.2.5
+        version: 19.2.5
+      react-dom:
+        specifier: ^19.2.5
+        version: 19.2.5(react@19.2.5)
       rimraf:
         specifier: ^5.0.10
         version: 5.0.10

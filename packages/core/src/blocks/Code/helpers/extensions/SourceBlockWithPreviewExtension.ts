@@ -5,7 +5,7 @@ import {
 } from "../../../../editor/BlockNoteExtension.js";
 import { Block } from "../../../index.js";
 
-export const SourceBlockPreviewExtension = createExtension(
+export const SourceBlockWithPreviewExtension = createExtension(
   ({
     editor,
     options: { key, blockType, hasPreview, runsBefore = [] },

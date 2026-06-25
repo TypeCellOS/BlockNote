@@ -4,8 +4,8 @@ import {
   parsePreCodeContent,
 } from "./helpers/parse/parsePreCode.js";
 import { createPreCode } from "./helpers/toExternalHTML/createPreCode.js";
-import { createCodeKeyboardShortcutsExtension } from "./helpers/extensions/createCodeKeyboardShortcutsExtension.js";
-import { SourceBlockPreviewExtension } from "./helpers/extensions/SourceBlockPreviewExtension.js";
+import { CodeKeyboardShortcutsExtension } from "./helpers/extensions/CodeKeyboardShortcutsExtension.js";
+import { SourceBlockWithPreviewExtension } from "./helpers/extensions/SourceBlockWithPreviewExtension.js";
 import { CodeBlockOptions } from "./CodeBlockOptions.js";
 import { createSourceBlockWithPreview } from "./helpers/render/createSourceBlockWithPreview.js";
 
@@ -50,11 +50,11 @@ export const createCodeBlockSpec = createBlockSpec(
   }),
   (options) => {
     return [
-      createCodeKeyboardShortcutsExtension(options)(
+      CodeKeyboardShortcutsExtension(options)(
         CODE_BLOCK_KEYBOARD_SHORTCUTS_KEY,
         "codeBlock",
       ),
-      SourceBlockPreviewExtension({
+      SourceBlockWithPreviewExtension({
         key: CODE_BLOCK_PREVIEW_KEY,
         blockType: "codeBlock",
         hasPreview: (block) =>

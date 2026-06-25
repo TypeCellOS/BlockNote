@@ -5,7 +5,7 @@ import {
   insertOrUpdateBlockForSlashMenu,
 } from "@blocknote/core/extensions";
 import { createHighlighter } from "@blocknote/code-block";
-import { createMathBlockSpec } from "@blocknote/math-block";
+import { createReactMathBlockSpec } from "@blocknote/math-block";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
@@ -20,7 +20,7 @@ import { TbMathFunction } from "react-icons/tb";
 const schema = BlockNoteSchema.create().extend({
   blockSpecs: {
     // Creates an instance of the Math block and adds it to the schema.
-    math: createMathBlockSpec(),
+    math: createReactMathBlockSpec(),
   },
 });
 

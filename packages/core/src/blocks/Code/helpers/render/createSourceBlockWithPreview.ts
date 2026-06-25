@@ -4,7 +4,7 @@ import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import type { BlockFromConfig, StyledText } from "../../../../schema/index.js";
 import { createSourceBlock } from "./createSourceBlock.js";
 import { CodeBlockPreview } from "../../CodeBlockOptions.js";
-import { SourceBlockPreviewExtension } from "../extensions/SourceBlockPreviewExtension.js";
+import { SourceBlockWithPreviewExtension } from "../extensions/SourceBlockWithPreviewExtension.js";
 
 // Element shown instead of the preview when block has no content.
 const createAddSourceButton = (editor: BlockNoteEditor<any>) => {
@@ -114,7 +114,7 @@ export const createSourceBlockWithPreview = (
 
   previewWithSourcePopup.appendChild(sourceBlockPopup);
 
-  const store = editor.getExtension(SourceBlockPreviewExtension)?.store;
+  const store = editor.getExtension(SourceBlockWithPreviewExtension)?.store;
 
   // Sync the popup's initial open state so it survives a re-render (the block's
   // DOM isn't mounted yet, so the selected class is left to `updateFromStore`).

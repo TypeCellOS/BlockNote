@@ -1,8 +1,8 @@
 import {
   createBlockConfig,
   createBlockSpec,
-  SourceBlockPreviewExtension,
   createSourceBlockWithPreview,
+  SourceBlockWithPreviewExtension,
 } from "@blocknote/core";
 import {
   parseMathML,
@@ -42,7 +42,7 @@ export const createMathBlockSpec = createBlockSpec(
   },
   [
     // Math blocks always render a preview.
-    SourceBlockPreviewExtension({
+    SourceBlockWithPreviewExtension({
       key: MATH_BLOCK_PREVIEW_KEY,
       blockType: "math",
       hasPreview: () => true,
