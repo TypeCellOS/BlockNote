@@ -2,6 +2,14 @@
   height: calc(100vh - 20px);
 }
 
+.wrapper.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  font-family: system-ui, sans-serif;
+}
+
 .wrapper > .bn-container {
   margin: 0;
   max-width: none;

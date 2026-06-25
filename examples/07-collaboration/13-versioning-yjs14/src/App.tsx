@@ -10,7 +10,7 @@ import {
   useExtension,
   useExtensionState,
 } from "@blocknote/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 
@@ -18,38 +18,89 @@ import * as Y from "@y/y";
 import { WebsocketProvider } from "@y/websocket";
 
 import { VersionHistorySidebar } from "./VersionHistorySidebar";
+import { seedSampleVersions } from "./sampleDocument";
 import "./style.css";
 
 // YHub serves both real-time sync (over WebSocket) and version history (over
 // HTTP) for the same document, so the backend URL, org, and docId are shared.
 const yhubHost = "yhub-standalone-x9kss.ondigitalocean.app";
 const org = "blocknote-versioning-yjs14";
-const docId = `blocknote-versioning-yjs-example-${Math.floor(Date.now() / 86400000)}`;
-
-const doc = new Y.Doc();
-// YHub expects clients to connect to `/ws/{org}/{docId}`. WebsocketProvider
-// joins its base URL and room with a slash, so the room is `{org}/{docId}`.
-const provider = new WebsocketProvider(
-  `wss://${yhubHost}/ws`,
-  `${org}/${docId}`,
-  doc,
-);
-// provider.connectBc();
+const docId = `blocknote-versioning-yjs14-${Math.floor(Date.now())}`;
 
 // YHub-backed versioning endpoints. YHub stores continuous edit history and
 // exposes its activity timeline as versions through BlockNote's versioning UI.
+// Constructing this opens no connection, so it's safe to do before seeding.
 const versioningEndpoints = createYHubVersioningEndpoints({
   baseUrl: `https://${yhubHost}`,
   org,
   docId,
 });
 
+const doc = new Y.Doc();
+const provider = new WebsocketProvider(
+  `wss://${yhubHost}/ws`,
+  `${org}/${docId}`,
+  doc,
+);
+
+const preparePromise: Promise<void> = (async () => {
+  // Wait for the server's existing content (if any) to load.
+  if (!provider.synced) {
+    await new Promise((resolve) => provider.once("sync", resolve));
+  }
+
+  // Seed only when the synced document is genuinely empty.
+  if (!(doc.get("bn").length > 0)) {
+    provider.disconnect();
+    await seedSampleVersions({
+      baseUrl: `https://${yhubHost}`,
+      org,
+      docId,
+      fragment: "bn",
+    });
+    provider.connect();
+  }
+})();
+
+/**
+ * Gate: prepare the document (seed + connect + first sync) BEFORE creating the
+ * editor, so the editor adopts the synced content instead of writing a competing
+ * initial blockGroup.
+ */
 export default function App() {
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    void preparePromise
+      .then(() => {
+        if (!cancelled) {
+          setReady(true);
+        }
+      })
+      .catch(() => {
+        /* error already logged in prepareDocument */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (!ready) {
+    return <div className="wrapper loading">Preparing document…</div>;
+  }
+
+  return <VersionedEditor />;
+}
+
+function VersionedEditor() {
+  // The provider is already connected and synced (see `prepareDocument`), and
+  // the local `doc` holds the server's content, so the editor adopts it.
   const editor = useCreateBlockNote(
     withCollaboration({
       collaboration: {
-        provider,
-        fragment: doc.get(),
+        provider: provider ?? undefined,
+        fragment: doc.get("bn"),
         user: { color: "#ff0000", name: "User" },
         // Pass versioningEndpoints to the v14 CollaborationExtension which
         // automatically wires up the VersioningExtension with the Yjs adapter.
@@ -62,12 +113,15 @@ export default function App() {
     editor,
   });
 
-  // The versioning store starts empty on every page load, so fetch the list of
-  // versions from YHub once when the editor mounts. Without this, the sidebar
-  // only shows versions created during the current session.
   const versioning = useExtension(VersioningExtension, { editor });
   useEffect(() => {
-    void versioning.listSnapshots();
+    versioning.listSnapshots();
+    const interval = setInterval(() => {
+      versioning.listSnapshots();
+    }, 10000);
+    return () => {
+      clearInterval(interval);
+    };
   }, [versioning]);
 
   return (
