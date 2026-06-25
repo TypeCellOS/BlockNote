@@ -780,8 +780,9 @@ serialized/static output, where the wrapper is a real, painted box.
 /*
 Block-level (over a node) suggestion marks. The `.bn-suggestion-node` span is
 `display: contents` so it can't paint a background itself; instead the wrapped
-nodes (its children — e.g. <p>/<td>/<tr>) carry the highlight. These marks get a
-background highlight only (no tooltip), to distinguish them from inline marks.
+nodes (its children — e.g. <p>/<td>/<tr>) carry the highlight. Like inline marks
+they also show an attribution tooltip on hover (handled in JS, see
+SuggestionMarks.ts).
 */
 .bn-suggestion-node > * {
   background-color: var(--user-color-light);

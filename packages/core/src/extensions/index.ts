@@ -16,6 +16,7 @@ export * from "./SuggestionMenu/DefaultSuggestionItem.js";
 export * from "./SuggestionMenu/getDefaultEmojiPickerItems.js";
 export * from "./SuggestionMenu/getDefaultSlashMenuItems.js";
 export * from "./SuggestionMenu/SuggestionMenu.js";
+export * from "./Suggestions/SuggestionMarksExtension.js";
 export * from "./TableHandles/TableHandles.js";
 export * from "./TrailingNode/TrailingNode.js";
 export * from "./Versioning/index.js";
