@@ -90,7 +90,6 @@
   },
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",
-    "@floating-ui/dom": "^1.7.6",
     "@handlewithcare/prosemirror-inputrules": "^0.1.4",
     "@shikijs/types": "^4",
     "@tanstack/store": "^0.7.7",

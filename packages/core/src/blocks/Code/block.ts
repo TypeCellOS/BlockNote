@@ -4,9 +4,13 @@ import {
   parsePreCodeContent,
 } from "./helpers/parse/parsePreCode.js";
 import { createPreCode } from "./helpers/toExternalHTML/createPreCode.js";
-import { createCodeKeyboardShortcutsExtension } from "./helpers/extensions/createCodeKeyboardShortcutsExtension.js";
+import { CodeKeyboardShortcutsExtension } from "./helpers/extensions/CodeKeyboardShortcutsExtension.js";
+import { SourceBlockWithPreviewExtension } from "./helpers/extensions/SourceBlockWithPreviewExtension.js";
 import { CodeBlockOptions } from "./CodeBlockOptions.js";
 import { createSourceBlockWithPreview } from "./helpers/render/createSourceBlockWithPreview.js";
+
+const CODE_BLOCK_KEYBOARD_SHORTCUTS_KEY = "code-block-keyboard-shortcuts";
+const CODE_BLOCK_PREVIEW_KEY = "code-block-preview";
 
 export type CodeBlockConfig = ReturnType<typeof createCodeBlockConfig>;
 
@@ -46,10 +50,17 @@ export const createCodeBlockSpec = createBlockSpec(
   }),
   (options) => {
     return [
-      createCodeKeyboardShortcutsExtension(options)(
-        "code-block-keyboard-shortcuts",
+      CodeKeyboardShortcutsExtension(options)(
+        CODE_BLOCK_KEYBOARD_SHORTCUTS_KEY,
         "codeBlock",
       ),
+      SourceBlockWithPreviewExtension({
+        key: CODE_BLOCK_PREVIEW_KEY,
+        blockType: "codeBlock",
+        hasPreview: (block) =>
+          !!options.supportedLanguages?.[block.props.language]?.createPreview,
+        runsBefore: [CODE_BLOCK_KEYBOARD_SHORTCUTS_KEY],
+      }),
     ];
   },
 );

@@ -477,6 +477,9 @@ NESTED BLOCKS
 
 .bn-source-block-popup {
   position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
   z-index: 1;
   background-color: var(--bn-colors-menu-background);
   color: var(--bn-colors-menu-text);

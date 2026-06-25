@@ -7,7 +7,7 @@ import {
 import { createHighlighter } from "@blocknote/code-block";
 import {
   createInlineMathSpec,
-  createMathBlockSpec,
+  createReactMathBlockSpec,
 } from "@blocknote/math-block";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
@@ -23,7 +23,7 @@ import { TbMathFunction } from "react-icons/tb";
 const schema = BlockNoteSchema.create().extend({
   blockSpecs: {
     // Creates an instance of the Math block and adds it to the schema.
-    math: createMathBlockSpec(),
+    math: createReactMathBlockSpec(),
   },
   inlineContentSpecs: {
     // Creates an instance of the inline Math content and adds it to the schema.
