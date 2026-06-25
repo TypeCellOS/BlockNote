@@ -311,6 +311,7 @@ export const auth = betterAuth({
 // email when needed — so the purchase can be provisioned and the buyer gets
 // access (via a sign-in link) to the account holding their new plan.
 async function resolveUserForCustomer(customer: {
+  id: string;
   externalId?: string | null;
   email?: string | null;
   name?: string | null;
@@ -327,6 +328,9 @@ async function resolveUserForCustomer(customer: {
   const authContext = await auth.$context;
   const existing = await authContext.internalAdapter.findUserByEmail(email);
   if (existing?.user) {
+    // Existing account, but this logged-out purchase created an unlinked Polar
+    // customer — link it so the buyer's subscription is found.
+    await linkPolarCustomer(customer.id, existing.user.id);
     return existing.user.id;
   }
 
@@ -336,6 +340,10 @@ async function resolveUserForCustomer(customer: {
       name: customer.name || email,
       emailVerified: false,
     });
+    // Link the Polar customer to the new account. Subscription and
+    // customer-portal lookups resolve a user's customer by externalId, so
+    // without this the buyer couldn't access or manage the plan they bought.
+    await linkPolarCustomer(customer.id, created.id);
     // New account → email a sign-in link so they can access the plan they
     // just bought. A mail failure must not block provisioning.
     try {
@@ -352,8 +360,26 @@ async function resolveUserForCustomer(customer: {
     // first (email is unique). Re-fetch instead of failing provisioning.
     const retry = await authContext.internalAdapter.findUserByEmail(email);
     if (retry?.user) {
+      await linkPolarCustomer(customer.id, retry.user.id);
       return retry.user.id;
     }
     throw err;
+  }
+}
+
+// Link a Polar customer to a BlockNote user by setting the customer's
+// externalId. Subscription and customer-portal lookups resolve a user's Polar
+// customer by `externalId === user.id`, so a logged-out (pay-first) purchase
+// must be linked here or the buyer can't access/manage their subscription.
+// Best-effort: a failure is reported but must not block provisioning the plan,
+// and subsequent subscription events retry the link via the same path.
+async function linkPolarCustomer(customerId: string, userId: string) {
+  try {
+    await polarClient.customers.update({
+      id: customerId,
+      customerUpdate: { externalId: userId },
+    });
+  } catch (err) {
+    Sentry.captureException(err);
   }
 }
