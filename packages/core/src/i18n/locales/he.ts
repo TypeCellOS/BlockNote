@@ -401,6 +401,10 @@ export const he: Dictionary = {
       more_replies: (count: number) => `${count} תגובות נוספות`,
     },
   },
+  suggestion_changes: {
+    formatting_change: "שינוי עיצוב",
+    deleted: "נמחק",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

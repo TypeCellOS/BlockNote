@@ -747,15 +747,16 @@ div[data-type="modification"] {
 
 .bn-root ins,
 .bn-root del {
-  background-color: var(--user-color-light);
+  background-color: color-mix(in srgb, var(--user-color-light) 50%, white);
   color: var(--user-color-dark);
   position: relative;
   text-decoration: none;
+  border-radius: 4px;
 }
 
 .dark.bn-root ins,
 .dark.bn-root del {
-  background-color: var(--user-color-dark);
+  background-color: color-mix(in srgb, var(--user-color-dark) 50%, black);
   color: var(--user-color-light);
 }
 
@@ -768,12 +769,13 @@ from the wrapper. The `.bn-root ins, .bn-root del` rules above still style
 serialized/static output, where the wrapper is a real, painted box.
 */
 .bn-suggestion-mark {
-  background-color: var(--user-color-light);
+  background-color: color-mix(in srgb, var(--user-color-light) 50%, white);
   color: var(--user-color-dark);
+  border-radius: 4px;
 }
 
 .dark.bn-root .bn-suggestion-mark {
-  background-color: var(--user-color-dark);
+  background-color: color-mix(in srgb, var(--user-color-dark) 50%, black);
   color: var(--user-color-light);
 }
 
@@ -785,15 +787,85 @@ they also show an attribution tooltip on hover (handled in JS, see
 SuggestionMarks.ts).
 */
 .bn-suggestion-node > * {
-  background-color: var(--user-color-light);
+  background-color: color-mix(in srgb, var(--user-color-light) 50%, white);
+  border-radius: 4px;
+}
+
+/*
+A deleted block is tagged with a localized "Deleted" badge before its content.
+The wrapper span (.bn-suggestion-node--delete) is `display: contents` and can't
+render a pseudo-element of its own, so the badge is rendered on the first wrapped
+node, which inherits the label text from the `--deleted-label` custom property
+set in SuggestionMarks.ts (falling back to "Deleted" if absent).
+*/
+.bn-suggestion-node--delete > *:first-child::before {
+  content: var(--deleted-label, "Deleted");
+  display: inline-block;
+  margin-right: 6px;
+  padding: 0 4px;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  vertical-align: middle;
+  /* Use the editor's text color (themed for light/dark) rather than inheriting,
+     which would pick up the deleted content's user color. */
+  color: var(--bn-colors-editor-text);
 }
 
 .dark.bn-root .bn-suggestion-node > * {
-  background-color: var(--user-color-dark);
+  background-color: color-mix(in srgb, var(--user-color-dark) 50%, black);
 }
 
+/*
+Modification marks (data-type="modification") are shown as a dotted underline in
+the author's color rather than a filled highlight. The text and background are
+left untouched so only the dotted underline carries the color. Both the inline
+(.bn-suggestion-mark) and block-level (.bn-suggestion-node) variants are covered.
+*/
+[data-type="modification"] .bn-suggestion-mark,
+[data-type="modification"] .bn-suggestion-node > * {
+  background-color: transparent;
+  color: inherit;
+  text-decoration: underline dotted;
+  text-decoration-color: var(--user-color-dark);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+}
+
+.dark.bn-root [data-type="modification"] .bn-suggestion-mark,
+.dark.bn-root [data-type="modification"] .bn-suggestion-node > * {
+  background-color: transparent;
+  color: inherit;
+  text-decoration-color: var(--user-color-light);
+}
+
+/* On hover, reveal the author's color as a filled background. */
+[data-type="modification"] .bn-suggestion-mark:hover,
+[data-type="modification"] .bn-suggestion-node:hover > * {
+  background-color: color-mix(in srgb, var(--user-color-light) 50%, white);
+  border-radius: 4px;
+}
+
+.dark.bn-root [data-type="modification"] .bn-suggestion-mark:hover,
+.dark.bn-root [data-type="modification"] .bn-suggestion-node:hover > * {
+  background-color: color-mix(in srgb, var(--user-color-dark) 50%, black);
+}
+
+/*
+Deletions are shown as struck-through text in the author's color with no
+background fill (unlike insertions, which carry a filled highlight).
+*/
 .bn-suggestion-mark--delete {
+  background-color: transparent;
+  color: var(--user-color-dark);
   text-decoration: line-through;
+}
+
+.dark.bn-root .bn-suggestion-mark--delete {
+  background-color: transparent;
+  color: var(--user-color-light);
 }
 
 .bn-suggestion-mark--delete:hover {
@@ -826,7 +898,14 @@ styling lives here.
 }
 
 .bn-root del {
+  background-color: transparent;
+  color: var(--user-color-dark);
   text-decoration: line-through;
+}
+
+.dark.bn-root del {
+  background-color: transparent;
+  color: var(--user-color-light);
 }
 
 .bn-root del:hover {

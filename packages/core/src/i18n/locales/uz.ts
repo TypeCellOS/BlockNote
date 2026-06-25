@@ -435,6 +435,10 @@ export const uz: Dictionary = {
     },
   },
 
+  suggestion_changes: {
+    formatting_change: "Formatlash o'zgarishi",
+    deleted: "O'chirildi",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

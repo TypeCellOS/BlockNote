@@ -401,6 +401,10 @@ export const en = {
       more_replies: (count: number) => `${count} more replies`,
     },
   },
+  suggestion_changes: {
+    formatting_change: "Formatting Change",
+    deleted: "Deleted",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

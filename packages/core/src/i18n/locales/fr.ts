@@ -447,6 +447,10 @@ export const fr: Dictionary = {
       more_replies: (count) => `${count} réponses de plus`,
     },
   },
+  suggestion_changes: {
+    formatting_change: "Modification de mise en forme",
+    deleted: "Supprimé",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

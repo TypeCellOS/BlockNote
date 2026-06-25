@@ -386,6 +386,10 @@ export const ar: Dictionary = {
       more_replies: (count) => `${count} ردود أخرى`,
     },
   },
+  suggestion_changes: {
+    formatting_change: "تغيير التنسيق",
+    deleted: "محذوف",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

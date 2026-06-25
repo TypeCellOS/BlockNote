@@ -425,6 +425,10 @@ export const uk: Dictionary = {
       more_replies: (count) => `${count} додаткових відповідей`,
     },
   },
+  suggestion_changes: {
+    formatting_change: "Зміна форматування",
+    deleted: "Видалено",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

@@ -399,6 +399,10 @@ export const sk = {
       more_replies: (count: number) => `${count} ďalších odpovedí`,
     },
   },
+  suggestion_changes: {
+    formatting_change: "Zmena formátovania",
+    deleted: "Odstránené",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

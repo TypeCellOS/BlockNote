@@ -401,6 +401,10 @@ export const nl: Dictionary = {
       more_replies: (count) => `${count} extra reacties`,
     },
   },
+  suggestion_changes: {
+    formatting_change: "Opmaakwijziging",
+    deleted: "Verwijderd",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

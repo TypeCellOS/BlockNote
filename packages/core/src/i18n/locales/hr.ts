@@ -414,6 +414,10 @@ export const hr: Dictionary = {
       more_replies: (count) => `${count} dodatnih odgovora`,
     },
   },
+  suggestion_changes: {
+    formatting_change: "Promjena oblikovanja",
+    deleted: "Izbrisano",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

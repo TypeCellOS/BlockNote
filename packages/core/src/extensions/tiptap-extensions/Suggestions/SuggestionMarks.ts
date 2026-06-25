@@ -1,5 +1,6 @@
 import { Mark } from "@tiptap/core";
 import { Mark as PMMark, MarkSpec } from "prosemirror-model";
+import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 
 // This copies the marks from @handlewithcare/prosemirror-suggest-changes,
 // but uses the Tiptap Mark API instead so we can use them in BlockNote
@@ -16,7 +17,10 @@ import { Mark as PMMark, MarkSpec } from "prosemirror-model";
  * presentational and the tooltip state off of module scope.
  */
 const createAttributionMarkView =
-  (type: "insert" | "delete" | "modification") =>
+  (
+    type: "insert" | "delete" | "modification",
+    editor?: BlockNoteEditor<any, any, any>,
+  ) =>
   ({ mark, inline }: { mark: PMMark; inline: boolean }) => {
     // `<ins>`/`<del>` are semantic elements. The modification mark has no
     // dedicated element, so it renders as a `<span>` inline or a `<div>` over a
@@ -66,7 +70,25 @@ const createAttributionMarkView =
       // the `.bn-suggestion-node` rule highlights its children (the wrapped
       // nodes) instead.
       contentDOM.style.display = "contents";
-      contentDOM.className = "bn-suggestion-node";
+      contentDOM.className =
+        type === "delete"
+          ? "bn-suggestion-node bn-suggestion-node--delete"
+          : "bn-suggestion-node";
+      if (type === "delete") {
+        // A deleted block shows a localized "Deleted" badge via a `::before`
+        // (see Block.css). The badge text is passed down as a CSS string token
+        // in `--deleted-label` so the stylesheet stays locale-agnostic; the
+        // wrapper is `display: contents` and can't paint a pseudo-element of its
+        // own, so the rule renders the badge on the wrapped node instead, which
+        // inherits this custom property.
+        const label = editor?.dictionary.suggestion_changes.deleted;
+        if (label) {
+          contentDOM.style.setProperty(
+            "--deleted-label",
+            JSON.stringify(label),
+          );
+        }
+      }
     }
     dom.appendChild(contentDOM);
 
@@ -116,10 +138,17 @@ export const SuggestionAddMark = Mark.create({
   },
 });
 
-export const SuggestionDeleteMark = Mark.create({
+export const SuggestionDeleteMark = Mark.create<{
+  editor?: BlockNoteEditor<any, any, any>;
+}>({
   name: "y-attributed-delete",
   inclusive: false,
   // excludes: "", TODO: what's desired?
+  addOptions() {
+    return {
+      editor: undefined,
+    };
+  },
   addAttributes() {
     return {
       userIds: { default: null },
@@ -128,7 +157,7 @@ export const SuggestionDeleteMark = Mark.create({
     };
   },
   addMarkView() {
-    return createAttributionMarkView("delete");
+    return createAttributionMarkView("delete", this.options.editor);
   },
   extendMarkSchema(extension) {
     if (extension.name !== "y-attributed-delete") {

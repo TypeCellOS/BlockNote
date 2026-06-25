@@ -414,6 +414,10 @@ export const is: Dictionary = {
       more_replies: (count) => `${count} fleiri svör`,
     },
   },
+  suggestion_changes: {
+    formatting_change: "Sniðbreyting",
+    deleted: "Eytt",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

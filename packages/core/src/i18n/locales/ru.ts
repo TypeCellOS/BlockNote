@@ -444,6 +444,10 @@ export const ru: Dictionary = {
       more_replies: (count) => `${count} дополнительных ответов`,
     },
   },
+  suggestion_changes: {
+    formatting_change: "Изменение форматирования",
+    deleted: "Удалено",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

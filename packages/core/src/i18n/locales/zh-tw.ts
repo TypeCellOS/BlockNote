@@ -442,6 +442,10 @@ export const zhTW: Dictionary = {
       more_replies: (count) => `還有 ${count} 則回覆`,
     },
   },
+  suggestion_changes: {
+    formatting_change: "格式變更",
+    deleted: "已刪除",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

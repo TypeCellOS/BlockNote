@@ -369,6 +369,10 @@ export const fa = {
       more_replies: (count: number) => `${count} پاسخ دیگر`,
     },
   },
+  suggestion_changes: {
+    formatting_change: "تغییر قالب‌بندی",
+    deleted: "حذف\u200cشده",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

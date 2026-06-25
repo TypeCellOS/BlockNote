@@ -441,6 +441,10 @@ export const ja: Dictionary = {
       more_replies: (count) => `${count} 件の追加返信`,
     },
   },
+  suggestion_changes: {
+    formatting_change: "書式の変更",
+    deleted: "削除済み",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

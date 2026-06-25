@@ -414,6 +414,10 @@ export const ko: Dictionary = {
       more_replies: (count) => `${count}개의 추가 답글`,
     },
   },
+  suggestion_changes: {
+    formatting_change: "서식 변경",
+    deleted: "삭제됨",
+  },
   generic: {
     ctrl_shortcut: "Ctrl",
   },

@@ -420,6 +420,10 @@ export const de: Dictionary = {
       more_replies: (count) => `${count} weitere Antworten`,
     },
   },
+  suggestion_changes: {
+    formatting_change: "Formatierungsänderung",
+    deleted: "Gelöscht",
+  },
   generic: {
     ctrl_shortcut: "Strg",
   },

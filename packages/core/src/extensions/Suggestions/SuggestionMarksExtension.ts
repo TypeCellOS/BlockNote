@@ -1,4 +1,5 @@
 import { createExtension } from "../../editor/BlockNoteExtension.js";
+import type { Dictionary } from "../../i18n/dictionary.js";
 
 /**
  * Selector for the wrapper element of an attribution mark (insert / delete /
@@ -20,6 +21,51 @@ const formatAttributionTitle = (userIdsJSON: string | undefined): string => {
     return "";
   }
   return Array.isArray(userIds) && userIds.length > 0 ? userIds.join(", ") : "";
+};
+
+/**
+ * Human-readable label for a modification mark's `data-format` attribute, which
+ * describes which formatting marks changed (e.g. `{ bold: {}, italic: {} }`).
+ * Each key is looked up in the formatting toolbar dictionary so the label is
+ * localized (e.g. `"Bold, Italic"`). If the format is missing, empty, or
+ * contains any change we don't have a translation for, the localized generic
+ * fallback (`"Formatting Change"`) is used instead.
+ */
+const formatChangeLabel = (
+  formatJSON: string | undefined,
+  dictionary: Dictionary,
+): string => {
+  const fallback = dictionary.suggestion_changes.formatting_change;
+  if (!formatJSON) {
+    return fallback;
+  }
+  let format: unknown;
+  try {
+    format = JSON.parse(formatJSON);
+  } catch {
+    return fallback;
+  }
+  if (typeof format !== "object" || format === null) {
+    return fallback;
+  }
+  const keys = Object.keys(format);
+  if (keys.length === 0) {
+    return fallback;
+  }
+  const toolbar = dictionary.formatting_toolbar as Record<string, unknown>;
+  const names: string[] = [];
+  for (const key of keys) {
+    const entry = toolbar[key];
+    const tooltip =
+      entry && typeof entry === "object" && "tooltip" in entry
+        ? (entry as { tooltip: unknown }).tooltip
+        : undefined;
+    if (typeof tooltip !== "string") {
+      return fallback;
+    }
+    names.push(tooltip);
+  }
+  return names.join(", ");
 };
 
 /**
@@ -66,8 +112,8 @@ export const SuggestionMarksExtension = createExtension(({ editor }) => ({
     let activeWrapper: Element | undefined;
     let tooltipEl: HTMLElement | undefined;
 
-    // Places the tooltip below the active mark (`bottom-start`) with a 4px gap,
-    // flipping above when there's no room below and clamping horizontally to keep
+    // Places the tooltip above the active mark (`top-start`) with a 4px gap,
+    // flipping below when there's no room above and clamping horizontally to keep
     // it on screen. The tooltip is `position: fixed` and portaled to `<body>`, so
     // it's positioned in viewport coordinates.
     const positionTooltip = () => {
@@ -79,13 +125,13 @@ export const SuggestionMarksExtension = createExtension(({ editor }) => ({
       const anchor = getReferenceRect(activeWrapper);
       const { width, height } = tooltipEl.getBoundingClientRect();
 
-      let top = anchor.bottom + gap;
-      // Flip above if it would overflow the bottom and there's room above.
+      let top = anchor.top - gap - height;
+      // Flip below if it would overflow the top and there's room below.
       if (
-        top + height > window.innerHeight - padding &&
-        anchor.top - gap - height >= padding
+        top < padding &&
+        anchor.bottom + gap + height <= window.innerHeight - padding
       ) {
-        top = anchor.top - gap - height;
+        top = anchor.bottom + gap;
       }
 
       const maxLeft = window.innerWidth - width - padding;
@@ -133,9 +179,24 @@ export const SuggestionMarksExtension = createExtension(({ editor }) => ({
     };
 
     // The text shown for an attribution wrapper (empty when it carries no
-    // attribution, e.g. a null `userIds`).
-    const attributionText = (wrapper: HTMLElement) =>
-      formatAttributionTitle(wrapper.dataset["userIds"]);
+    // attribution, e.g. a null `userIds`). Modification marks carry a
+    // `data-format` attribute describing which formatting changed; for those the
+    // author(s) are prefixed with a localized label of the change, e.g.
+    // `"Bold: Alice"` or `"Formatting Change: Alice"`.
+    const attributionText = (wrapper: HTMLElement) => {
+      const users = formatAttributionTitle(wrapper.dataset["userIds"]);
+      if (!users) {
+        return "";
+      }
+      if (wrapper.dataset["format"] !== undefined) {
+        const label = formatChangeLabel(
+          wrapper.dataset["format"],
+          editor.dictionary,
+        );
+        return `${label}: ${users}`;
+      }
+      return users;
+    };
 
     // The innermost attributed mark at or above `el`. `closest` returns the
     // nearest ancestor (or self) matching the selector; wrappers without
