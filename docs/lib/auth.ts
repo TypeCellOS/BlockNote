@@ -217,7 +217,10 @@ export const auth = betterAuth({
             },
           ],
           successUrl: "/thanks",
-          authenticatedUsersOnly: true,
+          // Pay-first: allow logged-out checkout. The buyer is reconciled to a
+          // BlockNote account by email in the webhook below
+          // (resolveUserForCustomer), then emailed a sign-in link.
+          authenticatedUsersOnly: false,
         }),
         portal(),
         webhooks({
@@ -230,11 +233,16 @@ export const auth = betterAuth({
               case "subscription.revoked":
               case "subscription.created":
               case "subscription.uncanceled": {
-                const authContext = await auth.$context;
-                const userId = payload.data.customer.externalId;
+                // Resolve the BlockNote account for this purchase. For pay-first
+                // (logged-out) checkouts the customer has no externalId, so this
+                // creates/links an account by email and sends a sign-in link.
+                const userId = await resolveUserForCustomer(
+                  payload.data.customer,
+                );
                 if (!userId) {
                   return;
                 }
+                const authContext = await auth.$context;
                 if (payload.data.status === "active") {
                   const productId = payload.data.product.id;
                   const planType = Object.values(PRODUCTS).find(
@@ -296,3 +304,56 @@ export const auth = betterAuth({
     }),
   },
 });
+
+// For "pay-first" checkouts the buyer may not have an account yet: the Polar
+// customer has no externalId because they checked out while logged out. Resolve
+// the BlockNote user for a Polar customer — creating one keyed on the checkout
+// email when needed — so the purchase can be provisioned and the buyer gets
+// access (via a sign-in link) to the account holding their new plan.
+async function resolveUserForCustomer(customer: {
+  externalId?: string | null;
+  email?: string | null;
+  name?: string | null;
+}): Promise<string | null> {
+  // Authenticated purchase: the customer is already linked to a user.
+  if (customer.externalId) {
+    return customer.externalId;
+  }
+  const email = customer.email;
+  if (!email) {
+    return null;
+  }
+
+  const authContext = await auth.$context;
+  const existing = await authContext.internalAdapter.findUserByEmail(email);
+  if (existing?.user) {
+    return existing.user.id;
+  }
+
+  try {
+    const created = await authContext.internalAdapter.createUser({
+      email,
+      name: customer.name || email,
+      emailVerified: false,
+    });
+    // New account → email a sign-in link so they can access the plan they
+    // just bought. A mail failure must not block provisioning.
+    try {
+      await auth.api.signInMagicLink({
+        body: { email, callbackURL: "/pricing" },
+        headers: new Headers(),
+      });
+    } catch (err) {
+      Sentry.captureException(err);
+    }
+    return created.id;
+  } catch (err) {
+    // A concurrent webhook for the same purchase may have created the user
+    // first (email is unique). Re-fetch instead of failing provisioning.
+    const retry = await authContext.internalAdapter.findUserByEmail(email);
+    if (retry?.user) {
+      return retry.user.id;
+    }
+    throw err;
+  }
+}
