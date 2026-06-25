@@ -11,15 +11,18 @@ diff --git a/dist/demo/schema.d.ts.map b/dist/demo/schema.d.ts.map
 deleted file mode 100644
 index f7879c19424714d1c0314eadd81aee0d3047f84d..0000000000000000000000000000000000000000
 diff --git a/dist/src/index.d.ts b/dist/src/index.d.ts
-index ebf62e224dcb8a4becb6dcc0e59799e732a4ce1c..c870a6d1eaa70daf2a6c718b179cb7873ae19e94 100644
+index ebf62e224dcb8a4becb6dcc0e59799e732a4ce1c..66dc3538d21b17b78475f34840203555b2615444 100644
 --- a/dist/src/index.d.ts
 +++ b/dist/src/index.d.ts
-@@ -4,5 +4,5 @@ export * from "./positions.js";
+@@ -1,8 +1,8 @@
+ export * from "./sync-plugin.js";
+ export * from "./keys.js";
+ export * from "./positions.js";
++export * from "./sync-utils.js";
  export * from "./commands.js";
  export * from "./undo-plugin.js";
  export * from "./cursor-plugin.js";
 -export { docToDelta, $prosemirrorDelta, defaultMapAttributionToMark } from "./sync-utils.js";
-+export { docToDelta, $prosemirrorDelta, defaultMapAttributionToMark, yattr2markname, pmToFragment, fragmentToPm } from "./sync-utils.js";
  //# sourceMappingURL=index.d.ts.map
 \ No newline at end of file
 diff --git a/dist/src/sync-plugin.d.ts b/dist/src/sync-plugin.d.ts
@@ -250,7 +253,7 @@ index 504167d4a50fbbb1198a3f9108edba262738504a..bd456d8034409e9cc2851a8eb2acbace
        } else {
          tr.replaceWith(0, tr.doc.content.size, deltaToPNode(ycontent, tr.doc.type.schema, null, pluginState.attributedNodes))
 diff --git a/src/index.js b/src/index.js
-index 0c20333ce9f66f1a1e3e8e44da1ac4017bbba4cc..3ac49220951d180ea85f5a7a3437d70fbae189b2 100644
+index 0c20333ce9f66f1a1e3e8e44da1ac4017bbba4cc..a3c6cd0da611ae2c8fff9aac224d5ea70931eeb8 100644
 --- a/src/index.js
 +++ b/src/index.js
 @@ -1,7 +1,7 @@
@@ -258,7 +261,7 @@ index 0c20333ce9f66f1a1e3e8e44da1ac4017bbba4cc..3ac49220951d180ea85f5a7a3437d70f
  export * from './keys.js'
  export * from './positions.js'
 -export { docToDelta, $prosemirrorDelta, defaultMapAttributionToMark } from './sync-utils.js'
-+export { docToDelta, $prosemirrorDelta, defaultMapAttributionToMark, yattr2markname, pmToFragment, fragmentToPm } from './sync-utils.js'
++export * from './sync-utils.js'
  export * from './commands.js'
  export * from './undo-plugin.js'
  export * from './cursor-plugin.js'
