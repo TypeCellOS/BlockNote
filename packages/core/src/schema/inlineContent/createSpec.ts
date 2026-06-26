@@ -1,6 +1,6 @@
 import { Node } from "@tiptap/core";
 
-import { TagParseRule } from "@tiptap/pm/model";
+import { Node as ProsemirrorNode, TagParseRule } from "@tiptap/pm/model";
 import { inlineContentToNodes } from "../../api/nodeConversions/blockToNode.js";
 import { nodeToCustomInlineContent } from "../../api/nodeConversions/nodeToBlock.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
@@ -54,6 +54,16 @@ export type CustomInlineContentImplementation<
     editor: BlockNoteEditor<any, any, S>,
     // (note) if we want to fix the manual cast, we need to prevent circular references and separate block definition and render implementations
     // or allow manually passing <BSchema>, but that's not possible without passing the other generics because Typescript doesn't support partial inferred generics
+    /**
+     * The ProseMirror node backing this inline content.
+     */
+    node: ProsemirrorNode,
+    /**
+     * Returns this inline content's position in the document. When rendered
+     * outside the editor (i.e. serialized to HTML), this is a no-op that returns
+     * `undefined`.
+     */
+    getPos: () => number | undefined,
   ) => {
     dom: HTMLElement;
     contentDOM?: HTMLElement;
@@ -170,6 +180,8 @@ export function createInlineContentSpec<
           // No-op
         },
         editor,
+        node,
+        () => undefined,
       );
 
       return addInlineContentAttributes(
@@ -206,6 +218,8 @@ export function createInlineContentSpec<
             );
           },
           editor,
+          node,
+          getPos,
         );
 
         return addInlineContentAttributes(
@@ -225,10 +239,19 @@ export function createInlineContentSpec<
       ...inlineContentImplementation,
       toExternalHTML: inlineContentImplementation.toExternalHTML,
       render(inlineContent, updateInlineContent, editor) {
+        // Rendered outside the editor (serialization), so there's no live node
+        // view - derive the node from the content and stub out `getPos`.
+        const node = inlineContentToNodes(
+          [inlineContent] as any,
+          editor.pmSchema,
+        )[0];
+
         const output = inlineContentImplementation.render(
           inlineContent,
           updateInlineContent,
           editor,
+          node,
+          () => undefined,
         );
 
         return addInlineContentAttributes(

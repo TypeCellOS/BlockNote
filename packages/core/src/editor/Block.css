@@ -578,15 +578,41 @@ block's "add file" button styling. */
   cursor: pointer;
 }
 
+/* The shared popup stretches edge-to-edge for the (full-width) code block; for
+   inline content it sits below the preview and sizes to its source instead. */
+.bn-inline-source-content .bn-source-block-popup {
+  right: auto;
+  width: max-content;
+  min-width: 120px;
+  max-width: min(400px, 90vw);
+}
+
+/* Keeps the popup from collapsing to a sliver while the source is empty. */
+.bn-inline-source-content .bn-source-block-popup > pre {
+  min-height: 1.5em;
+  box-sizing: content-box;
+}
+
 .bn-inline-source-content[data-open="true"] .bn-source-block-popup {
   opacity: 1;
   pointer-events: auto;
 }
 
-/* Shown in place of the preview when the source is empty. */
-.bn-inline-add-source {
-  cursor: pointer;
-  opacity: 0.5;
+/* The "add source" button sits inline among text, so it needs to be compact
+   rather than the full-size block-preview button. */
+.bn-inline-source-content .bn-add-source-code-button {
+  display: inline-flex;
+  gap: 4px;
+  padding: 1px 6px;
+}
+
+.bn-inline-source-content .bn-add-source-code-button-icon {
+  width: 1em;
+  height: 1em;
+}
+
+.bn-inline-source-content .bn-add-source-code-button-text {
+  font-size: 0.85em;
 }
 
 /* PAGE BREAK */

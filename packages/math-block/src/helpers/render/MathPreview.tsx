@@ -4,35 +4,13 @@ import {
   useExtension,
   useExtensionState,
 } from "@blocknote/react";
-import katex from "katex";
-import "katex/dist/katex.min.css";
 import { MouseEvent, useEffect, useRef } from "react";
 import type { MathBlockConfig } from "../../block.js";
 import { getMathSource } from "../getMathSource.js";
+import { useKatexPreview } from "./useKatexPreview.js";
 
-// Renders the LaTeX source to a KaTeX HTML string. Uses `throwOnError: true`
-// first so we can surface a syntax error, then falls back to a best-effort
-// render so the preview still shows something while the source is invalid.
-const renderMath = (source: string): { html: string; error: string | null } => {
-  let html: string;
-  let error: string | null = null;
-  try {
-    html = katex.renderToString(source, {
-      throwOnError: true,
-      displayMode: true,
-    });
-  } catch (e) {
-    error = e instanceof Error ? e.message : String(e);
-    html = katex.renderToString(source, {
-      throwOnError: false,
-      displayMode: true,
-    });
-  }
-  return { html, error };
-};
-
-// Shown in place of the preview when the block has no source yet.
-const AddSourceButton = (props: { text: string }) => (
+// Shown in place of the preview when the math content has no source yet.
+export const AddSourceButton = (props: { text: string }) => (
   <div className="bn-add-source-code-button" contentEditable={false}>
     <div className="bn-add-source-code-button-icon">
       <svg
@@ -73,14 +51,7 @@ export const MathPreview = (
       ?.classList.toggle("ProseMirror-selectednode", selected);
   }, [selected]);
 
-  const { html, error } = renderMath(source);
-
-  // Keeps the last error-free KaTeX output so a transient syntax error doesn't
-  // blank the preview - mirrors the vanilla in-place update.
-  const lastHtmlRef = useRef<string | null>(null);
-  if (!error || lastHtmlRef.current === null) {
-    lastHtmlRef.current = html;
-  }
+  const { html, error } = useKatexPreview(source, true);
 
   // Opens the popup when clicking the preview.
   const handleMouseDown = (event: MouseEvent) => {
@@ -109,7 +80,7 @@ export const MathPreview = (
         onMouseDown={handleMouseDown}
       >
         {source.length > 0 ? (
-          <span dangerouslySetInnerHTML={{ __html: lastHtmlRef.current }} />
+          <span dangerouslySetInnerHTML={{ __html: html }} />
         ) : (
           <AddSourceButton
             text={editor.dictionary.code_block.add_source_button_text}

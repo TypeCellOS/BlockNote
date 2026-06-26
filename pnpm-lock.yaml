@@ -4836,6 +4836,9 @@ importers:
       prosemirror-state:
         specifier: ^1.4.4
         version: 1.4.4
+      prosemirror-view:
+        specifier: ^1.41.4
+        version: 1.41.8
     devDependencies:
       '@blocknote/react':
         specifier: workspace:^

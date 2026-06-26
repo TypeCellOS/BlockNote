@@ -6,7 +6,7 @@ import {
 } from "@blocknote/core/extensions";
 import { createHighlighter } from "@blocknote/code-block";
 import {
-  createInlineMathSpec,
+  createReactInlineMathSpec,
   createReactMathBlockSpec,
 } from "@blocknote/math-block";
 import { BlockNoteView } from "@blocknote/mantine";
@@ -27,7 +27,7 @@ const schema = BlockNoteSchema.create().extend({
   },
   inlineContentSpecs: {
     // Creates an instance of the inline Math content and adds it to the schema.
-    inlineMath: createInlineMathSpec(),
+    inlineMath: createReactInlineMathSpec(),
   },
 });
 

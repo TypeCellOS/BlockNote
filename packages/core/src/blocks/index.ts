@@ -21,8 +21,6 @@ export * from "./Code/helpers/extensions/SourceBlockWithPreviewExtension.js";
 export * from "./Code/helpers/parse/parsePreCode.js";
 export * from "./Code/helpers/render/createSourceBlock.js";
 export * from "./Code/helpers/render/createSourceBlockWithPreview.js";
-export * from "./Code/helpers/render/createSourceInlineContent.js";
-export * from "./Code/helpers/render/createSourceInlineContentWithPreview.js";
 export * from "./Code/helpers/toExternalHTML/createPreCode.js";
 export * from "./ToggleWrapper/createToggleWrapper.js";
 export * from "./File/helpers/uploadToTmpFilesDotOrg_DEV_ONLY.js";

@@ -2,10 +2,10 @@ import katex from "katex";
 import "katex/dist/katex.min.css";
 
 /**
- * Renders a LaTeX source string to a KaTeX DOM element.
+ * Renders a LaTeX source string to KaTeX HTML (and an equivalent DOM element).
  *
  * Renders with `throwOnError: true` first so we can surface syntax errors,
- * then falls back to KaTeX's own error rendering so the element is never empty.
+ * then falls back to KaTeX's own error rendering so the output is never empty.
  *
  * @param source The LaTeX source to render.
  * @param displayMode Whether to render in display (block) or inline mode.
@@ -13,7 +13,7 @@ import "katex/dist/katex.min.css";
 export const renderKatex = (
   source: string,
   displayMode: boolean,
-): { dom: HTMLElement; error: string | null } => {
+): { html: string; dom: HTMLElement; error: string | null } => {
   let html: string;
   let error: string | null = null;
   try {
@@ -33,5 +33,5 @@ export const renderKatex = (
   template.innerHTML = html;
   const dom = template.content.firstElementChild as HTMLElement;
 
-  return { dom, error };
+  return { html, dom, error };
 };
