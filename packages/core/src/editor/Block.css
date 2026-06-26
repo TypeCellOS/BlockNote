@@ -868,10 +868,6 @@ background fill (unlike insertions, which carry a filled highlight).
   color: var(--user-color-light);
 }
 
-.bn-suggestion-mark--delete:hover {
-  text-decoration-line: overline;
-}
-
 /*
 Attribution tooltip for suggestion marks (<ins> / <del>). Positioned manually
 and portaled to <body> (see SuggestionMarks.ts), so it floats above the document
