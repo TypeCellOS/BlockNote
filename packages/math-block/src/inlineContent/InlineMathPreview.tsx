@@ -26,10 +26,8 @@ export const InlineMathPreview = (
   const { store } = useExtension(SourceInlineContentWithPreviewExtension, {
     editor,
   });
-  const popupOpen = useExtensionState(SourceInlineContentWithPreviewExtension, {
-    editor,
-    selector: (state) => state.popupOpen === pos,
-  });
+  // The popup is open exactly when the selection is inside this inline content,
+  // which is the same condition that marks it as selected.
   const selected = useExtensionState(SourceInlineContentWithPreviewExtension, {
     editor,
     selector: (state) => state.selected === pos,
@@ -50,7 +48,7 @@ export const InlineMathPreview = (
       return;
     }
 
-    store.setState((state) => ({ ...state, popupOpen: pos }));
+    store.setState({ selected: pos });
 
     event.preventDefault();
     event.stopPropagation();
@@ -68,7 +66,7 @@ export const InlineMathPreview = (
     <span
       ref={rootRef}
       className={"bn-inline-source-content"}
-      data-open={popupOpen ? "true" : "false"}
+      data-open={selected ? "true" : "false"}
     >
       <span
         className="bn-inline-source-preview"
