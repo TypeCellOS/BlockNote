@@ -1,24 +1,6 @@
 import { BlockNoteEditor, createExtension, createStore } from "@blocknote/core";
 import { Selection, TextSelection } from "prosemirror-state";
 
-// Whether a Backspace/Delete at `selection` would remove the entire source
-// content range `[content.from, content.to)`.
-const emptiesSource = (
-  selection: Selection,
-  key: string,
-  content: { from: number; to: number },
-) => {
-  if (!selection.empty) {
-    return selection.from <= content.from && selection.to >= content.to;
-  }
-
-  const isSingleChar = content.to - content.from === 1;
-
-  return key === "Backspace"
-    ? isSingleChar && selection.from === content.to
-    : isSingleChar && selection.from === content.from;
-};
-
 /**
  * Inline-content counterpart of {@link SourceBlockWithPreviewExtension}. Drives
  * the source popup for inline content with a preview: toggling it with the
@@ -153,53 +135,12 @@ export const SourceInlineContentWithPreviewExtension = createExtension(
           const isTypedChar =
             event.key.length === 1 && !event.ctrlKey && !event.metaKey;
 
-          // An empty inline node can't hold a text cursor, so ProseMirror can't
-          // edit across the empty boundary from the DOM: typing into an empty
-          // source inserts next to the node, and deleting the last character
-          // leaves an un-reconcilable empty node that freezes the editor. While
-          // the popup is open, handle both boundary edits via transactions so
-          // the caret stays inside the source.
+          // While the popup is open, the source is shown and editable, so edits
+          // are let through. Boundary edits on the (possibly empty) source - an
+          // empty inline node can't hold a text cursor, so typing/deleting at
+          // the boundary needs special handling - are handled generically by the
+          // editor's `InlineContentBoundaryEdit` extension.
           if (store.state.popupOpen !== undefined) {
-            const pos = store.state.popupOpen;
-            const node = view.state.doc.nodeAt(pos);
-
-            if (node?.type.name === inlineContentType) {
-              const contentFrom = pos + 1;
-              const contentTo = pos + 1 + node.content.size;
-
-              // Empty source: redirect the typed character into the node.
-              if (isTypedChar && node.content.size === 0) {
-                const tr = view.state.tr.insert(
-                  contentFrom,
-                  view.state.schema.text(event.key),
-                );
-                tr.setSelection(
-                  TextSelection.create(tr.doc, contentFrom + event.key.length),
-                );
-                view.dispatch(tr);
-
-                event.preventDefault();
-                event.stopImmediatePropagation();
-              } else if (
-                (event.key === "Backspace" || event.key === "Delete") &&
-                node.content.size > 0 &&
-                emptiesSource(view.state.selection, event.key, {
-                  from: contentFrom,
-                  to: contentTo,
-                })
-              ) {
-                // Delete the whole source in one transaction, keeping the now-
-                // empty node (and the caret inside it) so it shows the "add
-                // source" state and stays editable.
-                const tr = view.state.tr.delete(contentFrom, contentTo);
-                tr.setSelection(TextSelection.create(tr.doc, contentFrom));
-                view.dispatch(tr);
-
-                event.preventDefault();
-                event.stopImmediatePropagation();
-              }
-            }
-
             return;
           }
 

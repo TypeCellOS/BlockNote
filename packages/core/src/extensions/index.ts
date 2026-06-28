@@ -3,6 +3,7 @@ export * from "./DropCursor/DropCursor.js";
 export * from "./FilePanel/FilePanel.js";
 export * from "./FormattingToolbar/FormattingToolbar.js";
 export * from "./History/History.js";
+export * from "./InlineContentBoundaryEdit/InlineContentBoundaryEdit.js";
 export * from "./LinkToolbar/LinkToolbar.js";
 export * from "./LinkToolbar/protocols.js";
 export * from "./NodeSelectionKeyboard/NodeSelectionKeyboard.js";
