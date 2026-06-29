@@ -1,10 +1,10 @@
 import "@blocknote/core/fonts/inter.css";
-import { BlockNoteSchema } from "@blocknote/core";
+import { BlockNoteSchema, createCodeBlockSpec } from "@blocknote/core";
 import {
   filterSuggestionItems,
   insertOrUpdateBlockForSlashMenu,
 } from "@blocknote/core/extensions";
-import { createHighlighter } from "@blocknote/code-block";
+import { codeBlockOptions } from "@blocknote/code-block";
 import { createReactMathBlockSpec } from "@blocknote/math-block";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
@@ -19,6 +19,7 @@ import { TbMathFunction } from "react-icons/tb";
 // that we want our editor to use.
 const schema = BlockNoteSchema.create().extend({
   blockSpecs: {
+    codeBlock: createCodeBlockSpec(codeBlockOptions),
     // Creates an instance of the Math block and adds it to the schema.
     math: createReactMathBlockSpec(),
   },
@@ -39,13 +40,6 @@ const insertMath = (editor: typeof schema.BlockNoteEditor) => ({
 
 export default function App() {
   const editor = useCreateBlockNote({
-    // Configures the syntax highlighting extension to always use LaTeX syntax highlighting in the
-    // Math block.
-    syntaxHighlighting: {
-      createHighlighter,
-      highlightBlock: (block) =>
-        block.type === "math" ? "latex" : block.props.language,
-    },
     schema,
     initialContent: [
       {

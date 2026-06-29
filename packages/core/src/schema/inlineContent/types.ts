@@ -16,10 +16,28 @@ export type InlineContentConfig = CustomInlineContentConfig | "text" | "link";
 // InlineContentImplementation contains the "implementation" info about an InlineContent element
 // such as the functions / Nodes required to render and / or serialize it
 export type InlineContentImplementation<T extends InlineContentConfig> =
-  T extends "link" | "text"
-    ? undefined
-    : {
+  T extends CustomInlineContentConfig
+    ? {
         meta?: {
+          /**
+           * Whether the inline content is a {@link https://prosemirror.net/docs/ref/#model.NodeSpec.code} block
+           */
+          code?: boolean;
+          /**
+           * When {@link code} is `true`, this can syntax highlight the contents of the block with the result of this callback
+           */
+          // Method syntax (rather than an arrow-function property) so its
+          // parameter is checked bivariantly, keeping a specific
+          // implementation assignable to the generic spec record type.
+          highlight?(
+            inlineContent: Pick<
+              CustomInlineContentFromConfig<T, any>,
+              "type" | "props"
+            >,
+          ): string | undefined;
+          /**
+           * Whether the inline content is draggable
+           */
           draggable?: boolean;
         };
         node: Node;
@@ -43,7 +61,8 @@ export type InlineContentImplementation<T extends InlineContentConfig> =
           destroy?: () => void;
         };
         runsBefore?: string[];
-      };
+      }
+    : undefined;
 
 export type InlineContentSchemaWithInlineContent<
   IType extends string,

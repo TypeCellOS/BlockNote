@@ -3,6 +3,8 @@ import {
   createBlockSpec,
   createSourceBlockWithPreview,
   SourceBlockWithPreviewExtension,
+  SyntaxHighlightingExtension,
+  SyntaxHighlightingOptions,
 } from "@blocknote/core";
 import {
   parseMathML,
@@ -16,7 +18,7 @@ const MATH_BLOCK_PREVIEW_KEY = "math-block-preview";
 export type MathBlockConfig = ReturnType<typeof createMathBlockConfig>;
 
 export const createMathBlockConfig = createBlockConfig(
-  () =>
+  (_options: Partial<SyntaxHighlightingOptions>) =>
     ({
       type: "math" as const,
       propSchema: {},
@@ -31,6 +33,7 @@ export const createMathBlockSpec = createBlockSpec(
       code: true,
       defining: true,
       isolating: false,
+      highlight: () => "latex",
     },
     parse: (el) => parseMathML(el),
     parseContent: ({ el, schema }) => parseMathMLContent({ el, schema }),
@@ -40,12 +43,18 @@ export const createMathBlockSpec = createBlockSpec(
       }),
     toExternalHTML: (block) => createMathML(block),
   },
-  [
-    // Math blocks always render a preview.
-    SourceBlockWithPreviewExtension({
-      key: MATH_BLOCK_PREVIEW_KEY,
-      blockType: "math",
-      hasPreview: () => true,
-    }),
-  ],
+  (options) =>
+    [
+      // Math blocks always render a preview.
+      SourceBlockWithPreviewExtension({
+        key: MATH_BLOCK_PREVIEW_KEY,
+        blockType: "math",
+        hasPreview: () => true,
+      }),
+      options.createHighlighter
+        ? SyntaxHighlightingExtension({
+            createHighlighter: options.createHighlighter,
+          })
+        : undefined,
+    ].filter((a) => !!a),
 );
