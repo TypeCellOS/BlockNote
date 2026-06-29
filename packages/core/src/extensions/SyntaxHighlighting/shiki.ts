@@ -1,8 +1,8 @@
 import type { HighlighterGeneric } from "@shikijs/types";
 import { Parser, createHighlightPlugin } from "prosemirror-highlight";
 import { createParser } from "prosemirror-highlight/shiki";
-import type { Block } from "../../blocks/defaultBlocks.js";
 import type { SyntaxHighlightingOptions } from "./SyntaxHighlighting.js";
+import { CustomBlockNoteSchema } from "../../schema/schema.js";
 
 export const shikiParserSymbol = Symbol.for("blocknote.shikiParser");
 export const shikiHighlighterPromiseSymbol = Symbol.for(
@@ -24,7 +24,7 @@ const PLAIN_TEXT_LANGUAGES = ["text", "none", "plaintext", "txt"];
 export function lazyShikiPlugin(
   options: SyntaxHighlightingOptions,
   nodeTypes: string[],
-  highlightBlock: (block: Block<any, any, any>) => string | undefined,
+  schema: CustomBlockNoteSchema<any, any, any>,
 ) {
   const globalThisForShiki = globalThis as {
     [shikiHighlighterPromiseSymbol]?: Promise<HighlighterGeneric<any, any>>;
@@ -84,11 +84,18 @@ export function lazyShikiPlugin(
     // The highlight plugin only gives us the block content node, so we can only
     // reconstruct the block's `type` and `props` (which is all `highlightBlock`
     // needs to pick a language).
-    languageExtractor: (node) =>
-      highlightBlock({
+    languageExtractor: (node) => {
+      const nodeShape = {
         type: node.type.name,
         props: node.attrs,
-      } as Block<any, any, any>),
+      };
+      // search for the node in the blockSpec or inlineContentSpecs
+      const spec =
+        schema.blockSpecs[nodeShape.type] ||
+        schema.inlineContentSpecs[nodeShape.type];
+
+      return spec?.implementation?.meta?.highlight?.(nodeShape) ?? undefined;
+    },
     nodeTypes,
   });
 }

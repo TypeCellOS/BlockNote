@@ -20,6 +20,7 @@ export const createReactMathBlockSpec = createReactBlockSpec(
       code: true,
       defining: true,
       isolating: false,
+      highlight: () => "latex",
     },
     parse: (el) => parseMathML(el),
     parseContent: ({ el, schema }) => parseMathMLContent({ el, schema }),

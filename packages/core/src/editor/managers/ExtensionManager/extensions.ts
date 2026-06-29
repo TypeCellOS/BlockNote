@@ -23,7 +23,6 @@ import {
   ShowSelectionExtension,
   SideMenuExtension,
   SuggestionMenu,
-  SyntaxHighlightingExtension,
   TableHandlesExtension,
   TrailingNodeExtension,
 } from "../../../extensions/index.js";
@@ -179,10 +178,6 @@ export function getDefaultExtensions(
     PositionMappingExtension(),
     ...(options.trailingBlock !== false ? [TrailingNodeExtension()] : []),
   ] as ExtensionFactoryInstance[];
-
-  if (options.syntaxHighlighting) {
-    extensions.push(SyntaxHighlightingExtension(options.syntaxHighlighting));
-  }
 
   if ("table" in editor.schema.blockSpecs) {
     extensions.push(TableHandlesExtension(options));
