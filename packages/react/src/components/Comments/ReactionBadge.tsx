@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import { useDictionary } from "../../i18n/dictionary.js";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
-import { useUsers } from "./useUsers.js";
+import { useUsers } from "../../hooks/useUsers.js";
 import { useExtension } from "../../hooks/useExtension.js";
 
 export const ReactionBadge = (props: {

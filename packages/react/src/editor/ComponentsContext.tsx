@@ -11,8 +11,7 @@ import {
   useContext,
 } from "react";
 
-import { BlockNoteEditor } from "@blocknote/core";
-import { User } from "@blocknote/core/comments";
+import { BlockNoteEditor, User } from "@blocknote/core";
 import { DefaultReactGridSuggestionItem } from "../components/SuggestionMenu/GridSuggestionMenu/types.js";
 import { DefaultReactSuggestionItem } from "../components/SuggestionMenu/types.js";
 

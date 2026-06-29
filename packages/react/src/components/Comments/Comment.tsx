@@ -25,7 +25,7 @@ import { CommentEditor } from "./CommentEditor.js";
 import { EmojiPicker } from "./EmojiPicker.js";
 import { ReactionBadge } from "./ReactionBadge.js";
 import { defaultCommentEditorSchema } from "./defaultCommentEditorSchema.js";
-import { useUser } from "./useUsers.js";
+import { useUser } from "../../hooks/useUsers.js";
 
 type CommentEditorActionsProps = {
   isFocused: boolean;
