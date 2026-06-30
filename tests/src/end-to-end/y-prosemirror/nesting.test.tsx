@@ -3,11 +3,6 @@
  * Vitest browser-mode tests for nesting-related suggestions: indent,
  * unindent, and type-change on a block that already has children.
  * Same shape as `propChanges.test.tsx`.
- *
- * The third test (`change parent type with children`) is marked
- * `test.fails` because it hits the same known y-prosemirror
- * `deltaToPSteps` bug that affects all type-changes-in-suggestion-mode
- * (see `typeChanges.test.tsx`).
  */
 import { SuggestionsExtension } from "@blocknote/core/y";
 import { expect, test } from "vite-plus/test";
@@ -209,9 +204,8 @@ test("suggestion mode: unindent a block", async () => {
   `);
 });
 
-// Change parent block's type while keeping its children. Hits the
-// known y-prosemirror type-change bug.
-test.fails("suggestion mode: change block type of a block with children", async () => {
+// Change parent block's type while keeping its children.
+test("suggestion mode: change block type of a block with children", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "parent → heading" });
 
@@ -231,14 +225,118 @@ test.fails("suggestion mode: change block type of a block with children", async 
   const [parent] = editor.document;
   editor.updateBlock(parent, { type: "heading", props: { level: 1 } });
 
-  await expect.poll(() => editor.document[0]?.type).toBe("heading");
+  // TODO: should this be editor.document[0], or expose .documentWithoutDeletions?
+  await expect.poll(() => editor.document[1]?.type).toBe("heading");
 
   await expectScreenshot(
     screen.getByTestId("editor-root"),
     "nesting-change-parent-type",
   );
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot();
-  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot();
-  expect(editorHtml(editor)).toMatchInlineSnapshot();
+  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="n0">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">N0</paragraph>
+        <blockGroup>
+          <blockContainer id="n1">
+            <paragraph backgroundColor="default" textAlignment="left" textColor="default">N1</paragraph>
+          </blockContainer>
+        </blockGroup>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDoc)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="n0">
+        <heading
+          backgroundColor="default"
+          isToggleable="false"
+          level="1"
+          textAlignment="left"
+          textColor="default"
+        >N0</heading>
+        <blockGroup>
+          <blockContainer id="n1">
+            <paragraph backgroundColor="default" textAlignment="left" textColor="default">N1</paragraph>
+          </blockContainer>
+        </blockGroup>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(editorHtml(editor)).toMatchInlineSnapshot(`
+    "<doc>
+      <blockGroup>
+        <y-attributed-delete
+          userIds=""
+          user-color-light="#fff0c2"
+          user-color-dark="#8a6d1a"
+        >
+          <blockContainer id="n0">
+            <paragraph backgroundColor="default" textColor="default" textAlignment="left">N0</paragraph>
+            <blockGroup>
+              <blockContainer id="n1">
+                <paragraph backgroundColor="default" textColor="default" textAlignment="left">N1</paragraph>
+              </blockContainer>
+            </blockGroup>
+          </blockContainer>
+        </y-attributed-delete>
+        <y-attributed-insert
+          userIds=""
+          user-color-light="#fff0c2"
+          user-color-dark="#8a6d1a"
+        >
+          <blockContainer id="n0">
+            <y-attributed-insert
+              userIds=""
+              user-color-light="#fff0c2"
+              user-color-dark="#8a6d1a"
+            >
+              <heading
+                backgroundColor="default"
+                textColor="default"
+                textAlignment="left"
+                level="1"
+                isToggleable="false"
+              >
+                <y-attributed-insert
+                  userIds=""
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >N0</y-attributed-insert>
+              </heading>
+            </y-attributed-insert>
+            <y-attributed-insert
+              userIds=""
+              user-color-light="#fff0c2"
+              user-color-dark="#8a6d1a"
+            >
+              <blockGroup>
+                <y-attributed-insert
+                  userIds=""
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >
+                  <blockContainer id="n1">
+                    <y-attributed-insert
+                      userIds=""
+                      user-color-light="#fff0c2"
+                      user-color-dark="#8a6d1a"
+                    >
+                      <paragraph backgroundColor="default" textColor="default" textAlignment="left">
+                        <y-attributed-insert
+                          userIds=""
+                          user-color-light="#fff0c2"
+                          user-color-dark="#8a6d1a"
+                        >N1</y-attributed-insert>
+                      </paragraph>
+                    </y-attributed-insert>
+                  </blockContainer>
+                </y-attributed-insert>
+              </blockGroup>
+            </y-attributed-insert>
+          </blockContainer>
+        </y-attributed-insert>
+      </blockGroup>
+    </doc>"
+  `);
 });

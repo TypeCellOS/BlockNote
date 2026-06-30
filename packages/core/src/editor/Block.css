@@ -878,6 +878,26 @@ hence the descendant match.
 }
 
 /*
+Deleted table cells are a special case: a <tr>/<td> has no `.bn-block-content` and
+its text sits in a bare <p> (not `.bn-inline-content`), so neither the
+strikethrough above nor the block card reaches it — and a table row/cell can't
+host the "Deleted" card anyway. Treat them like inline deletions instead: strike
+the cell text through in the author's color, and suppress the fallback badge.
+*/
+.bn-suggestion-node--delete :is(td, th) p {
+  color: var(--user-color-dark);
+  text-decoration: line-through;
+}
+
+.dark.bn-root .bn-suggestion-node--delete :is(td, th) p {
+  color: var(--user-color-light);
+}
+
+.bn-suggestion-node--delete > :is(table, tr, td, th):first-child::before {
+  content: none;
+}
+
+/*
 A block with NO inline content (image, file, divider, whole table, …) has no text
 to mark up, so the suggestion is shown as a filled card in the author's color, per
 block — on insertions and deletions alike. The card lives on `.bn-block-content`

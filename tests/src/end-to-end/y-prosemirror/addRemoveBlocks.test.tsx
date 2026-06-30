@@ -805,17 +805,14 @@ test("suggestion mode: add paragraph after existing block", async () => {
   `);
 });
 
-// TODO: block-level deletions DO carry a node-level
-// `<y-attributed-delete>` mark in the PM doc (visible in the snapshots
-// below), so the data is there. But that mark only has an inline
-// `toDOM` (renders text-content deletions as `<del>` with strikethrough
-// – see SuggestionMarks.ts) and no styling at the block level, so the
-// deleted block still *visually* renders identically to an accepted
-// block. Decide whether block-level `<y-attributed-delete>` should
-// also have a visible affordance (a left bar, fade-out, …) so
-// reviewers can tell from the editor that a block is pending removal.
+// Block-level deletions render with a visible affordance so reviewers can spot a
+// pending removal: a deleted block with inline content strikes its text through
+// in the author's color, while one with no inline content (image, divider, …)
+// shows a filled "Deleted" card (both styled per `.bn-block-content` in
+// Block.css). The node-level `<y-attributed-delete>` mark in the PM doc (visible
+// in the snapshots) carries the data.
 //
-// Heading + paragraph -> remove the paragraph.
+// Heading + paragraph -> remove the paragraph; the deleted body strikes through.
 test("suggestion mode: remove paragraph from heading+paragraph", async () => {
   const { editor, screen, baseDoc, suggestionDoc, sync } =
     await setupSuggestionTest({ userAction: "remove body" });

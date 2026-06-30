@@ -2,11 +2,6 @@
 /**
  * Vitest browser-mode tests for two-user concurrent type-change
  * suggestions. Same shape as `propChanges.concurrent.test.tsx`.
- *
- * KNOWN BUG: see `typeChanges.test.tsx` – block-type changes in
- * suggestion mode currently throw in y-prosemirror's `deltaToPSteps`.
- * Both tests below are marked `test.fails`; when the upstream bug is
- * fixed they will flip red and we can capture proper snapshots.
  */
 import { expect, test } from "vite-plus/test";
 import { expectScreenshot, expectVisible } from "./fixtures/browserExpect.js";
@@ -16,7 +11,7 @@ import { editorHtml, ydocXml } from "./fixtures/suggestionFixture.js";
 
 // Two competing type changes on the same block: A wants a heading, B
 // wants a list item.
-test.fails("concurrent: A → heading, B → list item", async () => {
+test("concurrent: A → heading, B → list item", async () => {
   const {
     userA,
     userB,
@@ -53,9 +48,10 @@ test.fails("concurrent: A → heading, B → list item", async () => {
   const [blockB] = userB.editor.document;
   userB.editor.updateBlock(blockB, { type: "bulletListItem" });
 
-  await expect.poll(() => userA.editor.document[0]?.type).toBe("heading");
+  // TODO: should this be editor.document[0], or expose .documentWithoutDeletions?
+  await expect.poll(() => userA.editor.document[1]?.type).toBe("heading");
   await expect
-    .poll(() => userB.editor.document[0]?.type)
+    .poll(() => userB.editor.document[1]?.type)
     .toBe("bulletListItem");
 
   sync();
@@ -65,17 +61,130 @@ test.fails("concurrent: A → heading, B → list item", async () => {
     "concurrent-heading-vs-list",
   );
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot();
-  expect(ydocXml(suggestionDocA)).toMatchInlineSnapshot();
-  expect(ydocXml(suggestionDocB)).toMatchInlineSnapshot();
-  expect(ydocXml(suggestionDocMerged)).toMatchInlineSnapshot();
-  expect(editorHtml(merged.editor)).toMatchInlineSnapshot();
+  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="block-hello">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDocA)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="block-hello">
+        <heading
+          backgroundColor="default"
+          isToggleable="false"
+          level="1"
+          textAlignment="left"
+          textColor="default"
+        >hello world</heading>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDocB)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="block-hello">
+        <bulletListItem
+          backgroundColor="default"
+          textAlignment="left"
+          textColor="default"
+        >hello world</bulletListItem>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDocMerged)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="block-hello">
+        <heading
+          backgroundColor="default"
+          isToggleable="false"
+          level="1"
+          textAlignment="left"
+          textColor="default"
+        >hello world</heading>
+      </blockContainer>
+      <blockContainer id="block-hello">
+        <bulletListItem
+          backgroundColor="default"
+          textAlignment="left"
+          textColor="default"
+        >hello world</bulletListItem>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(editorHtml(merged.editor)).toMatchInlineSnapshot(`
+    "<doc>
+      <blockGroup>
+        <y-attributed-delete
+          userIds=""
+          user-color-light="#fff0c2"
+          user-color-dark="#8a6d1a"
+        >
+          <blockContainer id="block-hello">
+            <paragraph backgroundColor="default" textColor="default" textAlignment="left">hello world</paragraph>
+          </blockContainer>
+        </y-attributed-delete>
+        <y-attributed-insert
+          userIds=""
+          user-color-light="#fff0c2"
+          user-color-dark="#8a6d1a"
+        >
+          <blockContainer id="block-hello">
+            <y-attributed-insert
+              userIds=""
+              user-color-light="#fff0c2"
+              user-color-dark="#8a6d1a"
+            >
+              <heading
+                backgroundColor="default"
+                textColor="default"
+                textAlignment="left"
+                level="1"
+                isToggleable="false"
+              >
+                <y-attributed-insert
+                  userIds=""
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >hello world</y-attributed-insert>
+              </heading>
+            </y-attributed-insert>
+          </blockContainer>
+        </y-attributed-insert>
+        <y-attributed-insert
+          userIds=""
+          user-color-light="#fff0c2"
+          user-color-dark="#8a6d1a"
+        >
+          <blockContainer id="block-hello">
+            <y-attributed-insert
+              userIds=""
+              user-color-light="#fff0c2"
+              user-color-dark="#8a6d1a"
+            >
+              <bulletListItem
+                backgroundColor="default"
+                textColor="default"
+                textAlignment="left"
+              >
+                <y-attributed-insert
+                  userIds=""
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >hello world</y-attributed-insert>
+              </bulletListItem>
+            </y-attributed-insert>
+          </blockContainer>
+        </y-attributed-insert>
+      </blockGroup>
+    </doc>"
+  `);
 });
 
 // Mixed: A does a text edit (no type change), B changes the type.
 // Exercises the path where one user's suggestion is a regular text
 // diff and the other's is a block-type swap.
-test.fails("concurrent: A edits text, B → heading", async () => {
+test("concurrent: A edits text, B → heading", async () => {
   const {
     userA,
     userB,
@@ -120,7 +229,8 @@ test.fails("concurrent: A edits text, B → heading", async () => {
       userA.editor.prosemirrorState.doc.toString().includes("y-attributed"),
     )
     .toBe(true);
-  await expect.poll(() => userB.editor.document[0]?.type).toBe("heading");
+  // TODO: should this be editor.document[0], or expose .documentWithoutDeletions?
+  await expect.poll(() => userB.editor.document[1]?.type).toBe("heading");
 
   sync();
 
@@ -129,9 +239,98 @@ test.fails("concurrent: A edits text, B → heading", async () => {
     "concurrent-text-edit-vs-heading",
   );
 
-  expect(ydocXml(baseDoc)).toMatchInlineSnapshot();
-  expect(ydocXml(suggestionDocA)).toMatchInlineSnapshot();
-  expect(ydocXml(suggestionDocB)).toMatchInlineSnapshot();
-  expect(ydocXml(suggestionDocMerged)).toMatchInlineSnapshot();
-  expect(editorHtml(merged.editor)).toMatchInlineSnapshot();
+  expect(ydocXml(baseDoc)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="block-hello">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello world</paragraph>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDocA)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="block-hello">
+        <paragraph backgroundColor="default" textAlignment="left" textColor="default">hello universe</paragraph>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDocB)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="block-hello">
+        <heading
+          backgroundColor="default"
+          isToggleable="false"
+          level="1"
+          textAlignment="left"
+          textColor="default"
+        >hello world</heading>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(ydocXml(suggestionDocMerged)).toMatchInlineSnapshot(`
+    "<blockGroup>
+      <blockContainer id="block-hello">
+        <heading
+          backgroundColor="default"
+          isToggleable="false"
+          level="1"
+          textAlignment="left"
+          textColor="default"
+        >hello world</heading>
+      </blockContainer>
+    </blockGroup>"
+  `);
+  expect(editorHtml(merged.editor)).toMatchInlineSnapshot(`
+    "<doc>
+      <blockGroup>
+        <y-attributed-delete
+          userIds=""
+          user-color-light="#fff0c2"
+          user-color-dark="#8a6d1a"
+        >
+          <blockContainer id="block-hello">
+            <y-attributed-delete
+              userIds=""
+              user-color-light="#fff0c2"
+              user-color-dark="#8a6d1a"
+            >
+              <paragraph backgroundColor="default" textColor="default" textAlignment="left">
+                <y-attributed-delete
+                  userIds=""
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >hello world</y-attributed-delete>
+              </paragraph>
+            </y-attributed-delete>
+          </blockContainer>
+        </y-attributed-delete>
+        <y-attributed-insert
+          userIds=""
+          user-color-light="#fff0c2"
+          user-color-dark="#8a6d1a"
+        >
+          <blockContainer id="block-hello">
+            <y-attributed-insert
+              userIds=""
+              user-color-light="#fff0c2"
+              user-color-dark="#8a6d1a"
+            >
+              <heading
+                backgroundColor="default"
+                textColor="default"
+                textAlignment="left"
+                level="1"
+                isToggleable="false"
+              >
+                <y-attributed-insert
+                  userIds=""
+                  user-color-light="#fff0c2"
+                  user-color-dark="#8a6d1a"
+                >hello world</y-attributed-insert>
+              </heading>
+            </y-attributed-insert>
+          </blockContainer>
+        </y-attributed-insert>
+      </blockGroup>
+    </doc>"
+  `);
 });
