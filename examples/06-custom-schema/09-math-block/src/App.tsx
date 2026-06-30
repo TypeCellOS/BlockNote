@@ -33,31 +33,30 @@ const schema = BlockNoteSchema.create().extend({
 
 // Slash menu item to insert a Math block.
 const insertMath = (editor: typeof schema.BlockNoteEditor) => ({
-  title: "Math",
+  title: "Math Block",
   subtext: "Insert a LaTeX math formula",
   onItemClick: () =>
     insertOrUpdateBlockForSlashMenu(editor, {
       type: "math",
     }),
   aliases: ["math", "latex", "formula", "equation"],
-  group: "Basic blocks",
+  group: "Advanced",
   icon: <TbMathFunction />,
 });
 
 // Slash menu item to insert an inline Math equation.
 const insertInlineMath = (editor: typeof schema.BlockNoteEditor) => ({
-  title: "Inline Math",
-  subtext: "Insert an inline LaTeX math formula",
+  title: "Inline Equation",
+  subtext: "Insert an inline LaTeX equation",
   onItemClick: () => {
     editor.insertInlineContent([
-      // Inserts an empty inline equation, ready to be edited.
       { type: "inlineMath", content: "" },
       // Adds a trailing space so the cursor can leave the equation.
       " ",
     ]);
   },
-  aliases: ["inline math", "inline latex", "inline formula", "inline equation"],
-  group: "Inline",
+  aliases: ["math", "latex", "formula", "equation"],
+  group: "Advanced",
   icon: <TbMathFunction />,
 });
 
@@ -108,14 +107,13 @@ export default function App() {
         getItems={async (query) => {
           // Gets all default slash menu items.
           const defaultItems = getDefaultReactSlashMenuItems(editor);
-          // Finds index of last item in "Basic blocks" group.
-          const lastBasicBlockIndex = defaultItems.findLastIndex(
-            (item) => item.group === "Basic blocks",
+          // Finds index of last item in "Advanced" group.
+          const lastAdvancedIndex = defaultItems.findLastIndex(
+            (item) => item.group === "Advanced",
           );
-          // Inserts the Math item as the last item in the "Basic blocks" group,
-          // followed by the inline Math item.
+          // Inserts the Math items at the end of the "Advanced" group.
           defaultItems.splice(
-            lastBasicBlockIndex + 1,
+            lastAdvancedIndex + 1,
             0,
             insertMath(editor),
             insertInlineMath(editor),

@@ -5,32 +5,18 @@ import {
   useExtensionState,
 } from "@blocknote/react";
 import { MouseEvent, useEffect, useRef } from "react";
-import type { MathBlockConfig } from "../../block.js";
-import { getMathSource } from "../getMathSource.js";
-import { useKatexPreview } from "./useKatexPreview.js";
 
-// Shown in place of the preview when the math content has no source yet.
-export const AddSourceButton = (props: { text: string }) => (
-  <div className="bn-add-source-code-button" contentEditable={false}>
-    <div className="bn-add-source-code-button-icon">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="currentColor"
-      >
-        <path d="M24 12l-5.657 5.657-1.414-1.414L21.172 12l-4.243-4.243 1.414-1.414L24 12zM2.828 12l4.243 4.243-1.414 1.414L0 12l5.657-5.657 1.414 1.414L2.828 12z"></path>
-      </svg>
-    </div>
-    <p className="bn-add-source-code-button-text">{props.text}</p>
-  </div>
-);
+import { MathBlockConfig } from "../../createMathBlockConfig.js";
+import { getMathPlainTextContent } from "../../../shared/getMathPlainTextContent.js";
+import { AddSourceButton } from "../../../shared/react/AddSourceButton.js";
+import { useLatexToMathMLString } from "../../../shared/react/useLatexToMathML.js";
 
-export const MathPreview = (
+export const MathBlockPreviewWithPopup = (
   props: ReactCustomBlockRenderProps<MathBlockConfig>,
 ) => {
   const { block, editor, contentRef } = props;
 
-  const source = getMathSource(block);
+  const source = getMathPlainTextContent(block.content);
 
   const { store } = useExtension(SourceBlockWithPreviewExtension, { editor });
   const popupOpen = useExtensionState(SourceBlockWithPreviewExtension, {
@@ -51,7 +37,7 @@ export const MathPreview = (
       ?.classList.toggle("ProseMirror-selectednode", selected);
   }, [selected]);
 
-  const { html, error } = useKatexPreview(source, true);
+  const { mathMLString, error } = useLatexToMathMLString(source);
 
   // Opens the popup when clicking the preview.
   const handleMouseDown = (event: MouseEvent) => {
@@ -80,7 +66,7 @@ export const MathPreview = (
         onMouseDown={handleMouseDown}
       >
         {source.length > 0 ? (
-          <span dangerouslySetInnerHTML={{ __html: html }} />
+          <span dangerouslySetInnerHTML={{ __html: mathMLString }} />
         ) : (
           <AddSourceButton
             text={editor.dictionary.code_block.add_source_button_text}

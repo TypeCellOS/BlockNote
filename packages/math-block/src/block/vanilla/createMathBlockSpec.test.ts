@@ -1,6 +1,6 @@
 import { BlockNoteEditor, BlockNoteSchema } from "@blocknote/core";
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
-import { createMathBlockSpec } from "./block.js";
+import { createMathBlockSpec } from "./createMathBlockSpec.js";
 
 /**
  * @vitest-environment jsdom

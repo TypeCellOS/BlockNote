@@ -6,22 +6,23 @@ import {
 } from "@blocknote/react";
 import { TextSelection } from "prosemirror-state";
 import { MouseEvent, useEffect, useRef } from "react";
-import { getMathSource } from "../helpers/getMathSource.js";
-import { AddSourceButton } from "../helpers/render/MathPreview.js";
-import { useKatexPreview } from "../helpers/render/useKatexPreview.js";
-import { inlineMathConfig } from "./inlineMathConfig.js";
-import { SourceInlineContentWithPreviewExtension } from "./SourceInlineContentWithPreviewExtension.js";
 
-export const InlineMathPreview = (
+import { MathInlineContentConfig } from "../../mathInlineContentConfig.js";
+import { SourceInlineContentWithPreviewExtension } from "../../SourceInlineContentWithPreviewExtension.js";
+import { getMathPlainTextContent } from "../../../shared/getMathPlainTextContent.js";
+import { AddSourceButton } from "../../../shared/react/AddSourceButton.js";
+import { useLatexToMathMLString } from "../../../shared/react/useLatexToMathML.js";
+
+export const MathInlinePreviewWithPopup = (
   props: ReactCustomInlineContentRenderProps<
-    typeof inlineMathConfig,
+    MathInlineContentConfig,
     StyleSchema
   >,
 ) => {
   const { inlineContent, editor, contentRef, node, getPos } = props;
   const pos = getPos();
 
-  const source = getMathSource(inlineContent);
+  const source = getMathPlainTextContent(inlineContent.content);
 
   const { store } = useExtension(SourceInlineContentWithPreviewExtension, {
     editor,
@@ -40,7 +41,7 @@ export const InlineMathPreview = (
       ?.classList.toggle("ProseMirror-selectednode", selected);
   }, [selected]);
 
-  const { html, error } = useKatexPreview(source, true);
+  const { mathMLString, error } = useLatexToMathMLString(source, true);
 
   // Opens the popup when clicking the preview.
   const handleMouseDown = (event: MouseEvent) => {
@@ -65,16 +66,16 @@ export const InlineMathPreview = (
   return (
     <span
       ref={rootRef}
-      className={"bn-inline-source-content"}
+      className="bn-preview-with-source-popup"
       data-open={selected ? "true" : "false"}
     >
       <span
-        className="bn-inline-source-preview"
+        className="bn-preview-container"
         contentEditable={false}
         onMouseDown={handleMouseDown}
       >
         {source.length > 0 ? (
-          <span dangerouslySetInnerHTML={{ __html: html }} />
+          <span dangerouslySetInnerHTML={{ __html: mathMLString }} />
         ) : (
           <AddSourceButton
             text={editor.dictionary.code_block.add_source_button_text}

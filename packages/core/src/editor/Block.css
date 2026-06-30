@@ -528,8 +528,6 @@ NESTED BLOCKS
   white-space: pre-wrap;
 }
 
-/* Shown in place of the preview when the source is empty. Mirrors the file
-block's "add file" button styling. */
 .bn-add-source-code-button {
   align-items: center;
   background-color: rgb(242, 241, 238);
@@ -555,6 +553,7 @@ block's "add file" button styling. */
 }
 
 .bn-add-source-code-button-icon {
+  display: flex;
   width: 24px;
   height: 24px;
 }
@@ -564,54 +563,45 @@ block's "add file" button styling. */
   margin: 0;
 }
 
-/* INLINE SOURCE CONTENT PREVIEW */
-/* Inline-content counterpart of the code block preview above. Reuses
-   `.bn-source-block-popup` and `.bn-code-block-source-error` for the popup. */
-.bn-inline-source-content {
-  /* Positioning context for the absolutely-positioned source popup, while
-     staying inline with the surrounding text. */
-  position: relative;
+/* INLINE MATH PREVIEW */
+/* Shares the block-preview markup/classes; these rules override the
+   block-preview defaults that don't suit inline use. */
+.bn-inline-content-section .bn-preview-with-source-popup {
   display: inline-block;
+  vertical-align: middle;
 }
 
-.bn-inline-source-preview {
+.bn-inline-content-section .bn-preview-container {
+  padding: 0;
+  min-height: 0;
   cursor: pointer;
 }
 
-/* The shared popup stretches edge-to-edge for the (full-width) code block; for
-   inline content it sits below the preview and sizes to its source instead. */
-.bn-inline-source-content .bn-source-block-popup {
-  right: auto;
-  width: max-content;
-  min-width: 120px;
-  max-width: min(400px, 90vw);
+.bn-inline-content-section .bn-source-block-popup {
+  width: 300px;
 }
 
 /* Keeps the popup from collapsing to a sliver while the source is empty. */
-.bn-inline-source-content .bn-source-block-popup > pre {
+.bn-inline-content-section .bn-source-block-popup > pre {
   min-height: 1.5em;
   box-sizing: content-box;
 }
 
-.bn-inline-source-content[data-open="true"] .bn-source-block-popup {
-  opacity: 1;
-  pointer-events: auto;
-}
-
 /* The "add source" button sits inline among text, so it needs to be compact
    rather than the full-size block-preview button. */
-.bn-inline-source-content .bn-add-source-code-button {
+.bn-inline-content-section .bn-add-source-code-button {
   display: inline-flex;
   gap: 4px;
+  margin-inline: 4px;
   padding: 1px 6px;
 }
 
-.bn-inline-source-content .bn-add-source-code-button-icon {
-  width: 1em;
-  height: 1em;
+.bn-inline-content-section .bn-add-source-code-button-icon {
+  width: 16px;
+  height: 16px;
 }
 
-.bn-inline-source-content .bn-add-source-code-button-text {
+.bn-inline-content-section .bn-add-source-code-button-text {
   font-size: 0.85em;
 }
 
